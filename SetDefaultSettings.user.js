@@ -1,6 +1,5 @@
 // ==UserScript==
 // @name     HentaiHeroes autologin and parameters settings
-// @match    http*://*.hentaiheroes.com/*
 // @namespace    https://github.com/Roukys/HHauto
 // @version      1
 // @description  Auto login and setUp parameters
