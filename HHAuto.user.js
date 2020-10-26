@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
-// @namespace    JDscripts
+// @namespace    https://github.com/Roukys/HHauto
 // @version      5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
@@ -8,6 +8,8 @@
 // @match        http*://*.hentaiheroes.com/*
 // @grant        GM_addStyle
 // @license      MIT
+// @updateURL   https://github.com/Roukys/HHauto/raw/main/HHAuto.user.js
+// @downloadURL https://github.com/Roukys/HHauto/raw/main/HHAuto.user.js
 // ==/UserScript==
 
 GM_addStyle('/* The switch - the box around the slider */ .switch { position: relative; display: inline-block; width: 40px; height: 24px; } /* Hide default HTML checkbox */ .switch input {display:none;} /* The slider */ .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; -webkit-transition: .4s; transition: .4s; } .slider.round:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; -webkit-transition: .4s; transition: .4s; } input:checked + .slider { background-color: #2196F3; } input:focus + .slider { box-shadow: 0 0 1px #2196F3; } input:checked + .slider:before { -webkit-transform: translateX(16px); -ms-transform: translateX(16px); transform: translateX(16px); } /* Rounded sliders */ .slider.round { border-radius: 24px; } .slider.round:before { border-radius: 50%; }');
