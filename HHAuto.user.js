@@ -108,7 +108,12 @@ function gotoPage(page)
         // get page path
         switch(page)
         {
+            case "home":
+                togoto = $("nav div[rel='content'] a:has(.home)").attr("href");
+                break;
             case "missions":
+                togoto = $("nav div[rel='content'] a:has(.activities)").attr("href");
+                break;
             case "powerplaces1":
                 togoto = $("nav div[rel='content'] a:has(.activities)").attr("href");
                 break;
@@ -675,14 +680,8 @@ var CollectMoney = function()
 
 var getSalary = function () {
     try {
-        if(!gotoPage("harem"))
+        if(getPage() == "harem")
         {
-            // Not at Harem screen then goto the Harem screen.
-            console.log("Navigating to Harem window.");
-            // return busy
-            return true;
-        }
-        else {
             console.log("Detected Harem Screen. Fetching Salary");
             is_cheat_click=function(e) {
                 return false;
@@ -692,6 +691,50 @@ var getSalary = function () {
             // return busy
             return true;
         }
+        else if (getPage() == "home")
+        {
+            var salaryButton = $("#collect_all_container button[id='collect_all']")
+            var salaryToCollect = salaryButton.attr("style")==="display: inline-block;"?true:false;
+            var getButtonClass = salaryButton.attr("class");
+            console.log(salaryToCollect,getButtonClass);
+            if (salaryToCollect)
+            {
+                if (getButtonClass === "blue_button_L")
+                {
+                    is_cheat_click=function(e) {
+                        return false;
+                    };
+                    salaryButton.click();
+                    console.log('Collected all Premium salary');
+                    return true;
+                }
+                else if ( getButtonClass === "orange_button_L")
+                {
+                    // Not at Harem screen then goto the Harem screen.
+                    console.log("Navigating to Harem window.");
+                    gotoPage("harem");
+                    // return busy
+                    return true;
+
+                }
+                else
+                {
+                    console.log("Unknown salary button color : "+getButtonClass);
+                }
+            }
+            else
+            {
+                console.log("No salary to collect");
+            }
+        }
+        else
+        {
+            // Not at Harem screen then goto the Harem screen.
+            console.log("Navigating to Home window.");
+            gotoPage("home");
+            return true;
+        }
+
     }
     catch (ex) {
         console.log("Could not collect salary... " + ex);
@@ -1076,10 +1119,10 @@ var doSeason = function () {
             return ""
         }
     }
-//     else if (page==="battle")
-//     {
-//         CrushThem();
-//     }
+    //     else if (page==="battle")
+    //     {
+    //         CrushThem();
+    //     }
     else
     {
         // Switch to the correct screen
@@ -1162,7 +1205,7 @@ var doLeagueBattle = function () {
         // console.log('ls! '+$('h4.leagues').size());
         $('h4.leagues').each(function(){this.click();});
 
-        if(currentPower < 2)
+        if(currentPower < 1)
         {
             console.log("No power for leagues.");
             for(var e in unsafeWindow.HHTimers.timers){
@@ -1195,7 +1238,7 @@ var doLeagueBattle = function () {
         {
             console.log(Data.length+' valid targets!');
             sessionStorage.autoLoop = "false";
-            console.log("Hit?");
+            console.log("Hit?" );
             location.href = "/battle.html?league_battle=1&id_member=" + $(Data[0]).attr("sorting_id")
         }
     }
