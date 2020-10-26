@@ -3,7 +3,7 @@
 // @match    http*://*.hentaiheroes.com/*
 // @namespace    https://github.com/Roukys/HHauto
 // @version      1
-// @description  Auto login and force parameters
+// @description  Auto login and setUp parameters
 // @author       roukys
 // @match        http*://*.hentaiheroes.com/*
 // @license      MIT
