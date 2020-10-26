@@ -109,6 +109,8 @@ function gotoPage(page)
         switch(page)
         {
             case "missions":
+                togoto = $("nav div[rel='content'] a:has(.activities)").attr("href");
+                break;
             case "powerplaces1":
                 togoto = $("nav div[rel='content'] a:has(.activities)").attr("href");
                 break;
@@ -1162,7 +1164,7 @@ var doLeagueBattle = function () {
         // console.log('ls! '+$('h4.leagues').size());
         $('h4.leagues').each(function(){this.click();});
 
-        if(currentPower < 2)
+        if(currentPower < 1)
         {
             console.log("No power for leagues.");
             for(var e in unsafeWindow.HHTimers.timers){
