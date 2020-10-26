@@ -1,7 +1,15 @@
 // ==UserScript==
-// @name     autologin and var mod for HH
+// @name     HentaiHeroes autologin and parameters settings
 // @match    http*://*.hentaiheroes.com/*
+// @namespace    https://github.com/Roukys/HHauto
+// @version      1
+// @description  Auto login and force parameters
+// @author       roukys
+// @match        http*://*.hentaiheroes.com/*
+// @license      MIT
+// @downloadURL https://github.com/Roukys/HHauto/raw/main/SetDefaultSettings.user.js
 // ==/UserScript==
+
 
 var usr = "username";
 var pword = "password";
