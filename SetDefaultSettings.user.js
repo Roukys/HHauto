@@ -26,7 +26,13 @@ function loginOnHH (user, passwd)
         document.getElementsByName('password')[0].value = passwd;
         document.getElementsByClassName('steel2 b_m')[0].click();
     }
-}
+};
+
+function Storage()
+{
+
+    return localStorage.settPerTab=="true"?sessionStorage:localStorage;
+};
 
 function setDefaults ()
 {
@@ -137,4 +143,4 @@ function setDefaults ()
   //to define
   Storage().autoEGMW = "false";
   Storage().autoEGM = "999999999";
-}
+};
