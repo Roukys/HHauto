@@ -694,6 +694,7 @@ var getSalary = function () {
                     };
                     salaryButton.click();
                     console.log('Collected all Premium salary');
+                    setTimer('nextSalaryTime',Number(Storage().autoSalaryTimer?Storage().autoSalaryTimer:"120")+1);
                     return true;
                 }
                 else if ( getButtonClass === "orange_button_L")
@@ -708,11 +709,13 @@ var getSalary = function () {
                 else
                 {
                     console.log("Unknown salary button color : "+getButtonClass);
+                    setTimer('nextSalaryTime',Number(Storage().autoSalaryTimer?Storage().autoSalaryTimer:"120")+1);
                 }
             }
             else
             {
                 console.log("No salary to collect");
+                setTimer('nextSalaryTime',Number(Storage().autoSalaryTimer?Storage().autoSalaryTimer:"120")+1);
             }
         }
         else
