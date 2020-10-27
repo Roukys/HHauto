@@ -54,7 +54,7 @@ function getPage()
         if (p=="missions" && $('h4.pop.selected').size()>0)
         {
             var t=$(".pop_thumb_selected").attr("index");
-            return "powerplaces"+t
+            return "powerplace"+t
         }
         else
         {
@@ -78,7 +78,16 @@ function gotoPage(page)
 {
     var cp=getPage();
     console.log('going '+cp+'->'+page);
-    if(getPage() === page)
+    var index;
+    var originalPage = page;
+    if (page.startsWith('powerplace'))
+    {
+        index = page.substring('powerplace'.length);
+        console.log('Powerplace index : '+index);
+        page = 'powerplace';
+    }
+
+    if(getPage() === originalPage)
     {
         if (page=='missions')
         {
@@ -88,15 +97,7 @@ function gotoPage(page)
         {
             $('h4.contests').each(function(){this.click();});
         }
-        if (page=='powerplaces1')
-        {
-            $('h4.pop').each(function(){this.click();});
-        }
-        if (page=='powerplaces2')
-        {
-            $('h4.pop').each(function(){this.click();});
-        }
-        if (page=='powerplaces3')
+        if (page=='powerplace')
         {
             $('h4.pop').each(function(){this.click();});
         }
@@ -104,8 +105,8 @@ function gotoPage(page)
     }
     else
     {
-        console.log("Navigating to page: "+page);
         var togoto = undefined;
+
         // get page path
         switch(page)
         {
@@ -115,13 +116,7 @@ function gotoPage(page)
             case "missions":
                 togoto = $("nav div[rel='content'] a:has(.activities)").attr("href");
                 break;
-            case "powerplaces1":
-                togoto = $("nav div[rel='content'] a:has(.activities)").attr("href");
-                break;
-            case "powerplaces2":
-                togoto = $("nav div[rel='content'] a:has(.activities)").attr("href");
-                break;
-            case "powerplaces3":
+            case "powerplace":
                 togoto = $("nav div[rel='content'] a:has(.activities)").attr("href");
                 break;
             case "activities":
@@ -178,22 +173,14 @@ function gotoPage(page)
             {
                 togoto = url_add_param(togoto, "tab=" + "contests");
             }
-            if (page=="powerplaces1")
+            if (page=="powerplace")
             {
                 togoto = url_add_param(togoto, "tab=" + "pop");
-                togoto = url_add_param(togoto, "index=" + "1");
+                togoto = url_add_param(togoto, "index=" + index);
             }
-            if (page=="powerplaces2")
-            {
-                togoto = url_add_param(togoto, "tab=" + "pop");
-                togoto = url_add_param(togoto, "index=" + "2");
-            }
-            if (page=="powerplaces3")
-            {
-                togoto = url_add_param(togoto, "tab=" + "pop");
-                togoto = url_add_param(togoto, "index=" + "3");
-            }
+            
             sessionStorage.autoLoop = "false";
+            console.log('GotoPage : '+togoto);
             window.location = window.location.origin + togoto;
         }
         else console.log("Couldn't find page path. Page was undefined...");
@@ -483,16 +470,16 @@ function doMissionStuff()
 function doPowerPlacesStuff(index)
 {
 
-    if(!gotoPage("powerplaces"+index))
+    if(!gotoPage("powerplace"+index))
     {
-        console.log("Navigating to powerplaces"+index+" page.");
+        console.log("Navigating to powerplace"+index+" page.");
         // return busy
         return true;
     }
     else
     {
-        console.log("On powerplaces"+index+" page.");
-        console.log("Collecting finished powerplaces"+index+"'s reward.");
+        console.log("On powerplace"+index+" page.");
+        console.log("Collecting finished powerplace"+index+"'s reward.");
         $("button[rel='pop_claim']").click();
 
         console.log("Autofill for next powerplace"+index+" action.");
@@ -522,7 +509,7 @@ function doPowerPlacesStuff(index)
             }
         }}catch(e){}
         if(time === undefined){
-            console.log("New powerplaces time was undefined... Setting it manually to 10min.");
+            console.log("New powerplace time was undefined... Setting it manually to 10min.");
             time = 10*60;
         }
         setTimer('nextPowerPlacesTime'+index,Number(time)+1);
