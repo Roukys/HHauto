@@ -1,3 +1,4 @@
+
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
@@ -1202,9 +1203,17 @@ var doLeagueBattle = function () {
     }
     else if(page === "leaderboard")
     {
+        console.log("On leaderboard page.");
         // console.log('ls! '+$('h4.leagues').size());
         $('h4.leagues').each(function(){this.click();});
-
+        var GetPlayerLineRank = $("tr[class=personal_highlight] td span")[0].innerText;
+        if (isNaN(GetPlayerLineRank) && Number(Storage().autoLeaguesMaxRank) != 0)
+        {
+            console.log("Could not get current Rank, stopping League.");
+            setTimer('nextLeaguesTime',Number(30*60)+1);
+            return;
+        }
+        var currentRank = Number($("tr[class=personal_highlight] td span")[0].innerText);
         if(currentPower < 1)
         {
             console.log("No power for leagues.");
@@ -1219,6 +1228,14 @@ var doLeagueBattle = function () {
             setTimer('nextLeaguesTime',ltime);
             return;
         }
+
+        if (currentRank <= Number(Storage().autoLeaguesMaxRank))
+        {
+            console.log("Max League rank reached, setting timer to 30 mins");
+            setTimer('nextLeaguesTime',Number(30*60)+1);
+            return;
+        }
+
 
         while ($("span[sort_by='level'][select='asc']").size()==0)
         {
@@ -1416,6 +1433,7 @@ var updateData = function () {
     Storage().autoArenaBattle = document.getElementById("autoArenaCheckbox").checked;
     Storage().autoSeason = document.getElementById("autoSeasonCheckbox").checked;
     Storage().autoLeagues = document.getElementById("autoLeagues").checked;
+    Storage().autoLeaguesMaxRank = document.getElementById("autoLeaguesMaxRank").value;
     Storage().autoStats = document.getElementById("autoStats").value;
     Storage().paranoia = document.getElementById("paranoia").checked;
     Storage().autoFreePachinko = document.getElementById("autoFreePachinko").checked;
@@ -2060,6 +2078,7 @@ var setDefaults = function () {
     Storage().autoPowerPlacesIndexFilter = "1;2;3";
     Storage().autoMissionC = "false";
     Storage().autoLeagues = "false";
+    Storage().autoLeaguesMaxRank = "0";
     Storage().autoStats = "500000000";
     sessionStorage.autoLoop = "true";
     sessionStorage.userLink = "none";
@@ -2267,7 +2286,14 @@ var start = function () {
                      +   '<span>Paranoia mode</span><div><label class=\"switch\"><input id=\"paranoia\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +  '</div>'
                      +  '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +   '<span>AutoLeagues</span><div><label class=\"switch\"><input id=\"autoLeagues\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>AutoLeagues</span><div><label class=\"switch\"><input id=\"autoLeagues\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>Max rank (0 for none)</span><div><input id="autoLeaguesMaxRank" type="text"></div>'
+                     +    '</div>'
+                     +   '</div>'
                      +   '<div style="display:flex;flex-direction:row;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>AutoPowerPlaces</span><div><label class=\"switch\"><input id=\"autoPowerPlaces\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
@@ -2328,6 +2354,7 @@ var start = function () {
     document.getElementById("autoSeasonCheckbox").checked = Storage().autoSeason === "true";
     document.getElementById("autoFreePachinko").checked = Storage().autoFreePachinko === "true";
     document.getElementById("autoLeagues").checked = Storage().autoLeagues === "true";
+    document.getElementById("autoLeaguesMaxRank").value = Storage().autoLeaguesMaxRank?Storage().autoLeaguesMaxRank:"0";
     document.getElementById("autoPowerPlaces").checked = Storage().autoPowerPlaces === "true";
     document.getElementById("autoPowerPlacesIndexFilter").value = Storage().autoPowerPlacesIndexFilter?Storage().autoPowerPlacesIndexFilter:"1;2;3";
     document.getElementById("autoStats").value = Storage().autoStats?Storage().autoStats:"500000000";
