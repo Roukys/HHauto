@@ -1370,7 +1370,7 @@ var doSeason = function () {
     {
         console.log("On season arena page.");
 
-        //try{
+        try{
             var minID = -1;
             var scoreRating = -1;
             var oppoName;
@@ -1447,15 +1447,15 @@ var doSeason = function () {
 
             if (minID != -1 )
             {
-                //location.href = document.getElementsByClassName("opponent_perform_button_container")[minID].children[0].getAttribute('href');
+                location.href = document.getElementsByClassName("opponent_perform_button_container")[minID].children[0].getAttribute('href');
                 console.log("Going to crush : "+oppoName);
                 return true;
             }
-        //}
-        //catch(err)
-        //{
-        //    return ""
-        //}
+        }
+        catch(err)
+        {
+            return ""
+        }
     }
     //     else if (page==="battle")
     //     {
