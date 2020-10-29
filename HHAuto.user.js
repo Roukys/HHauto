@@ -2174,11 +2174,11 @@ var autoLoop = function () {
         }
         if(Storage().autoPowerPlaces === "true" && busy === false){
             var indexes=(Storage().autoPowerPlacesIndexFilter?Storage().autoPowerPlacesIndexFilter:"").split(";");
-            for(var index=0;index<indexes.length;index++)
+            for(var index of indexes)
             {
-                if (checkTimer('nextPowerPlacesTime'+indexes[index]) && busy === false){
-                    console.log("Time to do PowerPlaces"+indexes[index]+".");
-                    busy = doPowerPlacesStuff(indexes[index]);
+                if (checkTimer('nextPowerPlacesTime'+index) && busy === false){
+                    console.log("Time to do PowerPlaces"+index+".");
+                    busy = doPowerPlacesStuff(index);
                 }
             }
         }
