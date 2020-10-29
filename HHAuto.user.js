@@ -1129,22 +1129,6 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
         playerOmegaAdd = playerOmega.caracs.carac3;
     }
 
-
-    if (opponentDef.includes('.') || opponentDef.includes(',')) {
-        opponentDef = parseInt(opponentDef.replace('K', '00').replace(/[^0-9]/gi, ''));
-    }
-    else {
-        opponentDef = parseInt(opponentDef.replace('K', '000').replace(/[^0-9]/gi, ''));
-    }
-
-
-    if (opponentAtk.includes('.') || opponentAtk.includes(',')) {
-        opponentAtk = parseInt(opponentAtk.replace('K', '00').replace(/[^0-9]/gi, ''));
-    }
-    else
-    {
-        opponentAtk = parseInt(opponentAtk.replace('K', '000').replace(/[^0-9]/gi, ''));
-    }
     if (opponentClass == 'class1') {
         opponentBetaAdd = opponentBeta.caracs.carac1;
         opponentOmegaAdd = opponentOmega.caracs.carac1;
@@ -1180,10 +1164,10 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
     }
 
     //Log opponent name and starting egos for sim
-    console.log('Simulation log for: ' + opponentName);
-    console.log('Starting Egos adjusted for worst-case proc scenario:');
-    console.log('Player Ego: ' + playerEgo);
-    console.log('Opponent Ego: ' + opponentEgo);
+    //console.log('Simulation log for: ' + opponentName);
+    //console.log('Starting Egos adjusted for worst-case proc scenario:');
+    //console.log('Player Ego: ' + playerEgo);
+    //console.log('Opponent Ego: ' + opponentEgo);
 
     playerOrgasm = 0;
     playerOrgasmCount = 0;
@@ -1198,7 +1182,7 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
             playerOrgasmCount++;
 
             //Log results
-            console.log('Round ' + (turns + 1) + ': Player orgasm! -' + Math.round(playerAtk * 1.5 - opponentDef));
+            //console.log('Round ' + (turns + 1) + ': Player orgasm! -' + Math.round(playerAtk * 1.5 - opponentDef));
 
             //Orgasm 1
             if (playerOrgasmCount == 1) {
@@ -1220,11 +1204,11 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
         else {
             opponentEgo -= playerAtk - opponentDef;
             playerOrgasm += playerAtk * 2;
-            console.log('Round ' + (turns + 1) + ': Player hit! -' + (playerAtk - opponentDef));
+            //console.log('Round ' + (turns + 1) + ': Player hit! -' + (playerAtk - opponentDef));
         }
 
         //Log results
-        console.log('after Round ' + (turns + 1) + ': Opponent ego: ' + opponentEgo);
+        //console.log('after Round ' + (turns + 1) + ': Opponent ego: ' + opponentEgo);
     }
 
     function opponentTurn() {
@@ -1235,7 +1219,7 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
             opponentOrgasmCount++;
 
             //Log results
-            console.log('Round ' + (turns + 1) + ': Opponent orgasm! -' + Math.round(opponentAtk * 1.5 - playerDef));
+            //console.log('Round ' + (turns + 1) + ': Opponent orgasm! -' + Math.round(opponentAtk * 1.5 - playerDef));
 
             //Orgasm 1
             if (opponentOrgasmCount == 1) {
@@ -1243,7 +1227,7 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
                 playerDef += Math.round(playerBetaAdd * 1.75);
                 if (opponentAlphaClass == '1') {
                     playerEgo -= opponentProcHCAddOrgasm1;
-                    console.log('Round ' + (turns + 1) + ': HC opponent possibility of Wild Burst on first orgasm! -' + opponentProcHCAddOrgasm1);
+                    //console.log('Round ' + (turns + 1) + ': HC opponent possibility of Wild Burst on first orgasm! -' + opponentProcHCAddOrgasm1);
                 }
             }
 
@@ -1253,7 +1237,7 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
                 playerDef += Math.round(playerOmegaAdd * 1.75);
                 if (opponentAlphaClass == '1') {
                     playerEgo -= opponentProcHCAddOrgasm2;
-                    console.log('Round ' + (turns + 1) + ': HC opponent possibility of Wild Burst on second orgasm! -' + opponentProcHCAddOrgasm2);
+                    //console.log('Round ' + (turns + 1) + ': HC opponent possibility of Wild Burst on second orgasm! -' + opponentProcHCAddOrgasm2);
                 }
             }
 
@@ -1261,7 +1245,7 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
             if (opponentOrgasmCount == 3) {
                 if (opponentAlphaClass == '1') {
                     playerEgo -= opponentProcHCAddOrgasm3;
-                    console.log('Round ' + (turns + 1) + ': HC opponent possibility of Wild Burst on third orgasm! -' + opponentProcHCAddOrgasm3);
+                    //console.log('Round ' + (turns + 1) + ': HC opponent possibility of Wild Burst on third orgasm! -' + opponentProcHCAddOrgasm3);
                 }
             }
 
@@ -1273,11 +1257,11 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
         else {
             playerEgo -= opponentAtk - playerDef;
             opponentOrgasm += opponentAtk * 2;
-            console.log('Round ' + (turns + 1) + ': Opponent hit! -' + (opponentAtk - playerDef));
+            //console.log('Round ' + (turns + 1) + ': Opponent hit! -' + (opponentAtk - playerDef));
         }
 
         //Log results
-        console.log('after Round ' + (turns + 1) + ': Player ego: ' + playerEgo);
+        //console.log('after Round ' + (turns + 1) + ': Player ego: ' + playerEgo);
     }
 
     //Simulate challenge
@@ -1301,31 +1285,31 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
                 opponentOrgasmCount++;
 
                 //Log results
-                console.log('Round ' + (turns + 1) + ': Possibly next: Opponent orgasm! -' + Math.round(opponentAtk * 1.5 - playerDef));
+                //console.log('Round ' + (turns + 1) + ': Possibly next: Opponent orgasm! -' + Math.round(opponentAtk * 1.5 - playerDef));
 
                 if (opponentAlphaClass == '1') {
                     if (opponentOrgasmCount == 1) {
                         playerEgoCheck -= opponentProcHCAddOrgasm1;
-                        console.log('Round ' + (turns + 1) + ': Possibly next: HC opponent possibility of Wild Burst on first orgasm! -' + opponentProcHCAddOrgasm1);
+                        //console.log('Round ' + (turns + 1) + ': Possibly next: HC opponent possibility of Wild Burst on first orgasm! -' + opponentProcHCAddOrgasm1);
                     }
                     if (opponentOrgasmCount == 2) {
                         playerEgoCheck -= opponentProcHCAddOrgasm2;
-                        console.log('Round ' + (turns + 1) + ': Possibly next: HC opponent possibility of Wild Burst on second orgasm! -' + opponentProcHCAddOrgasm2);
+                        //console.log('Round ' + (turns + 1) + ': Possibly next: HC opponent possibility of Wild Burst on second orgasm! -' + opponentProcHCAddOrgasm2);
                     }
                     if (opponentOrgasmCount == 3) {
                         playerEgoCheck -= opponentProcHCAddOrgasm3;
-                        console.log('Round ' + (turns + 1) + ': Possibly next: HC opponent possibility of Wild Burst on third orgasm! -' + opponentProcHCAddOrgasm3);
+                        //console.log('Round ' + (turns + 1) + ': Possibly next: HC opponent possibility of Wild Burst on third orgasm! -' + opponentProcHCAddOrgasm3);
                     }
                 }
             }
             //No orgasm
             else {
                 playerEgoCheck -= opponentAtk - playerDef;
-                console.log('Round ' + (turns + 1) + ': Possibly next: Opponent hit! -' + (opponentAtk - playerDef));
+                //console.log('Round ' + (turns + 1) + ': Possibly next: Opponent hit! -' + (opponentAtk - playerDef));
             }
 
             if (playerEgoCheck <= 0) {
-                console.log('Close call! After Round ' + (turns + 1) + ': Player ego: ' + playerEgoCheck);
+                //console.log('Close call! After Round ' + (turns + 1) + ': Player ego: ' + playerEgoCheck);
             }
             break
         }
@@ -1365,6 +1349,8 @@ var doSeason = function () {
     var page = getPage();
     if(page === "season")
     {
+        console.log("On season page.");
+
         var current_kisses = getHero().infos.energy_kiss;
         $("button[id='claim_btn_s'").click();
         //<button id="claim_btn_s" class="bordeaux_button_s" style="z-index: 1000; visibility: visible;">Claim</button>
@@ -1386,97 +1372,83 @@ var doSeason = function () {
 
         //try{
             var minID = -1;
-            var endurance = -1;
+            var scoreRating = -1;
+            var oppoName;
             var playerEgo;
             var playerDefHC;
             var playerDefKH;
             var playerDefCH;
-            var playerDef;
+            
             var playerAtk;
             var playerClass;
             var playerAlpha;
             var playerBeta;
             var playerOmega;
             var playerExcitement;
-            var opponentsName;
-            var opponentsEgo;
-            var opponentsDef
-            var opponentsAtk;
-            var opponentsClass;
-            var opponentsAlpha;
-            var opponentsBeta;
-            var opponentsOmega;
-            var opponentExcitement;
             var matchRating;
             var matchRatingFlag;
 
             // player stats
-            console.log('test');
+
             playerEgo = Math.round(getHero().infos.caracs.ego);
-            console.log('test');
             playerDefHC = Math.round(getHero().infos.caracs.def_carac1);
-            console.log('test');
             playerDefCH = Math.round(getHero().infos.caracs.def_carac2);
-            console.log('test');
             playerDefKH = Math.round(getHero().infos.caracs.def_carac3);
-            console.log('test');
             playerAtk = Math.round(getHero().infos.caracs.damage);
-            console.log('test');
             playerClass = 'class'+getHero().infos.class;
-            console.log('test');
             //playerClass = $('div#leagues_left .icon').attr('carac');
             playerAlpha = JSON.parse($("div.hero_team div[girl_n=0]").attr('girl-tooltip-data'));
-            console.log('test');
             playerBeta =  JSON.parse($("div.hero_team div[girl_n=1]").attr('girl-tooltip-data'));
-            console.log('test');
             playerOmega = JSON.parse($("div.hero_team div[girl_n=2]").attr('girl-tooltip-data'));
-            console.log('test');
             playerExcitement = Math.round((playerAlpha.caracs.carac1 + playerAlpha.caracs.carac2 + playerAlpha.caracs.carac3) * 28);
 
-            opponentsName = $("div.season_arena_opponent_container .hero_details div:not([class]):not([carac])")
-            opponentsEgo = $("div.season_arena_opponent_container .hero_stats span[carac='ego']")
-
-            opponentsDef = $("div.season_arena_opponent_container .hero_stats span[carac='def1']")
-            opponentsAtk = $("div.season_arena_opponent_container .hero_stats span[carac='damage']")
-            opponentsClass = $("div.season_arena_opponent_container .hero_details div[hh_class_tooltip]")
-            opponentsAlpha = $("div.season_arena_opponent_container .hero_team div[rel='g1']")
-            opponentsBeta = $("div.season_arena_opponent_container .hero_team div[rel='g2']")
-            opponentsOmega = $("div.season_arena_opponent_container .hero_team div[rel='g3']")
+            
 
 
             for (var index=0;index<3;index++)
             {
-                var opponentAlpha = JSON.parse($(opponentsAlpha[index]).attr('girl-tooltip-data'));
-                var opponentBeta = JSON.parse($(opponentsBeta[index]).attr('girl-tooltip-data'));
-                var opponentOmega = JSON.parse($(opponentsOmega[index]).attr('girl-tooltip-data'));
+                var opponentName = $("div.season_arena_opponent_container .hero_details div:not([class]):not([carac])")[index].innerText;
+                var opponentEgo = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[2].outerText.replace(/\s+/g, ''));
+                var opponentDef = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[1].outerText.split('-')[0].replace(/\s+/g, ''));
+                var opponentAtk = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[0].outerText.split('-')[0].replace(/\s+/g, ''));
 
-                    if ($(opponentsClass[index]).innerText == 'class1') {
+                var opponentClass = $($("div.season_arena_opponent_container .hero_details div[hh_class_tooltip]")[index]).attr('carac');
+                var opponentAlpha = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g1']")[index]).attr('girl-tooltip-data'));
+                var opponentBeta = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g2']")[index]).attr('girl-tooltip-data'));
+                var opponentOmega = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g3']")[index]).attr('girl-tooltip-data'));
+
+                var playerDef;
+                if (opponentClass == 'class1') {
                     playerDef = playerDefHC;
                 }
-                if ($(opponentsClass[index]).innerText == 'class2') {
+                if (opponentClass == 'class2') {
                     playerDef = playerDefCH;
                 }
-                if ($(opponentsClass[index]).innerText == 'class3') {
+                if (opponentClass == 'class3') {
                     playerDef = playerDefKH;
                 }
-                opponentExcitement = Math.round((opponentAlpha.caracs.carac1 + opponentAlpha.caracs.carac2 + opponentAlpha.caracs.carac3) * 28);
+                var opponentExcitement = Math.round((opponentAlpha.caracs.carac1 + opponentAlpha.caracs.carac2 + opponentAlpha.caracs.carac3) * 28);
 
                 //endurance :Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[2].outerText.replace(/\s+/g, ''));
-                console.log(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,$(opponentsName[index]).innerText,$(opponentsEgo[index]).innerText.replace(/[^0-9]/gi, ''),$(opponentsDef[index]).innerText.split('-')[0].replace(/[^0-9]/gi, ''),$(opponentsAtk[index]).innerText.split('-')[0].replace(/[^0-9]/gi, ''),$(opponentsClass[index]).innerText,opponentAlpha,opponentBeta,opponentOmega,$(opponentExcitement[index]).innerText.split('-')[0].replace(/[^0-9]/gi, ''));
-                var currentValue = calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,$(opponentsName[index]).innerText,$(opponentsEgo[index]).innerText.replace(/[^0-9]/gi, ''),$(opponentsDef[index]).innerText.split('-')[0].replace(/[^0-9]/gi, ''),$(opponentsAtk[index]).innerText.split('-')[0].replace(/[^0-9]/gi, ''),$(opponentsClass[index]).innerText,opponentAlpha,opponentBeta,opponentOmega,$(opponentExcitement[index]).innerText.split('-')[0].replace(/[^0-9]/gi, ''));
-                currentValue = Number(currentValue.substring(1));
-                console.log(currentValue);
-                if (endurance == -1 || endurance > currentValue)
+                //console.log(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement);
+                var currentValue = calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement);
+                //console.log("matchrating : "+currentValue);
+                currentValue = currentValue.substring(1).replace(/\s+/g, '');
+                //console.log(currentValue);
+                currentValue = Number(currentValue);
+                console.log(opponentName+':'+currentValue);
+                if (scoreRating == -1 || scoreRating < currentValue)
                 {
-                    endurance = currentValue;
+                    scoreRating = currentValue;
                     minID = index;
+                    oppoName = opponentName;
                 }
             }
 
             if (minID != -1 )
             {
                 //location.href = document.getElementsByClassName("opponent_perform_button_container")[minID].children[0].getAttribute('href');
-                //console.log(minID);
+                console.log("Going to crush : "+oppoName);
                 return true;
             }
         //}
