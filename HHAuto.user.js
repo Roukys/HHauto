@@ -1714,7 +1714,7 @@ function getLeagueOpponentId(opponentsIDList)
 
             });
             opponentsIDList.shift();
-            setTimeout(getOpponents,randomInterval(300,900));
+            setTimeout(getOpponents,randomInterval(800,1200));
 
             window.top.postMessage({ImAlive:true},'*');
         }
