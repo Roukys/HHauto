@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.1-beta.3
+// @version      5.1-beta.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -1581,7 +1581,7 @@ var doLeagueBattle = function () {
         }
         console.log('parsing enemies');
         var Data=[];
-        $(".leadTable[sorting_table] tr").each(function(){if (this.cells[3].innerHTML==='0/3' || this.cells[3].innerHTML==='1/3' || this.cells[3].innerHTML==='2/3'){Data.push(this);}});
+        $(".leadTable[sorting_table] tr").each(function(){if (this.cells[3].innerHTML==='0/3' || this.cells[3].innerHTML==='1/3' || this.cells[3].innerHTML==='2/3'){Data.push($(this).attr("sorting_id"));}});
         if (Data.length==0)
         {
             ltime=35*60;
@@ -1593,7 +1593,26 @@ var doLeagueBattle = function () {
             console.log(Data.length+' valid targets!');
             sessionStorage.autoLoop = "false";
             console.log("Hit?" );
-            location.href = "/battle.html?league_battle=1&id_member=" + $(Data[0]).attr("sorting_id")
+            if (Storage().autoLeaguesPowerCalc == "true")
+            {
+                var oppoID = getLeagueOpponentId(Data);
+                if (oppoID == -1)
+                {
+                    console.log('opponent list is building next league time in 2 min');
+                    setTimer('nextLeaguesTime',2*60);
+                }
+                else
+                {
+                    console.log('going to crush ID : '+oppoID);
+                    location.href = "/battle.html?league_battle=1&id_member=" + oppoID
+                    clearTimer('nextLeaguesTime');
+                }
+            }
+            else
+            {
+                location.href = "/battle.html?league_battle=1&id_member=" + Data[0]
+            }
+
         }
     }
     else if (page==="battle")
@@ -1607,6 +1626,146 @@ var doLeagueBattle = function () {
         gotoPage("leaderboard");
         return;
     }
+};
+
+function getLeagueOpponentId(opponentsIDList)
+{
+    var opponentsPowerList = sessionStorage.LeagueOpponentList?JSON.parse(sessionStorage.LeagueOpponentList,reviver):[];
+    var opponentsListExpirationDate = sessionStorage.opponentsListExpirationDate?sessionStorage.opponentsListExpirationDate:'empty';
+    var opponentsIDs= opponentsIDList;
+    var playerEgo;
+    var playerDefHC;
+    var playerDefKH;
+    var playerDefCH;
+
+    var playerAtk;
+    var playerClass;
+    var playerAlpha;
+    var playerBeta;
+    var playerOmega;
+    var playerExcitement;
+    var DataOppo=new Map([]);
+
+    if (opponentsListExpirationDate === 'empty' || opponentsListExpirationDate < new Date() || opponentsPowerList.length ==0)
+    {
+        console.log("Opponents list not found or expired. Fetching all opponents.");
+        playerEgo = Math.round(Hero.infos.caracs.ego);
+        playerDefHC = Math.round(Hero.infos.caracs.def_carac1);
+        playerDefCH = Math.round(Hero.infos.caracs.def_carac2);
+        playerDefKH = Math.round(Hero.infos.caracs.def_carac3);
+        playerAtk = Math.round(Hero.infos.caracs.damage);
+        playerClass = $('div#leagues_left .icon').attr('carac');
+        playerAlpha = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=1]').attr('girl-tooltip-data'));
+        playerBeta = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=2]').attr('girl-tooltip-data'));
+        playerOmega = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=3]').attr('girl-tooltip-data'));
+        playerExcitement = Math.round((playerAlpha.caracs.carac1 + playerAlpha.caracs.carac2 + playerAlpha.caracs.carac3) * 28);
+        getOpponents();
+        return -1;
+    }
+    else
+    {
+        console.log("Found valid opponents list, using it.")
+        return FindOpponent(opponentsPowerList,opponentsIDs);
+    }
+
+    function getOpponents()
+    {
+        //console.log('Need to click: ',ToClick.length);
+        var findText = 'playerLeaguesData = ';
+        if (opponentsIDList.length>0)
+        {
+            console.log('getting data for opponent : '+opponentsIDList[0]);
+            $.post('/ajax.php',
+                   {
+                class: 'Leagues',
+                action: 'get_opponent_info',
+                opponent_id: opponentsIDList[0]
+            },
+                   function(data)
+                   {
+                var opponent = JSON.parse(data.html.substring(data.html.indexOf(findText)+findText.length,data.html.lastIndexOf(';')));
+                var opponentDef;
+                var playerDef;
+                if (opponent.class == '1') {
+                    playerDef = playerDefHC;
+                }
+                if (opponent.class == '2') {
+                    playerDef = playerDefCH;
+                }
+                if (opponent.class == '3') {
+                    playerDef = playerDefKH;
+                }
+                if (playerClass == 'class1') {
+                    opponentDef = opponent.caracs.def_carac1;
+                }
+                if (playerClass == 'class2') {
+                    opponentDef = opponent.caracs.def_carac2;
+                }
+                if (playerClass == 'class3') {
+                    opponentDef = opponent.caracs.def_carac3;
+                }
+                var opponentExcitement = Math.round((opponent.team["1"].caracs.carac1 + opponent.team["1"].caracs.carac2 + opponent.team["1"].caracs.carac3) * 28);
+                //console.log(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponent.Name,opponent.caracs.ego,opponentDef,opponent.caracs.damage,'class'+opponent.class,opponent.team["1"],opponent.team["2"],opponent.team["1"],opponentExcitement);
+                var matchRating = calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponent.Name,opponent.caracs.ego,opponentDef,opponent.caracs.damage,'class'+opponent.class,opponent.team["1"],opponent.team["2"],opponent.team["1"],opponentExcitement);
+                matchRating = matchRating.substring(1).replace(/\s+/g, '');
+                console.log('matchRating:'+matchRating);
+                DataOppo.set(opponent.id_member,matchRating);
+                //DataOppo.push(JSON.parse(data.html.substring(data.html.indexOf(findText)+findText.length,data.html.lastIndexOf(';'))));
+
+            });
+            opponentsIDList.shift();
+            setTimeout(getOpponents,randomInterval(300,900));
+
+            window.top.postMessage({ImAlive:true},'*');
+        }
+        else
+        {
+            //console.log('nothing to click, checking data');
+            sessionStorage.opponentsListExpirationDate=new Date().getTime() + 10*60 * 1000
+            //console.log(DataOppo);
+            sessionStorage.LeagueOpponentList = JSON.stringify(DataOppo,replacer);
+            doLeagueBattle();
+        }
+    }
+
+    function FindOpponent(opponentsPowerList,opponentsIDList)
+    {
+        var maxScore = -1;
+        var IdOppo = -1;
+        console.log('finding best chance opponent.');
+        for (var oppo of opponentsIDList)
+        {
+            if (maxScore = -1 || opponentsPowerList.get(oppo) > maxScore)
+            {
+                maxScore = opponentsPowerList.get(oppo);
+                IdOppo = oppo;
+            }
+
+            console.log("highest score opponent : "+IdOppo+'('+maxScore+')');
+            return IdOppo;
+        }
+    }
+    function replacer(key, value) {
+        const originalObject = this[key];
+        if(originalObject instanceof Map) {
+            return {
+                dataType: 'Map',
+                value: Array.from(originalObject.entries()), // or with spread: value: [...originalObject]
+            };
+        } else {
+            return value;
+        }
+    }
+    function reviver(key, value) {
+        if(typeof value === 'object' && value !== null) {
+            if (value.dataType === 'Map') {
+                return new Map(value.value);
+            }
+        }
+        return value;
+    }
+
+    return true;
 };
 
 var  CrushThem = function()
@@ -1770,6 +1929,7 @@ var updateData = function () {
     Storage().autoArenaBattle = document.getElementById("autoArenaCheckbox").checked;
     Storage().autoSeason = document.getElementById("autoSeasonCheckbox").checked;
     Storage().autoLeagues = document.getElementById("autoLeagues").checked;
+    Storage().autoLeaguesPowerCalc = document.getElementById("autoLeaguesPowerCalc").checked;
     Storage().autoLeaguesMaxRank = document.getElementById("autoLeaguesMaxRank").value;
     Storage().autoStats = document.getElementById("autoStats").value;
     Storage().paranoia = document.getElementById("paranoia").checked;
@@ -2885,6 +3045,7 @@ var setDefaults = function () {
     Storage().autoPowerPlacesIndexFilter = "1;2;3";
     Storage().autoMissionC = "false";
     Storage().autoLeagues = "false";
+    Storage().autoLeaguesPowerCalc = "false";
     Storage().autoLeaguesMaxRank = "0";
     Storage().autoStats = "500000000";
     sessionStorage.autoLoop = "true";
@@ -3099,6 +3260,9 @@ var start = function () {
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>AutoLeagues</span><div><label class=\"switch\"><input id=\"autoLeagues\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +    '</div>'
+                     +   '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>UsePowerCalc</span><div><label class=\"switch\"><input id=\"autoLeaguesPowerCalc\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +    '</div>'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>Max rank (0 for none)</span><div><input id="autoLeaguesMaxRank" type="text"></div>'
                      +    '</div>'
@@ -3164,6 +3328,7 @@ var start = function () {
     document.getElementById("autoFreePachinko").checked = Storage().autoFreePachinko === "true";
     document.getElementById("autoLeagues").checked = Storage().autoLeagues === "true";
     document.getElementById("autoLeaguesMaxRank").value = Storage().autoLeaguesMaxRank?Storage().autoLeaguesMaxRank:"0";
+    document.getElementById("autoLeaguesPowerCalc").checked = Storage().autoLeaguesPowerCalc === "true";
     document.getElementById("autoPowerPlaces").checked = Storage().autoPowerPlaces === "true";
     document.getElementById("autoPowerPlacesIndexFilter").value = Storage().autoPowerPlacesIndexFilter?Storage().autoPowerPlacesIndexFilter:"1;2;3";
     document.getElementById("autoStats").value = Storage().autoStats?Storage().autoStats:"500000000";
