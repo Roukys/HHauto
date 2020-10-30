@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.1-beta.4
+// @version      5.1-beta.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -1604,7 +1604,7 @@ var doLeagueBattle = function () {
                 else
                 {
                     console.log('going to crush ID : '+oppoID);
-                    location.href = "/battle.html?league_battle=1&id_member=" + oppoID
+                    //location.href = "/battle.html?league_battle=1&id_member=" + oppoID
                     clearTimer('nextLeaguesTime');
                 }
             }
@@ -1732,18 +1732,19 @@ function getLeagueOpponentId(opponentsIDList)
     {
         var maxScore = -1;
         var IdOppo = -1;
-        console.log('finding best chance opponent.');
+        console.log('finding best chance opponent in '+opponentsIDList.length);
         for (var oppo of opponentsIDList)
         {
-            if (maxScore = -1 || Number(opponentsPowerList.get(oppo)) > maxScore)
+            //console.log(oppo,Number(opponentsPowerList.get(oppo)),maxScore);
+            if (maxScore == -1 || Number(opponentsPowerList.get(oppo)) > maxScore)
             {
-                maxScore = Number(opponentsPowerList.get(oppo))
+
+                maxScore = Number(opponentsPowerList.get(oppo));
                 IdOppo = oppo;
             }
-
-            console.log("highest score opponent : "+IdOppo+'('+maxScore+')');
-            return IdOppo;
         }
+        console.log("highest score opponent : "+IdOppo+'('+maxScore+')');
+        return IdOppo;
     }
     function replacer(key, value) {
         const originalObject = this[key];
