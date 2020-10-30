@@ -1735,9 +1735,9 @@ function getLeagueOpponentId(opponentsIDList)
         console.log('finding best chance opponent.');
         for (var oppo of opponentsIDList)
         {
-            if (maxScore = -1 || opponentsPowerList.get(oppo) > maxScore)
+            if (maxScore = -1 || Number(opponentsPowerList.get(oppo)) > maxScore)
             {
-                maxScore = opponentsPowerList.get(oppo);
+                maxScore = Number(opponentsPowerList.get(oppo))
                 IdOppo = oppo;
             }
 
