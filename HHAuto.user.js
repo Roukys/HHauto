@@ -3080,7 +3080,7 @@ var autoLoop = function () {
     if (currentPage.indexOf('tower-of-fame') != -1 && Storage().showCalculatePower === "true") {
         moduleSimLeague();
     }
-    if (currentPage.indexOf('battle') != -1 && Storage().showCalculatePower === "true") {
+    if (currentPage.indexOf('battle') != -1 && Storage().showCalculatePower === "true" && $(".preBattleAnim").length == 0) {
         moduleSimBattle();
     }
     if (currentPage.indexOf('season-arena') != -1 && Storage().showCalculatePower === "true") {
