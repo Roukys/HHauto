@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.1-beta.6
+// @version      5.2-beta.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -792,6 +792,7 @@ var doShopping=function()
         var SS1='carac'+(Hero.infos.class%3+1);
         var SS2='carac'+((Hero.infos.class+1)%3+1);
         var money=Hero.infos.soft_currency;
+        var kobans=Hero.infos.hard_currency;
 
         try
         {
@@ -820,35 +821,35 @@ var doShopping=function()
         var HaveExp=Number(sessionStorage.haveExp);
 
 
-        if (Storage().autoLGMW==="true" || Storage().autoLGRW==="true" || Storage().autoEGMW==="true")
+        if (Storage().autoLGMW==="true" || Storage().autoLGRW==="true" )//|| Storage().autoEGMW==="true")
         {
             //console.log('items');
             var Was=shop[0].length;
-            for (var n=shop[0].length-1;n>=0;n--)
+            for (var n0=shop[0].length-1;n0>=0;n0--)
             {
 
-                if (Storage().autoLGMW==="true" && money>=LGM+Number(shop[0][n].price) && shop[0][n][MS]>0 && shop[0][n][SS1]==0 && shop[0][n][SS2]==0 && shop[0][n].chance==0 && shop[0][n].endurance==0 && shop[0][n].rarity=='legendary'||
-                    Storage().autoEGMW==="true" && money>=EGM+Number(shop[0][n].price) && shop[0][n][MS]>0 && shop[0][n][SS1]==0 && shop[0][n][SS2]==0 && shop[0][n].chance==0 && shop[0][n].endurance==0 && shop[0][n].rarity=='epic'||
-                    Storage().autoLGRW==="true" && money>=LGR+Number(shop[0][n].price) && shop[0][n][MS]>0 && shop[0][n][SS1]>0 && shop[0][n][SS2]>0 && shop[0][n].rarity=='legendary')
+                if (Storage().autoLGMW==="true" && money>=LGM+Number(shop[0][n0].price) && shop[0][n0][MS]>0 && shop[0][n0][SS1]==0 && shop[0][n0][SS2]==0 && shop[0][n0].chance==0 && shop[0][n0].endurance==0 && shop[0][n0].rarity=='legendary'||
+                    //Storage().autoEGMW==="true" && money>=EGM+Number(shop[0][n0].price) && shop[0][n0][MS]>0 && shop[0][n0][SS1]==0 && shop[0][n0][SS2]==0 && shop[0][n0].chance==0 && shop[0][n0].endurance==0 && shop[0][n0].rarity=='epic'||
+                    Storage().autoLGRW==="true" && money>=LGR+Number(shop[0][n0].price) && shop[0][n0][MS]>0 && shop[0][n0][SS1]>0 && shop[0][n0][SS2]>0 && shop[0][n0].rarity=='legendary')
                 {
-                    console.log('wanna buy ',shop[0][n]);
-                    if (money>=shop[0][n].price)
+                    console.log('wanna buy ',shop[0][n0]);
+                    if (money>=shop[0][n0].price)
                     {
                         console.log("yay?");
-                        money-=shop[0][n].price;
-                        var params = {
+                        money-=Number(shop[0][n0].price);
+                        var params0 = {
                             class: "Item",
                             action: "buy",
-                            id_item: shop[0][n].id_item,
+                            id_item: shop[0][n0].id_item,
                             type: "armor",
                             who: 1,
-                            id_skin: shop[0][n].id_skin,
-                            id_equip: shop[0][n].id_equip,
+                            id_skin: shop[0][n0].id_skin,
+                            id_equip: shop[0][n0].id_equip
                         };
-                        hh_ajax(params, function(data) {
+                        hh_ajax(params0, function(data) {
 
                         });
-                        shop[0].splice(n,1);
+                        shop[0].splice(n0,1);
                     }
                     else
                     {
@@ -862,35 +863,80 @@ var doShopping=function()
             }
         }
 
+        //console.log('boosters');
+        var boosterFilter = Storage().autoBuyBoostersFilter.split(";");
+        if (Storage().autoBuyBoosters==="true" && boosterFilter.length > 0)
+        {
+
+            Was=shop[1].length;
+
+            for (var boost of boosterFilter)
+            {
+                for (var n1=shop[1].length-1;n1>=0;n1--)
+                {
+
+                    if (kobans>=Number(Storage().kobanBank)+Number(shop[1][n1].price_hc) && shop[1][n1].identifier == boost  && shop[1][n1].rarity=='legendary')
+                    {
+                        console.log('wanna buy ',shop[1][n1]);
+                        if (kobans>=Number(shop[1][n1].price_hc))
+                        {
+                            console.log("yay?");
+                            kobans-=Number(shop[1][n1].hc_price);
+                            var params1 = {
+                                class: "Item",
+                                action: "buy",
+                                id_item: shop[1][n1].id_item,
+                                type: "booster",
+                                who: 1
+                            };
+                            hh_ajax(params1, function(data) {
+
+                            });
+                            shop[1].splice(n1,1);
+                        }
+                        else
+                        {
+                            console.log("but can't");
+                        }
+                    }
+                }
+            }
+
+            if (shop[1].length==0 && Was>0)
+            {
+                sessionStorage.charLevel=0;
+            }
+        }
+
         if (Storage().autoAffW==="true" && HaveAff<MaxAff)
         {
             //console.log('gifts');
-            Was=shop[1].length;
-            for (var nn=shop[1].length-1;nn>=0;nn--)
+            Was=shop[2].length;
+            for (var n2=shop[2].length-2;n2>=0;n2--)
             {
-                console.log('wanna buy ',shop[1][nn]);
-                if (money>=Aff+Number(shop[1][nn].price) && money>=shop[1][nn].price)
+                console.log('wanna buy ',shop[2][n2]);
+                if (money>=Aff+Number(shop[2][n2].price) && money>=Number(shop[2][n2].price))
                 {
                     console.log("yay?");
-                    money-=shop[1][nn].price;
+                    money-=Number(shop[2][n2].price);
                     var params2 = {
                         class: "Item",
                         action: "buy",
-                        id_item: shop[1][nn].id_item,
+                        id_item: shop[2][n2].id_item,
                         type: "gift",
                         who: 1
                     };
                     hh_ajax(params2, function(data) {
 
                     });
-                    shop[1].splice(nn,1);
+                    shop[2].splice(n2,1);
                 }
                 else
                 {
                     console.log("but can't");
                 }
             }
-            if (shop[1].length==0 && Was>0)
+            if (shop[2].length==0 && Was>0)
             {
                 sessionStorage.charLevel=0;
             }
@@ -899,32 +945,32 @@ var doShopping=function()
         if (Storage().autoExpW==="true" && HaveExp<MaxExp)
         {
             //console.log('books');
-            Was=shop[2].length;
-            for (var nnn=shop[2].length-1;nnn>=0;nnn--)
+            Was=shop[3].length;
+            for (var n3=shop[3].length-1;n3>=0;n3--)
             {
-                console.log('wanna buy ',shop[2][nnn]);
-                if (money>=Exp+Number(shop[2][nnn].price) && money>=shop[2][nnn].price)
+                console.log('wanna buy ',shop[3][n3]);
+                if (money>=Exp+Number(shop[3][n3].price) && money>=Number(shop[3][n3].price))
                 {
                     console.log("yay?");
-                    money-=shop[2][nnn].price;
+                    money-=Number(shop[3][n3].price);
                     var params3 = {
                         class: "Item",
                         action: "buy",
-                        id_item: shop[2][nnn].id_item,
+                        id_item: shop[3][n3].id_item,
                         type: "potion",
                         who: 1
                     };
                     hh_ajax(params3, function(data) {
 
                     });
-                    shop[2].splice(nnn,1);
+                    shop[3].splice(n3,1);
                 }
                 else
                 {
                     console.log("but can't");
                 }
             }
-            if (shop[2].length==0 && Was>0)
+            if (shop[3].length==0 && Was>0)
             {
                 sessionStorage.charLevel=0;
             }
@@ -1945,8 +1991,10 @@ var updateData = function () {
     Storage().autoLGMW = document.getElementById("autoLGMW").checked;
     Storage().autoLGR = document.getElementById("autoLGR").value;
     Storage().autoLGRW = document.getElementById("autoLGRW").checked;
-    Storage().autoEGM = document.getElementById("autoEGM").value;
-    Storage().autoEGMW = document.getElementById("autoEGMW").checked;
+    //Storage().autoEGM = document.getElementById("autoEGM").value;
+    //Storage().autoEGMW = document.getElementById("autoEGMW").checked;
+    Storage().autoBuyBoosters = document.getElementById("autoBuyBoosters").checked;
+    Storage().autoBuyBoostersFilter = document.getElementById("autoBuyBoostersFilter").value;
     Storage().showInfo = document.getElementById("showInfo").checked;
     Storage().showCalculatePower = document.getElementById("showCalculatePower").checked;
     Storage().autoChamps = document.getElementById("autoChamps").checked;
@@ -1956,11 +2004,13 @@ var updateData = function () {
     Storage().spendKobans0 = document.getElementById("spendKobans0").checked;
     Storage().spendKobans1 = document.getElementById("spendKobans1").checked && Storage().spendKobans0=="true";
     document.getElementById("spendKobans1").checked=Storage().spendKobans1=="true";
-    Storage().spendKobans2 = document.getElementById("spendKobans2").checked && Storage().spendKobans1=="true" && Storage().spendKobans0=="true"
+    Storage().spendKobans2 = document.getElementById("spendKobans2").checked && Storage().spendKobans1=="true" && Storage().spendKobans0=="true";
     document.getElementById("spendKobans2").checked=Storage().spendKobans2=="true";
 
-    Storage().buyCombat=document.getElementById("buyCombat").checked && Storage().spendKobans2=="true" && Storage().spendKobans1=="true" && Storage().spendKobans0=="true"
+    Storage().buyCombat=document.getElementById("buyCombat").checked && Storage().spendKobans2=="true" && Storage().spendKobans1=="true" && Storage().spendKobans0=="true";
     document.getElementById("buyCombat").checked=Storage().buyCombat=="true";
+    Storage().autoBuyBoosters=document.getElementById("autoBuyBoosters").checked && Storage().spendKobans2=="true" && Storage().spendKobans1=="true" && Storage().spendKobans0=="true";
+    document.getElementById("autoBuyBoosters").checked=Storage().autoBuyBoosters=="true";
     Storage().kobanBank=document.getElementById("kobanBank").value;
 
     localStorage.settPerTab = document.getElementById("settPerTab").checked;
@@ -2172,9 +2222,11 @@ var updateShop=function()
         console.log("Detected Market Screen. Fetching Assortment");
 
         var assA=[];
+        var assB=[];
         var assG=[];
         var assP=[];
         $('#shop div.armor .slot').each(function(){if (this.dataset.d)assA.push(JSON.parse(this.dataset.d));});
+        $('#shop div.booster .slot').each(function(){if (this.dataset.d)assB.push(JSON.parse(this.dataset.d));});
         $('#shop div.gift .slot').each(function(){if (this.dataset.d)assG.push(JSON.parse(this.dataset.d));});
         $('#shop div.potion .slot').each(function(){if (this.dataset.d)assP.push(JSON.parse(this.dataset.d));});
 
@@ -2188,7 +2240,7 @@ var updateShop=function()
 
         console.log('counted',sessionStorage.haveAff,sessionStorage.haveExp);
 
-        sessionStorage.storeContents = JSON.stringify([assA,assG,assP]);
+        sessionStorage.storeContents = JSON.stringify([assA,assB,assG,assP]);
         sessionStorage.charLevel=getHero().infos.level;
 
         var nshop;
@@ -3075,8 +3127,10 @@ var setDefaults = function () {
     Storage().autoLGMW = "false";
     Storage().autoLGR = "500000000";
     Storage().autoLGRW = "false";
-    Storage().autoEGM = "500000000";
-    Storage().autoEGMW = "false";
+    //Storage().autoEGM = "500000000";
+    //Storage().autoEGMW = "false";
+    Storage().autoBuyBoostersFilter = "B1;B2;B3;B4";
+    Storage().autoBuyBoosters = "false";
     Storage().paranoia="false";
     Storage().showInfo="true";
     Storage().showCalculatePower = "true";
@@ -3215,13 +3269,20 @@ var start = function () {
                      + '<div style="display:flex;flex-direction:row;">'
                      +  '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +   '<span>Master switch</span><div><label class=\"switch\" title=\"Turn off to pause script\"><input id=\"master\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
-                     +   '<span>Questionable Shit</span><div><label class=\"switch\"><input id=\"spendKobans0\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
-                     +   '<span>Are you sure?</span><div><label class=\"switch\"><input id=\"spendKobans1\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
-                     +   '<span>You\'ve been warned</span><div><label class=\"switch\"><input id=\"spendKobans2\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
-                     +   '<span>Buy comb. in events</span><div><label class=\"switch\"><input id=\"buyCombat\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="kobanBank" type="text"></div>'
-                     +   '<span>Hours to buy Comb</span><div><input id="buyCombTimer" style="width:80%" type="text"></div>'
+                     +   '<span>Questionable Shit</span><div><label title=\"Koban security switch 1\" class=\"switch\"><input id=\"spendKobans0\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +   '<span>Are you sure?</span><div><label title=\"Koban security switch 2\" class=\"switch\"><input id=\"spendKobans1\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +   '<span>You\'ve been warned</span><div><label title=\"Koban security switch 3\" class=\"switch\"><input id=\"spendKobans2\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>Buy comb. in events</span><div><label class=\"switch\"><input id=\"buyCombat\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>Hours to buy Comb</span><div><input id="buyCombTimer" style="width:50%" type="text"></div>'
+                     +    '</div>'
+                     +   '</div>'
                      +   '<span>Event Troll Order</span><div><input id="eventTrollOrder" style="width:80%" type="text"></div>'
                      +   '<span>Show CalculatePower</span><div><label class=\"switch\"><input id=\"showCalculatePower\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +   '<span>Koban Bank</span><div><input id="kobanBank" type="text"></div>'
                      +  '</div>'
                      +  '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +   '<span>Settings per tab</span><div><label class=\"switch\"><input id=\"settPerTab\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
@@ -3292,8 +3353,9 @@ var start = function () {
                      +   '<span>Buy Aff</span><div style="width:200px"><label class=\"switch\"><input id=\"autoAffW\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="autoAff" style="width:50%" type="text"><input id="maxAff" style="width:30%" type="text"></div>'
                      +   '<span>Buy Leg Gear Mono</span><div><label class=\"switch\"><input id=\"autoLGMW\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="autoLGM" type="text"></div>'
                      +   '<span>Buy Leg Gear Rainbow</span><div><label class=\"switch\"><input id=\"autoLGRW\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="autoLGR" type="text"></div>'
-                     +   '<span>Buy Epi Gear Mono</span><div><label class=\"switch\"><input id=\"autoEGMW\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="autoEGM" type="text"></div>'
-                     +   '<span>Show info</span><div><label class=\"switch\"><input id=\"showInfo\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     //+   '<span>Buy Epi Gear Mono</span><div><label class=\"switch\"><input id=\"autoEGMW\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="autoEGM" type="text"></div>'
+                     +   '<span>Buy Leg. Boosters</span><div><label title=\"Activate to buy Legendary boosters, all 3 koban security switches must be on.\" class=\"switch\"><input id=\"autoBuyBoosters\" type=\"checkbox\"><span class=\"slider round\"></span></label><input title=\"B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps\" id="autoBuyBoostersFilter" type="text"></div>'
+                     +   '<span>Show info</span><div><label title=\"Activate to display timers\"class=\"switch\"><input id=\"showInfo\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +  '</div>'
                      + '</div>'
                      +'</div>'+UIcontainer.html());
@@ -3344,8 +3406,10 @@ var start = function () {
     document.getElementById("autoLGMW").checked = Storage().autoLGMW === "true";
     document.getElementById("autoLGR").value = Storage().autoLGR?Storage().autoLGR:"500000000";
     document.getElementById("autoLGRW").checked = Storage().autoLGRW === "true";
-    document.getElementById("autoEGM").value = Storage().autoEGM?Storage().autoEGM:"500000000";
-    document.getElementById("autoEGMW").checked = Storage().autoEGMW === "true";
+    document.getElementById("autoBuyBoosters").checked = Storage().autoBuyBoosters === "true";
+    document.getElementById("autoBuyBoostersFilter").value = Storage().autoBuyBoostersFilter?Storage().autoBuyBoostersFilter:"B1;B2;B3;B4";
+    //document.getElementById("autoEGM").value = Storage().autoEGM?Storage().autoEGM:"500000000";
+    //document.getElementById("autoEGMW").checked = Storage().autoEGMW === "true";
     document.getElementById("showInfo").checked = Storage().showInfo === "true";
     document.getElementById("showCalculatePower").checked = Storage().showCalculatePower === "true";
     document.getElementById("plusEvent").checked = Storage().trollToFight=="-1" || Storage().plusEvent === "true";
