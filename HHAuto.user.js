@@ -131,6 +131,13 @@ function gotoPage(page)
                 break;
             case "arena":
                 togoto =$("nav div[rel='content'] a:has(.arena)").attr("href");
+                if (togoto === undefined)
+                {
+                    console.log("Arena page not found, disabling arena");
+                    Storage().autoArenaBattle = "false";
+                    location.reload();
+                    return false;
+                }
                 break;
             case "pachinko":
                 togoto = $("nav div[rel='content'] a:has(.pachinko)").attr("href");
