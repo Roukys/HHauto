@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.1-beta.6
+// @version      5.1-beta.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -1359,7 +1359,11 @@ var doSeason = function () {
         console.log("On season page.");
 
         var current_kisses = getHero().infos.energy_kiss;
-        $("button[id='claim_btn_s'").click();
+
+        if (Storage().autoSeasonCollect === "true")
+        {
+            $("button[id='claim_btn_s'").click();
+        }
         //<button id="claim_btn_s" class="bordeaux_button_s" style="z-index: 1000; visibility: visible;">Claim</button>
 
 
@@ -1936,6 +1940,7 @@ var updateData = function () {
     Storage().buyCombTimer = document.getElementById("buyCombTimer").value;
     Storage().autoArenaBattle = document.getElementById("autoArenaCheckbox").checked;
     Storage().autoSeason = document.getElementById("autoSeasonCheckbox").checked;
+    Storage().autoSeasonCollect = document.getElementById("autoSeasonCollect").checked;
     Storage().autoLeagues = document.getElementById("autoLeagues").checked;
     Storage().autoLeaguesPowerCalc = document.getElementById("autoLeaguesPowerCalc").checked;
     Storage().autoLeaguesMaxRank = document.getElementById("autoLeaguesMaxRank").value;
@@ -3065,6 +3070,7 @@ var setDefaults = function () {
     Storage().buyCombTimer="16";
     Storage().autoArenaBattle = "false";
     Storage().autoSeason = "false";
+    Storage().autoSeasonCollect = "false";
     sessionStorage.battlePowerRequired = "0";
     sessionStorage.questRequirement = "none";
     Storage().freshStart = "no";
@@ -3259,7 +3265,14 @@ var start = function () {
                      +    '</div>'
                      +   '</div>'
                      +   '<span>AutoArenaBattle</span><div><label class=\"switch\"><input id=\"autoArenaCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
-                     +   '<span>AutoSeason</span><div><label class=\"switch\"><input id=\"autoSeasonCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>AutoSeason</span><div><label class=\"switch\"><input id=\"autoSeasonCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>Collect</span><div><label class=\"switch\"><input id=\"autoSeasonCollect\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +    '</div>'
+                     +   '</div>'
                      +   '<span>AutoPachinko(Free)</span><div><label class=\"switch\"><input id=\"autoFreePachinko\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +   '<span>Paranoia mode</span><div><label class=\"switch\"><input id=\"paranoia\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +  '</div>'
@@ -3333,6 +3346,7 @@ var start = function () {
     document.getElementById("buyCombTimer").value = Storage().buyCombTimer?Storage().buyCombTimer:"16";
     document.getElementById("autoArenaCheckbox").checked = Storage().autoArenaBattle === "true";
     document.getElementById("autoSeasonCheckbox").checked = Storage().autoSeason === "true";
+    document.getElementById("autoSeasonCollect").checked = Storage().autoSeasonCollect === "true";
     document.getElementById("autoFreePachinko").checked = Storage().autoFreePachinko === "true";
     document.getElementById("autoLeagues").checked = Storage().autoLeagues === "true";
     document.getElementById("autoLeaguesMaxRank").value = Storage().autoLeaguesMaxRank?Storage().autoLeaguesMaxRank:"0";
