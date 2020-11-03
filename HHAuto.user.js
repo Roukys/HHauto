@@ -912,7 +912,7 @@ var doShopping=function()
         {
             //console.log('gifts');
             Was=shop[2].length;
-            for (var n2=shop[2].length-2;n2>=0;n2--)
+            for (var n2=shop[2].length-1;n2>=0;n2--)
             {
                 console.log('wanna buy ',shop[2][n2]);
                 if (money>=Aff+Number(shop[2][n2].price) && money>=Number(shop[2][n2].price))
