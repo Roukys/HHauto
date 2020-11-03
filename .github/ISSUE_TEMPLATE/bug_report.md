@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: ''
+title: "[Script version] Bug description"
 labels: bug
 assignees: ''
 
