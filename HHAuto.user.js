@@ -2820,11 +2820,14 @@ var autoLoop = function () {
             }
         }
         if (Storage().autoQuest === "true" && busy === false ) {
-            if (sessionStorage.questRequirement === "battle" && Storage().autoTrollBattleSaveQuest === "false") {
-                console.log("Quest requires battle.");
-                console.log("prepare to save one battle for quest");
-                Storage().autoTrollBattleSaveQuest = "true";
-                doBossBattle();
+            if (sessionStorage.questRequirement === "battle") {
+                if (Storage().autoTrollBattleSaveQuest === "false")
+                {
+                    console.log("Quest requires battle.");
+                    console.log("prepare to save one battle for quest");
+                    Storage().autoTrollBattleSaveQuest = "true";
+                    doBossBattle();
+                }
                 busy = false;
             }
             else if (sessionStorage.questRequirement[0] === '$') {
