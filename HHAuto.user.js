@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5
+// @version      5.0.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -218,15 +218,15 @@ var proceedQuest = function () {
     if (proceedButtonMatch.length === 0){proceedButtonMatch = $("#controls button[act='free']");}
     var proceedCostEnergy = Number($("#controls .cost span[cur='*']").text());
     var units = [" ", "K", "M", "G", "T", "P", "E", "Z", "Y"]
-    var proceedCostMoney = $("#controls .cost span[cur='$']").text().replace(/\s+/g, '');
+    var proceedCostMoney = $("#controls .cost span[cur='$']").text();
     var Unit=proceedCostMoney.substr(-1);
     if (units.includes(Unit))
     {
-        proceedCostMoney=Number(proceedCostMoney.split(Unit)[0].replace(",","").trim())*(1000**units.indexOf(Unit))
+        proceedCostMoney=Number(proceedCostMoney.split(Unit)[0].replace(/[^0-9]/gi, ''))*(1000**units.indexOf(Unit))
     }
     else
     {
-        proceedCostMoney=Number(proceedCostMoney.replace(",","").trim());
+        proceedCostMoney=Number(proceedCostMoney.replace(/[^0-9]/gi, ''));
     }
     var proceedType = proceedButtonMatch.attr("act");
 
@@ -1064,8 +1064,8 @@ var doSeason = function () {
             var endurance = -1;
             for (var index=0;index<3;index++)
             {
-                //endurance :Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[2].outerText.replace(/\s+/g, ''));
-                var currentValue = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[2].outerText.replace(/\s+/g, '').split('-')[0])
+                //endurance :Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[2].outerText.replace(/[^0-9]/gi, ''));
+                var currentValue = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[2].outerText.replace(/[^0-9]/gi, '').split('-')[0])
                 if (endurance == -1 || endurance > currentValue)
                 {
                     endurance = currentValue;
