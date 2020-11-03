@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.1-beta.7
+// @version      5.1-beta.8
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -208,15 +208,15 @@ var proceedQuest = function () {
     if (proceedButtonMatch.length === 0){proceedButtonMatch = $("#controls button[act='free']");}
     var proceedCostEnergy = Number($("#controls .cost span[cur='*']").text());
     var units = [" ", "K", "M", "G", "T", "P", "E", "Z", "Y"]
-    var proceedCostMoney = $("#controls .cost span[cur='$']").text().replace(/\s+/g, '');
+    var proceedCostMoney = $("#controls .cost span[cur='$']").text();
     var Unit=proceedCostMoney.substr(-1);
     if (units.includes(Unit))
     {
-        proceedCostMoney=Number(proceedCostMoney.split(Unit)[0].replace(",","").trim())*(1000**units.indexOf(Unit))
+        proceedCostMoney=Number(proceedCostMoney.split(Unit)[0].replace(/[^0-9]/gi, ''))*(1000**units.indexOf(Unit))
     }
     else
     {
-        proceedCostMoney=Number(proceedCostMoney.replace(",","").trim());
+        proceedCostMoney=Number(proceedCostMoney.replace(/[^0-9]/gi, ''));
     }
     var proceedType = proceedButtonMatch.attr("act");
 
@@ -1064,13 +1064,6 @@ var doChampionStuff=function()
         return true;
     }
 }
-// Numbers: thousand spacing
-function nThousand(x) {
-    if (typeof x != 'number') {
-        x = 0;
-    }
-    return x.toLocaleString();
-}
 
 // Numbers: rounding to K, M, G and T
 function nRounding(num, digits, updown) {
@@ -1335,7 +1328,7 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
     //Publish the ego difference as a match rating
     matchRating = playerEgo - opponentEgo;
     if (matchRating >= 0) {
-        matchRating = '+' + nThousand(matchRating);
+        matchRating = '+' + matchRating;
 
         if (playerEgoCheck <= 0) {
             return 'y'+matchRating
@@ -1345,7 +1338,7 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
         }
     }
     else {
-        matchRating = nThousand(matchRating);
+        matchRating = matchRating;
         return 'r'+matchRating
     }
 }
@@ -1419,9 +1412,9 @@ var doSeason = function () {
             for (var index=0;index<3;index++)
             {
                 var opponentName = $("div.season_arena_opponent_container .hero_details div:not([class]):not([carac])")[index].innerText;
-                var opponentEgo = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[2].outerText.replace(/\s+/g, ''));
-                var opponentDef = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[1].outerText.split('-')[0].replace(/\s+/g, ''));
-                var opponentAtk = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[0].outerText.split('-')[0].replace(/\s+/g, ''));
+                var opponentEgo = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[2].outerText.replace(/[^0-9]/gi, ''));
+                var opponentDef = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[1].outerText.split('-')[0].replace(/[^0-9]/gi, ''));
+                var opponentAtk = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[0].outerText.split('-')[0].replace(/[^0-9]/gi, ''));
 
                 var opponentClass = $($("div.season_arena_opponent_container .hero_details div[hh_class_tooltip]")[index]).attr('carac');
                 var opponentAlpha = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g1']")[index]).attr('girl-tooltip-data'));
@@ -1440,11 +1433,11 @@ var doSeason = function () {
                 }
                 var opponentExcitement = Math.round((opponentAlpha.caracs.carac1 + opponentAlpha.caracs.carac2 + opponentAlpha.caracs.carac3) * 28);
 
-                //endurance :Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[2].outerText.replace(/\s+/g, ''));
+                //endurance :Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[2].outerText.replace(/[^0-9]/gi, ''));
                 //console.log(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement);
                 var currentValue = calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement);
                 //console.log("matchrating : "+currentValue);
-                currentValue = currentValue.substring(1).replace(/\s+/g, '');
+                currentValue = currentValue.substring(1);
                 //console.log(currentValue);
                 currentValue = Number(currentValue);
                 console.log(opponentName+':'+currentValue);
@@ -1718,7 +1711,7 @@ function getLeagueOpponentId(opponentsIDList)
                 var opponentExcitement = Math.round((opponent.team["1"].caracs.carac1 + opponent.team["1"].caracs.carac2 + opponent.team["1"].caracs.carac3) * 28);
                 //console.log(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponent.Name,opponent.caracs.ego,opponentDef,opponent.caracs.damage,'class'+opponent.class,opponent.team["1"],opponent.team["2"],opponent.team["1"],opponentExcitement);
                 var matchRating = calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponent.Name,opponent.caracs.ego,opponentDef,opponent.caracs.damage,'class'+opponent.class,opponent.team["1"],opponent.team["2"],opponent.team["1"],opponentExcitement);
-                matchRating = matchRating.substring(1).replace(/\s+/g, '');
+                matchRating = Number(matchRating.substring(1));
                 console.log('matchRating:'+matchRating);
                 DataOppo.set(opponent.id_member,matchRating);
                 //DataOppo.push(JSON.parse(data.html.substring(data.html.indexOf(findText)+findText.length,data.html.lastIndexOf(';'))));
@@ -2674,9 +2667,9 @@ function moduleSimSeasonBattle() {
     for (var index=0;index<3;index++)
     {
         var opponentName = $("div.season_arena_opponent_container .hero_details div:not([class]):not([carac])")[index].innerText;
-        var opponentEgo = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[2].outerText.replace(/\s+/g, ''));
-        var opponentDef = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[1].outerText.split('-')[0].replace(/\s+/g, ''));
-        var opponentAtk = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[0].outerText.split('-')[0].replace(/\s+/g, ''));
+        var opponentEgo = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[2].outerText.replace(/[^0-9]/gi, ''));
+        var opponentDef = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[1].outerText.split('-')[0].replace(/[^0-9]/gi, ''));
+        var opponentAtk = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[0].outerText.split('-')[0].replace(/[^0-9]/gi, ''));
 
         var opponentClass = $($("div.season_arena_opponent_container .hero_details div[hh_class_tooltip]")[index]).attr('carac');
         var opponentAlpha = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g1']")[index]).attr('girl-tooltip-data'));
