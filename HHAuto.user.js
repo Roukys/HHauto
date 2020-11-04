@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.1-beta.9
+// @version      5.1-beta.10
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -1374,91 +1374,14 @@ var doSeason = function () {
     {
         console.log("On season arena page.");
 
-        try{
-            var minID = -1;
-            var scoreRating = -1;
-            var oppoName;
-            var playerEgo;
-            var playerDefHC;
-            var playerDefKH;
-            var playerDefCH;
-
-            var playerAtk;
-            var playerClass;
-            var playerAlpha;
-            var playerBeta;
-            var playerOmega;
-            var playerExcitement;
-            var matchRating;
-            var matchRatingFlag;
-
-            // player stats
-
-            playerEgo = Math.round(getHero().infos.caracs.ego);
-            playerDefHC = Math.round(getHero().infos.caracs.def_carac1);
-            playerDefCH = Math.round(getHero().infos.caracs.def_carac2);
-            playerDefKH = Math.round(getHero().infos.caracs.def_carac3);
-            playerAtk = Math.round(getHero().infos.caracs.damage);
-            playerClass = 'class'+getHero().infos.class;
-            //playerClass = $('div#leagues_left .icon').attr('carac');
-            playerAlpha = JSON.parse($("div.hero_team div[girl_n=0]").attr('girl-tooltip-data'));
-            playerBeta =  JSON.parse($("div.hero_team div[girl_n=1]").attr('girl-tooltip-data'));
-            playerOmega = JSON.parse($("div.hero_team div[girl_n=2]").attr('girl-tooltip-data'));
-            playerExcitement = Math.round((playerAlpha.caracs.carac1 + playerAlpha.caracs.carac2 + playerAlpha.caracs.carac3) * 28);
 
 
-
-
-            for (var index=0;index<3;index++)
-            {
-                var opponentName = $("div.season_arena_opponent_container .hero_details div:not([class]):not([carac])")[index].innerText;
-                var opponentEgo = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[2].innerText.replace(/[^0-9]/gi, ''));
-                var opponentDef = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[1].innerText.split('-')[0].replace(/[^0-9]/gi, ''));
-                var opponentAtk = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[0].innerText.split('-')[0].replace(/[^0-9]/gi, ''));
-
-                var opponentClass = $($("div.season_arena_opponent_container .hero_details div[hh_class_tooltip]")[index]).attr('carac');
-                var opponentAlpha = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g1']")[index]).attr('girl-tooltip-data'));
-                var opponentBeta = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g2']")[index]).attr('girl-tooltip-data'));
-                var opponentOmega = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g3']")[index]).attr('girl-tooltip-data'));
-
-                var playerDef;
-                if (opponentClass == 'class1') {
-                    playerDef = playerDefHC;
-                }
-                if (opponentClass == 'class2') {
-                    playerDef = playerDefCH;
-                }
-                if (opponentClass == 'class3') {
-                    playerDef = playerDefKH;
-                }
-                var opponentExcitement = Math.round((opponentAlpha.caracs.carac1 + opponentAlpha.caracs.carac2 + opponentAlpha.caracs.carac3) * 28);
-
-                //endurance :Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[2].innerText.replace(/[^0-9]/gi, ''));
-                //console.log(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement);
-                var currentValue = calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement);
-                //console.log("matchrating : "+currentValue);
-                currentValue = currentValue.substring(1);
-                //console.log(currentValue);
-                currentValue = Number(currentValue);
-                console.log(opponentName+':'+currentValue);
-                if (scoreRating == -1 || scoreRating < currentValue)
-                {
-                    scoreRating = currentValue;
-                    minID = index;
-                    oppoName = opponentName;
-                }
-            }
-
-            if (minID != -1 )
-            {
-                location.href = document.getElementsByClassName("opponent_perform_button_container")[minID].children[0].getAttribute('href');
-                console.log("Going to crush : "+oppoName);
-                return true;
-            }
-        }
-        catch(err)
+        var chosenID=moduleSimSeasonBattle();
+        if (chosenID != -1 )
         {
-            return ""
+            location.href = document.getElementsByClassName("opponent_perform_button_container")[chosenID].children[0].getAttribute('href');
+            console.log("Going to crush : "+$("div.season_arena_opponent_container .hero_details div:not([class]):not([carac])")[chosenID].innerText);
+            return true;
         }
     }
     //     else if (page==="battle")
@@ -2642,106 +2565,190 @@ function moduleSimSeasonBattle() {
     var playerExcitement;
     var matchRating;
     var matchRatingFlag;
+    var mojoOppo=[];
+    var scoreOppo=[];
+    var nameOppo=[];
+    var index;
+    var marker='!!';
+    var doDisplay=false;
 
-
-    if ($("div.matchRating img#powerLevelScouter").length != 0)
+    try
     {
-        return;
-    }
-    // player stats
-    playerEgo = Math.round(getHero().infos.caracs.ego);
-    playerDefHC = Math.round(getHero().infos.caracs.def_carac1);
-    playerDefCH = Math.round(getHero().infos.caracs.def_carac2);
-    playerDefKH = Math.round(getHero().infos.caracs.def_carac3);
-    playerAtk = Math.round(getHero().infos.caracs.damage);
-    playerClass = 'class'+getHero().infos.class;
-    //playerClass = $('div#leagues_left .icon').attr('carac');
-    playerAlpha = JSON.parse($("div.hero_team div[girl_n=0]").attr('girl-tooltip-data'));
-    playerBeta =  JSON.parse($("div.hero_team div[girl_n=1]").attr('girl-tooltip-data'));
-    playerOmega = JSON.parse($("div.hero_team div[girl_n=2]").attr('girl-tooltip-data'));
-    playerExcitement = Math.round((playerAlpha.caracs.carac1 + playerAlpha.caracs.carac2 + playerAlpha.caracs.carac3) * 28);
-
-
-
-
-    for (var index=0;index<3;index++)
-    {
-        var opponentName = $("div.season_arena_opponent_container .hero_details div:not([class]):not([carac])")[index].innerText;
-        var opponentEgo = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[2].innerText.replace(/[^0-9]/gi, ''));
-        var opponentDef = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[1].innerText.split('-')[0].replace(/[^0-9]/gi, ''));
-        var opponentAtk = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[0].innerText.split('-')[0].replace(/[^0-9]/gi, ''));
-
-        var opponentClass = $($("div.season_arena_opponent_container .hero_details div[hh_class_tooltip]")[index]).attr('carac');
-        var opponentAlpha = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g1']")[index]).attr('girl-tooltip-data'));
-        var opponentBeta = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g2']")[index]).attr('girl-tooltip-data'));
-        var opponentOmega = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g3']")[index]).attr('girl-tooltip-data'));
-
-        var playerDef;
-        if (opponentClass == 'class1') {
-            playerDef = playerDefHC;
-        }
-        if (opponentClass == 'class2') {
-            playerDef = playerDefCH;
-        }
-        if (opponentClass == 'class3') {
-            playerDef = playerDefKH;
-        }
-        var opponentExcitement = Math.round((opponentAlpha.caracs.carac1 + opponentAlpha.caracs.carac2 + opponentAlpha.caracs.carac3) * 28);
-
-        //console.log(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement);
-        matchRating = calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement);
-
-        //Publish the ego difference as a match rating
-        matchRatingFlag = matchRating.substring(0,1);
-        matchRating = matchRating.substring(1);
-
-        switch (matchRatingFlag)
+        if ($("div.matchRating img#powerLevelScouter").length != 3)
         {
-            case 'g':
-                $($('div.season_arena_opponent_container .personal_info')[index]).append('<div class="matchRating plus"><img id="powerLevelScouter" src="https://i.postimg.cc/J0YB1BM8/icon-sim-green.png">' + matchRating + '</div>');
-                break;
-            case 'y':
-                $($('div.season_arena_opponent_container .personal_info')[index]).append('<div class="matchRating close"><img id="powerLevelScouter" src="https://i.postimg.cc/3xvDTR6M/icon-sim-yellow.png">' + matchRating + '</div>');
-                break;
-            case 'r':
-                $($('div.season_arena_opponent_container .personal_info')[index]).append('<div class="matchRating minus"><img id="powerLevelScouter" src="https://i.postimg.cc/8P3r9WZB/icon-sim-red.png">' + matchRating + '</div>');
-                break;
+            doDisplay=true;
         }
+        // player stats
+        playerEgo = Math.round(getHero().infos.caracs.ego);
+        playerDefHC = Math.round(getHero().infos.caracs.def_carac1);
+        playerDefCH = Math.round(getHero().infos.caracs.def_carac2);
+        playerDefKH = Math.round(getHero().infos.caracs.def_carac3);
+        playerAtk = Math.round(getHero().infos.caracs.damage);
+        playerClass = 'class'+getHero().infos.class;
+        //playerClass = $('div#leagues_left .icon').attr('carac');
+        playerAlpha = JSON.parse($("div.hero_team div[girl_n=0]").attr('girl-tooltip-data'));
+        playerBeta =  JSON.parse($("div.hero_team div[girl_n=1]").attr('girl-tooltip-data'));
+        playerOmega = JSON.parse($("div.hero_team div[girl_n=2]").attr('girl-tooltip-data'));
+        playerExcitement = Math.round((playerAlpha.caracs.carac1 + playerAlpha.caracs.carac2 + playerAlpha.caracs.carac3) * 28);
+
+
+
+
+        for (index=0;index<3;index++)
+        {
+            var opponentName = $("div.season_arena_opponent_container .hero_details div:not([class]):not([carac])")[index].innerText;
+            var opponentEgo = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[2].innerText.replace(/[^0-9]/gi, ''));
+            var opponentDef = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[1].innerText.split('-')[0].replace(/[^0-9]/gi, ''));
+            var opponentAtk = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[0].innerText.split('-')[0].replace(/[^0-9]/gi, ''));
+
+            var opponentClass = $($("div.season_arena_opponent_container .hero_details div[hh_class_tooltip]")[index]).attr('carac');
+            var opponentAlpha = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g1']")[index]).attr('girl-tooltip-data'));
+            var opponentBeta = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g2']")[index]).attr('girl-tooltip-data'));
+            var opponentOmega = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g3']")[index]).attr('girl-tooltip-data'));
+
+            var playerDef;
+            if (opponentClass == 'class1') {
+                playerDef = playerDefHC;
+            }
+            if (opponentClass == 'class2') {
+                playerDef = playerDefCH;
+            }
+            if (opponentClass == 'class3') {
+                playerDef = playerDefKH;
+            }
+            var opponentExcitement = Math.round((opponentAlpha.caracs.carac1 + opponentAlpha.caracs.carac2 + opponentAlpha.caracs.carac3) * 28);
+
+            //console.log(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement);
+            matchRating = calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement);
+            scoreOppo[index]=matchRating;
+            mojoOppo[index]=Number($("div.season_arena_opponent_container .slot_victory_points p")[index].innerText);
+            //console.log(Number($("div.season_arena_opponent_container .slot_victory_points p")[index].innerText));
+            nameOppo[index]=opponentName;
+            //Publish the ego difference as a match rating
+            matchRatingFlag = matchRating.substring(0,1);
+            matchRating = matchRating.substring(1);
+
+            if (doDisplay)
+            {
+
+                switch (matchRatingFlag)
+                {
+                    case 'g':
+                        $($('div.season_arena_opponent_container .personal_info')[index]).append('<div class="matchRating plus"><img id="powerLevelScouter" src="https://i.postimg.cc/J0YB1BM8/icon-sim-green.png">' + matchRating + '</div>');
+                        break;
+                    case 'y':
+                        $($('div.season_arena_opponent_container .personal_info')[index]).append('<div class="matchRating close"><img id="powerLevelScouter" src="https://i.postimg.cc/3xvDTR6M/icon-sim-yellow.png">' + matchRating + '</div>');
+                        break;
+                    case 'r':
+                        $($('div.season_arena_opponent_container .personal_info')[index]).append('<div class="matchRating minus"><img id="powerLevelScouter" src="https://i.postimg.cc/8P3r9WZB/icon-sim-red.png">' + matchRating + '</div>');
+                        break;
+                }
+            }
+        }
+
+        var chosenID = -1;
+        var chosenRating = -1;
+        var chosenFlag = -1;
+        var chosenMojo = -1;
+        var currentFlag;
+        var currentScore;
+        var currentMojo;
+
+        for (index=0;index<3;index++)
+        {
+            currentScore = Number(scoreOppo[index].substring(1));
+            currentFlag = scoreOppo[index].substring(0,1);
+            currentMojo = Number(mojoOppo[index]);
+            switch (currentFlag)
+            {
+                case 'g':
+                    currentFlag = 1;
+                    break;
+                case 'y':
+                    currentFlag = 0;
+                    break;
+                case 'r':
+                    currentFlag = -1;
+                    break;
+            }
+            //console.log(nameOppo[index],currentFlag,currentScore,currentMojo);
+            //not chosen or better flag
+            if (chosenRating == -1 || chosenFlag < currentFlag)
+            {
+                //console.log('first');
+                chosenRating = currentScore;
+                chosenFlag = currentFlag;
+                chosenID = index;
+                chosenMojo = currentMojo;
+                oppoName = nameOppo[index];
+            }
+            //same red or orange flag but better score
+            else if (chosenFlag == currentFlag && currentFlag != 1 && chosenRating < currentScore)
+            {
+                //console.log('second');
+                chosenRating = currentScore;
+                chosenFlag = currentFlag;
+                chosenID = index;
+                chosenMojo = currentMojo;
+                oppoName = nameOppo[index];
+            }
+            //same green flag but better mojo
+            else if (chosenFlag == currentFlag && currentFlag == 1 && chosenMojo < currentMojo)
+            {
+                //console.log('third');
+                chosenRating = currentScore;
+                chosenFlag = currentFlag;
+                chosenID = index;
+                chosenMojo = currentMojo;
+                oppoName = nameOppo[index];
+            }
+        }
+
+        //console.log("Best opportunity opponent : "+oppoName+'('+chosenRating+')');
+        if (doDisplay)
+        {
+            $('div.season_arena_opponent_container .personal_info div.matchRating')[chosenID].innerHTML=$('div.season_arena_opponent_container .personal_info div.matchRating')[chosenID].innerHTML+marker;
+        }
+
+        var sheet = (function() {
+            var style = document.createElement('style');
+            document.head.appendChild(style);
+            return style.sheet;
+        })();
+
+        //CSS
+
+        sheet.insertRule('.matchRating {'
+                         + 'text-align: right; '
+                         + 'margin-top: -25px; '
+                         + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
+                         + 'line-height: 17px; '
+                         + 'font-size: 14px;}'
+                        );
+
+        sheet.insertRule('.plus {'
+                         + 'color: #66CD00;}'
+                        );
+
+        sheet.insertRule('.minus {'
+                         + 'color: #FF2F2F;}'
+                        );
+
+        sheet.insertRule('.close {'
+                         + 'color: #FFA500;}'
+                        );
+
+        sheet.insertRule('#powerLevelScouter {'
+                         + 'margin-left: -8px; '
+                         + 'margin-right: 1px; '
+                         + 'width: 25px;}'
+                        );
+        return chosenID;
     }
-
-    var sheet = (function() {
-        var style = document.createElement('style');
-        document.head.appendChild(style);
-        return style.sheet;
-    })();
-
-    //CSS
-
-    sheet.insertRule('.matchRating {'
-                     + 'text-align: right; '
-                     + 'margin-top: -25px; '
-                     + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
-                     + 'line-height: 17px; '
-                     + 'font-size: 14px;}'
-                    );
-
-    sheet.insertRule('.plus {'
-                     + 'color: #66CD00;}'
-                    );
-
-    sheet.insertRule('.minus {'
-                     + 'color: #FF2F2F;}'
-                    );
-
-    sheet.insertRule('.close {'
-                     + 'color: #FFA500;}'
-                    );
-
-    sheet.insertRule('#powerLevelScouter {'
-                     + 'margin-left: -8px; '
-                     + 'margin-right: 1px; '
-                     + 'width: 25px;}'
-                    );
+    catch(err)
+    {
+        return -1;
+    }
 }
 
 
