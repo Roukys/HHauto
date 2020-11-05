@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.1-beta.10
+// @version      5.1-beta.11
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -2240,10 +2240,7 @@ function moduleSimLeague() {
 
     var SimPower = function()
     {
-        if ($("div.matchRating img#powerLevelScouter").length != 0)
-        {
-            return;
-        }
+
         // player stats
         playerEgo = Math.round(Hero.infos.caracs.ego);
         playerDefHC = Math.round(Hero.infos.caracs.def_carac1);
@@ -2304,7 +2301,7 @@ function moduleSimLeague() {
         {
             opponentAtk = parseInt(opponentAtk.replace('K', '000').replace(/[^0-9]/gi, ''));
         }
-
+        console.log(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement);
         matchRating = calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement);
 
         //Publish the ego difference as a match rating
@@ -2314,13 +2311,13 @@ function moduleSimLeague() {
         switch (matchRatingFlag)
         {
             case 'g':
-                $('div#leagues_right .lead_player_profile').append('<div class="matchRating plus"><img id="powerLevelScouter" src="https://i.postimg.cc/J0YB1BM8/icon-sim-green.png">' + matchRating + '</div>');
+                $('div#leagues_right .girls_wrapper').append('<div class="matchRatingNew plus"><img id="powerLevelScouter" src="https://i.postimg.cc/qgkpN0sZ/Opponent-green.png">' + matchRating + '</div>');
                 break;
             case 'y':
-                $('div#leagues_right .lead_player_profile').append('<div class="matchRating close"><img id="powerLevelScouter" src="https://i.postimg.cc/3xvDTR6M/icon-sim-yellow.png">' + matchRating + '</div>');
+                $('div#leagues_right .girls_wrapper').append('<div class="matchRatingNew close"><img id="powerLevelScouter" src="https://i.postimg.cc/3JCgVBdK/Opponent-orange.png">' + matchRating + '</div>');
                 break;
             case 'r':
-                $('div#leagues_right .lead_player_profile').append('<div class="matchRating minus"><img id="powerLevelScouter" src="https://i.postimg.cc/8P3r9WZB/icon-sim-red.png">' + matchRating + '</div>');
+                $('div#leagues_right .girls_wrapper').append('<div class="matchRatingNew minus"><img id="powerLevelScouter" src="https://i.postimg.cc/PxgxrBVB/Opponent-red.png">' + matchRating + '</div>');
                 break;
         }
 
@@ -2331,7 +2328,10 @@ function moduleSimLeague() {
         //Replace player excitement with the correct value
         //$('div#leagues_left div.stats_wrap div:nth-child(9) span:nth-child(2)').empty().append(nRounding(playerExcitement, 0, 1));
     }
-
+    if ($("div.matchRatingNew img#powerLevelScouter").length != 0)
+    {
+        return;
+    }
     SimPower();
 
     // Refresh sim on new opponent selection (Credit: BenBrazke)
@@ -2377,9 +2377,9 @@ function moduleSimLeague() {
                      + 'top: 5px !important;}'
                     );
 
-    sheet.insertRule('.matchRating {'
-                     + 'margin-top: -25px; '
-                     + 'margin-left: 70px; '
+    sheet.insertRule('.matchRatingNew {'
+                     + 'margin-top: 50px; '
+                     + 'margin-left: -120px; '
                      + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
                      + 'line-height: 17px; '
                      + 'font-size: 14px;}'
@@ -2432,7 +2432,7 @@ function moduleSimBattle() {
     var opponentExcitement;
     var matchRating;
     var matchRatingFlag;
-    if ($("div.matchRating img#powerLevelScouter").length != 0)
+    if ($("div.matchRatingNew img#powerLevelScouter").length != 0)
     {
         return;
     }
@@ -2452,10 +2452,10 @@ function moduleSimBattle() {
     opponentName = $('div.battle_opponent h3')[0].innerText;
     opponentEgo = parseInt($('div.battle_opponent .battle-bar-ego .over').text().replace(/[^0-9]/gi, ''));
 
-    opponentDefHC = $('div.battle_opponent .stats_wrap').children()[1].innerText.split('-')[0].replace(/[^0-9]/gi, '');
-    opponentDefCH = $('div.battle_opponent .stats_wrap').children()[3].innerText.split('-')[0].replace(/[^0-9]/gi, '');
-    opponentDefKH = $('div.battle_opponent .stats_wrap').children()[5].innerText.split('-')[0].replace(/[^0-9]/gi, '');
-    opponentAtk = $('div.battle_opponent .stats_wrap').children()[7].innerText.split('-')[0].replace(/[^0-9]/gi, '');
+    opponentDefHC = Number($('div.battle_opponent .stats_wrap').children()[1].innerText.split('-')[0].replace(/[^0-9]/gi, ''));
+    opponentDefCH = Number($('div.battle_opponent .stats_wrap').children()[3].innerText.split('-')[0].replace(/[^0-9]/gi, ''));
+    opponentDefKH = Number($('div.battle_opponent .stats_wrap').children()[5].innerText.split('-')[0].replace(/[^0-9]/gi, ''));
+    opponentAtk = Number($('div.battle_opponent .stats_wrap').children()[7].innerText.split('-')[0].replace(/[^0-9]/gi, ''));
     opponentClass = $('div.battle_opponent h3 div[hh_class_tooltip]').attr('carac');
     opponentAlpha = JSON.parse($('div.battle_opponent .battle-faces div[girl_n=0]').attr('girl-tooltip-data'));
     opponentBeta = JSON.parse($('div.battle_opponent  .battle-faces div[girl_n=1]').attr('girl-tooltip-data'));
@@ -2482,7 +2482,7 @@ function moduleSimBattle() {
     if (opponentClass == 'class3') {
         playerDef = playerDefKH;
     }
-
+    console.log(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement);
     matchRating = calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement);
 
     //Publish the ego difference as a match rating
@@ -2492,13 +2492,13 @@ function moduleSimBattle() {
     switch (matchRatingFlag)
     {
         case 'g':
-            $('div.battle_opponent .battle-bar-ego .over').append('<div class="matchRating plus"><img id="powerLevelScouter" src="https://i.postimg.cc/J0YB1BM8/icon-sim-green.png">' + matchRating + '</div>');
+            $('div.battle_opponent .battle-bar-ego .over').append('<div class="matchRatingNew plus"><img id="powerLevelScouter" src="https://i.postimg.cc/qgkpN0sZ/Opponent-green.png">' + matchRating + '</div>');
             break;
         case 'y':
-            $('div.battle_opponent .battle-bar-ego .over').append('<div class="matchRating close"><img id="powerLevelScouter" src="https://i.postimg.cc/3xvDTR6M/icon-sim-yellow.png">' + matchRating + '</div>');
+            $('div.battle_opponent .battle-bar-ego .over').append('<div class="matchRatingNew close"><img id="powerLevelScouter" src="https://i.postimg.cc/3JCgVBdK/Opponent-orange.png">' + matchRating + '</div>');
             break;
         case 'r':
-            $('div.battle_opponent .battle-bar-ego .over').append('<div class="matchRating minus"><img id="powerLevelScouter" src="https://i.postimg.cc/8P3r9WZB/icon-sim-red.png">' + matchRating + '</div>');
+            $('div.battle_opponent .battle-bar-ego .over').append('<div class="matchRatingNew minus"><img id="powerLevelScouter" src="https://i.postimg.cc/PxgxrBVB/Opponent-red.png">' + matchRating + '</div>');
             break;
     }
 
@@ -2522,7 +2522,7 @@ function moduleSimBattle() {
 
     //CSS
 
-    sheet.insertRule('.matchRating {'
+    sheet.insertRule('.matchRatingNew {'
                      + 'text-align: left; '
                      + 'margin-top: -25px; '
                      + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
@@ -2574,7 +2574,7 @@ function moduleSimSeasonBattle() {
 
     try
     {
-        if ($("div.matchRating img#powerLevelScouter").length != 3)
+        if ($("div.matchRatingNew img#powerLevelScouter").length != 3)
         {
             doDisplay=true;
         }
@@ -2634,13 +2634,13 @@ function moduleSimSeasonBattle() {
                 switch (matchRatingFlag)
                 {
                     case 'g':
-                        $($('div.season_arena_opponent_container .personal_info')[index]).append('<div class="matchRating plus"><img id="powerLevelScouter" src="https://i.postimg.cc/J0YB1BM8/icon-sim-green.png">' + matchRating + '</div>');
+                        $($('div.season_arena_opponent_container')[index]).append('<div class="matchRatingNew plus"><img id="powerLevelScouter" src="https://i.postimg.cc/qgkpN0sZ/Opponent-green.png">' + matchRating + '</div>');
                         break;
                     case 'y':
-                        $($('div.season_arena_opponent_container .personal_info')[index]).append('<div class="matchRating close"><img id="powerLevelScouter" src="https://i.postimg.cc/3xvDTR6M/icon-sim-yellow.png">' + matchRating + '</div>');
+                        $($('div.season_arena_opponent_container')[index]).append('<div class="matchRatingNew close"><img id="powerLevelScouter" src="https://i.postimg.cc/3JCgVBdK/Opponent-orange.png">' + matchRating + '</div>');
                         break;
                     case 'r':
-                        $($('div.season_arena_opponent_container .personal_info')[index]).append('<div class="matchRating minus"><img id="powerLevelScouter" src="https://i.postimg.cc/8P3r9WZB/icon-sim-red.png">' + matchRating + '</div>');
+                        $($('div.season_arena_opponent_container')[index]).append('<div class="matchRatingNew minus"><img id="powerLevelScouter" src="https://i.postimg.cc/PxgxrBVB/Opponent-red.png">' + matchRating + '</div>');
                         break;
                 }
             }
@@ -2707,42 +2707,48 @@ function moduleSimSeasonBattle() {
         //console.log("Best opportunity opponent : "+oppoName+'('+chosenRating+')');
         if (doDisplay)
         {
-            $('div.season_arena_opponent_container .personal_info div.matchRating')[chosenID].innerHTML=$('div.season_arena_opponent_container .personal_info div.matchRating')[chosenID].innerHTML+marker;
+
+            //$('div.season_arena_opponent_container div.matchRatingNew')[chosenID].innerHTML=$('div.season_arena_opponent_container div.matchRatingNew')[chosenID].innerHTML+marker;
+            $($('div.season_arena_opponent_container div.matchRatingNew')[chosenID]).append('<img id="powerLevelScouterChosen" src="https://i.postimg.cc/MfKwNbZ8/Opponent-go.png">');
+
+
+            var sheet = (function() {
+                var style = document.createElement('style');
+                document.head.appendChild(style);
+                return style.sheet;
+            })();
+
+            //CSS
+
+            sheet.insertRule('.matchRatingNew {'
+                             + 'text-align: center; '
+                             + 'margin-top: -14px; '
+                             + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
+                             + 'line-height: 17px; '
+                             + 'font-size: 14px;}'
+                            );
+
+            sheet.insertRule('.plus {'
+                             + 'color: #66CD00;}'
+                            );
+
+            sheet.insertRule('.minus {'
+                             + 'color: #FF2F2F;}'
+                            );
+
+            sheet.insertRule('.close {'
+                             + 'color: #FFA500;}'
+                            );
+
+            sheet.insertRule('#powerLevelScouter {'
+                             + 'margin-left: -8px; '
+                             + 'margin-right: 1px; '
+                             + 'width: 25px;}'
+                            );
+            sheet.insertRule('#powerLevelScouterChosen {'
+                             + 'width: 25px;}'
+                            );
         }
-
-        var sheet = (function() {
-            var style = document.createElement('style');
-            document.head.appendChild(style);
-            return style.sheet;
-        })();
-
-        //CSS
-
-        sheet.insertRule('.matchRating {'
-                         + 'text-align: right; '
-                         + 'margin-top: -25px; '
-                         + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
-                         + 'line-height: 17px; '
-                         + 'font-size: 14px;}'
-                        );
-
-        sheet.insertRule('.plus {'
-                         + 'color: #66CD00;}'
-                        );
-
-        sheet.insertRule('.minus {'
-                         + 'color: #FF2F2F;}'
-                        );
-
-        sheet.insertRule('.close {'
-                         + 'color: #FFA500;}'
-                        );
-
-        sheet.insertRule('#powerLevelScouter {'
-                         + 'margin-left: -8px; '
-                         + 'margin-right: 1px; '
-                         + 'width: 25px;}'
-                        );
         return chosenID;
     }
     catch(err)
