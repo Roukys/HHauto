@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.1-beta.14
+// @version      5.1-beta.15
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -1875,8 +1875,8 @@ var updateData = function () {
     Storage().autoLGRW = document.getElementById("autoLGRW").checked;
     Storage().autoEGM = document.getElementById("autoEGM").value;
     Storage().autoEGMW = document.getElementById("autoEGMW").checked;
-    Storage().showInfo = document.getElementById("showInfo").checked;
-    Storage().showCalculatePower = document.getElementById("showCalculatePower").checked;
+    localStorage.showInfo = document.getElementById("showInfo").checked;
+    localStorage.showCalculatePower = document.getElementById("showCalculatePower").checked;
     Storage().autoChamps = document.getElementById("autoChamps").checked;
     Storage().autoChampsUseEne = document.getElementById("autoChampsUseEne").checked;
     Storage().autoChampsFilter = document.getElementById("autoChampsFilter").value;
@@ -1891,11 +1891,11 @@ var updateData = function () {
     document.getElementById("buyCombat").checked=Storage().buyCombat=="true";
     Storage().kobanBank=document.getElementById("kobanBank").value;
 
-    localStorage.settPerTab = document.getElementById("settPerTab").checked;
+     settPerTab = document.getElementById("settPerTab").checked;
 
     Storage().master=document.getElementById("master").checked;
 
-    if (Storage().showInfo=="true")
+    if (localStorage.showInfo=="true")
     {
         var Tegzd='';
         Tegzd+='Master: '+(Storage().master==="true"?"ON":"OFF");
@@ -3059,13 +3059,13 @@ var autoLoop = function () {
 
     var currentPage = window.location.pathname;
 
-    if (currentPage.indexOf('tower-of-fame') != -1 && Storage().showCalculatePower === "true") {
+    if (currentPage.indexOf('tower-of-fame') != -1 && localStorage.showCalculatePower === "true") {
         moduleSimLeague();
     }
-    if (currentPage.indexOf('battle') != -1 && Storage().showCalculatePower === "true" && $(".preBattleAnim").length == 0) {
+    if (currentPage.indexOf('battle') != -1 && localStorage.showCalculatePower === "true" && $(".preBattleAnim").length == 0) {
         moduleSimBattle();
     }
-    if (currentPage.indexOf('season-arena') != -1 && Storage().showCalculatePower === "true") {
+    if (currentPage.indexOf('season-arena') != -1 && localStorage.showCalculatePower === "true") {
         moduleSimSeasonBattle();
     }
 };
@@ -3113,8 +3113,8 @@ var setDefaults = function () {
     Storage().autoEGM = "500000000";
     Storage().autoEGMW = "false";
     Storage().paranoia="false";
-    Storage().showInfo="true";
-    Storage().showCalculatePower = "true";
+    localStorage.showInfo="true";
+    localStorage.showCalculatePower = "true";
     Storage().spendKobans0="false";
     Storage().paranoiaSettings="120-300/Sleep:28800-29400|Active:300-420|Casual:1800-2100/6:Sleep|18:Active|22:Casual|24:Sleep";
     Storage().master="false";
@@ -3389,8 +3389,8 @@ var start = function () {
     document.getElementById("autoLGRW").checked = Storage().autoLGRW === "true";
     document.getElementById("autoEGM").value = Storage().autoEGM?Storage().autoEGM:"500000000";
     document.getElementById("autoEGMW").checked = Storage().autoEGMW === "true";
-    document.getElementById("showInfo").checked = Storage().showInfo === "true";
-    document.getElementById("showCalculatePower").checked = Storage().showCalculatePower === "true";
+    document.getElementById("showInfo").checked = localStorage.showInfo === "true";
+    document.getElementById("showCalculatePower").checked = localStorage.showCalculatePower === "true";
     document.getElementById("plusEvent").checked = Storage().trollToFight=="-1" || Storage().plusEvent === "true";
 
     document.getElementById("autoChamps").checked = Storage().autoChamps === "true";
