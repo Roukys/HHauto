@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.1.0
+// @version      5.1-beta.15
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -53,7 +53,7 @@ function getPage()
         if (p=="missions" && $('h4.pop.selected').size()>0)
         {
             var t=$(".pop_thumb_selected").attr("index");
-            return "powerplaces"+t
+            return "powerplace"+t
         }
         else
         {
@@ -77,7 +77,16 @@ function gotoPage(page)
 {
     var cp=getPage();
     console.log('going '+cp+'->'+page);
-    if(getPage() === page)
+    var index;
+    var originalPage = page;
+    if (page.startsWith('powerplace'))
+    {
+        index = page.substring('powerplace'.length);
+        console.log('Powerplace index : '+index);
+        page = 'powerplace';
+    }
+
+    if(getPage() === originalPage)
     {
         if (page=='missions')
         {
@@ -87,15 +96,7 @@ function gotoPage(page)
         {
             $('h4.contests').each(function(){this.click();});
         }
-        if (page=='powerplaces1')
-        {
-            $('h4.pop').each(function(){this.click();});
-        }
-        if (page=='powerplaces2')
-        {
-            $('h4.pop').each(function(){this.click();});
-        }
-        if (page=='powerplaces3')
+        if (page=='powerplace')
         {
             $('h4.pop').each(function(){this.click();});
         }
@@ -103,21 +104,18 @@ function gotoPage(page)
     }
     else
     {
-        console.log("Navigating to page: "+page);
         var togoto = undefined;
+
         // get page path
         switch(page)
         {
+            case "home":
+                togoto = $("nav div[rel='content'] a:has(.home)").attr("href");
+                break;
             case "missions":
                 togoto = $("nav div[rel='content'] a:has(.activities)").attr("href");
                 break;
-            case "powerplaces1":
-                togoto = $("nav div[rel='content'] a:has(.activities)").attr("href");
-                break;
-            case "powerplaces2":
-                togoto = $("nav div[rel='content'] a:has(.activities)").attr("href");
-                break;
-            case "powerplaces3":
+            case "powerplace":
                 togoto = $("nav div[rel='content'] a:has(.activities)").attr("href");
                 break;
             case "activities":
@@ -181,22 +179,14 @@ function gotoPage(page)
             {
                 togoto = url_add_param(togoto, "tab=" + "contests");
             }
-            if (page=="powerplaces1")
+            if (page=="powerplace")
             {
                 togoto = url_add_param(togoto, "tab=" + "pop");
-                togoto = url_add_param(togoto, "index=" + "1");
+                togoto = url_add_param(togoto, "index=" + index);
             }
-            if (page=="powerplaces2")
-            {
-                togoto = url_add_param(togoto, "tab=" + "pop");
-                togoto = url_add_param(togoto, "index=" + "2");
-            }
-            if (page=="powerplaces3")
-            {
-                togoto = url_add_param(togoto, "tab=" + "pop");
-                togoto = url_add_param(togoto, "index=" + "3");
-            }
+
             sessionStorage.autoLoop = "false";
+            console.log('GotoPage : '+togoto);
             window.location = window.location.origin + togoto;
         }
         else console.log("Couldn't find page path. Page was undefined...");
@@ -486,16 +476,16 @@ function doMissionStuff()
 function doPowerPlacesStuff(index)
 {
 
-    if(!gotoPage("powerplaces"+index))
+    if(!gotoPage("powerplace"+index))
     {
-        console.log("Navigating to powerplaces"+index+" page.");
+        console.log("Navigating to powerplace"+index+" page.");
         // return busy
         return true;
     }
     else
     {
-        console.log("On powerplaces"+index+" page.");
-        console.log("Collecting finished powerplaces"+index+"'s reward.");
+        console.log("On powerplace"+index+" page.");
+        console.log("Collecting finished powerplace"+index+"'s reward.");
         $("button[rel='pop_claim']").click();
 
         console.log("Autofill for next powerplace"+index+" action.");
@@ -525,7 +515,7 @@ function doPowerPlacesStuff(index)
             }
         }}catch(e){}
         if(time === undefined){
-            console.log("New powerplaces time was undefined... Setting it manually to 10min.");
+            console.log("New powerplace time was undefined... Setting it manually to 10min.");
             time = 10*60;
         }
         setTimer('nextPowerPlacesTime'+index,Number(time)+1);
@@ -684,14 +674,8 @@ var CollectMoney = function()
 
 var getSalary = function () {
     try {
-        if(!gotoPage("harem"))
+        if(getPage() == "harem")
         {
-            // Not at Harem screen then goto the Harem screen.
-            console.log("Navigating to Harem window.");
-            // return busy
-            return true;
-        }
-        else {
             console.log("Detected Harem Screen. Fetching Salary");
             is_cheat_click=function(e) {
                 return false;
@@ -701,6 +685,53 @@ var getSalary = function () {
             // return busy
             return true;
         }
+        else if (getPage() == "home")
+        {
+            var salaryButton = $("#collect_all_container button[id='collect_all']")
+            var salaryToCollect = salaryButton.attr("style")==="display: inline-block;"?true:false;
+            var getButtonClass = salaryButton.attr("class");
+            console.log(salaryToCollect,getButtonClass);
+            if (salaryToCollect)
+            {
+                if (getButtonClass === "blue_button_L")
+                {
+                    is_cheat_click=function(e) {
+                        return false;
+                    };
+                    salaryButton.click();
+                    console.log('Collected all Premium salary');
+                    setTimer('nextSalaryTime',Number(Storage().autoSalaryTimer?Storage().autoSalaryTimer:"120")+1);
+                    return true;
+                }
+                else if ( getButtonClass === "orange_button_L")
+                {
+                    // Not at Harem screen then goto the Harem screen.
+                    console.log("Navigating to Harem window.");
+                    gotoPage("harem");
+                    // return busy
+                    return true;
+
+                }
+                else
+                {
+                    console.log("Unknown salary button color : "+getButtonClass);
+                    setTimer('nextSalaryTime',Number(Storage().autoSalaryTimer?Storage().autoSalaryTimer:"120")+1);
+                }
+            }
+            else
+            {
+                console.log("No salary to collect");
+                setTimer('nextSalaryTime',Number(Storage().autoSalaryTimer?Storage().autoSalaryTimer:"120")+1);
+            }
+        }
+        else
+        {
+            // Not at Harem screen then goto the Harem screen.
+            console.log("Navigating to Home window.");
+            gotoPage("home");
+            return true;
+        }
+
     }
     catch (ex) {
         console.log("Could not collect salary... " + ex);
@@ -1034,7 +1065,6 @@ var doChampionStuff=function()
     }
 }
 
-
 // Numbers: rounding to K, M, G and T
 function nRounding(num, digits, updown) {
     var power = [
@@ -1313,13 +1343,14 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
     }
 }
 
-
 var doSeason = function () {
     console.log("Performing auto Season.");
     // Confirm if on correct screen.
     var page = getPage();
     if(page === "season")
     {
+        console.log("On season page.");
+
         var current_kisses = getHero().infos.energy_kiss;
 
         if (Storage().autoSeasonCollect === "true")
@@ -1342,6 +1373,9 @@ var doSeason = function () {
     else if (page === "season_arena")
     {
         console.log("On season arena page.");
+
+
+
         var chosenID=moduleSimSeasonBattle();
         if (chosenID != -1 )
         {
@@ -1350,10 +1384,10 @@ var doSeason = function () {
             return true;
         }
     }
-//     else if (page==="battle")
-//     {
-//         CrushThem();
-//     }
+    //     else if (page==="battle")
+    //     {
+    //         CrushThem();
+    //     }
     else
     {
         // Switch to the correct screen
@@ -1433,9 +1467,17 @@ var doLeagueBattle = function () {
     }
     else if(page === "leaderboard")
     {
+        console.log("On leaderboard page.");
         // console.log('ls! '+$('h4.leagues').size());
         $('h4.leagues').each(function(){this.click();});
-
+        var GetPlayerLineRank = $("tr[class=personal_highlight] td span")[0].innerText;
+        if (isNaN(GetPlayerLineRank) && Number(Storage().autoLeaguesMaxRank) != 0)
+        {
+            console.log("Could not get current Rank, stopping League.");
+            setTimer('nextLeaguesTime',Number(30*60)+1);
+            return;
+        }
+        var currentRank = Number($("tr[class=personal_highlight] td span")[0].innerText);
         if(currentPower < 1)
         {
             console.log("No power for leagues.");
@@ -1451,6 +1493,14 @@ var doLeagueBattle = function () {
             return;
         }
 
+        if (currentRank <= Number(Storage().autoLeaguesMaxRank))
+        {
+            console.log("Max League rank reached, setting timer to 30 mins");
+            setTimer('nextLeaguesTime',Number(30*60)+1);
+            return;
+        }
+
+
         while ($("span[sort_by='level'][select='asc']").size()==0)
         {
             console.log('resorting');
@@ -1458,7 +1508,7 @@ var doLeagueBattle = function () {
         }
         console.log('parsing enemies');
         var Data=[];
-        $(".leadTable[sorting_table] tr").each(function(){if (this.cells[3].innerHTML==='0/3' || this.cells[3].innerHTML==='1/3' || this.cells[3].innerHTML==='2/3'){Data.push(this);}});
+        $(".leadTable[sorting_table] tr").each(function(){if (this.cells[3].innerHTML==='0/3' || this.cells[3].innerHTML==='1/3' || this.cells[3].innerHTML==='2/3'){Data.push($(this).attr("sorting_id"));}});
         if (Data.length==0)
         {
             ltime=35*60;
@@ -1469,8 +1519,27 @@ var doLeagueBattle = function () {
         {
             console.log(Data.length+' valid targets!');
             sessionStorage.autoLoop = "false";
-            console.log("Hit?");
-            location.href = "/battle.html?league_battle=1&id_member=" + $(Data[0]).attr("sorting_id")
+            console.log("Hit?" );
+            if (Storage().autoLeaguesPowerCalc == "true")
+            {
+                var oppoID = getLeagueOpponentId(Data);
+                if (oppoID == -1)
+                {
+                    console.log('opponent list is building next league time in 2 min');
+                    setTimer('nextLeaguesTime',2*60);
+                }
+                else
+                {
+                    console.log('going to crush ID : '+oppoID);
+                    location.href = "/battle.html?league_battle=1&id_member=" + oppoID
+                    clearTimer('nextLeaguesTime');
+                }
+            }
+            else
+            {
+                location.href = "/battle.html?league_battle=1&id_member=" + Data[0]
+            }
+
         }
     }
     else if (page==="battle")
@@ -1626,7 +1695,6 @@ function getLeagueOpponentId(opponentsIDList)
 
     return true;
 };
-
 
 var  CrushThem = function()
 {
@@ -1790,6 +1858,8 @@ var updateData = function () {
     Storage().autoSeason = document.getElementById("autoSeasonCheckbox").checked;
     Storage().autoSeasonCollect = document.getElementById("autoSeasonCollect").checked;
     Storage().autoLeagues = document.getElementById("autoLeagues").checked;
+    Storage().autoLeaguesPowerCalc = document.getElementById("autoLeaguesPowerCalc").checked;
+    Storage().autoLeaguesMaxRank = document.getElementById("autoLeaguesMaxRank").value;
     Storage().autoStats = document.getElementById("autoStats").value;
     Storage().paranoia = document.getElementById("paranoia").checked;
     Storage().autoFreePachinko = document.getElementById("autoFreePachinko").checked;
@@ -2700,6 +2770,7 @@ function moduleSimSeasonBattle() {
     }
 }
 
+
 var autoLoop = function () {
     updateData();
     if (!sessionStorage.questRequirement)
@@ -2753,11 +2824,11 @@ var autoLoop = function () {
         }
         if(Storage().autoPowerPlaces === "true" && busy === false){
             var indexes=(Storage().autoPowerPlacesIndexFilter?Storage().autoPowerPlacesIndexFilter:"").split(";");
-            for(var index=0;index<indexes.length;index++)
+            for(var index of indexes)
             {
-                if (checkTimer('nextPowerPlacesTime'+indexes[index])){
-                    console.log("Time to do PowerPlaces"+indexes[index]+".");
-                    busy = doPowerPlacesStuff(indexes[index]);
+                if (checkTimer('nextPowerPlacesTime'+index) && busy === false){
+                    console.log("Time to do PowerPlaces"+index+".");
+                    busy = doPowerPlacesStuff(index);
                 }
             }
         }
@@ -3009,6 +3080,8 @@ var setDefaults = function () {
     Storage().autoPowerPlacesIndexFilter = "1;2;3";
     Storage().autoMissionC = "false";
     Storage().autoLeagues = "false";
+    Storage().autoLeaguesPowerCalc = "false";
+    Storage().autoLeaguesMaxRank = "0";
     Storage().autoStats = "500000000";
     sessionStorage.autoLoop = "true";
     sessionStorage.userLink = "none";
@@ -3183,6 +3256,7 @@ var start = function () {
                      +   '<span>Buy comb. in events</span><div><label class=\"switch\"><input id=\"buyCombat\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="kobanBank" type="text"></div>'
                      +   '<span>Hours to buy Comb</span><div><input id="buyCombTimer" style="width:80%" type="text"></div>'
                      +   '<span>Event Troll Order</span><div><input id="eventTrollOrder" style="width:80%" type="text"></div>'
+                     +   '<span>Show CalculatePower</span><div><label class=\"switch\"><input id=\"showCalculatePower\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +  '</div>'
                      +  '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +   '<span>Settings per tab</span><div><label class=\"switch\"><input id=\"settPerTab\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
@@ -3225,7 +3299,17 @@ var start = function () {
                      +   '<span>Paranoia mode</span><div><label class=\"switch\"><input id=\"paranoia\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +  '</div>'
                      +  '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +   '<span>AutoLeagues</span><div><label class=\"switch\"><input id=\"autoLeagues\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>AutoLeagues</span><div><label class=\"switch\"><input id=\"autoLeagues\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +    '</div>'
+                     +   '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>UsePowerCalc</span><div><label class=\"switch\"><input id=\"autoLeaguesPowerCalc\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>Max rank (0 for none)</span><div><input id="autoLeaguesMaxRank" type="text"></div>'
+                     +    '</div>'
+                     +   '</div>'
                      +   '<div style="display:flex;flex-direction:row;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>AutoPowerPlaces</span><div><label class=\"switch\"><input id=\"autoPowerPlaces\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
@@ -3287,6 +3371,8 @@ var start = function () {
     document.getElementById("autoSeasonCollect").checked = Storage().autoSeasonCollect === "true";
     document.getElementById("autoFreePachinko").checked = Storage().autoFreePachinko === "true";
     document.getElementById("autoLeagues").checked = Storage().autoLeagues === "true";
+    document.getElementById("autoLeaguesMaxRank").value = Storage().autoLeaguesMaxRank?Storage().autoLeaguesMaxRank:"0";
+    document.getElementById("autoLeaguesPowerCalc").checked = Storage().autoLeaguesPowerCalc === "true";
     document.getElementById("autoPowerPlaces").checked = Storage().autoPowerPlaces === "true";
     document.getElementById("autoPowerPlacesIndexFilter").value = Storage().autoPowerPlacesIndexFilter?Storage().autoPowerPlacesIndexFilter:"1;2;3";
     document.getElementById("autoStats").value = Storage().autoStats?Storage().autoStats:"500000000";
