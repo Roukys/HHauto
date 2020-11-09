@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.1.1
+// @version      5.1.1.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -52,7 +52,17 @@ function getPage()
         }
         if (p=="missions" && $('h4.pop.selected').size()>0)
         {
-            var t=$(".pop_thumb_selected").attr("index");
+            // if on Pop menu
+            var t;
+            var popList= $("div.pop_list")
+            if (popList.attr('style') !='display:none' )
+            {
+                t = 'main';
+            }
+            else
+            {
+                t=$(".pop_thumb_selected").attr("index");
+            }
             return "powerplace"+t
         }
         else
@@ -182,7 +192,10 @@ function gotoPage(page)
             if (page=="powerplace")
             {
                 togoto = url_add_param(togoto, "tab=" + "pop");
-                togoto = url_add_param(togoto, "index=" + index);
+                if (index != 'main' )
+                {
+                    togoto = url_add_param(togoto, "index=" + index);
+                }
             }
 
             sessionStorage.autoLoop = "false";
@@ -472,6 +485,74 @@ function doMissionStuff()
     }
 }
 
+function collectAndUpdatePowerPlaces()
+{
+    //if PopToStart exist bypass function
+    if (Storage().PopToStart?false:true)
+    {
+        if(!getPage("powerplacemain"))
+        {
+            console.log("Navigating to powerplaces main page.");
+            // return busy
+            return true;
+        }
+        else
+        {
+            console.log("On powerplaces page.");
+            Storage().Totalpops=$("div[pop_id]").length; //Count how many different POPs there are and store them locally
+
+            //collect all
+            $("button[rel='pop_thumb_claim'].purple_button_L").each(function()
+                                                                    {
+                this.click();
+
+                $("div#rewards_popup button.blue_button_L").click();
+            });
+
+            //get all already started Pop timers
+            var currIndex;
+            var currTime;
+            var minTime = -1;
+            var maxTime = -1;
+            var e;
+            for(e in unsafeWindow.HHTimers.timers){
+                try{
+                    if(unsafeWindow.HHTimers.timers[e].$elm.selector.includes(".pop_thumb"))
+                    {
+                        currIndex = $(HHTimers.timers[e].$elm.context.outerHTML).attr('index');
+                        currTime=unsafeWindow.HHTimers.timers[e].remainingTime;
+                        setTimer('nextPowerPlacesTime'+currIndex,Number(currTime)+1);
+                        if (minTime === -1 || minTime>currTime)
+                        {
+                            minTime = currTime;
+                        }
+                        if (maxTime === -1 || maxTime<currTime)
+                        {
+                            maxTime = currTime;
+                        }
+                    }
+                }
+                catch(e){}
+            }
+            if (minTime != -1)
+            {
+                setTimer('minPowerPlacesTime',Number(minTime)+1);
+            }
+            if (maxTime != -1)
+            {
+                setTimer('maxPowerPlacesTime',Number(maxTime)+1);
+            }
+            //building list of Pop to start
+            var PopToStart=[];
+            $("div.pop_thumb[status='can_start']").each(function(){PopToStart.push(Number($(this).attr('index')));});
+            Storage().PopToStart = JSON.stringify(PopToStart);
+            return false;
+        }
+    }
+}
+
+
+
 // returns boolean to set busy
 function doPowerPlacesStuff(index)
 {
@@ -485,38 +566,62 @@ function doPowerPlacesStuff(index)
     else
     {
         console.log("On powerplace"+index+" page.");
-        console.log("Collecting finished powerplace"+index+"'s reward.");
-        $("button[rel='pop_claim']").click();
 
-        console.log("Autofill for next powerplace"+index+" action.");
-        $("button[rel='pop_auto_assign']").click();
-
-        console.log("Starting next powerplace"+index+" action.");
+        $("button[rel='pop_auto_assign'][style='display: block;'].blue_button_L").click();
         $("button[rel='pop_action']").click();
+        $("button[rel='pop_action'][style='display: block;'].blue_button_L").click();
+        console.log("Starting next powerplace"+index+" action.");
+
 
         // need to get next powerplaces timer data
         var time = 0;
         for(var e in unsafeWindow.HHTimers.timers){
-            try{if(unsafeWindow.HHTimers.timers[e].$elm.selector.startsWith(".pop_central_part"))
-                time=unsafeWindow.HHTimers.timers[e];
-               }
+            try
+            {
+                if(unsafeWindow.HHTimers.timers[e].$elm.selector.startsWith(".pop_central_part"))
+                    time=unsafeWindow.HHTimers.timers[e];
+            }
             catch(e){}
         }
         time = time.remainingTime;
-        try{if(time === undefined)
-        {
-            //try again with different selector
-            time = undefined;
-            for(e in unsafeWindow.HHTimers.timers){
-                if(unsafeWindow.HHTimers.timers[e].$elm && unsafeWindow.HHTimers.timers[e].$elm.selector.startsWith(".pop_remaining"))
-                    // get closest time
-                    if(!(unsafeWindow.HHTimers.timers[e].remainingTime>time))
-                        time=unsafeWindow.HHTimers.timers[e].remainingTime;
+        try{
+            if(time === undefined)
+            {
+                //try again with different selector
+                time = undefined;
+                for(e in unsafeWindow.HHTimers.timers){
+                    if(unsafeWindow.HHTimers.timers[e].$elm && unsafeWindow.HHTimers.timers[e].$elm.selector.startsWith(".pop_remaining"))
+                        // get closest time
+                        if(!(unsafeWindow.HHTimers.timers[e].remainingTime>time))
+                            time=unsafeWindow.HHTimers.timers[e].remainingTime;
+                }
             }
-        }}catch(e){}
+        }
+        catch(e){}
         if(time === undefined){
-            console.log("New powerplace time was undefined... Setting it manually to 10min.");
-            time = 10*60;
+            console.log("New powerplace time was undefined... Setting it manually to 30secs.");
+            time = 30;
+        }
+        else
+        {
+            var popToSart= JSON.parse(Storage().PopToStart);
+            var newPopToStart=[];
+            for (var epop of popToSart)
+            {
+                if (epop != index)
+                {
+                    newPopToStart.push(epop);
+                }
+            }
+            Storage().PopToStart = JSON.stringify(newPopToStart);
+            if (getTimer('minPowerPlacesTime') == -1 || getTimer('minPowerPlacesTime') > time)
+            {
+                setTimer('minPowerPlacesTime',Number(time)+1);
+            }
+            if (getTimer('maxPowerPlacesTime') == -1 || getTimer('maxPowerPlacesTime') < time)
+            {
+                setTimer('maxPowerPlacesTime',Number(time)+1);
+            }
         }
         setTimer('nextPowerPlacesTime'+index,Number(time)+1);
         // Not busy
@@ -1810,6 +1915,15 @@ var checkTimer=function(name)
     return false;
 }
 
+var getTimer=function(name)
+{
+    if (!Timers[name])
+    {
+        return -1;
+    }
+    return Timers[name];
+}
+
 var getSecondsLeft=function(name)
 {
     if (!Timers[name])
@@ -1891,7 +2005,7 @@ var updateData = function () {
     document.getElementById("buyCombat").checked=Storage().buyCombat=="true";
     Storage().kobanBank=document.getElementById("kobanBank").value;
 
-     settPerTab = document.getElementById("settPerTab").checked;
+    settPerTab = document.getElementById("settPerTab").checked;
 
     Storage().master=document.getElementById("master").checked;
 
@@ -2823,12 +2937,25 @@ var autoLoop = function () {
             }
         }
         if(Storage().autoPowerPlaces === "true" && busy === false){
-            var indexes=(Storage().autoPowerPlacesIndexFilter?Storage().autoPowerPlacesIndexFilter:"").split(";");
-            for(var index of indexes)
+            var popToStart = Storage().PopToStart?JSON.parse(Storage().PopToStart):[];
+            if (checkTimer('minPowerPlacesTime') || popToStart.length != 0)
             {
-                if (checkTimer('nextPowerPlacesTime'+index) && busy === false){
-                    console.log("Time to do PowerPlaces"+index+".");
-                    busy = doPowerPlacesStuff(index);
+                collectAndUpdatePowerPlaces();
+                var indexes=(Storage().autoPowerPlacesIndexFilter?Storage().autoPowerPlacesIndexFilter:"").split(";");
+                popToStart = JSON.parse(Storage().PopToStart);
+                for(var index of indexes)
+                {
+                    if (checkTimer('nextPowerPlacesTime'+index) && busy === false && popToStart.includes(Number(index)))
+                    {
+                        console.log("Time to do PowerPlace"+index+".");
+                        busy = doPowerPlacesStuff(index);
+                    }
+                }
+                popToStart = JSON.parse(Storage().PopToStart);
+                if (popToStart.length === 0)
+                {
+                    console.log("removing popToStart");
+                    Storage().removeItem('PopToStart');
                 }
             }
         }
