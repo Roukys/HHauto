@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.1.1.4
+// @version      5.1.1.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -1593,6 +1593,10 @@ var doLeagueBattle = function () {
     else if(page === "leaderboard")
     {
         console.log("On leaderboard page.");
+        if (Storage().autoLeaguesCollect === "true")
+        {
+            $('#leagues_middle .forced_info button[rel="claim"]').click(); //click reward
+        }
         // console.log('ls! '+$('h4.leagues').size());
         $('h4.leagues').each(function(){this.click();});
         var GetPlayerLineRank = $("tr[class=personal_highlight] td span")[0].innerText;
@@ -1993,6 +1997,7 @@ var updateData = function () {
     Storage().autoSeason = document.getElementById("autoSeasonCheckbox").checked;
     Storage().autoSeasonCollect = document.getElementById("autoSeasonCollect").checked;
     Storage().autoLeagues = document.getElementById("autoLeagues").checked;
+    Storage().autoLeaguesCollect = document.getElementById("autoLeaguesCollect").checked;
     Storage().autoLeaguesPowerCalc = document.getElementById("autoLeaguesPowerCalc").checked;
     Storage().autoLeaguesMaxRank = document.getElementById("autoLeaguesMaxRank").value;
     Storage().autoStats = document.getElementById("autoStats").value;
@@ -3215,6 +3220,7 @@ var setDefaults = function () {
     Storage().autoPowerPlacesIndexFilter = "1;2;3";
     Storage().autoMissionC = "false";
     Storage().autoLeagues = "false";
+    Storage().autoLeaguesCollect = "false";
     Storage().autoLeaguesPowerCalc = "false";
     Storage().autoLeaguesMaxRank = "0";
     Storage().autoStats = "500000000";
@@ -3440,6 +3446,9 @@ var start = function () {
                      +     '<span>UsePowerCalc</span><div><label class=\"switch\"><input id=\"autoLeaguesPowerCalc\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>Collect</span><div><label class=\"switch\"><input id=\"autoLeaguesCollect\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>Max rank (0 for none)</span><div><input id="autoLeaguesMaxRank" type="text"></div>'
                      +    '</div>'
                      +   '</div>'
@@ -3509,6 +3518,7 @@ var start = function () {
     document.getElementById("autoLeagues").checked = Storage().autoLeagues === "true";
     document.getElementById("autoLeaguesMaxRank").value = Storage().autoLeaguesMaxRank?Storage().autoLeaguesMaxRank:"0";
     document.getElementById("autoLeaguesPowerCalc").checked = Storage().autoLeaguesPowerCalc === "true";
+    document.getElementById("autoLeaguesCollect").checked = Storage().autoLeaguesCollect === "true";
     document.getElementById("autoPowerPlaces").checked = Storage().autoPowerPlaces === "true";
     document.getElementById("autoPowerPlacesAll").checked = Storage().autoPowerPlacesAll === "true";
     document.getElementById("autoPowerPlacesIndexFilter").value = Storage().autoPowerPlacesIndexFilter?Storage().autoPowerPlacesIndexFilter:"1;2;3";
