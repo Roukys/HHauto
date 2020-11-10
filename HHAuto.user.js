@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.1.1.3
+// @version      5.1.1.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -3248,8 +3248,6 @@ var setDefaults = function () {
     Storage().autoEGM = "500000000";
     Storage().autoEGMW = "false";
     Storage().paranoia="false";
-    localStorage.showInfo="true";
-    localStorage.showCalculatePower = "true";
     Storage().spendKobans0="false";
     Storage().paranoiaSettings="120-300/Sleep:28800-29400|Active:300-420|Casual:1800-2100/6:Sleep|18:Active|22:Casual|24:Sleep";
     Storage().master="false";
@@ -3360,7 +3358,7 @@ var getBurst=function()
     return Storage().master==="true"&&(!(Storage().paranoia==="true") || sessionStorage.burst==="true");
 }
 
-var Trollz=["Latest","Dark Lord","Ninja Spy","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson\'s Crew","Pandora witch"];
+var Trollz=["Latest","Dark Lord","Ninja Spy","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson\'s Crew","Pandora witch","Nike"];
 var Timers={};
 
 var start = function () {
@@ -3528,8 +3526,8 @@ var start = function () {
     document.getElementById("autoLGRW").checked = Storage().autoLGRW === "true";
     document.getElementById("autoEGM").value = Storage().autoEGM?Storage().autoEGM:"500000000";
     document.getElementById("autoEGMW").checked = Storage().autoEGMW === "true";
-    document.getElementById("showInfo").checked = localStorage.showInfo === "true";
-    document.getElementById("showCalculatePower").checked = localStorage.showCalculatePower === "true";
+    document.getElementById("showInfo").checked = localStorage.showInfo?localStorage.showInfo:"true";
+    document.getElementById("showCalculatePower").checked = localStorage.showCalculatePower?localStorage.showCalculatePower:"true";
     document.getElementById("plusEvent").checked = Storage().trollToFight=="-1" || Storage().plusEvent === "true";
 
     document.getElementById("autoChamps").checked = Storage().autoChamps === "true";
@@ -3542,7 +3540,7 @@ var start = function () {
     document.getElementById("buyCombat").checked = Storage().buyCombat === "true";
     document.getElementById("kobanBank").value = Storage().kobanBank?Storage().kobanBank:"1000000";
 
-    document.getElementById("master").checked = Storage().master!=="false";
+    document.getElementById("master").checked = Storage().master==="true";
 
     sessionStorage.autoLoop = "true";
     if (typeof Storage().freshStart == "undefined" || isNaN(Number(Storage().autoLoopTimeMili))) {
