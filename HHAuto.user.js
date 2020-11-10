@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.1.1.1
+// @version      5.1.1.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -490,7 +490,7 @@ function collectAndUpdatePowerPlaces()
     //if PopToStart exist bypass function
     if (Storage().PopToStart?false:true)
     {
-        if(!getPage("powerplacemain"))
+        if(!gotoPage("powerplacemain"))
         {
             console.log("Navigating to powerplaces main page.");
             // return busy
@@ -498,9 +498,17 @@ function collectAndUpdatePowerPlaces()
         }
         else
         {
-            console.log("On powerplaces page.");
+            console.log("On powerplaces main page.");
             Storage().Totalpops=$("div[pop_id]").length; //Count how many different POPs there are and store them locally
-
+            if (Storage().autoPowerPlacesAll === "true")
+            {
+                var newFilter="";
+                for (var id=1;id<Number(Storage().Totalpops)+1;id++)
+                {
+                    newFilter=newFilter+';'+id;
+                }
+                Storage().autoPowerPlacesIndexFilter = newFilter.substring(1);
+            }
             //collect all
             $("button[rel='pop_thumb_claim'].purple_button_L").each(function()
                                                                     {
@@ -549,6 +557,10 @@ function collectAndUpdatePowerPlaces()
             return false;
         }
     }
+    else
+    {
+        return false;
+    }
 }
 
 
@@ -567,9 +579,17 @@ function doPowerPlacesStuff(index)
     {
         console.log("On powerplace"+index+" page.");
 
-        $("button[rel='pop_auto_assign'][style='display: block;'].blue_button_L").click();
-        $("button[rel='pop_action']").click();
-        $("button[rel='pop_action'][style='display: block;'].blue_button_L").click();
+        var buttonAutoFill = $("button[rel='pop_auto_assign'][style='display: block;'].blue_button_L");
+        var buttonAction = $("button[rel='pop_action']");
+        var buttonActionBlue = $("button[rel='pop_action'][style='display: block;'].blue_button_L");
+
+
+
+        buttonAutoFill.click();
+        buttonAction.click();
+        buttonActionBlue.click();
+
+
         console.log("Starting next powerplace"+index+" action.");
 
 
@@ -1961,6 +1981,7 @@ var updateData = function () {
     Storage().autoContest = document.getElementById("autoContestCheckbox").checked;
     Storage().autoMission = document.getElementById("autoMissionCheckbox").checked;
     Storage().autoPowerPlaces = document.getElementById("autoPowerPlaces").checked;
+    Storage().autoPowerPlacesAll = document.getElementById("autoPowerPlacesAll").checked;
     Storage().autoPowerPlacesIndexFilter = document.getElementById("autoPowerPlacesIndexFilter").value;
     Storage().autoSalaryTimer = document.getElementById("autoSalaryTextbox").value;
     Storage().autoMissionC = document.getElementById("autoMissionCollect").checked;
@@ -2051,23 +2072,7 @@ var updateData = function () {
         }
         if (Storage().autoPowerPlaces=="true")
         {
-            var minTime=-1;
-            var indexes=(Storage().autoPowerPlacesIndexFilter?Storage().autoPowerPlacesIndexFilter:"").split(";");
-
-
-            for(var index=0;index<indexes.length;index++)
-            {
-
-                if (minTime == -1 || getSecondsLeft('nextPowerPlacesTime'+indexes[index]) < getSecondsLeft('nextPowerPlacesTime'+indexes[minTime]))
-                {
-                    minTime=index;
-                }
-
-            }
-            if (minTime != -1)
-            {
-                Tegzd+=(Tegzd.length>0?'\r\n':'')+'PowerPlaces'+': '+getTimeLeft('nextPowerPlacesTime'+indexes[minTime]);
-            }
+            Tegzd+=(Tegzd.length>0?'\r\n':'')+'PowerPlaces'+': '+getTimeLeft('minPowerPlacesTime');
         }
         if (Storage().autoFreePachinko=="true")
         {
@@ -2938,14 +2943,15 @@ var autoLoop = function () {
         }
         if(Storage().autoPowerPlaces === "true" && busy === false){
             var popToStart = Storage().PopToStart?JSON.parse(Storage().PopToStart):[];
-            if (checkTimer('minPowerPlacesTime') || popToStart.length != 0)
+            if (popToStart.length != 0 || checkTimer('minPowerPlacesTime'))
             {
-                collectAndUpdatePowerPlaces();
+                //console.log("Go and collect");
+                busy = collectAndUpdatePowerPlaces();
                 var indexes=(Storage().autoPowerPlacesIndexFilter?Storage().autoPowerPlacesIndexFilter:"").split(";");
                 popToStart = JSON.parse(Storage().PopToStart);
                 for(var index of indexes)
                 {
-                    if (checkTimer('nextPowerPlacesTime'+index) && busy === false && popToStart.includes(Number(index)))
+                    if (busy === false && popToStart.includes(Number(index)))
                     {
                         console.log("Time to do PowerPlace"+index+".");
                         busy = doPowerPlacesStuff(index);
@@ -3204,6 +3210,7 @@ var setDefaults = function () {
     Storage().autoContest = "false";
     Storage().autoMission = "false";
     Storage().autoPowerPlaces = "false";
+    Storage().autoPowerPlacesAll = "false";
     Storage().autoPowerPlacesIndexFilter = "1;2;3";
     Storage().autoMissionC = "false";
     Storage().autoLeagues = "false";
@@ -3444,6 +3451,9 @@ var start = function () {
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>Index Filter</span><div><input id="autoPowerPlacesIndexFilter" type="text"></div>'
                      +    '</div>'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>Do All</span><div><label class=\"switch\"><input id=\"autoPowerPlacesAll\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +    '</div>'
                      +   '</div>'
                      +   '<div style="display:flex;flex-direction:row;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
@@ -3501,6 +3511,7 @@ var start = function () {
     document.getElementById("autoLeaguesMaxRank").value = Storage().autoLeaguesMaxRank?Storage().autoLeaguesMaxRank:"0";
     document.getElementById("autoLeaguesPowerCalc").checked = Storage().autoLeaguesPowerCalc === "true";
     document.getElementById("autoPowerPlaces").checked = Storage().autoPowerPlaces === "true";
+    document.getElementById("autoPowerPlacesAll").checked = Storage().autoPowerPlacesAll === "true";
     document.getElementById("autoPowerPlacesIndexFilter").value = Storage().autoPowerPlacesIndexFilter?Storage().autoPowerPlacesIndexFilter:"1;2;3";
     document.getElementById("autoStats").value = Storage().autoStats?Storage().autoStats:"500000000";
     document.getElementById("paranoia").checked = Storage().paranoia==="true";
