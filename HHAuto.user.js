@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.1.1.7
+// @version      5.1.1.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -584,14 +584,13 @@ function doPowerPlacesStuff(index)
         var buttonActionBlue = $("button[rel='pop_action'][style='display: block;'].blue_button_L");
 
 
-        console.log("Autofill powerplace"+index+".");
+
         buttonAutoFill.click();
-        console.log("Starting next powerplace"+index+" action.");
         buttonAction.click();
         buttonActionBlue.click();
 
 
-        
+        console.log("Starting next powerplace"+index+" action.");
 
 
         // need to get next powerplaces timer data
@@ -2948,12 +2947,14 @@ var autoLoop = function () {
             }
         }
         if(Storage().autoPowerPlaces === "true" && busy === false){
+            //console.log("pop1:",Storage().PopToStart);
             var popToStart = Storage().PopToStart?JSON.parse(Storage().PopToStart):[];
             if (popToStart.length != 0 || checkTimer('minPowerPlacesTime'))
             {
                 //console.log("Go and collect");
                 busy = collectAndUpdatePowerPlaces();
                 var indexes=(Storage().autoPowerPlacesIndexFilter?Storage().autoPowerPlacesIndexFilter:"").split(";");
+                //console.log("pop2:",Storage().PopToStart);
                 popToStart = Storage().PopToStart?JSON.parse(Storage().PopToStart):[];
                 for(var index of indexes)
                 {
@@ -2963,6 +2964,7 @@ var autoLoop = function () {
                         busy = doPowerPlacesStuff(index);
                     }
                 }
+                //console.log("pop3:",Storage().PopToStart);
                 popToStart = Storage().PopToStart?JSON.parse(Storage().PopToStart):[];
                 if (popToStart.length === 0)
                 {
