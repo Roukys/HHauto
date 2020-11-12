@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.1.1.8
+// @version      5.1.1.9
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -489,7 +489,7 @@ function collectAndUpdatePowerPlaces()
 {
     //if PopToStart exist bypass function
     var popToStartExist = Storage().PopToStart?false:true;
-    console.log("startcollect : "+popToStartExist);
+    //console.log("startcollect : "+popToStartExist);
     if (popToStartExist)
     {
         if(!gotoPage("powerplacemain"))
@@ -510,15 +510,15 @@ function collectAndUpdatePowerPlaces()
                 {
                     newFilter=newFilter+';'+id;
                 }
-                console.log("newfilter : "+newFilter.substring(1));
+                //console.log("newfilter : "+newFilter.substring(1));
                 Storage().autoPowerPlacesIndexFilter = newFilter.substring(1);
             }
 
             var filteredPops = Storage().autoPowerPlacesIndexFilter?Storage().autoPowerPlacesIndexFilter.split(";"):[];
-            console.log("filteredPops : "+filteredPops);
+            //console.log("filteredPops : "+filteredPops);
             var PopToStart=[];
             $("div.pop_thumb[status='pending_reward']").each(function()
-                                                        {
+                                                             {
                 var pop_id = $(this).attr('index');
                 //if index is in filter
                 if (filteredPops.includes(pop_id))
@@ -624,17 +624,35 @@ function doPowerPlacesStuff(index)
     {
         console.log("On powerplace"+index+" page.");
 
-        var buttonAutoFill = $("button[rel='pop_auto_assign'][style='display: block;'].blue_button_L");
-        var buttonAction = $("button[rel='pop_action']");
-        var buttonActionBlue = $("button[rel='pop_action'][style='display: block;'].blue_button_L");
 
+        var buttonAutoFillDoc = document.querySelector("button.blue_button_L[rel='pop_auto_assign'][style='display: block;']");
+        var buttonActionDoc = document.querySelector("button[rel='pop_action']");
+        var buttonActionBlueDoc = document.querySelector("button.blue_button_L[rel='pop_action'][style='display: block;']");
+        //console.log("buttonsdoc1",buttonAutoFillDoc,buttonActionDoc,buttonActionBlueDoc);
 
-        console.log("buttons1",buttonAutoFill.length,buttonAction.length,buttonActionBlue.length);
-        buttonAutoFill.click();
-        console.log("buttons2",buttonAutoFill.length,buttonAction.length,buttonActionBlue.length);
-        buttonAction.click();
-        console.log("buttons3",buttonAutoFill.length,buttonAction.length,buttonActionBlue.length);
-        buttonActionBlue.click();
+        if (buttonAutoFillDoc != null )
+        {
+            buttonAutoFillDoc.click();
+        }
+        buttonAutoFillDoc = document.querySelector("button.blue_button_L[rel='pop_auto_assign'][style='display: block;']");
+        buttonActionDoc = document.querySelector("button[rel='pop_action']");
+        buttonActionBlueDoc = document.querySelector("button.blue_button_L[rel='pop_action'][style='display: block;']");
+        //console.log("buttonsdoc2",buttonAutoFillDoc,buttonActionDoc,buttonActionBlueDoc);
+
+        if (buttonActionDoc != null )
+        {
+            buttonActionDoc.click();
+        }
+        buttonAutoFillDoc = document.querySelector("button.blue_button_L[rel='pop_auto_assign'][style='display: block;']");
+        buttonActionDoc = document.querySelector("button[rel='pop_action']");
+        buttonActionBlueDoc = document.querySelector("button.blue_button_L[rel='pop_action'][style='display: block;']");
+        //console.log("buttonsdoc3",buttonAutoFillDoc,buttonActionDoc,buttonActionBlueDoc);
+
+        if (buttonActionBlueDoc != null )
+        {
+            buttonActionBlueDoc.click();
+        }
+
 
 
         console.log("Starting next powerplace"+index+" action.");
@@ -681,15 +699,6 @@ function doPowerPlacesStuff(index)
                 }
             }
             Storage().PopToStart = JSON.stringify(newPopToStart);
-//             console.log("compare timers : ",time, getTimer('minPowerPlacesTime'),getTimer('maxPowerPlacesTime'));
-//             if (getTimer('minPowerPlacesTime') == -1 || getTimer('minPowerPlacesTime') > time)
-//             {
-//                 setTimer('minPowerPlacesTime',Number(time)+1);
-//             }
-//             if (getTimer('maxPowerPlacesTime') == -1 || getTimer('maxPowerPlacesTime') < time)
-//             {
-//                 setTimer('maxPowerPlacesTime',Number(time)+1);
-//             }
         }
         setTimer('nextPowerPlacesTime'+index,Number(time)+1);
         // Not busy
@@ -2033,7 +2042,22 @@ var updateData = function () {
     Storage().autoContest = document.getElementById("autoContestCheckbox").checked;
     Storage().autoMission = document.getElementById("autoMissionCheckbox").checked;
     Storage().autoPowerPlaces = document.getElementById("autoPowerPlaces").checked;
-    Storage().autoPowerPlacesAll = document.getElementById("autoPowerPlacesAll").checked;
+
+    var newValue = String(document.getElementById("autoPowerPlacesAll").checked);
+    if (Storage().autoPowerPlacesAll != newValue)
+    {
+        console.log(Storage().autoPowerPlacesAll,newValue);
+        Storage().autoPowerPlacesAll = document.getElementById("autoPowerPlacesAll").checked;
+        clearTimer('minPowerPlacesTime');
+    }
+    newValue = String(document.getElementById("autoPowerPlacesIndexFilter").value);
+    if (Storage().autoPowerPlacesIndexFilter != newValue)
+    {
+        console.log(Storage().autoPowerPlacesIndexFilter,newValue);
+        Storage().autoPowerPlacesIndexFilter = document.getElementById("autoPowerPlacesIndexFilter").value;
+        clearTimer('minPowerPlacesTime');
+    }
+
     Storage().autoPowerPlacesIndexFilter = document.getElementById("autoPowerPlacesIndexFilter").value;
     Storage().autoSalaryTimer = document.getElementById("autoSalaryTextbox").value;
     Storage().autoMissionC = document.getElementById("autoMissionCollect").checked;
@@ -2999,13 +3023,13 @@ var autoLoop = function () {
             var popToStart = Storage().PopToStart?JSON.parse(Storage().PopToStart):[];
             if (popToStart.length != 0 || checkTimer('minPowerPlacesTime'))
             {
-                console.log("pop1:",popToStart);
+                //console.log("pop1:",popToStart);
                 console.log("Go and collect");
                 busy = collectAndUpdatePowerPlaces();
                 var indexes=(Storage().autoPowerPlacesIndexFilter?Storage().autoPowerPlacesIndexFilter:"").split(";");
 
                 popToStart = Storage().PopToStart?JSON.parse(Storage().PopToStart):[];
-                console.log("pop2:",popToStart);
+                //console.log("pop2:",popToStart);
                 for(var index of indexes)
                 {
                     if (busy === false && popToStart.includes(Number(index)))
@@ -3014,12 +3038,12 @@ var autoLoop = function () {
                         busy = doPowerPlacesStuff(index);
                     }
                 }
-                console.log("pop3:",Storage().PopToStart);
+                //console.log("pop3:",Storage().PopToStart);
                 popToStart = Storage().PopToStart?JSON.parse(Storage().PopToStart):[];
-                console.log("pop3:",popToStart);
+                //console.log("pop3:",popToStart);
                 if (popToStart.length === 0)
                 {
-                    console.log("removing popToStart");
+                    //console.log("removing popToStart");
                     Storage().removeItem('PopToStart');
                     gotoPage("home");
                 }
