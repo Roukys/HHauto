@@ -2103,7 +2103,7 @@ var updateData = function () {
     document.getElementById("buyCombat").checked=Storage().buyCombat=="true";
     Storage().kobanBank=document.getElementById("kobanBank").value;
 
-    settPerTab = document.getElementById("settPerTab").checked;
+    localStorage.settPerTab = document.getElementById("settPerTab").checked;
 
     Storage().master=document.getElementById("master").checked;
 
