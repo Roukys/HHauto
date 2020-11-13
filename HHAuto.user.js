@@ -552,7 +552,7 @@ function collectAndUpdatePowerPlaces()
                 try{
                     if(unsafeWindow.HHTimers.timers[e].$elm.selector.includes(".pop_thumb"))
                     {
-                        console.log("found timer "+HHTimers.timers[e].$elm.context.outerHTML);
+                        //console.log("found timer "+HHTimers.timers[e].$elm.context.outerHTML);
                         currIndex = $(HHTimers.timers[e].$elm.context.outerHTML).attr('index');
                         //if index is in filter
                         if (filteredPops.includes(currIndex))
