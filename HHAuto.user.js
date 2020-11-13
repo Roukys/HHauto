@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.1.1.10
+// @version      5.1.1.11
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -977,6 +977,7 @@ var doShopping=function()
 {
     try
     {
+
         var Hero=getHero();
         var MS='carac'+Hero.infos.class;
         var SS1='carac'+(Hero.infos.class%3+1);
@@ -1053,19 +1054,19 @@ var doShopping=function()
             }
         }
 
-        //console.log('boosters');
+        console.log('boosters');
         var boosterFilter = Storage().autoBuyBoostersFilter.split(";");
         if (Storage().autoBuyBoosters==="true" && boosterFilter.length > 0)
         {
-
+console.log("go shop");
             Was=shop[1].length;
 
             for (var boost of boosterFilter)
             {
                 for (var n1=shop[1].length-1;n1>=0;n1--)
                 {
-
-                    if (kobans>=Number(Storage().kobanBank)+Number(shop[1][n1].price_hc) && shop[1][n1].identifier == boost  && shop[1][n1].rarity=='legendary')
+console.log(shop[1][n1].price_hc, shop[1][n1].identifier,shop[1][n1].rarity);
+                    if (kobans>=Number(Storage().kobanBank)+Number(shop[1][n1].price_hc) && shop[1][n1].identifier == boost  && shop[1][n1].rarity=='common')
                     {
                         console.log('wanna buy ',shop[1][n1]);
                         if (kobans>=Number(shop[1][n1].price_hc))
@@ -1792,11 +1793,27 @@ var doLeagueBattle = function () {
     }
 };
 
+function LeagueDisplayGetOpponentPopup(numberDone,remainingTime)
+{
+    $("#leagues #leagues_middle").prepend('<div id="popup_message_league" class="popup_message_league" name="popup_message_league" style="display: block;color: #FF2F2F;font-size: 20px;text-align: center;">Opponent list is building : <br>'+numberDone+' opponents parsed ('+remainingTime+')</div>');
+}
+function LeagueClearDisplayGetOpponentPopup()
+{
+    $("#popup_message_league").each(function(){this.remove();});
+}
+
+function LeagueUpdateGetOpponentPopup(numberDone,remainingTime)
+{
+    LeagueClearDisplayGetOpponentPopup();
+    LeagueDisplayGetOpponentPopup(numberDone,remainingTime);
+}
+
 function getLeagueOpponentId(opponentsIDList)
 {
     var opponentsPowerList = sessionStorage.LeagueOpponentList?JSON.parse(sessionStorage.LeagueOpponentList,reviver):[];
     var opponentsListExpirationDate = sessionStorage.opponentsListExpirationDate?sessionStorage.opponentsListExpirationDate:'empty';
     var opponentsIDs= opponentsIDList;
+    var oppoNumber = opponentsIDList.length;
     var playerEgo;
     var playerDefHC;
     var playerDefKH;
@@ -1878,6 +1895,7 @@ function getLeagueOpponentId(opponentsIDList)
 
             });
             opponentsIDList.shift();
+            LeagueUpdateGetOpponentPopup(DataOppo.size+'/'+oppoNumber, toHHMMSS((oppoNumber-DataOppo.size)*1.2));
             setTimeout(getOpponents,randomInterval(800,1200));
 
             window.top.postMessage({ImAlive:true},'*');
@@ -1888,6 +1906,7 @@ function getLeagueOpponentId(opponentsIDList)
             sessionStorage.opponentsListExpirationDate=new Date().getTime() + 10*60 * 1000
             //console.log(DataOppo);
             sessionStorage.LeagueOpponentList = JSON.stringify(DataOppo,replacer);
+            LeagueClearDisplayGetOpponentPopup();
             doLeagueBattle();
         }
     }
