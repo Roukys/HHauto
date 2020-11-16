@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.1.1.11
+// @version      5.1.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -3703,8 +3703,8 @@ var start = function () {
     document.getElementById("autoBuyBoostersFilter").value = Storage().autoBuyBoostersFilter?Storage().autoBuyBoostersFilter:"B1;B2;B3;B4";
     //document.getElementById("autoEGM").value = Storage().autoEGM?Storage().autoEGM:"500000000";
     //document.getElementById("autoEGMW").checked = Storage().autoEGMW === "true";
-    document.getElementById("showInfo").checked = localStorage.showInfo?localStorage.showInfo:"true";
-    document.getElementById("showCalculatePower").checked = localStorage.showCalculatePower?localStorage.showCalculatePower:"true";
+    document.getElementById("showInfo").checked = localStorage.showInfo?localStorage.showInfo==="true":"false";
+    document.getElementById("showCalculatePower").checked = localStorage.showCalculatePower?localStorage.showCalculatePower==="true":"false";
     document.getElementById("plusEvent").checked = Storage().trollToFight=="-1" || Storage().plusEvent === "true";
 
     document.getElementById("autoChamps").checked = Storage().autoChamps === "true";
