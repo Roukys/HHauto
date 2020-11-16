@@ -1,6 +1,6 @@
 # HHauto
 
-To install : https://github.com/Roukys/HHauto/raw/main/HHAuto.user.js
+To install : https://github.com/nwlndfre/GHAuto/raw/main/GHAuto.user.js
 
 ## Functionnalities : 
 
