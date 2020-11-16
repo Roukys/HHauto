@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.1.1
+// @version      5.1.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -52,7 +52,17 @@ function getPage()
         }
         if (p=="missions" && $('h4.pop.selected').size()>0)
         {
-            var t=$(".pop_thumb_selected").attr("index");
+            // if on Pop menu
+            var t;
+            var popList= $("div.pop_list")
+            if (popList.attr('style') !='display:none' )
+            {
+                t = 'main';
+            }
+            else
+            {
+                t=$(".pop_thumb_selected").attr("index");
+            }
             return "powerplace"+t
         }
         else
@@ -182,7 +192,10 @@ function gotoPage(page)
             if (page=="powerplace")
             {
                 togoto = url_add_param(togoto, "tab=" + "pop");
-                togoto = url_add_param(togoto, "index=" + index);
+                if (index != 'main' )
+                {
+                    togoto = url_add_param(togoto, "index=" + index);
+                }
             }
 
             sessionStorage.autoLoop = "false";
@@ -472,6 +485,131 @@ function doMissionStuff()
     }
 }
 
+function collectAndUpdatePowerPlaces()
+{
+    //if PopToStart exist bypass function
+    var popToStartExist = Storage().PopToStart?false:true;
+    //console.log("startcollect : "+popToStartExist);
+    if (popToStartExist)
+    {
+        if(!gotoPage("powerplacemain"))
+        {
+            console.log("Navigating to powerplaces main page.");
+            // return busy
+            return true;
+        }
+        else
+        {
+            console.log("On powerplaces main page.");
+            Storage().Totalpops=$("div[pop_id]").length; //Count how many different POPs there are and store them locally
+            console.log("totalpops : "+Storage().Totalpops);
+            if (Storage().autoPowerPlacesAll === "true")
+            {
+                var newFilter="";
+                for (var id=1;id<Number(Storage().Totalpops)+1;id++)
+                {
+                    newFilter=newFilter+';'+id;
+                }
+                //console.log("newfilter : "+newFilter.substring(1));
+                Storage().autoPowerPlacesIndexFilter = newFilter.substring(1);
+            }
+
+            var filteredPops = Storage().autoPowerPlacesIndexFilter?Storage().autoPowerPlacesIndexFilter.split(";"):[];
+            //console.log("filteredPops : "+filteredPops);
+            var PopToStart=[];
+            $("div.pop_thumb[status='pending_reward']").each(function()
+                                                             {
+                var pop_id = $(this).attr('index');
+                //if index is in filter
+                if (filteredPops.includes(pop_id))
+                {
+                    PopToStart.push(Number(pop_id));
+                }
+            });
+            //collect all
+            $("button[rel='pop_thumb_claim'].purple_button_L").each(function()
+                                                                    {
+                this.click();
+
+                $("div#rewards_popup button.blue_button_L").click();
+            });
+
+            //get all already started Pop timers
+            var currIndex;
+            var currTime;
+            var minTime = -1;
+            var maxTime = -1;
+            var e;
+            //clearing all timers
+            for (e of filteredPops)
+            {
+                clearTimer('nextPowerPlacesTime'+e);
+            }
+
+            clearTimer('minPowerPlacesTime');
+            clearTimer('maxPowerPlacesTime');
+            for(e in unsafeWindow.HHTimers.timers){
+                try{
+                    if(unsafeWindow.HHTimers.timers[e].$elm.selector.includes(".pop_thumb"))
+                    {
+                        //console.log("found timer "+HHTimers.timers[e].$elm.context.outerHTML);
+                        currIndex = $(HHTimers.timers[e].$elm.context.outerHTML).attr('index');
+                        //if index is in filter
+                        if (filteredPops.includes(currIndex))
+                        {
+                            currTime=unsafeWindow.HHTimers.timers[e].remainingTime;
+                            setTimer('nextPowerPlacesTime'+currIndex,Number(currTime)+1);
+
+                        }
+                    }
+                }
+                catch(e){}
+            }
+            //fetching max and min
+            for (e of filteredPops)
+            {
+                currTime = getSecondsLeft('nextPowerPlacesTime'+e);
+                if (minTime === -1 || currTime === -1 || minTime>currTime)
+                {
+                    minTime = currTime;
+                }
+                if (maxTime === -1 || maxTime<currTime)
+                {
+                    maxTime = currTime;
+                }
+
+            }
+            if (minTime != -1)
+            {
+                setTimer('minPowerPlacesTime',Number(minTime)+1);
+            }
+            if (maxTime != -1)
+            {
+                setTimer('maxPowerPlacesTime',Number(maxTime)+1);
+            }
+            //building list of Pop to start
+            $("div.pop_thumb[status='can_start']").each(function()
+                                                        {
+                var pop_id = $(this).attr('index');
+                //if index is in filter
+                if (filteredPops.includes(pop_id))
+                {
+                    PopToStart.push(Number(pop_id));
+                }
+            });
+            console.log("build popToStart : "+PopToStart);
+            Storage().PopToStart = JSON.stringify(PopToStart);
+            return false;
+        }
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
+
 // returns boolean to set busy
 function doPowerPlacesStuff(index)
 {
@@ -485,38 +623,83 @@ function doPowerPlacesStuff(index)
     else
     {
         console.log("On powerplace"+index+" page.");
-        console.log("Collecting finished powerplace"+index+"'s reward.");
-        $("button[rel='pop_claim']").click();
 
-        console.log("Autofill for next powerplace"+index+" action.");
-        $("button[rel='pop_auto_assign']").click();
+
+
+        var buttonAutoFillDoc = document.querySelector("button.blue_button_L[rel='pop_auto_assign'][style='display: block;']");
+        var buttonActionDoc = document.querySelector("button[rel='pop_action']");
+        var buttonActionBlueDoc = document.querySelector("button.blue_button_L[rel='pop_action'][style='display: block;']");
+        //console.log("buttonsdoc1",buttonAutoFillDoc,buttonActionDoc,buttonActionBlueDoc);
+
+        if (buttonAutoFillDoc != null )
+        {
+            buttonAutoFillDoc.click();
+        }
+        buttonAutoFillDoc = document.querySelector("button.blue_button_L[rel='pop_auto_assign'][style='display: block;']");
+        buttonActionDoc = document.querySelector("button[rel='pop_action']");
+        buttonActionBlueDoc = document.querySelector("button.blue_button_L[rel='pop_action'][style='display: block;']");
+        //console.log("buttonsdoc2",buttonAutoFillDoc,buttonActionDoc,buttonActionBlueDoc);
+
+        if (buttonActionDoc != null )
+        {
+            buttonActionDoc.click();
+        }
+        buttonAutoFillDoc = document.querySelector("button.blue_button_L[rel='pop_auto_assign'][style='display: block;']");
+        buttonActionDoc = document.querySelector("button[rel='pop_action']");
+        buttonActionBlueDoc = document.querySelector("button.blue_button_L[rel='pop_action'][style='display: block;']");
+        //console.log("buttonsdoc3",buttonAutoFillDoc,buttonActionDoc,buttonActionBlueDoc);
+
+        if (buttonActionBlueDoc != null )
+        {
+            buttonActionBlueDoc.click();
+        }
+
+
 
         console.log("Starting next powerplace"+index+" action.");
-        $("button[rel='pop_action']").click();
+
 
         // need to get next powerplaces timer data
         var time = 0;
         for(var e in unsafeWindow.HHTimers.timers){
-            try{if(unsafeWindow.HHTimers.timers[e].$elm.selector.startsWith(".pop_central_part"))
-                time=unsafeWindow.HHTimers.timers[e];
-               }
+            try
+            {
+                if(unsafeWindow.HHTimers.timers[e].$elm.selector.startsWith(".pop_central_part"))
+                    time=unsafeWindow.HHTimers.timers[e];
+            }
             catch(e){}
         }
         time = time.remainingTime;
-        try{if(time === undefined)
-        {
-            //try again with different selector
-            time = undefined;
-            for(e in unsafeWindow.HHTimers.timers){
-                if(unsafeWindow.HHTimers.timers[e].$elm && unsafeWindow.HHTimers.timers[e].$elm.selector.startsWith(".pop_remaining"))
-                    // get closest time
-                    if(!(unsafeWindow.HHTimers.timers[e].remainingTime>time))
-                        time=unsafeWindow.HHTimers.timers[e].remainingTime;
+        try{
+            if(time === undefined)
+            {
+                //try again with different selector
+                time = undefined;
+                for(e in unsafeWindow.HHTimers.timers){
+                    if(unsafeWindow.HHTimers.timers[e].$elm && unsafeWindow.HHTimers.timers[e].$elm.selector.startsWith(".pop_remaining"))
+                        // get closest time
+                        if(!(unsafeWindow.HHTimers.timers[e].remainingTime>time))
+                            time=unsafeWindow.HHTimers.timers[e].remainingTime;
+                }
             }
-        }}catch(e){}
+        }
+        catch(e){}
         if(time === undefined){
-            console.log("New powerplace time was undefined... Setting it manually to 10min.");
-            time = 10*60;
+            console.log("New powerplace time was undefined... Setting it manually to 30secs.");
+            time = 30;
+        }
+        else
+        {
+            var popToSart= JSON.parse(Storage().PopToStart);
+            var newPopToStart=[];
+            for (var epop of popToSart)
+            {
+                if (epop != index)
+                {
+                    newPopToStart.push(epop);
+                }
+            }
+            Storage().PopToStart = JSON.stringify(newPopToStart);
         }
         setTimer('nextPowerPlacesTime'+index,Number(time)+1);
         // Not busy
@@ -794,11 +977,13 @@ var doShopping=function()
 {
     try
     {
+
         var Hero=getHero();
         var MS='carac'+Hero.infos.class;
         var SS1='carac'+(Hero.infos.class%3+1);
         var SS2='carac'+((Hero.infos.class+1)%3+1);
         var money=Hero.infos.soft_currency;
+        var kobans=Hero.infos.hard_currency;
 
         try
         {
@@ -827,35 +1012,35 @@ var doShopping=function()
         var HaveExp=Number(sessionStorage.haveExp);
 
 
-        if (Storage().autoLGMW==="true" || Storage().autoLGRW==="true" || Storage().autoEGMW==="true")
+        if (Storage().autoLGMW==="true" || Storage().autoLGRW==="true" )//|| Storage().autoEGMW==="true")
         {
             //console.log('items');
             var Was=shop[0].length;
-            for (var n=shop[0].length-1;n>=0;n--)
+            for (var n0=shop[0].length-1;n0>=0;n0--)
             {
 
-                if (Storage().autoLGMW==="true" && money>=LGM+Number(shop[0][n].price) && shop[0][n][MS]>0 && shop[0][n][SS1]==0 && shop[0][n][SS2]==0 && shop[0][n].chance==0 && shop[0][n].endurance==0 && shop[0][n].rarity=='legendary'||
-                    Storage().autoEGMW==="true" && money>=EGM+Number(shop[0][n].price) && shop[0][n][MS]>0 && shop[0][n][SS1]==0 && shop[0][n][SS2]==0 && shop[0][n].chance==0 && shop[0][n].endurance==0 && shop[0][n].rarity=='epic'||
-                    Storage().autoLGRW==="true" && money>=LGR+Number(shop[0][n].price) && shop[0][n][MS]>0 && shop[0][n][SS1]>0 && shop[0][n][SS2]>0 && shop[0][n].rarity=='legendary')
+                if (Storage().autoLGMW==="true" && money>=LGM+Number(shop[0][n0].price) && shop[0][n0][MS]>0 && shop[0][n0][SS1]==0 && shop[0][n0][SS2]==0 && shop[0][n0].chance==0 && shop[0][n0].endurance==0 && shop[0][n0].rarity=='legendary'||
+                    //Storage().autoEGMW==="true" && money>=EGM+Number(shop[0][n0].price) && shop[0][n0][MS]>0 && shop[0][n0][SS1]==0 && shop[0][n0][SS2]==0 && shop[0][n0].chance==0 && shop[0][n0].endurance==0 && shop[0][n0].rarity=='epic'||
+                    Storage().autoLGRW==="true" && money>=LGR+Number(shop[0][n0].price) && shop[0][n0][MS]>0 && shop[0][n0][SS1]>0 && shop[0][n0][SS2]>0 && shop[0][n0].rarity=='legendary')
                 {
-                    console.log('wanna buy ',shop[0][n]);
-                    if (money>=shop[0][n].price)
+                    console.log('wanna buy ',shop[0][n0]);
+                    if (money>=shop[0][n0].price)
                     {
                         console.log("yay?");
-                        money-=shop[0][n].price;
-                        var params = {
+                        money-=Number(shop[0][n0].price);
+                        var params0 = {
                             class: "Item",
                             action: "buy",
-                            id_item: shop[0][n].id_item,
+                            id_item: shop[0][n0].id_item,
                             type: "armor",
                             who: 1,
-                            id_skin: shop[0][n].id_skin,
-                            id_equip: shop[0][n].id_equip,
+                            id_skin: shop[0][n0].id_skin,
+                            id_equip: shop[0][n0].id_equip
                         };
-                        hh_ajax(params, function(data) {
+                        hh_ajax(params0, function(data) {
 
                         });
-                        shop[0].splice(n,1);
+                        shop[0].splice(n0,1);
                     }
                     else
                     {
@@ -869,35 +1054,80 @@ var doShopping=function()
             }
         }
 
+        console.log('boosters');
+        var boosterFilter = Storage().autoBuyBoostersFilter.split(";");
+        if (Storage().autoBuyBoosters==="true" && boosterFilter.length > 0)
+        {
+console.log("go shop");
+            Was=shop[1].length;
+
+            for (var boost of boosterFilter)
+            {
+                for (var n1=shop[1].length-1;n1>=0;n1--)
+                {
+console.log(shop[1][n1].price_hc, shop[1][n1].identifier,shop[1][n1].rarity);
+                    if (kobans>=Number(Storage().kobanBank)+Number(shop[1][n1].price_hc) && shop[1][n1].identifier == boost  && shop[1][n1].rarity=='common')
+                    {
+                        console.log('wanna buy ',shop[1][n1]);
+                        if (kobans>=Number(shop[1][n1].price_hc))
+                        {
+                            console.log("yay?");
+                            kobans-=Number(shop[1][n1].hc_price);
+                            var params1 = {
+                                class: "Item",
+                                action: "buy",
+                                id_item: shop[1][n1].id_item,
+                                type: "booster",
+                                who: 1
+                            };
+                            hh_ajax(params1, function(data) {
+
+                            });
+                            shop[1].splice(n1,1);
+                        }
+                        else
+                        {
+                            console.log("but can't");
+                        }
+                    }
+                }
+            }
+
+            if (shop[1].length==0 && Was>0)
+            {
+                sessionStorage.charLevel=0;
+            }
+        }
+
         if (Storage().autoAffW==="true" && HaveAff<MaxAff)
         {
             //console.log('gifts');
-            Was=shop[1].length;
-            for (var nn=shop[1].length-1;nn>=0;nn--)
+            Was=shop[2].length;
+            for (var n2=shop[2].length-1;n2>=0;n2--)
             {
-                console.log('wanna buy ',shop[1][nn]);
-                if (money>=Aff+Number(shop[1][nn].price) && money>=shop[1][nn].price)
+                console.log('wanna buy ',shop[2][n2]);
+                if (money>=Aff+Number(shop[2][n2].price) && money>=Number(shop[2][n2].price))
                 {
                     console.log("yay?");
-                    money-=shop[1][nn].price;
+                    money-=Number(shop[2][n2].price);
                     var params2 = {
                         class: "Item",
                         action: "buy",
-                        id_item: shop[1][nn].id_item,
+                        id_item: shop[2][n2].id_item,
                         type: "gift",
                         who: 1
                     };
                     hh_ajax(params2, function(data) {
 
                     });
-                    shop[1].splice(nn,1);
+                    shop[2].splice(n2,1);
                 }
                 else
                 {
                     console.log("but can't");
                 }
             }
-            if (shop[1].length==0 && Was>0)
+            if (shop[2].length==0 && Was>0)
             {
                 sessionStorage.charLevel=0;
             }
@@ -906,32 +1136,32 @@ var doShopping=function()
         if (Storage().autoExpW==="true" && HaveExp<MaxExp)
         {
             //console.log('books');
-            Was=shop[2].length;
-            for (var nnn=shop[2].length-1;nnn>=0;nnn--)
+            Was=shop[3].length;
+            for (var n3=shop[3].length-1;n3>=0;n3--)
             {
-                console.log('wanna buy ',shop[2][nnn]);
-                if (money>=Exp+Number(shop[2][nnn].price) && money>=shop[2][nnn].price)
+                console.log('wanna buy ',shop[3][n3]);
+                if (money>=Exp+Number(shop[3][n3].price) && money>=Number(shop[3][n3].price))
                 {
                     console.log("yay?");
-                    money-=shop[2][nnn].price;
+                    money-=Number(shop[3][n3].price);
                     var params3 = {
                         class: "Item",
                         action: "buy",
-                        id_item: shop[2][nnn].id_item,
+                        id_item: shop[3][n3].id_item,
                         type: "potion",
                         who: 1
                     };
                     hh_ajax(params3, function(data) {
 
                     });
-                    shop[2].splice(nnn,1);
+                    shop[3].splice(n3,1);
                 }
                 else
                 {
                     console.log("but can't");
                 }
             }
-            if (shop[2].length==0 && Was>0)
+            if (shop[3].length==0 && Was>0)
             {
                 sessionStorage.charLevel=0;
             }
@@ -1064,6 +1294,7 @@ var doChampionStuff=function()
         return true;
     }
 }
+
 
 // Numbers: rounding to K, M, G and T
 function nRounding(num, digits, updown) {
@@ -1376,6 +1607,8 @@ var doSeason = function () {
 
 
 
+
+
         var chosenID=moduleSimSeasonBattle();
         if (chosenID != -1 )
         {
@@ -1384,6 +1617,7 @@ var doSeason = function () {
             return true;
         }
     }
+
     //     else if (page==="battle")
     //     {
     //         CrushThem();
@@ -1468,6 +1702,10 @@ var doLeagueBattle = function () {
     else if(page === "leaderboard")
     {
         console.log("On leaderboard page.");
+        if (Storage().autoLeaguesCollect === "true")
+        {
+            $('#leagues_middle .forced_info button[rel="claim"]').click(); //click reward
+        }
         // console.log('ls! '+$('h4.leagues').size());
         $('h4.leagues').each(function(){this.click();});
         var GetPlayerLineRank = $("tr[class=personal_highlight] td span")[0].innerText;
@@ -1555,11 +1793,27 @@ var doLeagueBattle = function () {
     }
 };
 
+function LeagueDisplayGetOpponentPopup(numberDone,remainingTime)
+{
+    $("#leagues #leagues_middle").prepend('<div id="popup_message_league" class="popup_message_league" name="popup_message_league" style="display: block;color: #FF2F2F;font-size: 20px;text-align: center;">Opponent list is building : <br>'+numberDone+' opponents parsed ('+remainingTime+')</div>');
+}
+function LeagueClearDisplayGetOpponentPopup()
+{
+    $("#popup_message_league").each(function(){this.remove();});
+}
+
+function LeagueUpdateGetOpponentPopup(numberDone,remainingTime)
+{
+    LeagueClearDisplayGetOpponentPopup();
+    LeagueDisplayGetOpponentPopup(numberDone,remainingTime);
+}
+
 function getLeagueOpponentId(opponentsIDList)
 {
     var opponentsPowerList = sessionStorage.LeagueOpponentList?JSON.parse(sessionStorage.LeagueOpponentList,reviver):[];
     var opponentsListExpirationDate = sessionStorage.opponentsListExpirationDate?sessionStorage.opponentsListExpirationDate:'empty';
     var opponentsIDs= opponentsIDList;
+    var oppoNumber = opponentsIDList.length;
     var playerEgo;
     var playerDefHC;
     var playerDefKH;
@@ -1641,6 +1895,7 @@ function getLeagueOpponentId(opponentsIDList)
 
             });
             opponentsIDList.shift();
+            LeagueUpdateGetOpponentPopup(DataOppo.size+'/'+oppoNumber, toHHMMSS((oppoNumber-DataOppo.size)*1.2));
             setTimeout(getOpponents,randomInterval(800,1200));
 
             window.top.postMessage({ImAlive:true},'*');
@@ -1651,6 +1906,7 @@ function getLeagueOpponentId(opponentsIDList)
             sessionStorage.opponentsListExpirationDate=new Date().getTime() + 10*60 * 1000
             //console.log(DataOppo);
             sessionStorage.LeagueOpponentList = JSON.stringify(DataOppo,replacer);
+            LeagueClearDisplayGetOpponentPopup();
             doLeagueBattle();
         }
     }
@@ -1810,6 +2066,15 @@ var checkTimer=function(name)
     return false;
 }
 
+var getTimer=function(name)
+{
+    if (!Timers[name])
+    {
+        return -1;
+    }
+    return Timers[name];
+}
+
 var getSecondsLeft=function(name)
 {
     if (!Timers[name])
@@ -1847,6 +2112,22 @@ var updateData = function () {
     Storage().autoContest = document.getElementById("autoContestCheckbox").checked;
     Storage().autoMission = document.getElementById("autoMissionCheckbox").checked;
     Storage().autoPowerPlaces = document.getElementById("autoPowerPlaces").checked;
+
+    var newValue = String(document.getElementById("autoPowerPlacesAll").checked);
+    if (Storage().autoPowerPlacesAll != newValue)
+    {
+        console.log(Storage().autoPowerPlacesAll,newValue);
+        Storage().autoPowerPlacesAll = document.getElementById("autoPowerPlacesAll").checked;
+        clearTimer('minPowerPlacesTime');
+    }
+    newValue = String(document.getElementById("autoPowerPlacesIndexFilter").value);
+    if (Storage().autoPowerPlacesIndexFilter != newValue)
+    {
+        console.log(Storage().autoPowerPlacesIndexFilter,newValue);
+        Storage().autoPowerPlacesIndexFilter = document.getElementById("autoPowerPlacesIndexFilter").value;
+        clearTimer('minPowerPlacesTime');
+    }
+
     Storage().autoPowerPlacesIndexFilter = document.getElementById("autoPowerPlacesIndexFilter").value;
     Storage().autoSalaryTimer = document.getElementById("autoSalaryTextbox").value;
     Storage().autoMissionC = document.getElementById("autoMissionCollect").checked;
@@ -1858,6 +2139,7 @@ var updateData = function () {
     Storage().autoSeason = document.getElementById("autoSeasonCheckbox").checked;
     Storage().autoSeasonCollect = document.getElementById("autoSeasonCollect").checked;
     Storage().autoLeagues = document.getElementById("autoLeagues").checked;
+    Storage().autoLeaguesCollect = document.getElementById("autoLeaguesCollect").checked;
     Storage().autoLeaguesPowerCalc = document.getElementById("autoLeaguesPowerCalc").checked;
     Storage().autoLeaguesMaxRank = document.getElementById("autoLeaguesMaxRank").value;
     Storage().autoStats = document.getElementById("autoStats").value;
@@ -1873,8 +2155,10 @@ var updateData = function () {
     Storage().autoLGMW = document.getElementById("autoLGMW").checked;
     Storage().autoLGR = document.getElementById("autoLGR").value;
     Storage().autoLGRW = document.getElementById("autoLGRW").checked;
-    Storage().autoEGM = document.getElementById("autoEGM").value;
-    Storage().autoEGMW = document.getElementById("autoEGMW").checked;
+    //Storage().autoEGM = document.getElementById("autoEGM").value;
+    //Storage().autoEGMW = document.getElementById("autoEGMW").checked;
+    Storage().autoBuyBoosters = document.getElementById("autoBuyBoosters").checked;
+    Storage().autoBuyBoostersFilter = document.getElementById("autoBuyBoostersFilter").value;
     localStorage.showInfo = document.getElementById("showInfo").checked;
     localStorage.showCalculatePower = document.getElementById("showCalculatePower").checked;
     Storage().autoChamps = document.getElementById("autoChamps").checked;
@@ -1884,14 +2168,16 @@ var updateData = function () {
     Storage().spendKobans0 = document.getElementById("spendKobans0").checked;
     Storage().spendKobans1 = document.getElementById("spendKobans1").checked && Storage().spendKobans0=="true";
     document.getElementById("spendKobans1").checked=Storage().spendKobans1=="true";
-    Storage().spendKobans2 = document.getElementById("spendKobans2").checked && Storage().spendKobans1=="true" && Storage().spendKobans0=="true"
+    Storage().spendKobans2 = document.getElementById("spendKobans2").checked && Storage().spendKobans1=="true" && Storage().spendKobans0=="true";
     document.getElementById("spendKobans2").checked=Storage().spendKobans2=="true";
 
-    Storage().buyCombat=document.getElementById("buyCombat").checked && Storage().spendKobans2=="true" && Storage().spendKobans1=="true" && Storage().spendKobans0=="true"
+    Storage().buyCombat=document.getElementById("buyCombat").checked && Storage().spendKobans2=="true" && Storage().spendKobans1=="true" && Storage().spendKobans0=="true";
     document.getElementById("buyCombat").checked=Storage().buyCombat=="true";
+    Storage().autoBuyBoosters=document.getElementById("autoBuyBoosters").checked && Storage().spendKobans2=="true" && Storage().spendKobans1=="true" && Storage().spendKobans0=="true";
+    document.getElementById("autoBuyBoosters").checked=Storage().autoBuyBoosters=="true";
     Storage().kobanBank=document.getElementById("kobanBank").value;
 
-     settPerTab = document.getElementById("settPerTab").checked;
+    localStorage.settPerTab = document.getElementById("settPerTab").checked;
 
     Storage().master=document.getElementById("master").checked;
 
@@ -1937,23 +2223,7 @@ var updateData = function () {
         }
         if (Storage().autoPowerPlaces=="true")
         {
-            var minTime=-1;
-            var indexes=(Storage().autoPowerPlacesIndexFilter?Storage().autoPowerPlacesIndexFilter:"").split(";");
-
-
-            for(var index=0;index<indexes.length;index++)
-            {
-
-                if (minTime == -1 || getSecondsLeft('nextPowerPlacesTime'+indexes[index]) < getSecondsLeft('nextPowerPlacesTime'+indexes[minTime]))
-                {
-                    minTime=index;
-                }
-
-            }
-            if (minTime != -1)
-            {
-                Tegzd+=(Tegzd.length>0?'\r\n':'')+'PowerPlaces'+': '+getTimeLeft('nextPowerPlacesTime'+indexes[minTime]);
-            }
+            Tegzd+=(Tegzd.length>0?'\r\n':'')+'PowerPlaces'+': '+getTimeLeft('minPowerPlacesTime');
         }
         if (Storage().autoFreePachinko=="true")
         {
@@ -2100,9 +2370,11 @@ var updateShop=function()
         console.log("Detected Market Screen. Fetching Assortment");
 
         var assA=[];
+        var assB=[];
         var assG=[];
         var assP=[];
         $('#shop div.armor .slot').each(function(){if (this.dataset.d)assA.push(JSON.parse(this.dataset.d));});
+        $('#shop div.booster .slot').each(function(){if (this.dataset.d)assB.push(JSON.parse(this.dataset.d));});
         $('#shop div.gift .slot').each(function(){if (this.dataset.d)assG.push(JSON.parse(this.dataset.d));});
         $('#shop div.potion .slot').each(function(){if (this.dataset.d)assP.push(JSON.parse(this.dataset.d));});
 
@@ -2116,7 +2388,7 @@ var updateShop=function()
 
         console.log('counted',sessionStorage.haveAff,sessionStorage.haveExp);
 
-        sessionStorage.storeContents = JSON.stringify([assA,assG,assP]);
+        sessionStorage.storeContents = JSON.stringify([assA,assB,assG,assP]);
         sessionStorage.charLevel=getHero().infos.level;
 
         var nshop;
@@ -2823,12 +3095,33 @@ var autoLoop = function () {
             }
         }
         if(Storage().autoPowerPlaces === "true" && busy === false){
-            var indexes=(Storage().autoPowerPlacesIndexFilter?Storage().autoPowerPlacesIndexFilter:"").split(";");
-            for(var index of indexes)
+
+            var popToStart = Storage().PopToStart?JSON.parse(Storage().PopToStart):[];
+            if (popToStart.length != 0 || checkTimer('minPowerPlacesTime'))
             {
-                if (checkTimer('nextPowerPlacesTime'+index) && busy === false){
-                    console.log("Time to do PowerPlaces"+index+".");
-                    busy = doPowerPlacesStuff(index);
+                //console.log("pop1:",popToStart);
+                console.log("Go and collect");
+                busy = collectAndUpdatePowerPlaces();
+                var indexes=(Storage().autoPowerPlacesIndexFilter?Storage().autoPowerPlacesIndexFilter:"").split(";");
+
+                popToStart = Storage().PopToStart?JSON.parse(Storage().PopToStart):[];
+                //console.log("pop2:",popToStart);
+                for(var index of indexes)
+                {
+                    if (busy === false && popToStart.includes(Number(index)))
+                    {
+                        console.log("Time to do PowerPlace"+index+".");
+                        busy = doPowerPlacesStuff(index);
+                    }
+                }
+                //console.log("pop3:",Storage().PopToStart);
+                popToStart = Storage().PopToStart?JSON.parse(Storage().PopToStart):[];
+                //console.log("pop3:",popToStart);
+                if (popToStart.length === 0)
+                {
+                    //console.log("removing popToStart");
+                    Storage().removeItem('PopToStart');
+                    gotoPage("home");
                 }
             }
         }
@@ -3077,9 +3370,11 @@ var setDefaults = function () {
     Storage().autoContest = "false";
     Storage().autoMission = "false";
     Storage().autoPowerPlaces = "false";
+    Storage().autoPowerPlacesAll = "false";
     Storage().autoPowerPlacesIndexFilter = "1;2;3";
     Storage().autoMissionC = "false";
     Storage().autoLeagues = "false";
+    Storage().autoLeaguesCollect = "false";
     Storage().autoLeaguesPowerCalc = "false";
     Storage().autoLeaguesMaxRank = "0";
     Storage().autoStats = "500000000";
@@ -3110,11 +3405,12 @@ var setDefaults = function () {
     Storage().autoLGMW = "false";
     Storage().autoLGR = "500000000";
     Storage().autoLGRW = "false";
-    Storage().autoEGM = "500000000";
-    Storage().autoEGMW = "false";
+    //Storage().autoEGM = "500000000";
+    //Storage().autoEGMW = "false";
+    Storage().autoBuyBoostersFilter = "B1;B2;B3;B4";
+    Storage().autoBuyBoosters = "false";
     Storage().paranoia="false";
-    localStorage.showInfo="true";
-    localStorage.showCalculatePower = "true";
+
     Storage().spendKobans0="false";
     Storage().paranoiaSettings="120-300/Sleep:28800-29400|Active:300-420|Casual:1800-2100/6:Sleep|18:Active|22:Casual|24:Sleep";
     Storage().master="false";
@@ -3225,7 +3521,7 @@ var getBurst=function()
     return Storage().master==="true"&&(!(Storage().paranoia==="true") || sessionStorage.burst==="true");
 }
 
-var Trollz=["Latest","Dark Lord","Ninja Spy","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson\'s Crew","Pandora witch"];
+var Trollz=["Latest","Dark Lord","Ninja Spy","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson\'s Crew","Pandora witch","Nike"];
 var Timers={};
 
 var start = function () {
@@ -3250,11 +3546,18 @@ var start = function () {
                      + '<div style="display:flex;flex-direction:row;">'
                      +  '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +   '<span>Master switch</span><div><label class=\"switch\" title=\"Turn off to pause script\"><input id=\"master\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
-                     +   '<span>Questionable Shit</span><div><label class=\"switch\"><input id=\"spendKobans0\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
-                     +   '<span>Are you sure?</span><div><label class=\"switch\"><input id=\"spendKobans1\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
-                     +   '<span>You\'ve been warned</span><div><label class=\"switch\"><input id=\"spendKobans2\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
-                     +   '<span>Buy comb. in events</span><div><label class=\"switch\"><input id=\"buyCombat\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="kobanBank" type="text"></div>'
-                     +   '<span>Hours to buy Comb</span><div><input id="buyCombTimer" style="width:80%" type="text"></div>'
+                     +   '<span>Questionable Shit</span><div><label title=\"Koban security switch 1\" class=\"switch\"><input id=\"spendKobans0\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +   '<span>Are you sure?</span><div><label title=\"Koban security switch 2\" class=\"switch\"><input id=\"spendKobans1\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +   '<span>You\'ve been warned</span><div><label title=\"Koban security switch 3\" class=\"switch\"><input id=\"spendKobans2\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +   '<span>Koban Bank</span><div><input id="kobanBank" type="text"></div>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>Buy comb. in events</span><div><label class=\"switch\"><input id=\"buyCombat\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>Hours to buy Comb</span><div><input id="buyCombTimer" style="width:50%" type="text"></div>'
+                     +    '</div>'
+                     +   '</div>'
                      +   '<span>Event Troll Order</span><div><input id="eventTrollOrder" style="width:80%" type="text"></div>'
                      +   '<span>Show CalculatePower</span><div><label class=\"switch\"><input id=\"showCalculatePower\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +  '</div>'
@@ -3307,6 +3610,9 @@ var start = function () {
                      +     '<span>UsePowerCalc</span><div><label class=\"switch\"><input id=\"autoLeaguesPowerCalc\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>Collect</span><div><label class=\"switch\"><input id=\"autoLeaguesCollect\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>Max rank (0 for none)</span><div><input id="autoLeaguesMaxRank" type="text"></div>'
                      +    '</div>'
                      +   '</div>'
@@ -3316,6 +3622,9 @@ var start = function () {
                      +    '</div>'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>Index Filter</span><div><input id="autoPowerPlacesIndexFilter" type="text"></div>'
+                     +    '</div>'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>Do All</span><div><label class=\"switch\"><input id=\"autoPowerPlacesAll\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +    '</div>'
                      +   '</div>'
                      +   '<div style="display:flex;flex-direction:row;">'
@@ -3334,8 +3643,9 @@ var start = function () {
                      +   '<span>Buy Aff</span><div style="width:200px"><label class=\"switch\"><input id=\"autoAffW\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="autoAff" style="width:50%" type="text"><input id="maxAff" style="width:30%" type="text"></div>'
                      +   '<span>Buy Leg Gear Mono</span><div><label class=\"switch\"><input id=\"autoLGMW\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="autoLGM" type="text"></div>'
                      +   '<span>Buy Leg Gear Rainbow</span><div><label class=\"switch\"><input id=\"autoLGRW\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="autoLGR" type="text"></div>'
-                     +   '<span>Buy Epi Gear Mono</span><div><label class=\"switch\"><input id=\"autoEGMW\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="autoEGM" type="text"></div>'
-                     +   '<span>Show info</span><div><label class=\"switch\"><input id=\"showInfo\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     //+   '<span>Buy Epi Gear Mono</span><div><label class=\"switch\"><input id=\"autoEGMW\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="autoEGM" type="text"></div>'
+                     +   '<span>Buy Leg. Boosters</span><div><label title=\"Activate to buy Legendary boosters, all 3 koban security switches must be on.\" class=\"switch\"><input id=\"autoBuyBoosters\" type=\"checkbox\"><span class=\"slider round\"></span></label><input title=\"B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps\" id="autoBuyBoostersFilter" type="text"></div>'
+                     +   '<span>Show info</span><div><label title=\"Activate to display timers\"class=\"switch\"><input id=\"showInfo\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +  '</div>'
                      + '</div>'
                      +'</div>'+UIcontainer.html());
@@ -3373,7 +3683,9 @@ var start = function () {
     document.getElementById("autoLeagues").checked = Storage().autoLeagues === "true";
     document.getElementById("autoLeaguesMaxRank").value = Storage().autoLeaguesMaxRank?Storage().autoLeaguesMaxRank:"0";
     document.getElementById("autoLeaguesPowerCalc").checked = Storage().autoLeaguesPowerCalc === "true";
+    document.getElementById("autoLeaguesCollect").checked = Storage().autoLeaguesCollect === "true";
     document.getElementById("autoPowerPlaces").checked = Storage().autoPowerPlaces === "true";
+    document.getElementById("autoPowerPlacesAll").checked = Storage().autoPowerPlacesAll === "true";
     document.getElementById("autoPowerPlacesIndexFilter").value = Storage().autoPowerPlacesIndexFilter?Storage().autoPowerPlacesIndexFilter:"1;2;3";
     document.getElementById("autoStats").value = Storage().autoStats?Storage().autoStats:"500000000";
     document.getElementById("paranoia").checked = Storage().paranoia==="true";
@@ -3387,10 +3699,12 @@ var start = function () {
     document.getElementById("autoLGMW").checked = Storage().autoLGMW === "true";
     document.getElementById("autoLGR").value = Storage().autoLGR?Storage().autoLGR:"500000000";
     document.getElementById("autoLGRW").checked = Storage().autoLGRW === "true";
-    document.getElementById("autoEGM").value = Storage().autoEGM?Storage().autoEGM:"500000000";
-    document.getElementById("autoEGMW").checked = Storage().autoEGMW === "true";
-    document.getElementById("showInfo").checked = localStorage.showInfo === "true";
-    document.getElementById("showCalculatePower").checked = localStorage.showCalculatePower === "true";
+    document.getElementById("autoBuyBoosters").checked = Storage().autoBuyBoosters === "true";
+    document.getElementById("autoBuyBoostersFilter").value = Storage().autoBuyBoostersFilter?Storage().autoBuyBoostersFilter:"B1;B2;B3;B4";
+    //document.getElementById("autoEGM").value = Storage().autoEGM?Storage().autoEGM:"500000000";
+    //document.getElementById("autoEGMW").checked = Storage().autoEGMW === "true";
+    document.getElementById("showInfo").checked = localStorage.showInfo?localStorage.showInfo==="true":"false";
+    document.getElementById("showCalculatePower").checked = localStorage.showCalculatePower?localStorage.showCalculatePower==="true":"false";
     document.getElementById("plusEvent").checked = Storage().trollToFight=="-1" || Storage().plusEvent === "true";
 
     document.getElementById("autoChamps").checked = Storage().autoChamps === "true";
@@ -3403,7 +3717,7 @@ var start = function () {
     document.getElementById("buyCombat").checked = Storage().buyCombat === "true";
     document.getElementById("kobanBank").value = Storage().kobanBank?Storage().kobanBank:"1000000";
 
-    document.getElementById("master").checked = Storage().master!=="false";
+    document.getElementById("master").checked = Storage().master==="true";
 
     sessionStorage.autoLoop = "true";
     if (typeof Storage().freshStart == "undefined" || isNaN(Number(Storage().autoLoopTimeMili))) {
