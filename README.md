@@ -1,4 +1,4 @@
-# HHauto
+# GHAuto
 
 To install : https://github.com/nwlndfre/GHAuto/raw/main/GHAuto.user.js
 
