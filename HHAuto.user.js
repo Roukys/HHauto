@@ -1977,7 +1977,7 @@ var  CrushThem = function()
             if(battleButton === undefined){
                 console.log("Battle Button was undefined. Disabling all auto-battle.");
                 document.getElementById("autoBattleCheckbox").checked = false;
-                document.getElementById("autoArenaCheckbox").checked = false;
+                //document.getElementById("autoArenaCheckbox").checked = false;
                 if (sessionStorage.questRequirement === "battle")
                 {
                     document.getElementById("autoQuestCheckbox").checked = false;
@@ -1995,7 +1995,7 @@ var  CrushThem = function()
                 console.log("Could not detect battle button price. Error.");
                 console.log("Disabling all auto-battle.");
                 document.getElementById("autoBattleCheckbox").checked = false;
-                document.getElementById("autoArenaCheckbox").checked = false;
+                //document.getElementById("autoArenaCheckbox").checked = false;
                 if (sessionStorage.questRequirement === "battle")
                 {
                     document.getElementById("autoQuestCheckbox").checked = false;
@@ -2135,7 +2135,7 @@ var updateData = function () {
     Storage().autoTrollBattle = document.getElementById("autoBattleCheckbox").checked;
     Storage().eventTrollOrder = document.getElementById("eventTrollOrder").value;
     Storage().buyCombTimer = document.getElementById("buyCombTimer").value;
-    Storage().autoArenaBattle = document.getElementById("autoArenaCheckbox").checked;
+    //Storage().autoArenaBattle = document.getElementById("autoArenaCheckbox").checked;
     Storage().autoSeason = document.getElementById("autoSeasonCheckbox").checked;
     Storage().autoSeasonCollect = document.getElementById("autoSeasonCollect").checked;
     Storage().autoLeagues = document.getElementById("autoLeagues").checked;
@@ -2193,10 +2193,12 @@ var updateData = function () {
         {
             Tegzd+=(Tegzd.length>0?'\r\n':'')+'Salary check: '+getTimeLeft('nextSalaryTime');
         }
+        /*
         if (Storage().autoArenaBattle=="true")
         {
             Tegzd+=(Tegzd.length>0?'\r\n':'')+'Arena fight: '+getTimeLeft('nextArenaTime');
         }
+        */
         if (Storage().autoSeason=="true")
         {
             Tegzd+=(Tegzd.length>0?'\r\n':'')+'Season kisses left: '+getHero().infos.energy_kiss;
@@ -2448,11 +2450,13 @@ var flipParanoia=function()
         var periods=Object.assign(...S1[1].map(d => ({[d[0]]: d[1].split('-')})));
 
         toNextSwitch=randomInterval(Number(periods[period][0]),Number(periods[period][1]));
+        /*
         if (toNextSwitch<=1800 && Storage().autoArenaBattle == "true")
         {
             var sl=getSecondsLeft("nextArenaTime");
             toNextSwitch=toNextSwitch<sl?toNextSwitch:sl;
         }
+        */
     }
     else
     {
@@ -3225,10 +3229,10 @@ var autoLoop = function () {
             }
         }
         else if(Storage().autoQuest === "false"){sessionStorage.questRequirement = "none";}
-
+        /*
         if(Storage().autoArenaBattle === "true" && busy === false)
         {
-            if (/*unsafeWindow.arena_data && unsafeWindow.arena_data.active_opponent*/$('a[rel=arena] span.button-notification-icon').size()>0)
+            if ($('a[rel=arena] span.button-notification-icon').size()>0)
             {
                 console.log('Missed one in arena!');
                 setTimer('nextArenaTime',0);
@@ -3240,6 +3244,7 @@ var autoLoop = function () {
                 busy = true;
             }
         }
+        */
         if(Storage().autoSeason === "true" && busy === false && getHero().infos.energy_kiss)
         {
             console.log("Time to fight in Season.");
@@ -3385,7 +3390,7 @@ var setDefaults = function () {
     Storage().autoTrollBattle = "false";
     Storage().eventTrollOrder="";
     Storage().buyCombTimer="16";
-    Storage().autoArenaBattle = "false";
+    //Storage().autoArenaBattle = "false";
     Storage().autoSeason = "false";
     Storage().autoSeasonCollect = "false";
     sessionStorage.battlePowerRequired = "0";
@@ -3589,7 +3594,7 @@ var start = function () {
                      +     '<span>+Event</span><div><label class=\"switch\"><input id=\"plusEvent\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +    '</div>'
                      +   '</div>'
-                     +   '<span>AutoArenaBattle</span><div><label class=\"switch\"><input id=\"autoArenaCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     //+   '<span>AutoArenaBattle</span><div><label class=\"switch\"><input id=\"autoArenaCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +   '<div style="display:flex;flex-direction:row;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>AutoSeason</span><div><label class=\"switch\"><input id=\"autoSeasonCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
@@ -3676,7 +3681,7 @@ var start = function () {
     document.getElementById("autoBattleCheckbox").checked = Storage().autoTrollBattle === "true";
     document.getElementById("eventTrollOrder").value = Storage().eventTrollOrder?Storage().eventTrollOrder:"1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20";
     document.getElementById("buyCombTimer").value = Storage().buyCombTimer?Storage().buyCombTimer:"16";
-    document.getElementById("autoArenaCheckbox").checked = Storage().autoArenaBattle === "true";
+    //document.getElementById("autoArenaCheckbox").checked = Storage().autoArenaBattle === "true";
     document.getElementById("autoSeasonCheckbox").checked = Storage().autoSeason === "true";
     document.getElementById("autoSeasonCollect").checked = Storage().autoSeasonCollect === "true";
     document.getElementById("autoFreePachinko").checked = Storage().autoFreePachinko === "true";
