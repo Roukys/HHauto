@@ -3552,6 +3552,8 @@ var start = function () {
                      + '<div style="display:flex;flex-direction:row;">'
                      +  '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +   '<span>Master switch</span><div><label class=\"switch\" title=\"Turn off to pause script\"><input id=\"master\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     // Region Shit
+                     +   '<div style="display:flex;flex-direction:column; border-style: solid;">'
                      +   '<span>Questionable Shit</span><div><label title=\"Koban security switch 1\" class=\"switch\"><input id=\"spendKobans0\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +   '<span>Are you sure?</span><div><label title=\"Koban security switch 2\" class=\"switch\"><input id=\"spendKobans1\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +   '<span>You\'ve been warned</span><div><label title=\"Koban security switch 3\" class=\"switch\"><input id=\"spendKobans2\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
@@ -3565,20 +3567,25 @@ var start = function () {
                      +    '</div>'
                      +   '</div>'
                      +   '<span>Event Troll Order</span><div><input id="eventTrollOrder" style="width:80%" type="text"></div>'
+                     + '</div>'
+                     // End Region Shit
                      +   '<span>Show CalculatePower</span><div><label class=\"switch\"><input id=\"showCalculatePower\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +  '</div>'
                      +  '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +   '<span>Settings per tab</span><div><label class=\"switch\"><input id=\"settPerTab\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
-                     +   '<div style="display:flex;flex-direction:row;">'
+                     // Region AutoSalary
+                     +   '<div style="display:flex;flex-direction:row; border-style: solid;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>AutoSal.</span><div><label class=\"switch\"><input id=\"autoSalaryCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>min wait</span><div><input id="autoSalaryTextbox" style="width:80%" type="text"></div>'
                      +    '</div>'
+                     //End Region AutoSalary
                      +   '</div>'
                      +   '<span>AutoContest</span><div><label class=\"switch\"><input id=\"autoContestCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
-                     +   '<div style="display:flex;flex-direction:row;">'
+                     //Region AutoMission
+                     +   '<div style="display:flex;flex-direction:row; border-style: solid;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>AutoMission</span><div><label class=\"switch\"><input id=\"autoMissionCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +    '</div>'
@@ -3586,17 +3593,22 @@ var start = function () {
                      +     '<span>Collect</span><div><label class=\"switch\"><input id=\"autoMissionCollect\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +    '</div>'
                      +   '</div>'
+                     //End Region AutoMission
                      +   '<span>AutoQuest</span><div><label class=\"switch\"><input id=\"autoQuestCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
-                     +   '<div style="display:flex;flex-direction:row;">'
+                     // Region AutoTroll
+                     +   '<div style="display:flex;flex-direction:row; border-style: solid;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>AutoTrollBattle</span><div><label class=\"switch\"><input id=\"autoBattleCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label><select id=\"autoTrollSelector\"></select></div>'
+                     +     '<span>AutoTrollBattle</span><div><label class=\"switch\"><input id=\"autoBattleCheckbox\" type=\"checkbox\">'
+                     +     '<span class=\"slider round\"></span></label><select id=\"autoTrollSelector\"></select></div>'
                      +    '</div>'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>+Event</span><div><label class=\"switch\"><input id=\"plusEvent\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +    '</div>'
                      +   '</div>'
+                     // End Region AutoTroll
                      //+   '<span>AutoArenaBattle</span><div><label class=\"switch\"><input id=\"autoArenaCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
-                     +   '<div style="display:flex;flex-direction:row;">'
+                     // Region AutoSeason
+                     +   '<div style="display:flex;flex-direction:row; border-style: solid;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>AutoSeason</span><div><label class=\"switch\"><input id=\"autoSeasonCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +    '</div>'
@@ -3604,11 +3616,13 @@ var start = function () {
                      +     '<span>Collect</span><div><label class=\"switch\"><input id=\"autoSeasonCollect\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +    '</div>'
                      +   '</div>'
+                     // End Region AutoSeason
                      +   '<span>AutoPachinko(Free)</span><div><label class=\"switch\"><input id=\"autoFreePachinko\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +   '<span>Paranoia mode</span><div><label class=\"switch\"><input id=\"paranoia\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +  '</div>'
                      +  '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +   '<div style="display:flex;flex-direction:row;">'
+                     // Region AutoLeagues
+                     +   '<div style="display:flex;flex-direction:row; border-style: solid;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>AutoLeagues</span><div><label class=\"switch\"><input id=\"autoLeagues\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +    '</div>'
@@ -3622,7 +3636,9 @@ var start = function () {
                      +     '<span>Max rank (0 for none)</span><div><input id="autoLeaguesMaxRank" type="text"></div>'
                      +    '</div>'
                      +   '</div>'
-                     +   '<div style="display:flex;flex-direction:row;">'
+                     // End Region AUtoLeagues
+                     // Region PowerPlace
+                     +   '<div style="display:flex;flex-direction:row; border-style: solid;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>AutoPowerPlaces</span><div><label class=\"switch\"><input id=\"autoPowerPlaces\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +    '</div>'
@@ -3633,7 +3649,9 @@ var start = function () {
                      +     '<span>Do All</span><div><label class=\"switch\"><input id=\"autoPowerPlacesAll\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +    '</div>'
                      +   '</div>'
-                     +   '<div style="display:flex;flex-direction:row;">'
+                     // End Region PowerPlace
+                     // Region AutoChampions
+                     +   '<div style="display:flex;flex-direction:row; border-style: solid;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>AutoChampions</span><div><label class=\"switch\"><input id=\"autoChamps\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +    '</div>'
@@ -3642,6 +3660,7 @@ var start = function () {
                      +    '</div>'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>Filter</span><div><input id="autoChampsFilter" type="text"></div>'
+                     // End Region AutoChampions
                      +    '</div>'
                      +   '</div>'
                      +   '<span>AutoStats</span><div><input id="autoStats" type="text"></div>'
