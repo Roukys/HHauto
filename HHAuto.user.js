@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.1.2.1
+// @version      5.1.2.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -3552,8 +3552,10 @@ var start = function () {
                      + '<div style="display:flex;flex-direction:row;">'
                      +  '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +   '<span>Master switch</span><div><label class=\"switch\" title=\"Turn off to pause script\"><input id=\"master\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +   '<span>Settings per tab</span><div><label class=\"switch\"><input id=\"settPerTab\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +   '<span>Paranoia mode</span><div><label class=\"switch\"><input id=\"paranoia\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      // Region Shit
-                     +   '<div style="display:flex;flex-direction:column; border-style: solid;">'
+                     +   '<div style="display:flex;flex-direction:column; border: 1px dotted;">'
                      +   '<span>Questionable Shit</span><div><label title=\"Koban security switch 1\" class=\"switch\"><input id=\"spendKobans0\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +   '<span>Are you sure?</span><div><label title=\"Koban security switch 2\" class=\"switch\"><input id=\"spendKobans1\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +   '<span>You\'ve been warned</span><div><label title=\"Koban security switch 3\" class=\"switch\"><input id=\"spendKobans2\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
@@ -3566,15 +3568,22 @@ var start = function () {
                      +     '<span>Hours to buy Comb</span><div><input id="buyCombTimer" style="width:50%" type="text"></div>'
                      +    '</div>'
                      +   '</div>'
-                     +   '<span>Event Troll Order</span><div><input id="eventTrollOrder" style="width:80%" type="text"></div>'
+                     +   '<div style="display:flex;flex-direction:column;">'
+                     +    '<div style="display:flex;flex-direction:row;">'
+                     +    '<span>Buy Leg. Boosters</span>'
+                     +    '</div>'
+                     +    '<div style="display:flex;flex-direction:row;">'
+                     +     '<label title=\"Activate to buy Legendary boosters, all 3 koban security switches must be on.\" class=\"switch\"><input id=\"autoBuyBoosters\" type=\"checkbox\"><span class=\"slider round\"></span></label><input title=\"B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps\" id="autoBuyBoostersFilter" type="text">'
+                     +    '</div>'
+                     +   '</div>'
                      + '</div>'
                      // End Region Shit
                      +   '<span>Show CalculatePower</span><div><label class=\"switch\"><input id=\"showCalculatePower\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +   '<span>Show info</span><div><label title=\"Activate to display timers\"class=\"switch\"><input id=\"showInfo\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +  '</div>'
                      +  '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +   '<span>Settings per tab</span><div><label class=\"switch\"><input id=\"settPerTab\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      // Region AutoSalary
-                     +   '<div style="display:flex;flex-direction:row; border-style: solid;">'
+                     +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>AutoSal.</span><div><label class=\"switch\"><input id=\"autoSalaryCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +    '</div>'
@@ -3583,9 +3592,8 @@ var start = function () {
                      +    '</div>'
                      //End Region AutoSalary
                      +   '</div>'
-                     +   '<span>AutoContest</span><div><label class=\"switch\"><input id=\"autoContestCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      //Region AutoMission
-                     +   '<div style="display:flex;flex-direction:row; border-style: solid;">'
+                     +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>AutoMission</span><div><label class=\"switch\"><input id=\"autoMissionCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +    '</div>'
@@ -3594,21 +3602,25 @@ var start = function () {
                      +    '</div>'
                      +   '</div>'
                      //End Region AutoMission
-                     +   '<span>AutoQuest</span><div><label class=\"switch\"><input id=\"autoQuestCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      // Region AutoTroll
-                     +   '<div style="display:flex;flex-direction:row; border-style: solid;">'
+                     +   '<div style="display:flex;flex-direction:column; border: 1px dotted;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>AutoTrollBattle</span><div><label class=\"switch\"><input id=\"autoBattleCheckbox\" type=\"checkbox\">'
                      +     '<span class=\"slider round\"></span></label><select id=\"autoTrollSelector\"></select></div>'
                      +    '</div>'
-                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>+Event</span><div><label class=\"switch\"><input id=\"plusEvent\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +    '<div style="padding:10px; display:flex;flex-direction:row;">'
+                     +     '<div style="display:flex;flex-direction:column;">'
+                     +      '<span>Event Troll Order</span><div><input id="eventTrollOrder" style="width:150px" type="text"></div>'
+                     +     '</div>'
+                     +     '<div style="display:flex;flex-direction:column;">'
+                     +      '<span>+Event</span><div><label class=\"switch\"><input id=\"plusEvent\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +     '</div>'
                      +    '</div>'
                      +   '</div>'
                      // End Region AutoTroll
                      //+   '<span>AutoArenaBattle</span><div><label class=\"switch\"><input id=\"autoArenaCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      // Region AutoSeason
-                     +   '<div style="display:flex;flex-direction:row; border-style: solid;">'
+                     +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>AutoSeason</span><div><label class=\"switch\"><input id=\"autoSeasonCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +    '</div>'
@@ -3617,12 +3629,13 @@ var start = function () {
                      +    '</div>'
                      +   '</div>'
                      // End Region AutoSeason
+                     +   '<span>AutoQuest</span><div><label class=\"switch\"><input id=\"autoQuestCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +   '<span>AutoContest</span><div><label class=\"switch\"><input id=\"autoContestCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +   '<span>AutoPachinko(Free)</span><div><label class=\"switch\"><input id=\"autoFreePachinko\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
-                     +   '<span>Paranoia mode</span><div><label class=\"switch\"><input id=\"paranoia\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +  '</div>'
                      +  '<div style="padding:10px; display:flex;flex-direction:column;">'
                      // Region AutoLeagues
-                     +   '<div style="display:flex;flex-direction:row; border-style: solid;">'
+                     +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>AutoLeagues</span><div><label class=\"switch\"><input id=\"autoLeagues\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +    '</div>'
@@ -3638,7 +3651,7 @@ var start = function () {
                      +   '</div>'
                      // End Region AUtoLeagues
                      // Region PowerPlace
-                     +   '<div style="display:flex;flex-direction:row; border-style: solid;">'
+                     +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>AutoPowerPlaces</span><div><label class=\"switch\"><input id=\"autoPowerPlaces\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +    '</div>'
@@ -3651,7 +3664,7 @@ var start = function () {
                      +   '</div>'
                      // End Region PowerPlace
                      // Region AutoChampions
-                     +   '<div style="display:flex;flex-direction:row; border-style: solid;">'
+                     +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>AutoChampions</span><div><label class=\"switch\"><input id=\"autoChamps\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +    '</div>'
@@ -3664,13 +3677,11 @@ var start = function () {
                      +    '</div>'
                      +   '</div>'
                      +   '<span>AutoStats</span><div><input id="autoStats" type="text"></div>'
-                     +   '<span>Buy Exp</span><div style="width:200px"><label class=\"switch\"><input id=\"autoExpW\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="autoExp" style="width:50%" type="text"><input id="maxExp" style="width:30%" type="text"></div>'
-                     +   '<span>Buy Aff</span><div style="width:200px"><label class=\"switch\"><input id=\"autoAffW\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="autoAff" style="width:50%" type="text"><input id="maxAff" style="width:30%" type="text"></div>'
+                     +   '<span>Buy Exp</span><div><label class=\"switch\"><input id=\"autoExpW\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="autoExp" type="text"><input id="maxExp" type="text"></div>'
+                     +   '<span>Buy Aff</span><div><label class=\"switch\"><input id=\"autoAffW\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="autoAff" type="text"><input id="maxAff" type="text"></div>'
                      +   '<span>Buy Leg Gear Mono</span><div><label class=\"switch\"><input id=\"autoLGMW\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="autoLGM" type="text"></div>'
                      +   '<span>Buy Leg Gear Rainbow</span><div><label class=\"switch\"><input id=\"autoLGRW\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="autoLGR" type="text"></div>'
                      //+   '<span>Buy Epi Gear Mono</span><div><label class=\"switch\"><input id=\"autoEGMW\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="autoEGM" type="text"></div>'
-                     +   '<span>Buy Leg. Boosters</span><div><label title=\"Activate to buy Legendary boosters, all 3 koban security switches must be on.\" class=\"switch\"><input id=\"autoBuyBoosters\" type=\"checkbox\"><span class=\"slider round\"></span></label><input title=\"B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps\" id="autoBuyBoostersFilter" type="text"></div>'
-                     +   '<span>Show info</span><div><label title=\"Activate to display timers\"class=\"switch\"><input id=\"showInfo\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
                      +  '</div>'
                      + '</div>'
                      +'</div>'+UIcontainer.html());
