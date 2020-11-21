@@ -306,7 +306,6 @@ function getHeroInfos(infoSearched)
             break;
         }
     }
-    console.log("value "+infoSearched+" : "+returnValue);
     return returnValue;
 }
 
