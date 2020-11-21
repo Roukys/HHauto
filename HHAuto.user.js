@@ -1332,19 +1332,16 @@ var doShopping=function()
             }
         }
 
-        console.log('boosters');
         var boosterFilter = Storage().autoBuyBoostersFilter.split(";");
         if (Storage().autoBuyBoosters==="true" && boosterFilter.length > 0)
         {
-console.log("go shop");
             Was=shop[1].length;
 
             for (var boost of boosterFilter)
             {
                 for (var n1=shop[1].length-1;n1>=0;n1--)
                 {
-console.log(shop[1][n1].price_hc, shop[1][n1].identifier,shop[1][n1].rarity);
-                    if (kobans>=Number(Storage().kobanBank)+Number(shop[1][n1].price_hc) && shop[1][n1].identifier == boost  && shop[1][n1].rarity=='common')
+                    if (kobans>=Number(Storage().kobanBank)+Number(shop[1][n1].price_hc) && shop[1][n1].identifier == boost  && shop[1][n1].rarity=='legendary')
                     {
                         console.log('wanna buy ',shop[1][n1]);
                         if (kobans>=Number(shop[1][n1].price_hc))
