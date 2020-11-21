@@ -1999,7 +1999,7 @@ var doLeagueBattle = function () {
             console.log("No power for leagues.");
             for(var e in unsafeWindow.HHTimers.timers){
                 try{
-                    if(unsafeWindow.HHTimers.timers[e].type=="energy_challenge")
+                    if(unsafeWindow.HHTimers.timers[e].type=="challenge")
                         ltime=unsafeWindow.HHTimers.timers[e];
                 }
                 catch(e){}
