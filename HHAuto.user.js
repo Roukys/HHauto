@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.2-beta.0
+// @version      5.2-beta.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -32,7 +32,7 @@ function getHero()
     return unsafeWindow.Hero;
 }
 
-function getHeroInfos(infoSearched)
+function getSetHeroInfos(infoSearched,newValue)
 {
     var returnValue = -1;
 
@@ -42,6 +42,10 @@ function getHeroInfos(infoSearched)
             if ( getHero().infos.carac1 !== undefined )
             {
                 returnValue = getHero().infos.carac1;
+                if ( newValue !== undefined )
+                {
+                    Hero.infos.carac1 = newValue;
+                }
                 break;
             }
             else
@@ -56,6 +60,10 @@ function getHeroInfos(infoSearched)
             if ( getHero().infos.carac2 !== undefined )
             {
                 returnValue = getHero().infos.carac2;
+                if ( newValue !== undefined )
+                {
+                    Hero.infos.carac2 = newValue;
+                }
                 break;
             }
             else
@@ -70,6 +78,10 @@ function getHeroInfos(infoSearched)
             if ( getHero().infos.carac3 !== undefined )
             {
                 returnValue = getHero().infos.carac3;
+                if ( newValue !== undefined )
+                {
+                    Hero.infos.carac3 = newValue;
+                }
                 break;
             }
             else
@@ -84,6 +96,10 @@ function getHeroInfos(infoSearched)
             if ( getHero().infos.caracs.damage !== undefined )
             {
                 returnValue = getHero().infos.caracs.damage;
+                if ( newValue !== undefined )
+                {
+                    Hero.infos.caracs.damage = newValue;
+                }
                 break;
             }
             else
@@ -98,6 +114,10 @@ function getHeroInfos(infoSearched)
             if ( getHero().infos.caracs.def_carac1 !== undefined )
             {
                 returnValue = getHero().infos.caracs.def_carac1;
+                if ( newValue !== undefined )
+                {
+                    Hero.infos.caracs.def_carac1 = newValue;
+                }
                 break;
             }
             else
@@ -112,6 +132,10 @@ function getHeroInfos(infoSearched)
             if ( getHero().infos.caracs.def_carac2 !== undefined )
             {
                 returnValue = getHero().infos.caracs.def_carac2;
+                if ( newValue !== undefined )
+                {
+                    Hero.infos.caracs.def_carac2 = newValue;
+                }
                 break;
             }
             else
@@ -126,6 +150,10 @@ function getHeroInfos(infoSearched)
             if ( getHero().infos.caracs.def_carac3 !== undefined )
             {
                 returnValue = getHero().infos.caracs.def_carac3;
+                if ( newValue !== undefined )
+                {
+                    Hero.infos.caracs.def_carac3 = newValue;
+                }
                 break;
             }
             else
@@ -140,6 +168,10 @@ function getHeroInfos(infoSearched)
             if ( getHero().infos.caracs.ego !== undefined )
             {
                 returnValue = getHero().infos.caracs.ego;
+                if ( newValue !== undefined )
+                {
+                    Hero.infos.caracs.ego = newValue;
+                }
                 break;
             }
             else
@@ -154,6 +186,10 @@ function getHeroInfos(infoSearched)
             if ( getHero().infos.class !== undefined )
             {
                 returnValue = getHero().infos.class;
+                if ( newValue !== undefined )
+                {
+                    Hero.infos.class = newValue;
+                }
                 break;
             }
             else
@@ -168,11 +204,19 @@ function getHeroInfos(infoSearched)
             if ( getHero().infos.energy_challenge !== undefined )
             {
                 returnValue = getHero().infos.energy_challenge;
+                if ( newValue !== undefined )
+                {
+                    Hero.infos.energy_challenge = newValue;
+                }
                 break;
             }
             else
             {
                 returnValue = getHero().energies.challenge.amount;
+                if ( newValue !== undefined )
+                {
+                    Hero.energies.challenge.amount = newValue;
+                }
                 break;
             }
             break;
@@ -181,11 +225,19 @@ function getHeroInfos(infoSearched)
             if ( getHero().infos.energy_fight !== undefined )
             {
                 returnValue = getHero().infos.energy_fight;
+                if ( newValue !== undefined )
+                {
+                    Hero.infos.energy_fight = newValue;
+                }
                 break;
             }
             else
             {
                 returnValue = getHero().energies.fight.amount;
+                if ( newValue !== undefined )
+                {
+                    Hero.energies.fight.amount = newValue;
+                }
                 break;
             }
             break;
@@ -194,11 +246,19 @@ function getHeroInfos(infoSearched)
             if ( getHero().infos.energy_kiss !== undefined )
             {
                 returnValue = getHero().infos.energy_kiss;
+                if ( newValue !== undefined )
+                {
+                    Hero.infos.energy_kiss = newValue;
+                }
                 break;
             }
             else
             {
                 returnValue = getHero().energies.kiss.amount;
+                if ( newValue !== undefined )
+                {
+                    Hero.energies.kiss.amount = newValue;
+                }
                 break;
             }
             break;
@@ -207,11 +267,19 @@ function getHeroInfos(infoSearched)
             if ( getHero().infos.energy_quest !== undefined )
             {
                 returnValue = getHero().infos.energy_quest;
+                if ( newValue !== undefined )
+                {
+                    Hero.infos.energy_quest = newValue;
+                }
                 break;
             }
             else
             {
                 returnValue = getHero().energies.quest.amount;
+                if ( newValue !== undefined )
+                {
+                    Hero.energies.quest.amount = newValue;
+                }
                 break;
             }
             break;
@@ -220,11 +288,19 @@ function getHeroInfos(infoSearched)
             if ( getHero().infos.energy_fight_max !== undefined )
             {
                 returnValue = getHero().infos.energy_fight_max;
+                if ( newValue !== undefined )
+                {
+                    Hero.infos.energy_fight_max = newValue;
+                }
                 break;
             }
             else
             {
                 returnValue = getHero().energies.fight.max_amount;
+                if ( newValue !== undefined )
+                {
+                    Hero.energies.fight.max_amount = newValue;
+                }
                 break;
             }
             break;
@@ -232,7 +308,7 @@ function getHeroInfos(infoSearched)
         case 'soft_currency' :
             if ( getHero().infos.soft_currency !== undefined )
             {
-                returnValue = getHero().infos.soft_currency;
+                return getHero().infos.soft_currency;
                 break;
             }
             else
@@ -247,6 +323,10 @@ function getHeroInfos(infoSearched)
             if ( getHero().infos.hard_currency !== undefined )
             {
                 returnValue = getHero().infos.hard_currency;
+                if ( newValue !== undefined )
+                {
+                    Hero.infos.hard_currency = newValue;
+                }
                 break;
             }
             else
@@ -261,6 +341,10 @@ function getHeroInfos(infoSearched)
             if ( getHero().infos.level !== undefined )
             {
                 returnValue = getHero().infos.level;
+                if ( newValue !== undefined )
+                {
+                    Hero.infos.level = newValue;
+                }
                 break;
             }
             else
@@ -275,6 +359,10 @@ function getHeroInfos(infoSearched)
             if ( getHero().infos.questing.current_url !== undefined )
             {
                 returnValue = getHero().infos.questing.current_url;
+                if ( newValue !== undefined )
+                {
+                    Hero.infos.questing.current_url = newValue;
+                }
                 break;
             }
             else
@@ -289,6 +377,10 @@ function getHeroInfos(infoSearched)
             if ( getHero().infos.questing.id_world !== undefined )
             {
                 returnValue = getHero().infos.questing.id_world;
+                if ( newValue !== undefined )
+                {
+                    Hero.infos.questing.id_world = newValue;
+                }
                 break;
             }
             else
@@ -300,11 +392,11 @@ function getHeroInfos(infoSearched)
             break;
 
         default:
-        {
-            console.log("Hero info not found : "+infoSearched);
-            returnValue = -1;
-            break;
-        }
+            {
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
+                break;
+            }
     }
     return returnValue;
 }
@@ -434,7 +526,7 @@ function gotoPage(page)
                 togoto = $("nav div[rel='content'] a:has(.shop)").attr("href");
                 break;
             case "quest":
-                togoto = getHeroInfos('questing.current_url');
+                togoto = getSetHeroInfos('questing.current_url');
                 if (togoto.includes("world"))
                 {
                     console.log("All quests finished, turning off AutoQuest!");
@@ -516,8 +608,8 @@ var proceedQuest = function () {
         proceedButtonMatch.click();
     }
     else if (proceedType === "pay") {
-        var energyCurrent = getHeroInfos('energy_quest');
-        var moneyCurrent = getHeroInfos('soft_currency');
+        var energyCurrent = getSetHeroInfos('energy_quest');
+        var moneyCurrent = getSetHeroInfos('soft_currency');
         if(proceedCostEnergy <= energyCurrent)
         {
             // We have energy.
@@ -706,7 +798,8 @@ function doMissionStuff()
             missionButton.click();
             setTimer('nextMissionTime',Number(mission.duration)+1);
         }
-        else{
+        else
+        {
             console.log("No missions detected...!");
             // get gift
             var ck = sessionStorage['giftleft'];
@@ -1206,14 +1299,14 @@ var doStatUpgrades=function()
     //Stats?
     //console.log('stats');
     var Hero=getHero();
-    var level=getHeroInfos('level');
-    var stats=[getHeroInfos('carac1'),getHeroInfos('carac2'),getHeroInfos('carac3')];
-    var money=getHeroInfos('soft_currency');
+    var level=getSetHeroInfos('level');
+    var stats=[getSetHeroInfos('carac1'),getSetHeroInfos('carac2'),getSetHeroInfos('carac3')];
+    var money=getSetHeroInfos('soft_currency');
     var count=0;
     var M=Storage().autoStats?Number(Storage().autoStats):500000000;
-    var MainStat=stats[getHeroInfos('class')-1];
-    var Limit=getHeroInfos('level')*30;//getHeroInfos('level')*19+Math.min(getHeroInfos('level'),25)*21;
-    var carac=getHeroInfos('class');
+    var MainStat=stats[getSetHeroInfos('class')-1];
+    var Limit=getSetHeroInfos('level')*30;//getSetHeroInfos('level')*19+Math.min(getSetHeroInfos('level'),25)*21;
+    var carac=getSetHeroInfos('class');
     var mp=0;
     var mults=[60,30,10,1];
     for (var car=0; car<3; car++)
@@ -1225,12 +1318,12 @@ var doStatUpgrades=function()
             var mult=mults[mu];
             var price = 5+s*2+(Math.max(0,s-2000)*2)+(Math.max(0,s-4000)*2)+(Math.max(0,s-6000)*2)+(Math.max(0,s-8000)*2);
             price*=mult;
-            if (carac==getHeroInfos('class'))
+            if (carac==getSetHeroInfos('class'))
             {
                 mp=price;
             }
             //console.log('money: '+money+' stat'+carac+': '+stats[carac-1]+' price: '+price);
-            if ((stats[carac-1]+mult)<=Limit && (money-price)>M && (carac==getHeroInfos('class') || price<mp/2 || (MainStat+mult)>Limit))
+            if ((stats[carac-1]+mult)<=Limit && (money-price)>M && (carac==getSetHeroInfos('class') || price<mp/2 || (MainStat+mult)>Limit))
             {
                 count++;
                 console.log('money: '+money+' stat'+carac+': '+stats[carac-1]+' [+'+mult+'] price: '+price);
@@ -1257,11 +1350,11 @@ var doShopping=function()
     {
 
         var Hero=getHero();
-        var MS='carac'+getHeroInfos('class');
-        var SS1='carac'+(getHeroInfos('class')%3+1);
-        var SS2='carac'+((getHeroInfos('class')+1)%3+1);
-        var money=getHeroInfos('soft_currency');
-        var kobans=getHeroInfos('hard_currency');
+        var MS='carac'+getSetHeroInfos('class');
+        var SS1='carac'+(getSetHeroInfos('class')%3+1);
+        var SS2='carac'+((getSetHeroInfos('class')+1)%3+1);
+        var money=getSetHeroInfos('soft_currency');
+        var kobans=getSetHeroInfos('hard_currency');
 
         try
         {
@@ -1442,7 +1535,8 @@ var doShopping=function()
             }
         }
         sessionStorage.storeContents=JSON.stringify(shop);
-        unsafeWindow.Hero.infos.soft_currency=money;
+        //unsafeWindow.Hero.infos.soft_currency=money;
+        getSetHeroInfos('soft_currency',money);
     }
     catch (ex)
     {
@@ -1453,7 +1547,7 @@ var doShopping=function()
 
 var doBossBattle = function()
 {
-    var currentPower = getHeroInfos('energy_fight');
+    var currentPower = getSetHeroInfos('energy_fight');
     if(currentPower < 1)
     {
         //console.log("No power for battle.");
@@ -1473,13 +1567,13 @@ var doBossBattle = function()
     }
     else
     {
-        TTF=getHeroInfos('questing.id_world')-1;
+        TTF=getSetHeroInfos('questing.id_world')-1;
         console.log("Last troll fight");
     }
 
     if (Storage().autoTrollBattleSaveQuest == "true")
     {
-        TTF=getHeroInfos('questing.id_world')-1;
+        TTF=getSetHeroInfos('questing.id_world')-1;
         console.log("Last troll fight for quest item.");
         Storage().autoTrollBattleSaveQuest = "false";
     }
@@ -1519,7 +1613,7 @@ var doChampionStuff=function()
         else
         {
             var TCount=Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
-            var ECount= getHeroInfos('energy_quest');
+            var ECount= getSetHeroInfos('energy_quest');
             console.log("T:"+TCount+" E:"+ECount+" "+(Storage().autoChampsUseEne==="true"))
             if ( TCount==0)
             {
@@ -1857,7 +1951,7 @@ var doSeason = function () {
     {
         console.log("On season page.");
 
-        var current_kisses = getHeroInfos('energy_kiss');
+        var current_kisses = getSetHeroInfos('energy_kiss');
 
         if (Storage().autoSeasonCollect === "true")
         {
@@ -1965,7 +2059,7 @@ var doBattle = function () {
 var doLeagueBattle = function () {
     //console.log("Performing auto leagues.");
     // Confirm if on correct screen.
-    var currentPower = getHeroInfos('energy_challenge');
+    var currentPower = getSetHeroInfos('energy_challenge');
     var ltime;
 
     var page = getPage();
@@ -2111,11 +2205,11 @@ function getLeagueOpponentId(opponentsIDList)
     if (opponentsListExpirationDate === 'empty' || opponentsListExpirationDate < new Date() || opponentsPowerList.length ==0)
     {
         console.log("Opponents list not found or expired. Fetching all opponents.");
-        playerEgo = Math.round(getHeroInfos('caracs.ego'));
-        playerDefHC = Math.round(getHeroInfos('caracs.def_carac1'));
-        playerDefCH = Math.round(getHeroInfos('caracs.def_carac2'));
-        playerDefKH = Math.round(getHeroInfos('caracs.def_carac3'));
-        playerAtk = Math.round(getHeroInfos('caracs.damage'));
+        playerEgo = Math.round(getSetHeroInfos('caracs.ego'));
+        playerDefHC = Math.round(getSetHeroInfos('caracs.def_carac1'));
+        playerDefCH = Math.round(getSetHeroInfos('caracs.def_carac2'));
+        playerDefKH = Math.round(getSetHeroInfos('caracs.def_carac3'));
+        playerAtk = Math.round(getSetHeroInfos('caracs.damage'));
         playerClass = $('div#leagues_left .icon').attr('carac');
         playerAlpha = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=1]').attr('girl-tooltip-data'));
         playerBeta = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=2]').attr('girl-tooltip-data'));
@@ -2254,7 +2348,7 @@ var  CrushThem = function()
             var battleButton = $('#battle button[rel="launch"]:not(.autofight)');
             //console.log(battleButton.get());
             //console.log(battleButton);
-            var currentPower = getHeroInfos('energy_fight');
+            var currentPower = getSetHeroInfos('energy_fight');
             if(battleButton === undefined){
                 console.log("Battle Button was undefined. Disabling all auto-battle.");
                 document.getElementById("autoBattleCheckbox").checked = false;
@@ -2270,7 +2364,7 @@ var  CrushThem = function()
 
             if (location.search.split("league_battle=")[1])
             {
-                currentPower=getHeroInfos('energy_challenge');
+                currentPower=getSetHeroInfos('energy_challenge');
             }
             if(battle_price === undefined){
                 console.log("Could not detect battle button price. Error.");
@@ -2482,7 +2576,7 @@ var updateData = function () {
         */
         if (Storage().autoSeason=="true")
         {
-            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Season kisses left: '+getHeroInfos('energy_kiss');
+            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Season kisses left: '+getSetHeroInfos('energy_kiss');
         }
         if (Storage().autoLeagues=="true")
         {
@@ -2672,7 +2766,7 @@ var updateShop=function()
         console.log('counted',sessionStorage.haveAff,sessionStorage.haveExp);
 
         sessionStorage.storeContents = JSON.stringify([assA,assB,assG,assP]);
-        sessionStorage.charLevel=getHeroInfos('level');
+        sessionStorage.charLevel=getSetHeroInfos('level');
 
         var nshop;
         for(var e in unsafeWindow.HHTimers.timers){
@@ -2718,7 +2812,7 @@ var flipParanoia=function()
     var n = new Date().getHours();
     S1[2].some(x => {if (n<x[0]) {period=x[1]; return true;}});
 
-    if (burst && getHeroInfos('energy_fight')!=0 && Storage().autoTrollBattle=='true') //double(or more) burst if we want to fight
+    if (burst && getSetHeroInfos('energy_fight')!=0 && Storage().autoTrollBattle=='true') //double(or more) burst if we want to fight
     {
         burst=false;
     }
@@ -2802,11 +2896,11 @@ function moduleSimLeague() {
             return;
         }
         // player stats
-        playerEgo = Math.round(getHeroInfos('caracs.ego'));
-        playerDefHC = Math.round(getHeroInfos('caracs.def_carac1'));
-        playerDefCH = Math.round(getHeroInfos('caracs.def_carac2'));
-        playerDefKH = Math.round(getHeroInfos('caracs.def_carac3'));
-        playerAtk = Math.round(getHeroInfos('caracs.damage'));
+        playerEgo = Math.round(getSetHeroInfos('caracs.ego'));
+        playerDefHC = Math.round(getSetHeroInfos('caracs.def_carac1'));
+        playerDefCH = Math.round(getSetHeroInfos('caracs.def_carac2'));
+        playerDefKH = Math.round(getSetHeroInfos('caracs.def_carac3'));
+        playerAtk = Math.round(getSetHeroInfos('caracs.damage'));
         playerClass = $('div#leagues_left .icon').attr('carac');
         playerAlpha = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=1]').attr('girl-tooltip-data'));
         playerBeta = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=2]').attr('girl-tooltip-data'));
@@ -2997,12 +3091,12 @@ function moduleSimBattle() {
         return;
     }
     // player stats
-    playerEgo = Math.round(getHeroInfos('caracs.ego'));
-    playerDefHC = Math.round(getHeroInfos('caracs.def_carac1'));
-    playerDefCH = Math.round(getHeroInfos('caracs.def_carac2'));
-    playerDefKH = Math.round(getHeroInfos('caracs.def_carac3'));
-    playerAtk = Math.round(getHeroInfos('caracs.damage'));
-    playerClass = 'class'+getHeroInfos('class');
+    playerEgo = Math.round(getSetHeroInfos('caracs.ego'));
+    playerDefHC = Math.round(getSetHeroInfos('caracs.def_carac1'));
+    playerDefCH = Math.round(getSetHeroInfos('caracs.def_carac2'));
+    playerDefKH = Math.round(getSetHeroInfos('caracs.def_carac3'));
+    playerAtk = Math.round(getSetHeroInfos('caracs.damage'));
+    playerClass = 'class'+getSetHeroInfos('class');
     //playerClass = $('div#leagues_left .icon').attr('carac');
     playerAlpha = JSON.parse($("div.battle_hero .battle-faces div[girl_n=0]").attr('girl-tooltip-data'));
     playerBeta =  JSON.parse($("div.battle_hero .battle-faces div[girl_n=1]").attr('girl-tooltip-data'));
@@ -3139,12 +3233,12 @@ function moduleSimSeasonBattle() {
             doDisplay=true;
         }
         // player stats
-        playerEgo = Math.round(getHeroInfos('caracs.ego'));
-        playerDefHC = Math.round(getHeroInfos('caracs.def_carac1'));
-        playerDefCH = Math.round(getHeroInfos('caracs.def_carac2'));
-        playerDefKH = Math.round(getHeroInfos('caracs.def_carac3'));
-        playerAtk = Math.round(getHeroInfos('caracs.damage'));
-        playerClass = 'class'+getHeroInfos('class');
+        playerEgo = Math.round(getSetHeroInfos('caracs.ego'));
+        playerDefHC = Math.round(getSetHeroInfos('caracs.def_carac1'));
+        playerDefCH = Math.round(getSetHeroInfos('caracs.def_carac2'));
+        playerDefKH = Math.round(getSetHeroInfos('caracs.def_carac3'));
+        playerAtk = Math.round(getSetHeroInfos('caracs.damage'));
+        playerClass = 'class'+getSetHeroInfos('class');
         //playerClass = $('div#leagues_left .icon').attr('carac');
         playerAlpha = JSON.parse($("div.hero_team div[girl_n=0]").attr('girl-tooltip-data'));
         playerBeta =  JSON.parse($("div.hero_team div[girl_n=1]").attr('girl-tooltip-data'));
@@ -3345,7 +3439,7 @@ var autoLoop = function () {
 
     var busy = false;
     var page = window.location.href;
-    var currentPower = getHeroInfos('energy_fight');
+    var currentPower = getSetHeroInfos('energy_fight');
 
     var burst=getBurst();
 
@@ -3365,7 +3459,7 @@ var autoLoop = function () {
                 busy = true;
             }
         }
-        if(Storage().autoLeagues === "true" && getHeroInfos('level')>=20 && busy === false ){
+        if(Storage().autoLeagues === "true" && getSetHeroInfos('level')>=20 && busy === false ){
             // Navigate to leagues
             if (checkTimer('nextLeaguesTime')) {
                 console.log("Time to fight in Leagues.");
@@ -3428,7 +3522,7 @@ var autoLoop = function () {
                 busy = false;
             }
             else if (sessionStorage.questRequirement[0] === '$') {
-                if (Number(sessionStorage.questRequirement.substr(1)) < getHeroInfos('soft_currency')) {
+                if (Number(sessionStorage.questRequirement.substr(1)) < getSetHeroInfos('soft_currency')) {
                     // We have enough money... requirement fulfilled.
                     console.log("Continuing quest, required money obtained.");
                     sessionStorage.questRequirement = "none";
@@ -3452,7 +3546,7 @@ var autoLoop = function () {
             }
             else if (sessionStorage.questRequirement[0] === '*') {
                 var energyNeeded = Number(sessionStorage.questRequirement.substr(1));
-                var energyCurrent = getHeroInfos('energy_quest');
+                var energyCurrent = getSetHeroInfos('energy_quest');
                 if (energyNeeded <= energyCurrent) {
                     // We have enough energy... requirement fulfilled.
                     console.log("Continuing quest, required energy obtained.");
@@ -3526,7 +3620,7 @@ var autoLoop = function () {
             }
         }
         */
-        if(Storage().autoSeason === "true" && busy === false && getHeroInfos('energy_kiss'))
+        if(Storage().autoSeason === "true" && busy === false && getSetHeroInfos('energy_kiss'))
         {
             console.log("Time to fight in Season.");
             doSeason();
@@ -3536,7 +3630,7 @@ var autoLoop = function () {
 
 
 
-        if(Storage().autoTrollBattle === "true" && getHeroInfos('questing.id_world')>0)
+        if(Storage().autoTrollBattle === "true" && getSetHeroInfos('questing.id_world')>0)
         {
             if(busy === false && currentPower >= Number(sessionStorage.battlePowerRequired) && currentPower > 0)
             {
@@ -3564,7 +3658,7 @@ var autoLoop = function () {
         }
         else{sessionStorage.battlePowerRequired = "0";}
 
-        var ECt= getHeroInfos('energy_quest');
+        var ECt= getSetHeroInfos('energy_quest');
         if (ECt>=60 && (Storage().autoChampsUseEne==="true"))
         {
             console.log('Buying ticket with energy');
@@ -3596,7 +3690,7 @@ var autoLoop = function () {
             {
                 sessionStorage.charLevel=0;
             }
-            if (checkTimer('nextShopTime') || sessionStorage.charLevel<getHeroInfos('level')) {
+            if (checkTimer('nextShopTime') || sessionStorage.charLevel<getSetHeroInfos('level')) {
                 console.log("Time to check shop.");
                 busy = updateShop();
             }
@@ -3713,7 +3807,7 @@ var CollectEventData=function()
         {
             if (!event_data.girls[i].owned_girl && event_data.girls[i].troll)
             {
-                if (Number(event_data.girls[i].troll.id_troll)<getHeroInfos('questing.id_world'))
+                if (Number(event_data.girls[i].troll.id_troll)<getSetHeroInfos('questing.id_world'))
                 {
                     Trollz.push(Number(event_data.girls[i].troll.id_troll));
                 }
@@ -3760,11 +3854,11 @@ var CollectEventData=function()
             var diff=Math.ceil(Timers["eventGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
             //console.log(diff);
             var hero=getHero();
-            if (diff<Storage().buyCombTimer*3600 && sessionStorage.eventTroll && getHeroInfos('energy_fight')==0)//Less than 20 hours remains and we still haven't get all troll girls
+            if (diff<Storage().buyCombTimer*3600 && sessionStorage.eventTroll && getSetHeroInfos('energy_fight')==0)//Less than 20 hours remains and we still haven't get all troll girls
             {
                 var price=hero.get_recharge_cost("fight");
                 //console.log('PRC: '+price);
-                if (getHeroInfos('hard_currency')>=price+Number(Storage().kobanBank))
+                if (getSetHeroInfos('hard_currency')>=price+Number(Storage().kobanBank))
                 {
                     console.log('Buying comb');
                     RechargeCombat(price);
@@ -3784,7 +3878,7 @@ var RechargeCombat=function(price) {
             action: "recharge",
             type: "fight"
         }, function(data) {
-            Hero.update("energy_fight", getHeroInfos('energy_fight_max'));
+            Hero.update("energy_fight", getSetHeroInfos('energy_fight_max'));
             Hero.update("hard_currency", 0 - price, true);
         });
 
@@ -3973,7 +4067,7 @@ var start = function () {
     // Add auto troll options
     var trollOptions = document.getElementById("autoTrollSelector");
 
-    for (var i=0;i<getHeroInfos('questing.id_world');i++)
+    for (var i=0;i<getSetHeroInfos('questing.id_world');i++)
     {
         var option = document.createElement("option");
         option.value=i;
