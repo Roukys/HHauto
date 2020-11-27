@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.3-beta.0
+// @version      5.3-beta.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -2559,6 +2559,7 @@ var updateData = function () {
     Storage().autoLeaguesMaxRank = document.getElementById("autoLeaguesMaxRank").value;
     Storage().autoStats = document.getElementById("autoStats").value;
     Storage().paranoia = document.getElementById("paranoia").checked;
+    Storage().paranoiaSpendsBefore = document.getElementById("paranoiaSpendsBefore").checked;
     Storage().autoFreePachinko = document.getElementById("autoFreePachinko").checked;
     Storage().autoExp = document.getElementById("autoExp").value;
     Storage().autoExpW = document.getElementById("autoExpW").checked;
@@ -3009,13 +3010,13 @@ var flipParanoia=function()
             toNextSwitch=toNextSwitch<sl?toNextSwitch:sl;
         }
         */
-        if ( checkParanoiaSpendings() === -1 )
+        if ( checkParanoiaSpendings() === -1 && Storage().paranoiaSpendsBefore === "true" )
         {
             Storage().toNextSwitch=toNextSwitch;
             setParanoiaSpendings(toNextSwitch);
             return;
         }
-        if ( checkParanoiaSpendings() === 0 )
+        if ( checkParanoiaSpendings() === 0 || Storage().paranoiaSpendsBefore === "false")
         {
             clearParanoiaSpendings();
             //going into hiding
@@ -4036,6 +4037,7 @@ var setDefaults = function () {
     Storage().autoBuyBoostersFilter = "B1;B2;B3;B4";
     Storage().autoBuyBoosters = "false";
     Storage().paranoia="false";
+    Storage().paranoiaSpendsBefore="false";
 
     Storage().autoTrollThreshold="0";
     Storage().autoQuestThreshold="0";
@@ -4178,13 +4180,36 @@ var start = function () {
                      +  '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +   '<span>Master switch</span><div><label class="switch" title="Turn off to pause script"><input id="master" type="checkbox"><span class="slider round"></span></label></div>'
                      +   '<span>Settings per tab</span><div><label class="switch"><input id="settPerTab" type="checkbox"><span class="slider round"></span></label></div>'
-                     +   '<span>Paranoia mode</span><div><label class="switch"><input id="paranoia" type="checkbox"><span class="slider round"></span></label></div>'
+                     // Region Paranoia
+                     +   '<div style="display:flex;flex-direction:column; border: 1px dotted;">'
+                     +    '<div style="display:flex;flex-direction:row;">'
+                     +     '<div style="display:flex;flex-direction:column;">'
+                     +      '<span>Paranoia mode</span><div><label class="switch"><input id="paranoia" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '</div>'
+                     +     '<div style="padding-left:10px;display:flex;flex-direction:column;">'
+                     +      '<span>Spends points before</span><div><label class="switch"><input id="paranoiaSpendsBefore" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '</div>'
+                     +    '</div>'
+                     +   '</div>'
+                     //end region paranoia
                      // Region Shit
                      +   '<div style="display:flex;flex-direction:column; border: 1px dotted;">'
-                     +   '<span>Questionable Shit</span><div><label title="Koban security switch 1" class="switch"><input id="spendKobans0" type="checkbox"><span class="slider round"></span></label></div>'
-                     +   '<span>Are you sure?</span><div><label title="Koban security switch 2" class="switch"><input id="spendKobans1" type="checkbox"><span class="slider round"></span></label></div>'
-                     +   '<span>You\'ve been warned</span><div><label title="Koban security switch 3" class="switch"><input id="spendKobans2" type="checkbox"><span class="slider round"></span></label></div>'
-                     +   '<span>Koban Bank</span><div><input id="kobanBank" type="text"></div>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>Questionable Shit</span><div><label title="Koban security switch 1" class="switch"><input id="spendKobans0" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding-left:20px;display:flex;flex-direction:column;">'
+                     +     '<span>Are you sure?</span><div><label title="Koban security switch 2" class="switch"><input id="spendKobans1" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +   '</div>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>You\'ve been warned</span><div><label title="Koban security switch 3" class="switch"><input id="spendKobans2" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>Koban Bank</span><div><input id="kobanBank" style="width:70%" type="text"></div>'
+                     +    '</div>'
+                     +   '</div>'
                      +   '<div style="display:flex;flex-direction:row;">'
                      +    '<div style="display:flex;flex-direction:column;">'
                      +     '<span>Buy comb. in events</span><div><label class="switch"><input id="buyCombat" type="checkbox"><span class="slider round"></span></label></div>'
@@ -4370,6 +4395,7 @@ var start = function () {
     document.getElementById("autoPowerPlacesIndexFilter").value = Storage().autoPowerPlacesIndexFilter?Storage().autoPowerPlacesIndexFilter:"1;2;3";
     document.getElementById("autoStats").value = Storage().autoStats?Storage().autoStats:"500000000";
     document.getElementById("paranoia").checked = Storage().paranoia==="true";
+    document.getElementById("paranoiaSpendsBefore").checked = Storage().paranoiaSpendsBefore==="true";
     document.getElementById("autoExp").value = Storage().autoExp?Storage().autoExp:"500000000";
     document.getElementById("autoExpW").checked = Storage().autoExpW === "true";
     document.getElementById("autoAff").value = Storage().autoAff?Storage().autoAff:"500000000";
