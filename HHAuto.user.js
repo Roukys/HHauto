@@ -1554,6 +1554,12 @@ var doBossBattle = function()
         return;
     }
 
+    if(currentPower <= Storage().autoTrollBattleMinValue)
+    {
+        //console.log("Have power for battle but is blocked for MinValue");
+        return;
+    }
+
     var TTF;
     if (Storage().plusEvent==="true" && !checkTimer("eventGoing") && sessionStorage.eventTroll)
     {
@@ -2507,8 +2513,11 @@ var updateData = function () {
     Storage().autoSalaryTimer = document.getElementById("autoSalaryTextbox").value;
     Storage().autoMissionC = document.getElementById("autoMissionCollect").checked;
     Storage().autoQuest = document.getElementById("autoQuestCheckbox").checked;
+
     Storage().autoTrollBattle = document.getElementById("autoBattleCheckbox").checked;
     Storage().eventTrollOrder = document.getElementById("eventTrollOrder").value;
+    Storage().autoTrollBattleMinValue = document.getElementById("autoTrollBattleMinValue").value;
+
     Storage().buyCombTimer = document.getElementById("buyCombTimer").value;
     //Storage().autoArenaBattle = document.getElementById("autoArenaCheckbox").checked;
     Storage().autoSeason = document.getElementById("autoSeasonCheckbox").checked;
@@ -3745,6 +3754,7 @@ var autoLoop = function () {
 
 var setDefaults = function () {
     console.log("Setting Defaults.");
+
     Storage().autoSalary = "false";
     Storage().autoSalaryTimer = "120";
     Storage().autoContest = "false";
@@ -3762,8 +3772,11 @@ var setDefaults = function () {
     sessionStorage.userLink = "none";
     Storage().autoLoopTimeMili = "500";
     Storage().autoQuest = "false";
+
     Storage().autoTrollBattle = "false";
     Storage().eventTrollOrder="";
+    Storage().autoTrollBattleMinValue = "0";
+
     Storage().buyCombTimer="16";
     //Storage().autoArenaBattle = "false";
     Storage().autoSeason = "false";
@@ -3981,6 +3994,7 @@ var start = function () {
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>AutoTrollBattle</span><div><label class=\"switch\"><input id=\"autoBattleCheckbox\" type=\"checkbox\">'
                      +     '<span class=\"slider round\"></span></label><select id=\"autoTrollSelector\"></select></div>'
+                     +     '<span>Min Value</span><div><input id="autoTrollBattleMinValue" style="width:50px" type="text"></div>'
                      +    '</div>'
                      +    '<div style="padding:10px; display:flex;flex-direction:row;">'
                      +     '<div style="display:flex;flex-direction:column;">'
@@ -4023,7 +4037,7 @@ var start = function () {
                      +     '<span>Max rank (0 for none)</span><div><input id="autoLeaguesMaxRank" type="text"></div>'
                      +    '</div>'
                      +   '</div>'
-                     // End Region AUtoLeagues
+                     // End Region AutoLeagues
                      // Region PowerPlace
                      +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
@@ -4083,8 +4097,11 @@ var start = function () {
     document.getElementById("autoMissionCheckbox").checked = Storage().autoMission === "true";
     document.getElementById("autoMissionCollect").checked = Storage().autoMissionC === "true";
     document.getElementById("autoQuestCheckbox").checked = Storage().autoQuest === "true";
+
     document.getElementById("autoBattleCheckbox").checked = Storage().autoTrollBattle === "true";
     document.getElementById("eventTrollOrder").value = Storage().eventTrollOrder?Storage().eventTrollOrder:"1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20";
+    document.getElementById("autoTrollBattleMinValue").value = Storage().autoTrollBattleMinValue?Storage().autoTrollBattleMinValue:"0";
+
     document.getElementById("buyCombTimer").value = Storage().buyCombTimer?Storage().buyCombTimer:"16";
     //document.getElementById("autoArenaCheckbox").checked = Storage().autoArenaBattle === "true";
     document.getElementById("autoSeasonCheckbox").checked = Storage().autoSeason === "true";
