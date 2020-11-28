@@ -16,7 +16,7 @@ Para instalar : https://github.com/Roukys/HHauto/raw/main/HHAuto.user.js
 | AutoContest | Habilitado: Recolecta los premios de las Competencias |  
 | AutoMission<br>Collect | Habilitado: Hace las misiones<br>Habilitado: Recolecta las recompensas de las misiones |  
 | AutoQuest | Habilitado: Avanza en la aventura (Historia principal) |  
-| AutoTrollBattle<br>Troll selector<br>Event<br>Event Troll Order **(numero separados por ;)** | Habilitado: Pelea contra el jefe del mundo seleccionado<br>Permite seleccionar contra que jefe se va a pelear<br>Habilitado: Ignora el punto anterior cuando hay un evento y selecciona un jefe que tenga chica de evento<br>Establece la prioridad de los jefes cuando hay evento |  
+| AutoTrollBattle<br>Troll selector<br>Min Value<br>Event<br>Event Troll Order **(numero separados por ;)** | Habilitado: Pelea contra el jefe del mundo seleccionado<br>Permite seleccionar contra que jefe se va a pelear<br>Cantidad de puntos de combate que se deben tener siempre en la reserva sin gastar<br>Habilitado: Ignora el punto anterior cuando hay un evento y selecciona un jefe que tenga chica de evento<br>Establece la prioridad de los jefes cuando hay evento |  
 | ~AutoArenaBattle~ | ~Habilitado: Hace las peleas de arena (deprecado)~ |  
 | AutoSeason<br>Collect | Habilitado: Hace la "Temporada" de combate (Se intenta eleguir siempre al rival mas debil)<br>Habilitado: Recolecta las recompensas de la "Temporada" (Si hay muchas para recolectar las hace de a poco no todas a la vez) |  
 | AutoPachinko(Free) | Habilitado: Recoleccion automatica de las jugadas "gratis" de Pachinko |  
