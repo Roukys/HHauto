@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.3-beta.3
+// @version      5.3-beta.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -2127,28 +2127,33 @@ var doSeason = function () {
         console.log("On season arena page.");
 
         var chosenID=moduleSimSeasonBattle();
-        if (chosenID != -1 )
+        if (chosenID !== -1 && chosenID !== -2 )
         {
-            location.href = document.getElementsByClassName("opponent_perform_button_container")[chosenID].children[0].getAttribute('href');
+            //location.href = document.getElementsByClassName("opponent_perform_button_container")[chosenID].children[0].getAttribute('href');
             console.log("Going to crush : "+$("div.season_arena_opponent_container .hero_details div:not([class]):not([carac])")[chosenID].innerText);
             return true;
         }
         if (chosenID === -2 )
         {
             //change opponents and reload
-            var params = {
-                namespace: 'h\\Season',
-                class: 'arena',
-                action: 'arena_reload'
-            };
 
-            setTimeout(hh_ajax(params, function(data)
-                               {
-                Hero.update("hard_currency", data.hard_currency, false);
-                location.reload();
+            function refreshOpponents()
+            {
+                var params = {
+                    namespace: 'h\\Season',
+                    class: 'Arena',
+                    action: 'arena_reload'
+                };
+                console.log("Three red opponents, paying for refresh.");
+                hh_ajax(params, function(data){
+                    Hero.update("hard_currency", data.hard_currency, false);
+                    location.reload();
+                })
             }
-                              )
-                      )
+            sessionStorage.autoLoop = "false";
+            setTimer('nextSeasonTime',5);
+            setTimeout(refreshOpponents,randomInterval(800,1200));
+
             return true;
         }
     }
@@ -4030,7 +4035,7 @@ var autoLoop = function () {
         */
         if(Storage().autoSeason === "true" && busy === false )
         {
-            if (Number(getSetHeroInfos('kiss.amount')) > 0 && ( Number(getSetHeroInfos('kiss.amount')) > Number(Storage().autoSeasonThreshold) || Number(checkParanoiaSpendings('kiss')) > 0 ) )
+            if (Number(getSetHeroInfos('kiss.amount')) > 0 && ( (Number(getSetHeroInfos('kiss.amount')) > Number(Storage().autoSeasonThreshold) && checkTimer('nextSeasonTime')) || Number(checkParanoiaSpendings('kiss')) > 0 ) )
             {
                 console.log("Time to fight in Season.");
                 doSeason();
