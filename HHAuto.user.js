@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.3-beta.4
+// @version      5.3-beta.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -3722,7 +3722,12 @@ function moduleSimSeasonBattle() {
             }
         }
 
-        if (numberOfReds === 3 && Storage().autoSeasonPassReds === "true")
+        var price=Number($("div.opponents_arena button#refresh_villains").attr('price'));
+        if (isNaN(price))
+        {
+            price = 12;
+        }
+        if (numberOfReds === 3 && Storage().autoSeasonPassReds === "true" && getSetHeroInfos('hard_currency')>=price+Number(Storage().kobanBank))
         {
             chosenID = -2;
         }
