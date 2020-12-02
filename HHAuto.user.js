@@ -1,11 +1,12 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.3-beta.1
+// @version      5.3-beta.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
 // @match        http*://*.hentaiheroes.com/*
+// @match        http*://*.gayharem.com/*
 // @grant        GM_addStyle
 // @license      MIT
 // @updateURL   https://github.com/Roukys/HHauto/raw/main/HHAuto.user.js
@@ -164,17 +165,8 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             break;
 
-        case 'energy_challenge' :
-            if ( getHero().infos.energy_challenge !== undefined )
-            {
-                returnValue = getHero().infos.energy_challenge;
-                if ( newValue !== undefined )
-                {
-                    Hero.infos.energy_challenge = newValue;
-                }
-                break;
-            }
-            else
+        case 'challenge.amount' :
+            if ( getHero().energies !== undefined )
             {
                 returnValue = getHero().energies.challenge.amount;
                 if ( newValue !== undefined )
@@ -183,19 +175,16 @@ function getSetHeroInfos(infoSearched,newValue)
                 }
                 break;
             }
-            break;
-
-        case 'energy_fight' :
-            if ( getHero().infos.energy_fight !== undefined )
+            else
             {
-                returnValue = getHero().infos.energy_fight;
-                if ( newValue !== undefined )
-                {
-                    Hero.infos.energy_fight = newValue;
-                }
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
                 break;
             }
-            else
+            break;
+
+        case 'fight.amount' :
+            if ( getHero().energies !== undefined )
             {
                 returnValue = getHero().energies.fight.amount;
                 if ( newValue !== undefined )
@@ -204,40 +193,33 @@ function getSetHeroInfos(infoSearched,newValue)
                 }
                 break;
             }
-            break;
-
-        case 'energy_kiss' :
-            if ( getHero().infos.energy_kiss !== undefined )
+            else
             {
-                returnValue = getHero().infos.energy_kiss;
-                if ( newValue !== undefined )
-                {
-                    Hero.infos.energy_kiss = newValue;
-                }
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
                 break;
             }
-            else
+            break;
+
+        case 'kiss.amount' :
+            if ( getHero().energies !== undefined )
             {
                 returnValue = getHero().energies.kiss.amount;
                 if ( newValue !== undefined )
                 {
                     Hero.energies.kiss.amount = newValue;
                 }
+            }
+            else
+            {
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
                 break;
             }
             break;
 
-        case 'energy_quest' :
-            if ( getHero().infos.energy_quest !== undefined )
-            {
-                returnValue = getHero().infos.energy_quest;
-                if ( newValue !== undefined )
-                {
-                    Hero.infos.energy_quest = newValue;
-                }
-                break;
-            }
-            else
+        case 'quest.amount' :
+            if ( getHero().energies !== undefined )
             {
                 returnValue = getHero().energies.quest.amount;
                 if ( newValue !== undefined )
@@ -246,56 +228,66 @@ function getSetHeroInfos(infoSearched,newValue)
                 }
                 break;
             }
-            break;
-
-        case 'energy_fight_max' :
-            if ( getHero().infos.energy_fight_max !== undefined )
+            else
             {
-                returnValue = getHero().infos.energy_fight_max;
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
                 break;
             }
-            else
+            break;
+
+        case 'fight.max_amount' :
+            if ( getHero().energies !== undefined )
             {
                 returnValue = getHero().energies.fight.max_amount;
                 break;
             }
-            break;
-
-        case 'energy_kiss_max' :
-            if ( getHero().infos.energy_kiss_max !== undefined )
+            else
             {
-                returnValue = getHero().infos.energy_kiss_max;
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
                 break;
             }
-            else
+            break;
+
+        case 'kiss.max_amount' :
+            if ( getHero().energies !== undefined )
             {
                 returnValue = getHero().energies.kiss.max_amount;
                 break;
             }
-            break;
-
-        case 'energy_quest_max' :
-            if ( getHero().infos.energy_quest_max !== undefined )
+            else
             {
-                returnValue = getHero().infos.energy_quest_max;
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
                 break;
             }
-            else
+            break;
+
+        case 'quest.max_amount' :
+            if ( getHero().energies !== undefined )
             {
                 returnValue = getHero().energies.quest.max_amount;
                 break;
             }
+            else
+            {
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
+                break;
+            }
             break;
 
-        case 'energy_challenge_max' :
-            if ( getHero().infos.energy_challenge_max !== undefined )
+        case 'challenge.max_amount' :
+            if ( getHero().energies !== undefined )
             {
-                returnValue = getHero().infos.energy_challenge_max;
+                returnValue = getHero().energies.challenge.max_amount;
                 break;
             }
             else
             {
-                returnValue = getHero().energies.challenge.max_amount;
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
                 break;
             }
             break;
@@ -429,6 +421,62 @@ function getSetHeroInfos(infoSearched,newValue)
                 break;
             }
             break;
+
+        case 'quest.next_refresh_ts' :
+            if ( getHero().energies !== undefined )
+            {
+                returnValue = getHero().energies.quest.next_refresh_ts;
+                break;
+            }
+            else
+            {
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
+                break;
+            }
+            break;
+
+        case 'fight.next_refresh_ts' :
+            if ( getHero().energies !== undefined )
+            {
+                returnValue = getHero().energies.fight.next_refresh_ts;
+                break;
+            }
+            else
+            {
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
+                break;
+            }
+            break;
+
+        case 'challenge.next_refresh_ts' :
+            if ( getHero().energies !== undefined )
+            {
+                returnValue = getHero().energies.challenge.next_refresh_ts;
+                break;
+            }
+            else
+            {
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
+                break;
+            }
+            break;
+
+        case 'kiss.next_refresh_ts' :
+            if ( getHero().energies !== undefined )
+            {
+                returnValue = getHero().energies.kiss.next_refresh_ts;
+                break;
+            }
+            else
+            {
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
+                break;
+            }
+            break;
         default:
             {
                 console.log("Hero info not found : "+infoSearched);
@@ -448,6 +496,10 @@ function getPage()
 {
     try{
         var ob = document.getElementById("hh_nutaku");
+        if(ob===undefined || ob === null)
+        {
+            ob = document.getElementById("hh_gay");
+        }
         if(ob===undefined || ob === null)
         {
             ob = document.getElementById("hh_hentai");
@@ -646,7 +698,7 @@ var proceedQuest = function () {
         proceedButtonMatch.click();
     }
     else if (proceedType === "pay") {
-        var energyCurrent = getSetHeroInfos('energy_quest');
+        var energyCurrent = getSetHeroInfos('quest.amount');
         var moneyCurrent = getSetHeroInfos('soft_currency');
         if(proceedCostEnergy <= energyCurrent)
         {
@@ -1584,7 +1636,7 @@ var doShopping=function()
 
 var doBossBattle = function()
 {
-    var currentPower = getSetHeroInfos('energy_fight');
+    var currentPower = getSetHeroInfos('fight.amount');
     if(currentPower < 1)
     {
         //console.log("No power for battle.");
@@ -1650,7 +1702,7 @@ var doChampionStuff=function()
         else
         {
             var TCount=Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
-            var ECount= getSetHeroInfos('energy_quest');
+            var ECount= getSetHeroInfos('quest.amount');
             console.log("T:"+TCount+" E:"+ECount+" "+(Storage().autoChampsUseEne==="true"))
             if ( TCount==0)
             {
@@ -1674,6 +1726,9 @@ var doChampionStuff=function()
     {
         console.log('on champion map');
         var Filter=Storage().autoChampsFilter.split(';').map(s=>Number(s));
+        var minTime = getSecondsLeft();
+        var currTime;
+        var e;
 
         for (let i=0;i<$('span.stage-bar-tier').length;i++)
         {
@@ -1690,8 +1745,34 @@ var doChampionStuff=function()
                 return true;
             }
         }
+
         console.log("No good candidate");
-        setTimer('nextChampionTime',15*60);
+        currTime = -1;
+        for(e in unsafeWindow.HHTimers.timers){
+            try
+            {
+                if(unsafeWindow.HHTimers.timers[e].$elm[0].offsetParent.className === "champion-lair")
+                {
+                    currTime=unsafeWindow.HHTimers.timers[e].remainingTime;
+                }
+            }
+            catch(e){}
+            if (minTime === -1 || currTime === -1 || minTime>currTime)
+            {
+                minTime = currTime;
+            }
+        }
+        //fetching min
+
+
+        if (minTime === -1)
+        {
+            setTimer('nextChampionTime',15*60);
+        }
+        else
+        {
+            setTimer('nextChampionTime',minTime);
+        }
         return false;
     }
     else
@@ -1960,23 +2041,54 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
         opponentEgo = 0;
     }
 
-
-
     //Publish the ego difference as a match rating
     matchRating = playerEgo - opponentEgo;
-    if (matchRating >= 0) {
-        matchRating = '+' + matchRating;
-
-        if (playerEgoCheck <= 0) {
-            return 'y'+matchRating
+    var customLimits = Storage().calculatePowerLimits.split(";");
+    if(customLimits.length === 2 && Number(customLimits[0]) < Number(customLimits[1]))
+    {
+        if (matchRating >= 0)
+        {
+            matchRating = '+' + matchRating;
         }
-        else {
-            return 'g'+matchRating
+        if ( Number(matchRating) < Number(customLimits[0]) )
+        {
+            return 'r'+matchRating
+        }
+        else
+        {
+            if ( Number(matchRating) < Number(customLimits[1]) )
+            {
+                return 'y'+matchRating
+            }
+            else
+            {
+                return 'g'+matchRating
+            }
         }
     }
-    else {
-        matchRating = matchRating;
-        return 'r'+matchRating
+    else
+    {
+        if ( Storage().calculatePowerLimits !== "default")
+        {
+            Storage().calculatePowerLimits = "Invalid limits";
+        }
+        if (matchRating >= 0)
+        {
+            matchRating = '+' + matchRating;
+
+            if (playerEgoCheck <= 0)
+            {
+                return 'y'+matchRating
+            }
+            else
+            {
+                return 'g'+matchRating
+            }
+        }
+        else {
+            matchRating = matchRating;
+            return 'r'+matchRating
+        }
     }
 }
 
@@ -1988,7 +2100,7 @@ var doSeason = function () {
     {
         console.log("On season page.");
 
-        var current_kisses = getSetHeroInfos('energy_kiss');
+        var current_kisses = getSetHeroInfos('kiss.amount');
 
         if (Storage().autoSeasonCollect === "true")
         {
@@ -2004,22 +2116,39 @@ var doSeason = function () {
             gotoPage("season-arena");
             return;
         }
-
+        else
+        {
+            setTimer('nextSeasonTime',getSetHeroInfos('kiss.next_refresh_ts'));
+        }
 
     }
     else if (page === "season_arena")
     {
         console.log("On season arena page.");
 
-
-
-
-
         var chosenID=moduleSimSeasonBattle();
         if (chosenID != -1 )
         {
             location.href = document.getElementsByClassName("opponent_perform_button_container")[chosenID].children[0].getAttribute('href');
             console.log("Going to crush : "+$("div.season_arena_opponent_container .hero_details div:not([class]):not([carac])")[chosenID].innerText);
+            return true;
+        }
+        if (chosenID === -2 )
+        {
+            //change opponents and reload
+            var params = {
+                namespace: 'h\\Season',
+                class: 'arena',
+                action: 'arena_reload'
+            };
+
+            setTimeout(hh_ajax(params, function(data)
+                               {
+                Hero.update("hard_currency", data.hard_currency, false);
+                location.reload();
+            }
+                              )
+                      )
             return true;
         }
     }
@@ -2096,7 +2225,7 @@ var doBattle = function () {
 var doLeagueBattle = function () {
     //console.log("Performing auto leagues.");
     // Confirm if on correct screen.
-    var currentPower = getSetHeroInfos('energy_challenge');
+    var currentPower = getSetHeroInfos('challenge.amount');
     var ltime;
 
     var page = getPage();
@@ -2125,21 +2254,22 @@ var doLeagueBattle = function () {
         if(currentPower < 1)
         {
             console.log("No power for leagues.");
-            for(var e in unsafeWindow.HHTimers.timers){
-                try{
-                    if(unsafeWindow.HHTimers.timers[e].type=="energy_challenge")
-                    {
-                        ltime=unsafeWindow.HHTimers.timers[e];
-                    }
-                    if(unsafeWindow.HHTimers.timers[e].type=="challenge")
-                    {
-                        ltime=unsafeWindow.HHTimers.timers[e];
-                    }
-                }
-                catch(e){}
-            }
-            ltime = Number(ltime.remainingTime)+15;
-            setTimer('nextLeaguesTime',ltime);
+            setTimer('nextLeaguesTime',getSetHeroInfos('challenge.next_refresh_ts')+1);
+            //             for(var e in unsafeWindow.HHTimers.timers){
+            //                 try{
+            //                     if(unsafeWindow.HHTimers.timers[e].type=="energy_challenge")
+            //                     {
+            //                         ltime=unsafeWindow.HHTimers.timers[e];
+            //                     }
+            //                     if(unsafeWindow.HHTimers.timers[e].type=="challenge")
+            //                     {
+            //                         ltime=unsafeWindow.HHTimers.timers[e];
+            //                     }
+            //                 }
+            //                 catch(e){}
+            //             }
+            //             ltime = Number(ltime.remainingTime)+15;
+            //             setTimer('nextLeaguesTime',ltime);
             return;
         }
 
@@ -2388,7 +2518,7 @@ var  CrushThem = function()
             var battleButton = $('#battle button[rel="launch"]:not(.autofight)');
             //console.log(battleButton.get());
             //console.log(battleButton);
-            var currentPower = getSetHeroInfos('energy_fight');
+            var currentPower = getSetHeroInfos('fight.amount');
             if(battleButton === undefined){
                 console.log("Battle Button was undefined. Disabling all auto-battle.");
                 document.getElementById("autoTrollCheckbox").checked = false;
@@ -2404,7 +2534,7 @@ var  CrushThem = function()
 
             if (location.search.split("league_battle=")[1])
             {
-                currentPower=getSetHeroInfos('energy_challenge');
+                currentPower=getSetHeroInfos('challenge.amount');
             }
             if(battle_price === undefined){
                 console.log("Could not detect battle button price. Error.");
@@ -2577,6 +2707,7 @@ var updateData = function () {
     Storage().autoBuyBoostersFilter = document.getElementById("autoBuyBoostersFilter").value;
     localStorage.showInfo = document.getElementById("showInfo").checked;
     localStorage.showCalculatePower = document.getElementById("showCalculatePower").checked;
+    Storage().calculatePowerLimits = document.getElementById("calculatePowerLimits").value;
     Storage().autoChamps = document.getElementById("autoChamps").checked;
     Storage().autoChampsUseEne = document.getElementById("autoChampsUseEne").checked;
     Storage().autoChampsFilter = document.getElementById("autoChampsFilter").value;
@@ -2596,7 +2727,10 @@ var updateData = function () {
     document.getElementById("buyCombat").checked=Storage().buyCombat=="true";
     Storage().autoBuyBoosters=document.getElementById("autoBuyBoosters").checked && Storage().spendKobans2=="true" && Storage().spendKobans1=="true" && Storage().spendKobans0=="true";
     document.getElementById("autoBuyBoosters").checked=Storage().autoBuyBoosters=="true";
+    Storage().autoSeasonPassReds=document.getElementById("autoSeasonPassReds").checked && Storage().spendKobans2=="true" && Storage().spendKobans1=="true" && Storage().spendKobans0=="true";
+    document.getElementById("autoSeasonPassReds").checked=Storage().autoSeasonPassReds=="true";
     Storage().kobanBank=document.getElementById("kobanBank").value;
+
 
     localStorage.settPerTab = document.getElementById("settPerTab").checked;
 
@@ -2622,11 +2756,11 @@ var updateData = function () {
         */
         if (Storage().autoSeason=="true")
         {
-            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Season kisses left: '+getSetHeroInfos('energy_kiss');
+            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Season: '+getSetHeroInfos('kiss.amount')+'/'+getSetHeroInfos('kiss.max_amount')+' ('+getTimeLeft('nextSeasonTime')+')';
         }
         if (Storage().autoLeagues=="true")
         {
-            Tegzd+=(Tegzd.length>0?'\r\n':'')+'League fight: '+getTimeLeft('nextLeaguesTime');
+            Tegzd+=(Tegzd.length>0?'\r\n':'')+'League fight: '+getSetHeroInfos('challenge.amount')+'/'+getSetHeroInfos('challenge.max_amount')+' ('+getTimeLeft('nextLeaguesTime')+')';
         }
         if (Storage().autoChamps=="true")
         {
@@ -2893,7 +3027,7 @@ var clearParanoiaSpendings=function()
 }
 
 //sets spending to do before paranoia
-var setParanoiaSpendings=function(toNextSwitch)
+var setParanoiaSpendings=function()
 {
     var maxPointsDuringParanoia;
     var totalPointsEndParanoia;
@@ -2901,88 +3035,94 @@ var setParanoiaSpendings=function(toNextSwitch)
     var paranoiaSpend;
     var currentEnergy;
     var maxEnergy;
-    //if autoLeague is on
-    if(Storage().autoLeagues === "true" && getSetHeroInfos('level')>=20)
+    var toNextSwitch;
+    if (Storage().toNextSwitch && Storage().paranoiaSpendsBefore === "true")
     {
-        maxPointsDuringParanoia = Math.ceil(toNextSwitch/Number(getSetHeroInfos('challenge.seconds_per_point')));
-        currentEnergy=Number(getSetHeroInfos('energy_challenge'));
-        maxEnergy=Number(getSetHeroInfos('energy_challenge_max'));
-        totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
-        //if point refreshed during paranoia would go above max
-        if ( totalPointsEndParanoia >= maxEnergy)
+        toNextSwitch = Number(Storage().toNextSwitch);
+
+        //if autoLeague is on
+        if(Storage().autoLeagues === "true" && getSetHeroInfos('level')>=20)
         {
-            paranoiaSpend=totalPointsEndParanoia - maxEnergy + 1;
-            paranoiaSpendings.set("challenge",paranoiaSpend);
-            console.log("Setting Paranoia spendings for league : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend);
-        }
-        else
-        {
-            console.log("Setting Paranoia spendings for league : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending ");
-        }
-    }
-    //if autoquest is on
-    if(Storage().autoQuest === "true")
-    {
-        if ( Storage().paranoiaQuestBlocked === undefined )
-        {
-            maxPointsDuringParanoia = Math.ceil(toNextSwitch/Number(getSetHeroInfos('quest.seconds_per_point')));
-            currentEnergy=Number(getSetHeroInfos('energy_quest'));
-            maxEnergy=Number(getSetHeroInfos('energy_quest_max'));
+            maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getSetHeroInfos('challenge.next_refresh_ts')))/Number(getSetHeroInfos('challenge.seconds_per_point')));
+            currentEnergy=Number(getSetHeroInfos('challenge.amount'));
+            maxEnergy=Number(getSetHeroInfos('challenge.max_amount'));
             totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
             //if point refreshed during paranoia would go above max
             if ( totalPointsEndParanoia >= maxEnergy)
             {
                 paranoiaSpend=totalPointsEndParanoia - maxEnergy + 1;
-                paranoiaSpendings.set("quest",paranoiaSpend);
-                console.log("Setting Paranoia spendings for quest : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend);
+                paranoiaSpendings.set("challenge",paranoiaSpend);
+                console.log("Setting Paranoia spendings for league : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend);
             }
             else
             {
-                console.log("Setting Paranoia spendings for quest : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending ");
+                console.log("Setting Paranoia spendings for league : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending ");
             }
         }
-    }
-    //if autoTrollBattle is on
-    if(Storage().autoTrollBattle === "true" && getSetHeroInfos('questing.id_world')>0)
-    {
-        maxPointsDuringParanoia = Math.ceil(toNextSwitch/Number(getSetHeroInfos('fight.seconds_per_point')));
-        currentEnergy=Number(getSetHeroInfos('energy_fight'));
-        maxEnergy=Number(getSetHeroInfos('energy_fight_max'));
-        totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
-        //if point refreshed during paranoia would go above max
-        if ( totalPointsEndParanoia >= maxEnergy)
+        //if autoquest is on
+        if(Storage().autoQuest === "true")
         {
-            paranoiaSpend=totalPointsEndParanoia - maxEnergy + 1;
-            paranoiaSpendings.set("fight",paranoiaSpend);
-            console.log("Setting Paranoia spendings for troll : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend);
+            if ( Storage().paranoiaQuestBlocked === undefined )
+            {
+                maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getSetHeroInfos('quest.next_refresh_ts')))/Number(getSetHeroInfos('quest.seconds_per_point')));
+                currentEnergy=Number(getSetHeroInfos('quest.amount'));
+                maxEnergy=Number(getSetHeroInfos('quest.max_amount'));
+                totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
+                //if point refreshed during paranoia would go above max
+                if ( totalPointsEndParanoia >= maxEnergy)
+                {
+                    paranoiaSpend=totalPointsEndParanoia - maxEnergy + 1;
+                    paranoiaSpendings.set("quest",paranoiaSpend);
+                    console.log("Setting Paranoia spendings for quest : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend);
+                }
+                else
+                {
+                    console.log("Setting Paranoia spendings for quest : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending ");
+                }
+            }
         }
-        else
+        //if autoTrollBattle is on
+        if(Storage().autoTrollBattle === "true" && getSetHeroInfos('questing.id_world')>0)
         {
-            console.log("Setting Paranoia spendings for troll : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending ");
+            maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getSetHeroInfos('fight.next_refresh_ts')))/Number(getSetHeroInfos('fight.seconds_per_point')));
+            currentEnergy=Number(getSetHeroInfos('fight.amount'));
+            maxEnergy=Number(getSetHeroInfos('fight.max_amount'));
+            totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
+            //if point refreshed during paranoia would go above max
+            if ( totalPointsEndParanoia >= maxEnergy)
+            {
+                paranoiaSpend=totalPointsEndParanoia - maxEnergy + 1;
+                paranoiaSpendings.set("fight",paranoiaSpend);
+                console.log("Setting Paranoia spendings for troll : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend);
+            }
+            else
+            {
+                console.log("Setting Paranoia spendings for troll : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending ");
+            }
         }
-    }
-    //if autoSeason is on
-    if(Storage().autoSeason === "true")
-    {
-        maxPointsDuringParanoia = Math.ceil(toNextSwitch/Number(getSetHeroInfos('kiss.seconds_per_point')));
-        currentEnergy=Number(getSetHeroInfos('energy_kiss'));
-        maxEnergy=Number(getSetHeroInfos('energy_kiss_max'));
-        totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
-        //if point refreshed during paranoia would go above max
-        if ( totalPointsEndParanoia >= maxEnergy)
+        //if autoSeason is on
+        if(Storage().autoSeason === "true")
         {
-            paranoiaSpend=totalPointsEndParanoia - maxEnergy + 1;
-            paranoiaSpendings.set("kiss",paranoiaSpend);
-            console.log("Setting Paranoia spendings for Season : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend);
+            maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getSetHeroInfos('kiss.next_refresh_ts')))/Number(getSetHeroInfos('kiss.seconds_per_point')));
+            currentEnergy=Number(getSetHeroInfos('kiss.amount'));
+            maxEnergy=Number(getSetHeroInfos('kiss.max_amount'));
+            totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
+            //if point refreshed during paranoia would go above max
+            if ( totalPointsEndParanoia >= maxEnergy)
+            {
+                paranoiaSpend=totalPointsEndParanoia - maxEnergy + 1;
+                paranoiaSpendings.set("kiss",paranoiaSpend);
+                console.log("Setting Paranoia spendings for Season : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend);
+            }
+            else
+            {
+                console.log("Setting Paranoia spendings for Season : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending ");
+            }
         }
-        else
-        {
-            console.log("Setting Paranoia spendings for Season : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending ");
-        }
-    }
 
-    console.log("Setting paranoia spending to : "+JSON.stringify(paranoiaSpendings,replacerMap));
-    Storage().paranoiaSpendings=JSON.stringify(paranoiaSpendings,replacerMap);
+        console.log("Setting paranoia spending to : "+JSON.stringify(paranoiaSpendings,replacerMap));
+        Storage().paranoiaSpendings=JSON.stringify(paranoiaSpendings,replacerMap);
+    }
 }
 
 var flipParanoia=function()
@@ -3013,7 +3153,7 @@ var flipParanoia=function()
         if ( checkParanoiaSpendings() === -1 && Storage().paranoiaSpendsBefore === "true" )
         {
             Storage().toNextSwitch=toNextSwitch;
-            setParanoiaSpendings(toNextSwitch);
+            setParanoiaSpendings();
             return;
         }
         if ( checkParanoiaSpendings() === 0 || Storage().paranoiaSpendsBefore === "false")
@@ -3504,6 +3644,7 @@ function moduleSimSeasonBattle() {
         var currentFlag;
         var currentScore;
         var currentMojo;
+        var numberOfReds=0;
 
         for (index=0;index<3;index++)
         {
@@ -3520,6 +3661,7 @@ function moduleSimSeasonBattle() {
                     break;
                 case 'r':
                     currentFlag = -1;
+                    numberOfReds++;
                     break;
             }
             //console.log(nameOppo[index],currentFlag,currentScore,currentMojo);
@@ -3533,8 +3675,18 @@ function moduleSimSeasonBattle() {
                 chosenMojo = currentMojo;
                 oppoName = nameOppo[index];
             }
-            //same red or orange flag but better score
-            else if (chosenFlag == currentFlag && currentFlag != 1 && chosenRating < currentScore)
+            //same orange flag but better score
+            else if (chosenFlag == currentFlag && currentFlag == 0 && chosenRating < currentScore)
+            {
+                //console.log('second');
+                chosenRating = currentScore;
+                chosenFlag = currentFlag;
+                chosenID = index;
+                chosenMojo = currentMojo;
+                oppoName = nameOppo[index];
+            }
+            //same red flag but better mojo
+            else if (chosenFlag == currentFlag && currentFlag == -1 && chosenMojo < currentMojo)
             {
                 //console.log('second');
                 chosenRating = currentScore;
@@ -3563,6 +3715,11 @@ function moduleSimSeasonBattle() {
                 chosenMojo = currentMojo;
                 oppoName = nameOppo[index];
             }
+        }
+
+        if (numberOfReds === 3 && Storage().autoSeasonPassReds === "true")
+        {
+            chosenID = -2;
         }
 
         //console.log("Best opportunity opponent : "+oppoName+'('+chosenRating+')');
@@ -3638,7 +3795,7 @@ var autoLoop = function () {
 
     var busy = false;
     var page = window.location.href;
-    var currentPower = getSetHeroInfos('energy_fight');
+    var currentPower = getSetHeroInfos('fight.amount');
 
     var burst=getBurst();
 
@@ -3647,6 +3804,10 @@ var autoLoop = function () {
         if (!checkTimer("paranoiaSwitch") )
         {
             clearParanoiaSpendings();
+        }
+        else
+        {
+            setParanoiaSpendings();
         }
         if(Storage().autoFreePachinko === "true" && busy === false){
             // Navigate to pachinko
@@ -3664,11 +3825,18 @@ var autoLoop = function () {
         }
         if(Storage().autoLeagues === "true" && getSetHeroInfos('level')>=20 && busy === false ){
             // Navigate to leagues
-            if ((checkTimer('nextLeaguesTime') && Number(getSetHeroInfos('energy_challenge')) > Number(Storage().autoLeaguesThreshold) ) || Number(checkParanoiaSpendings('challenge')) > 0)
+            if ((checkTimer('nextLeaguesTime') && Number(getSetHeroInfos('challenge.amount')) > Number(Storage().autoLeaguesThreshold) ) || Number(checkParanoiaSpendings('challenge')) > 0)
             {
                 console.log("Time to fight in Leagues.");
                 doLeagueBattle();
                 busy = true;
+            }
+            else
+            {
+                if (checkTimer('nextLeaguesTime'))
+                {
+                    setTimer('nextLeaguesTime',getSetHeroInfos('challenge.next_refresh_ts'));
+                }
             }
         }
         if(Storage().autoContest === "true" && busy === false){
@@ -3759,10 +3927,10 @@ var autoLoop = function () {
             else if (sessionStorage.questRequirement[0] === '*')
             {
                 var energyNeeded = Number(sessionStorage.questRequirement.substr(1));
-                var energyCurrent = getSetHeroInfos('energy_quest');
+                var energyCurrent = getSetHeroInfos('quest.amount');
                 if (energyNeeded <= energyCurrent)
                 {
-                    if (Number(getSetHeroInfos('energy_quest')) > Number(Storage().autoQuestThreshold) || Number(checkParanoiaSpendings('quest')) > 0 )
+                    if (Number(getSetHeroInfos('quest.amount')) > Number(Storage().autoQuestThreshold) || Number(checkParanoiaSpendings('quest')) > 0 )
                     {
                         // We have enough energy... requirement fulfilled.
                         console.log("Continuing quest, required energy obtained.");
@@ -3825,7 +3993,7 @@ var autoLoop = function () {
             }
             else if(sessionStorage.questRequirement === "none")
             {
-                if (Number(getSetHeroInfos('energy_quest')) > Number(Storage().autoQuestThreshold) || Number(checkParanoiaSpendings('quest')) > 0 )
+                if (Number(getSetHeroInfos('quest.amount')) > Number(Storage().autoQuestThreshold) || Number(checkParanoiaSpendings('quest')) > 0 )
                 {
                     //console.log("NONE req.");
                     busy = true;
@@ -3862,11 +4030,18 @@ var autoLoop = function () {
         */
         if(Storage().autoSeason === "true" && busy === false )
         {
-            if (Number(getSetHeroInfos('energy_kiss')) > 0 && ( Number(getSetHeroInfos('energy_kiss')) > Number(Storage().autoSeasonThreshold) || Number(checkParanoiaSpendings('kiss')) > 0 ) )
+            if (Number(getSetHeroInfos('kiss.amount')) > 0 && ( Number(getSetHeroInfos('kiss.amount')) > Number(Storage().autoSeasonThreshold) || Number(checkParanoiaSpendings('kiss')) > 0 ) )
             {
                 console.log("Time to fight in Season.");
                 doSeason();
                 busy = true;
+            }
+            else
+            {
+                if (checkTimer('nextSeasonTime'))
+                {
+                    setTimer('nextSeasonTime',getSetHeroInfos('kiss.next_refresh_ts'));
+                }
             }
 
         }
@@ -3877,8 +4052,8 @@ var autoLoop = function () {
         {
             if(busy === false && currentPower >= Number(sessionStorage.battlePowerRequired) && currentPower > 0)
             {
-                //console.log(getSetHeroInfos('energy_fight'),Number(Storage().autoTrollThreshold),Number(checkParanoiaSpendings('fight')));
-                if (Number(getSetHeroInfos('energy_fight')) > Number(Storage().autoTrollThreshold) || Number(checkParanoiaSpendings('fight')) > 0 )
+                //console.log(getSetHeroInfos('fight.amount'),Number(Storage().autoTrollThreshold),Number(checkParanoiaSpendings('fight')));
+                if (Number(getSetHeroInfos('fight.amount')) > Number(Storage().autoTrollThreshold) || Number(checkParanoiaSpendings('fight')) > 0 )
                 {
                     sessionStorage.battlePowerRequired = "0";
                     busy = true;
@@ -3905,12 +4080,12 @@ var autoLoop = function () {
         }
         else{sessionStorage.battlePowerRequired = "0";}
 
-        var ECt= getSetHeroInfos('energy_quest');
+        var ECt= getSetHeroInfos('quest.amount');
         if (ECt>=60 && (Storage().autoChampsUseEne==="true"))
         {
             console.log('Buying ticket with energy');
             var amount = 1;
-            var currency = 'energy_quest';
+            var currency = 'quest.amount';
             var params = {
                 namespace: 'h\\Champions',
                 class: 'Champions',
@@ -4039,12 +4214,14 @@ var setDefaults = function () {
     Storage().paranoia="false";
     Storage().paranoiaSpendsBefore="false";
 
+    Storage().calculatePowerLimits = "default";
     Storage().autoTrollThreshold="0";
     Storage().autoQuestThreshold="0";
     Storage().autoLeaguesThreshold="0";
     Storage().autoSeasonThreshold="0";
 
     Storage().spendKobans0="false";
+    Storage().autoSeasonPassReds ="false";
     Storage().paranoiaSettings="120-300/Sleep:28800-29400|Active:300-420|Casual:1800-2100/6:Sleep|18:Active|22:Casual|24:Sleep";
     Storage().master="false";
 };
@@ -4107,7 +4284,7 @@ var CollectEventData=function()
             var diff=Math.ceil(Timers["eventGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
             //console.log(diff);
             var hero=getHero();
-            if (diff<Storage().buyCombTimer*3600 && sessionStorage.eventTroll && getSetHeroInfos('energy_fight')==0)//Less than 20 hours remains and we still haven't get all troll girls
+            if (diff<Storage().buyCombTimer*3600 && sessionStorage.eventTroll && getSetHeroInfos('fight.amount')==0)//Less than 20 hours remains and we still haven't get all troll girls
             {
                 var price=hero.get_recharge_cost("fight");
                 //console.log('PRC: '+price);
@@ -4131,7 +4308,7 @@ var RechargeCombat=function(price) {
             action: "recharge",
             type: "fight"
         }, function(data) {
-            Hero.update("energy_fight", getSetHeroInfos('energy_fight_max'));
+            Hero.update("fight.amount", getSetHeroInfos('fight.max_amount'));
             Hero.update("hard_currency", 0 - price, true);
         });
 
@@ -4218,17 +4395,29 @@ var start = function () {
                      +     '<span>Hours to buy Comb</span><div><input id="buyCombTimer" style="width:50%" type="text"></div>'
                      +    '</div>'
                      +   '</div>'
-                     +   '<div style="display:flex;flex-direction:column;">'
-                     +    '<div style="display:flex;flex-direction:row;">'
-                     +    '<span>Buy Leg. Boosters</span>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>Buy Leg. Boosters</span><div><label title="Activate to buy Legendary boosters, all 3 koban security switches must be on."class="switch"><input id="autoBuyBoosters" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
-                     +    '<div style="display:flex;flex-direction:row;">'
-                     +     '<label title="Activate to buy Legendary boosters, all 3 koban security switches must be on." class="switch"><input id="autoBuyBoosters" type="checkbox"><span class="slider round"></span></label><input title="B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps" id="autoBuyBoostersFilter" type="text">'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>Filter</span><div><input title="B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps"style="width:70px" id="autoBuyBoostersFilter" type="text"></div>'
+                     +    '</div>'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>Pass 3 reds</span><div><label title="activate to spends kobans to pass three reds opponent in season." class="switch"><input id="autoSeasonPassReds" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +   '</div>'
-                     + '</div>'
+                     +  '</div>'
                      // End Region Shit
-                     +   '<span>Show CalculatePower</span><div><label class="switch"><input id="showCalculatePower" type="checkbox"><span class="slider round"></span></label></div>'
+                     // calculate Power Region
+                     +  '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
+                     +   '<div style="display:flex;flex-direction:column;">'
+                     +    '<span>Show PowerCalc</span><div><label class="switch"><input id="showCalculatePower" type="checkbox"><span class="slider round"></span></label></div>'
+                     +   '</div>'
+                     +   '<div style="padding-left:10px;display:flex;flex-direction:column;">'
+                     +    '<span>Own limits (red;yellow)</span><div><input id="calculatePowerLimits" style="width:80%" type="text"></div>'
+                     +   '</div>'
+                     +  '</div>'
+                     // End Calculate power region
                      +   '<span>Show info</span><div><label title="Activate to display timers"class="switch"><input id="showInfo" type="checkbox"><span class="slider round"></span></label></div>'
                      +  '</div>'
                      +  '<div style="padding:10px; display:flex;flex-direction:column;">'
@@ -4385,6 +4574,7 @@ var start = function () {
     //document.getElementById("autoArenaCheckbox").checked = Storage().autoArenaBattle === "true";
     document.getElementById("autoSeasonCheckbox").checked = Storage().autoSeason === "true";
     document.getElementById("autoSeasonCollect").checked = Storage().autoSeasonCollect === "true";
+    document.getElementById("autoSeasonPassReds").checked = Storage().autoSeasonPassReds === "true";
     document.getElementById("autoFreePachinko").checked = Storage().autoFreePachinko === "true";
     document.getElementById("autoLeagues").checked = Storage().autoLeagues === "true";
     document.getElementById("autoLeaguesMaxRank").value = Storage().autoLeaguesMaxRank?Storage().autoLeaguesMaxRank:"0";
@@ -4412,6 +4602,7 @@ var start = function () {
     //document.getElementById("autoEGMW").checked = Storage().autoEGMW === "true";
     document.getElementById("showInfo").checked = localStorage.showInfo?localStorage.showInfo==="true":"false";
     document.getElementById("showCalculatePower").checked = localStorage.showCalculatePower?localStorage.showCalculatePower==="true":"false";
+    document.getElementById("calculatePowerLimits").value = Storage().calculatePowerLimits?Storage().calculatePowerLimits:"default";
     document.getElementById("plusEvent").checked = Storage().trollToFight=="-1" || Storage().plusEvent === "true";
 
     document.getElementById("autoChamps").checked = Storage().autoChamps === "true";
