@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.3-beta.5
+// @version      5.3-beta.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -4088,26 +4088,33 @@ var autoLoop = function () {
                 }
             }
         }
-        else{sessionStorage.battlePowerRequired = "0";}
+        else
+        {
+            sessionStorage.battlePowerRequired = "0";
+        }
 
         var ECt= getSetHeroInfos('quest.amount');
         if (ECt>=60 && (Storage().autoChampsUseEne==="true"))
         {
-            console.log('Buying ticket with energy');
-            var amount = 1;
-            var currency = 'quest.amount';
-            var params = {
-                namespace: 'h\\Champions',
-                class: 'Champions',
-                action: 'buy_ticket',
-                currency: currency,
-                amount: amount
-            };
-
-            hh_ajax(params, function(data) {
-                anim_number($('.tickets_number_amount'), data.tokens - amount, amount);
-                Hero.updates(data.heroChangesUpdate);
-            });
+            function buyTicket()
+            {
+                var params = {
+                    namespace: 'h\\Champions',
+                    class: 'Champions',
+                    action: 'buy_ticket',
+                    currency: 'energy_quest',
+                    amount: 1
+                };
+                console.log('Buying ticket with energy');
+                hh_ajax(params, function(data) {
+                    anim_number($('.tickets_number_amount'), data.tokens - amount, amount);
+                    Hero.updates(data.heroChangesUpdate);
+                    location.reload();
+                });
+            }
+            sessionStorage.autoLoop = "false";
+            busy = true;;
+            setTimeout(buyTicket,randomInterval(800,1200));
         }
 
         if (busy==false && Storage().autoChamps==="true" && checkTimer('nextChampionTime'))
