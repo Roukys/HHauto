@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.3-beta.6
+// @version      5.3-beta.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -2666,14 +2666,12 @@ var updateData = function () {
     var newValue = String(document.getElementById("autoPowerPlacesAll").checked);
     if (Storage().autoPowerPlacesAll != newValue)
     {
-        console.log(Storage().autoPowerPlacesAll,newValue);
         Storage().autoPowerPlacesAll = document.getElementById("autoPowerPlacesAll").checked;
         clearTimer('minPowerPlacesTime');
     }
     newValue = String(document.getElementById("autoPowerPlacesIndexFilter").value);
     if (Storage().autoPowerPlacesIndexFilter != newValue)
     {
-        console.log(Storage().autoPowerPlacesIndexFilter,newValue);
         Storage().autoPowerPlacesIndexFilter = document.getElementById("autoPowerPlacesIndexFilter").value;
         clearTimer('minPowerPlacesTime');
     }
@@ -3895,6 +3893,7 @@ var autoLoop = function () {
 
         if (Storage().autoQuest === "true" && busy === false )
         {
+            Storage().autoTrollBattleSaveQuest = (Storage().autoTrollBattleSaveQuest ? Storage().autoTrollBattleSaveQuest : "false") ;
             if (sessionStorage.questRequirement === "battle")
             {
                 if (Storage().autoTrollBattleSaveQuest === "false")
