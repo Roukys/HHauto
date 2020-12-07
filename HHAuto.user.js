@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.3-beta.9
+// @version      5.3-beta.10
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -2252,6 +2252,8 @@ var doLeagueBattle = function () {
         if (isNaN(GetPlayerLineRank) && Number(Storage().autoLeaguesMaxRank) != 0)
         {
             console.log("Could not get current Rank, stopping League.");
+            //prevent paranoia to wait for league
+            Storage().paranoiaLeagueBlocked="true";
             setTimer('nextLeaguesTime',Number(30*60)+1);
             return;
         }
@@ -2259,6 +2261,8 @@ var doLeagueBattle = function () {
         if(currentPower < 1)
         {
             console.log("No power for leagues.");
+            //prevent paranoia to wait for league
+            Storage().paranoiaLeagueBlocked="true";
             setTimer('nextLeaguesTime',getSetHeroInfos('challenge.next_refresh_ts')+1);
             //             for(var e in unsafeWindow.HHTimers.timers){
             //                 try{
@@ -2282,6 +2286,8 @@ var doLeagueBattle = function () {
         {
             console.log("Max League rank reached, setting timer to 30 mins");
             setTimer('nextLeaguesTime',Number(30*60)+1);
+            //prevent paranoia to wait for league
+            Storage().paranoiaLeagueBlocked="true";
             gotoPage("home");
             return;
         }
@@ -2299,6 +2305,8 @@ var doLeagueBattle = function () {
         {
             ltime=35*60;
             console.log('No valid targets!');
+            //prevent paranoia to wait for league
+            Storage().paranoiaLeagueBlocked="true";
             setTimer('nextLeaguesTime',ltime);
         }
         else
@@ -3001,6 +3009,11 @@ var checkParanoiaSpendings=function(spendingFunction)
         pSpendings.delete('quest');
     }
 
+    if ( Storage().paranoiaLeagueBlocked !== undefined && pSpendings.has('challenge'))
+    {
+        pSpendings.delete('challenge');
+    }
+
     // for all count remaining
     if (spendingFunction === undefined)
     {
@@ -3028,6 +3041,7 @@ var clearParanoiaSpendings=function()
     Storage().removeItem('paranoiaSpendings');
     Storage().removeItem('toNextSwitch');
     Storage().removeItem('paranoiaQuestBlocked');
+    Storage().removeItem('paranoiaLeagueBlocked');
 }
 
 //sets spending to do before paranoia
@@ -3047,20 +3061,23 @@ var setParanoiaSpendings=function()
         //if autoLeague is on
         if(Storage().autoLeagues === "true" && getSetHeroInfos('level')>=20)
         {
-            maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getSetHeroInfos('challenge.next_refresh_ts')))/Number(getSetHeroInfos('challenge.seconds_per_point')));
-            currentEnergy=Number(getSetHeroInfos('challenge.amount'));
-            maxEnergy=Number(getSetHeroInfos('challenge.max_amount'));
-            totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
-            //if point refreshed during paranoia would go above max
-            if ( totalPointsEndParanoia >= maxEnergy)
+            if ( Storage().paranoiaLeagueBlocked === undefined )
             {
-                paranoiaSpend=totalPointsEndParanoia - maxEnergy + 1;
-                paranoiaSpendings.set("challenge",paranoiaSpend);
-                console.log("Setting Paranoia spendings for league : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend);
-            }
-            else
-            {
-                console.log("Setting Paranoia spendings for league : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending ");
+                maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getSetHeroInfos('challenge.next_refresh_ts')))/Number(getSetHeroInfos('challenge.seconds_per_point')));
+                currentEnergy=Number(getSetHeroInfos('challenge.amount'));
+                maxEnergy=Number(getSetHeroInfos('challenge.max_amount'));
+                totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
+                //if point refreshed during paranoia would go above max
+                if ( totalPointsEndParanoia >= maxEnergy)
+                {
+                    paranoiaSpend=totalPointsEndParanoia - maxEnergy + 1;
+                    paranoiaSpendings.set("challenge",paranoiaSpend);
+                    console.log("Setting Paranoia spendings for league : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend);
+                }
+                else
+                {
+                    console.log("Setting Paranoia spendings for league : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending ");
+                }
             }
         }
         //if autoquest is on
