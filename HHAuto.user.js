@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.3-beta.10
+// @version      5.3-beta.11
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -1644,7 +1644,7 @@ var doBossBattle = function()
     }
 
     var TTF;
-    if (Storage().plusEvent==="true" && !checkTimer("eventGoing") && sessionStorage.eventTroll)
+    if (Storage().plusEvent==="true" && (!checkTimer("eventGoing") || !checkTimer("eventMythicGoing")) && sessionStorage.eventTroll)
     {
         TTF=sessionStorage.eventTroll;
         console.log("Event troll fight");
@@ -2227,10 +2227,20 @@ var doBattle = function () {
     }
 };
 
+var getLeagueCurrentLevel = function ()
+{
+    if(unsafeWindow.league_tag === undefined)
+    {
+        setTimeout(autoLoop, Number(Storage().autoLoopTimeMili))
+    }
+    return unsafeWindow.league_tag;
+}
+
 var doLeagueBattle = function () {
     //console.log("Performing auto leagues.");
     // Confirm if on correct screen.
     var currentPower = getSetHeroInfos('challenge.amount');
+    var leagueScoreSecurityThreshold = 40;
     var ltime;
 
     var page = getPage();
@@ -2248,16 +2258,7 @@ var doLeagueBattle = function () {
         }
         // console.log('ls! '+$('h4.leagues').size());
         $('h4.leagues').each(function(){this.click();});
-        var GetPlayerLineRank = $("tr[class=personal_highlight] td span")[0].innerText;
-        if (isNaN(GetPlayerLineRank) && Number(Storage().autoLeaguesMaxRank) != 0)
-        {
-            console.log("Could not get current Rank, stopping League.");
-            //prevent paranoia to wait for league
-            Storage().paranoiaLeagueBlocked="true";
-            setTimer('nextLeaguesTime',Number(30*60)+1);
-            return;
-        }
-        var currentRank = Number($("tr[class=personal_highlight] td span")[0].innerText);
+
         if(currentPower < 1)
         {
             console.log("No power for leagues.");
@@ -2282,17 +2283,6 @@ var doLeagueBattle = function () {
             return;
         }
 
-        if (currentRank <= Number(Storage().autoLeaguesMaxRank))
-        {
-            console.log("Max League rank reached, setting timer to 30 mins");
-            setTimer('nextLeaguesTime',Number(30*60)+1);
-            //prevent paranoia to wait for league
-            Storage().paranoiaLeagueBlocked="true";
-            gotoPage("home");
-            return;
-        }
-
-
         while ($("span[sort_by='level'][select='asc']").size()==0)
         {
             console.log('resorting');
@@ -2311,6 +2301,70 @@ var doLeagueBattle = function () {
         }
         else
         {
+            var getPlayerCurrentLevel = getLeagueCurrentLevel();
+
+            if (isNaN(getPlayerCurrentLevel))
+            {
+                console.log("Could not get current Rank, stopping League.");
+                //prevent paranoia to wait for league
+                Storage().paranoiaLeagueBlocked="true";
+                setTimer('nextLeaguesTime',Number(30*60)+1);
+                return;
+            }
+            var currentRank = Number($("tr[class=personal_highlight] td span")[0].innerText);
+            var currentScore = Number($("tr[class=personal_highlight] td")[4].innerText.replace(/\D/g, ''));
+
+            if (Number(Storage().leaguesTarget) < Number(getPlayerCurrentLevel))
+            {
+                var maxDemote = 0;
+                var totalOpponents = Number($("div.leagues_table table tr td:contains(/3)").length);
+                var rankDemote = totalOpponents - 14;
+                if (currentRank > (totalOpponents - 15))
+                {
+                    rankDemote = totalOpponents - 15;
+                }
+                console.log("Current league above target, needs to demote. max rank : "+rankDemote);
+                maxDemote = Number($("div.leagues_table table tr td span:contains("+rankDemote+")").filter(function() {
+                    return Number($.trim($(this).text())) === rankDemote;
+                }).parent().parent()[0].lastElementChild.innerText.replace(/\D/g, ''));
+
+                console.log("Current league above target, needs to demote. Score should not be higher than : "+maxDemote);
+                if ( currentScore + leagueScoreSecurityThreshold >= maxDemote )
+                {
+                    console.log("Can't do league as could go above demote, setting timer to 30 mins");
+                    setTimer('nextLeaguesTime',Number(30*60)+1);
+                    //prevent paranoia to wait for league
+                    Storage().paranoiaLeagueBlocked="true";
+                    gotoPage("home");
+                    return;
+                }
+            }
+
+            if (Number(Storage().leaguesTarget) === Number(getPlayerCurrentLevel))
+            {
+                var maxStay = 0;
+                var rankStay = 16;
+                if (currentRank > 15)
+                {
+                    rankStay = 15;
+                }
+                console.log("Current league is target, needs to stay. max rank : "+rankStay);
+                maxStay = Number($("div.leagues_table table tr td span:contains("+rankStay+")").filter(function() {
+                    return Number($.trim($(this).text())) === rankStay;
+                }).parent().parent()[0].lastElementChild.innerText.replace(/\D/g, ''));
+
+
+                console.log("Current league is target, needs to stay. Score should not be higher than : "+maxStay);
+                if ( currentScore + leagueScoreSecurityThreshold >= maxStay )
+                {
+                    console.log("Can't do league as could go above stay, setting timer to 30 mins");
+                    setTimer('nextLeaguesTime',Number(30*60)+1);
+                    //prevent paranoia to wait for league
+                    Storage().paranoiaLeagueBlocked="true";
+                    gotoPage("home");
+                    return;
+                }
+            }
             console.log(Data.length+' valid targets!');
             sessionStorage.autoLoop = "false";
             console.log("Hit?" );
@@ -2661,6 +2715,9 @@ var getTimeLeft=function(name)
 
 var updateData = function () {
     //console.log("updating UI");
+    var leaguesOptions = document.getElementById("autoLeaguesSelector");
+    Storage().autoLeaguesSelectedIndex = leaguesOptions.selectedIndex;
+    Storage().leaguesTarget = Number(leaguesOptions.value)+1;
 
     var trollOptions = document.getElementById("autoTrollSelector");
     Storage().autoTrollSelectedIndex = trollOptions.selectedIndex;
@@ -2691,6 +2748,9 @@ var updateData = function () {
     Storage().autoQuest = document.getElementById("autoQuestCheckbox").checked;
     Storage().autoTrollBattle = document.getElementById("autoTrollCheckbox").checked;
     Storage().eventTrollOrder = document.getElementById("eventTrollOrder").value;
+
+    Storage().plusEventMythic = document.getElementById("plusEventMythic").checked;
+    Storage().eventMythicPrio =document.getElementById("eventMythicPrio").checked;
     Storage().buyCombTimer = document.getElementById("buyCombTimer").value;
     //Storage().autoArenaBattle = document.getElementById("autoArenaCheckbox").checked;
     Storage().autoSeason = document.getElementById("autoSeasonCheckbox").checked;
@@ -2698,7 +2758,7 @@ var updateData = function () {
     Storage().autoLeagues = document.getElementById("autoLeagues").checked;
     Storage().autoLeaguesCollect = document.getElementById("autoLeaguesCollect").checked;
     Storage().autoLeaguesPowerCalc = document.getElementById("autoLeaguesPowerCalc").checked;
-    Storage().autoLeaguesMaxRank = document.getElementById("autoLeaguesMaxRank").value;
+    //Storage().autoLeaguesMaxRank = document.getElementById("autoLeaguesMaxRank").value;
     Storage().autoStats = document.getElementById("autoStats").value;
     Storage().paranoia = document.getElementById("paranoia").checked;
     Storage().paranoiaSpendsBefore = document.getElementById("paranoiaSpendsBefore").checked;
@@ -4212,13 +4272,16 @@ var setDefaults = function () {
     Storage().autoLeagues = "false";
     Storage().autoLeaguesCollect = "false";
     Storage().autoLeaguesPowerCalc = "false";
-    Storage().autoLeaguesMaxRank = "0";
+    //Storage().autoLeaguesMaxRank = "0";
     Storage().autoStats = "500000000";
     sessionStorage.autoLoop = "true";
     sessionStorage.userLink = "none";
     Storage().autoLoopTimeMili = "500";
     Storage().autoQuest = "false";
     Storage().autoTrollBattle = "false";
+    Storage().plusEvent = "false";
+    Storage().plusEventMythic = "false";
+    Storage().eventMythicPrio = "false";
     Storage().eventTrollOrder="";
     Storage().buyCombTimer="16";
     //Storage().autoArenaBattle = "false";
@@ -4262,18 +4325,42 @@ var setDefaults = function () {
 
 var CollectEventData=function()
 {
-    if (unsafeWindow.event_data)
+    if (unsafeWindow.event_data || unsafeWindow.mythic_event_data)
     {
-        var timeLeft=event_data.seconds_until_event_end;
-        setTimer('eventGoing',timeLeft);
         var Trollz=[];
-        for (var i=0;i<event_data.girls.length;i++)
+        var TrollzMythic=[];
+
+        if (unsafeWindow.event_data && Storage().plusEvent==="true")
         {
-            if (!event_data.girls[i].owned_girl && event_data.girls[i].troll)
+            var timeLeft=event_data.seconds_until_event_end;
+            setTimer('eventGoing',timeLeft);
+
+            for (var i=0;i<event_data.girls.length;i++)
             {
-                if (Number(event_data.girls[i].troll.id_troll)<getSetHeroInfos('questing.id_world'))
+                if (!event_data.girls[i].owned_girl && event_data.girls[i].troll)
                 {
-                    Trollz.push(Number(event_data.girls[i].troll.id_troll));
+                    if (Number(event_data.girls[i].troll.id_troll)<getSetHeroInfos('questing.id_world'))
+                    {
+                        Trollz.push(Number(event_data.girls[i].troll.id_troll));
+                    }
+                }
+            }
+        }
+
+        if (unsafeWindow.mythic_event_data && Storage().plusEventMythic==="true")
+        {
+            var timeLeftMythic=mythic_event_data.seconds_until_event_end;
+            setTimer('eventMythicGoing',timeLeftMythic);
+
+            for (i=0;i<mythic_event_data.girls.length;i++)
+            {
+                if (Number(mythic_event_data.girls[i].shards) !== 100 && Number(mythic_event_data.event_data.shards_available) !== 0 && mythic_event_data.girls[i].troll)
+                {
+                    if (Number(mythic_event_data.girls[i].troll.id_troll)<getSetHeroInfos('questing.id_world'))
+                    {
+                        Trollz.push(Number(mythic_event_data.girls[i].troll.id_troll));
+                        TrollzMythic.push(Number(mythic_event_data.girls[i].troll.id_troll));
+                    }
                 }
             }
         }
@@ -4311,14 +4398,22 @@ var CollectEventData=function()
         {
             delete sessionStorage.eventTroll;
         }
+
+        //priorize mythic event over all
+        if (Storage().eventMythicPrio === "true" && TrollzMythic.length>0)
+        {
+            sessionStorage.eventTroll=Number(TrollzMythic[0]);
+        }
+
         //console.log('WTF?');
-        if (Storage().buyCombat=="true" && Storage().plusEvent=="true")
+        if (Storage().buyCombat=="true" && (Storage().plusEvent==="true" || Storage().plusEventMythic==="true"))
         {
             //console.log('WTF!');
             var diff=Math.ceil(Timers["eventGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
+            var diffMythic=Math.ceil(Timers["eventMythicGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
             //console.log(diff);
             var hero=getHero();
-            if (diff<Storage().buyCombTimer*3600 && sessionStorage.eventTroll && getSetHeroInfos('fight.amount')==0)//Less than 20 hours remains and we still haven't get all troll girls
+            if ((diff<Storage().buyCombTimer*3600 || diffMythic<Storage().buyCombTimer*3600) && sessionStorage.eventTroll && getSetHeroInfos('fight.amount')==0)//Less than 20 hours remains and we still haven't get all troll girls
             {
                 var price=hero.get_recharge_cost("fight");
                 //console.log('PRC: '+price);
@@ -4366,6 +4461,7 @@ var getBurst=function()
 }
 
 var Trollz=["Latest","Dark Lord","Ninja Spy","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson\'s Crew","Pandora witch","Nike"];
+var Leagues=["Wanker I","Wanker II","Wanker III","Sexpert I","Sexpert II","Sexpert III","Dicktator I","Dicktator II","Dicktator III"];
 var Timers={};
 
 var start = function () {
@@ -4482,12 +4578,20 @@ var start = function () {
                      +     '<span class="slider round"></span></label><select id="autoTrollSelector"></select></div>'
                      +     '<span>Threshold</span><div><input style="width:50px" id="autoTrollThreshold" type="text"></div>'
                      +    '</div>'
-                     +    '<div style="padding:10px; display:flex;flex-direction:row;">'
+                     +    '<div style="display:flex;flex-direction:row;">'
                      +     '<div style="display:flex;flex-direction:column;">'
                      +      '<span>Event Troll Order</span><div><input id="eventTrollOrder" style="width:150px" type="text"></div>'
                      +     '</div>'
                      +     '<div style="display:flex;flex-direction:column;">'
                      +      '<span>+Event</span><div><label class="switch"><input id="plusEvent" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '</div>'
+                     +    '</div>'
+                     +    '<div style="display:flex;flex-direction:row;">'
+                     +     '<div style="display:flex;flex-direction:column;">'
+                     +      '<span>+Mythic Event</span><div><label class="switch"><input id="plusEventMythic" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '</div>'
+                     +     '<div style="padding-left:10px;display:flex;flex-direction:column;">'
+                     +      '<span>Priorize over Event Troll Order</span><div><label class="switch"><input id="eventMythicPrio" type="checkbox"><span class="slider round"></span></label></div>'
                      +     '</div>'
                      +    '</div>'
                      +   '</div>'
@@ -4535,14 +4639,14 @@ var start = function () {
                      +    '</div>'
                      +    '<div style="padding:0px; display:flex;flex-direction:row;">'
                      +     '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +      '<span>Max rank (0 for none)</span><div><input id="autoLeaguesMaxRank" type="text"></div>'
+                     +      '<span>Target League</span><div><select id="autoLeaguesSelector"></select></div>'
                      +     '</div>'
                      +     '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +      '<span>Threshold</span><div><input style="width:50px" id="autoLeaguesThreshold" type="text"></div>'
                      +     '</div>'
                      +    '</div>'
                      +   '</div>'
-                     // End Region AUtoLeagues
+                     // End Region AutoLeagues
                      // Region PowerPlace
                      +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
@@ -4594,8 +4698,20 @@ var start = function () {
         trollOptions.add(option);
     };
 
+    // Add league options
+    var leaguesOptions = document.getElementById("autoLeaguesSelector");
+
+    for (var j in Leagues)
+    {
+        var optionL = document.createElement("option");
+        optionL.value=j;
+        optionL.text = Leagues[j];
+        leaguesOptions.add(optionL);
+    };
+
     document.getElementById("settPerTab").checked = localStorage.settPerTab === "true";
     trollOptions.selectedIndex = Storage().autoTrollSelectedIndex;
+    leaguesOptions.selectedIndex = Storage().autoLeaguesSelectedIndex;
     document.getElementById("autoSalaryCheckbox").checked = Storage().autoSalary === "true";
     document.getElementById("autoSalaryTextbox").value = Storage().autoSalaryTimer?Storage().autoSalaryTimer:"120";
     document.getElementById("autoContestCheckbox").checked = Storage().autoContest === "true";
@@ -4611,7 +4727,7 @@ var start = function () {
     document.getElementById("autoSeasonPassReds").checked = Storage().autoSeasonPassReds === "true";
     document.getElementById("autoFreePachinko").checked = Storage().autoFreePachinko === "true";
     document.getElementById("autoLeagues").checked = Storage().autoLeagues === "true";
-    document.getElementById("autoLeaguesMaxRank").value = Storage().autoLeaguesMaxRank?Storage().autoLeaguesMaxRank:"0";
+    //document.getElementById("autoLeaguesMaxRank").value = Storage().autoLeaguesMaxRank?Storage().autoLeaguesMaxRank:"0";
     document.getElementById("autoLeaguesPowerCalc").checked = Storage().autoLeaguesPowerCalc === "true";
     document.getElementById("autoLeaguesCollect").checked = Storage().autoLeaguesCollect === "true";
     document.getElementById("autoPowerPlaces").checked = Storage().autoPowerPlaces === "true";
@@ -4638,6 +4754,8 @@ var start = function () {
     document.getElementById("showCalculatePower").checked = localStorage.showCalculatePower?localStorage.showCalculatePower==="true":"false";
     document.getElementById("calculatePowerLimits").value = Storage().calculatePowerLimits?Storage().calculatePowerLimits:"default";
     document.getElementById("plusEvent").checked = Storage().trollToFight=="-1" || Storage().plusEvent === "true";
+    document.getElementById("plusEventMythic").checked = Storage().plusEventMythic === "true";
+    document.getElementById("eventMythicPrio").checked = Storage().eventMythicPrio === "true";
 
     document.getElementById("autoChamps").checked = Storage().autoChamps === "true";
     document.getElementById("autoChampsUseEne").checked = Storage().autoChampsUseEne === "true";
