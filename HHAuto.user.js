@@ -1,11 +1,12 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.2.0
+// @version      5.3-beta.14
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
 // @match        http*://*.hentaiheroes.com/*
+// @match        http*://*.gayharem.com/*
 // @grant        GM_addStyle
 // @license      MIT
 // @updateURL   https://github.com/Roukys/HHauto/raw/main/HHAuto.user.js
@@ -45,10 +46,6 @@ function getSetHeroInfos(infoSearched,newValue)
             if ( getHero().infos.carac1 !== undefined )
             {
                 returnValue = getHero().infos.carac1;
-                if ( newValue !== undefined )
-                {
-                    Hero.infos.carac1 = newValue;
-                }
                 break;
             }
             else
@@ -63,10 +60,6 @@ function getSetHeroInfos(infoSearched,newValue)
             if ( getHero().infos.carac2 !== undefined )
             {
                 returnValue = getHero().infos.carac2;
-                if ( newValue !== undefined )
-                {
-                    Hero.infos.carac2 = newValue;
-                }
                 break;
             }
             else
@@ -81,10 +74,6 @@ function getSetHeroInfos(infoSearched,newValue)
             if ( getHero().infos.carac3 !== undefined )
             {
                 returnValue = getHero().infos.carac3;
-                if ( newValue !== undefined )
-                {
-                    Hero.infos.carac3 = newValue;
-                }
                 break;
             }
             else
@@ -99,10 +88,6 @@ function getSetHeroInfos(infoSearched,newValue)
             if ( getHero().infos.caracs.damage !== undefined )
             {
                 returnValue = getHero().infos.caracs.damage;
-                if ( newValue !== undefined )
-                {
-                    Hero.infos.caracs.damage = newValue;
-                }
                 break;
             }
             else
@@ -117,10 +102,6 @@ function getSetHeroInfos(infoSearched,newValue)
             if ( getHero().infos.caracs.def_carac1 !== undefined )
             {
                 returnValue = getHero().infos.caracs.def_carac1;
-                if ( newValue !== undefined )
-                {
-                    Hero.infos.caracs.def_carac1 = newValue;
-                }
                 break;
             }
             else
@@ -135,10 +116,6 @@ function getSetHeroInfos(infoSearched,newValue)
             if ( getHero().infos.caracs.def_carac2 !== undefined )
             {
                 returnValue = getHero().infos.caracs.def_carac2;
-                if ( newValue !== undefined )
-                {
-                    Hero.infos.caracs.def_carac2 = newValue;
-                }
                 break;
             }
             else
@@ -153,10 +130,6 @@ function getSetHeroInfos(infoSearched,newValue)
             if ( getHero().infos.caracs.def_carac3 !== undefined )
             {
                 returnValue = getHero().infos.caracs.def_carac3;
-                if ( newValue !== undefined )
-                {
-                    Hero.infos.caracs.def_carac3 = newValue;
-                }
                 break;
             }
             else
@@ -171,10 +144,6 @@ function getSetHeroInfos(infoSearched,newValue)
             if ( getHero().infos.caracs.ego !== undefined )
             {
                 returnValue = getHero().infos.caracs.ego;
-                if ( newValue !== undefined )
-                {
-                    Hero.infos.caracs.ego = newValue;
-                }
                 break;
             }
             else
@@ -189,9 +158,23 @@ function getSetHeroInfos(infoSearched,newValue)
             if ( getHero().infos.class !== undefined )
             {
                 returnValue = getHero().infos.class;
+                break;
+            }
+            else
+            {
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
+                break;
+            }
+            break;
+
+        case 'challenge.amount' :
+            if ( getHero().energies !== undefined )
+            {
+                returnValue = getHero().energies.challenge.amount;
                 if ( newValue !== undefined )
                 {
-                    Hero.infos.class = newValue;
+                    Hero.energies.challenge.amount = newValue;
                 }
                 break;
             }
@@ -203,38 +186,8 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             break;
 
-        case 'energy_challenge' :
-            if ( getHero().infos.energy_challenge !== undefined )
-            {
-                returnValue = getHero().infos.energy_challenge;
-                if ( newValue !== undefined )
-                {
-                    Hero.infos.energy_challenge = newValue;
-                }
-                break;
-            }
-            else
-            {
-                returnValue = getHero().energies.challenge.amount;
-                if ( newValue !== undefined )
-                {
-                    Hero.energies.challenge.amount = newValue;
-                }
-                break;
-            }
-            break;
-
-        case 'energy_fight' :
-            if ( getHero().infos.energy_fight !== undefined )
-            {
-                returnValue = getHero().infos.energy_fight;
-                if ( newValue !== undefined )
-                {
-                    Hero.infos.energy_fight = newValue;
-                }
-                break;
-            }
-            else
+        case 'fight.amount' :
+            if ( getHero().energies !== undefined )
             {
                 returnValue = getHero().energies.fight.amount;
                 if ( newValue !== undefined )
@@ -243,40 +196,33 @@ function getSetHeroInfos(infoSearched,newValue)
                 }
                 break;
             }
-            break;
-
-        case 'energy_kiss' :
-            if ( getHero().infos.energy_kiss !== undefined )
+            else
             {
-                returnValue = getHero().infos.energy_kiss;
-                if ( newValue !== undefined )
-                {
-                    Hero.infos.energy_kiss = newValue;
-                }
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
                 break;
             }
-            else
+            break;
+
+        case 'kiss.amount' :
+            if ( getHero().energies !== undefined )
             {
                 returnValue = getHero().energies.kiss.amount;
                 if ( newValue !== undefined )
                 {
                     Hero.energies.kiss.amount = newValue;
                 }
+            }
+            else
+            {
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
                 break;
             }
             break;
 
-        case 'energy_quest' :
-            if ( getHero().infos.energy_quest !== undefined )
-            {
-                returnValue = getHero().infos.energy_quest;
-                if ( newValue !== undefined )
-                {
-                    Hero.infos.energy_quest = newValue;
-                }
-                break;
-            }
-            else
+        case 'quest.amount' :
+            if ( getHero().energies !== undefined )
             {
                 returnValue = getHero().energies.quest.amount;
                 if ( newValue !== undefined )
@@ -285,25 +231,66 @@ function getSetHeroInfos(infoSearched,newValue)
                 }
                 break;
             }
+            else
+            {
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
+                break;
+            }
             break;
 
-        case 'energy_fight_max' :
-            if ( getHero().infos.energy_fight_max !== undefined )
+        case 'fight.max_amount' :
+            if ( getHero().energies !== undefined )
             {
-                returnValue = getHero().infos.energy_fight_max;
-                if ( newValue !== undefined )
-                {
-                    Hero.infos.energy_fight_max = newValue;
-                }
+                returnValue = getHero().energies.fight.max_amount;
                 break;
             }
             else
             {
-                returnValue = getHero().energies.fight.max_amount;
-                if ( newValue !== undefined )
-                {
-                    Hero.energies.fight.max_amount = newValue;
-                }
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
+                break;
+            }
+            break;
+
+        case 'kiss.max_amount' :
+            if ( getHero().energies !== undefined )
+            {
+                returnValue = getHero().energies.kiss.max_amount;
+                break;
+            }
+            else
+            {
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
+                break;
+            }
+            break;
+
+        case 'quest.max_amount' :
+            if ( getHero().energies !== undefined )
+            {
+                returnValue = getHero().energies.quest.max_amount;
+                break;
+            }
+            else
+            {
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
+                break;
+            }
+            break;
+
+        case 'challenge.max_amount' :
+            if ( getHero().energies !== undefined )
+            {
+                returnValue = getHero().energies.challenge.max_amount;
+                break;
+            }
+            else
+            {
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
                 break;
             }
             break;
@@ -312,6 +299,10 @@ function getSetHeroInfos(infoSearched,newValue)
             if ( getHero().infos.soft_currency !== undefined )
             {
                 return getHero().infos.soft_currency;
+                if ( newValue !== undefined )
+                {
+                    Hero.infos.soft_currency = newValue;
+                }
                 break;
             }
             else
@@ -344,10 +335,6 @@ function getSetHeroInfos(infoSearched,newValue)
             if ( getHero().infos.level !== undefined )
             {
                 returnValue = getHero().infos.level;
-                if ( newValue !== undefined )
-                {
-                    Hero.infos.level = newValue;
-                }
                 break;
             }
             else
@@ -362,10 +349,6 @@ function getSetHeroInfos(infoSearched,newValue)
             if ( getHero().infos.questing.current_url !== undefined )
             {
                 returnValue = getHero().infos.questing.current_url;
-                if ( newValue !== undefined )
-                {
-                    Hero.infos.questing.current_url = newValue;
-                }
                 break;
             }
             else
@@ -380,10 +363,6 @@ function getSetHeroInfos(infoSearched,newValue)
             if ( getHero().infos.questing.id_world !== undefined )
             {
                 returnValue = getHero().infos.questing.id_world;
-                if ( newValue !== undefined )
-                {
-                    Hero.infos.questing.id_world = newValue;
-                }
                 break;
             }
             else
@@ -394,6 +373,113 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             break;
 
+        case 'quest.seconds_per_point' :
+            if ( getHero().energies !== undefined )
+            {
+                returnValue = getHero().energies.quest.seconds_per_point;
+                break;
+            }
+            else
+            {
+                returnValue = 450;
+                break;
+            }
+            break;
+
+        case 'fight.seconds_per_point' :
+            if ( getHero().energies !== undefined )
+            {
+                returnValue = getHero().energies.fight.seconds_per_point;
+                break;
+            }
+            else
+            {
+                returnValue = 1800;
+                break;
+            }
+            break;
+
+        case 'challenge.seconds_per_point' :
+            if ( getHero().energies !== undefined )
+            {
+                returnValue = getHero().energies.challenge.seconds_per_point;
+                break;
+            }
+            else
+            {
+                returnValue = 2100;
+                break;
+            }
+            break;
+
+        case 'kiss.seconds_per_point' :
+            if ( getHero().energies !== undefined )
+            {
+                returnValue = getHero().energies.kiss.seconds_per_point;
+                break;
+            }
+            else
+            {
+                returnValue = 3600;
+                break;
+            }
+            break;
+
+        case 'quest.next_refresh_ts' :
+            if ( getHero().energies !== undefined )
+            {
+                returnValue = getHero().energies.quest.next_refresh_ts;
+                break;
+            }
+            else
+            {
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
+                break;
+            }
+            break;
+
+        case 'fight.next_refresh_ts' :
+            if ( getHero().energies !== undefined )
+            {
+                returnValue = getHero().energies.fight.next_refresh_ts;
+                break;
+            }
+            else
+            {
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
+                break;
+            }
+            break;
+
+        case 'challenge.next_refresh_ts' :
+            if ( getHero().energies !== undefined )
+            {
+                returnValue = getHero().energies.challenge.next_refresh_ts;
+                break;
+            }
+            else
+            {
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
+                break;
+            }
+            break;
+
+        case 'kiss.next_refresh_ts' :
+            if ( getHero().energies !== undefined )
+            {
+                returnValue = getHero().energies.kiss.next_refresh_ts;
+                break;
+            }
+            else
+            {
+                console.log("Hero info not found : "+infoSearched);
+                returnValue = -1;
+                break;
+            }
+            break;
         default:
             {
                 console.log("Hero info not found : "+infoSearched);
@@ -413,6 +499,10 @@ function getPage()
 {
     try{
         var ob = document.getElementById("hh_nutaku");
+        if(ob===undefined || ob === null)
+        {
+            ob = document.getElementById("hh_gay");
+        }
         if(ob===undefined || ob === null)
         {
             ob = document.getElementById("hh_hentai");
@@ -611,7 +701,7 @@ var proceedQuest = function () {
         proceedButtonMatch.click();
     }
     else if (proceedType === "pay") {
-        var energyCurrent = getSetHeroInfos('energy_quest');
+        var energyCurrent = getSetHeroInfos('quest.amount');
         var moneyCurrent = getSetHeroInfos('soft_currency');
         if(proceedCostEnergy <= energyCurrent)
         {
@@ -1247,7 +1337,6 @@ var getSalary = function () {
             var salaryButton = $("#collect_all_container button[id='collect_all']")
             var salaryToCollect = salaryButton.attr("style")==="display: inline-block;"?true:false;
             var getButtonClass = salaryButton.attr("class");
-            console.log(salaryToCollect,getButtonClass);
             if (salaryToCollect)
             {
                 if (getButtonClass === "blue_button_L")
@@ -1550,7 +1639,7 @@ var doShopping=function()
 
 var doBossBattle = function()
 {
-    var currentPower = getSetHeroInfos('energy_fight');
+    var currentPower = getSetHeroInfos('fight.amount');
     if(currentPower < 1)
     {
         //console.log("No power for battle.");
@@ -1558,7 +1647,7 @@ var doBossBattle = function()
     }
 
     var TTF;
-    if (Storage().plusEvent==="true" && !checkTimer("eventGoing") && sessionStorage.eventTroll)
+    if (Storage().plusEvent==="true" && (!checkTimer("eventGoing") || !checkTimer("eventMythicGoing")) && sessionStorage.eventTroll)
     {
         TTF=sessionStorage.eventTroll;
         console.log("Event troll fight");
@@ -1610,13 +1699,13 @@ var doChampionStuff=function()
         if ($('button[rel=perform].blue_button_L').length==0)
         {
             console.log('Something is wrong!');
-            location.href = "/home.html";
+            gotoPage("home");
             return true;
         }
         else
         {
             var TCount=Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
-            var ECount= getSetHeroInfos('energy_quest');
+            var ECount= getSetHeroInfos('quest.amount');
             console.log("T:"+TCount+" E:"+ECount+" "+(Storage().autoChampsUseEne==="true"))
             if ( TCount==0)
             {
@@ -1640,6 +1729,9 @@ var doChampionStuff=function()
     {
         console.log('on champion map');
         var Filter=Storage().autoChampsFilter.split(';').map(s=>Number(s));
+        var minTime = getSecondsLeft();
+        var currTime;
+        var e;
 
         for (let i=0;i<$('span.stage-bar-tier').length;i++)
         {
@@ -1656,8 +1748,34 @@ var doChampionStuff=function()
                 return true;
             }
         }
+
         console.log("No good candidate");
-        setTimer('nextChampionTime',15*60);
+        currTime = -1;
+        for(e in unsafeWindow.HHTimers.timers){
+            try
+            {
+                if(unsafeWindow.HHTimers.timers[e].$elm[0].offsetParent.className === "champion-lair")
+                {
+                    currTime=unsafeWindow.HHTimers.timers[e].remainingTime;
+                }
+            }
+            catch(e){}
+            if (minTime === -1 || currTime === -1 || minTime>currTime)
+            {
+                minTime = currTime;
+            }
+        }
+        //fetching min
+
+
+        if (minTime === -1)
+        {
+            setTimer('nextChampionTime',15*60);
+        }
+        else
+        {
+            setTimer('nextChampionTime',minTime);
+        }
         return false;
     }
     else
@@ -1926,23 +2044,54 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
         opponentEgo = 0;
     }
 
-
-
     //Publish the ego difference as a match rating
     matchRating = playerEgo - opponentEgo;
-    if (matchRating >= 0) {
-        matchRating = '+' + matchRating;
-
-        if (playerEgoCheck <= 0) {
-            return 'y'+matchRating
+    var customLimits = Storage().calculatePowerLimits.split(";");
+    if(customLimits.length === 2 && Number(customLimits[0]) < Number(customLimits[1]))
+    {
+        if (matchRating >= 0)
+        {
+            matchRating = '+' + matchRating;
         }
-        else {
-            return 'g'+matchRating
+        if ( Number(matchRating) < Number(customLimits[0]) )
+        {
+            return 'r'+matchRating
+        }
+        else
+        {
+            if ( Number(matchRating) < Number(customLimits[1]) )
+            {
+                return 'y'+matchRating
+            }
+            else
+            {
+                return 'g'+matchRating
+            }
         }
     }
-    else {
-        matchRating = matchRating;
-        return 'r'+matchRating
+    else
+    {
+        if ( Storage().calculatePowerLimits !== "default")
+        {
+            Storage().calculatePowerLimits = "Invalid limits";
+        }
+        if (matchRating >= 0)
+        {
+            matchRating = '+' + matchRating;
+
+            if (playerEgoCheck <= 0)
+            {
+                return 'y'+matchRating
+            }
+            else
+            {
+                return 'g'+matchRating
+            }
+        }
+        else {
+            matchRating = matchRating;
+            return 'r'+matchRating
+        }
     }
 }
 
@@ -1954,7 +2103,7 @@ var doSeason = function () {
     {
         console.log("On season page.");
 
-        var current_kisses = getSetHeroInfos('energy_kiss');
+        var current_kisses = getSetHeroInfos('kiss.amount');
 
         if (Storage().autoSeasonCollect === "true")
         {
@@ -1970,22 +2119,44 @@ var doSeason = function () {
             gotoPage("season-arena");
             return;
         }
-
+        else
+        {
+            setTimer('nextSeasonTime',getSetHeroInfos('kiss.next_refresh_ts'));
+        }
 
     }
     else if (page === "season_arena")
     {
         console.log("On season arena page.");
 
-
-
-
-
         var chosenID=moduleSimSeasonBattle();
-        if (chosenID != -1 )
+        if (chosenID !== -1 && chosenID !== -2 )
         {
             location.href = document.getElementsByClassName("opponent_perform_button_container")[chosenID].children[0].getAttribute('href');
             console.log("Going to crush : "+$("div.season_arena_opponent_container .hero_details div:not([class]):not([carac])")[chosenID].innerText);
+            return true;
+        }
+        if (chosenID === -2 )
+        {
+            //change opponents and reload
+
+            function refreshOpponents()
+            {
+                var params = {
+                    namespace: 'h\\Season',
+                    class: 'Arena',
+                    action: 'arena_reload'
+                };
+                console.log("Three red opponents, paying for refresh.");
+                hh_ajax(params, function(data){
+                    Hero.update("hard_currency", data.hard_currency, false);
+                    location.reload();
+                })
+            }
+            sessionStorage.autoLoop = "false";
+            setTimer('nextSeasonTime',5);
+            setTimeout(refreshOpponents,randomInterval(800,1200));
+
             return true;
         }
     }
@@ -2059,10 +2230,20 @@ var doBattle = function () {
     }
 };
 
+var getLeagueCurrentLevel = function ()
+{
+    if(unsafeWindow.league_tag === undefined)
+    {
+        setTimeout(autoLoop, Number(Storage().autoLoopTimeMili))
+    }
+    return unsafeWindow.league_tag;
+}
+
 var doLeagueBattle = function () {
     //console.log("Performing auto leagues.");
     // Confirm if on correct screen.
-    var currentPower = getSetHeroInfos('energy_challenge');
+    var currentPower = getSetHeroInfos('challenge.amount');
+    var leagueScoreSecurityThreshold = 40;
     var ltime;
 
     var page = getPage();
@@ -2080,42 +2261,30 @@ var doLeagueBattle = function () {
         }
         // console.log('ls! '+$('h4.leagues').size());
         $('h4.leagues').each(function(){this.click();});
-        var GetPlayerLineRank = $("tr[class=personal_highlight] td span")[0].innerText;
-        if (isNaN(GetPlayerLineRank) && Number(Storage().autoLeaguesMaxRank) != 0)
-        {
-            console.log("Could not get current Rank, stopping League.");
-            setTimer('nextLeaguesTime',Number(30*60)+1);
-            return;
-        }
-        var currentRank = Number($("tr[class=personal_highlight] td span")[0].innerText);
+
         if(currentPower < 1)
         {
             console.log("No power for leagues.");
-            for(var e in unsafeWindow.HHTimers.timers){
-                try{
-                    if(unsafeWindow.HHTimers.timers[e].type=="energy_challenge")
-                    {
-                        ltime=unsafeWindow.HHTimers.timers[e];
-                    }
-                    if(unsafeWindow.HHTimers.timers[e].type=="challenge")
-                    {
-                        ltime=unsafeWindow.HHTimers.timers[e];
-                    }
-                }
-                catch(e){}
-            }
-            ltime = Number(ltime.remainingTime)+15;
-            setTimer('nextLeaguesTime',ltime);
+            //prevent paranoia to wait for league
+            Storage().paranoiaLeagueBlocked="true";
+            setTimer('nextLeaguesTime',getSetHeroInfos('challenge.next_refresh_ts')+1);
+            //             for(var e in unsafeWindow.HHTimers.timers){
+            //                 try{
+            //                     if(unsafeWindow.HHTimers.timers[e].type=="energy_challenge")
+            //                     {
+            //                         ltime=unsafeWindow.HHTimers.timers[e];
+            //                     }
+            //                     if(unsafeWindow.HHTimers.timers[e].type=="challenge")
+            //                     {
+            //                         ltime=unsafeWindow.HHTimers.timers[e];
+            //                     }
+            //                 }
+            //                 catch(e){}
+            //             }
+            //             ltime = Number(ltime.remainingTime)+15;
+            //             setTimer('nextLeaguesTime',ltime);
             return;
         }
-
-        if (currentRank <= Number(Storage().autoLeaguesMaxRank))
-        {
-            console.log("Max League rank reached, setting timer to 30 mins");
-            setTimer('nextLeaguesTime',Number(30*60)+1);
-            return;
-        }
-
 
         while ($("span[sort_by='level'][select='asc']").size()==0)
         {
@@ -2129,10 +2298,76 @@ var doLeagueBattle = function () {
         {
             ltime=35*60;
             console.log('No valid targets!');
+            //prevent paranoia to wait for league
+            Storage().paranoiaLeagueBlocked="true";
             setTimer('nextLeaguesTime',ltime);
         }
         else
         {
+            var getPlayerCurrentLevel = getLeagueCurrentLevel();
+
+            if (isNaN(getPlayerCurrentLevel))
+            {
+                console.log("Could not get current Rank, stopping League.");
+                //prevent paranoia to wait for league
+                Storage().paranoiaLeagueBlocked="true";
+                setTimer('nextLeaguesTime',Number(30*60)+1);
+                return;
+            }
+            var currentRank = Number($("tr[class=personal_highlight] td span")[0].innerText);
+            var currentScore = Number($("tr[class=personal_highlight] td")[4].innerText.replace(/\D/g, ''));
+
+            if (Number(Storage().leaguesTarget) < Number(getPlayerCurrentLevel))
+            {
+                var maxDemote = 0;
+                var totalOpponents = Number($("div.leagues_table table tr td:contains(/3)").length);
+                var rankDemote = totalOpponents - 14;
+                if (currentRank > (totalOpponents - 15))
+                {
+                    rankDemote = totalOpponents - 15;
+                }
+                console.log("Current league above target, needs to demote. max rank : "+rankDemote);
+                maxDemote = Number($("div.leagues_table table tr td span:contains("+rankDemote+")").filter(function() {
+                    return Number($.trim($(this).text())) === rankDemote;
+                }).parent().parent()[0].lastElementChild.innerText.replace(/\D/g, ''));
+
+                console.log("Current league above target, needs to demote. Score should not be higher than : "+maxDemote);
+                if ( currentScore + leagueScoreSecurityThreshold >= maxDemote )
+                {
+                    console.log("Can't do league as could go above demote, setting timer to 30 mins");
+                    setTimer('nextLeaguesTime',Number(30*60)+1);
+                    //prevent paranoia to wait for league
+                    Storage().paranoiaLeagueBlocked="true";
+                    gotoPage("home");
+                    return;
+                }
+            }
+
+            if (Number(Storage().leaguesTarget) === Number(getPlayerCurrentLevel) && Number(Storage().leaguesTarget) < Leagues.length)
+            {
+                var maxStay = 0;
+                var rankStay = 16;
+                if (currentRank > 15)
+                {
+                    rankStay = 15;
+                }
+                console.log("Current league is target, needs to stay. max rank : "+rankStay);
+                maxStay = Number($("div.leagues_table table tr td span:contains("+rankStay+")").filter(function() {
+                    return Number($.trim($(this).text())) === rankStay;
+                }).parent().parent()[0].lastElementChild.innerText.replace(/\D/g, ''));
+
+
+                console.log("Current league is target, needs to stay. Score should not be higher than : "+maxStay);
+                if ( currentScore + leagueScoreSecurityThreshold >= maxStay )
+                {
+                    console.log("Can't do league as could go above stay, setting timer to 30 mins");
+                    setTimer('nextLeaguesTime',Number(30*60)+1);
+                    //prevent paranoia to wait for league
+                    Storage().paranoiaLeagueBlocked="true";
+                    gotoPage("home");
+                    return;
+                }
+            }
             console.log(Data.length+' valid targets!');
             sessionStorage.autoLoop = "false";
             console.log("Hit?" );
@@ -2188,7 +2423,7 @@ function LeagueUpdateGetOpponentPopup(numberDone,remainingTime)
 
 function getLeagueOpponentId(opponentsIDList)
 {
-    var opponentsPowerList = sessionStorage.LeagueOpponentList?JSON.parse(sessionStorage.LeagueOpponentList,reviver):[];
+    var opponentsPowerList = sessionStorage.LeagueOpponentList?JSON.parse(sessionStorage.LeagueOpponentList,reviverMap):[];
     var opponentsListExpirationDate = sessionStorage.opponentsListExpirationDate?sessionStorage.opponentsListExpirationDate:'empty';
     var opponentsIDs= opponentsIDList;
     var oppoNumber = opponentsIDList.length;
@@ -2283,7 +2518,7 @@ function getLeagueOpponentId(opponentsIDList)
             //console.log('nothing to click, checking data');
             sessionStorage.opponentsListExpirationDate=new Date().getTime() + 10*60 * 1000
             //console.log(DataOppo);
-            sessionStorage.LeagueOpponentList = JSON.stringify(DataOppo,replacer);
+            sessionStorage.LeagueOpponentList = JSON.stringify(DataOppo,replacerMap);
             LeagueClearDisplayGetOpponentPopup();
             doLeagueBattle();
         }
@@ -2307,28 +2542,31 @@ function getLeagueOpponentId(opponentsIDList)
         console.log("highest score opponent : "+IdOppo+'('+maxScore+')');
         return IdOppo;
     }
-    function replacer(key, value) {
-        const originalObject = this[key];
-        if(originalObject instanceof Map) {
-            return {
-                dataType: 'Map',
-                value: Array.from(originalObject.entries()), // or with spread: value: [...originalObject]
-            };
-        } else {
-            return value;
-        }
-    }
-    function reviver(key, value) {
-        if(typeof value === 'object' && value !== null) {
-            if (value.dataType === 'Map') {
-                return new Map(value.value);
-            }
-        }
-        return value;
-    }
+
 
     return true;
 };
+
+function replacerMap(key, value) {
+    const originalObject = this[key];
+    if(originalObject instanceof Map) {
+        return {
+            dataType: 'Map',
+            value: Array.from(originalObject.entries()), // or with spread: value: [...originalObject]
+        };
+    } else {
+        return value;
+    }
+}
+
+function reviverMap(key, value) {
+    if(typeof value === 'object' && value !== null) {
+        if (value.dataType === 'Map') {
+            return new Map(value.value);
+        }
+    }
+    return value;
+}
 
 var  CrushThem = function()
 {
@@ -2351,10 +2589,10 @@ var  CrushThem = function()
             var battleButton = $('#battle button[rel="launch"]:not(.autofight)');
             //console.log(battleButton.get());
             //console.log(battleButton);
-            var currentPower = getSetHeroInfos('energy_fight');
+            var currentPower = getSetHeroInfos('fight.amount');
             if(battleButton === undefined){
                 console.log("Battle Button was undefined. Disabling all auto-battle.");
-                document.getElementById("autoBattleCheckbox").checked = false;
+                document.getElementById("autoTrollCheckbox").checked = false;
                 //document.getElementById("autoArenaCheckbox").checked = false;
                 if (sessionStorage.questRequirement === "battle")
                 {
@@ -2367,12 +2605,12 @@ var  CrushThem = function()
 
             if (location.search.split("league_battle=")[1])
             {
-                currentPower=getSetHeroInfos('energy_challenge');
+                currentPower=getSetHeroInfos('challenge.amount');
             }
             if(battle_price === undefined){
                 console.log("Could not detect battle button price. Error.");
                 console.log("Disabling all auto-battle.");
-                document.getElementById("autoBattleCheckbox").checked = false;
+                document.getElementById("autoTrollCheckbox").checked = false;
                 //document.getElementById("autoArenaCheckbox").checked = false;
                 if (sessionStorage.questRequirement === "battle")
                 {
@@ -2398,7 +2636,7 @@ var  CrushThem = function()
                     sessionStorage.questRequirement = "none";
                 }
 
-                location.href = "/home.html";
+                gotoPage("home");
                 return true;
             }
             else
@@ -2480,6 +2718,9 @@ var getTimeLeft=function(name)
 
 var updateData = function () {
     //console.log("updating UI");
+    var leaguesOptions = document.getElementById("autoLeaguesSelector");
+    Storage().autoLeaguesSelectedIndex = leaguesOptions.selectedIndex;
+    Storage().leaguesTarget = Number(leaguesOptions.value)+1;
 
     var trollOptions = document.getElementById("autoTrollSelector");
     Storage().autoTrollSelectedIndex = trollOptions.selectedIndex;
@@ -2494,14 +2735,12 @@ var updateData = function () {
     var newValue = String(document.getElementById("autoPowerPlacesAll").checked);
     if (Storage().autoPowerPlacesAll != newValue)
     {
-        console.log(Storage().autoPowerPlacesAll,newValue);
         Storage().autoPowerPlacesAll = document.getElementById("autoPowerPlacesAll").checked;
         clearTimer('minPowerPlacesTime');
     }
     newValue = String(document.getElementById("autoPowerPlacesIndexFilter").value);
     if (Storage().autoPowerPlacesIndexFilter != newValue)
     {
-        console.log(Storage().autoPowerPlacesIndexFilter,newValue);
         Storage().autoPowerPlacesIndexFilter = document.getElementById("autoPowerPlacesIndexFilter").value;
         clearTimer('minPowerPlacesTime');
     }
@@ -2510,8 +2749,11 @@ var updateData = function () {
     Storage().autoSalaryTimer = document.getElementById("autoSalaryTextbox").value;
     Storage().autoMissionC = document.getElementById("autoMissionCollect").checked;
     Storage().autoQuest = document.getElementById("autoQuestCheckbox").checked;
-    Storage().autoTrollBattle = document.getElementById("autoBattleCheckbox").checked;
+    Storage().autoTrollBattle = document.getElementById("autoTrollCheckbox").checked;
     Storage().eventTrollOrder = document.getElementById("eventTrollOrder").value;
+
+    Storage().plusEventMythic = document.getElementById("plusEventMythic").checked;
+    Storage().eventMythicPrio =document.getElementById("eventMythicPrio").checked;
     Storage().buyCombTimer = document.getElementById("buyCombTimer").value;
     //Storage().autoArenaBattle = document.getElementById("autoArenaCheckbox").checked;
     Storage().autoSeason = document.getElementById("autoSeasonCheckbox").checked;
@@ -2519,9 +2761,10 @@ var updateData = function () {
     Storage().autoLeagues = document.getElementById("autoLeagues").checked;
     Storage().autoLeaguesCollect = document.getElementById("autoLeaguesCollect").checked;
     Storage().autoLeaguesPowerCalc = document.getElementById("autoLeaguesPowerCalc").checked;
-    Storage().autoLeaguesMaxRank = document.getElementById("autoLeaguesMaxRank").value;
+    //Storage().autoLeaguesMaxRank = document.getElementById("autoLeaguesMaxRank").value;
     Storage().autoStats = document.getElementById("autoStats").value;
     Storage().paranoia = document.getElementById("paranoia").checked;
+    Storage().paranoiaSpendsBefore = document.getElementById("paranoiaSpendsBefore").checked;
     Storage().autoFreePachinko = document.getElementById("autoFreePachinko").checked;
     Storage().autoExp = document.getElementById("autoExp").value;
     Storage().autoExpW = document.getElementById("autoExpW").checked;
@@ -2539,6 +2782,7 @@ var updateData = function () {
     Storage().autoBuyBoostersFilter = document.getElementById("autoBuyBoostersFilter").value;
     localStorage.showInfo = document.getElementById("showInfo").checked;
     localStorage.showCalculatePower = document.getElementById("showCalculatePower").checked;
+    Storage().calculatePowerLimits = document.getElementById("calculatePowerLimits").value;
     Storage().autoChamps = document.getElementById("autoChamps").checked;
     Storage().autoChampsUseEne = document.getElementById("autoChampsUseEne").checked;
     Storage().autoChampsFilter = document.getElementById("autoChampsFilter").value;
@@ -2549,11 +2793,19 @@ var updateData = function () {
     Storage().spendKobans2 = document.getElementById("spendKobans2").checked && Storage().spendKobans1=="true" && Storage().spendKobans0=="true";
     document.getElementById("spendKobans2").checked=Storage().spendKobans2=="true";
 
+    Storage().autoTrollThreshold = document.getElementById("autoTrollThreshold").value;
+    Storage().autoQuestThreshold = document.getElementById("autoQuestThreshold").value;
+    Storage().autoLeaguesThreshold = document.getElementById("autoLeaguesThreshold").value;
+    Storage().autoSeasonThreshold = document.getElementById("autoSeasonThreshold").value;
+
     Storage().buyCombat=document.getElementById("buyCombat").checked && Storage().spendKobans2=="true" && Storage().spendKobans1=="true" && Storage().spendKobans0=="true";
     document.getElementById("buyCombat").checked=Storage().buyCombat=="true";
     Storage().autoBuyBoosters=document.getElementById("autoBuyBoosters").checked && Storage().spendKobans2=="true" && Storage().spendKobans1=="true" && Storage().spendKobans0=="true";
     document.getElementById("autoBuyBoosters").checked=Storage().autoBuyBoosters=="true";
+    Storage().autoSeasonPassReds=document.getElementById("autoSeasonPassReds").checked && Storage().spendKobans2=="true" && Storage().spendKobans1=="true" && Storage().spendKobans0=="true";
+    document.getElementById("autoSeasonPassReds").checked=Storage().autoSeasonPassReds=="true";
     Storage().kobanBank=document.getElementById("kobanBank").value;
+
 
     localStorage.settPerTab = document.getElementById("settPerTab").checked;
 
@@ -2579,11 +2831,11 @@ var updateData = function () {
         */
         if (Storage().autoSeason=="true")
         {
-            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Season kisses left: '+getSetHeroInfos('energy_kiss');
+            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Season: '+getSetHeroInfos('kiss.amount')+'/'+getSetHeroInfos('kiss.max_amount')+' ('+getTimeLeft('nextSeasonTime')+')';
         }
         if (Storage().autoLeagues=="true")
         {
-            Tegzd+=(Tegzd.length>0?'\r\n':'')+'League fight: '+getTimeLeft('nextLeaguesTime');
+            Tegzd+=(Tegzd.length>0?'\r\n':'')+'League fight: '+getSetHeroInfos('challenge.amount')+'/'+getSetHeroInfos('challenge.max_amount')+' ('+getTimeLeft('nextLeaguesTime')+')';
         }
         if (Storage().autoChamps=="true")
         {
@@ -2802,6 +3054,161 @@ var toHHMMSS = function (secs)  {
         .join(":");
 }
 
+var checkParanoiaSpendings=function(spendingFunction)
+{
+    var pSpendings=new Map([]);
+    // not set
+    if ( ! Storage().paranoiaSpendings )
+    {
+        return -1;
+    }
+    else
+    {
+        pSpendings = JSON.parse(Storage().paranoiaSpendings,reviverMap);
+    }
+
+    if ( Storage().paranoiaQuestBlocked !== undefined && pSpendings.has('quest'))
+    {
+        pSpendings.delete('quest');
+    }
+
+    if ( Storage().paranoiaLeagueBlocked !== undefined && pSpendings.has('challenge'))
+    {
+        pSpendings.delete('challenge');
+    }
+
+    // for all count remaining
+    if (spendingFunction === undefined)
+    {
+        var spendingsRemaining=0;
+        for (var i of pSpendings.values())
+        {
+            spendingsRemaining+=i;
+        }
+        //console.log("Paranoia spending remaining : "+JSON.stringify(pSpendings,replacerMap));
+        return spendingsRemaining;
+    }
+    else
+    {
+        // return value if exist else -1
+        if (!pSpendings.has(spendingFunction))
+        {
+            return -1;
+        }
+        return pSpendings.get(spendingFunction);
+    }
+}
+
+var clearParanoiaSpendings=function()
+{
+    Storage().removeItem('paranoiaSpendings');
+    Storage().removeItem('toNextSwitch');
+    Storage().removeItem('paranoiaQuestBlocked');
+    Storage().removeItem('paranoiaLeagueBlocked');
+}
+
+//sets spending to do before paranoia
+var setParanoiaSpendings=function()
+{
+    var maxPointsDuringParanoia;
+    var totalPointsEndParanoia;
+    var paranoiaSpendings=new Map([]);
+    var paranoiaSpend;
+    var currentEnergy;
+    var maxEnergy;
+    var toNextSwitch;
+    if (Storage().toNextSwitch && Storage().paranoiaSpendsBefore === "true")
+    {
+        toNextSwitch = Number(Storage().toNextSwitch);
+
+        //if autoLeague is on
+        if(Storage().autoLeagues === "true" && getSetHeroInfos('level')>=20)
+        {
+            if ( Storage().paranoiaLeagueBlocked === undefined )
+            {
+                maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getSetHeroInfos('challenge.next_refresh_ts')))/Number(getSetHeroInfos('challenge.seconds_per_point')));
+                currentEnergy=Number(getSetHeroInfos('challenge.amount'));
+                maxEnergy=Number(getSetHeroInfos('challenge.max_amount'));
+                totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
+                //if point refreshed during paranoia would go above max
+                if ( totalPointsEndParanoia >= maxEnergy)
+                {
+                    paranoiaSpend=totalPointsEndParanoia - maxEnergy + 1;
+                    paranoiaSpendings.set("challenge",paranoiaSpend);
+                    console.log("Setting Paranoia spendings for league : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend);
+                }
+                else
+                {
+                    console.log("Setting Paranoia spendings for league : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending ");
+                }
+            }
+        }
+        //if autoquest is on
+        if(Storage().autoQuest === "true")
+        {
+            if ( Storage().paranoiaQuestBlocked === undefined )
+            {
+                maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getSetHeroInfos('quest.next_refresh_ts')))/Number(getSetHeroInfos('quest.seconds_per_point')));
+                currentEnergy=Number(getSetHeroInfos('quest.amount'));
+                maxEnergy=Number(getSetHeroInfos('quest.max_amount'));
+                totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
+                //if point refreshed during paranoia would go above max
+                if ( totalPointsEndParanoia >= maxEnergy)
+                {
+                    paranoiaSpend=totalPointsEndParanoia - maxEnergy + 1;
+                    paranoiaSpendings.set("quest",paranoiaSpend);
+                    console.log("Setting Paranoia spendings for quest : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend);
+                }
+                else
+                {
+                    console.log("Setting Paranoia spendings for quest : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending ");
+                }
+            }
+        }
+        //if autoTrollBattle is on
+        if(Storage().autoTrollBattle === "true" && getSetHeroInfos('questing.id_world')>0)
+        {
+            maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getSetHeroInfos('fight.next_refresh_ts')))/Number(getSetHeroInfos('fight.seconds_per_point')));
+            currentEnergy=Number(getSetHeroInfos('fight.amount'));
+            maxEnergy=Number(getSetHeroInfos('fight.max_amount'));
+            totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
+            //if point refreshed during paranoia would go above max
+            if ( totalPointsEndParanoia >= maxEnergy)
+            {
+                paranoiaSpend=totalPointsEndParanoia - maxEnergy + 1;
+                paranoiaSpendings.set("fight",paranoiaSpend);
+                console.log("Setting Paranoia spendings for troll : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend);
+            }
+            else
+            {
+                console.log("Setting Paranoia spendings for troll : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending ");
+            }
+        }
+        //if autoSeason is on
+        if(Storage().autoSeason === "true")
+        {
+            maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getSetHeroInfos('kiss.next_refresh_ts')))/Number(getSetHeroInfos('kiss.seconds_per_point')));
+            currentEnergy=Number(getSetHeroInfos('kiss.amount'));
+            maxEnergy=Number(getSetHeroInfos('kiss.max_amount'));
+            totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
+            //if point refreshed during paranoia would go above max
+            if ( totalPointsEndParanoia >= maxEnergy)
+            {
+                paranoiaSpend=totalPointsEndParanoia - maxEnergy + 1;
+                paranoiaSpendings.set("kiss",paranoiaSpend);
+                console.log("Setting Paranoia spendings for Season : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend);
+            }
+            else
+            {
+                console.log("Setting Paranoia spendings for Season : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending ");
+            }
+        }
+
+        console.log("Setting paranoia spending to : "+JSON.stringify(paranoiaSpendings,replacerMap));
+        Storage().paranoiaSpendings=JSON.stringify(paranoiaSpendings,replacerMap);
+    }
+}
+
 var flipParanoia=function()
 {
     var burst=getBurst();
@@ -2815,19 +3222,11 @@ var flipParanoia=function()
     var n = new Date().getHours();
     S1[2].some(x => {if (n<x[0]) {period=x[1]; return true;}});
 
-    if (burst && getSetHeroInfos('energy_fight')!=0 && Storage().autoTrollBattle=='true') //double(or more) burst if we want to fight
-    {
-        burst=false;
-    }
-
     if (burst)
     {
-        //going into hiding
-        sessionStorage.burst="false";
-
         var periods=Object.assign(...S1[1].map(d => ({[d[0]]: d[1].split('-')})));
 
-        toNextSwitch=randomInterval(Number(periods[period][0]),Number(periods[period][1]));
+        toNextSwitch=Number(Storage().toNextSwitch?Storage().toNextSwitch:randomInterval(Number(periods[period][0]),Number(periods[period][1])));
         /*
         if (toNextSwitch<=1800 && Storage().autoArenaBattle == "true")
         {
@@ -2835,6 +3234,25 @@ var flipParanoia=function()
             toNextSwitch=toNextSwitch<sl?toNextSwitch:sl;
         }
         */
+        if ( checkParanoiaSpendings() === -1 && Storage().paranoiaSpendsBefore === "true" )
+        {
+            Storage().toNextSwitch=toNextSwitch;
+            setParanoiaSpendings();
+            return;
+        }
+        if ( checkParanoiaSpendings() === 0 || Storage().paranoiaSpendsBefore === "false")
+        {
+            clearParanoiaSpendings();
+            //going into hiding
+            sessionStorage.burst="false";
+        }
+        else
+        {
+            //refresh remaining
+            setParanoiaSpendings(toNextSwitch);
+            //let spending go before going in paranoia
+            return;
+        }
     }
     else
     {
@@ -3310,6 +3728,7 @@ function moduleSimSeasonBattle() {
         var currentFlag;
         var currentScore;
         var currentMojo;
+        var numberOfReds=0;
 
         for (index=0;index<3;index++)
         {
@@ -3326,6 +3745,7 @@ function moduleSimSeasonBattle() {
                     break;
                 case 'r':
                     currentFlag = -1;
+                    numberOfReds++;
                     break;
             }
             //console.log(nameOppo[index],currentFlag,currentScore,currentMojo);
@@ -3339,8 +3759,18 @@ function moduleSimSeasonBattle() {
                 chosenMojo = currentMojo;
                 oppoName = nameOppo[index];
             }
-            //same red or orange flag but better score
-            else if (chosenFlag == currentFlag && currentFlag != 1 && chosenRating < currentScore)
+            //same orange flag but better score
+            else if (chosenFlag == currentFlag && currentFlag == 0 && chosenRating < currentScore)
+            {
+                //console.log('second');
+                chosenRating = currentScore;
+                chosenFlag = currentFlag;
+                chosenID = index;
+                chosenMojo = currentMojo;
+                oppoName = nameOppo[index];
+            }
+            //same red flag but better mojo
+            else if (chosenFlag == currentFlag && currentFlag == -1 && chosenMojo < currentMojo)
             {
                 //console.log('second');
                 chosenRating = currentScore;
@@ -3369,6 +3799,16 @@ function moduleSimSeasonBattle() {
                 chosenMojo = currentMojo;
                 oppoName = nameOppo[index];
             }
+        }
+
+        var price=Number($("div.opponents_arena button#refresh_villains").attr('price'));
+        if (isNaN(price))
+        {
+            price = 12;
+        }
+        if (numberOfReds === 3 && Storage().autoSeasonPassReds === "true" && getSetHeroInfos('hard_currency')>=price+Number(Storage().kobanBank))
+        {
+            chosenID = -2;
         }
 
         //console.log("Best opportunity opponent : "+oppoName+'('+chosenRating+')');
@@ -3440,14 +3880,24 @@ var autoLoop = function () {
         sessionStorage.battlePowerRequired="0";
     }
 
+
+
     var busy = false;
     var page = window.location.href;
-    var currentPower = getSetHeroInfos('energy_fight');
+    var currentPower = getSetHeroInfos('fight.amount');
 
     var burst=getBurst();
 
     if (burst /*|| checkTimer('nextMissionTime')*/)
     {
+        if (!checkTimer("paranoiaSwitch") )
+        {
+            clearParanoiaSpendings();
+        }
+        else
+        {
+            setParanoiaSpendings();
+        }
         if(Storage().autoFreePachinko === "true" && busy === false){
             // Navigate to pachinko
 
@@ -3464,10 +3914,18 @@ var autoLoop = function () {
         }
         if(Storage().autoLeagues === "true" && getSetHeroInfos('level')>=20 && busy === false ){
             // Navigate to leagues
-            if (checkTimer('nextLeaguesTime')) {
+            if ((checkTimer('nextLeaguesTime') && Number(getSetHeroInfos('challenge.amount')) > Number(Storage().autoLeaguesThreshold) ) || Number(checkParanoiaSpendings('challenge')) > 0)
+            {
                 console.log("Time to fight in Leagues.");
                 doLeagueBattle();
                 busy = true;
+            }
+            else
+            {
+                if (checkTimer('nextLeaguesTime'))
+                {
+                    setTimer('nextLeaguesTime',getSetHeroInfos('challenge.next_refresh_ts'));
+                }
             }
         }
         if(Storage().autoContest === "true" && busy === false){
@@ -3513,8 +3971,12 @@ var autoLoop = function () {
                 busy = doMissionStuff();
             }
         }
-        if (Storage().autoQuest === "true" && busy === false ) {
-            if (sessionStorage.questRequirement === "battle") {
+
+        if (Storage().autoQuest === "true" && busy === false )
+        {
+            Storage().autoTrollBattleSaveQuest = (Storage().autoTrollBattleSaveQuest ? Storage().autoTrollBattleSaveQuest : "false") ;
+            if (sessionStorage.questRequirement === "battle")
+            {
                 if (Storage().autoTrollBattleSaveQuest === "false")
                 {
                     console.log("Quest requires battle.");
@@ -3524,7 +3986,8 @@ var autoLoop = function () {
                 }
                 busy = false;
             }
-            else if (sessionStorage.questRequirement[0] === '$') {
+            else if (sessionStorage.questRequirement[0] === '$')
+            {
                 if (Number(sessionStorage.questRequirement.substr(1)) < getSetHeroInfos('soft_currency')) {
                     // We have enough money... requirement fulfilled.
                     console.log("Continuing quest, required money obtained.");
@@ -3532,14 +3995,18 @@ var autoLoop = function () {
                     proceedQuest();
                     busy = false;
                 }
-                else {
+                else
+                {
+                    //prevent paranoia to wait for quest
+                    Storage().paranoiaQuestBlocked="true";
                     if(isNaN(sessionStorage.questRequirement.substr(1)))
                     {
                         console.log(sessionStorage.questRequirement);
                         sessionStorage.questRequirement = "none";
                         console.log("Invalid money in session storage quest requirement !");
                     }
-                    else{
+                    else
+                    {
                         // Else we need more money.
                         //console.log("Need money for quest, cannot continue. Turning ON AutoSalary.");
                         Storage().autoQuest = "true";
@@ -3547,18 +4014,30 @@ var autoLoop = function () {
                     busy = false;
                 }
             }
-            else if (sessionStorage.questRequirement[0] === '*') {
+            else if (sessionStorage.questRequirement[0] === '*')
+            {
                 var energyNeeded = Number(sessionStorage.questRequirement.substr(1));
-                var energyCurrent = getSetHeroInfos('energy_quest');
-                if (energyNeeded <= energyCurrent) {
-                    // We have enough energy... requirement fulfilled.
-                    console.log("Continuing quest, required energy obtained.");
-                    sessionStorage.questRequirement = "none";
-                    proceedQuest();
-                    busy = true;
+                var energyCurrent = getSetHeroInfos('quest.amount');
+                if (energyNeeded <= energyCurrent)
+                {
+                    if (Number(getSetHeroInfos('quest.amount')) > Number(Storage().autoQuestThreshold) || Number(checkParanoiaSpendings('quest')) > 0 )
+                    {
+                        // We have enough energy... requirement fulfilled.
+                        console.log("Continuing quest, required energy obtained.");
+                        sessionStorage.questRequirement = "none";
+                        proceedQuest();
+                        busy = true;
+                    }
+                    else
+                    {
+                        busy = false;
+                    }
                 }
                 // Else we need energy, just wait.
-                else {
+                else
+                {
+                    //prevent paranoia to wait for quest
+                    Storage().paranoiaQuestBlocked="true";
                     busy = false;
                     //console.log("Replenishing energy for quest.(" + energyNeeded + " needed)");
                 }
@@ -3571,6 +4050,8 @@ var autoLoop = function () {
                 {
                     console.log("Quest requires "+neededPower+" Battle Power for advancement. Waiting...");
                     busy = false;
+                    //prevent paranoia to wait for quest
+                    Storage().paranoiaQuestBlocked="true";
                 }
                 else
                 {
@@ -3580,14 +4061,20 @@ var autoLoop = function () {
                     busy = true;
                 }
             }
-            else if (sessionStorage.questRequirement === "unknownQuestButton") {
+            else if (sessionStorage.questRequirement === "unknownQuestButton")
+            {
+                //prevent paranoia to wait for quest
+                Storage().paranoiaQuestBlocked="true";
                 console.log("AutoQuest disabled.AutoQuest cannot be performed due to unknown quest button. Please manually proceed the current quest screen.");
                 document.getElementById("autoQuestCheckbox").checked = false;
                 Storage().autoQuest = "false";
                 sessionStorage.questRequirement = "none";
                 busy = false;
             }
-            else if (sessionStorage.questRequirement === "errorInAutoBattle") {
+            else if (sessionStorage.questRequirement === "errorInAutoBattle")
+            {
+                //prevent paranoia to wait for quest
+                Storage().paranoiaQuestBlocked="true";
                 console.log("AutoQuest disabled.AutoQuest cannot be performed due errors in AutoBattle. Please manually proceed the current quest screen.");
                 document.getElementById("autoQuestCheckbox").checked = false;
                 Storage().autoQuest = "false";
@@ -3596,17 +4083,25 @@ var autoLoop = function () {
             }
             else if(sessionStorage.questRequirement === "none")
             {
-                //console.log("NONE req.");
-                busy = true;
-                proceedQuest();
+                if (Number(getSetHeroInfos('quest.amount')) > Number(Storage().autoQuestThreshold) || Number(checkParanoiaSpendings('quest')) > 0 )
+                {
+                    //console.log("NONE req.");
+                    busy = true;
+                    proceedQuest();
+                }
             }
             else
             {
+                //prevent paranoia to wait for quest
+                Storage().paranoiaQuestBlocked="true";
                 console.log("Invalid quest requirement : "+sessionStorage.questRequirement);
                 busy=false;
             }
         }
-        else if(Storage().autoQuest === "false"){sessionStorage.questRequirement = "none";}
+        else if(Storage().autoQuest === "false")
+        {
+            sessionStorage.questRequirement = "none";
+        }
         /*
         if(Storage().autoArenaBattle === "true" && busy === false)
         {
@@ -3623,11 +4118,21 @@ var autoLoop = function () {
             }
         }
         */
-        if(Storage().autoSeason === "true" && busy === false && getSetHeroInfos('energy_kiss'))
+        if(Storage().autoSeason === "true" && busy === false )
         {
-            console.log("Time to fight in Season.");
-            doSeason();
-            busy = true;
+            if (Number(getSetHeroInfos('kiss.amount')) > 0 && ( (Number(getSetHeroInfos('kiss.amount')) > Number(Storage().autoSeasonThreshold) && checkTimer('nextSeasonTime')) || Number(checkParanoiaSpendings('kiss')) > 0 ) )
+            {
+                console.log("Time to fight in Season.");
+                doSeason();
+                busy = true;
+            }
+            else
+            {
+                if (checkTimer('nextSeasonTime'))
+                {
+                    setTimer('nextSeasonTime',getSetHeroInfos('kiss.next_refresh_ts'));
+                }
+            }
 
         }
 
@@ -3637,48 +4142,59 @@ var autoLoop = function () {
         {
             if(busy === false && currentPower >= Number(sessionStorage.battlePowerRequired) && currentPower > 0)
             {
-                sessionStorage.battlePowerRequired = "0";
-                busy = true;
-                if(Storage().autoQuest === "true")
+                //console.log(getSetHeroInfos('fight.amount'),Number(Storage().autoTrollThreshold),Number(checkParanoiaSpendings('fight')));
+                if (Number(getSetHeroInfos('fight.amount')) > Number(Storage().autoTrollThreshold) || Number(checkParanoiaSpendings('fight')) > 0 )
                 {
-                    if(sessionStorage.questRequirement[0] === 'P')
+                    sessionStorage.battlePowerRequired = "0";
+                    busy = true;
+                    if(Storage().autoQuest === "true")
                     {
-                        console.log("AutoBattle disabled for power collection for AutoQuest.");
-                        document.getElementById("autoBattleCheckbox").checked = false;
-                        Storage().autoTrollBattle = "false";
-                        busy = false;
+                        if(sessionStorage.questRequirement[0] === 'P')
+                        {
+                            console.log("AutoBattle disabled for power collection for AutoQuest.");
+                            document.getElementById("autoTrollCheckbox").checked = false;
+                            Storage().autoTrollBattle = "false";
+                            busy = false;
+                        }
+                        else
+                        {
+                            doBossBattle();
+                        }
                     }
                     else
                     {
                         doBossBattle();
                     }
                 }
-                else
-                {
-                    doBossBattle();
-                }
             }
         }
-        else{sessionStorage.battlePowerRequired = "0";}
+        else
+        {
+            sessionStorage.battlePowerRequired = "0";
+        }
 
-        var ECt= getSetHeroInfos('energy_quest');
+        var ECt= getSetHeroInfos('quest.amount');
         if (ECt>=60 && (Storage().autoChampsUseEne==="true"))
         {
-            console.log('Buying ticket with energy');
-            var amount = 1;
-            var currency = 'energy_quest';
-            var params = {
-                namespace: 'h\\Champions',
-                class: 'Champions',
-                action: 'buy_ticket',
-                currency: currency,
-                amount: amount
-            };
-
-            hh_ajax(params, function(data) {
-                anim_number($('.tickets_number_amount'), data.tokens - amount, amount);
-                Hero.updates(data.heroChangesUpdate);
-            });
+            function buyTicket()
+            {
+                var params = {
+                    namespace: 'h\\Champions',
+                    class: 'Champions',
+                    action: 'buy_ticket',
+                    currency: 'energy_quest',
+                    amount: 1
+                };
+                console.log('Buying ticket with energy');
+                hh_ajax(params, function(data) {
+                    anim_number($('.tickets_number_amount'), data.tokens - amount, amount);
+                    Hero.updates(data.heroChangesUpdate);
+                    location.reload();
+                });
+            }
+            sessionStorage.autoLoop = "false";
+            busy = true;;
+            setTimeout(buyTicket,randomInterval(800,1200));
         }
 
         if (busy==false && Storage().autoChamps==="true" && checkTimer('nextChampionTime'))
@@ -3718,7 +4234,7 @@ var autoLoop = function () {
         }
     }
 
-    if(Storage().paranoia === "true" && Storage().master==="true"){
+    if(Storage().paranoia === "true" && Storage().master==="true" && busy === false){
         if (checkTimer("paranoiaSwitch")) {
             flipParanoia();
         }
@@ -3759,13 +4275,16 @@ var setDefaults = function () {
     Storage().autoLeagues = "false";
     Storage().autoLeaguesCollect = "false";
     Storage().autoLeaguesPowerCalc = "false";
-    Storage().autoLeaguesMaxRank = "0";
+    //Storage().autoLeaguesMaxRank = "0";
     Storage().autoStats = "500000000";
     sessionStorage.autoLoop = "true";
     sessionStorage.userLink = "none";
     Storage().autoLoopTimeMili = "500";
     Storage().autoQuest = "false";
     Storage().autoTrollBattle = "false";
+    Storage().plusEvent = "false";
+    Storage().plusEventMythic = "false";
+    Storage().eventMythicPrio = "false";
     Storage().eventTrollOrder="";
     Storage().buyCombTimer="16";
     //Storage().autoArenaBattle = "false";
@@ -3793,26 +4312,58 @@ var setDefaults = function () {
     Storage().autoBuyBoostersFilter = "B1;B2;B3;B4";
     Storage().autoBuyBoosters = "false";
     Storage().paranoia="false";
+    Storage().paranoiaSpendsBefore="false";
+
+    Storage().calculatePowerLimits = "default";
+    Storage().autoTrollThreshold="0";
+    Storage().autoQuestThreshold="0";
+    Storage().autoLeaguesThreshold="0";
+    Storage().autoSeasonThreshold="0";
 
     Storage().spendKobans0="false";
+    Storage().autoSeasonPassReds ="false";
     Storage().paranoiaSettings="120-300/Sleep:28800-29400|Active:300-420|Casual:1800-2100/6:Sleep|18:Active|22:Casual|24:Sleep";
     Storage().master="false";
 };
 
 var CollectEventData=function()
 {
-    if (unsafeWindow.event_data)
+    if (unsafeWindow.event_data || unsafeWindow.mythic_event_data)
     {
-        var timeLeft=event_data.seconds_until_event_end;
-        setTimer('eventGoing',timeLeft);
         var Trollz=[];
-        for (var i=0;i<event_data.girls.length;i++)
+        var TrollzMythic=[];
+
+        if (unsafeWindow.event_data && Storage().plusEvent==="true")
         {
-            if (!event_data.girls[i].owned_girl && event_data.girls[i].troll)
+            var timeLeft=event_data.seconds_until_event_end;
+            setTimer('eventGoing',timeLeft);
+
+            for (var i=0;i<event_data.girls.length;i++)
             {
-                if (Number(event_data.girls[i].troll.id_troll)<getSetHeroInfos('questing.id_world'))
+                if (!event_data.girls[i].owned_girl && event_data.girls[i].troll)
                 {
-                    Trollz.push(Number(event_data.girls[i].troll.id_troll));
+                    if (Number(event_data.girls[i].troll.id_troll)<getSetHeroInfos('questing.id_world'))
+                    {
+                        Trollz.push(Number(event_data.girls[i].troll.id_troll));
+                    }
+                }
+            }
+        }
+
+        if (unsafeWindow.mythic_event_data && Storage().plusEventMythic==="true")
+        {
+            var timeLeftMythic=mythic_event_data.seconds_until_event_end;
+            setTimer('eventMythicGoing',timeLeftMythic);
+
+            for (i=0;i<mythic_event_data.girls.length;i++)
+            {
+                if (Number(mythic_event_data.girls[i].shards) !== 100 && Number(mythic_event_data.event_data.shards_available) !== 0 && mythic_event_data.girls[i].troll)
+                {
+                    if (Number(mythic_event_data.girls[i].troll.id_troll)<getSetHeroInfos('questing.id_world'))
+                    {
+                        Trollz.push(Number(mythic_event_data.girls[i].troll.id_troll));
+                        TrollzMythic.push(Number(mythic_event_data.girls[i].troll.id_troll));
+                    }
                 }
             }
         }
@@ -3850,14 +4401,22 @@ var CollectEventData=function()
         {
             delete sessionStorage.eventTroll;
         }
+
+        //priorize mythic event over all
+        if (Storage().eventMythicPrio === "true" && TrollzMythic.length>0)
+        {
+            sessionStorage.eventTroll=Number(TrollzMythic[0]);
+        }
+
         //console.log('WTF?');
-        if (Storage().buyCombat=="true" && Storage().plusEvent=="true")
+        if (Storage().buyCombat=="true" && (Storage().plusEvent==="true" || Storage().plusEventMythic==="true"))
         {
             //console.log('WTF!');
             var diff=Math.ceil(Timers["eventGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
+            var diffMythic=Math.ceil(Timers["eventMythicGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
             //console.log(diff);
             var hero=getHero();
-            if (diff<Storage().buyCombTimer*3600 && sessionStorage.eventTroll && getSetHeroInfos('energy_fight')==0)//Less than 20 hours remains and we still haven't get all troll girls
+            if ((diff<Storage().buyCombTimer*3600 || diffMythic<Storage().buyCombTimer*3600) && sessionStorage.eventTroll && getSetHeroInfos('fight.amount')==0)//Less than 20 hours remains and we still haven't get all troll girls
             {
                 var price=hero.get_recharge_cost("fight");
                 //console.log('PRC: '+price);
@@ -3881,7 +4440,7 @@ var RechargeCombat=function(price) {
             action: "recharge",
             type: "fight"
         }, function(data) {
-            Hero.update("energy_fight", getSetHeroInfos('energy_fight_max'));
+            Hero.update("fight.amount", getSetHeroInfos('fight.max_amount'));
             Hero.update("hard_currency", 0 - price, true);
         });
 
@@ -3905,6 +4464,7 @@ var getBurst=function()
 }
 
 var Trollz=["Latest","Dark Lord","Ninja Spy","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson\'s Crew","Pandora witch","Nike"];
+var Leagues=["Wanker I","Wanker II","Wanker III","Sexpert I","Sexpert II","Sexpert III","Dicktator I","Dicktator II","Dicktator III"];
 var Timers={};
 
 var start = function () {
@@ -3929,41 +4489,76 @@ var start = function () {
                      + '<div style="display:flex;flex-direction:row;">'
                      +  '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +   '<span><div><label class=\"myButton\" id=\"git\">GitHub</span></label></div>'
-                     +   '<span>Master switch</span><div><label class=\"switch\" title=\"Turn off to pause script\"><input id=\"master\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
-                     +   '<span>Settings per tab</span><div><label class=\"switch\"><input id=\"settPerTab\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
-                     +   '<span>Paranoia mode</span><div><label class=\"switch\"><input id=\"paranoia\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +   '<span>Master switch</span><div><label class="switch" title="Turn off to pause script"><input id="master" type="checkbox"><span class="slider round"></span></label></div>'
+                     +   '<span>Settings per tab</span><div><label class="switch"><input id="settPerTab" type="checkbox"><span class="slider round"></span></label></div>'
+                     // Region Paranoia
+                     +   '<div style="display:flex;flex-direction:column; border: 1px dotted;">'
+                     +    '<div style="display:flex;flex-direction:row;">'
+                     +     '<div style="display:flex;flex-direction:column;">'
+                     +      '<span>Paranoia mode</span><div><label class="switch"><input id="paranoia" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '</div>'
+                     +     '<div style="padding-left:10px;display:flex;flex-direction:column;">'
+                     +      '<span>Spends points before</span><div><label class="switch"><input id="paranoiaSpendsBefore" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '</div>'
+                     +    '</div>'
+                     +   '</div>'
+                     //end region paranoia
                      // Region Shit
                      +   '<div style="display:flex;flex-direction:column; border: 1px dotted;">'
-                     +   '<span>Questionable Shit</span><div><label title=\"Koban security switch 1\" class=\"switch\"><input id=\"spendKobans0\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
-                     +   '<span>Are you sure?</span><div><label title=\"Koban security switch 2\" class=\"switch\"><input id=\"spendKobans1\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
-                     +   '<span>You\'ve been warned</span><div><label title=\"Koban security switch 3\" class=\"switch\"><input id=\"spendKobans2\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
-                     +   '<span>Koban Bank</span><div><input id="kobanBank" type="text"></div>'
                      +   '<div style="display:flex;flex-direction:row;">'
                      +    '<div style="display:flex;flex-direction:column;">'
-                     +     '<span>Buy comb. in events</span><div><label class=\"switch\"><input id=\"buyCombat\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +     '<span>Questionable Shit</span><div><label title="Koban security switch 1" class="switch"><input id="spendKobans0" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding-left:20px;display:flex;flex-direction:column;">'
+                     +     '<span>Are you sure?</span><div><label title="Koban security switch 2" class="switch"><input id="spendKobans1" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +   '</div>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>You\'ve been warned</span><div><label title="Koban security switch 3" class="switch"><input id="spendKobans2" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>Koban Bank</span><div><input id="kobanBank" style="width:70%" type="text"></div>'
+                     +    '</div>'
+                     +   '</div>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>Buy comb. in events</span><div><label class="switch"><input id="buyCombat" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="display:flex;flex-direction:column;">'
                      +     '<span>Hours to buy Comb</span><div><input id="buyCombTimer" style="width:50%" type="text"></div>'
                      +    '</div>'
                      +   '</div>'
-                     +   '<div style="display:flex;flex-direction:column;">'
-                     +    '<div style="display:flex;flex-direction:row;">'
-                     +    '<span>Buy Leg. Boosters</span>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>Buy Leg. Boosters</span><div><label title="Activate to buy Legendary boosters, all 3 koban security switches must be on."class="switch"><input id="autoBuyBoosters" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
-                     +    '<div style="display:flex;flex-direction:row;">'
-                     +     '<label title=\"Activate to buy Legendary boosters, all 3 koban security switches must be on.\" class=\"switch\"><input id=\"autoBuyBoosters\" type=\"checkbox\"><span class=\"slider round\"></span></label><input title=\"B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps\" id="autoBuyBoostersFilter" type="text">'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>Filter</span><div><input title="B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps"style="width:70px" id="autoBuyBoostersFilter" type="text"></div>'
+                     +    '</div>'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>Pass 3 reds</span><div><label title="activate to spends kobans to pass three reds opponent in season." class="switch"><input id="autoSeasonPassReds" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +   '</div>'
-                     + '</div>'
+                     +  '</div>'
                      // End Region Shit
-                     +   '<span>Show CalculatePower</span><div><label class=\"switch\"><input id=\"showCalculatePower\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
-                     +   '<span>Show info</span><div><label title=\"Activate to display timers\"class=\"switch\"><input id=\"showInfo\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     // calculate Power Region
+                     +  '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
+                     +   '<div style="display:flex;flex-direction:column;">'
+                     +    '<span>Show PowerCalc</span><div><label class="switch"><input id="showCalculatePower" type="checkbox"><span class="slider round"></span></label></div>'
+                     +   '</div>'
+                     +   '<div style="padding-left:10px;display:flex;flex-direction:column;">'
+                     +    '<span>Own limits (red;yellow)</span><div><input id="calculatePowerLimits" style="width:80%" type="text"></div>'
+                     +   '</div>'
+                     +  '</div>'
+                     // End Calculate power region
+                     +   '<span>Show info</span><div><label title="Activate to display timers"class="switch"><input id="showInfo" type="checkbox"><span class="slider round"></span></label></div>'
                      +  '</div>'
                      +  '<div style="padding:10px; display:flex;flex-direction:column;">'
                      // Region AutoSalary
                      +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>AutoSal.</span><div><label class=\"switch\"><input id=\"autoSalaryCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +     '<span>AutoSal.</span><div><label class="switch"><input id="autoSalaryCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>min wait</span><div><input id="autoSalaryTextbox" style="width:80%" type="text"></div>'
@@ -3973,81 +4568,109 @@ var start = function () {
                      //Region AutoMission
                      +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>AutoMission</span><div><label class=\"switch\"><input id=\"autoMissionCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +     '<span>AutoMission</span><div><label class="switch"><input id="autoMissionCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>Collect</span><div><label class=\"switch\"><input id=\"autoMissionCollect\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +     '<span>Collect</span><div><label class="switch"><input id="autoMissionCollect" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +   '</div>'
                      //End Region AutoMission
                      // Region AutoTroll
                      +   '<div style="display:flex;flex-direction:column; border: 1px dotted;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>AutoTrollBattle</span><div><label class=\"switch\"><input id=\"autoBattleCheckbox\" type=\"checkbox\">'
-                     +     '<span class=\"slider round\"></span></label><select id=\"autoTrollSelector\"></select></div>'
+                     +     '<span>AutoTrollBattle</span><div><label class="switch"><input id="autoTrollCheckbox" type="checkbox">'
+                     +     '<span class="slider round"></span></label><select id="autoTrollSelector"></select></div>'
+                     +     '<span>Threshold</span><div><input style="width:50px" id="autoTrollThreshold" type="text"></div>'
                      +    '</div>'
-                     +    '<div style="padding:10px; display:flex;flex-direction:row;">'
+                     +    '<div style="display:flex;flex-direction:row;">'
                      +     '<div style="display:flex;flex-direction:column;">'
                      +      '<span>Event Troll Order</span><div><input id="eventTrollOrder" style="width:150px" type="text"></div>'
                      +     '</div>'
                      +     '<div style="display:flex;flex-direction:column;">'
-                     +      '<span>+Event</span><div><label class=\"switch\"><input id=\"plusEvent\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +      '<span>+Event</span><div><label class="switch"><input id="plusEvent" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '</div>'
+                     +    '</div>'
+                     +    '<div style="display:flex;flex-direction:row;">'
+                     +     '<div style="display:flex;flex-direction:column;">'
+                     +      '<span>+Mythic Event</span><div><label class="switch"><input id="plusEventMythic" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '</div>'
+                     +     '<div style="padding-left:10px;display:flex;flex-direction:column;">'
+                     +      '<span>Priorize over Event Troll Order</span><div><label class="switch"><input id="eventMythicPrio" type="checkbox"><span class="slider round"></span></label></div>'
                      +     '</div>'
                      +    '</div>'
                      +   '</div>'
                      // End Region AutoTroll
-                     //+   '<span>AutoArenaBattle</span><div><label class=\"switch\"><input id=\"autoArenaCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     //+   '<span>AutoArenaBattle</span><div><label class="switch"><input id="autoArenaCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
                      // Region AutoSeason
                      +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>AutoSeason</span><div><label class=\"switch\"><input id=\"autoSeasonCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +     '<span>AutoSeason</span><div><label class="switch"><input id="autoSeasonCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>Collect</span><div><label class=\"switch\"><input id=\"autoSeasonCollect\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +     '<span>Collect</span><div><label class="switch"><input id="autoSeasonCollect" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>Threshold</span><div><input style="width:50px" id="autoSeasonThreshold" type="text"></div>'
                      +    '</div>'
                      +   '</div>'
                      // End Region AutoSeason
-                     +   '<span>AutoQuest</span><div><label class=\"switch\"><input id=\"autoQuestCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
-                     +   '<span>AutoContest</span><div><label class=\"switch\"><input id=\"autoContestCheckbox\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
-                     +   '<span>AutoPachinko(Free)</span><div><label class=\"switch\"><input id=\"autoFreePachinko\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     // Region quest
+                     +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>AutoQuest</span><div><label class="switch"><input id="autoQuestCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>Threshold</span><div><input style="width:50px" id="autoQuestThreshold" type="text"></div>'
+                     +    '</div>'
+                     +   '</div>'
+                     //end regin quest
+                     +   '<span>AutoContest</span><div><label class="switch"><input id="autoContestCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
+                     +   '<span>AutoPachinko(Free)</span><div><label class="switch"><input id="autoFreePachinko" type="checkbox"><span class="slider round"></span></label></div>'
                      +  '</div>'
                      +  '<div style="padding:10px; display:flex;flex-direction:column;">'
                      // Region AutoLeagues
-                     +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
-                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>AutoLeagues</span><div><label class=\"switch\"><input id=\"autoLeagues\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +   '<div style="display:flex;flex-direction:column; border: 1px dotted;">'
+                     +    '<div style="padding:0px; display:flex;flex-direction:row;">'
+                     +     '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +      '<span>AutoLeagues</span><div><label class="switch"><input id="autoLeagues" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '</div>'
+                     +     '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +      '<span>UsePowerCalc</span><div><label class="switch"><input id="autoLeaguesPowerCalc" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '</div>'
+                     +     '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +      '<span>Collect</span><div><label class="switch"><input id="autoLeaguesCollect" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '</div>'
                      +    '</div>'
-                     +   '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>UsePowerCalc</span><div><label class=\"switch\"><input id=\"autoLeaguesPowerCalc\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
-                     +    '</div>'
-                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>Collect</span><div><label class=\"switch\"><input id=\"autoLeaguesCollect\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
-                     +    '</div>'
-                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>Max rank (0 for none)</span><div><input id="autoLeaguesMaxRank" type="text"></div>'
+                     +    '<div style="padding:0px; display:flex;flex-direction:row;">'
+                     +     '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +      '<span>Target League</span><div><select id="autoLeaguesSelector"></select></div>'
+                     +     '</div>'
+                     +     '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +      '<span>Threshold</span><div><input style="width:50px" id="autoLeaguesThreshold" type="text"></div>'
+                     +     '</div>'
                      +    '</div>'
                      +   '</div>'
-                     // End Region AUtoLeagues
+                     // End Region AutoLeagues
                      // Region PowerPlace
                      +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>AutoPowerPlaces</span><div><label class=\"switch\"><input id=\"autoPowerPlaces\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +     '<span>AutoPowerPlaces</span><div><label class="switch"><input id="autoPowerPlaces" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>Index Filter</span><div><input id="autoPowerPlacesIndexFilter" type="text"></div>'
                      +    '</div>'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>Do All</span><div><label class=\"switch\"><input id=\"autoPowerPlacesAll\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +     '<span>Do All</span><div><label class="switch"><input id="autoPowerPlacesAll" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +   '</div>'
                      // End Region PowerPlace
                      // Region AutoChampions
                      +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>AutoChampions</span><div><label class=\"switch\"><input id=\"autoChamps\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +     '<span>AutoChampions</span><div><label class="switch"><input id="autoChamps" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>UseEne</span><div><label class=\"switch\"><input id=\"autoChampsUseEne\" type=\"checkbox\"><span class=\"slider round\"></span></label></div>'
+                     +     '<span>UseEne</span><div><label class="switch"><input id="autoChampsUseEne" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +     '<span>Filter</span><div><input id="autoChampsFilter" type="text"></div>'
@@ -4055,11 +4678,11 @@ var start = function () {
                      +    '</div>'
                      +   '</div>'
                      +   '<span>AutoStats</span><div><input id="autoStats" type="text"></div>'
-                     +   '<span>Buy Exp</span><div><label class=\"switch\"><input id=\"autoExpW\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="autoExp" type="text"><input id="maxExp" type="text"></div>'
-                     +   '<span>Buy Aff</span><div><label class=\"switch\"><input id=\"autoAffW\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="autoAff" type="text"><input id="maxAff" type="text"></div>'
-                     +   '<span>Buy Leg Gear Mono</span><div><label class=\"switch\"><input id=\"autoLGMW\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="autoLGM" type="text"></div>'
-                     +   '<span>Buy Leg Gear Rainbow</span><div><label class=\"switch\"><input id=\"autoLGRW\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="autoLGR" type="text"></div>'
-                     //+   '<span>Buy Epi Gear Mono</span><div><label class=\"switch\"><input id=\"autoEGMW\" type=\"checkbox\"><span class=\"slider round\"></span></label><input id="autoEGM" type="text"></div>'
+                     +   '<span>Buy Exp</span><div><label class="switch"><input id="autoExpW" type="checkbox"><span class="slider round"></span></label><input id="autoExp" type="text"><input id="maxExp" type="text"></div>'
+                     +   '<span>Buy Aff</span><div><label class="switch"><input id="autoAffW" type="checkbox"><span class="slider round"></span></label><input id="autoAff" type="text"><input id="maxAff" type="text"></div>'
+                     +   '<span>Buy Leg Gear Mono</span><div><label class="switch"><input id="autoLGMW" type="checkbox"><span class="slider round"></span></label><input id="autoLGM" type="text"></div>'
+                     +   '<span>Buy Leg Gear Rainbow</span><div><label class="switch"><input id="autoLGRW" type="checkbox"><span class="slider round"></span></label><input id="autoLGR" type="text"></div>'
+                     //+   '<span>Buy Epi Gear Mono</span><div><label class="switch"><input id="autoEGMW" type="checkbox"><span class="slider round"></span></label><input id="autoEGM" type="text"></div>'
                      +  '</div>'
                      + '</div>'
                      +'</div>'+UIcontainer.html());
@@ -4079,23 +4702,36 @@ var start = function () {
         trollOptions.add(option);
     };
 
+    // Add league options
+    var leaguesOptions = document.getElementById("autoLeaguesSelector");
+
+    for (var j in Leagues)
+    {
+        var optionL = document.createElement("option");
+        optionL.value=j;
+        optionL.text = Leagues[j];
+        leaguesOptions.add(optionL);
+    };
+
     document.getElementById("settPerTab").checked = localStorage.settPerTab === "true";
     trollOptions.selectedIndex = Storage().autoTrollSelectedIndex;
+    leaguesOptions.selectedIndex = Storage().autoLeaguesSelectedIndex;
     document.getElementById("autoSalaryCheckbox").checked = Storage().autoSalary === "true";
     document.getElementById("autoSalaryTextbox").value = Storage().autoSalaryTimer?Storage().autoSalaryTimer:"120";
     document.getElementById("autoContestCheckbox").checked = Storage().autoContest === "true";
     document.getElementById("autoMissionCheckbox").checked = Storage().autoMission === "true";
     document.getElementById("autoMissionCollect").checked = Storage().autoMissionC === "true";
     document.getElementById("autoQuestCheckbox").checked = Storage().autoQuest === "true";
-    document.getElementById("autoBattleCheckbox").checked = Storage().autoTrollBattle === "true";
+    document.getElementById("autoTrollCheckbox").checked = Storage().autoTrollBattle === "true";
     document.getElementById("eventTrollOrder").value = Storage().eventTrollOrder?Storage().eventTrollOrder:"1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20";
     document.getElementById("buyCombTimer").value = Storage().buyCombTimer?Storage().buyCombTimer:"16";
     //document.getElementById("autoArenaCheckbox").checked = Storage().autoArenaBattle === "true";
     document.getElementById("autoSeasonCheckbox").checked = Storage().autoSeason === "true";
     document.getElementById("autoSeasonCollect").checked = Storage().autoSeasonCollect === "true";
+    document.getElementById("autoSeasonPassReds").checked = Storage().autoSeasonPassReds === "true";
     document.getElementById("autoFreePachinko").checked = Storage().autoFreePachinko === "true";
     document.getElementById("autoLeagues").checked = Storage().autoLeagues === "true";
-    document.getElementById("autoLeaguesMaxRank").value = Storage().autoLeaguesMaxRank?Storage().autoLeaguesMaxRank:"0";
+    //document.getElementById("autoLeaguesMaxRank").value = Storage().autoLeaguesMaxRank?Storage().autoLeaguesMaxRank:"0";
     document.getElementById("autoLeaguesPowerCalc").checked = Storage().autoLeaguesPowerCalc === "true";
     document.getElementById("autoLeaguesCollect").checked = Storage().autoLeaguesCollect === "true";
     document.getElementById("autoPowerPlaces").checked = Storage().autoPowerPlaces === "true";
@@ -4103,6 +4739,7 @@ var start = function () {
     document.getElementById("autoPowerPlacesIndexFilter").value = Storage().autoPowerPlacesIndexFilter?Storage().autoPowerPlacesIndexFilter:"1;2;3";
     document.getElementById("autoStats").value = Storage().autoStats?Storage().autoStats:"500000000";
     document.getElementById("paranoia").checked = Storage().paranoia==="true";
+    document.getElementById("paranoiaSpendsBefore").checked = Storage().paranoiaSpendsBefore==="true";
     document.getElementById("autoExp").value = Storage().autoExp?Storage().autoExp:"500000000";
     document.getElementById("autoExpW").checked = Storage().autoExpW === "true";
     document.getElementById("autoAff").value = Storage().autoAff?Storage().autoAff:"500000000";
@@ -4119,7 +4756,10 @@ var start = function () {
     //document.getElementById("autoEGMW").checked = Storage().autoEGMW === "true";
     document.getElementById("showInfo").checked = localStorage.showInfo?localStorage.showInfo==="true":"false";
     document.getElementById("showCalculatePower").checked = localStorage.showCalculatePower?localStorage.showCalculatePower==="true":"false";
+    document.getElementById("calculatePowerLimits").value = Storage().calculatePowerLimits?Storage().calculatePowerLimits:"default";
     document.getElementById("plusEvent").checked = Storage().trollToFight=="-1" || Storage().plusEvent === "true";
+    document.getElementById("plusEventMythic").checked = Storage().plusEventMythic === "true";
+    document.getElementById("eventMythicPrio").checked = Storage().eventMythicPrio === "true";
 
     document.getElementById("autoChamps").checked = Storage().autoChamps === "true";
     document.getElementById("autoChampsUseEne").checked = Storage().autoChampsUseEne === "true";
@@ -4131,8 +4771,13 @@ var start = function () {
     document.getElementById("buyCombat").checked = Storage().buyCombat === "true";
     document.getElementById("kobanBank").value = Storage().kobanBank?Storage().kobanBank:"1000000";
 
+    document.getElementById("autoTrollThreshold").value = Storage().autoTrollThreshold?Storage().autoTrollThreshold:"0";
+    document.getElementById("autoQuestThreshold").value = Storage().autoQuestThreshold?Storage().autoQuestThreshold:"0";
+    document.getElementById("autoLeaguesThreshold").value = Storage().autoLeaguesThreshold?Storage().autoLeaguesThreshold:"0";
+    document.getElementById("autoSeasonThreshold").value = Storage().autoSeasonThreshold?Storage().autoSeasonThreshold:"0";
+
     document.getElementById("master").checked = Storage().master==="true";
-    document.getElementById("git").addEventListener("click", function(){ window.open("https://github.com/Roukys/HHauto"); });
+    document.getElementById("git").addEventListener("click", function(){ window.open("https://github.com/Roukys/HHauto/wiki"); });
 
     sessionStorage.autoLoop = "true";
     if (typeof Storage().freshStart == "undefined" || isNaN(Number(Storage().autoLoopTimeMili))) {
