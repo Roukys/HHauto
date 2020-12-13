@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.3-beta.16
+// @version      5.3-beta.17
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -2325,13 +2325,12 @@ var doLeagueBattle = function () {
                 {
                     totalOpponents = totalOpponents+1;
                 }
-                console.log(totalOpponents);
                 var rankDemote = totalOpponents - 14;
                 if (currentRank > (totalOpponents - 15))
                 {
                     rankDemote = totalOpponents - 15;
                 }
-                console.log("Current league above target, needs to demote. max rank : "+rankDemote);
+                console.log("Current league above target, needs to demote. max rank : "+rankDemote+"/"+totalOpponents);
                 maxDemote = Number($("div.leagues_table table tr td span:contains("+rankDemote+")").filter(function() {
                     return Number($.trim($(this).text())) === rankDemote;
                 }).parent().parent()[0].lastElementChild.innerText.replace(/\D/g, ''));
