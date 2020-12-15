@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.3-beta.17
+// @version      5.3-beta.18
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -898,7 +898,7 @@ function doMissionStuff()
             var ck = sessionStorage['giftleft'];
             var isAfterGift = document.querySelector("#missions .after_gift").style.display === 'block';
             if(!isAfterGift){
-                if(ck === undefined || ck === 'giftleft')
+                if(ck === 'giftleft')
                 {
                     console.log("Collecting gift.");
                     delete sessionStorage['giftleft'];
