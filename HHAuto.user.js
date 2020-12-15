@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.3-beta.18
+// @version      5.3-beta.19
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -2790,8 +2790,60 @@ var updateData = function () {
     //Storage().autoEGMW = document.getElementById("autoEGMW").checked;
     Storage().autoBuyBoosters = document.getElementById("autoBuyBoosters").checked;
     Storage().autoBuyBoostersFilter = document.getElementById("autoBuyBoostersFilter").value;
-    localStorage.showInfo = document.getElementById("showInfo").checked;
-    localStorage.showCalculatePower = document.getElementById("showCalculatePower").checked;
+
+    if (localStorage.settPerTab === "true")
+    {
+        if ( localStorage.showInfo !== undefined)
+        {
+            console.log("force set showInfo : "+localStorage.showInfo);
+            Storage().showInfo = localStorage.showInfo;
+            document.getElementById("showInfo").checked = Storage().showInfo=="true";
+            setTimeout(function() {
+                localStorage.removeItem('showInfo');
+                console.log("removed showInfo");
+            }, 1000);
+        }
+        else
+        {
+            newValue = String(document.getElementById("showInfo").checked);
+            if (Storage().showInfo !== newValue)
+            {
+                console.log("setting showInfo :"+newValue);
+                Storage().showInfo = document.getElementById("showInfo").checked;
+                localStorage.showInfo = Storage().showInfo;
+            }
+        }
+
+
+        if ( localStorage.showCalculatePower !== undefined )
+        {
+            console.log("force set showCalculatePower : "+localStorage.showCalculatePower);
+            Storage().showCalculatePower = localStorage.showCalculatePower;
+            document.getElementById("showCalculatePower").checked = Storage().showCalculatePower=="true";
+            setTimeout(function() {
+                localStorage.removeItem('showCalculatePower');
+                console.log("removed showCalculatePower");
+            }, 1000);
+        }
+        else
+        {
+            newValue = String(document.getElementById("showCalculatePower").checked);
+            if (Storage().showCalculatePower !== newValue)
+            {
+                console.log("setting showCalculatePower :"+newValue);
+                Storage().showCalculatePower = document.getElementById("showCalculatePower").checked;
+                localStorage.showCalculatePower = Storage().showCalculatePower;
+            }
+        }
+
+    }
+    else
+    {
+        Storage().showCalculatePower = document.getElementById("showCalculatePower").checked;
+        Storage().showInfo = document.getElementById("showInfo").checked;
+
+    }
+
     Storage().calculatePowerLimits = document.getElementById("calculatePowerLimits").value;
     Storage().autoChamps = document.getElementById("autoChamps").checked;
     Storage().autoChampsUseEne = document.getElementById("autoChampsUseEne").checked;
@@ -2821,7 +2873,7 @@ var updateData = function () {
 
     Storage().master=document.getElementById("master").checked;
 
-    if (localStorage.showInfo=="true")
+    if (Storage().showInfo=="true")
     {
         var Tegzd='';
         Tegzd+='Master: '+(Storage().master==="true"?"ON":"OFF");
@@ -4261,13 +4313,13 @@ var autoLoop = function () {
 
     var currentPage = window.location.pathname;
 
-    if (currentPage.indexOf('tower-of-fame') != -1 && localStorage.showCalculatePower === "true") {
+    if (currentPage.indexOf('tower-of-fame') != -1 && Storage().showCalculatePower === "true") {
         moduleSimLeague();
     }
-    if (currentPage.indexOf('battle') != -1 && localStorage.showCalculatePower === "true" && $(".preBattleAnim").length == 0) {
+    if (currentPage.indexOf('battle') != -1 && Storage().showCalculatePower === "true" && $(".preBattleAnim").length == 0) {
         moduleSimBattle();
     }
-    if (currentPage.indexOf('season-arena') != -1 && localStorage.showCalculatePower === "true") {
+    if (currentPage.indexOf('season-arena') != -1 && Storage().showCalculatePower === "true") {
         moduleSimSeasonBattle();
     }
 };
@@ -4764,8 +4816,8 @@ var start = function () {
     document.getElementById("autoBuyBoostersFilter").value = Storage().autoBuyBoostersFilter?Storage().autoBuyBoostersFilter:"B1;B2;B3;B4";
     //document.getElementById("autoEGM").value = Storage().autoEGM?Storage().autoEGM:"500000000";
     //document.getElementById("autoEGMW").checked = Storage().autoEGMW === "true";
-    document.getElementById("showInfo").checked = localStorage.showInfo?localStorage.showInfo==="true":"false";
-    document.getElementById("showCalculatePower").checked = localStorage.showCalculatePower?localStorage.showCalculatePower==="true":"false";
+    document.getElementById("showInfo").checked = Storage().showInfo?Storage().showInfo==="true":"false";
+    document.getElementById("showCalculatePower").checked = Storage().showCalculatePower?Storage().showCalculatePower==="true":"false";
     document.getElementById("calculatePowerLimits").value = Storage().calculatePowerLimits?Storage().calculatePowerLimits:"default";
     document.getElementById("plusEvent").checked = Storage().trollToFight=="-1" || Storage().plusEvent === "true";
     document.getElementById("plusEventMythic").checked = Storage().plusEventMythic === "true";
