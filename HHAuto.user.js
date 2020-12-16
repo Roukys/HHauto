@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.3-beta.19
+// @version      5.3-beta.20
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -16,6 +16,7 @@
 //CSS Region
 GM_addStyle('/* The switch - the box around the slider */ .switch { position: relative; display: inline-block; width: 40px; height: 24px; } /* Hide default HTML checkbox */ .switch input {display:none;} /* The slider */ .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; -webkit-transition: .4s; transition: .4s; } .slider.round:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; -webkit-transition: .4s; transition: .4s; } input:checked + .slider { background-color: #2196F3; } input:focus + .slider { box-shadow: 0 0 1px #2196F3; } input:checked + .slider:before { -webkit-transform: translateX(16px); -ms-transform: translateX(16px); transform: translateX(16px); } /* Rounded sliders */ .slider.round { border-radius: 24px; } .slider.round:before { border-radius: 50%; }');
 GM_addStyle('.myButton {box-shadow: 0px 0px 0px 2px #9fb4f2; background:linear-gradient(to bottom, #7892c2 5%, #476e9e 100%); background-color:#7892c2; border-radius:10px; border:1px solid #4e6096; display:inline-block; cursor:pointer; color:#ffffff; font-family:Arial; font-size:8px; padding:3px 10px; text-decoration:none; text-shadow:0px 1px 0px #283966;}.myButton:hover { background:linear-gradient(to bottom, #476e9e 5%, #7892c2 100%); background-color:#476e9e; } .myButton:active { position:relative; top:1px;}');
+GM_addStyle('.HHEventPriority {position: absolute;background-color: black;}');
 //END CSS Region
 
 // var d="@require      https://cdn.jsdelivr.net/js-cookie/2.2.0/js.cookie.js"
@@ -3506,39 +3507,39 @@ function moduleSimLeague() {
         return style.sheet;
     })();
 
-    sheet.insertRule('#leagues_right .player_block .lead_player_profile .level_wrapper {'
-                     + 'top: -8px !important;}'
-                    );
+    GM_addStyle('#leagues_right .player_block .lead_player_profile .level_wrapper {'
+                + 'top: -8px !important;}'
+               );
 
-    sheet.insertRule('#leagues_right .player_block .lead_player_profile .icon {'
-                     + 'top: 5px !important;}'
-                    );
+    GM_addStyle('#leagues_right .player_block .lead_player_profile .icon {'
+                + 'top: 5px !important;}'
+               );
 
-    sheet.insertRule('.matchRatingNew {'
-                     + 'margin-top: 50px; '
-                     + 'margin-left: -120px; '
-                     + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
-                     + 'line-height: 17px; '
-                     + 'font-size: 14px;}'
-                    );
+    GM_addStyle('.matchRatingNew {'
+                + 'margin-top: 50px; '
+                + 'margin-left: -120px; '
+                + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
+                + 'line-height: 17px; '
+                + 'font-size: 14px;}'
+               );
 
-    sheet.insertRule('.plus {'
-                     + 'color: #66CD00;}'
-                    );
+    GM_addStyle('.plus {'
+                + 'color: #66CD00;}'
+               );
 
-    sheet.insertRule('.minus {'
-                     + 'color: #FF2F2F;}'
-                    );
+    GM_addStyle('.minus {'
+                + 'color: #FF2F2F;}'
+               );
 
-    sheet.insertRule('.close {'
-                     + 'color: #FFA500;}'
-                    );
+    GM_addStyle('.close {'
+                + 'color: #FFA500;}'
+               );
 
-    sheet.insertRule('#powerLevelScouter {'
-                     + 'margin-left: -8px; '
-                     + 'margin-right: 1px; '
-                     + 'width: 25px;}'
-                    );
+    GM_addStyle('#powerLevelScouter {'
+                + 'margin-left: -8px; '
+                + 'margin-right: 1px; '
+                + 'width: 25px;}'
+               );
 }
 
 
@@ -3659,31 +3660,31 @@ function moduleSimBattle() {
 
     //CSS
 
-    sheet.insertRule('.matchRatingNew {'
-                     + 'text-align: left; '
-                     + 'margin-top: -25px; '
-                     + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
-                     + 'line-height: 17px; '
-                     + 'font-size: 14px;}'
-                    );
+    GM_addStyle('.matchRatingNew {'
+                + 'text-align: left; '
+                + 'margin-top: -25px; '
+                + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
+                + 'line-height: 17px; '
+                + 'font-size: 14px;}'
+               );
 
-    sheet.insertRule('.plus {'
-                     + 'color: #66CD00;}'
-                    );
+    GM_addStyle('.plus {'
+                + 'color: #66CD00;}'
+               );
 
-    sheet.insertRule('.minus {'
-                     + 'color: #FF2F2F;}'
-                    );
+    GM_addStyle('.minus {'
+                + 'color: #FF2F2F;}'
+               );
 
-    sheet.insertRule('.close {'
-                     + 'color: #FFA500;}'
-                    );
+    GM_addStyle('.close {'
+                + 'color: #FFA500;}'
+               );
 
-    sheet.insertRule('#powerLevelScouter {'
-                     + 'margin-left: -8px; '
-                     + 'margin-right: 1px; '
-                     + 'width: 25px;}'
-                    );
+    GM_addStyle('#powerLevelScouter {'
+                + 'margin-left: -8px; '
+                + 'margin-right: 1px; '
+                + 'width: 25px;}'
+               );
 }
 
 function moduleSimSeasonBattle() {
@@ -3889,34 +3890,34 @@ function moduleSimSeasonBattle() {
 
             //CSS
 
-            sheet.insertRule('.matchRatingNew {'
-                             + 'text-align: center; '
-                             + 'margin-top: -14px; '
-                             + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
-                             + 'line-height: 17px; '
-                             + 'font-size: 14px;}'
-                            );
+            GM_addStyle('.matchRatingNew {'
+                        + 'text-align: center; '
+                        + 'margin-top: -14px; '
+                        + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
+                        + 'line-height: 17px; '
+                        + 'font-size: 14px;}'
+                       );
 
-            sheet.insertRule('.plus {'
-                             + 'color: #66CD00;}'
-                            );
+            GM_addStyle('.plus {'
+                        + 'color: #66CD00;}'
+                       );
 
-            sheet.insertRule('.minus {'
-                             + 'color: #FF2F2F;}'
-                            );
+            GM_addStyle('.minus {'
+                        + 'color: #FF2F2F;}'
+                       );
 
-            sheet.insertRule('.close {'
-                             + 'color: #FFA500;}'
-                            );
+            GM_addStyle('.close {'
+                        + 'color: #FFA500;}'
+                       );
 
-            sheet.insertRule('#powerLevelScouter {'
-                             + 'margin-left: -8px; '
-                             + 'margin-right: 1px; '
-                             + 'width: 25px;}'
-                            );
-            sheet.insertRule('#powerLevelScouterChosen {'
-                             + 'width: 25px;}'
-                            );
+            GM_addStyle('#powerLevelScouter {'
+                        + 'margin-left: -8px; '
+                        + 'margin-right: 1px; '
+                        + 'width: 25px;}'
+                       );
+            GM_addStyle('#powerLevelScouterChosen {'
+                        + 'width: 25px;}'
+                       );
         }
         return chosenID;
     }
@@ -4313,14 +4314,17 @@ var autoLoop = function () {
 
     var currentPage = window.location.pathname;
 
-    if (currentPage.indexOf('tower-of-fame') != -1 && Storage().showCalculatePower === "true") {
+    if (getPage() === "leaderboard" && Storage().showCalculatePower === "true") {
         moduleSimLeague();
     }
-    if (currentPage.indexOf('battle') != -1 && Storage().showCalculatePower === "true" && $(".preBattleAnim").length == 0) {
+    if (getPage() === "battle" && Storage().showCalculatePower === "true" && $(".preBattleAnim").length == 0) {
         moduleSimBattle();
     }
-    if (currentPage.indexOf('season-arena') != -1 && Storage().showCalculatePower === "true") {
+    if (getPage() === "season" && Storage().showCalculatePower === "true") {
         moduleSimSeasonBattle();
+    }
+    if (getPage() === "home" && $("div.event-widget div.widget[style='display: block;']").length !== 0) {
+        moduleDisplayEventPriority();
     }
 };
 
@@ -4388,12 +4392,41 @@ var setDefaults = function () {
     Storage().master="false";
 };
 
+var moduleDisplayEventPriority=function()
+{
+    var eventGirlz=sessionStorage.eventsGirlz?JSON.parse(sessionStorage.eventsGirlz):[];
+    $("div.event-widget div.widget[style='display: block;'] div.container div.scroll-area div.rewards-block-tape div.girl_reward div.HHEventPriority").each(function(){this.remove();});
+    if ( eventGirlz.length >0 )
+    {
+        var widgetGirlz=[];
+        var prio;
+        for ( var e in eventGirlz)
+        {
+            prio = Number(eventGirlz[e].split(";")[2]);
+            widgetGirlz[prio] = e;
+        }
+        $("div.event-widget div.widget[style='display: block;'] div.container div.scroll-area div.rewards-block-tape div.girl_reward").each(function()
+                                                                                                                                            {
+            var currentGirl = Number($(this).attr('girl'));
+            if ( currentGirl in widgetGirlz )
+            {
+                var prio = Number(widgetGirlz[currentGirl])+1
+                $(this).prepend('<div class="HHEventPriority">'+prio+'</div>');
+            }
+        });
+    }
+
+}
+
+
 var CollectEventData=function()
 {
     if (unsafeWindow.event_data || unsafeWindow.mythic_event_data)
     {
-        var Trollz=[];
-        var TrollzMythic=[];
+        //var Trollz=[];
+        //var TrollzMythic=[];
+        var eventsGirlz=[];
+        var Priority=(Storage().eventTrollOrder?Storage().eventTrollOrder:"").split(";");
 
         if (unsafeWindow.event_data && Storage().plusEvent==="true")
         {
@@ -4406,7 +4439,9 @@ var CollectEventData=function()
                 {
                     if (Number(event_data.girls[i].troll.id_troll)<getSetHeroInfos('questing.id_world'))
                     {
-                        Trollz.push(Number(event_data.girls[i].troll.id_troll));
+                        console.log("Event girl : "+event_data.girls[i].name+" ("+event_data.girls[i].shards+"/100) at troll "+event_data.girls[i].troll.id_troll+" priority : "+Priority.indexOf(event_data.girls[i].troll.id_troll));
+                        eventsGirlz.push("event;"+i+";"+event_data.girls[i].id_girl+";"+event_data.girls[i].troll.id_troll);
+                        //Trollz.push(Number(event_data.girls[i].troll.id_troll));
                     }
                 }
             }
@@ -4423,17 +4458,65 @@ var CollectEventData=function()
                 {
                     if (Number(mythic_event_data.girls[i].troll.id_troll)<getSetHeroInfos('questing.id_world'))
                     {
-                        Trollz.push(Number(mythic_event_data.girls[i].troll.id_troll));
-                        TrollzMythic.push(Number(mythic_event_data.girls[i].troll.id_troll));
+                        console.log("Mythic Event girl : "+mythic_event_data.girls[i].name+" "+mythic_event_data.girls[i].shards+"/100");
+                        //Trollz.push(Number(mythic_event_data.girls[i].troll.id_troll));
+                        eventsGirlz.push("mythic_event;"+i+";"+mythic_event_data.girls[i].id_girl+";"+mythic_event_data.girls[i].troll.id_troll);
+                        //TrollzMythic.push(Number(mythic_event_data.girls[i].troll.id_troll));
                     }
                 }
             }
         }
 
-        var Priority=(Storage().eventTrollOrder?Storage().eventTrollOrder:"").split(";");
         console.log(Priority);
-        console.log(Trollz);
-        if (Trollz.length>0)
+        //console.log(Trollz);
+        //console.log("EventGirls",eventsGirlz);
+        eventsGirlz = eventsGirlz.filter(function (a) {
+            var a_split = a.split(";");
+            var a_weighted = Number(Priority.indexOf(a_split[3]));
+            if ( a_split[0] === "mythic_event" && Storage().eventMythicPrio === "true")
+            {
+                return true;
+            }
+            else
+            {
+                return a_weighted !== -1;
+            }
+        });
+        //console.log("Filtered EventGirls",eventsGirlz);
+        if (eventsGirlz.length>0)
+        {
+
+            if (Priority[0]!='')
+            {
+                eventsGirlz.sort(function (a, b) {
+                    var a_split = a.split(";");
+                    var b_split = b.split(";");
+                    var a_weighted = Number(Priority.indexOf(a_split[3]));
+                    if ( a_split[0] === "mythic_event" && Storage().eventMythicPrio === "true")
+                    {
+                        a_weighted=a_weighted/10;
+                    }
+                    var b_weighted = Number(Priority.indexOf(b_split[3]));
+                    if ( b_split[0] === "mythic_event" && Storage().eventMythicPrio === "true")
+                    {
+                        b_weighted=b_weighted/10;
+                    }
+                    return a_weighted-b_weighted;
+
+                });
+                //console.log("Sorted EventGirls",eventsGirlz);
+            }
+            sessionStorage.eventsGirlz = JSON.stringify(eventsGirlz);
+            var chosenTroll = Number(eventsGirlz[0].split(";")[3])
+            console.log("ET: "+chosenTroll);
+            sessionStorage.eventTroll=chosenTroll;
+        }
+        else
+        {
+            sessionStorage.removeItem('eventsGirlz');
+            sessionStorage.removeItem('eventTroll');
+        }
+        /*         if (Trollz.length>0)
         {
             if (Priority[0]!='')
             {
@@ -4469,6 +4552,7 @@ var CollectEventData=function()
         {
             sessionStorage.eventTroll=Number(TrollzMythic[0]);
         }
+*/
 
         //console.log('WTF?');
         if (Storage().buyCombat=="true" && (Storage().plusEvent==="true" || Storage().plusEventMythic==="true"))
