@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.3-beta.22
+// @version      5.3-beta.23
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -1730,7 +1730,7 @@ var doChampionStuff=function()
     {
         console.log('on champion map');
         var Filter=Storage().autoChampsFilter.split(';').map(s=>Number(s));
-        var minTime = getSecondsLeft();
+        var minTime = -1;
         var currTime;
         var e;
 
@@ -1738,7 +1738,7 @@ var doChampionStuff=function()
         {
             let Impression=$('span.stage-bar-tier')[i].getAttribute("hh_title");
             let Started=Impression.split('/')[0]!="0";
-            let OnTimer=$($('a.champion-lair div.champion-lair-name')[i+1]).find('div[rel=timer]').length>0;
+            let OnTimer=$($('a.champion-lair div.champion-lair-name')[i+1]).find('div[rel=timer]').length>0 || (Number($($('a.champion-lair div.champion-lair-name')[i+1]).find('div#championTimer').attr('timer')) > Math.ceil(new Date().getTime()/1000));
             let Filtered=Filter.includes(i+1);
             console.log("Champion "+(i+1)+" ["+Impression+"]"+(Started?" Started;":" Not started;")+(OnTimer?" on timer;":" not on timer;")+(Filtered?" Included in filter":" Excluded from filter"));
 
@@ -1752,19 +1752,31 @@ var doChampionStuff=function()
 
         console.log("No good candidate");
         currTime = -1;
+        $('a.champion-lair div.champion-lair-name div#championTimer').each(function()
+                                                                           {
+            var timer = $(this).attr('timer');
+            var currTime=Number(timer)-Math.ceil(new Date().getTime()/1000);
+
+            if (minTime === -1 || currTime === -1 || minTime>currTime)
+            {
+                minTime = currTime;
+            }
+        });
+
         for(e in unsafeWindow.HHTimers.timers){
             try
             {
                 if(unsafeWindow.HHTimers.timers[e].$elm[0].offsetParent.className === "champion-lair")
                 {
                     currTime=unsafeWindow.HHTimers.timers[e].remainingTime;
+                    if (minTime === -1 || currTime === -1 || minTime>currTime)
+                    {
+                        minTime = currTime;
+                    }
                 }
             }
             catch(e){}
-            if (minTime === -1 || currTime === -1 || minTime>currTime)
-            {
-                minTime = currTime;
-            }
+
         }
         //fetching min
 
