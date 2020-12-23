@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.3-beta.23
+// @version      5.3-beta.24
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -1738,7 +1738,15 @@ var doChampionStuff=function()
         {
             let Impression=$('span.stage-bar-tier')[i].getAttribute("hh_title");
             let Started=Impression.split('/')[0]!="0";
-            let OnTimer=$($('a.champion-lair div.champion-lair-name')[i+1]).find('div[rel=timer]').length>0 || (Number($($('a.champion-lair div.champion-lair-name')[i+1]).find('div#championTimer').attr('timer')) > Math.ceil(new Date().getTime()/1000));
+            let OnTimerOld=$($('a.champion-lair div.champion-lair-name')[i+1]).find('div[rel=timer]').length>0
+            let timerNew=Number($($('a.champion-lair div.champion-lair-name')[i+1]).find('div#championTimer').attr('timer'));
+            let OnTimerNew=false;
+            if ( ! isNaN(timerNew) && (timerNew > Math.ceil(new Date().getTime()/1000)))
+            {
+                OnTimerNew = true;
+            }
+
+            let OnTimer= OnTimerOld || OnTimerNew;
             let Filtered=Filter.includes(i+1);
             console.log("Champion "+(i+1)+" ["+Impression+"]"+(Started?" Started;":" Not started;")+(OnTimer?" on timer;":" not on timer;")+(Filtered?" Included in filter":" Excluded from filter"));
 
@@ -1781,7 +1789,7 @@ var doChampionStuff=function()
         //fetching min
 
 
-        if (minTime === -1)
+        if (minTime === -1 || minTime > 30*60)
         {
             setTimer('nextChampionTime',15*60);
         }
