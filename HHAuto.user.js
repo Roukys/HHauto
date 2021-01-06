@@ -4362,6 +4362,7 @@ var setDefaults = function () {
     Storage().autoLeaguesCollect = "false";
     Storage().autoLeaguesPowerCalc = "false";
     //Storage().autoLeaguesMaxRank = "0";
+    Storage().leaguesTarget = "9";
     Storage().autoStats = "500000000";
     sessionStorage.autoLoop = "true";
     sessionStorage.userLink = "none";
@@ -4397,7 +4398,7 @@ var setDefaults = function () {
     //Storage().autoEGMW = "false";
     Storage().autoBuyBoostersFilter = "B1;B2;B3;B4";
     Storage().autoBuyBoosters = "false";
-    Storage().paranoia="false";
+    Storage().paranoia="true";
     Storage().paranoiaSpendsBefore="false";
 
     Storage().calculatePowerLimits = "default";
