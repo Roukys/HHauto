@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.3.1
+// @version      5.4-beta.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -17,6 +17,7 @@
 GM_addStyle('/* The switch - the box around the slider */ .switch { position: relative; display: inline-block; width: 40px; height: 24px; } /* Hide default HTML checkbox */ .switch input {display:none;} /* The slider */ .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; -webkit-transition: .4s; transition: .4s; } .slider.round:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; -webkit-transition: .4s; transition: .4s; } input:checked + .slider { background-color: #2196F3; } input:focus + .slider { box-shadow: 0 0 1px #2196F3; } input:checked + .slider:before { -webkit-transform: translateX(16px); -ms-transform: translateX(16px); transform: translateX(16px); } /* Rounded sliders */ .slider.round { border-radius: 24px; } .slider.round:before { border-radius: 50%; }');
 GM_addStyle('.myButton {box-shadow: 0px 0px 0px 2px #9fb4f2; background:linear-gradient(to bottom, #7892c2 5%, #476e9e 100%); background-color:#7892c2; border-radius:10px; border:1px solid #4e6096; display:inline-block; cursor:pointer; color:#ffffff; font-family:Arial; font-size:8px; padding:3px 10px; text-decoration:none; text-shadow:0px 1px 0px #283966;}.myButton:hover { background:linear-gradient(to bottom, #476e9e 5%, #7892c2 100%); background-color:#476e9e; } .myButton:active { position:relative; top:1px;}');
 GM_addStyle('.HHEventPriority {position: absolute;background-color: black;}');
+GM_addStyle('.HHPopIDs {background-color: black;z-index: 0;position: absolute;margin-top: 25px}');
 //END CSS Region
 
 // var d="@require      https://cdn.jsdelivr.net/js-cookie/2.2.0/js.cookie.js"
@@ -949,6 +950,13 @@ function doMissionStuff()
     }
 }
 
+function moduleDisplayPopID()
+{
+    $('div.pop_list_scrolling_area div[pop_id]').each(function() {
+        $(this).prepend('<div class="HHPopIDs">'+$(this).attr('index')+'</div>');
+    });
+}
+
 function collectAndUpdatePowerPlaces()
 {
     //if PopToStart exist bypass function
@@ -965,27 +973,29 @@ function collectAndUpdatePowerPlaces()
         else
         {
             console.log("On powerplaces main page.");
-            Storage().Totalpops=$("div[pop_id]").length; //Count how many different POPs there are and store them locally
+            Storage().Totalpops=$("div.pop_list_scrolling_area div[pop_id]").length; //Count how many different POPs there are and store them locally
             console.log("totalpops : "+Storage().Totalpops);
             if (Storage().autoPowerPlacesAll === "true")
             {
                 var newFilter="";
-                for (var id=1;id<Number(Storage().Totalpops)+1;id++)
-                {
-                    newFilter=newFilter+';'+id;
-                }
+                $("div.pop_list_scrolling_area div[pop_id]").each(function(){newFilter=newFilter+';'+$(this).attr('index');});
+                //for (var id=1;id<Number(Storage().Totalpops)+1;id++)
+                //{
+                //    newFilter=newFilter+';'+id;
+                //}
                 //console.log("newfilter : "+newFilter.substring(1));
                 Storage().autoPowerPlacesIndexFilter = newFilter.substring(1);
             }
 
             var filteredPops = Storage().autoPowerPlacesIndexFilter?Storage().autoPowerPlacesIndexFilter.split(";"):[];
+            var popUnableToStart = Storage().PopUnableToStart?Storage().PopUnableToStart.split(";"):[];
             //console.log("filteredPops : "+filteredPops);
             var PopToStart=[];
             $("div.pop_thumb[status='pending_reward']").each(function()
                                                              {
                 var pop_id = $(this).attr('index');
                 //if index is in filter
-                if (filteredPops.includes(pop_id))
+                if (filteredPops.includes(pop_id) && ! popUnableToStart.includes(pop_id))
                 {
                     PopToStart.push(Number(pop_id));
                 }
@@ -1004,11 +1014,7 @@ function collectAndUpdatePowerPlaces()
             var minTime = -1;
             var maxTime = -1;
             var e;
-            //clearing all timers
-            for (e of filteredPops)
-            {
-                clearTimer('nextPowerPlacesTime'+e);
-            }
+
 
             clearTimer('minPowerPlacesTime');
             clearTimer('maxPowerPlacesTime');
@@ -1019,33 +1025,31 @@ function collectAndUpdatePowerPlaces()
                         //console.log("found timer "+HHTimers.timers[e].$elm.context.outerHTML);
                         currIndex = $(HHTimers.timers[e].$elm.context.outerHTML).attr('index');
                         //if index is in filter
-                        if (filteredPops.includes(currIndex))
+                        if (filteredPops.includes(currIndex) && ! popUnableToStart.includes(currIndex))
                         {
                             currTime=unsafeWindow.HHTimers.timers[e].remainingTime;
-                            setTimer('nextPowerPlacesTime'+currIndex,Number(currTime)+1);
+                            if (minTime === -1 || currTime === -1 || minTime>currTime)
+                            {
+                                minTime = currTime;
 
+                            }
+                            if (maxTime === -1 || maxTime<currTime)
+                            {
+                                maxTime = currTime;
+                            }
                         }
                     }
                 }
                 catch(e){}
             }
-            //fetching max and min
-            for (e of filteredPops)
-            {
-                currTime = getSecondsLeft('nextPowerPlacesTime'+e);
-                if (minTime === -1 || currTime === -1 || minTime>currTime)
-                {
-                    minTime = currTime;
-                }
-                if (maxTime === -1 || maxTime<currTime)
-                {
-                    maxTime = currTime;
-                }
 
-            }
             if (minTime != -1)
             {
                 setTimer('minPowerPlacesTime',Number(minTime)+1);
+            }
+            else
+            {
+                setTimer('minPowerPlacesTime',60);
             }
             if (maxTime != -1)
             {
@@ -1056,11 +1060,16 @@ function collectAndUpdatePowerPlaces()
                                                         {
                 var pop_id = $(this).attr('index');
                 //if index is in filter
-                if (filteredPops.includes(pop_id))
+                if (filteredPops.includes(pop_id) && ! popUnableToStart.includes(pop_id))
                 {
                     PopToStart.push(Number(pop_id));
+                    clearTimer('minPowerPlacesTime');
                 }
             });
+            if (PopToStart.length === 0)
+            {
+                Storage().removeItem('PopUnableToStart');
+            }
             console.log("build popToStart : "+PopToStart);
             Storage().PopToStart = JSON.stringify(PopToStart);
             return false;
@@ -1077,7 +1086,9 @@ function collectAndUpdatePowerPlaces()
 // returns boolean to set busy
 function doPowerPlacesStuff(index)
 {
-
+    var popToSart;
+    var newPopToStart;
+    var epop;
     if(!gotoPage("powerplace"+index))
     {
         console.log("Navigating to powerplace"+index+" page.");
@@ -1096,6 +1107,30 @@ function doPowerPlacesStuff(index)
         var buttonActionBlueDoc = document.querySelector("button.blue_button_L[rel='pop_action'][style='display: block;']");
         //console.log("buttonsdoc1",buttonAutoFillDoc,buttonActionDoc,buttonActionBlueDoc);
 
+        if ($("div.pop_right_part div.no_girls_message").length >0)
+        {
+            var popUnableToStart = Storage().PopUnableToStart?Storage().PopUnableToStart:"";
+            if (popUnableToStart === "")
+            {
+                Storage().PopUnableToStart = String(index);
+            }
+            else
+            {
+                Storage().PopUnableToStart = popUnableToStart+";"+String(index);
+            }
+            popToSart= Storage().PopToStart?JSON.parse(Storage().PopToStart):[];
+            newPopToStart=[];
+            for (epop of popToSart)
+            {
+                if (epop != index)
+                {
+                    newPopToStart.push(epop);
+                }
+            }
+            Storage().PopToStart = JSON.stringify(newPopToStart);
+
+            return false;
+        }
         if (buttonAutoFillDoc != null )
         {
             buttonAutoFillDoc.click();
@@ -1155,9 +1190,9 @@ function doPowerPlacesStuff(index)
         }
         else
         {
-            var popToSart= JSON.parse(Storage().PopToStart);
-            var newPopToStart=[];
-            for (var epop of popToSart)
+            popToSart= Storage().PopToStart?JSON.parse(Storage().PopToStart):[];
+            newPopToStart=[];
+            for (epop of popToSart)
             {
                 if (epop != index)
                 {
@@ -1166,7 +1201,6 @@ function doPowerPlacesStuff(index)
             }
             Storage().PopToStart = JSON.stringify(newPopToStart);
         }
-        setTimer('nextPowerPlacesTime'+index,Number(time)+1);
         // Not busy
         return false;
     }
@@ -2120,31 +2154,26 @@ var doSeason = function () {
     console.log("Performing auto Season.");
     // Confirm if on correct screen.
     var page = getPage();
+    var current_kisses = getSetHeroInfos('kiss.amount');
     if(page === "season")
     {
         console.log("On season page.");
-
-        var current_kisses = getSetHeroInfos('kiss.amount');
-
         if (Storage().autoSeasonCollect === "true")
         {
             $("button[id='claim_btn_s'").click();
         }
-        //<button id="claim_btn_s" class="bordeaux_button_s" style="z-index: 1000; visibility: visible;">Claim</button>
-
-
         console.log("Remaining kisses : "+ current_kisses);
         if ( current_kisses > 0 )
         {
-            console.log("Switching to Season-arena screen.");
+            console.log("Switching to Season Arena screen.");
             gotoPage("season-arena");
-            return;
         }
         else
         {
             setTimer('nextSeasonTime',getSetHeroInfos('kiss.next_refresh_ts'));
         }
-
+        return;
+        //<button id="claim_btn_s" class="bordeaux_button_s" style="z-index: 1000; visibility: visible;">Claim</button>
     }
     else if (page === "season_arena")
     {
@@ -2189,8 +2218,25 @@ var doSeason = function () {
     else
     {
         // Switch to the correct screen
-        console.log("Switching to Season screen.");
-        gotoPage("season");
+        console.log("Remaining kisses : "+ current_kisses);
+        if ( current_kisses > 0 )
+        {
+            if (Storage().autoSeasonCollect === "true")
+            {
+                console.log("Switching to Season screen.");
+                gotoPage("season");
+            }
+            else
+            {
+                console.log("Switching to Season Arena screen.");
+                gotoPage("season-arena");
+            }
+            return;
+        }
+        else
+        {
+            setTimer('nextSeasonTime',getSetHeroInfos('kiss.next_refresh_ts'));
+        }
         return;
     }
 };
@@ -2768,12 +2814,14 @@ var updateData = function () {
     {
         Storage().autoPowerPlacesAll = document.getElementById("autoPowerPlacesAll").checked;
         clearTimer('minPowerPlacesTime');
+        Storage().removeItem('popToStart');
     }
     newValue = String(document.getElementById("autoPowerPlacesIndexFilter").value);
     if (Storage().autoPowerPlacesIndexFilter != newValue)
     {
         Storage().autoPowerPlacesIndexFilter = document.getElementById("autoPowerPlacesIndexFilter").value;
         clearTimer('minPowerPlacesTime');
+        Storage().removeItem('popToStart');
     }
 
     Storage().autoPowerPlacesIndexFilter = document.getElementById("autoPowerPlacesIndexFilter").value;
@@ -2784,7 +2832,8 @@ var updateData = function () {
     Storage().eventTrollOrder = document.getElementById("eventTrollOrder").value;
 
     Storage().plusEventMythic = document.getElementById("plusEventMythic").checked;
-    Storage().eventMythicPrio =document.getElementById("eventMythicPrio").checked;
+    Storage().eventMythicPrio = document.getElementById("eventMythicPrio").checked;
+    Storage().autoTrollMythicByPassThreshold = document.getElementById("autoTrollMythicByPassThreshold").checked ;
     Storage().buyCombTimer = document.getElementById("buyCombTimer").value;
     //Storage().autoArenaBattle = document.getElementById("autoArenaCheckbox").checked;
     Storage().autoSeason = document.getElementById("autoSeasonCheckbox").checked;
@@ -4226,7 +4275,7 @@ var autoLoop = function () {
             if(busy === false && currentPower >= Number(sessionStorage.battlePowerRequired) && currentPower > 0)
             {
                 //console.log(getSetHeroInfos('fight.amount'),Number(Storage().autoTrollThreshold),Number(checkParanoiaSpendings('fight')));
-                if (Number(getSetHeroInfos('fight.amount')) > Number(Storage().autoTrollThreshold) || Number(checkParanoiaSpendings('fight')) > 0 )
+                if (Number(getSetHeroInfos('fight.amount')) > Number(Storage().autoTrollThreshold) || Number(checkParanoiaSpendings('fight')) > 0 || (sessionStorage.eventTrollIsMythic === "true" && Storage().autoTrollMythicByPassThreshold === "true" ))
                 {
                     sessionStorage.battlePowerRequired = "0";
                     busy = true;
@@ -4346,6 +4395,9 @@ var autoLoop = function () {
     if (getPage() === "home" && $("div.event-widget div.widget[style='display: block;']").length !== 0) {
         moduleDisplayEventPriority();
     }
+    if (getPage() === "powerplacemain" ) {
+        moduleDisplayPopID();
+    }
 };
 
 var setDefaults = function () {
@@ -4372,6 +4424,7 @@ var setDefaults = function () {
     Storage().plusEvent = "false";
     Storage().plusEventMythic = "false";
     Storage().eventMythicPrio = "false";
+    Storage().autoTrollMythicByPassThreshold = "false";
     Storage().eventTrollOrder="";
     Storage().buyCombTimer="16";
     //Storage().autoArenaBattle = "false";
@@ -4488,7 +4541,7 @@ var CollectEventData=function()
             }
         }
 
-        console.log(Priority);
+        //console.log(Priority);
         //console.log(Trollz);
         //console.log("EventGirls",eventsGirlz);
         eventsGirlz = eventsGirlz.filter(function (a) {
@@ -4530,12 +4583,21 @@ var CollectEventData=function()
             sessionStorage.eventsGirlz = JSON.stringify(eventsGirlz);
             var chosenTroll = Number(eventsGirlz[0].split(";")[3])
             console.log("ET: "+chosenTroll);
+            if ( eventsGirlz[0].split(";")[0] === "mythic_event" )
+            {
+                sessionStorage.eventTrollIsMythic="true";
+            }
+            else
+            {
+                sessionStorage.eventTrollIsMythic="false";
+            }
             sessionStorage.eventTroll=chosenTroll;
         }
         else
         {
             sessionStorage.removeItem('eventsGirlz');
             sessionStorage.removeItem('eventTroll');
+            sessionStorage.eventTrollIsMythic="false";
         }
         /*         if (Trollz.length>0)
         {
@@ -4764,6 +4826,9 @@ var start = function () {
                      +     '<div style="padding-left:10px;display:flex;flex-direction:column;">'
                      +      '<span>Priorize over Event Troll Order</span><div><label class="switch"><input id="eventMythicPrio" type="checkbox"><span class="slider round"></span></label></div>'
                      +     '</div>'
+                     +     '<div style="padding-left:10px;display:flex;flex-direction:column;">'
+                     +      '<span>Mythic bypass Threshold</span><div><label class="switch"><input id="autoTrollMythicByPassThreshold" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '</div>'
                      +    '</div>'
                      +   '</div>'
                      // End Region AutoTroll
@@ -4927,6 +4992,7 @@ var start = function () {
     document.getElementById("plusEvent").checked = Storage().trollToFight=="-1" || Storage().plusEvent === "true";
     document.getElementById("plusEventMythic").checked = Storage().plusEventMythic === "true";
     document.getElementById("eventMythicPrio").checked = Storage().eventMythicPrio === "true";
+    document.getElementById("autoTrollMythicByPassThreshold").checked = Storage().autoTrollMythicByPassThreshold === "true";
 
     document.getElementById("autoChamps").checked = Storage().autoChamps === "true";
     document.getElementById("autoChampsUseEne").checked = Storage().autoChampsUseEne === "true";
