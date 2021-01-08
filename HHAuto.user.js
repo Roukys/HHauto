@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.3
+// @version      5.4-beta.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -1902,12 +1902,12 @@ var doBossBattle = function()
         logHHAuto(JSON.stringify("Last troll fight"));
     }
 
-    if (Storage().HHAuto_Setting_autoTrollBattleSaveQuest == "true")
+    if (Storage().HHAuto_Temp_autoTrollBattleSaveQuest == "true")
     {
         TTF=getSetHeroInfos('questing.id_world')-1;
         console.log(new Date().toISOString()+":"+getCallerFunction()+":","Last troll fight for quest item.");
         logHHAuto(JSON.stringify("Last troll fight for quest item."));
-        Storage().HHAuto_Setting_autoTrollBattleSaveQuest = "false";
+        Storage().HHAuto_Temp_autoTrollBattleSaveQuest = "false";
     }
 
     console.log(new Date().toISOString()+":"+getCallerFunction()+":","Fighting troll N "+TTF);
@@ -2590,7 +2590,7 @@ var doLeagueBattle = function () {
             console.log(new Date().toISOString()+":"+getCallerFunction()+":","No power for leagues.");
             logHHAuto(JSON.stringify("No power for leagues."));
             //prevent paranoia to wait for league
-            Storage().HHAuto_Setting_paranoiaLeagueBlocked="true";
+            Storage().HHAuto_Temp_paranoiaLeagueBlocked="true";
             setTimer('nextLeaguesTime',getSetHeroInfos('challenge.next_refresh_ts')+1);
             //             for(var e in unsafeWindow.HHTimers.timers){
             //                 try{
@@ -2626,7 +2626,7 @@ var doLeagueBattle = function () {
             console.log(new Date().toISOString()+":"+getCallerFunction()+":",'No valid targets!');
             logHHAuto(JSON.stringify('No valid targets!'));
             //prevent paranoia to wait for league
-            Storage().HHAuto_Setting_paranoiaLeagueBlocked="true";
+            Storage().HHAuto_Temp_paranoiaLeagueBlocked="true";
             setTimer('nextLeaguesTime',ltime);
         }
         else
@@ -2638,7 +2638,7 @@ var doLeagueBattle = function () {
                 console.log(new Date().toISOString()+":"+getCallerFunction()+":","Could not get current Rank, stopping League.");
                 logHHAuto(JSON.stringify("Could not get current Rank, stopping League."));
                 //prevent paranoia to wait for league
-                Storage().HHAuto_Setting_paranoiaLeagueBlocked="true";
+                Storage().HHAuto_Temp_paranoiaLeagueBlocked="true";
                 setTimer('nextLeaguesTime',Number(30*60)+1);
                 return;
             }
@@ -2672,7 +2672,7 @@ var doLeagueBattle = function () {
                     logHHAuto(JSON.stringify("Can't do league as could go above demote, setting timer to 30 mins"));
                     setTimer('nextLeaguesTime',Number(30*60)+1);
                     //prevent paranoia to wait for league
-                    Storage().HHAuto_Setting_paranoiaLeagueBlocked="true";
+                    Storage().HHAuto_Temp_paranoiaLeagueBlocked="true";
                     gotoPage("home");
                     return;
                 }
@@ -2707,7 +2707,7 @@ var doLeagueBattle = function () {
                     logHHAuto(JSON.stringify("Can't do league as could go above stay, setting timer to 30 mins"));
                     setTimer('nextLeaguesTime',Number(30*60)+1);
                     //prevent paranoia to wait for league
-                    Storage().HHAuto_Setting_paranoiaLeagueBlocked="true";
+                    Storage().HHAuto_Temp_paranoiaLeagueBlocked="true";
                     gotoPage("home");
                     return;
                 }
@@ -3506,21 +3506,21 @@ var checkParanoiaSpendings=function(spendingFunction)
 {
     var pSpendings=new Map([]);
     // not set
-    if ( ! Storage().HHAuto_Setting_paranoiaSpendings )
+    if ( ! Storage().HHAuto_Temp_paranoiaSpendings )
     {
         return -1;
     }
     else
     {
-        pSpendings = JSON.parse(Storage().HHAuto_Setting_paranoiaSpendings,reviverMap);
+        pSpendings = JSON.parse(Storage().HHAuto_Temp_paranoiaSpendings,reviverMap);
     }
 
-    if ( Storage().HHAuto_Setting_paranoiaQuestBlocked !== undefined && pSpendings.has('quest'))
+    if ( Storage().HHAuto_Temp_paranoiaQuestBlocked !== undefined && pSpendings.has('quest'))
     {
         pSpendings.delete('quest');
     }
 
-    if ( Storage().HHAuto_Setting_paranoiaLeagueBlocked !== undefined && pSpendings.has('challenge'))
+    if ( Storage().HHAuto_Temp_paranoiaLeagueBlocked !== undefined && pSpendings.has('challenge'))
     {
         pSpendings.delete('challenge');
     }
@@ -3573,7 +3573,7 @@ var setParanoiaSpendings=function()
         //if autoLeague is on
         if(Storage().HHAuto_Setting_autoLeagues === "true" && getSetHeroInfos('level')>=20)
         {
-            if ( Storage().HHAuto_Setting_paranoiaLeagueBlocked === undefined )
+            if ( Storage().HHAuto_Temp_paranoiaLeagueBlocked === undefined )
             {
                 maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getSetHeroInfos('challenge.next_refresh_ts')))/Number(getSetHeroInfos('challenge.seconds_per_point')));
                 currentEnergy=Number(getSetHeroInfos('challenge.amount'));
@@ -3597,7 +3597,7 @@ var setParanoiaSpendings=function()
         //if autoquest is on
         if(Storage().HHAuto_Setting_autoQuest === "true")
         {
-            if ( Storage().HHAuto_Setting_paranoiaQuestBlocked === undefined )
+            if ( Storage().HHAuto_Temp_paranoiaQuestBlocked === undefined )
             {
                 maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getSetHeroInfos('quest.next_refresh_ts')))/Number(getSetHeroInfos('quest.seconds_per_point')));
                 currentEnergy=Number(getSetHeroInfos('quest.amount'));
@@ -3663,7 +3663,7 @@ var setParanoiaSpendings=function()
 
         console.log(new Date().toISOString()+":"+getCallerFunction()+":","Setting paranoia spending to : "+JSON.stringify(paranoiaSpendings,replacerMap));
         logHHAuto(JSON.stringify("Setting paranoia spending to : "+JSON.stringify(paranoiaSpendings,replacerMap)));
-        Storage().HHAuto_Setting_paranoiaSpendings=JSON.stringify(paranoiaSpendings,replacerMap);
+        Storage().HHAuto_Temp_paranoiaSpendings=JSON.stringify(paranoiaSpendings,replacerMap);
     }
 }
 
@@ -3671,7 +3671,7 @@ var flipParanoia=function()
 {
     var burst=getBurst();
 
-    var Setting=Storage().HHAuto_Setting_paranoiaSettings;
+    var Setting=Storage().HHAuto_Temp_paranoiaSettings;
 
     var S1=Setting.split('/').map(s=>s.split('|').map(s=>s.split(':')));
 
@@ -4455,16 +4455,16 @@ var autoLoop = function () {
 
         if (Storage().HHAuto_Setting_autoQuest === "true" && busy === false )
         {
-            Storage().HHAuto_Setting_autoTrollBattleSaveQuest = (Storage().HHAuto_Setting_autoTrollBattleSaveQuest ? Storage().HHAuto_Setting_autoTrollBattleSaveQuest : "false") ;
+            Storage().HHAuto_Temp_autoTrollBattleSaveQuest = (Storage().HHAuto_Temp_autoTrollBattleSaveQuest ? Storage().HHAuto_Temp_autoTrollBattleSaveQuest : "false") ;
             if (sessionStorage.HHAuto_Temp_questRequirement === "battle")
             {
-                if (Storage().HHAuto_Setting_autoTrollBattleSaveQuest === "false")
+                if (Storage().HHAuto_Temp_autoTrollBattleSaveQuest === "false")
                 {
                     console.log(new Date().toISOString()+":"+getCallerFunction()+":","Quest requires battle.");
                     logHHAuto(JSON.stringify("Quest requires battle."));
                     console.log(new Date().toISOString()+":"+getCallerFunction()+":","prepare to save one battle for quest");
                     logHHAuto(JSON.stringify("prepare to save one battle for quest"));
-                    Storage().HHAuto_Setting_autoTrollBattleSaveQuest = "true";
+                    Storage().HHAuto_Temp_autoTrollBattleSaveQuest = "true";
                     doBossBattle();
                 }
                 busy = false;
@@ -4482,7 +4482,7 @@ var autoLoop = function () {
                 else
                 {
                     //prevent paranoia to wait for quest
-                    Storage().HHAuto_Setting_paranoiaQuestBlocked="true";
+                    Storage().HHAuto_Temp_paranoiaQuestBlocked="true";
                     if(isNaN(sessionStorage.HHAuto_Temp_questRequirement.substr(1)))
                     {
                         console.log(new Date().toISOString()+":"+getCallerFunction()+":",sessionStorage.HHAuto_Temp_questRequirement);
@@ -4525,7 +4525,7 @@ var autoLoop = function () {
                 else
                 {
                     //prevent paranoia to wait for quest
-                    Storage().HHAuto_Setting_paranoiaQuestBlocked="true";
+                    Storage().HHAuto_Temp_paranoiaQuestBlocked="true";
                     busy = false;
                     //console.log(new Date().toISOString()+":"+getCallerFunction()+":","Replenishing energy for quest.(" + energyNeeded + " needed)");
                     //logHHAuto(JSON.stringify("Replenishing energy for quest.(" + energyNeeded + " needed)"));
@@ -4541,7 +4541,7 @@ var autoLoop = function () {
                     logHHAuto(JSON.stringify("Quest requires "+neededPower+" Battle Power for advancement. Waiting..."));
                     busy = false;
                     //prevent paranoia to wait for quest
-                    Storage().HHAuto_Setting_paranoiaQuestBlocked="true";
+                    Storage().HHAuto_Temp_paranoiaQuestBlocked="true";
                 }
                 else
                 {
@@ -4555,7 +4555,7 @@ var autoLoop = function () {
             else if (sessionStorage.HHAuto_Temp_questRequirement === "unknownQuestButton")
             {
                 //prevent paranoia to wait for quest
-                Storage().HHAuto_Setting_paranoiaQuestBlocked="true";
+                Storage().HHAuto_Temp_paranoiaQuestBlocked="true";
                 console.log(new Date().toISOString()+":"+getCallerFunction()+":","AutoQuest disabled.HHAuto_Setting_AutoQuest cannot be performed due to unknown quest button. Please manually proceed the current quest screen.");
                 logHHAuto(JSON.stringify("AutoQuest disabled.HHAuto_Setting_AutoQuest cannot be performed due to unknown quest button. Please manually proceed the current quest screen."));
                 document.getElementById("autoQuestCheckbox").checked = false;
@@ -4566,7 +4566,7 @@ var autoLoop = function () {
             else if (sessionStorage.HHAuto_Temp_questRequirement === "errorInAutoBattle")
             {
                 //prevent paranoia to wait for quest
-                Storage().HHAuto_Setting_paranoiaQuestBlocked="true";
+                Storage().HHAuto_Temp_paranoiaQuestBlocked="true";
                 console.log(new Date().toISOString()+":"+getCallerFunction()+":","AutoQuest disabled.HHAuto_Setting_AutoQuest cannot be performed due errors in AutoBattle. Please manually proceed the current quest screen.");
                 logHHAuto(JSON.stringify("AutoQuest disabled.HHAuto_Setting_AutoQuest cannot be performed due errors in AutoBattle. Please manually proceed the current quest screen."));
                 document.getElementById("autoQuestCheckbox").checked = false;
@@ -4587,7 +4587,7 @@ var autoLoop = function () {
             else
             {
                 //prevent paranoia to wait for quest
-                Storage().HHAuto_Setting_paranoiaQuestBlocked="true";
+                Storage().HHAuto_Temp_paranoiaQuestBlocked="true";
                 console.log(new Date().toISOString()+":"+getCallerFunction()+":","Invalid quest requirement : "+sessionStorage.HHAuto_Temp_questRequirement);
                 logHHAuto(JSON.stringify("Invalid quest requirement : "+sessionStorage.HHAuto_Temp_questRequirement));
                 busy=false;
@@ -4841,7 +4841,7 @@ var setDefaults = function () {
 
     Storage().HHAuto_Setting_spendKobans0="false";
     Storage().HHAuto_Setting_autoSeasonPassReds ="false";
-    Storage().HHAuto_Setting_paranoiaSettings="120-300/Sleep:28800-29400|Active:300-420|Casual:1800-2100/6:Sleep|18:Active|22:Casual|24:Sleep";
+    Storage().HHAuto_Temp_paranoiaSettings="120-300/Sleep:28800-29400|Active:300-420|Casual:1800-2100/6:Sleep|18:Active|22:Casual|24:Sleep";
     Storage().HHAuto_Setting_master="false";
 };
 
@@ -5333,7 +5333,7 @@ var migrateHHVars = function ()
             console.log(new Date().toISOString()+":"+getCallerFunction()+":","set var : "+variableName);
             logHHAuto(JSON.stringify("set var : "+variableName));
             storageItem.setItem(variableName,storageItem.getItem(oldVarName));
-            storageItem.removeItem(oldVarName)
+            //storageItem.removeItem(oldVarName)
         }
     }
 }
