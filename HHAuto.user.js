@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.1
+// @version      5.4-beta.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -1125,6 +1125,7 @@ function doPowerPlacesStuff(index)
         if (waitForKeyElements("button[rel='pop_claim']",500))
         {
             $("button[rel='pop_claim']").click();
+            console.log("Claimed powerplace"+index);
         }
 
         if ($("div.pop_right_part div.no_girls_message").length >0)
@@ -1154,13 +1155,14 @@ function doPowerPlacesStuff(index)
 
         if (waitForKeyElements("button.blue_button_L[rel='pop_auto_assign'][style='display: block;']",1000))
         {
-            //document.querySelector("button.blue_button_L[rel='pop_auto_assign'][style='display: block;']").click();
-            document.querySelector("div.grid_view div.not_selected").click();
+            document.querySelector("button.blue_button_L[rel='pop_auto_assign'][style='display: block;']").click();
+            console.log("Autoassigned powerplace"+index);
         }
 
         if (waitForKeyElements("button.blue_button_L[rel='pop_action'][style='display: block;']",1000))
         {
             document.querySelector("button.blue_button_L[rel='pop_action'][style='display: block;']").click();
+            console.log("Started powerplace"+index);
         }
 
         if ($("button.blue_button_L[rel='pop_action'][disabled]").length >0 && $("div.grid_view div.pop_selected").length >0)
@@ -1189,8 +1191,6 @@ function doPowerPlacesStuff(index)
         }
 
         waitForKeyElements("div.pop_remaining[style='display: block;']",500);
-
-        console.log("Starting next powerplace"+index+" action.");
 
 
         // need to get next powerplaces timer data
