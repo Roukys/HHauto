@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.0
+// @version      5.4-beta.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit) and roukys
 // @match        http*://nutaku.haremheroes.com/*
@@ -1004,8 +1004,10 @@ function collectAndUpdatePowerPlaces()
             $("button[rel='pop_thumb_claim'].purple_button_L").each(function()
                                                                     {
                 this.click();
-
-                $("div#rewards_popup button.blue_button_L").click();
+                if (waitForKeyElements("div#rewards_popup button.blue_button_L",500) )
+                {
+                    $("div#rewards_popup button.blue_button_L").click();
+                }
             });
 
             //get all already started Pop timers
@@ -1082,12 +1084,32 @@ function collectAndUpdatePowerPlaces()
 }
 
 
+function waitForKeyElements (selectorTxt,maxMilliWaitTime)
+{
+    var targetNodes;
+    var timer= new Date().getTime() + maxMilliWaitTime;
+    targetNodes = jQuery(selectorTxt);
+
+    while ( targetNodes.length === 0 && Math.ceil(timer)-Math.ceil(new Date().getTime()) > 0)
+    {
+        targetNodes = jQuery(selectorTxt);
+    }
+    if (targetNodes.length === 0)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
 
 // returns boolean to set busy
 function doPowerPlacesStuff(index)
 {
     var popToSart;
     var newPopToStart;
+    var popUnableToStart=Storage().PopUnableToStart?Storage().PopUnableToStart:"";
     var epop;
     if(!gotoPage("powerplace"+index))
     {
@@ -1100,16 +1122,14 @@ function doPowerPlacesStuff(index)
         console.log("On powerplace"+index+" page.");
 
         //getting reward in case failed on main page
-        $("button[rel='pop_claim']").click();
-
-        var buttonAutoFillDoc = document.querySelector("button.blue_button_L[rel='pop_auto_assign'][style='display: block;']");
-        var buttonActionDoc = document.querySelector("button[rel='pop_action']");
-        var buttonActionBlueDoc = document.querySelector("button.blue_button_L[rel='pop_action'][style='display: block;']");
-        //console.log("buttonsdoc1",buttonAutoFillDoc,buttonActionDoc,buttonActionBlueDoc);
+        if (waitForKeyElements("button[rel='pop_claim']",500))
+        {
+            $("button[rel='pop_claim']").click();
+        }
 
         if ($("div.pop_right_part div.no_girls_message").length >0)
         {
-            var popUnableToStart = Storage().PopUnableToStart?Storage().PopUnableToStart:"";
+            console.log("Unable to start Pop "+index+" no girls available.");
             if (popUnableToStart === "")
             {
                 Storage().PopUnableToStart = String(index);
@@ -1131,30 +1151,44 @@ function doPowerPlacesStuff(index)
 
             return false;
         }
-        if (buttonAutoFillDoc != null )
-        {
-            buttonAutoFillDoc.click();
-        }
-        buttonAutoFillDoc = document.querySelector("button.blue_button_L[rel='pop_auto_assign'][style='display: block;']");
-        buttonActionDoc = document.querySelector("button[rel='pop_action']");
-        buttonActionBlueDoc = document.querySelector("button.blue_button_L[rel='pop_action'][style='display: block;']");
-        //console.log("buttonsdoc2",buttonAutoFillDoc,buttonActionDoc,buttonActionBlueDoc);
 
-        if (buttonActionDoc != null )
+        if (waitForKeyElements("button.blue_button_L[rel='pop_auto_assign'][style='display: block;']",1000))
         {
-            buttonActionDoc.click();
-        }
-        buttonAutoFillDoc = document.querySelector("button.blue_button_L[rel='pop_auto_assign'][style='display: block;']");
-        buttonActionDoc = document.querySelector("button[rel='pop_action']");
-        buttonActionBlueDoc = document.querySelector("button.blue_button_L[rel='pop_action'][style='display: block;']");
-        //console.log("buttonsdoc3",buttonAutoFillDoc,buttonActionDoc,buttonActionBlueDoc);
-
-        if (buttonActionBlueDoc != null )
-        {
-            buttonActionBlueDoc.click();
+            //document.querySelector("button.blue_button_L[rel='pop_auto_assign'][style='display: block;']").click();
+            document.querySelector("div.grid_view div.not_selected").click();
         }
 
+        if (waitForKeyElements("button.blue_button_L[rel='pop_action'][style='display: block;']",1000))
+        {
+            document.querySelector("button.blue_button_L[rel='pop_action'][style='display: block;']").click();
+        }
 
+        if ($("button.blue_button_L[rel='pop_action'][disabled]").length >0 && $("div.grid_view div.pop_selected").length >0)
+        {
+            console.log("Unable to start Pop "+index+" not enough girls available.");
+            if (popUnableToStart === "")
+            {
+                Storage().PopUnableToStart = String(index);
+            }
+            else
+            {
+                Storage().PopUnableToStart = popUnableToStart+";"+String(index);
+            }
+            popToSart= Storage().PopToStart?JSON.parse(Storage().PopToStart):[];
+            newPopToStart=[];
+            for (epop of popToSart)
+            {
+                if (epop != index)
+                {
+                    newPopToStart.push(epop);
+                }
+            }
+            Storage().PopToStart = JSON.stringify(newPopToStart);
+
+            return false;
+        }
+
+        waitForKeyElements("div.pop_remaining[style='display: block;']",500);
 
         console.log("Starting next powerplace"+index+" action.");
 
@@ -3150,7 +3184,7 @@ var updateShop=function()
         sessionStorage.haveAff=HaveAff;
         sessionStorage.haveExp=HaveExp;
 
-        console.log('counted',sessionStorage.haveAff,sessionStorage.haveExp);
+        console.log('counted',sessionStorage.haveAff+' Aff ',sessionStorage.haveExp+' Exp');
 
         sessionStorage.storeContents = JSON.stringify([assA,assB,assG,assP]);
         sessionStorage.charLevel=getSetHeroInfos('level');
@@ -3162,7 +3196,6 @@ var updateShop=function()
         }
         if(nshop !== undefined && nshop !== 0)
         {
-            console.log(nshop);
             setTimer('nextShopTime',Number(nshop)+1);
         }
         else
