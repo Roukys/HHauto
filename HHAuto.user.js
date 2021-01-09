@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.6
+// @version      5.4-beta.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -5337,13 +5337,13 @@ var migrateHHVars = function ()
                     storageItem = sessionStorage;
                     break;
             }
-            if (storageItem.getItem(oldVarName) !== null)
+            if (storageItem.getItem(oldVarName) !== null && storageItem.getItem(variableName) !== null)
             {
                 console.log(new Date().toISOString()+":"+getCallerFunction()+":","set var : "+variableName);
                 logHHAuto(JSON.stringify("set var : "+variableName));
                 storageItem.setItem(variableName,storageItem.getItem(oldVarName));
-                //storageItem.removeItem(oldVarName)
             }
+            //storageItem.removeItem(oldVarName)
         }
         localStorage.HHAuto_Temp_MigratedVars="true";
     }
