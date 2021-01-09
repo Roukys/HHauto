@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.5
+// @version      5.4-beta.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -5295,7 +5295,8 @@ var HHVars=["Storage().HHAuto_Setting_autoAff",
             "sessionStorage.HHAuto_Temp_Timers",
             "Storage().HHAuto_Temp_toNextSwitch",
             "Storage().HHAuto_Temp_Totalpops",
-            "sessionStorage.HHAuto_Temp_userLink"];
+            "sessionStorage.HHAuto_Temp_userLink",
+            "localStorage.HHAuto_Temp_MigratedVars"];
 
 var migrateHHVars = function ()
 {
@@ -5303,38 +5304,48 @@ var migrateHHVars = function ()
     var variableName;
     var oldVarName;
     var storageItem;
+    var migratedVars = localStorage.HHAuto_Temp_MigratedVars?true:false;
 
-    if (localStorage.settPerTab)
+    if (!migratedVars)
     {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","set settbyTab");
-        logHHAuto(JSON.stringify("set settbyTab"));
-        localStorage.HHAuto_Setting_settPerTab = localStorage.settPerTab;
-    }
+        if (localStorage.settPerTab)
+        {
+            console.log(new Date().toISOString()+":"+getCallerFunction()+":","set settbyTab");
+            logHHAuto(JSON.stringify("set settbyTab"));
+            localStorage.HHAuto_Setting_settPerTab = localStorage.settPerTab;
+        }
 
-    for (var i in HHVars)
-    {
-        storageType = HHVars[i].split(".")[0];
-        variableName = HHVars[i].split(".")[1];
-        oldVarName = variableName.split("_")[2];
-        switch (storageType)
+        if(!localStorage.HHAuto_Setting_settPerTab)
         {
-            case 'Storage()' :
-                storageItem = Storage();
-                break;
-            case 'localStorage' :
-                storageItem = localStorage;
-                break;
-            case 'sessionStorage' :
-                storageItem = sessionStorage;
-                break;
+            localStorage.HHAuto_Setting_settPerTab="false";
         }
-        if (storageItem.getItem(oldVarName) !== null)
+
+        for (var i in HHVars)
         {
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","set var : "+variableName);
-            logHHAuto(JSON.stringify("set var : "+variableName));
-            storageItem.setItem(variableName,storageItem.getItem(oldVarName));
-            //storageItem.removeItem(oldVarName)
+            storageType = HHVars[i].split(".")[0];
+            variableName = HHVars[i].split(".")[1];
+            oldVarName = variableName.split("_")[2];
+            switch (storageType)
+            {
+                case 'Storage()' :
+                    storageItem = Storage();
+                    break;
+                case 'localStorage' :
+                    storageItem = localStorage;
+                    break;
+                case 'sessionStorage' :
+                    storageItem = sessionStorage;
+                    break;
+            }
+            if (storageItem.getItem(oldVarName) !== null)
+            {
+                console.log(new Date().toISOString()+":"+getCallerFunction()+":","set var : "+variableName);
+                logHHAuto(JSON.stringify("set var : "+variableName));
+                storageItem.setItem(variableName,storageItem.getItem(oldVarName));
+                //storageItem.removeItem(oldVarName)
+            }
         }
+        localStorage.HHAuto_Temp_MigratedVars="true";
     }
 }
 
