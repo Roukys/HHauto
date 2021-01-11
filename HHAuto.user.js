@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.7
+// @version      5.4-beta.8
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -1059,7 +1059,7 @@ function doMissionStuff()
 function moduleDisplayPopID()
 {
     if ($('.HHPopIDs').length  > 0) {return}
-    $('div.pop_list_scrolling_area div[pop_id]').each(function() {
+    $('div.pop_list div[pop_id]').each(function() {
         $(this).prepend('<div class="HHPopIDs">'+$(this).attr('index')+'</div>');
     });
 }
@@ -1083,11 +1083,11 @@ function collectAndUpdatePowerPlaces()
         {
             console.log(new Date().toISOString()+":"+getCallerFunction()+":","On powerplaces main page.");
             logHHAuto(JSON.stringify("On powerplaces main page."));
-            Storage().HHAuto_Temp_Totalpops=$("div.pop_list_scrolling_area div[pop_id]").length; //Count how many different POPs there are and store them locally
+            Storage().HHAuto_Temp_Totalpops=$("div.pop_list div[pop_id]").length; //Count how many different POPs there are and store them locally
             console.log(new Date().toISOString()+":"+getCallerFunction()+":","totalpops : "+Storage().HHAuto_Temp_Totalpops);
             logHHAuto(JSON.stringify("totalpops : "+Storage().HHAuto_Temp_Totalpops));
             var newFilter="";
-            $("div.pop_list_scrolling_area div[pop_id]").each(function(){newFilter=newFilter+';'+$(this).attr('index');});
+            $("div.pop_list div[pop_id]").each(function(){newFilter=newFilter+';'+$(this).attr('index');});
             //for (var id=1;id<Number(Storage().HHAuto_Temp_Totalpops)+1;id++)
             //{
             //    newFilter=newFilter+';'+id;
@@ -5089,7 +5089,7 @@ var getBurst=function()
 
 function saveHHVarsSettingsAsJSON() {
     var dataToSave={};
-    var name='HH_'+Date.now()+'.json';
+    var name='HH_SaveSettings_'+Date.now()+'.json';
     Object.keys(localStorage).forEach((key) =>
                                       {
         if (key.startsWith("HHAuto_Setting_"))
@@ -5114,6 +5114,9 @@ function saveHHDebugLog()
 {
     var dataToSave={};
     var name='HH_DebugLog_'+Date.now()+'.json';
+    dataToSave['HHAuto_version']=GM_info.script.version;
+    dataToSave['HHAuto_HHSite']=window.location.origin;
+
     Object.keys(localStorage).forEach((key) =>
                                       {
         if (key.startsWith("HHAuto_Setting_"))
