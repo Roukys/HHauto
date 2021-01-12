@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.12
+// @version      5.4-beta.13
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -5106,13 +5106,60 @@ function saveHHVarsSettingsAsJSON() {
     a.click()
 }
 
+function getBrowserData(nav) {
+    var data = {};
+
+    var ua = data.uaString = nav.userAgent;
+    var browserMatch = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*([\d\.]+)/i) || [];
+    if (browserMatch[1]) { browserMatch[1] = browserMatch[1].toLowerCase(); }
+    var operaMatch = browserMatch[1] === 'chrome';
+    if (operaMatch) { operaMatch = ua.match(/\bOPR\/([\d\.]+)/); }
+
+    if (/trident/i.test(browserMatch[1])) {
+        var msieMatch = /\brv[ :]+([\d\.]+)/g.exec(ua) || [];
+        data.name = 'msie';
+        data.version = msieMatch[1];
+    }
+    else if (operaMatch) {
+        data.name = 'opera';
+        data.version = operaMatch[1];
+    }
+    else if (browserMatch[1] === 'safari') {
+        var safariVersionMatch = ua.match(/version\/([\d\.]+)/i);
+        data.name = 'safari';
+        data.version = safariVersionMatch[1];
+    }
+    else {
+        data.name = browserMatch[1];
+        data.version = browserMatch[2];
+    }
+
+    var versionParts = [];
+    if (data.version) {
+        var versionPartsMatch = data.version.match(/(\d+)/g) || [];
+        for (var i=0; i < versionPartsMatch.length; i++) {
+            versionParts.push(versionPartsMatch[i]);
+        }
+        if (versionParts.length > 0) { data.majorVersion = versionParts[0]; }
+    }
+    data.name = data.name || '(unknown browser name)';
+    data.version = {
+        full: data.version || '(unknown full browser version)',
+        parts: versionParts,
+        major: versionParts.length > 0 ? versionParts[0] : '(unknown major browser version)'
+    };
+
+    return data.name + ' ' + data.version['full'];
+};
+
 function saveHHDebugLog()
 {
     var dataToSave={};
     var name='HH_DebugLog_'+Date.now()+'.log';
+    dataToSave['HHAuto_browserVersion']=getBrowserData(window.navigator || navigator);
+    dataToSave['HHAuto_scriptHandler']=GM_info.scriptHandler+' '+GM_info.version;
     dataToSave['HHAuto_version']=GM_info.script.version;
     dataToSave['HHAuto_HHSite']=window.location.origin;
-
     Object.keys(localStorage).forEach((key) =>
                                       {
         if (key.startsWith("HHAuto_Setting_"))
