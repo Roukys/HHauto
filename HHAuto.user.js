@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.11
+// @version      5.4-beta.12
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -16,8 +16,8 @@
 //CSS Region
 GM_addStyle('/* The switch - the box around the slider */ .switch { position: relative; display: inline-block; width: 40px; height: 24px; } /* Hide default HTML checkbox */ .switch input {display:none;} /* The slider */ .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; -webkit-transition: .4s; transition: .4s; } .slider.round:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; -webkit-transition: .4s; transition: .4s; } input:checked + .slider { background-color: #2196F3; } input:focus + .slider { box-shadow: 0 0 1px #2196F3; } input:checked + .slider:before { -webkit-transform: translateX(16px); -ms-transform: translateX(16px); transform: translateX(16px); } /* Rounded sliders */ .slider.round { border-radius: 24px; } .slider.round:before { border-radius: 50%; }');
 GM_addStyle('.myButton {box-shadow: 0px 0px 0px 2px #9fb4f2; background:linear-gradient(to bottom, #7892c2 5%, #476e9e 100%); background-color:#7892c2; border-radius:10px; border:1px solid #4e6096; display:inline-block; cursor:pointer; color:#ffffff; font-family:Arial; font-size:8px; padding:3px 10px; text-decoration:none; text-shadow:0px 1px 0px #283966;}.myButton:hover { background:linear-gradient(to bottom, #476e9e 5%, #7892c2 100%); background-color:#476e9e; } .myButton:active { position:relative; top:1px;}');
-GM_addStyle('.HHEventPriority {position: absolute;background-color: black;}');
-GM_addStyle('.HHPopIDs {background-color: black;z-index: 0;position: absolute;margin-top: 25px}');
+GM_addStyle('.HHEventPriority {position: absolute;z-index: 500;background-color: black;}');
+GM_addStyle('.HHPopIDs {background-color: black;z-index: 500;position: absolute;margin-top: 25px}');
 //END CSS Region
 
 // var d="@require      https://cdn.jsdelivr.net/js-cookie/2.2.0/js.cookie.js"
@@ -583,6 +583,18 @@ function getPage()
             else
             {
                 t=$(".pop_thumb_selected").attr("index");
+                if (t === undefined)
+                {
+                    var queryString = window.location.search;
+                    var urlParams = new URLSearchParams(queryString);
+                    var index = urlParams.get('index');
+                    if (index !== null)
+                    {
+                        addPopToUnableToStart(index,"Unable to go to Pop "+index+" as it is locked.");
+                        removePopFromPopToStart(index);
+                        t='main';
+                    }
+                }
             }
             return "powerplace"+t
         }
@@ -1219,13 +1231,41 @@ function waitForKeyElements (selectorTxt,maxMilliWaitTime)
     }
 }
 
+function removePopFromPopToStart(index)
+{
+    var epop;
+    var popToSart;
+    var newPopToStart;
+    popToSart= Storage().HHAuto_Temp_PopToStart?JSON.parse(Storage().HHAuto_Temp_PopToStart):[];
+    newPopToStart=[];
+    for (epop of popToSart)
+    {
+        if (epop != index)
+        {
+            newPopToStart.push(epop);
+        }
+    }
+    Storage().HHAuto_Temp_PopToStart = JSON.stringify(newPopToStart);
+}
+
+function addPopToUnableToStart(popIndex,message)
+{
+    var popUnableToStart=Storage().HHAuto_Temp_PopUnableToStart?Storage().HHAuto_Temp_PopUnableToStart:"";
+    console.log(new Date().toISOString()+":"+getCallerFunction()+":",message);
+    logHHAuto(JSON.stringify(message));
+    if (popUnableToStart === "")
+    {
+        Storage().HHAuto_Temp_PopUnableToStart = String(popIndex);
+    }
+    else
+    {
+        Storage().HHAuto_Temp_PopUnableToStart = popUnableToStart+";"+String(popIndex);
+    }
+}
+
 // returns boolean to set busy
 function doPowerPlacesStuff(index)
 {
-    var popToSart;
-    var newPopToStart;
-    var popUnableToStart=Storage().HHAuto_Temp_PopUnableToStart?Storage().HHAuto_Temp_PopUnableToStart:"";
-    var epop;
     if(!gotoPage("powerplace"+index))
     {
         console.log(new Date().toISOString()+":"+getCallerFunction()+":","Navigating to powerplace"+index+" page.");
@@ -1249,27 +1289,8 @@ function doPowerPlacesStuff(index)
 
         if ($("div.pop_right_part div.no_girls_message").length >0)
         {
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Unable to start Pop "+index+" no girls available.");
-            logHHAuto(JSON.stringify("Unable to start Pop "+index+" no girls available."));
-            if (popUnableToStart === "")
-            {
-                Storage().HHAuto_Temp_PopUnableToStart = String(index);
-            }
-            else
-            {
-                Storage().HHAuto_Temp_PopUnableToStart = popUnableToStart+";"+String(index);
-            }
-            popToSart= Storage().HHAuto_Temp_PopToStart?JSON.parse(Storage().HHAuto_Temp_PopToStart):[];
-            newPopToStart=[];
-            for (epop of popToSart)
-            {
-                if (epop != index)
-                {
-                    newPopToStart.push(epop);
-                }
-            }
-            Storage().HHAuto_Temp_PopToStart = JSON.stringify(newPopToStart);
-
+            addPopToUnableToStart(index,"Unable to start Pop "+index+" no girls available.");
+            removePopFromPopToStart(index);
             return false;
         }
         querySelectorText = "button.blue_button_L[rel='pop_auto_assign']:not([disabled])"
@@ -1288,26 +1309,8 @@ function doPowerPlacesStuff(index)
         }
         else if ($("button.blue_button_L[rel='pop_action'][disabled]").length >0 && $("div.grid_view div.pop_selected").length >0)
         {
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Unable to start Pop "+index+" not enough girls available.");
-            logHHAuto(JSON.stringify("Unable to start Pop "+index+" not enough girls available."));
-            if (popUnableToStart === "")
-            {
-                Storage().HHAuto_Temp_PopUnableToStart = String(index);
-            }
-            else
-            {
-                Storage().HHAuto_Temp_PopUnableToStart = popUnableToStart+";"+String(index);
-            }
-            popToSart= Storage().HHAuto_Temp_PopToStart?JSON.parse(Storage().HHAuto_Temp_PopToStart):[];
-            newPopToStart=[];
-            for (epop of popToSart)
-            {
-                if (epop != index)
-                {
-                    newPopToStart.push(epop);
-                }
-            }
-            Storage().HHAuto_Temp_PopToStart = JSON.stringify(newPopToStart);
+            addPopToUnableToStart(index,"Unable to start Pop "+index+" not enough girls available.");
+            removePopFromPopToStart(index);
 
             return false;
         }
@@ -1347,16 +1350,7 @@ function doPowerPlacesStuff(index)
         }
         else
         {
-            popToSart= Storage().HHAuto_Temp_PopToStart?JSON.parse(Storage().HHAuto_Temp_PopToStart):[];
-            newPopToStart=[];
-            for (epop of popToSart)
-            {
-                if (epop != index)
-                {
-                    newPopToStart.push(epop);
-                }
-            }
-            Storage().HHAuto_Temp_PopToStart = JSON.stringify(newPopToStart);
+            removePopFromPopToStart(index);
         }
         // Not busy
         return false;
@@ -2424,6 +2418,7 @@ var doSeason = function () {
         if (chosenID !== -1 && chosenID !== -2 )
         {
             location.href = document.getElementsByClassName("opponent_perform_button_container")[chosenID].children[0].getAttribute('href');
+            sessionStorage.HHAuto_Temp_autoLoop = "false";
             console.log(new Date().toISOString()+":"+getCallerFunction()+":","Going to crush : "+$("div.season_arena_opponent_container .hero_details div:not([class]):not([carac])")[chosenID].innerText);
             logHHAuto(JSON.stringify("Going to crush : "+$("div.season_arena_opponent_container .hero_details div:not([class]):not([carac])")[chosenID].innerText));
             return true;
@@ -2730,7 +2725,8 @@ var doLeagueBattle = function () {
                 {
                     console.log(new Date().toISOString()+":"+getCallerFunction()+":",'going to crush ID : '+oppoID);
                     logHHAuto(JSON.stringify('going to crush ID : '+oppoID));
-                    location.href = "/battle.html?league_battle=1&id_member=" + oppoID
+                    location.href = "/battle.html?league_battle=1&id_member=" + oppoID;
+                    sessionStorage.HHAuto_Temp_autoLoop = "false";
                     clearTimer('nextLeaguesTime');
                 }
             }
