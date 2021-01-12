@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.9
+// @version      5.4-beta.10
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -1239,9 +1239,10 @@ function doPowerPlacesStuff(index)
         logHHAuto(JSON.stringify("On powerplace"+index+" page."));
 
         //getting reward in case failed on main page
-        if (waitForKeyElements("button[rel='pop_claim']",500))
+        var querySelectorText = "button[rel='pop_claim']";
+        if (waitForKeyElements(querySelectorText,500))
         {
-            $("button[rel='pop_claim']").click();
+            $(querySelectorText).click();
             console.log(new Date().toISOString()+":"+getCallerFunction()+":","Claimed powerplace"+index);
             logHHAuto(JSON.stringify("Claimed powerplace"+index));
         }
@@ -1271,17 +1272,17 @@ function doPowerPlacesStuff(index)
 
             return false;
         }
-
-        if (waitForKeyElements("button.blue_button_L[rel='pop_auto_assign']:not([disabled])",1000))
+        querySelectorText = "button.blue_button_L[rel='pop_auto_assign']:not([disabled])"
+        if (waitForKeyElements(querySelectorText,1000))
         {
-            document.querySelector("button.blue_button_L[rel='pop_auto_assign'][style='display: block;']").click();
+            document.querySelector(querySelectorText).click();
             console.log(new Date().toISOString()+":"+getCallerFunction()+":","Autoassigned powerplace"+index);
             logHHAuto(JSON.stringify("Autoassigned powerplace"+index));
         }
-
-        if (waitForKeyElements("button.blue_button_L[rel='pop_action']:not([disabled])",1000))
+        querySelectorText = "button.blue_button_L[rel='pop_action']:not([disabled])"
+        if (waitForKeyElements(querySelectorText,1000))
         {
-            document.querySelector("button.blue_button_L[rel='pop_action'][style='display: block;']").click();
+            document.querySelector(querySelectorText).click();
             console.log(new Date().toISOString()+":"+getCallerFunction()+":","Started powerplace"+index);
             logHHAuto(JSON.stringify("Started powerplace"+index));
         }
