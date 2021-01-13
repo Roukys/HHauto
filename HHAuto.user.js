@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.17
+// @version      5.4-beta.18
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -1126,22 +1126,14 @@ function collectAndUpdatePowerPlaces()
                 }
             });
             //collect all
-            var queryText;
-            var rewardsQuery = "div#rewards_popup button.blue_button_L";
-            for (var epop of PopToStart)
-            {
-                queryText = "div.pop_thumb[index="+Number(epop)+"] button.purple_button_L[rel='pop_thumb_claim']";
-                if (waitForKeyElements(queryText,500) )
+            $("button[rel='pop_thumb_claim'].purple_button_L").each(function()
+                                                                    {
+                this.click();
+                if (waitForKeyElements("div#rewards_popup button.blue_button_L",500) )
                 {
-                    $(queryText).click();
-
-                    if (waitForKeyElements(rewardsQuery,1000) )
-                    {
-                        $(rewardsQuery).click();
-                    }
+                    $("div#rewards_popup button.blue_button_L").click();
                 }
-            }
-
+            });
 
             //get all already started Pop timers
             var currIndex;
@@ -1164,12 +1156,12 @@ function collectAndUpdatePowerPlaces()
                         if (filteredPops.includes(currIndex) && ! popUnableToStart.includes(currIndex))
                         {
                             currTime=unsafeWindow.HHTimers.timers[e].remainingTime;
-                            if (minTime === -1 || currTime === -1 || minTime>currTime)
+                            if (minTime === -1 || currTime === -1 || minTime>currTime)
                             {
                                 minTime = currTime;
 
                             }
-                            if (maxTime === -1 || maxTime<currTime)
+                            if (maxTime === -1 || maxTime<currTime)
                             {
                                 maxTime = currTime;
                             }
@@ -1250,11 +1242,11 @@ function waitForKeyElements (selectorTxt,maxMilliWaitTime)
 function removePopFromPopToStart(index)
 {
     var epop;
-    var popToStart;
+    var popToSart;
     var newPopToStart;
-    popToStart= Storage().HHAuto_Temp_PopToStart?JSON.parse(Storage().HHAuto_Temp_PopToStart):[];
+    popToSart= Storage().HHAuto_Temp_PopToStart?JSON.parse(Storage().HHAuto_Temp_PopToStart):[];
     newPopToStart=[];
-    for (epop of popToStart)
+    for (epop of popToSart)
     {
         if (epop != index)
         {
@@ -1295,15 +1287,10 @@ function doPowerPlacesStuff(index)
         logHHAuto(JSON.stringify("On powerplace"+index+" page."));
 
         //getting reward in case failed on main page
-        var querySelectorText = "button.purple_button_L[rel='pop_claim']";
-        var rewardsQuery = "div#rewards_popup button.blue_button_L";
+        var querySelectorText = "button[rel='pop_claim']";
         if (waitForKeyElements(querySelectorText,500))
         {
             $(querySelectorText).click();
-            if (waitForKeyElements(rewardsQuery,500) )
-            {
-                $(rewardsQuery).click();
-            }
             console.log(new Date().toISOString()+":"+getCallerFunction()+":","Claimed powerplace"+index);
             logHHAuto(JSON.stringify("Claimed powerplace"+index));
         }
@@ -2031,7 +2018,7 @@ var doChampionStuff=function()
             var timer = $(this).attr('timer');
             var currTime=Number(timer)-Math.ceil(new Date().getTime()/1000);
 
-            if (minTime === -1 || currTime === -1 || minTime>currTime)
+            if (minTime === -1 || currTime === -1 || minTime>currTime)
             {
                 minTime = currTime;
             }
@@ -2043,7 +2030,7 @@ var doChampionStuff=function()
                 if(unsafeWindow.HHTimers.timers[e].$elm[0].offsetParent.className === "champion-lair")
                 {
                     currTime=unsafeWindow.HHTimers.timers[e].remainingTime;
-                    if (minTime === -1 || currTime === -1 || minTime>currTime)
+                    if (minTime === -1 || currTime === -1 || minTime>currTime)
                     {
                         minTime = currTime;
                     }
@@ -4439,30 +4426,26 @@ var autoLoop = function () {
                 popToStart = Storage().HHAuto_Temp_PopToStart?JSON.parse(Storage().HHAuto_Temp_PopToStart):[];
                 //console.log(new Date().toISOString()+":"+getCallerFunction()+":","pop2:",popToStart);
                 //logHHAuto(JSON.stringify("pop2:",popToStart));
-                if (busy === false )
+                for(var index of indexes)
                 {
-                    for(var index of indexes)
+                    if (busy === false && popToStart.includes(Number(index)))
                     {
-                        if (popToStart.includes(Number(index)))
-                        {
-                            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Time to do PowerPlace"+index+".");
-                            logHHAuto(JSON.stringify("Time to do PowerPlace"+index+"."));
-                            busy = doPowerPlacesStuff(index);
-                        }
+                        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Time to do PowerPlace"+index+".");
+                        logHHAuto(JSON.stringify("Time to do PowerPlace"+index+"."));
+                        busy = doPowerPlacesStuff(index);
                     }
-
-                    //console.log(new Date().toISOString()+":"+getCallerFunction()+":","pop3:",Storage().HHAuto_Temp_PopToStart);
-                    //logHHAuto(JSON.stringify("pop3:",Storage().HHAuto_Temp_PopToStart));
-                    popToStart = Storage().HHAuto_Temp_PopToStart?JSON.parse(Storage().HHAuto_Temp_PopToStart):[];
-                    //console.log(new Date().toISOString()+":"+getCallerFunction()+":","pop3:",popToStart);
-                    //logHHAuto(JSON.stringify("pop3:",popToStart));
-                    if (popToStart.length === 0)
-                    {
-                        //console.log(new Date().toISOString()+":"+getCallerFunction()+":","removing popToStart");
-                        //logHHAuto(JSON.stringify("removing popToStart"));
-                        Storage().removeItem('HHAuto_Temp_PopToStart');
-                        gotoPage("home");
-                    }
+                }
+                //console.log(new Date().toISOString()+":"+getCallerFunction()+":","pop3:",Storage().HHAuto_Temp_PopToStart);
+                //logHHAuto(JSON.stringify("pop3:",Storage().HHAuto_Temp_PopToStart));
+                popToStart = Storage().HHAuto_Temp_PopToStart?JSON.parse(Storage().HHAuto_Temp_PopToStart):[];
+                //console.log(new Date().toISOString()+":"+getCallerFunction()+":","pop3:",popToStart);
+                //logHHAuto(JSON.stringify("pop3:",popToStart));
+                if (popToStart.length === 0)
+                {
+                    //console.log(new Date().toISOString()+":"+getCallerFunction()+":","removing popToStart");
+                    //logHHAuto(JSON.stringify("removing popToStart"));
+                    Storage().removeItem('HHAuto_Temp_PopToStart');
+                    gotoPage("home");
                 }
             }
         }
@@ -5039,7 +5022,6 @@ logHHAuto(JSON.stringify("ET: "+Priority[n]));
         {
             delete sessionStorage.HHAuto_Temp_eventTroll;
         }
-
         //priorize mythic event over all
         if (Storage().HHAuto_Setting_eventMythicPrio === "true" && TrollzMythic.length>0)
         {
