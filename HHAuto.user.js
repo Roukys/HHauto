@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.14
+// @version      5.4-beta.15
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -1126,9 +1126,9 @@ function collectAndUpdatePowerPlaces()
                 }
             });
             //collect all
-            $("button[rel='pop_thumb_claim'].purple_button_L").each(function()
+            $("button.purple_button_L[rel='pop_thumb_claim']").each(function()
                                                                     {
-                this.click();
+                $(this).click();
                 if (waitForKeyElements("div#rewards_popup button.blue_button_L",500) )
                 {
                     $("div#rewards_popup button.blue_button_L").click();
@@ -1287,10 +1287,14 @@ function doPowerPlacesStuff(index)
         logHHAuto(JSON.stringify("On powerplace"+index+" page."));
 
         //getting reward in case failed on main page
-        var querySelectorText = "button[rel='pop_claim']";
+        var querySelectorText = "button.purple_button_L[rel='pop_claim']";
         if (waitForKeyElements(querySelectorText,500))
         {
             $(querySelectorText).click();
+            if (waitForKeyElements("div#rewards_popup button.blue_button_L",500) )
+            {
+                $("div#rewards_popup button.blue_button_L").click();
+            }
             console.log(new Date().toISOString()+":"+getCallerFunction()+":","Claimed powerplace"+index);
             logHHAuto(JSON.stringify("Claimed powerplace"+index));
         }
