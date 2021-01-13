@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.15
+// @version      5.4-beta.16
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -4430,26 +4430,30 @@ var autoLoop = function () {
                 popToStart = Storage().HHAuto_Temp_PopToStart?JSON.parse(Storage().HHAuto_Temp_PopToStart):[];
                 //console.log(new Date().toISOString()+":"+getCallerFunction()+":","pop2:",popToStart);
                 //logHHAuto(JSON.stringify("pop2:",popToStart));
-                for(var index of indexes)
+                if (busy === false )
                 {
-                    if (busy === false && popToStart.includes(Number(index)))
+                    for(var index of indexes)
                     {
-                        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Time to do PowerPlace"+index+".");
-                        logHHAuto(JSON.stringify("Time to do PowerPlace"+index+"."));
-                        busy = doPowerPlacesStuff(index);
+                        if (popToStart.includes(Number(index)))
+                        {
+                            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Time to do PowerPlace"+index+".");
+                            logHHAuto(JSON.stringify("Time to do PowerPlace"+index+"."));
+                            busy = doPowerPlacesStuff(index);
+                        }
                     }
-                }
-                //console.log(new Date().toISOString()+":"+getCallerFunction()+":","pop3:",Storage().HHAuto_Temp_PopToStart);
-                //logHHAuto(JSON.stringify("pop3:",Storage().HHAuto_Temp_PopToStart));
-                popToStart = Storage().HHAuto_Temp_PopToStart?JSON.parse(Storage().HHAuto_Temp_PopToStart):[];
-                //console.log(new Date().toISOString()+":"+getCallerFunction()+":","pop3:",popToStart);
-                //logHHAuto(JSON.stringify("pop3:",popToStart));
-                if (popToStart.length === 0)
-                {
-                    //console.log(new Date().toISOString()+":"+getCallerFunction()+":","removing popToStart");
-                    //logHHAuto(JSON.stringify("removing popToStart"));
-                    Storage().removeItem('HHAuto_Temp_PopToStart');
-                    gotoPage("home");
+
+                    //console.log(new Date().toISOString()+":"+getCallerFunction()+":","pop3:",Storage().HHAuto_Temp_PopToStart);
+                    //logHHAuto(JSON.stringify("pop3:",Storage().HHAuto_Temp_PopToStart));
+                    popToStart = Storage().HHAuto_Temp_PopToStart?JSON.parse(Storage().HHAuto_Temp_PopToStart):[];
+                    //console.log(new Date().toISOString()+":"+getCallerFunction()+":","pop3:",popToStart);
+                    //logHHAuto(JSON.stringify("pop3:",popToStart));
+                    if (popToStart.length === 0)
+                    {
+                        //console.log(new Date().toISOString()+":"+getCallerFunction()+":","removing popToStart");
+                        //logHHAuto(JSON.stringify("removing popToStart"));
+                        Storage().removeItem('HHAuto_Temp_PopToStart');
+                        gotoPage("home");
+                    }
                 }
             }
         }
