@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.16
+// @version      5.4-beta.17
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -1126,14 +1126,22 @@ function collectAndUpdatePowerPlaces()
                 }
             });
             //collect all
-            $("button.purple_button_L[rel='pop_thumb_claim']").each(function()
-                                                                    {
-                $(this).click();
-                if (waitForKeyElements("div#rewards_popup button.blue_button_L",500) )
+            var queryText;
+            var rewardsQuery = "div#rewards_popup button.blue_button_L";
+            for (var epop of PopToStart)
+            {
+                queryText = "div.pop_thumb[index="+Number(epop)+"] button.purple_button_L[rel='pop_thumb_claim']";
+                if (waitForKeyElements(queryText,500) )
                 {
-                    $("div#rewards_popup button.blue_button_L").click();
+                    $(queryText).click();
+
+                    if (waitForKeyElements(rewardsQuery,1000) )
+                    {
+                        $(rewardsQuery).click();
+                    }
                 }
-            });
+            }
+
 
             //get all already started Pop timers
             var currIndex;
@@ -1242,11 +1250,11 @@ function waitForKeyElements (selectorTxt,maxMilliWaitTime)
 function removePopFromPopToStart(index)
 {
     var epop;
-    var popToSart;
+    var popToStart;
     var newPopToStart;
-    popToSart= Storage().HHAuto_Temp_PopToStart?JSON.parse(Storage().HHAuto_Temp_PopToStart):[];
+    popToStart= Storage().HHAuto_Temp_PopToStart?JSON.parse(Storage().HHAuto_Temp_PopToStart):[];
     newPopToStart=[];
-    for (epop of popToSart)
+    for (epop of popToStart)
     {
         if (epop != index)
         {
@@ -1288,12 +1296,13 @@ function doPowerPlacesStuff(index)
 
         //getting reward in case failed on main page
         var querySelectorText = "button.purple_button_L[rel='pop_claim']";
+        var rewardsQuery = "div#rewards_popup button.blue_button_L";
         if (waitForKeyElements(querySelectorText,500))
         {
             $(querySelectorText).click();
-            if (waitForKeyElements("div#rewards_popup button.blue_button_L",500) )
+            if (waitForKeyElements(rewardsQuery,500) )
             {
-                $("div#rewards_popup button.blue_button_L").click();
+                $(rewardsQuery).click();
             }
             console.log(new Date().toISOString()+":"+getCallerFunction()+":","Claimed powerplace"+index);
             logHHAuto(JSON.stringify("Claimed powerplace"+index));
