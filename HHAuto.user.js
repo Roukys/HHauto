@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.18
+// @version      5.4-beta.19
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -1126,12 +1126,13 @@ function collectAndUpdatePowerPlaces()
                 }
             });
             //collect all
+            var rewardQuery="div#rewards_popup button.blue_button_L";
             $("button[rel='pop_thumb_claim'].purple_button_L").each(function()
                                                                     {
                 this.click();
-                if (waitForKeyElements("div#rewards_popup button.blue_button_L",500) )
+                if ($(rewardQuery).length >0 )
                 {
-                    $("div#rewards_popup button.blue_button_L").click();
+                    $(rewardQuery).click();
                 }
             });
 
@@ -1239,6 +1240,12 @@ function waitForKeyElements (selectorTxt,maxMilliWaitTime)
     }
 }
 
+function cleanTempPopToStart()
+{
+    Storage().removeItem('HHAuto_Temp_PopUnableToStart');
+    Storage().removeItem('HHAuto_Temp_popToStart');
+}
+
 function removePopFromPopToStart(index)
 {
     var epop;
@@ -1288,7 +1295,7 @@ function doPowerPlacesStuff(index)
 
         //getting reward in case failed on main page
         var querySelectorText = "button[rel='pop_claim']";
-        if (waitForKeyElements(querySelectorText,500))
+        if ($(querySelectorText).length>0)
         {
             $(querySelectorText).click();
             console.log(new Date().toISOString()+":"+getCallerFunction()+":","Claimed powerplace"+index);
@@ -1302,14 +1309,14 @@ function doPowerPlacesStuff(index)
             return false;
         }
         querySelectorText = "button.blue_button_L[rel='pop_auto_assign']:not([disabled])"
-        if (waitForKeyElements(querySelectorText,1000))
+        if ($(querySelectorText).length>0)
         {
             document.querySelector(querySelectorText).click();
             console.log(new Date().toISOString()+":"+getCallerFunction()+":","Autoassigned powerplace"+index);
             logHHAuto(JSON.stringify("Autoassigned powerplace"+index));
         }
         querySelectorText = "button.blue_button_L[rel='pop_action']:not([disabled])"
-        if (waitForKeyElements(querySelectorText,1000))
+        if ($(querySelectorText).length>0)
         {
             document.querySelector(querySelectorText).click();
             console.log(new Date().toISOString()+":"+getCallerFunction()+":","Started powerplace"+index);
@@ -1322,8 +1329,6 @@ function doPowerPlacesStuff(index)
 
             return false;
         }
-
-        waitForKeyElements("div.pop_remaining[style='display: block;']",500);
 
 
         // need to get next powerplaces timer data
@@ -3114,14 +3119,14 @@ var updateData = function () {
     {
         Storage().HHAuto_Setting_autoPowerPlacesAll = document.getElementById("autoPowerPlacesAll").checked;
         clearTimer('minPowerPlacesTime');
-        Storage().removeItem('HHAuto_Temp_popToStart');
+        cleanTempPopToStart();
     }
     newValue = String(document.getElementById("autoPowerPlacesIndexFilter").value);
     if (Storage().HHAuto_Setting_autoPowerPlacesIndexFilter != newValue)
     {
         Storage().HHAuto_Setting_autoPowerPlacesIndexFilter = document.getElementById("autoPowerPlacesIndexFilter").value;
         clearTimer('minPowerPlacesTime');
-        Storage().removeItem('HHAuto_Temp_popToStart');
+        cleanTempPopToStart();
     }
 
     Storage().HHAuto_Setting_autoPowerPlacesIndexFilter = document.getElementById("autoPowerPlacesIndexFilter").value;
@@ -3705,6 +3710,7 @@ var flipParanoia=function()
         if ( checkParanoiaSpendings() === 0 || Storage().HHAuto_Setting_paranoiaSpendsBefore === "false")
         {
             clearParanoiaSpendings();
+            cleanTempPopToStart();
             //going into hiding
             sessionStorage.HHAuto_Temp_burst="false";
         }
