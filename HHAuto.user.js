@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.21
+// @version      5.4-beta.22
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -3779,6 +3779,18 @@ function moduleSimLeague() {
     var matchRating;
     var matchRatingFlag;
 
+    //toremove after migration in prod
+    var girlDataName;
+    if ($('div#leagues_left .girls_wrapper .team_girl[g=1][girl-tooltip-data]').length >0)
+    {
+        girlDataName = "girl-tooltip-data";
+    }
+    else
+    {
+        girlDataName = "new-girl-tooltip-data";
+
+    }
+
     var SimPower = function()
     {
         if ($("div.matchRatingNew img#powerLevelScouter").length != 0)
@@ -3792,9 +3804,11 @@ function moduleSimLeague() {
         playerDefKH = Math.round(getSetHeroInfos('caracs.def_carac3'));
         playerAtk = Math.round(getSetHeroInfos('caracs.damage'));
         playerClass = $('div#leagues_left .icon').attr('carac');
-        playerAlpha = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=1]').attr('girl-tooltip-data'));
-        playerBeta = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=2]').attr('girl-tooltip-data'));
-        playerOmega = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=3]').attr('girl-tooltip-data'));
+
+
+        playerAlpha = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=1]').attr(girlDataName));
+        playerBeta = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=2]').attr(girlDataName));
+        playerOmega = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=3]').attr(girlDataName));
         playerExcitement = Math.round((playerAlpha.caracs.carac1 + playerAlpha.caracs.carac2 + playerAlpha.caracs.carac3) * 28);
         // opponent stats
         opponentName = $('div#leagues_right div.player_block div.title').text();
@@ -3804,9 +3818,9 @@ function moduleSimLeague() {
         opponentDefKH = $('div#leagues_right div.stats_wrap div:nth-child(6)').text();
         opponentAtk = $('div#leagues_right div.stats_wrap div:nth-child(8)').text();
         opponentClass = $('div#leagues_right .icon').attr('carac');
-        opponentAlpha = JSON.parse($('div#leagues_right .girls_wrapper .team_girl[g=1]').attr('girl-tooltip-data'));
-        opponentBeta = JSON.parse($('div#leagues_right .girls_wrapper .team_girl[g=2]').attr('girl-tooltip-data'));
-        opponentOmega = JSON.parse($('div#leagues_right .girls_wrapper .team_girl[g=3]').attr('girl-tooltip-data'));
+        opponentAlpha = JSON.parse($('div#leagues_right .girls_wrapper .team_girl[g=1]').attr(girlDataName));
+        opponentBeta = JSON.parse($('div#leagues_right .girls_wrapper .team_girl[g=2]').attr(girlDataName));
+        opponentOmega = JSON.parse($('div#leagues_right .girls_wrapper .team_girl[g=3]').attr(girlDataName));
         opponentExcitement = Math.round((opponentAlpha.caracs.carac1 + opponentAlpha.caracs.carac2 + opponentAlpha.caracs.carac3) * 28);
 
         //Determine each side's actual defense
@@ -3886,7 +3900,7 @@ function moduleSimLeague() {
     })
     function waitOpnt() {
         setTimeout(function() {
-            if (JSON.parse($('div#leagues_right .girls_wrapper .team_girl[g=3]').attr('girl-tooltip-data'))) {
+            if (JSON.parse($('div#leagues_right .girls_wrapper .team_girl[g=3]').attr(girlDataName))) {
                 SimPower();
             }
             else {
@@ -3980,6 +3994,17 @@ function moduleSimBattle() {
     {
         return;
     }
+    //toremove after migration in prod
+    var girlDataName;
+    if ($('div#leagues_left .girls_wrapper .team_girl[g=1][girl-tooltip-data]').length >0)
+    {
+        girlDataName = "girl-tooltip-data";
+    }
+    else
+    {
+        girlDataName = "new-girl-tooltip-data";
+
+    }
     // player stats
     playerEgo = Math.round(getSetHeroInfos('caracs.ego'));
     playerDefHC = Math.round(getSetHeroInfos('caracs.def_carac1'));
@@ -3988,9 +4013,9 @@ function moduleSimBattle() {
     playerAtk = Math.round(getSetHeroInfos('caracs.damage'));
     playerClass = 'class'+getSetHeroInfos('class');
     //playerClass = $('div#leagues_left .icon').attr('carac');
-    playerAlpha = JSON.parse($("div.battle_hero .battle-faces div[girl_n=0]").attr('girl-tooltip-data'));
-    playerBeta =  JSON.parse($("div.battle_hero .battle-faces div[girl_n=1]").attr('girl-tooltip-data'));
-    playerOmega = JSON.parse($("div.battle_hero .battle-faces div[girl_n=2]").attr('girl-tooltip-data'));
+    playerAlpha = JSON.parse($("div.battle_hero .battle-faces div[girl_n=0]").attr(girlDataName));
+    playerBeta =  JSON.parse($("div.battle_hero .battle-faces div[girl_n=1]").attr(girlDataName));
+    playerOmega = JSON.parse($("div.battle_hero .battle-faces div[girl_n=2]").attr(girlDataName));
     playerExcitement = Math.round((playerAlpha.caracs.carac1 + playerAlpha.caracs.carac2 + playerAlpha.caracs.carac3) * 28);
     // opponent stats
     opponentName = $('div.battle_opponent h3')[0].innerText;
@@ -4001,9 +4026,9 @@ function moduleSimBattle() {
     opponentDefKH = Number($('div.battle_opponent .stats_wrap').children()[5].innerText.split('-')[0].replace(/[^0-9]/gi, ''));
     opponentAtk = Number($('div.battle_opponent .stats_wrap').children()[7].innerText.split('-')[0].replace(/[^0-9]/gi, ''));
     opponentClass = $('div.battle_opponent h3 div[hh_class_tooltip]').attr('carac');
-    opponentAlpha = JSON.parse($('div.battle_opponent .battle-faces div[girl_n=0]').attr('girl-tooltip-data'));
-    opponentBeta = JSON.parse($('div.battle_opponent  .battle-faces div[girl_n=1]').attr('girl-tooltip-data'));
-    opponentOmega = JSON.parse($('div.battle_opponent  .battle-faces div[girl_n=2]').attr('girl-tooltip-data'));
+    opponentAlpha = JSON.parse($('div.battle_opponent .battle-faces div[girl_n=0]').attr(girlDataName));
+    opponentBeta = JSON.parse($('div.battle_opponent  .battle-faces div[girl_n=1]').attr(girlDataName));
+    opponentOmega = JSON.parse($('div.battle_opponent  .battle-faces div[girl_n=2]').attr(girlDataName));
     opponentExcitement = Math.round((opponentAlpha.caracs.carac1 + opponentAlpha.caracs.carac2 + opponentAlpha.caracs.carac3) * 28);
 
     //Determine each side's actual defense
@@ -4123,6 +4148,17 @@ function moduleSimSeasonBattle() {
         {
             doDisplay=true;
         }
+        //toremove after migration in prod
+        var girlDataName;
+        if ($('div#leagues_left .girls_wrapper .team_girl[g=1][girl-tooltip-data]').length >0)
+        {
+            girlDataName = "girl-tooltip-data";
+        }
+        else
+        {
+            girlDataName = "new-girl-tooltip-data";
+
+        }
         // player stats
         playerEgo = Math.round(getSetHeroInfos('caracs.ego'));
         playerDefHC = Math.round(getSetHeroInfos('caracs.def_carac1'));
@@ -4131,9 +4167,9 @@ function moduleSimSeasonBattle() {
         playerAtk = Math.round(getSetHeroInfos('caracs.damage'));
         playerClass = 'class'+getSetHeroInfos('class');
         //playerClass = $('div#leagues_left .icon').attr('carac');
-        playerAlpha = JSON.parse($("div.hero_team div[girl_n=0]").attr('girl-tooltip-data'));
-        playerBeta =  JSON.parse($("div.hero_team div[girl_n=1]").attr('girl-tooltip-data'));
-        playerOmega = JSON.parse($("div.hero_team div[girl_n=2]").attr('girl-tooltip-data'));
+        playerAlpha = JSON.parse($("div.hero_team div[girl_n=0]").attr(girlDataName));
+        playerBeta =  JSON.parse($("div.hero_team div[girl_n=1]").attr(girlDataName));
+        playerOmega = JSON.parse($("div.hero_team div[girl_n=2]").attr(girlDataName));
         playerExcitement = Math.round((playerAlpha.caracs.carac1 + playerAlpha.caracs.carac2 + playerAlpha.caracs.carac3) * 28);
 
 
@@ -4147,9 +4183,9 @@ function moduleSimSeasonBattle() {
             var opponentAtk = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[0].innerText.split('-')[0].replace(/[^0-9]/gi, ''));
 
             var opponentClass = $($("div.season_arena_opponent_container .hero_details div[hh_class_tooltip]")[index]).attr('carac');
-            var opponentAlpha = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g1']")[index]).attr('girl-tooltip-data'));
-            var opponentBeta = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g2']")[index]).attr('girl-tooltip-data'));
-            var opponentOmega = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g3']")[index]).attr('girl-tooltip-data'));
+            var opponentAlpha = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g1']")[index]).attr(girlDataName));
+            var opponentBeta = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g2']")[index]).attr(girlDataName));
+            var opponentOmega = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g3']")[index]).attr(girlDataName));
 
             var playerDef;
             if (opponentClass == 'class1') {
