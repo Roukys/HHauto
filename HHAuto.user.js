@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.23
+// @version      5.4-beta.24
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -4008,7 +4008,7 @@ function moduleSimBattle() {
     }
     //toremove after migration in prod
     var girlDataName;
-    if ($('div#leagues_left .girls_wrapper .team_girl[g=1][girl-tooltip-data]').length >0)
+    if ($('div.battle_hero .battle-faces div[girl_n=0][girl-tooltip-data]').length >0)
     {
         girlDataName = "girl-tooltip-data";
     }
@@ -4162,7 +4162,7 @@ function moduleSimSeasonBattle() {
         }
         //toremove after migration in prod
         var girlDataName;
-        if ($('div#leagues_left .girls_wrapper .team_girl[g=1][girl-tooltip-data]').length >0)
+        if ($('div.hero_team div[girl_n=0][girl-tooltip-data]').length >0)
         {
             girlDataName = "girl-tooltip-data";
         }
@@ -4183,10 +4183,6 @@ function moduleSimSeasonBattle() {
         playerBeta =  JSON.parse($("div.hero_team div[girl_n=1]").attr(girlDataName));
         playerOmega = JSON.parse($("div.hero_team div[girl_n=2]").attr(girlDataName));
         playerExcitement = Math.round((playerAlpha.caracs.carac1 + playerAlpha.caracs.carac2 + playerAlpha.caracs.carac3) * 28);
-
-
-
-
         for (index=0;index<3;index++)
         {
             var opponentName = $("div.season_arena_opponent_container .hero_details div:not([class]):not([carac])")[index].innerText;
