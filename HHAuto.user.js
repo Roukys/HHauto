@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.22
+// @version      5.4-beta.23
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -2798,6 +2798,18 @@ function getLeagueOpponentId(opponentsIDList)
     var playerExcitement;
     var DataOppo=new Map([]);
 
+    //toremove after migration in prod
+    var girlDataName;
+    if ($('div#leagues_left .girls_wrapper .team_girl[g=1][girl-tooltip-data]').length >0)
+    {
+        girlDataName = "girl-tooltip-data";
+    }
+    else
+    {
+        girlDataName = "new-girl-tooltip-data";
+
+    }
+
     if (opponentsListExpirationDate === 'empty' || opponentsListExpirationDate < new Date() || opponentsPowerList.length ==0)
     {
         console.log(new Date().toISOString()+":"+getCallerFunction()+":","Opponents list not found or expired. Fetching all opponents.");
@@ -2808,9 +2820,9 @@ function getLeagueOpponentId(opponentsIDList)
         playerDefKH = Math.round(getSetHeroInfos('caracs.def_carac3'));
         playerAtk = Math.round(getSetHeroInfos('caracs.damage'));
         playerClass = $('div#leagues_left .icon').attr('carac');
-        playerAlpha = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=1]').attr('girl-tooltip-data'));
-        playerBeta = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=2]').attr('girl-tooltip-data'));
-        playerOmega = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=3]').attr('girl-tooltip-data'));
+        playerAlpha = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=1]').attr(girlDataName));
+        playerBeta = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=2]').attr(girlDataName));
+        playerOmega = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=3]').attr(girlDataName));
         playerExcitement = Math.round((playerAlpha.caracs.carac1 + playerAlpha.caracs.carac2 + playerAlpha.caracs.carac3) * 28);
         getOpponents();
         return -1;
