@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.20
+// @version      5.4-beta.21
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -4871,22 +4871,23 @@ var moduleDisplayEventPriority=function()
     //$("div.event-widget div.widget[style='display: block;'] div.container div.scroll-area div.rewards-block-tape div.girl_reward div.HHEventPriority").each(function(){this.remove();});
     if ( eventGirlz.length >0 )
     {
-        var widgetGirlz=[];
+        var girl;
         var prio;
-        for ( var e in eventGirlz)
+        var query="div.event-widget div.widget[style='display: block;'] div.container div.scroll-area div.rewards-block-tape div.girl_reward";
+        var idArray;
+        var currentGirl;
+        for ( var e=eventGirlz.length;e>0;e--)
         {
-            prio = Number(eventGirlz[e].split(";")[2]);
-            widgetGirlz[prio] = e;
-        }
-        $("div.event-widget div.widget[style='display: block;'] div.container div.scroll-area div.rewards-block-tape div.girl_reward").each(function()
-                                                                                                                                            {
-            var currentGirl = Number($(this).attr('girl'));
-            if ( currentGirl in widgetGirlz )
+            idArray = Number(e)-1;
+            girl = Number(eventGirlz[idArray].split(";")[2]);
+            query="div.event-widget div.widget[style='display: block;'] div.container div.scroll-area div.rewards-block-tape div.girl_reward[girl="+girl+"]";
+            if ($(query).length >0 )
             {
-                var prio = Number(widgetGirlz[currentGirl])+1;
-                $(this).prepend('<div class="HHEventPriority">'+prio+'</div>');
+                currentGirl=$(query)[0];
+                $(query).prepend('<div class="HHEventPriority">'+e+'</div>');
+                $($(query)).parent()[0].prepend(currentGirl);
             }
-        });
+        }
     }
 
 }
