@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.24
+// @version      5.4-beta.25
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -4751,7 +4751,7 @@ logHHAuto(JSON.stringify("Time to fight in arena."));
                 console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Buying ticket with energy');
                 logHHAuto(JSON.stringify('Buying ticket with energy'));
                 hh_ajax(params, function(data) {
-                    anim_number($('.tickets_number_amount'), data.tokens - amount, amount);
+                    //anim_number($('.tickets_number_amount'), data.tokens - amount, amount);
                     Hero.updates(data.heroChangesUpdate);
                     location.reload();
                 });
