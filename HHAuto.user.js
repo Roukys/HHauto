@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.28
+// @version      5.4-beta.29
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -583,7 +583,7 @@ function getPage()
             }
             else
             {
-                t=$(".pop_thumb_selected").attr("index");
+                t=$(".pop_thumb_selected").attr("pop_id");
                 if (t === undefined)
                 {
                     var queryString = window.location.search;
@@ -1073,7 +1073,7 @@ function moduleDisplayPopID()
 {
     if ($('.HHPopIDs').length  > 0) {return}
     $('div.pop_list div[pop_id]').each(function() {
-        $(this).prepend('<div class="HHPopIDs">'+$(this).attr('index')+'</div>');
+        $(this).prepend('<div class="HHPopIDs">'+$(this).attr('pop_id')+'</div>');
     });
 }
 
@@ -1094,7 +1094,7 @@ function collectAndUpdatePowerPlaces()
         console.log(new Date().toISOString()+":"+getCallerFunction()+":","totalpops : "+Storage().HHAuto_Temp_Totalpops);
         logHHAuto(JSON.stringify("totalpops : "+Storage().HHAuto_Temp_Totalpops));
         var newFilter="";
-        $("div.pop_list div[pop_id]").each(function(){newFilter=newFilter+';'+$(this).attr('index');});
+        $("div.pop_list div[pop_id]").each(function(){newFilter=newFilter+';'+$(this).attr('pop_id');});
         //for (var id=1;id<Number(Storage().HHAuto_Temp_Totalpops)+1;id++)
         //{
         //    newFilter=newFilter+';'+id;
@@ -1113,7 +1113,7 @@ function collectAndUpdatePowerPlaces()
         var PopToStart=[];
         $("div.pop_thumb[status='pending_reward']").each(function()
                                                          {
-            var pop_id = $(this).attr('index');
+            var pop_id = $(this).attr('pop_id');
             //if index is in filter
             if (filteredPops.includes(pop_id) && ! popUnableToStart.includes(pop_id) && newFilter.includes(pop_id))
             {
@@ -1147,7 +1147,7 @@ function collectAndUpdatePowerPlaces()
                 {
                     //console.log(new Date().toISOString()+":"+getCallerFunction()+":","found timer "+HHTimers.timers[e].$elm.context.outerHTML);
                     //logHHAuto(JSON.stringify("found timer "+HHTimers.timers[e].$elm.context.outerHTML));
-                    currIndex = $(HHTimers.timers[e].$elm.context.outerHTML).attr('index');
+                    currIndex = $(HHTimers.timers[e].$elm.context.outerHTML).attr('pop_id');
                     //if index is in filter
                     if (filteredPops.includes(currIndex) && ! popUnableToStart.includes(currIndex))
                     {
@@ -1190,7 +1190,7 @@ function collectAndUpdatePowerPlaces()
         //building list of Pop to start
         $("div.pop_thumb[status='can_start']").each(function()
                                                     {
-            var pop_id = $(this).attr('index');
+            var pop_id = $(this).attr('pop_id');
             //if index is in filter
             if (filteredPops.includes(pop_id) && ! popUnableToStart.includes(pop_id))
             {
@@ -1440,7 +1440,7 @@ var CollectMoney = function()
             ToClick.shift();
             //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'will click again');
             //logHHAuto(JSON.stringify('will click again'));
-            setTimeout(ClickThem,randomInterval(300,900));
+            setTimeout(ClickThem,randomInterval(500,1500));
 
             window.top.postMessage({ImAlive:true},'*');
         }
@@ -1478,7 +1478,7 @@ var CollectMoney = function()
         {
             //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'clicking!');
             //logHHAuto(JSON.stringify('clicking!'));
-            setTimeout(ClickThem,randomInterval(150,500));
+            setTimeout(ClickThem,randomInterval(500,1500));
         }
         else//nothing to collect
         {
@@ -2457,7 +2457,7 @@ var doSeason = function () {
             }
             sessionStorage.HHAuto_Temp_autoLoop = "false";
             setTimer('nextSeasonTime',5);
-            setTimeout(refreshOpponents,randomInterval(800,1200));
+            setTimeout(refreshOpponents,randomInterval(800,1600));
 
             return true;
         }
@@ -2884,8 +2884,9 @@ function getLeagueOpponentId(opponentsIDList)
 
             });
             opponentsIDList.shift();
-            LeagueUpdateGetOpponentPopup(DataOppo.size+'/'+oppoNumber, toHHMMSS((oppoNumber-DataOppo.size)*1.2));
-            setTimeout(getOpponents,randomInterval(800,1200));
+            var maxTime = 1.6;
+            LeagueUpdateGetOpponentPopup(DataOppo.size+'/'+oppoNumber, toHHMMSS((oppoNumber-DataOppo.size)*maxTime));
+            setTimeout(getOpponents,randomInterval(800,maxTime*1000));
 
             window.top.postMessage({ImAlive:true},'*');
         }
@@ -2893,7 +2894,7 @@ function getLeagueOpponentId(opponentsIDList)
         {
             //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'nothing to click, checking data');
             //logHHAuto(JSON.stringify('nothing to click, checking data'));
-            sessionStorage.HHAuto_Temp_opponentsListExpirationDate=new Date().getTime() + 10*60 * 1000
+            sessionStorage.HHAuto_Temp_opponentsListExpirationDate=new Date().getTime() + 60*60 * 1000
             //console.log(new Date().toISOString()+":"+getCallerFunction()+":",DataOppo);
             //logHHAuto(JSON.stringify(DataOppo));
             sessionStorage.HHAuto_Temp_LeagueOpponentList = JSON.stringify(DataOppo,replacerMap);
@@ -4759,7 +4760,7 @@ logHHAuto(JSON.stringify("Time to fight in arena."));
             }
             sessionStorage.HHAuto_Temp_autoLoop = "false";
             busy = true;;
-            setTimeout(buyTicket,randomInterval(800,1200));
+            setTimeout(buyTicket,randomInterval(800,1600));
         }
 
         if (busy==false && Storage().HHAuto_Setting_autoChamps==="true" && checkTimer('nextChampionTime'))
@@ -4905,7 +4906,7 @@ var setDefaults = function () {
 
     Storage().HHAuto_Setting_spendKobans0="false";
     Storage().HHAuto_Setting_autoSeasonPassReds ="false";
-    Storage().HHAuto_Temp_paranoiaSettings="120-300/Sleep:28800-29400|Active:300-420|Casual:1800-2100/6:Sleep|18:Active|22:Casual|24:Sleep";
+    Storage().HHAuto_Temp_paranoiaSettings="140-320/Sleep:28800-30400|Active:250-460|Casual:1500-2700/6:Sleep|8:Casual|10:Active|12:Casual|14:Active|18:Casual|20:Active|22:Casual|24:Sleep";
     Storage().HHAuto_Setting_master="false";
 };
 
@@ -5435,8 +5436,8 @@ HHAuto_ToolTips.en = {
     showCalculatePower: { elementText: "Show PowerCalc", tooltip : "Display battle simulation indicator for Leagues, battle, Seasons "},
     calculatePowerLimits: { elementText: "Own limits (red;yellow)", tooltip : "(red;yellow)<br>Define your own red and orange limits for Opponents<br> -6000;0 do mean<br> <-6000 is red, between -6000 and 0 is orange and >=0 is green"},
     showInfo: { elementText: "Show info", tooltip : "if enabled : show info on script values and next runs"},
-    autoSalaryCheckbox: { elementText: "AutoSal.", tooltip : "if enabled :<br>Collect salaries every X mins"},
-    autoSalaryTextbox: { elementText: "min wait", tooltip : "(Integer)<br>X mins to collect Salary"},
+    autoSalaryCheckbox: { elementText: "AutoSal.", tooltip : "if enabled :<br>Collect salaries every X secs"},
+    autoSalaryTextbox: { elementText: "min wait", tooltip : "(Integer)<br>X secs to collect Salary"},
     autoMissionCheckbox: { elementText: "AutoMission", tooltip : "if enabled : Automatically do missions"},
     autoMissionCollect: { elementText: "Collect", tooltip : "if enabled : Automatically collect missions"},
     autoTrollCheckbox: { elementText: "AutoTrollBattle", tooltip : "if enabled : Automatically battle troll selected"},
