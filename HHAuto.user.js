@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.29
+// @version      5.4-beta.30
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -19,6 +19,7 @@ GM_addStyle('.myButton {box-shadow: 0px 0px 0px 2px #9fb4f2; background:linear-g
 GM_addStyle('.HHEventPriority {position: absolute;z-index: 500;background-color: black;}');
 GM_addStyle('.HHPopIDs {background-color: black;z-index: 500;position: absolute;margin-top: 25px}');
 GM_addStyle('.tooltip:hover { cursor: help; position: relative; } .tooltip span.tooltiptext { display: none; } .tooltip:hover span.tooltiptext { border: #666 2px dotted; padding: 5px 20px 5px 5px; display: block; z-index: 100; background: #e3e3e3; left: 0px; margin: 15px; width: 200px; position: absolute; top: 15px; color: black; }');
+GM_addStyle('#popup_message_league { border: #666 2px dotted; padding: 5px 20px 5px 5px; display: block; z-index: 1000; background: #e3e3e3; left: 0px; margin: 15px; width: 500px; position: absolute; top: 15px; color: black;}');
 //END CSS Region
 
 // var d="@require      https://cdn.jsdelivr.net/js-cookie/2.2.0/js.cookie.js"
@@ -2767,7 +2768,7 @@ var doLeagueBattle = function () {
 
 function LeagueDisplayGetOpponentPopup(numberDone,remainingTime)
 {
-    $("#leagues #leagues_middle").prepend('<div id="popup_message_league" class="popup_message_league" name="popup_message_league" style="display: block;color: #FF2F2F;font-size: 20px;text-align: center;">Opponent list is building : <br>'+numberDone+' opponents parsed ('+remainingTime+')</div>');
+    $("#leagues #leagues_middle").prepend('<div id="popup_message_league" class="popup_message_league" name="popup_message_league" >'+HHAuto_ToolTips[HHAuto_Lang]["OpponentListBuilding"].elementText+' : <br>'+numberDone+' '+HHAuto_ToolTips[HHAuto_Lang]["OpponentParsed"].elementText+' ('+remainingTime+')</div>');
 }
 function LeagueClearDisplayGetOpponentPopup()
 {
@@ -3885,12 +3886,15 @@ function moduleSimLeague() {
         {
             case 'g':
                 $('div#leagues_right .girls_wrapper').append('<div class="matchRatingNew plus"><img id="powerLevelScouter" src="https://i.postimg.cc/qgkpN0sZ/Opponent-green.png">' + matchRating + '</div>');
+                $("tr.lead_table_default div[second-row]").append('<div class="matchRatingNew plus"><img id="powerLevelScouter" src="https://i.postimg.cc/qgkpN0sZ/Opponent-green.png">' + matchRating + '</div>');
                 break;
             case 'y':
                 $('div#leagues_right .girls_wrapper').append('<div class="matchRatingNew close"><img id="powerLevelScouter" src="https://i.postimg.cc/3JCgVBdK/Opponent-orange.png">' + matchRating + '</div>');
+                $("tr.lead_table_default div[second-row]").append('<div class="matchRatingNew close"><img id="powerLevelScouter" src="https://i.postimg.cc/3JCgVBdK/Opponent-orange.png">' + matchRating + '</div>');
                 break;
             case 'r':
                 $('div#leagues_right .girls_wrapper').append('<div class="matchRatingNew minus"><img id="powerLevelScouter" src="https://i.postimg.cc/PxgxrBVB/Opponent-red.png">' + matchRating + '</div>');
+                $("tr.lead_table_default div[second-row]").append('<div class="matchRatingNew minus"><img id="powerLevelScouter" src="https://i.postimg.cc/PxgxrBVB/Opponent-red.png">' + matchRating + '</div>');
                 break;
         }
 
@@ -3949,12 +3953,20 @@ function moduleSimLeague() {
                 + 'top: 5px !important;}'
                );
 
-    GM_addStyle('.matchRatingNew {'
+    GM_addStyle('@media only screen and (min-width: 1026px) {'
+                + '.matchRatingNew {'
                 + 'margin-top: 50px; '
                 + 'margin-left: -120px; '
                 + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
                 + 'line-height: 17px; '
-                + 'font-size: 14px;}'
+                + 'font-size: 14px;}}'
+               );
+
+    GM_addStyle('@media only screen and (max-width: 1025px) {'
+                + '.matchRatingNew {'
+                + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
+                + 'line-height: 17px; '
+                + 'font-size: 14px;}}'
                );
 
     GM_addStyle('.plus {'
@@ -5478,7 +5490,89 @@ HHAuto_ToolTips.en = {
     autoLGM: { elementText: "Min money to keep", tooltip : "Minimum money to keep."},
     autoLGRW: { elementText: "Buy Leg Gear Rainbow", tooltip : "if enabled : allow to buy Rainbow Legendary gear in the market<br>Only buy if money bank is above the value"},
     autoLGR: { elementText: "Min money to keep", tooltip : "Minimum money to keep."},
-    autoEGM: { elementText: "Buy Epi Gear Mono", tooltip : "if enabled : allow to buy Mono Epic gear in the market<br>Only buy if money bank is above the value"}
+    autoEGM: { elementText: "Buy Epi Gear Mono", tooltip : "if enabled : allow to buy Mono Epic gear in the market<br>Only buy if money bank is above the value"},
+    OpponentListBuilding: { elementText: "Opponent list is building", tooltip : ""},
+    OpponentParsed : { elementText: "opponents parsed", tooltip : ""}
+}
+
+HHAuto_ToolTips.fr = {
+    saveDebug: { elementText: "", tooltip : "Produire un fichier journal de débogage."},
+    gitHub: { elementText: "", tooltip : "Lien vers le projet GitHub."},
+    saveConfig: { elementText: "", tooltip : "Permet de sauvegarder la configuration."},
+    loadConfig: { elementText: "", tooltip : "Permet de charger la configuration."},
+    master: { elementText: "Master switch", tooltip : "Bouton marche/arrêt pour le script complet"},
+    settPerTab: { elementText: "Settings per tab", tooltip : "Autoriser le paramétrage dans cet onglet uniquement"},
+    paranoia: { elementText: "Paranoia mode", tooltip : "Permet de simuler le sommeil, et l'utilisateur humain (à documenter davantage)"},
+    paranoiaSpendsBefore: { elementText: "Spends points before", tooltip : "Dépensera des points pour les options (quête, troll, ligues et saison)<br> uniquement si elles sont activées<br>et dépense des points qui seraient supérieurs aux limites maximales<br> Ex : vous avez la puissance d'un troll à 17, mais en allant 4h45 en paranoïa,<br> cela voudrait dire avoir 17+10 points (arrondis à l'int supérieur), donc être au dessus du 20 max<br> il dépensera alors 8 points pour retomber à 19 fin de la paranoïa, empêchant de perdre des points."},
+    spendKobans0: { elementText: "Questionable Shit", tooltip : "Premiers commutateurs de sécurité pour l'utilisation des kobans <br> Tous les 3 doivent être actifs pour les fonctions de dépense des kobans"},
+    spendKobans1: { elementText: "Are you sure?", tooltip : "Deuxième interrupteur de sécurité pour l'utilisation des kobans <br> Doit être activé après le premier.<br> Tous les 3 doivent être actifs pour les fonctions de dépense des kobans"},
+    spendKobans2: { elementText: "You\'ve been warned", tooltip : "Troisième interrupteur de sécurité pour l'utilisation des kobans <br> Doit être activé après le deuxième.<br> Tous les 3 doivent être actifs pour les fonctions de dépense des kobans"},
+    kobanBank: { elementText: "Koban Bank", tooltip : "(nombre)<br>Koban minimum conservé lors de l'utilisation des fonctions de dépenses Koban"},
+    buyCombat: { elementText: "Buy comb. in events", tooltip : "Fonctions de dépenses Koban<br>Si activées : <br>Achat du point de combat durant les X dernières heures de l'événement (si ne passe pas sous la valeur de la banque Koban)"},
+    buyCombTimer: { elementText: "Hours to buy Comb", tooltip : "(nombre)<br>X dernières heures de l'événement"},
+    autoBuyBoosters: { elementText: "Buy Leg. Boosters", tooltip : "Fonctions de dépenses de Koban<br>Permettre d'acheter un booster sur le marché (si pas en dessous de la valeur de la banque de Koban)"},
+    autoBuyBoostersFilter: { elementText: "Filter", tooltip : "(valeurs séparées par ;)<br>Set quel booster acheter, l'ordre est respecté (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)"},
+    autoSeasonPassReds: { elementText: "Pass 3 reds", tooltip : "Fonctions de dépense des kobans<br>Utiliser les kobans pour renouveler les adversaires de la saison si 3 rouges"},
+    showCalculatePower: { elementText: "Show PowerCalc", tooltip : "Afficher l'indicateur de simulation de bataille pour Ligues, Bataille, Saisons "},
+    calculatePowerLimits: { elementText: "Own limits (red;yellow)", tooltip : "(rouge;jaune)<br>Définissez vos propres limites de rouge et d'orange pour les opposants<br> -6000;0 veux dire<br> <-6000 est rouge, entre -6000 et 0 est orange et >=0 est vert"},
+    showInfo: { elementText: "Show info", tooltip : "si activé : afficher des informations sur les valeurs du script et les prochaines exécutions"},
+    autoSalaryCheckbox: { elementText: "AutoSal.", tooltip : "si activé :<br>Collecter les salaires toutes les X secondes"},
+    autoSalaryTextbox: { elementText: "min wait", tooltip : "(nombre)<br>X secondes pour percevoir le salaire"},
+    autoMissionCheckbox: { elementText: "AutoMission", tooltip : "si activé : Effectuer automatiquement des missions"},
+    autoMissionCollect: { elementText: "Collect", tooltip : "si activé : collecte automatique des missions"},
+    autoTrollCheckbox: { elementText: "AutoTrollBattle", tooltip : "si activé : sélection automatique du troll de combat"},
+    autoTrollSelector: { elementText: "Troll selector", tooltip : "Sélectionnez le troll à combattre."},
+    autoTrollThreshold: { elementText: "Threshold", tooltip : "Combat minimum de trolls à garder"},
+    eventTrollOrder: { elementText: "Event Troll Order", tooltip : "Permet de sélectionner l'ordre dans lequel les trolls d'événements sont automatiquement combattus"},
+    plusEvent: { elementText: "+Event", tooltip : "Si activé : ignorer le troll sélectionné lors de l'événement à l'événement de combat"},
+    plusEventMythic: { elementText: "+Mythic Event", tooltip : "Permettre d'attraper les filles pour un événement mythique, ne devrait les faire jouer que lorsque des tessons sont disponibles"},
+    eventMythicPrio: { elementText: "Priorize over Event Troll Order", tooltip : "fille d’évent mythique privilégiée par rapport à l'ordre des trolls de l'événement si des tessons sont disponibles"},
+    autoTrollMythicByPassThreshold: { elementText: "Mythic bypass Threshold", tooltip : "Permettre au mythique de contourner le seuil des trolls"},
+    autoArenaCheckbox: { elementText: "AutoArenaBattle", tooltip : "si activé : fait automatiquement l'Arène (déconseillé)"},
+    autoSeasonCheckbox: { elementText: "AutoSeason", tooltip : "si activé : combat automatique dans les Saisons (Opposant choisi d'après PowerCalculation)"},
+    autoSeasonCollect: { elementText: "Collect", tooltip : "si activé : collecte automatique les items de saisons ( si plusieurs à collecter, en collectera une par utilisation de baiser)"},
+    autoSeasonThreshold: { elementText: "Threshold", tooltip : "Baiser minimum à conserver"},
+    autoQuestCheckbox: { elementText: "AutoQuest", tooltip : "si activé : Fait automatiquement les quêtes"},
+    autoQuestThreshold: { elementText: "Threshold", tooltip : "énergie de quête à conserver"},
+    autoContestCheckbox: { elementText: "AutoContest", tooltip : "si activé : Récolter les récompenses de la compet terminé"},
+    autoFreePachinko: { elementText: "AutoPachinko(Free)", tooltip : "si activé : collecte automatique les Pachinkos gratuits"},
+    autoLeagues: { elementText: "AutoLeagues", tooltip : "si activé : Combattre automatiquement les Ligues"},
+    autoLeaguesPowerCalc: { elementText: "UsePowerCalc", tooltip : "si activé : choisira l'adversaire en utilisant PowerCalc (la liste des adversaires expire toutes les 10 minutes et prend quelques minutes pour être construite)"},
+    autoLeaguesCollect: { elementText: "Collect", tooltip : "Si activé : Collecte automatique les Ligues"},
+    autoLeaguesSelector: { elementText: "Target League", tooltip : "Ligue à viser, à essayer de rétrograder, à rester ou à passer en ligue supérieure selon le choix"},
+    autoLeaguesThreshold: { elementText: "Threshold", tooltip : "Combats de ligue minimum à maintenir"},
+    autoPowerPlaces: { elementText: "AutoPowerPlaces", tooltip : "si activé : Fait automatiquement les lieux de pouvoir"},
+    autoPowerPlacesIndexFilter: { elementText: "Index Filter", tooltip : "Permet de définir un filtre et un ordre sur les lieux de pouvoir à faire (ordre respecté uniquement lorsque plusieurs lieux de pouvoir expirent en même temps)"},
+    autoPowerPlacesAll: { elementText: "Do All", tooltip : "Si activé : ignorer le filtre et fait toutes les lieux de pouvoir (mettra à jour le filtre avec les identifiants actuels)"},
+    autoChamps: { elementText: "AutoChampions", tooltip : "si activé : fait automatiquement les champions (s'ils sont démarrés et en filtre uniquement)"},
+    autoChampsUseEne: { elementText: "UseEne", tooltip : "Si activé : utiliser l'énergie pour acheter des billets de champion"},
+    autoChampsFilter: { elementText: "Filter", tooltip : "Permet de filtrer les champions à combattre"},
+    autoStats: { elementText: "AutoStats", tooltip : "Achète automatiquement des statistiques sur le marché avec de l'argent au-dessus du montant fixé"},
+    autoExpW: { elementText: "Buy Exp", tooltip : "si activé : permet d'acheter de l'Exp sur le marché<br>Achète uniquement si la banque d'argent est supérieure à la valeur<br>Achète uniquement si le total des Exp détenues est inférieur à la valeur"},
+    autoExp: { elementText: "Min money to keep", tooltip : "Argent minimum à conserver."},
+    maxExp: { elementText: "Max Exp to buy", tooltip : "Exp maximum à acheter"},
+    autoAffW: { elementText: "Buy Aff", tooltip : "si activé : permet d'acheter des Aff sur le marché<br>Acheter uniquement si la banque d'argent est supérieure à la valeur<br>Acheter uniquement si le total des Aff détenues est inférieur à la valeur"},
+    autoAff: { elementText: "Min money to keep", tooltip : "Argent minimum à conserver."},
+    maxAff: { elementText: "Max Aff to buy", tooltip : "Aff maximum à acheter"},
+    autoLGMW: { elementText: "Buy Leg Gear Mono", tooltip : "si activé : permet d'acheter du matériel Mono Légendaire sur le marché <br>Achète uniquement si la banque d'argent est au-dessus de la valeur"},
+    autoLGM: { elementText: "Min money to keep", tooltip : "Argent minimum à conserver."},
+    autoLGRW: { elementText: "Buy Leg Gear Rainbow", tooltip : "si activé : permet d'acheter du matériel Rainbow Légendaire sur le marché<br>Achète uniquement si la banque d'argent est supérieure à la valeur"},
+    autoLGR: { elementText: "Min money to keep", tooltip : "Argent minimum à conserver."},
+    autoEGM: { elementText: "Buy Epi Gear Mono", tooltip : "si activé : permet d'acheter du matériel Mono Epique sur le marché<br>Acheter seulement si la banque d'argent est au-dessus de la valeur"},
+    OpponentListBuilding: { elementText: "La liste des adversaires est en construction", tooltip : ""},
+    OpponentParsed : { elementText: "adversaires parcourus", tooltip : ""}
+}
+
+var HHAuto_Lang = 'en';
+
+if ($('html')[0].lang === 'en') {
+    HHAuto_Lang = 'en';
+}
+else if ($('html')[0].lang === 'fr') {
+    HHAuto_Lang = 'fr';
+}
+else if ($('html')[0].lang === 'es_ES') {
+    //HHAuto_Lang = 'es';
 }
 
 var migrateHHVars = function ()
@@ -5551,17 +5645,7 @@ var start = function () {
         Timers=JSON.parse(sessionStorage.HHAuto_Temp_Timers);
     }
 
-    var HHAuto_Lang = 'en';
 
-    if ($('html')[0].lang === 'en') {
-        HHAuto_Lang = 'en';
-    }
-    else if ($('html')[0].lang === 'fr') {
-        //HHAuto_Lang = 'fr';
-    }
-    else if ($('html')[0].lang === 'es_ES') {
-        //HHAuto_Lang = 'es';
-    }
 
 
 
