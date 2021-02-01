@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.30
+// @version      5.4-beta.31
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -34,9 +34,14 @@ function getCallerFunction()
     return getCallerFunction.caller.name
 }
 
+function getCallerCallerFunction()
+{
+    return getCallerCallerFunction.caller.caller.name
+}
+
 function logHHAuto(text)
 {
-    var prefix = new Date().toISOString()+":"+getCallerFunction()+":";
+    var prefix = new Date().toISOString()+":"+getCallerCallerFunction()+":";
     var currentLoggingText;
     var nbLines;
     var maxLines = 500;
@@ -5436,6 +5441,730 @@ HHAuto_ToolTips.en = {
     settPerTab: { elementText: "Settings per tab", tooltip : "Allow the settings to be set for this tab only"},
     paranoia: { elementText: "Paranoia mode", tooltip : "Allow to simulate sleep, and human user (To be documented further)"},
     paranoiaSpendsBefore: { elementText: "Spends points before", tooltip : "On will spends point for options (quest, Troll, Leagues and Season)<br>only if they are enabled<br>and spends points that would be above max limits<br>Ex : you have power for troll at 17, but going 4h45 in paranoia<br>it would mean having 17+10 points (rounded to higher int), thus being above the 20 max<br> it will then spends 8 points to fall back to 19 end of Paranoia, preventing to loose points."},
+    spendKobans0: { elementText: "Questionable Shit", tooltip : "First security switches for usage of kobans <br> All 3 needs to be active for Koban spending functions"},
+    spendKobans1: { elementText: "Are you sure?", tooltip : "Second security switches for usage of kobans <br>Have to be activated after the first one.<br> All 3 needs to be active for Koban spending functions"},
+    spendKobans2: { elementText: "You\'ve been warned", tooltip : "Third security switches for usage of kobans <br>Have to be activated after the second one.<br> All 3 needs to be active for Koban spending functions"},
+    kobanBank: { elementText: "Koban Bank", tooltip : "(Integer)<br>Minimum Koban kept when using Koban spending functions"},
+    buyCombat: { elementText: "Buy comb. in events", tooltip : "Koban spending functions<br>If enabled : <br>Buying combat point during last X hours of event (if not going under Koban bank value)"},
+    buyCombTimer: { elementText: "Hours to buy Comb", tooltip : "(Integer)<br>X last hours of event"},
+    autoBuyBoosters: { elementText: "Buy Leg. Boosters", tooltip : "Koban spending functions<br>Allow to buy booster in the market (if not going under Koban bank value)"},
+    autoBuyBoostersFilter: { elementText: "Filter", tooltip : "(values separated by ;)<br>Set which booster to buy , order is respected (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)"},
+    autoSeasonPassReds: { elementText: "Pass 3 reds", tooltip : "Koban spending functions<br>Use kobans to renew Season opponents if 3 reds"},
+    showCalculatePower: { elementText: "Show PowerCalc", tooltip : "Display battle simulation indicator for Leagues, battle, Seasons "},
+    calculatePowerLimits: { elementText: "Own limits (red;orange)", tooltip : "(red;yellow)<br>Define your own red and orange limits for Opponents<br> -6000;0 do mean<br> <-6000 is red, between -6000 and 0 is orange and >=0 is green"},
+    showInfo: { elementText: "Show info", tooltip : "if enabled : show info on script values and next runs"},
+    autoSalaryCheckbox: { elementText: "AutoSal.", tooltip : "if enabled :<br>Collect salaries every X secs"},
+    autoSalaryTextbox: { elementText: "min wait", tooltip : "(Integer)<br>X secs to collect Salary"},
+    autoMissionCheckbox: { elementText: "AutoMission", tooltip : "if enabled : Automatically do missions"},
+    autoMissionCollect: { elementText: "Collect", tooltip : "if enabled : Automatically collect missions"},
+    autoTrollCheckbox: { elementText: "AutoTrollBattle", tooltip : "if enabled : Automatically battle troll selected"},
+    autoTrollSelector: { elementText: "Troll selector", tooltip : "Select troll to be fought."},
+    autoTrollThreshold: { elementText: "Threshold", tooltip : "Minimum troll fight to keep"},
+    eventTrollOrder: { elementText: "Event Troll Order", tooltip : "Allow to select in which order event troll are automatically battled"},
+    plusEvent: { elementText: "+Event", tooltip : "If enabled : ignore selected troll during event to battle event"},
+    plusEventMythic: { elementText: "+Mythic Event", tooltip : "Enable grabbing girls for mythic event, should only play them when shards are available"},
+    eventMythicPrio: { elementText: "Priorize over Event Troll Order", tooltip : "Mythic event girl priorized over event troll order if shards available"},
+    autoTrollMythicByPassThreshold: { elementText: "Mythic bypass Threshold", tooltip : "Allow mythic to bypass Troll threshold"},
+    autoArenaCheckbox: { elementText: "AutoArenaBattle", tooltip : "if enabled : Automatically do Arena (deprecated)"},
+    autoSeasonCheckbox: { elementText: "AutoSeason", tooltip : "if enabled : Automatically fight in Seasons (Opponent chosen following PowerCalculation)"},
+    autoSeasonCollect: { elementText: "Collect", tooltip : "if enabled : Automatically collect Seasons ( if multiple to collect, will collect one per kiss usage)"},
+    autoSeasonThreshold: { elementText: "Threshold", tooltip : "Minimum kiss to keep"},
+    autoQuestCheckbox: { elementText: "AutoQuest", tooltip : "if enabled : Automatically do quest"},
+    autoQuestThreshold: { elementText: "Threshold", tooltip : "Minimum quest energy to keep"},
+    autoContestCheckbox: { elementText: "AutoContest", tooltip : "if enabled : Collect finished contest rewards"},
+    autoFreePachinko: { elementText: "AutoPachinko(Free)", tooltip : "if enabled : Automatically collect free Pachinkos"},
+    autoLeagues: { elementText: "AutoLeagues", tooltip : "if enabled : Automatically battle Leagues"},
+    autoLeaguesPowerCalc: { elementText: "UsePowerCalc", tooltip : "if enabled : will choose opponent using PowerCalc (Opponent list expires every 10 mins and take few mins to be built)"},
+    autoLeaguesCollect: { elementText: "Collect", tooltip : "If enabled : Automatically collect Leagues"},
+    autoLeaguesSelector: { elementText: "Target League", tooltip : "League to target, to try to demote, stay or go in higher league depending"},
+    autoLeaguesThreshold: { elementText: "Threshold", tooltip : "Minimum league fights to keep"},
+    autoPowerPlaces: { elementText: "AutoPowerPlaces", tooltip : "if enabled : Automatically Do powerPlaces"},
+    autoPowerPlacesIndexFilter: { elementText: "Index Filter", tooltip : "Allow to set filter and order on the PowerPlaces to do (order respected only when multiple powerPlace expires at the same time)"},
+    autoPowerPlacesAll: { elementText: "Do All", tooltip : "If enabled : ignore filter and do all powerplaces (will update Filter with current ids)"},
+    autoChamps: { elementText: "AutoChampions", tooltip : "if enabled : Automatically do champions (if they are started and in filter only)"},
+    autoChampsUseEne: { elementText: "UseEne", tooltip : "If enabled : use Energy to buy tickets"},
+    autoChampsFilter: { elementText: "Filter", tooltip : "Allow to set filter on champions to be fought"},
+    autoStats: { elementText: "AutoStats", tooltip : "Automatically buy stats in market with money above the setted amount"},
+    autoExpW: { elementText: "Buy Exp", tooltip : "if enabled : allow to buy Exp in market<br>Only buy if money bank is above the value<br>Only buy if total Exp owned is below value"},
+    autoExp: { elementText: "Min money to keep", tooltip : "Minimum money to keep."},
+    maxExp: { elementText: "Max Exp to buy", tooltip : "Maximum Exp to buy"},
+    autoAffW: { elementText: "Buy Aff", tooltip : "if enabled : allow to buy Aff in market<br>Only buy if money bank is above the value<br>Only buy if total Aff owned is below value"},
+    autoAff: { elementText: "Min money to keep", tooltip : "Minimum money to keep."},
+    maxAff: { elementText: "Max Aff to buy", tooltip : "Maximum Aff to buy"},
+    autoLGMW: { elementText: "Buy Leg Gear Mono", tooltip : "if enabled : allow to buy Mono Legendary gear in the market<br>Only buy if money bank is above the value"},
+    autoLGM: { elementText: "Min money to keep", tooltip : "Minimum money to keep."},
+    autoLGRW: { elementText: "Buy Leg Gear Rainbow", tooltip : "if enabled : allow to buy Rainbow Legendary gear in the market<br>Only buy if money bank is above the value"},
+    autoLGR: { elementText: "Min money to keep", tooltip : "Minimum money to keep."},
+    autoEGM: { elementText: "Buy Epi Gear Mono", tooltip : "if enabled : allow to buy Mono Epic gear in the market<br>Only buy if money bank is above the value"},
+    OpponentListBuilding: { elementText: "Opponent list is building", tooltip : ""},
+    OpponentParsed : { elementText: "opponents parsed", tooltip : ""}
+}
+
+
+HHAuto_ToolTips.fr = {
+    saveDebug: { elementText: "", tooltip : "Produire un fichier journal de débogage."},
+    gitHub: { elementText: "", tooltip : "Lien vers le projet GitHub."},
+    saveConfig: { elementText: "", tooltip : "Permet de sauvegarder la configuration."},
+    loadConfig: { elementText: "", tooltip : "Permet de charger la configuration."},
+    master: { elementText: "Master switch", tooltip : "Bouton marche/arrêt pour le script complet"},
+    settPerTab: { elementText: "Settings per tab", tooltip : "Autoriser le paramétrage dans cet onglet uniquement"},
+    paranoia: { elementText: "Paranoia mode", tooltip : "Permet de simuler le sommeil, et l'utilisateur humain (à documenter davantage)"},
+    paranoiaSpendsBefore: { elementText: "Spends points before", tooltip : "Dépensera des points pour les options (quête, troll, ligues et saison)<br> uniquement si elles sont activées<br>et dépense des points qui seraient supérieurs aux limites maximales<br> Ex : vous avez la puissance d'un troll à 17, mais en allant 4h45 en paranoïa,<br> cela voudrait dire avoir 17+10 points (arrondis à l'int supérieur), donc être au dessus du 20 max<br> il dépensera alors 8 points pour retomber à 19 fin de la paranoïa, empêchant de perdre des points."},
+    spendKobans0: { elementText: "Questionable Shit", tooltip : "Premiers commutateurs de sécurité pour l'utilisation des kobans <br> Tous les 3 doivent être actifs pour les fonctions de dépense des kobans"},
+    spendKobans1: { elementText: "Are you sure?", tooltip : "Deuxième interrupteur de sécurité pour l'utilisation des kobans <br> Doit être activé après le premier.<br> Tous les 3 doivent être actifs pour les fonctions de dépense des kobans"},
+    spendKobans2: { elementText: "You\'ve been warned", tooltip : "Troisième interrupteur de sécurité pour l'utilisation des kobans <br> Doit être activé après le deuxième.<br> Tous les 3 doivent être actifs pour les fonctions de dépense des kobans"},
+    kobanBank: { elementText: "Koban Bank", tooltip : "(nombre)<br>Koban minimum conservé lors de l'utilisation des fonctions de dépenses Koban"},
+    buyCombat: { elementText: "Buy comb. in events", tooltip : "Fonctions de dépenses Koban<br>Si activées : <br>Achat du point de combat durant les X dernières heures de l'événement (si ne passe pas sous la valeur de la banque Koban)"},
+    buyCombTimer: { elementText: "Hours to buy Comb", tooltip : "(nombre)<br>X dernières heures de l'événement"},
+    autoBuyBoosters: { elementText: "Buy Leg. Boosters", tooltip : "Fonctions de dépenses de Koban<br>Permettre d'acheter un booster sur le marché (si pas en dessous de la valeur de la banque de Koban)"},
+    autoBuyBoostersFilter: { elementText: "Filter", tooltip : "(valeurs séparées par ;)<br>Set quel booster acheter, l'ordre est respecté (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)"},
+    autoSeasonPassReds: { elementText: "Pass 3 reds", tooltip : "Fonctions de dépense des kobans<br>Utiliser les kobans pour renouveler les adversaires de la saison si 3 rouges"},
+    showCalculatePower: { elementText: "Show PowerCalc", tooltip : "Afficher l'indicateur de simulation de bataille pour Ligues, Bataille, Saisons "},
+    calculatePowerLimits: { elementText: "Own limits (red;orange)", tooltip : "(rouge;jaune)<br>Définissez vos propres limites de rouge et d'orange pour les opposants<br> -6000;0 veux dire<br> <-6000 est rouge, entre -6000 et 0 est orange et >=0 est vert"},
+    showInfo: { elementText: "Show info", tooltip : "si activé : afficher des informations sur les valeurs du script et les prochaines exécutions"},
+    autoSalaryCheckbox: { elementText: "AutoSal.", tooltip : "si activé :<br>Collecter les salaires toutes les X secondes"},
+    autoSalaryTextbox: { elementText: "min wait", tooltip : "(nombre)<br>X secondes pour percevoir le salaire"},
+    autoMissionCheckbox: { elementText: "AutoMission", tooltip : "si activé : Effectuer automatiquement des missions"},
+    autoMissionCollect: { elementText: "Collect", tooltip : "si activé : collecte automatique des missions"},
+    autoTrollCheckbox: { elementText: "AutoTrollBattle", tooltip : "si activé : sélection automatique du troll de combat"},
+    autoTrollSelector: { elementText: "Troll selector", tooltip : "Sélectionnez le troll à combattre."},
+    autoTrollThreshold: { elementText: "Threshold", tooltip : "Combat minimum de trolls à garder"},
+    eventTrollOrder: { elementText: "Event Troll Order", tooltip : "Permet de sélectionner l'ordre dans lequel les trolls d'événements sont automatiquement combattus"},
+    plusEvent: { elementText: "+Event", tooltip : "Si activé : ignorer le troll sélectionné lors de l'événement à l'événement de combat"},
+    plusEventMythic: { elementText: "+Mythic Event", tooltip : "Permettre d'attraper les filles pour un événement mythique, ne devrait les faire jouer que lorsque des tessons sont disponibles"},
+    eventMythicPrio: { elementText: "Priorize over Event Troll Order", tooltip : "fille d’évent mythique privilégiée par rapport à l'ordre des trolls de l'événement si des tessons sont disponibles"},
+    autoTrollMythicByPassThreshold: { elementText: "Mythic bypass Threshold", tooltip : "Permettre au mythique de contourner le seuil des trolls"},
+    autoArenaCheckbox: { elementText: "AutoArenaBattle", tooltip : "si activé : fait automatiquement l'Arène (déconseillé)"},
+    autoSeasonCheckbox: { elementText: "AutoSeason", tooltip : "si activé : combat automatique dans les Saisons (Opposant choisi d'après PowerCalculation)"},
+    autoSeasonCollect: { elementText: "Collect", tooltip : "si activé : collecte automatique les items de saisons ( si plusieurs à collecter, en collectera une par utilisation de baiser)"},
+    autoSeasonThreshold: { elementText: "Threshold", tooltip : "Baiser minimum à conserver"},
+    autoQuestCheckbox: { elementText: "AutoQuest", tooltip : "si activé : Fait automatiquement les quêtes"},
+    autoQuestThreshold: { elementText: "Threshold", tooltip : "énergie de quête à conserver"},
+    autoContestCheckbox: { elementText: "AutoContest", tooltip : "si activé : Récolter les récompenses de la compet terminé"},
+    autoFreePachinko: { elementText: "AutoPachinko(Free)", tooltip : "si activé : collecte automatique les Pachinkos gratuits"},
+    autoLeagues: { elementText: "AutoLeagues", tooltip : "si activé : Combattre automatiquement les Ligues"},
+    autoLeaguesPowerCalc: { elementText: "UsePowerCalc", tooltip : "si activé : choisira l'adversaire en utilisant PowerCalc (la liste des adversaires expire toutes les 10 minutes et prend quelques minutes pour être construite)"},
+    autoLeaguesCollect: { elementText: "Collect", tooltip : "Si activé : Collecte automatique les Ligues"},
+    autoLeaguesSelector: { elementText: "Target League", tooltip : "Ligue à viser, à essayer de rétrograder, à rester ou à passer en ligue supérieure selon le choix"},
+    autoLeaguesThreshold: { elementText: "Threshold", tooltip : "Combats de ligue minimum à maintenir"},
+    autoPowerPlaces: { elementText: "AutoPowerPlaces", tooltip : "si activé : Fait automatiquement les lieux de pouvoir"},
+    autoPowerPlacesIndexFilter: { elementText: "Index Filter", tooltip : "Permet de définir un filtre et un ordre sur les lieux de pouvoir à faire (ordre respecté uniquement lorsque plusieurs lieux de pouvoir expirent en même temps)"},
+    autoPowerPlacesAll: { elementText: "Do All", tooltip : "Si activé : ignorer le filtre et fait toutes les lieux de pouvoir (mettra à jour le filtre avec les identifiants actuels)"},
+    autoChamps: { elementText: "AutoChampions", tooltip : "si activé : fait automatiquement les champions (s'ils sont démarrés et en filtre uniquement)"},
+    autoChampsUseEne: { elementText: "UseEne", tooltip : "Si activé : utiliser l'énergie pour acheter des billets de champion"},
+    autoChampsFilter: { elementText: "Filter", tooltip : "Permet de filtrer les champions à combattre"},
+    autoStats: { elementText: "AutoStats", tooltip : "Achète automatiquement des statistiques sur le marché avec de l'argent au-dessus du montant fixé"},
+    autoExpW: { elementText: "Buy Exp", tooltip : "si activé : permet d'acheter de l'Exp sur le marché<br>Achète uniquement si la banque d'argent est supérieure à la valeur<br>Achète uniquement si le total des Exp détenues est inférieur à la valeur"},
+    autoExp: { elementText: "Min money to keep", tooltip : "Argent minimum à conserver."},
+    maxExp: { elementText: "Max Exp to buy", tooltip : "Exp maximum à acheter"},
+    autoAffW: { elementText: "Buy Aff", tooltip : "si activé : permet d'acheter des Aff sur le marché<br>Acheter uniquement si la banque d'argent est supérieure à la valeur<br>Acheter uniquement si le total des Aff détenues est inférieur à la valeur"},
+    autoAff: { elementText: "Min money to keep", tooltip : "Argent minimum à conserver."},
+    maxAff: { elementText: "Max Aff to buy", tooltip : "Aff maximum à acheter"},
+    autoLGMW: { elementText: "Buy Leg Gear Mono", tooltip : "si activé : permet d'acheter du matériel Mono Légendaire sur le marché <br>Achète uniquement si la banque d'argent est au-dessus de la valeur"},
+    autoLGM: { elementText: "Min money to keep", tooltip : "Argent minimum à conserver."},
+    autoLGRW: { elementText: "Buy Leg Gear Rainbow", tooltip : "si activé : permet d'acheter du matériel Rainbow Légendaire sur le marché<br>Achète uniquement si la banque d'argent est supérieure à la valeur"},
+    autoLGR: { elementText: "Min money to keep", tooltip : "Argent minimum à conserver."},
+    autoEGM: { elementText: "Buy Epi Gear Mono", tooltip : "si activé : permet d'acheter du matériel Mono Epique sur le marché<br>Acheter seulement si la banque d'argent est au-dessus de la valeur"},
+    OpponentListBuilding: { elementText: "La liste des adversaires est en construction", tooltip : ""},
+    OpponentParsed : { elementText: "adversaires parcourus", tooltip : ""}
+}
+
+HHAuto_ToolTips.de = {
+    saveDebug: { elementText: "", tooltip : "Erlaube das Erstellen einer Debug Log Datei."},
+    gitHub: { elementText: "", tooltip : "Link zum GitHub Projekt."},
+    saveConfig: { elementText: "", tooltip : "Erlaube die Einstellung zu speichern."},
+    loadConfig: { elementText: "", tooltip : "Erlaube die Einstellung zu laden."},
+    master: { elementText: "Master Schalter", tooltip : "An/Aus Schalter für das Skript"},
+    settPerTab: { elementText: "Einstellung per Tab", tooltip : "Erlaube die Einstellungen nur für diesen Tab zu setzen."},
+    paranoia: { elementText: "Paranoia Modus", tooltip : "Erlaube es Schalf zu simulieren und einen menschlichen Nutzer (wird weiter dokumentiert)"},
+    paranoiaSpendsBefore: { elementText: "Gib Punkte aus vor...", tooltip : "Wenn gewollt, werden Punkte für Optionen ausgegeben (Quest, Troll, Liga und Season)<br> nur wenn sie aktiviert sind<br>und gibt Punkt aus die über dem maximal Limit sind<br> z.B.: Du hast die Power für Troll von 17, gehst aber für 4h45 in den Paranoia Modus,<br> dass heißt 17+10 Punkte (aufgerundet), welches über dem Max von 20 wäre.<br> Es würden dann 9 Punkte ausgegeben, sodass du nur bei 19 Punkten bleibst bis zum Ende des Paranoia Modus um einen Verlust zu verhindern."},
+    spendKobans0: { elementText: "Fragwürdige Scheiße", tooltip : "Erster Sicherheitsschalter für die Nutzung von Kobans.<br>Alle 3 müssen aktiviert sein und Kobans auszugeben."},
+    spendKobans1: { elementText: "Biste sicher?", tooltip : "Zweiter Sicherheitsschalter für die Nutzung von Kobans.<br>Muss nach dem Ersten aktiviert werden.<br>Alle 3 müssen aktiviert sein und Kobans auszugeben."},
+    spendKobans2: { elementText: "Du wurdest gewarnt!", tooltip : "Dritter Sicherheitsschalter für die Nutzung von Kobans <br>Muss nach dem Zweiten aktiviert werden.<br> Alle 3 müssen aktiviert sein und Kobans auszugeben."},
+    kobanBank: { elementText: "Koban Bank", tooltip : "(Integer)<br>Minimale Anzahl an Kobans die behalten werden sollen."},
+    buyCombat: { elementText: "Kaufe Koban bei Events", tooltip : "'Koban ausgeben Funktion'<br> Wenn aktiviert: <br> Kauft Kampfpunkte in den letzten X Stunden eines Events (Wenn es das Minimum nicht unterschreitet)"},
+    buyCombTimer: { elementText: "Stunden bis Kauf", tooltip : "(Ganze pos. Zahl)<br>X verbleibende Stunden des Events"},
+    autoBuyBoosters: { elementText: "Kaufe Booster", tooltip : "'Koban ausgeben Funktion'<br>Erlaubt es Booster im Markt zu kaufen(Wenn es das Minimum nicht unterschreitet)"},
+    autoBuyBoostersFilter: { elementText: "Filter", tooltip : "(Werte getrennt durch ;)<br>Gib an welches Booster gekauft werden sollen, Reihenfolge wird beachtet (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)"},
+    autoSeasonPassReds: { elementText: "Überspringe drei Rote", tooltip : "'Koban ausgeben Funktion'<br>Benutze Kobans um Season Gegner zu tauschen wenn alle drei Rote sind"},
+    showCalculatePower: { elementText: "Zeige Kraftrechner", tooltip : "Zeige Kampfsimulationsindikator an für Liga, Kampf und Season"},
+    calculatePowerLimits: { elementText: "Eigene Grenzen (rot;gelb)", tooltip : "(rot;gelb)<br>Definiere deine eigenen Grenzen für rote und orange Gegner<br> -6000;0 meint<br> <-6000 ist rot, zwischen -6000 und 0 ist orange und >=0 ist grün"},
+    showInfo: { elementText: "Zeige Info", tooltip : "Wenn aktiv : zeige Information auf Skriptwerten und nächsten Durchläufen"},
+    autoSalaryCheckbox: { elementText: "Auto Einkommen", tooltip : "Wenn aktiv :<br>Sammelt das gesamte Einkommen alle X Sek."},
+    autoSalaryTextbox: { elementText: "min Warten", tooltip : "(Ganze pos. Zahl)<br>X Sek bis zum Sammeln des Einkommens"},
+    autoMissionCheckbox: { elementText: "AutoMission", tooltip : "Wenn aktiv : Macht automatisch Missionen"},
+    autoMissionCollect: { elementText: "Einsammeln", tooltip : "Wenn aktiv : Sammelt automatisch Missionsgewinne"},
+    autoTrollCheckbox: { elementText: "AutoTrollKampf", tooltip : "Wenn aktiv : Macht automatisch aktivierte Trollkämpfe"},
+    autoTrollSelector: { elementText: "Troll Wähler", tooltip : "Wähle Trolle die bekämpfte werden sollen."},
+    autoTrollThreshold: { elementText: "Schwellwert", tooltip : "Minimum an Trollpunkten die aufgehoben werden"},
+    eventTrollOrder: { elementText: "Event Troll Reihenfolge", tooltip : "Erlaubt eine Auswahl in welcher Reihenfolge die Trolle automatisch bekämpft werden"},
+    plusEvent: { elementText: "+Event", tooltip : "Wenn aktiv : Ignoriere ausgewählte Trolle währende eines Events, zugunsten des Events"},
+    plusEventMythic: { elementText: "+Mythisches Event", tooltip : "Erlaubt es Mädels beim mystischen Event abzugreifen, sollte sie nur versuchen wenn auch Teile vorhanden sind"},
+    eventMythicPrio: { elementText: "Priorisiere über Event Troll Reihenfolge", tooltip : "Mystische Event Mädels werden über die Event Troll Reihenfolge gestellt, sofern Teile erhältlich sind"},
+    autoTrollMythicByPassThreshold: { elementText: "Mystische über Schwellenwert", tooltip : "Erlaubt es Punkt über den Schwellwert für das mystische Events zu nutzen"},
+    autoArenaCheckbox: { elementText: "AutoArenaKampf", tooltip : "if enabled : Automatically do Arena (deprecated)"},
+    autoSeasonCheckbox: { elementText: "AutoSeason", tooltip : "Wenn aktiv : Kämpft automatisch in der Season (Gegner werden wie im Kraftrechner einstellt gewählt)"},
+    autoSeasonCollect: { elementText: "Einsammeln", tooltip : "Wenn aktiv : Sammelt automatisch Seasongewinne ein (bei mehr als einem, wird eines pro Küssnutzung eingesammelt)"},
+    autoSeasonThreshold: { elementText: "Schwellwert", tooltip : "Minimum Küsse die behalten bleiben"},
+    autoQuestCheckbox: { elementText: "AutoQuest", tooltip : "Wenn aktiv : Macht automatisch Quests"},
+    autoQuestThreshold: { elementText: "Schwellwert", tooltip : "Minimum an Energie die behalten bleibt"},
+    autoContestCheckbox: { elementText: "AutoAufgabe", tooltip : "Wenn aktiv : Sammelt abgeschlossene Aufgabenbelohnungen ein"},
+    autoFreePachinko: { elementText: "AutoPachinko(Gratis)", tooltip : "Wenn aktiv : Sammelt freien Glücksspielgewinn ein"},
+    autoLeagues: { elementText: "AutoLiga", tooltip : "Wenn aktiv : Kämpft automatisch in der Liga"},
+    autoLeaguesPowerCalc: { elementText: "Nutze Kraftrechner", tooltip : "Wenn aktiv : wählt Gegner durch Kraftrechner (Gegnerliste verfällt alle 10 Min und braucht ein Minuten zur Erneuerung)"},
+    autoLeaguesCollect: { elementText: "Einsammeln", tooltip : "Wenn aktiv : Sammelt automatisch Ligagewinn ein"},
+    autoLeaguesSelector: { elementText: "Ligaziel", tooltip : "Ligaziel, versuche abzusteigen, Platz zu halten oder aufzusteigen"},
+    autoLeaguesThreshold: { elementText: "Schwellwert", tooltip : "Minimum an Ligakämpfe behalten"},
+    autoPowerPlaces: { elementText: "AutoKraftorte", tooltip : "Wenn aktiv : macht automatisch Kraftorte"},
+    autoPowerPlacesIndexFilter: { elementText: "Index Filter", tooltip : "Erlaubt es Filter zusetzen für Kraftorte und eine Reihenfolge festzulegen (Reihenfolge wird beachtet, sollten mehrere zur gleichen Zeit fertig werden)"},
+    autoPowerPlacesAll: { elementText: "Mach alle", tooltip : "Wenn aktiv : ignoriere Filter und mache alle (aktualisiert den Filter mit korrekten IDs)"},
+    autoChamps: { elementText: "AutoChampions", tooltip : "Wenn aktiv : Macht automatisch Championkämpfe (nur wenn sie gestartet wurden und im Filter stehen)"},
+    autoChampsUseEne: { elementText: "Nutze Energie", tooltip : "Wenn aktiv : Nutze Energie und kaufe Champ. Tickets"},
+    autoChampsFilter: { elementText: "Filter", tooltip : "Erlaubt es Filter für zu bekämpfende Champions zu setzen"},
+    autoStats: { elementText: "AutoStats", tooltip : "Kauft automatisch bessere Statuswerte im Markt mit überschüssigem Geld oberhalb des gesetzten Wertes"},
+    autoExpW: { elementText: "Kaufe Erfahrung", tooltip : "Wenn aktiv : Erlaube Erfahrung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt<br>Kauft nur wenn sich im Besitz befinden potentielle Erfahrung unter dem Wert liegt"},
+    autoExp: { elementText: "Min Geld verbleib", tooltip : "Minimum an Geld das behalten wird."},
+    maxExp: { elementText: "Max ErfahrKauf", tooltip : "Maximum Erfahrung die gekauft wird"},
+    autoAffW: { elementText: "KaufAnziehung", tooltip : "Wenn aktiv : Erlaube Anziehung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt<br>Kauft nur wenn sich im Besitz befinden potentielle Anziehung unter dem Wert liegt"},
+    autoAff: { elementText: "Min Geld verbleib", tooltip : "Minimum an Geld das behalten wird."},
+    maxAff: { elementText: "Max AnziehungKauf", tooltip : "Maximum an Anziehung die gekauft wird"},
+    autoLGMW: { elementText: "Buy Leg Gear Mono", tooltip : "Wenn aktiv : Erlaube es Mono legendäre Rüstung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt"},
+    autoLGM: { elementText: "Min Geld verbleib", tooltip : "Minimum an Geld das behalten wird."},
+    autoLGRW: { elementText: "Buy Leg Gear Rainbow", tooltip : "Wenn aktiv : Erlaube es Regenbogenausrüstung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt"},
+    autoLGR: { elementText: "Min Geld verbleib", tooltip : "Minimum an Geld das behalten wird."},
+    autoEGM: { elementText: "Buy Epi Gear Mono", tooltip : "Wenn aktiv : Erlaube es Mono epische Ausrüstung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt"},
+    OpponentListBuilding: { elementText: "Gegnerliste wird erstellt", tooltip : ""},
+    OpponentParsed : { elementText: "Gegner analysiert", tooltip : ""}
+}
+
+
+var HHAuto_Lang = 'en';
+
+if ($('html')[0].lang === 'en') {
+    HHAuto_Lang = 'en';
+}
+else if ($('html')[0].lang === 'fr') {
+    HHAuto_Lang = 'fr';
+}
+else if ($('html')[0].lang === 'es_ES') {
+    //HHAuto_Lang = 'es';
+}
+else if ($('html')[0].lang === 'de_DE') {
+    HHAuto_Lang = 'de';
+}
+else if ($('html')[0].lang === 'it_IT') {
+    //HHAuto_Lang = 'it';
+}
+
+var migrateHHVars = function ()
+{
+    var storageType;
+    var variableName;
+    var oldVarName;
+    var storageItem;
+    var migratedVars = localStorage.HHAuto_Temp_MigratedVars?true:false;
+
+    if (!migratedVars && localStorage.settPerTab)
+    {
+        console.log(new Date().toISOString()+":"+getCallerFunction()+":","migrated settbyTab");
+        logHHAuto(JSON.stringify("migrated settbyTab"));
+        localStorage.HHAuto_Setting_settPerTab = localStorage.settPerTab;
+    }
+
+    if(!localStorage.HHAuto_Setting_settPerTab)
+    {
+        localStorage.HHAuto_Setting_settPerTab="false";
+    }
+
+    for (var i in HHVars)
+    {
+        storageType = HHVars[i].split(".")[0];
+        variableName = HHVars[i].split(".")[1];
+        oldVarName = variableName.split("_")[2];
+        switch (storageType)
+        {
+            case 'Storage()' :
+                storageItem = Storage();
+                break;
+            case 'localStorage' :
+                storageItem = localStorage;
+                break;
+            case 'sessionStorage' :
+                storageItem = sessionStorage;
+                break;
+        }
+        if (!migratedVars && storageItem.getItem(oldVarName) !== null && storageItem.getItem(variableName) === null)
+        {
+            console.log(new Date().toISOString()+":"+getCallerFunction()+":","migrated var : "+variableName);
+            logHHAuto(JSON.stringify("migrated var : "+variableName));
+            storageItem.setItem(variableName,storageItem.getItem(oldVarName));
+        }
+
+        if (localStorage.getItem(oldVarName) !== null)
+        {
+            localStorage.removeItem(oldVarName);
+        }
+        if (sessionStorage.getItem(oldVarName) !== null)
+        {
+            sessionStorage.removeItem(oldVarName);
+        }
+    }
+    localStorage.HHAuto_Temp_MigratedVars="true";
+
+}
+
+var start = function () {
+
+    if (unsafeWindow.Hero===undefined)
+    {
+        console.log(new Date().toISOString()+":"+getCallerFunction()+":",'???no Hero???');
+        logHHAuto(JSON.stringify('???no Hero???'));
+        $('.hh_logo').click();
+        return;
+    }
+    $('.redirect.gayharem').hide();
+
+    $('#starter_offer').hide();
+    $('#starter_offer_background').hide();
+    migrateHHVars();
+    if (sessionStorage.HHAuto_Temp_Timers)
+    {
+        Timers=JSON.parse(sessionStorage.HHAuto_Temp_Timers);
+    }
+
+
+
+
+
+    // Add UI buttons.
+    var UIcontainer = $("#contains_all nav div[rel='content']");
+    UIcontainer.html( '<div style="font-size:x-small;position: absolute;right: 22%;width: inherit;text-align: center;display:flex;flex-direction:column;z-index:1000" id="sMenu">'
+                     //dialog Box
+                     + '<dialog id="LoadDialog"> <form method="dialog"><p>After you select the file the settings will be automatically updated.</p><p> If nothing happened, then the selected file contains errors.</p><p id="LoadConfError"style="color:#f53939;"></p><p><label><input type="file" id="myfile" name="myfile"> </label></p> <menu> <button value="cancel">Cancel</button></menu> </form></dialog>'
+                     + '<div style="display:flex;flex-direction:row;">'
+                     +  '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div class="tooltip">'+HHAuto_ToolTips[HHAuto_Lang]["gitHub"].elementText+'<span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["gitHub"].tooltip+'</span><label class="myButton" id="git">GitHub</label></div>'
+                     +    '<div class="tooltip">'+HHAuto_ToolTips[HHAuto_Lang]["saveDebug"].elementText+'<span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["saveDebug"].tooltip+'</span><label class="myButton" id="saveDebug">saveDebug</label></div>'
+                     +   '</div>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div class="tooltip">'+HHAuto_ToolTips[HHAuto_Lang]["saveConfig"].elementText+'<span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["saveConfig"].tooltip+'</span><label class="myButton" id="saveConfig">saveConfig</label></div>'
+                     +    '<div class="tooltip">'+HHAuto_ToolTips[HHAuto_Lang]["loadConfig"].elementText+'<span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["loadConfig"].tooltip+'</span><label class="myButton" id="loadConfig">loadConfig</label></div>'
+                     +   '</div>'
+                     +   '<span>'+HHAuto_ToolTips[HHAuto_Lang]["master"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["master"].tooltip+'</span><label class="switch" ><input id="master" type="checkbox"><span class="slider round"></span></label></div>'
+                     +   '<span>'+HHAuto_ToolTips[HHAuto_Lang]["settPerTab"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["settPerTab"].tooltip+'</span><label class="switch"><input id="settPerTab" type="checkbox"><span class="slider round"></span></label></div>'
+                     // Region Paranoia
+                     +   '<div style="display:flex;flex-direction:column; border: 1px dotted;">'
+                     +    '<div style="display:flex;flex-direction:row;">'
+                     +     '<div style="display:flex;flex-direction:column;">'
+                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["paranoia"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["paranoia"].tooltip+'</span><label class="switch"><input id="paranoia" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '</div>'
+                     +     '<div style="padding-left:10px;display:flex;flex-direction:column;">'
+                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["paranoiaSpendsBefore"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["paranoiaSpendsBefore"].tooltip+'</span><label class="switch"><input id="paranoiaSpendsBefore" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '</div>'
+                     +    '</div>'
+                     +   '</div>'
+                     //end region paranoia
+                     // Region Shit
+                     +   '<div style="display:flex;flex-direction:column; border: 1px dotted;">'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["spendKobans0"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["spendKobans0"].tooltip+'</span><label  class="switch"><input id="spendKobans0" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding-left:20px;display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["spendKobans1"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["spendKobans1"].tooltip+'</span><label  class="switch"><input id="spendKobans1" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +   '</div>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["spendKobans2"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["spendKobans2"].tooltip+'</span><label  class="switch"><input id="spendKobans2" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["kobanBank"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["kobanBank"].tooltip+'</span><input id="kobanBank" style="width:70%" type="text"></div>'
+                     +    '</div>'
+                     +   '</div>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["buyCombat"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["buyCombat"].tooltip+'</span><label class="switch"><input id="buyCombat" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["buyCombTimer"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["buyCombTimer"].tooltip+'</span><input id="buyCombTimer" style="width:50%" type="text"></div>'
+                     +    '</div>'
+                     +   '</div>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoBuyBoosters"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoBuyBoosters"].tooltip+'</span><label class="switch"><input id="autoBuyBoosters" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoBuyBoostersFilter"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoBuyBoostersFilter"].tooltip+'</span><input style="width:70px" id="autoBuyBoostersFilter" type="text"></div>'
+                     +    '</div>'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoSeasonPassReds"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoSeasonPassReds"].tooltip+'</span><label  class="switch"><input id="autoSeasonPassReds" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +   '</div>'
+                     +  '</div>'
+                     // End Region Shit
+                     // calculate Power Region
+                     +  '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
+                     +   '<div style="display:flex;flex-direction:column;">'
+                     +    '<span>'+HHAuto_ToolTips[HHAuto_Lang]["showCalculatePower"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["showCalculatePower"].tooltip+'</span><label class="switch"><input id="showCalculatePower" type="checkbox"><span class="slider round"></span></label></div>'
+                     +   '</div>'
+                     +   '<div style="padding-left:10px;display:flex;flex-direction:column;">'
+                     +    '<span>'+HHAuto_ToolTips[HHAuto_Lang]["calculatePowerLimits"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["calculatePowerLimits"].tooltip+'</span><input id="calculatePowerLimits" style="width:80%" type="text"></div>'
+                     +   '</div>'
+                     +  '</div>'
+                     // End Calculate power region
+                     +   '<span>'+HHAuto_ToolTips[HHAuto_Lang]["showInfo"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["showInfo"].tooltip+'</span><label class="switch"><input id="showInfo" type="checkbox"><span class="slider round"></span></label></div>'
+                     +  '</div>'
+                     +  '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     // Region AutoSalary
+                     +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoSalaryCheckbox"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoSalaryCheckbox"].tooltip+'</span><label class="switch"><input id="autoSalaryCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoSalaryTextbox"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoSalaryTextbox"].tooltip+'</span><input id="autoSalaryTextbox" style="width:80%" type="text"></div>'
+                     +    '</div>'
+                     //End Region AutoSalary
+                     +   '</div>'
+                     //Region AutoMission
+                     +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoMissionCheckbox"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoMissionCheckbox"].tooltip+'</span><label class="switch"><input id="autoMissionCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoMissionCollect"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoMissionCollect"].tooltip+'</span><label class="switch"><input id="autoMissionCollect" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +   '</div>'
+                     //End Region AutoMission
+                     // Region AutoTroll
+                     +   '<div style="display:flex;flex-direction:column; border: 1px dotted;">'
+                     +    '<div style="padding:10px; display:flex;flex-direction:row;">'
+                     +     '<div style="display:flex;flex-direction:column;">'
+                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoTrollCheckbox"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoTrollCheckbox"].tooltip+'</span><label class="switch"><input id="autoTrollCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '</div>'
+                     +     '<div style="display:flex;flex-direction:column;">'
+                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoTrollSelector"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoTrollSelector"].tooltip+'</span><select id="autoTrollSelector"></select></div>'
+                     +     '</div>'
+                     +     '<div style="display:flex;flex-direction:column;">'
+                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoTrollThreshold"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoTrollThreshold"].tooltip+'</span><input style="width:50px" id="autoTrollThreshold" type="text"></div>'
+                     +     '</div>'
+                     +    '</div>'
+                     +    '<div style="display:flex;flex-direction:row;">'
+                     +     '<div style="display:flex;flex-direction:column;">'
+                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["eventTrollOrder"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["eventTrollOrder"].tooltip+'</span><input id="eventTrollOrder" style="width:150px" type="text"></div>'
+                     +     '</div>'
+                     +     '<div style="display:flex;flex-direction:column;">'
+                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["plusEvent"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["plusEvent"].tooltip+'</span><label class="switch"><input id="plusEvent" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '</div>'
+                     +    '</div>'
+                     +    '<div style="display:flex;flex-direction:row;">'
+                     +     '<div style="display:flex;flex-direction:column;">'
+                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["plusEventMythic"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["plusEventMythic"].tooltip+'</span><label class="switch"><input id="plusEventMythic" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '</div>'
+                     +     '<div style="padding-left:10px;display:flex;flex-direction:column;">'
+                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["eventMythicPrio"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["eventMythicPrio"].tooltip+'</span><label class="switch"><input id="eventMythicPrio" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '</div>'
+                     +     '<div style="padding-left:10px;display:flex;flex-direction:column;">'
+                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoTrollMythicByPassThreshold"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoTrollMythicByPassThreshold"].tooltip+'</span><label class="switch"><input id="autoTrollMythicByPassThreshold" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '</div>'
+                     +    '</div>'
+                     +   '</div>'
+                     // End Region AutoTroll
+                     //+   '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoArenaCheckbox"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoArenaCheckbox"].tooltip+'</span><label class="switch"><input id="autoArenaCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
+                     // Region AutoSeason
+                     +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoSeasonCheckbox"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoSeasonCheckbox"].tooltip+'</span><label class="switch"><input id="autoSeasonCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoSeasonCollect"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoSeasonCollect"].tooltip+'</span><label class="switch"><input id="autoSeasonCollect" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoSeasonThreshold"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoSeasonThreshold"].tooltip+'</span><input style="width:50px" id="autoSeasonThreshold" type="text"></div>'
+                     +    '</div>'
+                     +   '</div>'
+                     // End Region AutoSeason
+                     // Region quest
+                     +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoQuestCheckbox"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoQuestCheckbox"].tooltip+'</span><label class="switch"><input id="autoQuestCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoQuestThreshold"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoQuestThreshold"].tooltip+'</span><input style="width:50px" id="autoQuestThreshold" type="text"></div>'
+                     +    '</div>'
+                     +   '</div>'
+                     //end regin quest
+                     +   '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoContestCheckbox"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoContestCheckbox"].tooltip+'</span><label class="switch"><input id="autoContestCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
+                     +   '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoFreePachinko"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoFreePachinko"].tooltip+'</span><label class="switch"><input id="autoFreePachinko" type="checkbox"><span class="slider round"></span></label></div>'
+                     +  '</div>'
+                     +  '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     // Region AutoLeagues
+                     +   '<div style="display:flex;flex-direction:column; border: 1px dotted;">'
+                     +    '<div style="padding:0px; display:flex;flex-direction:row;">'
+                     +     '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoLeagues"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoLeagues"].tooltip+'</span><label class="switch"><input id="autoLeagues" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '</div>'
+                     +     '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoLeaguesPowerCalc"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoLeaguesPowerCalc"].tooltip+'</span><label class="switch"><input id="autoLeaguesPowerCalc" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '</div>'
+                     +     '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoLeaguesCollect"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoLeaguesCollect"].tooltip+'</span><label class="switch"><input id="autoLeaguesCollect" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '</div>'
+                     +    '</div>'
+                     +    '<div style="padding:0px; display:flex;flex-direction:row;">'
+                     +     '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoLeaguesSelector"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoLeaguesSelector"].tooltip+'</span><select id="autoLeaguesSelector"></select></div>'
+                     +     '</div>'
+                     +     '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoLeaguesThreshold"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoLeaguesThreshold"].tooltip+'</span><input style="width:50px" id="autoLeaguesThreshold" type="text"></div>'
+                     +     '</div>'
+                     +    '</div>'
+                     +   '</div>'
+                     // End Region AutoLeagues
+                     // Region PowerPlace
+                     +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoPowerPlaces"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoPowerPlaces"].tooltip+'</span><label class="switch"><input id="autoPowerPlaces" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoPowerPlacesIndexFilter"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoPowerPlacesIndexFilter"].tooltip+'</span><input id="autoPowerPlacesIndexFilter" type="text"></div>'
+                     +    '</div>'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoPowerPlacesAll"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoPowerPlacesAll"].tooltip+'</span><label class="switch"><input id="autoPowerPlacesAll" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +   '</div>'
+                     // End Region PowerPlace
+                     // Region AutoChampions
+                     +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoChamps"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoChamps"].tooltip+'</span><label class="switch"><input id="autoChamps" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoChampsUseEne"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoChampsUseEne"].tooltip+'</span><label class="switch"><input id="autoChampsUseEne" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoChampsFilter"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoChampsFilter"].tooltip+'</span><input id="autoChampsFilter" type="text"></div>'
+                     // End Region AutoChampions
+                     +    '</div>'
+                     +   '</div>'
+                     +   '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoStats"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoStats"].tooltip+'</span><input id="autoStats" type="text"></div>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoExpW"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoExpW"].tooltip+'</span><label class="switch"><input id="autoExpW" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoExp"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoExp"].tooltip+'</span><input id="autoExp" type="text"></div>'
+                     +    '</div>'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["maxExp"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["maxExp"].tooltip+'</span><input style="width:50px" id="maxExp" type="text"></div>'
+                     +    '</div>'
+                     +   '</div>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoAffW"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoAffW"].tooltip+'</span><label class="switch"><input id="autoAffW" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoAff"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoAff"].tooltip+'</span><input id="autoAff" type="text"></div>'
+                     +    '</div>'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["maxAff"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["maxAff"].tooltip+'</span><input style="width:50px" id="maxAff" type="text"></div>'
+                     +    '</div>'
+                     +   '</div>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoLGMW"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoLGMW"].tooltip+'</span><label class="switch"><input id="autoLGMW" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoLGM"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoLGM"].tooltip+'</span><input id="autoLGM" type="text"></div>'
+                     +    '</div>'
+                     +   '</div>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoLGRW"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoLGRW"].tooltip+'</span><label class="switch"><input id="autoLGRW" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoLGR"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoLGR"].tooltip+'</span><input id="autoLGR" type="text"></div>'
+                     +    '</div>'
+                     +   '</div>'
+                     //+   '<div style="display:flex;flex-direction:row;">'
+                     //+    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     //+     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoEGMW"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoEGMW"].tooltip+'</span><label class="switch"><input id="autoEGMW" type="checkbox"><span class="slider round"></span></label></div>'
+                     //+    '</div>'
+                     //+    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     //+     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoEGM"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoEGM"].tooltip+'</span><input id="autoEGM" type="text"></div>'
+                     //+    '</div>'
+                     //+   '</div>'
+                     +  '</div>'
+                     + '</div>'
+                     +'</div>'+UIcontainer.html());
+
+    var div = document.createElement('div');
+    div.innerHTML = '<div id="pInfo" style="padding-left:3px;z-index:-1;white-space: pre;position: absolute;right: 5%; left:70%; top:8%;border: 1px solid #ffa23e;background-color: rgba(0,0,0,.5);border-radius: 5px;"></div>'.trim();
+    document.getElementById('contains_all').appendChild(div.firstChild);
+
+    // Add auto troll options
+    var trollOptions = document.getElementById("autoTrollSelector");
+
+    for (var i=0;i<getSetHeroInfos('questing.id_world');i++)
+    {
+        var option = document.createElement("option");
+        option.value=i;
+        option.text = Trollz[i];
+        trollOptions.add(option);
+    };
+
+    // Add league options
+    var leaguesOptions = document.getElementById("autoLeaguesSelector");
+
+    for (var j in Leagues)
+    {
+        var optionL = document.createElement("option");
+        optionL.value=j;
+        optionL.text = Leagues[j];
+        leaguesOptions.add(optionL);
+    };
+
+    document.getElementById("settPerTab").checked = localStorage.HHAuto_Setting_settPerTab === "true";
+    trollOptions.selectedIndex = Storage().HHAuto_Setting_autoTrollSelectedIndex;
+    leaguesOptions.selectedIndex = Storage().HHAuto_Setting_autoLeaguesSelectedIndex;
+    document.getElementById("autoSalaryCheckbox").checked = Storage().HHAuto_Setting_autoSalary === "true";
+    document.getElementById("autoSalaryTextbox").value = Storage().HHAuto_Setting_autoSalaryTimer?Storage().HHAuto_Setting_autoSalaryTimer:"120";
+    document.getElementById("autoContestCheckbox").checked = Storage().HHAuto_Setting_autoContest === "true";
+    document.getElementById("autoMissionCheckbox").checked = Storage().HHAuto_Setting_autoMission === "true";
+    document.getElementById("autoMissionCollect").checked = Storage().HHAuto_Setting_autoMissionC === "true";
+    document.getElementById("autoQuestCheckbox").checked = Storage().HHAuto_Setting_autoQuest === "true";
+    document.getElementById("autoTrollCheckbox").checked = Storage().HHAuto_Setting_autoTrollBattle === "true";
+    document.getElementById("eventTrollOrder").value = Storage().HHAuto_Setting_eventTrollOrder?Storage().HHAuto_Setting_eventTrollOrder:"1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20";
+    document.getElementById("buyCombTimer").value = Storage().HHAuto_Setting_buyCombTimer?Storage().HHAuto_Setting_buyCombTimer:"16";
+    //document.getElementById("autoArenaCheckbox").checked = Storage().HHAuto_Setting_autoArenaBattle === "true";
+    document.getElementById("autoSeasonCheckbox").checked = Storage().HHAuto_Setting_autoSeason === "true";
+    document.getElementById("autoSeasonCollect").checked = Storage().HHAuto_Setting_autoSeasonCollect === "true";
+    document.getElementById("autoSeasonPassReds").checked = Storage().HHAuto_Setting_autoSeasonPassReds === "true";
+    document.getElementById("autoFreePachinko").checked = Storage().HHAuto_Setting_autoFreePachinko === "true";
+    document.getElementById("autoLeagues").checked = Storage().HHAuto_Setting_autoLeagues === "true";
+    //document.getElementById("autoLeaguesMaxRank").value = Storage().HHAuto_Setting_autoLeaguesMaxRank?Storage().HHAuto_Setting_autoLeaguesMaxRank:"0";
+    document.getElementById("autoLeaguesPowerCalc").checked = Storage().HHAuto_Setting_autoLeaguesPowerCalc === "true";
+    document.getElementById("autoLeaguesCollect").checked = Storage().HHAuto_Setting_autoLeaguesCollect === "true";
+    document.getElementById("autoPowerPlaces").checked = Storage().HHAuto_Setting_autoPowerPlaces === "true";
+    document.getElementById("autoPowerPlacesAll").checked = Storage().HHAuto_Setting_autoPowerPlacesAll === "true";
+    document.getElementById("autoPowerPlacesIndexFilter").value = Storage().HHAuto_Setting_autoPowerPlacesIndexFilter?Storage().HHAuto_Setting_autoPowerPlacesIndexFilter:"1;2;3";
+    document.getElementById("autoStats").value = Storage().HHAuto_Setting_autoStats?Storage().HHAuto_Setting_autoStats:"500000000";
+    document.getElementById("paranoia").checked = Storage().HHAuto_Setting_paranoia==="true";
+    document.getElementById("paranoiaSpendsBefore").checked = Storage().HHAuto_Setting_paranoiaSpendsBefore==="true";
+    document.getElementById("autoExp").value = Storage().HHAuto_Setting_autoExp?Storage().HHAuto_Setting_autoExp:"500000000";
+    document.getElementById("autoExpW").checked = Storage().HHAuto_Setting_autoExpW === "true";
+    document.getElementById("autoAff").value = Storage().HHAuto_Setting_autoAff?Storage().HHAuto_Setting_autoAff:"500000000";
+    document.getElementById("autoAffW").checked = Storage().HHAuto_Setting_autoAffW === "true";
+    document.getElementById("maxExp").value = Storage().HHAuto_Setting_MaxExp?Storage().HHAuto_Setting_MaxExp:"10000";
+    document.getElementById("maxAff").value = Storage().HHAuto_Setting_MaxAff?Storage().HHAuto_Setting_MaxAff:"50000";
+    document.getElementById("autoLGM").value = Storage().HHAuto_Setting_autoLGM?Storage().HHAuto_Setting_autoLGM:"500000000";
+    document.getElementById("autoLGMW").checked = Storage().HHAuto_Setting_autoLGMW === "true";
+    document.getElementById("autoLGR").value = Storage().HHAuto_Setting_autoLGR?Storage().HHAuto_Setting_autoLGR:"500000000";
+    document.getElementById("autoLGRW").checked = Storage().HHAuto_Setting_autoLGRW === "true";
+    document.getElementById("autoBuyBoosters").checked = Storage().HHAuto_Setting_autoBuyBoosters === "true";
+    document.getElementById("autoBuyBoostersFilter").value = Storage().HHAuto_Setting_autoBuyBoostersFilter?Storage().HHAuto_Setting_autoBuyBoostersFilter:"B1;B2;B3;B4";
+    //document.getElementById("autoEGM").value = Storage().HHAuto_Setting_autoEGM?Storage().HHAuto_Setting_autoEGM:"500000000";
+    //document.getElementById("autoEGMW").checked = Storage().HHAuto_Setting_autoEGMW === "true";
+    document.getElementById("showInfo").checked = Storage().HHAuto_Setting_showInfo?Storage().HHAuto_Setting_showInfo==="true":"false";
+    document.getElementById("showCalculatePower").checked = Storage().HHAuto_Setting_showCalculatePower?Storage().HHAuto_Setting_showCalculatePower==="true":"false";
+    document.getElementById("calculatePowerLimits").value = Storage().HHAuto_Setting_calculatePowerLimits?Storage().HHAuto_Setting_calculatePowerLimits:"default";
+    document.getElementById("plusEvent").checked = Storage().HHAuto_Temp_trollToFight=="-1" || Storage().HHAuto_Setting_plusEvent === "true";
+    document.getElementById("plusEventMythic").checked = Storage().HHAuto_Setting_plusEventMythic === "true";
+    document.getElementById("eventMythicPrio").checked = Storage().HHAuto_Setting_eventMythicPrio === "true";
+    document.getElementById("autoTrollMythicByPassThreshold").checked = Storage().HHAuto_Setting_autoTrollMythicByPassThreshold === "true";
+
+    document.getElementById("autoChamps").checked = Storage().HHAuto_Setting_autoChamps === "true";
+    document.getElementById("autoChampsUseEne").checked = Storage().HHAuto_Setting_autoChampsUseEne === "true";
+    document.getElementById("autoChampsFilter").value = Storage().HHAuto_Setting_autoChampsFilter?Storage().HHAuto_Setting_autoChampsFilter:"1;2;3;4;5;6";
+
+    document.getElementById("spendKobans0").checked = Storage().HHAuto_Setting_spendKobans0 === "true";
+    document.getElementById("spendKobans1").checked = Storage().HHAuto_Setting_spendKobans1 === "true";
+    document.getElementById("spendKobans2").checked = Storage().HHAuto_Setting_spendKobans2 === "true";
+    document.getElementById("buyCombat").checked = Storage().HHAuto_Setting_buyCombat === "true";
+    document.getElementById("kobanBank").value = Storage().HHAuto_Setting_kobanBank?Storage().HHAuto_Setting_kobanBank:"1000000";
+
+    document.getElementById("autoTrollThreshold").value = Storage().HHAuto_Setting_autoTrollThreshold?Storage().HHAuto_Setting_autoTrollThreshold:"0";
+    document.getElementById("autoQuestThreshold").value = Storage().HHAuto_Setting_autoQuestThreshold?Storage().HHAuto_Setting_autoQuestThreshold:"0";
+    document.getElementById("autoLeaguesThreshold").value = Storage().HHAuto_Setting_autoLeaguesThreshold?Storage().HHAuto_Setting_autoLeaguesThreshold:"0";
+    document.getElementById("autoSeasonThreshold").value = Storage().HHAuto_Setting_autoSeasonThreshold?Storage().HHAuto_Setting_autoSeasonThreshold:"0";
+
+    document.getElementById("master").checked = Storage().HHAuto_Setting_master==="true";
+    document.getElementById("git").addEventListener("click", function(){ window.open("https://github.com/Roukys/HHauto/issues"); });
+    document.getElementById("loadConfig").addEventListener("click", function(){
+        if (typeof LoadDialog.showModal === "function") {
+            LoadDialog.showModal();
+        } else {
+            alert("The <dialog> API is not supported by this browser");
+        }
+    });
+    document.getElementById('myfile').addEventListener('change', myfileLoad_onChange);
+    document.getElementById("saveConfig").addEventListener("click", function(){
+        saveHHVarsSettingsAsJSON();
+    });
+    document.getElementById("saveDebug").addEventListener("click", function(){
+        saveHHDebugLog();
+    });
+
+    sessionStorage.HHAuto_Temp_autoLoop = "true";
+    if (typeof Storage().HHAuto_Temp_freshStart == "undefined" || isNaN(Number(Storage().HHAuto_Temp_autoLoopTimeMili))) {
+        setDefaults();
+    }
+
+    if(getPage()=="shop")
+    {
+        updateShop();
+    }
+
+    if (/*autoBuy() &&*/ getBurst())
+    {
+        doShopping();
+        /*}
+    if (Storage().HHAuto_Setting_autoStats === "true" && getBurst())
+    {*/
+        doStatUpgrades();
+    }
+
+    if (!CollectEventData())
+    {
+        setTimeout(function(){CollectEventData();},5000);
+    }
+
+
+    if (hh_nutaku)
+    {
+        function Alive()
+        {
+            window.top.postMessage({ImAlive:true},'*');
+            if (sessionStorage.HHAuto_Temp_autoLoop=="true")
+            {
+                setTimeout(Alive,2000);
+            }
+        }
+        Alive();
+    }
+
+    autoLoop();
+};
+
+var started=false;
+var hardened_start=function()
+{
+    if (!started)
+    {
+        started=true;
+        start();
+    }
+}
+
+$("document").ready(function()
+                    {
+    setTimeout(hardened_start,1000);
+
+});
+
+setTimeout(hardened_start,5000);
+SpendsBefore: { elementText: "Spends points before", tooltip : "On will spends point for options (quest, Troll, Leagues and Season)<br>only if they are enabled<br>and spends points that would be above max limits<br>Ex : you have power for troll at 17, but going 4h45 in paranoia<br>it would mean having 17+10 points (rounded to higher int), thus being above the 20 max<br> it will then spends 8 points to fall back to 19 end of Paranoia, preventing to loose points."},
     spendKobans0: { elementText: "Questionable Shit", tooltip : "First security switches for usage of kobans <br> All 3 needs to be active for Koban spending functions"},
     spendKobans1: { elementText: "Are you sure?", tooltip : "Second security switches for usage of kobans <br>Have to be activated after the first one.<br> All 3 needs to be active for Koban spending functions"},
     spendKobans2: { elementText: "You\'ve been warned", tooltip : "Third security switches for usage of kobans <br>Have to be activated after the second one.<br> All 3 needs to be active for Koban spending functions"},
