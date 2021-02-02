@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.32
+// @version      5.4-beta.33
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -39,28 +39,57 @@ function getCallerCallerFunction()
     return getCallerCallerFunction.caller.caller.name
 }
 
-function logHHAuto(text)
+function logHHAuto(...args)
 {
     var prefix = new Date().toISOString()+":"+getCallerCallerFunction()+":";
+    var text;
     var currentLoggingText;
     var nbLines;
     var maxLines = 500;
-    if (sessionStorage.HHAuto_Temp_Logging)
+    if (args.length === 1)
     {
-        currentLoggingText = sessionStorage.HHAuto_Temp_Logging;
-        nbLines = (currentLoggingText.match(/\n/g) || []).length;
-        if( nbLines >maxLines)
+        if (typeof args[0] === 'string' || args[0] instanceof String)
         {
-            //console.log("Counting log lines : "+nbLines);
-            currentLoggingText = currentLoggingText.substring(currentLoggingText.split("\n", nbLines-maxLines).join("\n").length+1);
-            nbLines = (currentLoggingText.match(/\n/g) || []).length;
+            text = args[0];
         }
-        sessionStorage.HHAuto_Temp_Logging=currentLoggingText+prefix+text+"\n";
+        else
+        {
+            text = JSON.stringify(args[0], null, 2);
+        }
     }
     else
     {
-        sessionStorage.HHAuto_Temp_Logging=prefix+text+"\n";
+        text = JSON.stringify(args, null, 2);
     }
+    console.log(prefix+text);
+    currentLoggingText = sessionStorage.HHAuto_Temp_Logging?sessionStorage.HHAuto_Temp_Logging:"reset";
+    //console.log("debug : ",currentLoggingText);
+    if (!currentLoggingText.startsWith("{"))
+    {
+        //console.log("debug : delete currentLog");
+        currentLoggingText={};
+    }
+    else
+    {
+
+        currentLoggingText = JSON.parse(currentLoggingText);
+    }
+    nbLines = Object.keys(currentLoggingText).length;
+    //console.log("Debug : Counting log lines : "+nbLines);
+    if( nbLines >maxLines)
+    {
+        var keys=Object.keys(currentLoggingText);
+        //console.log("Debug : removing old lines");
+        for(var i = 0; i < nbLines-maxLines; i++)
+        {
+            //console.log("debug delete : "+currentLoggingText[keys[i]]);
+            delete currentLoggingText[keys[i]];
+        }
+    }
+    currentLoggingText[prefix]=text;
+
+    sessionStorage.HHAuto_Temp_Logging=JSON.stringify(currentLoggingText);
+
 }
 
 function getHero()
@@ -68,10 +97,9 @@ function getHero()
     if(unsafeWindow.Hero === undefined)
     {
         setTimeout(autoLoop, Number(Storage().HHAuto_Temp_autoLoopTimeMili))
-        //console.log(window.wrappedJSObject)
+        //logHHAuto(window.wrappedJSObject)
     }
-    //console.log(new Date().toISOString()+":"+getCallerFunction()+":",unsafeWindow.Hero);
-    //logHHAuto(JSON.stringify(unsafeWindow.Hero));
+    //logHHAuto(unsafeWindow.Hero);
     return unsafeWindow.Hero;
 }
 
@@ -89,8 +117,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -104,8 +131,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -119,8 +145,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -134,8 +159,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -149,8 +173,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -164,8 +187,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -179,8 +201,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -194,8 +215,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -209,8 +229,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -228,8 +247,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -247,8 +265,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -265,8 +282,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -284,8 +300,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -299,8 +314,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -314,8 +328,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -329,8 +342,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -344,8 +356,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -363,8 +374,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -382,8 +392,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -397,8 +406,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -412,8 +420,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -427,8 +434,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -494,8 +500,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -509,8 +514,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -524,8 +528,7 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -539,16 +542,14 @@ function getSetHeroInfos(infoSearched,newValue)
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
             break;
         default:
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hero info not found : "+infoSearched);
-                logHHAuto(JSON.stringify("Hero info not found : "+infoSearched));
+                logHHAuto("Hero info not found : "+infoSearched);
                 returnValue = -1;
                 break;
             }
@@ -626,15 +627,13 @@ function url_add_param(url, param) {
 function gotoPage(page)
 {
     var cp=getPage();
-    console.log(new Date().toISOString()+":"+getCallerFunction()+":",'going '+cp+'->'+page);
-    logHHAuto(JSON.stringify('going '+cp+'->'+page));
+    logHHAuto('going '+cp+'->'+page);
     var index;
     var originalPage = page;
     if (page.startsWith('powerplace'))
     {
         index = page.substring('powerplace'.length);
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Powerplace index : '+index);
-        logHHAuto(JSON.stringify('Powerplace index : '+index));
+        logHHAuto('Powerplace index : '+index);
         page = 'powerplace';
     }
 
@@ -683,8 +682,7 @@ function gotoPage(page)
                 togoto =$("nav div[rel='content'] a:has(.arena)").attr("href");
                 if (togoto === undefined)
                 {
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Arena page not found, disabling arena");
-                    logHHAuto(JSON.stringify("Arena page not found, disabling arena"));
+                    logHHAuto("Arena page not found, disabling arena");
                     Storage().HHAuto_Setting_autoArenaBattle = "false";
                     location.reload();
                     return false;
@@ -703,14 +701,12 @@ function gotoPage(page)
                 togoto = getSetHeroInfos('questing.current_url');
                 if (togoto.includes("world"))
                 {
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","All quests finished, turning off AutoQuest!");
-                    logHHAuto(JSON.stringify("All quests finished, turning off AutoQuest!"));
+                    logHHAuto("All quests finished, turning off AutoQuest!");
                     Storage().HHAuto_Setting_autoQuest = false;
                     location.reload();
                     return false;
                 }
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Current quest page: "+togoto);
-                logHHAuto(JSON.stringify("Current quest page: "+togoto));
+                logHHAuto("Current quest page: "+togoto);
                 break;
             case "champions_map":
                 togoto = $("nav div[rel='content'] a:has(.champions)").attr("href");
@@ -722,8 +718,7 @@ function gotoPage(page)
                 togoto = "/season-arena.html";
                 break;
             default:
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Unknown goto page request. No page \'"+page+"\' defined.");
-                logHHAuto(JSON.stringify("Unknown goto page request. No page \'"+page+"\' defined."));
+                logHHAuto("Unknown goto page request. No page \'"+page+"\' defined.");
         }
         if(togoto != undefined)
         {
@@ -745,27 +740,24 @@ function gotoPage(page)
             }
 
             sessionStorage.HHAuto_Temp_autoLoop = "false";
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":",'GotoPage : '+togoto);
-            logHHAuto(JSON.stringify('GotoPage : '+togoto));
+            logHHAuto("setting autoloop to false");
+            logHHAuto('GotoPage : '+togoto);
             window.location = window.location.origin + togoto;
         }
         else
         {
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Couldn't find page path. Page was undefined...");
-            logHHAuto(JSON.stringify("Couldn't find page path. Page was undefined..."));
+            logHHAuto("Couldn't find page path. Page was undefined...");
         }
         return false;
     }
 }
 
 var proceedQuest = function () {
-    //console.log(new Date().toISOString()+":"+getCallerFunction()+":","Starting auto quest.");
-    //logHHAuto(JSON.stringify("Starting auto quest."));
+    //logHHAuto("Starting auto quest.");
     // Check if at correct page.
     if (!gotoPage("quest")) {
         // Click on current quest to naviagte to it.
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Navigating to current quest.");
-        logHHAuto(JSON.stringify("Navigating to current quest."));
+        logHHAuto("Navigating to current quest.");
         return;
     }
     $("#popup_message close").click();
@@ -788,12 +780,10 @@ var proceedQuest = function () {
 
     if (proceedButtonMatch.length === 0)
     {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Could not find resume button.");
-        logHHAuto(JSON.stringify("Could not find resume button."));
+        logHHAuto("Could not find resume button.");
     }
     else if (proceedType === "free") {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Proceeding for free.");
-        logHHAuto(JSON.stringify("Proceeding for free."));
+        logHHAuto("Proceeding for free.");
         proceedButtonMatch.click();
     }
     else if (proceedType === "pay") {
@@ -802,62 +792,57 @@ var proceedQuest = function () {
         if(proceedCostEnergy <= energyCurrent)
         {
             // We have energy.
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Spending "+proceedCostEnergy+" Energy to proceed.");
-            logHHAuto(JSON.stringify("Spending "+proceedCostEnergy+" Energy to proceed."));
+            logHHAuto("Spending "+proceedCostEnergy+" Energy to proceed.");
         }
         else
         {
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Quest requires "+proceedCostEnergy+" Energy to proceed.");
-            logHHAuto(JSON.stringify("Quest requires "+proceedCostEnergy+" Energy to proceed."));
+            logHHAuto("Quest requires "+proceedCostEnergy+" Energy to proceed.");
             sessionStorage.HHAuto_Temp_questRequirement = "*"+proceedCostEnergy;
             return;
         }
         if(proceedCostMoney <= moneyCurrent)
         {
             // We have money.
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Spending "+proceedCostMoney+" Money to proceed.");
-            logHHAuto(JSON.stringify("Spending "+proceedCostMoney+" Money to proceed."));
+            logHHAuto("Spending "+proceedCostMoney+" Money to proceed.");
         }
         else
         {
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Spending "+proceedCostEnergy+" Energy to proceed.");
-            logHHAuto(JSON.stringify("Spending "+proceedCostEnergy+" Energy to proceed."));
+            logHHAuto("Spending "+proceedCostEnergy+" Energy to proceed.");
             sessionStorage.HHAuto_Temp_questRequirement = "$"+proceedCostMoney;
             return;
         }
         proceedButtonMatch.click();
         sessionStorage.HHAuto_Temp_autoLoop = "false";
+        logHHAuto("setting autoloop to false");
         location.reload();
     }
     else if (proceedType === "use_item") {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Proceeding by using X" + Number($("#controls .item span").text()) + " of the required item.");
-        logHHAuto(JSON.stringify("Proceeding by using X" + Number($("#controls .item span").text()) + " of the required item."));
+        logHHAuto("Proceeding by using X" + Number($("#controls .item span").text()) + " of the required item.");
         proceedButtonMatch.click();
     }
     else if (proceedType === "battle") {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Proceeding to battle troll...");
-        logHHAuto(JSON.stringify("Proceeding to battle troll..."));
+        logHHAuto("Proceeding to battle troll...");
         sessionStorage.HHAuto_Temp_questRequirement = "battle";
         // Proceed to battle troll.
         proceedButtonMatch.click();
         sessionStorage.HHAuto_Temp_autoLoop = "false";
+        logHHAuto("setting autoloop to false");
         location.reload();
     }
     else if (proceedType === "end_archive") {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Reached end of current archive. Proceeding to next archive.");
-        logHHAuto(JSON.stringify("Reached end of current archive. Proceeding to next archive."));
+        logHHAuto("Reached end of current archive. Proceeding to next archive.");
         sessionStorage.HHAuto_Temp_autoLoop = "false";
+        logHHAuto("setting autoloop to false");
         proceedButtonMatch.click();
     }
     else if (proceedType === "end_play") {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Reached end of current play. Proceeding to next play.");
-        logHHAuto(JSON.stringify("Reached end of current play. Proceeding to next play."));
+        logHHAuto("Reached end of current play. Proceeding to next play.");
         sessionStorage.HHAuto_Temp_autoLoop = "false";
+        logHHAuto("setting autoloop to false");
         proceedButtonMatch.click();
     }
     else {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Could not identify given resume button.");
-        logHHAuto(JSON.stringify("Could not identify given resume button."));
+        logHHAuto("Could not identify given resume button.");
         sessionStorage.HHAuto_Temp_questRequirement = "unknownQuestButton";
     }
 };
@@ -891,19 +876,16 @@ function doMissionStuff()
 {
     if(!gotoPage("missions"))
     {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Navigating to activities page.");
-        logHHAuto(JSON.stringify("Navigating to activities page."));
+        logHHAuto("Navigating to activities page.");
         // return busy
         return true;
     }
     else
     {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","On activities page.");
-        logHHAuto(JSON.stringify("On activities page."));
+        logHHAuto("On activities page.");
         if (Storage().HHAuto_Setting_autoMissionC==="true")
         {
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Collecting finished mission's reward.");
-            logHHAuto(JSON.stringify("Collecting finished mission's reward."));
+            logHHAuto("Collecting finished mission's reward.");
             $(".mission_button button:visible[rel='claim']").click();
         }
         // TODO: select new missions and parse reward data from HTML, it's there in data attributes of tags
@@ -918,15 +900,13 @@ function doMissionStuff()
                 // This is not a fresh mission
                 if(data.remaining_time > 0)
                 {
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Unfinished mission detected...("+data.remaining_time+"sec. remaining)");
-                    logHHAuto(JSON.stringify("Unfinished mission detected...("+data.remaining_time+"sec. remaining)"));
+                    logHHAuto("Unfinished mission detected...("+data.remaining_time+"sec. remaining)");
                     setTimer('nextMissionTime',Number(data.remaining_time)+1);
                     allGood = false;
                     return;
                 }
                 else{
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Unclaimed mission detected...");
-                    logHHAuto(JSON.stringify("Unclaimed mission detected..."));
+                    logHHAuto("Unclaimed mission detected...");
                     if (Storage().HHAuto_Setting_autoMissionC==="true")
                     {
                         allGood = false;
@@ -958,10 +938,8 @@ function doMissionStuff()
                             reward.data = Number(slotDiv.innerHTML.replace(/<.*?>/g,'').replace(/\D/g,''));
                         }
                         catch(e){
-                            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Couldn't parse xp/money data.");
-                            logHHAuto(JSON.stringify("Couldn't parse xp/money data."));
-                            console.log(new Date().toISOString()+":"+getCallerFunction()+":",slotDiv);
-                            logHHAuto(JSON.stringify(slotDiv));
+                            logHHAuto("Couldn't parse xp/money data.");
+                            logHHAuto(slotDiv);
                         }
                     }
                     // set item details if item
@@ -971,10 +949,8 @@ function doMissionStuff()
                             reward.data = $.data(slotDiv).d;
                         }
                         catch(e){
-                            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Couldn't parse item reward slot details.");
-                            logHHAuto(JSON.stringify("Couldn't parse item reward slot details."));
-                            console.log(new Date().toISOString()+":"+getCallerFunction()+":",slotDiv);
-                            logHHAuto(JSON.stringify(slotDiv));
+                            logHHAuto("Couldn't parse item reward slot details.");
+                            logHHAuto(slotDiv);
                             reward.type = "unknown";
                         }
                     }
@@ -986,52 +962,40 @@ function doMissionStuff()
             missions.push(data);
         });
         if(!allGood){
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Something went wrong, need to retry later...");
-            logHHAuto(JSON.stringify("Something went wrong, need to retry later..."));
+            logHHAuto("Something went wrong, need to retry later...");
             // busy
             return true;
         }
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Missions parsed, mission list is:-");
-        logHHAuto(JSON.stringify("Missions parsed, mission list is:-"));
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":",missions);
-        logHHAuto(JSON.stringify(missions));
+        logHHAuto("Missions parsed, mission list is:-");
+        logHHAuto(missions);
         if(missions.length > 0)
         {
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Selecting mission from list.");
-            logHHAuto(JSON.stringify("Selecting mission from list."));
+            logHHAuto("Selecting mission from list.");
             var mission = getSuitableMission(missions);
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Selected mission:-");
-            logHHAuto(JSON.stringify("Selected mission:-"));
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":",mission);
-            logHHAuto(JSON.stringify(mission));
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Selected mission duration: "+mission.duration+"sec.");
-            logHHAuto(JSON.stringify("Selected mission duration: "+mission.duration+"sec."));
+            logHHAuto("Selected mission:-");
+            logHHAuto(mission);
+            logHHAuto("Selected mission duration: "+mission.duration+"sec.");
             var missionButton = $(mission.missionObject).find("button:visible").first();
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Mission button of type: "+missionButton.attr("rel"));
-            logHHAuto(JSON.stringify("Mission button of type: "+missionButton.attr("rel")));
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Clicking mission button.");
-            logHHAuto(JSON.stringify("Clicking mission button."));
+            logHHAuto("Mission button of type: "+missionButton.attr("rel"));
+            logHHAuto("Clicking mission button.");
             missionButton.click();
             setTimer('nextMissionTime',Number(mission.duration)+1);
         }
         else
         {
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","No missions detected...!");
-            logHHAuto(JSON.stringify("No missions detected...!"));
+            logHHAuto("No missions detected...!");
             // get gift
             var ck = sessionStorage['giftleft'];
             var isAfterGift = document.querySelector("#missions .after_gift").style.display === 'block';
             if(!isAfterGift){
                 if(ck === 'giftleft')
                 {
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Collecting gift.");
-                    logHHAuto(JSON.stringify("Collecting gift."));
+                    logHHAuto("Collecting gift.");
                     delete sessionStorage['giftleft'];
                     document.querySelector(".end_gift button").click();
                 }
                 else{
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Refreshing to collect gift...");
-                    logHHAuto(JSON.stringify("Refreshing to collect gift..."));
+                    logHHAuto("Refreshing to collect gift...");
                     sessionStorage['giftleft']='giftleft';
                     location.reload();
                     // is busy
@@ -1064,8 +1028,7 @@ function doMissionStuff()
                 }
             }
             if(time === undefined){
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","New mission time was undefined... Setting it manually to 10min.");
-                logHHAuto(JSON.stringify("New mission time was undefined... Setting it manually to 10min."));
+                logHHAuto("New mission time was undefined... Setting it manually to 10min.");
                 time = 10*60;
             }
             setTimer('nextMissionTime',Number(time)+1);
@@ -1083,30 +1046,43 @@ function moduleDisplayPopID()
     });
 }
 
+function moduleSimSeasonReward()
+{
+    if (Storage().HHAuto_Setting_SeasonMaskRewards === "true")
+    {
+        var arrayz = $('.rewards_pair');
+        var obj;
+        if (arrayz.length > 0) {
+            for (var i2 = arrayz.length - 1; i2 >= 0; i2--) {
+                obj = $(arrayz[i2]).find('.tick_s:not([style="display: none;"])');
+                if (obj.length >= 1) {
+                    arrayz[i2].style.display = "none";
+                }
+            }
+        }
+    }
+}
+
 function collectAndUpdatePowerPlaces()
 {
     if(!gotoPage("powerplacemain"))
     {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Navigating to powerplaces main page.");
-        logHHAuto(JSON.stringify("Navigating to powerplaces main page."));
+        logHHAuto("Navigating to powerplaces main page.");
         // return busy
         return true;
     }
     else
     {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","On powerplaces main page.");
-        logHHAuto(JSON.stringify("On powerplaces main page."));
+        logHHAuto("On powerplaces main page.");
         Storage().HHAuto_Temp_Totalpops=$("div.pop_list div[pop_id]").length; //Count how many different POPs there are and store them locally
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","totalpops : "+Storage().HHAuto_Temp_Totalpops);
-        logHHAuto(JSON.stringify("totalpops : "+Storage().HHAuto_Temp_Totalpops));
+        logHHAuto("totalpops : "+Storage().HHAuto_Temp_Totalpops);
         var newFilter="";
         $("div.pop_list div[pop_id]").each(function(){newFilter=newFilter+';'+$(this).attr('pop_id');});
         //for (var id=1;id<Number(Storage().HHAuto_Temp_Totalpops)+1;id++)
         //{
         //    newFilter=newFilter+';'+id;
         //}
-        //console.log(new Date().toISOString()+":"+getCallerFunction()+":","newfilter : "+newFilter.substring(1));
-        //logHHAuto(JSON.stringify("newfilter : "+newFilter.substring(1)));
+        //logHHAuto("newfilter : "+newFilter.substring(1));
         if (Storage().HHAuto_Setting_autoPowerPlacesAll === "true")
         {
             Storage().HHAuto_Setting_autoPowerPlacesIndexFilter = newFilter.substring(1);
@@ -1114,8 +1090,7 @@ function collectAndUpdatePowerPlaces()
 
         var filteredPops = Storage().HHAuto_Setting_autoPowerPlacesIndexFilter?Storage().HHAuto_Setting_autoPowerPlacesIndexFilter.split(";"):[];
         var popUnableToStart = Storage().HHAuto_Temp_PopUnableToStart?Storage().HHAuto_Temp_PopUnableToStart.split(";"):[];
-        //console.log(new Date().toISOString()+":"+getCallerFunction()+":","filteredPops : "+filteredPops);
-        //logHHAuto(JSON.stringify("filteredPops : "+filteredPops));
+        //logHHAuto("filteredPops : "+filteredPops);
         var PopToStart=[];
         $("div.pop_thumb[status='pending_reward']").each(function()
                                                          {
@@ -1151,8 +1126,7 @@ function collectAndUpdatePowerPlaces()
             try{
                 if(unsafeWindow.HHTimers.timers[e].$elm.selector.includes(".pop_thumb"))
                 {
-                    //console.log(new Date().toISOString()+":"+getCallerFunction()+":","found timer "+HHTimers.timers[e].$elm.context.outerHTML);
-                    //logHHAuto(JSON.stringify("found timer "+HHTimers.timers[e].$elm.context.outerHTML));
+                    //logHHAuto("found timer "+HHTimers.timers[e].$elm.context.outerHTML);
                     currIndex = $(HHTimers.timers[e].$elm.context.outerHTML).attr('pop_id');
                     //if index is in filter
                     if (filteredPops.includes(currIndex) && ! popUnableToStart.includes(currIndex))
@@ -1208,8 +1182,7 @@ function collectAndUpdatePowerPlaces()
         {
             Storage().removeItem('HHAuto_Temp_PopUnableToStart');
         }
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","build popToStart : "+PopToStart);
-        logHHAuto(JSON.stringify("build popToStart : "+PopToStart));
+        logHHAuto("build popToStart : "+PopToStart);
         Storage().HHAuto_Temp_PopToStart = JSON.stringify(PopToStart);
         return false;
     }
@@ -1262,8 +1235,7 @@ function removePopFromPopToStart(index)
 function addPopToUnableToStart(popIndex,message)
 {
     var popUnableToStart=Storage().HHAuto_Temp_PopUnableToStart?Storage().HHAuto_Temp_PopUnableToStart:"";
-    console.log(new Date().toISOString()+":"+getCallerFunction()+":",message);
-    logHHAuto(JSON.stringify(message));
+    logHHAuto(message);
     if (popUnableToStart === "")
     {
         Storage().HHAuto_Temp_PopUnableToStart = String(popIndex);
@@ -1279,23 +1251,20 @@ function doPowerPlacesStuff(index)
 {
     if(!gotoPage("powerplace"+index))
     {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Navigating to powerplace"+index+" page.");
-        logHHAuto(JSON.stringify("Navigating to powerplace"+index+" page."));
+        logHHAuto("Navigating to powerplace"+index+" page.");
         // return busy
         return true;
     }
     else
     {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","On powerplace"+index+" page.");
-        logHHAuto(JSON.stringify("On powerplace"+index+" page."));
+        logHHAuto("On powerplace"+index+" page.");
 
         //getting reward in case failed on main page
         var querySelectorText = "button[rel='pop_claim']";
         if ($(querySelectorText).length>0)
         {
             $(querySelectorText).click();
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Claimed powerplace"+index);
-            logHHAuto(JSON.stringify("Claimed powerplace"+index));
+            logHHAuto("Claimed powerplace"+index);
         }
 
         if ($("div.pop_right_part div.no_girls_message").length >0)
@@ -1308,8 +1277,7 @@ function doPowerPlacesStuff(index)
         if ($("div.grid_view div.not_selected").length === 1)
         {
             $("div.grid_view div.not_selected").click();
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Only one girl available for powerplace n°"+index+ " assigning her.");
-            logHHAuto(JSON.stringify("Only one girl available for powerplace n°"+index+ " assigning her."));
+            logHHAuto("Only one girl available for powerplace n°"+index+ " assigning her.");
         }
         else
         {
@@ -1317,8 +1285,7 @@ function doPowerPlacesStuff(index)
             if ($(querySelectorText).length>0)
             {
                 document.querySelector(querySelectorText).click();
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Autoassigned powerplace"+index);
-                logHHAuto(JSON.stringify("Autoassigned powerplace"+index));
+                logHHAuto("Autoassigned powerplace"+index);
             }
         }
 
@@ -1326,8 +1293,7 @@ function doPowerPlacesStuff(index)
         if ($(querySelectorText).length>0)
         {
             document.querySelector(querySelectorText).click();
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Started powerplace"+index);
-            logHHAuto(JSON.stringify("Started powerplace"+index));
+            logHHAuto("Started powerplace"+index);
         }
         else if ($("button.blue_button_L[rel='pop_action'][disabled]").length >0 && $("div.grid_view div.pop_selected").length >0)
         {
@@ -1364,8 +1330,7 @@ function doPowerPlacesStuff(index)
         }
         catch(e){}
         if(time === undefined){
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","New powerplace time was undefined... Setting it manually to 30secs.");
-            logHHAuto(JSON.stringify("New powerplace time was undefined... Setting it manually to 30secs."));
+            logHHAuto("New powerplace time was undefined... Setting it manually to 30secs.");
             time = 30;
         }
         else
@@ -1382,17 +1347,14 @@ function doContestStuff()
 {
     if(!gotoPage("activities"))
     {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Navigating to activities page.");
-        logHHAuto(JSON.stringify("Navigating to activities page."));
+        logHHAuto("Navigating to activities page.");
         // return busy
         return true;
     }
     else
     {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","On activities page.");
-        logHHAuto(JSON.stringify("On activities page."));
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Collecting finished contests's reward.");
-        logHHAuto(JSON.stringify("Collecting finished contests's reward."));
+        logHHAuto("On activities page.");
+        logHHAuto("Collecting finished contests's reward.");
         $(".contest .ended button[rel='claim']").click();
         // need to get next contest timer data
         var time = 0;
@@ -1415,8 +1377,7 @@ function doContestStuff()
             }
         }}catch(e){}
         if(time === undefined){
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","New contest time was undefined... Setting it manually to 10min.");
-            logHHAuto(JSON.stringify("New contest time was undefined... Setting it manually to 10min."));
+            logHHAuto("New contest time was undefined... Setting it manually to 10min.");
             time = 10*60;
         }
         setTimer('nextContestTime',Number(time)+1);
@@ -1437,23 +1398,20 @@ var CollectMoney = function()
 
     function ClickThem()
     {
-        //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Need to click: ',ToClick.length);
-        //logHHAuto(JSON.stringify('Need to click: ',ToClick.length));
+        //logHHAuto('Need to click: '+ToClick.length);
         if (ToClick.length>0)
         {
-            //console.log('clicking N ',ToClick[0].formAction.split('/').last())
+            //logHHAuto('clicking N '+ToClick[0].formAction.split('/').last())
             $(ToClick[0]).click();
             ToClick.shift();
-            //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'will click again');
-            //logHHAuto(JSON.stringify('will click again'));
+            //logHHAuto('will click again');
             setTimeout(ClickThem,randomInterval(500,1500));
 
             window.top.postMessage({ImAlive:true},'*');
         }
         else
         {
-            //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'nothing to click, checking data');
-            //logHHAuto(JSON.stringify('nothing to click, checking data'));
+            //logHHAuto('nothing to click, checking data');
             CollectData();
         }
     }
@@ -1461,29 +1419,24 @@ var CollectMoney = function()
     function CollectData()
     {
         var btns=$("#harem_whole #harem_left .salary:not('.loads') button");
-        //console.log('buttons: ',btns.size())
+        //logHHAuto('buttons: '+btns.size())
         btns.each(function (index, element) {
-            //console.log(new Date().toISOString()+":"+getCallerFunction()+":",index,element.formAction);
-            //logHHAuto(JSON.stringify(index,element.formAction));
+            //logHHAuto({indexNb:index,formActionElement:element.formAction});
             var gid=Number(element.parentElement.parentElement.parentElement.getAttribute('girl'));
-            //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'checking '+gid);
-            //logHHAuto(JSON.stringify('checking '+gid));
+            //logHHAuto('checking '+gid);
             if (!Clicked.includes(gid))
             {
                 Clicked.push(gid);
                 ToClick.push(element);
-                //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'added! ',Clicked,ToClick);
-                //logHHAuto(JSON.stringify('added! ',Clicked,ToClick));
+                //logHHAuto({log:'added! ',ClickedObj:Clicked,ToClickObj:ToClick});
             }
         });
 
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Collected Data: ',Clicked,ToClick);
-        logHHAuto(JSON.stringify('Collected Data: ',Clicked,ToClick));
+        logHHAuto({log:"Collected Data: ", ClickedObj:Clicked, ToClickObj:ToClick});
 
         if (ToClick.length>0)
         {
-            //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'clicking!');
-            //logHHAuto(JSON.stringify('clicking!'));
+            //logHHAuto('clicking!');
             setTimeout(ClickThem,randomInterval(500,1500));
         }
         else//nothing to collect
@@ -1494,8 +1447,7 @@ var CollectMoney = function()
             if(gMap === undefined)
             {
                 // error
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Girls Map was undefined...! Error, manually setting salary time to 2 min.");
-                logHHAuto(JSON.stringify("Girls Map was undefined...! Error, manually setting salary time to 2 min."));
+                logHHAuto("Girls Map was undefined...! Error, manually setting salary time to 2 min.");
                 closestTime = 2*60;
             }
             else
@@ -1514,22 +1466,19 @@ var CollectMoney = function()
                 }
                 catch(exp){
                     // error
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Girls Map had undefined property...! Error, manually setting salary time to 2 min.");
-                    logHHAuto(JSON.stringify("Girls Map had undefined property...! Error, manually setting salary time to 2 min."));
+                    logHHAuto("Girls Map had undefined property...! Error, manually setting salary time to 2 min.");
                     closestTime = 2*60;
                 }
             }
             if(closestTime === undefined)
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","closestTime was undefined...! Error, manually setting salary time to 2 min.");
-                logHHAuto(JSON.stringify("closestTime was undefined...! Error, manually setting salary time to 2 min."));
+                logHHAuto("closestTime was undefined...! Error, manually setting salary time to 2 min.");
                 closestTime = 2*60;
             }
             var st=Number(Storage().HHAuto_Setting_autoSalaryTimer?Storage().HHAuto_Setting_autoSalaryTimer:"120");
             if(closestTime <= st )
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","closestTime is "+closestTime+" ("+closestGirl+")");
-                logHHAuto(JSON.stringify("closestTime is "+closestTime+" ("+closestGirl+")"));
+                logHHAuto("closestTime is "+closestTime+" ("+closestGirl+")");
                 closestTime = st;
             }
             setTimer('nextSalaryTime',Number(closestTime)+1);
@@ -1545,12 +1494,12 @@ var getSalary = function () {
     try {
         if(getPage() == "harem")
         {
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Detected Harem Screen. Fetching Salary");
-            logHHAuto(JSON.stringify("Detected Harem Screen. Fetching Salary"));
+            logHHAuto("Detected Harem Screen. Fetching Salary");
             is_cheat_click=function(e) {
                 return false;
             };
             sessionStorage.HHAuto_Temp_autoLoop = "false";
+            logHHAuto("setting autoloop to false");
             CollectMoney();
             // return busy
             return true;
@@ -1568,16 +1517,14 @@ var getSalary = function () {
                         return false;
                     };
                     salaryButton.click();
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Collected all Premium salary');
-                    logHHAuto(JSON.stringify('Collected all Premium salary'));
+                    logHHAuto('Collected all Premium salary');
                     setTimer('nextSalaryTime',Number(Storage().HHAuto_Setting_autoSalaryTimer?Storage().HHAuto_Setting_autoSalaryTimer:"120")+1);
                     return true;
                 }
                 else if ( getButtonClass === "orange_button_L")
                 {
                     // Not at Harem screen then goto the Harem screen.
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Navigating to Harem window.");
-                    logHHAuto(JSON.stringify("Navigating to Harem window."));
+                    logHHAuto("Navigating to Harem window.");
                     gotoPage("harem");
                     // return busy
                     return true;
@@ -1585,31 +1532,27 @@ var getSalary = function () {
                 }
                 else
                 {
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Unknown salary button color : "+getButtonClass);
-                    logHHAuto(JSON.stringify("Unknown salary button color : "+getButtonClass));
+                    logHHAuto("Unknown salary button color : "+getButtonClass);
                     setTimer('nextSalaryTime',Number(Storage().HHAuto_Setting_autoSalaryTimer?Storage().HHAuto_Setting_autoSalaryTimer:"120")+1);
                 }
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","No salary to collect");
-                logHHAuto(JSON.stringify("No salary to collect"));
+                logHHAuto("No salary to collect");
                 setTimer('nextSalaryTime',Number(Storage().HHAuto_Setting_autoSalaryTimer?Storage().HHAuto_Setting_autoSalaryTimer:"120")+1);
             }
         }
         else
         {
             // Not at Harem screen then goto the Harem screen.
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Navigating to Home window.");
-            logHHAuto(JSON.stringify("Navigating to Home window."));
+            logHHAuto("Navigating to Home window.");
             gotoPage("home");
             return true;
         }
 
     }
     catch (ex) {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Could not collect salary... " + ex);
-        logHHAuto(JSON.stringify("Could not collect salary... " + ex));
+        logHHAuto("Could not collect salary... " + ex);
         // return not busy
         return false;
     }
@@ -1618,8 +1561,7 @@ var getSalary = function () {
 var doStatUpgrades=function()
 {
     //Stats?
-    //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'stats');
-    //logHHAuto(JSON.stringify('stats'));
+    //logHHAuto('stats');
     var Hero=getHero();
     var level=getSetHeroInfos('level');
     var stats=[getSetHeroInfos('carac1'),getSetHeroInfos('carac2'),getSetHeroInfos('carac3')];
@@ -1633,8 +1575,7 @@ var doStatUpgrades=function()
     var mults=[60,30,10,1];
     for (var car=0; car<3; car++)
     {
-        //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'stat '+carac);
-        //logHHAuto(JSON.stringify('stat '+carac));
+        //logHHAuto('stat '+carac);
         var s=stats[carac-1];
         for (var mu=0;mu<5;mu++)
         {
@@ -1645,13 +1586,11 @@ var doStatUpgrades=function()
             {
                 mp=price;
             }
-            //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'money: '+money+' stat'+carac+': '+stats[carac-1]+' price: '+price);
-            //logHHAuto(JSON.stringify('money: '+money+' stat'+carac+': '+stats[carac-1]+' price: '+price));
+            //logHHAuto('money: '+money+' stat'+carac+': '+stats[carac-1]+' price: '+price);
             if ((stats[carac-1]+mult)<=Limit && (money-price)>M && (carac==getSetHeroInfos('class') || price<mp/2 || (MainStat+mult)>Limit))
             {
                 count++;
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":",'money: '+money+' stat'+carac+': '+stats[carac-1]+' [+'+mult+'] price: '+price);
-                logHHAuto(JSON.stringify('money: '+money+' stat'+carac+': '+stats[carac-1]+' [+'+mult+'] price: '+price));
+                logHHAuto('money: '+money+' stat'+carac+': '+stats[carac-1]+' [+'+mult+'] price: '+price);
                 money-=price;
                 var params = {
                     class: "Hero",
@@ -1710,8 +1649,7 @@ var doShopping=function()
 
         if (Storage().HHAuto_Setting_autoLGMW==="true" || Storage().HHAuto_Setting_autoLGRW==="true" )//|| Storage().HHAuto_Setting_autoEGMW==="true")
         {
-            //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'items');
-            //logHHAuto(JSON.stringify('items'));
+            //logHHAuto('items');
             var Was=shop[0].length;
             for (var n0=shop[0].length-1;n0>=0;n0--)
             {
@@ -1720,12 +1658,10 @@ var doShopping=function()
                     //Storage().HHAuto_Setting_autoEGMW==="true" && money>=EGM+Number(shop[0][n0].price) && shop[0][n0][MS]>0 && shop[0][n0][SS1]==0 && shop[0][n0][SS2]==0 && shop[0][n0].chance==0 && shop[0][n0].endurance==0 && shop[0][n0].rarity=='epic'||
                     Storage().HHAuto_Setting_autoLGRW==="true" && money>=LGR+Number(shop[0][n0].price) && shop[0][n0][MS]>0 && shop[0][n0][SS1]>0 && shop[0][n0][SS2]>0 && shop[0][n0].rarity=='legendary')
                 {
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":",'wanna buy ',shop[0][n0]);
-                    logHHAuto(JSON.stringify('wanna buy ',shop[0][n0]));
+                    logHHAuto({log:'wanna buy ',object:shop[0][n0]});
                     if (money>=shop[0][n0].price)
                     {
-                        console.log(new Date().toISOString()+":"+getCallerFunction()+":","yay?");
-                        logHHAuto(JSON.stringify("yay?"));
+                        logHHAuto("yay?");
                         money-=Number(shop[0][n0].price);
                         var params0 = {
                             class: "Item",
@@ -1743,8 +1679,7 @@ var doShopping=function()
                     }
                     else
                     {
-                        console.log(new Date().toISOString()+":"+getCallerFunction()+":","but can't");
-                        logHHAuto(JSON.stringify("but can't"));
+                        logHHAuto("but can't");
                     }
                 }
             }
@@ -1765,12 +1700,10 @@ var doShopping=function()
                 {
                     if (kobans>=Number(Storage().HHAuto_Setting_kobanBank)+Number(shop[1][n1].price_hc) && shop[1][n1].identifier == boost  && shop[1][n1].rarity=='legendary')
                     {
-                        console.log(new Date().toISOString()+":"+getCallerFunction()+":",'wanna buy ',shop[1][n1]);
-                        logHHAuto(JSON.stringify('wanna buy ',shop[1][n1]));
+                        logHHAuto({log:'wanna buy ',object:shop[1][n1]});
                         if (kobans>=Number(shop[1][n1].price_hc))
                         {
-                            console.log(new Date().toISOString()+":"+getCallerFunction()+":","yay?");
-                            logHHAuto(JSON.stringify("yay?"));
+                            logHHAuto("yay?");
                             kobans-=Number(shop[1][n1].hc_price);
                             var params1 = {
                                 class: "Item",
@@ -1786,8 +1719,7 @@ var doShopping=function()
                         }
                         else
                         {
-                            console.log(new Date().toISOString()+":"+getCallerFunction()+":","but can't");
-                            logHHAuto(JSON.stringify("but can't"));
+                            logHHAuto("but can't");
                         }
                     }
                 }
@@ -1801,17 +1733,14 @@ var doShopping=function()
 
         if (Storage().HHAuto_Setting_autoAffW==="true" && HaveAff<MaxAff)
         {
-            //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'gifts');
-            //logHHAuto(JSON.stringify('gifts'));
+            //logHHAuto('gifts');
             Was=shop[2].length;
             for (var n2=shop[2].length-1;n2>=0;n2--)
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":",'wanna buy ',shop[2][n2]);
-                logHHAuto(JSON.stringify('wanna buy ',shop[2][n2]));
+                logHHAuto({log:'wanna buy ',Object:shop[2][n2]});
                 if (money>=Aff+Number(shop[2][n2].price) && money>=Number(shop[2][n2].price))
                 {
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","yay?");
-                    logHHAuto(JSON.stringify("yay?"));
+                    logHHAuto("yay?");
                     money-=Number(shop[2][n2].price);
                     var params2 = {
                         class: "Item",
@@ -1827,8 +1756,7 @@ var doShopping=function()
                 }
                 else
                 {
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","but can't");
-                    logHHAuto(JSON.stringify("but can't"));
+                    logHHAuto("but can't");
                 }
             }
             if (shop[2].length==0 && Was>0)
@@ -1839,17 +1767,14 @@ var doShopping=function()
 
         if (Storage().HHAuto_Setting_autoExpW==="true" && HaveExp<MaxExp)
         {
-            //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'books');
-            //logHHAuto(JSON.stringify('books'));
+            //logHHAuto('books');
             Was=shop[3].length;
             for (var n3=shop[3].length-1;n3>=0;n3--)
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":",'wanna buy ',shop[3][n3]);
-                logHHAuto(JSON.stringify('wanna buy ',shop[3][n3]));
+                logHHAuto('wanna buy ',shop[3][n3]);
                 if (money>=Exp+Number(shop[3][n3].price) && money>=Number(shop[3][n3].price))
                 {
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","yay?");
-                    logHHAuto(JSON.stringify("yay?"));
+                    logHHAuto("yay?");
                     money-=Number(shop[3][n3].price);
                     var params3 = {
                         class: "Item",
@@ -1865,8 +1790,7 @@ var doShopping=function()
                 }
                 else
                 {
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","but can't");
-                    logHHAuto(JSON.stringify("but can't"));
+                    logHHAuto("but can't");
                 }
             }
             if (shop[3].length==0 && Was>0)
@@ -1880,8 +1804,7 @@ var doShopping=function()
     }
     catch (ex)
     {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":",ex);
-        logHHAuto(JSON.stringify(ex));
+        logHHAuto(ex);
         sessionStorage.HHAuto_Temp_charLevel=0;
     }
 }
@@ -1891,8 +1814,7 @@ var doBossBattle = function()
     var currentPower = getSetHeroInfos('fight.amount');
     if(currentPower < 1)
     {
-        //console.log(new Date().toISOString()+":"+getCallerFunction()+":","No power for battle.");
-        //logHHAuto(JSON.stringify("No power for battle."));
+        //logHHAuto("No power for battle.");
         return;
     }
 
@@ -1900,39 +1822,31 @@ var doBossBattle = function()
     if (Storage().HHAuto_Setting_plusEvent==="true" && (!checkTimer("eventGoing") || !checkTimer("eventMythicGoing")) && sessionStorage.HHAuto_Temp_eventTroll)
     {
         TTF=sessionStorage.HHAuto_Temp_eventTroll;
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Event troll fight");
-        logHHAuto(JSON.stringify("Event troll fight"));
+        logHHAuto("Event troll fight");
     }
     else if(Storage().HHAuto_Temp_trollToFight !== undefined && !isNaN(Storage().HHAuto_Temp_trollToFight) && Storage().HHAuto_Temp_trollToFight !== "0")
     {
         TTF=Storage().HHAuto_Temp_trollToFight;
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Custom troll fight.");
-        logHHAuto(JSON.stringify("Custom troll fight."));
+        logHHAuto("Custom troll fight.");
     }
     else
     {
         TTF=getSetHeroInfos('questing.id_world')-1;
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Last troll fight");
-        logHHAuto(JSON.stringify("Last troll fight"));
+        logHHAuto("Last troll fight");
     }
 
     if (Storage().HHAuto_Temp_autoTrollBattleSaveQuest == "true")
     {
         TTF=getSetHeroInfos('questing.id_world')-1;
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Last troll fight for quest item.");
-        logHHAuto(JSON.stringify("Last troll fight for quest item."));
+        logHHAuto("Last troll fight for quest item.");
         Storage().HHAuto_Temp_autoTrollBattleSaveQuest = "false";
     }
 
-    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Fighting troll N "+TTF);
-    logHHAuto(JSON.stringify("Fighting troll N "+TTF));
-    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Going to crush: "+Trollz[Number(TTF)]);
-    logHHAuto(JSON.stringify("Going to crush: "+Trollz[Number(TTF)]));
+    logHHAuto("Fighting troll N "+TTF);
+    logHHAuto("Going to crush: "+Trollz[Number(TTF)]);
 
     // Battles the latest boss.
     // Navigate to latest boss.
-    //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'!!!!!',window.location.href,window.location.href=="/battle.html?id_troll=" + TTF);
-    //logHHAuto(JSON.stringify('!!!!!',window.location.href,window.location.href=="/battle.html?id_troll=" + TTF));
     if(window.location.pathname=="/battle.html" && window.location.search=="?id_troll=" + TTF)
     {
         // On the battle screen.
@@ -1940,9 +1854,9 @@ var doBossBattle = function()
     }
     else
     {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Navigating to chosen Troll.");
-        logHHAuto(JSON.stringify("Navigating to chosen Troll."));
+        logHHAuto("Navigating to chosen Troll.");
         sessionStorage.HHAuto_Temp_autoLoop = "false";
+        logHHAuto("setting autoloop to false");
         location.href = "/battle.html?id_troll=" + TTF;
         return true;
     }
@@ -1953,12 +1867,10 @@ var doChampionStuff=function()
     var page=getPage();
     if (page=='champions')
     {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":",'on champion page');
-        logHHAuto(JSON.stringify('on champion page'));
+        logHHAuto('on champion page');
         if ($('button[rel=perform].blue_button_L').length==0)
         {
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Something is wrong!');
-            logHHAuto(JSON.stringify('Something is wrong!'));
+            logHHAuto('Something is wrong!');
             gotoPage("home");
             return true;
         }
@@ -1966,11 +1878,10 @@ var doChampionStuff=function()
         {
             var TCount=Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
             var ECount= getSetHeroInfos('quest.amount');
-            console.log("T:"+TCount+" E:"+ECount+" "+(Storage().HHAuto_Setting_autoChampsUseEne==="true"))
+            logHHAuto("T:"+TCount+" E:"+ECount+" "+(Storage().HHAuto_Setting_autoChampsUseEne==="true"))
             if ( TCount==0)
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","No tickets!");
-                logHHAuto(JSON.stringify("No tickets!"));
+                logHHAuto("No tickets!");
                 setTimer('nextChampionTime',15*60);
                 return false;
             }
@@ -1978,8 +1889,7 @@ var doChampionStuff=function()
             {
                 if (TCount!=0)
                 {
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Using ticket");
-                    logHHAuto(JSON.stringify("Using ticket"));
+                    logHHAuto("Using ticket");
                     $('button[rel=perform].blue_button_L').click();
                 }
                 setTimeout(function(){gotoPage('champions_map');},500);
@@ -1989,8 +1899,7 @@ var doChampionStuff=function()
     }
     else if (page=='champions_map')
     {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":",'on champion map');
-        logHHAuto(JSON.stringify('on champion map'));
+        logHHAuto('on champion map');
         var Filter=Storage().HHAuto_Setting_autoChampsFilter.split(';').map(s=>Number(s));
         var minTime = -1;
         var currTime;
@@ -2010,20 +1919,17 @@ var doChampionStuff=function()
 
             let OnTimer= OnTimerOld || OnTimerNew;
             let Filtered=Filter.includes(i+1);
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Champion "+(i+1)+" ["+Impression+"]"+(Started?" Started;":" Not started;")+(OnTimer?" on timer;":" not on timer;")+(Filtered?" Included in filter":" Excluded from filter"));
-            logHHAuto(JSON.stringify("Champion "+(i+1)+" ["+Impression+"]"+(Started?" Started;":" Not started;")+(OnTimer?" on timer;":" not on timer;")+(Filtered?" Included in filter":" Excluded from filter")));
+            logHHAuto("Champion "+(i+1)+" ["+Impression+"]"+(Started?" Started;":" Not started;")+(OnTimer?" on timer;":" not on timer;")+(Filtered?" Included in filter":" Excluded from filter"));
 
             if (Started && !OnTimer && Filtered)
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Let's do him!");
-                logHHAuto(JSON.stringify("Let's do him!"));
+                logHHAuto("Let's do him!");
                 window.location = window.location.origin + '/champions/'+(i+1);
                 return true;
             }
         }
 
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","No good candidate");
-        logHHAuto(JSON.stringify("No good candidate"));
+        logHHAuto("No good candidate");
         currTime = -1;
         $('a.champion-lair div.champion-lair-name div#championTimer').each(function()
                                                                            {
@@ -2122,6 +2028,8 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
     var playerOmegaAdd;
     var matchRating;
 
+    //logHHAuto({playerEgo:playerEgo,playerDef:playerDef,playerAtk:playerAtk,playerClass:playerClass,playerAlpha:playerAlpha,playerBeta:playerBeta,playerOmega:playerOmega,playerExcitement:playerExcitement,opponentName:opponentName,opponentEgo:opponentEgo,opponentDef:opponentDef,opponentAtk:opponentAtk,opponentClass:opponentClass,opponentAlpha:opponentAlpha,opponentBeta:opponentBeta,opponentOmega:opponentOmega,opponentExcitement:opponentExcitement});
+
 
     if (playerClass == 'class1') {
         playerBetaAdd = playerBeta.caracs.carac1;
@@ -2171,14 +2079,10 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
     }
 
     //Log opponent name and starting egos for sim
-    //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Simulation log for: ' + opponentName);
-    //logHHAuto(JSON.stringify('Simulation log for: ' + opponentName));
-    //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Starting Egos adjusted for worst-case proc scenario:');
-    //logHHAuto(JSON.stringify('Starting Egos adjusted for worst-case proc scenario:'));
-    //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Player Ego: ' + playerEgo);
-    //logHHAuto(JSON.stringify('Player Ego: ' + playerEgo));
-    //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Opponent Ego: ' + opponentEgo);
-    //logHHAuto(JSON.stringify('Opponent Ego: ' + opponentEgo));
+    //logHHAuto('Simulation log for: ' + opponentName);
+    //logHHAuto('Starting Egos adjusted for worst-case proc scenario:');
+    //logHHAuto('Player Ego: ' + playerEgo);
+    //logHHAuto('Opponent Ego: ' + opponentEgo);
 
     playerOrgasm = 0;
     playerOrgasmCount = 0;
@@ -2193,8 +2097,7 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
             playerOrgasmCount++;
 
             //Log results
-            //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Round ' + (turns + 1) + ': Player orgasm! -' + Math.round(playerAtk * 1.5 - opponentDef));
-            //logHHAuto(JSON.stringify('Round ' + (turns + 1) + ': Player orgasm! -' + Math.round(playerAtk * 1.5 - opponentDef)));
+            //logHHAuto('Round ' + (turns + 1) + ': Player orgasm! -' + Math.round(playerAtk * 1.5 - opponentDef));
 
             //Orgasm 1
             if (playerOrgasmCount == 1) {
@@ -2216,13 +2119,11 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
         else {
             opponentEgo -= playerAtk - opponentDef;
             playerOrgasm += playerAtk * 2;
-            //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Round ' + (turns + 1) + ': Player hit! -' + (playerAtk - opponentDef));
-            //logHHAuto(JSON.stringify('Round ' + (turns + 1) + ': Player hit! -' + (playerAtk - opponentDef)));
+            //logHHAuto('Round ' + (turns + 1) + ': Player hit! -' + (playerAtk - opponentDef));
         }
 
         //Log results
-        //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'after Round ' + (turns + 1) + ': Opponent ego: ' + opponentEgo);
-        //logHHAuto(JSON.stringify('after Round ' + (turns + 1) + ': Opponent ego: ' + opponentEgo));
+        //logHHAuto('after Round ' + (turns + 1) + ': Opponent ego: ' + opponentEgo);
     }
 
     function opponentTurn() {
@@ -2233,8 +2134,7 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
             opponentOrgasmCount++;
 
             //Log results
-            //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Round ' + (turns + 1) + ': Opponent orgasm! -' + Math.round(opponentAtk * 1.5 - playerDef));
-            //logHHAuto(JSON.stringify('Round ' + (turns + 1) + ': Opponent orgasm! -' + Math.round(opponentAtk * 1.5 - playerDef)));
+            //logHHAuto('Round ' + (turns + 1) + ': Opponent orgasm! -' + Math.round(opponentAtk * 1.5 - playerDef));
 
             //Orgasm 1
             if (opponentOrgasmCount == 1) {
@@ -2242,8 +2142,7 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
                 playerDef += Math.round(playerBetaAdd * 1.75);
                 if (opponentAlphaClass == '1') {
                     playerEgo -= opponentProcHCAddOrgasm1;
-                    //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Round ' + (turns + 1) + ': HC opponent possibility of Wild Burst on first orgasm! -' + opponentProcHCAddOrgasm1);
-                    //logHHAuto(JSON.stringify('Round ' + (turns + 1) + ': HC opponent possibility of Wild Burst on first orgasm! -' + opponentProcHCAddOrgasm1));
+                    //logHHAuto('Round ' + (turns + 1) + ': HC opponent possibility of Wild Burst on first orgasm! -' + opponentProcHCAddOrgasm1);
                 }
             }
 
@@ -2253,8 +2152,7 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
                 playerDef += Math.round(playerOmegaAdd * 1.75);
                 if (opponentAlphaClass == '1') {
                     playerEgo -= opponentProcHCAddOrgasm2;
-                    //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Round ' + (turns + 1) + ': HC opponent possibility of Wild Burst on second orgasm! -' + opponentProcHCAddOrgasm2);
-                    //logHHAuto(JSON.stringify('Round ' + (turns + 1) + ': HC opponent possibility of Wild Burst on second orgasm! -' + opponentProcHCAddOrgasm2));
+                    //logHHAuto('Round ' + (turns + 1) + ': HC opponent possibility of Wild Burst on second orgasm! -' + opponentProcHCAddOrgasm2);
                 }
             }
 
@@ -2262,8 +2160,7 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
             if (opponentOrgasmCount == 3) {
                 if (opponentAlphaClass == '1') {
                     playerEgo -= opponentProcHCAddOrgasm3;
-                    //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Round ' + (turns + 1) + ': HC opponent possibility of Wild Burst on third orgasm! -' + opponentProcHCAddOrgasm3);
-                    //logHHAuto(JSON.stringify('Round ' + (turns + 1) + ': HC opponent possibility of Wild Burst on third orgasm! -' + opponentProcHCAddOrgasm3));
+                    //logHHAuto('Round ' + (turns + 1) + ': HC opponent possibility of Wild Burst on third orgasm! -' + opponentProcHCAddOrgasm3);
                 }
             }
 
@@ -2275,13 +2172,11 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
         else {
             playerEgo -= opponentAtk - playerDef;
             opponentOrgasm += opponentAtk * 2;
-            //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Round ' + (turns + 1) + ': Opponent hit! -' + (opponentAtk - playerDef));
-            //logHHAuto(JSON.stringify('Round ' + (turns + 1) + ': Opponent hit! -' + (opponentAtk - playerDef)));
+            //logHHAuto('Round ' + (turns + 1) + ': Opponent hit! -' + (opponentAtk - playerDef));
         }
 
         //Log results
-        //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'after Round ' + (turns + 1) + ': Player ego: ' + playerEgo);
-        //logHHAuto(JSON.stringify('after Round ' + (turns + 1) + ': Player ego: ' + playerEgo));
+        //logHHAuto('after Round ' + (turns + 1) + ': Player ego: ' + playerEgo);
     }
 
     //Simulate challenge
@@ -2305,37 +2200,31 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
                 opponentOrgasmCount++;
 
                 //Log results
-                //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Round ' + (turns + 1) + ': Possibly next: Opponent orgasm! -' + Math.round(opponentAtk * 1.5 - playerDef));
-                //logHHAuto(JSON.stringify('Round ' + (turns + 1) + ': Possibly next: Opponent orgasm! -' + Math.round(opponentAtk * 1.5 - playerDef)));
+                //logHHAuto('Round ' + (turns + 1) + ': Possibly next: Opponent orgasm! -' + Math.round(opponentAtk * 1.5 - playerDef));
 
                 if (opponentAlphaClass == '1') {
                     if (opponentOrgasmCount == 1) {
                         playerEgoCheck -= opponentProcHCAddOrgasm1;
-                        //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Round ' + (turns + 1) + ': Possibly next: HC opponent possibility of Wild Burst on first orgasm! -' + opponentProcHCAddOrgasm1);
-                        //logHHAuto(JSON.stringify('Round ' + (turns + 1) + ': Possibly next: HC opponent possibility of Wild Burst on first orgasm! -' + opponentProcHCAddOrgasm1));
+                        //logHHAuto('Round ' + (turns + 1) + ': Possibly next: HC opponent possibility of Wild Burst on first orgasm! -' + opponentProcHCAddOrgasm1);
                     }
                     if (opponentOrgasmCount == 2) {
                         playerEgoCheck -= opponentProcHCAddOrgasm2;
-                        //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Round ' + (turns + 1) + ': Possibly next: HC opponent possibility of Wild Burst on second orgasm! -' + opponentProcHCAddOrgasm2);
-                        //logHHAuto(JSON.stringify('Round ' + (turns + 1) + ': Possibly next: HC opponent possibility of Wild Burst on second orgasm! -' + opponentProcHCAddOrgasm2));
+                        //logHHAuto('Round ' + (turns + 1) + ': Possibly next: HC opponent possibility of Wild Burst on second orgasm! -' + opponentProcHCAddOrgasm2);
                     }
                     if (opponentOrgasmCount == 3) {
                         playerEgoCheck -= opponentProcHCAddOrgasm3;
-                        //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Round ' + (turns + 1) + ': Possibly next: HC opponent possibility of Wild Burst on third orgasm! -' + opponentProcHCAddOrgasm3);
-                        //logHHAuto(JSON.stringify('Round ' + (turns + 1) + ': Possibly next: HC opponent possibility of Wild Burst on third orgasm! -' + opponentProcHCAddOrgasm3));
+                        //logHHAuto('Round ' + (turns + 1) + ': Possibly next: HC opponent possibility of Wild Burst on third orgasm! -' + opponentProcHCAddOrgasm3);
                     }
                 }
             }
             //No orgasm
             else {
                 playerEgoCheck -= opponentAtk - playerDef;
-                //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Round ' + (turns + 1) + ': Possibly next: Opponent hit! -' + (opponentAtk - playerDef));
-                //logHHAuto(JSON.stringify('Round ' + (turns + 1) + ': Possibly next: Opponent hit! -' + (opponentAtk - playerDef)));
+                //logHHAuto('Round ' + (turns + 1) + ': Possibly next: Opponent hit! -' + (opponentAtk - playerDef));
             }
 
             if (playerEgoCheck <= 0) {
-                //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Close call! After Round ' + (turns + 1) + ': Player ego: ' + playerEgoCheck);
-                //logHHAuto(JSON.stringify('Close call! After Round ' + (turns + 1) + ': Player ego: ' + playerEgoCheck));
+                //logHHAuto('Close call! After Round ' + (turns + 1) + ': Player ego: ' + playerEgoCheck);
             }
             break
         }
@@ -2401,25 +2290,21 @@ function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,pl
 }
 
 var doSeason = function () {
-    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Performing auto Season.");
-    logHHAuto(JSON.stringify("Performing auto Season."));
+    logHHAuto("Performing auto Season.");
     // Confirm if on correct screen.
     var page = getPage();
     var current_kisses = getSetHeroInfos('kiss.amount');
     if(page === "season")
     {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","On season page.");
-        logHHAuto(JSON.stringify("On season page."));
+        logHHAuto("On season page.");
         if (Storage().HHAuto_Setting_autoSeasonCollect === "true")
         {
             $("button[id='claim_btn_s'").click();
         }
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Remaining kisses : "+ current_kisses);
-        logHHAuto(JSON.stringify("Remaining kisses : "+ current_kisses));
+        logHHAuto("Remaining kisses : "+ current_kisses);
         if ( current_kisses > 0 )
         {
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Switching to Season Arena screen.");
-            logHHAuto(JSON.stringify("Switching to Season Arena screen."));
+            logHHAuto("Switching to Season Arena screen.");
             gotoPage("season-arena");
         }
         else
@@ -2431,16 +2316,15 @@ var doSeason = function () {
     }
     else if (page === "season_arena")
     {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","On season arena page.");
-        logHHAuto(JSON.stringify("On season arena page."));
+        logHHAuto("On season arena page.");
 
         var chosenID=moduleSimSeasonBattle();
         if (chosenID !== -1 && chosenID !== -2 )
         {
             location.href = document.getElementsByClassName("opponent_perform_button_container")[chosenID].children[0].getAttribute('href');
             sessionStorage.HHAuto_Temp_autoLoop = "false";
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Going to crush : "+$("div.season_arena_opponent_container .hero_details div:not([class]):not([carac])")[chosenID].innerText);
-            logHHAuto(JSON.stringify("Going to crush : "+$("div.season_arena_opponent_container .hero_details div:not([class]):not([carac])")[chosenID].innerText));
+            logHHAuto("setting autoloop to false");
+            logHHAuto("Going to crush : "+$("div.season_arena_opponent_container .hero_details div:not([class]):not([carac])")[chosenID].innerText);
             return true;
         }
         if (chosenID === -2 )
@@ -2454,14 +2338,14 @@ var doSeason = function () {
                     class: 'Arena',
                     action: 'arena_reload'
                 };
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Three red opponents, paying for refresh.");
-                logHHAuto(JSON.stringify("Three red opponents, paying for refresh."));
+                logHHAuto("Three red opponents, paying for refresh.");
                 hh_ajax(params, function(data){
                     Hero.update("hard_currency", data.hard_currency, false);
                     location.reload();
                 })
             }
             sessionStorage.HHAuto_Temp_autoLoop = "false";
+            logHHAuto("setting autoloop to false");
             setTimer('nextSeasonTime',5);
             setTimeout(refreshOpponents,randomInterval(800,1600));
 
@@ -2476,20 +2360,17 @@ var doSeason = function () {
     else
     {
         // Switch to the correct screen
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Remaining kisses : "+ current_kisses);
-        logHHAuto(JSON.stringify("Remaining kisses : "+ current_kisses));
+        logHHAuto("Remaining kisses : "+ current_kisses);
         if ( current_kisses > 0 )
         {
             if (Storage().HHAuto_Setting_autoSeasonCollect === "true")
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Switching to Season screen.");
-                logHHAuto(JSON.stringify("Switching to Season screen."));
+                logHHAuto("Switching to Season screen.");
                 gotoPage("season");
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Switching to Season Arena screen.");
-                logHHAuto(JSON.stringify("Switching to Season Arena screen."));
+                logHHAuto("Switching to Season Arena screen.");
                 gotoPage("season-arena");
             }
             return;
@@ -2503,34 +2384,29 @@ var doSeason = function () {
 };
 
 var doBattle = function () {
-    //console.log(new Date().toISOString()+":"+getCallerFunction()+":","Performing auto battle.");
-    //logHHAuto(JSON.stringify("Performing auto battle."));
+    //logHHAuto("Performing auto battle.");
     // Confirm if on correct screen.
     var page = getPage();
     if(page === "arena")
     {
         if ($("#arena[class='canvas']").length === 1) {
             // Oponent choose screen
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","On opponent choose screen.");
-            logHHAuto(JSON.stringify("On opponent choose screen."));
+            logHHAuto("On opponent choose screen.");
             if(document.getElementById("popups").style.display === "block")
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Popup detetcted. Refresh page.");
-                logHHAuto(JSON.stringify("Popup detetcted. Refresh page."));
+                logHHAuto("Popup detetcted. Refresh page.");
                 unsafeWindow.reload();
                 return;
             }
             else{
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","No popups.");
-                logHHAuto(JSON.stringify("No popups."));
+                logHHAuto("No popups.");
             }
 
             var fought = sessionStorage.HHAuto_Temp_fought?sessionStorage.HHAuto_Temp_fought:0;
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":",'already fought: '+fought);
-            logHHAuto(JSON.stringify('already fought: '+fought));
+            logHHAuto('already fought: '+fought);
             if(fought>=3)
             {
-                console.log("No arena opponents found, storing nextArenaTime...")
+                logHHAuto("No arena opponents found, storing nextArenaTime...")
                 var arenatime = 0;
                 for(var e in unsafeWindow.HHTimers.timers){
                     try{
@@ -2546,6 +2422,7 @@ var doBattle = function () {
             }
             //selbutton[0].click();
             sessionStorage.HHAuto_Temp_autoLoop = "false";
+            logHHAuto("setting autoloop to false");
             sessionStorage.HHAuto_Temp_fought=Number(fought)+1;
             window.location = window.location.origin + '/battle.html?id_arena='+fought;
         }
@@ -2557,8 +2434,7 @@ var doBattle = function () {
     else
     {
         // Switch to the correct screen
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Switching to battle screen.");
-        logHHAuto(JSON.stringify("Switching to battle screen."));
+        logHHAuto("Switching to battle screen.");
         gotoPage("arena");
         return;
     }
@@ -2574,8 +2450,7 @@ var getLeagueCurrentLevel = function ()
 }
 
 var doLeagueBattle = function () {
-    //console.log(new Date().toISOString()+":"+getCallerFunction()+":","Performing auto leagues.");
-    //logHHAuto(JSON.stringify("Performing auto leagues."));
+    //logHHAuto("Performing auto leagues.");
     // Confirm if on correct screen.
     var currentPower = getSetHeroInfos('challenge.amount');
     var leagueScoreSecurityThreshold = 40;
@@ -2589,21 +2464,17 @@ var doLeagueBattle = function () {
     }
     else if(page === "leaderboard")
     {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","On leaderboard page.");
-        logHHAuto(JSON.stringify("On leaderboard page."));
+        logHHAuto("On leaderboard page.");
         if (Storage().HHAuto_Setting_autoLeaguesCollect === "true")
         {
             $('#leagues_middle .forced_info button[rel="claim"]').click(); //click reward
         }
-        //console.log(new Date().toISOString()+":"+getCallerFunction()+":",new Date().toISOString()+":"+getCallerFunction()+":",'ls! '+$('h4.leagues').size());
-        //logHHAuto(JSON.stringify(new Date().toISOString()+":"+getCallerFunction()+":",'ls! '+$('h4.leagues').size()));
-        logHHAuto(JSON.stringify('ls! '+$('h4.leagues').size()));
+        //logHHAuto('ls! '+$('h4.leagues').size());
         $('h4.leagues').each(function(){this.click();});
 
         if(currentPower < 1)
         {
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","No power for leagues.");
-            logHHAuto(JSON.stringify("No power for leagues."));
+            logHHAuto("No power for leagues.");
             //prevent paranoia to wait for league
             Storage().HHAuto_Temp_paranoiaLeagueBlocked="true";
             setTimer('nextLeaguesTime',getSetHeroInfos('challenge.next_refresh_ts')+1);
@@ -2627,19 +2498,16 @@ var doLeagueBattle = function () {
 
         while ($("span[sort_by='level'][select='asc']").size()==0)
         {
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":",'resorting');
-            logHHAuto(JSON.stringify('resorting'));
+            logHHAuto('resorting');
             $("span[sort_by='level']").each(function(){this.click()});
         }
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":",'parsing enemies');
-        logHHAuto(JSON.stringify('parsing enemies'));
+        logHHAuto('parsing enemies');
         var Data=[];
         $(".leadTable[sorting_table] tr").each(function(){if (this.cells[3].innerHTML==='0/3' || this.cells[3].innerHTML==='1/3' || this.cells[3].innerHTML==='2/3'){Data.push($(this).attr("sorting_id"));}});
         if (Data.length==0)
         {
             ltime=35*60;
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":",'No valid targets!');
-            logHHAuto(JSON.stringify('No valid targets!'));
+            logHHAuto('No valid targets!');
             //prevent paranoia to wait for league
             Storage().HHAuto_Temp_paranoiaLeagueBlocked="true";
             setTimer('nextLeaguesTime',ltime);
@@ -2650,8 +2518,7 @@ var doLeagueBattle = function () {
 
             if (isNaN(getPlayerCurrentLevel))
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Could not get current Rank, stopping League.");
-                logHHAuto(JSON.stringify("Could not get current Rank, stopping League."));
+                logHHAuto("Could not get current Rank, stopping League.");
                 //prevent paranoia to wait for league
                 Storage().HHAuto_Temp_paranoiaLeagueBlocked="true";
                 setTimer('nextLeaguesTime',Number(30*60)+1);
@@ -2673,18 +2540,15 @@ var doLeagueBattle = function () {
                 {
                     rankDemote = totalOpponents - 15;
                 }
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Current league above target, needs to demote. max rank : "+rankDemote+"/"+totalOpponents);
-                logHHAuto(JSON.stringify("Current league above target, needs to demote. max rank : "+rankDemote+"/"+totalOpponents));
+                logHHAuto("Current league above target, needs to demote. max rank : "+rankDemote+"/"+totalOpponents);
                 maxDemote = Number($("div.leagues_table table tr td span:contains("+rankDemote+")").filter(function() {
                     return Number($.trim($(this).text())) === rankDemote;
                 }).parent().parent()[0].lastElementChild.innerText.replace(/\D/g, ''));
 
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Current league above target, needs to demote. Score should not be higher than : "+maxDemote);
-                logHHAuto(JSON.stringify("Current league above target, needs to demote. Score should not be higher than : "+maxDemote));
+                logHHAuto("Current league above target, needs to demote. Score should not be higher than : "+maxDemote);
                 if ( currentScore + leagueScoreSecurityThreshold >= maxDemote )
                 {
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Can't do league as could go above demote, setting timer to 30 mins");
-                    logHHAuto(JSON.stringify("Can't do league as could go above demote, setting timer to 30 mins"));
+                    logHHAuto("Can't do league as could go above demote, setting timer to 30 mins");
                     setTimer('nextLeaguesTime',Number(30*60)+1);
                     //prevent paranoia to wait for league
                     Storage().HHAuto_Temp_paranoiaLeagueBlocked="true";
@@ -2707,19 +2571,16 @@ var doLeagueBattle = function () {
                 {
                     rankStay = 15;
                 }
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Current league is target, needs to stay. max rank : "+rankStay);
-                logHHAuto(JSON.stringify("Current league is target, needs to stay. max rank : "+rankStay));
+                logHHAuto("Current league is target, needs to stay. max rank : "+rankStay);
                 maxStay = Number($("div.leagues_table table tr td span:contains("+rankStay+")").filter(function() {
                     return Number($.trim($(this).text())) === rankStay;
                 }).parent().parent()[0].lastElementChild.innerText.replace(/\D/g, ''));
 
 
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Current league is target, needs to stay. Score should not be higher than : "+maxStay);
-                logHHAuto(JSON.stringify("Current league is target, needs to stay. Score should not be higher than : "+maxStay));
+                logHHAuto("Current league is target, needs to stay. Score should not be higher than : "+maxStay);
                 if ( currentScore + leagueScoreSecurityThreshold >= maxStay )
                 {
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Can't do league as could go above stay, setting timer to 30 mins");
-                    logHHAuto(JSON.stringify("Can't do league as could go above stay, setting timer to 30 mins"));
+                    logHHAuto("Can't do league as could go above stay, setting timer to 30 mins");
                     setTimer('nextLeaguesTime',Number(30*60)+1);
                     //prevent paranoia to wait for league
                     Storage().HHAuto_Temp_paranoiaLeagueBlocked="true";
@@ -2727,26 +2588,24 @@ var doLeagueBattle = function () {
                     return;
                 }
             }
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":",Data.length+' valid targets!');
-            logHHAuto(JSON.stringify(Data.length+' valid targets!'));
+            logHHAuto(Data.length+' valid targets!');
             sessionStorage.HHAuto_Temp_autoLoop = "false";
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Hit?" );
-            logHHAuto(JSON.stringify("Hit?" ));
+            logHHAuto("setting autoloop to false");
+            logHHAuto("Hit?" );
             if (Storage().HHAuto_Setting_autoLeaguesPowerCalc == "true")
             {
                 var oppoID = getLeagueOpponentId(Data);
                 if (oppoID == -1)
                 {
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":",'opponent list is building next league time in 2 min');
-                    logHHAuto(JSON.stringify('opponent list is building next league time in 2 min'));
+                    logHHAuto('opponent list is building next league time in 2 min');
                     setTimer('nextLeaguesTime',2*60);
                 }
                 else
                 {
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":",'going to crush ID : '+oppoID);
-                    logHHAuto(JSON.stringify('going to crush ID : '+oppoID));
+                    logHHAuto('going to crush ID : '+oppoID);
                     location.href = "/battle.html?league_battle=1&id_member=" + oppoID;
                     sessionStorage.HHAuto_Temp_autoLoop = "false";
+                    logHHAuto("setting autoloop to false");
                     clearTimer('nextLeaguesTime');
                 }
             }
@@ -2764,8 +2623,7 @@ var doLeagueBattle = function () {
     else
     {
         // Switch to the correct screen
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Switching to leagues screen.");
-        logHHAuto(JSON.stringify("Switching to leagues screen."));
+        logHHAuto("Switching to leagues screen.");
         gotoPage("leaderboard");
         return;
     }
@@ -2773,7 +2631,7 @@ var doLeagueBattle = function () {
 
 function LeagueDisplayGetOpponentPopup(numberDone,remainingTime)
 {
-    $("#leagues #leagues_middle").prepend('<div id="popup_message_league" class="popup_message_league" name="popup_message_league" >'+HHAuto_ToolTips[HHAuto_Lang]["OpponentListBuilding"].elementText+' : <br>'+numberDone+' '+HHAuto_ToolTips[HHAuto_Lang]["OpponentParsed"].elementText+' ('+remainingTime+')</div>');
+    $("#leagues #leagues_middle").prepend('<div id="popup_message_league" class="popup_message_league" name="popup_message_league" >'+getTextForUI("OpponentListBuilding","elementText")+' : <br>'+numberDone+' '+getTextForUI("OpponentParsed","elementText")+' ('+remainingTime+')</div>');
 }
 function LeagueClearDisplayGetOpponentPopup()
 {
@@ -2819,8 +2677,7 @@ function getLeagueOpponentId(opponentsIDList)
 
     if (opponentsListExpirationDate === 'empty' || opponentsListExpirationDate < new Date() || opponentsPowerList.length ==0)
     {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Opponents list not found or expired. Fetching all opponents.");
-        logHHAuto(JSON.stringify("Opponents list not found or expired. Fetching all opponents."));
+        logHHAuto("Opponents list not found or expired. Fetching all opponents.");
         playerEgo = Math.round(getSetHeroInfos('caracs.ego'));
         playerDefHC = Math.round(getSetHeroInfos('caracs.def_carac1'));
         playerDefCH = Math.round(getSetHeroInfos('caracs.def_carac2'));
@@ -2836,19 +2693,17 @@ function getLeagueOpponentId(opponentsIDList)
     }
     else
     {
-        console.log("Found valid opponents list, using it.")
+        logHHAuto("Found valid opponents list, using it.")
         return FindOpponent(opponentsPowerList,opponentsIDs);
     }
 
     function getOpponents()
     {
-        //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Need to click: ',ToClick.length);
-        //logHHAuto(JSON.stringify('Need to click: ',ToClick.length));
+        //logHHAuto('Need to click: '+ToClick.length);
         var findText = 'playerLeaguesData = ';
         if (opponentsIDList.length>0)
         {
-            //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'getting data for opponent : '+opponentsIDList[0]);
-            //logHHAuto(JSON.stringify('getting data for opponent : '+opponentsIDList[0]));
+            //logHHAuto('getting data for opponent : '+opponentsIDList[0]);
             $.post('/ajax.php',
                    {
                 class: 'Leagues',
@@ -2879,12 +2734,9 @@ function getLeagueOpponentId(opponentsIDList)
                     opponentDef = opponent.caracs.def_carac3;
                 }
                 var opponentExcitement = Math.round((opponent.team["1"].caracs.carac1 + opponent.team["1"].caracs.carac2 + opponent.team["1"].caracs.carac3) * 28);
-                //console.log(new Date().toISOString()+":"+getCallerFunction()+":",playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponent.Name,opponent.caracs.ego,opponentDef,opponent.caracs.damage,'class'+opponent.class,opponent.team["1"],opponent.team["2"],opponent.team["1"],opponentExcitement);
-                //logHHAuto(JSON.stringify(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponent.Name,opponent.caracs.ego,opponentDef,opponent.caracs.damage,'class'+opponent.class,opponent.team["1"],opponent.team["2"],opponent.team["1"],opponentExcitement));
-                var matchRating = calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponent.Name,opponent.caracs.ego,opponentDef,opponent.caracs.damage,'class'+opponent.class,opponent.team["1"],opponent.team["2"],opponent.team["1"],opponentExcitement);
+                var matchRating = calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponent.Name,opponent.caracs.ego,opponentDef,opponent.caracs.damage,'class'+opponent.class,opponent.team["1"],opponent.team["2"],opponent.team["3"],opponentExcitement);
                 matchRating = Number(matchRating.substring(1));
-                //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'matchRating:'+matchRating);
-                //logHHAuto(JSON.stringify('matchRating:'+matchRating));
+                //logHHAuto('matchRating:'+matchRating);
                 DataOppo.set(opponent.id_member,matchRating);
                 //DataOppo.push(JSON.parse(data.html.substring(data.html.indexOf(findText)+findText.length,data.html.lastIndexOf(';'))));
 
@@ -2898,11 +2750,9 @@ function getLeagueOpponentId(opponentsIDList)
         }
         else
         {
-            //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'nothing to click, checking data');
-            //logHHAuto(JSON.stringify('nothing to click, checking data'));
+            //logHHAuto('nothing to click, checking data');
             sessionStorage.HHAuto_Temp_opponentsListExpirationDate=new Date().getTime() + 60*60 * 1000
-            //console.log(new Date().toISOString()+":"+getCallerFunction()+":",DataOppo);
-            //logHHAuto(JSON.stringify(DataOppo));
+            //logHHAuto(DataOppo);
             sessionStorage.HHAuto_Temp_LeagueOpponentList = JSON.stringify(DataOppo,replacerMap);
             LeagueClearDisplayGetOpponentPopup();
             doLeagueBattle();
@@ -2913,12 +2763,10 @@ function getLeagueOpponentId(opponentsIDList)
     {
         var maxScore = -1;
         var IdOppo = -1;
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":",'finding best chance opponent in '+opponentsIDList.length);
-        logHHAuto(JSON.stringify('finding best chance opponent in '+opponentsIDList.length));
+        logHHAuto('finding best chance opponent in '+opponentsIDList.length);
         for (var oppo of opponentsIDList)
         {
-            //console.log(new Date().toISOString()+":"+getCallerFunction()+":",oppo,Number(opponentsPowerList.get(oppo)),maxScore);
-            //logHHAuto(JSON.stringify(oppo,Number(opponentsPowerList.get(oppo)),maxScore));
+            //logHHAuto({Opponent:oppo,OppoGet:Number(opponentsPowerList.get(oppo)),maxScore:maxScore});
             if (maxScore == -1 || Number(opponentsPowerList.get(oppo)) > maxScore)
             {
 
@@ -2926,8 +2774,7 @@ function getLeagueOpponentId(opponentsIDList)
                 IdOppo = oppo;
             }
         }
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","highest score opponent : "+IdOppo+'('+maxScore+')');
-        logHHAuto(JSON.stringify("highest score opponent : "+IdOppo+'('+maxScore+')'));
+        logHHAuto("highest score opponent : "+IdOppo+'('+maxScore+')');
         return IdOppo;
     }
 
@@ -2969,29 +2816,23 @@ var  CrushThem = function()
             $("#rewards_popup .blue_button_L").click();
         }
 
-        //console.log(new Date().toISOString()+":"+getCallerFunction()+":","On Battle Page.");
-        //logHHAuto(JSON.stringify("On Battle Page."));
+        //logHHAuto("On Battle Page.");
         if ($("#battle[class='canvas']").length === 1) {
             // Battle screen
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","On battle screen.");
-            logHHAuto(JSON.stringify("On battle screen."));
+            logHHAuto("On battle screen.");
             // get button with no autofight, i.e. no koban
             var battleButton = $('#battle button[rel="launch"]:not(.autofight)');
-            //console.log(new Date().toISOString()+":"+getCallerFunction()+":",battleButton.get());
-            //logHHAuto(JSON.stringify(battleButton.get()));
-            //console.log(new Date().toISOString()+":"+getCallerFunction()+":",battleButton);
-            //logHHAuto(JSON.stringify(battleButton));
+            //logHHAuto(battleButton.get());
+            //logHHAuto(battleButton);
             var currentPower = getSetHeroInfos('fight.amount');
             if(battleButton === undefined){
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Battle Button was undefined. Disabling all auto-battle.");
-                logHHAuto(JSON.stringify("Battle Button was undefined. Disabling all auto-battle."));
+                logHHAuto("Battle Button was undefined. Disabling all auto-battle.");
                 document.getElementById("autoTrollCheckbox").checked = false;
                 //document.getElementById("autoArenaCheckbox").checked = false;
                 if (sessionStorage.HHAuto_Temp_questRequirement === "battle")
                 {
                     document.getElementById("autoQuestCheckbox").checked = false;
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Auto-quest disabled since it requires battle and auto-battle has errors.");
-                    logHHAuto(JSON.stringify("Auto-quest disabled since it requires battle and auto-battle has errors."));
+                    logHHAuto("Auto-quest disabled since it requires battle and auto-battle has errors.");
                 }
                 return;
             }
@@ -3002,21 +2843,18 @@ var  CrushThem = function()
                 currentPower=getSetHeroInfos('challenge.amount');
             }
             if(battle_price === undefined){
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Could not detect battle button price. Error.");
-                logHHAuto(JSON.stringify("Could not detect battle button price. Error."));
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Disabling all auto-battle.");
-                logHHAuto(JSON.stringify("Disabling all auto-battle."));
+                logHHAuto("Could not detect battle button price. Error.");
+                logHHAuto("Disabling all auto-battle.");
                 document.getElementById("autoTrollCheckbox").checked = false;
                 //document.getElementById("autoArenaCheckbox").checked = false;
                 if (sessionStorage.HHAuto_Temp_questRequirement === "battle")
                 {
                     document.getElementById("autoQuestCheckbox").checked = false;
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Auto-quest disabled since it requires battle and auto-battle has errors.");
-                    logHHAuto(JSON.stringify("Auto-quest disabled since it requires battle and auto-battle has errors."));
+                    logHHAuto("Auto-quest disabled since it requires battle and auto-battle has errors.");
                 }
                 return;
             }
-            console.log("battle price: "+battle_price+"P")
+            logHHAuto("battle price: "+battle_price+"P")
             if(currentPower >= battle_price)
             {
                 // We have the power.
@@ -3039,15 +2877,13 @@ var  CrushThem = function()
             else
             {
                 // We need more power.
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Battle requires "+battle_price+" power.");
-                logHHAuto(JSON.stringify("Battle requires "+battle_price+" power."));
+                logHHAuto("Battle requires "+battle_price+" power.");
                 sessionStorage.HHAuto_Temp_battlePowerRequired = battle_price;
                 if(sessionStorage.HHAuto_Temp_questRequirement === "battle")sessionStorage.HHAuto_Temp_questRequirement = "P"+battle_price;
             }
         }
         else {
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Could not identify battle screen.");
-            logHHAuto(JSON.stringify("Could not identify battle screen."));
+            logHHAuto("Could not identify battle screen.");
             if (sessionStorage.HHAuto_Temp_questRequirement === "battle") sessionStorage.HHAuto_Temp_questRequirement = "errorInAutoBattle";
             return;
         }
@@ -3059,8 +2895,7 @@ var setTimer=function(name, seconds)
     var ND=new Date().getTime() + seconds * 1000;
     Timers[name]=ND;
     sessionStorage.HHAuto_Temp_Timers=JSON.stringify(Timers);
-    console.log(new Date().toISOString()+":"+getCallerFunction()+":",name+" set to "+toHHMMSS(ND/1000-new Date().getTimezoneOffset()*60)+' ('+ toHHMMSS(seconds)+')');
-    logHHAuto(JSON.stringify(name+" set to "+toHHMMSS(ND/1000-new Date().getTimezoneOffset()*60)+' ('+ toHHMMSS(seconds)+')'));
+    logHHAuto(name+" set to "+toHHMMSS(ND/1000-new Date().getTimezoneOffset()*60)+' ('+ toHHMMSS(seconds)+')');
 }
 
 var clearTimer=function(name)
@@ -3115,246 +2950,16 @@ var getTimeLeft=function(name)
 }
 
 
-
-var updateData = function () {
-    //console.log(new Date().toISOString()+":"+getCallerFunction()+":","updating UI");
-    //logHHAuto(JSON.stringify("updating UI"));
-    if ($('#LoadDialog[open]').length > 0) {return}
-    var leaguesOptions = document.getElementById("autoLeaguesSelector");
-    Storage().HHAuto_Setting_autoLeaguesSelectedIndex = leaguesOptions.selectedIndex;
-    Storage().HHAuto_Temp_leaguesTarget = Number(leaguesOptions.value)+1;
-
-    var trollOptions = document.getElementById("autoTrollSelector");
-    Storage().HHAuto_Setting_autoTrollSelectedIndex = trollOptions.selectedIndex;
-    Storage().HHAuto_Temp_trollToFight = trollOptions.value;
-    Storage().HHAuto_Setting_plusEvent = document.getElementById("plusEvent").checked;
-    Storage().HHAuto_Setting_autoSalary = document.getElementById("autoSalaryCheckbox").checked;
-    Storage().HHAuto_Setting_autoSalaryTimer = document.getElementById("autoSalaryTextbox").value;
-    Storage().HHAuto_Setting_autoContest = document.getElementById("autoContestCheckbox").checked;
-    Storage().HHAuto_Setting_autoMission = document.getElementById("autoMissionCheckbox").checked;
-    Storage().HHAuto_Setting_autoPowerPlaces = document.getElementById("autoPowerPlaces").checked;
-
-    var newValue = String(document.getElementById("autoPowerPlacesAll").checked);
-    if (Storage().HHAuto_Setting_autoPowerPlacesAll != newValue)
-    {
-        Storage().HHAuto_Setting_autoPowerPlacesAll = document.getElementById("autoPowerPlacesAll").checked;
-        clearTimer('minPowerPlacesTime');
-        cleanTempPopToStart();
-    }
-    newValue = String(document.getElementById("autoPowerPlacesIndexFilter").value);
-    if (Storage().HHAuto_Setting_autoPowerPlacesIndexFilter != newValue)
-    {
-        Storage().HHAuto_Setting_autoPowerPlacesIndexFilter = document.getElementById("autoPowerPlacesIndexFilter").value;
-        clearTimer('minPowerPlacesTime');
-        cleanTempPopToStart();
-    }
-
-    Storage().HHAuto_Setting_autoPowerPlacesIndexFilter = document.getElementById("autoPowerPlacesIndexFilter").value;
-    Storage().HHAuto_Setting_autoSalaryTimer = document.getElementById("autoSalaryTextbox").value;
-    Storage().HHAuto_Setting_autoMissionC = document.getElementById("autoMissionCollect").checked;
-    Storage().HHAuto_Setting_autoQuest = document.getElementById("autoQuestCheckbox").checked;
-    Storage().HHAuto_Setting_autoTrollBattle = document.getElementById("autoTrollCheckbox").checked;
-    Storage().HHAuto_Setting_eventTrollOrder = document.getElementById("eventTrollOrder").value;
-
-    Storage().HHAuto_Setting_plusEventMythic = document.getElementById("plusEventMythic").checked;
-    Storage().HHAuto_Setting_eventMythicPrio = document.getElementById("eventMythicPrio").checked;
-    Storage().HHAuto_Setting_autoTrollMythicByPassThreshold = document.getElementById("autoTrollMythicByPassThreshold").checked ;
-    Storage().HHAuto_Setting_buyCombTimer = document.getElementById("buyCombTimer").value;
-    //Storage().HHAuto_Setting_autoArenaBattle = document.getElementById("autoArenaCheckbox").checked;
-    Storage().HHAuto_Setting_autoSeason = document.getElementById("autoSeasonCheckbox").checked;
-    Storage().HHAuto_Setting_autoSeasonCollect = document.getElementById("autoSeasonCollect").checked;
-    Storage().HHAuto_Setting_autoLeagues = document.getElementById("autoLeagues").checked;
-    Storage().HHAuto_Setting_autoLeaguesCollect = document.getElementById("autoLeaguesCollect").checked;
-    Storage().HHAuto_Setting_autoLeaguesPowerCalc = document.getElementById("autoLeaguesPowerCalc").checked;
-    //Storage().HHAuto_Setting_autoLeaguesMaxRank = document.getElementById("autoLeaguesMaxRank").value;
-    Storage().HHAuto_Setting_autoStats = document.getElementById("autoStats").value;
-    Storage().HHAuto_Setting_paranoia = document.getElementById("paranoia").checked;
-    Storage().HHAuto_Setting_paranoiaSpendsBefore = document.getElementById("paranoiaSpendsBefore").checked;
-    Storage().HHAuto_Setting_autoFreePachinko = document.getElementById("autoFreePachinko").checked;
-    Storage().HHAuto_Setting_autoExp = document.getElementById("autoExp").value;
-    Storage().HHAuto_Setting_autoExpW = document.getElementById("autoExpW").checked;
-    Storage().HHAuto_Setting_MaxExp = document.getElementById("maxExp").value;
-    Storage().HHAuto_Setting_autoAff = document.getElementById("autoAff").value;
-    Storage().HHAuto_Setting_autoAffW = document.getElementById("autoAffW").checked;
-    Storage().HHAuto_Setting_MaxAff = document.getElementById("maxAff").value;
-    Storage().HHAuto_Setting_autoLGM = document.getElementById("autoLGM").value;
-    Storage().HHAuto_Setting_autoLGMW = document.getElementById("autoLGMW").checked;
-    Storage().HHAuto_Setting_autoLGR = document.getElementById("autoLGR").value;
-    Storage().HHAuto_Setting_autoLGRW = document.getElementById("autoLGRW").checked;
-    //Storage().HHAuto_Setting_autoEGM = document.getElementById("autoEGM").value;
-    //Storage().HHAuto_Setting_autoEGMW = document.getElementById("autoEGMW").checked;
-    Storage().HHAuto_Setting_autoBuyBoosters = document.getElementById("autoBuyBoosters").checked;
-    Storage().HHAuto_Setting_autoBuyBoostersFilter = document.getElementById("autoBuyBoostersFilter").value;
-
-    if (localStorage.HHAuto_Setting_settPerTab === "true")
-    {
-        if ( localStorage.HHAuto_Temp_showInfo !== undefined)
-        {
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","force set showInfo : "+localStorage.HHAuto_Temp_showInfo);
-            logHHAuto(JSON.stringify("force set showInfo : "+localStorage.HHAuto_Temp_showInfo));
-            Storage().HHAuto_Setting_showInfo = localStorage.HHAuto_Temp_showInfo;
-            document.getElementById("showInfo").checked = Storage().HHAuto_Setting_showInfo=="true";
-            setTimeout(function() {
-                localStorage.removeItem('HHAuto_Temp_showInfo');
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","removed showInfo");
-                logHHAuto(JSON.stringify("removed showInfo"));
-            }, 1000);
-        }
-        else
-        {
-            newValue = String(document.getElementById("showInfo").checked);
-            if (Storage().HHAuto_Setting_showInfo !== newValue)
-            {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","setting showInfo :"+newValue);
-                logHHAuto(JSON.stringify("setting showInfo :"+newValue));
-                Storage().HHAuto_Setting_showInfo = document.getElementById("showInfo").checked;
-                localStorage.HHAuto_Temp_showInfo = Storage().HHAuto_Setting_showInfo;
-            }
-        }
-
-
-        if ( localStorage.HHAuto_Temp_showCalculatePower !== undefined )
-        {
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","force set showCalculatePower : "+localStorage.HHAuto_Temp_showCalculatePower);
-            logHHAuto(JSON.stringify("force set showCalculatePower : "+localStorage.HHAuto_Temp_showCalculatePower));
-            Storage().HHAuto_Setting_showCalculatePower = localStorage.HHAuto_Temp_showCalculatePower;
-            document.getElementById("showCalculatePower").checked = Storage().HHAuto_Setting_showCalculatePower=="true";
-            setTimeout(function() {
-                localStorage.removeItem('HHAuto_Temp_showCalculatePower');
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","removed showCalculatePower");
-                logHHAuto(JSON.stringify("removed showCalculatePower"));
-            }, 1000);
-        }
-        else
-        {
-            newValue = String(document.getElementById("showCalculatePower").checked);
-            if (Storage().HHAuto_Setting_showCalculatePower !== newValue)
-            {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","setting showCalculatePower :"+newValue);
-                logHHAuto(JSON.stringify("setting showCalculatePower :"+newValue));
-                Storage().HHAuto_Setting_showCalculatePower = document.getElementById("showCalculatePower").checked;
-                localStorage.HHAuto_Temp_showCalculatePower = Storage().HHAuto_Setting_showCalculatePower;
-            }
-        }
-
-    }
-    else
-    {
-        Storage().HHAuto_Setting_showCalculatePower = document.getElementById("showCalculatePower").checked;
-        Storage().HHAuto_Setting_showInfo = document.getElementById("showInfo").checked;
-
-    }
-
-    Storage().HHAuto_Setting_calculatePowerLimits = document.getElementById("calculatePowerLimits").value;
-    Storage().HHAuto_Setting_autoChamps = document.getElementById("autoChamps").checked;
-    Storage().HHAuto_Setting_autoChampsUseEne = document.getElementById("autoChampsUseEne").checked;
-    Storage().HHAuto_Setting_autoChampsFilter = document.getElementById("autoChampsFilter").value;
-
-    Storage().HHAuto_Setting_spendKobans0 = document.getElementById("spendKobans0").checked;
-    Storage().HHAuto_Setting_spendKobans1 = document.getElementById("spendKobans1").checked && Storage().HHAuto_Setting_spendKobans0=="true";
-    document.getElementById("spendKobans1").checked=Storage().HHAuto_Setting_spendKobans1=="true";
-    Storage().HHAuto_Setting_spendKobans2 = document.getElementById("spendKobans2").checked && Storage().HHAuto_Setting_spendKobans1=="true" && Storage().HHAuto_Setting_spendKobans0=="true";
-    document.getElementById("spendKobans2").checked=Storage().HHAuto_Setting_spendKobans2=="true";
-
-    Storage().HHAuto_Setting_autoTrollThreshold = document.getElementById("autoTrollThreshold").value;
-    Storage().HHAuto_Setting_autoQuestThreshold = document.getElementById("autoQuestThreshold").value;
-    Storage().HHAuto_Setting_autoLeaguesThreshold = document.getElementById("autoLeaguesThreshold").value;
-    Storage().HHAuto_Setting_autoSeasonThreshold = document.getElementById("autoSeasonThreshold").value;
-
-    Storage().HHAuto_Setting_buyCombat=document.getElementById("buyCombat").checked && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true" && Storage().HHAuto_Setting_spendKobans0=="true";
-    document.getElementById("buyCombat").checked=Storage().HHAuto_Setting_buyCombat=="true";
-    Storage().HHAuto_Setting_autoBuyBoosters=document.getElementById("autoBuyBoosters").checked && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true" && Storage().HHAuto_Setting_spendKobans0=="true";
-    document.getElementById("autoBuyBoosters").checked=Storage().HHAuto_Setting_autoBuyBoosters=="true";
-    Storage().HHAuto_Setting_autoSeasonPassReds=document.getElementById("autoSeasonPassReds").checked && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true" && Storage().HHAuto_Setting_spendKobans0=="true";
-    document.getElementById("autoSeasonPassReds").checked=Storage().HHAuto_Setting_autoSeasonPassReds=="true";
-    Storage().HHAuto_Setting_kobanBank=document.getElementById("kobanBank").value;
-
-
-    localStorage.HHAuto_Setting_settPerTab = document.getElementById("settPerTab").checked;
-
-    Storage().HHAuto_Setting_master=document.getElementById("master").checked;
-
-    if (Storage().HHAuto_Setting_showInfo=="true")
-    {
-        var Tegzd='';
-        Tegzd+='Master: '+(Storage().HHAuto_Setting_master==="true"?"ON":"OFF");
-        if (Storage().HHAuto_Setting_paranoia=="true")
-        {
-            Tegzd+=(Tegzd.length>0?'\r\n':'')+sessionStorage.HHAuto_Temp_pinfo+': '+getTimeLeft('paranoiaSwitch');
-        }
-        if (Storage().HHAuto_Setting_autoSalary=="true")
-        {
-            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Salary check: '+getTimeLeft('nextSalaryTime');
-        }
-        /*
-        if (Storage().HHAuto_Setting_autoArenaBattle=="true")
-        {
-            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Arena fight: '+getTimeLeft('nextArenaTime');
-        }
-        */
-        if (Storage().HHAuto_Setting_autoSeason=="true")
-        {
-            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Season: '+getSetHeroInfos('kiss.amount')+'/'+getSetHeroInfos('kiss.max_amount')+' ('+getTimeLeft('nextSeasonTime')+')';
-        }
-        if (Storage().HHAuto_Setting_autoLeagues=="true")
-        {
-            Tegzd+=(Tegzd.length>0?'\r\n':'')+'League fight: '+getSetHeroInfos('challenge.amount')+'/'+getSetHeroInfos('challenge.max_amount')+' ('+getTimeLeft('nextLeaguesTime')+')';
-        }
-        if (Storage().HHAuto_Setting_autoChamps=="true")
-        {
-            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Champions check: '+getTimeLeft('nextChampionTime');
-        }
-        // if (autoBuy())
-        {
-            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Shop update: '+getTimeLeft('nextShopTime');
-        }
-        if (Storage().HHAuto_Setting_autoMission=="true")
-        {
-            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Mission: '+getTimeLeft('nextMissionTime');
-        }
-        if (Storage().HHAuto_Setting_autoContest=="true")
-        {
-            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Contest: '+getTimeLeft('nextContestTime');
-        }
-        if (Storage().HHAuto_Setting_autoPowerPlaces=="true")
-        {
-            Tegzd+=(Tegzd.length>0?'\r\n':'')+'PowerPlaces'+': '+getTimeLeft('minPowerPlacesTime');
-        }
-        if (Storage().HHAuto_Setting_autoFreePachinko=="true")
-        {
-            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Great Pachinko: '+getTimeLeft('nextPachinkoTime');
-            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Mythic Pachinko: '+getTimeLeft('nextPachinko2Time');
-        }
-        Tegzd+=(Tegzd.length>0?'\r\n':'')+'haveAff: '+sessionStorage.HHAuto_Temp_haveAff;
-        Tegzd+=(Tegzd.length>0?'\r\n':'')+'haveExp: '+sessionStorage.HHAuto_Temp_haveExp;
-        if (Tegzd.length>0)
-        {
-            document.getElementById('pInfo').style.display='block';
-            document.getElementById('pInfo').textContent=Tegzd;
-        }
-        else
-        {
-            document.getElementById('pInfo').style.display='none';
-        }
-    }
-    else
-    {
-        document.getElementById('pInfo').style.display='none';
-    }
-};
-
 var getPachinko = function(){
     try {
         if(!gotoPage("pachinko"))
         {
             // Not at Pachinko screen then goto the Pachinko screen.
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Navigating to Pachinko window.");
-            logHHAuto(JSON.stringify("Navigating to Pachinko window."));
+            logHHAuto("Navigating to Pachinko window.");
             return;
         }
         else {
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Detected Pachinko Screen. Fetching Pachinko");
-            logHHAuto(JSON.stringify("Detected Pachinko Screen. Fetching Pachinko"));
+            logHHAuto("Detected Pachinko Screen. Fetching Pachinko");
             var counter=0;
             while ($('#playzone-replace-info button[free=1]')[0]===undefined && (counter++)<250)
             {
@@ -3363,8 +2968,7 @@ var getPachinko = function(){
             //if ($('#playzone-replace-info button[free=1]')[0].style.display=="none")
             if ($('#playzone-replace-info button[free=1]')[0]===undefined)
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Not ready yet');
-                logHHAuto(JSON.stringify('Not ready yet'));
+                logHHAuto('Not ready yet');
             }
             else
             {
@@ -3386,8 +2990,7 @@ var getPachinko = function(){
         }
     }
     catch (ex) {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Could not collect Great Pachinko... " + ex);
-        logHHAuto(JSON.stringify("Could not collect Great Pachinko... " + ex));
+        logHHAuto("Could not collect Great Pachinko... " + ex);
     }
 };
 
@@ -3396,13 +2999,11 @@ var getPachinko2 = function(){
         if(!gotoPage("pachinko"))
         {
             // Not at Pachinko screen then goto the Pachinko screen.
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Navigating to Pachinko window.");
-            logHHAuto(JSON.stringify("Navigating to Pachinko window."));
+            logHHAuto("Navigating to Pachinko window.");
             return;
         }
         else {
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Detected Pachinko Screen. Fetching Pachinko");
-            logHHAuto(JSON.stringify("Detected Pachinko Screen. Fetching Pachinko"));
+            logHHAuto("Detected Pachinko Screen. Fetching Pachinko");
             var butt;
             if (hh_nutaku)
             {
@@ -3416,19 +3017,16 @@ var getPachinko2 = function(){
             //while (butt===undefined && (counter++)<250)
             while ($('#playzone-replace-info button[free=1]')[0]===undefined && (counter++)<250)
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":",'to mythic');
-                logHHAuto(JSON.stringify('to mythic'));
+                logHHAuto('to mythic');
                 $('.game-simple-block[type-pachinko=mythic]')[0].click();
             }
             //if (butt===undefined)
             if ($('#playzone-replace-info button[free=1]')[0]===undefined)
             {
-                //   console.log(new Date().toISOString()+":"+getCallerFunction()+":","Fuck my life!");
-                logHHAuto(JSON.stringify("Fuck my life!"));
+                //   logHHAuto("Fuck my life!");
                 //    setTimer('nextPachinko2Time',600);
                 //    return false;
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Not ready yet');
-                logHHAuto(JSON.stringify('Not ready yet'));
+                logHHAuto('Not ready yet');
             }
             else
             {
@@ -3436,13 +3034,11 @@ var getPachinko2 = function(){
             }
             //if (butt.className!="blue_button_L")
             //{
-            //   console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Not ready yet');
-            logHHAuto(JSON.stringify('Not ready yet'));
+            //   logHHAuto('Not ready yet');
             //}
             //else
             //{
-            //   console.log(new Date().toISOString()+":"+getCallerFunction()+":",'click');
-            logHHAuto(JSON.stringify('click'));
+            //   logHHAuto('click');
             //    butt.click();
             //}
             var npach;
@@ -3461,8 +3057,7 @@ var getPachinko2 = function(){
         }
     }
     catch (ex) {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Could not collect Mythic Pachinko... " + ex);
-        logHHAuto(JSON.stringify("Could not collect Mythic Pachinko... " + ex));
+        logHHAuto("Could not collect Mythic Pachinko... " + ex);
     }
 };
 
@@ -3470,13 +3065,11 @@ var updateShop=function()
 {
     if(!gotoPage("shop"))
     {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Navigating to Market window.");
-        logHHAuto(JSON.stringify("Navigating to Market window."));
+        logHHAuto("Navigating to Market window.");
         return true;
     }
     else {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Detected Market Screen. Fetching Assortment");
-        logHHAuto(JSON.stringify("Detected Market Screen. Fetching Assortment"));
+        logHHAuto("Detected Market Screen. Fetching Assortment");
 
         var assA=[];
         var assB=[];
@@ -3495,8 +3088,7 @@ var updateShop=function()
         sessionStorage.HHAuto_Temp_haveAff=HaveAff;
         sessionStorage.HHAuto_Temp_haveExp=HaveExp;
 
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":",'counted',sessionStorage.HHAuto_Temp_haveAff+' Aff ',sessionStorage.HHAuto_Temp_haveExp+' Exp');
-        logHHAuto(JSON.stringify('counted',sessionStorage.HHAuto_Temp_haveAff+' Aff ',sessionStorage.HHAuto_Temp_haveExp+' Exp'));
+        logHHAuto('counted '+sessionStorage.HHAuto_Temp_haveAff+' Aff '+sessionStorage.HHAuto_Temp_haveExp+' Exp');
 
         sessionStorage.HHAuto_Temp_storeContents = JSON.stringify([assA,assB,assG,assP]);
         sessionStorage.HHAuto_Temp_charLevel=getSetHeroInfos('level');
@@ -3562,8 +3154,7 @@ var checkParanoiaSpendings=function(spendingFunction)
         {
             spendingsRemaining+=i;
         }
-        //console.log(new Date().toISOString()+":"+getCallerFunction()+":","Paranoia spending remaining : "+JSON.stringify(pSpendings,replacerMap));
-        //logHHAuto(JSON.stringify("Paranoia spending remaining : "+JSON.stringify(pSpendings,replacerMap)));
+        //logHHAuto("Paranoia spending remaining : "+JSON.stringify(pSpendings,replacerMap));
         return spendingsRemaining;
     }
     else
@@ -3613,13 +3204,11 @@ var setParanoiaSpendings=function()
                 {
                     paranoiaSpend=totalPointsEndParanoia - maxEnergy + 1;
                     paranoiaSpendings.set("challenge",paranoiaSpend);
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Setting Paranoia spendings for league : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend);
-                    logHHAuto(JSON.stringify("Setting Paranoia spendings for league : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend));
+                    logHHAuto("Setting Paranoia spendings for league : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend);
                 }
                 else
                 {
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Setting Paranoia spendings for league : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending ");
-                    logHHAuto(JSON.stringify("Setting Paranoia spendings for league : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending "));
+                    logHHAuto("Setting Paranoia spendings for league : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending ");
                 }
             }
         }
@@ -3637,13 +3226,11 @@ var setParanoiaSpendings=function()
                 {
                     paranoiaSpend=totalPointsEndParanoia - maxEnergy + 1;
                     paranoiaSpendings.set("quest",paranoiaSpend);
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Setting Paranoia spendings for quest : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend);
-                    logHHAuto(JSON.stringify("Setting Paranoia spendings for quest : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend));
+                    logHHAuto("Setting Paranoia spendings for quest : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend);
                 }
                 else
                 {
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Setting Paranoia spendings for quest : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending ");
-                    logHHAuto(JSON.stringify("Setting Paranoia spendings for quest : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending "));
+                    logHHAuto("Setting Paranoia spendings for quest : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending ");
                 }
             }
         }
@@ -3659,13 +3246,11 @@ var setParanoiaSpendings=function()
             {
                 paranoiaSpend=totalPointsEndParanoia - maxEnergy + 1;
                 paranoiaSpendings.set("fight",paranoiaSpend);
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Setting Paranoia spendings for troll : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend);
-                logHHAuto(JSON.stringify("Setting Paranoia spendings for troll : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend));
+                logHHAuto("Setting Paranoia spendings for troll : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend);
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Setting Paranoia spendings for troll : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending ");
-                logHHAuto(JSON.stringify("Setting Paranoia spendings for troll : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending "));
+                logHHAuto("Setting Paranoia spendings for troll : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending ");
             }
         }
         //if autoSeason is on
@@ -3680,18 +3265,15 @@ var setParanoiaSpendings=function()
             {
                 paranoiaSpend=totalPointsEndParanoia - maxEnergy + 1;
                 paranoiaSpendings.set("kiss",paranoiaSpend);
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Setting Paranoia spendings for Season : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend);
-                logHHAuto(JSON.stringify("Setting Paranoia spendings for Season : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend));
+                logHHAuto("Setting Paranoia spendings for Season : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") spending "+paranoiaSpend);
             }
             else
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Setting Paranoia spendings for Season : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending ");
-                logHHAuto(JSON.stringify("Setting Paranoia spendings for Season : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending "));
+                logHHAuto("Setting Paranoia spendings for Season : "+currentEnergy+"+"+maxPointsDuringParanoia+" max gained in "+toNextSwitch+" secs => ("+totalPointsEndParanoia+"/"+maxEnergy+") No spending ");
             }
         }
 
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Setting paranoia spending to : "+JSON.stringify(paranoiaSpendings,replacerMap));
-        logHHAuto(JSON.stringify("Setting paranoia spending to : "+JSON.stringify(paranoiaSpendings,replacerMap)));
+        logHHAuto("Setting paranoia spending to : "+JSON.stringify(paranoiaSpendings,replacerMap));
         Storage().HHAuto_Temp_paranoiaSpendings=JSON.stringify(paranoiaSpendings,replacerMap);
     }
 }
@@ -3747,6 +3329,7 @@ var flipParanoia=function()
         //if (getPage()!='home') return;
         //going to work
         sessionStorage.HHAuto_Temp_autoLoop = "false";
+        logHHAuto("setting autoloop to false");
         sessionStorage.HHAuto_Temp_burst="true";
         var b=S1[0][0][0].split('-');
         toNextSwitch=randomInterval(Number(b[0]),Number(b[1]));
@@ -3754,8 +3337,7 @@ var flipParanoia=function()
     var ND=new Date().getTime() + toNextSwitch * 1000;
     var offs=new Date().getTimezoneOffset();
     var message=period+(burst?" rest":" burst");
-    console.log(new Date().toISOString()+":"+getCallerFunction()+":","PARANOIA: "+message);
-    logHHAuto(JSON.stringify("PARANOIA: "+message));
+    logHHAuto("PARANOIA: "+message);
     sessionStorage.HHAuto_Temp_pinfo=message;
 
     setTimer('paranoiaSwitch',toNextSwitch);
@@ -3879,8 +3461,6 @@ function moduleSimLeague() {
         {
             opponentAtk = parseInt(opponentAtk.replace('K', '000').replace(/[^0-9]/gi, ''));
         }
-        //console.log(new Date().toISOString()+":"+getCallerFunction()+":",playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement);
-        //logHHAuto(JSON.stringify(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement));
         matchRating = calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement);
 
         //Publish the ego difference as a match rating
@@ -4082,8 +3662,6 @@ function moduleSimBattle() {
     if (opponentClass == 'class3') {
         playerDef = playerDefKH;
     }
-    //console.log(new Date().toISOString()+":"+getCallerFunction()+":",playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement);
-    //logHHAuto(JSON.stringify(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement));
     matchRating = calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement);
 
     //Publish the ego difference as a match rating
@@ -4225,14 +3803,10 @@ function moduleSimSeasonBattle() {
                 playerDef = playerDefKH;
             }
             var opponentExcitement = Math.round((opponentAlpha.caracs.carac1 + opponentAlpha.caracs.carac2 + opponentAlpha.caracs.carac3) * 28);
-
-            //console.log(new Date().toISOString()+":"+getCallerFunction()+":",playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement);
-            //logHHAuto(JSON.stringify(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement));
             matchRating = calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement);
             scoreOppo[index]=matchRating;
             mojoOppo[index]=Number($("div.season_arena_opponent_container .slot_victory_points p")[index].innerText);
-            //console.log(new Date().toISOString()+":"+getCallerFunction()+":",Number($("div.season_arena_opponent_container .slot_victory_points p")[index].innerText));
-            //logHHAuto(JSON.stringify(Number($("div.season_arena_opponent_container .slot_victory_points p")[index].innerText)));
+            //logHHAuto(Number($("div.season_arena_opponent_container .slot_victory_points p")[index].innerText));
             nameOppo[index]=opponentName;
             //Publish the ego difference as a match rating
             matchRatingFlag = matchRating.substring(0,1);
@@ -4283,13 +3857,11 @@ function moduleSimSeasonBattle() {
                     numberOfReds++;
                     break;
             }
-            //console.log(new Date().toISOString()+":"+getCallerFunction()+":",nameOppo[index],currentFlag,currentScore,currentMojo);
-            //logHHAuto(JSON.stringify(nameOppo[index],currentFlag,currentScore,currentMojo));
+            //logHHAuto({OppoName:nameOppo[index],OppoFlag:currentFlag,OppoScore:currentScore,OppoMojo:currentMojo});
             //not chosen or better flag
             if (chosenRating == -1 || chosenFlag < currentFlag)
             {
-                //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'first');
-                //logHHAuto(JSON.stringify('first'));
+                //logHHAuto('first');
                 chosenRating = currentScore;
                 chosenFlag = currentFlag;
                 chosenID = index;
@@ -4299,8 +3871,7 @@ function moduleSimSeasonBattle() {
             //same orange flag but better score
             else if (chosenFlag == currentFlag && currentFlag == 0 && chosenRating < currentScore)
             {
-                //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'second');
-                //logHHAuto(JSON.stringify('second'));
+                //logHHAuto('second');
                 chosenRating = currentScore;
                 chosenFlag = currentFlag;
                 chosenID = index;
@@ -4310,8 +3881,7 @@ function moduleSimSeasonBattle() {
             //same red flag but better mojo
             else if (chosenFlag == currentFlag && currentFlag == -1 && chosenMojo < currentMojo)
             {
-                //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'second');
-                //logHHAuto(JSON.stringify('second'));
+                //logHHAuto('second');
                 chosenRating = currentScore;
                 chosenFlag = currentFlag;
                 chosenID = index;
@@ -4321,8 +3891,7 @@ function moduleSimSeasonBattle() {
             //same green flag but better mojo
             else if (chosenFlag == currentFlag && currentFlag == 1 && chosenMojo < currentMojo)
             {
-                //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'third');
-                //logHHAuto(JSON.stringify('third'));
+                //logHHAuto('third');
                 chosenRating = currentScore;
                 chosenFlag = currentFlag;
                 chosenID = index;
@@ -4332,8 +3901,7 @@ function moduleSimSeasonBattle() {
             //same green flag same mojo but better score
             else if (chosenFlag == currentFlag && currentFlag == 1 && chosenMojo == currentMojo && chosenRating < currentScore)
             {
-                //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'third');
-                //logHHAuto(JSON.stringify('third'));
+                //logHHAuto('third');
                 chosenRating = currentScore;
                 chosenFlag = currentFlag;
                 chosenID = index;
@@ -4352,8 +3920,7 @@ function moduleSimSeasonBattle() {
             chosenID = -2;
         }
 
-        //console.log(new Date().toISOString()+":"+getCallerFunction()+":","Best opportunity opponent : "+oppoName+'('+chosenRating+')');
-        //logHHAuto(JSON.stringify("Best opportunity opponent : "+oppoName+'('+chosenRating+')'));
+        //logHHAuto("Best opportunity opponent : "+oppoName+'('+chosenRating+')');
         if (doDisplay)
         {
 
@@ -4444,14 +4011,12 @@ var autoLoop = function () {
             // Navigate to pachinko
 
             if (checkTimer("nextPachinkoTime")) {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Time to fetch Great Pachinko.");
-                logHHAuto(JSON.stringify("Time to fetch Great Pachinko."));
+                logHHAuto("Time to fetch Great Pachinko.");
                 getPachinko();
                 busy = true;
             }
             if (checkTimer("nextPachinko2Time")) {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Time to fetch Mythic Pachinko.");
-                logHHAuto(JSON.stringify("Time to fetch Mythic Pachinko."));
+                logHHAuto("Time to fetch Mythic Pachinko.");
                 getPachinko2();
                 busy = true;
             }
@@ -4460,8 +4025,7 @@ var autoLoop = function () {
             // Navigate to leagues
             if ((checkTimer('nextLeaguesTime') && Number(getSetHeroInfos('challenge.amount')) > Number(Storage().HHAuto_Setting_autoLeaguesThreshold) ) || Number(checkParanoiaSpendings('challenge')) > 0)
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Time to fight in Leagues.");
-                logHHAuto(JSON.stringify("Time to fight in Leagues."));
+                logHHAuto("Time to fight in Leagues.");
                 doLeagueBattle();
                 busy = true;
             }
@@ -4475,8 +4039,7 @@ var autoLoop = function () {
         }
         if(Storage().HHAuto_Setting_autoContest === "true" && busy === false){
             if (checkTimer('nextContestTime') || unsafeWindow.has_contests_datas ||$(".contest .ended button[rel='claim']").size()>0){
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Time to get contest rewards.");
-                logHHAuto(JSON.stringify("Time to get contest rewards."));
+                logHHAuto("Time to get contest rewards.");
                 busy = doContestStuff();
             }
         }
@@ -4487,41 +4050,33 @@ var autoLoop = function () {
             {
                 //if PopToStart exist bypass function
                 var popToStartExist = Storage().HHAuto_Temp_PopToStart?false:true;
-                //console.log(new Date().toISOString()+":"+getCallerFunction()+":","startcollect : "+popToStartExist);
-                //logHHAuto(JSON.stringify("startcollect : "+popToStartExist));
+                //logHHAuto("startcollect : "+popToStartExist);
                 if (popToStartExist)
                 {
-                    //console.log(new Date().toISOString()+":"+getCallerFunction()+":","pop1:",popToStart);
-                    //logHHAuto(JSON.stringify("pop1:",popToStart));
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Go and collect");
-                    logHHAuto(JSON.stringify("Go and collect"));
+                    //logHHAuto("pop1:"+popToStart);
+                    logHHAuto("Go and collect");
                     busy = true;
                     busy = collectAndUpdatePowerPlaces();
                 }
                 var indexes=(Storage().HHAuto_Setting_autoPowerPlacesIndexFilter?Storage().HHAuto_Setting_autoPowerPlacesIndexFilter:"").split(";");
 
                 popToStart = Storage().HHAuto_Temp_PopToStart?JSON.parse(Storage().HHAuto_Temp_PopToStart):[];
-                //console.log(new Date().toISOString()+":"+getCallerFunction()+":","pop2:",popToStart);
-                //logHHAuto(JSON.stringify("pop2:",popToStart));
+                //logHHAuto("pop2:"+popToStart);
                 for(var index of indexes)
                 {
                     if (busy === false && popToStart.includes(Number(index)))
                     {
-                        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Time to do PowerPlace"+index+".");
-                        logHHAuto(JSON.stringify("Time to do PowerPlace"+index+"."));
+                        logHHAuto("Time to do PowerPlace"+index+".");
                         busy = true;
                         busy = doPowerPlacesStuff(index);
                     }
                 }
-                //console.log(new Date().toISOString()+":"+getCallerFunction()+":","pop3:",Storage().HHAuto_Temp_PopToStart);
-                //logHHAuto(JSON.stringify("pop3:",Storage().HHAuto_Temp_PopToStart));
+                //logHHAuto("pop3:"+Storage().HHAuto_Temp_PopToStart);
                 popToStart = Storage().HHAuto_Temp_PopToStart?JSON.parse(Storage().HHAuto_Temp_PopToStart):[];
-                //console.log(new Date().toISOString()+":"+getCallerFunction()+":","pop3:",popToStart);
-                //logHHAuto(JSON.stringify("pop3:",popToStart));
+                //logHHAuto("pop3:"+popToStart);
                 if (popToStart.length === 0)
                 {
-                    //console.log(new Date().toISOString()+":"+getCallerFunction()+":","removing popToStart");
-                    //logHHAuto(JSON.stringify("removing popToStart"));
+                    //logHHAuto("removing popToStart");
                     Storage().removeItem('HHAuto_Temp_PopToStart');
                     gotoPage("home");
                 }
@@ -4529,8 +4084,7 @@ var autoLoop = function () {
         }
         if(Storage().HHAuto_Setting_autoMission === "true" && busy === false){
             if (checkTimer('nextMissionTime')){
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Time to do missions.");
-                logHHAuto(JSON.stringify("Time to do missions."));
+                logHHAuto("Time to do missions.");
                 busy = doMissionStuff();
             }
         }
@@ -4542,10 +4096,8 @@ var autoLoop = function () {
             {
                 if (Storage().HHAuto_Temp_autoTrollBattleSaveQuest === "false")
                 {
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Quest requires battle.");
-                    logHHAuto(JSON.stringify("Quest requires battle."));
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","prepare to save one battle for quest");
-                    logHHAuto(JSON.stringify("prepare to save one battle for quest"));
+                    logHHAuto("Quest requires battle.");
+                    logHHAuto("prepare to save one battle for quest");
                     Storage().HHAuto_Temp_autoTrollBattleSaveQuest = "true";
                     doBossBattle();
                 }
@@ -4555,8 +4107,7 @@ var autoLoop = function () {
             {
                 if (Number(sessionStorage.HHAuto_Temp_questRequirement.substr(1)) < getSetHeroInfos('soft_currency')) {
                     // We have enough money... requirement fulfilled.
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Continuing quest, required money obtained.");
-                    logHHAuto(JSON.stringify("Continuing quest, required money obtained."));
+                    logHHAuto("Continuing quest, required money obtained.");
                     sessionStorage.HHAuto_Temp_questRequirement = "none";
                     proceedQuest();
                     busy = false;
@@ -4567,17 +4118,14 @@ var autoLoop = function () {
                     Storage().HHAuto_Temp_paranoiaQuestBlocked="true";
                     if(isNaN(sessionStorage.HHAuto_Temp_questRequirement.substr(1)))
                     {
-                        console.log(new Date().toISOString()+":"+getCallerFunction()+":",sessionStorage.HHAuto_Temp_questRequirement);
-                        logHHAuto(JSON.stringify(sessionStorage.HHAuto_Temp_questRequirement));
+                        logHHAuto(sessionStorage.HHAuto_Temp_questRequirement);
                         sessionStorage.HHAuto_Temp_questRequirement = "none";
-                        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Invalid money in session storage quest requirement !");
-                        logHHAuto(JSON.stringify("Invalid money in session storage quest requirement !"));
+                        logHHAuto("Invalid money in session storage quest requirement !");
                     }
                     else
                     {
                         // Else we need more money.
-                        //console.log(new Date().toISOString()+":"+getCallerFunction()+":","Need money for quest, cannot continue. Turning ON AutoSalary.");
-                        //logHHAuto(JSON.stringify("Need money for quest, cannot continue. Turning ON AutoSalary."));
+                        //logHHAuto("Need money for quest, cannot continue. Turning ON AutoSalary.");
                         Storage().HHAuto_Setting_autoQuest = "true";
                     }
                     busy = false;
@@ -4592,8 +4140,7 @@ var autoLoop = function () {
                     if (Number(getSetHeroInfos('quest.amount')) > Number(Storage().HHAuto_Setting_autoQuestThreshold) || Number(checkParanoiaSpendings('quest')) > 0 )
                     {
                         // We have enough energy... requirement fulfilled.
-                        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Continuing quest, required energy obtained.");
-                        logHHAuto(JSON.stringify("Continuing quest, required energy obtained."));
+                        logHHAuto("Continuing quest, required energy obtained.");
                         sessionStorage.HHAuto_Temp_questRequirement = "none";
                         proceedQuest();
                         busy = true;
@@ -4609,8 +4156,7 @@ var autoLoop = function () {
                     //prevent paranoia to wait for quest
                     Storage().HHAuto_Temp_paranoiaQuestBlocked="true";
                     busy = false;
-                    //console.log(new Date().toISOString()+":"+getCallerFunction()+":","Replenishing energy for quest.(" + energyNeeded + " needed)");
-                    //logHHAuto(JSON.stringify("Replenishing energy for quest.(" + energyNeeded + " needed)"));
+                    //logHHAuto("Replenishing energy for quest.(" + energyNeeded + " needed)");
                 }
             }
             else if (sessionStorage.HHAuto_Temp_questRequirement[0] === 'P')
@@ -4619,16 +4165,14 @@ var autoLoop = function () {
                 var neededPower = Number(sessionStorage.HHAuto_Temp_questRequirement.substr(1));
                 if(currentPower < neededPower)
                 {
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Quest requires "+neededPower+" Battle Power for advancement. Waiting...");
-                    logHHAuto(JSON.stringify("Quest requires "+neededPower+" Battle Power for advancement. Waiting..."));
+                    logHHAuto("Quest requires "+neededPower+" Battle Power for advancement. Waiting...");
                     busy = false;
                     //prevent paranoia to wait for quest
                     Storage().HHAuto_Temp_paranoiaQuestBlocked="true";
                 }
                 else
                 {
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Battle Power obtained, resuming quest...");
-                    logHHAuto(JSON.stringify("Battle Power obtained, resuming quest..."));
+                    logHHAuto("Battle Power obtained, resuming quest...");
                     sessionStorage.HHAuto_Temp_questRequirement = "none";
                     proceedQuest();
                     busy = true;
@@ -4638,8 +4182,7 @@ var autoLoop = function () {
             {
                 //prevent paranoia to wait for quest
                 Storage().HHAuto_Temp_paranoiaQuestBlocked="true";
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","AutoQuest disabled.HHAuto_Setting_AutoQuest cannot be performed due to unknown quest button. Please manually proceed the current quest screen.");
-                logHHAuto(JSON.stringify("AutoQuest disabled.HHAuto_Setting_AutoQuest cannot be performed due to unknown quest button. Please manually proceed the current quest screen."));
+                logHHAuto("AutoQuest disabled.HHAuto_Setting_AutoQuest cannot be performed due to unknown quest button. Please manually proceed the current quest screen.");
                 document.getElementById("autoQuestCheckbox").checked = false;
                 Storage().HHAuto_Setting_autoQuest = "false";
                 sessionStorage.HHAuto_Temp_questRequirement = "none";
@@ -4649,8 +4192,7 @@ var autoLoop = function () {
             {
                 //prevent paranoia to wait for quest
                 Storage().HHAuto_Temp_paranoiaQuestBlocked="true";
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","AutoQuest disabled.HHAuto_Setting_AutoQuest cannot be performed due errors in AutoBattle. Please manually proceed the current quest screen.");
-                logHHAuto(JSON.stringify("AutoQuest disabled.HHAuto_Setting_AutoQuest cannot be performed due errors in AutoBattle. Please manually proceed the current quest screen."));
+                logHHAuto("AutoQuest disabled.HHAuto_Setting_AutoQuest cannot be performed due errors in AutoBattle. Please manually proceed the current quest screen.");
                 document.getElementById("autoQuestCheckbox").checked = false;
                 Storage().HHAuto_Setting_autoQuest = "false";
                 sessionStorage.HHAuto_Temp_questRequirement = "none";
@@ -4660,8 +4202,7 @@ var autoLoop = function () {
             {
                 if (Number(getSetHeroInfos('quest.amount')) > Number(Storage().HHAuto_Setting_autoQuestThreshold) || Number(checkParanoiaSpendings('quest')) > 0 )
                 {
-                    //console.log(new Date().toISOString()+":"+getCallerFunction()+":","NONE req.");
-                    //logHHAuto(JSON.stringify("NONE req."));
+                    //logHHAuto("NONE req.");
                     busy = true;
                     proceedQuest();
                 }
@@ -4670,8 +4211,7 @@ var autoLoop = function () {
             {
                 //prevent paranoia to wait for quest
                 Storage().HHAuto_Temp_paranoiaQuestBlocked="true";
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Invalid quest requirement : "+sessionStorage.HHAuto_Temp_questRequirement);
-                logHHAuto(JSON.stringify("Invalid quest requirement : "+sessionStorage.HHAuto_Temp_questRequirement));
+                logHHAuto("Invalid quest requirement : "+sessionStorage.HHAuto_Temp_questRequirement);
                 busy=false;
             }
         }
@@ -4684,14 +4224,12 @@ var autoLoop = function () {
         {
             if ($('a[rel=arena] span.button-notification-icon').size()>0)
             {
-               console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Missed one in arena!');
-logHHAuto(JSON.stringify('Missed one in arena!'));
+               logHHAuto('Missed one in arena!');
                 setTimer('nextArenaTime',0);
             }
             if(checkTimer("nextArenaTime"))
             {
-               console.log(new Date().toISOString()+":"+getCallerFunction()+":","Time to fight in arena.");
-logHHAuto(JSON.stringify("Time to fight in arena."));
+               logHHAuto("Time to fight in arena.");
                 doBattle();
                 busy = true;
             }
@@ -4701,8 +4239,7 @@ logHHAuto(JSON.stringify("Time to fight in arena."));
         {
             if (Number(getSetHeroInfos('kiss.amount')) > 0 && ( (Number(getSetHeroInfos('kiss.amount')) > Number(Storage().HHAuto_Setting_autoSeasonThreshold) && checkTimer('nextSeasonTime')) || Number(checkParanoiaSpendings('kiss')) > 0 ) )
             {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Time to fight in Season.");
-                logHHAuto(JSON.stringify("Time to fight in Season."));
+                logHHAuto("Time to fight in Season.");
                 doSeason();
                 busy = true;
             }
@@ -4722,8 +4259,7 @@ logHHAuto(JSON.stringify("Time to fight in arena."));
         {
             if(busy === false && currentPower >= Number(sessionStorage.HHAuto_Temp_battlePowerRequired) && currentPower > 0)
             {
-                //console.log(new Date().toISOString()+":"+getCallerFunction()+":",getSetHeroInfos('fight.amount'),Number(Storage().HHAuto_Setting_autoTrollThreshold),Number(checkParanoiaSpendings('fight')));
-                //logHHAuto(JSON.stringify(getSetHeroInfos('fight.amount'),Number(Storage().HHAuto_Setting_autoTrollThreshold),Number(checkParanoiaSpendings('fight'))));
+                //logHHAuto("fight amount: "+getSetHeroInfos('fight.amount')+" troll threshold: "+Number(Storage().HHAuto_Setting_autoTrollThreshold)+" paranoia fight: "+Number(checkParanoiaSpendings('fight')));
                 if (Number(getSetHeroInfos('fight.amount')) > Number(Storage().HHAuto_Setting_autoTrollThreshold) || Number(checkParanoiaSpendings('fight')) > 0 || (sessionStorage.HHAuto_Temp_eventTrollIsMythic === "true" && Storage().HHAuto_Setting_autoTrollMythicByPassThreshold === "true" ))
                 {
                     sessionStorage.HHAuto_Temp_battlePowerRequired = "0";
@@ -4732,8 +4268,7 @@ logHHAuto(JSON.stringify("Time to fight in arena."));
                     {
                         if(sessionStorage.HHAuto_Temp_questRequirement[0] === 'P')
                         {
-                            console.log(new Date().toISOString()+":"+getCallerFunction()+":","AutoBattle disabled for power collection for AutoQuest.");
-                            logHHAuto(JSON.stringify("AutoBattle disabled for power collection for AutoQuest."));
+                            logHHAuto("AutoBattle disabled for power collection for AutoQuest.");
                             document.getElementById("autoTrollCheckbox").checked = false;
                             Storage().HHAuto_Setting_autoTrollBattle = "false";
                             busy = false;
@@ -4767,8 +4302,7 @@ logHHAuto(JSON.stringify("Time to fight in arena."));
                     currency: 'energy_quest',
                     amount: 1
                 };
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Buying ticket with energy');
-                logHHAuto(JSON.stringify('Buying ticket with energy'));
+                logHHAuto('Buying ticket with energy');
                 hh_ajax(params, function(data) {
                     //anim_number($('.tickets_number_amount'), data.tokens - amount, amount);
                     Hero.updates(data.heroChangesUpdate);
@@ -4776,14 +4310,14 @@ logHHAuto(JSON.stringify("Time to fight in arena."));
                 });
             }
             sessionStorage.HHAuto_Temp_autoLoop = "false";
+            logHHAuto("setting autoloop to false");
             busy = true;;
             setTimeout(buyTicket,randomInterval(800,1600));
         }
 
         if (busy==false && Storage().HHAuto_Setting_autoChamps==="true" && checkTimer('nextChampionTime'))
         {
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Time to check on champions!");
-            logHHAuto(JSON.stringify("Time to check on champions!"));
+            logHHAuto("Time to check on champions!");
             busy=doChampionStuff();
         }
 
@@ -4794,16 +4328,14 @@ logHHAuto(JSON.stringify("Time to fight in arena."));
                 sessionStorage.HHAuto_Temp_charLevel=0;
             }
             if (checkTimer('nextShopTime') || sessionStorage.HHAuto_Temp_charLevel<getSetHeroInfos('level')) {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Time to check shop.");
-                logHHAuto(JSON.stringify("Time to check shop."));
+                logHHAuto("Time to check shop.");
                 busy = updateShop();
             }
         }
 
         if (Storage().HHAuto_Setting_autoSalary === "true" && busy === false) {
             if (checkTimer("nextSalaryTime")) {
-                console.log(new Date().toISOString()+":"+getCallerFunction()+":","Time to fetch salary.");
-                logHHAuto(JSON.stringify("Time to fetch salary."));
+                logHHAuto("Time to fetch salary.");
                 busy = getSalary();
             }
         }
@@ -4814,8 +4346,7 @@ logHHAuto(JSON.stringify("Time to fight in arena."));
         }
         else if(sessionStorage.HHAuto_Temp_userLink !=="none" && busy === false)
         {
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","Restoring page "+sessionStorage.HHAuto_Temp_userLink);
-            logHHAuto(JSON.stringify("Restoring page "+sessionStorage.HHAuto_Temp_userLink));
+            logHHAuto("Restoring page "+sessionStorage.HHAuto_Temp_userLink);
             window.location = sessionStorage.HHAuto_Temp_userLink;
             sessionStorage.HHAuto_Temp_userLink = "none";
         }
@@ -4828,16 +4359,14 @@ logHHAuto(JSON.stringify("Time to fight in arena."));
     }
 
     if(isNaN(Storage().HHAuto_Temp_autoLoopTimeMili)){
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","AutoLoopTimeMili is not a number.");
-        logHHAuto(JSON.stringify("AutoLoopTimeMili is not a number."));
+        logHHAuto("AutoLoopTimeMili is not a number.");
         setDefaults();
     }
     else{
         if (sessionStorage.HHAuto_Temp_autoLoop === "true") setTimeout(autoLoop, Number(Storage().HHAuto_Temp_autoLoopTimeMili));
         else
         {
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","autoLoop Disabled");
-            logHHAuto(JSON.stringify("autoLoop Disabled"));
+            logHHAuto("autoLoop Disabled");
         }
     }
 
@@ -4852,80 +4381,18 @@ logHHAuto(JSON.stringify("Time to fight in arena."));
     if (getPage() === "season_arena" && Storage().HHAuto_Setting_showCalculatePower === "true") {
         moduleSimSeasonBattle();
     }
+    if (getPage() === "season" && Storage().HHAuto_Setting_showCalculatePower === "true") {
+        moduleSimSeasonReward();
+    }
     if (getPage() === "home" && $("div.event-widget div.widget[style='display: block;']").length !== 0) {
         moduleDisplayEventPriority();
     }
     if (getPage() === "powerplacemain" ) {
         moduleDisplayPopID();
     }
+
 };
 
-var setDefaults = function () {
-    console.log(new Date().toISOString()+":"+getCallerFunction()+":","Setting Defaults.");
-    logHHAuto(JSON.stringify("Setting Defaults."));
-    Storage().HHAuto_Setting_autoSalary = "false";
-    Storage().HHAuto_Setting_autoSalaryTimer = "120";
-    Storage().HHAuto_Setting_autoContest = "false";
-    Storage().HHAuto_Setting_autoMission = "false";
-    Storage().HHAuto_Setting_autoPowerPlaces = "false";
-    Storage().HHAuto_Setting_autoPowerPlacesAll = "false";
-    Storage().HHAuto_Setting_autoPowerPlacesIndexFilter = "1;2;3";
-    Storage().HHAuto_Setting_autoMissionC = "false";
-    Storage().HHAuto_Setting_autoLeagues = "false";
-    Storage().HHAuto_Setting_autoLeaguesCollect = "false";
-    Storage().HHAuto_Setting_autoLeaguesPowerCalc = "false";
-    //Storage().HHAuto_Setting_autoLeaguesMaxRank = "0";
-    Storage().HHAuto_Temp_leaguesTarget = "9";
-    Storage().HHAuto_Setting_autoStats = "500000000";
-    sessionStorage.HHAuto_Temp_autoLoop = "true";
-    sessionStorage.HHAuto_Temp_userLink = "none";
-    Storage().HHAuto_Temp_autoLoopTimeMili = "500";
-    Storage().HHAuto_Setting_autoQuest = "false";
-    Storage().HHAuto_Setting_autoTrollBattle = "false";
-    Storage().HHAuto_Setting_plusEvent = "false";
-    Storage().HHAuto_Setting_plusEventMythic = "false";
-    Storage().HHAuto_Setting_eventMythicPrio = "false";
-    Storage().HHAuto_Setting_autoTrollMythicByPassThreshold = "false";
-    Storage().HHAuto_Setting_eventTrollOrder="";
-    Storage().HHAuto_Setting_buyCombTimer="16";
-    //Storage().HHAuto_Setting_autoArenaBattle = "false";
-    Storage().HHAuto_Setting_autoSeason = "false";
-    Storage().HHAuto_Setting_autoSeasonCollect = "false";
-    sessionStorage.HHAuto_Temp_battlePowerRequired = "0";
-    sessionStorage.HHAuto_Temp_questRequirement = "none";
-    Storage().HHAuto_Temp_freshStart = "no";
-    Storage().HHAuto_Setting_autoChamps="false";
-    Storage().HHAuto_Setting_autoChampsUseEne="false";
-    Storage().HHAuto_Setting_autoChampsFilter="1;2;3;4;5;6";
-    Storage().HHAuto_Setting_autoFreePachinko = "false";
-    Storage().HHAuto_Setting_autoExp = "500000000";
-    Storage().HHAuto_Setting_autoExpW = "false";
-    Storage().HHAuto_Setting_MaxExp = "10000";
-    Storage().HHAuto_Setting_autoAff = "500000000";
-    Storage().HHAuto_Setting_autoAffW = "false";
-    Storage().HHAuto_Setting_MaxAff = "50000";
-    Storage().HHAuto_Setting_autoLGM = "500000000";
-    Storage().HHAuto_Setting_autoLGMW = "false";
-    Storage().HHAuto_Setting_autoLGR = "500000000";
-    Storage().HHAuto_Setting_autoLGRW = "false";
-    //Storage().HHAuto_Setting_autoEGM = "500000000";
-    //Storage().HHAuto_Setting_autoEGMW = "false";
-    Storage().HHAuto_Setting_autoBuyBoostersFilter = "B1;B2;B3;B4";
-    Storage().HHAuto_Setting_autoBuyBoosters = "false";
-    Storage().HHAuto_Setting_paranoia="true";
-    Storage().HHAuto_Setting_paranoiaSpendsBefore="false";
-
-    Storage().HHAuto_Setting_calculatePowerLimits = "default";
-    Storage().HHAuto_Setting_autoTrollThreshold="0";
-    Storage().HHAuto_Setting_autoQuestThreshold="0";
-    Storage().HHAuto_Setting_autoLeaguesThreshold="0";
-    Storage().HHAuto_Setting_autoSeasonThreshold="0";
-
-    Storage().HHAuto_Setting_spendKobans0="false";
-    Storage().HHAuto_Setting_autoSeasonPassReds ="false";
-    Storage().HHAuto_Temp_paranoiaSettings="140-320/Sleep:28800-30400|Active:250-460|Casual:1500-2700/6:Sleep|8:Casual|10:Active|12:Casual|14:Active|18:Casual|20:Active|22:Casual|24:Sleep";
-    Storage().HHAuto_Setting_master="false";
-};
 
 var moduleDisplayEventPriority=function()
 {
@@ -4976,8 +4443,7 @@ var CollectEventData=function()
                 {
                     if (Number(event_data.girls[i].troll.id_troll)<getSetHeroInfos('questing.id_world'))
                     {
-                        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Event girl : "+event_data.girls[i].name+" ("+event_data.girls[i].shards+"/100) at troll "+event_data.girls[i].troll.id_troll+" priority : "+Priority.indexOf(event_data.girls[i].troll.id_troll));
-                        logHHAuto(JSON.stringify("Event girl : "+event_data.girls[i].name+" ("+event_data.girls[i].shards+"/100) at troll "+event_data.girls[i].troll.id_troll+" priority : "+Priority.indexOf(event_data.girls[i].troll.id_troll)));
+                        logHHAuto("Event girl : "+event_data.girls[i].name+" ("+event_data.girls[i].shards+"/100) at troll "+event_data.girls[i].troll.id_troll+" priority : "+Priority.indexOf(event_data.girls[i].troll.id_troll));
                         eventsGirlz.push("event;"+i+";"+event_data.girls[i].id_girl+";"+event_data.girls[i].troll.id_troll);
                         //Trollz.push(Number(event_data.girls[i].troll.id_troll));
                     }
@@ -4996,8 +4462,7 @@ var CollectEventData=function()
                 {
                     if (Number(mythic_event_data.girls[i].troll.id_troll)<getSetHeroInfos('questing.id_world'))
                     {
-                        console.log(new Date().toISOString()+":"+getCallerFunction()+":","Mythic Event girl : "+mythic_event_data.girls[i].name+" "+mythic_event_data.girls[i].shards+"/100");
-                        logHHAuto(JSON.stringify("Mythic Event girl : "+mythic_event_data.girls[i].name+" "+mythic_event_data.girls[i].shards+"/100"));
+                        logHHAuto("Mythic Event girl : "+mythic_event_data.girls[i].name+" "+mythic_event_data.girls[i].shards+"/100");
                         //Trollz.push(Number(mythic_event_data.girls[i].troll.id_troll));
                         eventsGirlz.push("mythic_event;"+i+";"+mythic_event_data.girls[i].id_girl+";"+mythic_event_data.girls[i].troll.id_troll);
                         //TrollzMythic.push(Number(mythic_event_data.girls[i].troll.id_troll));
@@ -5006,12 +4471,9 @@ var CollectEventData=function()
             }
         }
 
-        //console.log(new Date().toISOString()+":"+getCallerFunction()+":",Priority);
-        //logHHAuto(JSON.stringify(Priority));
-        //console.log(new Date().toISOString()+":"+getCallerFunction()+":",Trollz);
-        //logHHAuto(JSON.stringify(Trollz));
-        //console.log(new Date().toISOString()+":"+getCallerFunction()+":","EventGirls",eventsGirlz);
-        //logHHAuto(JSON.stringify("EventGirls",eventsGirlz));
+        //logHHAuto(Priority);
+        //logHHAuto(Trollz);
+        //logHHAuto({log:"EventGirls",eventGirlz:eventsGirlz});
         eventsGirlz = eventsGirlz.filter(function (a) {
             var a_split = a.split(";");
             var a_weighted = Number(Priority.indexOf(a_split[3]));
@@ -5024,8 +4486,7 @@ var CollectEventData=function()
                 return a_weighted !== -1;
             }
         });
-        //console.log(new Date().toISOString()+":"+getCallerFunction()+":","Filtered EventGirls",eventsGirlz);
-        //logHHAuto(JSON.stringify("Filtered EventGirls",eventsGirlz));
+        //logHHAuto({log:"Filtered EventGirls",eventGirlz:eventsGirlz});
         if (eventsGirlz.length>0)
         {
 
@@ -5047,13 +4508,11 @@ var CollectEventData=function()
                     return a_weighted-b_weighted;
 
                 });
-                //console.log(new Date().toISOString()+":"+getCallerFunction()+":","Sorted EventGirls",eventsGirlz);
-                //logHHAuto(JSON.stringify("Sorted EventGirls",eventsGirlz));
+                //logHHAuto({log:"Sorted EventGirls",eventGirlz:eventsGirlz});
             }
             sessionStorage.HHAuto_Temp_eventsGirlz = JSON.stringify(eventsGirlz);
             var chosenTroll = Number(eventsGirlz[0].split(";")[3])
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","ET: "+chosenTroll);
-            logHHAuto(JSON.stringify("ET: "+chosenTroll));
+            logHHAuto("ET: "+chosenTroll);
             if ( eventsGirlz[0].split(";")[0] === "mythic_event" )
             {
                 sessionStorage.HHAuto_Temp_eventTrollIsMythic="true";
@@ -5079,8 +4538,7 @@ var CollectEventData=function()
                 {
                     if (Trollz.includes(Number(Priority[n])))
                     {
-                       console.log(new Date().toISOString()+":"+getCallerFunction()+":","ET: "+Priority[n]);
-logHHAuto(JSON.stringify("ET: "+Priority[n]));
+                       logHHAuto("ET: "+Priority[n]);
                         sessionStorage.HHAuto_Temp_eventTroll=Number(Priority[n]);
                         found=true;
                         break;
@@ -5108,34 +4566,28 @@ logHHAuto(JSON.stringify("ET: "+Priority[n]));
         }
 */
 
-        //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'WTF?');
-        //logHHAuto(JSON.stringify('WTF?'));
+        //logHHAuto('WTF?');
         if (Storage().HHAuto_Setting_buyCombat=="true" && (Storage().HHAuto_Setting_plusEvent==="true" || Storage().HHAuto_Setting_plusEventMythic==="true"))
         {
-            //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'WTF!');
-            //logHHAuto(JSON.stringify('WTF!'));
+            //logHHAuto('WTF!');
             var diff=Math.ceil(Timers["eventGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
             var diffMythic=Math.ceil(Timers["eventMythicGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
-            //console.log(new Date().toISOString()+":"+getCallerFunction()+":",diff);
-            //logHHAuto(JSON.stringify(diff));
+            //logHHAuto(diff);
             var hero=getHero();
             if ((diff<Storage().HHAuto_Setting_buyCombTimer*3600 || diffMythic<Storage().HHAuto_Setting_buyCombTimer*3600) && sessionStorage.HHAuto_Temp_eventTroll && getSetHeroInfos('fight.amount')==0)//Less than 20 hours remains and we still haven't get all troll girls
             {
                 var price=hero.get_recharge_cost("fight");
-                //console.log(new Date().toISOString()+":"+getCallerFunction()+":",'PRC: '+price);
-                //logHHAuto(JSON.stringify('PRC: '+price));
+                //logHHAuto('PRC: '+price);
                 if (getSetHeroInfos('hard_currency')>=price+Number(Storage().HHAuto_Setting_kobanBank))
                 {
-                    console.log(new Date().toISOString()+":"+getCallerFunction()+":",'Buying comb');
-                    logHHAuto(JSON.stringify('Buying comb'));
+                    logHHAuto('Buying comb');
                     RechargeCombat(price);
                 }
             }
         }
         return true;
     }
-    console.log(new Date().toISOString()+":"+getCallerFunction()+":",'no  event');
-    logHHAuto(JSON.stringify('no  event'));
+    logHHAuto('no  event');
     return false;
 }
 
@@ -5276,8 +4728,10 @@ function saveHHDebugLog()
     });
     if (sessionStorage.HHAuto_Temp_Logging)
     {
-        dataToSave["sessionStorage.HHAuto_Temp_Logging"] = sessionStorage.getItem('HHAuto_Temp_Logging').split("\n");
+        dataToSave["sessionStorage.HHAuto_Temp_Logging"] = JSON.parse(sessionStorage.getItem('HHAuto_Temp_Logging'));
     }
+
+
     const a = document.createElement('a')
     a.download = name
     a.href = URL.createObjectURL(new Blob([JSON.stringify(dataToSave, null, 2)], {type: 'application/json'}))
@@ -5303,8 +4757,7 @@ function myfileLoad_onReaderLoad(event){
     if (/^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').
                              replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
                              replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":",'the json is ok');
-        logHHAuto(JSON.stringify('the json is ok'));
+        logHHAuto('the json is ok');
         var jsonNewSettings = JSON.parse(event.target.result);
         //Assign new values to Storage();
         for (const [key, value] of Object.entries(jsonNewSettings)) {
@@ -5319,18 +4772,411 @@ function myfileLoad_onReaderLoad(event){
                     storageItem = sessionStorage;
                     break;
             }
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":",key+':'+ value);
-            logHHAuto(JSON.stringify(key+':'+ value));
+            logHHAuto(key+':'+ value);
             storageItem[variableName] = value;
         }
         location.reload();
     }else{
         $('#LoadConfError')[0].innerText ='Selected file broken!';
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":",'the json is Not ok');
-        logHHAuto(JSON.stringify('the json is Not ok'));
+        logHHAuto('the json is Not ok');
     }
 }
 
+function debugDeleteTempVars()
+{
+    var dataToSave={};
+    var storageType;
+    var variableName;
+    var storageItem;
+    Object.keys(localStorage).forEach((key) =>
+                                      {
+        if (key.startsWith("HHAuto_Setting_"))
+        {
+            dataToSave["localStorage."+key] = localStorage.getItem(key);
+        }
+    });
+    Object.keys(sessionStorage).forEach((key) =>
+                                        {
+        if (key.startsWith("HHAuto_Setting_"))
+        {
+            dataToSave["sessionStorage."+key] = sessionStorage.getItem(key);
+        }
+    });
+    debugDeleteAllVars();
+    setDefaults();
+    var keys=Object.keys(dataToSave);
+    for(var i of keys)
+    {
+        storageType=i.split(".")[0];
+        variableName=i.split(".")[1];
+        switch (storageType)
+        {
+            case 'localStorage' :
+                storageItem = localStorage;
+                break;
+            case 'sessionStorage' :
+                storageItem = sessionStorage;
+                break;
+        }
+        logHHAuto(i+':'+ dataToSave[i]);
+        storageItem[variableName] = dataToSave[i];
+    }
+
+}
+
+function getTextForUI(id,type)
+{
+    if (HHAuto_ToolTips[HHAuto_Lang] !== undefined && HHAuto_ToolTips[HHAuto_Lang][id] !== undefined && HHAuto_ToolTips[HHAuto_Lang][id][type] !== undefined)
+    {
+        return HHAuto_ToolTips[HHAuto_Lang][id][type];
+    }
+    else
+    {
+        if (HHAuto_ToolTips['en'] !== undefined && HHAuto_ToolTips['en'][id] !== undefined && HHAuto_ToolTips['en'][id][type] !== undefined)
+        {
+            return HHAuto_ToolTips['en'][id][type];
+        }
+        else
+        {
+            logHHAuto("not found text for "+HHAuto_Lang+"/"+id+"/"+type);
+            return HHAuto_Lang+"/"+id+"/"+type+" not found.";
+        }
+    }
+}
+
+var migrateHHVars = function ()
+{
+    var storageType;
+    var variableName;
+    var oldVarName;
+    var storageItem;
+    var migratedVars = localStorage.HHAuto_Temp_MigratedVars?true:false;
+
+    if (!migratedVars && localStorage.settPerTab)
+    {
+        logHHAuto("migrated settbyTab");
+        localStorage.HHAuto_Setting_settPerTab = localStorage.settPerTab;
+    }
+
+    if(!localStorage.HHAuto_Setting_settPerTab)
+    {
+        localStorage.HHAuto_Setting_settPerTab="false";
+    }
+
+    for (var i in HHVars)
+    {
+        storageType = HHVars[i].split(".")[0];
+        variableName = HHVars[i].split(".")[1];
+        oldVarName = variableName.split("_")[2];
+        switch (storageType)
+        {
+            case 'Storage()' :
+                storageItem = Storage();
+                break;
+            case 'localStorage' :
+                storageItem = localStorage;
+                break;
+            case 'sessionStorage' :
+                storageItem = sessionStorage;
+                break;
+        }
+        if (!migratedVars && storageItem.getItem(oldVarName) !== null && storageItem.getItem(variableName) === null)
+        {
+            logHHAuto("migrated var : "+variableName);
+            storageItem.setItem(variableName,storageItem.getItem(oldVarName));
+        }
+
+        if (localStorage.getItem(oldVarName) !== null)
+        {
+            localStorage.removeItem(oldVarName);
+        }
+        if (sessionStorage.getItem(oldVarName) !== null)
+        {
+            sessionStorage.removeItem(oldVarName);
+        }
+    }
+    localStorage.HHAuto_Temp_MigratedVars="true";
+
+}
+
+function debugDeleteAllVars()
+{
+    Object.keys(localStorage).forEach((key) =>
+                                      {
+        if (key.startsWith("HHAuto_Setting_"))
+        {
+            localStorage.removeItem(key);
+        }
+    });
+    Object.keys(sessionStorage).forEach((key) =>
+                                        {
+        if (key.startsWith("HHAuto_Setting_"))
+        {
+            sessionStorage.removeItem(key);
+        }
+    });
+    Object.keys(localStorage).forEach((key) =>
+                                      {
+        if (key.startsWith("HHAuto_Temp_"))
+        {
+            localStorage.removeItem(key);
+        }
+    });
+    Object.keys(sessionStorage).forEach((key) =>
+                                        {
+        if (key.startsWith("HHAuto_Temp_") && key !== "HHAuto_Temp_Logging")
+        {
+            sessionStorage.removeItem(key);
+        }
+    });
+    logHHAuto('Deleted all script vars.');
+}
+var HHAuto_ToolTips = [];
+
+HHAuto_ToolTips.en = {
+    saveDebug: { elementText: "Save Debug", tooltip : "Allow to produce a debug log file."},
+    gitHub: { elementText: "GitHub", tooltip : "Link to GitHub project."},
+    saveConfig: { elementText: "Save Config", tooltip : "Allow to save configuration."},
+    loadConfig: { elementText: "Load Config", tooltip : "Allow to load configuration."},
+    master: { elementText: "Master switch", tooltip : "On/off switch for full script"},
+    settPerTab: { elementText: "Settings per tab", tooltip : "Allow the settings to be set for this tab only"},
+    paranoia: { elementText: "Paranoia mode", tooltip : "Allow to simulate sleep, and human user (To be documented further)"},
+    paranoiaSpendsBefore: { elementText: "Spends points before", tooltip : "On will spends point for options (quest, Troll, Leagues and Season)<br>only if they are enabled<br>and spends points that would be above max limits<br>Ex : you have power for troll at 17, but going 4h45 in paranoia<br>it would mean having 17+10 points (rounded to higher int), thus being above the 20 max<br> it will then spends 8 points to fall back to 19 end of Paranoia, preventing to loose points."},
+    spendKobans0: { elementText: "Questionable Shit", tooltip : "First security switches for usage of kobans <br> All 3 needs to be active for Koban spending functions"},
+    spendKobans1: { elementText: "Are you sure?", tooltip : "Second security switches for usage of kobans <br>Have to be activated after the first one.<br> All 3 needs to be active for Koban spending functions"},
+    spendKobans2: { elementText: "You\'ve been warned", tooltip : "Third security switches for usage of kobans <br>Have to be activated after the second one.<br> All 3 needs to be active for Koban spending functions"},
+    kobanBank: { elementText: "Koban Bank", tooltip : "(Integer)<br>Minimum Koban kept when using Koban spending functions"},
+    buyCombat: { elementText: "Buy comb. in events", tooltip : "Koban spending functions<br>If enabled : <br>Buying combat point during last X hours of event (if not going under Koban bank value)"},
+    buyCombTimer: { elementText: "Hours to buy Comb", tooltip : "(Integer)<br>X last hours of event"},
+    autoBuyBoosters: { elementText: "Buy Leg. Boosters", tooltip : "Koban spending functions<br>Allow to buy booster in the market (if not going under Koban bank value)"},
+    autoBuyBoostersFilter: { elementText: "Filter", tooltip : "(values separated by ;)<br>Set which booster to buy , order is respected (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)"},
+    autoSeasonPassReds: { elementText: "Pass 3 reds", tooltip : "Koban spending functions<br>Use kobans to renew Season opponents if 3 reds"},
+    showCalculatePower: { elementText: "Show PowerCalc", tooltip : "Display battle simulation indicator for Leagues, battle, Seasons "},
+    calculatePowerLimits: { elementText: "Own limits (red;orange)", tooltip : "(red;yellow)<br>Define your own red and orange limits for Opponents<br> -6000;0 do mean<br> <-6000 is red, between -6000 and 0 is orange and >=0 is green"},
+    showInfo: { elementText: "Show info", tooltip : "if enabled : show info on script values and next runs"},
+    autoSalaryCheckbox: { elementText: "AutoSal.", tooltip : "if enabled :<br>Collect salaries every X secs"},
+    autoSalaryTextbox: { elementText: "min wait", tooltip : "(Integer)<br>X secs to collect Salary"},
+    autoMissionCheckbox: { elementText: "AutoMission", tooltip : "if enabled : Automatically do missions"},
+    autoMissionCollect: { elementText: "Collect", tooltip : "if enabled : Automatically collect missions"},
+    autoTrollCheckbox: { elementText: "AutoTrollBattle", tooltip : "if enabled : Automatically battle troll selected"},
+    autoTrollSelector: { elementText: "Troll selector", tooltip : "Select troll to be fought."},
+    autoTrollThreshold: { elementText: "Threshold", tooltip : "Minimum troll fight to keep"},
+    eventTrollOrder: { elementText: "Event Troll Order", tooltip : "Allow to select in which order event troll are automatically battled"},
+    plusEvent: { elementText: "+Event", tooltip : "If enabled : ignore selected troll during event to battle event"},
+    plusEventMythic: { elementText: "+Mythic Event", tooltip : "Enable grabbing girls for mythic event, should only play them when shards are available"},
+    eventMythicPrio: { elementText: "Priorize over Event Troll Order", tooltip : "Mythic event girl priorized over event troll order if shards available"},
+    autoTrollMythicByPassThreshold: { elementText: "Mythic bypass Threshold", tooltip : "Allow mythic to bypass Troll threshold"},
+    autoArenaCheckbox: { elementText: "AutoArenaBattle", tooltip : "if enabled : Automatically do Arena (deprecated)"},
+    autoSeasonCheckbox: { elementText: "AutoSeason", tooltip : "if enabled : Automatically fight in Seasons (Opponent chosen following PowerCalculation)"},
+    autoSeasonCollect: { elementText: "Collect", tooltip : "if enabled : Automatically collect Seasons ( if multiple to collect, will collect one per kiss usage)"},
+    autoSeasonThreshold: { elementText: "Threshold", tooltip : "Minimum kiss to keep"},
+    autoQuestCheckbox: { elementText: "AutoQuest", tooltip : "if enabled : Automatically do quest"},
+    autoQuestThreshold: { elementText: "Threshold", tooltip : "Minimum quest energy to keep"},
+    autoContestCheckbox: { elementText: "AutoContest", tooltip : "if enabled : Collect finished contest rewards"},
+    autoFreePachinko: { elementText: "AutoPachinko(Free)", tooltip : "if enabled : Automatically collect free Pachinkos"},
+    autoLeagues: { elementText: "AutoLeagues", tooltip : "if enabled : Automatically battle Leagues"},
+    autoLeaguesPowerCalc: { elementText: "UsePowerCalc", tooltip : "if enabled : will choose opponent using PowerCalc (Opponent list expires every 10 mins and take few mins to be built)"},
+    autoLeaguesCollect: { elementText: "Collect", tooltip : "If enabled : Automatically collect Leagues"},
+    autoLeaguesSelector: { elementText: "Target League", tooltip : "League to target, to try to demote, stay or go in higher league depending"},
+    autoLeaguesThreshold: { elementText: "Threshold", tooltip : "Minimum league fights to keep"},
+    autoPowerPlaces: { elementText: "AutoPowerPlaces", tooltip : "if enabled : Automatically Do powerPlaces"},
+    autoPowerPlacesIndexFilter: { elementText: "Index Filter", tooltip : "Allow to set filter and order on the PowerPlaces to do (order respected only when multiple powerPlace expires at the same time)"},
+    autoPowerPlacesAll: { elementText: "Do All", tooltip : "If enabled : ignore filter and do all powerplaces (will update Filter with current ids)"},
+    autoChamps: { elementText: "AutoChampions", tooltip : "if enabled : Automatically do champions (if they are started and in filter only)"},
+    autoChampsUseEne: { elementText: "UseEne", tooltip : "If enabled : use Energy to buy tickets"},
+    autoChampsFilter: { elementText: "Filter", tooltip : "Allow to set filter on champions to be fought"},
+    autoStats: { elementText: "AutoStats", tooltip : "Automatically buy stats in market with money above the setted amount"},
+    autoExpW: { elementText: "Buy Exp", tooltip : "if enabled : allow to buy Exp in market<br>Only buy if money bank is above the value<br>Only buy if total Exp owned is below value"},
+    autoExp: { elementText: "Min money to keep", tooltip : "Minimum money to keep."},
+    maxExp: { elementText: "Max Exp to buy", tooltip : "Maximum Exp to buy"},
+    autoAffW: { elementText: "Buy Aff", tooltip : "if enabled : allow to buy Aff in market<br>Only buy if money bank is above the value<br>Only buy if total Aff owned is below value"},
+    autoAff: { elementText: "Min money to keep", tooltip : "Minimum money to keep."},
+    maxAff: { elementText: "Max Aff to buy", tooltip : "Maximum Aff to buy"},
+    autoLGMW: { elementText: "Buy Leg Gear Mono", tooltip : "if enabled : allow to buy Mono Legendary gear in the market<br>Only buy if money bank is above the value"},
+    autoLGM: { elementText: "Min money to keep", tooltip : "Minimum money to keep."},
+    autoLGRW: { elementText: "Buy Leg Gear Rainbow", tooltip : "if enabled : allow to buy Rainbow Legendary gear in the market<br>Only buy if money bank is above the value"},
+    autoLGR: { elementText: "Min money to keep", tooltip : "Minimum money to keep."},
+    autoEGM: { elementText: "Buy Epi Gear Mono", tooltip : "if enabled : allow to buy Mono Epic gear in the market<br>Only buy if money bank is above the value"},
+    OpponentListBuilding: { elementText: "Opponent list is building", tooltip : ""},
+    OpponentParsed: { elementText: "opponents parsed", tooltip : ""},
+    DebugMenu: { elementText: "Debug Menu", tooltip : "Options for debug"},
+    DebugOptionsText: { elementText: "Buttons below allow to modify script storage, be careful using it.", tooltip : ""},
+    DeleteTempVars: { elementText: "Delete temp storage", tooltip : "Delete all temporary storage for the script."},
+    ResetAllVars: { elementText: "Reset defaults", tooltip : "Reset all setting to defaults."},
+    DebugFileText: { elementText: "Click on button bellow to produce a debug log file", tooltip : ""},
+    OptionCancel: { elementText: "Cancel", tooltip : ""},
+    SeasonMaskRewards: { elementText: "Mask claimed rewards", tooltip : "Allow to mask all claimed rewards on Season screen"}
+}
+
+
+HHAuto_ToolTips.fr = {
+    saveDebug: { elementText: "Save Debug", tooltip : "Produire un fichier journal de débogage."},
+    gitHub: { elementText: "GitHub", tooltip : "Lien vers le projet GitHub."},
+    saveConfig: { elementText: "Save Config", tooltip : "Permet de sauvegarder la configuration."},
+    loadConfig: { elementText: "Load Config", tooltip : "Permet de charger la configuration."},
+    master: { elementText: "Master switch", tooltip : "Bouton marche/arrêt pour le script complet"},
+    settPerTab: { elementText: "Settings per tab", tooltip : "Autoriser le paramétrage dans cet onglet uniquement"},
+    paranoia: { elementText: "Paranoia mode", tooltip : "Permet de simuler le sommeil, et l'utilisateur humain (à documenter davantage)"},
+    paranoiaSpendsBefore: { elementText: "Spends points before", tooltip : "Dépensera des points pour les options (quête, troll, ligues et saison)<br> uniquement si elles sont activées<br>et dépense des points qui seraient supérieurs aux limites maximales<br> Ex : vous avez la puissance d'un troll à 17, mais en allant 4h45 en paranoïa,<br> cela voudrait dire avoir 17+10 points (arrondis à l'int supérieur), donc être au dessus du 20 max<br> il dépensera alors 8 points pour retomber à 19 fin de la paranoïa, empêchant de perdre des points."},
+    spendKobans0: { elementText: "Questionable Shit", tooltip : "Premiers commutateurs de sécurité pour l'utilisation des kobans <br> Tous les 3 doivent être actifs pour les fonctions de dépense des kobans"},
+    spendKobans1: { elementText: "Are you sure?", tooltip : "Deuxième interrupteur de sécurité pour l'utilisation des kobans <br> Doit être activé après le premier.<br> Tous les 3 doivent être actifs pour les fonctions de dépense des kobans"},
+    spendKobans2: { elementText: "You\'ve been warned", tooltip : "Troisième interrupteur de sécurité pour l'utilisation des kobans <br> Doit être activé après le deuxième.<br> Tous les 3 doivent être actifs pour les fonctions de dépense des kobans"},
+    kobanBank: { elementText: "Koban Bank", tooltip : "(nombre)<br>Koban minimum conservé lors de l'utilisation des fonctions de dépenses Koban"},
+    buyCombat: { elementText: "Buy comb. in events", tooltip : "Fonctions de dépenses Koban<br>Si activées : <br>Achat du point de combat durant les X dernières heures de l'événement (si ne passe pas sous la valeur de la banque Koban)"},
+    buyCombTimer: { elementText: "Hours to buy Comb", tooltip : "(nombre)<br>X dernières heures de l'événement"},
+    autoBuyBoosters: { elementText: "Buy Leg. Boosters", tooltip : "Fonctions de dépenses de Koban<br>Permettre d'acheter un booster sur le marché (si pas en dessous de la valeur de la banque de Koban)"},
+    autoBuyBoostersFilter: { elementText: "Filter", tooltip : "(valeurs séparées par ;)<br>Set quel booster acheter, l'ordre est respecté (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)"},
+    autoSeasonPassReds: { elementText: "Pass 3 reds", tooltip : "Fonctions de dépense des kobans<br>Utiliser les kobans pour renouveler les adversaires de la saison si 3 rouges"},
+    showCalculatePower: { elementText: "Show PowerCalc", tooltip : "Afficher l'indicateur de simulation de bataille pour Ligues, Bataille, Saisons "},
+    calculatePowerLimits: { elementText: "Own limits (red;orange)", tooltip : "(rouge;jaune)<br>Définissez vos propres limites de rouge et d'orange pour les opposants<br> -6000;0 veux dire<br> <-6000 est rouge, entre -6000 et 0 est orange et >=0 est vert"},
+    showInfo: { elementText: "Show info", tooltip : "si activé : afficher des informations sur les valeurs du script et les prochaines exécutions"},
+    autoSalaryCheckbox: { elementText: "AutoSal.", tooltip : "si activé :<br>Collecter les salaires toutes les X secondes"},
+    autoSalaryTextbox: { elementText: "min wait", tooltip : "(nombre)<br>X secondes pour percevoir le salaire"},
+    autoMissionCheckbox: { elementText: "AutoMission", tooltip : "si activé : Effectuer automatiquement des missions"},
+    autoMissionCollect: { elementText: "Collect", tooltip : "si activé : collecte automatique des missions"},
+    autoTrollCheckbox: { elementText: "AutoTrollBattle", tooltip : "si activé : sélection automatique du troll de combat"},
+    autoTrollSelector: { elementText: "Troll selector", tooltip : "Sélectionnez le troll à combattre."},
+    autoTrollThreshold: { elementText: "Threshold", tooltip : "Combat minimum de trolls à garder"},
+    eventTrollOrder: { elementText: "Event Troll Order", tooltip : "Permet de sélectionner l'ordre dans lequel les trolls d'événements sont automatiquement combattus"},
+    plusEvent: { elementText: "+Event", tooltip : "Si activé : ignorer le troll sélectionné lors de l'événement à l'événement de combat"},
+    plusEventMythic: { elementText: "+Mythic Event", tooltip : "Permettre d'attraper les filles pour un événement mythique, ne devrait les faire jouer que lorsque des tessons sont disponibles"},
+    eventMythicPrio: { elementText: "Priorize over Event Troll Order", tooltip : "fille d’évent mythique privilégiée par rapport à l'ordre des trolls de l'événement si des tessons sont disponibles"},
+    autoTrollMythicByPassThreshold: { elementText: "Mythic bypass Threshold", tooltip : "Permettre au mythique de contourner le seuil des trolls"},
+    autoArenaCheckbox: { elementText: "AutoArenaBattle", tooltip : "si activé : fait automatiquement l'Arène (déconseillé)"},
+    autoSeasonCheckbox: { elementText: "AutoSeason", tooltip : "si activé : combat automatique dans les Saisons (Opposant choisi d'après PowerCalculation)"},
+    autoSeasonCollect: { elementText: "Collect", tooltip : "si activé : collecte automatique les items de saisons ( si plusieurs à collecter, en collectera une par utilisation de baiser)"},
+    autoSeasonThreshold: { elementText: "Threshold", tooltip : "Baiser minimum à conserver"},
+    autoQuestCheckbox: { elementText: "AutoQuest", tooltip : "si activé : Fait automatiquement les quêtes"},
+    autoQuestThreshold: { elementText: "Threshold", tooltip : "énergie de quête à conserver"},
+    autoContestCheckbox: { elementText: "AutoContest", tooltip : "si activé : Récolter les récompenses de la compet terminé"},
+    autoFreePachinko: { elementText: "AutoPachinko(Free)", tooltip : "si activé : collecte automatique les Pachinkos gratuits"},
+    autoLeagues: { elementText: "AutoLeagues", tooltip : "si activé : Combattre automatiquement les Ligues"},
+    autoLeaguesPowerCalc: { elementText: "UsePowerCalc", tooltip : "si activé : choisira l'adversaire en utilisant PowerCalc (la liste des adversaires expire toutes les 10 minutes et prend quelques minutes pour être construite)"},
+    autoLeaguesCollect: { elementText: "Collect", tooltip : "Si activé : Collecte automatique les Ligues"},
+    autoLeaguesSelector: { elementText: "Target League", tooltip : "Ligue à viser, à essayer de rétrograder, à rester ou à passer en ligue supérieure selon le choix"},
+    autoLeaguesThreshold: { elementText: "Threshold", tooltip : "Combats de ligue minimum à maintenir"},
+    autoPowerPlaces: { elementText: "AutoPowerPlaces", tooltip : "si activé : Fait automatiquement les lieux de pouvoir"},
+    autoPowerPlacesIndexFilter: { elementText: "Index Filter", tooltip : "Permet de définir un filtre et un ordre sur les lieux de pouvoir à faire (ordre respecté uniquement lorsque plusieurs lieux de pouvoir expirent en même temps)"},
+    autoPowerPlacesAll: { elementText: "Do All", tooltip : "Si activé : ignorer le filtre et fait toutes les lieux de pouvoir (mettra à jour le filtre avec les identifiants actuels)"},
+    autoChamps: { elementText: "AutoChampions", tooltip : "si activé : fait automatiquement les champions (s'ils sont démarrés et en filtre uniquement)"},
+    autoChampsUseEne: { elementText: "UseEne", tooltip : "Si activé : utiliser l'énergie pour acheter des billets de champion"},
+    autoChampsFilter: { elementText: "Filter", tooltip : "Permet de filtrer les champions à combattre"},
+    autoStats: { elementText: "AutoStats", tooltip : "Achète automatiquement des statistiques sur le marché avec de l'argent au-dessus du montant fixé"},
+    autoExpW: { elementText: "Buy Exp", tooltip : "si activé : permet d'acheter de l'Exp sur le marché<br>Achète uniquement si la banque d'argent est supérieure à la valeur<br>Achète uniquement si le total des Exp détenues est inférieur à la valeur"},
+    autoExp: { elementText: "Min money to keep", tooltip : "Argent minimum à conserver."},
+    maxExp: { elementText: "Max Exp to buy", tooltip : "Exp maximum à acheter"},
+    autoAffW: { elementText: "Buy Aff", tooltip : "si activé : permet d'acheter des Aff sur le marché<br>Acheter uniquement si la banque d'argent est supérieure à la valeur<br>Acheter uniquement si le total des Aff détenues est inférieur à la valeur"},
+    autoAff: { elementText: "Min money to keep", tooltip : "Argent minimum à conserver."},
+    maxAff: { elementText: "Max Aff to buy", tooltip : "Aff maximum à acheter"},
+    autoLGMW: { elementText: "Buy Leg Gear Mono", tooltip : "si activé : permet d'acheter du matériel Mono Légendaire sur le marché <br>Achète uniquement si la banque d'argent est au-dessus de la valeur"},
+    autoLGM: { elementText: "Min money to keep", tooltip : "Argent minimum à conserver."},
+    autoLGRW: { elementText: "Buy Leg Gear Rainbow", tooltip : "si activé : permet d'acheter du matériel Rainbow Légendaire sur le marché<br>Achète uniquement si la banque d'argent est supérieure à la valeur"},
+    autoLGR: { elementText: "Min money to keep", tooltip : "Argent minimum à conserver."},
+    autoEGM: { elementText: "Buy Epi Gear Mono", tooltip : "si activé : permet d'acheter du matériel Mono Epique sur le marché<br>Acheter seulement si la banque d'argent est au-dessus de la valeur"},
+    OpponentListBuilding: { elementText: "La liste des adversaires est en construction", tooltip : ""},
+    OpponentParsed : { elementText: "adversaires parcourus", tooltip : ""},
+    DebugMenu: { elementText: "Debug Menu", tooltip : "Options for debug"},
+    DebugOptionsText: { elementText: "Buttons below allow to modify script storage, be careful using it.", tooltip : ""},
+    DeleteTempVars: { elementText: "Delete temp storage", tooltip : "Delete all temporary storage for the script."},
+    ResetAllVars: { elementText: "Reset defaults", tooltip : "Reset all setting to defaults."},
+    DebugFileText: { elementText: "Click on button bellow to produce a debug log file", tooltip : ""},
+    OptionCancel: { elementText: "Cancel", tooltip : ""},
+    SeasonMaskRewards: { elementText: "Mask claimed rewards", tooltip : "Allow to mask all claimed rewards on Season screen"}
+}
+
+HHAuto_ToolTips.de = {
+    saveDebug: { elementText: "Save Debug", tooltip : "Erlaube das Erstellen einer Debug Log Datei."},
+    gitHub: { elementText: "GitHub", tooltip : "Link zum GitHub Projekt."},
+    saveConfig: { elementText: "Save Config", tooltip : "Erlaube die Einstellung zu speichern."},
+    loadConfig: { elementText: "Load Config", tooltip : "Erlaube die Einstellung zu laden."},
+    master: { elementText: "Master Schalter", tooltip : "An/Aus Schalter für das Skript"},
+    settPerTab: { elementText: "Einstellung per Tab", tooltip : "Erlaube die Einstellungen nur für diesen Tab zu setzen."},
+    paranoia: { elementText: "Paranoia Modus", tooltip : "Erlaube es Schalf zu simulieren und einen menschlichen Nutzer (wird weiter dokumentiert)"},
+    paranoiaSpendsBefore: { elementText: "Gib Punkte aus vor...", tooltip : "Wenn gewollt, werden Punkte für Optionen ausgegeben (Quest, Troll, Liga und Season)<br> nur wenn sie aktiviert sind<br>und gibt Punkt aus die über dem maximal Limit sind<br> z.B.: Du hast die Power für Troll von 17, gehst aber für 4h45 in den Paranoia Modus,<br> dass heißt 17+10 Punkte (aufgerundet), welches über dem Max von 20 wäre.<br> Es würden dann 9 Punkte ausgegeben, sodass du nur bei 19 Punkten bleibst bis zum Ende des Paranoia Modus um einen Verlust zu verhindern."},
+    spendKobans0: { elementText: "Fragwürdige Scheiße", tooltip : "Erster Sicherheitsschalter für die Nutzung von Kobans.<br>Alle 3 müssen aktiviert sein und Kobans auszugeben."},
+    spendKobans1: { elementText: "Biste sicher?", tooltip : "Zweiter Sicherheitsschalter für die Nutzung von Kobans.<br>Muss nach dem Ersten aktiviert werden.<br>Alle 3 müssen aktiviert sein und Kobans auszugeben."},
+    spendKobans2: { elementText: "Du wurdest gewarnt!", tooltip : "Dritter Sicherheitsschalter für die Nutzung von Kobans <br>Muss nach dem Zweiten aktiviert werden.<br> Alle 3 müssen aktiviert sein und Kobans auszugeben."},
+    kobanBank: { elementText: "Koban Bank", tooltip : "(Integer)<br>Minimale Anzahl an Kobans die behalten werden sollen."},
+    buyCombat: { elementText: "Kaufe Koban bei Events", tooltip : "'Koban ausgeben Funktion'<br> Wenn aktiviert: <br> Kauft Kampfpunkte in den letzten X Stunden eines Events (Wenn es das Minimum nicht unterschreitet)"},
+    buyCombTimer: { elementText: "Stunden bis Kauf", tooltip : "(Ganze pos. Zahl)<br>X verbleibende Stunden des Events"},
+    autoBuyBoosters: { elementText: "Kaufe Booster", tooltip : "'Koban ausgeben Funktion'<br>Erlaubt es Booster im Markt zu kaufen(Wenn es das Minimum nicht unterschreitet)"},
+    autoBuyBoostersFilter: { elementText: "Filter", tooltip : "(Werte getrennt durch ;)<br>Gib an welches Booster gekauft werden sollen, Reihenfolge wird beachtet (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)"},
+    autoSeasonPassReds: { elementText: "Überspringe drei Rote", tooltip : "'Koban ausgeben Funktion'<br>Benutze Kobans um Season Gegner zu tauschen wenn alle drei Rote sind"},
+    showCalculatePower: { elementText: "Zeige Kraftrechner", tooltip : "Zeige Kampfsimulationsindikator an für Liga, Kampf und Season"},
+    calculatePowerLimits: { elementText: "Eigene Grenzen (rot;gelb)", tooltip : "(rot;gelb)<br>Definiere deine eigenen Grenzen für rote und orange Gegner<br> -6000;0 meint<br> <-6000 ist rot, zwischen -6000 und 0 ist orange und >=0 ist grün"},
+    showInfo: { elementText: "Zeige Info", tooltip : "Wenn aktiv : zeige Information auf Skriptwerten und nächsten Durchläufen"},
+    autoSalaryCheckbox: { elementText: "Auto Einkommen", tooltip : "Wenn aktiv :<br>Sammelt das gesamte Einkommen alle X Sek."},
+    autoSalaryTextbox: { elementText: "min Warten", tooltip : "(Ganze pos. Zahl)<br>X Sek bis zum Sammeln des Einkommens"},
+    autoMissionCheckbox: { elementText: "AutoMission", tooltip : "Wenn aktiv : Macht automatisch Missionen"},
+    autoMissionCollect: { elementText: "Einsammeln", tooltip : "Wenn aktiv : Sammelt automatisch Missionsgewinne"},
+    autoTrollCheckbox: { elementText: "AutoTrollKampf", tooltip : "Wenn aktiv : Macht automatisch aktivierte Trollkämpfe"},
+    autoTrollSelector: { elementText: "Troll Wähler", tooltip : "Wähle Trolle die bekämpfte werden sollen."},
+    autoTrollThreshold: { elementText: "Schwellwert", tooltip : "Minimum an Trollpunkten die aufgehoben werden"},
+    eventTrollOrder: { elementText: "Event Troll Reihenfolge", tooltip : "Erlaubt eine Auswahl in welcher Reihenfolge die Trolle automatisch bekämpft werden"},
+    plusEvent: { elementText: "+Event", tooltip : "Wenn aktiv : Ignoriere ausgewählte Trolle währende eines Events, zugunsten des Events"},
+    plusEventMythic: { elementText: "+Mythisches Event", tooltip : "Erlaubt es Mädels beim mystischen Event abzugreifen, sollte sie nur versuchen wenn auch Teile vorhanden sind"},
+    eventMythicPrio: { elementText: "Priorisiere über Event Troll Reihenfolge", tooltip : "Mystische Event Mädels werden über die Event Troll Reihenfolge gestellt, sofern Teile erhältlich sind"},
+    autoTrollMythicByPassThreshold: { elementText: "Mystische über Schwellenwert", tooltip : "Erlaubt es Punkt über den Schwellwert für das mystische Events zu nutzen"},
+    autoArenaCheckbox: { elementText: "AutoArenaKampf", tooltip : "if enabled : Automatically do Arena (deprecated)"},
+    autoSeasonCheckbox: { elementText: "AutoSeason", tooltip : "Wenn aktiv : Kämpft automatisch in der Season (Gegner werden wie im Kraftrechner einstellt gewählt)"},
+    autoSeasonCollect: { elementText: "Einsammeln", tooltip : "Wenn aktiv : Sammelt automatisch Seasongewinne ein (bei mehr als einem, wird eines pro Küssnutzung eingesammelt)"},
+    autoSeasonThreshold: { elementText: "Schwellwert", tooltip : "Minimum Küsse die behalten bleiben"},
+    autoQuestCheckbox: { elementText: "AutoQuest", tooltip : "Wenn aktiv : Macht automatisch Quests"},
+    autoQuestThreshold: { elementText: "Schwellwert", tooltip : "Minimum an Energie die behalten bleibt"},
+    autoContestCheckbox: { elementText: "AutoAufgabe", tooltip : "Wenn aktiv : Sammelt abgeschlossene Aufgabenbelohnungen ein"},
+    autoFreePachinko: { elementText: "AutoPachinko(Gratis)", tooltip : "Wenn aktiv : Sammelt freien Glücksspielgewinn ein"},
+    autoLeagues: { elementText: "AutoLiga", tooltip : "Wenn aktiv : Kämpft automatisch in der Liga"},
+    autoLeaguesPowerCalc: { elementText: "Nutze Kraftrechner", tooltip : "Wenn aktiv : wählt Gegner durch Kraftrechner (Gegnerliste verfällt alle 10 Min und braucht ein Minuten zur Erneuerung)"},
+    autoLeaguesCollect: { elementText: "Einsammeln", tooltip : "Wenn aktiv : Sammelt automatisch Ligagewinn ein"},
+    autoLeaguesSelector: { elementText: "Ligaziel", tooltip : "Ligaziel, versuche abzusteigen, Platz zu halten oder aufzusteigen"},
+    autoLeaguesThreshold: { elementText: "Schwellwert", tooltip : "Minimum an Ligakämpfe behalten"},
+    autoPowerPlaces: { elementText: "AutoKraftorte", tooltip : "Wenn aktiv : macht automatisch Kraftorte"},
+    autoPowerPlacesIndexFilter: { elementText: "Index Filter", tooltip : "Erlaubt es Filter zusetzen für Kraftorte und eine Reihenfolge festzulegen (Reihenfolge wird beachtet, sollten mehrere zur gleichen Zeit fertig werden)"},
+    autoPowerPlacesAll: { elementText: "Mach alle", tooltip : "Wenn aktiv : ignoriere Filter und mache alle (aktualisiert den Filter mit korrekten IDs)"},
+    autoChamps: { elementText: "AutoChampions", tooltip : "Wenn aktiv : Macht automatisch Championkämpfe (nur wenn sie gestartet wurden und im Filter stehen)"},
+    autoChampsUseEne: { elementText: "Nutze Energie", tooltip : "Wenn aktiv : Nutze Energie und kaufe Champ. Tickets"},
+    autoChampsFilter: { elementText: "Filter", tooltip : "Erlaubt es Filter für zu bekämpfende Champions zu setzen"},
+    autoStats: { elementText: "AutoStats", tooltip : "Kauft automatisch bessere Statuswerte im Markt mit überschüssigem Geld oberhalb des gesetzten Wertes"},
+    autoExpW: { elementText: "Kaufe Erfahrung", tooltip : "Wenn aktiv : Erlaube Erfahrung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt<br>Kauft nur wenn sich im Besitz befinden potentielle Erfahrung unter dem Wert liegt"},
+    autoExp: { elementText: "Min Geld verbleib", tooltip : "Minimum an Geld das behalten wird."},
+    maxExp: { elementText: "Max ErfahrKauf", tooltip : "Maximum Erfahrung die gekauft wird"},
+    autoAffW: { elementText: "KaufAnziehung", tooltip : "Wenn aktiv : Erlaube Anziehung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt<br>Kauft nur wenn sich im Besitz befinden potentielle Anziehung unter dem Wert liegt"},
+    autoAff: { elementText: "Min Geld verbleib", tooltip : "Minimum an Geld das behalten wird."},
+    maxAff: { elementText: "Max AnziehungKauf", tooltip : "Maximum an Anziehung die gekauft wird"},
+    autoLGMW: { elementText: "Buy Leg Gear Mono", tooltip : "Wenn aktiv : Erlaube es Mono legendäre Rüstung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt"},
+    autoLGM: { elementText: "Min Geld verbleib", tooltip : "Minimum an Geld das behalten wird."},
+    autoLGRW: { elementText: "Buy Leg Gear Rainbow", tooltip : "Wenn aktiv : Erlaube es Regenbogenausrüstung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt"},
+    autoLGR: { elementText: "Min Geld verbleib", tooltip : "Minimum an Geld das behalten wird."},
+    autoEGM: { elementText: "Buy Epi Gear Mono", tooltip : "Wenn aktiv : Erlaube es Mono epische Ausrüstung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt"},
+    OpponentListBuilding: { elementText: "Gegnerliste wird erstellt", tooltip : ""},
+    OpponentParsed : { elementText: "Gegner analysiert", tooltip : ""},
+    DebugMenu: { elementText: "Debug Menu", tooltip : "Options for debug"},
+    DebugOptionsText: { elementText: "Buttons below allow to modify script storage, be careful using it.", tooltip : ""},
+    DeleteTempVars: { elementText: "Delete temp storage", tooltip : "Delete all temporary storage for the script."},
+    ResetAllVars: { elementText: "Reset defaults", tooltip : "Reset all setting to defaults."},
+    DebugFileText: { elementText: "Click on button bellow to produce a debug log file", tooltip : ""},
+    OptionCancel: { elementText: "Cancel", tooltip : ""},
+    SeasonMaskRewards: { elementText: "Mask claimed rewards", tooltip : "Allow to mask all claimed rewards on Season screen"}
+}
+
+
+var HHAuto_Lang = 'en';
+
+if ($('html')[0].lang === 'en') {
+    HHAuto_Lang = 'en';
+}
+else if ($('html')[0].lang === 'fr') {
+    HHAuto_Lang = 'fr';
+}
+else if ($('html')[0].lang === 'es_ES') {
+    //HHAuto_Lang = 'es';
+}
+else if ($('html')[0].lang === 'de_DE') {
+    HHAuto_Lang = 'de';
+}
+else if ($('html')[0].lang === 'it_IT') {
+    //HHAuto_Lang = 'it';
+}
 
 var Trollz=["Latest","Dark Lord","Ninja Spy","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson\'s Crew","Pandora witch","Nike"];
 var Leagues=["Wanker I","Wanker II","Wanker III","Sexpert I","Sexpert II","Sexpert III","Dicktator I","Dicktator II","Dicktator III"];
@@ -5396,6 +5242,7 @@ var HHVars=["Storage().HHAuto_Setting_autoAff",
             "Storage().HHAuto_Setting_spendKobans0",
             "Storage().HHAuto_Setting_spendKobans1",
             "Storage().HHAuto_Setting_spendKobans2",
+            "Storage().HHAuto_Setting_SeasonMaskRewards",
             "Storage().HHAuto_Temp_trollToFight",
             "sessionStorage.HHAuto_Temp_autoLoop",
             "Storage().HHAuto_Temp_autoLoopTimeMili",
@@ -5429,296 +5276,304 @@ var HHVars=["Storage().HHAuto_Setting_autoAff",
             "Storage().HHAuto_Temp_Totalpops",
             "sessionStorage.HHAuto_Temp_userLink",
             "localStorage.HHAuto_Temp_MigratedVars"];
+var updateData = function () {
+    //logHHAuto("updating UI");
+    if ($('#LoadDialog[open]').length > 0) {return}
+    var leaguesOptions = document.getElementById("autoLeaguesSelector");
+    Storage().HHAuto_Setting_autoLeaguesSelectedIndex = leaguesOptions.selectedIndex;
+    Storage().HHAuto_Temp_leaguesTarget = Number(leaguesOptions.value)+1;
 
-var HHAuto_ToolTips = [];
+    var trollOptions = document.getElementById("autoTrollSelector");
+    Storage().HHAuto_Setting_autoTrollSelectedIndex = trollOptions.selectedIndex;
+    Storage().HHAuto_Temp_trollToFight = trollOptions.value;
+    Storage().HHAuto_Setting_plusEvent = document.getElementById("plusEvent").checked;
+    Storage().HHAuto_Setting_autoSalary = document.getElementById("autoSalaryCheckbox").checked;
+    Storage().HHAuto_Setting_autoSalaryTimer = document.getElementById("autoSalaryTextbox").value;
+    Storage().HHAuto_Setting_autoContest = document.getElementById("autoContestCheckbox").checked;
+    Storage().HHAuto_Setting_autoMission = document.getElementById("autoMissionCheckbox").checked;
+    Storage().HHAuto_Setting_autoPowerPlaces = document.getElementById("autoPowerPlaces").checked;
 
-HHAuto_ToolTips.en = {
-    saveDebug: { elementText: "", tooltip : "Allow to produce a debug log file."},
-    gitHub: { elementText: "", tooltip : "Link to GitHub project."},
-    saveConfig: { elementText: "", tooltip : "Allow to save configuration."},
-    loadConfig: { elementText: "", tooltip : "Allow to load configuration."},
-    master: { elementText: "Master switch", tooltip : "On/off switch for full script"},
-    settPerTab: { elementText: "Settings per tab", tooltip : "Allow the settings to be set for this tab only"},
-    paranoia: { elementText: "Paranoia mode", tooltip : "Allow to simulate sleep, and human user (To be documented further)"},
-    paranoiaSpendsBefore: { elementText: "Spends points before", tooltip : "On will spends point for options (quest, Troll, Leagues and Season)<br>only if they are enabled<br>and spends points that would be above max limits<br>Ex : you have power for troll at 17, but going 4h45 in paranoia<br>it would mean having 17+10 points (rounded to higher int), thus being above the 20 max<br> it will then spends 8 points to fall back to 19 end of Paranoia, preventing to loose points."},
-    spendKobans0: { elementText: "Questionable Shit", tooltip : "First security switches for usage of kobans <br> All 3 needs to be active for Koban spending functions"},
-    spendKobans1: { elementText: "Are you sure?", tooltip : "Second security switches for usage of kobans <br>Have to be activated after the first one.<br> All 3 needs to be active for Koban spending functions"},
-    spendKobans2: { elementText: "You\'ve been warned", tooltip : "Third security switches for usage of kobans <br>Have to be activated after the second one.<br> All 3 needs to be active for Koban spending functions"},
-    kobanBank: { elementText: "Koban Bank", tooltip : "(Integer)<br>Minimum Koban kept when using Koban spending functions"},
-    buyCombat: { elementText: "Buy comb. in events", tooltip : "Koban spending functions<br>If enabled : <br>Buying combat point during last X hours of event (if not going under Koban bank value)"},
-    buyCombTimer: { elementText: "Hours to buy Comb", tooltip : "(Integer)<br>X last hours of event"},
-    autoBuyBoosters: { elementText: "Buy Leg. Boosters", tooltip : "Koban spending functions<br>Allow to buy booster in the market (if not going under Koban bank value)"},
-    autoBuyBoostersFilter: { elementText: "Filter", tooltip : "(values separated by ;)<br>Set which booster to buy , order is respected (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)"},
-    autoSeasonPassReds: { elementText: "Pass 3 reds", tooltip : "Koban spending functions<br>Use kobans to renew Season opponents if 3 reds"},
-    showCalculatePower: { elementText: "Show PowerCalc", tooltip : "Display battle simulation indicator for Leagues, battle, Seasons "},
-    calculatePowerLimits: { elementText: "Own limits (red;orange)", tooltip : "(red;yellow)<br>Define your own red and orange limits for Opponents<br> -6000;0 do mean<br> <-6000 is red, between -6000 and 0 is orange and >=0 is green"},
-    showInfo: { elementText: "Show info", tooltip : "if enabled : show info on script values and next runs"},
-    autoSalaryCheckbox: { elementText: "AutoSal.", tooltip : "if enabled :<br>Collect salaries every X secs"},
-    autoSalaryTextbox: { elementText: "min wait", tooltip : "(Integer)<br>X secs to collect Salary"},
-    autoMissionCheckbox: { elementText: "AutoMission", tooltip : "if enabled : Automatically do missions"},
-    autoMissionCollect: { elementText: "Collect", tooltip : "if enabled : Automatically collect missions"},
-    autoTrollCheckbox: { elementText: "AutoTrollBattle", tooltip : "if enabled : Automatically battle troll selected"},
-    autoTrollSelector: { elementText: "Troll selector", tooltip : "Select troll to be fought."},
-    autoTrollThreshold: { elementText: "Threshold", tooltip : "Minimum troll fight to keep"},
-    eventTrollOrder: { elementText: "Event Troll Order", tooltip : "Allow to select in which order event troll are automatically battled"},
-    plusEvent: { elementText: "+Event", tooltip : "If enabled : ignore selected troll during event to battle event"},
-    plusEventMythic: { elementText: "+Mythic Event", tooltip : "Enable grabbing girls for mythic event, should only play them when shards are available"},
-    eventMythicPrio: { elementText: "Priorize over Event Troll Order", tooltip : "Mythic event girl priorized over event troll order if shards available"},
-    autoTrollMythicByPassThreshold: { elementText: "Mythic bypass Threshold", tooltip : "Allow mythic to bypass Troll threshold"},
-    autoArenaCheckbox: { elementText: "AutoArenaBattle", tooltip : "if enabled : Automatically do Arena (deprecated)"},
-    autoSeasonCheckbox: { elementText: "AutoSeason", tooltip : "if enabled : Automatically fight in Seasons (Opponent chosen following PowerCalculation)"},
-    autoSeasonCollect: { elementText: "Collect", tooltip : "if enabled : Automatically collect Seasons ( if multiple to collect, will collect one per kiss usage)"},
-    autoSeasonThreshold: { elementText: "Threshold", tooltip : "Minimum kiss to keep"},
-    autoQuestCheckbox: { elementText: "AutoQuest", tooltip : "if enabled : Automatically do quest"},
-    autoQuestThreshold: { elementText: "Threshold", tooltip : "Minimum quest energy to keep"},
-    autoContestCheckbox: { elementText: "AutoContest", tooltip : "if enabled : Collect finished contest rewards"},
-    autoFreePachinko: { elementText: "AutoPachinko(Free)", tooltip : "if enabled : Automatically collect free Pachinkos"},
-    autoLeagues: { elementText: "AutoLeagues", tooltip : "if enabled : Automatically battle Leagues"},
-    autoLeaguesPowerCalc: { elementText: "UsePowerCalc", tooltip : "if enabled : will choose opponent using PowerCalc (Opponent list expires every 10 mins and take few mins to be built)"},
-    autoLeaguesCollect: { elementText: "Collect", tooltip : "If enabled : Automatically collect Leagues"},
-    autoLeaguesSelector: { elementText: "Target League", tooltip : "League to target, to try to demote, stay or go in higher league depending"},
-    autoLeaguesThreshold: { elementText: "Threshold", tooltip : "Minimum league fights to keep"},
-    autoPowerPlaces: { elementText: "AutoPowerPlaces", tooltip : "if enabled : Automatically Do powerPlaces"},
-    autoPowerPlacesIndexFilter: { elementText: "Index Filter", tooltip : "Allow to set filter and order on the PowerPlaces to do (order respected only when multiple powerPlace expires at the same time)"},
-    autoPowerPlacesAll: { elementText: "Do All", tooltip : "If enabled : ignore filter and do all powerplaces (will update Filter with current ids)"},
-    autoChamps: { elementText: "AutoChampions", tooltip : "if enabled : Automatically do champions (if they are started and in filter only)"},
-    autoChampsUseEne: { elementText: "UseEne", tooltip : "If enabled : use Energy to buy tickets"},
-    autoChampsFilter: { elementText: "Filter", tooltip : "Allow to set filter on champions to be fought"},
-    autoStats: { elementText: "AutoStats", tooltip : "Automatically buy stats in market with money above the setted amount"},
-    autoExpW: { elementText: "Buy Exp", tooltip : "if enabled : allow to buy Exp in market<br>Only buy if money bank is above the value<br>Only buy if total Exp owned is below value"},
-    autoExp: { elementText: "Min money to keep", tooltip : "Minimum money to keep."},
-    maxExp: { elementText: "Max Exp to buy", tooltip : "Maximum Exp to buy"},
-    autoAffW: { elementText: "Buy Aff", tooltip : "if enabled : allow to buy Aff in market<br>Only buy if money bank is above the value<br>Only buy if total Aff owned is below value"},
-    autoAff: { elementText: "Min money to keep", tooltip : "Minimum money to keep."},
-    maxAff: { elementText: "Max Aff to buy", tooltip : "Maximum Aff to buy"},
-    autoLGMW: { elementText: "Buy Leg Gear Mono", tooltip : "if enabled : allow to buy Mono Legendary gear in the market<br>Only buy if money bank is above the value"},
-    autoLGM: { elementText: "Min money to keep", tooltip : "Minimum money to keep."},
-    autoLGRW: { elementText: "Buy Leg Gear Rainbow", tooltip : "if enabled : allow to buy Rainbow Legendary gear in the market<br>Only buy if money bank is above the value"},
-    autoLGR: { elementText: "Min money to keep", tooltip : "Minimum money to keep."},
-    autoEGM: { elementText: "Buy Epi Gear Mono", tooltip : "if enabled : allow to buy Mono Epic gear in the market<br>Only buy if money bank is above the value"},
-    OpponentListBuilding: { elementText: "Opponent list is building", tooltip : ""},
-    OpponentParsed : { elementText: "opponents parsed", tooltip : ""}
-}
-
-
-HHAuto_ToolTips.fr = {
-    saveDebug: { elementText: "", tooltip : "Produire un fichier journal de débogage."},
-    gitHub: { elementText: "", tooltip : "Lien vers le projet GitHub."},
-    saveConfig: { elementText: "", tooltip : "Permet de sauvegarder la configuration."},
-    loadConfig: { elementText: "", tooltip : "Permet de charger la configuration."},
-    master: { elementText: "Master switch", tooltip : "Bouton marche/arrêt pour le script complet"},
-    settPerTab: { elementText: "Settings per tab", tooltip : "Autoriser le paramétrage dans cet onglet uniquement"},
-    paranoia: { elementText: "Paranoia mode", tooltip : "Permet de simuler le sommeil, et l'utilisateur humain (à documenter davantage)"},
-    paranoiaSpendsBefore: { elementText: "Spends points before", tooltip : "Dépensera des points pour les options (quête, troll, ligues et saison)<br> uniquement si elles sont activées<br>et dépense des points qui seraient supérieurs aux limites maximales<br> Ex : vous avez la puissance d'un troll à 17, mais en allant 4h45 en paranoïa,<br> cela voudrait dire avoir 17+10 points (arrondis à l'int supérieur), donc être au dessus du 20 max<br> il dépensera alors 8 points pour retomber à 19 fin de la paranoïa, empêchant de perdre des points."},
-    spendKobans0: { elementText: "Questionable Shit", tooltip : "Premiers commutateurs de sécurité pour l'utilisation des kobans <br> Tous les 3 doivent être actifs pour les fonctions de dépense des kobans"},
-    spendKobans1: { elementText: "Are you sure?", tooltip : "Deuxième interrupteur de sécurité pour l'utilisation des kobans <br> Doit être activé après le premier.<br> Tous les 3 doivent être actifs pour les fonctions de dépense des kobans"},
-    spendKobans2: { elementText: "You\'ve been warned", tooltip : "Troisième interrupteur de sécurité pour l'utilisation des kobans <br> Doit être activé après le deuxième.<br> Tous les 3 doivent être actifs pour les fonctions de dépense des kobans"},
-    kobanBank: { elementText: "Koban Bank", tooltip : "(nombre)<br>Koban minimum conservé lors de l'utilisation des fonctions de dépenses Koban"},
-    buyCombat: { elementText: "Buy comb. in events", tooltip : "Fonctions de dépenses Koban<br>Si activées : <br>Achat du point de combat durant les X dernières heures de l'événement (si ne passe pas sous la valeur de la banque Koban)"},
-    buyCombTimer: { elementText: "Hours to buy Comb", tooltip : "(nombre)<br>X dernières heures de l'événement"},
-    autoBuyBoosters: { elementText: "Buy Leg. Boosters", tooltip : "Fonctions de dépenses de Koban<br>Permettre d'acheter un booster sur le marché (si pas en dessous de la valeur de la banque de Koban)"},
-    autoBuyBoostersFilter: { elementText: "Filter", tooltip : "(valeurs séparées par ;)<br>Set quel booster acheter, l'ordre est respecté (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)"},
-    autoSeasonPassReds: { elementText: "Pass 3 reds", tooltip : "Fonctions de dépense des kobans<br>Utiliser les kobans pour renouveler les adversaires de la saison si 3 rouges"},
-    showCalculatePower: { elementText: "Show PowerCalc", tooltip : "Afficher l'indicateur de simulation de bataille pour Ligues, Bataille, Saisons "},
-    calculatePowerLimits: { elementText: "Own limits (red;orange)", tooltip : "(rouge;jaune)<br>Définissez vos propres limites de rouge et d'orange pour les opposants<br> -6000;0 veux dire<br> <-6000 est rouge, entre -6000 et 0 est orange et >=0 est vert"},
-    showInfo: { elementText: "Show info", tooltip : "si activé : afficher des informations sur les valeurs du script et les prochaines exécutions"},
-    autoSalaryCheckbox: { elementText: "AutoSal.", tooltip : "si activé :<br>Collecter les salaires toutes les X secondes"},
-    autoSalaryTextbox: { elementText: "min wait", tooltip : "(nombre)<br>X secondes pour percevoir le salaire"},
-    autoMissionCheckbox: { elementText: "AutoMission", tooltip : "si activé : Effectuer automatiquement des missions"},
-    autoMissionCollect: { elementText: "Collect", tooltip : "si activé : collecte automatique des missions"},
-    autoTrollCheckbox: { elementText: "AutoTrollBattle", tooltip : "si activé : sélection automatique du troll de combat"},
-    autoTrollSelector: { elementText: "Troll selector", tooltip : "Sélectionnez le troll à combattre."},
-    autoTrollThreshold: { elementText: "Threshold", tooltip : "Combat minimum de trolls à garder"},
-    eventTrollOrder: { elementText: "Event Troll Order", tooltip : "Permet de sélectionner l'ordre dans lequel les trolls d'événements sont automatiquement combattus"},
-    plusEvent: { elementText: "+Event", tooltip : "Si activé : ignorer le troll sélectionné lors de l'événement à l'événement de combat"},
-    plusEventMythic: { elementText: "+Mythic Event", tooltip : "Permettre d'attraper les filles pour un événement mythique, ne devrait les faire jouer que lorsque des tessons sont disponibles"},
-    eventMythicPrio: { elementText: "Priorize over Event Troll Order", tooltip : "fille d’évent mythique privilégiée par rapport à l'ordre des trolls de l'événement si des tessons sont disponibles"},
-    autoTrollMythicByPassThreshold: { elementText: "Mythic bypass Threshold", tooltip : "Permettre au mythique de contourner le seuil des trolls"},
-    autoArenaCheckbox: { elementText: "AutoArenaBattle", tooltip : "si activé : fait automatiquement l'Arène (déconseillé)"},
-    autoSeasonCheckbox: { elementText: "AutoSeason", tooltip : "si activé : combat automatique dans les Saisons (Opposant choisi d'après PowerCalculation)"},
-    autoSeasonCollect: { elementText: "Collect", tooltip : "si activé : collecte automatique les items de saisons ( si plusieurs à collecter, en collectera une par utilisation de baiser)"},
-    autoSeasonThreshold: { elementText: "Threshold", tooltip : "Baiser minimum à conserver"},
-    autoQuestCheckbox: { elementText: "AutoQuest", tooltip : "si activé : Fait automatiquement les quêtes"},
-    autoQuestThreshold: { elementText: "Threshold", tooltip : "énergie de quête à conserver"},
-    autoContestCheckbox: { elementText: "AutoContest", tooltip : "si activé : Récolter les récompenses de la compet terminé"},
-    autoFreePachinko: { elementText: "AutoPachinko(Free)", tooltip : "si activé : collecte automatique les Pachinkos gratuits"},
-    autoLeagues: { elementText: "AutoLeagues", tooltip : "si activé : Combattre automatiquement les Ligues"},
-    autoLeaguesPowerCalc: { elementText: "UsePowerCalc", tooltip : "si activé : choisira l'adversaire en utilisant PowerCalc (la liste des adversaires expire toutes les 10 minutes et prend quelques minutes pour être construite)"},
-    autoLeaguesCollect: { elementText: "Collect", tooltip : "Si activé : Collecte automatique les Ligues"},
-    autoLeaguesSelector: { elementText: "Target League", tooltip : "Ligue à viser, à essayer de rétrograder, à rester ou à passer en ligue supérieure selon le choix"},
-    autoLeaguesThreshold: { elementText: "Threshold", tooltip : "Combats de ligue minimum à maintenir"},
-    autoPowerPlaces: { elementText: "AutoPowerPlaces", tooltip : "si activé : Fait automatiquement les lieux de pouvoir"},
-    autoPowerPlacesIndexFilter: { elementText: "Index Filter", tooltip : "Permet de définir un filtre et un ordre sur les lieux de pouvoir à faire (ordre respecté uniquement lorsque plusieurs lieux de pouvoir expirent en même temps)"},
-    autoPowerPlacesAll: { elementText: "Do All", tooltip : "Si activé : ignorer le filtre et fait toutes les lieux de pouvoir (mettra à jour le filtre avec les identifiants actuels)"},
-    autoChamps: { elementText: "AutoChampions", tooltip : "si activé : fait automatiquement les champions (s'ils sont démarrés et en filtre uniquement)"},
-    autoChampsUseEne: { elementText: "UseEne", tooltip : "Si activé : utiliser l'énergie pour acheter des billets de champion"},
-    autoChampsFilter: { elementText: "Filter", tooltip : "Permet de filtrer les champions à combattre"},
-    autoStats: { elementText: "AutoStats", tooltip : "Achète automatiquement des statistiques sur le marché avec de l'argent au-dessus du montant fixé"},
-    autoExpW: { elementText: "Buy Exp", tooltip : "si activé : permet d'acheter de l'Exp sur le marché<br>Achète uniquement si la banque d'argent est supérieure à la valeur<br>Achète uniquement si le total des Exp détenues est inférieur à la valeur"},
-    autoExp: { elementText: "Min money to keep", tooltip : "Argent minimum à conserver."},
-    maxExp: { elementText: "Max Exp to buy", tooltip : "Exp maximum à acheter"},
-    autoAffW: { elementText: "Buy Aff", tooltip : "si activé : permet d'acheter des Aff sur le marché<br>Acheter uniquement si la banque d'argent est supérieure à la valeur<br>Acheter uniquement si le total des Aff détenues est inférieur à la valeur"},
-    autoAff: { elementText: "Min money to keep", tooltip : "Argent minimum à conserver."},
-    maxAff: { elementText: "Max Aff to buy", tooltip : "Aff maximum à acheter"},
-    autoLGMW: { elementText: "Buy Leg Gear Mono", tooltip : "si activé : permet d'acheter du matériel Mono Légendaire sur le marché <br>Achète uniquement si la banque d'argent est au-dessus de la valeur"},
-    autoLGM: { elementText: "Min money to keep", tooltip : "Argent minimum à conserver."},
-    autoLGRW: { elementText: "Buy Leg Gear Rainbow", tooltip : "si activé : permet d'acheter du matériel Rainbow Légendaire sur le marché<br>Achète uniquement si la banque d'argent est supérieure à la valeur"},
-    autoLGR: { elementText: "Min money to keep", tooltip : "Argent minimum à conserver."},
-    autoEGM: { elementText: "Buy Epi Gear Mono", tooltip : "si activé : permet d'acheter du matériel Mono Epique sur le marché<br>Acheter seulement si la banque d'argent est au-dessus de la valeur"},
-    OpponentListBuilding: { elementText: "La liste des adversaires est en construction", tooltip : ""},
-    OpponentParsed : { elementText: "adversaires parcourus", tooltip : ""}
-}
-
-HHAuto_ToolTips.de = {
-    saveDebug: { elementText: "", tooltip : "Erlaube das Erstellen einer Debug Log Datei."},
-    gitHub: { elementText: "", tooltip : "Link zum GitHub Projekt."},
-    saveConfig: { elementText: "", tooltip : "Erlaube die Einstellung zu speichern."},
-    loadConfig: { elementText: "", tooltip : "Erlaube die Einstellung zu laden."},
-    master: { elementText: "Master Schalter", tooltip : "An/Aus Schalter für das Skript"},
-    settPerTab: { elementText: "Einstellung per Tab", tooltip : "Erlaube die Einstellungen nur für diesen Tab zu setzen."},
-    paranoia: { elementText: "Paranoia Modus", tooltip : "Erlaube es Schalf zu simulieren und einen menschlichen Nutzer (wird weiter dokumentiert)"},
-    paranoiaSpendsBefore: { elementText: "Gib Punkte aus vor...", tooltip : "Wenn gewollt, werden Punkte für Optionen ausgegeben (Quest, Troll, Liga und Season)<br> nur wenn sie aktiviert sind<br>und gibt Punkt aus die über dem maximal Limit sind<br> z.B.: Du hast die Power für Troll von 17, gehst aber für 4h45 in den Paranoia Modus,<br> dass heißt 17+10 Punkte (aufgerundet), welches über dem Max von 20 wäre.<br> Es würden dann 9 Punkte ausgegeben, sodass du nur bei 19 Punkten bleibst bis zum Ende des Paranoia Modus um einen Verlust zu verhindern."},
-    spendKobans0: { elementText: "Fragwürdige Scheiße", tooltip : "Erster Sicherheitsschalter für die Nutzung von Kobans.<br>Alle 3 müssen aktiviert sein und Kobans auszugeben."},
-    spendKobans1: { elementText: "Biste sicher?", tooltip : "Zweiter Sicherheitsschalter für die Nutzung von Kobans.<br>Muss nach dem Ersten aktiviert werden.<br>Alle 3 müssen aktiviert sein und Kobans auszugeben."},
-    spendKobans2: { elementText: "Du wurdest gewarnt!", tooltip : "Dritter Sicherheitsschalter für die Nutzung von Kobans <br>Muss nach dem Zweiten aktiviert werden.<br> Alle 3 müssen aktiviert sein und Kobans auszugeben."},
-    kobanBank: { elementText: "Koban Bank", tooltip : "(Integer)<br>Minimale Anzahl an Kobans die behalten werden sollen."},
-    buyCombat: { elementText: "Kaufe Koban bei Events", tooltip : "'Koban ausgeben Funktion'<br> Wenn aktiviert: <br> Kauft Kampfpunkte in den letzten X Stunden eines Events (Wenn es das Minimum nicht unterschreitet)"},
-    buyCombTimer: { elementText: "Stunden bis Kauf", tooltip : "(Ganze pos. Zahl)<br>X verbleibende Stunden des Events"},
-    autoBuyBoosters: { elementText: "Kaufe Booster", tooltip : "'Koban ausgeben Funktion'<br>Erlaubt es Booster im Markt zu kaufen(Wenn es das Minimum nicht unterschreitet)"},
-    autoBuyBoostersFilter: { elementText: "Filter", tooltip : "(Werte getrennt durch ;)<br>Gib an welches Booster gekauft werden sollen, Reihenfolge wird beachtet (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)"},
-    autoSeasonPassReds: { elementText: "Überspringe drei Rote", tooltip : "'Koban ausgeben Funktion'<br>Benutze Kobans um Season Gegner zu tauschen wenn alle drei Rote sind"},
-    showCalculatePower: { elementText: "Zeige Kraftrechner", tooltip : "Zeige Kampfsimulationsindikator an für Liga, Kampf und Season"},
-    calculatePowerLimits: { elementText: "Eigene Grenzen (rot;gelb)", tooltip : "(rot;gelb)<br>Definiere deine eigenen Grenzen für rote und orange Gegner<br> -6000;0 meint<br> <-6000 ist rot, zwischen -6000 und 0 ist orange und >=0 ist grün"},
-    showInfo: { elementText: "Zeige Info", tooltip : "Wenn aktiv : zeige Information auf Skriptwerten und nächsten Durchläufen"},
-    autoSalaryCheckbox: { elementText: "Auto Einkommen", tooltip : "Wenn aktiv :<br>Sammelt das gesamte Einkommen alle X Sek."},
-    autoSalaryTextbox: { elementText: "min Warten", tooltip : "(Ganze pos. Zahl)<br>X Sek bis zum Sammeln des Einkommens"},
-    autoMissionCheckbox: { elementText: "AutoMission", tooltip : "Wenn aktiv : Macht automatisch Missionen"},
-    autoMissionCollect: { elementText: "Einsammeln", tooltip : "Wenn aktiv : Sammelt automatisch Missionsgewinne"},
-    autoTrollCheckbox: { elementText: "AutoTrollKampf", tooltip : "Wenn aktiv : Macht automatisch aktivierte Trollkämpfe"},
-    autoTrollSelector: { elementText: "Troll Wähler", tooltip : "Wähle Trolle die bekämpfte werden sollen."},
-    autoTrollThreshold: { elementText: "Schwellwert", tooltip : "Minimum an Trollpunkten die aufgehoben werden"},
-    eventTrollOrder: { elementText: "Event Troll Reihenfolge", tooltip : "Erlaubt eine Auswahl in welcher Reihenfolge die Trolle automatisch bekämpft werden"},
-    plusEvent: { elementText: "+Event", tooltip : "Wenn aktiv : Ignoriere ausgewählte Trolle währende eines Events, zugunsten des Events"},
-    plusEventMythic: { elementText: "+Mythisches Event", tooltip : "Erlaubt es Mädels beim mystischen Event abzugreifen, sollte sie nur versuchen wenn auch Teile vorhanden sind"},
-    eventMythicPrio: { elementText: "Priorisiere über Event Troll Reihenfolge", tooltip : "Mystische Event Mädels werden über die Event Troll Reihenfolge gestellt, sofern Teile erhältlich sind"},
-    autoTrollMythicByPassThreshold: { elementText: "Mystische über Schwellenwert", tooltip : "Erlaubt es Punkt über den Schwellwert für das mystische Events zu nutzen"},
-    autoArenaCheckbox: { elementText: "AutoArenaKampf", tooltip : "if enabled : Automatically do Arena (deprecated)"},
-    autoSeasonCheckbox: { elementText: "AutoSeason", tooltip : "Wenn aktiv : Kämpft automatisch in der Season (Gegner werden wie im Kraftrechner einstellt gewählt)"},
-    autoSeasonCollect: { elementText: "Einsammeln", tooltip : "Wenn aktiv : Sammelt automatisch Seasongewinne ein (bei mehr als einem, wird eines pro Küssnutzung eingesammelt)"},
-    autoSeasonThreshold: { elementText: "Schwellwert", tooltip : "Minimum Küsse die behalten bleiben"},
-    autoQuestCheckbox: { elementText: "AutoQuest", tooltip : "Wenn aktiv : Macht automatisch Quests"},
-    autoQuestThreshold: { elementText: "Schwellwert", tooltip : "Minimum an Energie die behalten bleibt"},
-    autoContestCheckbox: { elementText: "AutoAufgabe", tooltip : "Wenn aktiv : Sammelt abgeschlossene Aufgabenbelohnungen ein"},
-    autoFreePachinko: { elementText: "AutoPachinko(Gratis)", tooltip : "Wenn aktiv : Sammelt freien Glücksspielgewinn ein"},
-    autoLeagues: { elementText: "AutoLiga", tooltip : "Wenn aktiv : Kämpft automatisch in der Liga"},
-    autoLeaguesPowerCalc: { elementText: "Nutze Kraftrechner", tooltip : "Wenn aktiv : wählt Gegner durch Kraftrechner (Gegnerliste verfällt alle 10 Min und braucht ein Minuten zur Erneuerung)"},
-    autoLeaguesCollect: { elementText: "Einsammeln", tooltip : "Wenn aktiv : Sammelt automatisch Ligagewinn ein"},
-    autoLeaguesSelector: { elementText: "Ligaziel", tooltip : "Ligaziel, versuche abzusteigen, Platz zu halten oder aufzusteigen"},
-    autoLeaguesThreshold: { elementText: "Schwellwert", tooltip : "Minimum an Ligakämpfe behalten"},
-    autoPowerPlaces: { elementText: "AutoKraftorte", tooltip : "Wenn aktiv : macht automatisch Kraftorte"},
-    autoPowerPlacesIndexFilter: { elementText: "Index Filter", tooltip : "Erlaubt es Filter zusetzen für Kraftorte und eine Reihenfolge festzulegen (Reihenfolge wird beachtet, sollten mehrere zur gleichen Zeit fertig werden)"},
-    autoPowerPlacesAll: { elementText: "Mach alle", tooltip : "Wenn aktiv : ignoriere Filter und mache alle (aktualisiert den Filter mit korrekten IDs)"},
-    autoChamps: { elementText: "AutoChampions", tooltip : "Wenn aktiv : Macht automatisch Championkämpfe (nur wenn sie gestartet wurden und im Filter stehen)"},
-    autoChampsUseEne: { elementText: "Nutze Energie", tooltip : "Wenn aktiv : Nutze Energie und kaufe Champ. Tickets"},
-    autoChampsFilter: { elementText: "Filter", tooltip : "Erlaubt es Filter für zu bekämpfende Champions zu setzen"},
-    autoStats: { elementText: "AutoStats", tooltip : "Kauft automatisch bessere Statuswerte im Markt mit überschüssigem Geld oberhalb des gesetzten Wertes"},
-    autoExpW: { elementText: "Kaufe Erfahrung", tooltip : "Wenn aktiv : Erlaube Erfahrung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt<br>Kauft nur wenn sich im Besitz befinden potentielle Erfahrung unter dem Wert liegt"},
-    autoExp: { elementText: "Min Geld verbleib", tooltip : "Minimum an Geld das behalten wird."},
-    maxExp: { elementText: "Max ErfahrKauf", tooltip : "Maximum Erfahrung die gekauft wird"},
-    autoAffW: { elementText: "KaufAnziehung", tooltip : "Wenn aktiv : Erlaube Anziehung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt<br>Kauft nur wenn sich im Besitz befinden potentielle Anziehung unter dem Wert liegt"},
-    autoAff: { elementText: "Min Geld verbleib", tooltip : "Minimum an Geld das behalten wird."},
-    maxAff: { elementText: "Max AnziehungKauf", tooltip : "Maximum an Anziehung die gekauft wird"},
-    autoLGMW: { elementText: "Buy Leg Gear Mono", tooltip : "Wenn aktiv : Erlaube es Mono legendäre Rüstung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt"},
-    autoLGM: { elementText: "Min Geld verbleib", tooltip : "Minimum an Geld das behalten wird."},
-    autoLGRW: { elementText: "Buy Leg Gear Rainbow", tooltip : "Wenn aktiv : Erlaube es Regenbogenausrüstung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt"},
-    autoLGR: { elementText: "Min Geld verbleib", tooltip : "Minimum an Geld das behalten wird."},
-    autoEGM: { elementText: "Buy Epi Gear Mono", tooltip : "Wenn aktiv : Erlaube es Mono epische Ausrüstung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt"},
-    OpponentListBuilding: { elementText: "Gegnerliste wird erstellt", tooltip : ""},
-    OpponentParsed : { elementText: "Gegner analysiert", tooltip : ""}
-}
-
-
-var HHAuto_Lang = 'en';
-
-if ($('html')[0].lang === 'en') {
-    HHAuto_Lang = 'en';
-}
-else if ($('html')[0].lang === 'fr') {
-    HHAuto_Lang = 'fr';
-}
-else if ($('html')[0].lang === 'es_ES') {
-    //HHAuto_Lang = 'es';
-}
-else if ($('html')[0].lang === 'de_DE') {
-    HHAuto_Lang = 'de';
-}
-else if ($('html')[0].lang === 'it_IT') {
-    //HHAuto_Lang = 'it';
-}
-
-var migrateHHVars = function ()
-{
-    var storageType;
-    var variableName;
-    var oldVarName;
-    var storageItem;
-    var migratedVars = localStorage.HHAuto_Temp_MigratedVars?true:false;
-
-    if (!migratedVars && localStorage.settPerTab)
+    var newValue = String(document.getElementById("autoPowerPlacesAll").checked);
+    if (Storage().HHAuto_Setting_autoPowerPlacesAll != newValue)
     {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":","migrated settbyTab");
-        logHHAuto(JSON.stringify("migrated settbyTab"));
-        localStorage.HHAuto_Setting_settPerTab = localStorage.settPerTab;
+        Storage().HHAuto_Setting_autoPowerPlacesAll = document.getElementById("autoPowerPlacesAll").checked;
+        clearTimer('minPowerPlacesTime');
+        cleanTempPopToStart();
+    }
+    newValue = String(document.getElementById("autoPowerPlacesIndexFilter").value);
+    if (Storage().HHAuto_Setting_autoPowerPlacesIndexFilter != newValue)
+    {
+        Storage().HHAuto_Setting_autoPowerPlacesIndexFilter = document.getElementById("autoPowerPlacesIndexFilter").value;
+        clearTimer('minPowerPlacesTime');
+        cleanTempPopToStart();
     }
 
-    if(!localStorage.HHAuto_Setting_settPerTab)
+    Storage().HHAuto_Setting_autoPowerPlacesIndexFilter = document.getElementById("autoPowerPlacesIndexFilter").value;
+    Storage().HHAuto_Setting_autoSalaryTimer = document.getElementById("autoSalaryTextbox").value;
+    Storage().HHAuto_Setting_autoMissionC = document.getElementById("autoMissionCollect").checked;
+    Storage().HHAuto_Setting_autoQuest = document.getElementById("autoQuestCheckbox").checked;
+    Storage().HHAuto_Setting_autoTrollBattle = document.getElementById("autoTrollCheckbox").checked;
+    Storage().HHAuto_Setting_eventTrollOrder = document.getElementById("eventTrollOrder").value;
+
+    Storage().HHAuto_Setting_plusEventMythic = document.getElementById("plusEventMythic").checked;
+    Storage().HHAuto_Setting_eventMythicPrio = document.getElementById("eventMythicPrio").checked;
+    Storage().HHAuto_Setting_autoTrollMythicByPassThreshold = document.getElementById("autoTrollMythicByPassThreshold").checked ;
+    Storage().HHAuto_Setting_buyCombTimer = document.getElementById("buyCombTimer").value;
+    //Storage().HHAuto_Setting_autoArenaBattle = document.getElementById("autoArenaCheckbox").checked;
+    Storage().HHAuto_Setting_autoSeason = document.getElementById("autoSeasonCheckbox").checked;
+    Storage().HHAuto_Setting_autoSeasonCollect = document.getElementById("autoSeasonCollect").checked;
+    Storage().HHAuto_Setting_SeasonMaskRewards = document.getElementById("SeasonMaskRewards").checked;
+
+    Storage().HHAuto_Setting_autoLeagues = document.getElementById("autoLeagues").checked;
+    Storage().HHAuto_Setting_autoLeaguesCollect = document.getElementById("autoLeaguesCollect").checked;
+    Storage().HHAuto_Setting_autoLeaguesPowerCalc = document.getElementById("autoLeaguesPowerCalc").checked;
+    //Storage().HHAuto_Setting_autoLeaguesMaxRank = document.getElementById("autoLeaguesMaxRank").value;
+    Storage().HHAuto_Setting_autoStats = document.getElementById("autoStats").value;
+    Storage().HHAuto_Setting_paranoia = document.getElementById("paranoia").checked;
+    Storage().HHAuto_Setting_paranoiaSpendsBefore = document.getElementById("paranoiaSpendsBefore").checked;
+    Storage().HHAuto_Setting_autoFreePachinko = document.getElementById("autoFreePachinko").checked;
+    Storage().HHAuto_Setting_autoExp = document.getElementById("autoExp").value;
+    Storage().HHAuto_Setting_autoExpW = document.getElementById("autoExpW").checked;
+    Storage().HHAuto_Setting_MaxExp = document.getElementById("maxExp").value;
+    Storage().HHAuto_Setting_autoAff = document.getElementById("autoAff").value;
+    Storage().HHAuto_Setting_autoAffW = document.getElementById("autoAffW").checked;
+    Storage().HHAuto_Setting_MaxAff = document.getElementById("maxAff").value;
+    Storage().HHAuto_Setting_autoLGM = document.getElementById("autoLGM").value;
+    Storage().HHAuto_Setting_autoLGMW = document.getElementById("autoLGMW").checked;
+    Storage().HHAuto_Setting_autoLGR = document.getElementById("autoLGR").value;
+    Storage().HHAuto_Setting_autoLGRW = document.getElementById("autoLGRW").checked;
+    //Storage().HHAuto_Setting_autoEGM = document.getElementById("autoEGM").value;
+    //Storage().HHAuto_Setting_autoEGMW = document.getElementById("autoEGMW").checked;
+    Storage().HHAuto_Setting_autoBuyBoosters = document.getElementById("autoBuyBoosters").checked;
+    Storage().HHAuto_Setting_autoBuyBoostersFilter = document.getElementById("autoBuyBoostersFilter").value;
+
+    if (localStorage.HHAuto_Setting_settPerTab === "true")
     {
-        localStorage.HHAuto_Setting_settPerTab="false";
+        if ( localStorage.HHAuto_Temp_showInfo !== undefined)
+        {
+            logHHAuto("force set showInfo : "+localStorage.HHAuto_Temp_showInfo);
+            Storage().HHAuto_Setting_showInfo = localStorage.HHAuto_Temp_showInfo;
+            document.getElementById("showInfo").checked = Storage().HHAuto_Setting_showInfo=="true";
+            setTimeout(function() {
+                localStorage.removeItem('HHAuto_Temp_showInfo');
+                logHHAuto("removed showInfo");
+            }, 1000);
+        }
+        else
+        {
+            newValue = String(document.getElementById("showInfo").checked);
+            if (Storage().HHAuto_Setting_showInfo !== newValue)
+            {
+                logHHAuto("setting showInfo :"+newValue);
+                Storage().HHAuto_Setting_showInfo = document.getElementById("showInfo").checked;
+                localStorage.HHAuto_Temp_showInfo = Storage().HHAuto_Setting_showInfo;
+            }
+        }
+
+
+        if ( localStorage.HHAuto_Temp_showCalculatePower !== undefined )
+        {
+            logHHAuto("force set showCalculatePower : "+localStorage.HHAuto_Temp_showCalculatePower);
+            Storage().HHAuto_Setting_showCalculatePower = localStorage.HHAuto_Temp_showCalculatePower;
+            document.getElementById("showCalculatePower").checked = Storage().HHAuto_Setting_showCalculatePower=="true";
+            setTimeout(function() {
+                localStorage.removeItem('HHAuto_Temp_showCalculatePower');
+                logHHAuto("removed showCalculatePower");
+            }, 1000);
+        }
+        else
+        {
+            newValue = String(document.getElementById("showCalculatePower").checked);
+            if (Storage().HHAuto_Setting_showCalculatePower !== newValue)
+            {
+                logHHAuto("setting showCalculatePower :"+newValue);
+                Storage().HHAuto_Setting_showCalculatePower = document.getElementById("showCalculatePower").checked;
+                localStorage.HHAuto_Temp_showCalculatePower = Storage().HHAuto_Setting_showCalculatePower;
+            }
+        }
+
+    }
+    else
+    {
+        Storage().HHAuto_Setting_showCalculatePower = document.getElementById("showCalculatePower").checked;
+        Storage().HHAuto_Setting_showInfo = document.getElementById("showInfo").checked;
+
     }
 
-    for (var i in HHVars)
-    {
-        storageType = HHVars[i].split(".")[0];
-        variableName = HHVars[i].split(".")[1];
-        oldVarName = variableName.split("_")[2];
-        switch (storageType)
-        {
-            case 'Storage()' :
-                storageItem = Storage();
-                break;
-            case 'localStorage' :
-                storageItem = localStorage;
-                break;
-            case 'sessionStorage' :
-                storageItem = sessionStorage;
-                break;
-        }
-        if (!migratedVars && storageItem.getItem(oldVarName) !== null && storageItem.getItem(variableName) === null)
-        {
-            console.log(new Date().toISOString()+":"+getCallerFunction()+":","migrated var : "+variableName);
-            logHHAuto(JSON.stringify("migrated var : "+variableName));
-            storageItem.setItem(variableName,storageItem.getItem(oldVarName));
-        }
+    Storage().HHAuto_Setting_calculatePowerLimits = document.getElementById("calculatePowerLimits").value;
+    Storage().HHAuto_Setting_autoChamps = document.getElementById("autoChamps").checked;
+    Storage().HHAuto_Setting_autoChampsUseEne = document.getElementById("autoChampsUseEne").checked;
+    Storage().HHAuto_Setting_autoChampsFilter = document.getElementById("autoChampsFilter").value;
 
-        if (localStorage.getItem(oldVarName) !== null)
+    Storage().HHAuto_Setting_spendKobans0 = document.getElementById("spendKobans0").checked;
+    Storage().HHAuto_Setting_spendKobans1 = document.getElementById("spendKobans1").checked && Storage().HHAuto_Setting_spendKobans0=="true";
+    document.getElementById("spendKobans1").checked=Storage().HHAuto_Setting_spendKobans1=="true";
+    Storage().HHAuto_Setting_spendKobans2 = document.getElementById("spendKobans2").checked && Storage().HHAuto_Setting_spendKobans1=="true" && Storage().HHAuto_Setting_spendKobans0=="true";
+    document.getElementById("spendKobans2").checked=Storage().HHAuto_Setting_spendKobans2=="true";
+
+    Storage().HHAuto_Setting_autoTrollThreshold = document.getElementById("autoTrollThreshold").value;
+    Storage().HHAuto_Setting_autoQuestThreshold = document.getElementById("autoQuestThreshold").value;
+    Storage().HHAuto_Setting_autoLeaguesThreshold = document.getElementById("autoLeaguesThreshold").value;
+    Storage().HHAuto_Setting_autoSeasonThreshold = document.getElementById("autoSeasonThreshold").value;
+
+    Storage().HHAuto_Setting_buyCombat=document.getElementById("buyCombat").checked && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true" && Storage().HHAuto_Setting_spendKobans0=="true";
+    document.getElementById("buyCombat").checked=Storage().HHAuto_Setting_buyCombat=="true";
+    Storage().HHAuto_Setting_autoBuyBoosters=document.getElementById("autoBuyBoosters").checked && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true" && Storage().HHAuto_Setting_spendKobans0=="true";
+    document.getElementById("autoBuyBoosters").checked=Storage().HHAuto_Setting_autoBuyBoosters=="true";
+    Storage().HHAuto_Setting_autoSeasonPassReds=document.getElementById("autoSeasonPassReds").checked && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true" && Storage().HHAuto_Setting_spendKobans0=="true";
+    document.getElementById("autoSeasonPassReds").checked=Storage().HHAuto_Setting_autoSeasonPassReds=="true";
+    Storage().HHAuto_Setting_kobanBank=document.getElementById("kobanBank").value;
+
+
+    localStorage.HHAuto_Setting_settPerTab = document.getElementById("settPerTab").checked;
+
+    Storage().HHAuto_Setting_master=document.getElementById("master").checked;
+
+    if (Storage().HHAuto_Setting_showInfo=="true")
+    {
+        var Tegzd='';
+        Tegzd+='Master: '+(Storage().HHAuto_Setting_master==="true"?"ON":"OFF");
+        if (Storage().HHAuto_Setting_paranoia=="true")
         {
-            localStorage.removeItem(oldVarName);
+            Tegzd+=(Tegzd.length>0?'\r\n':'')+sessionStorage.HHAuto_Temp_pinfo+': '+getTimeLeft('paranoiaSwitch');
         }
-        if (sessionStorage.getItem(oldVarName) !== null)
+        if (Storage().HHAuto_Setting_autoSalary=="true")
         {
-            sessionStorage.removeItem(oldVarName);
+            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Salary check: '+getTimeLeft('nextSalaryTime');
+        }
+        /*
+        if (Storage().HHAuto_Setting_autoArenaBattle=="true")
+        {
+            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Arena fight: '+getTimeLeft('nextArenaTime');
+        }
+        */
+        if (Storage().HHAuto_Setting_autoSeason=="true")
+        {
+            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Season: '+getSetHeroInfos('kiss.amount')+'/'+getSetHeroInfos('kiss.max_amount')+' ('+getTimeLeft('nextSeasonTime')+')';
+        }
+        if (Storage().HHAuto_Setting_autoLeagues=="true")
+        {
+            Tegzd+=(Tegzd.length>0?'\r\n':'')+'League fight: '+getSetHeroInfos('challenge.amount')+'/'+getSetHeroInfos('challenge.max_amount')+' ('+getTimeLeft('nextLeaguesTime')+')';
+        }
+        if (Storage().HHAuto_Setting_autoChamps=="true")
+        {
+            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Champions check: '+getTimeLeft('nextChampionTime');
+        }
+        // if (autoBuy())
+        {
+            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Shop update: '+getTimeLeft('nextShopTime');
+        }
+        if (Storage().HHAuto_Setting_autoMission=="true")
+        {
+            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Mission: '+getTimeLeft('nextMissionTime');
+        }
+        if (Storage().HHAuto_Setting_autoContest=="true")
+        {
+            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Contest: '+getTimeLeft('nextContestTime');
+        }
+        if (Storage().HHAuto_Setting_autoPowerPlaces=="true")
+        {
+            Tegzd+=(Tegzd.length>0?'\r\n':'')+'PowerPlaces'+': '+getTimeLeft('minPowerPlacesTime');
+        }
+        if (Storage().HHAuto_Setting_autoFreePachinko=="true")
+        {
+            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Great Pachinko: '+getTimeLeft('nextPachinkoTime');
+            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Mythic Pachinko: '+getTimeLeft('nextPachinko2Time');
+        }
+        Tegzd+=(Tegzd.length>0?'\r\n':'')+'haveAff: '+sessionStorage.HHAuto_Temp_haveAff;
+        Tegzd+=(Tegzd.length>0?'\r\n':'')+'haveExp: '+sessionStorage.HHAuto_Temp_haveExp;
+        if (Tegzd.length>0)
+        {
+            document.getElementById('pInfo').style.display='block';
+            document.getElementById('pInfo').textContent=Tegzd;
+        }
+        else
+        {
+            document.getElementById('pInfo').style.display='none';
         }
     }
-    localStorage.HHAuto_Temp_MigratedVars="true";
+    else
+    {
+        document.getElementById('pInfo').style.display='none';
+    }
+};
 
-}
+var setDefaults = function () {
+    logHHAuto("Setting Defaults.");
+    Storage().HHAuto_Setting_autoSalary = "false";
+    Storage().HHAuto_Setting_autoSalaryTimer = "120";
+    Storage().HHAuto_Setting_autoContest = "false";
+    Storage().HHAuto_Setting_autoMission = "false";
+    Storage().HHAuto_Setting_autoPowerPlaces = "false";
+    Storage().HHAuto_Setting_autoPowerPlacesAll = "false";
+    Storage().HHAuto_Setting_autoPowerPlacesIndexFilter = "1;2;3";
+    Storage().HHAuto_Setting_autoMissionC = "false";
+    Storage().HHAuto_Setting_autoLeagues = "false";
+    Storage().HHAuto_Setting_autoLeaguesCollect = "false";
+    Storage().HHAuto_Setting_autoLeaguesPowerCalc = "false";
+    //Storage().HHAuto_Setting_autoLeaguesMaxRank = "0";
+    Storage().HHAuto_Temp_leaguesTarget = "9";
+    Storage().HHAuto_Setting_autoStats = "500000000";
+    sessionStorage.HHAuto_Temp_autoLoop = "true";
+    sessionStorage.HHAuto_Temp_userLink = "none";
+    Storage().HHAuto_Temp_autoLoopTimeMili = "500";
+    Storage().HHAuto_Setting_autoQuest = "false";
+    Storage().HHAuto_Setting_autoTrollBattle = "false";
+    Storage().HHAuto_Setting_plusEvent = "false";
+    Storage().HHAuto_Setting_plusEventMythic = "false";
+    Storage().HHAuto_Setting_eventMythicPrio = "false";
+    Storage().HHAuto_Setting_autoTrollMythicByPassThreshold = "false";
+    Storage().HHAuto_Setting_eventTrollOrder="";
+    Storage().HHAuto_Setting_buyCombTimer="16";
+    //Storage().HHAuto_Setting_autoArenaBattle = "false";
+    Storage().HHAuto_Setting_autoSeason = "false";
+    Storage().HHAuto_Setting_autoSeasonCollect = "false";
+    Storage().HHAuto_Setting_SeasonMaskRewards = "false";
+    sessionStorage.HHAuto_Temp_battlePowerRequired = "0";
+    sessionStorage.HHAuto_Temp_questRequirement = "none";
+    Storage().HHAuto_Temp_freshStart = "no";
+    Storage().HHAuto_Setting_autoChamps="false";
+    Storage().HHAuto_Setting_autoChampsUseEne="false";
+    Storage().HHAuto_Setting_autoChampsFilter="1;2;3;4;5;6";
+    Storage().HHAuto_Setting_autoFreePachinko = "false";
+    Storage().HHAuto_Setting_autoExp = "500000000";
+    Storage().HHAuto_Setting_autoExpW = "false";
+    Storage().HHAuto_Setting_MaxExp = "10000";
+    Storage().HHAuto_Setting_autoAff = "500000000";
+    Storage().HHAuto_Setting_autoAffW = "false";
+    Storage().HHAuto_Setting_MaxAff = "50000";
+    Storage().HHAuto_Setting_autoLGM = "500000000";
+    Storage().HHAuto_Setting_autoLGMW = "false";
+    Storage().HHAuto_Setting_autoLGR = "500000000";
+    Storage().HHAuto_Setting_autoLGRW = "false";
+    //Storage().HHAuto_Setting_autoEGM = "500000000";
+    //Storage().HHAuto_Setting_autoEGMW = "false";
+    Storage().HHAuto_Setting_autoBuyBoostersFilter = "B1;B2;B3;B4";
+    Storage().HHAuto_Setting_autoBuyBoosters = "false";
+    Storage().HHAuto_Setting_paranoia="true";
+    Storage().HHAuto_Setting_paranoiaSpendsBefore="false";
+
+    Storage().HHAuto_Setting_calculatePowerLimits = "default";
+    Storage().HHAuto_Setting_autoTrollThreshold="0";
+    Storage().HHAuto_Setting_autoQuestThreshold="0";
+    Storage().HHAuto_Setting_autoLeaguesThreshold="0";
+    Storage().HHAuto_Setting_autoSeasonThreshold="0";
+
+    Storage().HHAuto_Setting_spendKobans0="false";
+    Storage().HHAuto_Setting_autoSeasonPassReds ="false";
+    Storage().HHAuto_Temp_paranoiaSettings="140-320/Sleep:28800-30400|Active:250-460|Casual:1500-2700/6:Sleep|8:Casual|10:Active|12:Casual|14:Active|18:Casual|20:Active|22:Casual|24:Sleep";
+    Storage().HHAuto_Setting_master="false";
+};
+
+
+
+
 
 var start = function () {
 
     if (unsafeWindow.Hero===undefined)
     {
-        console.log(new Date().toISOString()+":"+getCallerFunction()+":",'???no Hero???');
-        logHHAuto(JSON.stringify('???no Hero???'));
+        logHHAuto('???no Hero???');
         $('.hh_logo').click();
         return;
     }
@@ -5732,35 +5587,50 @@ var start = function () {
         Timers=JSON.parse(sessionStorage.HHAuto_Temp_Timers);
     }
 
-
-
-
-
     // Add UI buttons.
     var UIcontainer = $("#contains_all nav div[rel='content']");
     UIcontainer.html( '<div style="font-size:x-small;position: absolute;right: 22%;width: inherit;text-align: center;display:flex;flex-direction:column;z-index:1000" id="sMenu">'
                      //dialog Box
-                     + '<dialog id="LoadDialog"> <form method="dialog"><p>After you select the file the settings will be automatically updated.</p><p> If nothing happened, then the selected file contains errors.</p><p id="LoadConfError"style="color:#f53939;"></p><p><label><input type="file" id="myfile" name="myfile"> </label></p> <menu> <button value="cancel">Cancel</button></menu> </form></dialog>'
+                     + '<dialog id="LoadDialog"> <form method="dialog"><p>After you select the file the settings will be automatically updated.</p><p> If nothing happened, then the selected file contains errors.</p><p id="LoadConfError"style="color:#f53939;"></p><p><label><input type="file" id="myfile" name="myfile"> </label></p> <menu> <button value="cancel">'+getTextForUI("OptionCancel","elementText")+'</button></menu> </form></dialog>'
+                     + '<dialog id="DebugDialog"><form method="dialog">'
+                     +   '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +    '<p>'+getTextForUI("DebugFileText","elementText")+'</p>'
+                     +    '<div style="display:flex;flex-direction:row;">'
+                     +     '<div class="tooltip"><span class="tooltiptext">'+getTextForUI("saveDebug","tooltip")+'</span><label class="myButton" id="saveDebug">'+getTextForUI("saveDebug","elementText")+'</label></div>'
+                     +    '</div>'
+                     +    '<p>'+getTextForUI("DebugOptionsText","elementText")+'</p>'
+                     +    '<div style="display:flex;flex-direction:row;">'
+                     +     '<div style="padding-right:30px;" class="tooltip"><span class="tooltiptext">'+getTextForUI("DeleteTempVars","tooltip")+'</span><label class="myButton" id="DeleteTempVars">'+getTextForUI("DeleteTempVars","elementText")+'</label></div>'
+                     +     '<div class="tooltip"><span class="tooltiptext">'+getTextForUI("ResetAllVars","tooltip")+'</span><label class="myButton" id="ResetAllVars">'+getTextForUI("ResetAllVars","elementText")+'</label></div>'
+                     +    '</div>'
+                     +  '</div>'
+                     + '<menu> <button value="cancel">'+getTextForUI("OptionCancel","elementText")+'</button></menu></form></dialog>'
                      + '<div style="display:flex;flex-direction:row;">'
-                     +  '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +   '<div style="display:flex;flex-direction:row;">'
-                     +    '<div class="tooltip">'+HHAuto_ToolTips[HHAuto_Lang]["gitHub"].elementText+'<span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["gitHub"].tooltip+'</span><label class="myButton" id="git">GitHub</label></div>'
-                     +    '<div class="tooltip">'+HHAuto_ToolTips[HHAuto_Lang]["saveDebug"].elementText+'<span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["saveDebug"].tooltip+'</span><label class="myButton" id="saveDebug">saveDebug</label></div>'
+                     +  '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +   '<div style="padding-bottom:10px;padding-top:10px; display:flex;flex-direction:row;">'
+                     +    '<div style="padding-right:30px;" class="tooltip"><span class="tooltiptext">'+getTextForUI("gitHub","tooltip")+'</span><label class="myButton" id="git">'+getTextForUI("gitHub","elementText")+'</label></div>'
+                     +    '<div class="tooltip"><span class="tooltiptext">'+getTextForUI("DebugMenu","tooltip")+'</span><label class="myButton" id="DebugMenu">'+getTextForUI("DebugMenu","elementText")+'</label></div>'
                      +   '</div>'
-                     +   '<div style="display:flex;flex-direction:row;">'
-                     +    '<div class="tooltip">'+HHAuto_ToolTips[HHAuto_Lang]["saveConfig"].elementText+'<span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["saveConfig"].tooltip+'</span><label class="myButton" id="saveConfig">saveConfig</label></div>'
-                     +    '<div class="tooltip">'+HHAuto_ToolTips[HHAuto_Lang]["loadConfig"].elementText+'<span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["loadConfig"].tooltip+'</span><label class="myButton" id="loadConfig">loadConfig</label></div>'
+                     +   '<div style="padding-bottom:10px;display:flex;flex-direction:row;">'
+                     +    '<div style="padding-right:30px;" class="tooltip"><span class="tooltiptext">'+getTextForUI("saveConfig","tooltip")+'</span><label class="myButton" id="saveConfig">'+getTextForUI("saveConfig","elementText")+'</label></div>'
+                     +    '<div class="tooltip"><span class="tooltiptext">'+getTextForUI("loadConfig","tooltip")+'</span><label class="myButton" id="loadConfig">'+getTextForUI("loadConfig","elementText")+'</label></div>'
                      +   '</div>'
-                     +   '<span>'+HHAuto_ToolTips[HHAuto_Lang]["master"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["master"].tooltip+'</span><label class="switch" ><input id="master" type="checkbox"><span class="slider round"></span></label></div>'
-                     +   '<span>'+HHAuto_ToolTips[HHAuto_Lang]["settPerTab"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["settPerTab"].tooltip+'</span><label class="switch"><input id="settPerTab" type="checkbox"><span class="slider round"></span></label></div>'
+                     +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+getTextForUI("master","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("master","tooltip")+'</span><label class="switch" ><input id="master" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding-left:10px;padding-right:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+getTextForUI("settPerTab","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("settPerTab","tooltip")+'</span><label class="switch"><input id="settPerTab" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +   '</div>'
                      // Region Paranoia
                      +   '<div style="display:flex;flex-direction:column; border: 1px dotted;">'
                      +    '<div style="display:flex;flex-direction:row;">'
                      +     '<div style="display:flex;flex-direction:column;">'
-                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["paranoia"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["paranoia"].tooltip+'</span><label class="switch"><input id="paranoia" type="checkbox"><span class="slider round"></span></label></div>'
+                     +      '<span>'+getTextForUI("paranoia","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("paranoia","tooltip")+'</span><label class="switch"><input id="paranoia" type="checkbox"><span class="slider round"></span></label></div>'
                      +     '</div>'
                      +     '<div style="padding-left:10px;display:flex;flex-direction:column;">'
-                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["paranoiaSpendsBefore"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["paranoiaSpendsBefore"].tooltip+'</span><label class="switch"><input id="paranoiaSpendsBefore" type="checkbox"><span class="slider round"></span></label></div>'
+                     +      '<span>'+getTextForUI("paranoiaSpendsBefore","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("paranoiaSpendsBefore","tooltip")+'</span><label class="switch"><input id="paranoiaSpendsBefore" type="checkbox"><span class="slider round"></span></label></div>'
                      +     '</div>'
                      +    '</div>'
                      +   '</div>'
@@ -5769,37 +5639,37 @@ var start = function () {
                      +   '<div style="display:flex;flex-direction:column; border: 1px dotted;">'
                      +   '<div style="display:flex;flex-direction:row;">'
                      +    '<div style="display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["spendKobans0"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["spendKobans0"].tooltip+'</span><label  class="switch"><input id="spendKobans0" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '<span>'+getTextForUI("spendKobans0","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("spendKobans0","tooltip")+'</span><label  class="switch"><input id="spendKobans0" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding-left:20px;display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["spendKobans1"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["spendKobans1"].tooltip+'</span><label  class="switch"><input id="spendKobans1" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '<span>'+getTextForUI("spendKobans1","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("spendKobans1","tooltip")+'</span><label  class="switch"><input id="spendKobans1" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +   '</div>'
                      +   '<div style="display:flex;flex-direction:row;">'
                      +    '<div style="display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["spendKobans2"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["spendKobans2"].tooltip+'</span><label  class="switch"><input id="spendKobans2" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '<span>'+getTextForUI("spendKobans2","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("spendKobans2","tooltip")+'</span><label  class="switch"><input id="spendKobans2" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["kobanBank"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["kobanBank"].tooltip+'</span><input id="kobanBank" style="width:70%" type="text"></div>'
-                     +    '</div>'
-                     +   '</div>'
-                     +   '<div style="display:flex;flex-direction:row;">'
-                     +    '<div style="display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["buyCombat"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["buyCombat"].tooltip+'</span><label class="switch"><input id="buyCombat" type="checkbox"><span class="slider round"></span></label></div>'
-                     +    '</div>'
-                     +    '<div style="display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["buyCombTimer"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["buyCombTimer"].tooltip+'</span><input id="buyCombTimer" style="width:50%" type="text"></div>'
+                     +     '<span>'+getTextForUI("kobanBank","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("kobanBank","tooltip")+'</span><input id="kobanBank" style="width:70%" type="text"></div>'
                      +    '</div>'
                      +   '</div>'
                      +   '<div style="display:flex;flex-direction:row;">'
                      +    '<div style="display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoBuyBoosters"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoBuyBoosters"].tooltip+'</span><label class="switch"><input id="autoBuyBoosters" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '<span>'+getTextForUI("buyCombat","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("buyCombat","tooltip")+'</span><label class="switch"><input id="buyCombat" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoBuyBoostersFilter"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoBuyBoostersFilter"].tooltip+'</span><input style="width:70px" id="autoBuyBoostersFilter" type="text"></div>'
+                     +     '<span>'+getTextForUI("buyCombTimer","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("buyCombTimer","tooltip")+'</span><input id="buyCombTimer" style="width:50%" type="text"></div>'
+                     +    '</div>'
+                     +   '</div>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>'+getTextForUI("autoBuyBoosters","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoBuyBoosters","tooltip")+'</span><label class="switch"><input id="autoBuyBoosters" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoSeasonPassReds"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoSeasonPassReds"].tooltip+'</span><label  class="switch"><input id="autoSeasonPassReds" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '<span>'+getTextForUI("autoBuyBoostersFilter","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoBuyBoostersFilter","tooltip")+'</span><input style="width:70px" id="autoBuyBoostersFilter" type="text"></div>'
+                     +    '</div>'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>'+getTextForUI("autoSeasonPassReds","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoSeasonPassReds","tooltip")+'</span><label  class="switch"><input id="autoSeasonPassReds" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +   '</div>'
                      +  '</div>'
@@ -5807,33 +5677,33 @@ var start = function () {
                      // calculate Power Region
                      +  '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
                      +   '<div style="display:flex;flex-direction:column;">'
-                     +    '<span>'+HHAuto_ToolTips[HHAuto_Lang]["showCalculatePower"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["showCalculatePower"].tooltip+'</span><label class="switch"><input id="showCalculatePower" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '<span>'+getTextForUI("showCalculatePower","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("showCalculatePower","tooltip")+'</span><label class="switch"><input id="showCalculatePower" type="checkbox"><span class="slider round"></span></label></div>'
                      +   '</div>'
                      +   '<div style="padding-left:10px;display:flex;flex-direction:column;">'
-                     +    '<span>'+HHAuto_ToolTips[HHAuto_Lang]["calculatePowerLimits"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["calculatePowerLimits"].tooltip+'</span><input id="calculatePowerLimits" style="width:80%" type="text"></div>'
+                     +    '<span>'+getTextForUI("calculatePowerLimits","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("calculatePowerLimits","tooltip")+'</span><input id="calculatePowerLimits" style="width:80%" type="text"></div>'
                      +   '</div>'
                      +  '</div>'
                      // End Calculate power region
-                     +   '<span>'+HHAuto_ToolTips[HHAuto_Lang]["showInfo"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["showInfo"].tooltip+'</span><label class="switch"><input id="showInfo" type="checkbox"><span class="slider round"></span></label></div>'
+                     +   '<span>'+getTextForUI("showInfo","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("showInfo","tooltip")+'</span><label class="switch"><input id="showInfo" type="checkbox"><span class="slider round"></span></label></div>'
                      +  '</div>'
                      +  '<div style="padding:10px; display:flex;flex-direction:column;">'
                      // Region AutoSalary
                      +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoSalaryCheckbox"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoSalaryCheckbox"].tooltip+'</span><label class="switch"><input id="autoSalaryCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '<span>'+getTextForUI("autoSalaryCheckbox","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoSalaryCheckbox","tooltip")+'</span><label class="switch"><input id="autoSalaryCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoSalaryTextbox"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoSalaryTextbox"].tooltip+'</span><input id="autoSalaryTextbox" style="width:80%" type="text"></div>'
+                     +     '<span>'+getTextForUI("autoSalaryTextbox","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoSalaryTextbox","tooltip")+'</span><input id="autoSalaryTextbox" style="width:80%" type="text"></div>'
                      +    '</div>'
                      //End Region AutoSalary
                      +   '</div>'
                      //Region AutoMission
                      +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoMissionCheckbox"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoMissionCheckbox"].tooltip+'</span><label class="switch"><input id="autoMissionCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '<span>'+getTextForUI("autoMissionCheckbox","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoMissionCheckbox","tooltip")+'</span><label class="switch"><input id="autoMissionCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoMissionCollect"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoMissionCollect"].tooltip+'</span><label class="switch"><input id="autoMissionCollect" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '<span>'+getTextForUI("autoMissionCollect","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoMissionCollect","tooltip")+'</span><label class="switch"><input id="autoMissionCollect" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +   '</div>'
                      //End Region AutoMission
@@ -5841,83 +5711,86 @@ var start = function () {
                      +   '<div style="display:flex;flex-direction:column; border: 1px dotted;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:row;">'
                      +     '<div style="display:flex;flex-direction:column;">'
-                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoTrollCheckbox"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoTrollCheckbox"].tooltip+'</span><label class="switch"><input id="autoTrollCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
+                     +      '<span>'+getTextForUI("autoTrollCheckbox","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoTrollCheckbox","tooltip")+'</span><label class="switch"><input id="autoTrollCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
                      +     '</div>'
                      +     '<div style="display:flex;flex-direction:column;">'
-                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoTrollSelector"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoTrollSelector"].tooltip+'</span><select id="autoTrollSelector"></select></div>'
+                     +      '<span>'+getTextForUI("autoTrollSelector","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoTrollSelector","tooltip")+'</span><select id="autoTrollSelector"></select></div>'
                      +     '</div>'
                      +     '<div style="display:flex;flex-direction:column;">'
-                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoTrollThreshold"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoTrollThreshold"].tooltip+'</span><input style="width:50px" id="autoTrollThreshold" type="text"></div>'
+                     +      '<span>'+getTextForUI("autoTrollThreshold","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoTrollThreshold","tooltip")+'</span><input style="width:50px" id="autoTrollThreshold" type="text"></div>'
                      +     '</div>'
                      +    '</div>'
                      +    '<div style="display:flex;flex-direction:row;">'
                      +     '<div style="display:flex;flex-direction:column;">'
-                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["eventTrollOrder"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["eventTrollOrder"].tooltip+'</span><input id="eventTrollOrder" style="width:150px" type="text"></div>'
+                     +      '<span>'+getTextForUI("eventTrollOrder","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("eventTrollOrder","tooltip")+'</span><input id="eventTrollOrder" style="width:150px" type="text"></div>'
                      +     '</div>'
                      +     '<div style="display:flex;flex-direction:column;">'
-                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["plusEvent"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["plusEvent"].tooltip+'</span><label class="switch"><input id="plusEvent" type="checkbox"><span class="slider round"></span></label></div>'
+                     +      '<span>'+getTextForUI("plusEvent","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("plusEvent","tooltip")+'</span><label class="switch"><input id="plusEvent" type="checkbox"><span class="slider round"></span></label></div>'
                      +     '</div>'
                      +    '</div>'
                      +    '<div style="display:flex;flex-direction:row;">'
                      +     '<div style="display:flex;flex-direction:column;">'
-                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["plusEventMythic"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["plusEventMythic"].tooltip+'</span><label class="switch"><input id="plusEventMythic" type="checkbox"><span class="slider round"></span></label></div>'
+                     +      '<span>'+getTextForUI("plusEventMythic","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("plusEventMythic","tooltip")+'</span><label class="switch"><input id="plusEventMythic" type="checkbox"><span class="slider round"></span></label></div>'
                      +     '</div>'
                      +     '<div style="padding-left:10px;display:flex;flex-direction:column;">'
-                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["eventMythicPrio"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["eventMythicPrio"].tooltip+'</span><label class="switch"><input id="eventMythicPrio" type="checkbox"><span class="slider round"></span></label></div>'
+                     +      '<span>'+getTextForUI("eventMythicPrio","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("eventMythicPrio","tooltip")+'</span><label class="switch"><input id="eventMythicPrio" type="checkbox"><span class="slider round"></span></label></div>'
                      +     '</div>'
                      +     '<div style="padding-left:10px;display:flex;flex-direction:column;">'
-                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoTrollMythicByPassThreshold"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoTrollMythicByPassThreshold"].tooltip+'</span><label class="switch"><input id="autoTrollMythicByPassThreshold" type="checkbox"><span class="slider round"></span></label></div>'
+                     +      '<span>'+getTextForUI("autoTrollMythicByPassThreshold","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoTrollMythicByPassThreshold","tooltip")+'</span><label class="switch"><input id="autoTrollMythicByPassThreshold" type="checkbox"><span class="slider round"></span></label></div>'
                      +     '</div>'
                      +    '</div>'
                      +   '</div>'
                      // End Region AutoTroll
-                     //+   '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoArenaCheckbox"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoArenaCheckbox"].tooltip+'</span><label class="switch"><input id="autoArenaCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
+                     //+   '<span>'+getTextForUI("autoArenaCheckbox","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoArenaCheckbox","tooltip")+'</span><label class="switch"><input id="autoArenaCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
                      // Region AutoSeason
                      +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoSeasonCheckbox"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoSeasonCheckbox"].tooltip+'</span><label class="switch"><input id="autoSeasonCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '<span>'+getTextForUI("autoSeasonCheckbox","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoSeasonCheckbox","tooltip")+'</span><label class="switch"><input id="autoSeasonCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoSeasonCollect"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoSeasonCollect"].tooltip+'</span><label class="switch"><input id="autoSeasonCollect" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '<span>'+getTextForUI("autoSeasonCollect","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoSeasonCollect","tooltip")+'</span><label class="switch"><input id="autoSeasonCollect" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoSeasonThreshold"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoSeasonThreshold"].tooltip+'</span><input style="width:50px" id="autoSeasonThreshold" type="text"></div>'
+                     +     '<span>'+getTextForUI("autoSeasonThreshold","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoSeasonThreshold","tooltip")+'</span><input style="width:50px" id="autoSeasonThreshold" type="text"></div>'
+                     +    '</div>'
+                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+getTextForUI("SeasonMaskRewards","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("SeasonMaskRewards","tooltip")+'</span><label class="switch"><input id="SeasonMaskRewards" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +   '</div>'
                      // End Region AutoSeason
                      // Region quest
                      +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoQuestCheckbox"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoQuestCheckbox"].tooltip+'</span><label class="switch"><input id="autoQuestCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '<span>'+getTextForUI("autoQuestCheckbox","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoQuestCheckbox","tooltip")+'</span><label class="switch"><input id="autoQuestCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoQuestThreshold"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoQuestThreshold"].tooltip+'</span><input style="width:50px" id="autoQuestThreshold" type="text"></div>'
+                     +     '<span>'+getTextForUI("autoQuestThreshold","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoQuestThreshold","tooltip")+'</span><input style="width:50px" id="autoQuestThreshold" type="text"></div>'
                      +    '</div>'
                      +   '</div>'
-                     //end regin quest
-                     +   '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoContestCheckbox"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoContestCheckbox"].tooltip+'</span><label class="switch"><input id="autoContestCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
-                     +   '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoFreePachinko"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoFreePachinko"].tooltip+'</span><label class="switch"><input id="autoFreePachinko" type="checkbox"><span class="slider round"></span></label></div>'
+                     //end region quest
+                     +   '<span>'+getTextForUI("autoContestCheckbox","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoContestCheckbox","tooltip")+'</span><label class="switch"><input id="autoContestCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
+                     +   '<span>'+getTextForUI("autoFreePachinko","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoFreePachinko","tooltip")+'</span><label class="switch"><input id="autoFreePachinko" type="checkbox"><span class="slider round"></span></label></div>'
                      +  '</div>'
                      +  '<div style="padding:10px; display:flex;flex-direction:column;">'
                      // Region AutoLeagues
                      +   '<div style="display:flex;flex-direction:column; border: 1px dotted;">'
                      +    '<div style="padding:0px; display:flex;flex-direction:row;">'
                      +     '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoLeagues"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoLeagues"].tooltip+'</span><label class="switch"><input id="autoLeagues" type="checkbox"><span class="slider round"></span></label></div>'
+                     +      '<span>'+getTextForUI("autoLeagues","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoLeagues","tooltip")+'</span><label class="switch"><input id="autoLeagues" type="checkbox"><span class="slider round"></span></label></div>'
                      +     '</div>'
                      +     '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoLeaguesPowerCalc"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoLeaguesPowerCalc"].tooltip+'</span><label class="switch"><input id="autoLeaguesPowerCalc" type="checkbox"><span class="slider round"></span></label></div>'
+                     +      '<span>'+getTextForUI("autoLeaguesPowerCalc","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoLeaguesPowerCalc","tooltip")+'</span><label class="switch"><input id="autoLeaguesPowerCalc" type="checkbox"><span class="slider round"></span></label></div>'
                      +     '</div>'
                      +     '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoLeaguesCollect"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoLeaguesCollect"].tooltip+'</span><label class="switch"><input id="autoLeaguesCollect" type="checkbox"><span class="slider round"></span></label></div>'
+                     +      '<span>'+getTextForUI("autoLeaguesCollect","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoLeaguesCollect","tooltip")+'</span><label class="switch"><input id="autoLeaguesCollect" type="checkbox"><span class="slider round"></span></label></div>'
                      +     '</div>'
                      +    '</div>'
                      +    '<div style="padding:0px; display:flex;flex-direction:row;">'
                      +     '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoLeaguesSelector"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoLeaguesSelector"].tooltip+'</span><select id="autoLeaguesSelector"></select></div>'
+                     +      '<span>'+getTextForUI("autoLeaguesSelector","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoLeaguesSelector","tooltip")+'</span><select id="autoLeaguesSelector"></select></div>'
                      +     '</div>'
                      +     '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +      '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoLeaguesThreshold"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoLeaguesThreshold"].tooltip+'</span><input style="width:50px" id="autoLeaguesThreshold" type="text"></div>'
+                     +      '<span>'+getTextForUI("autoLeaguesThreshold","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoLeaguesThreshold","tooltip")+'</span><input style="width:50px" id="autoLeaguesThreshold" type="text"></div>'
                      +     '</div>'
                      +    '</div>'
                      +   '</div>'
@@ -5925,74 +5798,74 @@ var start = function () {
                      // Region PowerPlace
                      +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoPowerPlaces"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoPowerPlaces"].tooltip+'</span><label class="switch"><input id="autoPowerPlaces" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '<span>'+getTextForUI("autoPowerPlaces","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoPowerPlaces","tooltip")+'</span><label class="switch"><input id="autoPowerPlaces" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoPowerPlacesIndexFilter"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoPowerPlacesIndexFilter"].tooltip+'</span><input id="autoPowerPlacesIndexFilter" type="text"></div>'
+                     +     '<span>'+getTextForUI("autoPowerPlacesIndexFilter","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoPowerPlacesIndexFilter","tooltip")+'</span><input id="autoPowerPlacesIndexFilter" type="text"></div>'
                      +    '</div>'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoPowerPlacesAll"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoPowerPlacesAll"].tooltip+'</span><label class="switch"><input id="autoPowerPlacesAll" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '<span>'+getTextForUI("autoPowerPlacesAll","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoPowerPlacesAll","tooltip")+'</span><label class="switch"><input id="autoPowerPlacesAll" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +   '</div>'
                      // End Region PowerPlace
                      // Region AutoChampions
                      +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoChamps"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoChamps"].tooltip+'</span><label class="switch"><input id="autoChamps" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '<span>'+getTextForUI("autoChamps","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoChamps","tooltip")+'</span><label class="switch"><input id="autoChamps" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoChampsUseEne"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoChampsUseEne"].tooltip+'</span><label class="switch"><input id="autoChampsUseEne" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '<span>'+getTextForUI("autoChampsUseEne","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoChampsUseEne","tooltip")+'</span><label class="switch"><input id="autoChampsUseEne" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoChampsFilter"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoChampsFilter"].tooltip+'</span><input id="autoChampsFilter" type="text"></div>'
+                     +     '<span>'+getTextForUI("autoChampsFilter","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoChampsFilter","tooltip")+'</span><input id="autoChampsFilter" type="text"></div>'
                      // End Region AutoChampions
                      +    '</div>'
                      +   '</div>'
-                     +   '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoStats"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoStats"].tooltip+'</span><input id="autoStats" type="text"></div>'
+                     +   '<span>'+getTextForUI("autoStats","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoStats","tooltip")+'</span><input id="autoStats" type="text"></div>'
                      +   '<div style="display:flex;flex-direction:row;">'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoExpW"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoExpW"].tooltip+'</span><label class="switch"><input id="autoExpW" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '<span>'+getTextForUI("autoExpW","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoExpW","tooltip")+'</span><label class="switch"><input id="autoExpW" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoExp"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoExp"].tooltip+'</span><input id="autoExp" type="text"></div>'
+                     +     '<span>'+getTextForUI("autoExp","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoExp","tooltip")+'</span><input id="autoExp" type="text"></div>'
                      +    '</div>'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["maxExp"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["maxExp"].tooltip+'</span><input style="width:50px" id="maxExp" type="text"></div>'
+                     +     '<span>'+getTextForUI("maxExp","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("maxExp","tooltip")+'</span><input style="width:50px" id="maxExp" type="text"></div>'
                      +    '</div>'
                      +   '</div>'
                      +   '<div style="display:flex;flex-direction:row;">'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoAffW"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoAffW"].tooltip+'</span><label class="switch"><input id="autoAffW" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '<span>'+getTextForUI("autoAffW","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoAffW","tooltip")+'</span><label class="switch"><input id="autoAffW" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoAff"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoAff"].tooltip+'</span><input id="autoAff" type="text"></div>'
+                     +     '<span>'+getTextForUI("autoAff","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoAff","tooltip")+'</span><input id="autoAff" type="text"></div>'
                      +    '</div>'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["maxAff"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["maxAff"].tooltip+'</span><input style="width:50px" id="maxAff" type="text"></div>'
-                     +    '</div>'
-                     +   '</div>'
-                     +   '<div style="display:flex;flex-direction:row;">'
-                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoLGMW"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoLGMW"].tooltip+'</span><label class="switch"><input id="autoLGMW" type="checkbox"><span class="slider round"></span></label></div>'
-                     +    '</div>'
-                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoLGM"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoLGM"].tooltip+'</span><input id="autoLGM" type="text"></div>'
+                     +     '<span>'+getTextForUI("maxAff","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("maxAff","tooltip")+'</span><input style="width:50px" id="maxAff" type="text"></div>'
                      +    '</div>'
                      +   '</div>'
                      +   '<div style="display:flex;flex-direction:row;">'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoLGRW"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoLGRW"].tooltip+'</span><label class="switch"><input id="autoLGRW" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '<span>'+getTextForUI("autoLGMW","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoLGMW","tooltip")+'</span><label class="switch"><input id="autoLGMW" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoLGR"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoLGR"].tooltip+'</span><input id="autoLGR" type="text"></div>'
+                     +     '<span>'+getTextForUI("autoLGM","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoLGM","tooltip")+'</span><input id="autoLGM" type="text"></div>'
+                     +    '</div>'
+                     +   '</div>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+getTextForUI("autoLGRW","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoLGRW","tooltip")+'</span><label class="switch"><input id="autoLGRW" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+getTextForUI("autoLGR","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoLGR","tooltip")+'</span><input id="autoLGR" type="text"></div>'
                      +    '</div>'
                      +   '</div>'
                      //+   '<div style="display:flex;flex-direction:row;">'
                      //+    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     //+     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoEGMW"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoEGMW"].tooltip+'</span><label class="switch"><input id="autoEGMW" type="checkbox"><span class="slider round"></span></label></div>'
+                     //+     '<span>'+getTextForUI("autoEGMW","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoEGMW","tooltip")+'</span><label class="switch"><input id="autoEGMW" type="checkbox"><span class="slider round"></span></label></div>'
                      //+    '</div>'
                      //+    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     //+     '<span>'+HHAuto_ToolTips[HHAuto_Lang]["autoEGM"].elementText+'</span><div class="tooltip"><span class="tooltiptext">'+HHAuto_ToolTips[HHAuto_Lang]["autoEGM"].tooltip+'</span><input id="autoEGM" type="text"></div>'
+                     //+     '<span>'+getTextForUI("autoEGM","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoEGM","tooltip")+'</span><input id="autoEGM" type="text"></div>'
                      //+    '</div>'
                      //+   '</div>'
                      +  '</div>'
@@ -6040,6 +5913,7 @@ var start = function () {
     //document.getElementById("autoArenaCheckbox").checked = Storage().HHAuto_Setting_autoArenaBattle === "true";
     document.getElementById("autoSeasonCheckbox").checked = Storage().HHAuto_Setting_autoSeason === "true";
     document.getElementById("autoSeasonCollect").checked = Storage().HHAuto_Setting_autoSeasonCollect === "true";
+    document.getElementById("SeasonMaskRewards").checked = Storage().HHAuto_Setting_SeasonMaskRewards === "true";
     document.getElementById("autoSeasonPassReds").checked = Storage().HHAuto_Setting_autoSeasonPassReds === "true";
     document.getElementById("autoFreePachinko").checked = Storage().HHAuto_Setting_autoFreePachinko === "true";
     document.getElementById("autoLeagues").checked = Storage().HHAuto_Setting_autoLeagues === "true";
@@ -6098,9 +5972,24 @@ var start = function () {
             alert("The <dialog> API is not supported by this browser");
         }
     });
+    document.getElementById("DebugMenu").addEventListener("click", function(){
+        if (typeof DebugDialog.showModal === "function") {
+            DebugDialog.showModal();
+        } else {
+            alert("The <dialog> API is not supported by this browser");
+        }
+    });
     document.getElementById('myfile').addEventListener('change', myfileLoad_onChange);
     document.getElementById("saveConfig").addEventListener("click", function(){
         saveHHVarsSettingsAsJSON();
+    });
+    document.getElementById("DeleteTempVars").addEventListener("click", function(){
+        debugDeleteTempVars();
+        location.reload();
+    });
+    document.getElementById("ResetAllVars").addEventListener("click", function(){
+        debugDeleteAllVars();
+        location.reload();
     });
     document.getElementById("saveDebug").addEventListener("click", function(){
         saveHHDebugLog();
