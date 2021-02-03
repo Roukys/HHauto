@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.36
+// @version      5.4-beta.37
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -2786,14 +2786,17 @@ function getLeagueOpponentId(opponentsIDList)
         if (opponentsIDList.length>0)
         {
             //logHHAuto('getting data for opponent : '+opponentsIDList[0]);
+            //logHHAuto({log:"Opponent list",opponentsIDList:opponentsIDList});
             $.post('/ajax.php',
                    {
+                namespace: 'h\\Leagues',
                 class: 'Leagues',
                 action: 'get_opponent_info',
                 opponent_id: opponentsIDList[0]
             },
                    function(data)
                    {
+                //logHHAuto({log:"data for oppo",data:data});
                 var opponent = JSON.parse(data.html.substring(data.html.indexOf(findText)+findText.length,data.html.lastIndexOf(';')));
                 var opponentDef;
                 var playerDef;
