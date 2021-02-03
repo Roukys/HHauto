@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.35
+// @version      5.4-beta.36
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -2567,7 +2567,25 @@ var doLeagueBattle = function () {
         }
         logHHAuto('parsing enemies');
         var Data=[];
-        $(".leadTable[sorting_table] tr").each(function(){if (this.cells[3].innerHTML==='0/3' || this.cells[3].innerHTML==='1/3' || this.cells[3].innerHTML==='2/3'){Data.push($(this).attr("sorting_id"));}});
+        var sorting_id;
+        $(".leadTable[sorting_table] tr").each(function()
+                                               {
+            sorting_id = $(this).attr("sorting_id");
+            if (this.className.indexOf('selected-player-leagues') != -1)
+            {
+                if ( ($(".leadTable[sorting_table] tr.selected-player-leagues div.result.won").length + $(".leadTable[sorting_table] tr.selected-player-leagues div.result.lost").length) < 3)
+                {
+                    Data.push(sorting_id);
+                }
+            }
+            else
+            {
+                if (this.cells[3].innerHTML==='0/3' || this.cells[3].innerHTML==='1/3' || this.cells[3].innerHTML==='2/3')
+                {
+                    Data.push(sorting_id);
+                }
+            }
+        });
         if (Data.length==0)
         {
             ltime=35*60;
@@ -2805,6 +2823,7 @@ function getLeagueOpponentId(opponentsIDList)
                 //DataOppo.push(JSON.parse(data.html.substring(data.html.indexOf(findText)+findText.length,data.html.lastIndexOf(';'))));
 
             });
+
             opponentsIDList.shift();
             var maxTime = 1.6;
             LeagueUpdateGetOpponentPopup(DataOppo.size+'/'+oppoNumber, toHHMMSS((oppoNumber-DataOppo.size)*maxTime));
