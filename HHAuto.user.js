@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.34
+// @version      5.4-beta.35
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -714,8 +714,11 @@ function gotoPage(page)
             case "season" :
                 togoto = "/season.html";
                 break;
-            case "season-arena" :
+            case "season_arena" :
                 togoto = "/season-arena.html";
+                break;
+            case "club_champion" :
+                togoto = "/club-champion.html";
                 break;
             default:
                 logHHAuto("Unknown goto page request. No page \'"+page+"\' defined.");
@@ -1988,6 +1991,56 @@ var doChampionStuff=function()
     }
 }
 
+var doClubChampionStuff=function()
+{
+    var page=getPage();
+    if (page=='club_champion')
+    {
+        logHHAuto('on club champion page');
+        if ($('button[rel=perform].blue_button_L').length==0)
+        {
+            var currTime = 15*60;
+            logHHAuto("Can't fight club champion.");
+            $('div.champions-middle__champion-resting[timer]').each(function()
+            {
+                var timer = $(this).attr('timer');
+                currTime=Number(timer)-Math.ceil(new Date().getTime()/1000);
+                logHHAuto("Found club chmpion timer : "+currTime);
+            });
+            setTimer('nextClubChampionTime',currTime);
+            gotoPage("home");
+            return true;
+        }
+        else
+        {
+            var TCount=Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
+            var ECount= getSetHeroInfos('quest.amount');
+            logHHAuto("T:"+TCount+" E:"+ECount+" "+(Storage().HHAuto_Setting_autoChampsUseEne==="true"))
+            if ( TCount==0)
+            {
+                logHHAuto("No tickets!");
+                setTimer('nextClubChampionTime',15*60);
+                return false;
+            }
+            else
+            {
+                if (TCount!=0)
+                {
+                    logHHAuto("Using ticket");
+                    $('button[rel=perform].blue_button_L').click();
+                }
+                setTimeout(function(){gotoPage('home');},500);
+                return true;
+            }
+        }
+    }
+    else
+    {
+        gotoPage('club_champion');
+        return true;
+    }
+}
+
 
 // Numbers: rounding to K, M, G and T
 function nRounding(num, digits, updown) {
@@ -2316,7 +2369,7 @@ var doSeason = function () {
         if ( current_kisses > 0 )
         {
             logHHAuto("Switching to Season Arena screen.");
-            gotoPage("season-arena");
+            gotoPage("season_arena");
         }
         else
         {
@@ -2382,7 +2435,7 @@ var doSeason = function () {
             else
             {
                 logHHAuto("Switching to Season Arena screen.");
-                gotoPage("season-arena");
+                gotoPage("season_arena");
             }
             return;
         }
@@ -4332,6 +4385,13 @@ var autoLoop = function () {
             busy=doChampionStuff();
         }
 
+        if (busy==false && Storage().HHAuto_Setting_autoClubChamp==="true" && checkTimer('nextClubChampionTime'))
+        {
+            logHHAuto("Time to check on club champion!");
+            busy=doClubChampionStuff();
+        }
+
+
         if (/*autoBuy() &&*/ busy===false)
         {
             if (sessionStorage.HHAuto_Temp_charLevel===undefined)
@@ -5016,7 +5076,8 @@ HHAuto_ToolTips.en = {
     ResetAllVars: { elementText: "Reset defaults", tooltip : "Reset all setting to defaults."},
     DebugFileText: { elementText: "Click on button bellow to produce a debug log file", tooltip : ""},
     OptionCancel: { elementText: "Cancel", tooltip : ""},
-    SeasonMaskRewards: { elementText: "Mask claimed rewards", tooltip : "Allow to mask all claimed rewards on Season screen"}
+    SeasonMaskRewards: { elementText: "Mask claimed rewards", tooltip : "Allow to mask all claimed rewards on Season screen"},
+    autoClubChamp: { elementText: "AutoClubChamp", tooltip : "if enabled, automatically fight club champion."}
 }
 
 
@@ -5086,13 +5147,14 @@ HHAuto_ToolTips.fr = {
     autoEGM: { elementText: "Buy Epi Gear Mono", tooltip : "si activé : permet d'acheter du matériel Mono Epique sur le marché<br>Acheter seulement si la banque d'argent est au-dessus de la valeur"},
     OpponentListBuilding: { elementText: "La liste des adversaires est en construction", tooltip : ""},
     OpponentParsed : { elementText: "adversaires parcourus", tooltip : ""},
-    DebugMenu: { elementText: "Debug Menu", tooltip : "Options for debug"},
-    DebugOptionsText: { elementText: "Buttons below allow to modify script storage, be careful using it.", tooltip : ""},
-    DeleteTempVars: { elementText: "Delete temp storage", tooltip : "Delete all temporary storage for the script."},
-    ResetAllVars: { elementText: "Reset defaults", tooltip : "Reset all setting to defaults."},
-    DebugFileText: { elementText: "Click on button bellow to produce a debug log file", tooltip : ""},
-    OptionCancel: { elementText: "Cancel", tooltip : ""},
-    SeasonMaskRewards: { elementText: "Mask claimed rewards", tooltip : "Allow to mask all claimed rewards on Season screen"}
+    DebugMenu: { elementText: "Debug Menu", tooltip : "Options pour le debug"},
+    DebugOptionsText: { elementText: "Les bouttons ci-dessous permette de modifier les variables du script, a utiliser avec parcimonie.", tooltip : ""},
+    DeleteTempVars: { elementText: "Supprimer les variables temporaires", tooltip : "Supprime toutes les variables temporaire du script."},
+    ResetAllVars: { elementText: "Back to defaults", tooltip : "Remettre tous les seetings par default"},
+    DebugFileText: { elementText: "Cliquer sur le boutton ci-dessous pour produire une log de debug.", tooltip : ""},
+    OptionCancel: { elementText: "Annuler", tooltip : ""},
+    SeasonMaskRewards: { elementText: "Masquer Gains Saison reclamés", tooltip : "Permet de masquer les gains reclamés de la saison."},
+    autoClubChamp: { elementText: "AutoClubChampion", tooltip : "if enabled, automatically fight club champion."}
 }
 
 HHAuto_ToolTips.de = {
@@ -5160,14 +5222,7 @@ HHAuto_ToolTips.de = {
     autoLGR: { elementText: "Min Geld verbleib", tooltip : "Minimum an Geld das behalten wird."},
     autoEGM: { elementText: "Buy Epi Gear Mono", tooltip : "Wenn aktiv : Erlaube es Mono epische Ausrüstung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt"},
     OpponentListBuilding: { elementText: "Gegnerliste wird erstellt", tooltip : ""},
-    OpponentParsed : { elementText: "Gegner analysiert", tooltip : ""},
-    DebugMenu: { elementText: "Debug Menu", tooltip : "Options for debug"},
-    DebugOptionsText: { elementText: "Buttons below allow to modify script storage, be careful using it.", tooltip : ""},
-    DeleteTempVars: { elementText: "Delete temp storage", tooltip : "Delete all temporary storage for the script."},
-    ResetAllVars: { elementText: "Reset defaults", tooltip : "Reset all setting to defaults."},
-    DebugFileText: { elementText: "Click on button bellow to produce a debug log file", tooltip : ""},
-    OptionCancel: { elementText: "Cancel", tooltip : ""},
-    SeasonMaskRewards: { elementText: "Mask claimed rewards", tooltip : "Allow to mask all claimed rewards on Season screen"}
+    OpponentParsed : { elementText: "Gegner analysiert", tooltip : ""}
 }
 
 
@@ -5197,6 +5252,7 @@ var HHVars=["Storage().HHAuto_Setting_autoAff",
             "Storage().HHAuto_Setting_autoArenaBattle",
             "Storage().HHAuto_Setting_autoBuyBoosters",
             "Storage().HHAuto_Setting_autoBuyBoostersFilter",
+            "Storage().HHAuto_Setting_autoClubChamp",
             "Storage().HHAuto_Setting_autoChamps",
             "Storage().HHAuto_Setting_autoChampsFilter",
             "Storage().HHAuto_Setting_autoChampsUseEne",
@@ -5413,6 +5469,7 @@ var updateData = function () {
 
     Storage().HHAuto_Setting_calculatePowerLimits = document.getElementById("calculatePowerLimits").value;
     Storage().HHAuto_Setting_autoChamps = document.getElementById("autoChamps").checked;
+    Storage().HHAuto_Setting_autoClubChamp = document.getElementById("autoClubChamp").checked;
     Storage().HHAuto_Setting_autoChampsUseEne = document.getElementById("autoChampsUseEne").checked;
     Storage().HHAuto_Setting_autoChampsFilter = document.getElementById("autoChampsFilter").value;
 
@@ -5469,6 +5526,10 @@ var updateData = function () {
         if (Storage().HHAuto_Setting_autoChamps=="true")
         {
             Tegzd+=(Tegzd.length>0?'\r\n':'')+'Champions check: '+getTimeLeft('nextChampionTime');
+        }
+        if (Storage().HHAuto_Setting_autoClubChamp=="true")
+        {
+            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Club Champions check: '+getTimeLeft('nextClubChampionTime');
         }
         // if (autoBuy())
         {
@@ -5544,6 +5605,7 @@ var setDefaults = function () {
     sessionStorage.HHAuto_Temp_questRequirement = "none";
     Storage().HHAuto_Temp_freshStart = "no";
     Storage().HHAuto_Setting_autoChamps="false";
+    Storage().HHAuto_Setting_autoClubChamp="false";
     Storage().HHAuto_Setting_autoChampsUseEne="false";
     Storage().HHAuto_Setting_autoChampsFilter="1;2;3;4;5;6";
     Storage().HHAuto_Setting_autoFreePachinko = "false";
@@ -5821,17 +5883,20 @@ var start = function () {
                      // End Region PowerPlace
                      // Region AutoChampions
                      +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
-                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +    '<div style="padding-right:10px; display:flex;flex-direction:column;">'
                      +     '<span>'+getTextForUI("autoChamps","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoChamps","tooltip")+'</span><label class="switch"><input id="autoChamps" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
-                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     +    '<div style="padding-right:10px; display:flex;flex-direction:column;">'
                      +     '<span>'+getTextForUI("autoChampsUseEne","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoChampsUseEne","tooltip")+'</span><label class="switch"><input id="autoChampsUseEne" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
-                     +    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+getTextForUI("autoChampsFilter","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoChampsFilter","tooltip")+'</span><input id="autoChampsFilter" type="text"></div>'
-                     // End Region AutoChampions
+                     +    '<div style="padding-right:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+getTextForUI("autoChampsFilter","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoChampsFilter","tooltip")+'</span><input style="width:70px" id="autoChampsFilter" type="text"></div>'
+                     +    '</div>'
+                     +    '<div style="padding-right:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+getTextForUI("autoClubChamp","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoClubChamp","tooltip")+'</span><label class="switch"><input id="autoClubChamp" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +   '</div>'
+                     // End Region AutoChampions
                      +   '<span>'+getTextForUI("autoStats","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoStats","tooltip")+'</span><input id="autoStats" type="text"></div>'
                      +   '<div style="display:flex;flex-direction:row;">'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
@@ -5959,6 +6024,7 @@ var start = function () {
     document.getElementById("eventMythicPrio").checked = Storage().HHAuto_Setting_eventMythicPrio === "true";
     document.getElementById("autoTrollMythicByPassThreshold").checked = Storage().HHAuto_Setting_autoTrollMythicByPassThreshold === "true";
 
+    document.getElementById("autoClubChamp").checked = Storage().HHAuto_Setting_autoClubChamp  === "true";
     document.getElementById("autoChamps").checked = Storage().HHAuto_Setting_autoChamps === "true";
     document.getElementById("autoChampsUseEne").checked = Storage().HHAuto_Setting_autoChampsUseEne === "true";
     document.getElementById("autoChampsFilter").value = Storage().HHAuto_Setting_autoChampsFilter?Storage().HHAuto_Setting_autoChampsFilter:"1;2;3;4;5;6";
