@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.33
+// @version      5.4-beta.34
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -1048,14 +1048,25 @@ function moduleDisplayPopID()
 
 function moduleSimSeasonReward()
 {
+    var arrayz;
+    var nbReward;
     if (Storage().HHAuto_Setting_SeasonMaskRewards === "true")
     {
-        var arrayz = $('.rewards_pair');
+        arrayz = $('.rewards_pair');
+        if ($("div#gsp_btn_holder[style='display: block;']").length)
+        {
+            nbReward=1;
+        }
+        else
+        {
+            nbReward=2;
+        }
+
         var obj;
         if (arrayz.length > 0) {
             for (var i2 = arrayz.length - 1; i2 >= 0; i2--) {
                 obj = $(arrayz[i2]).find('.tick_s:not([style="display: none;"])');
-                if (obj.length >= 1) {
+                if (obj.length >= nbReward) {
                     arrayz[i2].style.display = "none";
                 }
             }
