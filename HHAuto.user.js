@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.38
+// @version      5.4-beta.39
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -2002,7 +2002,7 @@ var doClubChampionStuff=function()
             var currTime = 15*60;
             logHHAuto("Can't fight club champion.");
             $('div.champions-middle__champion-resting[timer]').each(function()
-            {
+                                                                    {
                 var timer = $(this).attr('timer');
                 currTime=Number(timer)-Math.ceil(new Date().getTime()/1000);
                 logHHAuto("Found club chmpion timer : "+currTime);
@@ -3389,13 +3389,55 @@ var flipParanoia=function()
             toNextSwitch=toNextSwitch<sl?toNextSwitch:sl;
         }
         */
+
+        //match mythic new wave with end of sleep
+        if (Storage().HHAuto_Setting_autoTrollMythicByPassParanoia === "true" && getTimer("eventMythicNextWave") !== -1 && toNextSwitch>getSecondsLeft("eventMythicNextWave"))
+        {
+            logHHAuto("Forced rest only until next mythic wave.");
+            toNextSwitch=getSecondsLeft("eventMythicNextWave")+randomInterval(10,30);
+        }
+
+        //bypass Paranoia if ongoing mythic
+        if (Storage().HHAuto_Setting_autoTrollMythicByPassParanoia === "true" && sessionStorage.HHAuto_Temp_eventTrollIsMythic==="true")
+        {
+            var trollThreshold = Number(Storage().HHAuto_Setting_autoTrollThreshold);
+            if (Storage().HHAuto_Setting_autoTrollMythicByPassThreshold === "true")
+            {
+                trollThreshold = 0;
+            }
+            //mythic onGoing and still have some fight above threshold
+            if (Number(getSetHeroInfos('fight.amount')) > trollThreshold)
+            {
+                logHHAuto("Forced bypass Paranoia for mythic (can fight).");
+                setTimer('paranoiaSwitch',60);
+                return;
+            }
+
+            //mythic ongoing and can buyCombat
+            var diffMythic=Math.ceil(Timers["eventMythicGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
+            var hero=getHero();
+            var price=hero.get_recharge_cost("fight");
+            if (diffMythic<Storage().HHAuto_Setting_buyMythicCombTimer*3600
+                && getSetHeroInfos('fight.amount')==0
+                && getSetHeroInfos('hard_currency')>=price+Number(Storage().HHAuto_Setting_kobanBank)
+                && Storage().HHAuto_Setting_buyMythicCombat=="true"
+               )
+            {
+
+                logHHAuto("Forced bypass Paranoia for mythic (can buy).");
+                setTimer('paranoiaSwitch',60);
+                return;
+            }
+        }
+
         if ( checkParanoiaSpendings() === -1 && Storage().HHAuto_Setting_paranoiaSpendsBefore === "true" )
         {
             Storage().HHAuto_Temp_toNextSwitch=toNextSwitch;
             setParanoiaSpendings();
             return;
         }
-        if ( checkParanoiaSpendings() === 0 || Storage().HHAuto_Setting_paranoiaSpendsBefore === "false")
+
+        if ( checkParanoiaSpendings() === 0 || Storage().HHAuto_Setting_paranoiaSpendsBefore === "false" )
         {
             clearParanoiaSpendings();
             cleanTempPopToStart();
@@ -4519,6 +4561,8 @@ var moduleDisplayEventPriority=function()
 
 var CollectEventData=function()
 {
+
+    clearTimer('eventMythicNextWave');
     if (unsafeWindow.event_data || unsafeWindow.mythic_event_data)
     {
         //var Trollz=[];
@@ -4533,14 +4577,13 @@ var CollectEventData=function()
 
             for (var i=0;i<event_data.girls.length;i++)
             {
-                if (!event_data.girls[i].owned_girl && event_data.girls[i].troll)
+                if (!event_data.girls[i].owned_girl
+                    && event_data.girls[i].troll
+                    && Number(event_data.girls[i].troll.id_troll)<getSetHeroInfos('questing.id_world'))
                 {
-                    if (Number(event_data.girls[i].troll.id_troll)<getSetHeroInfos('questing.id_world'))
-                    {
-                        logHHAuto("Event girl : "+event_data.girls[i].name+" ("+event_data.girls[i].shards+"/100) at troll "+event_data.girls[i].troll.id_troll+" priority : "+Priority.indexOf(event_data.girls[i].troll.id_troll));
-                        eventsGirlz.push("event;"+i+";"+event_data.girls[i].id_girl+";"+event_data.girls[i].troll.id_troll);
-                        //Trollz.push(Number(event_data.girls[i].troll.id_troll));
-                    }
+                    logHHAuto("Event girl : "+event_data.girls[i].name+" ("+event_data.girls[i].shards+"/100) at troll "+event_data.girls[i].troll.id_troll+" priority : "+Priority.indexOf(event_data.girls[i].troll.id_troll));
+                    eventsGirlz.push("event;"+i+";"+event_data.girls[i].id_girl+";"+event_data.girls[i].troll.id_troll);
+                    //Trollz.push(Number(event_data.girls[i].troll.id_troll));
                 }
             }
         }
@@ -4549,17 +4592,23 @@ var CollectEventData=function()
         {
             var timeLeftMythic=mythic_event_data.seconds_until_event_end;
             setTimer('eventMythicGoing',timeLeftMythic);
-
             for (i=0;i<mythic_event_data.girls.length;i++)
             {
-                if (Number(mythic_event_data.girls[i].shards) !== 100 && Number(mythic_event_data.event_data.shards_available) !== 0 && mythic_event_data.girls[i].troll)
+                if (Number(mythic_event_data.girls[i].shards) !== 100
+                    && mythic_event_data.girls[i].troll
+                    && mythic_event_data.can_participate === true
+                    && Number(mythic_event_data.girls[i].troll.id_troll)<getSetHeroInfos('questing.id_world'))
                 {
-                    if (Number(mythic_event_data.girls[i].troll.id_troll)<getSetHeroInfos('questing.id_world'))
+                    if ( Number(mythic_event_data.event_data.shards_available) !== 0 )
                     {
                         logHHAuto("Mythic Event girl : "+mythic_event_data.girls[i].name+" "+mythic_event_data.girls[i].shards+"/100");
                         //Trollz.push(Number(mythic_event_data.girls[i].troll.id_troll));
                         eventsGirlz.push("mythic_event;"+i+";"+mythic_event_data.girls[i].id_girl+";"+mythic_event_data.girls[i].troll.id_troll);
                         //TrollzMythic.push(Number(mythic_event_data.girls[i].troll.id_troll));
+                    }
+                    else
+                    {
+                        setTimer('eventMythicNextWave',Number(mythic_event_data.event_data.next_tranche_in));
                     }
                 }
             }
@@ -4661,20 +4710,50 @@ var CollectEventData=function()
 */
 
         //logHHAuto('WTF?');
-        if (Storage().HHAuto_Setting_buyCombat=="true" && (Storage().HHAuto_Setting_plusEvent==="true" || Storage().HHAuto_Setting_plusEventMythic==="true"))
+        var hero=getHero();
+        var price=hero.get_recharge_cost("fight");
+        //buy comb
+        if (Storage().HHAuto_Setting_buyCombat=="true" && Storage().HHAuto_Setting_plusEvent==="true" )
         {
             //logHHAuto('WTF!');
             var diff=Math.ceil(Timers["eventGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
-            var diffMythic=Math.ceil(Timers["eventMythicGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
             //logHHAuto(diff);
-            var hero=getHero();
-            if ((diff<Storage().HHAuto_Setting_buyCombTimer*3600 || diffMythic<Storage().HHAuto_Setting_buyCombTimer*3600) && sessionStorage.HHAuto_Temp_eventTroll && getSetHeroInfos('fight.amount')==0)//Less than 20 hours remains and we still haven't get all troll girls
+            hero=getHero();
+            if (
+                diff<Storage().HHAuto_Setting_buyCombTimer*3600
+                && sessionStorage.HHAuto_Temp_eventTroll
+                && getSetHeroInfos('fight.amount')==0
+                && sessionStorage.HHAuto_Temp_eventTrollIsMythic==="false"
+            )
             {
-                var price=hero.get_recharge_cost("fight");
+                price=hero.get_recharge_cost("fight");
                 //logHHAuto('PRC: '+price);
                 if (getSetHeroInfos('hard_currency')>=price+Number(Storage().HHAuto_Setting_kobanBank))
                 {
-                    logHHAuto('Buying comb');
+                    logHHAuto('Buying comb for '+eventsGirlz[0].split(";")[0]);
+                    RechargeCombat(price);
+                }
+            }
+        }
+        //buy comb mythic
+        if (Storage().HHAuto_Setting_buyMythicCombat=="true" &&  Storage().HHAuto_Setting_plusEventMythic==="true")
+        {
+            //logHHAuto('WTF!');
+            var diffMythic=Math.ceil(Timers["eventMythicGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
+            //logHHAuto(diff);
+            hero=getHero();
+            if (
+                diffMythic<Storage().HHAuto_Setting_buyMythicCombTimer*3600 &&
+                sessionStorage.HHAuto_Temp_eventTroll
+                && getSetHeroInfos('fight.amount')==0
+                && sessionStorage.HHAuto_Temp_eventTrollIsMythic==="true"
+            )
+            {
+                price=hero.get_recharge_cost("fight");
+                //logHHAuto('PRC: '+price);
+                if (getSetHeroInfos('hard_currency')>=price+Number(Storage().HHAuto_Setting_kobanBank))
+                {
+                    logHHAuto('Buying mythic comb for '+eventsGirlz[0].split(";")[0]);
                     RechargeCombat(price);
                 }
             }
@@ -5100,7 +5179,10 @@ HHAuto_ToolTips.en = {
     DebugFileText: { elementText: "Click on button bellow to produce a debug log file", tooltip : ""},
     OptionCancel: { elementText: "Cancel", tooltip : ""},
     SeasonMaskRewards: { elementText: "Mask claimed rewards", tooltip : "Allow to mask all claimed rewards on Season screen"},
-    autoClubChamp: { elementText: "AutoClubChamp", tooltip : "if enabled, automatically fight club champion."}
+    autoClubChamp: { elementText: "AutoClubChamp", tooltip : "if enabled, automatically fight club champion."},
+    autoTrollMythicByPassParanoia: { elementText: "Mythic bypass Paranoia", tooltip : "Allow mythic to bypass paranoia.<br>if next wave is during rest, it will force it to wake up for wave.<br>If still fight or can buy fights it will continue."},
+    buyMythicCombat: { elementText: "Buy comb. for mythic", tooltip : "Koban spending functions<br>If enabled : <br>Buying combat point during last X hours of mythic event (if not going under Koban bank value)"},
+    buyMythicCombTimer: { elementText: "Hours to buy Mythic Comb", tooltip : "(Integer)<br>X last hours of mythic event"},
 }
 
 
@@ -5176,8 +5258,7 @@ HHAuto_ToolTips.fr = {
     ResetAllVars: { elementText: "Back to defaults", tooltip : "Remettre tous les seetings par default"},
     DebugFileText: { elementText: "Cliquer sur le boutton ci-dessous pour produire une log de debug.", tooltip : ""},
     OptionCancel: { elementText: "Annuler", tooltip : ""},
-    SeasonMaskRewards: { elementText: "Masquer Gains Saison reclamés", tooltip : "Permet de masquer les gains reclamés de la saison."},
-    autoClubChamp: { elementText: "AutoClubChampion", tooltip : "if enabled, automatically fight club champion."}
+    SeasonMaskRewards: { elementText: "Masquer Gains Saison reclamés", tooltip : "Permet de masquer les gains reclamés de la saison."}
 }
 
 HHAuto_ToolTips.de = {
@@ -5311,10 +5392,13 @@ var HHVars=["Storage().HHAuto_Setting_autoAff",
             "Storage().HHAuto_Setting_autoStats",
             "Storage().HHAuto_Setting_autoTrollBattle",
             "Storage().HHAuto_Setting_autoTrollMythicByPassThreshold",
+            "Storage().HHAuto_Setting_autoTrollMythicByPassParanoia",
             "Storage().HHAuto_Setting_autoTrollSelectedIndex",
             "Storage().HHAuto_Setting_autoTrollThreshold",
             "Storage().HHAuto_Setting_buyCombat",
             "Storage().HHAuto_Setting_buyCombTimer",
+            "Storage().HHAuto_Setting_buyMythicCombat",
+            "Storage().HHAuto_Setting_buyMythicCombTimer",
             "Storage().HHAuto_Setting_calculatePowerLimits",
             "Storage().HHAuto_Setting_eventMythicPrio",
             "Storage().HHAuto_Setting_eventTrollOrder",
@@ -5408,7 +5492,10 @@ var updateData = function () {
     Storage().HHAuto_Setting_plusEventMythic = document.getElementById("plusEventMythic").checked;
     Storage().HHAuto_Setting_eventMythicPrio = document.getElementById("eventMythicPrio").checked;
     Storage().HHAuto_Setting_autoTrollMythicByPassThreshold = document.getElementById("autoTrollMythicByPassThreshold").checked ;
+    Storage().HHAuto_Setting_autoTrollMythicByPassParanoia = document.getElementById("autoTrollMythicByPassParanoia").checked ;
+
     Storage().HHAuto_Setting_buyCombTimer = document.getElementById("buyCombTimer").value;
+    Storage().HHAuto_Setting_buyMythicCombTimer = document.getElementById("buyMythicCombTimer").value;
     //Storage().HHAuto_Setting_autoArenaBattle = document.getElementById("autoArenaCheckbox").checked;
     Storage().HHAuto_Setting_autoSeason = document.getElementById("autoSeasonCheckbox").checked;
     Storage().HHAuto_Setting_autoSeasonCollect = document.getElementById("autoSeasonCollect").checked;
@@ -5509,6 +5596,8 @@ var updateData = function () {
 
     Storage().HHAuto_Setting_buyCombat=document.getElementById("buyCombat").checked && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true" && Storage().HHAuto_Setting_spendKobans0=="true";
     document.getElementById("buyCombat").checked=Storage().HHAuto_Setting_buyCombat=="true";
+    Storage().HHAuto_Setting_buyMythicCombat=document.getElementById("buyMythicCombat").checked && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true" && Storage().HHAuto_Setting_spendKobans0=="true";
+    document.getElementById("buyMythicCombat").checked=Storage().HHAuto_Setting_buyMythicCombat=="true";
     Storage().HHAuto_Setting_autoBuyBoosters=document.getElementById("autoBuyBoosters").checked && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true" && Storage().HHAuto_Setting_spendKobans0=="true";
     document.getElementById("autoBuyBoosters").checked=Storage().HHAuto_Setting_autoBuyBoosters=="true";
     Storage().HHAuto_Setting_autoSeasonPassReds=document.getElementById("autoSeasonPassReds").checked && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true" && Storage().HHAuto_Setting_spendKobans0=="true";
@@ -5575,6 +5664,10 @@ var updateData = function () {
             Tegzd+=(Tegzd.length>0?'\r\n':'')+'Great Pachinko: '+getTimeLeft('nextPachinkoTime');
             Tegzd+=(Tegzd.length>0?'\r\n':'')+'Mythic Pachinko: '+getTimeLeft('nextPachinko2Time');
         }
+        if (!checkTimer('eventMythicNextWave'))
+        {
+            Tegzd+=(Tegzd.length>0?'\r\n':'')+'Mythic girl next: '+getTimeLeft('eventMythicNextWave');
+        }
         Tegzd+=(Tegzd.length>0?'\r\n':'')+'haveAff: '+sessionStorage.HHAuto_Temp_haveAff;
         Tegzd+=(Tegzd.length>0?'\r\n':'')+'haveExp: '+sessionStorage.HHAuto_Temp_haveExp;
         if (Tegzd.length>0)
@@ -5618,8 +5711,10 @@ var setDefaults = function () {
     Storage().HHAuto_Setting_plusEventMythic = "false";
     Storage().HHAuto_Setting_eventMythicPrio = "false";
     Storage().HHAuto_Setting_autoTrollMythicByPassThreshold = "false";
+    Storage().HHAuto_Setting_autoTrollMythicByPassParanoia = "false";
     Storage().HHAuto_Setting_eventTrollOrder="";
     Storage().HHAuto_Setting_buyCombTimer="16";
+    Storage().HHAuto_Setting_buyMythicCombTimer="16";
     //Storage().HHAuto_Setting_autoArenaBattle = "false";
     Storage().HHAuto_Setting_autoSeason = "false";
     Storage().HHAuto_Setting_autoSeasonCollect = "false";
@@ -5759,6 +5854,14 @@ var start = function () {
                      +   '</div>'
                      +   '<div style="display:flex;flex-direction:row;">'
                      +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>'+getTextForUI("buyMythicCombat","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("buyMythicCombat","tooltip")+'</span><label class="switch"><input id="buyMythicCombat" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="display:flex;flex-direction:column;">'
+                     +     '<span>'+getTextForUI("buyMythicCombTimer","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("buyMythicCombTimer","tooltip")+'</span><input id="buyMythicCombTimer" style="width:50%" type="text"></div>'
+                     +    '</div>'
+                     +   '</div>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="display:flex;flex-direction:column;">'
                      +     '<span>'+getTextForUI("autoBuyBoosters","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoBuyBoosters","tooltip")+'</span><label class="switch"><input id="autoBuyBoosters" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="display:flex;flex-direction:column;">'
@@ -5833,6 +5936,9 @@ var start = function () {
                      +     '</div>'
                      +     '<div style="padding-left:10px;display:flex;flex-direction:column;">'
                      +      '<span>'+getTextForUI("autoTrollMythicByPassThreshold","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoTrollMythicByPassThreshold","tooltip")+'</span><label class="switch"><input id="autoTrollMythicByPassThreshold" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '</div>'
+                     +     '<div style="padding-left:10px;display:flex;flex-direction:column;">'
+                     +      '<span>'+getTextForUI("autoTrollMythicByPassParanoia","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoTrollMythicByPassParanoia","tooltip")+'</span><label class="switch"><input id="autoTrollMythicByPassParanoia" type="checkbox"><span class="slider round"></span></label></div>'
                      +     '</div>'
                      +    '</div>'
                      +   '</div>'
@@ -6009,6 +6115,7 @@ var start = function () {
     document.getElementById("autoTrollCheckbox").checked = Storage().HHAuto_Setting_autoTrollBattle === "true";
     document.getElementById("eventTrollOrder").value = Storage().HHAuto_Setting_eventTrollOrder?Storage().HHAuto_Setting_eventTrollOrder:"1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20";
     document.getElementById("buyCombTimer").value = Storage().HHAuto_Setting_buyCombTimer?Storage().HHAuto_Setting_buyCombTimer:"16";
+    document.getElementById("buyMythicCombTimer").value = Storage().HHAuto_Setting_buyMythicCombTimer?Storage().HHAuto_Setting_buyMythicCombTimer:"16";
     //document.getElementById("autoArenaCheckbox").checked = Storage().HHAuto_Setting_autoArenaBattle === "true";
     document.getElementById("autoSeasonCheckbox").checked = Storage().HHAuto_Setting_autoSeason === "true";
     document.getElementById("autoSeasonCollect").checked = Storage().HHAuto_Setting_autoSeasonCollect === "true";
@@ -6046,6 +6153,7 @@ var start = function () {
     document.getElementById("plusEventMythic").checked = Storage().HHAuto_Setting_plusEventMythic === "true";
     document.getElementById("eventMythicPrio").checked = Storage().HHAuto_Setting_eventMythicPrio === "true";
     document.getElementById("autoTrollMythicByPassThreshold").checked = Storage().HHAuto_Setting_autoTrollMythicByPassThreshold === "true";
+    document.getElementById("autoTrollMythicByPassParanoia").checked = Storage().HHAuto_Setting_autoTrollMythicByPassParanoia === "true";
 
     document.getElementById("autoClubChamp").checked = Storage().HHAuto_Setting_autoClubChamp  === "true";
     document.getElementById("autoChamps").checked = Storage().HHAuto_Setting_autoChamps === "true";
@@ -6056,6 +6164,7 @@ var start = function () {
     document.getElementById("spendKobans1").checked = Storage().HHAuto_Setting_spendKobans1 === "true";
     document.getElementById("spendKobans2").checked = Storage().HHAuto_Setting_spendKobans2 === "true";
     document.getElementById("buyCombat").checked = Storage().HHAuto_Setting_buyCombat === "true";
+    document.getElementById("buyMythicCombat").checked = Storage().HHAuto_Setting_buyMythicCombat === "true";
     document.getElementById("kobanBank").value = Storage().HHAuto_Setting_kobanBank?Storage().HHAuto_Setting_kobanBank:"1000000";
 
     document.getElementById("autoTrollThreshold").value = Storage().HHAuto_Setting_autoTrollThreshold?Storage().HHAuto_Setting_autoTrollThreshold:"0";
