@@ -5329,6 +5329,71 @@ HHAuto_ToolTips.de = {
     OpponentParsed : { elementText: "Gegner analysiert", tooltip : ""}
 }
 
+HHAuto_ToolTips.es = {
+    saveDebug: { elementText: "", tooltip : "Permite generar el archivo de LOG."},
+    gitHub: { elementText: "", tooltip : "Link al repositorio GitHub."},
+    saveConfig: { elementText: "", tooltip : "Permite guardar la configuracion."},
+    loadConfig: { elementText: "", tooltip : "Permite cargar la configuracion."},
+    master: { elementText: "Master switch", tooltip : "Prendido/Apagado de tood el script"},
+    settPerTab: { elementText: "Settings per tab", tooltip : "Hace que la configuracion sea por pestaña"},
+    paranoia: { elementText: "Paranoia mode", tooltip : "Simula tiempo de espera como si fuera un persona"},
+    paranoiaSpendsBefore: { elementText: "Spends points before", tooltip : "On will spends point for options (quest, Troll, Leagues and Season)<br>only if they are enabled<br>and spends points that would be above max limits<br>Ex : you have power for troll at 17, but going 4h45 in paranoia<br>it would mean having 17+10 points (rounded to higher int), thus being above the 20 max<br> it will then spends 8 points to fall back to 19 end of Paranoia, preventing to loose points."},
+    spendKobans0: { elementText: "Questionable Shit", tooltip : "Primera opcion de seguridad para gastar Kobans <br>Tienen que estar las tres activadas para funcionar"},
+    spendKobans1: { elementText: "Are you sure?", tooltip : "Segunda opcion de seguridad para gastar Kobans <br>Tienen que estar las tres activadas para funcionar"},
+    spendKobans2: { elementText: "You\'ve been warned", tooltip : "Tercera opcion de seguridad para gastar Kobans <br>Tienen que estar las tres activadas para funcionar"},
+    kobanBank: { elementText: "Koban Bank", tooltip : "(Entero)<br>Cantidad minima de Kobans que el jugador desea tener siempre en su cuenta"},
+    buyCombat: { elementText: "Buy comb. in events", tooltip : "Koban spending functions<br>If enabled : <br>Buying combat point during last X hours of event (if not going under Koban bank value)"},
+    buyCombTimer: { elementText: "Hours to buy Comb", tooltip : "(Integer)<br>X last hours of event"},
+    autoBuyBoosters: { elementText: "Buy Leg. Boosters", tooltip : "Koban spending functions<br>Allow to buy booster in the market (if not going under Koban bank value)"},
+    autoBuyBoostersFilter: { elementText: "Filter", tooltip : "(values separated by ;)<br>Set which booster to buy , order is respected (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)"},
+    autoSeasonPassReds: { elementText: "Pass 3 reds", tooltip : "Koban spending functions<br>Use kobans to renew Season opponents if 3 reds"},
+    showCalculatePower: { elementText: "Show PowerCalc", tooltip : "Display battle simulation indicator for Leagues, battle, Seasons "},
+    calculatePowerLimits: { elementText: "Own limits (red;yellow)", tooltip : "(red;yellow)<br>Define your own red and orange limits for Opponents<br> -6000;0 do mean<br> <-6000 is red, between -6000 and 0 is orange and >=0 is green"},
+    showInfo: { elementText: "Show info", tooltip : "if enabled : show info on script values and next runs"},
+    autoSalaryCheckbox: { elementText: "AutoSal.", tooltip : "Habilitado:<br>Recolecta los ingresos cada N segundos"},
+    autoSalaryTextbox: { elementText: "min wait", tooltip : "(Entero)<br>N, cada cuanto tiempo se debe recolectar ingresos."},
+    autoMissionCheckbox: { elementText: "AutoMission", tooltip : "Habilitado: Hace las misiones"},
+    autoMissionCollect: { elementText: "Collect", tooltip : "Habilitado: Recolecta las recompensas de las misiones"},
+    autoTrollCheckbox: { elementText: "AutoTrollBattle", tooltip : "if enabled : Automatically battle troll selected"},
+    autoTrollSelector: { elementText: "Troll selector", tooltip : "Select troll to be fought."},
+    autoTrollThreshold: { elementText: "Threshold", tooltip : "Cantidad minima de combatividad que se desea conservar."},
+    eventTrollOrder: { elementText: "Event Troll Order", tooltip : "Allow to select in which order event troll are automatically battled"},
+    plusEvent: { elementText: "+Event", tooltip : "If enabled : ignore selected troll during event to battle event"},
+    plusEventMythic: { elementText: "+Mythic Event", tooltip : "Enable grabbing girls for mythic event, should only play them when shards are available"},
+    eventMythicPrio: { elementText: "Priorize over Event Troll Order", tooltip : "Mythic event girl priorized over event troll order if shards available"},
+    autoTrollMythicByPassThreshold: { elementText: "Mythic bypass Threshold", tooltip : "Permite a los eventos Miticos, ignorar el parametro 'Threshold'"},
+    autoArenaCheckbox: { elementText: "AutoArenaBattle", tooltip : "if enabled : Automatically do Arena (deprecated)"},
+    autoSeasonCheckbox: { elementText: "AutoSeason", tooltip : "if enabled : Automatically fight in Seasons (Opponent chosen following PowerCalculation)"},
+    autoSeasonCollect: { elementText: "Collect", tooltip : "if enabled : Automatically collect Seasons ( if multiple to collect, will collect one per kiss usage)"},
+    autoSeasonThreshold: { elementText: "Threshold", tooltip : "Cantidad minima de besos que se desea conservar."},
+    autoQuestCheckbox: { elementText: "AutoQuest", tooltip : "Habilitado: Avanza en la aventura (Historia principal)"},
+    autoQuestThreshold: { elementText: "Threshold", tooltip : "Cantidad minima de energia que se desea conservar."},
+    autoContestCheckbox: { elementText: "AutoContest", tooltip : "if enabled : Collect finished contest rewards"},
+    autoFreePachinko: { elementText: "AutoPachinko(Free)", tooltip : "if enabled : Automatically collect free Pachinkos"},
+    autoLeagues: { elementText: "AutoLeagues", tooltip : "if enabled : Automatically battle Leagues"},
+    autoLeaguesPowerCalc: { elementText: "UsePowerCalc", tooltip : "if enabled : will choose opponent using PowerCalc (Opponent list expires every 10 mins and take few mins to be built)"},
+    autoLeaguesCollect: { elementText: "Collect", tooltip : "If enabled : Automatically collect Leagues"},
+    autoLeaguesSelector: { elementText: "Target League", tooltip : "League to target, to try to demote, stay or go in higher league depending"},
+    autoLeaguesThreshold: { elementText: "Threshold", tooltip : "Cantidad minima de Tokens de liga que se desea conservar."},
+    autoPowerPlaces: { elementText: "AutoPowerPlaces", tooltip : "Habilitado: Automaticamente hace 'Lugares de poder'"},
+    autoPowerPlacesIndexFilter: { elementText: "Index Filter", tooltip : "Allow to set filter and order on the PowerPlaces to do (order respected only when multiple powerPlace expires at the same time)"},
+    autoPowerPlacesAll: { elementText: "Do All", tooltip : "If enabled : ignore filter and do all powerplaces (will update Filter with current ids)"},
+    autoChamps: { elementText: "AutoChampions", tooltip : "Habilitado: Automaticamente ataca a los campeones <br>(Requieren que esten dentro del filtro y tener el combate iniciado)"},
+    autoChampsUseEne: { elementText: "UseEne", tooltip : "Habilitado: Usa la energia del jugador para comprar billetes de combate"},
+    autoChampsFilter: { elementText: "Filter", tooltip : "Allow to set filter on champions to be fought"},
+    autoStats: { elementText: "AutoStats", tooltip : "Comprar stats en la tienda cuando el dinero es mayor al del campo"},
+    autoExpW: { elementText: "Buy Exp", tooltip : "if enabled : allow to buy Exp in market<br>Only buy if money bank is above the value<br>Only buy if total Exp owned is below value"},
+    autoExp: { elementText: "Min money to keep", tooltip : "Valor minimo de dinero a tener."},
+    maxExp: { elementText: "Max Exp to buy", tooltip : "Cantidad maxima de Exp a comprar"},
+    autoAffW: { elementText: "Buy Aff", tooltip : "if enabled : allow to buy Aff in market<br>Only buy if money bank is above the value<br>Only buy if total Aff owned is below value"},
+    autoAff: { elementText: "Min money to keep", tooltip : "Valor minimo de dinero a tener."},
+    maxAff: { elementText: "Max Aff to buy", tooltip : "Cantidad maxima de Aff a comprar"},
+    autoLGMW: { elementText: "Buy Leg Gear Mono", tooltip : "if enabled : allow to buy Mono Legendary gear in the market<br>Only buy if money bank is above the value"},
+    autoLGM: { elementText: "Min money to keep", tooltip : "Valor minimo de dinero a tener."},
+    autoLGRW: { elementText: "Buy Leg Gear Rainbow", tooltip : "if enabled : allow to buy Rainbow Legendary gear in the market<br>Only buy if money bank is above the value"},
+    autoLGR: { elementText: "Min money to keep", tooltip : "Valor minimo de dinero a tener."},
+    autoEGM: { elementText: "Buy Epi Gear Mono", tooltip : "if enabled : allow to buy Mono Epic gear in the market<br>Only buy if money bank is above the value"}
+}
 
 var HHAuto_Lang = 'en';
 
@@ -5339,7 +5404,7 @@ else if ($('html')[0].lang === 'fr') {
     HHAuto_Lang = 'fr';
 }
 else if ($('html')[0].lang === 'es_ES') {
-    //HHAuto_Lang = 'es';
+    HHAuto_Lang = 'es';
 }
 else if ($('html')[0].lang === 'de_DE') {
     HHAuto_Lang = 'de';
