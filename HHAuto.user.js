@@ -5104,6 +5104,7 @@ function debugDeleteAllVars()
     });
     logHHAuto('Deleted all script vars.');
 }
+//REGION TOOLTIP
 var HHAuto_ToolTips = [];
 
 HHAuto_ToolTips.en = {
@@ -5412,6 +5413,7 @@ else if ($('html')[0].lang === 'de_DE') {
 else if ($('html')[0].lang === 'it_IT') {
     //HHAuto_Lang = 'it';
 }
+//END REGION TOOLTIP
 
 var Trollz=["Latest","Dark Lord","Ninja Spy","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson\'s Crew","Pandora witch","Nike"];
 var Leagues=["Wanker I","Wanker II","Wanker III","Sexpert I","Sexpert II","Sexpert III","Dicktator I","Dicktator II","Dicktator III"];
