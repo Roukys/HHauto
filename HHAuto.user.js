@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.41
+// @version      5.4-beta.42
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -2001,12 +2001,12 @@ var doClubChampionStuff=function()
         {
             var currTime = 15*60;
             logHHAuto("Can't fight club champion.");
-            $('div.champions-middle__champion-resting[timer]').each(function()
-                                                                    {
-                var timer = $(this).attr('timer');
-                currTime=Number(timer)-Math.ceil(new Date().getTime()/1000);
-                logHHAuto("Found club chmpion timer : "+currTime);
-            });
+            //             $('div.champions-middle__champion-resting[timer]').each(function()
+            //                                                                     {
+            //                 var timer = $(this).attr('timer');
+            //                 currTime=Number(timer)-Math.ceil(new Date().getTime()/1000);
+            //                 logHHAuto("Found club chmpion timer : "+currTime);
+            //             });
             setTimer('nextClubChampionTime',currTime);
             gotoPage("home");
             return true;
@@ -5183,6 +5183,11 @@ HHAuto_ToolTips.en = {
     autoTrollMythicByPassParanoia: { elementText: "Mythic bypass Paranoia", tooltip : "Allow mythic to bypass paranoia.<br>if next wave is during rest, it will force it to wake up for wave.<br>If still fight or can buy fights it will continue."},
     buyMythicCombat: { elementText: "Buy comb. for mythic", tooltip : "Koban spending functions<br>If enabled : <br>Buying combat point during last X hours of mythic event (if not going under Koban bank value)"},
     buyMythicCombTimer: { elementText: "Hours to buy Mythic Comb", tooltip : "(Integer)<br>X last hours of mythic event"},
+    DebugResetTimerText: { elementText: "Selector below allow you to reset ongoing timers", tooltip : ""},
+    timerResetSelector: { elementText: "Select Timer", tooltip : "Select the timer you want to reset"},
+    timerResetButton: { elementText: "Reset", tooltip : "Set the timer to 0."},
+    timerLeftTime: { elementText: "", tooltip : "Time remaining"},
+    timerResetNoTimer : { elementText: "No selected timer", tooltip : ""}
 }
 
 
@@ -5790,6 +5795,12 @@ var start = function () {
                      +    '<div style="display:flex;flex-direction:row;">'
                      +     '<div class="tooltip"><span class="tooltiptext">'+getTextForUI("saveDebug","tooltip")+'</span><label class="myButton" id="saveDebug">'+getTextForUI("saveDebug","elementText")+'</label></div>'
                      +    '</div>'
+                     +    '<p>'+getTextForUI("DebugResetTimerText","elementText")+'</p>'
+                     +    '<div style="display:flex;flex-direction:row;">'
+                     +     '<div style="padding-right:30px;"class="tooltip"><span class="tooltiptext">'+getTextForUI("timerResetButton","tooltip")+'</span><label class="myButton" id="timerResetButton">'+getTextForUI("timerResetButton","elementText")+'</label></div>'
+                     +     '<div style="padding-right:10px;" class="tooltip"><span class="tooltiptext">'+getTextForUI("timerResetSelector","tooltip")+'</span><select id="timerResetSelector"></select></div>'
+                     +     '<div class="tooltip"><span class="tooltiptext">'+getTextForUI("timerLeftTime","tooltip")+'</span><span id="timerLeftTime">'+getTextForUI("timerResetNoTimer","elementText")+'</span></div>'
+                     +    '</div>'
                      +    '<p>'+getTextForUI("DebugOptionsText","elementText")+'</p>'
                      +    '<div style="display:flex;flex-direction:row;">'
                      +     '<div style="padding-right:30px;" class="tooltip"><span class="tooltiptext">'+getTextForUI("DeleteTempVars","tooltip")+'</span><label class="myButton" id="DeleteTempVars">'+getTextForUI("DeleteTempVars","elementText")+'</label></div>'
@@ -6104,6 +6115,32 @@ var start = function () {
         leaguesOptions.add(optionL);
     };
 
+    // Add Timer reset options //changed
+    let timerOptions = document.getElementById("timerResetSelector");
+    var countTimers=0;
+    let optionElement = document.createElement("option");
+    optionElement.value = countTimers;
+    optionElement.text = getTextForUI("timerResetSelector","elementText");
+    countTimers++;
+    timerOptions.add(optionElement);
+
+    for (let i2 in Timers) {
+        console.log(i2);
+        let optionElement = document.createElement("option");
+        optionElement.value = countTimers;
+        countTimers++;
+        optionElement.text = i2;
+        timerOptions.add(optionElement);
+    };
+
+    if(countTimers === 1)
+    {
+        let optionElement = document.createElement("option");
+        optionElement.value = countTimers;
+        optionElement.text = getTextForUI("timerResetNoTimer","elementText");
+        timerOptions.add(optionElement);
+    }
+
     document.getElementById("settPerTab").checked = localStorage.HHAuto_Setting_settPerTab === "true";
     trollOptions.selectedIndex = Storage().HHAuto_Setting_autoTrollSelectedIndex;
     leaguesOptions.selectedIndex = Storage().HHAuto_Setting_autoLeaguesSelectedIndex;
@@ -6203,6 +6240,25 @@ var start = function () {
     });
     document.getElementById("saveDebug").addEventListener("click", function(){
         saveHHDebugLog();
+    });
+
+    document.getElementById("timerResetButton").addEventListener("click", function(){
+        let timerSelector = document.getElementById("timerResetSelector");
+        if (timerSelector.options[timerSelector.selectedIndex].text !== getTextForUI("timerResetNoTimer","elementText") && timerSelector.options[timerSelector.selectedIndex].text !== getTextForUI("timerResetSelector","elementText"))
+        {
+            setTimer(timerSelector.options[timerSelector.selectedIndex].text,2);
+        }
+    });
+    $(document).on('change',"#timerResetSelector", function() {
+        let timerSelector = document.getElementById("timerResetSelector");
+        if (timerSelector.options[timerSelector.selectedIndex].text !== getTextForUI("timerResetNoTimer","elementText")  && timerSelector.options[timerSelector.selectedIndex].text !== getTextForUI("timerResetSelector","elementText"))
+        {
+            document.getElementById("timerLeftTime").innerText = getTimeLeft(timerSelector.options[timerSelector.selectedIndex].text);
+        }
+        else
+        {
+            document.getElementById("timerLeftTime").innerText = getTextForUI("timerResetNoTimer","elementText");
+        }
     });
 
     sessionStorage.HHAuto_Temp_autoLoop = "true";
