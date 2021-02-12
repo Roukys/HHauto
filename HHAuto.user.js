@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.42
+// @version      5.4-beta.43
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -4426,7 +4426,7 @@ var autoLoop = function () {
             {
                 var params = {
                     namespace: 'h\\Champions',
-                    class: 'Champions',
+                    class: 'ChampionController',
                     action: 'buy_ticket',
                     currency: 'energy_quest',
                     amount: 1
@@ -5104,6 +5104,31 @@ function debugDeleteAllVars()
     });
     logHHAuto('Deleted all script vars.');
 }
+
+var HHAuto_inputPattern = {
+    kobanBank:"[0-9]+",
+    buyCombTimer:"[0-9]+",
+    buyMythicCombTimer:"[0-9]+",
+    autoBuyBoostersFilter:"B[1-4](;B[1-4])+",
+    calculatePowerLimits:"(-?[0-9]+;-?[0-9]+|default",
+    autoSalaryTextbox:"[0-9]+",
+    autoTrollThreshold:"[1]?[0-9]",
+    eventTrollOrder:"([1-2][0-9]|[1-9])(;([1-2][0-9]|[1-9]))+",
+    autoSeasonThreshold:"[0-9]",
+    autoQuestThreshold:"[1-9]?[0-9]",
+    autoLeaguesThreshold:"1[0-4]|[0-9]",
+    autoPowerPlacesIndexFilter:"[1-9]+(;[1-9]+)+",
+    autoChampsFilter:"[1-6](;[1-6])+",
+    autoStats:"[0-9]+",
+    autoExp:"[0-9]+",
+    maxExp:"[0-9]+",
+    autoAff:"[0-9]+",
+    maxAff:"[0-9]+",
+    autoLGM:"[0-9]+",
+    autoLGR:"[0-9]+",
+    autoEGM:"[0-9]+"
+}
+
 var HHAuto_ToolTips = [];
 
 HHAuto_ToolTips.en = {
@@ -5125,16 +5150,16 @@ HHAuto_ToolTips.en = {
     autoBuyBoostersFilter: { elementText: "Filter", tooltip : "(values separated by ;)<br>Set which booster to buy , order is respected (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)"},
     autoSeasonPassReds: { elementText: "Pass 3 reds", tooltip : "Koban spending functions<br>Use kobans to renew Season opponents if 3 reds"},
     showCalculatePower: { elementText: "Show PowerCalc", tooltip : "Display battle simulation indicator for Leagues, battle, Seasons "},
-    calculatePowerLimits: { elementText: "Own limits (red;orange)", tooltip : "(red;yellow)<br>Define your own red and orange limits for Opponents<br> -6000;0 do mean<br> <-6000 is red, between -6000 and 0 is orange and >=0 is green"},
+    calculatePowerLimits: { elementText: "Own limits (red;orange)", tooltip : "(red;orange)<br>Define your own red and orange limits for Opponents<br> -6000;0 do mean<br> <-6000 is red, between -6000 and 0 is orange and >=0 is green"},
     showInfo: { elementText: "Show info", tooltip : "if enabled : show info on script values and next runs"},
-    autoSalaryCheckbox: { elementText: "AutoSal.", tooltip : "if enabled :<br>Collect salaries every X secs"},
+    autoSalaryCheckbox: { elementText: "AutoSal.", tooltip : "(Integer)<br>if enabled :<br>Collect salaries every X secs"},
     autoSalaryTextbox: { elementText: "min wait", tooltip : "(Integer)<br>X secs to collect Salary"},
     autoMissionCheckbox: { elementText: "AutoMission", tooltip : "if enabled : Automatically do missions"},
     autoMissionCollect: { elementText: "Collect", tooltip : "if enabled : Automatically collect missions"},
     autoTrollCheckbox: { elementText: "AutoTrollBattle", tooltip : "if enabled : Automatically battle troll selected"},
     autoTrollSelector: { elementText: "Troll selector", tooltip : "Select troll to be fought."},
-    autoTrollThreshold: { elementText: "Threshold", tooltip : "Minimum troll fight to keep"},
-    eventTrollOrder: { elementText: "Event Troll Order", tooltip : "Allow to select in which order event troll are automatically battled"},
+    autoTrollThreshold: { elementText: "Threshold", tooltip : "(Integer 0 to 19)<br>Minimum troll fight to keep"},
+    eventTrollOrder: { elementText: "Event Troll Order", tooltip : "(values separated by ;)<br>Allow to select in which order event troll are automatically battled"},
     plusEvent: { elementText: "+Event", tooltip : "If enabled : ignore selected troll during event to battle event"},
     plusEventMythic: { elementText: "+Mythic Event", tooltip : "Enable grabbing girls for mythic event, should only play them when shards are available"},
     eventMythicPrio: { elementText: "Priorize over Event Troll Order", tooltip : "Mythic event girl priorized over event troll order if shards available"},
@@ -5144,31 +5169,31 @@ HHAuto_ToolTips.en = {
     autoSeasonCollect: { elementText: "Collect", tooltip : "if enabled : Automatically collect Seasons ( if multiple to collect, will collect one per kiss usage)"},
     autoSeasonThreshold: { elementText: "Threshold", tooltip : "Minimum kiss to keep"},
     autoQuestCheckbox: { elementText: "AutoQuest", tooltip : "if enabled : Automatically do quest"},
-    autoQuestThreshold: { elementText: "Threshold", tooltip : "Minimum quest energy to keep"},
+    autoQuestThreshold: { elementText: "Threshold", tooltip : "(Integer between 0 and 99)<br>Minimum quest energy to keep"},
     autoContestCheckbox: { elementText: "AutoContest", tooltip : "if enabled : Collect finished contest rewards"},
     autoFreePachinko: { elementText: "AutoPachinko(Free)", tooltip : "if enabled : Automatically collect free Pachinkos"},
     autoLeagues: { elementText: "AutoLeagues", tooltip : "if enabled : Automatically battle Leagues"},
     autoLeaguesPowerCalc: { elementText: "UsePowerCalc", tooltip : "if enabled : will choose opponent using PowerCalc (Opponent list expires every 10 mins and take few mins to be built)"},
     autoLeaguesCollect: { elementText: "Collect", tooltip : "If enabled : Automatically collect Leagues"},
     autoLeaguesSelector: { elementText: "Target League", tooltip : "League to target, to try to demote, stay or go in higher league depending"},
-    autoLeaguesThreshold: { elementText: "Threshold", tooltip : "Minimum league fights to keep"},
+    autoLeaguesThreshold: { elementText: "Threshold", tooltip : "(Integer between 0 and 14)<br>Minimum league fights to keep"},
     autoPowerPlaces: { elementText: "AutoPowerPlaces", tooltip : "if enabled : Automatically Do powerPlaces"},
-    autoPowerPlacesIndexFilter: { elementText: "Index Filter", tooltip : "Allow to set filter and order on the PowerPlaces to do (order respected only when multiple powerPlace expires at the same time)"},
+    autoPowerPlacesIndexFilter: { elementText: "Index Filter", tooltip : "(values separated by ;)<br>Allow to set filter and order on the PowerPlaces to do (order respected only when multiple powerPlace expires at the same time)"},
     autoPowerPlacesAll: { elementText: "Do All", tooltip : "If enabled : ignore filter and do all powerplaces (will update Filter with current ids)"},
     autoChamps: { elementText: "AutoChampions", tooltip : "if enabled : Automatically do champions (if they are started and in filter only)"},
     autoChampsUseEne: { elementText: "UseEne", tooltip : "If enabled : use Energy to buy tickets"},
-    autoChampsFilter: { elementText: "Filter", tooltip : "Allow to set filter on champions to be fought"},
-    autoStats: { elementText: "AutoStats", tooltip : "Automatically buy stats in market with money above the setted amount"},
+    autoChampsFilter: { elementText: "Filter", tooltip : "(values separated by ; 1 to 6)<br>Allow to set filter on champions to be fought"},
+    autoStats: { elementText: "AutoStats", tooltip : "(Integer)<br>Automatically buy stats in market with money above the setted amount"},
     autoExpW: { elementText: "Buy Exp", tooltip : "if enabled : allow to buy Exp in market<br>Only buy if money bank is above the value<br>Only buy if total Exp owned is below value"},
-    autoExp: { elementText: "Min money to keep", tooltip : "Minimum money to keep."},
-    maxExp: { elementText: "Max Exp to buy", tooltip : "Maximum Exp to buy"},
+    autoExp: { elementText: "Min money to keep", tooltip : "(Integer)<br>Minimum money to keep."},
+    maxExp: { elementText: "Max Exp to buy", tooltip : "(Integer)<br>Maximum Exp to buy"},
     autoAffW: { elementText: "Buy Aff", tooltip : "if enabled : allow to buy Aff in market<br>Only buy if money bank is above the value<br>Only buy if total Aff owned is below value"},
-    autoAff: { elementText: "Min money to keep", tooltip : "Minimum money to keep."},
-    maxAff: { elementText: "Max Aff to buy", tooltip : "Maximum Aff to buy"},
+    autoAff: { elementText: "Min money to keep", tooltip : "(Integer)<br>Minimum money to keep."},
+    maxAff: { elementText: "Max Aff to buy", tooltip : "(Integer)<br>Maximum Aff to buy"},
     autoLGMW: { elementText: "Buy Leg Gear Mono", tooltip : "if enabled : allow to buy Mono Legendary gear in the market<br>Only buy if money bank is above the value"},
-    autoLGM: { elementText: "Min money to keep", tooltip : "Minimum money to keep."},
+    autoLGM: { elementText: "Min money to keep", tooltip : "(Integer)<br>Minimum money to keep."},
     autoLGRW: { elementText: "Buy Leg Gear Rainbow", tooltip : "if enabled : allow to buy Rainbow Legendary gear in the market<br>Only buy if money bank is above the value"},
-    autoLGR: { elementText: "Min money to keep", tooltip : "Minimum money to keep."},
+    autoLGR: { elementText: "Min money to keep", tooltip : "(Integer)<br>Minimum money to keep."},
     autoEGM: { elementText: "Buy Epi Gear Mono", tooltip : "if enabled : allow to buy Mono Epic gear in the market<br>Only buy if money bank is above the value"},
     OpponentListBuilding: { elementText: "Opponent list is building", tooltip : ""},
     OpponentParsed: { elementText: "opponents parsed", tooltip : ""},
@@ -5210,7 +5235,7 @@ HHAuto_ToolTips.fr = {
     autoBuyBoostersFilter: { elementText: "Filter", tooltip : "(valeurs séparées par ;)<br>Set quel booster acheter, l'ordre est respecté (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)"},
     autoSeasonPassReds: { elementText: "Pass 3 reds", tooltip : "Fonctions de dépense des kobans<br>Utiliser les kobans pour renouveler les adversaires de la saison si 3 rouges"},
     showCalculatePower: { elementText: "Show PowerCalc", tooltip : "Afficher l'indicateur de simulation de bataille pour Ligues, Bataille, Saisons "},
-    calculatePowerLimits: { elementText: "Own limits (red;orange)", tooltip : "(rouge;jaune)<br>Définissez vos propres limites de rouge et d'orange pour les opposants<br> -6000;0 veux dire<br> <-6000 est rouge, entre -6000 et 0 est orange et >=0 est vert"},
+    calculatePowerLimits: { elementText: "Own limits (red;orange)", tooltip : "(rouge;orange)<br>Définissez vos propres limites de rouge et d'orange pour les opposants<br> -6000;0 veux dire<br> <-6000 est rouge, entre -6000 et 0 est orange et >=0 est vert"},
     showInfo: { elementText: "Show info", tooltip : "si activé : afficher des informations sur les valeurs du script et les prochaines exécutions"},
     autoSalaryCheckbox: { elementText: "AutoSal.", tooltip : "si activé :<br>Collecter les salaires toutes les X secondes"},
     autoSalaryTextbox: { elementText: "min wait", tooltip : "(nombre)<br>X secondes pour percevoir le salaire"},
@@ -5614,6 +5639,11 @@ var updateData = function () {
 
     Storage().HHAuto_Setting_master=document.getElementById("master").checked;
 
+    document.querySelectorAll("div#sMenu input[pattern]").forEach(currentInput =>
+                                                                  {
+        currentInput.checkValidity();
+    });
+
     if (Storage().HHAuto_Setting_showInfo=="true")
     {
         var Tegzd='';
@@ -5853,7 +5883,7 @@ var start = function () {
                      +     '<span>'+getTextForUI("spendKobans2","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("spendKobans2","tooltip")+'</span><label  class="switch"><input id="spendKobans2" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="display:flex;flex-direction:column;">'
-                     +     '<span>'+getTextForUI("kobanBank","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("kobanBank","tooltip")+'</span><input id="kobanBank" style="width:70%" type="text"></div>'
+                     +     '<span>'+getTextForUI("kobanBank","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("kobanBank","tooltip")+'</span><input id="kobanBank" style="width:70%" required pattern="'+HHAuto_inputPattern.kobanBank+'" type="text"></div>'
                      +    '</div>'
                      +   '</div>'
                      +   '<div style="display:flex;flex-direction:row;">'
@@ -5861,7 +5891,7 @@ var start = function () {
                      +     '<span>'+getTextForUI("buyCombat","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("buyCombat","tooltip")+'</span><label class="switch"><input id="buyCombat" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="display:flex;flex-direction:column;">'
-                     +     '<span>'+getTextForUI("buyCombTimer","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("buyCombTimer","tooltip")+'</span><input id="buyCombTimer" style="width:50%" type="text"></div>'
+                     +     '<span>'+getTextForUI("buyCombTimer","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("buyCombTimer","tooltip")+'</span><input id="buyCombTimer" style="width:50%" required pattern="'+HHAuto_inputPattern.buyCombTimer+'" type="text"></div>'
                      +    '</div>'
                      +   '</div>'
                      +   '<div style="display:flex;flex-direction:row;">'
@@ -5869,7 +5899,7 @@ var start = function () {
                      +     '<span>'+getTextForUI("buyMythicCombat","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("buyMythicCombat","tooltip")+'</span><label class="switch"><input id="buyMythicCombat" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="display:flex;flex-direction:column;">'
-                     +     '<span>'+getTextForUI("buyMythicCombTimer","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("buyMythicCombTimer","tooltip")+'</span><input id="buyMythicCombTimer" style="width:50%" type="text"></div>'
+                     +     '<span>'+getTextForUI("buyMythicCombTimer","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("buyMythicCombTimer","tooltip")+'</span><input id="buyMythicCombTimer" style="width:50%" required pattern="'+HHAuto_inputPattern.buyMythicCombTimer+'" type="text"></div>'
                      +    '</div>'
                      +   '</div>'
                      +   '<div style="display:flex;flex-direction:row;">'
@@ -5877,7 +5907,7 @@ var start = function () {
                      +     '<span>'+getTextForUI("autoBuyBoosters","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoBuyBoosters","tooltip")+'</span><label class="switch"><input id="autoBuyBoosters" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="display:flex;flex-direction:column;">'
-                     +     '<span>'+getTextForUI("autoBuyBoostersFilter","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoBuyBoostersFilter","tooltip")+'</span><input style="width:70px" id="autoBuyBoostersFilter" type="text"></div>'
+                     +     '<span>'+getTextForUI("autoBuyBoostersFilter","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoBuyBoostersFilter","tooltip")+'</span><input style="width:70px" id="autoBuyBoostersFilter" required pattern="'+HHAuto_inputPattern.autoBuyBoostersFilter+'" type="text"></div>'
                      +    '</div>'
                      +    '<div style="display:flex;flex-direction:column;">'
                      +     '<span>'+getTextForUI("autoSeasonPassReds","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoSeasonPassReds","tooltip")+'</span><label  class="switch"><input id="autoSeasonPassReds" type="checkbox"><span class="slider round"></span></label></div>'
@@ -5891,7 +5921,7 @@ var start = function () {
                      +    '<span>'+getTextForUI("showCalculatePower","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("showCalculatePower","tooltip")+'</span><label class="switch"><input id="showCalculatePower" type="checkbox"><span class="slider round"></span></label></div>'
                      +   '</div>'
                      +   '<div style="padding-left:10px;display:flex;flex-direction:column;">'
-                     +    '<span>'+getTextForUI("calculatePowerLimits","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("calculatePowerLimits","tooltip")+'</span><input id="calculatePowerLimits" style="width:80%" type="text"></div>'
+                     +    '<span>'+getTextForUI("calculatePowerLimits","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("calculatePowerLimits","tooltip")+'</span><input id="calculatePowerLimits" style="width:80%" required pattern="'+HHAuto_inputPattern.calculatePowerLimits+'" type="text"></div>'
                      +   '</div>'
                      +  '</div>'
                      // End Calculate power region
@@ -5904,7 +5934,7 @@ var start = function () {
                      +     '<span>'+getTextForUI("autoSalaryCheckbox","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoSalaryCheckbox","tooltip")+'</span><label class="switch"><input id="autoSalaryCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+getTextForUI("autoSalaryTextbox","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoSalaryTextbox","tooltip")+'</span><input id="autoSalaryTextbox" style="width:80%" type="text"></div>'
+                     +     '<span>'+getTextForUI("autoSalaryTextbox","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoSalaryTextbox","tooltip")+'</span><input id="autoSalaryTextbox" style="width:80%" required pattern="'+HHAuto_inputPattern.autoSalaryTextbox+'" type="text"></div>'
                      +    '</div>'
                      //End Region AutoSalary
                      +   '</div>'
@@ -5928,12 +5958,12 @@ var start = function () {
                      +      '<span>'+getTextForUI("autoTrollSelector","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoTrollSelector","tooltip")+'</span><select id="autoTrollSelector"></select></div>'
                      +     '</div>'
                      +     '<div style="padding-left:10px;display:flex;flex-direction:column;">'
-                     +      '<span>'+getTextForUI("autoTrollThreshold","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoTrollThreshold","tooltip")+'</span><input style="width:50px" id="autoTrollThreshold" type="text"></div>'
+                     +      '<span>'+getTextForUI("autoTrollThreshold","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoTrollThreshold","tooltip")+'</span><input style="width:50px" id="autoTrollThreshold" required pattern="'+HHAuto_inputPattern.autoTrollThreshold+'" type="text"></div>'
                      +     '</div>'
                      +    '</div>'
                      +    '<div style="display:flex;flex-direction:row;">'
                      +     '<div style="padding-left:10px;display:flex;flex-direction:column;">'
-                     +      '<span>'+getTextForUI("eventTrollOrder","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("eventTrollOrder","tooltip")+'</span><input id="eventTrollOrder" style="width:150px" type="text"></div>'
+                     +      '<span>'+getTextForUI("eventTrollOrder","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("eventTrollOrder","tooltip")+'</span><input id="eventTrollOrder" style="width:150px" required pattern="'+HHAuto_inputPattern.eventTrollOrder+'"type="text"></div>'
                      +     '</div>'
                      +     '<div style="padding-left:10px;display:flex;flex-direction:column;">'
                      +      '<span>'+getTextForUI("plusEvent","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("plusEvent","tooltip")+'</span><label class="switch"><input id="plusEvent" type="checkbox"><span class="slider round"></span></label></div>'
@@ -5965,7 +5995,7 @@ var start = function () {
                      +     '<span>'+getTextForUI("autoSeasonCollect","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoSeasonCollect","tooltip")+'</span><label class="switch"><input id="autoSeasonCollect" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+getTextForUI("autoSeasonThreshold","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoSeasonThreshold","tooltip")+'</span><input style="width:50px" id="autoSeasonThreshold" type="text"></div>'
+                     +     '<span>'+getTextForUI("autoSeasonThreshold","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoSeasonThreshold","tooltip")+'</span><input style="width:50px" id="autoSeasonThreshold" required pattern="'+HHAuto_inputPattern.autoSeasonThreshold+'" type="text"></div>'
                      +    '</div>'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
                      +     '<span>'+getTextForUI("SeasonMaskRewards","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("SeasonMaskRewards","tooltip")+'</span><label class="switch"><input id="SeasonMaskRewards" type="checkbox"><span class="slider round"></span></label></div>'
@@ -5978,7 +6008,7 @@ var start = function () {
                      +     '<span>'+getTextForUI("autoQuestCheckbox","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoQuestCheckbox","tooltip")+'</span><label class="switch"><input id="autoQuestCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+getTextForUI("autoQuestThreshold","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoQuestThreshold","tooltip")+'</span><input style="width:50px" id="autoQuestThreshold" type="text"></div>'
+                     +     '<span>'+getTextForUI("autoQuestThreshold","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoQuestThreshold","tooltip")+'</span><input style="width:50px" id="autoQuestThreshold" required pattern="'+HHAuto_inputPattern.autoQuestThreshold+'" type="text"></div>'
                      +    '</div>'
                      +   '</div>'
                      //end region quest
@@ -6004,7 +6034,7 @@ var start = function () {
                      +      '<span>'+getTextForUI("autoLeaguesSelector","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoLeaguesSelector","tooltip")+'</span><select id="autoLeaguesSelector"></select></div>'
                      +     '</div>'
                      +     '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +      '<span>'+getTextForUI("autoLeaguesThreshold","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoLeaguesThreshold","tooltip")+'</span><input style="width:50px" id="autoLeaguesThreshold" type="text"></div>'
+                     +      '<span>'+getTextForUI("autoLeaguesThreshold","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoLeaguesThreshold","tooltip")+'</span><input style="width:50px" id="autoLeaguesThreshold" required pattern="'+HHAuto_inputPattern.autoLeaguesThreshold+'"type="text"></div>'
                      +     '</div>'
                      +    '</div>'
                      +   '</div>'
@@ -6015,7 +6045,7 @@ var start = function () {
                      +     '<span>'+getTextForUI("autoPowerPlaces","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoPowerPlaces","tooltip")+'</span><label class="switch"><input id="autoPowerPlaces" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+getTextForUI("autoPowerPlacesIndexFilter","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoPowerPlacesIndexFilter","tooltip")+'</span><input id="autoPowerPlacesIndexFilter" type="text"></div>'
+                     +     '<span>'+getTextForUI("autoPowerPlacesIndexFilter","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoPowerPlacesIndexFilter","tooltip")+'</span><input id="autoPowerPlacesIndexFilter" required pattern="'+HHAuto_inputPattern.autoPowerPlacesIndexFilter+'" type="text"></div>'
                      +    '</div>'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
                      +     '<span>'+getTextForUI("autoPowerPlacesAll","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoPowerPlacesAll","tooltip")+'</span><label class="switch"><input id="autoPowerPlacesAll" type="checkbox"><span class="slider round"></span></label></div>'
@@ -6031,23 +6061,23 @@ var start = function () {
                      +     '<span>'+getTextForUI("autoChampsUseEne","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoChampsUseEne","tooltip")+'</span><label class="switch"><input id="autoChampsUseEne" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+getTextForUI("autoChampsFilter","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoChampsFilter","tooltip")+'</span><input style="width:70px" id="autoChampsFilter" type="text"></div>'
+                     +     '<span>'+getTextForUI("autoChampsFilter","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoChampsFilter","tooltip")+'</span><input style="width:70px" id="autoChampsFilter" required pattern="'+HHAuto_inputPattern.autoChampsFilter+'" type="text"></div>'
                      +    '</div>'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
                      +     '<span>'+getTextForUI("autoClubChamp","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoClubChamp","tooltip")+'</span><label class="switch"><input id="autoClubChamp" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +   '</div>'
                      // End Region AutoChampions
-                     +   '<span>'+getTextForUI("autoStats","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoStats","tooltip")+'</span><input id="autoStats" type="text"></div>'
+                     +   '<span>'+getTextForUI("autoStats","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoStats","tooltip")+'</span><input id="autoStats" required pattern="'+HHAuto_inputPattern.autoStats+'" type="text"></div>'
                      +   '<div style="display:flex;flex-direction:row;">'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
                      +     '<span>'+getTextForUI("autoExpW","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoExpW","tooltip")+'</span><label class="switch"><input id="autoExpW" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+getTextForUI("autoExp","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoExp","tooltip")+'</span><input id="autoExp" type="text"></div>'
+                     +     '<span>'+getTextForUI("autoExp","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoExp","tooltip")+'</span><input id="autoExp" required pattern="'+HHAuto_inputPattern.autoExp+'" type="text"></div>'
                      +    '</div>'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+getTextForUI("maxExp","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("maxExp","tooltip")+'</span><input style="width:50px" id="maxExp" type="text"></div>'
+                     +     '<span>'+getTextForUI("maxExp","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("maxExp","tooltip")+'</span><input style="width:50px" id="maxExp" required pattern="'+HHAuto_inputPattern.maxExp+'" type="text"></div>'
                      +    '</div>'
                      +   '</div>'
                      +   '<div style="display:flex;flex-direction:row;">'
@@ -6055,10 +6085,10 @@ var start = function () {
                      +     '<span>'+getTextForUI("autoAffW","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoAffW","tooltip")+'</span><label class="switch"><input id="autoAffW" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+getTextForUI("autoAff","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoAff","tooltip")+'</span><input id="autoAff" type="text"></div>'
+                     +     '<span>'+getTextForUI("autoAff","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoAff","tooltip")+'</span><input id="autoAff" required pattern="'+HHAuto_inputPattern.autoAff+'" type="text"></div>'
                      +    '</div>'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+getTextForUI("maxAff","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("maxAff","tooltip")+'</span><input style="width:50px" id="maxAff" type="text"></div>'
+                     +     '<span>'+getTextForUI("maxAff","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("maxAff","tooltip")+'</span><input style="width:50px" id="maxAff" required pattern="'+HHAuto_inputPattern.maxAff+'" type="text"></div>'
                      +    '</div>'
                      +   '</div>'
                      +   '<div style="display:flex;flex-direction:row;">'
@@ -6066,7 +6096,7 @@ var start = function () {
                      +     '<span>'+getTextForUI("autoLGMW","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoLGMW","tooltip")+'</span><label class="switch"><input id="autoLGMW" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+getTextForUI("autoLGM","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoLGM","tooltip")+'</span><input id="autoLGM" type="text"></div>'
+                     +     '<span>'+getTextForUI("autoLGM","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoLGM","tooltip")+'</span><input id="autoLGM" required pattern="'+HHAuto_inputPattern.autoLGM+'" type="text"></div>'
                      +    '</div>'
                      +   '</div>'
                      +   '<div style="display:flex;flex-direction:row;">'
@@ -6074,7 +6104,7 @@ var start = function () {
                      +     '<span>'+getTextForUI("autoLGRW","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoLGRW","tooltip")+'</span><label class="switch"><input id="autoLGRW" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+getTextForUI("autoLGR","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoLGR","tooltip")+'</span><input id="autoLGR" type="text"></div>'
+                     +     '<span>'+getTextForUI("autoLGR","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoLGR","tooltip")+'</span><input id="autoLGR" required pattern="'+HHAuto_inputPattern.autoLGR+'" type="text"></div>'
                      +    '</div>'
                      +   '</div>'
                      //+   '<div style="display:flex;flex-direction:row;">'
@@ -6082,7 +6112,7 @@ var start = function () {
                      //+     '<span>'+getTextForUI("autoEGMW","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoEGMW","tooltip")+'</span><label class="switch"><input id="autoEGMW" type="checkbox"><span class="slider round"></span></label></div>'
                      //+    '</div>'
                      //+    '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     //+     '<span>'+getTextForUI("autoEGM","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoEGM","tooltip")+'</span><input id="autoEGM" type="text"></div>'
+                     //+     '<span>'+getTextForUI("autoEGM","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoEGM","tooltip")+'</span><input id="autoEGM" required pattern="'+HHAuto_inputPattern.autoEGM+'" type="text"></div>'
                      //+    '</div>'
                      //+   '</div>'
                      +  '</div>'
@@ -6125,7 +6155,6 @@ var start = function () {
     timerOptions.add(optionElement);
 
     for (let i2 in Timers) {
-        console.log(i2);
         let optionElement = document.createElement("option");
         optionElement.value = countTimers;
         countTimers++;
@@ -6260,6 +6289,24 @@ var start = function () {
             document.getElementById("timerLeftTime").innerText = getTextForUI("timerResetNoTimer","elementText");
         }
     });
+
+
+    document.querySelectorAll("div#sMenu input[pattern]").forEach(currentInput =>
+                                                                  {
+        currentInput.addEventListener('input', () => {
+            currentInput.style.backgroundColor = "";
+            currentInput.checkValidity();
+        });
+
+        currentInput.addEventListener('invalid', () => {
+            currentInput.style.backgroundColor = "red";
+            //document.getElementById("master").checked = false;
+            //Storage().HHAuto_Setting_master="false";
+        });
+        currentInput.checkValidity();
+    });
+
+
 
     sessionStorage.HHAuto_Temp_autoLoop = "true";
     if (typeof Storage().HHAuto_Temp_freshStart == "undefined" || isNaN(Number(Storage().HHAuto_Temp_autoLoopTimeMili))) {
