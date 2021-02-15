@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.47
+// @version      5.4-beta.48
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -2857,8 +2857,8 @@ function getLeagueOpponentId(opponentsIDList)
         for (var oppo of opponentsIDList)
         {
             //logHHAuto({Opponent:oppo,OppoGet:Number(opponentsPowerList.get(oppo)),maxScore:maxScore});
-            OppoScore = Number(opponentsPowerList.get(oppo));
-            if (maxScore == -1 || OppoScore > maxScore)
+            OppoScore = Number(opponentsPowerList.get(Number(oppo)));
+            if (( maxScore == -1 || OppoScore > maxScore ) && !isNaN(OppoScore))
             {
 
                 maxScore = Number(opponentsPowerList.get(oppo));
