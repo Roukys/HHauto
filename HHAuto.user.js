@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4-beta.50
+// @version      5.4-beta.51
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -5380,14 +5380,14 @@ HHAuto_ToolTips.de = {
 }
 
 HHAuto_ToolTips.es = {
-    saveDebug: { elementText: "Save Debug", tooltip : "Permite generar un fichero log de depuración."},
+    saveDebug: { elementText: "Salvar Debug", tooltip : "Permite generar un fichero log de depuración."},
     gitHub: { elementText: "GitHub", tooltip : "Link al proyecto GitHub."},
     saveConfig: { elementText: "Salvar config.", tooltip : "Permite salvar la configuración."},
     loadConfig: { elementText: "Cargar config", tooltip : "Permite cargar la configuración."},
     master: { elementText: "Switch maestro", tooltip : "Interruptor de Encendido/Apagado para el script completo"},
     settPerTab: { elementText: "Configuración por ventana", tooltip : "Aplica las opciones sólo a esta ventana"},
     paranoia: { elementText: "Modo Paranoia", tooltip : "Permite simular sueño, y un usuario humano (Pendiente de documentación)"},
-    paranoiaSpendsBefore: { elementText: "Gasta puntos antes", tooltip : "\'On\' gastará puntos para opciones (aventura, villanos, ligas y temporada)<br>sólo si éstos están habilitados<br>y gasta puntos que estarían por encima de los límites máximos<br>Ej : tienes energia para 17 combates de villanos, pero estarás 4h45 en paranoia<br>significa tener 17+10 combates (redondeado al entero superior), estando así por encima del máximo de 20<br> gastará 8 combates para quedar con 19 al final de la Paranoia, evitando perder puntos."},
+    paranoiaSpendsBefore: { elementText: "Gasta puntos antes", tooltip : "\'On\' gastará puntos para opciones (aventura, villanos, ligas y temporada) sólo si éstos están habilitados y gasta puntos que estarían por encima de los límites máximos.<br>Ej : Tienes energia para 17 combates de villanos, pero estarás 4h45m en paranoia.<br> Esto es tener 17+10 combates (redondeado al entero superior), estando así por encima del máximo de 20<br> gastará 8 combates para quedar con 19 al final de la Paranoia, evitando perder puntos."},
     spendKobans0: { elementText: "Porquería cuestionable", tooltip : "Primer interruptor de seguridad para el uso de kobans <br> Los 3 tienen que estar activados para las funciones de gasto de Kobans"},
     spendKobans1: { elementText: "¿Estás seguro?", tooltip : "Segundo interruptor de seguridad para el uso de kobans <br>Tiene que ser activado después del primero.<br> Los 3 tienen que estar activados para las funciones de gasto de Kobans"},
     spendKobans2: { elementText: "Has sido advertido", tooltip : "Tercer interruptor de seguridad para el uso de kobans <br>Tiene que ser activado después del segundo.<br> Los 3 tienen que estar activados para las funciones de gasto de Kobans"},
@@ -5395,7 +5395,7 @@ HHAuto_ToolTips.es = {
     buyCombat: { elementText: "Compra comb. en eventos", tooltip : "Funciones de gasto de Kobans<br>Si habilitado: <br>Compra puntos de combate durante las últimas X horas del evento (si no se baja del valor de Banco de Kobans)"},
     buyCombTimer: { elementText: "Horas para comprar Comb", tooltip : "(Entero)<br>X últimas horas del evento"},
     autoBuyBoosters: { elementText: "Compra Potenciad. Leg.", tooltip : "Funciones de gasto de Kobans<br>Permite comprar potenciadores en el mercado (si no se baja del valor de Banco de Kobans)"},
-    autoBuyBoostersFilter: { elementText: "Filtro", tooltip : "(valores separados por ;)<br>Selecciona que potenciador comprar , se respeta el orden (B1:Ginseng B2:Azufaifo B3:Clorela B4:Cordyceps)"},
+    autoBuyBoostersFilter: { elementText: "Filtro", tooltip : "(valores separados por ;)<br>Selecciona que potenciador comprar, se respeta el orden (B1:Ginseng B2:Azufaifo B3:Clorela B4:Cordyceps)"},
     autoSeasonPassReds: { elementText: "Pasa 3 rojos", tooltip : "Funciones de gasto de Kobans<br>Usa kobans para renovar oponentes si los 3 rojos"},
     showCalculatePower: { elementText: "Mostar PowerCalc", tooltip : "Muestra simulador de batalla para Liga, batallas, Temporadas "},
     calculatePowerLimits: { elementText: "Límites propios (rojo;naranja)", tooltip : "(rojo;naranja)<br>Define tus propios límites rojos y naranjas para los oponentes<br> -6000;0 significa<br> <-6000 is rojo, entre -6000 and 0 is naranja and >=0 is verde"},
@@ -5422,10 +5422,10 @@ HHAuto_ToolTips.es = {
     autoFreePachinko: { elementText: "AutoPachinko(Gratis)", tooltip : "Si habilitado: Recauda pachinkos gratuitos de manera automática"},
     autoLeagues: { elementText: "AutoLigas", tooltip : "Si habilitado: Combate en ligas de manera automática"},
     autoLeaguesPowerCalc: { elementText: "UsarCalcPotencia", tooltip : "Si habilitado: Elige oponentes usando calculadora de potencia (La lista expira cada 10 mins. y tarda pocos minutos en reconstruirse)"},
-    autoLeaguesCollect: { elementText: "Recaudar", tooltip : "Si habilitado: Automaticalmente recauda premios de ligas"},
+    autoLeaguesCollect: { elementText: "Recaudar", tooltip : "Si habilitado: Recauda premios de ligas de manera automática"},
     autoLeaguesSelector: { elementText: "Liga objetivo", tooltip : "Liga objetivo, para intentar descender, permanecer o ascender a otra liga en función de ello"},
     autoLeaguesThreshold: { elementText: "Límite", tooltip : "Mínimos combates de liga a conservar"},
-    autoPowerPlaces: { elementText: "AutoLugaresPoder", tooltip : "Si habilitado: Automaticamente juega Lugares de Poder"},
+    autoPowerPlaces: { elementText: "AutoLugaresPoder", tooltip : "Si habilitado: Juega Lugares de Poder de manera automática"},
     autoPowerPlacesIndexFilter: { elementText: "Filtro de índice", tooltip : "Permite establecer un filto y un orden para jugar Lugares de Poder (el orden solo se respeta cuando multiples Lugares de Poder finalizan al mismo tiempo)"},
     autoPowerPlacesAll: { elementText: "Juega todos", tooltip : "Si habilitado: ignora el filtro y juega todos los Lugares de Poder (actualizará del Filtro con las actuales ids)"},
     autoChamps: { elementText: "AutoCampeones", tooltip : "Si habilitado: Combate a campeones de manera automática (Sólo si han empezado un combate y están en el filtro)"},
@@ -5437,7 +5437,7 @@ HHAuto_ToolTips.es = {
     maxExp: { elementText: "Max experiencia", tooltip : "(Entero)<br>Máxima experiencia a comprar"},
     autoAffW: { elementText: "Compra afec", tooltip : "Si habilitado: Compra afecto en el mercado<br>Solo si el dinero en el banco es superior a este valor<br>Solo compra si el total de afecto poseído está por debajo de este valor"},
     autoAff: { elementText: "Min dinero", tooltip : "(Entero)<br>Mínimo dinero a guardar"},
-    maxAff: { elementText: "Max afecto", tooltip : "(Entero)<br>Maximo afecto a comprar"},
+    maxAff: { elementText: "Max afecto", tooltip : "(Entero)<br>Máximo afecto a comprar"},
     autoLGMW: { elementText: "Compra Eqip.Leg.Mono", tooltip : "Si habilitado: Compra equipamiento legendario mono en el mercado<br>Solo compra si el banco de dinero es superior a este valor"},
     autoLGM: { elementText: "Min dinero", tooltip : "(Entero)<br>Mínimo dinero a guardar"},
     autoLGRW: { elementText: "Compra Eqip.Leg.Arcoiris", tooltip : "Si habilitado: Compra equipamiento legendario arcoiris en el mercado<br>Solo compra si el banco de dinero es superior a este valor"},
@@ -5451,9 +5451,9 @@ HHAuto_ToolTips.es = {
     ResetAllVars: { elementText: "Restaura por defecto", tooltip : "Restaura la configuración por defecto."},
     DebugFileText: { elementText: "Click en el siguiente botón para generar un fichero log de depuración", tooltip : ""},
     OptionCancel: { elementText: "Cancelar", tooltip : ""},
-    SeasonMaskRewards: { elementText: "Enmascara recompensas", tooltip : "permite enmascarar todas las recompensas reclamadas en la pantalla de Temporada"},
+    SeasonMaskRewards: { elementText: "Enmascara recompensas", tooltip : "Permite enmascarar todas las recompensas reclamadas en la pantalla de Temporada"},
     autoClubChamp: { elementText: "AutoClubCamp", tooltip : "Si habilitado: Combate al campeón del club de manera automática"},
-    autoTrollMythicByPassParanoia: { elementText: "Mítico ignora paranoia", tooltip : "Permite al mítico ignorar la paranoia.<br>Si la siguiente ola es durante el descanso forzará el despertarse para jugar<br>Si todavía pelea o puede comprar peleas, continuará."},
+    autoTrollMythicByPassParanoia: { elementText: "Mítico ignora paranoia", tooltip : "Permite al mítico ignorar paranoia. Si la siguiente liberación es durante el descanso forzará despertarse para jugar. Si todavía pelea o puede comprar peleas, continuará."},
     buyMythicCombat: { elementText: "Compra comb. para mítico", tooltip : "Función de gasto de Kobans<br>Si habilitado: <br>Comprar puntos de combate durante las últimas X horas del evento mítico (si no se baja del valor de Banco de Kobans)"},
     buyMythicCombTimer: { elementText: "Horas para comprar comb.Mítico", tooltip : "(Entero)<br>X últimas horas del evento mítico"},
     DebugResetTimerText: { elementText: "El selector a continuación permite restablecer los temporizadores", tooltip : ""},
@@ -5462,6 +5462,8 @@ HHAuto_ToolTips.es = {
     timerLeftTime: { elementText: "", tooltip : "Tiempo restante"},
     timerResetNoTimer : { elementText: "No hay temporizador seleccionado", tooltip : ""}
 }
+
+
 
 
 var HHAuto_Lang = 'en';
