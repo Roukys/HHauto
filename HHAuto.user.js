@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.0
+// @version      5.4.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -1451,6 +1451,13 @@ var CollectMoney = function()
         if (ToClick.length>0)
         {
             //logHHAuto('clicking!');
+
+            // add time to paranoia
+            var addedTime=ToClick.length*1.6;
+            logHHAuto("Adding time to burst to cover getting salary : +"+addedTime+"secs");
+            addedTime += getSecondsLeft("paranoiaSwitch");
+            setTimer("paranoiaSwitch",addedTime);
+
             setTimeout(ClickThem,randomInterval(500,1500));
         }
         else//nothing to collect
@@ -2388,7 +2395,7 @@ var doSeason = function () {
             location.href = document.getElementsByClassName("opponent_perform_button_container")[chosenID].children[0].getAttribute('href');
             sessionStorage.HHAuto_Temp_autoLoop = "false";
             logHHAuto("setting autoloop to false");
-            logHHAuto("Going to crush : "+$("div.season_arena_opponent_container .hero_details div:not([class]):not([carac])")[chosenID].innerText);
+            logHHAuto("Going to crush : "+$("div.season_arena_opponent_container .hero_details div.hero_name")[chosenID].innerText);
             return true;
         }
         if (chosenID === -2 )
@@ -2691,8 +2698,6 @@ var doLeagueBattle = function () {
                 {
                     logHHAuto('going to crush ID : '+oppoID);
                     location.href = "/battle.html?league_battle=1&id_member=" + oppoID;
-                    sessionStorage.HHAuto_Temp_autoLoop = "false";
-                    logHHAuto("setting autoloop to false");
                     clearTimer('nextLeaguesTime');
                 }
             }
@@ -2733,7 +2738,8 @@ function LeagueUpdateGetOpponentPopup(numberDone,remainingTime)
 
 function getLeagueOpponentId(opponentsIDList)
 {
-    var opponentsPowerList = sessionStorage.HHAuto_Temp_LeagueOpponentList?JSON.parse(sessionStorage.HHAuto_Temp_LeagueOpponentList,reviverMap):[];
+    var opponentsPowerList = sessionStorage.HHAuto_Temp_LeagueOpponentList?JSON.parse(sessionStorage.HHAuto_Temp_LeagueOpponentList,reviverMap):new Map([]);
+    var opponentsTempPowerList = sessionStorage.HHAuto_Temp_LeagueTempOpponentList?JSON.parse(sessionStorage.HHAuto_Temp_LeagueTempOpponentList,reviverMap):new Map([]);
     var opponentsListExpirationDate = sessionStorage.HHAuto_Temp_opponentsListExpirationDate?sessionStorage.HHAuto_Temp_opponentsListExpirationDate:'empty';
     var opponentsIDs= opponentsIDList;
     var oppoNumber = opponentsIDList.length;
@@ -2749,6 +2755,7 @@ function getLeagueOpponentId(opponentsIDList)
     var playerOmega;
     var playerExcitement;
     var DataOppo=new Map([]);
+    var maxTime = 1.6;
 
     //toremove after migration in prod
     var girlDataName;
@@ -2762,9 +2769,32 @@ function getLeagueOpponentId(opponentsIDList)
 
     }
 
-    if (opponentsListExpirationDate === 'empty' || opponentsListExpirationDate < new Date() || opponentsPowerList.length ==0)
+    if (opponentsListExpirationDate === 'empty' || opponentsListExpirationDate < new Date() || opponentsPowerList.size ===0)
     {
-        logHHAuto("Opponents list not found or expired. Fetching all opponents.");
+        if (opponentsTempPowerList.size > 0)
+        {
+            logHHAuto("Opponents list already started, continuing.");
+            //removing already done in opponentsIDList
+            for (var i of opponentsTempPowerList.keys())
+            {
+                opponentsIDList = opponentsIDList.filter(item => Number(item) !== i)
+            }
+            DataOppo = opponentsTempPowerList;
+            sessionStorage.removeItem("HHAuto_Temp_LeagueTempOpponentList");
+
+        }
+        else
+        {
+            logHHAuto("Opponents list not found or expired. Fetching all opponents.");
+        }
+
+        var addedTime=opponentsIDList.length*maxTime;
+        // add 2 mins for using it
+        addedTime+=120;
+        logHHAuto("Adding time to burst to cover building list : +"+addedTime+"secs");
+        addedTime += getSecondsLeft("paranoiaSwitch");
+        setTimer("paranoiaSwitch",addedTime);
+
         playerEgo = Math.round(getSetHeroInfos('caracs.ego'));
         playerDefHC = Math.round(getSetHeroInfos('caracs.def_carac1'));
         playerDefCH = Math.round(getSetHeroInfos('caracs.def_carac2'));
@@ -2830,13 +2860,13 @@ function getLeagueOpponentId(opponentsIDList)
                 //if (!isNaN(matchRating))
                 //{
                 DataOppo.set(opponent.id_member,matchRating);
+                sessionStorage.HHAuto_Temp_LeagueTempOpponentList = JSON.stringify(DataOppo,replacerMap);
                 //}
                 //DataOppo.push(JSON.parse(data.html.substring(data.html.indexOf(findText)+findText.length,data.html.lastIndexOf(';'))));
 
             });
 
             opponentsIDList.shift();
-            var maxTime = 1.6;
             LeagueUpdateGetOpponentPopup(DataOppo.size+'/'+oppoNumber, toHHMMSS((oppoNumber-DataOppo.size)*maxTime));
             setTimeout(getOpponents,randomInterval(800,maxTime*1000));
 
@@ -2847,9 +2877,13 @@ function getLeagueOpponentId(opponentsIDList)
             //logHHAuto('nothing to click, checking data');
             sessionStorage.HHAuto_Temp_opponentsListExpirationDate=new Date().getTime() + 60*60 * 1000
             //logHHAuto(DataOppo);
+            sessionStorage.removeItem("HHAuto_Temp_LeagueTempOpponentList");
             sessionStorage.HHAuto_Temp_LeagueOpponentList = JSON.stringify(DataOppo,replacerMap);
             LeagueClearDisplayGetOpponentPopup();
-            doLeagueBattle();
+            //doLeagueBattle();
+            logHHAuto("Building list finished, putting autoloop back to true.");
+            sessionStorage.HHAuto_Temp_autoLoop = "true";
+            setTimeout(autoLoop, Number(Storage().HHAuto_Temp_autoLoopTimeMili));
         }
     }
 
@@ -3028,7 +3062,15 @@ var getSecondsLeft=function(name)
     {
         return 0;
     }
-    return Math.ceil(Timers[name]/1000)-Math.ceil(new Date().getTime()/1000);
+    var result = Math.ceil(Timers[name]/1000)-Math.ceil(new Date().getTime()/1000);
+    if (result >0)
+    {
+        return result;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 var getTimeLeft=function(name)
@@ -3921,15 +3963,8 @@ function moduleSimSeasonBattle() {
         playerExcitement = Math.round((playerAlpha.caracs.carac1 + playerAlpha.caracs.carac2 + playerAlpha.caracs.carac3) * 28);
         for (index=0;index<3;index++)
         {
-            var opponentName;
-            if ($("div.season_arena_opponent_container .hero_details div.hero_name").length>0)
-            {
-                opponentName = $("div.season_arena_opponent_container .hero_details div.hero_name")[index].innerText
-            }
-            else
-            {
-                opponentName = $("div.season_arena_opponent_container .hero_details div:not([class]):not([carac])")[index].innerText;
-            }
+            var opponentName = $("div.season_arena_opponent_container .hero_details div.hero_name")[index].innerText
+
             var opponentEgo = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[2].innerText.replace(/[^0-9]/gi, ''));
             var opponentDef = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[1].innerText.split('-')[0].replace(/[^0-9]/gi, ''));
             var opponentAtk = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[0].innerText.split('-')[0].replace(/[^0-9]/gi, ''));
@@ -4168,22 +4203,7 @@ var autoLoop = function () {
                 busy = true;
             }
         }
-        if(Storage().HHAuto_Setting_autoLeagues === "true" && getSetHeroInfos('level')>=20 && busy === false ){
-            // Navigate to leagues
-            if ((checkTimer('nextLeaguesTime') && Number(getSetHeroInfos('challenge.amount')) > Number(Storage().HHAuto_Setting_autoLeaguesThreshold) ) || Number(checkParanoiaSpendings('challenge')) > 0)
-            {
-                logHHAuto("Time to fight in Leagues.");
-                doLeagueBattle();
-                busy = true;
-            }
-            else
-            {
-                if (checkTimer('nextLeaguesTime'))
-                {
-                    setTimer('nextLeaguesTime',getSetHeroInfos('challenge.next_refresh_ts'));
-                }
-            }
-        }
+
         if(Storage().HHAuto_Setting_autoContest === "true" && busy === false){
             if (checkTimer('nextContestTime') || unsafeWindow.has_contests_datas ||$(".contest .ended button[rel='claim']").size()>0){
                 logHHAuto("Time to get contest rewards.");
@@ -4473,7 +4493,22 @@ var autoLoop = function () {
             logHHAuto("Time to check on club champion!");
             busy=doClubChampionStuff();
         }
-
+        if(Storage().HHAuto_Setting_autoLeagues === "true" && getSetHeroInfos('level')>=20 && busy === false ){
+            // Navigate to leagues
+            if ((checkTimer('nextLeaguesTime') && Number(getSetHeroInfos('challenge.amount')) > Number(Storage().HHAuto_Setting_autoLeaguesThreshold) ) || Number(checkParanoiaSpendings('challenge')) > 0)
+            {
+                logHHAuto("Time to fight in Leagues.");
+                doLeagueBattle();
+                busy = true;
+            }
+            else
+            {
+                if (checkTimer('nextLeaguesTime'))
+                {
+                    setTimer('nextLeaguesTime',getSetHeroInfos('challenge.next_refresh_ts'));
+                }
+            }
+        }
 
         if (/*autoBuy() &&*/ busy===false)
         {
@@ -4544,8 +4579,337 @@ var autoLoop = function () {
     if (getPage() === "powerplacemain" ) {
         moduleDisplayPopID();
     }
+    if (getPage() === "shop" ) {
+        moduleSellItems();
+    }
 
 };
+
+function moduleSellItems()
+{
+    var newMenuSell = '<div class="tooltip"><span class="tooltiptext">'+getTextForUI("SellMenu","tooltip")+'</span><label style="position: relative;left: -100px;top: -10px; width:70px" class="myButton" id="SellMenu">'+getTextForUI("SellMenu","elementText")+'</label></div>'
+    + '<dialog id="SellDialog"><form stylemethod="dialog">'
+    +  '<div style="padding:10px; display:flex;flex-direction:column;">'
+    +   '<div style="display:flex;flex-direction:row;">'
+    +    '<p>'+getTextForUI("SellMenuCurrentCount","elementText")+'</p>'
+    +    '<p id="SellMenuCurrentCount">0</p>'
+    +   '</div>'
+    +   '<p ></p>'
+    +   '<div id="SellMenuHide" style="display:none">'
+    +    '<p>'+getTextForUI("SellMenuText","elementText")+'</p>'
+    +    '<div style="display:flex;flex-direction:row;">'
+    +     '<div style="padding:10px;"class="tooltip"><span class="tooltiptext">'+getTextForUI("SellMenuButton","tooltip")+'</span><label class="myButton" id="SellMenuButton">'+getTextForUI("SellMenuButton","elementText")+'</label></div>'
+    +     '<div style="padding:10px;" class="tooltip"><span class="tooltiptext">'+getTextForUI("SellMenuNumber","tooltip")+'</span><input id="SellMenuNumber" style="width:80%;height:20px" required pattern="'+HHAuto_inputPattern.SellMenuNumber+'" type="text" value="0"></div>'
+    +    '</div>'
+    +   '</div>'
+    +   '<div id="SoldMenuHide" style="display:none">'
+    +    '<div style="display:flex;flex-direction:row;">'
+    +     '<p>'+getTextForUI("SoldMenuText","elementText")+'</p>'
+    +     '<p id="SoldMenuCurrentCount">0</p>'
+    +    '</div>'
+    +   '</div>'
+    +  '</div>'
+    + '<menu> <label style="width:80px" class="myButton" id="SellMenuCancel">'+getTextForUI("OptionCancel","elementText")+'</label></menu></form></dialog>'
+
+
+    if ($("#SellMenu").length === 0)
+    {
+        $('#inventory > div.armor > label').append(newMenuSell);
+
+        document.getElementById("SellMenu").addEventListener("click", function(){
+
+            if (typeof SellDialog.showModal === "function") {
+
+                SellDialog.showModal();
+                getOtherItems();
+
+            } else {
+                alert("The <dialog> API is not supported by this browser");
+            }
+        });
+        document.getElementById("SellMenuCancel").addEventListener("click", function(){
+
+            if (typeof SellDialog.showModal === "function") {
+
+                SellDialog.close();
+
+            } else {
+                alert("The <dialog> API is not supported by this browser");
+            }
+        });
+
+        document.getElementById("SellMenuButton").addEventListener("click", function(){
+            if (Number(document.getElementById("SellMenuNumber").value) >0 )
+            {
+                logHHAuto("Starting selling "+Number(document.getElementById("SellMenuNumber").value)+" items.");
+                setSelling();
+            }
+        });
+    }
+    else
+    {
+        document.getElementById("SellMenuCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
+    }
+
+    function getOtherItems()
+    {
+        //console.log(slots.armor_pack_load);
+        if (slots.armor_pack_load < 0)
+        {
+            document.getElementById("SellMenuCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
+            document.getElementById("SellMenuHide").style.display = "block";
+            return;
+        }
+        slots.armor_pack_load++;
+        hh_ajax({
+            class: "Item",
+            action: "armor_pack_load",
+            pack: slots.armor_pack_load,
+            shift: slots.load_item_shift
+        }, function(data) {
+            //loadingAnimation.stop();
+            //$useB.prop("disabled", false);
+            //$sellB.prop("disabled", false);
+            //var $last = $("#inventory [tab].armor .slot").not(".empty").last();
+            var last = $("#inventory [tab].armor .slot").not(".empty").last();
+            $("#shops #inventory [tab].armor>.inventory_slots>div>.slot.empty").remove();
+            $("#shops #inventory [tab].armor>.inventory_slots>div").find(last).after(data.html);
+            //slots.slotAction.normalizeRow("armor");
+            //$slots = $slots.add($("#shops #inventory [tab].armor .slot"));
+            //if (data.last) slots.armor_pack_load = -100;
+            dragndrop.initInventoryItemsDraggable($("#inventory > div.armor.selected > div > div > div.slot"));
+            if (data.last)
+            {
+                slots.armor_pack_load = -100;
+                document.getElementById("SellMenuCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
+                document.getElementById("SellMenuHide").style.display = "block";
+            }
+            else
+            {
+                if (document.getElementById("SellMenuCurrentCount"))
+                {
+                    document.getElementById("SellMenuCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
+                    setTimeout(getOtherItems, randomInterval(800,1600));
+                }
+            }
+            //if (callback) callback();
+        });
+    }
+
+    function setSelling()
+    {
+        logHHAuto('start selling not legendary stuff');
+        document.getElementById("SellMenuHide").style.display = "none";
+        document.getElementById("SoldMenuHide").style.display = "block";
+        // return;
+        var initialNumberOfItems = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
+        var itemsToSell = Number(document.getElementById("SellMenuNumber").value);
+        selling_func = setInterval(() => {
+            if ($('#type_item > div.selected[type=armor]').length === 0)
+            {
+                logHHAuto('Wrong tab');
+                clearInterval(selling_func);
+                return;
+            }
+            else
+            {
+                let currentNumberOfItems = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
+                if ((initialNumberOfItems - currentNumberOfItems) < itemsToSell)
+                {
+                    let PlayerClass = getSetHeroInfos("class") === -1 ? $('#equiped > div.icon.class_change_btn').attr('carac') : getSetHeroInfos("class");
+                    //check Selected item - can we sell it?
+                    if ($('#inventory .selected .inventory_slots .selected').length > 0)
+                    {
+                        let can_sell = false;
+                        //Non legendary check
+                        if ($('#inventory .selected .inventory_slots .selected')[0].className.indexOf('legendary') < 0)
+                        {
+                            can_sell = true;
+
+                        }
+                        //Legendary but with specific className
+                        else if ($('#inventory .selected .inventory_slots .selected[canBeSold]').length > 0)
+                        {
+                            can_sell = true;
+                        }
+                        else
+                        {
+                            let CurrObj;
+                            CurrObj = JSON.parse($('#inventory .selected .inventory_slots .selected')[0].getAttribute('data-d'));
+                            if (CurrObj.id_equip != "EQ-LE-06" && CurrObj.id_equip != "EQ-LE-0" + PlayerClass)
+                            {
+                                can_sell = true;
+                            }
+                        }
+                        logHHAuto('can be sold:' + can_sell);
+                        if (can_sell)
+                        {
+                            $('#inventory > button.green_text_button[rel=sell]').click();
+                            document.getElementById("SoldMenuCurrentCount").innerHTML = (initialNumberOfItems - currentNumberOfItems) +1;
+                            document.getElementById("SellMenuCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
+                            return;
+                        }
+                    }
+                    //Find new non legendary sellable items
+                    if ($('#inventory .selected .inventory_slots .slot:not(.selected):not(.empty):not(.legendary)').length > 0)
+                    {
+                        //Select first non legendary item
+                        $('#inventory .selected .inventory_slots .slot:not(.selected):not(.empty):not(.legendary)')[0].click();
+                        return;
+                    }
+                    else if ($('#inventory .selected .inventory_slots [canBeSold]').length > 0)
+                    {
+                        //Select item that checked before and can be sold
+                        $('#inventory .selected .inventory_slots [canBeSold]')[0].click();
+                        return;
+                    }
+                    else if ($('#inventory .selected .inventory_slots .slot:not(.selected):not(.empty)').length > 0)
+                    {
+                        let sellableslotsLegObj = $('#inventory .selected .inventory_slots .slot:not(.selected):not(.empty)');
+                        //[MaxCarac,Index]
+                        let TypesArrayPlayerClass = [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]];
+                        let equipedArray = $('#equiped .armor .slot[data-d*=EQ-LE-0' + PlayerClass + ']');
+                        if (equipedArray.length > 0)
+                        {
+                            let equipedObj;
+                            for (let i5 = 0; i5 < equipedArray.length; i5++)
+                            {
+                                equipedObj = JSON.parse($(equipedArray[i5]).attr('data-d'));
+                                TypesArrayPlayerClass[equipedObj.subtype][0] = equipedObj['carac' + PlayerClass];
+                            }
+                        }
+                        let TypesArrayRainbow = [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]];
+                        equipedArray = $('#equiped .armor .slot[data-d*=EQ-LE-06]');
+                        if (equipedArray.length > 0)
+                        {
+                            let equipedObj;
+                            for (let i5 = 0; i5 < equipedArray.length; i5++)
+                            {
+                                equipedObj = JSON.parse($(equipedArray[i5]).attr('data-d'));
+                                TypesArrayRainbow[equipedObj.subtype][0] = equipedObj['carac' + PlayerClass];
+                            }
+                        }
+                        let TypesArrayEndurance = [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]];
+                        equipedArray = $('#equiped .armor .slot[data-d*=EQ-LE-04]');
+                        if (equipedArray.length > 0)
+                        {
+                            let equipedObj;
+                            for (let i5 = 0; i5 < equipedArray.length; i5++)
+                            {
+                                equipedObj = JSON.parse($(equipedArray[i5]).attr('data-d'));
+                                TypesArrayEndurance[equipedObj.subtype][0] = equipedObj['endurance'];
+                            }
+                        }
+                        let TypesArrayHarmony = [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]];
+                        equipedArray = $('#equiped .armor .slot[data-d*=EQ-LE-05]');
+                        if (equipedArray.length > 0)
+                        {
+                            let equipedObj;
+                            for (let i5 = 0; i5 < equipedArray.length; i5++)
+                            {
+                                equipedObj = JSON.parse($(equipedArray[i5]).attr('data-d'));
+                                TypesArrayHarmony[equipedObj.subtype][0] = equipedObj['chance'];
+                            }
+                        }
+
+                        let sellableslotsLeg = $('#inventory .selected .inventory_slots .slot:not(.empty)');
+                        for (var i4 = 0; i4 < sellableslotsLeg.length; i4++)
+                        {
+                            sellableslotsLegObj = JSON.parse($(sellableslotsLeg[i4]).attr('data-d'));
+                            //check item type - if not rainbow or not monocolored(NOT for player's class)
+                            if (sellableslotsLegObj.id_equip != "EQ-LE-06" && sellableslotsLegObj.id_equip != "EQ-LE-04" && sellableslotsLegObj.id_equip != "EQ-LE-05" &&sellableslotsLegObj.id_equip != "EQ-LE-0" + PlayerClass)
+                            {
+                                //console.log('can_sell2');
+                                sellableslotsLeg[i4].setAttribute('canBeSold', '');
+                            }
+                            else if (sellableslotsLegObj.id_equip == "EQ-LE-06")
+                            {
+                                //checking best gear in inventory based on best class stat
+                                if (TypesArrayRainbow[sellableslotsLegObj.subtype][0] < sellableslotsLegObj['carac' + PlayerClass])
+                                {
+                                    TypesArrayRainbow[sellableslotsLegObj.subtype][0] = sellableslotsLegObj['carac' + PlayerClass];
+                                    if (TypesArrayRainbow[sellableslotsLegObj.subtype][1] >= 0)
+                                    {
+                                        sellableslotsLeg[TypesArrayRainbow[sellableslotsLegObj.subtype][1]].setAttribute('canBeSold', '');
+                                    }
+                                    TypesArrayRainbow[sellableslotsLegObj.subtype][1] = i4;
+                                }
+                                else
+                                {
+                                    sellableslotsLeg[i4].setAttribute('canBeSold', '');
+                                }
+                            }
+                            else if (sellableslotsLegObj.id_equip == "EQ-LE-0" + PlayerClass)
+                            {
+                                //checking best gear in inventory based on best class stat
+                                if (TypesArrayPlayerClass[sellableslotsLegObj.subtype][0] < sellableslotsLegObj['carac' + PlayerClass])
+                                {
+                                    TypesArrayPlayerClass[sellableslotsLegObj.subtype][0] = sellableslotsLegObj['carac' + PlayerClass];
+                                    if (TypesArrayPlayerClass[sellableslotsLegObj.subtype][1] >= 0)
+                                    {
+                                        sellableslotsLeg[TypesArrayPlayerClass[sellableslotsLegObj.subtype][1]].setAttribute('canBeSold', '');
+                                    }
+                                    TypesArrayPlayerClass[sellableslotsLegObj.subtype][1] = i4;
+                                }
+                                else
+                                {
+                                    sellableslotsLeg[i4].setAttribute('canBeSold', '');
+                                }
+                            }
+                            else if (sellableslotsLegObj.id_equip == "EQ-LE-04")
+                            {
+                                //checking best gear in inventory based on best class stat
+                                if (TypesArrayEndurance[sellableslotsLegObj.subtype][0] < sellableslotsLegObj['endurance'])
+                                {
+                                    TypesArrayEndurance[sellableslotsLegObj.subtype][0] = sellableslotsLegObj['endurance'];
+                                    if (TypesArrayEndurance[sellableslotsLegObj.subtype][1] >= 0)
+                                    {
+                                        sellableslotsLeg[TypesArrayEndurance[sellableslotsLegObj.subtype][1]].setAttribute('canBeSold', '');
+                                    }
+                                    TypesArrayEndurance[sellableslotsLegObj.subtype][1] = i4;
+                                }
+                                else
+                                {
+                                    sellableslotsLeg[i4].setAttribute('canBeSold', '');
+                                }
+                            }
+                            else if (sellableslotsLegObj.id_equip == "EQ-LE-05")
+                            {
+                                //checking best gear in inventory based on best class stat
+                                if (TypesArrayHarmony[sellableslotsLegObj.subtype][0] < sellableslotsLegObj['chance'])
+                                {
+                                    TypesArrayHarmony[sellableslotsLegObj.subtype][0] = sellableslotsLegObj['chance'];
+                                    if (TypesArrayHarmony[sellableslotsLegObj.subtype][1] >= 0)
+                                    {
+                                        sellableslotsLeg[TypesArrayHarmony[sellableslotsLegObj.subtype][1]].setAttribute('canBeSold', '');
+                                    }
+                                    TypesArrayHarmony[sellableslotsLegObj.subtype][1] = i4;
+                                }
+                                else
+                                {
+                                    sellableslotsLeg[i4].setAttribute('canBeSold', '');
+                                }
+                            }
+                        }
+                        if ($('#inventory .selected .inventory_slots [canBeSold]').length == 0)
+                        {
+                            logHHAuto('no more items for sale');
+                            document.getElementById("SellMenuHide").style.display = "block";
+                            clearInterval(selling_func);
+                        }
+                    }
+                }
+                else
+                {
+                    logHHAuto('Reach wanted sold items.');
+                    document.getElementById("SellMenuHide").style.display = "block";
+                    clearInterval(selling_func);
+                }
+            }
+
+        }, randomInterval(1000,1600));
+    }
+}
 
 
 var moduleDisplayEventPriority=function()
@@ -5127,16 +5491,16 @@ var HHAuto_inputPattern = {
     kobanBank:"[0-9]+",
     buyCombTimer:"[0-9]+",
     buyMythicCombTimer:"[0-9]+",
-    autoBuyBoostersFilter:"B[1-4](;B[1-4])+",
+    autoBuyBoostersFilter:"B[1-4](;B[1-4])*",
     calculatePowerLimits:"(\-?[0-9]+;\-?[0-9]+)|default",
     autoSalaryTextbox:"[0-9]+",
     autoTrollThreshold:"[1]?[0-9]",
-    eventTrollOrder:"([1-2][0-9]|[1-9])(;([1-2][0-9]|[1-9]))+",
+    eventTrollOrder:"([1-2][0-9]|[1-9])(;([1-2][0-9]|[1-9]))*",
     autoSeasonThreshold:"[0-9]",
     autoQuestThreshold:"[1-9]?[0-9]",
     autoLeaguesThreshold:"1[0-4]|[0-9]",
-    autoPowerPlacesIndexFilter:"[1-9][0-9]{0,1}(;[1-9][0-9]{0,1})+",
-    autoChampsFilter:"[1-6](;[1-6])+",
+    autoPowerPlacesIndexFilter:"[1-9][0-9]{0,1}(;[1-9][0-9]{0,1})*",
+    autoChampsFilter:"[1-6](;[1-6])*",
     autoStats:"[0-9]+",
     autoExp:"[0-9]+",
     maxExp:"[0-9]+",
@@ -5144,7 +5508,8 @@ var HHAuto_inputPattern = {
     maxAff:"[0-9]+",
     autoLGM:"[0-9]+",
     autoLGR:"[0-9]+",
-    autoEGM:"[0-9]+"
+    autoEGM:"[0-9]+",
+    SellMenuNumber:"[0-9]+"
 }
 
 var HHAuto_ToolTips = [];
@@ -5230,7 +5595,13 @@ HHAuto_ToolTips.en = {
     timerResetSelector: { elementText: "Select Timer", tooltip : "Select the timer you want to reset"},
     timerResetButton: { elementText: "Reset", tooltip : "Set the timer to 0."},
     timerLeftTime: { elementText: "", tooltip : "Time remaining"},
-    timerResetNoTimer : { elementText: "No selected timer", tooltip : ""}
+    timerResetNoTimer : { elementText: "No selected timer", tooltip : ""},
+    SellMenu : { elementText: "Sell", tooltip : "Allow to sell items."},
+    SellMenuText : { elementText: "This will sell the number of items asked starting in display order (first all non legendary then legendary)<br> It will sell all non legendary stuff and keep : <br> - 1 set of rainbow (choosen on highest player class stat)<br> - 1 set of mono player class (choosen on highest stats)<br> - 1 set of harmony (choosen on highest stats)<br> - 1 set of endurance (choosen on highest stats)<br> Enter the number of items you want to sell bellow.", tooltip : ""},
+    SellMenuNumber : { elementText: "", tooltip : "Enter the number of items you want to sell : "},
+    SellMenuButton : { elementText: "Sell", tooltip : "Launch selling funtion."},
+    SellMenuCurrentCount : { elementText: "Number of items you currently have : ", tooltip : ""},
+    SoldMenuText : { elementText: "Number of items sold : ", tooltip : ""}
 }
 
 
@@ -5586,7 +5957,8 @@ var HHVars=["Storage().HHAuto_Setting_autoAff",
             "Storage().HHAuto_Temp_toNextSwitch",
             "Storage().HHAuto_Temp_Totalpops",
             "sessionStorage.HHAuto_Temp_userLink",
-            "localStorage.HHAuto_Temp_MigratedVars"];
+            "localStorage.HHAuto_Temp_MigratedVars",
+            "sessionStorage.HHAuto_Temp_LeagueTempOpponentList"];
 var updateData = function () {
     //logHHAuto("updating UI");
     if ($('#LoadDialog[open]').length > 0) {return}
