@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.2
+// @version      5.4.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -2076,7 +2076,7 @@ function nRounding(num, digits, updown) {
 }
 /* ============
     calculatePower Credit Raphael, 1121, Sluimerstand, shal (Hentai Heroes++ (OCD) 0.12.2)
-   ============ */
+    ============ */
 
 function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement)
 {
@@ -2691,8 +2691,8 @@ var doLeagueBattle = function () {
                 var oppoID = getLeagueOpponentId(Data);
                 if (oppoID == -1)
                 {
-                    logHHAuto('opponent list is building next league time in 2 min');
-                    setTimer('nextLeaguesTime',2*60);
+                    logHHAuto('opponent list is building next waiting');
+                    //setTimer('nextLeaguesTime',2*60);
                 }
                 else
                 {
@@ -4510,7 +4510,7 @@ var autoLoop = function () {
             }
         }
 
-        if (/*autoBuy() &&*/ busy===false)
+        if (/*autoBuy() &&*/ busy===false && !checkTimer("paranoiaSwitch"))
         {
             if (sessionStorage.HHAuto_Temp_charLevel===undefined)
             {
@@ -4522,7 +4522,7 @@ var autoLoop = function () {
             }
         }
 
-        if (Storage().HHAuto_Setting_autoSalary === "true" && busy === false) {
+        if (Storage().HHAuto_Setting_autoSalary === "true" && busy === false && !checkTimer("paranoiaSwitch")) {
             if (checkTimer("nextSalaryTime")) {
                 logHHAuto("Time to fetch salary.");
                 busy = getSalary();
@@ -4580,84 +4580,412 @@ var autoLoop = function () {
         moduleDisplayPopID();
     }
     if (getPage() === "shop" ) {
-        moduleSellItems();
+        moduleShopActions();
     }
 
 };
 
-function moduleSellItems()
+function moduleShopActions()
 {
-    var newMenuSell = '<div class="tooltip"><span class="tooltiptext">'+getTextForUI("SellMenu","tooltip")+'</span><label style="position: relative;left: -100px;top: -10px; width:70px" class="myButton" id="SellMenu">'+getTextForUI("SellMenu","elementText")+'</label></div>'
-    + '<dialog id="SellDialog"><form stylemethod="dialog">'
-    +  '<div style="padding:10px; display:flex;flex-direction:column;">'
-    +   '<div style="display:flex;flex-direction:row;">'
-    +    '<p>'+getTextForUI("SellMenuCurrentCount","elementText")+'</p>'
-    +    '<p id="SellMenuCurrentCount">0</p>'
-    +   '</div>'
-    +   '<p ></p>'
-    +   '<div id="SellMenuHide" style="display:none">'
-    +    '<p>'+getTextForUI("SellMenuText","elementText")+'</p>'
-    +    '<div style="display:flex;flex-direction:row;">'
-    +     '<div style="padding:10px;"class="tooltip"><span class="tooltiptext">'+getTextForUI("SellMenuButton","tooltip")+'</span><label class="myButton" id="SellMenuButton">'+getTextForUI("SellMenuButton","elementText")+'</label></div>'
-    +     '<div style="padding:10px;" class="tooltip"><span class="tooltiptext">'+getTextForUI("SellMenuNumber","tooltip")+'</span><input id="SellMenuNumber" style="width:80%;height:20px" required pattern="'+HHAuto_inputPattern.SellMenuNumber+'" type="text" value="0"></div>'
-    +    '</div>'
-    +   '</div>'
-    +   '<div id="SoldMenuHide" style="display:none">'
-    +    '<div style="display:flex;flex-direction:row;">'
-    +     '<p>'+getTextForUI("SoldMenuText","elementText")+'</p>'
-    +     '<p id="SoldMenuCurrentCount">0</p>'
-    +    '</div>'
-    +   '</div>'
-    +  '</div>'
-    + '<menu> <label style="width:80px" class="myButton" id="SellMenuCancel">'+getTextForUI("OptionCancel","elementText")+'</label></menu></form></dialog>'
+    appendMenuSell();
+    appendMenuAff();
 
-
-    if ($("#SellMenu").length === 0)
+    function appendMenuAff()
     {
-        $('#inventory > div.armor > label').append(newMenuSell);
+        var menuAff = '<div class="tooltip"><span class="tooltiptext">'+getTextForUI("menuAff","tooltip")+'</span><label style="position: relative;left: -100px;top: -10px; width:100px" class="myButton" id="menuAff">'+getTextForUI("menuAff","elementText")+'</label></div>'
+        + '<dialog id="AffDialog"><form stylemethod="dialog">'
+        +  '<div style="padding:10px; display:flex;flex-direction:column;">'
+        //+   '<div style="display:flex;flex-direction:row;">'
+        +    '<p id="menuAffText"></p>'
+        //+   '</div>'
+        +   '<p ></p>'
+        +   '<div id="menuAffHide" style="display:none">'
+        +    '<div style="display:flex;flex-direction:row;">'
+        +     '<div style="padding:10px;"class="tooltip"><span class="tooltiptext">'+getTextForUI("menuAffButton","tooltip")+'</span><label class="myButton" id="menuAffButton">'+getTextForUI("menuAffButton","elementText")+'</label></div>'
+        +    '</div>'
+        +   '</div>'
+        +  '</div>'
+        + '<menu> <label style="width:80px" class="myButton" id="menuAffCancel">'+getTextForUI("OptionCancel","elementText")+'</label></menu></form></dialog>'
 
-        document.getElementById("SellMenu").addEventListener("click", function(){
+        if ($("#menuAff").length === 0 )
+        {
+            let getSelectGirlID;
+            let girl;
+            let giftArray = {};
+            let AffToGive;
+            $('#inventory > div.gift > label').append(menuAff);
+            document.getElementById("menuAff").addEventListener("click", function()
+                                                                {
+                girl=$('div.girl-ico:not(.not-selected)');
+                getSelectGirlID=girl.attr("id_girl");
+                let selectedGirl=girl.data("g");
 
-            if (typeof SellDialog.showModal === "function") {
+                if ($('div[id_girl='+getSelectGirlID+'][data-g] .aff_val').length === 0 && $('div[id_girl='+getSelectGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length === 0)
+                {
+                    logHHAuto("Error catching girl current Aff, cancelling.");
+                    if (typeof AffDialog.showModal === "function")
+                    {
+                        document.getElementById("menuAffText").innerHTML = getTextForUI("menuAffError","elementText");
+                        document.getElementById("menuAffHide").style.display = "none";
+                        AffDialog.showModal();
+                    }
+                    else
+                    {
+                        alert("The <dialog> API is not supported by this browser");
+                    }
 
-                SellDialog.showModal();
-                getOtherItems();
+                    return;
+                }
+                else if ($('div[id_girl='+getSelectGirlID+'][data-g] .aff_val').length === 0 && $('div[id_girl='+getSelectGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length >0)
+                {
+                    if (typeof AffDialog.showModal === "function")
+                    {
+                        document.getElementById("menuAffText").innerHTML = selectedGirl.Name+" "+getTextForUI("menuAffNoNeed","elementText");
+                        document.getElementById("menuAffHide").style.display = "none";
+                        AffDialog.showModal();
+                    }
+                    else
+                    {
+                        alert("The <dialog> API is not supported by this browser");
+                    }
 
-            } else {
-                alert("The <dialog> API is not supported by this browser");
-            }
-        });
-        document.getElementById("SellMenuCancel").addEventListener("click", function(){
+                }
 
-            if (typeof SellDialog.showModal === "function") {
+                let selectedGirlAff=selectedGirl.Affection.cur;
+                giftArray = {};
+                let giftCount = {};
+                let totalAff=0;
+                let menuText="";
+                $('div.gift div.inventory_slots div[id_item][data-d]').each(function()
+                                                                            {
+                    let data=JSON.parse($(this).attr("data-d"));
+                    let countGift=Number($('div.gift div.inventory_slots div[id_item='+$(this).attr("id_item")+'][data-d] .stack_num span')[0].innerHTML.replace(/[^0-9]/gi, ''))
+                    giftCount[Number(data.value)]=countGift;
+                    totalAff+=Number(data.value)*countGift
+                    giftArray[Number(data.value)]=$(this).attr("id_item");
+                });
+                console.log("total gifts : ",giftCount);
+                if (Number(selectedGirl.Affection.cur) < Number(selectedGirl.Affection.max) && totalAff > 0)
+                {
 
-                SellDialog.close();
+                    AffToGive=findSubsetsPartition(Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur),giftCount);
+                    menuText = selectedGirl.Name+" "+selectedGirl.Affection.cur+"/"+selectedGirl.Affection.max+"<br>"+getTextForUI("menuAffDistribution","elementText")+"<br>";
+                    let Affkeys = Object.keys(AffToGive.partitions);
+                    for ( var i of Affkeys )
+                    {
+                        menuText = menuText+i+"Aff x "+AffToGive.partitions[i]+"<br>"
+                    }
+                    menuText = menuText+getTextForUI("Total","elementText")+AffToGive.total;
+                    document.getElementById("menuAffHide").style.display = "block";
 
-            } else {
-                alert("The <dialog> API is not supported by this browser");
-            }
-        });
+                }
+                else if (totalAff === 0)
+                {
+                    menuText = getTextForUI("menuAffNoAff","elementText");
+                }
+                logHHAuto(menuText);
+                if (typeof AffDialog.showModal === "function")
+                {
+                    document.getElementById("menuAffText").innerHTML = menuText;
+                    AffDialog.showModal();
+                }
+                else
+                {
+                    alert("The <dialog> API is not supported by this browser");
+                }
+            });
+            document.getElementById("menuAffButton").addEventListener("click", function()
+                                                                      {
+                giveAff(getSelectGirlID, AffToGive, giftArray);
+            });
+            document.getElementById("menuAffCancel").addEventListener("click", function(){
 
-        document.getElementById("SellMenuButton").addEventListener("click", function(){
-            if (Number(document.getElementById("SellMenuNumber").value) >0 )
+                if (typeof AffDialog.showModal === "function")
+                {
+
+                    AffDialog.close();
+
+                }
+                else
+                {
+                    alert("The <dialog> API is not supported by this browser");
+                }
+            });
+        }
+    }
+
+    function giveAff(inGirlID, inAffToGive, inAffArray)
+    {
+        let girl=$('div.girl-ico:not(.not-selected)');
+        let selectedGirl=girl.data("g");
+        let selectedGirlAff=selectedGirl.Affection.cur;
+        logHHAuto('start giving Aff to '+selectedGirl.Name);
+        let currentTotal = selectedGirlAff;
+        let currentItem = -1;
+        let inAffToGivePartitionBackup = { ...inAffToGive.partitions }
+        document.getElementById("menuAffHide").style.display = "none";
+        document.getElementById("menuAffText").innerHTML = selectedGirl.Name+" "+selectedGirlAff+"/"+selectedGirl.Affection.max+"<br>"+getTextForUI("menuAffDistributed","elementText")+"<br>";
+
+        giveAff_func = setInterval(() =>
+                                   {
+
+            if (!document.getElementById("AffDialog").open)
             {
-                logHHAuto("Starting selling "+Number(document.getElementById("SellMenuNumber").value)+" items.");
-                setSelling();
+                logHHAuto('Aff Dialog closed, stopping');
+                clearInterval(giveAff_func);
+                return;
             }
-        });
-    }
-    else
-    {
-        document.getElementById("SellMenuCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
+
+            if ($('div[id_girl='+inGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length >0)
+            {
+                selectedGirlAff = currentTotal;
+            }
+            else
+            {
+                girl=$('div.girl-ico:not(.not-selected)');
+                selectedGirl=girl.data("g");
+                selectedGirlAff=selectedGirl.Affection.cur;
+            }
+            console.log(currentItem, inAffToGive.partitions[currentItem],inAffToGive.partitions,selectedGirlAff,currentTotal);
+
+            //check if previous click has worked
+            if (selectedGirlAff === currentTotal)
+            {
+                //decrease count
+                if (currentItem !== -1)
+                {
+                    console.log("decreased");
+                    inAffToGive.partitions[currentItem] = inAffToGive.partitions[currentItem]-1;
+                    let menuText = selectedGirl.Name+" "+selectedGirlAff+"/"+selectedGirl.Affection.max+"<br>"+getTextForUI("menuAffDistributed","elementText")+"<br>";
+                    let Affkeys = Object.keys(inAffToGivePartitionBackup);
+                    let givenTotal = 0;
+                    console.log("inAffToGivePartitionBackup",inAffToGivePartitionBackup);
+                    console.log("inAffToGive",inAffToGive);
+                    for ( var i of Affkeys )
+                    {
+                        let diff=Number(inAffToGivePartitionBackup[i]-inAffToGive.partitions[i]);
+                        givenTotal += diff*Number(i);
+                        if (diff >0)
+                        {
+                            menuText = menuText+i+"Aff x "+diff+"<br>"
+                        }
+                    }
+                    menuText = menuText+getTextForUI("Total","elementText")+givenTotal;
+                    document.getElementById("menuAffText").innerHTML = menuText;
+
+                }
+                //select item
+                let itemKeys=Object.keys(inAffToGive.partitions);
+                currentItem = -1;
+                for ( let i of itemKeys )
+                {
+                    if (inAffToGive.partitions[i] >0)
+                    {
+                        currentItem = i;
+                    }
+                }
+
+                if (currentItem === -1)
+                {
+                    console.log('All Aff given.');
+                    clearInterval(giveAff_func);
+                    let givenTotal = 0;
+                    let menuText =selectedGirl.Name+" "+getTextForUI("menuAffReadyToUpgrade","elementText")+"<br>"+getTextForUI("menuAffDistributed","elementText")+"<br>";
+                    let Affkeys = Object.keys(inAffToGivePartitionBackup);
+                    for ( var i of Affkeys )
+                    {
+                        let diff=Number(inAffToGivePartitionBackup[i]-inAffToGive.partitions[i]);
+                        givenTotal += diff*Number(i);
+                        if (diff >0)
+                        {
+                            menuText = menuText+i+"Aff x "+diff+"<br>"
+                        }
+                    }
+                    menuText = menuText+getTextForUI("Total","elementText")+givenTotal;
+                    document.getElementById("menuAffText").innerHTML = menuText;
+                    document.getElementById("menuAffHide").style.display = "none";
+                }
+                else if (currentItem !== -1)
+                {
+                    console.log("selected item : "+currentItem);
+                    $('div.gift div.inventory_slots div[id_item='+inAffArray[currentItem]+'][data-d]').click();
+                    currentTotal+=Number(currentItem)
+                    console.log("new total : "+currentTotal);
+                }
+                return;
+            }
+            else
+            {
+                if (inAffArray[currentItem] === $('div.gift div.inventory_slots div[id_item][data-d].selected').attr("id_item") && inAffToGive.partitions[currentItem] >0 )
+                {
+                    console.log("clicked on "+currentItem);
+                    $('#inventory > button.blue_text_button[rel=use]').click();
+                    return;
+                }
+            }
+        }, randomInterval(800,1600));
     }
 
-    function getOtherItems()
+    function findSubsetsPartition(inTotal, inSets)
+    {
+        var arr = [];
+        var max = 0;
+        for ( var sub in inSets)
+        {
+            //console.log(inSets[sub],sub);
+            max+= inSets[sub]*sub;
+        }
+        //console.log(max);
+        if (inTotal>max)
+        {
+            return {total:max,partitions:{...inSets}};
+        }
+        var result= SubsetsRepartition(inTotal, inSets);
+
+        while( result === -1 && inTotal>0)
+        {
+            //console.log(inTotal);
+            inTotal -=1;
+            result = SubsetsRepartition(inTotal, inSets);
+        };
+        return result;
+
+        function SubsetsRepartition(inMax, subSets, currentMax = inMax, currentset = 0 )
+        {
+            var currentSets={...subSets};
+            if ( currentMax > 0 )
+            {
+                var result = -1;
+                var keys = Object.keys(currentSets);
+                //console.log(keys);
+                keys = keys.sort((b, a) => a - b);
+                //console.log(keys);
+                for ( var i of keys )
+                {
+                    //console.log(inTotal);
+                    if (Number(i) <=currentMax && currentSets[i] >0)
+                    {
+                        currentSets[i] = currentSets[i] -1;
+                        arr[currentset] = Number(i);
+                        //console.log(inTotal-Number(i));
+                        var tmp_result= SubsetsRepartition(inMax, currentSets,currentMax-Number(i), currentset+1);
+                        if (tmp_result != -1)
+                        {
+                            return tmp_result;
+                        }
+                    }
+                }
+                return result;
+            }
+
+            if ( arr[0] == currentMax )
+            {
+                return 2;
+            }
+            var needs={};
+            needs[arr[0]]=1;
+            for (var k = 1; k < currentset; k++) {
+                if ( needs[arr[k]] === undefined)
+                {
+                    needs[arr[k]]=1;
+                }
+                else
+                {
+                    needs[arr[k]]=needs[arr[k]]+1
+                }
+            }
+            //document.write(sum + '<br/>')
+            //console.log(result);
+            return {total:inMax,partitions:needs};
+        }
+    }
+
+    function appendMenuSell()
+    {
+        var menuSell = '<div class="tooltip"><span class="tooltiptext">'+getTextForUI("menuSell","tooltip")+'</span><label style="position: relative;left: -100px;top: -10px; width:70px" class="myButton" id="menuSell">'+getTextForUI("menuSell","elementText")+'</label></div>'
+        + '<dialog id="SellDialog"><form stylemethod="dialog">'
+        +  '<div style="padding:10px; display:flex;flex-direction:column;">'
+        +   '<div style="display:flex;flex-direction:row;">'
+        +    '<p>'+getTextForUI("menuSellCurrentCount","elementText")+'</p>'
+        +    '<p id="menuSellCurrentCount">0</p>'
+        +   '</div>'
+        +   '<p ></p>'
+        +   '<div id="menuSellHide" style="display:none">'
+        +    '<p>'+getTextForUI("menuSellText","elementText")+'</p>'
+        +    '<div style="display:flex;flex-direction:row;">'
+        +     '<div style="padding:10px;"class="tooltip"><span class="tooltiptext">'+getTextForUI("menuSellButton","tooltip")+'</span><label class="myButton" id="menuSellButton">'+getTextForUI("menuSellButton","elementText")+'</label></div>'
+        +     '<div style="padding:10px;" class="tooltip"><span class="tooltiptext">'+getTextForUI("menuSellNumber","tooltip")+'</span><input id="menuSellNumber" style="width:80%;height:20px" required pattern="'+HHAuto_inputPattern.menuSellNumber+'" type="text" value="0"></div>'
+        +    '</div>'
+        +   '</div>'
+        +   '<div id="menuSoldHide" style="display:none">'
+        +    '<div style="display:flex;flex-direction:row;">'
+        +     '<p>'+getTextForUI("menuSoldText","elementText")+'</p>'
+        +     '<p id="menuSoldCurrentCount">0</p>'
+        +    '</div>'
+        +   '</div>'
+        +  '</div>'
+        + '<menu> <label style="width:80px" class="myButton" id="menuSellCancel">'+getTextForUI("OptionCancel","elementText")+'</label></menu></form></dialog>'
+
+
+        if ($("#menuSell").length === 0 )
+        {
+            $('#inventory > div.armor > label').append(menuSell);
+
+            document.getElementById("menuSell").addEventListener("click", function(){
+
+                if (typeof SellDialog.showModal === "function")
+                {
+
+                    SellDialog.showModal();
+                    fetchAllArmorItems();
+
+                }
+                else
+                {
+                    alert("The <dialog> API is not supported by this browser");
+                }
+            });
+            document.getElementById("menuSellCancel").addEventListener("click", function(){
+
+                if (typeof SellDialog.showModal === "function")
+                {
+
+                    SellDialog.close();
+
+                }
+                else
+                {
+                    alert("The <dialog> API is not supported by this browser");
+                }
+            });
+
+            document.getElementById("menuSellButton").addEventListener("click", function()
+                                                                       {
+                if (Number(document.getElementById("menuSellNumber").value) >0 )
+                {
+                    logHHAuto("Starting selling "+Number(document.getElementById("menuSellNumber").value)+" items.");
+                    sellArmorItems();
+                }
+            });
+        }
+        else if ($('#inventory > div.armor.selected > label').length > 0)
+        {
+            document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
+        }
+    }
+
+    function fetchAllArmorItems()
     {
         //console.log(slots.armor_pack_load);
         if (slots.armor_pack_load < 0)
         {
-            document.getElementById("SellMenuCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
-            document.getElementById("SellMenuHide").style.display = "block";
+            document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
+            document.getElementById("menuSellHide").style.display = "block";
+            return;
+        }
+        if (!document.getElementById("SellDialog").open)
+        {
+            logHHAuto('Sell Dialog closed, stopping');
             return;
         }
         slots.armor_pack_load++;
@@ -4681,33 +5009,39 @@ function moduleSellItems()
             if (data.last)
             {
                 slots.armor_pack_load = -100;
-                document.getElementById("SellMenuCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
-                document.getElementById("SellMenuHide").style.display = "block";
+                document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
+                document.getElementById("menuSellHide").style.display = "block";
             }
             else
             {
-                if (document.getElementById("SellMenuCurrentCount"))
+                if (document.getElementById("menuSellCurrentCount"))
                 {
-                    document.getElementById("SellMenuCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
-                    setTimeout(getOtherItems, randomInterval(800,1600));
+                    document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
+                    setTimeout(fetchAllArmorItems, randomInterval(800,1600));
                 }
             }
             //if (callback) callback();
         });
     }
 
-    function setSelling()
+    function sellArmorItems()
     {
         logHHAuto('start selling not legendary stuff');
-        document.getElementById("SellMenuHide").style.display = "none";
-        document.getElementById("SoldMenuHide").style.display = "block";
+        document.getElementById("menuSellHide").style.display = "none";
+        document.getElementById("menuSoldHide").style.display = "block";
         // return;
         var initialNumberOfItems = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
-        var itemsToSell = Number(document.getElementById("SellMenuNumber").value);
+        var itemsToSell = Number(document.getElementById("menuSellNumber").value);
         selling_func = setInterval(() => {
             if ($('#type_item > div.selected[type=armor]').length === 0)
             {
                 logHHAuto('Wrong tab');
+                clearInterval(selling_func);
+                return;
+            }
+            else if (!document.getElementById("SellDialog").open)
+            {
+                logHHAuto('Sell Dialog closed, stopping');
                 clearInterval(selling_func);
                 return;
             }
@@ -4745,8 +5079,8 @@ function moduleSellItems()
                         if (can_sell)
                         {
                             $('#inventory > button.green_text_button[rel=sell]').click();
-                            document.getElementById("SoldMenuCurrentCount").innerHTML = (initialNumberOfItems - currentNumberOfItems) +1;
-                            document.getElementById("SellMenuCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
+                            document.getElementById("menuSoldCurrentCount").innerHTML = (initialNumberOfItems - currentNumberOfItems) +1;
+                            document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
                             return;
                         }
                     }
@@ -4894,7 +5228,7 @@ function moduleSellItems()
                         if ($('#inventory .selected .inventory_slots [canBeSold]').length == 0)
                         {
                             logHHAuto('no more items for sale');
-                            document.getElementById("SellMenuHide").style.display = "block";
+                            document.getElementById("menuSellHide").style.display = "block";
                             clearInterval(selling_func);
                         }
                     }
@@ -4902,7 +5236,7 @@ function moduleSellItems()
                 else
                 {
                     logHHAuto('Reach wanted sold items.');
-                    document.getElementById("SellMenuHide").style.display = "block";
+                    document.getElementById("menuSellHide").style.display = "block";
                     clearInterval(selling_func);
                 }
             }
@@ -5089,7 +5423,7 @@ var CollectEventData=function()
         {
             sessionStorage.HHAuto_Temp_eventTroll=Number(TrollzMythic[0]);
         }
-*/
+        */
 
         //logHHAuto('WTF?');
         var hero=getHero();
@@ -5168,7 +5502,7 @@ var getBurst=function()
 {
     if (document.getElementById('sMenu'))
     {
-        if (document.getElementById('sMenu').parentElement.style.display=='block')
+        if (document.getElementById('sMenu').parentElement.style.display=='block'  && !document.getElementById("DebugDialog").open)
         {
             return false;
         }
@@ -5509,7 +5843,7 @@ var HHAuto_inputPattern = {
     autoLGM:"[0-9]+",
     autoLGR:"[0-9]+",
     autoEGM:"[0-9]+",
-    SellMenuNumber:"[0-9]+"
+    menuSellNumber:"[0-9]+"
 }
 
 var HHAuto_ToolTips = [];
@@ -5596,12 +5930,22 @@ HHAuto_ToolTips.en = {
     timerResetButton: { elementText: "Reset", tooltip : "Set the timer to 0."},
     timerLeftTime: { elementText: "", tooltip : "Time remaining"},
     timerResetNoTimer : { elementText: "No selected timer", tooltip : ""},
-    SellMenu : { elementText: "Sell", tooltip : "Allow to sell items."},
-    SellMenuText : { elementText: "This will sell the number of items asked starting in display order (first all non legendary then legendary)<br> It will sell all non legendary stuff and keep : <br> - 1 set of rainbow (choosen on highest player class stat)<br> - 1 set of mono player class (choosen on highest stats)<br> - 1 set of harmony (choosen on highest stats)<br> - 1 set of endurance (choosen on highest stats)<br> Enter the number of items you want to sell bellow.", tooltip : ""},
-    SellMenuNumber : { elementText: "", tooltip : "Enter the number of items you want to sell : "},
-    SellMenuButton : { elementText: "Sell", tooltip : "Launch selling funtion."},
-    SellMenuCurrentCount : { elementText: "Number of items you currently have : ", tooltip : ""},
-    SoldMenuText : { elementText: "Number of items sold : ", tooltip : ""}
+    menuSell : { elementText: "Sell", tooltip : "Allow to sell items."},
+    menuSellText : { elementText: "This will sell the number of items asked starting in display order (first all non legendary then legendary)<br> It will sell all non legendary stuff and keep : <br> - 1 set of rainbow (choosen on highest player class stat)<br> - 1 set of mono player class (choosen on highest stats)<br> - 1 set of harmony (choosen on highest stats)<br> - 1 set of endurance (choosen on highest stats)<br> Enter the number of items you want to sell bellow.", tooltip : ""},
+    menuSellNumber : { elementText: "", tooltip : "Enter the number of items you want to sell : "},
+    menuSellButton : { elementText: "Sell", tooltip : "Launch selling funtion."},
+    menuSellCurrentCount : { elementText: "Number of items you currently have : ", tooltip : ""},
+    menuSoldText : { elementText: "Number of items sold : ", tooltip : ""},
+    menuAff : { elementText: "Give Aff", tooltip : "Automatically give Aff to selected girl."},
+    menuAffButton : { elementText: "Go !", tooltip : "Launch giving aff."},
+    menuAffDistribution : { elementText: "Items to be used : ", tooltip : ""},
+    Total : { elementText: "Total : ", tooltip : ""},
+    menuAffNoNeed : { elementText: "don't need Aff.", tooltip : ""},
+    menuAffNoAff : { elementText: "No Aff available.", tooltip : ""},
+    menuAffError : { elementText: "Error fetching girl Aff field, cancelling.", tooltip : ""},
+    menuAffReadyToUpgrade : { elementText: " is ready for upgrade.", tooltip : ""},
+    menuAffEnd : { elementText: "All Aff given to :", tooltip : ""},
+    menuAffDistributed : { elementText: "Items used : ", tooltip : ""}
 }
 
 
@@ -6754,7 +7098,8 @@ var start = function () {
         let timerSelector = document.getElementById("timerResetSelector");
         if (timerSelector.options[timerSelector.selectedIndex].text !== getTextForUI("timerResetNoTimer","elementText") && timerSelector.options[timerSelector.selectedIndex].text !== getTextForUI("timerResetSelector","elementText"))
         {
-            setTimer(timerSelector.options[timerSelector.selectedIndex].text,2);
+            setTimer(timerSelector.options[timerSelector.selectedIndex].text,0);
+            timerSelector.selectedIndex = 0;
         }
     });
     $(document).on('change',"#timerResetSelector", function() {
@@ -6802,7 +7147,7 @@ var start = function () {
         doShopping();
         /*}
     if (Storage().HHAuto_Setting_autoStats === "true" && getBurst())
-    {*/
+        {*/
         doStatUpgrades();
     }
 
