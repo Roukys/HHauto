@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.3
+// @version      5.4.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -4654,18 +4654,23 @@ function moduleShopActions()
                 let selectedGirlAff=selectedGirl.Affection.cur;
                 giftArray = {};
                 let giftCount = {};
+                let minAffItem=99999;
                 let totalAff=0;
                 let menuText="";
                 $('div.gift div.inventory_slots div[id_item][data-d]').each(function()
                                                                             {
                     let data=JSON.parse($(this).attr("data-d"));
                     let countGift=Number($('div.gift div.inventory_slots div[id_item='+$(this).attr("id_item")+'][data-d] .stack_num span')[0].innerHTML.replace(/[^0-9]/gi, ''))
+
+                    if (minAffItem > Number(data.value))
+                    {
+                        minAffItem = Number(data.value);
+                    }
                     giftCount[Number(data.value)]=countGift;
                     totalAff+=Number(data.value)*countGift
                     giftArray[Number(data.value)]=$(this).attr("id_item");
                 });
-                console.log("total gifts : ",giftCount);
-                if (Number(selectedGirl.Affection.cur) < Number(selectedGirl.Affection.max) && totalAff > 0)
+                if (Number(selectedGirl.Affection.cur) < Number(selectedGirl.Affection.max) && totalAff > 0 && (Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur)) >=minAffItem)
                 {
 
                     AffToGive=findSubsetsPartition(Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur),giftCount);
@@ -4679,9 +4684,9 @@ function moduleShopActions()
                     document.getElementById("menuAffHide").style.display = "block";
 
                 }
-                else if (totalAff === 0)
+                else if (totalAff === 0 || (Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur)) <=minAffItem)
                 {
-                    menuText = getTextForUI("menuAffNoAff","elementText");
+                    menuText = getTextForUI("menuAffNoAff","elementText")+" "+selectedGirl.Name;
                 }
                 logHHAuto(menuText);
                 if (typeof AffDialog.showModal === "function")
@@ -4754,13 +4759,12 @@ function moduleShopActions()
                 //decrease count
                 if (currentItem !== -1)
                 {
-                    console.log("decreased");
+                    logHHAuto('Spent one '+currentItem);
                     inAffToGive.partitions[currentItem] = inAffToGive.partitions[currentItem]-1;
                     let menuText = selectedGirl.Name+" "+selectedGirlAff+"/"+selectedGirl.Affection.max+"<br>"+getTextForUI("menuAffDistributed","elementText")+"<br>";
                     let Affkeys = Object.keys(inAffToGivePartitionBackup);
                     let givenTotal = 0;
-                    console.log("inAffToGivePartitionBackup",inAffToGivePartitionBackup);
-                    console.log("inAffToGive",inAffToGive);
+                    logHHAuto({log:"Remains to spend",inAffToGive:inAffToGive});
                     for ( var i of Affkeys )
                     {
                         let diff=Number(inAffToGivePartitionBackup[i]-inAffToGive.partitions[i]);
@@ -4787,10 +4791,22 @@ function moduleShopActions()
 
                 if (currentItem === -1)
                 {
-                    console.log('All Aff given.');
                     clearInterval(giveAff_func);
+                    let menuText;
+                    if ($('div[id_girl='+inGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length >0)
+                    {
+                        logHHAuto(selectedGirl.Name+ "ready to upgrade");
+                        menuText =selectedGirl.Name+" "+getTextForUI("menuAffReadyToUpgrade","elementText")+"<br>"+getTextForUI("menuAffDistributed","elementText")+"<br>";
+
+                    }
+                    else
+                    {
+                        logHHAuto(selectedGirl.Name+ "max aff given.");
+                        menuText =getTextForUI("menuAffEnd","elementText")+" "+selectedGirl.Name+"<br>"+getTextForUI("menuAffDistributed","elementText")+"<br>";
+
+
+                    }
                     let givenTotal = 0;
-                    let menuText =selectedGirl.Name+" "+getTextForUI("menuAffReadyToUpgrade","elementText")+"<br>"+getTextForUI("menuAffDistributed","elementText")+"<br>";
                     let Affkeys = Object.keys(inAffToGivePartitionBackup);
                     for ( var i of Affkeys )
                     {
@@ -4804,13 +4820,13 @@ function moduleShopActions()
                     menuText = menuText+getTextForUI("Total","elementText")+givenTotal;
                     document.getElementById("menuAffText").innerHTML = menuText;
                     document.getElementById("menuAffHide").style.display = "none";
+
                 }
                 else if (currentItem !== -1)
                 {
-                    console.log("selected item : "+currentItem);
+                    logHHAuto("selected item : "+currentItem);
                     $('div.gift div.inventory_slots div[id_item='+inAffArray[currentItem]+'][data-d]').click();
                     currentTotal+=Number(currentItem)
-                    console.log("new total : "+currentTotal);
                 }
                 return;
             }
@@ -4818,7 +4834,7 @@ function moduleShopActions()
             {
                 if (inAffArray[currentItem] === $('div.gift div.inventory_slots div[id_item][data-d].selected').attr("id_item") && inAffToGive.partitions[currentItem] >0 )
                 {
-                    console.log("clicked on "+currentItem);
+                    logHHAuto("clicked on "+currentItem);
                     $('#inventory > button.blue_text_button[rel=use]').click();
                     return;
                 }
@@ -4828,7 +4844,7 @@ function moduleShopActions()
 
     function findSubsetsPartition(inTotal, inSets)
     {
-        var arr = [];
+        let arr = [];
         var max = 0;
         for ( var sub in inSets)
         {
@@ -4841,17 +4857,23 @@ function moduleShopActions()
             return {total:max,partitions:{...inSets}};
         }
         var result= SubsetsRepartition(inTotal, inSets);
+        //console.log("subset result : ", result);
 
-        while( result === -1 && inTotal>0)
+        while( result.total !== inTotal && inTotal>1)
         {
-            //console.log(inTotal);
+            //console.log("result : "+result,"inTotal : "+inTotal);
             inTotal -=1;
             result = SubsetsRepartition(inTotal, inSets);
         };
+        if (inTotal === 0)
+        {
+            return -1;
+        }
         return result;
 
         function SubsetsRepartition(inMax, subSets, currentMax = inMax, currentset = 0 )
         {
+            //console.log("start subset with :",inMax, subSets, currentMax, currentset);
             var currentSets={...subSets};
             if ( currentMax > 0 )
             {
@@ -4867,21 +4889,25 @@ function moduleShopActions()
                     {
                         currentSets[i] = currentSets[i] -1;
                         arr[currentset] = Number(i);
+                        //console.log(arr);
                         //console.log(inTotal-Number(i));
-                        var tmp_result= SubsetsRepartition(inMax, currentSets,currentMax-Number(i), currentset+1);
-                        if (tmp_result != -1)
-                        {
-                            return tmp_result;
-                        }
+                        return SubsetsRepartition(inMax, currentSets,currentMax-Number(i), currentset+1);
+                        //console.log("tmp_result",tmp_result);
+                        //if (tmp_result !== -1)
+                        //{
+                        //	console.log("result : ",result);
+                        //	return tmp_result;
+                        //}
                     }
                 }
+                console.log("result : ",result);
                 return result;
             }
 
-            if ( arr[0] == currentMax )
-            {
-                return 2;
-            }
+            //if ( arr[0] == currentMax )
+            //{
+            //	return 2;
+            //}
             var needs={};
             needs[arr[0]]=1;
             for (var k = 1; k < currentset; k++) {
@@ -5941,7 +5967,7 @@ HHAuto_ToolTips.en = {
     menuAffDistribution : { elementText: "Items to be used : ", tooltip : ""},
     Total : { elementText: "Total : ", tooltip : ""},
     menuAffNoNeed : { elementText: "don't need Aff.", tooltip : ""},
-    menuAffNoAff : { elementText: "No Aff available.", tooltip : ""},
+    menuAffNoAff : { elementText: "No Aff available to be given to :", tooltip : ""},
     menuAffError : { elementText: "Error fetching girl Aff field, cancelling.", tooltip : ""},
     menuAffReadyToUpgrade : { elementText: " is ready for upgrade.", tooltip : ""},
     menuAffEnd : { elementText: "All Aff given to :", tooltip : ""},
