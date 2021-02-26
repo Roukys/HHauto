@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.4
+// @version      5.4.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -4510,7 +4510,7 @@ var autoLoop = function () {
             }
         }
 
-        if (/*autoBuy() &&*/ busy===false && !checkTimer("paranoiaSwitch"))
+        if (/*autoBuy() &&*/ busy===false && ( Storage().HHAuto_Setting_paranoia !== "true" || !checkTimer("paranoiaSwitch") ) )
         {
             if (sessionStorage.HHAuto_Temp_charLevel===undefined)
             {
@@ -4522,7 +4522,7 @@ var autoLoop = function () {
             }
         }
 
-        if (Storage().HHAuto_Setting_autoSalary === "true" && busy === false && !checkTimer("paranoiaSwitch")) {
+        if (Storage().HHAuto_Setting_autoSalary === "true" && busy === false && ( Storage().HHAuto_Setting_paranoia !== "true" || !checkTimer("paranoiaSwitch") )) {
             if (checkTimer("nextSalaryTime")) {
                 logHHAuto("Time to fetch salary.");
                 busy = getSalary();
@@ -4751,7 +4751,7 @@ function moduleShopActions()
                 selectedGirl=girl.data("g");
                 selectedGirlAff=selectedGirl.Affection.cur;
             }
-            console.log(currentItem, inAffToGive.partitions[currentItem],inAffToGive.partitions,selectedGirlAff,currentTotal);
+            //console.log(currentItem, inAffToGive.partitions[currentItem],inAffToGive.partitions,selectedGirlAff,currentTotal);
 
             //check if previous click has worked
             if (selectedGirlAff === currentTotal)
