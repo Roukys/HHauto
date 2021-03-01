@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.5
+// @version      5.4.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -1426,12 +1426,13 @@ var CollectMoney = function()
         else
         {
             //logHHAuto('nothing to click, checking data');
-            CollectData();
+            CollectData(false);
         }
     }
 
-    function CollectData()
+    function CollectData(inStart = true)
     {
+        let allCollected = false;
         var btns=$("#harem_whole #harem_left .salary:not('.loads') button");
         //logHHAuto('buttons: '+btns.size())
         btns.each(function (index, element) {
@@ -1450,15 +1451,19 @@ var CollectMoney = function()
 
         if (ToClick.length>0)
         {
+            allCollected = true;
             //logHHAuto('clicking!');
 
             // add time to paranoia
-            var addedTime=ToClick.length*1.6;
-            logHHAuto("Adding time to burst to cover getting salary : +"+addedTime+"secs");
-            addedTime += getSecondsLeft("paranoiaSwitch");
-            setTimer("paranoiaSwitch",addedTime);
+            //var addedTime=ToClick.length*1.6;
+            //logHHAuto("Adding time to burst to cover getting salary : +"+addedTime+"secs");
+            //addedTime += getSecondsLeft("paranoiaSwitch");
+            //setTimer("paranoiaSwitch",addedTime);
 
-            setTimeout(ClickThem,randomInterval(500,1500));
+            if (inStart)
+            {
+                setTimeout(ClickThem,randomInterval(500,1500));
+            }
         }
         else//nothing to collect
         {
@@ -1502,7 +1507,10 @@ var CollectMoney = function()
                 logHHAuto("closestTime is "+closestTime+" ("+closestGirl+")");
                 closestTime = st;
             }
+            if (allCollected)
+            {
             setTimer('nextSalaryTime',Number(closestTime)+1);
+            }
             sessionStorage.HHAuto_Temp_autoLoop = "true";
             setTimeout(autoLoop, Number(Storage().HHAuto_Temp_autoLoopTimeMili));
         }
@@ -2016,7 +2024,7 @@ var doClubChampionStuff=function()
             //             });
             setTimer('nextClubChampionTime',currTime);
             gotoPage("home");
-            return true;
+            return false;
         }
         else
         {
@@ -2035,9 +2043,9 @@ var doClubChampionStuff=function()
                 {
                     logHHAuto("Using ticket");
                     $('button[rel=perform].blue_button_L').click();
+                    setTimer('nextClubChampionTime', 5);
                 }
-                setTimeout(function(){gotoPage('home');},500);
-                return true;
+                return false;
             }
         }
     }
@@ -2788,12 +2796,16 @@ function getLeagueOpponentId(opponentsIDList)
             logHHAuto("Opponents list not found or expired. Fetching all opponents.");
         }
 
-        var addedTime=opponentsIDList.length*maxTime;
-        // add 2 mins for using it
-        addedTime+=120;
-        logHHAuto("Adding time to burst to cover building list : +"+addedTime+"secs");
-        addedTime += getSecondsLeft("paranoiaSwitch");
-        setTimer("paranoiaSwitch",addedTime);
+
+
+        //if paranoia not is time's up and not in paranoia spendings
+        if (!checkTimer("paranoiaSwitch"))
+        {
+            let addedTime=opponentsIDList.length*maxTime;
+            logHHAuto("Adding time to burst to cover building list : +"+addedTime+"secs");
+            addedTime += getSecondsLeft("paranoiaSwitch");
+            setTimer("paranoiaSwitch",addedTime);
+        }
 
         playerEgo = Math.round(getSetHeroInfos('caracs.ego'));
         playerDefHC = Math.round(getSetHeroInfos('caracs.def_carac1'));
@@ -3027,6 +3039,7 @@ var setTimer=function(name, seconds)
     sessionStorage.HHAuto_Temp_Timers=JSON.stringify(Timers);
     logHHAuto(name+" set to "+toHHMMSS(ND/1000-new Date().getTimezoneOffset()*60)+' ('+ toHHMMSS(seconds)+')');
 }
+
 
 var clearTimer=function(name)
 {
@@ -3309,9 +3322,41 @@ var checkParanoiaSpendings=function(spendingFunction)
 var clearParanoiaSpendings=function()
 {
     Storage().removeItem('HHAuto_Temp_paranoiaSpendings');
-    Storage().removeItem('HHAuto_Temp_toNextSwitch');
+    Storage().removeItem('HHAuto_Temp_NextSwitch');
     Storage().removeItem('HHAuto_Temp_paranoiaQuestBlocked');
     Storage().removeItem('HHAuto_Temp_paranoiaLeagueBlocked');
+}
+
+function updatedParanoiaSpendings(inSpendingFunction, inSpent)
+{
+    var currentPSpendings=new Map([]);
+    // not set
+    if ( ! Storage().HHAuto_Temp_paranoiaSpendings )
+    {
+        return -1;
+    }
+    else
+    {
+        currentPSpendings = JSON.parse(Storage().HHAuto_Temp_paranoiaSpendings,reviverMap);
+        if (currentPSpendings.has(inSpendingFunction))
+        {
+            let currValue = currentPSpendings.get(inSpendingFunction);
+            currValue -= inSpent;
+
+            if (currValue >0)
+            {
+                logHHAuto("Spent "+inSpent+" "+inSpendingFunction+", remains "+currValue+" before Paranoia.");
+                currentPSpendings.set(inSpendingFunction,currValue);
+            }
+            else
+            {
+                currentPSpendings.delete(inSpendingFunction);
+            }
+        }
+        logHHAuto("Remains to spend before Paranoia : "+JSON.stringify(currentPSpendings,replacerMap));
+        Storage().HHAuto_Temp_paranoiaSpendings=JSON.stringify(currentPSpendings,replacerMap);
+
+    }
 }
 
 //sets spending to do before paranoia
@@ -3324,9 +3369,9 @@ var setParanoiaSpendings=function()
     var currentEnergy;
     var maxEnergy;
     var toNextSwitch;
-    if (Storage().HHAuto_Temp_toNextSwitch && Storage().HHAuto_Setting_paranoiaSpendsBefore === "true")
+    if (Storage().HHAuto_Temp_NextSwitch && Storage().HHAuto_Setting_paranoiaSpendsBefore === "true")
     {
-        toNextSwitch = Number(Storage().HHAuto_Temp_toNextSwitch);
+        toNextSwitch = Number((Storage().HHAuto_Temp_NextSwitch-new Date().getTime())/1000);
 
         //if autoLeague is on
         if(Storage().HHAuto_Setting_autoLeagues === "true" && getSetHeroInfos('level')>=20)
@@ -3433,7 +3478,7 @@ var flipParanoia=function()
     {
         var periods=Object.assign(...S1[1].map(d => ({[d[0]]: d[1].split('-')})));
 
-        toNextSwitch=Number(Storage().HHAuto_Temp_toNextSwitch?Storage().HHAuto_Temp_toNextSwitch:randomInterval(Number(periods[period][0]),Number(periods[period][1])));
+        toNextSwitch=Storage().HHAuto_Temp_NextSwitch?Number((Storage().HHAuto_Temp_NextSwitch-new Date().getTime())/1000):randomInterval(Number(periods[period][0]),Number(periods[period][1]));
         /*
         if (toNextSwitch<=1800 && Storage().HHAuto_Setting_autoArenaBattle == "true")
         {
@@ -3484,7 +3529,7 @@ var flipParanoia=function()
 
         if ( checkParanoiaSpendings() === -1 && Storage().HHAuto_Setting_paranoiaSpendsBefore === "true" )
         {
-            Storage().HHAuto_Temp_toNextSwitch=toNextSwitch;
+            Storage().HHAuto_Temp_NextSwitch=new Date().getTime() + toNextSwitch * 1000;
             setParanoiaSpendings();
             return;
         }
@@ -3499,7 +3544,7 @@ var flipParanoia=function()
         else
         {
             //refresh remaining
-            setParanoiaSpendings(toNextSwitch);
+            //setParanoiaSpendings(toNextSwitch);
             //let spending go before going in paranoia
             return;
         }
@@ -4154,9 +4199,40 @@ function moduleSimSeasonBattle() {
         return -1;
     }
 }
+function CheckSpentPoints()
+{
+    let oldValues=sessionStorage.HHAuto_Temp_CheckSpentPoints?JSON.parse(sessionStorage.HHAuto_Temp_CheckSpentPoints):-1;
+    let newValues={};
+    newValues['fight']=Number(getSetHeroInfos('fight.amount'));
+    newValues['kiss']=Number(getSetHeroInfos('kiss.amount'));
+    newValues['quest']=Number(getSetHeroInfos('quest.amount'));
+    newValues['challenge']=Number(getSetHeroInfos('challenge.amount'));
+
+    if ( oldValues !== -1)
+    {
+        let spent= {};
+        let hasSpend = false;
+        let checks=['fight','kiss','quest','challenge'];
+
+        for (let i of checks)
+        {
+            if (oldValues[i]-newValues[i] >0)
+            {
+                spent[i]=oldValues[i]-newValues[i];
+                updatedParanoiaSpendings(i, spent[i]);
+            }
+        }
+        sessionStorage.HHAuto_Temp_CheckSpentPoints=JSON.stringify(newValues);
+    }
+    else
+    {
+        sessionStorage.HHAuto_Temp_CheckSpentPoints=JSON.stringify(newValues);
+    }
+}
 
 
 var autoLoop = function () {
+
     updateData();
     if (!sessionStorage.HHAuto_Temp_questRequirement)
     {
@@ -4181,14 +4257,13 @@ var autoLoop = function () {
 
     if (burst /*|| checkTimer('nextMissionTime')*/)
     {
+
         if (!checkTimer("paranoiaSwitch") )
         {
             clearParanoiaSpendings();
         }
-        else
-        {
-            setParanoiaSpendings();
-        }
+        CheckSpentPoints();
+
         if(Storage().HHAuto_Setting_autoFreePachinko === "true" && busy === false){
             // Navigate to pachinko
 
@@ -4478,19 +4553,21 @@ var autoLoop = function () {
             }
             sessionStorage.HHAuto_Temp_autoLoop = "false";
             logHHAuto("setting autoloop to false");
-            busy = true;;
+            busy = true;
             setTimeout(buyTicket,randomInterval(800,1600));
         }
 
         if (busy==false && Storage().HHAuto_Setting_autoChamps==="true" && checkTimer('nextChampionTime'))
         {
             logHHAuto("Time to check on champions!");
+            busy=true;
             busy=doChampionStuff();
         }
 
         if (busy==false && Storage().HHAuto_Setting_autoClubChamp==="true" && checkTimer('nextClubChampionTime'))
         {
             logHHAuto("Time to check on club champion!");
+            busy=true;
             busy=doClubChampionStuff();
         }
         if(Storage().HHAuto_Setting_autoLeagues === "true" && getSetHeroInfos('level')>=20 && busy === false ){
@@ -4895,12 +4972,12 @@ function moduleShopActions()
                         //console.log("tmp_result",tmp_result);
                         //if (tmp_result !== -1)
                         //{
-                        //	console.log("result : ",result);
+                        //console.log("result : ",result);
                         //	return tmp_result;
                         //}
                     }
                 }
-                console.log("result : ",result);
+                //console.log("result : ",result);
                 return result;
             }
 
@@ -6324,11 +6401,12 @@ var HHVars=["Storage().HHAuto_Setting_autoAff",
             "localStorage.HHAuto_Temp_showInfo",
             "sessionStorage.HHAuto_Temp_storeContents",
             "sessionStorage.HHAuto_Temp_Timers",
-            "Storage().HHAuto_Temp_toNextSwitch",
+            "Storage().HHAuto_Temp_NextSwitch",
             "Storage().HHAuto_Temp_Totalpops",
             "sessionStorage.HHAuto_Temp_userLink",
             "localStorage.HHAuto_Temp_MigratedVars",
-            "sessionStorage.HHAuto_Temp_LeagueTempOpponentList"];
+            "sessionStorage.HHAuto_Temp_LeagueTempOpponentList",
+            "sessionStorage.HHAuto_Temp_CheckSpentPoints"];
 var updateData = function () {
     //logHHAuto("updating UI");
     if ($('#LoadDialog[open]').length > 0) {return}
