@@ -1449,9 +1449,12 @@ var CollectMoney = function()
 
         logHHAuto({log:"Collected Data: ", ClickedObj:Clicked, ToClickObj:ToClick});
 
-        if (ToClick.length>0)
+        if (ToClick.length>0 )
         {
             allCollected = true;
+        }
+        if (ToClick.length>0 && inStart)
+        {
             //logHHAuto('clicking!');
 
             // add time to paranoia
@@ -1460,10 +1463,7 @@ var CollectMoney = function()
             //addedTime += getSecondsLeft("paranoiaSwitch");
             //setTimer("paranoiaSwitch",addedTime);
 
-            if (inStart)
-            {
-                setTimeout(ClickThem,randomInterval(500,1500));
-            }
+            setTimeout(ClickThem,randomInterval(500,1500));
         }
         else//nothing to collect
         {
