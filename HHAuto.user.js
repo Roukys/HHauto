@@ -1432,7 +1432,7 @@ var CollectMoney = function()
 
     function CollectData(inStart = true)
     {
-        let allCollected = false;
+        let allCollected = true;
         var btns=$("#harem_whole #harem_left .salary:not('.loads') button");
         //logHHAuto('buttons: '+btns.size())
         btns.each(function (index, element) {
@@ -1451,7 +1451,7 @@ var CollectMoney = function()
 
         if (ToClick.length>0 )
         {
-            allCollected = true;
+            allCollected = false;
         }
         if (ToClick.length>0 && inStart)
         {
@@ -1507,10 +1507,10 @@ var CollectMoney = function()
                 logHHAuto("closestTime is "+closestTime+" ("+closestGirl+")");
                 closestTime = st;
             }
-            if (allCollected)
-            {
+            //if (allCollected)
+            //{
             setTimer('nextSalaryTime',Number(closestTime)+1);
-            }
+            //}
             sessionStorage.HHAuto_Temp_autoLoop = "true";
             setTimeout(autoLoop, Number(Storage().HHAuto_Temp_autoLoopTimeMili));
         }
