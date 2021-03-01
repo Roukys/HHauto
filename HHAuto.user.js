@@ -4602,6 +4602,7 @@ var autoLoop = function () {
         if (Storage().HHAuto_Setting_autoSalary === "true" && busy === false && ( Storage().HHAuto_Setting_paranoia !== "true" || !checkTimer("paranoiaSwitch") )) {
             if (checkTimer("nextSalaryTime")) {
                 logHHAuto("Time to fetch salary.");
+                busy = true;
                 busy = getSalary();
             }
         }
