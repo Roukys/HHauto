@@ -720,6 +720,9 @@ function gotoPage(page)
             case "club_champion" :
                 togoto = "/club-champion.html";
                 break;
+            case "clubs" :
+                togoto = $("nav div[rel='content'] a:has(.clubs)").attr("href");
+                break;
             default:
                 logHHAuto("Unknown goto page request. No page \'"+page+"\' defined.");
         }
@@ -1997,6 +2000,7 @@ var doChampionStuff=function()
         {
             setTimer('nextChampionTime',minTime);
         }
+        gotoPage('home');
         return false;
     }
     else
@@ -2011,26 +2015,18 @@ var doClubChampionStuff=function()
     var page=getPage();
     if (page=='club_champion')
     {
-        logHHAuto('on club champion page');
+        logHHAuto('on club_champion page');
         if ($('button[rel=perform].blue_button_L').length==0)
         {
-            var currTime = 15*60;
-            logHHAuto("Can't fight club champion.");
-            //             $('div.champions-middle__champion-resting[timer]').each(function()
-            //                                                                     {
-            //                 var timer = $(this).attr('timer');
-            //                 currTime=Number(timer)-Math.ceil(new Date().getTime()/1000);
-            //                 logHHAuto("Found club chmpion timer : "+currTime);
-            //             });
-            setTimer('nextClubChampionTime',currTime);
+            logHHAuto('Something is wrong!');
             gotoPage("home");
-            return false;
+            return true;
         }
         else
         {
             var TCount=Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
             var ECount= getSetHeroInfos('quest.amount');
-            logHHAuto("T:"+TCount+" E:"+ECount+" "+(Storage().HHAuto_Setting_autoChampsUseEne==="true"))
+            logHHAuto("T:"+TCount+" E:"+ECount)
             if ( TCount==0)
             {
                 logHHAuto("No tickets!");
@@ -2043,15 +2039,70 @@ var doClubChampionStuff=function()
                 {
                     logHHAuto("Using ticket");
                     $('button[rel=perform].blue_button_L').click();
-                    setTimer('nextClubChampionTime', 5);
+                    setTimer('nextClubChampionTime',3);
                 }
-                return false;
+                setTimeout(function(){gotoPage('clubs');},500);
+                return true;
             }
         }
     }
+    else if (page=='clubs')
+    {
+        logHHAuto('on clubs');
+        let Started = $("div.club_champions_panel tr.personal_highlight").length === 1;
+        let noTimer = true;
+        let Timer= -1;
+        let SecsToNextTimer = -1;
+        let restTeamFilter = "div.club_champions_details_container div.team_rest_timer[data-rest-timer]";
+        let restChampionFilter = "div.club_champions_details_container div.champion_rest_timer[data-rest-timer]";
+
+        if ($(restTeamFilter).length > 0)
+        {
+            Timer = Number($(restTeamFilter).attr("data-rest-timer"));
+            let SecsToNextTimer = Number(Timer)-Math.ceil(new Date().getTime()/1000);
+            noTimer = false;
+            logHHAuto("Team is resting for : "+toHHMMSS(SecsToNextTimer));
+        }
+        if ($(restChampionFilter).length > 0)
+        {
+            Timer = Number($(restChampionFilter).attr("data-rest-timer"));
+            let SecsToNextTimer = Number(Timer)-Math.ceil(new Date().getTime()/1000);
+            noTimer = false;
+            logHHAuto("Champion is resting for : "+toHHMMSS(SecsToNextTimer));
+        }
+
+        if (Started && noTimer)
+        {
+            let ticketUsed = Number($("div.club_champions_panel tr.personal_highlight td.challenges_count")[0].innerText.replace(/[^0-9]/gi, ''));
+            let maxTickets = Number(Storage().HHAuto_Setting_autoClubChampMax?Storage().HHAuto_Setting_autoClubChampMax:"999");
+            console.log(maxTickets, ticketUsed);
+            if (maxTickets > ticketUsed )
+            {
+                logHHAuto("Let's do him!");
+                gotoPage('club_champion');
+                return true;
+            }
+            else
+            {
+                logHHAuto("Max tickets to use on Club Champ reached.");
+            }
+
+        }
+
+        if (SecsToNextTimer === -1 || SecsToNextTimer > 30*60)
+        {
+            setTimer('nextClubChampionTime',15*60);
+        }
+        else
+        {
+            setTimer('nextClubChampionTime',SecsToNextTimer);
+        }
+        gotoPage('home');
+        return false;
+    }
     else
     {
-        gotoPage('club_champion');
+        gotoPage('clubs');
         return true;
     }
 }
@@ -4613,8 +4664,8 @@ var autoLoop = function () {
         }
         else if(sessionStorage.HHAuto_Temp_userLink !=="none" && busy === false)
         {
-            logHHAuto("Restoring page "+sessionStorage.HHAuto_Temp_userLink);
-            window.location = sessionStorage.HHAuto_Temp_userLink;
+            //logHHAuto("Restoring page "+sessionStorage.HHAuto_Temp_userLink);
+            //window.location = sessionStorage.HHAuto_Temp_userLink;
             sessionStorage.HHAuto_Temp_userLink = "none";
         }
     }
@@ -5949,7 +6000,8 @@ var HHAuto_inputPattern = {
     autoLGM:"[0-9]+",
     autoLGR:"[0-9]+",
     autoEGM:"[0-9]+",
-    menuSellNumber:"[0-9]+"
+    menuSellNumber:"[0-9]+",
+    autoClubChampMax:"[0-9]+"
 }
 
 var HHAuto_ToolTips = [];
@@ -6051,7 +6103,8 @@ HHAuto_ToolTips.en = {
     menuAffError : { elementText: "Error fetching girl Aff field, cancelling.", tooltip : ""},
     menuAffReadyToUpgrade : { elementText: " is ready for upgrade.", tooltip : ""},
     menuAffEnd : { elementText: "All Aff given to :", tooltip : ""},
-    menuAffDistributed : { elementText: "Items used : ", tooltip : ""}
+    menuAffDistributed : { elementText: "Items used : ", tooltip : ""},
+    autoClubChampMax : { elementText: "Max Ticket for club Champ : ", tooltip : "Maximum number of ticket to use on club champion each run."}
 }
 
 
@@ -6409,7 +6462,8 @@ var HHVars=["Storage().HHAuto_Setting_autoAff",
             "sessionStorage.HHAuto_Temp_userLink",
             "localStorage.HHAuto_Temp_MigratedVars",
             "sessionStorage.HHAuto_Temp_LeagueTempOpponentList",
-            "sessionStorage.HHAuto_Temp_CheckSpentPoints"];
+            "sessionStorage.HHAuto_Temp_CheckSpentPoints",
+            "Storage().HHAuto_Setting_autoClubChampMax"];
 var updateData = function () {
     //logHHAuto("updating UI");
     if ($('#LoadDialog[open]').length > 0) {return}
@@ -6540,6 +6594,7 @@ var updateData = function () {
     Storage().HHAuto_Setting_calculatePowerLimits = document.getElementById("calculatePowerLimits").value;
     Storage().HHAuto_Setting_autoChamps = document.getElementById("autoChamps").checked;
     Storage().HHAuto_Setting_autoClubChamp = document.getElementById("autoClubChamp").checked;
+    Storage().HHAuto_Setting_autoClubChampMax = document.getElementById("autoClubChampMax").value;
     Storage().HHAuto_Setting_autoChampsUseEne = document.getElementById("autoChampsUseEne").checked;
     Storage().HHAuto_Setting_autoChampsFilter = document.getElementById("autoChampsFilter").value;
 
@@ -6689,6 +6744,7 @@ var setDefaults = function () {
     Storage().HHAuto_Temp_freshStart = "no";
     Storage().HHAuto_Setting_autoChamps="false";
     Storage().HHAuto_Setting_autoClubChamp="false";
+    Storage().HHAuto_Setting_autoClubChampMax = "999";
     Storage().HHAuto_Setting_autoChampsUseEne="false";
     Storage().HHAuto_Setting_autoChampsFilter="1;2;3;4;5;6";
     Storage().HHAuto_Setting_autoFreePachinko = "false";
@@ -6993,11 +7049,18 @@ var start = function () {
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
                      +     '<span>'+getTextForUI("autoChampsFilter","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoChampsFilter","tooltip")+'</span><input style="width:70px" id="autoChampsFilter" required pattern="'+HHAuto_inputPattern.autoChampsFilter+'" type="text"></div>'
                      +    '</div>'
+                     +   '</div>'
+                     // End Region AutoChampions
+                     // Region AutoClubChampion
+                     +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
                      +     '<span>'+getTextForUI("autoClubChamp","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoClubChamp","tooltip")+'</span><label class="switch"><input id="autoClubChamp" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+getTextForUI("autoClubChampMax","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoClubChampMax","tooltip")+'</span><input style="width:70px" id="autoClubChampMax" required pattern="'+HHAuto_inputPattern.autoClubChampMax+'" type="text"></div>'
+                     +    '</div>'
                      +   '</div>'
-                     // End Region AutoChampions
+                     // End Region AutoClubChampions
                      +   '<span>'+getTextForUI("autoStats","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoStats","tooltip")+'</span><input id="autoStats" required pattern="'+HHAuto_inputPattern.autoStats+'" type="text"></div>'
                      +   '<div style="display:flex;flex-direction:row;">'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
@@ -7153,6 +7216,7 @@ var start = function () {
     document.getElementById("autoTrollMythicByPassParanoia").checked = Storage().HHAuto_Setting_autoTrollMythicByPassParanoia === "true";
 
     document.getElementById("autoClubChamp").checked = Storage().HHAuto_Setting_autoClubChamp  === "true";
+    document.getElementById("autoClubChampMax").value = Storage().HHAuto_Setting_autoClubChampMax?Storage().HHAuto_Setting_autoClubChampMax:"999";
     document.getElementById("autoChamps").checked = Storage().HHAuto_Setting_autoChamps === "true";
     document.getElementById("autoChampsUseEne").checked = Storage().HHAuto_Setting_autoChampsUseEne === "true";
     document.getElementById("autoChampsFilter").value = Storage().HHAuto_Setting_autoChampsFilter?Storage().HHAuto_Setting_autoChampsFilter:"1;2;3;4;5;6";
