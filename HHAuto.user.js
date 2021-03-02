@@ -4698,23 +4698,24 @@ function moduleShopActions()
                 getSelectGirlID=girl.attr("id_girl");
                 let selectedGirl=girl.data("g");
 
-                if ($('div[id_girl='+getSelectGirlID+'][data-g] .aff_val').length === 0 && $('div[id_girl='+getSelectGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length === 0)
-                {
-                    logHHAuto("Error catching girl current Aff, cancelling.");
-                    if (typeof AffDialog.showModal === "function")
-                    {
-                        document.getElementById("menuAffText").innerHTML = getTextForUI("menuAffError","elementText");
-                        document.getElementById("menuAffHide").style.display = "none";
-                        AffDialog.showModal();
-                    }
-                    else
-                    {
-                        alert("The <dialog> API is not supported by this browser");
-                    }
+//                 if ($('div[id_girl='+getSelectGirlID+'][data-g] .aff_val').length === 0 && $('div[id_girl='+getSelectGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length === 0)
+//                 {
+//                     logHHAuto("Error catching girl current Aff, cancelling.");
+//                     if (typeof AffDialog.showModal === "function")
+//                     {
+//                         document.getElementById("menuAffText").innerHTML = getTextForUI("menuAffError","elementText");
+//                         document.getElementById("menuAffHide").style.display = "none";
+//                         AffDialog.showModal();
+//                     }
+//                     else
+//                     {
+//                         alert("The <dialog> API is not supported by this browser");
+//                     }
 
-                    return;
-                }
-                else if ($('div[id_girl='+getSelectGirlID+'][data-g] .aff_val').length === 0 && $('div[id_girl='+getSelectGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length >0)
+//                     return;
+//                 }
+//                 else if ($('div[id_girl='+getSelectGirlID+'][data-g] .aff_val').length === 0 && $('div[id_girl='+getSelectGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length >0)
+                if ($('div[id_girl='+getSelectGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length >0)
                 {
                     if (typeof AffDialog.showModal === "function")
                     {
@@ -4873,7 +4874,7 @@ function moduleShopActions()
                     let menuText;
                     if ($('div[id_girl='+inGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length >0)
                     {
-                        logHHAuto(selectedGirl.Name+ "ready to upgrade");
+                        logHHAuto(selectedGirl.Name+ " is ready to be upgrade");
                         menuText =selectedGirl.Name+" "+getTextForUI("menuAffReadyToUpgrade","elementText")+"<br>"+getTextForUI("menuAffDistributed","elementText")+"<br>";
 
                     }
