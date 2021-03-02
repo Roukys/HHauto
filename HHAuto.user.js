@@ -4750,15 +4750,15 @@ function moduleShopActions()
                 });
                 if (Number(selectedGirl.Affection.cur) < Number(selectedGirl.Affection.max) && totalAff > 0 && (Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur)) >=minAffItem)
                 {
-
-                    AffToGive=findSubsetsPartition(Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur),giftCount);
+                    let AffMissing = Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur);
+                    AffToGive=findSubsetsPartition(AffMissing,giftCount);
                     menuText = selectedGirl.Name+" "+selectedGirl.Affection.cur+"/"+selectedGirl.Affection.max+"<br>"+getTextForUI("menuAffDistribution","elementText")+"<br>";
                     let Affkeys = Object.keys(AffToGive.partitions);
                     for ( var i of Affkeys )
                     {
                         menuText = menuText+i+"Aff x "+AffToGive.partitions[i]+"<br>"
                     }
-                    menuText = menuText+getTextForUI("Total","elementText")+AffToGive.total;
+                    menuText = menuText+getTextForUI("Total","elementText")+AffToGive.total+"/"+AffMissing;
                     document.getElementById("menuAffHide").style.display = "block";
 
                 }
@@ -4852,7 +4852,7 @@ function moduleShopActions()
                             menuText = menuText+i+"Aff x "+diff+"<br>"
                         }
                     }
-                    menuText = menuText+getTextForUI("Total","elementText")+givenTotal;
+                    menuText = menuText+getTextForUI("Total","elementText")+givenTotal+"/"+inAffToGive.total;
                     document.getElementById("menuAffText").innerHTML = menuText;
 
                 }
@@ -5183,7 +5183,8 @@ function moduleShopActions()
                         if (can_sell)
                         {
                             $('#inventory > button.green_text_button[rel=sell]').click();
-                            document.getElementById("menuSoldCurrentCount").innerHTML = (initialNumberOfItems - currentNumberOfItems) +1;
+                            let currSellNumber = Number((initialNumberOfItems - currentNumberOfItems) +1);
+                            document.getElementById("menuSoldCurrentCount").innerHTML = currSellNumber+"/"+itemsToSell;
                             document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
                             return;
                         }
