@@ -870,7 +870,7 @@ function getSuitableMission(missionsList)
 
     for(var m in missionsList)
     {
-        if (missionsList[m].rewards.contains("koban"))
+        if (JSON.stringify(missionsList[m].rewards).contains("koban"))
         {
             return missionsList[m];
         }
@@ -938,8 +938,8 @@ function doMissionStuff()
                     reward.classList = slotDiv.classList;
                     // set reward type
                     if(reward.classList.contains("slot_xp"))reward.type = "xp";
-                    else if(reward.classList.contains("slot_SC"))reward.type = "money";
-                    else if(reward.classList.contains("slot_HC"))reward.type = "koban";
+                    else if(reward.classList.contains("slot_soft_currency"))reward.type = "money";
+                    else if(reward.classList.contains("slot_hard_currency"))reward.type = "koban";
                     else reward.type = "item";
                     // set value if xp
                     if(reward.type === "xp" || reward.type === "money" || reward.type === "koban")
