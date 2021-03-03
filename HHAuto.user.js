@@ -867,8 +867,13 @@ var proceedQuest = function () {
 function getSuitableMission(missionsList)
 {
     var msn = missionsList[0];
+
     for(var m in missionsList)
     {
+        if (missionsList[m].rewards.contains("koban"))
+        {
+            return missionsList[m];
+        }
         if(Number(msn.duration) > Number(missionsList[m].duration))
         {
             msn = missionsList[m];
