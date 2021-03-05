@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.5
+// @version      5.4.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -720,6 +720,9 @@ function gotoPage(page)
             case "club_champion" :
                 togoto = "/club-champion.html";
                 break;
+            case "clubs" :
+                togoto = $("nav div[rel='content'] a:has(.clubs)").attr("href");
+                break;
             default:
                 logHHAuto("Unknown goto page request. No page \'"+page+"\' defined.");
         }
@@ -864,8 +867,13 @@ var proceedQuest = function () {
 function getSuitableMission(missionsList)
 {
     var msn = missionsList[0];
+
     for(var m in missionsList)
     {
+        if (JSON.stringify(missionsList[m].rewards).contains("koban"))
+        {
+            return missionsList[m];
+        }
         if(Number(msn.duration) > Number(missionsList[m].duration))
         {
             msn = missionsList[m];
@@ -930,8 +938,8 @@ function doMissionStuff()
                     reward.classList = slotDiv.classList;
                     // set reward type
                     if(reward.classList.contains("slot_xp"))reward.type = "xp";
-                    else if(reward.classList.contains("slot_SC"))reward.type = "money";
-                    else if(reward.classList.contains("slot_HC"))reward.type = "koban";
+                    else if(reward.classList.contains("slot_soft_currency"))reward.type = "money";
+                    else if(reward.classList.contains("slot_hard_currency"))reward.type = "koban";
                     else reward.type = "item";
                     // set value if xp
                     if(reward.type === "xp" || reward.type === "money" || reward.type === "koban")
@@ -1426,12 +1434,13 @@ var CollectMoney = function()
         else
         {
             //logHHAuto('nothing to click, checking data');
-            CollectData();
+            CollectData(false);
         }
     }
 
-    function CollectData()
+    function CollectData(inStart = true)
     {
+        let allCollected = true;
         var btns=$("#harem_whole #harem_left .salary:not('.loads') button");
         //logHHAuto('buttons: '+btns.size())
         btns.each(function (index, element) {
@@ -1448,15 +1457,19 @@ var CollectMoney = function()
 
         logHHAuto({log:"Collected Data: ", ClickedObj:Clicked, ToClickObj:ToClick});
 
-        if (ToClick.length>0)
+        if (ToClick.length>0 )
+        {
+            allCollected = false;
+        }
+        if (ToClick.length>0 && inStart)
         {
             //logHHAuto('clicking!');
 
             // add time to paranoia
-            var addedTime=ToClick.length*1.6;
-            logHHAuto("Adding time to burst to cover getting salary : +"+addedTime+"secs");
-            addedTime += getSecondsLeft("paranoiaSwitch");
-            setTimer("paranoiaSwitch",addedTime);
+            //var addedTime=ToClick.length*1.6;
+            //logHHAuto("Adding time to burst to cover getting salary : +"+addedTime+"secs");
+            //addedTime += getSecondsLeft("paranoiaSwitch");
+            //setTimer("paranoiaSwitch",addedTime);
 
             setTimeout(ClickThem,randomInterval(500,1500));
         }
@@ -1502,9 +1515,11 @@ var CollectMoney = function()
                 logHHAuto("closestTime is "+closestTime+" ("+closestGirl+")");
                 closestTime = st;
             }
+            //if (allCollected)
+            //{
             setTimer('nextSalaryTime',Number(closestTime)+1);
-            sessionStorage.HHAuto_Temp_autoLoop = "true";
-            setTimeout(autoLoop, Number(Storage().HHAuto_Temp_autoLoopTimeMili));
+            //}
+            gotoPage('home');
         }
     }
 
@@ -1989,6 +2004,7 @@ var doChampionStuff=function()
         {
             setTimer('nextChampionTime',minTime);
         }
+        gotoPage('home');
         return false;
     }
     else
@@ -2003,18 +2019,10 @@ var doClubChampionStuff=function()
     var page=getPage();
     if (page=='club_champion')
     {
-        logHHAuto('on club champion page');
+        logHHAuto('on club_champion page');
         if ($('button[rel=perform].blue_button_L').length==0)
         {
-            var currTime = 15*60;
-            logHHAuto("Can't fight club champion.");
-            //             $('div.champions-middle__champion-resting[timer]').each(function()
-            //                                                                     {
-            //                 var timer = $(this).attr('timer');
-            //                 currTime=Number(timer)-Math.ceil(new Date().getTime()/1000);
-            //                 logHHAuto("Found club chmpion timer : "+currTime);
-            //             });
-            setTimer('nextClubChampionTime',currTime);
+            logHHAuto('Something is wrong!');
             gotoPage("home");
             return true;
         }
@@ -2022,7 +2030,7 @@ var doClubChampionStuff=function()
         {
             var TCount=Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
             var ECount= getSetHeroInfos('quest.amount');
-            logHHAuto("T:"+TCount+" E:"+ECount+" "+(Storage().HHAuto_Setting_autoChampsUseEne==="true"))
+            logHHAuto("T:"+TCount+" E:"+ECount)
             if ( TCount==0)
             {
                 logHHAuto("No tickets!");
@@ -2035,15 +2043,70 @@ var doClubChampionStuff=function()
                 {
                     logHHAuto("Using ticket");
                     $('button[rel=perform].blue_button_L').click();
+                    setTimer('nextClubChampionTime',3);
                 }
-                setTimeout(function(){gotoPage('home');},500);
+                setTimeout(function(){gotoPage('clubs');},500);
                 return true;
             }
         }
     }
+    else if (page=='clubs')
+    {
+        logHHAuto('on clubs');
+        let Started = $("div.club_champions_panel tr.personal_highlight").length === 1;
+        let noTimer = true;
+        let Timer= -1;
+        let SecsToNextTimer = -1;
+        let restTeamFilter = "div.club_champions_details_container div.team_rest_timer[data-rest-timer]";
+        let restChampionFilter = "div.club_champions_details_container div.champion_rest_timer[data-rest-timer]";
+
+        if ($(restTeamFilter).length > 0)
+        {
+            Timer = Number($(restTeamFilter).attr("data-rest-timer"));
+            let SecsToNextTimer = Number(Timer)-Math.ceil(new Date().getTime()/1000);
+            noTimer = false;
+            logHHAuto("Team is resting for : "+toHHMMSS(SecsToNextTimer));
+        }
+        if ($(restChampionFilter).length > 0)
+        {
+            Timer = Number($(restChampionFilter).attr("data-rest-timer"));
+            let SecsToNextTimer = Number(Timer)-Math.ceil(new Date().getTime()/1000);
+            noTimer = false;
+            logHHAuto("Champion is resting for : "+toHHMMSS(SecsToNextTimer));
+        }
+
+        if (Started && noTimer)
+        {
+            let ticketUsed = Number($("div.club_champions_panel tr.personal_highlight td.challenges_count")[0].innerText.replace(/[^0-9]/gi, ''));
+            let maxTickets = Number(Storage().HHAuto_Setting_autoClubChampMax?Storage().HHAuto_Setting_autoClubChampMax:"999");
+            //console.log(maxTickets, ticketUsed);
+            if (maxTickets > ticketUsed )
+            {
+                logHHAuto("Let's do him!");
+                gotoPage('club_champion');
+                return true;
+            }
+            else
+            {
+                logHHAuto("Max tickets to use on Club Champ reached.");
+            }
+
+        }
+
+        if (SecsToNextTimer === -1 || SecsToNextTimer > 30*60)
+        {
+            setTimer('nextClubChampionTime',15*60);
+        }
+        else
+        {
+            setTimer('nextClubChampionTime',SecsToNextTimer);
+        }
+        gotoPage('home');
+        return false;
+    }
     else
     {
-        gotoPage('club_champion');
+        gotoPage('clubs');
         return true;
     }
 }
@@ -2544,6 +2607,7 @@ var doLeagueBattle = function () {
         if (Storage().HHAuto_Setting_autoLeaguesCollect === "true")
         {
             $('#leagues_middle .forced_info button[rel="claim"]').click(); //click reward
+            setTimeout(function(){gotoPage('leaderboard');},500);
         }
         //logHHAuto('ls! '+$('h4.leagues').size());
         $('h4.leagues').each(function(){this.click();});
@@ -2788,12 +2852,16 @@ function getLeagueOpponentId(opponentsIDList)
             logHHAuto("Opponents list not found or expired. Fetching all opponents.");
         }
 
-        var addedTime=opponentsIDList.length*maxTime;
-        // add 2 mins for using it
-        addedTime+=120;
-        logHHAuto("Adding time to burst to cover building list : +"+addedTime+"secs");
-        addedTime += getSecondsLeft("paranoiaSwitch");
-        setTimer("paranoiaSwitch",addedTime);
+
+
+        //if paranoia not is time's up and not in paranoia spendings
+        if (!checkTimer("paranoiaSwitch"))
+        {
+            let addedTime=opponentsIDList.length*maxTime;
+            logHHAuto("Adding time to burst to cover building list : +"+addedTime+"secs");
+            addedTime += getSecondsLeft("paranoiaSwitch");
+            setTimer("paranoiaSwitch",addedTime);
+        }
 
         playerEgo = Math.round(getSetHeroInfos('caracs.ego'));
         playerDefHC = Math.round(getSetHeroInfos('caracs.def_carac1'));
@@ -3027,6 +3095,7 @@ var setTimer=function(name, seconds)
     sessionStorage.HHAuto_Temp_Timers=JSON.stringify(Timers);
     logHHAuto(name+" set to "+toHHMMSS(ND/1000-new Date().getTimezoneOffset()*60)+' ('+ toHHMMSS(seconds)+')');
 }
+
 
 var clearTimer=function(name)
 {
@@ -3309,9 +3378,41 @@ var checkParanoiaSpendings=function(spendingFunction)
 var clearParanoiaSpendings=function()
 {
     Storage().removeItem('HHAuto_Temp_paranoiaSpendings');
-    Storage().removeItem('HHAuto_Temp_toNextSwitch');
+    Storage().removeItem('HHAuto_Temp_NextSwitch');
     Storage().removeItem('HHAuto_Temp_paranoiaQuestBlocked');
     Storage().removeItem('HHAuto_Temp_paranoiaLeagueBlocked');
+}
+
+function updatedParanoiaSpendings(inSpendingFunction, inSpent)
+{
+    var currentPSpendings=new Map([]);
+    // not set
+    if ( ! Storage().HHAuto_Temp_paranoiaSpendings )
+    {
+        return -1;
+    }
+    else
+    {
+        currentPSpendings = JSON.parse(Storage().HHAuto_Temp_paranoiaSpendings,reviverMap);
+        if (currentPSpendings.has(inSpendingFunction))
+        {
+            let currValue = currentPSpendings.get(inSpendingFunction);
+            currValue -= inSpent;
+
+            if (currValue >0)
+            {
+                logHHAuto("Spent "+inSpent+" "+inSpendingFunction+", remains "+currValue+" before Paranoia.");
+                currentPSpendings.set(inSpendingFunction,currValue);
+            }
+            else
+            {
+                currentPSpendings.delete(inSpendingFunction);
+            }
+        }
+        logHHAuto("Remains to spend before Paranoia : "+JSON.stringify(currentPSpendings,replacerMap));
+        Storage().HHAuto_Temp_paranoiaSpendings=JSON.stringify(currentPSpendings,replacerMap);
+
+    }
 }
 
 //sets spending to do before paranoia
@@ -3324,9 +3425,9 @@ var setParanoiaSpendings=function()
     var currentEnergy;
     var maxEnergy;
     var toNextSwitch;
-    if (Storage().HHAuto_Temp_toNextSwitch && Storage().HHAuto_Setting_paranoiaSpendsBefore === "true")
+    if (Storage().HHAuto_Temp_NextSwitch && Storage().HHAuto_Setting_paranoiaSpendsBefore === "true")
     {
-        toNextSwitch = Number(Storage().HHAuto_Temp_toNextSwitch);
+        toNextSwitch = Number((Storage().HHAuto_Temp_NextSwitch-new Date().getTime())/1000);
 
         //if autoLeague is on
         if(Storage().HHAuto_Setting_autoLeagues === "true" && getSetHeroInfos('level')>=20)
@@ -3433,7 +3534,7 @@ var flipParanoia=function()
     {
         var periods=Object.assign(...S1[1].map(d => ({[d[0]]: d[1].split('-')})));
 
-        toNextSwitch=Number(Storage().HHAuto_Temp_toNextSwitch?Storage().HHAuto_Temp_toNextSwitch:randomInterval(Number(periods[period][0]),Number(periods[period][1])));
+        toNextSwitch=Storage().HHAuto_Temp_NextSwitch?Number((Storage().HHAuto_Temp_NextSwitch-new Date().getTime())/1000):randomInterval(Number(periods[period][0]),Number(periods[period][1]));
         /*
         if (toNextSwitch<=1800 && Storage().HHAuto_Setting_autoArenaBattle == "true")
         {
@@ -3484,7 +3585,7 @@ var flipParanoia=function()
 
         if ( checkParanoiaSpendings() === -1 && Storage().HHAuto_Setting_paranoiaSpendsBefore === "true" )
         {
-            Storage().HHAuto_Temp_toNextSwitch=toNextSwitch;
+            Storage().HHAuto_Temp_NextSwitch=new Date().getTime() + toNextSwitch * 1000;
             setParanoiaSpendings();
             return;
         }
@@ -3499,7 +3600,7 @@ var flipParanoia=function()
         else
         {
             //refresh remaining
-            setParanoiaSpendings(toNextSwitch);
+            //setParanoiaSpendings(toNextSwitch);
             //let spending go before going in paranoia
             return;
         }
@@ -4154,9 +4255,40 @@ function moduleSimSeasonBattle() {
         return -1;
     }
 }
+function CheckSpentPoints()
+{
+    let oldValues=sessionStorage.HHAuto_Temp_CheckSpentPoints?JSON.parse(sessionStorage.HHAuto_Temp_CheckSpentPoints):-1;
+    let newValues={};
+    newValues['fight']=Number(getSetHeroInfos('fight.amount'));
+    newValues['kiss']=Number(getSetHeroInfos('kiss.amount'));
+    newValues['quest']=Number(getSetHeroInfos('quest.amount'));
+    newValues['challenge']=Number(getSetHeroInfos('challenge.amount'));
+
+    if ( oldValues !== -1)
+    {
+        let spent= {};
+        let hasSpend = false;
+        let checks=['fight','kiss','quest','challenge'];
+
+        for (let i of checks)
+        {
+            if (oldValues[i]-newValues[i] >0)
+            {
+                spent[i]=oldValues[i]-newValues[i];
+                updatedParanoiaSpendings(i, spent[i]);
+            }
+        }
+        sessionStorage.HHAuto_Temp_CheckSpentPoints=JSON.stringify(newValues);
+    }
+    else
+    {
+        sessionStorage.HHAuto_Temp_CheckSpentPoints=JSON.stringify(newValues);
+    }
+}
 
 
 var autoLoop = function () {
+
     updateData();
     if (!sessionStorage.HHAuto_Temp_questRequirement)
     {
@@ -4181,14 +4313,13 @@ var autoLoop = function () {
 
     if (burst /*|| checkTimer('nextMissionTime')*/)
     {
+
         if (!checkTimer("paranoiaSwitch") )
         {
             clearParanoiaSpendings();
         }
-        else
-        {
-            setParanoiaSpendings();
-        }
+        CheckSpentPoints();
+
         if(Storage().HHAuto_Setting_autoFreePachinko === "true" && busy === false){
             // Navigate to pachinko
 
@@ -4478,19 +4609,21 @@ var autoLoop = function () {
             }
             sessionStorage.HHAuto_Temp_autoLoop = "false";
             logHHAuto("setting autoloop to false");
-            busy = true;;
+            busy = true;
             setTimeout(buyTicket,randomInterval(800,1600));
         }
 
         if (busy==false && Storage().HHAuto_Setting_autoChamps==="true" && checkTimer('nextChampionTime'))
         {
             logHHAuto("Time to check on champions!");
+            busy=true;
             busy=doChampionStuff();
         }
 
         if (busy==false && Storage().HHAuto_Setting_autoClubChamp==="true" && checkTimer('nextClubChampionTime'))
         {
             logHHAuto("Time to check on club champion!");
+            busy=true;
             busy=doClubChampionStuff();
         }
         if(Storage().HHAuto_Setting_autoLeagues === "true" && getSetHeroInfos('level')>=20 && busy === false ){
@@ -4525,6 +4658,7 @@ var autoLoop = function () {
         if (Storage().HHAuto_Setting_autoSalary === "true" && busy === false && ( Storage().HHAuto_Setting_paranoia !== "true" || !checkTimer("paranoiaSwitch") )) {
             if (checkTimer("nextSalaryTime")) {
                 logHHAuto("Time to fetch salary.");
+                busy = true;
                 busy = getSalary();
             }
         }
@@ -4535,8 +4669,8 @@ var autoLoop = function () {
         }
         else if(sessionStorage.HHAuto_Temp_userLink !=="none" && busy === false)
         {
-            logHHAuto("Restoring page "+sessionStorage.HHAuto_Temp_userLink);
-            window.location = sessionStorage.HHAuto_Temp_userLink;
+            //logHHAuto("Restoring page "+sessionStorage.HHAuto_Temp_userLink);
+            //window.location = sessionStorage.HHAuto_Temp_userLink;
             sessionStorage.HHAuto_Temp_userLink = "none";
         }
     }
@@ -4592,7 +4726,7 @@ function moduleShopActions()
 
     function appendMenuAff()
     {
-        var menuAff = '<div class="tooltip"><span class="tooltiptext">'+getTextForUI("menuAff","tooltip")+'</span><label style="position: relative;left: -100px;top: -10px; width:100px" class="myButton" id="menuAff">'+getTextForUI("menuAff","elementText")+'</label></div>'
+        var menuAff = '<div style="position: absolute;right: 50px;top: -10px;" class="tooltip"><span class="tooltiptext">'+getTextForUI("menuAff","tooltip")+'</span><label style="width:100px" class="myButton" id="menuAff">'+getTextForUI("menuAff","elementText")+'</label></div>'
         + '<dialog id="AffDialog"><form stylemethod="dialog">'
         +  '<div style="padding:10px; display:flex;flex-direction:column;">'
         //+   '<div style="display:flex;flex-direction:row;">'
@@ -4620,23 +4754,24 @@ function moduleShopActions()
                 getSelectGirlID=girl.attr("id_girl");
                 let selectedGirl=girl.data("g");
 
-                if ($('div[id_girl='+getSelectGirlID+'][data-g] .aff_val').length === 0 && $('div[id_girl='+getSelectGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length === 0)
-                {
-                    logHHAuto("Error catching girl current Aff, cancelling.");
-                    if (typeof AffDialog.showModal === "function")
-                    {
-                        document.getElementById("menuAffText").innerHTML = getTextForUI("menuAffError","elementText");
-                        document.getElementById("menuAffHide").style.display = "none";
-                        AffDialog.showModal();
-                    }
-                    else
-                    {
-                        alert("The <dialog> API is not supported by this browser");
-                    }
+                //                 if ($('div[id_girl='+getSelectGirlID+'][data-g] .aff_val').length === 0 && $('div[id_girl='+getSelectGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length === 0)
+                //                 {
+                //                     logHHAuto("Error catching girl current Aff, cancelling.");
+                //                     if (typeof AffDialog.showModal === "function")
+                //                     {
+                //                         document.getElementById("menuAffText").innerHTML = getTextForUI("menuAffError","elementText");
+                //                         document.getElementById("menuAffHide").style.display = "none";
+                //                         AffDialog.showModal();
+                //                     }
+                //                     else
+                //                     {
+                //                         alert("The <dialog> API is not supported by this browser");
+                //                     }
 
-                    return;
-                }
-                else if ($('div[id_girl='+getSelectGirlID+'][data-g] .aff_val').length === 0 && $('div[id_girl='+getSelectGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length >0)
+                //                     return;
+                //                 }
+                //                 else if ($('div[id_girl='+getSelectGirlID+'][data-g] .aff_val').length === 0 && $('div[id_girl='+getSelectGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length >0)
+                if ($('div[id_girl='+getSelectGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length >0)
                 {
                     if (typeof AffDialog.showModal === "function")
                     {
@@ -4672,15 +4807,15 @@ function moduleShopActions()
                 });
                 if (Number(selectedGirl.Affection.cur) < Number(selectedGirl.Affection.max) && totalAff > 0 && (Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur)) >=minAffItem)
                 {
-
-                    AffToGive=findSubsetsPartition(Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur),giftCount);
+                    let AffMissing = Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur);
+                    AffToGive=findSubsetsPartition(AffMissing,giftCount);
                     menuText = selectedGirl.Name+" "+selectedGirl.Affection.cur+"/"+selectedGirl.Affection.max+"<br>"+getTextForUI("menuAffDistribution","elementText")+"<br>";
                     let Affkeys = Object.keys(AffToGive.partitions);
                     for ( var i of Affkeys )
                     {
                         menuText = menuText+i+"Aff x "+AffToGive.partitions[i]+"<br>"
                     }
-                    menuText = menuText+getTextForUI("Total","elementText")+AffToGive.total;
+                    menuText = menuText+getTextForUI("Total","elementText")+AffToGive.total+"/"+AffMissing;
                     document.getElementById("menuAffHide").style.display = "block";
 
                 }
@@ -4774,7 +4909,7 @@ function moduleShopActions()
                             menuText = menuText+i+"Aff x "+diff+"<br>"
                         }
                     }
-                    menuText = menuText+getTextForUI("Total","elementText")+givenTotal;
+                    menuText = menuText+getTextForUI("Total","elementText")+givenTotal+"/"+inAffToGive.total;
                     document.getElementById("menuAffText").innerHTML = menuText;
 
                 }
@@ -4795,7 +4930,7 @@ function moduleShopActions()
                     let menuText;
                     if ($('div[id_girl='+inGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length >0)
                     {
-                        logHHAuto(selectedGirl.Name+ "ready to upgrade");
+                        logHHAuto(selectedGirl.Name+ " is ready to be upgrade");
                         menuText =selectedGirl.Name+" "+getTextForUI("menuAffReadyToUpgrade","elementText")+"<br>"+getTextForUI("menuAffDistributed","elementText")+"<br>";
 
                     }
@@ -4895,12 +5030,12 @@ function moduleShopActions()
                         //console.log("tmp_result",tmp_result);
                         //if (tmp_result !== -1)
                         //{
-                        //	console.log("result : ",result);
+                        //console.log("result : ",result);
                         //	return tmp_result;
                         //}
                     }
                 }
-                console.log("result : ",result);
+                //console.log("result : ",result);
                 return result;
             }
 
@@ -4926,18 +5061,280 @@ function moduleShopActions()
         }
     }
 
+    function menuSellListItems()
+    {
+
+        GM_addStyle('.tItems {border-collapse: collapse;} '
+                    +'.tItems td,th {border: 1px solid #1B4F72;} '
+                    +'.tItemsColGroup {border: 3px solid #1B4F72;} '
+                    +'.tItemsTh1 {background-color: #2874A6;color: #fff;} '
+                    +'.tItemsTh2 {background-color: #3498DB;color: #fff;} '
+                    +'.tItemsTBody tr:nth-child(odd) {background-color: #85C1E9;} '
+                    +'.tItemsTBody tr:nth-child(even) {background-color: #D6EAF8;} '
+                    +'.tItemsTdItems[itemsLockStatus="allLocked"] {color: #FF0000} '
+                    +'.tItemsTdItems[itemsLockStatus="noneLocked"] {color: #1B4F72}'
+                    +'.tItemsTdItems[itemsLockStatus="someLocked"] {color: #FFA500}' );
+
+        let itemsCaracsNb=16;
+        let itemsCaracs=[];
+        for (let i=1;i<itemsCaracsNb+1;i++)
+        {
+            itemsCaracs.push(i)
+        }
+
+        let itemsRarity=["common", "rare", "epic", "legendary"];
+        let itemsLockedStatus=["not_locked","locked"];
+
+        let itemsTypeNb=6;
+        let itemsType=[];
+        for (let i=1;i<itemsTypeNb+1;i++)
+        {
+            itemsType.push(i)
+        }
+
+        let itemsList={};
+        for (let c of itemsCaracs)
+        {
+            if (itemsList[c] === undefined)
+            {
+                itemsList[c] = {};
+            }
+            for( let t of itemsType)
+            {
+                if (itemsList[c][t] === undefined)
+                {
+                    itemsList[c][t] = {};
+                }
+                for (let r of itemsRarity)
+                {
+                    if (itemsList[c][t][r] === undefined)
+                    {
+                        itemsList[c][t][r] = {};
+                    }
+                    for(let l of itemsLockedStatus)
+                    {
+                        itemsList[c][t][r][l]=$(setSlotFilter(c,t,r,l)).length;
+                    }
+                }
+            }
+        }
+
+        let itemsListMenu = '<table class="tItems">'
+        +' <colgroup class="tItemsColGroup">'
+        +'  <col class="tItemsColRarity">'
+        +' </colgroup>'
+        +' <colgroup class="tItemsColGroup">'
+        +'  <col class="tItemsColRarity" span="6">'
+        +' </colgroup>'
+        +' <colgroup class="tItemsColGroup">'
+        +'  <col class="tItemsColRarity" span="6">'
+        +' </colgroup>'
+        +' <colgroup class="tItemsColGroup">'
+        +'  <col class="tItemsColRarity" span="6">'
+        +' </colgroup>'
+        +' <colgroup class="tItemsColGroup">'
+        +'  <col class="tItemsColRarity" span="6">'
+        +' </colgroup>'
+        +' <thead class="tItemsTHead">'
+        +'  <tr>'
+        +'   <th class="tItemsTh1">'+getTextForUI("Rarity","elementText")+'</th>'
+        +'   <th class="tItemsTh1" menuSellFilter="c:*;t:*;r:'+itemsRarity[0]+'" colspan="6">'+getTextForUI("RarityCommon","elementText")+'</th>'
+        +'   <th class="tItemsTh1" menuSellFilter="c:*;t:*;r:'+itemsRarity[1]+'" colspan="6">'+getTextForUI("RarityRare","elementText")+'</th>'
+        +'   <th class="tItemsTh1" menuSellFilter="c:*;t:*;r:'+itemsRarity[2]+'" colspan="6">'+getTextForUI("RarityEpic","elementText")+'</th>'
+        +'   <th class="tItemsTh1" menuSellFilter="c:*;t:*;r:'+itemsRarity[3]+'" colspan="6">'+getTextForUI("RarityLegendary","elementText")+'</th>'
+        +'  </tr>'
+        +'  <tr>'
+        +'   <th class="tItemsTh2">'+getTextForUI("equipementCaracs","elementText")+'/'+getTextForUI("equipementType","elementText")+'</th>';
+
+        for (let r of itemsRarity)
+        {
+            itemsListMenu+='   <th class="tItemsTh2" menuSellFilter="c:*;t:'+itemsType[0]+';r:'+r+'">'+getTextForUI("equipementHead","elementText")+'</th>'
+                +'   <th class="tItemsTh2" menuSellFilter="c:*;t:'+itemsType[1]+';r:'+r+'">'+getTextForUI("equipementBody","elementText")+'</th>'
+                +'   <th class="tItemsTh2" menuSellFilter="c:*;t:'+itemsType[2]+';r:'+r+'">'+getTextForUI("equipementLegs","elementText")+'</th>'
+                +'   <th class="tItemsTh2" menuSellFilter="c:*;t:'+itemsType[3]+';r:'+r+'">'+getTextForUI("equipementFlag","elementText")+'</th>'
+                +'   <th class="tItemsTh2" menuSellFilter="c:*;t:'+itemsType[4]+';r:'+r+'">'+getTextForUI("equipementPet","elementText")+'</th>'
+                +'   <th class="tItemsTh2" menuSellFilter="c:*;t:'+itemsType[5]+';r:'+r+'">'+getTextForUI("equipementWeapon","elementText")+'</th>';
+        }
+
+        itemsListMenu+='  </tr>'
+            +' </thead>'
+            +' <tbody class="tItemsTBody">';
+
+        for (let c of itemsCaracs)
+        {
+            let ext="png";
+            if (c === 16)
+            {
+                ext = "svg";
+            }
+            itemsListMenu +='  <tr>'
+                +'   <td menuSellFilter="c:'+c+';t:*;r:*"><img style="height:20px;width:20px" src="https://hh2.hh-content.com/pictures/misc/items_icons/'+c+'.'+ext+'"></td>';
+            for( let r of itemsRarity)
+            {
+                for (let t of itemsType)
+                {
+                    let total= itemsList[c][t][r][itemsLockedStatus[0]]+itemsList[c][t][r][itemsLockedStatus[1]];
+                    let displayNb = itemsList[c][t][r][itemsLockedStatus[0]]+'/'+total;
+                    let itemsLockStatus;
+                    if (total === 0)
+                    {
+                        displayNb = "";
+                    }
+                    else
+                    {
+                        if (itemsList[c][t][r][itemsLockedStatus[1]] === 0)
+                        {
+                            //no lock
+                            itemsLockStatus="noneLocked";
+                        }
+                        else if ( itemsList[c][t][r][itemsLockedStatus[1]] === total)
+                        {
+                            //all locked
+                            itemsLockStatus="allLocked";
+                        }
+                        else
+                        {
+                            //some locked
+                            itemsLockStatus="someLocked";
+                        }
+                    }
+
+
+                    itemsListMenu +='   <td class="tItemsTdItems" itemsLockStatus="'+itemsLockStatus+'" menuSellFilter="c:'+c+';t:'+t+';r:'+r+'"'+'>'+displayNb+'</td>';
+                }
+            }
+
+            itemsListMenu +='  </tr>';
+        }
+
+        function setSlotFilter(inCaracsValue,inTypeValue,inRarityValue,inLockedValue)
+        {
+            let filter='#inventory .selected .inventory_slots .slot:not(.empty)';
+            if (inCaracsValue !== "*" )
+            {
+                filter+='[data-d*="\"name_add\":\"'+inCaracsValue+'\""]';
+            }
+            if (inTypeValue !== "*" )
+            {
+                filter+='[data-d*="\"subtype\":\"'+inTypeValue+'\""]';
+            }
+            if (inRarityValue !== "*" )
+            {
+                filter+='[data-d*="\"rarity\":\"'+inRarityValue+'\""]';
+            }
+            if (inLockedValue === "locked" || inLockedValue === true)
+            {
+                filter+='[menuSellLocked]';
+            }
+            else
+            {
+                filter+=':not([menuSellLocked])';
+            }
+            return filter;
+        }
+
+        function setCellsFilter(inCaracsValue,inTypeValue,inRarityValue)
+        {
+            let filter='table.tItems [menuSellFilter*="';
+            if (inCaracsValue !== "*" )
+            {
+                filter+='c:'+inCaracsValue+';';
+            }
+            if (inTypeValue !== "*" )
+            {
+                filter+='t:'+inTypeValue+';';
+            }
+            if (inRarityValue !== "*" )
+            {
+                filter+='r:'+inRarityValue;
+            }
+            filter+='"]';
+            return filter;
+        }
+
+        itemsListMenu +=' <tbody>'
+            +'</table>';
+        document.getElementById("menuSellList").innerHTML = itemsListMenu;
+        $('table.tItems [menuSellFilter] ').each(function()
+                                                 {
+            this.addEventListener("click", function()
+                                  {
+                let toLock = !(this.getAttribute("itemsLockStatus") === "allLocked");
+                let c=this.getAttribute("menuSellFilter").split(";")[0].split(":")[1];
+                let t=this.getAttribute("menuSellFilter").split(";")[1].split(":")[1];
+                let r=this.getAttribute("menuSellFilter").split(";")[2].split(":")[1];
+                AllLockUnlock(setSlotFilter(c,t,r,!toLock),toLock);
+                if (toLock)
+                {
+                    $(setCellsFilter(c,t,r)).each(function()
+                                                  {
+                        this.setAttribute("itemsLockStatus","allLocked");
+                    });
+                }
+                else
+                {
+                    $(setCellsFilter(c,t,r)).each(function()
+                                                  {
+                        this.setAttribute("itemsLockStatus","noneLocked");
+                    });
+                }
+            });
+        });
+    }
+
+    function AllLockUnlock(inFilter,lock)
+    {
+        if ($(inFilter).length >0)
+        {
+            $(inFilter).each(function()
+                             {
+                if (lock)
+                {
+                    this.setAttribute("menuSellLocked", "");
+                    $(this).prepend('<img class="menuSellLocked" style="position:absolute;width:32px;height:32px" src="https://i.postimg.cc/PxgxrBVB/Opponent-red.png">');
+                }
+                else
+                {
+                    this.removeAttribute("menuSellLocked");
+                    this.querySelector("img.menuSellLocked").remove();
+                }
+            });
+        }
+
+
+    }
+
+    function lockUnlock(inFilter)
+    {
+        if ($(inFilter).length >0)
+        {
+            let currentLock = $(inFilter)[0].getAttribute("menuSellLocked");
+            if (currentLock === null )
+            {
+                $(inFilter)[0].setAttribute("menuSellLocked", "");
+                $(inFilter).prepend('<img class="menuSellLocked" style="position:absolute;width:32px;height:32px" src="https://i.postimg.cc/PxgxrBVB/Opponent-red.png">');
+            }
+            else
+            {
+                $(inFilter)[0].removeAttribute("menuSellLocked");
+                $(inFilter+" img.menuSellLocked")[0].remove();
+            }
+        }
+    }
+
     function appendMenuSell()
     {
-        var menuSell = '<div class="tooltip"><span class="tooltiptext">'+getTextForUI("menuSell","tooltip")+'</span><label style="position: relative;left: -100px;top: -10px; width:70px" class="myButton" id="menuSell">'+getTextForUI("menuSell","elementText")+'</label></div>'
+        var menuSell = '<div style="position: absolute;right: 50px;top: -10px" class="tooltip"><span class="tooltiptext">'+getTextForUI("menuSell","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSell">'+getTextForUI("menuSell","elementText")+'</label></div>'
         + '<dialog id="SellDialog"><form stylemethod="dialog">'
         +  '<div style="padding:10px; display:flex;flex-direction:column;">'
+        +   '<p>'+getTextForUI("menuSellText","elementText")+'</p>'
         +   '<div style="display:flex;flex-direction:row;">'
         +    '<p>'+getTextForUI("menuSellCurrentCount","elementText")+'</p>'
         +    '<p id="menuSellCurrentCount">0</p>'
         +   '</div>'
         +   '<p ></p>'
         +   '<div id="menuSellHide" style="display:none">'
-        +    '<p>'+getTextForUI("menuSellText","elementText")+'</p>'
+        +    '<p id="menuSellList"></p>'
         +    '<div style="display:flex;flex-direction:row;">'
         +     '<div style="padding:10px;"class="tooltip"><span class="tooltiptext">'+getTextForUI("menuSellButton","tooltip")+'</span><label class="myButton" id="menuSellButton">'+getTextForUI("menuSellButton","elementText")+'</label></div>'
         +     '<div style="padding:10px;" class="tooltip"><span class="tooltiptext">'+getTextForUI("menuSellNumber","tooltip")+'</span><input id="menuSellNumber" style="width:80%;height:20px" required pattern="'+HHAuto_inputPattern.menuSellNumber+'" type="text" value="0"></div>'
@@ -4948,10 +5345,12 @@ function moduleShopActions()
         +     '<p>'+getTextForUI("menuSoldText","elementText")+'</p>'
         +     '<p id="menuSoldCurrentCount">0</p>'
         +    '</div>'
+        +    '<p id="menuSoldMessage">0</p>'
         +   '</div>'
         +  '</div>'
         + '<menu> <label style="width:80px" class="myButton" id="menuSellCancel">'+getTextForUI("OptionCancel","elementText")+'</label></menu></form></dialog>'
 
+        var menuSellLock = '<div style="position: absolute;left: 50px;top: -10px" class="tooltip"><span class="tooltiptext">'+getTextForUI("menuSellLock","tooltip")+'</span><label style="width:100px" class="myButton" id="menuSellLock">'+getTextForUI("menuSellLock","elementText")+'</label></div>'
 
         if ($("#menuSell").length === 0 )
         {
@@ -4964,7 +5363,6 @@ function moduleShopActions()
 
                     SellDialog.showModal();
                     fetchAllArmorItems();
-
                 }
                 else
                 {
@@ -4996,7 +5394,21 @@ function moduleShopActions()
         }
         else if ($('#inventory > div.armor.selected > label').length > 0)
         {
-            document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
+            document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
+        }
+
+        if ($("#menuSellLock").length === 0 )
+        {
+            $('#inventory > div.armor > label').append(menuSellLock);
+
+            document.getElementById("menuSellLock").addEventListener("click", function(){
+                let filterText = "#inventory .selected .inventory_slots .slot.selected";
+                if ($(filterText).length >0)
+                {
+                    let toLock=$(filterText)[0].getAttribute("menuSellLocked") === null;
+                    AllLockUnlock(filterText,toLock);
+                }
+            });
         }
     }
 
@@ -5005,8 +5417,9 @@ function moduleShopActions()
         //console.log(slots.armor_pack_load);
         if (slots.armor_pack_load < 0)
         {
-            document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
+            document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
             document.getElementById("menuSellHide").style.display = "block";
+            menuSellListItems();
             return;
         }
         if (!document.getElementById("SellDialog").open)
@@ -5035,14 +5448,15 @@ function moduleShopActions()
             if (data.last)
             {
                 slots.armor_pack_load = -100;
-                document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
+                document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
                 document.getElementById("menuSellHide").style.display = "block";
+                menuSellListItems();
             }
             else
             {
                 if (document.getElementById("menuSellCurrentCount"))
                 {
-                    document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
+                    document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
                     setTimeout(fetchAllArmorItems, randomInterval(800,1600));
                 }
             }
@@ -5056,8 +5470,10 @@ function moduleShopActions()
         document.getElementById("menuSellHide").style.display = "none";
         document.getElementById("menuSoldHide").style.display = "block";
         // return;
-        var initialNumberOfItems = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
+        var initialNumberOfItems = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
         var itemsToSell = Number(document.getElementById("menuSellNumber").value);
+        document.getElementById("menuSoldCurrentCount").innerHTML = "0/"+itemsToSell;
+        document.getElementById("menuSoldMessage").innerHTML ="";
         selling_func = setInterval(() => {
             if ($('#type_item > div.selected[type=armor]').length === 0)
             {
@@ -5073,29 +5489,38 @@ function moduleShopActions()
             }
             else
             {
-                let currentNumberOfItems = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
+                let currentNumberOfItems = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
+                if (currentNumberOfItems === 0)
+                {
+                    logHHAuto('no more items for sale');
+                    document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageNoMore","elementText");
+                    menuSellListItems();
+                    document.getElementById("menuSellHide").style.display = "block";
+                    clearInterval(selling_func);
+                }
+                //console.log(initialNumberOfItems,currentNumberOfItems);
                 if ((initialNumberOfItems - currentNumberOfItems) < itemsToSell)
                 {
                     let PlayerClass = getSetHeroInfos("class") === -1 ? $('#equiped > div.icon.class_change_btn').attr('carac') : getSetHeroInfos("class");
                     //check Selected item - can we sell it?
-                    if ($('#inventory .selected .inventory_slots .selected').length > 0)
+                    if ($('#inventory .selected .inventory_slots .selected:not([menuSellLocked])').length > 0)
                     {
                         let can_sell = false;
                         //Non legendary check
-                        if ($('#inventory .selected .inventory_slots .selected')[0].className.indexOf('legendary') < 0)
+                        if ($('#inventory .selected .inventory_slots .selected:not([menuSellLocked])')[0].className.indexOf('legendary') < 0)
                         {
                             can_sell = true;
 
                         }
                         //Legendary but with specific className
-                        else if ($('#inventory .selected .inventory_slots .selected[canBeSold]').length > 0)
+                        else if ($('#inventory .selected .inventory_slots .selected[canBeSold]:not([menuSellLocked])').length > 0)
                         {
                             can_sell = true;
                         }
                         else
                         {
                             let CurrObj;
-                            CurrObj = JSON.parse($('#inventory .selected .inventory_slots .selected')[0].getAttribute('data-d'));
+                            CurrObj = JSON.parse($('#inventory .selected .inventory_slots .selected:not([menuSellLocked])')[0].getAttribute('data-d'));
                             if (CurrObj.id_equip != "EQ-LE-06" && CurrObj.id_equip != "EQ-LE-0" + PlayerClass)
                             {
                                 can_sell = true;
@@ -5105,27 +5530,28 @@ function moduleShopActions()
                         if (can_sell)
                         {
                             $('#inventory > button.green_text_button[rel=sell]').click();
-                            document.getElementById("menuSoldCurrentCount").innerHTML = (initialNumberOfItems - currentNumberOfItems) +1;
-                            document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
+                            let currSellNumber = Number((initialNumberOfItems - currentNumberOfItems) +1);
+                            document.getElementById("menuSoldCurrentCount").innerHTML = currSellNumber+"/"+itemsToSell;
+                            document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
                             return;
                         }
                     }
                     //Find new non legendary sellable items
-                    if ($('#inventory .selected .inventory_slots .slot:not(.selected):not(.empty):not(.legendary)').length > 0)
+                    if ($('#inventory .selected .inventory_slots .slot:not(.selected):not(.empty):not(.legendary):not([menuSellLocked])').length > 0)
                     {
                         //Select first non legendary item
-                        $('#inventory .selected .inventory_slots .slot:not(.selected):not(.empty):not(.legendary)')[0].click();
+                        $('#inventory .selected .inventory_slots .slot:not(.selected):not(.empty):not(.legendary):not([menuSellLocked])')[0].click();
                         return;
                     }
-                    else if ($('#inventory .selected .inventory_slots [canBeSold]').length > 0)
+                    else if ($('#inventory .selected .inventory_slots [canBeSold]:not([menuSellLocked])').length > 0)
                     {
                         //Select item that checked before and can be sold
-                        $('#inventory .selected .inventory_slots [canBeSold]')[0].click();
+                        $('#inventory .selected .inventory_slots [canBeSold]:not([menuSellLocked])')[0].click();
                         return;
                     }
-                    else if ($('#inventory .selected .inventory_slots .slot:not(.selected):not(.empty)').length > 0)
+                    else if ($('#inventory .selected .inventory_slots .slot:not(.selected):not(.empty):not([menuSellLocked])').length > 0)
                     {
-                        let sellableslotsLegObj = $('#inventory .selected .inventory_slots .slot:not(.selected):not(.empty)');
+                        let sellableslotsLegObj = $('#inventory .selected .inventory_slots .slot:not(.selected):not(.empty):not([menuSellLocked])');
                         //[MaxCarac,Index]
                         let TypesArrayPlayerClass = [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]];
                         let equipedArray = $('#equiped .armor .slot[data-d*=EQ-LE-0' + PlayerClass + ']');
@@ -5172,7 +5598,7 @@ function moduleShopActions()
                             }
                         }
 
-                        let sellableslotsLeg = $('#inventory .selected .inventory_slots .slot:not(.empty)');
+                        let sellableslotsLeg = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])');
                         for (var i4 = 0; i4 < sellableslotsLeg.length; i4++)
                         {
                             sellableslotsLegObj = JSON.parse($(sellableslotsLeg[i4]).attr('data-d'));
@@ -5251,9 +5677,11 @@ function moduleShopActions()
                                 }
                             }
                         }
-                        if ($('#inventory .selected .inventory_slots [canBeSold]').length == 0)
+                        if ($('#inventory .selected .inventory_slots [canBeSold]:not([menuSellLocked])').length == 0)
                         {
                             logHHAuto('no more items for sale');
+                            document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageNoMore","elementText");
+                            menuSellListItems();
                             document.getElementById("menuSellHide").style.display = "block";
                             clearInterval(selling_func);
                         }
@@ -5262,6 +5690,8 @@ function moduleShopActions()
                 else
                 {
                     logHHAuto('Reach wanted sold items.');
+                    document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageReachNB","elementText");
+                    menuSellListItems();
                     document.getElementById("menuSellHide").style.display = "block";
                     clearInterval(selling_func);
                 }
@@ -5270,7 +5700,6 @@ function moduleShopActions()
         }, randomInterval(1000,1600));
     }
 }
-
 
 var moduleDisplayEventPriority=function()
 {
@@ -5869,7 +6298,8 @@ var HHAuto_inputPattern = {
     autoLGM:"[0-9]+",
     autoLGR:"[0-9]+",
     autoEGM:"[0-9]+",
-    menuSellNumber:"[0-9]+"
+    menuSellNumber:"[0-9]+",
+    autoClubChampMax:"[0-9]+"
 }
 
 var HHAuto_ToolTips = [];
@@ -5957,11 +6387,13 @@ HHAuto_ToolTips.en = {
     timerLeftTime: { elementText: "", tooltip : "Time remaining"},
     timerResetNoTimer : { elementText: "No selected timer", tooltip : ""},
     menuSell : { elementText: "Sell", tooltip : "Allow to sell items."},
-    menuSellText : { elementText: "This will sell the number of items asked starting in display order (first all non legendary then legendary)<br> It will sell all non legendary stuff and keep : <br> - 1 set of rainbow (choosen on highest player class stat)<br> - 1 set of mono player class (choosen on highest stats)<br> - 1 set of harmony (choosen on highest stats)<br> - 1 set of endurance (choosen on highest stats)<br> Enter the number of items you want to sell bellow.", tooltip : ""},
+    menuSellText : { elementText: "This will sell the number of items asked starting in display order (first all non legendary then legendary)<br> It will sell all non legendary stuff and keep : <br> - 1 set of rainbow legendary (choosen on highest player class stat)<br> - 1 set of legendary mono player class (choosen on highest stats)<br> - 1 set of legendary harmony (choosen on highest stats)<br> - 1 set of legendary endurance (choosen on highest stats)<br>You can lock/Unlock batch by clicking on the corresponding cell/row/column (notlocked/total), red means all locked, orange some locked.", tooltip : ""},
     menuSellNumber : { elementText: "", tooltip : "Enter the number of items you want to sell : "},
     menuSellButton : { elementText: "Sell", tooltip : "Launch selling funtion."},
-    menuSellCurrentCount : { elementText: "Number of items you currently have : ", tooltip : ""},
+    menuSellCurrentCount : { elementText: "Number of sellable items you currently have : ", tooltip : ""},
     menuSoldText : { elementText: "Number of items sold : ", tooltip : ""},
+    menuSoldMessageReachNB : { elementText: "Wanted sold items reached.", tooltip : ""},
+    menuSoldMessageNoMore : { elementText: " No more sellable items.", tooltip : ""},
     menuAff : { elementText: "Give Aff", tooltip : "Automatically give Aff to selected girl."},
     menuAffButton : { elementText: "Go !", tooltip : "Launch giving aff."},
     menuAffDistribution : { elementText: "Items to be used : ", tooltip : ""},
@@ -5971,7 +6403,22 @@ HHAuto_ToolTips.en = {
     menuAffError : { elementText: "Error fetching girl Aff field, cancelling.", tooltip : ""},
     menuAffReadyToUpgrade : { elementText: " is ready for upgrade.", tooltip : ""},
     menuAffEnd : { elementText: "All Aff given to :", tooltip : ""},
-    menuAffDistributed : { elementText: "Items used : ", tooltip : ""}
+    menuAffDistributed : { elementText: "Items used : ", tooltip : ""},
+    autoClubChampMax : { elementText: "Max Ticket for club Champ : ", tooltip : "Maximum number of ticket to use on club champion each run."},
+    menuSellLock : { elementText: "Lock/Unlock", tooltip : "Switch the lock to prevent item to be sold."},
+    Rarity : { elementText: "Rarity", tooltip : ""},
+    RarityCommon : { elementText: "Common", tooltip : ""},
+    RarityRare : { elementText: "Rare", tooltip : ""},
+    RarityEpic : { elementText: "Epic", tooltip : ""},
+    RarityLegendary : { elementText: "Legendary", tooltip : ""},
+    equipementHead : { elementText: "Head", tooltip : ""},
+    equipementBody : { elementText: "Body", tooltip : ""},
+    equipementLegs : { elementText: "Legs", tooltip : ""},
+    equipementFlag : { elementText: "Flag", tooltip : ""},
+    equipementPet : { elementText: "Pet", tooltip : ""},
+    equipementWeapon : { elementText: "Weapon", tooltip : ""},
+    equipementCaracs : { elementText: "Caracs", tooltip : ""},
+    equipementType : { elementText: "Type", tooltip : ""}
 }
 
 
@@ -6324,11 +6771,13 @@ var HHVars=["Storage().HHAuto_Setting_autoAff",
             "localStorage.HHAuto_Temp_showInfo",
             "sessionStorage.HHAuto_Temp_storeContents",
             "sessionStorage.HHAuto_Temp_Timers",
-            "Storage().HHAuto_Temp_toNextSwitch",
+            "Storage().HHAuto_Temp_NextSwitch",
             "Storage().HHAuto_Temp_Totalpops",
             "sessionStorage.HHAuto_Temp_userLink",
             "localStorage.HHAuto_Temp_MigratedVars",
-            "sessionStorage.HHAuto_Temp_LeagueTempOpponentList"];
+            "sessionStorage.HHAuto_Temp_LeagueTempOpponentList",
+            "sessionStorage.HHAuto_Temp_CheckSpentPoints",
+            "Storage().HHAuto_Setting_autoClubChampMax"];
 var updateData = function () {
     //logHHAuto("updating UI");
     if ($('#LoadDialog[open]').length > 0) {return}
@@ -6459,6 +6908,7 @@ var updateData = function () {
     Storage().HHAuto_Setting_calculatePowerLimits = document.getElementById("calculatePowerLimits").value;
     Storage().HHAuto_Setting_autoChamps = document.getElementById("autoChamps").checked;
     Storage().HHAuto_Setting_autoClubChamp = document.getElementById("autoClubChamp").checked;
+    Storage().HHAuto_Setting_autoClubChampMax = document.getElementById("autoClubChampMax").value;
     Storage().HHAuto_Setting_autoChampsUseEne = document.getElementById("autoChampsUseEne").checked;
     Storage().HHAuto_Setting_autoChampsFilter = document.getElementById("autoChampsFilter").value;
 
@@ -6608,6 +7058,7 @@ var setDefaults = function () {
     Storage().HHAuto_Temp_freshStart = "no";
     Storage().HHAuto_Setting_autoChamps="false";
     Storage().HHAuto_Setting_autoClubChamp="false";
+    Storage().HHAuto_Setting_autoClubChampMax = "999";
     Storage().HHAuto_Setting_autoChampsUseEne="false";
     Storage().HHAuto_Setting_autoChampsFilter="1;2;3;4;5;6";
     Storage().HHAuto_Setting_autoFreePachinko = "false";
@@ -6912,11 +7363,18 @@ var start = function () {
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
                      +     '<span>'+getTextForUI("autoChampsFilter","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoChampsFilter","tooltip")+'</span><input style="width:70px" id="autoChampsFilter" required pattern="'+HHAuto_inputPattern.autoChampsFilter+'" type="text"></div>'
                      +    '</div>'
+                     +   '</div>'
+                     // End Region AutoChampions
+                     // Region AutoClubChampion
+                     +   '<div style="display:flex;flex-direction:row; border: 1px dotted;">'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
                      +     '<span>'+getTextForUI("autoClubChamp","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoClubChamp","tooltip")+'</span><label class="switch"><input id="autoClubChamp" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+getTextForUI("autoClubChampMax","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoClubChampMax","tooltip")+'</span><input style="width:70px" id="autoClubChampMax" required pattern="'+HHAuto_inputPattern.autoClubChampMax+'" type="text"></div>'
+                     +    '</div>'
                      +   '</div>'
-                     // End Region AutoChampions
+                     // End Region AutoClubChampions
                      +   '<span>'+getTextForUI("autoStats","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoStats","tooltip")+'</span><input id="autoStats" required pattern="'+HHAuto_inputPattern.autoStats+'" type="text"></div>'
                      +   '<div style="display:flex;flex-direction:row;">'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
@@ -7072,6 +7530,7 @@ var start = function () {
     document.getElementById("autoTrollMythicByPassParanoia").checked = Storage().HHAuto_Setting_autoTrollMythicByPassParanoia === "true";
 
     document.getElementById("autoClubChamp").checked = Storage().HHAuto_Setting_autoClubChamp  === "true";
+    document.getElementById("autoClubChampMax").value = Storage().HHAuto_Setting_autoClubChampMax?Storage().HHAuto_Setting_autoClubChampMax:"999";
     document.getElementById("autoChamps").checked = Storage().HHAuto_Setting_autoChamps === "true";
     document.getElementById("autoChampsUseEne").checked = Storage().HHAuto_Setting_autoChampsUseEne === "true";
     document.getElementById("autoChampsFilter").value = Storage().HHAuto_Setting_autoChampsFilter?Storage().HHAuto_Setting_autoChampsFilter:"1;2;3;4;5;6";
