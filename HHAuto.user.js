@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.9
+// @version      5.4.10
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -894,7 +894,7 @@ function doMissionStuff()
     else
     {
         logHHAuto("On activities page.");
-        if (Storage().HHAuto_Setting_autoMissionC==="true")
+        if (Storage().HHAuto_Setting_autoMissionC==="true" && $(".mission_button button:visible[rel='claim']").length >0)
         {
             logHHAuto("Collecting finished mission's reward.");
             $(".mission_button button:visible[rel='claim']").click();
