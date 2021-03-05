@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.7
+// @version      5.4.8
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -5350,7 +5350,8 @@ function moduleShopActions()
         +  '</div>'
         + '<menu> <label style="width:80px" class="myButton" id="menuSellCancel">'+getTextForUI("OptionCancel","elementText")+'</label></menu></form></dialog>'
 
-        var menuSellLock = '<div style="position: absolute;left: 50px;top: -10px" class="tooltip"><span class="tooltiptext">'+getTextForUI("menuSellLock","tooltip")+'</span><label style="width:100px" class="myButton" id="menuSellLock">'+getTextForUI("menuSellLock","elementText")+'</label></div>'
+        var menuSellLock = '<div style="position: absolute;left: 70px;top: -10px" class="tooltip"><span class="tooltiptext">'+getTextForUI("menuSellLock","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSellLock">'+getTextForUI("menuSellLock","elementText")+'</label></div>'
+        var menuSellMaskLocked = '<div style="position: absolute;left: -5px;top: -10px" class="tooltip"><span class="tooltiptext">'+getTextForUI("menuSellMaskLocked","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSellMaskLocked">'+getTextForUI("menuSellMaskLocked","elementText")+'</label></div>'
 
         if ($("#menuSell").length === 0 )
         {
@@ -5397,6 +5398,28 @@ function moduleShopActions()
             document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
         }
 
+        if ($("#menuSellMaskLocked").length === 0 )
+        {
+            $('#inventory > div.armor > label').append(menuSellMaskLocked);
+
+            document.getElementById("menuSellMaskLocked").addEventListener("click", function(){
+                let filterText = "#inventory .selected .inventory_slots .slot[menuSellLocked]";
+                if ($(filterText).length >0)
+                {
+                    $(filterText).each(function()
+                                       {
+                        if(this.style.display === "none")
+                        {
+                            this.style.display="block";
+                        }
+                        else
+                        {
+                            this.style.display="none";
+                        }
+                    });
+                }
+            });
+        }
         if ($("#menuSellLock").length === 0 )
         {
             $('#inventory > div.armor > label').append(menuSellLock);
@@ -6391,6 +6414,7 @@ HHAuto_ToolTips.en = {
     menuSellNumber : { elementText: "", tooltip : "Enter the number of items you want to sell : "},
     menuSellButton : { elementText: "Sell", tooltip : "Launch selling funtion."},
     menuSellCurrentCount : { elementText: "Number of sellable items you currently have : ", tooltip : ""},
+    menuSellMaskLocked : { elementText: "Mask locked", tooltip : "Allow to mask locked items."},
     menuSoldText : { elementText: "Number of items sold : ", tooltip : ""},
     menuSoldMessageReachNB : { elementText: "Wanted sold items reached.", tooltip : ""},
     menuSoldMessageNoMore : { elementText: " No more sellable items.", tooltip : ""},
@@ -6405,7 +6429,7 @@ HHAuto_ToolTips.en = {
     menuAffEnd : { elementText: "All Aff given to :", tooltip : ""},
     menuAffDistributed : { elementText: "Items used : ", tooltip : ""},
     autoClubChampMax : { elementText: "Max Ticket for club Champ : ", tooltip : "Maximum number of ticket to use on club champion each run."},
-    menuSellLock : { elementText: "Lock/Unlock", tooltip : "Switch the lock to prevent item to be sold."},
+    menuSellLock : { elementText: "Lock/ Unlock", tooltip : "Switch the lock to prevent selected item to be sold."},
     Rarity : { elementText: "Rarity", tooltip : ""},
     RarityCommon : { elementText: "Common", tooltip : ""},
     RarityRare : { elementText: "Rare", tooltip : ""},
