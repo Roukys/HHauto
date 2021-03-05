@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.8
+// @version      5.4.9
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -624,7 +624,7 @@ function url_add_param(url, param) {
 }
 
 // Retruns true if on correct page.
-function gotoPage(page)
+function gotoPage(page, force = false)
 {
     var cp=getPage();
     logHHAuto('going '+cp+'->'+page);
@@ -637,7 +637,7 @@ function gotoPage(page)
         page = 'powerplace';
     }
 
-    if(getPage() === originalPage)
+    if(getPage() === originalPage && !force)
     {
         if (page=='missions')
         {
@@ -870,7 +870,7 @@ function getSuitableMission(missionsList)
 
     for(var m in missionsList)
     {
-        if (JSON.stringify(missionsList[m].rewards).contains("koban"))
+        if (JSON.stringify(missionsList[m].rewards).includes("koban"))
         {
             return missionsList[m];
         }
@@ -898,6 +898,8 @@ function doMissionStuff()
         {
             logHHAuto("Collecting finished mission's reward.");
             $(".mission_button button:visible[rel='claim']").click();
+            setTimeout(function(){gotoPage('missions',true);},500);
+            return true;
         }
         // TODO: select new missions and parse reward data from HTML, it's there in data attributes of tags
         var missions = [];
@@ -990,6 +992,7 @@ function doMissionStuff()
             logHHAuto("Mission button of type: "+missionButton.attr("rel"));
             logHHAuto("Clicking mission button.");
             missionButton.click();
+            setTimeout(function(){gotoPage('missions',true);},500);
             setTimer('nextMissionTime',Number(mission.duration)+1);
         }
         else
@@ -2045,7 +2048,7 @@ var doClubChampionStuff=function()
                     $('button[rel=perform].blue_button_L').click();
                     setTimer('nextClubChampionTime',3);
                 }
-                setTimeout(function(){gotoPage('clubs');},500);
+                setTimeout(function(){gotoPage('clubs',true);},500);
                 return true;
             }
         }
@@ -2606,8 +2609,11 @@ var doLeagueBattle = function () {
         logHHAuto("On leaderboard page.");
         if (Storage().HHAuto_Setting_autoLeaguesCollect === "true")
         {
-            $('#leagues_middle .forced_info button[rel="claim"]').click(); //click reward
-            setTimeout(function(){gotoPage('leaderboard');},500);
+            if ($('#leagues_middle .forced_info button[rel="claim"]').length >0)
+            {
+                $('#leagues_middle .forced_info button[rel="claim"]').click(); //click reward
+                setTimeout(function(){gotoPage('leaderboard',true);},500);
+            }
         }
         //logHHAuto('ls! '+$('h4.leagues').size());
         $('h4.leagues').each(function(){this.click();});
