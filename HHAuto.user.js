@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.6
+// @version      5.4.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -5325,7 +5325,7 @@ function moduleShopActions()
     function appendMenuSell()
     {
         var menuSell = '<div style="position: absolute;right: 50px;top: -10px" class="tooltip"><span class="tooltiptext">'+getTextForUI("menuSell","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSell">'+getTextForUI("menuSell","elementText")+'</label></div>'
-        + '<dialog id="SellDialog"><form stylemethod="dialog">'
+        + '<dialog style="overflow-y:auto;max-width:95%;max-height:95%;"id="SellDialog"><form stylemethod="dialog">'
         +  '<div style="padding:10px; display:flex;flex-direction:column;">'
         +   '<p>'+getTextForUI("menuSellText","elementText")+'</p>'
         +   '<div style="display:flex;flex-direction:row;">'
