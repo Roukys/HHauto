@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.12
+// @version      5.4.13
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -1064,28 +1064,26 @@ function moduleSimSeasonReward()
 {
     var arrayz;
     var nbReward;
-    if (Storage().HHAuto_Setting_SeasonMaskRewards === "true")
+    arrayz = $('.rewards_pair');
+    if ($("div#gsp_btn_holder[style='display: block;']").length)
     {
-        arrayz = $('.rewards_pair');
-        if ($("div#gsp_btn_holder[style='display: block;']").length)
-        {
-            nbReward=1;
-        }
-        else
-        {
-            nbReward=2;
-        }
+        nbReward=1;
+    }
+    else
+    {
+        nbReward=2;
+    }
 
-        var obj;
-        if (arrayz.length > 0) {
-            for (var i2 = arrayz.length - 1; i2 >= 0; i2--) {
-                obj = $(arrayz[i2]).find('.tick_s:not([style="display: none;"])');
-                if (obj.length >= nbReward) {
-                    arrayz[i2].style.display = "none";
-                }
+    var obj;
+    if (arrayz.length > 0) {
+        for (var i2 = arrayz.length - 1; i2 >= 0; i2--) {
+            obj = $(arrayz[i2]).find('.tick_s:not([style="display: none;"])');
+            if (obj.length >= nbReward) {
+                arrayz[i2].style.display = "none";
             }
         }
     }
+
 }
 
 function collectAndUpdatePowerPlaces()
@@ -4711,7 +4709,7 @@ var autoLoop = function () {
     if (getPage() === "season_arena" && Storage().HHAuto_Setting_showCalculatePower === "true") {
         moduleSimSeasonBattle();
     }
-    if (getPage() === "season" && Storage().HHAuto_Setting_showCalculatePower === "true") {
+    if (getPage() === "season" && Storage().HHAuto_Setting_SeasonMaskRewards === "true") {
         moduleSimSeasonReward();
     }
     if (getPage() === "home" && $("div.event-widget div.widget[style='display: block;']").length !== 0) {
