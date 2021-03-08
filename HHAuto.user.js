@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.11
+// @version      5.4.12
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -870,9 +870,9 @@ function getSuitableMission(missionsList)
 
     for(var m in missionsList)
     {
-        if (JSON.stringify(missionsList[m].rewards).includes("koban"))
+        if (JSON.stringify(missionsList[m].rewards).includes("koban") && Storage().HHAuto_Setting_autoMissionKFirst === "true")
         {
-            //return missionsList[m];
+            return missionsList[m];
         }
         if(Number(msn.duration) > Number(missionsList[m].duration))
         {
@@ -898,7 +898,7 @@ function doMissionStuff()
         {
             logHHAuto("Collecting finished mission's reward.");
             $(".mission_button button:visible[rel='claim']").click();
-            setTimeout(function(){gotoPage('missions',true);},500);
+            setTimeout(function(){gotoPage('missions',true);},1500);
             return true;
         }
         // TODO: select new missions and parse reward data from HTML, it's there in data attributes of tags
@@ -992,7 +992,7 @@ function doMissionStuff()
             logHHAuto("Mission button of type: "+missionButton.attr("rel"));
             logHHAuto("Clicking mission button.");
             missionButton.click();
-            setTimeout(function(){gotoPage('missions',true);},500);
+            setTimeout(function(){gotoPage('missions',true);},1500);
             setTimer('nextMissionTime',Number(mission.duration)+1);
         }
         else
@@ -4677,6 +4677,7 @@ var autoLoop = function () {
         {
             //logHHAuto("Restoring page "+sessionStorage.HHAuto_Temp_userLink);
             //window.location = sessionStorage.HHAuto_Temp_userLink;
+            gotoPage('home');
             sessionStorage.HHAuto_Temp_userLink = "none";
         }
     }
@@ -6448,7 +6449,8 @@ HHAuto_ToolTips.en = {
     equipementPet : { elementText: "Pet", tooltip : ""},
     equipementWeapon : { elementText: "Weapon", tooltip : ""},
     equipementCaracs : { elementText: "Caracs", tooltip : ""},
-    equipementType : { elementText: "Type", tooltip : ""}
+    equipementType : { elementText: "Type", tooltip : ""},
+    autoMissionKFirst : { elementText: "Koban first", tooltip : "Start by missions rewarded with Kobans."}
 }
 
 
@@ -6807,7 +6809,8 @@ var HHVars=["Storage().HHAuto_Setting_autoAff",
             "localStorage.HHAuto_Temp_MigratedVars",
             "sessionStorage.HHAuto_Temp_LeagueTempOpponentList",
             "sessionStorage.HHAuto_Temp_CheckSpentPoints",
-            "Storage().HHAuto_Setting_autoClubChampMax"];
+            "Storage().HHAuto_Setting_autoClubChampMax",
+            "Storage().HHAuto_Setting_autoMissionKFirst"];
 var updateData = function () {
     //logHHAuto("updating UI");
     if ($('#LoadDialog[open]').length > 0) {return}
@@ -6823,6 +6826,7 @@ var updateData = function () {
     Storage().HHAuto_Setting_autoSalaryTimer = document.getElementById("autoSalaryTextbox").value;
     Storage().HHAuto_Setting_autoContest = document.getElementById("autoContestCheckbox").checked;
     Storage().HHAuto_Setting_autoMission = document.getElementById("autoMissionCheckbox").checked;
+    Storage().HHAuto_Setting_autoMissionKFirst = document.getElementById("autoMissionKFirst").checked;
     Storage().HHAuto_Setting_autoPowerPlaces = document.getElementById("autoPowerPlaces").checked;
 
     var newValue = String(document.getElementById("autoPowerPlacesAll").checked);
@@ -7060,6 +7064,7 @@ var setDefaults = function () {
     Storage().HHAuto_Setting_autoPowerPlacesAll = "false";
     Storage().HHAuto_Setting_autoPowerPlacesIndexFilter = "1;2;3";
     Storage().HHAuto_Setting_autoMissionC = "false";
+    Storage().HHAuto_Setting_autoMissionKFirst = "false";
     Storage().HHAuto_Setting_autoLeagues = "false";
     Storage().HHAuto_Setting_autoLeaguesCollect = "false";
     Storage().HHAuto_Setting_autoLeaguesPowerCalc = "false";
@@ -7275,6 +7280,9 @@ var start = function () {
                      +    '</div>'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
                      +     '<span>'+getTextForUI("autoMissionCollect","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoMissionCollect","tooltip")+'</span><label class="switch"><input id="autoMissionCollect" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+getTextForUI("autoMissionKFirst","elementText")+'</span><div class="tooltip"><span class="tooltiptext">'+getTextForUI("autoMissionKFirst","tooltip")+'</span><label class="switch"><input id="autoMissionKFirst" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +   '</div>'
                      //End Region AutoMission
@@ -7515,6 +7523,7 @@ var start = function () {
     document.getElementById("autoContestCheckbox").checked = Storage().HHAuto_Setting_autoContest === "true";
     document.getElementById("autoMissionCheckbox").checked = Storage().HHAuto_Setting_autoMission === "true";
     document.getElementById("autoMissionCollect").checked = Storage().HHAuto_Setting_autoMissionC === "true";
+    document.getElementById("autoMissionKFirst").checked = Storage().HHAuto_Setting_autoMissionKFirst === "true" ;
     document.getElementById("autoQuestCheckbox").checked = Storage().HHAuto_Setting_autoQuest === "true";
     document.getElementById("autoTrollCheckbox").checked = Storage().HHAuto_Setting_autoTrollBattle === "true";
     document.getElementById("eventTrollOrder").value = Storage().HHAuto_Setting_eventTrollOrder?Storage().HHAuto_Setting_eventTrollOrder:"1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20";
