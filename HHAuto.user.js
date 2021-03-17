@@ -1083,7 +1083,8 @@ function moduleSimSeasonReward()
             }
         }
     }
-
+    
+    document.getElementById("rewards_cont_scroll").scrollLeft = 0;
 }
 
 function collectAndUpdatePowerPlaces()
