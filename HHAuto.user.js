@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.14
+// @version      5.4.15
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -14,11 +14,11 @@
 // ==/UserScript==
 
 //CSS Region
-GM_addStyle('/* The switch - the box around the slider */ .switch { position: relative; display: inline-block; width: 40px; height: 24px; } /* Hide default HTML checkbox */ .switch input {display:none;} /* The slider */ .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; -webkit-transition: .4s; transition: .4s; } .slider.round:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; -webkit-transition: .4s; transition: .4s; } input:checked + .slider { background-color: #2196F3; } input:focus + .slider { box-shadow: 0 0 1px #2196F3; } input:checked + .slider:before { -webkit-transform: translateX(16px); -ms-transform: translateX(16px); transform: translateX(16px); } /* Rounded sliders */ .slider.round { border-radius: 24px; } .slider.round:before { border-radius: 50%; }');
+GM_addStyle('/* The switch - the box around the slider */ #sMenu .switch { position: relative; display: inline-block; width: 40px; height: 24px; } /* Hide default HTML checkbox */ #sMenu .switch input {display:none;} /* The slider */#sMenu .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; -webkit-transition: .4s; transition: .4s; } #sMenu .slider.round:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; -webkit-transition: .4s; transition: .4s; } #sMenu input:checked + .slider { background-color: #2196F3; } #sMenu input:focus + .slider { box-shadow: 0 0 1px #2196F3; } #sMenu input:checked + .slider:before { -webkit-transform: translateX(16px); -ms-transform: translateX(16px); transform: translateX(16px); } /* Rounded sliders */ #sMenu .slider.round { border-radius: 24px; }  #sMenu .slider.round:before { border-radius: 50%; }');
 GM_addStyle('.myButton {box-shadow: 0px 0px 0px 2px #9fb4f2; background:linear-gradient(to bottom, #7892c2 5%, #476e9e 100%); background-color:#7892c2; border-radius:10px; border:1px solid #4e6096; display:inline-block; cursor:pointer; color:#ffffff; font-family:Arial; font-size:8px; padding:3px 10px; text-decoration:none; text-shadow:0px 1px 0px #283966;}.myButton:hover { background:linear-gradient(to bottom, #476e9e 5%, #7892c2 100%); background-color:#476e9e; } .myButton:active { position:relative; top:1px;}');
 GM_addStyle('.HHEventPriority {position: absolute;z-index: 500;background-color: black;}');
 GM_addStyle('.HHPopIDs {background-color: black;z-index: 500;position: absolute;margin-top: 25px}');
-GM_addStyle('.tooltip:hover { cursor: help; position: relative; } .tooltip span.tooltiptext { display: none; } .tooltip:hover span.tooltiptext { border: #666 2px dotted; padding: 5px 20px 5px 5px; display: block; z-index: 100; background: #e3e3e3; left: 0px; margin: 15px; width: 200px; position: absolute; top: 15px; color: black; }');
+GM_addStyle('.tooltip:hover { cursor: help; position: relative; } .tooltip span.tooltiptext { display: none; } .tooltip:hover span.tooltiptext { border: #666 2px dotted; padding: 5px 20px 5px 5px; display: block; z-index: 100; background: #e3e3e3; left: 0px; margin: 15px; width: 250px; position: absolute; top: 15px; color: black;top: 0%; transform: translateY(-50%); left: 50%; margin-left: 15px; }');
 GM_addStyle('#popup_message_league { border: #666 2px dotted; padding: 5px 20px 5px 5px; display: block; z-index: 1000; background: #e3e3e3; left: 0px; margin: 15px; width: 500px; position: absolute; top: 15px; color: black;}');
 GM_addStyle('#sliding-popups#sliding-popups { z-index : 1;}');
 //END CSS Region
@@ -2369,7 +2369,7 @@ function customMatchRating(inSimu)
         {
             matchRating = '+' + matchRating;
 
-            if (playerEgoCheck <= 0)
+            if (inSimu.playerEgoCheck <= 0)
             {
                 return 'y'+matchRating
             }
@@ -8023,7 +8023,7 @@ var start = function () {
     UIcontainer.html( '<div style="font-size:x-small;position: absolute;right: 22%;width: inherit;text-align: center;display:flex;flex-direction:column;z-index:1000" id="sMenu">'
                      //dialog Box
                      + '<dialog id="LoadDialog"> <form method="dialog"><p>After you select the file the settings will be automatically updated.</p><p> If nothing happened, then the selected file contains errors.</p><p id="LoadConfError"style="color:#f53939;"></p><p><label><input type="file" id="myfile" name="myfile"> </label></p> <menu> <button value="cancel">'+getTextForUI("OptionCancel","elementText")+'</button></menu> </form></dialog>'
-                     + '<dialog id="DebugDialog"><form method="dialog">'
+                     + '<dialog id="DebugDialog" style="overflow:visible;"><form method="dialog">'
                      +   '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +    '<p>HHAuto : v'+GM_info.script.version+'</p>'
                      +    '<p>'+getTextForUI("DebugFileText","elementText")+'</p>'
