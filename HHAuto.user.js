@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.19
+// @version      5.4.20
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
-// @author       JD and Dorten(a bit), roukys, cossname
+// @author       JD and Dorten(a bit), roukys, cossname, YotoTheOne(just a little bit)
 // @match        http*://nutaku.haremheroes.com/*
 // @match        http*://*.hentaiheroes.com/*
 // @match        http*://*.gayharem.com/*
@@ -7679,7 +7679,9 @@ var HHVars=["Storage().HHAuto_Setting_autoAff",
             "Storage().HHAuto_Setting_autoClubChampMax",
             "Storage().HHAuto_Setting_autoMissionKFirst",
             "Storage().HHAuto_Setting_PoAMaskRewards",
-            "Storage().HHAuto_Setting_showTooltips"];
+            "Storage().HHAuto_Setting_showTooltips",
+            "Storage().HHAuto_Setting_autoHideIB"];
+			
 var updateData = function () {
     //logHHAuto("updating UI");
     if ($('#LoadDialog[open]').length > 0) {return}
@@ -8012,6 +8014,7 @@ var setDefaults = function () {
     Storage().HHAuto_Temp_paranoiaSettings="140-320/Sleep:28800-30400|Active:250-460|Casual:1500-2700/6:Sleep|8:Casual|10:Active|12:Casual|14:Active|18:Casual|20:Active|22:Casual|24:Sleep";
     Storage().HHAuto_Setting_master="false";
     Storage().HHAuto_Setting_PoAMaskRewards = "false";
+	Storage().HHAuto_Setting_autoHideIB = "false";
 };
 
 var start = function () {
@@ -8357,7 +8360,53 @@ var start = function () {
                      +'</div>'+UIcontainer.html());
 
     var div = document.createElement('div');
-    div.innerHTML = '<div id="pInfo" style="padding-left:3px;z-index:-1;white-space: pre;position: absolute;right: 5%; left:70%; top:8%;border: 1px solid #ffa23e;background-color: rgba(0,0,0,.5);border-radius: 5px;"></div>'.trim();
+    div.innerHTML = '<div id="pInfo" style="padding-left:3px; z-index:1; white-space: pre; position: absolute;right: 5%; left:77%; top:11%; height: auto; overflow: hidden; border: 1px solid #ffa23e; background-color: rgba(0,0,0,.5); border-radius: 5px; font-size:9pt;"></div>'.trim();
+
+    let pInfo = div.firstElementChild;
+    //console.log("AutoShowInfo = "+Storage().HHAuto_Setting_autoHideIB);
+    if (Storage().HHAuto_Setting_autoHideIB == "true") {
+        pInfo.style.height = "22px";
+        pInfo.addEventListener("mouseover", autoShowInfo);
+        pInfo.addEventListener("mouseout", autoHideInfo);
+    }
+
+    pInfo.addEventListener("wheel", function() {
+        let masterSwitch = document.getElementById("master");
+        if (masterSwitch.checked === true) {
+            Storage().HHAuto_Setting_master = "false";
+            masterSwitch.checked = false;
+            //console.log("Master switch off");
+        } else {
+            Storage().HHAuto_Setting_master = "true";
+            masterSwitch.checked = true;
+            //console.log("Master switch on");
+        }
+    });
+
+    pInfo.addEventListener("click", function() {
+        if (Storage().HHAuto_Setting_autoHideIB == "true") {
+            this.removeEventListener("mouseover", autoShowInfo);
+            this.removeEventListener("mouseout", autoHideInfo);
+            Storage().HHAuto_Setting_autoHideIB = "false";
+            //console.log("deactivating autoShowInfo");
+        } else {
+            this.addEventListener("mouseover", autoShowInfo);
+            this.addEventListener("mouseout", autoHideInfo);
+            Storage().HHAuto_Setting_autoHideIB = "true";
+            //console.log("activating autoShowInfo");
+        }
+    });
+
+    function autoShowInfo() {
+        this.style.height = "auto";
+        //console.log("Showing pInfo");
+    }
+
+    function autoHideInfo() {
+        this.style.height = "22px";
+        //console.log("Hiding pInfo");
+    }
+	
     document.getElementById('contains_all').appendChild(div.firstChild);
 
     // Add auto troll options
