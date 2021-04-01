@@ -6763,43 +6763,37 @@ var CollectEventData=function()
         }
         */
 
-        //logHHAuto('WTF?');
-        var hero=getHero();
-        var price=hero.get_recharge_cost("fight");
+        var hero = getHero();
+        var price = hero.get_recharge_cost("fight");
         //buy comb
         if (Storage().HHAuto_Setting_buyCombat=="true" && Storage().HHAuto_Setting_plusEvent==="true" )
         {
-            //logHHAuto('WTF!');
-            var diff=Math.ceil(Timers["eventGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
+            var diff = Math.ceil(Timers["eventGoing"] / 1000) - Math.ceil(new Date().getTime() / 1000);
             //logHHAuto(diff);
             hero=getHero();
-            if (
-                diff<Storage().HHAuto_Setting_buyCombTimer*3600
-                && sessionStorage.HHAuto_Temp_eventTroll
-                //&& getSetHeroInfos('fight.amount') == 0
-                && sessionStorage.HHAuto_Temp_eventTrollIsMythic === "false"
-            )
-            {
+            if (	diff < Storage().HHAuto_Setting_buyCombTimer * 3600
+					&& sessionStorage.HHAuto_Temp_eventTroll
+					//&& getSetHeroInfos('fight.amount') == 0
+					&& sessionStorage.HHAuto_Temp_eventTrollIsMythic === "false"	)
+			{
 				if (Storage().HHAuto_Setting_autoTrollThreshold != "0")
 				{
 					Storage().HHAuto_Setting_autoTrollThreshold = "0";		// set threshold to 0 ; ideally find a way to reset threshold to previous value when event ends or all event girls are won
 					document.getElementById("autoTrollThreshold").value = "0";
 				}
-				
+
 				if (getSetHeroInfos('fight.amount') == 0)
 				{
 					price=hero.get_recharge_cost("fight");
 					//logHHAuto('PRC: '+price);
-					if (getSetHeroInfos('hard_currency')>=price+Number(Storage().HHAuto_Setting_kobanBank))
+					if (getSetHeroInfos('hard_currency') >= price + Number(Storage().HHAuto_Setting_kobanBank))
 					{
 						logHHAuto('Buying comb for '+eventsGirlz[0].split(";")[0]);
 						RechargeCombat(price);
 					}
 				}
-				// set threshold to 0 ; ideally find a way to reset threshold to previous value when event ends or all event girls won
-                
-            }
-        }
+			}
+		}
         //buy comb mythic
         if (Storage().HHAuto_Setting_buyMythicCombat=="true" &&  Storage().HHAuto_Setting_plusEventMythic==="true")
         {
