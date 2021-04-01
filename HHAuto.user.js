@@ -6774,7 +6774,7 @@ var CollectEventData=function()
             //logHHAuto(diff);
             hero=getHero();
             if (
-                diff<Storage().HHAuto_Setting_buyCombTimer*3600
+                diff<Storage().HHAuto_Setting_buyCombTimer*3600		// set threshold to 0 ; ideally find a way to reset threshold to previous value when event ends or all event girls won
                 && sessionStorage.HHAuto_Temp_eventTroll
                 && getSetHeroInfos('fight.amount')==0
                 && sessionStorage.HHAuto_Temp_eventTrollIsMythic==="false"
