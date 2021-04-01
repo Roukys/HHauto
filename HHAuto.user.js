@@ -6776,17 +6776,28 @@ var CollectEventData=function()
             if (
                 diff<Storage().HHAuto_Setting_buyCombTimer*3600
                 && sessionStorage.HHAuto_Temp_eventTroll
-                && getSetHeroInfos('fight.amount')==0
-                && sessionStorage.HHAuto_Temp_eventTrollIsMythic==="false"
+                //&& getSetHeroInfos('fight.amount') == 0
+                && sessionStorage.HHAuto_Temp_eventTrollIsMythic === "false"
             )
             {
-                price=hero.get_recharge_cost("fight");
-                //logHHAuto('PRC: '+price);
-                if (getSetHeroInfos('hard_currency')>=price+Number(Storage().HHAuto_Setting_kobanBank))
-                {
-                    logHHAuto('Buying comb for '+eventsGirlz[0].split(";")[0]);
-                    RechargeCombat(price);
-                }
+				if (Storage().HHAuto_Setting_autoTrollThreshold != "0")
+				{
+					Storage().HHAuto_Setting_autoTrollThreshold = "0";		// set threshold to 0 ; ideally find a way to reset threshold to previous value when event ends or all event girls are won
+					document.getElementById("autoTrollThreshold").value = "0";
+				}
+				
+				if (getSetHeroInfos('fight.amount') == 0)
+				{
+					price=hero.get_recharge_cost("fight");
+					//logHHAuto('PRC: '+price);
+					if (getSetHeroInfos('hard_currency')>=price+Number(Storage().HHAuto_Setting_kobanBank))
+					{
+						logHHAuto('Buying comb for '+eventsGirlz[0].split(";")[0]);
+						RechargeCombat(price);
+					}
+				}
+				// set threshold to 0 ; ideally find a way to reset threshold to previous value when event ends or all event girls won
+                
             }
         }
         //buy comb mythic
