@@ -6766,22 +6766,28 @@ var CollectEventData=function()
         var hero = getHero();
         var price = hero.get_recharge_cost("fight");
         //buy comb
-        if (Storage().HHAuto_Setting_buyCombat=="true" && Storage().HHAuto_Setting_plusEvent==="true" )
+        if (	Storage().HHAuto_Setting_buyCombat=="true" 
+				&& Storage().HHAuto_Setting_plusEvent==="true" 
+				&& sessionStorage.HHAuto_Temp_eventTroll 
+				&& sessionStorage.HHAuto_Temp_eventTrollIsMythic === "false"	)
         {
-            var diff = Math.ceil(Timers["eventGoing"] / 1000) - Math.ceil(new Date().getTime() / 1000);
+            let currentTime = new Date();
+			var diff = Math.ceil(Timers["eventGoing"] / 1000) - Math.ceil(currentTime.getTime() / 1000);
             //logHHAuto(diff);
-            hero=getHero();
+            //hero=getHero();
             if (	diff < Storage().HHAuto_Setting_buyCombTimer * 3600
-					&& sessionStorage.HHAuto_Temp_eventTroll
+					//&& sessionStorage.HHAuto_Temp_eventTroll
 					//&& getSetHeroInfos('fight.amount') == 0
-					&& sessionStorage.HHAuto_Temp_eventTrollIsMythic === "false"	)
+					//&& sessionStorage.HHAuto_Temp_eventTrollIsMythic === "false"	)
 			{
 				if (Storage().HHAuto_Setting_autoTrollThreshold != "0")
 				{
 					Storage().HHAuto_Setting_autoTrollThreshold = "0";		// set threshold to 0 ; ideally find a way to reset threshold to previous value when event ends or all event girls are won
 					document.getElementById("autoTrollThreshold").value = "0";
+					logHHAuto(currentTime.getHours()+'h'+currentTime.getMinutes()+' : buying combats for event from now. Setting autoTrollThreshold to 0.');
 				}
-
+				
+				hero=getHero();
 				if (getSetHeroInfos('fight.amount') == 0)
 				{
 					price=hero.get_recharge_cost("fight");
@@ -6795,22 +6801,25 @@ var CollectEventData=function()
 			}
 		}
         //buy comb mythic
-        if (Storage().HHAuto_Setting_buyMythicCombat=="true" &&  Storage().HHAuto_Setting_plusEventMythic==="true")
+        if (	Storage().HHAuto_Setting_buyMythicCombat == "true" 
+				&&  Storage().HHAuto_Setting_plusEventMythic === "true"
+				&& sessionStorage.HHAuto_Temp_eventTroll
+				&& sessionStorage.HHAuto_Temp_eventTrollIsMythic === "true"	)
         {
             //logHHAuto('WTF!');
-            var diffMythic=Math.ceil(Timers["eventMythicGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
+            var diffMythic = Math.ceil(Timers["eventMythicGoing"] / 1000) - Math.ceil(new Date().getTime() / 1000);
             //logHHAuto(diff);
             hero=getHero();
             if (
-                diffMythic<Storage().HHAuto_Setting_buyMythicCombTimer*3600 &&
-                sessionStorage.HHAuto_Temp_eventTroll
-                && getSetHeroInfos('fight.amount')==0
-                && sessionStorage.HHAuto_Temp_eventTrollIsMythic==="true"
+                diffMythic<Storage().HHAuto_Setting_buyMythicCombTimer * 3600 
+				//&& sessionStorage.HHAuto_Temp_eventTroll
+                && getSetHeroInfos('fight.amount') == 0
+                //&& sessionStorage.HHAuto_Temp_eventTrollIsMythic === "true"
             )
             {
                 price=hero.get_recharge_cost("fight");
                 //logHHAuto('PRC: '+price);
-                if (getSetHeroInfos('hard_currency')>=price+Number(Storage().HHAuto_Setting_kobanBank))
+                if (getSetHeroInfos('hard_currency') >= price + Number(Storage().HHAuto_Setting_kobanBank))
                 {
                     logHHAuto('Buying mythic comb for '+eventsGirlz[0].split(";")[0]);
                     RechargeCombat(price);
