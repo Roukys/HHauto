@@ -7220,7 +7220,7 @@ HHAuto_ToolTips.en = {
     autoTrollCheckbox: { elementText: "AutoTrollBattle", tooltip : "if enabled : Automatically battle troll selected"},
     autoTrollSelector: { elementText: "Troll selector", tooltip : "Select troll to be fought."},
     autoTrollThreshold: { elementText: "Threshold", tooltip : "(Integer 0 to 19)<br>Minimum troll fight to keep"},
-    eventTrollOrder: { elementText: "Event Troll Order", tooltip : "(values separated by ;)<br>Allow to select in which order event troll are automatically battled<br>1 : Dark Lord<br>2 : Ninja Spy<br>3 : Gruntt<br>4 : Edwarda<br>5 : Donatien<br>6 : Sylvanus<br>7 : Bremen<br>8 : Finalmecia<br>9 : Fredy Sih Roko<br>10 : Karole<br>11 : Jackson's Crew<br>12 : Pandora Witch<br>13 : Nike"},
+    eventTrollOrder: { elementText: "Event Troll Order", tooltip : "(values separated by ;)<br>Allow to select in which order event troll are automatically battled<br>1 : Dark Lord<br>2 : Ninja Spy<br>3 : Gruntt<br>4 : Edwarda<br>5 : Donatien<br>6 : Sylvanus<br>7 : Bremen<br>8 : Finalmecia<br>9 : Fredy Sih Roko<br>10 : Karole<br>11 : Jackson's Crew<br>12 : Pandora Witch<br>13 : Nike>14 : Sake"},
     plusEvent: { elementText: "+Event", tooltip : "If enabled : ignore selected troll during event to battle event"},
     plusEventMythic: { elementText: "+Mythic Event", tooltip : "Enable grabbing girls for mythic event, should only play them when shards are available"},
     eventMythicPrio: { elementText: "Priorize over Event Troll Order", tooltip : "Mythic event girl priorized over event troll order if shards available"},
@@ -7572,7 +7572,7 @@ else if ($('html')[0].lang === 'it_IT') {
     HHAuto_Lang = 'it';
 }
 
-var Trollz=["Latest","Dark Lord","Ninja Spy","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson\'s Crew","Pandora witch","Nike"];
+var Trollz=["Latest","Dark Lord","Ninja Spy","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson\'s Crew","Pandora witch","Nike","Sake"];
 var Leagues=["Wanker I","Wanker II","Wanker III","Sexpert I","Sexpert II","Sexpert III","Dicktator I","Dicktator II","Dicktator III"];
 var Timers={};
 var HHVars=["Storage().HHAuto_Setting_autoAff",
