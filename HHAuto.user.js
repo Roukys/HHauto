@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.20
+// @version      5.4.21
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -42,7 +42,7 @@ function getCallerCallerFunction()
 
 function logHHAuto(...args)
 {
-    var prefix = new Date().toISOString()+":"+getCallerCallerFunction()+":";
+    var prefix = new Date().toLocaleString()+":"+getCallerCallerFunction()+":";
     var text;
     var currentLoggingText;
     var nbLines;
@@ -8036,7 +8036,7 @@ var start = function () {
     var UIcontainer = $("#contains_all nav div[rel='content']");
     UIcontainer.html( '<div style="font-size:x-small;position: absolute;right: 22%;width: inherit;text-align: center;display:flex;flex-direction:column;z-index:1000" id="sMenu">'
                      //dialog Box
-                     + '<dialog id="LoadDialog"> <form method="dialog"><p>After you select the file the settings will be automatically updated.</p><p> If nothing happened, then the selected file contains errors.</p><p id="LoadConfError"style="color:#f53939;"></p><p><label><input type="file" id="myfile" name="myfile"> </label></p> <menu> <button value="cancel">'+getTextForUI("OptionCancel","elementText")+'</button></menu> </form></dialog>'
+                     + '<dialog id="LoadDialog"> <form method="dialog"><p>After you select the file the settings will be automatically updated.</p><p> If nothing happened, then the selected file contains errors.</p><p id="LoadConfError"style="color:#f53939;"></p><p><label><input type="file" id="myfile" accept=".json" name="myfile"> </label></p> <menu> <button value="cancel">'+getTextForUI("OptionCancel","elementText")+'</button></menu> </form></dialog>'
                      + '<dialog id="DebugDialog" style="overflow:visible;"><form method="dialog">'
                      +   '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +    '<p>HHAuto : v'+GM_info.script.version+'</p>'
