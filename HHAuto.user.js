@@ -5162,9 +5162,10 @@ var autoLoop = function () {
             if(busy === false && currentPower >= Number(sessionStorage.HHAuto_Temp_battlePowerRequired) && currentPower > 0)
             {
                 //logHHAuto("fight amount: "+getSetHeroInfos('fight.amount')+" troll threshold: "+Number(Storage().HHAuto_Setting_autoTrollThreshold)+" paranoia fight: "+Number(checkParanoiaSpendings('fight')));
+                var diff=Math.ceil(Timers["eventGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
                 if (Number(getSetHeroInfos('fight.amount')) > Number(Storage().HHAuto_Setting_autoTrollThreshold) //fight is above threshold
                     || Number(checkParanoiaSpendings('fight')) > 0 //paranoiaspendings to do
-                    || ( sessionStorage.HHAuto_Temp_eventTroll && sessionStorage.HHAuto_Temp_eventTrollIsMythic === "false" && Storage().HHAuto_Setting_buyCombat=="true" && Storage().HHAuto_Setting_plusEvent==="true") // eventGirl available and buy comb true
+                    || (sessionStorage.HHAuto_Temp_eventTroll && sessionStorage.HHAuto_Temp_eventTrollIsMythic === "false" && Storage().HHAuto_Setting_buyCombat=="true" && Storage().HHAuto_Setting_plusEvent==="true" && diff<Storage().HHAuto_Setting_buyCombTimer*3600) // eventGirl available and buy comb true
                     || (sessionStorage.HHAuto_Temp_eventTrollIsMythic === "true" && Storage().HHAuto_Setting_buyMythicCombat==="true" &&  Storage().HHAuto_Setting_plusEventMythic==="true" ) // mythicEventGirl available and buyMythic comb true
                    )
                 {
