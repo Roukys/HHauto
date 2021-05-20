@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.23
+// @version      5.4.24
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -3411,7 +3411,17 @@ var  CrushThem = function()
                     sessionStorage.HHAuto_Temp_questRequirement = "none";
                 }
 
-                setTimeout(function(){location.reload();},3000);
+                let queryString = window.location.search;
+                let urlParams = new URLSearchParams(queryString);
+                let league_battle = urlParams.get('league_battle');
+                if (league_battle !== null && league_battle === "1")
+                {
+                    setTimeout(function(){location.reload();},randomInterval(5000,8000));
+                }
+                else
+                {
+                    setTimeout(function(){gotoPage('home');},randomInterval(3000,5000));
+                }
                 return true;
             }
             else
