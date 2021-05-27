@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.26
+// @version      5.4.19
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -42,7 +42,7 @@ function getCallerCallerFunction()
 
 function logHHAuto(...args)
 {
-    var prefix = new Date().toLocaleString()+":"+getCallerCallerFunction()+":";
+    var prefix = new Date().toISOString()+":"+getCallerCallerFunction()+":";
     var text;
     var currentLoggingText;
     var nbLines;
@@ -1343,6 +1343,7 @@ function doPowerPlacesStuff(index)
         {
             addPopToUnableToStart(index,"Unable to start Pop "+index+" not enough girls available.");
             removePopFromPopToStart(index);
+
             return false;
         }
 
@@ -3411,19 +3412,7 @@ var  CrushThem = function()
                     sessionStorage.HHAuto_Temp_questRequirement = "none";
                 }
 
-                let queryString = window.location.search;
-                let urlParams = new URLSearchParams(queryString);
-                let league_battle = urlParams.get('league_battle');
-                if (league_battle !== null && league_battle === "1")
-                {
-                    logHHAuto("Reloading after league fight.");
-                    setTimeout(function(){location.reload();},randomInterval(5000,8000));
-                }
-                else
-                {
-                    logHHAuto("Reloading after Troll fight.");
-                    setTimeout(function(){gotoPage('home');},randomInterval(3000,5000));
-                }
+                setTimeout(function(){location.reload();},3000);
                 return true;
             }
             else
@@ -3908,7 +3897,7 @@ var flipParanoia=function()
         if (Storage().HHAuto_Setting_autoTrollMythicByPassParanoia === "true" && sessionStorage.HHAuto_Temp_eventTrollIsMythic==="true")
         {
             var trollThreshold = Number(Storage().HHAuto_Setting_autoTrollThreshold);
-            if (Storage().HHAuto_Setting_buyMythicCombat === "true")
+            if (Storage().HHAuto_Setting_autoTrollMythicByPassThreshold === "true")
             {
                 trollThreshold = 0;
             }
@@ -5174,12 +5163,7 @@ var autoLoop = function () {
             if(busy === false && currentPower >= Number(sessionStorage.HHAuto_Temp_battlePowerRequired) && currentPower > 0)
             {
                 //logHHAuto("fight amount: "+getSetHeroInfos('fight.amount')+" troll threshold: "+Number(Storage().HHAuto_Setting_autoTrollThreshold)+" paranoia fight: "+Number(checkParanoiaSpendings('fight')));
-                var diff=Math.ceil(Timers["eventGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
-                if (Number(getSetHeroInfos('fight.amount')) > Number(Storage().HHAuto_Setting_autoTrollThreshold) //fight is above threshold
-                    || Number(checkParanoiaSpendings('fight')) > 0 //paranoiaspendings to do
-                    || (sessionStorage.HHAuto_Temp_eventTroll && sessionStorage.HHAuto_Temp_eventTrollIsMythic === "false" && Storage().HHAuto_Setting_buyCombat=="true" && Storage().HHAuto_Setting_plusEvent==="true" && diff<Storage().HHAuto_Setting_buyCombTimer*3600) // eventGirl available and buy comb true
-                    || (sessionStorage.HHAuto_Temp_eventTrollIsMythic === "true" && Storage().HHAuto_Setting_buyMythicCombat==="true" &&  Storage().HHAuto_Setting_plusEventMythic==="true" ) // mythicEventGirl available and buyMythic comb true
-                   )
+                if (Number(getSetHeroInfos('fight.amount')) > Number(Storage().HHAuto_Setting_autoTrollThreshold) || Number(checkParanoiaSpendings('fight')) > 0 || (sessionStorage.HHAuto_Temp_eventTrollIsMythic === "true" && Storage().HHAuto_Setting_autoTrollMythicByPassThreshold === "true" ))
                 {
                     sessionStorage.HHAuto_Temp_battlePowerRequired = "0";
                     busy = true;
@@ -5341,7 +5325,7 @@ var autoLoop = function () {
     {
         moduleDisplayPopID();
     }
-    if (getPage() === "shop"  && Storage().HHAuto_Setting_showMarketTools === "true")
+    if (getPage() === "shop" )
     {
         moduleShopActions();
     }
@@ -6631,7 +6615,7 @@ var moduleDisplayEventPriority=function()
 
 var CollectEventData=function()
 {
-    if(getPage()!=="home") return false;
+
     clearTimer('eventMythicNextWave');
     if (unsafeWindow.event_data || unsafeWindow.mythic_event_data)
     {
@@ -6779,49 +6763,63 @@ var CollectEventData=function()
         }
         */
 
-        //logHHAuto('WTF?');
-        var hero=getHero();
-        var price=hero.get_recharge_cost("fight");
+        var hero = getHero();
+        var price = hero.get_recharge_cost("fight");
         //buy comb
-        if (Storage().HHAuto_Setting_buyCombat=="true" && Storage().HHAuto_Setting_plusEvent==="true" )
+        if (	Storage().HHAuto_Setting_buyCombat=="true" 
+				&& Storage().HHAuto_Setting_plusEvent==="true" 
+				&& sessionStorage.HHAuto_Temp_eventTroll 
+				&& sessionStorage.HHAuto_Temp_eventTrollIsMythic === "false"	)
         {
-            //logHHAuto('WTF!');
-            var diff=Math.ceil(Timers["eventGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
+            let currentTime = new Date();
+			var diff = Math.ceil(Timers["eventGoing"] / 1000) - Math.ceil(currentTime.getTime() / 1000);
             //logHHAuto(diff);
-            hero=getHero();
-            if (
-                diff<Storage().HHAuto_Setting_buyCombTimer*3600
-                && sessionStorage.HHAuto_Temp_eventTroll
-                && getSetHeroInfos('fight.amount')==0
-                && sessionStorage.HHAuto_Temp_eventTrollIsMythic==="false"
-            )
-            {
-                price=hero.get_recharge_cost("fight");
-                //logHHAuto('PRC: '+price);
-                if (getSetHeroInfos('hard_currency')>=price+Number(Storage().HHAuto_Setting_kobanBank))
-                {
-                    logHHAuto('Buying comb for '+eventsGirlz[0].split(";")[0]);
-                    RechargeCombat(price);
-                }
-            }
-        }
+            //hero=getHero();
+            if (	diff < Storage().HHAuto_Setting_buyCombTimer * 3600
+					//&& sessionStorage.HHAuto_Temp_eventTroll
+					//&& getSetHeroInfos('fight.amount') == 0
+					//&& sessionStorage.HHAuto_Temp_eventTrollIsMythic === "false"	)
+			{
+				if (Storage().HHAuto_Setting_autoTrollThreshold != "0")
+				{
+					Storage().HHAuto_Setting_autoTrollThreshold = "0";		// set threshold to 0 ; ideally find a way to reset threshold to previous value when event ends or all event girls are won
+					document.getElementById("autoTrollThreshold").value = "0";
+					logHHAuto(currentTime.getHours()+'h'+currentTime.getMinutes()+' : buying combats for event from now. Setting autoTrollThreshold to 0.');
+				}
+				
+				hero=getHero();
+				if (getSetHeroInfos('fight.amount') == 0)
+				{
+					price=hero.get_recharge_cost("fight");
+					//logHHAuto('PRC: '+price);
+					if (getSetHeroInfos('hard_currency') >= price + Number(Storage().HHAuto_Setting_kobanBank))
+					{
+						logHHAuto('Buying comb for '+eventsGirlz[0].split(";")[0]);
+						RechargeCombat(price);
+					}
+				}
+			}
+		}
         //buy comb mythic
-        if (Storage().HHAuto_Setting_buyMythicCombat=="true" &&  Storage().HHAuto_Setting_plusEventMythic==="true")
+        if (	Storage().HHAuto_Setting_buyMythicCombat == "true" 
+				&&  Storage().HHAuto_Setting_plusEventMythic === "true"
+				&& sessionStorage.HHAuto_Temp_eventTroll
+				&& sessionStorage.HHAuto_Temp_eventTrollIsMythic === "true"	)
         {
             //logHHAuto('WTF!');
-            var diffMythic=Math.ceil(Timers["eventMythicGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
+            var diffMythic = Math.ceil(Timers["eventMythicGoing"] / 1000) - Math.ceil(new Date().getTime() / 1000);
             //logHHAuto(diff);
             hero=getHero();
             if (
-                diffMythic<Storage().HHAuto_Setting_buyMythicCombTimer*3600 &&
-                sessionStorage.HHAuto_Temp_eventTroll
-                && getSetHeroInfos('fight.amount')==0
-                && sessionStorage.HHAuto_Temp_eventTrollIsMythic==="true"
+                diffMythic<Storage().HHAuto_Setting_buyMythicCombTimer * 3600 
+				//&& sessionStorage.HHAuto_Temp_eventTroll
+                && getSetHeroInfos('fight.amount') == 0
+                //&& sessionStorage.HHAuto_Temp_eventTrollIsMythic === "true"
             )
             {
                 price=hero.get_recharge_cost("fight");
                 //logHHAuto('PRC: '+price);
-                if (getSetHeroInfos('hard_currency')>=price+Number(Storage().HHAuto_Setting_kobanBank))
+                if (getSetHeroInfos('hard_currency') >= price + Number(Storage().HHAuto_Setting_kobanBank))
                 {
                     logHHAuto('Buying mythic comb for '+eventsGirlz[0].split(";")[0]);
                     RechargeCombat(price);
@@ -7221,7 +7219,7 @@ HHAuto_ToolTips.en = {
     spendKobans1: { elementText: "Are you sure?", tooltip : "Second security switches for usage of kobans <br>Have to be activated after the first one.<br> All 3 needs to be active for Koban spending functions"},
     spendKobans2: { elementText: "You\'ve been warned", tooltip : "Third security switches for usage of kobans <br>Have to be activated after the second one.<br> All 3 needs to be active for Koban spending functions"},
     kobanBank: { elementText: "Koban Bank", tooltip : "(Integer)<br>Minimum Koban kept when using Koban spending functions"},
-    buyCombat: { elementText: "Buy comb. in events", tooltip : "Koban spending functions<br>If enabled : <br>Buying combat point during last X hours of event (if not going under Koban bank value), this will bypass threshold if event girl shards available."},
+    buyCombat: { elementText: "Buy comb. in events", tooltip : "Koban spending functions<br>If enabled : <br>Buying combat point during last X hours of event (if not going under Koban bank value)"},
     buyCombTimer: { elementText: "Hours to buy Comb", tooltip : "(Integer)<br>X last hours of event"},
     autoBuyBoosters: { elementText: "Buy Leg. Boosters", tooltip : "Koban spending functions<br>Allow to buy booster in the market (if not going under Koban bank value)"},
     autoBuyBoostersFilter: { elementText: "Filter", tooltip : "(values separated by ;)<br>Set which booster to buy , order is respected (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)"},
@@ -7236,7 +7234,7 @@ HHAuto_ToolTips.en = {
     autoTrollCheckbox: { elementText: "AutoTrollBattle", tooltip : "if enabled : Automatically battle troll selected"},
     autoTrollSelector: { elementText: "Troll selector", tooltip : "Select troll to be fought."},
     autoTrollThreshold: { elementText: "Threshold", tooltip : "(Integer 0 to 19)<br>Minimum troll fight to keep"},
-    eventTrollOrder: { elementText: "Event Troll Order", tooltip : "(values separated by ;)<br>Allow to select in which order event troll are automatically battled<br>1 : Dark Lord<br>2 : Ninja Spy<br>3 : Gruntt<br>4 : Edwarda<br>5 : Donatien<br>6 : Sylvanus<br>7 : Bremen<br>8 : Finalmecia<br>9 : Fredy Sih Roko<br>10 : Karole<br>11 : Jackson's Crew<br>12 : Pandora Witch<br>13 : Nike<br>14 : Sake"},
+    eventTrollOrder: { elementText: "Event Troll Order", tooltip : "(values separated by ;)<br>Allow to select in which order event troll are automatically battled<br>1 : Dark Lord<br>2 : Ninja Spy<br>3 : Gruntt<br>4 : Edwarda<br>5 : Donatien<br>6 : Sylvanus<br>7 : Bremen<br>8 : Finalmecia<br>9 : Fredy Sih Roko<br>10 : Karole<br>11 : Jackson's Crew<br>12 : Pandora Witch<br>13 : Nike"},
     plusEvent: { elementText: "+Event", tooltip : "If enabled : ignore selected troll during event to battle event"},
     plusEventMythic: { elementText: "+Mythic Event", tooltip : "Enable grabbing girls for mythic event, should only play them when shards are available"},
     eventMythicPrio: { elementText: "Priorize over Event Troll Order", tooltip : "Mythic event girl priorized over event troll order if shards available"},
@@ -7260,8 +7258,7 @@ HHAuto_ToolTips.en = {
     autoChamps: { elementText: "AutoChampions", tooltip : "if enabled : Automatically do champions (if they are started and in filter only)"},
     autoChampsUseEne: { elementText: "UseEne", tooltip : "If enabled : use Energy to buy tickets"},
     autoChampsFilter: { elementText: "Filter", tooltip : "(values separated by ; 1 to 6)<br>Allow to set filter on champions to be fought"},
-    autoStats: { elementText: "Min money to keep", tooltip : "(Integer)<br>Automatically buy stats in market with money above the setted amount"},
-    autoStatsSwitch : { elementText: "AutoStats", tooltip : "Allow to on/off autoStats"},
+    autoStats: { elementText: "AutoStats", tooltip : "(Integer)<br>Automatically buy stats in market with money above the setted amount"},
     autoExpW: { elementText: "Buy Exp", tooltip : "if enabled : allow to buy Exp in market<br>Only buy if money bank is above the value<br>Only buy if total Exp owned is below value"},
     autoExp: { elementText: "Min money to keep", tooltip : "(Integer)<br>Minimum money to keep."},
     maxExp: { elementText: "Max Exp to buy", tooltip : "(Integer)<br>Maximum Exp to buy"},
@@ -7284,7 +7281,7 @@ HHAuto_ToolTips.en = {
     SeasonMaskRewards: { elementText: "Mask claimed rewards", tooltip : "Allow to mask all claimed rewards on Season screen"},
     autoClubChamp: { elementText: "AutoClubChamp", tooltip : "if enabled, automatically fight club champion if champion has already been fought once."},
     autoTrollMythicByPassParanoia: { elementText: "Mythic bypass Paranoia", tooltip : "Allow mythic to bypass paranoia.<br>if next wave is during rest, it will force it to wake up for wave.<br>If still fight or can buy fights it will continue."},
-    buyMythicCombat: { elementText: "Buy comb. for mythic", tooltip : "Koban spending functions<br>If enabled : <br>Buying combat point during last X hours of mythic event (if not going under Koban bank value), this will bypass threshold if mythic girl shards available."},
+    buyMythicCombat: { elementText: "Buy comb. for mythic", tooltip : "Koban spending functions<br>If enabled : <br>Buying combat point during last X hours of mythic event (if not going under Koban bank value)"},
     buyMythicCombTimer: { elementText: "Hours to buy Mythic Comb", tooltip : "(Integer)<br>X last hours of mythic event"},
     DebugResetTimerText: { elementText: "Selector below allow you to reset ongoing timers", tooltip : ""},
     timerResetSelector: { elementText: "Select Timer", tooltip : "Select the timer you want to reset"},
@@ -7334,8 +7331,7 @@ HHAuto_ToolTips.en = {
     menuExpEnd : { elementText: "All Exp given to :", tooltip : ""},
     menuExpLevel :  { elementText: "Enter target Exp level :", tooltip : "Target Exp level for girl"},
     PoAMaskRewards : { elementText: "PoA mask claimed", tooltip : "Masked claimed rewards for Path of Attraction."},
-    showTooltips : { elementText: "Show tooltips", tooltip : "Show tooltip on menu."},
-    showMarketTools : { elementText: "Show market tools.", tooltip : "Show Market tools."}
+    showTooltips : { elementText: "Show tooltips", tooltip : "Show tooltip on menu."}
 }
 
 
@@ -7391,7 +7387,7 @@ HHAuto_ToolTips.fr = {
     autoChamps: { elementText: "AutoChampions", tooltip : "si activé : fait automatiquement les champions (s'ils sont démarrés et en filtre uniquement)"},
     autoChampsUseEne: { elementText: "UseEne", tooltip : "Si activé : utiliser l'énergie pour acheter des billets de champion"},
     autoChampsFilter: { elementText: "Filter", tooltip : "Permet de filtrer les champions à combattre"},
-    autoStats: { elementText: "Min money to keep", tooltip : "Achète automatiquement des statistiques sur le marché avec de l'argent au-dessus du montant fixé"},
+    autoStats: { elementText: "AutoStats", tooltip : "Achète automatiquement des statistiques sur le marché avec de l'argent au-dessus du montant fixé"},
     autoExpW: { elementText: "Buy Exp", tooltip : "si activé : permet d'acheter de l'Exp sur le marché<br>Achète uniquement si la banque d'argent est supérieure à la valeur<br>Achète uniquement si le total des Exp détenues est inférieur à la valeur"},
     autoExp: { elementText: "Min money to keep", tooltip : "Argent minimum à conserver."},
     maxExp: { elementText: "Max Exp to buy", tooltip : "Exp maximum à acheter"},
@@ -7468,7 +7464,7 @@ HHAuto_ToolTips.de = {
     autoChampsUseEne: { elementText: "Nutze Energie", tooltip : "Wenn aktiv : Nutze Energie und kaufe Champ. Tickets"},
     autoChampsFilter: { elementText: "Filter", tooltip : "Erlaubt es Filter für zu bekämpfende Champions zu setzen"},
     autoClubChamp: { elementText: "AutoChampions", tooltip : "Wenn aktiv : Macht automatisch ClubChampionkämpfe (nur wenn sie gestartet wurden und im Filter stehen)"},
-    autoStats: { elementText: "Min Geld verbleib", tooltip : "Kauft automatisch bessere Statuswerte im Markt mit überschüssigem Geld oberhalb des gesetzten Wertes"},
+    autoStats: { elementText: "AutoStats", tooltip : "Kauft automatisch bessere Statuswerte im Markt mit überschüssigem Geld oberhalb des gesetzten Wertes"},
     autoExpW: { elementText: "Kaufe Erfahrung", tooltip : "Wenn aktiv : Erlaube Erfahrung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt<br>Kauft nur wenn sich im Besitz befinden potentielle Erfahrung unter dem Wert liegt"},
     autoExp: { elementText: "Min Geld verbleib", tooltip : "Minimum an Geld das behalten wird."},
     maxExp: { elementText: "Max ErfahrKauf", tooltip : "Maximum Erfahrung die gekauft wird"},
@@ -7537,7 +7533,7 @@ HHAuto_ToolTips.es = {
     autoChamps: { elementText: "AutoCampeones", tooltip : "Si habilitado: Combate a campeones de manera automática (Sólo si han empezado un combate y están en el filtro)"},
     autoChampsUseEne: { elementText: "UsaEne", tooltip : "Si habilitado: Usa energía para comprar tickets"},
     autoChampsFilter: { elementText: "Filtro", tooltip : "Permite establecer un filtro para luchar con campeones"},
-    autoStats: { elementText: "Min dinero", tooltip : "(Entero)<br>Compra equipamiento de manera automática en el mercado con dinero por encima de la cantidad establecida"},
+    autoStats: { elementText: "AutoEquip", tooltip : "(Entero)<br>Compra equipamiento de manera automática en el mercado con dinero por encima de la cantidad establecida"},
     autoExpW: { elementText: "Compra exp", tooltip : "Si habilitado: Compra experiencia en el mercado<br>Solo si el dinero en el banco es superior a este valor<br>Solo compra si el total de experiencia poseída está por debajo de este valor"},
     autoExp: { elementText: "Min dinero", tooltip : "(Entero)<br>Mínimo dinero a guardar."},
     maxExp: { elementText: "Max experiencia", tooltip : "(Entero)<br>Máxima experiencia a comprar"},
@@ -7590,7 +7586,7 @@ else if ($('html')[0].lang === 'it_IT') {
     HHAuto_Lang = 'it';
 }
 
-var Trollz=["Latest","Dark Lord","Ninja Spy","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson\'s Crew","Pandora witch","Nike","Sake"];
+var Trollz=["Latest","Dark Lord","Ninja Spy","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson\'s Crew","Pandora witch","Nike"];
 var Leagues=["Wanker I","Wanker II","Wanker III","Sexpert I","Sexpert II","Sexpert III","Dicktator I","Dicktator II","Dicktator III"];
 var Timers={};
 var HHVars=["Storage().HHAuto_Setting_autoAff",
@@ -7697,9 +7693,7 @@ var HHVars=["Storage().HHAuto_Setting_autoAff",
             "Storage().HHAuto_Setting_autoClubChampMax",
             "Storage().HHAuto_Setting_autoMissionKFirst",
             "Storage().HHAuto_Setting_PoAMaskRewards",
-            "Storage().HHAuto_Setting_showTooltips",
-            "Storage().HHAuto_Setting_showMarketTools",
-            "Storage().HHAuto_Setting_autoStatsSwitch"];
+            "Storage().HHAuto_Setting_showTooltips"];
 var updateData = function () {
     //logHHAuto("updating UI");
     if ($('#LoadDialog[open]').length > 0) {return}
@@ -7757,7 +7751,6 @@ var updateData = function () {
     Storage().HHAuto_Setting_autoLeaguesPowerCalc = document.getElementById("autoLeaguesPowerCalc").checked;
     //Storage().HHAuto_Setting_autoLeaguesMaxRank = document.getElementById("autoLeaguesMaxRank").value;
     Storage().HHAuto_Setting_autoStats = document.getElementById("autoStats").value;
-    Storage().HHAuto_Setting_autoStatsSwitch=document.getElementById("autoStatsSwitch").checked;
     Storage().HHAuto_Setting_paranoia = document.getElementById("paranoia").checked;
     Storage().HHAuto_Setting_paranoiaSpendsBefore = document.getElementById("paranoiaSpendsBefore").checked;
     Storage().HHAuto_Setting_autoFreePachinko = document.getElementById("autoFreePachinko").checked;
@@ -7775,7 +7768,6 @@ var updateData = function () {
     //Storage().HHAuto_Setting_autoEGMW = document.getElementById("autoEGMW").checked;
     Storage().HHAuto_Setting_autoBuyBoosters = document.getElementById("autoBuyBoosters").checked;
     Storage().HHAuto_Setting_autoBuyBoostersFilter = document.getElementById("autoBuyBoostersFilter").value;
-    Storage().HHAuto_Setting_showMarketTools = document.getElementById("showMarketTools").checked;
 
     var newValue = String(document.getElementById("showTooltips").checked);
     if (Storage().HHAuto_Setting_showTooltips != newValue)
@@ -8006,8 +7998,6 @@ var setDefaults = function () {
     Storage().HHAuto_Setting_autoChampsUseEne="false";
     Storage().HHAuto_Setting_autoChampsFilter="1;2;3;4;5;6";
     Storage().HHAuto_Setting_autoFreePachinko = "false";
-    Storage().HHAuto_Setting_autoStats = "500000000";
-    Storage().HHAuto_Setting_autoStatsSwitch="false";
     Storage().HHAuto_Setting_autoExp = "500000000";
     Storage().HHAuto_Setting_autoExpW = "false";
     Storage().HHAuto_Setting_MaxExp = "10000";
@@ -8022,7 +8012,6 @@ var setDefaults = function () {
     //Storage().HHAuto_Setting_autoEGMW = "false";
     Storage().HHAuto_Setting_autoBuyBoostersFilter = "B1;B2;B3;B4";
     Storage().HHAuto_Setting_autoBuyBoosters = "false";
-    Storage().HHAuto_Setting_showMarketTools = "false";
     Storage().HHAuto_Setting_paranoia="true";
     Storage().HHAuto_Setting_paranoiaSpendsBefore="false";
     Storage().HHAuto_Setting_showTooltips = "true";
@@ -8061,7 +8050,7 @@ var start = function () {
     var UIcontainer = $("#contains_all nav div[rel='content']");
     UIcontainer.html( '<div style="font-size:x-small;position: absolute;right: 22%;width: inherit;text-align: center;display:flex;flex-direction:column;z-index:1000" id="sMenu">'
                      //dialog Box
-                     + '<dialog id="LoadDialog"> <form method="dialog"><p>After you select the file the settings will be automatically updated.</p><p> If nothing happened, then the selected file contains errors.</p><p id="LoadConfError"style="color:#f53939;"></p><p><label><input type="file" id="myfile" accept=".json" name="myfile"> </label></p> <menu> <button value="cancel">'+getTextForUI("OptionCancel","elementText")+'</button></menu> </form></dialog>'
+                     + '<dialog id="LoadDialog"> <form method="dialog"><p>After you select the file the settings will be automatically updated.</p><p> If nothing happened, then the selected file contains errors.</p><p id="LoadConfError"style="color:#f53939;"></p><p><label><input type="file" id="myfile" name="myfile"> </label></p> <menu> <button value="cancel">'+getTextForUI("OptionCancel","elementText")+'</button></menu> </form></dialog>'
                      + '<dialog id="DebugDialog" style="overflow:visible;"><form method="dialog">'
                      +   '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +    '<p>HHAuto : v'+GM_info.script.version+'</p>'
@@ -8330,66 +8319,53 @@ var start = function () {
                      +    '</div>'
                      +   '</div>'
                      // End Region AutoClubChampions
-                     // Region Market
-                     +   '<div style="display:flex;flex-direction:column; border: 1px dotted;">'
-                     +    '<div style="display:flex;flex-direction:row;">'
-                     +     '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +      '<span>'+getTextForUI("autoStatsSwitch","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoStatsSwitch","tooltip")+'</span><label class="switch"><input id="autoStatsSwitch" type="checkbox"><span class="slider round"></span></label></div>'
-                     +     '</div>'
-                     +     '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +      '<span>'+getTextForUI("autoStats","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoStats","tooltip")+'</span><input id="autoStats" required pattern="'+HHAuto_inputPattern.autoStats+'" type="text"></div>'
-                     +     '</div>'
-                     +    '</div>'
-                     +    '<div style="display:flex;flex-direction:row;">'
-                     +     '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +      '<span>'+getTextForUI("autoExpW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoExpW","tooltip")+'</span><label class="switch"><input id="autoExpW" type="checkbox"><span class="slider round"></span></label></div>'
-                     +     '</div>'
-                     +     '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +      '<span>'+getTextForUI("autoExp","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoExp","tooltip")+'</span><input id="autoExp" required pattern="'+HHAuto_inputPattern.autoExp+'" type="text"></div>'
-                     +     '</div>'
-                     +     '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +      '<span>'+getTextForUI("maxExp","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("maxExp","tooltip")+'</span><input style="width:50px" id="maxExp" required pattern="'+HHAuto_inputPattern.maxExp+'" type="text"></div>'
-                     +     '</div>'
-                     +    '</div>'
-                     +    '<div style="display:flex;flex-direction:row;">'
-                     +     '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +      '<span>'+getTextForUI("autoAffW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoAffW","tooltip")+'</span><label class="switch"><input id="autoAffW" type="checkbox"><span class="slider round"></span></label></div>'
-                     +     '</div>'
-                     +     '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +      '<span>'+getTextForUI("autoAff","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoAff","tooltip")+'</span><input id="autoAff" required pattern="'+HHAuto_inputPattern.autoAff+'" type="text"></div>'
-                     +     '</div>'
-                     +     '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +      '<span>'+getTextForUI("maxAff","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("maxAff","tooltip")+'</span><input style="width:50px" id="maxAff" required pattern="'+HHAuto_inputPattern.maxAff+'" type="text"></div>'
-                     +     '</div>'
-                     +    '</div>'
-                     +    '<div style="display:flex;flex-direction:row;">'
-                     +     '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +      '<span>'+getTextForUI("autoLGMW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLGMW","tooltip")+'</span><label class="switch"><input id="autoLGMW" type="checkbox"><span class="slider round"></span></label></div>'
-                     +     '</div>'
-                     +     '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +      '<span>'+getTextForUI("autoLGM","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLGM","tooltip")+'</span><input id="autoLGM" required pattern="'+HHAuto_inputPattern.autoLGM+'" type="text"></div>'
-                     +     '</div>'
-                     +    '</div>'
-                     +    '<div style="display:flex;flex-direction:row;">'
-                     +     '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +      '<span>'+getTextForUI("autoLGRW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLGRW","tooltip")+'</span><label class="switch"><input id="autoLGRW" type="checkbox"><span class="slider round"></span></label></div>'
-                     +     '</div>'
-                     +     '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +      '<span>'+getTextForUI("autoLGR","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLGR","tooltip")+'</span><input id="autoLGR" required pattern="'+HHAuto_inputPattern.autoLGR+'" type="text"></div>'
-                     +     '</div>'
+                     +   '<span>'+getTextForUI("autoStats","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoStats","tooltip")+'</span><input id="autoStats" required pattern="'+HHAuto_inputPattern.autoStats+'" type="text"></div>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+getTextForUI("autoExpW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoExpW","tooltip")+'</span><label class="switch"><input id="autoExpW" type="checkbox"><span class="slider round"></span></label></div>'
                      +    '</div>'
                      +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+getTextForUI("showMarketTools","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("showMarketTools","tooltip")+'</span><label class="switch"><input id="showMarketTools" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '<span>'+getTextForUI("autoExp","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoExp","tooltip")+'</span><input id="autoExp" required pattern="'+HHAuto_inputPattern.autoExp+'" type="text"></div>'
                      +    '</div>'
-                     //+    '<div style="display:flex;flex-direction:row;">'
-                     //+     '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     //+      '<span>'+getTextForUI("autoEGMW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoEGMW","tooltip")+'</span><label class="switch"><input id="autoEGMW" type="checkbox"><span class="slider round"></span></label></div>'
-                     //+     '</div>'
-                     //+     '<div style="padding:10px; display:flex;flex-direction:column;">'
-                     //+      '<span>'+getTextForUI("autoEGM","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoEGM","tooltip")+'</span><input id="autoEGM" required pattern="'+HHAuto_inputPattern.autoEGM+'" type="text"></div>'
-                     //+     '</div>'
-                     //+    '</div>'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+getTextForUI("maxExp","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("maxExp","tooltip")+'</span><input style="width:50px" id="maxExp" required pattern="'+HHAuto_inputPattern.maxExp+'" type="text"></div>'
+                     +    '</div>'
                      +   '</div>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+getTextForUI("autoAffW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoAffW","tooltip")+'</span><label class="switch"><input id="autoAffW" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+getTextForUI("autoAff","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoAff","tooltip")+'</span><input id="autoAff" required pattern="'+HHAuto_inputPattern.autoAff+'" type="text"></div>'
+                     +    '</div>'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+getTextForUI("maxAff","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("maxAff","tooltip")+'</span><input style="width:50px" id="maxAff" required pattern="'+HHAuto_inputPattern.maxAff+'" type="text"></div>'
+                     +    '</div>'
+                     +   '</div>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+getTextForUI("autoLGMW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLGMW","tooltip")+'</span><label class="switch"><input id="autoLGMW" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+getTextForUI("autoLGM","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLGM","tooltip")+'</span><input id="autoLGM" required pattern="'+HHAuto_inputPattern.autoLGM+'" type="text"></div>'
+                     +    '</div>'
+                     +   '</div>'
+                     +   '<div style="display:flex;flex-direction:row;">'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+getTextForUI("autoLGRW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLGRW","tooltip")+'</span><label class="switch"><input id="autoLGRW" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '</div>'
+                     +    '<div style="padding-left:10px; display:flex;flex-direction:column;">'
+                     +     '<span>'+getTextForUI("autoLGR","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLGR","tooltip")+'</span><input id="autoLGR" required pattern="'+HHAuto_inputPattern.autoLGR+'" type="text"></div>'
+                     +    '</div>'
+                     +   '</div>'
+                     //+   '<div style="display:flex;flex-direction:row;">'
+                     //+    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     //+     '<span>'+getTextForUI("autoEGMW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoEGMW","tooltip")+'</span><label class="switch"><input id="autoEGMW" type="checkbox"><span class="slider round"></span></label></div>'
+                     //+    '</div>'
+                     //+    '<div style="padding:10px; display:flex;flex-direction:column;">'
+                     //+     '<span>'+getTextForUI("autoEGM","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoEGM","tooltip")+'</span><input id="autoEGM" required pattern="'+HHAuto_inputPattern.autoEGM+'" type="text"></div>'
+                     //+    '</div>'
+                     //+   '</div>'
                      +  '</div>'
                      + '</div>'
                      +'</div>'+UIcontainer.html());
@@ -8473,7 +8449,6 @@ var start = function () {
     document.getElementById("autoPowerPlacesAll").checked = Storage().HHAuto_Setting_autoPowerPlacesAll === "true";
     document.getElementById("autoPowerPlacesIndexFilter").value = Storage().HHAuto_Setting_autoPowerPlacesIndexFilter?Storage().HHAuto_Setting_autoPowerPlacesIndexFilter:"1;2;3";
     document.getElementById("autoStats").value = Storage().HHAuto_Setting_autoStats?Storage().HHAuto_Setting_autoStats:"500000000";
-    document.getElementById("autoStatsSwitch").checked = Storage().HHAuto_Setting_autoStatsSwitch==="true";
     document.getElementById("paranoia").checked = Storage().HHAuto_Setting_paranoia==="true";
     document.getElementById("paranoiaSpendsBefore").checked = Storage().HHAuto_Setting_paranoiaSpendsBefore==="true";
     document.getElementById("autoExp").value = Storage().HHAuto_Setting_autoExp?Storage().HHAuto_Setting_autoExp:"500000000";
@@ -8488,7 +8463,6 @@ var start = function () {
     document.getElementById("autoLGRW").checked = Storage().HHAuto_Setting_autoLGRW === "true";
     document.getElementById("autoBuyBoosters").checked = Storage().HHAuto_Setting_autoBuyBoosters === "true";
     document.getElementById("autoBuyBoostersFilter").value = Storage().HHAuto_Setting_autoBuyBoostersFilter?Storage().HHAuto_Setting_autoBuyBoostersFilter:"B1;B2;B3;B4";
-    document.getElementById("showMarketTools").checked = Storage().HHAuto_Setting_showMarketTools === "true";
     //document.getElementById("autoEGM").value = Storage().HHAuto_Setting_autoEGM?Storage().HHAuto_Setting_autoEGM:"500000000";
     //document.getElementById("autoEGMW").checked = Storage().HHAuto_Setting_autoEGMW === "true";
     document.getElementById("showInfo").checked = Storage().HHAuto_Setting_showInfo?Storage().HHAuto_Setting_showInfo==="true":"false";
@@ -8614,13 +8588,13 @@ var start = function () {
         updateShop();
     }
 
-    if (getBurst())
+    if (/*autoBuy() &&*/ getBurst())
     {
         doShopping();
-        if ( Storage().HHAuto_Setting_autoStatsSwitch==="true" )
-        {
-            doStatUpgrades();
-        }
+        /*}
+    if (Storage().HHAuto_Setting_autoStats === "true" && getBurst())
+        {*/
+        doStatUpgrades();
     }
 
     if (!CollectEventData())
