@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.29 UI 0.2
+// @version      5.4.29
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -19,7 +19,7 @@ GM_addStyle(' #sMenu input:checked + .slider.kobans { background-color: red; } #
 GM_addStyle('span.HHMenuItemName {font-size: xx-small; line-height: 150%;}');
 GM_addStyle('div.optionsColumn {padding:5px; display:flex;flex-direction:column;justify-content: space-between;}');
 GM_addStyle('div.optionsRegion {display:flex;flex-direction:column; border: 1px solid #ffa23e; border-radius: 5px;}');
-GM_addStyle('div.optionsRow {padding:2px;display:flex;flex-direction:row;align-items: flex-end;justify-content: space-between;}');
+GM_addStyle('div.optionsRow {padding:2px;display:flex;flex-direction:row;align-items: flex-end;}');
 GM_addStyle('div.labelAndButton {padding-left:10px; display:flex;flex-direction:column;}');
 GM_addStyle('div.HHMenuItemBox {padding:0.2em;}');
 GM_addStyle('div.HHMenuRow {display:flex; flex-direction:row; align-items: center; align-content: center; justify-content: flex-start;}');
@@ -8404,7 +8404,7 @@ var start = function () {
                      +      '<span class="HHMenuItemName">'+getTextForUI("maxAff","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("maxAff","tooltip")+'</span><input style="width:70px" id="maxAff" required pattern="'+HHAuto_inputPattern.maxAff+'" type="text"></div>'
                      +     '</div>'
                      +    '</div>'
-                     +    '<div class="optionsRow">'
+                     +    '<div class="optionsRow" style="justify-content: space-between;">'
                      +     '<div class="labelAndButton">'
                      +      '<span class="HHMenuItemName">'+getTextForUI("autoLGMW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLGMW","tooltip")+'</span><label class="switch"><input id="autoLGMW" type="checkbox"><span class="slider round"></span></label></div>'
                      +     '</div>'
@@ -8412,7 +8412,7 @@ var start = function () {
                      +      '<span class="HHMenuItemName">'+getTextForUI("autoLGM","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLGM","tooltip")+'</span><input style="width:100px" id="autoLGM" required pattern="'+HHAuto_inputPattern.autoLGM+'" type="text"></div>'
                      +     '</div>'
                      +    '</div>'
-                     +    '<div class="optionsRow">'
+                     +    '<div class="optionsRow" style="justify-content: space-between;">'
                      +     '<div class="labelAndButton">'
                      +      '<span class="HHMenuItemName">'+getTextForUI("autoLGRW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLGRW","tooltip")+'</span><label class="switch"><input id="autoLGRW" type="checkbox"><span class="slider round"></span></label></div>'
                      +     '</div>'
@@ -8420,7 +8420,7 @@ var start = function () {
                      +      '<span class="HHMenuItemName">'+getTextForUI("autoLGR","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLGR","tooltip")+'</span><input style="width:100px" id="autoLGR" required pattern="'+HHAuto_inputPattern.autoLGR+'" type="text"></div>'
                      +     '</div>'
                      +    '</div>'
-                     +    '<div class="optionsRow">'
+                     +    '<div class="optionsRow" style="justify-content: space-between;">'
                      +     '<div class="labelAndButton">'
                      +      '<span class="HHMenuItemName">'+getTextForUI("autoBuyBoosters","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoBuyBoosters","tooltip")+'</span><label class="switch"><input id="autoBuyBoosters" type="checkbox"><span class="slider round kobans"></span></label></div>'
                      +     '</div>'
