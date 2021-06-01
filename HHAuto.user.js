@@ -5099,8 +5099,8 @@ var autoLoop = function () {
             {
                 //logHHAuto("fight amount: "+getSetHeroInfos('fight.amount')+" troll threshold: "+Number(Storage().HHAuto_Setting_autoTrollThreshold)+" paranoia fight: "+Number(checkParanoiaSpendings('fight')));
                 var diff=Math.ceil(Timers["eventGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
-                var diffMythic=Math.ceil(Timers["eventMythicGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
-                if (Number(getSetHeroInfos('fight.amount')) > Number(Storage().HHAuto_Setting_autoTrollThreshold) //fight is above threshold
+                //var diffMythic=Math.ceil(Timers["eventMythicGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
+                if (currentPower > Number(Storage().HHAuto_Setting_autoTrollThreshold) //fight is above threshold
                     || Number(checkParanoiaSpendings('fight')) > 0 //paranoiaspendings to do
                     || (sessionStorage.HHAuto_Temp_eventTroll
                         && sessionStorage.HHAuto_Temp_eventTrollIsMythic === "false"
@@ -5109,7 +5109,7 @@ var autoLoop = function () {
                         && diff<Storage().HHAuto_Setting_buyCombTimer*3600
                        ) // eventGirl available and buy comb true
                     || (sessionStorage.HHAuto_Temp_eventTrollIsMythic === "true"
-                        && Number(getSetHeroInfos('fight.amount')) > 0
+                        //&& Number(getSetHeroInfos('fight.amount')) > 0
                         && Storage().HHAuto_Setting_plusEventMythic==="true"
                        ) // mythicEventGirl available and fights available
                    )
@@ -8071,7 +8071,7 @@ var start = function () {
                      +    '</div>'
                      +  '</div>'
                      + '<menu> <button value="cancel">'+getTextForUI("OptionCancel","elementText")+'</button></menu></form></dialog>'
-                     
+
                   // row of 3 columns
                      + '<div style="display:flex;flex-direction:row;">'
 
