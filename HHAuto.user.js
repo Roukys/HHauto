@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.30
+// @version      5.4.30-beta.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -6801,7 +6801,7 @@ var CrushThemFights=function()
         battleButtonX50.click();
         hero.infos.hc_confirm = hcConfirmValue;
         logHHAuto("Crushed 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
-        setTimeout(function(){gotoPage('home');},randomInterval(500,1500));
+        gotoPage('home');
         return;
     }
     else
@@ -6824,8 +6824,8 @@ var CrushThemFights=function()
             battleButtonX10.click();
             hero.infos.hc_confirm = hcConfirmValue;
             logHHAuto("Crushed 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
-            //setTimeout(function(){gotoPage('home');},randomInterval(500,1500));
-            return;
+            gotoPage('home');
+            return true;
         }
         else
         {
@@ -6940,7 +6940,7 @@ var RechargeCombat=function()
         is_cheat_click=function(e) {
             return false;
         };
-    hero.recharge($("plus[type='energy_fight']"), price, max, type);
+    hero.recharge($("plus[type='energy_fight']"), price,type, max);
     hero.infos.hc_confirm = hcConfirmValue;
     logHHAuto('Recharged up to '+max+' fights for '+price+' kobans.');
 
