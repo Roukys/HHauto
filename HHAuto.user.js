@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.30-beta
+// @version      5.4.30-beta.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -6772,17 +6772,21 @@ var CrushThemFights=function()
         return;
     }
 
+    let queryString = window.location.search;
+    let urlParams = new URLSearchParams(queryString);
+    let TTF = urlParams.get('id_troll');
+
     let canUsex10 = false;
     let battleButtonX10 = $('#battle button[rel="launch"].autofight[price_fe="10"]');
     let battleButtonX50 = $('#battle button[rel="launch"].autofight[price_fe="50"]');
     let battleButtonX10Price = Number(battleButtonX10.attr('price'));
     let battleButtonX50Price = Number(battleButtonX50.attr('price'));
-
+    let hero=getHero();
     let hcConfirmValue = hero.infos.hc_confirm;
     if (sessionStorage.HHAuto_Temp_eventTrollShards && Number.isInteger(Number(sessionStorage.HHAuto_Temp_eventTrollShards))
         && Storage().HHAuto_Setting_minShardsX50
         && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX50))
-        && Number(Storage().HHAuto_Setting_minShardsX50) >= sessionStorage.HHAuto_Temp_eventTrollShards
+        && sessionStorage.HHAuto_Temp_eventTrollShards >= Number(Storage().HHAuto_Setting_minShardsX50)
         && (battleButtonX50Price === 0 || getSetHeroInfos('hard_currency')>=battleButtonX50Price+Number(Storage().HHAuto_Setting_kobanBank))
         && Number( getSetHeroInfos('fight.amount')) >= 50
        )
@@ -6798,26 +6802,27 @@ var CrushThemFights=function()
     }
     else
     {
-        logHHAuto('Unable to use x50 for '+battleButtonX50Price+',fights : '+getSetHeroInfos('fight.amount')+'/50, shards : '+sessionStorage.HHAuto_Temp_eventTrollShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+        logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+getSetHeroInfos('fight.amount')+'/50, shards : '+sessionStorage.HHAuto_Temp_eventTrollShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
         if (sessionStorage.HHAuto_Temp_eventTrollShards && Number.isInteger(Number(sessionStorage.HHAuto_Temp_eventTrollShards))
             && Storage().HHAuto_Setting_minShardsX10
             && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX10))
-            && Number(Storage().HHAuto_Setting_minShardsX10) >= sessionStorage.HHAuto_Temp_eventTrollShards
+            && sessionStorage.HHAuto_Temp_eventTrollShards >= Number(Storage().HHAuto_Setting_minShardsX10)
             && (battleButtonX10Price === 0 || getSetHeroInfos('hard_currency')>=battleButtonX10Price+Number(Storage().HHAuto_Setting_kobanBank))
             && Number( getSetHeroInfos('fight.amount')) >= 10
            )
         {
-            logHHAuto("Going to crush 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
+            logHHAuto("Going to crush 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
             hero.infos.hc_confirm = true;
+            console.log(battleButtonX10);
             battleButtonX10.click();
             hero.infos.hc_confirm = hcConfirmValue;
-            logHHAuto("Crushed 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
+            logHHAuto("Crushed 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
             setTimeout(function(){gotoPage('home');},randomInterval(500,1500));
             return;
         }
         else
         {
-            logHHAuto('Unable to use x50 for '+battleButtonX50Price+',fights : '+getSetHeroInfos('fight.amount')+'/10, shards : '+sessionStorage.HHAuto_Temp_eventTrollShards+'/'+Storage().HHAuto_Setting_minShardsX10+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+            logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+getSetHeroInfos('fight.amount')+'/10, shards : '+sessionStorage.HHAuto_Temp_eventTrollShards+'/'+Storage().HHAuto_Setting_minShardsX10+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
             CrushThem();
             return;
         }
@@ -7432,10 +7437,10 @@ HHAuto_ToolTips.en.menuExpLevel =  { elementText: "Enter target Exp level :", to
 HHAuto_ToolTips.en.PoAMaskRewards  = { elementText: "PoA mask claimed", tooltip : "Masked claimed rewards for Path of Attraction."};
 HHAuto_ToolTips.en.showTooltips  = { elementText: "Show tooltips", tooltip : "Show tooltip on menu."};
 HHAuto_ToolTips.en.showMarketTools  = { elementText: "Show market tools.", tooltip : "Show Market tools."};
-HHAuto_ToolTips.en.useX10Fights  = { elementText: "Use x10", tooltip : "Koban spending functions<br>If enabled : <br>Use x10 button if 10 fights or more to do (if not going under Koban bank value)."};
-HHAuto_ToolTips.en.useX50Fights  = { elementText: "Use x50", tooltip : "Koban spending functions<br>If enabled : <br>Use x50 button if 50 fights or more to do (if not going under Koban bank value)."};
-HHAuto_ToolTips.en.minShardsX10  = { elementText: "Min. shards for x10", tooltip : "Koban spending functions<br>Only use x10 button if remaining shards of current girl is equal or above this limit."};
-HHAuto_ToolTips.en.minShardsX50  = { elementText: "Min. shards for x50", tooltip : "Koban spending functions<br>Only use x50 button if remaining shards of current girl is equal or above this limit."};
+HHAuto_ToolTips.en.useX10Fights  = { elementText: "Use x10", tooltip : "<p style='text-decoration: underline; color:red'>Koban spending functions (Needs "+HHAuto_ToolTips.en.spendKobans0.elementText+" to be On)</p>If enabled : <br>Use x10 button if 10 fights or more to do (if not going under Koban bank value)."};
+HHAuto_ToolTips.en.useX50Fights  = { elementText: "Use x50", tooltip : "<p style='text-decoration: underline; color:red'>Koban spending functions (Needs "+HHAuto_ToolTips.en.spendKobans0.elementText+" to be On)</p>If enabled : <br>Use x50 button if 50 fights or more to do (if not going under Koban bank value)."};
+HHAuto_ToolTips.en.minShardsX10  = { elementText: "Min. shards for x10", tooltip : "Only use x10 button if remaining shards of current girl is equal or above this limit."};
+HHAuto_ToolTips.en.minShardsX50  = { elementText: "Min. shards for x50", tooltip : "Only use x50 button if remaining shards of current girl is equal or above this limit."};
 
 
 HHAuto_ToolTips.fr = [];
