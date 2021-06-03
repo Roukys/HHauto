@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.30-beta.2
+// @version      5.4.30
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), roukys, cossname
 // @match        http*://nutaku.haremheroes.com/*
@@ -6689,7 +6689,7 @@ var CollectEventData=function()
             //logHHAuto('WTF!');
             var diff=Math.ceil(Timers["eventGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
             //logHHAuto(diff);
-            if (diffMythic<Storage().HHAuto_Setting_buyCombTimer*3600)
+            if (diff<Storage().HHAuto_Setting_buyCombTimer*3600)
             {
                 sessionStorage.HHAuto_Temp_EventInBuyCombTime = "true";
             }
@@ -6725,7 +6725,7 @@ var CollectEventData=function()
         {
             //logHHAuto('WTF!');
             var diffMythic=Math.ceil(Timers["eventMythicGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
-            //logHHAuto(diff);
+
             if (diffMythic<Storage().HHAuto_Setting_buyMythicCombTimer*3600)
             {
                 sessionStorage.HHAuto_Temp_MythicEventInBuyCombTime = "true";
@@ -6794,6 +6794,10 @@ var CrushThemFights=function()
         logHHAuto("Going to crush 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
 
         hero.infos.hc_confirm = true;
+        // We have the power.
+        is_cheat_click=function(e) {
+            return false;
+        };
         battleButtonX50.click();
         hero.infos.hc_confirm = hcConfirmValue;
         logHHAuto("Crushed 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
@@ -6813,11 +6817,14 @@ var CrushThemFights=function()
         {
             logHHAuto("Going to crush 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
             hero.infos.hc_confirm = true;
-            console.log(battleButtonX10);
+            // We have the power.
+            is_cheat_click=function(e) {
+                return false;
+            };
             battleButtonX10.click();
             hero.infos.hc_confirm = hcConfirmValue;
             logHHAuto("Crushed 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
-            setTimeout(function(){gotoPage('home');},randomInterval(500,1500));
+            //setTimeout(function(){gotoPage('home');},randomInterval(500,1500));
             return;
         }
         else
@@ -6890,7 +6897,7 @@ var RechargeCombat=function()
     if (sessionStorage.HHAuto_Temp_eventTrollShards && Number.isInteger(Number(sessionStorage.HHAuto_Temp_eventTrollShards))
         && Storage().HHAuto_Setting_minShardsX50
         && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX50))
-        && Number(Storage().HHAuto_Setting_minShardsX50) >= sessionStorage.HHAuto_Temp_eventTrollShards
+        && sessionStorage.HHAuto_Temp_eventTrollShards >= Number(Storage().HHAuto_Setting_minShardsX50)
         && getSetHeroInfos('hard_currency')>=pricex50+Number(Storage().HHAuto_Setting_kobanBank)
        )
     {
@@ -6929,6 +6936,10 @@ var RechargeCombat=function()
     logHHAuto('Recharging '+neededFights+' fights for '+price+' kobans.');
     let hcConfirmValue = hero.infos.hc_confirm;
     hero.infos.hc_confirm = true;
+    // We have the power.
+        is_cheat_click=function(e) {
+            return false;
+        };
     hero.recharge($("plus[type='energy_fight']"), price, max, type);
     hero.infos.hc_confirm = hcConfirmValue;
     logHHAuto('Recharged up to '+max+' fights for '+price+' kobans.');
