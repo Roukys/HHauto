@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.29
+// @version      5.4.30
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
-// @author       JD and Dorten(a bit), roukys, cossname
+// @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
 // @match        http*://*.hentaiheroes.com/*
 // @match        http*://*.gayharem.com/*
@@ -14,17 +14,31 @@
 // ==/UserScript==
 
 //CSS Region
-GM_addStyle('/* The switch - the box around the slider */ #sMenu .switch { position: relative; display: inline-block; width: 40px; height: 24px; } /* Hide default HTML checkbox */ #sMenu .switch input {display:none;} /* The slider */#sMenu .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; -webkit-transition: .4s; transition: .4s; } #sMenu .slider.round:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; -webkit-transition: .4s; transition: .4s; } #sMenu input:checked + .slider { background-color: #2196F3; } #sMenu input:focus + .slider { box-shadow: 0 0 1px #2196F3; } #sMenu input:checked + .slider:before { -webkit-transform: translateX(16px); -ms-transform: translateX(16px); transform: translateX(16px); } /* Rounded sliders */ #sMenu .slider.round { border-radius: 24px; }  #sMenu .slider.round:before { border-radius: 50%; }');
-GM_addStyle(' #sMenu input:checked + .slider.kobans { background-color: red; } #sMenu input:not(:checked) + .slider.round.kobans:before { background-color: red; } #sMenu input:checked + .slider.round.kobans:before { background-color: white; }')
-GM_addStyle('span.HHMenuItemName{ font-size: xx-small; line-height: 150%;}');
-GM_addStyle('div.HHMenuItemBox{ padding:0.2em;}');
-GM_addStyle('div.HHMenuRow {display:flex; flex-direction:row; align-items: center; align-content: center; justify-content: flex-start; }');
+GM_addStyle('/* The switch - the box around the slider */ #sMenu .switch { position: relative; display: inline-block; width: 34px; height: 20px } /* Hide default HTML checkbox */ #sMenu .switch input { display:none } /* The slider */#sMenu .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; -webkit-transition: .4s; transition: .4s; } #sMenu .slider.round:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; -webkit-transition: .4s; transition: .4s; } #sMenu input:checked + .slider { background-color: #2196F3; } #sMenu input:focus + .slider { box-shadow: 0 0 1px #2196F3; } #sMenu input:checked + .slider:before { -webkit-transform: translateX(10px); -ms-transform: translateX(10px); transform: translateX(10px); } /* Rounded sliders */ #sMenu .slider.round { border-radius: 14px; }  #sMenu .slider.round:before { border-radius: 50%; }');
+GM_addStyle(' #sMenu input:checked + .slider.kobans { background-color: red; } #sMenu input:not(:checked) + .slider.round.kobans:before { background-color: red } #sMenu input:checked + .slider.round.kobans:before { background-color: white }')
+//GM_addStyle('span.HHMenuItemName {font-size: xx-small; line-height: 150%}');
+//GM_addStyle('span.HHMenuItemName {font-size: smaller; line-height: 120%}');
+GM_addStyle('span.HHMenuItemName {padding-bottom:2px; line-height:120%}');
+GM_addStyle('div.optionsRow {display:flex; flex-direction:row; justify-content: space-between}'); //; padding:3px;
+GM_addStyle('span.optionsBoxTitle {padding-left:5px}'); //; padding-bottom:2px
+GM_addStyle('div.optionsColumn {display:flex; flex-direction:column; justify-content: space-between}'); //; padding:3px;
+GM_addStyle('div.optionsBoxWithTitle {display:flex; flex-direction:column}');
+GM_addStyle('img.iconImg {max-width:15px; height:15px}');  //; justify-content: center
+GM_addStyle('div.optionsBoxTitle {padding:5px 15px 0px 5px; height:15px; display:flex; flex-direction:row; justify-content:center; align-items:center;}'); //; padding:2px; padding-bottom:0px;
+GM_addStyle('div.rowOptionsBox {margin:3px; padding:3px; font-size:smaller; display:flex; flex-direction:row; align-items:flex-end; border: 1px solid #ffa23e; border-radius: 5px}');
+GM_addStyle('div.optionsBox {margin:3px; padding:3px; font-size:smaller; display:flex; flex-direction:column; border: 1px solid #ffa23e; border-radius: 5px}');
+GM_addStyle('div.internalOptionsRow {display:flex; flex-direction:row; justify-content: space-between; align-items: flex-end}'); //; padding:3px;
+GM_addStyle('div.imgAndObjectRow {display:flex; flex-direction:row; justify-content:flex-start; align-items:center}'); //; padding:3px;//class="internalOptionsRow" style="justify-content:flex-start; align-items:center"
+GM_addStyle('div.labelAndButton {padding:3px; display:flex;flex-direction:column}');
+GM_addStyle('div.HHMenuItemBox {padding:0.2em}');
+GM_addStyle('div.HHMenuRow {display:flex; flex-direction:row; align-items:center; align-content:center; justify-content:flex-start}');
+GM_addStyle('input.maxMoneyInputField  {width:70px}');
 GM_addStyle('.myButton {box-shadow: 0px 0px 0px 2px #9fb4f2; background:linear-gradient(to bottom, #7892c2 5%, #476e9e 100%); background-color:#7892c2; border-radius:10px; border:1px solid #4e6096; display:inline-block; cursor:pointer; color:#ffffff; font-family:Arial; font-size:8px; padding:3px 10px; text-decoration:none; text-shadow:0px 1px 0px #283966;}.myButton:hover { background:linear-gradient(to bottom, #476e9e 5%, #7892c2 100%); background-color:#476e9e; } .myButton:active { position:relative; top:1px;}');
-GM_addStyle('.HHEventPriority {position: absolute;z-index: 500;background-color: black;}');
+GM_addStyle('.HHEventPriority {position: absolute;z-index: 500;background-color: black}');
 GM_addStyle('.HHPopIDs {background-color: black;z-index: 500;position: absolute;margin-top: 25px}');
-GM_addStyle('.tooltipHH:hover { cursor: help; position: relative; } .tooltipHH span.tooltipHHtext { display: none; } .tooltipHH:hover span.tooltipHHtext[active] { border: #666 2px dotted; padding: 5px 20px 5px 5px; display: block; z-index: 100; background: #e3e3e3; left: 0px; margin: 15px; width: 250px; position: absolute; top: 15px; color: black;top: 0%; transform: translateY(-50%); left: 50%; margin-left: 15px; }');
-GM_addStyle('#popup_message_league { border: #666 2px dotted; padding: 5px 20px 5px 5px; display: block; z-index: 1000; background: #e3e3e3; left: 0px; margin: 15px; width: 500px; position: absolute; top: 15px; color: black;}');
-GM_addStyle('#sliding-popups#sliding-popups { z-index : 1;}');
+GM_addStyle('.tooltipHH:hover { cursor: help; position: relative; } .tooltipHH span.tooltipHHtext { display: none } .tooltipHH:hover span.tooltipHHtext[active] { border: #666 2px dotted; padding: 5px 20px 5px 5px; display: block; z-index: 100; background: #e3e3e3; left: 0px; margin: 15px; width: 250px; position: absolute; top: 15px; color: black;top: 0%; transform: translateY(-50%); left: 50%; margin-left: 15px; }');
+GM_addStyle('#popup_message_league { border: #666 2px dotted; padding: 5px 20px 5px 5px; display: block; z-index: 1000; background: #e3e3e3; left: 0px; margin: 15px; width: 500px; position: absolute; top: 15px; color: black}');
+GM_addStyle('#sliding-popups#sliding-popups { z-index : 1}');
 //END CSS Region
 
 // var d="@require      https://cdn.jsdelivr.net/js-cookie/2.2.0/js.cookie.js"
@@ -1688,7 +1702,7 @@ var doShopping=function()
         }
 
         var LGM=Number(Storage().HHAuto_Setting_autoLGM);
-        var EGM=Number(Storage().HHAuto_Setting_autoEGM);
+        //var EGM=Number(Storage().HHAuto_Setting_autoEGM);
         var LGR=Number(Storage().HHAuto_Setting_autoLGR);
         var Exp=Number(Storage().HHAuto_Setting_autoExp);
         var Aff=Number(Storage().HHAuto_Setting_autoAff);
@@ -3368,7 +3382,7 @@ var  CrushThem = function()
                 else
                 {
                     logHHAuto("Go to home after Troll fight.");
-                    setTimeout(function(){gotoPage('home');},randomInterval(2000,4000));
+                    setTimeout(function(){gotoPage('home');},randomInterval(500,1000));
                 }
                 return true;
             }
@@ -5098,20 +5112,21 @@ var autoLoop = function () {
             if(busy === false && currentPower >= Number(sessionStorage.HHAuto_Temp_battlePowerRequired) && currentPower > 0)
             {
                 //logHHAuto("fight amount: "+getSetHeroInfos('fight.amount')+" troll threshold: "+Number(Storage().HHAuto_Setting_autoTrollThreshold)+" paranoia fight: "+Number(checkParanoiaSpendings('fight')));
-                var diff=Math.ceil(Timers["eventGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
-                var diffMythic=Math.ceil(Timers["eventMythicGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
-                if (Number(getSetHeroInfos('fight.amount')) > Number(Storage().HHAuto_Setting_autoTrollThreshold) //fight is above threshold
+                //var diff=Math.ceil(Timers["eventGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
+                //var diffMythic=Math.ceil(Timers["eventMythicGoing"]/1000)-Math.ceil(new Date().getTime()/1000);
+                if (currentPower > Number(Storage().HHAuto_Setting_autoTrollThreshold) //fight is above threshold
                     || Number(checkParanoiaSpendings('fight')) > 0 //paranoiaspendings to do
                     || (sessionStorage.HHAuto_Temp_eventTroll
+                        && Storage().HHAuto_Setting_plusEvent==="true"
                         && sessionStorage.HHAuto_Temp_eventTrollIsMythic === "false"
                         && Storage().HHAuto_Setting_buyCombat=="true"
-                        && Storage().HHAuto_Setting_plusEvent==="true"
-                        && diff<Storage().HHAuto_Setting_buyCombTimer*3600
-                       ) // eventGirl available and buy comb true
+                        //&& diff<Storage().HHAuto_Setting_buyCombTimer*3600
+                        && (Math.ceil(Timers["eventGoing"]/1000)-Math.ceil(new Date().getTime()/1000)) < Storage().HHAuto_Setting_buyCombTimer*3600
+                       ) // eventGirl available, not mythic, +Event and Buy comb true
                     || (sessionStorage.HHAuto_Temp_eventTrollIsMythic === "true"
-                        && Number(getSetHeroInfos('fight.amount')) > 0
+                        //&& Number(getSetHeroInfos('fight.amount')) > 0 //already tested above
                         && Storage().HHAuto_Setting_plusEventMythic==="true"
-                       ) // mythicEventGirl available and fights available
+                       ) // mythicEventGirl available and +Mythic Event true
                    )
                 {
                     sessionStorage.HHAuto_Temp_battlePowerRequired = "0";
@@ -7176,7 +7191,7 @@ var HHAuto_inputPattern = {
     maxAff:"[0-9]+",
     autoLGM:"[0-9]+",
     autoLGR:"[0-9]+",
-    autoEGM:"[0-9]+",
+    //autoEGM:"[0-9]+",
     menuSellNumber:"[0-9]+",
     autoClubChampMax:"[0-9]+",
     menuExpLevel:"[1-4]?[0-9]?[0-9]"
@@ -7189,27 +7204,31 @@ HHAuto_ToolTips.en = [];
     HHAuto_ToolTips.en.gitHub = { elementText: "GitHub", tooltip : "Link to GitHub project."};
     HHAuto_ToolTips.en.saveConfig = { elementText: "Save Config", tooltip : "Allow to save configuration."};
     HHAuto_ToolTips.en.loadConfig = { elementText: "Load Config", tooltip : "Allow to load configuration."};
+    HHAuto_ToolTips.en.globalTitle = { elementText: "Global options"};
     HHAuto_ToolTips.en.master = { elementText: "Master switch", tooltip : "On/off switch for full script"};
     HHAuto_ToolTips.en.settPerTab = { elementText: "Settings per tab", tooltip : "Allow the settings to be set for this tab only"};
     HHAuto_ToolTips.en.paranoia = { elementText: "Paranoia mode", tooltip : "Allow to simulate sleep, and human user (To be documented further)"};
-    HHAuto_ToolTips.en.paranoiaSpendsBefore = { elementText: "Spends points before", tooltip : "On will spends point for options (quest, Troll, Leagues and Season)<br>only if they are enabled<br>and spends points that would be above max limits<br>Ex : you have power for troll at 17, but going 4h45 in paranoia<br>it would mean having 17+10 points (rounded to higher int), thus being above the 20 max<br> it will then spends 8 points to fall back to 19 end of Paranoia, preventing to loose points."};
-    HHAuto_ToolTips.en.spendKobans0 = { elementText: "Kobans security", tooltip : "Security switches for usage of kobans,needs to be active for Koban spending functions"};
+    HHAuto_ToolTips.en.paranoiaSpendsBefore = { elementText: "Spend points before", tooltip : "On will spend points for options (quest, Troll, Leagues and Season)<br>only if they are enabled<br>and spend points that would be above max limits<br>Ex : you have power for troll at 17, but going 4h45 in paranoia<br>it would mean having 17+10 points (rounded to higher int), thus being above the 20 max<br> it will then spend 8 points to fall back to 19 end of Paranoia, preventing to loose points."};
+    HHAuto_ToolTips.en.spendKobans0 = { elementText: "Spend Kobans", tooltip : "Security switches for usage of kobans, needs to be active for Koban spending functions"};
     //HHAuto_ToolTips.en.spendKobans1 = { elementText: "Are you sure?", tooltip : "Second security switches for usage of kobans <br>Have to be activated after the first one.<br> All 3 needs to be active for Koban spending functions"};
     //HHAuto_ToolTips.en.spendKobans2 = { elementText: "You\'ve been warned", tooltip : "Third security switches for usage of kobans <br>Have to be activated after the second one.<br> All 3 needs to be active for Koban spending functions"};
     HHAuto_ToolTips.en.kobanBank = { elementText: "Koban Bank", tooltip : "(Integer)<br>Minimum Koban kept when using Koban spending functions"};
-    HHAuto_ToolTips.en.buyCombat = { elementText: "Buy comb. in events", tooltip : "<p style='text-decoration: underline; color:red'>Koban spending functions (Needs "+HHAuto_ToolTips.en.spendKobans0.elementText+" to be On)</p>If enabled : <br>Buying combat point during last X hours of event (if not going under Koban bank value), this will bypass threshold if event girl shards available."};
-    HHAuto_ToolTips.en.buyCombTimer = { elementText: "Hours to buy Comb", tooltip : "(Integer)<br>X last hours of event"};
-    HHAuto_ToolTips.en.autoBuyBoosters = { elementText: "Buy Leg. Boosters", tooltip : "<p style='text-decoration: underline; color:red'>Koban spending functions (Needs "+HHAuto_ToolTips.en.spendKobans0.elementText+" to be On)</p>Allow to buy booster in the market (if not going under Koban bank value)"};
+    HHAuto_ToolTips.en.displayTitle = { elementText: "Display options"};
+    HHAuto_ToolTips.en.autoActivitiesTitle = { elementText: "Activities"};
+    HHAuto_ToolTips.en.buyCombat = { elementText: "Buy comb. for events", tooltip : "<p style='text-decoration: underline; color:red'>Koban spending functions (Needs "+HHAuto_ToolTips.en.spendKobans0.elementText+" to be On)</p>If enabled : <br>Buying combat point during last X hours of event (if not going under Koban bank value), this will bypass threshold if event girl shards available."};
+    HHAuto_ToolTips.en.buyCombTimer = { elementText: "Hours to buy Combats", tooltip : "(Integer)<br>X last hours of event"};
+    HHAuto_ToolTips.en.autoBuyBoosters = { elementText: "Leg. Boosters", tooltip : "<p style='text-decoration: underline; color:red'>Koban spending functions (Needs "+HHAuto_ToolTips.en.spendKobans0.elementText+" to be On)</p>Allow to buy booster in the market (if not going under Koban bank value)"};
     HHAuto_ToolTips.en.autoBuyBoostersFilter = { elementText: "Filter", tooltip : "(values separated by ;)<br>Set which booster to buy , order is respected (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)"};
     HHAuto_ToolTips.en.autoSeasonPassReds = { elementText: "Pass 3 reds", tooltip : "<p style='text-decoration: underline; color:red'>Koban spending functions (Needs "+HHAuto_ToolTips.en.spendKobans0.elementText+" to be On)</p>Use kobans to renew Season opponents if 3 reds"};
     HHAuto_ToolTips.en.showCalculatePower = { elementText: "Show PowerCalc", tooltip : "Display battle simulation indicator for Leagues, battle, Seasons "};
-    HHAuto_ToolTips.en.calculatePowerLimits = { elementText: "Own limits (red;orange)", tooltip : "(red;orange)<br>Define your own red and orange limits for Opponents<br> -6000;0 do mean<br> <-6000 is red, between -6000 and 0 is orange and >=0 is green"};
+    HHAuto_ToolTips.en.calculatePowerLimits = { elementText: "Own limits", tooltip : "(red;orange)<br>Define your own red and orange limits for Opponents<br> -6000;0 do mean<br> <-6000 is red, between -6000 and 0 is orange and >=0 is green"};
     HHAuto_ToolTips.en.showInfo = { elementText: "Show info", tooltip : "if enabled : show info on script values and next runs"};
-    HHAuto_ToolTips.en.autoSalaryCheckbox = { elementText: "AutoSal.", tooltip : "(Integer)<br>if enabled :<br>Collect salaries every X secs"};
-    HHAuto_ToolTips.en.autoSalaryTextbox = { elementText: "min wait", tooltip : "(Integer)<br>X secs to collect Salary"};
-    HHAuto_ToolTips.en.autoMissionCheckbox = { elementText: "AutoMission", tooltip : "if enabled : Automatically do missions"};
+    HHAuto_ToolTips.en.autoSalaryCheckbox = { elementText: "Auto Salary", tooltip : "(Integer)<br>if enabled :<br>Collect salaries every X secs"};
+    HHAuto_ToolTips.en.autoSalaryTextbox = { elementText: "minimum wait", tooltip : "(Integer)<br>X secs to collect Salary"};
+    HHAuto_ToolTips.en.autoMissionCheckbox = { elementText: "Auto Mission", tooltip : "if enabled : Automatically do missions"};
     HHAuto_ToolTips.en.autoMissionCollect = { elementText: "Collect", tooltip : "if enabled : Automatically collect missions"};
-    HHAuto_ToolTips.en.autoTrollCheckbox = { elementText: "AutoTrollBattle", tooltip : "if enabled : Automatically battle troll selected"};
+    HHAuto_ToolTips.en.autoTrollTitle = { elementText: "Auto Troll Battle"};
+    HHAuto_ToolTips.en.autoTrollCheckbox = { elementText: "Enable", tooltip : "if enabled : Automatically battle troll selected"};
     HHAuto_ToolTips.en.autoTrollSelector = { elementText: "Troll selector", tooltip : "Select troll to be fought."};
     HHAuto_ToolTips.en.autoTrollThreshold = { elementText: "Threshold", tooltip : "(Integer 0 to 19)<br>Minimum troll fight to keep"};
     HHAuto_ToolTips.en.eventTrollOrder = { elementText: "Event Troll Order", tooltip : "(values separated by ;)<br>Allow to select in which order event troll are automatically battled<br>1 : Dark Lord<br>2 : Ninja Spy<br>3 : Gruntt<br>4 : Edwarda<br>5 : Donatien<br>6 : Sylvanus<br>7 : Bremen<br>8 : Finalmecia<br>9 : Fredy Sih Roko<br>10 : Karole<br>11 : Jackson's Crew<br>12 : Pandora Witch<br>13 : Nike<br>14 : Sake"};
@@ -7217,39 +7236,40 @@ HHAuto_ToolTips.en = [];
     HHAuto_ToolTips.en.plusEventMythic = { elementText: "+Mythic Event", tooltip : "Enable grabbing girls for mythic event, should only play them when shards are available, Mythic girl troll will be priorized over Event Troll."};
     //HHAuto_ToolTips.en.eventMythicPrio = { elementText: "Priorize over Event Troll Order", tooltip : "Mythic event girl priorized over event troll order if shards available"};
     //HHAuto_ToolTips.en.autoTrollMythicByPassThreshold = { elementText: "Mythic bypass Threshold", tooltip : "Allow mythic to bypass Troll threshold"};
-    HHAuto_ToolTips.en.autoArenaCheckbox = { elementText: "AutoArenaBattle", tooltip : "if enabled : Automatically do Arena (deprecated)"};
-    HHAuto_ToolTips.en.autoSeasonCheckbox = { elementText: "AutoSeason", tooltip : "if enabled : Automatically fight in Seasons (Opponent chosen following PowerCalculation)"};
+    HHAuto_ToolTips.en.autoSeasonTitle = { elementText: "Auto Season"};
+    HHAuto_ToolTips.en.autoSeasonCheckbox = { elementText: "Enable", tooltip : "if enabled : Automatically fight in Seasons (Opponent chosen following PowerCalculation)"};
     HHAuto_ToolTips.en.autoSeasonCollect = { elementText: "Collect", tooltip : "if enabled : Automatically collect Seasons ( if multiple to collect, will collect one per kiss usage)"};
     HHAuto_ToolTips.en.autoSeasonThreshold = { elementText: "Threshold", tooltip : "Minimum kiss to keep"};
-    HHAuto_ToolTips.en.autoQuestCheckbox = { elementText: "AutoQuest", tooltip : "if enabled : Automatically do quest"};
+    HHAuto_ToolTips.en.autoQuestCheckbox = { elementText: "Auto Quest", tooltip : "if enabled : Automatically do quest"};
     HHAuto_ToolTips.en.autoQuestThreshold = { elementText: "Threshold", tooltip : "(Integer between 0 and 99)<br>Minimum quest energy to keep"};
-    HHAuto_ToolTips.en.autoContestCheckbox = { elementText: "AutoContest", tooltip : "if enabled : Collect finished contest rewards"};
-    HHAuto_ToolTips.en.autoFreePachinko = { elementText: "AutoPachinko(Free)", tooltip : "if enabled : Automatically collect free Pachinkos"};
-    HHAuto_ToolTips.en.autoLeagues = { elementText: "AutoLeagues", tooltip : "if enabled : Automatically battle Leagues"};
-    HHAuto_ToolTips.en.autoLeaguesPowerCalc = { elementText: "UsePowerCalc", tooltip : "if enabled : will choose opponent using PowerCalc (Opponent list expires every 10 mins and take few mins to be built)"};
+    HHAuto_ToolTips.en.autoContestCheckbox = { elementText: "Claim Contest", tooltip : "if enabled : Collect finished contest rewards"};
+    HHAuto_ToolTips.en.autoFreePachinko = { elementText: "Auto Pachinko", tooltip : "if enabled : Automatically collect free Pachinkos"};
+    HHAuto_ToolTips.en.autoLeaguesTitle = { elementText: "Auto Leagues"};
+    HHAuto_ToolTips.en.autoLeagues = { elementText: "Enable", tooltip : "if enabled : Automatically battle Leagues"};
+    HHAuto_ToolTips.en.autoLeaguesPowerCalc = { elementText: "Use PowerCalc", tooltip : "if enabled : will choose opponent using PowerCalc (Opponent list expires every 10 mins and take few mins to be built)"};
     HHAuto_ToolTips.en.autoLeaguesCollect = { elementText: "Collect", tooltip : "If enabled : Automatically collect Leagues"};
     HHAuto_ToolTips.en.autoLeaguesSelector = { elementText: "Target League", tooltip : "League to target, to try to demote, stay or go in higher league depending"};
     HHAuto_ToolTips.en.autoLeaguesAllowWinCurrent = {elementText:"Allow win", tooltip : "If check will allow to win targeted league and then demote next league to fall back to targeted league."};
     HHAuto_ToolTips.en.autoLeaguesThreshold = { elementText: "Threshold", tooltip : "(Integer between 0 and 14)<br>Minimum league fights to keep"};
-    HHAuto_ToolTips.en.autoPowerPlaces = { elementText: "AutoPowerPlaces", tooltip : "if enabled : Automatically Do powerPlaces"};
+    HHAuto_ToolTips.en.autoPowerPlaces = { elementText: "Auto PoP", tooltip : "if enabled : Automatically Do powerPlaces"};
     HHAuto_ToolTips.en.autoPowerPlacesIndexFilter = { elementText: "Index Filter", tooltip : "(values separated by ;)<br>Allow to set filter and order on the PowerPlaces to do (order respected only when multiple powerPlace expires at the same time)"};
     HHAuto_ToolTips.en.autoPowerPlacesAll = { elementText: "Do All", tooltip : "If enabled : ignore filter and do all powerplaces (will update Filter with current ids)"};
-    HHAuto_ToolTips.en.autoChamps = { elementText: "AutoChampions", tooltip : "if enabled : Automatically do champions (if they are started and in filter only)"};
-    HHAuto_ToolTips.en.autoChampsUseEne = { elementText: "UseEne", tooltip : "If enabled : use Energy to buy tickets"};
+    HHAuto_ToolTips.en.autoChampsTitle = { elementText: "Auto Champions"};
+    HHAuto_ToolTips.en.autoChamps = { elementText: "Normal", tooltip : "if enabled : Automatically do champions (if they are started and in filter only)"};
+    HHAuto_ToolTips.en.autoChampsUseEne = { elementText: "Use Energy", tooltip : "If enabled : use Energy to buy tickets"};
     HHAuto_ToolTips.en.autoChampsFilter = { elementText: "Filter", tooltip : "(values separated by ; 1 to 6)<br>Allow to set filter on champions to be fought"};
-    HHAuto_ToolTips.en.autoStats = { elementText: "Min money to keep", tooltip : "(Integer)<br>Automatically buy stats in market with money above the setted amount"};
-    HHAuto_ToolTips.en.autoStatsSwitch  = { elementText: "AutoStats", tooltip : "Allow to on/off autoStats"};
-    HHAuto_ToolTips.en.autoExpW = { elementText: "Buy Exp", tooltip : "if enabled : allow to buy Exp in market<br>Only buy if money bank is above the value<br>Only buy if total Exp owned is below value"};
-    HHAuto_ToolTips.en.autoExp = { elementText: "Min money to keep", tooltip : "(Integer)<br>Minimum money to keep."};
-    HHAuto_ToolTips.en.maxExp = { elementText: "Max Exp to buy", tooltip : "(Integer)<br>Maximum Exp to buy"};
-    HHAuto_ToolTips.en.autoAffW = { elementText: "Buy Aff", tooltip : "if enabled : allow to buy Aff in market<br>Only buy if money bank is above the value<br>Only buy if total Aff owned is below value"};
-    HHAuto_ToolTips.en.autoAff = { elementText: "Min money to keep", tooltip : "(Integer)<br>Minimum money to keep."};
-    HHAuto_ToolTips.en.maxAff = { elementText: "Max Aff to buy", tooltip : "(Integer)<br>Maximum Aff to buy"};
-    HHAuto_ToolTips.en.autoLGMW = { elementText: "Buy Leg Gear Mono", tooltip : "if enabled : allow to buy Mono Legendary gear in the market<br>Only buy if money bank is above the value"};
-    HHAuto_ToolTips.en.autoLGM = { elementText: "Min money to keep", tooltip : "(Integer)<br>Minimum money to keep."};
-    HHAuto_ToolTips.en.autoLGRW = { elementText: "Buy Leg Gear Rainbow", tooltip : "if enabled : allow to buy Rainbow Legendary gear in the market<br>Only buy if money bank is above the value"};
-    HHAuto_ToolTips.en.autoLGR = { elementText: "Min money to keep", tooltip : "(Integer)<br>Minimum money to keep."};
-    HHAuto_ToolTips.en.autoEGM = { elementText: "Buy Epi Gear Mono", tooltip : "if enabled : allow to buy Mono Epic gear in the market<br>Only buy if money bank is above the value"};
+    HHAuto_ToolTips.en.autoStats = { elementText: "Money to keep", tooltip : "(Integer)<br>Automatically buy stats in market with money above the setted amount"};
+    HHAuto_ToolTips.en.autoStatsSwitch  = { elementText: "Stats", tooltip : "Allow to on/off autoStats"};
+    HHAuto_ToolTips.en.autoExpW = { elementText: "Books", tooltip : "if enabled : allow to buy Exp in market<br>Only buy if money bank is above the value<br>Only buy if total Exp owned is below value"};
+    HHAuto_ToolTips.en.autoExp = { elementText: "Money to keep", tooltip : "(Integer)<br>Minimum money to keep."};
+    HHAuto_ToolTips.en.maxExp = { elementText: "Max Exp.", tooltip : "(Integer)<br>Maximum Exp to buy"};
+    HHAuto_ToolTips.en.autoAffW = { elementText: "Gifts", tooltip : "if enabled : allow to buy Aff in market<br>Only buy if money bank is above the value<br>Only buy if total Aff owned is below value"};
+    HHAuto_ToolTips.en.autoAff = { elementText: "Money to keep", tooltip : "(Integer)<br>Minimum money to keep."};
+    HHAuto_ToolTips.en.maxAff = { elementText: "Max Aff.", tooltip : "(Integer)<br>Maximum Aff to buy"};
+    HHAuto_ToolTips.en.autoLGMW = { elementText: "Leg. Class Gear", tooltip : "if enabled : allow to buy Mono Legendary gear in the market<br>Only buy if money bank is above the value"};
+    HHAuto_ToolTips.en.autoLGM = { elementText: "Money to keep", tooltip : "(Integer)<br>Minimum money to keep."};
+    HHAuto_ToolTips.en.autoLGRW = { elementText: "Leg. Rainbow Gear", tooltip : "if enabled : allow to buy Rainbow Legendary gear in the market<br>Only buy if money bank is above the value"};
+    HHAuto_ToolTips.en.autoLGR = { elementText: "Money to keep", tooltip : "(Integer)<br>Minimum money to keep."};
     HHAuto_ToolTips.en.OpponentListBuilding = { elementText: "Opponent list is building", tooltip : ""};
     HHAuto_ToolTips.en.OpponentParsed = { elementText: "opponents parsed", tooltip : ""};
     HHAuto_ToolTips.en.DebugMenu = { elementText: "Debug Menu", tooltip : "Options for debug"};
@@ -7259,10 +7279,10 @@ HHAuto_ToolTips.en = [];
     HHAuto_ToolTips.en.DebugFileText = { elementText: "Click on button bellow to produce a debug log file", tooltip : ""};
     HHAuto_ToolTips.en.OptionCancel = { elementText: "Cancel", tooltip : ""};
     HHAuto_ToolTips.en.SeasonMaskRewards = { elementText: "Mask claimed rewards", tooltip : "Allow to mask all claimed rewards on Season screen"};
-    HHAuto_ToolTips.en.autoClubChamp = { elementText: "AutoClubChamp", tooltip : "if enabled, automatically fight club champion if champion has already been fought once."};
+    HHAuto_ToolTips.en.autoClubChamp = { elementText: "Club", tooltip : "if enabled, automatically fight club champion if champion has already been fought once."};
     HHAuto_ToolTips.en.autoTrollMythicByPassParanoia = { elementText: "Mythic bypass Paranoia", tooltip : "Allow mythic to bypass paranoia.<br>if next wave is during rest, it will force it to wake up for wave.<br>If still fight or can buy fights it will continue."};
-    HHAuto_ToolTips.en.buyMythicCombat = { elementText: "Buy comb. for mythic", tooltip : "<p style='text-decoration: underline; color:red'>Koban spending functions (Needs "+HHAuto_ToolTips.en.spendKobans0.elementText+" to be On)</p>If enabled : <br>Buying combat point during last X hours of mythic event (if not going under Koban bank value), this will bypass threshold if mythic girl shards available."};
-    HHAuto_ToolTips.en.buyMythicCombTimer = { elementText: "Hours to buy Mythic Comb", tooltip : "(Integer)<br>X last hours of mythic event"};
+    HHAuto_ToolTips.en.buyMythicCombat = { elementText: "Buy comb. for mythic event", tooltip : "<p style='text-decoration: underline; color:red'>Koban spending functions (Needs "+HHAuto_ToolTips.en.spendKobans0.elementText+" to be On)</p>If enabled : <br>Buying combat point during last X hours of mythic event (if not going under Koban bank value), this will bypass threshold if mythic girl shards available."};
+    HHAuto_ToolTips.en.buyMythicCombTimer = { elementText: "Hours to buy Mythic Combats", tooltip : "(Integer)<br>X last hours of mythic event"};
     HHAuto_ToolTips.en.DebugResetTimerText = { elementText: "Selector below allow you to reset ongoing timers", tooltip : ""};
     HHAuto_ToolTips.en.timerResetSelector = { elementText: "Select Timer", tooltip : "Select the timer you want to reset"};
     HHAuto_ToolTips.en.timerResetButton = { elementText: "Reset", tooltip : "Set the timer to 0."};
@@ -7287,7 +7307,7 @@ HHAuto_ToolTips.en = [];
     HHAuto_ToolTips.en.menuAffReadyToUpgrade  = { elementText: " is ready for upgrade.", tooltip : ""};
     HHAuto_ToolTips.en.menuAffEnd  = { elementText: "All Aff given to :", tooltip : ""};
     HHAuto_ToolTips.en.menuDistributed  = { elementText: "Items used : ", tooltip : ""};
-    HHAuto_ToolTips.en.autoClubChampMax  = { elementText: "Max Ticket for club Champ : ", tooltip : "Maximum number of ticket to use on club champion each run."};
+    HHAuto_ToolTips.en.autoClubChampMax  = { elementText: "Max Ticket per run", tooltip : "Maximum number of ticket to use on club champion each run."};
     HHAuto_ToolTips.en.menuSellLock  = { elementText: "Lock/ Unlock", tooltip : "Switch the lock to prevent selected item to be sold."};
     HHAuto_ToolTips.en.Rarity  = { elementText: "Rarity", tooltip : ""};
     HHAuto_ToolTips.en.RarityCommon  = { elementText: "Common", tooltip : ""};
@@ -7312,9 +7332,10 @@ HHAuto_ToolTips.en = [];
     HHAuto_ToolTips.en.menuExpLevel =  { elementText: "Enter target Exp level :", tooltip : "Target Exp level for girl"};
     HHAuto_ToolTips.en.PoAMaskRewards  = { elementText: "PoA mask claimed", tooltip : "Masked claimed rewards for Path of Attraction."};
     HHAuto_ToolTips.en.showTooltips  = { elementText: "Show tooltips", tooltip : "Show tooltip on menu."};
-    HHAuto_ToolTips.en.showMarketTools  = { elementText: "Show market tools.", tooltip : "Show Market tools."};
+    HHAuto_ToolTips.en.showMarketTools  = { elementText: "Show market tools", tooltip : "Show Market tools."};
     HHAuto_ToolTips.en.useX10Fights  = { elementText: "Use x10", tooltip : "Koban spending functions<br>If enabled : <br>Use x10 button if 10 fights or more to do (if not going under Koban bank value)."};
     HHAuto_ToolTips.en.useX50Fights  = { elementText: "Use x50", tooltip : "Koban spending functions<br>If enabled : <br>Use x50 button if 50 fights or more to do (if not going under Koban bank value)."};
+    HHAuto_ToolTips.en.autoBuy  = { elementText: "Auto buy (market)", tooltip : "Options for auto buying things in the market"};
 
 
 HHAuto_ToolTips.fr = [];
@@ -7380,7 +7401,7 @@ HHAuto_ToolTips.fr = [];
     HHAuto_ToolTips.fr.autoLGM = { elementText: "Min money to keep", tooltip : "Argent minimum à conserver."};
     HHAuto_ToolTips.fr.autoLGRW = { elementText: "Buy Leg Gear Rainbow", tooltip : "si activé : permet d'acheter du matériel Rainbow Légendaire sur le marché<br>Achète uniquement si la banque d'argent est supérieure à la valeur"};
     HHAuto_ToolTips.fr.autoLGR = { elementText: "Min money to keep", tooltip : "Argent minimum à conserver."};
-    HHAuto_ToolTips.fr.autoEGM = { elementText: "Buy Epi Gear Mono", tooltip : "si activé : permet d'acheter du matériel Mono Epique sur le marché<br>Acheter seulement si la banque d'argent est au-dessus de la valeur"};
+    //HHAuto_ToolTips.fr.autoEGM = { elementText: "Buy Epi Gear Mono", tooltip : "si activé : permet d'acheter du matériel Mono Epique sur le marché<br>Acheter seulement si la banque d'argent est au-dessus de la valeur"};
     HHAuto_ToolTips.fr.OpponentListBuilding = { elementText: "La liste des adversaires est en construction", tooltip : ""};
     HHAuto_ToolTips.fr.OpponentParsed  = { elementText: "adversaires parcourus", tooltip : ""};
     HHAuto_ToolTips.fr.DebugMenu = { elementText: "Debug Menu", tooltip : "Options pour le debug"};
@@ -7456,7 +7477,7 @@ HHAuto_ToolTips.de = [];
     HHAuto_ToolTips.de.autoLGM = { elementText: "Min Geld verbleib", tooltip : "Minimum an Geld das behalten wird."};
     HHAuto_ToolTips.de.autoLGRW = { elementText: "Buy Leg Gear Rainbow", tooltip : "Wenn aktiv : Erlaube es Regenbogenausrüstung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt"};
     HHAuto_ToolTips.de.autoLGR = { elementText: "Min Geld verbleib", tooltip : "Minimum an Geld das behalten wird."};
-    HHAuto_ToolTips.de.autoEGM = { elementText: "Buy Epi Gear Mono", tooltip : "Wenn aktiv : Erlaube es Mono epische Ausrüstung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt"};
+    //HHAuto_ToolTips.de.autoEGM = { elementText: "Buy Epi Gear Mono", tooltip : "Wenn aktiv : Erlaube es Mono epische Ausrüstung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt"};
     HHAuto_ToolTips.de.OpponentListBuilding = { elementText: "Gegnerliste wird erstellt", tooltip : ""};
     HHAuto_ToolTips.de.OpponentParsed  = { elementText: "Gegner analysiert", tooltip : ""};
 
@@ -7524,7 +7545,7 @@ HHAuto_ToolTips.es = [];
     HHAuto_ToolTips.es.autoLGM = { elementText: "Min dinero", tooltip : "(Entero)<br>Mínimo dinero a guardar"};
     HHAuto_ToolTips.es.autoLGRW = { elementText: "Compra Eqip.Leg.Arcoiris", tooltip : "Si habilitado: Compra equipamiento legendario arcoiris en el mercado<br>Solo compra si el banco de dinero es superior a este valor"};
     HHAuto_ToolTips.es.autoLGR = { elementText: "Min dinero", tooltip : "(Entero)<br>Mínimo dinero a guardar"};
-    HHAuto_ToolTips.es.autoEGM = { elementText: "Compra Equip.Epi.Mono", tooltip : "Si habilitado: Compra equipamiento épico mono en el mercado<br>Solo compra si el banco de dinero es superior a este valor"};
+    //HHAuto_ToolTips.es.autoEGM = { elementText: "Compra Equip.Epi.Mono", tooltip : "Si habilitado: Compra equipamiento épico mono en el mercado<br>Solo compra si el banco de dinero es superior a este valor"};
     HHAuto_ToolTips.es.OpponentListBuilding = { elementText: "Lista de oponentes en construcción", tooltip : ""};
     HHAuto_ToolTips.es.OpponentParsed  = { elementText: "opositores analizados", tooltip : ""};
     HHAuto_ToolTips.es.DebugMenu = { elementText: "Menú depur.", tooltip : "Opciones de depuración"};
@@ -7577,8 +7598,8 @@ var HHVars=["Storage().HHAuto_Setting_autoAff",
             "Storage().HHAuto_Setting_autoChampsFilter",
             "Storage().HHAuto_Setting_autoChampsUseEne",
             "Storage().HHAuto_Setting_autoContest",
-            "Storage().HHAuto_Setting_autoEGM",
-            "Storage().HHAuto_Setting_autoEGMW",
+            //"Storage().HHAuto_Setting_autoEGM",
+            //"Storage().HHAuto_Setting_autoEGMW",
             "Storage().HHAuto_Setting_autoExp",
             "Storage().HHAuto_Setting_autoExpW",
             "Storage().HHAuto_Setting_autoFreePachinko",
@@ -7676,7 +7697,12 @@ var HHVars=["Storage().HHAuto_Setting_autoAff",
             "Storage().HHAuto_Setting_showMarketTools",
             "Storage().HHAuto_Setting_autoStatsSwitch",
             "Storage().HHAuto_Setting_useX50Fights",
-            "Storage().HHAuto_Setting_useX10Fights"];
+            "Storage().HHAuto_Setting_useX10Fights"//,
+            //"Storage().HHAuto_Setting_infoBoxIsHidden"
+            ];
+
+//var pInfo;
+
 var updateData = function () {
     //logHHAuto("updating UI");
     if ($('#LoadDialog[open]').length > 0) {return}
@@ -7874,7 +7900,7 @@ var updateData = function () {
         currentInput.checkValidity();
     });
 
-    if (Storage().HHAuto_Setting_showInfo=="true")
+    if (Storage().HHAuto_Setting_showInfo=="true") // && getPage()=="home"
     {
         var Tegzd='';
         Tegzd+='Master: '+(Storage().HHAuto_Setting_master==="true"?"ON":"OFF");
@@ -8021,10 +8047,10 @@ var setDefaults = function () {
     Storage().HHAuto_Temp_paranoiaSettings="140-320/Sleep:28800-30400|Active:250-460|Casual:1500-2700/6:Sleep|8:Casual|10:Active|12:Casual|14:Active|18:Casual|20:Active|22:Casual|24:Sleep";
     Storage().HHAuto_Setting_master="false";
     Storage().HHAuto_Setting_PoAMaskRewards = "false";
+    //Storage().HHAuto_Setting_infoBoxIsHidden = "false";
 };
 
 var start = function () {
-
     if (unsafeWindow.Hero===undefined)
     {
         logHHAuto('???no Hero???');
@@ -8043,356 +8069,540 @@ var start = function () {
 
     // Add UI buttons.
     var UIcontainer = $("#contains_all nav div[rel='content']");
-    UIcontainer.html( '<div style="font-size:x-small;position: absolute;right: 22%;width: inherit;text-align: center;display:flex;flex-direction:column;z-index:1000" id="sMenu">'
-                     //dialog Box
+   UIcontainer.html( '<div style="font-size:x-small;position: absolute;right: 22%;width: inherit;text-align: left;display:flex;flex-direction:column;justify-content: space-between;z-index:1000" id="sMenu">'
+
+                     //dialog Boxes
                      + '<dialog id="LoadDialog"> <form method="dialog"><p>After you select the file the settings will be automatically updated.</p><p> If nothing happened, then the selected file contains errors.</p><p id="LoadConfError"style="color:#f53939;"></p><p><label><input type="file" id="myfile" accept=".json" name="myfile"> </label></p> <menu> <button value="cancel">'+getTextForUI("OptionCancel","elementText")+'</button></menu> </form></dialog>'
                      + '<dialog id="DebugDialog" style="overflow:visible;"><form method="dialog">'
                      +   '<div style="padding:10px; display:flex;flex-direction:column;">'
                      +    '<p>HHAuto : v'+GM_info.script.version+'</p>'
                      +    '<p>'+getTextForUI("DebugFileText","elementText")+'</p>'
-                     +    '<div class="HHMenuRow">'
+                     +    '<div style="display:flex;flex-direction:row;">'
                      +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("saveDebug","tooltip")+'</span><label class="myButton" id="saveDebug">'+getTextForUI("saveDebug","elementText")+'</label></div>'
                      +    '</div>'
                      +    '<p>'+getTextForUI("DebugResetTimerText","elementText")+'</p>'
-                     +    '<div class="HHMenuRow">'
+                     +    '<div style="display:flex;flex-direction:row;">'
                      +     '<div style="padding-right:30px;"class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("timerResetButton","tooltip")+'</span><label class="myButton" id="timerResetButton">'+getTextForUI("timerResetButton","elementText")+'</label></div>'
                      +     '<div style="padding-right:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("timerResetSelector","tooltip")+'</span><select id="timerResetSelector"></select></div>'
                      +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("timerLeftTime","tooltip")+'</span><span id="timerLeftTime">'+getTextForUI("timerResetNoTimer","elementText")+'</span></div>'
                      +    '</div>'
                      +    '<p>'+getTextForUI("DebugOptionsText","elementText")+'</p>'
-                     +    '<div class="HHMenuRow">'
+                     +    '<div style="display:flex;flex-direction:row;">'
                      +     '<div style="padding-right:30px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("DeleteTempVars","tooltip")+'</span><label class="myButton" id="DeleteTempVars">'+getTextForUI("DeleteTempVars","elementText")+'</label></div>'
                      +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ResetAllVars","tooltip")+'</span><label class="myButton" id="ResetAllVars">'+getTextForUI("ResetAllVars","elementText")+'</label></div>'
                      +    '</div>'
                      +  '</div>'
                      + '<menu> <button value="cancel">'+getTextForUI("OptionCancel","elementText")+'</button></menu></form></dialog>'
-                     + '<div style="padding:0.2em;display:flex;flex-direction:row;">'
-                     +  '<div style="display:flex;flex-direction:column;">'
-                     +   '<div style="padding-bottom:2px;padding-top:2px; display:flex;flex-direction:row;">'
-                     +    '<div style="padding-right:30px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("gitHub","tooltip")+'</span><label class="myButton" id="git">'+getTextForUI("gitHub","elementText")+'</label></div>'
-                     +    '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("DebugMenu","tooltip")+'</span><label class="myButton" id="DebugMenu">'+getTextForUI("DebugMenu","elementText")+'</label></div>'
-                     +   '</div>'
-                     +   '<div style="padding-bottom:2px;display:flex;flex-direction:row;">'
-                     +    '<div style="padding-right:20px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("saveConfig","tooltip")+'</span><label class="myButton" id="saveConfig">'+getTextForUI("saveConfig","elementText")+'</label></div>'
-                     +    '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("loadConfig","tooltip")+'</span><label class="myButton" id="loadConfig">'+getTextForUI("loadConfig","elementText")+'</label></div>'
-                     +   '</div>'
-                     +   '<div class="HHMenuRow" style="border: 1px dotted;">'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span>'+getTextForUI("master","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("master","tooltip")+'</span><label class="switch" ><input id="master" type="checkbox"><span class="slider round"></span></label></div>'
+
+            // _row of 3 columns_
+                     + '<div class="optionsRow">'  //+ '<div style="display:flex;flex-direction:row;">'
+
+               // |column 1|
+                     +  '<div class="optionsColumn">'  // style="justify-content: flex-start"
+                  // Title
+                   //+   '<div class="optionsBox">'
+                     +   '<div style="padding:3px; display:flex; flex-direction:column;">'
+                     +    '<span>HH Automatic ++</span>'
+                     +    '<span style="font-size:smaller; padding-bottom:10px">Version '+GM_info.script.version+'</span>'
+                   //+   '</div>'
+                  // Top buttons
+                   //+   '<div class="optionsBox">'
+                     +    '<div class="internalOptionsRow" style="padding:3px">'
+                     +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("gitHub","tooltip")+'</span><label class="myButton" id="git">'+getTextForUI("gitHub","elementText")+'</label></div>'
+                     +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("DebugMenu","tooltip")+'</span><label class="myButton" id="DebugMenu">'+getTextForUI("DebugMenu","elementText")+'</label></div>'
                      +    '</div>'
-                     +    '<div class="HHMenuItemBox" style="padding:0.2em;padding-right:10px; display:flex;flex-direction:column;">'
-                     +     '<span>'+getTextForUI("settPerTab","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("settPerTab","tooltip")+'</span><label class="switch"><input id="settPerTab" type="checkbox"><span class="slider round"></span></label></div>'
+                     +    '<div class="internalOptionsRow" style="padding:3px">'
+                     +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("saveConfig","tooltip")+'</span><label class="myButton" id="saveConfig">'+getTextForUI("saveConfig","elementText")+'</label></div>'
+                     +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("loadConfig","tooltip")+'</span><label class="myButton" id="loadConfig">'+getTextForUI("loadConfig","elementText")+'</label></div>'
                      +    '</div>'
                      +   '</div>'
-                     // Region Paranoia
-                     +   '<div style="display:flex;flex-direction:column; border: 1px dotted;">'
-                     +    '<div class="HHMenuRow">'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("paranoia","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("paranoia","tooltip")+'</span><label class="switch"><input id="paranoia" type="checkbox"><span class="slider round"></span></label></div>'
+                  // Region global
+                     +   '<div class="optionsBoxWithTitle">'
+                     +    '<div class="optionsBoxTitle">'
+                     +     '<img class="iconImg" src="https://hh2.hh-content.com/design/menu/panel.svg" />'  //width="12px" height="15px"
+                     +     '<span class="optionsBoxTitle">'+getTextForUI("globalTitle","elementText")+'</span>'
+                     +    '</div>'
+                     +    '<div class="rowOptionsBox">'  //+    '<div class="optionsBox" style="flex-direction:row; align-items:flex-end">'
+                     +     '<div class="optionsColumn">'  //+     '<div style="padding:3px; display:flex; flex-direction:column;">'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("master","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("master","tooltip")+'</span><label class="switch"><input id="master" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("paranoia","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("paranoia","tooltip")+'</span><label class="switch"><input id="paranoia" type="checkbox"><span class="slider round"></span></label></div></div>'
                      +     '</div>'
-                     +     '<div class="HHMenuItemBox" style="padding:0.2em;display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("paranoiaSpendsBefore","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("paranoiaSpendsBefore","tooltip")+'</span><label class="switch"><input id="paranoiaSpendsBefore" type="checkbox"><span class="slider round"></span></label></div>'
+                     +     '<div class="optionsColumn">'  //+     '<div style="padding:3px; display:flex; flex-direction:column">'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("settPerTab","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("settPerTab","tooltip")+'</span><label class="switch"><input id="settPerTab" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("paranoiaSpendsBefore","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("paranoiaSpendsBefore","tooltip")+'</span><label class="switch"><input id="paranoiaSpendsBefore" type="checkbox"><span class="slider round"></span></label></div></div>'
                      +     '</div>'
                      +    '</div>'
                      +   '</div>'
-                     //end region paranoia
-                     // Region Shit
-                     +   '<div style="display:flex;flex-direction:column; border: 1px dotted;">'
-                     +   '<div class="HHMenuRow">'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("spendKobans0","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("spendKobans0","tooltip")+'</span><label  class="switch"><input id="spendKobans0" type="checkbox"><span class="slider round kobans"></span></label></div>'
+                  // End region global
+
+                  // Region kobans
+                     +   '<div class="rowOptionsBox">'  //+   '<div class="optionsBox">'
+                     //+    '<div class="internalOptionsRow">'
+                     +     '<div class="labelAndButton">' // start img and label
+                     +      '<span class="HHMenuItemName" style="padding-bottom:2px">'+getTextForUI("spendKobans0","elementText")+'</span>'
+                     +      '<div class="imgAndObjectRow">'  //+      '<div style="display: flex;flex-direction: row;justify-content: space-between">'
+                     +       '<img class="iconImg" src="https://hh2.hh-content.com/design/menu/affil_prog.svg" />'  //height="20px" width="20px"
+                     +       '<div style="padding-left:5px">'
+                     +        '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("spendKobans0","tooltip")+'</span><label class="switch"><input id="spendKobans0" type="checkbox"><span class="slider round kobans"></span></label></div>'
+                     +       '</div>'
+                     +      '</div>'
+                     +     '</div>' // end img and label
+
+                     +     '<div class="labelAndButton">' // start img and label
+                     +      '<span class="HHMenuItemName" style="padding-bottom:2px">'+getTextForUI("kobanBank","elementText")+'</span>'
+                     +      '<div class="imgAndObjectRow">'  //+      '<div style="display: flex;flex-direction: row;justify-content: space-between">'
+                     +       '<img class="iconImg" src="https://hh2.hh-content.com/design/ic_HC.png" />'  //height="20px" width="20px"
+                     +       '<div style="padding-left:5px">'
+                     +        '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("kobanBank","tooltip")+'</span><input id="kobanBank" style="width:45px" required pattern="'+HHAuto_inputPattern.kobanBank+'" type="text"></div>'
+                     +       '</div>'
+                     +      '</div>'
+                     +     '</div>' // end img and label
+
+                     //+     '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("kobanBank","elementText")+'</span>  //<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("kobanBank","tooltip")+'</span><input id="kobanBank" style="width:70%" required pattern="'+HHAuto_inputPattern.kobanBank+'" type="text"></div></div>'
+                     +   '</div>'
+                  // End region kobans
+
+                  // Region display
+                     +   '<div class="optionsBoxWithTitle">'
+                     +    '<div class="optionsBoxTitle">'
+                     +     '<img class="iconImg" src="https://hh2.hh-content.com/design/menu/sex_friends.svg" />'  //width="12px" height="15px"
+                     +     '<span class="optionsBoxTitle">'+getTextForUI("displayTitle","elementText")+'</span>'
                      +    '</div>'
-                     //                      +    '<div style="padding-left:20px;display:flex;flex-direction:column;">'
-                     //                      +     '<span class="HHMenuItemName">'+getTextForUI("spendKobans1","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("spendKobans1","tooltip")+'</span><label  class="switch"><input id="spendKobans1" type="checkbox"><span class="slider round kobans"></span></label></div>'
-                     //                      +    '</div>'
-                     //                      +   '</div>'
-                     //                      +   '<div class="HHMenuRow">'
-                     //                      +    '<div style="display:flex;flex-direction:column;">'
-                     //                      +     '<span class="HHMenuItemName">'+getTextForUI("spendKobans2","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("spendKobans2","tooltip")+'</span><label  class="switch"><input id="spendKobans2" type="checkbox"><span class="slider round kobans"></span></label></div>'
-                     //                      +    '</div>'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("kobanBank","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("kobanBank","tooltip")+'</span><input id="kobanBank" style="width:70%" required pattern="'+HHAuto_inputPattern.kobanBank+'" type="text"></div>'
+                     +    '<div class="rowOptionsBox">'  //+    '<div class="optionsBox" style="flex-direction:row; align-items:flex-end">'  //+    '<div class="optionsBox" style="flex-direction:row">'
+                     +     '<div class="optionsColumn">'  //+     '<div style="padding:3px; display:flex; flex-direction:column">'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("showInfo","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("showInfo","tooltip")+'</span><label class="switch"><input id="showInfo" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("showTooltips","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("showTooltips","tooltip")+'</span><label class="switch"><input id="showTooltips" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +     '</div>'
+                     +     '<div class="optionsColumn">'  //+     '<div style="padding:3px; display:flex; flex-direction:column;">'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("showCalculatePower","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("showCalculatePower","tooltip")+'</span><label class="switch"><input id="showCalculatePower" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("PoAMaskRewards","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PoAMaskRewards","tooltip")+'</span><label class="switch"><input id="PoAMaskRewards" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +     '</div>'
+                     +    '</div>'
+                     +   '</div>'
+                  // End region display
+                     +  '</div>'
+               // |End column 1|
+
+               // |Colmumn 2|
+                     +  '<div class="optionsColumn">'
+                  // _Line 1_
+                     +  '<div class="optionsRow">'  //+   '<div style="display: flex;flex-direction: row;justify-content: space-between">'
+
+                  //Region activities
+                     +   '<div class="optionsBoxWithTitle">'
+                     +    '<div class="optionsBoxTitle">'
+                     +     '<img class="iconImg" src="https://hh2.hh-content.com/design/menu/missions.svg" />'  //width="15px" height="15px"
+                     +     '<span class="optionsBoxTitle">'+getTextForUI("autoActivitiesTitle","elementText")+'</span>'
+                     +    '</div>'
+                     +    '<div class="optionsBox">'
+                     +     '<div class="internalOptionsRow">'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoMissionCheckbox","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoMissionCheckbox","tooltip")+'</span><label class="switch"><input id="autoMissionCheckbox" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoMissionCollect","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoMissionCollect","tooltip")+'</span><label class="switch"><input id="autoMissionCollect" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoMissionKFirst","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoMissionKFirst","tooltip")+'</span><label class="switch"><input id="autoMissionKFirst" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoContestCheckbox","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoContestCheckbox","tooltip")+'</span><label class="switch"><input id="autoContestCheckbox" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +     '</div>'
+
+                     +     '<div class="internalOptionsRow">'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoPowerPlaces","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoPowerPlaces","tooltip")+'</span><label class="switch"><input id="autoPowerPlaces" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoPowerPlacesIndexFilter","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoPowerPlacesIndexFilter","tooltip")+'</span><input id="autoPowerPlacesIndexFilter" required pattern="'+HHAuto_inputPattern.autoPowerPlacesIndexFilter+'" type="text"></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoPowerPlacesAll","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoPowerPlacesAll","tooltip")+'</span><label class="switch"><input id="autoPowerPlacesAll" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +     '</div>'
+                     +    '</div>'
+                     +   '</div>'
+                  // End region activities
+
+                     +   '<div class="optionsColumn">'  //+   '<div style="display: flex;flex-direction: column;justify-content: space-between">'
+                  // Region salary
+                     +   '<div class="optionsBoxTitle"></div>'
+                     +    '<div class="rowOptionsBox">'  //+   '<div class="optionsBox">'
+                     +    '<div class="internalOptionsRow">'
+                     +     '<div class="labelAndButton">' // start img and label
+                     +      '<span class="HHMenuItemName" style="padding-bottom:2px">'+getTextForUI("autoSalaryCheckbox","elementText")+'</span>'
+                     +      '<div class="imgAndObjectRow">'  //+      '<div style="display: flex;flex-direction: row;justify-content: space-between">'
+                     +       '<img class="iconImg" src="https://hh2.hh-content.com/pictures/design/harem.svg" />'  //height="20px" width="20px"
+                     +       '<div style="padding-left:5px">'
+                     +        '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoSalaryCheckbox","tooltip")+'</span><label class="switch"><input id="autoSalaryCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
+                     +       '</div>'
+                     +      '</div>'
+                     +     '</div>' // end img and label
+                     +     '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoSalaryTextbox","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoSalaryTextbox","tooltip")+'</span><input id="autoSalaryTextbox" style="width:45px" required pattern="'+HHAuto_inputPattern.autoSalaryTextbox+'" type="text"></div></div>'
+                     +    '</div>'
+                     +   '</div>'
+                  // End region salary
+
+                    +  '<div class="optionsRow">'  //+   '<div style="display: flex;flex-direction: row;justify-content: space-between">'
+                  // Region pachinko
+                     +    '<div class="rowOptionsBox">'  //+   '<div class="optionsBox">'
+                     +    '<div class="internalOptionsRow" style="justify-content: space-between">'
+                     +     '<div class="labelAndButton">' // start img and label
+                     +      '<span class="HHMenuItemName" style="padding-bottom:2px">'+getTextForUI("autoFreePachinko","elementText")+'</span>'
+                     +      '<div class="imgAndObjectRow">'  //+      '<div style="display: flex;flex-direction: row;justify-content: space-between">'
+                     +       '<img class="iconImg" src="https://hh2.hh-content.com/design/menu/pachinko.svg" />'  //height="20px" width="20px"
+                     +       '<div style="padding-left:5px">'
+                     +        '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoFreePachinko","tooltip")+'</span><label class="switch"><input id="autoFreePachinko" type="checkbox"><span class="slider round"></span></label></div>'
+                     +       '</div>'
+                     +      '</div>'
+                     +     '</div>' // end img and label
+                     +    '</div>'
+                     +   '</div>'
+                  // End region pachinko
+
+                  // Region quest
+                     +    '<div class="rowOptionsBox">'  //+   '<div class="optionsBox" style="flex-direction:row; align-items:flex-end">'  //+   '<div class="optionsBox">'
+                     +    '<div class="internalOptionsRow">'
+                     +     '<div class="labelAndButton">' // start img and label
+                     +      '<span class="HHMenuItemName" style="padding-bottom:2px">'+getTextForUI("autoQuestCheckbox","elementText")+'</span>'
+                     +      '<div class="imgAndObjectRow">'  //+      '<div style="display: flex;flex-direction: row;justify-content: space-between">'
+                     +       '<img class="iconImg" src="https://hh2.hh-content.com/design/menu/forward.svg" />'  //height="20px" width="20px"
+                     +       '<div style="padding-left:5px">'
+                     +        '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoQuestCheckbox","tooltip")+'</span><label class="switch"><input id="autoQuestCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
+                     +       '</div>'
+                     +      '</div>'
+                     +     '</div>' // end img and label
+
+                     +     '<div class="labelAndButton">' // start img and label
+                     +      '<span class="HHMenuItemName" style="padding-bottom:2px">'+getTextForUI("autoQuestThreshold","elementText")+'</span>'
+                     +      '<div class="imgAndObjectRow">'  //+      '<div style="display: flex;flex-direction: row;justify-content: space-between">'
+                     +       '<img class="iconImg" src="https://hh2.hh-content.com/design/ic_Energy.png" />'  //height="20px" width="20px"
+                     +       '<div style="padding-left:5px">'
+                     +        '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoQuestThreshold","tooltip")+'</span><input style="width:20px" id="autoQuestThreshold" required pattern="'+HHAuto_inputPattern.autoQuestThreshold+'" type="text"></div>'
+                     +       '</div>'
+                     +      '</div>'
+                     +     '</div>' // end img and label
+
+                     //+     '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoQuestThreshold","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoQuestThreshold","tooltip")+'</span><input style="width:50px" id="autoQuestThreshold" required pattern="'+HHAuto_inputPattern.autoQuestThreshold+'" type="text"></div></div>'
+                     +    '</div>'
+                     +   '</div>'
+                  // End region quest
+                     +   '</div>'
+                     +   '</div>'
+                     +   '</div>'
+
+                  // _Line 2_
+                     +  '<div class="optionsRow">'  //+   '<div style="display: flex;flex-direction: row;justify-content: space-between">'
+                  // Region autoSeason
+                     +   '<div class="optionsBoxWithTitle">'
+                     +    '<div class="optionsBoxTitle">'
+                     +     '<img class="iconImg" src="https://hh2.hh-content.com/design/menu/seasons.svg" />'  //width="15px" height="15px"
+                     +     '<span class="optionsBoxTitle">'+getTextForUI("autoSeasonTitle","elementText")+'</span>'
+                     +    '</div>'
+                     +    '<div class="optionsBox">'
+                     +     '<div class="internalOptionsRow">'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoSeasonCheckbox","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoSeasonCheckbox","tooltip")+'</span><label class="switch"><input id="autoSeasonCheckbox" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoSeasonCollect","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoSeasonCollect","tooltip")+'</span><label class="switch"><input id="autoSeasonCollect" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("SeasonMaskRewards","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("SeasonMaskRewards","tooltip")+'</span><label class="switch"><input id="SeasonMaskRewards" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +     '</div>'
+                     +     '<div class="internalOptionsRow">'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("calculatePowerLimits","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("calculatePowerLimits","tooltip")+'</span><input id="calculatePowerLimits" style="width:80%" required pattern="'+HHAuto_inputPattern.calculatePowerLimits+'" type="text"></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoSeasonPassReds","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoSeasonPassReds","tooltip")+'</span><label  class="switch"><input id="autoSeasonPassReds" type="checkbox"><span class="slider round kobans"></span></label></div></div>'
+
+                     +      '<div class="labelAndButton">' // start img and label
+                     +       '<span class="HHMenuItemName" style="padding-bottom:2px">'+getTextForUI("autoSeasonThreshold","elementText")+'</span>'
+                     +       '<div class="imgAndObjectRow">'  //+      '<div style="display: flex;flex-direction: row;justify-content: space-between">'
+                     +        '<img class="iconImg" src="https://hh2.hh-content.com/pictures/design/ic_kiss.png" />'  //height="20px" width="20px"
+                     +        '<div style="padding-left:5px">'
+                     +         '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoSeasonThreshold","tooltip")+'</span><input style="width:20px" id="autoSeasonThreshold" required pattern="'+HHAuto_inputPattern.autoSeasonThreshold+'" type="text"></div>'
+                     +        '</div>'
+                     +       '</div>'
+                     +      '</div>' // end img and label
+
+                     //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoSeasonThreshold","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoSeasonThreshold","tooltip")+'</span><input style="width:50px" id="autoSeasonThreshold" required pattern="'+HHAuto_inputPattern.autoSeasonThreshold+'" type="text"></div></div>'
+                     +     '</div>'
+                     +    '</div>'
+                     +   '</div>'
+                  // End region autoSeason
+
+                  // Region autoLeagues
+                     +   '<div class="optionsBoxWithTitle">'
+                     +    '<div class="optionsBoxTitle">'
+                     +     '<img class="iconImg" src="https://hh2.hh-content.com/design/menu/leaderboard.svg" />'  //width="15px" height="15px"
+                     +     '<span class="optionsBoxTitle">'+getTextForUI("autoLeaguesTitle","elementText")+'</span>'
+                     +    '</div>'
+                     +    '<div class="optionsBox">'
+                     +     '<div class="internalOptionsRow">'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoLeagues","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLeagues","tooltip")+'</span><label class="switch"><input id="autoLeagues" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoLeaguesPowerCalc","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLeaguesPowerCalc","tooltip")+'</span><label class="switch"><input id="autoLeaguesPowerCalc" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoLeaguesCollect","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLeaguesCollect","tooltip")+'</span><label class="switch"><input id="autoLeaguesCollect" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +     '</div>'
+                     +     '<div class="internalOptionsRow">'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoLeaguesSelector","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLeaguesSelector","tooltip")+'</span><select id="autoLeaguesSelector"></select></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoLeaguesAllowWinCurrent","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLeaguesAllowWinCurrent","tooltip")+'</span><label class="switch"><input id="autoLeaguesAllowWinCurrent" type="checkbox"><span class="slider round"></span></label></div></div>'
+
+                     +      '<div class="labelAndButton">' // start img and label
+                     +       '<span class="HHMenuItemName" style="padding-bottom:2px">'+getTextForUI("autoLeaguesThreshold","elementText")+'</span>'
+                     +       '<div class="imgAndObjectRow">'  //+      '<div style="display: flex;flex-direction: row;justify-content: space-between">'
+                     +        '<img class="iconImg" src="https://hh2.hh-content.com/league_points.png" />'  //height="20px" width="20px"
+                     +        '<div style="padding-left:5px">'
+                     +         '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLeaguesThreshold","tooltip")+'</span><input style="width:20px" id="autoLeaguesThreshold" required pattern="'+HHAuto_inputPattern.autoLeaguesThreshold+'"type="text"></div>'
+                     +        '</div>'
+                     +       '</div>'
+                     +      '</div>' // end img and label
+
+                     //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoLeaguesThreshold","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLeaguesThreshold","tooltip")+'</span><input style="width:50px" id="autoLeaguesThreshold" required pattern="'+HHAuto_inputPattern.autoLeaguesThreshold+'"type="text"></div></div>'
+                     +     '</div>'
+                     +    '</div>'
+                     +   '</div>'
+                  // End region autoLeagues
+                     +   '</div>'
+
+                  // Region autoTroll
+                     // Title
+                     +   '<div class="optionsBoxWithTitle">'
+                     +    '<div class="optionsBoxTitle">'
+                     +     '<img class="iconImg" src="https://hh2.hh-content.com/design/menu/map.svg" />'  //width="15px" height="15px"
+                     +     '<span class="optionsBoxTitle">'+getTextForUI("autoTrollTitle","elementText")+'</span>'
+                     +    '</div>'
+                     +    '<div class="optionsBox">'
+
+                     // _Line 1_
+                     +     '<div class="internalOptionsRow" style="justify-content: space-between">'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoTrollCheckbox","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoTrollCheckbox","tooltip")+'</span><label class="switch"><input id="autoTrollCheckbox" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoTrollSelector","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoTrollSelector","tooltip")+'</span><select id="autoTrollSelector"></select></div></div>'
+
+                     +      '<div class="labelAndButton">' // start img and label
+                     +       '<span class="HHMenuItemName" style="padding-bottom:2px">'+getTextForUI("autoTrollThreshold","elementText")+'</span>'
+                     +       '<div class="imgAndObjectRow">'  //+      '<div style="display: flex;flex-direction: row;justify-content: space-between">'
+                     +        '<img class="iconImg" src="https://hh.hh-content.com/design/ic_BattlePts.png" />'  //height="20px" width="20px"
+                     +        '<div style="padding-left:5px">'
+                     +         '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoTrollThreshold","tooltip")+'</span><input style="width:20px" id="autoTrollThreshold" required pattern="'+HHAuto_inputPattern.autoTrollThreshold+'" type="text"></div>'
+                     +        '</div>'
+                     +       '</div>'
+                     +      '</div>' // end img and label
+
+                     //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoTrollThreshold","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoTrollThreshold","tooltip")+'</span><input style="width:50px" id="autoTrollThreshold" required pattern="'+HHAuto_inputPattern.autoTrollThreshold+'" type="text"></div></div>'
+                     +     '</div>'
+
+                     // _Line 2_
+                     +     '<div class="internalOptionsRow">'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("plusEvent","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("plusEvent","tooltip")+'</span><label class="switch"><input id="plusEvent" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("eventTrollOrder","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("eventTrollOrder","tooltip")+'</span><input id="eventTrollOrder" style="width:120px" required pattern="'+HHAuto_inputPattern.eventTrollOrder+'"type="text"></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("buyCombat","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("buyCombat","tooltip")+'</span><label class="switch"><input id="buyCombat" type="checkbox"><span class="slider round kobans"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("buyCombTimer","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("buyCombTimer","tooltip")+'</span><input id="buyCombTimer" style="width:50%" required pattern="'+HHAuto_inputPattern.buyCombTimer+'" type="text"></div></div>'
+                   //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("useX10Fights","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("useX10Fights","tooltip")+'</span><label class="switch"><input id="useX10Fights" type="checkbox"><span class="slider round kobans"></span></label></div></div>'
+                     +     '</div>'
+
+                     // _Line 3_
+                     +     '<div class="internalOptionsRow">'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("plusEventMythic","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("plusEventMythic","tooltip")+'</span><label class="switch"><input id="plusEventMythic" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoTrollMythicByPassParanoia","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoTrollMythicByPassParanoia","tooltip")+'</span><label class="switch"><input id="autoTrollMythicByPassParanoia" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("buyMythicCombat","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("buyMythicCombat","tooltip")+'</span><label class="switch"><input id="buyMythicCombat" type="checkbox"><span class="slider round kobans"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("buyMythicCombTimer","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("buyMythicCombTimer","tooltip")+'</span><input id="buyMythicCombTimer" style="width:50%" required pattern="'+HHAuto_inputPattern.buyMythicCombTimer+'" type="text"></div></div>'
+                   //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("useX50Fights","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("useX50Fights","tooltip")+'</span><label class="switch"><input id="useX50Fights" type="checkbox"><span class="slider round kobans"></span></label></div></div>'
+                     +     '</div>'
+                     +    '</div>'
+                     +   '</div>'
+                  // End region autoTroll
+
+                     +  '</div>'
+               // |End column 2|
+
+               // |Column 3|
+                     +  '<div class="optionsColumn">'
+                  // Region champions
+                     +   '<div class="optionsBoxWithTitle">'
+                     +    '<div class="optionsBoxTitle">'
+                     +     '<img class="iconImg" src="https://hh2.hh-content.com/design/menu/ic_champions.svg" />'  //width="15px" height="15px"
+                     +     '<span class="optionsBoxTitle">'+getTextForUI("autoChampsTitle","elementText")+'</span>'
+                     +    '</div>'
+                     +    '<div class="optionsBox">'
+                     // _Line 1_
+                     +     '<div class="internalOptionsRow">'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoChamps","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoChamps","tooltip")+'</span><label class="switch"><input id="autoChamps" type="checkbox"><span class="slider round"></span></label></div></div>'
+
+                     +      '<div class="labelAndButton">' // start img and label
+                     +       '<span class="HHMenuItemName" style="padding-bottom:2px">'+getTextForUI("autoChampsUseEne","elementText")+'</span>'
+                     +       '<div class="imgAndObjectRow">'  //+      '<div style="display: flex;flex-direction: row;justify-content: space-between">'
+                     +        '<img class="iconImg" src="https://hh2.hh-content.com/design/ic_Energy.png" />'  //height="20px" width="20px"
+                     +        '<div style="padding-left:5px">'
+                     +         '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoChampsUseEne","tooltip")+'</span><label class="switch"><input id="autoChampsUseEne" type="checkbox"><span class="slider round"></span></label></div>'
+                     +        '</div>'
+                     +       '</div>'
+                     +      '</div>' // end img and label
+
+                     //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoChampsUseEne","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoChampsUseEne","tooltip")+'</span><label class="switch"><input id="autoChampsUseEne" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoChampsFilter","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoChampsFilter","tooltip")+'</span><input style="width:70px" id="autoChampsFilter" required pattern="'+HHAuto_inputPattern.autoChampsFilter+'" type="text"></div></div>'
+                     +     '</div>'
+                   //+    '</div>'
+                     // _Line 2_
+                   //+    '<div class="optionsBox">'
+                     +     '<div class="internalOptionsRow">'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoClubChamp","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoClubChamp","tooltip")+'</span><label class="switch"><input id="autoClubChamp" type="checkbox"><span class="slider round"></span></label></div></div>'
+
+                     +      '<div class="labelAndButton">' // start img and label
+                     +       '<span class="HHMenuItemName" style="padding-bottom:2px">'+getTextForUI("autoClubChampMax","elementText")+'</span>'
+                     +       '<div class="imgAndObjectRow">'  //+      '<div style="display: flex;flex-direction: row;justify-content: space-between">'
+                     +        '<img class="iconImg" src="https://hh2.hh-content.com/pictures/design/champion_ticket.png" />'  //height="20px" width="20px"
+                     +        '<div style="padding-left:5px">'
+                     +         '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoClubChampMax","tooltip")+'</span><input style="width:45px" id="autoClubChampMax" required pattern="'+HHAuto_inputPattern.autoClubChampMax+'" type="text"></div>'
+                     +        '</div>'
+                     +       '</div>'
+                     +      '</div>' // end img and label
+
+                     //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoClubChampMax","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoClubChampMax","tooltip")+'</span><input style="width:70px" id="autoClubChampMax" required pattern="'+HHAuto_inputPattern.autoClubChampMax+'" type="text"></div></div>'
+                     +     '</div>'
+                     +    '</div>'
+                     +   '</div>'
+                  // End region champions
+
+                  // Region market
+                     +   '<div class="optionsBoxWithTitle">'
+                     +    '<div class="optionsBoxTitle">'
+                     +     '<img class="iconImg" src="https://hh2.hh-content.com/design/menu/shop.svg" />'  //width="15px" height="15px"
+                     +     '<span class="optionsBoxTitle">'+getTextForUI("autoBuy","elementText")+'</span>'
+                     +    '</div>'
+                     +    '<div class="optionsBox">'
+                     +     '<div class="internalOptionsRow">'
+
+                     +      '<div class="labelAndButton">' // start img and label
+                     +       '<span class="HHMenuItemName" style="padding-bottom:2px">'+getTextForUI("autoStatsSwitch","elementText")+'</span>'
+                     +       '<div class="imgAndObjectRow">'  //+      '<div style="display: flex;flex-direction: row;justify-content: space-between">'
+                     +        '<img class="iconImg" src="https://hh2.hh-content.com/design/ic_plus.svg" />'  //height="20px" width="20px"
+                     +        '<div style="padding-left:5px">'
+                     +         '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoStatsSwitch","tooltip")+'</span><label class="switch"><input id="autoStatsSwitch" type="checkbox"><span class="slider round"></span></label></div>'
+                     +        '</div>'
+                     +       '</div>'
+                     +      '</div>' // end img and label
+
+                     //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoStatsSwitch","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoStatsSwitch","tooltip")+'</span><label class="switch"><input id="autoStatsSwitch" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoStats","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoStats","tooltip")+'</span><input class="maxMoneyInputField" id="autoStats" required pattern="'+HHAuto_inputPattern.autoStats+'" type="text"></div></div>'
+                     +     '</div>'
+                     +     '<div class="internalOptionsRow">'
+
+                     +      '<div class="labelAndButton">' // start img and label
+                     +       '<span class="HHMenuItemName" style="padding-bottom:2px">'+getTextForUI("autoExpW","elementText")+'</span>'
+                     +       '<div class="imgAndObjectRow">'  //+      '<div style="display: flex;flex-direction: row;justify-content: space-between">'
+                     +        '<img class="iconImg" src="https://hh2.hh-content.com/design/ic_books_gray.svg" />'  //height="20px" width="20px"
+                     +        '<div style="padding-left:5px">'
+                     +         '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoExpW","tooltip")+'</span><label class="switch"><input id="autoExpW" type="checkbox"><span class="slider round"></span></label></div>'
+                     +        '</div>'
+                     +       '</div>'
+                     +      '</div>' // end img and label
+
+                     //+      '<div class="labelAndButton"><span class="HHMenuItemName" class="HHMenuItemName">'+getTextForUI("autoExpW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoExpW","tooltip")+'</span><label class="switch"><input id="autoExpW" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("maxExp","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("maxExp","tooltip")+'</span><input style="width:60px" id="maxExp" required pattern="'+HHAuto_inputPattern.maxExp+'" type="text"></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoExp","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoExp","tooltip")+'</span><input class="maxMoneyInputField" id="autoExp" required pattern="'+HHAuto_inputPattern.autoExp+'" type="text"></div></div>'  // style="width:100px"
+                     +     '</div>'
+                     +     '<div class="internalOptionsRow">'
+
+                     +      '<div class="labelAndButton">' // start img and label
+                     +       '<span class="HHMenuItemName" style="padding-bottom:2px">'+getTextForUI("autoAffW","elementText")+'</span>'
+                     +       '<div class="imgAndObjectRow">'  //+      '<div style="display: flex;flex-direction: row;justify-content: space-between">'
+                     +        '<img class="iconImg" src="https://hh2.hh-content.com/design/ic_gifts_gray.svg" />'  //height="20px" width="20px"
+                     +        '<div style="padding-left:5px">'
+                     +         '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoAffW","tooltip")+'</span><label class="switch"><input id="autoAffW" type="checkbox"><span class="slider round"></span></label></div>'
+                     +        '</div>'
+                     +       '</div>'
+                     +      '</div>' // end img and label
+
+                     //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoAffW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoAffW","tooltip")+'</span><label class="switch"><input id="autoAffW" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("maxAff","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("maxAff","tooltip")+'</span><input style="width:60px" id="maxAff" required pattern="'+HHAuto_inputPattern.maxAff+'" type="text"></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoAff","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoAff","tooltip")+'</span><input class="maxMoneyInputField" id="autoAff" required pattern="'+HHAuto_inputPattern.autoAff+'" type="text"></div></div>'
+                     +     '</div>'
+                     +     '<div class="internalOptionsRow">'
+
+                     +      '<div class="labelAndButton">' // start img and label
+                     +       '<span class="HHMenuItemName" style="padding-bottom:2px">'+getTextForUI("autoLGMW","elementText")+'</span>'
+                     +       '<div class="imgAndObjectRow">'  //+      '<div style="display: flex;flex-direction: row;justify-content: space-between">'
+                     +        '<img class="iconImg" src="https://hh2.hh-content.com/design/ic_equipment_gray.svg" />'  //height="20px" width="20px"
+                     +        '<div style="padding-left:5px">'
+                     +         '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLGMW","tooltip")+'</span><label class="switch"><input id="autoLGMW" type="checkbox"><span class="slider round"></span></label></div>'
+                     +        '</div>'
+                     +       '</div>'
+                     +      '</div>' // end img and label
+
+                     //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoLGMW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLGMW","tooltip")+'</span><label class="switch"><input id="autoLGMW" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoLGM","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLGM","tooltip")+'</span><input class="maxMoneyInputField" id="autoLGM" required pattern="'+HHAuto_inputPattern.autoLGM+'" type="text"></div></div>'
+                     +     '</div>'
+                     +     '<div class="internalOptionsRow">'
+
+                     +      '<div class="labelAndButton">' // start img and label
+                     +       '<span class="HHMenuItemName" style="padding-bottom:2px">'+getTextForUI("autoLGRW","elementText")+'</span>'
+                     +       '<div class="imgAndObjectRow">'  //+      '<div style="display: flex;flex-direction: row;justify-content: space-between">'
+                     +        '<img class="iconImg" src="https://hh2.hh-content.com/design/ic_equipment_gray.svg" />'  //height="20px" width="20px"
+                     +        '<div style="padding-left:5px">'
+                     +         '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLGRW","tooltip")+'</span><label class="switch"><input id="autoLGRW" type="checkbox"><span class="slider round"></span></label></div>'
+                     +        '</div>'
+                     +       '</div>'
+                     +      '</div>' // end img and label
+
+                     //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoLGRW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLGRW","tooltip")+'</span><label class="switch"><input id="autoLGRW" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoLGR","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLGR","tooltip")+'</span><input class="maxMoneyInputField" id="autoLGR" required pattern="'+HHAuto_inputPattern.autoLGR+'" type="text"></div></div>'
+                     +     '</div>'
+                     +     '<div class="internalOptionsRow">'
+
+                     +      '<div class="labelAndButton">' // start img and label
+                     +       '<span class="HHMenuItemName" style="padding-bottom:2px">'+getTextForUI("autoBuyBoosters","elementText")+'</span>'
+                     +       '<div class="imgAndObjectRow">'  //+      '<div style="display: flex;flex-direction: row;justify-content: space-between">'
+                     +        '<img class="iconImg" src="https://hh2.hh-content.com/design/ic_boosters_gray.svg" />'  //height="20px" width="20px"
+                     +        '<div style="padding-left:5px">'
+                     +         '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoBuyBoosters","tooltip")+'</span><label class="switch"><input id="autoBuyBoosters" type="checkbox"><span class="slider round kobans"></span></label></div>'
+                     +        '</div>'
+                     +       '</div>'
+                     +      '</div>' // end img and label
+
+                     //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoBuyBoosters","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoBuyBoosters","tooltip")+'</span><label class="switch"><input id="autoBuyBoosters" type="checkbox"><span class="slider round kobans"></span></label></div></div>'
+                     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoBuyBoostersFilter","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoBuyBoostersFilter","tooltip")+'</span><input style="width:70px" id="autoBuyBoostersFilter" required pattern="'+HHAuto_inputPattern.autoBuyBoostersFilter+'" type="text"></div></div>'
+                     +     '</div>'
+                     +     '<div class="internalOptionsRow">'
+
+                     +      '<div class="labelAndButton">' // start img and label
+                     +       '<span class="HHMenuItemName" style="padding-bottom:2px">'+getTextForUI("showMarketTools","elementText")+'</span>'
+                     +       '<div class="imgAndObjectRow">'  //+      '<div style="display: flex;flex-direction: row;justify-content: space-between">'
+                     +        '<img class="iconImg" src="https://hh2.hh-content.com/design/menu/panel.svg" />'  //height="20px" width="20px"
+                     +        '<div style="padding-left:5px">'
+                     +         '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("showMarketTools","tooltip")+'</span><label class="switch"><input id="showMarketTools" type="checkbox"><span class="slider round"></span></label></div>'
+                     +        '</div>'
+                     +       '</div>'
+                     +      '</div>' // end img and label
+
+                     //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("showMarketTools","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("showMarketTools","tooltip")+'</span><label class="switch"><input id="showMarketTools" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     +     '</div>'
+                   //+     '<div class="internalOptionsRow">'
+                   //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoEGMW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoEGMW","tooltip")+'</span><label class="switch"><input id="autoEGMW" type="checkbox"><span class="slider round"></span></label></div></div>'
+                   //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoEGM","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoEGM","tooltip")+'</span><input id="autoEGM" required pattern="'+HHAuto_inputPattern.autoEGM+'" type="text"></div></div>'
+                   //+     '</div>'
                      +    '</div>'
                      +   '</div>'
                      +  '</div>'
-                     // End Region Shit
-                     // calculate Power Region
-                     +   '<div style="display:flex;flex-direction:column; border: 1px dotted;">'
-                     +    '<div class="HHMenuRow">'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("showCalculatePower","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("showCalculatePower","tooltip")+'</span><label class="switch"><input id="showCalculatePower" type="checkbox"><span class="slider round"></span></label></div>'
-                     +     '</div>'
-                     +    '<div class="HHMenuItemBox" style="padding:0.2em;display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("showInfo","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("showInfo","tooltip")+'</span><label class="switch"><input id="showInfo" type="checkbox"><span class="slider round"></span></label></div>'
-                     +    '</div>'
-                     +   '</div>'
-                     +    '<div class="HHMenuRow">'
-                     +     '<div class="HHMenuItemBox" style="padding:0.2em;padding-right:10px;display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("showTooltips","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("showTooltips","tooltip")+'</span><label class="switch"><input id="showTooltips" type="checkbox"><span class="slider round"></span></label></div>'
-                     +     '</div>'
-                     +    '<div class="HHMenuItemBox" style="padding:0.2em;display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("PoAMaskRewards","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PoAMaskRewards","tooltip")+'</span><label class="switch"><input id="PoAMaskRewards" type="checkbox"><span class="slider round"></span></label></div>'
-                     +    '</div>'
-                     +   '</div>'
-                     +  '</div>'
-                     // End Calculate power region
-                     +  '</div>'
-                     +  '<div style="padding:0.2em;display:flex;flex-direction:column;">'
-                     // Region AutoSalary
-                     +   '<div class="HHMenuRow" style="border: 1px dotted;">'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("autoSalaryCheckbox","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoSalaryCheckbox","tooltip")+'</span><label class="switch"><input id="autoSalaryCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
-                     +    '</div>'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("autoSalaryTextbox","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoSalaryTextbox","tooltip")+'</span><input id="autoSalaryTextbox" style="width:80%" required pattern="'+HHAuto_inputPattern.autoSalaryTextbox+'" type="text"></div>'
-                     +    '</div>'
-                     //End Region AutoSalary
-                     +   '</div>'
-                     //Region AutoMission
-                     +   '<div class="HHMenuRow" style="border: 1px dotted;">'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("autoMissionCheckbox","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoMissionCheckbox","tooltip")+'</span><label class="switch"><input id="autoMissionCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
-                     +    '</div>'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("autoMissionCollect","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoMissionCollect","tooltip")+'</span><label class="switch"><input id="autoMissionCollect" type="checkbox"><span class="slider round"></span></label></div>'
-                     +    '</div>'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("autoMissionKFirst","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoMissionKFirst","tooltip")+'</span><label class="switch"><input id="autoMissionKFirst" type="checkbox"><span class="slider round"></span></label></div>'
-                     +    '</div>'
-                     +   '</div>'
-                     //End Region AutoMission
-                     // Region AutoTroll
-                     +   '<div style="display:flex;flex-direction:column; border: 1px dotted;">'
-                     +    '<div class="HHMenuRow">'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("autoTrollCheckbox","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoTrollCheckbox","tooltip")+'</span><label class="switch"><input id="autoTrollCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
-                     +     '</div>'
-                     +     '<div class="HHMenuItemBox" style="padding:0.2em;display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("autoTrollSelector","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoTrollSelector","tooltip")+'</span><select id="autoTrollSelector"></select></div>'
-                     +     '</div>'
-                     +     '<div class="HHMenuItemBox" style="padding:0.2em;display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("autoTrollThreshold","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoTrollThreshold","tooltip")+'</span><input style="width:50px" id="autoTrollThreshold" required pattern="'+HHAuto_inputPattern.autoTrollThreshold+'" type="text"></div>'
-                     +     '</div>'
-                     +    '</div>'
-                     +    '<div class="HHMenuRow">'
-                     +     '<div class="HHMenuItemBox" style="padding:0.2em;display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("plusEvent","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("plusEvent","tooltip")+'</span><label class="switch"><input id="plusEvent" type="checkbox"><span class="slider round"></span></label></div>'
-                     +     '</div>'
-                     +     '<div class="HHMenuItemBox" style="padding:0.2em;display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("eventTrollOrder","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("eventTrollOrder","tooltip")+'</span><input id="eventTrollOrder" style="width:150px" required pattern="'+HHAuto_inputPattern.eventTrollOrder+'"type="text"></div>'
-                     +     '</div>'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("buyCombat","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("buyCombat","tooltip")+'</span><label class="switch"><input id="buyCombat" type="checkbox"><span class="slider round kobans"></span></label></div>'
-                     +     '</div>'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("buyCombTimer","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("buyCombTimer","tooltip")+'</span><input id="buyCombTimer" style="width:50%" required pattern="'+HHAuto_inputPattern.buyCombTimer+'" type="text"></div>'
-                     +     '</div>'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     //+      '<span class="HHMenuItemName">'+getTextForUI("useX10Fights","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("useX10Fights","tooltip")+'</span><label class="switch"><input id="useX10Fights" type="checkbox"><span class="slider round kobans"></span></label></div>'
-                     +     '</div>'
-                     +    '</div>'
-                     +    '<div class="HHMenuRow">'
-                     +     '<div class="HHMenuItemBox" style="padding:0.2em;display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("plusEventMythic","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("plusEventMythic","tooltip")+'</span><label class="switch"><input id="plusEventMythic" type="checkbox"><span class="slider round"></span></label></div>'
-                     +     '</div>'
-                     //+     '<div class="HHMenuItemBox" style="padding:0.2em;display:flex;flex-direction:column;">'
-                     //+      '<span class="HHMenuItemName">'+getTextForUI("eventMythicPrio","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("eventMythicPrio","tooltip")+'</span><label class="switch"><input id="eventMythicPrio" type="checkbox"><span class="slider round"></span></label></div>'
-                     //+     '</div>'
-//                      +     '<div class="HHMenuItemBox" style="padding:0.2em;display:flex;flex-direction:column;">'
-//                      +      '<span>'+getTextForUI("autoTrollMythicByPassThreshold","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoTrollMythicByPassThreshold","tooltip")+'</span><label class="switch"><input id="autoTrollMythicByPassThreshold" type="checkbox"><span class="slider round"></span></label></div>'
-//                      +     '</div>'
-                     +     '<div class="HHMenuItemBox" style="padding:0.2em;display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("autoTrollMythicByPassParanoia","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoTrollMythicByPassParanoia","tooltip")+'</span><label class="switch"><input id="autoTrollMythicByPassParanoia" type="checkbox"><span class="slider round"></span></label></div>'
-                     +     '</div>'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("buyMythicCombat","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("buyMythicCombat","tooltip")+'</span><label class="switch"><input id="buyMythicCombat" type="checkbox"><span class="slider round kobans"></span></label></div>'
-                     +     '</div>'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("buyMythicCombTimer","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("buyMythicCombTimer","tooltip")+'</span><input id="buyMythicCombTimer" style="width:50%" required pattern="'+HHAuto_inputPattern.buyMythicCombTimer+'" type="text"></div>'
-                     +     '</div>'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     //+      '<span class="HHMenuItemName">'+getTextForUI("useX50Fights","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("useX50Fights","tooltip")+'</span><label class="switch"><input id="useX50Fights" type="checkbox"><span class="slider round kobans"></span></label></div>'
-                     +     '</div>'
-                     +    '</div>'
-                     +   '</div>'
-                     // End Region AutoTroll
-                     //+   '<span>'+getTextForUI("autoArenaCheckbox","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoArenaCheckbox","tooltip")+'</span><label class="switch"><input id="autoArenaCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
-                     // Region AutoSeason
-                     +   '<div class="HHMenuRow" style="border: 1px dotted;">'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("autoSeasonCheckbox","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoSeasonCheckbox","tooltip")+'</span><label class="switch"><input id="autoSeasonCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
-                     +    '</div>'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("autoSeasonCollect","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoSeasonCollect","tooltip")+'</span><label class="switch"><input id="autoSeasonCollect" type="checkbox"><span class="slider round"></span></label></div>'
-                     +    '</div>'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("autoSeasonThreshold","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoSeasonThreshold","tooltip")+'</span><input style="width:50px" id="autoSeasonThreshold" required pattern="'+HHAuto_inputPattern.autoSeasonThreshold+'" type="text"></div>'
-                     +    '</div>'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("SeasonMaskRewards","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("SeasonMaskRewards","tooltip")+'</span><label class="switch"><input id="SeasonMaskRewards" type="checkbox"><span class="slider round"></span></label></div>'
-                     +    '</div>'
-                     +    '<div class="HHMenuItemBox" style="padding:0.2em;display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("calculatePowerLimits","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("calculatePowerLimits","tooltip")+'</span><input id="calculatePowerLimits" style="width:80%" required pattern="'+HHAuto_inputPattern.calculatePowerLimits+'" type="text"></div>'
-                     +    '</div>'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("autoSeasonPassReds","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoSeasonPassReds","tooltip")+'</span><label  class="switch"><input id="autoSeasonPassReds" type="checkbox"><span class="slider round kobans"></span></label></div>'
-                     +    '</div>'
-                     +   '</div>'
-                     // End Region AutoSeason
-                     // Region quest
-                     +   '<div class="HHMenuRow" style="border: 1px dotted;">'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("autoQuestCheckbox","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoQuestCheckbox","tooltip")+'</span><label class="switch"><input id="autoQuestCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
-                     +    '</div>'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("autoQuestThreshold","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoQuestThreshold","tooltip")+'</span><input style="width:50px" id="autoQuestThreshold" required pattern="'+HHAuto_inputPattern.autoQuestThreshold+'" type="text"></div>'
-                     +    '</div>'
-                     +   '</div>'
-                     //end region quest
-                     +   '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +    '<span class="HHMenuItemName">'+getTextForUI("autoContestCheckbox","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoContestCheckbox","tooltip")+'</span><label class="switch"><input id="autoContestCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
-                     +   '</div>'
-                     +   '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +    '<span class="HHMenuItemName">'+getTextForUI("autoFreePachinko","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoFreePachinko","tooltip")+'</span><label class="switch"><input id="autoFreePachinko" type="checkbox"><span class="slider round"></span></label></div>'
-                     +   '</div>'
-                     +  '</div>'
-                     +  '<div style="padding:0.2em;display:flex;flex-direction:column;">'
-                     // Region AutoLeagues
-                     +   '<div style="display:flex;flex-direction:column; border: 1px dotted;">'
-                     +    '<div class="HHMenuRow">'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("autoLeagues","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLeagues","tooltip")+'</span><label class="switch"><input id="autoLeagues" type="checkbox"><span class="slider round"></span></label></div>'
-                     +     '</div>'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("autoLeaguesPowerCalc","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLeaguesPowerCalc","tooltip")+'</span><label class="switch"><input id="autoLeaguesPowerCalc" type="checkbox"><span class="slider round"></span></label></div>'
-                     +     '</div>'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("autoLeaguesCollect","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLeaguesCollect","tooltip")+'</span><label class="switch"><input id="autoLeaguesCollect" type="checkbox"><span class="slider round"></span></label></div>'
-                     +     '</div>'
-                     +    '</div>'
-                     +    '<div class="HHMenuRow">'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("autoLeaguesSelector","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLeaguesSelector","tooltip")+'</span><select id="autoLeaguesSelector"></select></div>'
-                     +     '</div>'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("autoLeaguesAllowWinCurrent","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLeaguesAllowWinCurrent","tooltip")+'</span><label class="switch"><input id="autoLeaguesAllowWinCurrent" type="checkbox"><span class="slider round"></span></label></div>'
-                     +     '</div>'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("autoLeaguesThreshold","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLeaguesThreshold","tooltip")+'</span><input style="width:50px" id="autoLeaguesThreshold" required pattern="'+HHAuto_inputPattern.autoLeaguesThreshold+'"type="text"></div>'
-                     +     '</div>'
-                     +    '</div>'
-                     +   '</div>'
-                     // End Region AutoLeagues
-                     // Region PowerPlace
-                     +   '<div class="HHMenuRow" style="border: 1px dotted;">'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("autoPowerPlaces","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoPowerPlaces","tooltip")+'</span><label class="switch"><input id="autoPowerPlaces" type="checkbox"><span class="slider round"></span></label></div>'
-                     +    '</div>'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("autoPowerPlacesIndexFilter","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoPowerPlacesIndexFilter","tooltip")+'</span><input id="autoPowerPlacesIndexFilter" required pattern="'+HHAuto_inputPattern.autoPowerPlacesIndexFilter+'" type="text"></div>'
-                     +    '</div>'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("autoPowerPlacesAll","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoPowerPlacesAll","tooltip")+'</span><label class="switch"><input id="autoPowerPlacesAll" type="checkbox"><span class="slider round"></span></label></div>'
-                     +    '</div>'
-                     +   '</div>'
-                     // End Region PowerPlace
-                     // Region AutoChampions
-                     +   '<div class="HHMenuRow" style="border: 1px dotted;">'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("autoChamps","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoChamps","tooltip")+'</span><label class="switch"><input id="autoChamps" type="checkbox"><span class="slider round"></span></label></div>'
-                     +    '</div>'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("autoChampsUseEne","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoChampsUseEne","tooltip")+'</span><label class="switch"><input id="autoChampsUseEne" type="checkbox"><span class="slider round"></span></label></div>'
-                     +    '</div>'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("autoChampsFilter","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoChampsFilter","tooltip")+'</span><input style="width:70px" id="autoChampsFilter" required pattern="'+HHAuto_inputPattern.autoChampsFilter+'" type="text"></div>'
-                     +    '</div>'
-                     +   '</div>'
-                     // End Region AutoChampions
-                     // Region AutoClubChampion
-                     +   '<div class="HHMenuRow" style="border: 1px dotted;">'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("autoClubChamp","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoClubChamp","tooltip")+'</span><label class="switch"><input id="autoClubChamp" type="checkbox"><span class="slider round"></span></label></div>'
-                     +    '</div>'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("autoClubChampMax","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoClubChampMax","tooltip")+'</span><input style="width:70px" id="autoClubChampMax" required pattern="'+HHAuto_inputPattern.autoClubChampMax+'" type="text"></div>'
-                     +    '</div>'
-                     +   '</div>'
-                     // End Region AutoClubChampions
-                     // Region Market
-                     +   '<div style="display:flex;flex-direction:column; border: 1px dotted;">'
-                     +    '<div class="HHMenuRow">'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("autoStatsSwitch","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoStatsSwitch","tooltip")+'</span><label class="switch"><input id="autoStatsSwitch" type="checkbox"><span class="slider round"></span></label></div>'
-                     +     '</div>'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("autoStats","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoStats","tooltip")+'</span><input id="autoStats" required pattern="'+HHAuto_inputPattern.autoStats+'" type="text"></div>'
-                     +     '</div>'
-                     +    '</div>'
-                     +    '<div class="HHMenuRow">'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName" class="HHMenuItemName">'+getTextForUI("autoExpW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoExpW","tooltip")+'</span><label class="switch"><input id="autoExpW" type="checkbox"><span class="slider round"></span></label></div>'
-                     +     '</div>'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("autoExp","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoExp","tooltip")+'</span><input id="autoExp" required pattern="'+HHAuto_inputPattern.autoExp+'" type="text"></div>'
-                     +     '</div>'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("maxExp","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("maxExp","tooltip")+'</span><input style="width:50px" id="maxExp" required pattern="'+HHAuto_inputPattern.maxExp+'" type="text"></div>'
-                     +     '</div>'
-                     +    '</div>'
-                     +    '<div class="HHMenuRow">'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("autoAffW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoAffW","tooltip")+'</span><label class="switch"><input id="autoAffW" type="checkbox"><span class="slider round"></span></label></div>'
-                     +     '</div>'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("autoAff","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoAff","tooltip")+'</span><input id="autoAff" required pattern="'+HHAuto_inputPattern.autoAff+'" type="text"></div>'
-                     +     '</div>'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("maxAff","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("maxAff","tooltip")+'</span><input style="width:50px" id="maxAff" required pattern="'+HHAuto_inputPattern.maxAff+'" type="text"></div>'
-                     +     '</div>'
-                     +    '</div>'
-                     +    '<div class="HHMenuRow">'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("autoLGMW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLGMW","tooltip")+'</span><label class="switch"><input id="autoLGMW" type="checkbox"><span class="slider round"></span></label></div>'
-                     +     '</div>'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("autoLGM","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLGM","tooltip")+'</span><input id="autoLGM" required pattern="'+HHAuto_inputPattern.autoLGM+'" type="text"></div>'
-                     +     '</div>'
-                     +    '</div>'
-                     +    '<div class="HHMenuRow">'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("autoLGRW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLGRW","tooltip")+'</span><label class="switch"><input id="autoLGRW" type="checkbox"><span class="slider round"></span></label></div>'
-                     +     '</div>'
-                     +     '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +      '<span class="HHMenuItemName">'+getTextForUI("autoLGR","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoLGR","tooltip")+'</span><input id="autoLGR" required pattern="'+HHAuto_inputPattern.autoLGR+'" type="text"></div>'
-                     +     '</div>'
-                     +    '</div>'
-                     +   '<div class="HHMenuRow">'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("autoBuyBoosters","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoBuyBoosters","tooltip")+'</span><label class="switch"><input id="autoBuyBoosters" type="checkbox"><span class="slider round kobans"></span></label></div>'
-                     +    '</div>'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("autoBuyBoostersFilter","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoBuyBoostersFilter","tooltip")+'</span><input style="width:70px" id="autoBuyBoostersFilter" required pattern="'+HHAuto_inputPattern.autoBuyBoostersFilter+'" type="text"></div>'
-                     +    '</div>'
-                     +   '</div>'
-                     +    '<div class="HHMenuItemBox" style="display:flex;flex-direction:column;">'
-                     +     '<span class="HHMenuItemName">'+getTextForUI("showMarketTools","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("showMarketTools","tooltip")+'</span><label class="switch"><input id="showMarketTools" type="checkbox"><span class="slider round"></span></label></div>'
-                     +    '</div>'
-                     //+    '<div class="HHMenuRow">'
-                     //+     '<div class="HHMenuItemBox" style="padding:10px; display:flex;flex-direction:column;">'
-                     //+      '<span class="HHMenuItemName">'+getTextForUI("autoEGMW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoEGMW","tooltip")+'</span><label class="switch"><input id="autoEGMW" type="checkbox"><span class="slider round"></span></label></div>'
-                     //+     '</div>'
-                     //+     '<div class="HHMenuItemBox" style="padding:10px; display:flex;flex-direction:column;">'
-                     //+      '<span class="HHMenuItemName">'+getTextForUI("autoEGM","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoEGM","tooltip")+'</span><input id="autoEGM" required pattern="'+HHAuto_inputPattern.autoEGM+'" type="text"></div>'
-                     //+     '</div>'
-                     //+    '</div>'
-                     +   '</div>'
-                     +  '</div>'
+                   // End region market
+               // |End column 3|
                      + '</div>'
+            // _End row of 3 columns_
                      +'</div>'+UIcontainer.html());
 
     var div = document.createElement('div');
-    div.innerHTML = '<div id="pInfo" style="padding-left:3px;z-index:-1;white-space: pre;position: absolute;right: 5%; left:70%; top:8%;border: 1px solid #ffa23e;background-color: rgba(0,0,0,.5);border-radius: 5px;"></div>'.trim();
+    div.innerHTML = '<div id="pInfo" style="padding-left:3px; z-index:1;white-space: pre;position: absolute;right: 5%; left:77%; top:11%; overflow: hidden; border: 1px solid #ffa23e; background-color: rgba(0,0,0,.5); border-radius: 5px; font-size:9pt;"></div>'.trim(); //height: auto;
+
+    var pInfo = div.firstElementChild;
+
+    pInfo.addEventListener("click", function() {
+        let masterSwitch = document.getElementById("master");
+        if (masterSwitch.checked === true) {
+            Storage().HHAuto_Setting_master = "false";
+            masterSwitch.checked = false;
+            //console.log("Master switch off");
+        } else {
+            Storage().HHAuto_Setting_master = "true";
+            masterSwitch.checked = true;
+            //console.log("Master switch on");
+        }
+    });
+
+    if(getPage()=="home")
+    {
+        pInfo.style.height = "auto";
+        //Storage().HHAuto_Setting_infoBoxIsHidden = "false";
+        //console.log("Showing InfoBox");
+    }
+    else
+    {
+        pInfo.addEventListener("mouseover", function() { pInfo.style.height = "auto"; });
+        pInfo.addEventListener("mouseout", function() { pInfo.style.height = "22px"; });
+        pInfo.style.height = "22px";
+        //Storage().HHAuto_Setting_infoBoxIsHidden = "true";
+        //console.log("Hiding InfoBox");
+    }
+
     document.getElementById('contains_all').appendChild(div.firstChild);
 
     // Add auto troll options
