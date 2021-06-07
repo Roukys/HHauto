@@ -7604,6 +7604,7 @@ HHAuto_ToolTips.en = [];
     HHAuto_ToolTips.en.minShardsX10  = { elementText: "Min. shards x10", tooltip : "Only use x10 button if remaining shards of current girl is equal or above this limit."};
     HHAuto_ToolTips.en.trollzList = { elementText: ["Latest","Dark Lord","Ninja Spy","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson\'s Crew","Pandora witch","Nike","Sake"] };
     HHAuto_ToolTips.en.leaguesList = { elementText: ["Wanker I","Wanker II","Wanker III","Sexpert I","Sexpert II","Sexpert III","Dicktator I","Dicktator II","Dicktator III"] };
+    HHAuto_ToolTips.en.mythicGirlNext  = { elementText: "Mythic girl wave"};
 
 HHAuto_ToolTips.fr = [];
     HHAuto_ToolTips.fr.saveDebug = { elementText: "Sauver log", tooltip : "Produire un fichier journal de débogage."};
@@ -7701,7 +7702,7 @@ HHAuto_ToolTips.fr = [];
     HHAuto_ToolTips.fr.buyMythicCombTimer = { elementText: "Heures d'achat comb.", tooltip : "(Integer)<br>X dernières heures de l'événement mythique"};
     HHAuto_ToolTips.fr.trollzList = { elementText: ["Dernier","Dark Lord","Espion Ninja","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson","Pandora","Nike","Sake"] };
     HHAuto_ToolTips.fr.leaguesList = { elementText: ["Branleur I","Branleur II","Branleur III","Sexpert I","Sexpert II","Sexpert III","Dicktateur I","Dicktateur II","Dicktateur III"] };
-
+    HHAuto_ToolTips.fr.mythicGirlNext  = { elementText: "Vague mythique"};
 
 HHAuto_ToolTips.de = [];
 HHAuto_ToolTips.de.saveDebug = { elementText: "Save Debug", tooltip : "Erlaube das Erstellen einer Debug Log Datei."};
@@ -8287,7 +8288,7 @@ var updateData = function () {
         }
         if (!checkTimer('eventMythicNextWave'))
         {
-            Tegzd += '<br>Mythic girl next: '+getTimeLeft('eventMythicNextWave');
+            Tegzd += '<br>'+getTextForUI("mythicGirlNext","elementText")+' : '+getTimeLeft('eventMythicNextWave');
         }
         Tegzd += '<br>'+getTextForUI("autoAffW","elementText")+' : '+sessionStorage.HHAuto_Temp_haveAff;
         Tegzd += '<br>'+getTextForUI("autoExpW","elementText")+' : '+sessionStorage.HHAuto_Temp_haveExp;
