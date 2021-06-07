@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.42
+// @version      5.4.43
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -6821,7 +6821,6 @@ var CrushThemFights=function()
     let urlParams = new URLSearchParams(queryString);
     let TTF = urlParams.get('id_troll');
 
-    let canUsex10 = false;
     let battleButtonX10 = $('#battle button[rel="launch"].autofight[price_fe="10"]');
     let battleButtonX50 = $('#battle button[rel="launch"].autofight[price_fe="50"]');
     let battleButtonX10Price = Number(battleButtonX10.attr('price'));
@@ -7072,7 +7071,8 @@ var getBurst=function()
 }
 
 function saveHHVarsSettingsAsJSON() {
-    var dataToSave=extractHHVars();
+    var dataToSave={};
+    extractHHVars(dataToSave);
     var name='HH_SaveSettings_'+Date.now()+'.json';
     const a = document.createElement('a')
     a.download = name
@@ -7126,14 +7126,14 @@ function getBrowserData(nav) {
     return data.name + ' ' + data.version['full'];
 };
 
-function extractHHVars(extractLog = false,extractTemp=true,extractSettings=true)
+function extractHHVars(dataToSave,extractLog = false,extractTemp=true,extractSettings=true)
 {
     let storageType;
-    let storageName = localStorage.HHAuto_Setting_settPerTab==="true"?"sessionStorage":"localStorage";
+    let storageName;
+    let currentStorageName = localStorage.HHAuto_Setting_settPerTab==="true"?"sessionStorage":"localStorage";
     let currentStorage = localStorage.HHAuto_Setting_settPerTab==="true"?sessionStorage:localStorage;
     let variableName;
     let storageItem;
-    let dataToSave={};
     if (extractSettings)
     {
         for (let i in HHVars_Settings)
@@ -7144,12 +7144,15 @@ function extractHHVars(extractLog = false,extractTemp=true,extractSettings=true)
             {
                 case 'Storage()' :
                     storageItem = currentStorage;
+                    storageName = currentStorageName;
                     break;
                 case 'localStorage' :
                     storageItem = localStorage;
+                    storageName = 'localStorage';
                     break;
                 case 'sessionStorage' :
                     storageItem = sessionStorage;
+                    storageName = 'sessionStorage';
                     break;
             }
             dataToSave[storageName+"."+variableName] = storageItem.getItem(variableName);
@@ -7165,18 +7168,25 @@ function extractHHVars(extractLog = false,extractTemp=true,extractSettings=true)
             {
                 case 'Storage()' :
                     storageItem = currentStorage;
+                    storageName = currentStorageName;
                     break;
                 case 'localStorage' :
                     storageItem = localStorage;
+                    storageName = 'localStorage';
                     break;
                 case 'sessionStorage' :
                     storageItem = sessionStorage;
+                    storageName = 'sessionStorage';
                     break;
             }
-            if (variableName !== "HHAuto_Temp_Logging" || extractLog)
+            if (variableName !== "HHAuto_Temp_Logging")
             {
                 dataToSave[storageName+"."+variableName] = storageItem.getItem(variableName);
             }
+        }
+        if (extractLog)
+        {
+            dataToSave["sessionStorage.HHAuto_Temp_Logging"] = JSON.parse(sessionStorage.getItem('HHAuto_Temp_Logging'));
         }
     }
     return dataToSave;
@@ -7184,13 +7194,14 @@ function extractHHVars(extractLog = false,extractTemp=true,extractSettings=true)
 
 function saveHHDebugLog()
 {
-    var dataToSave=extractHHVars(true);
+    var dataToSave={}
+
     var name='HH_DebugLog_'+Date.now()+'.log';
     dataToSave['HHAuto_browserVersion']=getBrowserData(window.navigator || navigator);
     dataToSave['HHAuto_scriptHandler']=GM_info.scriptHandler+' '+GM_info.version;
     dataToSave['HHAuto_version']=GM_info.script.version;
     dataToSave['HHAuto_HHSite']=window.location.origin;
-
+    extractHHVars(dataToSave,true);
     const a = document.createElement('a')
     a.download = name
     a.href = URL.createObjectURL(new Blob([JSON.stringify(dataToSave, null, 2)], {type: 'application/json'}))
@@ -7243,7 +7254,8 @@ function myfileLoad_onReaderLoad(event){
 
 function debugDeleteTempVars()
 {
-    var dataToSave=extractHHVars(false,false,true);
+    var dataToSave={};
+    extractHHVars(dataToSave,false,false,true);
     var storageType;
     var variableName;
     var storageItem;
@@ -7896,6 +7908,7 @@ var HHVars_Settings=[
     "Storage().HHAuto_Setting_minShardsX50"];
 
 var HHVars_Temp=[
+    "sessionStorage.HHAuto_Temp_Logging",
     "sessionStorage.HHAuto_Temp_trollToFight",
     "sessionStorage.HHAuto_Temp_autoLoop",
     "Storage().HHAuto_Temp_autoLoopTimeMili",
