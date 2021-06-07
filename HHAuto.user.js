@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.36
+// @version      5.4.37
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -6806,21 +6806,22 @@ var CrushThemFights=function()
     }
     else
     {
-        logHHAuto("Unable to retreive Event girl shards, crushing 1 by 1.');
+        logHHAuto("Unable to retreive Event girl shards, crushing 1 by 1.");
                   CrushThem();
         return;
     }
 
-    let bypassThreshold = ((sessionStorage.HHAuto_Temp_eventTroll
-                            && sessionStorage.HHAuto_Temp_eventTrollIsMythic === "false"
-                            && Storage().HHAuto_Setting_buyCombat=="true"
-                            && Storage().HHAuto_Setting_plusEvent==="true"
-                            && sessionStorage.HHAuto_Temp_EventInBuyCombTime === "true"
-                           ) // eventGirl available and buy comb true
-                           || (sessionStorage.HHAuto_Temp_eventTrollIsMythic === "true"
-                               && Storage().HHAuto_Setting_plusEventMythic==="true"
-                              )
-                          );
+    let bypassThreshold = (
+        (sessionStorage.HHAuto_Temp_eventTroll
+         && sessionStorage.HHAuto_Temp_eventTrollIsMythic === "false"
+         && Storage().HHAuto_Setting_buyCombat=="true"
+         && Storage().HHAuto_Setting_plusEvent==="true"
+         && sessionStorage.HHAuto_Temp_EventInBuyCombTime === "true"
+        ) // eventGirl available and buy comb true
+        || (sessionStorage.HHAuto_Temp_eventTrollIsMythic === "true"
+            && Storage().HHAuto_Setting_plusEventMythic==="true"
+           )
+    );
 
     if (HHAuto_Setting_useX50Fights === "true"
         && Storage().HHAuto_Setting_minShardsX50
