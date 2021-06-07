@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.40
+// @version      5.4.41
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -6995,6 +6995,7 @@ var RechargeCombat=function()
         && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX50))
         && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX50)
         && getSetHeroInfos('hard_currency')>=pricex50+Number(Storage().HHAuto_Setting_kobanBank)
+        && Storage().HHAuto_Setting_useX50Fights === "true"
        )
     {
         canUsex50 = true;
@@ -7431,7 +7432,7 @@ HHAuto_ToolTips.en.spendKobans0 = { elementText: "Spend Kobans", tooltip : "Secu
 HHAuto_ToolTips.en.kobanBank = { elementText: "Koban Bank", tooltip : "(Integer)<br>Minimum Koban kept when using Koban spending functions"};
 HHAuto_ToolTips.en.displayTitle = { elementText: "Display options"};
 HHAuto_ToolTips.en.autoActivitiesTitle = { elementText: "Activities"};
-HHAuto_ToolTips.en.buyCombat = { elementText: "Buy comb. for events", tooltip : "<p style='text-decoration: underline; color:red'>Koban spending functions (Needs "+HHAuto_ToolTips.en.spendKobans0.elementText+" to be On)</p>If enabled : <br>Buying combat point during last X hours of event (if not going under Koban bank value), this will bypass threshold if event girl shards available."};
+HHAuto_ToolTips.en.buyCombat = { elementText: "Buy comb. for events", tooltip : "<p style='text-decoration: underline; color:red'>Koban spending functions (Needs "+HHAuto_ToolTips.en.spendKobans0.elementText+" to be On)</p>If enabled : <br>Buying combat point during last X hours of event (if not going under Koban bank value), this will bypass threshold if event girl shards available.<br>If x50 enabled and conditions filled, it will buy 50. fight for it to run."};
 HHAuto_ToolTips.en.buyCombTimer = { elementText: "Hours to buy Combats", tooltip : "(Integer)<br>X last hours of event"};
 HHAuto_ToolTips.en.autoBuyBoosters = { elementText: "Leg. Boosters", tooltip : "<p style='text-decoration: underline; color:red'>Koban spending functions (Needs "+HHAuto_ToolTips.en.spendKobans0.elementText+" to be On)</p>Allow to buy booster in the market (if not going under Koban bank value)"};
 HHAuto_ToolTips.en.autoBuyBoostersFilter = { elementText: "Filter", tooltip : "(values separated by ;)<br>Set which booster to buy , order is respected (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)"};
@@ -7549,11 +7550,11 @@ HHAuto_ToolTips.en.menuExpLevel =  { elementText: "Enter target Exp level :", to
 HHAuto_ToolTips.en.PoAMaskRewards  = { elementText: "PoA mask claimed", tooltip : "Masked claimed rewards for Path of Attraction."};
 HHAuto_ToolTips.en.showTooltips  = { elementText: "Show tooltips", tooltip : "Show tooltip on menu."};
 HHAuto_ToolTips.en.showMarketTools  = { elementText: "Show market tools", tooltip : "Show Market tools."};
-HHAuto_ToolTips.en.useX10Fights  = { elementText: "Use x10", tooltip : "<p style='text-decoration: underline; color:red'>Koban spending functions (Needs "+HHAuto_ToolTips.en.spendKobans0.elementText+" to be On)</p>If enabled : <br>Use x10 button if 10 fights or more to do (if not going under Koban bank value)."};
-HHAuto_ToolTips.en.useX50Fights  = { elementText: "Use x50", tooltip : "<p style='text-decoration: underline; color:red'>Koban spending functions (Needs "+HHAuto_ToolTips.en.spendKobans0.elementText+" to be On)</p>If enabled : <br>Use x50 button if 50 fights or more to do (if not going under Koban bank value)."};
+HHAuto_ToolTips.en.useX10Fights  = { elementText: "Use x10", tooltip : "<p style='text-decoration: underline; color:red'>Koban spending functions (Needs "+HHAuto_ToolTips.en.spendKobans0.elementText+" to be On)</p>If enabled : <br>Use x10 button if 10 fights or more to do (if not going under Koban bank value).<br>x50 takes precedence on x10 if all conditions are filled."};
+HHAuto_ToolTips.en.useX50Fights  = { elementText: "Use x50", tooltip : "<p style='text-decoration: underline; color:red'>Koban spending functions (Needs "+HHAuto_ToolTips.en.spendKobans0.elementText+" to be On)</p>If enabled : <br>Use x50 button if 50 fights or more to do (if not going under Koban bank value).<br>Takes precedence on x10 if all conditions are filled."};
 HHAuto_ToolTips.en.autoBuy  = { elementText: "Auto buy (market)", tooltip : "Options for auto buying things in the market"};
 HHAuto_ToolTips.en.minShardsX50  = { elementText: "Min. shards x50", tooltip : "Only use x50 button if remaining shards of current girl is equal or above this limit."};
-HHAuto_ToolTips.en.minShardsX10  = { elementText: "Min. shards x10", tooltip : "Only use x50 button if remaining shards of current girl is equal or above this limit."};
+HHAuto_ToolTips.en.minShardsX10  = { elementText: "Min. shards x10", tooltip : "Only use x10 button if remaining shards of current girl is equal or above this limit."};
 
 HHAuto_ToolTips.fr = [];
 HHAuto_ToolTips.fr.saveDebug = { elementText: "Save Debug", tooltip : "Produire un fichier journal de débogage."};
