@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.37
+// @version      5.4.38
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -6807,7 +6807,7 @@ var CrushThemFights=function()
     else
     {
         logHHAuto("Unable to retreive Event girl shards, crushing 1 by 1.");
-                  CrushThem();
+        CrushThem();
         return;
     }
 
@@ -6851,7 +6851,7 @@ var CrushThemFights=function()
     {
         if (HHAuto_Setting_useX50Fights === "true")
         {
-            logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+getSetHeroInfos('fight.amount')+'/50, remaining shards : '+sessionStorage.HHAuto_Temp_eventTrollShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+            logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+getSetHeroInfos('fight.amount')+'/50, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
         }
     }
 
@@ -6883,7 +6883,7 @@ var CrushThemFights=function()
     {
         if (HHAuto_Setting_useX10Fights === "true")
         {
-            logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+getSetHeroInfos('fight.amount')+'/10, remaining shards : '+sessionStorage.HHAuto_Temp_eventTrollShards+'/'+Storage().HHAuto_Setting_minShardsX10+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+            logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+getSetHeroInfos('fight.amount')+'/10, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX10+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
         }
     }
 
@@ -6948,11 +6948,21 @@ var RechargeCombat=function()
     let pricex20=hero.get_recharge_cost("fight");
     let canRecharge20 = false;
     let canUsex50 = false;
+    let remainingShards;
 
+    if (sessionStorage.HHAuto_Temp_eventTrollShards && Number.isInteger(Number(sessionStorage.HHAuto_Temp_eventTrollShards)))
+    {
+        remainingShards = Number(100 - Number(sessionStorage.HHAuto_Temp_eventTrollShards));
+    }
+    else
+    {
+        logHHAuto("Unable to retreive Event girl shards, stops buying.");
+        return;
+    }
     if (sessionStorage.HHAuto_Temp_eventTrollShards && Number.isInteger(Number(sessionStorage.HHAuto_Temp_eventTrollShards))
         && Storage().HHAuto_Setting_minShardsX50
         && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX50))
-        && sessionStorage.HHAuto_Temp_eventTrollShards >= Number(Storage().HHAuto_Setting_minShardsX50)
+        && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX50)
         && getSetHeroInfos('hard_currency')>=pricex50+Number(Storage().HHAuto_Setting_kobanBank)
        )
     {
@@ -6961,7 +6971,7 @@ var RechargeCombat=function()
     else
     {
 
-        logHHAuto('Unable to recharge up to '+maxx50+' for '+pricex50+' kobans, shards : '+sessionStorage.HHAuto_Temp_eventTrollShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+        logHHAuto('Unable to recharge up to '+maxx50+' for '+pricex50+' kobans, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
         if (getSetHeroInfos('hard_currency')>=pricex20+Number(Storage().HHAuto_Setting_kobanBank))
         {
             canRecharge20 = true;
