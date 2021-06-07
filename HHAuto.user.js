@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.35
+// @version      5.4.36
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -6811,12 +6811,26 @@ var CrushThemFights=function()
         return;
     }
 
+    let bypassThreshold = ((sessionStorage.HHAuto_Temp_eventTroll
+                            && sessionStorage.HHAuto_Temp_eventTrollIsMythic === "false"
+                            && Storage().HHAuto_Setting_buyCombat=="true"
+                            && Storage().HHAuto_Setting_plusEvent==="true"
+                            && sessionStorage.HHAuto_Temp_EventInBuyCombTime === "true"
+                           ) // eventGirl available and buy comb true
+                           || (sessionStorage.HHAuto_Temp_eventTrollIsMythic === "true"
+                               && Storage().HHAuto_Setting_plusEventMythic==="true"
+                              )
+                          );
+
     if (HHAuto_Setting_useX50Fights === "true"
         && Storage().HHAuto_Setting_minShardsX50
         && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX50))
         && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX50)
         && (battleButtonX50Price === 0 || getSetHeroInfos('hard_currency')>=battleButtonX50Price+Number(Storage().HHAuto_Setting_kobanBank))
-        && Number( getSetHeroInfos('fight.amount')) >= 50
+        && Number( getSetHeroInfos('fight.amount')) > 50
+        && (Number(currentPower) >= (Number(Storage().HHAuto_Setting_autoTrollThreshold) + 50)
+            || bypassThreshold
+           )
        )
     {
         logHHAuto("Going to crush 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
@@ -6846,6 +6860,9 @@ var CrushThemFights=function()
         && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX10)
         && (battleButtonX10Price === 0 || getSetHeroInfos('hard_currency')>=battleButtonX10Price+Number(Storage().HHAuto_Setting_kobanBank))
         && Number( getSetHeroInfos('fight.amount')) >= 10
+        && (Number(currentPower) >= (Number(Storage().HHAuto_Setting_autoTrollThreshold) + 10)
+            || bypassThreshold
+           )
        )
     {
         logHHAuto("Going to crush 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
