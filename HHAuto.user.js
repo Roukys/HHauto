@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.34
+// @version      5.4.35
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -6797,10 +6797,24 @@ var CrushThemFights=function()
     let battleButtonX50Price = Number(battleButtonX50.attr('price'));
     let hero=getHero();
     let hcConfirmValue = hero.infos.hc_confirm;
-    if (sessionStorage.HHAuto_Temp_eventTrollShards && Number.isInteger(Number(sessionStorage.HHAuto_Temp_eventTrollShards))
+    let remainingShards;
+
+
+    if (sessionStorage.HHAuto_Temp_eventTrollShards && Number.isInteger(Number(sessionStorage.HHAuto_Temp_eventTrollShards)))
+    {
+        remainingShards = Number(100 - Number(sessionStorage.HHAuto_Temp_eventTrollShards));
+    }
+    else
+    {
+        logHHAuto("Unable to retreive Event girl shards, crushing 1 by 1.');
+                  CrushThem();
+        return;
+    }
+
+    if (HHAuto_Setting_useX50Fights === "true"
         && Storage().HHAuto_Setting_minShardsX50
         && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX50))
-        && sessionStorage.HHAuto_Temp_eventTrollShards >= Number(Storage().HHAuto_Setting_minShardsX50)
+        && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX50)
         && (battleButtonX50Price === 0 || getSetHeroInfos('hard_currency')>=battleButtonX50Price+Number(Storage().HHAuto_Setting_kobanBank))
         && Number( getSetHeroInfos('fight.amount')) >= 50
        )
@@ -6820,34 +6834,43 @@ var CrushThemFights=function()
     }
     else
     {
-        logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+getSetHeroInfos('fight.amount')+'/50, shards : '+sessionStorage.HHAuto_Temp_eventTrollShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
-        if (sessionStorage.HHAuto_Temp_eventTrollShards && Number.isInteger(Number(sessionStorage.HHAuto_Temp_eventTrollShards))
-            && Storage().HHAuto_Setting_minShardsX10
-            && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX10))
-            && sessionStorage.HHAuto_Temp_eventTrollShards >= Number(Storage().HHAuto_Setting_minShardsX10)
-            && (battleButtonX10Price === 0 || getSetHeroInfos('hard_currency')>=battleButtonX10Price+Number(Storage().HHAuto_Setting_kobanBank))
-            && Number( getSetHeroInfos('fight.amount')) >= 10
-           )
+        if (HHAuto_Setting_useX50Fights === "true")
         {
-            logHHAuto("Going to crush 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
-            hero.infos.hc_confirm = true;
-            // We have the power.
-            is_cheat_click=function(e) {
-                return false;
-            };
-            battleButtonX10.click();
-            hero.infos.hc_confirm = hcConfirmValue;
-            logHHAuto("Crushed 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
-            gotoPage('home');
-            return true;
-        }
-        else
-        {
-            logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+getSetHeroInfos('fight.amount')+'/10, shards : '+sessionStorage.HHAuto_Temp_eventTrollShards+'/'+Storage().HHAuto_Setting_minShardsX10+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
-            CrushThem();
-            return;
+            logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+getSetHeroInfos('fight.amount')+'/50, remaining shards : '+sessionStorage.HHAuto_Temp_eventTrollShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
         }
     }
+
+    if (HHAuto_Setting_useX10Fights === "true"
+        && Storage().HHAuto_Setting_minShardsX10
+        && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX10))
+        && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX10)
+        && (battleButtonX10Price === 0 || getSetHeroInfos('hard_currency')>=battleButtonX10Price+Number(Storage().HHAuto_Setting_kobanBank))
+        && Number( getSetHeroInfos('fight.amount')) >= 10
+       )
+    {
+        logHHAuto("Going to crush 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
+
+        hero.infos.hc_confirm = true;
+        // We have the power.
+        is_cheat_click=function(e) {
+            return false;
+        };
+        battleButtonX10.click();
+        hero.infos.hc_confirm = hcConfirmValue;
+        logHHAuto("Crushed 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
+        gotoPage('home');
+        return;
+    }
+    else
+    {
+        if (HHAuto_Setting_useX10Fights === "true")
+        {
+            logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+getSetHeroInfos('fight.amount')+'/10, remaining shards : '+sessionStorage.HHAuto_Temp_eventTrollShards+'/'+Storage().HHAuto_Setting_minShardsX10+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+        }
+    }
+
+    CrushThem();
+    return;
 
     //setTimeout(function(){playXTimes(50,unsafeWindow.hh_battle_players[1]);},800);
 }
