@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.39
+// @version      5.4.40
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -6809,6 +6809,7 @@ var CrushThemFights=function()
         CrushThem();
         return;
     }
+
     if (unsafeWindow.hh_battle_players === undefined || unsafeWindow.hh_battle_players[1] === undefined)
     {
         logHHAuto('Not on a boss page, aborting');
@@ -6853,13 +6854,13 @@ var CrushThemFights=function()
            )
     );
 
-    if (HHAuto_Setting_useX50Fights === "true"
+    if (Storage().HHAuto_Setting_useX50Fights === "true"
         && Storage().HHAuto_Setting_minShardsX50
         && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX50))
         && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX50)
         && (battleButtonX50Price === 0 || getSetHeroInfos('hard_currency')>=battleButtonX50Price+Number(Storage().HHAuto_Setting_kobanBank))
         && Number( getSetHeroInfos('fight.amount')) > 50
-        && (Number(currentPower) >= (Number(Storage().HHAuto_Setting_autoTrollThreshold) + 50)
+        && (Number(getSetHeroInfos('fight.amount')) >= (Number(Storage().HHAuto_Setting_autoTrollThreshold) + 50)
             || bypassThreshold
            )
        )
@@ -6874,24 +6875,24 @@ var CrushThemFights=function()
         battleButtonX50.click();
         hero.infos.hc_confirm = hcConfirmValue;
         logHHAuto("Crushed 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
-        gotoPage('home');
+        setTimeout(function(){gotoPage('home');},randomInterval(300,500));//gotoPage('home');
         return;
     }
     else
     {
-        if (HHAuto_Setting_useX50Fights === "true")
+        if (Storage().HHAuto_Setting_useX50Fights === "true")
         {
             logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+getSetHeroInfos('fight.amount')+'/50, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
         }
     }
 
-    if (HHAuto_Setting_useX10Fights === "true"
+    if (Storage().HHAuto_Setting_useX10Fights === "true"
         && Storage().HHAuto_Setting_minShardsX10
         && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX10))
         && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX10)
         && (battleButtonX10Price === 0 || getSetHeroInfos('hard_currency')>=battleButtonX10Price+Number(Storage().HHAuto_Setting_kobanBank))
         && Number( getSetHeroInfos('fight.amount')) >= 10
-        && (Number(currentPower) >= (Number(Storage().HHAuto_Setting_autoTrollThreshold) + 10)
+        && (Number(getSetHeroInfos('fight.amount')) >= (Number(Storage().HHAuto_Setting_autoTrollThreshold) + 10)
             || bypassThreshold
            )
        )
@@ -6906,12 +6907,12 @@ var CrushThemFights=function()
         battleButtonX10.click();
         hero.infos.hc_confirm = hcConfirmValue;
         logHHAuto("Crushed 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
-        gotoPage('home');
+        setTimeout(function(){gotoPage('home');},randomInterval(300,500));//gotoPage('home');
         return;
     }
     else
     {
-        if (HHAuto_Setting_useX10Fights === "true")
+        if (Storage().HHAuto_Setting_useX10Fights === "true")
         {
             logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+getSetHeroInfos('fight.amount')+'/10, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX10+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
         }
@@ -8094,23 +8095,23 @@ var updateData = function () {
     //document.getElementById("spendKobans1").checked=Storage().HHAuto_Setting_spendKobans1=="true";
     //Storage().HHAuto_Setting_spendKobans2 = document.getElementById("spendKobans2").checked && Storage().HHAuto_Setting_spendKobans1=="true" && Storage().HHAuto_Setting_spendKobans0=="true";
     //document.getElementById("spendKobans2").checked=Storage().HHAuto_Setting_spendKobans2=="true";
-    Storage().HHAuto_Setting_buyCombat=document.getElementById("buyCombat").checked && Storage().HHAuto_Setting_spendKobans0=="true" ;// && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true" ;
-    document.getElementById("buyCombat").checked=Storage().HHAuto_Setting_buyCombat=="true";
-    Storage().HHAuto_Setting_buyMythicCombat=document.getElementById("buyMythicCombat").checked && Storage().HHAuto_Setting_spendKobans0=="true" ;// && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true";
-    document.getElementById("buyMythicCombat").checked=Storage().HHAuto_Setting_buyMythicCombat=="true";
+    Storage().HHAuto_Setting_buyCombat=document.getElementById("buyCombat").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;// && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true" ;
+    document.getElementById("buyCombat").checked=Storage().HHAuto_Setting_buyCombat==="true";
+    Storage().HHAuto_Setting_buyMythicCombat=document.getElementById("buyMythicCombat").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;// && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true";
+    document.getElementById("buyMythicCombat").checked=Storage().HHAuto_Setting_buyMythicCombat==="true";
     //if (Storage().HHAuto_Setting_buyMythicCombat=="true")
     //{
     //    Storage().HHAuto_Setting_autoTrollMythicByPassThreshold = "true";
     //    document.getElementById("autoTrollMythicByPassThreshold").checked = true;
     //}
-    Storage().HHAuto_Setting_autoBuyBoosters=document.getElementById("autoBuyBoosters").checked && Storage().HHAuto_Setting_spendKobans0=="true" ;//&& Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true";
-    document.getElementById("autoBuyBoosters").checked=Storage().HHAuto_Setting_autoBuyBoosters=="true";
+    Storage().HHAuto_Setting_autoBuyBoosters=document.getElementById("autoBuyBoosters").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;//&& Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true";
+    document.getElementById("autoBuyBoosters").checked=Storage().HHAuto_Setting_autoBuyBoosters==="true";
     Storage().HHAuto_Setting_autoSeasonPassReds=document.getElementById("autoSeasonPassReds").checked && Storage().HHAuto_Setting_spendKobans0=="true" ;//&& Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true";
-    document.getElementById("autoSeasonPassReds").checked=Storage().HHAuto_Setting_autoSeasonPassReds=="true";
-    Storage().HHAuto_Setting_useX50Fights= document.getElementById("useX50Fights").checked&& Storage().HHAuto_Setting_spendKobans0=="true" ;
-    document.getElementById("useX50Fights").checked=Storage().HHAuto_Setting_useX50Fights=="true";
-    Storage().HHAuto_Setting_useX10Fights= document.getElementById("useX10Fights").checked&& Storage().HHAuto_Setting_spendKobans0=="true" ;
-    document.getElementById("useX10Fights").checked=Storage().HHAuto_Setting_useX10Fights=="true";
+    document.getElementById("autoSeasonPassReds").checked=Storage().HHAuto_Setting_autoSeasonPassReds==="true";
+    Storage().HHAuto_Setting_useX50Fights= document.getElementById("useX50Fights").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;
+    document.getElementById("useX50Fights").checked=Storage().HHAuto_Setting_useX50Fights==="true";
+    Storage().HHAuto_Setting_useX10Fights= document.getElementById("useX10Fights").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;
+    document.getElementById("useX10Fights").checked=Storage().HHAuto_Setting_useX10Fights==="true";
     Storage().HHAuto_Setting_minShardsX50=document.getElementById("minShardsX50").value;
     Storage().HHAuto_Setting_minShardsX10=document.getElementById("minShardsX10").value;
 
