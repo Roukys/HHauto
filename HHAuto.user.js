@@ -6968,8 +6968,6 @@ var CrushThemFights=function()
 
     //setTimeout(function(){playXTimes(50,unsafeWindow.hh_battle_players[1]);},800);
 }
-    //setTimeout(function(){playXTimes(50,unsafeWindow.hh_battle_players[1]);},800);
-}
 
 // var playXTimes=function(battlesAmount,who)
 // {
