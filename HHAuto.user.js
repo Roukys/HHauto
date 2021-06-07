@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.38
+// @version      5.4.39
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -6779,6 +6779,36 @@ var CollectEventData=function()
 
 var CrushThemFights=function()
 {
+    if (getPage() === "battle") {
+        // On battle page.
+        logHHAuto("On battle page.");
+        if ($("#rewards_popup .blue_text_button").size()>0)
+        {
+            $("#rewards_popup .blue_text_button").click();
+        }
+        if ($("#rewards_popup .blue_button_L").size()>0)
+        {
+            $("#rewards_popup .blue_button_L").click();
+        }
+
+        //logHHAuto("On Battle Page.");
+        if ($("#battle[class='canvas']").length === 1) {
+            // Battle screen
+            logHHAuto("On battle screen.");
+        }
+        else
+        {
+            logHHAuto('Unable to identify page.');
+            CrushThem();
+            return;
+        }
+    }
+    else
+    {
+        logHHAuto('Unable to identify page.');
+        CrushThem();
+        return;
+    }
     if (unsafeWindow.hh_battle_players === undefined || unsafeWindow.hh_battle_players[1] === undefined)
     {
         logHHAuto('Not on a boss page, aborting');
