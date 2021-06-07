@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.33
+// @version      5.4.41
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -3394,7 +3394,7 @@ var  CrushThem = function()
                 else
                 {
                     logHHAuto("Go to home after Troll fight.");
-                    setTimeout(function(){gotoPage('home');},randomInterval(500,1000));
+                    setTimeout(function(){gotoPage('home');},randomInterval(2000,4000));
                 }
                 return true;
             }
@@ -6792,6 +6792,37 @@ var CollectEventData=function()
 
 var CrushThemFights=function()
 {
+    if (getPage() === "battle") {
+        // On battle page.
+        logHHAuto("On battle page.");
+        if ($("#rewards_popup .blue_text_button").size()>0)
+        {
+            $("#rewards_popup .blue_text_button").click();
+        }
+        if ($("#rewards_popup .blue_button_L").size()>0)
+        {
+            $("#rewards_popup .blue_button_L").click();
+        }
+
+        //logHHAuto("On Battle Page.");
+        if ($("#battle[class='canvas']").length === 1) {
+            // Battle screen
+            logHHAuto("On battle screen.");
+        }
+        else
+        {
+            logHHAuto('Unable to identify page.');
+            CrushThem();
+            return;
+        }
+    }
+    else
+    {
+        logHHAuto('Unable to identify page.');
+        CrushThem();
+        return;
+    }
+
     if (unsafeWindow.hh_battle_players === undefined || unsafeWindow.hh_battle_players[1] === undefined)
     {
         logHHAuto('Not on a boss page, aborting');
@@ -6810,12 +6841,41 @@ var CrushThemFights=function()
     let battleButtonX50Price = Number(battleButtonX50.attr('price'));
     let hero=getHero();
     let hcConfirmValue = hero.infos.hc_confirm;
-    if (sessionStorage.HHAuto_Temp_eventTrollShards && Number.isInteger(Number(sessionStorage.HHAuto_Temp_eventTrollShards))
+    let remainingShards;
+
+
+    if (sessionStorage.HHAuto_Temp_eventTrollShards && Number.isInteger(Number(sessionStorage.HHAuto_Temp_eventTrollShards)))
+    {
+        remainingShards = Number(100 - Number(sessionStorage.HHAuto_Temp_eventTrollShards));
+    }
+    else
+    {
+        logHHAuto("Unable to retreive Event girl shards, crushing 1 by 1.");
+        CrushThem();
+        return;
+    }
+
+    let bypassThreshold = (
+        (sessionStorage.HHAuto_Temp_eventTroll
+         && sessionStorage.HHAuto_Temp_eventTrollIsMythic === "false"
+         && Storage().HHAuto_Setting_buyCombat=="true"
+         && Storage().HHAuto_Setting_plusEvent==="true"
+         && sessionStorage.HHAuto_Temp_EventInBuyCombTime === "true"
+        ) // eventGirl available and buy comb true
+        || (sessionStorage.HHAuto_Temp_eventTrollIsMythic === "true"
+            && Storage().HHAuto_Setting_plusEventMythic==="true"
+           )
+    );
+
+    if (Storage().HHAuto_Setting_useX50Fights === "true"
         && Storage().HHAuto_Setting_minShardsX50
         && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX50))
-        && sessionStorage.HHAuto_Temp_eventTrollShards >= Number(Storage().HHAuto_Setting_minShardsX50)
+        && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX50)
         && (battleButtonX50Price === 0 || getSetHeroInfos('hard_currency')>=battleButtonX50Price+Number(Storage().HHAuto_Setting_kobanBank))
-        && Number( getSetHeroInfos('fight.amount')) >= 50
+        && Number( getSetHeroInfos('fight.amount')) > 50
+        && (Number(getSetHeroInfos('fight.amount')) >= (Number(Storage().HHAuto_Setting_autoTrollThreshold) + 50)
+            || bypassThreshold
+           )
        )
     {
         logHHAuto("Going to crush 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
@@ -6828,40 +6888,86 @@ var CrushThemFights=function()
         battleButtonX50.click();
         hero.infos.hc_confirm = hcConfirmValue;
         logHHAuto("Crushed 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
-        gotoPage('home');
+        setTimeout(function(){gotoPage('home');},randomInterval(300,500));//gotoPage('home');
         return;
     }
     else
     {
-        logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+getSetHeroInfos('fight.amount')+'/50, shards : '+sessionStorage.HHAuto_Temp_eventTrollShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
-        if (sessionStorage.HHAuto_Temp_eventTrollShards && Number.isInteger(Number(sessionStorage.HHAuto_Temp_eventTrollShards))
-            && Storage().HHAuto_Setting_minShardsX10
-            && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX10))
-            && sessionStorage.HHAuto_Temp_eventTrollShards >= Number(Storage().HHAuto_Setting_minShardsX10)
-            && (battleButtonX10Price === 0 || getSetHeroInfos('hard_currency')>=battleButtonX10Price+Number(Storage().HHAuto_Setting_kobanBank))
-            && Number( getSetHeroInfos('fight.amount')) >= 10
-           )
+        if (Storage().HHAuto_Setting_useX50Fights === "true")
         {
-            logHHAuto("Going to crush 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
-            hero.infos.hc_confirm = true;
-            // We have the power.
-            is_cheat_click=function(e) {
-                return false;
-            };
-            battleButtonX10.click();
-            hero.infos.hc_confirm = hcConfirmValue;
-            logHHAuto("Crushed 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
-            gotoPage('home');
-            return true;
-        }
-        else
-        {
-            logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+getSetHeroInfos('fight.amount')+'/10, shards : '+sessionStorage.HHAuto_Temp_eventTrollShards+'/'+Storage().HHAuto_Setting_minShardsX10+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
-            CrushThem();
-            return;
+            logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+getSetHeroInfos('fight.amount')+'/50, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
         }
     }
 
+    if (Storage().HHAuto_Setting_useX10Fights === "true"
+        && Storage().HHAuto_Setting_minShardsX10
+        && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX10))
+        && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX10)
+        && (battleButtonX10Price === 0 || getSetHeroInfos('hard_currency')>=battleButtonX10Price+Number(Storage().HHAuto_Setting_kobanBank))
+        && Number( getSetHeroInfos('fight.amount')) >= 10
+        && (Number(getSetHeroInfos('fight.amount')) >= (Number(Storage().HHAuto_Setting_autoTrollThreshold) + 10)
+            || bypassThreshold
+           )
+       )
+    {
+        logHHAuto("Going to crush 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
+
+        hero.infos.hc_confirm = true;
+        // We have the power.
+        is_cheat_click=function(e) {
+            return false;
+        };
+        battleButtonX50.click();
+        hero.infos.hc_confirm = hcConfirmValue;
+        logHHAuto("Crushed 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
+        setTimeout(function(){gotoPage('home');},randomInterval(300,500));//gotoPage('home');
+        return;
+    }
+    else
+    {
+        if (Storage().HHAuto_Setting_useX50Fights === "true")
+        {
+            logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+getSetHeroInfos('fight.amount')+'/50, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+        }
+    }
+
+    if (Storage().HHAuto_Setting_useX10Fights === "true"
+        && Storage().HHAuto_Setting_minShardsX10
+        && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX10))
+        && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX10)
+        && (battleButtonX10Price === 0 || getSetHeroInfos('hard_currency')>=battleButtonX10Price+Number(Storage().HHAuto_Setting_kobanBank))
+        && Number( getSetHeroInfos('fight.amount')) >= 10
+        && (Number(getSetHeroInfos('fight.amount')) >= (Number(Storage().HHAuto_Setting_autoTrollThreshold) + 10)
+            || bypassThreshold
+           )
+       )
+    {
+        logHHAuto("Going to crush 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
+
+        hero.infos.hc_confirm = true;
+        // We have the power.
+        is_cheat_click=function(e) {
+            return false;
+        };
+        battleButtonX10.click();
+        hero.infos.hc_confirm = hcConfirmValue;
+        logHHAuto("Crushed 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
+        setTimeout(function(){gotoPage('home');},randomInterval(300,500));//gotoPage('home');
+        return;
+    }
+    else
+    {
+        if (Storage().HHAuto_Setting_useX10Fights === "true")
+        {
+            logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+getSetHeroInfos('fight.amount')+'/10, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX10+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+        }
+    }
+
+    CrushThem();
+    return;
+
+    //setTimeout(function(){playXTimes(50,unsafeWindow.hh_battle_players[1]);},800);
+}
     //setTimeout(function(){playXTimes(50,unsafeWindow.hh_battle_players[1]);},800);
 }
 
@@ -6920,12 +7026,23 @@ var RechargeCombat=function()
     let pricex20=hero.get_recharge_cost("fight");
     let canRecharge20 = false;
     let canUsex50 = false;
+    let remainingShards;
 
+    if (sessionStorage.HHAuto_Temp_eventTrollShards && Number.isInteger(Number(sessionStorage.HHAuto_Temp_eventTrollShards)))
+    {
+        remainingShards = Number(100 - Number(sessionStorage.HHAuto_Temp_eventTrollShards));
+    }
+    else
+    {
+        logHHAuto("Unable to retreive Event girl shards, stops buying.");
+        return;
+    }
     if (sessionStorage.HHAuto_Temp_eventTrollShards && Number.isInteger(Number(sessionStorage.HHAuto_Temp_eventTrollShards))
         && Storage().HHAuto_Setting_minShardsX50
         && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX50))
-        && sessionStorage.HHAuto_Temp_eventTrollShards >= Number(Storage().HHAuto_Setting_minShardsX50)
+        && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX50)
         && getSetHeroInfos('hard_currency')>=pricex50+Number(Storage().HHAuto_Setting_kobanBank)
+        && Storage().HHAuto_Setting_useX50Fights === "true"
        )
     {
         canUsex50 = true;
@@ -6933,7 +7050,7 @@ var RechargeCombat=function()
     else
     {
 
-        logHHAuto('Unable to recharge up to '+maxx50+' for '+pricex50+' kobans, shards : '+sessionStorage.HHAuto_Temp_eventTrollShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+        logHHAuto('Unable to recharge up to '+maxx50+' for '+pricex50+' kobans, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
         if (getSetHeroInfos('hard_currency')>=pricex20+Number(Storage().HHAuto_Setting_kobanBank))
         {
             canRecharge20 = true;
@@ -7587,6 +7704,7 @@ HHAuto_ToolTips.fr = [];
     HHAuto_ToolTips.fr.trollzList = { elementText: ["Dernier","Dark Lord","Espion Ninja","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson","Pandora","Nike","Sake"] };
     HHAuto_ToolTips.fr.leaguesList = { elementText: ["Branleur I","Branleur II","Branleur III","Sexpert I","Sexpert II","Sexpert III","Dicktateur I","Dicktateur II","Dicktateur III"] };
 
+
 HHAuto_ToolTips.de = [];
 HHAuto_ToolTips.de.saveDebug = { elementText: "Save Debug", tooltip : "Erlaube das Erstellen einer Debug Log Datei."};
 HHAuto_ToolTips.de.gitHub = { elementText: "GitHub", tooltip : "Link zum GitHub Projekt."};
@@ -7879,6 +7997,7 @@ var HHVars = ["Storage().HHAuto_Setting_autoAff",
             "Storage().HHAuto_Setting_minShardsX10",
             "Storage().HHAuto_Setting_minShardsX50"];
 
+
 function add1000sSeparator1()
 {
     var nToFormat = this.value;
@@ -7887,9 +8006,8 @@ function add1000sSeparator1()
 
 function add1000sSeparator(nToFormat)
 {
-    return (Intl) ? (new Intl.NumberFormat().format(remove1000sSeparator(nToFormat))) : nToFormat;  //.toString()
-    //return Number(remove1000sSeparator(nToFormat)).toLocaleString();
-
+    return (Intl) ? (new Intl.NumberFormat().format(remove1000sSeparator(nToFormat))) : nToFormat;
+    
 /*     //console.log("[add1000sSeparator] Retrieved value : "+nToFormat+" ; thousandsSeparator : \""+thousandsSeparator+"\"");
     var chars = remove1000sSeparator(nToFormat).split("").reverse();
     var with1000sSeparator = [];
@@ -7907,7 +8025,6 @@ function add1000sSeparator(nToFormat)
 function remove1000sSeparator(nToFormat)
 {
     return nToFormat.replace(RegExp(thousandsSeparator, 'g'), '');
-    //return (Intl) ? (Intl.NumberFormat().format(nToFormat).replace(RegExp(thousandsSeparator), '')) : "";
     //return nToFormat.split(thousandsSeparator).join("");
 
 /*     //console.log("[remove1000sSeparator] Retrieved formated value : "+nToFormat+" ; thousandsSeparator : \""+thousandsSeparator+"\"");
@@ -7916,6 +8033,7 @@ function remove1000sSeparator(nToFormat)
     //console.log("[remove1000sSeparator] Unformatted value : "+nToFormat);
     //return nToFormat;
 }
+
 
 var updateData = function () {
     //logHHAuto("updating UI");
@@ -8077,23 +8195,24 @@ var updateData = function () {
     //document.getElementById("spendKobans1").checked=Storage().HHAuto_Setting_spendKobans1=="true";
     //Storage().HHAuto_Setting_spendKobans2 = document.getElementById("spendKobans2").checked && Storage().HHAuto_Setting_spendKobans1=="true" && Storage().HHAuto_Setting_spendKobans0=="true";
     //document.getElementById("spendKobans2").checked=Storage().HHAuto_Setting_spendKobans2=="true";
-    Storage().HHAuto_Setting_buyCombat=document.getElementById("buyCombat").checked && Storage().HHAuto_Setting_spendKobans0=="true" ;// && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true" ;
-    document.getElementById("buyCombat").checked=Storage().HHAuto_Setting_buyCombat=="true";
-    Storage().HHAuto_Setting_buyMythicCombat=document.getElementById("buyMythicCombat").checked && Storage().HHAuto_Setting_spendKobans0=="true" ;// && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true";
-    document.getElementById("buyMythicCombat").checked=Storage().HHAuto_Setting_buyMythicCombat=="true";
+    Storage().HHAuto_Setting_buyCombat=document.getElementById("buyCombat").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;// && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true" ;
+    document.getElementById("buyCombat").checked=Storage().HHAuto_Setting_buyCombat==="true";
+    Storage().HHAuto_Setting_buyMythicCombat=document.getElementById("buyMythicCombat").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;// && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true";
+    document.getElementById("buyMythicCombat").checked=Storage().HHAuto_Setting_buyMythicCombat==="true";
     //if (Storage().HHAuto_Setting_buyMythicCombat=="true")
     //{
     //    Storage().HHAuto_Setting_autoTrollMythicByPassThreshold = "true";
     //    document.getElementById("autoTrollMythicByPassThreshold").checked = true;
     //}
-    Storage().HHAuto_Setting_autoBuyBoosters=document.getElementById("autoBuyBoosters").checked && Storage().HHAuto_Setting_spendKobans0=="true" ;//&& Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true";
-    document.getElementById("autoBuyBoosters").checked=Storage().HHAuto_Setting_autoBuyBoosters=="true";
+    Storage().HHAuto_Setting_autoBuyBoosters=document.getElementById("autoBuyBoosters").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;//&& Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true";
+    document.getElementById("autoBuyBoosters").checked=Storage().HHAuto_Setting_autoBuyBoosters==="true";
     Storage().HHAuto_Setting_autoSeasonPassReds=document.getElementById("autoSeasonPassReds").checked && Storage().HHAuto_Setting_spendKobans0=="true" ;//&& Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true";
-    document.getElementById("autoSeasonPassReds").checked=Storage().HHAuto_Setting_autoSeasonPassReds=="true";
-    Storage().HHAuto_Setting_useX50Fights= document.getElementById("useX50Fights").checked&& Storage().HHAuto_Setting_spendKobans0=="true" ;
-    document.getElementById("useX50Fights").checked=Storage().HHAuto_Setting_useX50Fights=="true";
-    Storage().HHAuto_Setting_useX10Fights= document.getElementById("useX10Fights").checked&& Storage().HHAuto_Setting_spendKobans0=="true" ;
-    document.getElementById("useX10Fights").checked=Storage().HHAuto_Setting_useX10Fights=="true";
+    document.getElementById("autoSeasonPassReds").checked=Storage().HHAuto_Setting_autoSeasonPassReds==="true";
+    Storage().HHAuto_Setting_useX50Fights= document.getElementById("useX50Fights").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;
+    document.getElementById("useX50Fights").checked=Storage().HHAuto_Setting_useX50Fights==="true";
+    Storage().HHAuto_Setting_useX10Fights= document.getElementById("useX10Fights").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;
+    document.getElementById("useX10Fights").checked=Storage().HHAuto_Setting_useX10Fights==="true";
+
     Storage().HHAuto_Setting_minShardsX50=document.getElementById("minShardsX50").value;
     Storage().HHAuto_Setting_minShardsX10=document.getElementById("minShardsX10").value;
 
@@ -8122,6 +8241,7 @@ var updateData = function () {
         Tegzd+=(Storage().HHAuto_Setting_master==="true"?"<span style='color:LimeGreen'>HH auto ++ ON":"<span style='color:red'>HH auto ++ OFF")+'</span>';
         //Tegzd+=(Storage().HHAuto_Setting_master==="true"?"<span style='color:LimeGreen'>"+getTextForUI("master","elementText")+" : ON":"<span style='color:red'>"+getTextForUI("master","elementText")+" : OFF")+'</span>';
         //Tegzd+=getTextForUI("master","elementText")+' : '+(Storage().HHAuto_Setting_master==="true"?"<span style='color:LimeGreen'>ON":"<span style='color:red'>OFF")+'</span>';
+
         if (Storage().HHAuto_Setting_paranoia=="true")
         {
             Tegzd += '<br>'+sessionStorage.HHAuto_Temp_pinfo+': '+getTimeLeft('paranoiaSwitch');
@@ -8314,19 +8434,19 @@ var start = function () {
                      +  '</div>'
                      + '<menu> <button value="cancel">'+getTextForUI("OptionCancel","elementText")+'</button></menu></form></dialog>'
 
-            // _row of 3 columns_
+                     // _row of 3 columns_
                      + '<div class="optionsRow">'  //+ '<div style="display:flex;flex-direction:row;">'
 
-               // |column 1|
+                     // |column 1|
                      +  '<div class="optionsColumn">'  // style="justify-content: flex-start"
-                  // Title
-                   //+   '<div class="optionsBox">'
+                     // Title
+                     //+   '<div class="optionsBox">'
                      +   '<div style="padding:3px; display:flex; flex-direction:column;">'
                      +    '<span>HH Automatic ++</span>'
                      +    '<span style="font-size:smaller; padding-bottom:10px">Version '+GM_info.script.version+'</span>'
-                   //+   '</div>'
-                  // Top buttons
-                   //+   '<div class="optionsBox">'
+                     //+   '</div>'
+                     // Top buttons
+                     //+   '<div class="optionsBox">'
                      +    '<div class="internalOptionsRow" style="padding:3px">'
                      +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("gitHub","tooltip")+'</span><label class="myButton" id="git">'+getTextForUI("gitHub","elementText")+'</label></div>'
                      +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("DebugMenu","tooltip")+'</span><label class="myButton" id="DebugMenu">'+getTextForUI("DebugMenu","elementText")+'</label></div>'
@@ -8336,7 +8456,7 @@ var start = function () {
                      +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("loadConfig","tooltip")+'</span><label class="myButton" id="loadConfig">'+getTextForUI("loadConfig","elementText")+'</label></div>'
                      +    '</div>'
                      +   '</div>'
-                  // Region global
+                     // Region global
                      +   '<div class="optionsBoxWithTitle">'
                      +    '<div class="optionsBoxTitle">'
                      +     '<img class="iconImg" src="https://hh2.hh-content.com/design/menu/panel.svg" />'  //width="12px" height="15px"
@@ -8353,9 +8473,9 @@ var start = function () {
                      +     '</div>'
                      +    '</div>'
                      +   '</div>'
-                  // End region global
+                     // End region global
 
-                  // Region kobans
+                     // Region kobans
                      +   '<div class="rowOptionsBox">'  //+   '<div class="optionsBox">'
                      //+    '<div class="internalOptionsRow">'
                      +     '<div class="labelAndButton">' // start img and label
@@ -8380,9 +8500,9 @@ var start = function () {
 
                      //+     '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("kobanBank","elementText")+'</span>  //<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("kobanBank","tooltip")+'</span><input id="kobanBank" style="width:70%" required pattern="'+HHAuto_inputPattern.nWith1000sSeparator+'" type="text"></div></div>'
                      +   '</div>'
-                  // End region kobans
+                     // End region kobans
 
-                  // Region display
+                     // Region display
                      +   '<div class="optionsBoxWithTitle">'
                      +    '<div class="optionsBoxTitle">'
                      +     '<img class="iconImg" src="https://hh2.hh-content.com/design/menu/sex_friends.svg" />'  //width="12px" height="15px"
@@ -8399,16 +8519,16 @@ var start = function () {
                      +     '</div>'
                      +    '</div>'
                      +   '</div>'
-                  // End region display
+                     // End region display
                      +  '</div>'
-               // |End column 1|
+                     // |End column 1|
 
-               // |Colmumn 2|
+                     // |Colmumn 2|
                      +  '<div class="optionsColumn">'
-                  // _Line 1_
+                     // _Line 1_
                      +  '<div class="optionsRow">'  //+   '<div style="display: flex;flex-direction: row;justify-content: space-between">'
 
-                  //Region activities
+                     //Region activities
                      +   '<div class="optionsBoxWithTitle">'
                      +    '<div class="optionsBoxTitle">'
                      +     '<img class="iconImg" src="https://hh2.hh-content.com/design/menu/missions.svg" />'  //width="15px" height="15px"
@@ -8429,10 +8549,10 @@ var start = function () {
                      +     '</div>'
                      +    '</div>'
                      +   '</div>'
-                  // End region activities
+                     // End region activities
 
                      +   '<div class="optionsColumn">'  //+   '<div style="display: flex;flex-direction: column;justify-content: space-between">'
-                  // Region salary
+                     // Region salary
                      +   '<div class="optionsBoxTitle"></div>'
                      +    '<div class="rowOptionsBox">'  //+   '<div class="optionsBox">'
                      +    '<div class="internalOptionsRow">'
@@ -8448,10 +8568,10 @@ var start = function () {
                      +     '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoSalaryTextbox","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoSalaryTextbox","tooltip")+'</span><input id="autoSalaryTextbox" style="text-align:right; width:45px" required pattern="'+HHAuto_inputPattern.nWith1000sSeparator+'" type="text"></div></div>'
                      +    '</div>'
                      +   '</div>'
-                  // End region salary
+                     // End region salary
 
-                    +  '<div class="optionsRow">'  //+   '<div style="display: flex;flex-direction: row;justify-content: space-between">'
-                  // Region pachinko
+                     +  '<div class="optionsRow">'  //+   '<div style="display: flex;flex-direction: row;justify-content: space-between">'
+                     // Region pachinko
                      +    '<div class="rowOptionsBox">'  //+   '<div class="optionsBox">'
                      +    '<div class="internalOptionsRow" style="justify-content: space-between">'
                      +     '<div class="labelAndButton">' // start img and label
@@ -8465,9 +8585,9 @@ var start = function () {
                      +     '</div>' // end img and label
                      +    '</div>'
                      +   '</div>'
-                  // End region pachinko
+                     // End region pachinko
 
-                  // Region quest
+                     // Region quest
                      +    '<div class="rowOptionsBox">'  //+   '<div class="optionsBox" style="flex-direction:row; align-items:flex-end">'  //+   '<div class="optionsBox">'
                      +    '<div class="internalOptionsRow">'
                      +     '<div class="labelAndButton">' // start img and label
@@ -8493,14 +8613,14 @@ var start = function () {
                      //+     '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoQuestThreshold","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoQuestThreshold","tooltip")+'</span><input style="width:50px" id="autoQuestThreshold" required pattern="'+HHAuto_inputPattern.autoQuestThreshold+'" type="text"></div></div>'
                      +    '</div>'
                      +   '</div>'
-                  // End region quest
+                     // End region quest
                      +   '</div>'
                      +   '</div>'
                      +   '</div>'
 
-                  // _Line 2_
+                     // _Line 2_
                      +  '<div class="optionsRow">'  //+   '<div style="display: flex;flex-direction: row;justify-content: space-between">'
-                  // Region autoSeason
+                     // Region autoSeason
                      +   '<div class="optionsBoxWithTitle">'
                      +    '<div class="optionsBoxTitle">'
                      +     '<img class="iconImg" src="https://hh2.hh-content.com/design/menu/seasons.svg" />'  //width="15px" height="15px"
@@ -8530,9 +8650,9 @@ var start = function () {
                      +     '</div>'
                      +    '</div>'
                      +   '</div>'
-                  // End region autoSeason
+                     // End region autoSeason
 
-                  // Region autoLeagues
+                     // Region autoLeagues
                      +   '<div class="optionsBoxWithTitle">'
                      +    '<div class="optionsBoxTitle">'
                      +     '<img class="iconImg" src="https://hh2.hh-content.com/design/menu/leaderboard.svg" />'  //width="15px" height="15px"
@@ -8562,10 +8682,10 @@ var start = function () {
                      +     '</div>'
                      +    '</div>'
                      +   '</div>'
-                  // End region autoLeagues
+                     // End region autoLeagues
                      +   '</div>'
 
-                  // Region autoTroll
+                     // Region autoTroll
                      // Title
                      +   '<div class="optionsBoxWithTitle">'
                      +    '<div class="optionsBoxTitle">'
@@ -8588,7 +8708,6 @@ var start = function () {
                      +        '</div>'
                      +       '</div>'
                      +      '</div>' // end img and label
-
                      //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoTrollThreshold","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoTrollThreshold","tooltip")+'</span><input style="width:50px" id="autoTrollThreshold" required pattern="'+HHAuto_inputPattern.autoTrollThreshold+'" type="text"></div></div>'
                      +     '</div>'
 
@@ -8617,14 +8736,14 @@ var start = function () {
                      +     '</div>'
                      +    '</div>'
                      +   '</div>'
-                  // End region autoTroll
+                     // End region autoTroll
 
                      +  '</div>'
-               // |End column 2|
+                     // |End column 2|
 
-               // |Column 3|
+                     // |Column 3|
                      +  '<div class="optionsColumn">'
-                  // Region champions
+                     // Region champions
                      +   '<div class="optionsBoxWithTitle">'
                      +    '<div class="optionsBoxTitle">'
                      +     '<img class="iconImg" src="https://hh2.hh-content.com/design/menu/ic_champions.svg" />'  //width="15px" height="15px"
@@ -8648,9 +8767,9 @@ var start = function () {
                      //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoChampsUseEne","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoChampsUseEne","tooltip")+'</span><label class="switch"><input id="autoChampsUseEne" type="checkbox"><span class="slider round"></span></label></div></div>'
                      +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoChampsFilter","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoChampsFilter","tooltip")+'</span><input style="text-align:center; width:70px" id="autoChampsFilter" required pattern="'+HHAuto_inputPattern.autoChampsFilter+'" type="text"></div></div>'
                      +     '</div>'
-                   //+    '</div>'
+                     //+    '</div>'
                      // _Line 2_
-                   //+    '<div class="optionsBox">'
+                     //+    '<div class="optionsBox">'
                      +     '<div class="internalOptionsRow">'
                      +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoClubChamp","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoClubChamp","tooltip")+'</span><label class="switch"><input id="autoClubChamp" type="checkbox"><span class="slider round"></span></label></div></div>'
 
@@ -8668,9 +8787,9 @@ var start = function () {
                      +     '</div>'
                      +    '</div>'
                      +   '</div>'
-                  // End region champions
+                     // End region champions
 
-                  // Region market
+                     // Region market
                      +   '<div class="optionsBoxWithTitle">'
                      +    '<div class="optionsBoxTitle">'
                      +     '<img class="iconImg" src="https://hh2.hh-content.com/design/menu/shop.svg" />'  //width="15px" height="15px"
@@ -8783,17 +8902,17 @@ var start = function () {
 
                      //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("showMarketTools","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("showMarketTools","tooltip")+'</span><label class="switch"><input id="showMarketTools" type="checkbox"><span class="slider round"></span></label></div></div>'
                      +     '</div>'
-                   //+     '<div class="internalOptionsRow">'
-                   //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoEGMW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoEGMW","tooltip")+'</span><label class="switch"><input id="autoEGMW" type="checkbox"><span class="slider round"></span></label></div></div>'
-                   //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoEGM","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoEGM","tooltip")+'</span><input id="autoEGM" required pattern="'+HHAuto_inputPattern.autoEGM+'" type="text"></div></div>'
-                   //+     '</div>'
+                     //+     '<div class="internalOptionsRow">'
+                     //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoEGMW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoEGMW","tooltip")+'</span><label class="switch"><input id="autoEGMW" type="checkbox"><span class="slider round"></span></label></div></div>'
+                     //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoEGM","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoEGM","tooltip")+'</span><input id="autoEGM" required pattern="'+HHAuto_inputPattern.autoEGM+'" type="text"></div></div>'
+                     //+     '</div>'
                      +    '</div>'
                      +   '</div>'
                      +  '</div>'
-                   // End region market
-               // |End column 3|
+                     // End region market
+                     // |End column 3|
                      + '</div>'
-            // _End row of 3 columns_
+                     // _End row of 3 columns_
                      +'</div>'+UIcontainer.html());
 
     var idToAdd1000sSeparators = ["kobanBank",
@@ -8955,10 +9074,10 @@ var start = function () {
     document.getElementById("plusEventMythic").checked = Storage().HHAuto_Setting_plusEventMythic === "true";
     //document.getElementById("eventMythicPrio").checked = Storage().HHAuto_Setting_eventMythicPrio === "true";
 
-    document.getElementById("useX50Fights").checked = Storage().HHAuto_Setting_useX50Fights ? Storage().HHAuto_Setting_useX50Fights==="true" : false;
-    document.getElementById("useX10Fights").checked= Storage().HHAuto_Setting_useX10Fights ? Storage().HHAuto_Setting_useX10Fights==="true" : false;
-    document.getElementById("minShardsX50").value=Storage().HHAuto_Setting_minShardsX50 ? Storage().HHAuto_Setting_minShardsX50 : "50";
-    document.getElementById("minShardsX10").value=Storage().HHAuto_Setting_minShardsX10 ? Storage().HHAuto_Setting_minShardsX10 : "10";
+    document.getElementById("useX50Fights").checked= Storage().HHAuto_Setting_useX50Fights === "true";
+    document.getElementById("useX10Fights").checked= Storage().HHAuto_Setting_useX10Fights === "true";
+    document.getElementById("minShardsX50").value=Storage().HHAuto_Setting_minShardsX50?Storage().HHAuto_Setting_minShardsX50:"50";
+    document.getElementById("minShardsX10").value=Storage().HHAuto_Setting_minShardsX10?Storage().HHAuto_Setting_minShardsX10:"10";
     //document.getElementById("autoTrollMythicByPassThreshold").checked = Storage().HHAuto_Setting_autoTrollMythicByPassThreshold === "true";
     document.getElementById("autoTrollMythicByPassParanoia").checked = Storage().HHAuto_Setting_autoTrollMythicByPassParanoia === "true";
 
