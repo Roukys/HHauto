@@ -6834,7 +6834,6 @@ var CrushThemFights=function()
     let urlParams = new URLSearchParams(queryString);
     let TTF = urlParams.get('id_troll');
 
-    let canUsex10 = false;
     let battleButtonX10 = $('#battle button[rel="launch"].autofight[price_fe="10"]');
     let battleButtonX50 = $('#battle button[rel="launch"].autofight[price_fe="50"]');
     let battleButtonX10Price = Number(battleButtonX10.attr('price'));
@@ -6874,38 +6873,6 @@ var CrushThemFights=function()
         && (battleButtonX50Price === 0 || getSetHeroInfos('hard_currency')>=battleButtonX50Price+Number(Storage().HHAuto_Setting_kobanBank))
         && Number( getSetHeroInfos('fight.amount')) > 50
         && (Number(getSetHeroInfos('fight.amount')) >= (Number(Storage().HHAuto_Setting_autoTrollThreshold) + 50)
-            || bypassThreshold
-           )
-       )
-    {
-        logHHAuto("Going to crush 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
-
-        hero.infos.hc_confirm = true;
-        // We have the power.
-        is_cheat_click=function(e) {
-            return false;
-        };
-        battleButtonX50.click();
-        hero.infos.hc_confirm = hcConfirmValue;
-        logHHAuto("Crushed 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
-        setTimeout(function(){gotoPage('home');},randomInterval(300,500));//gotoPage('home');
-        return;
-    }
-    else
-    {
-        if (Storage().HHAuto_Setting_useX50Fights === "true")
-        {
-            logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+getSetHeroInfos('fight.amount')+'/50, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
-        }
-    }
-
-    if (Storage().HHAuto_Setting_useX10Fights === "true"
-        && Storage().HHAuto_Setting_minShardsX10
-        && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX10))
-        && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX10)
-        && (battleButtonX10Price === 0 || getSetHeroInfos('hard_currency')>=battleButtonX10Price+Number(Storage().HHAuto_Setting_kobanBank))
-        && Number( getSetHeroInfos('fight.amount')) >= 10
-        && (Number(getSetHeroInfos('fight.amount')) >= (Number(Storage().HHAuto_Setting_autoTrollThreshold) + 10)
             || bypassThreshold
            )
        )
