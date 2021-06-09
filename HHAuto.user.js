@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.44
+// @version      5.4.45
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -41,18 +41,30 @@ GM_addStyle('#popup_message_league { border: #666 2px dotted; padding: 5px 20px 
 GM_addStyle('#sliding-popups#sliding-popups { z-index : 1}');
 //END CSS Region
 
-// var d="@require      https://cdn.jsdelivr.net/js-cookie/2.2.0/js.cookie.js"
+const thousandsSeparator = nThousand(11111).replace(/1+/g, '');
 
-//const thousandsSeparator = (Intl) ? (Intl.NumberFormat().formatToParts(11111)[1].value) : "";
-//const thousandsSeparator = (Intl) ? (Intl.NumberFormat().format(11111).replace(/\p{Number}/gu, '')) : "";
-const thousandsSeparator = (Intl) ? (Intl.NumberFormat().format(11111).replace(/1+/g, '')) : "";
-/* const thousandsSeparator = (function(){
-    if (typeof Intl !== 'object') {
-        return ''; // fallback
+function nThousand(x) {
+    if (typeof x != 'number') {
+        x = 0;
     }
-    return new Intl.NumberFormat().format(1000).toString().split("")[1];
-})(); */
-//console.log("thousandsSeparator = \""+thousandsSeparator+"\"");
+    return x.toLocaleString();
+}
+
+function add1000sSeparator1()
+{
+    var nToFormat = this.value;
+    this.value = add1000sSeparator(nToFormat);
+}
+
+function add1000sSeparator(nToFormat)
+{
+    return nThousand(remove1000sSeparator(nToFormat));
+}
+
+function remove1000sSeparator(nToFormat)
+{
+    return Number(nToFormat.replace(/\D/g, ''));
+}
 
 function Storage()
 {
@@ -7975,43 +7987,6 @@ var HHVars_Temp=[
     "sessionStorage.HHAuto_Temp_MythicEventInBuyCombTime",
     "sessionStorage.HHAuto_Temp_EventInBuyCombTime",
     "sessionStorage.HHAuto_Temp_eventTrollShards"];
-
-
-function add1000sSeparator1()
-{
-    var nToFormat = this.value;
-    this.value = add1000sSeparator(nToFormat);
-}
-
-function add1000sSeparator(nToFormat)
-{
-    return (Intl) ? (new Intl.NumberFormat().format(remove1000sSeparator(nToFormat))) : nToFormat;
-    
-/*     //console.log("[add1000sSeparator] Retrieved value : "+nToFormat+" ; thousandsSeparator : \""+thousandsSeparator+"\"");
-    var chars = remove1000sSeparator(nToFormat).split("").reverse();
-    var with1000sSeparator = [];
-    for(var i = 1; i <= chars.length; i++ ){
-        with1000sSeparator.push(chars[i-1]);
-        if(i%3==0 && i != chars.length ){
-            with1000sSeparator.push(thousandsSeparator);
-        }
-    }
-    var nFormated = with1000sSeparator.reverse().join("");
-    //console.log("[add1000sSeparator] Formated value : "+nFormated);
-    return nFormated; */
-}
-
-function remove1000sSeparator(nToFormat)
-{
-    return nToFormat.replace(RegExp(thousandsSeparator, 'g'), '');
-    //return nToFormat.split(thousandsSeparator).join("");
-
-/*     //console.log("[remove1000sSeparator] Retrieved formated value : "+nToFormat+" ; thousandsSeparator : \""+thousandsSeparator+"\"");
-    nToFormat = nToFormat.replace(RegExp(thousandsSeparator, 'g'), '');
-    nToFormat = nToFormat.split(thousandsSeparator).join(""); */
-    //console.log("[remove1000sSeparator] Unformatted value : "+nToFormat);
-    //return nToFormat;
-}
 
 
 var updateData = function () {
