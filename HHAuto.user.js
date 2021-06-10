@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.46
+// @version      5.4.47
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -6617,12 +6617,21 @@ var moduleDisplayEventPriority=function()
 
 }
 
+var clearEventData=function()
+{
+    sessionStorage.removeItem('HHAuto_Temp_eventsGirlz');
+    sessionStorage.removeItem('HHAuto_Temp_eventTroll');
+    sessionStorage.removeItem('HHAuto_Temp_eventTrollShards');
+    sessionStorage.HHAuto_Temp_eventTrollIsMythic="false";
+    sessionStorage.HHAuto_Temp_EventInBuyCombTime = "false";
+    sessionStorage.HHAuto_Temp_MythicEventInBuyCombTime = "false";
+}
 
 var CollectEventData=function()
 {
     if(getPage()!=="home") return false;
     clearTimer('eventMythicNextWave');
-
+    clearEventData();
     if (unsafeWindow.event_data || unsafeWindow.mythic_event_data)
     {
         //var Trollz=[];
@@ -6729,11 +6738,7 @@ var CollectEventData=function()
         }
         else
         {
-            sessionStorage.removeItem('HHAuto_Temp_eventsGirlz');
-            sessionStorage.removeItem('HHAuto_Temp_eventTroll');
-            sessionStorage.removeItem('HHAuto_Temp_eventTrollShards');
-            sessionStorage.HHAuto_Temp_eventTrollIsMythic="false";
-
+            clearEventData();
         }
 
         //logHHAuto('WTF?');
@@ -6747,10 +6752,6 @@ var CollectEventData=function()
             if (diff<Storage().HHAuto_Setting_buyCombTimer*3600)
             {
                 sessionStorage.HHAuto_Temp_EventInBuyCombTime = "true";
-            }
-            else
-            {
-                sessionStorage.HHAuto_Temp_EventInBuyCombTime = "false";
             }
             hero=getHero();
             if (
@@ -6770,10 +6771,6 @@ var CollectEventData=function()
                 RechargeCombat();
             }
         }
-        else
-        {
-            sessionStorage.HHAuto_Temp_EventInBuyCombTime = "false";
-        }
 
         //buy comb mythic
         if (Storage().HHAuto_Setting_buyMythicCombat=="true" &&  Storage().HHAuto_Setting_plusEventMythic==="true")
@@ -6784,10 +6781,6 @@ var CollectEventData=function()
             if (diffMythic<Storage().HHAuto_Setting_buyMythicCombTimer*3600)
             {
                 sessionStorage.HHAuto_Temp_MythicEventInBuyCombTime = "true";
-            }
-            else
-            {
-                sessionStorage.HHAuto_Temp_MythicEventInBuyCombTime = "false";
             }
             hero=getHero();
             if (
@@ -6807,10 +6800,6 @@ var CollectEventData=function()
                 //                 }
                 RechargeCombat();
             }
-        }
-        else
-        {
-            sessionStorage.HHAuto_Temp_MythicEventInBuyCombTime = "false";
         }
         return true;
     }
@@ -6899,7 +6888,7 @@ var CrushThemFights=function()
         && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX50))
         && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX50)
         && (battleButtonX50Price === 0 || getSetHeroInfos('hard_currency')>=battleButtonX50Price+Number(Storage().HHAuto_Setting_kobanBank))
-        && Number( getSetHeroInfos('fight.amount')) > 50
+        && Number( getSetHeroInfos('fight.amount')) >= 50
         && (Number(getSetHeroInfos('fight.amount')) >= (Number(Storage().HHAuto_Setting_autoTrollThreshold) + 50)
             || bypassThreshold
            )
