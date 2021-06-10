@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.45
+// @version      5.4.46
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -665,13 +665,13 @@ function url_add_param(url, param) {
     return url+param;
 }
 
-// Retruns true if on correct page.
-function gotoPage(page, force = false)
+// Returns true if on correct page.
+function gotoPage(page,delay = -1)
 {
     var cp=getPage();
     logHHAuto('going '+cp+'->'+page);
+
     var index;
-    var originalPage = page;
     if (page.startsWith('powerplace'))
     {
         index = page.substring('powerplace'.length);
@@ -679,123 +679,113 @@ function gotoPage(page, force = false)
         page = 'powerplace';
     }
 
-    if(getPage() === originalPage && !force)
+    if (typeof x != 'number')
     {
-        if (page=='missions')
+        delay = -1;
+    }
+    if (delay = -1 )
+    {
+        delay = randomInterval(300,500);
+    }
+
+    var togoto = undefined;
+
+    // get page path
+    switch(page)
+    {
+        case "home":
+            togoto = $("nav div[rel='content'] a:has(.home)").attr("href");
+            break;
+        case "missions":
+            togoto = $("nav div[rel='content'] a:has(.activities)").attr("href");
+            break;
+        case "powerplace":
+            togoto = $("nav div[rel='content'] a:has(.activities)").attr("href");
+            break;
+        case "activities":
+            togoto = $("nav div[rel='content'] a:has(.activities)").attr("href");
+            break;
+        case "harem":
+            togoto = $("nav div[rel='content'] a:has(.harem)").attr("href");
+            break;
+        case "map":
+            togoto = $("nav div[rel='content'] a:has(.map)").attr("href");
+            break;
+        case "pachinko":
+            togoto = $("nav div[rel='content'] a:has(.pachinko)").attr("href");
+            break;
+        case "leaderboard":
+            togoto = $("nav div[rel='content'] a:has(.leaderboard)").attr("href");
+            break;
+        case "shop":
+            togoto = $("nav div[rel='content'] a:has(.shop)").attr("href");
+            break;
+        case "quest":
+            togoto = getSetHeroInfos('questing.current_url');
+            if (togoto.includes("world"))
+            {
+                logHHAuto("All quests finished, turning off AutoQuest!");
+                Storage().HHAuto_Setting_autoQuest = false;
+                location.reload();
+                return false;
+            }
+            logHHAuto("Current quest page: "+togoto);
+            break;
+        case "champions_map":
+            togoto = $("nav div[rel='content'] a:has(.champions)").attr("href");
+            break;
+        case "season" :
+            togoto = "/season.html";
+            break;
+        case "season_arena" :
+            togoto = "/season-arena.html";
+            break;
+        case "club_champion" :
+            togoto = "/club-champion.html";
+            break;
+        case "clubs" :
+            togoto = $("nav div[rel='content'] a:has(.clubs)").attr("href");
+            break;
+        default:
+            logHHAuto("Unknown goto page request. No page \'"+page+"\' defined.");
+    }
+    if(togoto != undefined)
+    {
+        if (page=="missions")
         {
-            $('h4.missions').each(function(){this.click();});
+            togoto = url_add_param(togoto, "tab=" + "missions");
         }
-        if (page=='activities')
+        if (page=="activities")
         {
-            $('h4.contests').each(function(){this.click();});
+            togoto = url_add_param(togoto, "tab=" + "contests");
         }
-        if (page=='powerplace')
+        if (page=="powerplace")
         {
-            $('h4.pop').each(function(){this.click();});
+            togoto = url_add_param(togoto, "tab=" + "pop");
+            if (index != 'main' )
+            {
+                togoto = url_add_param(togoto, "index=" + index);
+            }
         }
-        return true;
+
+        sessionStorage.HHAuto_Temp_autoLoop = "false";
+        logHHAuto("setting autoloop to false");
+        logHHAuto('GotoPage : '+togoto+' in '+delay+'ms.');
+        setTimeout(function () {window.location = window.location.origin + togoto;},delay);
     }
     else
     {
-        var togoto = undefined;
-
-        // get page path
-        switch(page)
-        {
-            case "home":
-                togoto = $("nav div[rel='content'] a:has(.home)").attr("href");
-                break;
-            case "missions":
-                togoto = $("nav div[rel='content'] a:has(.activities)").attr("href");
-                break;
-            case "powerplace":
-                togoto = $("nav div[rel='content'] a:has(.activities)").attr("href");
-                break;
-            case "activities":
-                togoto = $("nav div[rel='content'] a:has(.activities)").attr("href");
-                break;
-            case "harem":
-                togoto = $("nav div[rel='content'] a:has(.harem)").attr("href");
-                break;
-            case "map":
-                togoto = $("nav div[rel='content'] a:has(.map)").attr("href");
-                break;
-            case "pachinko":
-                togoto = $("nav div[rel='content'] a:has(.pachinko)").attr("href");
-                break;
-            case "leaderboard":
-                togoto = $("nav div[rel='content'] a:has(.leaderboard)").attr("href");
-                break;
-            case "shop":
-                togoto = $("nav div[rel='content'] a:has(.shop)").attr("href");
-                break;
-            case "quest":
-                togoto = getSetHeroInfos('questing.current_url');
-                if (togoto.includes("world"))
-                {
-                    logHHAuto("All quests finished, turning off AutoQuest!");
-                    Storage().HHAuto_Setting_autoQuest = false;
-                    location.reload();
-                    return false;
-                }
-                logHHAuto("Current quest page: "+togoto);
-                break;
-            case "champions_map":
-                togoto = $("nav div[rel='content'] a:has(.champions)").attr("href");
-                break;
-            case "season" :
-                togoto = "/season.html";
-                break;
-            case "season_arena" :
-                togoto = "/season-arena.html";
-                break;
-            case "club_champion" :
-                togoto = "/club-champion.html";
-                break;
-            case "clubs" :
-                togoto = $("nav div[rel='content'] a:has(.clubs)").attr("href");
-                break;
-            default:
-                logHHAuto("Unknown goto page request. No page \'"+page+"\' defined.");
-        }
-        if(togoto != undefined)
-        {
-            if (page=="missions")
-            {
-                togoto = url_add_param(togoto, "tab=" + "missions");
-            }
-            if (page=="activities")
-            {
-                togoto = url_add_param(togoto, "tab=" + "contests");
-            }
-            if (page=="powerplace")
-            {
-                togoto = url_add_param(togoto, "tab=" + "pop");
-                if (index != 'main' )
-                {
-                    togoto = url_add_param(togoto, "index=" + index);
-                }
-            }
-
-            sessionStorage.HHAuto_Temp_autoLoop = "false";
-            logHHAuto("setting autoloop to false");
-            logHHAuto('GotoPage : '+togoto);
-            window.location = window.location.origin + togoto;
-        }
-        else
-        {
-            logHHAuto("Couldn't find page path. Page was undefined...");
-        }
-        return false;
+        logHHAuto("Couldn't find page path. Page was undefined...");
     }
 }
 
 var proceedQuest = function () {
     //logHHAuto("Starting auto quest.");
     // Check if at correct page.
-    if (!gotoPage("quest")) {
+    if (getPage() !== "quest") {
         // Click on current quest to naviagte to it.
         logHHAuto("Navigating to current quest.");
+        gotoPage("quest");
         return;
     }
     $("#popup_message close").click();
@@ -917,9 +907,10 @@ function getSuitableMission(missionsList)
 // returns boolean to set busy
 function doMissionStuff()
 {
-    if(!gotoPage("missions"))
+    if(getPage() !== "missions")
     {
         logHHAuto("Navigating to activities page.");
+        gotoPage("missions");
         // return busy
         return true;
     }
@@ -930,7 +921,7 @@ function doMissionStuff()
         {
             logHHAuto("Collecting finished mission's reward.");
             $(".mission_button button:visible[rel='claim']").click();
-            setTimeout(function(){gotoPage('missions',true);},1500);
+            gotoPage('missions',1500);//setTimeout(function(){gotoPage('missions',true);},1500);
             return true;
         }
         // TODO: select new missions and parse reward data from HTML, it's there in data attributes of tags
@@ -1024,7 +1015,7 @@ function doMissionStuff()
             logHHAuto("Mission button of type: "+missionButton.attr("rel"));
             logHHAuto("Clicking mission button.");
             missionButton.click();
-            setTimeout(function(){gotoPage('missions',true);},1500);
+            gotoPage('missions',1500);//setTimeout(function(){gotoPage('missions',true);},1500);
             setTimer('nextMissionTime',Number(mission.duration)+1);
         }
         else
@@ -1140,9 +1131,10 @@ function moduleSimSeasonReward()
 
 function collectAndUpdatePowerPlaces()
 {
-    if(!gotoPage("powerplacemain"))
+    if(getPage() !== "powerplacemain")
     {
         logHHAuto("Navigating to powerplaces main page.");
+        gotoPage("powerplacemain");
         // return busy
         return true;
     }
@@ -1324,9 +1316,10 @@ function addPopToUnableToStart(popIndex,message)
 // returns boolean to set busy
 function doPowerPlacesStuff(index)
 {
-    if(!gotoPage("powerplace"+index))
+    if(getPage() !== "powerplace"+index)
     {
         logHHAuto("Navigating to powerplace"+index+" page.");
+        gotoPage("powerplace"+index);
         // return busy
         return true;
     }
@@ -1419,9 +1412,10 @@ function doPowerPlacesStuff(index)
 // returns boolean to set busy
 function doContestStuff()
 {
-    if(!gotoPage("activities"))
+    if(getPage() !== "activities")
     {
         logHHAuto("Navigating to activities page.");
+        gotoPage("activities");
         // return busy
         return true;
     }
@@ -1991,7 +1985,7 @@ var doChampionStuff=function()
                     logHHAuto("Using ticket");
                     $('button[rel=perform].blue_button_L').click();
                 }
-                setTimeout(function(){gotoPage('champions_map');},500);
+                gotoPage('champions_map',500);//setTimeout(function(){gotoPage('champions_map');},500);
                 return true;
             }
         }
@@ -2108,7 +2102,7 @@ var doClubChampionStuff=function()
                     $('button[rel=perform].blue_button_L').click();
                     setTimer('nextClubChampionTime',3);
                 }
-                setTimeout(function(){gotoPage('clubs',true);},500);
+                gotoPage('clubs',500);//setTimeout(function(){gotoPage('clubs',true);},500);
                 return true;
             }
         }
@@ -2834,7 +2828,7 @@ var doLeagueBattle = function () {
             if ($('#leagues_middle .forced_info button[rel="claim"]').length >0)
             {
                 $('#leagues_middle .forced_info button[rel="claim"]').click(); //click reward
-                setTimeout(function(){gotoPage('leaderboard',true);},500);
+                gotoPage('leaderboard',500);//setTimeout(function(){gotoPage('leaderboard',true);},500);
             }
         }
         //logHHAuto('ls! '+$('h4.leagues').size());
@@ -3406,7 +3400,7 @@ var  CrushThem = function()
                 else
                 {
                     logHHAuto("Go to home after Troll fight.");
-                    setTimeout(function(){gotoPage('home');},randomInterval(2000,4000));
+                    gotoPage('home',randomInterval(2000,4000));//setTimeout(function(){gotoPage('home');},randomInterval(2000,4000));
                 }
                 return true;
             }
@@ -3497,10 +3491,11 @@ var getTimeLeft=function(name)
 
 var getPachinko = function(){
     try {
-        if(!gotoPage("pachinko"))
+        if(getPage() !== "pachinko")
         {
             // Not at Pachinko screen then goto the Pachinko screen.
             logHHAuto("Navigating to Pachinko window.");
+            gotoPage("pachinko");
             return;
         }
         else {
@@ -3541,11 +3536,12 @@ var getPachinko = function(){
 
 var getPachinko2 = function(){
     try {
-        if(!gotoPage("pachinko"))
+        if(getPage() !== "pachinko")
         {
             // Not at Pachinko screen then goto the Pachinko screen.
             logHHAuto("Navigating to Pachinko window.");
-            return;
+            gotoPage("pachinko");
+            return true;
         }
         else {
             logHHAuto("Detected Pachinko Screen. Fetching Pachinko");
@@ -3608,9 +3604,10 @@ var getPachinko2 = function(){
 
 var updateShop=function()
 {
-    if(!gotoPage("shop"))
+    if(getPage() !== "shop")
     {
         logHHAuto("Navigating to Market window.");
+        gotoPage("shop");
         return true;
     }
     else {
@@ -3954,7 +3951,7 @@ var flipParanoia=function()
     setTimer('paranoiaSwitch',toNextSwitch);
     if (sessionStorage.HHAuto_Temp_burst=="true")
     {
-        if (hh_nutaku)
+        /*         if (hh_nutaku)
         {
             //window.top.postMessage({reloadMe:true},'*');
             location.reload();
@@ -3962,7 +3959,8 @@ var flipParanoia=function()
         else
         {
             window.top.location.reload();
-        }
+        } */
+        gotoPage('home');
     }
 }
 
@@ -4914,7 +4912,60 @@ var autoLoop = function () {
         }
         CheckSpentPoints();
 
-        if(Storage().HHAuto_Setting_autoFreePachinko === "true" && busy === false){
+        /*if (Storage().HHAuto_Setting_plusEventMythic==="true" && checkTimer('eventMythicNextWave'))
+        {
+            gotoPage('home');
+        }
+        */
+
+        if(Storage().HHAuto_Setting_autoTrollBattle === "true" && getSetHeroInfos('questing.id_world')>0 && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        {
+            if(busy === false && currentPower >= Number(sessionStorage.HHAuto_Temp_battlePowerRequired) && currentPower > 0)
+            {
+                //logHHAuto("fight amount: "+currentPower+" troll threshold: "+Number(Storage().HHAuto_Setting_autoTrollThreshold)+" paranoia fight: "+Number(checkParanoiaSpendings('fight')));
+                if (Number(currentPower) > Number(Storage().HHAuto_Setting_autoTrollThreshold) //fight is above threshold
+                    || Number(checkParanoiaSpendings('fight')) > 0 //paranoiaspendings to do
+                    || (sessionStorage.HHAuto_Temp_eventTroll
+                        && sessionStorage.HHAuto_Temp_eventTrollIsMythic === "false"
+                        && Storage().HHAuto_Setting_buyCombat=="true"
+                        && Storage().HHAuto_Setting_plusEvent==="true"
+                        && sessionStorage.HHAuto_Temp_EventInBuyCombTime === "true"
+                       ) // eventGirl available and buy comb true
+                    || (sessionStorage.HHAuto_Temp_eventTrollIsMythic === "true"
+                        && Storage().HHAuto_Setting_plusEventMythic==="true"
+                       ) // mythicEventGirl available and fights available
+                   )
+                {
+                    sessionStorage.HHAuto_Temp_battlePowerRequired = "0";
+                    busy = true;
+                    if(Storage().HHAuto_Setting_autoQuest === "true")
+                    {
+                        if(sessionStorage.HHAuto_Temp_questRequirement[0] === 'P')
+                        {
+                            logHHAuto("AutoBattle disabled for power collection for AutoQuest.");
+                            document.getElementById("autoTrollCheckbox").checked = false;
+                            Storage().HHAuto_Setting_autoTrollBattle = "false";
+                            busy = false;
+                        }
+                        else
+                        {
+                            busy = doBossBattle();
+                        }
+                    }
+                    else
+                    {
+                        busy = doBossBattle();
+                    }
+                }
+            }
+        }
+        else
+        {
+            sessionStorage.HHAuto_Temp_battlePowerRequired = "0";
+        }
+
+        if(Storage().HHAuto_Setting_autoFreePachinko === "true" && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        {
             // Navigate to pachinko
 
             if (checkTimer("nextPachinkoTime")) {
@@ -4929,13 +4980,16 @@ var autoLoop = function () {
             }
         }
 
-        if(Storage().HHAuto_Setting_autoContest === "true" && busy === false){
+        if(Storage().HHAuto_Setting_autoContest === "true" && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        {
             if (checkTimer('nextContestTime') || unsafeWindow.has_contests_datas ||$(".contest .ended button[rel='claim']").size()>0){
                 logHHAuto("Time to get contest rewards.");
                 busy = doContestStuff();
             }
         }
-        if(Storage().HHAuto_Setting_autoPowerPlaces === "true" && busy === false){
+
+        if(Storage().HHAuto_Setting_autoPowerPlaces === "true" && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        {
 
             var popToStart = sessionStorage.HHAuto_Temp_PopToStart?JSON.parse(sessionStorage.HHAuto_Temp_PopToStart):[];
             if (popToStart.length != 0 || checkTimer('minPowerPlacesTime'))
@@ -4974,14 +5028,16 @@ var autoLoop = function () {
                 }
             }
         }
-        if(Storage().HHAuto_Setting_autoMission === "true" && busy === false){
+
+        if(Storage().HHAuto_Setting_autoMission === "true" && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        {
             if (checkTimer('nextMissionTime')){
                 logHHAuto("Time to do missions.");
                 busy = doMissionStuff();
             }
         }
 
-        if (Storage().HHAuto_Setting_autoQuest === "true" && busy === false )
+        if (Storage().HHAuto_Setting_autoQuest === "true" && busy === false  && sessionStorage.HHAuto_Temp_autoLoop === "true")
         {
             sessionStorage.HHAuto_Temp_autoTrollBattleSaveQuest = (sessionStorage.HHAuto_Temp_autoTrollBattleSaveQuest ? sessionStorage.HHAuto_Temp_autoTrollBattleSaveQuest : "false") ;
             if (sessionStorage.HHAuto_Temp_questRequirement === "battle")
@@ -5112,7 +5168,7 @@ var autoLoop = function () {
             sessionStorage.HHAuto_Temp_questRequirement = "none";
         }
 
-        if(Storage().HHAuto_Setting_autoSeason === "true" && busy === false )
+        if(Storage().HHAuto_Setting_autoSeason === "true" && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true")
         {
             if (Number(getSetHeroInfos('kiss.amount')) > 0 && ( (Number(getSetHeroInfos('kiss.amount')) > Number(Storage().HHAuto_Setting_autoSeasonThreshold) && checkTimer('nextSeasonTime')) || Number(checkParanoiaSpendings('kiss')) > 0 ) )
             {
@@ -5130,56 +5186,8 @@ var autoLoop = function () {
 
         }
 
-
-
-        if(Storage().HHAuto_Setting_autoTrollBattle === "true" && getSetHeroInfos('questing.id_world')>0)
-        {
-            if(busy === false && currentPower >= Number(sessionStorage.HHAuto_Temp_battlePowerRequired) && currentPower > 0)
-            {
-                //logHHAuto("fight amount: "+currentPower+" troll threshold: "+Number(Storage().HHAuto_Setting_autoTrollThreshold)+" paranoia fight: "+Number(checkParanoiaSpendings('fight')));
-                if (Number(currentPower) > Number(Storage().HHAuto_Setting_autoTrollThreshold) //fight is above threshold
-                    || Number(checkParanoiaSpendings('fight')) > 0 //paranoiaspendings to do
-                    || (sessionStorage.HHAuto_Temp_eventTroll
-                        && sessionStorage.HHAuto_Temp_eventTrollIsMythic === "false"
-                        && Storage().HHAuto_Setting_buyCombat=="true"
-                        && Storage().HHAuto_Setting_plusEvent==="true"
-                        && sessionStorage.HHAuto_Temp_EventInBuyCombTime === "true"
-                       ) // eventGirl available and buy comb true
-                    || (sessionStorage.HHAuto_Temp_eventTrollIsMythic === "true"
-                        && Storage().HHAuto_Setting_plusEventMythic==="true"
-                       ) // mythicEventGirl available and fights available
-                   )
-                {
-                    sessionStorage.HHAuto_Temp_battlePowerRequired = "0";
-                    busy = true;
-                    if(Storage().HHAuto_Setting_autoQuest === "true")
-                    {
-                        if(sessionStorage.HHAuto_Temp_questRequirement[0] === 'P')
-                        {
-                            logHHAuto("AutoBattle disabled for power collection for AutoQuest.");
-                            document.getElementById("autoTrollCheckbox").checked = false;
-                            Storage().HHAuto_Setting_autoTrollBattle = "false";
-                            busy = false;
-                        }
-                        else
-                        {
-                            busy = doBossBattle();
-                        }
-                    }
-                    else
-                    {
-                        busy = doBossBattle();
-                    }
-                }
-            }
-        }
-        else
-        {
-            sessionStorage.HHAuto_Temp_battlePowerRequired = "0";
-        }
-
         var ECt= getSetHeroInfos('quest.amount');
-        if (ECt>=60 && (Storage().HHAuto_Setting_autoChampsUseEne==="true"))
+        if (ECt>=60 && (Storage().HHAuto_Setting_autoChampsUseEne==="true") && sessionStorage.HHAuto_Temp_autoLoop === "true")
         {
             function buyTicket()
             {
@@ -5203,20 +5211,22 @@ var autoLoop = function () {
             setTimeout(buyTicket,randomInterval(800,1600));
         }
 
-        if (busy==false && Storage().HHAuto_Setting_autoChamps==="true" && checkTimer('nextChampionTime'))
+        if (busy==false && Storage().HHAuto_Setting_autoChamps==="true" && checkTimer('nextChampionTime') && sessionStorage.HHAuto_Temp_autoLoop === "true")
         {
             logHHAuto("Time to check on champions!");
             busy=true;
             busy=doChampionStuff();
         }
 
-        if (busy==false && Storage().HHAuto_Setting_autoClubChamp==="true" && checkTimer('nextClubChampionTime'))
+        if (busy==false && Storage().HHAuto_Setting_autoClubChamp==="true" && checkTimer('nextClubChampionTime') && sessionStorage.HHAuto_Temp_autoLoop === "true")
         {
             logHHAuto("Time to check on club champion!");
             busy=true;
             busy=doClubChampionStuff();
         }
-        if(Storage().HHAuto_Setting_autoLeagues === "true" && getSetHeroInfos('level')>=20 && busy === false ){
+
+        if(Storage().HHAuto_Setting_autoLeagues === "true" && getSetHeroInfos('level')>=20 && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        {
             // Navigate to leagues
             if ((checkTimer('nextLeaguesTime') && Number(getSetHeroInfos('challenge.amount')) > Number(Storage().HHAuto_Setting_autoLeaguesThreshold) ) || Number(checkParanoiaSpendings('challenge')) > 0)
             {
@@ -5233,7 +5243,7 @@ var autoLoop = function () {
             }
         }
 
-        if (/*autoBuy() &&*/ busy===false && ( Storage().HHAuto_Setting_paranoia !== "true" || !checkTimer("paranoiaSwitch") ) )
+        if (/*autoBuy() &&*/ busy===false && ( Storage().HHAuto_Setting_paranoia !== "true" || !checkTimer("paranoiaSwitch") )  && sessionStorage.HHAuto_Temp_autoLoop === "true")
         {
             if (sessionStorage.HHAuto_Temp_charLevel===undefined)
             {
@@ -5245,7 +5255,7 @@ var autoLoop = function () {
             }
         }
 
-        if (Storage().HHAuto_Setting_autoSalary === "true" && busy === false && ( Storage().HHAuto_Setting_paranoia !== "true" || !checkTimer("paranoiaSwitch") )) {
+        if (Storage().HHAuto_Setting_autoSalary === "true" && busy === false && ( Storage().HHAuto_Setting_paranoia !== "true" || !checkTimer("paranoiaSwitch") )  && sessionStorage.HHAuto_Temp_autoLoop === "true") {
             if (checkTimer("nextSalaryTime")) {
                 logHHAuto("Time to fetch salary.");
                 busy = true;
@@ -5257,7 +5267,7 @@ var autoLoop = function () {
         {
             sessionStorage.HHAuto_Temp_userLink = page;
         }
-        else if(sessionStorage.HHAuto_Temp_userLink !=="none" && busy === false)
+        else if(sessionStorage.HHAuto_Temp_userLink !=="none" && busy === false  && sessionStorage.HHAuto_Temp_autoLoop === "true")
         {
             //logHHAuto("Restoring page "+sessionStorage.HHAuto_Temp_userLink);
             //window.location = sessionStorage.HHAuto_Temp_userLink;
@@ -5266,18 +5276,24 @@ var autoLoop = function () {
         }
     }
 
-    if(Storage().HHAuto_Setting_paranoia === "true" && Storage().HHAuto_Setting_master==="true" && busy === false){
+    if(Storage().HHAuto_Setting_paranoia === "true" && Storage().HHAuto_Setting_master==="true" && busy === false  && sessionStorage.HHAuto_Temp_autoLoop === "true")
+    {
         if (checkTimer("paranoiaSwitch")) {
             flipParanoia();
         }
     }
 
-    if(isNaN(Storage().HHAuto_Temp_autoLoopTimeMili)){
+    if(isNaN(Storage().HHAuto_Temp_autoLoopTimeMili))
+    {
         logHHAuto("AutoLoopTimeMili is not a number.");
         setDefaults();
     }
-    else{
-        if (sessionStorage.HHAuto_Temp_autoLoop === "true") setTimeout(autoLoop, Number(Storage().HHAuto_Temp_autoLoopTimeMili));
+    else
+    {
+        if (sessionStorage.HHAuto_Temp_autoLoop === "true")
+        {
+            setTimeout(autoLoop, Number(Storage().HHAuto_Temp_autoLoopTimeMili));
+        }
         else
         {
             logHHAuto("autoLoop Disabled");
@@ -5880,7 +5896,7 @@ function moduleShopActions()
                         //if (tmp_result !== -1)
                         //{
                         //console.log("result : ",result);
-                        //	return tmp_result;
+                        //  return tmp_result;
                         //}
                     }
                 }
@@ -5890,7 +5906,7 @@ function moduleShopActions()
 
             //if ( arr[0] == currentMax )
             //{
-            //	return 2;
+            //  return 2;
             //}
             var needs={};
             needs[arr[0]]=1;
@@ -6616,43 +6632,43 @@ var CollectEventData=function()
 
         if (unsafeWindow.event_data && Storage().HHAuto_Setting_plusEvent==="true")
         {
-            var timeLeft=event_data.seconds_until_event_end;
+            var timeLeft=unsafeWindow.event_data.seconds_until_event_end;
             setTimer('eventGoing',timeLeft);
 
-            for (var i=0;i<event_data.girls.length;i++)
+            for (var i=0;i<unsafeWindow.event_data.girls.length;i++)
             {
-                if (!event_data.girls[i].owned_girl
-                    && event_data.girls[i].troll
-                    && Number(event_data.girls[i].troll.id_troll)<getSetHeroInfos('questing.id_world'))
+                if (!unsafeWindow.event_data.girls[i].owned_girl
+                    && unsafeWindow.event_data.girls[i].troll
+                    && Number(unsafeWindow.event_data.girls[i].troll.id_troll)<getSetHeroInfos('questing.id_world'))
                 {
-                    logHHAuto("Event girl : "+event_data.girls[i].name+" ("+event_data.girls[i].shards+"/100) at troll "+event_data.girls[i].troll.id_troll+" priority : "+Priority.indexOf(event_data.girls[i].troll.id_troll));
-                    eventsGirlz.push("event;"+i+";"+event_data.girls[i].id_girl+";"+event_data.girls[i].troll.id_troll+";"+event_data.girls[i].shards);
-                    //Trollz.push(Number(event_data.girls[i].troll.id_troll));
+                    logHHAuto("Event girl : "+unsafeWindow.event_data.girls[i].name+" ("+unsafeWindow.event_data.girls[i].shards+"/100) at troll "+unsafeWindow.event_data.girls[i].troll.id_troll+" priority : "+Priority.indexOf(unsafeWindow.event_data.girls[i].troll.id_troll));
+                    eventsGirlz.push("event;"+i+";"+unsafeWindow.event_data.girls[i].id_girl+";"+unsafeWindow.event_data.girls[i].troll.id_troll+";"+unsafeWindow.event_data.girls[i].shards);
+                    //Trollz.push(Number(unsafeWindow.event_data.girls[i].troll.id_troll));
                 }
             }
         }
 
         if (unsafeWindow.mythic_event_data && Storage().HHAuto_Setting_plusEventMythic==="true")
         {
-            var timeLeftMythic=mythic_event_data.seconds_until_event_end;
+            var timeLeftMythic=unsafeWindow.mythic_event_data.seconds_until_event_end;
             setTimer('eventMythicGoing',timeLeftMythic);
-            for (i=0;i<mythic_event_data.girls.length;i++)
+            for (i=0;i<unsafeWindow.mythic_event_data.girls.length;i++)
             {
-                if (Number(mythic_event_data.girls[i].shards) !== 100
-                    && mythic_event_data.girls[i].troll
-                    && mythic_event_data.can_participate === true
-                    && Number(mythic_event_data.girls[i].troll.id_troll)<getSetHeroInfos('questing.id_world'))
+                if (Number(unsafeWindow.mythic_event_data.girls[i].shards) !== 100
+                    && unsafeWindow.mythic_event_data.girls[i].troll
+                    && unsafeWindow.mythic_event_data.can_participate === true
+                    && Number(unsafeWindow.mythic_event_data.girls[i].troll.id_troll)<getSetHeroInfos('questing.id_world'))
                 {
-                    if ( Number(mythic_event_data.event_data.shards_available) !== 0 )
+                    if ( Number(unsafeWindow.mythic_event_data.event_data.shards_available) !== 0 )
                     {
-                        logHHAuto("Mythic Event girl : "+mythic_event_data.girls[i].name+" "+mythic_event_data.girls[i].shards+"/100");
-                        //Trollz.push(Number(mythic_event_data.girls[i].troll.id_troll));
-                        eventsGirlz.push("mythic_event;"+i+";"+mythic_event_data.girls[i].id_girl+";"+mythic_event_data.girls[i].troll.id_troll+";"+mythic_event_data.girls[i].shards);
-                        //TrollzMythic.push(Number(mythic_event_data.girls[i].troll.id_troll));
+                        logHHAuto("Mythic Event girl : "+unsafeWindow.mythic_event_data.girls[i].name+" "+unsafeWindow.mythic_event_data.girls[i].shards+"/100");
+                        //Trollz.push(Number(unsafeWindow.mythic_event_data.girls[i].troll.id_troll));
+                        eventsGirlz.push("mythic_event;"+i+";"+unsafeWindow.mythic_event_data.girls[i].id_girl+";"+unsafeWindow.mythic_event_data.girls[i].troll.id_troll+";"+unsafeWindow.mythic_event_data.girls[i].shards);
+                        //TrollzMythic.push(Number(unsafeWindow.mythic_event_data.girls[i].troll.id_troll));
                     }
                     else
                     {
-                        setTimer('eventMythicNextWave',Number(mythic_event_data.event_data.next_tranche_in));
+                        setTimer('eventMythicNextWave',Number(unsafeWindow.mythic_event_data.event_data.next_tranche_in));
                     }
                 }
             }
@@ -6899,7 +6915,7 @@ var CrushThemFights=function()
         battleButtonX50.click();
         hero.infos.hc_confirm = hcConfirmValue;
         logHHAuto("Crushed 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
-        setTimeout(function(){gotoPage('home');},randomInterval(300,500));//gotoPage('home');
+        gotoPage('home',randomInterval(300,500));//setTimeout(function(){gotoPage('home');},randomInterval(300,500));//gotoPage('home');
         return;
     }
     else
@@ -6931,7 +6947,7 @@ var CrushThemFights=function()
         battleButtonX10.click();
         hero.infos.hc_confirm = hcConfirmValue;
         logHHAuto("Crushed 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
-        setTimeout(function(){gotoPage('home');},randomInterval(300,500));//gotoPage('home');
+        gotoPage('home',randomInterval(300,500));//setTimeout(function(){gotoPage('home');},randomInterval(300,500));//gotoPage('home');
         return;
     }
     else
@@ -6972,7 +6988,7 @@ var CrushThemFights=function()
 //             var reward = data.rewards;
 //             //reward.redirectUrl = "/world/" + hh_battle_players[1].id_world;
 //             //Reward.handlePopup(reward);
-//             setTimeout(function(){gotoPage('home');},randomInterval(500,1500));
+//             gotoPage('home',randomInterval(500,1500));//setTimeout(function(){gotoPage('home');},randomInterval(500,1500));
 //         }
 //         Hero.updates(battleData, true);
 //     });
@@ -7097,7 +7113,7 @@ var getBurst=function()
 
 function saveHHVarsSettingsAsJSON() {
     var dataToSave={};
-    extractHHVars(dataToSave);
+    extractHHVars(dataToSave,false,false,true);
     var name='HH_SaveSettings_'+Date.now()+'.json';
     const a = document.createElement('a')
     a.download = name
@@ -7586,7 +7602,7 @@ HHAuto_ToolTips.en.PoAMaskRewards  = { elementText: "PoA mask claimed", tooltip 
 HHAuto_ToolTips.en.showTooltips  = { elementText: "Show tooltips", tooltip : "Show tooltip on menu."};
 HHAuto_ToolTips.en.showMarketTools  = { elementText: "Show market tools", tooltip : "Show Market tools."};
 HHAuto_ToolTips.en.useX10Fights  = { elementText: "Use x10", tooltip : "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Use x10 button if 10 fights or more to do (if not going under Koban bank value).<br>x50 takes precedence on x10 if all conditions are filled."};
-HHAuto_ToolTips.en.useX50Fights  = { elementText: "Use x50", tooltip : "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Use x50 button if 50 fights or more to do (if not going under Koban bank value).<br>Takes precedence on x10 if all conditions are filled."};    
+HHAuto_ToolTips.en.useX50Fights  = { elementText: "Use x50", tooltip : "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Use x50 button if 50 fights or more to do (if not going under Koban bank value).<br>Takes precedence on x10 if all conditions are filled."};
 HHAuto_ToolTips.en.autoBuy  = { elementText: "Market"};
 HHAuto_ToolTips.en.minShardsX50  = { elementText: "Min. shards x50", tooltip : "Only use x50 button if remaining shards of current girl is equal or above this limit."};
 HHAuto_ToolTips.en.minShardsX10  = { elementText: "Min. shards x10", tooltip : "Only use x10 button if remaining shards of current girl is equal or above this limit."};
@@ -7886,7 +7902,7 @@ var HHVars_Settings=[
     "Storage().HHAuto_Setting_autoFreePachinko",
     "Storage().HHAuto_Setting_autoLeagues",
     "Storage().HHAuto_Setting_autoLeaguesCollect",
-    "Storage().HHAuto_Setting_autoLeaguesMaxRank",
+    //"Storage().HHAuto_Setting_autoLeaguesMaxRank",
     "Storage().HHAuto_Setting_autoLeaguesPowerCalc",
     "Storage().HHAuto_Setting_autoLeaguesSelectedIndex",
     "Storage().HHAuto_Setting_autoLeaguesThreshold",
@@ -8249,8 +8265,8 @@ var updateData = function () {
         Tegzd += '<br>'+getTextForUI("autoExpW","elementText")+' : '+sessionStorage.HHAuto_Temp_haveExp;
         //if (Tegzd.length>0)
         //{
-            document.getElementById('pInfo').style.display='block';
-            document.getElementById('pInfo').innerHTML =Tegzd;  //document.getElementById('pInfo').textContent=Tegzd;
+        document.getElementById('pInfo').style.display='block';
+        document.getElementById('pInfo').innerHTML =Tegzd;  //document.getElementById('pInfo').textContent=Tegzd;
         // }
         // else
         // {
@@ -8282,7 +8298,7 @@ var setDefaults = function () {
 
     sessionStorage.HHAuto_Temp_leaguesTarget = "9";
     Storage().HHAuto_Setting_autoStats = add1000sSeparator("500000000");
-    
+
     sessionStorage.HHAuto_Temp_autoLoop = "true";
     sessionStorage.HHAuto_Temp_userLink = "none";
     Storage().HHAuto_Temp_autoLoopTimeMili = "500";
