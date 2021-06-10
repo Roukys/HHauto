@@ -8908,7 +8908,12 @@ var start = function () {
 
     if(getPage()=="home")
     {
-        pInfo.style.height = "auto";
+        //pInfo.style.height = "auto";
+        const pInfoMaxHeight = "220px";
+        pInfo.style.maxHeight = pInfoMaxHeight;
+        pInfo.addEventListener("mouseover", function() { pInfo.style.maxHeight = "none"; });
+        pInfo.addEventListener("mouseout", function() { pInfo.style.maxHeight = pInfoMaxHeight; });
+        
         //Storage().HHAuto_Setting_infoBoxIsHidden = "false";
         //console.log("Showing InfoBox");
     }
