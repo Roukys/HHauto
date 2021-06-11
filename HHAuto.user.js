@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.51
+// @version      5.4.52
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -16,7 +16,8 @@
 
 //CSS Region
 GM_addStyle('/* The switch - the box around the slider */ #sMenu .switch { position: relative; display: inline-block; width: 34px; height: 20px } /* Hide default HTML checkbox */ #sMenu .switch input { display:none } /* The slider */#sMenu .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; -webkit-transition: .4s; transition: .4s; } #sMenu .slider.round:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; -webkit-transition: .4s; transition: .4s; } #sMenu input:checked + .slider { background-color: #2196F3; } #sMenu input:focus + .slider { box-shadow: 0 0 1px #2196F3; } #sMenu input:checked + .slider:before { -webkit-transform: translateX(10px); -ms-transform: translateX(10px); transform: translateX(10px); } /* Rounded sliders */ #sMenu .slider.round { border-radius: 14px; }  #sMenu .slider.round:before { border-radius: 50%; }');
-GM_addStyle(' #sMenu input:checked + .slider.kobans { background-color: red; } #sMenu input:not(:checked) + .slider.round.kobans:before { background-color: red } #sMenu input:checked + .slider.round.kobans:before { background-color: white }')
+GM_addStyle('#sMenu {font-size:x-small; position:absolute; right:22%; width:inherit; text-align:left; display:flex; flex-direction:column; justify-content:space-between; z-index:1000} #sMenu input:checked + .slider.kobans { background-color: red; } #sMenu input:not(:checked) + .slider.round.kobans:before { background-color: red } #sMenu input:checked + .slider.round.kobans:before { background-color: white }')
+GM_addStyle('#pInfo {padding-left:3px; z-index:1;white-space: pre;position: absolute;right: 5%; left:77%; height:auto; top:11%; overflow: hidden; border: 1px solid #ffa23e; background-color: rgba(0,0,0,.5); border-radius: 5px; font-size:9pt;}');
 //GM_addStyle('span.HHMenuItemName {font-size: xx-small; line-height: 150%}');
 //GM_addStyle('span.HHMenuItemName {font-size: smaller; line-height: 120%}');
 GM_addStyle('span.HHMenuItemName {padding-bottom:2px; line-height:120%}');
@@ -818,6 +819,8 @@ var proceedQuest = function () {
     else if (proceedType === "free") {
         logHHAuto("Proceeding for free.");
         proceedButtonMatch.click();
+        sessionStorage.HHAuto_Temp_autoLoop = "false";
+        logHHAuto("setting autoloop to false");
     }
     else if (proceedType === "pay") {
         var energyCurrent = getSetHeroInfos('quest.amount');
@@ -852,6 +855,8 @@ var proceedQuest = function () {
     else if (proceedType === "use_item") {
         logHHAuto("Proceeding by using X" + Number($("#controls .item span").text()) + " of the required item.");
         proceedButtonMatch.click();
+        sessionStorage.HHAuto_Temp_autoLoop = "false";
+        logHHAuto("setting autoloop to false");
     }
     else if (proceedType === "battle") {
         logHHAuto("Proceeding to battle troll...");
@@ -860,7 +865,6 @@ var proceedQuest = function () {
         proceedButtonMatch.click();
         sessionStorage.HHAuto_Temp_autoLoop = "false";
         logHHAuto("setting autoloop to false");
-        location.reload();
     }
     else if (proceedType === "end_archive") {
         logHHAuto("Reached end of current archive. Proceeding to next archive.");
@@ -878,6 +882,8 @@ var proceedQuest = function () {
         logHHAuto("Could not identify given resume button.");
         sessionStorage.HHAuto_Temp_questRequirement = "unknownQuestButton";
     }
+
+    setTimeout(function () {location.reload();},randomInterval(800,1500));
 };
 
 /**
@@ -8375,7 +8381,7 @@ var start = function () {
 
     // Add UI buttons.
     var UIcontainer = $("#contains_all nav div[rel='content']");
-    UIcontainer.html( '<div style="font-size:x-small; position:absolute; right:22%; width:inherit; text-align:left; display:flex; flex-direction:column; justify-content:space-between; z-index:1000" id="sMenu">'
+    UIcontainer.html( '<div id="sMenu">'
 
                      //dialog Boxes
                      + '<dialog id="LoadDialog"> <form method="dialog"><p>After you select the file the settings will be automatically updated.</p><p> If nothing happened, then the selected file contains errors.</p><p id="LoadConfError"style="color:#f53939;"></p><p><label><input type="file" id="myfile" accept=".json" name="myfile"> </label></p> <menu> <button value="cancel">'+getTextForUI("OptionCancel","elementText")+'</button></menu> </form></dialog>'
@@ -8894,7 +8900,7 @@ var start = function () {
     //document.getElementById("autoLGR").addEventListener("keyup",add1000sSeparator);
 
     var div = document.createElement('div');
-    div.innerHTML = '<div id="pInfo" style="padding-left:3px; z-index:1;white-space: pre;position: absolute;right: 5%; left:77%; top:11%; overflow: hidden; border: 1px solid #ffa23e; background-color: rgba(0,0,0,.5); border-radius: 5px; font-size:9pt;"></div>'.trim(); //height: auto;
+    div.innerHTML = '<div id="pInfo" ></div>'.trim(); //height: auto;
 
     var pInfo = div.firstElementChild;
 
@@ -8918,14 +8924,29 @@ var start = function () {
         pInfo.style.maxHeight = pInfoMaxHeight;
         pInfo.addEventListener("mouseover", function() { pInfo.style.maxHeight = "none"; });
         pInfo.addEventListener("mouseout", function() { pInfo.style.maxHeight = pInfoMaxHeight; });
-        
+
         //Storage().HHAuto_Setting_infoBoxIsHidden = "false";
         //console.log("Showing InfoBox");
     }
     else
     {
-        pInfo.addEventListener("mouseover", function() { pInfo.style.height = "auto"; });
-        pInfo.addEventListener("mouseout", function() { pInfo.style.height = "22px"; });
+        pInfo.style.right = "1%";
+        pInfo.style.left = "88%";
+        pInfo.style.top = "7%";
+        pInfo.addEventListener("mouseover", function()
+                               {
+            pInfo.style["padding-top"] = "22px";
+            pInfo.style.height= "auto";
+            pInfo.style.left = "";
+        });
+        pInfo.addEventListener("mouseout", function()
+                               {
+            pInfo.style.right = "1%";
+            pInfo.style.left = "88%";
+            pInfo.style.top = "7%";
+            pInfo.style.height = "22px";
+            pInfo.style["padding-top"] = "";
+        });
         pInfo.style.height = "22px";
         //Storage().HHAuto_Setting_infoBoxIsHidden = "true";
         //console.log("Hiding InfoBox");
