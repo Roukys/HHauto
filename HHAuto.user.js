@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.56
+// @version      5.4.57
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -1757,7 +1757,7 @@ var doShopping=function()
                         && shop[0][n0].chance==0
                         && shop[0][n0].endurance==0
                         && shop[0][n0].rarity=='legendary'
-                        && shop[0][n0].currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
+                        && shop[0][n0].currency == "sc" // "sc" for soft currency = money, "hc" for hard currency = kobans
                     )
                     ||
                     (
@@ -1768,7 +1768,7 @@ var doShopping=function()
                         && shop[0][n0][SS1]>0
                         && shop[0][n0][SS2]>0
                         && shop[0][n0].rarity=='legendary'
-                        && shop[0][n0].currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
+                        && shop[0][n0].currency == "sc" // "sc" for soft currency = money, "hc" for hard currency = kobans
                     )
                 )
                 {
