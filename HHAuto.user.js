@@ -1831,7 +1831,7 @@ var doShopping=function()
             for (var n2=shop[2].length-1;n2>=0;n2--)
             {
                 logHHAuto({log:'wanna buy ',Object:shop[2][n2]});
-                if (money>=Aff+Number(shop[2][n2].price) && money>=Number(shop[2][n2].price))
+                if (money>=Aff+Number(shop[2][n2].price) && money>=Number(shop[2][n2].price) && shop[2][n2].currency == "sc")
                 {
                     logHHAuto("yay?");
                     money-=Number(shop[2][n2].price);
@@ -1865,7 +1865,7 @@ var doShopping=function()
             for (var n3=shop[3].length-1;n3>=0;n3--)
             {
                 logHHAuto('wanna buy ',shop[3][n3]);
-                if (money>=Exp+Number(shop[3][n3].price) && money>=Number(shop[3][n3].price))
+                if (money>=Exp+Number(shop[3][n3].price) && money>=Number(shop[3][n3].price) && shop[3][n3].currency == "sc")
                 {
                     logHHAuto("yay?");
                     money-=Number(shop[3][n3].price);
