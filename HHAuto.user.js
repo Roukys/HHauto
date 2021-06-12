@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.55
+// @version      5.4.56
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -1747,9 +1747,30 @@ var doShopping=function()
             for (var n0=shop[0].length-1;n0>=0;n0--)
             {
 
-                if (Storage().HHAuto_Setting_autoLGMW==="true" && money>=LGM+Number(shop[0][n0].price) && shop[0][n0][MS]>0 && shop[0][n0][SS1]==0 && shop[0][n0][SS2]==0 && shop[0][n0].chance==0 && shop[0][n0].endurance==0 && shop[0][n0].rarity=='legendary'||
-                    //Storage().HHAuto_Setting_autoEGMW==="true" && money>=EGM+Number(shop[0][n0].price) && shop[0][n0][MS]>0 && shop[0][n0][SS1]==0 && shop[0][n0][SS2]==0 && shop[0][n0].chance==0 && shop[0][n0].endurance==0 && shop[0][n0].rarity=='epic'||
-                    Storage().HHAuto_Setting_autoLGRW==="true" && money>=LGR+Number(shop[0][n0].price) && shop[0][n0][MS]>0 && shop[0][n0][SS1]>0 && shop[0][n0][SS2]>0 && shop[0][n0].rarity=='legendary')
+                if (
+                    (
+                        Storage().HHAuto_Setting_autoLGMW==="true"
+                        && money>=LGM+Number(shop[0][n0].price)
+                        && shop[0][n0][MS]>0
+                        && shop[0][n0][SS1]==0
+                        && shop[0][n0][SS2]==0
+                        && shop[0][n0].chance==0
+                        && shop[0][n0].endurance==0
+                        && shop[0][n0].rarity=='legendary'
+                        && shop[0][n0].currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
+                    )
+                    ||
+                    (
+                        //Storage().HHAuto_Setting_autoEGMW==="true" && money>=EGM+Number(shop[0][n0].price) && shop[0][n0][MS]>0 && shop[0][n0][SS1]==0 && shop[0][n0][SS2]==0 && shop[0][n0].chance==0 && shop[0][n0].endurance==0 && shop[0][n0].rarity=='epic'||
+                        Storage().HHAuto_Setting_autoLGRW==="true"
+                        && money>=LGR+Number(shop[0][n0].price)
+                        && shop[0][n0][MS]>0
+                        && shop[0][n0][SS1]>0
+                        && shop[0][n0][SS2]>0
+                        && shop[0][n0].rarity=='legendary'
+                        && shop[0][n0].currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
+                    )
+                )
                 {
                     logHHAuto({log:'wanna buy ',object:shop[0][n0]});
                     if (money>=shop[0][n0].price)
@@ -1865,7 +1886,7 @@ var doShopping=function()
             for (var n3=shop[3].length-1;n3>=0;n3--)
             {
                 logHHAuto('wanna buy ',shop[3][n3]);
-                if (money>=Exp+Number(shop[3][n3].price) && money>=Number(shop[3][n3].price) && shop[3][n3].currency == "sc")
+                if (money>=Exp+Number(shop[3][n3].price) && money>=Number(shop[3][n3].price) && shop[3][n3].currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                 {
                     logHHAuto("yay?");
                     money-=Number(shop[3][n3].price);
@@ -8919,21 +8940,30 @@ var start = function () {
 
     if(getPage()=="home")
     {
-        //pInfo.style.height = "auto";
-        const pInfoMaxHeight = "220px";
-        pInfo.style.maxHeight = pInfoMaxHeight;
+        function setpInfoHomeFolded()
+        {
+            pInfo.style.maxHeight = "220px";
+            //pInfo.style.overflow = "auto";
+        }
+        setpInfoHomeFolded();
         pInfo.addEventListener("mouseover", function() { pInfo.style.maxHeight = "none"; });
-        pInfo.addEventListener("mouseout", function() { pInfo.style.maxHeight = pInfoMaxHeight; });
+        pInfo.addEventListener("mouseout", function() { setpInfoHomeFolded();; });
 
         //Storage().HHAuto_Setting_infoBoxIsHidden = "false";
         //console.log("Showing InfoBox");
     }
     else
     {
-        pInfo.style.right = "1%";
-        pInfo.style.left = "88%";
-        pInfo.style.top = "7%";
-        pInfo.style["z-index"]="1000";
+        function setpInfoFolded()
+        {
+            pInfo.style.right = "1%";
+            pInfo.style.left = "88%";
+            pInfo.style.top = "7%";
+            pInfo.style["z-index"]="1000";
+            pInfo.style.height = "22px";
+            pInfo.style["padding-top"] = "";
+        }
+        setpInfoFolded();
         pInfo.addEventListener("mouseover", function()
                                {
             pInfo.style["padding-top"] = "22px";
@@ -8942,13 +8972,9 @@ var start = function () {
         });
         pInfo.addEventListener("mouseout", function()
                                {
-            pInfo.style.right = "1%";
-            pInfo.style.left = "88%";
-            pInfo.style.top = "7%";
-            pInfo.style.height = "22px";
-            pInfo.style["padding-top"] = "";
+            setpInfoFolded();
         });
-        pInfo.style.height = "22px";
+
         //Storage().HHAuto_Setting_infoBoxIsHidden = "true";
         //console.log("Hiding InfoBox");
     }
