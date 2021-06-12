@@ -1831,7 +1831,7 @@ var doShopping=function()
             for (var n2=shop[2].length-1;n2>=0;n2--)
             {
                 logHHAuto({log:'wanna buy ',Object:shop[2][n2]});
-                if (money>=Aff+Number(shop[2][n2].price) && money>=Number(shop[2][n2].price) && shop[2][n2].currency == "sc")
+                if (money>=Aff+Number(shop[2][n2].price) && money>=Number(shop[2][n2].price) && shop[2][n2].currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                 {
                     logHHAuto("yay?");
                     money-=Number(shop[2][n2].price);
