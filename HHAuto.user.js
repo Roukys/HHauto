@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.58
+// @version      5.4.59
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -1812,13 +1812,13 @@ var doShopping=function()
             {
                 for (var n1=shop[1].length-1;n1>=0;n1--)
                 {
-                    if (kobans>=Number(Storage().HHAuto_Setting_kobanBank)+Number(shop[1][n1].price_hc) && shop[1][n1].identifier == boost  && shop[1][n1].rarity=='legendary')
+                    if (kobans>=Number(Storage().HHAuto_Setting_kobanBank)+Number(shop[1][n1].price) && shop[1][n1].currency == "hc" && shop[1][n1].identifier == boost  && shop[1][n1].rarity=='legendary')
                     {
                         logHHAuto({log:'wanna buy ',object:shop[1][n1]});
-                        if (kobans>=Number(shop[1][n1].price_hc))
+                        if (kobans>=Number(shop[1][n1].price))
                         {
                             logHHAuto("yay?");
-                            kobans-=Number(shop[1][n1].hc_price);
+                            kobans-=Number(shop[1][n1].price);
                             var params1 = {
                                 class: "Item",
                                 action: "buy",
