@@ -3427,12 +3427,12 @@ var  CrushThem = function()
                 if (league_battle !== null && league_battle === "1")
                 {
                     logHHAuto("Reloading after league fight.");
-                    setTimeout(function(){location.reload();},randomInterval(3000,5000));
+                    setTimeout(function(){location.reload();},randomInterval(500,1000));
                 }
                 else
                 {
                     logHHAuto("Go to home after Troll fight.");
-                    gotoPage('home',randomInterval(2000,4000));//setTimeout(function(){gotoPage('home');},randomInterval(2000,4000));
+                    gotoPage('home',randomInterval(500,1000));//setTimeout(function(){gotoPage('home');},randomInterval(2000,4000));
                 }
                 return true;
             }
