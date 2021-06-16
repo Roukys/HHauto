@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.57
+// @version      5.4.58
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -4255,12 +4255,6 @@ function moduleSimLeague() {
 
     //CSS
 
-    var sheet = (function() {
-        var style = document.createElement('style');
-        document.head.appendChild(style);
-        return style.sheet;
-    })();
-
     GM_addStyle('#leagues_right .player_block .lead_player_profile .level_wrapper {'
                 + 'top: -8px !important;}'
                );
@@ -4302,8 +4296,192 @@ function moduleSimLeague() {
                 + 'margin-right: 1px; '
                 + 'width: 25px;}'
                );
+
+    function DisplayMatchScore() {
+        let opponentsIDList = [];
+        let sorting_id;
+        let player;
+        for (let i=0;i<leagues_list.length;i++) {
+            player=leagues_list[i];
+            if (player.nb_challenges_played<3){
+                if (getHero().infos.id != player.id_player){
+                    opponentsIDList.push(player.id_player);}
+            }
+        }
+        let opponentsPowerList = sessionStorage.HHAuto_Temp_LeagueOpponentList ? JSON.parse(sessionStorage.HHAuto_Temp_LeagueOpponentList, reviverMap) : -1;
+        let opponentsTempPowerList = sessionStorage.HHAuto_Temp_LeagueTempOpponentList ? JSON.parse(sessionStorage.HHAuto_Temp_LeagueTempOpponentList, reviverMap) : -1;
+        let opponentsListExpirationDate = sessionStorage.HHAuto_Temp_opponentsListExpirationDate?sessionStorage.HHAuto_Temp_opponentsListExpirationDate:'empty';
+        let maxScore = -1;
+        let IdOppo = -1;
+        let OppoScore;
+
+        //console.log(opponentsPowerList,opponentsTempPowerList,opponentsListExpirationDate,opponentsListExpirationDate < new Date());
+        if (opponentsPowerList === -1 )
+        {
+            opponentsPowerList = opponentsTempPowerList;
+        }
+
+        if (opponentsPowerList === -1 || opponentsListExpirationDate === 'empty' || opponentsListExpirationDate < new Date())
+        {
+            return;
+        }
+
+        for (let oppo of opponentsIDList)
+        {
+            OppoScore = Number(opponentsPowerList.get(Number(oppo)));
+            if ($('tr[sorting_id=' + oppo + '] td span.nickname').length > 0)
+            {
+                //if ($('tr[sorting_id=' + oppo + '] td .score').length > 0)
+
+                if (Number(OppoScore)<0)
+                {
+                    $('tr[sorting_id=' + oppo + '] td span.nickname').append("<span id='OppoScore' class='minus'>("+OppoScore+")</span>");
+                }
+                else
+                {
+                    $('tr[sorting_id=' + oppo + '] td span.nickname').append("<span id='OppoScore' class='plus'>("+OppoScore+")</span>");
+                }
+            }
+        }
+
+    }
+    DisplayMatchScore();
 }
 
+function moduleHarem()
+{
+    GM_addStyle('#emptyStarPanel {'
+                + 'z-index: 99; '
+                + 'width: 50px; '
+                + 'padding: 3px 10px 0 3px; '
+                + 'position: absolute; bottom: 23px;right: 10px;}');
+
+    GM_addStyle('#emptyStarPanel div:hover {'
+                + 'opacity: 1; '
+                + 'cursor: pointer;}');
+
+    GM_addStyle('#emptyStarPanel {'
+                + 'z-index: 99;'
+                + 'width: 120px;'
+                + 'padding: 0;'
+                + 'position: absolute;'
+                + 'bottom: 17px;'
+                + 'right: -24px;'
+                + 'height: 50px;}');
+
+    GM_addStyle('#emptyStarPanel-moveRight, #emptyStarPanel-moveLeft {'
+                + 'width: 0;'
+                + 'float: left;'
+                + 'border: 20px solid transparent;'
+                + 'height: 0;'
+                + 'opacity: 0.5;'
+                + 'margin:-1px;}');
+
+    GM_addStyle('#emptyStarPanel-description {'
+                + 'width: 110px;'
+                + 'line-height: 20px;'
+                + 'text-align: center;}');
+
+    GM_addStyle('#emptyStarPanel g {'
+                + 'background-size: 100% auto;'
+                + 'width: 38px;'
+                + 'float: left;'
+                + 'height: 34px;'
+                + 'opacity: 1;}');
+    GM_addStyle('#emptyStarPanel g.grey {'
+                + 'background-image: url(https://hh.hh-content.com/design_v2/affstar_empty_S.png);}');
+    GM_addStyle('#emptyStarPanel g.can_upgrade {'
+                + 'background-image: url(https://hh.hh-content.com/design_v2/affstar_upgrade.png);}');
+
+    GM_addStyle('#emptyStarPanel div#emptyStarPanel-moveLeft {'
+                + 'border-right-color: red;}');
+
+    GM_addStyle('#emptyStarPanel div#emptyStarPanel-moveRight {'
+                + 'border-left-color: red;}');
+
+    var emptyStar = emptyStar ? emptyStar : 0;
+    function haremEmptyStar(classHide) {
+        if ($('#emptyStarPanel').length == 0) {
+            let emptyStarArray0 = $("div.girls_list div[girl]:not(.not_owned) g." + classHide);
+            $('#harem_left').append('<div id="emptyStarPanel">'
+                                    + '<div id="emptyStarPanel-moveLeft">'
+                                    + '</div>'
+                                    + '<g id="iconHideStars" class="can_upgrade" ></g>' //onclick="switchHideButton();"
+                                    + '<div id="emptyStarPanel-moveRight">'
+                                    + '</div>'
+                                    + '<div id="emptyStarPanel-description">' + emptyStarArray0.length
+                                    + '</div>'
+                                    + '</div>');
+            $('#emptyStarPanel div#emptyStarPanel-moveRight')[0].addEventListener("click", function () {
+                setOffsetEmptyStar(1);
+            }, true);
+            $('#emptyStarPanel div#emptyStarPanel-moveLeft')[0].addEventListener("click", function () {
+                setOffsetEmptyStar(-1);
+            }, true);
+            /*$('#emptyStarPanel g#iconHideStars')[0].addEventListener("click", function () {
+                switchHideButton();
+            }, true);*/
+            // setTimeout(function(){},2
+        }
+    }
+    function switchHideButton() {
+        if ($('#emptyStarPanel g')[0].className == 'grey') {
+            $('#emptyStarPanel g')[0].className = 'can_upgrade'
+        } else {
+            $('#emptyStarPanel g')[0].className = 'grey'
+        }
+        emptyStar = 0;
+        setOffsetEmptyStar(0);
+    }
+    function haremHideStars() {
+        let girlArrayHide = $('div[id_girl] div[girl]:not(.not_owned) .g_infos .graded');
+        if (girlArrayHide.length > 0) {
+            for (let i = 0; i < girlArrayHide.length; i++) {
+                if ($(girlArrayHide[i]).find('g[class]').length == 0) {
+                    girlArrayHide[i].parentElement.parentElement.parentElement.parentElement.style.display = "none";
+                }
+            }
+        }
+    }
+    function setOffsetEmptyStar(offer) {
+        let classHide = $('#emptyStarPanel g#iconHideStars')[0].className == "grey" ? "grey" : ($('#emptyStarPanel g#iconHideStars')[0].className == "can_upgrade" ? "green" : "");
+        let emptyStarArray = $("div.girls_list div[girl]:not(.not_owned) g." + classHide);
+        if (emptyStarArray.length == 0) {
+            $('#emptyStarPanel-description')[0].innerHTML = '0';
+            rerurn
+        }
+        emptyStar = Number(emptyStar) + Number(offer);
+        if (emptyStar < 0) {
+            emptyStar = emptyStarArray.length - 1;
+        }
+        if (emptyStar > emptyStarArray.length - 1) {
+            emptyStar = 0;
+        }
+        $(".girls_list g." + classHide + "[style]").each(function () {
+            this.removeAttribute("style");
+        });
+        emptyStarArray[emptyStar].scrollIntoView({
+            block: "center",
+            inline: "nearest"
+        });
+        let borderColor = classHide == "grey" ? "red" : (classHide == "green" ? "#1ff51f" : "red");
+        emptyStarArray[emptyStar].style.border = '3px ' + borderColor + ' dashed';
+        emptyStarArray[emptyStar].style.padding = '8px';
+        $('#emptyStarPanel-description')[0].innerHTML = (Number(emptyStar) + 1) + '/' + emptyStarArray.length;
+    }
+
+    /*if ($('#emptyStarPanel g').length >0 && $('#emptyStarPanel g.green').length >0)
+    {
+        haremEmptyStar("green");
+    }
+    else
+    {
+        haremEmptyStar("grey");
+    }
+    */
+
+    haremEmptyStar("green");
+}
 
 
 function moduleSimBattle() {
@@ -4506,15 +4684,6 @@ function moduleSimBattle() {
 
     //Replace player excitement with the correct value
     //$('div#leagues_left div.stats_wrap div:nth-child(9) span:nth-child(2)').empty().append(nRounding(playerExcitement, 0, 1));
-
-
-
-
-    var sheet = (function() {
-        var style = document.createElement('style');
-        document.head.appendChild(style);
-        return style.sheet;
-    })();
 
     //CSS
 
@@ -4832,13 +5001,6 @@ function moduleSimSeasonBattle() {
             //$('div.season_arena_opponent_container div.matchRatingNew')[chosenID].innerHTML=$('div.season_arena_opponent_container div.matchRatingNew')[chosenID].innerHTML+marker;
             $($('div.season_arena_opponent_container div.matchRatingNew')[chosenID]).append('<img id="powerLevelScouterChosen" src="https://i.postimg.cc/MfKwNbZ8/Opponent-go.png">');
 
-
-            var sheet = (function() {
-                var style = document.createElement('style');
-                document.head.appendChild(style);
-                return style.sheet;
-            })();
-
             //CSS
 
             GM_addStyle('.matchRatingNew {'
@@ -4899,8 +5061,20 @@ function CheckSpentPoints()
                 spent[i]=oldValues[i]-newValues[i];
                 updatedParanoiaSpendings(i, spent[i]);
             }
+
         }
         sessionStorage.HHAuto_Temp_CheckSpentPoints=JSON.stringify(newValues);
+
+        if (newValues['challenge'] > (oldValues['challenge'] +1))
+        {
+            logHHAuto("Seems league point bought, resetting timer.");
+            clearTimer('nextLeaguesTime');
+        }
+        if (newValues['kiss'] > (oldValues['kiss'] +1))
+        {
+            logHHAuto("Seems season point bought, resetting timer.");
+            clearTimer('nextSeasonTime');
+        }
     }
     else
     {
@@ -5364,6 +5538,10 @@ var autoLoop = function () {
     }
     if (getPage() == "path_of_attraction" && Storage().HHAuto_Setting_PoAMaskRewards === "true") {
         modulePathOfAttractionHide();
+    }
+    if (getPage() === "harem")
+    {
+        moduleHarem();
     }
 
 };
@@ -6678,12 +6856,19 @@ var CollectEventData=function()
 
             for (var i=0;i<unsafeWindow.event_data.girls.length;i++)
             {
-                if (!unsafeWindow.event_data.girls[i].owned_girl
-                    && unsafeWindow.event_data.girls[i].troll
-                    && Number(unsafeWindow.event_data.girls[i].troll.id_troll)<getSetHeroInfos('questing.id_world'))
+                let isTrollable = unsafeWindow.event_data.girls[i].source.name ==="event_troll" && unsafeWindow.event_data.girls[i].source.ongoing && unsafeWindow.event_data.girls[i].source.playable;
+                let TrollID;
+                if (isTrollable)
                 {
-                    logHHAuto("Event girl : "+unsafeWindow.event_data.girls[i].name+" ("+unsafeWindow.event_data.girls[i].shards+"/100) at troll "+unsafeWindow.event_data.girls[i].troll.id_troll+" priority : "+Priority.indexOf(unsafeWindow.event_data.girls[i].troll.id_troll));
-                    eventsGirlz.push("event;"+i+";"+unsafeWindow.event_data.girls[i].id_girl+";"+unsafeWindow.event_data.girls[i].troll.id_troll+";"+unsafeWindow.event_data.girls[i].shards);
+                    let trollURL = unsafeWindow.event_data.girls[i].source.anchor_source.url;
+                    TrollID = (new URLSearchParams(event_data.girls[i].source.anchor_source.url.split('?')[1])).get('id_troll');
+                }
+                if (!unsafeWindow.event_data.girls[i].owned_girl
+                    && isTrollable
+                    && Number(TrollID)<getSetHeroInfos('questing.id_world'))
+                {
+                    logHHAuto("Event girl : "+unsafeWindow.event_data.girls[i].name+" ("+unsafeWindow.event_data.girls[i].shards+"/100) at troll "+TrollID+" priority : "+Priority.indexOf(TrollID));
+                    eventsGirlz.push("event;"+i+";"+unsafeWindow.event_data.girls[i].id_girl+";"+TrollID+";"+unsafeWindow.event_data.girls[i].shards);
                     //Trollz.push(Number(unsafeWindow.event_data.girls[i].troll.id_troll));
                 }
             }
@@ -6695,25 +6880,35 @@ var CollectEventData=function()
             setTimer('eventMythicGoing',timeLeftMythic);
             for (i=0;i<unsafeWindow.mythic_event_data.girls.length;i++)
             {
-                if (Number(unsafeWindow.mythic_event_data.girls[i].shards) !== 100
-                    && unsafeWindow.mythic_event_data.girls[i].troll
-                    && unsafeWindow.mythic_event_data.can_participate === true
-                    && Number(unsafeWindow.mythic_event_data.girls[i].troll.id_troll)<getSetHeroInfos('questing.id_world'))
+                let isNewVersion = unsafeWindow.mythic_event_data.girls[i].troll === undefined;
+                let isTrollable = unsafeWindow.mythic_event_data.girls[i].source.name ==="event_troll" && unsafeWindow.mythic_event_data.girls[i].source.ongoing && unsafeWindow.mythic_event_data.girls[i].source.playable;
+                let TrollID;
+                if (isTrollable)
                 {
-                    if ( Number(unsafeWindow.mythic_event_data.event_data.shards_available) !== 0 )
-                    {
-                        logHHAuto("Mythic Event girl : "+unsafeWindow.mythic_event_data.girls[i].name+" "+unsafeWindow.mythic_event_data.girls[i].shards+"/100");
-                        //Trollz.push(Number(unsafeWindow.mythic_event_data.girls[i].troll.id_troll));
-                        eventsGirlz.push("mythic_event;"+i+";"+unsafeWindow.mythic_event_data.girls[i].id_girl+";"+unsafeWindow.mythic_event_data.girls[i].troll.id_troll+";"+unsafeWindow.mythic_event_data.girls[i].shards);
-                        //TrollzMythic.push(Number(unsafeWindow.mythic_event_data.girls[i].troll.id_troll));
-                    }
-                    else
-                    {
-                        setTimer('eventMythicNextWave',Number(unsafeWindow.mythic_event_data.event_data.next_tranche_in));
-                    }
+                    let trollURL = unsafeWindow.mythic_event_data.girls[i].source.anchor_source.url;
+                    TrollID = (new URLSearchParams(mythic_event_data.girls[i].source.anchor_source.url.split('?')[1])).get('id_troll');
+                }
+            }
+
+            if (Number(unsafeWindow.mythic_event_data.girls[i].shards) !== 100
+                && isTrollable
+                && unsafeWindow.mythic_event_data.can_participate === true
+                && Number(TrollID)<getSetHeroInfos('questing.id_world'))
+            {
+                if ( Number(unsafeWindow.mythic_event_data.event_data.shards_available) !== 0 )
+                {
+                    logHHAuto("Mythic Event girl : "+unsafeWindow.mythic_event_data.girls[i].name+" "+unsafeWindow.mythic_event_data.girls[i].shards+"/100 at troll "+TrollID);
+                    //Trollz.push(Number(unsafeWindow.mythic_event_data.girls[i].troll.id_troll));
+                    eventsGirlz.push("mythic_event;"+i+";"+unsafeWindow.mythic_event_data.girls[i].id_girl+";"+TrollID+";"+unsafeWindow.mythic_event_data.girls[i].shards);
+                    //TrollzMythic.push(Number(unsafeWindow.mythic_event_data.girls[i].troll.id_troll));
+                }
+                else
+                {
+                    setTimer('eventMythicNextWave',Number(unsafeWindow.mythic_event_data.event_data.next_tranche_in));
                 }
             }
         }
+
 
         //logHHAuto(Priority);
         //logHHAuto(Trollz);
@@ -8947,7 +9142,7 @@ var start = function () {
         }
         setpInfoHomeFolded();
         pInfo.addEventListener("mouseover", function() { pInfo.style.maxHeight = "none"; });
-        pInfo.addEventListener("mouseout", function() { setpInfoHomeFolded();; });
+        pInfo.addEventListener("mouseout", setpInfoHomeFolded);
 
         //Storage().HHAuto_Setting_infoBoxIsHidden = "false";
         //console.log("Showing InfoBox");
@@ -8970,10 +9165,7 @@ var start = function () {
             pInfo.style.height= "auto";
             pInfo.style.left = "";
         });
-        pInfo.addEventListener("mouseout", function()
-                               {
-            setpInfoFolded();
-        });
+        pInfo.addEventListener("mouseout", setpInfoFolded);
 
         //Storage().HHAuto_Setting_infoBoxIsHidden = "true";
         //console.log("Hiding InfoBox");
