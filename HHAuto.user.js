@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.59
+// @version      5.4.60
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -1109,6 +1109,21 @@ function modulePathOfAttractionHide()
     }
 }
 
+function modulePachinko()
+{
+    let menuPachinko='<div style="padding:10px; display:flex;flex-direction:column;">'
+    //+   '<div class="HHMenuRow">'
+    +    '<p id="menuAffText"></p>'
+    //+   '</div>'
+    +   '<p ></p>'
+    +   '<div id="menuAffHide" style="display:none">'
+    +    '<div class="HHMenuRow">'
+    +     '<div style="padding:10px;"class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAffButton","tooltip")+'</span><label class="myButton" id="menuAffButton">'+getTextForUI("menuAffButton","elementText")+'</label></div>'
+    +    '</div>'
+    +   '</div>'
+    +  '</div>'
+    }
+
 function moduleSimSeasonReward()
 {
     var arrayz;
@@ -1692,7 +1707,7 @@ var doStatUpgrades=function()
                     nb: mult
                 };
                 hh_ajax(params, function(data) {
-
+                    Hero.update("soft_currency", 0 - price, true);
                 });
                 break;
             }
@@ -1787,7 +1802,7 @@ var doShopping=function()
                             id_equip: shop[0][n0].id_equip
                         };
                         hh_ajax(params0, function(data) {
-
+                            Hero.updates(data.changes, false);
                         });
                         shop[0].splice(n0,1);
                     }
@@ -1827,7 +1842,7 @@ var doShopping=function()
                                 who: 1
                             };
                             hh_ajax(params1, function(data) {
-
+                                Hero.updates(data.changes, false);
                             });
                             shop[1].splice(n1,1);
                         }
@@ -1864,7 +1879,7 @@ var doShopping=function()
                         who: 1
                     };
                     hh_ajax(params2, function(data) {
-
+                        Hero.updates(data.changes, false);
                     });
                     shop[2].splice(n2,1);
                 }
@@ -1898,7 +1913,7 @@ var doShopping=function()
                         who: 1
                     };
                     hh_ajax(params3, function(data) {
-
+                        Hero.updates(data.changes, false);
                     });
                     shop[3].splice(n3,1);
                 }
@@ -2839,6 +2854,31 @@ var getLeagueCurrentLevel = function ()
     return unsafeWindow.league_tag;
 }
 
+function getLeagueOpponentListData()
+{
+    let Data=[];
+    let sorting_id;
+    $(".leadTable[sorting_table] tr").each(function()
+                                           {
+        sorting_id = $(this).attr("sorting_id");
+        if (this.className.indexOf('selected-player-leagues') != -1)
+        {
+            if ( ($(".leadTable[sorting_table] tr.selected-player-leagues div.result.won").length + $(".leadTable[sorting_table] tr.selected-player-leagues div.result.lost").length) < 3)
+            {
+                Data.push(sorting_id);
+            }
+        }
+        else
+        {
+            if (this.cells[3].innerHTML==='0/3' || this.cells[3].innerHTML==='1/3' || this.cells[3].innerHTML==='2/3')
+            {
+                Data.push(sorting_id);
+            }
+        }
+    });
+    return Data;
+}
+
 var doLeagueBattle = function () {
     //logHHAuto("Performing auto leagues.");
     // Confirm if on correct screen.
@@ -2896,26 +2936,7 @@ var doLeagueBattle = function () {
             $("span[sort_by='level']").each(function(){this.click()});
         }
         logHHAuto('parsing enemies');
-        var Data=[];
-        var sorting_id;
-        $(".leadTable[sorting_table] tr").each(function()
-                                               {
-            sorting_id = $(this).attr("sorting_id");
-            if (this.className.indexOf('selected-player-leagues') != -1)
-            {
-                if ( ($(".leadTable[sorting_table] tr.selected-player-leagues div.result.won").length + $(".leadTable[sorting_table] tr.selected-player-leagues div.result.lost").length) < 3)
-                {
-                    Data.push(sorting_id);
-                }
-            }
-            else
-            {
-                if (this.cells[3].innerHTML==='0/3' || this.cells[3].innerHTML==='1/3' || this.cells[3].innerHTML==='2/3')
-                {
-                    Data.push(sorting_id);
-                }
-            }
-        });
+        var Data=getLeagueOpponentListData();
         if (Data.length==0)
         {
             ltime=35*60;
@@ -3054,7 +3075,7 @@ function LeagueUpdateGetOpponentPopup(numberDone,remainingTime)
     LeagueDisplayGetOpponentPopup(numberDone,remainingTime);
 }
 
-function getLeagueOpponentId(opponentsIDList)
+function getLeagueOpponentId(opponentsIDList,force=false)
 {
     var opponentsPowerList = sessionStorage.HHAuto_Temp_LeagueOpponentList?JSON.parse(sessionStorage.HHAuto_Temp_LeagueOpponentList,reviverMap):new Map([]);
     var opponentsTempPowerList = sessionStorage.HHAuto_Temp_LeagueTempOpponentList?JSON.parse(sessionStorage.HHAuto_Temp_LeagueTempOpponentList,reviverMap):new Map([]);
@@ -3087,18 +3108,31 @@ function getLeagueOpponentId(opponentsIDList)
 
     }
 
-    if (opponentsListExpirationDate === 'empty' || opponentsListExpirationDate < new Date() || opponentsPowerList.size ===0)
+    if (opponentsListExpirationDate === 'empty' || opponentsListExpirationDate < new Date() || opponentsPowerList.size ===0 || force)
     {
+        sessionStorage.removeItem("HHAuto_Temp_LeagueOpponentList");
         if (opponentsTempPowerList.size > 0)
         {
             logHHAuto("Opponents list already started, continuing.");
-            //removing already done in opponentsIDList
+
             for (var i of opponentsTempPowerList.keys())
             {
+                //removing oppo no longer in list
+                //console.log(i);
+                //console.log(opponentsIDList);
+                //console.log(opponentsIDList.indexOf(i.toString()));
+                if (opponentsIDList.indexOf(i.toString()) === -1)
+                {
+                    opponentsTempPowerList.delete(i);
+                    console.log('removed');
+                }
+                //removing already done in opponentsIDList
                 opponentsIDList = opponentsIDList.filter(item => Number(item) !== i)
             }
+
             DataOppo = opponentsTempPowerList;
             sessionStorage.removeItem("HHAuto_Temp_LeagueTempOpponentList");
+
 
         }
         else
@@ -4023,6 +4057,10 @@ function moduleSimLeague() {
     var matchRating;
     var matchRatingFlag;
 
+    if ($("#popup_message_league").length >0)
+    {
+        return;
+    }
 
     //toremove after migration in prod
     var girlDataName;
@@ -4221,10 +4259,7 @@ function moduleSimLeague() {
         //Replace player excitement with the correct value
         //$('div#leagues_left div.stats_wrap div:nth-child(9) span:nth-child(2)').empty().append(nRounding(playerExcitement, 0, 1));
     }
-    if ($("div.matchRatingNew img#powerLevelScouter").length != 0)
-    {
-        return;
-    }
+
     SimPower();
 
     // Refresh sim on new opponent selection (Credit: BenBrazke)
@@ -4298,16 +4333,14 @@ function moduleSimLeague() {
                );
 
     function DisplayMatchScore() {
-        let opponentsIDList = [];
+        if ($('tr[sorting_id] td span.nickname span.OppoScore').length > 0)
+        {
+            return
+        }
+
+        let opponentsIDList = getLeagueOpponentListData();
         let sorting_id;
         let player;
-        for (let i=0;i<leagues_list.length;i++) {
-            player=leagues_list[i];
-            if (player.nb_challenges_played<3){
-                if (getHero().infos.id != player.id_player){
-                    opponentsIDList.push(player.id_player);}
-            }
-        }
         let opponentsPowerList = sessionStorage.HHAuto_Temp_LeagueOpponentList ? JSON.parse(sessionStorage.HHAuto_Temp_LeagueOpponentList, reviverMap) : -1;
         let opponentsTempPowerList = sessionStorage.HHAuto_Temp_LeagueTempOpponentList ? JSON.parse(sessionStorage.HHAuto_Temp_LeagueTempOpponentList, reviverMap) : -1;
         let opponentsListExpirationDate = sessionStorage.HHAuto_Temp_opponentsListExpirationDate?sessionStorage.HHAuto_Temp_opponentsListExpirationDate:'empty';
@@ -4329,23 +4362,61 @@ function moduleSimLeague() {
         for (let oppo of opponentsIDList)
         {
             OppoScore = Number(opponentsPowerList.get(Number(oppo)));
-            if ($('tr[sorting_id=' + oppo + '] td span.nickname').length > 0)
+            if ($('tr[sorting_id=' + oppo + '] td span.nickname').length > 0 && opponentsPowerList.get(Number(oppo)) !== undefined)
             {
                 //if ($('tr[sorting_id=' + oppo + '] td .score').length > 0)
-
                 if (Number(OppoScore)<0)
                 {
-                    $('tr[sorting_id=' + oppo + '] td span.nickname').append("<span id='OppoScore' class='minus'>("+OppoScore+")</span>");
+                    $('tr[sorting_id=' + oppo + '] td span.nickname').append("<span class='OppoScore minus'>("+OppoScore+")</span>");
                 }
                 else
                 {
-                    $('tr[sorting_id=' + oppo + '] td span.nickname').append("<span id='OppoScore' class='plus'>("+OppoScore+")</span>");
+                    $('tr[sorting_id=' + oppo + '] td span.nickname').append("<span class='OppoScore plus'>("+OppoScore+")</span>");
                 }
             }
         }
 
     }
     DisplayMatchScore();
+    // Refresh sim on new opponent selection (Credit: BenBrazke)
+    var opntName2;
+    $('#leagues_middle').click(function() {
+        opntName2=''
+    })
+    function waitOpnt2() {
+        setTimeout(function() {
+            if ($('div#leagues_middle div.leagues_table .personal_highlight').length >0) {
+                DisplayMatchScore();
+            }
+            else {
+                waitOpnt2()
+            }
+        }, 50);
+    }
+    var observeCallback2 = function() {
+        var opntNameNew2 = $('div#leagues_middle div.leagues_table thead')[0].innerHTML
+        if (opntName2 !== opntNameNew2) {
+            opntName2 = opntNameNew2;
+            waitOpnt2();
+        }
+    }
+    var observer2 = new MutationObserver(observeCallback2);
+    var test2 = $('div#leagues_middle div.leagues_table tbody')[0];
+    observer2.observe(test2, {attributes: true, childList: true, subtree: false});
+
+    let buttonLaunchList='<div style="position: absolute;right: 50px;top: 10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("RefreshOppoList","tooltip")+'</span><label style="width:100px" class="myButton" id="RefreshOppoList">'+getTextForUI("RefreshOppoList","elementText")+'</label></div>';
+   if (document.getElementById("RefreshOppoList") === null)
+    {
+        $("#leagues_right").append(buttonLaunchList);
+        document.getElementById("RefreshOppoList").addEventListener("click", function()
+                                                                    {
+            document.getElementById("RefreshOppoList").remove();
+            $('tr[sorting_id] td span.nickname span.OppoScore').each(function () {
+                this.remove();
+            });
+            getLeagueOpponentId(getLeagueOpponentListData(),true);
+        });
+    }
 }
 
 function moduleHarem()
@@ -5542,6 +5613,10 @@ var autoLoop = function () {
     if (getPage() === "harem")
     {
         moduleHarem();
+    }
+    if (getPage() === "pachinko")
+    {
+        //modulePachinko();
     }
 
 };
@@ -7825,6 +7900,7 @@ HHAuto_ToolTips.en.minShardsX10  = { elementText: "Min. shards x10", tooltip : "
 HHAuto_ToolTips.en.trollzList = { elementText: ["Latest","Dark Lord","Ninja Spy","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson\'s Crew","Pandora witch","Nike","Sake"] };
 HHAuto_ToolTips.en.leaguesList = { elementText: ["Wanker I","Wanker II","Wanker III","Sexpert I","Sexpert II","Sexpert III","Dicktator I","Dicktator II","Dicktator III"] };
 HHAuto_ToolTips.en.mythicGirlNext  = { elementText: "Mythic girl wave"};
+HHAuto_ToolTips.en.RefreshOppoList  = { elementText: "Refresh Opponent list", tooltip : "Allow to force a refresh of opponent list."};
 
 HHAuto_ToolTips.fr = [];
 HHAuto_ToolTips.fr.saveDebug = { elementText: "Sauver log", tooltip : "Sauvegarder un fichier journal de débogage."};
@@ -8223,7 +8299,7 @@ var HHVars_Temp=[
 
 var updateData = function () {
     //logHHAuto("updating UI");
-    if ($('#LoadDialog[open]').length > 0) {return}
+    if (isHHPopUpDisplayed() === 'loadConfig') {return}
     var leaguesOptions = document.getElementById("autoLeaguesSelector");
     Storage().HHAuto_Setting_autoLeaguesSelectedIndex = leaguesOptions.selectedIndex;
     sessionStorage.HHAuto_Temp_leaguesTarget = Number(leaguesOptions.value)+1;
@@ -8600,8 +8676,8 @@ var start = function () {
     UIcontainer.html( '<div id="sMenu" style="font-size:x-small; position:absolute; right:22%; width:inherit; text-align:left; display:flex; flex-direction:column; justify-content:space-between; z-index:1000">'
 
                      //dialog Boxes
-                     + '<dialog id="LoadDialog"> <form method="dialog"><p>After you select the file the settings will be automatically updated.</p><p> If nothing happened, then the selected file contains errors.</p><p id="LoadConfError"style="color:#f53939;"></p><p><label><input type="file" id="myfile" accept=".json" name="myfile"> </label></p> <menu> <button value="cancel">'+getTextForUI("OptionCancel","elementText")+'</button></menu> </form></dialog>'
-                     + '<dialog id="DebugDialog" style="overflow:visible"><form method="dialog">'
+                     //+ '<dialog id="LoadDialog"> <form method="dialog"><p>After you select the file the settings will be automatically updated.</p><p> If nothing happened, then the selected file contains errors.</p><p id="LoadConfError"style="color:#f53939;"></p><p><label><input type="file" id="myfile" accept=".json" name="myfile"> </label></p> <menu> <button value="cancel">'+getTextForUI("OptionCancel","elementText")+'</button></menu> </form></dialog>'
+                     /*+ '<dialog id="DebugDialog" style="overflow:visible"><form method="dialog">'
                      +   '<div style="padding:10px; display:flex;flex-direction:column">'
                      +    '<p>HHAuto : v'+GM_info.script.version+'</p>'
                      +    '<p>'+getTextForUI("DebugFileText","elementText")+'</p>'
@@ -8620,7 +8696,7 @@ var start = function () {
                      +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ResetAllVars","tooltip")+'</span><label class="myButton" id="ResetAllVars">'+getTextForUI("ResetAllVars","elementText")+'</label></div>'
                      +    '</div>'
                      +  '</div>'
-                     + '<menu> <button value="cancel">'+getTextForUI("OptionCancel","elementText")+'</button></menu></form></dialog>'
+                     + '<menu> <button value="cancel">'+getTextForUI("OptionCancel","elementText")+'</button></menu></form></dialog>'*/
 
                      // _row of 3 columns_
                      + '<div class="optionsRow">'  //+ '<div style="display:flex;flex-direction:row;">'
@@ -9195,30 +9271,7 @@ var start = function () {
         leaguesOptions.add(optionL);
     };
 
-    // Add Timer reset options //changed
-    let timerOptions = document.getElementById("timerResetSelector");
-    var countTimers=0;
-    let optionElement = document.createElement("option");
-    optionElement.value = countTimers;
-    optionElement.text = getTextForUI("timerResetSelector","elementText");
-    countTimers++;
-    timerOptions.add(optionElement);
 
-    for (let i2 in Timers) {
-        let optionElement = document.createElement("option");
-        optionElement.value = countTimers;
-        countTimers++;
-        optionElement.text = i2;
-        timerOptions.add(optionElement);
-    };
-
-    if(countTimers === 1)
-    {
-        let optionElement = document.createElement("option");
-        optionElement.value = countTimers;
-        optionElement.text = getTextForUI("timerResetNoTimer","elementText");
-        timerOptions.add(optionElement);
-    }
 
     document.getElementById("settPerTab").checked = localStorage.HHAuto_Setting_settPerTab === "true";
     trollOptions.selectedIndex = Storage().HHAuto_Setting_autoTrollSelectedIndex;
@@ -9315,57 +9368,100 @@ var start = function () {
     document.getElementById("PoAMaskRewards").checked = Storage().HHAuto_Setting_PoAMaskRewards === "true";
     document.getElementById("git").addEventListener("click", function(){ window.open("https://github.com/Roukys/HHauto/wiki"); });
     document.getElementById("loadConfig").addEventListener("click", function(){
-        if (typeof LoadDialog.showModal === "function") {
+        /*if (typeof LoadDialog.showModal === "function") {
             LoadDialog.showModal();
         } else {
             alert("The <dialog> API is not supported by this browser");
-        }
+        }*/
+        let LoadDialog='<p>After you select the file the settings will be automatically updated.</p><p> If nothing happened, then the selected file contains errors.</p><p id="LoadConfError"style="color:#f53939;"></p><p><label><input type="file" id="myfile" accept=".json" name="myfile"> </label></p>';
+        fillHHPopUp("loadConfig",getTextForUI("loadConfig","elementText"), LoadDialog);
+        document.getElementById('myfile').addEventListener('change', myfileLoad_onChange);
+
     });
+    document.getElementById("saveConfig").addEventListener("click", saveHHVarsSettingsAsJSON);
     document.getElementById("DebugMenu").addEventListener("click", function(){
-        if (typeof DebugDialog.showModal === "function") {
+        /*if (typeof DebugDialog.showModal === "function") {
             DebugDialog.showModal();
         } else {
             alert("The <dialog> API is not supported by this browser");
         }
-    });
-    document.getElementById('myfile').addEventListener('change', myfileLoad_onChange);
-    document.getElementById("saveConfig").addEventListener("click", function(){
-        saveHHVarsSettingsAsJSON();
-    });
-    document.getElementById("DeleteTempVars").addEventListener("click", function(){
-        debugDeleteTempVars();
-        location.reload();
-    });
-    document.getElementById("ResetAllVars").addEventListener("click", function(){
-        debugDeleteAllVars();
-        location.reload();
-    });
-    document.getElementById("saveDebug").addEventListener("click", function(){
-        saveHHDebugLog();
-    });
+        */
+        let debugDialog =   '<div style="padding:10px; display:flex;flex-direction:column">'
+        +    '<p>HHAuto : v'+GM_info.script.version+'</p>'
+        +    '<p>'+getTextForUI("DebugFileText","elementText")+'</p>'
+        +    '<div style="display:flex;flex-direction:row">'
+        +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("saveDebug","tooltip")+'</span><label class="myButton" id="saveDebug">'+getTextForUI("saveDebug","elementText")+'</label></div>'
+        +    '</div>'
+        +    '<p>'+getTextForUI("DebugResetTimerText","elementText")+'</p>'
+        +    '<div style="display:flex;flex-direction:row">'
+        +     '<div style="padding-right:30px"class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("timerResetButton","tooltip")+'</span><label class="myButton" id="timerResetButton">'+getTextForUI("timerResetButton","elementText")+'</label></div>'
+        +     '<div style="padding-right:10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("timerResetSelector","tooltip")+'</span><select id="timerResetSelector"></select></div>'
+        +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("timerLeftTime","tooltip")+'</span><span id="timerLeftTime">'+getTextForUI("timerResetNoTimer","elementText")+'</span></div>'
+        +    '</div>'
+        +    '<p>'+getTextForUI("DebugOptionsText","elementText")+'</p>'
+        +    '<div style="display:flex;flex-direction:row">'
+        +     '<div style="padding-right:30px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("DeleteTempVars","tooltip")+'</span><label class="myButton" id="DeleteTempVars">'+getTextForUI("DeleteTempVars","elementText")+'</label></div>'
+        +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ResetAllVars","tooltip")+'</span><label class="myButton" id="ResetAllVars">'+getTextForUI("ResetAllVars","elementText")+'</label></div>'
+        +    '</div>'
+        +  '</div>'
+        fillHHPopUp("DebugMenu",getTextForUI("DebugMenu","elementText"), debugDialog);
+        document.getElementById("DeleteTempVars").addEventListener("click", function(){
+            debugDeleteTempVars();
+            location.reload();
+        });
+        document.getElementById("ResetAllVars").addEventListener("click", function(){
+            debugDeleteAllVars();
+            location.reload();
+        });
+        document.getElementById("saveDebug").addEventListener("click", saveHHDebugLog);
 
-    document.getElementById("timerResetButton").addEventListener("click", function(){
-        let timerSelector = document.getElementById("timerResetSelector");
-        if (timerSelector.options[timerSelector.selectedIndex].text !== getTextForUI("timerResetNoTimer","elementText") && timerSelector.options[timerSelector.selectedIndex].text !== getTextForUI("timerResetSelector","elementText"))
-        {
-            document.getElementById('sMenu').parentElement.style.display=='none';
-            DebugDialog.close();
-            setTimer(timerSelector.options[timerSelector.selectedIndex].text,0);
-            timerSelector.selectedIndex = 0;
-        }
-    });
-    $(document).on('change',"#timerResetSelector", function() {
-        let timerSelector = document.getElementById("timerResetSelector");
-        if (timerSelector.options[timerSelector.selectedIndex].text !== getTextForUI("timerResetNoTimer","elementText")  && timerSelector.options[timerSelector.selectedIndex].text !== getTextForUI("timerResetSelector","elementText"))
-        {
-            document.getElementById("timerLeftTime").innerText = getTimeLeft(timerSelector.options[timerSelector.selectedIndex].text);
-        }
-        else
-        {
-            document.getElementById("timerLeftTime").innerText = getTextForUI("timerResetNoTimer","elementText");
-        }
-    });
+        document.getElementById("timerResetButton").addEventListener("click", function(){
+            let timerSelector = document.getElementById("timerResetSelector");
+            if (timerSelector.options[timerSelector.selectedIndex].text !== getTextForUI("timerResetNoTimer","elementText") && timerSelector.options[timerSelector.selectedIndex].text !== getTextForUI("timerResetSelector","elementText"))
+            {
+                document.getElementById('sMenu').parentElement.style.display=='none';
+                maskHHPopUp();
+                setTimer(timerSelector.options[timerSelector.selectedIndex].text,0);
+                timerSelector.selectedIndex = 0;
+            }
+        });
+        $(document).on('change',"#timerResetSelector", function() {
+            let timerSelector = document.getElementById("timerResetSelector");
+            if (timerSelector.options[timerSelector.selectedIndex].text !== getTextForUI("timerResetNoTimer","elementText")  && timerSelector.options[timerSelector.selectedIndex].text !== getTextForUI("timerResetSelector","elementText"))
+            {
+                document.getElementById("timerLeftTime").innerText = getTimeLeft(timerSelector.options[timerSelector.selectedIndex].text);
+            }
+            else
+            {
+                document.getElementById("timerLeftTime").innerText = getTextForUI("timerResetNoTimer","elementText");
+            }
+        });
+        // Add Timer reset options //changed
+        let timerOptions = document.getElementById("timerResetSelector");
+        var countTimers=0;
+        let optionElement = document.createElement("option");
+        optionElement.value = countTimers;
+        optionElement.text = getTextForUI("timerResetSelector","elementText");
+        countTimers++;
+        timerOptions.add(optionElement);
 
+        for (let i2 in Timers) {
+            let optionElement = document.createElement("option");
+            optionElement.value = countTimers;
+            countTimers++;
+            optionElement.text = i2;
+            timerOptions.add(optionElement);
+        };
+
+        if(countTimers === 1)
+        {
+            let optionElement = document.createElement("option");
+            optionElement.value = countTimers;
+            optionElement.text = getTextForUI("timerResetNoTimer","elementText");
+            timerOptions.add(optionElement);
+        }
+
+    });
 
     document.querySelectorAll("div#sMenu input[pattern]").forEach(currentInput =>
                                                                   {
@@ -9424,6 +9520,67 @@ var start = function () {
 
     autoLoop();
 };
+
+function fillHHPopUp(inClass,inTitle, inContent)
+{
+    displayHHPopUp();
+    document.getElementById("HHAutoPopupGlobalContent").innerHTML=inContent;
+    document.getElementById("HHAutoPopupGlobalTitle").innerHTML=inTitle;
+    document.getElementById("HHAutoPopupGlobalPopup").className =inClass;
+}
+
+function createHHPopUp()
+{
+    GM_addStyle('#HHAutoPopupGlobal.HHAutoOverlay {   z-index:1000;   position: fixed;   top: 0;   bottom: 0;   left: 0;   right: 0;   background: rgba(0, 0, 0, 0.7);   transition: opacity 500ms;     display: flex;   align-items: center; }  #HHAutoPopupGlobalPopup {   margin: auto;   padding: 20px;   background: #fff;   border-radius: 5px;   position: relative;   transition: all 5s ease-in-out; }  #HHAutoPopupGlobalTitle {   margin-top: 0;   color: #333;   font-size: larger; } #HHAutoPopupGlobalClose {   position: absolute;   top: 20px;   right: 30px;   transition: all 200ms;   font-size: 30px;   font-weight: bold;   text-decoration: none;   color: #333; } #HHAutoPopupGlobalClose:hover {   color: #06D85F; } #HHAutoPopupGlobalContent {   max-height: 30%;   overflow: auto;   color: #333;   font-size: x-small; }')
+    let popUp = '<div id="HHAutoPopupGlobal" class="HHAutoOverlay">'
+    +' <div id="HHAutoPopupGlobalPopup">'
+    +'	 <h2 id="HHAutoPopupGlobalTitle">Here i am</h2>'
+    +'	 <a id="HHAutoPopupGlobalClose">&times;</a>'
+    +'	 <div id="HHAutoPopupGlobalContent" class="content">'
+    +'		Thank to pop me out of that button, but now im done so you can close this window.'
+    +'	 </div>'
+    +' </div>'
+    +'</div>';
+    $('body').prepend(popUp);
+    document.getElementById("HHAutoPopupGlobalClose").addEventListener("click", function(){
+        maskHHPopUp();
+    });
+    document.addEventListener('keydown', evt => {
+        if (evt.key === 'Escape')
+        {
+            maskHHPopUp();
+        }
+    });
+}
+
+function isHHPopUpDisplayed()
+{
+    if (document.getElementById("HHAutoPopupGlobal") === null)
+    {
+        return false;
+    }
+    if (document.getElementById("HHAutoPopupGlobal").style.visibility !== "visible")
+    {
+        return false;
+    }
+    return document.getElementById("HHAutoPopupGlobalPopup").className;
+}
+
+function displayHHPopUp()
+{
+    if (document.getElementById("HHAutoPopupGlobal") === null)
+    {
+        createHHPopUp();
+    }
+    document.getElementById("HHAutoPopupGlobal").style.visibility = "visible";
+    document.getElementById("HHAutoPopupGlobal").style.opacity = 1;
+}
+
+function maskHHPopUp()
+{
+    document.getElementById("HHAutoPopupGlobal").style.visibility = "hidden";
+    document.getElementById("HHAutoPopupGlobal").style.opacity = 0;
+}
 
 var started=false;
 var hardened_start=function()
