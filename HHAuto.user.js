@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.61
+// @version      5.4.62
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -1233,6 +1233,13 @@ function modulePachinko()
             {
                 logHHAuto("PopUp closed, cancelling interval.");
                 return;
+            }
+            if (document.getElementById("confirm_pachinko") !== null)
+            {
+                logHHAuto("No more girl on Pachinko, cancelling.");
+                maskHHPopUp();
+                buildPachinkoSelectPopUp();
+                document.getElementById("PachinkoError").innerText=getTextForUI("PachinkoNoGirls","elementText");
             }
             let pachinkoSelectedButton= $(buttonSelector);
             let rewardQuery="div#rewards_popup button.blue_button_L";
@@ -5800,20 +5807,18 @@ function moduleShopActions()
     {
         var menuAff = '<div style="position: absolute;right: 50px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAff","tooltip")+'</span><label style="width:100px" class="myButton" id="menuAff">'+getTextForUI("menuAff","elementText")+'</label></div>'
         + '<dialog style="width: 50%;margin-top: 10%;margin-left: 1%;" id="AffDialog"><form stylemethod="dialog">'
-        +  '<div style="padding:10px; display:flex;flex-direction:column;">'
-        +   '<div style="justify-content: space-between;"class="HHMenuRow">'
-        +    '<div id="menuAff-moveLeft"></div>'
-        +    '<div id="menuAff-moveRight"></div>'
-        +   '</div>'
-        //+   '<div class="HHMenuRow">'
+        +  '<div style="justify-content: space-between;align-items: flex-start;"class="HHMenuRow">'
+        +   '<div id="menuAff-moveLeft"></div>'
+        +   '<div style="padding:10px; display:flex;flex-direction:column;">'
         +    '<p id="menuAffText"></p>'
-        //+   '</div>'
-        +   '<p ></p>'
-        +   '<div id="menuAffHide" style="display:none">'
-        +    '<div class="HHMenuRow">'
-        +     '<div style="padding:10px;"class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAffButton","tooltip")+'</span><label class="myButton" id="menuAffButton">'+getTextForUI("menuAffButton","elementText")+'</label></div>'
+        +    '<p ></p>'
+        +    '<div id="menuAffHide" style="display:none">'
+        +     '<div class="HHMenuRow">'
+        +      '<div style="padding:10px;"class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAffButton","tooltip")+'</span><label class="myButton" id="menuAffButton">'+getTextForUI("menuAffButton","elementText")+'</label></div>'
+        +     '</div>'
         +    '</div>'
         +   '</div>'
+        +   '<div id="menuAff-moveRight"></div>'
         +  '</div>'
         + '<menu> <label style="width:80px" class="myButton" id="menuAffCancel">'+getTextForUI("OptionCancel","elementText")+'</label></menu></form></dialog>'
 
@@ -6092,21 +6097,21 @@ function moduleShopActions()
     {
         var menuExp = '<div style="position: absolute;right: 50px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExp","tooltip")+'</span><label style="width:100px" class="myButton" id="menuExp">'+getTextForUI("menuExp","elementText")+'</label></div>'
         + '<dialog style="width: 50%;margin-top: 10%;margin-left: 1%;" id="ExpDialog"><form stylemethod="dialog">'
-        +  '<div style="padding:10px; display:flex;flex-direction:column;">'
-        +   '<div style="justify-content: space-between;"class="HHMenuRow">'
-        +    '<div id="menuExp-moveLeft"></div>'
-        +    '<div id="menuExp-moveRight"></div>'
-        +   '</div>'
+        +  '<div style="justify-content: space-between;align-items: flex-start;"class="HHMenuRow">'
+        +   '<div id="menuExp-moveLeft"></div>'
+        +   '<div style="padding:10px; display:flex;flex-direction:column;">'
         +    '<p id="menuExpText"></p>'
         +    '<div class="HHMenuRow">'
         +     '<p>'+getTextForUI("menuExpLevel","elementText")+'</p>'
         +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExpLevel","tooltip")+'</span><input id="menuExpLevel" style="width:50px;height:20px" required pattern="'+HHAuto_inputPattern.menuExpLevel+'" type="text" value="'+getSetHeroInfos('level')+'"></div>'
         +    '</div>'
-        +   '<div id="menuExpHide" style="display:none">'
-        +    '<div class="HHMenuRow">'
-        +     '<div style="padding:10px;"class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExpButton","tooltip")+'</span><label class="myButton" id="menuExpButton">'+getTextForUI("menuExpButton","elementText")+'</label></div>'
+        +    '<div id="menuExpHide" style="display:none">'
+        +     '<div class="HHMenuRow">'
+        +      '<div style="padding:10px;"class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExpButton","tooltip")+'</span><label class="myButton" id="menuExpButton">'+getTextForUI("menuExpButton","elementText")+'</label></div>'
+        +     '</div>'
         +    '</div>'
         +   '</div>'
+        +   '<div id="menuExp-moveRight"></div>'
         +  '</div>'
         + '<menu> <label style="width:80px" class="myButton" id="menuExpCancel">'+getTextForUI("OptionCancel","elementText")+'</label></menu></form></dialog>'
 
@@ -8153,9 +8158,10 @@ HHAuto_ToolTips.en.PachinkoSelector = {elementText : "", tooltip : "Pachinko Sel
 HHAuto_ToolTips.en.PachinkoLeft = {elementText : "", tooltip : "Currently available orbs."};
 HHAuto_ToolTips.en.PachinkoXTimes = {elementText : "Number to use : ", tooltip : "Set the number of orbs tu use o selected pachinko."};
 HHAuto_ToolTips.en.PachinkoPlayX = {elementText : "Launch", tooltip : "Launch X uses of selected orbs"};
-HHAuto_ToolTips.en.PachinkoButton = {elementText : "Use Pachinko", tooltip : "Allow to automatically use Pachinko."};
+HHAuto_ToolTips.en.PachinkoButton = {elementText : "Use Pachinko", tooltip : "Allow to automatically use the selected Pachinko. (Only for Orbs games)"};
 HHAuto_ToolTips.en.PachinkoOrbsLeft = {elementText : " orbs remaining.", tooltip : ""};
 HHAuto_ToolTips.en.PachinkoInvalidOrbsNb = {elementText : 'Invalid orbs number'};
+HHAuto_ToolTips.en.PachinkoNoGirls = {elementText : 'No more any girls available.'};
 
 HHAuto_ToolTips.fr = [];
 HHAuto_ToolTips.fr.saveDebug = { elementText: "Sauver log", tooltip : "Sauvegarder un fichier journal de débogage."};
