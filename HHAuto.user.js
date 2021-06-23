@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.62
+// @version      5.4.63
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -5806,21 +5806,22 @@ function moduleShopActions()
     function appendMenuAff()
     {
         var menuAff = '<div style="position: absolute;right: 50px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAff","tooltip")+'</span><label style="width:100px" class="myButton" id="menuAff">'+getTextForUI("menuAff","elementText")+'</label></div>'
-        + '<dialog style="width: 50%;margin-top: 10%;margin-left: 1%;" id="AffDialog"><form stylemethod="dialog">'
+        + '<dialog style="width: 50%;margin-top: 7%;margin-left: 1%;" id="AffDialog"><form stylemethod="dialog">'
         +  '<div style="justify-content: space-between;align-items: flex-start;"class="HHMenuRow">'
         +   '<div id="menuAff-moveLeft"></div>'
         +   '<div style="padding:10px; display:flex;flex-direction:column;">'
         +    '<p id="menuAffText"></p>'
         +    '<p ></p>'
-        +    '<div id="menuAffHide" style="display:none">'
-        +     '<div class="HHMenuRow">'
-        +      '<div style="padding:10px;"class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAffButton","tooltip")+'</span><label class="myButton" id="menuAffButton">'+getTextForUI("menuAffButton","elementText")+'</label></div>'
+        +    '<div style="padding:10px;justify-content:center" class="HHMenuRow">'
+        +     '<div id="menuAffHide" style="display:none">'
+        +      '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAffButton","tooltip")+'</span><label style="width:80px" class="myButton" id="menuAffButton">'+getTextForUI("menuAffButton","elementText")+'</label></div>'
         +     '</div>'
+        +     '<div><label style="margin-left:10px;width:80px" class="myButton" id="menuAffCancel">'+getTextForUI("OptionCancel","elementText")+'</label></div>'
         +    '</div>'
         +   '</div>'
         +   '<div id="menuAff-moveRight"></div>'
         +  '</div>'
-        + '<menu> <label style="width:80px" class="myButton" id="menuAffCancel">'+getTextForUI("OptionCancel","elementText")+'</label></menu></form></dialog>'
+        + '</form></dialog>'
 
         if ($("#menuAff").length === 0 )
         {
@@ -5879,7 +5880,7 @@ function moduleShopActions()
                 girl=$('div.girl-ico:not(.not-selected)');
                 getSelectGirlID=girl.attr("id_girl");
                 let selectedGirl=girl.data("g");
-
+                document.getElementById("menuAffHide").style.display = "none";
                 //                 if ($('div[id_girl='+getSelectGirlID+'][data-g] .aff_val').length === 0 && $('div[id_girl='+getSelectGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length === 0)
                 //                 {
                 //                     logHHAuto("Error catching girl current Aff, cancelling.");
@@ -6096,7 +6097,7 @@ function moduleShopActions()
     function appendMenuExp()
     {
         var menuExp = '<div style="position: absolute;right: 50px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExp","tooltip")+'</span><label style="width:100px" class="myButton" id="menuExp">'+getTextForUI("menuExp","elementText")+'</label></div>'
-        + '<dialog style="width: 50%;margin-top: 10%;margin-left: 1%;" id="ExpDialog"><form stylemethod="dialog">'
+        + '<dialog style="width: 50%;margin-top: 7%;margin-left: 1%;" id="ExpDialog"><form stylemethod="dialog">'
         +  '<div style="justify-content: space-between;align-items: flex-start;"class="HHMenuRow">'
         +   '<div id="menuExp-moveLeft"></div>'
         +   '<div style="padding:10px; display:flex;flex-direction:column;">'
@@ -6105,15 +6106,16 @@ function moduleShopActions()
         +     '<p>'+getTextForUI("menuExpLevel","elementText")+'</p>'
         +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExpLevel","tooltip")+'</span><input id="menuExpLevel" style="width:50px;height:20px" required pattern="'+HHAuto_inputPattern.menuExpLevel+'" type="text" value="'+getSetHeroInfos('level')+'"></div>'
         +    '</div>'
-        +    '<div id="menuExpHide" style="display:none">'
-        +     '<div class="HHMenuRow">'
-        +      '<div style="padding:10px;"class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExpButton","tooltip")+'</span><label class="myButton" id="menuExpButton">'+getTextForUI("menuExpButton","elementText")+'</label></div>'
+        +    '<div style="padding:10px;justify-content:center" class="HHMenuRow">'
+        +     '<div id="menuExpHide" style="display:none">'
+        +      '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExpButton","tooltip")+'</span><label style="width:80px" class="myButton" id="menuExpButton">'+getTextForUI("menuExpButton","elementText")+'</label></div>'
         +     '</div>'
+        +    '<div><label style="margin-left:10px;width:80px" class="myButton" id="menuExpCancel">'+getTextForUI("OptionCancel","elementText")+'</label></div>'
         +    '</div>'
         +   '</div>'
         +   '<div id="menuExp-moveRight"></div>'
         +  '</div>'
-        + '<menu> <label style="width:80px" class="myButton" id="menuExpCancel">'+getTextForUI("OptionCancel","elementText")+'</label></menu></form></dialog>'
+        + '<menu> </menu></form></dialog>'
 
         if ($("#menuExp").length === 0 )
         {
