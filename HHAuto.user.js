@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.59
+// @version      5.4.67
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -38,7 +38,7 @@ GM_addStyle('input.maxMoneyInputField  {text-align:right; width:70px}');
 GM_addStyle('.myButton {box-shadow: 0px 0px 0px 2px #9fb4f2; background:linear-gradient(to bottom, #7892c2 5%, #476e9e 100%); background-color:#7892c2; border-radius:10px; border:1px solid #4e6096; display:inline-block; cursor:pointer; color:#ffffff; font-family:Arial; font-size:8px; padding:3px 7px; text-decoration:none; text-shadow:0px 1px 0px #283966;}.myButton:hover { background:linear-gradient(to bottom, #476e9e 5%, #7892c2 100%); background-color:#476e9e; } .myButton:active { position:relative; top:1px;}');
 GM_addStyle('.HHEventPriority {position: absolute;z-index: 500;background-color: black}');
 GM_addStyle('.HHPopIDs {background-color: black;z-index: 500;position: absolute;margin-top: 25px}');
-GM_addStyle('.tooltipHH:hover { cursor: help; position: relative; } .tooltipHH span.tooltipHHtext { display: none } .tooltipHH:hover span.tooltipHHtext[active] { border:1px solid #ffa23e; border-radius:5px; padding:5px; display:block; z-index: 100; margin: 10px; position: absolute; width: 150px; color:black; text-align:center; background:white; top: 200%; left:105%; opacity:0.9; transform: translateY(-100%); left: 50%; margin-left: 15px; }');
+GM_addStyle('.tooltipHH:hover { cursor: help; position: relative; } .tooltipHH span.tooltipHHtext { display: none }');
 GM_addStyle('#popup_message_league { border: #666 2px dotted; padding: 5px 20px 5px 5px; display: block; z-index: 1000; background: #e3e3e3; left: 0px; margin: 15px; width: 500px; position: absolute; top: 15px; color: black}');
 GM_addStyle('#sliding-popups#sliding-popups { z-index : 1}');
 //END CSS Region
@@ -85,7 +85,8 @@ function getCallerCallerFunction()
 
 function logHHAuto(...args)
 {
-    var prefix = new Date().toLocaleString()+":"+getCallerCallerFunction()+":";
+    let currDate = new Date();
+    var prefix = currDate.toLocaleString()+"."+currDate.getMilliseconds()+":"+getCallerCallerFunction()+":";
     var text;
     var currentLoggingText;
     var nbLines;
@@ -1109,6 +1110,177 @@ function modulePathOfAttractionHide()
     }
 }
 
+function modulePachinko()
+{
+    if (document.getElementById("PachinkoButton") !== null)
+    {
+        return;
+    }
+    let PachinkoButton = '<div style="position: absolute;left: 52%;top: 100px;width:60px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoButton","tooltip")+'</span><label style="font-size:small" class="myButton" id="PachinkoButton">'+getTextForUI("PachinkoButton","elementText")+'</label></div>'
+
+    $("#contains_all section").prepend(PachinkoButton);
+
+    function buildPachinkoSelectPopUp()
+    {
+        let PachinkoMenu =   '<div style="padding:50px; display:flex;flex-direction:column">'
+        +    '<div style="display:flex;flex-direction:row">'
+        +     '<div style="padding:10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoSelector","tooltip")+'</span><select id="PachinkoSelector"></select></div>'
+        +     '<div style="padding:10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoLeft","tooltip")+'</span><span id="PachinkoLeft"></span></div>'
+        +    '</div>'
+        +    '<div style="display:flex;flex-direction:row">'
+        +     '<div style="padding:10px"class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoPlayX","tooltip")+'</span><label class="myButton" id="PachinkoPlayX">'+getTextForUI("PachinkoPlayX","elementText")+'</label></div>'
+        +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoXTimes","tooltip")+'</span><input id="PachinkoXTimes" style="width:50px;height:20px" required pattern="'+HHAuto_inputPattern.menuExpLevel+'" type="text" value="1"></div>'
+        +    '</div>'
+        +   '<p style="color: red;" id="PachinkoError"></p>'
+        +  '</div>'
+        fillHHPopUp("PachinkoMenu",getTextForUI("PachinkoButton","elementText"), PachinkoMenu);
+
+
+
+        document.getElementById("PachinkoPlayX").addEventListener("click", pachinkoPlayXTimes);
+        $(document).on('change',"#PachinkoSelector", function() {
+            let timerSelector = document.getElementById("PachinkoSelector");
+            let selectorText = timerSelector.options[timerSelector.selectedIndex].text;
+            if (selectorText === getTextForUI("PachinkoSelectorNoButtons","elementText"))
+            {
+                document.getElementById("PachinkoLeft").innerText = "";
+                return;
+            }
+            let orbsLeft = $("div.playing-zone div.btns-section button.blue_button_L[nb_games="+timerSelector.options[timerSelector.selectedIndex].value+"] span[total_orbs]");
+
+            if (orbsLeft.length >0)
+            {
+                document.getElementById("PachinkoLeft").innerText = orbsLeft[0].innerText + getTextForUI("PachinkoOrbsLeft","elementText");
+            }
+            else
+            {
+                document.getElementById("PachinkoLeft").innerText = 0;
+            }
+        });
+        // Add Timer reset options //changed
+        let timerOptions = document.getElementById("PachinkoSelector");
+        let countTimers=0;
+        let PachinkoType = $("div.playing-zone #playzone-replace-info div.cover h2")[0].innerText;
+
+        $("div.playing-zone div.btns-section button.blue_button_L").each(function ()
+                                                                         {
+            let optionElement = document.createElement("option");
+            let numberOfGames = Number($(this).attr('nb_games'))
+            optionElement.value = numberOfGames;
+            countTimers++;
+            optionElement.text = PachinkoType+" x"+$(this).attr('nb_games');
+            timerOptions.add(optionElement);
+
+            if (countTimers === 1)
+            {
+                let orbsLeft = $("div.playing-zone div.btns-section button.blue_button_L[nb_games="+numberOfGames+"] span[total_orbs]")[0];
+                document.getElementById("PachinkoLeft").innerText = orbsLeft.innerText+ getTextForUI("PachinkoOrbsLeft","elementText");;
+            }
+        });
+
+
+        if(countTimers === 0)
+        {
+            let optionElement = document.createElement("option");
+            optionElement.value = countTimers;
+            optionElement.text = getTextForUI("PachinkoSelectorNoButtons","elementText");
+            timerOptions.add(optionElement);
+        }
+    }
+
+    function pachinkoPlayXTimes()
+    {
+        let timerSelector = document.getElementById("PachinkoSelector");
+        let buttonValue = Number(timerSelector.options[timerSelector.selectedIndex].value);
+        let buttonSelector = "div.playing-zone div.btns-section button.blue_button_L[nb_games="+buttonValue+"]";
+        let orbsLeftSelector = buttonSelector+ " span[total_orbs]";
+        let orbsLeft = $(orbsLeftSelector);
+        let orbsToGo = document.getElementById("PachinkoXTimes").value;
+        let orbsPlayed = 0;
+
+        if (orbsLeft.length >0)
+        {
+            orbsLeft=Number(orbsLeft[0].innerText);
+        }
+        else
+        {
+            logHHAuto('No Orbs left for : '+timerSelector.options[timerSelector.selectedIndex].text);
+            document.getElementById("PachinkoError").innerText=getTextForUI("PachinkoSelectorNoButtons","elementText");
+            return;
+        }
+
+        if ( Number.isNaN(Number(orbsToGo)) || orbsToGo < 1 || orbsToGo > orbsLeft)
+        {
+            logHHAuto('Invalid orbs number '+orbsToGo);
+            document.getElementById("PachinkoError").innerText=getTextForUI("PachinkoInvalidOrbsNb","elementText")+" : "+orbsToGo;
+            return;
+        }
+        let PachinkoPlay =   '<div style="padding:50px; display:flex;flex-direction:column">'
+        +   '<p>'+timerSelector.options[timerSelector.selectedIndex].text+' : </p>'
+        +   '<p id="PachinkoPlayedTimes" style="padding:10px">0/'+orbsToGo+'</p>'
+        +  '<label style="width:80px" class="myButton" id="PachinkoPlayCancel">'+getTextForUI("OptionCancel","elementText")+'</label>'
+        + '</div>'
+        fillHHPopUp("PachinkoPlay",getTextForUI("PachinkoButton","elementText"), PachinkoPlay);
+        document.getElementById("PachinkoPlayCancel").addEventListener("click", function()
+                                                                       {
+            maskHHPopUp();
+            logHHAuto("Cancel clicked, closing popUp.");
+
+        });
+        function playXPachinko_func()
+        {
+            if(!isHHPopUpDisplayed())
+            {
+                logHHAuto("PopUp closed, cancelling interval.");
+                return;
+            }
+            if (document.getElementById("confirm_pachinko") !== null)
+            {
+                logHHAuto("No more girl on Pachinko, cancelling.");
+                maskHHPopUp();
+                buildPachinkoSelectPopUp();
+                document.getElementById("PachinkoError").innerText=getTextForUI("PachinkoNoGirls","elementText");
+            }
+            let pachinkoSelectedButton= $(buttonSelector);
+            let rewardQuery="div#rewards_popup button.blue_button_L";
+            if ($(rewardQuery).length >0 )
+            {
+                $(rewardQuery).click();
+            }
+            let currentOrbsLeft = $(orbsLeftSelector);
+            if (currentOrbsLeft.length >0)
+            {
+                currentOrbsLeft=Number(currentOrbsLeft[0].innerText);
+            }
+            else
+            {
+                currentOrbsLeft = 0;
+            }
+            let spendedOrbs = Number(orbsLeft - currentOrbsLeft);
+            document.getElementById("PachinkoPlayedTimes").innerText = spendedOrbs+"/"+orbsToGo;
+            if (spendedOrbs < orbsToGo && currentOrbsLeft > 0)
+            {
+                pachinkoSelectedButton.click();
+            }
+            else
+            {
+                logHHAuto("All spent, going back to Selector.");
+                maskHHPopUp();
+                buildPachinkoSelectPopUp();
+                return;
+            }
+            setTimeout(playXPachinko_func,randomInterval(500,1500));
+        }
+        setTimeout(playXPachinko_func,randomInterval(500,1500));
+    }
+    document.getElementById("PachinkoButton").addEventListener("click", function()
+                                                               {
+        buildPachinkoSelectPopUp()
+    });
+
+
+}
+
 function moduleSimSeasonReward()
 {
     var arrayz;
@@ -1692,7 +1864,7 @@ var doStatUpgrades=function()
                     nb: mult
                 };
                 hh_ajax(params, function(data) {
-
+                    Hero.update("soft_currency", 0 - price, true);
                 });
                 break;
             }
@@ -1787,7 +1959,7 @@ var doShopping=function()
                             id_equip: shop[0][n0].id_equip
                         };
                         hh_ajax(params0, function(data) {
-
+                            Hero.updates(data.changes, false);
                         });
                         shop[0].splice(n0,1);
                     }
@@ -1827,7 +1999,7 @@ var doShopping=function()
                                 who: 1
                             };
                             hh_ajax(params1, function(data) {
-
+                                Hero.updates(data.changes, false);
                             });
                             shop[1].splice(n1,1);
                         }
@@ -1864,7 +2036,7 @@ var doShopping=function()
                         who: 1
                     };
                     hh_ajax(params2, function(data) {
-
+                        Hero.updates(data.changes, false);
                     });
                     shop[2].splice(n2,1);
                 }
@@ -1898,7 +2070,7 @@ var doShopping=function()
                         who: 1
                     };
                     hh_ajax(params3, function(data) {
-
+                        Hero.updates(data.changes, false);
                     });
                     shop[3].splice(n3,1);
                 }
@@ -2839,6 +3011,31 @@ var getLeagueCurrentLevel = function ()
     return unsafeWindow.league_tag;
 }
 
+function getLeagueOpponentListData()
+{
+    let Data=[];
+    let sorting_id;
+    $(".leadTable[sorting_table] tr").each(function()
+                                           {
+        sorting_id = $(this).attr("sorting_id");
+        if (this.className.indexOf('selected-player-leagues') != -1)
+        {
+            if ( ($(".leadTable[sorting_table] tr.selected-player-leagues div.result.won").length + $(".leadTable[sorting_table] tr.selected-player-leagues div.result.lost").length) < 3)
+            {
+                Data.push(sorting_id);
+            }
+        }
+        else
+        {
+            if (this.cells[3].innerHTML==='0/3' || this.cells[3].innerHTML==='1/3' || this.cells[3].innerHTML==='2/3')
+            {
+                Data.push(sorting_id);
+            }
+        }
+    });
+    return Data;
+}
+
 var doLeagueBattle = function () {
     //logHHAuto("Performing auto leagues.");
     // Confirm if on correct screen.
@@ -2896,26 +3093,7 @@ var doLeagueBattle = function () {
             $("span[sort_by='level']").each(function(){this.click()});
         }
         logHHAuto('parsing enemies');
-        var Data=[];
-        var sorting_id;
-        $(".leadTable[sorting_table] tr").each(function()
-                                               {
-            sorting_id = $(this).attr("sorting_id");
-            if (this.className.indexOf('selected-player-leagues') != -1)
-            {
-                if ( ($(".leadTable[sorting_table] tr.selected-player-leagues div.result.won").length + $(".leadTable[sorting_table] tr.selected-player-leagues div.result.lost").length) < 3)
-                {
-                    Data.push(sorting_id);
-                }
-            }
-            else
-            {
-                if (this.cells[3].innerHTML==='0/3' || this.cells[3].innerHTML==='1/3' || this.cells[3].innerHTML==='2/3')
-                {
-                    Data.push(sorting_id);
-                }
-            }
-        });
+        var Data=getLeagueOpponentListData();
         if (Data.length==0)
         {
             ltime=35*60;
@@ -3041,8 +3219,13 @@ var doLeagueBattle = function () {
 
 function LeagueDisplayGetOpponentPopup(numberDone,remainingTime)
 {
-    $("#leagues #leagues_middle").prepend('<div id="popup_message_league" class="popup_message_league" name="popup_message_league" >'+getTextForUI("OpponentListBuilding","elementText")+' : <br>'+numberDone+' '+getTextForUI("OpponentParsed","elementText")+' ('+remainingTime+')</div>');
+    $("#leagues #leagues_middle").prepend('<div id="popup_message_league" class="popup_message_league" name="popup_message_league" ><a id="popup_message_league_close">&times;</a>'+getTextForUI("OpponentListBuilding","elementText")+' : <br>'+numberDone+' '+getTextForUI("OpponentParsed","elementText")+' ('+remainingTime+')</div>');
+    document.getElementById("popup_message_league_close").addEventListener("click", function()
+                                                                           {
+        location.reload();
+    });
 }
+GM_addStyle("#popup_message_league_close {   position: absolute;   top: 20px;   right: 30px;   transition: all 200ms;   font-size: 30px;   font-weight: bold;   text-decoration: none;   color: #333; } #popup_message_league_close:hover {   color: #06D85F; }");
 function LeagueClearDisplayGetOpponentPopup()
 {
     $("#popup_message_league").each(function(){this.remove();});
@@ -3054,7 +3237,7 @@ function LeagueUpdateGetOpponentPopup(numberDone,remainingTime)
     LeagueDisplayGetOpponentPopup(numberDone,remainingTime);
 }
 
-function getLeagueOpponentId(opponentsIDList)
+function getLeagueOpponentId(opponentsIDList,force=false)
 {
     var opponentsPowerList = sessionStorage.HHAuto_Temp_LeagueOpponentList?JSON.parse(sessionStorage.HHAuto_Temp_LeagueOpponentList,reviverMap):new Map([]);
     var opponentsTempPowerList = sessionStorage.HHAuto_Temp_LeagueTempOpponentList?JSON.parse(sessionStorage.HHAuto_Temp_LeagueTempOpponentList,reviverMap):new Map([]);
@@ -3087,18 +3270,31 @@ function getLeagueOpponentId(opponentsIDList)
 
     }
 
-    if (opponentsListExpirationDate === 'empty' || opponentsListExpirationDate < new Date() || opponentsPowerList.size ===0)
+    if (opponentsListExpirationDate === 'empty' || opponentsListExpirationDate < new Date() || opponentsPowerList.size ===0 || force)
     {
+        sessionStorage.removeItem("HHAuto_Temp_LeagueOpponentList");
         if (opponentsTempPowerList.size > 0)
         {
             logHHAuto("Opponents list already started, continuing.");
-            //removing already done in opponentsIDList
+
             for (var i of opponentsTempPowerList.keys())
             {
+                //removing oppo no longer in list
+                //console.log(i);
+                //console.log(opponentsIDList);
+                //console.log(opponentsIDList.indexOf(i.toString()));
+                if (opponentsIDList.indexOf(i.toString()) === -1)
+                {
+                    opponentsTempPowerList.delete(i);
+                    //console.log('removed');
+                }
+                //removing already done in opponentsIDList
                 opponentsIDList = opponentsIDList.filter(item => Number(item) !== i)
             }
+
             DataOppo = opponentsTempPowerList;
             sessionStorage.removeItem("HHAuto_Temp_LeagueTempOpponentList");
+
 
         }
         else
@@ -3686,8 +3882,8 @@ var updateShop=function()
 
 var toHHMMSS = function (secs)  {
     var sec_num = parseInt(secs, 10);
-    var days   = Math.floor(sec_num / 86400);
-    var hours   = Math.floor(sec_num / 3600) % 24;
+    var days = Math.floor(sec_num / 86400);
+    var hours = Math.floor(sec_num / 3600) % 24;
     var minutes = Math.floor(sec_num / 60) % 60;
     var seconds = sec_num % 60;
     var n=0;
@@ -4023,6 +4219,10 @@ function moduleSimLeague() {
     var matchRating;
     var matchRatingFlag;
 
+    if ($("#popup_message_league").length >0)
+    {
+        return;
+    }
 
     //toremove after migration in prod
     var girlDataName;
@@ -4221,10 +4421,7 @@ function moduleSimLeague() {
         //Replace player excitement with the correct value
         //$('div#leagues_left div.stats_wrap div:nth-child(9) span:nth-child(2)').empty().append(nRounding(playerExcitement, 0, 1));
     }
-    if ($("div.matchRatingNew img#powerLevelScouter").length != 0)
-    {
-        return;
-    }
+
     SimPower();
 
     // Refresh sim on new opponent selection (Credit: BenBrazke)
@@ -4298,16 +4495,14 @@ function moduleSimLeague() {
                );
 
     function DisplayMatchScore() {
-        let opponentsIDList = [];
+        if ($('tr[sorting_id] td span.nickname span.OppoScore').length > 0)
+        {
+            return
+        }
+
+        let opponentsIDList = getLeagueOpponentListData();
         let sorting_id;
         let player;
-        for (let i=0;i<leagues_list.length;i++) {
-            player=leagues_list[i];
-            if (player.nb_challenges_played<3){
-                if (getHero().infos.id != player.id_player){
-                    opponentsIDList.push(player.id_player);}
-            }
-        }
         let opponentsPowerList = sessionStorage.HHAuto_Temp_LeagueOpponentList ? JSON.parse(sessionStorage.HHAuto_Temp_LeagueOpponentList, reviverMap) : -1;
         let opponentsTempPowerList = sessionStorage.HHAuto_Temp_LeagueTempOpponentList ? JSON.parse(sessionStorage.HHAuto_Temp_LeagueTempOpponentList, reviverMap) : -1;
         let opponentsListExpirationDate = sessionStorage.HHAuto_Temp_opponentsListExpirationDate?sessionStorage.HHAuto_Temp_opponentsListExpirationDate:'empty';
@@ -4329,75 +4524,66 @@ function moduleSimLeague() {
         for (let oppo of opponentsIDList)
         {
             OppoScore = Number(opponentsPowerList.get(Number(oppo)));
-            if ($('tr[sorting_id=' + oppo + '] td span.nickname').length > 0)
+            if ($('tr[sorting_id=' + oppo + '] td span.nickname').length > 0 && opponentsPowerList.get(Number(oppo)) !== undefined)
             {
                 //if ($('tr[sorting_id=' + oppo + '] td .score').length > 0)
-
                 if (Number(OppoScore)<0)
                 {
-                    $('tr[sorting_id=' + oppo + '] td span.nickname').append("<span id='OppoScore' class='minus'>("+OppoScore+")</span>");
+                    $('tr[sorting_id=' + oppo + '] td span.nickname').append("<span class='OppoScore minus'>("+OppoScore+")</span>");
                 }
                 else
                 {
-                    $('tr[sorting_id=' + oppo + '] td span.nickname').append("<span id='OppoScore' class='plus'>("+OppoScore+")</span>");
+                    $('tr[sorting_id=' + oppo + '] td span.nickname').append("<span class='OppoScore plus'>("+OppoScore+")</span>");
                 }
             }
         }
 
     }
     DisplayMatchScore();
+    // Refresh sim on new opponent selection (Credit: BenBrazke)
+    var opntName2;
+    $('#leagues_middle').click(function() {
+        opntName2=''
+    })
+    function waitOpnt2() {
+        setTimeout(function() {
+            if ($('div#leagues_middle div.leagues_table .personal_highlight').length >0) {
+                DisplayMatchScore();
+            }
+            else {
+                waitOpnt2()
+            }
+        }, 50);
+    }
+    var observeCallback2 = function() {
+        var opntNameNew2 = $('div#leagues_middle div.leagues_table thead')[0].innerHTML
+        if (opntName2 !== opntNameNew2) {
+            opntName2 = opntNameNew2;
+            waitOpnt2();
+        }
+    }
+    var observer2 = new MutationObserver(observeCallback2);
+    var test2 = $('div#leagues_middle div.leagues_table tbody')[0];
+    observer2.observe(test2, {attributes: true, childList: true, subtree: false});
+
+    let buttonLaunchList='<div style="position: absolute;right: 300px;top: 17px;width:100px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("RefreshOppoList","tooltip")+'</span><label style="width:100%;" class="myButton" id="RefreshOppoList">'+getTextForUI("RefreshOppoList","elementText")+'</label></div>';
+    if (document.getElementById("RefreshOppoList") === null)
+    {
+        $("#leagues_middle").append(buttonLaunchList);
+        document.getElementById("RefreshOppoList").addEventListener("click", function()
+                                                                    {
+            document.getElementById("RefreshOppoList").remove();
+            $('tr[sorting_id] td span.nickname span.OppoScore').each(function () {
+                this.remove();
+            });
+            getLeagueOpponentId(getLeagueOpponentListData(),true);
+        });
+    }
 }
 
 function moduleHarem()
 {
-    GM_addStyle('#emptyStarPanel {'
-                + 'z-index: 99; '
-                + 'width: 50px; '
-                + 'padding: 3px 10px 0 3px; '
-                + 'position: absolute; bottom: 23px;right: 10px;}');
 
-    GM_addStyle('#emptyStarPanel div:hover {'
-                + 'opacity: 1; '
-                + 'cursor: pointer;}');
-
-    GM_addStyle('#emptyStarPanel {'
-                + 'z-index: 99;'
-                + 'width: 120px;'
-                + 'padding: 0;'
-                + 'position: absolute;'
-                + 'bottom: 17px;'
-                + 'right: -24px;'
-                + 'height: 50px;}');
-
-    GM_addStyle('#emptyStarPanel-moveRight, #emptyStarPanel-moveLeft {'
-                + 'width: 0;'
-                + 'float: left;'
-                + 'border: 20px solid transparent;'
-                + 'height: 0;'
-                + 'opacity: 0.5;'
-                + 'margin:-1px;}');
-
-    GM_addStyle('#emptyStarPanel-description {'
-                + 'width: 110px;'
-                + 'line-height: 20px;'
-                + 'text-align: center;}');
-
-    GM_addStyle('#emptyStarPanel g {'
-                + 'background-size: 100% auto;'
-                + 'width: 38px;'
-                + 'float: left;'
-                + 'height: 34px;'
-                + 'opacity: 1;}');
-    GM_addStyle('#emptyStarPanel g.grey {'
-                + 'background-image: url(https://hh.hh-content.com/design_v2/affstar_empty_S.png);}');
-    GM_addStyle('#emptyStarPanel g.can_upgrade {'
-                + 'background-image: url(https://hh.hh-content.com/design_v2/affstar_upgrade.png);}');
-
-    GM_addStyle('#emptyStarPanel div#emptyStarPanel-moveLeft {'
-                + 'border-right-color: red;}');
-
-    GM_addStyle('#emptyStarPanel div#emptyStarPanel-moveRight {'
-                + 'border-left-color: red;}');
 
     var emptyStar = emptyStar ? emptyStar : 0;
     function haremEmptyStar(classHide) {
@@ -4418,6 +4604,54 @@ function moduleHarem()
             $('#emptyStarPanel div#emptyStarPanel-moveLeft')[0].addEventListener("click", function () {
                 setOffsetEmptyStar(-1);
             }, true);
+            GM_addStyle('#emptyStarPanel {'
+                        + 'z-index: 99; '
+                        + 'width: 50px; '
+                        + 'padding: 3px 10px 0 3px; '
+                        + 'position: absolute; bottom: 23px;right: 10px;}');
+
+            GM_addStyle('#emptyStarPanel div:hover {'
+                        + 'opacity: 1; '
+                        + 'cursor: pointer;}');
+
+            GM_addStyle('#emptyStarPanel {'
+                        + 'z-index: 99;'
+                        + 'width: 120px;'
+                        + 'padding: 0;'
+                        + 'position: absolute;'
+                        + 'bottom: 17px;'
+                        + 'right: -24px;'
+                        + 'height: 50px;}');
+
+            GM_addStyle('#emptyStarPanel-moveRight, #emptyStarPanel-moveLeft {'
+                        + 'width: 0;'
+                        + 'float: left;'
+                        + 'border: 20px solid transparent;'
+                        + 'height: 0;'
+                        + 'opacity: 0.5;'
+                        + 'margin:-1px;}');
+
+            GM_addStyle('#emptyStarPanel-description {'
+                        + 'width: 110px;'
+                        + 'line-height: 20px;'
+                        + 'text-align: center;}');
+
+            GM_addStyle('#emptyStarPanel g {'
+                        + 'background-size: 100% auto;'
+                        + 'width: 38px;'
+                        + 'float: left;'
+                        + 'height: 34px;'
+                        + 'opacity: 1;}');
+            GM_addStyle('#emptyStarPanel g.grey {'
+                        + 'background-image: url(https://hh.hh-content.com/design_v2/affstar_empty_S.png);}');
+            GM_addStyle('#emptyStarPanel g.can_upgrade {'
+                        + 'background-image: url(https://hh.hh-content.com/design_v2/affstar_upgrade.png);}');
+
+            GM_addStyle('#emptyStarPanel div#emptyStarPanel-moveLeft {'
+                        + 'border-right-color: red;}');
+
+            GM_addStyle('#emptyStarPanel div#emptyStarPanel-moveRight {'
+                        + 'border-left-color: red;}');
             /*$('#emptyStarPanel g#iconHideStars')[0].addEventListener("click", function () {
                 switchHideButton();
             }, true);*/
@@ -5543,6 +5777,10 @@ var autoLoop = function () {
     {
         moduleHarem();
     }
+    if (getPage() === "pachinko")
+    {
+        modulePachinko();
+    }
 
 };
 
@@ -5568,19 +5806,22 @@ function moduleShopActions()
     function appendMenuAff()
     {
         var menuAff = '<div style="position: absolute;right: 50px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAff","tooltip")+'</span><label style="width:100px" class="myButton" id="menuAff">'+getTextForUI("menuAff","elementText")+'</label></div>'
-        + '<dialog id="AffDialog"><form stylemethod="dialog">'
-        +  '<div style="padding:10px; display:flex;flex-direction:column;">'
-        //+   '<div class="HHMenuRow">'
+        + '<dialog style="min-width: 50%;margin-top: 7%;margin-left: 1%;" id="AffDialog"><form stylemethod="dialog">'
+        +  '<div style="justify-content: space-between;align-items: flex-start;"class="HHMenuRow">'
+        +   '<div id="menuAff-moveLeft"></div>'
+        +   '<div style="padding:10px; display:flex;flex-direction:column;">'
         +    '<p id="menuAffText"></p>'
-        //+   '</div>'
-        +   '<p ></p>'
-        +   '<div id="menuAffHide" style="display:none">'
-        +    '<div class="HHMenuRow">'
-        +     '<div style="padding:10px;"class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAffButton","tooltip")+'</span><label class="myButton" id="menuAffButton">'+getTextForUI("menuAffButton","elementText")+'</label></div>'
+        +    '<p ></p>'
+        +    '<div style="padding:10px;justify-content:center" class="HHMenuRow">'
+        +     '<div id="menuAffHide" style="display:none">'
+        +      '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAffButton","tooltip")+'</span><label style="width:80px" class="myButton" id="menuAffButton">'+getTextForUI("menuAffButton","elementText")+'</label></div>'
+        +     '</div>'
+        +     '<div><label style="margin-left:10px;width:80px" class="myButton" id="menuAffCancel">'+getTextForUI("OptionCancel","elementText")+'</label></div>'
         +    '</div>'
         +   '</div>'
+        +   '<div id="menuAff-moveRight"></div>'
         +  '</div>'
-        + '<menu> <label style="width:80px" class="myButton" id="menuAffCancel">'+getTextForUI("OptionCancel","elementText")+'</label></menu></form></dialog>'
+        + '</form></dialog>'
 
         if ($("#menuAff").length === 0 )
         {
@@ -5589,12 +5830,57 @@ function moduleShopActions()
             let giftArray = {};
             let AffToGive;
             $('#inventory > div.gift > label').append(menuAff);
-            document.getElementById("menuAff").addEventListener("click", function()
-                                                                {
+            GM_addStyle('#menuAff-moveRight, #menuAff-moveLeft {'
+                        + 'width: 0;'
+                        + 'float: left;'
+                        + 'border: 20px solid transparent;'
+                        + 'height: 0;'
+                        + 'opacity: 0.5;'
+                        + 'margin:-1px;}');
+
+            GM_addStyle('div#menuAff-moveLeft {'
+                        + 'border-right-color: blue;}');
+
+            GM_addStyle('div#menuAff-moveRight {'
+                        + 'border-left-color: blue;}');
+
+            document.getElementById("menuAff-moveLeft").addEventListener("click", function()
+                                                                         {
+                $('div.g1 span[nav="left"]').click();
+                calculateAffSelectedGirl();
+            });
+            document.getElementById("menuAff-moveRight").addEventListener("click", function()
+                                                                          {
+                $('div.g1 span[nav="right"]').click();
+                calculateAffSelectedGirl();
+            });
+            document.getElementById("menuAff").addEventListener("click", calculateAffSelectedGirl);
+            document.getElementById("menuAffButton").addEventListener("click", function()
+                                                                      {
+                document.getElementById("menuAff-moveLeft").style.visibility = "hidden";
+                document.getElementById("menuAff-moveRight").style.visibility = "hidden";
+                giveAff(getSelectGirlID, AffToGive, giftArray);
+            });
+            document.getElementById("menuAffCancel").addEventListener("click", function(){
+
+                if (typeof AffDialog.showModal === "function")
+                {
+
+                    AffDialog.close();
+
+                }
+                else
+                {
+                    alert("The <dialog> API is not supported by this browser");
+                }
+            });
+
+            function calculateAffSelectedGirl()
+            {
                 girl=$('div.girl-ico:not(.not-selected)');
                 getSelectGirlID=girl.attr("id_girl");
                 let selectedGirl=girl.data("g");
-
+                document.getElementById("menuAffHide").style.display = "none";
                 //                 if ($('div[id_girl='+getSelectGirlID+'][data-g] .aff_val').length === 0 && $('div[id_girl='+getSelectGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length === 0)
                 //                 {
                 //                     logHHAuto("Error catching girl current Aff, cancelling.");
@@ -5674,24 +5960,7 @@ function moduleShopActions()
                 {
                     alert("The <dialog> API is not supported by this browser");
                 }
-            });
-            document.getElementById("menuAffButton").addEventListener("click", function()
-                                                                      {
-                giveAff(getSelectGirlID, AffToGive, giftArray);
-            });
-            document.getElementById("menuAffCancel").addEventListener("click", function(){
-
-                if (typeof AffDialog.showModal === "function")
-                {
-
-                    AffDialog.close();
-
-                }
-                else
-                {
-                    alert("The <dialog> API is not supported by this browser");
-                }
-            });
+            }
         }
     }
 
@@ -5707,13 +5976,16 @@ function moduleShopActions()
         document.getElementById("menuAffHide").style.display = "none";
         document.getElementById("menuAffText").innerHTML = selectedGirl.Name+" "+selectedGirlAff+"/"+selectedGirl.Affection.max+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
 
-        giveAff_func = setInterval(() =>
-                                   {
+        let oldTime = new Date();
 
+        function giveAff_func()
+        {
+            let newTime = new Date();
+            //console.log("giveAff_func : "+Number(newTime-oldTime)+"ms");
+            oldTime = newTime;
             if (!document.getElementById("AffDialog").open)
             {
                 logHHAuto('Aff Dialog closed, stopping');
-                clearInterval(giveAff_func);
                 return;
             }
 
@@ -5768,13 +6040,11 @@ function moduleShopActions()
 
                 if (currentItem === -1)
                 {
-                    clearInterval(giveAff_func);
                     let menuText;
                     if ($('div[id_girl='+inGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length >0)
                     {
                         logHHAuto(selectedGirl.Name+ " is ready to be upgrade");
                         menuText =selectedGirl.Name+" "+getTextForUI("menuAffReadyToUpgrade","elementText")+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
-
                     }
                     else
                     {
@@ -5798,13 +6068,16 @@ function moduleShopActions()
                     menuText = menuText+getTextForUI("Total","elementText")+givenTotal;
                     document.getElementById("menuAffText").innerHTML = menuText;
                     document.getElementById("menuAffHide").style.display = "none";
+                    document.getElementById("menuAff-moveLeft").style.visibility = "visible";
+                    document.getElementById("menuAff-moveRight").style.visibility = "visible";
 
                 }
                 else if (currentItem !== -1)
                 {
                     logHHAuto("selected item : "+currentItem);
                     $('div.gift div.inventory_slots div[id_item='+inAffArray[currentItem]+'][data-d]').click();
-                    currentTotal+=Number(currentItem)
+                    currentTotal+=Number(currentItem);
+                    setTimeout(giveAff_func, randomInterval(800,1600));
                 }
                 return;
             }
@@ -5814,28 +6087,35 @@ function moduleShopActions()
                 {
                     logHHAuto("clicked on "+currentItem);
                     $('#inventory > button.blue_text_button[rel=use]').click();
+                    setTimeout(giveAff_func, randomInterval(300,600));
                     return;
                 }
             }
-        }, randomInterval(800,1600));
+        }
+        setTimeout(giveAff_func, randomInterval(800,1600));
     }
     function appendMenuExp()
     {
         var menuExp = '<div style="position: absolute;right: 50px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExp","tooltip")+'</span><label style="width:100px" class="myButton" id="menuExp">'+getTextForUI("menuExp","elementText")+'</label></div>'
-        + '<dialog id="ExpDialog"><form stylemethod="dialog">'
-        +  '<div style="padding:10px; display:flex;flex-direction:column;">'
+        + '<dialog style="width: 50%;margin-top: 7%;margin-left: 1%;" id="ExpDialog"><form stylemethod="dialog">'
+        +  '<div style="justify-content: space-between;align-items: flex-start;"class="HHMenuRow">'
+        +   '<div id="menuExp-moveLeft"></div>'
+        +   '<div style="padding:10px; display:flex;flex-direction:column;">'
         +    '<p id="menuExpText"></p>'
         +    '<div class="HHMenuRow">'
         +     '<p>'+getTextForUI("menuExpLevel","elementText")+'</p>'
         +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExpLevel","tooltip")+'</span><input id="menuExpLevel" style="width:50px;height:20px" required pattern="'+HHAuto_inputPattern.menuExpLevel+'" type="text" value="'+getSetHeroInfos('level')+'"></div>'
         +    '</div>'
-        +   '<div id="menuExpHide" style="display:none">'
-        +    '<div class="HHMenuRow">'
-        +     '<div style="padding:10px;"class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExpButton","tooltip")+'</span><label class="myButton" id="menuExpButton">'+getTextForUI("menuExpButton","elementText")+'</label></div>'
+        +    '<div style="padding:10px;justify-content:center" class="HHMenuRow">'
+        +     '<div id="menuExpHide" style="display:none">'
+        +      '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExpButton","tooltip")+'</span><label style="width:80px" class="myButton" id="menuExpButton">'+getTextForUI("menuExpButton","elementText")+'</label></div>'
+        +     '</div>'
+        +    '<div><label style="margin-left:10px;width:80px" class="myButton" id="menuExpCancel">'+getTextForUI("OptionCancel","elementText")+'</label></div>'
         +    '</div>'
         +   '</div>'
+        +   '<div id="menuExp-moveRight"></div>'
         +  '</div>'
-        + '<menu> <label style="width:80px" class="myButton" id="menuExpCancel">'+getTextForUI("OptionCancel","elementText")+'</label></menu></form></dialog>'
+        + '<menu> </menu></form></dialog>'
 
         if ($("#menuExp").length === 0 )
         {
@@ -5845,6 +6125,30 @@ function moduleShopActions()
 
 
             $('#inventory > div.potion > label').append(menuExp);
+            GM_addStyle('#menuExp-moveRight, #menuExp-moveLeft {'
+                        + 'width: 0;'
+                        + 'float: left;'
+                        + 'border: 20px solid transparent;'
+                        + 'height: 0;'
+                        + 'opacity: 0.5;'
+                        + 'margin:-1px;}');
+
+            GM_addStyle('div#menuExp-moveLeft {'
+                        + 'border-right-color: blue;}');
+
+            GM_addStyle('div#menuExp-moveRight {'
+                        + 'border-left-color: blue;}');
+
+            document.getElementById("menuExp-moveLeft").addEventListener("click", function()
+                                                                         {
+                $('div.g1 span[nav="left"]').click();
+                prepareExp();
+            });
+            document.getElementById("menuExp-moveRight").addEventListener("click", function()
+                                                                          {
+                $('div.g1 span[nav="right"]').click();
+                prepareExp();
+            });
             document.getElementById("menuExp").addEventListener("click", function()
                                                                 {
                 if (typeof ExpDialog.showModal === "function")
@@ -5863,6 +6167,8 @@ function moduleShopActions()
             });
             document.getElementById("menuExpButton").addEventListener("click", function()
                                                                       {
+                document.getElementById("menuExp-moveLeft").style.visibility = "hidden";
+                document.getElementById("menuExp-moveRight").style.visibility = "hidden";
                 giveExp(getSelectGirlID, ExpToGive, potionArray);
             });
             document.getElementById("menuExpCancel").addEventListener("click", function(){
@@ -5955,13 +6261,17 @@ function moduleShopActions()
         document.getElementById("menuExpHide").style.display = "none";
         document.getElementById("menuExpText").innerHTML = selectedGirl.Name+" "+selectedGirlExp+"/"+targetedXp+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
 
-        giveExp_func = setInterval(() =>
-                                   {
+        let oldTime = new Date();
+
+        function giveExp_func()
+        {
+            let newTime = new Date();
+            //console.log("giveExp_func : "+Number(newTime-oldTime)+"ms");
+            oldTime = newTime;
 
             if (!document.getElementById("ExpDialog").open)
             {
                 logHHAuto('Exp Dialog closed, stopping');
-                clearInterval(giveExp_func);
                 return;
             }
 
@@ -6030,6 +6340,8 @@ function moduleShopActions()
                     menuText = menuText+getTextForUI("Total","elementText")+givenTotal;
                     document.getElementById("menuExpText").innerHTML = menuText;
                     document.getElementById("menuExpHide").style.display = "none";
+                    document.getElementById("menuExp-moveLeft").style.visibility = "visible";
+                    document.getElementById("menuExp-moveRight").style.visibility = "visible";
 
                 }
                 else if (currentItem !== -1)
@@ -6037,6 +6349,7 @@ function moduleShopActions()
                     logHHAuto("selected item : "+currentItem);
                     $('div.potion div.inventory_slots div[id_item='+inExpArray[currentItem]+'][data-d]').click();
                     currentTotal+=Number(currentItem)
+                    setTimeout(giveExp_func, randomInterval(800,1600));
                 }
                 return;
             }
@@ -6046,10 +6359,12 @@ function moduleShopActions()
                 {
                     logHHAuto("clicked on "+currentItem);
                     $('#inventory > button.blue_text_button[rel=use]').click();
+                    setTimeout(giveExp_func, randomInterval(300,600));
                     return;
                 }
             }
-        }, randomInterval(800,1600));
+        }
+        setTimeout(giveExp_func, randomInterval(800,1600));
     }
 
     function findSubsetsPartition(inTotal, inSets)
@@ -7319,7 +7634,7 @@ var getBurst=function()
 {
     if (document.getElementById('sMenu'))
     {
-        if (document.getElementById('sMenu').parentElement.style.display=='block' )// && !document.getElementById("DebugDialog").open)
+        if (document.getElementById('sMenu').style.display!=='none' )// && !document.getElementById("DebugDialog").open)
         {
             return false;
         }
@@ -7647,6 +7962,20 @@ function debugDeleteAllVars()
     logHHAuto('Deleted all script vars.');
 }
 
+function manageToolTipsDisplay(important=false)
+{
+    let importantAddendum = important?'; !important':'';
+    if(Storage().HHAuto_Setting_showTooltips === "true")
+    {
+        GM_addStyle('.tooltipHH:hover span.tooltipHHtext { border:1px solid #ffa23e; border-radius:5px; padding:5px; display:block; z-index: 100; position: absolute; width: 150px; color:black; text-align:center; background:white;  opacity:0.9; transform: translateY(-100%)'+importantAddendum+'}');
+    }
+    else
+    {
+        GM_addStyle('.tooltipHH:hover span.tooltipHHtext { display: none'+importantAddendum+'}');
+
+    }
+}
+
 const HC = 1;
 const CH = 2;
 const KH = 3;
@@ -7743,7 +8072,7 @@ HHAuto_ToolTips.en.autoChamps = { elementText: "Normal", tooltip : "if enabled :
 HHAuto_ToolTips.en.autoChampsUseEne = { elementText: "Buy tickets", tooltip : "If enabled : use Energy to buy tickets"};
 HHAuto_ToolTips.en.autoChampsFilter = { elementText: "Filter", tooltip : "(values separated by ; 1 to 6)<br>Allow to set filter on champions to be fought"};
 HHAuto_ToolTips.en.autoStats = { elementText: "Money to keep", tooltip : "(Integer)<br>Automatically buy stats in market with money above the setted amount"};
-HHAuto_ToolTips.en.autoStatsSwitch  = { elementText: "Stats", tooltip : "Allow to on/off autoStats"};
+HHAuto_ToolTips.en.autoStatsSwitch = { elementText: "Stats", tooltip : "Allow to on/off autoStats"};
 HHAuto_ToolTips.en.autoExpW = { elementText: "Books", tooltip : "if enabled : allow to buy Exp in market<br>Only buy if money bank is above the value<br>Only buy if total Exp owned is below value"};
 HHAuto_ToolTips.en.autoExp = { elementText: "Money to keep", tooltip : "(Integer)<br>Minimum money to keep."};
 HHAuto_ToolTips.en.maxExp = { elementText: "Max Exp.", tooltip : "(Integer)<br>Maximum Exp to buy"};
@@ -7771,60 +8100,70 @@ HHAuto_ToolTips.en.DebugResetTimerText = { elementText: "Selector below allow yo
 HHAuto_ToolTips.en.timerResetSelector = { elementText: "Select Timer", tooltip : "Select the timer you want to reset"};
 HHAuto_ToolTips.en.timerResetButton = { elementText: "Reset", tooltip : "Set the timer to 0."};
 HHAuto_ToolTips.en.timerLeftTime = { elementText: "", tooltip : "Time remaining"};
-HHAuto_ToolTips.en.timerResetNoTimer  = { elementText: "No selected timer", tooltip : ""};
-HHAuto_ToolTips.en.menuSell  = { elementText: "Sell", tooltip : "Allow to sell items."};
-HHAuto_ToolTips.en.menuSellText  = { elementText: "This will sell the number of items asked starting in display order (first all non legendary then legendary)<br> It will sell all non legendary stuff and keep : <br> - 1 set of rainbow legendary (choosen on highest player class stat)<br> - 1 set of legendary mono player class (choosen on highest stats)<br> - 1 set of legendary harmony (choosen on highest stats)<br> - 1 set of legendary endurance (choosen on highest stats)<br>You can lock/Unlock batch by clicking on the corresponding cell/row/column (notlocked/total), red means all locked, orange some locked.", tooltip : ""};
-HHAuto_ToolTips.en.menuSellNumber  = { elementText: "", tooltip : "Enter the number of items you want to sell : "};
-HHAuto_ToolTips.en.menuSellButton  = { elementText: "Sell", tooltip : "Launch selling funtion."};
-HHAuto_ToolTips.en.menuSellCurrentCount  = { elementText: "Number of sellable items you currently have : ", tooltip : ""};
-HHAuto_ToolTips.en.menuSellMaskLocked  = { elementText: "Mask locked", tooltip : "Allow to mask locked items."};
-HHAuto_ToolTips.en.menuSoldText  = { elementText: "Number of items sold : ", tooltip : ""};
-HHAuto_ToolTips.en.menuSoldMessageReachNB  = { elementText: "Wanted sold items reached.", tooltip : ""};
-HHAuto_ToolTips.en.menuSoldMessageNoMore  = { elementText: " No more sellable items.", tooltip : ""};
-HHAuto_ToolTips.en.menuAff  = { elementText: "Give Aff", tooltip : "Automatically give Aff to selected girl."};
-HHAuto_ToolTips.en.menuAffButton  = { elementText: "Go !", tooltip : "Launch giving aff."};
-HHAuto_ToolTips.en.menuDistribution  = { elementText: "Items to be used : ", tooltip : ""};
-HHAuto_ToolTips.en.Total  = { elementText: "Total : ", tooltip : ""};
-HHAuto_ToolTips.en.menuAffNoNeed  = { elementText: "don't need Aff.", tooltip : ""};
-HHAuto_ToolTips.en.menuAffNoAff  = { elementText: "No Aff available to be given to :", tooltip : ""};
-HHAuto_ToolTips.en.menuAffError  = { elementText: "Error fetching girl Aff field, cancelling.", tooltip : ""};
-HHAuto_ToolTips.en.menuAffReadyToUpgrade  = { elementText: " is ready for upgrade.", tooltip : ""};
-HHAuto_ToolTips.en.menuAffEnd  = { elementText: "All Aff given to :", tooltip : ""};
-HHAuto_ToolTips.en.menuDistributed  = { elementText: "Items used : ", tooltip : ""};
-HHAuto_ToolTips.en.autoClubChampMax  = { elementText: "Max tickets per run", tooltip : "Maximum number of tickets to use on the club champion at each run."};
-HHAuto_ToolTips.en.menuSellLock  = { elementText: "Lock/ Unlock", tooltip : "Switch the lock to prevent selected item to be sold."};
-HHAuto_ToolTips.en.Rarity  = { elementText: "Rarity", tooltip : ""};
-HHAuto_ToolTips.en.RarityCommon  = { elementText: "Common", tooltip : ""};
-HHAuto_ToolTips.en.RarityRare  = { elementText: "Rare", tooltip : ""};
-HHAuto_ToolTips.en.RarityEpic  = { elementText: "Epic", tooltip : ""};
-HHAuto_ToolTips.en.RarityLegendary  = { elementText: "Legendary", tooltip : ""};
-HHAuto_ToolTips.en.equipementHead  = { elementText: "Head", tooltip : ""};
-HHAuto_ToolTips.en.equipementBody  = { elementText: "Body", tooltip : ""};
-HHAuto_ToolTips.en.equipementLegs  = { elementText: "Legs", tooltip : ""};
-HHAuto_ToolTips.en.equipementFlag  = { elementText: "Flag", tooltip : ""};
-HHAuto_ToolTips.en.equipementPet  = { elementText: "Pet", tooltip : ""};
-HHAuto_ToolTips.en.equipementWeapon  = { elementText: "Weapon", tooltip : ""};
-HHAuto_ToolTips.en.equipementCaracs  = { elementText: "Caracs", tooltip : ""};
-HHAuto_ToolTips.en.equipementType  = { elementText: "Type", tooltip : ""};
-HHAuto_ToolTips.en.autoMissionKFirst  = { elementText: "Kobans first", tooltip : "Start by missions rewarded with Kobans."};
-HHAuto_ToolTips.en.menuExp  = { elementText: "Give Exp", tooltip : "Automatically give max Exp to selected girl."};
-HHAuto_ToolTips.en.menuExpButton  = { elementText: "Go !", tooltip : "Launch giving exp."};
-HHAuto_ToolTips.en.menuExpNoNeed  = { elementText: "don't need Exp.", tooltip : ""};
-HHAuto_ToolTips.en.menuExpNoExp  = { elementText: "No Exp available to be given to :", tooltip : ""};
-HHAuto_ToolTips.en.menuExpError  = { elementText: "Error fetching girl Exp field, cancelling.", tooltip : ""};
-HHAuto_ToolTips.en.menuExpEnd  = { elementText: "All Exp given to :", tooltip : ""};
+HHAuto_ToolTips.en.timerResetNoTimer = { elementText: "No selected timer", tooltip : ""};
+HHAuto_ToolTips.en.menuSell = { elementText: "Sell", tooltip : "Allow to sell items."};
+HHAuto_ToolTips.en.menuSellText = { elementText: "This will sell the number of items asked starting in display order (first all non legendary then legendary)<br> It will sell all non legendary stuff and keep : <br> - 1 set of rainbow legendary (choosen on highest player class stat)<br> - 1 set of legendary mono player class (choosen on highest stats)<br> - 1 set of legendary harmony (choosen on highest stats)<br> - 1 set of legendary endurance (choosen on highest stats)<br>You can lock/Unlock batch by clicking on the corresponding cell/row/column (notlocked/total), red means all locked, orange some locked.", tooltip : ""};
+HHAuto_ToolTips.en.menuSellNumber = { elementText: "", tooltip : "Enter the number of items you want to sell : "};
+HHAuto_ToolTips.en.menuSellButton = { elementText: "Sell", tooltip : "Launch selling funtion."};
+HHAuto_ToolTips.en.menuSellCurrentCount = { elementText: "Number of sellable items you currently have : ", tooltip : ""};
+HHAuto_ToolTips.en.menuSellMaskLocked = { elementText: "Mask locked", tooltip : "Allow to mask locked items."};
+HHAuto_ToolTips.en.menuSoldText = { elementText: "Number of items sold : ", tooltip : ""};
+HHAuto_ToolTips.en.menuSoldMessageReachNB = { elementText: "Wanted sold items reached.", tooltip : ""};
+HHAuto_ToolTips.en.menuSoldMessageNoMore = { elementText: " No more sellable items.", tooltip : ""};
+HHAuto_ToolTips.en.menuAff = { elementText: "Give Aff", tooltip : "Automatically give Aff to selected girl."};
+HHAuto_ToolTips.en.menuAffButton = { elementText: "Go !", tooltip : "Launch giving aff."};
+HHAuto_ToolTips.en.menuDistribution = { elementText: "Items to be used : ", tooltip : ""};
+HHAuto_ToolTips.en.Total = { elementText: "Total : ", tooltip : ""};
+HHAuto_ToolTips.en.menuAffNoNeed = { elementText: "don't need Aff.", tooltip : ""};
+HHAuto_ToolTips.en.menuAffNoAff = { elementText: "No Aff available to be given to :", tooltip : ""};
+HHAuto_ToolTips.en.menuAffError = { elementText: "Error fetching girl Aff field, cancelling.", tooltip : ""};
+HHAuto_ToolTips.en.menuAffReadyToUpgrade = { elementText: " is ready for upgrade.", tooltip : ""};
+HHAuto_ToolTips.en.menuAffEnd = { elementText: "All Aff given to :", tooltip : ""};
+HHAuto_ToolTips.en.menuDistributed = { elementText: "Items used : ", tooltip : ""};
+HHAuto_ToolTips.en.autoClubChampMax = { elementText: "Max tickets per run", tooltip : "Maximum number of tickets to use on the club champion at each run."};
+HHAuto_ToolTips.en.menuSellLock = { elementText: "Lock/ Unlock", tooltip : "Switch the lock to prevent selected item to be sold."};
+HHAuto_ToolTips.en.Rarity = { elementText: "Rarity", tooltip : ""};
+HHAuto_ToolTips.en.RarityCommon = { elementText: "Common", tooltip : ""};
+HHAuto_ToolTips.en.RarityRare = { elementText: "Rare", tooltip : ""};
+HHAuto_ToolTips.en.RarityEpic = { elementText: "Epic", tooltip : ""};
+HHAuto_ToolTips.en.RarityLegendary = { elementText: "Legendary", tooltip : ""};
+HHAuto_ToolTips.en.equipementHead = { elementText: "Head", tooltip : ""};
+HHAuto_ToolTips.en.equipementBody = { elementText: "Body", tooltip : ""};
+HHAuto_ToolTips.en.equipementLegs = { elementText: "Legs", tooltip : ""};
+HHAuto_ToolTips.en.equipementFlag = { elementText: "Flag", tooltip : ""};
+HHAuto_ToolTips.en.equipementPet = { elementText: "Pet", tooltip : ""};
+HHAuto_ToolTips.en.equipementWeapon = { elementText: "Weapon", tooltip : ""};
+HHAuto_ToolTips.en.equipementCaracs = { elementText: "Caracs", tooltip : ""};
+HHAuto_ToolTips.en.equipementType = { elementText: "Type", tooltip : ""};
+HHAuto_ToolTips.en.autoMissionKFirst = { elementText: "Kobans first", tooltip : "Start by missions rewarded with Kobans."};
+HHAuto_ToolTips.en.menuExp = { elementText: "Give Exp", tooltip : "Automatically give max Exp to selected girl."};
+HHAuto_ToolTips.en.menuExpButton = { elementText: "Go !", tooltip : "Launch giving exp."};
+HHAuto_ToolTips.en.menuExpNoNeed = { elementText: "don't need Exp.", tooltip : ""};
+HHAuto_ToolTips.en.menuExpNoExp = { elementText: "No Exp available to be given to :", tooltip : ""};
+HHAuto_ToolTips.en.menuExpError = { elementText: "Error fetching girl Exp field, cancelling.", tooltip : ""};
+HHAuto_ToolTips.en.menuExpEnd = { elementText: "All Exp given to :", tooltip : ""};
 HHAuto_ToolTips.en.menuExpLevel =  { elementText: "Enter target Exp level :", tooltip : "Target Exp level for girl"};
-HHAuto_ToolTips.en.PoAMaskRewards  = { elementText: "PoA mask claimed", tooltip : "Masked claimed rewards for Path of Attraction."};
-HHAuto_ToolTips.en.showTooltips  = { elementText: "Show tooltips", tooltip : "Show tooltip on menu."};
-HHAuto_ToolTips.en.showMarketTools  = { elementText: "Show market tools", tooltip : "Show Market tools."};
-HHAuto_ToolTips.en.useX10Fights  = { elementText: "Use x10", tooltip : "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Use x10 button if 10 fights or more to do (if not going under Koban bank value).<br>x50 takes precedence on x10 if all conditions are filled."};
-HHAuto_ToolTips.en.useX50Fights  = { elementText: "Use x50", tooltip : "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Use x50 button if 50 fights or more to do (if not going under Koban bank value).<br>Takes precedence on x10 if all conditions are filled."};
-HHAuto_ToolTips.en.autoBuy  = { elementText: "Market"};
-HHAuto_ToolTips.en.minShardsX50  = { elementText: "Min. shards x50", tooltip : "Only use x50 button if remaining shards of current girl is equal or above this limit."};
-HHAuto_ToolTips.en.minShardsX10  = { elementText: "Min. shards x10", tooltip : "Only use x10 button if remaining shards of current girl is equal or above this limit."};
+HHAuto_ToolTips.en.PoAMaskRewards = { elementText: "PoA mask claimed", tooltip : "Masked claimed rewards for Path of Attraction."};
+HHAuto_ToolTips.en.showTooltips = { elementText: "Show tooltips", tooltip : "Show tooltip on menu."};
+HHAuto_ToolTips.en.showMarketTools = { elementText: "Show market tools", tooltip : "Show Market tools."};
+HHAuto_ToolTips.en.useX10Fights = { elementText: "Use x10", tooltip : "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Use x10 button if 10 fights or more to do (if not going under Koban bank value).<br>x50 takes precedence on x10 if all conditions are filled."};
+HHAuto_ToolTips.en.useX50Fights = { elementText: "Use x50", tooltip : "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Use x50 button if 50 fights or more to do (if not going under Koban bank value).<br>Takes precedence on x10 if all conditions are filled."};
+HHAuto_ToolTips.en.autoBuy = { elementText: "Market"};
+HHAuto_ToolTips.en.minShardsX50 = { elementText: "Min. shards x50", tooltip : "Only use x50 button if remaining shards of current girl is equal or above this limit."};
+HHAuto_ToolTips.en.minShardsX10 = { elementText: "Min. shards x10", tooltip : "Only use x10 button if remaining shards of current girl is equal or above this limit."};
 HHAuto_ToolTips.en.trollzList = { elementText: ["Latest","Dark Lord","Ninja Spy","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson\'s Crew","Pandora witch","Nike","Sake"] };
 HHAuto_ToolTips.en.leaguesList = { elementText: ["Wanker I","Wanker II","Wanker III","Sexpert I","Sexpert II","Sexpert III","Dicktator I","Dicktator II","Dicktator III"] };
-HHAuto_ToolTips.en.mythicGirlNext  = { elementText: "Mythic girl wave"};
+HHAuto_ToolTips.en.mythicGirlNext = { elementText: "Mythic girl wave"};
+HHAuto_ToolTips.en.RefreshOppoList = { elementText: "Refresh Opponent list", tooltip : "Allow to force a refresh of opponent list."};
+HHAuto_ToolTips.en.PachinkoSelectorNoButtons = {elementText : "No Orbs available.", tooltip : ""};
+HHAuto_ToolTips.en.PachinkoSelector = {elementText : "", tooltip : "Pachinko Selector."};
+HHAuto_ToolTips.en.PachinkoLeft = {elementText : "", tooltip : "Currently available orbs."};
+HHAuto_ToolTips.en.PachinkoXTimes = {elementText : "Number to use : ", tooltip : "Set the number of orbs tu use o selected pachinko."};
+HHAuto_ToolTips.en.PachinkoPlayX = {elementText : "Launch", tooltip : "Launch X uses of selected orbs"};
+HHAuto_ToolTips.en.PachinkoButton = {elementText : "Use Pachinko", tooltip : "Allow to automatically use the selected Pachinko. (Only for Orbs games)"};
+HHAuto_ToolTips.en.PachinkoOrbsLeft = {elementText : " orbs remaining.", tooltip : ""};
+HHAuto_ToolTips.en.PachinkoInvalidOrbsNb = {elementText : 'Invalid orbs number'};
+HHAuto_ToolTips.en.PachinkoNoGirls = {elementText : 'No more any girls available.'};
 
 HHAuto_ToolTips.fr = [];
 HHAuto_ToolTips.fr.saveDebug = { elementText: "Sauver log", tooltip : "Sauvegarder un fichier journal de débogage."};
@@ -7876,7 +8215,7 @@ HHAuto_ToolTips.fr.autoChampsTitle = { elementText: "Champions"};
 HHAuto_ToolTips.fr.autoChamps = { elementText: "Normal", tooltip : "Si activé : combat automatiquement les champions (s'ils sont démarrés manuellement et en filtre uniquement)."};
 HHAuto_ToolTips.fr.autoChampsUseEne = { elementText: "Achat tickets", tooltip : "Si activé : utiliser l'énergie pour acheter des tickets de champion (60 énergie nécessaire ; ne marchera pas si Quête auto activée)."};
 HHAuto_ToolTips.fr.autoChampsFilter = { elementText: "Filtre", tooltip : "Permet de filtrer les champions à combattre."};
-HHAuto_ToolTips.fr.autoStatsSwitch  = { elementText: "Stats", tooltip : "Achète automatiquement des statistiques sur le marché."};
+HHAuto_ToolTips.fr.autoStatsSwitch = { elementText: "Stats", tooltip : "Achète automatiquement des statistiques sur le marché."};
 HHAuto_ToolTips.fr.autoStats = { elementText: "Argent à garder", tooltip : "Argent minimum à conserver lors de l'achat automatique de statistiques."};
 HHAuto_ToolTips.fr.autoExpW = { elementText: "Livres", tooltip : "Si activé : permet d'acheter des livres d'expérience sur le marché tout en respectant les limites d'expérience et d'argent ci-après."};
 HHAuto_ToolTips.fr.autoExp = { elementText: "Argent à garder", tooltip : "Argent minimum à conserver lors de l'achat automatique de livres d'expérience."};
@@ -7890,7 +8229,7 @@ HHAuto_ToolTips.fr.autoLGRW = { elementText: "Eq. super-sexe lég.", tooltip : "
 HHAuto_ToolTips.fr.autoLGR = { elementText: "Argent à garder", tooltip : "Argent minimum à conserver lors de l'achat automatique d'équipement super-sexe."};
 //HHAuto_ToolTips.fr.autoEGM = { elementText: "Buy Epi Gear Mono", tooltip : "si activé : permet d'acheter du matériel Mono Epique sur le marché<br>Acheter seulement si la banque d'argent est au-dessus de la valeur"};
 HHAuto_ToolTips.fr.OpponentListBuilding = { elementText: "La liste des adversaires est en construction", tooltip : ""};
-HHAuto_ToolTips.fr.OpponentParsed  = { elementText: "adversaires parcourus", tooltip : ""};
+HHAuto_ToolTips.fr.OpponentParsed = { elementText: "adversaires parcourus", tooltip : ""};
 HHAuto_ToolTips.fr.DebugMenu = { elementText: "Debug Menu", tooltip : "Options pour le debug"};
 HHAuto_ToolTips.fr.DebugOptionsText = { elementText: "Les boutons ci-dessous permette de modifier les variables du script, a utiliser avec prudence.", tooltip : ""};
 HHAuto_ToolTips.fr.DeleteTempVars = { elementText: "Supprimer les variables temporaires", tooltip : "Supprime toutes les variables temporaire du script."};
@@ -7905,24 +8244,24 @@ HHAuto_ToolTips.fr.autoActivitiesTitle = { elementText: "Activités"};
 HHAuto_ToolTips.fr.autoTrollTitle = { elementText: "Combat troll"};
 HHAuto_ToolTips.fr.autoSeasonTitle = { elementText: "Saison"};
 HHAuto_ToolTips.fr.autoLeaguesTitle = { elementText: "Ligues"};
-HHAuto_ToolTips.fr.PoAMaskRewards  = { elementText: "Cacher gains chemin", tooltip : "Si activé : masque les récompenses déjà réclamées du chemin d'affection."};
-HHAuto_ToolTips.fr.showTooltips  = { elementText: "Infobulles", tooltip : "Si activé : affiche des bulles d'aide lors du survol des éléments avec la souris."};
+HHAuto_ToolTips.fr.PoAMaskRewards = { elementText: "Cacher gains chemin", tooltip : "Si activé : masque les récompenses déjà réclamées du chemin d'affection."};
+HHAuto_ToolTips.fr.showTooltips = { elementText: "Infobulles", tooltip : "Si activé : affiche des bulles d'aide lors du survol des éléments avec la souris."};
 HHAuto_ToolTips.fr.autoClubChamp = { elementText: "Club", tooltip : "Si activé : combat automatiquement le champion de club si au moins un combat a déjà été effectué."};
-HHAuto_ToolTips.fr.autoClubChampMax  = { elementText: "Max. tickets par session", tooltip : "Nombre maximum de ticket à utiliser sur une même session du champion de club."};
-HHAuto_ToolTips.fr.showMarketTools  = { elementText: "Outils du marché", tooltip : "Si activé : affiche des icones supplémentaires dans le marché pour trier et vendre automatiquement l'équipement."};
-HHAuto_ToolTips.fr.useX10Fights  = { elementText: "Combats x10", tooltip : "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>("+HHAuto_ToolTips.fr.spendKobans0.elementText+" doit être activé)</p>Si activé : <br>utilise le bouton x10 si 10 combats sont disponibles (Si Dépense Kobans activée et suffisamment de kobans en banque)."};
-HHAuto_ToolTips.fr.useX50Fights  = { elementText: "Combats x50", tooltip : "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>("+HHAuto_ToolTips.fr.spendKobans0.elementText+" doit être activé)</p>Si activé : <br>utilise le bouton x50 si 50 combats sont disponibles (Si Dépense Kobans activée et suffisamment de kobans en banque)."};
-HHAuto_ToolTips.fr.autoBuy  = { elementText: "Marché"};
-HHAuto_ToolTips.fr.minShardsX50  = { elementText: "Frags min. x50", tooltip : "Utiliser le bouton x50 si le nombre de fragments restant est supérieur ou égal à..."};
-HHAuto_ToolTips.fr.minShardsX10  = { elementText: "Frags min. x10", tooltip : "OUtiliser le bouton x10 si le nombre de fragments restant est supérieur ou égal à..."};
+HHAuto_ToolTips.fr.autoClubChampMax = { elementText: "Max. tickets par session", tooltip : "Nombre maximum de ticket à utiliser sur une même session du champion de club."};
+HHAuto_ToolTips.fr.showMarketTools = { elementText: "Outils du marché", tooltip : "Si activé : affiche des icones supplémentaires dans le marché pour trier et vendre automatiquement l'équipement."};
+HHAuto_ToolTips.fr.useX10Fights = { elementText: "Combats x10", tooltip : "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>("+HHAuto_ToolTips.fr.spendKobans0.elementText+" doit être activé)</p>Si activé : <br>utilise le bouton x10 si 10 combats sont disponibles (Si Dépense Kobans activée et suffisamment de kobans en banque)."};
+HHAuto_ToolTips.fr.useX50Fights = { elementText: "Combats x50", tooltip : "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>("+HHAuto_ToolTips.fr.spendKobans0.elementText+" doit être activé)</p>Si activé : <br>utilise le bouton x50 si 50 combats sont disponibles (Si Dépense Kobans activée et suffisamment de kobans en banque)."};
+HHAuto_ToolTips.fr.autoBuy = { elementText: "Marché"};
+HHAuto_ToolTips.fr.minShardsX50 = { elementText: "Frags min. x50", tooltip : "Utiliser le bouton x50 si le nombre de fragments restant est supérieur ou égal à..."};
+HHAuto_ToolTips.fr.minShardsX10 = { elementText: "Frags min. x10", tooltip : "OUtiliser le bouton x10 si le nombre de fragments restant est supérieur ou égal à..."};
 
-HHAuto_ToolTips.fr.autoMissionKFirst  = { elementText: "Prioriser Kobans", tooltip : "Si activé : commence par les missions qui rapportent des kobans."};
+HHAuto_ToolTips.fr.autoMissionKFirst = { elementText: "Prioriser Kobans", tooltip : "Si activé : commence par les missions qui rapportent des kobans."};
 HHAuto_ToolTips.fr.autoTrollMythicByPassParanoia = { elementText: "Mythique annule paranoïa", tooltip : "Si activé : autorise le script à ne pas respecter le mode Parano lors d'un événement mythique.<br>Si la prochaine vague est pendant une phase de sommeil le script combattra quand même<br>tant que des combats et des fragments sont disponibles."};
 HHAuto_ToolTips.fr.buyMythicCombat = { elementText: "Achat comb. pour mythique", tooltip : "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>("+HHAuto_ToolTips.fr.spendKobans0.elementText+" doit être activé)</p>Si activé : achète des points de combat (poings) pendant les X dernières heures de l'événement mythique (sans dépasser la limite de la banque de kobans), passera outre la réserve de combats si nécessaire."};
 HHAuto_ToolTips.fr.buyMythicCombTimer = { elementText: "Heures d'achat comb.", tooltip : "(Nombre entier)<br>X dernières heures de l'événement mythique"};
 HHAuto_ToolTips.fr.trollzList = { elementText: ["Dernier","Dark Lord","Espion Ninja","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson","Pandora","Nike","Sake"] };
 HHAuto_ToolTips.fr.leaguesList = { elementText: ["Branleur I","Branleur II","Branleur III","Sexpert I","Sexpert II","Sexpert III","Dicktateur I","Dicktateur II","Dicktateur III"] };
-HHAuto_ToolTips.fr.mythicGirlNext  = { elementText: "Vague mythique"};
+HHAuto_ToolTips.fr.mythicGirlNext = { elementText: "Vague mythique"};
 
 HHAuto_ToolTips.de = [];
 HHAuto_ToolTips.de.saveDebug = { elementText: "Save Debug", tooltip : "Erlaube das Erstellen einer Debug Log Datei."};
@@ -7991,7 +8330,7 @@ HHAuto_ToolTips.de.autoLGRW = { elementText: "Buy Leg Gear Rainbow", tooltip : "
 HHAuto_ToolTips.de.autoLGR = { elementText: "Min Geld verbleib", tooltip : "Minimum an Geld das behalten wird."};
 //HHAuto_ToolTips.de.autoEGM = { elementText: "Buy Epi Gear Mono", tooltip : "Wenn aktiv : Erlaube es Mono epische Ausrüstung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt"};
 HHAuto_ToolTips.de.OpponentListBuilding = { elementText: "Gegnerliste wird erstellt", tooltip : ""};
-HHAuto_ToolTips.de.OpponentParsed  = { elementText: "Gegner analysiert", tooltip : ""};
+HHAuto_ToolTips.de.OpponentParsed = { elementText: "Gegner analysiert", tooltip : ""};
 
 
 HHAuto_ToolTips.es = [];
@@ -8059,7 +8398,7 @@ HHAuto_ToolTips.es.autoLGRW = { elementText: "Compra Eqip.Leg.Arcoiris", tooltip
 HHAuto_ToolTips.es.autoLGR = { elementText: "Min dinero", tooltip : "(Entero)<br>Mínimo dinero a guardar"};
 //HHAuto_ToolTips.es.autoEGM = { elementText: "Compra Equip.Epi.Mono", tooltip : "Si habilitado: Compra equipamiento épico mono en el mercado<br>Solo compra si el banco de dinero es superior a este valor"};
 HHAuto_ToolTips.es.OpponentListBuilding = { elementText: "Lista de oponentes en construcción", tooltip : ""};
-HHAuto_ToolTips.es.OpponentParsed  = { elementText: "opositores analizados", tooltip : ""};
+HHAuto_ToolTips.es.OpponentParsed = { elementText: "opositores analizados", tooltip : ""};
 HHAuto_ToolTips.es.DebugMenu = { elementText: "Menú depur.", tooltip : "Opciones de depuración"};
 HHAuto_ToolTips.es.DebugOptionsText = { elementText: "Los botones a continuación permiten modificar el almacenamiento del script, tenga cuidado al usarlos.", tooltip : ""};
 HHAuto_ToolTips.es.DeleteTempVars = { elementText: "Borra almacenamiento temp.", tooltip : "Borra todo el almacenamiento temporal del script."};
@@ -8075,7 +8414,7 @@ HHAuto_ToolTips.es.DebugResetTimerText = { elementText: "El selector a continuac
 HHAuto_ToolTips.es.timerResetSelector = { elementText: "Seleccionar temporizador", tooltip : "Selecciona el temporizador a restablecer"};
 HHAuto_ToolTips.es.timerResetButton = { elementText: "Restablecer", tooltip : "Establece el temporizador a 0."};
 HHAuto_ToolTips.es.timerLeftTime = { elementText: "", tooltip : "Tiempo restante"};
-HHAuto_ToolTips.es.timerResetNoTimer  = { elementText: "No hay temporizador seleccionado", tooltip : ""};
+HHAuto_ToolTips.es.timerResetNoTimer = { elementText: "No hay temporizador seleccionado", tooltip : ""};
 
 
 
@@ -8223,7 +8562,7 @@ var HHVars_Temp=[
 
 var updateData = function () {
     //logHHAuto("updating UI");
-    if ($('#LoadDialog[open]').length > 0) {return}
+    if (isHHPopUpDisplayed() === 'loadConfig') {return}
     var leaguesOptions = document.getElementById("autoLeaguesSelector");
     Storage().HHAuto_Setting_autoLeaguesSelectedIndex = leaguesOptions.selectedIndex;
     sessionStorage.HHAuto_Temp_leaguesTarget = Number(leaguesOptions.value)+1;
@@ -8299,22 +8638,14 @@ var updateData = function () {
     Storage().HHAuto_Setting_autoBuyBoostersFilter = document.getElementById("autoBuyBoostersFilter").value;
     Storage().HHAuto_Setting_showMarketTools = document.getElementById("showMarketTools").checked;
 
+
     var newValue = String(document.getElementById("showTooltips").checked);
     if (Storage().HHAuto_Setting_showTooltips != newValue)
     {
         Storage().HHAuto_Setting_showTooltips = document.getElementById("showTooltips").checked;
-        $(".tooltipHHtext").each(function()
-                                 {
-            if(Storage().HHAuto_Setting_showTooltips === "true")
-            {
-                this.setAttribute("active","");
-            }
-            else
-            {
-                this.removeAttribute("active");
-            }
-        });
+        manageToolTipsDisplay(true);
     }
+
     if (localStorage.HHAuto_Setting_settPerTab === "true")
     {
         if ( localStorage.HHAuto_Temp_showInfo !== undefined)
@@ -8596,12 +8927,11 @@ var start = function () {
     }
 
     // Add UI buttons.
-    var UIcontainer = $("#contains_all nav div[rel='content']");
-    UIcontainer.html( '<div id="sMenu" style="font-size:x-small; position:absolute; right:22%; width:inherit; text-align:left; display:flex; flex-direction:column; justify-content:space-between; z-index:1000">'
-
+    let sMenu ='<div id="sMenu" style="top: 45px;right: 16px;padding: 4px;display: none;opacity: 1;border-radius: 4px;border: 1px solid #ffa23e;background-color: #1e261e;font-size:small; position:absolute; text-align:left; flex-direction:column; justify-content:space-between; z-index:10000">'
+//width: 97%;height: 90%;
                      //dialog Boxes
-                     + '<dialog id="LoadDialog"> <form method="dialog"><p>After you select the file the settings will be automatically updated.</p><p> If nothing happened, then the selected file contains errors.</p><p id="LoadConfError"style="color:#f53939;"></p><p><label><input type="file" id="myfile" accept=".json" name="myfile"> </label></p> <menu> <button value="cancel">'+getTextForUI("OptionCancel","elementText")+'</button></menu> </form></dialog>'
-                     + '<dialog id="DebugDialog" style="overflow:visible"><form method="dialog">'
+                     //+ '<dialog id="LoadDialog"> <form method="dialog"><p>After you select the file the settings will be automatically updated.</p><p> If nothing happened, then the selected file contains errors.</p><p id="LoadConfError"style="color:#f53939;"></p><p><label><input type="file" id="myfile" accept=".json" name="myfile"> </label></p> <menu> <button value="cancel">'+getTextForUI("OptionCancel","elementText")+'</button></menu> </form></dialog>'
+                     /*+ '<dialog id="DebugDialog" style="overflow:visible"><form method="dialog">'
                      +   '<div style="padding:10px; display:flex;flex-direction:column">'
                      +    '<p>HHAuto : v'+GM_info.script.version+'</p>'
                      +    '<p>'+getTextForUI("DebugFileText","elementText")+'</p>'
@@ -8620,7 +8950,7 @@ var start = function () {
                      +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ResetAllVars","tooltip")+'</span><label class="myButton" id="ResetAllVars">'+getTextForUI("ResetAllVars","elementText")+'</label></div>'
                      +    '</div>'
                      +  '</div>'
-                     + '<menu> <button value="cancel">'+getTextForUI("OptionCancel","elementText")+'</button></menu></form></dialog>'
+                     + '<menu> <button value="cancel">'+getTextForUI("OptionCancel","elementText")+'</button></menu></form></dialog>'*/
 
                      // _row of 3 columns_
                      + '<div class="optionsRow">'  //+ '<div style="display:flex;flex-direction:row;">'
@@ -9101,7 +9431,36 @@ var start = function () {
                      // |End column 3|
                      + '</div>'
                      // _End row of 3 columns_
-                     +'</div>'+UIcontainer.html());
+                     +'</div>';
+    $('#contains_all').prepend(sMenu);
+
+    GM_addStyle(''
+                +'#sMenuButton {'
+                +'   position: absolute;'
+                +'   top: 6px;'
+                +'   right: 54px;'
+                +'   z-index:5000;'
+                +'}'
+                +'@media only screen and (max-width: 1025px) {'
+                +'#sMenuButton {'
+                +'   width: 40px;'
+                +'   height: 40px;'
+                +'   top: 20px;'
+                +'   right: 74px;'
+                +'}}'
+               );
+    $("#contains_all nav").prepend('<div class="square_blue_btn" id="sMenuButton" ><img src="https://i.postimg.cc/bv7n83z3/script-Icon2.png"></div>');
+    document.getElementById("sMenuButton").addEventListener("click", function()
+                                                            {
+        if (document.getElementById("sMenu").style.display === "none")
+        {
+            document.getElementById("sMenu").style.display = "flex";
+        }
+        else
+        {
+            document.getElementById("sMenu").style.display = "none"
+        }
+    });
 
     var idToAdd1000sSeparators = ["kobanBank",
                                   "autoSalaryTextbox",
@@ -9132,10 +9491,10 @@ var start = function () {
             //console.log("Master switch on");
         }
     });
-
     if(getPage()=="home")
     {
-        function setpInfoHomeFolded()
+        GM_addStyle('#pInfo:hover {max-height : none} #pInfo { max-height : 220px} @media only screen and (max-width: 1025px) {#pInfo { ;top:17% }}');
+        /*function setpInfoHomeFolded()
         {
             pInfo.style.maxHeight = "220px";
             //pInfo.style.overflow = "auto";
@@ -9143,13 +9502,33 @@ var start = function () {
         setpInfoHomeFolded();
         pInfo.addEventListener("mouseover", function() { pInfo.style.maxHeight = "none"; });
         pInfo.addEventListener("mouseout", setpInfoHomeFolded);
+        */
 
         //Storage().HHAuto_Setting_infoBoxIsHidden = "false";
         //console.log("Showing InfoBox");
     }
     else
     {
-        function setpInfoFolded()
+        GM_addStyle(''
+                    +'#pInfo:hover {'
+                    +'   padding-top : 22px;'
+                    +'   height : auto;'
+                    +'   left : 77%;'
+                    +'}'
+                    +'#pInfo {'
+                    +'   right : 1%;'
+                    +'   left : 88%;'
+                    +'   top : 8%;'
+                    +'   z-index : 1000;'
+                    +'   height : 22px;'
+                    +'   padding-top : unset;'
+                    +'}'
+                    +'@media only screen and (max-width: 1025px) {'
+                    +'   #pInfo {'
+                    +'      top : 13%;'
+                    +'   }'
+                    +'}');
+        /*function setpInfoFolded()
         {
             pInfo.style.right = "1%";
             pInfo.style.left = "88%";
@@ -9166,7 +9545,7 @@ var start = function () {
             pInfo.style.left = "";
         });
         pInfo.addEventListener("mouseout", setpInfoFolded);
-
+*/
         //Storage().HHAuto_Setting_infoBoxIsHidden = "true";
         //console.log("Hiding InfoBox");
     }
@@ -9195,30 +9574,7 @@ var start = function () {
         leaguesOptions.add(optionL);
     };
 
-    // Add Timer reset options //changed
-    let timerOptions = document.getElementById("timerResetSelector");
-    var countTimers=0;
-    let optionElement = document.createElement("option");
-    optionElement.value = countTimers;
-    optionElement.text = getTextForUI("timerResetSelector","elementText");
-    countTimers++;
-    timerOptions.add(optionElement);
 
-    for (let i2 in Timers) {
-        let optionElement = document.createElement("option");
-        optionElement.value = countTimers;
-        countTimers++;
-        optionElement.text = i2;
-        timerOptions.add(optionElement);
-    };
-
-    if(countTimers === 1)
-    {
-        let optionElement = document.createElement("option");
-        optionElement.value = countTimers;
-        optionElement.text = getTextForUI("timerResetNoTimer","elementText");
-        timerOptions.add(optionElement);
-    }
 
     document.getElementById("settPerTab").checked = localStorage.HHAuto_Setting_settPerTab === "true";
     trollOptions.selectedIndex = Storage().HHAuto_Setting_autoTrollSelectedIndex;
@@ -9268,17 +9624,9 @@ var start = function () {
     //document.getElementById("autoEGMW").checked = Storage().HHAuto_Setting_autoEGMW === "true";
     document.getElementById("showInfo").checked = Storage().HHAuto_Setting_showInfo?Storage().HHAuto_Setting_showInfo==="true":"false";
     document.getElementById("showTooltips").checked = Storage().HHAuto_Setting_showTooltips?Storage().HHAuto_Setting_showTooltips==="true":"false";
-    $(".tooltipHHtext").each(function()
-                             {
-        if(document.getElementById("showTooltips").checked)
-        {
-            this.setAttribute("active","");
-        }
-        else
-        {
-            this.removeAttribute("active");
-        }
-    });
+
+    manageToolTipsDisplay();
+
     document.getElementById("showCalculatePower").checked = Storage().HHAuto_Setting_showCalculatePower?Storage().HHAuto_Setting_showCalculatePower==="true":"false";
     document.getElementById("calculatePowerLimits").value = Storage().HHAuto_Setting_calculatePowerLimits?Storage().HHAuto_Setting_calculatePowerLimits:"default";
     document.getElementById("plusEvent").checked = sessionStorage.HHAuto_Temp_trollToFight=="-1" || Storage().HHAuto_Setting_plusEvent === "true";
@@ -9315,57 +9663,100 @@ var start = function () {
     document.getElementById("PoAMaskRewards").checked = Storage().HHAuto_Setting_PoAMaskRewards === "true";
     document.getElementById("git").addEventListener("click", function(){ window.open("https://github.com/Roukys/HHauto/wiki"); });
     document.getElementById("loadConfig").addEventListener("click", function(){
-        if (typeof LoadDialog.showModal === "function") {
+        /*if (typeof LoadDialog.showModal === "function") {
             LoadDialog.showModal();
         } else {
             alert("The <dialog> API is not supported by this browser");
-        }
+        }*/
+        let LoadDialog='<p>After you select the file the settings will be automatically updated.</p><p> If nothing happened, then the selected file contains errors.</p><p id="LoadConfError"style="color:#f53939;"></p><p><label><input type="file" id="myfile" accept=".json" name="myfile"> </label></p>';
+        fillHHPopUp("loadConfig",getTextForUI("loadConfig","elementText"), LoadDialog);
+        document.getElementById('myfile').addEventListener('change', myfileLoad_onChange);
+
     });
+    document.getElementById("saveConfig").addEventListener("click", saveHHVarsSettingsAsJSON);
     document.getElementById("DebugMenu").addEventListener("click", function(){
-        if (typeof DebugDialog.showModal === "function") {
+        /*if (typeof DebugDialog.showModal === "function") {
             DebugDialog.showModal();
         } else {
             alert("The <dialog> API is not supported by this browser");
         }
-    });
-    document.getElementById('myfile').addEventListener('change', myfileLoad_onChange);
-    document.getElementById("saveConfig").addEventListener("click", function(){
-        saveHHVarsSettingsAsJSON();
-    });
-    document.getElementById("DeleteTempVars").addEventListener("click", function(){
-        debugDeleteTempVars();
-        location.reload();
-    });
-    document.getElementById("ResetAllVars").addEventListener("click", function(){
-        debugDeleteAllVars();
-        location.reload();
-    });
-    document.getElementById("saveDebug").addEventListener("click", function(){
-        saveHHDebugLog();
-    });
+        */
+        let debugDialog =   '<div style="padding:10px; display:flex;flex-direction:column">'
+        +    '<p>HHAuto : v'+GM_info.script.version+'</p>'
+        +    '<p>'+getTextForUI("DebugFileText","elementText")+'</p>'
+        +    '<div style="display:flex;flex-direction:row">'
+        +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("saveDebug","tooltip")+'</span><label class="myButton" id="saveDebug">'+getTextForUI("saveDebug","elementText")+'</label></div>'
+        +    '</div>'
+        +    '<p>'+getTextForUI("DebugResetTimerText","elementText")+'</p>'
+        +    '<div style="display:flex;flex-direction:row">'
+        +     '<div style="padding-right:30px"class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("timerResetButton","tooltip")+'</span><label class="myButton" id="timerResetButton">'+getTextForUI("timerResetButton","elementText")+'</label></div>'
+        +     '<div style="padding-right:10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("timerResetSelector","tooltip")+'</span><select id="timerResetSelector"></select></div>'
+        +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("timerLeftTime","tooltip")+'</span><span id="timerLeftTime">'+getTextForUI("timerResetNoTimer","elementText")+'</span></div>'
+        +    '</div>'
+        +    '<p>'+getTextForUI("DebugOptionsText","elementText")+'</p>'
+        +    '<div style="display:flex;flex-direction:row">'
+        +     '<div style="padding-right:30px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("DeleteTempVars","tooltip")+'</span><label class="myButton" id="DeleteTempVars">'+getTextForUI("DeleteTempVars","elementText")+'</label></div>'
+        +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ResetAllVars","tooltip")+'</span><label class="myButton" id="ResetAllVars">'+getTextForUI("ResetAllVars","elementText")+'</label></div>'
+        +    '</div>'
+        +  '</div>'
+        fillHHPopUp("DebugMenu",getTextForUI("DebugMenu","elementText"), debugDialog);
+        document.getElementById("DeleteTempVars").addEventListener("click", function(){
+            debugDeleteTempVars();
+            location.reload();
+        });
+        document.getElementById("ResetAllVars").addEventListener("click", function(){
+            debugDeleteAllVars();
+            location.reload();
+        });
+        document.getElementById("saveDebug").addEventListener("click", saveHHDebugLog);
 
-    document.getElementById("timerResetButton").addEventListener("click", function(){
-        let timerSelector = document.getElementById("timerResetSelector");
-        if (timerSelector.options[timerSelector.selectedIndex].text !== getTextForUI("timerResetNoTimer","elementText") && timerSelector.options[timerSelector.selectedIndex].text !== getTextForUI("timerResetSelector","elementText"))
-        {
-            document.getElementById('sMenu').parentElement.style.display=='none';
-            DebugDialog.close();
-            setTimer(timerSelector.options[timerSelector.selectedIndex].text,0);
-            timerSelector.selectedIndex = 0;
-        }
-    });
-    $(document).on('change',"#timerResetSelector", function() {
-        let timerSelector = document.getElementById("timerResetSelector");
-        if (timerSelector.options[timerSelector.selectedIndex].text !== getTextForUI("timerResetNoTimer","elementText")  && timerSelector.options[timerSelector.selectedIndex].text !== getTextForUI("timerResetSelector","elementText"))
-        {
-            document.getElementById("timerLeftTime").innerText = getTimeLeft(timerSelector.options[timerSelector.selectedIndex].text);
-        }
-        else
-        {
-            document.getElementById("timerLeftTime").innerText = getTextForUI("timerResetNoTimer","elementText");
-        }
-    });
+        document.getElementById("timerResetButton").addEventListener("click", function(){
+            let timerSelector = document.getElementById("timerResetSelector");
+            if (timerSelector.options[timerSelector.selectedIndex].text !== getTextForUI("timerResetNoTimer","elementText") && timerSelector.options[timerSelector.selectedIndex].text !== getTextForUI("timerResetSelector","elementText"))
+            {
+                document.getElementById("sMenu").style.display = "none";
+                maskHHPopUp();
+                setTimer(timerSelector.options[timerSelector.selectedIndex].text,0);
+                timerSelector.selectedIndex = 0;
+            }
+        });
+        $(document).on('change',"#timerResetSelector", function() {
+            let timerSelector = document.getElementById("timerResetSelector");
+            if (timerSelector.options[timerSelector.selectedIndex].text !== getTextForUI("timerResetNoTimer","elementText")  && timerSelector.options[timerSelector.selectedIndex].text !== getTextForUI("timerResetSelector","elementText"))
+            {
+                document.getElementById("timerLeftTime").innerText = getTimeLeft(timerSelector.options[timerSelector.selectedIndex].text);
+            }
+            else
+            {
+                document.getElementById("timerLeftTime").innerText = getTextForUI("timerResetNoTimer","elementText");
+            }
+        });
+        // Add Timer reset options //changed
+        let timerOptions = document.getElementById("timerResetSelector");
+        var countTimers=0;
+        let optionElement = document.createElement("option");
+        optionElement.value = countTimers;
+        optionElement.text = getTextForUI("timerResetSelector","elementText");
+        countTimers++;
+        timerOptions.add(optionElement);
 
+        for (let i2 in Timers) {
+            let optionElement = document.createElement("option");
+            optionElement.value = countTimers;
+            countTimers++;
+            optionElement.text = i2;
+            timerOptions.add(optionElement);
+        };
+
+        if(countTimers === 1)
+        {
+            let optionElement = document.createElement("option");
+            optionElement.value = countTimers;
+            optionElement.text = getTextForUI("timerResetNoTimer","elementText");
+            timerOptions.add(optionElement);
+        }
+
+    });
 
     document.querySelectorAll("div#sMenu input[pattern]").forEach(currentInput =>
                                                                   {
@@ -9424,6 +9815,74 @@ var start = function () {
 
     autoLoop();
 };
+
+function fillHHPopUp(inClass,inTitle, inContent)
+{
+    if (document.getElementById("HHAutoPopupGlobal") === null)
+    {
+        createHHPopUp();
+    }
+    else
+    {
+        displayHHPopUp();
+    }
+    document.getElementById("HHAutoPopupGlobalContent").innerHTML=inContent;
+    document.getElementById("HHAutoPopupGlobalTitle").innerHTML=inTitle;
+    document.getElementById("HHAutoPopupGlobalPopup").className =inClass;
+}
+
+function createHHPopUp()
+{
+    GM_addStyle('#HHAutoPopupGlobal.HHAutoOverlay {   z-index:1000;   position: fixed;   top: 0;   bottom: 0;   left: 0;   right: 0;   background: rgba(0, 0, 0, 0.7);   transition: opacity 500ms;     display: flex;   align-items: center; }  #HHAutoPopupGlobalPopup {   margin: auto;   padding: 20px;   background: #fff;   border-radius: 5px;   position: relative;   transition: all 5s ease-in-out; }  #HHAutoPopupGlobalTitle {   margin-top: 0;   color: #333;   font-size: larger; } #HHAutoPopupGlobalClose {   position: absolute;   top: 20px;   right: 30px;   transition: all 200ms;   font-size: 30px;   font-weight: bold;   text-decoration: none;   color: #333; } #HHAutoPopupGlobalClose:hover {   color: #06D85F; } #HHAutoPopupGlobalContent {   max-height: 30%;   overflow: auto;   color: #333;   font-size: x-small; }')
+    let popUp = '<div id="HHAutoPopupGlobal" class="HHAutoOverlay">'
+    +' <div id="HHAutoPopupGlobalPopup">'
+    +'	 <h2 id="HHAutoPopupGlobalTitle">Here i am</h2>'
+    +'	 <a id="HHAutoPopupGlobalClose">&times;</a>'
+    +'	 <div id="HHAutoPopupGlobalContent" class="content">'
+    +'		Thank to pop me out of that button, but now im done so you can close this window.'
+    +'	 </div>'
+    +' </div>'
+    +'</div>';
+    $('body').prepend(popUp);
+    document.getElementById("HHAutoPopupGlobalClose").addEventListener("click", function(){
+        maskHHPopUp();
+    });
+    document.addEventListener('keydown', evt => {
+        if (evt.key === 'Escape')
+        {
+            maskHHPopUp();
+        }
+    });
+}
+
+function isHHPopUpDisplayed()
+{
+    if (document.getElementById("HHAutoPopupGlobal") === null)
+    {
+        return false;
+    }
+    if (document.getElementById("HHAutoPopupGlobal").style.display === "none")
+    {
+        return false;
+    }
+    return document.getElementById("HHAutoPopupGlobalPopup").className;
+}
+
+function displayHHPopUp()
+{
+    if (document.getElementById("HHAutoPopupGlobal") === null)
+    {
+        return false;
+    }
+    document.getElementById("HHAutoPopupGlobal").style.display = "";
+    document.getElementById("HHAutoPopupGlobal").style.opacity = 1;
+}
+
+function maskHHPopUp()
+{
+    document.getElementById("HHAutoPopupGlobal").style.display = "none";
+    document.getElementById("HHAutoPopupGlobal").style.opacity = 0;
+}
 
 var started=false;
 var hardened_start=function()
