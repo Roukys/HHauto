@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.65
+// @version      5.4.66
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -9439,6 +9439,7 @@ var start = function () {
                 +'   position: absolute;'
                 +'   top: 6px;'
                 +'   right: 54px;'
+                +'   z-index:5000;'
                 +'}'
                 +'@media only screen and (max-width: 1025px) {'
                 +'#sMenuButton {'
@@ -9490,10 +9491,10 @@ var start = function () {
             //console.log("Master switch on");
         }
     });
-
     if(getPage()=="home")
     {
-        function setpInfoHomeFolded()
+        GM_addStyle('#pInfo:hover {max-height : none} #pInfo { max-height : 220px} @media only screen and (max-width: 1025px) {#pInfo { ;top:17% }}');
+        /*function setpInfoHomeFolded()
         {
             pInfo.style.maxHeight = "220px";
             //pInfo.style.overflow = "auto";
@@ -9501,13 +9502,33 @@ var start = function () {
         setpInfoHomeFolded();
         pInfo.addEventListener("mouseover", function() { pInfo.style.maxHeight = "none"; });
         pInfo.addEventListener("mouseout", setpInfoHomeFolded);
+        */
 
         //Storage().HHAuto_Setting_infoBoxIsHidden = "false";
         //console.log("Showing InfoBox");
     }
     else
     {
-        function setpInfoFolded()
+        GM_addStyle(''
+                    +'#pInfo:hover {'
+                    +'   padding-top : 22px;'
+                    +'   height : auto;'
+                    +'   left : 77%;'
+                    +'}'
+                    +'#pInfo {'
+                    +'   right : 1%;'
+                    +'   left : 88%;'
+                    +'   top : 8%;'
+                    +'   z-index : 1000;'
+                    +'   height : 22px;'
+                    +'   padding-top : unset;'
+                    +'}'
+                    +'@media only screen and (max-width: 1025px) {'
+                    +'   #pInfo {'
+                    +'      top : 13%;'
+                    +'   }'
+                    +'}');
+        /*function setpInfoFolded()
         {
             pInfo.style.right = "1%";
             pInfo.style.left = "88%";
@@ -9524,7 +9545,7 @@ var start = function () {
             pInfo.style.left = "";
         });
         pInfo.addEventListener("mouseout", setpInfoFolded);
-
+*/
         //Storage().HHAuto_Setting_infoBoxIsHidden = "true";
         //console.log("Hiding InfoBox");
     }
