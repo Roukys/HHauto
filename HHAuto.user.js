@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.63
+// @version      5.4.64
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -5806,7 +5806,7 @@ function moduleShopActions()
     function appendMenuAff()
     {
         var menuAff = '<div style="position: absolute;right: 50px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAff","tooltip")+'</span><label style="width:100px" class="myButton" id="menuAff">'+getTextForUI("menuAff","elementText")+'</label></div>'
-        + '<dialog style="width: 50%;margin-top: 7%;margin-left: 1%;" id="AffDialog"><form stylemethod="dialog">'
+        + '<dialog style="min-width: 50%;margin-top: 7%;margin-left: 1%;" id="AffDialog"><form stylemethod="dialog">'
         +  '<div style="justify-content: space-between;align-items: flex-start;"class="HHMenuRow">'
         +   '<div id="menuAff-moveLeft"></div>'
         +   '<div style="padding:10px; display:flex;flex-direction:column;">'
@@ -7634,7 +7634,7 @@ var getBurst=function()
 {
     if (document.getElementById('sMenu'))
     {
-        if (document.getElementById('sMenu').parentElement.style.display=='block' )// && !document.getElementById("DebugDialog").open)
+        if (document.getElementById('sMenu').style.display!=='none' )// && !document.getElementById("DebugDialog").open)
         {
             return false;
         }
@@ -8927,8 +8927,7 @@ var start = function () {
     }
 
     // Add UI buttons.
-    var UIcontainer = $("#contains_all nav div[rel='content']");
-    UIcontainer.html( '<div id="sMenu" style="font-size:x-small; position:absolute; right:22%; width:inherit; text-align:left; display:flex; flex-direction:column; justify-content:space-between; z-index:1000">'
+    let sMenu ='<div id="sMenu" style="width: 97%;height: 90%;top: 45px;right: 16px;padding: 4px;display: none;opacity: 1;border-radius: 4px;border: 1px solid #ffa23e;background-color: #1e261e;font-size:x-small; position:absolute; text-align:left; flex-direction:column; justify-content:space-between; z-index:1000">'
 
                      //dialog Boxes
                      //+ '<dialog id="LoadDialog"> <form method="dialog"><p>After you select the file the settings will be automatically updated.</p><p> If nothing happened, then the selected file contains errors.</p><p id="LoadConfError"style="color:#f53939;"></p><p><label><input type="file" id="myfile" accept=".json" name="myfile"> </label></p> <menu> <button value="cancel">'+getTextForUI("OptionCancel","elementText")+'</button></menu> </form></dialog>'
@@ -9432,7 +9431,21 @@ var start = function () {
                      // |End column 3|
                      + '</div>'
                      // _End row of 3 columns_
-                     +'</div>'+UIcontainer.html());
+                     +'</div>';
+    $('#contains_all').prepend(sMenu);
+
+    $("#contains_all nav").prepend('<div class="square_blue_btn" id="sMenuButton" style="position: absolute;z-index: 49;top: 6px;right: 53px"><img src="https://i.postimg.cc/bv7n83z3/script-Icon2.png"></div>');
+    document.getElementById("sMenuButton").addEventListener("click", function()
+                                                            {
+        if (document.getElementById("sMenu").style.display === "none")
+        {
+            document.getElementById("sMenu").style.display = "flex";
+        }
+        else
+        {
+            document.getElementById("sMenu").style.display = "none"
+        }
+    });
 
     var idToAdd1000sSeparators = ["kobanBank",
                                   "autoSalaryTextbox",
@@ -9666,7 +9679,7 @@ var start = function () {
             let timerSelector = document.getElementById("timerResetSelector");
             if (timerSelector.options[timerSelector.selectedIndex].text !== getTextForUI("timerResetNoTimer","elementText") && timerSelector.options[timerSelector.selectedIndex].text !== getTextForUI("timerResetSelector","elementText"))
             {
-                document.getElementById('sMenu').parentElement.style.display=='none';
+                document.getElementById("sMenu").style.display = "none";
                 maskHHPopUp();
                 setTimer(timerSelector.options[timerSelector.selectedIndex].text,0);
                 timerSelector.selectedIndex = 0;
@@ -9813,7 +9826,7 @@ function isHHPopUpDisplayed()
     {
         return false;
     }
-    if (document.getElementById("HHAutoPopupGlobal").style.visibility !== "visible")
+    if (document.getElementById("HHAutoPopupGlobal").style.display === "none")
     {
         return false;
     }
@@ -9826,13 +9839,13 @@ function displayHHPopUp()
     {
         return false;
     }
-    document.getElementById("HHAutoPopupGlobal").style.visibility = "visible";
+    document.getElementById("HHAutoPopupGlobal").style.display = "";
     document.getElementById("HHAutoPopupGlobal").style.opacity = 1;
 }
 
 function maskHHPopUp()
 {
-    document.getElementById("HHAutoPopupGlobal").style.visibility = "hidden";
+    document.getElementById("HHAutoPopupGlobal").style.display = "none";
     document.getElementById("HHAutoPopupGlobal").style.opacity = 0;
 }
 
