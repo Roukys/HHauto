@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.64
+// @version      5.4.65
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -9434,7 +9434,21 @@ var start = function () {
                      +'</div>';
     $('#contains_all').prepend(sMenu);
 
-    $("#contains_all nav").prepend('<div class="square_blue_btn" id="sMenuButton" style="position: absolute;z-index: 49;top: 6px;right: 53px"><img src="https://i.postimg.cc/bv7n83z3/script-Icon2.png"></div>');
+    GM_addStyle(''
+                +'#sMenuButton {'
+                +'   position: absolute;'
+                +'   top: 6px;'
+                +'   right: 54px;'
+                +'}'
+                +'@media only screen and (max-width: 1025px) {'
+                +'#sMenuButton {'
+                +'   width: 40px;'
+                +'   height: 40px;'
+                +'   top: 20px;'
+                +'   right: 74px;'
+                +'}}'
+               );
+    $("#contains_all nav").prepend('<div class="square_blue_btn" id="sMenuButton" ><img src="https://i.postimg.cc/bv7n83z3/script-Icon2.png"></div>');
     document.getElementById("sMenuButton").addEventListener("click", function()
                                                             {
         if (document.getElementById("sMenu").style.display === "none")
