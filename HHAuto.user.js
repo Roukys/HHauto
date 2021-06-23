@@ -8927,7 +8927,7 @@ var start = function () {
     }
 
     // Add UI buttons.
-    let sMenu ='<div id="sMenu" style="top: 45px;right: 16px;padding: 4px;display: none;opacity: 1;border-radius: 4px;border: 1px solid #ffa23e;background-color: #1e261e;font-size:small; position:absolute; text-align:left; flex-direction:column; justify-content:space-between; z-index:10000">'
+    let sMenu ='<div id="sMenu" style="top: 45px;right: 16px;padding: 4px;display: none;opacity: 1;border-radius: 4px;border: 1px solid #ffa23e;background-color: #1e261e;font-size:x-small; position:absolute; text-align:left; flex-direction:column; justify-content:space-between; z-index:10000">'
 //width: 97%;height: 90%;
                      //dialog Boxes
                      //+ '<dialog id="LoadDialog"> <form method="dialog"><p>After you select the file the settings will be automatically updated.</p><p> If nothing happened, then the selected file contains errors.</p><p id="LoadConfError"style="color:#f53939;"></p><p><label><input type="file" id="myfile" accept=".json" name="myfile"> </label></p> <menu> <button value="cancel">'+getTextForUI("OptionCancel","elementText")+'</button></menu> </form></dialog>'
