@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.68
+// @version      5.4.69
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -86,7 +86,7 @@ function getCallerCallerFunction()
 function logHHAuto(...args)
 {
     let currDate = new Date();
-    var prefix = currDate.toLocaleString()+"."+currDate.getMilliseconds()+":"+getCallerCallerFunction()+":";
+    var prefix = currDate.toLocaleString()+"."+currDate.getMilliseconds()+":"+getCallerCallerFunction();
     var text;
     var currentLoggingText;
     var nbLines;
@@ -106,7 +106,6 @@ function logHHAuto(...args)
     {
         text = JSON.stringify(args, null, 2);
     }
-    console.log(prefix+text);
     currentLoggingText = sessionStorage.HHAuto_Temp_Logging?sessionStorage.HHAuto_Temp_Logging:"reset";
     //console.log("debug : ",currentLoggingText);
     if (!currentLoggingText.startsWith("{"))
@@ -131,6 +130,15 @@ function logHHAuto(...args)
             delete currentLoggingText[keys[i]];
         }
     }
+    let count=1;
+    let newPrefix = prefix;
+    while (currentLoggingText.hasOwnProperty(newPrefix) && count < 10)
+    {
+        newPrefix = prefix + "-" + count;
+        count++;
+    }
+    prefix=newPrefix;
+    console.log(prefix+":"+text);
     currentLoggingText[prefix]=text;
 
     sessionStorage.HHAuto_Temp_Logging=JSON.stringify(currentLoggingText);
