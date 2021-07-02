@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.71
+// @version      5.4.72
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -5004,6 +5004,8 @@ function moduleSimSeasonBattle() {
     var mojoOppo=[];
     var scoreOppo=[];
     var nameOppo=[];
+    let expOppo=[];
+    let affOppo=[];
     var index;
     var marker='!!';
     var doDisplay=false;
@@ -5152,6 +5154,8 @@ function moduleSimSeasonBattle() {
             mojoOppo[index]=Number($("div.season_arena_opponent_container .slot_victory_points p")[index].innerText);
             //logHHAuto(Number($("div.season_arena_opponent_container .slot_victory_points p")[index].innerText));
             nameOppo[index]=opponentName;
+            expOppo[index]=Number($("div.season_arena_opponent_container .slot_season_xp_girl")[index].lastElementChild.innerText.replace(/\D/g, ''));
+            affOppo[index]=Number($("div.season_arena_opponent_container .slot_season_affection_girl")[index].lastElementChild.innerText.replace(/\D/g, ''));
             //Publish the ego difference as a match rating
             matchRatingFlag = matchRating.substring(0,1);
             matchRating = matchRating.substring(1);
@@ -5178,16 +5182,21 @@ function moduleSimSeasonBattle() {
         var chosenRating = -1;
         var chosenFlag = -1;
         var chosenMojo = -1;
+        let currentExp;
+        let currentAff;
         var currentFlag;
         var currentScore;
         var currentMojo;
         var numberOfReds=0;
+        let currentGains;
 
         for (index=0;index<3;index++)
         {
             currentScore = Number(scoreOppo[index].substring(1));
             currentFlag = scoreOppo[index].substring(0,1);
             currentMojo = Number(mojoOppo[index]);
+            currentExp=Number(expOppo[index]);
+            currentAff=Number(affOppo[index]);
             switch (currentFlag)
             {
                 case 'g':
@@ -5211,6 +5220,7 @@ function moduleSimSeasonBattle() {
                 chosenID = index;
                 chosenMojo = currentMojo;
                 oppoName = nameOppo[index];
+                currentGains = currentAff + currentExp;
             }
             //same orange flag but better score
             else if (chosenFlag == currentFlag && currentFlag == 0 && chosenRating < currentScore)
@@ -5242,8 +5252,8 @@ function moduleSimSeasonBattle() {
                 chosenMojo = currentMojo;
                 oppoName = nameOppo[index];
             }
-            //same green flag same mojo but better score
-            else if (chosenFlag == currentFlag && currentFlag == 1 && chosenMojo == currentMojo && chosenRating < currentScore)
+            //same green flag same mojo but better gains
+            else if (chosenFlag == currentFlag && currentFlag == 1 && chosenMojo == currentMojo && currentGains < currentAff + currentExp)
             {
                 //logHHAuto('third');
                 chosenRating = currentScore;
@@ -6487,7 +6497,6 @@ function moduleShopActions()
 
     function menuSellListItems()
     {
-
         GM_addStyle('.tItems {border-collapse: collapse;} '
                     +'.tItems td,th {border: 1px solid #1B4F72;} '
                     +'.tItemsColGroup {border: 3px solid #1B4F72;} '
@@ -6746,6 +6755,7 @@ function moduleShopActions()
         }
     }
 
+    let menuSellStop = false;
     function appendMenuSell()
     {
         var menuSell = '<div style="position: absolute;right: 50px;top: -10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSell","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSell">'+getTextForUI("menuSell","elementText")+'</label></div>'
@@ -6756,6 +6766,7 @@ function moduleShopActions()
         +    '<p>'+getTextForUI("menuSellCurrentCount","elementText")+'</p>'
         +    '<p id="menuSellCurrentCount">0</p>'
         +   '</div>'
+        +   '<div id="menuSellStop"><label style="width:80px" class="myButton" id="menuSellStop">'+getTextForUI("OptionStop","elementText")+'</label></div>'
         +   '<p ></p>'
         +   '<div id="menuSellHide" style="display:none">'
         +    '<p id="menuSellList"></p>'
@@ -6806,6 +6817,10 @@ function moduleShopActions()
                 {
                     alert("The <dialog> API is not supported by this browser");
                 }
+            });
+            document.getElementById("menuSellStop").addEventListener("click", function(){
+                this.style.display = "none";
+                menuSellStop = true;
             });
 
             document.getElementById("menuSellButton").addEventListener("click", function()
@@ -6892,7 +6907,7 @@ function moduleShopActions()
             //$slots = $slots.add($("#shops #inventory [tab].armor .slot"));
             //if (data.last) slots.armor_pack_load = -100;
             dragndrop.initInventoryItemsDraggable($("#inventory > div.armor.selected > div > div > div.slot"));
-            if (data.last)
+            if (data.last || menuSellStop)
             {
                 slots.armor_pack_load = -100;
                 document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
@@ -6921,17 +6936,16 @@ function moduleShopActions()
         var itemsToSell = Number(document.getElementById("menuSellNumber").value);
         document.getElementById("menuSoldCurrentCount").innerHTML = "0/"+itemsToSell;
         document.getElementById("menuSoldMessage").innerHTML ="";
-        selling_func = setInterval(() => {
+        function selling_func()
+        {
             if ($('#type_item > div.selected[type=armor]').length === 0)
             {
                 logHHAuto('Wrong tab');
-                clearInterval(selling_func);
                 return;
             }
             else if (!document.getElementById("SellDialog").open)
             {
                 logHHAuto('Sell Dialog closed, stopping');
-                clearInterval(selling_func);
                 return;
             }
             else
@@ -6943,7 +6957,7 @@ function moduleShopActions()
                     document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageNoMore","elementText");
                     menuSellListItems();
                     document.getElementById("menuSellHide").style.display = "block";
-                    clearInterval(selling_func);
+                    return;
                 }
                 //console.log(initialNumberOfItems,currentNumberOfItems);
                 if ((initialNumberOfItems - currentNumberOfItems) < itemsToSell)
@@ -6973,13 +6987,14 @@ function moduleShopActions()
                                 can_sell = true;
                             }
                         }
-                        logHHAuto('can be sold:' + can_sell);
+                        logHHAuto('can be sold ' + can_sell+ ' : '+ $('#inventory .selected .inventory_slots .selected:not([menuSellLocked])')[0].getAttribute('data-d'));
                         if (can_sell)
                         {
                             $('#inventory > button.green_text_button[rel=sell]').click();
                             let currSellNumber = Number((initialNumberOfItems - currentNumberOfItems) +1);
                             document.getElementById("menuSoldCurrentCount").innerHTML = currSellNumber+"/"+itemsToSell;
                             document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
+                            setTimeout(selling_func, randomInterval(1000,1600));
                             return;
                         }
                     }
@@ -6988,12 +7003,14 @@ function moduleShopActions()
                     {
                         //Select first non legendary item
                         $('#inventory .selected .inventory_slots .slot:not(.selected):not(.empty):not(.legendary):not([menuSellLocked])')[0].click();
+                        setTimeout(selling_func, randomInterval(1000,1600));
                         return;
                     }
                     else if ($('#inventory .selected .inventory_slots [canBeSold]:not([menuSellLocked])').length > 0)
                     {
                         //Select item that checked before and can be sold
                         $('#inventory .selected .inventory_slots [canBeSold]:not([menuSellLocked])')[0].click();
+                        setTimeout(selling_func, randomInterval(1000,1600));
                         return;
                     }
                     else if ($('#inventory .selected .inventory_slots .slot:not(.selected):not(.empty):not([menuSellLocked])').length > 0)
@@ -7002,6 +7019,7 @@ function moduleShopActions()
                         //[MaxCarac,Index]
                         let TypesArrayPlayerClass = [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]];
                         let equipedArray = $('#equiped .armor .slot[data-d*=EQ-LE-0' + PlayerClass + ']');
+                        //console.log(equipedArray,TypesArrayPlayerClass);
                         if (equipedArray.length > 0)
                         {
                             let equipedObj;
@@ -7011,6 +7029,7 @@ function moduleShopActions()
                                 TypesArrayPlayerClass[equipedObj.subtype][0] = equipedObj['carac' + PlayerClass];
                             }
                         }
+
                         let TypesArrayRainbow = [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]];
                         equipedArray = $('#equiped .armor .slot[data-d*=EQ-LE-06]');
                         if (equipedArray.length > 0)
@@ -7022,6 +7041,7 @@ function moduleShopActions()
                                 TypesArrayRainbow[equipedObj.subtype][0] = equipedObj['carac' + PlayerClass];
                             }
                         }
+
                         let TypesArrayEndurance = [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]];
                         equipedArray = $('#equiped .armor .slot[data-d*=EQ-LE-04]');
                         if (equipedArray.length > 0)
@@ -7033,6 +7053,7 @@ function moduleShopActions()
                                 TypesArrayEndurance[equipedObj.subtype][0] = equipedObj['endurance'];
                             }
                         }
+
                         let TypesArrayHarmony = [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]];
                         equipedArray = $('#equiped .armor .slot[data-d*=EQ-LE-05]');
                         if (equipedArray.length > 0)
@@ -7050,7 +7071,7 @@ function moduleShopActions()
                         {
                             sellableslotsLegObj = JSON.parse($(sellableslotsLeg[i4]).attr('data-d'));
                             //check item type - if not rainbow or not monocolored(NOT for player's class)
-                            if (sellableslotsLegObj.id_equip != "EQ-LE-06" && sellableslotsLegObj.id_equip != "EQ-LE-04" && sellableslotsLegObj.id_equip != "EQ-LE-05" &&sellableslotsLegObj.id_equip != "EQ-LE-0" + PlayerClass)
+                            if (sellableslotsLegObj.id_equip !== "EQ-LE-06" && sellableslotsLegObj.id_equip !== "EQ-LE-04" && sellableslotsLegObj.id_equip !== "EQ-LE-05" &&sellableslotsLegObj.id_equip !== "EQ-LE-0" + PlayerClass)
                             {
                                 //console.log('can_sell2');
                                 sellableslotsLeg[i4].setAttribute('canBeSold', '');
@@ -7130,7 +7151,7 @@ function moduleShopActions()
                             document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageNoMore","elementText");
                             menuSellListItems();
                             document.getElementById("menuSellHide").style.display = "block";
-                            clearInterval(selling_func);
+                            return;
                         }
                     }
                 }
@@ -7140,11 +7161,13 @@ function moduleShopActions()
                     document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageReachNB","elementText");
                     menuSellListItems();
                     document.getElementById("menuSellHide").style.display = "block";
-                    clearInterval(selling_func);
+                    return;
                 }
             }
 
-        }, randomInterval(1000,1600));
+            setTimeout(selling_func, randomInterval(1000,1600));
+        }
+        selling_func();
     }
 }
 
@@ -8135,6 +8158,7 @@ HHAuto_ToolTips.en.DeleteTempVars = { elementText: "Delete temp storage", toolti
 HHAuto_ToolTips.en.ResetAllVars = { elementText: "Reset defaults", tooltip : "Reset all setting to defaults."};
 HHAuto_ToolTips.en.DebugFileText = { elementText: "Click on button bellow to produce a debug log file", tooltip : ""};
 HHAuto_ToolTips.en.OptionCancel = { elementText: "Cancel", tooltip : ""};
+HHAuto_ToolTips.en.OptionStop = { elementText: "Stop", tooltip : ""};
 HHAuto_ToolTips.en.SeasonMaskRewards = { elementText: "Mask claimed", tooltip : "Allow to mask all claimed rewards on Season screen"};
 HHAuto_ToolTips.en.autoClubChamp = { elementText: "Club", tooltip : "if enabled, automatically fight club champion if champion has already been fought once."};
 HHAuto_ToolTips.en.autoTrollMythicByPassParanoia = { elementText: "Mythic bypass Paranoia", tooltip : "Allow mythic to bypass paranoia.<br>if next wave is during rest, it will force it to wake up for wave.<br>If still fight or can buy fights it will continue."};
