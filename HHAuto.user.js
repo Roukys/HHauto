@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.72
+// @version      5.4.73
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -1978,7 +1978,7 @@ var doShopping=function()
                     //logHHAuto({log:'wanna buy ',object:shop[0][n0]});
                     if (money>=shop[0][n0].price)
                     {
-                        logHHAuto({log:'Buying ',object:shop[0][n0]});  //logHHAuto("yay?");
+                        logHHAuto({log:'Buying : ',object:shop[0][n0]});
                         money-=Number(shop[0][n0].price);
                         var params0 = {
                             class: "Item",
@@ -1994,10 +1994,10 @@ var doShopping=function()
                         });
                         shop[0].splice(n0,1);
                     }
-                    //else
-                    //{
-                    //    logHHAuto("but can't");
-                    //}
+                    /*else
+                    {
+                        logHHAuto("but can't");
+                    }*/
                 }
             }
             if (shop[0].length==0 && Was>0)
@@ -2020,7 +2020,7 @@ var doShopping=function()
                         //logHHAuto({log:'wanna buy ',object:shop[1][n1]});
                         if (kobans>=Number(shop[1][n1].price))
                         {
-                            logHHAuto({log:'Buying ',object:shop[1][n1]});  //logHHAuto("yay?");
+                            logHHAuto({log:'Buying : ',object:shop[1][n1]});
                             kobans-=Number(shop[1][n1].price);
                             var params1 = {
                                 class: "Item",
@@ -2034,10 +2034,10 @@ var doShopping=function()
                             });
                             shop[1].splice(n1,1);
                         }
-                        //else
-                        //{
-                        //    logHHAuto("but can't");
-                        //}
+                        /*else
+                        {
+                            logHHAuto("but can't");
+                        }*/
                     }
                 }
             }
@@ -2057,7 +2057,7 @@ var doShopping=function()
                 //logHHAuto({log:'wanna buy ',Object:shop[2][n2]});
                 if (money>=Aff+Number(shop[2][n2].price) && money>=Number(shop[2][n2].price) && shop[2][n2].currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                 {
-                    logHHAuto({log:'Buying ',Object:shop[2][n2]});  //logHHAuto("yay?");
+                    logHHAuto({log:'Buying : ',Object:shop[2][n2]});
                     money-=Number(shop[2][n2].price);
                     var params2 = {
                         class: "Item",
@@ -2071,10 +2071,10 @@ var doShopping=function()
                     });
                     shop[2].splice(n2,1);
                 }
-                //else
-                //{
-                //    logHHAuto("but can't");
-                //}
+                /*else
+                {
+                    logHHAuto("but can't");
+                }*/
             }
             if (shop[2].length==0 && Was>0)
             {
@@ -2091,7 +2091,7 @@ var doShopping=function()
                 //logHHAuto('wanna buy ',shop[3][n3]);
                 if (money>=Exp+Number(shop[3][n3].price) && money>=Number(shop[3][n3].price) && shop[3][n3].currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                 {
-                    logHHAuto('Buying ',shop[3][n3]);  //logHHAuto("yay?");
+                    logHHAuto({log:'Buying : ',Object:shop[3][n3]});
                     money-=Number(shop[3][n3].price);
                     var params3 = {
                         class: "Item",
@@ -2105,10 +2105,10 @@ var doShopping=function()
                     });
                     shop[3].splice(n3,1);
                 }
-                //else
-                //{
-                //    logHHAuto("but can't");
-                //}
+                /*else
+                {
+                    logHHAuto("but can't");
+                }*/
             }
             if (shop[3].length==0 && Was>0)
             {
@@ -2136,10 +2136,15 @@ var doBossBattle = function()
     }
 
     var TTF;
-    if (Storage().HHAuto_Setting_plusEvent==="true" && (!checkTimer("eventGoing") || !checkTimer("eventMythicGoing")) && sessionStorage.HHAuto_Temp_eventTroll)
+    if (Storage().HHAuto_Setting_plusEvent==="true" && !checkTimer("eventGoing") && sessionStorage.HHAuto_Temp_eventTroll && sessionStorage.HHAuto_Temp_eventTrollIsMythic==="false")
     {
         TTF=sessionStorage.HHAuto_Temp_eventTroll;
         logHHAuto("Event troll fight");
+    }
+    else if (Storage().HHAuto_Setting_plusEventMythic==="true" && !checkTimer("eventMythicGoing") && sessionStorage.HHAuto_Temp_eventTroll && sessionStorage.HHAuto_Temp_eventTrollIsMythic==="true")
+    {
+        TTF=sessionStorage.HHAuto_Temp_eventTroll;
+        logHHAuto("Mythic Event troll fight");
     }
     else if(sessionStorage.HHAuto_Temp_trollToFight !== undefined && !isNaN(sessionStorage.HHAuto_Temp_trollToFight) && sessionStorage.HHAuto_Temp_trollToFight !== "0")
     {
