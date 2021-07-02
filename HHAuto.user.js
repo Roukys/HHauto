@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.70
+// @version      5.4.71
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -7205,19 +7205,20 @@ var CollectEventData=function()
 
             for (var i=0;i<unsafeWindow.event_data.girls.length;i++)
             {
-                let isTrollable = unsafeWindow.event_data.girls[i].source.name ==="event_troll" && unsafeWindow.event_data.girls[i].source.ongoing && unsafeWindow.event_data.girls[i].source.playable;
+                let currGirl = unsafeWindow.event_data.girls[i]
+                let isTrollable = currGirl.source.name ==="event_troll" && currGirl.source.ongoing && currGirl.source.playable;
                 let TrollID;
                 if (isTrollable)
                 {
-                    let trollURL = unsafeWindow.event_data.girls[i].source.anchor_source.url;
-                    TrollID = (new URLSearchParams(event_data.girls[i].source.anchor_source.url.split('?')[1])).get('id_troll');
+                    let trollURL = currGirl.source.anchor_source.url;
+                    TrollID = (new URLSearchParams(currGirl.source.anchor_source.url.split('?')[1])).get('id_troll');
                 }
-                if (!unsafeWindow.event_data.girls[i].owned_girl
+                if (!currGirl.owned_girl
                     && isTrollable
                     && Number(TrollID)<getSetHeroInfos('questing.id_world'))
                 {
-                    logHHAuto("Event girl : "+unsafeWindow.event_data.girls[i].name+" ("+unsafeWindow.event_data.girls[i].shards+"/100) at troll "+TrollID+" priority : "+Priority.indexOf(TrollID));
-                    eventsGirlz.push("event;"+i+";"+unsafeWindow.event_data.girls[i].id_girl+";"+TrollID+";"+unsafeWindow.event_data.girls[i].shards);
+                    logHHAuto("Event girl : "+currGirl.name+" ("+currGirl.shards+"/100) at troll "+TrollID+" priority : "+Priority.indexOf(TrollID));
+                    eventsGirlz.push("event;"+i+";"+currGirl.id_girl+";"+TrollID+";"+currGirl.shards);
                     //Trollz.push(Number(unsafeWindow.event_data.girls[i].troll.id_troll));
                 }
             }
@@ -7229,33 +7230,35 @@ var CollectEventData=function()
             setTimer('eventMythicGoing',timeLeftMythic);
             for (i=0;i<unsafeWindow.mythic_event_data.girls.length;i++)
             {
-                let isNewVersion = unsafeWindow.mythic_event_data.girls[i].troll === undefined;
-                let isTrollable = unsafeWindow.mythic_event_data.girls[i].source.name ==="event_troll" && unsafeWindow.mythic_event_data.girls[i].source.ongoing && unsafeWindow.mythic_event_data.girls[i].source.playable;
+                let currGirl = unsafeWindow.mythic_event_data.girls[i];
+                let isNewVersion = currGirl.troll === undefined;
+                let isTrollable = currGirl.source.name ==="event_troll" && currGirl.source.ongoing && currGirl.source.playable;
                 let TrollID;
                 if (isTrollable)
                 {
-                    let trollURL = unsafeWindow.mythic_event_data.girls[i].source.anchor_source.url;
+                    let trollURL = currGirl.source.anchor_source.url;
                     TrollID = (new URLSearchParams(mythic_event_data.girls[i].source.anchor_source.url.split('?')[1])).get('id_troll');
+                }
+                if (Number(currGirl.shards) !== 100
+                    && isTrollable
+                    && unsafeWindow.mythic_event_data.can_participate === true
+                    && Number(TrollID)<getSetHeroInfos('questing.id_world'))
+                {
+                    if ( Number(unsafeWindow.mythic_event_data.event_data.shards_available) !== 0 )
+                    {
+                        logHHAuto("Mythic Event girl : "+currGirl.name+" "+currGirl.shards+"/100 at troll "+TrollID);
+                        //Trollz.push(Number(currGirl.troll.id_troll));
+                        eventsGirlz.push("mythic_event;"+i+";"+currGirl.id_girl+";"+TrollID+";"+currGirl.shards);
+                        //TrollzMythic.push(Number(currGirl.troll.id_troll));
+                    }
+                    else
+                    {
+                        setTimer('eventMythicNextWave',Number(unsafeWindow.mythic_event_data.event_data.next_tranche_in));
+                    }
                 }
             }
 
-            if (Number(unsafeWindow.mythic_event_data.girls[i].shards) !== 100
-                && isTrollable
-                && unsafeWindow.mythic_event_data.can_participate === true
-                && Number(TrollID)<getSetHeroInfos('questing.id_world'))
-            {
-                if ( Number(unsafeWindow.mythic_event_data.event_data.shards_available) !== 0 )
-                {
-                    logHHAuto("Mythic Event girl : "+unsafeWindow.mythic_event_data.girls[i].name+" "+unsafeWindow.mythic_event_data.girls[i].shards+"/100 at troll "+TrollID);
-                    //Trollz.push(Number(unsafeWindow.mythic_event_data.girls[i].troll.id_troll));
-                    eventsGirlz.push("mythic_event;"+i+";"+unsafeWindow.mythic_event_data.girls[i].id_girl+";"+TrollID+";"+unsafeWindow.mythic_event_data.girls[i].shards);
-                    //TrollzMythic.push(Number(unsafeWindow.mythic_event_data.girls[i].troll.id_troll));
-                }
-                else
-                {
-                    setTimer('eventMythicNextWave',Number(unsafeWindow.mythic_event_data.event_data.next_tranche_in));
-                }
-            }
+
         }
 
 
