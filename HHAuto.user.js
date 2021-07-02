@@ -1975,10 +1975,10 @@ var doShopping=function()
                     )
                 )
                 {
-                    logHHAuto({log:'wanna buy ',object:shop[0][n0]});
+                    //logHHAuto({log:'wanna buy ',object:shop[0][n0]});
                     if (money>=shop[0][n0].price)
                     {
-                        logHHAuto("yay?");
+                        logHHAuto({log:'Buying ',object:shop[0][n0]});  //logHHAuto("yay?");
                         money-=Number(shop[0][n0].price);
                         var params0 = {
                             class: "Item",
@@ -1994,10 +1994,10 @@ var doShopping=function()
                         });
                         shop[0].splice(n0,1);
                     }
-                    else
-                    {
-                        logHHAuto("but can't");
-                    }
+                    //else
+                    //{
+                    //    logHHAuto("but can't");
+                    //}
                 }
             }
             if (shop[0].length==0 && Was>0)
@@ -2017,10 +2017,10 @@ var doShopping=function()
                 {
                     if (kobans>=Number(Storage().HHAuto_Setting_kobanBank)+Number(shop[1][n1].price) && shop[1][n1].currency == "hc" && shop[1][n1].identifier == boost  && shop[1][n1].rarity=='legendary')
                     {
-                        logHHAuto({log:'wanna buy ',object:shop[1][n1]});
+                        //logHHAuto({log:'wanna buy ',object:shop[1][n1]});
                         if (kobans>=Number(shop[1][n1].price))
                         {
-                            logHHAuto("yay?");
+                            logHHAuto({log:'Buying ',object:shop[1][n1]});  //logHHAuto("yay?");
                             kobans-=Number(shop[1][n1].price);
                             var params1 = {
                                 class: "Item",
@@ -2034,10 +2034,10 @@ var doShopping=function()
                             });
                             shop[1].splice(n1,1);
                         }
-                        else
-                        {
-                            logHHAuto("but can't");
-                        }
+                        //else
+                        //{
+                        //    logHHAuto("but can't");
+                        //}
                     }
                 }
             }
@@ -2054,10 +2054,10 @@ var doShopping=function()
             Was=shop[2].length;
             for (var n2=shop[2].length-1;n2>=0;n2--)
             {
-                logHHAuto({log:'wanna buy ',Object:shop[2][n2]});
+                //logHHAuto({log:'wanna buy ',Object:shop[2][n2]});
                 if (money>=Aff+Number(shop[2][n2].price) && money>=Number(shop[2][n2].price) && shop[2][n2].currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                 {
-                    logHHAuto("yay?");
+                    logHHAuto({log:'Buying ',Object:shop[2][n2]});  //logHHAuto("yay?");
                     money-=Number(shop[2][n2].price);
                     var params2 = {
                         class: "Item",
@@ -2071,10 +2071,10 @@ var doShopping=function()
                     });
                     shop[2].splice(n2,1);
                 }
-                else
-                {
-                    logHHAuto("but can't");
-                }
+                //else
+                //{
+                //    logHHAuto("but can't");
+                //}
             }
             if (shop[2].length==0 && Was>0)
             {
@@ -2088,10 +2088,10 @@ var doShopping=function()
             Was=shop[3].length;
             for (var n3=shop[3].length-1;n3>=0;n3--)
             {
-                logHHAuto('wanna buy ',shop[3][n3]);
+                //logHHAuto('wanna buy ',shop[3][n3]);
                 if (money>=Exp+Number(shop[3][n3].price) && money>=Number(shop[3][n3].price) && shop[3][n3].currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                 {
-                    logHHAuto("yay?");
+                    logHHAuto('Buying ',shop[3][n3]);  //logHHAuto("yay?");
                     money-=Number(shop[3][n3].price);
                     var params3 = {
                         class: "Item",
@@ -2105,10 +2105,10 @@ var doShopping=function()
                     });
                     shop[3].splice(n3,1);
                 }
-                else
-                {
-                    logHHAuto("but can't");
-                }
+                //else
+                //{
+                //    logHHAuto("but can't");
+                //}
             }
             if (shop[3].length==0 && Was>0)
             {
