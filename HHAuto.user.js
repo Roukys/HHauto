@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.73
+// @version      5.4.74
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -1352,6 +1352,28 @@ function collectAndUpdatePowerPlaces()
         {
             Storage().HHAuto_Setting_autoPowerPlacesIndexFilter = newFilter.substring(1);
         }
+        //collect all
+        let rewardQuery="div#rewards_popup button.blue_button_L";
+        let buttonClaimQuery = "button[rel='pop_thumb_claim'].purple_button_L:not([style])";
+        if ($(buttonClaimQuery).length >0)
+        {
+            $(buttonClaimQuery)[0].click();
+            logHHAuto("Claimed reward for PoP : "+$(buttonClaimQuery)[0].parentElement.getAttribute('pop_id'));
+            gotoPage("powerplacemain");
+            return true;
+        }
+/*         $("button[rel='pop_thumb_claim'].purple_button_L:not([style])").each(function()
+                                                                             {
+            this.click();
+            location.reload();
+            if ($(rewardQuery).length >0 )
+            {
+                $(rewardQuery).click();
+            }
+            return;
+        }); */
+
+
 
         var filteredPops = Storage().HHAuto_Setting_autoPowerPlacesIndexFilter?Storage().HHAuto_Setting_autoPowerPlacesIndexFilter.split(";"):[];
         var popUnableToStart = sessionStorage.HHAuto_Temp_PopUnableToStart?sessionStorage.HHAuto_Temp_PopUnableToStart.split(";"):[];
@@ -1366,16 +1388,7 @@ function collectAndUpdatePowerPlaces()
                 PopToStart.push(Number(pop_id));
             }
         });
-        //collect all
-        var rewardQuery="div#rewards_popup button.blue_button_L";
-        $("button[rel='pop_thumb_claim'].purple_button_L").each(function()
-                                                                {
-            this.click();
-            if ($(rewardQuery).length >0 )
-            {
-                $(rewardQuery).click();
-            }
-        });
+
 
         //get all already started Pop timers
         var currIndex;
@@ -1529,11 +1542,17 @@ function doPowerPlacesStuff(index)
         logHHAuto("On powerplace"+index+" page.");
 
         //getting reward in case failed on main page
-        var querySelectorText = "button[rel='pop_claim']";
+        var querySelectorText = "button[rel='pop_claim']:not([style*='display:none']):not([style*='display: none'])";
         if ($(querySelectorText).length>0)
         {
             $(querySelectorText).click();
             logHHAuto("Claimed powerplace"+index);
+            if (Storage().HHAuto_Setting_autoPowerPlacesAll !== "true")
+            {
+                cleanTempPopToStart();
+                gotoPage("powerplacemain");
+                return;
+            }
         }
 
         if ($("div.pop_right_part div.no_girls_message").length >0)
@@ -2963,6 +2982,7 @@ var doSeason = function () {
         else
         {
             setTimer('nextSeasonTime',getSetHeroInfos('kiss.next_refresh_ts'));
+            gotoPage('home');
         }
         return;
         //<button id="claim_btn_s" class="bordeaux_button_s" style="z-index: 1000; visibility: visible;">Claim</button>
@@ -3036,6 +3056,7 @@ var doSeason = function () {
         else
         {
             setTimer('nextSeasonTime',getSetHeroInfos('kiss.next_refresh_ts'));
+            gotoPage('home');
         }
         return;
     }
@@ -5407,6 +5428,7 @@ var autoLoop = function () {
         }
         CheckSpentPoints();
 
+        //check what happen to timer if no more wave before uncommenting
         /*if (Storage().HHAuto_Setting_plusEventMythic==="true" && checkTimer('eventMythicNextWave'))
         {
             gotoPage('home');
@@ -5512,7 +5534,7 @@ var autoLoop = function () {
                 //logHHAuto("pop3:"+sessionStorage.HHAuto_Temp_PopToStart);
                 popToStart = sessionStorage.HHAuto_Temp_PopToStart?JSON.parse(sessionStorage.HHAuto_Temp_PopToStart):[];
                 //logHHAuto("pop3:"+popToStart);
-                if (popToStart.length === 0)
+                if (busy ===false && popToStart.length === 0)
                 {
                     //logHHAuto("removing popToStart");
                     sessionStorage.removeItem('HHAuto_Temp_PopToStart');
@@ -7259,8 +7281,7 @@ var CollectEventData=function()
             for (i=0;i<unsafeWindow.mythic_event_data.girls.length;i++)
             {
                 let currGirl = unsafeWindow.mythic_event_data.girls[i];
-                let isNewVersion = currGirl.troll === undefined;
-                let isTrollable = currGirl.source.name ==="event_troll" && currGirl.source.ongoing && currGirl.source.playable;
+                let isTrollable = currGirl.source.name === "event_troll" && currGirl.source.ongoing && currGirl.source.playable;
                 let TrollID;
                 if (isTrollable)
                 {
