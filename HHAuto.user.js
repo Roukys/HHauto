@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++ Beta Prod
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5-beta.2
+// @version      5.5-beta.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -2473,7 +2473,7 @@ function nRounding(num, digits, updown) {
     }
 }
 
-/*
+//week 28 new battle modification inverted
 function simuFight(player, opponent) {
     let playerEgoCheck = 0;
 
@@ -2643,36 +2643,36 @@ function simuFight(player, opponent) {
         pointsStr: pointsStr
     };
 }
-*/
+
 
 //simuFight credit:Tom208
-function simuFight(player, opponent) {
+/*function simuFight(player, opponent) {
     let playerEgoCheck = 0;
     let opponentEgoCheck = 0;
 
     //Calculate opponent proc values, determine applicable alpha class and adjust starting ego values for proc
-    /*let opponentProcHCAddOrgasm = [
-        0,
-        Math.floor(opponent.atk * 0.25),
-        Math.floor(opponent.team[2] * 1.3 * 0.75),
-        Math.floor(opponent.team[3] * 1.3 * 0.75)
-    ];
+//     let opponentProcHCAddOrgasm = [
+//         0,
+//         Math.floor(opponent.atk * 0.25),
+//         Math.floor(opponent.team[2] * 1.3 * 0.75),
+//         Math.floor(opponent.team[3] * 1.3 * 0.75)
+//     ];
 
-    let opponentAlphaClass = parseInt(opponent.alpha.class);
+//     let opponentAlphaClass = parseInt(opponent.alpha.class);
 
-    // crit.
-    if (opponentAlphaClass == HC) {
-        player.ego -= Math.floor(opponent.atk * 0.5);
-    }
-    if (opponentAlphaClass == CH) {
-        //opponent.ego += opponent.def * 2;
+//     // crit.
+//     if (opponentAlphaClass == HC) {
+//         player.ego -= Math.floor(opponent.atk * 0.5);
+//     }
+//     if (opponentAlphaClass == CH) {
+//         //opponent.ego += opponent.def * 2;
 
-        //CH bug
-        opponent.ego += 2 * Math.floor(opponent.atk/2);
-    }
-    if (opponentAlphaClass == KH) {
-        opponent.ego += Math.floor(opponent.ego * 0.1);
-    }*/
+//         //CH bug
+//         opponent.ego += 2 * Math.floor(opponent.atk/2);
+//     }
+//     if (opponentAlphaClass == KH) {
+//         opponent.ego += Math.floor(opponent.ego * 0.1);
+//     }
 
     //crit.
     player.ego -= Math.max(0, opponent.atk - player.def);
@@ -2736,12 +2736,12 @@ function simuFight(player, opponent) {
     else if (matchRating > 0 && playerEgoCheck > 0)
         matchRatingClass = 'plus';
 
-    /*let points = matchRating >= 0 ? Math.min(25, 15+player.ego/player.originEgo*10) : Math.max(3, 3+(opponent.originEgo-opponent.ego)/opponent.originEgo*10);
-    let pointsInt = Math.floor( points * 10 )/10;
-    if( Math.floor( points ) == points )
-        pointsInt -= 1/10;
-    pointsInt += 1;
-    pointsInt = Math.floor(pointsInt);*/
+//     let points = matchRating >= 0 ? Math.min(25, 15+player.ego/player.originEgo*10) : Math.max(3, 3+(opponent.originEgo-opponent.ego)/opponent.originEgo*10);
+//     let pointsInt = Math.floor( points * 10 )/10;
+//     if( Math.floor( points ) == points )
+//         pointsInt -= 1/10;
+//     pointsInt += 1;
+//     pointsInt = Math.floor(pointsInt);
 
     let pointsInt;
     if (matchRating >= 0)
@@ -2760,6 +2760,8 @@ function simuFight(player, opponent) {
         pointsStr: pointsStr
     };
 }
+*/
+//End week 28 new battle modification
 
 function customMatchRating(inSimu)
 {
