@@ -5143,7 +5143,8 @@ function moduleSimLeague() {
     })
     function waitOpnt() {
         setTimeout(function() {
-            if (JSON.parse($('div#leagues_right .player_block .team-hexagon-container .team-member-container[data-team-member-position=0] img').attr(girlDataName)))
+            //if (JSON.parse($('div#leagues_right .player_block .team-hexagon-container .team-member-container[data-team-member-position=0] img').attr(girlDataName)))
+            if (JSON.parse($('div#leagues_right .girls_wrapper .team_girl[g=3]').attr(girlDataName)))
             {
                 SimPower();
             }
