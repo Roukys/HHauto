@@ -5043,7 +5043,7 @@ function moduleSimLeague() {
         matchRatingFlag = matchRating.substring(0,1);
         matchRating = matchRating.substring(1);
 
-        switch (matchRatingFlag)
+        /*switch (matchRatingFlag)
         {
             case 'g':
                 $('div#leagues_right .player_block .challenge').prepend('<div class="matchRatingNew plus"><img id="powerLevelScouter" src="https://i.postimg.cc/qgkpN0sZ/Opponent-green.png">' + matchRating + '</div>');
@@ -5055,6 +5055,22 @@ function moduleSimLeague() {
                 break;
             case 'r':
                 $('div#leagues_right .player_block .challenge').prepend('<div class="matchRatingNew minus"><img id="powerLevelScouter" src="https://i.postimg.cc/PxgxrBVB/Opponent-red.png">' + matchRating + '</div>');
+                $("tr.lead_table_default div[second-row]").append('<div class="matchRatingNew minus"><img id="powerLevelScouter" src="https://i.postimg.cc/PxgxrBVB/Opponent-red.png">' + matchRating + '</div>');
+                break;
+        }*/
+        
+        switch (matchRatingFlag)
+        {
+            case 'g':
+                $('div#leagues_right .girls_wrapper').append('<div class="matchRatingNew plus"><img id="powerLevelScouter" src="https://i.postimg.cc/qgkpN0sZ/Opponent-green.png">' + matchRating + '</div>');
+                $("tr.lead_table_default div[second-row]").append('<div class="matchRatingNew plus"><img id="powerLevelScouter" src="https://i.postimg.cc/qgkpN0sZ/Opponent-green.png">' + matchRating + '</div>');
+                break;
+            case 'y':
+                $('div#leagues_right .girls_wrapper').append('<div class="matchRatingNew close"><img id="powerLevelScouter" src="https://i.postimg.cc/3JCgVBdK/Opponent-orange.png">' + matchRating + '</div>');
+                $("tr.lead_table_default div[second-row]").append('<div class="matchRatingNew close"><img id="powerLevelScouter" src="https://i.postimg.cc/3JCgVBdK/Opponent-orange.png">' + matchRating + '</div>');
+                break;
+            case 'r':
+                $('div#leagues_right .girls_wrapper').append('<div class="matchRatingNew minus"><img id="powerLevelScouter" src="https://i.postimg.cc/PxgxrBVB/Opponent-red.png">' + matchRating + '</div>');
                 $("tr.lead_table_default div[second-row]").append('<div class="matchRatingNew minus"><img id="powerLevelScouter" src="https://i.postimg.cc/PxgxrBVB/Opponent-red.png">' + matchRating + '</div>');
                 break;
         }
