@@ -1,18 +1,18 @@
 // ==UserScript==
-// @name         HaremHeroes Automatic++
+// @name         HaremHeroes Automatic++ Beta test
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.4.76
+// @version      5.5.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
-// //@match        http*://*.hentaiheroes.com/*
-// @match        http*://www.hentaiheroes.com/*
+// @match        http*://*.hentaiheroes.com/*
+// @match        http*://test.hentaiheroes.com/*
 // @match        http*://*.gayharem.com/*
 // @match        http*://*.comixharem.com/*
 // @grant        GM_addStyle
 // @license      MIT
-// @updateURL   https://github.com/Roukys/HHauto/raw/main/HHAuto.user.js
-// @downloadURL https://github.com/Roukys/HHauto/raw/main/HHAuto.user.js
+// @updateURL   https://github.com/Roukys/HHauto/raw/new-test-beta-with-event/HHAuto.user.js
+// @downloadURL https://github.com/Roukys/HHauto/raw/new-test-beta-with-event/HHAuto.user.js
 // ==/UserScript==
 
 //CSS Region
@@ -26,7 +26,7 @@ GM_addStyle('div.optionsRow {display:flex; flex-direction:row; justify-content: 
 GM_addStyle('span.optionsBoxTitle {padding-left:5px}'); //; padding-bottom:2px
 GM_addStyle('div.optionsColumn {display:flex; flex-direction:column; justify-content: space-between}'); //; padding:3px;
 GM_addStyle('div.optionsBoxWithTitle {display:flex; flex-direction:column}');
-GM_addStyle('img.iconImg {max-width:15px; height:15px}');  //; justify-content: center
+GM_addStyle('img.iconImg {max-width:15px; height:15px}');
 GM_addStyle('div.optionsBoxTitle {padding:5px 15px 0px 5px; height:15px; display:flex; flex-direction:row; justify-content:center; align-items:center;}'); //; padding:2px; padding-bottom:0px;
 GM_addStyle('div.rowOptionsBox {margin:3px; padding:3px; font-size:smaller; display:flex; flex-direction:row; align-items:flex-end; border: 1px solid #ffa23e; border-radius: 5px}');
 GM_addStyle('div.optionsBox {margin:3px; padding:3px; font-size:smaller; display:flex; flex-direction:column; border:1px solid #ffa23e; border-radius:5px}');
@@ -209,6 +209,20 @@ function getSetHeroInfos(infoSearched,newValue)
             if ( getHero().infos.caracs.damage !== undefined )
             {
                 returnValue = getHero().infos.caracs.damage;
+                break;
+            }
+            else
+            {
+                logHHAuto("Hero info not found : "+infoSearched);
+                returnValue = -1;
+                break;
+            }
+            break;
+
+        case 'caracs.defense' :
+            if ( getHero().infos.caracs.defense !== undefined )
+            {
+                returnValue = getHero().infos.caracs.defense;
                 break;
             }
             else
@@ -632,10 +646,11 @@ function getPage()
         {
             ob = document.getElementById("hh_hentai");
         }
-        var p=ob.className.match(/.*page-(.*) .*/i)[1];
+        //var p=ob.className.match(/.*page-(.*) .*/i)[1];
+        var p=ob.getAttribute('page');
         if (p=="missions" && $('h4.contests.selected').size()>0)
         {
-            return "activities"
+            return "contests"
         }
         if (p=="missions" && $('h4.pop.selected').size()>0)
         {
@@ -676,25 +691,17 @@ function getPage()
     }
 }
 
-function url_add_param(url, param) {
+function url_add_param(url, param, value) {
     if (url.indexOf('?') === -1) url += '?';
     else url += '&';
-    return url+param;
+    return url+param+"="+value;
 }
 
 // Returns true if on correct page.
-function gotoPage(page,delay = -1)
+function gotoPage(page,inArgs,delay = -1)
 {
     var cp=getPage();
     logHHAuto('going '+cp+'->'+page);
-
-    var index;
-    if (page.startsWith('powerplace'))
-    {
-        index = page.substring('powerplace'.length);
-        logHHAuto('Powerplace index : '+index);
-        page = 'powerplace';
-    }
 
     if (typeof delay != 'number')
     {
@@ -712,12 +719,6 @@ function gotoPage(page,delay = -1)
     {
         case "home":
             togoto = $("nav div[rel='content'] a:has(.home)").attr("href");
-            break;
-        case "missions":
-            togoto = $("nav div[rel='content'] a:has(.activities)").attr("href");
-            break;
-        case "powerplace":
-            togoto = $("nav div[rel='content'] a:has(.activities)").attr("href");
             break;
         case "activities":
             togoto = $("nav div[rel='content'] a:has(.activities)").attr("href");
@@ -760,6 +761,15 @@ function gotoPage(page,delay = -1)
         case "club_champion" :
             togoto = "/club-champion.html";
             break;
+        case "league-battle" :
+            togoto = "/league-battle.html";
+            break;
+        case "troll-pre-battle" :
+            togoto = "/troll-pre-battle.html";
+            break;
+        case "event" :
+            togoto = "/event.html";
+            break;
         case "clubs" :
             togoto = $("nav div[rel='content'] a:has(.clubs)").attr("href");
             break;
@@ -768,20 +778,11 @@ function gotoPage(page,delay = -1)
     }
     if(togoto != undefined)
     {
-        if (page=="missions")
+        if (typeof inArgs === 'object' && Object.keys(inArgs).length > 0)
         {
-            togoto = url_add_param(togoto, "tab=" + "missions");
-        }
-        if (page=="activities")
-        {
-            togoto = url_add_param(togoto, "tab=" + "contests");
-        }
-        if (page=="powerplace")
-        {
-            togoto = url_add_param(togoto, "tab=" + "pop");
-            if (index != 'main' )
+            for (let arg of Object.keys(inArgs))
             {
-                togoto = url_add_param(togoto, "index=" + index);
+                togoto = url_add_param(togoto, arg,inArgs[arg]);
             }
         }
 
@@ -793,6 +794,7 @@ function gotoPage(page,delay = -1)
     else
     {
         logHHAuto("Couldn't find page path. Page was undefined...");
+        setTimeout(function () {location.reload();},delay);
     }
 }
 
@@ -931,19 +933,19 @@ function doMissionStuff()
 {
     if(getPage() !== "missions")
     {
-        logHHAuto("Navigating to activities page.");
-        gotoPage("missions");
+        logHHAuto("Navigating to missions page.");
+        gotoPage("activities",{tab:"missions"});
         // return busy
         return true;
     }
     else
     {
-        logHHAuto("On activities page.");
+        logHHAuto("On missions page.");
         if (Storage().HHAuto_Setting_autoMissionC==="true" && $(".mission_button button:visible[rel='claim']").length >0)
         {
             logHHAuto("Collecting finished mission's reward.");
             $(".mission_button button:visible[rel='claim']").click();
-            gotoPage('missions',1500);//setTimeout(function(){gotoPage('missions',true);},1500);
+            gotoPage("activities",{tab:"missions"},1500);
             return true;
         }
         // TODO: select new missions and parse reward data from HTML, it's there in data attributes of tags
@@ -1037,7 +1039,7 @@ function doMissionStuff()
             logHHAuto("Mission button of type: "+missionButton.attr("rel"));
             logHHAuto("Clicking mission button.");
             missionButton.click();
-            gotoPage('missions',1500);//setTimeout(function(){gotoPage('missions',true);},1500);
+            gotoPage("activities",{tab:"missions"},1500);
             setTimer('nextMissionTime',Number(mission.duration)+1);
         }
         else
@@ -1143,9 +1145,13 @@ function modulePachinko()
         +     '<div style="padding:10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoSelector","tooltip")+'</span><select id="PachinkoSelector"></select></div>'
         +     '<div style="padding:10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoLeft","tooltip")+'</span><span id="PachinkoLeft"></span></div>'
         +    '</div>'
-        +    '<div style="display:flex;flex-direction:row">'
+        +    '<div style="display:flex;flex-direction:row;align-items:center;">'
         +     '<div style="padding:10px"class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoPlayX","tooltip")+'</span><label class="myButton" id="PachinkoPlayX">'+getTextForUI("PachinkoPlayX","elementText")+'</label></div>'
         +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoXTimes","tooltip")+'</span><input id="PachinkoXTimes" style="width:50px;height:20px" required pattern="'+HHAuto_inputPattern.menuExpLevel+'" type="text" value="1"></div>'
+        +     '<div style="display:flex;flex-direction:column;align-items: center;">'
+        +      '<div>'+getTextForUI("PachinkoByPassNoGirls","elementText")+'</div>'
+        +      '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoByPassNoGirls","tooltip")+'</span><input id="PachinkoByPassNoGirls" type="checkbox"></div>'
+        +     '</div>'
         +    '</div>'
         +   '<p style="color: red;" id="PachinkoError"></p>'
         +  '</div>'
@@ -1207,6 +1213,7 @@ function modulePachinko()
     function pachinkoPlayXTimes()
     {
         let timerSelector = document.getElementById("PachinkoSelector");
+        let ByPassNoGirlChecked = document.getElementById("PachinkoByPassNoGirls").checked;
         let buttonValue = Number(timerSelector.options[timerSelector.selectedIndex].value);
         let buttonSelector = "div.playing-zone div.btns-section button.blue_button_L[nb_games="+buttonValue+"]";
         let orbsLeftSelector = buttonSelector+ " span[total_orbs]";
@@ -1250,12 +1257,19 @@ function modulePachinko()
                 logHHAuto("PopUp closed, cancelling interval.");
                 return;
             }
-            if (document.getElementById("confirm_pachinko") !== null)
+            if (document.getElementById("confirm_pachinko") !== null )
             {
-                logHHAuto("No more girl on Pachinko, cancelling.");
-                maskHHPopUp();
-                buildPachinkoSelectPopUp();
-                document.getElementById("PachinkoError").innerText=getTextForUI("PachinkoNoGirls","elementText");
+                if (ByPassNoGirlChecked && document.getElementById("confirm_pachinko").querySelector("#popup_confirm.blue_button_L") !== null)
+                {
+                    document.getElementById("confirm_pachinko").querySelector("#popup_confirm.blue_button_L").click();
+                }
+                else
+                {
+                    logHHAuto("No more girl on Pachinko, cancelling.");
+                    maskHHPopUp();
+                    buildPachinkoSelectPopUp();
+                    document.getElementById("PachinkoError").innerText=getTextForUI("PachinkoNoGirls","elementText");
+                }
             }
             let pachinkoSelectedButton= $(buttonSelector);
             let rewardQuery="div#rewards_popup button.blue_button_L";
@@ -1293,8 +1307,6 @@ function modulePachinko()
                                                                {
         buildPachinkoSelectPopUp()
     });
-
-
 }
 
 function moduleSimSeasonReward()
@@ -1333,7 +1345,7 @@ function collectAndUpdatePowerPlaces()
     if(getPage() !== "powerplacemain")
     {
         logHHAuto("Navigating to powerplaces main page.");
-        gotoPage("powerplacemain");
+        gotoPage("activities",{tab:"pop"});
         // return busy
         return true;
     }
@@ -1360,10 +1372,10 @@ function collectAndUpdatePowerPlaces()
         {
             $(buttonClaimQuery)[0].click();
             logHHAuto("Claimed reward for PoP : "+$(buttonClaimQuery)[0].parentElement.getAttribute('pop_id'));
-            gotoPage("powerplacemain");
+            gotoPage("activities",{tab:"pop"});
             return true;
         }
-/*         $("button[rel='pop_thumb_claim'].purple_button_L:not([style])").each(function()
+        /*         $("button[rel='pop_thumb_claim'].purple_button_L:not([style])").each(function()
                                                                              {
             this.click();
             location.reload();
@@ -1534,7 +1546,7 @@ function doPowerPlacesStuff(index)
     if(getPage() !== "powerplace"+index)
     {
         logHHAuto("Navigating to powerplace"+index+" page.");
-        gotoPage("powerplace"+index);
+        gotoPage("activities",{tab:"pop",index:index});
         // return busy
         return true;
     }
@@ -1551,7 +1563,7 @@ function doPowerPlacesStuff(index)
             if (Storage().HHAuto_Setting_autoPowerPlacesAll !== "true")
             {
                 cleanTempPopToStart();
-                gotoPage("powerplacemain");
+                gotoPage("activities",{tab:"pop"});
                 return;
             }
         }
@@ -1639,16 +1651,16 @@ function doPowerPlacesStuff(index)
 // returns boolean to set busy
 function doContestStuff()
 {
-    if(getPage() !== "activities")
+    if(getPage() !== "contests")
     {
-        logHHAuto("Navigating to activities page.");
-        gotoPage("activities");
+        logHHAuto("Navigating to contests page.");
+        gotoPage("activities",{tab:"contests"});
         // return busy
         return true;
     }
     else
     {
-        logHHAuto("On activities page.");
+        logHHAuto("On contests page.");
         logHHAuto("Collecting finished contests's reward.");
         $(".contest .ended button[rel='claim']").click();
         // need to get next contest timer data
@@ -2152,18 +2164,21 @@ var doBossBattle = function()
     if(currentPower < 1)
     {
         //logHHAuto("No power for battle.");
-        return;
+        if (!canBuyFight().canBuy)
+        {
+            return;
+        }
     }
 
     var TTF;
-    if (Storage().HHAuto_Setting_plusEvent==="true" && !checkTimer("eventGoing") && sessionStorage.HHAuto_Temp_eventTroll && sessionStorage.HHAuto_Temp_eventTrollIsMythic==="false")
+    if (Storage().HHAuto_Setting_plusEvent==="true" && !checkTimer("eventGoing") && sessionStorage.HHAuto_Temp_eventGirl !== undefined && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic==="false")
     {
-        TTF=sessionStorage.HHAuto_Temp_eventTroll;
+        TTF=JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).troll_id;
         logHHAuto("Event troll fight");
     }
-    else if (Storage().HHAuto_Setting_plusEventMythic==="true" && !checkTimer("eventMythicGoing") && sessionStorage.HHAuto_Temp_eventTroll && sessionStorage.HHAuto_Temp_eventTrollIsMythic==="true")
+    else if (Storage().HHAuto_Setting_plusEventMythic==="true" && !checkTimer("eventMythicGoing") && sessionStorage.HHAuto_Temp_eventGirl !== undefined && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic==="true")
     {
-        TTF=sessionStorage.HHAuto_Temp_eventTroll;
+        TTF=JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).troll_id;
         logHHAuto("Mythic Event troll fight");
     }
     else if(sessionStorage.HHAuto_Temp_trollToFight !== undefined && !isNaN(sessionStorage.HHAuto_Temp_trollToFight) && sessionStorage.HHAuto_Temp_trollToFight !== "0")
@@ -2189,14 +2204,15 @@ var doBossBattle = function()
 
     // Battles the latest boss.
     // Navigate to latest boss.
-    if(window.location.pathname=="/battle.html" && window.location.search=="?id_troll=" + TTF)
+    //console.log(getPage());
+    if(getPage()==="pre_battle" && window.location.search=="?id_opponent=" + TTF)
     {
         // On the battle screen.
         CrushThemFights();
         //         if(Storage().HHAuto_Setting_buyMythicCombat=="true"
         //            &&  Storage().HHAuto_Setting_plusEventMythic==="true"
-        //            && sessionStorage.HHAuto_Temp_eventTroll
-        //            && sessionStorage.HHAuto_Temp_eventTrollIsMythic==="true")
+        //            && sessionStorage.HHAuto_Temp_eventGirl !== undefined
+        //            && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic==="true")
         //         {
         //             CrushThem();//RechargeAndPlay();
         //         }
@@ -2210,7 +2226,12 @@ var doBossBattle = function()
         logHHAuto("Navigating to chosen Troll.");
         sessionStorage.HHAuto_Temp_autoLoop = "false";
         logHHAuto("setting autoloop to false");
-        location.href = "/battle.html?id_troll=" + TTF;
+        //week 28 new battle modification
+        //location.href = "/battle.html?id_troll=" + TTF;
+        gotoPage("troll-pre-battle",{id_opponent:TTF});
+        //End week 28 new battle modification
+
+
         return true;
     }
 };
@@ -2245,7 +2266,7 @@ var doChampionStuff=function()
                     logHHAuto("Using ticket");
                     $('button[rel=perform].blue_button_L').click();
                 }
-                gotoPage('champions_map',500);//setTimeout(function(){gotoPage('champions_map');},500);
+                gotoPage('champions_map');
                 return true;
             }
         }
@@ -2365,7 +2386,7 @@ var doClubChampionStuff=function()
                     $('button[rel=perform].blue_button_L').click();
                     setTimer('nextClubChampionTime',3);
                 }
-                gotoPage('clubs',500);//setTimeout(function(){gotoPage('clubs',true);},500);
+                gotoPage('clubs');
                 return true;
             }
         }
@@ -2458,7 +2479,7 @@ function nRounding(num, digits, updown) {
     }
 }
 
-
+/*
 function simuFight(player, opponent) {
     let playerEgoCheck = 0;
 
@@ -2519,15 +2540,15 @@ function simuFight(player, opponent) {
         o.ego -= Math.max(0, Math.floor(cur.atk * 1.5 - o.def));
 
         //CH Bug
-        /*if(cur === player && opponentAlphaClass == CH) {
-            if(cur.orgasmCount > 1) {
-                let carac_add = cur.team[cur.orgasmCount+1-1];
-                let added_atk = Math.floor(carac_add * 1.3);
-                opponent.ego += added_atk * 0.5 / 2;
-            } else {
-                opponent.ego += cur.atk * 0.5 / 2;
-            }
-        }*/
+//         if(cur === player && opponentAlphaClass == CH) {
+//             if(cur.orgasmCount > 1) {
+//                 let carac_add = cur.team[cur.orgasmCount+1-1];
+//                 let added_atk = Math.floor(carac_add * 1.3);
+//                 opponent.ego += added_atk * 0.5 / 2;
+//             } else {
+//                 opponent.ego += cur.atk * 0.5 / 2;
+//             }
+//         }
 
         if(cur.orgasmCount <= 2) {
             let carac_add = cur.team[cur.orgasmCount+1];
@@ -2616,6 +2637,123 @@ function simuFight(player, opponent) {
         pointsInt -= 1/10;
     pointsInt += 1;
     pointsInt = Math.floor(pointsInt);
+
+    let pointsStr = '+' + pointsInt;
+
+    return {
+        score: Math.floor(matchRating),
+        scoreStr: matchRatingStr,
+        scoreClass: matchRatingClass,
+        playerEgoCheck: playerEgoCheck,
+        points: pointsInt,
+        pointsStr: pointsStr
+    };
+}
+*/
+
+//simuFight credit:Tom208
+function simuFight(player, opponent) {
+    let playerEgoCheck = 0;
+    let opponentEgoCheck = 0;
+
+    //Calculate opponent proc values, determine applicable alpha class and adjust starting ego values for proc
+    /*let opponentProcHCAddOrgasm = [
+        0,
+        Math.floor(opponent.atk * 0.25),
+        Math.floor(opponent.team[2] * 1.3 * 0.75),
+        Math.floor(opponent.team[3] * 1.3 * 0.75)
+    ];
+
+    let opponentAlphaClass = parseInt(opponent.alpha.class);
+
+    // crit.
+    if (opponentAlphaClass == HC) {
+        player.ego -= Math.floor(opponent.atk * 0.5);
+    }
+    if (opponentAlphaClass == CH) {
+        //opponent.ego += opponent.def * 2;
+
+        //CH bug
+        opponent.ego += 2 * Math.floor(opponent.atk/2);
+    }
+    if (opponentAlphaClass == KH) {
+        opponent.ego += Math.floor(opponent.ego * 0.1);
+    }*/
+
+    //crit.
+    player.ego -= Math.max(0, opponent.atk - player.def);
+
+    //Log opponent name and starting egos for sim
+    //console.log('Simulation log for: ' + opponent.name);
+    //console.log('Starting Egos adjusted for the case proc scenario (0 for you and 1 for the opponent):');
+    //console.log('Player Ego: ' + player.ego);
+    //console.log('Opponent Ego: ' + opponent.ego);
+
+    function play_turn(cur) {
+        let o = cur === player ? opponent : player;
+
+        o.ego -= Math.max(0, cur.atk - o.def);
+        //console.log('Round ' + (turns + 1) + ': ' + cur.text + ' hit! -' + Math.max(0, (cur.atk - o.def)));
+
+        //Log results
+        //console.log('after Round ' + (turns + 1) + ': ' + o.text + ' ego: ' + o.ego);
+    }
+
+    //Simulate challenge
+    for (var turns = 0; turns < 99; turns++) {
+
+        if( player.ego <= 0) {
+            //Check if defeat stands with 1 critical hit for the player
+            opponentEgoCheck = opponent.ego;
+            opponentEgoCheck -= player.atk - opponent.def;
+
+            if (opponentEgoCheck <= 0)
+                //console.log('Victory! With 1 critical hit for player, Opponent ego: ' + opponentEgoCheck);
+
+                player.ego = 0;
+            break;
+        }
+        play_turn(player);
+
+        if (opponent.ego <= 0) {
+            //Check if victory stands with 2 critical hits for the opponent
+            playerEgoCheck = player.ego;
+            playerEgoCheck -= opponent.atk - player.def;
+
+            if (playerEgoCheck <= 0)
+                //console.log('Defeat! With 1 more critical hit for opponent, Player ego: ' + playerEgoCheck);
+
+                opponent.ego = 0;
+            break;
+        }
+
+        play_turn(opponent);
+    }
+
+    let matchRating = player.ego - opponent.ego;
+    let matchRatingStr = (matchRating >= 0 ? '+' : '') + nThousand(Math.floor(matchRating));
+    let matchRatingClass;
+    if (matchRating < 0 && opponentEgoCheck <= 0)
+        matchRatingClass = 'close';
+    else if (matchRating < 0 && opponentEgoCheck > 0)
+        matchRatingClass = 'minus';
+    else if (matchRating > 0 && playerEgoCheck <= 0)
+        matchRatingClass = 'close';
+    else if (matchRating > 0 && playerEgoCheck > 0)
+        matchRatingClass = 'plus';
+
+    /*let points = matchRating >= 0 ? Math.min(25, 15+player.ego/player.originEgo*10) : Math.max(3, 3+(opponent.originEgo-opponent.ego)/opponent.originEgo*10);
+    let pointsInt = Math.floor( points * 10 )/10;
+    if( Math.floor( points ) == points )
+        pointsInt -= 1/10;
+    pointsInt += 1;
+    pointsInt = Math.floor(pointsInt);*/
+
+    let pointsInt;
+    if (matchRating >= 0)
+        pointsInt = (player.ego/player.originEgo) > 0.5 ? 25 : 15;
+    else
+        pointsInt = ((opponent.originEgo-opponent.ego)/opponent.originEgo) > 0.5 ? 13 : 3;
 
     let pointsStr = '+' + pointsInt;
 
@@ -3108,7 +3246,7 @@ var doLeagueBattle = function () {
     if(page==='battle')
     {
         // On the battle screen.
-        CrushThem();
+        CrushThemFights();
     }
     else if(page === "leaderboard")
     {
@@ -3118,7 +3256,7 @@ var doLeagueBattle = function () {
             if ($('#leagues_middle .forced_info button[rel="claim"]').length >0)
             {
                 $('#leagues_middle .forced_info button[rel="claim"]').click(); //click reward
-                gotoPage('leaderboard',500);//setTimeout(function(){gotoPage('leaderboard',true);},500);
+                gotoPage('leaderboard')
             }
         }
         //logHHAuto('ls! '+$('h4.leagues').size());
@@ -3254,20 +3392,24 @@ var doLeagueBattle = function () {
                 else
                 {
                     logHHAuto('going to crush ID : '+oppoID);
-                    location.href = "/battle.html?league_battle=1&id_member=" + oppoID;
+                    //week 28 new battle modification
+                    //location.href = "/battle.html?league_battle=1&id_member=" + oppoID;
+                    gotoPage("league-battle",{number_of_battles:1,id_opponent:oppoID});
+                    //End week 28 new battle modification
+
                     clearTimer('nextLeaguesTime');
                 }
             }
             else
             {
-                location.href = "/battle.html?league_battle=1&id_member=" + Data[0]
+                //week 28 new battle modification
+                //location.href = "/battle.html?league_battle=1&id_member=" + Data[0]
+                gotoPage("league-battle",{number_of_battles:1,id_opponent:Data[0]});
+                //End week 28 new battle modification
+
             }
 
         }
-    }
-    else if (page==="battle")
-    {
-        CrushThem();
     }
     else
     {
@@ -3320,16 +3462,7 @@ function getLeagueOpponentId(opponentsIDList,force=false)
     var maxTime = 1.6;
 
     //toremove after migration in prod
-    var girlDataName;
-    if ($('div#leagues_left .girls_wrapper .team_girl[g=1][girl-tooltip-data]').length >0)
-    {
-        girlDataName = "girl-tooltip-data";
-    }
-    else
-    {
-        girlDataName = "new-girl-tooltip-data";
-
-    }
+    var girlDataName = "new-girl-tooltip-data";
 
     if (opponentsListExpirationDate === 'empty' || opponentsListExpirationDate < new Date() || opponentsPowerList.size ===0 || force)
     {
@@ -3375,14 +3508,26 @@ function getLeagueOpponentId(opponentsIDList,force=false)
         }
 
         playerEgo = Math.round(getSetHeroInfos('caracs.ego'));
+        //week 28 new battle modification
+        /*
         playerDefHC = Math.round(getSetHeroInfos('caracs.def_carac1'));
         playerDefCH = Math.round(getSetHeroInfos('caracs.def_carac2'));
         playerDefKH = Math.round(getSetHeroInfos('caracs.def_carac3'));
+        */
+        //End week 28 new battle modification
         playerAtk = Math.round(getSetHeroInfos('caracs.damage'));
         playerClass = $('div#leagues_left .icon').attr('carac');
+        //week 28 new battle modification
+        /*
         playerAlpha = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=1]').attr(girlDataName));
         playerBeta = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=2]').attr(girlDataName));
         playerOmega = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=3]').attr(girlDataName));
+        */
+        playerAlpha = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=0] img').attr(girlDataName));
+        playerBeta = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=1] img').attr(girlDataName));
+        playerOmega = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=2] img').attr(girlDataName));
+        //End week 28 new battle modification
+
         playerExcitement = Math.round((playerAlpha.caracs.carac1 + playerAlpha.caracs.carac2 + playerAlpha.caracs.carac3) * 28);
         getOpponents();
         return -1;
@@ -3416,10 +3561,13 @@ function getLeagueOpponentId(opponentsIDList,force=false)
                 var playerDef;
                 let opponentEgo = opponentData.caracs.ego;
                 let opponentAtk = opponentData.caracs.damage
-                let opponentAlpha = opponentData.team["1"];
-                let opponentBeta = opponentData.team["2"];
-                let opponentOmega = opponentData.team["3"];
+                let opponentAlpha = opponentData.team["0"];
+                let opponentBeta = opponentData.team["1"];
+                let opponentOmega = opponentData.team["2"];
                 let opponentName = opponentData.Name;
+                //week 28 new battle modification
+                playerDef = Math.round(getSetHeroInfos('caracs.defense'));
+                /*
                 if (opponentData.class == '1') {
                     playerDef = playerDefHC;
                 }
@@ -3429,6 +3577,9 @@ function getLeagueOpponentId(opponentsIDList,force=false)
                 if (opponentData.class == '3') {
                     playerDef = playerDefKH;
                 }
+                */
+                opponentDef = opponentData.caracs.defense;
+                /*
                 if (playerClass == 'class1') {
                     opponentDef = opponentData.caracs.def_carac1;
                 }
@@ -3438,6 +3589,8 @@ function getLeagueOpponentId(opponentsIDList,force=false)
                 if (playerClass == 'class3') {
                     opponentDef = opponentData.caracs.def_carac3;
                 }
+                */
+                //End week 28 new battle modification
                 var opponentExcitement = Math.round((opponentData.team["1"].caracs.carac1 + opponentData.team["1"].caracs.carac2 + opponentData.team["1"].caracs.carac3) * 28);
                 let playerAlphaAdd;
                 let playerBetaAdd;
@@ -3462,19 +3615,24 @@ function getLeagueOpponentId(opponentsIDList,force=false)
                 }
 
                 if (opponentData.class == HC) {
-                    playerDef = playerDefHC;
+                    //week 28 new battle modification
+                    //playerDef = playerDefHC;
                     opponentAlphaAdd = opponentAlpha.caracs.carac1;
                     opponentBetaAdd = opponentBeta.caracs.carac1;
                     opponentOmegaAdd = opponentOmega.caracs.carac1;
                 }
                 if (opponentData.class == CH) {
-                    playerDef = playerDefCH;
+                    //week 28 new battle modification
+                    //playerDef = playerDefCH;
+                    //End week 28 new battle modification
                     opponentAlphaAdd = opponentAlpha.caracs.carac2;
                     opponentBetaAdd = opponentBeta.caracs.carac2;
                     opponentOmegaAdd = opponentOmega.caracs.carac2;
                 }
                 if (opponentData.class == KH) {
-                    playerDef = playerDefKH;
+                    //week 28 new battle modification
+                    //playerDef = playerDefKH;
+                    //End week 28 new battle modification
                     opponentAlphaAdd = opponentAlpha.caracs.carac3;
                     opponentBetaAdd = opponentBeta.caracs.carac3;
                     opponentOmegaAdd = opponentOmega.caracs.carac3;
@@ -3524,7 +3682,7 @@ function getLeagueOpponentId(opponentsIDList,force=false)
 
 
 
-                //console.log(opponent);
+                //console.log(player,opponent);
                 let simu = simuFight(player, opponent);
                 //console.log(opponent);
                 //console.log(simu);
@@ -3608,6 +3766,356 @@ function reviverMap(key, value) {
     }
     return value;
 }
+var CrushThemFights=function()
+{
+    if (getPage() === "pre_battle") {
+        // On battle page.
+        logHHAuto("On Pre battle page.");
+        let queryString = window.location.search;
+        let urlParams = new URLSearchParams(queryString);
+        let TTF = urlParams.get('id_opponent');
+
+        let battleButton = $('#pre-battle .battle-buttons a.green_button_L.battle-action-button');
+        let battleButtonX10 = $('#pre-battle .battle-buttons button.autofight[data-battles="10"]');
+        let battleButtonX50 = $('#pre-battle .battle-buttons button.autofight[data-battles="50"]');
+        let battleButtonX10Price = Number(battleButtonX10.attr('price'));
+        let battleButtonX50Price = Number(battleButtonX50.attr('price'));
+        let hero=getHero();
+        let hcConfirmValue = hero.infos.hc_confirm;
+        let remainingShards;
+        let currentPower = Number(getSetHeroInfos('fight.amount'));
+
+        //check if girl still available at troll in case of event
+        if (TTF !== null)
+        {
+            if (sessionStorage.HHAuto_Temp_eventGirl !== undefined)
+            {
+                let rewardGirlz=$("#pre-battle #opponent-panel .fighter-rewards .rewards_list .girls_reward[data-rewards]");
+
+                if (rewardGirlz.length ===0 || !rewardGirlz.attr('data-rewards').includes('"id_girl":"'+JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_id+'"'))
+                {
+                    logHHAuto("Seems "+JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_name+" is no more available at troll "+Trollz[Number(TTF)]+". Going to event page.");
+                    parseEventPage();
+                    return;
+                }
+            }
+            if (currentPower === 0)
+            {
+                RechargeCombat();
+                gotoPage("troll-pre-battle",{id_opponent:TTF});
+                return;
+            }
+
+            if (sessionStorage.HHAuto_Temp_eventGirl !== undefined && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_shards && Number.isInteger(Number(JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_shards)) && battleButtonX10.length > 0 && battleButtonX50.length > 0)
+            {
+                remainingShards = Number(100 - Number(JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_shards));
+                let bypassThreshold = (
+                    (JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "false"
+                     && canBuyFight().canBuy
+                    ) // eventGirl available and buy comb true
+                    || (JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "true"
+                        && Storage().HHAuto_Setting_plusEventMythic==="true"
+                       )
+                );
+
+                if (Storage().HHAuto_Setting_useX50Fights === "true"
+                    && Storage().HHAuto_Setting_minShardsX50
+                    && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX50))
+                    && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX50)
+                    && (battleButtonX50Price === 0 || getSetHeroInfos('hard_currency')>=battleButtonX50Price+Number(Storage().HHAuto_Setting_kobanBank))
+                    && currentPower >= 50
+                    && (currentPower >= (Number(Storage().HHAuto_Setting_autoTrollThreshold) + 50)
+                        || bypassThreshold
+                       )
+                   )
+                {
+                    logHHAuto("Going to crush 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
+
+                    hero.infos.hc_confirm = true;
+                    // We have the power.
+                    is_cheat_click=function(e) {
+                        return false;
+                    };
+                    battleButtonX50[0].click();
+                    hero.infos.hc_confirm = hcConfirmValue;
+                    sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh = Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) - 50;
+                    logHHAuto("Crushed 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
+                    if (sessionStorage.HHAuto_Temp_questRequirement === "battle") {
+                        // Battle Done.
+                        sessionStorage.HHAuto_Temp_questRequirement = "none";
+                    }
+                    ObserveAndGetGirlRewards();
+                    return;
+                }
+                else
+                {
+                    if (Storage().HHAuto_Setting_useX50Fights === "true")
+                    {
+                        logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+getSetHeroInfos('fight.amount')+'/50, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+                    }
+                }
+
+                if (Storage().HHAuto_Setting_useX10Fights === "true"
+                    && Storage().HHAuto_Setting_minShardsX10
+                    && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX10))
+                    && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX10)
+                    && (battleButtonX10Price === 0 || getSetHeroInfos('hard_currency')>=battleButtonX10Price+Number(Storage().HHAuto_Setting_kobanBank))
+                    && currentPower >= 10
+                    && (currentPower >= (Number(Storage().HHAuto_Setting_autoTrollThreshold) + 10)
+                        || bypassThreshold
+                       )
+                   )
+                {
+                    logHHAuto("Going to crush 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
+
+                    hero.infos.hc_confirm = true;
+                    // We have the power.
+                    is_cheat_click=function(e) {
+                        return false;
+                    };
+                    battleButtonX10[0].click();
+                    hero.infos.hc_confirm = hcConfirmValue;
+                    sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh = Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) - 10;
+                    logHHAuto("Crushed 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
+                    if (sessionStorage.HHAuto_Temp_questRequirement === "battle") {
+                        // Battle Done.
+                        sessionStorage.HHAuto_Temp_questRequirement = "none";
+                    }
+                    ObserveAndGetGirlRewards();
+                    return;
+                }
+                else
+                {
+                    if (Storage().HHAuto_Setting_useX10Fights === "true")
+                    {
+                        logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+getSetHeroInfos('fight.amount')+'/10, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX10+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+                    }
+                }
+            }
+
+            //Crushing one by one
+            if(battleButton === undefined || battleButton.length === 0){
+                logHHAuto("Battle Button was undefined. Disabling all auto-battle.");
+                document.getElementById("autoTrollCheckbox").checked = false;
+                Storage().HHAuto_Setting_autoTrollBattle = "false"
+
+                //document.getElementById("autoArenaCheckbox").checked = false;
+                if (sessionStorage.HHAuto_Temp_questRequirement === "battle")
+                {
+                    document.getElementById("autoQuestCheckbox").checked = false;
+                    Storage().HHAuto_Setting_autoQuest= "false";
+
+                    logHHAuto("Auto-quest disabled since it requires battle and auto-battle has errors.");
+                }
+                return;
+            }
+
+            if (currentPower > 0)
+            {
+                logHHAuto("Crushing: "+Trollz[Number(TTF)]);
+                //console.log(battleButton);
+                is_cheat_click=function(e) {
+                    return false;
+                };
+                battleButton[0].click();
+                if (sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh)
+                {
+                    sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh = Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) - 1;
+                }
+            }
+            else
+            {
+                // We need more power.
+                logHHAuto("Battle requires "+battle_price+" power.");
+                sessionStorage.HHAuto_Temp_battlePowerRequired = battle_price;
+                if(sessionStorage.HHAuto_Temp_questRequirement === "battle")sessionStorage.HHAuto_Temp_questRequirement = "P"+battle_price;
+                gotoPage("home");
+                return;
+            }
+        }
+        else
+        {
+            is_cheat_click=function(e) {
+                return false;
+            };
+            battleButton[0].click();
+        }
+    }
+    else
+    {
+        logHHAuto('Unable to identify page.');
+        gotoPage("home");
+        return;
+    }
+    return;
+}
+
+function doBattle()
+{
+    if (getPage() === "battle" )
+    {
+        logHHAuto("On battle page.");
+        /*if ($("#rewards_popup .blue_text_button").size()>0)
+        {
+            $("#rewards_popup .blue_text_button").click();
+        }
+        if ($("#rewards_popup .blue_button_L").size()>0)
+        {
+            $("#rewards_popup .blue_button_L").click();
+        }*/
+
+        let queryString = window.location.search;
+        let urlParams = new URLSearchParams(queryString);
+        let league_battle = urlParams.get('league_battle');
+        if (window.location.pathname === "/league-battle.html")//league_battle !== null && league_battle === "1")
+        {
+            logHHAuto("Reloading after league fight.");
+            gotoPage("leaderboard",{},randomInterval(4000,5000));
+        }
+        else if (window.location.pathname === "/troll-battle.html")
+        {
+            if(sessionStorage.HHAuto_Temp_eventGirl !== undefined)
+            {
+                ObserveAndGetGirlRewards();
+            }
+            else
+            {
+                logHHAuto("Go to home after Troll fight.");
+                gotoPage('home',{},randomInterval(2000,4000));
+            }
+
+        }
+        else if (window.location.pathname === "/season-battle.html")
+        {
+            logHHAuto("Go to home after Season fight.");
+            gotoPage('home',{},randomInterval(2000,4000));
+        }
+        else
+        {
+            logHHAuto("Go to home after battle fight.");
+            gotoPage('home',{},randomInterval(2000,4000));
+        }
+        return true;
+    }
+    else
+    {
+        logHHAuto('Unable to identify page.');
+        gotoPage("home");
+        return;
+    }
+}
+
+function ObserveAndGetGirlRewards()
+{
+    sessionStorage.HHAuto_Temp_autoLoop = "false";
+    logHHAuto("setting autoloop to false to wait for troll rewards");
+    let inCaseTimer = setTimeout(function(){gotoPage('home');}, 60000); //in case of issue
+    let observerReward = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (sessionStorage.HHAuto_Temp_eventsGirlz === undefined
+                || sessionStorage.HHAuto_Temp_eventGirl === undefined
+                || !isJSON(sessionStorage.HHAuto_Temp_eventsGirlz)
+                || !isJSON(sessionStorage.HHAuto_Temp_eventGirl))
+            {
+                return;
+            }
+            let eventsGirlz =isJSON(sessionStorage.HHAuto_Temp_eventsGirlz)?JSON.parse(sessionStorage.HHAuto_Temp_eventsGirlz):{}
+            let eventGirl = isJSON(sessionStorage.HHAuto_Temp_eventGirl)?JSON.parse(sessionStorage.HHAuto_Temp_eventGirl):{};
+            let TTF = eventGirl.troll_id;
+            if ($('#rewards_popup #reward_holder .shards_wrapper').length === 0)
+            {
+                clearTimeout(inCaseTimer);
+                logHHAuto("No girl in reward going back to Troll");
+                gotoPage("troll-pre-battle",{id_opponent:TTF});
+                return;
+            }
+            let renewEvent = false;
+            let girlShardsWon = $('.shards_wrapper .shards_girl_ico');
+            logHHAuto("Detected girl shard reward");
+            for (var currGirl=0; currGirl <= girlShardsWon.length; currGirl++)
+            {
+                let GirlIdSrc = $("img",girlShardsWon[currGirl]).attr("src");
+                let GirlId = GirlIdSrc.split('/')[5];
+                let GirlShards = Math.min(Number($('.shards[shards]', girlShardsWon[currGirl]).attr('shards')),100);
+                if (eventsGirlz.length >0)
+                {
+                    let GirlIndex = eventsGirlz.findIndex((element) =>element.girl_id === GirlId);
+                    if (GirlIndex !==-1)
+                    {
+                        eventsGirlz[GirlIndex].girl_shards = GirlShards.toString();
+                        if (GirlShards === 100)
+                        {
+                            renewEvent = true;
+                        }
+                        logHHAuto("Won "+GirlShards+" event shards for "+eventsGirlz[GirlIndex].girl_name);
+                    }
+                }
+                if (eventGirl.girl_id === GirlId)
+                {
+                    eventGirl.girl_shards = GirlShards.toString();
+                    if (GirlShards === 100)
+                    {
+                        renewEvent = true;
+                    }
+                }
+            }
+            sessionStorage.HHAuto_Temp_eventsGirlz = JSON.stringify(eventsGirlz);
+            sessionStorage.HHAuto_Temp_eventGirl = JSON.stringify(eventGirl);
+            if (renewEvent
+                || Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) < 1
+                || checkTimerMustExist('eventRefreshExpiration')
+                || (Number(getSetHeroInfos('fight.amount')) === 0 && Storage().HHAuto_Setting_buyMythicCombat=="true" && Storage().HHAuto_Setting_buyCombat=="true" ) )
+            {
+                clearTimeout(inCaseTimer);
+                logHHAuto("Need to check back event page");
+                parseEventPage();
+                return;
+            }
+            else
+            {
+                clearTimeout(inCaseTimer);
+                logHHAuto("Go back to troll after troll fight.");
+                gotoPage("troll-pre-battle",{id_opponent:TTF});
+                return;
+            }
+        })
+    });
+
+    observerReward.observe($('#reward_holder .container .scrolling_area')[0], {
+        childList: true
+        , subtree: true
+        , attributes: false
+        , characterData: false
+    });
+
+    let observerPass = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation)
+                          {
+            let querySkip = '#contains_all #new_battle .new-battle-buttons-container #new-battle-skip-btn.blue_text_button[style]';
+            if ($(querySkip).length === 0
+                && $(querySkip)[0].style.display!=="block"
+               )
+            {
+                return;
+            }
+            else
+            {
+                is_cheat_click=function(e) {
+                    return false;
+                };
+                $(querySkip)[0].click();
+                logHHAuto("Clicking on pass battle.");
+            }
+        })
+    });
+
+    observerPass.observe($('#contains_all #new_battle .new-battle-buttons-container #new-battle-skip-btn.blue_text_button')[0], {
+        childList: false
+        , subtree: false
+        , attributes: true
+        , characterData: false
+    });
+}
 
 var  CrushThem = function()
 {
@@ -3635,10 +4143,12 @@ var  CrushThem = function()
             if(battleButton === undefined){
                 logHHAuto("Battle Button was undefined. Disabling all auto-battle.");
                 document.getElementById("autoTrollCheckbox").checked = false;
+                Storage().HHAuto_Setting_autoTrollBattle = "false"
                 //document.getElementById("autoArenaCheckbox").checked = false;
                 if (sessionStorage.HHAuto_Temp_questRequirement === "battle")
                 {
                     document.getElementById("autoQuestCheckbox").checked = false;
+                    Storage().HHAuto_Setting_autoQuest= "false";
                     logHHAuto("Auto-quest disabled since it requires battle and auto-battle has errors.");
                 }
                 return;
@@ -3657,6 +4167,7 @@ var  CrushThem = function()
                 if (sessionStorage.HHAuto_Temp_questRequirement === "battle")
                 {
                     document.getElementById("autoQuestCheckbox").checked = false;
+                    Storage().HHAuto_Setting_autoQuest= "false";
                     logHHAuto("Auto-quest disabled since it requires battle and auto-battle has errors.");
                 }
                 return;
@@ -3689,7 +4200,7 @@ var  CrushThem = function()
                 else
                 {
                     logHHAuto("Go to home after Troll fight.");
-                    gotoPage('home',randomInterval(2000,4000));//setTimeout(function(){gotoPage('home');},randomInterval(2000,4000));
+                    gotoPage('home',{},randomInterval(2000,4000));
                 }
                 return true;
             }
@@ -3729,6 +4240,19 @@ var checkTimer=function(name)
     if (!Timers[name])
     {
         return true;
+    }
+    if (Timers[name]<new Date())
+    {
+        return true;
+    }
+    return false;
+}
+
+var checkTimerMustExist=function(name)
+{
+    if (!Timers[name])
+    {
+        return false;
     }
     if (Timers[name]<new Date())
     {
@@ -4170,7 +4694,7 @@ var flipParanoia=function()
         }
 
         //bypass Paranoia if ongoing mythic
-        if (Storage().HHAuto_Setting_autoTrollMythicByPassParanoia === "true" && sessionStorage.HHAuto_Temp_eventTrollIsMythic==="true")
+        if (Storage().HHAuto_Setting_autoTrollMythicByPassParanoia === "true" && sessionStorage.HHAuto_Temp_eventGirl !==undefined && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic==="true")
         {
             //             var trollThreshold = Number(Storage().HHAuto_Setting_autoTrollThreshold);
             //             if (Storage().HHAuto_Setting_buyMythicCombat === "true" || Storage().HHAuto_Setting_autoTrollMythicByPassThreshold === "true")
@@ -4188,10 +4712,8 @@ var flipParanoia=function()
             //mythic ongoing and can buyCombat
             var hero=getHero();
             var price=hero.get_recharge_cost("fight");
-            if (sessionStorage.HHAuto_Temp_MythicEventInBuyCombTime === "true"
+            if (canBuyFight().canBuy
                 && getSetHeroInfos('fight.amount')==0
-                && getSetHeroInfos('hard_currency')>=price+Number(Storage().HHAuto_Setting_kobanBank)
-                && Storage().HHAuto_Setting_buyMythicCombat=="true"
                )
             {
 
@@ -4242,16 +4764,39 @@ var flipParanoia=function()
     setTimer('paranoiaSwitch',toNextSwitch);
     if (sessionStorage.HHAuto_Temp_burst=="true")
     {
-        /*         if (hh_nutaku)
+        if ( getTimer("eventRefreshExpiration") !== -1)
         {
-            //window.top.postMessage({reloadMe:true},'*');
-            location.reload();
+            setTimer("eventRefreshExpiration",0);
+        }
+        gotoPage('home');
+    }
+}
+
+function manageUnits(inText)
+{
+    let units = ["firstUnit", "K", "M", "G", "T", "P", "E", "Z", "Y"];
+    let textUnit= "";
+    for (let currUnit of units)
+    {
+        if (inText.includes(currUnit))
+        {
+            textUnit= currUnit;
+        }
+    }
+    if (textUnit !== "")
+    {
+        if (inText.includes('.') || inText.includes(','))
+        {
+            return parseInt(inText.replace(/[^0-9]/gi, ''))*(100**units.indexOf(textUnit));
         }
         else
         {
-            window.top.location.reload();
-        } */
-        gotoPage('home');
+            return parseInt(inText.replace(/[^0-9]/gi, ''))*(1000**units.indexOf(textUnit));
+        }
+    }
+    else
+    {
+        return parseInt(inText.replace(/[^0-9]/gi, ''));
     }
 }
 
@@ -4288,16 +4833,7 @@ function moduleSimLeague() {
     }
 
     //toremove after migration in prod
-    var girlDataName;
-    if ($('div#leagues_left .girls_wrapper .team_girl[g=1][girl-tooltip-data]').length >0)
-    {
-        girlDataName = "girl-tooltip-data";
-    }
-    else
-    {
-        girlDataName = "new-girl-tooltip-data";
-
-    }
+    var girlDataName="new-girl-tooltip-data";
 
     var SimPower = function()
     {
@@ -4307,31 +4843,59 @@ function moduleSimLeague() {
         }
         // player stats
         playerEgo = Math.round(getSetHeroInfos('caracs.ego'));
+        //week 28 new battle modification
+        /*
         playerDefHC = Math.round(getSetHeroInfos('caracs.def_carac1'));
         playerDefCH = Math.round(getSetHeroInfos('caracs.def_carac2'));
         playerDefKH = Math.round(getSetHeroInfos('caracs.def_carac3'));
+        */
+        playerDef = Math.round(getSetHeroInfos('caracs.defense'));
+        //End week 28 new battle modification
         playerAtk = Math.round(getSetHeroInfos('caracs.damage'));
         playerClass = $('div#leagues_left .icon').attr('carac');
 
-
+        //week 28 new battle modification
+        /*
         playerAlpha = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=1]').attr(girlDataName));
         playerBeta = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=2]').attr(girlDataName));
         playerOmega = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=3]').attr(girlDataName));
+        */
+        playerAlpha = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=0] img').attr(girlDataName));
+        playerBeta = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=1] img').attr(girlDataName));
+        playerOmega = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=2] img').attr(girlDataName));
+        //End week 28 new battle modification
         playerExcitement = Math.round((playerAlpha.caracs.carac1 + playerAlpha.caracs.carac2 + playerAlpha.caracs.carac3) * 28);
         // opponent stats
         opponentName = $('div#leagues_right div.player_block div.title').text();
-        opponentEgo = parseInt($('div#leagues_right div.lead_ego div:nth-child(2)').text().replace(/[^0-9]/gi, ''));
+        //week 28 new battle modification
+        /*
+        opponentEgo = parseInt($('div#leagues_right div.lead_ego div:nth-child(2)').text().replace(/[^0-9]/gi, ''));*/
+        opponentEgo = manageUnits($('div#leagues_right .stats_wrap div.carac-value div')[1].innerText);
+        /*
         opponentDefHC = $('div#leagues_right div.stats_wrap div:nth-child(2)').text();
         opponentDefCH = $('div#leagues_right div.stats_wrap div:nth-child(4)').text();
         opponentDefKH = $('div#leagues_right div.stats_wrap div:nth-child(6)').text();
         opponentAtk = $('div#leagues_right div.stats_wrap div:nth-child(8)').text();
+        */
+        opponentAtk = manageUnits($('div#leagues_right .stats_wrap div.carac-value div')[0].innerText);
+        opponentDef = manageUnits($('div#leagues_right .stats_wrap div.carac-value div')[2].innerText);
+        //End week 28 new battle modification
         opponentClass = $('div#leagues_right .icon').attr('carac');
+        //week 28 new battle modification
+        /*
         opponentAlpha = JSON.parse($('div#leagues_right .girls_wrapper .team_girl[g=1]').attr(girlDataName));
         opponentBeta = JSON.parse($('div#leagues_right .girls_wrapper .team_girl[g=2]').attr(girlDataName));
         opponentOmega = JSON.parse($('div#leagues_right .girls_wrapper .team_girl[g=3]').attr(girlDataName));
+        */
+        opponentAlpha = JSON.parse($('div#leagues_right .player_block .team-hexagon-container .team-member-container[data-team-member-position=0] img').attr(girlDataName));
+        opponentBeta = JSON.parse($('div#leagues_right .player_block .team-hexagon-container .team-member-container[data-team-member-position=1] img').attr(girlDataName));
+        opponentOmega = JSON.parse($('div#leagues_right .player_block .team-hexagon-container .team-member-container[data-team-member-position=2] img').attr(girlDataName));
+        //End week 28 new battle modification
         opponentExcitement = Math.round((opponentAlpha.caracs.carac1 + opponentAlpha.caracs.carac2 + opponentAlpha.caracs.carac3) * 28);
 
+        //week 28 new battle modification
         //Determine each side's actual defense
+        /*
         if (playerClass == 'class1') {
             opponentDef = opponentDefHC;
         }
@@ -4352,6 +4916,7 @@ function moduleSimLeague() {
             playerDef = playerDefKH;
         }
 
+
         if (opponentDef.includes('.') || opponentDef.includes(',')) {
             opponentDef = parseInt(opponentDef.replace('K', '00').replace(/[^0-9]/gi, ''));
         }
@@ -4367,6 +4932,8 @@ function moduleSimLeague() {
         {
             opponentAtk = parseInt(opponentAtk.replace('K', '000').replace(/[^0-9]/gi, ''));
         }
+        */
+        //End week 28 new battle modification
 
         let playerAlphaAdd;
         let playerBetaAdd;
@@ -4391,19 +4958,25 @@ function moduleSimLeague() {
         }
 
         if (opponentClass == ('class' + HC)) {
-            playerDef = playerDefHC;
+            //week 28 new battle modification
+            //playerDef = playerDefHC;
+            //End week 28 new battle modification
             opponentAlphaAdd = opponentAlpha.caracs.carac1;
             opponentBetaAdd = opponentBeta.caracs.carac1;
             opponentOmegaAdd = opponentOmega.caracs.carac1;
         }
         if (opponentClass == ('class' + CH)) {
-            playerDef = playerDefCH;
+            //week 28 new battle modification
+            //playerDef = playerDefCH;
+            //End week 28 new battle modification
             opponentAlphaAdd = opponentAlpha.caracs.carac2;
             opponentBetaAdd = opponentBeta.caracs.carac2;
             opponentOmegaAdd = opponentOmega.caracs.carac2;
         }
         if (opponentClass == ('class' + KH)) {
-            playerDef = playerDefKH;
+            //week 28 new battle modification
+            //playerDef = playerDefKH;
+            //End week 28 new battle modification
             opponentAlphaAdd = opponentAlpha.caracs.carac3;
             opponentBetaAdd = opponentBeta.caracs.carac3;
             opponentOmegaAdd = opponentOmega.caracs.carac3;
@@ -4449,7 +5022,7 @@ function moduleSimLeague() {
             name: opponentName,
         };
 
-        //console.log(opponent);
+        //console.log(player,opponent);
         let simu = simuFight(player, opponent);
         //console.log(opponent);
         //console.log(simu);
@@ -4464,19 +5037,69 @@ function moduleSimLeague() {
         switch (matchRatingFlag)
         {
             case 'g':
-                $('div#leagues_right .girls_wrapper').append('<div class="matchRatingNew plus"><img id="powerLevelScouter" src="https://i.postimg.cc/qgkpN0sZ/Opponent-green.png">' + matchRating + '</div>');
+                $('div#leagues_right .player_block .challenge').prepend('<div class="matchRatingNew plus"><img id="powerLevelScouter" src="https://i.postimg.cc/qgkpN0sZ/Opponent-green.png">' + matchRating + '</div>');
                 $("tr.lead_table_default div[second-row]").append('<div class="matchRatingNew plus"><img id="powerLevelScouter" src="https://i.postimg.cc/qgkpN0sZ/Opponent-green.png">' + matchRating + '</div>');
                 break;
             case 'y':
-                $('div#leagues_right .girls_wrapper').append('<div class="matchRatingNew close"><img id="powerLevelScouter" src="https://i.postimg.cc/3JCgVBdK/Opponent-orange.png">' + matchRating + '</div>');
+                $('div#leagues_right .player_block .challenge').prepend('<div class="matchRatingNew close"><img id="powerLevelScouter" src="https://i.postimg.cc/3JCgVBdK/Opponent-orange.png">' + matchRating + '</div>');
                 $("tr.lead_table_default div[second-row]").append('<div class="matchRatingNew close"><img id="powerLevelScouter" src="https://i.postimg.cc/3JCgVBdK/Opponent-orange.png">' + matchRating + '</div>');
                 break;
             case 'r':
-                $('div#leagues_right .girls_wrapper').append('<div class="matchRatingNew minus"><img id="powerLevelScouter" src="https://i.postimg.cc/PxgxrBVB/Opponent-red.png">' + matchRating + '</div>');
+                $('div#leagues_right .player_block .challenge').prepend('<div class="matchRatingNew minus"><img id="powerLevelScouter" src="https://i.postimg.cc/PxgxrBVB/Opponent-red.png">' + matchRating + '</div>');
                 $("tr.lead_table_default div[second-row]").append('<div class="matchRatingNew minus"><img id="powerLevelScouter" src="https://i.postimg.cc/PxgxrBVB/Opponent-red.png">' + matchRating + '</div>');
                 break;
         }
 
+        //CSS
+
+        GM_addStyle('#leagues_right .player_block .lead_player_profile .level_wrapper {'
+                    + 'top: -8px !important;}'
+                   );
+
+        GM_addStyle('#leagues_right .player_block .lead_player_profile .icon {'
+                    + 'top: 5px !important;}'
+                   );
+
+        GM_addStyle('@media only screen and (min-width: 1026px) {'
+                    + '.matchRatingNew {'
+
+                    //week 28 new battle modification
+                    //+ 'margin-top: 50px; '
+                    //+ 'margin-left: -120px; '
+                    + 'position: absolute;'
+                    + 'margin-top: -25px; '
+                    + 'margin-left: 50px; '
+                    //End week 28 new battle modification
+
+                    + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
+                    + 'line-height: 17px; '
+                    + 'font-size: 14px;}}'
+                   );
+
+        GM_addStyle('@media only screen and (max-width: 1025px) {'
+                    + '.matchRatingNew {'
+                    + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
+                    + 'line-height: 17px; '
+                    + 'font-size: 14px;}}'
+                   );
+
+        GM_addStyle('.plus {'
+                    + 'color: #66CD00;}'
+                   );
+
+        GM_addStyle('.minus {'
+                    + 'color: #FF2F2F;}'
+                   );
+
+        GM_addStyle('.close {'
+                    + 'color: #FFA500;}'
+                   );
+
+        GM_addStyle('#powerLevelScouter {'
+                    + 'margin-left: -8px; '
+                    + 'margin-right: 1px; '
+                    + 'width: 25px;}'
+                   );
 
         //Replace opponent excitement with the correct value
         //$('div#leagues_right div.stats_wrap div:nth-child(9) span:nth-child(2)').empty().append(nRounding(opponentExcitement, 0, 1));
@@ -4489,12 +5112,14 @@ function moduleSimLeague() {
 
     // Refresh sim on new opponent selection (Credit: BenBrazke)
     var opntName;
-    $('.leadTable').click(function() {
+    $('.leadTable').click(function()
+                          {
         opntName=''
     })
     function waitOpnt() {
         setTimeout(function() {
-            if (JSON.parse($('div#leagues_right .girls_wrapper .team_girl[g=3]').attr(girlDataName))) {
+            if (JSON.parse($('div#leagues_right .player_block .team-hexagon-container .team-member-container[data-team-member-position=0] img').attr(girlDataName)))
+            {
                 SimPower();
             }
             else {
@@ -4502,9 +5127,11 @@ function moduleSimLeague() {
             }
         }, 50);
     }
-    var observeCallback = function() {
+    var observeCallback = function()
+    {
         var opntNameNew = $('div#leagues_right div.player_block div.title')[0].innerHTML
-        if (opntName !== opntNameNew) {
+        if (opntName !== opntNameNew)
+        {
             opntName = opntNameNew;
             waitOpnt();
         }
@@ -4513,49 +5140,6 @@ function moduleSimLeague() {
     var test = document.getElementById('leagues_right');
     observer.observe(test, {attributes: false, childList: true, subtree: false});
 
-    //CSS
-
-    GM_addStyle('#leagues_right .player_block .lead_player_profile .level_wrapper {'
-                + 'top: -8px !important;}'
-               );
-
-    GM_addStyle('#leagues_right .player_block .lead_player_profile .icon {'
-                + 'top: 5px !important;}'
-               );
-
-    GM_addStyle('@media only screen and (min-width: 1026px) {'
-                + '.matchRatingNew {'
-                + 'margin-top: 50px; '
-                + 'margin-left: -120px; '
-                + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
-                + 'line-height: 17px; '
-                + 'font-size: 14px;}}'
-               );
-
-    GM_addStyle('@media only screen and (max-width: 1025px) {'
-                + '.matchRatingNew {'
-                + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
-                + 'line-height: 17px; '
-                + 'font-size: 14px;}}'
-               );
-
-    GM_addStyle('.plus {'
-                + 'color: #66CD00;}'
-               );
-
-    GM_addStyle('.minus {'
-                + 'color: #FF2F2F;}'
-               );
-
-    GM_addStyle('.close {'
-                + 'color: #FFA500;}'
-               );
-
-    GM_addStyle('#powerLevelScouter {'
-                + 'margin-left: -8px; '
-                + 'margin-right: 1px; '
-                + 'width: 25px;}'
-               );
 
     function DisplayMatchScore() {
         if ($('tr[sorting_id] td span.nickname span.OppoScore').length > 0)
@@ -4812,27 +5396,24 @@ function moduleSimBattle() {
         return;
     }
     //toremove after migration in prod
-    var girlDataName;
-    if ($('div.battle_hero .battle-faces div[girl_n=0][girl-tooltip-data]').length >0)
-    {
-        girlDataName = "girl-tooltip-data";
-    }
-    else
-    {
-        girlDataName = "new-girl-tooltip-data";
+    var girlDataName="new-girl-tooltip-data";
 
-    }
     // player stats
     playerEgo = Math.round(getSetHeroInfos('caracs.ego'));
+
+
     playerDefHC = Math.round(getSetHeroInfos('caracs.def_carac1'));
     playerDefCH = Math.round(getSetHeroInfos('caracs.def_carac2'));
     playerDefKH = Math.round(getSetHeroInfos('caracs.def_carac3'));
+
     playerAtk = Math.round(getSetHeroInfos('caracs.damage'));
     playerClass = 'class'+getSetHeroInfos('class');
     //playerClass = $('div#leagues_left .icon').attr('carac');
+
     playerAlpha = JSON.parse($("div.battle_hero .battle-faces div[girl_n=0]").attr(girlDataName));
     playerBeta =  JSON.parse($("div.battle_hero .battle-faces div[girl_n=1]").attr(girlDataName));
     playerOmega = JSON.parse($("div.battle_hero .battle-faces div[girl_n=2]").attr(girlDataName));
+
     playerExcitement = Math.round((playerAlpha.caracs.carac1 + playerAlpha.caracs.carac2 + playerAlpha.caracs.carac3) * 28);
     // opponent stats
     opponentName = $('div.battle_opponent h3')[0].innerText;
@@ -5044,37 +5625,49 @@ function moduleSimSeasonBattle() {
             doDisplay=true;
         }
         //toremove after migration in prod
-        var girlDataName;
-        if ($('div.hero_team div[girl_n=0][girl-tooltip-data]').length >0)
-        {
-            girlDataName = "girl-tooltip-data";
-        }
-        else
-        {
-            girlDataName = "new-girl-tooltip-data";
+        var girlDataName="new-girl-tooltip-data";
 
-        }
         // player stats
         playerEgo = Math.round(getSetHeroInfos('caracs.ego'));
+        //week 28 new battle modification
+        /*
         playerDefHC = Math.round(getSetHeroInfos('caracs.def_carac1'));
         playerDefCH = Math.round(getSetHeroInfos('caracs.def_carac2'));
         playerDefKH = Math.round(getSetHeroInfos('caracs.def_carac3'));
+        */
+        //End week 28 new battle modification
+
         playerAtk = Math.round(getSetHeroInfos('caracs.damage'));
         playerClass = 'class'+getSetHeroInfos('class');
         //playerClass = $('div#leagues_left .icon').attr('carac');
+        //week 28 new battle modification
+        /*
         playerAlpha = JSON.parse($("div.hero_team div[girl_n=0]").attr(girlDataName));
         playerBeta =  JSON.parse($("div.hero_team div[girl_n=1]").attr(girlDataName));
         playerOmega = JSON.parse($("div.hero_team div[girl_n=2]").attr(girlDataName));
+        */
+        playerAlpha = JSON.parse($('#season-arena div.battle_hero .hero_team .team-hexagon-container .team-member-container[data-team-member-position=0] img').attr(girlDataName));
+        playerBeta =  JSON.parse($('#season-arena div.battle_hero .hero_team .team-hexagon-container .team-member-container[data-team-member-position=1] img').attr(girlDataName));
+        playerOmega = JSON.parse($('#season-arena div.battle_hero .hero_team .team-hexagon-container .team-member-container[data-team-member-position=2] img').attr(girlDataName));
+        //End week 28 new battle modification
+
         playerExcitement = Math.round((playerAlpha.caracs.carac1 + playerAlpha.caracs.carac2 + playerAlpha.caracs.carac3) * 28);
         for (index=0;index<3;index++)
         {
             var opponentName = $("div.season_arena_opponent_container .hero_details div.hero_name")[index].innerText
-
+            //week 28 new battle modification
+            /*
             var opponentEgo = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[2].innerText.replace(/[^0-9]/gi, ''));
             var opponentDef = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[1].innerText.split('-')[0].replace(/[^0-9]/gi, ''));
             var opponentAtk = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[0].innerText.split('-')[0].replace(/[^0-9]/gi, ''));
-
+            */
+            opponentEgo = manageUnits($('div.opponents_arena .season_arena_opponent_container .hero_stats')[index].querySelectorAll('.hero_stats_row span.pull_right')[2].innerText);
+            opponentDef = manageUnits($('div.opponents_arena .season_arena_opponent_container .hero_stats')[index].querySelectorAll('.hero_stats_row span.pull_right')[1].innerText);
+            opponentAtk = manageUnits($('div.opponents_arena .season_arena_opponent_container .hero_stats')[index].querySelectorAll('.hero_stats_row span.pull_right')[0].innerText);
+            //End week 28 new battle modification
             var opponentClass = $($("div.season_arena_opponent_container .hero_details div[hh_class_tooltip]")[index]).attr('carac');
+            //week 28 new battle modification
+            /*
             var opponentAlpha = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g1']")[index]).attr(girlDataName));
             var opponentBeta = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g2']")[index]).attr(girlDataName));
             var opponentOmega = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g3']")[index]).attr(girlDataName));
@@ -5089,6 +5682,13 @@ function moduleSimSeasonBattle() {
             if (opponentClass == 'class3') {
                 playerDef = playerDefKH;
             }
+            */
+            let opponentAlpha = JSON.parse($($('div.season_arena_opponent_container .hero_team .team-hexagon-container .team-member-container[data-team-member-position=0] img')[index]).attr(girlDataName));
+            let opponentBeta = JSON.parse($($('div.season_arena_opponent_container .hero_team .team-hexagon-container .team-member-container[data-team-member-position=1] img')[index]).attr(girlDataName));
+            let opponentOmega = JSON.parse($($('div.season_arena_opponent_container .hero_team .team-hexagon-container .team-member-container[data-team-member-position=2] img')[index]).attr(girlDataName));
+            let playerDef = Math.round(getSetHeroInfos('caracs.defense'))
+            //End week 28 new battle modification
+
             var opponentExcitement = Math.round((opponentAlpha.caracs.carac1 + opponentAlpha.caracs.carac2 + opponentAlpha.caracs.carac3) * 28);
             let playerAlphaAdd;
             let playerBetaAdd;
@@ -5113,19 +5713,25 @@ function moduleSimSeasonBattle() {
             }
 
             if (opponentClass == ('class' + HC)) {
-                playerDef = playerDefHC;
+                //End week 28 new battle modification
+                //playerDef = playerDefHC;
+                //week 28 new battle modification
                 opponentAlphaAdd = opponentAlpha.caracs.carac1;
                 opponentBetaAdd = opponentBeta.caracs.carac1;
                 opponentOmegaAdd = opponentOmega.caracs.carac1;
             }
             if (opponentClass == ('class' + CH)) {
-                playerDef = playerDefCH;
+                //End week 28 new battle modification
+                //playerDef = playerDefCH;
+                //week 28 new battle modification
                 opponentAlphaAdd = opponentAlpha.caracs.carac2;
                 opponentBetaAdd = opponentBeta.caracs.carac2;
                 opponentOmegaAdd = opponentOmega.caracs.carac2;
             }
             if (opponentClass == ('class' + KH)) {
-                playerDef = playerDefKH;
+                //End week 28 new battle modification
+                //playerDef = playerDefKH;
+                //week 28 new battle modification
                 opponentAlphaAdd = opponentAlpha.caracs.carac3;
                 opponentBetaAdd = opponentBeta.caracs.carac3;
                 opponentOmegaAdd = opponentOmega.caracs.carac3;
@@ -5171,7 +5777,7 @@ function moduleSimSeasonBattle() {
                 name: opponentName,
             };
 
-            //console.log(opponent);
+            //console.log(player,opponent);
             let simu = simuFight(player, opponent);
             //console.log(opponent);
             //console.log(simu);
@@ -5430,26 +6036,66 @@ var autoLoop = function () {
         CheckSpentPoints();
 
         //check what happen to timer if no more wave before uncommenting
-        /*if (Storage().HHAuto_Setting_plusEventMythic==="true" && checkTimer('eventMythicNextWave'))
+        /*if (Storage().HHAuto_Setting_plusEventMythic==="true" && checkTimerMustExist('eventMythicNextWave'))
         {
             gotoPage('home');
         }
         */
 
+        //if a new event is detected
+        if(
+            busy === false
+            &&
+            (
+                (
+                    getPage() === "home"
+                    && $('#contains_all #homepage .event-widget a[rel="event"]').length >0
+                    && checkTimer('eventGoing')
+                    && Storage().HHAuto_Setting_plusEvent==="true"
+                )
+                ||
+                (
+                    getPage() === "home"
+                    && $('#contains_all #homepage .event-widget a[rel="mythic_event"]').length >0
+                    && checkTimer('eventMythicGoing')
+                    && Storage().HHAuto_Setting_plusEventMythic==="true"
+                )
+                ||
+                (
+                    getPage()==="event"
+                    && $("#contains_all #events .nc-event-container[parsed]").length === 0
+                )
+                || Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) < 1
+                || checkTimerMustExist('eventRefreshExpiration')
+
+            )
+        )
+            //&& ( sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh === undefined || getTimer('eventRefreshExpiration') === -1 || sessionStorage.HHAuto_Temp_eventGirl === undefined)
+        {
+            logHHAuto("Going to check on events.");
+            busy = true;
+            busy = parseEventPage();
+        }
+
+        if(busy === false && getPage()==="battle")
+        {
+            busy = true;
+            doBattle();
+        }
+
         if(Storage().HHAuto_Setting_autoTrollBattle === "true" && getSetHeroInfos('questing.id_world')>0 && sessionStorage.HHAuto_Temp_autoLoop === "true")
         {
-            if(busy === false && currentPower >= Number(sessionStorage.HHAuto_Temp_battlePowerRequired) && currentPower > 0)
+            if(busy === false && currentPower >= Number(sessionStorage.HHAuto_Temp_battlePowerRequired) && (currentPower > 0 || canBuyFight().canBuy))
             {
                 //logHHAuto("fight amount: "+currentPower+" troll threshold: "+Number(Storage().HHAuto_Setting_autoTrollThreshold)+" paranoia fight: "+Number(checkParanoiaSpendings('fight')));
                 if (Number(currentPower) > Number(Storage().HHAuto_Setting_autoTrollThreshold) //fight is above threshold
                     || Number(checkParanoiaSpendings('fight')) > 0 //paranoiaspendings to do
-                    || (sessionStorage.HHAuto_Temp_eventTroll
-                        && sessionStorage.HHAuto_Temp_eventTrollIsMythic === "false"
-                        && Storage().HHAuto_Setting_buyCombat=="true"
-                        && Storage().HHAuto_Setting_plusEvent==="true"
-                        && sessionStorage.HHAuto_Temp_EventInBuyCombTime === "true"
+                    || (sessionStorage.HHAuto_Temp_eventGirl  !== undefined
+                        && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "false"
+                        && canBuyFight().canBuy
                        ) // eventGirl available and buy comb true
-                    || (sessionStorage.HHAuto_Temp_eventTrollIsMythic === "true"
+                    || (sessionStorage.HHAuto_Temp_eventGirl !== undefined
+                        && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "true"
                         && Storage().HHAuto_Setting_plusEventMythic==="true"
                        ) // mythicEventGirl available and fights available
                    )
@@ -5782,9 +6428,9 @@ var autoLoop = function () {
         {
             sessionStorage.HHAuto_Temp_userLink = page;
         }
-        else if(sessionStorage.HHAuto_Temp_userLink !=="none" && busy === false  && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        else if(sessionStorage.HHAuto_Temp_userLink !=="none" && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true")
         {
-            //logHHAuto("Restoring page "+sessionStorage.HHAuto_Temp_userLink);
+            logHHAuto("Back to home page at the end of actions");
             //window.location = sessionStorage.HHAuto_Temp_userLink;
             gotoPage('home');
             sessionStorage.HHAuto_Temp_userLink = "none";
@@ -5804,7 +6450,7 @@ var autoLoop = function () {
     }
     if (getPage() === "battle" && Storage().HHAuto_Setting_showCalculatePower === "true" && $(".preBattleAnim").length == 0)
     {
-        moduleSimBattle();
+        //moduleSimBattle();
     }
     if (getPage() === "season_arena" && Storage().HHAuto_Setting_showCalculatePower === "true")
     {
@@ -5814,8 +6460,9 @@ var autoLoop = function () {
     {
         moduleSimSeasonReward();
     }
-    if (getPage() === "home" && $("div.event-widget div.widget[style='display: block;']").length !== 0)
+    if (getPage() === "event" && ( Storage().HHAuto_Setting_plusEvent==="true" || Storage().HHAuto_Setting_plusEventMythic==="true"))
     {
+        parseEventPage();
         moduleDisplayEventPriority();
     }
     if (getPage() === "powerplacemain" )
@@ -5916,22 +6563,59 @@ function moduleShopActions()
             GM_addStyle('div#menuAff-moveRight {'
                         + 'border-left-color: blue;}');
 
-            document.getElementById("menuAff-moveLeft").addEventListener("click", function()
-                                                                         {
+            function moveLeftAff()
+            {
                 $('div.g1 span[nav="left"]').click();
                 calculateAffSelectedGirl();
-            });
-            document.getElementById("menuAff-moveRight").addEventListener("click", function()
-                                                                          {
+            }
+            function moveRightAff()
+            {
                 $('div.g1 span[nav="right"]').click();
                 calculateAffSelectedGirl();
-            });
-            document.getElementById("menuAff").addEventListener("click", calculateAffSelectedGirl);
-            document.getElementById("menuAffButton").addEventListener("click", function()
-                                                                      {
+            }
+            function launchGiveAff()
+            {
                 document.getElementById("menuAff-moveLeft").style.visibility = "hidden";
                 document.getElementById("menuAff-moveRight").style.visibility = "hidden";
                 giveAff(getSelectGirlID, AffToGive, giftArray);
+            }
+            var KeyUpAff = function(evt)
+            {
+                if (evt.key === 'Enter')
+                {
+                    launchGiveAff();
+                }
+                else if (evt.keyCode == '37')
+                {
+                    // left arrow
+                    moveLeftAff();
+                }
+                else if (evt.keyCode == '39')
+                {
+                    // right arrow
+                    moveRightAff();
+                }
+            }
+
+            
+
+            document.getElementById("menuAff-moveLeft").addEventListener("click", function()
+                                                                         {
+                moveLeftAff();
+            });
+            document.getElementById("menuAff-moveRight").addEventListener("click", function()
+                                                                          {
+                moveRightAff();
+            });
+            document.getElementById("menuAff").addEventListener("click", function()
+                                                                {
+                calculateAffSelectedGirl();
+                document.removeEventListener('keyup', KeyUpAff, false);
+                document.addEventListener('keyup', KeyUpAff, false);
+            });
+            document.getElementById("menuAffButton").addEventListener("click", function()
+                                                                      {
+                launchGiveAff();
             });
             document.getElementById("menuAffCancel").addEventListener("click", function(){
 
@@ -5939,7 +6623,7 @@ function moduleShopActions()
                 {
 
                     AffDialog.close();
-
+                    document.removeEventListener('keyup', KeyUpAff, false);
                 }
                 else
                 {
@@ -5976,7 +6660,11 @@ function moduleShopActions()
                     {
                         document.getElementById("menuAffText").innerHTML = selectedGirl.Name+" "+getTextForUI("menuAffNoNeed","elementText");
                         document.getElementById("menuAffHide").style.display = "none";
-                        AffDialog.showModal();
+                        if (!document.getElementById("AffDialog").open)
+                        {
+                            AffDialog.showModal();
+
+                        }
                     }
                     else
                     {
@@ -6026,7 +6714,11 @@ function moduleShopActions()
                 if (typeof AffDialog.showModal === "function")
                 {
                     document.getElementById("menuAffText").innerHTML = menuText;
-                    AffDialog.showModal();
+                    if (!document.getElementById("AffDialog").open)
+                    {
+                        AffDialog.showModal();
+                    }
+
                 }
                 else
                 {
@@ -6057,7 +6749,8 @@ function moduleShopActions()
             oldTime = newTime;
             if (!document.getElementById("AffDialog").open)
             {
-                logHHAuto('Aff Dialog closed, stopping');
+                logHHAuto('Aff Dialog closed, stopping');$
+                document.removeEventListener('keyup', KeyUpAff, false);
                 return;
             }
 
@@ -6210,22 +6903,57 @@ function moduleShopActions()
 
             GM_addStyle('div#menuExp-moveRight {'
                         + 'border-left-color: blue;}');
+            function moveLeftExp()
+            {
+                $('div.g1 span[nav="left"]').click();
+                prepareExp();
+            }
+            function moveRightExp()
+            {
+                $('div.g1 span[nav="right"]').click();
+                prepareExp();
+            }
+            function launchGiveExp()
+            {
+                document.getElementById("menuExp-moveLeft").style.visibility = "hidden";
+                document.getElementById("menuExp-moveRight").style.visibility = "hidden";
+                giveExp(getSelectGirlID, ExpToGive, potionArray);
+
+            }
+            var KeyUpExp = function(evt)
+            {
+                if (evt.key === 'Enter')
+                {
+                    launchGiveExp();
+                }
+                else if (evt.keyCode == '37')
+                {
+                    // left arrow
+                    moveLeftExp();
+                }
+                else if (evt.keyCode == '39')
+                {
+                    // right arrow
+                    moveRightExp();
+                }
+            }
+
 
             document.getElementById("menuExp-moveLeft").addEventListener("click", function()
                                                                          {
-                $('div.g1 span[nav="left"]').click();
-                prepareExp();
+                moveLeftExp();
             });
             document.getElementById("menuExp-moveRight").addEventListener("click", function()
                                                                           {
-                $('div.g1 span[nav="right"]').click();
-                prepareExp();
+                moveRightExp();
             });
             document.getElementById("menuExp").addEventListener("click", function()
                                                                 {
                 if (typeof ExpDialog.showModal === "function")
                 {
                     prepareExp();
+                document.removeEventListener('keyup', KeyUpExp, false);
+                    document.addEventListener('keyup', KeyUpExp, false);
                     ExpDialog.showModal();
                 }
                 else
@@ -6239,15 +6967,13 @@ function moduleShopActions()
             });
             document.getElementById("menuExpButton").addEventListener("click", function()
                                                                       {
-                document.getElementById("menuExp-moveLeft").style.visibility = "hidden";
-                document.getElementById("menuExp-moveRight").style.visibility = "hidden";
-                giveExp(getSelectGirlID, ExpToGive, potionArray);
+                launchGiveExp();
             });
             document.getElementById("menuExpCancel").addEventListener("click", function(){
 
                 if (typeof ExpDialog.showModal === "function")
                 {
-
+                    document.removeEventListener('keyup', KeyUpExp, false);
                     ExpDialog.close();
 
                 }
@@ -6344,6 +7070,7 @@ function moduleShopActions()
             if (!document.getElementById("ExpDialog").open)
             {
                 logHHAuto('Exp Dialog closed, stopping');
+                document.removeEventListener('keyup', KeyUpExp, false);
                 return;
             }
 
@@ -7208,19 +7935,19 @@ var moduleDisplayEventPriority=function()
     {
         var girl;
         var prio;
-        var query="div.event-widget div.widget[style='display: block;'] div.container div.scroll-area div.rewards-block-tape div.girl_reward";
+        var baseQuery="#events .nc-event-container .scroll-area .nc-event-list-rewards-container .nc-event-list-reward";
         var idArray;
         var currentGirl;
         for ( var e=eventGirlz.length;e>0;e--)
         {
             idArray = Number(e)-1;
-            girl = Number(eventGirlz[idArray].split(";")[2]);
-            query="div.event-widget div.widget[style='display: block;'] div.container div.scroll-area div.rewards-block-tape div.girl_reward[girl="+girl+"]";
+            girl = Number(eventGirlz[idArray].girl_id);
+            let query=baseQuery+"[data-select-girl-id="+girl+"]";
             if ($(query).length >0 )
             {
-                currentGirl=$(query)[0];
+                currentGirl=$(query).parent()[0];
                 $(query).prepend('<div class="HHEventPriority">'+e+'</div>');
-                $($(query)).parent()[0].prepend(currentGirl);
+                $($(query)).parent().parent()[0].prepend(currentGirl);
             }
         }
     }
@@ -7230,17 +7957,116 @@ var moduleDisplayEventPriority=function()
 var clearEventData=function()
 {
     sessionStorage.removeItem('HHAuto_Temp_eventsGirlz');
-    sessionStorage.removeItem('HHAuto_Temp_eventTroll');
-    sessionStorage.removeItem('HHAuto_Temp_eventTrollShards');
-    sessionStorage.HHAuto_Temp_eventTrollIsMythic="false";
-    sessionStorage.HHAuto_Temp_EventInBuyCombTime = "false";
-    sessionStorage.HHAuto_Temp_MythicEventInBuyCombTime = "false";
+    sessionStorage.removeItem('HHAuto_Temp_eventGirl');
+    clearTimer('eventMythicNextWave');
+    clearTimer('eventRefreshExpiration');
+    sessionStorage.removeItem('HHAuto_Temp_EventFightsBeforeRefresh');
 }
 
+function parseEventPage()
+{
+    if(getPage() === "event" )
+    {
+
+        let queryEventTabCheck=$("#contains_all #events .nc-event-container");
+        if (queryEventTabCheck.attr('parsed') !== undefined)
+        {
+            if (!checkTimerMustExist('eventRefreshExpiration'))
+            {
+                //logHHAuto("Events already parsed.");
+                return false;
+            }
+        }
+        logHHAuto("On event page.");
+        clearEventData();
+        let eventsGirlz=[];
+        let Priority=(Storage().HHAuto_Setting_eventTrollOrder?Storage().HHAuto_Setting_eventTrollOrder:"").split(";");
+        let eventHref = $("#contains_all #events .events-list .event-title.active").attr("href");
+        let parsedURL = new URL(eventHref,window.location.origin);
+        let urlParams = new URLSearchParams(parsedURL.search);
+        let eventID = urlParams.get('tab');
+
+        if (eventID.startsWith("event_"))
+        {
+            logHHAuto("On going event.");
+            let timeLeft=$('#contains_all #events .nc-expiration-label#timer').attr("data-seconds-until-event-end");
+            setTimer('eventGoing',timeLeft);
+            let allEventGirlz = $('#contains_all #events .nc-panel-body .nc-event-container .nc-event-reward-container');
+            for (let currIndex = 0;currIndex<allEventGirlz.length;currIndex++)
+            {
+                let element = allEventGirlz[currIndex];
+                let button = $('.nc-events-prize-locations-buttons-container a:not(.disabled)[href^="/troll-pre-battle.html"]', element);
+                if (button.length > 0)
+                {
+                    let buttonHref = button.attr("href");
+                    let girlId = element.getAttribute("data-reward-girl-id");
+                    let girlName = $('.shards_bar_wrapper .shards[shards]',element).attr('name');
+                    parsedURL = new URL(buttonHref,window.location.origin);
+                    urlParams = new URLSearchParams(parsedURL.search);
+                    let TrollID = urlParams.get('id_opponent');
+                    let girlShards = $('.shards_bar_wrapper .shards[shards]',element).attr('shards');
+                    logHHAuto("Event girl : "+girlName+" ("+girlShards+"/100) at troll "+TrollID+" priority : "+Priority.indexOf(TrollID));
+                    eventsGirlz.push({girl_id:girlId,troll_id:TrollID,girl_shards:girlShards,is_mythic:"false",girl_name:girlName});
+                }
+            }
+        }
+        eventsGirlz = eventsGirlz.filter(function (a) {
+            var a_weighted = Number(Priority.indexOf(a.troll_id));
+            if ( a.event_type === "mythic_event" )
+            {
+                return true;
+            }
+            else
+            {
+                return a_weighted !== -1;
+            }
+        });
+        if (eventsGirlz.length>0)
+        {
+            if (Priority[0]!=='')
+            {
+                eventsGirlz.sort(function (a, b) {
+                    var a_weighted = Number(Priority.indexOf(a.troll_id));
+                    if ( a.event_type === "mythic_event" )
+                    {
+                        a_weighted=a_weighted/10;
+                    }
+                    var b_weighted = Number(Priority.indexOf(b.troll_id));
+                    if ( b.event_type === "mythic_event" )
+                    {
+                        b_weighted=b_weighted/10;
+                    }
+                    return a_weighted-b_weighted;
+
+                });
+                //logHHAuto({log:"Sorted EventGirls",eventGirlz:eventsGirlz});
+            }
+            sessionStorage.HHAuto_Temp_eventsGirlz = JSON.stringify(eventsGirlz);
+            var chosenTroll = Number(eventsGirlz[0].troll_id)
+            logHHAuto("ET: "+chosenTroll);
+            sessionStorage.HHAuto_Temp_eventGirl=JSON.stringify(eventsGirlz[0]);
+            queryEventTabCheck[0].setAttribute('parsed', 'true');
+            sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh = "20";
+            setTimer('eventRefreshExpiration', 3600);
+        }
+        else
+        {
+            queryEventTabCheck[0].setAttribute('parsed', 'true');
+            clearEventData();
+        }
+        return false;
+    }
+    else
+    {
+        gotoPage("event");
+        return true;
+    }
+}
+
+/*
 var CollectEventData=function()
 {
     if(getPage()!=="home") return false;
-    clearTimer('eventMythicNextWave');
     clearEventData();
     if (unsafeWindow.event_data || unsafeWindow.mythic_event_data)
     {
@@ -7354,16 +8180,8 @@ var CollectEventData=function()
             sessionStorage.HHAuto_Temp_eventsGirlz = JSON.stringify(eventsGirlz);
             var chosenTroll = Number(eventsGirlz[0].split(";")[3])
             logHHAuto("ET: "+chosenTroll);
-            if ( eventsGirlz[0].split(";")[0] === "mythic_event" )
-            {
-                sessionStorage.HHAuto_Temp_eventTrollIsMythic="true";
-            }
-            else
-            {
-                sessionStorage.HHAuto_Temp_eventTrollIsMythic="false";
-            }
             sessionStorage.HHAuto_Temp_eventTroll=chosenTroll;
-            sessionStorage.HHAuto_Temp_eventTrollShards=Number(eventsGirlz[0].split(";")[4]);
+            JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_shards=Number(eventsGirlz[0].split(";")[4]);
         }
         else
         {
@@ -7387,7 +8205,7 @@ var CollectEventData=function()
                 sessionStorage.HHAuto_Temp_EventInBuyCombTime === "true"
                 && sessionStorage.HHAuto_Temp_eventTroll
                 && getSetHeroInfos('fight.amount')==0
-                && sessionStorage.HHAuto_Temp_eventTrollIsMythic==="false"
+                && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic==="false"
             )
             {
                 //price=hero.get_recharge_cost("fight");
@@ -7416,7 +8234,7 @@ var CollectEventData=function()
                 sessionStorage.HHAuto_Temp_MythicEventInBuyCombTime === "true"
                 && sessionStorage.HHAuto_Temp_eventTroll
                 && getSetHeroInfos('fight.amount')==0
-                && sessionStorage.HHAuto_Temp_eventTrollIsMythic==="true"
+                && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic==="true"
             )
             {
                 //                 price=hero.get_recharge_cost("fight");
@@ -7435,152 +8253,7 @@ var CollectEventData=function()
     logHHAuto('no  event');
     return false;
 }
-
-var CrushThemFights=function()
-{
-    if (getPage() === "battle") {
-        // On battle page.
-        logHHAuto("On battle page.");
-        if ($("#rewards_popup .blue_text_button").size()>0)
-        {
-            $("#rewards_popup .blue_text_button").click();
-        }
-        if ($("#rewards_popup .blue_button_L").size()>0)
-        {
-            $("#rewards_popup .blue_button_L").click();
-        }
-
-        //logHHAuto("On Battle Page.");
-        if ($("#battle[class='canvas']").length === 1) {
-            // Battle screen
-            logHHAuto("On battle screen.");
-        }
-        else
-        {
-            logHHAuto('Unable to identify page.');
-            CrushThem();
-            return;
-        }
-    }
-    else
-    {
-        logHHAuto('Unable to identify page.');
-        CrushThem();
-        return;
-    }
-
-    if (unsafeWindow.hh_battle_players === undefined || unsafeWindow.hh_battle_players[1] === undefined)
-    {
-        logHHAuto('Not on a boss page, aborting');
-        CrushThem();
-        return;
-    }
-
-    let queryString = window.location.search;
-    let urlParams = new URLSearchParams(queryString);
-    let TTF = urlParams.get('id_troll');
-
-    let battleButtonX10 = $('#battle button[rel="launch"].autofight[price_fe="10"]');
-    let battleButtonX50 = $('#battle button[rel="launch"].autofight[price_fe="50"]');
-    let battleButtonX10Price = Number(battleButtonX10.attr('price'));
-    let battleButtonX50Price = Number(battleButtonX50.attr('price'));
-    let hero=getHero();
-    let hcConfirmValue = hero.infos.hc_confirm;
-    let remainingShards;
-
-
-    if (sessionStorage.HHAuto_Temp_eventTrollShards && Number.isInteger(Number(sessionStorage.HHAuto_Temp_eventTrollShards)))
-    {
-        remainingShards = Number(100 - Number(sessionStorage.HHAuto_Temp_eventTrollShards));
-    }
-    else
-    {
-        logHHAuto("Unable to retreive Event girl shards, crushing 1 by 1.");
-        CrushThem();
-        return;
-    }
-
-    let bypassThreshold = (
-        (sessionStorage.HHAuto_Temp_eventTroll
-         && sessionStorage.HHAuto_Temp_eventTrollIsMythic === "false"
-         && Storage().HHAuto_Setting_buyCombat=="true"
-         && Storage().HHAuto_Setting_plusEvent==="true"
-         && sessionStorage.HHAuto_Temp_EventInBuyCombTime === "true"
-        ) // eventGirl available and buy comb true
-        || (sessionStorage.HHAuto_Temp_eventTrollIsMythic === "true"
-            && Storage().HHAuto_Setting_plusEventMythic==="true"
-           )
-    );
-
-    if (Storage().HHAuto_Setting_useX50Fights === "true"
-        && Storage().HHAuto_Setting_minShardsX50
-        && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX50))
-        && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX50)
-        && (battleButtonX50Price === 0 || getSetHeroInfos('hard_currency')>=battleButtonX50Price+Number(Storage().HHAuto_Setting_kobanBank))
-        && Number( getSetHeroInfos('fight.amount')) >= 50
-        && (Number(getSetHeroInfos('fight.amount')) >= (Number(Storage().HHAuto_Setting_autoTrollThreshold) + 50)
-            || bypassThreshold
-           )
-       )
-    {
-        logHHAuto("Going to crush 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
-
-        hero.infos.hc_confirm = true;
-        // We have the power.
-        is_cheat_click=function(e) {
-            return false;
-        };
-        battleButtonX50.click();
-        hero.infos.hc_confirm = hcConfirmValue;
-        logHHAuto("Crushed 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
-        gotoPage('home',randomInterval(300,500));//setTimeout(function(){gotoPage('home');},randomInterval(300,500));//gotoPage('home');
-        return;
-    }
-    else
-    {
-        if (Storage().HHAuto_Setting_useX50Fights === "true")
-        {
-            logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+getSetHeroInfos('fight.amount')+'/50, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
-        }
-    }
-
-    if (Storage().HHAuto_Setting_useX10Fights === "true"
-        && Storage().HHAuto_Setting_minShardsX10
-        && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX10))
-        && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX10)
-        && (battleButtonX10Price === 0 || getSetHeroInfos('hard_currency')>=battleButtonX10Price+Number(Storage().HHAuto_Setting_kobanBank))
-        && Number( getSetHeroInfos('fight.amount')) >= 10
-        && (Number(getSetHeroInfos('fight.amount')) >= (Number(Storage().HHAuto_Setting_autoTrollThreshold) + 10)
-            || bypassThreshold
-           )
-       )
-    {
-        logHHAuto("Going to crush 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
-
-        hero.infos.hc_confirm = true;
-        // We have the power.
-        is_cheat_click=function(e) {
-            return false;
-        };
-        battleButtonX10.click();
-        hero.infos.hc_confirm = hcConfirmValue;
-        logHHAuto("Crushed 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
-        gotoPage('home',randomInterval(300,500));//setTimeout(function(){gotoPage('home');},randomInterval(300,500));//gotoPage('home');
-        return;
-    }
-    else
-    {
-        if (Storage().HHAuto_Setting_useX10Fights === "true")
-        {
-            logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+getSetHeroInfos('fight.amount')+'/10, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX10+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
-        }
-    }
-
-    CrushThem();
-    return;
-
-    //setTimeout(function(){playXTimes(50,unsafeWindow.hh_battle_players[1]);},800);
-}
+*/
 
 // var playXTimes=function(battlesAmount,who)
 // {
@@ -7606,7 +8279,7 @@ var CrushThemFights=function()
 //             var reward = data.rewards;
 //             //reward.redirectUrl = "/world/" + hh_battle_players[1].id_world;
 //             //Reward.handlePopup(reward);
-//             gotoPage('home',randomInterval(500,1500));//setTimeout(function(){gotoPage('home');},randomInterval(500,1500));
+//             gotoPage('home');
 //         }
 //         Hero.updates(battleData, true);
 //     });
@@ -7626,80 +8299,104 @@ var CrushThemFights=function()
 //         });
 // }
 
-var RechargeCombat=function()
+
+function canBuyFight()
 {
+    let type="fight";
     let hero=getHero();
-    let type = "fight";
+    let result = {canBuy:false, price:0, max:0, toBuy:0, event_mythic:"false", type:type};
     let maxx50 = 50;
     let maxx20 = 20;
     let currentFight =Number( getSetHeroInfos('fight.amount'));
-    let pricex50=hero.get_max_recharge_cost("fight",maxx50)
-    let pricex20=hero.get_recharge_cost("fight");
+    let pricex50=hero.get_max_recharge_cost(type,maxx50)
+    let pricex20=hero.get_recharge_cost(type);
     let canRecharge20 = false;
-    let canUsex50 = false;
     let remainingShards;
 
-    if (sessionStorage.HHAuto_Temp_eventTrollShards && Number.isInteger(Number(sessionStorage.HHAuto_Temp_eventTrollShards)))
+    if (sessionStorage.HHAuto_Temp_eventGirl !== undefined && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_shards && Number.isInteger(Number(JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_shards)))
     {
-        remainingShards = Number(100 - Number(sessionStorage.HHAuto_Temp_eventTrollShards));
-    }
-    else
-    {
-        logHHAuto("Unable to retreive Event girl shards, stops buying.");
-        return;
-    }
-    if (sessionStorage.HHAuto_Temp_eventTrollShards && Number.isInteger(Number(sessionStorage.HHAuto_Temp_eventTrollShards))
-        && Storage().HHAuto_Setting_minShardsX50
-        && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX50))
-        && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX50)
-        && getSetHeroInfos('hard_currency')>=pricex50+Number(Storage().HHAuto_Setting_kobanBank)
-        && Storage().HHAuto_Setting_useX50Fights === "true"
-       )
-    {
-        canUsex50 = true;
-    }
-    else
-    {
-
-        logHHAuto('Unable to recharge up to '+maxx50+' for '+pricex50+' kobans, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
-        if (getSetHeroInfos('hard_currency')>=pricex20+Number(Storage().HHAuto_Setting_kobanBank))
+        if (
+            (
+                Storage().HHAuto_Setting_buyCombat=="true"
+                && Storage().HHAuto_Setting_plusEvent==="true"
+                && getSecondsLeft("eventGoing") !== 0
+                && Number(Storage().HHAuto_Setting_buyCombTimer) !== NaN
+                && getSecondsLeft("eventGoing") < Storage().HHAuto_Setting_buyCombTimer*3600
+                && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "false"
+            )
+            ||
+            (
+                Storage().HHAuto_Setting_plusEventMythic==="true"
+                && Storage().HHAuto_Setting_buyMythicCombat=="true"
+                && getSecondsLeft("eventMythicGoing") !== 0
+                && Number(Storage().HHAuto_Setting_buyMythicCombTimer) !== NaN
+                && getSecondsLeft("eventMythicGoing") < Storage().HHAuto_Setting_buyMythicCombTimer*3600
+                && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "true"
+            )
+        )
         {
-            canRecharge20 = true;
+            result.event_mythic = JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic;
         }
         else
         {
-            logHHAuto('Unable to recharge up to '+maxx20+' for '+pricex20+' kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
-            return;
+            return result;
+        }
+
+        //console.log(result);
+        remainingShards = Number(100 - Number(JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_shards));
+        if (Storage().HHAuto_Setting_minShardsX50
+            && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX50))
+            && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX50)
+            && getSetHeroInfos('hard_currency')>=pricex50+Number(Storage().HHAuto_Setting_kobanBank)
+            && Storage().HHAuto_Setting_useX50Fights === "true"
+           )
+        {
+            result.max = maxx50;
+            result.canBuy = true;
+            result.price = pricex50;
+            result.toBuy = maxx50-currentFight;
+        }
+        else
+        {
+
+            logHHAuto('Unable to recharge up to '+maxx50+' for '+pricex50+' kobans, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+            if (getSetHeroInfos('hard_currency')>=pricex20+Number(Storage().HHAuto_Setting_kobanBank))
+            {
+                result.max = maxx20;
+                result.canBuy = true;
+                result.price = pricex20;
+                result.toBuy = maxx20-currentFight;
+            }
+            else
+            {
+                logHHAuto('Unable to recharge up to '+maxx20+' for '+pricex20+' kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+                return;
+            }
         }
     }
 
-    let price;
-    let max;
+    return result;
+}
 
-    if (canUsex50)
+var RechargeCombat=function()
+{
+    let hero=getHero();
+
+    let canBuyResult = canBuyFight();
+    if (canBuyResult.canBuy)
     {
-        price = pricex50;
-        max = maxx50;
+        logHHAuto('Recharging '+canBuyResult.toBuy+' fights for '+canBuyResult.price+' kobans.');
+        let hcConfirmValue = hero.infos.hc_confirm;
+        hero.infos.hc_confirm = true;
+        // We have the power.
+        is_cheat_click=function(e) {
+            return false;
+        };
+        //console.log($("plus[type='energy_fight']"), canBuyResult.price,canBuyResult.type, canBuyResult.max);
+        hero.recharge($("plus[type='energy_fight']"), canBuyResult.price,canBuyResult.type, canBuyResult.max);
+        hero.infos.hc_confirm = hcConfirmValue;
+        logHHAuto('Recharged up to '+canBuyResult.max+' fights for '+canBuyResult.price+' kobans.');
     }
-    else if (canRecharge20)
-    {
-        price = pricex20;
-        max = maxx20;
-    }
-
-    let neededFights = Number(max-currentFight);
-    logHHAuto('Recharging '+neededFights+' fights for '+price+' kobans.');
-    let hcConfirmValue = hero.infos.hc_confirm;
-    hero.infos.hc_confirm = true;
-    // We have the power.
-    is_cheat_click=function(e) {
-        return false;
-    };
-    hero.recharge($("plus[type='energy_fight']"), price,type, max);
-    hero.infos.hc_confirm = hcConfirmValue;
-    logHHAuto('Recharged up to '+max+' fights for '+price+' kobans.');
-
-    setTimeout(function(){location.reload();},randomInterval(500,1000));
     //     hh_ajax(
     //         {
     //             class: "Hero",
@@ -7883,6 +8580,15 @@ function myfileLoad_onChange(event)
     reader.readAsText(event.target.files[0]);
 }
 
+function isJSON(str)
+{
+    if ( /^\s*$/.test(str) ) return false;
+    str = str.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@');
+    str = str.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']');
+    str = str.replace(/(?:^|:|,)(?:\s*\[)+/g, '');
+    return (/^[\],:{}\s]*$/).test(str);
+}
+
 function myfileLoad_onReaderLoad(event){
     var text = event.target.result;
     var storageType;
@@ -7890,13 +8596,13 @@ function myfileLoad_onReaderLoad(event){
     var variableName;
 
     //Json validation
-    if (/^[\],:{}\s]*$/.test(text.replace(/\\["\\\/bfnrtu]/g, '@').
-                             replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
-                             replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
+    if (isJSON(text))
+    {
         logHHAuto('the json is ok');
         var jsonNewSettings = JSON.parse(event.target.result);
         //Assign new values to Storage();
-        for (const [key, value] of Object.entries(jsonNewSettings)) {
+        for (const [key, value] of Object.entries(jsonNewSettings))
+        {
             storageType=key.split(".")[0];
             variableName=key.split(".")[1];
             switch (storageType)
@@ -8259,6 +8965,7 @@ HHAuto_ToolTips.en.PachinkoButton = {elementText : "Use Pachinko", tooltip : "Al
 HHAuto_ToolTips.en.PachinkoOrbsLeft = {elementText : " orbs remaining.", tooltip : ""};
 HHAuto_ToolTips.en.PachinkoInvalidOrbsNb = {elementText : 'Invalid orbs number'};
 HHAuto_ToolTips.en.PachinkoNoGirls = {elementText : 'No more any girls available.'};
+HHAuto_ToolTips.en.PachinkoByPassNoGirls = {elementText : 'Bypass no girls', tooltip : "Bypass the no girls in Pachinko warning."};
 
 HHAuto_ToolTips.fr = [];
 HHAuto_ToolTips.fr.saveDebug = { elementText: "Sauver log", tooltip : "Sauvegarder un fichier journal de débogage."};
@@ -8623,8 +9330,7 @@ var HHVars_Temp=[
     "sessionStorage.HHAuto_Temp_burst",
     "sessionStorage.HHAuto_Temp_charLevel",
     "sessionStorage.HHAuto_Temp_eventsGirlz",
-    "sessionStorage.HHAuto_Temp_eventTroll",
-    "sessionStorage.HHAuto_Temp_eventTrollIsMythic",
+    "sessionStorage.HHAuto_Temp_eventGirl",
     "sessionStorage.HHAuto_Temp_fought",
     "Storage().HHAuto_Temp_freshStart",
     "sessionStorage.HHAuto_Temp_haveAff",
@@ -8650,9 +9356,7 @@ var HHVars_Temp=[
     //"localStorage.HHAuto_Temp_MigratedVars",
     "sessionStorage.HHAuto_Temp_LeagueTempOpponentList",
     "sessionStorage.HHAuto_Temp_CheckSpentPoints",
-    "sessionStorage.HHAuto_Temp_MythicEventInBuyCombTime",
-    "sessionStorage.HHAuto_Temp_EventInBuyCombTime",
-    "sessionStorage.HHAuto_Temp_eventTrollShards"];
+    "sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh"];
 
 
 var updateData = function () {
@@ -9528,7 +10232,7 @@ var start = function () {
     + '</div>'
     // _End row of 3 columns_
     +'</div>';
-    $('#contains_all').parent().prepend(sMenu);
+    $('#contains_all').prepend(sMenu);
 
     GM_addStyle(''
                 +'#sMenuButton {'
@@ -9890,11 +10594,11 @@ var start = function () {
         }
     }
 
-    if (!CollectEventData())
+    /*if (!CollectEventData())
     {
         setTimeout(function(){CollectEventData();},5000);
     }
-
+*/
 
     if (hh_nutaku)
     {
@@ -9960,7 +10664,7 @@ function createHHPopUp()
     document.getElementById("HHAutoPopupGlobalClose").addEventListener("click", function(){
         maskHHPopUp();
     });
-    document.addEventListener('keydown', evt => {
+    document.addEventListener('keyup', evt => {
         if (evt.key === 'Escape')
         {
             maskHHPopUp();
