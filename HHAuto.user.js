@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.3
+// @version      5.5.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -3788,14 +3788,14 @@ var CrushThemFights=function()
         //check if girl still available at troll in case of event
         if (TTF !== null)
         {
-            if (sessionStorage.HHAuto_Temp_eventGirl !== undefined)
+            if (sessionStorage.HHAuto_Temp_eventGirl !== undefined && sessionStorage.HHAuto_Temp_eventGirl.is_mythic === "false")
             {
                 let rewardGirlz=$("#pre-battle #opponent-panel .fighter-rewards .rewards_list .girls_reward[data-rewards]");
 
                 if (rewardGirlz.length ===0 || !rewardGirlz.attr('data-rewards').includes('"id_girl":"'+JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_id+'"'))
                 {
                     logHHAuto("Seems "+JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_name+" is no more available at troll "+Trollz[Number(TTF)]+". Going to event page.");
-                    parseEventPage();
+                    parseEventPage(JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).event_id);
                     return;
                 }
             }
@@ -4029,7 +4029,7 @@ function ObserveAndGetGirlRewards()
                 gotoPage("troll-pre-battle",{id_opponent:TTF});
                 return;
             }
-            let renewEvent = false;
+            let renewEvent = "";
             let girlShardsWon = $('.shards_wrapper .shards_girl_ico');
             logHHAuto("Detected girl shard reward");
             for (var currGirl=0; currGirl <= girlShardsWon.length; currGirl++)
@@ -4045,7 +4045,7 @@ function ObserveAndGetGirlRewards()
                         eventsGirlz[GirlIndex].girl_shards = GirlShards.toString();
                         if (GirlShards === 100)
                         {
-                            renewEvent = true;
+                            renewEvent = eventsGirlz[GirlIndex].event_id;
                         }
                         logHHAuto("Won "+GirlShards+" event shards for "+eventsGirlz[GirlIndex].girl_name);
                     }
@@ -4055,20 +4055,27 @@ function ObserveAndGetGirlRewards()
                     eventGirl.girl_shards = GirlShards.toString();
                     if (GirlShards === 100)
                     {
-                        renewEvent = true;
+                        renewEvent = eventGirl.event_id;
                     }
                 }
             }
             sessionStorage.HHAuto_Temp_eventsGirlz = JSON.stringify(eventsGirlz);
             sessionStorage.HHAuto_Temp_eventGirl = JSON.stringify(eventGirl);
-            if (renewEvent
+            if (renewEvent !== ""
                 || Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) < 1
                 || checkTimerMustExist('eventRefreshExpiration')
                 || (Number(getSetHeroInfos('fight.amount')) === 0 && Storage().HHAuto_Setting_buyMythicCombat=="true" && Storage().HHAuto_Setting_buyCombat=="true" ) )
             {
                 clearTimeout(inCaseTimer);
                 logHHAuto("Need to check back event page");
-                parseEventPage();
+                if (renewEvent !== "")
+                {
+                    parseEventPage(renewEvent);
+                }
+                else
+                {
+                    parseEventPage(eventGirl.event_id);
+                }
                 return;
             }
             else
@@ -6043,27 +6050,29 @@ var autoLoop = function () {
         */
 
         //if a new event is detected
+        let eventQuery = '#contains_all #homepage .event-widget a[rel="event"]:not([href="#"])';
+        let mythicEventQuery = '#contains_all #homepage .event-widget a[rel="mythic_event"]:not([href="#"])';
         if(
             busy === false
             &&
             (
                 (
                     getPage() === "home"
-                    && $('#contains_all #homepage .event-widget a[rel="event"]:not([href="#"])').length >0
+                    && $(eventQuery).length >0
                     && checkTimer('eventGoing')
                     && Storage().HHAuto_Setting_plusEvent==="true"
                 )
                 ||
                 (
                     getPage() === "home"
-                    && $('#contains_all #homepage .event-widget a[rel="mythic_event"]:not([href="#"])').length >0
+                    && $(mythicEventQuery).length >0
                     && checkTimer('eventMythicGoing')
                     && Storage().HHAuto_Setting_plusEventMythic==="true"
                 )
                 ||
                 (
                     getPage()==="event"
-                    && $("#contains_all #events .nc-event-container[parsed]").length === 0
+                    && $("#contains_all #events[parsed]").length === 0
                 )
                 || Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) < 1
                 || checkTimerMustExist('eventRefreshExpiration')
@@ -6072,10 +6081,46 @@ var autoLoop = function () {
         )
             //&& ( sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh === undefined || getTimer('eventRefreshExpiration') === -1 || sessionStorage.HHAuto_Temp_eventGirl === undefined)
         {
+
+            let eventID="";
+            let urlParams;
+            if (getPage()==="event")
+            {
+                let queryString = window.location.search;
+                urlParams = new URLSearchParams(queryString);
+                if (urlParams.get('tab') !== null)
+                {
+                    eventID = urlParams.get('tab');
+                }
+            }
+            else
+            {
+                let parsedURL
+                if ($(eventQuery).length >0)
+                {
+                    parsedURL = new URL($(eventQuery)[0].getAttribute("href"),window.location.origin);
+                    urlParams = new URLSearchParams(parsedURL.search);
+                    if (urlParams.get('tab') !== null)
+                    {
+                        eventID = urlParams.get('tab');
+                    }
+                }
+
+                if($(mythicEventQuery).length >0)
+                {
+                    parsedURL = new URL($(mythicEventQuery)[0].getAttribute("href"),window.location.origin);
+                    urlParams = new URLSearchParams(parsedURL.search);
+                    if (urlParams.get('tab') !== null)
+                    {
+                        eventID = urlParams.get('tab');
+                    }
+                }
+            }
             logHHAuto("Going to check on events.");
             busy = true;
-            busy = parseEventPage();
+            busy = parseEventPage(eventID);
         }
+
 
         if(busy === false && getPage()==="battle")
         {
@@ -6597,7 +6642,7 @@ function moduleShopActions()
                 }
             }
 
-            
+
 
             document.getElementById("menuAff-moveLeft").addEventListener("click", function()
                                                                          {
@@ -6952,7 +6997,7 @@ function moduleShopActions()
                 if (typeof ExpDialog.showModal === "function")
                 {
                     prepareExp();
-                document.removeEventListener('keyup', KeyUpExp, false);
+                    document.removeEventListener('keyup', KeyUpExp, false);
                     document.addEventListener('keyup', KeyUpExp, false);
                     ExpDialog.showModal();
                 }
@@ -7963,12 +8008,11 @@ var clearEventData=function()
     sessionStorage.removeItem('HHAuto_Temp_EventFightsBeforeRefresh');
 }
 
-function parseEventPage()
+function parseEventPage(inTab="global")
 {
     if(getPage() === "event" )
     {
-
-        let queryEventTabCheck=$("#contains_all #events .nc-event-container");
+        let queryEventTabCheck=$("#contains_all #events");
         if (queryEventTabCheck.attr('parsed') !== undefined)
         {
             if (!checkTimerMustExist('eventRefreshExpiration'))
@@ -8010,9 +8054,33 @@ function parseEventPage()
                 }
             }
         }
+        if (eventID.startsWith("mythic_event_"))
+        {
+            logHHAuto("On going mythic event.");
+            let timeLeft=$('#contains_all #events .nc-expiration-label#timer').attr("data-seconds-until-event-end");
+            setTimer('eventMythicGoing',timeLeft);
+            let allEventGirlz = $('#contains_all #events .nc-panel-body .nc-event-container .nc-event-reward-container');
+            for (let currIndex = 0;currIndex<allEventGirlz.length;currIndex++)
+            {
+                let element = allEventGirlz[currIndex];
+                let button = $('.nc-events-prize-locations-buttons-container a:not(.disabled)[href^="/troll-pre-battle.html"]', element);
+                if (button.length > 0)
+                {
+                    let buttonHref = button.attr("href");
+                    let girlId = element.getAttribute("data-reward-girl-id");
+                    let girlName = $('.shards_bar_wrapper .shards[shards]',element).attr('name');
+                    parsedURL = new URL(buttonHref,window.location.origin);
+                    urlParams = new URLSearchParams(parsedURL.search);
+                    let TrollID = urlParams.get('id_opponent');
+                    let girlShards = $('.shards_bar_wrapper .shards[shards]',element).attr('shards');
+                    logHHAuto("Event girl : "+girlName+" ("+girlShards+"/100) at troll "+TrollID+" priority : "+Priority.indexOf(TrollID));
+                    eventsGirlz.push({girl_id:girlId,troll_id:TrollID,girl_shards:girlShards,is_mythic:"true",girl_name:girlName});
+                }
+            }
+        }
         eventsGirlz = eventsGirlz.filter(function (a) {
             var a_weighted = Number(Priority.indexOf(a.troll_id));
-            if ( a.event_type === "mythic_event" )
+            if ( a.is_mythic === "true" )
             {
                 return true;
             }
@@ -8027,12 +8095,12 @@ function parseEventPage()
             {
                 eventsGirlz.sort(function (a, b) {
                     var a_weighted = Number(Priority.indexOf(a.troll_id));
-                    if ( a.event_type === "mythic_event" )
+                    if ( a.is_mythic === "true" )
                     {
                         a_weighted=a_weighted/10;
                     }
                     var b_weighted = Number(Priority.indexOf(b.troll_id));
-                    if ( b.event_type === "mythic_event" )
+                    if ( b.is_mythic === "true" )
                     {
                         b_weighted=b_weighted/10;
                     }
@@ -8058,7 +8126,14 @@ function parseEventPage()
     }
     else
     {
-        gotoPage("event");
+        if (inTab !== "global")
+        {
+            gotoPage("event",{tab:inTab});
+        }
+        else
+        {
+            gotoPage("event");
+        }
         return true;
     }
 }
@@ -9369,6 +9444,7 @@ var updateData = function () {
     var trollOptions = document.getElementById("autoTrollSelector");
     Storage().HHAuto_Setting_autoTrollSelectedIndex = trollOptions.selectedIndex;
     sessionStorage.HHAuto_Temp_trollToFight = trollOptions.value;
+
     Storage().HHAuto_Setting_plusEvent = document.getElementById("plusEvent").checked;
     Storage().HHAuto_Setting_autoSalary = document.getElementById("autoSalaryCheckbox").checked;
     Storage().HHAuto_Setting_autoSalaryTimer = remove1000sSeparator(document.getElementById("autoSalaryTextbox").value);
