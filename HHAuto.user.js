@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.5
+// @version      5.5.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -6085,7 +6085,7 @@ var autoLoop = function () {
                 (
                     getPage() === "home"
                     && $(mythicEventQuery).length >0
-                    && checkTimer('eventMythicGoing')
+                    && ( checkTimer('eventMythicGoing') || (checkTimer('eventMythicNextWave') && getTimer('eventMythicGoing') !== -1))
                     && Storage().HHAuto_Setting_plusEventMythic==="true"
                 )
                 ||
@@ -8022,9 +8022,61 @@ var clearEventData=function()
 {
     sessionStorage.removeItem('HHAuto_Temp_eventsGirlz');
     sessionStorage.removeItem('HHAuto_Temp_eventGirl');
-    clearTimer('eventMythicNextWave');
+    //clearTimer('eventMythicNextWave');
     clearTimer('eventRefreshExpiration');
     sessionStorage.removeItem('HHAuto_Temp_EventFightsBeforeRefresh');
+}
+
+function parseTime(inTimeString)
+{
+    let textDay= 'd';
+    let textHour= 'h';
+    let textMinute= 'm';
+    let textSecond= 's';
+    if ($('html')[0].lang === 'en')
+    {
+        textDay= 'd';
+        textHour= 'h';
+        textMinute= 'm';
+        textSecond= 's';
+    }
+    else if ($('html')[0].lang === 'fr')
+    {
+        textDay= 'j';
+        textHour= 'h';
+        textMinute= 'm';
+        textSecond= 's';
+    }
+    else if ($('html')[0].lang === 'es_ES')
+    {
+        textDay= 'd';
+        textHour= 'h';
+        textMinute= 'm';
+        textSecond= 's';
+    }
+    else if ($('html')[0].lang === 'de_DE')
+    {
+        textDay= 'd';
+        textHour= 'h';
+        textMinute= 'm';
+        textSecond= 'z';
+    }
+    else if ($('html')[0].lang === 'it_IT')
+    {
+        textDay= 'g';
+        textHour= 'h';
+        textMinute= 'm';
+        textSecond= 's';
+    }
+    let atDay = inTimeString.indexOf(textDay);
+    let atHour = inTimeString.indexOf(textHour);
+    let atMinute = inTimeString.indexOf(textMinute);
+    let atSecond = inTimeString.indexOf(textSecond);
+    let day = atDay == -1 ? 0 : parseInt(inTimeString.substring(0, atDay).trim());
+    let hour = atHour == -1 ? 0 : parseInt(inTimeString.substring(atDay+1, atHour).trim());
+    let minute = atMinute == -1 ? 0 : parseInt(inTimeString.substring(atHour+1, atMinute).trim());
+    let second = atSecond == -1 ? 0 : parseInt(inTimeString.substring(atMinute+1, atSecond).trim());
+    return (day*24*3600 + hour*3600 + minute*60 + second);
 }
 
 function parseEventPage(inTab="global")
@@ -8068,8 +8120,8 @@ function parseEventPage(inTab="global")
                     urlParams = new URLSearchParams(parsedURL.search);
                     let TrollID = urlParams.get('id_opponent');
                     let girlShards = $('.shards_bar_wrapper .shards[shards]',element).attr('shards');
-                    logHHAuto("Event girl : "+girlName+" ("+girlShards+"/100) at troll "+TrollID+" priority : "+Priority.indexOf(TrollID));
-                    eventsGirlz.push({girl_id:girlId,troll_id:TrollID,girl_shards:girlShards,is_mythic:"false",girl_name:girlName});
+                    logHHAuto("Event girl : "+girlName+" ("+girlShards+"/100) at troll "+TrollID+" priority : "+Priority.indexOf(TrollID)+" on event : ",eventID);
+                    eventsGirlz.push({girl_id:girlId,troll_id:TrollID,girl_shards:girlShards,is_mythic:"false",girl_name:girlName,event_id:eventID});
                 }
             }
         }
@@ -8083,17 +8135,31 @@ function parseEventPage(inTab="global")
             {
                 let element = allEventGirlz[currIndex];
                 let button = $('.nc-events-prize-locations-buttons-container a:not(.disabled)[href^="/troll-pre-battle.html"]', element);
-                if (button.length > 0)
+                let ShardsQuery = '#events .nc-panel .nc-panel-body .nc-event-reward-container .nc-events-prize-locations-container .shards-info span.number';
+                let timerQuery= '#events .nc-panel .nc-panel-body .nc-event-reward-container .nc-events-prize-locations-container .shards-info span.timer'
+                if ($(ShardsQuery).length === 2 )
                 {
-                    let buttonHref = button.attr("href");
-                    let girlId = element.getAttribute("data-reward-girl-id");
-                    let girlName = $('.shards_bar_wrapper .shards[shards]',element).attr('name');
-                    parsedURL = new URL(buttonHref,window.location.origin);
-                    urlParams = new URLSearchParams(parsedURL.search);
-                    let TrollID = urlParams.get('id_opponent');
-                    let girlShards = $('.shards_bar_wrapper .shards[shards]',element).attr('shards');
-                    logHHAuto("Event girl : "+girlName+" ("+girlShards+"/100) at troll "+TrollID+" priority : "+Priority.indexOf(TrollID));
-                    eventsGirlz.push({girl_id:girlId,troll_id:TrollID,girl_shards:girlShards,is_mythic:"true",girl_name:girlName});
+                    let remShards=Number($(ShardsQuery)[0].innerText);
+                    let nextWave=parseTime($(timerQuery)[0].innerText);
+                    if (remShards !== 0 )
+                    {
+                        if (button.length > 0)
+                        {
+                            let buttonHref = button.attr("href");
+                            let girlId = element.getAttribute("data-reward-girl-id");
+                            let girlName = $('.shards_bar_wrapper .shards[shards]',element).attr('name');
+                            parsedURL = new URL(buttonHref,window.location.origin);
+                            urlParams = new URLSearchParams(parsedURL.search);
+                            let TrollID = urlParams.get('id_opponent');
+                            let girlShards = $('.shards_bar_wrapper .shards[shards]',element).attr('shards');
+                            logHHAuto("Event girl : "+girlName+" ("+girlShards+"/100) at troll "+TrollID+" priority : "+Priority.indexOf(TrollID)+" on event : ",eventID);
+                            eventsGirlz.push({girl_id:girlId,troll_id:TrollID,girl_shards:girlShards,is_mythic:"true",girl_name:girlName,event_id:eventID});
+                        }
+                    }
+                    else
+                    {
+                        setTimer('eventMythicNextWave',nextWave);
+                    }
                 }
             }
         }
