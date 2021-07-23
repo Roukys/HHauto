@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.6
+// @version      5.5.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -3807,7 +3807,7 @@ var CrushThemFights=function()
         //check if girl still available at troll in case of event
         if (TTF !== null)
         {
-            if (sessionStorage.HHAuto_Temp_eventGirl !== undefined && sessionStorage.HHAuto_Temp_eventGirl.is_mythic === "false")
+            if (sessionStorage.HHAuto_Temp_eventGirl !== undefined)
             {
                 let rewardGirlz=$("#pre-battle #opponent-panel .fighter-rewards .rewards_list .girls_reward[data-rewards]");
 
@@ -8199,7 +8199,7 @@ function parseEventPage(inTab="global")
             logHHAuto("ET: "+chosenTroll);
             sessionStorage.HHAuto_Temp_eventGirl=JSON.stringify(eventsGirlz[0]);
             queryEventTabCheck[0].setAttribute('parsed', 'true');
-            sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh = "20";
+            sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh = "20000";
             setTimer('eventRefreshExpiration', 3600);
         }
         else
