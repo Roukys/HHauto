@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.7
+// @version      5.5.8
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -3815,7 +3815,7 @@ var CrushThemFights=function()
                 {
                     logHHAuto("Seems "+JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_name+" is no more available at troll "+Trollz[Number(TTF)]+". Going to event page.");
                     parseEventPage(JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).event_id);
-                    return;
+                    return true;
                 }
             }
             if (currentPower === 0)
@@ -5921,6 +5921,16 @@ function moduleSimSeasonBattle() {
                 chosenMojo = currentMojo;
                 oppoName = nameOppo[index];
             }
+            //same green flag same mojo same gains but better score
+            else if (chosenFlag == currentFlag && currentFlag == 1 && chosenMojo == currentMojo && currentGains === currentAff + currentExp && currentScore > chosenRating)
+            {
+                //logHHAuto('third');
+                chosenRating = currentScore;
+                chosenFlag = currentFlag;
+                chosenID = index;
+                chosenMojo = currentMojo;
+                oppoName = nameOppo[index];
+            }
         }
 
         var price=Number($("div.opponents_arena button#refresh_villains").attr('price'));
@@ -6528,6 +6538,9 @@ var autoLoop = function () {
     {
         parseEventPage();
         moduleDisplayEventPriority();
+    }
+    if (getPage() === "event" && Storage().HHAuto_Setting_PoAMaskRewards === "true")
+    {
         modulePathOfAttractionHide();
     }
     if (getPage() === "powerplacemain" )
