@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.8
+// @version      5.5.9
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -3809,21 +3809,37 @@ var CrushThemFights=function()
         {
             if (sessionStorage.HHAuto_Temp_eventGirl !== undefined)
             {
-                let rewardGirlz=$("#pre-battle #opponent-panel .fighter-rewards .rewards_list .girls_reward[data-rewards]");
-
-                if (rewardGirlz.length ===0 || !rewardGirlz.attr('data-rewards').includes('"id_girl":"'+JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_id+'"'))
+                if (
+                    (
+                        JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "true"
+                        && Storage().HHAuto_Setting_plusEventMythic==="true"
+                    )
+                    ||
+                    (
+                        JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "false"
+                        && Storage().HHAuto_Setting_plusEvent==="true"
+                    )
+                )
                 {
-                    logHHAuto("Seems "+JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_name+" is no more available at troll "+Trollz[Number(TTF)]+". Going to event page.");
-                    parseEventPage(JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).event_id);
-                    return true;
+                    let rewardGirlz=$("#pre-battle #opponent-panel .fighter-rewards .rewards_list .girls_reward[data-rewards]");
+
+                    if (rewardGirlz.length ===0 || !rewardGirlz.attr('data-rewards').includes('"id_girl":"'+JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_id+'"'))
+                    {
+                        logHHAuto("Seems "+JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_name+" is no more available at troll "+Trollz[Number(TTF)]+". Going to event page.");
+                        parseEventPage(JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).event_id);
+                        return true;
+                    }
                 }
             }
-            if (currentPower === 0)
+            console.log(canBuyFight().canBuy);
+            if (canBuyFight().canBuy)
             {
+                return;
                 RechargeCombat();
                 gotoPage("troll-pre-battle",{id_opponent:TTF});
                 return;
             }
+            return;
 
             if (sessionStorage.HHAuto_Temp_eventGirl !== undefined && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_shards && Number.isInteger(Number(JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_shards)) && battleButtonX10.length > 0 && battleButtonX50.length > 0)
             {
@@ -3857,7 +3873,7 @@ var CrushThemFights=function()
                     };
                     battleButtonX50[0].click();
                     hero.infos.hc_confirm = hcConfirmValue;
-                    sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh = Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) - 50;
+                    //sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh = Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) - 50;
                     logHHAuto("Crushed 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
                     if (sessionStorage.HHAuto_Temp_questRequirement === "battle") {
                         // Battle Done.
@@ -3894,7 +3910,7 @@ var CrushThemFights=function()
                     };
                     battleButtonX10[0].click();
                     hero.infos.hc_confirm = hcConfirmValue;
-                    sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh = Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) - 10;
+                    //sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh = Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) - 10;
                     logHHAuto("Crushed 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
                     if (sessionStorage.HHAuto_Temp_questRequirement === "battle") {
                         // Battle Done.
@@ -3937,10 +3953,11 @@ var CrushThemFights=function()
                     return false;
                 };
                 battleButton[0].click();
-                if (sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh)
+                /*if (sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh)
                 {
                     sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh = Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) - 1;
                 }
+                */
             }
             else
             {
@@ -4081,8 +4098,9 @@ function ObserveAndGetGirlRewards()
             sessionStorage.HHAuto_Temp_eventsGirlz = JSON.stringify(eventsGirlz);
             sessionStorage.HHAuto_Temp_eventGirl = JSON.stringify(eventGirl);
             if (renewEvent !== ""
-                || Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) < 1
-                || checkTimerMustExist('eventRefreshExpiration')
+                //|| Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) < 1
+                || checkEvent(eventGirl.event_id)
+                || checkEvent(renewEvent)
                 || (Number(getSetHeroInfos('fight.amount')) === 0 && Storage().HHAuto_Setting_buyMythicCombat=="true" && Storage().HHAuto_Setting_buyCombat=="true" ) )
             {
                 clearTimeout(inCaseTimer);
@@ -4790,10 +4808,7 @@ var flipParanoia=function()
     setTimer('paranoiaSwitch',toNextSwitch);
     if (sessionStorage.HHAuto_Temp_burst=="true")
     {
-        if ( getTimer("eventRefreshExpiration") !== -1)
-        {
-            setTimer("eventRefreshExpiration",0);
-        }
+        sessionStorage.removeItem("HHAuto_Temp_eventsList");
         gotoPage('home');
     }
 }
@@ -6081,73 +6096,67 @@ var autoLoop = function () {
         //if a new event is detected
         let eventQuery = '#contains_all #homepage .event-widget a[rel="event"]:not([href="#"])';
         let mythicEventQuery = '#contains_all #homepage .event-widget a[rel="mythic_event"]:not([href="#"])';
+        let eventIDs=[];
+        let urlParams;
+        let queryResults;
+        if (getPage()==="event")
+        {
+            let queryString = window.location.search;
+            urlParams = new URLSearchParams(queryString);
+            if (urlParams.get('tab') !== null)
+            {
+                eventIDs.push(urlParams.get('tab'));
+            }
+        }
+        else if (getPage() === "home")
+        {
+            let parsedURL;
+            queryResults=$(eventQuery);
+            if (queryResults.length >0)
+            {
+                for(let index = 0;index < queryResults.length;index++)
+                {
+                    parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
+                    urlParams = new URLSearchParams(parsedURL.search);
+                    if (urlParams.get('tab') !== null && checkEvent(urlParams.get('tab')))
+                    {
+                        eventIDs.push(urlParams.get('tab'));
+                    }
+                }
+            }
+            queryResults=$(mythicEventQuery)
+            if(queryResults.length >0)
+            {
+                for(let index = 0;index < queryResults.length;index++)
+                {
+                    parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
+                    urlParams = new URLSearchParams(parsedURL.search);
+                    if (urlParams.get('tab') !== null && checkEvent(urlParams.get('tab')))
+                    {
+                        eventIDs.push(urlParams.get('tab'));
+                    }
+                }
+            }
+        }
         if(
             busy === false
             &&
             (
                 (
-                    getPage() === "home"
-                    && $(eventQuery).length >0
-                    && checkTimer('eventGoing')
-                    && Storage().HHAuto_Setting_plusEvent==="true"
-                )
-                ||
-                (
-                    getPage() === "home"
-                    && $(mythicEventQuery).length >0
-                    && ( checkTimer('eventMythicGoing') || (checkTimer('eventMythicNextWave') && getTimer('eventMythicGoing') !== -1))
-                    && Storage().HHAuto_Setting_plusEventMythic==="true"
+                    eventIDs.length > 0
                 )
                 ||
                 (
                     getPage()==="event"
                     && $("#contains_all #events[parsed]").length === 0
                 )
-                || Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) < 1
-                || checkTimerMustExist('eventRefreshExpiration')
-
             )
         )
             //&& ( sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh === undefined || getTimer('eventRefreshExpiration') === -1 || sessionStorage.HHAuto_Temp_eventGirl === undefined)
         {
-
-            let eventID="";
-            let urlParams;
-            if (getPage()==="event")
-            {
-                let queryString = window.location.search;
-                urlParams = new URLSearchParams(queryString);
-                if (urlParams.get('tab') !== null)
-                {
-                    eventID = urlParams.get('tab');
-                }
-            }
-            else
-            {
-                let parsedURL
-                if ($(eventQuery).length >0)
-                {
-                    parsedURL = new URL($(eventQuery)[0].getAttribute("href"),window.location.origin);
-                    urlParams = new URLSearchParams(parsedURL.search);
-                    if (urlParams.get('tab') !== null)
-                    {
-                        eventID = urlParams.get('tab');
-                    }
-                }
-
-                if($(mythicEventQuery).length >0)
-                {
-                    parsedURL = new URL($(mythicEventQuery)[0].getAttribute("href"),window.location.origin);
-                    urlParams = new URLSearchParams(parsedURL.search);
-                    if (urlParams.get('tab') !== null)
-                    {
-                        eventID = urlParams.get('tab');
-                    }
-                }
-            }
             logHHAuto("Going to check on events.");
             busy = true;
-            busy = parseEventPage(eventID);
+            busy = parseEventPage(eventIDs[0]);
         }
 
 
@@ -7824,7 +7833,7 @@ function moduleShopActions()
                             let currSellNumber = Number((initialNumberOfItems - currentNumberOfItems) +1);
                             document.getElementById("menuSoldCurrentCount").innerHTML = currSellNumber+"/"+itemsToSell;
                             document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
-                            setTimeout(selling_func, randomInterval(1000,1600));
+                            setTimeout(selling_func, 300);
                             return;
                         }
                     }
@@ -7833,7 +7842,7 @@ function moduleShopActions()
                     {
                         //Select first non legendary item
                         $('#inventory .selected .inventory_slots .slot:not(.selected):not(.empty):not(.legendary):not([menuSellLocked])')[0].click();
-                        setTimeout(selling_func, randomInterval(1000,1600));
+                        setTimeout(selling_func, 300);
                         return;
                     }
                     else if ($('#inventory .selected .inventory_slots [canBeSold]:not([menuSellLocked])').length > 0)
@@ -7995,7 +8004,7 @@ function moduleShopActions()
                 }
             }
 
-            setTimeout(selling_func, randomInterval(1000,1600));
+            setTimeout(selling_func, 300);
         }
         selling_func();
     }
@@ -8033,11 +8042,58 @@ var moduleDisplayEventPriority=function()
 
 var clearEventData=function()
 {
-    sessionStorage.removeItem('HHAuto_Temp_eventsGirlz');
-    sessionStorage.removeItem('HHAuto_Temp_eventGirl');
+    //sessionStorage.removeItem('HHAuto_Temp_eventsGirlz');
+    //sessionStorage.removeItem('HHAuto_Temp_eventGirl');
     //clearTimer('eventMythicNextWave');
-    clearTimer('eventRefreshExpiration');
-    sessionStorage.removeItem('HHAuto_Temp_EventFightsBeforeRefresh');
+    //clearTimer('eventRefreshExpiration');
+    //sessionStorage.removeItem('HHAuto_Temp_EventFightsBeforeRefresh');
+    let eventList = isJSON(sessionStorage.HHAuto_Temp_eventsList)?JSON.parse(sessionStorage.HHAuto_Temp_eventsList):{};
+    let eventsGirlz = isJSON(sessionStorage.HHAuto_Temp_eventsGirlz)?JSON.parse(sessionStorage.HHAuto_Temp_eventsGirlz):[];
+    let eventGirl =isJSON(sessionStorage.HHAuto_Temp_eventGirl)?JSON.parse(sessionStorage.HHAuto_Temp_eventGirl):{};
+    let hasMythic = false;
+    for (let prop of Object.keys(eventList))
+    {
+        if (eventList[prop]["seconds_before_end"]<new Date())
+        {
+            delete eventList[prop];
+        }
+        else
+        {
+            if (! eventList[prop]["isCompleted"] && eventList[prop]["isMythic"])
+            {
+                hasMythic = true;
+            }
+        }
+    }
+    if (hasMythic === false)
+    {
+        clearTimer('eventMythicNextWave');
+    }
+    if (Object.keys(eventList).length === 0)
+    {
+        sessionStorage.removeItem('HHAuto_Temp_eventsGirlz');
+        sessionStorage.removeItem('HHAuto_Temp_eventGirl');
+        sessionStorage.removeItem('HHAuto_Temp_eventsList');
+    }
+    else
+    {
+        eventsGirlz = eventsGirlz.filter(function (a) {
+            if ( eventList.hasOwnProperty(a.event_id))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        });
+        if (!eventList.hasOwnProperty(eventGirl.event_id))
+        {
+            sessionStorage.removeItem('HHAuto_Temp_eventGirl');
+        }
+        sessionStorage.HHAuto_Temp_eventsGirlz = JSON.stringify(eventsGirlz);
+        sessionStorage.HHAuto_Temp_eventsList = JSON.stringify(eventList);
+    }
 }
 
 function parseTime(inTimeString)
@@ -8097,9 +8153,13 @@ function parseEventPage(inTab="global")
     if(getPage() === "event" )
     {
         let queryEventTabCheck=$("#contains_all #events");
+        let eventHref = $("#contains_all #events .events-list .event-title.active").attr("href");
+        let parsedURL = new URL(eventHref,window.location.origin);
+        let urlParams = new URLSearchParams(parsedURL.search);
+        let eventID = urlParams.get('tab');
         if (queryEventTabCheck.attr('parsed') !== undefined)
         {
-            if (!checkTimerMustExist('eventRefreshExpiration'))
+            if (!checkEvent(eventID))
             {
                 //logHHAuto("Events already parsed.");
                 return false;
@@ -8107,17 +8167,22 @@ function parseEventPage(inTab="global")
         }
         logHHAuto("On event page.");
         clearEventData();
-        let eventsGirlz=[];
+        //let eventsGirlz=[];
+        let eventList = isJSON(sessionStorage.HHAuto_Temp_eventsList)?JSON.parse(sessionStorage.HHAuto_Temp_eventsList):{};
+        let eventsGirlz = isJSON(sessionStorage.HHAuto_Temp_eventsGirlz)?JSON.parse(sessionStorage.HHAuto_Temp_eventsGirlz):[];
         let Priority=(Storage().HHAuto_Setting_eventTrollOrder?Storage().HHAuto_Setting_eventTrollOrder:"").split(";");
-        let eventHref = $("#contains_all #events .events-list .event-title.active").attr("href");
-        let parsedURL = new URL(eventHref,window.location.origin);
-        let urlParams = new URLSearchParams(parsedURL.search);
-        let eventID = urlParams.get('tab');
 
-        if (eventID.startsWith("event_"))
+        let refreshTimer = 3600;
+        if (eventID.startsWith(HHVariables.eventIDReg))
         {
             logHHAuto("On going event.");
             let timeLeft=$('#contains_all #events .nc-expiration-label#timer').attr("data-seconds-until-event-end");
+            eventList[eventID]={};
+            eventList[eventID]["id"]=eventID;
+            eventList[eventID]["isMythic"]=false;
+            eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(timeLeft) * 1000;
+            eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
+            eventList[eventID]["isCompleted"] = true;
             setTimer('eventGoing',timeLeft);
             let allEventGirlz = $('#contains_all #events .nc-panel-body .nc-event-container .nc-event-reward-container');
             for (let currIndex = 0;currIndex<allEventGirlz.length;currIndex++)
@@ -8126,6 +8191,7 @@ function parseEventPage(inTab="global")
                 let button = $('.nc-events-prize-locations-buttons-container a:not(.disabled)[href^="/troll-pre-battle.html"]', element);
                 if (button.length > 0)
                 {
+                    eventList[eventID]["isCompleted"] = false;
                     let buttonHref = button.attr("href");
                     let girlId = element.getAttribute("data-reward-girl-id");
                     let girlName = $('.shards_bar_wrapper .shards[shards]',element).attr('name');
@@ -8138,10 +8204,16 @@ function parseEventPage(inTab="global")
                 }
             }
         }
-        if (eventID.startsWith("mythic_event_"))
+        if (eventID.startsWith(HHVariables.mythicEventIDReg))
         {
             logHHAuto("On going mythic event.");
             let timeLeft=$('#contains_all #events .nc-expiration-label#timer').attr("data-seconds-until-event-end");
+            eventList[eventID]={};
+            eventList[eventID]["id"]=eventID;
+            eventList[eventID]["isMythic"]=true;
+            eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(timeLeft) * 1000;
+            eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
+            eventList[eventID]["isCompleted"] = true;
             setTimer('eventMythicGoing',timeLeft);
             let allEventGirlz = $('#contains_all #events .nc-panel-body .nc-event-container .nc-event-reward-container');
             for (let currIndex = 0;currIndex<allEventGirlz.length;currIndex++)
@@ -8154,9 +8226,10 @@ function parseEventPage(inTab="global")
                 {
                     let remShards=Number($(ShardsQuery)[0].innerText);
                     let nextWave=parseTime($(timerQuery)[0].innerText);
-                    if (remShards !== 0 )
+                    if (button.length > 0)
                     {
-                        if (button.length > 0)
+                        eventList[eventID]["isCompleted"] = false;
+                        if (remShards !== 0 )
                         {
                             let buttonHref = button.attr("href");
                             let girlId = element.getAttribute("data-reward-girl-id");
@@ -8168,13 +8241,22 @@ function parseEventPage(inTab="global")
                             logHHAuto("Event girl : "+girlName+" ("+girlShards+"/100) at troll "+TrollID+" priority : "+Priority.indexOf(TrollID)+" on event : ",eventID);
                             eventsGirlz.push({girl_id:girlId,troll_id:TrollID,girl_shards:girlShards,is_mythic:"true",girl_name:girlName,event_id:eventID});
                         }
+                        else
+                        {
+                            setTimer('eventMythicNextWave',nextWave);
+                        }
                     }
-                    else
-                    {
-                        setTimer('eventMythicNextWave',nextWave);
-                    }
+
                 }
             }
+        }
+        if(Object.keys(eventList).length >0)
+        {
+            sessionStorage.HHAuto_Temp_eventsList = JSON.stringify(eventList);
+        }
+        else
+        {
+            sessionStorage.removeItem("HHAuto_Temp_eventsList");
         }
         eventsGirlz = eventsGirlz.filter(function (a) {
             var a_weighted = Number(Priority.indexOf(a.troll_id));
@@ -8212,8 +8294,8 @@ function parseEventPage(inTab="global")
             logHHAuto("ET: "+chosenTroll);
             sessionStorage.HHAuto_Temp_eventGirl=JSON.stringify(eventsGirlz[0]);
             queryEventTabCheck[0].setAttribute('parsed', 'true');
-            sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh = "20000";
-            setTimer('eventRefreshExpiration', 3600);
+            //sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh = "20000";
+            //setTimer('eventRefreshExpiration', 3600);
         }
         else
         {
@@ -8233,6 +8315,45 @@ function parseEventPage(inTab="global")
             gotoPage("event");
         }
         return true;
+    }
+}
+
+function checkEvent(inEventID)
+{
+    let eventList = isJSON(sessionStorage.HHAuto_Temp_eventsList)?JSON.parse(sessionStorage.HHAuto_Temp_eventsList):{};
+    let result = false;
+    let eventType = inEventID.startsWith(HHVariables.mythicEventIDReg)?"mythic":"";
+    eventType = inEventID.startsWith(HHVariables.eventIDReg)?"event":"";
+
+    if (eventType === "mythic" && Storage().HHAuto_Setting_plusEventMythic!=="true")
+    {
+        return false;
+    }
+    if (eventType === "event" && Storage().HHAuto_Setting_plusEvent!=="true")
+    {
+        return false;
+    }
+    if (eventList === {} || !eventList.hasOwnProperty(inEventID))
+    {
+        return true;
+    }
+    else
+    {
+        if (eventList[inEventID]["isCompleted"])
+        {
+            return false;
+        }
+        else
+        {
+            if (eventList[inEventID]["next_refresh"]<new Date() || (eventType === "mythic" && checkTimer('eventMythicNextWave')))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }
 
@@ -8522,6 +8643,7 @@ function canBuyFight()
             && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX50)
             && getSetHeroInfos('hard_currency')>=pricex50+Number(Storage().HHAuto_Setting_kobanBank)
             && Storage().HHAuto_Setting_useX50Fights === "true"
+            && currentFight < maxx50
            )
         {
             result.max = maxx50;
@@ -8533,7 +8655,8 @@ function canBuyFight()
         {
 
             logHHAuto('Unable to recharge up to '+maxx50+' for '+pricex50+' kobans, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
-            if (getSetHeroInfos('hard_currency')>=pricex20+Number(Storage().HHAuto_Setting_kobanBank))
+            if (getSetHeroInfos('hard_currency')>=pricex20+Number(Storage().HHAuto_Setting_kobanBank)
+                && currentFight < 10)
             {
                 result.max = maxx20;
                 result.canBuy = true;
@@ -8543,7 +8666,7 @@ function canBuyFight()
             else
             {
                 logHHAuto('Unable to recharge up to '+maxx20+' for '+pricex20+' kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
-                return;
+                return result;
             }
         }
     }
@@ -8755,7 +8878,7 @@ function myfileLoad_onChange(event)
 
 function isJSON(str)
 {
-    if ( /^\s*$/.test(str) ) return false;
+    if (str === undefined || str === null || /^\s*$/.test(str) ) return false;
     str = str.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@');
     str = str.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']');
     str = str.replace(/(?:^|:|,)(?:\s*\[)+/g, '');
@@ -8948,6 +9071,10 @@ function manageToolTipsDisplay(important=false)
 
     }
 }
+
+var HHVariables = {};
+HHVariables.eventIDReg = "event_";
+HHVariables.mythicEventIDReg = "mythic_event_";
 
 const HC = 1;
 const CH = 2;
@@ -9529,7 +9656,8 @@ var HHVars_Temp=[
     //"localStorage.HHAuto_Temp_MigratedVars",
     "sessionStorage.HHAuto_Temp_LeagueTempOpponentList",
     "sessionStorage.HHAuto_Temp_CheckSpentPoints",
-    "sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh"];
+    //"sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh",
+    "sessionStorage.HHAuto_Temp_eventsList",];
 
 
 var updateData = function () {
