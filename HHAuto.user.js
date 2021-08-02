@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.10
+// @version      5.5.11
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -8037,7 +8037,7 @@ var moduleDisplayEventPriority=function()
 
 }
 
-var clearEventData=function()
+var clearEventData=function(inEventID)
 {
     //sessionStorage.removeItem('HHAuto_Temp_eventsGirlz');
     //sessionStorage.removeItem('HHAuto_Temp_eventGirl');
@@ -8075,20 +8075,27 @@ var clearEventData=function()
     else
     {
         eventsGirlz = eventsGirlz.filter(function (a) {
-            if ( eventList.hasOwnProperty(a.event_id))
-            {
-                return true;
-            }
-            else
+            if ( !eventList.hasOwnProperty(a.event_id) || a.event_id === inEventID)
             {
                 return false;
             }
+            else
+            {
+                return true;
+            }
         });
-        if (!eventList.hasOwnProperty(eventGirl.event_id))
+        if(Object.keys(eventsGirlz).length === 0)
+        {
+            sessionStorage.removeItem('HHAuto_Temp_eventsGirlz');
+        }
+        else
+        {
+            sessionStorage.HHAuto_Temp_eventsGirlz = JSON.stringify(eventsGirlz);
+        }
+        if (!eventList.hasOwnProperty(eventGirl.event_id) || eventGirl.event_id ===inEventID)
         {
             sessionStorage.removeItem('HHAuto_Temp_eventGirl');
         }
-        sessionStorage.HHAuto_Temp_eventsGirlz = JSON.stringify(eventsGirlz);
         sessionStorage.HHAuto_Temp_eventsList = JSON.stringify(eventList);
     }
 }
@@ -8163,7 +8170,7 @@ function parseEventPage(inTab="global")
             }
         }
         logHHAuto("On event page.");
-        clearEventData();
+        clearEventData(eventID);
         //let eventsGirlz=[];
         let eventList = isJSON(sessionStorage.HHAuto_Temp_eventsList)?JSON.parse(sessionStorage.HHAuto_Temp_eventsList):{};
         let eventsGirlz = isJSON(sessionStorage.HHAuto_Temp_eventsGirlz)?JSON.parse(sessionStorage.HHAuto_Temp_eventsGirlz):[];
@@ -8297,7 +8304,7 @@ function parseEventPage(inTab="global")
         else
         {
             queryEventTabCheck[0].setAttribute('parsed', 'true');
-            clearEventData();
+            clearEventData(eventID);
         }
         return false;
     }
