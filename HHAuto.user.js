@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.14
+// @version      5.5.15
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -4081,7 +4081,10 @@ function ObserveAndGetGirlRewards()
                         {
                             renewEvent = eventsGirlz[GirlIndex].event_id;
                         }
-                        logHHAuto("Won "+wonShards+" event shards for "+eventsGirlz[GirlIndex].girl_name);
+                        if (wonShards > 0)
+                        {
+                            logHHAuto("Won "+wonShards+" event shards for "+eventsGirlz[GirlIndex].girl_name);
+                        }
                     }
                 }
                 if (eventGirl.girl_id === GirlId)
@@ -4098,7 +4101,7 @@ function ObserveAndGetGirlRewards()
             if (renewEvent !== ""
                 //|| Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) < 1
                 || checkEvent(eventGirl.event_id)
-                || checkEvent(renewEvent)
+               )
             {
                 clearTimeout(inCaseTimer);
                 logHHAuto("Need to check back event page");
