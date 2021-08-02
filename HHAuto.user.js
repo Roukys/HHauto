@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.12
+// @version      5.5.13
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -8352,9 +8352,7 @@ function checkEvent(inEventID)
 {
     let eventList = isJSON(sessionStorage.HHAuto_Temp_eventsList)?JSON.parse(sessionStorage.HHAuto_Temp_eventsList):{};
     let result = false;
-    let eventType = inEventID.startsWith(HHVariables.mythicEventIDReg)?"mythic":"";
-    eventType = inEventID.startsWith(HHVariables.eventIDReg)?"event":"";
-
+    let eventType = inEventID.startsWith(HHVariables.mythicEventIDReg)?"mythic":(inEventID.startsWith(HHVariables.eventIDReg)?"event":"");
     if (eventType === "mythic" && Storage().HHAuto_Setting_plusEventMythic!=="true")
     {
         return false;
@@ -9935,7 +9933,7 @@ var updateData = function () {
             Tegzd += '<br>'+getTextForUI("autoFreePachinko","elementText")+' : '+getTimeLeft('nextPachinkoTime');
             Tegzd += '<br>'+getTextForUI("autoMythicPachinko","elementText")+' : '+getTimeLeft('nextPachinko2Time');
         }
-        if (!checkTimer('eventMythicNextWave'))
+        if (getTimer('eventMythicNextWave') !== -1)
         {
             Tegzd += '<br>'+getTextForUI("mythicGirlNext","elementText")+' : '+getTimeLeft('eventMythicNextWave');
         }
