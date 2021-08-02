@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.9
+// @version      5.5.10
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -3831,15 +3831,12 @@ var CrushThemFights=function()
                     }
                 }
             }
-            console.log(canBuyFight().canBuy);
             if (canBuyFight().canBuy)
             {
-                return;
                 RechargeCombat();
                 gotoPage("troll-pre-battle",{id_opponent:TTF});
                 return;
             }
-            return;
 
             if (sessionStorage.HHAuto_Temp_eventGirl !== undefined && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_shards && Number.isInteger(Number(JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_shards)) && battleButtonX10.length > 0 && battleButtonX50.length > 0)
             {
