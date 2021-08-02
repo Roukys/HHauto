@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.11
+// @version      5.5.12
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -8048,23 +8048,49 @@ var clearEventData=function(inEventID)
     let eventsGirlz = isJSON(sessionStorage.HHAuto_Temp_eventsGirlz)?JSON.parse(sessionStorage.HHAuto_Temp_eventsGirlz):[];
     let eventGirl =isJSON(sessionStorage.HHAuto_Temp_eventGirl)?JSON.parse(sessionStorage.HHAuto_Temp_eventGirl):{};
     let hasMythic = false;
+    let hasEvent = false;
     for (let prop of Object.keys(eventList))
     {
-        if (eventList[prop]["seconds_before_end"]<new Date())
+        if (
+            eventList[prop]["seconds_before_end"]<new Date()
+            ||
+            (
+                eventList[prop]["isMythic"]
+                && Storage().HHAuto_Setting_plusEventMythic!=="true"
+            )
+            ||
+            (
+                !eventList[prop]["isMythic"]
+                && Storage().HHAuto_Setting_plusEvent!=="true"
+            )
+        )
         {
             delete eventList[prop];
         }
         else
         {
-            if (! eventList[prop]["isCompleted"] && eventList[prop]["isMythic"])
+            if (! eventList[prop]["isCompleted"])
             {
-                hasMythic = true;
+                if (eventList[prop]["isMythic"])
+                {
+                    hasMythic = true;
+                }
+                else
+                {
+                    hasEvent = true;
+                }
             }
+
         }
     }
     if (hasMythic === false)
     {
         clearTimer('eventMythicNextWave');
+        clearTimer('eventMythicGoing');
+    }
+    if (hasEvent === false)
+    {
+        clearTimer('eventGoing');
     }
     if (Object.keys(eventList).length === 0)
     {
@@ -8177,7 +8203,7 @@ function parseEventPage(inTab="global")
         let Priority=(Storage().HHAuto_Setting_eventTrollOrder?Storage().HHAuto_Setting_eventTrollOrder:"").split(";");
 
         let refreshTimer = 3600;
-        if (eventID.startsWith(HHVariables.eventIDReg))
+        if (eventID.startsWith(HHVariables.eventIDReg) && Storage().HHAuto_Setting_plusEvent==="true")
         {
             logHHAuto("On going event.");
             let timeLeft=$('#contains_all #events .nc-expiration-label#timer').attr("data-seconds-until-event-end");
@@ -8208,7 +8234,7 @@ function parseEventPage(inTab="global")
                 }
             }
         }
-        if (eventID.startsWith(HHVariables.mythicEventIDReg))
+        if (eventID.startsWith(HHVariables.mythicEventIDReg) && Storage().HHAuto_Setting_plusEventMythic==="true")
         {
             logHHAuto("On going mythic event.");
             let timeLeft=$('#contains_all #events .nc-expiration-label#timer').attr("data-seconds-until-event-end");
