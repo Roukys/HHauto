@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.15
+// @version      5.5.16
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -1111,6 +1111,21 @@ function moduleDisplayPopID()
     $('div.pop_list div[pop_id]').each(function() {
         $(this).prepend('<div class="HHPopIDs">'+$(this).attr('pop_id')+'</div>');
     });
+}
+
+function moduleOldPathOfAttractionHide()
+{
+    //https://nutaku.haremheroes.com/path-of-attraction.html"
+    let array = $('#path_of_attraction div.poa.container div.all-objectives .objective.completed');
+    if (array.length == 0) {
+        return
+    }
+    let lengthNeeded = $('.golden-block.locked').length > 0 ? 1 : 2;
+    for (let i = array.length - 1; i >= 0; i--) {
+        if ($(array[i]).find('.picked-reward').length == lengthNeeded) {
+            array[i].style.display = "none";
+        }
+    }
 }
 
 function modulePathOfAttractionHide()
@@ -3481,7 +3496,7 @@ function getLeagueOpponentId(opponentsIDList,force=false)
     var maxTime = 1.6;
 
     //toremove after migration in prod
-    var girlDataName = "new-girl-tooltip-data";
+    var girlDataName = getHHVarValue('girlToolTipData');
 
     if (opponentsListExpirationDate === 'empty' || opponentsListExpirationDate < new Date() || opponentsPowerList.size ===0 || force)
     {
@@ -4874,7 +4889,7 @@ function moduleSimLeague() {
     }
 
     //toremove after migration in prod
-    var girlDataName="new-girl-tooltip-data";
+    var girlDataName=getHHVarValue('girlToolTipData');
 
     var SimPower = function()
     {
@@ -5437,7 +5452,7 @@ function moduleSimBattle() {
         return;
     }
     //toremove after migration in prod
-    var girlDataName="new-girl-tooltip-data";
+    var girlDataName=getHHVarValue('girlToolTipData');
 
     // player stats
     playerEgo = Math.round(getSetHeroInfos('caracs.ego'));
@@ -5666,7 +5681,7 @@ function moduleSimSeasonBattle() {
             doDisplay=true;
         }
         //toremove after migration in prod
-        var girlDataName="new-girl-tooltip-data";
+        var girlDataName=getHHVarValue('girlToolTipData');
 
         // player stats
         playerEgo = Math.round(getSetHeroInfos('caracs.ego'));
@@ -6552,6 +6567,9 @@ var autoLoop = function () {
     {
         modulePathOfAttractionHide();
     }
+    if (getPage() == "path_of_attraction" && Storage().HHAuto_Setting_PoAMaskRewards === "true") {
+        moduleOldPathOfAttractionHide();
+    }
     if (getPage() === "powerplacemain" )
     {
         moduleDisplayPopID();
@@ -7077,7 +7095,7 @@ function moduleShopActions()
                 girl=$('div.girl-ico:not(.not-selected)');
                 getSelectGirlID=girl.attr("id_girl");
                 let selectedGirl=girl.data("g");
-                let selectedGirlTooltip=JSON.parse(girl.attr('girl-tooltip-data') || girl.attr('new-girl-tooltip-data'));
+                let selectedGirlTooltip=JSON.parse(girl.attr(getHHVarValue('girlToolTipData')));
 
                 let selectedGirlExp=selectedGirl.Xp.cur;
                 potionArray = {};
@@ -7133,7 +7151,7 @@ function moduleShopActions()
         let girl=$('div.girl-ico:not(.not-selected)');
         let selectedGirl=girl.data("g");
         let selectedGirlExp=selectedGirl.Xp.cur;
-        let selectedGirlTooltip=JSON.parse(girl.attr('girl-tooltip-data') || girl.attr('new-girl-tooltip-data'));
+        let selectedGirlTooltip=JSON.parse(girl.attr(getHHVarValue('girlToolTipData')));
         let targetedLevel = Number(document.getElementById("menuExpLevel").value);
         let targetedXp = getLevelXp(selectedGirlTooltip.rarity,targetedLevel);
         logHHAuto('start giving Exp to '+selectedGirl.Name);
@@ -8206,7 +8224,7 @@ function parseEventPage(inTab="global")
         let Priority=(Storage().HHAuto_Setting_eventTrollOrder?Storage().HHAuto_Setting_eventTrollOrder:"").split(";");
 
         let refreshTimer = 3600;
-        if (eventID.startsWith(HHVariables.eventIDReg) && Storage().HHAuto_Setting_plusEvent==="true")
+        if (eventID.startsWith(getHHVarValue('eventIDReg')) && Storage().HHAuto_Setting_plusEvent==="true")
         {
             logHHAuto("On going event.");
             let timeLeft=$('#contains_all #events .nc-expiration-label#timer').attr("data-seconds-until-event-end");
@@ -8237,7 +8255,7 @@ function parseEventPage(inTab="global")
                 }
             }
         }
-        if (eventID.startsWith(HHVariables.mythicEventIDReg) && Storage().HHAuto_Setting_plusEventMythic==="true")
+        if (eventID.startsWith(getHHVarValue('mythicEventIDReg')) && Storage().HHAuto_Setting_plusEventMythic==="true")
         {
             logHHAuto("On going mythic event.");
             let timeLeft=$('#contains_all #events .nc-expiration-label#timer').attr("data-seconds-until-event-end");
@@ -8355,7 +8373,7 @@ function checkEvent(inEventID)
 {
     let eventList = isJSON(sessionStorage.HHAuto_Temp_eventsList)?JSON.parse(sessionStorage.HHAuto_Temp_eventsList):{};
     let result = false;
-    let eventType = inEventID.startsWith(HHVariables.mythicEventIDReg)?"mythic":(inEventID.startsWith(HHVariables.eventIDReg)?"event":"");
+    let eventType = inEventID.startsWith(getHHVarValue('mythicEventIDReg'))?"mythic":(inEventID.startsWith(getHHVarValue('eventIDReg'))?"event":"");
     if (eventType === "mythic" && Storage().HHAuto_Setting_plusEventMythic!=="true")
     {
         return false;
@@ -8951,111 +8969,6 @@ function myfileLoad_onReaderLoad(event){
     }
 }
 
-function debugDeleteTempVars()
-{
-    var dataToSave={};
-    extractHHVars(dataToSave,false,false,true);
-    var storageType;
-    var variableName;
-    var storageItem;
-
-    debugDeleteAllVars();
-    setDefaults();
-    var keys=Object.keys(dataToSave);
-    for(var i of keys)
-    {
-        storageType=i.split(".")[0];
-        variableName=i.split(".")[1];
-        switch (storageType)
-        {
-            case 'localStorage' :
-                storageItem = localStorage;
-                break;
-            case 'sessionStorage' :
-                storageItem = sessionStorage;
-                break;
-        }
-        logHHAuto(i+':'+ dataToSave[i]);
-        storageItem[variableName] = dataToSave[i];
-    }
-
-}
-
-function getTextForUI(id,type)
-{
-    if (HHAuto_ToolTips[HHAuto_Lang] !== undefined && HHAuto_ToolTips[HHAuto_Lang][id] !== undefined && HHAuto_ToolTips[HHAuto_Lang][id][type] !== undefined)
-    {
-        return HHAuto_ToolTips[HHAuto_Lang][id][type];
-    }
-    else
-    {
-        if (HHAuto_ToolTips['en'] !== undefined && HHAuto_ToolTips['en'][id] !== undefined && HHAuto_ToolTips['en'][id][type] !== undefined)
-        {
-            return HHAuto_ToolTips['en'][id][type];
-        }
-        else
-        {
-            logHHAuto("not found text for "+HHAuto_Lang+"/"+id+"/"+type);
-            return HHAuto_Lang+"/"+id+"/"+type+" not found.";
-        }
-    }
-}
-
-// var migrateHHVars = function ()
-// {
-//     var storageType;
-//     var variableName;
-//     var oldVarName;
-//     var storageItem;
-//     var migratedVars = localStorage.HHAuto_Temp_MigratedVars?true:false;
-
-//     if (!migratedVars && localStorage.settPerTab)
-//     {
-//         logHHAuto("migrated settbyTab");
-//         localStorage.HHAuto_Setting_settPerTab = localStorage.settPerTab;
-//     }
-
-//     if(!localStorage.HHAuto_Setting_settPerTab)
-//     {
-//         localStorage.HHAuto_Setting_settPerTab="false";
-//     }
-
-//     for (var i in HHVars)
-//     {
-//         storageType = HHVars[i].split(".")[0];
-//         variableName = HHVars[i].split(".")[1];
-//         oldVarName = variableName.split("_")[2];
-//         switch (storageType)
-//         {
-//             case 'Storage()' :
-//                 storageItem = Storage();
-//                 break;
-//             case 'localStorage' :
-//                 storageItem = localStorage;
-//                 break;
-//             case 'sessionStorage' :
-//                 storageItem = sessionStorage;
-//                 break;
-//         }
-//         if (!migratedVars && storageItem.getItem(oldVarName) !== null && storageItem.getItem(variableName) === null)
-//         {
-//             logHHAuto("migrated var : "+variableName);
-//             storageItem.setItem(variableName,storageItem.getItem(oldVarName));
-//         }
-
-//         if (localStorage.getItem(oldVarName) !== null)
-//         {
-//             localStorage.removeItem(oldVarName);
-//         }
-//         if (sessionStorage.getItem(oldVarName) !== null)
-//         {
-//             sessionStorage.removeItem(oldVarName);
-//         }
-//     }
-//     localStorage.HHAuto_Temp_MigratedVars="true";
-
-// }
-
 function debugDeleteAllVars()
 {
     Object.keys(localStorage).forEach((key) =>
@@ -9103,9 +9016,130 @@ function manageToolTipsDisplay(important=false)
     }
 }
 
+function debugDeleteTempVars()
+{
+    var dataToSave={};
+    extractHHVars(dataToSave,false,false,true);
+    var storageType;
+    var variableName;
+    var storageItem;
+
+    debugDeleteAllVars();
+    setDefaults();
+    var keys=Object.keys(dataToSave);
+    for(var i of keys)
+    {
+        storageType=i.split(".")[0];
+        variableName=i.split(".")[1];
+        switch (storageType)
+        {
+            case 'localStorage' :
+                storageItem = localStorage;
+                break;
+            case 'sessionStorage' :
+                storageItem = sessionStorage;
+                break;
+        }
+        logHHAuto(i+':'+ dataToSave[i]);
+        storageItem[variableName] = dataToSave[i];
+    }
+
+}
+
+
+function getTextForUI(id,type)
+{
+    let HHAuto_Lang = 'en';
+
+    if ($('html')[0].lang === 'en') {
+        HHAuto_Lang = 'en';
+    }
+    else if ($('html')[0].lang === 'fr') {
+        HHAuto_Lang = 'fr';
+    }
+    else if ($('html')[0].lang === 'es_ES') {
+        HHAuto_Lang = 'es';
+    }
+    else if ($('html')[0].lang === 'de_DE') {
+        HHAuto_Lang = 'de';
+    }
+    else if ($('html')[0].lang === 'it_IT') {
+        HHAuto_Lang = 'it';
+    }
+
+    if (HHAuto_ToolTips[HHAuto_Lang] !== undefined && HHAuto_ToolTips[HHAuto_Lang][id] !== undefined && HHAuto_ToolTips[HHAuto_Lang][id][type] !== undefined)
+    {
+        return HHAuto_ToolTips[HHAuto_Lang][id][type];
+    }
+    else
+    {
+        if (HHAuto_ToolTips['en'] !== undefined && HHAuto_ToolTips['en'][id] !== undefined && HHAuto_ToolTips['en'][id][type] !== undefined)
+        {
+            return HHAuto_ToolTips['en'][id][type];
+        }
+        else
+        {
+            logHHAuto("not found text for "+HHAuto_Lang+"/"+id+"/"+type);
+            return HHAuto_Lang+"/"+id+"/"+type+" not found.";
+        }
+    }
+}
+
+function getHHVarValue(id)
+{
+    let environnement = "global";
+    if (window.location.hostname == "www.hentaiheroes.com")
+    {
+        environnement= "HH_prod";
+    }
+    else if (window.location.hostname == "test.hentaiheroes.com")
+    {
+        environnement= "HH_test";
+    }
+    else if (window.location.hostname == "www.comixharem.com")
+    {
+        environnement= "CH_prod";
+    }
+    else if (window.location.hostname == "www.gayharem.com")
+    {
+        environnement= "GH_prod";
+    }
+    else
+    {
+        environnement = "global";
+    }
+    if (HHVariables[environnement] !== undefined && HHVariables[environnement][id] !== undefined)
+    {
+        return HHVariables[environnement][id];
+    }
+    else
+    {
+        if (HHVariables["global"] !== undefined && HHVariables["global"][id] !== undefined )
+        {
+            return HHVariables["global"][id];
+        }
+        else
+        {
+            logHHAuto("not found text for "+environnement+"/"+id);
+            return environnement+"/"+id+"/"+" not found.";
+        }
+    }
+}
+
 var HHVariables = {};
-HHVariables.eventIDReg = "event_";
-HHVariables.mythicEventIDReg = "mythic_event_";
+HHVariables["global"] = {};
+HHVariables["HH_prod"] = {};
+HHVariables["HH_test"] = {};
+HHVariables["CH_prod"] = {};
+HHVariables["GH_prod"] = {};
+HHVariables["global"].eventIDReg = "event_";
+HHVariables["global"].mythicEventIDReg = "mythic_event_";
+HHVariables["global"].girlToolTipData = "new-girl-tooltip-data";
+HHVariables["HH_test"].girlToolTipData = "data-new-girl-tooltip";
+
+
+
+
 
 const HC = 1;
 const CH = 2;
@@ -9140,9 +9174,9 @@ var HHAuto_inputPattern = {
     minShardsX:"(100|[1-9][0-9]|[1-9])"
 }
 
-var HHAuto_ToolTips = [];
+var HHAuto_ToolTips = {};
 
-HHAuto_ToolTips.en = [];
+HHAuto_ToolTips.en = {};
 HHAuto_ToolTips.en.saveDebug = { elementText: "Save Debug", tooltip : "Allow to produce a debug log file."};
 HHAuto_ToolTips.en.gitHub = { elementText: "GitHub", tooltip : "Link to GitHub project."};
 HHAuto_ToolTips.en.saveConfig = { elementText: "Save Config", tooltip : "Allow to save configuration."};
@@ -9298,7 +9332,7 @@ HHAuto_ToolTips.en.PachinkoInvalidOrbsNb = {elementText : 'Invalid orbs number'}
 HHAuto_ToolTips.en.PachinkoNoGirls = {elementText : 'No more any girls available.'};
 HHAuto_ToolTips.en.PachinkoByPassNoGirls = {elementText : 'Bypass no girls', tooltip : "Bypass the no girls in Pachinko warning."};
 
-HHAuto_ToolTips.fr = [];
+HHAuto_ToolTips.fr = {};
 HHAuto_ToolTips.fr.saveDebug = { elementText: "Sauver log", tooltip : "Sauvegarder un fichier journal de débogage."};
 HHAuto_ToolTips.fr.gitHub = { elementText: "GitHub", tooltip : "Lien vers le projet GitHub."};
 HHAuto_ToolTips.fr.saveConfig = { elementText: "Sauver config", tooltip : "Permet de sauvegarder la configuration."};
@@ -9396,7 +9430,7 @@ HHAuto_ToolTips.fr.trollzList = { elementText: ["Dernier","Dark Lord","Espion Ni
 HHAuto_ToolTips.fr.leaguesList = { elementText: ["Branleur I","Branleur II","Branleur III","Sexpert I","Sexpert II","Sexpert III","Dicktateur I","Dicktateur II","Dicktateur III"] };
 HHAuto_ToolTips.fr.mythicGirlNext = { elementText: "Vague mythique"};
 
-HHAuto_ToolTips.de = [];
+HHAuto_ToolTips.de = {};
 HHAuto_ToolTips.de.saveDebug = { elementText: "Save Debug", tooltip : "Erlaube das Erstellen einer Debug Log Datei."};
 HHAuto_ToolTips.de.gitHub = { elementText: "GitHub", tooltip : "Link zum GitHub Projekt."};
 HHAuto_ToolTips.de.saveConfig = { elementText: "Save Config", tooltip : "Erlaube die Einstellung zu speichern."};
@@ -9466,7 +9500,7 @@ HHAuto_ToolTips.de.OpponentListBuilding = { elementText: "Gegnerliste wird erste
 HHAuto_ToolTips.de.OpponentParsed = { elementText: "Gegner analysiert", tooltip : ""};
 
 
-HHAuto_ToolTips.es = [];
+HHAuto_ToolTips.es = {};
 HHAuto_ToolTips.es.saveDebug = { elementText: "Salvar Debug", tooltip : "Permite generar un fichero log de depuración."};
 HHAuto_ToolTips.es.gitHub = { elementText: "GitHub", tooltip : "Link al proyecto GitHub."};
 HHAuto_ToolTips.es.saveConfig = { elementText: "Salvar config.", tooltip : "Permite salvar la configuración."};
@@ -9548,27 +9582,6 @@ HHAuto_ToolTips.es.timerResetSelector = { elementText: "Seleccionar temporizador
 HHAuto_ToolTips.es.timerResetButton = { elementText: "Restablecer", tooltip : "Establece el temporizador a 0."};
 HHAuto_ToolTips.es.timerLeftTime = { elementText: "", tooltip : "Tiempo restante"};
 HHAuto_ToolTips.es.timerResetNoTimer = { elementText: "No hay temporizador seleccionado", tooltip : ""};
-
-
-
-
-var HHAuto_Lang = 'en';
-
-if ($('html')[0].lang === 'en') {
-    HHAuto_Lang = 'en';
-}
-else if ($('html')[0].lang === 'fr') {
-    HHAuto_Lang = 'fr';
-}
-else if ($('html')[0].lang === 'es_ES') {
-    HHAuto_Lang = 'es';
-}
-else if ($('html')[0].lang === 'de_DE') {
-    HHAuto_Lang = 'de';
-}
-else if ($('html')[0].lang === 'it_IT') {
-    HHAuto_Lang = 'it';
-}
 
 var Trollz = getTextForUI("trollzList","elementText");  //["Latest","Dark Lord","Ninja Spy","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson\'s Crew","Pandora witch","Nike","Sake"];
 var Leagues = getTextForUI("leaguesList","elementText");  //["Wanker I","Wanker II","Wanker III","Sexpert I","Sexpert II","Sexpert III","Dicktator I","Dicktator II","Dicktator III"];
