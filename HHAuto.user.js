@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.16
+// @version      5.5.17
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
 // @match        http*://nutaku.haremheroes.com/*
@@ -9134,8 +9134,7 @@ HHVariables["CH_prod"] = {};
 HHVariables["GH_prod"] = {};
 HHVariables["global"].eventIDReg = "event_";
 HHVariables["global"].mythicEventIDReg = "mythic_event_";
-HHVariables["global"].girlToolTipData = "new-girl-tooltip-data";
-HHVariables["HH_test"].girlToolTipData = "data-new-girl-tooltip";
+HHVariables["global"].girlToolTipData = "data-new-girl-tooltip";
 
 
 
