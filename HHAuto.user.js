@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.19
+// @version      5.5.20
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -4160,12 +4160,12 @@ function doBattle()
         let queryString = window.location.search;
         let urlParams = new URLSearchParams(queryString);
         let troll_id = urlParams.get('id_opponent');
-        if (window.location.pathname === "/league-battle.html" && HHAuto_Setting_autoLeagues === "true")
+        if (window.location.pathname === "/league-battle.html" && Storage().HHAuto_Setting_autoLeagues === "true")
         {
             logHHAuto("Reloading after league fight.");
             gotoPage("leaderboard",{},randomInterval(4000,5000));
         }
-        else if (window.location.pathname === "/troll-battle.html" && HHAuto_Setting_autoTrollBattle === "true")
+        else if (window.location.pathname === "/troll-battle.html" && Storage().HHAuto_Setting_autoTrollBattle === "true")
         {
             if(sessionStorage.HHAuto_Temp_eventGirl !== undefined)
             {
@@ -4186,7 +4186,7 @@ function doBattle()
             }
 
         }
-        else if (window.location.pathname === "/season-battle.html" && HHAuto_Setting_autoSeason === "true")
+        else if (window.location.pathname === "/season-battle.html" && Storage().HHAuto_Setting_autoSeason === "true")
         {
             logHHAuto("Go back to Season arena after Season fight.");
             gotoPage('season_arena',{},randomInterval(2000,4000));
