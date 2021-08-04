@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.17
+// @version      5.5.18
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
-// @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne
+// @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
 // @match        http*://*.hentaiheroes.com/*
 // @match        http*://test.hentaiheroes.com/*
@@ -1374,6 +1374,150 @@ function moduleSimSeasonReward()
     }
 }
 
+function moduleChangeTeam()
+{
+    if (document.getElementById("ChangeTeamButton") !== null)
+    {
+        return;
+    }
+    let ChangeTeamButton = '<div style="position: absolute;left: 52%;top: 100px;width:60px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ChangeTeamButton","tooltip")+'</span><label style="font-size:small" class="myButton" id="ChangeTeamButton">'+getTextForUI("ChangeTeamButton","elementText")+'</label></div>'
+
+    $("#contains_all section").prepend(ChangeTeamButton);
+
+    function setTopTeam()
+    {
+        let arr = $('div[id_girl]');
+        let deckID = [-1, -1, -1, -1, -1, -1, -1];
+        let deckStat = [-1, -1, -1, -1, -1, -1, -1];
+        for (let i = arr.length - 1; i > -1; i--) {
+            let gID = Number($(arr[i]).attr('id_girl'));
+            let obj = JSON.parse($(arr[i]).attr(getHHVarValue('girlToolTipData')));
+            //sum formula
+            let currentStat = obj.caracs.carac1 + obj.caracs.carac2 + obj.caracs.carac3;
+
+            let lowNum = 0; //num
+            let lowStat = deckStat[0]; //stat
+            for (let j = 1; j < deckID.length; j++) {
+                if (deckStat[j] < lowStat) {
+                    lowNum = j;
+                    lowStat = deckStat[j];
+                }
+            }
+            if (lowStat < currentStat) {
+                deckID[lowNum] = gID;
+                deckStat[lowNum] = currentStat;
+            }
+        }
+        let tmpID = 0;
+        let tmpStat = 0;
+        for (let i = 0; i < deckStat.length; i++) {
+            for (let j = i; j < deckStat.length; j++) {
+                if (deckStat[j] > deckStat[i]) {
+                    tmpID = deckID[i];
+                    tmpStat = deckStat[i];
+                    deckID[i] = deckID[j];
+                    deckStat[i] = deckStat[j];
+                    deckID[j] = tmpID;
+                    deckStat[j] = tmpStat;
+                }
+            }
+        }
+        for (let i = arr.length - 1; i > -1; i--) {
+            let gID = Number($(arr[i]).attr('id_girl'));
+            if (!deckID.includes(gID)) {
+                arr[i].style.display = "none";
+            } else {
+                arr[i].style.display = "";
+                arr[i].prepend(deckID.indexOf(gID)+1);
+            }
+        }
+    }
+
+    document.getElementById("ChangeTeamButton").addEventListener("click", setTopTeam);
+}
+
+function moduleExportGirlsData()
+{
+    if (document.getElementById("ExportGirlsData") !== null)
+    {
+        return;
+    }
+    let ExportGirlsData = '<div style="position: absolute;left: 52%;top: 100px;width:60px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ExportGirlsData","tooltip")+'</span><label style="font-size:small" class="myButton" id="ExportGirlsData">'+getTextForUI("ExportGirlsData","elementText")+'</label></div>'
+
+    $("#contains_all section").prepend(ExportGirlsData);
+
+    function saveHHGirlsAsCSV() {
+        var dataToSave="";
+        dataToSave = extractHHGirls();
+        var name='HH_GirlData_'+Date.now()+'.csv';
+        const a = document.createElement('a')
+        a.download = name
+        a.href = URL.createObjectURL(new Blob([dataToSave], {type: 'text/plain'}))
+        a.click()
+    }
+
+    function extractHHGirls()
+    {
+        dataToSave = "Name,Rarity,Class,Figure,Level,Stars,Of,Left,Hardcore,Charm,Know-how,Total,Position,Eyes,Hair,Zodiac,Own\r\n";
+        var gMap = getGirlsMap();
+        if(gMap === undefined)
+        {
+            // error
+            logHHAuto("Girls Map was undefined...! Error, cannot export girls.");
+        }
+        else
+        {
+            try{
+                var cnt = 1;
+                for(var key in gMap)
+                {
+                    cnt++;
+                    var gData = gMap[key].gData;
+                    dataToSave += gData.Name + ",";
+                    dataToSave += gData.rarity + ",";
+                    dataToSave += gData.class + ",";
+                    dataToSave += gData.figure + ",";
+                    dataToSave += gData.level + ",";
+                    dataToSave += gData.graded + ",";
+                    dataToSave += gData.nb_grades + ",";
+                    dataToSave += Number(gData.nb_grades)-Number(gData.graded) + ",";
+                    dataToSave += gData.caracs.carac1 + ",";
+                    dataToSave += gData.caracs.carac2 + ",";
+                    dataToSave += gData.caracs.carac3 + ",";
+                    dataToSave += Number(gData.caracs.carac1)+Number(gData.caracs.carac2)+Number(gData.caracs.carac3) + ",";
+                    dataToSave += gData.position_img + ",";
+                    dataToSave += stripSpan(gData.ref.eyes) + ",";
+                    dataToSave += stripSpan(gData.ref.hair) + ",";
+                    dataToSave += gData.ref.zodiac.substring(3) + ",";
+                    dataToSave += gData.own + "\r\n";
+
+                }
+                //            logHHAuto(dataToSave);
+
+            }
+            catch(exp){
+                // error
+                logHHAuto("Catched error : Girls Map had undefined property...! Error, cannot export girls : "+exp);
+            }
+        }
+        return dataToSave;
+    }
+
+    function stripSpan(tmpStr)
+    {
+        var newStr = "";
+        while(tmpStr.indexOf(">") > -1)
+        {
+            tmpStr = tmpStr.substring(tmpStr.indexOf(">") + 1);
+            newStr += tmpStr.slice(0, tmpStr.indexOf("<"));
+            //        tmpStr = tmpStr.substring(tmpStr.indexOf(">")+1);
+        }
+        return newStr;
+    }
+
+    document.getElementById("ExportGirlsData").addEventListener("click", saveHHGirlsAsCSV);
+}
+
 function collectAndUpdatePowerPlaces()
 {
     if(getPage() !== "powerplacemain")
@@ -1477,9 +1621,9 @@ function collectAndUpdatePowerPlaces()
 
         if (minTime != -1)
         {
-            if ( minTime > 20*60 )
+            if ( minTime > 7*60*60 )
             {
-                //force check of PowerPlaces every 20 mins
+                //force check of PowerPlaces every 7 hours
                 setTimer('minPowerPlacesTime',Number(20*60)+1);
             }
             else
@@ -2243,17 +2387,6 @@ var doBossBattle = function()
     {
         // On the battle screen.
         CrushThemFights();
-        //         if(Storage().HHAuto_Setting_buyMythicCombat=="true"
-        //            &&  Storage().HHAuto_Setting_plusEventMythic==="true"
-        //            && sessionStorage.HHAuto_Temp_eventGirl !== undefined
-        //            && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic==="true")
-        //         {
-        //             CrushThem();//RechargeAndPlay();
-        //         }
-        //         else
-        //         {
-        //             CrushThem();
-        //         }
     }
     else
     {
@@ -3203,11 +3336,6 @@ var doSeason = function () {
             setTimer('nextSeasonTime',30*60);
         }
     }
-
-    //     else if (page==="battle")
-    //     {
-    //         CrushThem();
-    //     }
     else
     {
         // Switch to the correct screen
@@ -3846,7 +3974,24 @@ var CrushThemFights=function()
                     }
                 }
             }
-            if (canBuyFight().canBuy)
+            let canBuyFightsResult=canBuyFight();
+            if (
+                (canBuyFightsResult.canBuy && currentPower === 0)
+                ||
+                (
+                    canBuyFightsResult.canBuy
+                    && currentPower < 50
+                    && canBuyFightsResult.max === 50
+                    && Storage().HHAuto_Setting_useX50Fights === "true"
+                )
+                ||
+                (
+                    canBuyFightsResult.canBuy
+                    && currentPower < 10
+                    && canBuyFightsResult.max === 20
+                    && Storage().HHAuto_Setting_useX10Fights === "true"
+                )
+            )
             {
                 RechargeCombat();
                 gotoPage("troll-pre-battle",{id_opponent:TTF});
@@ -3858,7 +4003,7 @@ var CrushThemFights=function()
                 remainingShards = Number(100 - Number(JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_shards));
                 let bypassThreshold = (
                     (JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "false"
-                     && canBuyFight().canBuy
+                     && canBuyFightsResult.canBuy
                     ) // eventGirl available and buy comb true
                     || (JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "true"
                         && Storage().HHAuto_Setting_plusEventMythic==="true"
@@ -4014,13 +4159,13 @@ function doBattle()
 
         let queryString = window.location.search;
         let urlParams = new URLSearchParams(queryString);
-        let league_battle = urlParams.get('league_battle');
-        if (window.location.pathname === "/league-battle.html")//league_battle !== null && league_battle === "1")
+        let troll_id = urlParams.get('id_opponent');
+        if (window.location.pathname === "/league-battle.html" && HHAuto_Setting_autoLeagues === "true")
         {
             logHHAuto("Reloading after league fight.");
             gotoPage("leaderboard",{},randomInterval(4000,5000));
         }
-        else if (window.location.pathname === "/troll-battle.html")
+        else if (window.location.pathname === "/troll-battle.html" && HHAuto_Setting_autoTrollBattle === "true")
         {
             if(sessionStorage.HHAuto_Temp_eventGirl !== undefined)
             {
@@ -4028,19 +4173,27 @@ function doBattle()
             }
             else
             {
-                logHHAuto("Go to home after Troll fight.");
-                gotoPage('home',{},randomInterval(2000,4000));
+                if (troll_id !== null)
+                {
+                    logHHAuto("Go back to Troll after Troll fight.");
+                    gotoPage("troll-pre-battle",{id_opponent:troll_id},randomInterval(2000,4000));
+                }
+                else
+                {
+                    logHHAuto("Go to home after unknown troll fight.");
+                    gotoPage('home',{},randomInterval(2000,4000));
+                }
             }
 
         }
-        else if (window.location.pathname === "/season-battle.html")
+        else if (window.location.pathname === "/season-battle.html" && HHAuto_Setting_autoSeason === "true")
         {
-            logHHAuto("Go to home after Season fight.");
-            gotoPage('home',{},randomInterval(2000,4000));
+            logHHAuto("Go back to Season arena after Season fight.");
+            gotoPage('season_arena',{},randomInterval(2000,4000));
         }
         else
         {
-            logHHAuto("Go to home after battle fight.");
+            logHHAuto("Go to home after unknown battle fight.");
             gotoPage('home',{},randomInterval(2000,4000));
         }
         return true;
@@ -4174,109 +4327,6 @@ function ObserveAndGetGirlRewards()
         , attributes: true
         , characterData: false
     });
-}
-
-var  CrushThem = function()
-{
-    if (getPage() === "battle") {
-        // On battle page.
-        logHHAuto("On battle page.");
-        if ($("#rewards_popup .blue_text_button").size()>0)
-        {
-            $("#rewards_popup .blue_text_button").click();
-        }
-        if ($("#rewards_popup .blue_button_L").size()>0)
-        {
-            $("#rewards_popup .blue_button_L").click();
-        }
-
-        //logHHAuto("On Battle Page.");
-        if ($("#battle[class='canvas']").length === 1) {
-            // Battle screen
-            logHHAuto("On battle screen.");
-            // get button with no autofight, i.e. no koban
-            var battleButton = $('#battle button[rel="launch"]:not(.autofight)');
-            //logHHAuto(battleButton.get());
-            //logHHAuto(battleButton);
-            var currentPower = getSetHeroInfos('fight.amount');
-            if(battleButton === undefined){
-                logHHAuto("Battle Button was undefined. Disabling all auto-battle.");
-                document.getElementById("autoTrollCheckbox").checked = false;
-                Storage().HHAuto_Setting_autoTrollBattle = "false"
-                //document.getElementById("autoArenaCheckbox").checked = false;
-                if (sessionStorage.HHAuto_Temp_questRequirement === "battle")
-                {
-                    document.getElementById("autoQuestCheckbox").checked = false;
-                    Storage().HHAuto_Setting_autoQuest= "false";
-                    logHHAuto("Auto-quest disabled since it requires battle and auto-battle has errors.");
-                }
-                return;
-            }
-            var battle_price = battleButton.find('span').size()>0?battleButton.attr("price_fe"):0;
-
-            if (location.search.split("league_battle=")[1])
-            {
-                currentPower=getSetHeroInfos('challenge.amount');
-            }
-            if(battle_price === undefined){
-                logHHAuto("Could not detect battle button price. Error.");
-                logHHAuto("Disabling all auto-battle.");
-                document.getElementById("autoTrollCheckbox").checked = false;
-                //document.getElementById("autoArenaCheckbox").checked = false;
-                if (sessionStorage.HHAuto_Temp_questRequirement === "battle")
-                {
-                    document.getElementById("autoQuestCheckbox").checked = false;
-                    Storage().HHAuto_Setting_autoQuest= "false";
-                    logHHAuto("Auto-quest disabled since it requires battle and auto-battle has errors.");
-                }
-                return;
-            }
-            logHHAuto("battle price: "+battle_price+"P")
-            if(currentPower >= battle_price)
-            {
-                // We have the power.
-                is_cheat_click=function(e) {
-                    return false;
-                };
-                battleButton.click();
-                // Skip
-                //setTimeout(function(){$("#battle_middle button[rel='skip']").click();},1000);
-                //setTimeout(function(){$("#rewards_popup .blue_text_button").click();$("#rewards_popup .blue_button_L").click();},2000);
-
-                if (sessionStorage.HHAuto_Temp_questRequirement === "battle") {
-                    // Battle Done.
-                    sessionStorage.HHAuto_Temp_questRequirement = "none";
-                }
-
-                let queryString = window.location.search;
-                let urlParams = new URLSearchParams(queryString);
-                let league_battle = urlParams.get('league_battle');
-                if (league_battle !== null && league_battle === "1")
-                {
-                    logHHAuto("Reloading after league fight.");
-                    setTimeout(function(){location.reload();},randomInterval(3000,5000));
-                }
-                else
-                {
-                    logHHAuto("Go to home after Troll fight.");
-                    gotoPage('home',{},randomInterval(2000,4000));
-                }
-                return true;
-            }
-            else
-            {
-                // We need more power.
-                logHHAuto("Battle requires "+battle_price+" power.");
-                sessionStorage.HHAuto_Temp_battlePowerRequired = battle_price;
-                if(sessionStorage.HHAuto_Temp_questRequirement === "battle")sessionStorage.HHAuto_Temp_questRequirement = "P"+battle_price;
-            }
-        }
-        else {
-            logHHAuto("Could not identify battle screen.");
-            if (sessionStorage.HHAuto_Temp_questRequirement === "battle") sessionStorage.HHAuto_Temp_questRequirement = "errorInAutoBattle";
-            return;
-        }
-    }
 }
 
 var setTimer=function(name, seconds)
@@ -6175,7 +6225,7 @@ var autoLoop = function () {
         }
 
 
-        if(busy === false && getPage()==="battle")
+        if(busy === false && getPage()==="battle" && sessionStorage.HHAuto_Temp_autoLoop === "true")
         {
             busy = true;
             doBattle();
@@ -6581,11 +6631,17 @@ var autoLoop = function () {
     if (getPage() === "harem")
     {
         moduleHarem();
+        moduleExportGirlsData();
     }
     if (getPage() === "pachinko")
     {
         modulePachinko();
     }
+    if (getPage() === "change-team")
+    {
+        moduleChangeTeam();
+    }
+
 
     if(isNaN(Storage().HHAuto_Temp_autoLoopTimeMili))
     {
@@ -8052,6 +8108,7 @@ var moduleDisplayEventPriority=function()
                 currentGirl=$(query).parent()[0];
                 $(query).prepend('<div class="HHEventPriority">'+e+'</div>');
                 $($(query)).parent().parent()[0].prepend(currentGirl);
+                $(query).click();
             }
         }
     }
@@ -9330,6 +9387,8 @@ HHAuto_ToolTips.en.PachinkoOrbsLeft = {elementText : " orbs remaining.", tooltip
 HHAuto_ToolTips.en.PachinkoInvalidOrbsNb = {elementText : 'Invalid orbs number'};
 HHAuto_ToolTips.en.PachinkoNoGirls = {elementText : 'No more any girls available.'};
 HHAuto_ToolTips.en.PachinkoByPassNoGirls = {elementText : 'Bypass no girls', tooltip : "Bypass the no girls in Pachinko warning."};
+HHAuto_ToolTips.en.ChangeTeamButton = {elementText : "Change Team", tooltip : "Get list of top 7 girls for your team."};
+HHAuto_ToolTips.en.ExportGirlsData = {elementText : "Export Girls data", tooltip : "Export Girls data."};
 
 HHAuto_ToolTips.fr = {};
 HHAuto_ToolTips.fr.saveDebug = { elementText: "Sauver log", tooltip : "Sauvegarder un fichier journal de débogage."};
