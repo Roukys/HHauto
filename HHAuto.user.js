@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.18
+// @version      5.5.19
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -1442,7 +1442,7 @@ function moduleExportGirlsData()
     {
         return;
     }
-    let ExportGirlsData = '<div style="position: absolute;left: 52%;top: 100px;width:60px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ExportGirlsData","tooltip")+'</span><label style="font-size:small" class="myButton" id="ExportGirlsData">'+getTextForUI("ExportGirlsData","elementText")+'</label></div>'
+    let ExportGirlsData = '<div style="position: absolute;left: 36%;top: 20px;width:60px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ExportGirlsData","tooltip")+'</span><label style="font-size:small" class="myButton" id="ExportGirlsData">'+getTextForUI("ExportGirlsData","elementText")+'</label></div>'
 
     $("#contains_all section").prepend(ExportGirlsData);
 
