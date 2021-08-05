@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.21
+// @version      5.5.22
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -3950,7 +3950,7 @@ var CrushThemFights=function()
         //check if girl still available at troll in case of event
         if (TTF !== null)
         {
-            if (sessionStorage.HHAuto_Temp_eventGirl !== undefined)
+            if (sessionStorage.HHAuto_Temp_eventGirl !== undefined && TTF === JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).troll_id)
             {
                 if (
                     (
@@ -8330,10 +8330,10 @@ function parseEventPage(inTab="global")
                 let button = $('.nc-events-prize-locations-buttons-container a:not(.disabled)[href^="/troll-pre-battle.html"]', element);
                 let ShardsQuery = '#events .nc-panel .nc-panel-body .nc-event-reward-container .nc-events-prize-locations-container .shards-info span.number';
                 let timerQuery= '#events .nc-panel .nc-panel-body .nc-event-reward-container .nc-events-prize-locations-container .shards-info span.timer'
-                if ($(ShardsQuery).length === 2 )
+                if ($(ShardsQuery).length > 0 )
                 {
                     let remShards=Number($(ShardsQuery)[0].innerText);
-                    let nextWave=parseTime($(timerQuery)[0].innerText);
+                    let nextWave=($(timerQuery).length > 0)?parseTime($(timerQuery)[0].innerText):-1;
                     if (button.length > 0)
                     {
                         eventList[eventID]["isCompleted"] = false;
@@ -8351,10 +8351,17 @@ function parseEventPage(inTab="global")
                         }
                         else
                         {
-                            setTimer('eventMythicNextWave',nextWave);
+                            if (nextWave === -1)
+                            {
+                                eventList[eventID]["isCompleted"] = true;
+                                clearTimer('eventMythicNextWave');
+                            }
+                            else
+                            {
+                                setTimer('eventMythicNextWave',nextWave);
+                            }
                         }
                     }
-
                 }
             }
         }
@@ -8925,6 +8932,14 @@ function getHHVarValue(id)
     {
         environnement= "GH_prod";
     }
+    else if (window.location.hostname == "nutaku.comixharem.com")
+    {
+        environnement= "NCH_prod";
+    }
+    else if (window.location.hostname == "nutaku.haremheroes.com")
+    {
+        environnement= "NHH_prod";
+    }
     else
     {
         environnement = "global";
@@ -8953,6 +8968,9 @@ HHVariables["HH_prod"] = {};
 HHVariables["HH_test"] = {};
 HHVariables["CH_prod"] = {};
 HHVariables["GH_prod"] = {};
+HHVariables["NCH_prod"] = {};
+HHVariables["NHH_prod"] = {};
+
 HHVariables["global"].eventIDReg = "event_";
 HHVariables["global"].mythicEventIDReg = "mythic_event_";
 HHVariables["global"].girlToolTipData = "data-new-girl-tooltip";
@@ -9152,7 +9170,7 @@ HHAuto_ToolTips.en.PachinkoInvalidOrbsNb = {elementText : 'Invalid orbs number'}
 HHAuto_ToolTips.en.PachinkoNoGirls = {elementText : 'No more any girls available.'};
 HHAuto_ToolTips.en.PachinkoByPassNoGirls = {elementText : 'Bypass no girls', tooltip : "Bypass the no girls in Pachinko warning."};
 HHAuto_ToolTips.en.ChangeTeamButton = {elementText : "Change Team", tooltip : "Get list of top 7 girls for your team."};
-HHAuto_ToolTips.en.ExportGirlsData = {elementText : "Export Girls data", tooltip : "Export Girls data."};
+HHAuto_ToolTips.en.ExportGirlsData = {elementText : "⤓", tooltip : "Export Girls data."};
 
 HHAuto_ToolTips.fr = {};
 HHAuto_ToolTips.fr.saveDebug = { elementText: "Sauver log", tooltip : "Sauvegarder un fichier journal de débogage."};
@@ -10413,8 +10431,8 @@ var start = function () {
                 +'#sMenuButton {'
                 +'   width: 40px;'
                 +'   height: 40px;'
-                +'   top: 20px;'
-                +'   right: 74px;'
+                +'   top: 45px;'
+                +'   right: 80px;'
                 +'}}'
                );
     $("#contains_all nav").prepend('<div class="square_blue_btn" id="sMenuButton" ><img src="https://i.postimg.cc/bv7n83z3/script-Icon2.png"></div>');
