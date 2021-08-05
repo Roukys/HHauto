@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.22
+// @version      5.5.23
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -4190,11 +4190,6 @@ function doBattle()
         {
             logHHAuto("Go back to Season arena after Season fight.");
             gotoPage('season_arena',{},randomInterval(2000,4000));
-        }
-        else
-        {
-            logHHAuto("Go to home after unknown battle fight.");
-            gotoPage('home',{},randomInterval(2000,4000));
         }
         return true;
     }
@@ -10431,8 +10426,8 @@ var start = function () {
                 +'#sMenuButton {'
                 +'   width: 40px;'
                 +'   height: 40px;'
-                +'   top: 45px;'
-                +'   right: 80px;'
+                +'   top: 20px;'
+                +'   right: 74px;'
                 +'}}'
                );
     $("#contains_all nav").prepend('<div class="square_blue_btn" id="sMenuButton" ><img src="https://i.postimg.cc/bv7n83z3/script-Icon2.png"></div>');
