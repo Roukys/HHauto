@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.23
+// @version      5.5.24
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -2375,6 +2375,7 @@ var doBossBattle = function()
         TTF=getSetHeroInfos('questing.id_world')-1;
         logHHAuto("Last troll fight for quest item.");
         sessionStorage.HHAuto_Temp_autoTrollBattleSaveQuest = "false";
+        sessionStorage.HHAuto_Temp_questRequirement = "none";
     }
 
     logHHAuto("Fighting troll N "+TTF);
