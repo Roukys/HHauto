@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.24
+// @version      5.5.25
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
 // @match        http*://*.hentaiheroes.com/*
-// @match        http*://test.hentaiheroes.com/*
 // @match        http*://*.gayharem.com/*
 // @match        http*://*.comixharem.com/*
+// @match        http*://*.hornyheroes.com/*
 // @grant        GM_addStyle
 // @license      MIT
 // @updateURL    https://github.com/Roukys/HHauto/raw/main/HHAuto.user.js
@@ -632,63 +632,54 @@ function getGirlsMap()
 
 function getPage()
 {
-    try{
-        var ob = document.getElementById("hh_nutaku");
-        if(ob===undefined || ob === null)
+    var ob = document.getElementById(getHHVarValue("gameID"));
+    if(ob===undefined || ob === null)
+    {
+        logHHAuto("Unable to find page attribute, stopping script");
+        Storage().HHAuto_Setting_master = "false";
+        sessionStorage.HHAuto_Temp_autoLoop = "false";
+        logHHAuto("setting autoloop to false");
+        throw new Error("Unable to find page attribute, stopping script.");
+        return "";
+    }
+    //var p=ob.className.match(/.*page-(.*) .*/i)[1];
+    var p=ob.getAttribute('page');
+    if (p=="missions" && $('h4.contests.selected').size()>0)
+    {
+        return "contests"
+    }
+    if (p=="missions" && $('h4.pop.selected').size()>0)
+    {
+        // if on Pop menu
+        var t;
+        var popList= $("div.pop_list")
+        if (popList.attr('style') !='display:none' )
         {
-            ob = document.getElementById("hh_gay");
-        }
-        if(ob===undefined || ob === null)
-        {
-            ob = document.getElementById("hh_comix");
-        }
-        if(ob===undefined || ob === null)
-        {
-            ob = document.getElementById("hh_hentai");
-        }
-        //var p=ob.className.match(/.*page-(.*) .*/i)[1];
-        var p=ob.getAttribute('page');
-        if (p=="missions" && $('h4.contests.selected').size()>0)
-        {
-            return "contests"
-        }
-        if (p=="missions" && $('h4.pop.selected').size()>0)
-        {
-            // if on Pop menu
-            var t;
-            var popList= $("div.pop_list")
-            if (popList.attr('style') !='display:none' )
-            {
-                t = 'main';
-            }
-            else
-            {
-                t=$(".pop_thumb_selected").attr("pop_id");
-                if (t === undefined)
-                {
-                    var queryString = window.location.search;
-                    var urlParams = new URLSearchParams(queryString);
-                    var index = urlParams.get('index');
-                    if (index !== null)
-                    {
-                        addPopToUnableToStart(index,"Unable to go to Pop "+index+" as it is locked.");
-                        removePopFromPopToStart(index);
-                        t='main';
-                    }
-                }
-            }
-            return "powerplace"+t
+            t = 'main';
         }
         else
         {
-            return p;
+            t=$(".pop_thumb_selected").attr("pop_id");
+            if (t === undefined)
+            {
+                var queryString = window.location.search;
+                var urlParams = new URLSearchParams(queryString);
+                var index = urlParams.get('index');
+                if (index !== null)
+                {
+                    addPopToUnableToStart(index,"Unable to go to Pop "+index+" as it is locked.");
+                    removePopFromPopToStart(index);
+                    t='main';
+                }
+            }
         }
+        return "powerplace"+t
     }
-    catch(err)
+    else
     {
-        logHHAuto("Catched error : Could not getPage : "+err);
-        return ""
+        return p;
     }
+
 }
 
 function url_add_param(url, param, value) {
@@ -1387,8 +1378,14 @@ function moduleChangeTeam()
     function setTopTeam()
     {
         let arr = $('div[id_girl]');
-        let deckID = [-1, -1, -1, -1, -1, -1, -1];
-        let deckStat = [-1, -1, -1, -1, -1, -1, -1];
+        let numTop = 14;//count of Top girls
+        let deckID = [];
+        let deckStat = [];
+        for (let z = 0; z<numTop;z++)
+        {
+            deckID.push(-1);
+            deckStat.push(-1);
+        }
         for (let i = arr.length - 1; i > -1; i--) {
             let gID = Number($(arr[i]).attr('id_girl'));
             let obj = JSON.parse($(arr[i]).attr(getHHVarValue('girlToolTipData')));
@@ -6278,7 +6275,7 @@ var autoLoop = function () {
             busy =getFreeGreatPachinko();
 
         }
-        if (Storage().HHAuto_Setting_autoFreePachinko === "true" && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true" && checkTimer("nextPachinko2Time")) {
+        if (Storage().HHAuto_Setting_autoFreePachinko === "true" && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true" && checkTimer("nextPachinko2Time") && getHHVarValue("gameID") !== HHVariables["SH_prod"].gameID ) {
             logHHAuto("Time to fetch Mythic Pachinko.");
             busy = true;
             busy = getFreeMythicPachinko();
@@ -8928,6 +8925,10 @@ function getHHVarValue(id)
     {
         environnement= "GH_prod";
     }
+    else if (window.location.hostname == "www.hornyheroes.com")
+    {
+        environnement= "SH_prod";
+    }
     else if (window.location.hostname == "nutaku.comixharem.com")
     {
         environnement= "NCH_prod";
@@ -8935,6 +8936,10 @@ function getHHVarValue(id)
     else if (window.location.hostname == "nutaku.haremheroes.com")
     {
         environnement= "NHH_prod";
+    }
+    else if (window.location.hostname == "nutaku.gayharem.com")
+    {
+        environnement= "NGH_prod";
     }
     else
     {
@@ -8961,19 +8966,25 @@ function getHHVarValue(id)
 var HHVariables = {};
 HHVariables["global"] = {};
 HHVariables["HH_prod"] = {};
+HHVariables["HH_prod"].gameID = "hh_hentai";
 HHVariables["HH_test"] = {};
+HHVariables["HH_test"].gameID = "hh_hentai";
 HHVariables["CH_prod"] = {};
+HHVariables["CH_prod"].gameID = "hh_comix";
 HHVariables["GH_prod"] = {};
-HHVariables["NCH_prod"] = {};
+HHVariables["GH_prod"].gameID = "hh_gay";
+HHVariables["SH_prod"] = {};
+HHVariables["SH_prod"].gameID = "hh_sexy";
 HHVariables["NHH_prod"] = {};
+HHVariables["NHH_prod"].gameID = "hh_hentai";
+HHVariables["NCH_prod"] = {};
+HHVariables["NCH_prod"].gameID = "hh_comix";
+HHVariables["NGH_prod"] = {};
+HHVariables["NGH_prod"].gameID = "hh_gay";
 
 HHVariables["global"].eventIDReg = "event_";
 HHVariables["global"].mythicEventIDReg = "mythic_event_";
 HHVariables["global"].girlToolTipData = "data-new-girl-tooltip";
-
-
-
-
 
 const HC = 1;
 const CH = 2;
@@ -9782,8 +9793,14 @@ var updateData = function () {
         }
         if (Storage().HHAuto_Setting_autoFreePachinko=="true")
         {
-            Tegzd += '<br>'+getTextForUI("autoFreePachinko","elementText")+' : '+getTimeLeft('nextPachinkoTime');
-            Tegzd += '<br>'+getTextForUI("autoMythicPachinko","elementText")+' : '+getTimeLeft('nextPachinko2Time');
+            if (getTimer('nextPachinkoTime') !== -1)
+            {
+                Tegzd += '<br>'+getTextForUI("autoFreePachinko","elementText")+' : '+getTimeLeft('nextPachinkoTime');
+            }
+            if (getTimer('nextPachinko2Time') !== -1)
+            {
+                Tegzd += '<br>'+getTextForUI("autoMythicPachinko","elementText")+' : '+getTimeLeft('nextPachinko2Time');
+            }
         }
         if (getTimer('eventMythicNextWave') !== -1)
         {
