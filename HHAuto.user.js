@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.25
+// @version      5.5.26
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -800,8 +800,11 @@ var proceedQuest = function () {
     }
     $("#popup_message close").click();
     // Get the proceed button type
-    var proceedButtonMatch = $("#controls button:not([style='display: none;'])");
-    if (proceedButtonMatch.length === 0){proceedButtonMatch = $("#controls button[act='free']");}
+    var proceedButtonMatch = $("#controls button:not([style*='display:none']):not([style*='display: none'])");
+    if (proceedButtonMatch.length === 0)
+    {
+        proceedButtonMatch = $("#controls button#free");
+    }
     var proceedCostEnergy = Number($("#controls .cost span[cur='*']").text());
     var units = [" ", "K", "M", "G", "T", "P", "E", "Z", "Y"]
     var proceedCostMoney = $("#controls .cost span[cur='$']").text();
@@ -814,80 +817,99 @@ var proceedQuest = function () {
     {
         proceedCostMoney=Number(proceedCostMoney.replace(/[^0-9]/gi, ''));
     }
-    var proceedType = proceedButtonMatch.attr("act");
-
+    var proceedType = proceedButtonMatch.attr("id");
+    //console.log("DebugQuest proceedType : "+proceedType);
     if (proceedButtonMatch.length === 0)
     {
         logHHAuto("Could not find resume button.");
+        return;
     }
     else if (proceedType === "free") {
         logHHAuto("Proceeding for free.");
-        proceedButtonMatch.click();
-        sessionStorage.HHAuto_Temp_autoLoop = "false";
-        logHHAuto("setting autoloop to false");
+        //sessionStorage.HHAuto_Temp_autoLoop = "false";
+        //logHHAuto("setting autoloop to false");
+        //proceedButtonMatch.click();
     }
     else if (proceedType === "pay") {
         var energyCurrent = getSetHeroInfos('quest.amount');
         var moneyCurrent = getSetHeroInfos('soft_currency');
-        if(proceedCostEnergy <= energyCurrent)
+        let payType = $("#controls .cost span[cur]:not([style*='display:none']):not([style*='display: none'])").attr('cur');
+        //console.log("DebugQuest payType : "+payType);
+        if (payType === "*")
         {
-            // We have energy.
-            logHHAuto("Spending "+proceedCostEnergy+" Energy to proceed.");
+            //console.log("DebugQuest payType : "+payType+" for : "+proceedCostEnergy);
+            if(proceedCostEnergy <= energyCurrent)
+            {
+                // We have energy.
+                logHHAuto("Spending "+proceedCostEnergy+" Energy to proceed.");
+            }
+            else
+            {
+                logHHAuto("Quest requires "+proceedCostEnergy+" Energy to proceed.");
+                sessionStorage.HHAuto_Temp_questRequirement = "*"+proceedCostEnergy;
+                return;
+            }
         }
-        else
+        else if (payType === "$")
         {
-            logHHAuto("Quest requires "+proceedCostEnergy+" Energy to proceed.");
-            sessionStorage.HHAuto_Temp_questRequirement = "*"+proceedCostEnergy;
-            return;
+            //console.log("DebugQuest payType : "+payType+" for : "+proceedCostMoney);
+            if(proceedCostMoney <= moneyCurrent)
+            {
+                // We have money.
+                logHHAuto("Spending "+proceedCostMoney+" Money to proceed.");
+            }
+            else
+            {
+                logHHAuto("Spending "+proceedCostMoney+" Money to proceed.");
+                sessionStorage.HHAuto_Temp_questRequirement = "$"+proceedCostMoney;
+                return;
+            }
         }
-        if(proceedCostMoney <= moneyCurrent)
-        {
-            // We have money.
-            logHHAuto("Spending "+proceedCostMoney+" Money to proceed.");
-        }
-        else
-        {
-            logHHAuto("Spending "+proceedCostEnergy+" Energy to proceed.");
-            sessionStorage.HHAuto_Temp_questRequirement = "$"+proceedCostMoney;
-            return;
-        }
-        proceedButtonMatch.click();
-        sessionStorage.HHAuto_Temp_autoLoop = "false";
-        logHHAuto("setting autoloop to false");
-        location.reload();
+        //proceedButtonMatch.click();
+        //sessionStorage.HHAuto_Temp_autoLoop = "false";
+        //logHHAuto("setting autoloop to false");
     }
     else if (proceedType === "use_item") {
         logHHAuto("Proceeding by using X" + Number($("#controls .item span").text()) + " of the required item.");
-        proceedButtonMatch.click();
-        sessionStorage.HHAuto_Temp_autoLoop = "false";
-        logHHAuto("setting autoloop to false");
+        //proceedButtonMatch.click();
+        //sessionStorage.HHAuto_Temp_autoLoop = "false";
+        //logHHAuto("setting autoloop to false");
     }
     else if (proceedType === "battle") {
         logHHAuto("Proceeding to battle troll...");
         sessionStorage.HHAuto_Temp_questRequirement = "battle";
         // Proceed to battle troll.
-        proceedButtonMatch.click();
-        sessionStorage.HHAuto_Temp_autoLoop = "false";
-        logHHAuto("setting autoloop to false");
+        //proceedButtonMatch.click();
+        //sessionStorage.HHAuto_Temp_autoLoop = "false";
+        //logHHAuto("setting autoloop to false");
     }
     else if (proceedType === "end_archive") {
         logHHAuto("Reached end of current archive. Proceeding to next archive.");
-        sessionStorage.HHAuto_Temp_autoLoop = "false";
-        logHHAuto("setting autoloop to false");
-        proceedButtonMatch.click();
+        //sessionStorage.HHAuto_Temp_autoLoop = "false";
+        //logHHAuto("setting autoloop to false");
+        //proceedButtonMatch.click();
     }
     else if (proceedType === "end_play") {
         logHHAuto("Reached end of current play. Proceeding to next play.");
-        sessionStorage.HHAuto_Temp_autoLoop = "false";
-        logHHAuto("setting autoloop to false");
-        proceedButtonMatch.click();
+        //sessionStorage.HHAuto_Temp_autoLoop = "false";
+        //logHHAuto("setting autoloop to false");
+        //proceedButtonMatch.click();
     }
     else {
         logHHAuto("Could not identify given resume button.");
         sessionStorage.HHAuto_Temp_questRequirement = "unknownQuestButton";
+        return;
     }
-
-    setTimeout(function () {location.reload();},randomInterval(800,1500));
+    sessionStorage.HHAuto_Temp_autoLoop = "false";
+    logHHAuto("setting autoloop to false");
+    setTimeout(function ()
+               {
+        proceedButtonMatch.click();
+        sessionStorage.HHAuto_Temp_autoLoop = "true";
+        logHHAuto("setting autoloop to true");
+        setTimeout(autoLoop,randomInterval(500,800));
+    },randomInterval(500,800));
+    //setTimeout(function () {location.reload();},randomInterval(800,1500));
 };
 
 /**
@@ -1126,7 +1148,7 @@ function modulePathOfAttractionHide()
         let arrayz;
         let nbReward;
         let modified=false;
-        arrayz = $('.nc-poa-reward-pair:not([style*="display: none;"])');
+        arrayz = $('.nc-poa-reward-pair:not([style*="display:none"]):not([style*="display: none"])');
         if ($("#nc-poa-tape-blocker").length)
         {
             nbReward=1;
@@ -1339,7 +1361,7 @@ function moduleSimSeasonReward()
     var arrayz;
     var nbReward;
     let modified=false;
-    arrayz = $('.rewards_pair:not([style*="display: none;"])');
+    arrayz = $('.rewards_pair:not([style*="display:none"]):not([style*="display: none"])');
     if ($("div#gsp_btn_holder[style='display: block;']").length)
     {
         nbReward=1;
@@ -1352,7 +1374,7 @@ function moduleSimSeasonReward()
     var obj;
     if (arrayz.length > 0) {
         for (var i2 = arrayz.length - 1; i2 >= 0; i2--) {
-            obj = $(arrayz[i2]).find('.tick_s:not([style="display: none;"])');
+            obj = $(arrayz[i2]).find('.tick_s:not([style*="display:none"]):not([style*="display: none"])');
             if (obj.length >= nbReward) {
                 //console.log("scroll before : "+document.getElementById('rewards_cont_scroll').scrollLeft);
                 //console.log("width : "+arrayz[i2].offsetWidth);
@@ -4163,7 +4185,7 @@ function doBattle()
             logHHAuto("Reloading after league fight.");
             gotoPage("leaderboard",{},randomInterval(4000,5000));
         }
-        else if (window.location.pathname === "/troll-battle.html" && Storage().HHAuto_Setting_autoTrollBattle === "true")
+        else if (window.location.pathname === "/troll-battle.html")
         {
             if(sessionStorage.HHAuto_Temp_eventGirl !== undefined)
             {
@@ -6351,7 +6373,7 @@ var autoLoop = function () {
                     sessionStorage.HHAuto_Temp_autoTrollBattleSaveQuest = "true";
                     doBossBattle();
                 }
-                busy = false;
+                busy = true;
             }
             else if (sessionStorage.HHAuto_Temp_questRequirement[0] === '$')
             {
@@ -6360,7 +6382,7 @@ var autoLoop = function () {
                     logHHAuto("Continuing quest, required money obtained.");
                     sessionStorage.HHAuto_Temp_questRequirement = "none";
                     proceedQuest();
-                    busy = false;
+                    busy = true;
                 }
                 else
                 {
@@ -6371,12 +6393,6 @@ var autoLoop = function () {
                         logHHAuto(sessionStorage.HHAuto_Temp_questRequirement);
                         sessionStorage.HHAuto_Temp_questRequirement = "none";
                         logHHAuto("Invalid money in session storage quest requirement !");
-                    }
-                    else
-                    {
-                        // Else we need more money.
-                        //logHHAuto("Need money for quest, cannot continue. Turning ON AutoSalary.");
-                        Storage().HHAuto_Setting_autoQuest = "true";
                     }
                     busy = false;
                 }
