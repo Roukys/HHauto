@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.26
+// @version      5.5.27
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -1389,48 +1389,72 @@ function moduleSimSeasonReward()
 
 function moduleChangeTeam()
 {
-    if (document.getElementById("ChangeTeamButton") !== null)
+    if (document.getElementById("ChangeTeamButton") !== null || document.getElementById("ChangeTeamButton2") !== null)
     {
         return;
     }
-    let ChangeTeamButton = '<div style="position: absolute;left: 52%;top: 100px;width:60px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ChangeTeamButton","tooltip")+'</span><label style="font-size:small" class="myButton" id="ChangeTeamButton">'+getTextForUI("ChangeTeamButton","elementText")+'</label></div>'
+    let ChangeTeamButton = '<div style="position: absolute;left: 60%;top: 110px;width:60px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ChangeTeamButton","tooltip")+'</span><label style="font-size:small" class="myButton" id="ChangeTeamButton">'+getTextForUI("ChangeTeamButton","elementText")+'</label></div>'
+    let ChangeTeamButton2 = '<div style="position: absolute;left: 60%;top: 180px;width:60px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ChangeTeamButton2","tooltip")+'</span><label style="font-size:small" class="myButton" id="ChangeTeamButton2">'+getTextForUI("ChangeTeamButton2","elementText")+'</label></div>'
 
-    $("#contains_all section").prepend(ChangeTeamButton);
+    GM_addStyle('.topNumber{top: 2px;left: 12px;width: 100%;position: absolute;text-shadow: 1px 1px 1px black, -1px -1px 1px black;}');
 
-    function setTopTeam()
+    $("#contains_all section").append(ChangeTeamButton);
+    $("#contains_all section").append(ChangeTeamButton2);
+
+    function setTopTeam(sumFormulaType)
     {
         let arr = $('div[id_girl]');
-        let numTop = 14;//count of Top girls
+        let numTop = 16;
         let deckID = [];
         let deckStat = [];
-        for (let z = 0; z<numTop;z++)
+        for (let z = 0; z < numTop; z++)
         {
             deckID.push(-1);
             deckStat.push(-1);
         }
-        for (let i = arr.length - 1; i > -1; i--) {
+        let levelPlayer = Number(getSetHeroInfos('level'));
+        for (let i = arr.length - 1; i > -1; i--)
+        {
             let gID = Number($(arr[i]).attr('id_girl'));
             let obj = JSON.parse($(arr[i]).attr(getHHVarValue('girlToolTipData')));
             //sum formula
+            let tempGrades = obj.Graded2;
+            let countTotalGrades = (tempGrades.match(/<g/g) || []).length;
+            let countFreeGrades = (tempGrades.match(/grey/g) || []).length;
             let currentStat = obj.caracs.carac1 + obj.caracs.carac2 + obj.caracs.carac3;
-
+            //console.log(currentStat);
+            if (sumFormulaType == 1)
+            {
+                currentStat = obj.caracs.carac1 + obj.caracs.carac2 + obj.caracs.carac3;
+            } else  if (sumFormulaType == 2)
+            {
+                currentStat = (obj.caracs.carac1 + obj.caracs.carac2 + obj.caracs.carac3) / obj.level * levelPlayer / (1 + 0.3 * (countTotalGrades - countFreeGrades)) * (1 + 0.3 * (countTotalGrades));
+            }
+            //console.log(obj.level,levelPlayer,countTotalGrades,countFreeGrades);
+            //console.log(currentStat);
             let lowNum = 0; //num
             let lowStat = deckStat[0]; //stat
-            for (let j = 1; j < deckID.length; j++) {
-                if (deckStat[j] < lowStat) {
+            for (let j = 1; j < deckID.length; j++)
+            {
+                if (deckStat[j] < lowStat)
+                {
                     lowNum = j;
                     lowStat = deckStat[j];
                 }
             }
-            if (lowStat < currentStat) {
+            if (lowStat < currentStat)
+            {
                 deckID[lowNum] = gID;
                 deckStat[lowNum] = currentStat;
             }
         }
         let tmpID = 0;
         let tmpStat = 0;
-        for (let i = 0; i < deckStat.length; i++) {
-            for (let j = i; j < deckStat.length; j++) {
+        //console.log(deckStat,deckID);
+        for (let i = 0; i < deckStat.length; i++)
+        {
+            for (let j = i; j < deckStat.length; j++)
+            {
                 if (deckStat[j] > deckStat[i]) {
                     tmpID = deckID[i];
                     tmpStat = deckStat[i];
@@ -1441,19 +1465,38 @@ function moduleChangeTeam()
                 }
             }
         }
-        for (let i = arr.length - 1; i > -1; i--) {
+        //console.log(deckStat,deckID);
+        for (let i = arr.length - 1; i > -1; i--)
+        {
             let gID = Number($(arr[i]).attr('id_girl'));
             if (!deckID.includes(gID)) {
                 arr[i].style.display = "none";
             } else {
                 arr[i].style.display = "";
-                arr[i].prepend(deckID.indexOf(gID)+1);
             }
+        }
+        let mainTeamPanel = $('#change-team-page .change-team-panel .panel-body > .harem-panel-girls');
+        for (let j = 0; j < deckID.length; j++)
+        {
+            let newDiv
+            let arrSort = $('div[id_girl='+deckID[j]+']');
+            if ($(arrSort[0]).find('.topNumber').length==0){
+                newDiv = document.createElement("div");
+                newDiv.className = "topNumber";
+                arrSort[0].prepend(newDiv);
+            } else {
+                newDiv =  $(arrSort[0]).find('.topNumber')[0];
+            }
+            $(arrSort[0]).find('.topNumber')[0];
+            newDiv.innerText=j + 1;
+            mainTeamPanel.append(arrSort[0]);
         }
     }
 
-    document.getElementById("ChangeTeamButton").addEventListener("click", setTopTeam);
+    document.getElementById("ChangeTeamButton").addEventListener("click", function(){setTopTeam(1)});
+    document.getElementById("ChangeTeamButton2").addEventListener("click", function(){setTopTeam(2)});
 }
+
 
 function moduleExportGirlsData()
 {
@@ -9192,7 +9235,8 @@ HHAuto_ToolTips.en.PachinkoOrbsLeft = {elementText : " orbs remaining.", tooltip
 HHAuto_ToolTips.en.PachinkoInvalidOrbsNb = {elementText : 'Invalid orbs number'};
 HHAuto_ToolTips.en.PachinkoNoGirls = {elementText : 'No more any girls available.'};
 HHAuto_ToolTips.en.PachinkoByPassNoGirls = {elementText : 'Bypass no girls', tooltip : "Bypass the no girls in Pachinko warning."};
-HHAuto_ToolTips.en.ChangeTeamButton = {elementText : "Change Team", tooltip : "Get list of top 7 girls for your team."};
+HHAuto_ToolTips.en.ChangeTeamButton = {elementText : "Current Best", tooltip : "Get list of top 16 girls for your team."};
+HHAuto_ToolTips.en.ChangeTeamButton2 = {elementText : "Possible Best", tooltip : "Get list of top 16 girls for your team if they are Max Lv & Aff"};
 HHAuto_ToolTips.en.ExportGirlsData = {elementText : "⤓", tooltip : "Export Girls data."};
 
 HHAuto_ToolTips.fr = {};
