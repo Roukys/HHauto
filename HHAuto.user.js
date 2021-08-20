@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.27
+// @version      5.5.28
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -1401,6 +1401,36 @@ function moduleChangeTeam()
     $("#contains_all section").append(ChangeTeamButton);
     $("#contains_all section").append(ChangeTeamButton2);
 
+    function assignTopTeam()
+    {
+        function selectFromHarem(i)
+        {
+            let selectedGirl = $('#contains_all section #change-team-page .harem-panel .panel-body .topNumber[position="'+i+'"]');
+            selectedGirl.click();
+            //console.log(selectedGirl);
+            if ($('.topNumber').length > i && i<7)
+            {
+                setTimeout(function () {assignToTeam(i+1)},randomInterval(300,600));
+            }
+        }
+
+        function assignToTeam(i)
+        {
+            let position=i-1;
+            let selectedPosition = $('#contains_all section .team-panel .hero-team .team-hexagon .team-member-container.selectable[data-team-member-position="'+position+'"]');
+            selectedPosition.click();
+            //console.log(selectedPosition);
+            setTimeout(function () {selectFromHarem(i)},randomInterval(300,600));
+
+        }
+
+        let topNumbers=$('.topNumber')
+        if (topNumbers.length >0)
+        {
+            assignToTeam(1);
+        }
+    }
+
     function setTopTeam(sumFormulaType)
     {
         let arr = $('div[id_girl]');
@@ -1489,7 +1519,18 @@ function moduleChangeTeam()
             }
             $(arrSort[0]).find('.topNumber')[0];
             newDiv.innerText=j + 1;
+            newDiv.setAttribute('position',j+1);
             mainTeamPanel.append(arrSort[0]);
+        }
+        if (document.getElementById("AssignTopTeam") !== null )
+        {
+            return;
+        }
+        else
+        {
+            let AssignTopTeam = '<div style="position: relative;left: 40%;width:60px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("AssignTopTeam","tooltip")+'</span><label style="font-size:small" class="myButton" id="AssignTopTeam">'+getTextForUI("AssignTopTeam","elementText")+'</label></div>'
+            $("#contains_all section #change-team-page .harem-panel .panel-body").append(AssignTopTeam);
+            document.getElementById("AssignTopTeam").addEventListener("click", assignTopTeam);
         }
     }
 
@@ -9237,6 +9278,7 @@ HHAuto_ToolTips.en.PachinkoNoGirls = {elementText : 'No more any girls available
 HHAuto_ToolTips.en.PachinkoByPassNoGirls = {elementText : 'Bypass no girls', tooltip : "Bypass the no girls in Pachinko warning."};
 HHAuto_ToolTips.en.ChangeTeamButton = {elementText : "Current Best", tooltip : "Get list of top 16 girls for your team."};
 HHAuto_ToolTips.en.ChangeTeamButton2 = {elementText : "Possible Best", tooltip : "Get list of top 16 girls for your team if they are Max Lv & Aff"};
+HHAuto_ToolTips.en.AssignTopTeam  = {elementText : "Assign first 7", tooltip : "Put the first 7 ones in the team."};
 HHAuto_ToolTips.en.ExportGirlsData = {elementText : "⤓", tooltip : "Export Girls data."};
 
 HHAuto_ToolTips.fr = {};
