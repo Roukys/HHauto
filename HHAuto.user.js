@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.28
+// @version      5.5.29
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -9041,6 +9041,10 @@ function getHHVarValue(id)
     {
         environnement= "NGH_prod";
     }
+    else if (window.location.hostname == "thrix.hentaiheroes.com")
+    {
+        environnement= "THH_prod";
+    }
     else
     {
         environnement = "global";
@@ -9081,6 +9085,8 @@ HHVariables["NCH_prod"] = {};
 HHVariables["NCH_prod"].gameID = "hh_comix";
 HHVariables["NGH_prod"] = {};
 HHVariables["NGH_prod"].gameID = "hh_gay";
+HHVariables["THH_prod"] = {};
+HHVariables["THH_prod"].gameID = "hh_hentai";
 
 HHVariables["global"].eventIDReg = "event_";
 HHVariables["global"].mythicEventIDReg = "mythic_event_";
