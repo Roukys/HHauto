@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.29
+// @version      5.5.30
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -157,472 +157,58 @@ function getHero()
     return unsafeWindow.Hero;
 }
 
-function getSetHeroInfos(infoSearched,newValue)
+function getHeroInfos(infoSearched)
 {
-    var returnValue = -1;
-
-    switch (infoSearched)
+    let returnValue = getHero();
+    if (getHHVarValue(infoSearched,false) !== "getHHVarValue not found")
     {
-        case 'carac1' :
-            if ( getHero().infos.carac1 !== undefined )
-            {
-                returnValue = getHero().infos.carac1;
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
+        infoSearched = getHHVarValue(infoSearched);
+    }
 
-        case 'carac2' :
-            if ( getHero().infos.carac2 !== undefined )
-            {
-                returnValue = getHero().infos.carac2;
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
+    let splittedInfoSearched = infoSearched.split(".");
 
-        case 'carac3' :
-            if ( getHero().infos.carac3 !== undefined )
-            {
-                returnValue = getHero().infos.carac3;
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-
-        case 'caracs.damage' :
-            if ( getHero().infos.caracs.damage !== undefined )
-            {
-                returnValue = getHero().infos.caracs.damage;
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-
-        case 'caracs.defense' :
-            if ( getHero().infos.caracs.defense !== undefined )
-            {
-                returnValue = getHero().infos.caracs.defense;
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-
-        case 'caracs.def_carac1' :
-            if ( getHero().infos.caracs.def_carac1 !== undefined )
-            {
-                returnValue = getHero().infos.caracs.def_carac1;
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-
-        case 'caracs.def_carac2' :
-            if ( getHero().infos.caracs.def_carac2 !== undefined )
-            {
-                returnValue = getHero().infos.caracs.def_carac2;
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-
-        case 'caracs.def_carac3' :
-            if ( getHero().infos.caracs.def_carac3 !== undefined )
-            {
-                returnValue = getHero().infos.caracs.def_carac3;
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-
-        case 'caracs.ego' :
-            if ( getHero().infos.caracs.ego !== undefined )
-            {
-                returnValue = getHero().infos.caracs.ego;
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-
-        case 'class' :
-            if ( getHero().infos.class !== undefined )
-            {
-                returnValue = getHero().infos.class;
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-
-        case 'challenge.amount' :
-            if ( getHero().energies !== undefined )
-            {
-                returnValue = getHero().energies.challenge.amount;
-                if ( newValue !== undefined )
-                {
-                    Hero.energies.challenge.amount = newValue;
-                }
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-
-        case 'fight.amount' :
-            if ( getHero().energies !== undefined )
-            {
-                returnValue = getHero().energies.fight.amount;
-                if ( newValue !== undefined )
-                {
-                    Hero.energies.fight.amount = newValue;
-                }
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-
-        case 'kiss.amount' :
-            if ( getHero().energies !== undefined )
-            {
-                returnValue = getHero().energies.kiss.amount;
-                if ( newValue !== undefined )
-                {
-                    Hero.energies.kiss.amount = newValue;
-                }
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-
-        case 'quest.amount' :
-            if ( getHero().energies !== undefined )
-            {
-                returnValue = getHero().energies.quest.amount;
-                if ( newValue !== undefined )
-                {
-                    Hero.energies.quest.amount = newValue;
-                }
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-
-        case 'fight.max_amount' :
-            if ( getHero().energies !== undefined )
-            {
-                returnValue = getHero().energies.fight.max_amount;
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-
-        case 'kiss.max_amount' :
-            if ( getHero().energies !== undefined )
-            {
-                returnValue = getHero().energies.kiss.max_amount;
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-
-        case 'quest.max_amount' :
-            if ( getHero().energies !== undefined )
-            {
-                returnValue = getHero().energies.quest.max_amount;
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-
-        case 'challenge.max_amount' :
-            if ( getHero().energies !== undefined )
-            {
-                returnValue = getHero().energies.challenge.max_amount;
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-
-        case 'soft_currency' :
-            if ( getHero().infos.soft_currency !== undefined )
-            {
-                return getHero().infos.soft_currency;
-                if ( newValue !== undefined )
-                {
-                    Hero.infos.soft_currency = newValue;
-                }
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-
-        case 'hard_currency' :
-            if ( getHero().infos.hard_currency !== undefined )
-            {
-                returnValue = getHero().infos.hard_currency;
-                if ( newValue !== undefined )
-                {
-                    Hero.infos.hard_currency = newValue;
-                }
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-
-        case 'level' :
-            if ( getHero().infos.level !== undefined )
-            {
-                returnValue = getHero().infos.level;
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-
-        case 'questing.current_url' :
-            if ( getHero().infos.questing.current_url !== undefined )
-            {
-                returnValue = getHero().infos.questing.current_url;
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-
-        case 'questing.id_world' :
-            if ( getHero().infos.questing.id_world !== undefined )
-            {
-                returnValue = getHero().infos.questing.id_world;
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-
-        case 'quest.seconds_per_point' :
-            if ( getHero().energies !== undefined )
-            {
-                returnValue = getHero().energies.quest.seconds_per_point;
-                break;
-            }
-            else
-            {
-                returnValue = 450;
-                break;
-            }
-            break;
-
-        case 'fight.seconds_per_point' :
-            if ( getHero().energies !== undefined )
-            {
-                returnValue = getHero().energies.fight.seconds_per_point;
-                break;
-            }
-            else
-            {
-                returnValue = 1800;
-                break;
-            }
-            break;
-
-        case 'challenge.seconds_per_point' :
-            if ( getHero().energies !== undefined )
-            {
-                returnValue = getHero().energies.challenge.seconds_per_point;
-                break;
-            }
-            else
-            {
-                returnValue = 2100;
-                break;
-            }
-            break;
-
-        case 'kiss.seconds_per_point' :
-            if ( getHero().energies !== undefined )
-            {
-                returnValue = getHero().energies.kiss.seconds_per_point;
-                break;
-            }
-            else
-            {
-                returnValue = 3600;
-                break;
-            }
-            break;
-
-        case 'quest.next_refresh_ts' :
-            if ( getHero().energies !== undefined )
-            {
-                returnValue = getHero().energies.quest.next_refresh_ts;
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-
-        case 'fight.next_refresh_ts' :
-            if ( getHero().energies !== undefined )
-            {
-                returnValue = getHero().energies.fight.next_refresh_ts;
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-
-        case 'challenge.next_refresh_ts' :
-            if ( getHero().energies !== undefined )
-            {
-                returnValue = getHero().energies.challenge.next_refresh_ts;
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-
-        case 'kiss.next_refresh_ts' :
-            if ( getHero().energies !== undefined )
-            {
-                returnValue = getHero().energies.kiss.next_refresh_ts;
-                break;
-            }
-            else
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
-            break;
-        default:
-            {
-                logHHAuto("Hero info not found : "+infoSearched);
-                returnValue = -1;
-                break;
-            }
+    for (let i=0;i<splittedInfoSearched.length;i++)
+    {
+        if (returnValue[splittedInfoSearched[i]] === undefined)
+        {
+            logHHAuto("Hero info not found : "+infoSearched+" ("+splittedInfoSearched[i]+" not defined).");
+            return -1;
+        }
+        else
+        {
+            returnValue = returnValue[splittedInfoSearched[i]];
+        }
     }
     return returnValue;
+}
+
+function setHeroInfos(infoSearched,newValue)
+{
+    let returnValue = getHero();
+    if (getHHVarValue(infoSearched,false) !== "getHHVarValue not found")
+    {
+        infoSearched = getHHVarValue(infoSearched);
+    }
+
+    let splittedInfoSearched = infoSearched.split(".");
+
+    for (let i=0;i<splittedInfoSearched.length;i++)
+    {
+        if (returnValue[splittedInfoSearched[i]] === undefined)
+        {
+            logHHAuto("Hero info not found : "+infoSearched+" ("+splittedInfoSearched[i]+" not defined).");
+            return -1;
+        }
+        else if ( i === splittedInfoSearched.length - 1)
+        {
+            returnValue[splittedInfoSearched[i]] = newValue;
+            return 0;
+        }
+        else
+        {
+            returnValue = returnValue[splittedInfoSearched[i]];
+        }
+    }
 }
 
 function getGirlsMap()
@@ -730,7 +316,7 @@ function gotoPage(page,inArgs,delay = -1)
             togoto = $("nav div[rel='content'] a:has(.shop)").attr("href");
             break;
         case "quest":
-            togoto = getSetHeroInfos('questing.current_url');
+            togoto = getHeroInfos('infos.questing.current_url');
             if (togoto.includes("world"))
             {
                 logHHAuto("All quests finished, turning off AutoQuest!");
@@ -831,8 +417,8 @@ var proceedQuest = function () {
         //proceedButtonMatch.click();
     }
     else if (proceedType === "pay") {
-        var energyCurrent = getSetHeroInfos('quest.amount');
-        var moneyCurrent = getSetHeroInfos('soft_currency');
+        var energyCurrent = getHeroInfos('energies.quest.amount');
+        var moneyCurrent = getHeroInfos('infos.soft_currency');
         let payType = $("#controls .cost span[cur]:not([style*='display:none']):not([style*='display: none'])").attr('cur');
         //console.log("DebugQuest payType : "+payType);
         if (payType === "*")
@@ -1442,7 +1028,7 @@ function moduleChangeTeam()
             deckID.push(-1);
             deckStat.push(-1);
         }
-        let levelPlayer = Number(getSetHeroInfos('level'));
+        let levelPlayer = Number(getHeroInfos('infos.level'));
         for (let i = arr.length - 1; i > -1; i--)
         {
             let gID = Number($(arr[i]).attr('id_girl'));
@@ -2171,14 +1757,14 @@ var doStatUpgrades=function()
     //Stats?
     //logHHAuto('stats');
     var Hero=getHero();
-    var level=getSetHeroInfos('level');
-    var stats=[getSetHeroInfos('carac1'),getSetHeroInfos('carac2'),getSetHeroInfos('carac3')];
-    var money=getSetHeroInfos('soft_currency');
+    var level=getHeroInfos('infos.level');
+    var stats=[getHeroInfos('infos.carac1'),getHeroInfos('infos.carac2'),getHeroInfos('infos.carac3')];
+    var money=getHeroInfos('infos.soft_currency');
     var count=0;
     var M=Storage().HHAuto_Setting_autoStats?Number(Storage().HHAuto_Setting_autoStats):500000000;
-    var MainStat=stats[getSetHeroInfos('class')-1];
-    var Limit=getSetHeroInfos('level')*30;//getSetHeroInfos('level')*19+Math.min(getSetHeroInfos('level'),25)*21;
-    var carac=getSetHeroInfos('class');
+    var MainStat=stats[getHeroInfos('infos.class')-1];
+    var Limit=getHeroInfos('infos.level')*30;//getHeroInfos('infos.level')*19+Math.min(getHeroInfos('infos.level'),25)*21;
+    var carac=getHeroInfos('infos.class');
     var mp=0;
     var mults=[60,30,10,1];
     for (var car=0; car<3; car++)
@@ -2190,12 +1776,12 @@ var doStatUpgrades=function()
             var mult=mults[mu];
             var price = 5+s*2+(Math.max(0,s-2000)*2)+(Math.max(0,s-4000)*2)+(Math.max(0,s-6000)*2)+(Math.max(0,s-8000)*2);
             price*=mult;
-            if (carac==getSetHeroInfos('class'))
+            if (carac==getHeroInfos('infos.class'))
             {
                 mp=price;
             }
             //logHHAuto('money: '+money+' stat'+carac+': '+stats[carac-1]+' price: '+price);
-            if ((stats[carac-1]+mult)<=Limit && (money-price)>M && (carac==getSetHeroInfos('class') || price<mp/2 || (MainStat+mult)>Limit))
+            if ((stats[carac-1]+mult)<=Limit && (money-price)>M && (carac==getHeroInfos('infos.class') || price<mp/2 || (MainStat+mult)>Limit))
             {
                 count++;
                 logHHAuto('money: '+money+' stat'+carac+': '+stats[carac-1]+' [+'+mult+'] price: '+price);
@@ -2222,11 +1808,11 @@ var doShopping=function()
     {
 
         var Hero=getHero();
-        var MS='carac'+getSetHeroInfos('class');
-        var SS1='carac'+(getSetHeroInfos('class')%3+1);
-        var SS2='carac'+((getSetHeroInfos('class')+1)%3+1);
-        var money=getSetHeroInfos('soft_currency');
-        var kobans=getSetHeroInfos('hard_currency');
+        var MS='carac'+getHeroInfos('infos.class');
+        var SS1='carac'+(getHeroInfos('infos.class')%3+1);
+        var SS2='carac'+((getHeroInfos('infos.class')+1)%3+1);
+        var money=getHeroInfos('infos.soft_currency');
+        var kobans=getHeroInfos('infos.hard_currency');
 
         try
         {
@@ -2430,7 +2016,7 @@ var doShopping=function()
         }
         sessionStorage.HHAuto_Temp_storeContents=JSON.stringify(shop);
         //unsafeWindow.Hero.infos.soft_currency=money;
-        getSetHeroInfos('soft_currency',money);
+        //Hero.update("soft_currency", money, false);
     }
     catch (ex)
     {
@@ -2441,7 +2027,7 @@ var doShopping=function()
 
 var doBossBattle = function()
 {
-    var currentPower = getSetHeroInfos('fight.amount');
+    var currentPower = getHeroInfos('energies.fight.amount');
     if(currentPower < 1)
     {
         //logHHAuto("No power for battle.");
@@ -2469,13 +2055,13 @@ var doBossBattle = function()
     }
     else
     {
-        TTF=getSetHeroInfos('questing.id_world')-1;
+        TTF=getHeroInfos('infos.questing.id_world')-1;
         logHHAuto("Last troll fight");
     }
 
     if (sessionStorage.HHAuto_Temp_autoTrollBattleSaveQuest == "true")
     {
-        TTF=getSetHeroInfos('questing.id_world')-1;
+        TTF=getHeroInfos('infos.questing.id_world')-1;
         logHHAuto("Last troll fight for quest item.");
         sessionStorage.HHAuto_Temp_autoTrollBattleSaveQuest = "false";
         sessionStorage.HHAuto_Temp_questRequirement = "none";
@@ -2522,7 +2108,7 @@ var doChampionStuff=function()
         else
         {
             var TCount=Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
-            var ECount= getSetHeroInfos('quest.amount');
+            var ECount= getHeroInfos('energies.quest.amount');
             logHHAuto("T:"+TCount+" E:"+ECount+" "+(Storage().HHAuto_Setting_autoChampsUseEne==="true"))
             if ( TCount==0)
             {
@@ -2641,7 +2227,7 @@ var doClubChampionStuff=function()
         else
         {
             var TCount=Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
-            var ECount= getSetHeroInfos('quest.amount');
+            var ECount= getHeroInfos('energies.quest.amount');
             logHHAuto("T:"+TCount+" E:"+ECount)
             if ( TCount==0)
             {
@@ -3375,7 +2961,7 @@ var doSeason = function () {
     logHHAuto("Performing auto Season.");
     // Confirm if on correct screen.
     var page = getPage();
-    var current_kisses = getSetHeroInfos('kiss.amount');
+    var current_kisses = getHeroInfos('energies.kiss.amount');
     if(page === "season")
     {
         logHHAuto("On season page.");
@@ -3391,7 +2977,7 @@ var doSeason = function () {
         }
         else
         {
-            setTimer('nextSeasonTime',getSetHeroInfos('kiss.next_refresh_ts'));
+            setTimer('nextSeasonTime',getHeroInfos('energies.kiss.next_refresh_ts'));
             gotoPage('home');
         }
         return;
@@ -3460,7 +3046,7 @@ var doSeason = function () {
         }
         else
         {
-            setTimer('nextSeasonTime',getSetHeroInfos('kiss.next_refresh_ts'));
+            setTimer('nextSeasonTime',getHeroInfos('energies.kiss.next_refresh_ts'));
             gotoPage('home');
         }
         return;
@@ -3504,7 +3090,7 @@ function getLeagueOpponentListData()
 var doLeagueBattle = function () {
     //logHHAuto("Performing auto leagues.");
     // Confirm if on correct screen.
-    var currentPower = getSetHeroInfos('challenge.amount');
+    var currentPower = getHeroInfos('energies.challenge.amount');
     var leagueScoreSecurityThreshold = 40;
     var ltime;
 
@@ -3533,7 +3119,7 @@ var doLeagueBattle = function () {
             logHHAuto("No power for leagues.");
             //prevent paranoia to wait for league
             sessionStorage.HHAuto_Temp_paranoiaLeagueBlocked="true";
-            setTimer('nextLeaguesTime',getSetHeroInfos('challenge.next_refresh_ts')+1);
+            setTimer('nextLeaguesTime',getHeroInfos('energies.challenge.next_refresh_ts')+1);
             //             for(var e in unsafeWindow.HHTimers.timers){
             //                 try{
             //                     if(unsafeWindow.HHTimers.timers[e].type=="energy_challenge")
@@ -3773,15 +3359,15 @@ function getLeagueOpponentId(opponentsIDList,force=false)
             setTimer("paranoiaSwitch",addedTime);
         }
 
-        playerEgo = Math.round(getSetHeroInfos('caracs.ego'));
+        playerEgo = Math.round(getHeroInfos('infos.caracs.ego'));
         //week 28 new battle modification
         /*
-        playerDefHC = Math.round(getSetHeroInfos('caracs.def_carac1'));
-        playerDefCH = Math.round(getSetHeroInfos('caracs.def_carac2'));
-        playerDefKH = Math.round(getSetHeroInfos('caracs.def_carac3'));
+        playerDefHC = Math.round(getHeroInfos('infos.caracs.def_carac1'));
+        playerDefCH = Math.round(getHeroInfos('infos.caracs.def_carac2'));
+        playerDefKH = Math.round(getHeroInfos('infos.caracs.def_carac3'));
         */
         //End week 28 new battle modification
-        playerAtk = Math.round(getSetHeroInfos('caracs.damage'));
+        playerAtk = Math.round(getHeroInfos('infos.caracs.damage'));
         playerClass = $('div#leagues_left .icon').attr('carac');
         //week 28 new battle modification
         /*
@@ -3832,7 +3418,7 @@ function getLeagueOpponentId(opponentsIDList,force=false)
                 let opponentOmega = opponentData.team["2"];
                 let opponentName = opponentData.Name;
                 //week 28 new battle modification
-                playerDef = Math.round(getSetHeroInfos('caracs.defense'));
+                playerDef = Math.round(getHeroInfos('infos.caracs.defense'));
                 /*
                 if (opponentData.class == '1') {
                     playerDef = playerDefHC;
@@ -4047,9 +3633,9 @@ var CrushThemFights=function()
         let battleButtonX10Price = Number(battleButtonX10.attr('price'));
         let battleButtonX50Price = Number(battleButtonX50.attr('price'));
         let hero=getHero();
-        let hcConfirmValue = hero.infos.hc_confirm;
+        let hcConfirmValue = getHeroInfos('infos.hc_confirm');
         let remainingShards;
-        let currentPower = Number(getSetHeroInfos('fight.amount'));
+        let currentPower = Number(getHeroInfos('energies.fight.amount'));
 
         //check if girl still available at troll in case of event
         if (TTF !== null)
@@ -4087,6 +3673,7 @@ var CrushThemFights=function()
                     && currentPower < 50
                     && canBuyFightsResult.max === 50
                     && Storage().HHAuto_Setting_useX50Fights === "true"
+                    && ( JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "true" || Storage().HHAuto_Setting_useX50FightsAllowNormalEvent === "true")
                 )
                 ||
                 (
@@ -4094,6 +3681,7 @@ var CrushThemFights=function()
                     && currentPower < 10
                     && canBuyFightsResult.max === 20
                     && Storage().HHAuto_Setting_useX10Fights === "true"
+                    && ( JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "true" || Storage().HHAuto_Setting_useX10FightsAllowNormalEvent === "true")
                 )
             )
             {
@@ -4118,22 +3706,23 @@ var CrushThemFights=function()
                     && Storage().HHAuto_Setting_minShardsX50
                     && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX50))
                     && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX50)
-                    && (battleButtonX50Price === 0 || getSetHeroInfos('hard_currency')>=battleButtonX50Price+Number(Storage().HHAuto_Setting_kobanBank))
+                    && (battleButtonX50Price === 0 || getHeroInfos('infos.hard_currency')>=battleButtonX50Price+Number(Storage().HHAuto_Setting_kobanBank))
                     && currentPower >= 50
                     && (currentPower >= (Number(Storage().HHAuto_Setting_autoTrollThreshold) + 50)
                         || bypassThreshold
                        )
+                    && ( JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "true" || Storage().HHAuto_Setting_useX50FightsAllowNormalEvent === "true")
                    )
                 {
                     logHHAuto("Going to crush 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
 
-                    hero.infos.hc_confirm = true;
+                    setHeroInfos('infos.hc_confirm',true);
                     // We have the power.
                     is_cheat_click=function(e) {
                         return false;
                     };
                     battleButtonX50[0].click();
-                    hero.infos.hc_confirm = hcConfirmValue;
+                    setHeroInfos('infos.hc_confirm',hcConfirmValue);
                     //sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh = Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) - 50;
                     logHHAuto("Crushed 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
                     if (sessionStorage.HHAuto_Temp_questRequirement === "battle") {
@@ -4147,7 +3736,7 @@ var CrushThemFights=function()
                 {
                     if (Storage().HHAuto_Setting_useX50Fights === "true")
                     {
-                        logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+getSetHeroInfos('fight.amount')+'/50, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+                        logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+getHeroInfos('energies.fight.amount')+'/50, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getHeroInfos('infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
                     }
                 }
 
@@ -4155,22 +3744,23 @@ var CrushThemFights=function()
                     && Storage().HHAuto_Setting_minShardsX10
                     && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX10))
                     && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX10)
-                    && (battleButtonX10Price === 0 || getSetHeroInfos('hard_currency')>=battleButtonX10Price+Number(Storage().HHAuto_Setting_kobanBank))
+                    && (battleButtonX10Price === 0 || getHeroInfos('infos.hard_currency')>=battleButtonX10Price+Number(Storage().HHAuto_Setting_kobanBank))
                     && currentPower >= 10
                     && (currentPower >= (Number(Storage().HHAuto_Setting_autoTrollThreshold) + 10)
                         || bypassThreshold
                        )
+                    && ( JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "true" || Storage().HHAuto_Setting_useX10FightsAllowNormalEvent === "true")
                    )
                 {
                     logHHAuto("Going to crush 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
 
-                    hero.infos.hc_confirm = true;
+                    setHeroInfos('infos.hc_confirm',true);
                     // We have the power.
                     is_cheat_click=function(e) {
                         return false;
                     };
                     battleButtonX10[0].click();
-                    hero.infos.hc_confirm = hcConfirmValue;
+                    setHeroInfos('infos.hc_confirm',hcConfirmValue);
                     //sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh = Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) - 10;
                     logHHAuto("Crushed 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
                     if (sessionStorage.HHAuto_Temp_questRequirement === "battle") {
@@ -4184,7 +3774,7 @@ var CrushThemFights=function()
                 {
                     if (Storage().HHAuto_Setting_useX10Fights === "true")
                     {
-                        logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+getSetHeroInfos('fight.amount')+'/10, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX10+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+                        logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+getHeroInfos('energies.fight.amount')+'/10, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX10+', kobans : '+getHeroInfos('infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
                     }
                 }
             }
@@ -4656,7 +4246,7 @@ var updateShop=function()
         logHHAuto('counted '+sessionStorage.HHAuto_Temp_haveAff+' Aff '+sessionStorage.HHAuto_Temp_haveExp+' Exp');
 
         sessionStorage.HHAuto_Temp_storeContents = JSON.stringify([assA,assB,assG,assP]);
-        sessionStorage.HHAuto_Temp_charLevel=getSetHeroInfos('level');
+        sessionStorage.HHAuto_Temp_charLevel=getHeroInfos('infos.level');
 
         var nshop;
         for(var e in unsafeWindow.HHTimers.timers){
@@ -4788,13 +4378,13 @@ var setParanoiaSpendings=function()
         toNextSwitch = Number((sessionStorage.HHAuto_Temp_NextSwitch-new Date().getTime())/1000);
 
         //if autoLeague is on
-        if(Storage().HHAuto_Setting_autoLeagues === "true" && getSetHeroInfos('level')>=20)
+        if(Storage().HHAuto_Setting_autoLeagues === "true" && getHeroInfos('infos.level')>=20)
         {
             if ( sessionStorage.HHAuto_Temp_paranoiaLeagueBlocked === undefined )
             {
-                maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getSetHeroInfos('challenge.next_refresh_ts')))/Number(getSetHeroInfos('challenge.seconds_per_point')));
-                currentEnergy=Number(getSetHeroInfos('challenge.amount'));
-                maxEnergy=Number(getSetHeroInfos('challenge.max_amount'));
+                maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHeroInfos('energies.challenge.next_refresh_ts')))/Number(getHeroInfos('energies.challenge.seconds_per_point')));
+                currentEnergy=Number(getHeroInfos('energies.challenge.amount'));
+                maxEnergy=Number(getHeroInfos('energies.challenge.max_amount'));
                 totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
                 //if point refreshed during paranoia would go above max
                 if ( totalPointsEndParanoia >= maxEnergy)
@@ -4814,9 +4404,9 @@ var setParanoiaSpendings=function()
         {
             if ( sessionStorage.HHAuto_Temp_paranoiaQuestBlocked === undefined )
             {
-                maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getSetHeroInfos('quest.next_refresh_ts')))/Number(getSetHeroInfos('quest.seconds_per_point')));
-                currentEnergy=Number(getSetHeroInfos('quest.amount'));
-                maxEnergy=Number(getSetHeroInfos('quest.max_amount'));
+                maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHeroInfos('energies.quest.next_refresh_ts')))/Number(getHeroInfos('energies.quest.seconds_per_point')));
+                currentEnergy=Number(getHeroInfos('energies.quest.amount'));
+                maxEnergy=Number(getHeroInfos('energies.quest.max_amount'));
                 totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
                 //if point refreshed during paranoia would go above max
                 if ( totalPointsEndParanoia >= maxEnergy)
@@ -4832,11 +4422,11 @@ var setParanoiaSpendings=function()
             }
         }
         //if autoTrollBattle is on
-        if(Storage().HHAuto_Setting_autoTrollBattle === "true" && getSetHeroInfos('questing.id_world')>0)
+        if(Storage().HHAuto_Setting_autoTrollBattle === "true" && getHeroInfos('infos.questing.id_world')>0)
         {
-            maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getSetHeroInfos('fight.next_refresh_ts')))/Number(getSetHeroInfos('fight.seconds_per_point')));
-            currentEnergy=Number(getSetHeroInfos('fight.amount'));
-            maxEnergy=Number(getSetHeroInfos('fight.max_amount'));
+            maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHeroInfos('energies.fight.next_refresh_ts')))/Number(getHeroInfos('energies.fight.seconds_per_point')));
+            currentEnergy=Number(getHeroInfos('energies.fight.amount'));
+            maxEnergy=Number(getHeroInfos('energies.fight.max_amount'));
             totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
             //if point refreshed during paranoia would go above max
             if ( totalPointsEndParanoia >= maxEnergy)
@@ -4853,9 +4443,9 @@ var setParanoiaSpendings=function()
         //if autoSeason is on
         if(Storage().HHAuto_Setting_autoSeason === "true")
         {
-            maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getSetHeroInfos('kiss.next_refresh_ts')))/Number(getSetHeroInfos('kiss.seconds_per_point')));
-            currentEnergy=Number(getSetHeroInfos('kiss.amount'));
-            maxEnergy=Number(getSetHeroInfos('kiss.max_amount'));
+            maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHeroInfos('energies.kiss.next_refresh_ts')))/Number(getHeroInfos('energies.kiss.seconds_per_point')));
+            currentEnergy=Number(getHeroInfos('energies.kiss.amount'));
+            maxEnergy=Number(getHeroInfos('energies.kiss.max_amount'));
             totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
             //if point refreshed during paranoia would go above max
             if ( totalPointsEndParanoia >= maxEnergy)
@@ -4898,7 +4488,7 @@ var flipParanoia=function()
         if (Storage().HHAuto_Setting_autoTrollMythicByPassParanoia === "true" && getTimer("eventMythicNextWave") !== -1 && toNextSwitch>getSecondsLeft("eventMythicNextWave"))
         {
             logHHAuto("Forced rest only until next mythic wave.");
-            toNextSwitch=getSecondsLeft("eventMythicNextWave")+randomInterval(10,30);
+            toNextSwitch=getSecondsLeft("eventMythicNextWave")+randomInterval(1,3);
         }
 
         //bypass Paranoia if ongoing mythic
@@ -4910,7 +4500,7 @@ var flipParanoia=function()
             //                 trollThreshold = 0;
             //             }
             //mythic onGoing and still have some fight above threshold
-            if (Number(getSetHeroInfos('fight.amount')) > 0) //trollThreshold)
+            if (Number(getHeroInfos('energies.fight.amount')) > 0) //trollThreshold)
             {
                 logHHAuto("Forced bypass Paranoia for mythic (can fight).");
                 setTimer('paranoiaSwitch',60);
@@ -4921,7 +4511,7 @@ var flipParanoia=function()
             var hero=getHero();
             var price=hero.get_recharge_cost("fight");
             if (canBuyFight().canBuy
-                && getSetHeroInfos('fight.amount')==0
+                && getHeroInfos('energies.fight.amount')==0
                )
             {
 
@@ -5047,16 +4637,16 @@ function moduleSimLeague() {
             return;
         }
         // player stats
-        playerEgo = Math.round(getSetHeroInfos('caracs.ego'));
+        playerEgo = Math.round(getHeroInfos('infos.caracs.ego'));
         //week 28 new battle modification
         /*
-        playerDefHC = Math.round(getSetHeroInfos('caracs.def_carac1'));
-        playerDefCH = Math.round(getSetHeroInfos('caracs.def_carac2'));
-        playerDefKH = Math.round(getSetHeroInfos('caracs.def_carac3'));
+        playerDefHC = Math.round(getHeroInfos('infos.caracs.def_carac1'));
+        playerDefCH = Math.round(getHeroInfos('infos.caracs.def_carac2'));
+        playerDefKH = Math.round(getHeroInfos('infos.caracs.def_carac3'));
         */
-        playerDef = Math.round(getSetHeroInfos('caracs.defense'));
+        playerDef = Math.round(getHeroInfos('infos.caracs.defense'));
         //End week 28 new battle modification
-        playerAtk = Math.round(getSetHeroInfos('caracs.damage'));
+        playerAtk = Math.round(getHeroInfos('infos.caracs.damage'));
         playerClass = $('div#leagues_left .icon').attr('carac');
 
         //week 28 new battle modification
@@ -5604,15 +5194,15 @@ function moduleSimBattle() {
     var girlDataName=getHHVarValue('girlToolTipData');
 
     // player stats
-    playerEgo = Math.round(getSetHeroInfos('caracs.ego'));
+    playerEgo = Math.round(getHeroInfos('infos.caracs.ego'));
 
 
-    playerDefHC = Math.round(getSetHeroInfos('caracs.def_carac1'));
-    playerDefCH = Math.round(getSetHeroInfos('caracs.def_carac2'));
-    playerDefKH = Math.round(getSetHeroInfos('caracs.def_carac3'));
+    playerDefHC = Math.round(getHeroInfos('infos.caracs.def_carac1'));
+    playerDefCH = Math.round(getHeroInfos('infos.caracs.def_carac2'));
+    playerDefKH = Math.round(getHeroInfos('infos.caracs.def_carac3'));
 
-    playerAtk = Math.round(getSetHeroInfos('caracs.damage'));
-    playerClass = 'class'+getSetHeroInfos('class');
+    playerAtk = Math.round(getHeroInfos('infos.caracs.damage'));
+    playerClass = 'class'+getHeroInfos('infos.class');
     //playerClass = $('div#leagues_left .icon').attr('carac');
 
     playerAlpha = JSON.parse($("div.battle_hero .battle-faces div[girl_n=0]").attr(girlDataName));
@@ -5833,17 +5423,17 @@ function moduleSimSeasonBattle() {
         var girlDataName=getHHVarValue('girlToolTipData');
 
         // player stats
-        playerEgo = Math.round(getSetHeroInfos('caracs.ego'));
+        playerEgo = Math.round(getHeroInfos('infos.caracs.ego'));
         //week 28 new battle modification
         /*
-        playerDefHC = Math.round(getSetHeroInfos('caracs.def_carac1'));
-        playerDefCH = Math.round(getSetHeroInfos('caracs.def_carac2'));
-        playerDefKH = Math.round(getSetHeroInfos('caracs.def_carac3'));
+        playerDefHC = Math.round(getHeroInfos('infos.caracs.def_carac1'));
+        playerDefCH = Math.round(getHeroInfos('infos.caracs.def_carac2'));
+        playerDefKH = Math.round(getHeroInfos('infos.caracs.def_carac3'));
         */
         //End week 28 new battle modification
 
-        playerAtk = Math.round(getSetHeroInfos('caracs.damage'));
-        playerClass = 'class'+getSetHeroInfos('class');
+        playerAtk = Math.round(getHeroInfos('infos.caracs.damage'));
+        playerClass = 'class'+getHeroInfos('infos.class');
         //playerClass = $('div#leagues_left .icon').attr('carac');
         //week 28 new battle modification
         /*
@@ -5891,7 +5481,7 @@ function moduleSimSeasonBattle() {
             let opponentAlpha = JSON.parse($($('div.season_arena_opponent_container .hero_team .team-hexagon-container .team-member-container[data-team-member-position=0] img')[index]).attr(girlDataName));
             let opponentBeta = JSON.parse($($('div.season_arena_opponent_container .hero_team .team-hexagon-container .team-member-container[data-team-member-position=1] img')[index]).attr(girlDataName));
             let opponentOmega = JSON.parse($($('div.season_arena_opponent_container .hero_team .team-hexagon-container .team-member-container[data-team-member-position=2] img')[index]).attr(girlDataName));
-            let playerDef = Math.round(getSetHeroInfos('caracs.defense'))
+            let playerDef = Math.round(getHeroInfos('infos.caracs.defense'))
             //End week 28 new battle modification
 
             var opponentExcitement = Math.round((opponentAlpha.caracs.carac1 + opponentAlpha.caracs.carac2 + opponentAlpha.caracs.carac3) * 28);
@@ -6117,7 +5707,7 @@ function moduleSimSeasonBattle() {
         {
             price = 12;
         }
-        if (numberOfReds === 3 && Storage().HHAuto_Setting_autoSeasonPassReds === "true" && getSetHeroInfos('hard_currency')>=price+Number(Storage().HHAuto_Setting_kobanBank))
+        if (numberOfReds === 3 && Storage().HHAuto_Setting_autoSeasonPassReds === "true" && getHeroInfos('infos.hard_currency')>=price+Number(Storage().HHAuto_Setting_kobanBank))
         {
             chosenID = -2;
         }
@@ -6173,10 +5763,10 @@ function CheckSpentPoints()
 {
     let oldValues=sessionStorage.HHAuto_Temp_CheckSpentPoints?JSON.parse(sessionStorage.HHAuto_Temp_CheckSpentPoints):-1;
     let newValues={};
-    newValues['fight']=Number(getSetHeroInfos('fight.amount'));
-    newValues['kiss']=Number(getSetHeroInfos('kiss.amount'));
-    newValues['quest']=Number(getSetHeroInfos('quest.amount'));
-    newValues['challenge']=Number(getSetHeroInfos('challenge.amount'));
+    newValues['fight']=Number(getHeroInfos('energies.fight.amount'));
+    newValues['kiss']=Number(getHeroInfos('energies.kiss.amount'));
+    newValues['quest']=Number(getHeroInfos('energies.quest.amount'));
+    newValues['challenge']=Number(getHeroInfos('energies.challenge.amount'));
 
     if ( oldValues !== -1)
     {
@@ -6235,7 +5825,7 @@ var autoLoop = function () {
     //var busy = false;
     busy = false;
     var page = window.location.href;
-    var currentPower = getSetHeroInfos('fight.amount');
+    var currentPower = getHeroInfos('energies.fight.amount');
 
     var burst=getBurst();
     switchHHMenuButton(burst);
@@ -6308,6 +5898,7 @@ var autoLoop = function () {
             (
                 (
                     eventIDs.length > 0
+                    && getPage() !== "event"
                 )
                 ||
                 (
@@ -6330,7 +5921,7 @@ var autoLoop = function () {
             doBattle();
         }
 
-        if(Storage().HHAuto_Setting_autoTrollBattle === "true" && getSetHeroInfos('questing.id_world')>0 && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        if(Storage().HHAuto_Setting_autoTrollBattle === "true" && getHeroInfos('infos.questing.id_world')>0 && sessionStorage.HHAuto_Temp_autoLoop === "true")
         {
             if(busy === false && currentPower >= Number(sessionStorage.HHAuto_Temp_battlePowerRequired) && (currentPower > 0 || canBuyFight().canBuy))
             {
@@ -6461,7 +6052,7 @@ var autoLoop = function () {
             }
             else if (sessionStorage.HHAuto_Temp_questRequirement[0] === '$')
             {
-                if (Number(sessionStorage.HHAuto_Temp_questRequirement.substr(1)) < getSetHeroInfos('soft_currency')) {
+                if (Number(sessionStorage.HHAuto_Temp_questRequirement.substr(1)) < getHeroInfos('infos.soft_currency')) {
                     // We have enough money... requirement fulfilled.
                     logHHAuto("Continuing quest, required money obtained.");
                     sessionStorage.HHAuto_Temp_questRequirement = "none";
@@ -6484,10 +6075,10 @@ var autoLoop = function () {
             else if (sessionStorage.HHAuto_Temp_questRequirement[0] === '*')
             {
                 var energyNeeded = Number(sessionStorage.HHAuto_Temp_questRequirement.substr(1));
-                var energyCurrent = getSetHeroInfos('quest.amount');
+                var energyCurrent = getHeroInfos('energies.quest.amount');
                 if (energyNeeded <= energyCurrent)
                 {
-                    if (Number(getSetHeroInfos('quest.amount')) > Number(Storage().HHAuto_Setting_autoQuestThreshold) || Number(checkParanoiaSpendings('quest')) > 0 )
+                    if (Number(getHeroInfos('energies.quest.amount')) > Number(Storage().HHAuto_Setting_autoQuestThreshold) || Number(checkParanoiaSpendings('quest')) > 0 )
                     {
                         // We have enough energy... requirement fulfilled.
                         logHHAuto("Continuing quest, required energy obtained.");
@@ -6550,7 +6141,7 @@ var autoLoop = function () {
             }
             else if(sessionStorage.HHAuto_Temp_questRequirement === "none")
             {
-                if (Number(getSetHeroInfos('quest.amount')) > Number(Storage().HHAuto_Setting_autoQuestThreshold) || Number(checkParanoiaSpendings('quest')) > 0 )
+                if (Number(getHeroInfos('energies.quest.amount')) > Number(Storage().HHAuto_Setting_autoQuestThreshold) || Number(checkParanoiaSpendings('quest')) > 0 )
                 {
                     //logHHAuto("NONE req.");
                     busy = true;
@@ -6572,7 +6163,7 @@ var autoLoop = function () {
 
         if(Storage().HHAuto_Setting_autoSeason === "true" && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true")
         {
-            if (Number(getSetHeroInfos('kiss.amount')) > 0 && ( (Number(getSetHeroInfos('kiss.amount')) > Number(Storage().HHAuto_Setting_autoSeasonThreshold) && checkTimer('nextSeasonTime')) || Number(checkParanoiaSpendings('kiss')) > 0 ) )
+            if (Number(getHeroInfos('energies.kiss.amount')) > 0 && ( (Number(getHeroInfos('energies.kiss.amount')) > Number(Storage().HHAuto_Setting_autoSeasonThreshold) && checkTimer('nextSeasonTime')) || Number(checkParanoiaSpendings('kiss')) > 0 ) )
             {
                 logHHAuto("Time to fight in Season.");
                 doSeason();
@@ -6582,13 +6173,13 @@ var autoLoop = function () {
             {
                 if (checkTimer('nextSeasonTime'))
                 {
-                    setTimer('nextSeasonTime',getSetHeroInfos('kiss.next_refresh_ts'));
+                    setTimer('nextSeasonTime',getHeroInfos('energies.kiss.next_refresh_ts'));
                 }
             }
 
         }
 
-        var ECt= getSetHeroInfos('quest.amount');
+        var ECt= getHeroInfos('energies.quest.amount');
         if (ECt>=60 && (Storage().HHAuto_Setting_autoChampsUseEne==="true") && sessionStorage.HHAuto_Temp_autoLoop === "true")
         {
             function buyTicket()
@@ -6627,10 +6218,10 @@ var autoLoop = function () {
             busy=doClubChampionStuff();
         }
 
-        if(Storage().HHAuto_Setting_autoLeagues === "true" && getSetHeroInfos('level')>=20 && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        if(Storage().HHAuto_Setting_autoLeagues === "true" && getHeroInfos('infos.level')>=20 && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true")
         {
             // Navigate to leagues
-            if ((checkTimer('nextLeaguesTime') && Number(getSetHeroInfos('challenge.amount')) > Number(Storage().HHAuto_Setting_autoLeaguesThreshold) ) || Number(checkParanoiaSpendings('challenge')) > 0)
+            if ((checkTimer('nextLeaguesTime') && Number(getHeroInfos('energies.challenge.amount')) > Number(Storage().HHAuto_Setting_autoLeaguesThreshold) ) || Number(checkParanoiaSpendings('challenge')) > 0)
             {
                 logHHAuto("Time to fight in Leagues.");
                 doLeagueBattle();
@@ -6640,7 +6231,7 @@ var autoLoop = function () {
             {
                 if (checkTimer('nextLeaguesTime'))
                 {
-                    setTimer('nextLeaguesTime',getSetHeroInfos('challenge.next_refresh_ts'));
+                    setTimer('nextLeaguesTime',getHeroInfos('energies.challenge.next_refresh_ts'));
                 }
             }
         }
@@ -6651,7 +6242,7 @@ var autoLoop = function () {
             {
                 sessionStorage.HHAuto_Temp_charLevel=0;
             }
-            if (checkTimer('nextShopTime') || sessionStorage.HHAuto_Temp_charLevel<getSetHeroInfos('level')) {
+            if (checkTimer('nextShopTime') || sessionStorage.HHAuto_Temp_charLevel<getHeroInfos('infos.level')) {
                 logHHAuto("Time to check shop.");
                 busy = updateShop();
             }
@@ -6772,6 +6363,55 @@ function moduleShopActions()
     appendMenuSell();
     appendMenuAff();
     appendMenuExp();
+    appendMenuRemoveMaxed();
+
+    function appendMenuRemoveMaxed()
+    {
+        var menuRemoveMaxed = '<div style="position: absolute;right:0px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuRemoveMaxed","tooltip")+'</span><label style="width:80px;text-align: center;" class="myButton" id="menuRemoveMaxed">'+getTextForUI("menuRemoveMaxed","elementText")+'</label></div>'
+        if ($("#menuRemoveMaxed").length === 0 )
+        {
+            $('section #shops #shops_right #girls_list').append(menuRemoveMaxed);
+        }
+
+        function removeMaxedGirls()
+        {
+            let count=0;
+            let girlzQuery="div.girl-ico[id_girl][data-g]";
+            let girlNb=Number($(girlzQuery).length);
+            let shopType = $('section #shops #shops_left #type_item .selected').attr("type");
+            $(girlzQuery).each(function ()
+                               {
+                let dataG = $(this).data("g");
+                if
+                    (
+                        (
+                            shopType === "gift"
+                            &&
+                            (
+                                dataG.can_upgrade
+                                || dataG.Affection.maxed
+                            )
+                        )
+                        ||
+                        (
+                            shopType === "potion"
+                            &&
+                            (
+                                dataG.Xp.maxed
+                            )
+                        )
+                    )
+                {
+                    this.remove();
+                    count++;
+                }
+            });
+            $('#girls_list .g1 .number.selected span:not([contenteditable]')[0].innerText = girlNb-count;
+            $('#girls_list .g1 .number.selected span[contenteditable]')[0].innerText=1;
+        }
+
+        document.getElementById("menuRemoveMaxed").addEventListener("click", removeMaxedGirls);
+    }
 
     function appendMenuAff()
     {
@@ -6850,24 +6490,15 @@ function moduleShopActions()
 
 
 
-            document.getElementById("menuAff-moveLeft").addEventListener("click", function()
-                                                                         {
-                moveLeftAff();
-            });
-            document.getElementById("menuAff-moveRight").addEventListener("click", function()
-                                                                          {
-                moveRightAff();
-            });
+            document.getElementById("menuAff-moveLeft").addEventListener("click", moveLeftAff);
+            document.getElementById("menuAff-moveRight").addEventListener("click", moveRightAff);
             document.getElementById("menuAff").addEventListener("click", function()
                                                                 {
                 calculateAffSelectedGirl();
                 document.removeEventListener('keyup', KeyUpAff, false);
                 document.addEventListener('keyup', KeyUpAff, false);
             });
-            document.getElementById("menuAffButton").addEventListener("click", function()
-                                                                      {
-                launchGiveAff();
-            });
+            document.getElementById("menuAffButton").addEventListener("click", launchGiveAff);
             document.getElementById("menuAffCancel").addEventListener("click", function(){
 
                 if (typeof AffDialog.showModal === "function")
@@ -7120,7 +6751,7 @@ function moduleShopActions()
         +    '<p id="menuExpText"></p>'
         +    '<div class="HHMenuRow">'
         +     '<p>'+getTextForUI("menuExpLevel","elementText")+'</p>'
-        +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExpLevel","tooltip")+'</span><input id="menuExpLevel" style="width:50px;height:20px" required pattern="'+HHAuto_inputPattern.menuExpLevel+'" type="text" value="'+getSetHeroInfos('level')+'"></div>'
+        +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExpLevel","tooltip")+'</span><input id="menuExpLevel" style="width:50px;height:20px" required pattern="'+HHAuto_inputPattern.menuExpLevel+'" type="text" value="'+getHeroInfos('infos.level')+'"></div>'
         +    '</div>'
         +    '<div style="padding:10px;justify-content:center" class="HHMenuRow">'
         +     '<div id="menuExpHide" style="display:none">'
@@ -7968,7 +7599,7 @@ function moduleShopActions()
                 //console.log(initialNumberOfItems,currentNumberOfItems);
                 if ((initialNumberOfItems - currentNumberOfItems) < itemsToSell)
                 {
-                    let PlayerClass = getSetHeroInfos("class") === -1 ? $('#equiped > div.icon.class_change_btn').attr('carac') : getSetHeroInfos("class");
+                    let PlayerClass = getHeroInfos('infos.class') === -1 ? $('#equiped > div.icon.class_change_btn').attr('carac') : getHeroInfos('infos.class');
                     //check Selected item - can we sell it?
                     if ($('#inventory .selected .inventory_slots .selected:not([menuSellLocked])').length > 0)
                     {
@@ -8358,14 +7989,28 @@ function parseEventPage(inTab="global")
         let parsedURL = new URL(eventHref,window.location.origin);
         let urlParams = new URLSearchParams(parsedURL.search);
         let eventID = urlParams.get('tab');
+        if (
+            !eventID.startsWith(getHHVarValue('eventIDReg'))
+            && !eventID.startsWith(getHHVarValue('mythicEventIDReg'))
+        )
+        {
+            if (queryEventTabCheck.attr('parsed') === undefined)
+            {
+                logHHAuto("Not parsable event");
+                queryEventTabCheck[0].setAttribute('parsed', 'true');
+            }
+            return false;
+        }
         if (queryEventTabCheck.attr('parsed') !== undefined)
         {
+
             if (!checkEvent(eventID))
             {
                 //logHHAuto("Events already parsed.");
                 return false;
             }
         }
+
         logHHAuto("On event page.");
         clearEventData(eventID);
         //let eventsGirlz=[];
@@ -8571,7 +8216,7 @@ function canBuyFight()
     let result = {canBuy:false, price:0, max:0, toBuy:0, event_mythic:"false", type:type};
     let maxx50 = 50;
     let maxx20 = 20;
-    let currentFight =Number( getSetHeroInfos('fight.amount'));
+    let currentFight =Number( getHeroInfos('energies.fight.amount'));
     let pricex50=hero.get_max_recharge_cost(type,maxx50)
     let pricex20=hero.get_recharge_cost(type);
     let canRecharge20 = false;
@@ -8611,9 +8256,10 @@ function canBuyFight()
         if (Storage().HHAuto_Setting_minShardsX50
             && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX50))
             && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX50)
-            && getSetHeroInfos('hard_currency')>=pricex50+Number(Storage().HHAuto_Setting_kobanBank)
+            && getHeroInfos('infos.hard_currency')>=pricex50+Number(Storage().HHAuto_Setting_kobanBank)
             && Storage().HHAuto_Setting_useX50Fights === "true"
             && currentFight < maxx50
+            && ( result.event_mythic || Storage().HHAuto_Setting_useX50FightsAllowNormalEvent === "true")
            )
         {
             result.max = maxx50;
@@ -8624,8 +8270,8 @@ function canBuyFight()
         else
         {
 
-            logHHAuto('Unable to recharge up to '+maxx50+' for '+pricex50+' kobans, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
-            if (getSetHeroInfos('hard_currency')>=pricex20+Number(Storage().HHAuto_Setting_kobanBank)
+            logHHAuto('Unable to recharge up to '+maxx50+' for '+pricex50+' kobans, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getHeroInfos('infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+            if (getHeroInfos('infos.hard_currency')>=pricex20+Number(Storage().HHAuto_Setting_kobanBank)
                 && currentFight < 10)
             {
                 result.max = maxx20;
@@ -8635,7 +8281,7 @@ function canBuyFight()
             }
             else
             {
-                logHHAuto('Unable to recharge up to '+maxx20+' for '+pricex20+' kobans : '+getSetHeroInfos('hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+                logHHAuto('Unable to recharge up to '+maxx20+' for '+pricex20+' kobans : '+getHeroInfos('infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
                 return result;
             }
         }
@@ -8652,15 +8298,15 @@ var RechargeCombat=function()
     if (canBuyResult.canBuy)
     {
         logHHAuto('Recharging '+canBuyResult.toBuy+' fights for '+canBuyResult.price+' kobans.');
-        let hcConfirmValue = hero.infos.hc_confirm;
-        hero.infos.hc_confirm = true;
+        let hcConfirmValue = getHeroInfos('infos.hc_confirm');
+        setHeroInfos('infos.hc_confirm',true);
         // We have the power.
         is_cheat_click=function(e) {
             return false;
         };
         //console.log($("plus[type='energy_fight']"), canBuyResult.price,canBuyResult.type, canBuyResult.max);
         hero.recharge($("plus[type='energy_fight']"), canBuyResult.price,canBuyResult.type, canBuyResult.max);
-        hero.infos.hc_confirm = hcConfirmValue;
+        setHeroInfos('infos.hc_confirm',hcConfirmValue);
         logHHAuto('Recharged up to '+canBuyResult.max+' fights for '+canBuyResult.price+' kobans.');
     }
     //     hh_ajax(
@@ -8674,7 +8320,7 @@ var RechargeCombat=function()
     //             Hero.update("energy_"+type, max || Hero.energies[type].max_amount);
     //             Hero.update("hard_currency", 0 - price, true);
     //             setTimeout(function(){location.reload();},randomInterval(500,1500));
-    //             //Hero.update("fight.amount", getSetHeroInfos('fight.max_amount'));
+    //             //Hero.update("fight.amount", getHeroInfos('energies.fight.max_amount'));
     //             //Hero.update("hard_currency", 0 - price, true);
     //         });
     //    logHHAuto('Recharged up to 50 fights.');
@@ -9006,7 +8652,7 @@ function getTextForUI(id,type)
     }
 }
 
-function getHHVarValue(id)
+function getHHVarValue(id, logNotFound = true)
 {
     let environnement = "global";
     if (window.location.hostname == "www.hentaiheroes.com")
@@ -9061,8 +8707,11 @@ function getHHVarValue(id)
         }
         else
         {
-            logHHAuto("not found text for "+environnement+"/"+id);
-            return environnement+"/"+id+"/"+" not found.";
+            if (logNotFound)
+            {
+                logHHAuto("not found text for "+environnement+"/"+id);
+            }
+            return "getHHVarValue not found";
         }
     }
 }
@@ -9265,6 +8914,8 @@ HHAuto_ToolTips.en.showTooltips = { elementText: "Show tooltips", tooltip : "Sho
 HHAuto_ToolTips.en.showMarketTools = { elementText: "Show market tools", tooltip : "Show Market tools."};
 HHAuto_ToolTips.en.useX10Fights = { elementText: "Use x10", tooltip : "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Use x10 button if 10 fights or more to do (if not going under Koban bank value).<br>x50 takes precedence on x10 if all conditions are filled."};
 HHAuto_ToolTips.en.useX50Fights = { elementText: "Use x50", tooltip : "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Use x50 button if 50 fights or more to do (if not going under Koban bank value).<br>Takes precedence on x10 if all conditions are filled."};
+HHAuto_ToolTips.en.useX10FightsAllowNormalEvent = { elementText: "x10 for Event", tooltip : "If off:<br> X10 will only be used for mythic event<br>If enabled : <br>Allow x10 button for normal event if 10 fights or more to do (if not going under Koban bank value).<br>x50 takes precedence on x10 if all conditions are filled."};
+HHAuto_ToolTips.en.useX50FightsAllowNormalEvent = { elementText: "x50 for Event", tooltip : "If off:<br> X50 will only be used for mythic event<br>If enabled : <br>Use x50 button for normal event if 50 fights or more to do (if not going under Koban bank value).<br>Takes precedence on x10 if all conditions are filled."};
 HHAuto_ToolTips.en.autoBuy = { elementText: "Market"};
 HHAuto_ToolTips.en.minShardsX50 = { elementText: "Min. shards x50", tooltip : "Only use x50 button if remaining shards of current girl is equal or above this limit."};
 HHAuto_ToolTips.en.minShardsX10 = { elementText: "Min. shards x10", tooltip : "Only use x10 button if remaining shards of current girl is equal or above this limit."};
@@ -9286,6 +8937,7 @@ HHAuto_ToolTips.en.ChangeTeamButton = {elementText : "Current Best", tooltip : "
 HHAuto_ToolTips.en.ChangeTeamButton2 = {elementText : "Possible Best", tooltip : "Get list of top 16 girls for your team if they are Max Lv & Aff"};
 HHAuto_ToolTips.en.AssignTopTeam  = {elementText : "Assign first 7", tooltip : "Put the first 7 ones in the team."};
 HHAuto_ToolTips.en.ExportGirlsData = {elementText : "⤓", tooltip : "Export Girls data."};
+HHAuto_ToolTips.en.menuRemoveMaxed = {elementText : "Remove maxed", tooltip : "Remove maxed girls"};
 
 HHAuto_ToolTips.fr = {};
 HHAuto_ToolTips.fr.saveDebug = { elementText: "Sauver log", tooltip : "Sauvegarder un fichier journal de débogage."};
@@ -9615,7 +9267,9 @@ var HHVars_Settings=[
     "Storage().HHAuto_Setting_showMarketTools",
     "Storage().HHAuto_Setting_autoStatsSwitch",
     "Storage().HHAuto_Setting_useX50Fights",
+    "Storage().HHAuto_Setting_useX50FightsAllowNormalEvent",
     "Storage().HHAuto_Setting_useX10Fights",
+    "Storage().HHAuto_Setting_useX10FightsAllowNormalEvent",
     "Storage().HHAuto_Setting_minShardsX10",
     "Storage().HHAuto_Setting_minShardsX50"];
 
@@ -9830,8 +9484,11 @@ var updateData = function () {
     Storage().HHAuto_Setting_useX10Fights= document.getElementById("useX10Fights").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;
     document.getElementById("useX10Fights").checked=Storage().HHAuto_Setting_useX10Fights==="true";
 
+
     Storage().HHAuto_Setting_minShardsX50=document.getElementById("minShardsX50").value;
     Storage().HHAuto_Setting_minShardsX10=document.getElementById("minShardsX10").value;
+    Storage().HHAuto_Setting_useX10FightsAllowNormalEvent=document.getElementById("useX10FightsAllowNormalEvent").checked;
+    Storage().HHAuto_Setting_useX50FightsAllowNormalEvent=document.getElementById("useX50FightsAllowNormalEvent").checked;
 
     Storage().HHAuto_Setting_autoTrollThreshold = document.getElementById("autoTrollThreshold").value;
     Storage().HHAuto_Setting_autoQuestThreshold = document.getElementById("autoQuestThreshold").value;
@@ -9869,11 +9526,11 @@ var updateData = function () {
         }
         if (Storage().HHAuto_Setting_autoSeason=="true")
         {
-            Tegzd += '<br>'+getTextForUI("autoSeasonTitle","elementText")+' : '+getSetHeroInfos('kiss.amount')+'/'+getSetHeroInfos('kiss.max_amount')+' ('+getTimeLeft('nextSeasonTime')+')';
+            Tegzd += '<br>'+getTextForUI("autoSeasonTitle","elementText")+' : '+getHeroInfos('energies.kiss.amount')+'/'+getHeroInfos('energies.kiss.max_amount')+' ('+getTimeLeft('nextSeasonTime')+')';
         }
         if (Storage().HHAuto_Setting_autoLeagues=="true")
         {
-            Tegzd += '<br>'+getTextForUI("autoLeaguesTitle","elementText")+' : '+getSetHeroInfos('challenge.amount')+'/'+getSetHeroInfos('challenge.max_amount')+' ('+getTimeLeft('nextLeaguesTime')+')';
+            Tegzd += '<br>'+getTextForUI("autoLeaguesTitle","elementText")+' : '+getHeroInfos('energies.challenge.amount')+'/'+getHeroInfos('energies.challenge.max_amount')+' ('+getTimeLeft('nextLeaguesTime')+')';
         }
         if (Storage().HHAuto_Setting_autoChamps=="true")
         {
@@ -9962,6 +9619,8 @@ var setDefaults = function () {
     //Storage().HHAuto_Setting_eventMythicPrio = "false";
     Storage().HHAuto_Setting_useX50Fights= "false";
     Storage().HHAuto_Setting_useX10Fights= "false";
+    Storage().HHAuto_Setting_useX10FightsAllowNormalEvent="false";
+    Storage().HHAuto_Setting_useX50FightsAllowNormalEvent="false";
     Storage().HHAuto_Setting_minShardsX10="10";
     Storage().HHAuto_Setting_minShardsX50="50";
     //Storage().HHAuto_Setting_autoTrollMythicByPassThreshold = "false";
@@ -10339,8 +9998,10 @@ var start = function () {
     // _Line 2_
     +     '<div class="internalOptionsRow">'
     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("useX10Fights","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("useX10Fights","tooltip")+'</span><label class="switch"><input id="useX10Fights" type="checkbox"><span class="slider round kobans"></span></label></div></div>'
+    +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("useX10FightsAllowNormalEvent","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("useX10FightsAllowNormalEvent","tooltip")+'</span><label class="switch"><input id="useX10FightsAllowNormalEvent" type="checkbox"><span class="slider round"></span></label></div></div>'
     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("minShardsX10","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("minShardsX10","tooltip")+'</span><input id="minShardsX10" style="text-align:center; width:7em" required pattern="'+HHAuto_inputPattern.minShardsX+'"type="text"></div></div>'
     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("useX50Fights","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("useX50Fights","tooltip")+'</span><label class="switch"><input id="useX50Fights" type="checkbox"><span class="slider round kobans"></span></label></div></div>'
+    +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("useX50FightsAllowNormalEvent","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("useX50FightsAllowNormalEvent","tooltip")+'</span><label class="switch"><input id="useX50FightsAllowNormalEvent" type="checkbox"><span class="slider round"></span></label></div></div>'
     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("minShardsX50","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("minShardsX50","tooltip")+'</span><input id="minShardsX50" style="text-align:center; width:7em" required pattern="'+HHAuto_inputPattern.minShardsX+'" type="text"></div></div>'
     +     '</div>'
 
@@ -10662,7 +10323,7 @@ var start = function () {
     // Add auto troll options
     var trollOptions = document.getElementById("autoTrollSelector");
 
-    for (var i=0;i<getSetHeroInfos('questing.id_world');i++)
+    for (var i=0;i<getHeroInfos('infos.questing.id_world');i++)
     {
         var option = document.createElement("option");
         option.value=i;
@@ -10742,6 +10403,8 @@ var start = function () {
 
     document.getElementById("useX50Fights").checked= Storage().HHAuto_Setting_useX50Fights === "true";
     document.getElementById("useX10Fights").checked= Storage().HHAuto_Setting_useX10Fights === "true";
+    document.getElementById("useX10FightsAllowNormalEvent").checked=Storage().HHAuto_Setting_useX10FightsAllowNormalEvent==="true";
+    document.getElementById("useX50FightsAllowNormalEvent").checked=Storage().HHAuto_Setting_useX50FightsAllowNormalEvent==="true";
     document.getElementById("minShardsX50").value=Storage().HHAuto_Setting_minShardsX50?Storage().HHAuto_Setting_minShardsX50:"50";
     document.getElementById("minShardsX10").value=Storage().HHAuto_Setting_minShardsX10?Storage().HHAuto_Setting_minShardsX10:"10";
     //document.getElementById("autoTrollMythicByPassThreshold").checked = Storage().HHAuto_Setting_autoTrollMythicByPassThreshold === "true";
@@ -10960,11 +10623,11 @@ function createHHPopUp()
     GM_addStyle('#HHAutoPopupGlobal.HHAutoOverlay {   z-index:1000;   position: fixed;   top: 0;   bottom: 0;   left: 0;   right: 0;   background: rgba(0, 0, 0, 0.7);   transition: opacity 500ms;     display: flex;   align-items: center; }  #HHAutoPopupGlobalPopup {   margin: auto;   padding: 20px;   background: #fff;   border-radius: 5px;   position: relative;   transition: all 5s ease-in-out; }  #HHAutoPopupGlobalTitle {   margin-top: 0;   color: #333;   font-size: larger; } #HHAutoPopupGlobalClose {   position: absolute;   top: 20px;   right: 30px;   transition: all 200ms;   font-size: 30px;   font-weight: bold;   text-decoration: none;   color: #333; } #HHAutoPopupGlobalClose:hover {   color: #06D85F; } #HHAutoPopupGlobalContent {   max-height: 30%;   overflow: auto;   color: #333;   font-size: x-small; }')
     let popUp = '<div id="HHAutoPopupGlobal" class="HHAutoOverlay">'
     +' <div id="HHAutoPopupGlobalPopup">'
-    +'	 <h2 id="HHAutoPopupGlobalTitle">Here i am</h2>'
-    +'	 <a id="HHAutoPopupGlobalClose">&times;</a>'
-    +'	 <div id="HHAutoPopupGlobalContent" class="content">'
-    +'		Thank to pop me out of that button, but now im done so you can close this window.'
-    +'	 </div>'
+    +'   <h2 id="HHAutoPopupGlobalTitle">Here i am</h2>'
+    +'   <a id="HHAutoPopupGlobalClose">&times;</a>'
+    +'   <div id="HHAutoPopupGlobalContent" class="content">'
+    +'      Thank to pop me out of that button, but now im done so you can close this window.'
+    +'   </div>'
     +' </div>'
     +'</div>';
     $('body').prepend(popUp);
