@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.31
+// @version      5.5.32
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -83,6 +83,33 @@ function getCallerCallerFunction()
 {
     return getCallerCallerFunction.caller.caller.name
 }
+
+function getServerTS()
+{
+    let sec_num = parseInt(server_now_ts, 10);
+    let days = Math.floor(sec_num / 86400);
+    let hours = Math.floor(sec_num / 3600) % 24;
+    let minutes = Math.floor(sec_num / 60) % 60;
+    let seconds = sec_num % 60;
+    return {days:days,hours:hours,minutes:minutes,seconds:seconds};
+}
+
+function getSecondsLeftBeforeEndOfHHDay()
+{
+    let HHEndOfDay = {days:0,hours:11,minutes:0,seconds:0};
+    let server_TS = getServerTS();
+    HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?server_TS.days:server_TS.days+1;
+    return (HHEndOfDay.days - server_TS.days)*86400 + (HHEndOfDay.hours - server_TS.hours)*3600 + (HHEndOfDay.minutes - server_TS.minutes)*60 + (HHEndOfDay.days - server_TS.days);
+}
+
+function getSecondsLeftBeforeNewCompetition()
+{
+    let HHEndOfDay = {days:0,hours:11,minutes:30,seconds:0};
+    let server_TS = getServerTS();
+    HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?server_TS.days:server_TS.days+1;
+    return (HHEndOfDay.days - server_TS.days)*86400 + (HHEndOfDay.hours - server_TS.hours)*3600 + (HHEndOfDay.minutes - server_TS.minutes)*60 + (HHEndOfDay.days - server_TS.days);
+}
+
 
 function logHHAuto(...args)
 {
@@ -540,7 +567,7 @@ function doMissionStuff()
     else
     {
         logHHAuto("On missions page.");
-        if (Storage().HHAuto_Setting_autoMissionC==="true" && $(".mission_button button:visible[rel='claim']").length >0)
+        if (Storage().HHAuto_Setting_autoMissionC==="true" && $(".mission_button button:visible[rel='claim']").length >0 && getSecondsLeftBeforeNewCompetition() < (24*3600-35*60))
         {
             logHHAuto("Collecting finished mission's reward.");
             $(".mission_button button:visible[rel='claim']").click();
@@ -726,6 +753,43 @@ function moduleOldPathOfAttractionHide()
         }
     }
 }
+
+function dailyRewardAvailable()
+{
+    let dailyRewardNotifRequest = getHHVarValue("dailyRewardNotifRequest",false);
+    if (dailyRewardNotifRequest !=="getHHVarValue not found" && getPage() == "home" && $(dailyRewardNotifRequest).length > 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+function collectDailyRewards()
+{
+    if (getPage() == "home")
+    {
+        logHHAuto('Trying to get daily rewards!');
+        let dailyRewardNotifRequest = getHHVarValue("dailyRewardNotifRequest",false);
+        let dailyRewardButtonRequest = '#no_HC .blue_button_L.daily-claim-btn:not([disabled])';
+        //Daily rewards notification check
+        if (dailyRewardNotifRequest !=="getHHVarValue not found" && dailyRewardAvailable())
+        {
+            if ($('#no_HC')[0].style.display != "block")
+            {
+                $(dailyRewardNotifRequest)[0].click();
+            }
+        }
+        if ($(dailyRewardButtonRequest).length > 0)
+        {
+            $(dailyRewardButtonRequest)[0].click();
+            logHHAuto('Collected daily rewards!')
+        }
+    }
+}
+
 
 function modulePathOfAttractionHide()
 {
@@ -2273,9 +2337,14 @@ var doClubChampionStuff=function()
             logHHAuto("Champion is resting for : "+toHHMMSS(SecsToNextTimer));
         }
 
-        if (Started && noTimer)
+        if ((Started || Storage().HHAuto_Setting_autoClubForceStart === "true") && noTimer)
         {
-            let ticketUsed = Number($("div.club_champions_panel tr.personal_highlight td.challenges_count")[0].innerText.replace(/[^0-9]/gi, ''));
+            let ticketUsed = 0;
+            let ticketsUsedRequest = "div.club_champions_panel tr.personal_highlight td.challenges_count";
+            if ($(ticketsUsedRequest).length >0)
+            {
+                ticketUsed = Number($(ticketsUsedRequest)[0].innerText.replace(/[^0-9]/gi, ''));
+            }
             let maxTickets = Number(Storage().HHAuto_Setting_autoClubChampMax?Storage().HHAuto_Setting_autoClubChampMax:"999");
             //console.log(maxTickets, ticketUsed);
             if (maxTickets > ticketUsed )
@@ -3418,9 +3487,9 @@ function getLeagueOpponentId(opponentsIDList,force=false)
                 let opponentBeta = opponentData.team["1"];
                 let opponentOmega = opponentData.team["2"];
                 let opponentName = opponentData.Name;
-                
+
                 opponentDef = opponentData.caracs.defense;
-                
+
                 var opponentExcitement = Math.round((opponentData.team["1"].caracs.carac1 + opponentData.team["1"].caracs.carac2 + opponentData.team["1"].caracs.carac3) * 28);
                 let playerAlphaAdd;
                 let playerBetaAdd;
@@ -5552,7 +5621,7 @@ function moduleSimSeasonBattle() {
                 name: opponentName,
             };
 
-            
+
             let simu = simuFight(player, opponent);
             //console.log(opponent);
             //console.log(simu);
@@ -6216,6 +6285,12 @@ var autoLoop = function () {
             }
         }
 
+        if (busy==false && sessionStorage.HHAuto_Temp_autoLoop === "true" && getPage() === "home" && getSecondsLeftBeforeEndOfHHDay() < 3600 && Storage().HHAuto_Setting_collectDailyRewards === "true" && dailyRewardAvailable())
+        {
+            busy = true;
+            collectDailyRewards();
+        }
+
         if (/*autoBuy() &&*/ busy===false && ( Storage().HHAuto_Setting_paranoia !== "true" || !checkTimer("paranoiaSwitch") )  && sessionStorage.HHAuto_Temp_autoLoop === "true")
         {
             if (sessionStorage.HHAuto_Temp_charLevel===undefined)
@@ -6705,7 +6780,7 @@ function moduleShopActions()
                     logHHAuto("selected item : "+currentItem);
                     $('div.gift div.inventory_slots div[id_item='+inAffArray[currentItem]+'][data-d]').click();
                     currentTotal+=Number(currentItem);
-                    setTimeout(giveAff_func, randomInterval(800,1600));
+                    setTimeout(giveAff_func, randomInterval(400,800));
                 }
                 return;
             }
@@ -6715,12 +6790,12 @@ function moduleShopActions()
                 {
                     logHHAuto("clicked on "+currentItem);
                     $('#inventory > button.blue_text_button[rel=use]').click();
-                    setTimeout(giveAff_func, randomInterval(300,600));
+                    setTimeout(giveAff_func, randomInterval(100,200));
                     return;
                 }
             }
         }
-        setTimeout(giveAff_func, randomInterval(800,1600));
+        setTimeout(giveAff_func, randomInterval(300,600));
     }
     function appendMenuExp()
     {
@@ -8721,6 +8796,7 @@ HHVariables["THH_prod"].gameID = "hh_hentai";
 HHVariables["global"].eventIDReg = "event_";
 HHVariables["global"].mythicEventIDReg = "mythic_event_";
 HHVariables["global"].girlToolTipData = "data-new-girl-tooltip";
+HHVariables["global"].dailyRewardNotifRequest = "#contains_all header .currency .daily-reward-notif";
 HHVariables["global"].pageEditTeam = "change-team"
 HHVariables["HH_test"].pageEditTeam = "edit-team"
 
@@ -8786,7 +8862,7 @@ HHAuto_ToolTips.en.showInfo = { elementText: "Show info", tooltip : "if enabled 
 HHAuto_ToolTips.en.autoSalaryCheckbox = { elementText: "Salary", tooltip : "(Integer)<br>if enabled :<br>Collect salaries every X secs"};
 HHAuto_ToolTips.en.autoSalaryTextbox = { elementText: "Minimum wait", tooltip : "(Integer)<br>X secs to collect Salary"};
 HHAuto_ToolTips.en.autoMissionCheckbox = { elementText: "Mission", tooltip : "if enabled : Automatically do missions"};
-HHAuto_ToolTips.en.autoMissionCollect = { elementText: "Collect", tooltip : "if enabled : Automatically collect missions"};
+HHAuto_ToolTips.en.autoMissionCollect = { elementText: "Collect", tooltip : "if enabled : Automatically collect missions after start of new competition."};
 HHAuto_ToolTips.en.autoTrollTitle = { elementText: "Battle Troll"};
 HHAuto_ToolTips.en.autoTrollCheckbox = { elementText: "Enable", tooltip : "if enabled : Automatically battle troll selected"};
 HHAuto_ToolTips.en.autoTrollSelector = { elementText: "Troll selector", tooltip : "Select troll to be fought."};
@@ -8842,6 +8918,7 @@ HHAuto_ToolTips.en.OptionCancel = { elementText: "Cancel", tooltip : ""};
 HHAuto_ToolTips.en.OptionStop = { elementText: "Stop", tooltip : ""};
 HHAuto_ToolTips.en.SeasonMaskRewards = { elementText: "Mask claimed", tooltip : "Allow to mask all claimed rewards on Season screen"};
 HHAuto_ToolTips.en.autoClubChamp = { elementText: "Club", tooltip : "if enabled, automatically fight club champion if champion has already been fought once."};
+HHAuto_ToolTips.en.autoClubForceStart = { elementText: "Force start", tooltip : "if enabled, will fight club champion even if not started."};
 HHAuto_ToolTips.en.autoTrollMythicByPassParanoia = { elementText: "Mythic bypass Paranoia", tooltip : "Allow mythic to bypass paranoia.<br>if next wave is during rest, it will force it to wake up for wave.<br>If still fight or can buy fights it will continue."};
 HHAuto_ToolTips.en.buyMythicCombat = { elementText: "Buy comb. for mythic event", tooltip : "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Buying combat point during last X hours of mythic event (if not going under Koban bank value), this will bypass threshold if mythic girl shards available."};
 HHAuto_ToolTips.en.buyMythicCombTimer = { elementText: "Hours to buy Mythic Combats", tooltip : "(Integer)<br>X last hours of mythic event"};
@@ -8921,6 +8998,8 @@ HHAuto_ToolTips.en.ChangeTeamButton2 = {elementText : "Possible Best", tooltip :
 HHAuto_ToolTips.en.AssignTopTeam  = {elementText : "Assign first 7", tooltip : "Put the first 7 ones in the team."};
 HHAuto_ToolTips.en.ExportGirlsData = {elementText : "⤓", tooltip : "Export Girls data."};
 HHAuto_ToolTips.en.menuRemoveMaxed = {elementText : "Remove maxed", tooltip : "Remove maxed girls"};
+HHAuto_ToolTips.en.collectDailyRewards = {elementText : "Collect daily", tooltip : "Collect daily rewards if not collected 1 hour before end of HH day."};
+
 
 HHAuto_ToolTips.fr = {};
 HHAuto_ToolTips.fr.saveDebug = { elementText: "Sauver log", tooltip : "Sauvegarder un fichier journal de débogage."};
@@ -8994,7 +9073,6 @@ HHAuto_ToolTips.fr.ResetAllVars = { elementText: "Réinitialiser", tooltip : "Re
 HHAuto_ToolTips.fr.DebugFileText = { elementText: "Cliquer sur le boutton ci-dessous pour produire une journal de debug.", tooltip : ""};
 HHAuto_ToolTips.fr.OptionCancel = { elementText: "Annuler", tooltip : ""};
 HHAuto_ToolTips.fr.SeasonMaskRewards = { elementText: "Masquer gains", tooltip : "Permet de masquer les gains réclamés de la saison."};
-
 HHAuto_ToolTips.fr.globalTitle = { elementText: "Général"};
 HHAuto_ToolTips.fr.displayTitle = { elementText: "Affichage"};
 HHAuto_ToolTips.fr.autoActivitiesTitle = { elementText: "Activités"};
@@ -9011,7 +9089,6 @@ HHAuto_ToolTips.fr.useX50Fights = { elementText: "Combats x50", tooltip : "<p st
 HHAuto_ToolTips.fr.autoBuy = { elementText: "Marché"};
 HHAuto_ToolTips.fr.minShardsX50 = { elementText: "Frags min. x50", tooltip : "Utiliser le bouton x50 si le nombre de fragments restant est supérieur ou égal à..."};
 HHAuto_ToolTips.fr.minShardsX10 = { elementText: "Frags min. x10", tooltip : "OUtiliser le bouton x10 si le nombre de fragments restant est supérieur ou égal à..."};
-
 HHAuto_ToolTips.fr.autoMissionKFirst = { elementText: "Prioriser Kobans", tooltip : "Si activé : commence par les missions qui rapportent des kobans."};
 HHAuto_ToolTips.fr.autoTrollMythicByPassParanoia = { elementText: "Mythique annule paranoïa", tooltip : "Si activé : autorise le script à ne pas respecter le mode Parano lors d'un événement mythique.<br>Si la prochaine vague est pendant une phase de sommeil le script combattra quand même<br>tant que des combats et des fragments sont disponibles."};
 HHAuto_ToolTips.fr.buyMythicCombat = { elementText: "Achat comb. pour mythique", tooltip : "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>("+HHAuto_ToolTips.fr.spendKobans0.elementText+" doit être activé)</p>Si activé : achète des points de combat (poings) pendant les X dernières heures de l'événement mythique (sans dépasser la limite de la banque de kobans), passera outre la réserve de combats si nécessaire."};
@@ -9182,6 +9259,7 @@ var HHVars_Settings=[
     "Storage().HHAuto_Setting_autoBuyBoosters",
     "Storage().HHAuto_Setting_autoBuyBoostersFilter",
     "Storage().HHAuto_Setting_autoClubChamp",
+    "Storage().HHAuto_Setting_autoClubForceStart",
     "Storage().HHAuto_Setting_autoChamps",
     "Storage().HHAuto_Setting_autoChampsFilter",
     "Storage().HHAuto_Setting_autoChampsUseEne",
@@ -9254,7 +9332,8 @@ var HHVars_Settings=[
     "Storage().HHAuto_Setting_useX10Fights",
     "Storage().HHAuto_Setting_useX10FightsAllowNormalEvent",
     "Storage().HHAuto_Setting_minShardsX10",
-    "Storage().HHAuto_Setting_minShardsX50"];
+    "Storage().HHAuto_Setting_minShardsX50",
+    "Storage().HHAuto_Setting_collectDailyRewards"];
 
 var HHVars_Temp=[
     "sessionStorage.HHAuto_Temp_Logging",
@@ -9314,6 +9393,7 @@ var updateData = function () {
     Storage().HHAuto_Setting_autoMission = document.getElementById("autoMissionCheckbox").checked;
     Storage().HHAuto_Setting_autoMissionKFirst = document.getElementById("autoMissionKFirst").checked;
     Storage().HHAuto_Setting_autoPowerPlaces = document.getElementById("autoPowerPlaces").checked;
+    Storage().HHAuto_Setting_collectDailyRewards = document.getElementById("collectDailyRewards").checked;
 
     var newValue = String(document.getElementById("autoPowerPlacesAll").checked);
     if (Storage().HHAuto_Setting_autoPowerPlacesAll != newValue)
@@ -9439,6 +9519,8 @@ var updateData = function () {
     Storage().HHAuto_Setting_calculatePowerLimits = document.getElementById("calculatePowerLimits").value;
     Storage().HHAuto_Setting_autoChamps = document.getElementById("autoChamps").checked;
     Storage().HHAuto_Setting_autoClubChamp = document.getElementById("autoClubChamp").checked;
+    Storage().HHAuto_Setting_autoClubForceStart = document.getElementById("autoClubForceStart").checked;
+
     Storage().HHAuto_Setting_autoClubChampMax = document.getElementById("autoClubChampMax").value;
     Storage().HHAuto_Setting_autoChampsUseEne = document.getElementById("autoChampsUseEne").checked;
     Storage().HHAuto_Setting_autoChampsFilter = document.getElementById("autoChampsFilter").value;
@@ -9588,7 +9670,7 @@ var setDefaults = function () {
     Storage().HHAuto_Setting_autoLeaguesPowerCalc = "false";
     Storage().HHAuto_Setting_autoLeaguesAllowWinCurrent = "false";
     //Storage().HHAuto_Setting_autoLeaguesMaxRank = "0";
-
+    Storage().HHAuto_Setting_collectDailyRewards = "false";
     sessionStorage.HHAuto_Temp_leaguesTarget = "9";
     Storage().HHAuto_Setting_autoStats = add1000sSeparator("500000000");
 
@@ -9619,6 +9701,7 @@ var setDefaults = function () {
     Storage().HHAuto_Temp_freshStart = "no";
     Storage().HHAuto_Setting_autoChamps="false";
     Storage().HHAuto_Setting_autoClubChamp="false";
+    Storage().HHAuto_Setting_autoClubForceStart="false";
     Storage().HHAuto_Setting_autoClubChampMax = "999";
     Storage().HHAuto_Setting_autoChampsUseEne="false";
     Storage().HHAuto_Setting_autoChampsFilter="1;2;3;4;5;6";
@@ -9733,6 +9816,7 @@ var start = function () {
     +     '<div class="optionsColumn">'  //+     '<div style="padding:3px; display:flex; flex-direction:column;">'
     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("master","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("master","tooltip")+'</span><label class="switch"><input id="master" type="checkbox"><span class="slider round"></span></label></div></div>'
     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("paranoia","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("paranoia","tooltip")+'</span><label class="switch"><input id="paranoia" type="checkbox"><span class="slider round"></span></label></div></div>'
+    +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("collectDailyRewards","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("collectDailyRewards","tooltip")+'</span><label class="switch"><input id="collectDailyRewards" type="checkbox"><span class="slider round"></span></label></div></div>'
     +     '</div>'
     +     '<div class="optionsColumn">'  //+     '<div style="padding:3px; display:flex; flex-direction:column">'
     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("settPerTab","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("settPerTab","tooltip")+'</span><label class="switch"><input id="settPerTab" type="checkbox"><span class="slider round"></span></label></div></div>'
@@ -10041,6 +10125,7 @@ var start = function () {
     //+    '<div class="optionsBox">'
     +     '<div class="internalOptionsRow">'
     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoClubChamp","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoClubChamp","tooltip")+'</span><label class="switch"><input id="autoClubChamp" type="checkbox"><span class="slider round"></span></label></div></div>'
+    +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoClubForceStart","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoClubForceStart","tooltip")+'</span><label class="switch"><input id="autoClubForceStart" type="checkbox"><span class="slider round"></span></label></div></div>'
 
     +      '<div class="labelAndButton" style="align-items: flex-end;">' // start img and label
     +       '<span class="HHMenuItemName" style="padding-bottom:2px">'+getTextForUI("autoClubChampMax","elementText")+'</span>'
@@ -10373,12 +10458,13 @@ var start = function () {
     document.getElementById("showMarketTools").checked = Storage().HHAuto_Setting_showMarketTools === "true";
     //document.getElementById("autoEGM").value = add1000sSeparator(Storage().HHAuto_Setting_autoEGM?Storage().HHAuto_Setting_autoEGM:"500000000");
     //document.getElementById("autoEGMW").checked = Storage().HHAuto_Setting_autoEGMW === "true";
-    document.getElementById("showInfo").checked = Storage().HHAuto_Setting_showInfo?Storage().HHAuto_Setting_showInfo==="true":"false";
-    document.getElementById("showTooltips").checked = Storage().HHAuto_Setting_showTooltips?Storage().HHAuto_Setting_showTooltips==="true":"false";
+    document.getElementById("showInfo").checked = Storage().HHAuto_Setting_showInfo?Storage().HHAuto_Setting_showInfo==="true":false;
+    document.getElementById("showTooltips").checked = Storage().HHAuto_Setting_showTooltips?Storage().HHAuto_Setting_showTooltips==="true":false;
+    document.getElementById("collectDailyRewards").checked = Storage().HHAuto_Setting_collectDailyRewards?Storage().HHAuto_Setting_collectDailyRewards === "true":false ;
 
     manageToolTipsDisplay();
 
-    document.getElementById("showCalculatePower").checked = Storage().HHAuto_Setting_showCalculatePower?Storage().HHAuto_Setting_showCalculatePower==="true":"false";
+    document.getElementById("showCalculatePower").checked = Storage().HHAuto_Setting_showCalculatePower?Storage().HHAuto_Setting_showCalculatePower==="true":false;
     document.getElementById("calculatePowerLimits").value = Storage().HHAuto_Setting_calculatePowerLimits?Storage().HHAuto_Setting_calculatePowerLimits:"default";
     document.getElementById("plusEvent").checked = sessionStorage.HHAuto_Temp_trollToFight=="-1" || Storage().HHAuto_Setting_plusEvent === "true";
     document.getElementById("plusEventMythic").checked = Storage().HHAuto_Setting_plusEventMythic === "true";
@@ -10394,6 +10480,7 @@ var start = function () {
     document.getElementById("autoTrollMythicByPassParanoia").checked = Storage().HHAuto_Setting_autoTrollMythicByPassParanoia === "true";
 
     document.getElementById("autoClubChamp").checked = Storage().HHAuto_Setting_autoClubChamp  === "true";
+    document.getElementById("autoClubForceStart").checked = Storage().HHAuto_Setting_autoClubForceStart?Storage().HHAuto_Setting_autoClubForceStart  === "true":false;
     document.getElementById("autoClubChampMax").value = Storage().HHAuto_Setting_autoClubChampMax?Storage().HHAuto_Setting_autoClubChampMax:"999";
     document.getElementById("autoChamps").checked = Storage().HHAuto_Setting_autoChamps === "true";
     document.getElementById("autoChampsUseEne").checked = Storage().HHAuto_Setting_autoChampsUseEne === "true";
