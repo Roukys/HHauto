@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.33
+// @version      5.5.34
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -567,7 +567,8 @@ function doMissionStuff()
     else
     {
         logHHAuto("On missions page.");
-        if (Storage().HHAuto_Setting_autoMissionC==="true" && $(".mission_button button:visible[rel='claim']").length >0 && getSecondsLeftBeforeNewCompetition() < (24*3600-35*60))
+        let canCollect = Storage().HHAuto_Setting_autoMissionC==="true" && $(".mission_button button:visible[rel='claim']").length >0 && getSecondsLeftBeforeNewCompetition() > 35*60 && getSecondsLeftBeforeNewCompetition() < (24*3600-5*60);
+        if (canCollect)
         {
             logHHAuto("Collecting finished mission's reward.");
             $(".mission_button button:visible[rel='claim']").click();
@@ -593,7 +594,7 @@ function doMissionStuff()
                 }
                 else{
                     logHHAuto("Unclaimed mission detected...");
-                    if (Storage().HHAuto_Setting_autoMissionC==="true")
+                    if (canCollect)
                     {
                         allGood = false;
                     }
@@ -6285,7 +6286,7 @@ var autoLoop = function () {
             }
         }
 
-        if (busy==false && sessionStorage.HHAuto_Temp_autoLoop === "true" && getPage() === "home" && getSecondsLeftBeforeEndOfHHDay() < 3600 && Storage().HHAuto_Setting_collectDailyRewards === "true" && dailyRewardAvailable())
+        if (busy==false && sessionStorage.HHAuto_Temp_autoLoop === "true" && getPage() === "home" && getSecondsLeftBeforeEndOfHHDay() < 3600 && getSecondsLeftBeforeEndOfHHDay() > 5*60 && Storage().HHAuto_Setting_collectDailyRewards === "true" && dailyRewardAvailable())
         {
             busy = true;
             collectDailyRewards();
