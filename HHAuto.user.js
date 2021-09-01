@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.34
+// @version      5.5.35
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -86,7 +86,7 @@ function getCallerCallerFunction()
 
 function getServerTS()
 {
-    let sec_num = parseInt(server_now_ts, 10);
+    let sec_num = parseInt(getHHVars('server_now_ts'), 10);
     let days = Math.floor(sec_num / 86400);
     let hours = Math.floor(sec_num / 3600) % 24;
     let minutes = Math.floor(sec_num / 60) % 60;
@@ -184,12 +184,12 @@ function getHero()
     return unsafeWindow.Hero;
 }
 
-function getHeroInfos(infoSearched)
+function getHHVars(infoSearched)
 {
-    let returnValue = getHero();
-    if (getHHVarValue(infoSearched,false) !== "getHHVarValue not found")
+    let returnValue = unsafeWindow;
+    if (getHHScriptVars(infoSearched,false) !== "getHHScriptVars not found")
     {
-        infoSearched = getHHVarValue(infoSearched);
+        infoSearched = getHHScriptVars(infoSearched);
     }
 
     let splittedInfoSearched = infoSearched.split(".");
@@ -198,7 +198,7 @@ function getHeroInfos(infoSearched)
     {
         if (returnValue[splittedInfoSearched[i]] === undefined)
         {
-            logHHAuto("Hero info not found : "+infoSearched+" ("+splittedInfoSearched[i]+" not defined).");
+            logHHAuto("HH var not found : "+infoSearched+" ("+splittedInfoSearched[i]+" not defined).");
             return -1;
         }
         else
@@ -209,12 +209,12 @@ function getHeroInfos(infoSearched)
     return returnValue;
 }
 
-function setHeroInfos(infoSearched,newValue)
+function setHHVars(infoSearched,newValue)
 {
-    let returnValue = getHero();
-    if (getHHVarValue(infoSearched,false) !== "getHHVarValue not found")
+    let returnValue = unsafeWindow;
+    if (getHHScriptVars(infoSearched,false) !== "getHHScriptVars not found")
     {
-        infoSearched = getHHVarValue(infoSearched);
+        infoSearched = getHHScriptVars(infoSearched);
     }
 
     let splittedInfoSearched = infoSearched.split(".");
@@ -223,7 +223,7 @@ function setHeroInfos(infoSearched,newValue)
     {
         if (returnValue[splittedInfoSearched[i]] === undefined)
         {
-            logHHAuto("Hero info not found : "+infoSearched+" ("+splittedInfoSearched[i]+" not defined).");
+            logHHAuto("HH var not found : "+infoSearched+" ("+splittedInfoSearched[i]+" not defined).");
             return -1;
         }
         else if ( i === splittedInfoSearched.length - 1)
@@ -245,7 +245,7 @@ function getGirlsMap()
 
 function getPage()
 {
-    var ob = document.getElementById(getHHVarValue("gameID"));
+    var ob = document.getElementById(getHHScriptVars("gameID"));
     if(ob===undefined || ob === null)
     {
         logHHAuto("Unable to find page attribute, stopping script");
@@ -343,7 +343,7 @@ function gotoPage(page,inArgs,delay = -1)
             togoto = $("nav div[rel='content'] a:has(.shop)").attr("href");
             break;
         case "quest":
-            togoto = getHeroInfos('infos.questing.current_url');
+            togoto = getHHVars('Hero.infos.questing.current_url');
             if (togoto.includes("world"))
             {
                 logHHAuto("All quests finished, turning off AutoQuest!");
@@ -444,8 +444,8 @@ var proceedQuest = function () {
         //proceedButtonMatch.click();
     }
     else if (proceedType === "pay") {
-        var energyCurrent = getHeroInfos('energies.quest.amount');
-        var moneyCurrent = getHeroInfos('infos.soft_currency');
+        var energyCurrent = getHHVars('Hero.energies.quest.amount');
+        var moneyCurrent = getHHVars('Hero.infos.soft_currency');
         let payType = $("#controls .cost span[cur]:not([style*='display:none']):not([style*='display: none'])").attr('cur');
         //console.log("DebugQuest payType : "+payType);
         if (payType === "*")
@@ -757,8 +757,8 @@ function moduleOldPathOfAttractionHide()
 
 function dailyRewardAvailable()
 {
-    let dailyRewardNotifRequest = getHHVarValue("dailyRewardNotifRequest",false);
-    if (dailyRewardNotifRequest !=="getHHVarValue not found" && getPage() == "home" && $(dailyRewardNotifRequest).length > 0)
+    let dailyRewardNotifRequest = getHHScriptVars("dailyRewardNotifRequest",false);
+    if (dailyRewardNotifRequest !=="getHHScriptVars not found" && getPage() == "home" && $(dailyRewardNotifRequest).length > 0)
     {
         return true;
     }
@@ -773,10 +773,10 @@ function collectDailyRewards()
     if (getPage() == "home")
     {
         logHHAuto('Trying to get daily rewards!');
-        let dailyRewardNotifRequest = getHHVarValue("dailyRewardNotifRequest",false);
+        let dailyRewardNotifRequest = getHHScriptVars("dailyRewardNotifRequest",false);
         let dailyRewardButtonRequest = '#no_HC .blue_button_L.daily-claim-btn:not([disabled])';
         //Daily rewards notification check
-        if (dailyRewardNotifRequest !=="getHHVarValue not found" && dailyRewardAvailable())
+        if (dailyRewardNotifRequest !=="getHHScriptVars not found" && dailyRewardAvailable())
         {
             if ($('#no_HC')[0].style.display != "block")
             {
@@ -1056,7 +1056,7 @@ function moduleChangeTeam()
     {
         function selectFromHarem(i)
         {
-            let selectedGirl = $('#contains_all section #change-team-page .harem-panel .panel-body .topNumber[position="'+i+'"]');
+            let selectedGirl = $('#contains_all section '+getHHScriptVars("IDpanelEditTeam")+' .harem-panel .panel-body .topNumber[position="'+i+'"]');
             selectedGirl.click();
             //console.log(selectedGirl);
             if ($('.topNumber').length > i && i<7)
@@ -1093,11 +1093,11 @@ function moduleChangeTeam()
             deckID.push(-1);
             deckStat.push(-1);
         }
-        let levelPlayer = Number(getHeroInfos('infos.level'));
+        let levelPlayer = Number(getHHVars('Hero.infos.level'));
         for (let i = arr.length - 1; i > -1; i--)
         {
             let gID = Number($(arr[i]).attr('id_girl'));
-            let obj = JSON.parse($(arr[i]).attr(getHHVarValue('girlToolTipData')));
+            let obj = JSON.parse($(arr[i]).attr(getHHScriptVars('girlToolTipData')));
             //sum formula
             let tempGrades = obj.Graded2;
             let countTotalGrades = (tempGrades.match(/<g/g) || []).length;
@@ -1156,7 +1156,7 @@ function moduleChangeTeam()
                 arr[i].style.display = "";
             }
         }
-        let mainTeamPanel = $('#change-team-page .change-team-panel .panel-body > .harem-panel-girls');
+        let mainTeamPanel = $(getHHScriptVars("IDpanelEditTeam")+' .change-team-panel .panel-body > .harem-panel-girls');
         for (let j = 0; j < deckID.length; j++)
         {
             let newDiv
@@ -1179,8 +1179,8 @@ function moduleChangeTeam()
         }
         else
         {
-            let AssignTopTeam = '<div style="position: relative;left: 40%;width:60px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("AssignTopTeam","tooltip")+'</span><label style="font-size:small" class="myButton" id="AssignTopTeam">'+getTextForUI("AssignTopTeam","elementText")+'</label></div>'
-            $("#contains_all section #change-team-page .harem-panel .panel-body").append(AssignTopTeam);
+            let AssignTopTeam = '<div style="position: absolute;top: 80px;width:60px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("AssignTopTeam","tooltip")+'</span><label style="font-size:small" class="myButton" id="AssignTopTeam">'+getTextForUI("AssignTopTeam","elementText")+'</label></div>'
+            $("#contains_all section "+getHHScriptVars("IDpanelEditTeam")+" .harem-panel .panel-body").append(AssignTopTeam);
             document.getElementById("AssignTopTeam").addEventListener("click", assignTopTeam);
         }
     }
@@ -1822,14 +1822,14 @@ var doStatUpgrades=function()
     //Stats?
     //logHHAuto('stats');
     var Hero=getHero();
-    var level=getHeroInfos('infos.level');
-    var stats=[getHeroInfos('infos.carac1'),getHeroInfos('infos.carac2'),getHeroInfos('infos.carac3')];
-    var money=getHeroInfos('infos.soft_currency');
+    var level=getHHVars('Hero.infos.level');
+    var stats=[getHHVars('Hero.infos.carac1'),getHHVars('Hero.infos.carac2'),getHHVars('Hero.infos.carac3')];
+    var money=getHHVars('Hero.infos.soft_currency');
     var count=0;
     var M=Storage().HHAuto_Setting_autoStats?Number(Storage().HHAuto_Setting_autoStats):500000000;
-    var MainStat=stats[getHeroInfos('infos.class')-1];
-    var Limit=getHeroInfos('infos.level')*30;//getHeroInfos('infos.level')*19+Math.min(getHeroInfos('infos.level'),25)*21;
-    var carac=getHeroInfos('infos.class');
+    var MainStat=stats[getHHVars('Hero.infos.class')-1];
+    var Limit=getHHVars('Hero.infos.level')*30;//getHHVars('Hero.infos.level')*19+Math.min(getHHVars('Hero.infos.level'),25)*21;
+    var carac=getHHVars('Hero.infos.class');
     var mp=0;
     var mults=[60,30,10,1];
     for (var car=0; car<3; car++)
@@ -1841,12 +1841,12 @@ var doStatUpgrades=function()
             var mult=mults[mu];
             var price = 5+s*2+(Math.max(0,s-2000)*2)+(Math.max(0,s-4000)*2)+(Math.max(0,s-6000)*2)+(Math.max(0,s-8000)*2);
             price*=mult;
-            if (carac==getHeroInfos('infos.class'))
+            if (carac==getHHVars('Hero.infos.class'))
             {
                 mp=price;
             }
             //logHHAuto('money: '+money+' stat'+carac+': '+stats[carac-1]+' price: '+price);
-            if ((stats[carac-1]+mult)<=Limit && (money-price)>M && (carac==getHeroInfos('infos.class') || price<mp/2 || (MainStat+mult)>Limit))
+            if ((stats[carac-1]+mult)<=Limit && (money-price)>M && (carac==getHHVars('Hero.infos.class') || price<mp/2 || (MainStat+mult)>Limit))
             {
                 count++;
                 logHHAuto('money: '+money+' stat'+carac+': '+stats[carac-1]+' [+'+mult+'] price: '+price);
@@ -1873,11 +1873,11 @@ var doShopping=function()
     {
 
         var Hero=getHero();
-        var MS='carac'+getHeroInfos('infos.class');
-        var SS1='carac'+(getHeroInfos('infos.class')%3+1);
-        var SS2='carac'+((getHeroInfos('infos.class')+1)%3+1);
-        var money=getHeroInfos('infos.soft_currency');
-        var kobans=getHeroInfos('infos.hard_currency');
+        var MS='carac'+getHHVars('Hero.infos.class');
+        var SS1='carac'+(getHHVars('Hero.infos.class')%3+1);
+        var SS2='carac'+((getHHVars('Hero.infos.class')+1)%3+1);
+        var money=getHHVars('Hero.infos.soft_currency');
+        var kobans=getHHVars('Hero.infos.hard_currency');
 
         try
         {
@@ -2092,7 +2092,7 @@ var doShopping=function()
 
 var doBossBattle = function()
 {
-    var currentPower = getHeroInfos('energies.fight.amount');
+    var currentPower = getHHVars('Hero.energies.fight.amount');
     if(currentPower < 1)
     {
         //logHHAuto("No power for battle.");
@@ -2120,13 +2120,13 @@ var doBossBattle = function()
     }
     else
     {
-        TTF=getHeroInfos('infos.questing.id_world')-1;
+        TTF=getHHVars('Hero.infos.questing.id_world')-1;
         logHHAuto("Last troll fight");
     }
 
     if (sessionStorage.HHAuto_Temp_autoTrollBattleSaveQuest == "true")
     {
-        TTF=getHeroInfos('infos.questing.id_world')-1;
+        TTF=getHHVars('Hero.infos.questing.id_world')-1;
         logHHAuto("Last troll fight for quest item.");
         sessionStorage.HHAuto_Temp_autoTrollBattleSaveQuest = "false";
         sessionStorage.HHAuto_Temp_questRequirement = "none";
@@ -2173,7 +2173,7 @@ var doChampionStuff=function()
         else
         {
             var TCount=Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
-            var ECount= getHeroInfos('energies.quest.amount');
+            var ECount= getHHVars('Hero.energies.quest.amount');
             logHHAuto("T:"+TCount+" E:"+ECount+" "+(Storage().HHAuto_Setting_autoChampsUseEne==="true"))
             if ( TCount==0)
             {
@@ -2292,7 +2292,7 @@ var doClubChampionStuff=function()
         else
         {
             var TCount=Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
-            var ECount= getHeroInfos('energies.quest.amount');
+            var ECount= getHHVars('Hero.energies.quest.amount');
             logHHAuto("T:"+TCount+" E:"+ECount)
             if ( TCount==0)
             {
@@ -3031,7 +3031,7 @@ var doSeason = function () {
     logHHAuto("Performing auto Season.");
     // Confirm if on correct screen.
     var page = getPage();
-    var current_kisses = getHeroInfos('energies.kiss.amount');
+    var current_kisses = getHHVars('Hero.energies.kiss.amount');
     if(page === "season")
     {
         logHHAuto("On season page.");
@@ -3047,7 +3047,7 @@ var doSeason = function () {
         }
         else
         {
-            setTimer('nextSeasonTime',getHeroInfos('energies.kiss.next_refresh_ts'));
+            setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts'));
             gotoPage('home');
         }
         return;
@@ -3116,7 +3116,7 @@ var doSeason = function () {
         }
         else
         {
-            setTimer('nextSeasonTime',getHeroInfos('energies.kiss.next_refresh_ts'));
+            setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts'));
             gotoPage('home');
         }
         return;
@@ -3160,7 +3160,7 @@ function getLeagueOpponentListData()
 var doLeagueBattle = function () {
     //logHHAuto("Performing auto leagues.");
     // Confirm if on correct screen.
-    var currentPower = getHeroInfos('energies.challenge.amount');
+    var currentPower = getHHVars('Hero.energies.challenge.amount');
     var leagueScoreSecurityThreshold = 40;
     var ltime;
 
@@ -3189,7 +3189,7 @@ var doLeagueBattle = function () {
             logHHAuto("No power for leagues.");
             //prevent paranoia to wait for league
             sessionStorage.HHAuto_Temp_paranoiaLeagueBlocked="true";
-            setTimer('nextLeaguesTime',getHeroInfos('energies.challenge.next_refresh_ts')+1);
+            setTimer('nextLeaguesTime',getHHVars('Hero.energies.challenge.next_refresh_ts')+1);
             //             for(var e in unsafeWindow.HHTimers.timers){
             //                 try{
             //                     if(unsafeWindow.HHTimers.timers[e].type=="energy_challenge")
@@ -3384,7 +3384,7 @@ function getLeagueOpponentId(opponentsIDList,force=false)
     var maxTime = 1.6;
 
     //toremove after migration in prod
-    var girlDataName = getHHVarValue('girlToolTipData');
+    var girlDataName = getHHScriptVars('girlToolTipData');
 
     if (opponentsListExpirationDate === 'empty' || opponentsListExpirationDate < new Date() || opponentsPowerList.size ===0 || force)
     {
@@ -3431,15 +3431,15 @@ function getLeagueOpponentId(opponentsIDList,force=false)
 
         let playerStats = heroLeaguesData?heroLeaguesData:-1;
         // player stats
-        playerEgo = Math.round(playerStats===-1?getHeroInfos('infos.caracs.ego'):playerStats.caracs.ego);
+        playerEgo = Math.round(playerStats===-1?getHHVars('Hero.infos.caracs.ego'):playerStats.caracs.ego);
         //week 28 new battle modification
         /*
-        playerDefHC = Math.round(getHeroInfos('infos.caracs.def_carac1'));
-        playerDefCH = Math.round(getHeroInfos('infos.caracs.def_carac2'));
-        playerDefKH = Math.round(getHeroInfos('infos.caracs.def_carac3'));
+        playerDefHC = Math.round(getHHVars('Hero.infos.caracs.def_carac1'));
+        playerDefCH = Math.round(getHHVars('Hero.infos.caracs.def_carac2'));
+        playerDefKH = Math.round(getHHVars('Hero.infos.caracs.def_carac3'));
         */
         //End week 28 new battle modification
-        playerAtk = Math.round(playerStats===-1?getHeroInfos('infos.caracs.damage'):playerStats.caracs.damage);
+        playerAtk = Math.round(playerStats===-1?getHHVars('Hero.infos.caracs.damage'):playerStats.caracs.damage);
         playerClass = $('div#leagues_left .icon').attr('carac');
         //week 28 new battle modification
         /*
@@ -3451,7 +3451,7 @@ function getLeagueOpponentId(opponentsIDList,force=false)
         playerBeta = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=1] img').attr(girlDataName));
         playerOmega = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=2] img').attr(girlDataName));
         //End week 28 new battle modification
-        playerDef = Math.round(playerStats===-1?getHeroInfos('infos.caracs.defense'):playerStats.caracs.defense);
+        playerDef = Math.round(playerStats===-1?getHHVars('Hero.infos.caracs.defense'):playerStats.caracs.defense);
         playerExcitement = Math.round((playerAlpha.caracs.carac1 + playerAlpha.caracs.carac2 + playerAlpha.caracs.carac3) * 28);
         getOpponents();
         return -1;
@@ -3681,9 +3681,9 @@ var CrushThemFights=function()
         let battleButtonX10Price = Number(battleButtonX10.attr('price'));
         let battleButtonX50Price = Number(battleButtonX50.attr('price'));
         let hero=getHero();
-        let hcConfirmValue = getHeroInfos('infos.hc_confirm');
+        let hcConfirmValue = getHHVars('Hero.infos.hc_confirm');
         let remainingShards;
-        let currentPower = Number(getHeroInfos('energies.fight.amount'));
+        let currentPower = Number(getHHVars('Hero.energies.fight.amount'));
 
         //check if girl still available at troll in case of event
         if (TTF !== null)
@@ -3754,7 +3754,7 @@ var CrushThemFights=function()
                     && Storage().HHAuto_Setting_minShardsX50
                     && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX50))
                     && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX50)
-                    && (battleButtonX50Price === 0 || getHeroInfos('infos.hard_currency')>=battleButtonX50Price+Number(Storage().HHAuto_Setting_kobanBank))
+                    && (battleButtonX50Price === 0 || getHHVars('Hero.infos.hard_currency')>=battleButtonX50Price+Number(Storage().HHAuto_Setting_kobanBank))
                     && currentPower >= 50
                     && (currentPower >= (Number(Storage().HHAuto_Setting_autoTrollThreshold) + 50)
                         || bypassThreshold
@@ -3764,13 +3764,13 @@ var CrushThemFights=function()
                 {
                     logHHAuto("Going to crush 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
 
-                    setHeroInfos('infos.hc_confirm',true);
+                    setHHVars('Hero.infos.hc_confirm',true);
                     // We have the power.
                     is_cheat_click=function(e) {
                         return false;
                     };
                     battleButtonX50[0].click();
-                    setHeroInfos('infos.hc_confirm',hcConfirmValue);
+                    setHHVars('Hero.infos.hc_confirm',hcConfirmValue);
                     //sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh = Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) - 50;
                     logHHAuto("Crushed 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
                     if (sessionStorage.HHAuto_Temp_questRequirement === "battle") {
@@ -3784,7 +3784,7 @@ var CrushThemFights=function()
                 {
                     if (Storage().HHAuto_Setting_useX50Fights === "true")
                     {
-                        logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+getHeroInfos('energies.fight.amount')+'/50, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getHeroInfos('infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+                        logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+getHHVars('Hero.energies.fight.amount')+'/50, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
                     }
                 }
 
@@ -3792,7 +3792,7 @@ var CrushThemFights=function()
                     && Storage().HHAuto_Setting_minShardsX10
                     && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX10))
                     && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX10)
-                    && (battleButtonX10Price === 0 || getHeroInfos('infos.hard_currency')>=battleButtonX10Price+Number(Storage().HHAuto_Setting_kobanBank))
+                    && (battleButtonX10Price === 0 || getHHVars('Hero.infos.hard_currency')>=battleButtonX10Price+Number(Storage().HHAuto_Setting_kobanBank))
                     && currentPower >= 10
                     && (currentPower >= (Number(Storage().HHAuto_Setting_autoTrollThreshold) + 10)
                         || bypassThreshold
@@ -3802,13 +3802,13 @@ var CrushThemFights=function()
                 {
                     logHHAuto("Going to crush 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
 
-                    setHeroInfos('infos.hc_confirm',true);
+                    setHHVars('Hero.infos.hc_confirm',true);
                     // We have the power.
                     is_cheat_click=function(e) {
                         return false;
                     };
                     battleButtonX10[0].click();
-                    setHeroInfos('infos.hc_confirm',hcConfirmValue);
+                    setHHVars('Hero.infos.hc_confirm',hcConfirmValue);
                     //sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh = Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) - 10;
                     logHHAuto("Crushed 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
                     if (sessionStorage.HHAuto_Temp_questRequirement === "battle") {
@@ -3822,7 +3822,7 @@ var CrushThemFights=function()
                 {
                     if (Storage().HHAuto_Setting_useX10Fights === "true")
                     {
-                        logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+getHeroInfos('energies.fight.amount')+'/10, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX10+', kobans : '+getHeroInfos('infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+                        logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+getHHVars('Hero.energies.fight.amount')+'/10, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX10+', kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
                     }
                 }
             }
@@ -4294,7 +4294,7 @@ var updateShop=function()
         logHHAuto('counted '+sessionStorage.HHAuto_Temp_haveAff+' Aff '+sessionStorage.HHAuto_Temp_haveExp+' Exp');
 
         sessionStorage.HHAuto_Temp_storeContents = JSON.stringify([assA,assB,assG,assP]);
-        sessionStorage.HHAuto_Temp_charLevel=getHeroInfos('infos.level');
+        sessionStorage.HHAuto_Temp_charLevel=getHHVars('Hero.infos.level');
 
         var nshop;
         for(var e in unsafeWindow.HHTimers.timers){
@@ -4426,13 +4426,13 @@ var setParanoiaSpendings=function()
         toNextSwitch = Number((sessionStorage.HHAuto_Temp_NextSwitch-new Date().getTime())/1000);
 
         //if autoLeague is on
-        if(Storage().HHAuto_Setting_autoLeagues === "true" && getHeroInfos('infos.level')>=20)
+        if(Storage().HHAuto_Setting_autoLeagues === "true" && getHHVars('Hero.infos.level')>=20)
         {
             if ( sessionStorage.HHAuto_Temp_paranoiaLeagueBlocked === undefined )
             {
-                maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHeroInfos('energies.challenge.next_refresh_ts')))/Number(getHeroInfos('energies.challenge.seconds_per_point')));
-                currentEnergy=Number(getHeroInfos('energies.challenge.amount'));
-                maxEnergy=Number(getHeroInfos('energies.challenge.max_amount'));
+                maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHHVars('Hero.energies.challenge.next_refresh_ts')))/Number(getHHVars('Hero.energies.challenge.seconds_per_point')));
+                currentEnergy=Number(getHHVars('Hero.energies.challenge.amount'));
+                maxEnergy=Number(getHHVars('Hero.energies.challenge.max_amount'));
                 totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
                 //if point refreshed during paranoia would go above max
                 if ( totalPointsEndParanoia >= maxEnergy)
@@ -4452,9 +4452,9 @@ var setParanoiaSpendings=function()
         {
             if ( sessionStorage.HHAuto_Temp_paranoiaQuestBlocked === undefined )
             {
-                maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHeroInfos('energies.quest.next_refresh_ts')))/Number(getHeroInfos('energies.quest.seconds_per_point')));
-                currentEnergy=Number(getHeroInfos('energies.quest.amount'));
-                maxEnergy=Number(getHeroInfos('energies.quest.max_amount'));
+                maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHHVars('Hero.energies.quest.next_refresh_ts')))/Number(getHHVars('Hero.energies.quest.seconds_per_point')));
+                currentEnergy=Number(getHHVars('Hero.energies.quest.amount'));
+                maxEnergy=Number(getHHVars('Hero.energies.quest.max_amount'));
                 totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
                 //if point refreshed during paranoia would go above max
                 if ( totalPointsEndParanoia >= maxEnergy)
@@ -4470,11 +4470,11 @@ var setParanoiaSpendings=function()
             }
         }
         //if autoTrollBattle is on
-        if(Storage().HHAuto_Setting_autoTrollBattle === "true" && getHeroInfos('infos.questing.id_world')>0)
+        if(Storage().HHAuto_Setting_autoTrollBattle === "true" && getHHVars('Hero.infos.questing.id_world')>0)
         {
-            maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHeroInfos('energies.fight.next_refresh_ts')))/Number(getHeroInfos('energies.fight.seconds_per_point')));
-            currentEnergy=Number(getHeroInfos('energies.fight.amount'));
-            maxEnergy=Number(getHeroInfos('energies.fight.max_amount'));
+            maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHHVars('Hero.energies.fight.next_refresh_ts')))/Number(getHHVars('Hero.energies.fight.seconds_per_point')));
+            currentEnergy=Number(getHHVars('Hero.energies.fight.amount'));
+            maxEnergy=Number(getHHVars('Hero.energies.fight.max_amount'));
             totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
             //if point refreshed during paranoia would go above max
             if ( totalPointsEndParanoia >= maxEnergy)
@@ -4491,9 +4491,9 @@ var setParanoiaSpendings=function()
         //if autoSeason is on
         if(Storage().HHAuto_Setting_autoSeason === "true")
         {
-            maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHeroInfos('energies.kiss.next_refresh_ts')))/Number(getHeroInfos('energies.kiss.seconds_per_point')));
-            currentEnergy=Number(getHeroInfos('energies.kiss.amount'));
-            maxEnergy=Number(getHeroInfos('energies.kiss.max_amount'));
+            maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHHVars('Hero.energies.kiss.next_refresh_ts')))/Number(getHHVars('Hero.energies.kiss.seconds_per_point')));
+            currentEnergy=Number(getHHVars('Hero.energies.kiss.amount'));
+            maxEnergy=Number(getHHVars('Hero.energies.kiss.max_amount'));
             totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
             //if point refreshed during paranoia would go above max
             if ( totalPointsEndParanoia >= maxEnergy)
@@ -4548,7 +4548,7 @@ var flipParanoia=function()
             //                 trollThreshold = 0;
             //             }
             //mythic onGoing and still have some fight above threshold
-            if (Number(getHeroInfos('energies.fight.amount')) > 0) //trollThreshold)
+            if (Number(getHHVars('Hero.energies.fight.amount')) > 0) //trollThreshold)
             {
                 logHHAuto("Forced bypass Paranoia for mythic (can fight).");
                 setTimer('paranoiaSwitch',60);
@@ -4559,7 +4559,7 @@ var flipParanoia=function()
             var hero=getHero();
             var price=hero.get_recharge_cost("fight");
             if (canBuyFight().canBuy
-                && getHeroInfos('energies.fight.amount')==0
+                && getHHVars('Hero.energies.fight.amount')==0
                )
             {
 
@@ -4676,7 +4676,7 @@ function moduleSimLeague() {
     }
 
     //toremove after migration in prod
-    var girlDataName=getHHVarValue('girlToolTipData');
+    var girlDataName=getHHScriptVars('girlToolTipData');
 
     var SimPower = function()
     {
@@ -4687,16 +4687,16 @@ function moduleSimLeague() {
         // player stats
         let playerStats = heroLeaguesData?heroLeaguesData:-1;
         // player stats
-        playerEgo = Math.round(playerStats===-1?getHeroInfos('infos.caracs.ego'):playerStats.caracs.ego);
+        playerEgo = Math.round(playerStats===-1?getHHVars('Hero.infos.caracs.ego'):playerStats.caracs.ego);
         //week 28 new battle modification
         /*
-        playerDefHC = Math.round(getHeroInfos('infos.caracs.def_carac1'));
-        playerDefCH = Math.round(getHeroInfos('infos.caracs.def_carac2'));
-        playerDefKH = Math.round(getHeroInfos('infos.caracs.def_carac3'));
+        playerDefHC = Math.round(getHHVars('Hero.infos.caracs.def_carac1'));
+        playerDefCH = Math.round(getHHVars('Hero.infos.caracs.def_carac2'));
+        playerDefKH = Math.round(getHHVars('Hero.infos.caracs.def_carac3'));
         */
-        playerDef = Math.round(playerStats===-1?getHeroInfos('infos.caracs.defense'):playerStats.caracs.defense);
+        playerDef = Math.round(playerStats===-1?getHHVars('Hero.infos.caracs.defense'):playerStats.caracs.defense);
         //End week 28 new battle modification
-        playerAtk = Math.round(playerStats===-1?getHeroInfos('infos.caracs.damage'):playerStats.caracs.damage);
+        playerAtk = Math.round(playerStats===-1?getHHVars('Hero.infos.caracs.damage'):playerStats.caracs.damage);
         playerClass = $('div#leagues_left .icon').attr('carac');
 
         //week 28 new battle modification
@@ -5241,18 +5241,18 @@ function moduleSimBattle() {
         return;
     }
     //toremove after migration in prod
-    var girlDataName=getHHVarValue('girlToolTipData');
+    var girlDataName=getHHScriptVars('girlToolTipData');
 
     // player stats
-    playerEgo = Math.round(getHeroInfos('infos.caracs.ego'));
+    playerEgo = Math.round(getHHVars('Hero.infos.caracs.ego'));
 
 
-    playerDefHC = Math.round(getHeroInfos('infos.caracs.def_carac1'));
-    playerDefCH = Math.round(getHeroInfos('infos.caracs.def_carac2'));
-    playerDefKH = Math.round(getHeroInfos('infos.caracs.def_carac3'));
+    playerDefHC = Math.round(getHHVars('Hero.infos.caracs.def_carac1'));
+    playerDefCH = Math.round(getHHVars('Hero.infos.caracs.def_carac2'));
+    playerDefKH = Math.round(getHHVars('Hero.infos.caracs.def_carac3'));
 
-    playerAtk = Math.round(getHeroInfos('infos.caracs.damage'));
-    playerClass = 'class'+getHeroInfos('infos.class');
+    playerAtk = Math.round(getHHVars('Hero.infos.caracs.damage'));
+    playerClass = 'class'+getHHVars('Hero.infos.class');
     //playerClass = $('div#leagues_left .icon').attr('carac');
 
     playerAlpha = JSON.parse($("div.battle_hero .battle-faces div[girl_n=0]").attr(girlDataName));
@@ -5470,20 +5470,20 @@ function moduleSimSeasonBattle() {
             doDisplay=true;
         }
         //toremove after migration in prod
-        var girlDataName=getHHVarValue('girlToolTipData');
+        var girlDataName=getHHScriptVars('girlToolTipData');
         let playerStats = $('#player_defence_stat[ca-player-caracs]').length >0?JSON.parse($('#player_defence_stat[ca-player-caracs]').attr('ca-player-caracs')):-1;
         // player stats
-        playerEgo = Math.round(playerStats===-1?getHeroInfos('infos.caracs.ego'):playerStats.ego);
+        playerEgo = Math.round(playerStats===-1?getHHVars('Hero.infos.caracs.ego'):playerStats.ego);
         //week 28 new battle modification
         /*
-        playerDefHC = Math.round(getHeroInfos('infos.caracs.def_carac1'));
-        playerDefCH = Math.round(getHeroInfos('infos.caracs.def_carac2'));
-        playerDefKH = Math.round(getHeroInfos('infos.caracs.def_carac3'));
+        playerDefHC = Math.round(getHHVars('Hero.infos.caracs.def_carac1'));
+        playerDefCH = Math.round(getHHVars('Hero.infos.caracs.def_carac2'));
+        playerDefKH = Math.round(getHHVars('Hero.infos.caracs.def_carac3'));
         */
         //End week 28 new battle modification
 
-        playerAtk = Math.round(playerStats===-1?getHeroInfos('infos.caracs.damage'):playerStats.damage);
-        playerClass = 'class'+getHeroInfos('infos.class');
+        playerAtk = Math.round(playerStats===-1?getHHVars('Hero.infos.caracs.damage'):playerStats.damage);
+        playerClass = 'class'+getHHVars('Hero.infos.class');
         //playerClass = $('div#leagues_left .icon').attr('carac');
         //week 28 new battle modification
         /*
@@ -5531,7 +5531,7 @@ function moduleSimSeasonBattle() {
             let opponentAlpha = JSON.parse($($('div.season_arena_opponent_container .hero_team .team-hexagon-container .team-member-container[data-team-member-position=0] img')[index]).attr(girlDataName));
             let opponentBeta = JSON.parse($($('div.season_arena_opponent_container .hero_team .team-hexagon-container .team-member-container[data-team-member-position=1] img')[index]).attr(girlDataName));
             let opponentOmega = JSON.parse($($('div.season_arena_opponent_container .hero_team .team-hexagon-container .team-member-container[data-team-member-position=2] img')[index]).attr(girlDataName));
-            let playerDef = Math.round(playerStats===-1?getHeroInfos('infos.caracs.defense'):playerStats.defense);
+            let playerDef = Math.round(playerStats===-1?getHHVars('Hero.infos.caracs.defense'):playerStats.defense);
             //End week 28 new battle modification
 
             var opponentExcitement = Math.round((opponentAlpha.caracs.carac1 + opponentAlpha.caracs.carac2 + opponentAlpha.caracs.carac3) * 28);
@@ -5757,7 +5757,7 @@ function moduleSimSeasonBattle() {
         {
             price = 12;
         }
-        if (numberOfReds === 3 && Storage().HHAuto_Setting_autoSeasonPassReds === "true" && getHeroInfos('infos.hard_currency')>=price+Number(Storage().HHAuto_Setting_kobanBank))
+        if (numberOfReds === 3 && Storage().HHAuto_Setting_autoSeasonPassReds === "true" && getHHVars('Hero.infos.hard_currency')>=price+Number(Storage().HHAuto_Setting_kobanBank))
         {
             chosenID = -2;
         }
@@ -5813,10 +5813,10 @@ function CheckSpentPoints()
 {
     let oldValues=sessionStorage.HHAuto_Temp_CheckSpentPoints?JSON.parse(sessionStorage.HHAuto_Temp_CheckSpentPoints):-1;
     let newValues={};
-    newValues['fight']=Number(getHeroInfos('energies.fight.amount'));
-    newValues['kiss']=Number(getHeroInfos('energies.kiss.amount'));
-    newValues['quest']=Number(getHeroInfos('energies.quest.amount'));
-    newValues['challenge']=Number(getHeroInfos('energies.challenge.amount'));
+    newValues['fight']=Number(getHHVars('Hero.energies.fight.amount'));
+    newValues['kiss']=Number(getHHVars('Hero.energies.kiss.amount'));
+    newValues['quest']=Number(getHHVars('Hero.energies.quest.amount'));
+    newValues['challenge']=Number(getHHVars('Hero.energies.challenge.amount'));
 
     if ( oldValues !== -1)
     {
@@ -5875,7 +5875,7 @@ var autoLoop = function () {
     //var busy = false;
     busy = false;
     var page = window.location.href;
-    var currentPower = getHeroInfos('energies.fight.amount');
+    var currentPower = getHHVars('Hero.energies.fight.amount');
 
     var burst=getBurst();
     switchHHMenuButton(burst);
@@ -5971,7 +5971,7 @@ var autoLoop = function () {
             doBattle();
         }
 
-        if(Storage().HHAuto_Setting_autoTrollBattle === "true" && getHeroInfos('infos.questing.id_world')>0 && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        if(Storage().HHAuto_Setting_autoTrollBattle === "true" && getHHVars('Hero.infos.questing.id_world')>0 && sessionStorage.HHAuto_Temp_autoLoop === "true")
         {
             if(busy === false && currentPower >= Number(sessionStorage.HHAuto_Temp_battlePowerRequired) && (currentPower > 0 || canBuyFight().canBuy))
             {
@@ -6022,7 +6022,7 @@ var autoLoop = function () {
             busy =getFreeGreatPachinko();
 
         }
-        if (Storage().HHAuto_Setting_autoFreePachinko === "true" && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true" && checkTimer("nextPachinko2Time") && getHHVarValue("gameID") !== HHVariables["SH_prod"].gameID ) {
+        if (Storage().HHAuto_Setting_autoFreePachinko === "true" && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true" && checkTimer("nextPachinko2Time") && getHHScriptVars("gameID") !== HHVariables["SH_prod"].gameID ) {
             logHHAuto("Time to fetch Mythic Pachinko.");
             busy = true;
             busy = getFreeMythicPachinko();
@@ -6102,7 +6102,7 @@ var autoLoop = function () {
             }
             else if (sessionStorage.HHAuto_Temp_questRequirement[0] === '$')
             {
-                if (Number(sessionStorage.HHAuto_Temp_questRequirement.substr(1)) < getHeroInfos('infos.soft_currency')) {
+                if (Number(sessionStorage.HHAuto_Temp_questRequirement.substr(1)) < getHHVars('Hero.infos.soft_currency')) {
                     // We have enough money... requirement fulfilled.
                     logHHAuto("Continuing quest, required money obtained.");
                     sessionStorage.HHAuto_Temp_questRequirement = "none";
@@ -6125,10 +6125,10 @@ var autoLoop = function () {
             else if (sessionStorage.HHAuto_Temp_questRequirement[0] === '*')
             {
                 var energyNeeded = Number(sessionStorage.HHAuto_Temp_questRequirement.substr(1));
-                var energyCurrent = getHeroInfos('energies.quest.amount');
+                var energyCurrent = getHHVars('Hero.energies.quest.amount');
                 if (energyNeeded <= energyCurrent)
                 {
-                    if (Number(getHeroInfos('energies.quest.amount')) > Number(Storage().HHAuto_Setting_autoQuestThreshold) || Number(checkParanoiaSpendings('quest')) > 0 )
+                    if (Number(getHHVars('Hero.energies.quest.amount')) > Number(Storage().HHAuto_Setting_autoQuestThreshold) || Number(checkParanoiaSpendings('quest')) > 0 )
                     {
                         // We have enough energy... requirement fulfilled.
                         logHHAuto("Continuing quest, required energy obtained.");
@@ -6191,7 +6191,7 @@ var autoLoop = function () {
             }
             else if(sessionStorage.HHAuto_Temp_questRequirement === "none")
             {
-                if (Number(getHeroInfos('energies.quest.amount')) > Number(Storage().HHAuto_Setting_autoQuestThreshold) || Number(checkParanoiaSpendings('quest')) > 0 )
+                if (Number(getHHVars('Hero.energies.quest.amount')) > Number(Storage().HHAuto_Setting_autoQuestThreshold) || Number(checkParanoiaSpendings('quest')) > 0 )
                 {
                     //logHHAuto("NONE req.");
                     busy = true;
@@ -6213,7 +6213,7 @@ var autoLoop = function () {
 
         if(Storage().HHAuto_Setting_autoSeason === "true" && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true")
         {
-            if (Number(getHeroInfos('energies.kiss.amount')) > 0 && ( (Number(getHeroInfos('energies.kiss.amount')) > Number(Storage().HHAuto_Setting_autoSeasonThreshold) && checkTimer('nextSeasonTime')) || Number(checkParanoiaSpendings('kiss')) > 0 ) )
+            if (Number(getHHVars('Hero.energies.kiss.amount')) > 0 && ( (Number(getHHVars('Hero.energies.kiss.amount')) > Number(Storage().HHAuto_Setting_autoSeasonThreshold) && checkTimer('nextSeasonTime')) || Number(checkParanoiaSpendings('kiss')) > 0 ) )
             {
                 logHHAuto("Time to fight in Season.");
                 doSeason();
@@ -6223,13 +6223,13 @@ var autoLoop = function () {
             {
                 if (checkTimer('nextSeasonTime'))
                 {
-                    setTimer('nextSeasonTime',getHeroInfos('energies.kiss.next_refresh_ts'));
+                    setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts'));
                 }
             }
 
         }
 
-        var ECt= getHeroInfos('energies.quest.amount');
+        var ECt= getHHVars('Hero.energies.quest.amount');
         if (ECt>=60 && (Storage().HHAuto_Setting_autoChampsUseEne==="true") && sessionStorage.HHAuto_Temp_autoLoop === "true")
         {
             function buyTicket()
@@ -6268,10 +6268,10 @@ var autoLoop = function () {
             busy=doClubChampionStuff();
         }
 
-        if(Storage().HHAuto_Setting_autoLeagues === "true" && getHeroInfos('infos.level')>=20 && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        if(Storage().HHAuto_Setting_autoLeagues === "true" && getHHVars('Hero.infos.level')>=20 && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true")
         {
             // Navigate to leagues
-            if ((checkTimer('nextLeaguesTime') && Number(getHeroInfos('energies.challenge.amount')) > Number(Storage().HHAuto_Setting_autoLeaguesThreshold) ) || Number(checkParanoiaSpendings('challenge')) > 0)
+            if ((checkTimer('nextLeaguesTime') && Number(getHHVars('Hero.energies.challenge.amount')) > Number(Storage().HHAuto_Setting_autoLeaguesThreshold) ) || Number(checkParanoiaSpendings('challenge')) > 0)
             {
                 logHHAuto("Time to fight in Leagues.");
                 doLeagueBattle();
@@ -6281,7 +6281,7 @@ var autoLoop = function () {
             {
                 if (checkTimer('nextLeaguesTime'))
                 {
-                    setTimer('nextLeaguesTime',getHeroInfos('energies.challenge.next_refresh_ts'));
+                    setTimer('nextLeaguesTime',getHHVars('Hero.energies.challenge.next_refresh_ts'));
                 }
             }
         }
@@ -6298,7 +6298,7 @@ var autoLoop = function () {
             {
                 sessionStorage.HHAuto_Temp_charLevel=0;
             }
-            if (checkTimer('nextShopTime') || sessionStorage.HHAuto_Temp_charLevel<getHeroInfos('infos.level')) {
+            if (checkTimer('nextShopTime') || sessionStorage.HHAuto_Temp_charLevel<getHHVars('Hero.infos.level')) {
                 logHHAuto("Time to check shop.");
                 busy = updateShop();
             }
@@ -6377,7 +6377,7 @@ var autoLoop = function () {
     {
         modulePachinko();
     }
-    if (getPage() === getHHVarValue("pageEditTeam"))
+    if (getPage() === getHHScriptVars("pageEditTeam"))
     {
         moduleChangeTeam();
     }
@@ -6399,6 +6399,7 @@ var autoLoop = function () {
             logHHAuto("autoLoop Disabled");
         }
     }
+
 };
 
 function getLevelXp(inRarity, inLevel)
@@ -6808,7 +6809,7 @@ function moduleShopActions()
         +    '<p id="menuExpText"></p>'
         +    '<div class="HHMenuRow">'
         +     '<p>'+getTextForUI("menuExpLevel","elementText")+'</p>'
-        +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExpLevel","tooltip")+'</span><input id="menuExpLevel" style="width:50px;height:20px" required pattern="'+HHAuto_inputPattern.menuExpLevel+'" type="text" value="'+getHeroInfos('infos.level')+'"></div>'
+        +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExpLevel","tooltip")+'</span><input id="menuExpLevel" style="width:50px;height:20px" required pattern="'+HHAuto_inputPattern.menuExpLevel+'" type="text" value="'+getHHVars('Hero.infos.level')+'"></div>'
         +    '</div>'
         +    '<div style="padding:10px;justify-content:center" class="HHMenuRow">'
         +     '<div id="menuExpHide" style="display:none">'
@@ -6932,7 +6933,7 @@ function moduleShopActions()
                 girl=$('div.girl-ico:not(.not-selected)');
                 getSelectGirlID=girl.attr("id_girl");
                 let selectedGirl=girl.data("g");
-                let selectedGirlTooltip=JSON.parse(girl.attr(getHHVarValue('girlToolTipData')));
+                let selectedGirlTooltip=JSON.parse(girl.attr(getHHScriptVars('girlToolTipData')));
 
                 let selectedGirlExp=selectedGirl.Xp.cur;
                 potionArray = {};
@@ -6988,7 +6989,7 @@ function moduleShopActions()
         let girl=$('div.girl-ico:not(.not-selected)');
         let selectedGirl=girl.data("g");
         let selectedGirlExp=selectedGirl.Xp.cur;
-        let selectedGirlTooltip=JSON.parse(girl.attr(getHHVarValue('girlToolTipData')));
+        let selectedGirlTooltip=JSON.parse(girl.attr(getHHScriptVars('girlToolTipData')));
         let targetedLevel = Number(document.getElementById("menuExpLevel").value);
         let targetedXp = getLevelXp(selectedGirlTooltip.rarity,targetedLevel);
         logHHAuto('start giving Exp to '+selectedGirl.Name);
@@ -7656,7 +7657,7 @@ function moduleShopActions()
                 //console.log(initialNumberOfItems,currentNumberOfItems);
                 if ((initialNumberOfItems - currentNumberOfItems) < itemsToSell)
                 {
-                    let PlayerClass = getHeroInfos('infos.class') === -1 ? $('#equiped > div.icon.class_change_btn').attr('carac') : getHeroInfos('infos.class');
+                    let PlayerClass = getHHVars('Hero.infos.class') === -1 ? $('#equiped > div.icon.class_change_btn').attr('carac') : getHHVars('Hero.infos.class');
                     //check Selected item - can we sell it?
                     if ($('#inventory .selected .inventory_slots .selected:not([menuSellLocked])').length > 0)
                     {
@@ -8047,8 +8048,8 @@ function parseEventPage(inTab="global")
         let urlParams = new URLSearchParams(parsedURL.search);
         let eventID = urlParams.get('tab');
         if (
-            !eventID.startsWith(getHHVarValue('eventIDReg'))
-            && !eventID.startsWith(getHHVarValue('mythicEventIDReg'))
+            !eventID.startsWith(getHHScriptVars('eventIDReg'))
+            && !eventID.startsWith(getHHScriptVars('mythicEventIDReg'))
         )
         {
             if (queryEventTabCheck.attr('parsed') === undefined)
@@ -8076,7 +8077,7 @@ function parseEventPage(inTab="global")
         let Priority=(Storage().HHAuto_Setting_eventTrollOrder?Storage().HHAuto_Setting_eventTrollOrder:"").split(";");
 
         let refreshTimer = 3600;
-        if (eventID.startsWith(getHHVarValue('eventIDReg')) && Storage().HHAuto_Setting_plusEvent==="true")
+        if (eventID.startsWith(getHHScriptVars('eventIDReg')) && Storage().HHAuto_Setting_plusEvent==="true")
         {
             logHHAuto("On going event.");
             let timeLeft=$('#contains_all #events .nc-expiration-label#timer').attr("data-seconds-until-event-end");
@@ -8107,7 +8108,7 @@ function parseEventPage(inTab="global")
                 }
             }
         }
-        if (eventID.startsWith(getHHVarValue('mythicEventIDReg')) && Storage().HHAuto_Setting_plusEventMythic==="true")
+        if (eventID.startsWith(getHHScriptVars('mythicEventIDReg')) && Storage().HHAuto_Setting_plusEventMythic==="true")
         {
             logHHAuto("On going mythic event.");
             let timeLeft=$('#contains_all #events .nc-expiration-label#timer').attr("data-seconds-until-event-end");
@@ -8232,7 +8233,7 @@ function checkEvent(inEventID)
 {
     let eventList = isJSON(sessionStorage.HHAuto_Temp_eventsList)?JSON.parse(sessionStorage.HHAuto_Temp_eventsList):{};
     let result = false;
-    let eventType = inEventID.startsWith(getHHVarValue('mythicEventIDReg'))?"mythic":(inEventID.startsWith(getHHVarValue('eventIDReg'))?"event":"");
+    let eventType = inEventID.startsWith(getHHScriptVars('mythicEventIDReg'))?"mythic":(inEventID.startsWith(getHHScriptVars('eventIDReg'))?"event":"");
     if (eventType === "mythic" && Storage().HHAuto_Setting_plusEventMythic!=="true")
     {
         return false;
@@ -8273,7 +8274,7 @@ function canBuyFight()
     let result = {canBuy:false, price:0, max:0, toBuy:0, event_mythic:"false", type:type};
     let maxx50 = 50;
     let maxx20 = 20;
-    let currentFight =Number( getHeroInfos('energies.fight.amount'));
+    let currentFight =Number( getHHVars('Hero.energies.fight.amount'));
     let pricex50=hero.get_max_recharge_cost(type,maxx50)
     let pricex20=hero.get_recharge_cost(type);
     let canRecharge20 = false;
@@ -8313,7 +8314,7 @@ function canBuyFight()
         if (Storage().HHAuto_Setting_minShardsX50
             && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX50))
             && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX50)
-            && getHeroInfos('infos.hard_currency')>=pricex50+Number(Storage().HHAuto_Setting_kobanBank)
+            && getHHVars('Hero.infos.hard_currency')>=pricex50+Number(Storage().HHAuto_Setting_kobanBank)
             && Storage().HHAuto_Setting_useX50Fights === "true"
             && currentFight < maxx50
             && ( result.event_mythic || Storage().HHAuto_Setting_useX50FightsAllowNormalEvent === "true")
@@ -8327,8 +8328,8 @@ function canBuyFight()
         else
         {
 
-            logHHAuto('Unable to recharge up to '+maxx50+' for '+pricex50+' kobans, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getHeroInfos('infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
-            if (getHeroInfos('infos.hard_currency')>=pricex20+Number(Storage().HHAuto_Setting_kobanBank)
+            logHHAuto('Unable to recharge up to '+maxx50+' for '+pricex50+' kobans, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+            if (getHHVars('Hero.infos.hard_currency')>=pricex20+Number(Storage().HHAuto_Setting_kobanBank)
                 && currentFight < 10)
             {
                 result.max = maxx20;
@@ -8338,7 +8339,7 @@ function canBuyFight()
             }
             else
             {
-                logHHAuto('Unable to recharge up to '+maxx20+' for '+pricex20+' kobans : '+getHeroInfos('infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+                logHHAuto('Unable to recharge up to '+maxx20+' for '+pricex20+' kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
                 return result;
             }
         }
@@ -8355,15 +8356,15 @@ var RechargeCombat=function()
     if (canBuyResult.canBuy)
     {
         logHHAuto('Recharging '+canBuyResult.toBuy+' fights for '+canBuyResult.price+' kobans.');
-        let hcConfirmValue = getHeroInfos('infos.hc_confirm');
-        setHeroInfos('infos.hc_confirm',true);
+        let hcConfirmValue = getHHVars('Hero.infos.hc_confirm');
+        setHHVars('Hero.infos.hc_confirm',true);
         // We have the power.
         is_cheat_click=function(e) {
             return false;
         };
         //console.log($("plus[type='energy_fight']"), canBuyResult.price,canBuyResult.type, canBuyResult.max);
         hero.recharge($("plus[type='energy_fight']"), canBuyResult.price,canBuyResult.type, canBuyResult.max);
-        setHeroInfos('infos.hc_confirm',hcConfirmValue);
+        setHHVars('Hero.infos.hc_confirm',hcConfirmValue);
         logHHAuto('Recharged up to '+canBuyResult.max+' fights for '+canBuyResult.price+' kobans.');
     }
     //     hh_ajax(
@@ -8377,7 +8378,7 @@ var RechargeCombat=function()
     //             Hero.update("energy_"+type, max || Hero.energies[type].max_amount);
     //             Hero.update("hard_currency", 0 - price, true);
     //             setTimeout(function(){location.reload();},randomInterval(500,1500));
-    //             //Hero.update("fight.amount", getHeroInfos('energies.fight.max_amount'));
+    //             //Hero.update("fight.amount", getHHVars('Hero.energies.fight.max_amount'));
     //             //Hero.update("hard_currency", 0 - price, true);
     //         });
     //    logHHAuto('Recharged up to 50 fights.');
@@ -8709,7 +8710,7 @@ function getTextForUI(id,type)
     }
 }
 
-function getHHVarValue(id, logNotFound = true)
+function getHHScriptVars(id, logNotFound = true)
 {
     let environnement = "global";
     if (window.location.hostname == "www.hentaiheroes.com")
@@ -8768,7 +8769,7 @@ function getHHVarValue(id, logNotFound = true)
             {
                 logHHAuto("not found text for "+environnement+"/"+id);
             }
-            return "getHHVarValue not found";
+            return "getHHScriptVars not found";
         }
     }
 }
@@ -8798,8 +8799,8 @@ HHVariables["global"].eventIDReg = "event_";
 HHVariables["global"].mythicEventIDReg = "mythic_event_";
 HHVariables["global"].girlToolTipData = "data-new-girl-tooltip";
 HHVariables["global"].dailyRewardNotifRequest = "#contains_all header .currency .daily-reward-notif";
-HHVariables["global"].pageEditTeam = "change-team"
-HHVariables["HH_test"].pageEditTeam = "edit-team"
+HHVariables["global"].pageEditTeam = "edit-team"
+HHVariables["global"].IDpanelEditTeam = "#edit-team-page"
 
 const HC = 1;
 const CH = 2;
@@ -9592,11 +9593,11 @@ var updateData = function () {
         }
         if (Storage().HHAuto_Setting_autoSeason=="true")
         {
-            Tegzd += '<br>'+getTextForUI("autoSeasonTitle","elementText")+' : '+getHeroInfos('energies.kiss.amount')+'/'+getHeroInfos('energies.kiss.max_amount')+' ('+getTimeLeft('nextSeasonTime')+')';
+            Tegzd += '<br>'+getTextForUI("autoSeasonTitle","elementText")+' : '+getHHVars('Hero.energies.kiss.amount')+'/'+getHHVars('Hero.energies.kiss.max_amount')+' ('+getTimeLeft('nextSeasonTime')+')';
         }
         if (Storage().HHAuto_Setting_autoLeagues=="true")
         {
-            Tegzd += '<br>'+getTextForUI("autoLeaguesTitle","elementText")+' : '+getHeroInfos('energies.challenge.amount')+'/'+getHeroInfos('energies.challenge.max_amount')+' ('+getTimeLeft('nextLeaguesTime')+')';
+            Tegzd += '<br>'+getTextForUI("autoLeaguesTitle","elementText")+' : '+getHHVars('Hero.energies.challenge.amount')+'/'+getHHVars('Hero.energies.challenge.max_amount')+' ('+getTimeLeft('nextLeaguesTime')+')';
         }
         if (Storage().HHAuto_Setting_autoChamps=="true")
         {
@@ -10392,7 +10393,7 @@ var start = function () {
     // Add auto troll options
     var trollOptions = document.getElementById("autoTrollSelector");
 
-    for (var i=0;i<getHeroInfos('infos.questing.id_world');i++)
+    for (var i=0;i<getHHVars('Hero.infos.questing.id_world');i++)
     {
         var option = document.createElement("option");
         option.value=i;
