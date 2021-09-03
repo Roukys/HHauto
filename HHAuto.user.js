@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.38
+// @version      5.5.39
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -1647,10 +1647,10 @@ var CollectMoney = function()
     function ClickThem()
     {
         if (endCollectTS === -1)
-            {
+        {
 
-                endCollectTS = new Date().getTime() + 1000 * maxSecsForSalary;
-            }
+            endCollectTS = new Date().getTime() + 1000 * maxSecsForSalary;
+        }
         //logHHAuto('Need to click: '+ToClick.length);
         if (ToClick.length>0)
         {
@@ -8754,46 +8754,13 @@ function getTextForUI(id,type)
 function getHHScriptVars(id, logNotFound = true)
 {
     let environnement = "global";
-    if (window.location.hostname == "www.hentaiheroes.com")
+    if (HHknownEnvironnements[window.location.hostname] !== undefined)
     {
-        environnement= "HH_prod";
-    }
-    else if (window.location.hostname == "test.hentaiheroes.com")
-    {
-        environnement= "HH_test";
-    }
-    else if (window.location.hostname == "www.comixharem.com")
-    {
-        environnement= "CH_prod";
-    }
-    else if (window.location.hostname == "www.gayharem.com")
-    {
-        environnement= "GH_prod";
-    }
-    else if (window.location.hostname == "www.hornyheroes.com")
-    {
-        environnement= "SH_prod";
-    }
-    else if (window.location.hostname == "nutaku.comixharem.com")
-    {
-        environnement= "NCH_prod";
-    }
-    else if (window.location.hostname == "nutaku.haremheroes.com")
-    {
-        environnement= "NHH_prod";
-    }
-    else if (window.location.hostname == "nutaku.gayharem.com")
-    {
-        environnement= "NGH_prod";
-    }
-    else if (window.location.hostname == "thrix.hentaiheroes.com")
-    {
-        environnement= "THH_prod";
+        environnement= HHknownEnvironnements[window.location.hostname].name;
     }
     else
     {
-        fillHHPopUp("unknownURL","Game URL unknown",'<p>This HH URL is unknown to the script.<br>To add it please open an issue in <a href="">Github</a> with following informations : <br>Hostname : '+window.location.hostname+'<br>gameID : '+$('body[page][id]').attr('id')+'<br>You can also use this direct link : <a href="https://github.com/Roukys/HHauto/issues/new?template=enhancement_request.md&title=Support%20for%20'+window.location.hostname+'&body=Please%20add%20new%20URL%20with%20these%20infos%20%3A%20%0A-%20hostname%20%3A%20'+window.location.hostname+'%0A-%20gameID%20%3A%20'+$('body[page][id]').attr('id')+'%0AThanks">Github issue</a></p>');
-        environnement = "global";
+        fillHHPopUp("unknownURL","Game URL unknown",'<p>This HH URL is unknown to the script.<br>To add it please open an issue in <a href="https://github.com/Roukys/HHauto/issues" target="_blank">Github</a> with following informations : <br>Hostname : '+window.location.hostname+'<br>gameID : '+$('body[page][id]').attr('id')+'<br>You can also use this direct link : <a  target="_blank" href="https://github.com/Roukys/HHauto/issues/new?template=enhancement_request.md&title=Support%20for%20'+window.location.hostname+'&body=Please%20add%20new%20URL%20with%20these%20infos%20%3A%20%0A-%20hostname%20%3A%20'+window.location.hostname+'%0A-%20gameID%20%3A%20'+$('body[page][id]').attr('id')+'%0AThanks">Github issue</a></p>');
     }
     if (HHVariables[environnement] !== undefined && HHVariables[environnement][id] !== undefined)
     {
@@ -8815,27 +8782,27 @@ function getHHScriptVars(id, logNotFound = true)
         }
     }
 }
+let HHknownEnvironnements = {};
+HHknownEnvironnements["www.hentaiheroes.com"] = {name:"HH_prod",id:"hh_hentai"};
+HHknownEnvironnements["test.hentaiheroes.com"] = {name:"HH_test",id:"hh_hentai"};
+HHknownEnvironnements["www.comixharem.com"] = {name:"CH_prod",id:"hh_comix"};
+HHknownEnvironnements["www.gayharem.com"] = {name:"GH_prod",id:"hh_gay"};
+HHknownEnvironnements["www.hornyheroes.com"] = {name:"SH_prod",id:"hh_sexy"};
+HHknownEnvironnements["nutaku.comixharem.com"] = {name:"NCH_prod",id:"hh_comix"};
+HHknownEnvironnements["nutaku.haremheroes.com"] = {name:"NHH_prod",id:"hh_hentai"};
+HHknownEnvironnements["nutaku.gayharem.com"] = {name:"NGH_prod",id:"hh_gay"};
+HHknownEnvironnements["thrix.hentaiheroes.com"] = {name:"THH_prod",id:"hh_hentai"};
+HHknownEnvironnements["eroges.gayharem.com"] = {name:"EGH_prod",id:"hh_gay"};
+HHknownEnvironnements["eroges.hentaiheroes.com"] = {name:"EHH_prod",id:"hh_hentai"};
+
 
 var HHVariables = {};
 HHVariables["global"] = {};
-HHVariables["HH_prod"] = {};
-HHVariables["HH_prod"].gameID = "hh_hentai";
-HHVariables["HH_test"] = {};
-HHVariables["HH_test"].gameID = "hh_hentai";
-HHVariables["CH_prod"] = {};
-HHVariables["CH_prod"].gameID = "hh_comix";
-HHVariables["GH_prod"] = {};
-HHVariables["GH_prod"].gameID = "hh_gay";
-HHVariables["SH_prod"] = {};
-HHVariables["SH_prod"].gameID = "hh_sexy";
-HHVariables["NHH_prod"] = {};
-HHVariables["NHH_prod"].gameID = "hh_hentai";
-HHVariables["NCH_prod"] = {};
-HHVariables["NCH_prod"].gameID = "hh_comix";
-HHVariables["NGH_prod"] = {};
-HHVariables["NGH_prod"].gameID = "hh_gay";
-HHVariables["THH_prod"] = {};
-HHVariables["THH_prod"].gameID = "hh_hentai";
+if (HHknownEnvironnements[window.location.hostname] !== undefined)
+{
+    HHVariables[HHknownEnvironnements[window.location.hostname].name] = {};
+    HHVariables[HHknownEnvironnements[window.location.hostname].name].gameID = HHknownEnvironnements[window.location.hostname].id;
+}
 
 HHVariables["global"].eventIDReg = "event_";
 HHVariables["global"].mythicEventIDReg = "mythic_event_";
