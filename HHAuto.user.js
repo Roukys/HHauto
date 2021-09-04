@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.39
+// @version      5.5.40
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -6063,7 +6063,7 @@ var autoLoop = function () {
             busy =getFreeGreatPachinko();
 
         }
-        if (Storage().HHAuto_Setting_autoFreePachinko === "true" && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true" && checkTimer("nextPachinko2Time") && getHHScriptVars("gameID") !== HHVariables["SH_prod"].gameID ) {
+        if (Storage().HHAuto_Setting_autoFreePachinko === "true" && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true" && checkTimer("nextPachinko2Time") && getHHScriptVars("gameID") !== HHEnvVariables["SH_prod"].gameID ) {
             logHHAuto("Time to fetch Mythic Pachinko.");
             busy = true;
             busy = getFreeMythicPachinko();
@@ -8754,23 +8754,23 @@ function getTextForUI(id,type)
 function getHHScriptVars(id, logNotFound = true)
 {
     let environnement = "global";
-    if (HHknownEnvironnements[window.location.hostname] !== undefined)
+    if (HHKnownEnvironnements[window.location.hostname] !== undefined)
     {
-        environnement= HHknownEnvironnements[window.location.hostname].name;
+        environnement= HHKnownEnvironnements[window.location.hostname].name;
     }
     else
     {
         fillHHPopUp("unknownURL","Game URL unknown",'<p>This HH URL is unknown to the script.<br>To add it please open an issue in <a href="https://github.com/Roukys/HHauto/issues" target="_blank">Github</a> with following informations : <br>Hostname : '+window.location.hostname+'<br>gameID : '+$('body[page][id]').attr('id')+'<br>You can also use this direct link : <a  target="_blank" href="https://github.com/Roukys/HHauto/issues/new?template=enhancement_request.md&title=Support%20for%20'+window.location.hostname+'&body=Please%20add%20new%20URL%20with%20these%20infos%20%3A%20%0A-%20hostname%20%3A%20'+window.location.hostname+'%0A-%20gameID%20%3A%20'+$('body[page][id]').attr('id')+'%0AThanks">Github issue</a></p>');
     }
-    if (HHVariables[environnement] !== undefined && HHVariables[environnement][id] !== undefined)
+    if (HHEnvVariables[environnement] !== undefined && HHEnvVariables[environnement][id] !== undefined)
     {
-        return HHVariables[environnement][id];
+        return HHEnvVariables[environnement][id];
     }
     else
     {
-        if (HHVariables["global"] !== undefined && HHVariables["global"][id] !== undefined )
+        if (HHEnvVariables["global"] !== undefined && HHEnvVariables["global"][id] !== undefined )
         {
-            return HHVariables["global"][id];
+            return HHEnvVariables["global"][id];
         }
         else
         {
@@ -8782,34 +8782,34 @@ function getHHScriptVars(id, logNotFound = true)
         }
     }
 }
-let HHknownEnvironnements = {};
-HHknownEnvironnements["www.hentaiheroes.com"] = {name:"HH_prod",id:"hh_hentai"};
-HHknownEnvironnements["test.hentaiheroes.com"] = {name:"HH_test",id:"hh_hentai"};
-HHknownEnvironnements["www.comixharem.com"] = {name:"CH_prod",id:"hh_comix"};
-HHknownEnvironnements["www.gayharem.com"] = {name:"GH_prod",id:"hh_gay"};
-HHknownEnvironnements["www.hornyheroes.com"] = {name:"SH_prod",id:"hh_sexy"};
-HHknownEnvironnements["nutaku.comixharem.com"] = {name:"NCH_prod",id:"hh_comix"};
-HHknownEnvironnements["nutaku.haremheroes.com"] = {name:"NHH_prod",id:"hh_hentai"};
-HHknownEnvironnements["nutaku.gayharem.com"] = {name:"NGH_prod",id:"hh_gay"};
-HHknownEnvironnements["thrix.hentaiheroes.com"] = {name:"THH_prod",id:"hh_hentai"};
-HHknownEnvironnements["eroges.gayharem.com"] = {name:"EGH_prod",id:"hh_gay"};
-HHknownEnvironnements["eroges.hentaiheroes.com"] = {name:"EHH_prod",id:"hh_hentai"};
+let HHKnownEnvironnements = {};
+HHKnownEnvironnements["www.hentaiheroes.com"] = {name:"HH_prod",id:"hh_hentai"};
+HHKnownEnvironnements["test.hentaiheroes.com"] = {name:"HH_test",id:"hh_hentai"};
+HHKnownEnvironnements["www.comixharem.com"] = {name:"CH_prod",id:"hh_comix"};
+HHKnownEnvironnements["www.gayharem.com"] = {name:"GH_prod",id:"hh_gay"};
+HHKnownEnvironnements["www.hornyheroes.com"] = {name:"SH_prod",id:"hh_sexy"};
+HHKnownEnvironnements["nutaku.comixharem.com"] = {name:"NCH_prod",id:"hh_comix"};
+HHKnownEnvironnements["nutaku.haremheroes.com"] = {name:"NHH_prod",id:"hh_hentai"};
+HHKnownEnvironnements["nutaku.gayharem.com"] = {name:"NGH_prod",id:"hh_gay"};
+HHKnownEnvironnements["thrix.hentaiheroes.com"] = {name:"THH_prod",id:"hh_hentai"};
+HHKnownEnvironnements["eroges.gayharem.com"] = {name:"EGH_prod",id:"hh_gay"};
+HHKnownEnvironnements["eroges.hentaiheroes.com"] = {name:"EHH_prod",id:"hh_hentai"};
 
 
-var HHVariables = {};
-HHVariables["global"] = {};
-if (HHknownEnvironnements[window.location.hostname] !== undefined)
+var HHEnvVariables = {};
+HHEnvVariables["global"] = {};
+for (let i in HHKnownEnvironnements)
 {
-    HHVariables[HHknownEnvironnements[window.location.hostname].name] = {};
-    HHVariables[HHknownEnvironnements[window.location.hostname].name].gameID = HHknownEnvironnements[window.location.hostname].id;
+    HHEnvVariables[HHKnownEnvironnements[i].name] = {};
+    HHEnvVariables[HHKnownEnvironnements[i].name].gameID = HHKnownEnvironnements[i].id;
 }
 
-HHVariables["global"].eventIDReg = "event_";
-HHVariables["global"].mythicEventIDReg = "mythic_event_";
-HHVariables["global"].girlToolTipData = "data-new-girl-tooltip";
-HHVariables["global"].dailyRewardNotifRequest = "#contains_all header .currency .daily-reward-notif";
-HHVariables["global"].pageEditTeam = "edit-team"
-HHVariables["global"].IDpanelEditTeam = "#edit-team-page"
+HHEnvVariables["global"].eventIDReg = "event_";
+HHEnvVariables["global"].mythicEventIDReg = "mythic_event_";
+HHEnvVariables["global"].girlToolTipData = "data-new-girl-tooltip";
+HHEnvVariables["global"].dailyRewardNotifRequest = "#contains_all header .currency .daily-reward-notif";
+HHEnvVariables["global"].pageEditTeam = "edit-team"
+HHEnvVariables["global"].IDpanelEditTeam = "#edit-team-page"
 
 const HC = 1;
 const CH = 2;
