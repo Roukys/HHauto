@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.40
+// @version      5.5.41
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -2442,178 +2442,6 @@ function nRounding(num, digits, updown) {
     }
 }
 
-/*
-function simuFight(player, opponent) {
-    let playerEgoCheck = 0;
-
-    //Calculate opponent proc values, determine applicable alpha class and adjust starting ego values for proc
-    let opponentProcHCAddOrgasm = [
-        0,
-        Math.floor(opponent.atk * 0.25),
-        Math.floor(opponent.team[2] * 1.3 * 0.75),
-        Math.floor(opponent.team[3] * 1.3 * 0.75)
-    ];
-
-    let opponentAlphaClass = parseInt(opponent.alpha.class);
-
-    // crit.
-    if (opponentAlphaClass == HC) {
-        player.ego -= Math.floor(opponent.atk * 0.5);
-    }
-    if (opponentAlphaClass == CH) {
-        //opponent.ego += opponent.def * 2;
-
-        //CH bug
-        opponent.ego += 2 * Math.floor(opponent.atk/2);
-    }
-    if (opponentAlphaClass == KH) {
-        opponent.ego += Math.floor(opponent.ego * 0.1);
-    }
-
-    //Log opponent name and starting egos for sim
-    //console.log('Simulation log for: ' + opponent.name);
-    //console.log('Starting Egos adjusted for worst-case proc scenario (0 for you and 1 for the opponent):');
-    //console.log('Player Ego: ' + player.ego);
-    //console.log('Opponent Ego: ' + opponent.ego);
-
-    function play_turn(cur) {
-        let o = cur === player ? opponent : player;
-
-        if( cur.orgasm >= cur.excitement && cur.orgasmCount < 3) {
-            //Log results
-            //console.log('Round ' + (turns + 1) + ': ' + cur.text + ' orgasm! -' + Math.max(0, Math.round(cur.atk * 1.5 - o.def)));
-
-            orgasm(cur);
-        }
-        else {
-            o.ego -= Math.max(0, cur.atk - o.def);
-            cur.orgasm += cur.atk * 2;
-            //console.log('Round ' + (turns + 1) + ': ' + cur.text + ' hit! -' + Math.max(0, (cur.atk - o.def)));
-        }
-        //Log results
-        //console.log('after Round ' + (turns + 1) + ': ' + o.text + ' ego: ' + o.ego);
-    }
-
-    function orgasm(cur) {
-        let o = (cur === player) ? opponent : player;
-
-        ++cur.orgasmCount;
-        cur.orgasm = 0;
-
-        o.ego -= Math.max(0, Math.floor(cur.atk * 1.5 - o.def));
-
-        //CH Bug
-//         if(cur === player && opponentAlphaClass == CH) {
-//             if(cur.orgasmCount > 1) {
-//                 let carac_add = cur.team[cur.orgasmCount+1-1];
-//                 let added_atk = Math.floor(carac_add * 1.3);
-//                 opponent.ego += added_atk * 0.5 / 2;
-//             } else {
-//                 opponent.ego += cur.atk * 0.5 / 2;
-//             }
-//         }
-
-        if(cur.orgasmCount <= 2) {
-            let carac_add = cur.team[cur.orgasmCount+1];
-            let o_carac_add = o.team[cur.orgasmCount+1];
-
-            let added_atk = Math.floor(carac_add * 1.3);
-            let added_def = Math.floor(o_carac_add * 1.75);
-
-            cur.atk += added_atk;
-            o.def += added_def;
-
-            if(cur === player && opponentAlphaClass == CH) {
-                //opponent.ego += 2*added_def;
-
-                //CH bug
-                opponent.ego += 2*Math.floor(o_carac_add * 1.3 / 2);
-            }
-        }
-
-        if(cur === opponent && opponentAlphaClass == HC) {
-            player.ego -= opponentProcHCAddOrgasm[opponent.orgasmCount];
-            //console.log('Round ' + (turns + 1) + ': HC opponent possibility of Wild Burst on first orgasm! -' + opponentProcHCAddOrgasm[opponent.orgasmCount]);
-        }
-    }
-
-    //Simulate challenge
-    for (var turns = 0; turns < 99; turns++) {
-
-        if( player.ego <= 0) {
-            player.ego = 0;
-            break;
-        }
-        play_turn(player);
-
-        if (opponent.ego <= 0) {
-            //Check if victory is only a one-turn advantage
-            playerEgoCheck = player.ego;
-
-            //Orgasm
-            if (opponent.orgasm >= opponent.excitement) {
-                playerEgoCheck -= Math.max(0, Math.round(opponent.atk * 1.5 - player.def));
-                ++opponent.orgasmCount;
-
-                //Log results
-                //console.log('Round ' + (turns + 1) + ': Possibly next: Opponent orgasm! -' + Math.max(0, Math.round(opponent.atk * 1.5 - player.def)));
-
-                if (opponentAlphaClass == HC) {
-                    if (opponent.orgasmCount == 1) {
-                        playerEgoCheck -= opponentProcHCAddOrgasm[1];
-                        //console.log('Round ' + (turns + 1) + ': Possibly next: HC opponent possibility of Wild Burst on first orgasm! -' + opponentProcHCAddOrgasm[1]);
-                    }
-                    if (opponent.orgasmCount == 2) {
-                        playerEgoCheck -= opponentProcHCAddOrgasm[2];
-                        //console.log('Round ' + (turns + 1) + ': Possibly next: HC opponent possibility of Wild Burst on second orgasm! -' + opponentProcHCAddOrgasm[2]);
-                    }
-                    if (opponent.orgasmCount == 3) {
-                        playerEgoCheck -= opponentProcHCAddOrgasm[3];
-                        //console.log('Round ' + (turns + 1) + ': Possibly next: HC opponent possibility of Wild Burst on third orgasm! -' + opponentProcHCAddOrgasm[3]);
-                    }
-                }
-            }
-            //No orgasm
-            else {
-                playerEgoCheck -= opponent.atk - player.def;
-                //console.log('Round ' + (turns + 1) + ': Possibly next: Opponent hit! -' + Math.max(0, (opponent.atk - player.def)));
-            }
-
-            if (playerEgoCheck <= 0) {
-                //console.log('Close call! After Round ' + (turns + 1) + ': Player ego: ' + playerEgoCheck);
-            }
-
-            opponent.ego = 0;
-            break;
-        }
-
-        play_turn(opponent);
-    }
-
-    let matchRating = player.ego - opponent.ego;
-    let matchRatingStr = (matchRating >= 0 ? '+' : '') + Math.floor(matchRating);
-    let matchRatingClass = matchRating < 0 ? 'minus' : ((matchRating >= 0 && playerEgoCheck <= 0) ? 'close' : 'plus');
-
-    let points = matchRating >= 0 ? Math.min(25, 15+player.ego/player.originEgo*10) : Math.max(3, 3+(opponent.originEgo-opponent.ego)/opponent.originEgo*10);
-    let pointsInt = Math.floor( points * 10 )/10;
-    if( Math.floor( points ) == points )
-        pointsInt -= 1/10;
-    pointsInt += 1;
-    pointsInt = Math.floor(pointsInt);
-
-    let pointsStr = '+' + pointsInt;
-
-    return {
-        score: Math.floor(matchRating),
-        scoreStr: matchRatingStr,
-        scoreClass: matchRatingClass,
-        playerEgoCheck: playerEgoCheck,
-        points: pointsInt,
-        pointsStr: pointsStr
-    };
-}
-*/
-
 //simuFight credit:Tom208
 function simuFight(player, opponent) {
     let playerEgoCheck = 0;
@@ -3226,21 +3054,6 @@ var doLeagueBattle = function () {
             //prevent paranoia to wait for league
             sessionStorage.HHAuto_Temp_paranoiaLeagueBlocked="true";
             setTimer('nextLeaguesTime',getHHVars('Hero.energies.challenge.next_refresh_ts')+1);
-            //             for(var e in unsafeWindow.HHTimers.timers){
-            //                 try{
-            //                     if(unsafeWindow.HHTimers.timers[e].type=="energy_challenge")
-            //                     {
-            //                         ltime=unsafeWindow.HHTimers.timers[e];
-            //                     }
-            //                     if(unsafeWindow.HHTimers.timers[e].type=="challenge")
-            //                     {
-            //                         ltime=unsafeWindow.HHTimers.timers[e];
-            //                     }
-            //                 }
-            //                 catch(e){}
-            //             }
-            //             ltime = Number(ltime.remainingTime)+15;
-            //             setTimer('nextLeaguesTime',ltime);
             return;
         }
 
@@ -3465,29 +3278,17 @@ function getLeagueOpponentId(opponentsIDList,force=false)
             setTimer("paranoiaSwitch",addedTime);
         }
 
-        let playerStats = heroLeaguesData?heroLeaguesData:-1;
         // player stats
-        playerEgo = Math.round(playerStats===-1?getHHVars('Hero.infos.caracs.ego'):playerStats.caracs.ego);
-        //week 28 new battle modification
-        /*
-        playerDefHC = Math.round(getHHVars('Hero.infos.caracs.def_carac1'));
-        playerDefCH = Math.round(getHHVars('Hero.infos.caracs.def_carac2'));
-        playerDefKH = Math.round(getHHVars('Hero.infos.caracs.def_carac3'));
-        */
-        //End week 28 new battle modification
-        playerAtk = Math.round(playerStats===-1?getHHVars('Hero.infos.caracs.damage'):playerStats.caracs.damage);
+        playerEgo = Math.round(getHHVars('heroLeaguesData.caracs.ego'));
+
+        playerAtk = Math.round(getHHVars('heroLeaguesData.caracs.damage'));
         playerClass = $('div#leagues_left .icon').attr('carac');
-        //week 28 new battle modification
-        /*
-        playerAlpha = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=1]').attr(girlDataName));
-        playerBeta = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=2]').attr(girlDataName));
-        playerOmega = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=3]').attr(girlDataName));
-        */
+
         playerAlpha = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=0] img').attr(girlDataName));
         playerBeta = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=1] img').attr(girlDataName));
         playerOmega = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=2] img').attr(girlDataName));
-        //End week 28 new battle modification
-        playerDef = Math.round(playerStats===-1?getHHVars('Hero.infos.caracs.defense'):playerStats.caracs.defense);
+
+        playerDef = Math.round(getHHVars('heroLeaguesData.caracs.defense'));
         playerExcitement = Math.round((playerAlpha.caracs.carac1 + playerAlpha.caracs.carac2 + playerAlpha.caracs.carac3) * 28);
         getOpponents();
         return -1;
@@ -3551,24 +3352,19 @@ function getLeagueOpponentId(opponentsIDList,force=false)
                 }
 
                 if (opponentData.class == HC) {
-                    //week 28 new battle modification
-                    //playerDef = playerDefHC;
+
                     opponentAlphaAdd = opponentAlpha.caracs.carac1;
                     opponentBetaAdd = opponentBeta.caracs.carac1;
                     opponentOmegaAdd = opponentOmega.caracs.carac1;
                 }
                 if (opponentData.class == CH) {
-                    //week 28 new battle modification
-                    //playerDef = playerDefCH;
-                    //End week 28 new battle modification
+
                     opponentAlphaAdd = opponentAlpha.caracs.carac2;
                     opponentBetaAdd = opponentBeta.caracs.carac2;
                     opponentOmegaAdd = opponentOmega.caracs.carac2;
                 }
                 if (opponentData.class == KH) {
-                    //week 28 new battle modification
-                    //playerDef = playerDefKH;
-                    //End week 28 new battle modification
+
                     opponentAlphaAdd = opponentAlpha.caracs.carac3;
                     opponentBetaAdd = opponentBeta.caracs.carac3;
                     opponentOmegaAdd = opponentOmega.caracs.carac3;
@@ -4726,100 +4522,26 @@ function moduleSimLeague() {
             return;
         }
         // player stats
-        let playerStats = heroLeaguesData?heroLeaguesData:-1;
-        // player stats
-        playerEgo = Math.round(playerStats===-1?getHHVars('Hero.infos.caracs.ego'):playerStats.caracs.ego);
-        //week 28 new battle modification
-        /*
-        playerDefHC = Math.round(getHHVars('Hero.infos.caracs.def_carac1'));
-        playerDefCH = Math.round(getHHVars('Hero.infos.caracs.def_carac2'));
-        playerDefKH = Math.round(getHHVars('Hero.infos.caracs.def_carac3'));
-        */
-        playerDef = Math.round(playerStats===-1?getHHVars('Hero.infos.caracs.defense'):playerStats.caracs.defense);
-        //End week 28 new battle modification
-        playerAtk = Math.round(playerStats===-1?getHHVars('Hero.infos.caracs.damage'):playerStats.caracs.damage);
+        playerEgo = Math.round(getHHVars('heroLeaguesData.caracs.ego'));
+
+        playerDef = Math.round(getHHVars('heroLeaguesData.defense'));
+        playerAtk = Math.round(getHHVars('heroLeaguesData.damage'));
         playerClass = $('div#leagues_left .icon').attr('carac');
 
-        //week 28 new battle modification
-        /*
-        playerAlpha = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=1]').attr(girlDataName));
-        playerBeta = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=2]').attr(girlDataName));
-        playerOmega = JSON.parse($('div#leagues_left .girls_wrapper .team_girl[g=3]').attr(girlDataName));
-        */
         playerAlpha = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=0] img').attr(girlDataName));
         playerBeta = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=1] img').attr(girlDataName));
         playerOmega = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=2] img').attr(girlDataName));
-        //End week 28 new battle modification
         playerExcitement = Math.round((playerAlpha.caracs.carac1 + playerAlpha.caracs.carac2 + playerAlpha.caracs.carac3) * 28);
         // opponent stats
         opponentName = $('div#leagues_right div.player_block div.title').text();
-        //week 28 new battle modification
-        /*
-        opponentEgo = parseInt($('div#leagues_right div.lead_ego div:nth-child(2)').text().replace(/[^0-9]/gi, ''));*/
         opponentEgo = manageUnits($('div#leagues_right .stats_wrap div.carac-value div')[1].innerText);
-        /*
-        opponentDefHC = $('div#leagues_right div.stats_wrap div:nth-child(2)').text();
-        opponentDefCH = $('div#leagues_right div.stats_wrap div:nth-child(4)').text();
-        opponentDefKH = $('div#leagues_right div.stats_wrap div:nth-child(6)').text();
-        opponentAtk = $('div#leagues_right div.stats_wrap div:nth-child(8)').text();
-        */
         opponentAtk = manageUnits($('div#leagues_right .stats_wrap div.carac-value div')[0].innerText);
         opponentDef = manageUnits($('div#leagues_right .stats_wrap div.carac-value div')[2].innerText);
-        //End week 28 new battle modification
         opponentClass = $('div#leagues_right .icon').attr('carac');
-        //week 28 new battle modification
-        /*
-        opponentAlpha = JSON.parse($('div#leagues_right .girls_wrapper .team_girl[g=1]').attr(girlDataName));
-        opponentBeta = JSON.parse($('div#leagues_right .girls_wrapper .team_girl[g=2]').attr(girlDataName));
-        opponentOmega = JSON.parse($('div#leagues_right .girls_wrapper .team_girl[g=3]').attr(girlDataName));
-        */
         opponentAlpha = JSON.parse($('div#leagues_right .player_block .team-hexagon-container .team-member-container[data-team-member-position=0] img').attr(girlDataName));
         opponentBeta = JSON.parse($('div#leagues_right .player_block .team-hexagon-container .team-member-container[data-team-member-position=1] img').attr(girlDataName));
         opponentOmega = JSON.parse($('div#leagues_right .player_block .team-hexagon-container .team-member-container[data-team-member-position=2] img').attr(girlDataName));
-        //End week 28 new battle modification
         opponentExcitement = Math.round((opponentAlpha.caracs.carac1 + opponentAlpha.caracs.carac2 + opponentAlpha.caracs.carac3) * 28);
-
-        //week 28 new battle modification
-        //Determine each side's actual defense
-        /*
-        if (playerClass == 'class1') {
-            opponentDef = opponentDefHC;
-        }
-        if (playerClass == 'class2') {
-            opponentDef = opponentDefCH;
-        }
-        if (playerClass == 'class3') {
-            opponentDef = opponentDefKH;
-        }
-
-        if (opponentClass == 'class1') {
-            playerDef = playerDefHC;
-        }
-        if (opponentClass == 'class2') {
-            playerDef = playerDefCH;
-        }
-        if (opponentClass == 'class3') {
-            playerDef = playerDefKH;
-        }
-
-
-        if (opponentDef.includes('.') || opponentDef.includes(',')) {
-            opponentDef = parseInt(opponentDef.replace('K', '00').replace(/[^0-9]/gi, ''));
-        }
-        else {
-            opponentDef = parseInt(opponentDef.replace('K', '000').replace(/[^0-9]/gi, ''));
-        }
-
-
-        if (opponentAtk.includes('.') || opponentAtk.includes(',')) {
-            opponentAtk = parseInt(opponentAtk.replace('K', '00').replace(/[^0-9]/gi, ''));
-        }
-        else
-        {
-            opponentAtk = parseInt(opponentAtk.replace('K', '000').replace(/[^0-9]/gi, ''));
-        }
-        */
-        //End week 28 new battle modification
 
         let playerAlphaAdd;
         let playerBetaAdd;
@@ -4844,25 +4566,16 @@ function moduleSimLeague() {
         }
 
         if (opponentClass == ('class' + HC)) {
-            //week 28 new battle modification
-            //playerDef = playerDefHC;
-            //End week 28 new battle modification
             opponentAlphaAdd = opponentAlpha.caracs.carac1;
             opponentBetaAdd = opponentBeta.caracs.carac1;
             opponentOmegaAdd = opponentOmega.caracs.carac1;
         }
         if (opponentClass == ('class' + CH)) {
-            //week 28 new battle modification
-            //playerDef = playerDefCH;
-            //End week 28 new battle modification
             opponentAlphaAdd = opponentAlpha.caracs.carac2;
             opponentBetaAdd = opponentBeta.caracs.carac2;
             opponentOmegaAdd = opponentOmega.caracs.carac2;
         }
         if (opponentClass == ('class' + KH)) {
-            //week 28 new battle modification
-            //playerDef = playerDefKH;
-            //End week 28 new battle modification
             opponentAlphaAdd = opponentAlpha.caracs.carac3;
             opponentBetaAdd = opponentBeta.caracs.carac3;
             opponentOmegaAdd = opponentOmega.caracs.carac3;
@@ -5512,9 +5225,14 @@ function moduleSimSeasonBattle() {
         }
         //toremove after migration in prod
         var girlDataName=getHHScriptVars('girlToolTipData');
-        let playerStats = $('#player_defence_stat[ca-player-caracs]').length >0?JSON.parse($('#player_defence_stat[ca-player-caracs]').attr('ca-player-caracs')):-1;
+        let playerStats = {};
+        $('#season-arena .battle_hero .hero_stats .hero_stats_row div').each(function ()
+                                                                             {
+            playerStats[$('span[carac]',this).attr('carac')]=$('span:not([carac])',this)[0].innerText.replace(/[^0-9]/gi, '');
+        });
+
         // player stats
-        playerEgo = Math.round(playerStats===-1?getHHVars('Hero.infos.caracs.ego'):playerStats.ego);
+        playerEgo = Math.round(playerStats.ego);
         //week 28 new battle modification
         /*
         playerDefHC = Math.round(getHHVars('Hero.infos.caracs.def_carac1'));
@@ -5523,7 +5241,7 @@ function moduleSimSeasonBattle() {
         */
         //End week 28 new battle modification
 
-        playerAtk = Math.round(playerStats===-1?getHHVars('Hero.infos.caracs.damage'):playerStats.damage);
+        playerAtk = Math.round(playerStats.damage);
         playerClass = 'class'+getHHVars('Hero.infos.class');
         //playerClass = $('div#leagues_left .icon').attr('carac');
         //week 28 new battle modification
@@ -5572,7 +5290,7 @@ function moduleSimSeasonBattle() {
             let opponentAlpha = JSON.parse($($('div.season_arena_opponent_container .hero_team .team-hexagon-container .team-member-container[data-team-member-position=0] img')[index]).attr(girlDataName));
             let opponentBeta = JSON.parse($($('div.season_arena_opponent_container .hero_team .team-hexagon-container .team-member-container[data-team-member-position=1] img')[index]).attr(girlDataName));
             let opponentOmega = JSON.parse($($('div.season_arena_opponent_container .hero_team .team-hexagon-container .team-member-container[data-team-member-position=2] img')[index]).attr(girlDataName));
-            let playerDef = Math.round(playerStats===-1?getHHVars('Hero.infos.caracs.defense'):playerStats.defense);
+            let playerDef = Math.round(playerStats.def0);
             //End week 28 new battle modification
 
             var opponentExcitement = Math.round((opponentAlpha.caracs.carac1 + opponentAlpha.caracs.carac2 + opponentAlpha.caracs.carac3) * 28);
@@ -8109,7 +7827,7 @@ function parseEventPage(inTab="global")
                 return false;
             }
         }
-
+        queryEventTabCheck[0].setAttribute('parsed', 'true');
         logHHAuto("On event page.");
         clearEventData(eventID);
         //let eventsGirlz=[];
@@ -8810,6 +8528,9 @@ HHEnvVariables["global"].girlToolTipData = "data-new-girl-tooltip";
 HHEnvVariables["global"].dailyRewardNotifRequest = "#contains_all header .currency .daily-reward-notif";
 HHEnvVariables["global"].pageEditTeam = "edit-team"
 HHEnvVariables["global"].IDpanelEditTeam = "#edit-team-page"
+HHEnvVariables["HH_test"]["heroLeaguesData.caracs.ego"] = "heroLeaguesData.totalEgo"
+HHEnvVariables["HH_test"]["heroLeaguesData.caracs.damage"] = "heroLeaguesData.damage"
+HHEnvVariables["HH_test"]["heroLeaguesData.caracs.defense"] = "heroLeaguesData.defense"
 
 const HC = 1;
 const CH = 2;
