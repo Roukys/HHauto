@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.41
+// @version      5.5.42
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -4524,8 +4524,8 @@ function moduleSimLeague() {
         // player stats
         playerEgo = Math.round(getHHVars('heroLeaguesData.caracs.ego'));
 
-        playerDef = Math.round(getHHVars('heroLeaguesData.defense'));
-        playerAtk = Math.round(getHHVars('heroLeaguesData.damage'));
+        playerDef = Math.round(getHHVars('heroLeaguesData.caracs.defense'));
+        playerAtk = Math.round(getHHVars('heroLeaguesData.caracs.damage'));
         playerClass = $('div#leagues_left .icon').attr('carac');
 
         playerAlpha = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=0] img').attr(girlDataName));
@@ -10005,6 +10005,7 @@ var start = function () {
     // _End row of 3 columns_
     +'</div>';
     $('#contains_all').prepend(sMenu);
+    $('#contains_all')[0].style.zIndex = 9;
 
     GM_addStyle(''
                 +'#sMenuButton {'
