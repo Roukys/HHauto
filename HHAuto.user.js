@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.44
+// @version      5.5.45
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -3279,16 +3279,16 @@ function getLeagueOpponentId(opponentsIDList,force=false)
         }
 
         // player stats
-        playerEgo = Math.round(getHHVars('heroLeaguesData.caracs.ego'));
+        playerEgo = Math.round(getHHVars('heroLeaguesData.totalEgo'));
 
-        playerAtk = Math.round(getHHVars('heroLeaguesData.caracs.damage'));
+        playerAtk = Math.round(getHHVars('heroLeaguesData.damage'));
         playerClass = $('div#leagues_left .icon').attr('carac');
 
         playerAlpha = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=0] img').attr(girlDataName));
         playerBeta = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=1] img').attr(girlDataName));
         playerOmega = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=2] img').attr(girlDataName));
 
-        playerDef = Math.round(getHHVars('heroLeaguesData.caracs.defense'));
+        playerDef = Math.round(getHHVars('heroLeaguesData.defense'));
         playerExcitement = Math.round((playerAlpha.caracs.carac1 + playerAlpha.caracs.carac2 + playerAlpha.caracs.carac3) * 28);
         getOpponents();
         return -1;
@@ -4522,10 +4522,10 @@ function moduleSimLeague() {
             return;
         }
         // player stats
-        playerEgo = Math.round(getHHVars('heroLeaguesData.caracs.ego'));
+        playerEgo = Math.round(getHHVars('heroLeaguesData.totalEgo'));
 
-        playerDef = Math.round(getHHVars('heroLeaguesData.caracs.defense'));
-        playerAtk = Math.round(getHHVars('heroLeaguesData.caracs.damage'));
+        playerDef = Math.round(getHHVars('heroLeaguesData.defense'));
+        playerAtk = Math.round(getHHVars('heroLeaguesData.damage'));
         playerClass = $('div#leagues_left .icon').attr('carac');
 
         playerAlpha = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=0] img').attr(girlDataName));
