@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.43
+// @version      5.5.44
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -8528,9 +8528,6 @@ HHEnvVariables["global"].girlToolTipData = "data-new-girl-tooltip";
 HHEnvVariables["global"].dailyRewardNotifRequest = "#contains_all header .currency .daily-reward-notif";
 HHEnvVariables["global"].pageEditTeam = "edit-team"
 HHEnvVariables["global"].IDpanelEditTeam = "#edit-team-page"
-HHEnvVariables["HH_test"]["heroLeaguesData.caracs.ego"] = "heroLeaguesData.totalEgo"
-HHEnvVariables["HH_test"]["heroLeaguesData.caracs.damage"] = "heroLeaguesData.damage"
-HHEnvVariables["HH_test"]["heroLeaguesData.caracs.defense"] = "heroLeaguesData.defense"
 
 const HC = 1;
 const CH = 2;
