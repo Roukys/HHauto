@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.45
+// @version      5.5.46
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -2362,14 +2362,14 @@ var doClubChampionStuff=function()
         if ($(restTeamFilter).length > 0)
         {
             Timer = Number($(restTeamFilter).attr("data-rest-timer"));
-            let SecsToNextTimer = Number(Timer)-Math.ceil(new Date().getTime()/1000);
+            SecsToNextTimer = Number(Timer)-Math.ceil(new Date().getTime()/1000);
             noTimer = false;
             logHHAuto("Team is resting for : "+toHHMMSS(SecsToNextTimer));
         }
         if ($(restChampionFilter).length > 0)
         {
             Timer = Number($(restChampionFilter).attr("data-rest-timer"));
-            let SecsToNextTimer = Number(Timer)-Math.ceil(new Date().getTime()/1000);
+            SecsToNextTimer = Number(Timer)-Math.ceil(new Date().getTime()/1000);
             noTimer = false;
             logHHAuto("Champion is resting for : "+toHHMMSS(SecsToNextTimer));
         }
@@ -2396,7 +2396,6 @@ var doClubChampionStuff=function()
             }
 
         }
-
         if (SecsToNextTimer === -1 || SecsToNextTimer > 30*60)
         {
             setTimer('nextClubChampionTime',15*60);
