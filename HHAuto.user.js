@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.48
+// @version      5.5.49
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -9293,8 +9293,8 @@ HHStoredVars.HHAuto_Temp_paranoiaSpendings = { storage : "sessionStorage", type 
 HHStoredVars.HHAuto_Temp_pinfo = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_PopToStart = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_PopUnableToStart = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_showCalculatePower = { storage : "localStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_showInfo = { storage : "localStorage", type : "Temp"};
+//HHStoredVars.HHAuto_Temp_showCalculatePower = { storage : "localStorage", type : "Temp"};
+//HHStoredVars.HHAuto_Temp_showInfo = { storage : "localStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_storeContents = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_Timers = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_NextSwitch = { storage : "sessionStorage", type : "Temp"};
@@ -9391,7 +9391,7 @@ var updateData = function () {
         manageToolTipsDisplay(true);
     }
 
-    if (localStorage.HHAuto_Setting_settPerTab === "true")
+    /*if (localStorage.HHAuto_Setting_settPerTab === "true")
     {
         if ( localStorage.HHAuto_Temp_showInfo !== undefined)
         {
@@ -9438,11 +9438,11 @@ var updateData = function () {
 
     }
     else
-    {
-        Storage().HHAuto_Setting_showCalculatePower = document.getElementById("showCalculatePower").checked;
-        Storage().HHAuto_Setting_showInfo = document.getElementById("showInfo").checked;
+    {*/
+    Storage().HHAuto_Setting_showCalculatePower = document.getElementById("showCalculatePower").checked;
+    Storage().HHAuto_Setting_showInfo = document.getElementById("showInfo").checked;
 
-    }
+    //    }
 
     Storage().HHAuto_Setting_calculatePowerLimits = document.getElementById("calculatePowerLimits").value;
     Storage().HHAuto_Setting_autoChamps = document.getElementById("autoChamps").checked;
