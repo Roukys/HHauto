@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.47
+// @version      5.5.48
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -1320,7 +1320,7 @@ function collectAndUpdatePowerPlaces()
 
 
 
-        var filteredPops = Storage().HHAuto_Setting_autoPowerPlacesIndexFilter?Storage().HHAuto_Setting_autoPowerPlacesIndexFilter.split(";"):[];
+        var filteredPops = Storage().HHAuto_Setting_autoPowerPlacesIndexFilter;
         var popUnableToStart = sessionStorage.HHAuto_Temp_PopUnableToStart?sessionStorage.HHAuto_Temp_PopUnableToStart.split(";"):[];
         //logHHAuto("filteredPops : "+filteredPops);
         var PopToStart=[];
@@ -1641,7 +1641,7 @@ var CollectMoney = function()
     var Clicked=[];
     var ToClick=[];
     var endCollectTS = -1;
-    var maxSecsForSalary = Number(Storage().HHAuto_Setting_autoSalaryMaxTimer?Storage().HHAuto_Setting_autoSalaryMaxTimer:"1200");
+    var maxSecsForSalary = Number(Storage().HHAuto_Setting_autoSalaryMaxTimer);
     var collectedGirlzNb = 0;
     var collectedMoney = 0;
     function ClickThem()
@@ -1758,7 +1758,7 @@ var CollectMoney = function()
             {
                 if (allCollected)
                 {
-                    let st=Number(Storage().HHAuto_Setting_autoSalaryMinTimer?Storage().HHAuto_Setting_autoSalaryMinTimer:"120");
+                    let st=Number(Storage().HHAuto_Setting_autoSalaryMinTimer);
                     //set minimum to user min wait time
                     if(closestTime <= st )
                     {
@@ -1813,7 +1813,7 @@ var getSalary = function () {
                     };
                     salaryButton.click();
                     logHHAuto('Collected all Premium salary');
-                    setTimer('nextSalaryTime',Number(Storage().HHAuto_Setting_autoSalaryMinTimer?Storage().HHAuto_Setting_autoSalaryMinTimer:"120")+1);
+                    setTimer('nextSalaryTime',Number(Storage().HHAuto_Setting_autoSalaryMinTimer)+1);
                     return true;
                 }
                 else if ( getButtonClass === "orange_button_L")
@@ -1828,13 +1828,13 @@ var getSalary = function () {
                 else
                 {
                     logHHAuto("Unknown salary button color : "+getButtonClass);
-                    setTimer('nextSalaryTime',Number(Storage().HHAuto_Setting_autoSalaryMinTimer?Storage().HHAuto_Setting_autoSalaryMinTimer:"120")+1);
+                    setTimer('nextSalaryTime',Number(Storage().HHAuto_Setting_autoSalaryMinTimer)+1);
                 }
             }
             else
             {
                 logHHAuto("No salary to collect");
-                setTimer('nextSalaryTime',Number(Storage().HHAuto_Setting_autoSalaryMinTimer?Storage().HHAuto_Setting_autoSalaryMinTimer:"120")+1);
+                setTimer('nextSalaryTime',Number(Storage().HHAuto_Setting_autoSalaryMinTimer)+1);
             }
         }
         else
@@ -1862,7 +1862,7 @@ var doStatUpgrades=function()
     var stats=[getHHVars('Hero.infos.carac1'),getHHVars('Hero.infos.carac2'),getHHVars('Hero.infos.carac3')];
     var money=getHHVars('Hero.infos.soft_currency');
     var count=0;
-    var M=Storage().HHAuto_Setting_autoStats?Number(Storage().HHAuto_Setting_autoStats):500000000;
+    var M=Number(Storage().HHAuto_Setting_autoStats);
     var MainStat=stats[getHHVars('Hero.infos.class')-1];
     var Limit=getHHVars('Hero.infos.level')*30;//getHHVars('Hero.infos.level')*19+Math.min(getHHVars('Hero.infos.level'),25)*21;
     var carac=getHHVars('Hero.infos.class');
@@ -2382,7 +2382,7 @@ var doClubChampionStuff=function()
             {
                 ticketUsed = Number($(ticketsUsedRequest)[0].innerText.replace(/[^0-9]/gi, ''));
             }
-            let maxTickets = Number(Storage().HHAuto_Setting_autoClubChampMax?Storage().HHAuto_Setting_autoClubChampMax:"999");
+            let maxTickets = Number(Storage().HHAuto_Setting_autoClubChampMax);
             //console.log(maxTickets, ticketUsed);
             if (maxTickets > ticketUsed )
             {
@@ -4369,7 +4369,7 @@ var flipParanoia=function()
 {
     var burst=getBurst();
 
-    var Setting=Storage().HHAuto_Temp_paranoiaSettings;
+    var Setting=Storage().HHAuto_Setting_paranoiaSettings;
 
     var S1=Setting.split('/').map(s=>s.split('|').map(s=>s.split(':')));
 
@@ -5827,7 +5827,7 @@ var autoLoop = function () {
                     busy = true;
                     busy = collectAndUpdatePowerPlaces();
                 }
-                var indexes=(Storage().HHAuto_Setting_autoPowerPlacesIndexFilter?Storage().HHAuto_Setting_autoPowerPlacesIndexFilter:"").split(";");
+                var indexes=(Storage().HHAuto_Setting_autoPowerPlacesIndexFilter).split(";");
 
                 popToStart = sessionStorage.HHAuto_Temp_PopToStart?JSON.parse(sessionStorage.HHAuto_Temp_PopToStart):[];
                 //logHHAuto("pop2:"+popToStart);
@@ -6160,7 +6160,7 @@ var autoLoop = function () {
     if(isNaN(Storage().HHAuto_Temp_autoLoopTimeMili))
     {
         logHHAuto("AutoLoopTimeMili is not a number.");
-        setDefaults();
+        setDefaults(true);
     }
     else
     {
@@ -7848,7 +7848,7 @@ function parseEventPage(inTab="global")
         //let eventsGirlz=[];
         let eventList = isJSON(sessionStorage.HHAuto_Temp_eventsList)?JSON.parse(sessionStorage.HHAuto_Temp_eventsList):{};
         let eventsGirlz = isJSON(sessionStorage.HHAuto_Temp_eventsGirlz)?JSON.parse(sessionStorage.HHAuto_Temp_eventsGirlz):[];
-        let Priority=(Storage().HHAuto_Setting_eventTrollOrder?Storage().HHAuto_Setting_eventTrollOrder:"").split(";");
+        let Priority=(Storage().HHAuto_Setting_eventTrollOrder).split(";");
 
         let refreshTimer = 3600;
         if (eventID.startsWith(getHHScriptVars('eventIDReg')) && Storage().HHAuto_Setting_plusEvent==="true")
@@ -8241,36 +8241,14 @@ function extractHHVars(dataToSave,extractLog = false,extractTemp=true,extractSet
     let currentStorage = localStorage.HHAuto_Setting_settPerTab==="true"?sessionStorage:localStorage;
     let variableName;
     let storageItem;
-    if (extractSettings)
+    let varType;
+    for (let i of Object.keys(HHStoredVars))
     {
-        for (let i in HHVars_Settings)
+        varType = HHStoredVars[i].type;
+        if (varType === "Setting" && extractSettings || varType === "Temp" && extractTemp)
         {
-            storageType = HHVars_Settings[i].split(".")[0];
-            variableName = HHVars_Settings[i].split(".")[1];
-            switch (storageType)
-            {
-                case 'Storage()' :
-                    storageItem = currentStorage;
-                    storageName = currentStorageName;
-                    break;
-                case 'localStorage' :
-                    storageItem = localStorage;
-                    storageName = 'localStorage';
-                    break;
-                case 'sessionStorage' :
-                    storageItem = sessionStorage;
-                    storageName = 'sessionStorage';
-                    break;
-            }
-            dataToSave[storageName+"."+variableName] = storageItem.getItem(variableName);
-        }
-    }
-    if (extractTemp)
-    {
-        for (let i in HHVars_Temp)
-        {
-            storageType = HHVars_Temp[i].split(".")[0];
-            variableName = HHVars_Temp[i].split(".")[1];
+            storageType = HHStoredVars[i].storage;
+            variableName = i;
             switch (storageType)
             {
                 case 'Storage()' :
@@ -8291,10 +8269,10 @@ function extractHHVars(dataToSave,extractLog = false,extractTemp=true,extractSet
                 dataToSave[storageName+"."+variableName] = storageItem.getItem(variableName);
             }
         }
-        if (extractLog)
-        {
-            dataToSave["sessionStorage.HHAuto_Temp_Logging"] = JSON.parse(sessionStorage.getItem('HHAuto_Temp_Logging'));
-        }
+    }
+    if (extractLog)
+    {
+        dataToSave["sessionStorage.HHAuto_Temp_Logging"] = JSON.parse(sessionStorage.getItem('HHAuto_Temp_Logging'));
     }
     return dataToSave;
 }
@@ -8424,7 +8402,7 @@ function debugDeleteTempVars()
     var storageItem;
 
     debugDeleteAllVars();
-    setDefaults();
+    setDefaults(true);
     var keys=Object.keys(dataToSave);
     for(var i of keys)
     {
@@ -8442,8 +8420,216 @@ function debugDeleteTempVars()
         logHHAuto(i+':'+ dataToSave[i]);
         storageItem[variableName] = dataToSave[i];
     }
-
 }
+
+function getUserHHStoredVarDefault(inVarName)
+{
+    if (isJSON(localStorage.HHAuto_Setting_saveDefaults))
+    {
+        let currentDefaults = JSON.parse(localStorage.HHAuto_Setting_saveDefaults);
+        if (currentDefaults[inVarName] !== undefined)
+        {
+            return currentDefaults[inVarName];
+        }
+    }
+    return inVarName;
+}
+
+function saveHHStoredVarsDefaults()
+{
+    var dataToSave={};
+    extractHHVars(dataToSave,false,false,true);
+    let savedHHStoredVars={};
+    for(var i of Object.keys(dataToSave))
+    {
+        let variableName = i.split(".")[1];
+        if (variableName !== "HHAuto_Setting_saveDefaults")
+        {
+            savedHHStoredVars[variableName] = dataToSave[i];
+        }
+    }
+    localStorage.HHAuto_Setting_saveDefaults = JSON.stringify(savedHHStoredVars);
+    logHHAuto("HHStoredVar defaults saved !");
+}
+
+function setHHStoredVarToDefault(inVarName)
+{
+    if (HHStoredVars[inVarName] !== undefined)
+    {
+        if (HHStoredVars[inVarName].default !== undefined && HHStoredVars[inVarName].storage !== undefined)
+        {
+            let storageItem;
+            switch (HHStoredVars[inVarName].storage)
+            {
+                case 'localStorage' :
+                    storageItem = localStorage;
+                    break;
+                case 'sessionStorage' :
+                    storageItem = sessionStorage;
+                    break;
+                case 'Storage()' :
+                    storageItem = Storage();
+                    break;
+            }
+            let userDefinedDefault = getUserHHStoredVarDefault(inVarName);
+            if (userDefinedDefault !== inVarName)
+            {
+                logHHAuto("HHStoredVar "+inVarName+" set to user default value : "+userDefinedDefault);
+                storageItem[inVarName] = userDefinedDefault;
+            }
+            else
+            {
+                logHHAuto("HHStoredVar "+inVarName+" set to default value : "+HHStoredVars[inVarName].default);
+                storageItem[inVarName] = HHStoredVars[inVarName].default;
+            }
+        }
+        else
+        {
+            logHHAuto("HHStoredVar "+inVarName+" either have no storage or default defined.");
+        }
+    }
+    else
+    {
+        logHHAuto("HHStoredVar "+inVarName+" doesn't exist.");
+    }
+}
+
+function getHHStoredVarDefault(inVarName)
+{
+    if (HHStoredVars[inVarName] !== undefined)
+    {
+        if (HHStoredVars[inVarName].default !== undefined)
+        {
+            return HHStoredVars[inVarName].default;
+        }
+        else
+        {
+            logHHAuto("HHStoredVar "+inVarName+" either have no default defined.");
+        }
+    }
+    else
+    {
+        logHHAuto("HHStoredVar "+inVarName+" doesn't exist.");
+    }
+}
+
+var setDefaults = function (force = false)
+{
+
+    for (let i of Object.keys(HHStoredVars))
+    {
+        if (HHStoredVars[i].default !== undefined )
+        {
+            if (HHStoredVars[i].storage !== undefined )
+            {
+                let storageItem;
+                switch (HHStoredVars[i].storage)
+                {
+                    case 'localStorage' :
+                        storageItem = localStorage;
+                        break;
+                    case 'sessionStorage' :
+                        storageItem = sessionStorage;
+                        break;
+                    case 'Storage()' :
+                        storageItem = Storage();
+                        break;
+                }
+                if (storageItem[i] === undefined || force)
+                {
+                    setHHStoredVarToDefault(i);
+                }
+            }
+            else
+            {
+                logHHAuto("HHStoredVar "+i+" has no storage defined.");
+            }
+        }
+    }
+    /*Storage().HHAuto_Setting_autoSalary = "false";
+    Storage().HHAuto_Setting_autoSalaryMinTimer = "120";
+    Storage().HHAuto_Setting_autoSalaryMaxTimer = "1200";
+    Storage().HHAuto_Setting_autoContest = "false";
+    Storage().HHAuto_Setting_autoMission = "false";
+    Storage().HHAuto_Setting_autoPowerPlaces = "false";
+    Storage().HHAuto_Setting_autoPowerPlacesAll = "false";
+    Storage().HHAuto_Setting_autoPowerPlacesIndexFilter = "1;2;3";
+    Storage().HHAuto_Setting_autoMissionC = "false";
+    Storage().HHAuto_Setting_autoMissionKFirst = "false";
+    Storage().HHAuto_Setting_autoLeagues = "false";
+    Storage().HHAuto_Setting_autoLeaguesCollect = "false";
+    Storage().HHAuto_Setting_autoLeaguesPowerCalc = "false";
+    Storage().HHAuto_Setting_autoLeaguesAllowWinCurrent = "false";
+    //Storage().HHAuto_Setting_autoLeaguesMaxRank = "0";
+    Storage().HHAuto_Setting_collectDailyRewards = "false";
+    sessionStorage.HHAuto_Temp_leaguesTarget = "9";
+    Storage().HHAuto_Setting_autoStats = add1000sSeparator("500000000");
+
+    sessionStorage.HHAuto_Temp_autoLoop = "true";
+    sessionStorage.HHAuto_Temp_userLink = "none";
+    Storage().HHAuto_Temp_autoLoopTimeMili = "500";
+    Storage().HHAuto_Setting_autoQuest = "false";
+    Storage().HHAuto_Setting_autoTrollBattle = "false";
+    Storage().HHAuto_Setting_plusEvent = "false";
+    Storage().HHAuto_Setting_plusEventMythic = "false";
+    //Storage().HHAuto_Setting_eventMythicPrio = "false";
+    Storage().HHAuto_Setting_useX50Fights= "false";
+    Storage().HHAuto_Setting_useX10Fights= "false";
+    Storage().HHAuto_Setting_useX10FightsAllowNormalEvent="false";
+    Storage().HHAuto_Setting_useX50FightsAllowNormalEvent="false";
+    Storage().HHAuto_Setting_minShardsX10="10";
+    Storage().HHAuto_Setting_minShardsX50="50";
+    //Storage().HHAuto_Setting_autoTrollMythicByPassThreshold = "false";
+    Storage().HHAuto_Setting_autoTrollMythicByPassParanoia = "false";
+    Storage().HHAuto_Setting_eventTrollOrder="";
+    Storage().HHAuto_Setting_buyCombTimer="16";
+    Storage().HHAuto_Setting_buyMythicCombTimer="16";
+    Storage().HHAuto_Setting_autoSeason = "false";
+    Storage().HHAuto_Setting_autoSeasonCollect = "false";
+    Storage().HHAuto_Setting_SeasonMaskRewards = "false";
+    sessionStorage.HHAuto_Temp_battlePowerRequired = "0";
+    sessionStorage.HHAuto_Temp_questRequirement = "none";
+    Storage().HHAuto_Temp_freshStart = "no";
+    Storage().HHAuto_Setting_autoChamps="false";
+    Storage().HHAuto_Setting_autoClubChamp="false";
+    Storage().HHAuto_Setting_autoClubForceStart="false";
+    Storage().HHAuto_Setting_autoClubChampMax = "999";
+    Storage().HHAuto_Setting_autoChampsUseEne="false";
+    Storage().HHAuto_Setting_autoChampsFilter="1;2;3;4;5;6";
+    Storage().HHAuto_Setting_autoFreePachinko = "false";
+    Storage().HHAuto_Setting_autoStats = add1000sSeparator("500000000");
+    Storage().HHAuto_Setting_autoStatsSwitch="false";
+    Storage().HHAuto_Setting_autoExp = add1000sSeparator("500000000");
+    Storage().HHAuto_Setting_autoExpW = "false";
+    Storage().HHAuto_Setting_MaxExp = add1000sSeparator("10000");
+    Storage().HHAuto_Setting_autoAff = add1000sSeparator("500000000");
+    Storage().HHAuto_Setting_autoAffW = "false";
+    Storage().HHAuto_Setting_MaxAff = add1000sSeparator("50000");
+    Storage().HHAuto_Setting_autoLGM = add1000sSeparator("500000000");
+    Storage().HHAuto_Setting_autoLGMW = "false";
+    Storage().HHAuto_Setting_autoLGR = add1000sSeparator("500000000");
+    Storage().HHAuto_Setting_autoLGRW = "false";
+    //Storage().HHAuto_Setting_autoEGM = add1000sSeparator("500000000");
+    //Storage().HHAuto_Setting_autoEGMW = "false";
+    Storage().HHAuto_Setting_autoBuyBoostersFilter = "B1;B2;B3;B4";
+    Storage().HHAuto_Setting_autoBuyBoosters = "false";
+    Storage().HHAuto_Setting_showMarketTools = "false";
+    Storage().HHAuto_Setting_paranoia="true";
+    Storage().HHAuto_Setting_paranoiaSpendsBefore="false";
+    Storage().HHAuto_Setting_showTooltips = "true";
+    Storage().HHAuto_Setting_calculatePowerLimits = "default";
+    Storage().HHAuto_Setting_autoTrollThreshold="0";
+    Storage().HHAuto_Setting_autoQuestThreshold="0";
+    Storage().HHAuto_Setting_autoLeaguesThreshold="0";
+    Storage().HHAuto_Setting_autoSeasonThreshold="0";
+
+    Storage().HHAuto_Setting_spendKobans0="false";
+    Storage().HHAuto_Setting_autoSeasonPassReds ="false";
+    Storage().HHAuto_Setting_paranoiaSettings="140-320/Sleep:28800-30400|Active:250-460|Casual:1500-2700/6:Sleep|8:Casual|10:Active|12:Casual|14:Active|18:Casual|20:Active|22:Casual|24:Sleep";
+    Storage().HHAuto_Setting_master="false";
+    Storage().HHAuto_Setting_PoAMaskRewards = "false";
+    */
+};
 
 
 function getTextForUI(id,type)
@@ -8605,7 +8791,7 @@ HHAuto_ToolTips.en.calculatePowerLimits = { elementText: "Own limits", tooltip :
 HHAuto_ToolTips.en.showInfo = { elementText: "Show info", tooltip : "if enabled : show info on script values and next runs"};
 HHAuto_ToolTips.en.autoSalaryCheckbox = { elementText: "Salary", tooltip : "(Integer)<br>if enabled :<br>Collect salaries every X secs"};
 HHAuto_ToolTips.en.autoSalaryMinTimer = { elementText: "Minimum wait", tooltip : "(Integer)<br>X secs to next Salary collection"};
-HHAuto_ToolTips.en.autoSalaryMaxTimer = { elementText: "Maximum wait", tooltip : "(Integer)<br>X secs to collect Salary, before stopping."};
+HHAuto_ToolTips.en.autoSalaryMaxTimer = { elementText: "Max. collect time", tooltip : "(Integer)<br>X secs to collect Salary, before stopping."};
 HHAuto_ToolTips.en.autoMissionCheckbox = { elementText: "Mission", tooltip : "if enabled : Automatically do missions"};
 HHAuto_ToolTips.en.autoMissionCollect = { elementText: "Collect", tooltip : "if enabled : Automatically collect missions after start of new competition."};
 HHAuto_ToolTips.en.autoTrollTitle = { elementText: "Battle Troll"};
@@ -8744,7 +8930,7 @@ HHAuto_ToolTips.en.AssignTopTeam  = {elementText : "Assign first 7", tooltip : "
 HHAuto_ToolTips.en.ExportGirlsData = {elementText : "⤓", tooltip : "Export Girls data."};
 HHAuto_ToolTips.en.menuRemoveMaxed = {elementText : "Remove maxed", tooltip : "Remove maxed girls"};
 HHAuto_ToolTips.en.collectDailyRewards = {elementText : "Collect daily", tooltip : "Collect daily rewards if not collected 1 hour before end of HH day."};
-
+HHAuto_ToolTips.en.saveDefaults = {elementText : "Save defaults", tooltip : "Save your own defaults values for new tabs."};
 
 HHAuto_ToolTips.fr = {};
 HHAuto_ToolTips.fr.saveDebug = { elementText: "Sauver log", tooltip : "Sauvegarder un fichier journal de débogage."};
@@ -8998,128 +9184,124 @@ HHAuto_ToolTips.es.timerResetNoTimer = { elementText: "No hay temporizador selec
 var Trollz = getTextForUI("trollzList","elementText");  //["Latest","Dark Lord","Ninja Spy","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson\'s Crew","Pandora witch","Nike","Sake"];
 var Leagues = getTextForUI("leaguesList","elementText");  //["Wanker I","Wanker II","Wanker III","Sexpert I","Sexpert II","Sexpert III","Dicktator I","Dicktator II","Dicktator III"];
 var Timers = {};
-var HHVars_Settings=[
-    "Storage().HHAuto_Setting_autoAff",
-    "Storage().HHAuto_Setting_autoAffW",
-    "Storage().HHAuto_Setting_autoBuyBoosters",
-    "Storage().HHAuto_Setting_autoBuyBoostersFilter",
-    "Storage().HHAuto_Setting_autoClubChamp",
-    "Storage().HHAuto_Setting_autoClubForceStart",
-    "Storage().HHAuto_Setting_autoChamps",
-    "Storage().HHAuto_Setting_autoChampsFilter",
-    "Storage().HHAuto_Setting_autoChampsUseEne",
-    "Storage().HHAuto_Setting_autoContest",
-    //"Storage().HHAuto_Setting_autoEGM",
-    //"Storage().HHAuto_Setting_autoEGMW",
-    "Storage().HHAuto_Setting_autoExp",
-    "Storage().HHAuto_Setting_autoExpW",
-    "Storage().HHAuto_Setting_autoFreePachinko",
-    "Storage().HHAuto_Setting_autoLeagues",
-    "Storage().HHAuto_Setting_autoLeaguesCollect",
-    //"Storage().HHAuto_Setting_autoLeaguesMaxRank",
-    "Storage().HHAuto_Setting_autoLeaguesPowerCalc",
-    "Storage().HHAuto_Setting_autoLeaguesSelectedIndex",
-    "Storage().HHAuto_Setting_autoLeaguesThreshold",
-    "Storage().HHAuto_Setting_autoLeaguesAllowWinCurrent",
-    "Storage().HHAuto_Setting_autoLGM",
-    "Storage().HHAuto_Setting_autoLGMW",
-    "Storage().HHAuto_Setting_autoLGR",
-    "Storage().HHAuto_Setting_autoLGRW",
-    "Storage().HHAuto_Setting_autoMission",
-    "Storage().HHAuto_Setting_autoMissionC",
-    "Storage().HHAuto_Setting_autoPowerPlaces",
-    "Storage().HHAuto_Setting_autoPowerPlacesAll",
-    "Storage().HHAuto_Setting_autoPowerPlacesIndexFilter",
-    "Storage().HHAuto_Setting_autoQuest",
-    "Storage().HHAuto_Setting_autoQuestThreshold",
-    "Storage().HHAuto_Setting_autoSalary",
-    "Storage().HHAuto_Setting_autoSalaryMinTimer",
-    "Storage().HHAuto_Setting_autoSalaryMaxTimer",
-    "Storage().HHAuto_Setting_autoSeason",
-    "Storage().HHAuto_Setting_autoSeasonCollect",
-    "Storage().HHAuto_Setting_autoSeasonPassReds",
-    "Storage().HHAuto_Setting_autoSeasonThreshold",
-    "Storage().HHAuto_Setting_autoStats",
-    "Storage().HHAuto_Setting_autoTrollBattle",
-    //"Storage().HHAuto_Setting_autoTrollMythicByPassThreshold",
-    "Storage().HHAuto_Setting_autoTrollMythicByPassParanoia",
-    "Storage().HHAuto_Setting_autoTrollSelectedIndex",
-    "Storage().HHAuto_Setting_autoTrollThreshold",
-    "Storage().HHAuto_Setting_buyCombat",
-    "Storage().HHAuto_Setting_buyCombTimer",
-    "Storage().HHAuto_Setting_buyMythicCombat",
-    "Storage().HHAuto_Setting_buyMythicCombTimer",
-    "Storage().HHAuto_Setting_calculatePowerLimits",
-    //"Storage().HHAuto_Setting_eventMythicPrio",
-    "Storage().HHAuto_Setting_eventTrollOrder",
-    "Storage().HHAuto_Setting_kobanBank",
-    "Storage().HHAuto_Setting_master",
-    "Storage().HHAuto_Setting_MaxAff",
-    "Storage().HHAuto_Setting_MaxExp",
-    "Storage().HHAuto_Setting_paranoia",
-    "Storage().HHAuto_Setting_paranoiaSpendsBefore",
-    "Storage().HHAuto_Setting_plusEvent",
-    "Storage().HHAuto_Setting_plusEventMythic",
-    "localStorage.HHAuto_Setting_settPerTab",
-    "Storage().HHAuto_Setting_showCalculatePower",
-    "Storage().HHAuto_Setting_showInfo",
-    "Storage().HHAuto_Setting_spendKobans0",
-    //"Storage().HHAuto_Setting_spendKobans1",
-    //"Storage().HHAuto_Setting_spendKobans2",
-    "Storage().HHAuto_Setting_SeasonMaskRewards",
-    "Storage().HHAuto_Setting_autoClubChampMax",
-    "Storage().HHAuto_Setting_autoMissionKFirst",
-    "Storage().HHAuto_Setting_PoAMaskRewards",
-    "Storage().HHAuto_Setting_showTooltips",
-    "Storage().HHAuto_Setting_showMarketTools",
-    "Storage().HHAuto_Setting_autoStatsSwitch",
-    "Storage().HHAuto_Setting_useX50Fights",
-    "Storage().HHAuto_Setting_useX50FightsAllowNormalEvent",
-    "Storage().HHAuto_Setting_useX10Fights",
-    "Storage().HHAuto_Setting_useX10FightsAllowNormalEvent",
-    "Storage().HHAuto_Setting_minShardsX10",
-    "Storage().HHAuto_Setting_minShardsX50",
-    "Storage().HHAuto_Setting_collectDailyRewards"];
 
-var HHVars_Temp=[
-    "sessionStorage.HHAuto_Temp_Logging",
-    "sessionStorage.HHAuto_Temp_trollToFight",
-    "sessionStorage.HHAuto_Temp_autoLoop",
-    "Storage().HHAuto_Temp_autoLoopTimeMili",
-    "sessionStorage.HHAuto_Temp_autoTrollBattleSaveQuest",
-    "sessionStorage.HHAuto_Temp_battlePowerRequired",
-    "sessionStorage.HHAuto_Temp_burst",
-    "sessionStorage.HHAuto_Temp_charLevel",
-    "sessionStorage.HHAuto_Temp_eventsGirlz",
-    "sessionStorage.HHAuto_Temp_eventGirl",
-    "sessionStorage.HHAuto_Temp_fought",
-    "Storage().HHAuto_Temp_freshStart",
-    "sessionStorage.HHAuto_Temp_haveAff",
-    "sessionStorage.HHAuto_Temp_haveExp",
-    "sessionStorage.HHAuto_Temp_LeagueOpponentList",
-    "sessionStorage.HHAuto_Temp_leaguesTarget",
-    "sessionStorage.HHAuto_Temp_opponentsListExpirationDate",
-    "sessionStorage.HHAuto_Temp_paranoiaLeagueBlocked",
-    "sessionStorage.HHAuto_Temp_paranoiaQuestBlocked",
-    "Storage().HHAuto_Temp_paranoiaSettings",
-    "sessionStorage.HHAuto_Temp_paranoiaSpendings",
-    "sessionStorage.HHAuto_Temp_pinfo",
-    "sessionStorage.HHAuto_Temp_PopToStart",
-    "sessionStorage.HHAuto_Temp_PopUnableToStart",
-    "sessionStorage.HHAuto_Temp_questRequirement",
-    "localStorage.HHAuto_Temp_showCalculatePower",
-    "localStorage.HHAuto_Temp_showInfo",
-    "sessionStorage.HHAuto_Temp_storeContents",
-    "sessionStorage.HHAuto_Temp_Timers",
-    "sessionStorage.HHAuto_Temp_NextSwitch",
-    "sessionStorage.HHAuto_Temp_Totalpops",
-    "sessionStorage.HHAuto_Temp_userLink",
-    //"localStorage.HHAuto_Temp_MigratedVars",
-    "sessionStorage.HHAuto_Temp_LeagueTempOpponentList",
-    "sessionStorage.HHAuto_Temp_CheckSpentPoints",
-    //"sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh",
-    "sessionStorage.HHAuto_Temp_eventsList"];
+var HHStoredVars = {};
+//Settings Vars
+//Do not move, has to be first one
+HHStoredVars.HHAuto_Setting_settPerTab = {default:  "false", storage : "localStorage", type : "Setting"};
+// Rest of settings vars
+HHStoredVars.HHAuto_Setting_autoAff = {default:  "500000000", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoAffW = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoBuyBoosters = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoBuyBoostersFilter = {default:  "B1;B2;B3;B4", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoChamps = {default: "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoChampsFilter = {default: "1;2;3;4;5;6", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoChampsUseEne = {default: "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoClubChamp = {default: "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoClubChampMax = {default:  "999", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoClubForceStart = {default: "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoContest = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoExp = {default:  "500000000", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoExpW = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoFreePachinko = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoLeagues = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoLeaguesAllowWinCurrent = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoLeaguesCollect = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoLeaguesPowerCalc = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoLeaguesSelectedIndex = {default:  0, storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoLeaguesThreshold = {default: "0", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoLGM = {default:  "500000000", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoLGMW = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoLGR = {default:  "500000000", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoLGRW = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoMission = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoMissionC = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoMissionKFirst = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoPowerPlaces = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoPowerPlacesAll = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoPowerPlacesIndexFilter = {default:  "1;2;3", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoQuest = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoQuestThreshold = {default: "0", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoSalary = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoSalaryMaxTimer = {default:  "1200", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoSalaryMinTimer = {default:  "120", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoSeason = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoSeasonCollect = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoSeasonPassReds = {default: "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoSeasonThreshold = {default: "0", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoStats = {default:  "500000000", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoStatsSwitch = {default: "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoTrollBattle = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoTrollMythicByPassParanoia = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoTrollSelectedIndex = {default:  0, storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoTrollThreshold = {default: "0", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_buyCombat = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_buyCombTimer = {default: "16", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_buyMythicCombat = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_buyMythicCombTimer = {default: "16", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_calculatePowerLimits = {default:  "default", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_collectDailyRewards = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_eventTrollOrder = {default: "1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_master = {default: "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_MaxAff = {default:  "50000", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_MaxExp = {default:  "10000", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_minShardsX10 = {default: "10", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_minShardsX50 = {default: "50", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_paranoia = {default: "true", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_paranoiaSettings = {default: "140-320/Sleep:28800-30400|Active:250-460|Casual:1500-2700/6:Sleep|8:Casual|10:Active|12:Casual|14:Active|18:Casual|20:Active|22:Casual|24:Sleep", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_paranoiaSpendsBefore = {default: "true", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_plusEvent = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_plusEventMythic = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_PoAMaskRewards = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_SeasonMaskRewards = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_showCalculatePower = {default:  "true", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_showInfo = {default:  "true", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_showMarketTools = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_showTooltips = {default:  "true", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_spendKobans0 = {default: "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_kobanBank = {default: "1000000", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_useX10Fights = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_useX10FightsAllowNormalEvent = {default: "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_useX50Fights = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_useX50FightsAllowNormalEvent = {default: "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_saveDefaults = {default: "{}", storage : "localStorage", type : "Setting"};
 
+
+//Temp vars
+HHStoredVars.HHAuto_Temp_autoLoop = {default:  "true", storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_battlePowerRequired = {default:  "0", storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_leaguesTarget = {default:  "9", storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_questRequirement = {default:  "none", storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_userLink = {default:  "none", storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_autoLoopTimeMili = {default:  "500", storage : "Storage()", type : "Temp"};
+HHStoredVars.HHAuto_Temp_freshStart = {default:  "no", storage : "Storage()", type : "Temp"};
+HHStoredVars.HHAuto_Temp_Logging = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_trollToFight = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_autoTrollBattleSaveQuest = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_burst = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_charLevel = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_eventsGirlz = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_eventGirl = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_fought = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_haveAff = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_haveExp = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_LeagueOpponentList = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_opponentsListExpirationDate = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_paranoiaLeagueBlocked = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_paranoiaQuestBlocked = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_paranoiaSpendings = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_pinfo = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_PopToStart = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_PopUnableToStart = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_showCalculatePower = { storage : "localStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_showInfo = { storage : "localStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_storeContents = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_Timers = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_NextSwitch = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_Totalpops = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_LeagueTempOpponentList = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_CheckSpentPoints = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_eventsList = { storage : "sessionStorage", type : "Temp"};
 
 var updateData = function () {
     //logHHAuto("updating UI");
@@ -9202,7 +9384,7 @@ var updateData = function () {
     Storage().HHAuto_Setting_showMarketTools = document.getElementById("showMarketTools").checked;
 
 
-    var newValue = String(document.getElementById("showTooltips").checked);
+    newValue = String(document.getElementById("showTooltips").checked);
     if (Storage().HHAuto_Setting_showTooltips != newValue)
     {
         Storage().HHAuto_Setting_showTooltips = document.getElementById("showTooltips").checked;
@@ -9398,92 +9580,7 @@ var updateData = function () {
     {
         document.getElementById('pInfo').style.display='none';
     }
-};
-
-var setDefaults = function () {
-    logHHAuto("Setting Defaults.");
-    Storage().HHAuto_Setting_autoSalary = "false";
-    Storage().HHAuto_Setting_autoSalaryMinTimer = "120";
-    Storage().HHAuto_Setting_autoSalaryMaxTimer = "1200";
-    Storage().HHAuto_Setting_autoContest = "false";
-    Storage().HHAuto_Setting_autoMission = "false";
-    Storage().HHAuto_Setting_autoPowerPlaces = "false";
-    Storage().HHAuto_Setting_autoPowerPlacesAll = "false";
-    Storage().HHAuto_Setting_autoPowerPlacesIndexFilter = "1;2;3";
-    Storage().HHAuto_Setting_autoMissionC = "false";
-    Storage().HHAuto_Setting_autoMissionKFirst = "false";
-    Storage().HHAuto_Setting_autoLeagues = "false";
-    Storage().HHAuto_Setting_autoLeaguesCollect = "false";
-    Storage().HHAuto_Setting_autoLeaguesPowerCalc = "false";
-    Storage().HHAuto_Setting_autoLeaguesAllowWinCurrent = "false";
-    //Storage().HHAuto_Setting_autoLeaguesMaxRank = "0";
-    Storage().HHAuto_Setting_collectDailyRewards = "false";
-    sessionStorage.HHAuto_Temp_leaguesTarget = "9";
-    Storage().HHAuto_Setting_autoStats = add1000sSeparator("500000000");
-
-    sessionStorage.HHAuto_Temp_autoLoop = "true";
-    sessionStorage.HHAuto_Temp_userLink = "none";
-    Storage().HHAuto_Temp_autoLoopTimeMili = "500";
-    Storage().HHAuto_Setting_autoQuest = "false";
-    Storage().HHAuto_Setting_autoTrollBattle = "false";
-    Storage().HHAuto_Setting_plusEvent = "false";
-    Storage().HHAuto_Setting_plusEventMythic = "false";
-    //Storage().HHAuto_Setting_eventMythicPrio = "false";
-    Storage().HHAuto_Setting_useX50Fights= "false";
-    Storage().HHAuto_Setting_useX10Fights= "false";
-    Storage().HHAuto_Setting_useX10FightsAllowNormalEvent="false";
-    Storage().HHAuto_Setting_useX50FightsAllowNormalEvent="false";
-    Storage().HHAuto_Setting_minShardsX10="10";
-    Storage().HHAuto_Setting_minShardsX50="50";
-    //Storage().HHAuto_Setting_autoTrollMythicByPassThreshold = "false";
-    Storage().HHAuto_Setting_autoTrollMythicByPassParanoia = "false";
-    Storage().HHAuto_Setting_eventTrollOrder="";
-    Storage().HHAuto_Setting_buyCombTimer="16";
-    Storage().HHAuto_Setting_buyMythicCombTimer="16";
-    Storage().HHAuto_Setting_autoSeason = "false";
-    Storage().HHAuto_Setting_autoSeasonCollect = "false";
-    Storage().HHAuto_Setting_SeasonMaskRewards = "false";
-    sessionStorage.HHAuto_Temp_battlePowerRequired = "0";
-    sessionStorage.HHAuto_Temp_questRequirement = "none";
-    Storage().HHAuto_Temp_freshStart = "no";
-    Storage().HHAuto_Setting_autoChamps="false";
-    Storage().HHAuto_Setting_autoClubChamp="false";
-    Storage().HHAuto_Setting_autoClubForceStart="false";
-    Storage().HHAuto_Setting_autoClubChampMax = "999";
-    Storage().HHAuto_Setting_autoChampsUseEne="false";
-    Storage().HHAuto_Setting_autoChampsFilter="1;2;3;4;5;6";
-    Storage().HHAuto_Setting_autoFreePachinko = "false";
-    Storage().HHAuto_Setting_autoStats = add1000sSeparator("500000000");
-    Storage().HHAuto_Setting_autoStatsSwitch="false";
-    Storage().HHAuto_Setting_autoExp = add1000sSeparator("500000000");
-    Storage().HHAuto_Setting_autoExpW = "false";
-    Storage().HHAuto_Setting_MaxExp = add1000sSeparator("10000");
-    Storage().HHAuto_Setting_autoAff = add1000sSeparator("500000000");
-    Storage().HHAuto_Setting_autoAffW = "false";
-    Storage().HHAuto_Setting_MaxAff = add1000sSeparator("50000");
-    Storage().HHAuto_Setting_autoLGM = add1000sSeparator("500000000");
-    Storage().HHAuto_Setting_autoLGMW = "false";
-    Storage().HHAuto_Setting_autoLGR = add1000sSeparator("500000000");
-    Storage().HHAuto_Setting_autoLGRW = "false";
-    //Storage().HHAuto_Setting_autoEGM = add1000sSeparator("500000000");
-    //Storage().HHAuto_Setting_autoEGMW = "false";
-    Storage().HHAuto_Setting_autoBuyBoostersFilter = "B1;B2;B3;B4";
-    Storage().HHAuto_Setting_autoBuyBoosters = "false";
-    Storage().HHAuto_Setting_showMarketTools = "false";
-    Storage().HHAuto_Setting_paranoia="true";
-    Storage().HHAuto_Setting_paranoiaSpendsBefore="false";
-    Storage().HHAuto_Setting_showTooltips = "true";
-    Storage().HHAuto_Setting_calculatePowerLimits = "default";
-    Storage().HHAuto_Setting_autoTrollThreshold="0";
-    Storage().HHAuto_Setting_autoQuestThreshold="0";
-    Storage().HHAuto_Setting_autoLeaguesThreshold="0";
-    Storage().HHAuto_Setting_autoSeasonThreshold="0";
-
-    Storage().HHAuto_Setting_spendKobans0="false";
-    Storage().HHAuto_Setting_autoSeasonPassReds ="false";
-    Storage().HHAuto_Temp_paranoiaSettings="140-320/Sleep:28800-30400|Active:250-460|Casual:1500-2700/6:Sleep|8:Casual|10:Active|12:Casual|14:Active|18:Casual|20:Active|22:Casual|24:Sleep";
-    Storage().HHAuto_Setting_master="false";
-    Storage().HHAuto_Setting_PoAMaskRewards = "false";
+    setDefaults(false);
 };
 
 var start = function () {
@@ -9494,6 +9591,7 @@ var start = function () {
         $('.hh_logo').click();
         return;
     }
+    setDefaults();
     $('.redirect.gay').hide();
     $('.redirect.comix').hide();
 
@@ -9551,6 +9649,9 @@ var start = function () {
     +    '<div class="internalOptionsRow" style="padding:3px">'
     +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("saveConfig","tooltip")+'</span><label class="myButton" id="saveConfig">'+getTextForUI("saveConfig","elementText")+'</label></div>'
     +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("loadConfig","tooltip")+'</span><label class="myButton" id="loadConfig">'+getTextForUI("loadConfig","elementText")+'</label></div>'
+    +    '</div>'
+    +    '<div class="internalOptionsRow" style="padding:3px">'
+    +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("saveDefaults","tooltip")+'</span><label class="myButton" id="saveDefaults">'+getTextForUI("saveDefaults","elementText")+'</label></div>'
     +    '</div>'
     +   '</div>'
     // Region global
@@ -10167,58 +10268,58 @@ var start = function () {
     trollOptions.selectedIndex = Storage().HHAuto_Setting_autoTrollSelectedIndex;
     leaguesOptions.selectedIndex = Storage().HHAuto_Setting_autoLeaguesSelectedIndex;
     document.getElementById("autoSalaryCheckbox").checked = Storage().HHAuto_Setting_autoSalary === "true";
-    document.getElementById("autoSalaryMinTimer").value = add1000sSeparator(Storage().HHAuto_Setting_autoSalaryMinTimer?Storage().HHAuto_Setting_autoSalaryMinTimer:"120");
-    document.getElementById("autoSalaryMaxTimer").value = add1000sSeparator(Storage().HHAuto_Setting_autoSalaryMaxTimer?Storage().HHAuto_Setting_autoSalaryMaxTimer:"1200");
+    document.getElementById("autoSalaryMinTimer").value = add1000sSeparator(Storage().HHAuto_Setting_autoSalaryMinTimer);
+    document.getElementById("autoSalaryMaxTimer").value = add1000sSeparator(Storage().HHAuto_Setting_autoSalaryMaxTimer);
     document.getElementById("autoContestCheckbox").checked = Storage().HHAuto_Setting_autoContest === "true";
     document.getElementById("autoMissionCheckbox").checked = Storage().HHAuto_Setting_autoMission === "true";
     document.getElementById("autoMissionCollect").checked = Storage().HHAuto_Setting_autoMissionC === "true";
     document.getElementById("autoMissionKFirst").checked = Storage().HHAuto_Setting_autoMissionKFirst === "true" ;
     document.getElementById("autoQuestCheckbox").checked = Storage().HHAuto_Setting_autoQuest === "true";
     document.getElementById("autoTrollCheckbox").checked = Storage().HHAuto_Setting_autoTrollBattle === "true";
-    document.getElementById("eventTrollOrder").value = Storage().HHAuto_Setting_eventTrollOrder?Storage().HHAuto_Setting_eventTrollOrder:"1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20";
-    document.getElementById("buyCombTimer").value = Storage().HHAuto_Setting_buyCombTimer?Storage().HHAuto_Setting_buyCombTimer:"16";
-    document.getElementById("buyMythicCombTimer").value = Storage().HHAuto_Setting_buyMythicCombTimer?Storage().HHAuto_Setting_buyMythicCombTimer:"16";
+    document.getElementById("eventTrollOrder").value = Storage().HHAuto_Setting_eventTrollOrder;
+    document.getElementById("buyCombTimer").value = Storage().HHAuto_Setting_buyCombTimer;
+    document.getElementById("buyMythicCombTimer").value = Storage().HHAuto_Setting_buyMythicCombTimer;
     document.getElementById("autoSeasonCheckbox").checked = Storage().HHAuto_Setting_autoSeason === "true";
     document.getElementById("autoSeasonCollect").checked = Storage().HHAuto_Setting_autoSeasonCollect === "true";
     document.getElementById("SeasonMaskRewards").checked = Storage().HHAuto_Setting_SeasonMaskRewards === "true";
     document.getElementById("autoSeasonPassReds").checked = Storage().HHAuto_Setting_autoSeasonPassReds === "true";
     document.getElementById("autoFreePachinko").checked = Storage().HHAuto_Setting_autoFreePachinko === "true";
     document.getElementById("autoLeagues").checked = Storage().HHAuto_Setting_autoLeagues === "true";
-    //document.getElementById("autoLeaguesMaxRank").value = Storage().HHAuto_Setting_autoLeaguesMaxRank?Storage().HHAuto_Setting_autoLeaguesMaxRank:"0";
+    //document.getElementById("autoLeaguesMaxRank").value = Storage().HHAuto_Setting_autoLeaguesMaxRank;
     document.getElementById("autoLeaguesPowerCalc").checked = Storage().HHAuto_Setting_autoLeaguesPowerCalc === "true";
     document.getElementById("autoLeaguesCollect").checked = Storage().HHAuto_Setting_autoLeaguesCollect === "true";
     document.getElementById("autoLeaguesAllowWinCurrent").checked = Storage().HHAuto_Setting_autoLeaguesAllowWinCurrent === "true";
     document.getElementById("autoPowerPlaces").checked = Storage().HHAuto_Setting_autoPowerPlaces === "true";
     document.getElementById("autoPowerPlacesAll").checked = Storage().HHAuto_Setting_autoPowerPlacesAll === "true";
-    document.getElementById("autoPowerPlacesIndexFilter").value = Storage().HHAuto_Setting_autoPowerPlacesIndexFilter?Storage().HHAuto_Setting_autoPowerPlacesIndexFilter:"1;2;3";
-    document.getElementById("autoStats").value = add1000sSeparator(Storage().HHAuto_Setting_autoStats?Storage().HHAuto_Setting_autoStats:"500000000");
+    document.getElementById("autoPowerPlacesIndexFilter").value = Storage().HHAuto_Setting_autoPowerPlacesIndexFilter;
+    document.getElementById("autoStats").value = add1000sSeparator(Storage().HHAuto_Setting_autoStats);
     document.getElementById("autoStatsSwitch").checked = Storage().HHAuto_Setting_autoStatsSwitch==="true";
     document.getElementById("paranoia").checked = Storage().HHAuto_Setting_paranoia==="true";
     document.getElementById("paranoiaSpendsBefore").checked = Storage().HHAuto_Setting_paranoiaSpendsBefore==="true";
-    document.getElementById("autoExp").value = add1000sSeparator(Storage().HHAuto_Setting_autoExp?Storage().HHAuto_Setting_autoExp:"500000000");
+    document.getElementById("autoExp").value = add1000sSeparator(Storage().HHAuto_Setting_autoExp);
     document.getElementById("autoExpW").checked = Storage().HHAuto_Setting_autoExpW === "true";
-    document.getElementById("autoAff").value = add1000sSeparator(Storage().HHAuto_Setting_autoAff?Storage().HHAuto_Setting_autoAff:"500000000");
+    document.getElementById("autoAff").value = add1000sSeparator(Storage().HHAuto_Setting_autoAff);
     document.getElementById("autoAffW").checked = Storage().HHAuto_Setting_autoAffW === "true";
-    document.getElementById("maxExp").value = add1000sSeparator(Storage().HHAuto_Setting_MaxExp?Storage().HHAuto_Setting_MaxExp:"10000");
-    document.getElementById("maxAff").value = add1000sSeparator(Storage().HHAuto_Setting_MaxAff?Storage().HHAuto_Setting_MaxAff:"50000");
-    document.getElementById("autoLGM").value = add1000sSeparator(Storage().HHAuto_Setting_autoLGM?Storage().HHAuto_Setting_autoLGM:"500000000");
+    document.getElementById("maxExp").value = add1000sSeparator(Storage().HHAuto_Setting_MaxExp);
+    document.getElementById("maxAff").value = add1000sSeparator(Storage().HHAuto_Setting_MaxAff);
+    document.getElementById("autoLGM").value = add1000sSeparator(Storage().HHAuto_Setting_autoLGM);
     document.getElementById("autoLGMW").checked = Storage().HHAuto_Setting_autoLGMW === "true";
-    document.getElementById("autoLGR").value = add1000sSeparator(Storage().HHAuto_Setting_autoLGR?Storage().HHAuto_Setting_autoLGR:"500000000");
+    document.getElementById("autoLGR").value = add1000sSeparator(Storage().HHAuto_Setting_autoLGR);
     document.getElementById("autoLGRW").checked = Storage().HHAuto_Setting_autoLGRW === "true";
     document.getElementById("autoBuyBoosters").checked = Storage().HHAuto_Setting_autoBuyBoosters === "true";
-    document.getElementById("autoBuyBoostersFilter").value = Storage().HHAuto_Setting_autoBuyBoostersFilter?Storage().HHAuto_Setting_autoBuyBoostersFilter:"B1;B2;B3;B4";
+    document.getElementById("autoBuyBoostersFilter").value = Storage().HHAuto_Setting_autoBuyBoostersFilter;
     document.getElementById("showMarketTools").checked = Storage().HHAuto_Setting_showMarketTools === "true";
-    //document.getElementById("autoEGM").value = add1000sSeparator(Storage().HHAuto_Setting_autoEGM?Storage().HHAuto_Setting_autoEGM:"500000000");
+    //document.getElementById("autoEGM").value = add1000sSeparator(Storage().HHAuto_Setting_autoEGM);
     //document.getElementById("autoEGMW").checked = Storage().HHAuto_Setting_autoEGMW === "true";
-    document.getElementById("showInfo").checked = Storage().HHAuto_Setting_showInfo?Storage().HHAuto_Setting_showInfo==="true":false;
-    document.getElementById("showTooltips").checked = Storage().HHAuto_Setting_showTooltips?Storage().HHAuto_Setting_showTooltips==="true":false;
-    document.getElementById("collectDailyRewards").checked = Storage().HHAuto_Setting_collectDailyRewards?Storage().HHAuto_Setting_collectDailyRewards === "true":false ;
+    document.getElementById("showInfo").checked = Storage().HHAuto_Setting_showInfo==="true";
+    document.getElementById("showTooltips").checked = Storage().HHAuto_Setting_showTooltips==="true";
+    document.getElementById("collectDailyRewards").checked = Storage().HHAuto_Setting_collectDailyRewards === "true" ;
 
     manageToolTipsDisplay();
 
-    document.getElementById("showCalculatePower").checked = Storage().HHAuto_Setting_showCalculatePower?Storage().HHAuto_Setting_showCalculatePower==="true":false;
-    document.getElementById("calculatePowerLimits").value = Storage().HHAuto_Setting_calculatePowerLimits?Storage().HHAuto_Setting_calculatePowerLimits:"default";
-    document.getElementById("plusEvent").checked = sessionStorage.HHAuto_Temp_trollToFight=="-1" || Storage().HHAuto_Setting_plusEvent === "true";
+    document.getElementById("showCalculatePower").checked = Storage().HHAuto_Setting_showCalculatePower==="true";
+    document.getElementById("calculatePowerLimits").value = Storage().HHAuto_Setting_calculatePowerLimits;
+    document.getElementById("plusEvent").checked = Storage().HHAuto_Setting_plusEvent === "true";
     document.getElementById("plusEventMythic").checked = Storage().HHAuto_Setting_plusEventMythic === "true";
     //document.getElementById("eventMythicPrio").checked = Storage().HHAuto_Setting_eventMythicPrio === "true";
 
@@ -10226,29 +10327,29 @@ var start = function () {
     document.getElementById("useX10Fights").checked= Storage().HHAuto_Setting_useX10Fights === "true";
     document.getElementById("useX10FightsAllowNormalEvent").checked=Storage().HHAuto_Setting_useX10FightsAllowNormalEvent==="true";
     document.getElementById("useX50FightsAllowNormalEvent").checked=Storage().HHAuto_Setting_useX50FightsAllowNormalEvent==="true";
-    document.getElementById("minShardsX50").value=Storage().HHAuto_Setting_minShardsX50?Storage().HHAuto_Setting_minShardsX50:"50";
-    document.getElementById("minShardsX10").value=Storage().HHAuto_Setting_minShardsX10?Storage().HHAuto_Setting_minShardsX10:"10";
+    document.getElementById("minShardsX50").value=Storage().HHAuto_Setting_minShardsX50;
+    document.getElementById("minShardsX10").value=Storage().HHAuto_Setting_minShardsX10;
     //document.getElementById("autoTrollMythicByPassThreshold").checked = Storage().HHAuto_Setting_autoTrollMythicByPassThreshold === "true";
     document.getElementById("autoTrollMythicByPassParanoia").checked = Storage().HHAuto_Setting_autoTrollMythicByPassParanoia === "true";
 
     document.getElementById("autoClubChamp").checked = Storage().HHAuto_Setting_autoClubChamp  === "true";
-    document.getElementById("autoClubForceStart").checked = Storage().HHAuto_Setting_autoClubForceStart?Storage().HHAuto_Setting_autoClubForceStart  === "true":false;
-    document.getElementById("autoClubChampMax").value = Storage().HHAuto_Setting_autoClubChampMax?Storage().HHAuto_Setting_autoClubChampMax:"999";
+    document.getElementById("autoClubForceStart").checked = Storage().HHAuto_Setting_autoClubForceStart  === "true";
+    document.getElementById("autoClubChampMax").value = Storage().HHAuto_Setting_autoClubChampMax;
     document.getElementById("autoChamps").checked = Storage().HHAuto_Setting_autoChamps === "true";
     document.getElementById("autoChampsUseEne").checked = Storage().HHAuto_Setting_autoChampsUseEne === "true";
-    document.getElementById("autoChampsFilter").value = Storage().HHAuto_Setting_autoChampsFilter?Storage().HHAuto_Setting_autoChampsFilter:"1;2;3;4;5;6";
+    document.getElementById("autoChampsFilter").value = Storage().HHAuto_Setting_autoChampsFilter;
 
     document.getElementById("spendKobans0").checked = Storage().HHAuto_Setting_spendKobans0 === "true";
     //document.getElementById("spendKobans1").checked = Storage().HHAuto_Setting_spendKobans1 === "true";
     //document.getElementById("spendKobans2").checked = Storage().HHAuto_Setting_spendKobans2 === "true";
     document.getElementById("buyCombat").checked = Storage().HHAuto_Setting_buyCombat === "true";
     document.getElementById("buyMythicCombat").checked = Storage().HHAuto_Setting_buyMythicCombat === "true";
-    document.getElementById("kobanBank").value = add1000sSeparator(Storage().HHAuto_Setting_kobanBank?Storage().HHAuto_Setting_kobanBank:"1000000");
+    document.getElementById("kobanBank").value = add1000sSeparator(Storage().HHAuto_Setting_kobanBank);
 
-    document.getElementById("autoTrollThreshold").value = Storage().HHAuto_Setting_autoTrollThreshold?Storage().HHAuto_Setting_autoTrollThreshold:"0";
-    document.getElementById("autoQuestThreshold").value = Storage().HHAuto_Setting_autoQuestThreshold?Storage().HHAuto_Setting_autoQuestThreshold:"0";
-    document.getElementById("autoLeaguesThreshold").value = Storage().HHAuto_Setting_autoLeaguesThreshold?Storage().HHAuto_Setting_autoLeaguesThreshold:"0";
-    document.getElementById("autoSeasonThreshold").value = Storage().HHAuto_Setting_autoSeasonThreshold?Storage().HHAuto_Setting_autoSeasonThreshold:"0";
+    document.getElementById("autoTrollThreshold").value = Storage().HHAuto_Setting_autoTrollThreshold;
+    document.getElementById("autoQuestThreshold").value = Storage().HHAuto_Setting_autoQuestThreshold;
+    document.getElementById("autoLeaguesThreshold").value = Storage().HHAuto_Setting_autoLeaguesThreshold;
+    document.getElementById("autoSeasonThreshold").value = Storage().HHAuto_Setting_autoSeasonThreshold;
 
     document.getElementById("master").checked = Storage().HHAuto_Setting_master==="true";
 
@@ -10266,6 +10367,7 @@ var start = function () {
 
     });
     document.getElementById("saveConfig").addEventListener("click", saveHHVarsSettingsAsJSON);
+    document.getElementById("saveDefaults").addEventListener("click", saveHHStoredVarsDefaults);
     document.getElementById("DebugMenu").addEventListener("click", function(){
         /*if (typeof DebugDialog.showModal === "function") {
             DebugDialog.showModal();
@@ -10369,7 +10471,7 @@ var start = function () {
 
     sessionStorage.HHAuto_Temp_autoLoop = "true";
     if (typeof Storage().HHAuto_Temp_freshStart == "undefined" || isNaN(Number(Storage().HHAuto_Temp_autoLoopTimeMili))) {
-        setDefaults();
+        setDefaults(true);
     }
 
     if(getPage()=="shop")
