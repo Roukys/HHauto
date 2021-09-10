@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.46
+// @version      5.5.47
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -3776,97 +3776,110 @@ function doBattle()
 
 function ObserveAndGetGirlRewards()
 {
-    sessionStorage.HHAuto_Temp_autoLoop = "false";
-    logHHAuto("setting autoloop to false to wait for troll rewards");
     let inCaseTimer = setTimeout(function(){gotoPage('home');}, 60000); //in case of issue
-    let observerReward = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (sessionStorage.HHAuto_Temp_eventsGirlz === undefined
-                || sessionStorage.HHAuto_Temp_eventGirl === undefined
-                || !isJSON(sessionStorage.HHAuto_Temp_eventsGirlz)
-                || !isJSON(sessionStorage.HHAuto_Temp_eventGirl))
+    function parseReward()
+    {
+        if (sessionStorage.HHAuto_Temp_eventsGirlz === undefined
+            || sessionStorage.HHAuto_Temp_eventGirl === undefined
+            || !isJSON(sessionStorage.HHAuto_Temp_eventsGirlz)
+            || !isJSON(sessionStorage.HHAuto_Temp_eventGirl))
+        {
+            return -1;
+        }
+        let eventsGirlz =isJSON(sessionStorage.HHAuto_Temp_eventsGirlz)?JSON.parse(sessionStorage.HHAuto_Temp_eventsGirlz):{}
+        let eventGirl = isJSON(sessionStorage.HHAuto_Temp_eventGirl)?JSON.parse(sessionStorage.HHAuto_Temp_eventGirl):{};
+        let TTF = eventGirl.troll_id;
+        if ($('#rewards_popup #reward_holder .shards_wrapper').length === 0)
+        {
+            clearTimeout(inCaseTimer);
+            logHHAuto("No girl in reward going back to Troll");
+            gotoPage("troll-pre-battle",{id_opponent:TTF});
+            return;
+        }
+        let renewEvent = "";
+        let girlShardsWon = $('.shards_wrapper .shards_girl_ico');
+        logHHAuto("Detected girl shard reward");
+        for (var currGirl=0; currGirl <= girlShardsWon.length; currGirl++)
+        {
+            let GirlIdSrc = $("img",girlShardsWon[currGirl]).attr("src");
+            let GirlId = GirlIdSrc.split('/')[5];
+            let GirlShards = Math.min(Number($('.shards[shards]', girlShardsWon[currGirl]).attr('shards')),100);
+            if (eventsGirlz.length >0)
             {
-                return;
-            }
-            let eventsGirlz =isJSON(sessionStorage.HHAuto_Temp_eventsGirlz)?JSON.parse(sessionStorage.HHAuto_Temp_eventsGirlz):{}
-            let eventGirl = isJSON(sessionStorage.HHAuto_Temp_eventGirl)?JSON.parse(sessionStorage.HHAuto_Temp_eventGirl):{};
-            let TTF = eventGirl.troll_id;
-            if ($('#rewards_popup #reward_holder .shards_wrapper').length === 0)
-            {
-                clearTimeout(inCaseTimer);
-                logHHAuto("No girl in reward going back to Troll");
-                gotoPage("troll-pre-battle",{id_opponent:TTF});
-                return;
-            }
-            let renewEvent = "";
-            let girlShardsWon = $('.shards_wrapper .shards_girl_ico');
-            logHHAuto("Detected girl shard reward");
-            for (var currGirl=0; currGirl <= girlShardsWon.length; currGirl++)
-            {
-                let GirlIdSrc = $("img",girlShardsWon[currGirl]).attr("src");
-                let GirlId = GirlIdSrc.split('/')[5];
-                let GirlShards = Math.min(Number($('.shards[shards]', girlShardsWon[currGirl]).attr('shards')),100);
-                if (eventsGirlz.length >0)
+                let GirlIndex = eventsGirlz.findIndex((element) =>element.girl_id === GirlId);
+                if (GirlIndex !==-1)
                 {
-                    let GirlIndex = eventsGirlz.findIndex((element) =>element.girl_id === GirlId);
-                    if (GirlIndex !==-1)
-                    {
-                        let wonShards = GirlShards - Number(eventsGirlz[GirlIndex].girl_shards);
-                        eventsGirlz[GirlIndex].girl_shards = GirlShards.toString();
-                        if (GirlShards === 100)
-                        {
-                            renewEvent = eventsGirlz[GirlIndex].event_id;
-                        }
-                        if (wonShards > 0)
-                        {
-                            logHHAuto("Won "+wonShards+" event shards for "+eventsGirlz[GirlIndex].girl_name);
-                        }
-                    }
-                }
-                if (eventGirl.girl_id === GirlId)
-                {
-                    eventGirl.girl_shards = GirlShards.toString();
+                    let wonShards = GirlShards - Number(eventsGirlz[GirlIndex].girl_shards);
+                    eventsGirlz[GirlIndex].girl_shards = GirlShards.toString();
                     if (GirlShards === 100)
                     {
-                        renewEvent = eventGirl.event_id;
+                        renewEvent = eventsGirlz[GirlIndex].event_id;
+                    }
+                    if (wonShards > 0)
+                    {
+                        logHHAuto("Won "+wonShards+" event shards for "+eventsGirlz[GirlIndex].girl_name);
                     }
                 }
             }
-            sessionStorage.HHAuto_Temp_eventsGirlz = JSON.stringify(eventsGirlz);
-            sessionStorage.HHAuto_Temp_eventGirl = JSON.stringify(eventGirl);
-            if (renewEvent !== ""
-                //|| Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) < 1
-                || checkEvent(eventGirl.event_id)
-               )
+            if (eventGirl.girl_id === GirlId)
             {
-                clearTimeout(inCaseTimer);
-                logHHAuto("Need to check back event page");
-                if (renewEvent !== "")
+                eventGirl.girl_shards = GirlShards.toString();
+                if (GirlShards === 100)
                 {
-                    parseEventPage(renewEvent);
+                    renewEvent = eventGirl.event_id;
                 }
-                else
-                {
-                    parseEventPage(eventGirl.event_id);
-                }
-                return;
+            }
+        }
+        sessionStorage.HHAuto_Temp_eventsGirlz = JSON.stringify(eventsGirlz);
+        sessionStorage.HHAuto_Temp_eventGirl = JSON.stringify(eventGirl);
+        if (renewEvent !== ""
+            //|| Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) < 1
+            || checkEvent(eventGirl.event_id)
+           )
+        {
+            clearTimeout(inCaseTimer);
+            logHHAuto("Need to check back event page");
+            if (renewEvent !== "")
+            {
+                parseEventPage(renewEvent);
             }
             else
             {
-                clearTimeout(inCaseTimer);
-                logHHAuto("Go back to troll after troll fight.");
-                gotoPage("troll-pre-battle",{id_opponent:TTF});
-                return;
+                parseEventPage(eventGirl.event_id);
             }
-        })
+            return;
+        }
+        else
+        {
+            clearTimeout(inCaseTimer);
+            logHHAuto("Go back to troll after troll fight.");
+            gotoPage("troll-pre-battle",{id_opponent:TTF});
+            return;
+        }
+    }
+
+    let observerReward = new MutationObserver(function(mutations) {
+        mutations.forEach(parseReward);
     });
 
-    observerReward.observe($('#reward_holder .container .scrolling_area')[0], {
-        childList: true
-        , subtree: true
-        , attributes: false
-        , characterData: false
-    });
+    if ($('#rewards_popup').length >0)
+    {
+        if ($('#rewards_popup')[0].style.display!=="block")
+        {
+            sessionStorage.HHAuto_Temp_autoLoop = "false";
+            logHHAuto("setting autoloop to false to wait for troll rewards");
+            observerReward.observe($('#rewards_popup')[0], {
+                childList: false
+                , subtree: false
+                , attributes: true
+                , characterData: false
+            });
+        }
+        else
+        {
+            parseReward();
+        }
+    }
 
     let observerPass = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation)
@@ -3883,8 +3896,11 @@ function ObserveAndGetGirlRewards()
                 is_cheat_click=function(e) {
                     return false;
                 };
-                $(querySkip)[0].click();
-                logHHAuto("Clicking on pass battle.");
+                setTimeout(function()
+                           {
+                    $(querySkip)[0].click();
+                    logHHAuto("Clicking on pass battle.");
+                }, randomInterval(800,1200));
             }
         })
     });
