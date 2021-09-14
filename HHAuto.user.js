@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.49
+// @version      5.5.50
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -8102,9 +8102,9 @@ function canBuyFight()
         else
         {
 
-            logHHAuto('Unable to recharge up to '+maxx50+' for '+pricex50+' kobans, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+            logHHAuto('Unable to recharge up to '+maxx50+' for '+pricex50+' kobans : current energy : '+currentFight+', remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
             if (getHHVars('Hero.infos.hard_currency')>=pricex20+Number(Storage().HHAuto_Setting_kobanBank)
-                && currentFight < 10)
+                )//&& currentFight < 10)
             {
                 result.max = maxx20;
                 result.canBuy = true;
@@ -8113,7 +8113,7 @@ function canBuyFight()
             }
             else
             {
-                logHHAuto('Unable to recharge up to '+maxx20+' for '+pricex20+' kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+                logHHAuto('Unable to recharge up to '+maxx20+' for '+pricex20+' kobans : current energy : '+currentFight+', kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
                 return result;
             }
         }
