@@ -740,6 +740,19 @@ function moduleDisplayPopID()
     });
 }
 
+function moduleDisplayContests()
+{
+    if($('.HHcontest').length > 0) {return}
+    const contests = $('div.contest:not(.is_legendary)');
+    const MAX_DAYS = 21; // must be collected within 21 days
+    const lastContestId = parseInt(contests.last().attr('id_contest'));
+    const laterDayToCollect = lastContestId - MAX_DAYS;
+    contests.each(function() {
+        const activeUntil = parseInt($(this).attr('id_contest')) - laterDayToCollect;
+        $('.shadow',$(this)).append('<div class="HHcontest">Deleted in '+activeUntil+' days</div>');
+    });
+}
+
 function moduleOldPathOfAttractionHide()
 {
     //https://nutaku.haremheroes.com/path-of-attraction.html"
@@ -6137,6 +6150,10 @@ var autoLoop = function () {
     if (getPage() === "powerplacemain" )
     {
         moduleDisplayPopID();
+    }
+    if (getPage() === "contests" )
+    {
+        moduleDisplayContests();
     }
     if (getPage() === "shop" && Storage().HHAuto_Setting_showMarketTools === "true")
     {
