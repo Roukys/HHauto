@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.50
+// @version      5.5.51
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -1023,19 +1023,34 @@ function moduleSimSeasonReward()
     }
 
     var obj;
+    //console.log("scroll before : "+document.getElementById('rewards_cont_scroll').scrollLeft);
+
+
     if (arrayz.length > 0) {
         for (var i2 = arrayz.length - 1; i2 >= 0; i2--) {
             obj = $(arrayz[i2]).find('.tick_s:not([style*="display:none"]):not([style*="display: none"])');
             if (obj.length >= nbReward) {
-                //console.log("scroll before : "+document.getElementById('rewards_cont_scroll').scrollLeft);
                 //console.log("width : "+arrayz[i2].offsetWidth);
-                document.getElementById('rewards_cont_scroll').scrollLeft-=arrayz[i2].offsetWidth;
-                //console.log("scroll after : "+document.getElementById('rewards_cont_scroll').scrollLeft);arrayz[i2].style.display = "none";
+                //document.getElementById('rewards_cont_scroll').scrollLeft-=arrayz[i2].offsetWidth;
                 arrayz[i2].style.display = "none";
                 modified = true;
             }
         }
     }
+    if (modified)
+    {
+        let divToModify = $('#seasons_row1');
+        if (divToModify.length > 0)
+        {
+            divToModify[0].style.transform ="translate3d(0px, 0px, 0px)";
+        }
+        divToModify = $('#ascrail2000-hr .nicescroll-cursors');
+        if (divToModify.length > 0)
+        {
+            divToModify[0].style.left = '0px';
+        }
+    }
+    //console.log("scroll after : "+document.getElementById('rewards_cont_scroll').scrollLeft);
 }
 
 function moduleChangeTeam()
@@ -1054,31 +1069,41 @@ function moduleChangeTeam()
 
     function assignTopTeam()
     {
-        function selectFromHarem(i)
+        function selectFromHaremBest(i,best)
         {
-            let selectedGirl = $('#contains_all section '+getHHScriptVars("IDpanelEditTeam")+' .harem-panel .panel-body .topNumber[position="'+i+'"]');
+            let girlToSelect = best?i:i+7;
+            //console.log(i,girlToSelect,best);
+            let selectedGirl = $('#contains_all section '+getHHScriptVars("IDpanelEditTeam")+' .harem-panel .panel-body .topNumber[position="'+girlToSelect+'"]');
             selectedGirl.click();
             //console.log(selectedGirl);
-            if ($('.topNumber').length > i && i<7)
+            if ($('.topNumber').length > girlToSelect && i<7)
             {
-                setTimeout(function () {assignToTeam(i+1)},randomInterval(300,600));
+                setTimeout(function () {assignToTeam(i+1,best)},randomInterval(300,600));
             }
+            else
+            {
+                if (!best)
+                {
+                    assignToTeam(1,true);
+                }
+            }
+
         }
 
-        function assignToTeam(i)
+        function assignToTeam(i=1,best=false)
         {
             let position=i-1;
             let selectedPosition = $('#contains_all section .team-panel .hero-team .team-hexagon .team-member-container.selectable[data-team-member-position="'+position+'"]');
             selectedPosition.click();
             //console.log(selectedPosition);
-            setTimeout(function () {selectFromHarem(i)},randomInterval(300,600));
+            setTimeout(function () {selectFromHaremBest(i,best)},randomInterval(300,600));
 
         }
 
         let topNumbers=$('.topNumber')
         if (topNumbers.length >0)
         {
-            assignToTeam(1);
+            assignToTeam();
         }
     }
 
@@ -1719,6 +1744,7 @@ var CollectMoney = function()
         else//nothing to collect
         {
             var closestTime = undefined;
+            let st=Number(Storage().HHAuto_Setting_autoSalaryMinTimer);
             var closestGirl = 0;
             let salaryTimer =-1;
             var gMap = getGirlsMap();
@@ -1726,7 +1752,7 @@ var CollectMoney = function()
             {
                 // error
                 logHHAuto("Girls Map was undefined...! Error, manually setting salary time to 2 min.");
-                closestTime = 2*60;
+                closestTime = st;
             }
             else
             {
@@ -1745,20 +1771,19 @@ var CollectMoney = function()
                 catch(exp){
                     // error
                     logHHAuto("Catched error : Girls Map had undefined property...! Error, manually setting salary time to 2 min : "+exp);
-                    salaryTimer = 2*60;
+                    salaryTimer = st;
                 }
             }
             if(salaryTimer === -1 && closestTime === undefined)
             {
                 logHHAuto("closestTime was undefined...! Error, manually setting salary time to 2 min.");
-                salaryTimer = 2*60;
+                salaryTimer = st;
             }
 
             if (salaryTimer === -1)
             {
                 if (allCollected)
                 {
-                    let st=Number(Storage().HHAuto_Setting_autoSalaryMinTimer);
                     //set minimum to user min wait time
                     if(closestTime <= st )
                     {
@@ -4063,9 +4088,10 @@ var getFreeMythicPachinko = function(){
             }
             var counter=0;
             //while (butt===undefined && (counter++)<250)
+            logHHAuto('to mythic');
             while ($('#playzone-replace-info button[free=1]')[0]===undefined && (counter++)<250)
             {
-                logHHAuto('to mythic');
+                //logHHAuto('to mythic');
                 $('.game-simple-block[type-pachinko=mythic]')[0].click();
             }
             //if (butt===undefined)
@@ -4388,7 +4414,7 @@ var flipParanoia=function()
         if (Storage().HHAuto_Setting_autoTrollMythicByPassParanoia === "true" && getTimer("eventMythicNextWave") !== -1 && toNextSwitch>getSecondsLeft("eventMythicNextWave"))
         {
             logHHAuto("Forced rest only until next mythic wave.");
-            toNextSwitch=getSecondsLeft("eventMythicNextWave")+randomInterval(1,3);
+            toNextSwitch=getSecondsLeft("eventMythicNextWave");
         }
 
         //bypass Paranoia if ongoing mythic
@@ -6238,648 +6264,12 @@ function moduleShopActions()
                     count++;
                 }
             });
-            $('#girls_list .g1 .number.selected span:not([contenteditable]')[0].innerText = girlNb-count;
-            $('#girls_list .g1 .number.selected span[contenteditable]')[0].innerText=1;
+            $(getHHScriptVars("shopGirlCountRequest"))[0].innerText = girlNb-count;
+            $(getHHScriptVars("shopGirlCurrentRequest"))[0].innerText=1;
         }
 
         document.getElementById("menuRemoveMaxed").addEventListener("click", removeMaxedGirls);
     }
-
-    function appendMenuAff()
-    {
-        var menuAff = '<div style="position: absolute;right: 50px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAff","tooltip")+'</span><label style="width:100px" class="myButton" id="menuAff">'+getTextForUI("menuAff","elementText")+'</label></div>'
-        + '<dialog style="min-width: 50%;margin-top: 7%;margin-left: 1%;" id="AffDialog"><form stylemethod="dialog">'
-        +  '<div style="justify-content: space-between;align-items: flex-start;"class="HHMenuRow">'
-        +   '<div id="menuAff-moveLeft"></div>'
-        +   '<div style="padding:10px; display:flex;flex-direction:column;">'
-        +    '<p id="menuAffText"></p>'
-        +    '<p ></p>'
-        +    '<div style="padding:10px;justify-content:center" class="HHMenuRow">'
-        +     '<div id="menuAffHide" style="display:none">'
-        +      '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAffButton","tooltip")+'</span><label style="width:80px" class="myButton" id="menuAffButton">'+getTextForUI("menuAffButton","elementText")+'</label></div>'
-        +     '</div>'
-        +     '<div><label style="margin-left:10px;width:80px" class="myButton" id="menuAffCancel">'+getTextForUI("OptionCancel","elementText")+'</label></div>'
-        +    '</div>'
-        +   '</div>'
-        +   '<div id="menuAff-moveRight"></div>'
-        +  '</div>'
-        + '</form></dialog>'
-
-        if ($("#menuAff").length === 0 )
-        {
-            let getSelectGirlID;
-            let girl;
-            let giftArray = {};
-            let AffToGive;
-            $('#inventory > div.gift > label').append(menuAff);
-            GM_addStyle('#menuAff-moveRight, #menuAff-moveLeft {'
-                        + 'width: 0;'
-                        + 'float: left;'
-                        + 'border: 20px solid transparent;'
-                        + 'height: 0;'
-                        + 'opacity: 0.5;'
-                        + 'margin:-1px;}');
-
-            GM_addStyle('div#menuAff-moveLeft {'
-                        + 'border-right-color: blue;}');
-
-            GM_addStyle('div#menuAff-moveRight {'
-                        + 'border-left-color: blue;}');
-
-            function moveLeftAff()
-            {
-                $('div.g1 span[nav="left"]').click();
-                calculateAffSelectedGirl();
-            }
-            function moveRightAff()
-            {
-                $('div.g1 span[nav="right"]').click();
-                calculateAffSelectedGirl();
-            }
-            function launchGiveAff()
-            {
-                document.getElementById("menuAff-moveLeft").style.visibility = "hidden";
-                document.getElementById("menuAff-moveRight").style.visibility = "hidden";
-                giveAff(getSelectGirlID, AffToGive, giftArray);
-            }
-            var KeyUpAff = function(evt)
-            {
-                if (evt.key === 'Enter')
-                {
-                    launchGiveAff();
-                }
-                else if (evt.keyCode == '37')
-                {
-                    // left arrow
-                    moveLeftAff();
-                }
-                else if (evt.keyCode == '39')
-                {
-                    // right arrow
-                    moveRightAff();
-                }
-            }
-
-
-
-            document.getElementById("menuAff-moveLeft").addEventListener("click", moveLeftAff);
-            document.getElementById("menuAff-moveRight").addEventListener("click", moveRightAff);
-            document.getElementById("menuAff").addEventListener("click", function()
-                                                                {
-                calculateAffSelectedGirl();
-                document.removeEventListener('keyup', KeyUpAff, false);
-                document.addEventListener('keyup', KeyUpAff, false);
-            });
-            document.getElementById("menuAffButton").addEventListener("click", launchGiveAff);
-            document.getElementById("menuAffCancel").addEventListener("click", function(){
-
-                if (typeof AffDialog.showModal === "function")
-                {
-
-                    AffDialog.close();
-                    document.removeEventListener('keyup', KeyUpAff, false);
-                }
-                else
-                {
-                    alert("The <dialog> API is not supported by this browser");
-                }
-            });
-
-            function calculateAffSelectedGirl()
-            {
-                girl=$('div.girl-ico:not(.not-selected)');
-                getSelectGirlID=girl.attr("id_girl");
-                let selectedGirl=girl.data("g");
-                document.getElementById("menuAffHide").style.display = "none";
-                //                 if ($('div[id_girl='+getSelectGirlID+'][data-g] .aff_val').length === 0 && $('div[id_girl='+getSelectGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length === 0)
-                //                 {
-                //                     logHHAuto("Error catching girl current Aff, cancelling.");
-                //                     if (typeof AffDialog.showModal === "function")
-                //                     {
-                //                         document.getElementById("menuAffText").innerHTML = getTextForUI("menuAffError","elementText");
-                //                         document.getElementById("menuAffHide").style.display = "none";
-                //                         AffDialog.showModal();
-                //                     }
-                //                     else
-                //                     {
-                //                         alert("The <dialog> API is not supported by this browser");
-                //                     }
-
-                //                     return;
-                //                 }
-                //                 else if ($('div[id_girl='+getSelectGirlID+'][data-g] .aff_val').length === 0 && $('div[id_girl='+getSelectGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length >0)
-                if ($('div[id_girl='+getSelectGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length >0)
-                {
-                    if (typeof AffDialog.showModal === "function")
-                    {
-                        document.getElementById("menuAffText").innerHTML = selectedGirl.Name+" "+getTextForUI("menuAffNoNeed","elementText");
-                        document.getElementById("menuAffHide").style.display = "none";
-                        if (!document.getElementById("AffDialog").open)
-                        {
-                            AffDialog.showModal();
-
-                        }
-                    }
-                    else
-                    {
-                        alert("The <dialog> API is not supported by this browser");
-                    }
-
-                }
-
-                let selectedGirlAff=selectedGirl.Affection.cur;
-                giftArray = {};
-                let giftCount = {};
-                let minAffItem=99999;
-                let totalAff=0;
-                let menuText="";
-                $('div.gift div.inventory_slots div[id_item][data-d]').each(function()
-                                                                            {
-                    let data=JSON.parse($(this).attr("data-d"));
-                    let countGift=Number($('div.gift div.inventory_slots div[id_item='+$(this).attr("id_item")+'][data-d] .stack_num span')[0].innerHTML.replace(/[^0-9]/gi, ''))
-
-                    if (minAffItem > Number(data.value))
-                    {
-                        minAffItem = Number(data.value);
-                    }
-                    giftCount[Number(data.value)]=countGift;
-                    totalAff+=Number(data.value)*countGift
-                    giftArray[Number(data.value)]=$(this).attr("id_item");
-                });
-                if (Number(selectedGirl.Affection.cur) < Number(selectedGirl.Affection.max) && totalAff > 0 && (Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur)) >=minAffItem)
-                {
-                    let AffMissing = Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur);
-                    AffToGive=findSubsetsPartition(AffMissing,giftCount);
-                    menuText = selectedGirl.Name+" "+selectedGirl.Affection.cur+"/"+selectedGirl.Affection.max+"<br>"+getTextForUI("menuDistribution","elementText")+"<br>";
-                    let Affkeys = Object.keys(AffToGive.partitions);
-                    for ( var i of Affkeys )
-                    {
-                        menuText = menuText+i+"Aff x "+AffToGive.partitions[i]+"<br>"
-                    }
-                    menuText = menuText+getTextForUI("Total","elementText")+AffToGive.total+"/"+AffMissing;
-                    document.getElementById("menuAffHide").style.display = "block";
-
-                }
-                else if (totalAff === 0 || (Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur)) <=minAffItem)
-                {
-                    menuText = getTextForUI("menuAffNoAff","elementText")+" "+selectedGirl.Name;
-                }
-                logHHAuto(menuText);
-                if (typeof AffDialog.showModal === "function")
-                {
-                    document.getElementById("menuAffText").innerHTML = menuText;
-                    if (!document.getElementById("AffDialog").open)
-                    {
-                        AffDialog.showModal();
-                    }
-
-                }
-                else
-                {
-                    alert("The <dialog> API is not supported by this browser");
-                }
-            }
-        }
-    }
-
-    function giveAff(inGirlID, inAffToGive, inAffArray)
-    {
-        let girl=$('div.girl-ico:not(.not-selected)');
-        let selectedGirl=girl.data("g");
-        let selectedGirlAff=selectedGirl.Affection.cur;
-        logHHAuto('start giving Aff to '+selectedGirl.Name);
-        let currentTotal = selectedGirlAff;
-        let currentItem = -1;
-        let inAffToGivePartitionBackup = { ...inAffToGive.partitions }
-        document.getElementById("menuAffHide").style.display = "none";
-        document.getElementById("menuAffText").innerHTML = selectedGirl.Name+" "+selectedGirlAff+"/"+selectedGirl.Affection.max+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
-
-        let oldTime = new Date();
-
-        function giveAff_func()
-        {
-            let newTime = new Date();
-            //console.log("giveAff_func : "+Number(newTime-oldTime)+"ms");
-            oldTime = newTime;
-            if (!document.getElementById("AffDialog").open)
-            {
-                logHHAuto('Aff Dialog closed, stopping');$
-                document.removeEventListener('keyup', KeyUpAff, false);
-                return;
-            }
-
-            if ($('div[id_girl='+inGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length >0)
-            {
-                selectedGirlAff = currentTotal;
-            }
-            else
-            {
-                girl=$('div.girl-ico:not(.not-selected)');
-                selectedGirl=girl.data("g");
-                selectedGirlAff=selectedGirl.Affection.cur;
-            }
-            //console.log(currentItem, inAffToGive.partitions[currentItem],inAffToGive.partitions,selectedGirlAff,currentTotal);
-
-            //check if previous click has worked
-            if (selectedGirlAff === currentTotal)
-            {
-                //decrease count
-                if (currentItem !== -1)
-                {
-                    logHHAuto('Spent one '+currentItem);
-                    inAffToGive.partitions[currentItem] = inAffToGive.partitions[currentItem]-1;
-                    let menuText = selectedGirl.Name+" "+selectedGirlAff+"/"+selectedGirl.Affection.max+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
-                    let Affkeys = Object.keys(inAffToGivePartitionBackup);
-                    let givenTotal = 0;
-                    logHHAuto({log:"Remains to spend",inAffToGive:inAffToGive});
-                    for ( var i of Affkeys )
-                    {
-                        let diff=Number(inAffToGivePartitionBackup[i]-inAffToGive.partitions[i]);
-                        givenTotal += diff*Number(i);
-                        if (diff >0)
-                        {
-                            //menuText = menuText+i+"Aff x "+diff+"<br>";
-                        }
-                        menuText = menuText+i+"Aff x "+diff+"/"+inAffToGivePartitionBackup[i]+"<br>";
-                    }
-                    menuText = menuText+getTextForUI("Total","elementText")+givenTotal+"/"+inAffToGive.total;
-                    document.getElementById("menuAffText").innerHTML = menuText;
-
-                }
-                //select item
-                let itemKeys=Object.keys(inAffToGive.partitions);
-                currentItem = -1;
-                for ( let i of itemKeys )
-                {
-                    if (inAffToGive.partitions[i] >0)
-                    {
-                        currentItem = i;
-                    }
-                }
-
-                if (currentItem === -1)
-                {
-                    let menuText;
-                    if ($('div[id_girl='+inGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length >0)
-                    {
-                        logHHAuto(selectedGirl.Name+ " is ready to be upgrade");
-                        menuText =selectedGirl.Name+" "+getTextForUI("menuAffReadyToUpgrade","elementText")+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
-                    }
-                    else
-                    {
-                        logHHAuto(selectedGirl.Name+ "max aff given.");
-                        menuText =getTextForUI("menuAffEnd","elementText")+" "+selectedGirl.Name+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
-
-
-                    }
-                    let givenTotal = 0;
-                    let Affkeys = Object.keys(inAffToGivePartitionBackup);
-                    for ( var i of Affkeys )
-                    {
-                        let diff=Number(inAffToGivePartitionBackup[i]-inAffToGive.partitions[i]);
-                        givenTotal += diff*Number(i);
-                        if (diff >0)
-                        {
-                            //menuText = menuText+i+"Aff x "+diff+"<br>";
-                        }
-                        menuText = menuText+i+"Aff x "+diff+"/"+inAffToGivePartitionBackup[i]+"<br>";
-                    }
-                    menuText = menuText+getTextForUI("Total","elementText")+givenTotal;
-                    document.getElementById("menuAffText").innerHTML = menuText;
-                    document.getElementById("menuAffHide").style.display = "none";
-                    document.getElementById("menuAff-moveLeft").style.visibility = "visible";
-                    document.getElementById("menuAff-moveRight").style.visibility = "visible";
-
-                }
-                else if (currentItem !== -1)
-                {
-                    logHHAuto("selected item : "+currentItem);
-                    $('div.gift div.inventory_slots div[id_item='+inAffArray[currentItem]+'][data-d]').click();
-                    currentTotal+=Number(currentItem);
-                    setTimeout(giveAff_func, randomInterval(400,800));
-                }
-                return;
-            }
-            else
-            {
-                if (inAffArray[currentItem] === $('div.gift div.inventory_slots div[id_item][data-d].selected').attr("id_item") && inAffToGive.partitions[currentItem] >0 )
-                {
-                    logHHAuto("clicked on "+currentItem);
-                    $('#inventory > button.blue_text_button[rel=use]').click();
-                    setTimeout(giveAff_func, randomInterval(100,200));
-                    return;
-                }
-            }
-        }
-        setTimeout(giveAff_func, randomInterval(300,600));
-    }
-    function appendMenuExp()
-    {
-        var menuExp = '<div style="position: absolute;right: 50px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExp","tooltip")+'</span><label style="width:100px" class="myButton" id="menuExp">'+getTextForUI("menuExp","elementText")+'</label></div>'
-        + '<dialog style="width: 50%;margin-top: 7%;margin-left: 1%;" id="ExpDialog"><form stylemethod="dialog">'
-        +  '<div style="justify-content: space-between;align-items: flex-start;"class="HHMenuRow">'
-        +   '<div id="menuExp-moveLeft"></div>'
-        +   '<div style="padding:10px; display:flex;flex-direction:column;">'
-        +    '<p id="menuExpText"></p>'
-        +    '<div class="HHMenuRow">'
-        +     '<p>'+getTextForUI("menuExpLevel","elementText")+'</p>'
-        +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExpLevel","tooltip")+'</span><input id="menuExpLevel" style="width:50px;height:20px" required pattern="'+HHAuto_inputPattern.menuExpLevel+'" type="text" value="'+getHHVars('Hero.infos.level')+'"></div>'
-        +    '</div>'
-        +    '<div style="padding:10px;justify-content:center" class="HHMenuRow">'
-        +     '<div id="menuExpHide" style="display:none">'
-        +      '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExpButton","tooltip")+'</span><label style="width:80px" class="myButton" id="menuExpButton">'+getTextForUI("menuExpButton","elementText")+'</label></div>'
-        +     '</div>'
-        +    '<div><label style="margin-left:10px;width:80px" class="myButton" id="menuExpCancel">'+getTextForUI("OptionCancel","elementText")+'</label></div>'
-        +    '</div>'
-        +   '</div>'
-        +   '<div id="menuExp-moveRight"></div>'
-        +  '</div>'
-        + '<menu> </menu></form></dialog>'
-
-        if ($("#menuExp").length === 0 )
-        {
-            let getSelectGirlID;
-            let potionArray = {};
-            let ExpToGive;
-
-
-            $('#inventory > div.potion > label').append(menuExp);
-            GM_addStyle('#menuExp-moveRight, #menuExp-moveLeft {'
-                        + 'width: 0;'
-                        + 'float: left;'
-                        + 'border: 20px solid transparent;'
-                        + 'height: 0;'
-                        + 'opacity: 0.5;'
-                        + 'margin:-1px;}');
-
-            GM_addStyle('div#menuExp-moveLeft {'
-                        + 'border-right-color: blue;}');
-
-            GM_addStyle('div#menuExp-moveRight {'
-                        + 'border-left-color: blue;}');
-            function moveLeftExp()
-            {
-                $('div.g1 span[nav="left"]').click();
-                prepareExp();
-            }
-            function moveRightExp()
-            {
-                $('div.g1 span[nav="right"]').click();
-                prepareExp();
-            }
-            function launchGiveExp()
-            {
-                document.getElementById("menuExp-moveLeft").style.visibility = "hidden";
-                document.getElementById("menuExp-moveRight").style.visibility = "hidden";
-                giveExp(getSelectGirlID, ExpToGive, potionArray);
-
-            }
-            var KeyUpExp = function(evt)
-            {
-                if (evt.key === 'Enter')
-                {
-                    launchGiveExp();
-                }
-                else if (evt.keyCode == '37')
-                {
-                    // left arrow
-                    moveLeftExp();
-                }
-                else if (evt.keyCode == '39')
-                {
-                    // right arrow
-                    moveRightExp();
-                }
-            }
-
-
-            document.getElementById("menuExp-moveLeft").addEventListener("click", function()
-                                                                         {
-                moveLeftExp();
-            });
-            document.getElementById("menuExp-moveRight").addEventListener("click", function()
-                                                                          {
-                moveRightExp();
-            });
-            document.getElementById("menuExp").addEventListener("click", function()
-                                                                {
-                if (typeof ExpDialog.showModal === "function")
-                {
-                    prepareExp();
-                    document.removeEventListener('keyup', KeyUpExp, false);
-                    document.addEventListener('keyup', KeyUpExp, false);
-                    ExpDialog.showModal();
-                }
-                else
-                {
-                    alert("The <dialog> API is not supported by this browser");
-                }
-            });
-            document.getElementById("menuExpLevel").addEventListener("change", function()
-                                                                     {
-                prepareExp();
-            });
-            document.getElementById("menuExpButton").addEventListener("click", function()
-                                                                      {
-                launchGiveExp();
-            });
-            document.getElementById("menuExpCancel").addEventListener("click", function(){
-
-                if (typeof ExpDialog.showModal === "function")
-                {
-                    document.removeEventListener('keyup', KeyUpExp, false);
-                    ExpDialog.close();
-
-                }
-                else
-                {
-                    alert("The <dialog> API is not supported by this browser");
-                }
-            });
-
-            function prepareExp()
-            {
-
-                let targetedLevel = Number(document.getElementById("menuExpLevel").value);
-
-                let girl;
-
-                girl=$('div.girl-ico:not(.not-selected)');
-                getSelectGirlID=girl.attr("id_girl");
-                let selectedGirl=girl.data("g");
-                let selectedGirlTooltip=JSON.parse(girl.attr(getHHScriptVars('girlToolTipData')));
-
-                let selectedGirlExp=selectedGirl.Xp.cur;
-                potionArray = {};
-                let potionCount = {};
-                let minExpItem=99999;
-                let totalExp=0;
-                let menuText="";
-                $('div.potion div.inventory_slots div[id_item][data-d]').each(function()
-                                                                              {
-                    let data=JSON.parse($(this).attr("data-d"));
-                    let countpotion=Number($('div.potion div.inventory_slots div[id_item='+$(this).attr("id_item")+'][data-d] .stack_num span')[0].innerHTML.replace(/[^0-9]/gi, ''))
-
-                    if (minExpItem > Number(data.value))
-                    {
-                        minExpItem = Number(data.value);
-                    }
-                    potionCount[Number(data.value)]=countpotion;
-                    totalExp+=Number(data.value)*countpotion
-                    potionArray[Number(data.value)]=$(this).attr("id_item");
-                });
-
-                if (totalExp > 0
-                    && Number(selectedGirl.Xp.level) < targetedLevel
-                    && Number(selectedGirl.Xp.cur) < getLevelXp(selectedGirlTooltip.rarity,targetedLevel)
-                    && (Number(getLevelXp(selectedGirlTooltip.rarity,targetedLevel)-Number(selectedGirl.Xp.cur)) >=minExpItem) )
-                {
-                    let ExpMissing = Number(getLevelXp(selectedGirlTooltip.rarity,targetedLevel))-Number(selectedGirl.Xp.cur);
-                    ExpToGive=findSubsetsPartition(ExpMissing,potionCount);
-                    menuText = selectedGirl.Name+" "+selectedGirl.Xp.cur+"/"+getLevelXp(selectedGirlTooltip.rarity,targetedLevel)+"<br>"+getTextForUI("menuDistribution","elementText")+"<br>";
-                    let Expkeys = Object.keys(ExpToGive.partitions);
-                    for ( var i of Expkeys )
-                    {
-                        menuText = menuText+i+"Exp x "+ExpToGive.partitions[i]+"<br>"
-                    }
-                    menuText = menuText+getTextForUI("Total","elementText")+ExpToGive.total+"/"+ExpMissing;
-                    document.getElementById("menuExpHide").style.display = "block";
-                }
-                else
-                {
-                    menuText = getTextForUI("menuExpNoExp","elementText")+" "+selectedGirl.Name;
-                    document.getElementById("menuExpHide").style.display = "none";
-                }
-                logHHAuto(menuText);
-                document.getElementById("menuExpText").innerHTML = menuText;
-            }
-        }
-    }
-
-
-
-    function giveExp(inGirlID, inExpToGive, inExpArray)
-    {
-        let girl=$('div.girl-ico:not(.not-selected)');
-        let selectedGirl=girl.data("g");
-        let selectedGirlExp=selectedGirl.Xp.cur;
-        let selectedGirlTooltip=JSON.parse(girl.attr(getHHScriptVars('girlToolTipData')));
-        let targetedLevel = Number(document.getElementById("menuExpLevel").value);
-        let targetedXp = getLevelXp(selectedGirlTooltip.rarity,targetedLevel);
-        logHHAuto('start giving Exp to '+selectedGirl.Name);
-        let currentTotal = selectedGirlExp;
-        let currentItem = -1;
-        let inExpToGivePartitionBackup = { ...inExpToGive.partitions }
-        document.getElementById("menuExpHide").style.display = "none";
-        document.getElementById("menuExpText").innerHTML = selectedGirl.Name+" "+selectedGirlExp+"/"+targetedXp+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
-
-        let oldTime = new Date();
-
-        function giveExp_func()
-        {
-            let newTime = new Date();
-            //console.log("giveExp_func : "+Number(newTime-oldTime)+"ms");
-            oldTime = newTime;
-
-            if (!document.getElementById("ExpDialog").open)
-            {
-                logHHAuto('Exp Dialog closed, stopping');
-                document.removeEventListener('keyup', KeyUpExp, false);
-                return;
-            }
-
-            girl=$('div.girl-ico:not(.not-selected)');
-            selectedGirl=girl.data("g");
-            selectedGirlExp=selectedGirl.Xp.cur;
-
-            //console.log(currentItem, inExpToGive.partitions[currentItem],inExpToGive.partitions,selectedGirlExp,currentTotal);
-
-            //check if previous click has worked
-            if (selectedGirlExp === currentTotal)
-            {
-                //decrease count
-                if (currentItem !== -1)
-                {
-                    logHHAuto('Spent one '+currentItem);
-                    inExpToGive.partitions[currentItem] = inExpToGive.partitions[currentItem]-1;
-                    let menuText = selectedGirl.Name+" "+selectedGirlExp+"/"+targetedXp+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
-                    let Expkeys = Object.keys(inExpToGivePartitionBackup);
-                    let givenTotal = 0;
-                    logHHAuto({log:"Remains to spend",inExpToGive:inExpToGive});
-                    for ( var i of Expkeys )
-                    {
-                        let diff=Number(inExpToGivePartitionBackup[i]-inExpToGive.partitions[i]);
-                        givenTotal += diff*Number(i);
-                        if (diff >0)
-                        {
-                            //menuText = menuText+i+"Exp x "+diff+"<br>";
-                        }
-                        menuText = menuText+i+"Exp x "+diff+"/"+inExpToGivePartitionBackup[i]+"<br>";
-                    }
-                    menuText = menuText+getTextForUI("Total","elementText")+givenTotal+"/"+inExpToGive.total;
-                    document.getElementById("menuExpText").innerHTML = menuText;
-
-                }
-                //select item
-                let itemKeys=Object.keys(inExpToGive.partitions);
-                currentItem = -1;
-                for ( let i of itemKeys )
-                {
-                    if (inExpToGive.partitions[i] >0)
-                    {
-                        currentItem = i;
-                    }
-                }
-
-                if (currentItem === -1)
-                {
-                    clearInterval(giveExp_func);
-                    let menuText;
-
-                    logHHAuto(selectedGirl.Name+ "max Exp given.");
-                    menuText =getTextForUI("menuExpEnd","elementText")+" "+selectedGirl.Name+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
-                    let givenTotal = 0;
-                    let Expkeys = Object.keys(inExpToGivePartitionBackup);
-                    for ( var i of Expkeys )
-                    {
-                        let diff=Number(inExpToGivePartitionBackup[i]-inExpToGive.partitions[i]);
-                        givenTotal += diff*Number(i);
-                        if (diff >0)
-                        {
-                            //menuText = menuText+i+"Exp x "+diff+"<br>";
-                        }
-                        menuText = menuText+i+"Exp x "+diff+"/"+inExpToGivePartitionBackup[i]+"<br>";
-                    }
-                    menuText = menuText+getTextForUI("Total","elementText")+givenTotal;
-                    document.getElementById("menuExpText").innerHTML = menuText;
-                    document.getElementById("menuExpHide").style.display = "none";
-                    document.getElementById("menuExp-moveLeft").style.visibility = "visible";
-                    document.getElementById("menuExp-moveRight").style.visibility = "visible";
-
-                }
-                else if (currentItem !== -1)
-                {
-                    logHHAuto("selected item : "+currentItem);
-                    $('div.potion div.inventory_slots div[id_item='+inExpArray[currentItem]+'][data-d]').click();
-                    currentTotal+=Number(currentItem)
-                    setTimeout(giveExp_func, randomInterval(800,1600));
-                }
-                return;
-            }
-            else
-            {
-                if (inExpArray[currentItem] === $('div.potion div.inventory_slots div[id_item][data-d].selected').attr("id_item") && inExpToGive.partitions[currentItem] >0 )
-                {
-                    logHHAuto("clicked on "+currentItem);
-                    $('#inventory > button.blue_text_button[rel=use]').click();
-                    setTimeout(giveExp_func, randomInterval(300,600));
-                    return;
-                }
-            }
-        }
-        setTimeout(giveExp_func, randomInterval(800,1600));
-    }
-
     function findSubsetsPartition(inTotal, inSets)
     {
         let arr = [];
@@ -6963,6 +6353,718 @@ function moduleShopActions()
             return {total:inMax,partitions:needs};
         }
     }
+
+    function appendMenuAff()
+    {
+        var menuAff = '<div style="position: absolute;right: 50px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAff","tooltip")+'</span><label style="width:100px" class="myButton" id="menuAff">'+getTextForUI("menuAff","elementText")+'</label></div>'
+        + '<dialog style="min-width: 50%;margin-top: 7%;margin-left: 1%;" id="AffDialog"><form stylemethod="dialog">'
+        +  '<div style="justify-content: space-between;align-items: flex-start;"class="HHMenuRow">'
+        +   '<div id="menuAff-moveLeft"></div>'
+        +   '<div style="padding:10px; display:flex;flex-direction:column;">'
+        +    '<p id="menuAffText"></p>'
+        +    '<p ></p>'
+        +    '<div class="HHMenuRow" style="padding:10px;justify-content:center">'
+        +     '<div>'+getTextForUI("autoGiveAff","elementText")+'</div>'
+        +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoGiveAff","tooltip")+'</span><input id="autoGiveAff" type="checkbox"></div>'
+        +    '</div>'
+        +    '<div style="padding:10px;justify-content:center" class="HHMenuRow">'
+        +     '<div id="menuAffHide" style="display:none">'
+        +      '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAffButton","tooltip")+'</span><label style="width:80px" class="myButton" id="menuAffButton">'+getTextForUI("menuAffButton","elementText")+'</label></div>'
+        +     '</div>'
+        +     '<div><label style="margin-left:10px;width:80px" class="myButton" id="menuAffCancel">'+getTextForUI("OptionCancel","elementText")+'</label></div>'
+        +    '</div>'
+        +   '</div>'
+        +   '<div id="menuAff-moveRight"></div>'
+        +  '</div>'
+        + '</form></dialog>'
+        let getSelectGirlID;
+        let girl;
+        let giftArray = {};
+        let AffToGive;
+        let canGiveAff = false;
+        if ($("#menuAff").length === 0 )
+        {
+
+            $('#inventory > div.gift > label').append(menuAff);
+            GM_addStyle('#menuAff-moveRight, #menuAff-moveLeft {'
+                        + 'width: 0;'
+                        + 'float: left;'
+                        + 'border: 20px solid transparent;'
+                        + 'height: 0;'
+                        + 'opacity: 0.5;'
+                        + 'margin:-1px;}');
+
+            GM_addStyle('div#menuAff-moveLeft {'
+                        + 'border-right-color: blue;}');
+
+            GM_addStyle('div#menuAff-moveRight {'
+                        + 'border-left-color: blue;}');
+
+
+            var KeyUpAff = function(evt)
+            {
+                if (evt.key === 'Enter')
+                {
+                    launchGiveAff();
+                }
+                else if (evt.keyCode == '37')
+                {
+                    // left arrow
+                    moveLeftAff();
+                }
+                else if (evt.keyCode == '39')
+                {
+                    // right arrow
+                    moveRightAff();
+                }
+            }
+
+
+
+            document.getElementById("menuAff-moveLeft").addEventListener("click", moveLeftAff);
+            document.getElementById("menuAff-moveRight").addEventListener("click", moveRightAff);
+            document.getElementById("menuAff").addEventListener("click", function()
+                                                                {
+                calculateAffSelectedGirl();
+                document.removeEventListener('keyup', KeyUpAff, false);
+                document.addEventListener('keyup', KeyUpAff, false);
+                giveAffAutoNext();
+            });
+            document.getElementById("autoGiveAff").addEventListener('change', function()
+                                                                    {
+                if (this.checked)
+                {
+                    giveAffAutoNext();
+                }
+            });
+            document.getElementById("menuAffButton").addEventListener("click", launchGiveAff);
+            document.getElementById("menuAffCancel").addEventListener("click", function(){
+
+                if (typeof AffDialog.showModal === "function")
+                {
+
+                    AffDialog.close();
+                    document.removeEventListener('keyup', KeyUpAff, false);
+                }
+                else
+                {
+                    alert("The <dialog> API is not supported by this browser");
+                }
+            });
+
+
+        }
+        function moveLeftAff()
+        {
+            $('div.g1 span[nav="left"]').click();
+            calculateAffSelectedGirl();
+        }
+        function moveRightAff()
+        {
+            $('div.g1 span[nav="right"]').click();
+            calculateAffSelectedGirl();
+        }
+        function launchGiveAff()
+        {
+            document.getElementById("menuAff-moveLeft").style.visibility = "hidden";
+            document.getElementById("menuAff-moveRight").style.visibility = "hidden";
+            giveAff(getSelectGirlID, AffToGive, giftArray);
+        }
+        function calculateAffSelectedGirl()
+        {
+            girl=$('div.girl-ico:not(.not-selected)');
+            getSelectGirlID=girl.attr("id_girl");
+            let selectedGirl=girl.data("g");
+            //console.log(getSelectGirlID,$('.bar-wrap.upgrade.button_glow[rel="aff"]', girl).length >0 || $('.bar-wrap.maxed[rel="aff"]', girl).length >0);
+            document.getElementById("menuAffHide").style.display = "none";
+            if (
+                $('.bar-wrap.upgrade.button_glow[rel="aff"]', girl).length >0
+                || $('.bar-wrap.maxed[rel="aff"]', girl).length >0
+            )
+            {
+                if (typeof AffDialog.showModal === "function")
+                {
+                    document.getElementById("menuAffText").innerHTML = selectedGirl.Name+" "+getTextForUI("menuAffNoNeed","elementText");
+                    document.getElementById("menuAffHide").style.display = "none";
+                    if (!document.getElementById("AffDialog").open)
+                    {
+                        AffDialog.showModal();
+
+                    }
+                }
+                else
+                {
+                    alert("The <dialog> API is not supported by this browser");
+                }
+                return;
+            }
+
+            let selectedGirlAff=selectedGirl.Affection.cur;
+            giftArray = {};
+            let giftCount = {};
+            let minAffItem=99999;
+            let totalAff=0;
+            let menuText="";
+            $('div.gift div.inventory_slots div[id_item][data-d]').each(function()
+                                                                        {
+                let data=JSON.parse($(this).attr("data-d"));
+                let countGift=Number($('div.gift div.inventory_slots div[id_item='+$(this).attr("id_item")+'][data-d] .stack_num span')[0].innerHTML.replace(/[^0-9]/gi, ''))
+
+                if (minAffItem > Number(data.value))
+                {
+                    minAffItem = Number(data.value);
+                }
+                giftCount[Number(data.value)]=countGift;
+                totalAff+=Number(data.value)*countGift
+                giftArray[Number(data.value)]=$(this).attr("id_item");
+            });
+            if (Number(selectedGirl.Affection.cur) < Number(selectedGirl.Affection.max) && totalAff > 0 && (Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur)) >=minAffItem)
+            {
+                let AffMissing = Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur);
+                AffToGive=findSubsetsPartition(AffMissing,giftCount);
+                menuText = selectedGirl.Name+" "+selectedGirl.Affection.cur+"/"+selectedGirl.Affection.max+"<br>"+getTextForUI("menuDistribution","elementText")+"<br>";
+                let Affkeys = Object.keys(AffToGive.partitions);
+                for ( var i of Affkeys )
+                {
+                    menuText = menuText+i+"Aff x "+AffToGive.partitions[i]+"<br>"
+                }
+                menuText = menuText+getTextForUI("Total","elementText")+AffToGive.total+"/"+AffMissing;
+                document.getElementById("menuAffHide").style.display = "block";
+                canGiveAff = true;
+
+            }
+            else if (totalAff === 0 || (Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur)) <=minAffItem)
+            {
+                menuText = getTextForUI("menuAffNoAff","elementText")+" "+selectedGirl.Name;
+            }
+            logHHAuto(menuText)
+            if (typeof AffDialog.showModal === "function")
+            {
+                document.getElementById("menuAffText").innerHTML = menuText;
+                if (!document.getElementById("AffDialog").open)
+                {
+                    AffDialog.showModal();
+                }
+
+            }
+            else
+            {
+                alert("The <dialog> API is not supported by this browser");
+            }
+        }
+
+        function giveAffAutoNext()
+        {
+            if (!document.getElementById("autoGiveAff").checked)
+            {
+                return;
+            }
+            let girlzCount = Number($(getHHScriptVars("shopGirlCountRequest"))[0].innerText);
+            let currentGirl = Number($(getHHScriptVars("shopGirlCurrentRequest"))[0].innerText);
+            let giftNb = $('div.gift div.inventory_slots div[id_item][data-d]').length;
+            if (currentGirl < girlzCount && !canGiveAff && giftNb > 0)
+            {
+                logHHAuto("Moving to next girl.");
+                moveRightAff();
+                setTimeout(giveAffAutoNext,randomInterval(300, 600));
+            }
+            else if ( canGiveAff && giftNb > 0)
+            {
+                logHHAuto("Auto give Aff.");
+                launchGiveAff();
+            }
+            else
+            {
+                logHHAuto("Can't give more aff.");
+                document.getElementById("autoGiveAff").checked = false;
+            }
+
+        }
+
+        function giveAff(inGirlID, inAffToGive, inAffArray)
+        {
+            let girl=$('div.girl-ico:not(.not-selected)');
+            let selectedGirl=girl.data("g");
+            let selectedGirlAff=selectedGirl.Affection.cur;
+            logHHAuto('start giving Aff to '+selectedGirl.Name);
+            let currentTotal = selectedGirlAff;
+            let currentItem = -1;
+            let inAffToGivePartitionBackup = { ...inAffToGive.partitions }
+            document.getElementById("menuAffHide").style.display = "none";
+            document.getElementById("menuAffText").innerHTML = selectedGirl.Name+" "+selectedGirlAff+"/"+selectedGirl.Affection.max+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
+
+            let oldTime = new Date();
+
+            function giveAff_func()
+            {
+                let newTime = new Date();
+                //console.log("giveAff_func : "+Number(newTime-oldTime)+"ms");
+                oldTime = newTime;
+                if (!document.getElementById("AffDialog").open)
+                {
+                    logHHAuto('Aff Dialog closed, stopping');$
+                    document.removeEventListener('keyup', KeyUpAff, false);
+                    return;
+                }
+
+                if ($('div[id_girl='+inGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length >0)
+                {
+                    selectedGirlAff = currentTotal;
+                }
+                else
+                {
+                    girl=$('div.girl-ico:not(.not-selected)');
+                    selectedGirl=girl.data("g");
+                    selectedGirlAff=selectedGirl.Affection.cur;
+                }
+                //console.log(currentItem, inAffToGive.partitions[currentItem],inAffToGive.partitions,selectedGirlAff,currentTotal);
+
+                //check if previous click has worked
+                if (selectedGirlAff === currentTotal)
+                {
+                    //decrease count
+                    if (currentItem !== -1)
+                    {
+                        logHHAuto('Spent one '+currentItem);
+                        inAffToGive.partitions[currentItem] = inAffToGive.partitions[currentItem]-1;
+                        let menuText = selectedGirl.Name+" "+selectedGirlAff+"/"+selectedGirl.Affection.max+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
+                        let Affkeys = Object.keys(inAffToGivePartitionBackup);
+                        let givenTotal = 0;
+                        logHHAuto({log:"Remains to spend",inAffToGive:inAffToGive});
+                        for ( var i of Affkeys )
+                        {
+                            let diff=Number(inAffToGivePartitionBackup[i]-inAffToGive.partitions[i]);
+                            givenTotal += diff*Number(i);
+                            if (diff >0)
+                            {
+                                //menuText = menuText+i+"Aff x "+diff+"<br>";
+                            }
+                            menuText = menuText+i+"Aff x "+diff+"/"+inAffToGivePartitionBackup[i]+"<br>";
+                        }
+                        menuText = menuText+getTextForUI("Total","elementText")+givenTotal+"/"+inAffToGive.total;
+                        document.getElementById("menuAffText").innerHTML = menuText;
+
+                    }
+                    //select item
+                    let itemKeys=Object.keys(inAffToGive.partitions);
+                    currentItem = -1;
+                    for ( let i of itemKeys )
+                    {
+                        if (inAffToGive.partitions[i] >0)
+                        {
+                            currentItem = i;
+                        }
+                    }
+
+                    if (currentItem === -1)
+                    {
+                        let menuText;
+                        if ($('div[id_girl='+inGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length >0)
+                        {
+                            logHHAuto(selectedGirl.Name+ " is ready to be upgrade");
+                            menuText =selectedGirl.Name+" "+getTextForUI("menuAffReadyToUpgrade","elementText")+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
+                        }
+                        else
+                        {
+                            logHHAuto(selectedGirl.Name+ "max aff given.");
+                            menuText =getTextForUI("menuAffEnd","elementText")+" "+selectedGirl.Name+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
+                        }
+                        let givenTotal = 0;
+                        let Affkeys = Object.keys(inAffToGivePartitionBackup);
+                        for ( var i of Affkeys )
+                        {
+                            let diff=Number(inAffToGivePartitionBackup[i]-inAffToGive.partitions[i]);
+                            givenTotal += diff*Number(i);
+                            if (diff >0)
+                            {
+                                //menuText = menuText+i+"Aff x "+diff+"<br>";
+                            }
+                            menuText = menuText+i+"Aff x "+diff+"/"+inAffToGivePartitionBackup[i]+"<br>";
+                        }
+                        menuText = menuText+getTextForUI("Total","elementText")+givenTotal;
+                        document.getElementById("menuAffText").innerHTML = menuText;
+                        document.getElementById("menuAffHide").style.display = "none";
+                        document.getElementById("menuAff-moveLeft").style.visibility = "visible";
+                        document.getElementById("menuAff-moveRight").style.visibility = "visible";
+                        canGiveAff = false;
+                        giveAffAutoNext();
+                    }
+                    else if (currentItem !== -1)
+                    {
+                        logHHAuto("selected item : "+currentItem);
+                        $('div.gift div.inventory_slots div[id_item='+inAffArray[currentItem]+'][data-d]').click();
+                        currentTotal+=Number(currentItem);
+                        setTimeout(giveAff_func, randomInterval(400,800));
+                    }
+                    return;
+                }
+                else
+                {
+                    if (inAffArray[currentItem] === $('div.gift div.inventory_slots div[id_item][data-d].selected').attr("id_item") && inAffToGive.partitions[currentItem] >0 )
+                    {
+                        logHHAuto("clicked on "+currentItem);
+                        $('#inventory > button.blue_text_button[rel=use]').click();
+                        setTimeout(giveAff_func, randomInterval(100,200));
+                        return;
+                    }
+                }
+            }
+            setTimeout(giveAff_func, randomInterval(300,600));
+        }
+    }
+
+
+    function appendMenuExp()
+    {
+        var menuExp = '<div style="position: absolute;right: 50px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExp","tooltip")+'</span><label style="width:100px" class="myButton" id="menuExp">'+getTextForUI("menuExp","elementText")+'</label></div>'
+        + '<dialog style="width: 50%;margin-top: 7%;margin-left: 1%;" id="ExpDialog"><form stylemethod="dialog">'
+        +  '<div style="justify-content: space-between;align-items: flex-start;"class="HHMenuRow">'
+        +   '<div id="menuExp-moveLeft"></div>'
+        +   '<div style="padding:10px; display:flex;flex-direction:column;">'
+        +    '<p id="menuExpText"></p>'
+        +    '<div class="HHMenuRow">'
+        +     '<p>'+getTextForUI("menuExpLevel","elementText")+'</p>'
+        +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExpLevel","tooltip")+'</span><input id="menuExpLevel" style="width:50px;height:20px" required pattern="'+HHAuto_inputPattern.menuExpLevel+'" type="text" value="'+getHHVars('Hero.infos.level')+'"></div>'
+        +    '</div>'
+        +    '<div class="HHMenuRow" style="padding:10px;justify-content:center">'
+        +     '<div>'+getTextForUI("autoGiveExp","elementText")+'</div>'
+        +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoGiveExp","tooltip")+'</span><input id="autoGiveExp" type="checkbox"></div>'
+        +    '</div>'
+        +    '<div style="padding:10px;justify-content:center" class="HHMenuRow">'
+        +     '<div id="menuExpHide" style="display:none">'
+        +      '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExpButton","tooltip")+'</span><label style="width:80px" class="myButton" id="menuExpButton">'+getTextForUI("menuExpButton","elementText")+'</label></div>'
+        +     '</div>'
+        +    '<div><label style="margin-left:10px;width:80px" class="myButton" id="menuExpCancel">'+getTextForUI("OptionCancel","elementText")+'</label></div>'
+        +    '</div>'
+        +   '</div>'
+        +   '<div id="menuExp-moveRight"></div>'
+        +  '</div>'
+        + '<menu> </menu></form></dialog>'
+        let canGiveEp = false;
+        let getSelectGirlID;
+        let potionArray = {};
+        let ExpToGive;
+        let canGiveExp = false;
+        if ($("#menuExp").length === 0 )
+        {
+            $('#inventory > div.potion > label').append(menuExp);
+            GM_addStyle('#menuExp-moveRight, #menuExp-moveLeft {'
+                        + 'width: 0;'
+                        + 'float: left;'
+                        + 'border: 20px solid transparent;'
+                        + 'height: 0;'
+                        + 'opacity: 0.5;'
+                        + 'margin:-1px;}');
+
+            GM_addStyle('div#menuExp-moveLeft {'
+                        + 'border-right-color: blue;}');
+
+            GM_addStyle('div#menuExp-moveRight {'
+                        + 'border-left-color: blue;}');
+
+            var KeyUpExp = function(evt)
+            {
+                if (evt.key === 'Enter')
+                {
+                    launchGiveExp();
+                }
+                else if (evt.keyCode == '37')
+                {
+                    // left arrow
+                    moveLeftExp();
+                }
+                else if (evt.keyCode == '39')
+                {
+                    // right arrow
+                    moveRightExp();
+                }
+            }
+
+
+            document.getElementById("menuExp-moveLeft").addEventListener("click", function()
+                                                                         {
+                moveLeftExp();
+            });
+            document.getElementById("menuExp-moveRight").addEventListener("click", function()
+                                                                          {
+                moveRightExp();
+            });
+            document.getElementById("autoGiveExp").addEventListener('change', function()
+                                                                    {
+                if (this.checked)
+                {
+                    giveExpAutoNext();
+                }
+            });
+            document.getElementById("menuExp").addEventListener("click", function()
+                                                                {
+                if (typeof ExpDialog.showModal === "function")
+                {
+                    prepareExp();
+                    document.removeEventListener('keyup', KeyUpExp, false);
+                    document.addEventListener('keyup', KeyUpExp, false);
+                    ExpDialog.showModal();
+                    giveExpAutoNext();
+                }
+                else
+                {
+                    alert("The <dialog> API is not supported by this browser");
+                }
+            });
+            document.getElementById("menuExpLevel").addEventListener("change", function()
+                                                                     {
+                prepareExp();
+            });
+            document.getElementById("menuExpButton").addEventListener("click", function()
+                                                                      {
+                launchGiveExp();
+            });
+            document.getElementById("menuExpCancel").addEventListener("click", function(){
+
+                if (typeof ExpDialog.showModal === "function")
+                {
+                    document.removeEventListener('keyup', KeyUpExp, false);
+                    ExpDialog.close();
+
+                }
+                else
+                {
+                    alert("The <dialog> API is not supported by this browser");
+                }
+            });
+
+
+        }
+        function giveExpAutoNext()
+        {
+            if (!document.getElementById("autoGiveExp").checked)
+            {
+                return;
+            }
+            let girlzCount = Number($(getHHScriptVars("shopGirlCountRequest"))[0].innerText);
+            let currentGirl = Number($(getHHScriptVars("shopGirlCurrentRequest"))[0].innerText);
+            let giftNb = $('div.potion div.inventory_slots div[id_item][data-d]').length;
+            if (currentGirl < girlzCount && !canGiveExp && giftNb > 0)
+            {
+                logHHAuto("Moving to next girl.");
+                moveRightExp();
+                setTimeout(giveExpAutoNext,randomInterval(300, 600));
+            }
+            else if ( canGiveExp && giftNb > 0)
+            {
+                logHHAuto("Auto give Exp.");
+                launchGiveExp();
+            }
+            else
+            {
+                logHHAuto("Can't give more exp.");
+                document.getElementById("autoGiveExp").checked = false;
+            }
+
+        }
+        function prepareExp()
+        {
+
+            let targetedLevel = Number(document.getElementById("menuExpLevel").value);
+
+            let girl;
+
+            girl=$('div.girl-ico:not(.not-selected)');
+            getSelectGirlID=girl.attr("id_girl");
+            let selectedGirl=girl.data("g");
+            let selectedGirlTooltip=JSON.parse(girl.attr(getHHScriptVars('girlToolTipData')));
+
+            let selectedGirlExp=selectedGirl.Xp.cur;
+            potionArray = {};
+            let potionCount = {};
+            let minExpItem=99999;
+            let totalExp=0;
+            let menuText="";
+            $('div.potion div.inventory_slots div[id_item][data-d]').each(function()
+                                                                          {
+                let data=JSON.parse($(this).attr("data-d"));
+                let countpotion=Number($('div.potion div.inventory_slots div[id_item='+$(this).attr("id_item")+'][data-d] .stack_num span')[0].innerHTML.replace(/[^0-9]/gi, ''))
+
+                if (minExpItem > Number(data.value))
+                {
+                    minExpItem = Number(data.value);
+                }
+                potionCount[Number(data.value)]=countpotion;
+                totalExp+=Number(data.value)*countpotion
+                potionArray[Number(data.value)]=$(this).attr("id_item");
+            });
+
+            if (totalExp > 0
+                && Number(selectedGirl.Xp.level) < targetedLevel
+                && Number(selectedGirl.Xp.cur) < getLevelXp(selectedGirlTooltip.rarity,targetedLevel)
+                && (Number(getLevelXp(selectedGirlTooltip.rarity,targetedLevel)-Number(selectedGirl.Xp.cur)) >=minExpItem) )
+            {
+                let ExpMissing = Number(getLevelXp(selectedGirlTooltip.rarity,targetedLevel))-Number(selectedGirl.Xp.cur);
+                ExpToGive=findSubsetsPartition(ExpMissing,potionCount);
+                menuText = selectedGirl.Name+" "+selectedGirl.Xp.cur+"/"+getLevelXp(selectedGirlTooltip.rarity,targetedLevel)+"<br>"+getTextForUI("menuDistribution","elementText")+"<br>";
+                let Expkeys = Object.keys(ExpToGive.partitions);
+                for ( var i of Expkeys )
+                {
+                    menuText = menuText+i+"Exp x "+ExpToGive.partitions[i]+"<br>"
+                }
+                menuText = menuText+getTextForUI("Total","elementText")+ExpToGive.total+"/"+ExpMissing;
+                document.getElementById("menuExpHide").style.display = "block";
+                canGiveExp = true;
+            }
+            else
+            {
+                menuText = getTextForUI("menuExpNoExp","elementText")+" "+selectedGirl.Name;
+                document.getElementById("menuExpHide").style.display = "none";
+            }
+            logHHAuto(menuText);
+            document.getElementById("menuExpText").innerHTML = menuText;
+        }
+        function moveLeftExp()
+        {
+            $('div.g1 span[nav="left"]').click();
+            prepareExp();
+        }
+        function moveRightExp()
+        {
+            $('div.g1 span[nav="right"]').click();
+            prepareExp();
+        }
+        function launchGiveExp()
+        {
+            document.getElementById("menuExp-moveLeft").style.visibility = "hidden";
+            document.getElementById("menuExp-moveRight").style.visibility = "hidden";
+            giveExp(getSelectGirlID, ExpToGive, potionArray);
+
+        }
+        function giveExp(inGirlID, inExpToGive, inExpArray)
+        {
+            let girl=$('div.girl-ico:not(.not-selected)');
+            let selectedGirl=girl.data("g");
+            let selectedGirlExp=selectedGirl.Xp.cur;
+            let selectedGirlTooltip=JSON.parse(girl.attr(getHHScriptVars('girlToolTipData')));
+            let targetedLevel = Number(document.getElementById("menuExpLevel").value);
+            let targetedXp = getLevelXp(selectedGirlTooltip.rarity,targetedLevel);
+            logHHAuto('start giving Exp to '+selectedGirl.Name);
+            let currentTotal = selectedGirlExp;
+            let currentItem = -1;
+            let inExpToGivePartitionBackup = { ...inExpToGive.partitions }
+            document.getElementById("menuExpHide").style.display = "none";
+            document.getElementById("menuExpText").innerHTML = selectedGirl.Name+" "+selectedGirlExp+"/"+targetedXp+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
+
+            let oldTime = new Date();
+
+            function giveExp_func()
+            {
+                let newTime = new Date();
+                //console.log("giveExp_func : "+Number(newTime-oldTime)+"ms");
+                oldTime = newTime;
+
+                if (!document.getElementById("ExpDialog").open)
+                {
+                    logHHAuto('Exp Dialog closed, stopping');
+                    document.removeEventListener('keyup', KeyUpExp, false);
+                    return;
+                }
+
+                girl=$('div.girl-ico:not(.not-selected)');
+                selectedGirl=girl.data("g");
+                selectedGirlExp=selectedGirl.Xp.cur;
+
+                //console.log(currentItem, inExpToGive.partitions[currentItem],inExpToGive.partitions,selectedGirlExp,currentTotal);
+
+                //check if previous click has worked
+                if (selectedGirlExp === currentTotal)
+                {
+                    //decrease count
+                    if (currentItem !== -1)
+                    {
+                        logHHAuto('Spent one '+currentItem);
+                        inExpToGive.partitions[currentItem] = inExpToGive.partitions[currentItem]-1;
+                        let menuText = selectedGirl.Name+" "+selectedGirlExp+"/"+targetedXp+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
+                        let Expkeys = Object.keys(inExpToGivePartitionBackup);
+                        let givenTotal = 0;
+                        logHHAuto({log:"Remains to spend",inExpToGive:inExpToGive});
+                        for ( var i of Expkeys )
+                        {
+                            let diff=Number(inExpToGivePartitionBackup[i]-inExpToGive.partitions[i]);
+                            givenTotal += diff*Number(i);
+                            if (diff >0)
+                            {
+                                //menuText = menuText+i+"Exp x "+diff+"<br>";
+                            }
+                            menuText = menuText+i+"Exp x "+diff+"/"+inExpToGivePartitionBackup[i]+"<br>";
+                        }
+                        menuText = menuText+getTextForUI("Total","elementText")+givenTotal+"/"+inExpToGive.total;
+                        document.getElementById("menuExpText").innerHTML = menuText;
+
+                    }
+                    //select item
+                    let itemKeys=Object.keys(inExpToGive.partitions);
+                    currentItem = -1;
+                    for ( let i of itemKeys )
+                    {
+                        if (inExpToGive.partitions[i] >0)
+                        {
+                            currentItem = i;
+                        }
+                    }
+
+                    if (currentItem === -1)
+                    {
+                        clearInterval(giveExp_func);
+                        let menuText;
+
+                        logHHAuto(selectedGirl.Name+ "max Exp given.");
+                        menuText =getTextForUI("menuExpEnd","elementText")+" "+selectedGirl.Name+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
+                        let givenTotal = 0;
+                        let Expkeys = Object.keys(inExpToGivePartitionBackup);
+                        for ( var i of Expkeys )
+                        {
+                            let diff=Number(inExpToGivePartitionBackup[i]-inExpToGive.partitions[i]);
+                            givenTotal += diff*Number(i);
+                            if (diff >0)
+                            {
+                                //menuText = menuText+i+"Exp x "+diff+"<br>";
+                            }
+                            menuText = menuText+i+"Exp x "+diff+"/"+inExpToGivePartitionBackup[i]+"<br>";
+                        }
+                        menuText = menuText+getTextForUI("Total","elementText")+givenTotal;
+                        canGiveExp =false;
+                        document.getElementById("menuExpText").innerHTML = menuText;
+                        document.getElementById("menuExpHide").style.display = "none";
+                        document.getElementById("menuExp-moveLeft").style.visibility = "visible";
+                        document.getElementById("menuExp-moveRight").style.visibility = "visible";
+                        giveExpAutoNext();
+                    }
+                    else if (currentItem !== -1)
+                    {
+                        logHHAuto("selected item : "+currentItem);
+                        $('div.potion div.inventory_slots div[id_item='+inExpArray[currentItem]+'][data-d]').click();
+                        currentTotal+=Number(currentItem)
+                        setTimeout(giveExp_func, randomInterval(800,1600));
+                    }
+                    return;
+                }
+                else
+                {
+                    if (inExpArray[currentItem] === $('div.potion div.inventory_slots div[id_item][data-d].selected').attr("id_item") && inExpToGive.partitions[currentItem] >0 )
+                    {
+                        logHHAuto("clicked on "+currentItem);
+                        $('#inventory > button.blue_text_button[rel=use]').click();
+                        setTimeout(giveExp_func, randomInterval(300,600));
+                        return;
+                    }
+                }
+            }
+            setTimeout(giveExp_func, randomInterval(800,1600));
+        }
+
+
+    }
+
+
+
+
 
     function menuSellListItems()
     {
@@ -7479,7 +7581,7 @@ function moduleShopActions()
                     {
                         //Select item that checked before and can be sold
                         $('#inventory .selected .inventory_slots [canBeSold]:not([menuSellLocked])')[0].click();
-                        setTimeout(selling_func, randomInterval(1000,1600));
+                        setTimeout(selling_func, randomInterval(300,500));
                         return;
                     }
                     else if ($('#inventory .selected .inventory_slots .slot:not(.selected):not(.empty):not([menuSellLocked])').length > 0)
@@ -7907,6 +8009,14 @@ function parseEventPage(inTab="global")
                     if (button.length > 0)
                     {
                         eventList[eventID]["isCompleted"] = false;
+                        if (nextWave === -1)
+                        {
+                            setTimer('eventMythicNextWave',2*60);
+                        }
+                        else
+                        {
+                            setTimer('eventMythicNextWave',nextWave);
+                        }
                         if (remShards !== 0 )
                         {
                             let buttonHref = button.attr("href");
@@ -7925,10 +8035,6 @@ function parseEventPage(inTab="global")
                             {
                                 eventList[eventID]["isCompleted"] = true;
                                 clearTimer('eventMythicNextWave');
-                            }
-                            else
-                            {
-                                setTimer('eventMythicNextWave',nextWave);
                             }
                         }
                     }
@@ -7954,20 +8060,22 @@ function parseEventPage(inTab="global")
                 return a_weighted !== -1;
             }
         });
+
         if (eventsGirlz.length>0)
         {
             if (Priority[0]!=='')
             {
                 eventsGirlz.sort(function (a, b) {
+
                     var a_weighted = Number(Priority.indexOf(a.troll_id));
                     if ( a.is_mythic === "true" )
                     {
-                        a_weighted=a_weighted/10;
+                        a_weighted=a_weighted-Priority.length;
                     }
                     var b_weighted = Number(Priority.indexOf(b.troll_id));
                     if ( b.is_mythic === "true" )
                     {
-                        b_weighted=b_weighted/10;
+                        b_weighted=b_weighted-Priority.length;
                     }
                     return a_weighted-b_weighted;
 
@@ -8104,7 +8212,7 @@ function canBuyFight()
 
             logHHAuto('Unable to recharge up to '+maxx50+' for '+pricex50+' kobans : current energy : '+currentFight+', remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
             if (getHHVars('Hero.infos.hard_currency')>=pricex20+Number(Storage().HHAuto_Setting_kobanBank)
-                )//&& currentFight < 10)
+               )//&& currentFight < 10)
             {
                 result.max = maxx20;
                 result.canBuy = true;
@@ -8729,6 +8837,8 @@ HHEnvVariables["global"].girlToolTipData = "data-new-girl-tooltip";
 HHEnvVariables["global"].dailyRewardNotifRequest = "#contains_all header .currency .daily-reward-notif";
 HHEnvVariables["global"].pageEditTeam = "edit-team"
 HHEnvVariables["global"].IDpanelEditTeam = "#edit-team-page"
+HHEnvVariables["global"].shopGirlCountRequest = '#girls_list .g1 .number.selected span:not([contenteditable]';
+HHEnvVariables["global"].shopGirlCurrentRequest = '#girls_list .g1 .number.selected span[contenteditable]';
 
 const HC = 1;
 const CH = 2;
@@ -8760,7 +8870,7 @@ var HHAuto_inputPattern = {
     menuSellNumber:"[0-9]+",
     autoClubChampMax:"[0-9]+",
     menuExpLevel:"[1-4]?[0-9]?[0-9]",
-    minShardsX:"(100|[1-9][0-9]|[1-9])"
+    minShardsX:"(100|[1-9][0-9]|[0-9])"
 }
 
 var HHAuto_ToolTips = {};
@@ -8820,7 +8930,7 @@ HHAuto_ToolTips.en.autoLeaguesSelector = { elementText: "Target League", tooltip
 HHAuto_ToolTips.en.autoLeaguesAllowWinCurrent = {elementText:"Allow win", tooltip : "If check will allow to win targeted league and then demote next league to fall back to targeted league."};
 HHAuto_ToolTips.en.autoLeaguesThreshold = { elementText: "Threshold", tooltip : "(Integer between 0 and 14)<br>Minimum league fights to keep"};
 HHAuto_ToolTips.en.autoPowerPlaces = { elementText: "Places of Power", tooltip : "if enabled : Automatically Do powerPlaces"};
-HHAuto_ToolTips.en.autoPowerPlacesIndexFilter = { elementText: "Index Filter", tooltip : "(values separated by ;)<br>Allow to set filter and order on the PowerPlaces to do (order respected only when multiple powerPlace expires at the same time)"};
+HHAuto_ToolTips.en.autoPowerPlacesIndexFilter = { elementText: "Index Filter", tooltip : "(values separated by ;)<br>Allow to set filter and order on the PowerPlaces to do (order respected only when multiple powerPlace expires at the same time)"};//<table><tr><td>Reward</td>  <td>Hardcore</td>    <td>Charm</td>   <td>Know-How</td></tr><tr><td>Champ tickets & M¥</td>    <td>4</td>   <td>5</td>   <td>6</td></tr><tr><td>Epic Orbs & K¥</td>  <td>7</td>   <td>8</td>   <td>9</td></tr><tr><td>Epic Book & K¥</td> <td>10</td>  <td>11</td> <td>12</td></tr><tr><td>Epic Orbs & K¥</td>  <td>13</td>  <td>14</td>  <td>15</td></tr><tr><td>Leg. Booster & K¥</td>   <td>16</td>  <td>17</td>  <td>18</td></tr><tr><td>Champions tickets & K¥</td>  <td>19</td>  <td>20</td>  <td>21</td></tr><tr><td>Epic Gift & K¥</td>  <td>22</td>  <td>23</td>  <td>24</td></tr></table>
 HHAuto_ToolTips.en.autoPowerPlacesAll = { elementText: "Do All", tooltip : "If enabled : ignore filter and do all powerplaces (will update Filter with current ids)"};
 HHAuto_ToolTips.en.autoChampsTitle = { elementText: "Champions"};
 HHAuto_ToolTips.en.autoChamps = { elementText: "Normal", tooltip : "if enabled : Automatically do champions (if they are started and in filter only)"};
@@ -8931,6 +9041,8 @@ HHAuto_ToolTips.en.ExportGirlsData = {elementText : "⤓", tooltip : "Export Gir
 HHAuto_ToolTips.en.menuRemoveMaxed = {elementText : "Remove maxed", tooltip : "Remove maxed girls"};
 HHAuto_ToolTips.en.collectDailyRewards = {elementText : "Collect daily", tooltip : "Collect daily rewards if not collected 1 hour before end of HH day."};
 HHAuto_ToolTips.en.saveDefaults = {elementText : "Save defaults", tooltip : "Save your own defaults values for new tabs."};
+HHAuto_ToolTips.en.autoGiveAff = {elementText : "Auto Give", tooltip : "If enabled, will automatically give Aff to girls in order ( you can use OCD script to filter )."};
+HHAuto_ToolTips.en.autoGiveExp = {elementText : "Auto Give", tooltip : "If enabled, will automatically give Exp to girls in order ( you can use OCD script to filter )."};
 
 HHAuto_ToolTips.fr = {};
 HHAuto_ToolTips.fr.saveDebug = { elementText: "Sauver log", tooltip : "Sauvegarder un fichier journal de débogage."};
@@ -9487,9 +9599,6 @@ var updateData = function () {
     Storage().HHAuto_Setting_autoQuestThreshold = document.getElementById("autoQuestThreshold").value;
     Storage().HHAuto_Setting_autoLeaguesThreshold = document.getElementById("autoLeaguesThreshold").value;
     Storage().HHAuto_Setting_autoSeasonThreshold = document.getElementById("autoSeasonThreshold").value;
-
-
-
     Storage().HHAuto_Setting_PoAMaskRewards = document.getElementById("PoAMaskRewards").checked;
 
 
@@ -9512,6 +9621,10 @@ var updateData = function () {
         if (Storage().HHAuto_Setting_paranoia=="true")
         {
             Tegzd += '<br>'+sessionStorage.HHAuto_Temp_pinfo+': '+getTimeLeft('paranoiaSwitch');
+        }
+        if (Storage().HHAuto_Setting_autoTrollBattle=="true")
+        {
+            Tegzd += '<br>'+getTextForUI("autoTrollTitle","elementText")+' : '+getHHVars('Hero.energies.fight.amount')+'/'+getHHVars('Hero.energies.fight.max_amount');
         }
         if (Storage().HHAuto_Setting_autoSalary=="true")
         {
