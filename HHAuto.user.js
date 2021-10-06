@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.51
+// @version      5.5.52
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -1681,6 +1681,7 @@ var CollectMoney = function()
         {
 
             //logHHAuto('clicking N '+ToClick[0].formAction.split('/').last())
+            //console.log($(ToClick[0]));
             $(ToClick[0]).click();
             ToClick.shift();
             collectedMoney += $('span.s_value',$(ToClick[0])).length>0?Number($('span.s_value',$(ToClick[0]))[0].innerText.replace(/[^0-9]/gi, '')):0;
@@ -3083,7 +3084,7 @@ var doLeagueBattle = function () {
 
         while ($("span[sort_by='level'][select='asc']").size()==0)
         {
-            logHHAuto('resorting');
+            //logHHAuto('resorting');
             $("span[sort_by='level']").each(function(){this.click()});
         }
         logHHAuto('parsing enemies');
@@ -3465,7 +3466,24 @@ function getLeagueOpponentId(opponentsIDList,force=false)
         else
         {
             //logHHAuto('nothing to click, checking data');
-            sessionStorage.HHAuto_Temp_opponentsListExpirationDate=new Date().getTime() + 60*60 * 1000
+            let league_end = -1;
+            let maxLeagueListDurationSecs = 60*60;
+            for(let e in HHTimers.timers)
+            {
+                if(HHTimers.timers[e].$elm && HHTimers.timers[e].$elm.selector.startsWith(".league_end_in"))
+                {
+                    league_end=HHTimers.timers[e].remainingTime;
+                }
+            }
+            if (league_end !== -1 && league_end < maxLeagueListDurationSecs)
+            {
+                maxLeagueListDurationSecs = league_end;
+            }
+            if (maxLeagueListDurationSecs <1)
+            {
+                maxLeagueListDurationSecs = 1;
+            }
+            sessionStorage.HHAuto_Temp_opponentsListExpirationDate=new Date().getTime() + maxLeagueListDurationSecs * 1000
             //logHHAuto(DataOppo);
             sessionStorage.removeItem("HHAuto_Temp_LeagueTempOpponentList");
             sessionStorage.HHAuto_Temp_LeagueOpponentList = JSON.stringify(DataOppo,replacerMap);
@@ -4046,9 +4064,12 @@ var getFreeGreatPachinko = function(){
                 $('#playzone-replace-info button[free=1]')[0].click();
             }
             var npach;
-            for(var e in unsafeWindow.HHTimers.timers){
+            for(let e in unsafeWindow.HHTimers.timers)
+            {
                 if(unsafeWindow.HHTimers.timers[e].$elm && unsafeWindow.HHTimers.timers[e].$elm.selector.startsWith(".pachinko_change"))
+                {
                     npach=unsafeWindow.HHTimers.timers[e].remainingTime;
+                }
             }
             if(npach !== undefined || npach !== 0)
             {
@@ -4486,9 +4507,24 @@ var flipParanoia=function()
     sessionStorage.HHAuto_Temp_pinfo=message;
 
     setTimer('paranoiaSwitch',toNextSwitch);
+    //force recheck non completed event after paranoia
     if (sessionStorage.HHAuto_Temp_burst=="true")
     {
-        sessionStorage.removeItem("HHAuto_Temp_eventsList");
+        let eventList = isJSON(sessionStorage.HHAuto_Temp_eventsList)?JSON.parse(sessionStorage.HHAuto_Temp_eventsList):{};
+        for (let eventID of Object.keys(eventList))
+        {
+            //console.log(eventID);
+            if (!eventList[eventID]["isCompleted"])
+            {
+                eventList[eventID]["next_refresh"]=new Date().getTime()-1000;
+                //console.log("expire");
+                if(Object.keys(eventList).length >0)
+                {
+                    sessionStorage.HHAuto_Temp_eventsList = JSON.stringify(eventList);
+                }
+            }
+        }
+        //sessionStorage.removeItem("HHAuto_Temp_eventsList");
         gotoPage('home');
     }
 }
@@ -6559,8 +6595,8 @@ function moduleShopActions()
             {
                 return;
             }
-            let girlzCount = Number($(getHHScriptVars("shopGirlCountRequest"))[0].innerText);
-            let currentGirl = Number($(getHHScriptVars("shopGirlCurrentRequest"))[0].innerText);
+            let girlzCount = Number($(getHHScriptVars("shopGirlCounterRequest")).text().split('/')[1]);
+            let currentGirl = Number($(getHHScriptVars("shopGirlCurrentRequest")).text().split('/')[0]);
             let giftNb = $('div.gift div.inventory_slots div[id_item][data-d]').length;
             if (currentGirl < girlzCount && !canGiveAff && giftNb > 0)
             {
@@ -6841,8 +6877,8 @@ function moduleShopActions()
             {
                 return;
             }
-            let girlzCount = Number($(getHHScriptVars("shopGirlCountRequest"))[0].innerText);
-            let currentGirl = Number($(getHHScriptVars("shopGirlCurrentRequest"))[0].innerText);
+            let girlzCount = Number($(getHHScriptVars("shopGirlCountRequest")).text().split('/')[1]);
+            let currentGirl = Number($(getHHScriptVars("shopGirlCurrentRequest")).text().split('/')[0]);
             let giftNb = $('div.potion div.inventory_slots div[id_item][data-d]').length;
             if (currentGirl < girlzCount && !canGiveExp && giftNb > 0)
             {
@@ -8839,6 +8875,7 @@ HHEnvVariables["global"].pageEditTeam = "edit-team"
 HHEnvVariables["global"].IDpanelEditTeam = "#edit-team-page"
 HHEnvVariables["global"].shopGirlCountRequest = '#girls_list .g1 .number.selected span:not([contenteditable]';
 HHEnvVariables["global"].shopGirlCurrentRequest = '#girls_list .g1 .number.selected span[contenteditable]';
+HHEnvVariables["global"].shopGirlCounterRequest = '#girls_list .g1 .number.selected';
 
 const HC = 1;
 const CH = 2;
