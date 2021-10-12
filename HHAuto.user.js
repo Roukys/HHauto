@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.52
+// @version      5.5.53
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -6596,7 +6596,7 @@ function moduleShopActions()
                 return;
             }
             let girlzCount = Number($(getHHScriptVars("shopGirlCounterRequest")).text().split('/')[1]);
-            let currentGirl = Number($(getHHScriptVars("shopGirlCurrentRequest")).text().split('/')[0]);
+            let currentGirl = Number($(getHHScriptVars("shopGirlCounterRequest")).text().split('/')[0]);
             let giftNb = $('div.gift div.inventory_slots div[id_item][data-d]').length;
             if (currentGirl < girlzCount && !canGiveAff && giftNb > 0)
             {
@@ -6877,9 +6877,10 @@ function moduleShopActions()
             {
                 return;
             }
-            let girlzCount = Number($(getHHScriptVars("shopGirlCountRequest")).text().split('/')[1]);
-            let currentGirl = Number($(getHHScriptVars("shopGirlCurrentRequest")).text().split('/')[0]);
+            let girlzCount = Number($(getHHScriptVars("shopGirlCounterRequest")).text().split('/')[1]);
+            let currentGirl = Number($(getHHScriptVars("shopGirlCounterRequest")).text().split('/')[0]);
             let giftNb = $('div.potion div.inventory_slots div[id_item][data-d]').length;
+            //console.log(currentGirl,girlzCount,giftNb);
             if (currentGirl < girlzCount && !canGiveExp && giftNb > 0)
             {
                 logHHAuto("Moving to next girl.");
@@ -8047,7 +8048,7 @@ function parseEventPage(inTab="global")
                         eventList[eventID]["isCompleted"] = false;
                         if (nextWave === -1)
                         {
-                            setTimer('eventMythicNextWave',2*60);
+                            clearTimer('eventMythicNextWave');
                         }
                         else
                         {
@@ -8967,7 +8968,7 @@ HHAuto_ToolTips.en.autoLeaguesSelector = { elementText: "Target League", tooltip
 HHAuto_ToolTips.en.autoLeaguesAllowWinCurrent = {elementText:"Allow win", tooltip : "If check will allow to win targeted league and then demote next league to fall back to targeted league."};
 HHAuto_ToolTips.en.autoLeaguesThreshold = { elementText: "Threshold", tooltip : "(Integer between 0 and 14)<br>Minimum league fights to keep"};
 HHAuto_ToolTips.en.autoPowerPlaces = { elementText: "Places of Power", tooltip : "if enabled : Automatically Do powerPlaces"};
-HHAuto_ToolTips.en.autoPowerPlacesIndexFilter = { elementText: "Index Filter", tooltip : "(values separated by ;)<br>Allow to set filter and order on the PowerPlaces to do (order respected only when multiple powerPlace expires at the same time)"};//<table><tr><td>Reward</td>  <td>Hardcore</td>    <td>Charm</td>   <td>Know-How</td></tr><tr><td>Champ tickets & M¥</td>    <td>4</td>   <td>5</td>   <td>6</td></tr><tr><td>Epic Orbs & K¥</td>  <td>7</td>   <td>8</td>   <td>9</td></tr><tr><td>Epic Book & K¥</td> <td>10</td>  <td>11</td> <td>12</td></tr><tr><td>Epic Orbs & K¥</td>  <td>13</td>  <td>14</td>  <td>15</td></tr><tr><td>Leg. Booster & K¥</td>   <td>16</td>  <td>17</td>  <td>18</td></tr><tr><td>Champions tickets & K¥</td>  <td>19</td>  <td>20</td>  <td>21</td></tr><tr><td>Epic Gift & K¥</td>  <td>22</td>  <td>23</td>  <td>24</td></tr></table>
+HHAuto_ToolTips.en.autoPowerPlacesIndexFilter = { elementText: "Index Filter", tooltip : "(values separated by ;)<br>Allow to set filter and order on the PowerPlaces to do (order respected only when multiple powerPlace expires at the same time)"};//<table style='font-size: 8px;line-height: 1;'><tr><td>Reward</td>  <td>HC</td>    <td>CH</td>   <td>KH</td></tr><tr><td>Champ tickets & M¥</td>    <td>4</td>   <td>5</td>   <td>6</td></tr><tr><td>Epic Orbs & K¥</td>  <td>7</td>   <td>8</td>   <td>9</td></tr><tr><td>Epic Book & K¥</td> <td>10</td>  <td>11</td> <td>12</td></tr><tr><td>Epic Orbs & K¥</td>  <td>13</td>  <td>14</td>  <td>15</td></tr><tr><td>Leg. Booster & K¥</td>   <td>16</td>  <td>17</td>  <td>18</td></tr><tr><td>Champions tickets & K¥</td>  <td>19</td>  <td>20</td>  <td>21</td></tr><tr><td>Epic Gift & K¥</td>  <td>22</td>  <td>23</td>  <td>24</td></tr></table>"};//<table><tr><td>Reward</td>  <td>Hardcore</td>    <td>Charm</td>   <td>Know-How</td></tr><tr><td>Champ tickets & M¥</td>    <td>4</td>   <td>5</td>   <td>6</td></tr><tr><td>Epic Orbs & K¥</td>  <td>7</td>   <td>8</td>   <td>9</td></tr><tr><td>Epic Book & K¥</td> <td>10</td>  <td>11</td> <td>12</td></tr><tr><td>Epic Orbs & K¥</td>  <td>13</td>  <td>14</td>  <td>15</td></tr><tr><td>Leg. Booster & K¥</td>   <td>16</td>  <td>17</td>  <td>18</td></tr><tr><td>Champions tickets & K¥</td>  <td>19</td>  <td>20</td>  <td>21</td></tr><tr><td>Epic Gift & K¥</td>  <td>22</td>  <td>23</td>  <td>24</td></tr></table>
 HHAuto_ToolTips.en.autoPowerPlacesAll = { elementText: "Do All", tooltip : "If enabled : ignore filter and do all powerplaces (will update Filter with current ids)"};
 HHAuto_ToolTips.en.autoChampsTitle = { elementText: "Champions"};
 HHAuto_ToolTips.en.autoChamps = { elementText: "Normal", tooltip : "if enabled : Automatically do champions (if they are started and in filter only)"};
