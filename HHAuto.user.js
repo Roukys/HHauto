@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.54
+// @version      5.5.55
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -5313,68 +5313,36 @@ function moduleSimSeasonBattle() {
 
         // player stats
         playerEgo = Math.round(playerStats.ego);
-        //week 28 new battle modification
-        /*
-        playerDefHC = Math.round(getHHVars('Hero.infos.caracs.def_carac1'));
-        playerDefCH = Math.round(getHHVars('Hero.infos.caracs.def_carac2'));
-        playerDefKH = Math.round(getHHVars('Hero.infos.caracs.def_carac3'));
-        */
-        //End week 28 new battle modification
+        
 
         playerAtk = Math.round(playerStats.damage);
         playerClass = 'class'+getHHVars('Hero.infos.class');
         //playerClass = $('div#leagues_left .icon').attr('carac');
-        //week 28 new battle modification
-        /*
-        playerAlpha = JSON.parse($("div.hero_team div[girl_n=0]").attr(girlDataName));
-        playerBeta =  JSON.parse($("div.hero_team div[girl_n=1]").attr(girlDataName));
-        playerOmega = JSON.parse($("div.hero_team div[girl_n=2]").attr(girlDataName));
-        */
-        playerAlpha = JSON.parse($('#season-arena div.battle_hero .hero_team .team-hexagon-container .team-member-container[data-team-member-position=0] img').attr(girlDataName));
-        playerBeta =  JSON.parse($('#season-arena div.battle_hero .hero_team .team-hexagon-container .team-member-container[data-team-member-position=1] img').attr(girlDataName));
-        playerOmega = JSON.parse($('#season-arena div.battle_hero .hero_team .team-hexagon-container .team-member-container[data-team-member-position=2] img').attr(girlDataName));
-        //End week 28 new battle modification
+        
+        //week 41 playerAlpha = JSON.parse($('#season-arena div.battle_hero .hero_team .team-hexagon-container .team-member-container[data-team-member-position=0] img').attr(girlDataName));
+        //week 41 playerBeta =  JSON.parse($('#season-arena div.battle_hero .hero_team .team-hexagon-container .team-member-container[data-team-member-position=1] img').attr(girlDataName));
+        //week 41 playerOmega = JSON.parse($('#season-arena div.battle_hero .hero_team .team-hexagon-container .team-member-container[data-team-member-position=2] img').attr(girlDataName));
+        
 
-        playerExcitement = Math.round((playerAlpha.caracs.carac1 + playerAlpha.caracs.carac2 + playerAlpha.caracs.carac3) * 28);
+        //week 41 playerExcitement = Math.round((playerAlpha.caracs.carac1 + playerAlpha.caracs.carac2 + playerAlpha.caracs.carac3) * 28);
         for (index=0;index<3;index++)
         {
             var opponentName = $("div.season_arena_opponent_container .hero_details div.hero_name")[index].innerText
-            //week 28 new battle modification
-            /*
-            var opponentEgo = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[2].innerText.replace(/[^0-9]/gi, ''));
-            var opponentDef = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[1].innerText.split('-')[0].replace(/[^0-9]/gi, ''));
-            var opponentAtk = Number(document.getElementsByClassName("season_arena_opponent_container")[index].getElementsByClassName("hero_stats")[0].children[0].innerText.split('-')[0].replace(/[^0-9]/gi, ''));
-            */
+            
             opponentEgo = manageUnits($('div.opponents_arena .season_arena_opponent_container .hero_stats')[index].querySelectorAll('.hero_stats_row span.pull_right')[2].innerText);
             opponentDef = manageUnits($('div.opponents_arena .season_arena_opponent_container .hero_stats')[index].querySelectorAll('.hero_stats_row span.pull_right')[1].innerText);
             opponentAtk = manageUnits($('div.opponents_arena .season_arena_opponent_container .hero_stats')[index].querySelectorAll('.hero_stats_row span.pull_right')[0].innerText);
-            //End week 28 new battle modification
+            
             var opponentClass = $($("div.season_arena_opponent_container .hero_details div[hh_class_tooltip]")[index]).attr('carac');
-            //week 28 new battle modification
-            /*
-            var opponentAlpha = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g1']")[index]).attr(girlDataName));
-            var opponentBeta = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g2']")[index]).attr(girlDataName));
-            var opponentOmega = JSON.parse($($("div.season_arena_opponent_container .hero_team div[rel='g3']")[index]).attr(girlDataName));
-
-            var playerDef;
-            if (opponentClass == 'class1') {
-                playerDef = playerDefHC;
-            }
-            if (opponentClass == 'class2') {
-                playerDef = playerDefCH;
-            }
-            if (opponentClass == 'class3') {
-                playerDef = playerDefKH;
-            }
-            */
-            let opponentAlpha = JSON.parse($($('div.season_arena_opponent_container .hero_team .team-hexagon-container .team-member-container[data-team-member-position=0] img')[index]).attr(girlDataName));
-            let opponentBeta = JSON.parse($($('div.season_arena_opponent_container .hero_team .team-hexagon-container .team-member-container[data-team-member-position=1] img')[index]).attr(girlDataName));
-            let opponentOmega = JSON.parse($($('div.season_arena_opponent_container .hero_team .team-hexagon-container .team-member-container[data-team-member-position=2] img')[index]).attr(girlDataName));
+            
+            //week 41 let opponentAlpha = JSON.parse($($('div.season_arena_opponent_container .hero_team .team-hexagon-container .team-member-container[data-team-member-position=0] img')[index]).attr(girlDataName));
+            //week 41 let opponentBeta = JSON.parse($($('div.season_arena_opponent_container .hero_team .team-hexagon-container .team-member-container[data-team-member-position=1] img')[index]).attr(girlDataName));
+            //week 41 let opponentOmega = JSON.parse($($('div.season_arena_opponent_container .hero_team .team-hexagon-container .team-member-container[data-team-member-position=2] img')[index]).attr(girlDataName));
             let playerDef = Math.round(playerStats.def0);
             //End week 28 new battle modification
 
-            var opponentExcitement = Math.round((opponentAlpha.caracs.carac1 + opponentAlpha.caracs.carac2 + opponentAlpha.caracs.carac3) * 28);
-            let playerAlphaAdd;
+            //week 41 var opponentExcitement = Math.round((opponentAlpha.caracs.carac1 + opponentAlpha.caracs.carac2 + opponentAlpha.caracs.carac3) * 28);
+            /*let playerAlphaAdd;
             let playerBetaAdd;
             let playerOmegaAdd;
             let opponentAlphaAdd;
@@ -5420,9 +5388,10 @@ function moduleSimSeasonBattle() {
                 opponentBetaAdd = opponentBeta.caracs.carac3;
                 opponentOmegaAdd = opponentOmega.caracs.carac3;
             }
+            */
 
-            let playerTeam = [0, playerAlphaAdd, playerBetaAdd, playerOmegaAdd];
-            let opponentTeam = [0, opponentAlphaAdd, opponentBetaAdd, opponentOmegaAdd];
+            //week 41 let playerTeam = [0, playerAlphaAdd, playerBetaAdd, playerOmegaAdd];
+            //week 41 let opponentTeam = [0, opponentAlphaAdd, opponentBetaAdd, opponentOmegaAdd];
 
             let player = {
                 ego: playerEgo,
@@ -5430,14 +5399,14 @@ function moduleSimSeasonBattle() {
                 atk: playerAtk,
                 def: playerDef,
 
-                alpha: playerAlpha,
-                beta: playerBeta,
-                omega: playerOmega,
-                team: playerTeam,
+                //week 41 alpha: playerAlpha,
+                //week 41 beta: playerBeta,
+                //week 41 omega: playerOmega,
+                //week 41  team: playerTeam,
 
                 orgasm: 0,
                 orgasmCount: 0,
-                excitement: playerExcitement,
+                //week 41 excitement: playerExcitement,
 
                 text: 'Player',
             };
@@ -5448,14 +5417,14 @@ function moduleSimSeasonBattle() {
                 atk: opponentAtk,
                 def: opponentDef,
 
-                alpha: opponentAlpha,
-                beta: opponentBeta,
-                omega: opponentOmega,
-                team: opponentTeam,
+                //week 41 alpha: opponentAlpha,
+                //week 41 beta: opponentBeta,
+                //week 41 omega: opponentOmega,
+                //week 41 team: opponentTeam,
 
                 orgasm: 0,
                 orgasmCount: 0,
-                excitement: opponentExcitement,
+                //week 41 excitement: opponentExcitement,
 
                 text: 'Opponent',
                 name: opponentName,
