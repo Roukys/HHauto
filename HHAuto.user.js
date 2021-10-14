@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.53
+// @version      5.5.54
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -322,25 +322,25 @@ function gotoPage(page,inArgs,delay = -1)
     switch(page)
     {
         case "home":
-            togoto = $("nav div[rel='content'] a:has(.home)").attr("href");
+            togoto = getHHScriptVars("gotoPageHome");
             break;
         case "activities":
-            togoto = $("nav div[rel='content'] a:has(.activities)").attr("href");
+            togoto = getHHScriptVars("gotoPageActivities");
             break;
         case "harem":
-            togoto = $("nav div[rel='content'] a:has(.harem)").attr("href");
+            togoto = getHHScriptVars("gotoPageHarem");
             break;
         case "map":
-            togoto = $("nav div[rel='content'] a:has(.map)").attr("href");
+            togoto = getHHScriptVars("gotoPageMap");
             break;
         case "pachinko":
-            togoto = $("nav div[rel='content'] a:has(.pachinko)").attr("href");
+            togoto = getHHScriptVars("gotoPagePachinko");
             break;
         case "leaderboard":
-            togoto = $("nav div[rel='content'] a:has(.leaderboard)").attr("href");
+            togoto = getHHScriptVars("gotoPageLeaderboard");
             break;
         case "shop":
-            togoto = $("nav div[rel='content'] a:has(.shop)").attr("href");
+            togoto = getHHScriptVars("gotoPageShop");
             break;
         case "quest":
             togoto = getHHVars('Hero.infos.questing.current_url');
@@ -353,29 +353,32 @@ function gotoPage(page,inArgs,delay = -1)
             }
             logHHAuto("Current quest page: "+togoto);
             break;
+        case "pantheon":
+            togoto = getHHScriptVars("gotoPagePantheon");
+            break;
         case "champions_map":
-            togoto = $("nav div[rel='content'] a:has(.champions)").attr("href");
+            togoto = getHHScriptVars("gotoPageChampionsMap");
             break;
         case "season" :
-            togoto = "/season.html";
+            togoto = getHHScriptVars("gotoPageSeason");
             break;
         case "season_arena" :
-            togoto = "/season-arena.html";
+            togoto = getHHScriptVars("gotoPageSeasonArena");
             break;
         case "club_champion" :
-            togoto = "/club-champion.html";
+            togoto = getHHScriptVars("gotoPageClubChampion");
             break;
         case "league-battle" :
-            togoto = "/league-battle.html";
+            togoto = getHHScriptVars("gotoPageLeagueBattle");
             break;
         case "troll-pre-battle" :
-            togoto = "/troll-pre-battle.html";
+            togoto = getHHScriptVars("gotoPageTrollPreBattle");
             break;
         case "event" :
-            togoto = "/event.html";
+            togoto = getHHScriptVars("gotoPageEvent");
             break;
         case "clubs" :
-            togoto = $("nav div[rel='content'] a:has(.clubs)").attr("href");
+            togoto = getHHScriptVars("gotoPageClub");
             break;
         default:
             logHHAuto("Unknown goto page request. No page \'"+page+"\' defined.");
@@ -2200,7 +2203,7 @@ var doBossBattle = function()
     // Battles the latest boss.
     // Navigate to latest boss.
     //console.log(getPage());
-    if(getPage()==="pre_battle" && window.location.search=="?id_opponent=" + TTF)
+    if(getPage()===getHHScriptVars("getPageTrollPreBattle") && window.location.search=="?id_opponent=" + TTF)
     {
         // On the battle screen.
         CrushThemFights();
@@ -3542,7 +3545,7 @@ function reviverMap(key, value) {
 }
 var CrushThemFights=function()
 {
-    if (getPage() === "pre_battle") {
+    if (getPage() === getHHScriptVars("getPageTrollPreBattle")) {
         // On battle page.
         logHHAuto("On Pre battle page.");
         let queryString = window.location.search;
@@ -8877,6 +8880,24 @@ HHEnvVariables["global"].IDpanelEditTeam = "#edit-team-page"
 HHEnvVariables["global"].shopGirlCountRequest = '#girls_list .g1 .number.selected span:not([contenteditable]';
 HHEnvVariables["global"].shopGirlCurrentRequest = '#girls_list .g1 .number.selected span[contenteditable]';
 HHEnvVariables["global"].shopGirlCounterRequest = '#girls_list .g1 .number.selected';
+HHEnvVariables["global"].gotoPageHome = '/home.html';
+HHEnvVariables["global"].gotoPageActivities = '/activities.html';
+HHEnvVariables["global"].gotoPageHarem = '/harem.html';
+HHEnvVariables["global"].gotoPageMap = '/map.html';
+HHEnvVariables["global"].gotoPagePachinko = '/pachinko.html';
+HHEnvVariables["global"].gotoPageLeaderboard = '/tower-of-fame.html';
+HHEnvVariables["global"].gotoPageShop = '/shop.html';
+HHEnvVariables["global"].gotoPageClub = '/clubs.html';
+HHEnvVariables["global"].gotoPagePantheon = "/pantheon.html";
+HHEnvVariables["global"].gotoPageChampionsMap = "/champions-map.html";
+HHEnvVariables["global"].gotoPageSeason = "/season.html";
+HHEnvVariables["global"].gotoPageSeasonArena = "/season-arena.html";
+HHEnvVariables["global"].gotoPageClubChampion = "/club-champion.html";
+HHEnvVariables["global"].gotoPageLeagueBattle = "/league-battle.html";
+HHEnvVariables["global"].gotoPageTrollPreBattle = "/troll-pre-battle.html";
+HHEnvVariables["global"].getPageTrollPreBattle = "pre_battle";
+HHEnvVariables["global"].gotoPageEvent = "/event.html";
+HHEnvVariables["HH_test"].getPageTrollPreBattle = "troll-pre-battle";
 
 const HC = 1;
 const CH = 2;
