@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.56
+// @version      5.5.57
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -5747,8 +5747,9 @@ function CheckSpentPoints()
         let spent= {};
         let hasSpend = false;
 
-        for (let i in Object.keys(newValues))
+        for (let i of Object.keys(newValues))
         {
+            //console.log(i);
             if (oldValues[i]-newValues[i] >0)
             {
                 spent[i]=oldValues[i]-newValues[i];
@@ -9840,6 +9841,10 @@ var updateData = function () {
         if (Storage().HHAuto_Setting_autoClubChamp=="true")
         {
             Tegzd += '<br>'+getTextForUI("autoClubChamp","elementText")+' : '+getTimeLeft('nextClubChampionTime');
+        }
+        if (Storage().HHAuto_Setting_autoPantheon=="true")
+        {
+            Tegzd += '<br>'+getTextForUI("autoPantheonTitle","elementText")+' : '+getHHVars('Hero.energies.worship.amount')+'/'+getHHVars('Hero.energies.worship.max_amount')+' ('+getTimeLeft('nextPantheonTime')+')';
         }
         // if (autoBuy())
         {
