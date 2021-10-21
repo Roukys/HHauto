@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.5.57
+// @version      5.5.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab
 // @match        http*://nutaku.haremheroes.com/*
@@ -2482,30 +2482,6 @@ function simuFight(player, opponent) {
     let playerEgoCheck = 0;
     let opponentEgoCheck = 0;
 
-    //Calculate opponent proc values, determine applicable alpha class and adjust starting ego values for proc
-    /*let opponentProcHCAddOrgasm = [
-        0,
-        Math.floor(opponent.atk * 0.25),
-        Math.floor(opponent.team[2] * 1.3 * 0.75),
-        Math.floor(opponent.team[3] * 1.3 * 0.75)
-    ];
-
-    let opponentAlphaClass = parseInt(opponent.alpha.class);
-
-    // crit.
-    if (opponentAlphaClass == HC) {
-        player.ego -= Math.floor(opponent.atk * 0.5);
-    }
-    if (opponentAlphaClass == CH) {
-        //opponent.ego += opponent.def * 2;
-
-        //CH bug
-        opponent.ego += 2 * Math.floor(opponent.atk/2);
-    }
-    if (opponentAlphaClass == KH) {
-        opponent.ego += Math.floor(opponent.ego * 0.1);
-    }*/
-
     //crit.
     player.ego -= Math.max(0, opponent.atk - player.def);
 
@@ -2526,7 +2502,7 @@ function simuFight(player, opponent) {
     }
 
     //Simulate challenge
-    for (var turns = 0; turns < 99; turns++) {
+    for (var turns = 0; turns < 25; turns++) {
 
         if( player.ego <= 0) {
             //Check if defeat stands with 1 critical hit for the player
@@ -2568,18 +2544,12 @@ function simuFight(player, opponent) {
     else if (matchRating > 0 && playerEgoCheck > 0)
         matchRatingClass = 'plus';
 
-    /*let points = matchRating >= 0 ? Math.min(25, 15+player.ego/player.originEgo*10) : Math.max(3, 3+(opponent.originEgo-opponent.ego)/opponent.originEgo*10);
+    let points = matchRating >= 0 ? Math.min(25, 15+player.ego/player.originEgo*10) : Math.max(3, 3+(opponent.originEgo-opponent.ego)/opponent.originEgo*10);
     let pointsInt = Math.floor( points * 10 )/10;
     if( Math.floor( points ) == points )
         pointsInt -= 1/10;
     pointsInt += 1;
-    pointsInt = Math.floor(pointsInt);*/
-
-    let pointsInt;
-    if (matchRating >= 0)
-        pointsInt = (player.ego/player.originEgo) > 0.5 ? 25 : 15;
-    else
-        pointsInt = ((opponent.originEgo-opponent.ego)/opponent.originEgo) > 0.5 ? 13 : 3;
+    pointsInt = Math.floor(pointsInt);
 
     let pointsStr = '+' + pointsInt;
 
@@ -2592,6 +2562,7 @@ function simuFight(player, opponent) {
         pointsStr: pointsStr
     };
 }
+
 
 function customMatchRating(inSimu)
 {
@@ -3065,8 +3036,8 @@ function doPantheon()
         if (pantheonTempleBattleButton.length >0)
         {
             is_cheat_click=function(e) {
-                        return false;
-                    };
+                return false;
+            };
             pantheonTempleBattleButton[0].click();
         }
         else
@@ -3083,7 +3054,7 @@ function doPantheon()
         if ( current_worship > 0 )
         {
             logHHAuto("Switching to pantheon screen.");
-                gotoPage("pantheon");
+            gotoPage("pantheon");
 
             return;
         }
@@ -4660,149 +4631,104 @@ function manageUnits(inText)
     }
 }
 
+function getLeaguePlayersData()
+{
+    let playerEgo;
+    let playerDef;
+    let playerAtk;
+    let playerClass;
+    //let playerAlpha;
+    //let playerBeta;
+    //let playerOmega;
+    //let playerExcitement;
+    let opponentName;
+    let opponentEgo;
+    let opponentDef;
+    let opponentAtk;
+    let opponentClass;
+    //let opponentAlpha;
+    //let opponentBeta;
+    //let opponentOmega;
+    //let opponentExcitement;
+    // player stats
+    playerEgo = Math.round(getHHVars('heroLeaguesData.totalEgo'));
+    playerDef = Math.round(getHHVars('heroLeaguesData.defense'));
+    playerAtk = Math.round(getHHVars('heroLeaguesData.damage'));
+    playerClass = $('div#leagues_left .icon').attr('carac');
+
+    //playerAlpha = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=0] img').attr(girlDataName));
+    //playerBeta = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=1] img').attr(girlDataName));
+    //playerOmega = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=2] img').attr(girlDataName));
+    //playerExcitement = Math.round((playerAlpha.caracs.carac1 + playerAlpha.caracs.carac2 + playerAlpha.caracs.carac3) * 28);
+    // opponent stats
+    opponentName = $('div#leagues_right div.player_block div.title').text();
+    opponentEgo = manageUnits($('div#leagues_right .stats_wrap div.carac-value div')[1].innerText);
+    opponentAtk = manageUnits($('div#leagues_right .stats_wrap div.carac-value div')[0].innerText);
+    opponentDef = manageUnits($('div#leagues_right .stats_wrap div.carac-value div')[2].innerText);
+    opponentClass = $('div#leagues_right .icon').attr('carac');
+    //opponentAlpha = JSON.parse($('div#leagues_right .player_block .team-hexagon-container .team-member-container[data-team-member-position=0] img').attr(girlDataName));
+    //opponentBeta = JSON.parse($('div#leagues_right .player_block .team-hexagon-container .team-member-container[data-team-member-position=1] img').attr(girlDataName));
+    //opponentOmega = JSON.parse($('div#leagues_right .player_block .team-hexagon-container .team-member-container[data-team-member-position=2] img').attr(girlDataName));
+    //opponentExcitement = Math.round((opponentAlpha.caracs.carac1 + opponentAlpha.caracs.carac2 + opponentAlpha.caracs.carac3) * 28);
+
+    //let playerTeam = [0, playerAlphaAdd, playerBetaAdd, playerOmegaAdd];
+    //let opponentTeam = [0, opponentAlphaAdd, opponentBetaAdd, opponentOmegaAdd];
+
+    let player = {
+        ego: playerEgo,
+        originEgo: playerEgo,
+        atk: playerAtk,
+        def: playerDef,
+
+        //alpha: playerAlpha,
+        //beta: playerBeta,
+        //omega: playerOmega,
+        //team: playerTeam,
+        //excitement: playerExcitement,
+
+        text: 'Player',
+    };
+
+    let opponent = {
+        ego: opponentEgo,
+        originEgo: opponentEgo,
+        atk: opponentAtk,
+        def: opponentDef,
+
+        //alpha: opponentAlpha,
+        //beta: opponentBeta,
+        //omega: opponentOmega,
+        //team: opponentTeam,
+        //orgasm: 0,
+        //orgasmCount: 0,
+        //excitement: opponentExcitement,
+
+        text: 'Opponent',
+        name: opponentName,
+    };
+    return {player:player, opponent:opponent}
+}
+
 function moduleSimLeague() {
-    var playerEgo;
-    var playerDefHC;
-    var playerDefKH;
-    var playerDefCH;
-    var playerDef;
-    var playerAtk;
-    var playerClass;
-    var playerAlpha;
-    var playerBeta;
-    var playerOmega;
-    var playerExcitement;
-    var opponentName;
-    var opponentEgo;
-    var opponentDefHC;
-    var opponentDefKH;
-    var opponentDefCH;
-    var opponentDef;
-    var opponentAtk;
-    var opponentClass;
-    var opponentAlpha;
-    var opponentBeta;
-    var opponentOmega;
-    var opponentExcitement;
-    var matchRating;
-    var matchRatingFlag;
+    let matchRating;
+    let matchRatingFlag;
 
     if ($("#popup_message_league").length >0)
     {
         return;
     }
+    let girlDataName=getHHScriptVars('girlToolTipData');
 
-    //toremove after migration in prod
-    var girlDataName=getHHScriptVars('girlToolTipData');
-
-    var SimPower = function()
+    let SimPower = function()
     {
         if ($("div.matchRatingNew img#powerLevelScouter").length != 0)
         {
             return;
         }
-        // player stats
-        playerEgo = Math.round(getHHVars('heroLeaguesData.totalEgo'));
 
-        playerDef = Math.round(getHHVars('heroLeaguesData.defense'));
-        playerAtk = Math.round(getHHVars('heroLeaguesData.damage'));
-        playerClass = $('div#leagues_left .icon').attr('carac');
-
-        playerAlpha = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=0] img').attr(girlDataName));
-        playerBeta = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=1] img').attr(girlDataName));
-        playerOmega = JSON.parse($('div#leagues_left .player_block .team-hexagon-container .team-member-container[data-team-member-position=2] img').attr(girlDataName));
-        playerExcitement = Math.round((playerAlpha.caracs.carac1 + playerAlpha.caracs.carac2 + playerAlpha.caracs.carac3) * 28);
-        // opponent stats
-        opponentName = $('div#leagues_right div.player_block div.title').text();
-        opponentEgo = manageUnits($('div#leagues_right .stats_wrap div.carac-value div')[1].innerText);
-        opponentAtk = manageUnits($('div#leagues_right .stats_wrap div.carac-value div')[0].innerText);
-        opponentDef = manageUnits($('div#leagues_right .stats_wrap div.carac-value div')[2].innerText);
-        opponentClass = $('div#leagues_right .icon').attr('carac');
-        opponentAlpha = JSON.parse($('div#leagues_right .player_block .team-hexagon-container .team-member-container[data-team-member-position=0] img').attr(girlDataName));
-        opponentBeta = JSON.parse($('div#leagues_right .player_block .team-hexagon-container .team-member-container[data-team-member-position=1] img').attr(girlDataName));
-        opponentOmega = JSON.parse($('div#leagues_right .player_block .team-hexagon-container .team-member-container[data-team-member-position=2] img').attr(girlDataName));
-        opponentExcitement = Math.round((opponentAlpha.caracs.carac1 + opponentAlpha.caracs.carac2 + opponentAlpha.caracs.carac3) * 28);
-
-        let playerAlphaAdd;
-        let playerBetaAdd;
-        let playerOmegaAdd;
-        let opponentAlphaAdd;
-        let opponentBetaAdd;
-        let opponentOmegaAdd;
-        if (playerClass == ('class' + HC)) {
-            playerAlphaAdd = playerAlpha.caracs.carac1;
-            playerBetaAdd = playerBeta.caracs.carac1;
-            playerOmegaAdd = playerOmega.caracs.carac1;
-        }
-        if (playerClass == ('class' + CH)) {
-            playerAlphaAdd = playerAlpha.caracs.carac2;
-            playerBetaAdd = playerBeta.caracs.carac2;
-            playerOmegaAdd = playerOmega.caracs.carac2;
-        }
-        if (playerClass == ('class' + KH)) {
-            playerAlphaAdd = playerAlpha.caracs.carac3;
-            playerBetaAdd = playerBeta.caracs.carac3;
-            playerOmegaAdd = playerOmega.caracs.carac3;
-        }
-
-        if (opponentClass == ('class' + HC)) {
-            opponentAlphaAdd = opponentAlpha.caracs.carac1;
-            opponentBetaAdd = opponentBeta.caracs.carac1;
-            opponentOmegaAdd = opponentOmega.caracs.carac1;
-        }
-        if (opponentClass == ('class' + CH)) {
-            opponentAlphaAdd = opponentAlpha.caracs.carac2;
-            opponentBetaAdd = opponentBeta.caracs.carac2;
-            opponentOmegaAdd = opponentOmega.caracs.carac2;
-        }
-        if (opponentClass == ('class' + KH)) {
-            opponentAlphaAdd = opponentAlpha.caracs.carac3;
-            opponentBetaAdd = opponentBeta.caracs.carac3;
-            opponentOmegaAdd = opponentOmega.caracs.carac3;
-        }
-
-        let playerTeam = [0, playerAlphaAdd, playerBetaAdd, playerOmegaAdd];
-        let opponentTeam = [0, opponentAlphaAdd, opponentBetaAdd, opponentOmegaAdd];
-
-        let player = {
-            ego: playerEgo,
-            originEgo: playerEgo,
-            atk: playerAtk,
-            def: playerDef,
-
-            alpha: playerAlpha,
-            beta: playerBeta,
-            omega: playerOmega,
-            team: playerTeam,
-
-            orgasm: 0,
-            orgasmCount: 0,
-            excitement: playerExcitement,
-
-            text: 'Player',
-        };
-
-        let opponent = {
-            ego: opponentEgo,
-            originEgo: opponentEgo,
-            atk: opponentAtk,
-            def: opponentDef,
-
-            alpha: opponentAlpha,
-            beta: opponentBeta,
-            omega: opponentOmega,
-            team: opponentTeam,
-
-            orgasm: 0,
-            orgasmCount: 0,
-            excitement: opponentExcitement,
-
-            text: 'Opponent',
-            name: opponentName,
-        };
-
+        let leaguePlayers = getLeaguePlayersData();
         //console.log(player,opponent);
-        let simu = simuFight(player, opponent);
+        let simu = simuFight(leaguePlayers.player, leaguePlayers.opponent);
         //console.log(opponent);
         //console.log(simu);
         matchRating=customMatchRating(simu);
@@ -5003,6 +4929,27 @@ function moduleSimLeague() {
                 this.remove();
             });
             getLeagueOpponentId(getLeagueOpponentListData(),true);
+        });
+    }
+    let buttonSaveOpponent='<div style="position: absolute;right: 100px;top: 17px;width:100px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("buttonSaveOpponent","tooltip")+'</span><label style="width:100%;" class="myButton" id="buttonSaveOpponent">'+getTextForUI("buttonSaveOpponent","elementText")+'</label></div>';
+    if (document.getElementById("buttonSaveOpponent") === null) {
+        $("#leagues_middle").append(buttonSaveOpponent);
+        document.getElementById("buttonSaveOpponent").addEventListener("click", function () {
+            let caracsHero = 0;
+            for (let j = 0; j<heroLeaguesData.team.girls.length;j++)
+            {
+                for (let z=1;z<4;z++)
+                {
+                    caracsHero = caracsHero +  Number(heroLeaguesData.team.girls[j].caracs['carac'+z]);}
+            }
+            //caracsHero = caracsHero * 0.12;
+            //  console.log(caracsHero);
+            let leagueSavedData = {
+                "opponent": getLeaguePlayersData().opponent,
+                "hero_caracs_team" : caracsHero
+            };
+            sessionStorage.HHAuto_Temp_LeagueSavedData = JSON.stringify(leagueSavedData);
+            // console.log(JSON.stringify(leagueSavedData));
         });
     }
 }
@@ -5413,28 +5360,28 @@ function moduleSimSeasonBattle() {
 
         // player stats
         playerEgo = Math.round(playerStats.ego);
-        
+
 
         playerAtk = Math.round(playerStats.damage);
         playerClass = 'class'+getHHVars('Hero.infos.class');
         //playerClass = $('div#leagues_left .icon').attr('carac');
-        
+
         //week 41 playerAlpha = JSON.parse($('#season-arena div.battle_hero .hero_team .team-hexagon-container .team-member-container[data-team-member-position=0] img').attr(girlDataName));
         //week 41 playerBeta =  JSON.parse($('#season-arena div.battle_hero .hero_team .team-hexagon-container .team-member-container[data-team-member-position=1] img').attr(girlDataName));
         //week 41 playerOmega = JSON.parse($('#season-arena div.battle_hero .hero_team .team-hexagon-container .team-member-container[data-team-member-position=2] img').attr(girlDataName));
-        
+
 
         //week 41 playerExcitement = Math.round((playerAlpha.caracs.carac1 + playerAlpha.caracs.carac2 + playerAlpha.caracs.carac3) * 28);
         for (index=0;index<3;index++)
         {
             var opponentName = $("div.season_arena_opponent_container .hero_details div.hero_name")[index].innerText
-            
+
             opponentEgo = manageUnits($('div.opponents_arena .season_arena_opponent_container .hero_stats')[index].querySelectorAll('.hero_stats_row span.pull_right')[2].innerText);
             opponentDef = manageUnits($('div.opponents_arena .season_arena_opponent_container .hero_stats')[index].querySelectorAll('.hero_stats_row span.pull_right')[1].innerText);
             opponentAtk = manageUnits($('div.opponents_arena .season_arena_opponent_container .hero_stats')[index].querySelectorAll('.hero_stats_row span.pull_right')[0].innerText);
-            
+
             var opponentClass = $($("div.season_arena_opponent_container .hero_details div[hh_class_tooltip]")[index]).attr('carac');
-            
+
             //week 41 let opponentAlpha = JSON.parse($($('div.season_arena_opponent_container .hero_team .team-hexagon-container .team-member-container[data-team-member-position=0] img')[index]).attr(girlDataName));
             //week 41 let opponentBeta = JSON.parse($($('div.season_arena_opponent_container .hero_team .team-hexagon-container .team-member-container[data-team-member-position=1] img')[index]).attr(girlDataName));
             //week 41 let opponentOmega = JSON.parse($($('div.season_arena_opponent_container .hero_team .team-hexagon-container .team-member-container[data-team-member-position=2] img')[index]).attr(girlDataName));
@@ -5530,9 +5477,12 @@ function moduleSimSeasonBattle() {
                 name: opponentName,
             };
 
-
+            if (doDisplay)
+            {
+                //console.log(JSON.stringify(player),JSON.stringify(opponent));
+            }
             let simu = simuFight(player, opponent);
-            //console.log(opponent);
+            //console.log(player,opponent);
             //console.log(simu);
             matchRating=customMatchRating(simu);
             //matchRating = calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement);
@@ -6358,12 +6308,209 @@ function getLevelXp(inRarity, inLevel)
     return GIRLS_EXP_LEVELS[inRarity][inLevel];
 }
 
+function getBoostersData()
+{
+    let boosterA = $('#equiped .sub_block .booster .slot:not(.empty):not(.mythic)');
+    let boostersArray = {flat:{carac1:0,carac2:0,carac3:0,damage:0,ego:0,endurance:0},percent:{carac1:0,carac2:0,carac3:0,damage:0,ego:0,endurance:0}};
+    for (let bi = 0;bi< boosterA.length;bi++)
+    {
+        let boosterItem = JSON.parse($('#equiped .sub_block .booster .slot:not(.empty)')[bi].attributes['data-d'].value);
+        let bossterId = Number(boosterItem.id_item);
+        switch (bossterId)
+        {
+            case 7 : /*Ginseng root */
+            case 8 : /*Ginseng root */
+            case 9 : /*Ginseng root */
+                boostersArray.flat.carac1 += boosterItem.carac1;
+                boostersArray.flat.carac2 += boosterItem.carac2;
+                boostersArray.flat.carac3 += boosterItem.carac3;
+                break
+            case 10 : /*Jujubes */
+            case 11 : /*Jujubes */
+            case 12 : /*Jujubes */
+                boostersArray.flat.chance += boosterItem.chance;
+                break
+            case 28 : /*Chlorella */
+            case 29 : /*Chlorella */
+            case 30 : /*Chlorella */
+                boostersArray.flat.ego += boosterItem.ego;
+                break
+            case 31 : /*Cordyceps */
+            case 32 : /*Cordyceps */
+            case 33 : /*Cordyceps */
+                boostersArray.flat.damage += boosterItem.damage;
+                break
+            case 316 : /*Ginseng root*/
+                boostersArray.percent.carac1 += boosterItem.carac1;
+                boostersArray.percent.carac2 += boosterItem.carac2;
+                boostersArray.percent.carac3 += boosterItem.carac3;
+                break
+            case 317 : /*Jujubes*/
+                boostersArray.percent.chance += boosterItem.chance;
+                break
+            case 318 : /*Chlorella*/
+                boostersArray.percent.ego += boosterItem.ego;
+                break
+            case 319 : /*Cordyceps*/
+                boostersArray.percent.damage += boosterItem.damage;
+                break
+        }
+    }
+    return boostersArray;
+}
+
+function simFightFunc()
+{
+    //console.log('simFightFunc');
+    if (isJSON(sessionStorage.HHAuto_Temp_LeagueSavedData))
+    {
+        let leagueSavedData = JSON.parse(sessionStorage.HHAuto_Temp_LeagueSavedData);
+        let classHero = Number(getHHVars("Hero.infos.class"));
+        let defHero = 0;
+        let stat;
+        let boosters = getBoostersData();
+        //console.log("Data: ");
+        // console.log(leagueSavedData);
+        for (let i=1;i<4;i++)
+        {
+            if (i != classHero)
+            {
+                defHero = defHero + getHHVars("Hero.infos.caracs.carac"+i);
+                // console.log(`${classHero},${i},${defHero}` );
+            }
+        }
+        defHero = defHero * 0.25 + leagueSavedData.hero_caracs_team * 0.12;
+        // console.log(defHero+':'+getSetHeroInfos('caracs.defense'));
+        let endurance = Number(getHHVars("Hero.infos.caracs.endurance"));
+        let ego = (parseFloat(endurance + leagueSavedData.hero_caracs_team * 2) + Number(boosters.flat.ego)) * (1+(Number(boosters.percent.ego)/100));
+        let damage = (Number(getHHVars("Hero.infos.caracs.carac" + classHero)) + Number(boosters.flat.damage));
+        let atk = parseFloat(damage + leagueSavedData.hero_caracs_team * 0.25) * (1+(Number(boosters.percent.damage)/100));
+        // var itemBoostedEgo = applyItemsBonuses("ego", ego);
+        let player =
+            {
+                ego: ego,
+                originEgo: ego,
+                atk: atk,
+                def: defHero,
+                orgasm: 0,
+                orgasmCount: 0,
+                excitement: 0,
+                text: 'Player',
+            };
+        let opponent = leagueSavedData.opponent;
+        //console.log(JSON.stringify(player),JSON.stringify(opponent));
+        let result = simuFight(player, opponent);
+        $('#simResultPreviousScore')[0].innerText = $('#simResultScore')[0].innerText;
+        $('#simResultPreviousScore')[0].className = $('#simResultScore')[0].className;
+        $('#simResultName')[0].innerText = opponent.name;
+        $('#simResultScore')[0].innerText = result.scoreStr;
+        $('#simResultScore')[0].className = result.scoreClass;
+        // console.log(result);
+    }
+    else
+    {
+        $('#simResultName')[0].innerText = 'empty';
+        $('#simResultScore')[0].innerText = '0';
+        $('#simResultScore')[0].className = 'close';
+    }
+}
+
 function moduleShopActions()
 {
     appendMenuSell();
     appendMenuAff();
     appendMenuExp();
     appendMenuRemoveMaxed();
+    appendSimFight();
+
+    function appendSimFight()
+    {
+        if ($("#simResult").length === 0 ) {
+            let labelSimFight = '<div id="simResult">'+
+                '<div>'+getTextForUI("simResultMarketName","elementText")+'</div>'+
+                '<div id="simResultName">Long User Name</div>'+
+                '<div>'+getTextForUI("simResultMarketPreviousScore","elementText")+'</div>'+
+                '<div id="simResultPreviousScore">'+getTextForUI("none","elementText")+'</div>'+
+                '<div>'+getTextForUI("simResultMarketScore","elementText")+'</div>'+
+                '<div id="simResultScore">'+getTextForUI("none","elementText")+'</div>'+
+                '<div id="buttonSimResultMarket" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("SimResultMarketButton","tooltip")+'</span>'+getTextForUI("SimResultMarketButton","elementText")+'</div>'+
+                '</div>';
+            //$('#simResult')[0].outerHTML = 	labelSimFight;
+            GM_addStyle('.plus {'
+                        + 'color: #66CD00;}'
+                       );
+            GM_addStyle('#shops #equiped div.sub_block div.booster {'
+                        + 'width: 77%;}'
+                       );
+
+            GM_addStyle('.minus {'
+                        + 'color: #FF2F2F;}'
+                       );
+
+            GM_addStyle('.close {'
+                        + 'color: #FFA500;}'
+                       );
+            GM_addStyle('#simResultScore, #simResultPreviousScore {'+
+                        'font-size:13px;'+
+                        'line-height: 20px;'+
+                        'height:20px;}');
+            GM_addStyle('#simResultName {'+
+                        'font-size:14px;'+
+                        'padding: 0 5px;'+
+                        'line-height: 30px;'+
+                        'height:30px;}');
+            GM_addStyle('#simResult {'+
+                        'position: absolute;'+
+                        'width: 80px;'+
+                        'height: 135px;'+
+                        'z-index: 9;'+
+                        'right: 80px;'+
+                        'top: 70px;'+
+                        'font-size: 10px;'+
+                        'text-align: center;'+
+                        'color: #057;'+
+                        'line-height: 1em;'+
+                        'border: solid 1px #057;}');
+            GM_addStyle('#buttonSimResultMarket {'+
+                        'box-sizing: inherit;'+
+                        'vertical-align: bottom;'+
+                        'font: inherit;'+
+                        'color: #fff;'+
+                        'box-shadow: 0 3px 0 rgba(13,22,25,.6),inset 0 3px 0 #6df0ff;'+
+                        'border: 1px solid #000;'+
+                        'background-image: linear-gradient(to top,#008ed5 0,#05719c 100%);'+
+                        'cursor: pointer;'+
+                        'text-decoration: none;'+
+                        'display: inline-block;'+
+                        'transition: box-shadow 90ms ease-in-out;'+
+                        'position: absolute;'+
+                        'bottom: 0;'+
+                        'left: 0;'+
+                        'width: 100%;'+
+                        'padding: 10px 5px 10px;');
+            $('#equiped').append(labelSimFight);
+            let observer = new MutationObserver(mutationRecords => {
+                for(const mutation of mutationRecords) {
+                    if (mutation.type === 'childList') {
+                        let type = mutation.target.attributes[0];
+                        if (type.nodeValue == 'armor' && mutation.removedNodes.length == 0){
+                            //console.log(mutation);
+                            simFightFunc();
+                        }
+                    }
+                }
+                // console.log(mutationRecords);
+            });
+            elem = document.getElementById('equiped');
+            observer.observe(elem, {
+                childList: true,
+                subtree: true,
+                characterDataOldValue: false
+            });
+            document.getElementById("buttonSimResultMarket").addEventListener("click", function () {simFightFunc()});
+            simFightFunc();
+        }
+    }
 
     function appendMenuRemoveMaxed()
     {
@@ -9000,8 +9147,8 @@ HHEnvVariables["global"].gotoPageTrollPreBattle = "/troll-pre-battle.html";
 HHEnvVariables["global"].gotoPageEvent = "/event.html";
 
 //to correct when new troll pre battle page arrives in prod
-HHEnvVariables["global"].getPageTrollPreBattle = "pre_battle";
-HHEnvVariables["HH_test"].getPageTrollPreBattle = "troll-pre-battle";
+//HHEnvVariables["global"].getPageTrollPreBattle = "pre_battle";
+HHEnvVariables["global"].getPageTrollPreBattle = "troll-pre-battle";
 
 HHEnvVariables["global"].isEnabledEvents = true;
 HHEnvVariables["global"].isEnabledTrollBattle = true;
@@ -9014,8 +9161,9 @@ HHEnvVariables["global"].isEnabledMission = true;
 HHEnvVariables["global"].isEnabledQuest = true;
 HHEnvVariables["global"].isEnabledSeason = true;
 // to change when pantheon arrives in Prod
-HHEnvVariables["global"].isEnabledPantheon = false;
-HHEnvVariables["HH_test"].isEnabledPantheon = true;
+HHEnvVariables["global"].isEnabledPantheon = true;
+HHEnvVariables["CH_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in Comix
+//HHEnvVariables["HH_test"].isEnabledPantheon = true;
 HHEnvVariables["global"].isEnabledChamps = true;
 HHEnvVariables["CH_prod"].isEnabledChamps = false;// to remove when Champs arrives in Comix
 HHEnvVariables["global"].isEnabledClubChamp = true;
@@ -9234,7 +9382,12 @@ HHAuto_ToolTips.en.autoGiveExp = {elementText : "Auto Give", tooltip : "If enabl
 HHAuto_ToolTips.en.autoPantheonTitle = {elementText : "Pantheon's Stairway", tooltip : ""};
 HHAuto_ToolTips.en.autoPantheonCheckbox = { elementText: "Enable", tooltip : "if enabled : Automatically do Pantheon"};
 HHAuto_ToolTips.en.autoPantheonThreshold = { elementText: "Threshold", tooltip : "(Integer 0 to 19)<br>Minimum worship to keep"};
-
+HHAuto_ToolTips.en.buttonSaveOpponent = { elementText: "Save opponent data", tooltip : "Save opponent data for fight simulation in market."};
+HHAuto_ToolTips.en.SimResultMarketButton = { elementText: "Sim. results", tooltip : "Simulate result with League saved opponent."};
+HHAuto_ToolTips.en.simResultMarketPreviousScore = { elementText: "Previous score :", tooltip : ""};
+HHAuto_ToolTips.en.simResultMarketScore = { elementText: "Score : ", tooltip : ""};
+HHAuto_ToolTips.en.none = { elementText: "None", tooltip : ""};
+HHAuto_ToolTips.en.simResultMarketName = { elementText: "Name :", tooltip : ""};
 
 HHAuto_ToolTips.fr = {};
 HHAuto_ToolTips.fr.saveDebug = { elementText: "Sauver log", tooltip : "Sauvegarder un fichier journal de débogage."};
@@ -9608,6 +9761,7 @@ HHStoredVars.HHAuto_Temp_Totalpops = { storage : "sessionStorage", type : "Temp"
 HHStoredVars.HHAuto_Temp_LeagueTempOpponentList = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_CheckSpentPoints = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_eventsList = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_LeagueSavedData = { storage : "sessionStorage", type : "Temp"};
 
 var updateData = function () {
     //logHHAuto("updating UI");
@@ -9813,56 +9967,55 @@ var updateData = function () {
         Tegzd+=(Storage().HHAuto_Setting_master==="true"?"<span style='color:LimeGreen'>HH auto ++ ON":"<span style='color:red'>HH auto ++ OFF")+'</span>';
         //Tegzd+=(Storage().HHAuto_Setting_master==="true"?"<span style='color:LimeGreen'>"+getTextForUI("master","elementText")+" : ON":"<span style='color:red'>"+getTextForUI("master","elementText")+" : OFF")+'</span>';
         //Tegzd+=getTextForUI("master","elementText")+' : '+(Storage().HHAuto_Setting_master==="true"?"<span style='color:LimeGreen'>ON":"<span style='color:red'>OFF")+'</span>';
-
         if (Storage().HHAuto_Setting_paranoia=="true")
         {
             Tegzd += '<br>'+sessionStorage.HHAuto_Temp_pinfo+': '+getTimeLeft('paranoiaSwitch');
         }
-        if (Storage().HHAuto_Setting_autoTrollBattle=="true")
+        if (getHHScriptVars('isEnabledTrollBattle',false) && Storage().HHAuto_Setting_autoTrollBattle=="true")
         {
             Tegzd += '<br>'+getTextForUI("autoTrollTitle","elementText")+' : '+getHHVars('Hero.energies.fight.amount')+'/'+getHHVars('Hero.energies.fight.max_amount');
         }
-        if (Storage().HHAuto_Setting_autoSalary=="true")
+        if (getHHScriptVars("isEnabledSalary",false) && Storage().HHAuto_Setting_autoSalary=="true")
         {
             Tegzd += '<br>'+getTextForUI("autoSalaryCheckbox","elementText")+' : '+getTimeLeft('nextSalaryTime');
         }
-        if (Storage().HHAuto_Setting_autoSeason=="true")
+        if (getHHScriptVars('isEnabledSeason',false) && Storage().HHAuto_Setting_autoSeason=="true")
         {
             Tegzd += '<br>'+getTextForUI("autoSeasonTitle","elementText")+' : '+getHHVars('Hero.energies.kiss.amount')+'/'+getHHVars('Hero.energies.kiss.max_amount')+' ('+getTimeLeft('nextSeasonTime')+')';
         }
-        if (Storage().HHAuto_Setting_autoLeagues=="true")
+        if (getHHScriptVars('isEnabledLeagues',false) && Storage().HHAuto_Setting_autoLeagues=="true")
         {
             Tegzd += '<br>'+getTextForUI("autoLeaguesTitle","elementText")+' : '+getHHVars('Hero.energies.challenge.amount')+'/'+getHHVars('Hero.energies.challenge.max_amount')+' ('+getTimeLeft('nextLeaguesTime')+')';
         }
-        if (Storage().HHAuto_Setting_autoChamps=="true")
+        if (getHHScriptVars("isEnabledChamps",false) && Storage().HHAuto_Setting_autoChamps=="true")
         {
             Tegzd += '<br>'+getTextForUI("autoChampsTitle","elementText")+' : '+getTimeLeft('nextChampionTime');
         }
-        if (Storage().HHAuto_Setting_autoClubChamp=="true")
+        if (getHHScriptVars("isEnabledClubChamp",false) && Storage().HHAuto_Setting_autoClubChamp=="true")
         {
             Tegzd += '<br>'+getTextForUI("autoClubChamp","elementText")+' : '+getTimeLeft('nextClubChampionTime');
         }
-        if (Storage().HHAuto_Setting_autoPantheon=="true")
+        if (getHHScriptVars('isEnabledPantheon',false) && Storage().HHAuto_Setting_autoPantheon=="true")
         {
             Tegzd += '<br>'+getTextForUI("autoPantheonTitle","elementText")+' : '+getHHVars('Hero.energies.worship.amount')+'/'+getHHVars('Hero.energies.worship.max_amount')+' ('+getTimeLeft('nextPantheonTime')+')';
         }
-        // if (autoBuy())
+        if (getHHScriptVars("isEnabledShop",false))
         {
             Tegzd += '<br>'+getTextForUI("autoBuy","elementText")+' : '+getTimeLeft('nextShopTime');
         }
-        if (Storage().HHAuto_Setting_autoMission=="true")
+        if (getHHScriptVars("isEnabledMission",false) && Storage().HHAuto_Setting_autoMission=="true")
         {
             Tegzd += '<br>'+getTextForUI("autoMissionCheckbox","elementText")+' : '+getTimeLeft('nextMissionTime');
         }
-        if (Storage().HHAuto_Setting_autoContest=="true")
+        if (getHHScriptVars("isEnabledContest",false) && Storage().HHAuto_Setting_autoContest=="true")
         {
             Tegzd += '<br>'+getTextForUI("autoContestCheckbox","elementText")+' : '+getTimeLeft('nextContestTime');
         }
-        if (Storage().HHAuto_Setting_autoPowerPlaces=="true")
+        if (getHHScriptVars("isEnabledPowerPlaces",false) && Storage().HHAuto_Setting_autoPowerPlaces=="true")
         {
             Tegzd += '<br>'+getTextForUI("autoPowerPlaces","elementText")+' : '+getTimeLeft('minPowerPlacesTime');
         }
-        if (Storage().HHAuto_Setting_autoFreePachinko=="true")
+        if ( ( getHHScriptVars("isEnabledGreatPachinko",false) || getHHScriptVars("isEnabledMythicPachinko",false) ) && Storage().HHAuto_Setting_autoFreePachinko=="true")
         {
             if (getTimer('nextPachinkoTime') !== -1)
             {
