@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.2
+// @version      5.6.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://nutaku.haremheroes.com/*
@@ -43,6 +43,13 @@ GM_addStyle('.tooltipHH:hover { cursor: help; position: relative; } .tooltipHH s
 GM_addStyle('#popup_message_league { border: #666 2px dotted; padding: 5px 20px 5px 5px; display: block; z-index: 1000; background: #e3e3e3; left: 0px; margin: 15px; width: 500px; position: absolute; top: 15px; color: black}');
 GM_addStyle('#sliding-popups#sliding-popups { z-index : 1}');
 //END CSS Region
+
+function replaceCheatClick()
+{
+    is_cheat_click=function(e) {
+        return false;
+    };
+}
 
 const thousandsSeparator = nThousand(11111).replace(/1+/g, '');
 
@@ -806,18 +813,14 @@ function collectDailyRewards()
         {
             if ($('#no_HC')[0].style.display != "block")
             {
-                is_cheat_click=function(e) {
-                    return false;
-                };
+                //replaceCheatClick();
                 $(dailyRewardNotifRequest)[0].click();
             }
         }
-        console.log($(dailyRewardButtonRequest).length
-                    if ($(dailyRewardButtonRequest).length > 0)
+        //console.log($(dailyRewardButtonRequest).length);
+        if ($(dailyRewardButtonRequest).length > 0)
         {
-            is_cheat_click=function(e) {
-                return false;
-            };
+            //replaceCheatClick();
             $(dailyRewardButtonRequest)[0].click();
             logHHAuto('Collected daily rewards!')
         }
@@ -1849,9 +1852,7 @@ var getSalary = function () {
         if(getPage() == "harem")
         {
             logHHAuto("Detected Harem Screen. Fetching Salary");
-            is_cheat_click=function(e) {
-                return false;
-            };
+            //replaceCheatClick();
             sessionStorage.HHAuto_Temp_autoLoop = "false";
             logHHAuto("setting autoloop to false");
             CollectMoney();
@@ -1867,9 +1868,7 @@ var getSalary = function () {
             {
                 if (getButtonClass === "blue_button_L")
                 {
-                    is_cheat_click=function(e) {
-                        return false;
-                    };
+                    //replaceCheatClick();
                     salaryButton.click();
                     logHHAuto('Collected all Premium salary');
                     setTimer('nextSalaryTime',Number(Storage().HHAuto_Setting_autoSalaryMinTimer)+1);
@@ -3060,9 +3059,7 @@ function doPantheon()
         let pantheonTempleBattleButton =$("#pre-battle .battle-buttons a.green_button_L.battle-action-button.pantheon-single-battle-button[data-pantheon-id='"+templeID+"']");
         if (pantheonTempleBattleButton.length >0)
         {
-            is_cheat_click=function(e) {
-                return false;
-            };
+            //replaceCheatClick();
             pantheonTempleBattleButton[0].click();
         }
         else
@@ -3662,9 +3659,7 @@ var CrushThemFights=function()
 
                     setHHVars('Hero.infos.hc_confirm',true);
                     // We have the power.
-                    is_cheat_click=function(e) {
-                        return false;
-                    };
+                    //replaceCheatClick();
                     battleButtonX50[0].click();
                     setHHVars('Hero.infos.hc_confirm',hcConfirmValue);
                     //sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh = Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) - 50;
@@ -3700,9 +3695,7 @@ var CrushThemFights=function()
 
                     setHHVars('Hero.infos.hc_confirm',true);
                     // We have the power.
-                    is_cheat_click=function(e) {
-                        return false;
-                    };
+                    //replaceCheatClick();
                     battleButtonX10[0].click();
                     setHHVars('Hero.infos.hc_confirm',hcConfirmValue);
                     //sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh = Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) - 10;
@@ -3744,9 +3737,7 @@ var CrushThemFights=function()
             {
                 logHHAuto("Crushing: "+Trollz[Number(TTF)]);
                 //console.log(battleButton);
-                is_cheat_click=function(e) {
-                    return false;
-                };
+                //replaceCheatClick();
                 battleButton[0].click();
                 /*if (sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh)
                 {
@@ -3766,9 +3757,7 @@ var CrushThemFights=function()
         }
         else
         {
-            is_cheat_click=function(e) {
-                return false;
-            };
+            //replaceCheatClick();
             battleButton[0].click();
         }
     }
@@ -3960,9 +3949,7 @@ function ObserveAndGetGirlRewards()
             }
             else
             {
-                is_cheat_click=function(e) {
-                    return false;
-                };
+                //replaceCheatClick();
                 setTimeout(function()
                            {
                     $(querySkip)[0].click();
@@ -8210,9 +8197,7 @@ var RechargeCombat=function()
         let hcConfirmValue = getHHVars('Hero.infos.hc_confirm');
         setHHVars('Hero.infos.hc_confirm',true);
         // We have the power.
-        is_cheat_click=function(e) {
-            return false;
-        };
+        //replaceCheatClick();
         //console.log($("plus[type='energy_fight']"), canBuyResult.price,canBuyResult.type, canBuyResult.max);
         hero.recharge($("plus[type='energy_fight']"), canBuyResult.price,canBuyResult.type, canBuyResult.max);
         setHHVars('Hero.infos.hc_confirm',hcConfirmValue);
@@ -9760,6 +9745,7 @@ var start = function () {
         $('.hh_logo').click();
         return;
     }
+    replaceCheatClick();
     setDefaults();
     $('.redirect.gay').hide();
     $('.redirect.comix').hide();
