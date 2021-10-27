@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.1
+// @version      5.6.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://nutaku.haremheroes.com/*
@@ -806,11 +806,18 @@ function collectDailyRewards()
         {
             if ($('#no_HC')[0].style.display != "block")
             {
+                is_cheat_click=function(e) {
+                    return false;
+                };
                 $(dailyRewardNotifRequest)[0].click();
             }
         }
-        if ($(dailyRewardButtonRequest).length > 0)
+        console.log($(dailyRewardButtonRequest).length
+                    if ($(dailyRewardButtonRequest).length > 0)
         {
+            is_cheat_click=function(e) {
+                return false;
+            };
             $(dailyRewardButtonRequest)[0].click();
             logHHAuto('Collected daily rewards!')
         }
@@ -3200,7 +3207,7 @@ var doLeagueBattle = function () {
                 }
                 logHHAuto("Current league above target ("+Number(getPlayerCurrentLevel)+"/"+Number(sessionStorage.HHAuto_Temp_leaguesTarget)+"), needs to demote. max rank : "+rankDemote+"/"+totalOpponents);
                 let getRankDemote = $("div.leagues_table table tr td span:contains("+rankDemote+")").filter(function()
-                                                                                                        {
+                                                                                                            {
                     return Number($.trim($(this).text())) === rankDemote;
                 });
                 if (getRankDemote.length > 0 )
