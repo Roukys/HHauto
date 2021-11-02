@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.3
+// @version      5.6.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://nutaku.haremheroes.com/*
@@ -206,7 +206,7 @@ function getHHVars(infoSearched)
         if (returnValue[splittedInfoSearched[i]] === undefined)
         {
             logHHAuto("HH var not found : "+infoSearched+" ("+splittedInfoSearched[i]+" not defined).");
-            return -1;
+            return null;
         }
         else
         {
@@ -1655,7 +1655,39 @@ function doContestStuff()
     {
         logHHAuto("On contests page.");
         logHHAuto("Collecting finished contests's reward.");
-        $(".contest .ended button[rel='claim']").click();
+        let contest_list = $(".contest .ended button[rel='claim']");
+        if ( contest_list.length > 0)
+        {
+            logHHAuto("Collected legendary contest id : "+contest_list[0].getAttribute('id_contest')+".");
+            contest_list[0].click();
+            if ( contest_list.length > 1 )
+            {
+                gotoPage("activities",{tab:"contests"});
+            }
+        }
+        /*
+        //getting legendary contest first not cumulating them
+        let contest_list = $(".contest.is_legendary .ended button[rel='claim']");
+        if ( contest_list.length > 0)
+        {
+            logHHAuto("Collected legendary contest id : "+contest_list[0].getAttribute('id_contest')+".");
+            contest_list[0].click();
+            gotoPage("activities",{tab:"contests"});
+        }
+
+        contest_list = $(".contest:not(.is_legendary) .ended button[rel='claim']");
+        let lastContestId = parseInt(contests.last().attr('id_contest'));
+        let laterDayToCollect = lastContestId - getHHScriptVars("contestMaxDays");
+        contest_list.filter(function()
+                            {
+            return parseInt($(this).attr('id_contest')) - laterDayToCollect < 0;
+        });
+        if ( contest_list.length > 0)
+        {
+            logHHAuto("Collected legendary contest id : "+contest_list[0].getAttribute('id_contest')+".");
+            contest_list[0].click();
+            gotoPage("activities",{tab:"contests"});
+        }*/
         // need to get next contest timer data
         var time = 0;
         for(var e in unsafeWindow.HHTimers.timers){
@@ -4889,7 +4921,7 @@ function moduleSimLeague() {
     var test2 = $('div#leagues_middle div.leagues_table tbody')[0];
     observer2.observe(test2, {attributes: true, childList: true, subtree: false});
 
-    let buttonLaunchList='<div style="position: absolute;right: 300px;top: 17px;width:100px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("RefreshOppoList","tooltip")+'</span><label style="width:100%;" class="myButton" id="RefreshOppoList">'+getTextForUI("RefreshOppoList","elementText")+'</label></div>';
+    let buttonLaunchList='<div style="position: absolute;left: 300px;top: 14px;width:100px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("RefreshOppoList","tooltip")+'</span><label style="width:100%;" class="myButton" id="RefreshOppoList">'+getTextForUI("RefreshOppoList","elementText")+'</label></div>';
     if (document.getElementById("RefreshOppoList") === null)
     {
         $("#leagues_middle").append(buttonLaunchList);
@@ -4902,7 +4934,7 @@ function moduleSimLeague() {
             getLeagueOpponentId(getLeagueOpponentListData(),true);
         });
     }
-    let buttonSaveOpponent='<div style="position: absolute;right: 100px;top: 17px;width:100px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("buttonSaveOpponent","tooltip")+'</span><label style="width:100%;" class="myButton" id="buttonSaveOpponent">'+getTextForUI("buttonSaveOpponent","elementText")+'</label></div>';
+    let buttonSaveOpponent='<div style="position: absolute;left: 410px;top: 14px;width:100px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("buttonSaveOpponent","tooltip")+'</span><label style="width:100%;" class="myButton" id="buttonSaveOpponent">'+getTextForUI("buttonSaveOpponent","elementText")+'</label></div>';
     if (document.getElementById("buttonSaveOpponent") === null) {
         $("#leagues_middle").append(buttonSaveOpponent);
         document.getElementById("buttonSaveOpponent").addEventListener("click", function () {
@@ -6464,7 +6496,10 @@ function moduleShopActions()
                                                                         {
                 let data=JSON.parse($(this).attr("data-d"));
                 let countGift=Number($('div.gift div.inventory_slots div[id_item='+$(this).attr("id_item")+'][data-d] .stack_num span')[0].innerHTML.replace(/[^0-9]/gi, ''))
-
+                if (data.rarity === "mythic")
+                {
+                    return;
+                }
                 if (minAffItem > Number(data.value))
                 {
                     minAffItem = Number(data.value);
@@ -6841,6 +6876,10 @@ function moduleShopActions()
             $('div.potion div.inventory_slots div[id_item][data-d]').each(function()
                                                                           {
                 let data=JSON.parse($(this).attr("data-d"));
+                if (data.rarity === "mythic")
+                {
+                    return;
+                }
                 let countpotion=Number($('div.potion div.inventory_slots div[id_item='+$(this).attr("id_item")+'][data-d] .stack_num span')[0].innerHTML.replace(/[^0-9]/gi, ''))
 
                 if (minExpItem > Number(data.value))
@@ -6851,7 +6890,7 @@ function moduleShopActions()
                 totalExp+=Number(data.value)*countpotion
                 potionArray[Number(data.value)]=$(this).attr("id_item");
             });
-
+            //console.log(potionCount);
             if (totalExp > 0
                 && Number(selectedGirl.Xp.level) < targetedLevel
                 && Number(selectedGirl.Xp.cur) < getLevelXp(selectedGirlTooltip.rarity,targetedLevel)
@@ -7492,7 +7531,7 @@ function moduleShopActions()
                 //console.log(initialNumberOfItems,currentNumberOfItems);
                 if ((initialNumberOfItems - currentNumberOfItems) < itemsToSell)
                 {
-                    let PlayerClass = getHHVars('Hero.infos.class') === -1 ? $('#equiped > div.icon.class_change_btn').attr('carac') : getHHVars('Hero.infos.class');
+                    let PlayerClass = getHHVars('Hero.infos.class') === null ? $('#equiped > div.icon.class_change_btn').attr('carac') : getHHVars('Hero.infos.class');
                     //check Selected item - can we sell it?
                     if ($('#inventory .selected .inventory_slots .selected:not([menuSellLocked])').length > 0)
                     {
@@ -8455,6 +8494,15 @@ function manageToolTipsDisplay(important=false)
     }
 }
 
+function checkClubStatus()
+{
+    let chatVars =getHHVars("Chat_vars.CLUB_ID");
+    if (chatVars === null || chatVars === false)
+    {
+        HHEnvVariables[getHHScriptVars("HHGameName")].isEnabledClubChamp = false;
+    }
+}
+
 function debugDeleteTempVars()
 {
     var dataToSave={};
@@ -8783,6 +8831,7 @@ for (let i in HHKnownEnvironnements)
 {
     HHEnvVariables[HHKnownEnvironnements[i].name] = {};
     HHEnvVariables[HHKnownEnvironnements[i].name].gameID = HHKnownEnvironnements[i].id;
+    HHEnvVariables[HHKnownEnvironnements[i].name].HHGameName = HHKnownEnvironnements[i].name;
 }
 
 HHEnvVariables["global"].eventIDReg = "event_";
@@ -8845,7 +8894,7 @@ HHEnvVariables["CH_prod"].isEnabledClubChamp = false;// to remove when Club Cham
 HHEnvVariables["CH_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in Comix
 HHEnvVariables["CH_prod"].isEnabledPowerPlaces = false;// to remove when PoP arrives in Comix
 HHEnvVariables["SH_prod"].isEnabledPowerPlaces = false;// to remove when PoP arrives in hornyheroes
-HHEnvVariables["SH_prod"].isEnabledGreatPachinko = false;// to remove when Great Pachinko arrives in hornyheroes
+HHEnvVariables["SH_prod"].isEnabledMythicPachinko = false;// to remove when Great Pachinko arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledAllChamps = false;// to remove when Champs arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledChamps = false;// to remove when Champs arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledClubChamp = false;// to remove when Club Champs arrives in hornyheroes
@@ -9055,7 +9104,7 @@ HHAuto_ToolTips.en.collectDailyRewards = {elementText : "Collect daily", tooltip
 HHAuto_ToolTips.en.saveDefaults = {elementText : "Save defaults", tooltip : "Save your own defaults values for new tabs."};
 HHAuto_ToolTips.en.autoGiveAff = {elementText : "Auto Give", tooltip : "If enabled, will automatically give Aff to girls in order ( you can use OCD script to filter )."};
 HHAuto_ToolTips.en.autoGiveExp = {elementText : "Auto Give", tooltip : "If enabled, will automatically give Exp to girls in order ( you can use OCD script to filter )."};
-HHAuto_ToolTips.en.autoPantheonTitle = {elementText : "Pantheon's Stairway", tooltip : ""};
+HHAuto_ToolTips.en.autoPantheonTitle = {elementText : "Pantheon", tooltip : ""};
 HHAuto_ToolTips.en.autoPantheonCheckbox = { elementText: "Enable", tooltip : "if enabled : Automatically do Pantheon"};
 HHAuto_ToolTips.en.autoPantheonThreshold = { elementText: "Threshold", tooltip : "(Integer 0 to 19)<br>Minimum worship to keep"};
 HHAuto_ToolTips.en.buttonSaveOpponent = { elementText: "Save opponent data", tooltip : "Save opponent data for fight simulation in market."};
@@ -9745,6 +9794,7 @@ var start = function () {
         $('.hh_logo').click();
         return;
     }
+    checkClubStatus();
     replaceCheatClick();
     setDefaults();
     $('.redirect.gay').hide();
