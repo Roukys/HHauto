@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.6
+// @version      5.6.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://nutaku.haremheroes.com/*
@@ -4552,7 +4552,34 @@ function moduleSimLeague() {
             getLeagueOpponentId(getLeagueOpponentListData(),true);
         });
     }
-    let buttonSaveOpponent='<div style="position: absolute;left: 410px;top: 14px;width:100px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("buttonSaveOpponent","tooltip")+'</span><label style="width:100%;" class="myButton" id="buttonSaveOpponent">'+getTextForUI("buttonSaveOpponent","elementText")+'</label></div>';
+    let buttonSortList='<div style="position: absolute;width: auto;left: 45%;top: 23%" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("sortPowerCalc","tooltip")+'</span><label style="width:100%;" class="myButton" id="sortPowerCalc">'+getTextForUI("sortPowerCalc","elementText")+'</label></div>';
+    const league_table = $('#leagues_middle tbody.leadTable');
+    if (document.getElementById("sortPowerCalc") === null && $('.OppoScore',league_table).length >0)
+    {
+        $('#leagues_middle .leagues_table').prepend(buttonSortList);
+        document.getElementById("sortPowerCalc").addEventListener("click", function ()
+                                                                  {
+
+            let items = $('tr',league_table).map((i, el) => el).toArray();
+            items.sort(function(a, b)
+                       {
+                const scoreCode_a = $('.OppoScore',$(a));
+                const scoreCode_b = $('.OppoScore',$(b));
+                const score_a = Number(scoreCode_a.length===0?0:scoreCode_a[0].innerText.slice(1, -2));
+                const score_b = Number(scoreCode_b.length===0?0:scoreCode_b[0].innerText.slice(1, -2));
+                //console.log(score_a,score_b);
+                return score_b-score_a;
+            });
+
+            for (let item in items)
+            {
+                $(items[item]).detach();
+                league_table.append(items[item]);
+            }
+        });
+    }
+
+    /*let buttonSaveOpponent='<div style="position: absolute;left: 410px;top: 14px;width:100px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("buttonSaveOpponent","tooltip")+'</span><label style="width:100%;" class="myButton" id="buttonSaveOpponent">'+getTextForUI("buttonSaveOpponent","elementText")+'</label></div>';
     if (document.getElementById("buttonSaveOpponent") === null) {
         $("#leagues_middle").append(buttonSaveOpponent);
         document.getElementById("buttonSaveOpponent").addEventListener("click", function () {
@@ -4574,6 +4601,7 @@ function moduleSimLeague() {
             //console.log(JSON.stringify(leagueSavedData));
         });
     }
+    */
 }
 
 function moduleHarem()
@@ -5718,7 +5746,7 @@ function moduleShopActions()
     {
         if ($("#simResult").length === 0 ) {
             let labelSimFight = '<div id="simResult">'+
-                '<div>'+getTextForUI("simResultMarketName","elementText")+'</div>'+
+                '<div>'+getTextForUI("name","elementText")+' : </div>'+
                 '<div id="simResultName">Long User Name</div>'+
                 '<div>'+getTextForUI("simResultMarketPreviousScore","elementText")+'</div>'+
                 '<div id="simResultPreviousScore">'+getTextForUI("none","elementText")+'</div>'+
@@ -8744,7 +8772,8 @@ HHAuto_ToolTips.en.SimResultMarketButton = { elementText: "Sim. results", toolti
 HHAuto_ToolTips.en.simResultMarketPreviousScore = { elementText: "Previous score :", tooltip : ""};
 HHAuto_ToolTips.en.simResultMarketScore = { elementText: "Score : ", tooltip : ""};
 HHAuto_ToolTips.en.none = { elementText: "None", tooltip : ""};
-HHAuto_ToolTips.en.simResultMarketName = { elementText: "Name :", tooltip : ""};
+HHAuto_ToolTips.en.name = { elementText: "Name", tooltip : ""};
+HHAuto_ToolTips.en.sortPowerCalc = { elementText: "Sort by score", tooltip : "Sorting opponents by score."};
 
 HHAuto_ToolTips.fr = {};
 HHAuto_ToolTips.fr.saveDebug = { elementText: "Sauver log", tooltip : "Sauvegarder un fichier journal de débogage."};
