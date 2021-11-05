@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.5
+// @version      5.6.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://nutaku.haremheroes.com/*
@@ -2531,95 +2531,6 @@ function nRounding(num, digits, updown) {
     }
 }
 
-//simuFight credit:Tom208
-//Battle simulation
-function simuFight(player, opponent) {
-    let playerEgoCheck = 0;
-    let opponentEgoCheck = 0;
-
-    //crit.
-    player.ego -= Math.max(0, opponent.atk - player.def);
-
-    //Log opponent name and starting egos for sim
-    //console.log('Simulation log for: ' + opponent.name);
-    //console.log('Starting Egos adjusted for the case proc scenario (0 for you and 1 for the opponent):');
-    //console.log('Player Ego: ' + player.ego);
-    //console.log('Opponent Ego: ' + opponent.ego);
-
-    function play_turn(cur) {
-        let o = cur === player ? opponent : player;
-
-        o.ego -= Math.max(0, cur.atk - o.def);
-        //console.log('Round ' + (turns + 1) + ': ' + cur.text + ' hit! -' + Math.max(0, (cur.atk - o.def)));
-
-        //Log results
-        //console.log('after Round ' + (turns + 1) + ': ' + o.text + ' ego: ' + o.ego);
-    }
-
-    //Simulate challenge
-    for (var turns = 0; turns < 25; turns++) {
-
-        if( player.ego <= 0) {
-            //Check if defeat stands with 1 critical hit for the player
-            opponentEgoCheck = opponent.ego;
-            opponentEgoCheck -= player.atk - opponent.def;
-
-            if (opponentEgoCheck <= 0)
-                //console.log('Victory! With 1 critical hit for player, Opponent ego: ' + opponentEgoCheck);
-
-                player.ego = 0;
-            break;
-        }
-        play_turn(player);
-
-        if (opponent.ego <= 0) {
-            //Check if victory stands with 2 critical hits for the opponent
-            playerEgoCheck = player.ego;
-            playerEgoCheck -= opponent.atk - player.def;
-
-            if (playerEgoCheck <= 0)
-                //console.log('Defeat! With 1 more critical hit for opponent, Player ego: ' + playerEgoCheck);
-
-                opponent.ego = 0;
-            break;
-        }
-
-        play_turn(opponent);
-    }
-
-    let matchRating = player.ego - opponent.ego;
-    let matchRatingStr = (matchRating >= 0 ? '+' : '') + nThousand(Math.floor(matchRating));
-    let matchRatingClass;
-    if (matchRating < 0 && opponentEgoCheck <= 0)
-        matchRatingClass = 'close';
-    else if (matchRating < 0 && opponentEgoCheck > 0)
-        matchRatingClass = 'minus';
-    else if (matchRating > 0 && playerEgoCheck <= 0)
-        matchRatingClass = 'close';
-    else if (matchRating > 0 && playerEgoCheck > 0)
-        matchRatingClass = 'plus';
-
-    let points = matchRating >= 0 ? Math.min(25, 15+player.ego/player.originEgo*10) : Math.max(3, 3+(opponent.originEgo-opponent.ego)/opponent.originEgo*10);
-    let pointsInt = Math.floor( points * 10 )/10;
-    if( Math.floor( points ) == points )
-        pointsInt -= 1/10;
-    pointsInt += 1;
-    pointsInt = Math.floor(pointsInt);
-
-    let pointsStr = '+' + pointsInt;
-
-    return {
-        score: Math.floor(matchRating),
-        scoreStr: matchRatingStr,
-        scoreClass: matchRatingClass,
-        playerEgoCheck: playerEgoCheck,
-        points: pointsInt,
-        pointsStr: pointsStr
-    };
-}
-
-
-
 function customMatchRating(inSimu)
 {
     let matchRating = inSimu.score;
@@ -2657,287 +2568,6 @@ function customMatchRating(inSimu)
             matchRating = '+' + matchRating;
 
             if (inSimu.playerEgoCheck <= 0)
-            {
-                return 'y'+matchRating
-            }
-            else
-            {
-                return 'g'+matchRating
-            }
-        }
-        else {
-            matchRating = matchRating;
-            return 'r'+matchRating
-        }
-    }
-}
-
-function calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement)
-{
-    var opponentBetaAdd;
-    var opponentOmegaAdd;
-    var opponentProcHCBase;
-    var opponentProcHCAddOrgasm1;
-    var opponentProcHCAddOrgasm2;
-    var opponentProcHCAddOrgasm3;
-    var opponentProcCH;
-    var opponentProcKH;
-    var opponentAlphaClass;
-    var playerOrgasm;
-    var playerOrgasmCount;
-    var opponentOrgasm;
-    var opponentOrgasmCount;
-    var playerEgoCheck;
-    var playerBetaAdd;
-    var playerOmegaAdd;
-    var matchRating;
-
-    //logHHAuto({playerEgo:playerEgo,playerDef:playerDef,playerAtk:playerAtk,playerClass:playerClass,playerAlpha:playerAlpha,playerBeta:playerBeta,playerOmega:playerOmega,playerExcitement:playerExcitement,opponentName:opponentName,opponentEgo:opponentEgo,opponentDef:opponentDef,opponentAtk:opponentAtk,opponentClass:opponentClass,opponentAlpha:opponentAlpha,opponentBeta:opponentBeta,opponentOmega:opponentOmega,opponentExcitement:opponentExcitement});
-
-
-    if (playerClass == 'class1') {
-        playerBetaAdd = playerBeta.caracs.carac1;
-        playerOmegaAdd = playerOmega.caracs.carac1;
-    }
-    if (playerClass == 'class2') {
-        playerBetaAdd = playerBeta.caracs.carac2;
-        playerOmegaAdd = playerOmega.caracs.carac2;
-    }
-    if (playerClass == 'class3') {
-        playerBetaAdd = playerBeta.caracs.carac3;
-        playerOmegaAdd = playerOmega.caracs.carac3;
-    }
-
-    if (opponentClass == 'class1') {
-        opponentBetaAdd = opponentBeta.caracs.carac1;
-        opponentOmegaAdd = opponentOmega.caracs.carac1;
-    }
-    if (opponentClass == 'class2') {
-        opponentBetaAdd = opponentBeta.caracs.carac2;
-        opponentOmegaAdd = opponentOmega.caracs.carac2;
-    }
-    if (opponentClass == 'class3') {
-        opponentBetaAdd = opponentBeta.caracs.carac3;
-        opponentOmegaAdd = opponentOmega.caracs.carac3;
-    }
-
-
-
-    //Calculate opponent proc values, determine applicable alpha class and adjust starting ego values for proc
-    opponentProcHCBase = Math.round(opponentAtk * 0.5);
-    opponentProcHCAddOrgasm1 = Math.round(opponentAtk * 0.25);
-    opponentProcHCAddOrgasm2 = Math.round(opponentBetaAdd * 1.3 * 0.75);
-    opponentProcHCAddOrgasm3 = Math.round(opponentOmegaAdd * 1.3 * 0.75);
-    opponentProcCH = opponentDef * 2;
-    opponentProcKH = Math.round(opponentEgo * 0.1);
-    opponentAlphaClass = opponentAlpha.class;
-
-    if (opponentAlphaClass == '1') {
-        playerEgo -= opponentProcHCBase;
-    }
-    if (opponentAlphaClass == '2') {
-        opponentEgo += opponentProcCH;
-    }
-    if (opponentAlphaClass == '3') {
-        opponentEgo += opponentProcKH;
-    }
-
-    //Log opponent name and starting egos for sim
-    //logHHAuto('Simulation log for: ' + opponentName);
-    //logHHAuto('Starting Egos adjusted for worst-case proc scenario:');
-    //logHHAuto('Player Ego: ' + playerEgo);
-    //logHHAuto('Opponent Ego: ' + opponentEgo);
-
-    playerOrgasm = 0;
-    playerOrgasmCount = 0;
-    opponentOrgasm = 0;
-    opponentOrgasmCount = 0;
-
-    function playerTurn() {
-        //Orgasm
-        if (playerOrgasm >= playerExcitement) {
-            //Orgasm damage
-            opponentEgo -= Math.round(playerAtk * 1.5 - opponentDef);
-            playerOrgasmCount++;
-
-            //Log results
-            //logHHAuto('Round ' + (turns + 1) + ': Player orgasm! -' + Math.round(playerAtk * 1.5 - opponentDef));
-
-            //Orgasm 1
-            if (playerOrgasmCount == 1) {
-                playerAtk += Math.round(playerBetaAdd * 1.3);
-                opponentDef += Math.round(opponentBetaAdd * 1.75);
-            }
-
-            //Orgasm 2
-            if (playerOrgasmCount == 2) {
-                playerAtk += Math.round(playerOmegaAdd * 1.3);
-                opponentDef += Math.round(opponentOmegaAdd * 1.75);
-            }
-
-            //Reset excitement value
-            playerOrgasm = 0;
-        }
-
-        //No orgasm
-        else {
-            opponentEgo -= playerAtk - opponentDef;
-            playerOrgasm += playerAtk * 2;
-            //logHHAuto('Round ' + (turns + 1) + ': Player hit! -' + (playerAtk - opponentDef));
-        }
-
-        //Log results
-        //logHHAuto('after Round ' + (turns + 1) + ': Opponent ego: ' + opponentEgo);
-    }
-
-    function opponentTurn() {
-        //Orgasm
-        if (opponentOrgasm >= opponentExcitement) {
-            //Orgasm damage
-            playerEgo -= Math.round(opponentAtk * 1.5 - playerDef);
-            opponentOrgasmCount++;
-
-            //Log results
-            //logHHAuto('Round ' + (turns + 1) + ': Opponent orgasm! -' + Math.round(opponentAtk * 1.5 - playerDef));
-
-            //Orgasm 1
-            if (opponentOrgasmCount == 1) {
-                opponentAtk += Math.round(opponentBetaAdd * 1.3);
-                playerDef += Math.round(playerBetaAdd * 1.75);
-                if (opponentAlphaClass == '1') {
-                    playerEgo -= opponentProcHCAddOrgasm1;
-                    //logHHAuto('Round ' + (turns + 1) + ': HC opponent possibility of Wild Burst on first orgasm! -' + opponentProcHCAddOrgasm1);
-                }
-            }
-
-            //Orgasm 2
-            if (opponentOrgasmCount == 2) {
-                opponentAtk += Math.round(opponentOmegaAdd * 1.3);
-                playerDef += Math.round(playerOmegaAdd * 1.75);
-                if (opponentAlphaClass == '1') {
-                    playerEgo -= opponentProcHCAddOrgasm2;
-                    //logHHAuto('Round ' + (turns + 1) + ': HC opponent possibility of Wild Burst on second orgasm! -' + opponentProcHCAddOrgasm2);
-                }
-            }
-
-            //Orgasm 3
-            if (opponentOrgasmCount == 3) {
-                if (opponentAlphaClass == '1') {
-                    playerEgo -= opponentProcHCAddOrgasm3;
-                    //logHHAuto('Round ' + (turns + 1) + ': HC opponent possibility of Wild Burst on third orgasm! -' + opponentProcHCAddOrgasm3);
-                }
-            }
-
-            //Reset excitement value
-            opponentOrgasm = 0;
-        }
-
-        //No orgasm
-        else {
-            playerEgo -= opponentAtk - playerDef;
-            opponentOrgasm += opponentAtk * 2;
-            //logHHAuto('Round ' + (turns + 1) + ': Opponent hit! -' + (opponentAtk - playerDef));
-        }
-
-        //Log results
-        //logHHAuto('after Round ' + (turns + 1) + ': Player ego: ' + playerEgo);
-    }
-
-    //Simulate challenge
-    for (var turns = 0; turns < 99; turns++) {
-        if (playerEgo > 0) {
-            playerTurn()
-        }
-        else {
-            break
-        }
-        if (opponentEgo > 0) {
-            opponentTurn()
-        }
-        else {
-            //Check if victory is only a one-turn advantage
-            playerEgoCheck = playerEgo;
-
-            //Orgasm
-            if (opponentOrgasm >= opponentExcitement) {
-                playerEgoCheck -= Math.round(opponentAtk * 1.5 - playerDef);
-                opponentOrgasmCount++;
-
-                //Log results
-                //logHHAuto('Round ' + (turns + 1) + ': Possibly next: Opponent orgasm! -' + Math.round(opponentAtk * 1.5 - playerDef));
-
-                if (opponentAlphaClass == '1') {
-                    if (opponentOrgasmCount == 1) {
-                        playerEgoCheck -= opponentProcHCAddOrgasm1;
-                        //logHHAuto('Round ' + (turns + 1) + ': Possibly next: HC opponent possibility of Wild Burst on first orgasm! -' + opponentProcHCAddOrgasm1);
-                    }
-                    if (opponentOrgasmCount == 2) {
-                        playerEgoCheck -= opponentProcHCAddOrgasm2;
-                        //logHHAuto('Round ' + (turns + 1) + ': Possibly next: HC opponent possibility of Wild Burst on second orgasm! -' + opponentProcHCAddOrgasm2);
-                    }
-                    if (opponentOrgasmCount == 3) {
-                        playerEgoCheck -= opponentProcHCAddOrgasm3;
-                        //logHHAuto('Round ' + (turns + 1) + ': Possibly next: HC opponent possibility of Wild Burst on third orgasm! -' + opponentProcHCAddOrgasm3);
-                    }
-                }
-            }
-            //No orgasm
-            else {
-                playerEgoCheck -= opponentAtk - playerDef;
-                //logHHAuto('Round ' + (turns + 1) + ': Possibly next: Opponent hit! -' + (opponentAtk - playerDef));
-            }
-
-            if (playerEgoCheck <= 0) {
-                //logHHAuto('Close call! After Round ' + (turns + 1) + ': Player ego: ' + playerEgoCheck);
-            }
-            break
-        }
-    }
-
-    //Round defeated player's ego up to 0 to not skew results
-    if (playerEgo < 0) {
-        playerEgo = 0;
-    }
-    if (opponentEgo < 0) {
-        opponentEgo = 0;
-    }
-
-    //Publish the ego difference as a match rating
-    matchRating = playerEgo - opponentEgo;
-    var customLimits = Storage().HHAuto_Setting_calculatePowerLimits.split(";");
-    if(customLimits.length === 2 && Number(customLimits[0]) < Number(customLimits[1]))
-    {
-        if (matchRating >= 0)
-        {
-            matchRating = '+' + matchRating;
-        }
-        if ( Number(matchRating) < Number(customLimits[0]) )
-        {
-            return 'r'+matchRating
-        }
-        else
-        {
-            if ( Number(matchRating) < Number(customLimits[1]) )
-            {
-                return 'y'+matchRating
-            }
-            else
-            {
-                return 'g'+matchRating
-            }
-        }
-    }
-    else
-    {
-        if ( Storage().HHAuto_Setting_calculatePowerLimits !== "default")
-        {
-            Storage().HHAuto_Setting_calculatePowerLimits = "Invalid limits";
-        }
-        if (matchRating >= 0)
-        {
-            matchRating = '+' + matchRating;
-
-            if (playerEgoCheck <= 0)
             {
                 return 'y'+matchRating
             }
@@ -3137,7 +2767,7 @@ function getLeagueOpponentListData()
     $(".leadTable[sorting_table] tr").each(function()
                                            {
         sorting_id = $(this).attr("sorting_id");
-        if (this.className.indexOf('selected-player-leagues') != -1)
+        if (this.className.indexOf('selected-player-leagues') !== -1)
         {
             if ( ($(".leadTable[sorting_table] tr.selected-player-leagues div.result.won").length + $(".leadTable[sorting_table] tr.selected-player-leagues div.result.lost").length) < 3)
             {
@@ -3369,12 +2999,16 @@ function getLeagueOpponentId(opponentsIDList,force=false)
     var opponentsListExpirationDate = sessionStorage.HHAuto_Temp_opponentsListExpirationDate?sessionStorage.HHAuto_Temp_opponentsListExpirationDate:'empty';
     var opponentsIDs= opponentsIDList;
     var oppoNumber = opponentsIDList.length;
-    var playerEgo;
-    var playerDef;
-    var playerAtk;
-    var playerTeamElement ;
     var DataOppo=new Map([]);
     var maxTime = 1.6;
+    let playerCrit;
+    let playerAtk;
+    let playerDef;
+    let playerEgo;
+    let playerTeam;
+    let playerElements;
+    let playerSynergies;
+    let playerBonuses;
 
     //toremove after migration in prod
     var girlDataName = getHHScriptVars('girlToolTipData');
@@ -3423,14 +3057,19 @@ function getLeagueOpponentId(opponentsIDList,force=false)
         }
 
         // player stats
-        playerEgo = Math.round(getHHVars('heroLeaguesData.totalEgo'));
-        playerAtk = Math.round(getHHVars('heroLeaguesData.damage'));
-        playerDef = Math.round(getHHVars('heroLeaguesData.defense'));
-        playerTeamElement = Array();
-        for (var i=0; i<getHHVars('heroLeaguesData.team.themeElements').length; i++)
-        {
-            playerTeamElement.push(getHHVars('heroLeaguesData.team.themeElements')[i].type);
-        }
+        playerCrit = getHHVars("heroLeaguesData.chance");
+        playerAtk = getHHVars("heroLeaguesData.damage");
+        playerDef = getHHVars("heroLeaguesData.defense");
+        playerEgo = getHHVars("heroLeaguesData.totalEgo");
+        playerTeam = getHHVars("heroLeaguesData.team");
+        playerElements = playerTeam.themeElements.map(({type}) => type);
+        playerSynergies = playerTeam.synergies;
+        playerBonuses = {
+            critDamage: playerSynergies.find(({element: {type}})=>type==='fire').bonusMultiplier,
+            critChance: playerSynergies.find(({element: {type}})=>type==='stone').bonusMultiplier,
+            defReduce: playerSynergies.find(({element: {type}})=>type==='sun').bonusMultiplier,
+            healOnHit: playerSynergies.find(({element: {type}})=>type==='water').bonusMultiplier
+        };
         getOpponents();
         return -1;
     }
@@ -3459,51 +3098,51 @@ function getLeagueOpponentId(opponentsIDList,force=false)
                    {
                 //logHHAuto({log:"data for oppo",data:data});
                 var opponentData = JSON.parse(data.html.substring(data.html.indexOf(findText)+findText.length,data.html.lastIndexOf(';')));
-                var opponentDef;
-                let opponentEgo = opponentData.caracs.ego;
-                let opponentAtk = opponentData.caracs.damage;
-                let opponentName = opponentData.Name;
-                let opponentTeamElement = Array();
-                for (var i=0; i<opponentData.team.themeElements.length; i++)
-                {
-                    opponentTeamElement.push(opponentData.team.themeElements[i].type);
-                }
+                const {
+                    chance: opponentCrit,
+                    damage: opponentAtk,
+                    defense: opponentDef,
+                    ego: opponentEgo,
+                } = opponentData.caracs
+                const {
+                    team: opponentTeam
+                } = opponentData
+                const opponentTeamMemberElements = [];
+                [0,1,2,3,4,5,6].forEach(key => {
+                    const teamMember = opponentTeam[key]
+                    if (teamMember && teamMember.element) {
+                        opponentTeamMemberElements.push(teamMember.element)
+                    }
+                })
+                const opponentElements = opponentTeam.themeElements.map(({type}) => type)
+                const opponentBonuses = calculateSynergiesFromTeamMemberElements(opponentTeamMemberElements)
 
-                opponentDef = opponentData.caracs.defense;
+                const dominanceBonuses = calculateDominationBonuses(playerElements, opponentElements)
 
-                let playersBonuses = calculatePlayersBonuses(playerTeamElement, opponentTeamElement);
-                let player = {
-                    ego: playerEgo*(1+playersBonuses.playerBonus*0.1),
-                    originEgo: playerEgo*(1+playersBonuses.playerBonus*0.1),
-                    atk: playerAtk*(1+playersBonuses.playerBonus*0.1),
-                    def: playerDef,
-                    text: 'Player',
+                const player = {
+                    hp: playerEgo * (1 + dominanceBonuses.player.ego),
+                    dmg: (playerAtk * (1 + dominanceBonuses.player.attack)) - (opponentDef * (1 - playerBonuses.defReduce)),
+                    critchance: calculateCritChanceShare(playerCrit, opponentCrit) + dominanceBonuses.player.chance + playerBonuses.critChance,
+                    bonuses: playerBonuses
                 };
-
-                let opponent = {
-                    ego: opponentEgo*(1+playersBonuses.opponentBonus*0.1),
-                    originEgo: opponentEgo*(1+playersBonuses.opponentBonus*0.1),
-                    atk: opponentAtk*(1+playersBonuses.opponentBonus*0.1),
-                    def: opponentDef,
-                    text: 'Opponent',
-                    name: opponentName,
+                const opponent = {
+                    hp: opponentEgo * (1 + dominanceBonuses.opponent.ego),
+                    dmg: (opponentAtk * (1 + dominanceBonuses.opponent.attack)) - (playerDef * (1 - opponentBonuses.defReduce)),
+                    critchance: calculateCritChanceShare(opponentCrit, playerCrit) + dominanceBonuses.opponent.chance + opponentBonuses.critChance,
+                    name: $('#leagues_right .player_block .title').text(),
+                    bonuses: opponentBonuses
                 };
-
-
-
-
                 //console.log(player,opponent);
-                let simu = simuFight(player, opponent);
+                let simu = calculateBattleProbabilities(player, opponent);
                 //console.log(opponent);
                 //console.log(simu);
-                matchRating=customMatchRating(simu);
+                //matchRating=customMatchRating(simu);
 
-                //var matchRating = calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,'class'+opponent.class,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement);
-                matchRating = Number(matchRating.substring(1));
+                //matchRating = Number(matchRating.substring(1));
                 //logHHAuto('matchRating:'+matchRating);
                 //if (!isNaN(matchRating))
                 //{
-                DataOppo.set(opponentData.id_member,matchRating);
+                DataOppo.set(opponentData.id_member,simu);
                 sessionStorage.HHAuto_Temp_LeagueTempOpponentList = JSON.stringify(DataOppo,replacerMap);
                 //}
                 //DataOppo.push(JSON.parse(data.html.substring(data.html.indexOf(findText)+findText.length,data.html.lastIndexOf(';'))));
@@ -3557,7 +3196,7 @@ function getLeagueOpponentId(opponentsIDList,force=false)
         for (var oppo of opponentsIDList)
         {
             //logHHAuto({Opponent:oppo,OppoGet:Number(opponentsPowerList.get(oppo)),maxScore:maxScore});
-            OppoScore = Number(opponentsPowerList.get(Number(oppo)));
+            OppoScore = Number(opponentsPowerList.get(Number(oppo)).win);
             if (( maxScore == -1 || OppoScore > maxScore ) && !isNaN(OppoScore))
             {
 
@@ -3565,7 +3204,7 @@ function getLeagueOpponentId(opponentsIDList,force=false)
                 IdOppo = oppo;
             }
         }
-        logHHAuto("highest score opponent : "+IdOppo+'('+maxScore+')');
+        logHHAuto("highest score opponent : "+IdOppo+'('+nRounding(100*maxScore, 2, -1)+'%)');
         return IdOppo;
     }
 
@@ -4666,61 +4305,62 @@ function calculatePlayersBonuses(inPlayerTeamElement, inOpponentTeamElement)
 
 function getLeaguePlayersData()
 {
-    let playerEgo;
-    let playerDef;
-    let playerAtk;
-    //let playerClass;
-    let opponentName;
-    let opponentEgo;
-    let opponentDef;
-    let opponentAtk;
-    //let opponentClass;
-    // player stats
-    playerEgo = Math.round(getHHVars('heroLeaguesData.totalEgo'));
-    playerDef = Math.round(getHHVars('heroLeaguesData.defense'));
-    playerAtk = Math.round(getHHVars('heroLeaguesData.damage'));
-    //playerClass = $('div#leagues_left .icon').attr('carac');
-    let playerTeamElement = Array();
-    for (var i=0; i<getHHVars('heroLeaguesData.team.themeElements').length; i++)
-    {
-        playerTeamElement.push(getHHVars('heroLeaguesData.team.themeElements')[i].type);
+    const {
+        chance: playerCrit,
+        damage: playerAtk,
+        defense: playerDef,
+        totalEgo: playerEgo,
+        team: playerTeam
+    } = heroLeaguesData
+    const playerElements = playerTeam.themeElements.map(({type}) => type)
+    const playerSynergies = playerTeam.synergies
+    const playerBonuses = {
+        critDamage: playerSynergies.find(({element: {type}})=>type==='fire').bonusMultiplier,
+        critChance: playerSynergies.find(({element: {type}})=>type==='stone').bonusMultiplier,
+        defReduce: playerSynergies.find(({element: {type}})=>type==='sun').bonusMultiplier,
+        healOnHit: playerSynergies.find(({element: {type}})=>type==='water').bonusMultiplier
     }
 
-    // opponent stats
-    opponentName = getHHVars('playerLeaguesData.Name');//$('div#leagues_right div.player_block div.title').text();
-    opponentEgo = Math.round(getHHVars('playerLeaguesData.caracs.ego'));//manageUnits($('div#leagues_right .stats_wrap div.carac-value div')[1].innerText);
-    opponentAtk = Math.round(getHHVars('playerLeaguesData.caracs.damage'));//manageUnits($('div#leagues_right .stats_wrap div.carac-value div')[0].innerText);
-    opponentDef = Math.round(getHHVars('playerLeaguesData.caracs.defense'));//manageUnits($('div#leagues_right .stats_wrap div.carac-value div')[2].innerText);
-    //opponentClass = $('div#leagues_right .icon').attr('carac');
-    let opponentTeamElement = Array();
-    for (var i=0; i<getHHVars('playerLeaguesData.team.themeElements').length; i++)
-    {
-        opponentTeamElement.push(getHHVars('playerLeaguesData.team.themeElements')[i].type);
-    }
+    const {
+        chance: opponentCrit,
+        damage: opponentAtk,
+        defense: opponentDef,
+        ego: opponentEgo,
+    } = playerLeaguesData.caracs
+    const {
+        team: opponentTeam
+    } = playerLeaguesData
+    const opponentTeamMemberElements = [];
+    [0,1,2,3,4,5,6].forEach(key => {
+        const teamMember = opponentTeam[key]
+        if (teamMember && teamMember.element) {
+            opponentTeamMemberElements.push(teamMember.element)
+        }
+    })
+    const opponentElements = opponentTeam.themeElements.map(({type}) => type)
+    const opponentBonuses = calculateSynergiesFromTeamMemberElements(opponentTeamMemberElements)
 
-    let playersBonuses = calculatePlayersBonuses(playerTeamElement, opponentTeamElement);
-    let player = {
-        ego: playerEgo*(1+playersBonuses.playerBonus*0.1),
-        originEgo: playerEgo*(1+playersBonuses.playerBonus*0.1),
-        atk: playerAtk*(1+playersBonuses.playerBonus*0.1),
-        def: playerDef,
-        text: 'Player',
-    };
+    const dominanceBonuses = calculateDominationBonuses(playerElements, opponentElements)
 
-    let opponent = {
-        ego: opponentEgo*(1+playersBonuses.opponentBonus*0.1),
-        originEgo: opponentEgo*(1+playersBonuses.opponentBonus*0.1),
-        atk: opponentAtk*(1+playersBonuses.opponentBonus*0.1),
-        def: opponentDef,
-        text: 'Opponent',
-        name: opponentName,
+    const player = {
+        hp: playerEgo * (1 + dominanceBonuses.player.ego),
+        dmg: (playerAtk * (1 + dominanceBonuses.player.attack)) - (opponentDef * (1 - playerBonuses.defReduce)),
+        critchance: calculateCritChanceShare(playerCrit, opponentCrit) + dominanceBonuses.player.chance + playerBonuses.critChance,
+        bonuses: playerBonuses
     };
-    return {player:player, opponent:opponent, playersBonuses:playersBonuses}
+    const opponent = {
+        hp: opponentEgo * (1 + dominanceBonuses.opponent.ego),
+        dmg: (opponentAtk * (1 + dominanceBonuses.opponent.attack)) - (playerDef * (1 - opponentBonuses.defReduce)),
+        critchance: calculateCritChanceShare(opponentCrit, playerCrit) + dominanceBonuses.opponent.chance + opponentBonuses.critChance,
+        name: $('#leagues_right .player_block .title').text(),
+        bonuses: opponentBonuses
+    };
+    return {player:player, opponent:opponent, dominanceBonuses:dominanceBonuses}
 }
 
 function moduleSimLeague() {
-    let matchRating;
-    let matchRatingFlag;
+    //let matchRating;
+    //let matchRatingFlag;
 
     if ($("#popup_message_league").length >0)
     {
@@ -4737,32 +4377,17 @@ function moduleSimLeague() {
 
         let leaguePlayers = getLeaguePlayersData();
         //console.log("HH simuFight",JSON.stringify(leaguePlayers.player),JSON.stringify(leaguePlayers.opponent));
-        let simu = simuFight(leaguePlayers.player, leaguePlayers.opponent);
+        let simu = calculateBattleProbabilities(leaguePlayers.player, leaguePlayers.opponent);
         //console.log(opponent);
         //console.log(simu);
-        matchRating=customMatchRating(simu);
-
-        //matchRating = calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement);
+        //matchRating=customMatchRating(simu);
 
         //Publish the ego difference as a match rating
-        matchRatingFlag = matchRating.substring(0,1);
-        matchRating = matchRating.substring(1);
+        //matchRatingFlag = matchRating.substring(0,1);
+        //matchRating = matchRating.substring(1);
 
-        switch (matchRatingFlag)
-        {
-            case 'g':
-                $('div#leagues_right .player_block .challenge').prepend('<div class="matchRatingNew plus"><img id="powerLevelScouter" src="https://i.postimg.cc/qgkpN0sZ/Opponent-green.png">' + matchRating + '</div>');
-                $("tr.lead_table_default div[second-row]").append('<div class="matchRatingNew plus"><img id="powerLevelScouter" src="https://i.postimg.cc/qgkpN0sZ/Opponent-green.png">' + matchRating + '</div>');
-                break;
-            case 'y':
-                $('div#leagues_right .player_block .challenge').prepend('<div class="matchRatingNew close"><img id="powerLevelScouter" src="https://i.postimg.cc/3JCgVBdK/Opponent-orange.png">' + matchRating + '</div>');
-                $("tr.lead_table_default div[second-row]").append('<div class="matchRatingNew close"><img id="powerLevelScouter" src="https://i.postimg.cc/3JCgVBdK/Opponent-orange.png">' + matchRating + '</div>');
-                break;
-            case 'r':
-                $('div#leagues_right .player_block .challenge').prepend('<div class="matchRatingNew minus"><img id="powerLevelScouter" src="https://i.postimg.cc/PxgxrBVB/Opponent-red.png">' + matchRating + '</div>');
-                $("tr.lead_table_default div[second-row]").append('<div class="matchRatingNew minus"><img id="powerLevelScouter" src="https://i.postimg.cc/PxgxrBVB/Opponent-red.png">' + matchRating + '</div>');
-                break;
-        }
+        $('div#leagues_right .player_block .challenge').prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${nRounding(100*simu.win, 2, -1)}%</div>`);
+        $("tr.lead_table_default div[second-row]").append(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${nRounding(100*simu.win, 2, -1)}%</div>`);
 
         //CSS
 
@@ -4878,18 +4503,11 @@ function moduleSimLeague() {
 
         for (let oppo of opponentsIDList)
         {
-            OppoScore = Number(opponentsPowerList.get(Number(oppo)));
+            OppoScore = Number(opponentsPowerList.get(Number(oppo)).win);
             if ($('tr[sorting_id=' + oppo + '] td span.nickname').length > 0 && opponentsPowerList.get(Number(oppo)) !== undefined)
             {
-                //if ($('tr[sorting_id=' + oppo + '] td .score').length > 0)
-                if (Number(OppoScore)<0)
-                {
-                    $('tr[sorting_id=' + oppo + '] td span.nickname').append("<span class='OppoScore minus'>("+OppoScore+")</span>");
-                }
-                else
-                {
-                    $('tr[sorting_id=' + oppo + '] td span.nickname').append("<span class='OppoScore plus'>("+OppoScore+")</span>");
-                }
+                $('tr[sorting_id=' + oppo + '] td span.nickname').append(`<span class='OppoScore ${opponentsPowerList.get(Number(oppo)).scoreClass}'>(${nRounding(100*OppoScore, 2, -1)}%)</span>`);
+
             }
         }
 
@@ -5095,31 +4713,14 @@ function moduleHarem()
 }
 
 
-function moduleSimSeasonBattle() {
-
-    var oppoName;
-    var playerEgo;
-    var playerDefHC;
-    var playerDefKH;
-    var playerDefCH;
-
-    var playerAtk;
-    //var playerClass;
-    var playerAlpha;
-    var playerBeta;
-    var playerOmega;
-    var playerExcitement;
-    var matchRating;
-    var matchRatingFlag;
-    var mojoOppo=[];
-    var scoreOppo=[];
-    var nameOppo=[];
+function moduleSimSeasonBattle()
+{
+    let doDisplay=false;
+    let mojoOppo=[];
+    let scoreOppo=[];
+    let nameOppo=[];
     let expOppo=[];
     let affOppo=[];
-    var index;
-    var marker='!!';
-    var doDisplay=false;
-
     try
     {
         if ($("div.matchRatingNew img#powerLevelScouter").length != 3)
@@ -5127,91 +4728,83 @@ function moduleSimSeasonBattle() {
             doDisplay=true;
         }
         //toremove after migration in prod
-        var girlDataName=getHHScriptVars('girlToolTipData');
-        let playerStats = {};
+        const girlDataName=getHHScriptVars('girlToolTipData');
+        const playerStats = {};
         $('#season-arena .battle_hero .hero_stats .hero_stats_row div').each(function ()
                                                                              {
             playerStats[$('span[carac]',this).attr('carac')]=$('span:not([carac])',this)[0].innerText.replace(/[^0-9]/gi, '');
         });
-
         // player stats
-        playerEgo = Math.round(playerStats.ego);
-        let playerTeamElement = Array();
+        const playerEgo = Math.round(playerStats.ego);
+        const playerDef = Math.round(playerStats.def0);
+        const playerAtk = Math.round(playerStats.damage);
+        const playerCrit = Math.round(playerStats.chance);
+        const playerTeamElement = Array();
         for (var i=0; i<$('#season-arena .battle_hero .team-theme.icon').length; i++)
         {
-            var teamElement = $('#season-arena .battle_hero .team-theme.icon')[i].attributes.src.value.match(/girls_elements\/(.*?).png/)[1]
+            const teamElement = $('#season-arena .battle_hero .team-theme.icon')[i].attributes.src.value.match(/girls_elements\/(.*?).png/)[1];
             playerTeamElement.push(teamElement);
         }
-        let playerDef = Math.round(playerStats.def0);
-
-        playerAtk = Math.round(playerStats.damage);
-        //playerClass = 'class'+getHHVars('Hero.infos.class');
-        for (index=0;index<3;index++)
+        const playerTeam = $('#season-arena .battle_hero .hero_team .team-member img').map((i, el) => $(el).data('new-girl-tooltip')).toArray();
+        const playerSynergies = JSON.parse($('#season-arena .battle_hero .hero_team .icon-area').attr('synergy-data'));
+        const playerTeamMemberElements = playerTeam.map(({elementData: {type: element}})=>element);
+        const playerElements = calculateThemeFromElements(playerTeamMemberElements)
+        const playerBonuses = {
+            critDamage: playerSynergies.find(({element: {type}})=>type==='fire').bonusMultiplier,
+            critChance: playerSynergies.find(({element: {type}})=>type==='stone').bonusMultiplier,
+            defReduce: playerSynergies.find(({element: {type}})=>type==='sun').bonusMultiplier,
+            healOnHit: playerSynergies.find(({element: {type}})=>type==='water').bonusMultiplier
+        }
+        for (let index=0;index<3;index++)
         {
-            let opponentName = $("div.season_arena_opponent_container .hero_details div.hero_name")[index].innerText
 
-            let opponentEgo = manageUnits($('div.opponents_arena .season_arena_opponent_container .hero_stats')[index].querySelectorAll('.hero_stats_row span.pull_right')[2].innerText);
-            let opponentDef = manageUnits($('div.opponents_arena .season_arena_opponent_container .hero_stats')[index].querySelectorAll('.hero_stats_row span.pull_right')[1].innerText);
-            let opponentAtk = manageUnits($('div.opponents_arena .season_arena_opponent_container .hero_stats')[index].querySelectorAll('.hero_stats_row span.pull_right')[0].innerText);
-            let opponentTeamElement = Array();
-            for (var i=0; i<$('#season-arena .opponents_arena .season_arena_opponent_container')[index].querySelectorAll('.team-theme.icon').length; i++)
-            {
-                var teamElement = $('#season-arena .opponents_arena .season_arena_opponent_container')[index].querySelectorAll('.team-theme.icon')[i].attributes.src.value.match(/girls_elements\/(.*?).png/)[1]
-                opponentTeamElement.push(teamElement);
-            }
-            //var opponentClass = $($("div.season_arena_opponent_container .hero_details div[hh_class_tooltip]")[index]).attr('carac');
-            let playersBonuses = calculatePlayersBonuses(playerTeamElement, opponentTeamElement);
-            let player = {
-                ego: playerEgo*(1+playersBonuses.playerBonus*0.1),
-                originEgo: playerEgo*(1+playersBonuses.playerBonus*0.1),
-                atk: playerAtk*(1+playersBonuses.playerBonus*0.1),
-                def: playerDef,
-                text: 'Player',
+            const opponentName = $("div.season_arena_opponent_container .hero_details div.hero_name")[index].innerText
+            const opponentEgo = manageUnits($('div.opponents_arena .season_arena_opponent_container .hero_stats')[index].querySelectorAll('.hero_stats_row span.pull_right')[2].innerText);
+            const opponentDef = manageUnits($('div.opponents_arena .season_arena_opponent_container .hero_stats')[index].querySelectorAll('.hero_stats_row span.pull_right')[1].innerText);
+            const opponentAtk = manageUnits($('div.opponents_arena .season_arena_opponent_container .hero_stats')[index].querySelectorAll('.hero_stats_row span.pull_right')[0].innerText);
+            const opponentCrit = manageUnits($('div.opponents_arena .season_arena_opponent_container .hero_stats')[index].querySelectorAll('.hero_stats_row span.pull_right')[3].innerText);
+            const opponentTeam = $('.team-member img',$('#season-arena .opponents_arena .season_arena_opponent_container .hero_team')[index]).map((i, el) => $(el).data('new-girl-tooltip')).toArray();
+            const opponentTeamMemberElements = opponentTeam.map(({element})=>element);
+            const opponentElements = calculateThemeFromElements(opponentTeamMemberElements);
+            const opponentBonuses = calculateSynergiesFromTeamMemberElements(opponentTeamMemberElements);
+            const dominanceBonuses = calculateDominationBonuses(playerElements, opponentElements);
+            const player = {
+                hp: playerEgo * (1 + dominanceBonuses.player.ego),
+                dmg: (playerAtk * (1 + dominanceBonuses.player.attack)) - (opponentDef * (1 - playerBonuses.defReduce)),
+                critchance: calculateCritChanceShare(playerCrit, opponentCrit) + dominanceBonuses.player.chance + playerBonuses.critChance,
+                bonuses: playerBonuses
             };
-
-            let opponent = {
-                ego: opponentEgo*(1+playersBonuses.opponentBonus*0.1),
-                originEgo: opponentEgo*(1+playersBonuses.opponentBonus*0.1),
-                atk: opponentAtk*(1+playersBonuses.opponentBonus*0.1),
-                def: opponentDef,
-                text: 'Opponent',
+            const opponent = {
+                hp: opponentEgo * (1 + dominanceBonuses.opponent.ego),
+                dmg: (opponentAtk * (1 + dominanceBonuses.opponent.attack)) - (playerDef * (1 - opponentBonuses.defReduce)),
+                critchance: calculateCritChanceShare(opponentCrit, playerCrit) + dominanceBonuses.opponent.chance + opponentBonuses.critChance,
                 name: opponentName,
+                bonuses: opponentBonuses
             };
+
 
             if (doDisplay)
             {
-                //console.log("HH simuFight",JSON.stringify(player),JSON.stringify(opponent));
+                //console.log("HH simuFight",JSON.stringify(player),JSON.stringify(opponent), opponentBonuses);
             }
-            let simu = simuFight(player, opponent);
+            const simu = calculateBattleProbabilities(player, opponent)
+
             //console.log(player,opponent);
             //console.log(simu);
-            matchRating=customMatchRating(simu);
-            //matchRating = calculatePower(playerEgo,playerDef,playerAtk,playerClass,playerAlpha,playerBeta,playerOmega,playerExcitement,opponentName,opponentEgo,opponentDef,opponentAtk,opponentClass,opponentAlpha,opponentBeta,opponentOmega,opponentExcitement);
-            scoreOppo[index]=matchRating;
+            //matchRating=customMatchRating(simu);
+            scoreOppo[index]=simu;
             mojoOppo[index]=Number($("div.season_arena_opponent_container .slot_victory_points p")[index].innerText);
             //logHHAuto(Number($("div.season_arena_opponent_container .slot_victory_points p")[index].innerText));
             nameOppo[index]=opponentName;
             expOppo[index]=Number($("div.season_arena_opponent_container .slot_season_xp_girl")[index].lastElementChild.innerText.replace(/\D/g, ''));
             affOppo[index]=Number($("div.season_arena_opponent_container .slot_season_affection_girl")[index].lastElementChild.innerText.replace(/\D/g, ''));
             //Publish the ego difference as a match rating
-            matchRatingFlag = matchRating.substring(0,1);
-            matchRating = matchRating.substring(1);
+            //matchRatingFlag = matchRating.substring(0,1);
+            //matchRating = matchRating.substring(1);
 
             if (doDisplay)
             {
-
-                switch (matchRatingFlag)
-                {
-                    case 'g':
-                        $($('div.season_arena_opponent_container')[index]).append('<div class="matchRatingNew plus"><img id="powerLevelScouter" src="https://i.postimg.cc/qgkpN0sZ/Opponent-green.png">' + matchRating + '</div>');
-                        break;
-                    case 'y':
-                        $($('div.season_arena_opponent_container')[index]).append('<div class="matchRatingNew close"><img id="powerLevelScouter" src="https://i.postimg.cc/3JCgVBdK/Opponent-orange.png">' + matchRating + '</div>');
-                        break;
-                    case 'r':
-                        $($('div.season_arena_opponent_container')[index]).append('<div class="matchRatingNew minus"><img id="powerLevelScouter" src="https://i.postimg.cc/PxgxrBVB/Opponent-red.png">' + matchRating + '</div>');
-                        break;
-                }
+                $($('div.season_arena_opponent_container .hero_team .icon-area')[index]).prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${nRounding(100*simu.win, 2, -1)}%</div>`);
             }
         }
 
@@ -5226,23 +4819,24 @@ function moduleSimSeasonBattle() {
         var currentMojo;
         var numberOfReds=0;
         let currentGains;
+        let oppoName;
 
-        for (index=0;index<3;index++)
+        for (let index=0;index<3;index++)
         {
-            currentScore = Number(scoreOppo[index].substring(1));
-            currentFlag = scoreOppo[index].substring(0,1);
+            currentScore = Number(scoreOppo[index].win);
+            currentFlag = scoreOppo[index].scoreClass;
             currentMojo = Number(mojoOppo[index]);
             currentExp=Number(expOppo[index]);
             currentAff=Number(affOppo[index]);
             switch (currentFlag)
             {
-                case 'g':
+                case 'plus':
                     currentFlag = 1;
                     break;
-                case 'y':
+                case 'close':
                     currentFlag = 0;
                     break;
-                case 'r':
+                case 'minus':
                     currentFlag = -1;
                     numberOfReds++;
                     break;
@@ -5325,14 +4919,13 @@ function moduleSimSeasonBattle() {
         if (doDisplay)
         {
 
-            //$('div.season_arena_opponent_container div.matchRatingNew')[chosenID].innerHTML=$('div.season_arena_opponent_container div.matchRatingNew')[chosenID].innerHTML+marker;
-            $($('div.season_arena_opponent_container div.matchRatingNew')[chosenID]).append('<img id="powerLevelScouterChosen" src="https://i.postimg.cc/MfKwNbZ8/Opponent-go.png">');
+            $($('div.season_arena_opponent_container div.matchRatingNew')[chosenID]).append(`<img id="powerLevelScouterChosen" src=${getHHScriptVars("powerCalcImages").chosen}>`);
 
             //CSS
 
             GM_addStyle('.matchRatingNew {'
                         + 'text-align: center; '
-                        + 'margin-top: -14px; '
+                        + 'margin-right: 5px; '
                         + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
                         + 'line-height: 17px; '
                         + 'font-size: 14px;}'
@@ -6119,7 +5712,7 @@ function moduleShopActions()
     appendMenuAff();
     appendMenuExp();
     appendMenuRemoveMaxed();
-    appendSimFight();
+    //appendSimFight();
 
     function appendSimFight()
     {
@@ -8628,33 +8221,50 @@ var setDefaults = function (force = false)
 
     for (let i of Object.keys(HHStoredVars))
     {
-        if (HHStoredVars[i].default !== undefined )
+        if (HHStoredVars[i].storage !== undefined )
         {
-            if (HHStoredVars[i].storage !== undefined )
+            let storageItem;
+            switch (HHStoredVars[i].storage)
             {
-                let storageItem;
-                switch (HHStoredVars[i].storage)
+                case 'localStorage' :
+                    storageItem = localStorage;
+                    break;
+                case 'sessionStorage' :
+                    storageItem = sessionStorage;
+                    break;
+                case 'Storage()' :
+                    storageItem = Storage();
+                    break;
+            }
+            let isInvalid = false;
+            if (HHStoredVars[i].isValid !== undefined && storageItem[i] !== undefined)
+            {
+                isInvalid = !HHStoredVars[i].isValid.test(storageItem[i]);
+                if (isInvalid)
                 {
-                    case 'localStorage' :
-                        storageItem = localStorage;
-                        break;
-                    case 'sessionStorage' :
-                        storageItem = sessionStorage;
-                        break;
-                    case 'Storage()' :
-                        storageItem = Storage();
-                        break;
+                    logHHAuto("HHStoredVar "+i+" is invalid, reseting.");
                 }
-                if (storageItem[i] === undefined || force)
+            }
+            if (HHStoredVars[i].default !== undefined )
+            {
+                if (storageItem[i] === undefined || force || isInvalid)
                 {
                     setHHStoredVarToDefault(i);
                 }
             }
             else
             {
-                logHHAuto("HHStoredVar "+i+" has no storage defined.");
+                if (force ||isInvalid)
+                {
+                    storageItem.removeItem(i);
+                }
             }
         }
+        else
+        {
+            logHHAuto("HHStoredVar "+i+" has no storage defined.");
+        }
+
     }
     /*Storage().HHAuto_Setting_autoSalary = "false";
     Storage().HHAuto_Setting_autoSalaryMinTimer = "120";
@@ -8844,6 +8454,29 @@ HHEnvVariables["global"].shopGirlCountRequest = '#girls_list .g1 .number.selecte
 HHEnvVariables["global"].shopGirlCurrentRequest = '#girls_list .g1 .number.selected span[contenteditable]';
 HHEnvVariables["global"].shopGirlCounterRequest = '#girls_list .g1 .number.selected';
 HHEnvVariables["global"].contestMaxDays = 21;
+HHEnvVariables["global"].STOCHASTIC_SIM_RUNS = 10000;
+HHEnvVariables["global"].ELEMENTS =
+    {
+    chance: {
+        darkness: 'light',
+        light: 'psychic',
+        psychic: 'darkness'
+    },
+    egoDamage: {
+        fire: 'nature',
+        nature: 'stone',
+        stone: 'sun',
+        sun: 'water',
+        water: 'fire'
+    }
+};
+HHEnvVariables["global"].powerCalcImages =
+    {
+    plus:   "https://i.postimg.cc/qgkpN0sZ/Opponent-green.png",
+    close:  "https://i.postimg.cc/3JCgVBdK/Opponent-orange.png",
+    minus:  "https://i.postimg.cc/PxgxrBVB/Opponent-red.png",
+    chosen: "https://i.postimg.cc/MfKwNbZ8/Opponent-go.png"
+};
 
 HHEnvVariables["global"].gotoPageHome = '/home.html';
 HHEnvVariables["global"].gotoPageActivities = '/activities.html';
@@ -8910,7 +8543,7 @@ var HHAuto_inputPattern = {
     buyCombTimer:"[0-9]+",
     buyMythicCombTimer:"[0-9]+",
     autoBuyBoostersFilter:"B[1-4](;B[1-4])*",
-    calculatePowerLimits:"(\-?[0-9]+;\-?[0-9]+)|default",
+    //calculatePowerLimits:"(\-?[0-9]+;\-?[0-9]+)|default",
     autoSalaryTimer:"[0-9]+",
     autoTrollThreshold:"[1]?[0-9]",
     eventTrollOrder:"([1-2][0-9]|[1-9])(;([1-2][0-9]|[1-9]))*",
@@ -8957,7 +8590,7 @@ HHAuto_ToolTips.en.autoBuyBoosters = { elementText: "Leg. Boosters", tooltip : "
 HHAuto_ToolTips.en.autoBuyBoostersFilter = { elementText: "Filter", tooltip : "(values separated by ;)<br>Set which booster to buy , order is respected (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)"};
 HHAuto_ToolTips.en.autoSeasonPassReds = { elementText: "Pass 3 reds", tooltip : "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>Use kobans to renew Season opponents if 3 reds"};
 HHAuto_ToolTips.en.showCalculatePower = { elementText: "Show PowerCalc", tooltip : "Display battle simulation indicator for Leagues, battle, Seasons "};
-HHAuto_ToolTips.en.calculatePowerLimits = { elementText: "Own limits", tooltip : "(red;orange)<br>Define your own red and orange limits for Opponents<br> -6000;0 do mean<br> <-6000 is red, between -6000 and 0 is orange and >=0 is green"};
+//HHAuto_ToolTips.en.calculatePowerLimits = { elementText: "Own limits", tooltip : "(red;orange)<br>Define your own red and orange limits for Opponents<br> -6000;0 do mean<br> <-6000 is red, between -6000 and 0 is orange and >=0 is green"};
 HHAuto_ToolTips.en.showInfo = { elementText: "Show info", tooltip : "if enabled : show info on script values and next runs"};
 HHAuto_ToolTips.en.autoSalaryCheckbox = { elementText: "Salary", tooltip : "(Integer)<br>if enabled :<br>Collect salaries every X secs"};
 HHAuto_ToolTips.en.autoSalaryMinTimer = { elementText: "Minimum wait", tooltip : "(Integer)<br>X secs to next Salary collection"};
@@ -9130,7 +8763,7 @@ HHAuto_ToolTips.fr.autoBuyBoosters = { elementText: "Boosters lég.", tooltip : 
 HHAuto_ToolTips.fr.autoBuyBoostersFilter = { elementText: "Filtre", tooltip : "(valeurs séparées par ;)<br>Définit quel(s) booster(s) acheter, respecter l'ordre (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)."};
 HHAuto_ToolTips.fr.autoSeasonPassReds = { elementText: "Passer 3 rouges", tooltip : "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>("+HHAuto_ToolTips.fr.spendKobans0.elementText+" doit être activé)</p>Utilise des kobans pour renouveler les adversaires de la saison si PowerCalc détermine 3 combats rouges (perdus)."};
 HHAuto_ToolTips.fr.showCalculatePower = { elementText: "PowerCalc", tooltip : "Si activé : affiche le résultat des calculs du module PowerCalc (Simulateur de combats pour Ligues, Trolls, Saisons)."};
-HHAuto_ToolTips.fr.calculatePowerLimits = { elementText: "Limites perso", tooltip : "(rouge;orange)<br>Définissez vos propres limites de rouge et d'orange pour les opposants<br> -6000;0 veux dire<br> <-6000 est rouge, entre -6000 et 0 est orange et >=0 est vert"};
+//HHAuto_ToolTips.fr.calculatePowerLimits = { elementText: "Limites perso", tooltip : "(rouge;orange)<br>Définissez vos propres limites de rouge et d'orange pour les opposants<br> -6000;0 veux dire<br> <-6000 est rouge, entre -6000 et 0 est orange et >=0 est vert"};
 HHAuto_ToolTips.fr.showInfo = { elementText: "Infos", tooltip : "Si activé : affiche une fenêtre d'informations sur le script."};
 HHAuto_ToolTips.fr.autoSalaryCheckbox = { elementText: "Salaire", tooltip : "Si activé :<br>Collecte les salaires toutes les X secondes."};
 HHAuto_ToolTips.fr.autoSalaryMinTimer = { elementText: "Attente min.", tooltip : "(Nombre entier)<br>Secondes d'attente minimum entre deux collectes."};
@@ -9228,7 +8861,7 @@ HHAuto_ToolTips.de.autoBuyBoosters = { elementText: "Kaufe Booster", tooltip : "
 HHAuto_ToolTips.de.autoBuyBoostersFilter = { elementText: "Filter", tooltip : "(Werte getrennt durch ;)<br>Gib an welches Booster gekauft werden sollen, Reihenfolge wird beachtet (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)"};
 HHAuto_ToolTips.de.autoSeasonPassReds = { elementText: "Überspringe drei Rote", tooltip : "'Koban ausgeben Funktion'<br>Benutze Kobans um Season Gegner zu tauschen wenn alle drei Rote sind"};
 HHAuto_ToolTips.de.showCalculatePower = { elementText: "Zeige Kraftrechner", tooltip : "Zeige Kampfsimulationsindikator an für Liga, Kampf und Season"};
-HHAuto_ToolTips.de.calculatePowerLimits = { elementText: "Eigene Grenzen (rot;gelb)", tooltip : "(rot;gelb)<br>Definiere deine eigenen Grenzen für rote und orange Gegner<br> -6000;0 meint<br> <-6000 ist rot, zwischen -6000 und 0 ist orange und >=0 ist grün"};
+//HHAuto_ToolTips.de.calculatePowerLimits = { elementText: "Eigene Grenzen (rot;gelb)", tooltip : "(rot;gelb)<br>Definiere deine eigenen Grenzen für rote und orange Gegner<br> -6000;0 meint<br> <-6000 ist rot, zwischen -6000 und 0 ist orange und >=0 ist grün"};
 HHAuto_ToolTips.de.showInfo = { elementText: "Zeige Info", tooltip : "Wenn aktiv : zeige Information auf Skriptwerten und nächsten Durchläufen"};
 HHAuto_ToolTips.de.autoSalaryCheckbox = { elementText: "Auto Einkommen", tooltip : "Wenn aktiv :<br>Sammelt das gesamte Einkommen alle X Sek."};
 HHAuto_ToolTips.de.autoSalaryMinTimer = { elementText: "min Warten", tooltip : "(Ganze pos. Zahl)<br>X Sek bis zum Sammeln des Einkommens"};
@@ -9298,7 +8931,7 @@ HHAuto_ToolTips.es.autoBuyBoosters = { elementText: "Compra Potenciad. Leg.", to
 HHAuto_ToolTips.es.autoBuyBoostersFilter = { elementText: "Filtro", tooltip : "(valores separados por ;)<br>Selecciona que potenciador comprar, se respeta el orden (B1:Ginseng B2:Azufaifo B3:Clorela B4:Cordyceps)"};
 HHAuto_ToolTips.es.autoSeasonPassReds = { elementText: "Pasa 3 rojos", tooltip : "Funciones de gasto de Kobans<br>Usa kobans para renovar oponentes si los 3 rojos"};
 HHAuto_ToolTips.es.showCalculatePower = { elementText: "Mostar PowerCalc", tooltip : "Muestra simulador de batalla para Liga, batallas, Temporadas "};
-HHAuto_ToolTips.es.calculatePowerLimits = { elementText: "Límites propios (rojo;naranja)", tooltip : "(rojo;naranja)<br>Define tus propios límites rojos y naranjas para los oponentes<br> -6000;0 significa<br> <-6000 is rojo, entre -6000 and 0 is naranja and >=0 is verde"};
+//HHAuto_ToolTips.es.calculatePowerLimits = { elementText: "Límites propios (rojo;naranja)", tooltip : "(rojo;naranja)<br>Define tus propios límites rojos y naranjas para los oponentes<br> -6000;0 significa<br> <-6000 is rojo, entre -6000 and 0 is naranja and >=0 is verde"};
 HHAuto_ToolTips.es.showInfo = { elementText: "Muestra info", tooltip : "Si habilitado: muestra información de los valores del script y siguientes ejecuciones"};
 HHAuto_ToolTips.es.autoSalaryCheckbox = { elementText: "AutoSal.", tooltip : "(Entero)<br>Si habilitado:<br>Recauda salario cada X segundos"};
 HHAuto_ToolTips.es.autoSalaryMinTimer = { elementText: "min espera", tooltip : "(Entero)<br>X segundos para recaudar salario"};
@@ -9420,7 +9053,7 @@ HHStoredVars.HHAuto_Setting_buyCombat = {default:  "false", storage : "Storage()
 HHStoredVars.HHAuto_Setting_buyCombTimer = {default: "16", storage : "Storage()", type : "Setting"};
 HHStoredVars.HHAuto_Setting_buyMythicCombat = {default:  "false", storage : "Storage()", type : "Setting"};
 HHStoredVars.HHAuto_Setting_buyMythicCombTimer = {default: "16", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_calculatePowerLimits = {default:  "default", storage : "Storage()", type : "Setting"};
+//HHStoredVars.HHAuto_Setting_calculatePowerLimits = {default:  "default", storage : "Storage()", type : "Setting"};
 HHStoredVars.HHAuto_Setting_collectDailyRewards = {default:  "false", storage : "Storage()", type : "Setting"};
 HHStoredVars.HHAuto_Setting_eventTrollOrder = {default: "1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20", storage : "Storage()", type : "Setting"};
 HHStoredVars.HHAuto_Setting_master = {default: "false", storage : "Storage()", type : "Setting"};
@@ -9468,7 +9101,8 @@ HHStoredVars.HHAuto_Temp_eventGirl = { storage : "sessionStorage", type : "Temp"
 HHStoredVars.HHAuto_Temp_fought = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_haveAff = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_haveExp = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_LeagueOpponentList = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_LeagueOpponentList = { storage : "sessionStorage", type : "Temp", isValid:/{"dataType":"Map","value":\[(\["?(\d)+"?,{"points"[^\]]+\],?)+\]}/};
+HHStoredVars.HHAuto_Temp_LeagueTempOpponentList = { storage : "sessionStorage", type : "Temp", isValid:/{"dataType":"Map","value":\[(\["?(\d)+"?,{"points"[^\]]+\],?)+\]}/};
 HHStoredVars.HHAuto_Temp_opponentsListExpirationDate = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_paranoiaLeagueBlocked = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_paranoiaQuestBlocked = { storage : "sessionStorage", type : "Temp"};
@@ -9482,7 +9116,6 @@ HHStoredVars.HHAuto_Temp_storeContents = { storage : "sessionStorage", type : "T
 HHStoredVars.HHAuto_Temp_Timers = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_NextSwitch = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_Totalpops = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_LeagueTempOpponentList = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_CheckSpentPoints = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_eventsList = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_LeagueSavedData = { storage : "sessionStorage", type : "Temp"};
@@ -9629,7 +9262,7 @@ var updateData = function () {
 
     //    }
 
-    Storage().HHAuto_Setting_calculatePowerLimits = document.getElementById("calculatePowerLimits").value;
+    //Storage().HHAuto_Setting_calculatePowerLimits = document.getElementById("calculatePowerLimits").value;
     Storage().HHAuto_Setting_autoChamps = document.getElementById("autoChamps").checked;
     Storage().HHAuto_Setting_autoClubChamp = document.getElementById("autoClubChamp").checked;
     Storage().HHAuto_Setting_autoClubForceStart = document.getElementById("autoClubForceStart").checked;
@@ -10039,7 +9672,7 @@ var start = function () {
     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("SeasonMaskRewards","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("SeasonMaskRewards","tooltip")+'</span><label class="switch"><input id="SeasonMaskRewards" type="checkbox"><span class="slider round"></span></label></div></div>'
     +     '</div>'
     +     '<div class="internalOptionsRow">'
-    +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("calculatePowerLimits","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("calculatePowerLimits","tooltip")+'</span><input id="calculatePowerLimits" style="text-align:center; width:80%" required pattern="'+HHAuto_inputPattern.calculatePowerLimits+'" type="text"></div></div>'
+    //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("calculatePowerLimits","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("calculatePowerLimits","tooltip")+'</span><input id="calculatePowerLimits" style="text-align:center; width:80%" required pattern="'+HHAuto_inputPattern.calculatePowerLimits+'" type="text"></div></div>'
     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoSeasonPassReds","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoSeasonPassReds","tooltip")+'</span><label  class="switch"><input id="autoSeasonPassReds" type="checkbox"><span class="slider round kobans"></span></label></div></div>'
 
     +      '<div class="labelAndButton">' // start img and label
@@ -10547,10 +10180,9 @@ var start = function () {
     manageToolTipsDisplay();
 
     document.getElementById("showCalculatePower").checked = Storage().HHAuto_Setting_showCalculatePower==="true";
-    document.getElementById("calculatePowerLimits").value = Storage().HHAuto_Setting_calculatePowerLimits;
+    //document.getElementById("calculatePowerLimits").value = Storage().HHAuto_Setting_calculatePowerLimits;
     document.getElementById("plusEvent").checked = Storage().HHAuto_Setting_plusEvent === "true";
     document.getElementById("plusEventMythic").checked = Storage().HHAuto_Setting_plusEventMythic === "true";
-    //document.getElementById("eventMythicPrio").checked = Storage().HHAuto_Setting_eventMythicPrio === "true";
 
     document.getElementById("useX50Fights").checked= Storage().HHAuto_Setting_useX50Fights === "true";
     document.getElementById("useX10Fights").checked= Storage().HHAuto_Setting_useX10Fights === "true";
@@ -10558,7 +10190,6 @@ var start = function () {
     document.getElementById("useX50FightsAllowNormalEvent").checked=Storage().HHAuto_Setting_useX50FightsAllowNormalEvent==="true";
     document.getElementById("minShardsX50").value=Storage().HHAuto_Setting_minShardsX50;
     document.getElementById("minShardsX10").value=Storage().HHAuto_Setting_minShardsX10;
-    //document.getElementById("autoTrollMythicByPassThreshold").checked = Storage().HHAuto_Setting_autoTrollMythicByPassThreshold === "true";
     document.getElementById("autoTrollMythicByPassParanoia").checked = Storage().HHAuto_Setting_autoTrollMythicByPassParanoia === "true";
 
     document.getElementById("autoClubChamp").checked = Storage().HHAuto_Setting_autoClubChamp  === "true";
@@ -10569,8 +10200,6 @@ var start = function () {
     document.getElementById("autoChampsFilter").value = Storage().HHAuto_Setting_autoChampsFilter;
 
     document.getElementById("spendKobans0").checked = Storage().HHAuto_Setting_spendKobans0 === "true";
-    //document.getElementById("spendKobans1").checked = Storage().HHAuto_Setting_spendKobans1 === "true";
-    //document.getElementById("spendKobans2").checked = Storage().HHAuto_Setting_spendKobans2 === "true";
     document.getElementById("buyCombat").checked = Storage().HHAuto_Setting_buyCombat === "true";
     document.getElementById("buyMythicCombat").checked = Storage().HHAuto_Setting_buyMythicCombat === "true";
     document.getElementById("kobanBank").value = add1000sSeparator(Storage().HHAuto_Setting_kobanBank);
@@ -10852,3 +10481,273 @@ $("document").ready(function()
 });
 
 setTimeout(hardened_start,5000);
+
+//all following lines credit:Tom208 OCD script
+//old simuFight
+function simuFight(player, opponent) {
+    let playerEgoCheck = 0;
+    let opponentEgoCheck = 0;
+
+    //crit.
+    player.ego -= Math.max(0, opponent.atk - player.def);
+
+    //Log opponent name and starting egos for sim
+    //console.log('Simulation log for: ' + opponent.name);
+    //console.log('Starting Egos adjusted for the case proc scenario (0 for you and 1 for the opponent):');
+    //console.log('Player Ego: ' + player.ego);
+    //console.log('Opponent Ego: ' + opponent.ego);
+
+    function play_turn(cur) {
+        let o = cur === player ? opponent : player;
+
+        o.ego -= Math.max(0, cur.atk - o.def);
+        //console.log('Round ' + (turns + 1) + ': ' + cur.text + ' hit! -' + Math.max(0, (cur.atk - o.def)));
+
+        //Log results
+        //console.log('after Round ' + (turns + 1) + ': ' + o.text + ' ego: ' + o.ego);
+    }
+
+    //Simulate challenge
+    for (var turns = 0; turns < 25; turns++) {
+
+        if( player.ego <= 0) {
+            //Check if defeat stands with 1 critical hit for the player
+            opponentEgoCheck = opponent.ego;
+            opponentEgoCheck -= player.atk - opponent.def;
+
+            if (opponentEgoCheck <= 0)
+                //console.log('Victory! With 1 critical hit for player, Opponent ego: ' + opponentEgoCheck);
+
+                player.ego = 0;
+            break;
+        }
+        play_turn(player);
+
+        if (opponent.ego <= 0) {
+            //Check if victory stands with 2 critical hits for the opponent
+            playerEgoCheck = player.ego;
+            playerEgoCheck -= opponent.atk - player.def;
+
+            if (playerEgoCheck <= 0)
+                //console.log('Defeat! With 1 more critical hit for opponent, Player ego: ' + playerEgoCheck);
+
+                opponent.ego = 0;
+            break;
+        }
+
+        play_turn(opponent);
+    }
+
+    let matchRating = player.ego - opponent.ego;
+    let matchRatingStr = (matchRating >= 0 ? '+' : '') + nThousand(Math.floor(matchRating));
+    let matchRatingClass;
+    if (matchRating < 0 && opponentEgoCheck <= 0)
+        matchRatingClass = 'close';
+    else if (matchRating < 0 && opponentEgoCheck > 0)
+        matchRatingClass = 'minus';
+    else if (matchRating > 0 && playerEgoCheck <= 0)
+        matchRatingClass = 'close';
+    else if (matchRating > 0 && playerEgoCheck > 0)
+        matchRatingClass = 'plus';
+
+    let points = matchRating >= 0 ? Math.min(25, 15+player.ego/player.originEgo*10) : Math.max(3, 3+(opponent.originEgo-opponent.ego)/opponent.originEgo*10);
+    let pointsInt = Math.floor( points * 10 )/10;
+    if( Math.floor( points ) == points )
+        pointsInt -= 1/10;
+    pointsInt += 1;
+    pointsInt = Math.floor(pointsInt);
+
+    let pointsStr = '+' + pointsInt;
+
+    return {
+        score: Math.floor(matchRating),
+        scoreStr: matchRatingStr,
+        scoreClass: matchRatingClass,
+        playerEgoCheck: playerEgoCheck,
+        points: pointsInt,
+        pointsStr: pointsStr
+    };
+}
+
+
+/*
+commented      const logging = loadSetting("logSimFight");
+commented all  if (logging)
+replaced       STOCHASTIC_SIM_RUNS
+            by getHHScriptVars("STOCHASTIC_SIM_RUNS")
+*/
+function calculateBattleProbabilities (player, opponent) {
+    //const logging = loadSetting("logSimFight");
+    const ret = {
+        points: {},
+        win: 0,
+        loss: 0,
+        avgTurns: 0,
+        scoreClass: ''
+    }
+
+    player.critMultiplier = 2 + player.bonuses.critDamage
+    opponent.critMultiplier = 2 + opponent.bonuses.critDamage
+
+    let runs = 0
+    let wins = 0
+    let losses = 0
+    const pointsCollector = {}
+    let totalTurns = 0
+
+    while (runs < getHHScriptVars("STOCHASTIC_SIM_RUNS")) {
+        const {points, turns} = simulateBattle({...player}, {...opponent})
+
+        pointsCollector[points] = (pointsCollector[points] || 0) + 1
+        if (points >= 15) {
+            wins++
+        } else {
+            losses++
+        }
+
+        totalTurns += turns
+        runs++
+    }
+
+    ret.points = Object.entries(pointsCollector).map(([points, occurrences]) => ({[points]: occurrences/runs})).reduce((a,b)=>Object.assign(a,b), {})
+
+    ret.win = wins/runs
+    ret.loss = losses/runs
+    ret.avgTurns = totalTurns/runs
+    ret.scoreClass = ret.win>0.9?"plus":ret.win<0.5?"minus":"close"
+
+    //if (logging) {console.log(`Ran ${runs} simulations against ${opponent.name}, won ${ret.win * 100}% of simulated fights, average turns: ${ret.avgTurns}`)}
+
+    return ret
+}
+
+/*
+*/
+function simulateBattle (player, opponent) {
+    let points
+
+    const playerStartHP = player.hp
+    const opponentStartHP = opponent.hp
+
+    let turns = 0
+
+    while (true) {
+        turns++
+        //your turn
+        let damageAmount = player.dmg
+        if (Math.random() < player.critchance) {
+            damageAmount = player.dmg * player.critMultiplier
+        }
+        let healAmount = Math.min(playerStartHP - player.hp, damageAmount * player.bonuses.healOnHit)
+        opponent.hp -= damageAmount;
+        player.hp += healAmount;
+
+        //check win
+        if(opponent.hp<=0){
+            //count score
+            points = 15+Math.ceil(player.hp/playerStartHP * 10);
+            break;
+        }
+
+        //opp's turn
+        damageAmount = opponent.dmg
+        if (Math.random() < opponent.critchance) {
+            damageAmount = opponent.dmg * opponent.critMultiplier
+        }
+        healAmount = Math.min(opponentStartHP - opponent.hp, damageAmount * opponent.bonuses.healOnHit)
+        player.hp -= damageAmount;
+        opponent.hp += healAmount;
+
+        //check loss
+        if(player.hp<=0){
+            //count score
+            points = 3+Math.ceil((opponentStartHP - opponent.hp)/opponentStartHP * 10);
+            break;
+        }
+    }
+
+    return {points, turns}
+}
+
+function calculateThemeFromElements(elements) {
+    const counts = countElementsInTeam(elements)
+
+    const theme = []
+    Object.entries(counts).forEach(([element, count]) => {
+        if (count >= 3) {
+            theme.push(element)
+        }
+    })
+    return theme
+}
+
+function countElementsInTeam(elements) {
+    return elements.reduce((a,b)=>{a[b]++;return a}, {
+        fire: 0,
+        stone: 0,
+        sun: 0,
+        water: 0,
+        nature: 0,
+        darkness: 0,
+        light: 0,
+        psychic: 0
+    })
+}
+
+function calculateSynergiesFromTeamMemberElements(elements) {
+    const counts = countElementsInTeam(elements)
+
+    // Only care about those not included in the stats already: fire, stone, sun and water
+    // Assume max harem synergy
+    const girlDictionary = (typeof(localStorage.HHPNMap) == "undefined") ? new Map(): new Map(JSON.parse(localStorage.HHPNMap));
+    const girlCount = girlDictionary.size || 800
+    const girlsPerElement = Math.min(girlCount / 8, 100)
+
+    return {
+        critDamage: (0.0035 * girlsPerElement) + (0.1  * counts.fire),
+        critChance: (0.0007 * girlsPerElement) + (0.02 * counts.stone),
+        defReduce:  (0.0007 * girlsPerElement) + (0.02 * counts.sun),
+        healOnHit:  (0.001  * girlsPerElement) + (0.03 * counts.water)
+    }
+}
+
+/*
+replaced       ELEMENTS
+            by getHHScriptVars("ELEMENTS")
+*/
+function calculateDominationBonuses(playerElements, opponentElements) {
+    const bonuses = {
+        player: {
+            ego: 0,
+            attack: 0,
+            chance: 0
+        },
+        opponent: {
+            ego: 0,
+            attack: 0,
+            chance: 0
+        }
+    };
+
+    [
+        {a: playerElements, b: opponentElements, k: 'player'},
+        {a: opponentElements, b: playerElements, k: 'opponent'}
+    ].forEach(({a,b,k})=>{
+        a.forEach(element => {
+            if (getHHScriptVars("ELEMENTS").egoDamage[element] && b.includes(getHHScriptVars("ELEMENTS").egoDamage[element])) {
+                bonuses[k].ego += 0.1
+                bonuses[k].attack += 0.1
+            }
+            if (getHHScriptVars("ELEMENTS").chance[element] && b.includes(getHHScriptVars("ELEMENTS").chance[element])) {
+                bonuses[k].chance += 0.2
+            }
+        })
+    })
+
+    return bonuses
+}
+
+function calculateCritChanceShare(ownHarmony, otherHarmony)
+{
+    return 0.3*ownHarmony/(ownHarmony+otherHarmony)
+}
