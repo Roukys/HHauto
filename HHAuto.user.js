@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.7
+// @version      5.6.8
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://nutaku.haremheroes.com/*
@@ -4552,14 +4552,13 @@ function moduleSimLeague() {
             getLeagueOpponentId(getLeagueOpponentListData(),true);
         });
     }
-    let buttonSortList='<div style="position: absolute;width: auto;left: 45%;top: 23%" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("sortPowerCalc","tooltip")+'</span><label style="width:100%;" class="myButton" id="sortPowerCalc">'+getTextForUI("sortPowerCalc","elementText")+'</label></div>';
+    let buttonSortList='<div style="position: absolute;left: 410px;top: 14px;width:75px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("sortPowerCalc","tooltip")+'</span><label style="width:100%;" class="myButton" id="sortPowerCalc">'+getTextForUI("sortPowerCalc","elementText")+'</label></div>';
     const league_table = $('#leagues_middle tbody.leadTable');
     if (document.getElementById("sortPowerCalc") === null && $('.OppoScore',league_table).length >0)
     {
-        $('#leagues_middle .leagues_table').prepend(buttonSortList);
+        $('#leagues_middle').append(buttonSortList);
         document.getElementById("sortPowerCalc").addEventListener("click", function ()
                                                                   {
-
             let items = $('tr',league_table).map((i, el) => el).toArray();
             items.sort(function(a, b)
                        {
@@ -4579,7 +4578,7 @@ function moduleSimLeague() {
         });
     }
 
-    /*let buttonSaveOpponent='<div style="position: absolute;left: 410px;top: 14px;width:100px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("buttonSaveOpponent","tooltip")+'</span><label style="width:100%;" class="myButton" id="buttonSaveOpponent">'+getTextForUI("buttonSaveOpponent","elementText")+'</label></div>';
+    /*let buttonSaveOpponent='<div style="position: absolute;left: 520px;top: 14px;width:100px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("buttonSaveOpponent","tooltip")+'</span><label style="width:100%;" class="myButton" id="buttonSaveOpponent">'+getTextForUI("buttonSaveOpponent","elementText")+'</label></div>';
     if (document.getElementById("buttonSaveOpponent") === null) {
         $("#leagues_middle").append(buttonSaveOpponent);
         document.getElementById("buttonSaveOpponent").addEventListener("click", function () {
@@ -4602,6 +4601,7 @@ function moduleSimLeague() {
         });
     }
     */
+
 }
 
 function moduleHarem()
