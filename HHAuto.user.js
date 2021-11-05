@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.8
+// @version      5.6.9
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://nutaku.haremheroes.com/*
@@ -3142,7 +3142,7 @@ function getLeagueOpponentId(opponentsIDList,force=false)
                 //logHHAuto('matchRating:'+matchRating);
                 //if (!isNaN(matchRating))
                 //{
-                DataOppo.set(opponentData.id_member,simu);
+                DataOppo.set(Number(opponentData.id_member),simu);
                 sessionStorage.HHAuto_Temp_LeagueTempOpponentList = JSON.stringify(DataOppo,replacerMap);
                 //}
                 //DataOppo.push(JSON.parse(data.html.substring(data.html.indexOf(findText)+findText.length,data.html.lastIndexOf(';'))));
@@ -9130,8 +9130,8 @@ HHStoredVars.HHAuto_Temp_eventGirl = { storage : "sessionStorage", type : "Temp"
 HHStoredVars.HHAuto_Temp_fought = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_haveAff = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_haveExp = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_LeagueOpponentList = { storage : "sessionStorage", type : "Temp", isValid:/{"dataType":"Map","value":\[(\["?(\d)+"?,{"points"[^\]]+\],?)+\]}/};
-HHStoredVars.HHAuto_Temp_LeagueTempOpponentList = { storage : "sessionStorage", type : "Temp", isValid:/{"dataType":"Map","value":\[(\["?(\d)+"?,{"points"[^\]]+\],?)+\]}/};
+HHStoredVars.HHAuto_Temp_LeagueOpponentList = { storage : "sessionStorage", type : "Temp", isValid:/{"dataType":"Map","value":\[(\[(\d)+,{"points"[^\]]+\],?)+\]}/};
+HHStoredVars.HHAuto_Temp_LeagueTempOpponentList = { storage : "sessionStorage", type : "Temp", isValid:/{"dataType":"Map","value":\[(\[(\d)+,{"points"[^\]]+\],?)+\]}/};
 HHStoredVars.HHAuto_Temp_opponentsListExpirationDate = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_paranoiaLeagueBlocked = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_paranoiaQuestBlocked = { storage : "sessionStorage", type : "Temp"};
