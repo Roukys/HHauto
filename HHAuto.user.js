@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.9
+// @version      5.6.10
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://nutaku.haremheroes.com/*
@@ -4504,9 +4504,16 @@ function moduleSimLeague() {
         for (let oppo of opponentsIDList)
         {
             OppoScore = Number(opponentsPowerList.get(Number(oppo)).win);
+            let oppoPoints = opponentsPowerList.get(Number(oppo)).points;
+            let expectedValue = 0;
             if ($('tr[sorting_id=' + oppo + '] td span.nickname').length > 0 && opponentsPowerList.get(Number(oppo)) !== undefined)
             {
-                $('tr[sorting_id=' + oppo + '] td span.nickname').append(`<span class='OppoScore ${opponentsPowerList.get(Number(oppo)).scoreClass}'>(${nRounding(100*OppoScore, 2, -1)}%)</span>`);
+                for (let i=25; i>=3; i--) {
+                    if (oppoPoints[i]) {
+                        expectedValue += i*oppoPoints[i];
+                    }
+                }
+                $('tr[sorting_id=' + oppo + '] td span.nickname').append(`<span class='OppoScore ${opponentsPowerList.get(Number(oppo)).scoreClass}'><span style="margin:0;" id="HHPowerCalcScore">${nRounding(100*OppoScore, 2, -1)}</span>% (<span style="margin:0;" id="HHPowerCalcPoints">${nRounding(expectedValue, 1, -1)}</span>)</span>`);
 
             }
         }
@@ -4562,12 +4569,20 @@ function moduleSimLeague() {
             let items = $('tr',league_table).map((i, el) => el).toArray();
             items.sort(function(a, b)
                        {
-                const scoreCode_a = $('.OppoScore',$(a));
-                const scoreCode_b = $('.OppoScore',$(b));
-                const score_a = Number(scoreCode_a.length===0?0:scoreCode_a[0].innerText.slice(1, -2));
-                const score_b = Number(scoreCode_b.length===0?0:scoreCode_b[0].innerText.slice(1, -2));
-                //console.log(score_a,score_b);
-                return score_b-score_a;
+                //console.log($('#HHPowerCalcScore',$(a)));
+                const score_a = $('#HHPowerCalcScore',$(a)).length===0?0:Number($('#HHPowerCalcScore',$(a))[0].innerText);
+                const score_b = $('#HHPowerCalcScore',$(b)).length===0?0:Number($('#HHPowerCalcScore',$(b))[0].innerText);
+                const points_a = $('#HHPowerCalcScore',$(a)).length===0?0:Number($('#HHPowerCalcPoints',$(a))[0].innerText);
+                const points_b = $('#HHPowerCalcPoints',$(b)).length===0?0:Number($('#HHPowerCalcPoints',$(b))[0].innerText);
+                //console.log(score_a,score_b,points_a,points_b);
+                if (score_b === score_a)
+                {
+                    return points_b-points_a;
+                }
+                else
+                {
+                    return score_b-score_a;
+                }
             });
 
             for (let item in items)
