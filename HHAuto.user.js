@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.10
+// @version      5.6.11
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://nutaku.haremheroes.com/*
@@ -94,6 +94,8 @@ function getCallerCallerFunction()
 function getServerTS()
 {
     let sec_num = parseInt(getHHVars('server_now_ts'), 10);
+    const DST = new Date().getTimezoneOffset();
+    sec_num -=DST*60;
     let days = Math.floor(sec_num / 86400);
     let hours = Math.floor(sec_num / 3600) % 24;
     let minutes = Math.floor(sec_num / 60) % 60;
@@ -103,7 +105,7 @@ function getServerTS()
 
 function getSecondsLeftBeforeEndOfHHDay()
 {
-    let HHEndOfDay = {days:0,hours:11,minutes:0,seconds:0};
+    let HHEndOfDay = {days:0,hours:13,minutes:0,seconds:0};
     let server_TS = getServerTS();
     HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?server_TS.days:server_TS.days+1;
     return (HHEndOfDay.days - server_TS.days)*86400 + (HHEndOfDay.hours - server_TS.hours)*3600 + (HHEndOfDay.minutes - server_TS.minutes)*60 + (HHEndOfDay.days - server_TS.days);
@@ -111,7 +113,7 @@ function getSecondsLeftBeforeEndOfHHDay()
 
 function getSecondsLeftBeforeNewCompetition()
 {
-    let HHEndOfDay = {days:0,hours:11,minutes:30,seconds:0};
+    let HHEndOfDay = {days:0,hours:13,minutes:30,seconds:0};
     let server_TS = getServerTS();
     HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?server_TS.days:server_TS.days+1;
     return (HHEndOfDay.days - server_TS.days)*86400 + (HHEndOfDay.hours - server_TS.hours)*3600 + (HHEndOfDay.minutes - server_TS.minutes)*60 + (HHEndOfDay.days - server_TS.days);
@@ -191,7 +193,7 @@ function getHero()
     return unsafeWindow.Hero;
 }
 
-function getHHVars(infoSearched)
+function getHHVars(infoSearched, logging = true)
 {
     let returnValue = unsafeWindow;
     if (getHHScriptVars(infoSearched,false) !== null)
@@ -205,7 +207,10 @@ function getHHVars(infoSearched)
     {
         if (returnValue[splittedInfoSearched[i]] === undefined)
         {
-            logHHAuto("HH var not found : "+infoSearched+" ("+splittedInfoSearched[i]+" not defined).");
+            if (logging)
+            {
+                logHHAuto("HH var not found : "+infoSearched+" ("+splittedInfoSearched[i]+" not defined).");
+            }
             return null;
         }
         else
@@ -3159,7 +3164,7 @@ function getLeagueOpponentId(opponentsIDList,force=false)
         {
             //logHHAuto('nothing to click, checking data');
             let league_end = -1;
-            let maxLeagueListDurationSecs = 60*60;
+            let maxLeagueListDurationSecs = getHHScriptVars("LeagueListExpirationSecs");
             for(let e in HHTimers.timers)
             {
                 if(HHTimers.timers[e].$elm && HHTimers.timers[e].$elm.selector.startsWith(".league_end_in"))
@@ -5533,13 +5538,30 @@ var autoLoop = function () {
             }
         }
 
-        if (getHHScriptVars("isEnabledSalary",false) && Storage().HHAuto_Setting_autoSalary === "true" && busy === false && ( Storage().HHAuto_Setting_paranoia !== "true" || !checkTimer("paranoiaSwitch") )  && sessionStorage.HHAuto_Temp_autoLoop === "true") {
+        if (getHHScriptVars("isEnabledSalary",false) && Storage().HHAuto_Setting_autoSalary === "true" && busy === false && ( Storage().HHAuto_Setting_paranoia !== "true" || !checkTimer("paranoiaSwitch") )  && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        {
             if (checkTimer("nextSalaryTime")) {
                 logHHAuto("Time to fetch salary.");
                 busy = true;
                 busy = getSalary();
             }
         }
+
+        if (
+            busy === false
+            && sessionStorage.HHAuto_Temp_autoLoop === "true"
+            &&
+            (
+                ! isJSON(sessionStorage.HHAuto_Temp_HaremSize)
+                || JSON.parse(sessionStorage.HHAuto_Temp_HaremSize).count_date < new Date().getTime() - getHHScriptVars("HaremSizeExpirationSecs") * 1000
+            )
+        )
+        {
+            console.log(! isJSON(sessionStorage.HHAuto_Temp_HaremSize),JSON.parse(sessionStorage.HHAuto_Temp_HaremSize).count_date,new Date().getTime() + getHHScriptVars("HaremSizeExpirationSecs") * 1000);
+            busy = true;
+            gotoPage("harem");
+        }
+
 
         if(busy === true && sessionStorage.HHAuto_Temp_userLink==="none" && !window.location.pathname.startsWith("/quest"))
         {
@@ -5597,6 +5619,7 @@ var autoLoop = function () {
     {
         moduleHarem();
         moduleExportGirlsData();
+        moduleHaremCountMax();
     }
     if (getPage() === "pachinko")
     {
@@ -5629,7 +5652,17 @@ var autoLoop = function () {
         }
     }
 
-};
+}
+
+function moduleHaremCountMax()
+{
+    if (getHHVars('girlsDataList',false) !== null)
+    {
+        sessionStorage.HHAuto_Temp_HaremSize = JSON.stringify({count:Object.keys(getHHVars('girlsDataList',false)).length,count_date:new Date().getTime()});
+        logHHAuto("Harem size updated to : "+Object.keys(getHHVars('girlsDataList',false)).length);
+        //console.log(sessionStorage.HHAuto_Temp_HaremSize);
+    }
+}
 
 function getLevelXp(inRarity, inLevel)
 {
@@ -8132,7 +8165,7 @@ function manageToolTipsDisplay(important=false)
 
 function checkClubStatus()
 {
-    let chatVars =getHHVars("Chat_vars.CLUB_ID");
+    let chatVars =getHHVars("Chat_vars.CLUB_ID",false);
     if (chatVars === null || chatVars === false)
     {
         HHEnvVariables[getHHScriptVars("HHGameName")].isEnabledClubChamp = false;
@@ -8497,6 +8530,8 @@ HHEnvVariables["global"].shopGirlCountRequest = '#girls_list .g1 .number.selecte
 HHEnvVariables["global"].shopGirlCurrentRequest = '#girls_list .g1 .number.selected span[contenteditable]';
 HHEnvVariables["global"].shopGirlCounterRequest = '#girls_list .g1 .number.selected';
 HHEnvVariables["global"].contestMaxDays = 21;
+HHEnvVariables["global"].HaremSizeExpirationSecs = 7*24*60*60;//7 days
+HHEnvVariables["global"].LeagueListExpirationSecs = 60*60;//1 hour max
 HHEnvVariables["global"].STOCHASTIC_SIM_RUNS = 10000;
 HHEnvVariables["global"].ELEMENTS =
     {
@@ -8557,7 +8592,6 @@ HHEnvVariables["global"].isEnabledPantheon = true;
 HHEnvVariables["global"].isEnabledAllChamps = true;
 HHEnvVariables["global"].isEnabledChamps = true;
 HHEnvVariables["global"].isEnabledClubChamp = true;
-HHEnvVariables["global"].isEnabledLeagues = true;
 HHEnvVariables["global"].isEnabledLeagues = true;
 HHEnvVariables["global"].isEnabledDailyRewards = true;
 HHEnvVariables["global"].isEnabledShop = true;
@@ -9163,6 +9197,7 @@ HHStoredVars.HHAuto_Temp_Totalpops = { storage : "sessionStorage", type : "Temp"
 HHStoredVars.HHAuto_Temp_CheckSpentPoints = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_eventsList = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_LeagueSavedData = { storage : "sessionStorage", type : "Temp"};
+HHStoredVars.HHAuto_Temp_HaremSize = { storage : "sessionStorage", type : "Temp", isValid:/{"count":(\d)+,"count_date":(\d)+}/};
 
 var updateData = function () {
     //logHHAuto("updating UI");
@@ -10738,13 +10773,18 @@ function countElementsInTeam(elements) {
     })
 }
 
+/*
+commented        const girlDictionary
+replaced         const girlCount = girlDictionary.size || 800
+              by const girlCount = isJSON(sessionStorage.HHAuto_Temp_HaremSize)?JSON.parse(sessionStorage.HHAuto_Temp_HaremSize).count:800;
+*/
 function calculateSynergiesFromTeamMemberElements(elements) {
     const counts = countElementsInTeam(elements)
 
     // Only care about those not included in the stats already: fire, stone, sun and water
     // Assume max harem synergy
-    const girlDictionary = (typeof(localStorage.HHPNMap) == "undefined") ? new Map(): new Map(JSON.parse(localStorage.HHPNMap));
-    const girlCount = girlDictionary.size || 800
+    //const girlDictionary = (typeof(localStorage.HHPNMap) == "undefined") ? new Map(): new Map(JSON.parse(localStorage.HHPNMap));
+    const girlCount = isJSON(sessionStorage.HHAuto_Temp_HaremSize)?JSON.parse(sessionStorage.HHAuto_Temp_HaremSize).count:800;
     const girlsPerElement = Math.min(girlCount / 8, 100)
 
     return {
