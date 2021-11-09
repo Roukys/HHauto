@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.12
+// @version      5.6.13
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://nutaku.haremheroes.com/*
@@ -3201,7 +3201,7 @@ function getLeagueOpponentId(opponentsIDList,force=false)
         for (var oppo of opponentsIDList)
         {
             //logHHAuto({Opponent:oppo,OppoGet:Number(opponentsPowerList.get(oppo)),maxScore:maxScore});
-            OppoScore = Number(opponentsPowerList.get(Number(oppo)).win);
+            OppoScore = Number(opponentsPowerList.get(Number(oppo))?.win);
             if (( maxScore == -1 || OppoScore > maxScore ) && !isNaN(OppoScore))
             {
 
@@ -5550,11 +5550,7 @@ var autoLoop = function () {
         if (
             busy === false
             && sessionStorage.HHAuto_Temp_autoLoop === "true"
-            &&
-            (
-                ! isJSON(sessionStorage.HHAuto_Temp_HaremSize)
-                || JSON.parse(sessionStorage.HHAuto_Temp_HaremSize).count_date < new Date().getTime() - getHHScriptVars("HaremSizeExpirationSecs") * 1000
-            )
+            && HaremSizeNeedsRefresh()
         )
         {
             //console.log(! isJSON(sessionStorage.HHAuto_Temp_HaremSize),JSON.parse(sessionStorage.HHAuto_Temp_HaremSize).count_date,new Date().getTime() + getHHScriptVars("HaremSizeExpirationSecs") * 1000);
@@ -5654,9 +5650,14 @@ var autoLoop = function () {
 
 }
 
+function HaremSizeNeedsRefresh()
+{
+    return ! isJSON(sessionStorage.HHAuto_Temp_HaremSize) || JSON.parse(sessionStorage.HHAuto_Temp_HaremSize).count_date < (new Date().getTime() - getHHScriptVars("HaremSizeExpirationSecs") * 1000);
+}
+
 function moduleHaremCountMax()
 {
-    if (getHHVars('girlsDataList',false) !== null)
+    if (HaremSizeNeedsRefresh() && getHHVars('girlsDataList',false) !== null)
     {
         sessionStorage.HHAuto_Temp_HaremSize = JSON.stringify({count:Object.keys(getHHVars('girlsDataList',false)).length,count_date:new Date().getTime()});
         logHHAuto("Harem size updated to : "+Object.keys(getHHVars('girlsDataList',false)).length);
@@ -8283,7 +8284,7 @@ function getHHStoredVarDefault(inVarName)
         }
         else
         {
-            logHHAuto("HHStoredVar "+inVarName+" either have no default defined.");
+            logHHAuto("HHStoredVar "+inVarName+" have no default defined.");
         }
     }
     else
@@ -8294,7 +8295,6 @@ function getHHStoredVarDefault(inVarName)
 
 var setDefaults = function (force = false)
 {
-
     for (let i of Object.keys(HHStoredVars))
     {
         if (HHStoredVars[i].storage !== undefined )
@@ -9288,58 +9288,8 @@ var updateData = function () {
         manageToolTipsDisplay(true);
     }
 
-    /*if (localStorage.HHAuto_Setting_settPerTab === "true")
-    {
-        if ( localStorage.HHAuto_Temp_showInfo !== undefined)
-        {
-            logHHAuto("force set showInfo : "+localStorage.HHAuto_Temp_showInfo);
-            Storage().HHAuto_Setting_showInfo = localStorage.HHAuto_Temp_showInfo;
-            document.getElementById("showInfo").checked = Storage().HHAuto_Setting_showInfo=="true";
-            setTimeout(function() {
-                localStorage.removeItem('HHAuto_Temp_showInfo');
-                logHHAuto("removed showInfo");
-            }, 1000);
-        }
-        else
-        {
-            newValue = String(document.getElementById("showInfo").checked);
-            if (Storage().HHAuto_Setting_showInfo !== newValue)
-            {
-                logHHAuto("setting showInfo :"+newValue);
-                Storage().HHAuto_Setting_showInfo = document.getElementById("showInfo").checked;
-                localStorage.HHAuto_Temp_showInfo = Storage().HHAuto_Setting_showInfo;
-            }
-        }
-
-
-        if ( localStorage.HHAuto_Temp_showCalculatePower !== undefined )
-        {
-            logHHAuto("force set showCalculatePower : "+localStorage.HHAuto_Temp_showCalculatePower);
-            Storage().HHAuto_Setting_showCalculatePower = localStorage.HHAuto_Temp_showCalculatePower;
-            document.getElementById("showCalculatePower").checked = Storage().HHAuto_Setting_showCalculatePower=="true";
-            setTimeout(function() {
-                localStorage.removeItem('HHAuto_Temp_showCalculatePower');
-                logHHAuto("removed showCalculatePower");
-            }, 1000);
-        }
-        else
-        {
-            newValue = String(document.getElementById("showCalculatePower").checked);
-            if (Storage().HHAuto_Setting_showCalculatePower !== newValue)
-            {
-                logHHAuto("setting showCalculatePower :"+newValue);
-                Storage().HHAuto_Setting_showCalculatePower = document.getElementById("showCalculatePower").checked;
-                localStorage.HHAuto_Temp_showCalculatePower = Storage().HHAuto_Setting_showCalculatePower;
-            }
-        }
-
-    }
-    else
-    {*/
     Storage().HHAuto_Setting_showCalculatePower = document.getElementById("showCalculatePower").checked;
     Storage().HHAuto_Setting_showInfo = document.getElementById("showInfo").checked;
-
-    //    }
 
     //Storage().HHAuto_Setting_calculatePowerLimits = document.getElementById("calculatePowerLimits").value;
     Storage().HHAuto_Setting_autoChamps = document.getElementById("autoChamps").checked;
@@ -9352,19 +9302,11 @@ var updateData = function () {
 
     Storage().HHAuto_Setting_kobanBank = remove1000sSeparator(document.getElementById("kobanBank").value);
     Storage().HHAuto_Setting_spendKobans0 = document.getElementById("spendKobans0").checked;
-    //Storage().HHAuto_Setting_spendKobans1 = document.getElementById("spendKobans1").checked && Storage().HHAuto_Setting_spendKobans0=="true";
-    //document.getElementById("spendKobans1").checked=Storage().HHAuto_Setting_spendKobans1=="true";
-    //Storage().HHAuto_Setting_spendKobans2 = document.getElementById("spendKobans2").checked && Storage().HHAuto_Setting_spendKobans1=="true" && Storage().HHAuto_Setting_spendKobans0=="true";
-    //document.getElementById("spendKobans2").checked=Storage().HHAuto_Setting_spendKobans2=="true";
     Storage().HHAuto_Setting_buyCombat=document.getElementById("buyCombat").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;// && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true" ;
     document.getElementById("buyCombat").checked=Storage().HHAuto_Setting_buyCombat==="true";
     Storage().HHAuto_Setting_buyMythicCombat=document.getElementById("buyMythicCombat").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;// && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true";
     document.getElementById("buyMythicCombat").checked=Storage().HHAuto_Setting_buyMythicCombat==="true";
-    //if (Storage().HHAuto_Setting_buyMythicCombat=="true")
-    //{
-    //    Storage().HHAuto_Setting_autoTrollMythicByPassThreshold = "true";
-    //    document.getElementById("autoTrollMythicByPassThreshold").checked = true;
-    //}
+
     Storage().HHAuto_Setting_autoBuyBoosters=document.getElementById("autoBuyBoosters").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;//&& Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true";
     document.getElementById("autoBuyBoosters").checked=Storage().HHAuto_Setting_autoBuyBoosters==="true";
     Storage().HHAuto_Setting_autoSeasonPassReds=document.getElementById("autoSeasonPassReds").checked && Storage().HHAuto_Setting_spendKobans0=="true" ;//&& Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true";
@@ -9387,7 +9329,6 @@ var updateData = function () {
     Storage().HHAuto_Setting_PoAMaskRewards = document.getElementById("PoAMaskRewards").checked;
     Storage().HHAuto_Setting_autoPantheon = document.getElementById("autoPantheonCheckbox").checked;
     Storage().HHAuto_Setting_autoPantheonThreshold = document.getElementById("autoPantheonThreshold").value;
-
     localStorage.HHAuto_Setting_settPerTab = document.getElementById("settPerTab").checked;
 
     Storage().HHAuto_Setting_master=document.getElementById("master").checked;
