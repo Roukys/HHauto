@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.13
+// @version      5.6.14
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://nutaku.haremheroes.com/*
@@ -2608,7 +2608,15 @@ var doSeason = function () {
         }
         else
         {
-            setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts'));
+            if (getHHVars('Hero.energies.kiss.next_refresh_ts') === 0)
+                    {
+                        setTimer('nextSeasonTime',15*60);
+                    }
+                    else
+                    {
+                        setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts'));
+                    }
+
             gotoPage('home');
         }
         return;
@@ -2677,7 +2685,14 @@ var doSeason = function () {
         }
         else
         {
-            setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts'));
+            if (getHHVars('Hero.energies.kiss.next_refresh_ts') === 0)
+                    {
+                        setTimer('nextSeasonTime',15*60);
+                    }
+                    else
+                    {
+                        setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts'));
+                    }
             gotoPage('home');
         }
         return;
@@ -2712,7 +2727,14 @@ function doPantheon()
         }
         else
         {
-            setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts'));
+            if (getHHVars('Hero.energies.worship.next_refresh_ts') === 0)
+                    {
+                        setTimer('nextPantheonTime',15*60);
+                    }
+                    else
+                    {
+                        setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts'));
+                    }
             gotoPage('home');
         }
         return;
@@ -2749,7 +2771,14 @@ function doPantheon()
         }
         else
         {
-            setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts'));
+            if (getHHVars('Hero.energies.worship.next_refresh_ts') === 0)
+                    {
+                        setTimer('nextPantheonTime',15*60);
+                    }
+                    else
+                    {
+                        setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts'));
+                    }
             gotoPage('home');
         }
         return;
@@ -3006,14 +3035,6 @@ function getLeagueOpponentId(opponentsIDList,force=false)
     var oppoNumber = opponentsIDList.length;
     var DataOppo=new Map([]);
     var maxTime = 1.6;
-    let playerCrit;
-    let playerAtk;
-    let playerDef;
-    let playerEgo;
-    let playerTeam;
-    let playerElements;
-    let playerSynergies;
-    let playerBonuses;
 
     //toremove after migration in prod
     var girlDataName = getHHScriptVars('girlToolTipData');
@@ -3060,21 +3081,6 @@ function getLeagueOpponentId(opponentsIDList,force=false)
             addedTime += getSecondsLeft("paranoiaSwitch");
             setTimer("paranoiaSwitch",addedTime);
         }
-
-        // player stats
-        playerCrit = getHHVars("heroLeaguesData.chance");
-        playerAtk = getHHVars("heroLeaguesData.damage");
-        playerDef = getHHVars("heroLeaguesData.defense");
-        playerEgo = getHHVars("heroLeaguesData.totalEgo");
-        playerTeam = getHHVars("heroLeaguesData.team");
-        playerElements = playerTeam.themeElements.map(({type}) => type);
-        playerSynergies = playerTeam.synergies;
-        playerBonuses = {
-            critDamage: playerSynergies.find(({element: {type}})=>type==='fire').bonusMultiplier,
-            critChance: playerSynergies.find(({element: {type}})=>type==='stone').bonusMultiplier,
-            defReduce: playerSynergies.find(({element: {type}})=>type==='sun').bonusMultiplier,
-            healOnHit: playerSynergies.find(({element: {type}})=>type==='water').bonusMultiplier
-        };
         getOpponents();
         return -1;
     }
@@ -3103,42 +3109,10 @@ function getLeagueOpponentId(opponentsIDList,force=false)
                    {
                 //logHHAuto({log:"data for oppo",data:data});
                 var opponentData = JSON.parse(data.html.substring(data.html.indexOf(findText)+findText.length,data.html.lastIndexOf(';')));
-                const {
-                    chance: opponentCrit,
-                    damage: opponentAtk,
-                    defense: opponentDef,
-                    ego: opponentEgo,
-                } = opponentData.caracs
-                const {
-                    team: opponentTeam
-                } = opponentData
-                const opponentTeamMemberElements = [];
-                [0,1,2,3,4,5,6].forEach(key => {
-                    const teamMember = opponentTeam[key]
-                    if (teamMember && teamMember.element) {
-                        opponentTeamMemberElements.push(teamMember.element)
-                    }
-                })
-                const opponentElements = opponentTeam.themeElements.map(({type}) => type)
-                const opponentBonuses = calculateSynergiesFromTeamMemberElements(opponentTeamMemberElements)
+                const players=getLeaguePlayersData(getHHVars("heroLeaguesData"),opponentData);
 
-                const dominanceBonuses = calculateDominationBonuses(playerElements, opponentElements)
-
-                const player = {
-                    hp: playerEgo * (1 + dominanceBonuses.player.ego),
-                    dmg: (playerAtk * (1 + dominanceBonuses.player.attack)) - (opponentDef * (1 - playerBonuses.defReduce)),
-                    critchance: calculateCritChanceShare(playerCrit, opponentCrit) + dominanceBonuses.player.chance + playerBonuses.critChance,
-                    bonuses: playerBonuses
-                };
-                const opponent = {
-                    hp: opponentEgo * (1 + dominanceBonuses.opponent.ego),
-                    dmg: (opponentAtk * (1 + dominanceBonuses.opponent.attack)) - (playerDef * (1 - opponentBonuses.defReduce)),
-                    critchance: calculateCritChanceShare(opponentCrit, playerCrit) + dominanceBonuses.opponent.chance + opponentBonuses.critChance,
-                    name: $('#leagues_right .player_block .title').text(),
-                    bonuses: opponentBonuses
-                };
                 //console.log(player,opponent);
-                let simu = calculateBattleProbabilities(player, opponent);
+                let simu = calculateBattleProbabilities(players.player, players.opponent);
                 //console.log(opponent);
                 //console.log(simu);
                 //matchRating=customMatchRating(simu);
@@ -4308,33 +4282,33 @@ function calculatePlayersBonuses(inPlayerTeamElement, inOpponentTeamElement)
     return {playerBonus:playerBonus, opponentBonus:opponentBonus};
 }
 
-function getLeaguePlayersData()
+function getLeaguePlayersData(inHeroLeaguesData, inPlayerLeaguesData)
 {
     const {
         chance: playerCrit,
         damage: playerAtk,
         defense: playerDef,
-        totalEgo: playerEgo,
+        total_ego: playerEgo,
         team: playerTeam
-    } = heroLeaguesData
-    const playerElements = playerTeam.themeElements.map(({type}) => type)
+    } = inHeroLeaguesData
+    const playerElements = playerTeam.theme_elements.map(({type}) => type);
     const playerSynergies = playerTeam.synergies
     const playerBonuses = {
-        critDamage: playerSynergies.find(({element: {type}})=>type==='fire').bonusMultiplier,
-        critChance: playerSynergies.find(({element: {type}})=>type==='stone').bonusMultiplier,
-        defReduce: playerSynergies.find(({element: {type}})=>type==='sun').bonusMultiplier,
-        healOnHit: playerSynergies.find(({element: {type}})=>type==='water').bonusMultiplier
-    }
+            critDamage: playerSynergies.find(({element: {type}})=>type==='fire').bonus_multiplier,
+            critChance: playerSynergies.find(({element: {type}})=>type==='stone').bonus_multiplier,
+            defReduce: playerSynergies.find(({element: {type}})=>type==='sun').bonus_multiplier,
+            healOnHit: playerSynergies.find(({element: {type}})=>type==='water').bonus_multiplier
+        };
 
     const {
         chance: opponentCrit,
         damage: opponentAtk,
         defense: opponentDef,
         ego: opponentEgo,
-    } = playerLeaguesData.caracs
+    } = inPlayerLeaguesData.caracs
     const {
         team: opponentTeam
-    } = playerLeaguesData
+    } = inPlayerLeaguesData
     const opponentTeamMemberElements = [];
     [0,1,2,3,4,5,6].forEach(key => {
         const teamMember = opponentTeam[key]
@@ -4342,9 +4316,8 @@ function getLeaguePlayersData()
             opponentTeamMemberElements.push(teamMember.element)
         }
     })
-    const opponentElements = opponentTeam.themeElements.map(({type}) => type)
+    const opponentElements = opponentTeam.theme_elements.map(({type}) => type);
     const opponentBonuses = calculateSynergiesFromTeamMemberElements(opponentTeamMemberElements)
-
     const dominanceBonuses = calculateDominationBonuses(playerElements, opponentElements)
 
     const player = {
@@ -4380,7 +4353,7 @@ function moduleSimLeague() {
             return;
         }
 
-        let leaguePlayers = getLeaguePlayersData();
+        let leaguePlayers = getLeaguePlayersData(getHHVars("heroLeaguesData"),getHHVars("playerLeaguesData"));
         //console.log("HH simuFight",JSON.stringify(leaguePlayers.player),JSON.stringify(leaguePlayers.opponent));
         let simu = calculateBattleProbabilities(leaguePlayers.player, leaguePlayers.opponent);
         //console.log(opponent);
@@ -4508,8 +4481,8 @@ function moduleSimLeague() {
 
         for (let oppo of opponentsIDList)
         {
-            OppoScore = Number(opponentsPowerList.get(Number(oppo)).win);
-            let oppoPoints = opponentsPowerList.get(Number(oppo)).points;
+            OppoScore = Number(opponentsPowerList.get(Number(oppo))?.win);
+            let oppoPoints = opponentsPowerList.get(Number(oppo))?.points;
             let expectedValue = 0;
             if ($('tr[sorting_id=' + oppo + '] td span.nickname').length > 0 && opponentsPowerList.get(Number(oppo)) !== undefined)
             {
@@ -4775,8 +4748,6 @@ function moduleSimSeasonBattle()
         {
             doDisplay=true;
         }
-        //toremove after migration in prod
-        const girlDataName=getHHScriptVars('girlToolTipData');
         const playerStats = {};
         $('#season-arena .battle_hero .hero_stats .hero_stats_row div').each(function ()
                                                                              {
@@ -4795,14 +4766,15 @@ function moduleSimSeasonBattle()
         }
         const playerTeam = $('#season-arena .battle_hero .hero_team .team-member img').map((i, el) => $(el).data('new-girl-tooltip')).toArray();
         const playerSynergies = JSON.parse($('#season-arena .battle_hero .hero_team .icon-area').attr('synergy-data'));
-        const playerTeamMemberElements = playerTeam.map(({elementData: {type: element}})=>element);
+        const playerTeamMemberElements = playerTeam.map(({element_data: {type: element}})=>element);
         const playerElements = calculateThemeFromElements(playerTeamMemberElements)
         const playerBonuses = {
-            critDamage: playerSynergies.find(({element: {type}})=>type==='fire').bonusMultiplier,
-            critChance: playerSynergies.find(({element: {type}})=>type==='stone').bonusMultiplier,
-            defReduce: playerSynergies.find(({element: {type}})=>type==='sun').bonusMultiplier,
-            healOnHit: playerSynergies.find(({element: {type}})=>type==='water').bonusMultiplier
-        }
+                critDamage: playerSynergies.find(({element: {type}})=>type==='fire').bonus_multiplier,
+                critChance: playerSynergies.find(({element: {type}})=>type==='stone').bonus_multiplier,
+                defReduce: playerSynergies.find(({element: {type}})=>type==='sun').bonus_multiplier,
+                healOnHit: playerSynergies.find(({element: {type}})=>type==='water').bonus_multiplier
+            };
+
         for (let index=0;index<3;index++)
         {
 
@@ -5439,7 +5411,14 @@ var autoLoop = function () {
             {
                 if (checkTimer('nextSeasonTime'))
                 {
-                    setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts'));
+                    if (getHHVars('Hero.energies.kiss.next_refresh_ts') === 0)
+                    {
+                        setTimer('nextSeasonTime',15*60);
+                    }
+                    else
+                    {
+                        setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts'));
+                    }
                 }
             }
 
@@ -5457,7 +5436,14 @@ var autoLoop = function () {
             {
                 if (checkTimer('nextPantheonTime'))
                 {
-                    setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts'));
+                    if (getHHVars('Hero.energies.worship.next_refresh_ts') === 0)
+                    {
+                        setTimer('nextPantheonTime',15*60);
+                    }
+                    else
+                    {
+                        setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts'));
+                    }
                 }
             }
 
@@ -5515,7 +5501,14 @@ var autoLoop = function () {
             {
                 if (checkTimer('nextLeaguesTime'))
                 {
-                    setTimer('nextLeaguesTime',getHHVars('Hero.energies.challenge.next_refresh_ts'));
+                    if (getHHVars('Hero.energies.challenge.next_refresh_ts') === 0)
+                    {
+                        setTimer('nextLeaguesTime',15*60);
+                    }
+                    else
+                    {
+                        setTimer('nextLeaguesTime',getHHVars('Hero.energies.challenge.next_refresh_ts'));
+                    }
                 }
             }
         }
@@ -8295,6 +8288,7 @@ function getHHStoredVarDefault(inVarName)
 
 var setDefaults = function (force = false)
 {
+    let valueChanged = false;
     for (let i of Object.keys(HHStoredVars))
     {
         if (HHStoredVars[i].storage !== undefined )
@@ -8326,6 +8320,7 @@ var setDefaults = function (force = false)
                 if (storageItem[i] === undefined || force || isInvalid)
                 {
                     setHHStoredVarToDefault(i);
+                    valueChanged = true;
                 }
             }
             else
@@ -8333,6 +8328,7 @@ var setDefaults = function (force = false)
                 if (force ||isInvalid)
                 {
                     storageItem.removeItem(i);
+                    valueChanged = true;
                 }
             }
         }
@@ -8342,6 +8338,7 @@ var setDefaults = function (force = false)
         }
 
     }
+
     /*Storage().HHAuto_Setting_autoSalary = "false";
     Storage().HHAuto_Setting_autoSalaryMinTimer = "120";
     Storage().HHAuto_Setting_autoSalaryMaxTimer = "1200";
@@ -9137,7 +9134,7 @@ HHStoredVars.HHAuto_Setting_eventTrollOrder = {default: "1;2;3;4;5;6;7;8;9;10;11
 HHStoredVars.HHAuto_Setting_master = {default: "false", storage : "Storage()", type : "Setting"};
 HHStoredVars.HHAuto_Setting_MaxAff = {default:  "50000", storage : "Storage()", type : "Setting"};
 HHStoredVars.HHAuto_Setting_MaxExp = {default:  "10000", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_minShardsX10 = {default: "10", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_minShardsX10 = {default: "10", storage : "Storage()", type : "Setting", isValid:/^(\d)+$/};
 HHStoredVars.HHAuto_Setting_minShardsX50 = {default: "50", storage : "Storage()", type : "Setting"};
 HHStoredVars.HHAuto_Setting_paranoia = {default: "true", storage : "Storage()", type : "Setting"};
 HHStoredVars.HHAuto_Setting_paranoiaSettings = {default: "140-320/Sleep:28800-30400|Active:250-460|Casual:1500-2700/6:Sleep|8:Casual|10:Active|12:Casual|14:Active|18:Casual|20:Active|22:Casual|24:Sleep", storage : "Storage()", type : "Setting"};
@@ -9201,6 +9198,115 @@ HHStoredVars.HHAuto_Temp_HaremSize = { storage : "sessionStorage", type : "Temp"
 
 var updateData = function () {
     //logHHAuto("updating UI");
+    document.querySelectorAll("div#sMenu input[pattern]").forEach(currentInput =>
+                                                                  {
+        currentInput.checkValidity();
+    });
+    if (Storage().HHAuto_Setting_showInfo=="true") // && busy==false // && getPage()=="home"
+    {
+        var Tegzd='';
+        Tegzd+=(Storage().HHAuto_Setting_master==="true"?"<span style='color:LimeGreen'>HH auto ++ ON":"<span style='color:red'>HH auto ++ OFF")+'</span>';
+        //Tegzd+=(Storage().HHAuto_Setting_master==="true"?"<span style='color:LimeGreen'>"+getTextForUI("master","elementText")+" : ON":"<span style='color:red'>"+getTextForUI("master","elementText")+" : OFF")+'</span>';
+        //Tegzd+=getTextForUI("master","elementText")+' : '+(Storage().HHAuto_Setting_master==="true"?"<span style='color:LimeGreen'>ON":"<span style='color:red'>OFF")+'</span>';
+        if (Storage().HHAuto_Setting_paranoia=="true")
+        {
+            Tegzd += '<br>'+sessionStorage.HHAuto_Temp_pinfo+': '+getTimeLeft('paranoiaSwitch');
+        }
+        if (getHHScriptVars('isEnabledTrollBattle',false) && Storage().HHAuto_Setting_autoTrollBattle=="true")
+        {
+            Tegzd += '<br>'+getTextForUI("autoTrollTitle","elementText")+' : '+getHHVars('Hero.energies.fight.amount')+'/'+getHHVars('Hero.energies.fight.max_amount');
+        }
+        if (getHHScriptVars("isEnabledSalary",false) && Storage().HHAuto_Setting_autoSalary=="true")
+        {
+            Tegzd += '<br>'+getTextForUI("autoSalaryCheckbox","elementText")+' : '+getTimeLeft('nextSalaryTime');
+        }
+        if (getHHScriptVars('isEnabledSeason',false) && Storage().HHAuto_Setting_autoSeason=="true")
+        {
+            Tegzd += '<br>'+getTextForUI("autoSeasonTitle","elementText")+' : '+getHHVars('Hero.energies.kiss.amount')+'/'+getHHVars('Hero.energies.kiss.max_amount')+' ('+getTimeLeft('nextSeasonTime')+')';
+        }
+        if (getHHScriptVars('isEnabledLeagues',false) && Storage().HHAuto_Setting_autoLeagues=="true")
+        {
+            Tegzd += '<br>'+getTextForUI("autoLeaguesTitle","elementText")+' : '+getHHVars('Hero.energies.challenge.amount')+'/'+getHHVars('Hero.energies.challenge.max_amount')+' ('+getTimeLeft('nextLeaguesTime')+')';
+        }
+        if (getHHScriptVars("isEnabledChamps",false) && Storage().HHAuto_Setting_autoChamps=="true")
+        {
+            Tegzd += '<br>'+getTextForUI("autoChampsTitle","elementText")+' : '+getTimeLeft('nextChampionTime');
+        }
+        if (getHHScriptVars("isEnabledClubChamp",false) && Storage().HHAuto_Setting_autoClubChamp=="true")
+        {
+            Tegzd += '<br>'+getTextForUI("autoClubChamp","elementText")+' : '+getTimeLeft('nextClubChampionTime');
+        }
+        if (getHHScriptVars('isEnabledPantheon',false) && Storage().HHAuto_Setting_autoPantheon=="true")
+        {
+            Tegzd += '<br>'+getTextForUI("autoPantheonTitle","elementText")+' : '+getHHVars('Hero.energies.worship.amount')+'/'+getHHVars('Hero.energies.worship.max_amount')+' ('+getTimeLeft('nextPantheonTime')+')';
+        }
+        if (getHHScriptVars("isEnabledShop",false))
+        {
+            Tegzd += '<br>'+getTextForUI("autoBuy","elementText")+' : '+getTimeLeft('nextShopTime');
+        }
+        if (getHHScriptVars("isEnabledMission",false) && Storage().HHAuto_Setting_autoMission=="true")
+        {
+            Tegzd += '<br>'+getTextForUI("autoMissionCheckbox","elementText")+' : '+getTimeLeft('nextMissionTime');
+        }
+        if (getHHScriptVars("isEnabledContest",false) && Storage().HHAuto_Setting_autoContest=="true")
+        {
+            Tegzd += '<br>'+getTextForUI("autoContestCheckbox","elementText")+' : '+getTimeLeft('nextContestTime');
+        }
+        if (getHHScriptVars("isEnabledPowerPlaces",false) && Storage().HHAuto_Setting_autoPowerPlaces=="true")
+        {
+            Tegzd += '<br>'+getTextForUI("autoPowerPlaces","elementText")+' : '+getTimeLeft('minPowerPlacesTime');
+        }
+        if ( getHHScriptVars("isEnabledPachinko",false) && Storage().HHAuto_Setting_autoFreePachinko=="true")
+        {
+            if (getTimer('nextPachinkoTime') !== -1)
+            {
+                Tegzd += '<br>'+getTextForUI("autoFreePachinko","elementText")+' : '+getTimeLeft('nextPachinkoTime');
+            }
+            if (getTimer('nextPachinko2Time') !== -1)
+            {
+                Tegzd += '<br>'+getTextForUI("autoMythicPachinko","elementText")+' : '+getTimeLeft('nextPachinko2Time');
+            }
+        }
+        if (getTimer('eventMythicNextWave') !== -1)
+        {
+            Tegzd += '<br>'+getTextForUI("mythicGirlNext","elementText")+' : '+getTimeLeft('eventMythicNextWave');
+        }
+        Tegzd += '<br>'+getTextForUI("autoAffW","elementText")+' : '+sessionStorage.HHAuto_Temp_haveAff;
+        Tegzd += '<br>'+getTextForUI("autoExpW","elementText")+' : '+sessionStorage.HHAuto_Temp_haveExp;
+        //if (Tegzd.length>0)
+        //{
+        document.getElementById('pInfo').style.display='block';
+        document.getElementById('pInfo').innerHTML =Tegzd;  //document.getElementById('pInfo').textContent=Tegzd;
+        // }
+        // else
+        // {
+        //     document.getElementById('pInfo').style.display='none';
+        // }
+    }
+    else
+    {
+        document.getElementById('pInfo').style.display='none';
+    }
+};
+
+function maskInactiveMenus()
+{
+    let menuIDList =["isEnabledDailyRewards","isEnabledMission","isEnabledContest","isEnabledTrollBattle","isEnabledPowerPlaces","isEnabledSalary","isEnabledPachinko","isEnabledQuest","isEnabledSeason","isEnabledLeagues","isEnabledAllChamps","isEnabledChamps","isEnabledClubChamp","isEnabledPantheon","isEnabledShop"];
+    for (let menu of menuIDList)
+    {
+        if ( document.getElementById(menu) !== null && getHHScriptVars(menu,false) !== null && !getHHScriptVars(menu,false) )
+        {
+            document.getElementById(menu).style.visibility = "hidden";
+        }
+    }
+}
+
+function getMenuValues()
+{
+    if (document.getElementById("sMenu") === null)
+    {
+        return;
+    }
     if (isHHPopUpDisplayed() === 'loadConfig') {return}
     var leaguesOptions = document.getElementById("autoLeaguesSelector");
     Storage().HHAuto_Setting_autoLeaguesSelectedIndex = leaguesOptions.selectedIndex;
@@ -9333,109 +9439,96 @@ var updateData = function () {
 
     Storage().HHAuto_Setting_master=document.getElementById("master").checked;
 
-    document.querySelectorAll("div#sMenu input[pattern]").forEach(currentInput =>
-                                                                  {
-        currentInput.checkValidity();
-    });
+    setDefaults();
+}
 
-    if (Storage().HHAuto_Setting_showInfo=="true") // && busy==false // && getPage()=="home"
-    {
-        var Tegzd='';
-        Tegzd+=(Storage().HHAuto_Setting_master==="true"?"<span style='color:LimeGreen'>HH auto ++ ON":"<span style='color:red'>HH auto ++ OFF")+'</span>';
-        //Tegzd+=(Storage().HHAuto_Setting_master==="true"?"<span style='color:LimeGreen'>"+getTextForUI("master","elementText")+" : ON":"<span style='color:red'>"+getTextForUI("master","elementText")+" : OFF")+'</span>';
-        //Tegzd+=getTextForUI("master","elementText")+' : '+(Storage().HHAuto_Setting_master==="true"?"<span style='color:LimeGreen'>ON":"<span style='color:red'>OFF")+'</span>';
-        if (Storage().HHAuto_Setting_paranoia=="true")
-        {
-            Tegzd += '<br>'+sessionStorage.HHAuto_Temp_pinfo+': '+getTimeLeft('paranoiaSwitch');
-        }
-        if (getHHScriptVars('isEnabledTrollBattle',false) && Storage().HHAuto_Setting_autoTrollBattle=="true")
-        {
-            Tegzd += '<br>'+getTextForUI("autoTrollTitle","elementText")+' : '+getHHVars('Hero.energies.fight.amount')+'/'+getHHVars('Hero.energies.fight.max_amount');
-        }
-        if (getHHScriptVars("isEnabledSalary",false) && Storage().HHAuto_Setting_autoSalary=="true")
-        {
-            Tegzd += '<br>'+getTextForUI("autoSalaryCheckbox","elementText")+' : '+getTimeLeft('nextSalaryTime');
-        }
-        if (getHHScriptVars('isEnabledSeason',false) && Storage().HHAuto_Setting_autoSeason=="true")
-        {
-            Tegzd += '<br>'+getTextForUI("autoSeasonTitle","elementText")+' : '+getHHVars('Hero.energies.kiss.amount')+'/'+getHHVars('Hero.energies.kiss.max_amount')+' ('+getTimeLeft('nextSeasonTime')+')';
-        }
-        if (getHHScriptVars('isEnabledLeagues',false) && Storage().HHAuto_Setting_autoLeagues=="true")
-        {
-            Tegzd += '<br>'+getTextForUI("autoLeaguesTitle","elementText")+' : '+getHHVars('Hero.energies.challenge.amount')+'/'+getHHVars('Hero.energies.challenge.max_amount')+' ('+getTimeLeft('nextLeaguesTime')+')';
-        }
-        if (getHHScriptVars("isEnabledChamps",false) && Storage().HHAuto_Setting_autoChamps=="true")
-        {
-            Tegzd += '<br>'+getTextForUI("autoChampsTitle","elementText")+' : '+getTimeLeft('nextChampionTime');
-        }
-        if (getHHScriptVars("isEnabledClubChamp",false) && Storage().HHAuto_Setting_autoClubChamp=="true")
-        {
-            Tegzd += '<br>'+getTextForUI("autoClubChamp","elementText")+' : '+getTimeLeft('nextClubChampionTime');
-        }
-        if (getHHScriptVars('isEnabledPantheon',false) && Storage().HHAuto_Setting_autoPantheon=="true")
-        {
-            Tegzd += '<br>'+getTextForUI("autoPantheonTitle","elementText")+' : '+getHHVars('Hero.energies.worship.amount')+'/'+getHHVars('Hero.energies.worship.max_amount')+' ('+getTimeLeft('nextPantheonTime')+')';
-        }
-        if (getHHScriptVars("isEnabledShop",false))
-        {
-            Tegzd += '<br>'+getTextForUI("autoBuy","elementText")+' : '+getTimeLeft('nextShopTime');
-        }
-        if (getHHScriptVars("isEnabledMission",false) && Storage().HHAuto_Setting_autoMission=="true")
-        {
-            Tegzd += '<br>'+getTextForUI("autoMissionCheckbox","elementText")+' : '+getTimeLeft('nextMissionTime');
-        }
-        if (getHHScriptVars("isEnabledContest",false) && Storage().HHAuto_Setting_autoContest=="true")
-        {
-            Tegzd += '<br>'+getTextForUI("autoContestCheckbox","elementText")+' : '+getTimeLeft('nextContestTime');
-        }
-        if (getHHScriptVars("isEnabledPowerPlaces",false) && Storage().HHAuto_Setting_autoPowerPlaces=="true")
-        {
-            Tegzd += '<br>'+getTextForUI("autoPowerPlaces","elementText")+' : '+getTimeLeft('minPowerPlacesTime');
-        }
-        if ( getHHScriptVars("isEnabledPachinko",false) && Storage().HHAuto_Setting_autoFreePachinko=="true")
-        {
-            if (getTimer('nextPachinkoTime') !== -1)
-            {
-                Tegzd += '<br>'+getTextForUI("autoFreePachinko","elementText")+' : '+getTimeLeft('nextPachinkoTime');
-            }
-            if (getTimer('nextPachinko2Time') !== -1)
-            {
-                Tegzd += '<br>'+getTextForUI("autoMythicPachinko","elementText")+' : '+getTimeLeft('nextPachinko2Time');
-            }
-        }
-        if (getTimer('eventMythicNextWave') !== -1)
-        {
-            Tegzd += '<br>'+getTextForUI("mythicGirlNext","elementText")+' : '+getTimeLeft('eventMythicNextWave');
-        }
-        Tegzd += '<br>'+getTextForUI("autoAffW","elementText")+' : '+sessionStorage.HHAuto_Temp_haveAff;
-        Tegzd += '<br>'+getTextForUI("autoExpW","elementText")+' : '+sessionStorage.HHAuto_Temp_haveExp;
-        //if (Tegzd.length>0)
-        //{
-        document.getElementById('pInfo').style.display='block';
-        document.getElementById('pInfo').innerHTML =Tegzd;  //document.getElementById('pInfo').textContent=Tegzd;
-        // }
-        // else
-        // {
-        //     document.getElementById('pInfo').style.display='none';
-        // }
-    }
-    else
-    {
-        document.getElementById('pInfo').style.display='none';
-    }
-    setDefaults(false);
-};
-
-function maskInactiveMenus()
+function setMenuValues()
 {
-    let menuIDList =["isEnabledDailyRewards","isEnabledMission","isEnabledContest","isEnabledTrollBattle","isEnabledPowerPlaces","isEnabledSalary","isEnabledPachinko","isEnabledQuest","isEnabledSeason","isEnabledLeagues","isEnabledAllChamps","isEnabledChamps","isEnabledClubChamp","isEnabledPantheon","isEnabledShop"];
-    for (let menu of menuIDList)
+    if (document.getElementById("sMenu") === null)
     {
-        if ( document.getElementById(menu) !== null && getHHScriptVars(menu,false) !== null && !getHHScriptVars(menu,false) )
-        {
-            document.getElementById(menu).style.visibility = "hidden";
-        }
+        return;
     }
+    setDefaults();
+    document.getElementById("settPerTab").checked = localStorage.HHAuto_Setting_settPerTab === "true";
+    document.getElementById("autoTrollSelector").selectedIndex = Storage().HHAuto_Setting_autoTrollSelectedIndex;
+    document.getElementById("autoLeaguesSelector").selectedIndex = Storage().HHAuto_Setting_autoLeaguesSelectedIndex;
+    document.getElementById("autoSalaryCheckbox").checked = Storage().HHAuto_Setting_autoSalary === "true";
+    document.getElementById("autoSalaryMinTimer").value = add1000sSeparator(Storage().HHAuto_Setting_autoSalaryMinTimer);
+    document.getElementById("autoSalaryMaxTimer").value = add1000sSeparator(Storage().HHAuto_Setting_autoSalaryMaxTimer);
+    document.getElementById("autoContestCheckbox").checked = Storage().HHAuto_Setting_autoContest === "true";
+    document.getElementById("autoMissionCheckbox").checked = Storage().HHAuto_Setting_autoMission === "true";
+    document.getElementById("autoMissionCollect").checked = Storage().HHAuto_Setting_autoMissionC === "true";
+    document.getElementById("autoMissionKFirst").checked = Storage().HHAuto_Setting_autoMissionKFirst === "true" ;
+    document.getElementById("autoQuestCheckbox").checked = Storage().HHAuto_Setting_autoQuest === "true";
+    document.getElementById("autoTrollCheckbox").checked = Storage().HHAuto_Setting_autoTrollBattle === "true";
+    document.getElementById("eventTrollOrder").value = Storage().HHAuto_Setting_eventTrollOrder;
+    document.getElementById("buyCombTimer").value = Storage().HHAuto_Setting_buyCombTimer;
+    document.getElementById("buyMythicCombTimer").value = Storage().HHAuto_Setting_buyMythicCombTimer;
+    document.getElementById("autoSeasonCheckbox").checked = Storage().HHAuto_Setting_autoSeason === "true";
+    document.getElementById("autoSeasonCollect").checked = Storage().HHAuto_Setting_autoSeasonCollect === "true";
+    document.getElementById("SeasonMaskRewards").checked = Storage().HHAuto_Setting_SeasonMaskRewards === "true";
+    document.getElementById("autoSeasonPassReds").checked = Storage().HHAuto_Setting_autoSeasonPassReds === "true";
+    document.getElementById("autoFreePachinko").checked = Storage().HHAuto_Setting_autoFreePachinko === "true";
+    document.getElementById("autoLeagues").checked = Storage().HHAuto_Setting_autoLeagues === "true";
+    //document.getElementById("autoLeaguesMaxRank").value = Storage().HHAuto_Setting_autoLeaguesMaxRank;
+    document.getElementById("autoLeaguesPowerCalc").checked = Storage().HHAuto_Setting_autoLeaguesPowerCalc === "true";
+    document.getElementById("autoLeaguesCollect").checked = Storage().HHAuto_Setting_autoLeaguesCollect === "true";
+    document.getElementById("autoLeaguesAllowWinCurrent").checked = Storage().HHAuto_Setting_autoLeaguesAllowWinCurrent === "true";
+    document.getElementById("autoPowerPlaces").checked = Storage().HHAuto_Setting_autoPowerPlaces === "true";
+    document.getElementById("autoPowerPlacesAll").checked = Storage().HHAuto_Setting_autoPowerPlacesAll === "true";
+    document.getElementById("autoPowerPlacesIndexFilter").value = Storage().HHAuto_Setting_autoPowerPlacesIndexFilter;
+    document.getElementById("autoStats").value = add1000sSeparator(Storage().HHAuto_Setting_autoStats);
+    document.getElementById("autoStatsSwitch").checked = Storage().HHAuto_Setting_autoStatsSwitch==="true";
+    document.getElementById("paranoia").checked = Storage().HHAuto_Setting_paranoia==="true";
+    document.getElementById("paranoiaSpendsBefore").checked = Storage().HHAuto_Setting_paranoiaSpendsBefore==="true";
+    document.getElementById("autoExp").value = add1000sSeparator(Storage().HHAuto_Setting_autoExp);
+    document.getElementById("autoExpW").checked = Storage().HHAuto_Setting_autoExpW === "true";
+    document.getElementById("autoAff").value = add1000sSeparator(Storage().HHAuto_Setting_autoAff);
+    document.getElementById("autoAffW").checked = Storage().HHAuto_Setting_autoAffW === "true";
+    document.getElementById("maxExp").value = add1000sSeparator(Storage().HHAuto_Setting_MaxExp);
+    document.getElementById("maxAff").value = add1000sSeparator(Storage().HHAuto_Setting_MaxAff);
+    document.getElementById("autoLGM").value = add1000sSeparator(Storage().HHAuto_Setting_autoLGM);
+    document.getElementById("autoLGMW").checked = Storage().HHAuto_Setting_autoLGMW === "true";
+    document.getElementById("autoLGR").value = add1000sSeparator(Storage().HHAuto_Setting_autoLGR);
+    document.getElementById("autoLGRW").checked = Storage().HHAuto_Setting_autoLGRW === "true";
+    document.getElementById("autoBuyBoosters").checked = Storage().HHAuto_Setting_autoBuyBoosters === "true";
+    document.getElementById("autoBuyBoostersFilter").value = Storage().HHAuto_Setting_autoBuyBoostersFilter;
+    document.getElementById("showMarketTools").checked = Storage().HHAuto_Setting_showMarketTools === "true";
+    //document.getElementById("autoEGM").value = add1000sSeparator(Storage().HHAuto_Setting_autoEGM);
+    //document.getElementById("autoEGMW").checked = Storage().HHAuto_Setting_autoEGMW === "true";
+    document.getElementById("showInfo").checked = Storage().HHAuto_Setting_showInfo==="true";
+    document.getElementById("showTooltips").checked = Storage().HHAuto_Setting_showTooltips==="true";
+    document.getElementById("collectDailyRewards").checked = Storage().HHAuto_Setting_collectDailyRewards === "true" ;
+
+    document.getElementById("showCalculatePower").checked = Storage().HHAuto_Setting_showCalculatePower==="true";
+    //document.getElementById("calculatePowerLimits").value = Storage().HHAuto_Setting_calculatePowerLimits;
+    document.getElementById("plusEvent").checked = Storage().HHAuto_Setting_plusEvent === "true";
+    document.getElementById("plusEventMythic").checked = Storage().HHAuto_Setting_plusEventMythic === "true";
+    document.getElementById("useX50Fights").checked= Storage().HHAuto_Setting_useX50Fights === "true";
+    document.getElementById("useX10Fights").checked= Storage().HHAuto_Setting_useX10Fights === "true";
+    document.getElementById("useX10FightsAllowNormalEvent").checked=Storage().HHAuto_Setting_useX10FightsAllowNormalEvent==="true";
+    document.getElementById("useX50FightsAllowNormalEvent").checked=Storage().HHAuto_Setting_useX50FightsAllowNormalEvent==="true";
+    document.getElementById("minShardsX50").value=Storage().HHAuto_Setting_minShardsX50;
+    document.getElementById("minShardsX10").value=Storage().HHAuto_Setting_minShardsX10;
+    document.getElementById("autoTrollMythicByPassParanoia").checked = Storage().HHAuto_Setting_autoTrollMythicByPassParanoia === "true";
+    document.getElementById("autoClubChamp").checked = Storage().HHAuto_Setting_autoClubChamp  === "true";
+    document.getElementById("autoClubForceStart").checked = Storage().HHAuto_Setting_autoClubForceStart  === "true";
+    document.getElementById("autoClubChampMax").value = Storage().HHAuto_Setting_autoClubChampMax;
+    document.getElementById("autoChamps").checked = Storage().HHAuto_Setting_autoChamps === "true";
+    document.getElementById("autoChampsUseEne").checked = Storage().HHAuto_Setting_autoChampsUseEne === "true";
+    document.getElementById("autoChampsFilter").value = Storage().HHAuto_Setting_autoChampsFilter;
+    document.getElementById("spendKobans0").checked = Storage().HHAuto_Setting_spendKobans0 === "true";
+    document.getElementById("buyCombat").checked = Storage().HHAuto_Setting_buyCombat === "true";
+    document.getElementById("buyMythicCombat").checked = Storage().HHAuto_Setting_buyMythicCombat === "true";
+    document.getElementById("kobanBank").value = add1000sSeparator(Storage().HHAuto_Setting_kobanBank);
+    document.getElementById("autoTrollThreshold").value = Storage().HHAuto_Setting_autoTrollThreshold;
+    document.getElementById("autoQuestThreshold").value = Storage().HHAuto_Setting_autoQuestThreshold;
+    document.getElementById("autoLeaguesThreshold").value = Storage().HHAuto_Setting_autoLeaguesThreshold;
+    document.getElementById("autoSeasonThreshold").value = Storage().HHAuto_Setting_autoSeasonThreshold;
+    document.getElementById("autoPantheonCheckbox").checked = Storage().HHAuto_Setting_autoPantheon=== "true";
+    document.getElementById("autoPantheonThreshold").value = Storage().HHAuto_Setting_autoPantheonThreshold;
+    document.getElementById("master").checked = Storage().HHAuto_Setting_master==="true";
+    document.getElementById("PoAMaskRewards").checked = Storage().HHAuto_Setting_PoAMaskRewards === "true";
 }
 
 var start = function () {
@@ -10020,11 +10113,13 @@ var start = function () {
                                                             {
         if (document.getElementById("sMenu").style.display === "none")
         {
+            setMenuValues();
             document.getElementById("sMenu").style.display = "flex";
             $('#contains_all')[0].style.zIndex = 9;
         }
         else
         {
+            getMenuValues();
             document.getElementById("sMenu").style.display = "none"
             $('#contains_all')[0].style.zIndex = "";
         }
@@ -10144,97 +10239,9 @@ var start = function () {
         leaguesOptions.add(optionL);
     };
 
-
-
-    document.getElementById("settPerTab").checked = localStorage.HHAuto_Setting_settPerTab === "true";
-    trollOptions.selectedIndex = Storage().HHAuto_Setting_autoTrollSelectedIndex;
-    leaguesOptions.selectedIndex = Storage().HHAuto_Setting_autoLeaguesSelectedIndex;
-    document.getElementById("autoSalaryCheckbox").checked = Storage().HHAuto_Setting_autoSalary === "true";
-    document.getElementById("autoSalaryMinTimer").value = add1000sSeparator(Storage().HHAuto_Setting_autoSalaryMinTimer);
-    document.getElementById("autoSalaryMaxTimer").value = add1000sSeparator(Storage().HHAuto_Setting_autoSalaryMaxTimer);
-    document.getElementById("autoContestCheckbox").checked = Storage().HHAuto_Setting_autoContest === "true";
-    document.getElementById("autoMissionCheckbox").checked = Storage().HHAuto_Setting_autoMission === "true";
-    document.getElementById("autoMissionCollect").checked = Storage().HHAuto_Setting_autoMissionC === "true";
-    document.getElementById("autoMissionKFirst").checked = Storage().HHAuto_Setting_autoMissionKFirst === "true" ;
-    document.getElementById("autoQuestCheckbox").checked = Storage().HHAuto_Setting_autoQuest === "true";
-    document.getElementById("autoTrollCheckbox").checked = Storage().HHAuto_Setting_autoTrollBattle === "true";
-    document.getElementById("eventTrollOrder").value = Storage().HHAuto_Setting_eventTrollOrder;
-    document.getElementById("buyCombTimer").value = Storage().HHAuto_Setting_buyCombTimer;
-    document.getElementById("buyMythicCombTimer").value = Storage().HHAuto_Setting_buyMythicCombTimer;
-    document.getElementById("autoSeasonCheckbox").checked = Storage().HHAuto_Setting_autoSeason === "true";
-    document.getElementById("autoSeasonCollect").checked = Storage().HHAuto_Setting_autoSeasonCollect === "true";
-    document.getElementById("SeasonMaskRewards").checked = Storage().HHAuto_Setting_SeasonMaskRewards === "true";
-    document.getElementById("autoSeasonPassReds").checked = Storage().HHAuto_Setting_autoSeasonPassReds === "true";
-    document.getElementById("autoFreePachinko").checked = Storage().HHAuto_Setting_autoFreePachinko === "true";
-    document.getElementById("autoLeagues").checked = Storage().HHAuto_Setting_autoLeagues === "true";
-    //document.getElementById("autoLeaguesMaxRank").value = Storage().HHAuto_Setting_autoLeaguesMaxRank;
-    document.getElementById("autoLeaguesPowerCalc").checked = Storage().HHAuto_Setting_autoLeaguesPowerCalc === "true";
-    document.getElementById("autoLeaguesCollect").checked = Storage().HHAuto_Setting_autoLeaguesCollect === "true";
-    document.getElementById("autoLeaguesAllowWinCurrent").checked = Storage().HHAuto_Setting_autoLeaguesAllowWinCurrent === "true";
-    document.getElementById("autoPowerPlaces").checked = Storage().HHAuto_Setting_autoPowerPlaces === "true";
-    document.getElementById("autoPowerPlacesAll").checked = Storage().HHAuto_Setting_autoPowerPlacesAll === "true";
-    document.getElementById("autoPowerPlacesIndexFilter").value = Storage().HHAuto_Setting_autoPowerPlacesIndexFilter;
-    document.getElementById("autoStats").value = add1000sSeparator(Storage().HHAuto_Setting_autoStats);
-    document.getElementById("autoStatsSwitch").checked = Storage().HHAuto_Setting_autoStatsSwitch==="true";
-    document.getElementById("paranoia").checked = Storage().HHAuto_Setting_paranoia==="true";
-    document.getElementById("paranoiaSpendsBefore").checked = Storage().HHAuto_Setting_paranoiaSpendsBefore==="true";
-    document.getElementById("autoExp").value = add1000sSeparator(Storage().HHAuto_Setting_autoExp);
-    document.getElementById("autoExpW").checked = Storage().HHAuto_Setting_autoExpW === "true";
-    document.getElementById("autoAff").value = add1000sSeparator(Storage().HHAuto_Setting_autoAff);
-    document.getElementById("autoAffW").checked = Storage().HHAuto_Setting_autoAffW === "true";
-    document.getElementById("maxExp").value = add1000sSeparator(Storage().HHAuto_Setting_MaxExp);
-    document.getElementById("maxAff").value = add1000sSeparator(Storage().HHAuto_Setting_MaxAff);
-    document.getElementById("autoLGM").value = add1000sSeparator(Storage().HHAuto_Setting_autoLGM);
-    document.getElementById("autoLGMW").checked = Storage().HHAuto_Setting_autoLGMW === "true";
-    document.getElementById("autoLGR").value = add1000sSeparator(Storage().HHAuto_Setting_autoLGR);
-    document.getElementById("autoLGRW").checked = Storage().HHAuto_Setting_autoLGRW === "true";
-    document.getElementById("autoBuyBoosters").checked = Storage().HHAuto_Setting_autoBuyBoosters === "true";
-    document.getElementById("autoBuyBoostersFilter").value = Storage().HHAuto_Setting_autoBuyBoostersFilter;
-    document.getElementById("showMarketTools").checked = Storage().HHAuto_Setting_showMarketTools === "true";
-    //document.getElementById("autoEGM").value = add1000sSeparator(Storage().HHAuto_Setting_autoEGM);
-    //document.getElementById("autoEGMW").checked = Storage().HHAuto_Setting_autoEGMW === "true";
-    document.getElementById("showInfo").checked = Storage().HHAuto_Setting_showInfo==="true";
-    document.getElementById("showTooltips").checked = Storage().HHAuto_Setting_showTooltips==="true";
-    document.getElementById("collectDailyRewards").checked = Storage().HHAuto_Setting_collectDailyRewards === "true" ;
-
+    setMenuValues();
     manageToolTipsDisplay();
 
-    document.getElementById("showCalculatePower").checked = Storage().HHAuto_Setting_showCalculatePower==="true";
-    //document.getElementById("calculatePowerLimits").value = Storage().HHAuto_Setting_calculatePowerLimits;
-    document.getElementById("plusEvent").checked = Storage().HHAuto_Setting_plusEvent === "true";
-    document.getElementById("plusEventMythic").checked = Storage().HHAuto_Setting_plusEventMythic === "true";
-
-    document.getElementById("useX50Fights").checked= Storage().HHAuto_Setting_useX50Fights === "true";
-    document.getElementById("useX10Fights").checked= Storage().HHAuto_Setting_useX10Fights === "true";
-    document.getElementById("useX10FightsAllowNormalEvent").checked=Storage().HHAuto_Setting_useX10FightsAllowNormalEvent==="true";
-    document.getElementById("useX50FightsAllowNormalEvent").checked=Storage().HHAuto_Setting_useX50FightsAllowNormalEvent==="true";
-    document.getElementById("minShardsX50").value=Storage().HHAuto_Setting_minShardsX50;
-    document.getElementById("minShardsX10").value=Storage().HHAuto_Setting_minShardsX10;
-    document.getElementById("autoTrollMythicByPassParanoia").checked = Storage().HHAuto_Setting_autoTrollMythicByPassParanoia === "true";
-
-    document.getElementById("autoClubChamp").checked = Storage().HHAuto_Setting_autoClubChamp  === "true";
-    document.getElementById("autoClubForceStart").checked = Storage().HHAuto_Setting_autoClubForceStart  === "true";
-    document.getElementById("autoClubChampMax").value = Storage().HHAuto_Setting_autoClubChampMax;
-    document.getElementById("autoChamps").checked = Storage().HHAuto_Setting_autoChamps === "true";
-    document.getElementById("autoChampsUseEne").checked = Storage().HHAuto_Setting_autoChampsUseEne === "true";
-    document.getElementById("autoChampsFilter").value = Storage().HHAuto_Setting_autoChampsFilter;
-
-    document.getElementById("spendKobans0").checked = Storage().HHAuto_Setting_spendKobans0 === "true";
-    document.getElementById("buyCombat").checked = Storage().HHAuto_Setting_buyCombat === "true";
-    document.getElementById("buyMythicCombat").checked = Storage().HHAuto_Setting_buyMythicCombat === "true";
-    document.getElementById("kobanBank").value = add1000sSeparator(Storage().HHAuto_Setting_kobanBank);
-
-    document.getElementById("autoTrollThreshold").value = Storage().HHAuto_Setting_autoTrollThreshold;
-    document.getElementById("autoQuestThreshold").value = Storage().HHAuto_Setting_autoQuestThreshold;
-    document.getElementById("autoLeaguesThreshold").value = Storage().HHAuto_Setting_autoLeaguesThreshold;
-    document.getElementById("autoSeasonThreshold").value = Storage().HHAuto_Setting_autoSeasonThreshold;
-
-    document.getElementById("autoPantheonCheckbox").checked = Storage().HHAuto_Setting_autoPantheon=== "true";
-    document.getElementById("autoPantheonThreshold").value = Storage().HHAuto_Setting_autoPantheonThreshold;
-
-    document.getElementById("master").checked = Storage().HHAuto_Setting_master==="true";
-
-    document.getElementById("PoAMaskRewards").checked = Storage().HHAuto_Setting_PoAMaskRewards === "true";
     document.getElementById("git").addEventListener("click", function(){ window.open("https://github.com/Roukys/HHauto/wiki"); });
     document.getElementById("loadConfig").addEventListener("click", function(){
         /*if (typeof LoadDialog.showModal === "function") {
