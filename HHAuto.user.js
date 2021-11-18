@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.15
+// @version      5.6.16
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://nutaku.haremheroes.com/*
@@ -58,6 +58,18 @@ function nThousand(x) {
         x = 0;
     }
     return x.toLocaleString();
+}
+
+function add1000SeparatorEvent()
+{
+    for (let i of Object.keys(HHStoredVars))
+    {
+        if (HHStoredVars[i].HHType !== undefined && HHStoredVars[i].valueType === "Long Integer")
+        {
+            let menuID = HHStoredVars[i].customMenuID !== undefined?HHStoredVars[i].customMenuID:i.replace("HHAuto_"+HHStoredVars[i].HHType+"_","");
+            document.getElementById(menuID).addEventListener("keyup",add1000sSeparator1);
+        }
+    }
 }
 
 function add1000sSeparator1()
@@ -589,7 +601,7 @@ function doMissionStuff()
     else
     {
         logHHAuto("On missions page.");
-        let canCollect = Storage().HHAuto_Setting_autoMissionC==="true" && $(".mission_button button:visible[rel='claim']").length >0 && getSecondsLeftBeforeNewCompetition() > 35*60 && getSecondsLeftBeforeNewCompetition() < (24*3600-5*60);
+        let canCollect = Storage().HHAuto_Setting_autoMissionCollect==="true" && $(".mission_button button:visible[rel='claim']").length >0 && getSecondsLeftBeforeNewCompetition() > 35*60 && getSecondsLeftBeforeNewCompetition() < (24*3600-5*60);
         if (canCollect)
         {
             logHHAuto("Collecting finished mission's reward.");
@@ -1280,8 +1292,8 @@ function moduleExportGirlsData()
     function extractHHGirls()
     {
         dataToSave = "Name,Rarity,Class,Figure,Level,Stars,Of,Left,Hardcore,Charm,Know-how,Total,Position,Eyes,Hair,Zodiac,Own\r\n";
-        var gMap = getGirlsMap();
-        if(gMap === undefined)
+        var gMap = getHHVars('GirlSalaryManager.girlsMap');
+        if(gMap === null)
         {
             // error
             logHHAuto("Girls Map was undefined...! Error, cannot export girls.");
@@ -1294,7 +1306,7 @@ function moduleExportGirlsData()
                 {
                     cnt++;
                     var gData = gMap[key].gData;
-                    dataToSave += gData.Name + ",";
+                    dataToSave += gData.name + ",";
                     dataToSave += gData.rarity + ",";
                     dataToSave += gData.class + ",";
                     dataToSave += gData.figure + ",";
@@ -1738,53 +1750,85 @@ function randomInterval(min,max) // min and max included
 var CollectMoney = function()
 {
     var Clicked=[];
-    var ToClick=[];
+    //var ToClick=[];
     var endCollectTS = -1;
+    let startCollectTS = -1;
     var maxSecsForSalary = Number(Storage().HHAuto_Setting_autoSalaryMaxTimer);
     var collectedGirlzNb = 0;
     var collectedMoney = 0;
+    let totalGirlsToCollect = 0;
     function ClickThem()
     {
         if (endCollectTS === -1)
         {
-
             endCollectTS = new Date().getTime() + 1000 * maxSecsForSalary;
+            startCollectTS = new Date().getTime();
         }
         //logHHAuto('Need to click: '+ToClick.length);
-        if (ToClick.length>0)
+        if (Clicked.length>0)
         {
 
             //logHHAuto('clicking N '+ToClick[0].formAction.split('/').last())
             //console.log($(ToClick[0]));
-            $(ToClick[0]).click();
-            ToClick.shift();
-            collectedMoney += $('span.s_value',$(ToClick[0])).length>0?Number($('span.s_value',$(ToClick[0]))[0].innerText.replace(/[^0-9]/gi, '')):0;
-            collectedGirlzNb++;
+            //$(ToClick[0]).click();
+            var params = {
+                class: "Girl",
+                id_girl: Clicked[0],
+                action: "get_salary"
+            };
+            hh_ajax(params, function(data) {
+                if (data.success)
+                {
+                    //console.log(Clicked[0]);
+                    if (getHHVars('GirlSalaryManager.girlsMap') !== null && getHHVars('GirlSalaryManager.girlsMap')[Clicked[0]] !== undefined)
+                    {
+                        const _this2 =getHHVars('GirlSalaryManager.girlsMap')[Clicked[0]];
+                        _this2.gData.pay_in = data.time + 60;
+                        _this2._noDoubleClick = false;
+                        _this2._resetSalaryDisplay();
+                        //console.log(_this2);
+                    }
+                    Hero.update("soft_currency", data.money, true);
+                    //movingStars(event, "$");
+                    Collect.check_state();
+                    collectedMoney += data.money;
+                    collectedGirlzNb++;
+                }
+                Clicked.shift();
+                if (new Date().getTime() < endCollectTS)
+                {
+                    setTimeout(ClickThem,randomInterval(300,500));
+                    window.top.postMessage({ImAlive:true},'*');
+                }
+                else
+                {
+                    logHHAuto('Salary collection reached to the max time of '+maxSecsForSalary+' secs, collected '+collectedGirlzNb+'/'+totalGirlsToCollect+' girls and '+collectedMoney+' money');
+                    setTimeout(CollectData,randomInterval(300,500));
+                }
+            },
+                    function(err) {
+                Clicked.shift();
+                setTimeout(ClickThem,randomInterval(300,500));
+            });
+            //collectedMoney += $('span.s_value',$(ToClick[0])).length>0?Number($('span.s_value',$(ToClick[0]))[0].innerText.replace(/[^0-9]/gi, '')):0;
+            //collectedGirlzNb++;
             //logHHAuto('will click again');
             //console.log(new Date().getTime(),endCollectTS,new Date().getTime() < endCollectTS);
-            if (new Date().getTime() < endCollectTS)
-            {
-                setTimeout(ClickThem,randomInterval(300,500));
-                window.top.postMessage({ImAlive:true},'*');
-            }
-            else
-            {
-                let totalGirls = ToClick.length+collectedGirlzNb;
-                logHHAuto('Salary collection reached to the max time of '+maxSecsForSalary+' secs, collected '+collectedGirlzNb+'/'+totalGirls+' girls and '+collectedMoney+' money');
-                CollectData(false);
-            }
+
 
         }
         else
         {
-            CollectData(false);
+            const collectionTime = Math.ceil((new Date().getTime() - startCollectTS)/1000);
+            logHHAuto(`Salary collection done : collected ${collectedGirlzNb} / ${totalGirlsToCollect} girls and ${collectedMoney} money in ${collectionTime} secs`);
+            setTimeout(CollectData,randomInterval(300,500));
         }
     }
 
-    function CollectData(inStart = true)
+    function CollectData(inStart = false)
     {
         let allCollected = true;
-        var btns=$("#harem_whole #harem_left .salary:not('.loads') button");
+        /*var btns=$("#harem_whole #harem_left .salary:not('.loads') button");
         //logHHAuto('buttons: '+btns.size())
         btns.each(function (index, element) {
             //logHHAuto({indexNb:index,formActionElement:element.formAction});
@@ -1793,18 +1837,33 @@ var CollectMoney = function()
             if (!Clicked.includes(gid))
             {
                 Clicked.push(gid);
-                ToClick.push(element);
+                //ToClick.push(element);
                 //logHHAuto({log:'added! ',ClickedObj:Clicked,ToClickObj:ToClick});
             }
         });
+        */
+        const girlsList = getHHVars('GirlSalaryManager.girlsMap');
+        if ( girlsList === null)
+        {
+            gotoPage("home");
+        }
 
-        logHHAuto({log:"Collected Data: ", GirlsToCollect:Clicked});
+        for (let girlListId of Object.keys(girlsList))
+        {
+            if (girlsList[girlListId].readyForCollect)
+            {
+                Clicked.push(girlsList[girlListId].gId);
+            }
+        }
+        totalGirlsToCollect = Clicked.length;
 
-        if (ToClick.length>0 )
+        logHHAuto({log:"Girls ready to collect: ", GirlsToCollect:Clicked});
+
+        if (Clicked.length>0 )
         {
             allCollected = false;
         }
-        if (ToClick.length>0 && inStart)
+        if (Clicked.length>0 && inStart)
         {
             //logHHAuto('clicking!');
 
@@ -1822,8 +1881,8 @@ var CollectMoney = function()
             let st=Number(Storage().HHAuto_Setting_autoSalaryMinTimer);
             var closestGirl = 0;
             let salaryTimer =-1;
-            var gMap = getGirlsMap();
-            if(gMap === undefined)
+            var gMap = getHHVars('GirlSalaryManager.girlsMap');
+            if(gMap === null)
             {
                 // error
                 logHHAuto("Girls Map was undefined...! Error, manually setting salary time to 2 min.");
@@ -1882,7 +1941,7 @@ var CollectMoney = function()
         }
     }
 
-    CollectData();
+    CollectData(true);
 }
 
 var getSalary = function () {
@@ -2029,17 +2088,16 @@ var doShopping=function()
         }
 
         var LGM=Number(Storage().HHAuto_Setting_autoLGM);
-        //var EGM=Number(Storage().HHAuto_Setting_autoEGM);
         var LGR=Number(Storage().HHAuto_Setting_autoLGR);
         var Exp=Number(Storage().HHAuto_Setting_autoExp);
         var Aff=Number(Storage().HHAuto_Setting_autoAff);
-        var MaxAff=Number(Storage().HHAuto_Setting_MaxAff);
-        var MaxExp=Number(Storage().HHAuto_Setting_MaxExp);
+        var MaxAff=Number(Storage().HHAuto_Setting_maxAff);
+        var MaxExp=Number(Storage().HHAuto_Setting_maxExp);
         var HaveAff=Number(sessionStorage.HHAuto_Temp_haveAff);
         var HaveExp=Number(sessionStorage.HHAuto_Temp_haveExp);
 
 
-        if (Storage().HHAuto_Setting_autoLGMW==="true" || Storage().HHAuto_Setting_autoLGRW==="true" )//|| Storage().HHAuto_Setting_autoEGMW==="true")
+        if (Storage().HHAuto_Setting_autoLGMW==="true" || Storage().HHAuto_Setting_autoLGRW==="true" )
         {
             //logHHAuto('items');
             var Was=shop[0].length;
@@ -2060,7 +2118,6 @@ var doShopping=function()
                     )
                     ||
                     (
-                        //Storage().HHAuto_Setting_autoEGMW==="true" && money>=EGM+Number(shop[0][n0].price) && shop[0][n0][MS]>0 && shop[0][n0][SS1]==0 && shop[0][n0][SS2]==0 && shop[0][n0].chance==0 && shop[0][n0].endurance==0 && shop[0][n0].rarity=='epic'||
                         Storage().HHAuto_Setting_autoLGRW==="true"
                         && money>=LGR+Number(shop[0][n0].price)
                         && shop[0][n0][MS]>0
@@ -2610,13 +2667,13 @@ var doSeason = function () {
         else
         {
             if (getHHVars('Hero.energies.kiss.next_refresh_ts') === 0)
-                    {
-                        setTimer('nextSeasonTime',15*60);
-                    }
-                    else
-                    {
-                        setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts'));
-                    }
+            {
+                setTimer('nextSeasonTime',15*60);
+            }
+            else
+            {
+                setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts'));
+            }
 
             gotoPage('home');
         }
@@ -2687,13 +2744,13 @@ var doSeason = function () {
         else
         {
             if (getHHVars('Hero.energies.kiss.next_refresh_ts') === 0)
-                    {
-                        setTimer('nextSeasonTime',15*60);
-                    }
-                    else
-                    {
-                        setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts'));
-                    }
+            {
+                setTimer('nextSeasonTime',15*60);
+            }
+            else
+            {
+                setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts'));
+            }
             gotoPage('home');
         }
         return;
@@ -2729,13 +2786,13 @@ function doPantheon()
         else
         {
             if (getHHVars('Hero.energies.worship.next_refresh_ts') === 0)
-                    {
-                        setTimer('nextPantheonTime',15*60);
-                    }
-                    else
-                    {
-                        setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts'));
-                    }
+            {
+                setTimer('nextPantheonTime',15*60);
+            }
+            else
+            {
+                setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts'));
+            }
             gotoPage('home');
         }
         return;
@@ -2773,13 +2830,13 @@ function doPantheon()
         else
         {
             if (getHHVars('Hero.energies.worship.next_refresh_ts') === 0)
-                    {
-                        setTimer('nextPantheonTime',15*60);
-                    }
-                    else
-                    {
-                        setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts'));
-                    }
+            {
+                setTimer('nextPantheonTime',15*60);
+            }
+            else
+            {
+                setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts'));
+            }
             gotoPage('home');
         }
         return;
@@ -3029,43 +3086,40 @@ function LeagueUpdateGetOpponentPopup(numberDone,remainingTime)
 
 function getLeagueOpponentId(opponentsIDList,force=false)
 {
-    var opponentsPowerList = sessionStorage.HHAuto_Temp_LeagueOpponentList?JSON.parse(sessionStorage.HHAuto_Temp_LeagueOpponentList,reviverMap):new Map([]);
-    var opponentsTempPowerList = sessionStorage.HHAuto_Temp_LeagueTempOpponentList?JSON.parse(sessionStorage.HHAuto_Temp_LeagueTempOpponentList,reviverMap):new Map([]);
-    var opponentsListExpirationDate = sessionStorage.HHAuto_Temp_opponentsListExpirationDate?sessionStorage.HHAuto_Temp_opponentsListExpirationDate:'empty';
+    var opponentsPowerList = isJSON(sessionStorage.HHAuto_Temp_LeagueOpponentList)?JSON.parse(sessionStorage.HHAuto_Temp_LeagueOpponentList):{expirationDate:0,opponentsList:{}};
+    var opponentsTempPowerList = isJSON(sessionStorage.HHAuto_Temp_LeagueTempOpponentList)?JSON.parse(sessionStorage.HHAuto_Temp_LeagueTempOpponentList):{expirationDate:0,opponentsList:{}};
     var opponentsIDs= opponentsIDList;
     var oppoNumber = opponentsIDList.length;
-    var DataOppo=new Map([]);
+    var DataOppo={};
     var maxTime = 1.6;
 
     //toremove after migration in prod
     var girlDataName = getHHScriptVars('girlToolTipData');
 
-    if (opponentsListExpirationDate === 'empty' || opponentsListExpirationDate < new Date() || opponentsPowerList.size ===0 || force)
+    if (Object.keys(opponentsPowerList.opponentsList).length === 0 ||  opponentsPowerList.expirationDate < new Date() || force)
     {
         sessionStorage.removeItem("HHAuto_Temp_LeagueOpponentList");
-        if (opponentsTempPowerList.size > 0)
+        if (Object.keys(opponentsTempPowerList.opponentsList).length > 0 && opponentsTempPowerList.expirationDate > new Date())
         {
             logHHAuto("Opponents list already started, continuing.");
 
-            for (var i of opponentsTempPowerList.keys())
+            for (var i of Object.keys(opponentsTempPowerList.opponentsList))
             {
                 //removing oppo no longer in list
-                //console.log(i);
-                //console.log(opponentsIDList);
-                //console.log(opponentsIDList.indexOf(i.toString()));
-                if (opponentsIDList.indexOf(i.toString()) === -1)
+                if (opponentsIDList.indexOf(i.toString()) !== -1)
                 {
-                    opponentsTempPowerList.delete(i);
+                    //console.log(opponentsTempPowerList[i]);
+                    DataOppo[i]=opponentsTempPowerList.opponentsList[i];
+                    //console.log(JSON.stringify(DataOppo));
                     //console.log('removed');
                 }
                 //removing already done in opponentsIDList
-                opponentsIDList = opponentsIDList.filter(item => Number(item) !== i)
+                //console.log(opponentsIDList.length)
+                opponentsIDList = opponentsIDList.filter(item => Number(item) !== Number(i));
+                //console.log(opponentsIDList.length)
             }
-
-            DataOppo = opponentsTempPowerList;
+            //console.log(JSON.stringify(DataOppo));
             sessionStorage.removeItem("HHAuto_Temp_LeagueTempOpponentList");
-
-
         }
         else
         {
@@ -3095,6 +3149,24 @@ function getLeagueOpponentId(opponentsIDList,force=false)
     {
         //logHHAuto('Need to click: '+ToClick.length);
         var findText = 'playerLeaguesData = ';
+        let league_end = -1;
+        let maxLeagueListDurationSecs = getHHScriptVars("LeagueListExpirationSecs");
+        for(let e in HHTimers.timers)
+        {
+            if(HHTimers.timers[e].$elm && HHTimers.timers[e].$elm.selector.startsWith(".league_end_in"))
+            {
+                league_end=HHTimers.timers[e].remainingTime;
+            }
+        }
+        if (league_end !== -1 && league_end < maxLeagueListDurationSecs)
+        {
+            maxLeagueListDurationSecs = league_end;
+        }
+        if (maxLeagueListDurationSecs <1)
+        {
+            maxLeagueListDurationSecs = 1;
+        }
+        let listExpirationDate =new Date().getTime() + maxLeagueListDurationSecs * 1000;
         if (opponentsIDList.length>0)
         {
             //logHHAuto('getting data for opponent : '+opponentsIDList[0]);
@@ -3122,15 +3194,15 @@ function getLeagueOpponentId(opponentsIDList,force=false)
                 //logHHAuto('matchRating:'+matchRating);
                 //if (!isNaN(matchRating))
                 //{
-                DataOppo.set(Number(opponentData.id_member),simu);
-                sessionStorage.HHAuto_Temp_LeagueTempOpponentList = JSON.stringify(DataOppo,replacerMap);
+                DataOppo[Number(opponentData.id_member)]=simu;
+                sessionStorage.HHAuto_Temp_LeagueTempOpponentList = JSON.stringify({expirationDate:listExpirationDate,opponentsList:DataOppo});
                 //}
                 //DataOppo.push(JSON.parse(data.html.substring(data.html.indexOf(findText)+findText.length,data.html.lastIndexOf(';'))));
 
             });
 
             opponentsIDList.shift();
-            LeagueUpdateGetOpponentPopup(DataOppo.size+'/'+oppoNumber, toHHMMSS((oppoNumber-DataOppo.size)*maxTime));
+            LeagueUpdateGetOpponentPopup(Object.keys(DataOppo).length+'/'+oppoNumber, toHHMMSS((oppoNumber-Object.keys(DataOppo).length)*maxTime));
             setTimeout(getOpponents,randomInterval(800,maxTime*1000));
 
             window.top.postMessage({ImAlive:true},'*');
@@ -3138,27 +3210,10 @@ function getLeagueOpponentId(opponentsIDList,force=false)
         else
         {
             //logHHAuto('nothing to click, checking data');
-            let league_end = -1;
-            let maxLeagueListDurationSecs = getHHScriptVars("LeagueListExpirationSecs");
-            for(let e in HHTimers.timers)
-            {
-                if(HHTimers.timers[e].$elm && HHTimers.timers[e].$elm.selector.startsWith(".league_end_in"))
-                {
-                    league_end=HHTimers.timers[e].remainingTime;
-                }
-            }
-            if (league_end !== -1 && league_end < maxLeagueListDurationSecs)
-            {
-                maxLeagueListDurationSecs = league_end;
-            }
-            if (maxLeagueListDurationSecs <1)
-            {
-                maxLeagueListDurationSecs = 1;
-            }
-            sessionStorage.HHAuto_Temp_opponentsListExpirationDate=new Date().getTime() + maxLeagueListDurationSecs * 1000
+
             //logHHAuto(DataOppo);
             sessionStorage.removeItem("HHAuto_Temp_LeagueTempOpponentList");
-            sessionStorage.HHAuto_Temp_LeagueOpponentList = JSON.stringify(DataOppo,replacerMap);
+            sessionStorage.HHAuto_Temp_LeagueOpponentList = JSON.stringify({expirationDate:listExpirationDate,opponentsList:DataOppo});
             LeagueClearDisplayGetOpponentPopup();
             //doLeagueBattle();
             logHHAuto("Building list finished, putting autoloop back to true.");
@@ -3176,7 +3231,12 @@ function getLeagueOpponentId(opponentsIDList,force=false)
         for (var oppo of opponentsIDList)
         {
             //logHHAuto({Opponent:oppo,OppoGet:Number(opponentsPowerList.get(oppo)),maxScore:maxScore});
-            OppoScore = Number(opponentsPowerList.get(Number(oppo))?.win);
+            const oppoSimu = opponentsPowerList.opponentsList[Number(oppo)];
+            if (oppoSimu === undefined)
+            {
+                continue;
+            }
+            OppoScore = Number(oppoSimu.win);
             if (( maxScore == -1 || OppoScore > maxScore ) && !isNaN(OppoScore))
             {
 
@@ -3370,13 +3430,13 @@ var CrushThemFights=function()
             //Crushing one by one
             if(battleButton === undefined || battleButton.length === 0){
                 logHHAuto("Battle Button was undefined. Disabling all auto-battle.");
-                document.getElementById("autoTrollCheckbox").checked = false;
+                document.getElementById("autoTrollBattle").checked = false;
                 Storage().HHAuto_Setting_autoTrollBattle = "false"
 
                 //document.getElementById("autoArenaCheckbox").checked = false;
                 if (sessionStorage.HHAuto_Temp_questRequirement === "battle")
                 {
-                    document.getElementById("autoQuestCheckbox").checked = false;
+                    document.getElementById("autoQuest").checked = false;
                     Storage().HHAuto_Setting_autoQuest= "false";
 
                     logHHAuto("Auto-quest disabled since it requires battle and auto-battle has errors.");
@@ -4295,11 +4355,11 @@ function getLeaguePlayersData(inHeroLeaguesData, inPlayerLeaguesData)
     const playerElements = playerTeam.theme_elements.map(({type}) => type);
     const playerSynergies = playerTeam.synergies
     const playerBonuses = {
-            critDamage: playerSynergies.find(({element: {type}})=>type==='fire').bonus_multiplier,
-            critChance: playerSynergies.find(({element: {type}})=>type==='stone').bonus_multiplier,
-            defReduce: playerSynergies.find(({element: {type}})=>type==='sun').bonus_multiplier,
-            healOnHit: playerSynergies.find(({element: {type}})=>type==='water').bonus_multiplier
-        };
+        critDamage: playerSynergies.find(({element: {type}})=>type==='fire').bonus_multiplier,
+        critChance: playerSynergies.find(({element: {type}})=>type==='stone').bonus_multiplier,
+        defReduce: playerSynergies.find(({element: {type}})=>type==='sun').bonus_multiplier,
+        healOnHit: playerSynergies.find(({element: {type}})=>type==='water').bonus_multiplier
+    };
 
     const {
         chance: opponentCrit,
@@ -4462,37 +4522,41 @@ function moduleSimLeague() {
         let opponentsIDList = getLeagueOpponentListData();
         let sorting_id;
         let player;
-        let opponentsPowerList = sessionStorage.HHAuto_Temp_LeagueOpponentList ? JSON.parse(sessionStorage.HHAuto_Temp_LeagueOpponentList, reviverMap) : -1;
-        let opponentsTempPowerList = sessionStorage.HHAuto_Temp_LeagueTempOpponentList ? JSON.parse(sessionStorage.HHAuto_Temp_LeagueTempOpponentList, reviverMap) : -1;
-        let opponentsListExpirationDate = sessionStorage.HHAuto_Temp_opponentsListExpirationDate?sessionStorage.HHAuto_Temp_opponentsListExpirationDate:'empty';
+        let opponentsPowerList = isJSON(sessionStorage.HHAuto_Temp_LeagueOpponentList) ? JSON.parse(sessionStorage.HHAuto_Temp_LeagueOpponentList) : -1;
+        let opponentsTempPowerList = isJSON(sessionStorage.HHAuto_Temp_LeagueTempOpponentList) ? JSON.parse(sessionStorage.HHAuto_Temp_LeagueTempOpponentList) : -1;
         let maxScore = -1;
         let IdOppo = -1;
         let OppoScore;
 
         //console.log(opponentsPowerList,opponentsTempPowerList,opponentsListExpirationDate,opponentsListExpirationDate < new Date());
-        if (opponentsPowerList === -1 )
+        if (opponentsPowerList === -1 ||  opponentsPowerList.expirationDate < new Date())
         {
             opponentsPowerList = opponentsTempPowerList;
         }
 
-        if (opponentsPowerList === -1 || opponentsListExpirationDate === 'empty' || opponentsListExpirationDate < new Date())
+        if (opponentsPowerList === -1 ||  opponentsPowerList.expirationDate < new Date())
         {
             return;
         }
 
         for (let oppo of opponentsIDList)
         {
-            OppoScore = Number(opponentsPowerList.get(Number(oppo))?.win);
-            let oppoPoints = opponentsPowerList.get(Number(oppo))?.points;
+            const oppoSimu = opponentsPowerList.opponentsList[Number(oppo)];
+            if (oppoSimu === undefined)
+            {
+                continue;
+            }
+            OppoScore = Number(oppoSimu.win);
+            const oppoPoints = oppoSimu.points;
             let expectedValue = 0;
-            if ($('tr[sorting_id=' + oppo + '] td span.nickname').length > 0 && opponentsPowerList.get(Number(oppo)) !== undefined)
+            if ($('tr[sorting_id=' + oppo + '] td span.nickname').length > 0 && opponentsPowerList.opponentsList[Number(oppo)] !== undefined)
             {
                 for (let i=25; i>=3; i--) {
                     if (oppoPoints[i]) {
                         expectedValue += i*oppoPoints[i];
                     }
                 }
-                $('tr[sorting_id=' + oppo + '] td span.nickname').append(`<span class='OppoScore ${opponentsPowerList.get(Number(oppo)).scoreClass}'><span style="margin:0;" id="HHPowerCalcScore">${nRounding(100*OppoScore, 2, -1)}</span>% (<span style="margin:0;" id="HHPowerCalcPoints">${nRounding(expectedValue, 1, -1)}</span>)</span>`);
+                $('tr[sorting_id=' + oppo + '] td span.nickname').append(`<span class='OppoScore ${oppoSimu.scoreClass}'><span style="margin:0;" id="HHPowerCalcScore">${nRounding(100*OppoScore, 2, -1)}</span>% (<span style="margin:0;" id="HHPowerCalcPoints">${nRounding(expectedValue, 1, -1)}</span>)</span>`);
 
             }
         }
@@ -4770,11 +4834,11 @@ function moduleSimSeasonBattle()
         const playerTeamMemberElements = playerTeam.map(({element_data: {type: element}})=>element);
         const playerElements = calculateThemeFromElements(playerTeamMemberElements)
         const playerBonuses = {
-                critDamage: playerSynergies.find(({element: {type}})=>type==='fire').bonus_multiplier,
-                critChance: playerSynergies.find(({element: {type}})=>type==='stone').bonus_multiplier,
-                defReduce: playerSynergies.find(({element: {type}})=>type==='sun').bonus_multiplier,
-                healOnHit: playerSynergies.find(({element: {type}})=>type==='water').bonus_multiplier
-            };
+            critDamage: playerSynergies.find(({element: {type}})=>type==='fire').bonus_multiplier,
+            critChance: playerSynergies.find(({element: {type}})=>type==='stone').bonus_multiplier,
+            defReduce: playerSynergies.find(({element: {type}})=>type==='sun').bonus_multiplier,
+            healOnHit: playerSynergies.find(({element: {type}})=>type==='water').bonus_multiplier
+        };
 
         for (let index=0;index<3;index++)
         {
@@ -5184,7 +5248,7 @@ var autoLoop = function () {
                         if(sessionStorage.HHAuto_Temp_questRequirement[0] === 'P')
                         {
                             logHHAuto("AutoBattle disabled for power collection for AutoQuest.");
-                            document.getElementById("autoTrollCheckbox").checked = false;
+                            document.getElementById("autoTrollBattle").checked = false;
                             Storage().HHAuto_Setting_autoTrollBattle = "false";
                             busy = false;
                         }
@@ -5363,7 +5427,7 @@ var autoLoop = function () {
                 //prevent paranoia to wait for quest
                 sessionStorage.HHAuto_Temp_paranoiaQuestBlocked="true";
                 logHHAuto("AutoQuest disabled.HHAuto_Setting_AutoQuest cannot be performed due to unknown quest button. Please manually proceed the current quest screen.");
-                document.getElementById("autoQuestCheckbox").checked = false;
+                document.getElementById("autoQuest").checked = false;
                 Storage().HHAuto_Setting_autoQuest = "false";
                 sessionStorage.HHAuto_Temp_questRequirement = "none";
                 busy = false;
@@ -5373,7 +5437,7 @@ var autoLoop = function () {
                 //prevent paranoia to wait for quest
                 sessionStorage.HHAuto_Temp_paranoiaQuestBlocked="true";
                 logHHAuto("AutoQuest disabled.HHAuto_Setting_AutoQuest cannot be performed due errors in AutoBattle. Please manually proceed the current quest screen.");
-                document.getElementById("autoQuestCheckbox").checked = false;
+                document.getElementById("autoQuest").checked = false;
                 Storage().HHAuto_Setting_autoQuest = "false";
                 sessionStorage.HHAuto_Temp_questRequirement = "none";
                 busy = false;
@@ -5544,7 +5608,7 @@ var autoLoop = function () {
         if (
             busy === false
             && sessionStorage.HHAuto_Temp_autoLoop === "true"
-            && HaremSizeNeedsRefresh()
+            && HaremSizeNeedsRefresh(getHHScriptVars("HaremMaxSizeExpirationSecs"))
         )
         {
             //console.log(! isJSON(sessionStorage.HHAuto_Temp_HaremSize),JSON.parse(sessionStorage.HHAuto_Temp_HaremSize).count_date,new Date().getTime() + getHHScriptVars("HaremSizeExpirationSecs") * 1000);
@@ -5644,14 +5708,14 @@ var autoLoop = function () {
 
 }
 
-function HaremSizeNeedsRefresh()
+function HaremSizeNeedsRefresh(inCustomExpi)
 {
-    return ! isJSON(sessionStorage.HHAuto_Temp_HaremSize) || JSON.parse(sessionStorage.HHAuto_Temp_HaremSize).count_date < (new Date().getTime() - getHHScriptVars("HaremSizeExpirationSecs") * 1000);
+    return ! isJSON(sessionStorage.HHAuto_Temp_HaremSize) || JSON.parse(sessionStorage.HHAuto_Temp_HaremSize).count_date < (new Date().getTime() - inCustomExpi * 1000);
 }
 
 function moduleHaremCountMax()
 {
-    if (HaremSizeNeedsRefresh() && getHHVars('girlsDataList',false) !== null)
+    if (HaremSizeNeedsRefresh(getHHScriptVars("HaremMinSizeExpirationSecs")) && getHHVars('girlsDataList',false) !== null)
     {
         sessionStorage.HHAuto_Temp_HaremSize = JSON.stringify({count:Object.keys(getHHVars('girlsDataList',false)).length,count_date:new Date().getTime()});
         logHHAuto("Harem size updated to : "+Object.keys(getHHVars('girlsDataList',false)).length);
@@ -6135,7 +6199,7 @@ function moduleShopActions()
             {
                 if (typeof AffDialog.showModal === "function")
                 {
-                    document.getElementById("menuAffText").innerHTML = selectedGirl.Name+" "+getTextForUI("menuAffNoNeed","elementText");
+                    document.getElementById("menuAffText").innerHTML = selectedGirl.name+" "+getTextForUI("menuAffNoNeed","elementText");
                     document.getElementById("menuAffHide").style.display = "none";
                     if (!document.getElementById("AffDialog").open)
                     {
@@ -6176,7 +6240,7 @@ function moduleShopActions()
             {
                 let AffMissing = Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur);
                 AffToGive=findSubsetsPartition(AffMissing,giftCount);
-                menuText = selectedGirl.Name+" "+selectedGirl.Affection.cur+"/"+selectedGirl.Affection.max+"<br>"+getTextForUI("menuDistribution","elementText")+"<br>";
+                menuText = selectedGirl.name+" "+selectedGirl.Affection.cur+"/"+selectedGirl.Affection.max+"<br>"+getTextForUI("menuDistribution","elementText")+"<br>";
                 let Affkeys = Object.keys(AffToGive.partitions);
                 for ( var i of Affkeys )
                 {
@@ -6189,7 +6253,7 @@ function moduleShopActions()
             }
             else if (totalAff === 0 || (Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur)) <=minAffItem)
             {
-                menuText = getTextForUI("menuAffNoAff","elementText")+" "+selectedGirl.Name;
+                menuText = getTextForUI("menuAffNoAff","elementText")+" "+selectedGirl.name;
             }
             logHHAuto(menuText)
             if (typeof AffDialog.showModal === "function")
@@ -6240,12 +6304,12 @@ function moduleShopActions()
             let girl=$('div.girl-ico:not(.not-selected)');
             let selectedGirl=girl.data("g");
             let selectedGirlAff=selectedGirl.Affection.cur;
-            logHHAuto('start giving Aff to '+selectedGirl.Name);
+            logHHAuto('start giving Aff to '+selectedGirl.name);
             let currentTotal = selectedGirlAff;
             let currentItem = -1;
             let inAffToGivePartitionBackup = { ...inAffToGive.partitions }
             document.getElementById("menuAffHide").style.display = "none";
-            document.getElementById("menuAffText").innerHTML = selectedGirl.Name+" "+selectedGirlAff+"/"+selectedGirl.Affection.max+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
+            document.getElementById("menuAffText").innerHTML = selectedGirl.name+" "+selectedGirlAff+"/"+selectedGirl.Affection.max+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
 
             let oldTime = new Date();
 
@@ -6282,7 +6346,7 @@ function moduleShopActions()
                     {
                         logHHAuto('Spent one '+currentItem);
                         inAffToGive.partitions[currentItem] = inAffToGive.partitions[currentItem]-1;
-                        let menuText = selectedGirl.Name+" "+selectedGirlAff+"/"+selectedGirl.Affection.max+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
+                        let menuText = selectedGirl.name+" "+selectedGirlAff+"/"+selectedGirl.Affection.max+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
                         let Affkeys = Object.keys(inAffToGivePartitionBackup);
                         let givenTotal = 0;
                         logHHAuto({log:"Remains to spend",inAffToGive:inAffToGive});
@@ -6316,13 +6380,13 @@ function moduleShopActions()
                         let menuText;
                         if ($('div[id_girl='+inGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length >0)
                         {
-                            logHHAuto(selectedGirl.Name+ " is ready to be upgrade");
-                            menuText =selectedGirl.Name+" "+getTextForUI("menuAffReadyToUpgrade","elementText")+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
+                            logHHAuto(selectedGirl.name+ " is ready to be upgrade");
+                            menuText =selectedGirl.name+" "+getTextForUI("menuAffReadyToUpgrade","elementText")+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
                         }
                         else
                         {
-                            logHHAuto(selectedGirl.Name+ "max aff given.");
-                            menuText =getTextForUI("menuAffEnd","elementText")+" "+selectedGirl.Name+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
+                            logHHAuto(selectedGirl.name+ "max aff given.");
+                            menuText =getTextForUI("menuAffEnd","elementText")+" "+selectedGirl.name+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
                         }
                         let givenTotal = 0;
                         let Affkeys = Object.keys(inAffToGivePartitionBackup);
@@ -6344,12 +6408,20 @@ function moduleShopActions()
                         canGiveAff = false;
                         giveAffAutoNext();
                     }
-                    else if (currentItem !== -1)
+                    else
                     {
-                        logHHAuto("selected item : "+currentItem);
-                        $('div.gift div.inventory_slots div[id_item='+inAffArray[currentItem]+'][data-d]').click();
                         currentTotal+=Number(currentItem);
-                        setTimeout(giveAff_func, randomInterval(400,800));
+                        const currentItemSelector = 'div.gift div.inventory_slots div[id_item='+inAffArray[currentItem]+'][data-d]';
+                        if ($(currentItemSelector+'.selected').length === 0 )
+                        {
+                            logHHAuto("selected item : "+currentItem);
+                            $(currentItemSelector).click();
+                            setTimeout(giveAff_func, randomInterval(400,800));
+                        }
+                        else
+                        {
+                            giveAff_func();
+                        }
                     }
                     return;
                 }
@@ -6562,7 +6634,7 @@ function moduleShopActions()
             {
                 let ExpMissing = Number(getLevelXp(selectedGirlTooltip.rarity,targetedLevel))-Number(selectedGirl.Xp.cur);
                 ExpToGive=findSubsetsPartition(ExpMissing,potionCount);
-                menuText = selectedGirl.Name+" "+selectedGirl.Xp.cur+"/"+getLevelXp(selectedGirlTooltip.rarity,targetedLevel)+"<br>"+getTextForUI("menuDistribution","elementText")+"<br>";
+                menuText = selectedGirl.name+" "+selectedGirl.Xp.cur+"/"+getLevelXp(selectedGirlTooltip.rarity,targetedLevel)+"<br>"+getTextForUI("menuDistribution","elementText")+"<br>";
                 let Expkeys = Object.keys(ExpToGive.partitions);
                 for ( var i of Expkeys )
                 {
@@ -6574,7 +6646,7 @@ function moduleShopActions()
             }
             else
             {
-                menuText = getTextForUI("menuExpNoExp","elementText")+" "+selectedGirl.Name;
+                menuText = getTextForUI("menuExpNoExp","elementText")+" "+selectedGirl.name;
                 document.getElementById("menuExpHide").style.display = "none";
             }
             logHHAuto(menuText);
@@ -6605,12 +6677,12 @@ function moduleShopActions()
             let selectedGirlTooltip=JSON.parse(girl.attr(getHHScriptVars('girlToolTipData')));
             let targetedLevel = Number(document.getElementById("menuExpLevel").value);
             let targetedXp = getLevelXp(selectedGirlTooltip.rarity,targetedLevel);
-            logHHAuto('start giving Exp to '+selectedGirl.Name);
+            logHHAuto('start giving Exp to '+selectedGirl.name);
             let currentTotal = selectedGirlExp;
             let currentItem = -1;
             let inExpToGivePartitionBackup = { ...inExpToGive.partitions }
             document.getElementById("menuExpHide").style.display = "none";
-            document.getElementById("menuExpText").innerHTML = selectedGirl.Name+" "+selectedGirlExp+"/"+targetedXp+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
+            document.getElementById("menuExpText").innerHTML = selectedGirl.name+" "+selectedGirlExp+"/"+targetedXp+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
 
             let oldTime = new Date();
 
@@ -6642,7 +6714,7 @@ function moduleShopActions()
                     {
                         logHHAuto('Spent one '+currentItem);
                         inExpToGive.partitions[currentItem] = inExpToGive.partitions[currentItem]-1;
-                        let menuText = selectedGirl.Name+" "+selectedGirlExp+"/"+targetedXp+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
+                        let menuText = selectedGirl.name+" "+selectedGirlExp+"/"+targetedXp+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
                         let Expkeys = Object.keys(inExpToGivePartitionBackup);
                         let givenTotal = 0;
                         logHHAuto({log:"Remains to spend",inExpToGive:inExpToGive});
@@ -6676,8 +6748,8 @@ function moduleShopActions()
                         clearInterval(giveExp_func);
                         let menuText;
 
-                        logHHAuto(selectedGirl.Name+ "max Exp given.");
-                        menuText =getTextForUI("menuExpEnd","elementText")+" "+selectedGirl.Name+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
+                        logHHAuto(selectedGirl.name+ "max Exp given.");
+                        menuText =getTextForUI("menuExpEnd","elementText")+" "+selectedGirl.name+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
                         let givenTotal = 0;
                         let Expkeys = Object.keys(inExpToGivePartitionBackup);
                         for ( var i of Expkeys )
@@ -6698,12 +6770,20 @@ function moduleShopActions()
                         document.getElementById("menuExp-moveRight").style.visibility = "visible";
                         giveExpAutoNext();
                     }
-                    else if (currentItem !== -1)
+                    else
                     {
-                        logHHAuto("selected item : "+currentItem);
-                        $('div.potion div.inventory_slots div[id_item='+inExpArray[currentItem]+'][data-d]').click();
-                        currentTotal+=Number(currentItem)
-                        setTimeout(giveExp_func, randomInterval(800,1600));
+                        currentTotal+=Number(currentItem);
+                        const currentItemSelector = 'div.potion div.inventory_slots div[id_item='+inExpArray[currentItem]+'][data-d]';
+                        if ($(currentItemSelector+'.selected').length === 0 )
+                        {
+                            logHHAuto("selected item : "+currentItem);
+                            $(currentItemSelector).click();
+                            setTimeout(giveExp_func, randomInterval(400,800));
+                        }
+                        else
+                        {
+                            giveExp_func();
+                        }
                     }
                     return;
                 }
@@ -6713,12 +6793,12 @@ function moduleShopActions()
                     {
                         logHHAuto("clicked on "+currentItem);
                         $('#inventory > button.blue_text_button[rel=use]').click();
-                        setTimeout(giveExp_func, randomInterval(300,600));
+                        setTimeout(giveExp_func, randomInterval(100,200));
                         return;
                     }
                 }
             }
-            setTimeout(giveExp_func, randomInterval(800,1600));
+            setTimeout(giveExp_func, randomInterval(300,600));
         }
 
 
@@ -8003,31 +8083,21 @@ function extractHHVars(dataToSave,extractLog = false,extractTemp=true,extractSet
     let storageType;
     let storageName;
     let currentStorageName = localStorage.HHAuto_Setting_settPerTab==="true"?"sessionStorage":"localStorage";
-    let currentStorage = localStorage.HHAuto_Setting_settPerTab==="true"?sessionStorage:localStorage;
     let variableName;
     let storageItem;
     let varType;
     for (let i of Object.keys(HHStoredVars))
     {
-        varType = HHStoredVars[i].type;
+        varType = HHStoredVars[i].HHType;
         if (varType === "Setting" && extractSettings || varType === "Temp" && extractTemp)
         {
             storageType = HHStoredVars[i].storage;
             variableName = i;
-            switch (storageType)
+            storageName = storageType;
+            storageItem = getStorageItem(storageType);
+            if (storageType === 'Storage()')
             {
-                case 'Storage()' :
-                    storageItem = currentStorage;
-                    storageName = currentStorageName;
-                    break;
-                case 'localStorage' :
-                    storageItem = localStorage;
-                    storageName = 'localStorage';
-                    break;
-                case 'sessionStorage' :
-                    storageItem = sessionStorage;
-                    storageName = 'sessionStorage';
-                    break;
+                storageName = currentStorageName;
             }
             if (variableName !== "HHAuto_Temp_Logging")
             {
@@ -8092,15 +8162,7 @@ function myfileLoad_onReaderLoad(event){
         {
             storageType=key.split(".")[0];
             variableName=key.split(".")[1];
-            switch (storageType)
-            {
-                case 'localStorage' :
-                    storageItem = localStorage;
-                    break;
-                case 'sessionStorage' :
-                    storageItem = sessionStorage;
-                    break;
-            }
+            storageItem = getStorageItem(storageType);
             logHHAuto(key+':'+ value);
             storageItem[variableName] = value;
         }
@@ -8182,15 +8244,7 @@ function debugDeleteTempVars()
     {
         storageType=i.split(".")[0];
         variableName=i.split(".")[1];
-        switch (storageType)
-        {
-            case 'localStorage' :
-                storageItem = localStorage;
-                break;
-            case 'sessionStorage' :
-                storageItem = sessionStorage;
-                break;
-        }
+        storageItem = getStorageItem(storageType);
         logHHAuto(i+':'+ dataToSave[i]);
         storageItem[variableName] = dataToSave[i];
     }
@@ -8206,18 +8260,19 @@ function getUserHHStoredVarDefault(inVarName)
             return currentDefaults[inVarName];
         }
     }
-    return inVarName;
+    return null;
 }
 
 function saveHHStoredVarsDefaults()
 {
     var dataToSave={};
+    getMenuValues();
     extractHHVars(dataToSave,false,false,true);
     let savedHHStoredVars={};
     for(var i of Object.keys(dataToSave))
     {
         let variableName = i.split(".")[1];
-        if (variableName !== "HHAuto_Setting_saveDefaults")
+        if (variableName !== "HHAuto_Setting_saveDefaults" && HHStoredVars[variableName].default !== dataToSave[i])
         {
             savedHHStoredVars[variableName] = dataToSave[i];
         }
@@ -8233,20 +8288,11 @@ function setHHStoredVarToDefault(inVarName)
         if (HHStoredVars[inVarName].default !== undefined && HHStoredVars[inVarName].storage !== undefined)
         {
             let storageItem;
-            switch (HHStoredVars[inVarName].storage)
-            {
-                case 'localStorage' :
-                    storageItem = localStorage;
-                    break;
-                case 'sessionStorage' :
-                    storageItem = sessionStorage;
-                    break;
-                case 'Storage()' :
-                    storageItem = Storage();
-                    break;
-            }
+            storageItem = getStorageItem(HHStoredVars[inVarName].storage);
+
             let userDefinedDefault = getUserHHStoredVarDefault(inVarName);
-            if (userDefinedDefault !== inVarName)
+            let isValid = HHStoredVars[inVarName].isValid===undefined?true:HHStoredVars[inVarName].isValid.test(userDefinedDefault);
+            if (userDefinedDefault !== null && isValid)
             {
                 logHHAuto("HHStoredVar "+inVarName+" set to user default value : "+userDefinedDefault);
                 storageItem[inVarName] = userDefinedDefault;
@@ -8287,26 +8333,347 @@ function getHHStoredVarDefault(inVarName)
     }
 }
 
+function getStorageItem(inStorageType)
+{
+    switch (inStorageType)
+    {
+        case 'localStorage' :
+            return localStorage;
+            break;
+        case 'sessionStorage' :
+            return sessionStorage;
+            break;
+        case 'Storage()' :
+            return Storage();
+            break;
+    }
+}
+
+function getMenuValues()
+{
+    if (document.getElementById("sMenu") === null)
+    {
+        return;
+    }
+    if (isHHPopUpDisplayed() === 'loadConfig') {return}
+
+    for (let i of Object.keys(HHStoredVars))
+    {
+        if (HHStoredVars[i].storage !== undefined && HHStoredVars[i].HHType !== undefined)
+        {
+            let storageItem = getStorageItem(HHStoredVars[i].storage);
+            let menuID = HHStoredVars[i].customMenuID !== undefined?HHStoredVars[i].customMenuID:i.replace("HHAuto_"+HHStoredVars[i].HHType+"_","");
+            if (
+                HHStoredVars[i].getMenu !== undefined
+                && document.getElementById(menuID) !== null
+                && HHStoredVars[i].getMenu
+                && HHStoredVars[i].valueType !== undefined
+                && HHStoredVars[i].menuType !== undefined
+            )
+            {
+                let currentValue = storageItem[i];
+                let menuValue = String(document.getElementById(menuID)[HHStoredVars[i].menuType]);
+                switch (HHStoredVars[i].valueType)
+                {
+                    case "Long Integer":
+                        menuValue = remove1000sSeparator(menuValue);
+                        break;
+                }
+                //console.log(menuID,HHStoredVars[i].menuType,itemValue);
+                storageItem[i] = menuValue;
+                if (currentValue !== menuValue && HHStoredVars[i].newValueFunction !== undefined)
+                {
+                    HHStoredVars[i].newValueFunction.apply();
+                }
+            }
+        }
+        else
+        {
+            logHHAuto("HHStoredVar "+i+" has no storage or type defined.");
+        }
+    }
+
+    /*var leaguesOptions = document.getElementById("autoLeaguesSelector");
+    Storage().HHAuto_Setting_autoLeaguesSelectedIndex = leaguesOptions.selectedIndex;
+    sessionStorage.HHAuto_Temp_leaguesTarget = Number(leaguesOptions.value)+1;
+
+    var trollOptions = document.getElementById("autoTrollSelector");
+    Storage().HHAuto_Setting_autoTrollSelectedIndex = trollOptions.selectedIndex;
+    sessionStorage.HHAuto_Temp_trollToFight = trollOptions.value;
+
+    Storage().HHAuto_Setting_plusEvent = document.getElementById("plusEvent").checked;
+    Storage().HHAuto_Setting_autoSalary = document.getElementById("autoSalary").checked;
+    Storage().HHAuto_Setting_autoSalaryMinTimer = remove1000sSeparator(document.getElementById("autoSalaryMinTimer").value);
+    Storage().HHAuto_Setting_autoSalaryMaxTimer = remove1000sSeparator(document.getElementById("autoSalaryMaxTimer").value);
+    Storage().HHAuto_Setting_autoContest = document.getElementById("autoContest").checked;
+    Storage().HHAuto_Setting_autoMission = document.getElementById("autoMission").checked;
+    Storage().HHAuto_Setting_autoMissionKFirst = document.getElementById("autoMissionKFirst").checked;
+    Storage().HHAuto_Setting_autoPowerPlaces = document.getElementById("autoPowerPlaces").checked;
+    Storage().HHAuto_Setting_collectDailyRewards = document.getElementById("collectDailyRewards").checked;
+
+    var newValue = String(document.getElementById("autoPowerPlacesAll").checked);
+    if (Storage().HHAuto_Setting_autoPowerPlacesAll != newValue)
+    {
+        Storage().HHAuto_Setting_autoPowerPlacesAll = document.getElementById("autoPowerPlacesAll").checked;
+        clearTimer('minPowerPlacesTime');
+        cleanTempPopToStart();
+    }
+    newValue = String(document.getElementById("autoPowerPlacesIndexFilter").value);
+    if (Storage().HHAuto_Setting_autoPowerPlacesIndexFilter != newValue)
+    {
+        Storage().HHAuto_Setting_autoPowerPlacesIndexFilter = document.getElementById("autoPowerPlacesIndexFilter").value;
+        clearTimer('minPowerPlacesTime');
+        cleanTempPopToStart();
+    }
+
+    Storage().HHAuto_Setting_autoPowerPlacesIndexFilter = document.getElementById("autoPowerPlacesIndexFilter").value;
+    Storage().HHAuto_Setting_autoMissionCollect = document.getElementById("autoMissionCollect").checked;
+    Storage().HHAuto_Setting_autoQuest = document.getElementById("autoQuest").checked;
+    Storage().HHAuto_Setting_autoTrollBattle = document.getElementById("autoTrollBattle").checked;
+    Storage().HHAuto_Setting_eventTrollOrder = document.getElementById("eventTrollOrder").value;
+
+    Storage().HHAuto_Setting_plusEventMythic = document.getElementById("plusEventMythic").checked;
+    Storage().HHAuto_Setting_autoTrollMythicByPassParanoia = document.getElementById("autoTrollMythicByPassParanoia").checked ;
+
+    Storage().HHAuto_Setting_buyCombTimer = document.getElementById("buyCombTimer").value;
+    Storage().HHAuto_Setting_buyMythicCombTimer = document.getElementById("buyMythicCombTimer").value;
+
+    Storage().HHAuto_Setting_autoSeason = document.getElementById("autoSeason").checked;
+    Storage().HHAuto_Setting_autoSeasonCollect = document.getElementById("autoSeasonCollect").checked;
+    Storage().HHAuto_Setting_SeasonMaskRewards = document.getElementById("SeasonMaskRewards").checked;
+
+    Storage().HHAuto_Setting_autoLeagues = document.getElementById("autoLeagues").checked;
+    Storage().HHAuto_Setting_autoLeaguesCollect = document.getElementById("autoLeaguesCollect").checked;
+    Storage().HHAuto_Setting_autoLeaguesPowerCalc = document.getElementById("autoLeaguesPowerCalc").checked;
+    Storage().HHAuto_Setting_autoLeaguesAllowWinCurrent = document.getElementById("autoLeaguesAllowWinCurrent").checked;
+    Storage().HHAuto_Setting_autoStats = remove1000sSeparator(document.getElementById("autoStats").value);
+    Storage().HHAuto_Setting_autoStatsSwitch=document.getElementById("autoStatsSwitch").checked;
+    Storage().HHAuto_Setting_paranoia = document.getElementById("paranoia").checked;
+    Storage().HHAuto_Setting_paranoiaSpendsBefore = document.getElementById("paranoiaSpendsBefore").checked;
+    Storage().HHAuto_Setting_autoFreePachinko = document.getElementById("autoFreePachinko").checked;
+    Storage().HHAuto_Setting_autoExp = remove1000sSeparator(document.getElementById("autoExp").value);
+    Storage().HHAuto_Setting_autoExpW = document.getElementById("autoExpW").checked;
+    Storage().HHAuto_Setting_maxExp = remove1000sSeparator(document.getElementById("maxExp").value);
+    Storage().HHAuto_Setting_autoAff = remove1000sSeparator(document.getElementById("autoAff").value);
+    Storage().HHAuto_Setting_autoAffW = document.getElementById("autoAffW").checked;
+    Storage().HHAuto_Setting_maxAff = remove1000sSeparator(document.getElementById("maxAff").value);
+    Storage().HHAuto_Setting_autoLGM = remove1000sSeparator(document.getElementById("autoLGM").value);
+    Storage().HHAuto_Setting_autoLGMW = document.getElementById("autoLGMW").checked;
+    Storage().HHAuto_Setting_autoLGR = remove1000sSeparator(document.getElementById("autoLGR").value);
+    Storage().HHAuto_Setting_autoLGRW = document.getElementById("autoLGRW").checked;
+    Storage().HHAuto_Setting_autoBuyBoosters = document.getElementById("autoBuyBoosters").checked;
+    Storage().HHAuto_Setting_autoBuyBoostersFilter = document.getElementById("autoBuyBoostersFilter").value;
+    Storage().HHAuto_Setting_showMarketTools = document.getElementById("showMarketTools").checked;
+
+
+
+    newValue = String(document.getElementById("showTooltips").checked);
+    if (Storage().HHAuto_Setting_showTooltips != newValue)
+    {
+        Storage().HHAuto_Setting_showTooltips = document.getElementById("showTooltips").checked;
+        manageToolTipsDisplay(true);
+    }
+
+    Storage().HHAuto_Setting_showCalculatePower = document.getElementById("showCalculatePower").checked;
+    Storage().HHAuto_Setting_showInfo = document.getElementById("showInfo").checked;
+
+    //Storage().HHAuto_Setting_calculatePowerLimits = document.getElementById("calculatePowerLimits").value;
+    Storage().HHAuto_Setting_autoChamps = document.getElementById("autoChamps").checked;
+    Storage().HHAuto_Setting_autoClubChamp = document.getElementById("autoClubChamp").checked;
+    Storage().HHAuto_Setting_autoClubForceStart = document.getElementById("autoClubForceStart").checked;
+
+    Storage().HHAuto_Setting_autoClubChampMax = document.getElementById("autoClubChampMax").value;
+    Storage().HHAuto_Setting_autoChampsUseEne = document.getElementById("autoChampsUseEne").checked;
+    Storage().HHAuto_Setting_autoChampsFilter = document.getElementById("autoChampsFilter").value;
+
+    Storage().HHAuto_Setting_kobanBank = remove1000sSeparator(document.getElementById("kobanBank").value);
+    Storage().HHAuto_Setting_spendKobans0 = document.getElementById("spendKobans0").checked;
+    Storage().HHAuto_Setting_buyCombat=document.getElementById("buyCombat").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;// && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true" ;
+    document.getElementById("buyCombat").checked=Storage().HHAuto_Setting_buyCombat==="true";
+    Storage().HHAuto_Setting_buyMythicCombat=document.getElementById("buyMythicCombat").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;// && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true";
+    document.getElementById("buyMythicCombat").checked=Storage().HHAuto_Setting_buyMythicCombat==="true";
+
+    Storage().HHAuto_Setting_autoBuyBoosters=document.getElementById("autoBuyBoosters").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;//&& Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true";
+    document.getElementById("autoBuyBoosters").checked=Storage().HHAuto_Setting_autoBuyBoosters==="true";
+    Storage().HHAuto_Setting_autoSeasonPassReds=document.getElementById("autoSeasonPassReds").checked && Storage().HHAuto_Setting_spendKobans0=="true" ;//&& Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true";
+    document.getElementById("autoSeasonPassReds").checked=Storage().HHAuto_Setting_autoSeasonPassReds==="true";
+    Storage().HHAuto_Setting_useX50Fights= document.getElementById("useX50Fights").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;
+    document.getElementById("useX50Fights").checked=Storage().HHAuto_Setting_useX50Fights==="true";
+    Storage().HHAuto_Setting_useX10Fights= document.getElementById("useX10Fights").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;
+    document.getElementById("useX10Fights").checked=Storage().HHAuto_Setting_useX10Fights==="true";
+
+
+    Storage().HHAuto_Setting_minShardsX50=document.getElementById("minShardsX50").value;
+    Storage().HHAuto_Setting_minShardsX10=document.getElementById("minShardsX10").value;
+    Storage().HHAuto_Setting_useX10FightsAllowNormalEvent=document.getElementById("useX10FightsAllowNormalEvent").checked;
+    Storage().HHAuto_Setting_useX50FightsAllowNormalEvent=document.getElementById("useX50FightsAllowNormalEvent").checked;
+
+    Storage().HHAuto_Setting_autoTrollThreshold = document.getElementById("autoTrollThreshold").value;
+    Storage().HHAuto_Setting_autoQuestThreshold = document.getElementById("autoQuestThreshold").value;
+    Storage().HHAuto_Setting_autoLeaguesThreshold = document.getElementById("autoLeaguesThreshold").value;
+    Storage().HHAuto_Setting_autoSeasonThreshold = document.getElementById("autoSeasonThreshold").value;
+    Storage().HHAuto_Setting_PoAMaskRewards = document.getElementById("PoAMaskRewards").checked;
+    Storage().HHAuto_Setting_autoPantheon = document.getElementById("autoPantheon").checked;
+    Storage().HHAuto_Setting_autoPantheonThreshold = document.getElementById("autoPantheonThreshold").value;
+    localStorage.HHAuto_Setting_settPerTab = document.getElementById("settPerTab").checked;
+
+    Storage().HHAuto_Setting_master=document.getElementById("master").checked;
+*/
+    setDefaults();
+}
+
+function preventKobanUsingSwitchUnauthorized()
+{
+
+    if (this.checked && !document.getElementById("spendKobans0").checked)
+    {
+        let idToDisable = this.id;
+        setTimeout(function(){document.getElementById(idToDisable).checked = false;},500);
+    }
+}
+
+function addKobanUsingEvent()
+{
+    for (let i of Object.keys(HHStoredVars))
+    {
+        if (HHStoredVars[i].HHType !== undefined && HHStoredVars[i].kobanUsing)
+        {
+            let menuID = HHStoredVars[i].customMenuID !== undefined?HHStoredVars[i].customMenuID:i.replace("HHAuto_"+HHStoredVars[i].HHType+"_","");
+            document.getElementById(menuID).addEventListener("change",preventKobanUsingSwitchUnauthorized);
+        }
+    }
+}
+
+function setMenuValues()
+{
+    if (document.getElementById("sMenu") === null)
+    {
+        return;
+    }
+    setDefaults();
+
+    for (let i of Object.keys(HHStoredVars))
+    {
+        if (HHStoredVars[i].storage !== undefined && HHStoredVars[i].HHType !== undefined)
+        {
+            let storageItem = getStorageItem(HHStoredVars[i].storage);
+            let menuID = HHStoredVars[i].customMenuID !== undefined?HHStoredVars[i].customMenuID:i.replace("HHAuto_"+HHStoredVars[i].HHType+"_","");
+            if (
+                HHStoredVars[i].setMenu !== undefined
+                && storageItem[i] !== undefined
+                && HHStoredVars[i].setMenu
+                && HHStoredVars[i].valueType !== undefined
+                && HHStoredVars[i].menuType !== undefined
+            )
+            {
+                let itemValue = storageItem[i];
+                switch (HHStoredVars[i].valueType)
+                {
+                    case "Long Integer":
+                        itemValue = add1000sSeparator(itemValue);
+                        break;
+                    case "Boolean":
+                        itemValue = itemValue === "true";
+                        break;
+                }
+                //console.log(menuID,HHStoredVars[i].menuType,itemValue);
+                document.getElementById(menuID)[HHStoredVars[i].menuType] = itemValue;
+            }
+        }
+        else
+        {
+            logHHAuto("HHStoredVar "+i+" has no storage or type defined.");
+        }
+    }
+
+    /*document.getElementById("settPerTab").checked = localStorage.HHAuto_Setting_settPerTab === "true";
+    document.getElementById("autoTrollSelector").selectedIndex = Storage().HHAuto_Setting_autoTrollSelectedIndex;
+    document.getElementById("autoLeaguesSelector").selectedIndex = Storage().HHAuto_Setting_autoLeaguesSelectedIndex;
+    document.getElementById("autoSalary").checked = Storage().HHAuto_Setting_autoSalary === "true";
+    document.getElementById("autoSalaryMinTimer").value = add1000sSeparator(Storage().HHAuto_Setting_autoSalaryMinTimer);
+    document.getElementById("autoSalaryMaxTimer").value = add1000sSeparator(Storage().HHAuto_Setting_autoSalaryMaxTimer);
+    document.getElementById("autoContest").checked = Storage().HHAuto_Setting_autoContest === "true";
+    document.getElementById("autoMission").checked = Storage().HHAuto_Setting_autoMission === "true";
+    document.getElementById("autoMissionCollect").checked = Storage().HHAuto_Setting_autoMissionCollect === "true";
+    document.getElementById("autoMissionKFirst").checked = Storage().HHAuto_Setting_autoMissionKFirst === "true" ;
+    document.getElementById("autoQuest").checked = Storage().HHAuto_Setting_autoQuest === "true";
+    document.getElementById("autoTrollBattle").checked = Storage().HHAuto_Setting_autoTrollBattle === "true";
+    document.getElementById("eventTrollOrder").value = Storage().HHAuto_Setting_eventTrollOrder;
+    document.getElementById("buyCombTimer").value = Storage().HHAuto_Setting_buyCombTimer;
+    document.getElementById("buyMythicCombTimer").value = Storage().HHAuto_Setting_buyMythicCombTimer;
+    document.getElementById("autoSeason").checked = Storage().HHAuto_Setting_autoSeason === "true";
+    document.getElementById("autoSeasonCollect").checked = Storage().HHAuto_Setting_autoSeasonCollect === "true";
+    document.getElementById("SeasonMaskRewards").checked = Storage().HHAuto_Setting_SeasonMaskRewards === "true";
+    document.getElementById("autoSeasonPassReds").checked = Storage().HHAuto_Setting_autoSeasonPassReds === "true";
+    document.getElementById("autoFreePachinko").checked = Storage().HHAuto_Setting_autoFreePachinko === "true";
+    document.getElementById("autoLeagues").checked = Storage().HHAuto_Setting_autoLeagues === "true";
+    //document.getElementById("autoLeaguesMaxRank").value = Storage().HHAuto_Setting_autoLeaguesMaxRank;
+    document.getElementById("autoLeaguesPowerCalc").checked = Storage().HHAuto_Setting_autoLeaguesPowerCalc === "true";
+    document.getElementById("autoLeaguesCollect").checked = Storage().HHAuto_Setting_autoLeaguesCollect === "true";
+    document.getElementById("autoLeaguesAllowWinCurrent").checked = Storage().HHAuto_Setting_autoLeaguesAllowWinCurrent === "true";
+    document.getElementById("autoPowerPlaces").checked = Storage().HHAuto_Setting_autoPowerPlaces === "true";
+    document.getElementById("autoPowerPlacesAll").checked = Storage().HHAuto_Setting_autoPowerPlacesAll === "true";
+    document.getElementById("autoPowerPlacesIndexFilter").value = Storage().HHAuto_Setting_autoPowerPlacesIndexFilter;
+    document.getElementById("autoStats").value = add1000sSeparator(Storage().HHAuto_Setting_autoStats);
+    document.getElementById("autoStatsSwitch").checked = Storage().HHAuto_Setting_autoStatsSwitch==="true";
+    document.getElementById("paranoia").checked = Storage().HHAuto_Setting_paranoia==="true";
+    document.getElementById("paranoiaSpendsBefore").checked = Storage().HHAuto_Setting_paranoiaSpendsBefore==="true";
+    document.getElementById("autoExp").value = add1000sSeparator(Storage().HHAuto_Setting_autoExp);
+    document.getElementById("autoExpW").checked = Storage().HHAuto_Setting_autoExpW === "true";
+    document.getElementById("autoAff").value = add1000sSeparator(Storage().HHAuto_Setting_autoAff);
+    document.getElementById("autoAffW").checked = Storage().HHAuto_Setting_autoAffW === "true";
+    document.getElementById("maxExp").value = add1000sSeparator(Storage().HHAuto_Setting_maxExp);
+    document.getElementById("maxAff").value = add1000sSeparator(Storage().HHAuto_Setting_maxAff);
+    document.getElementById("autoLGM").value = add1000sSeparator(Storage().HHAuto_Setting_autoLGM);
+    document.getElementById("autoLGMW").checked = Storage().HHAuto_Setting_autoLGMW === "true";
+    document.getElementById("autoLGR").value = add1000sSeparator(Storage().HHAuto_Setting_autoLGR);
+    document.getElementById("autoLGRW").checked = Storage().HHAuto_Setting_autoLGRW === "true";
+    document.getElementById("autoBuyBoosters").checked = Storage().HHAuto_Setting_autoBuyBoosters === "true";
+    document.getElementById("autoBuyBoostersFilter").value = Storage().HHAuto_Setting_autoBuyBoostersFilter;
+    document.getElementById("showMarketTools").checked = Storage().HHAuto_Setting_showMarketTools === "true";
+    document.getElementById("showInfo").checked = Storage().HHAuto_Setting_showInfo==="true";
+    document.getElementById("showTooltips").checked = Storage().HHAuto_Setting_showTooltips==="true";
+    document.getElementById("collectDailyRewards").checked = Storage().HHAuto_Setting_collectDailyRewards === "true" ;
+
+    document.getElementById("showCalculatePower").checked = Storage().HHAuto_Setting_showCalculatePower==="true";
+    //document.getElementById("calculatePowerLimits").value = Storage().HHAuto_Setting_calculatePowerLimits;
+    document.getElementById("plusEvent").checked = Storage().HHAuto_Setting_plusEvent === "true";
+    document.getElementById("plusEventMythic").checked = Storage().HHAuto_Setting_plusEventMythic === "true";
+    document.getElementById("useX50Fights").checked= Storage().HHAuto_Setting_useX50Fights === "true";
+    document.getElementById("useX10Fights").checked= Storage().HHAuto_Setting_useX10Fights === "true";
+    document.getElementById("useX10FightsAllowNormalEvent").checked=Storage().HHAuto_Setting_useX10FightsAllowNormalEvent==="true";
+    document.getElementById("useX50FightsAllowNormalEvent").checked=Storage().HHAuto_Setting_useX50FightsAllowNormalEvent==="true";
+    document.getElementById("minShardsX50").value=Storage().HHAuto_Setting_minShardsX50;
+    document.getElementById("minShardsX10").value=Storage().HHAuto_Setting_minShardsX10;
+    document.getElementById("autoTrollMythicByPassParanoia").checked = Storage().HHAuto_Setting_autoTrollMythicByPassParanoia === "true";
+    document.getElementById("autoClubChamp").checked = Storage().HHAuto_Setting_autoClubChamp  === "true";
+    document.getElementById("autoClubForceStart").checked = Storage().HHAuto_Setting_autoClubForceStart  === "true";
+    document.getElementById("autoClubChampMax").value = Storage().HHAuto_Setting_autoClubChampMax;
+    document.getElementById("autoChamps").checked = Storage().HHAuto_Setting_autoChamps === "true";
+    document.getElementById("autoChampsUseEne").checked = Storage().HHAuto_Setting_autoChampsUseEne === "true";
+    document.getElementById("autoChampsFilter").value = Storage().HHAuto_Setting_autoChampsFilter;
+    document.getElementById("spendKobans0").checked = Storage().HHAuto_Setting_spendKobans0 === "true";
+    document.getElementById("buyCombat").checked = Storage().HHAuto_Setting_buyCombat === "true";
+    document.getElementById("buyMythicCombat").checked = Storage().HHAuto_Setting_buyMythicCombat === "true";
+    document.getElementById("kobanBank").value = add1000sSeparator(Storage().HHAuto_Setting_kobanBank);
+    document.getElementById("autoTrollThreshold").value = Storage().HHAuto_Setting_autoTrollThreshold;
+    document.getElementById("autoQuestThreshold").value = Storage().HHAuto_Setting_autoQuestThreshold;
+    document.getElementById("autoLeaguesThreshold").value = Storage().HHAuto_Setting_autoLeaguesThreshold;
+    document.getElementById("autoSeasonThreshold").value = Storage().HHAuto_Setting_autoSeasonThreshold;
+    document.getElementById("autoPantheon").checked = Storage().HHAuto_Setting_autoPantheon=== "true";
+    document.getElementById("autoPantheonThreshold").value = Storage().HHAuto_Setting_autoPantheonThreshold;
+    document.getElementById("master").checked = Storage().HHAuto_Setting_master==="true";
+    document.getElementById("PoAMaskRewards").checked = Storage().HHAuto_Setting_PoAMaskRewards === "true";
+    */
+}
+
 var setDefaults = function (force = false)
 {
-    let valueChanged = false;
     for (let i of Object.keys(HHStoredVars))
     {
         if (HHStoredVars[i].storage !== undefined )
         {
-            let storageItem;
-            switch (HHStoredVars[i].storage)
-            {
-                case 'localStorage' :
-                    storageItem = localStorage;
-                    break;
-                case 'sessionStorage' :
-                    storageItem = sessionStorage;
-                    break;
-                case 'Storage()' :
-                    storageItem = Storage();
-                    break;
-            }
+            let storageItem = getStorageItem(HHStoredVars[i].storage);
             let isInvalid = false;
             if (HHStoredVars[i].isValid !== undefined && storageItem[i] !== undefined)
             {
@@ -8321,7 +8688,6 @@ var setDefaults = function (force = false)
                 if (storageItem[i] === undefined || force || isInvalid)
                 {
                     setHHStoredVarToDefault(i);
-                    valueChanged = true;
                 }
             }
             else
@@ -8329,7 +8695,6 @@ var setDefaults = function (force = false)
                 if (force ||isInvalid)
                 {
                     storageItem.removeItem(i);
-                    valueChanged = true;
                 }
             }
         }
@@ -8348,7 +8713,7 @@ var setDefaults = function (force = false)
     Storage().HHAuto_Setting_autoPowerPlaces = "false";
     Storage().HHAuto_Setting_autoPowerPlacesAll = "false";
     Storage().HHAuto_Setting_autoPowerPlacesIndexFilter = "1;2;3";
-    Storage().HHAuto_Setting_autoMissionC = "false";
+    Storage().HHAuto_Setting_autoMissionCollect = "false";
     Storage().HHAuto_Setting_autoMissionKFirst = "false";
     Storage().HHAuto_Setting_autoLeagues = "false";
     Storage().HHAuto_Setting_autoLeaguesCollect = "false";
@@ -8395,16 +8760,14 @@ var setDefaults = function (force = false)
     Storage().HHAuto_Setting_autoStatsSwitch="false";
     Storage().HHAuto_Setting_autoExp = add1000sSeparator("500000000");
     Storage().HHAuto_Setting_autoExpW = "false";
-    Storage().HHAuto_Setting_MaxExp = add1000sSeparator("10000");
+    Storage().HHAuto_Setting_maxExp = add1000sSeparator("10000");
     Storage().HHAuto_Setting_autoAff = add1000sSeparator("500000000");
     Storage().HHAuto_Setting_autoAffW = "false";
-    Storage().HHAuto_Setting_MaxAff = add1000sSeparator("50000");
+    Storage().HHAuto_Setting_maxAff = add1000sSeparator("50000");
     Storage().HHAuto_Setting_autoLGM = add1000sSeparator("500000000");
     Storage().HHAuto_Setting_autoLGMW = "false";
     Storage().HHAuto_Setting_autoLGR = add1000sSeparator("500000000");
     Storage().HHAuto_Setting_autoLGRW = "false";
-    //Storage().HHAuto_Setting_autoEGM = add1000sSeparator("500000000");
-    //Storage().HHAuto_Setting_autoEGMW = "false";
     Storage().HHAuto_Setting_autoBuyBoostersFilter = "B1;B2;B3;B4";
     Storage().HHAuto_Setting_autoBuyBoosters = "false";
     Storage().HHAuto_Setting_showMarketTools = "false";
@@ -8528,7 +8891,8 @@ HHEnvVariables["global"].shopGirlCountRequest = '#girls_list .g1 .number.selecte
 HHEnvVariables["global"].shopGirlCurrentRequest = '#girls_list .g1 .number.selected span[contenteditable]';
 HHEnvVariables["global"].shopGirlCounterRequest = '#girls_list .g1 .number.selected';
 HHEnvVariables["global"].contestMaxDays = 21;
-HHEnvVariables["global"].HaremSizeExpirationSecs = 7*24*60*60;//7 days
+HHEnvVariables["global"].HaremMaxSizeExpirationSecs = 7*24*60*60;//7 days
+HHEnvVariables["global"].HaremMinSizeExpirationSecs = 24*60*60;//1 days
 HHEnvVariables["global"].LeagueListExpirationSecs = 60*60;//1 hour max
 HHEnvVariables["global"].STOCHASTIC_SIM_RUNS = 10000;
 HHEnvVariables["global"].ELEMENTS =
@@ -8667,13 +9031,13 @@ HHAuto_ToolTips.en.autoSeasonPassReds = { elementText: "Pass 3 reds", tooltip : 
 HHAuto_ToolTips.en.showCalculatePower = { elementText: "Show PowerCalc", tooltip : "Display battle simulation indicator for Leagues, battle, Seasons "};
 //HHAuto_ToolTips.en.calculatePowerLimits = { elementText: "Own limits", tooltip : "(red;orange)<br>Define your own red and orange limits for Opponents<br> -6000;0 do mean<br> <-6000 is red, between -6000 and 0 is orange and >=0 is green"};
 HHAuto_ToolTips.en.showInfo = { elementText: "Show info", tooltip : "if enabled : show info on script values and next runs"};
-HHAuto_ToolTips.en.autoSalaryCheckbox = { elementText: "Salary", tooltip : "(Integer)<br>if enabled :<br>Collect salaries every X secs"};
+HHAuto_ToolTips.en.autoSalary = { elementText: "Salary", tooltip : "(Integer)<br>if enabled :<br>Collect salaries every X secs"};
 HHAuto_ToolTips.en.autoSalaryMinTimer = { elementText: "Minimum wait", tooltip : "(Integer)<br>X secs to next Salary collection"};
 HHAuto_ToolTips.en.autoSalaryMaxTimer = { elementText: "Max. collect time", tooltip : "(Integer)<br>X secs to collect Salary, before stopping."};
-HHAuto_ToolTips.en.autoMissionCheckbox = { elementText: "Mission", tooltip : "if enabled : Automatically do missions"};
+HHAuto_ToolTips.en.autoMission = { elementText: "Mission", tooltip : "if enabled : Automatically do missions"};
 HHAuto_ToolTips.en.autoMissionCollect = { elementText: "Collect", tooltip : "if enabled : Automatically collect missions after start of new competition."};
 HHAuto_ToolTips.en.autoTrollTitle = { elementText: "Battle Troll"};
-HHAuto_ToolTips.en.autoTrollCheckbox = { elementText: "Enable", tooltip : "if enabled : Automatically battle troll selected"};
+HHAuto_ToolTips.en.autoTrollBattle = { elementText: "Enable", tooltip : "if enabled : Automatically battle troll selected"};
 HHAuto_ToolTips.en.autoTrollSelector = { elementText: "Troll selector", tooltip : "Select troll to be fought."};
 HHAuto_ToolTips.en.autoTrollThreshold = { elementText: "Threshold", tooltip : "(Integer 0 to 19)<br>Minimum troll fight to keep"};
 HHAuto_ToolTips.en.eventTrollOrder = { elementText: "Event Troll Order", tooltip : "(values separated by ;)<br>Allow to select in which order event troll are automatically battled<br>1 : Dark Lord<br>2 : Ninja Spy<br>3 : Gruntt<br>4 : Edwarda<br>5 : Donatien<br>6 : Sylvanus<br>7 : Bremen<br>8 : Finalmecia<br>9 : Fredy Sih Roko<br>10 : Karole<br>11 : Jackson's Crew<br>12 : Pandora Witch<br>13 : Nike<br>14 : Sake"};
@@ -8682,12 +9046,12 @@ HHAuto_ToolTips.en.plusEventMythic = { elementText: "+Mythic Event", tooltip : "
 //HHAuto_ToolTips.en.eventMythicPrio = { elementText: "Priorize over Event Troll Order", tooltip : "Mythic event girl priorized over event troll order if shards available"};
 //HHAuto_ToolTips.en.autoTrollMythicByPassThreshold = { elementText: "Mythic bypass Threshold", tooltip : "Allow mythic to bypass Troll threshold"};
 HHAuto_ToolTips.en.autoSeasonTitle = { elementText: "Season"};
-HHAuto_ToolTips.en.autoSeasonCheckbox = { elementText: "Enable", tooltip : "if enabled : Automatically fight in Seasons (Opponent chosen following PowerCalculation)"};
+HHAuto_ToolTips.en.autoSeason = { elementText: "Enable", tooltip : "if enabled : Automatically fight in Seasons (Opponent chosen following PowerCalculation)"};
 HHAuto_ToolTips.en.autoSeasonCollect = { elementText: "Collect", tooltip : "if enabled : Automatically collect Seasons ( if multiple to collect, will collect one per kiss usage)"};
 HHAuto_ToolTips.en.autoSeasonThreshold = { elementText: "Threshold", tooltip : "Minimum kiss to keep"};
-HHAuto_ToolTips.en.autoQuestCheckbox = { elementText: "Quest", tooltip : "if enabled : Automatically do quest"};
+HHAuto_ToolTips.en.autoQuest = { elementText: "Quest", tooltip : "if enabled : Automatically do quest"};
 HHAuto_ToolTips.en.autoQuestThreshold = { elementText: "Threshold", tooltip : "(Integer between 0 and 99)<br>Minimum quest energy to keep"};
-HHAuto_ToolTips.en.autoContestCheckbox = { elementText: "Claim Contest", tooltip : "if enabled : Collect finished contest rewards"};
+HHAuto_ToolTips.en.autoContest = { elementText: "Claim Contest", tooltip : "if enabled : Collect finished contest rewards"};
 HHAuto_ToolTips.en.autoFreePachinko = { elementText: "Pachinko", tooltip : "if enabled : Automatically collect free Pachinkos"};
 HHAuto_ToolTips.en.autoMythicPachinko = { elementText: "Mythic Pachinko"};
 HHAuto_ToolTips.en.autoLeaguesTitle = { elementText: "Leagues"};
@@ -8812,7 +9176,7 @@ HHAuto_ToolTips.en.saveDefaults = {elementText : "Save defaults", tooltip : "Sav
 HHAuto_ToolTips.en.autoGiveAff = {elementText : "Auto Give", tooltip : "If enabled, will automatically give Aff to girls in order ( you can use OCD script to filter )."};
 HHAuto_ToolTips.en.autoGiveExp = {elementText : "Auto Give", tooltip : "If enabled, will automatically give Exp to girls in order ( you can use OCD script to filter )."};
 HHAuto_ToolTips.en.autoPantheonTitle = {elementText : "Pantheon", tooltip : ""};
-HHAuto_ToolTips.en.autoPantheonCheckbox = { elementText: "Enable", tooltip : "if enabled : Automatically do Pantheon"};
+HHAuto_ToolTips.en.autoPantheon = { elementText: "Enable", tooltip : "if enabled : Automatically do Pantheon"};
 HHAuto_ToolTips.en.autoPantheonThreshold = { elementText: "Threshold", tooltip : "(Integer 0 to 19)<br>Minimum worship to keep"};
 HHAuto_ToolTips.en.buttonSaveOpponent = { elementText: "Save opponent data", tooltip : "Save opponent data for fight simulation in market."};
 HHAuto_ToolTips.en.SimResultMarketButton = { elementText: "Sim. results", tooltip : "Simulate result with League saved opponent."};
@@ -8841,22 +9205,22 @@ HHAuto_ToolTips.fr.autoSeasonPassReds = { elementText: "Passer 3 rouges", toolti
 HHAuto_ToolTips.fr.showCalculatePower = { elementText: "PowerCalc", tooltip : "Si activé : affiche le résultat des calculs du module PowerCalc (Simulateur de combats pour Ligues, Trolls, Saisons)."};
 //HHAuto_ToolTips.fr.calculatePowerLimits = { elementText: "Limites perso", tooltip : "(rouge;orange)<br>Définissez vos propres limites de rouge et d'orange pour les opposants<br> -6000;0 veux dire<br> <-6000 est rouge, entre -6000 et 0 est orange et >=0 est vert"};
 HHAuto_ToolTips.fr.showInfo = { elementText: "Infos", tooltip : "Si activé : affiche une fenêtre d'informations sur le script."};
-HHAuto_ToolTips.fr.autoSalaryCheckbox = { elementText: "Salaire", tooltip : "Si activé :<br>Collecte les salaires toutes les X secondes."};
+HHAuto_ToolTips.fr.autoSalary = { elementText: "Salaire", tooltip : "Si activé :<br>Collecte les salaires toutes les X secondes."};
 HHAuto_ToolTips.fr.autoSalaryMinTimer = { elementText: "Attente min.", tooltip : "(Nombre entier)<br>Secondes d'attente minimum entre deux collectes."};
-HHAuto_ToolTips.fr.autoMissionCheckbox = { elementText: "Missions", tooltip : "Si activé : lance automatiquement les missions."};
+HHAuto_ToolTips.fr.autoMission = { elementText: "Missions", tooltip : "Si activé : lance automatiquement les missions."};
 HHAuto_ToolTips.fr.autoMissionCollect = { elementText: "Collecter", tooltip : "Si activé : collecte automatiquement les récompenses des missions."};
-HHAuto_ToolTips.fr.autoTrollCheckbox = { elementText: "Activer", tooltip : "Si activé : combat automatiquement le troll."};
+HHAuto_ToolTips.fr.autoTrollBattle = { elementText: "Activer", tooltip : "Si activé : combat automatiquement le troll."};
 HHAuto_ToolTips.fr.autoTrollSelector = { elementText: "Sélection troll", tooltip : "Sélection du troll à combattre"};
 HHAuto_ToolTips.fr.autoTrollThreshold = { elementText: "Réserve", tooltip : "Points de combat de trolls (poings) minimum à conserver"};
 HHAuto_ToolTips.fr.eventTrollOrder = { elementText: "Ordre Trolls d'événement", tooltip : "Permet de sélectionner l'ordre dans lequel les trolls d'événements sont automatiquement combattus."};
 HHAuto_ToolTips.fr.plusEvent = { elementText: "+Evénmt.", tooltip : "Si activé : ignore le troll sélectionné et combat les trolls d'événement s'il y a une fille à gagner."};
 HHAuto_ToolTips.fr.plusEventMythic = { elementText: "+Evénmt. mythique", tooltip : "Si activé : ignorer le troll sélectionné et combat le troll d'événement mythique s'il y a une fille à gagner et des fragments disponibles."};
-HHAuto_ToolTips.fr.autoSeasonCheckbox = { elementText: "Activer", tooltip : "Si activé : combat automatique de saison (Adversaire sélectionné avec PowerCalc)."};
+HHAuto_ToolTips.fr.autoSeason = { elementText: "Activer", tooltip : "Si activé : combat automatique de saison (Adversaire sélectionné avec PowerCalc)."};
 HHAuto_ToolTips.fr.autoSeasonCollect = { elementText: "Collecter", tooltip : "Si activé : collecte automatiquement les récompenses de saison (si plusieurs à collecter, en collectera une par combat)."};
 HHAuto_ToolTips.fr.autoSeasonThreshold = { elementText: "Réserve", tooltip : "Points de combat de saison (Baiser) minimum à conserver."};
-HHAuto_ToolTips.fr.autoQuestCheckbox = { elementText: "Quête", tooltip : "Si activé : Fait automatiquement les quêtes"};
+HHAuto_ToolTips.fr.autoQuest = { elementText: "Quête", tooltip : "Si activé : Fait automatiquement les quêtes"};
 HHAuto_ToolTips.fr.autoQuestThreshold = { elementText: "Réserve", tooltip : "Energie de quête minimum à conserver"};
-HHAuto_ToolTips.fr.autoContestCheckbox = { elementText: "Compét'", tooltip : "Si activé : récolter les récompenses de la compét' terminée"};
+HHAuto_ToolTips.fr.autoContest = { elementText: "Compét'", tooltip : "Si activé : récolter les récompenses de la compét' terminée"};
 HHAuto_ToolTips.fr.autoFreePachinko = { elementText: "Pachinko", tooltip : "Si activé : collecte automatiquement les Pachinkos gratuits"};
 HHAuto_ToolTips.fr.autoMythicPachinko = { elementText: "Pachinko mythique"};
 HHAuto_ToolTips.fr.autoLeagues = { elementText: "Activer", tooltip : "Si activé : Combattre automatiquement en Ligues"};
@@ -8884,7 +9248,6 @@ HHAuto_ToolTips.fr.autoLGMW = { elementText: "Eq. de classe lég.", tooltip : "S
 HHAuto_ToolTips.fr.autoLGM = { elementText: "Argent à garder", tooltip : "Argent minimum à conserver lors de l'achat automatique d'équipement de classe légendaire."};
 HHAuto_ToolTips.fr.autoLGRW = { elementText: "Eq. super-sexe lég.", tooltip : "Si activé : permet d'acheter du matériel super-sexe Légendaire sur le marché tout en respectant la limite d'argent ci-après."};
 HHAuto_ToolTips.fr.autoLGR = { elementText: "Argent à garder", tooltip : "Argent minimum à conserver lors de l'achat automatique d'équipement super-sexe."};
-//HHAuto_ToolTips.fr.autoEGM = { elementText: "Buy Epi Gear Mono", tooltip : "si activé : permet d'acheter du matériel Mono Epique sur le marché<br>Acheter seulement si la banque d'argent est au-dessus de la valeur"};
 HHAuto_ToolTips.fr.OpponentListBuilding = { elementText: "La liste des adversaires est en construction", tooltip : ""};
 HHAuto_ToolTips.fr.OpponentParsed = { elementText: "adversaires parcourus", tooltip : ""};
 HHAuto_ToolTips.fr.DebugMenu = { elementText: "Debug Menu", tooltip : "Options pour le debug"};
@@ -8939,11 +9302,11 @@ HHAuto_ToolTips.de.autoSeasonPassReds = { elementText: "Überspringe drei Rote",
 HHAuto_ToolTips.de.showCalculatePower = { elementText: "Zeige Kraftrechner", tooltip : "Zeige Kampfsimulationsindikator an für Liga, Kampf und Season"};
 //HHAuto_ToolTips.de.calculatePowerLimits = { elementText: "Eigene Grenzen (rot;gelb)", tooltip : "(rot;gelb)<br>Definiere deine eigenen Grenzen für rote und orange Gegner<br> -6000;0 meint<br> <-6000 ist rot, zwischen -6000 und 0 ist orange und >=0 ist grün"};
 HHAuto_ToolTips.de.showInfo = { elementText: "Zeige Info", tooltip : "Wenn aktiv : zeige Information auf Skriptwerten und nächsten Durchläufen"};
-HHAuto_ToolTips.de.autoSalaryCheckbox = { elementText: "Auto Einkommen", tooltip : "Wenn aktiv :<br>Sammelt das gesamte Einkommen alle X Sek."};
+HHAuto_ToolTips.de.autoSalary = { elementText: "Auto Einkommen", tooltip : "Wenn aktiv :<br>Sammelt das gesamte Einkommen alle X Sek."};
 HHAuto_ToolTips.de.autoSalaryMinTimer = { elementText: "min Warten", tooltip : "(Ganze pos. Zahl)<br>X Sek bis zum Sammeln des Einkommens"};
-HHAuto_ToolTips.de.autoMissionCheckbox = { elementText: "AutoMission", tooltip : "Wenn aktiv : Macht automatisch Missionen"};
+HHAuto_ToolTips.de.autoMission = { elementText: "AutoMission", tooltip : "Wenn aktiv : Macht automatisch Missionen"};
 HHAuto_ToolTips.de.autoMissionCollect = { elementText: "Einsammeln", tooltip : "Wenn aktiv : Sammelt automatisch Missionsgewinne"};
-HHAuto_ToolTips.de.autoTrollCheckbox = { elementText: "AutoTrollKampf", tooltip : "Wenn aktiv : Macht automatisch aktivierte Trollkämpfe"};
+HHAuto_ToolTips.de.autoTrollBattle = { elementText: "AutoTrollKampf", tooltip : "Wenn aktiv : Macht automatisch aktivierte Trollkämpfe"};
 HHAuto_ToolTips.de.autoTrollSelector = { elementText: "Troll Wähler", tooltip : "Wähle Trolle die bekämpfte werden sollen."};
 HHAuto_ToolTips.de.autoTrollThreshold = { elementText: "Schwellwert", tooltip : "Minimum an Trollpunkten die aufgehoben werden"};
 HHAuto_ToolTips.de.eventTrollOrder = { elementText: "Event Troll Reihenfolge", tooltip : "Erlaubt eine Auswahl in welcher Reihenfolge die Trolle automatisch bekämpft werden"};
@@ -8953,12 +9316,12 @@ HHAuto_ToolTips.de.plusEventMythic = { elementText: "+Mythisches Event", tooltip
 //HHAuto_ToolTips.de.autoTrollMythicByPassThreshold = { elementText: "Mystische über Schwellenwert", tooltip : "Erlaubt es Punkt über den Schwellwert für das mystische Events zu nutzen"};
 HHAuto_ToolTips.de.autoTrollMythicByPassParanoia = { elementText: "Mythisch über Paranoia", tooltip : "Wenn aktiv: Erlaubt es den Paranoia Modus zu übergehen. Wenn du noch kämpfen kannst oder dir Energie kaufen kannst, wird gekämpft. Sollte die nächste Welle an Splittern während der Ruhephase sein, wird der Modus unterbrochen und es wird gekämpft"};
 HHAuto_ToolTips.de.autoArenaCheckbox = { elementText: "AutoArenaKampf", tooltip : "if enabled : Automatically do Arena (deprecated)"};
-HHAuto_ToolTips.de.autoSeasonCheckbox = { elementText: "AutoSeason", tooltip : "Wenn aktiv : Kämpft automatisch in der Season (Gegner werden wie im Kraftrechner einstellt gewählt)"};
+HHAuto_ToolTips.de.autoSeason = { elementText: "AutoSeason", tooltip : "Wenn aktiv : Kämpft automatisch in der Season (Gegner werden wie im Kraftrechner einstellt gewählt)"};
 HHAuto_ToolTips.de.autoSeasonCollect = { elementText: "Einsammeln", tooltip : "Wenn aktiv : Sammelt automatisch Seasongewinne ein (bei mehr als einem, wird eines pro Küssnutzung eingesammelt)"};
 HHAuto_ToolTips.de.autoSeasonThreshold = { elementText: "Schwellwert", tooltip : "Minimum Küsse die behalten bleiben"};
-HHAuto_ToolTips.de.autoQuestCheckbox = { elementText: "AutoQuest", tooltip : "Wenn aktiv : Macht automatisch Quests"};
+HHAuto_ToolTips.de.autoQuest = { elementText: "AutoQuest", tooltip : "Wenn aktiv : Macht automatisch Quests"};
 HHAuto_ToolTips.de.autoQuestThreshold = { elementText: "Schwellwert", tooltip : "Minimum an Energie die behalten bleibt"};
-HHAuto_ToolTips.de.autoContestCheckbox = { elementText: "AutoAufgabe", tooltip : "Wenn aktiv : Sammelt abgeschlossene Aufgabenbelohnungen ein"};
+HHAuto_ToolTips.de.autoContest = { elementText: "AutoAufgabe", tooltip : "Wenn aktiv : Sammelt abgeschlossene Aufgabenbelohnungen ein"};
 HHAuto_ToolTips.de.autoFreePachinko = { elementText: "AutoPachinko(Gratis)", tooltip : "Wenn aktiv : Sammelt freien Glücksspielgewinn ein"};
 HHAuto_ToolTips.de.autoLeagues = { elementText: "AutoLiga", tooltip : "Wenn aktiv : Kämpft automatisch in der Liga"};
 HHAuto_ToolTips.de.autoLeaguesPowerCalc = { elementText: "Nutze Kraftrechner", tooltip : "Wenn aktiv : wählt Gegner durch Kraftrechner (Gegnerliste verfällt alle 10 Min und braucht ein Minuten zur Erneuerung)"};
@@ -8983,7 +9346,6 @@ HHAuto_ToolTips.de.autoLGMW = { elementText: "Buy Leg Gear Mono", tooltip : "Wen
 HHAuto_ToolTips.de.autoLGM = { elementText: "Min Geld verbleib", tooltip : "Minimum an Geld das behalten wird."};
 HHAuto_ToolTips.de.autoLGRW = { elementText: "Buy Leg Gear Rainbow", tooltip : "Wenn aktiv : Erlaube es Regenbogenausrüstung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt"};
 HHAuto_ToolTips.de.autoLGR = { elementText: "Min Geld verbleib", tooltip : "Minimum an Geld das behalten wird."};
-//HHAuto_ToolTips.de.autoEGM = { elementText: "Buy Epi Gear Mono", tooltip : "Wenn aktiv : Erlaube es Mono epische Ausrüstung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt"};
 HHAuto_ToolTips.de.OpponentListBuilding = { elementText: "Gegnerliste wird erstellt", tooltip : ""};
 HHAuto_ToolTips.de.OpponentParsed = { elementText: "Gegner analysiert", tooltip : ""};
 
@@ -9009,11 +9371,11 @@ HHAuto_ToolTips.es.autoSeasonPassReds = { elementText: "Pasa 3 rojos", tooltip :
 HHAuto_ToolTips.es.showCalculatePower = { elementText: "Mostar PowerCalc", tooltip : "Muestra simulador de batalla para Liga, batallas, Temporadas "};
 //HHAuto_ToolTips.es.calculatePowerLimits = { elementText: "Límites propios (rojo;naranja)", tooltip : "(rojo;naranja)<br>Define tus propios límites rojos y naranjas para los oponentes<br> -6000;0 significa<br> <-6000 is rojo, entre -6000 and 0 is naranja and >=0 is verde"};
 HHAuto_ToolTips.es.showInfo = { elementText: "Muestra info", tooltip : "Si habilitado: muestra información de los valores del script y siguientes ejecuciones"};
-HHAuto_ToolTips.es.autoSalaryCheckbox = { elementText: "AutoSal.", tooltip : "(Entero)<br>Si habilitado:<br>Recauda salario cada X segundos"};
+HHAuto_ToolTips.es.autoSalary = { elementText: "AutoSal.", tooltip : "(Entero)<br>Si habilitado:<br>Recauda salario cada X segundos"};
 HHAuto_ToolTips.es.autoSalaryMinTimer = { elementText: "min espera", tooltip : "(Entero)<br>X segundos para recaudar salario"};
-HHAuto_ToolTips.es.autoMissionCheckbox = { elementText: "AutoMision", tooltip : "Si habilitado: Juega misiones de manera automática"};
+HHAuto_ToolTips.es.autoMission = { elementText: "AutoMision", tooltip : "Si habilitado: Juega misiones de manera automática"};
 HHAuto_ToolTips.es.autoMissionCollect = { elementText: "Recaudar", tooltip : "Si habilitado: Recauda misiones de manera automática"};
-HHAuto_ToolTips.es.autoTrollCheckbox = { elementText: "AutoVillano", tooltip : "Si habilitado: Combate villano seleccionado de manera automática"};
+HHAuto_ToolTips.es.autoTrollBattle = { elementText: "AutoVillano", tooltip : "Si habilitado: Combate villano seleccionado de manera automática"};
 HHAuto_ToolTips.es.autoTrollSelector = { elementText: "Selector villano", tooltip : "Selecciona villano para luchar."};
 HHAuto_ToolTips.es.autoTrollThreshold = { elementText: "Límite", tooltip : "(Entero 0 a 19)<br>Mínimo combates a guardar"};
 HHAuto_ToolTips.es.eventTrollOrder = { elementText: "Orden combate villano", tooltip : "(Valores separados por ;)<br>Permite seleccionar el orden de combate automático de los villanos"};
@@ -9022,12 +9384,12 @@ HHAuto_ToolTips.es.plusEventMythic = { elementText: "+Evento Mythic", tooltip : 
 //HHAuto_ToolTips.es.eventMythicPrio = { elementText: "Prioriza sobre el orden de evento de villano", tooltip : "La chica del evento mítico es prioritaria sobre el orden del evento de villanos si hay fragmentos disponibles"};
 //HHAuto_ToolTips.es.autoTrollMythicByPassThreshold = { elementText: "Mítico supera límite", tooltip : "Permite que el evento mítico supere el límite de villano"};
 HHAuto_ToolTips.es.autoArenaCheckbox = { elementText: "AutoBatallaArena", tooltip : "Si habilitado: Combate en Arena de manera automática (obsoleta)"};
-HHAuto_ToolTips.es.autoSeasonCheckbox = { elementText: "AutoTemporada", tooltip : "Si habilitado: Combate en emporadas de manera automática (Oponente elegido según Calculadora de energía)"};
+HHAuto_ToolTips.es.autoSeason = { elementText: "AutoTemporada", tooltip : "Si habilitado: Combate en emporadas de manera automática (Oponente elegido según Calculadora de energía)"};
 HHAuto_ToolTips.es.autoSeasonCollect = { elementText: "Recaudar", tooltip : "Se habilitado: Recauda temporadas de manera automática (Si multiples para recaudar, recaudará uno por cada uso de beso)"};
 HHAuto_ToolTips.es.autoSeasonThreshold = { elementText: "Límite", tooltip : "Mínimos besos a conservar"};
-HHAuto_ToolTips.es.autoQuestCheckbox = { elementText: "AutoAventura", tooltip : "Si habilitado : Juega aventura de manera automática"};
+HHAuto_ToolTips.es.autoQuest = { elementText: "AutoAventura", tooltip : "Si habilitado : Juega aventura de manera automática"};
 HHAuto_ToolTips.es.autoQuestThreshold = { elementText: "Límite", tooltip : "(Entero entre 0 y 99)<br>Minima energía a conservar"};
-HHAuto_ToolTips.es.autoContestCheckbox = { elementText: "AutoCompetición", tooltip : "Si habilitado: Recauda recompensas de competición finalizada"};
+HHAuto_ToolTips.es.autoContest = { elementText: "AutoCompetición", tooltip : "Si habilitado: Recauda recompensas de competición finalizada"};
 HHAuto_ToolTips.es.autoFreePachinko = { elementText: "AutoPachinko(Gratis)", tooltip : "Si habilitado: Recauda pachinkos gratuitos de manera automática"};
 HHAuto_ToolTips.es.autoLeagues = { elementText: "AutoLigas", tooltip : "Si habilitado: Combate en ligas de manera automática"};
 HHAuto_ToolTips.es.autoLeaguesPowerCalc = { elementText: "UsarCalcPotencia", tooltip : "Si habilitado: Elige oponentes usando calculadora de potencia (La lista expira cada 10 mins. y tarda pocos minutos en reconstruirse)"};
@@ -9051,7 +9413,6 @@ HHAuto_ToolTips.es.autoLGMW = { elementText: "Compra Eqip.Leg.Mono", tooltip : "
 HHAuto_ToolTips.es.autoLGM = { elementText: "Min dinero", tooltip : "(Entero)<br>Mínimo dinero a guardar"};
 HHAuto_ToolTips.es.autoLGRW = { elementText: "Compra Eqip.Leg.Arcoiris", tooltip : "Si habilitado: Compra equipamiento legendario arcoiris en el mercado<br>Solo compra si el banco de dinero es superior a este valor"};
 HHAuto_ToolTips.es.autoLGR = { elementText: "Min dinero", tooltip : "(Entero)<br>Mínimo dinero a guardar"};
-//HHAuto_ToolTips.es.autoEGM = { elementText: "Compra Equip.Epi.Mono", tooltip : "Si habilitado: Compra equipamiento épico mono en el mercado<br>Solo compra si el banco de dinero es superior a este valor"};
 HHAuto_ToolTips.es.OpponentListBuilding = { elementText: "Lista de oponentes en construcción", tooltip : ""};
 HHAuto_ToolTips.es.OpponentParsed = { elementText: "opositores analizados", tooltip : ""};
 HHAuto_ToolTips.es.DebugMenu = { elementText: "Menú depur.", tooltip : "Opciones de depuración"};
@@ -9077,6 +9438,1066 @@ var Timers = {};
 
 var HHStoredVars = {};
 //Settings Vars
+//Do not move, has to be first one
+HHStoredVars.HHAuto_Setting_settPerTab =
+    {
+    default:"false",
+    storage:"localStorage",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+// Rest of settings vars
+HHStoredVars.HHAuto_Setting_autoAff =
+    {
+    default:"500000000",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoAffW =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoBuyBoosters =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:true
+};
+HHStoredVars.HHAuto_Setting_autoBuyBoostersFilter =
+    {
+    default:"B1;B2;B3;B4",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"List",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoChamps =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoChampsFilter =
+    {
+    default:"1;2;3;4;5;6",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"List",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoChampsUseEne =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoClubChamp =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoClubChampMax =
+    {
+    default:"999",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoClubForceStart =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoContest =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoExp =
+    {
+    default:"500000000",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoExpW =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoFreePachinko =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoLeagues =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoLeaguesAllowWinCurrent =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoLeaguesCollect =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoLeaguesPowerCalc =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoLeaguesSelectedIndex =
+    {
+    default:"0",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"selectedIndex",
+    kobanUsing:false,
+    customMenuID:"autoLeaguesSelector"
+};
+HHStoredVars.HHAuto_Setting_autoLeaguesThreshold =
+    {
+    default:"0",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoLGM =
+    {
+    default:"500000000",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoLGMW =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoLGR =
+    {
+    default:"500000000",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoLGRW =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoMission =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoMissionCollect =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoMissionKFirst =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoPowerPlaces =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoPowerPlacesAll =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        clearTimer('minPowerPlacesTime');
+        cleanTempPopToStart();
+    }
+};
+HHStoredVars.HHAuto_Setting_autoPowerPlacesIndexFilter =
+    {
+    default:"1;2;3",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"List",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        clearTimer('minPowerPlacesTime');
+        cleanTempPopToStart();
+    }
+};
+HHStoredVars.HHAuto_Setting_autoQuest =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoQuestThreshold =
+    {
+    default:"0",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoSalary =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoSalaryMaxTimer =
+    {
+    default:"1200",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoSalaryMinTimer =
+    {
+    default:"120",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoSeason =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoSeasonCollect =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoSeasonPassReds =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:true
+};
+HHStoredVars.HHAuto_Setting_autoSeasonThreshold =
+    {
+    default:"0",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoStats =
+    {
+    default:"500000000",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoStatsSwitch =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoTrollBattle =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoTrollMythicByPassParanoia =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoTrollSelectedIndex =
+    {
+    default:"0",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"selectedIndex",
+    kobanUsing:false,
+    customMenuID:"autoTrollSelector"
+};
+HHStoredVars.HHAuto_Setting_autoTrollThreshold =
+    {
+    default:"0",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_buyCombat =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:true
+};
+HHStoredVars.HHAuto_Setting_buyCombTimer =
+    {
+    default:"16",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_buyMythicCombat =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:true
+};
+HHStoredVars.HHAuto_Setting_buyMythicCombTimer =
+    {
+    default:"16",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+/*HHStoredVars.HHAuto_Setting_calculatePowerLimits =
+    {
+    default:"default",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"List",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};*/
+HHStoredVars.HHAuto_Setting_collectDailyRewards =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_eventTrollOrder =
+    {
+    default:"1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"List",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_master =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_maxAff =
+    {
+    default:"50000",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_maxExp =
+    {
+    default:"10000",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_minShardsX10 =
+    {
+    default:"10",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false,
+    isValid:/^(\d)+$/
+};
+HHStoredVars.HHAuto_Setting_minShardsX50 =
+    {
+    default:"50",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_paranoia =
+    {
+    default:"true",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_paranoiaSettings =
+    {
+    default:"140-320/Sleep:28800-30400|Active:250-460|Casual:1500-2700/6:Sleep|8:Casual|10:Active|12:Casual|14:Active|18:Casual|20:Active|22:Casual|24:Sleep",
+    storage:"Storage()",
+    HHType:"Setting"
+};
+HHStoredVars.HHAuto_Setting_paranoiaSpendsBefore =
+    {
+    default:"true",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_plusEvent =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_plusEventMythic =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_PoAMaskRewards =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_SeasonMaskRewards =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_showCalculatePower =
+    {
+    default:"true",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_showInfo =
+    {
+    default:"true",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_showMarketTools =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_showTooltips =
+    {
+    default:"true",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        manageToolTipsDisplay(true);
+    }
+};
+HHStoredVars.HHAuto_Setting_spendKobans0 =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_kobanBank =
+    {
+    default:"1000000",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_useX10Fights =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:true
+};
+HHStoredVars.HHAuto_Setting_useX10FightsAllowNormalEvent =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_useX50Fights =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:true
+};
+HHStoredVars.HHAuto_Setting_useX50FightsAllowNormalEvent =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_saveDefaults =
+    {
+    storage:"localStorage",
+    HHType:"Setting"
+};
+HHStoredVars.HHAuto_Setting_autoPantheon =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoPantheonThreshold =
+    {
+    default:"0",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+// Temp vars
+HHStoredVars.HHAuto_Temp_autoLoop =
+    {
+    default:"true",
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_battlePowerRequired =
+    {
+    default:"0",
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_leaguesTarget =
+    {
+    default:"9",
+    storage:"sessionStorage",
+    HHType:"Temp",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:false,
+    menuType:"value",
+    kobanUsing:false,
+    customMenuID:"autoLeaguesSelector"
+};
+HHStoredVars.HHAuto_Temp_questRequirement =
+    {
+    default:"none",
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_userLink =
+    {
+    default:"none",
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_autoLoopTimeMili =
+    {
+    default:"500",
+    storage:"Storage()",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_freshStart =
+    {
+    default:"no",
+    storage:"Storage()",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_Logging =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_trollToFight =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:false,
+    menuType:"value",
+    kobanUsing:false,
+    customMenuID:"autoTrollSelector"
+};
+HHStoredVars.HHAuto_Temp_autoTrollBattleSaveQuest =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_burst =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_charLevel =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_eventsGirlz =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_eventGirl =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_fought =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_haveAff =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_haveExp =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_LeagueOpponentList =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp",
+    isValid:/^{"expirationDate":\d+,"opponentsList":{("\d+":{((("(win|loss|avgTurns)":\d*[.,]?\d+)|("scoreClass":"(minus|plus|close)")|("points":{("\d{1,3}":\d*[.,]?\d+,?)+})),?)+},?)+}}$/
+};
+HHStoredVars.HHAuto_Temp_LeagueTempOpponentList =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp",
+    isValid:/^{"expirationDate":\d+,"opponentsList":{("\d+":{((("(win|loss|avgTurns)":\d*[.,]?\d+)|("scoreClass":"(minus|plus|close)")|("points":{("\d{1,3}":\d*[.,]?\d+,?)+})),?)+},?)+}}$/
+};
+/*HHStoredVars.HHAuto_Temp_opponentsListExpirationDate =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};*/
+HHStoredVars.HHAuto_Temp_paranoiaLeagueBlocked =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_paranoiaQuestBlocked =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_paranoiaSpendings =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_pinfo =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_PopToStart =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_PopUnableToStart =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_storeContents =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_Timers =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_NextSwitch =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_Totalpops =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_CheckSpentPoints =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_eventsList =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_LeagueSavedData =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_HaremSize =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp",
+    isValid:/{"count":(\d)+,"count_date":(\d)+}/
+};
+/*
 //Do not move, has to be first one
 HHStoredVars.HHAuto_Setting_settPerTab = {default:  "false", storage : "localStorage", type : "Setting"};
 // Rest of settings vars
@@ -9105,7 +10526,7 @@ HHStoredVars.HHAuto_Setting_autoLGMW = {default:  "false", storage : "Storage()"
 HHStoredVars.HHAuto_Setting_autoLGR = {default:  "500000000", storage : "Storage()", type : "Setting"};
 HHStoredVars.HHAuto_Setting_autoLGRW = {default:  "false", storage : "Storage()", type : "Setting"};
 HHStoredVars.HHAuto_Setting_autoMission = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoMissionC = {default:  "false", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_autoMissionCollect = {default:  "false", storage : "Storage()", type : "Setting"};
 HHStoredVars.HHAuto_Setting_autoMissionKFirst = {default:  "false", storage : "Storage()", type : "Setting"};
 HHStoredVars.HHAuto_Setting_autoPowerPlaces = {default:  "false", storage : "Storage()", type : "Setting"};
 HHStoredVars.HHAuto_Setting_autoPowerPlacesAll = {default:  "false", storage : "Storage()", type : "Setting"};
@@ -9133,8 +10554,8 @@ HHStoredVars.HHAuto_Setting_buyMythicCombTimer = {default: "16", storage : "Stor
 HHStoredVars.HHAuto_Setting_collectDailyRewards = {default:  "false", storage : "Storage()", type : "Setting"};
 HHStoredVars.HHAuto_Setting_eventTrollOrder = {default: "1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20", storage : "Storage()", type : "Setting"};
 HHStoredVars.HHAuto_Setting_master = {default: "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_MaxAff = {default:  "50000", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_MaxExp = {default:  "10000", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_maxAff = {default:  "50000", storage : "Storage()", type : "Setting"};
+HHStoredVars.HHAuto_Setting_maxExp = {default:  "10000", storage : "Storage()", type : "Setting"};
 HHStoredVars.HHAuto_Setting_minShardsX10 = {default: "10", storage : "Storage()", type : "Setting", isValid:/^(\d)+$/};
 HHStoredVars.HHAuto_Setting_minShardsX50 = {default: "50", storage : "Storage()", type : "Setting"};
 HHStoredVars.HHAuto_Setting_paranoia = {default: "true", storage : "Storage()", type : "Setting"};
@@ -9186,8 +10607,6 @@ HHStoredVars.HHAuto_Temp_paranoiaSpendings = { storage : "sessionStorage", type 
 HHStoredVars.HHAuto_Temp_pinfo = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_PopToStart = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_PopUnableToStart = { storage : "sessionStorage", type : "Temp"};
-//HHStoredVars.HHAuto_Temp_showCalculatePower = { storage : "localStorage", type : "Temp"};
-//HHStoredVars.HHAuto_Temp_showInfo = { storage : "localStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_storeContents = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_Timers = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_NextSwitch = { storage : "sessionStorage", type : "Temp"};
@@ -9196,6 +10615,7 @@ HHStoredVars.HHAuto_Temp_CheckSpentPoints = { storage : "sessionStorage", type :
 HHStoredVars.HHAuto_Temp_eventsList = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_LeagueSavedData = { storage : "sessionStorage", type : "Temp"};
 HHStoredVars.HHAuto_Temp_HaremSize = { storage : "sessionStorage", type : "Temp", isValid:/{"count":(\d)+,"count_date":(\d)+}/};
+*/
 
 var updateData = function () {
     //logHHAuto("updating UI");
@@ -9219,7 +10639,7 @@ var updateData = function () {
         }
         if (getHHScriptVars("isEnabledSalary",false) && Storage().HHAuto_Setting_autoSalary=="true")
         {
-            Tegzd += '<br>'+getTextForUI("autoSalaryCheckbox","elementText")+' : '+getTimeLeft('nextSalaryTime');
+            Tegzd += '<br>'+getTextForUI("autoSalary","elementText")+' : '+getTimeLeft('nextSalaryTime');
         }
         if (getHHScriptVars('isEnabledSeason',false) && Storage().HHAuto_Setting_autoSeason=="true")
         {
@@ -9247,11 +10667,11 @@ var updateData = function () {
         }
         if (getHHScriptVars("isEnabledMission",false) && Storage().HHAuto_Setting_autoMission=="true")
         {
-            Tegzd += '<br>'+getTextForUI("autoMissionCheckbox","elementText")+' : '+getTimeLeft('nextMissionTime');
+            Tegzd += '<br>'+getTextForUI("autoMission","elementText")+' : '+getTimeLeft('nextMissionTime');
         }
         if (getHHScriptVars("isEnabledContest",false) && Storage().HHAuto_Setting_autoContest=="true")
         {
-            Tegzd += '<br>'+getTextForUI("autoContestCheckbox","elementText")+' : '+getTimeLeft('nextContestTime');
+            Tegzd += '<br>'+getTextForUI("autoContest","elementText")+' : '+getTimeLeft('nextContestTime');
         }
         if (getHHScriptVars("isEnabledPowerPlaces",false) && Storage().HHAuto_Setting_autoPowerPlaces=="true")
         {
@@ -9302,234 +10722,29 @@ function maskInactiveMenus()
     }
 }
 
-function getMenuValues()
+function migrateHHVars()
 {
-    if (document.getElementById("sMenu") === null)
+    const varReplacement =
+          [
+              {from:"HHAuto_Setting_MaxAff", to:"HHAuto_Setting_maxAff"},
+              {from:"HHAuto_Setting_MaxExp", to:"HHAuto_Setting_maxExp"},
+              {from:"HHAuto_Setting_autoMissionC", to:"HHAuto_Setting_autoMissionCollect"},
+          ];
+    for(let replacement of varReplacement)
     {
-        return;
+        const oldVar = replacement.from;
+        const newVar = replacement.to;
+        if (sessionStorage[oldVar] !== undefined)
+        {
+            sessionStorage[newVar] = sessionStorage[oldVar];
+            sessionStorage.removeItem(oldVar);
+        }
+        if (localStorage[oldVar] !== undefined)
+        {
+            localStorage[newVar] = localStorage[oldVar];
+            localStorage.removeItem(oldVar);
+        }
     }
-    if (isHHPopUpDisplayed() === 'loadConfig') {return}
-    var leaguesOptions = document.getElementById("autoLeaguesSelector");
-    Storage().HHAuto_Setting_autoLeaguesSelectedIndex = leaguesOptions.selectedIndex;
-    sessionStorage.HHAuto_Temp_leaguesTarget = Number(leaguesOptions.value)+1;
-
-    var trollOptions = document.getElementById("autoTrollSelector");
-    Storage().HHAuto_Setting_autoTrollSelectedIndex = trollOptions.selectedIndex;
-    sessionStorage.HHAuto_Temp_trollToFight = trollOptions.value;
-
-    Storage().HHAuto_Setting_plusEvent = document.getElementById("plusEvent").checked;
-    Storage().HHAuto_Setting_autoSalary = document.getElementById("autoSalaryCheckbox").checked;
-    Storage().HHAuto_Setting_autoSalaryMinTimer = remove1000sSeparator(document.getElementById("autoSalaryMinTimer").value);
-    Storage().HHAuto_Setting_autoSalaryMaxTimer = remove1000sSeparator(document.getElementById("autoSalaryMaxTimer").value);
-    Storage().HHAuto_Setting_autoContest = document.getElementById("autoContestCheckbox").checked;
-    Storage().HHAuto_Setting_autoMission = document.getElementById("autoMissionCheckbox").checked;
-    Storage().HHAuto_Setting_autoMissionKFirst = document.getElementById("autoMissionKFirst").checked;
-    Storage().HHAuto_Setting_autoPowerPlaces = document.getElementById("autoPowerPlaces").checked;
-    Storage().HHAuto_Setting_collectDailyRewards = document.getElementById("collectDailyRewards").checked;
-
-    var newValue = String(document.getElementById("autoPowerPlacesAll").checked);
-    if (Storage().HHAuto_Setting_autoPowerPlacesAll != newValue)
-    {
-        Storage().HHAuto_Setting_autoPowerPlacesAll = document.getElementById("autoPowerPlacesAll").checked;
-        clearTimer('minPowerPlacesTime');
-        cleanTempPopToStart();
-    }
-    newValue = String(document.getElementById("autoPowerPlacesIndexFilter").value);
-    if (Storage().HHAuto_Setting_autoPowerPlacesIndexFilter != newValue)
-    {
-        Storage().HHAuto_Setting_autoPowerPlacesIndexFilter = document.getElementById("autoPowerPlacesIndexFilter").value;
-        clearTimer('minPowerPlacesTime');
-        cleanTempPopToStart();
-    }
-
-    Storage().HHAuto_Setting_autoPowerPlacesIndexFilter = document.getElementById("autoPowerPlacesIndexFilter").value;
-    Storage().HHAuto_Setting_autoMissionC = document.getElementById("autoMissionCollect").checked;
-    Storage().HHAuto_Setting_autoQuest = document.getElementById("autoQuestCheckbox").checked;
-    Storage().HHAuto_Setting_autoTrollBattle = document.getElementById("autoTrollCheckbox").checked;
-    Storage().HHAuto_Setting_eventTrollOrder = document.getElementById("eventTrollOrder").value;
-
-    Storage().HHAuto_Setting_plusEventMythic = document.getElementById("plusEventMythic").checked;
-    //Storage().HHAuto_Setting_eventMythicPrio = document.getElementById("eventMythicPrio").checked;
-    //Storage().HHAuto_Setting_autoTrollMythicByPassThreshold = document.getElementById("autoTrollMythicByPassThreshold").checked ;
-    Storage().HHAuto_Setting_autoTrollMythicByPassParanoia = document.getElementById("autoTrollMythicByPassParanoia").checked ;
-
-    Storage().HHAuto_Setting_buyCombTimer = document.getElementById("buyCombTimer").value;
-    Storage().HHAuto_Setting_buyMythicCombTimer = document.getElementById("buyMythicCombTimer").value;
-
-    Storage().HHAuto_Setting_autoSeason = document.getElementById("autoSeasonCheckbox").checked;
-    Storage().HHAuto_Setting_autoSeasonCollect = document.getElementById("autoSeasonCollect").checked;
-    Storage().HHAuto_Setting_SeasonMaskRewards = document.getElementById("SeasonMaskRewards").checked;
-
-    Storage().HHAuto_Setting_autoLeagues = document.getElementById("autoLeagues").checked;
-    Storage().HHAuto_Setting_autoLeaguesCollect = document.getElementById("autoLeaguesCollect").checked;
-    Storage().HHAuto_Setting_autoLeaguesPowerCalc = document.getElementById("autoLeaguesPowerCalc").checked;
-    Storage().HHAuto_Setting_autoLeaguesAllowWinCurrent = document.getElementById("autoLeaguesAllowWinCurrent").checked;
-    //Storage().HHAuto_Setting_autoLeaguesMaxRank = document.getElementById("autoLeaguesMaxRank").value;
-    Storage().HHAuto_Setting_autoStats = remove1000sSeparator(document.getElementById("autoStats").value);
-    Storage().HHAuto_Setting_autoStatsSwitch=document.getElementById("autoStatsSwitch").checked;
-    Storage().HHAuto_Setting_paranoia = document.getElementById("paranoia").checked;
-    Storage().HHAuto_Setting_paranoiaSpendsBefore = document.getElementById("paranoiaSpendsBefore").checked;
-    Storage().HHAuto_Setting_autoFreePachinko = document.getElementById("autoFreePachinko").checked;
-    Storage().HHAuto_Setting_autoExp = remove1000sSeparator(document.getElementById("autoExp").value);
-    Storage().HHAuto_Setting_autoExpW = document.getElementById("autoExpW").checked;
-    Storage().HHAuto_Setting_MaxExp = remove1000sSeparator(document.getElementById("maxExp").value);
-    Storage().HHAuto_Setting_autoAff = remove1000sSeparator(document.getElementById("autoAff").value);
-    Storage().HHAuto_Setting_autoAffW = document.getElementById("autoAffW").checked;
-    Storage().HHAuto_Setting_MaxAff = remove1000sSeparator(document.getElementById("maxAff").value);
-    Storage().HHAuto_Setting_autoLGM = remove1000sSeparator(document.getElementById("autoLGM").value);
-    Storage().HHAuto_Setting_autoLGMW = document.getElementById("autoLGMW").checked;
-    Storage().HHAuto_Setting_autoLGR = remove1000sSeparator(document.getElementById("autoLGR").value);
-    Storage().HHAuto_Setting_autoLGRW = document.getElementById("autoLGRW").checked;
-    //Storage().HHAuto_Setting_autoEGM = document.getElementById("autoEGM").value;
-    //Storage().HHAuto_Setting_autoEGMW = document.getElementById("autoEGMW").checked;
-    Storage().HHAuto_Setting_autoBuyBoosters = document.getElementById("autoBuyBoosters").checked;
-    Storage().HHAuto_Setting_autoBuyBoostersFilter = document.getElementById("autoBuyBoostersFilter").value;
-    Storage().HHAuto_Setting_showMarketTools = document.getElementById("showMarketTools").checked;
-
-
-
-    newValue = String(document.getElementById("showTooltips").checked);
-    if (Storage().HHAuto_Setting_showTooltips != newValue)
-    {
-        Storage().HHAuto_Setting_showTooltips = document.getElementById("showTooltips").checked;
-        manageToolTipsDisplay(true);
-    }
-
-    Storage().HHAuto_Setting_showCalculatePower = document.getElementById("showCalculatePower").checked;
-    Storage().HHAuto_Setting_showInfo = document.getElementById("showInfo").checked;
-
-    //Storage().HHAuto_Setting_calculatePowerLimits = document.getElementById("calculatePowerLimits").value;
-    Storage().HHAuto_Setting_autoChamps = document.getElementById("autoChamps").checked;
-    Storage().HHAuto_Setting_autoClubChamp = document.getElementById("autoClubChamp").checked;
-    Storage().HHAuto_Setting_autoClubForceStart = document.getElementById("autoClubForceStart").checked;
-
-    Storage().HHAuto_Setting_autoClubChampMax = document.getElementById("autoClubChampMax").value;
-    Storage().HHAuto_Setting_autoChampsUseEne = document.getElementById("autoChampsUseEne").checked;
-    Storage().HHAuto_Setting_autoChampsFilter = document.getElementById("autoChampsFilter").value;
-
-    Storage().HHAuto_Setting_kobanBank = remove1000sSeparator(document.getElementById("kobanBank").value);
-    Storage().HHAuto_Setting_spendKobans0 = document.getElementById("spendKobans0").checked;
-    Storage().HHAuto_Setting_buyCombat=document.getElementById("buyCombat").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;// && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true" ;
-    document.getElementById("buyCombat").checked=Storage().HHAuto_Setting_buyCombat==="true";
-    Storage().HHAuto_Setting_buyMythicCombat=document.getElementById("buyMythicCombat").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;// && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true";
-    document.getElementById("buyMythicCombat").checked=Storage().HHAuto_Setting_buyMythicCombat==="true";
-
-    Storage().HHAuto_Setting_autoBuyBoosters=document.getElementById("autoBuyBoosters").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;//&& Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true";
-    document.getElementById("autoBuyBoosters").checked=Storage().HHAuto_Setting_autoBuyBoosters==="true";
-    Storage().HHAuto_Setting_autoSeasonPassReds=document.getElementById("autoSeasonPassReds").checked && Storage().HHAuto_Setting_spendKobans0=="true" ;//&& Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true";
-    document.getElementById("autoSeasonPassReds").checked=Storage().HHAuto_Setting_autoSeasonPassReds==="true";
-    Storage().HHAuto_Setting_useX50Fights= document.getElementById("useX50Fights").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;
-    document.getElementById("useX50Fights").checked=Storage().HHAuto_Setting_useX50Fights==="true";
-    Storage().HHAuto_Setting_useX10Fights= document.getElementById("useX10Fights").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;
-    document.getElementById("useX10Fights").checked=Storage().HHAuto_Setting_useX10Fights==="true";
-
-
-    Storage().HHAuto_Setting_minShardsX50=document.getElementById("minShardsX50").value;
-    Storage().HHAuto_Setting_minShardsX10=document.getElementById("minShardsX10").value;
-    Storage().HHAuto_Setting_useX10FightsAllowNormalEvent=document.getElementById("useX10FightsAllowNormalEvent").checked;
-    Storage().HHAuto_Setting_useX50FightsAllowNormalEvent=document.getElementById("useX50FightsAllowNormalEvent").checked;
-
-    Storage().HHAuto_Setting_autoTrollThreshold = document.getElementById("autoTrollThreshold").value;
-    Storage().HHAuto_Setting_autoQuestThreshold = document.getElementById("autoQuestThreshold").value;
-    Storage().HHAuto_Setting_autoLeaguesThreshold = document.getElementById("autoLeaguesThreshold").value;
-    Storage().HHAuto_Setting_autoSeasonThreshold = document.getElementById("autoSeasonThreshold").value;
-    Storage().HHAuto_Setting_PoAMaskRewards = document.getElementById("PoAMaskRewards").checked;
-    Storage().HHAuto_Setting_autoPantheon = document.getElementById("autoPantheonCheckbox").checked;
-    Storage().HHAuto_Setting_autoPantheonThreshold = document.getElementById("autoPantheonThreshold").value;
-    localStorage.HHAuto_Setting_settPerTab = document.getElementById("settPerTab").checked;
-
-    Storage().HHAuto_Setting_master=document.getElementById("master").checked;
-
-    setDefaults();
-}
-
-function setMenuValues()
-{
-    if (document.getElementById("sMenu") === null)
-    {
-        return;
-    }
-    setDefaults();
-    document.getElementById("settPerTab").checked = localStorage.HHAuto_Setting_settPerTab === "true";
-    document.getElementById("autoTrollSelector").selectedIndex = Storage().HHAuto_Setting_autoTrollSelectedIndex;
-    document.getElementById("autoLeaguesSelector").selectedIndex = Storage().HHAuto_Setting_autoLeaguesSelectedIndex;
-    document.getElementById("autoSalaryCheckbox").checked = Storage().HHAuto_Setting_autoSalary === "true";
-    document.getElementById("autoSalaryMinTimer").value = add1000sSeparator(Storage().HHAuto_Setting_autoSalaryMinTimer);
-    document.getElementById("autoSalaryMaxTimer").value = add1000sSeparator(Storage().HHAuto_Setting_autoSalaryMaxTimer);
-    document.getElementById("autoContestCheckbox").checked = Storage().HHAuto_Setting_autoContest === "true";
-    document.getElementById("autoMissionCheckbox").checked = Storage().HHAuto_Setting_autoMission === "true";
-    document.getElementById("autoMissionCollect").checked = Storage().HHAuto_Setting_autoMissionC === "true";
-    document.getElementById("autoMissionKFirst").checked = Storage().HHAuto_Setting_autoMissionKFirst === "true" ;
-    document.getElementById("autoQuestCheckbox").checked = Storage().HHAuto_Setting_autoQuest === "true";
-    document.getElementById("autoTrollCheckbox").checked = Storage().HHAuto_Setting_autoTrollBattle === "true";
-    document.getElementById("eventTrollOrder").value = Storage().HHAuto_Setting_eventTrollOrder;
-    document.getElementById("buyCombTimer").value = Storage().HHAuto_Setting_buyCombTimer;
-    document.getElementById("buyMythicCombTimer").value = Storage().HHAuto_Setting_buyMythicCombTimer;
-    document.getElementById("autoSeasonCheckbox").checked = Storage().HHAuto_Setting_autoSeason === "true";
-    document.getElementById("autoSeasonCollect").checked = Storage().HHAuto_Setting_autoSeasonCollect === "true";
-    document.getElementById("SeasonMaskRewards").checked = Storage().HHAuto_Setting_SeasonMaskRewards === "true";
-    document.getElementById("autoSeasonPassReds").checked = Storage().HHAuto_Setting_autoSeasonPassReds === "true";
-    document.getElementById("autoFreePachinko").checked = Storage().HHAuto_Setting_autoFreePachinko === "true";
-    document.getElementById("autoLeagues").checked = Storage().HHAuto_Setting_autoLeagues === "true";
-    //document.getElementById("autoLeaguesMaxRank").value = Storage().HHAuto_Setting_autoLeaguesMaxRank;
-    document.getElementById("autoLeaguesPowerCalc").checked = Storage().HHAuto_Setting_autoLeaguesPowerCalc === "true";
-    document.getElementById("autoLeaguesCollect").checked = Storage().HHAuto_Setting_autoLeaguesCollect === "true";
-    document.getElementById("autoLeaguesAllowWinCurrent").checked = Storage().HHAuto_Setting_autoLeaguesAllowWinCurrent === "true";
-    document.getElementById("autoPowerPlaces").checked = Storage().HHAuto_Setting_autoPowerPlaces === "true";
-    document.getElementById("autoPowerPlacesAll").checked = Storage().HHAuto_Setting_autoPowerPlacesAll === "true";
-    document.getElementById("autoPowerPlacesIndexFilter").value = Storage().HHAuto_Setting_autoPowerPlacesIndexFilter;
-    document.getElementById("autoStats").value = add1000sSeparator(Storage().HHAuto_Setting_autoStats);
-    document.getElementById("autoStatsSwitch").checked = Storage().HHAuto_Setting_autoStatsSwitch==="true";
-    document.getElementById("paranoia").checked = Storage().HHAuto_Setting_paranoia==="true";
-    document.getElementById("paranoiaSpendsBefore").checked = Storage().HHAuto_Setting_paranoiaSpendsBefore==="true";
-    document.getElementById("autoExp").value = add1000sSeparator(Storage().HHAuto_Setting_autoExp);
-    document.getElementById("autoExpW").checked = Storage().HHAuto_Setting_autoExpW === "true";
-    document.getElementById("autoAff").value = add1000sSeparator(Storage().HHAuto_Setting_autoAff);
-    document.getElementById("autoAffW").checked = Storage().HHAuto_Setting_autoAffW === "true";
-    document.getElementById("maxExp").value = add1000sSeparator(Storage().HHAuto_Setting_MaxExp);
-    document.getElementById("maxAff").value = add1000sSeparator(Storage().HHAuto_Setting_MaxAff);
-    document.getElementById("autoLGM").value = add1000sSeparator(Storage().HHAuto_Setting_autoLGM);
-    document.getElementById("autoLGMW").checked = Storage().HHAuto_Setting_autoLGMW === "true";
-    document.getElementById("autoLGR").value = add1000sSeparator(Storage().HHAuto_Setting_autoLGR);
-    document.getElementById("autoLGRW").checked = Storage().HHAuto_Setting_autoLGRW === "true";
-    document.getElementById("autoBuyBoosters").checked = Storage().HHAuto_Setting_autoBuyBoosters === "true";
-    document.getElementById("autoBuyBoostersFilter").value = Storage().HHAuto_Setting_autoBuyBoostersFilter;
-    document.getElementById("showMarketTools").checked = Storage().HHAuto_Setting_showMarketTools === "true";
-    //document.getElementById("autoEGM").value = add1000sSeparator(Storage().HHAuto_Setting_autoEGM);
-    //document.getElementById("autoEGMW").checked = Storage().HHAuto_Setting_autoEGMW === "true";
-    document.getElementById("showInfo").checked = Storage().HHAuto_Setting_showInfo==="true";
-    document.getElementById("showTooltips").checked = Storage().HHAuto_Setting_showTooltips==="true";
-    document.getElementById("collectDailyRewards").checked = Storage().HHAuto_Setting_collectDailyRewards === "true" ;
-
-    document.getElementById("showCalculatePower").checked = Storage().HHAuto_Setting_showCalculatePower==="true";
-    //document.getElementById("calculatePowerLimits").value = Storage().HHAuto_Setting_calculatePowerLimits;
-    document.getElementById("plusEvent").checked = Storage().HHAuto_Setting_plusEvent === "true";
-    document.getElementById("plusEventMythic").checked = Storage().HHAuto_Setting_plusEventMythic === "true";
-    document.getElementById("useX50Fights").checked= Storage().HHAuto_Setting_useX50Fights === "true";
-    document.getElementById("useX10Fights").checked= Storage().HHAuto_Setting_useX10Fights === "true";
-    document.getElementById("useX10FightsAllowNormalEvent").checked=Storage().HHAuto_Setting_useX10FightsAllowNormalEvent==="true";
-    document.getElementById("useX50FightsAllowNormalEvent").checked=Storage().HHAuto_Setting_useX50FightsAllowNormalEvent==="true";
-    document.getElementById("minShardsX50").value=Storage().HHAuto_Setting_minShardsX50;
-    document.getElementById("minShardsX10").value=Storage().HHAuto_Setting_minShardsX10;
-    document.getElementById("autoTrollMythicByPassParanoia").checked = Storage().HHAuto_Setting_autoTrollMythicByPassParanoia === "true";
-    document.getElementById("autoClubChamp").checked = Storage().HHAuto_Setting_autoClubChamp  === "true";
-    document.getElementById("autoClubForceStart").checked = Storage().HHAuto_Setting_autoClubForceStart  === "true";
-    document.getElementById("autoClubChampMax").value = Storage().HHAuto_Setting_autoClubChampMax;
-    document.getElementById("autoChamps").checked = Storage().HHAuto_Setting_autoChamps === "true";
-    document.getElementById("autoChampsUseEne").checked = Storage().HHAuto_Setting_autoChampsUseEne === "true";
-    document.getElementById("autoChampsFilter").value = Storage().HHAuto_Setting_autoChampsFilter;
-    document.getElementById("spendKobans0").checked = Storage().HHAuto_Setting_spendKobans0 === "true";
-    document.getElementById("buyCombat").checked = Storage().HHAuto_Setting_buyCombat === "true";
-    document.getElementById("buyMythicCombat").checked = Storage().HHAuto_Setting_buyMythicCombat === "true";
-    document.getElementById("kobanBank").value = add1000sSeparator(Storage().HHAuto_Setting_kobanBank);
-    document.getElementById("autoTrollThreshold").value = Storage().HHAuto_Setting_autoTrollThreshold;
-    document.getElementById("autoQuestThreshold").value = Storage().HHAuto_Setting_autoQuestThreshold;
-    document.getElementById("autoLeaguesThreshold").value = Storage().HHAuto_Setting_autoLeaguesThreshold;
-    document.getElementById("autoSeasonThreshold").value = Storage().HHAuto_Setting_autoSeasonThreshold;
-    document.getElementById("autoPantheonCheckbox").checked = Storage().HHAuto_Setting_autoPantheon=== "true";
-    document.getElementById("autoPantheonThreshold").value = Storage().HHAuto_Setting_autoPantheonThreshold;
-    document.getElementById("master").checked = Storage().HHAuto_Setting_master==="true";
-    document.getElementById("PoAMaskRewards").checked = Storage().HHAuto_Setting_PoAMaskRewards === "true";
 }
 
 var start = function () {
@@ -9542,13 +10757,14 @@ var start = function () {
     }
     checkClubStatus();
     replaceCheatClick();
+    migrateHHVars();
     setDefaults();
     $('.redirect.gay').hide();
     $('.redirect.comix').hide();
 
     $('#starter_offer').hide();
     $('#starter_offer_background').hide();
-    //migrateHHVars();
+
     if (sessionStorage.HHAuto_Temp_Timers)
     {
         Timers=JSON.parse(sessionStorage.HHAuto_Temp_Timers);
@@ -9687,11 +10903,11 @@ var start = function () {
     +    '<div class="optionsBox">'
     +     '<div class="internalOptionsRow">'
     +      '<div id="isEnabledMission" class="internalOptionsRow">'
-    +       '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoMissionCheckbox","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoMissionCheckbox","tooltip")+'</span><label class="switch"><input id="autoMissionCheckbox" type="checkbox"><span class="slider round"></span></label></div></div>'
+    +       '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoMission","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoMission","tooltip")+'</span><label class="switch"><input id="autoMission" type="checkbox"><span class="slider round"></span></label></div></div>'
     +       '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoMissionCollect","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoMissionCollect","tooltip")+'</span><label class="switch"><input id="autoMissionCollect" type="checkbox"><span class="slider round"></span></label></div></div>'
     +       '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoMissionKFirst","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoMissionKFirst","tooltip")+'</span><label class="switch"><input id="autoMissionKFirst" type="checkbox"><span class="slider round"></span></label></div></div>'
     +      '</div>'
-    +      '<div id="isEnabledContest" class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoContestCheckbox","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoContestCheckbox","tooltip")+'</span><label class="switch"><input id="autoContestCheckbox" type="checkbox"><span class="slider round"></span></label></div></div>'
+    +      '<div id="isEnabledContest" class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoContest","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoContest","tooltip")+'</span><label class="switch"><input id="autoContest" type="checkbox"><span class="slider round"></span></label></div></div>'
     +     '</div>'
 
     +     '<div id="isEnabledPowerPlaces" class="internalOptionsRow">'
@@ -9709,11 +10925,11 @@ var start = function () {
     +    '<div id="isEnabledSalary" class="rowOptionsBox">'  //+   '<div class="optionsBox">'
     +    '<div class="internalOptionsRow">'
     +     '<div class="labelAndButton">' // start img and label
-    +      '<span class="HHMenuItemName" style="padding-bottom:2px">'+getTextForUI("autoSalaryCheckbox","elementText")+'</span>'
+    +      '<span class="HHMenuItemName" style="padding-bottom:2px">'+getTextForUI("autoSalary","elementText")+'</span>'
     +      '<div class="imgAndObjectRow">'  //+      '<div style="display: flex;flex-direction: row;justify-content: space-between">'
     +       '<img class="iconImg" src="https://hh2.hh-content.com/pictures/design/harem.svg" />'  //height="20px" width="20px"
     +       '<div style="padding-left:5px">'
-    +        '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoSalaryCheckbox","tooltip")+'</span><label class="switch"><input id="autoSalaryCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
+    +        '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoSalary","tooltip")+'</span><label class="switch"><input id="autoSalary" type="checkbox"><span class="slider round"></span></label></div>'
     +       '</div>'
     +      '</div>'
     +     '</div>' // end img and label
@@ -9744,11 +10960,11 @@ var start = function () {
     +    '<div id="isEnabledQuest" class="rowOptionsBox">'  //+   '<div class="optionsBox" style="flex-direction:row; align-items:flex-end">'  //+   '<div class="optionsBox">'
     +    '<div class="internalOptionsRow">'
     +     '<div class="labelAndButton">' // start img and label
-    +      '<span class="HHMenuItemName" style="padding-bottom:2px">'+getTextForUI("autoQuestCheckbox","elementText")+'</span>'
+    +      '<span class="HHMenuItemName" style="padding-bottom:2px">'+getTextForUI("autoQuest","elementText")+'</span>'
     +      '<div class="imgAndObjectRow">'  //+      '<div style="display: flex;flex-direction: row;justify-content: space-between">'
     +       '<img class="iconImg" src="https://hh2.hh-content.com/design/menu/forward.svg" />'  //height="20px" width="20px"
     +       '<div style="padding-left:5px">'
-    +        '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoQuestCheckbox","tooltip")+'</span><label class="switch"><input id="autoQuestCheckbox" type="checkbox"><span class="slider round"></span></label></div>'
+    +        '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoQuest","tooltip")+'</span><label class="switch"><input id="autoQuest" type="checkbox"><span class="slider round"></span></label></div>'
     +       '</div>'
     +      '</div>'
     +     '</div>' // end img and label
@@ -9781,7 +10997,7 @@ var start = function () {
     +    '</div>'
     +    '<div class="optionsBox">'
     +     '<div class="internalOptionsRow">'
-    +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoSeasonCheckbox","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoSeasonCheckbox","tooltip")+'</span><label class="switch"><input id="autoSeasonCheckbox" type="checkbox"><span class="slider round"></span></label></div></div>'
+    +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoSeason","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoSeason","tooltip")+'</span><label class="switch"><input id="autoSeason" type="checkbox"><span class="slider round"></span></label></div></div>'
     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoSeasonCollect","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoSeasonCollect","tooltip")+'</span><label class="switch"><input id="autoSeasonCollect" type="checkbox"><span class="slider round"></span></label></div></div>'
     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("SeasonMaskRewards","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("SeasonMaskRewards","tooltip")+'</span><label class="switch"><input id="SeasonMaskRewards" type="checkbox"><span class="slider round"></span></label></div></div>'
     +     '</div>'
@@ -9849,7 +11065,7 @@ var start = function () {
 
     // _Line 1_
     +     '<div class="internalOptionsRow" style="justify-content: space-between">'
-    +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoTrollCheckbox","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoTrollCheckbox","tooltip")+'</span><label class="switch"><input id="autoTrollCheckbox" type="checkbox"><span class="slider round"></span></label></div></div>'
+    +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoTrollBattle","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoTrollBattle","tooltip")+'</span><label class="switch"><input id="autoTrollBattle" type="checkbox"><span class="slider round"></span></label></div></div>'
     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoTrollSelector","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoTrollSelector","tooltip")+'</span><select id="autoTrollSelector"></select></div></div>'
 
     +      '<div class="labelAndButton">' // start img and label
@@ -9952,7 +11168,7 @@ var start = function () {
     +    '</div>'
     +    '<div class="optionsBox">'
     +     '<div class="internalOptionsRow" style="justify-content: space-between">'
-    +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoPantheonCheckbox","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoPantheonCheckbox","tooltip")+'</span><label class="switch"><input id="autoPantheonCheckbox" type="checkbox"><span class="slider round"></span></label></div></div>'
+    +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoPantheon","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoPantheon","tooltip")+'</span><label class="switch"><input id="autoPantheon" type="checkbox"><span class="slider round"></span></label></div></div>'
     +      '<div class="labelAndButton">' // start img and label
     +       '<span class="HHMenuItemName" style="padding-bottom:2px">'+getTextForUI("autoPantheonThreshold","elementText")+'</span>'
     +       '<div class="imgAndObjectRow">'  //+      '<div style="display: flex;flex-direction: row;justify-content: space-between">'
@@ -10081,8 +11297,6 @@ var start = function () {
     //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("showMarketTools","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("showMarketTools","tooltip")+'</span><label class="switch"><input id="showMarketTools" type="checkbox"><span class="slider round"></span></label></div></div>'
     +     '</div>'
     //+     '<div class="internalOptionsRow">'
-    //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoEGMW","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoEGMW","tooltip")+'</span><label class="switch"><input id="autoEGMW" type="checkbox"><span class="slider round"></span></label></div></div>'
-    //+      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoEGM","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoEGM","tooltip")+'</span><input id="autoEGM" required pattern="'+HHAuto_inputPattern.autoEGM+'" type="text"></div></div>'
     //+     '</div>'
     +    '</div>'
     +   '</div>'
@@ -10126,18 +11340,9 @@ var start = function () {
         }
     });
 
-    var idToAdd1000sSeparators = ["kobanBank",
-                                  "autoSalaryMinTimer",
-                                  "autoSalaryMaxTimer",
-                                  "autoStats",
-                                  "maxExp",
-                                  "autoExp",
-                                  "maxAff",
-                                  "autoAff",
-                                  "autoLGM",
-                                  "autoLGR"];
-    idToAdd1000sSeparators.forEach(function(element) {document.getElementById(element).addEventListener("keyup",add1000sSeparator1)});
-    //document.getElementById("autoLGR").addEventListener("keyup",add1000sSeparator);
+    add1000SeparatorEvent();
+
+    addKobanUsingEvent();
 
     var div = document.createElement('div');
     div.innerHTML = '<div id="pInfo" ></div>'.trim(); //height: auto;
@@ -10235,7 +11440,7 @@ var start = function () {
     for (var j in Leagues)
     {
         var optionL = document.createElement("option");
-        optionL.value=j;
+        optionL.value=Number(j)+1;
         optionL.text = Leagues[j];
         leaguesOptions.add(optionL);
     };
