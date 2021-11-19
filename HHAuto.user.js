@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.16
+// @version      5.6.17
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://nutaku.haremheroes.com/*
@@ -410,6 +410,9 @@ function gotoPage(page,inArgs,delay = -1)
             break;
         case "clubs" :
             togoto = getHHScriptVars("gotoPageClub");
+            break;
+        case (page.match(/\/champions\/[123456]/) || {}).input:
+            togoto = page;
             break;
         default:
             logHHAuto("Unknown goto page request. No page \'"+page+"\' defined.");
@@ -1963,7 +1966,7 @@ var getSalary = function () {
             var getButtonClass = salaryButton.attr("class");
             if (salaryToCollect)
             {
-                if (getButtonClass === "blue_button_L")
+                if (getButtonClass.indexOf("blue_button_L") !== -1 )
                 {
                     //replaceCheatClick();
                     salaryButton.click();
@@ -1971,7 +1974,7 @@ var getSalary = function () {
                     setTimer('nextSalaryTime',Number(Storage().HHAuto_Setting_autoSalaryMinTimer)+1);
                     return true;
                 }
-                else if ( getButtonClass === "orange_button_L")
+                else if ( getButtonClass.indexOf("orange_button_L") !== -1 )
                 {
                     // Not at Harem screen then goto the Harem screen.
                     logHHAuto("Navigating to Harem window.");
@@ -2409,7 +2412,8 @@ var doChampionStuff=function()
             if (Started && !OnTimer && Filtered)
             {
                 logHHAuto("Let's do him!");
-                window.location = window.location.origin + '/champions/'+(i+1);
+                gotoPage('/champions/'+Number(i+1));
+                //window.location = window.location.origin + '/champions/'+(i+1);
                 return true;
             }
         }
@@ -8208,16 +8212,27 @@ function debugDeleteAllVars()
 
 function manageToolTipsDisplay(important=false)
 {
-    let importantAddendum = important?'; !important':'';
+    
     if(Storage().HHAuto_Setting_showTooltips === "true")
     {
-        GM_addStyle('.tooltipHH:hover span.tooltipHHtext { border:1px solid #ffa23e; border-radius:5px; padding:5px; display:block; z-index: 100; position: absolute; width: 150px; color:black; text-align:center; background:white;  opacity:0.9; transform: translateY(-100%)'+importantAddendum+'}');
+        enableToolTipsDisplay(important);
     }
     else
     {
-        GM_addStyle('.tooltipHH:hover span.tooltipHHtext { display: none'+importantAddendum+'}');
-
+        disableToolTipsDisplay(important);
     }
+}
+
+function enableToolTipsDisplay(important=false)
+{
+    const importantAddendum = important?'; !important':'';
+    GM_addStyle('.tooltipHH:hover span.tooltipHHtext { border:1px solid #ffa23e; border-radius:5px; padding:5px; display:block; z-index: 100; position: absolute; width: 150px; color:black; text-align:center; background:white;  opacity:0.9; transform: translateY(-100%)'+importantAddendum+'}');
+}
+
+function disableToolTipsDisplay(important=false)
+{
+    const importantAddendum = important?'; !important':'';
+    GM_addStyle('.tooltipHH:hover span.tooltipHHtext { display: none'+importantAddendum+'}');
 }
 
 function checkClubStatus()
@@ -10205,11 +10220,7 @@ HHStoredVars.HHAuto_Setting_showTooltips =
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false,
-    newValueFunction:function()
-    {
-        manageToolTipsDisplay(true);
-    }
+    kobanUsing:false
 };
 HHStoredVars.HHAuto_Setting_spendKobans0 =
     {
@@ -11344,6 +11355,19 @@ var start = function () {
 
     addKobanUsingEvent();
 
+    document.getElementById("showTooltips").addEventListener("change",function()
+                                                             {
+        console.log(this.checked);
+        if (this.checked)
+        {
+            enableToolTipsDisplay(true);
+        }
+        else
+        {
+            disableToolTipsDisplay(true);
+        }
+    });
+
     var div = document.createElement('div');
     div.innerHTML = '<div id="pInfo" ></div>'.trim(); //height: auto;
 
@@ -11446,6 +11470,7 @@ var start = function () {
     };
 
     setMenuValues();
+    getMenuValues();
     manageToolTipsDisplay();
 
     document.getElementById("git").addEventListener("click", function(){ window.open("https://github.com/Roukys/HHauto/wiki"); });
