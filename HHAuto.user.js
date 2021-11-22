@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.17
+// @version      5.6.18
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://nutaku.haremheroes.com/*
@@ -3170,7 +3170,7 @@ function getLeagueOpponentId(opponentsIDList,force=false)
         {
             maxLeagueListDurationSecs = 1;
         }
-        let listExpirationDate =new Date().getTime() + maxLeagueListDurationSecs * 1000;
+        let listExpirationDate =isJSON(sessionStorage.HHAuto_Temp_LeagueTempOpponentList)?JSON.parse(sessionStorage.HHAuto_Temp_LeagueTempOpponentList).expirationDate:new Date().getTime() + maxLeagueListDurationSecs * 1000;
         if (opponentsIDList.length>0)
         {
             //logHHAuto('getting data for opponent : '+opponentsIDList[0]);
@@ -4356,8 +4356,19 @@ function getLeaguePlayersData(inHeroLeaguesData, inPlayerLeaguesData)
         total_ego: playerEgo,
         team: playerTeam
     } = inHeroLeaguesData
-    const playerElements = playerTeam.theme_elements.map(({type}) => type);
-    const playerSynergies = playerTeam.synergies
+    if (playerTeam.theme_elements != undefined && playerTeam.synergies != undefined)
+    {
+        const playerElements = playerTeam.theme_elements.map(({type}) => type);
+        const playerSynergies = playerTeam.synergies
+        }
+    else
+    {
+        const playerTeam_new = $('#leagues_left').find('.team-hexagon-container .team-member img').map((i, el) => $(el).data('new-girl-tooltip')).toArray();
+        const playerTeamMemberElements = playerTeam_new.map(({element_data: {type: element}})=>element);
+        playerElements = calculateThemeFromElements(playerTeamMemberElements);
+        const playerSynergyDataJSON = $('#leagues_left').find('.hexa .icon-area').attr('synergy-data');
+        playerSynergies = JSON.parse(playerSynergyDataJSON);
+    }
     const playerBonuses = {
         critDamage: playerSynergies.find(({element: {type}})=>type==='fire').bonus_multiplier,
         critChance: playerSynergies.find(({element: {type}})=>type==='stone').bonus_multiplier,
@@ -8212,7 +8223,7 @@ function debugDeleteAllVars()
 
 function manageToolTipsDisplay(important=false)
 {
-    
+
     if(Storage().HHAuto_Setting_showTooltips === "true")
     {
         enableToolTipsDisplay(important);
