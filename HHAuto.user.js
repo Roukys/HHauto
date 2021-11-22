@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.18
+// @version      5.6.19
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://nutaku.haremheroes.com/*
@@ -4356,10 +4356,12 @@ function getLeaguePlayersData(inHeroLeaguesData, inPlayerLeaguesData)
         total_ego: playerEgo,
         team: playerTeam
     } = inHeroLeaguesData
+    let playerElements;
+    let playerSynergies
     if (playerTeam.theme_elements != undefined && playerTeam.synergies != undefined)
     {
-        const playerElements = playerTeam.theme_elements.map(({type}) => type);
-        const playerSynergies = playerTeam.synergies
+        playerElements = playerTeam.theme_elements.map(({type}) => type);
+        playerSynergies = playerTeam.synergies
         }
     else
     {
@@ -6720,7 +6722,37 @@ function moduleShopActions()
                 selectedGirlExp=selectedGirl.Xp.cur;
 
                 //console.log(currentItem, inExpToGive.partitions[currentItem],inExpToGive.partitions,selectedGirlExp,currentTotal);
+                //check awakening
+                const awakeningCostButtonSelector = '#awakening_popup'+getHHScriptVars("selectorFilterNotDisplayNone")+' > div.awakening-container > div:nth-child(3) > button';
+                const awakeningCostSelector = awakeningCostButtonSelector+' > div.action-cost';
 
+                if ($(awakeningCostSelector).length > 0)
+                {
+                    const awakeningCost = $(awakeningCostSelector)[0].innerText.split('/')[0];
+                    const awakeningCostBank = $(awakeningCostSelector)[0].innerText.split('/')[1];
+                    const awakeningCostGemSRC = $('img',$(awakeningCostButtonSelector)).attr("src");
+                    const awakeningCostGemText = awakeningCostGemSRC.match(/\/([^/.]+)\.png/)[1];
+                    if (awakeningCost === 0)
+                    {
+                        $(awakeningCostButtonSelector).click();
+                        setTimeout(giveExp_func, randomInterval(400,800));
+                        logHHAuto(`Auto free awakening for ${selectedGirl.name}`);
+                        return;
+                    }
+                    else
+                    {
+                        clearInterval(giveExp_func);
+                        logHHAuto(`${selectedGirl.name} needs awakening, cost : ${$(awakeningCostSelector)[0].innerText} ${awakeningCostGemText} gems`);
+                        let menuText =getTextForUI("menuExpAwakeningNeeded","elementText")+$(awakeningCostSelector)[0].innerText+"<img style='width: 23px;margin-left: 5px;' src='"+awakeningCostGemSRC+"'> : "+selectedGirl.name+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
+                        canGiveExp =false;
+                        document.getElementById("menuExpText").innerHTML = menuText;
+                        document.getElementById("menuExpHide").style.display = "none";
+                        document.getElementById("menuExp-moveLeft").style.visibility = "visible";
+                        document.getElementById("menuExp-moveRight").style.visibility = "visible";
+                        giveExpAutoNext();
+                        return;
+                    }
+                }
                 //check if previous click has worked
                 if (selectedGirlExp === currentTotal)
                 {
@@ -6757,6 +6789,7 @@ function moduleShopActions()
                             currentItem = i;
                         }
                     }
+
 
                     if (currentItem === -1)
                     {
@@ -8917,6 +8950,7 @@ HHEnvVariables["global"].shopGirlCountRequest = '#girls_list .g1 .number.selecte
 HHEnvVariables["global"].shopGirlCurrentRequest = '#girls_list .g1 .number.selected span[contenteditable]';
 HHEnvVariables["global"].shopGirlCounterRequest = '#girls_list .g1 .number.selected';
 HHEnvVariables["global"].contestMaxDays = 21;
+HHEnvVariables["global"].selectorFilterNotDisplayNone = ':not([style*="display:none"]):not([style*="display: none"])';
 HHEnvVariables["global"].HaremMaxSizeExpirationSecs = 7*24*60*60;//7 days
 HHEnvVariables["global"].HaremMinSizeExpirationSecs = 24*60*60;//1 days
 HHEnvVariables["global"].LeagueListExpirationSecs = 60*60;//1 hour max
@@ -9168,6 +9202,7 @@ HHAuto_ToolTips.en.menuExpNoExp = { elementText: "No Exp available to be given t
 HHAuto_ToolTips.en.menuExpError = { elementText: "Error fetching girl Exp field, cancelling.", tooltip : ""};
 HHAuto_ToolTips.en.menuExpEnd = { elementText: "All Exp given to :", tooltip : ""};
 HHAuto_ToolTips.en.menuExpLevel =  { elementText: "Enter target Exp level :", tooltip : "Target Exp level for girl"};
+HHAuto_ToolTips.en.menuExpAwakeningNeeded =  { elementText: "Girl need awakening ", tooltip : ""};
 HHAuto_ToolTips.en.PoAMaskRewards = { elementText: "PoA mask claimed", tooltip : "Masked claimed rewards for Path of Attraction."};
 HHAuto_ToolTips.en.showTooltips = { elementText: "Show tooltips", tooltip : "Show tooltip on menu."};
 HHAuto_ToolTips.en.showMarketTools = { elementText: "Show market tools", tooltip : "Show Market tools."};
