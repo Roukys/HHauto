@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.20
+// @version      5.6.21
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -3798,7 +3798,7 @@ var getFreeGreatPachinko = function(){
             {
                 $('#playzone-replace-info button[free=1]')[0].click();
             }
-            var npach;
+            var npach = -1;
             for(let e in unsafeWindow.HHTimers.timers)
             {
                 if(unsafeWindow.HHTimers.timers[e].$elm && unsafeWindow.HHTimers.timers[e].$elm.selector.startsWith(".pachinko_change"))
@@ -3806,7 +3806,7 @@ var getFreeGreatPachinko = function(){
                     npach=unsafeWindow.HHTimers.timers[e].remainingTime;
                 }
             }
-            if(npach !== undefined || npach !== 0)
+            if(npach !== -1)
             {
                 setTimer('nextPachinkoTime',Number(npach)+1);
             }
@@ -3872,12 +3872,12 @@ var getFreeMythicPachinko = function(){
             //   logHHAuto('click');
             //    butt.click();
             //}
-            var npach;
+            var npach = -1;
             for(var e in unsafeWindow.HHTimers.timers){
                 if(unsafeWindow.HHTimers.timers[e].$elm && unsafeWindow.HHTimers.timers[e].$elm.selector.startsWith('.game-simple-block[type-pachinko="mythic"]'))
                     npach=unsafeWindow.HHTimers.timers[e].remainingTime;
             }
-            if(npach !== undefined || npach !== 0)
+            if(npach !== -1)
             {
                 setTimer('nextPachinko2Time',Number(npach)+1);
             }
