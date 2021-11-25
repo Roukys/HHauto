@@ -1,15 +1,17 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.19
+// @version      5.6.20
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
-// @match        http*://nutaku.haremheroes.com/*
+// @match        http*://*.haremheroes.com/*
 // @match        http*://*.hentaiheroes.com/*
 // @match        http*://*.gayharem.com/*
 // @match        http*://*.comixharem.com/*
 // @match        http*://*.hornyheroes.com/*
 // @grant        GM_addStyle
+// @grant        GM_registerMenuCommand
+// @grant        GM_unregisterMenuCommand
 // @license      MIT
 // @updateURL    https://github.com/Roukys/HHauto/raw/main/HHAuto.user.js
 // @downloadURL  https://github.com/Roukys/HHauto/raw/main/HHAuto.user.js
@@ -884,13 +886,19 @@ function modulePathOfAttractionHide()
 
 function modulePachinko()
 {
-    if (document.getElementById("PachinkoButton") !== null)
+    const menuID = "PachinkoButton";
+    let PachinkoButton = '<div style="position: absolute;left: 52%;top: 100px;width:60px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoButton","tooltip")+'</span><label style="font-size:small" class="myButton" id="PachinkoButton">'+getTextForUI("PachinkoButton","elementText")+'</label></div>'
+
+    if (document.getElementById(menuID) === null)
+    {
+        $("#contains_all section").prepend(PachinkoButton);
+        document.getElementById("PachinkoButton").addEventListener("click", buildPachinkoSelectPopUp);
+        GM_registerMenuCommand(getTextForUI(menuID,"elementText"), buildPachinkoSelectPopUp);
+    }
+    else
     {
         return;
     }
-    let PachinkoButton = '<div style="position: absolute;left: 52%;top: 100px;width:60px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoButton","tooltip")+'</span><label style="font-size:small" class="myButton" id="PachinkoButton">'+getTextForUI("PachinkoButton","elementText")+'</label></div>'
-
-    $("#contains_all section").prepend(PachinkoButton);
 
     function buildPachinkoSelectPopUp()
     {
@@ -1057,10 +1065,7 @@ function modulePachinko()
         }
         setTimeout(playXPachinko_func,randomInterval(500,1500));
     }
-    document.getElementById("PachinkoButton").addEventListener("click", function()
-                                                               {
-        buildPachinkoSelectPopUp()
-    });
+
 }
 
 function moduleSimSeasonReward()
@@ -1274,13 +1279,19 @@ function moduleChangeTeam()
 
 function moduleExportGirlsData()
 {
-    if (document.getElementById("ExportGirlsData") !== null)
+    const menuID = "ExportGirlsData";
+    let ExportGirlsData = '<div style="position: absolute;left: 36%;top: 20px;width:60px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ExportGirlsData","tooltip")+'</span><label style="font-size:small" class="myButton" id="ExportGirlsData">'+getTextForUI("ExportGirlsData","elementText")+'</label></div>'
+    if (document.getElementById(menuID) === null)
+    {
+        $("#contains_all section").prepend(ExportGirlsData);
+        document.getElementById("ExportGirlsData").addEventListener("click", saveHHGirlsAsCSV);
+        GM_registerMenuCommand(getTextForUI(menuID,"elementText"), saveHHGirlsAsCSV);
+    }
+    else
     {
         return;
     }
-    let ExportGirlsData = '<div style="position: absolute;left: 36%;top: 20px;width:60px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ExportGirlsData","tooltip")+'</span><label style="font-size:small" class="myButton" id="ExportGirlsData">'+getTextForUI("ExportGirlsData","elementText")+'</label></div>'
 
-    $("#contains_all section").prepend(ExportGirlsData);
 
     function saveHHGirlsAsCSV() {
         var dataToSave="";
@@ -1351,7 +1362,7 @@ function moduleExportGirlsData()
         return newStr;
     }
 
-    document.getElementById("ExportGirlsData").addEventListener("click", saveHHGirlsAsCSV);
+
 }
 
 function collectAndUpdatePowerPlaces()
@@ -3251,8 +3262,6 @@ function getLeagueOpponentId(opponentsIDList,force=false)
         logHHAuto("highest score opponent : "+IdOppo+'('+nRounding(100*maxScore, 2, -1)+'%)');
         return IdOppo;
     }
-
-
     return true;
 };
 
@@ -3803,7 +3812,8 @@ var getFreeGreatPachinko = function(){
             }
             else
             {
-                clearTimer('nextPachinkoTime');
+                logHHAuto("Unable to find Great Pachinko time, wait 1h.");
+                setTimer('nextPachinkoTime',3600);
             }
         }
         return true;
@@ -3873,7 +3883,8 @@ var getFreeMythicPachinko = function(){
             }
             else
             {
-                clearTimer('nextPachinko2Time');
+                logHHAuto("Unable to find Great Pachinko time, wait 1h.");
+                setTimer('nextPachinko2Time',3600);
             }
         }
         return false;
@@ -4362,7 +4373,7 @@ function getLeaguePlayersData(inHeroLeaguesData, inPlayerLeaguesData)
     {
         playerElements = playerTeam.theme_elements.map(({type}) => type);
         playerSynergies = playerTeam.synergies
-        }
+    }
     else
     {
         const playerTeam_new = $('#leagues_left').find('.team-hexagon-container .team-member img').map((i, el) => $(el).data('new-girl-tooltip')).toArray();
@@ -5705,7 +5716,6 @@ var autoLoop = function () {
         moduleDisplayContestsDeletion();
     }
 
-
     if(isNaN(Storage().HHAuto_Temp_autoLoopTimeMili))
     {
         logHHAuto("AutoLoopTimeMili is not a number.");
@@ -5866,6 +5876,20 @@ function moduleShopActions()
     appendMenuRemoveMaxed();
     //appendSimFight();
 
+
+    function getShopType()
+    {
+        const shopSelected = $('section #shops #shops_left #type_item .selected');
+        if (shopSelected.length > 0)
+        {
+            return shopSelected.attr("type");
+        }
+        else
+        {
+            return null;
+        }
+    }
+
     function appendSimFight()
     {
         if ($("#simResult").length === 0 ) {
@@ -5957,10 +5981,40 @@ function moduleShopActions()
 
     function appendMenuRemoveMaxed()
     {
-        var menuRemoveMaxed = '<div style="position: absolute;right:0px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuRemoveMaxed","tooltip")+'</span><label style="width:80px;text-align: center;" class="myButton" id="menuRemoveMaxed">'+getTextForUI("menuRemoveMaxed","elementText")+'</label></div>'
-        if ($("#menuRemoveMaxed").length === 0 )
+        const menuID = "menuRemoveMaxed"
+
+        var menuRemoveMaxed = '<div style="position: absolute;right:0px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI(menuID,"tooltip")+'</span><label style="width:80px;text-align: center;" class="myButton" id='+menuID+'>'+getTextForUI(menuID,"elementText")+'</label></div>'
+
+        if (getShopType() !== "potion" && getShopType() !== "gift")
         {
-            $('section #shops #shops_right #girls_list').append(menuRemoveMaxed);
+
+            if (document.getElementById(menuID) !== null)
+            {
+                try
+                {
+                    const GMMenuID = GM_registerMenuCommand(getTextForUI(menuID,"elementText"), removeMaxedGirls);
+                    document.getElementById(menuID).remove();
+                    GM_unregisterMenuCommand(GMMenuID);
+                }
+                catch(e)
+                {
+                    logHHAuto("Catched error : Couldn't remove "+menuID+" menu : "+e);
+                }
+            }
+            return;
+        }
+        else
+        {
+
+            if (document.getElementById(menuID) === null)
+            {
+                $('section #shops #shops_right #girls_list').append(menuRemoveMaxed);
+                GM_registerMenuCommand(getTextForUI(menuID,"elementText"), removeMaxedGirls);
+            }
+            else
+            {
+                return;
+            }
         }
 
         function removeMaxedGirls()
@@ -6000,8 +6054,9 @@ function moduleShopActions()
             $(getHHScriptVars("shopGirlCurrentRequest"))[0].innerText=1;
         }
 
-        document.getElementById("menuRemoveMaxed").addEventListener("click", removeMaxedGirls);
+        document.getElementById(menuID).addEventListener("click", removeMaxedGirls);
     }
+
     function findSubsetsPartition(inTotal, inSets)
     {
         let arr = [];
@@ -6088,7 +6143,9 @@ function moduleShopActions()
 
     function appendMenuAff()
     {
-        var menuAff = '<div style="position: absolute;right: 50px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAff","tooltip")+'</span><label style="width:100px" class="myButton" id="menuAff">'+getTextForUI("menuAff","elementText")+'</label></div>'
+
+        const menuID = "AffDialog";
+        const menuAff = '<div style="position: absolute;right: 50px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAff","tooltip")+'</span><label style="width:100px" class="myButton" id="menuAff">'+getTextForUI("menuAff","elementText")+'</label></div>'
         + '<dialog style="min-width: 50%;margin-top: 7%;margin-left: 1%;" id="AffDialog"><form stylemethod="dialog">'
         +  '<div style="justify-content: space-between;align-items: flex-start;"class="HHMenuRow">'
         +   '<div id="menuAff-moveLeft"></div>'
@@ -6114,7 +6171,39 @@ function moduleShopActions()
         let giftArray = {};
         let AffToGive;
         let canGiveAff = false;
-        if ($("#menuAff").length === 0 )
+        if ( getShopType() !== "gift")
+        {
+
+            if (document.getElementById(menuID) !== null)
+            {
+                try
+                {
+                    const GMMenuID = GM_registerMenuCommand(getTextForUI("menuAff","elementText"), function(){});
+                    document.getElementById("menuAff").remove();
+                    document.getElementById(menuID).remove();
+                    GM_unregisterMenuCommand(GMMenuID);
+                }
+                catch(e)
+                {
+                    logHHAuto("Catched error : Couldn't remove "+menuID+" menu : "+e);
+                }
+            }
+            return;
+        }
+        else
+        {
+            if (document.getElementById(menuID) === null)
+            {
+                initAffMenu();
+                GM_registerMenuCommand(getTextForUI("menuAff","elementText"), displayPopUpAff);
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        function initAffMenu()
         {
 
             $('#inventory > div.gift > label').append(menuAff);
@@ -6132,36 +6221,10 @@ function moduleShopActions()
             GM_addStyle('div#menuAff-moveRight {'
                         + 'border-left-color: blue;}');
 
-
-            var KeyUpAff = function(evt)
-            {
-                if (evt.key === 'Enter')
-                {
-                    launchGiveAff();
-                }
-                else if (evt.keyCode == '37')
-                {
-                    // left arrow
-                    moveLeftAff();
-                }
-                else if (evt.keyCode == '39')
-                {
-                    // right arrow
-                    moveRightAff();
-                }
-            }
-
-
-
             document.getElementById("menuAff-moveLeft").addEventListener("click", moveLeftAff);
             document.getElementById("menuAff-moveRight").addEventListener("click", moveRightAff);
-            document.getElementById("menuAff").addEventListener("click", function()
-                                                                {
-                calculateAffSelectedGirl();
-                document.removeEventListener('keyup', KeyUpAff, false);
-                document.addEventListener('keyup', KeyUpAff, false);
-                giveAffAutoNext();
-            });
+
+            document.getElementById("menuAff").addEventListener("click", displayPopUpAff);
             document.getElementById("autoGiveAff").addEventListener('change', function()
                                                                     {
                 if (this.checked)
@@ -6183,8 +6246,30 @@ function moduleShopActions()
                     alert("The <dialog> API is not supported by this browser");
                 }
             });
-
-
+        }
+        function KeyUpAff(evt)
+        {
+            if (evt.key === 'Enter')
+            {
+                launchGiveAff();
+            }
+            else if (evt.keyCode == '37')
+            {
+                // left arrow
+                moveLeftAff();
+            }
+            else if (evt.keyCode == '39')
+            {
+                // right arrow
+                moveRightAff();
+            }
+        }
+        function displayPopUpAff()
+        {
+            calculateAffSelectedGirl();
+            document.removeEventListener('keyup', KeyUpAff, false);
+            document.addEventListener('keyup', KeyUpAff, false);
+            giveAffAutoNext();
         }
         function moveLeftAff()
         {
@@ -6460,7 +6545,8 @@ function moduleShopActions()
 
     function appendMenuExp()
     {
-        var menuExp = '<div style="position: absolute;right: 50px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExp","tooltip")+'</span><label style="width:100px" class="myButton" id="menuExp">'+getTextForUI("menuExp","elementText")+'</label></div>'
+        const menuID = "ExpDialog";
+        const menuExp = '<div style="position: absolute;right: 50px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExp","tooltip")+'</span><label style="width:100px" class="myButton" id="menuExp">'+getTextForUI("menuExp","elementText")+'</label></div>'
         + '<dialog style="width: 50%;margin-top: 7%;margin-left: 1%;" id="ExpDialog"><form stylemethod="dialog">'
         +  '<div style="justify-content: space-between;align-items: flex-start;"class="HHMenuRow">'
         +   '<div id="menuExp-moveLeft"></div>'
@@ -6489,7 +6575,38 @@ function moduleShopActions()
         let potionArray = {};
         let ExpToGive;
         let canGiveExp = false;
-        if ($("#menuExp").length === 0 )
+        if ( getShopType() !== "potion")
+        {
+
+            if (document.getElementById(menuID) !== null)
+            {
+                try
+                {
+                    const GMMenuID = GM_registerMenuCommand(getTextForUI("menuExp","elementText"), function(){});
+                    document.getElementById("menuExp").remove();
+                    document.getElementById(menuID).remove();
+                    GM_unregisterMenuCommand(GMMenuID);
+                }
+                catch(e)
+                {
+                    logHHAuto("Catched error : Couldn't remove "+menuID+" menu : "+e);
+                }
+            }
+            return;
+        }
+        else
+        {
+            if (document.getElementById(menuID) === null)
+            {
+                initExpMenu();
+                GM_registerMenuCommand(getTextForUI("menuExp","elementText"), displayExpMenu);
+            }
+            else
+            {
+                return;
+            }
+        }
+        function initExpMenu()
         {
             $('#inventory > div.potion > label').append(menuExp);
             GM_addStyle('#menuExp-moveRight, #menuExp-moveLeft {'
@@ -6505,24 +6622,6 @@ function moduleShopActions()
 
             GM_addStyle('div#menuExp-moveRight {'
                         + 'border-left-color: blue;}');
-
-            var KeyUpExp = function(evt)
-            {
-                if (evt.key === 'Enter')
-                {
-                    launchGiveExp();
-                }
-                else if (evt.keyCode == '37')
-                {
-                    // left arrow
-                    moveLeftExp();
-                }
-                else if (evt.keyCode == '39')
-                {
-                    // right arrow
-                    moveRightExp();
-                }
-            }
 
 
             document.getElementById("menuExp-moveLeft").addEventListener("click", function()
@@ -6540,21 +6639,7 @@ function moduleShopActions()
                     giveExpAutoNext();
                 }
             });
-            document.getElementById("menuExp").addEventListener("click", function()
-                                                                {
-                if (typeof ExpDialog.showModal === "function")
-                {
-                    prepareExp();
-                    document.removeEventListener('keyup', KeyUpExp, false);
-                    document.addEventListener('keyup', KeyUpExp, false);
-                    ExpDialog.showModal();
-                    giveExpAutoNext();
-                }
-                else
-                {
-                    alert("The <dialog> API is not supported by this browser");
-                }
-            });
+            document.getElementById("menuExp").addEventListener("click", displayExpMenu);
             document.getElementById("menuExpLevel").addEventListener("change", function()
                                                                      {
                 prepareExp();
@@ -6577,8 +6662,39 @@ function moduleShopActions()
                     alert("The <dialog> API is not supported by this browser");
                 }
             });
+        }
+        function KeyUpExp(evt)
+        {
+            if (evt.key === 'Enter')
+            {
+                launchGiveExp();
+            }
+            else if (evt.keyCode == '37')
+            {
+                // left arrow
+                moveLeftExp();
+            }
+            else if (evt.keyCode == '39')
+            {
+                // right arrow
+                moveRightExp();
+            }
+        }
 
-
+        function displayExpMenu()
+        {
+            if (typeof ExpDialog.showModal === "function")
+            {
+                prepareExp();
+                document.removeEventListener('keyup', KeyUpExp, false);
+                document.addEventListener('keyup', KeyUpExp, false);
+                ExpDialog.showModal();
+                giveExpAutoNext();
+            }
+            else
+            {
+                alert("The <dialog> API is not supported by this browser");
+            }
         }
         function giveExpAutoNext()
         {
@@ -6728,10 +6844,8 @@ function moduleShopActions()
 
                 if ($(awakeningCostSelector).length > 0)
                 {
-                    const awakeningCost = $(awakeningCostSelector)[0].innerText.split('/')[0];
-                    const awakeningCostBank = $(awakeningCostSelector)[0].innerText.split('/')[1];
-                    const awakeningCostGemSRC = $('img',$(awakeningCostButtonSelector)).attr("src");
-                    const awakeningCostGemText = awakeningCostGemSRC.match(/\/([^/.]+)\.png/)[1];
+
+                    const awakeningCost = $(awakeningCostSelector)[0].innerText.length>0?$(awakeningCostSelector)[0].innerText.split('/')[0]:0;
                     if (awakeningCost === 0)
                     {
                         $(awakeningCostButtonSelector).click();
@@ -6741,6 +6855,9 @@ function moduleShopActions()
                     }
                     else
                     {
+                        const awakeningCostBank = $(awakeningCostSelector)[0].innerText.split('/')[1];
+                        const awakeningCostGemSRC = $('img',$(awakeningCostButtonSelector)).attr("src");
+                        const awakeningCostGemText = awakeningCostGemSRC.match(/\/([^/.]+)\.png/)[1];
                         clearInterval(giveExp_func);
                         logHHAuto(`${selectedGirl.name} needs awakening, cost : ${$(awakeningCostSelector)[0].innerText} ${awakeningCostGemText} gems`);
                         let menuText =getTextForUI("menuExpAwakeningNeeded","elementText")+$(awakeningCostSelector)[0].innerText+"<img style='width: 23px;margin-left: 5px;' src='"+awakeningCostGemSRC+"'> : "+selectedGirl.name+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
@@ -6851,10 +6968,6 @@ function moduleShopActions()
 
 
     }
-
-
-
-
 
     function menuSellListItems()
     {
@@ -7117,8 +7230,13 @@ function moduleShopActions()
     }
 
     let menuSellStop = false;
+    var menuSellMaxItems = "all";
     function appendMenuSell()
     {
+        let menuID = "SellDialog"
+
+        var menuSellLock = '<div style="position: absolute;left: 70px;top: -10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellLock","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSellLock">'+getTextForUI("menuSellLock","elementText")+'</label></div>'
+        var menuSellMaskLocked = '<div style="position: absolute;left: -5px;top: -10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellMaskLocked","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSellMaskLocked">'+getTextForUI("menuSellMaskLocked","elementText")+'</label></div>'
         var menuSell = '<div style="position: absolute;right: 50px;top: -10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSell","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSell">'+getTextForUI("menuSell","elementText")+'</label></div>'
         + '<dialog style="overflow-y:auto;max-width:95%;max-height:95%;"id="SellDialog"><form stylemethod="dialog">'
         +  '<div style="padding:10px; display:flex;flex-direction:column;">'
@@ -7145,27 +7263,53 @@ function moduleShopActions()
         +   '</div>'
         +  '</div>'
         + '<menu> <label style="width:80px" class="myButton" id="menuSellCancel">'+getTextForUI("OptionCancel","elementText")+'</label></menu></form></dialog>'
+        if (getShopType() !== "armor")
+        {
 
-        var menuSellLock = '<div style="position: absolute;left: 70px;top: -10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellLock","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSellLock">'+getTextForUI("menuSellLock","elementText")+'</label></div>'
-        var menuSellMaskLocked = '<div style="position: absolute;left: -5px;top: -10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellMaskLocked","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSellMaskLocked">'+getTextForUI("menuSellMaskLocked","elementText")+'</label></div>'
+            if (document.getElementById(menuID) !== null)
+            {
+                try
+                {
+                    for (let menu of ["menuSell", "menuSellLock", "menuSellMaskLocked"])
+                    {
+                        const GMMenuID = GM_registerMenuCommand(getTextForUI(menu,"elementText"), function(){});
+                        document.getElementById(menu).remove();
+                        GM_unregisterMenuCommand(GMMenuID);
+                    }
+                    document.getElementById(menuID).remove();
+                }
+                catch(e)
+                {
+                    logHHAuto("Catched error : Couldn't remove "+menuID+" menu : "+e);
+                }
+            }
+            return;
+        }
+        else
+        {
 
-        if ($("#menuSell").length === 0 )
+            if (document.getElementById(menuID) === null)
+            {
+                initMenuSell();
+                initMenuSellLock();
+                initMenuSellMaskLocked();
+                GM_registerMenuCommand(getTextForUI("menuSell","elementText"), displayMenuSell);
+                GM_registerMenuCommand(getTextForUI("menuSellLock","elementText"), launchMenuSellLock);
+                GM_registerMenuCommand(getTextForUI("menuSellMaskLocked","elementText"), launchMenuSellMaskLocked);
+            }
+            else
+            {
+                document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
+                return;
+            }
+        }
+
+        function initMenuSell()
         {
             $('#inventory > div.armor > label').append(menuSell);
 
-            document.getElementById("menuSell").addEventListener("click", function(){
 
-                if (typeof SellDialog.showModal === "function")
-                {
-
-                    SellDialog.showModal();
-                    fetchAllArmorItems();
-                }
-                else
-                {
-                    alert("The <dialog> API is not supported by this browser");
-                }
-            });
+            document.getElementById("menuSell").addEventListener("click", displayMenuSell);
             document.getElementById("menuSellCancel").addEventListener("click", function(){
 
                 if (typeof SellDialog.showModal === "function")
@@ -7193,52 +7337,69 @@ function moduleShopActions()
                 }
             });
         }
-        else if ($('#inventory > div.armor.selected > label').length > 0)
+        function displayMenuSell()
         {
-            document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
+            if (typeof SellDialog.showModal === "function")
+            {
+                menuSellMaxItems = Number(window.prompt("Max amount of inventory to load (all for no limit)",menuSellMaxItems));
+                if (menuSellMaxItems !== null)
+                {
+                    menuSellMaxItems = menuSellMaxItems===NaN?Number.MAX_VALUE:menuSellMaxItems;
+                    SellDialog.showModal();
+                    fetchAllArmorItems();
+                }
+            }
+            else
+            {
+                alert("The <dialog> API is not supported by this browser");
+            }
         }
 
-        if ($("#menuSellMaskLocked").length === 0 )
+        function initMenuSellMaskLocked()
         {
             $('#inventory > div.armor > label').append(menuSellMaskLocked);
-
-            document.getElementById("menuSellMaskLocked").addEventListener("click", function(){
-                let filterText = "#inventory .selected .inventory_slots .slot[menuSellLocked]";
-                if ($(filterText).length >0)
-                {
-                    $(filterText).each(function()
-                                       {
-                        if(this.style.display === "none")
-                        {
-                            this.style.display="block";
-                        }
-                        else
-                        {
-                            this.style.display="none";
-                        }
-                    });
-                }
-            });
+            document.getElementById("menuSellMaskLocked").addEventListener("click", launchMenuSellLock);
         }
-        if ($("#menuSellLock").length === 0 )
+        function launchMenuSellMaskLocked()
+        {
+            let filterText = "#inventory .selected .inventory_slots .slot[menuSellLocked]";
+            if ($(filterText).length >0)
+            {
+                $(filterText).each(function()
+                                   {
+                    if(this.style.display === "none")
+                    {
+                        this.style.display="block";
+                    }
+                    else
+                    {
+                        this.style.display="none";
+                    }
+                });
+            }
+        }
+
+        function initMenuSellLock()
         {
             $('#inventory > div.armor > label').append(menuSellLock);
 
-            document.getElementById("menuSellLock").addEventListener("click", function(){
-                let filterText = "#inventory .selected .inventory_slots .slot.selected";
-                if ($(filterText).length >0)
-                {
-                    let toLock=$(filterText)[0].getAttribute("menuSellLocked") === null;
-                    AllLockUnlock(filterText,toLock);
-                }
-            });
+            document.getElementById("menuSellLock").addEventListener("click", launchMenuSellLock);
+        }
+        function launchMenuSellLock()
+        {
+            let filterText = "#inventory .selected .inventory_slots .slot.selected";
+            if ($(filterText).length >0)
+            {
+                let toLock=$(filterText)[0].getAttribute("menuSellLocked") === null;
+                AllLockUnlock(filterText,toLock);
+            }
         }
     }
 
     function fetchAllArmorItems()
     {
         //console.log(slots.armor_pack_load);
-        if (slots.armor_pack_load < 0)
+        if (slots.armor_pack_load < 0 || $('#inventory .selected .inventory_slots .slot:not(.empty)').length >= menuSellMaxItems)
         {
             document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
             document.getElementById("menuSellHide").style.display = "block";
@@ -8740,6 +8901,7 @@ var setDefaults = function (force = false)
                 if (isInvalid)
                 {
                     logHHAuto("HHStoredVar "+i+" is invalid, reseting.");
+                    logHHAuto("HHStoredVar "+i+" current value : "+storageItem[i]);
                 }
             }
             if (HHStoredVars[i].default !== undefined )
@@ -10815,7 +10977,7 @@ var start = function () {
     checkClubStatus();
     replaceCheatClick();
     migrateHHVars();
-    setDefaults();
+
     $('.redirect.gay').hide();
     $('.redirect.comix').hide();
 
@@ -10826,6 +10988,8 @@ var start = function () {
     {
         Timers=JSON.parse(sessionStorage.HHAuto_Temp_Timers);
     }
+    clearEventData("onlyCheckEventsHHScript");
+    setDefaults();
 
     // Add UI buttons.
     let sMenu ='<div id="sMenu" style="top: 45px;right: 52px;padding: 4px;display: none;opacity: 1;border-radius: 4px;border: 1px solid #ffa23e;background-color: #1e261e;font-size:x-small; position:absolute; text-align:left; flex-direction:column; justify-content:space-between; z-index:10000">'
