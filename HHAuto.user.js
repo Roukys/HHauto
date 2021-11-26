@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.21
+// @version      5.6.22
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -1761,6 +1761,41 @@ function randomInterval(min,max) // min and max included
     return Math.floor(Math.random()*(max-min+1)+min);
 }
 
+function sortDateAcquired(a, b) {
+    if (a.own && b.own) {
+        var dateA = new Date(a.date_added).getTime();
+        var dateB = new Date(b.date_added).getTime();
+        return dateA - dateB
+    } else if (a.own && !b.own)
+        return -1;
+    else if (!a.own && b.own)
+        return 1;
+    else
+        return b.shards - a.shards
+}
+function sortByName(a, b) {
+    var nameA = a.name.toUpperCase();
+    var nameB = b.name.toUpperCase();
+    if (a.own == b.own) {
+        if (nameA < nameB)
+            return -1;
+        if (nameA > nameB)
+            return 1;
+        return 0
+    } else if (a.own && !b.own)
+        return -1;
+    else if (!a.own && b.own)
+        return 1
+}
+function sortByGrade(a, b) {
+    if (a.own && b.own)
+        return b.graded - a.graded;
+    else if (a.own && !b.own)
+        return -1;
+    else if (!a.own && b.own)
+        return 1
+}
+
 var CollectMoney = function()
 {
     var Clicked=[];
@@ -1842,6 +1877,7 @@ var CollectMoney = function()
     function CollectData(inStart = false)
     {
         let allCollected = true;
+        let collectableGirlsList = [];
         /*var btns=$("#harem_whole #harem_left .salary:not('.loads') button");
         //logHHAuto('buttons: '+btns.size())
         btns.each(function (index, element) {
@@ -1866,16 +1902,30 @@ var CollectMoney = function()
         {
             if (girlsList[girlListId].readyForCollect)
             {
-                Clicked.push(girlsList[girlListId].gId);
+                collectableGirlsList.push({id:girlsList[girlListId].gId,name:girlsList[girlListId].gData.name,graded:girlsList[girlListId].gData.graded,date_added:all_possible_girls[girlListId].date_added});
             }
         }
-        totalGirlsToCollect = Clicked.length;
+        totalGirlsToCollect = collectableGirlsList.length;
 
-        logHHAuto({log:"Girls ready to collect: ", GirlsToCollect:Clicked});
 
-        if (Clicked.length>0 )
+
+        if (collectableGirlsList.length>0 )
         {
+            const storedSort = localStorage.sort_by;
+            //console.log(JSON.stringify(collectableGirlsList));
+            if (storedSort == "name")
+                collectableGirlsList.sort(sortByName);
+            else if (storedSort == "grade")
+                collectableGirlsList.sort(sortByGrade);
+            else
+                collectableGirlsList.sort(sortDateAcquired);
             allCollected = false;
+            //console.log(JSON.stringify(collectableGirlsList));
+            for ( let girl of collectableGirlsList)
+            {
+                Clicked.push(girl.id);
+            }
+            logHHAuto({log:"Girls ready to collect: ", GirlsToCollect:Clicked});
         }
         if (Clicked.length>0 && inStart)
         {
@@ -2065,6 +2115,8 @@ var doStatUpgrades=function()
                 hh_ajax(params, function(data) {
                     Hero.update("soft_currency", 0 - price, true);
                 });
+                setTimeout(doStatUpgrades, randomInterval(300,500));
+                return;
                 break;
             }
         }
@@ -2072,11 +2124,11 @@ var doStatUpgrades=function()
     }
 }
 
-var doShopping=function()
+function doShopping()
 {
     try
     {
-
+        logHHAuto("Go shopping");
         var Hero=getHero();
         var MS='carac'+getHHVars('Hero.infos.class');
         var SS1='carac'+(getHHVars('Hero.infos.class')%3+1);
@@ -2160,6 +2212,10 @@ var doShopping=function()
                             Hero.updates(data.changes, false);
                         });
                         shop[0].splice(n0,1);
+                        sessionStorage.HHAuto_Temp_storeContents=JSON.stringify(shop);
+                        setTimeout(doShopping, randomInterval(300,500));
+                        return;
+
                     }
                     /*else
                     {
@@ -2200,6 +2256,9 @@ var doShopping=function()
                                 Hero.updates(data.changes, false);
                             });
                             shop[1].splice(n1,1);
+                            sessionStorage.HHAuto_Temp_storeContents=JSON.stringify(shop);
+                            setTimeout(doShopping, randomInterval(300,500));
+                            return;
                         }
                         /*else
                         {
@@ -2237,6 +2296,9 @@ var doShopping=function()
                         Hero.updates(data.changes, false);
                     });
                     shop[2].splice(n2,1);
+                    sessionStorage.HHAuto_Temp_storeContents=JSON.stringify(shop);
+                    setTimeout(doShopping, randomInterval(300,500));
+                    return;
                 }
                 /*else
                 {
@@ -2248,7 +2310,6 @@ var doShopping=function()
                 sessionStorage.HHAuto_Temp_charLevel=0;
             }
         }
-
         if (Storage().HHAuto_Setting_autoExpW==="true" && HaveExp<MaxExp)
         {
             //logHHAuto('books');
@@ -2271,6 +2332,9 @@ var doShopping=function()
                         Hero.updates(data.changes, false);
                     });
                     shop[3].splice(n3,1);
+                    sessionStorage.HHAuto_Temp_storeContents=JSON.stringify(shop);
+                    setTimeout(doShopping, randomInterval(300,500));
+                    return;
                 }
                 /*else
                 {
@@ -11567,7 +11631,7 @@ var start = function () {
 
     document.getElementById("showTooltips").addEventListener("change",function()
                                                              {
-        console.log(this.checked);
+        //console.log(this.checked);
         if (this.checked)
         {
             enableToolTipsDisplay(true);
