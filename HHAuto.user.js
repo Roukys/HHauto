@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.23
+// @version      5.6.24
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -12,6 +12,7 @@
 // @grant        GM_addStyle
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
+// @grant        GM.openInTab
 // @license      MIT
 // @updateURL    https://github.com/Roukys/HHauto/raw/main/HHAuto.user.js
 // @downloadURL  https://github.com/Roukys/HHauto/raw/main/HHAuto.user.js
@@ -104,12 +105,36 @@ function getCallerCallerFunction()
 {
     return getCallerCallerFunction.caller.caller.name
 }
+function getDSTOffset()
+{
+    function stdTimezoneOffset()
+    {
+        var jan = new Date(0, 1);
+        var jul = new Date(6, 1);
+        return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+    }
 
+    var today = new Date();
+
+    function isDstObserved(today)
+    {
+        return today.getTimezoneOffset() < stdTimezoneOffset();
+    }
+
+    if (isDstObserved(today))
+    {
+        return -60;
+    }
+    else
+    {
+        return 0;
+    }
+}
 function getServerTS()
 {
     let sec_num = parseInt(getHHVars('server_now_ts'), 10);
     const DST = new Date().getTimezoneOffset();
-    sec_num -=DST*60;
+    sec_num -= getDSTOffset() * 60;
     let days = Math.floor(sec_num / 86400);
     let hours = Math.floor(sec_num / 3600) % 24;
     let minutes = Math.floor(sec_num / 60) % 60;
@@ -413,7 +438,10 @@ function gotoPage(page,inArgs,delay = -1)
         case "clubs" :
             togoto = getHHScriptVars("gotoPageClub");
             break;
-        case (page.match(/\/champions\/[123456]/) || {}).input:
+        case (page.match(/^\/champions\/[123456]$/) || {}).input:
+            togoto = page;
+            break;
+        case (page.match(/^\/harem\/\d+$/) || {}).input:
             togoto = page;
             break;
         default:
@@ -1276,15 +1304,131 @@ function moduleChangeTeam()
     document.getElementById("ChangeTeamButton2").addEventListener("click", function(){setTopTeam(2)});
 }
 
+function getGirlMapSorted()
+{
+    let girlsMap = getHHVars('GirlSalaryManager.girlsMap');
+    if (girlsMap !== null)
+    {
 
-function moduleExportGirlsData()
+        girlsMap = Object.values(girlsMap);
+        if (girlsMap.length > 0)
+        {
+            const storedSort = localStorage.sort_by;
+            if (storedSort == "name")
+                girlsMap.sort(sortByName);
+            else if (storedSort == "grade")
+                girlsMap.sort(sortByGrade);
+            else
+                girlsMap.sort(sortGirlMapDateAcquired);
+        }
+    }
+    return girlsMap;
+}
+
+function moduleHaremNextUpgradableGirl()
+{
+    const menuID = "haremNextUpgradableGirl";
+    let menuHidden = `<div style="visibility:hidden" id="${menuID}"></div>`;
+    if (document.getElementById(menuID) === null)
+    {
+        $("#contains_all section").prepend(menuHidden);
+        GM_registerMenuCommand(getTextForUI(menuID,"elementText"), selectNextUpgradableGirl);
+    }
+    else
+    {
+        return;
+    }
+
+    function selectNextUpgradableGirl()
+    {
+        const girlsMap = getGirlMapSorted();
+        if (girlsMap === null )
+            return;
+        const currentSelectedGirlIndex = girlsMap.findIndex((element) => element.gId === $('#harem_left .girls_list div.opened[girl]').attr('girl'))+1;
+        const upgradableGirls = girlsMap.slice(currentSelectedGirlIndex).filter(filterGirlMapCanUpgrade)
+        if (upgradableGirls.length > 0)
+        {
+            gotoPage(`/harem/${upgradableGirls[0].gId}`);
+            logHHAuto("Going to : "+upgradableGirls[0].gData.name);
+        }
+        else
+        {
+            logHHAuto("No upgradble girls.");
+        }
+    }
+}
+
+function haremOpenFirstXUpgradable()
+{
+    const menuID = "haremOpenFirstXUpgradable";
+    let menuHidden = `<div style="visibility:hidden" id="${menuID}"></div>`;
+    if (document.getElementById(menuID) === null)
+    {
+        var upgradableGirlz = [];
+        var nextUpgradable = 0;
+        var openedGirlz = 0;
+        var maxOpenedGirlz;
+        $("#contains_all section").prepend(menuHidden);
+        GM_registerMenuCommand(getTextForUI(menuID,"elementText"), prepareUpgradable);
+    }
+    else
+    {
+        return;
+    }
+    function prepareUpgradable()
+    {
+        let girlsMap = getGirlMapSorted();
+        if (girlsMap === null )
+            return;
+        openedGirlz = 0;
+        maxOpenedGirlz = Number(window.prompt("How many ?","10"));
+        upgradableGirlz = girlsMap.filter(filterGirlMapCanUpgrade);
+        if (upgradableGirlz.length > 0)
+        {
+            haremOpenGirlUpgrade();
+        }
+    }
+    function haremOpenGirlUpgrade(first = true)
+    {
+        if (nextUpgradable<upgradableGirlz.length && openedGirlz < maxOpenedGirlz)
+        {
+            let upgradeURL = upgradableGirlz[nextUpgradable].gData.quests.for_upgrade.url;
+            //console.log(upgradeButton.length);
+            if (upgradeURL.length === 0 )
+            {
+                if (first)
+                {
+                    setTimeout(function() { haremOpenGirlUpgrade(false);},1000);
+                }
+                else
+                {
+                    nextUpgradable++;
+                    haremOpenGirlUpgrade();
+                }
+            }
+            else
+            {
+                //console.log(upgradeButton[0].getAttribute("href"));
+                //upgradeButton[0].setAttribute("target","_blank");
+                //console.log(upgradeButton[0]);
+                //upgradeButton[0].click();
+                GM.openInTab(window.location.protocol+"//"+window.location.hostname+upgradeURL, true);
+                nextUpgradable++;
+                openedGirlz++;
+                haremOpenGirlUpgrade();
+            }
+        }
+    }
+}
+
+function moduleHaremExportGirlsData()
 {
     const menuID = "ExportGirlsData";
-    let ExportGirlsData = '<div style="position: absolute;left: 36%;top: 20px;width:60px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ExportGirlsData","tooltip")+'</span><label style="font-size:small" class="myButton" id="ExportGirlsData">'+getTextForUI("ExportGirlsData","elementText")+'</label></div>'
+    let ExportGirlsData = `<div style="position: absolute;left: 36%;top: 20px;width:60px;z-index:10" class="tooltipHH" id="${menuID}"><span class="tooltipHHtext">${getTextForUI("ExportGirlsData","tooltip")}</span><label style="font-size:small" class="myButton" id="ExportGirlsDataButton">${getTextForUI("ExportGirlsData","elementText")}</label></div>`;
     if (document.getElementById(menuID) === null)
     {
         $("#contains_all section").prepend(ExportGirlsData);
-        document.getElementById("ExportGirlsData").addEventListener("click", saveHHGirlsAsCSV);
+        document.getElementById("ExportGirlsDataButton").addEventListener("click", saveHHGirlsAsCSV);
         GM_registerMenuCommand(getTextForUI(menuID,"elementText"), saveHHGirlsAsCSV);
     }
     else
@@ -1361,8 +1505,6 @@ function moduleExportGirlsData()
         }
         return newStr;
     }
-
-
 }
 
 function collectAndUpdatePowerPlaces()
@@ -1761,38 +1903,51 @@ function randomInterval(min,max) // min and max included
     return Math.floor(Math.random()*(max-min+1)+min);
 }
 
-function sortDateAcquired(a, b) {
-    if (a.own && b.own) {
-        var dateA = new Date(a.date_added).getTime();
-        var dateB = new Date(b.date_added).getTime();
-        return dateA - dateB
-    } else if (a.own && !b.own)
+function filterGirlMapReadyForCollect(a)
+{
+    return a.readyForCollect;
+}
+
+function filterGirlMapCanUpgrade(a)
+{
+    return a.gData.can_upgrade;
+}
+
+function sortGirlMapDateAcquired(a, b) {
+    if (getHHVars("all_possible_girls") === null)
         return -1;
-    else if (!a.own && b.own)
+    if (a.gData.own && b.gData.own) {
+        var dateA = new Date(getHHVars("all_possible_girls")[a.gId].date_added).getTime();
+        var dateB = new Date(getHHVars("all_possible_girls")[b.gId].date_added).getTime();
+        return dateA - dateB
+    } else if (a.gData.own && !b.gData.own)
+        return -1;
+    else if (!a.gData.own && b.gData.own)
         return 1;
     else
         return b.shards - a.shards
 }
+
 function sortByName(a, b) {
-    var nameA = a.name.toUpperCase();
-    var nameB = b.name.toUpperCase();
-    if (a.own == b.own) {
+    var nameA = a.gData.name.toUpperCase();
+    var nameB = b.gData.name.toUpperCase();
+    if (a.gData.own == b.gData.own) {
         if (nameA < nameB)
             return -1;
         if (nameA > nameB)
             return 1;
         return 0
-    } else if (a.own && !b.own)
+    } else if (a.gData.own && !b.gData.own)
         return -1;
-    else if (!a.own && b.own)
+    else if (!a.gData.own && b.gData.own)
         return 1
 }
 function sortByGrade(a, b) {
-    if (a.own && b.own)
-        return b.graded - a.graded;
-    else if (a.own && !b.own)
+    if (a.gData.own && b.gData.own)
+        return b.gData.graded - a.gData.graded;
+    else if (a.gData.own && !b.gData.own)
         return -1;
-    else if (!a.own && b.own)
+    else if (!a.gData.own && b.gData.own)
         return 1
 }
 
@@ -1892,38 +2047,22 @@ var CollectMoney = function()
             }
         });
         */
-        const girlsList = getHHVars('GirlSalaryManager.girlsMap');
+        const girlsList = getGirlMapSorted();
         if ( girlsList === null)
         {
             gotoPage("home");
         }
+        collectableGirlsList = girlsList.filter(filterGirlMapReadyForCollect);
 
-        for (let girlListId of Object.keys(girlsList))
-        {
-            if (girlsList[girlListId].readyForCollect)
-            {
-                collectableGirlsList.push({id:girlsList[girlListId].gId,name:girlsList[girlListId].gData.name,graded:girlsList[girlListId].gData.graded,date_added:all_possible_girls[girlListId].date_added});
-            }
-        }
         totalGirlsToCollect = collectableGirlsList.length;
-
-
 
         if (collectableGirlsList.length>0 )
         {
-            const storedSort = localStorage.sort_by;
-            //console.log(JSON.stringify(collectableGirlsList));
-            if (storedSort == "name")
-                collectableGirlsList.sort(sortByName);
-            else if (storedSort == "grade")
-                collectableGirlsList.sort(sortByGrade);
-            else
-                collectableGirlsList.sort(sortDateAcquired);
             allCollected = false;
             //console.log(JSON.stringify(collectableGirlsList));
             for ( let girl of collectableGirlsList)
             {
-                Clicked.push(girl.id);
+                Clicked.push(girl.gId);
             }
             logHHAuto({log:"Girls ready to collect: ", GirlsToCollect:Clicked});
         }
@@ -1941,129 +2080,142 @@ var CollectMoney = function()
         }
         else//nothing to collect
         {
-            var closestTime = undefined;
-            let st=Number(Storage().HHAuto_Setting_autoSalaryMinTimer);
-            var closestGirl = 0;
-            let salaryTimer =-1;
-            var gMap = getHHVars('GirlSalaryManager.girlsMap');
-            if(gMap === null)
+            let salaryTimer =predictNextSalaryMinTime();
+            if (salaryTimer > 0)
             {
-                // error
-                logHHAuto("Girls Map was undefined...! Error, manually setting salary time to 2 min.");
-                closestTime = st;
+                salaryTimer = predictNextSalaryMinTime();
+                logHHAuto("Setting salary timer to "+salaryTimer+" secs.");
             }
             else
             {
-                try{
-                    // Calc. closest time
-                    for(var key in gMap)
-                    {
-                        // undefined comparision is always false so first iteration is false, hence the not(!)
-                        if(!(closestTime<gMap[key].gData.pay_in) && !Clicked.includes(key) && gMap[key].gData.pay_in!=0)
-                        {
-                            closestTime = gMap[key].gData.pay_in;
-                            closestGirl = key;
-                        }
-                    }
-                }
-                catch(exp){
-                    // error
-                    logHHAuto("Catched error : Girls Map had undefined property...! Error, manually setting salary time to 2 min : "+exp);
-                    salaryTimer = st;
-                }
-            }
-            if(salaryTimer === -1 && closestTime === undefined)
-            {
-                logHHAuto("closestTime was undefined...! Error, manually setting salary time to 2 min.");
-                salaryTimer = st;
-            }
-
-            if (salaryTimer === -1)
-            {
-                if (allCollected)
-                {
-                    //set minimum to user min wait time
-                    if(closestTime <= st )
-                    {
-                        logHHAuto("Setting salary timer to player min wait of "+st+" secs.");
-                        salaryTimer = st;
-                    }
-                    else
-                    {
-                        logHHAuto("Next salary set to closest time : "+closestTime+" ("+closestGirl+")");
-                        salaryTimer = Number(closestTime)+1;
-                    }
-                }
-                else
-                {
-                    logHHAuto("Next salary set to 60 secs as remains girls to collect");
-                    salaryTimer = 60;
-                }
+                logHHAuto("Next salary set to 60 secs as remains girls to collect");
+                salaryTimer = 60;
             }
             setTimer('nextSalaryTime',salaryTimer);
-            gotoPage('home');
+            gotoPage("home",{},randomInterval(300,500));
         }
     }
 
     CollectData(true);
 }
 
+function predictNextSalaryMinTime(inGirlsDataList)
+{
+    let girlsDataList = getHHVars("GirlSalaryManager.girlsMap");
+    const isGirlMap = getHHVars("GirlSalaryManager.girlsMap")!==null;
+    if (!isGirlMap)
+    {
+        girlsDataList = ggetHHVars("girlsDataList");
+    }
+    let nextCollect = 0;
+    const minSalaryForCollect = Number(Storage().HHAuto_Setting_autoSalaryMinSalary);
+    let currentCollectSalary = 0;
+    if (girlsDataList !== null && minSalaryForCollect !== NaN)
+    {
+        let girlsSalary = Object.values(girlsDataList).sort(sortByPayIn);
+        for (let i of girlsSalary)
+        {
+            let girl = i;
+            if (isGirlMap)
+            {
+                girl = i.gData;
+            }
+            currentCollectSalary += girl.salary;
+            nextCollect = girl.pay_in;
+            if (currentCollectSalary > minSalaryForCollect)
+            {
+                break;
+            }
+        }
+    }
+    return nextCollect;
+
+    function sortByPayIn(a, b)
+    {
+        let aPay = a.pay_in?a.pay_in:a.gData.pay_in;
+        let bPay = b.pay_in?b.pay_in:b.gData.pay_in;
+        return aPay - bPay;
+    }
+}
+
 var getSalary = function () {
     try {
-        if(getPage() == "harem")
+        if(getPage() == "harem" || getPage() == "home")
         {
-            logHHAuto("Detected Harem Screen. Fetching Salary");
-            //replaceCheatClick();
-            sessionStorage.HHAuto_Temp_autoLoop = "false";
-            logHHAuto("setting autoloop to false");
-            CollectMoney();
-            // return busy
-            return true;
-        }
-        else if (getPage() == "home")
-        {
-            var salaryButton = $("#collect_all_container button[id='collect_all']")
-            var salaryToCollect = salaryButton.attr("style")==="display: inline-block;"?true:false;
-            var getButtonClass = salaryButton.attr("class");
-            if (salaryToCollect)
+            const salaryButton = $("#collect_all_container button[id='collect_all']")
+            const salaryToCollect = salaryButton.attr("style")==="display: inline-block;"?true:false;
+            const getButtonClass = salaryButton.attr("class");
+            let salarySumTag = NaN;
+            if (getPage() == "harem")
+            {
+                salarySumTag = Number($('[rel="next_salary"]',salaryButton)[0].innerText.replace(/[^0-9]/gi, ''));
+            }
+            else if (getPage() == "home")
+            {
+                salarySumTag = Number($('.sum',salaryButton).attr("amount"));
+            }
+
+            const enoughSalaryToCollect = salarySumTag === NaN?true:salarySumTag > Number(Storage().HHAuto_Setting_autoSalaryMinSalary);
+            //console.log(salarySumTag, enoughSalaryToCollect);
+            if (salaryToCollect && enoughSalaryToCollect )
             {
                 if (getButtonClass.indexOf("blue_button_L") !== -1 )
                 {
                     //replaceCheatClick();
                     salaryButton.click();
                     logHHAuto('Collected all Premium salary');
-                    setTimer('nextSalaryTime',Number(Storage().HHAuto_Setting_autoSalaryMinTimer)+1);
-                    return true;
+                    if (getPage() == "harem" )
+                    {
+                        setTimer('nextSalaryTime',predictNextSalaryMinTime());
+                        return false;
+                    }
+                    else
+                    {
+                        gotoPage("home");
+                        return true;
+                    }
+
                 }
                 else if ( getButtonClass.indexOf("orange_button_L") !== -1 )
                 {
                     // Not at Harem screen then goto the Harem screen.
-                    logHHAuto("Navigating to Harem window.");
-                    gotoPage("harem");
-                    // return busy
+                    if (getPage() == "harem" )
+                    {
+                        logHHAuto("Detected Harem Screen. Fetching Salary");
+                        //replaceCheatClick();
+                        sessionStorage.HHAuto_Temp_autoLoop = "false";
+                        logHHAuto("setting autoloop to false");
+                        CollectMoney();
+                    }
+                    else
+                    {
+                        logHHAuto("Navigating to Harem window.");
+                        gotoPage("harem");
+                    }
                     return true;
-
                 }
                 else
                 {
                     logHHAuto("Unknown salary button color : "+getButtonClass);
-                    setTimer('nextSalaryTime',Number(Storage().HHAuto_Setting_autoSalaryMinTimer)+1);
+                    setTimer('nextSalaryTime',60);
                 }
             }
             else
             {
-                logHHAuto("No salary to collect");
-                setTimer('nextSalaryTime',Number(Storage().HHAuto_Setting_autoSalaryMinTimer)+1);
+                logHHAuto("Not enough salary to collect");
+                setTimer('nextSalaryTime',predictNextSalaryMinTime());
             }
         }
         else
         {
             // Not at Harem screen then goto the Harem screen.
-            logHHAuto("Navigating to Home window.");
-            gotoPage("home");
-            return true;
+            if (checkTimer('nextSalaryTime'))
+            {
+                logHHAuto("Navigating to Home window.");
+                gotoPage("home");
+                return true;
+            }
         }
-
     }
     catch (ex) {
         logHHAuto("Catched error : Could not collect salary... " + ex);
@@ -4321,7 +4473,6 @@ var flipParanoia=function()
         toNextSwitch=randomInterval(Number(b[0]),Number(b[1]));
     }
     var ND=new Date().getTime() + toNextSwitch * 1000;
-    var offs=new Date().getTimezoneOffset();
     var message=period+(burst?" rest":" burst");
     logHHAuto("PARANOIA: "+message);
     sessionStorage.HHAuto_Temp_pinfo=message;
@@ -4855,7 +5006,7 @@ function moduleHarem()
         let emptyStarArray = $("div.girls_list div[girl]:not(.not_owned) g." + classHide);
         if (emptyStarArray.length == 0) {
             $('#emptyStarPanel-description')[0].innerHTML = '0';
-            rerurn
+            return;
         }
         emptyStar = Number(emptyStar) + Number(offer);
         if (emptyStar < 0) {
@@ -4887,7 +5038,7 @@ function moduleHarem()
     }
     */
 
-    haremEmptyStar("green");
+    //haremEmptyStar("green");
 }
 
 
@@ -5713,7 +5864,7 @@ var autoLoop = function () {
         {
             sessionStorage.HHAuto_Temp_userLink = page;
         }
-        else if(sessionStorage.HHAuto_Temp_userLink !=="none" && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        else if(sessionStorage.HHAuto_Temp_userLink !=="none" && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true" && getPage() !== "home")
         {
             logHHAuto("Back to home page at the end of actions");
             //window.location = sessionStorage.HHAuto_Temp_userLink;
@@ -5739,7 +5890,7 @@ var autoLoop = function () {
     }
     if (getPage() === "season" && Storage().HHAuto_Setting_SeasonMaskRewards === "true")
     {
-        moduleSimSeasonReward();
+        setTimeout(moduleSimSeasonReward,500);
     }
     if (getPage() === "event" && ( Storage().HHAuto_Setting_plusEvent==="true" || Storage().HHAuto_Setting_plusEventMythic==="true"))
     {
@@ -5764,8 +5915,10 @@ var autoLoop = function () {
     if (getPage() === "harem")
     {
         moduleHarem();
-        moduleExportGirlsData();
+        moduleHaremExportGirlsData();
         moduleHaremCountMax();
+        moduleHaremNextUpgradableGirl();
+        haremOpenFirstXUpgradable();
     }
     if (getPage() === "pachinko")
     {
@@ -7422,7 +7575,7 @@ function moduleShopActions()
         function initMenuSellMaskLocked()
         {
             $('#inventory > div.armor > label').append(menuSellMaskLocked);
-            document.getElementById("menuSellMaskLocked").addEventListener("click", launchMenuSellLock);
+            document.getElementById("menuSellMaskLocked").addEventListener("click", launchMenuSellMaskLocked);
         }
         function launchMenuSellMaskLocked()
         {
@@ -8660,13 +8813,14 @@ function getMenuValues()
                 switch (HHStoredVars[i].valueType)
                 {
                     case "Long Integer":
-                        menuValue = remove1000sSeparator(menuValue);
+                        menuValue = String(remove1000sSeparator(menuValue));
                         break;
                 }
                 //console.log(menuID,HHStoredVars[i].menuType,itemValue);
                 storageItem[i] = menuValue;
                 if (currentValue !== menuValue && HHStoredVars[i].newValueFunction !== undefined)
                 {
+                    //console.log(currentValue,menuValue);
                     HHStoredVars[i].newValueFunction.apply();
                 }
             }
@@ -8802,7 +8956,7 @@ function getMenuValues()
     localStorage.HHAuto_Setting_settPerTab = document.getElementById("settPerTab").checked;
 
     Storage().HHAuto_Setting_master=document.getElementById("master").checked;
-*/
+    */
     setDefaults();
 }
 
@@ -9319,7 +9473,8 @@ HHAuto_ToolTips.en.showCalculatePower = { elementText: "Show PowerCalc", tooltip
 //HHAuto_ToolTips.en.calculatePowerLimits = { elementText: "Own limits", tooltip : "(red;orange)<br>Define your own red and orange limits for Opponents<br> -6000;0 do mean<br> <-6000 is red, between -6000 and 0 is orange and >=0 is green"};
 HHAuto_ToolTips.en.showInfo = { elementText: "Show info", tooltip : "if enabled : show info on script values and next runs"};
 HHAuto_ToolTips.en.autoSalary = { elementText: "Salary", tooltip : "(Integer)<br>if enabled :<br>Collect salaries every X secs"};
-HHAuto_ToolTips.en.autoSalaryMinTimer = { elementText: "Minimum wait", tooltip : "(Integer)<br>X secs to next Salary collection"};
+//HHAuto_ToolTips.en.autoSalaryMinTimer = { elementText: "Minimum wait", tooltip : "(Integer)<br>X secs to next Salary collection"};
+HHAuto_ToolTips.en.autoSalaryMinSalary = { elementText: "Min. salary", tooltip : "(Integer)<br>Minium salary to start collection"};
 HHAuto_ToolTips.en.autoSalaryMaxTimer = { elementText: "Max. collect time", tooltip : "(Integer)<br>X secs to collect Salary, before stopping."};
 HHAuto_ToolTips.en.autoMission = { elementText: "Mission", tooltip : "if enabled : Automatically do missions"};
 HHAuto_ToolTips.en.autoMissionCollect = { elementText: "Collect", tooltip : "if enabled : Automatically collect missions after start of new competition."};
@@ -9473,6 +9628,8 @@ HHAuto_ToolTips.en.simResultMarketScore = { elementText: "Score : ", tooltip : "
 HHAuto_ToolTips.en.none = { elementText: "None", tooltip : ""};
 HHAuto_ToolTips.en.name = { elementText: "Name", tooltip : ""};
 HHAuto_ToolTips.en.sortPowerCalc = { elementText: "Sort by score", tooltip : "Sorting opponents by score."};
+HHAuto_ToolTips.en.haremNextUpgradableGirl = { elementText: "Go to next upgradable Girl.", tooltip : ""};
+HHAuto_ToolTips.en.haremOpenFirstXUpgradable = { elementText: "Open X upgradable girl quest.", tooltip : ""};
 
 HHAuto_ToolTips.fr = {};
 HHAuto_ToolTips.fr.saveDebug = { elementText: "Sauver log", tooltip : "Sauvegarder un fichier journal de débogage."};
@@ -9494,7 +9651,7 @@ HHAuto_ToolTips.fr.showCalculatePower = { elementText: "PowerCalc", tooltip : "S
 //HHAuto_ToolTips.fr.calculatePowerLimits = { elementText: "Limites perso", tooltip : "(rouge;orange)<br>Définissez vos propres limites de rouge et d'orange pour les opposants<br> -6000;0 veux dire<br> <-6000 est rouge, entre -6000 et 0 est orange et >=0 est vert"};
 HHAuto_ToolTips.fr.showInfo = { elementText: "Infos", tooltip : "Si activé : affiche une fenêtre d'informations sur le script."};
 HHAuto_ToolTips.fr.autoSalary = { elementText: "Salaire", tooltip : "Si activé :<br>Collecte les salaires toutes les X secondes."};
-HHAuto_ToolTips.fr.autoSalaryMinTimer = { elementText: "Attente min.", tooltip : "(Nombre entier)<br>Secondes d'attente minimum entre deux collectes."};
+//HHAuto_ToolTips.fr.autoSalaryMinTimer = { elementText: "Attente min.", tooltip : "(Nombre entier)<br>Secondes d'attente minimum entre deux collectes."};
 HHAuto_ToolTips.fr.autoMission = { elementText: "Missions", tooltip : "Si activé : lance automatiquement les missions."};
 HHAuto_ToolTips.fr.autoMissionCollect = { elementText: "Collecter", tooltip : "Si activé : collecte automatiquement les récompenses des missions."};
 HHAuto_ToolTips.fr.autoTrollBattle = { elementText: "Activer", tooltip : "Si activé : combat automatiquement le troll."};
@@ -9591,7 +9748,7 @@ HHAuto_ToolTips.de.showCalculatePower = { elementText: "Zeige Kraftrechner", too
 //HHAuto_ToolTips.de.calculatePowerLimits = { elementText: "Eigene Grenzen (rot;gelb)", tooltip : "(rot;gelb)<br>Definiere deine eigenen Grenzen für rote und orange Gegner<br> -6000;0 meint<br> <-6000 ist rot, zwischen -6000 und 0 ist orange und >=0 ist grün"};
 HHAuto_ToolTips.de.showInfo = { elementText: "Zeige Info", tooltip : "Wenn aktiv : zeige Information auf Skriptwerten und nächsten Durchläufen"};
 HHAuto_ToolTips.de.autoSalary = { elementText: "Auto Einkommen", tooltip : "Wenn aktiv :<br>Sammelt das gesamte Einkommen alle X Sek."};
-HHAuto_ToolTips.de.autoSalaryMinTimer = { elementText: "min Warten", tooltip : "(Ganze pos. Zahl)<br>X Sek bis zum Sammeln des Einkommens"};
+//HHAuto_ToolTips.de.autoSalaryMinTimer = { elementText: "min Warten", tooltip : "(Ganze pos. Zahl)<br>X Sek bis zum Sammeln des Einkommens"};
 HHAuto_ToolTips.de.autoMission = { elementText: "AutoMission", tooltip : "Wenn aktiv : Macht automatisch Missionen"};
 HHAuto_ToolTips.de.autoMissionCollect = { elementText: "Einsammeln", tooltip : "Wenn aktiv : Sammelt automatisch Missionsgewinne"};
 HHAuto_ToolTips.de.autoTrollBattle = { elementText: "AutoTrollKampf", tooltip : "Wenn aktiv : Macht automatisch aktivierte Trollkämpfe"};
@@ -9660,7 +9817,7 @@ HHAuto_ToolTips.es.showCalculatePower = { elementText: "Mostar PowerCalc", toolt
 //HHAuto_ToolTips.es.calculatePowerLimits = { elementText: "Límites propios (rojo;naranja)", tooltip : "(rojo;naranja)<br>Define tus propios límites rojos y naranjas para los oponentes<br> -6000;0 significa<br> <-6000 is rojo, entre -6000 and 0 is naranja and >=0 is verde"};
 HHAuto_ToolTips.es.showInfo = { elementText: "Muestra info", tooltip : "Si habilitado: muestra información de los valores del script y siguientes ejecuciones"};
 HHAuto_ToolTips.es.autoSalary = { elementText: "AutoSal.", tooltip : "(Entero)<br>Si habilitado:<br>Recauda salario cada X segundos"};
-HHAuto_ToolTips.es.autoSalaryMinTimer = { elementText: "min espera", tooltip : "(Entero)<br>X segundos para recaudar salario"};
+//HHAuto_ToolTips.es.autoSalaryMinTimer = { elementText: "min espera", tooltip : "(Entero)<br>X segundos para recaudar salario"};
 HHAuto_ToolTips.es.autoMission = { elementText: "AutoMision", tooltip : "Si habilitado: Juega misiones de manera automática"};
 HHAuto_ToolTips.es.autoMissionCollect = { elementText: "Recaudar", tooltip : "Si habilitado: Recauda misiones de manera automática"};
 HHAuto_ToolTips.es.autoTrollBattle = { elementText: "AutoVillano", tooltip : "Si habilitado: Combate villano seleccionado de manera automática"};
@@ -10111,7 +10268,11 @@ HHStoredVars.HHAuto_Setting_autoSalary =
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        clearTimer('nextSalaryTime');
+    }
 };
 HHStoredVars.HHAuto_Setting_autoSalaryMaxTimer =
     {
@@ -10124,7 +10285,7 @@ HHStoredVars.HHAuto_Setting_autoSalaryMaxTimer =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoSalaryMinTimer =
+/*HHStoredVars.HHAuto_Setting_autoSalaryMinTimer =
     {
     default:"120",
     storage:"Storage()",
@@ -10134,6 +10295,21 @@ HHStoredVars.HHAuto_Setting_autoSalaryMinTimer =
     setMenu:true,
     menuType:"value",
     kobanUsing:false
+};*/
+HHStoredVars.HHAuto_Setting_autoSalaryMinSalary =
+    {
+    default:"20000",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        clearTimer('nextSalaryTime');
+    }
 };
 HHStoredVars.HHAuto_Setting_autoSeason =
     {
@@ -11219,7 +11395,7 @@ var start = function () {
     +       '</div>'
     +      '</div>'
     +     '</div>' // end img and label
-    +     '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoSalaryMinTimer","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoSalaryMinTimer","tooltip")+'</span><input id="autoSalaryMinTimer" style="text-align:right; width:45px" required pattern="'+HHAuto_inputPattern.nWith1000sSeparator+'" type="text"></div></div>'
+    +     '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoSalaryMinSalary","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoSalaryMinSalary","tooltip")+'</span><input id="autoSalaryMinSalary" style="text-align:right; width:45px" required pattern="'+HHAuto_inputPattern.nWith1000sSeparator+'" type="text"></div></div>'
     +     '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoSalaryMaxTimer","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoSalaryMaxTimer","tooltip")+'</span><input id="autoSalaryMaxTimer" style="text-align:right; width:45px" required pattern="'+HHAuto_inputPattern.nWith1000sSeparator+'" type="text"></div></div>'
     +    '</div>'
     +   '</div>'
@@ -11714,7 +11890,7 @@ var start = function () {
             pInfo.style.left = "";
         });
         pInfo.addEventListener("mouseout", setpInfoFolded);
-*/
+        */
         //Storage().HHAuto_Setting_infoBoxIsHidden = "true";
         //console.log("Hiding InfoBox");
     }
@@ -11886,7 +12062,7 @@ var start = function () {
     {
         setTimeout(function(){CollectEventData();},5000);
     }
-*/
+    */
 
     if (hh_nutaku)
     {
@@ -12108,7 +12284,7 @@ commented      const logging = loadSetting("logSimFight");
 commented all  if (logging)
 replaced       STOCHASTIC_SIM_RUNS
             by getHHScriptVars("STOCHASTIC_SIM_RUNS")
-*/
+            */
 function calculateBattleProbabilities (player, opponent) {
     //const logging = loadSetting("logSimFight");
     const ret = {
@@ -12211,7 +12387,7 @@ function calculateThemeFromElements(elements) {
             theme.push(element)
         }
     })
-    return theme
+    return theme;
 }
 
 function countElementsInTeam(elements) {
@@ -12231,7 +12407,7 @@ function countElementsInTeam(elements) {
 commented        const girlDictionary
 replaced         const girlCount = girlDictionary.size || 800
               by const girlCount = isJSON(sessionStorage.HHAuto_Temp_HaremSize)?JSON.parse(sessionStorage.HHAuto_Temp_HaremSize).count:800;
-*/
+              */
 function calculateSynergiesFromTeamMemberElements(elements) {
     const counts = countElementsInTeam(elements)
 
@@ -12252,7 +12428,7 @@ function calculateSynergiesFromTeamMemberElements(elements) {
 /*
 replaced       ELEMENTS
             by getHHScriptVars("ELEMENTS")
-*/
+            */
 function calculateDominationBonuses(playerElements, opponentElements) {
     const bonuses = {
         player: {
