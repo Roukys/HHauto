@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.24
+// @version      5.6.25
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -2390,7 +2390,7 @@ function doShopping()
             {
                 for (var n1=shop[1].length-1;n1>=0;n1--)
                 {
-                    if (kobans>=Number(Storage().HHAuto_Setting_kobanBank)+Number(shop[1][n1].price) && shop[1][n1].currency == "hc" && shop[1][n1].identifier == boost  && shop[1][n1].rarity=='legendary')
+                    if (kobans>=Number(Storage().HHAuto_Setting_kobanBank)+Number(shop[1][n1].price) && shop[1][n1].currency == "hc" && shop[1][n1].identifier == boost && (shop[1][n1].rarity=='legendary' || shop[1][n1].rarity=='mythic'))
                     {
                         //logHHAuto({log:'wanna buy ',object:shop[1][n1]});
                         if (kobans>=Number(shop[1][n1].price))
@@ -3657,24 +3657,32 @@ var CrushThemFights=function()
             }
 
             //Crushing one by one
-            if(battleButton === undefined || battleButton.length === 0){
-                logHHAuto("Battle Button was undefined. Disabling all auto-battle.");
-                document.getElementById("autoTrollBattle").checked = false;
-                Storage().HHAuto_Setting_autoTrollBattle = "false"
 
-                //document.getElementById("autoArenaCheckbox").checked = false;
-                if (sessionStorage.HHAuto_Temp_questRequirement === "battle")
-                {
-                    document.getElementById("autoQuest").checked = false;
-                    Storage().HHAuto_Setting_autoQuest= "false";
-
-                    logHHAuto("Auto-quest disabled since it requires battle and auto-battle has errors.");
-                }
-                return;
-            }
 
             if (currentPower > 0)
             {
+                if ($('#pre-battle div.battle-buttons a.single-battle-button[disabled]').length>0)
+                {
+                    logHHAuto("Battle Button seems disabled, force reload of page.");
+                    gotoPage("home");
+                    return;
+                }
+                if(battleButton === undefined || battleButton.length === 0)
+                {
+                    logHHAuto("Battle Button was undefined. Disabling all auto-battle.");
+                    document.getElementById("autoTrollBattle").checked = false;
+                    Storage().HHAuto_Setting_autoTrollBattle = "false"
+
+                    //document.getElementById("autoArenaCheckbox").checked = false;
+                    if (sessionStorage.HHAuto_Temp_questRequirement === "battle")
+                    {
+                        document.getElementById("autoQuest").checked = false;
+                        Storage().HHAuto_Setting_autoQuest= "false";
+
+                        logHHAuto("Auto-quest disabled since it requires battle and auto-battle has errors.");
+                    }
+                    return;
+                }
                 logHHAuto("Crushing: "+Trollz[Number(TTF)]);
                 //console.log(battleButton);
                 //replaceCheatClick();
@@ -5469,7 +5477,7 @@ var autoLoop = function () {
 
         if(getHHScriptVars("isEnabledTrollBattle",false) && Storage().HHAuto_Setting_autoTrollBattle === "true" && getHHVars('Hero.infos.questing.id_world')>0 && sessionStorage.HHAuto_Temp_autoLoop === "true")
         {
-            if(busy === false && currentPower >= Number(sessionStorage.HHAuto_Temp_battlePowerRequired) && (currentPower > 0 || canBuyFight().canBuy))
+            if(busy === false && currentPower >= Number(sessionStorage.HHAuto_Temp_battlePowerRequired) && (currentPower > 0 || canBuyFight(false).canBuy))
             {
                 //logHHAuto("fight amount: "+currentPower+" troll threshold: "+Number(Storage().HHAuto_Setting_autoTrollThreshold)+" paranoia fight: "+Number(checkParanoiaSpendings('fight')));
                 if (Number(currentPower) > Number(Storage().HHAuto_Setting_autoTrollThreshold) //fight is above threshold
@@ -7063,7 +7071,7 @@ function moduleShopActions()
                 {
 
                     const awakeningCost = $(awakeningCostSelector)[0].innerText.length>0?$(awakeningCostSelector)[0].innerText.split('/')[0]:0;
-                    if (awakeningCost === 0)
+                    if (false)//awakeningCost === 0)
                     {
                         $(awakeningCostButtonSelector).click();
                         setTimeout(giveExp_func, randomInterval(400,800));
@@ -7331,6 +7339,12 @@ function moduleShopActions()
             itemsListMenu +='  </tr>';
         }
 
+
+
+        itemsListMenu +=' </tbody>'
+            +'</table>';
+        document.getElementById("menuSellList").innerHTML = itemsListMenu;
+
         function setSlotFilter(inCaracsValue,inTypeValue,inRarityValue,inLockedValue)
         {
             let filter='#inventory .selected .inventory_slots .slot:not(.empty)';
@@ -7376,9 +7390,6 @@ function moduleShopActions()
             return filter;
         }
 
-        itemsListMenu +=' <tbody>'
-            +'</table>';
-        document.getElementById("menuSellList").innerHTML = itemsListMenu;
         $('table.tItems [menuSellFilter] ').each(function()
                                                  {
             this.addEventListener("click", function()
@@ -8301,7 +8312,7 @@ function checkEvent(inEventID)
         }
         else
         {
-            if (eventList[inEventID]["next_refresh"]<new Date() || (eventType === "mythic" && checkTimer('eventMythicNextWave')))
+            if (eventList[inEventID]["next_refresh"]<new Date() || (eventType === "mythic" && checkTimerMustExist('eventMythicNextWave')))
             {
                 return true;
             }
@@ -8314,7 +8325,7 @@ function checkEvent(inEventID)
 }
 
 
-function canBuyFight()
+function canBuyFight(logging=true)
 {
     let type="fight";
     let hero=getHero();
@@ -8375,7 +8386,10 @@ function canBuyFight()
         else
         {
 
-            logHHAuto('Unable to recharge up to '+maxx50+' for '+pricex50+' kobans : current energy : '+currentFight+', remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+            if (logging)
+            {
+                logHHAuto('Unable to recharge up to '+maxx50+' for '+pricex50+' kobans : current energy : '+currentFight+', remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+            }
             if (getHHVars('Hero.infos.hard_currency')>=pricex20+Number(Storage().HHAuto_Setting_kobanBank)
                )//&& currentFight < 10)
             {
@@ -8386,7 +8400,10 @@ function canBuyFight()
             }
             else
             {
-                logHHAuto('Unable to recharge up to '+maxx20+' for '+pricex20+' kobans : current energy : '+currentFight+', kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+                if (logging)
+                {
+                    logHHAuto('Unable to recharge up to '+maxx20+' for '+pricex20+' kobans : current energy : '+currentFight+', kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+                }
                 return result;
             }
         }
@@ -8692,7 +8709,7 @@ function getUserHHStoredVarDefault(inVarName)
     if (isJSON(localStorage.HHAuto_Setting_saveDefaults))
     {
         let currentDefaults = JSON.parse(localStorage.HHAuto_Setting_saveDefaults);
-        if (currentDefaults[inVarName] !== undefined)
+        if (currentDefaults !== null && currentDefaults[inVarName] !== undefined)
         {
             return currentDefaults[inVarName];
         }
@@ -9226,12 +9243,19 @@ var setDefaults = function (force = false)
     Storage().HHAuto_Setting_PoAMaskRewards = "false";
     */
 };
+/*
+ 0: version strings are equal
+ 1: version a is greater than b
+-1: version b is greater than a
+*/
+function cmpVersions(a, b)
+{
+    return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }) ;
+}
 
-
-function getTextForUI(id,type)
+function getLanguageCode()
 {
     let HHAuto_Lang = 'en';
-
     if ($('html')[0].lang === 'en') {
         HHAuto_Lang = 'en';
     }
@@ -9247,16 +9271,31 @@ function getTextForUI(id,type)
     else if ($('html')[0].lang === 'it_IT') {
         HHAuto_Lang = 'it';
     }
+    return HHAuto_Lang;
+}
 
-    if (HHAuto_ToolTips[HHAuto_Lang] !== undefined && HHAuto_ToolTips[HHAuto_Lang][id] !== undefined && HHAuto_ToolTips[HHAuto_Lang][id][type] !== undefined)
+function getTextForUI(id,type)
+{
+    let HHAuto_Lang = getLanguageCode();
+    let defaultLanguageText = null;
+    let defaultLanguageVersion = "0";
+
+    //console.log(id);
+    if (HHAuto_ToolTips['en'] !== undefined && HHAuto_ToolTips['en'][id] !== undefined && HHAuto_ToolTips['en'][id][type] !== undefined)
+    {
+        defaultLanguageText = HHAuto_ToolTips['en'][id][type];
+        defaultLanguageVersion = HHAuto_ToolTips['en'][id].version;
+    }
+
+    if (HHAuto_ToolTips[HHAuto_Lang] !== undefined && HHAuto_ToolTips[HHAuto_Lang][id] !== undefined && HHAuto_ToolTips[HHAuto_Lang][id][type] !== undefined && cmpVersions(HHAuto_ToolTips[HHAuto_Lang][id].version , defaultLanguageVersion) >= 0)
     {
         return HHAuto_ToolTips[HHAuto_Lang][id][type];
     }
     else
     {
-        if (HHAuto_ToolTips['en'] !== undefined && HHAuto_ToolTips['en'][id] !== undefined && HHAuto_ToolTips['en'][id][type] !== undefined)
+        if (defaultLanguageText !== null)
         {
-            return HHAuto_ToolTips['en'][id][type];
+            return defaultLanguageText;
         }
         else
         {
@@ -9358,6 +9397,27 @@ HHEnvVariables["global"].powerCalcImages =
     minus:  "https://i.postimg.cc/PxgxrBVB/Opponent-red.png",
     chosen: "https://i.postimg.cc/MfKwNbZ8/Opponent-go.png"
 };
+HHEnvVariables["global"].boostersIdentifier =
+    {
+    MB1:   {name:"Sandalwood perfume", usage:"1 more shards when winning shards from villain, up to 11."},
+    MB2:   {name:"All Mastery's Emblem", usage:"+15% attack power against League/Seasons for next 100 fights"},
+    MB3:   {name:"Headband of determination", usage:"+25% damage against champions for next 200 fights"},
+    MB4:   {name:"Luxurious Watch", usage:"+25% power against PoA for next 60 missions"},
+    MB5:   {name:"Combative Cinnamon", usage:"+5 mojo on a win and 0 on a loose for next 100 season fight"},
+    MB6:   {name:"Alban's travel memories", usage:"+20% xp (5 if level 300 or higher), up to 100000"},
+    MB4:   {name:"Angels' semen scent", usage:"+25% power against PoA for next 60 missions"},
+};
+
+switch (getLanguageCode())
+{
+    case "fr":
+        HHEnvVariables["global"].trollzList = ["Dernier","Dark Lord","Espion Ninja","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson","Pandora","Nike","Sake"];
+        HHEnvVariables["global"].leaguesList = ["Branleur I","Branleur II","Branleur III","Sexpert I","Sexpert II","Sexpert III","Dicktateur I","Dicktateur II","Dicktateur III"]
+        break;
+    default:
+        HHEnvVariables["global"].trollzList =  ["Latest","Dark Lord","Ninja Spy","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson\'s Crew","Pandora witch","Nike","Sake"];
+        HHEnvVariables["global"].leaguesList = ["Wanker I","Wanker II","Wanker III","Sexpert I","Sexpert II","Sexpert III","Dicktator I","Dicktator II","Dicktator III"];
+}
 
 HHEnvVariables["global"].gotoPageHome = '/home.html';
 HHEnvVariables["global"].gotoPageActivities = '/activities.html';
@@ -9446,439 +9506,435 @@ var HHAuto_inputPattern = {
     minShardsX:"(100|[1-9][0-9]|[0-9])"
 }
 
-var HHAuto_ToolTips = {};
+var HHAuto_ToolTips = {en:{}, fr:{}, es:{}, de:{}, it:{}};
 
-HHAuto_ToolTips.en = {};
-HHAuto_ToolTips.en.saveDebug = { elementText: "Save Debug", tooltip : "Allow to produce a debug log file."};
-HHAuto_ToolTips.en.gitHub = { elementText: "GitHub", tooltip : "Link to GitHub project."};
-HHAuto_ToolTips.en.saveConfig = { elementText: "Save Config", tooltip : "Allow to save configuration."};
-HHAuto_ToolTips.en.loadConfig = { elementText: "Load Config", tooltip : "Allow to load configuration."};
-HHAuto_ToolTips.en.globalTitle = { elementText: "Global options"};
-HHAuto_ToolTips.en.master = { elementText: "Master switch", tooltip : "On/off switch for full script"};
-HHAuto_ToolTips.en.settPerTab = { elementText: "Settings per tab", tooltip : "Allow the settings to be set for this tab only"};
-HHAuto_ToolTips.en.paranoia = { elementText: "Paranoia mode", tooltip : "Allow to simulate sleep, and human user (To be documented further)"};
-HHAuto_ToolTips.en.paranoiaSpendsBefore = { elementText: "Spend points before", tooltip : "On will spend points for options (quest, Troll, Leagues and Season)<br>only if they are enabled<br>and spend points that would be above max limits<br>Ex : you have power for troll at 17, but going 4h45 in paranoia<br>it would mean having 17+10 points (rounded to higher int), thus being above the 20 max<br> it will then spend 8 points to fall back to 19 end of Paranoia, preventing to loose points."};
-HHAuto_ToolTips.en.spendKobans0 = { elementText: "Spend Kobans", tooltip : "<p style='color:red'>/!\\ Allow Kobans spending /!\\</p>Security switches for usage of kobans, needs to be active for Kobans spending functions"};
-//HHAuto_ToolTips.en.spendKobans1 = { elementText: "Are you sure?", tooltip : "Second security switches for usage of kobans <br>Have to be activated after the first one.<br> All 3 needs to be active for Kobans spending functions"};
-//HHAuto_ToolTips.en.spendKobans2 = { elementText: "You\'ve been warned", tooltip : "Third security switches for usage of kobans <br>Have to be activated after the second one.<br> All 3 needs to be active for Kobans spending functions"};
-HHAuto_ToolTips.en.kobanBank = { elementText: "Kobans Bank", tooltip : "(Integer)<br>Minimum Kobans kept when using Kobans spending functions"};
-HHAuto_ToolTips.en.displayTitle = { elementText: "Display options"};
-HHAuto_ToolTips.en.autoActivitiesTitle = { elementText: "Activities"};
-HHAuto_ToolTips.en.buyCombat = { elementText: "Buy comb. for events", tooltip : "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Buying combat point during last X hours of event (if not going under Koban bank value), this will bypass threshold if event girl shards available."};
-HHAuto_ToolTips.en.buyCombTimer = { elementText: "Hours to buy Combats", tooltip : "(Integer)<br>X last hours of event"};
-HHAuto_ToolTips.en.autoBuyBoosters = { elementText: "Leg. Boosters", tooltip : "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>Allow to buy booster in the market (if not going under Koban bank value)"};
-HHAuto_ToolTips.en.autoBuyBoostersFilter = { elementText: "Filter", tooltip : "(values separated by ;)<br>Set which booster to buy , order is respected (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)"};
-HHAuto_ToolTips.en.autoSeasonPassReds = { elementText: "Pass 3 reds", tooltip : "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>Use kobans to renew Season opponents if 3 reds"};
-HHAuto_ToolTips.en.showCalculatePower = { elementText: "Show PowerCalc", tooltip : "Display battle simulation indicator for Leagues, battle, Seasons "};
-//HHAuto_ToolTips.en.calculatePowerLimits = { elementText: "Own limits", tooltip : "(red;orange)<br>Define your own red and orange limits for Opponents<br> -6000;0 do mean<br> <-6000 is red, between -6000 and 0 is orange and >=0 is green"};
-HHAuto_ToolTips.en.showInfo = { elementText: "Show info", tooltip : "if enabled : show info on script values and next runs"};
-HHAuto_ToolTips.en.autoSalary = { elementText: "Salary", tooltip : "(Integer)<br>if enabled :<br>Collect salaries every X secs"};
-//HHAuto_ToolTips.en.autoSalaryMinTimer = { elementText: "Minimum wait", tooltip : "(Integer)<br>X secs to next Salary collection"};
-HHAuto_ToolTips.en.autoSalaryMinSalary = { elementText: "Min. salary", tooltip : "(Integer)<br>Minium salary to start collection"};
-HHAuto_ToolTips.en.autoSalaryMaxTimer = { elementText: "Max. collect time", tooltip : "(Integer)<br>X secs to collect Salary, before stopping."};
-HHAuto_ToolTips.en.autoMission = { elementText: "Mission", tooltip : "if enabled : Automatically do missions"};
-HHAuto_ToolTips.en.autoMissionCollect = { elementText: "Collect", tooltip : "if enabled : Automatically collect missions after start of new competition."};
-HHAuto_ToolTips.en.autoTrollTitle = { elementText: "Battle Troll"};
-HHAuto_ToolTips.en.autoTrollBattle = { elementText: "Enable", tooltip : "if enabled : Automatically battle troll selected"};
-HHAuto_ToolTips.en.autoTrollSelector = { elementText: "Troll selector", tooltip : "Select troll to be fought."};
-HHAuto_ToolTips.en.autoTrollThreshold = { elementText: "Threshold", tooltip : "(Integer 0 to 19)<br>Minimum troll fight to keep"};
-HHAuto_ToolTips.en.eventTrollOrder = { elementText: "Event Troll Order", tooltip : "(values separated by ;)<br>Allow to select in which order event troll are automatically battled<br>1 : Dark Lord<br>2 : Ninja Spy<br>3 : Gruntt<br>4 : Edwarda<br>5 : Donatien<br>6 : Sylvanus<br>7 : Bremen<br>8 : Finalmecia<br>9 : Fredy Sih Roko<br>10 : Karole<br>11 : Jackson's Crew<br>12 : Pandora Witch<br>13 : Nike<br>14 : Sake"};
-HHAuto_ToolTips.en.plusEvent = { elementText: "+Event", tooltip : "If enabled : ignore selected troll during event to battle event"};
-HHAuto_ToolTips.en.plusEventMythic = { elementText: "+Mythic Event", tooltip : "Enable grabbing girls for mythic event, should only play them when shards are available, Mythic girl troll will be priorized over Event Troll."};
-//HHAuto_ToolTips.en.eventMythicPrio = { elementText: "Priorize over Event Troll Order", tooltip : "Mythic event girl priorized over event troll order if shards available"};
-//HHAuto_ToolTips.en.autoTrollMythicByPassThreshold = { elementText: "Mythic bypass Threshold", tooltip : "Allow mythic to bypass Troll threshold"};
-HHAuto_ToolTips.en.autoSeasonTitle = { elementText: "Season"};
-HHAuto_ToolTips.en.autoSeason = { elementText: "Enable", tooltip : "if enabled : Automatically fight in Seasons (Opponent chosen following PowerCalculation)"};
-HHAuto_ToolTips.en.autoSeasonCollect = { elementText: "Collect", tooltip : "if enabled : Automatically collect Seasons ( if multiple to collect, will collect one per kiss usage)"};
-HHAuto_ToolTips.en.autoSeasonThreshold = { elementText: "Threshold", tooltip : "Minimum kiss to keep"};
-HHAuto_ToolTips.en.autoQuest = { elementText: "Quest", tooltip : "if enabled : Automatically do quest"};
-HHAuto_ToolTips.en.autoQuestThreshold = { elementText: "Threshold", tooltip : "(Integer between 0 and 99)<br>Minimum quest energy to keep"};
-HHAuto_ToolTips.en.autoContest = { elementText: "Claim Contest", tooltip : "if enabled : Collect finished contest rewards"};
-HHAuto_ToolTips.en.autoFreePachinko = { elementText: "Pachinko", tooltip : "if enabled : Automatically collect free Pachinkos"};
-HHAuto_ToolTips.en.autoMythicPachinko = { elementText: "Mythic Pachinko"};
-HHAuto_ToolTips.en.autoLeaguesTitle = { elementText: "Leagues"};
-HHAuto_ToolTips.en.autoLeagues = { elementText: "Enable", tooltip : "if enabled : Automatically battle Leagues"};
-HHAuto_ToolTips.en.autoLeaguesPowerCalc = { elementText: "Use PowerCalc", tooltip : "if enabled : will choose opponent using PowerCalc (Opponent list expires every 10 mins and take few mins to be built)"};
-HHAuto_ToolTips.en.autoLeaguesCollect = { elementText: "Collect", tooltip : "If enabled : Automatically collect Leagues"};
-HHAuto_ToolTips.en.autoLeaguesSelector = { elementText: "Target League", tooltip : "League to target, to try to demote, stay or go in higher league depending"};
-HHAuto_ToolTips.en.autoLeaguesAllowWinCurrent = {elementText:"Allow win", tooltip : "If check will allow to win targeted league and then demote next league to fall back to targeted league."};
-HHAuto_ToolTips.en.autoLeaguesThreshold = { elementText: "Threshold", tooltip : "(Integer between 0 and 14)<br>Minimum league fights to keep"};
-HHAuto_ToolTips.en.autoPowerPlaces = { elementText: "Places of Power", tooltip : "if enabled : Automatically Do powerPlaces"};
-HHAuto_ToolTips.en.autoPowerPlacesIndexFilter = { elementText: "Index Filter", tooltip : "(values separated by ;)<br>Allow to set filter and order on the PowerPlaces to do (order respected only when multiple powerPlace expires at the same time)"};//<table style='font-size: 8px;line-height: 1;'><tr><td>Reward</td>  <td>HC</td>    <td>CH</td>   <td>KH</td></tr><tr><td>Champ tickets & M¥</td>    <td>4</td>   <td>5</td>   <td>6</td></tr><tr><td>Kobans & K¥</td>  <td>7</td>   <td>8</td>   <td>9</td></tr><tr><td>Epic Book & K¥</td> <td>10</td>  <td>11</td> <td>12</td></tr><tr><td>Epic Orbs & K¥</td>  <td>13</td>  <td>14</td>  <td>15</td></tr><tr><td>Leg. Booster & K¥</td>   <td>16</td>  <td>17</td>  <td>18</td></tr><tr><td>Champions tickets & K¥</td>  <td>19</td>  <td>20</td>  <td>21</td></tr><tr><td>Epic Gift & K¥</td>  <td>22</td>  <td>23</td>  <td>24</td></tr></table>"};
-HHAuto_ToolTips.en.autoPowerPlacesAll = { elementText: "Do All", tooltip : "If enabled : ignore filter and do all powerplaces (will update Filter with current ids)"};
-HHAuto_ToolTips.en.autoChampsTitle = { elementText: "Champions"};
-HHAuto_ToolTips.en.autoChamps = { elementText: "Normal", tooltip : "if enabled : Automatically do champions (if they are started and in filter only)"};
-HHAuto_ToolTips.en.autoChampsUseEne = { elementText: "Buy tickets", tooltip : "If enabled : use Energy to buy tickets"};
-HHAuto_ToolTips.en.autoChampsFilter = { elementText: "Filter", tooltip : "(values separated by ; 1 to 6)<br>Allow to set filter on champions to be fought"};
-HHAuto_ToolTips.en.autoStats = { elementText: "Money to keep", tooltip : "(Integer)<br>Automatically buy stats in market with money above the setted amount"};
-HHAuto_ToolTips.en.autoStatsSwitch = { elementText: "Stats", tooltip : "Allow to on/off autoStats"};
-HHAuto_ToolTips.en.autoExpW = { elementText: "Books", tooltip : "if enabled : allow to buy Exp in market<br>Only buy if money bank is above the value<br>Only buy if total Exp owned is below value"};
-HHAuto_ToolTips.en.autoExp = { elementText: "Money to keep", tooltip : "(Integer)<br>Minimum money to keep."};
-HHAuto_ToolTips.en.maxExp = { elementText: "Max Exp.", tooltip : "(Integer)<br>Maximum Exp to buy"};
-HHAuto_ToolTips.en.autoAffW = { elementText: "Gifts", tooltip : "if enabled : allow to buy Aff in market<br>Only buy if money bank is above the value<br>Only buy if total Aff owned is below value"};
-HHAuto_ToolTips.en.autoAff = { elementText: "Money to keep", tooltip : "(Integer)<br>Minimum money to keep."};
-HHAuto_ToolTips.en.maxAff = { elementText: "Max Aff.", tooltip : "(Integer)<br>Maximum Aff to buy"};
-HHAuto_ToolTips.en.autoLGMW = { elementText: "Leg. Class Gear", tooltip : "if enabled : allow to buy Mono Legendary gear in the market<br>Only buy if money bank is above the value"};
-HHAuto_ToolTips.en.autoLGM = { elementText: "Money to keep", tooltip : "(Integer)<br>Minimum money to keep."};
-HHAuto_ToolTips.en.autoLGRW = { elementText: "Leg. Rainbow Gear", tooltip : "if enabled : allow to buy Rainbow Legendary gear in the market<br>Only buy if money bank is above the value"};
-HHAuto_ToolTips.en.autoLGR = { elementText: "Money to keep", tooltip : "(Integer)<br>Minimum money to keep."};
-HHAuto_ToolTips.en.OpponentListBuilding = { elementText: "Opponent list is building", tooltip : ""};
-HHAuto_ToolTips.en.OpponentParsed = { elementText: "opponents parsed", tooltip : ""};
-HHAuto_ToolTips.en.DebugMenu = { elementText: "Debug Menu", tooltip : "Options for debug"};
-HHAuto_ToolTips.en.DebugOptionsText = { elementText: "Buttons below allow to modify script storage, be careful using it.", tooltip : ""};
-HHAuto_ToolTips.en.DeleteTempVars = { elementText: "Delete temp storage", tooltip : "Delete all temporary storage for the script."};
-HHAuto_ToolTips.en.ResetAllVars = { elementText: "Reset defaults", tooltip : "Reset all setting to defaults."};
-HHAuto_ToolTips.en.DebugFileText = { elementText: "Click on button bellow to produce a debug log file", tooltip : ""};
-HHAuto_ToolTips.en.OptionCancel = { elementText: "Cancel", tooltip : ""};
-HHAuto_ToolTips.en.OptionStop = { elementText: "Stop", tooltip : ""};
-HHAuto_ToolTips.en.SeasonMaskRewards = { elementText: "Mask claimed", tooltip : "Allow to mask all claimed rewards on Season screen"};
-HHAuto_ToolTips.en.autoClubChamp = { elementText: "Club", tooltip : "if enabled, automatically fight club champion if champion has already been fought once."};
-HHAuto_ToolTips.en.autoClubForceStart = { elementText: "Force start", tooltip : "if enabled, will fight club champion even if not started."};
-HHAuto_ToolTips.en.autoTrollMythicByPassParanoia = { elementText: "Mythic bypass Paranoia", tooltip : "Allow mythic to bypass paranoia.<br>if next wave is during rest, it will force it to wake up for wave.<br>If still fight or can buy fights it will continue."};
-HHAuto_ToolTips.en.buyMythicCombat = { elementText: "Buy comb. for mythic event", tooltip : "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Buying combat point during last X hours of mythic event (if not going under Koban bank value), this will bypass threshold if mythic girl shards available."};
-HHAuto_ToolTips.en.buyMythicCombTimer = { elementText: "Hours to buy Mythic Combats", tooltip : "(Integer)<br>X last hours of mythic event"};
-HHAuto_ToolTips.en.DebugResetTimerText = { elementText: "Selector below allow you to reset ongoing timers", tooltip : ""};
-HHAuto_ToolTips.en.timerResetSelector = { elementText: "Select Timer", tooltip : "Select the timer you want to reset"};
-HHAuto_ToolTips.en.timerResetButton = { elementText: "Reset", tooltip : "Set the timer to 0."};
-HHAuto_ToolTips.en.timerLeftTime = { elementText: "", tooltip : "Time remaining"};
-HHAuto_ToolTips.en.timerResetNoTimer = { elementText: "No selected timer", tooltip : ""};
-HHAuto_ToolTips.en.menuSell = { elementText: "Sell", tooltip : "Allow to sell items."};
-HHAuto_ToolTips.en.menuSellText = { elementText: "This will sell the number of items asked starting in display order (first all non legendary then legendary)<br> It will sell all non legendary stuff and keep : <br> - 1 set of rainbow legendary (choosen on highest player class stat)<br> - 1 set of legendary mono player class (choosen on highest stats)<br> - 1 set of legendary harmony (choosen on highest stats)<br> - 1 set of legendary endurance (choosen on highest stats)<br>You can lock/Unlock batch by clicking on the corresponding cell/row/column (notlocked/total), red means all locked, orange some locked.", tooltip : ""};
-HHAuto_ToolTips.en.menuSellNumber = { elementText: "", tooltip : "Enter the number of items you want to sell : "};
-HHAuto_ToolTips.en.menuSellButton = { elementText: "Sell", tooltip : "Launch selling funtion."};
-HHAuto_ToolTips.en.menuSellCurrentCount = { elementText: "Number of sellable items you currently have : ", tooltip : ""};
-HHAuto_ToolTips.en.menuSellMaskLocked = { elementText: "Mask locked", tooltip : "Allow to mask locked items."};
-HHAuto_ToolTips.en.menuSoldText = { elementText: "Number of items sold : ", tooltip : ""};
-HHAuto_ToolTips.en.menuSoldMessageReachNB = { elementText: "Wanted sold items reached.", tooltip : ""};
-HHAuto_ToolTips.en.menuSoldMessageNoMore = { elementText: " No more sellable items.", tooltip : ""};
-HHAuto_ToolTips.en.menuAff = { elementText: "Give Aff", tooltip : "Automatically give Aff to selected girl."};
-HHAuto_ToolTips.en.menuAffButton = { elementText: "Go !", tooltip : "Launch giving aff."};
-HHAuto_ToolTips.en.menuDistribution = { elementText: "Items to be used : ", tooltip : ""};
-HHAuto_ToolTips.en.Total = { elementText: "Total : ", tooltip : ""};
-HHAuto_ToolTips.en.menuAffNoNeed = { elementText: "don't need Aff.", tooltip : ""};
-HHAuto_ToolTips.en.menuAffNoAff = { elementText: "No Aff available to be given to :", tooltip : ""};
-HHAuto_ToolTips.en.menuAffError = { elementText: "Error fetching girl Aff field, cancelling.", tooltip : ""};
-HHAuto_ToolTips.en.menuAffReadyToUpgrade = { elementText: " is ready for upgrade.", tooltip : ""};
-HHAuto_ToolTips.en.menuAffEnd = { elementText: "All Aff given to :", tooltip : ""};
-HHAuto_ToolTips.en.menuDistributed = { elementText: "Items used : ", tooltip : ""};
-HHAuto_ToolTips.en.autoClubChampMax = { elementText: "Max tickets per run", tooltip : "Maximum number of tickets to use on the club champion at each run."};
-HHAuto_ToolTips.en.menuSellLock = { elementText: "Lock/ Unlock", tooltip : "Switch the lock to prevent selected item to be sold."};
-HHAuto_ToolTips.en.Rarity = { elementText: "Rarity", tooltip : ""};
-HHAuto_ToolTips.en.RarityCommon = { elementText: "Common", tooltip : ""};
-HHAuto_ToolTips.en.RarityRare = { elementText: "Rare", tooltip : ""};
-HHAuto_ToolTips.en.RarityEpic = { elementText: "Epic", tooltip : ""};
-HHAuto_ToolTips.en.RarityLegendary = { elementText: "Legendary", tooltip : ""};
-HHAuto_ToolTips.en.equipementHead = { elementText: "Head", tooltip : ""};
-HHAuto_ToolTips.en.equipementBody = { elementText: "Body", tooltip : ""};
-HHAuto_ToolTips.en.equipementLegs = { elementText: "Legs", tooltip : ""};
-HHAuto_ToolTips.en.equipementFlag = { elementText: "Flag", tooltip : ""};
-HHAuto_ToolTips.en.equipementPet = { elementText: "Pet", tooltip : ""};
-HHAuto_ToolTips.en.equipementWeapon = { elementText: "Weapon", tooltip : ""};
-HHAuto_ToolTips.en.equipementCaracs = { elementText: "Caracs", tooltip : ""};
-HHAuto_ToolTips.en.equipementType = { elementText: "Type", tooltip : ""};
-HHAuto_ToolTips.en.autoMissionKFirst = { elementText: "Kobans first", tooltip : "Start by missions rewarded with Kobans."};
-HHAuto_ToolTips.en.menuExp = { elementText: "Give Exp", tooltip : "Automatically give max Exp to selected girl."};
-HHAuto_ToolTips.en.menuExpButton = { elementText: "Go !", tooltip : "Launch giving exp."};
-HHAuto_ToolTips.en.menuExpNoNeed = { elementText: "don't need Exp.", tooltip : ""};
-HHAuto_ToolTips.en.menuExpNoExp = { elementText: "No Exp available to be given to :", tooltip : ""};
-HHAuto_ToolTips.en.menuExpError = { elementText: "Error fetching girl Exp field, cancelling.", tooltip : ""};
-HHAuto_ToolTips.en.menuExpEnd = { elementText: "All Exp given to :", tooltip : ""};
-HHAuto_ToolTips.en.menuExpLevel =  { elementText: "Enter target Exp level :", tooltip : "Target Exp level for girl"};
-HHAuto_ToolTips.en.menuExpAwakeningNeeded =  { elementText: "Girl need awakening ", tooltip : ""};
-HHAuto_ToolTips.en.PoAMaskRewards = { elementText: "PoA mask claimed", tooltip : "Masked claimed rewards for Path of Attraction."};
-HHAuto_ToolTips.en.showTooltips = { elementText: "Show tooltips", tooltip : "Show tooltip on menu."};
-HHAuto_ToolTips.en.showMarketTools = { elementText: "Show market tools", tooltip : "Show Market tools."};
-HHAuto_ToolTips.en.useX10Fights = { elementText: "Use x10", tooltip : "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Use x10 button if 10 fights or more to do (if not going under Koban bank value).<br>x50 takes precedence on x10 if all conditions are filled."};
-HHAuto_ToolTips.en.useX50Fights = { elementText: "Use x50", tooltip : "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Use x50 button if 50 fights or more to do (if not going under Koban bank value).<br>Takes precedence on x10 if all conditions are filled."};
-HHAuto_ToolTips.en.useX10FightsAllowNormalEvent = { elementText: "x10 for Event", tooltip : "If off:<br> X10 will only be used for mythic event<br>If enabled : <br>Allow x10 button for normal event if 10 fights or more to do (if not going under Koban bank value).<br>x50 takes precedence on x10 if all conditions are filled."};
-HHAuto_ToolTips.en.useX50FightsAllowNormalEvent = { elementText: "x50 for Event", tooltip : "If off:<br> X50 will only be used for mythic event<br>If enabled : <br>Use x50 button for normal event if 50 fights or more to do (if not going under Koban bank value).<br>Takes precedence on x10 if all conditions are filled."};
-HHAuto_ToolTips.en.autoBuy = { elementText: "Market"};
-HHAuto_ToolTips.en.minShardsX50 = { elementText: "Min. shards x50", tooltip : "Only use x50 button if remaining shards of current girl is equal or above this limit."};
-HHAuto_ToolTips.en.minShardsX10 = { elementText: "Min. shards x10", tooltip : "Only use x10 button if remaining shards of current girl is equal or above this limit."};
-HHAuto_ToolTips.en.trollzList = { elementText: ["Latest","Dark Lord","Ninja Spy","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson\'s Crew","Pandora witch","Nike","Sake"] };
-HHAuto_ToolTips.en.leaguesList = { elementText: ["Wanker I","Wanker II","Wanker III","Sexpert I","Sexpert II","Sexpert III","Dicktator I","Dicktator II","Dicktator III"] };
-HHAuto_ToolTips.en.mythicGirlNext = { elementText: "Mythic girl wave"};
-HHAuto_ToolTips.en.RefreshOppoList = { elementText: "Refresh Opponent list", tooltip : "Allow to force a refresh of opponent list."};
-HHAuto_ToolTips.en.PachinkoSelectorNoButtons = {elementText : "No Orbs available.", tooltip : ""};
-HHAuto_ToolTips.en.PachinkoSelector = {elementText : "", tooltip : "Pachinko Selector."};
-HHAuto_ToolTips.en.PachinkoLeft = {elementText : "", tooltip : "Currently available orbs."};
-HHAuto_ToolTips.en.PachinkoXTimes = {elementText : "Number to use : ", tooltip : "Set the number of orbs tu use o selected pachinko."};
-HHAuto_ToolTips.en.PachinkoPlayX = {elementText : "Launch", tooltip : "Launch X uses of selected orbs"};
-HHAuto_ToolTips.en.PachinkoButton = {elementText : "Use Pachinko", tooltip : "Allow to automatically use the selected Pachinko. (Only for Orbs games)"};
-HHAuto_ToolTips.en.PachinkoOrbsLeft = {elementText : " orbs remaining.", tooltip : ""};
-HHAuto_ToolTips.en.PachinkoInvalidOrbsNb = {elementText : 'Invalid orbs number'};
-HHAuto_ToolTips.en.PachinkoNoGirls = {elementText : 'No more any girls available.'};
-HHAuto_ToolTips.en.PachinkoByPassNoGirls = {elementText : 'Bypass no girls', tooltip : "Bypass the no girls in Pachinko warning."};
-HHAuto_ToolTips.en.ChangeTeamButton = {elementText : "Current Best", tooltip : "Get list of top 16 girls for your team."};
-HHAuto_ToolTips.en.ChangeTeamButton2 = {elementText : "Possible Best", tooltip : "Get list of top 16 girls for your team if they are Max Lv & Aff"};
-HHAuto_ToolTips.en.AssignTopTeam  = {elementText : "Assign first 7", tooltip : "Put the first 7 ones in the team."};
-HHAuto_ToolTips.en.ExportGirlsData = {elementText : "⤓", tooltip : "Export Girls data."};
-HHAuto_ToolTips.en.menuRemoveMaxed = {elementText : "Remove maxed", tooltip : "Remove maxed girls"};
-HHAuto_ToolTips.en.collectDailyRewards = {elementText : "Collect daily", tooltip : "Collect daily rewards if not collected 1 hour before end of HH day."};
-HHAuto_ToolTips.en.saveDefaults = {elementText : "Save defaults", tooltip : "Save your own defaults values for new tabs."};
-HHAuto_ToolTips.en.autoGiveAff = {elementText : "Auto Give", tooltip : "If enabled, will automatically give Aff to girls in order ( you can use OCD script to filter )."};
-HHAuto_ToolTips.en.autoGiveExp = {elementText : "Auto Give", tooltip : "If enabled, will automatically give Exp to girls in order ( you can use OCD script to filter )."};
-HHAuto_ToolTips.en.autoPantheonTitle = {elementText : "Pantheon", tooltip : ""};
-HHAuto_ToolTips.en.autoPantheon = { elementText: "Enable", tooltip : "if enabled : Automatically do Pantheon"};
-HHAuto_ToolTips.en.autoPantheonThreshold = { elementText: "Threshold", tooltip : "(Integer 0 to 19)<br>Minimum worship to keep"};
-HHAuto_ToolTips.en.buttonSaveOpponent = { elementText: "Save opponent data", tooltip : "Save opponent data for fight simulation in market."};
-HHAuto_ToolTips.en.SimResultMarketButton = { elementText: "Sim. results", tooltip : "Simulate result with League saved opponent."};
-HHAuto_ToolTips.en.simResultMarketPreviousScore = { elementText: "Previous score :", tooltip : ""};
-HHAuto_ToolTips.en.simResultMarketScore = { elementText: "Score : ", tooltip : ""};
-HHAuto_ToolTips.en.none = { elementText: "None", tooltip : ""};
-HHAuto_ToolTips.en.name = { elementText: "Name", tooltip : ""};
-HHAuto_ToolTips.en.sortPowerCalc = { elementText: "Sort by score", tooltip : "Sorting opponents by score."};
-HHAuto_ToolTips.en.haremNextUpgradableGirl = { elementText: "Go to next upgradable Girl.", tooltip : ""};
-HHAuto_ToolTips.en.haremOpenFirstXUpgradable = { elementText: "Open X upgradable girl quest.", tooltip : ""};
-
-HHAuto_ToolTips.fr = {};
-HHAuto_ToolTips.fr.saveDebug = { elementText: "Sauver log", tooltip : "Sauvegarder un fichier journal de débogage."};
-HHAuto_ToolTips.fr.gitHub = { elementText: "GitHub", tooltip : "Lien vers le projet GitHub."};
-HHAuto_ToolTips.fr.saveConfig = { elementText: "Sauver config", tooltip : "Permet de sauvegarder la configuration."};
-HHAuto_ToolTips.fr.loadConfig = { elementText: "Charger config", tooltip : "Permet de charger la configuration."};
-HHAuto_ToolTips.fr.master = { elementText: "Script on/off", tooltip : "Bouton marche/arrêt pour le script complet"};
-HHAuto_ToolTips.fr.settPerTab = { elementText: "Options par onglet", tooltip : "Active le paramétrage par onglet.<br>Si activé : permet d'ouvrir le jeu dans un autre onglet tout en laissant le script fonctionner sur le premier.<br>Les options du script ne seront pas sauvegardées à la fermeture du navigateur."};
-HHAuto_ToolTips.fr.paranoia = { elementText: "Mode Parano", tooltip : "Permet de simuler le sommeil et l'utilisateur humain (à documenter davantage)"};
-HHAuto_ToolTips.fr.paranoiaSpendsBefore = { elementText: "Utiliser points avant", tooltip : "Dépensera des points pour les options (quête, troll, ligues et saison)<br> uniquement si elles sont activées<br>et dépense des points qui seraient perdus pendant la nuit<br> Ex : vous avez la puissance d'un troll à 17, mais en allant 4h45 en paranoïa,<br> cela voudrait dire avoir 17+10 points (arrondis à l'int supérieur), donc être au dessus du 20 max<br> il dépensera alors 8 points pour retomber à 19 fin de la paranoïa, empêchant de perdre des points."};
-HHAuto_ToolTips.fr.spendKobans0 = { elementText: "Dépense Kobans", tooltip : "<p style='color:red'>/!\\ Autorise la dépense des Kobans /!\\</p>Si activé : permet d'activer les fonctions utilisant des kobans"};
-HHAuto_ToolTips.fr.kobanBank = { elementText: "Kobans à conserver", tooltip : "Minimum de Kobans conservé en banque par les fonctions utilisant des kobans.<br>Ces fonctions ne s'exécuteront pas si elles risquent de faire passer la réserve de kobans sous cette limite."};
-HHAuto_ToolTips.fr.buyCombat = { elementText: "Achat comb. événmt", tooltip : "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>("+HHAuto_ToolTips.fr.spendKobans0.elementText+" doit être activé)</p>Si activé : <br>recharge automatiquement les points de combat durant les X dernières heures de l'événement (sans faire passer sous la valeur de la réserve de Kobans)"};
-HHAuto_ToolTips.fr.buyCombTimer = { elementText: "Heures d'achat comb.", tooltip : "(Nombre entier)<br>X dernières heures de l'événement"};
-HHAuto_ToolTips.fr.autoBuyBoosters = { elementText: "Boosters lég.", tooltip : "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>("+HHAuto_ToolTips.fr.spendKobans0.elementText+" doit être activé)</p>Permet d'acheter des boosters sur le marché (sans faire passer sous la valeur de la réserve de Kobans)."};
-HHAuto_ToolTips.fr.autoBuyBoostersFilter = { elementText: "Filtre", tooltip : "(valeurs séparées par ;)<br>Définit quel(s) booster(s) acheter, respecter l'ordre (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)."};
-HHAuto_ToolTips.fr.autoSeasonPassReds = { elementText: "Passer 3 rouges", tooltip : "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>("+HHAuto_ToolTips.fr.spendKobans0.elementText+" doit être activé)</p>Utilise des kobans pour renouveler les adversaires de la saison si PowerCalc détermine 3 combats rouges (perdus)."};
-HHAuto_ToolTips.fr.showCalculatePower = { elementText: "PowerCalc", tooltip : "Si activé : affiche le résultat des calculs du module PowerCalc (Simulateur de combats pour Ligues, Trolls, Saisons)."};
-//HHAuto_ToolTips.fr.calculatePowerLimits = { elementText: "Limites perso", tooltip : "(rouge;orange)<br>Définissez vos propres limites de rouge et d'orange pour les opposants<br> -6000;0 veux dire<br> <-6000 est rouge, entre -6000 et 0 est orange et >=0 est vert"};
-HHAuto_ToolTips.fr.showInfo = { elementText: "Infos", tooltip : "Si activé : affiche une fenêtre d'informations sur le script."};
-HHAuto_ToolTips.fr.autoSalary = { elementText: "Salaire", tooltip : "Si activé :<br>Collecte les salaires toutes les X secondes."};
-//HHAuto_ToolTips.fr.autoSalaryMinTimer = { elementText: "Attente min.", tooltip : "(Nombre entier)<br>Secondes d'attente minimum entre deux collectes."};
-HHAuto_ToolTips.fr.autoMission = { elementText: "Missions", tooltip : "Si activé : lance automatiquement les missions."};
-HHAuto_ToolTips.fr.autoMissionCollect = { elementText: "Collecter", tooltip : "Si activé : collecte automatiquement les récompenses des missions."};
-HHAuto_ToolTips.fr.autoTrollBattle = { elementText: "Activer", tooltip : "Si activé : combat automatiquement le troll."};
-HHAuto_ToolTips.fr.autoTrollSelector = { elementText: "Sélection troll", tooltip : "Sélection du troll à combattre"};
-HHAuto_ToolTips.fr.autoTrollThreshold = { elementText: "Réserve", tooltip : "Points de combat de trolls (poings) minimum à conserver"};
-HHAuto_ToolTips.fr.eventTrollOrder = { elementText: "Ordre Trolls d'événement", tooltip : "Permet de sélectionner l'ordre dans lequel les trolls d'événements sont automatiquement combattus."};
-HHAuto_ToolTips.fr.plusEvent = { elementText: "+Evénmt.", tooltip : "Si activé : ignore le troll sélectionné et combat les trolls d'événement s'il y a une fille à gagner."};
-HHAuto_ToolTips.fr.plusEventMythic = { elementText: "+Evénmt. mythique", tooltip : "Si activé : ignorer le troll sélectionné et combat le troll d'événement mythique s'il y a une fille à gagner et des fragments disponibles."};
-HHAuto_ToolTips.fr.autoSeason = { elementText: "Activer", tooltip : "Si activé : combat automatique de saison (Adversaire sélectionné avec PowerCalc)."};
-HHAuto_ToolTips.fr.autoSeasonCollect = { elementText: "Collecter", tooltip : "Si activé : collecte automatiquement les récompenses de saison (si plusieurs à collecter, en collectera une par combat)."};
-HHAuto_ToolTips.fr.autoSeasonThreshold = { elementText: "Réserve", tooltip : "Points de combat de saison (Baiser) minimum à conserver."};
-HHAuto_ToolTips.fr.autoQuest = { elementText: "Quête", tooltip : "Si activé : Fait automatiquement les quêtes"};
-HHAuto_ToolTips.fr.autoQuestThreshold = { elementText: "Réserve", tooltip : "Energie de quête minimum à conserver"};
-HHAuto_ToolTips.fr.autoContest = { elementText: "Compét'", tooltip : "Si activé : récolter les récompenses de la compét' terminée"};
-HHAuto_ToolTips.fr.autoFreePachinko = { elementText: "Pachinko", tooltip : "Si activé : collecte automatiquement les Pachinkos gratuits"};
-HHAuto_ToolTips.fr.autoMythicPachinko = { elementText: "Pachinko mythique"};
-HHAuto_ToolTips.fr.autoLeagues = { elementText: "Activer", tooltip : "Si activé : Combattre automatiquement en Ligues"};
-HHAuto_ToolTips.fr.autoLeaguesPowerCalc = { elementText: "Utiliser PowerCalc", tooltip : "Si activé : choisira l'adversaire en utilisant PowerCalc (la liste des adversaires expire toutes les 10 minutes et prend quelques minutes pour être construite)."};
-HHAuto_ToolTips.fr.autoLeaguesCollect = { elementText: "Collecter", tooltip : "Si activé : Collecte automatiquement les récompenses de la Ligue terminée"};
-HHAuto_ToolTips.fr.autoLeaguesSelector = { elementText: "Ligue ciblée", tooltip : "Objectif de niveau de ligue (à atteindre, à conserver ou à dépasser selon le choix)."};
-HHAuto_ToolTips.fr.autoLeaguesAllowWinCurrent = {elementText:"Autoriser dépassement", tooltip : "Si activé, le script tentera de gagner la ligue ciblée puis rétrogradera la semaine suivante pour retourner dans la ligue ciblée."};
-HHAuto_ToolTips.fr.autoLeaguesThreshold = { elementText: "Réserve", tooltip : "Points de combat de ligue minimum à conserver."};
-HHAuto_ToolTips.fr.autoPowerPlaces = { elementText: "Lieux de pouvoir", tooltip : "Si activé : Fait automatiquement les lieux de pouvoir."};
-HHAuto_ToolTips.fr.autoPowerPlacesIndexFilter = { elementText: "Filtre", tooltip : "Permet de définir un filtre et un ordre sur les lieux de pouvoir à faire (uniquement lorsque plusieurs lieux de pouvoir expirent en même temps)."};
-HHAuto_ToolTips.fr.autoPowerPlacesAll = { elementText: "Tous", tooltip : "Si activé : ignore le filtre et fait tous les lieux de pouvoir (mettra à jour le filtre avec les identifiants actuels)"};
-HHAuto_ToolTips.fr.autoChampsTitle = { elementText: "Champions"};
-HHAuto_ToolTips.fr.autoChamps = { elementText: "Normal", tooltip : "Si activé : combat automatiquement les champions (s'ils sont démarrés manuellement et en filtre uniquement)."};
-HHAuto_ToolTips.fr.autoChampsUseEne = { elementText: "Achat tickets", tooltip : "Si activé : utiliser l'énergie pour acheter des tickets de champion (60 énergie nécessaire ; ne marchera pas si Quête auto activée)."};
-HHAuto_ToolTips.fr.autoChampsFilter = { elementText: "Filtre", tooltip : "Permet de filtrer les champions à combattre."};
-HHAuto_ToolTips.fr.autoStatsSwitch = { elementText: "Stats", tooltip : "Achète automatiquement des statistiques sur le marché."};
-HHAuto_ToolTips.fr.autoStats = { elementText: "Argent à garder", tooltip : "Argent minimum à conserver lors de l'achat automatique de statistiques."};
-HHAuto_ToolTips.fr.autoExpW = { elementText: "Livres", tooltip : "Si activé : permet d'acheter des livres d'expérience sur le marché tout en respectant les limites d'expérience et d'argent ci-après."};
-HHAuto_ToolTips.fr.autoExp = { elementText: "Argent à garder", tooltip : "Argent minimum à conserver lors de l'achat automatique de livres d'expérience."};
-HHAuto_ToolTips.fr.maxExp = { elementText: "Exp. max", tooltip : "Expérience maximum en stock pour l'achat de livres d'expérience."};
-HHAuto_ToolTips.fr.autoAffW = { elementText: "Cadeaux", tooltip : "Si activé : permet d'acheter des cadeaux d'affection sur le marché tout en respectant les limites d'affection et d'argent ci-après."};
-HHAuto_ToolTips.fr.autoAff = { elementText: "Argent à garder", tooltip : "Argent minimum à conserver lors de l'achat automatique de cadeaux d'affection."};
-HHAuto_ToolTips.fr.maxAff = { elementText: "Aff. max", tooltip : "Affection maximum en stock pour l'achat de cadeaux d'affection."};
-HHAuto_ToolTips.fr.autoLGMW = { elementText: "Eq. de classe lég.", tooltip : "Si activé : permet d'acheter du matériel de classe Légendaire sur le marché tout en respectant la limite d'argent ci-après."};
-HHAuto_ToolTips.fr.autoLGM = { elementText: "Argent à garder", tooltip : "Argent minimum à conserver lors de l'achat automatique d'équipement de classe légendaire."};
-HHAuto_ToolTips.fr.autoLGRW = { elementText: "Eq. super-sexe lég.", tooltip : "Si activé : permet d'acheter du matériel super-sexe Légendaire sur le marché tout en respectant la limite d'argent ci-après."};
-HHAuto_ToolTips.fr.autoLGR = { elementText: "Argent à garder", tooltip : "Argent minimum à conserver lors de l'achat automatique d'équipement super-sexe."};
-HHAuto_ToolTips.fr.OpponentListBuilding = { elementText: "La liste des adversaires est en construction", tooltip : ""};
-HHAuto_ToolTips.fr.OpponentParsed = { elementText: "adversaires parcourus", tooltip : ""};
-HHAuto_ToolTips.fr.DebugMenu = { elementText: "Debug Menu", tooltip : "Options pour le debug"};
-HHAuto_ToolTips.fr.DebugOptionsText = { elementText: "Les boutons ci-dessous permette de modifier les variables du script, a utiliser avec prudence.", tooltip : ""};
-HHAuto_ToolTips.fr.DeleteTempVars = { elementText: "Supprimer les variables temporaires", tooltip : "Supprime toutes les variables temporaire du script."};
-HHAuto_ToolTips.fr.ResetAllVars = { elementText: "Réinitialiser", tooltip : "Remettre toutes les options par default"};
-HHAuto_ToolTips.fr.DebugFileText = { elementText: "Cliquer sur le boutton ci-dessous pour produire une journal de debug.", tooltip : ""};
-HHAuto_ToolTips.fr.OptionCancel = { elementText: "Annuler", tooltip : ""};
-HHAuto_ToolTips.fr.SeasonMaskRewards = { elementText: "Masquer gains", tooltip : "Permet de masquer les gains réclamés de la saison."};
-HHAuto_ToolTips.fr.globalTitle = { elementText: "Général"};
-HHAuto_ToolTips.fr.displayTitle = { elementText: "Affichage"};
-HHAuto_ToolTips.fr.autoActivitiesTitle = { elementText: "Activités"};
-HHAuto_ToolTips.fr.autoTrollTitle = { elementText: "Combat troll"};
-HHAuto_ToolTips.fr.autoSeasonTitle = { elementText: "Saison"};
-HHAuto_ToolTips.fr.autoLeaguesTitle = { elementText: "Ligues"};
-HHAuto_ToolTips.fr.PoAMaskRewards = { elementText: "Cacher gains chemin", tooltip : "Si activé : masque les récompenses déjà réclamées du chemin d'affection."};
-HHAuto_ToolTips.fr.showTooltips = { elementText: "Infobulles", tooltip : "Si activé : affiche des bulles d'aide lors du survol des éléments avec la souris."};
-HHAuto_ToolTips.fr.autoClubChamp = { elementText: "Club", tooltip : "Si activé : combat automatiquement le champion de club si au moins un combat a déjà été effectué."};
-HHAuto_ToolTips.fr.autoClubChampMax = { elementText: "Max. tickets par session", tooltip : "Nombre maximum de ticket à utiliser sur une même session du champion de club."};
-HHAuto_ToolTips.fr.showMarketTools = { elementText: "Outils du marché", tooltip : "Si activé : affiche des icones supplémentaires dans le marché pour trier et vendre automatiquement l'équipement."};
-HHAuto_ToolTips.fr.useX10Fights = { elementText: "Combats x10", tooltip : "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>("+HHAuto_ToolTips.fr.spendKobans0.elementText+" doit être activé)</p>Si activé : <br>utilise le bouton x10 si 10 combats sont disponibles (Si Dépense Kobans activée et suffisamment de kobans en banque)."};
-HHAuto_ToolTips.fr.useX50Fights = { elementText: "Combats x50", tooltip : "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>("+HHAuto_ToolTips.fr.spendKobans0.elementText+" doit être activé)</p>Si activé : <br>utilise le bouton x50 si 50 combats sont disponibles (Si Dépense Kobans activée et suffisamment de kobans en banque)."};
-HHAuto_ToolTips.fr.autoBuy = { elementText: "Marché"};
-HHAuto_ToolTips.fr.minShardsX50 = { elementText: "Frags min. x50", tooltip : "Utiliser le bouton x50 si le nombre de fragments restant est supérieur ou égal à..."};
-HHAuto_ToolTips.fr.minShardsX10 = { elementText: "Frags min. x10", tooltip : "OUtiliser le bouton x10 si le nombre de fragments restant est supérieur ou égal à..."};
-HHAuto_ToolTips.fr.autoMissionKFirst = { elementText: "Prioriser Kobans", tooltip : "Si activé : commence par les missions qui rapportent des kobans."};
-HHAuto_ToolTips.fr.autoTrollMythicByPassParanoia = { elementText: "Mythique annule paranoïa", tooltip : "Si activé : autorise le script à ne pas respecter le mode Parano lors d'un événement mythique.<br>Si la prochaine vague est pendant une phase de sommeil le script combattra quand même<br>tant que des combats et des fragments sont disponibles."};
-HHAuto_ToolTips.fr.buyMythicCombat = { elementText: "Achat comb. pour mythique", tooltip : "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>("+HHAuto_ToolTips.fr.spendKobans0.elementText+" doit être activé)</p>Si activé : achète des points de combat (poings) pendant les X dernières heures de l'événement mythique (sans dépasser la limite de la banque de kobans), passera outre la réserve de combats si nécessaire."};
-HHAuto_ToolTips.fr.buyMythicCombTimer = { elementText: "Heures d'achat comb.", tooltip : "(Nombre entier)<br>X dernières heures de l'événement mythique"};
-HHAuto_ToolTips.fr.trollzList = { elementText: ["Dernier","Dark Lord","Espion Ninja","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson","Pandora","Nike","Sake"] };
-HHAuto_ToolTips.fr.leaguesList = { elementText: ["Branleur I","Branleur II","Branleur III","Sexpert I","Sexpert II","Sexpert III","Dicktateur I","Dicktateur II","Dicktateur III"] };
-HHAuto_ToolTips.fr.mythicGirlNext = { elementText: "Vague mythique"};
-
-HHAuto_ToolTips.de = {};
-HHAuto_ToolTips.de.saveDebug = { elementText: "Save Debug", tooltip : "Erlaube das Erstellen einer Debug Log Datei."};
-HHAuto_ToolTips.de.gitHub = { elementText: "GitHub", tooltip : "Link zum GitHub Projekt."};
-HHAuto_ToolTips.de.saveConfig = { elementText: "Save Config", tooltip : "Erlaube die Einstellung zu speichern."};
-HHAuto_ToolTips.de.loadConfig = { elementText: "Load Config", tooltip : "Erlaube die Einstellung zu laden."};
-HHAuto_ToolTips.de.master = { elementText: "Master Schalter", tooltip : "An/Aus Schalter für das Skript"};
-HHAuto_ToolTips.de.settPerTab = { elementText: "Einstellung per Tab", tooltip : "Erlaube die Einstellungen nur für diesen Tab zu setzen."};
-HHAuto_ToolTips.de.paranoia = { elementText: "Paranoia Modus", tooltip : "Erlaube es Schlaf zu simulieren und einen menschlichen Nutzer (wird weiter dokumentiert)"};
-HHAuto_ToolTips.de.paranoiaSpendsBefore = { elementText: "Gib Punkte aus vor...", tooltip : "Wenn gewollt, werden Punkte für Optionen ausgegeben (Quest, Troll, Liga und Season)<br> nur wenn sie aktiviert sind<br>und gibt Punkt aus die über dem maximal Limit sind<br> z.B.: Du hast die Power für Troll von 17, gehst aber für 4h45 in den Paranoia Modus,<br> dass heißt 17+10 Punkte (aufgerundet), welches über dem Max von 20 wäre.<br> Es würden dann 9 Punkte ausgegeben, sodass du nur bei 19 Punkten bleibst bis zum Ende des Paranoia Modus um einen Verlust zu verhindern."};
-HHAuto_ToolTips.de.spendKobans0 = { elementText: "Fragwürdige Scheiße", tooltip : "Erster Sicherheitsschalter für die Nutzung von Kobans.<br>Alle 3 müssen aktiviert sein und Kobans auszugeben."};
-//HHAuto_ToolTips.de.spendKobans1 = { elementText: "Biste sicher?", tooltip : "Zweiter Sicherheitsschalter für die Nutzung von Kobans.<br>Muss nach dem Ersten aktiviert werden.<br>Alle 3 müssen aktiviert sein und Kobans auszugeben."};
-//HHAuto_ToolTips.de.spendKobans2 = { elementText: "Du wurdest gewarnt!", tooltip : "Dritter Sicherheitsschalter für die Nutzung von Kobans <br>Muss nach dem Zweiten aktiviert werden.<br> Alle 3 müssen aktiviert sein und Kobans auszugeben."};
-HHAuto_ToolTips.de.kobanBank = { elementText: "Koban Bank", tooltip : "(Integer)<br>Minimale Anzahl an Kobans die behalten werden sollen."};
-HHAuto_ToolTips.de.buyCombat = { elementText: "Kaufe Kobans bei Events", tooltip : "'Kobans ausgeben Funktion'<br> Wenn aktiviert: <br> Kauft Kampfpunkte in den letzten X Stunden eines Events (Wenn es das Minimum nicht unterschreitet)"};
-HHAuto_ToolTips.de.buyCombTimer = { elementText: "Stunden bis Kauf", tooltip : "(Ganze pos. Zahl)<br>X verbleibende Stunden des Events"};
-HHAuto_ToolTips.de.autoBuyBoosters = { elementText: "Kaufe Booster", tooltip : "'Koban ausgeben Funktion'<br>Erlaubt es Booster im Markt zu kaufen(Wenn es das Minimum nicht unterschreitet)"};
-HHAuto_ToolTips.de.autoBuyBoostersFilter = { elementText: "Filter", tooltip : "(Werte getrennt durch ;)<br>Gib an welches Booster gekauft werden sollen, Reihenfolge wird beachtet (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)"};
-HHAuto_ToolTips.de.autoSeasonPassReds = { elementText: "Überspringe drei Rote", tooltip : "'Koban ausgeben Funktion'<br>Benutze Kobans um Season Gegner zu tauschen wenn alle drei Rote sind"};
-HHAuto_ToolTips.de.showCalculatePower = { elementText: "Zeige Kraftrechner", tooltip : "Zeige Kampfsimulationsindikator an für Liga, Kampf und Season"};
-//HHAuto_ToolTips.de.calculatePowerLimits = { elementText: "Eigene Grenzen (rot;gelb)", tooltip : "(rot;gelb)<br>Definiere deine eigenen Grenzen für rote und orange Gegner<br> -6000;0 meint<br> <-6000 ist rot, zwischen -6000 und 0 ist orange und >=0 ist grün"};
-HHAuto_ToolTips.de.showInfo = { elementText: "Zeige Info", tooltip : "Wenn aktiv : zeige Information auf Skriptwerten und nächsten Durchläufen"};
-HHAuto_ToolTips.de.autoSalary = { elementText: "Auto Einkommen", tooltip : "Wenn aktiv :<br>Sammelt das gesamte Einkommen alle X Sek."};
-//HHAuto_ToolTips.de.autoSalaryMinTimer = { elementText: "min Warten", tooltip : "(Ganze pos. Zahl)<br>X Sek bis zum Sammeln des Einkommens"};
-HHAuto_ToolTips.de.autoMission = { elementText: "AutoMission", tooltip : "Wenn aktiv : Macht automatisch Missionen"};
-HHAuto_ToolTips.de.autoMissionCollect = { elementText: "Einsammeln", tooltip : "Wenn aktiv : Sammelt automatisch Missionsgewinne"};
-HHAuto_ToolTips.de.autoTrollBattle = { elementText: "AutoTrollKampf", tooltip : "Wenn aktiv : Macht automatisch aktivierte Trollkämpfe"};
-HHAuto_ToolTips.de.autoTrollSelector = { elementText: "Troll Wähler", tooltip : "Wähle Trolle die bekämpfte werden sollen."};
-HHAuto_ToolTips.de.autoTrollThreshold = { elementText: "Schwellwert", tooltip : "Minimum an Trollpunkten die aufgehoben werden"};
-HHAuto_ToolTips.de.eventTrollOrder = { elementText: "Event Troll Reihenfolge", tooltip : "Erlaubt eine Auswahl in welcher Reihenfolge die Trolle automatisch bekämpft werden"};
-HHAuto_ToolTips.de.plusEvent = { elementText: "+Event", tooltip : "Wenn aktiv : Ignoriere ausgewählte Trolle währende eines Events, zugunsten des Events"};
-HHAuto_ToolTips.de.plusEventMythic = { elementText: "+Mythisches Event", tooltip : "Erlaubt es Mädels beim mystischen Event abzugreifen, sollte sie nur versuchen wenn auch Teile vorhanden sind"};
-//HHAuto_ToolTips.de.eventMythicPrio = { elementText: "Priorisiere über Event Troll Reihenfolge", tooltip : "Mystische Event Mädels werden über die Event Troll Reihenfolge gestellt, sofern Teile erhältlich sind"};
-//HHAuto_ToolTips.de.autoTrollMythicByPassThreshold = { elementText: "Mystische über Schwellenwert", tooltip : "Erlaubt es Punkt über den Schwellwert für das mystische Events zu nutzen"};
-HHAuto_ToolTips.de.autoTrollMythicByPassParanoia = { elementText: "Mythisch über Paranoia", tooltip : "Wenn aktiv: Erlaubt es den Paranoia Modus zu übergehen. Wenn du noch kämpfen kannst oder dir Energie kaufen kannst, wird gekämpft. Sollte die nächste Welle an Splittern während der Ruhephase sein, wird der Modus unterbrochen und es wird gekämpft"};
-HHAuto_ToolTips.de.autoArenaCheckbox = { elementText: "AutoArenaKampf", tooltip : "if enabled : Automatically do Arena (deprecated)"};
-HHAuto_ToolTips.de.autoSeason = { elementText: "AutoSeason", tooltip : "Wenn aktiv : Kämpft automatisch in der Season (Gegner werden wie im Kraftrechner einstellt gewählt)"};
-HHAuto_ToolTips.de.autoSeasonCollect = { elementText: "Einsammeln", tooltip : "Wenn aktiv : Sammelt automatisch Seasongewinne ein (bei mehr als einem, wird eines pro Küssnutzung eingesammelt)"};
-HHAuto_ToolTips.de.autoSeasonThreshold = { elementText: "Schwellwert", tooltip : "Minimum Küsse die behalten bleiben"};
-HHAuto_ToolTips.de.autoQuest = { elementText: "AutoQuest", tooltip : "Wenn aktiv : Macht automatisch Quests"};
-HHAuto_ToolTips.de.autoQuestThreshold = { elementText: "Schwellwert", tooltip : "Minimum an Energie die behalten bleibt"};
-HHAuto_ToolTips.de.autoContest = { elementText: "AutoAufgabe", tooltip : "Wenn aktiv : Sammelt abgeschlossene Aufgabenbelohnungen ein"};
-HHAuto_ToolTips.de.autoFreePachinko = { elementText: "AutoPachinko(Gratis)", tooltip : "Wenn aktiv : Sammelt freien Glücksspielgewinn ein"};
-HHAuto_ToolTips.de.autoLeagues = { elementText: "AutoLiga", tooltip : "Wenn aktiv : Kämpft automatisch in der Liga"};
-HHAuto_ToolTips.de.autoLeaguesPowerCalc = { elementText: "Nutze Kraftrechner", tooltip : "Wenn aktiv : wählt Gegner durch Kraftrechner (Gegnerliste verfällt alle 10 Min und braucht ein Minuten zur Erneuerung)"};
-HHAuto_ToolTips.de.autoLeaguesCollect = { elementText: "Einsammeln", tooltip : "Wenn aktiv : Sammelt automatisch Ligagewinn ein"};
-HHAuto_ToolTips.de.autoLeaguesSelector = { elementText: "Ligaziel", tooltip : "Ligaziel, versuche abzusteigen, Platz zu halten oder aufzusteigen"};
-HHAuto_ToolTips.de.autoLeaguesThreshold = { elementText: "Schwellwert", tooltip : "Minimum an Ligakämpfe behalten"};
-HHAuto_ToolTips.de.autoPowerPlaces = { elementText: "Auto Orte der Macht", tooltip : "Wenn aktiv : macht automatisch Orte der Macht"};
-HHAuto_ToolTips.de.autoPowerPlacesIndexFilter = { elementText: "Index Filter", tooltip : "Erlaubt es Filter zusetzen für Orte der Macht und eine Reihenfolge festzulegen (Reihenfolge wird beachtet, sollten mehrere zur gleichen Zeit fertig werden)"};
-HHAuto_ToolTips.de.autoPowerPlacesAll = { elementText: "Mach alle", tooltip : "Wenn aktiv : ignoriere Filter und mache alle (aktualisiert den Filter mit korrekten IDs)"};
-HHAuto_ToolTips.de.autoChamps = { elementText: "AutoChampions", tooltip : "Wenn aktiv : Macht automatisch Championkämpfe (nur wenn sie gestartet wurden und im Filter stehen)"};
-HHAuto_ToolTips.de.autoChampsUseEne = { elementText: "Nutze Energie", tooltip : "Wenn aktiv : Nutze Energie und kaufe Champ. Tickets"};
-HHAuto_ToolTips.de.autoChampsFilter = { elementText: "Filter", tooltip : "Erlaubt es Filter für zu bekämpfende Champions zu setzen"};
-HHAuto_ToolTips.de.autoClubChamp = { elementText: "AutoChampions", tooltip : "Wenn aktiv : Macht automatisch ClubChampionkämpfe (nur wenn sie gestartet wurden und im Filter stehen)"};
-HHAuto_ToolTips.de.autoStats = { elementText: "Min Geld verbleib", tooltip : "Kauft automatisch bessere Statuswerte im Markt mit überschüssigem Geld oberhalb des gesetzten Wertes"};
-HHAuto_ToolTips.de.autoExpW = { elementText: "Kaufe Erfahrung", tooltip : "Wenn aktiv : Erlaube Erfahrung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt<br>Kauft nur wenn sich im Besitz befinden potentielle Erfahrung unter dem Wert liegt"};
-HHAuto_ToolTips.de.autoExp = { elementText: "Min Geld verbleib", tooltip : "Minimum an Geld das behalten wird."};
-HHAuto_ToolTips.de.maxExp = { elementText: "Max ErfahrKauf", tooltip : "Maximum Erfahrung die gekauft wird"};
-HHAuto_ToolTips.de.autoAffW = { elementText: "KaufAnziehung", tooltip : "Wenn aktiv : Erlaube Anziehung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt<br>Kauft nur wenn sich im Besitz befinden potentielle Anziehung unter dem Wert liegt"};
-HHAuto_ToolTips.de.autoAff = { elementText: "Min Geld verbleib", tooltip : "Minimum an Geld das behalten wird."};
-HHAuto_ToolTips.de.maxAff = { elementText: "Max AnziehungKauf", tooltip : "Maximum an Anziehung die gekauft wird"};
-HHAuto_ToolTips.de.autoLGMW = { elementText: "Buy Leg Gear Mono", tooltip : "Wenn aktiv : Erlaube es Mono legendäre Rüstung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt"};
-HHAuto_ToolTips.de.autoLGM = { elementText: "Min Geld verbleib", tooltip : "Minimum an Geld das behalten wird."};
-HHAuto_ToolTips.de.autoLGRW = { elementText: "Buy Leg Gear Rainbow", tooltip : "Wenn aktiv : Erlaube es Regenbogenausrüstung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt"};
-HHAuto_ToolTips.de.autoLGR = { elementText: "Min Geld verbleib", tooltip : "Minimum an Geld das behalten wird."};
-HHAuto_ToolTips.de.OpponentListBuilding = { elementText: "Gegnerliste wird erstellt", tooltip : ""};
-HHAuto_ToolTips.de.OpponentParsed = { elementText: "Gegner analysiert", tooltip : ""};
+HHAuto_ToolTips.en.saveDebug = { version: "5.6.24", elementText: "Save Debug", tooltip: "Allow to produce a debug log file."};
+HHAuto_ToolTips.en.gitHub = { version: "5.6.24", elementText: "GitHub", tooltip: "Link to GitHub project."};
+HHAuto_ToolTips.en.saveConfig = { version: "5.6.24", elementText: "Save Config", tooltip: "Allow to save configuration."};
+HHAuto_ToolTips.en.loadConfig = { version: "5.6.24", elementText: "Load Config", tooltip: "Allow to load configuration."};
+HHAuto_ToolTips.en.globalTitle = { version: "5.6.24", elementText: "Global options"};
+HHAuto_ToolTips.en.master = { version: "5.6.24", elementText: "Master switch", tooltip: "On/off switch for full script"};
+HHAuto_ToolTips.en.settPerTab = { version: "5.6.24", elementText: "Settings per tab", tooltip: "Allow the settings to be set for this tab only"};
+HHAuto_ToolTips.en.paranoia = { version: "5.6.24", elementText: "Paranoia mode", tooltip: "Allow to simulate sleep, and human user (To be documented further)"};
+HHAuto_ToolTips.en.paranoiaSpendsBefore = { version: "5.6.24", elementText: "Spend points before", tooltip: "On will spend points for options (quest, Troll, Leagues and Season)<br>only if they are enabled<br>and spend points that would be above max limits<br>Ex : you have power for troll at 17, but going 4h45 in paranoia<br>it would mean having 17+10 points (rounded to higher int), thus being above the 20 max<br> it will then spend 8 points to fall back to 19 end of Paranoia, preventing to loose points."};
+HHAuto_ToolTips.en.spendKobans0 = { version: "5.6.24", elementText: "Spend Kobans", tooltip: "<p style='color:red'>/!\\ Allow Kobans spending /!\\</p>Security switches for usage of kobans, needs to be active for Kobans spending functions"};
+//HHAuto_ToolTips.en.spendKobans1 = { version: "5.6.24", elementText: "Are you sure?", tooltip: "Second security switches for usage of kobans <br>Have to be activated after the first one.<br> All 3 needs to be active for Kobans spending functions"};
+//HHAuto_ToolTips.en.spendKobans2 = { version: "5.6.24", elementText: "You\'ve been warned", tooltip: "Third security switches for usage of kobans <br>Have to be activated after the second one.<br> All 3 needs to be active for Kobans spending functions"};
+HHAuto_ToolTips.en.kobanBank = { version: "5.6.24", elementText: "Kobans Bank", tooltip: "(Integer)<br>Minimum Kobans kept when using Kobans spending functions"};
+HHAuto_ToolTips.en.displayTitle = { version: "5.6.24", elementText: "Display options"};
+HHAuto_ToolTips.en.autoActivitiesTitle = { version: "5.6.24", elementText: "Activities"};
+HHAuto_ToolTips.en.buyCombat = { version: "5.6.24", elementText: "Buy comb. for events", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Buying combat point during last X hours of event (if not going under Koban bank value), this will bypass threshold if event girl shards available."};
+HHAuto_ToolTips.en.buyCombTimer = { version: "5.6.24", elementText: "Hours to buy Combats", tooltip: "(Integer)<br>X last hours of event"};
+HHAuto_ToolTips.en.autoBuyBoosters = { version: "5.6.25", elementText: "Myth. & Leg. Boosters", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>Allow to buy booster in the market (if not going under Koban bank value)"};
+HHAuto_ToolTips.en.autoBuyBoostersFilter = { version: "5.6.25", elementText: "Filter", tooltip: "(values separated by ;)<br>Set list of codes of booster to buy, order is respected.<br>Code:Name<br>B1:Ginseng<br>B2:Jujubes<br>B3:Chlorella<br>B4:Cordyceps<br>MB1:Sandalwood perfume<br>MB2:All Mastery's Emblem<br>MB3:Headband of determination<br>MB4:Luxurious Watch<br>MB5:Combative Cinnamon<br>MB6:Alban's travel memories<br>MB7:Angels' semen scent"};
+HHAuto_ToolTips.en.autoSeasonPassReds = { version: "5.6.24", elementText: "Pass 3 reds", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>Use kobans to renew Season opponents if 3 reds"};
+HHAuto_ToolTips.en.showCalculatePower = { version: "5.6.24", elementText: "Show PowerCalc", tooltip: "Display battle simulation indicator for Leagues, battle, Seasons "};
+//HHAuto_ToolTips.en.calculatePowerLimits = { version: "5.6.24", elementText: "Own limits", tooltip: "(red;orange)<br>Define your own red and orange limits for Opponents<br> -6000;0 do mean<br> <-6000 is red, between -6000 and 0 is orange and >=0 is green"};
+HHAuto_ToolTips.en.showInfo = { version: "5.6.24", elementText: "Show info", tooltip: "if enabled : show info on script values and next runs"};
+HHAuto_ToolTips.en.autoSalary = { version: "5.6.24", elementText: "Salary", tooltip: "(Integer)<br>if enabled :<br>Collect salaries every X secs"};
+//HHAuto_ToolTips.en.autoSalaryMinTimer = { version: "5.6.24", elementText: "Minimum wait", tooltip: "(Integer)<br>X secs to next Salary collection"};
+HHAuto_ToolTips.en.autoSalaryMinSalary = { version: "5.6.24", elementText: "Min. salary", tooltip: "(Integer)<br>Minium salary to start collection"};
+HHAuto_ToolTips.en.autoSalaryMaxTimer = { version: "5.6.24", elementText: "Max. collect time", tooltip: "(Integer)<br>X secs to collect Salary, before stopping."};
+HHAuto_ToolTips.en.autoMission = { version: "5.6.24", elementText: "Mission", tooltip: "if enabled : Automatically do missions"};
+HHAuto_ToolTips.en.autoMissionCollect = { version: "5.6.24", elementText: "Collect", tooltip: "if enabled : Automatically collect missions after start of new competition."};
+HHAuto_ToolTips.en.autoTrollTitle = { version: "5.6.24", elementText: "Battle Troll"};
+HHAuto_ToolTips.en.autoTrollBattle = { version: "5.6.24", elementText: "Enable", tooltip: "if enabled : Automatically battle troll selected"};
+HHAuto_ToolTips.en.autoTrollSelector = { version: "5.6.24", elementText: "Troll selector", tooltip: "Select troll to be fought."};
+HHAuto_ToolTips.en.autoTrollThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "(Integer 0 to 19)<br>Minimum troll fight to keep"};
+HHAuto_ToolTips.en.eventTrollOrder = { version: "5.6.24", elementText: "Event Troll Order", tooltip: "(values separated by ;)<br>Allow to select in which order event troll are automatically battled<br>1 : Dark Lord<br>2 : Ninja Spy<br>3 : Gruntt<br>4 : Edwarda<br>5 : Donatien<br>6 : Sylvanus<br>7 : Bremen<br>8 : Finalmecia<br>9 : Fredy Sih Roko<br>10 : Karole<br>11 : Jackson's Crew<br>12 : Pandora Witch<br>13 : Nike<br>14 : Sake"};
+HHAuto_ToolTips.en.plusEvent = { version: "5.6.24", elementText: "+Event", tooltip: "If enabled : ignore selected troll during event to battle event"};
+HHAuto_ToolTips.en.plusEventMythic = { version: "5.6.24", elementText: "+Mythic Event", tooltip: "Enable grabbing girls for mythic event, should only play them when shards are available, Mythic girl troll will be priorized over Event Troll."};
+//HHAuto_ToolTips.en.eventMythicPrio = { version: "5.6.24", elementText: "Priorize over Event Troll Order", tooltip: "Mythic event girl priorized over event troll order if shards available"};
+//HHAuto_ToolTips.en.autoTrollMythicByPassThreshold = { version: "5.6.24", elementText: "Mythic bypass Threshold", tooltip: "Allow mythic to bypass Troll threshold"};
+HHAuto_ToolTips.en.autoSeasonTitle = { version: "5.6.24", elementText: "Season"};
+HHAuto_ToolTips.en.autoSeason = { version: "5.6.24", elementText: "Enable", tooltip: "if enabled : Automatically fight in Seasons (Opponent chosen following PowerCalculation)"};
+HHAuto_ToolTips.en.autoSeasonCollect = { version: "5.6.24", elementText: "Collect", tooltip: "if enabled : Automatically collect Seasons ( if multiple to collect, will collect one per kiss usage)"};
+HHAuto_ToolTips.en.autoSeasonThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "Minimum kiss to keep"};
+HHAuto_ToolTips.en.autoQuest = { version: "5.6.24", elementText: "Quest", tooltip: "if enabled : Automatically do quest"};
+HHAuto_ToolTips.en.autoQuestThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "(Integer between 0 and 99)<br>Minimum quest energy to keep"};
+HHAuto_ToolTips.en.autoContest = { version: "5.6.24", elementText: "Claim Contest", tooltip: "if enabled : Collect finished contest rewards"};
+HHAuto_ToolTips.en.autoFreePachinko = { version: "5.6.24", elementText: "Pachinko", tooltip: "if enabled : Automatically collect free Pachinkos"};
+HHAuto_ToolTips.en.autoMythicPachinko = { version: "5.6.24", elementText: "Mythic Pachinko"};
+HHAuto_ToolTips.en.autoLeaguesTitle = { version: "5.6.24", elementText: "Leagues"};
+HHAuto_ToolTips.en.autoLeagues = { version: "5.6.24", elementText: "Enable", tooltip: "if enabled : Automatically battle Leagues"};
+HHAuto_ToolTips.en.autoLeaguesPowerCalc = { version: "5.6.24", elementText: "Use PowerCalc", tooltip: "if enabled : will choose opponent using PowerCalc (Opponent list expires every 10 mins and take few mins to be built)"};
+HHAuto_ToolTips.en.autoLeaguesCollect = { version: "5.6.24", elementText: "Collect", tooltip: "If enabled : Automatically collect Leagues"};
+HHAuto_ToolTips.en.autoLeaguesSelector = { version: "5.6.24", elementText: "Target League", tooltip: "League to target, to try to demote, stay or go in higher league depending"};
+HHAuto_ToolTips.en.autoLeaguesAllowWinCurrent = {version: "5.6.24", elementText:"Allow win", tooltip: "If check will allow to win targeted league and then demote next league to fall back to targeted league."};
+HHAuto_ToolTips.en.autoLeaguesThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "(Integer between 0 and 14)<br>Minimum league fights to keep"};
+HHAuto_ToolTips.en.autoPowerPlaces = { version: "5.6.24", elementText: "Places of Power", tooltip: "if enabled : Automatically Do powerPlaces"};
+HHAuto_ToolTips.en.autoPowerPlacesIndexFilter = { version: "5.6.24", elementText: "Index Filter", tooltip: "(values separated by ;)<br>Allow to set filter and order on the PowerPlaces to do (order respected only when multiple powerPlace expires at the same time)"};//<table style='font-size: 8px;line-height: 1;'><tr><td>Reward</td>  <td>HC</td>    <td>CH</td>   <td>KH</td></tr><tr><td>Champ tickets & M¥</td>    <td>4</td>   <td>5</td>   <td>6</td></tr><tr><td>Kobans & K¥</td>  <td>7</td>   <td>8</td>   <td>9</td></tr><tr><td>Epic Book & K¥</td> <td>10</td>  <td>11</td> <td>12</td></tr><tr><td>Epic Orbs & K¥</td>  <td>13</td>  <td>14</td>  <td>15</td></tr><tr><td>Leg. Booster & K¥</td>   <td>16</td>  <td>17</td>  <td>18</td></tr><tr><td>Champions tickets & K¥</td>  <td>19</td>  <td>20</td>  <td>21</td></tr><tr><td>Epic Gift & K¥</td>  <td>22</td>  <td>23</td>  <td>24</td></tr></table>"};
+HHAuto_ToolTips.en.autoPowerPlacesAll = { version: "5.6.24", elementText: "Do All", tooltip: "If enabled : ignore filter and do all powerplaces (will update Filter with current ids)"};
+HHAuto_ToolTips.en.autoChampsTitle = { version: "5.6.24", elementText: "Champions"};
+HHAuto_ToolTips.en.autoChamps = { version: "5.6.24", elementText: "Normal", tooltip: "if enabled : Automatically do champions (if they are started and in filter only)"};
+HHAuto_ToolTips.en.autoChampsUseEne = { version: "5.6.24", elementText: "Buy tickets", tooltip: "If enabled : use Energy to buy tickets"};
+HHAuto_ToolTips.en.autoChampsFilter = { version: "5.6.24", elementText: "Filter", tooltip: "(values separated by ; 1 to 6)<br>Allow to set filter on champions to be fought"};
+HHAuto_ToolTips.en.autoStats = { version: "5.6.24", elementText: "Money to keep", tooltip: "(Integer)<br>Automatically buy stats in market with money above the setted amount"};
+HHAuto_ToolTips.en.autoStatsSwitch = { version: "5.6.24", elementText: "Stats", tooltip: "Allow to on/off autoStats"};
+HHAuto_ToolTips.en.autoExpW = { version: "5.6.24", elementText: "Books", tooltip: "if enabled : allow to buy Exp in market<br>Only buy if money bank is above the value<br>Only buy if total Exp owned is below value"};
+HHAuto_ToolTips.en.autoExp = { version: "5.6.24", elementText: "Money to keep", tooltip: "(Integer)<br>Minimum money to keep."};
+HHAuto_ToolTips.en.maxExp = { version: "5.6.24", elementText: "Max Exp.", tooltip: "(Integer)<br>Maximum Exp to buy"};
+HHAuto_ToolTips.en.autoAffW = { version: "5.6.24", elementText: "Gifts", tooltip: "if enabled : allow to buy Aff in market<br>Only buy if money bank is above the value<br>Only buy if total Aff owned is below value"};
+HHAuto_ToolTips.en.autoAff = { version: "5.6.24", elementText: "Money to keep", tooltip: "(Integer)<br>Minimum money to keep."};
+HHAuto_ToolTips.en.maxAff = { version: "5.6.24", elementText: "Max Aff.", tooltip: "(Integer)<br>Maximum Aff to buy"};
+HHAuto_ToolTips.en.autoLGMW = { version: "5.6.24", elementText: "Leg. Class Gear", tooltip: "if enabled : allow to buy Mono Legendary gear in the market<br>Only buy if money bank is above the value"};
+HHAuto_ToolTips.en.autoLGM = { version: "5.6.24", elementText: "Money to keep", tooltip: "(Integer)<br>Minimum money to keep."};
+HHAuto_ToolTips.en.autoLGRW = { version: "5.6.24", elementText: "Leg. Rainbow Gear", tooltip: "if enabled : allow to buy Rainbow Legendary gear in the market<br>Only buy if money bank is above the value"};
+HHAuto_ToolTips.en.autoLGR = { version: "5.6.24", elementText: "Money to keep", tooltip: "(Integer)<br>Minimum money to keep."};
+HHAuto_ToolTips.en.OpponentListBuilding = { version: "5.6.24", elementText: "Opponent list is building", tooltip: ""};
+HHAuto_ToolTips.en.OpponentParsed = { version: "5.6.24", elementText: "opponents parsed", tooltip: ""};
+HHAuto_ToolTips.en.DebugMenu = { version: "5.6.24", elementText: "Debug Menu", tooltip: "Options for debug"};
+HHAuto_ToolTips.en.DebugOptionsText = { version: "5.6.24", elementText: "Buttons below allow to modify script storage, be careful using it.", tooltip: ""};
+HHAuto_ToolTips.en.DeleteTempVars = { version: "5.6.24", elementText: "Delete temp storage", tooltip: "Delete all temporary storage for the script."};
+HHAuto_ToolTips.en.ResetAllVars = { version: "5.6.24", elementText: "Reset defaults", tooltip: "Reset all setting to defaults."};
+HHAuto_ToolTips.en.DebugFileText = { version: "5.6.24", elementText: "Click on button bellow to produce a debug log file", tooltip: ""};
+HHAuto_ToolTips.en.OptionCancel = { version: "5.6.24", elementText: "Cancel", tooltip: ""};
+HHAuto_ToolTips.en.OptionStop = { version: "5.6.24", elementText: "Stop", tooltip: ""};
+HHAuto_ToolTips.en.SeasonMaskRewards = { version: "5.6.24", elementText: "Mask claimed", tooltip: "Allow to mask all claimed rewards on Season screen"};
+HHAuto_ToolTips.en.autoClubChamp = { version: "5.6.24", elementText: "Club", tooltip: "if enabled, automatically fight club champion if champion has already been fought once."};
+HHAuto_ToolTips.en.autoClubForceStart = { version: "5.6.24", elementText: "Force start", tooltip: "if enabled, will fight club champion even if not started."};
+HHAuto_ToolTips.en.autoTrollMythicByPassParanoia = { version: "5.6.24", elementText: "Mythic bypass Paranoia", tooltip: "Allow mythic to bypass paranoia.<br>if next wave is during rest, it will force it to wake up for wave.<br>If still fight or can buy fights it will continue."};
+HHAuto_ToolTips.en.buyMythicCombat = { version: "5.6.24", elementText: "Buy comb. for mythic event", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Buying combat point during last X hours of mythic event (if not going under Koban bank value), this will bypass threshold if mythic girl shards available."};
+HHAuto_ToolTips.en.buyMythicCombTimer = { version: "5.6.24", elementText: "Hours to buy Mythic Combats", tooltip: "(Integer)<br>X last hours of mythic event"};
+HHAuto_ToolTips.en.DebugResetTimerText = { version: "5.6.24", elementText: "Selector below allow you to reset ongoing timers", tooltip: ""};
+HHAuto_ToolTips.en.timerResetSelector = { version: "5.6.24", elementText: "Select Timer", tooltip: "Select the timer you want to reset"};
+HHAuto_ToolTips.en.timerResetButton = { version: "5.6.24", elementText: "Reset", tooltip: "Set the timer to 0."};
+HHAuto_ToolTips.en.timerLeftTime = { version: "5.6.24", elementText: "", tooltip: "Time remaining"};
+HHAuto_ToolTips.en.timerResetNoTimer = { version: "5.6.24", elementText: "No selected timer", tooltip: ""};
+HHAuto_ToolTips.en.menuSell = { version: "5.6.24", elementText: "Sell", tooltip: "Allow to sell items."};
+HHAuto_ToolTips.en.menuSellText = { version: "5.6.24", elementText: "This will sell the number of items asked starting in display order (first all non legendary then legendary)<br> It will sell all non legendary stuff and keep : <br> - 1 set of rainbow legendary (choosen on highest player class stat)<br> - 1 set of legendary mono player class (choosen on highest stats)<br> - 1 set of legendary harmony (choosen on highest stats)<br> - 1 set of legendary endurance (choosen on highest stats)<br>You can lock/Unlock batch by clicking on the corresponding cell/row/column (notlocked/total), red means all locked, orange some locked.", tooltip: ""};
+HHAuto_ToolTips.en.menuSellNumber = { version: "5.6.24", elementText: "", tooltip: "Enter the number of items you want to sell : "};
+HHAuto_ToolTips.en.menuSellButton = { version: "5.6.24", elementText: "Sell", tooltip: "Launch selling funtion."};
+HHAuto_ToolTips.en.menuSellCurrentCount = { version: "5.6.24", elementText: "Number of sellable items you currently have : ", tooltip: ""};
+HHAuto_ToolTips.en.menuSellMaskLocked = { version: "5.6.24", elementText: "Mask locked", tooltip: "Allow to mask locked items."};
+HHAuto_ToolTips.en.menuSoldText = { version: "5.6.24", elementText: "Number of items sold : ", tooltip: ""};
+HHAuto_ToolTips.en.menuSoldMessageReachNB = { version: "5.6.24", elementText: "Wanted sold items reached.", tooltip: ""};
+HHAuto_ToolTips.en.menuSoldMessageNoMore = { version: "5.6.24", elementText: " No more sellable items.", tooltip: ""};
+HHAuto_ToolTips.en.menuAff = { version: "5.6.24", elementText: "Give Aff", tooltip: "Automatically give Aff to selected girl."};
+HHAuto_ToolTips.en.menuAffButton = { version: "5.6.24", elementText: "Go !", tooltip: "Launch giving aff."};
+HHAuto_ToolTips.en.menuDistribution = { version: "5.6.24", elementText: "Items to be used : ", tooltip: ""};
+HHAuto_ToolTips.en.Total = { version: "5.6.24", elementText: "Total : ", tooltip: ""};
+HHAuto_ToolTips.en.menuAffNoNeed = { version: "5.6.24", elementText: "don't need Aff.", tooltip: ""};
+HHAuto_ToolTips.en.menuAffNoAff = { version: "5.6.24", elementText: "No Aff available to be given to :", tooltip: ""};
+HHAuto_ToolTips.en.menuAffError = { version: "5.6.24", elementText: "Error fetching girl Aff field, cancelling.", tooltip: ""};
+HHAuto_ToolTips.en.menuAffReadyToUpgrade = { version: "5.6.24", elementText: " is ready for upgrade.", tooltip: ""};
+HHAuto_ToolTips.en.menuAffEnd = { version: "5.6.24", elementText: "All Aff given to :", tooltip: ""};
+HHAuto_ToolTips.en.menuDistributed = { version: "5.6.24", elementText: "Items used : ", tooltip: ""};
+HHAuto_ToolTips.en.autoClubChampMax = { version: "5.6.24", elementText: "Max tickets per run", tooltip: "Maximum number of tickets to use on the club champion at each run."};
+HHAuto_ToolTips.en.menuSellLock = { version: "5.6.24", elementText: "Lock/ Unlock", tooltip: "Switch the lock to prevent selected item to be sold."};
+HHAuto_ToolTips.en.Rarity = { version: "5.6.24", elementText: "Rarity", tooltip: ""};
+HHAuto_ToolTips.en.RarityCommon = { version: "5.6.24", elementText: "Common", tooltip: ""};
+HHAuto_ToolTips.en.RarityRare = { version: "5.6.24", elementText: "Rare", tooltip: ""};
+HHAuto_ToolTips.en.RarityEpic = { version: "5.6.24", elementText: "Epic", tooltip: ""};
+HHAuto_ToolTips.en.RarityLegendary = { version: "5.6.24", elementText: "Legendary", tooltip: ""};
+HHAuto_ToolTips.en.equipementHead = { version: "5.6.24", elementText: "Head", tooltip: ""};
+HHAuto_ToolTips.en.equipementBody = { version: "5.6.24", elementText: "Body", tooltip: ""};
+HHAuto_ToolTips.en.equipementLegs = { version: "5.6.24", elementText: "Legs", tooltip: ""};
+HHAuto_ToolTips.en.equipementFlag = { version: "5.6.24", elementText: "Flag", tooltip: ""};
+HHAuto_ToolTips.en.equipementPet = { version: "5.6.24", elementText: "Pet", tooltip: ""};
+HHAuto_ToolTips.en.equipementWeapon = { version: "5.6.24", elementText: "Weapon", tooltip: ""};
+HHAuto_ToolTips.en.equipementCaracs = { version: "5.6.24", elementText: "Caracs", tooltip: ""};
+HHAuto_ToolTips.en.equipementType = { version: "5.6.24", elementText: "Type", tooltip: ""};
+HHAuto_ToolTips.en.autoMissionKFirst = { version: "5.6.24", elementText: "Kobans first", tooltip: "Start by missions rewarded with Kobans."};
+HHAuto_ToolTips.en.menuExp = { version: "5.6.24", elementText: "Give Exp", tooltip: "Automatically give max Exp to selected girl."};
+HHAuto_ToolTips.en.menuExpButton = { version: "5.6.24", elementText: "Go !", tooltip: "Launch giving exp."};
+HHAuto_ToolTips.en.menuExpNoNeed = { version: "5.6.24", elementText: "don't need Exp.", tooltip: ""};
+HHAuto_ToolTips.en.menuExpNoExp = { version: "5.6.24", elementText: "No Exp available to be given to :", tooltip: ""};
+HHAuto_ToolTips.en.menuExpError = { version: "5.6.24", elementText: "Error fetching girl Exp field, cancelling.", tooltip: ""};
+HHAuto_ToolTips.en.menuExpEnd = { version: "5.6.24", elementText: "All Exp given to :", tooltip: ""};
+HHAuto_ToolTips.en.menuExpLevel =  { version: "5.6.24", elementText: "Enter target Exp level :", tooltip: "Target Exp level for girl"};
+HHAuto_ToolTips.en.menuExpAwakeningNeeded =  { version: "5.6.24", elementText: "Girl need awakening ", tooltip: ""};
+HHAuto_ToolTips.en.PoAMaskRewards = { version: "5.6.24", elementText: "PoA mask claimed", tooltip: "Masked claimed rewards for Path of Attraction."};
+HHAuto_ToolTips.en.showTooltips = { version: "5.6.24", elementText: "Show tooltips", tooltip: "Show tooltip on menu."};
+HHAuto_ToolTips.en.showMarketTools = { version: "5.6.24", elementText: "Show market tools", tooltip: "Show Market tools."};
+HHAuto_ToolTips.en.useX10Fights = { version: "5.6.24", elementText: "Use x10", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Use x10 button if 10 fights or more to do (if not going under Koban bank value).<br>x50 takes precedence on x10 if all conditions are filled."};
+HHAuto_ToolTips.en.useX50Fights = { version: "5.6.24", elementText: "Use x50", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Use x50 button if 50 fights or more to do (if not going under Koban bank value).<br>Takes precedence on x10 if all conditions are filled."};
+HHAuto_ToolTips.en.useX10FightsAllowNormalEvent = { version: "5.6.24", elementText: "x10 for Event", tooltip: "If off:<br> X10 will only be used for mythic event<br>If enabled : <br>Allow x10 button for normal event if 10 fights or more to do (if not going under Koban bank value).<br>x50 takes precedence on x10 if all conditions are filled."};
+HHAuto_ToolTips.en.useX50FightsAllowNormalEvent = { version: "5.6.24", elementText: "x50 for Event", tooltip: "If off:<br> X50 will only be used for mythic event<br>If enabled : <br>Use x50 button for normal event if 50 fights or more to do (if not going under Koban bank value).<br>Takes precedence on x10 if all conditions are filled."};
+HHAuto_ToolTips.en.autoBuy = { version: "5.6.24", elementText: "Market"};
+HHAuto_ToolTips.en.minShardsX50 = { version: "5.6.24", elementText: "Min. shards x50", tooltip: "Only use x50 button if remaining shards of current girl is equal or above this limit."};
+HHAuto_ToolTips.en.minShardsX10 = { version: "5.6.24", elementText: "Min. shards x10", tooltip: "Only use x10 button if remaining shards of current girl is equal or above this limit."};
+HHAuto_ToolTips.en.mythicGirlNext = { version: "5.6.24", elementText: "Mythic girl wave"};
+HHAuto_ToolTips.en.RefreshOppoList = { version: "5.6.24", elementText: "Refresh Opponent list", tooltip: "Allow to force a refresh of opponent list."};
+HHAuto_ToolTips.en.PachinkoSelectorNoButtons = {version: "5.6.24", elementText: "No Orbs available.", tooltip: ""};
+HHAuto_ToolTips.en.PachinkoSelector = {version: "5.6.24", elementText: "", tooltip: "Pachinko Selector."};
+HHAuto_ToolTips.en.PachinkoLeft = {version: "5.6.24", elementText: "", tooltip: "Currently available orbs."};
+HHAuto_ToolTips.en.PachinkoXTimes = {version: "5.6.24", elementText: "Number to use : ", tooltip: "Set the number of orbs tu use o selected pachinko."};
+HHAuto_ToolTips.en.PachinkoPlayX = {version: "5.6.24", elementText: "Launch", tooltip: "Launch X uses of selected orbs"};
+HHAuto_ToolTips.en.PachinkoButton = {version: "5.6.24", elementText: "Use Pachinko", tooltip: "Allow to automatically use the selected Pachinko. (Only for Orbs games)"};
+HHAuto_ToolTips.en.PachinkoOrbsLeft = {version: "5.6.24", elementText: " orbs remaining.", tooltip: ""};
+HHAuto_ToolTips.en.PachinkoInvalidOrbsNb = {version: "5.6.24", elementText: 'Invalid orbs number'};
+HHAuto_ToolTips.en.PachinkoNoGirls = {version: "5.6.24", elementText: 'No more any girls available.'};
+HHAuto_ToolTips.en.PachinkoByPassNoGirls = {version: "5.6.24", elementText: 'Bypass no girls', tooltip: "Bypass the no girls in Pachinko warning."};
+HHAuto_ToolTips.en.ChangeTeamButton = {version: "5.6.24", elementText: "Current Best", tooltip: "Get list of top 16 girls for your team."};
+HHAuto_ToolTips.en.ChangeTeamButton2 = {version: "5.6.24", elementText: "Possible Best", tooltip: "Get list of top 16 girls for your team if they are Max Lv & Aff"};
+HHAuto_ToolTips.en.AssignTopTeam  = {version: "5.6.24", elementText: "Assign first 7", tooltip: "Put the first 7 ones in the team."};
+HHAuto_ToolTips.en.ExportGirlsData = {version: "5.6.24", elementText: "⤓", tooltip: "Export Girls data."};
+HHAuto_ToolTips.en.menuRemoveMaxed = {version: "5.6.24", elementText: "Remove maxed", tooltip: "Remove maxed girls"};
+HHAuto_ToolTips.en.collectDailyRewards = {version: "5.6.24", elementText: "Collect daily", tooltip: "Collect daily rewards if not collected 1 hour before end of HH day."};
+HHAuto_ToolTips.en.saveDefaults = {version: "5.6.24", elementText: "Save defaults", tooltip: "Save your own defaults values for new tabs."};
+HHAuto_ToolTips.en.autoGiveAff = {version: "5.6.24", elementText: "Auto Give", tooltip: "If enabled, will automatically give Aff to girls in order ( you can use OCD script to filter )."};
+HHAuto_ToolTips.en.autoGiveExp = {version: "5.6.24", elementText: "Auto Give", tooltip: "If enabled, will automatically give Exp to girls in order ( you can use OCD script to filter )."};
+HHAuto_ToolTips.en.autoPantheonTitle = {version: "5.6.24", elementText: "Pantheon", tooltip: ""};
+HHAuto_ToolTips.en.autoPantheon = { version: "5.6.24", elementText: "Enable", tooltip: "if enabled : Automatically do Pantheon"};
+HHAuto_ToolTips.en.autoPantheonThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "(Integer 0 to 19)<br>Minimum worship to keep"};
+HHAuto_ToolTips.en.buttonSaveOpponent = { version: "5.6.24", elementText: "Save opponent data", tooltip: "Save opponent data for fight simulation in market."};
+HHAuto_ToolTips.en.SimResultMarketButton = { version: "5.6.24", elementText: "Sim. results", tooltip: "Simulate result with League saved opponent."};
+HHAuto_ToolTips.en.simResultMarketPreviousScore = { version: "5.6.24", elementText: "Previous score :", tooltip: ""};
+HHAuto_ToolTips.en.simResultMarketScore = { version: "5.6.24", elementText: "Score : ", tooltip: ""};
+HHAuto_ToolTips.en.none = { version: "5.6.24", elementText: "None", tooltip: ""};
+HHAuto_ToolTips.en.name = { version: "5.6.24", elementText: "Name", tooltip: ""};
+HHAuto_ToolTips.en.sortPowerCalc = { version: "5.6.24", elementText: "Sort by score", tooltip: "Sorting opponents by score."};
+HHAuto_ToolTips.en.haremNextUpgradableGirl = { version: "5.6.24", elementText: "Go to next upgradable Girl.", tooltip: ""};
+HHAuto_ToolTips.en.haremOpenFirstXUpgradable = { version: "5.6.24", elementText: "Open X upgradable girl quest.", tooltip: ""};
+HHAuto_ToolTips.en.translate = { version: "5.6.25", elementText: "Translate", tooltip: ""};
+HHAuto_ToolTips.en.saveTranslation = { version: "5.6.25", elementText: "Save translation"};
+HHAuto_ToolTips.en.saveTranslationText = { version: "5.6.25", elementText: "Below you'll find all text that can be translated.<br>To contribute, modify directly in the cell the translation (if empty click on the blue part ;))<br><p style='margin-block-start:0px;margin-block-end:0px;color:gray'>Gray cells are translations needing update.</p><p style='margin-block-start:0px;margin-block-end:0px;color:blue'>Blue cell are missing translations</p><p style='margin-block-start:0px;margin-block-end:0px;color:red'>Please try to keep the text length to prevent UI issues.</p>At the bottom you'll find a button to generate a txt file with your modification.<br>Please upload it to : <a target='_blank' href='https://github.com/Roukys/HHauto/issues/426'>Github</a>", tooltip: ""};
 
 
-HHAuto_ToolTips.es = {};
-HHAuto_ToolTips.es.saveDebug = { elementText: "Salvar Debug", tooltip : "Permite generar un fichero log de depuración."};
-HHAuto_ToolTips.es.gitHub = { elementText: "GitHub", tooltip : "Link al proyecto GitHub."};
-HHAuto_ToolTips.es.saveConfig = { elementText: "Salvar config.", tooltip : "Permite salvar la configuración."};
-HHAuto_ToolTips.es.loadConfig = { elementText: "Cargar config", tooltip : "Permite cargar la configuración."};
-HHAuto_ToolTips.es.master = { elementText: "Switch maestro", tooltip : "Interruptor de Encendido/Apagado para el script completo"};
-HHAuto_ToolTips.es.settPerTab = { elementText: "Configuración por ventana", tooltip : "Aplica las opciones sólo a esta ventana"};
-HHAuto_ToolTips.es.paranoia = { elementText: "Modo Paranoia", tooltip : "Permite simular sueño, y un usuario humano (Pendiente de documentación)"};
-HHAuto_ToolTips.es.paranoiaSpendsBefore = { elementText: "Gasta puntos antes", tooltip : "\'On\' gastará puntos para opciones (aventura, villanos, ligas y temporada) sólo si éstos están habilitados y gasta puntos que estarían por encima de los límites máximos.<br>Ej : Tienes energia para 17 combates de villanos, pero estarás 4h45m en paranoia.<br> Esto es tener 17+10 combates (redondeado al entero superior), estando así por encima del máximo de 20<br> gastará 8 combates para quedar con 19 al final de la Paranoia, evitando perder puntos."};
-HHAuto_ToolTips.es.spendKobans0 = { elementText: "Kobans securidad", tooltip : "Interruptor de seguridad para el uso de kobans,tienen que estar activados para las funciones de gasto de Kobans"};
-//HHAuto_ToolTips.es.spendKobans1 = { elementText: "¿Estás seguro?", tooltip : "Segundo interruptor de seguridad para el uso de kobans <br>Tiene que ser activado después del primero.<br> Los 3 tienen que estar activados para las funciones de gasto de Kobans"};
-//HHAuto_ToolTips.es.spendKobans2 = { elementText: "Has sido advertido", tooltip : "Tercer interruptor de seguridad para el uso de kobans <br>Tiene que ser activado después del segundo.<br> Los 3 tienen que estar activados para las funciones de gasto de Kobans"};
-HHAuto_ToolTips.es.kobanBank = { elementText: "Banco de Kobans", tooltip : "(Entero)<br>Minimo de Kobans a conservar cuando se usan funciones de gasto de Kobans"};
-HHAuto_ToolTips.es.buyCombat = { elementText: "Compra comb. en eventos", tooltip : "Funciones de gasto de Kobans<br>Si habilitado: <br>Compra puntos de combate durante las últimas X horas del evento (si no se baja del valor de Banco de Kobans)"};
-HHAuto_ToolTips.es.buyCombTimer = { elementText: "Horas para comprar Comb", tooltip : "(Entero)<br>X últimas horas del evento"};
-HHAuto_ToolTips.es.autoBuyBoosters = { elementText: "Compra Potenciad. Leg.", tooltip : "Funciones de gasto de Kobans<br>Permite comprar potenciadores en el mercado (si no se baja del valor de Banco de Kobans)"};
-HHAuto_ToolTips.es.autoBuyBoostersFilter = { elementText: "Filtro", tooltip : "(valores separados por ;)<br>Selecciona que potenciador comprar, se respeta el orden (B1:Ginseng B2:Azufaifo B3:Clorela B4:Cordyceps)"};
-HHAuto_ToolTips.es.autoSeasonPassReds = { elementText: "Pasa 3 rojos", tooltip : "Funciones de gasto de Kobans<br>Usa kobans para renovar oponentes si los 3 rojos"};
-HHAuto_ToolTips.es.showCalculatePower = { elementText: "Mostar PowerCalc", tooltip : "Muestra simulador de batalla para Liga, batallas, Temporadas "};
-//HHAuto_ToolTips.es.calculatePowerLimits = { elementText: "Límites propios (rojo;naranja)", tooltip : "(rojo;naranja)<br>Define tus propios límites rojos y naranjas para los oponentes<br> -6000;0 significa<br> <-6000 is rojo, entre -6000 and 0 is naranja and >=0 is verde"};
-HHAuto_ToolTips.es.showInfo = { elementText: "Muestra info", tooltip : "Si habilitado: muestra información de los valores del script y siguientes ejecuciones"};
-HHAuto_ToolTips.es.autoSalary = { elementText: "AutoSal.", tooltip : "(Entero)<br>Si habilitado:<br>Recauda salario cada X segundos"};
-//HHAuto_ToolTips.es.autoSalaryMinTimer = { elementText: "min espera", tooltip : "(Entero)<br>X segundos para recaudar salario"};
-HHAuto_ToolTips.es.autoMission = { elementText: "AutoMision", tooltip : "Si habilitado: Juega misiones de manera automática"};
-HHAuto_ToolTips.es.autoMissionCollect = { elementText: "Recaudar", tooltip : "Si habilitado: Recauda misiones de manera automática"};
-HHAuto_ToolTips.es.autoTrollBattle = { elementText: "AutoVillano", tooltip : "Si habilitado: Combate villano seleccionado de manera automática"};
-HHAuto_ToolTips.es.autoTrollSelector = { elementText: "Selector villano", tooltip : "Selecciona villano para luchar."};
-HHAuto_ToolTips.es.autoTrollThreshold = { elementText: "Límite", tooltip : "(Entero 0 a 19)<br>Mínimo combates a guardar"};
-HHAuto_ToolTips.es.eventTrollOrder = { elementText: "Orden combate villano", tooltip : "(Valores separados por ;)<br>Permite seleccionar el orden de combate automático de los villanos"};
-HHAuto_ToolTips.es.plusEvent = { elementText: "+Evento", tooltip : "Si habilitado: ignora al villano seleccionado durante un evento para luchar el evento"};
-HHAuto_ToolTips.es.plusEventMythic = { elementText: "+Evento Mythic", tooltip : "Habilita obtener chicas del evento mítico, solo debería jugar cuando haya fragmentos disponibles"};
-//HHAuto_ToolTips.es.eventMythicPrio = { elementText: "Prioriza sobre el orden de evento de villano", tooltip : "La chica del evento mítico es prioritaria sobre el orden del evento de villanos si hay fragmentos disponibles"};
-//HHAuto_ToolTips.es.autoTrollMythicByPassThreshold = { elementText: "Mítico supera límite", tooltip : "Permite que el evento mítico supere el límite de villano"};
-HHAuto_ToolTips.es.autoArenaCheckbox = { elementText: "AutoBatallaArena", tooltip : "Si habilitado: Combate en Arena de manera automática (obsoleta)"};
-HHAuto_ToolTips.es.autoSeason = { elementText: "AutoTemporada", tooltip : "Si habilitado: Combate en emporadas de manera automática (Oponente elegido según Calculadora de energía)"};
-HHAuto_ToolTips.es.autoSeasonCollect = { elementText: "Recaudar", tooltip : "Se habilitado: Recauda temporadas de manera automática (Si multiples para recaudar, recaudará uno por cada uso de beso)"};
-HHAuto_ToolTips.es.autoSeasonThreshold = { elementText: "Límite", tooltip : "Mínimos besos a conservar"};
-HHAuto_ToolTips.es.autoQuest = { elementText: "AutoAventura", tooltip : "Si habilitado : Juega aventura de manera automática"};
-HHAuto_ToolTips.es.autoQuestThreshold = { elementText: "Límite", tooltip : "(Entero entre 0 y 99)<br>Minima energía a conservar"};
-HHAuto_ToolTips.es.autoContest = { elementText: "AutoCompetición", tooltip : "Si habilitado: Recauda recompensas de competición finalizada"};
-HHAuto_ToolTips.es.autoFreePachinko = { elementText: "AutoPachinko(Gratis)", tooltip : "Si habilitado: Recauda pachinkos gratuitos de manera automática"};
-HHAuto_ToolTips.es.autoLeagues = { elementText: "AutoLigas", tooltip : "Si habilitado: Combate en ligas de manera automática"};
-HHAuto_ToolTips.es.autoLeaguesPowerCalc = { elementText: "UsarCalcPotencia", tooltip : "Si habilitado: Elige oponentes usando calculadora de potencia (La lista expira cada 10 mins. y tarda pocos minutos en reconstruirse)"};
-HHAuto_ToolTips.es.autoLeaguesCollect = { elementText: "Recaudar", tooltip : "Si habilitado: Recauda premios de ligas de manera automática"};
-HHAuto_ToolTips.es.autoLeaguesSelector = { elementText: "Liga objetivo", tooltip : "Liga objetivo, para intentar descender, permanecer o ascender a otra liga en función de ello"};
-HHAuto_ToolTips.es.autoLeaguesThreshold = { elementText: "Límite", tooltip : "Mínimos combates de liga a conservar"};
-HHAuto_ToolTips.es.autoPowerPlaces = { elementText: "AutoLugaresPoder", tooltip : "Si habilitado: Juega Lugares de Poder de manera automática"};
-HHAuto_ToolTips.es.autoPowerPlacesIndexFilter = { elementText: "Filtro de índice", tooltip : "Permite establecer un filto y un orden para jugar Lugares de Poder (el orden solo se respeta cuando multiples Lugares de Poder finalizan al mismo tiempo)"};
-HHAuto_ToolTips.es.autoPowerPlacesAll = { elementText: "Juega todos", tooltip : "Si habilitado: ignora el filtro y juega todos los Lugares de Poder (actualizará del Filtro con las actuales ids)"};
-HHAuto_ToolTips.es.autoChamps = { elementText: "AutoCampeones", tooltip : "Si habilitado: Combate a campeones de manera automática (Sólo si han empezado un combate y están en el filtro)"};
-HHAuto_ToolTips.es.autoChampsUseEne = { elementText: "UsaEne", tooltip : "Si habilitado: Usa energía para comprar tickets"};
-HHAuto_ToolTips.es.autoChampsFilter = { elementText: "Filtro", tooltip : "Permite establecer un filtro para luchar con campeones"};
-HHAuto_ToolTips.es.autoStats = { elementText: "Min dinero", tooltip : "(Entero)<br>Compra equipamiento de manera automática en el mercado con dinero por encima de la cantidad establecida"};
-HHAuto_ToolTips.es.autoExpW = { elementText: "Compra exp", tooltip : "Si habilitado: Compra experiencia en el mercado<br>Solo si el dinero en el banco es superior a este valor<br>Solo compra si el total de experiencia poseída está por debajo de este valor"};
-HHAuto_ToolTips.es.autoExp = { elementText: "Min dinero", tooltip : "(Entero)<br>Mínimo dinero a guardar."};
-HHAuto_ToolTips.es.maxExp = { elementText: "Max experiencia", tooltip : "(Entero)<br>Máxima experiencia a comprar"};
-HHAuto_ToolTips.es.autoAffW = { elementText: "Compra afec", tooltip : "Si habilitado: Compra afecto en el mercado<br>Solo si el dinero en el banco es superior a este valor<br>Solo compra si el total de afecto poseído está por debajo de este valor"};
-HHAuto_ToolTips.es.autoAff = { elementText: "Min dinero", tooltip : "(Entero)<br>Mínimo dinero a guardar"};
-HHAuto_ToolTips.es.maxAff = { elementText: "Max afecto", tooltip : "(Entero)<br>Máximo afecto a comprar"};
-HHAuto_ToolTips.es.autoLGMW = { elementText: "Compra Eqip.Leg.Mono", tooltip : "Si habilitado: Compra equipamiento legendario mono en el mercado<br>Solo compra si el banco de dinero es superior a este valor"};
-HHAuto_ToolTips.es.autoLGM = { elementText: "Min dinero", tooltip : "(Entero)<br>Mínimo dinero a guardar"};
-HHAuto_ToolTips.es.autoLGRW = { elementText: "Compra Eqip.Leg.Arcoiris", tooltip : "Si habilitado: Compra equipamiento legendario arcoiris en el mercado<br>Solo compra si el banco de dinero es superior a este valor"};
-HHAuto_ToolTips.es.autoLGR = { elementText: "Min dinero", tooltip : "(Entero)<br>Mínimo dinero a guardar"};
-HHAuto_ToolTips.es.OpponentListBuilding = { elementText: "Lista de oponentes en construcción", tooltip : ""};
-HHAuto_ToolTips.es.OpponentParsed = { elementText: "opositores analizados", tooltip : ""};
-HHAuto_ToolTips.es.DebugMenu = { elementText: "Menú depur.", tooltip : "Opciones de depuración"};
-HHAuto_ToolTips.es.DebugOptionsText = { elementText: "Los botones a continuación permiten modificar el almacenamiento del script, tenga cuidado al usarlos.", tooltip : ""};
-HHAuto_ToolTips.es.DeleteTempVars = { elementText: "Borra almacenamiento temp.", tooltip : "Borra todo el almacenamiento temporal del script."};
-HHAuto_ToolTips.es.ResetAllVars = { elementText: "Restaura por defecto", tooltip : "Restaura la configuración por defecto."};
-HHAuto_ToolTips.es.DebugFileText = { elementText: "Click en el siguiente botón para generar un fichero log de depuración", tooltip : ""};
-HHAuto_ToolTips.es.OptionCancel = { elementText: "Cancelar", tooltip : ""};
-HHAuto_ToolTips.es.SeasonMaskRewards = { elementText: "Enmascara recompensas", tooltip : "Permite enmascarar todas las recompensas reclamadas en la pantalla de Temporada"};
-HHAuto_ToolTips.es.autoClubChamp = { elementText: "AutoClubCamp", tooltip : "Si habilitado: Combate al campeón del club de manera automática"};
-HHAuto_ToolTips.es.autoTrollMythicByPassParanoia = { elementText: "Mítico ignora paranoia", tooltip : "Permite al mítico ignorar paranoia. Si la siguiente liberación es durante el descanso forzará despertarse para jugar. Si todavía pelea o puede comprar peleas, continuará."};
-HHAuto_ToolTips.es.buyMythicCombat = { elementText: "Compra comb. para mítico", tooltip : "Función de gasto de Kobans<br>Si habilitado: <br>Comprar puntos de combate durante las últimas X horas del evento mítico (si no se baja del valor de Banco de Kobans)"};
-HHAuto_ToolTips.es.buyMythicCombTimer = { elementText: "Horas para comprar comb.Mítico", tooltip : "(Entero)<br>X últimas horas del evento mítico"};
-HHAuto_ToolTips.es.DebugResetTimerText = { elementText: "El selector a continuación permite restablecer los temporizadores", tooltip : ""};
-HHAuto_ToolTips.es.timerResetSelector = { elementText: "Seleccionar temporizador", tooltip : "Selecciona el temporizador a restablecer"};
-HHAuto_ToolTips.es.timerResetButton = { elementText: "Restablecer", tooltip : "Establece el temporizador a 0."};
-HHAuto_ToolTips.es.timerLeftTime = { elementText: "", tooltip : "Tiempo restante"};
-HHAuto_ToolTips.es.timerResetNoTimer = { elementText: "No hay temporizador seleccionado", tooltip : ""};
+HHAuto_ToolTips.fr.saveDebug = { version: "5.6.24", elementText: "Sauver log", tooltip: "Sauvegarder un fichier journal de débogage."};
+HHAuto_ToolTips.fr.gitHub = { version: "5.6.24", elementText: "GitHub", tooltip: "Lien vers le projet GitHub."};
+HHAuto_ToolTips.fr.saveConfig = { version: "5.6.24", elementText: "Sauver config", tooltip: "Permet de sauvegarder la configuration."};
+HHAuto_ToolTips.fr.loadConfig = { version: "5.6.24", elementText: "Charger config", tooltip: "Permet de charger la configuration."};
+HHAuto_ToolTips.fr.master = { version: "5.6.24", elementText: "Script on/off", tooltip: "Bouton marche/arrêt pour le script complet"};
+HHAuto_ToolTips.fr.settPerTab = { version: "5.6.24", elementText: "Options par onglet", tooltip: "Active le paramétrage par onglet.<br>Si activé : permet d'ouvrir le jeu dans un autre onglet tout en laissant le script fonctionner sur le premier.<br>Les options du script ne seront pas sauvegardées à la fermeture du navigateur."};
+HHAuto_ToolTips.fr.paranoia = { version: "5.6.24", elementText: "Mode Parano", tooltip: "Permet de simuler le sommeil et l'utilisateur humain (à documenter davantage)"};
+HHAuto_ToolTips.fr.paranoiaSpendsBefore = { version: "5.6.24", elementText: "Utiliser points avant", tooltip: "Dépensera des points pour les options (quête, troll, ligues et saison)<br> uniquement si elles sont activées<br>et dépense des points qui seraient perdus pendant la nuit<br> Ex : vous avez la puissance d'un troll à 17, mais en allant 4h45 en paranoïa,<br> cela voudrait dire avoir 17+10 points (arrondis à l'int supérieur), donc être au dessus du 20 max<br> il dépensera alors 8 points pour retomber à 19 fin de la paranoïa, empêchant de perdre des points."};
+HHAuto_ToolTips.fr.spendKobans0 = { version: "5.6.24", elementText: "Dépense Kobans", tooltip: "<p style='color:red'>/!\\ Autorise la dépense des Kobans /!\\</p>Si activé : permet d'activer les fonctions utilisant des kobans"};
+HHAuto_ToolTips.fr.kobanBank = { version: "5.6.24", elementText: "Kobans à conserver", tooltip: "Minimum de Kobans conservé en banque par les fonctions utilisant des kobans.<br>Ces fonctions ne s'exécuteront pas si elles risquent de faire passer la réserve de kobans sous cette limite."};
+HHAuto_ToolTips.fr.buyCombat = { version: "5.6.24", elementText: "Achat comb. événmt", tooltip: "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>("+HHAuto_ToolTips.fr.spendKobans0.elementText+" doit être activé)</p>Si activé : <br>recharge automatiquement les points de combat durant les X dernières heures de l'événement (sans faire passer sous la valeur de la réserve de Kobans)"};
+HHAuto_ToolTips.fr.buyCombTimer = { version: "5.6.24", elementText: "Heures d'achat comb.", tooltip: "(Nombre entier)<br>X dernières heures de l'événement"};
+HHAuto_ToolTips.fr.autoBuyBoosters = { version: "5.6.24", elementText: "Boosters lég.", tooltip: "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>("+HHAuto_ToolTips.fr.spendKobans0.elementText+" doit être activé)</p>Permet d'acheter des boosters sur le marché (sans faire passer sous la valeur de la réserve de Kobans)."};
+HHAuto_ToolTips.fr.autoBuyBoostersFilter = { version: "5.6.24", elementText: "Filtre", tooltip: "(valeurs séparées par ;)<br>Définit quel(s) booster(s) acheter, respecter l'ordre (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)."};
+HHAuto_ToolTips.fr.autoSeasonPassReds = { version: "5.6.24", elementText: "Passer 3 rouges", tooltip: "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>("+HHAuto_ToolTips.fr.spendKobans0.elementText+" doit être activé)</p>Utilise des kobans pour renouveler les adversaires de la saison si PowerCalc détermine 3 combats rouges (perdus)."};
+HHAuto_ToolTips.fr.showCalculatePower = { version: "5.6.24", elementText: "PowerCalc", tooltip: "Si activé : affiche le résultat des calculs du module PowerCalc (Simulateur de combats pour Ligues, Trolls, Saisons)."};
+//HHAuto_ToolTips.fr.calculatePowerLimits = { version: "5.6.24", elementText: "Limites perso", tooltip: "(rouge;orange)<br>Définissez vos propres limites de rouge et d'orange pour les opposants<br> -6000;0 veux dire<br> <-6000 est rouge, entre -6000 et 0 est orange et >=0 est vert"};
+HHAuto_ToolTips.fr.showInfo = { version: "5.6.24", elementText: "Infos", tooltip: "Si activé : affiche une fenêtre d'informations sur le script."};
+HHAuto_ToolTips.fr.autoSalary = { version: "5.6.24", elementText: "Salaire", tooltip: "Si activé :<br>Collecte les salaires toutes les X secondes."};
+//HHAuto_ToolTips.fr.autoSalaryMinTimer = { version: "5.6.24", elementText: "Attente min.", tooltip: "(Nombre entier)<br>Secondes d'attente minimum entre deux collectes."};
+HHAuto_ToolTips.fr.autoMission = { version: "5.6.24", elementText: "Missions", tooltip: "Si activé : lance automatiquement les missions."};
+HHAuto_ToolTips.fr.autoMissionCollect = { version: "5.6.24", elementText: "Collecter", tooltip: "Si activé : collecte automatiquement les récompenses des missions."};
+HHAuto_ToolTips.fr.autoTrollBattle = { version: "5.6.24", elementText: "Activer", tooltip: "Si activé : combat automatiquement le troll."};
+HHAuto_ToolTips.fr.autoTrollSelector = { version: "5.6.24", elementText: "Sélection troll", tooltip: "Sélection du troll à combattre"};
+HHAuto_ToolTips.fr.autoTrollThreshold = { version: "5.6.24", elementText: "Réserve", tooltip: "Points de combat de trolls (poings) minimum à conserver"};
+HHAuto_ToolTips.fr.eventTrollOrder = { version: "5.6.24", elementText: "Ordre Trolls d'événement", tooltip: "Permet de sélectionner l'ordre dans lequel les trolls d'événements sont automatiquement combattus."};
+HHAuto_ToolTips.fr.plusEvent = { version: "5.6.24", elementText: "+Evénmt.", tooltip: "Si activé : ignore le troll sélectionné et combat les trolls d'événement s'il y a une fille à gagner."};
+HHAuto_ToolTips.fr.plusEventMythic = { version: "5.6.24", elementText: "+Evénmt. mythique", tooltip: "Si activé : ignorer le troll sélectionné et combat le troll d'événement mythique s'il y a une fille à gagner et des fragments disponibles."};
+HHAuto_ToolTips.fr.autoSeason = { version: "5.6.24", elementText: "Activer", tooltip: "Si activé : combat automatique de saison (Adversaire sélectionné avec PowerCalc)."};
+HHAuto_ToolTips.fr.autoSeasonCollect = { version: "5.6.24", elementText: "Collecter", tooltip: "Si activé : collecte automatiquement les récompenses de saison (si plusieurs à collecter, en collectera une par combat)."};
+HHAuto_ToolTips.fr.autoSeasonThreshold = { version: "5.6.24", elementText: "Réserve", tooltip: "Points de combat de saison (Baiser) minimum à conserver."};
+HHAuto_ToolTips.fr.autoQuest = { version: "5.6.24", elementText: "Quête", tooltip: "Si activé : Fait automatiquement les quêtes"};
+HHAuto_ToolTips.fr.autoQuestThreshold = { version: "5.6.24", elementText: "Réserve", tooltip: "Energie de quête minimum à conserver"};
+HHAuto_ToolTips.fr.autoContest = { version: "5.6.24", elementText: "Compét'", tooltip: "Si activé : récolter les récompenses de la compét' terminée"};
+HHAuto_ToolTips.fr.autoFreePachinko = { version: "5.6.24", elementText: "Pachinko", tooltip: "Si activé : collecte automatiquement les Pachinkos gratuits"};
+HHAuto_ToolTips.fr.autoMythicPachinko = { version: "5.6.24", elementText: "Pachinko mythique"};
+HHAuto_ToolTips.fr.autoLeagues = { version: "5.6.24", elementText: "Activer", tooltip: "Si activé : Combattre automatiquement en Ligues"};
+HHAuto_ToolTips.fr.autoLeaguesPowerCalc = { version: "5.6.24", elementText: "Utiliser PowerCalc", tooltip: "Si activé : choisira l'adversaire en utilisant PowerCalc (la liste des adversaires expire toutes les 10 minutes et prend quelques minutes pour être construite)."};
+HHAuto_ToolTips.fr.autoLeaguesCollect = { version: "5.6.24", elementText: "Collecter", tooltip: "Si activé : Collecte automatiquement les récompenses de la Ligue terminée"};
+HHAuto_ToolTips.fr.autoLeaguesSelector = { version: "5.6.24", elementText: "Ligue ciblée", tooltip: "Objectif de niveau de ligue (à atteindre, à conserver ou à dépasser selon le choix)."};
+HHAuto_ToolTips.fr.autoLeaguesAllowWinCurrent = {version: "5.6.24", elementText:"Autoriser dépassement", tooltip: "Si activé, le script tentera de gagner la ligue ciblée puis rétrogradera la semaine suivante pour retourner dans la ligue ciblée."};
+HHAuto_ToolTips.fr.autoLeaguesThreshold = { version: "5.6.24", elementText: "Réserve", tooltip: "Points de combat de ligue minimum à conserver."};
+HHAuto_ToolTips.fr.autoPowerPlaces = { version: "5.6.24", elementText: "Lieux de pouvoir", tooltip: "Si activé : Fait automatiquement les lieux de pouvoir."};
+HHAuto_ToolTips.fr.autoPowerPlacesIndexFilter = { version: "5.6.24", elementText: "Filtre", tooltip: "Permet de définir un filtre et un ordre sur les lieux de pouvoir à faire (uniquement lorsque plusieurs lieux de pouvoir expirent en même temps)."};
+HHAuto_ToolTips.fr.autoPowerPlacesAll = { version: "5.6.24", elementText: "Tous", tooltip: "Si activé : ignore le filtre et fait tous les lieux de pouvoir (mettra à jour le filtre avec les identifiants actuels)"};
+HHAuto_ToolTips.fr.autoChampsTitle = { version: "5.6.24", elementText: "Champions"};
+HHAuto_ToolTips.fr.autoChamps = { version: "5.6.24", elementText: "Normal", tooltip: "Si activé : combat automatiquement les champions (s'ils sont démarrés manuellement et en filtre uniquement)."};
+HHAuto_ToolTips.fr.autoChampsUseEne = { version: "5.6.24", elementText: "Achat tickets", tooltip: "Si activé : utiliser l'énergie pour acheter des tickets de champion (60 énergie nécessaire ; ne marchera pas si Quête auto activée)."};
+HHAuto_ToolTips.fr.autoChampsFilter = { version: "5.6.24", elementText: "Filtre", tooltip: "Permet de filtrer les champions à combattre."};
+HHAuto_ToolTips.fr.autoStatsSwitch = { version: "5.6.24", elementText: "Stats", tooltip: "Achète automatiquement des statistiques sur le marché."};
+HHAuto_ToolTips.fr.autoStats = { version: "5.6.24", elementText: "Argent à garder", tooltip: "Argent minimum à conserver lors de l'achat automatique de statistiques."};
+HHAuto_ToolTips.fr.autoExpW = { version: "5.6.24", elementText: "Livres", tooltip: "Si activé : permet d'acheter des livres d'expérience sur le marché tout en respectant les limites d'expérience et d'argent ci-après."};
+HHAuto_ToolTips.fr.autoExp = { version: "5.6.24", elementText: "Argent à garder", tooltip: "Argent minimum à conserver lors de l'achat automatique de livres d'expérience."};
+HHAuto_ToolTips.fr.maxExp = { version: "5.6.24", elementText: "Exp. max", tooltip: "Expérience maximum en stock pour l'achat de livres d'expérience."};
+HHAuto_ToolTips.fr.autoAffW = { version: "5.6.24", elementText: "Cadeaux", tooltip: "Si activé : permet d'acheter des cadeaux d'affection sur le marché tout en respectant les limites d'affection et d'argent ci-après."};
+HHAuto_ToolTips.fr.autoAff = { version: "5.6.24", elementText: "Argent à garder", tooltip: "Argent minimum à conserver lors de l'achat automatique de cadeaux d'affection."};
+HHAuto_ToolTips.fr.maxAff = { version: "5.6.24", elementText: "Aff. max", tooltip: "Affection maximum en stock pour l'achat de cadeaux d'affection."};
+HHAuto_ToolTips.fr.autoLGMW = { version: "5.6.24", elementText: "Eq. de classe lég.", tooltip: "Si activé : permet d'acheter du matériel de classe Légendaire sur le marché tout en respectant la limite d'argent ci-après."};
+HHAuto_ToolTips.fr.autoLGM = { version: "5.6.24", elementText: "Argent à garder", tooltip: "Argent minimum à conserver lors de l'achat automatique d'équipement de classe légendaire."};
+HHAuto_ToolTips.fr.autoLGRW = { version: "5.6.24", elementText: "Eq. super-sexe lég.", tooltip: "Si activé : permet d'acheter du matériel super-sexe Légendaire sur le marché tout en respectant la limite d'argent ci-après."};
+HHAuto_ToolTips.fr.autoLGR = { version: "5.6.24", elementText: "Argent à garder", tooltip: "Argent minimum à conserver lors de l'achat automatique d'équipement super-sexe."};
+HHAuto_ToolTips.fr.OpponentListBuilding = { version: "5.6.24", elementText: "La liste des adversaires est en construction", tooltip: ""};
+HHAuto_ToolTips.fr.OpponentParsed = { version: "5.6.24", elementText: "adversaires parcourus", tooltip: ""};
+HHAuto_ToolTips.fr.DebugMenu = { version: "5.6.24", elementText: "Debug Menu", tooltip: "Options pour le debug"};
+HHAuto_ToolTips.fr.DebugOptionsText = { version: "5.6.24", elementText: "Les boutons ci-dessous permette de modifier les variables du script, a utiliser avec prudence.", tooltip: ""};
+HHAuto_ToolTips.fr.DeleteTempVars = { version: "5.6.24", elementText: "Supprimer les variables temporaires", tooltip: "Supprime toutes les variables temporaire du script."};
+HHAuto_ToolTips.fr.ResetAllVars = { version: "5.6.24", elementText: "Réinitialiser", tooltip: "Remettre toutes les options par default"};
+HHAuto_ToolTips.fr.DebugFileText = { version: "5.6.24", elementText: "Cliquer sur le boutton ci-dessous pour produire une journal de debug.", tooltip: ""};
+HHAuto_ToolTips.fr.OptionCancel = { version: "5.6.24", elementText: "Annuler", tooltip: ""};
+HHAuto_ToolTips.fr.SeasonMaskRewards = { version: "5.6.24", elementText: "Masquer gains", tooltip: "Permet de masquer les gains réclamés de la saison."};
+HHAuto_ToolTips.fr.globalTitle = { version: "5.6.24", elementText: "Général"};
+HHAuto_ToolTips.fr.displayTitle = { version: "5.6.24", elementText: "Affichage"};
+HHAuto_ToolTips.fr.autoActivitiesTitle = { version: "5.6.24", elementText: "Activités"};
+HHAuto_ToolTips.fr.autoTrollTitle = { version: "5.6.24", elementText: "Combat troll"};
+HHAuto_ToolTips.fr.autoSeasonTitle = { version: "5.6.24", elementText: "Saison"};
+HHAuto_ToolTips.fr.autoLeaguesTitle = { version: "5.6.24", elementText: "Ligues"};
+HHAuto_ToolTips.fr.PoAMaskRewards = { version: "5.6.24", elementText: "Cacher gains chemin", tooltip: "Si activé : masque les récompenses déjà réclamées du chemin d'affection."};
+HHAuto_ToolTips.fr.showTooltips = { version: "5.6.24", elementText: "Infobulles", tooltip: "Si activé : affiche des bulles d'aide lors du survol des éléments avec la souris."};
+HHAuto_ToolTips.fr.autoClubChamp = { version: "5.6.24", elementText: "Club", tooltip: "Si activé : combat automatiquement le champion de club si au moins un combat a déjà été effectué."};
+HHAuto_ToolTips.fr.autoClubChampMax = { version: "5.6.24", elementText: "Max. tickets par session", tooltip: "Nombre maximum de ticket à utiliser sur une même session du champion de club."};
+HHAuto_ToolTips.fr.showMarketTools = { version: "5.6.24", elementText: "Outils du marché", tooltip: "Si activé : affiche des icones supplémentaires dans le marché pour trier et vendre automatiquement l'équipement."};
+HHAuto_ToolTips.fr.useX10Fights = { version: "5.6.24", elementText: "Combats x10", tooltip: "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>("+HHAuto_ToolTips.fr.spendKobans0.elementText+" doit être activé)</p>Si activé : <br>utilise le bouton x10 si 10 combats sont disponibles (Si Dépense Kobans activée et suffisamment de kobans en banque)."};
+HHAuto_ToolTips.fr.useX50Fights = { version: "5.6.24", elementText: "Combats x50", tooltip: '<p style="color:red">/!\\ Dépense des Kobans /!\\<br>('+HHAuto_ToolTips.fr.spendKobans0.elementText+' doit être activé)</p>Si activé : <br>utilise le bouton x50 si 50 combats sont disponibles (Si Dépense Kobans activée et suffisamment de kobans en banque).'};
+HHAuto_ToolTips.fr.autoBuy = { version: "5.6.24", elementText: "Marché"};
+HHAuto_ToolTips.fr.minShardsX50 = { version: "5.6.24", elementText: "Frags min. x50", tooltip: "Utiliser le bouton x50 si le nombre de fragments restant est supérieur ou égal à..."};
+HHAuto_ToolTips.fr.minShardsX10 = { version: "5.6.24", elementText: "Frags min. x10", tooltip: "Utiliser le bouton x10 si le nombre de fragments restant est supérieur ou égal à..."};
+HHAuto_ToolTips.fr.autoMissionKFirst = { version: "5.6.24", elementText: "Prioriser Kobans", tooltip: "Si activé : commence par les missions qui rapportent des kobans."};
+HHAuto_ToolTips.fr.autoTrollMythicByPassParanoia = { version: "5.6.24", elementText: "Mythique annule paranoïa", tooltip: "Si activé : autorise le script à ne pas respecter le mode Parano lors d'un événement mythique.<br>Si la prochaine vague est pendant une phase de sommeil le script combattra quand même<br>tant que des combats et des fragments sont disponibles."};
+HHAuto_ToolTips.fr.buyMythicCombat = { version: "5.6.24", elementText: "Achat comb. pour mythique", tooltip: "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>("+HHAuto_ToolTips.fr.spendKobans0.elementText+" doit être activé)</p>Si activé : achète des points de combat (poings) pendant les X dernières heures de l'événement mythique (sans dépasser la limite de la banque de kobans), passera outre la réserve de combats si nécessaire."};
+HHAuto_ToolTips.fr.buyMythicCombTimer = { version: "5.6.24", elementText: "Heures d'achat comb.", tooltip: "(Nombre entier)<br>X dernières heures de l'événement mythique"};
+HHAuto_ToolTips.fr.mythicGirlNext = { version: "5.6.24", elementText: "Vague mythique"};
 
-var Trollz = getTextForUI("trollzList","elementText");  //["Latest","Dark Lord","Ninja Spy","Gruntt","Edwarda","Donatien","Silvanus","Bremen","Finalmecia","Roko Senseï","Karole","Jackson\'s Crew","Pandora witch","Nike","Sake"];
-var Leagues = getTextForUI("leaguesList","elementText");  //["Wanker I","Wanker II","Wanker III","Sexpert I","Sexpert II","Sexpert III","Dicktator I","Dicktator II","Dicktator III"];
+
+HHAuto_ToolTips.de.saveDebug = { version: "5.6.24", elementText: "Save Debug", tooltip: "Erlaube das Erstellen einer Debug Log Datei."};
+HHAuto_ToolTips.de.gitHub = { version: "5.6.24", elementText: "GitHub", tooltip: "Link zum GitHub Projekt."};
+HHAuto_ToolTips.de.saveConfig = { version: "5.6.24", elementText: "Save Config", tooltip: "Erlaube die Einstellung zu speichern."};
+HHAuto_ToolTips.de.loadConfig = { version: "5.6.24", elementText: "Load Config", tooltip: "Erlaube die Einstellung zu laden."};
+HHAuto_ToolTips.de.master = { version: "5.6.24", elementText: "Master Schalter", tooltip: "An/Aus Schalter für das Skript"};
+HHAuto_ToolTips.de.settPerTab = { version: "5.6.24", elementText: "Einstellung per Tab", tooltip: "Erlaube die Einstellungen nur für diesen Tab zu setzen."};
+HHAuto_ToolTips.de.paranoia = { version: "5.6.24", elementText: "Paranoia Modus", tooltip: "Erlaube es Schlaf zu simulieren und einen menschlichen Nutzer (wird weiter dokumentiert)"};
+HHAuto_ToolTips.de.paranoiaSpendsBefore = { version: "5.6.24", elementText: "Gib Punkte aus vor...", tooltip: "Wenn gewollt, werden Punkte für Optionen ausgegeben (Quest, Troll, Liga und Season)<br> nur wenn sie aktiviert sind<br>und gibt Punkt aus die über dem maximal Limit sind<br> z.B.: Du hast die Power für Troll von 17, gehst aber für 4h45 in den Paranoia Modus,<br> dass heißt 17+10 Punkte (aufgerundet), welches über dem Max von 20 wäre.<br> Es würden dann 9 Punkte ausgegeben, sodass du nur bei 19 Punkten bleibst bis zum Ende des Paranoia Modus um einen Verlust zu verhindern."};
+HHAuto_ToolTips.de.spendKobans0 = { version: "5.6.24", elementText: "Fragwürdige Scheiße", tooltip: "Erster Sicherheitsschalter für die Nutzung von Kobans.<br>Alle 3 müssen aktiviert sein und Kobans auszugeben."};
+//HHAuto_ToolTips.de.spendKobans1 = { version: "5.6.24", elementText: "Biste sicher?", tooltip: "Zweiter Sicherheitsschalter für die Nutzung von Kobans.<br>Muss nach dem Ersten aktiviert werden.<br>Alle 3 müssen aktiviert sein und Kobans auszugeben."};
+//HHAuto_ToolTips.de.spendKobans2 = { version: "5.6.24", elementText: "Du wurdest gewarnt!", tooltip: "Dritter Sicherheitsschalter für die Nutzung von Kobans <br>Muss nach dem Zweiten aktiviert werden.<br> Alle 3 müssen aktiviert sein und Kobans auszugeben."};
+HHAuto_ToolTips.de.kobanBank = { version: "5.6.24", elementText: "Koban Bank", tooltip: "(Integer)<br>Minimale Anzahl an Kobans die behalten werden sollen."};
+HHAuto_ToolTips.de.buyCombat = { version: "5.6.24", elementText: "Kaufe Kobans bei Events", tooltip: "'Kobans ausgeben Funktion'<br> Wenn aktiviert: <br> Kauft Kampfpunkte in den letzten X Stunden eines Events (Wenn es das Minimum nicht unterschreitet)"};
+HHAuto_ToolTips.de.buyCombTimer = { version: "5.6.24", elementText: "Stunden bis Kauf", tooltip: "(Ganze pos. Zahl)<br>X verbleibende Stunden des Events"};
+HHAuto_ToolTips.de.autoBuyBoosters = { version: "5.6.24", elementText: "Kaufe Booster", tooltip: "'Koban ausgeben Funktion'<br>Erlaubt es Booster im Markt zu kaufen(Wenn es das Minimum nicht unterschreitet)"};
+HHAuto_ToolTips.de.autoBuyBoostersFilter = { version: "5.6.24", elementText: "Filter", tooltip: "(Werte getrennt durch ;)<br>Gib an welches Booster gekauft werden sollen, Reihenfolge wird beachtet (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)"};
+HHAuto_ToolTips.de.autoSeasonPassReds = { version: "5.6.24", elementText: "Überspringe drei Rote", tooltip: "'Koban ausgeben Funktion'<br>Benutze Kobans um Season Gegner zu tauschen wenn alle drei Rote sind"};
+HHAuto_ToolTips.de.showCalculatePower = { version: "5.6.24", elementText: "Zeige Kraftrechner", tooltip: "Zeige Kampfsimulationsindikator an für Liga, Kampf und Season"};
+//HHAuto_ToolTips.de.calculatePowerLimits = { version: "5.6.24", elementText: "Eigene Grenzen (rot;gelb)", tooltip: "(rot;gelb)<br>Definiere deine eigenen Grenzen für rote und orange Gegner<br> -6000;0 meint<br> <-6000 ist rot, zwischen -6000 und 0 ist orange und >=0 ist grün"};
+HHAuto_ToolTips.de.showInfo = { version: "5.6.24", elementText: "Zeige Info", tooltip: "Wenn aktiv : zeige Information auf Skriptwerten und nächsten Durchläufen"};
+HHAuto_ToolTips.de.autoSalary = { version: "5.6.24", elementText: "Auto Einkommen", tooltip: "Wenn aktiv :<br>Sammelt das gesamte Einkommen alle X Sek."};
+//HHAuto_ToolTips.de.autoSalaryMinTimer = { version: "5.6.24", elementText: "min Warten", tooltip: "(Ganze pos. Zahl)<br>X Sek bis zum Sammeln des Einkommens"};
+HHAuto_ToolTips.de.autoMission = { version: "5.6.24", elementText: "AutoMission", tooltip: "Wenn aktiv : Macht automatisch Missionen"};
+HHAuto_ToolTips.de.autoMissionCollect = { version: "5.6.24", elementText: "Einsammeln", tooltip: "Wenn aktiv : Sammelt automatisch Missionsgewinne"};
+HHAuto_ToolTips.de.autoTrollBattle = { version: "5.6.24", elementText: "AutoTrollKampf", tooltip: "Wenn aktiv : Macht automatisch aktivierte Trollkämpfe"};
+HHAuto_ToolTips.de.autoTrollSelector = { version: "5.6.24", elementText: "Troll Wähler", tooltip: "Wähle Trolle die bekämpfte werden sollen."};
+HHAuto_ToolTips.de.autoTrollThreshold = { version: "5.6.24", elementText: "Schwellwert", tooltip: "Minimum an Trollpunkten die aufgehoben werden"};
+HHAuto_ToolTips.de.eventTrollOrder = { version: "5.6.24", elementText: "Event Troll Reihenfolge", tooltip: "Erlaubt eine Auswahl in welcher Reihenfolge die Trolle automatisch bekämpft werden"};
+HHAuto_ToolTips.de.plusEvent = { version: "5.6.24", elementText: "+Event", tooltip: "Wenn aktiv : Ignoriere ausgewählte Trolle währende eines Events, zugunsten des Events"};
+HHAuto_ToolTips.de.plusEventMythic = { version: "5.6.24", elementText: "+Mythisches Event", tooltip: "Erlaubt es Mädels beim mystischen Event abzugreifen, sollte sie nur versuchen wenn auch Teile vorhanden sind"};
+//HHAuto_ToolTips.de.eventMythicPrio = { version: "5.6.24", elementText: "Priorisiere über Event Troll Reihenfolge", tooltip: "Mystische Event Mädels werden über die Event Troll Reihenfolge gestellt, sofern Teile erhältlich sind"};
+//HHAuto_ToolTips.de.autoTrollMythicByPassThreshold = { version: "5.6.24", elementText: "Mystische über Schwellenwert", tooltip: "Erlaubt es Punkt über den Schwellwert für das mystische Events zu nutzen"};
+HHAuto_ToolTips.de.autoTrollMythicByPassParanoia = { version: "5.6.24", elementText: "Mythisch über Paranoia", tooltip: "Wenn aktiv: Erlaubt es den Paranoia Modus zu übergehen. Wenn du noch kämpfen kannst oder dir Energie kaufen kannst, wird gekämpft. Sollte die nächste Welle an Splittern während der Ruhephase sein, wird der Modus unterbrochen und es wird gekämpft"};
+HHAuto_ToolTips.de.autoArenaCheckbox = { version: "5.6.24", elementText: "AutoArenaKampf", tooltip: "if enabled : Automatically do Arena (deprecated)"};
+HHAuto_ToolTips.de.autoSeason = { version: "5.6.24", elementText: "AutoSeason", tooltip: "Wenn aktiv : Kämpft automatisch in der Season (Gegner werden wie im Kraftrechner einstellt gewählt)"};
+HHAuto_ToolTips.de.autoSeasonCollect = { version: "5.6.24", elementText: "Einsammeln", tooltip: "Wenn aktiv : Sammelt automatisch Seasongewinne ein (bei mehr als einem, wird eines pro Küssnutzung eingesammelt)"};
+HHAuto_ToolTips.de.autoSeasonThreshold = { version: "5.6.24", elementText: "Schwellwert", tooltip: "Minimum Küsse die behalten bleiben"};
+HHAuto_ToolTips.de.autoQuest = { version: "5.6.24", elementText: "AutoQuest", tooltip: "Wenn aktiv : Macht automatisch Quests"};
+HHAuto_ToolTips.de.autoQuestThreshold = { version: "5.6.24", elementText: "Schwellwert", tooltip: "Minimum an Energie die behalten bleibt"};
+HHAuto_ToolTips.de.autoContest = { version: "5.6.24", elementText: "AutoAufgabe", tooltip: "Wenn aktiv : Sammelt abgeschlossene Aufgabenbelohnungen ein"};
+HHAuto_ToolTips.de.autoFreePachinko = { version: "5.6.24", elementText: "AutoPachinko(Gratis)", tooltip: "Wenn aktiv : Sammelt freien Glücksspielgewinn ein"};
+HHAuto_ToolTips.de.autoLeagues = { version: "5.6.24", elementText: "AutoLiga", tooltip: "Wenn aktiv : Kämpft automatisch in der Liga"};
+HHAuto_ToolTips.de.autoLeaguesPowerCalc = { version: "5.6.24", elementText: "Nutze Kraftrechner", tooltip: "Wenn aktiv : wählt Gegner durch Kraftrechner (Gegnerliste verfällt alle 10 Min und braucht ein Minuten zur Erneuerung)"};
+HHAuto_ToolTips.de.autoLeaguesCollect = { version: "5.6.24", elementText: "Einsammeln", tooltip: "Wenn aktiv : Sammelt automatisch Ligagewinn ein"};
+HHAuto_ToolTips.de.autoLeaguesSelector = { version: "5.6.24", elementText: "Ligaziel", tooltip: "Ligaziel, versuche abzusteigen, Platz zu halten oder aufzusteigen"};
+HHAuto_ToolTips.de.autoLeaguesThreshold = { version: "5.6.24", elementText: "Schwellwert", tooltip: "Minimum an Ligakämpfe behalten"};
+HHAuto_ToolTips.de.autoPowerPlaces = { version: "5.6.24", elementText: "Auto Orte der Macht", tooltip: "Wenn aktiv : macht automatisch Orte der Macht"};
+HHAuto_ToolTips.de.autoPowerPlacesIndexFilter = { version: "5.6.24", elementText: "Index Filter", tooltip: "Erlaubt es Filter zusetzen für Orte der Macht und eine Reihenfolge festzulegen (Reihenfolge wird beachtet, sollten mehrere zur gleichen Zeit fertig werden)"};
+HHAuto_ToolTips.de.autoPowerPlacesAll = { version: "5.6.24", elementText: "Mach alle", tooltip: "Wenn aktiv : ignoriere Filter und mache alle (aktualisiert den Filter mit korrekten IDs)"};
+HHAuto_ToolTips.de.autoChamps = { version: "5.6.24", elementText: "AutoChampions", tooltip: "Wenn aktiv : Macht automatisch Championkämpfe (nur wenn sie gestartet wurden und im Filter stehen)"};
+HHAuto_ToolTips.de.autoChampsUseEne = { version: "5.6.24", elementText: "Nutze Energie", tooltip: "Wenn aktiv : Nutze Energie und kaufe Champ. Tickets"};
+HHAuto_ToolTips.de.autoChampsFilter = { version: "5.6.24", elementText: "Filter", tooltip: "Erlaubt es Filter für zu bekämpfende Champions zu setzen"};
+HHAuto_ToolTips.de.autoClubChamp = { version: "5.6.24", elementText: "AutoChampions", tooltip: "Wenn aktiv : Macht automatisch ClubChampionkämpfe (nur wenn sie gestartet wurden und im Filter stehen)"};
+HHAuto_ToolTips.de.autoStats = { version: "5.6.24", elementText: "Min Geld verbleib", tooltip: "Kauft automatisch bessere Statuswerte im Markt mit überschüssigem Geld oberhalb des gesetzten Wertes"};
+HHAuto_ToolTips.de.autoExpW = { version: "5.6.24", elementText: "Kaufe Erfahrung", tooltip: "Wenn aktiv : Erlaube Erfahrung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt<br>Kauft nur wenn sich im Besitz befinden potentielle Erfahrung unter dem Wert liegt"};
+HHAuto_ToolTips.de.autoExp = { version: "5.6.24", elementText: "Min Geld verbleib", tooltip: "Minimum an Geld das behalten wird."};
+HHAuto_ToolTips.de.maxExp = { version: "5.6.24", elementText: "Max ErfahrKauf", tooltip: "Maximum Erfahrung die gekauft wird"};
+HHAuto_ToolTips.de.autoAffW = { version: "5.6.24", elementText: "KaufAnziehung", tooltip: "Wenn aktiv : Erlaube Anziehung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt<br>Kauft nur wenn sich im Besitz befinden potentielle Anziehung unter dem Wert liegt"};
+HHAuto_ToolTips.de.autoAff = { version: "5.6.24", elementText: "Min Geld verbleib", tooltip: "Minimum an Geld das behalten wird."};
+HHAuto_ToolTips.de.maxAff = { version: "5.6.24", elementText: "Max AnziehungKauf", tooltip: "Maximum an Anziehung die gekauft wird"};
+HHAuto_ToolTips.de.autoLGMW = { version: "5.6.24", elementText: "Buy Leg Gear Mono", tooltip: "Wenn aktiv : Erlaube es Mono legendäre Rüstung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt"};
+HHAuto_ToolTips.de.autoLGM = { version: "5.6.24", elementText: "Min Geld verbleib", tooltip: "Minimum an Geld das behalten wird."};
+HHAuto_ToolTips.de.autoLGRW = { version: "5.6.24", elementText: "Buy Leg Gear Rainbow", tooltip: "Wenn aktiv : Erlaube es Regenbogenausrüstung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt"};
+HHAuto_ToolTips.de.autoLGR = { version: "5.6.24", elementText: "Min Geld verbleib", tooltip: "Minimum an Geld das behalten wird."};
+HHAuto_ToolTips.de.OpponentListBuilding = { version: "5.6.24", elementText: "Gegnerliste wird erstellt", tooltip: ""};
+HHAuto_ToolTips.de.OpponentParsed = { version: "5.6.24", elementText: "Gegner analysiert", tooltip: ""};
+
+HHAuto_ToolTips.es.saveDebug = { version: "5.6.24", elementText: "Salvar Debug", tooltip: "Permite generar un fichero log de depuración."};
+HHAuto_ToolTips.es.gitHub = { version: "5.6.24", elementText: "GitHub", tooltip: "Link al proyecto GitHub."};
+HHAuto_ToolTips.es.saveConfig = { version: "5.6.24", elementText: "Salvar config.", tooltip: "Permite salvar la configuración."};
+HHAuto_ToolTips.es.loadConfig = { version: "5.6.24", elementText: "Cargar config", tooltip: "Permite cargar la configuración."};
+HHAuto_ToolTips.es.master = { version: "5.6.24", elementText: "Switch maestro", tooltip: "Interruptor de Encendido/Apagado para el script completo"};
+HHAuto_ToolTips.es.settPerTab = { version: "5.6.24", elementText: "Configuración por ventana", tooltip: "Aplica las opciones sólo a esta ventana"};
+HHAuto_ToolTips.es.paranoia = { version: "5.6.24", elementText: "Modo Paranoia", tooltip: "Permite simular sueño, y un usuario humano (Pendiente de documentación)"};
+HHAuto_ToolTips.es.paranoiaSpendsBefore = { version: "5.6.24", elementText: "Gasta puntos antes", tooltip: "\'On\' gastará puntos para opciones (aventura, villanos, ligas y temporada) sólo si éstos están habilitados y gasta puntos que estarían por encima de los límites máximos.<br>Ej : Tienes energia para 17 combates de villanos, pero estarás 4h45m en paranoia.<br> Esto es tener 17+10 combates (redondeado al entero superior), estando así por encima del máximo de 20<br> gastará 8 combates para quedar con 19 al final de la Paranoia, evitando perder puntos."};
+HHAuto_ToolTips.es.spendKobans0 = { version: "5.6.24", elementText: "Kobans securidad", tooltip: "Interruptor de seguridad para el uso de kobans,tienen que estar activados para las funciones de gasto de Kobans"};
+//HHAuto_ToolTips.es.spendKobans1 = { version: "5.6.24", elementText: "¿Estás seguro?", tooltip: "Segundo interruptor de seguridad para el uso de kobans <br>Tiene que ser activado después del primero.<br> Los 3 tienen que estar activados para las funciones de gasto de Kobans"};
+//HHAuto_ToolTips.es.spendKobans2 = { version: "5.6.24", elementText: "Has sido advertido", tooltip: "Tercer interruptor de seguridad para el uso de kobans <br>Tiene que ser activado después del segundo.<br> Los 3 tienen que estar activados para las funciones de gasto de Kobans"};
+HHAuto_ToolTips.es.kobanBank = { version: "5.6.24", elementText: "Banco de Kobans", tooltip: "(Entero)<br>Minimo de Kobans a conservar cuando se usan funciones de gasto de Kobans"};
+HHAuto_ToolTips.es.buyCombat = { version: "5.6.24", elementText: "Compra comb. en eventos", tooltip: "Funciones de gasto de Kobans<br>Si habilitado: <br>Compra puntos de combate durante las últimas X horas del evento (si no se baja del valor de Banco de Kobans)"};
+HHAuto_ToolTips.es.buyCombTimer = { version: "5.6.24", elementText: "Horas para comprar Comb", tooltip: "(Entero)<br>X últimas horas del evento"};
+HHAuto_ToolTips.es.autoBuyBoosters = { version: "5.6.24", elementText: "Compra Potenciad. Leg.", tooltip: "Funciones de gasto de Kobans<br>Permite comprar potenciadores en el mercado (si no se baja del valor de Banco de Kobans)"};
+HHAuto_ToolTips.es.autoBuyBoostersFilter = { version: "5.6.24", elementText: "Filtro", tooltip: "(valores separados por ;)<br>Selecciona que potenciador comprar, se respeta el orden (B1:Ginseng B2:Azufaifo B3:Clorela B4:Cordyceps)"};
+HHAuto_ToolTips.es.autoSeasonPassReds = { version: "5.6.24", elementText: "Pasa 3 rojos", tooltip: "Funciones de gasto de Kobans<br>Usa kobans para renovar oponentes si los 3 rojos"};
+HHAuto_ToolTips.es.showCalculatePower = { version: "5.6.24", elementText: "Mostar PowerCalc", tooltip: "Muestra simulador de batalla para Liga, batallas, Temporadas "};
+//HHAuto_ToolTips.es.calculatePowerLimits = { version: "5.6.24", elementText: "Límites propios (rojo;naranja)", tooltip: "(rojo;naranja)<br>Define tus propios límites rojos y naranjas para los oponentes<br> -6000;0 significa<br> <-6000 is rojo, entre -6000 and 0 is naranja and >=0 is verde"};
+HHAuto_ToolTips.es.showInfo = { version: "5.6.24", elementText: "Muestra info", tooltip: "Si habilitado: muestra información de los valores del script y siguientes ejecuciones"};
+HHAuto_ToolTips.es.autoSalary = { version: "5.6.24", elementText: "AutoSal.", tooltip: "(Entero)<br>Si habilitado:<br>Recauda salario cada X segundos"};
+//HHAuto_ToolTips.es.autoSalaryMinTimer = { version: "5.6.24", elementText: "min espera", tooltip: "(Entero)<br>X segundos para recaudar salario"};
+HHAuto_ToolTips.es.autoMission = { version: "5.6.24", elementText: "AutoMision", tooltip: "Si habilitado: Juega misiones de manera automática"};
+HHAuto_ToolTips.es.autoMissionCollect = { version: "5.6.24", elementText: "Recaudar", tooltip: "Si habilitado: Recauda misiones de manera automática"};
+HHAuto_ToolTips.es.autoTrollBattle = { version: "5.6.24", elementText: "AutoVillano", tooltip: "Si habilitado: Combate villano seleccionado de manera automática"};
+HHAuto_ToolTips.es.autoTrollSelector = { version: "5.6.24", elementText: "Selector villano", tooltip: "Selecciona villano para luchar."};
+HHAuto_ToolTips.es.autoTrollThreshold = { version: "5.6.24", elementText: "Límite", tooltip: "(Entero 0 a 19)<br>Mínimo combates a guardar"};
+HHAuto_ToolTips.es.eventTrollOrder = { version: "5.6.24", elementText: "Orden combate villano", tooltip: "(Valores separados por ;)<br>Permite seleccionar el orden de combate automático de los villanos"};
+HHAuto_ToolTips.es.plusEvent = { version: "5.6.24", elementText: "+Evento", tooltip: "Si habilitado: ignora al villano seleccionado durante un evento para luchar el evento"};
+HHAuto_ToolTips.es.plusEventMythic = { version: "5.6.24", elementText: "+Evento Mythic", tooltip: "Habilita obtener chicas del evento mítico, solo debería jugar cuando haya fragmentos disponibles"};
+//HHAuto_ToolTips.es.eventMythicPrio = { version: "5.6.24", elementText: "Prioriza sobre el orden de evento de villano", tooltip: "La chica del evento mítico es prioritaria sobre el orden del evento de villanos si hay fragmentos disponibles"};
+//HHAuto_ToolTips.es.autoTrollMythicByPassThreshold = { version: "5.6.24", elementText: "Mítico supera límite", tooltip: "Permite que el evento mítico supere el límite de villano"};
+HHAuto_ToolTips.es.autoArenaCheckbox = { version: "5.6.24", elementText: "AutoBatallaArena", tooltip: "Si habilitado: Combate en Arena de manera automática (obsoleta)"};
+HHAuto_ToolTips.es.autoSeason = { version: "5.6.24", elementText: "AutoTemporada", tooltip: "Si habilitado: Combate en emporadas de manera automática (Oponente elegido según Calculadora de energía)"};
+HHAuto_ToolTips.es.autoSeasonCollect = { version: "5.6.24", elementText: "Recaudar", tooltip: "Se habilitado: Recauda temporadas de manera automática (Si multiples para recaudar, recaudará uno por cada uso de beso)"};
+HHAuto_ToolTips.es.autoSeasonThreshold = { version: "5.6.24", elementText: "Límite", tooltip: "Mínimos besos a conservar"};
+HHAuto_ToolTips.es.autoQuest = { version: "5.6.24", elementText: "AutoAventura", tooltip: "Si habilitado : Juega aventura de manera automática"};
+HHAuto_ToolTips.es.autoQuestThreshold = { version: "5.6.24", elementText: "Límite", tooltip: "(Entero entre 0 y 99)<br>Minima energía a conservar"};
+HHAuto_ToolTips.es.autoContest = { version: "5.6.24", elementText: "AutoCompetición", tooltip: "Si habilitado: Recauda recompensas de competición finalizada"};
+HHAuto_ToolTips.es.autoFreePachinko = { version: "5.6.24", elementText: "AutoPachinko(Gratis)", tooltip: "Si habilitado: Recauda pachinkos gratuitos de manera automática"};
+HHAuto_ToolTips.es.autoLeagues = { version: "5.6.24", elementText: "AutoLigas", tooltip: "Si habilitado: Combate en ligas de manera automática"};
+HHAuto_ToolTips.es.autoLeaguesPowerCalc = { version: "5.6.24", elementText: "UsarCalcPotencia", tooltip: "Si habilitado: Elige oponentes usando calculadora de potencia (La lista expira cada 10 mins. y tarda pocos minutos en reconstruirse)"};
+HHAuto_ToolTips.es.autoLeaguesCollect = { version: "5.6.24", elementText: "Recaudar", tooltip: "Si habilitado: Recauda premios de ligas de manera automática"};
+HHAuto_ToolTips.es.autoLeaguesSelector = { version: "5.6.24", elementText: "Liga objetivo", tooltip: "Liga objetivo, para intentar descender, permanecer o ascender a otra liga en función de ello"};
+HHAuto_ToolTips.es.autoLeaguesThreshold = { version: "5.6.24", elementText: "Límite", tooltip: "Mínimos combates de liga a conservar"};
+HHAuto_ToolTips.es.autoPowerPlaces = { version: "5.6.24", elementText: "AutoLugaresPoder", tooltip: "Si habilitado: Juega Lugares de Poder de manera automática"};
+HHAuto_ToolTips.es.autoPowerPlacesIndexFilter = { version: "5.6.24", elementText: "Filtro de índice", tooltip: "Permite establecer un filto y un orden para jugar Lugares de Poder (el orden solo se respeta cuando multiples Lugares de Poder finalizan al mismo tiempo)"};
+HHAuto_ToolTips.es.autoPowerPlacesAll = { version: "5.6.24", elementText: "Juega todos", tooltip: "Si habilitado: ignora el filtro y juega todos los Lugares de Poder (actualizará del Filtro con las actuales ids)"};
+HHAuto_ToolTips.es.autoChamps = { version: "5.6.24", elementText: "AutoCampeones", tooltip: "Si habilitado: Combate a campeones de manera automática (Sólo si han empezado un combate y están en el filtro)"};
+HHAuto_ToolTips.es.autoChampsUseEne = { version: "5.6.24", elementText: "UsaEne", tooltip: "Si habilitado: Usa energía para comprar tickets"};
+HHAuto_ToolTips.es.autoChampsFilter = { version: "5.6.24", elementText: "Filtro", tooltip: "Permite establecer un filtro para luchar con campeones"};
+HHAuto_ToolTips.es.autoStats = { version: "5.6.24", elementText: "Min dinero", tooltip: "(Entero)<br>Compra equipamiento de manera automática en el mercado con dinero por encima de la cantidad establecida"};
+HHAuto_ToolTips.es.autoExpW = { version: "5.6.24", elementText: "Compra exp", tooltip: "Si habilitado: Compra experiencia en el mercado<br>Solo si el dinero en el banco es superior a este valor<br>Solo compra si el total de experiencia poseída está por debajo de este valor"};
+HHAuto_ToolTips.es.autoExp = { version: "5.6.24", elementText: "Min dinero", tooltip: "(Entero)<br>Mínimo dinero a guardar."};
+HHAuto_ToolTips.es.maxExp = { version: "5.6.24", elementText: "Max experiencia", tooltip: "(Entero)<br>Máxima experiencia a comprar"};
+HHAuto_ToolTips.es.autoAffW = { version: "5.6.24", elementText: "Compra afec", tooltip: "Si habilitado: Compra afecto en el mercado<br>Solo si el dinero en el banco es superior a este valor<br>Solo compra si el total de afecto poseído está por debajo de este valor"};
+HHAuto_ToolTips.es.autoAff = { version: "5.6.24", elementText: "Min dinero", tooltip: "(Entero)<br>Mínimo dinero a guardar"};
+HHAuto_ToolTips.es.maxAff = { version: "5.6.24", elementText: "Max afecto", tooltip: "(Entero)<br>Máximo afecto a comprar"};
+HHAuto_ToolTips.es.autoLGMW = { version: "5.6.24", elementText: "Compra Eqip.Leg.Mono", tooltip: "Si habilitado: Compra equipamiento legendario mono en el mercado<br>Solo compra si el banco de dinero es superior a este valor"};
+HHAuto_ToolTips.es.autoLGM = { version: "5.6.24", elementText: "Min dinero", tooltip: "(Entero)<br>Mínimo dinero a guardar"};
+HHAuto_ToolTips.es.autoLGRW = { version: "5.6.24", elementText: "Compra Eqip.Leg.Arcoiris", tooltip: "Si habilitado: Compra equipamiento legendario arcoiris en el mercado<br>Solo compra si el banco de dinero es superior a este valor"};
+HHAuto_ToolTips.es.autoLGR = { version: "5.6.24", elementText: "Min dinero", tooltip: "(Entero)<br>Mínimo dinero a guardar"};
+HHAuto_ToolTips.es.OpponentListBuilding = { version: "5.6.24", elementText: "Lista de oponentes en construcción", tooltip: ""};
+HHAuto_ToolTips.es.OpponentParsed = { version: "5.6.24", elementText: "opositores analizados", tooltip: ""};
+HHAuto_ToolTips.es.DebugMenu = { version: "5.6.24", elementText: "Menú depur.", tooltip: "Opciones de depuración"};
+HHAuto_ToolTips.es.DebugOptionsText = { version: "5.6.24", elementText: "Los botones a continuación permiten modificar el almacenamiento del script, tenga cuidado al usarlos.", tooltip: ""};
+HHAuto_ToolTips.es.DeleteTempVars = { version: "5.6.24", elementText: "Borra almacenamiento temp.", tooltip: "Borra todo el almacenamiento temporal del script."};
+HHAuto_ToolTips.es.ResetAllVars = { version: "5.6.24", elementText: "Restaura por defecto", tooltip: "Restaura la configuración por defecto."};
+HHAuto_ToolTips.es.DebugFileText = { version: "5.6.24", elementText: "Click en el siguiente botón para generar un fichero log de depuración", tooltip: ""};
+HHAuto_ToolTips.es.OptionCancel = { version: "5.6.24", elementText: "Cancelar", tooltip: ""};
+HHAuto_ToolTips.es.SeasonMaskRewards = { version: "5.6.24", elementText: "Enmascara recompensas", tooltip: "Permite enmascarar todas las recompensas reclamadas en la pantalla de Temporada"};
+HHAuto_ToolTips.es.autoClubChamp = { version: "5.6.24", elementText: "AutoClubCamp", tooltip: "Si habilitado: Combate al campeón del club de manera automática"};
+HHAuto_ToolTips.es.autoTrollMythicByPassParanoia = { version: "5.6.24", elementText: "Mítico ignora paranoia", tooltip: "Permite al mítico ignorar paranoia. Si la siguiente liberación es durante el descanso forzará despertarse para jugar. Si todavía pelea o puede comprar peleas, continuará."};
+HHAuto_ToolTips.es.buyMythicCombat = { version: "5.6.24", elementText: "Compra comb. para mítico", tooltip: "Función de gasto de Kobans<br>Si habilitado: <br>Comprar puntos de combate durante las últimas X horas del evento mítico (si no se baja del valor de Banco de Kobans)"};
+HHAuto_ToolTips.es.buyMythicCombTimer = { version: "5.6.24", elementText: "Horas para comprar comb.Mítico", tooltip: "(Entero)<br>X últimas horas del evento mítico"};
+HHAuto_ToolTips.es.DebugResetTimerText = { version: "5.6.24", elementText: "El selector a continuación permite restablecer los temporizadores", tooltip: ""};
+HHAuto_ToolTips.es.timerResetSelector = { version: "5.6.24", elementText: "Seleccionar temporizador", tooltip: "Selecciona el temporizador a restablecer"};
+HHAuto_ToolTips.es.timerResetButton = { version: "5.6.24", elementText: "Restablecer", tooltip: "Establece el temporizador a 0."};
+HHAuto_ToolTips.es.timerLeftTime = { version: "5.6.24", elementText: "", tooltip: "Tiempo restante"};
+HHAuto_ToolTips.es.timerResetNoTimer = { version: "5.6.24", elementText: "No hay temporizador seleccionado", tooltip: ""};
+
+var Trollz = getHHScriptVars("trollzList");
+var Leagues = getHHScriptVars("leaguesList");
 var Timers = {};
 
 var HHStoredVars = {};
@@ -12078,7 +12134,144 @@ var start = function () {
     }
 
     setTimeout(autoLoop,1000);
+    GM_registerMenuCommand(getTextForUI("translate","elementText"),manageTranslationPopUp);
 };
+
+function manageTranslationPopUp()
+{
+    GM_addStyle('.tItems {border-collapse: collapse;text-align:center;vertical-align:middle;} '
+                +'.tItems td,th {border: 1px solid #1B4F72;} '
+                +'.tItemsColGroup {border: 3px solid #1B4F72;} '
+                +'.tItemsTh1 {background-color: #2874A6;color: #fff;} '
+                +'.tItemsTh2 {width: 25%;background-color: #3498DB;color: #fff;} '
+                +'.tItemsTBody tr:nth-child(odd) {background-color: #85C1E9;} '
+                +'.tItemsTBody tr:nth-child(even) {background-color: #D6EAF8;} '
+                +'.tReworkedCell {background-color: gray} '
+                +'.tEditableDiv:Empty {background-color:blue}');
+    let translatePopUpContent = '<div">'+getTextForUI("saveTranslationText","elementText")+'</div>'
+    +'<table class="tItems">'
+    +' <colgroup class="tItemsColGroup">'
+    +'  <col class="tItemsColRarity" span="2">'
+    +' </colgroup>'
+    +' <colgroup class="tItemsColGroup">'
+    +'  <col class="tItemsColRarity" span="2">'
+    +' </colgroup>'
+    +' <thead class="tItemsTHead">'
+    +'  <tr>'
+    +'   <th class="tItemsTh1" colspan="2">'+"Text"+'</th>'
+    +'   <th class="tItemsTh1" colspan="2">'+"Tooltip"+'</th>'
+    +'  </tr>'
+    +'  <tr>'
+    +'   <th class="tItemsTh2">'+"English"+'</th>'
+    +'   <th class="tItemsTh2">'+$('html')[0].lang+'</th>'
+    +'   <th class="tItemsTh2">'+"English"+'</th>'
+    +'   <th class="tItemsTh2">'+$('html')[0].lang+'</th>'
+    +'  </tr>'
+    +' </thead>'
+    +' <tbody class="tItemsTBody">';
+
+    const currentLanguage = getLanguageCode();
+    for ( let item of Object.keys(HHAuto_ToolTips.en))
+    {
+        let reworkedClass = "";
+        translatePopUpContent +='  <tr id="'+item+'">';
+        let currentEnElementText = HHAuto_ToolTips.en[item].elementText;
+        if (currentEnElementText === undefined || currentEnElementText === "")
+        {
+            currentEnElementText = "";
+            translatePopUpContent +='   <td></td><td><div type="elementText"></div></td>';
+        }
+        else
+        {
+            translatePopUpContent +='   <td>'+currentEnElementText+'</td>';
+            let currentElementText = HHAuto_ToolTips[currentLanguage][item]?HHAuto_ToolTips[currentLanguage][item].elementText:"";
+            if (currentElementText === undefined)
+            {
+                currentElementText = "";
+            }
+            if (currentElementText !== getTextForUI(item,"elementText"))
+            {
+                reworkedClass = " tReworkedCell";
+            }
+            translatePopUpContent +='   <td><div type="elementText" class="tEditableDiv'+reworkedClass+'" contenteditable>'+currentElementText+'</div></td>';
+        }
+        reworkedClass = "";
+        let currentEnTooltip = HHAuto_ToolTips.en[item].tooltip;
+        if (currentEnTooltip === undefined || currentEnTooltip === "")
+        {
+            currentEnTooltip = "";
+            translatePopUpContent +='   <td></td><td><div type="tooltip"></div></td>';
+        }
+        else
+        {
+            translatePopUpContent +='   <td>'+currentEnTooltip+'</td>';
+            let currentTooltip = HHAuto_ToolTips[currentLanguage][item]?HHAuto_ToolTips[currentLanguage][item].tooltip:"";
+            if (currentTooltip === undefined)
+            {
+                currentTooltip = "";
+            }
+            if (currentTooltip !== getTextForUI(item,"tooltip"))
+            {
+                reworkedClass = " tReworkedCell";
+            }
+            translatePopUpContent +='   <td><div type="tooltip" class="tEditableDiv'+reworkedClass+'" contenteditable>'+currentTooltip+'</div></td>';
+        }
+        translatePopUpContent +='  </tr>';
+    }
+    translatePopUpContent +=' </tbody>';
+    translatePopUpContent +='</table>';
+    translatePopUpContent +='<div style="margin:10px"><label style="width:80px" class="myButton" id="saveTranslationAsTxt">'+getTextForUI("saveTranslation","elementText")+'</label></div>';
+    fillHHPopUp("translationPopUp",getTextForUI("translate","elementText"),translatePopUpContent);
+    document.getElementById("saveTranslationAsTxt").addEventListener("click",saveTranslationAsTxt);
+
+    function saveTranslationAsTxt()
+    {
+        console.log("test");
+        let translation = `Translated to : ${currentLanguage}\n`;
+        translation += `From version : ${GM_info.version}\n`;
+        let hasTranslation = false;
+        for ( let item of Object.keys(HHAuto_ToolTips.en))
+        {
+            const currentTranslatedElementText = $(`#${item} [type="elementText"]`)[0].innerHTML;
+            const currentTranslatedTooltip = $(`#${item} [type="tooltip"]`)[0].innerHTML;
+            let currentElementText = HHAuto_ToolTips[currentLanguage][item]?HHAuto_ToolTips[currentLanguage][item].elementText:"";
+            let currentTooltip = HHAuto_ToolTips[currentLanguage][item]?HHAuto_ToolTips[currentLanguage][item].tooltip:"";
+            if (currentTooltip === undefined)
+            {
+                currentTooltip = "";
+            }
+            if (currentElementText === undefined)
+            {
+                currentElementText = "";
+            }
+
+            if (currentTranslatedElementText !== currentElementText || currentTranslatedTooltip !== currentTooltip)
+            {
+                //console.log(currentTranslatedElementText !== currentElementText, currentElementText, currentTranslatedElementText)
+                //console.log(currentTranslatedTooltip !== currentTooltip, currentTooltip, currentTranslatedTooltip)
+                const enVersion = HHAuto_ToolTips.en[item].version;
+                translation += `HHAuto_ToolTips.${item} = { version: "${enVersion}"`;
+                if (currentTranslatedElementText !== "" )
+                {
+                    translation += `, elementText: "${currentTranslatedElementText}"`;
+                }
+                if (currentTranslatedTooltip !== "" )
+                {
+                    translation += `, tooltip: "${currentTranslatedTooltip}"};\n`;
+                }
+                hasTranslation = true;
+            }
+        }
+        if (hasTranslation)
+        {
+            const name='HH_TranslateTo_'+currentLanguage+'_'+Date.now()+'.txt';
+            const a = document.createElement('a');
+            a.download = name;
+            a.href = URL.createObjectURL(new Blob([translation], {type: 'text/plain'}));
+            a.click();
+        }
+    }
+}
 
 function switchHHMenuButton(isActive)
 {
@@ -12122,7 +12315,7 @@ function fillHHPopUp(inClass,inTitle, inContent)
 
 function createHHPopUp()
 {
-    GM_addStyle('#HHAutoPopupGlobal.HHAutoOverlay {   z-index:1000;   position: fixed;   top: 0;   bottom: 0;   left: 0;   right: 0;   background: rgba(0, 0, 0, 0.7);   transition: opacity 500ms;     display: flex;   align-items: center; }  #HHAutoPopupGlobalPopup {   margin: auto;   padding: 20px;   background: #fff;   border-radius: 5px;   position: relative;   transition: all 5s ease-in-out; }  #HHAutoPopupGlobalTitle {   margin-top: 0;   color: #333;   font-size: larger; } #HHAutoPopupGlobalClose {   position: absolute;   top: 20px;   right: 30px;   transition: all 200ms;   font-size: 30px;   font-weight: bold;   text-decoration: none;   color: #333; } #HHAutoPopupGlobalClose:hover {   color: #06D85F; } #HHAutoPopupGlobalContent {   max-height: 30%;   overflow: auto;   color: #333;   font-size: x-small; }')
+    GM_addStyle('#HHAutoPopupGlobal.HHAutoOverlay { overflow: auto;  z-index:1000;   position: fixed;   top: 0;   bottom: 0;   left: 0;   right: 0;   background: rgba(0, 0, 0, 0.7);   transition: opacity 500ms;     display: flex;   align-items: center; }  #HHAutoPopupGlobalPopup {   margin: auto;   padding: 20px;   background: #fff;   border-radius: 5px;   position: relative;   transition: all 5s ease-in-out; }  #HHAutoPopupGlobalTitle {   margin-top: 0;   color: #333;   font-size: larger; } #HHAutoPopupGlobalClose {   position: absolute;   top: 20px;   right: 30px;   transition: all 200ms;   font-size: 30px;   font-weight: bold;   text-decoration: none;   color: #333; } #HHAutoPopupGlobalClose:hover {   color: #06D85F; } #HHAutoPopupGlobalContent {   max-height: 30%;   overflow: auto;   color: #333;   font-size: x-small; }')
     let popUp = '<div id="HHAutoPopupGlobal" class="HHAutoOverlay">'
     +' <div id="HHAutoPopupGlobalPopup">'
     +'   <h2 id="HHAutoPopupGlobalTitle">Here i am</h2>'
