@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.25
+// @version      5.6.26
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -907,6 +907,37 @@ function modulePathOfAttractionHide()
                     arrayz[i2].style.display = "none";
                     modified = true;
                 }
+            }
+        }
+    }
+}
+
+function moduleSimPoValorMaskReward()
+{
+    var arrayz;
+    var nbReward;
+    let modified = false;
+    arrayz = $('.pov-tier:not([style*="display:none"]):not([style*="display: none"])');
+    //doesn sure about  " .purchase-pov-pass"-button visibility
+    if ($('#pov_tab_container .pov-second-row .purchase-pov-pass:not([style*="display:none"]):not([style*="display: none"])').length)
+    {
+        nbReward = 1;
+    } else
+    {
+        nbReward = 2;
+    }
+    var obj;
+    if (arrayz.length > 0)
+    {
+        for (var i2 = arrayz.length - 1; i2 >= 0; i2--)
+        {
+            obj = $(arrayz[i2]).find('.claimed-slot:not([style*="display:none"]):not([style*="display: none"])');
+            if (obj.length >= nbReward)
+            {
+                //console.log("width : "+arrayz[i2].offsetWidth);
+                //document.getElementById('rewards_cont_scroll').scrollLeft-=arrayz[i2].offsetWidth;
+                arrayz[i2].style.display = "none";
+                modified = true;
             }
         }
     }
@@ -5868,7 +5899,7 @@ var autoLoop = function () {
         }
 
 
-        if(busy === true && sessionStorage.HHAuto_Temp_userLink==="none" && !window.location.pathname.startsWith("/quest"))
+        /*if(busy === true && sessionStorage.HHAuto_Temp_userLink==="none" && !window.location.pathname.startsWith("/quest"))
         {
             sessionStorage.HHAuto_Temp_userLink = page;
         }
@@ -5878,7 +5909,7 @@ var autoLoop = function () {
             //window.location = sessionStorage.HHAuto_Temp_userLink;
             gotoPage('home');
             sessionStorage.HHAuto_Temp_userLink = "none";
-        }
+        }*/
     }
 
     if(Storage().HHAuto_Setting_paranoia === "true" && Storage().HHAuto_Setting_master==="true" && busy === false  && sessionStorage.HHAuto_Temp_autoLoop === "true")
@@ -5907,18 +5938,22 @@ var autoLoop = function () {
     }
     if (getPage() === "event" && Storage().HHAuto_Setting_PoAMaskRewards === "true")
     {
-        modulePathOfAttractionHide();
+        setTimeout(modulePathOfAttractionHide,500);
     }
     if (getPage() == "path_of_attraction" && Storage().HHAuto_Setting_PoAMaskRewards === "true") {
-        moduleOldPathOfAttractionHide();
+        setTimeout(moduleOldPathOfAttractionHide,500);
     }
     if (getPage() === "powerplacemain" )
     {
         moduleDisplayPopID();
     }
-    if (getPage() === "shop" && Storage().HHAuto_Setting_showMarketTools === "true")
+    if (getPage() === "shop" )
     {
-        moduleShopActions();
+        if (Storage().HHAuto_Setting_showMarketTools === "true")
+        {
+            moduleShopActions();
+        }
+        moduleShopGetBoosters();
     }
     if (getPage() === "harem")
     {
@@ -5940,7 +5975,10 @@ var autoLoop = function () {
     {
         moduleDisplayContestsDeletion();
     }
-
+    if (getPage() === "path-of-valor" && Storage().HHAuto_Setting_PoVMaskRewards === "true")
+    {
+        setTimeout(moduleSimPoValorMaskReward,500);
+    }
     if(isNaN(Storage().HHAuto_Temp_autoLoopTimeMili))
     {
         logHHAuto("AutoLoopTimeMili is not a number.");
@@ -6091,6 +6129,17 @@ function simFightFunc()
         $('#simResultScore')[0].innerText = '0';
         $('#simResultScore')[0].className = 'close';
     }
+}
+
+function moduleShopGetBoosters()
+{
+    let boosterA = $('#equiped .sub_block .booster .slot:not(.empty)');
+    let boostersArray = [];
+    for (let index = 0;index < boosterA.length;index++)
+    {
+        boostersArray.push($(boosterA[index]).data("d"));
+    }
+    sessionStorage.HHAuto_Temp_BoostersData = JSON.stringify(boostersArray);
 }
 
 function moduleShopActions()
@@ -8847,133 +8896,6 @@ function getMenuValues()
             logHHAuto("HHStoredVar "+i+" has no storage or type defined.");
         }
     }
-
-    /*var leaguesOptions = document.getElementById("autoLeaguesSelector");
-    Storage().HHAuto_Setting_autoLeaguesSelectedIndex = leaguesOptions.selectedIndex;
-    sessionStorage.HHAuto_Temp_leaguesTarget = Number(leaguesOptions.value)+1;
-
-    var trollOptions = document.getElementById("autoTrollSelector");
-    Storage().HHAuto_Setting_autoTrollSelectedIndex = trollOptions.selectedIndex;
-    sessionStorage.HHAuto_Temp_trollToFight = trollOptions.value;
-
-    Storage().HHAuto_Setting_plusEvent = document.getElementById("plusEvent").checked;
-    Storage().HHAuto_Setting_autoSalary = document.getElementById("autoSalary").checked;
-    Storage().HHAuto_Setting_autoSalaryMinTimer = remove1000sSeparator(document.getElementById("autoSalaryMinTimer").value);
-    Storage().HHAuto_Setting_autoSalaryMaxTimer = remove1000sSeparator(document.getElementById("autoSalaryMaxTimer").value);
-    Storage().HHAuto_Setting_autoContest = document.getElementById("autoContest").checked;
-    Storage().HHAuto_Setting_autoMission = document.getElementById("autoMission").checked;
-    Storage().HHAuto_Setting_autoMissionKFirst = document.getElementById("autoMissionKFirst").checked;
-    Storage().HHAuto_Setting_autoPowerPlaces = document.getElementById("autoPowerPlaces").checked;
-    Storage().HHAuto_Setting_collectDailyRewards = document.getElementById("collectDailyRewards").checked;
-
-    var newValue = String(document.getElementById("autoPowerPlacesAll").checked);
-    if (Storage().HHAuto_Setting_autoPowerPlacesAll != newValue)
-    {
-        Storage().HHAuto_Setting_autoPowerPlacesAll = document.getElementById("autoPowerPlacesAll").checked;
-        clearTimer('minPowerPlacesTime');
-        cleanTempPopToStart();
-    }
-    newValue = String(document.getElementById("autoPowerPlacesIndexFilter").value);
-    if (Storage().HHAuto_Setting_autoPowerPlacesIndexFilter != newValue)
-    {
-        Storage().HHAuto_Setting_autoPowerPlacesIndexFilter = document.getElementById("autoPowerPlacesIndexFilter").value;
-        clearTimer('minPowerPlacesTime');
-        cleanTempPopToStart();
-    }
-
-    Storage().HHAuto_Setting_autoPowerPlacesIndexFilter = document.getElementById("autoPowerPlacesIndexFilter").value;
-    Storage().HHAuto_Setting_autoMissionCollect = document.getElementById("autoMissionCollect").checked;
-    Storage().HHAuto_Setting_autoQuest = document.getElementById("autoQuest").checked;
-    Storage().HHAuto_Setting_autoTrollBattle = document.getElementById("autoTrollBattle").checked;
-    Storage().HHAuto_Setting_eventTrollOrder = document.getElementById("eventTrollOrder").value;
-
-    Storage().HHAuto_Setting_plusEventMythic = document.getElementById("plusEventMythic").checked;
-    Storage().HHAuto_Setting_autoTrollMythicByPassParanoia = document.getElementById("autoTrollMythicByPassParanoia").checked ;
-
-    Storage().HHAuto_Setting_buyCombTimer = document.getElementById("buyCombTimer").value;
-    Storage().HHAuto_Setting_buyMythicCombTimer = document.getElementById("buyMythicCombTimer").value;
-
-    Storage().HHAuto_Setting_autoSeason = document.getElementById("autoSeason").checked;
-    Storage().HHAuto_Setting_autoSeasonCollect = document.getElementById("autoSeasonCollect").checked;
-    Storage().HHAuto_Setting_SeasonMaskRewards = document.getElementById("SeasonMaskRewards").checked;
-
-    Storage().HHAuto_Setting_autoLeagues = document.getElementById("autoLeagues").checked;
-    Storage().HHAuto_Setting_autoLeaguesCollect = document.getElementById("autoLeaguesCollect").checked;
-    Storage().HHAuto_Setting_autoLeaguesPowerCalc = document.getElementById("autoLeaguesPowerCalc").checked;
-    Storage().HHAuto_Setting_autoLeaguesAllowWinCurrent = document.getElementById("autoLeaguesAllowWinCurrent").checked;
-    Storage().HHAuto_Setting_autoStats = remove1000sSeparator(document.getElementById("autoStats").value);
-    Storage().HHAuto_Setting_autoStatsSwitch=document.getElementById("autoStatsSwitch").checked;
-    Storage().HHAuto_Setting_paranoia = document.getElementById("paranoia").checked;
-    Storage().HHAuto_Setting_paranoiaSpendsBefore = document.getElementById("paranoiaSpendsBefore").checked;
-    Storage().HHAuto_Setting_autoFreePachinko = document.getElementById("autoFreePachinko").checked;
-    Storage().HHAuto_Setting_autoExp = remove1000sSeparator(document.getElementById("autoExp").value);
-    Storage().HHAuto_Setting_autoExpW = document.getElementById("autoExpW").checked;
-    Storage().HHAuto_Setting_maxExp = remove1000sSeparator(document.getElementById("maxExp").value);
-    Storage().HHAuto_Setting_autoAff = remove1000sSeparator(document.getElementById("autoAff").value);
-    Storage().HHAuto_Setting_autoAffW = document.getElementById("autoAffW").checked;
-    Storage().HHAuto_Setting_maxAff = remove1000sSeparator(document.getElementById("maxAff").value);
-    Storage().HHAuto_Setting_autoLGM = remove1000sSeparator(document.getElementById("autoLGM").value);
-    Storage().HHAuto_Setting_autoLGMW = document.getElementById("autoLGMW").checked;
-    Storage().HHAuto_Setting_autoLGR = remove1000sSeparator(document.getElementById("autoLGR").value);
-    Storage().HHAuto_Setting_autoLGRW = document.getElementById("autoLGRW").checked;
-    Storage().HHAuto_Setting_autoBuyBoosters = document.getElementById("autoBuyBoosters").checked;
-    Storage().HHAuto_Setting_autoBuyBoostersFilter = document.getElementById("autoBuyBoostersFilter").value;
-    Storage().HHAuto_Setting_showMarketTools = document.getElementById("showMarketTools").checked;
-
-
-
-    newValue = String(document.getElementById("showTooltips").checked);
-    if (Storage().HHAuto_Setting_showTooltips != newValue)
-    {
-        Storage().HHAuto_Setting_showTooltips = document.getElementById("showTooltips").checked;
-        manageToolTipsDisplay(true);
-    }
-
-    Storage().HHAuto_Setting_showCalculatePower = document.getElementById("showCalculatePower").checked;
-    Storage().HHAuto_Setting_showInfo = document.getElementById("showInfo").checked;
-
-    //Storage().HHAuto_Setting_calculatePowerLimits = document.getElementById("calculatePowerLimits").value;
-    Storage().HHAuto_Setting_autoChamps = document.getElementById("autoChamps").checked;
-    Storage().HHAuto_Setting_autoClubChamp = document.getElementById("autoClubChamp").checked;
-    Storage().HHAuto_Setting_autoClubForceStart = document.getElementById("autoClubForceStart").checked;
-
-    Storage().HHAuto_Setting_autoClubChampMax = document.getElementById("autoClubChampMax").value;
-    Storage().HHAuto_Setting_autoChampsUseEne = document.getElementById("autoChampsUseEne").checked;
-    Storage().HHAuto_Setting_autoChampsFilter = document.getElementById("autoChampsFilter").value;
-
-    Storage().HHAuto_Setting_kobanBank = remove1000sSeparator(document.getElementById("kobanBank").value);
-    Storage().HHAuto_Setting_spendKobans0 = document.getElementById("spendKobans0").checked;
-    Storage().HHAuto_Setting_buyCombat=document.getElementById("buyCombat").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;// && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true" ;
-    document.getElementById("buyCombat").checked=Storage().HHAuto_Setting_buyCombat==="true";
-    Storage().HHAuto_Setting_buyMythicCombat=document.getElementById("buyMythicCombat").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;// && Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true";
-    document.getElementById("buyMythicCombat").checked=Storage().HHAuto_Setting_buyMythicCombat==="true";
-
-    Storage().HHAuto_Setting_autoBuyBoosters=document.getElementById("autoBuyBoosters").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;//&& Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true";
-    document.getElementById("autoBuyBoosters").checked=Storage().HHAuto_Setting_autoBuyBoosters==="true";
-    Storage().HHAuto_Setting_autoSeasonPassReds=document.getElementById("autoSeasonPassReds").checked && Storage().HHAuto_Setting_spendKobans0=="true" ;//&& Storage().HHAuto_Setting_spendKobans2=="true" && Storage().HHAuto_Setting_spendKobans1=="true";
-    document.getElementById("autoSeasonPassReds").checked=Storage().HHAuto_Setting_autoSeasonPassReds==="true";
-    Storage().HHAuto_Setting_useX50Fights= document.getElementById("useX50Fights").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;
-    document.getElementById("useX50Fights").checked=Storage().HHAuto_Setting_useX50Fights==="true";
-    Storage().HHAuto_Setting_useX10Fights= document.getElementById("useX10Fights").checked && Storage().HHAuto_Setting_spendKobans0==="true" ;
-    document.getElementById("useX10Fights").checked=Storage().HHAuto_Setting_useX10Fights==="true";
-
-
-    Storage().HHAuto_Setting_minShardsX50=document.getElementById("minShardsX50").value;
-    Storage().HHAuto_Setting_minShardsX10=document.getElementById("minShardsX10").value;
-    Storage().HHAuto_Setting_useX10FightsAllowNormalEvent=document.getElementById("useX10FightsAllowNormalEvent").checked;
-    Storage().HHAuto_Setting_useX50FightsAllowNormalEvent=document.getElementById("useX50FightsAllowNormalEvent").checked;
-
-    Storage().HHAuto_Setting_autoTrollThreshold = document.getElementById("autoTrollThreshold").value;
-    Storage().HHAuto_Setting_autoQuestThreshold = document.getElementById("autoQuestThreshold").value;
-    Storage().HHAuto_Setting_autoLeaguesThreshold = document.getElementById("autoLeaguesThreshold").value;
-    Storage().HHAuto_Setting_autoSeasonThreshold = document.getElementById("autoSeasonThreshold").value;
-    Storage().HHAuto_Setting_PoAMaskRewards = document.getElementById("PoAMaskRewards").checked;
-    Storage().HHAuto_Setting_autoPantheon = document.getElementById("autoPantheon").checked;
-    Storage().HHAuto_Setting_autoPantheonThreshold = document.getElementById("autoPantheonThreshold").value;
-    localStorage.HHAuto_Setting_settPerTab = document.getElementById("settPerTab").checked;
-
-    Storage().HHAuto_Setting_master=document.getElementById("master").checked;
-    */
     setDefaults();
 }
 
@@ -9040,86 +8962,6 @@ function setMenuValues()
             logHHAuto("HHStoredVar "+i+" has no storage or type defined.");
         }
     }
-
-    /*document.getElementById("settPerTab").checked = localStorage.HHAuto_Setting_settPerTab === "true";
-    document.getElementById("autoTrollSelector").selectedIndex = Storage().HHAuto_Setting_autoTrollSelectedIndex;
-    document.getElementById("autoLeaguesSelector").selectedIndex = Storage().HHAuto_Setting_autoLeaguesSelectedIndex;
-    document.getElementById("autoSalary").checked = Storage().HHAuto_Setting_autoSalary === "true";
-    document.getElementById("autoSalaryMinTimer").value = add1000sSeparator(Storage().HHAuto_Setting_autoSalaryMinTimer);
-    document.getElementById("autoSalaryMaxTimer").value = add1000sSeparator(Storage().HHAuto_Setting_autoSalaryMaxTimer);
-    document.getElementById("autoContest").checked = Storage().HHAuto_Setting_autoContest === "true";
-    document.getElementById("autoMission").checked = Storage().HHAuto_Setting_autoMission === "true";
-    document.getElementById("autoMissionCollect").checked = Storage().HHAuto_Setting_autoMissionCollect === "true";
-    document.getElementById("autoMissionKFirst").checked = Storage().HHAuto_Setting_autoMissionKFirst === "true" ;
-    document.getElementById("autoQuest").checked = Storage().HHAuto_Setting_autoQuest === "true";
-    document.getElementById("autoTrollBattle").checked = Storage().HHAuto_Setting_autoTrollBattle === "true";
-    document.getElementById("eventTrollOrder").value = Storage().HHAuto_Setting_eventTrollOrder;
-    document.getElementById("buyCombTimer").value = Storage().HHAuto_Setting_buyCombTimer;
-    document.getElementById("buyMythicCombTimer").value = Storage().HHAuto_Setting_buyMythicCombTimer;
-    document.getElementById("autoSeason").checked = Storage().HHAuto_Setting_autoSeason === "true";
-    document.getElementById("autoSeasonCollect").checked = Storage().HHAuto_Setting_autoSeasonCollect === "true";
-    document.getElementById("SeasonMaskRewards").checked = Storage().HHAuto_Setting_SeasonMaskRewards === "true";
-    document.getElementById("autoSeasonPassReds").checked = Storage().HHAuto_Setting_autoSeasonPassReds === "true";
-    document.getElementById("autoFreePachinko").checked = Storage().HHAuto_Setting_autoFreePachinko === "true";
-    document.getElementById("autoLeagues").checked = Storage().HHAuto_Setting_autoLeagues === "true";
-    //document.getElementById("autoLeaguesMaxRank").value = Storage().HHAuto_Setting_autoLeaguesMaxRank;
-    document.getElementById("autoLeaguesPowerCalc").checked = Storage().HHAuto_Setting_autoLeaguesPowerCalc === "true";
-    document.getElementById("autoLeaguesCollect").checked = Storage().HHAuto_Setting_autoLeaguesCollect === "true";
-    document.getElementById("autoLeaguesAllowWinCurrent").checked = Storage().HHAuto_Setting_autoLeaguesAllowWinCurrent === "true";
-    document.getElementById("autoPowerPlaces").checked = Storage().HHAuto_Setting_autoPowerPlaces === "true";
-    document.getElementById("autoPowerPlacesAll").checked = Storage().HHAuto_Setting_autoPowerPlacesAll === "true";
-    document.getElementById("autoPowerPlacesIndexFilter").value = Storage().HHAuto_Setting_autoPowerPlacesIndexFilter;
-    document.getElementById("autoStats").value = add1000sSeparator(Storage().HHAuto_Setting_autoStats);
-    document.getElementById("autoStatsSwitch").checked = Storage().HHAuto_Setting_autoStatsSwitch==="true";
-    document.getElementById("paranoia").checked = Storage().HHAuto_Setting_paranoia==="true";
-    document.getElementById("paranoiaSpendsBefore").checked = Storage().HHAuto_Setting_paranoiaSpendsBefore==="true";
-    document.getElementById("autoExp").value = add1000sSeparator(Storage().HHAuto_Setting_autoExp);
-    document.getElementById("autoExpW").checked = Storage().HHAuto_Setting_autoExpW === "true";
-    document.getElementById("autoAff").value = add1000sSeparator(Storage().HHAuto_Setting_autoAff);
-    document.getElementById("autoAffW").checked = Storage().HHAuto_Setting_autoAffW === "true";
-    document.getElementById("maxExp").value = add1000sSeparator(Storage().HHAuto_Setting_maxExp);
-    document.getElementById("maxAff").value = add1000sSeparator(Storage().HHAuto_Setting_maxAff);
-    document.getElementById("autoLGM").value = add1000sSeparator(Storage().HHAuto_Setting_autoLGM);
-    document.getElementById("autoLGMW").checked = Storage().HHAuto_Setting_autoLGMW === "true";
-    document.getElementById("autoLGR").value = add1000sSeparator(Storage().HHAuto_Setting_autoLGR);
-    document.getElementById("autoLGRW").checked = Storage().HHAuto_Setting_autoLGRW === "true";
-    document.getElementById("autoBuyBoosters").checked = Storage().HHAuto_Setting_autoBuyBoosters === "true";
-    document.getElementById("autoBuyBoostersFilter").value = Storage().HHAuto_Setting_autoBuyBoostersFilter;
-    document.getElementById("showMarketTools").checked = Storage().HHAuto_Setting_showMarketTools === "true";
-    document.getElementById("showInfo").checked = Storage().HHAuto_Setting_showInfo==="true";
-    document.getElementById("showTooltips").checked = Storage().HHAuto_Setting_showTooltips==="true";
-    document.getElementById("collectDailyRewards").checked = Storage().HHAuto_Setting_collectDailyRewards === "true" ;
-
-    document.getElementById("showCalculatePower").checked = Storage().HHAuto_Setting_showCalculatePower==="true";
-    //document.getElementById("calculatePowerLimits").value = Storage().HHAuto_Setting_calculatePowerLimits;
-    document.getElementById("plusEvent").checked = Storage().HHAuto_Setting_plusEvent === "true";
-    document.getElementById("plusEventMythic").checked = Storage().HHAuto_Setting_plusEventMythic === "true";
-    document.getElementById("useX50Fights").checked= Storage().HHAuto_Setting_useX50Fights === "true";
-    document.getElementById("useX10Fights").checked= Storage().HHAuto_Setting_useX10Fights === "true";
-    document.getElementById("useX10FightsAllowNormalEvent").checked=Storage().HHAuto_Setting_useX10FightsAllowNormalEvent==="true";
-    document.getElementById("useX50FightsAllowNormalEvent").checked=Storage().HHAuto_Setting_useX50FightsAllowNormalEvent==="true";
-    document.getElementById("minShardsX50").value=Storage().HHAuto_Setting_minShardsX50;
-    document.getElementById("minShardsX10").value=Storage().HHAuto_Setting_minShardsX10;
-    document.getElementById("autoTrollMythicByPassParanoia").checked = Storage().HHAuto_Setting_autoTrollMythicByPassParanoia === "true";
-    document.getElementById("autoClubChamp").checked = Storage().HHAuto_Setting_autoClubChamp  === "true";
-    document.getElementById("autoClubForceStart").checked = Storage().HHAuto_Setting_autoClubForceStart  === "true";
-    document.getElementById("autoClubChampMax").value = Storage().HHAuto_Setting_autoClubChampMax;
-    document.getElementById("autoChamps").checked = Storage().HHAuto_Setting_autoChamps === "true";
-    document.getElementById("autoChampsUseEne").checked = Storage().HHAuto_Setting_autoChampsUseEne === "true";
-    document.getElementById("autoChampsFilter").value = Storage().HHAuto_Setting_autoChampsFilter;
-    document.getElementById("spendKobans0").checked = Storage().HHAuto_Setting_spendKobans0 === "true";
-    document.getElementById("buyCombat").checked = Storage().HHAuto_Setting_buyCombat === "true";
-    document.getElementById("buyMythicCombat").checked = Storage().HHAuto_Setting_buyMythicCombat === "true";
-    document.getElementById("kobanBank").value = add1000sSeparator(Storage().HHAuto_Setting_kobanBank);
-    document.getElementById("autoTrollThreshold").value = Storage().HHAuto_Setting_autoTrollThreshold;
-    document.getElementById("autoQuestThreshold").value = Storage().HHAuto_Setting_autoQuestThreshold;
-    document.getElementById("autoLeaguesThreshold").value = Storage().HHAuto_Setting_autoLeaguesThreshold;
-    document.getElementById("autoSeasonThreshold").value = Storage().HHAuto_Setting_autoSeasonThreshold;
-    document.getElementById("autoPantheon").checked = Storage().HHAuto_Setting_autoPantheon=== "true";
-    document.getElementById("autoPantheonThreshold").value = Storage().HHAuto_Setting_autoPantheonThreshold;
-    document.getElementById("master").checked = Storage().HHAuto_Setting_master==="true";
-    document.getElementById("PoAMaskRewards").checked = Storage().HHAuto_Setting_PoAMaskRewards === "true";
-    */
 }
 
 var setDefaults = function (force = false)
@@ -9161,87 +9003,6 @@ var setDefaults = function (force = false)
 
     }
 
-    /*Storage().HHAuto_Setting_autoSalary = "false";
-    Storage().HHAuto_Setting_autoSalaryMinTimer = "120";
-    Storage().HHAuto_Setting_autoSalaryMaxTimer = "1200";
-    Storage().HHAuto_Setting_autoContest = "false";
-    Storage().HHAuto_Setting_autoMission = "false";
-    Storage().HHAuto_Setting_autoPowerPlaces = "false";
-    Storage().HHAuto_Setting_autoPowerPlacesAll = "false";
-    Storage().HHAuto_Setting_autoPowerPlacesIndexFilter = "1;2;3";
-    Storage().HHAuto_Setting_autoMissionCollect = "false";
-    Storage().HHAuto_Setting_autoMissionKFirst = "false";
-    Storage().HHAuto_Setting_autoLeagues = "false";
-    Storage().HHAuto_Setting_autoLeaguesCollect = "false";
-    Storage().HHAuto_Setting_autoLeaguesPowerCalc = "false";
-    Storage().HHAuto_Setting_autoLeaguesAllowWinCurrent = "false";
-    //Storage().HHAuto_Setting_autoLeaguesMaxRank = "0";
-    Storage().HHAuto_Setting_collectDailyRewards = "false";
-    sessionStorage.HHAuto_Temp_leaguesTarget = "9";
-    Storage().HHAuto_Setting_autoStats = add1000sSeparator("500000000");
-
-    sessionStorage.HHAuto_Temp_autoLoop = "true";
-    sessionStorage.HHAuto_Temp_userLink = "none";
-    Storage().HHAuto_Temp_autoLoopTimeMili = "500";
-    Storage().HHAuto_Setting_autoQuest = "false";
-    Storage().HHAuto_Setting_autoTrollBattle = "false";
-    Storage().HHAuto_Setting_plusEvent = "false";
-    Storage().HHAuto_Setting_plusEventMythic = "false";
-    //Storage().HHAuto_Setting_eventMythicPrio = "false";
-    Storage().HHAuto_Setting_useX50Fights= "false";
-    Storage().HHAuto_Setting_useX10Fights= "false";
-    Storage().HHAuto_Setting_useX10FightsAllowNormalEvent="false";
-    Storage().HHAuto_Setting_useX50FightsAllowNormalEvent="false";
-    Storage().HHAuto_Setting_minShardsX10="10";
-    Storage().HHAuto_Setting_minShardsX50="50";
-    //Storage().HHAuto_Setting_autoTrollMythicByPassThreshold = "false";
-    Storage().HHAuto_Setting_autoTrollMythicByPassParanoia = "false";
-    Storage().HHAuto_Setting_eventTrollOrder="";
-    Storage().HHAuto_Setting_buyCombTimer="16";
-    Storage().HHAuto_Setting_buyMythicCombTimer="16";
-    Storage().HHAuto_Setting_autoSeason = "false";
-    Storage().HHAuto_Setting_autoSeasonCollect = "false";
-    Storage().HHAuto_Setting_SeasonMaskRewards = "false";
-    sessionStorage.HHAuto_Temp_battlePowerRequired = "0";
-    sessionStorage.HHAuto_Temp_questRequirement = "none";
-    Storage().HHAuto_Temp_freshStart = "no";
-    Storage().HHAuto_Setting_autoChamps="false";
-    Storage().HHAuto_Setting_autoClubChamp="false";
-    Storage().HHAuto_Setting_autoClubForceStart="false";
-    Storage().HHAuto_Setting_autoClubChampMax = "999";
-    Storage().HHAuto_Setting_autoChampsUseEne="false";
-    Storage().HHAuto_Setting_autoChampsFilter="1;2;3;4;5;6";
-    Storage().HHAuto_Setting_autoFreePachinko = "false";
-    Storage().HHAuto_Setting_autoStats = add1000sSeparator("500000000");
-    Storage().HHAuto_Setting_autoStatsSwitch="false";
-    Storage().HHAuto_Setting_autoExp = add1000sSeparator("500000000");
-    Storage().HHAuto_Setting_autoExpW = "false";
-    Storage().HHAuto_Setting_maxExp = add1000sSeparator("10000");
-    Storage().HHAuto_Setting_autoAff = add1000sSeparator("500000000");
-    Storage().HHAuto_Setting_autoAffW = "false";
-    Storage().HHAuto_Setting_maxAff = add1000sSeparator("50000");
-    Storage().HHAuto_Setting_autoLGM = add1000sSeparator("500000000");
-    Storage().HHAuto_Setting_autoLGMW = "false";
-    Storage().HHAuto_Setting_autoLGR = add1000sSeparator("500000000");
-    Storage().HHAuto_Setting_autoLGRW = "false";
-    Storage().HHAuto_Setting_autoBuyBoostersFilter = "B1;B2;B3;B4";
-    Storage().HHAuto_Setting_autoBuyBoosters = "false";
-    Storage().HHAuto_Setting_showMarketTools = "false";
-    Storage().HHAuto_Setting_paranoia="true";
-    Storage().HHAuto_Setting_paranoiaSpendsBefore="false";
-    Storage().HHAuto_Setting_showTooltips = "true";
-    Storage().HHAuto_Setting_calculatePowerLimits = "default";
-    Storage().HHAuto_Setting_autoTrollThreshold="0";
-    Storage().HHAuto_Setting_autoQuestThreshold="0";
-    Storage().HHAuto_Setting_autoLeaguesThreshold="0";
-    Storage().HHAuto_Setting_autoSeasonThreshold="0";
-
-    Storage().HHAuto_Setting_spendKobans0="false";
-    Storage().HHAuto_Setting_autoSeasonPassReds ="false";
-    Storage().HHAuto_Setting_paranoiaSettings="140-320/Sleep:28800-30400|Active:250-460|Casual:1500-2700/6:Sleep|8:Casual|10:Active|12:Casual|14:Active|18:Casual|20:Active|22:Casual|24:Sleep";
-    Storage().HHAuto_Setting_master="false";
-    Storage().HHAuto_Setting_PoAMaskRewards = "false";
-    */
 };
 /*
  0: version strings are equal
@@ -9645,6 +9406,7 @@ HHAuto_ToolTips.en.menuExpEnd = { version: "5.6.24", elementText: "All Exp given
 HHAuto_ToolTips.en.menuExpLevel =  { version: "5.6.24", elementText: "Enter target Exp level :", tooltip: "Target Exp level for girl"};
 HHAuto_ToolTips.en.menuExpAwakeningNeeded =  { version: "5.6.24", elementText: "Girl need awakening ", tooltip: ""};
 HHAuto_ToolTips.en.PoAMaskRewards = { version: "5.6.24", elementText: "PoA mask claimed", tooltip: "Masked claimed rewards for Path of Attraction."};
+HHAuto_ToolTips.en.PoVMaskRewards = { version: "5.6.26", elementText: "PoV mask claimed", tooltip: "Masked claimed rewards for Path of Valor."};
 HHAuto_ToolTips.en.showTooltips = { version: "5.6.24", elementText: "Show tooltips", tooltip: "Show tooltip on menu."};
 HHAuto_ToolTips.en.showMarketTools = { version: "5.6.24", elementText: "Show market tools", tooltip: "Show Market tools."};
 HHAuto_ToolTips.en.useX10Fights = { version: "5.6.24", elementText: "Use x10", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Use x10 button if 10 fights or more to do (if not going under Koban bank value).<br>x50 takes precedence on x10 if all conditions are filled."};
@@ -10672,6 +10434,17 @@ HHStoredVars.HHAuto_Setting_PoAMaskRewards =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars.HHAuto_Setting_PoVMaskRewards =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_SeasonMaskRewards =
     {
     default:"false",
@@ -11013,125 +10786,11 @@ HHStoredVars.HHAuto_Temp_HaremSize =
     HHType:"Temp",
     isValid:/{"count":(\d)+,"count_date":(\d)+}/
 };
-/*
-//Do not move, has to be first one
-HHStoredVars.HHAuto_Setting_settPerTab = {default:  "false", storage : "localStorage", type : "Setting"};
-// Rest of settings vars
-HHStoredVars.HHAuto_Setting_autoAff = {default:  "500000000", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoAffW = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoBuyBoosters = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoBuyBoostersFilter = {default:  "B1;B2;B3;B4", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoChamps = {default: "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoChampsFilter = {default: "1;2;3;4;5;6", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoChampsUseEne = {default: "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoClubChamp = {default: "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoClubChampMax = {default:  "999", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoClubForceStart = {default: "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoContest = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoExp = {default:  "500000000", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoExpW = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoFreePachinko = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoLeagues = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoLeaguesAllowWinCurrent = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoLeaguesCollect = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoLeaguesPowerCalc = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoLeaguesSelectedIndex = {default:  0, storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoLeaguesThreshold = {default: "0", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoLGM = {default:  "500000000", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoLGMW = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoLGR = {default:  "500000000", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoLGRW = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoMission = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoMissionCollect = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoMissionKFirst = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoPowerPlaces = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoPowerPlacesAll = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoPowerPlacesIndexFilter = {default:  "1;2;3", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoQuest = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoQuestThreshold = {default: "0", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoSalary = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoSalaryMaxTimer = {default:  "1200", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoSalaryMinTimer = {default:  "120", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoSeason = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoSeasonCollect = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoSeasonPassReds = {default: "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoSeasonThreshold = {default: "0", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoStats = {default:  "500000000", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoStatsSwitch = {default: "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoTrollBattle = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoTrollMythicByPassParanoia = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoTrollSelectedIndex = {default:  0, storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoTrollThreshold = {default: "0", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_buyCombat = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_buyCombTimer = {default: "16", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_buyMythicCombat = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_buyMythicCombTimer = {default: "16", storage : "Storage()", type : "Setting"};
-//HHStoredVars.HHAuto_Setting_calculatePowerLimits = {default:  "default", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_collectDailyRewards = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_eventTrollOrder = {default: "1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_master = {default: "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_maxAff = {default:  "50000", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_maxExp = {default:  "10000", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_minShardsX10 = {default: "10", storage : "Storage()", type : "Setting", isValid:/^(\d)+$/};
-HHStoredVars.HHAuto_Setting_minShardsX50 = {default: "50", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_paranoia = {default: "true", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_paranoiaSettings = {default: "140-320/Sleep:28800-30400|Active:250-460|Casual:1500-2700/6:Sleep|8:Casual|10:Active|12:Casual|14:Active|18:Casual|20:Active|22:Casual|24:Sleep", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_paranoiaSpendsBefore = {default: "true", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_plusEvent = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_plusEventMythic = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_PoAMaskRewards = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_SeasonMaskRewards = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_showCalculatePower = {default:  "true", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_showInfo = {default:  "true", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_showMarketTools = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_showTooltips = {default:  "true", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_spendKobans0 = {default: "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_kobanBank = {default: "1000000", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_useX10Fights = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_useX10FightsAllowNormalEvent = {default: "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_useX50Fights = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_useX50FightsAllowNormalEvent = {default: "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_saveDefaults = {default: "{}", storage : "localStorage", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoPantheon = {default:  "false", storage : "Storage()", type : "Setting"};
-HHStoredVars.HHAuto_Setting_autoPantheonThreshold = {default: "0", storage : "Storage()", type : "Setting"};
-
-
-//Temp vars
-HHStoredVars.HHAuto_Temp_autoLoop = {default:  "true", storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_battlePowerRequired = {default:  "0", storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_leaguesTarget = {default:  "9", storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_questRequirement = {default:  "none", storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_userLink = {default:  "none", storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_autoLoopTimeMili = {default:  "500", storage : "Storage()", type : "Temp"};
-HHStoredVars.HHAuto_Temp_freshStart = {default:  "no", storage : "Storage()", type : "Temp"};
-HHStoredVars.HHAuto_Temp_Logging = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_trollToFight = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_autoTrollBattleSaveQuest = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_burst = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_charLevel = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_eventsGirlz = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_eventGirl = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_fought = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_haveAff = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_haveExp = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_LeagueOpponentList = { storage : "sessionStorage", type : "Temp", isValid:/{"dataType":"Map","value":\[(\[(\d)+,{"points"[^\]]+\],?)+\]}/};
-HHStoredVars.HHAuto_Temp_LeagueTempOpponentList = { storage : "sessionStorage", type : "Temp", isValid:/{"dataType":"Map","value":\[(\[(\d)+,{"points"[^\]]+\],?)+\]}/};
-HHStoredVars.HHAuto_Temp_opponentsListExpirationDate = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_paranoiaLeagueBlocked = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_paranoiaQuestBlocked = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_paranoiaSpendings = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_pinfo = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_PopToStart = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_PopUnableToStart = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_storeContents = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_Timers = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_NextSwitch = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_Totalpops = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_CheckSpentPoints = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_eventsList = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_LeagueSavedData = { storage : "sessionStorage", type : "Temp"};
-HHStoredVars.HHAuto_Temp_HaremSize = { storage : "sessionStorage", type : "Temp", isValid:/{"count":(\d)+,"count_date":(\d)+}/};
-*/
+HHStoredVars.HHAuto_Temp_BoostersData =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
 
 var updateData = function () {
     //logHHAuto("updating UI");
@@ -11210,6 +10869,13 @@ var updateData = function () {
         }
         Tegzd += '<br>'+getTextForUI("autoAffW","elementText")+' : '+sessionStorage.HHAuto_Temp_haveAff;
         Tegzd += '<br>'+getTextForUI("autoExpW","elementText")+' : '+sessionStorage.HHAuto_Temp_haveExp;
+        if (isJSON(sessionStorage.HHAuto_Temp_BoostersData))
+        {
+            for(let boost of JSON.parse(sessionStorage.HHAuto_Temp_BoostersData))
+            {
+                Tegzd += `<br>${boost.rarity} <img class="iconImg" src="${boost.ico}" /> : ${toHHMMSS(boost.expiration)}`;
+            }
+        }
         //if (Tegzd.length>0)
         //{
         document.getElementById('pInfo').style.display='block';
@@ -11396,6 +11062,7 @@ var start = function () {
     +     '<div class="optionsColumn">'  //+     '<div style="padding:3px; display:flex; flex-direction:column">'
     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("showInfo","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("showInfo","tooltip")+'</span><label class="switch"><input id="showInfo" type="checkbox"><span class="slider round"></span></label></div></div>'
     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("showTooltips","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("showTooltips","tooltip")+'</span><label class="switch"><input id="showTooltips" type="checkbox"><span class="slider round"></span></label></div></div>'
+    +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("PoVMaskRewards","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PoVMaskRewards","tooltip")+'</span><label class="switch"><input id="PoVMaskRewards" type="checkbox"><span class="slider round"></span></label></div></div>'
     +     '</div>'
     +     '<div class="optionsColumn">'  //+     '<div style="padding:3px; display:flex; flex-direction:column;">'
     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("showCalculatePower","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("showCalculatePower","tooltip")+'</span><label class="switch"><input id="showCalculatePower" type="checkbox"><span class="slider round"></span></label></div></div>'
