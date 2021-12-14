@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.26
+// @version      5.6.27
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -912,7 +912,7 @@ function modulePathOfAttractionHide()
     }
 }
 
-function moduleSimPoValorMaskReward()
+function moduleSimPoVMaskReward()
 {
     var arrayz;
     var nbReward;
@@ -922,7 +922,8 @@ function moduleSimPoValorMaskReward()
     if ($('#pov_tab_container .pov-second-row .purchase-pov-pass:not([style*="display:none"]):not([style*="display: none"])').length)
     {
         nbReward = 1;
-    } else
+    }
+    else
     {
         nbReward = 2;
     }
@@ -2602,8 +2603,6 @@ var doBossBattle = function()
         //location.href = "/battle.html?id_troll=" + TTF;
         gotoPage("troll-pre-battle",{id_opponent:TTF});
         //End week 28 new battle modification
-
-
         return true;
     }
 };
@@ -5428,6 +5427,7 @@ var autoLoop = function () {
         {
             clearParanoiaSpendings();
         }
+        checkAndCleanBoostersData();
         CheckSpentPoints();
 
         //check what happen to timer if no more wave before uncommenting
@@ -5515,7 +5515,7 @@ var autoLoop = function () {
                     || Number(checkParanoiaSpendings('fight')) > 0 //paranoiaspendings to do
                     || (sessionStorage.HHAuto_Temp_eventGirl  !== undefined
                         && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "false"
-                        && canBuyFight().canBuy
+                        && canBuyFight(false).canBuy
                        ) // eventGirl available and buy comb true
                     || (sessionStorage.HHAuto_Temp_eventGirl !== undefined
                         && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "true"
@@ -5977,7 +5977,7 @@ var autoLoop = function () {
     }
     if (getPage() === "path-of-valor" && Storage().HHAuto_Setting_PoVMaskRewards === "true")
     {
-        setTimeout(moduleSimPoValorMaskReward,500);
+        setTimeout(moduleSimPoVMaskReward,500);
     }
     if(isNaN(Storage().HHAuto_Temp_autoLoopTimeMili))
     {
@@ -6137,9 +6137,57 @@ function moduleShopGetBoosters()
     let boostersArray = [];
     for (let index = 0;index < boosterA.length;index++)
     {
+        const currentBooster = $(boosterA[index]).data("d");
+        const propertiesToDelete = ['id_m_i',"id_member", "stacked"];
+        for (let prop of propertiesToDelete)
+        {
+            if (currentBooster.hasOwnProperty(prop))
+            {
+                delete currentBooster[prop];
+            }
+        }
         boostersArray.push($(boosterA[index]).data("d"));
     }
-    sessionStorage.HHAuto_Temp_BoostersData = JSON.stringify(boostersArray);
+    if (boostersArray.length > 0 )
+    {
+        sessionStorage.HHAuto_Temp_BoostersData = JSON.stringify(boostersArray);
+    }
+    else
+    {
+        sessionStorage.removeItem("HHAuto_Temp_BoostersData");
+    }
+}
+
+function checkAndCleanBoostersData()
+{
+    if ( isJSON(sessionStorage.HHAuto_Temp_BoostersData))
+    {
+        const boostersData = JSON.parse(sessionStorage.HHAuto_Temp_BoostersData);
+        boostersData.filter(function(boost)
+                            {
+            return getBoosterExpiration(boost) !== "0";
+        });
+    }
+}
+
+function getBoosterExpiration(booster)
+{
+    if (booster.rarity === "mythic")
+    {
+        return booster.usages_remaining;
+    }
+    else
+    {
+        const secsLeft = Math.ceil(Number(booster.lifetime))-Math.ceil(new Date().getTime()/1000);
+        if (secsLeft > 0 )
+        {
+            return toHHMMSS(secsLeft);
+        }
+        else
+        {
+            return "0";
+        }
+    }
 }
 
 function moduleShopActions()
@@ -10867,13 +10915,13 @@ var updateData = function () {
         {
             Tegzd += '<br>'+getTextForUI("mythicGirlNext","elementText")+' : '+getTimeLeft('eventMythicNextWave');
         }
-        Tegzd += '<br>'+getTextForUI("autoAffW","elementText")+' : '+sessionStorage.HHAuto_Temp_haveAff;
-        Tegzd += '<br>'+getTextForUI("autoExpW","elementText")+' : '+sessionStorage.HHAuto_Temp_haveExp;
+        Tegzd += '<br>'+getTextForUI("autoAffW","elementText")+' : '+add1000sSeparator(sessionStorage.HHAuto_Temp_haveAff);
+        Tegzd += '<br>'+getTextForUI("autoExpW","elementText")+' : '+add1000sSeparator(sessionStorage.HHAuto_Temp_haveExp);
         if (isJSON(sessionStorage.HHAuto_Temp_BoostersData))
         {
             for(let boost of JSON.parse(sessionStorage.HHAuto_Temp_BoostersData))
             {
-                Tegzd += `<br>${boost.rarity} <img class="iconImg" src="${boost.ico}" /> : ${toHHMMSS(boost.expiration)}`;
+                Tegzd += `<br>${boost.rarity} <img class="iconImg" src="${boost.ico}" /> : ${getBoosterExpiration(boost)}`;
             }
         }
         //if (Tegzd.length>0)
