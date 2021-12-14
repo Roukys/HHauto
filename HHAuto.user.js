@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.27
+// @version      5.6.28
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -940,6 +940,15 @@ function moduleSimPoVMaskReward()
                 arrayz[i2].style.display = "none";
                 modified = true;
             }
+        }
+    }
+
+    if (modified)
+    {
+        let divToModify = $('.pov-progress-bar-section');
+        if (divToModify.length > 0)
+        {
+            $('.pov-progress-bar-section')[0].scrollTop = '0';
         }
     }
 }
@@ -8930,7 +8939,7 @@ function getMenuValues()
                         menuValue = String(remove1000sSeparator(menuValue));
                         break;
                 }
-                //console.log(menuID,HHStoredVars[i].menuType,itemValue);
+                //console.log(menuID,HHStoredVars[i].menuType,menuValue,document.getElementById(menuID),HHStoredVars[i].valueType);
                 storageItem[i] = menuValue;
                 if (currentValue !== menuValue && HHStoredVars[i].newValueFunction !== undefined)
                 {
@@ -9020,6 +9029,7 @@ var setDefaults = function (force = false)
         {
             let storageItem = getStorageItem(HHStoredVars[i].storage);
             let isInvalid = false;
+            //console.log(storageItem[i], storageItem[i] !== undefined);
             if (HHStoredVars[i].isValid !== undefined && storageItem[i] !== undefined)
             {
                 isInvalid = !HHStoredVars[i].isValid.test(storageItem[i]);
@@ -10915,8 +10925,14 @@ var updateData = function () {
         {
             Tegzd += '<br>'+getTextForUI("mythicGirlNext","elementText")+' : '+getTimeLeft('eventMythicNextWave');
         }
-        Tegzd += '<br>'+getTextForUI("autoAffW","elementText")+' : '+add1000sSeparator(sessionStorage.HHAuto_Temp_haveAff);
-        Tegzd += '<br>'+getTextForUI("autoExpW","elementText")+' : '+add1000sSeparator(sessionStorage.HHAuto_Temp_haveExp);
+        if (sessionStorage.HHAuto_Temp_haveAff)
+        {
+            Tegzd += '<br>'+getTextForUI("autoAffW","elementText")+' : '+add1000sSeparator(sessionStorage.HHAuto_Temp_haveAff);
+        }
+        if (sessionStorage.HHAuto_Temp_haveExp)
+        {
+            Tegzd += '<br>'+getTextForUI("autoExpW","elementText")+' : '+add1000sSeparator(sessionStorage.HHAuto_Temp_haveExp);
+        }
         if (isJSON(sessionStorage.HHAuto_Temp_BoostersData))
         {
             for(let boost of JSON.parse(sessionStorage.HHAuto_Temp_BoostersData))
@@ -11854,6 +11870,7 @@ var start = function () {
 
 function manageTranslationPopUp()
 {
+    const HtmlIdPrefix = "HH_TranslateTo_";
     GM_addStyle('.tItems {border-collapse: collapse;text-align:center;vertical-align:middle;} '
                 +'.tItems td,th {border: 1px solid #1B4F72;} '
                 +'.tItemsColGroup {border: 3px solid #1B4F72;} '
@@ -11889,7 +11906,7 @@ function manageTranslationPopUp()
     for ( let item of Object.keys(HHAuto_ToolTips.en))
     {
         let reworkedClass = "";
-        translatePopUpContent +='  <tr id="'+item+'">';
+        translatePopUpContent +='  <tr id="'+HtmlIdPrefix+item+'">';
         let currentEnElementText = HHAuto_ToolTips.en[item].elementText;
         if (currentEnElementText === undefined || currentEnElementText === "")
         {
@@ -11947,8 +11964,8 @@ function manageTranslationPopUp()
         let hasTranslation = false;
         for ( let item of Object.keys(HHAuto_ToolTips.en))
         {
-            const currentTranslatedElementText = $(`#${item} [type="elementText"]`)[0].innerHTML;
-            const currentTranslatedTooltip = $(`#${item} [type="tooltip"]`)[0].innerHTML;
+            const currentTranslatedElementText = $(`#${HtmlIdPrefix+item} [type="elementText"]`)[0].innerHTML;
+            const currentTranslatedTooltip = $(`#${HtmlIdPrefix+item} [type="tooltip"]`)[0].innerHTML;
             let currentElementText = HHAuto_ToolTips[currentLanguage][item]?HHAuto_ToolTips[currentLanguage][item].elementText:"";
             let currentTooltip = HHAuto_ToolTips[currentLanguage][item]?HHAuto_ToolTips[currentLanguage][item].tooltip:"";
             if (currentTooltip === undefined)
@@ -11979,7 +11996,7 @@ function manageTranslationPopUp()
         }
         if (hasTranslation)
         {
-            const name='HH_TranslateTo_'+currentLanguage+'_'+Date.now()+'.txt';
+            const name=HtmlIdPrefix+currentLanguage+'_'+Date.now()+'.txt';
             const a = document.createElement('a');
             a.download = name;
             a.href = URL.createObjectURL(new Blob([translation], {type: 'text/plain'}));
