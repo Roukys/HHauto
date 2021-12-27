@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.29
+// @version      5.6.30
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -851,7 +851,7 @@ function dailyRewardAvailable()
                     dailyRewardNotifRequest !==null
                     && $(dailyRewardNotifRequest).length > 0
                 )
-                || freeBundleButton.length > 0
+                //|| freeBundleButton.length > 0
             )
         )
     {
@@ -871,7 +871,7 @@ function collectDailyRewards()
         const dailyRewardNotifRequest = getHHScriptVars("dailyRewardNotifRequest",false);
         const dailyRewardButtonRequest = '#no_HC .blue_button_L.daily-claim-btn:not([disabled])';
         const freeBundleButton = document.querySelectorAll(`.purchase_box${getHHScriptVars("selectorFilterNotDisplayNone")} > div > .blue_button_L:not([disabled])`);
-        console.log(freeBundleButton);
+        //console.log(freeBundleButton);
         //Daily rewards notification check
         if (dailyRewardNotifRequest !==null && dailyRewardAvailable())
         {
@@ -887,12 +887,12 @@ function collectDailyRewards()
                 logHHAuto('Collected daily rewards!');
             }
         }
-        if (freeBundleButton.length > 0 && dailyRewardAvailable())
+        /*if (freeBundleButton.length > 0 && dailyRewardAvailable())
         {
             freeBundleButton[0].click();
             logHHAuto('Collected free bundle!');
 
-        }
+        }*/
         gotoPage('home');
     }
 
