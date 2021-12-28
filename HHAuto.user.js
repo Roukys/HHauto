@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.30
+// @version      5.6.31
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -6023,7 +6023,7 @@ var autoLoop = function () {
     }
     if (getPage() === "path-of-valor" && Storage().HHAuto_Setting_PoVMaskRewards === "true")
     {
-        setTimeout(moduleSimPoVMaskReward,500);
+        moduleSimPoVMaskReward();
     }
     if(isNaN(Storage().HHAuto_Temp_autoLoopTimeMili))
     {
@@ -11009,13 +11009,13 @@ var updateData = function () {
         {
             Tegzd += '<br>'+getTextForUI("autoExpW","elementText")+' : '+add1000sSeparator(sessionStorage.HHAuto_Temp_haveExp);
         }
-        if (isJSON(sessionStorage.HHAuto_Temp_BoostersData))
+        /*if (isJSON(sessionStorage.HHAuto_Temp_BoostersData))
         {
             for(let boost of JSON.parse(sessionStorage.HHAuto_Temp_BoostersData))
             {
                 Tegzd += `<br>${boost.rarity} <img class="iconImg" src="${boost.ico}" /> : ${getBoosterExpiration(boost)}`;
             }
-        }
+        }*/
         //if (Tegzd.length>0)
         //{
         document.getElementById('pInfo').style.display='block';
