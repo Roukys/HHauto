@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.31
+// @version      5.6.32
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -91,9 +91,22 @@ function remove1000sSeparator(nToFormat)
     return Number(nToFormat.replace(/\D/g, ''));
 }
 
-function Storage()
+function getStorage()
 {
-    return localStorage.HHAuto_Setting_settPerTab==="true"?sessionStorage:localStorage;
+    return getStoredValue("HHAuto_Setting_settPerTab") === "true"?sessionStorage:localStorage;
+}
+
+function getStoredValue(inVarName)
+{
+    return HHStoredVars.hasOwnProperty(inVarName) !== undefined?getStorageItem(HHStoredVars[inVarName].storage)[inVarName]:undefined;
+}
+
+function setStoredValue(inVarName, inValue)
+{
+    if (HHStoredVars.hasOwnProperty(inVarName))
+    {
+        getStorageItem(HHStoredVars[inVarName].storage)[inVarName] = inValue;
+    }
 }
 
 function getCallerFunction()
@@ -182,7 +195,7 @@ function logHHAuto(...args)
     {
         text = JSON.stringify(args, null, 2);
     }
-    currentLoggingText = sessionStorage.HHAuto_Temp_Logging?sessionStorage.HHAuto_Temp_Logging:"reset";
+    currentLoggingText = getStoredValue("HHAuto_Temp_Logging")!==undefined?getStoredValue("HHAuto_Temp_Logging"):"reset";
     //console.log("debug : ",currentLoggingText);
     if (!currentLoggingText.startsWith("{"))
     {
@@ -217,7 +230,7 @@ function logHHAuto(...args)
     console.log(prefix+":"+text);
     currentLoggingText[prefix]=text;
 
-    sessionStorage.HHAuto_Temp_Logging=JSON.stringify(currentLoggingText);
+    setStoredValue("HHAuto_Temp_Logging", JSON.stringify(currentLoggingText));
 
 }
 
@@ -225,7 +238,7 @@ function getHero()
 {
     if(unsafeWindow.Hero === undefined)
     {
-        setTimeout(autoLoop, Number(Storage().HHAuto_Temp_autoLoopTimeMili))
+        setTimeout(autoLoop, Number(getStoredValue("HHAuto_Temp_autoLoopTimeMili")))
         //logHHAuto(window.wrappedJSObject)
     }
     //logHHAuto(unsafeWindow.Hero);
@@ -300,8 +313,8 @@ function getPage()
     if(ob===undefined || ob === null)
     {
         logHHAuto("Unable to find page attribute, stopping script");
-        Storage().HHAuto_Setting_master = "false";
-        sessionStorage.HHAuto_Temp_autoLoop = "false";
+        setStoredValue("HHAuto_Setting_master", "false");
+        setStoredValue("HHAuto_Temp_autoLoop", "false");
         logHHAuto("setting autoloop to false");
         throw new Error("Unable to find page attribute, stopping script.");
         return "";
@@ -402,7 +415,7 @@ function gotoPage(page,inArgs,delay = -1)
             if (togoto.includes("world"))
             {
                 logHHAuto("All quests finished, turning off AutoQuest!");
-                Storage().HHAuto_Setting_autoQuest = false;
+                setStoredValue("HHAuto_Setting_autoQuest", false);
                 location.reload();
                 return false;
             }
@@ -457,7 +470,7 @@ function gotoPage(page,inArgs,delay = -1)
             }
         }
 
-        sessionStorage.HHAuto_Temp_autoLoop = "false";
+        setStoredValue("HHAuto_Temp_autoLoop", "false");
         logHHAuto("setting autoloop to false");
         logHHAuto('GotoPage : '+togoto+' in '+delay+'ms.');
         setTimeout(function () {window.location = window.location.origin + togoto;},delay);
@@ -506,7 +519,7 @@ var proceedQuest = function () {
     }
     else if (proceedType === "free") {
         logHHAuto("Proceeding for free.");
-        //sessionStorage.HHAuto_Temp_autoLoop = "false";
+        //setStoredValue"HHAuto_Temp_autoLoop", "false");
         //logHHAuto("setting autoloop to false");
         //proceedButtonMatch.click();
     }
@@ -526,7 +539,7 @@ var proceedQuest = function () {
             else
             {
                 logHHAuto("Quest requires "+proceedCostEnergy+" Energy to proceed.");
-                sessionStorage.HHAuto_Temp_questRequirement = "*"+proceedCostEnergy;
+                setStoredValue("HHAuto_Temp_questRequirement", "*"+proceedCostEnergy);
                 return;
             }
         }
@@ -541,51 +554,51 @@ var proceedQuest = function () {
             else
             {
                 logHHAuto("Spending "+proceedCostMoney+" Money to proceed.");
-                sessionStorage.HHAuto_Temp_questRequirement = "$"+proceedCostMoney;
+                setStoredValue("HHAuto_Temp_questRequirement", "$"+proceedCostMoney);
                 return;
             }
         }
         //proceedButtonMatch.click();
-        //sessionStorage.HHAuto_Temp_autoLoop = "false";
+        //setStoredValue("HHAuto_Temp_autoLoop", "false");
         //logHHAuto("setting autoloop to false");
     }
     else if (proceedType === "use_item") {
         logHHAuto("Proceeding by using X" + Number($("#controls .item span").text()) + " of the required item.");
         //proceedButtonMatch.click();
-        //sessionStorage.HHAuto_Temp_autoLoop = "false";
+        //setStoredValue("HHAuto_Temp_autoLoop", "false");
         //logHHAuto("setting autoloop to false");
     }
     else if (proceedType === "battle") {
         logHHAuto("Proceeding to battle troll...");
-        sessionStorage.HHAuto_Temp_questRequirement = "battle";
+        setStoredValue("HHAuto_Temp_questRequirement", "battle");
         // Proceed to battle troll.
         //proceedButtonMatch.click();
-        //sessionStorage.HHAuto_Temp_autoLoop = "false";
+        //setStoredValue("HHAuto_Temp_autoLoop", "false");
         //logHHAuto("setting autoloop to false");
     }
     else if (proceedType === "end_archive") {
         logHHAuto("Reached end of current archive. Proceeding to next archive.");
-        //sessionStorage.HHAuto_Temp_autoLoop = "false";
+        //setStoredValue("HHAuto_Temp_autoLoop", "false");
         //logHHAuto("setting autoloop to false");
         //proceedButtonMatch.click();
     }
     else if (proceedType === "end_play") {
         logHHAuto("Reached end of current play. Proceeding to next play.");
-        //sessionStorage.HHAuto_Temp_autoLoop = "false";
+        //setStoredValue("HHAuto_Temp_autoLoop", "false");
         //logHHAuto("setting autoloop to false");
         //proceedButtonMatch.click();
     }
     else {
         logHHAuto("Could not identify given resume button.");
-        sessionStorage.HHAuto_Temp_questRequirement = "unknownQuestButton";
+        setStoredValue("HHAuto_Temp_questRequirement", "unknownQuestButton");
         return;
     }
-    sessionStorage.HHAuto_Temp_autoLoop = "false";
+    setStoredValue("HHAuto_Temp_autoLoop", "false");
     logHHAuto("setting autoloop to false");
     setTimeout(function ()
                {
         proceedButtonMatch.click();
-        sessionStorage.HHAuto_Temp_autoLoop = "true";
+        setStoredValue("HHAuto_Temp_autoLoop", "true");
         logHHAuto("setting autoloop to true");
         setTimeout(autoLoop,randomInterval(500,800));
     },randomInterval(500,800));
@@ -609,7 +622,7 @@ function getSuitableMission(missionsList)
 
     for(var m in missionsList)
     {
-        if (JSON.stringify(missionsList[m].rewards).includes("koban") && Storage().HHAuto_Setting_autoMissionKFirst === "true")
+        if (JSON.stringify(missionsList[m].rewards).includes("koban") && getStoredValue("HHAuto_Setting_autoMissionKFirst") === "true")
         {
             return missionsList[m];
         }
@@ -634,7 +647,7 @@ function doMissionStuff()
     else
     {
         logHHAuto("On missions page.");
-        let canCollect = Storage().HHAuto_Setting_autoMissionCollect==="true" && $(".mission_button button:visible[rel='claim']").length >0 && getSecondsLeftBeforeNewCompetition() > 35*60 && getSecondsLeftBeforeNewCompetition() < (24*3600-5*60);
+        let canCollect = getStoredValue("HHAuto_Setting_autoMissionCollect") ==="true" && $(".mission_button button:visible[rel='claim']").length >0 && getSecondsLeftBeforeNewCompetition() > 35*60 && getSecondsLeftBeforeNewCompetition() < (24*3600-5*60);
         if (canCollect)
         {
             logHHAuto("Collecting finished mission's reward.");
@@ -901,7 +914,7 @@ function collectDailyRewards()
 
 function modulePathOfAttractionHide()
 {
-    if (getPage() === "event" && window.location.search.includes("tab=path_event") && Storage().HHAuto_Setting_PoAMaskRewards === "true")
+    if (getPage() === "event" && window.location.search.includes("tab=path_event") && getStoredValue("HHAuto_Setting_PoAMaskRewards") === "true")
     {
         let arrayz;
         let nbReward;
@@ -1581,18 +1594,18 @@ function collectAndUpdatePowerPlaces()
     else
     {
         logHHAuto("On powerplaces main page.");
-        sessionStorage.HHAuto_Temp_Totalpops=$("div.pop_list div[pop_id]").length; //Count how many different POPs there are and store them locally
-        logHHAuto("totalpops : "+sessionStorage.HHAuto_Temp_Totalpops);
+        setStoredValue("HHAuto_Temp_Totalpops", $("div.pop_list div[pop_id]").length); //Count how many different POPs there are and store them locally
+        logHHAuto("totalpops : "+getStoredValue("HHAuto_Temp_Totalpops"));
         var newFilter="";
         $("div.pop_list div[pop_id]").each(function(){newFilter=newFilter+';'+$(this).attr('pop_id');});
-        //for (var id=1;id<Number(sessionStorage.HHAuto_Temp_Totalpops)+1;id++)
+        //for (var id=1;id<Number(getStoredValue("HHAuto_Temp_Totalpops"))+1;id++)
         //{
         //    newFilter=newFilter+';'+id;
         //}
         //logHHAuto("newfilter : "+newFilter.substring(1));
-        if (Storage().HHAuto_Setting_autoPowerPlacesAll === "true")
+        if (getStoredValue("HHAuto_Setting_autoPowerPlacesAll") === "true")
         {
-            Storage().HHAuto_Setting_autoPowerPlacesIndexFilter = newFilter.substring(1);
+            setStoredValue("HHAuto_Setting_autoPowerPlacesIndexFilter", newFilter.substring(1));
         }
         //collect all
         let rewardQuery="div#rewards_popup button.blue_button_L";
@@ -1617,8 +1630,8 @@ function collectAndUpdatePowerPlaces()
 
 
 
-        var filteredPops = Storage().HHAuto_Setting_autoPowerPlacesIndexFilter;
-        var popUnableToStart = sessionStorage.HHAuto_Temp_PopUnableToStart?sessionStorage.HHAuto_Temp_PopUnableToStart.split(";"):[];
+        var filteredPops = getStoredValue("HHAuto_Setting_autoPowerPlacesIndexFilter");
+        var popUnableToStart = getStoredValue("HHAuto_Temp_PopUnableToStart")?getStoredValue("HHAuto_Temp_PopUnableToStart").split(";"):[];
         //logHHAuto("filteredPops : "+filteredPops);
         var PopToStart=[];
         $("div.pop_thumb[status='pending_reward']").each(function()
@@ -1706,7 +1719,7 @@ function collectAndUpdatePowerPlaces()
             sessionStorage.removeItem('HHAuto_Temp_PopUnableToStart');
         }
         logHHAuto("build popToStart : "+PopToStart);
-        sessionStorage.HHAuto_Temp_PopToStart = JSON.stringify(PopToStart);
+        setStoredValue("HHAuto_Temp_PopToStart", JSON.stringify(PopToStart));
         return false;
     }
 }
@@ -1743,7 +1756,7 @@ function removePopFromPopToStart(index)
     var epop;
     var popToSart;
     var newPopToStart;
-    popToSart= sessionStorage.HHAuto_Temp_PopToStart?JSON.parse(sessionStorage.HHAuto_Temp_PopToStart):[];
+    popToSart= getStoredValue("HHAuto_Temp_PopToStart")?JSON.parse(getStoredValue("HHAuto_Temp_PopToStart")):[];
     newPopToStart=[];
     for (epop of popToSart)
     {
@@ -1752,20 +1765,20 @@ function removePopFromPopToStart(index)
             newPopToStart.push(epop);
         }
     }
-    sessionStorage.HHAuto_Temp_PopToStart = JSON.stringify(newPopToStart);
+    setStoredValue("HHAuto_Temp_PopToStart", JSON.stringify(newPopToStart));
 }
 
 function addPopToUnableToStart(popIndex,message)
 {
-    var popUnableToStart=sessionStorage.HHAuto_Temp_PopUnableToStart?sessionStorage.HHAuto_Temp_PopUnableToStart:"";
+    var popUnableToStart=getStoredValue("HHAuto_Temp_PopUnableToStart")?getStoredValue("HHAuto_Temp_PopUnableToStart"):"";
     logHHAuto(message);
     if (popUnableToStart === "")
     {
-        sessionStorage.HHAuto_Temp_PopUnableToStart = String(popIndex);
+        setStoredValue("HHAuto_Temp_PopUnableToStart", String(popIndex));
     }
     else
     {
-        sessionStorage.HHAuto_Temp_PopUnableToStart = popUnableToStart+";"+String(popIndex);
+        getStoredValue("HHAuto_Temp_PopUnableToStart", popUnableToStart+";"+String(popIndex));
     }
 }
 
@@ -1789,7 +1802,7 @@ function doPowerPlacesStuff(index)
         {
             $(querySelectorText).click();
             logHHAuto("Claimed powerplace"+index);
-            if (Storage().HHAuto_Setting_autoPowerPlacesAll !== "true")
+            if (getStoredValue("HHAuto_Setting_autoPowerPlacesAll") !== "true")
             {
                 cleanTempPopToStart();
                 gotoPage("activities",{tab:"pop"});
@@ -2019,7 +2032,7 @@ var CollectMoney = function()
     //var ToClick=[];
     var endCollectTS = -1;
     let startCollectTS = -1;
-    var maxSecsForSalary = Number(Storage().HHAuto_Setting_autoSalaryMaxTimer);
+    var maxSecsForSalary = Number(getStoredValue("HHAuto_Setting_autoSalaryMaxTimer"));
     var collectedGirlzNb = 0;
     var collectedMoney = 0;
     let totalGirlsToCollect = 0;
@@ -2170,7 +2183,7 @@ function predictNextSalaryMinTime(inGirlsDataList)
         girlsDataList = ggetHHVars("girlsDataList");
     }
     let nextCollect = 0;
-    const minSalaryForCollect = Number(Storage().HHAuto_Setting_autoSalaryMinSalary);
+    const minSalaryForCollect = Number(getStoredValue("HHAuto_Setting_autoSalaryMinSalary"));
     let currentCollectSalary = 0;
     if (girlsDataList !== null && minSalaryForCollect !== NaN)
     {
@@ -2217,7 +2230,7 @@ var getSalary = function () {
                 salarySumTag = Number($('.sum',salaryButton).attr("amount"));
             }
 
-            const enoughSalaryToCollect = salarySumTag === NaN?true:salarySumTag > Number(Storage().HHAuto_Setting_autoSalaryMinSalary);
+            const enoughSalaryToCollect = salarySumTag === NaN?true:salarySumTag > Number(getStoredValue("HHAuto_Setting_autoSalaryMinSalary"));
             //console.log(salarySumTag, enoughSalaryToCollect);
             if (salaryToCollect && enoughSalaryToCollect )
             {
@@ -2245,7 +2258,7 @@ var getSalary = function () {
                     {
                         logHHAuto("Detected Harem Screen. Fetching Salary");
                         //replaceCheatClick();
-                        sessionStorage.HHAuto_Temp_autoLoop = "false";
+                        setStoredValue("HHAuto_Temp_autoLoop", "false");
                         logHHAuto("setting autoloop to false");
                         CollectMoney();
                     }
@@ -2295,7 +2308,7 @@ var doStatUpgrades=function()
     var stats=[getHHVars('Hero.infos.carac1'),getHHVars('Hero.infos.carac2'),getHHVars('Hero.infos.carac3')];
     var money=getHHVars('Hero.infos.soft_currency');
     var count=0;
-    var M=Number(Storage().HHAuto_Setting_autoStats);
+    var M=Number(getStoredValue("HHAuto_Setting_autoStats"));
     var MainStat=stats[getHHVars('Hero.infos.class')-1];
     var Limit=getHHVars('Hero.infos.level')*30;//getHHVars('Hero.infos.level')*19+Math.min(getHHVars('Hero.infos.level'),25)*21;
     var carac=getHHVars('Hero.infos.class');
@@ -2350,34 +2363,36 @@ function doShopping()
         var money=getHHVars('Hero.infos.soft_currency');
         var kobans=getHHVars('Hero.infos.hard_currency');
 
-        try
+
+        if (getStoredValue("HHAuto_Temp_storeContents") === undefined )
         {
-            var shop=JSON.parse(sessionStorage.HHAuto_Temp_storeContents);
-        }
-        catch(wtf)
-        {
-            logHHAuto("Catched error : Could not parse store content : "+wtf);
-            sessionStorage.HHAuto_Temp_charLevel=0;
+            if (! isJSON(getStoredValue("HHAuto_Temp_storeContents")) )
+            {
+                logHHAuto("Catched error : Could not parse store content.");
+            }
+            setStoredValue("HHAuto_Temp_charLevel",0);
             return;
         }
 
-        if (!sessionStorage.HHAuto_Temp_haveAff)
+        if (getStoredValue("HHAuto_Temp_haveAff") === undefined || getStoredValue("HHAuto_Temp_haveExp") === undefined)
         {
-            sessionStorage.HHAuto_Temp_charLevel=0;
+            setStoredValue("HHAuto_Temp_charLevel", 0);
             return;
         }
-
-        var LGM=Number(Storage().HHAuto_Setting_autoLGM);
-        var LGR=Number(Storage().HHAuto_Setting_autoLGR);
-        var Exp=Number(Storage().HHAuto_Setting_autoExp);
-        var Aff=Number(Storage().HHAuto_Setting_autoAff);
-        var MaxAff=Number(Storage().HHAuto_Setting_maxAff);
-        var MaxExp=Number(Storage().HHAuto_Setting_maxExp);
-        var HaveAff=Number(sessionStorage.HHAuto_Temp_haveAff);
-        var HaveExp=Number(sessionStorage.HHAuto_Temp_haveExp);
+        var shop=JSON.parse(getStoredValue("HHAuto_Temp_storeContents"));
 
 
-        if (Storage().HHAuto_Setting_autoLGMW==="true" || Storage().HHAuto_Setting_autoLGRW==="true" )
+        var LGM=Number(getStoredValue("HHAuto_Setting_autoLGM"));
+        var LGR=Number(getStoredValue("HHAuto_Setting_autoLGR"));
+        var Exp=Number(getStoredValue("HHAuto_Setting_autoExp"));
+        var Aff=Number(getStoredValue("HHAuto_Setting_autoAff"));
+        var MaxAff=Number(getStoredValue("HHAuto_Setting_maxAff"));
+        var MaxExp=Number(getStoredValue("HHAuto_Setting_maxExp"));
+        var HaveAff=Number(getStoredValue("HHAuto_Temp_haveAff"));
+        var HaveExp=Number(getStoredValue("HHAuto_Temp_haveExp"));
+
+
+        if (getStoredValue("HHAuto_Setting_autoLGMW") ==="true" || getStoredValue("HHAuto_Setting_autoLGRW") ==="true" )
         {
             //logHHAuto('items');
             var Was=shop[0].length;
@@ -2386,7 +2401,7 @@ function doShopping()
 
                 if (
                     (
-                        Storage().HHAuto_Setting_autoLGMW==="true"
+                        getStoredValue("HHAuto_Setting_autoLGMW") ==="true"
                         && money>=LGM+Number(shop[0][n0].price)
                         && shop[0][n0][MS]>0
                         && shop[0][n0][SS1]==0
@@ -2398,7 +2413,7 @@ function doShopping()
                     )
                     ||
                     (
-                        Storage().HHAuto_Setting_autoLGRW==="true"
+                        getStoredValue("HHAuto_Setting_autoLGRW") ==="true"
                         && money>=LGR+Number(shop[0][n0].price)
                         && shop[0][n0][MS]>0
                         && shop[0][n0][SS1]>0
@@ -2426,7 +2441,7 @@ function doShopping()
                             Hero.updates(data.changes, false);
                         });
                         shop[0].splice(n0,1);
-                        sessionStorage.HHAuto_Temp_storeContents=JSON.stringify(shop);
+                        setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
                         setTimeout(doShopping, randomInterval(300,500));
                         return;
 
@@ -2439,12 +2454,12 @@ function doShopping()
             }
             if (shop[0].length==0 && Was>0)
             {
-                sessionStorage.HHAuto_Temp_charLevel=0;
+                setStoredValue("HHAuto_Temp_charLevel", 0);
             }
         }
 
-        var boosterFilter = Storage().HHAuto_Setting_autoBuyBoostersFilter.split(";");
-        if (Storage().HHAuto_Setting_autoBuyBoosters==="true" && boosterFilter.length > 0)
+        var boosterFilter = getStoredValue("HHAuto_Setting_autoBuyBoostersFilter").split(";");
+        if (getStoredValue("HHAuto_Setting_autoBuyBoosters") ==="true" && boosterFilter.length > 0)
         {
             Was=shop[1].length;
 
@@ -2452,7 +2467,7 @@ function doShopping()
             {
                 for (var n1=shop[1].length-1;n1>=0;n1--)
                 {
-                    if (kobans>=Number(Storage().HHAuto_Setting_kobanBank)+Number(shop[1][n1].price) && shop[1][n1].currency == "hc" && shop[1][n1].identifier == boost && (shop[1][n1].rarity=='legendary' || shop[1][n1].rarity=='mythic'))
+                    if (kobans>=Number(getStoredValue("HHAuto_Setting_kobanBank"))+Number(shop[1][n1].price) && shop[1][n1].currency == "hc" && shop[1][n1].identifier == boost && (shop[1][n1].rarity=='legendary' || shop[1][n1].rarity=='mythic'))
                     {
                         //logHHAuto({log:'wanna buy ',object:shop[1][n1]});
                         if (kobans>=Number(shop[1][n1].price))
@@ -2470,7 +2485,7 @@ function doShopping()
                                 Hero.updates(data.changes, false);
                             });
                             shop[1].splice(n1,1);
-                            sessionStorage.HHAuto_Temp_storeContents=JSON.stringify(shop);
+                            setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
                             setTimeout(doShopping, randomInterval(300,500));
                             return;
                         }
@@ -2484,11 +2499,11 @@ function doShopping()
 
             if (shop[1].length==0 && Was>0)
             {
-                sessionStorage.HHAuto_Temp_charLevel=0;
+                setStoredValue("HHAuto_Temp_charLevel", 0);
             }
         }
 
-        if (Storage().HHAuto_Setting_autoAffW==="true" && HaveAff<MaxAff)
+        if (getStoredValue("HHAuto_Setting_autoAffW") ==="true" && HaveAff<MaxAff)
         {
             //logHHAuto('gifts');
             Was=shop[2].length;
@@ -2510,7 +2525,7 @@ function doShopping()
                         Hero.updates(data.changes, false);
                     });
                     shop[2].splice(n2,1);
-                    sessionStorage.HHAuto_Temp_storeContents=JSON.stringify(shop);
+                    setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
                     setTimeout(doShopping, randomInterval(300,500));
                     return;
                 }
@@ -2521,10 +2536,10 @@ function doShopping()
             }
             if (shop[2].length==0 && Was>0)
             {
-                sessionStorage.HHAuto_Temp_charLevel=0;
+                setStoredValue("HHAuto_Temp_charLevel", 0);
             }
         }
-        if (Storage().HHAuto_Setting_autoExpW==="true" && HaveExp<MaxExp)
+        if (getStoredValue("HHAuto_Setting_autoExpW") ==="true" && HaveExp<MaxExp)
         {
             //logHHAuto('books');
             Was=shop[3].length;
@@ -2546,7 +2561,7 @@ function doShopping()
                         Hero.updates(data.changes, false);
                     });
                     shop[3].splice(n3,1);
-                    sessionStorage.HHAuto_Temp_storeContents=JSON.stringify(shop);
+                    setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
                     setTimeout(doShopping, randomInterval(300,500));
                     return;
                 }
@@ -2557,17 +2572,17 @@ function doShopping()
             }
             if (shop[3].length==0 && Was>0)
             {
-                sessionStorage.HHAuto_Temp_charLevel=0;
+                setStoredValue("HHAuto_Temp_charLevel", 0);
             }
         }
-        sessionStorage.HHAuto_Temp_storeContents=JSON.stringify(shop);
+        setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
         //unsafeWindow.Hero.infos.soft_currency=money;
         //Hero.update("soft_currency", money, false);
     }
     catch (ex)
     {
         logHHAuto("Catched error : Could not buy : "+ex);
-        sessionStorage.HHAuto_Temp_charLevel=0;
+        setStoredValue("HHAuto_Temp_charLevel", 0);
     }
 }
 
@@ -2584,19 +2599,19 @@ var doBossBattle = function()
     }
 
     var TTF;
-    if (Storage().HHAuto_Setting_plusEvent==="true" && !checkTimer("eventGoing") && sessionStorage.HHAuto_Temp_eventGirl !== undefined && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic==="false")
+    if (getStoredValue("HHAuto_Setting_plusEvent") ==="true" && !checkTimer("eventGoing") && getStoredValue("HHAuto_Temp_eventGirl") !== undefined && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic==="false")
     {
-        TTF=JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).troll_id;
+        TTF=JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).troll_id;
         logHHAuto("Event troll fight");
     }
-    else if (Storage().HHAuto_Setting_plusEventMythic==="true" && !checkTimer("eventMythicGoing") && sessionStorage.HHAuto_Temp_eventGirl !== undefined && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic==="true")
+    else if (getStoredValue("HHAuto_Setting_plusEventMythic") ==="true" && !checkTimer("eventMythicGoing") && getStoredValue("HHAuto_Temp_eventGirl") !== undefined && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic==="true")
     {
-        TTF=JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).troll_id;
+        TTF=JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).troll_id;
         logHHAuto("Mythic Event troll fight");
     }
-    else if(sessionStorage.HHAuto_Temp_trollToFight !== undefined && !isNaN(sessionStorage.HHAuto_Temp_trollToFight) && sessionStorage.HHAuto_Temp_trollToFight !== "0")
+    else if(getStoredValue("HHAuto_Temp_trollToFight") !== undefined && !isNaN(getStoredValue("HHAuto_Temp_trollToFight")) && getStoredValue("HHAuto_Temp_trollToFight") !== "0")
     {
-        TTF=sessionStorage.HHAuto_Temp_trollToFight;
+        TTF=getStoredValue("HHAuto_Temp_trollToFight");
         logHHAuto("Custom troll fight.");
     }
     else
@@ -2605,12 +2620,12 @@ var doBossBattle = function()
         logHHAuto("Last troll fight");
     }
 
-    if (sessionStorage.HHAuto_Temp_autoTrollBattleSaveQuest == "true")
+    if (getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") == "true")
     {
         TTF=getHHVars('Hero.infos.questing.id_world')-1;
         logHHAuto("Last troll fight for quest item.");
-        sessionStorage.HHAuto_Temp_autoTrollBattleSaveQuest = "false";
-        sessionStorage.HHAuto_Temp_questRequirement = "none";
+        setStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest", "false");
+        setStoredValue("HHAuto_Temp_questRequirement", "none");
     }
 
     logHHAuto("Fighting troll N "+TTF);
@@ -2627,7 +2642,7 @@ var doBossBattle = function()
     else
     {
         logHHAuto("Navigating to chosen Troll.");
-        sessionStorage.HHAuto_Temp_autoLoop = "false";
+        setStoredValue("HHAuto_Temp_autoLoop", "false");
         logHHAuto("setting autoloop to false");
         //week 28 new battle modification
         //location.href = "/battle.html?id_troll=" + TTF;
@@ -2653,7 +2668,7 @@ var doChampionStuff=function()
         {
             var TCount=Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
             var ECount= getHHVars('Hero.energies.quest.amount');
-            logHHAuto("T:"+TCount+" E:"+ECount+" "+(Storage().HHAuto_Setting_autoChampsUseEne==="true"))
+            logHHAuto("T:"+TCount+" E:"+ECount+" "+(getStoredValue("HHAuto_Setting_autoChampsUseEne") ==="true"))
             if ( TCount==0)
             {
                 logHHAuto("No tickets!");
@@ -2675,7 +2690,7 @@ var doChampionStuff=function()
     else if (page=='champions_map')
     {
         logHHAuto('on champion map');
-        var Filter=Storage().HHAuto_Setting_autoChampsFilter.split(';').map(s=>Number(s));
+        var Filter=getStoredValue("HHAuto_Setting_autoChampsFilter").split(';').map(s=>Number(s));
         var minTime = -1;
         var currTime;
         var e;
@@ -2818,7 +2833,7 @@ var doClubChampionStuff=function()
             logHHAuto("Champion is resting for : "+toHHMMSS(SecsToNextTimer));
         }
 
-        if ((Started || Storage().HHAuto_Setting_autoClubForceStart === "true") && noTimer)
+        if ((Started || getStoredValue("HHAuto_Setting_autoClubForceStart") === "true") && noTimer)
         {
             let ticketUsed = 0;
             let ticketsUsedRequest = "div.club_champions_panel tr.personal_highlight td.challenges_count";
@@ -2826,7 +2841,7 @@ var doClubChampionStuff=function()
             {
                 ticketUsed = Number($(ticketsUsedRequest)[0].innerText.replace(/[^0-9]/gi, ''));
             }
-            let maxTickets = Number(Storage().HHAuto_Setting_autoClubChampMax);
+            let maxTickets = Number(getStoredValue("HHAuto_Setting_autoClubChampMax"));
             //console.log(maxTickets, ticketUsed);
             if (maxTickets > ticketUsed )
             {
@@ -2888,7 +2903,7 @@ function nRounding(num, digits, updown) {
 function customMatchRating(inSimu)
 {
     let matchRating = inSimu.score;
-    var customLimits = Storage().HHAuto_Setting_calculatePowerLimits.split(";");
+    var customLimits = getStoredValue("HHAuto_Setting_calculatePowerLimits").split(";");
     if(customLimits.length === 2 && Number(customLimits[0]) < Number(customLimits[1]))
     {
         if (matchRating >= 0)
@@ -2913,9 +2928,9 @@ function customMatchRating(inSimu)
     }
     else
     {
-        if ( Storage().HHAuto_Setting_calculatePowerLimits !== "default")
+        if ( getStoredValue("HHAuto_Setting_calculatePowerLimits") !== "default")
         {
-            Storage().HHAuto_Setting_calculatePowerLimits = "Invalid limits";
+            setStoredValue("HHAuto_Setting_calculatePowerLimits", "Invalid limits");
         }
         if (matchRating >= 0)
         {
@@ -2945,7 +2960,7 @@ var doSeason = function () {
     if(page === "season")
     {
         logHHAuto("On season page.");
-        if (Storage().HHAuto_Setting_autoSeasonCollect === "true")
+        if (getStoredValue("HHAuto_Setting_autoSeasonCollect") === "true")
         {
             $("button[id='claim_btn_s'").click();
         }
@@ -2979,7 +2994,7 @@ var doSeason = function () {
         if (chosenID !== -1 && chosenID !== -2 )
         {
             location.href = document.getElementsByClassName("opponent_perform_button_container")[chosenID].children[0].getAttribute('href');
-            sessionStorage.HHAuto_Temp_autoLoop = "false";
+            setStoredValue("HHAuto_Temp_autoLoop", "false");
             logHHAuto("setting autoloop to false");
             logHHAuto("Going to crush : "+$("div.season_arena_opponent_container .hero_details div.hero_name")[chosenID].innerText);
             return true;
@@ -3001,7 +3016,7 @@ var doSeason = function () {
                     location.reload();
                 })
             }
-            sessionStorage.HHAuto_Temp_autoLoop = "false";
+            setStoredValue("HHAuto_Temp_autoLoop", "false");
             logHHAuto("setting autoloop to false");
             setTimer('nextSeasonTime',5);
             setTimeout(refreshOpponents,randomInterval(800,1600));
@@ -3020,7 +3035,7 @@ var doSeason = function () {
         logHHAuto("Remaining kisses : "+ current_kisses);
         if ( current_kisses > 0 )
         {
-            if (Storage().HHAuto_Setting_autoSeasonCollect === "true")
+            if (getStoredValue("HHAuto_Setting_autoSeasonCollect") === "true")
             {
                 logHHAuto("Switching to Season screen.");
                 gotoPage("season");
@@ -3138,7 +3153,7 @@ var getLeagueCurrentLevel = function ()
 {
     if(unsafeWindow.league_tag === undefined)
     {
-        setTimeout(autoLoop, Number(Storage().HHAuto_Temp_autoLoopTimeMili))
+        setTimeout(autoLoop, Number(getStoredValue("HHAuto_Temp_autoLoopTimeMili")))
     }
     return unsafeWindow.league_tag;
 }
@@ -3184,7 +3199,7 @@ var doLeagueBattle = function () {
     else if(page === "leaderboard")
     {
         logHHAuto("On leaderboard page.");
-        if (Storage().HHAuto_Setting_autoLeaguesCollect === "true")
+        if (getStoredValue("HHAuto_Setting_autoLeaguesCollect") === "true")
         {
             if ($('#leagues_middle .forced_info button[rel="claim"]').length >0)
             {
@@ -3199,7 +3214,7 @@ var doLeagueBattle = function () {
         {
             logHHAuto("No power for leagues.");
             //prevent paranoia to wait for league
-            sessionStorage.HHAuto_Temp_paranoiaLeagueBlocked="true";
+            setStoredValue("HHAuto_Temp_paranoiaLeagueBlocked", "true");
             setTimer('nextLeaguesTime',getHHVars('Hero.energies.challenge.next_refresh_ts')+1);
             return;
         }
@@ -3216,7 +3231,7 @@ var doLeagueBattle = function () {
             ltime=35*60;
             logHHAuto('No valid targets!');
             //prevent paranoia to wait for league
-            sessionStorage.HHAuto_Temp_paranoiaLeagueBlocked="true";
+            setStoredValue("HHAuto_Temp_paranoiaLeagueBlocked", "true");
             setTimer('nextLeaguesTime',ltime);
         }
         else
@@ -3227,14 +3242,14 @@ var doLeagueBattle = function () {
             {
                 logHHAuto("Could not get current Rank, stopping League.");
                 //prevent paranoia to wait for league
-                sessionStorage.HHAuto_Temp_paranoiaLeagueBlocked="true";
+                setStoredValue("HHAuto_Temp_paranoiaLeagueBlocked", "true");
                 setTimer('nextLeaguesTime',Number(30*60)+1);
                 return;
             }
             var currentRank = Number($("tr[class=personal_highlight] td span")[0].innerText);
             var currentScore = Number($("tr[class=personal_highlight] td")[4].innerText.replace(/\D/g, ''));
 
-            if (Number(sessionStorage.HHAuto_Temp_leaguesTarget) < Number(getPlayerCurrentLevel))
+            if (Number(getStoredValue("HHAuto_Temp_leaguesTarget")) < Number(getPlayerCurrentLevel))
             {
                 var maxDemote = 0;
                 var totalOpponents = Number($("div.leagues_table table tr td:contains(/3)").length)+1;
@@ -3247,7 +3262,7 @@ var doLeagueBattle = function () {
                 {
                     rankDemote = totalOpponents - 15;
                 }
-                logHHAuto("Current league above target ("+Number(getPlayerCurrentLevel)+"/"+Number(sessionStorage.HHAuto_Temp_leaguesTarget)+"), needs to demote. max rank : "+rankDemote+"/"+totalOpponents);
+                logHHAuto("Current league above target ("+Number(getPlayerCurrentLevel)+"/"+Number(getStoredValue("HHAuto_Temp_leaguesTarget"))+"), needs to demote. max rank : "+rankDemote+"/"+totalOpponents);
                 let getRankDemote = $("div.leagues_table table tr td span:contains("+rankDemote+")").filter(function()
                                                                                                             {
                     return Number($.trim($(this).text())) === rankDemote;
@@ -3261,13 +3276,13 @@ var doLeagueBattle = function () {
                     maxDemote = 0;
                 }
 
-                logHHAuto("Current league above target ("+Number(getPlayerCurrentLevel)+"/"+Number(sessionStorage.HHAuto_Temp_leaguesTarget)+"), needs to demote. Score should not be higher than : "+maxDemote);
+                logHHAuto("Current league above target ("+Number(getPlayerCurrentLevel)+"/"+Number(getStoredValue("HHAuto_Temp_leaguesTarget"))+"), needs to demote. Score should not be higher than : "+maxDemote);
                 if ( currentScore + leagueScoreSecurityThreshold >= maxDemote )
                 {
                     logHHAuto("Can't do league as could go above demote, setting timer to 30 mins");
                     setTimer('nextLeaguesTime',Number(30*60)+1);
                     //prevent paranoia to wait for league
-                    sessionStorage.HHAuto_Temp_paranoiaLeagueBlocked="true";
+                    setStoredValue("HHAuto_Temp_paranoiaLeagueBlocked", "true");
                     gotoPage("home");
                     return;
                 }
@@ -3279,7 +3294,7 @@ var doLeagueBattle = function () {
                 maxLeague = Leagues.length;
             }
 
-            if (Number(sessionStorage.HHAuto_Temp_leaguesTarget) === Number(getPlayerCurrentLevel) && Number(sessionStorage.HHAuto_Temp_leaguesTarget) < maxLeague)
+            if (Number(getStoredValue("HHAuto_Temp_leaguesTarget")) === Number(getPlayerCurrentLevel) && Number(getStoredValue("HHAuto_Temp_leaguesTarget")) < maxLeague)
             {
                 var maxStay = 0;
                 var rankStay = 16;
@@ -3287,7 +3302,7 @@ var doLeagueBattle = function () {
                 {
                     rankStay = 15;
                 }
-                logHHAuto("Current league is target ("+Number(getPlayerCurrentLevel)+"/"+Number(sessionStorage.HHAuto_Temp_leaguesTarget)+"), needs to stay. max rank : "+rankStay);
+                logHHAuto("Current league is target ("+Number(getPlayerCurrentLevel)+"/"+Number(getStoredValue("HHAuto_Temp_leaguesTarget"))+"), needs to stay. max rank : "+rankStay);
                 let getRankStay = $("div.leagues_table table tr td span:contains("+rankStay+")").filter(function()
                                                                                                         {
                     return Number($.trim($(this).text())) === rankStay;
@@ -3301,22 +3316,22 @@ var doLeagueBattle = function () {
                     maxStay = 0;
                 }
 
-                logHHAuto("Current league is target ("+Number(getPlayerCurrentLevel)+"/"+Number(sessionStorage.HHAuto_Temp_leaguesTarget)+"), needs to stay. Score should not be higher than : "+maxStay);
-                if ( currentScore + leagueScoreSecurityThreshold >= maxStay && Storage().HHAuto_Setting_autoLeaguesAllowWinCurrent !== "true")
+                logHHAuto("Current league is target ("+Number(getPlayerCurrentLevel)+"/"+Number(getStoredValue("HHAuto_Temp_leaguesTarget"))+"), needs to stay. Score should not be higher than : "+maxStay);
+                if ( currentScore + leagueScoreSecurityThreshold >= maxStay && getStoredValue("HHAuto_Setting_autoLeaguesAllowWinCurrent") !== "true")
                 {
                     logHHAuto("Can't do league as could go above stay, setting timer to 30 mins");
                     setTimer('nextLeaguesTime',Number(30*60)+1);
                     //prevent paranoia to wait for league
-                    sessionStorage.HHAuto_Temp_paranoiaLeagueBlocked="true";
+                    setStoredValue("HHAuto_Temp_paranoiaLeagueBlocked", "true");
                     gotoPage("home");
                     return;
                 }
             }
             logHHAuto(Data.length+' valid targets!');
-            sessionStorage.HHAuto_Temp_autoLoop = "false";
+            setStoredValue("HHAuto_Temp_autoLoop", "false");
             logHHAuto("setting autoloop to false");
             logHHAuto("Hit?" );
-            if (Storage().HHAuto_Setting_autoLeaguesPowerCalc == "true")
+            if (getStoredValue("HHAuto_Setting_autoLeaguesPowerCalc") == "true")
             {
                 var oppoID = getLeagueOpponentId(Data);
                 if (oppoID == -1)
@@ -3377,8 +3392,8 @@ function LeagueUpdateGetOpponentPopup(numberDone,remainingTime)
 
 function getLeagueOpponentId(opponentsIDList,force=false)
 {
-    var opponentsPowerList = isJSON(sessionStorage.HHAuto_Temp_LeagueOpponentList)?JSON.parse(sessionStorage.HHAuto_Temp_LeagueOpponentList):{expirationDate:0,opponentsList:{}};
-    var opponentsTempPowerList = isJSON(sessionStorage.HHAuto_Temp_LeagueTempOpponentList)?JSON.parse(sessionStorage.HHAuto_Temp_LeagueTempOpponentList):{expirationDate:0,opponentsList:{}};
+    var opponentsPowerList = isJSON(getStoredValue("HHAuto_Temp_LeagueOpponentList"))?JSON.parse(getStoredValue("HHAuto_Temp_LeagueOpponentList")):{expirationDate:0,opponentsList:{}};
+    var opponentsTempPowerList = isJSON(getStoredValue("HHAuto_Temp_LeagueTempOpponentList"))?JSON.parse(getStoredValue("HHAuto_Temp_LeagueTempOpponentList")):{expirationDate:0,opponentsList:{}};
     var opponentsIDs= opponentsIDList;
     var oppoNumber = opponentsIDList.length;
     var DataOppo={};
@@ -3457,7 +3472,7 @@ function getLeagueOpponentId(opponentsIDList,force=false)
         {
             maxLeagueListDurationSecs = 1;
         }
-        let listExpirationDate =isJSON(sessionStorage.HHAuto_Temp_LeagueTempOpponentList)?JSON.parse(sessionStorage.HHAuto_Temp_LeagueTempOpponentList).expirationDate:new Date().getTime() + maxLeagueListDurationSecs * 1000;
+        let listExpirationDate =isJSON(getStoredValue("HHAuto_Temp_LeagueTempOpponentList"))?JSON.parse(getStoredValue("HHAuto_Temp_LeagueTempOpponentList")).expirationDate:new Date().getTime() + maxLeagueListDurationSecs * 1000;
         if (opponentsIDList.length>0)
         {
             //logHHAuto('getting data for opponent : '+opponentsIDList[0]);
@@ -3486,7 +3501,7 @@ function getLeagueOpponentId(opponentsIDList,force=false)
                 //if (!isNaN(matchRating))
                 //{
                 DataOppo[Number(opponentData.id_member)]=simu;
-                sessionStorage.HHAuto_Temp_LeagueTempOpponentList = JSON.stringify({expirationDate:listExpirationDate,opponentsList:DataOppo});
+                setStoredValue("HHAuto_Temp_LeagueTempOpponentList", JSON.stringify({expirationDate:listExpirationDate,opponentsList:DataOppo}));
                 //}
                 //DataOppo.push(JSON.parse(data.html.substring(data.html.indexOf(findText)+findText.length,data.html.lastIndexOf(';'))));
 
@@ -3504,12 +3519,12 @@ function getLeagueOpponentId(opponentsIDList,force=false)
 
             //logHHAuto(DataOppo);
             sessionStorage.removeItem("HHAuto_Temp_LeagueTempOpponentList");
-            sessionStorage.HHAuto_Temp_LeagueOpponentList = JSON.stringify({expirationDate:listExpirationDate,opponentsList:DataOppo});
+            setStoredValue("HHAuto_Temp_LeagueOpponentList", JSON.stringify({expirationDate:listExpirationDate,opponentsList:DataOppo}));
             LeagueClearDisplayGetOpponentPopup();
             //doLeagueBattle();
             logHHAuto("Building list finished, putting autoloop back to true.");
-            sessionStorage.HHAuto_Temp_autoLoop = "true";
-            setTimeout(autoLoop, Number(Storage().HHAuto_Temp_autoLoopTimeMili));
+            setStoredValue("HHAuto_Temp_autoLoop", "true");
+            setTimeout(autoLoop, Number(getStoredValue("HHAuto_Temp_autoLoopTimeMili")));
         }
     }
 
@@ -3581,26 +3596,26 @@ var CrushThemFights=function()
         //check if girl still available at troll in case of event
         if (TTF !== null)
         {
-            if (sessionStorage.HHAuto_Temp_eventGirl !== undefined && TTF === JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).troll_id)
+            if (getStoredValue("HHAuto_Temp_eventGirl") !== undefined && TTF === JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).troll_id)
             {
                 if (
                     (
-                        JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "true"
-                        && Storage().HHAuto_Setting_plusEventMythic==="true"
+                        JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true"
+                        && getStoredValue("HHAuto_Setting_plusEventMythic") ==="true"
                     )
                     ||
                     (
-                        JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "false"
-                        && Storage().HHAuto_Setting_plusEvent==="true"
+                        JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "false"
+                        && getStoredValue("HHAuto_Setting_plusEvent") ==="true"
                     )
                 )
                 {
                     let rewardGirlz=$("#pre-battle #opponent-panel .fighter-rewards .rewards_list .girls_reward[data-rewards]");
 
-                    if (rewardGirlz.length ===0 || !rewardGirlz.attr('data-rewards').includes('"id_girl":"'+JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_id+'"'))
+                    if (rewardGirlz.length ===0 || !rewardGirlz.attr('data-rewards').includes('"id_girl":"'+JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_id+'"'))
                     {
-                        logHHAuto("Seems "+JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_name+" is no more available at troll "+Trollz[Number(TTF)]+". Going to event page.");
-                        parseEventPage(JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).event_id);
+                        logHHAuto("Seems "+JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_name+" is no more available at troll "+Trollz[Number(TTF)]+". Going to event page.");
+                        parseEventPage(JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).event_id);
                         return true;
                     }
                 }
@@ -3613,16 +3628,16 @@ var CrushThemFights=function()
                     canBuyFightsResult.canBuy
                     && currentPower < 50
                     && canBuyFightsResult.max === 50
-                    && Storage().HHAuto_Setting_useX50Fights === "true"
-                    && ( JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "true" || Storage().HHAuto_Setting_useX50FightsAllowNormalEvent === "true")
+                    && getStoredValue("HHAuto_Setting_useX50Fights") === "true"
+                    && ( JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true" || getStoredValue("HHAuto_Setting_useX50FightsAllowNormalEvent") === "true")
                 )
                 ||
                 (
                     canBuyFightsResult.canBuy
                     && currentPower < 10
                     && canBuyFightsResult.max === 20
-                    && Storage().HHAuto_Setting_useX10Fights === "true"
-                    && ( JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "true" || Storage().HHAuto_Setting_useX10FightsAllowNormalEvent === "true")
+                    && getStoredValue("HHAuto_Setting_useX10Fights") === "true"
+                    && ( JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true" || getStoredValue("HHAuto_Setting_useX10FightsAllowNormalEvent") === "true")
                 )
             )
             {
@@ -3631,28 +3646,28 @@ var CrushThemFights=function()
                 return;
             }
 
-            if (sessionStorage.HHAuto_Temp_eventGirl !== undefined && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_shards && Number.isInteger(Number(JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_shards)) && battleButtonX10.length > 0 && battleButtonX50.length > 0)
+            if (getStoredValue("HHAuto_Temp_eventGirl") !== undefined && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_shards && Number.isInteger(Number(JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_shards)) && battleButtonX10.length > 0 && battleButtonX50.length > 0)
             {
-                remainingShards = Number(100 - Number(JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_shards));
+                remainingShards = Number(100 - Number(JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_shards));
                 let bypassThreshold = (
-                    (JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "false"
+                    (JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "false"
                      && canBuyFightsResult.canBuy
                     ) // eventGirl available and buy comb true
-                    || (JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "true"
-                        && Storage().HHAuto_Setting_plusEventMythic==="true"
+                    || (JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true"
+                        && getStoredValue("HHAuto_Setting_plusEventMythic") ==="true"
                        )
                 );
 
-                if (Storage().HHAuto_Setting_useX50Fights === "true"
-                    && Storage().HHAuto_Setting_minShardsX50
-                    && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX50))
-                    && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX50)
-                    && (battleButtonX50Price === 0 || getHHVars('Hero.infos.hard_currency')>=battleButtonX50Price+Number(Storage().HHAuto_Setting_kobanBank))
+                if (getStoredValue("HHAuto_Setting_useX50Fights") === "true"
+                    && getStoredValue("HHAuto_Setting_minShardsX50")
+                    && Number.isInteger(Number(getStoredValue("HHAuto_Setting_minShardsX50")))
+                    && remainingShards >= Number(getStoredValue("HHAuto_Setting_minShardsX50"))
+                    && (battleButtonX50Price === 0 || getHHVars('Hero.infos.hard_currency')>=battleButtonX50Price+Number(getStoredValue("HHAuto_Setting_kobanBank")))
                     && currentPower >= 50
-                    && (currentPower >= (Number(Storage().HHAuto_Setting_autoTrollThreshold) + 50)
+                    && (currentPower >= (Number(getStoredValue("HHAuto_Setting_autoTrollThreshold")) + 50)
                         || bypassThreshold
                        )
-                    && ( JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "true" || Storage().HHAuto_Setting_useX50FightsAllowNormalEvent === "true")
+                    && ( JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true" || getStoredValue("HHAuto_Setting_useX50FightsAllowNormalEvent") === "true")
                    )
                 {
                     logHHAuto("Going to crush 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
@@ -3662,33 +3677,33 @@ var CrushThemFights=function()
                     //replaceCheatClick();
                     battleButtonX50[0].click();
                     setHHVars('Hero.infos.hc_confirm',hcConfirmValue);
-                    //sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh = Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) - 50;
+                    //setStoredValue("HHAuto_Temp_EventFightsBeforeRefresh", Number(getStoredValue("HHAuto_Temp_EventFightsBeforeRefresh")) - 50);
                     logHHAuto("Crushed 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
-                    if (sessionStorage.HHAuto_Temp_questRequirement === "battle") {
+                    if (getStoredValue("HHAuto_Temp_questRequirement") === "battle") {
                         // Battle Done.
-                        sessionStorage.HHAuto_Temp_questRequirement = "none";
+                        setStoredValue("HHAuto_Temp_questRequirement", "none");
                     }
                     ObserveAndGetGirlRewards();
                     return;
                 }
                 else
                 {
-                    if (Storage().HHAuto_Setting_useX50Fights === "true")
+                    if (getStoredValue("HHAuto_Setting_useX50Fights") === "true")
                     {
-                        logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+getHHVars('Hero.energies.fight.amount')+'/50, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+                        logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+getHHVars('Hero.energies.fight.amount')+'/50, remaining shards : '+remainingShards+'/'+getStoredValue("HHAuto_Setting_minShardsX50")+', kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(getStoredValue("HHAuto_Setting_kobanBank")));
                     }
                 }
 
-                if (Storage().HHAuto_Setting_useX10Fights === "true"
-                    && Storage().HHAuto_Setting_minShardsX10
-                    && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX10))
-                    && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX10)
-                    && (battleButtonX10Price === 0 || getHHVars('Hero.infos.hard_currency')>=battleButtonX10Price+Number(Storage().HHAuto_Setting_kobanBank))
+                if (getStoredValue("HHAuto_Setting_useX10Fights") === "true"
+                    && getStoredValue("HHAuto_Setting_minShardsX10")
+                    && Number.isInteger(Number(getStoredValue("HHAuto_Setting_minShardsX10")))
+                    && remainingShards >= Number(getStoredValue("HHAuto_Setting_minShardsX10"))
+                    && (battleButtonX10Price === 0 || getHHVars('Hero.infos.hard_currency')>=battleButtonX10Price+Number(getStoredValue("HHAuto_Setting_kobanBank")))
                     && currentPower >= 10
-                    && (currentPower >= (Number(Storage().HHAuto_Setting_autoTrollThreshold) + 10)
+                    && (currentPower >= (Number(getStoredValue("HHAuto_Setting_autoTrollThreshold")) + 10)
                         || bypassThreshold
                        )
-                    && ( JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "true" || Storage().HHAuto_Setting_useX10FightsAllowNormalEvent === "true")
+                    && ( JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true" || getStoredValue("HHAuto_Setting_useX10FightsAllowNormalEvent") === "true")
                    )
                 {
                     logHHAuto("Going to crush 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
@@ -3698,20 +3713,20 @@ var CrushThemFights=function()
                     //replaceCheatClick();
                     battleButtonX10[0].click();
                     setHHVars('Hero.infos.hc_confirm',hcConfirmValue);
-                    //sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh = Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) - 10;
+                    //setStoredValue("HHAuto_Temp_EventFightsBeforeRefresh", Number(getStoredValue("HHAuto_Temp_EventFightsBeforeRefresh")) - 10);
                     logHHAuto("Crushed 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
-                    if (sessionStorage.HHAuto_Temp_questRequirement === "battle") {
+                    if (getStoredValue("HHAuto_Temp_questRequirement") === "battle") {
                         // Battle Done.
-                        sessionStorage.HHAuto_Temp_questRequirement = "none";
+                        setStoredValue("HHAuto_Temp_questRequirement", "none");
                     }
                     ObserveAndGetGirlRewards();
                     return;
                 }
                 else
                 {
-                    if (Storage().HHAuto_Setting_useX10Fights === "true")
+                    if (getStoredValue("HHAuto_Setting_useX10Fights") === "true")
                     {
-                        logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+getHHVars('Hero.energies.fight.amount')+'/10, remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX10+', kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+                        logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+getHHVars('Hero.energies.fight.amount')+'/10, remaining shards : '+remainingShards+'/'+getStoredValue("HHAuto_Setting_minShardsX10")+', kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(getStoredValue("HHAuto_Setting_kobanBank")));
                     }
                 }
             }
@@ -3731,13 +3746,13 @@ var CrushThemFights=function()
                 {
                     logHHAuto("Battle Button was undefined. Disabling all auto-battle.");
                     document.getElementById("autoTrollBattle").checked = false;
-                    Storage().HHAuto_Setting_autoTrollBattle = "false"
+                    setStoredValue("HHAuto_Setting_autoTrollBattle", "false");
 
                     //document.getElementById("autoArenaCheckbox").checked = false;
-                    if (sessionStorage.HHAuto_Temp_questRequirement === "battle")
+                    if (getStoredValue("HHAuto_Temp_questRequirement") === "battle")
                     {
                         document.getElementById("autoQuest").checked = false;
-                        Storage().HHAuto_Setting_autoQuest= "false";
+                        setStoredValue("HHAuto_Setting_autoQuest", "false");
 
                         logHHAuto("Auto-quest disabled since it requires battle and auto-battle has errors.");
                     }
@@ -3747,9 +3762,9 @@ var CrushThemFights=function()
                 //console.log(battleButton);
                 //replaceCheatClick();
                 battleButton[0].click();
-                /*if (sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh)
+                /*if (getStoredValue("HHAuto_Temp_EventFightsBeforeRefresh"))
                 {
-                    sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh = Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) - 1;
+                    setStoredValue("HHAuto_Temp_EventFightsBeforeRefresh", Number(getStoredValue("HHAuto_Temp_EventFightsBeforeRefresh")) - 1);
                 }
                 */
             }
@@ -3757,8 +3772,11 @@ var CrushThemFights=function()
             {
                 // We need more power.
                 logHHAuto("Battle requires "+battle_price+" power.");
-                sessionStorage.HHAuto_Temp_battlePowerRequired = battle_price;
-                if(sessionStorage.HHAuto_Temp_questRequirement === "battle")sessionStorage.HHAuto_Temp_questRequirement = "P"+battle_price;
+                setStoredValue("HHAuto_Temp_battlePowerRequired", battle_price);
+                if(getStoredValue("HHAuto_Temp_questRequirement") === "battle")
+                {
+                    setStoredValue("HHAuto_Temp_questRequirement", "P"+battle_price);
+                }
                 gotoPage("home");
                 return;
             }
@@ -3792,14 +3810,14 @@ function doBattle()
             $("#rewards_popup .blue_button_L").click();
         }*/
         let troll_id = queryStringGetParam(window.location.search,'id_opponent');
-        if (window.location.pathname === "/league-battle.html" && Storage().HHAuto_Setting_autoLeagues === "true")
+        if (window.location.pathname === "/league-battle.html" && getStoredValue("HHAuto_Setting_autoLeagues") === "true")
         {
             logHHAuto("Reloading after league fight.");
             gotoPage("leaderboard",{},randomInterval(4000,5000));
         }
         else if (window.location.pathname === "/troll-battle.html")
         {
-            if(sessionStorage.HHAuto_Temp_eventGirl !== undefined)
+            if(getStoredValue("HHAuto_Temp_eventGirl") !== undefined)
             {
                 ObserveAndGetGirlRewards();
             }
@@ -3818,12 +3836,12 @@ function doBattle()
             }
 
         }
-        else if (window.location.pathname === "/season-battle.html" && Storage().HHAuto_Setting_autoSeason === "true")
+        else if (window.location.pathname === "/season-battle.html" && getStoredValue("HHAuto_Setting_autoSeason") === "true")
         {
             logHHAuto("Go back to Season arena after Season fight.");
             gotoPage('season_arena',{},randomInterval(2000,4000));
         }
-        else if (window.location.pathname === "/pantheon-battle.html" && Storage().HHAuto_Setting_autoPantheon === "true")
+        else if (window.location.pathname === "/pantheon-battle.html" && getStoredValue("HHAuto_Setting_autoPantheon") === "true")
         {
             logHHAuto("Go back to Pantheon arena after Pantheon temple.");
             gotoPage('pantheon',{},randomInterval(2000,4000));
@@ -3843,15 +3861,15 @@ function ObserveAndGetGirlRewards()
     let inCaseTimer = setTimeout(function(){gotoPage('home');}, 60000); //in case of issue
     function parseReward()
     {
-        if (sessionStorage.HHAuto_Temp_eventsGirlz === undefined
-            || sessionStorage.HHAuto_Temp_eventGirl === undefined
-            || !isJSON(sessionStorage.HHAuto_Temp_eventsGirlz)
-            || !isJSON(sessionStorage.HHAuto_Temp_eventGirl))
+        if (getStoredValue("HHAuto_Temp_eventsGirlz") === undefined
+            || getStoredValue("HHAuto_Temp_eventGirl") === undefined
+            || !isJSON(getStoredValue("HHAuto_Temp_eventsGirlz"))
+            || !isJSON(getStoredValue("HHAuto_Temp_eventGirl")))
         {
             return -1;
         }
-        let eventsGirlz =isJSON(sessionStorage.HHAuto_Temp_eventsGirlz)?JSON.parse(sessionStorage.HHAuto_Temp_eventsGirlz):{}
-        let eventGirl = isJSON(sessionStorage.HHAuto_Temp_eventGirl)?JSON.parse(sessionStorage.HHAuto_Temp_eventGirl):{};
+        let eventsGirlz =isJSON(getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsGirlz")):{}
+        let eventGirl = isJSON(getStoredValue("HHAuto_Temp_eventGirl"))?JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")):{};
         let TTF = eventGirl.troll_id;
         if ($('#rewards_popup #reward_holder .shards_wrapper').length === 0)
         {
@@ -3894,10 +3912,10 @@ function ObserveAndGetGirlRewards()
                 }
             }
         }
-        sessionStorage.HHAuto_Temp_eventsGirlz = JSON.stringify(eventsGirlz);
-        sessionStorage.HHAuto_Temp_eventGirl = JSON.stringify(eventGirl);
+        setStoredValue("HHAuto_Temp_eventsGirlz", JSON.stringify(eventsGirlz));
+        setStoredValue("HHAuto_Temp_eventGirl", JSON.stringify(eventGirl));
         if (renewEvent !== ""
-            //|| Number(sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh) < 1
+            //|| Number(getStoredValue("HHAuto_Temp_EventFightsBeforeRefresh")) < 1
             || checkEvent(eventGirl.event_id)
            )
         {
@@ -3930,7 +3948,7 @@ function ObserveAndGetGirlRewards()
     {
         if ($('#rewards_popup')[0].style.display!=="block")
         {
-            sessionStorage.HHAuto_Temp_autoLoop = "false";
+            setStoredValue("HHAuto_Temp_autoLoop", "false");
             logHHAuto("setting autoloop to false to wait for troll rewards");
             observerReward.observe($('#rewards_popup')[0], {
                 childList: false
@@ -3979,7 +3997,7 @@ var setTimer=function(name, seconds)
 {
     var ND=new Date().getTime() + seconds * 1000;
     Timers[name]=ND;
-    sessionStorage.HHAuto_Temp_Timers=JSON.stringify(Timers);
+    setStoredValue("HHAuto_Temp_Timers", JSON.stringify(Timers));
     logHHAuto(name+" set to "+toHHMMSS(ND/1000-new Date().getTimezoneOffset()*60)+' ('+ toHHMMSS(seconds)+')');
 }
 
@@ -3987,7 +4005,7 @@ var setTimer=function(name, seconds)
 var clearTimer=function(name)
 {
     delete Timers[name];
-    sessionStorage.HHAuto_Temp_Timers=JSON.stringify(Timers);
+    setStoredValue("HHAuto_Temp_Timers", JSON.stringify(Timers));
 }
 
 var checkTimer=function(name)
@@ -4203,13 +4221,13 @@ var updateShop=function()
         $('#inventory div.gift .slot').each(function(){if (this.dataset.d) { var d=JSON.parse(this.dataset.d); HaveAff+=d.count*d.value;}});
         $('#inventory div.potion .slot').each(function(){if (this.dataset.d) { var d=JSON.parse(this.dataset.d); HaveExp+=d.count*d.value;}});
 
-        sessionStorage.HHAuto_Temp_haveAff=HaveAff;
-        sessionStorage.HHAuto_Temp_haveExp=HaveExp;
+        setStoredValue("HHAuto_Temp_haveAff", HaveAff);
+        setStoredValue("HHAuto_Temp_haveExp", HaveExp);
 
-        logHHAuto('counted '+sessionStorage.HHAuto_Temp_haveAff+' Aff '+sessionStorage.HHAuto_Temp_haveExp+' Exp');
+        logHHAuto('counted '+getStoredValue("HHAuto_Temp_haveAff")+' Aff '+getStoredValue("HHAuto_Temp_haveExp")+' Exp');
 
-        sessionStorage.HHAuto_Temp_storeContents = JSON.stringify([assA,assB,assG,assP]);
-        sessionStorage.HHAuto_Temp_charLevel=getHHVars('Hero.infos.level');
+        setStoredValue("HHAuto_Temp_storeContents", JSON.stringify([assA,assB,assG,assP]));
+        setStoredValue("HHAuto_Temp_charLevel", getHHVars('Hero.infos.level'));
 
         var nshop;
         for(var e in unsafeWindow.HHTimers.timers){
@@ -4253,21 +4271,21 @@ var checkParanoiaSpendings=function(spendingFunction)
 {
     var pSpendings=new Map([]);
     // not set
-    if ( ! sessionStorage.HHAuto_Temp_paranoiaSpendings )
+    if ( getStoredValue("HHAuto_Temp_paranoiaSpendings") === undefined)
     {
         return -1;
     }
     else
     {
-        pSpendings = JSON.parse(sessionStorage.HHAuto_Temp_paranoiaSpendings,reviverMap);
+        pSpendings = JSON.parse(getStoredValue("HHAuto_Temp_paranoiaSpendings"),reviverMap);
     }
 
-    if ( sessionStorage.HHAuto_Temp_paranoiaQuestBlocked !== undefined && pSpendings.has('quest'))
+    if ( getStoredValue("HHAuto_Temp_paranoiaQuestBlocked") !== undefined && pSpendings.has('quest'))
     {
         pSpendings.delete('quest');
     }
 
-    if ( sessionStorage.HHAuto_Temp_paranoiaLeagueBlocked !== undefined && pSpendings.has('challenge'))
+    if ( getStoredValue("HHAuto_Temp_paranoiaLeagueBlocked") !== undefined && pSpendings.has('challenge'))
     {
         pSpendings.delete('challenge');
     }
@@ -4306,13 +4324,13 @@ function updatedParanoiaSpendings(inSpendingFunction, inSpent)
 {
     var currentPSpendings=new Map([]);
     // not set
-    if ( ! sessionStorage.HHAuto_Temp_paranoiaSpendings )
+    if ( getStoredValue("HHAuto_Temp_paranoiaSpendings") === undefined)
     {
         return -1;
     }
     else
     {
-        currentPSpendings = JSON.parse(sessionStorage.HHAuto_Temp_paranoiaSpendings,reviverMap);
+        currentPSpendings = JSON.parse(getStoredValue("HHAuto_Temp_paranoiaSpendings"),reviverMap);
         if (currentPSpendings.has(inSpendingFunction))
         {
             let currValue = currentPSpendings.get(inSpendingFunction);
@@ -4329,7 +4347,7 @@ function updatedParanoiaSpendings(inSpendingFunction, inSpent)
             }
         }
         logHHAuto("Remains to spend before Paranoia : "+JSON.stringify(currentPSpendings,replacerMap));
-        sessionStorage.HHAuto_Temp_paranoiaSpendings=JSON.stringify(currentPSpendings,replacerMap);
+        setStoredValue("HHAuto_Temp_paranoiaSpendings", JSON.stringify(currentPSpendings,replacerMap));
 
     }
 }
@@ -4344,14 +4362,14 @@ var setParanoiaSpendings=function()
     var currentEnergy;
     var maxEnergy;
     var toNextSwitch;
-    if (sessionStorage.HHAuto_Temp_NextSwitch && Storage().HHAuto_Setting_paranoiaSpendsBefore === "true")
+    if (getStoredValue("HHAuto_Temp_NextSwitch") !== undefined && getStoredValue("HHAuto_Setting_paranoiaSpendsBefore") === "true")
     {
-        toNextSwitch = Number((sessionStorage.HHAuto_Temp_NextSwitch-new Date().getTime())/1000);
+        toNextSwitch = Number((getStoredValue("HHAuto_Temp_NextSwitch")-new Date().getTime())/1000);
 
         //if autoLeague is on
-        if(getHHScriptVars('isEnabledLeagues',false) && Storage().HHAuto_Setting_autoLeagues === "true" && getHHVars('Hero.infos.level')>=20)
+        if(getHHScriptVars('isEnabledLeagues',false) && getStoredValue("HHAuto_Setting_autoLeagues") === "true" && getHHVars('Hero.infos.level')>=20)
         {
-            if ( sessionStorage.HHAuto_Temp_paranoiaLeagueBlocked === undefined )
+            if ( getStoredValue("HHAuto_Temp_paranoiaLeagueBlocked") === undefined )
             {
                 maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHHVars('Hero.energies.challenge.next_refresh_ts')))/Number(getHHVars('Hero.energies.challenge.seconds_per_point')));
                 currentEnergy=Number(getHHVars('Hero.energies.challenge.amount'));
@@ -4371,9 +4389,9 @@ var setParanoiaSpendings=function()
             }
         }
         //if autoquest is on
-        if(getHHScriptVars('isEnabledQuest',false) && Storage().HHAuto_Setting_autoQuest === "true")
+        if(getHHScriptVars('isEnabledQuest',false) && getStoredValue("HHAuto_Setting_autoQuest") === "true")
         {
-            if ( sessionStorage.HHAuto_Temp_paranoiaQuestBlocked === undefined )
+            if ( getStoredValue("HHAuto_Temp_paranoiaQuestBlocked") === undefined )
             {
                 maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHHVars('Hero.energies.quest.next_refresh_ts')))/Number(getHHVars('Hero.energies.quest.seconds_per_point')));
                 currentEnergy=Number(getHHVars('Hero.energies.quest.amount'));
@@ -4393,7 +4411,7 @@ var setParanoiaSpendings=function()
             }
         }
         //if autoTrollBattle is on
-        if(getHHScriptVars('isEnabledTrollBattle',false) && Storage().HHAuto_Setting_autoTrollBattle === "true" && getHHVars('Hero.infos.questing.id_world')>0)
+        if(getHHScriptVars('isEnabledTrollBattle',false) && getStoredValue("HHAuto_Setting_autoTrollBattle") === "true" && getHHVars('Hero.infos.questing.id_world')>0)
         {
             maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHHVars('Hero.energies.fight.next_refresh_ts')))/Number(getHHVars('Hero.energies.fight.seconds_per_point')));
             currentEnergy=Number(getHHVars('Hero.energies.fight.amount'));
@@ -4412,7 +4430,7 @@ var setParanoiaSpendings=function()
             }
         }
         //if autoSeason is on
-        if(getHHScriptVars('isEnabledSeason',false) && Storage().HHAuto_Setting_autoSeason === "true")
+        if(getHHScriptVars('isEnabledSeason',false) && getStoredValue("HHAuto_Setting_autoSeason") === "true")
         {
             maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHHVars('Hero.energies.kiss.next_refresh_ts')))/Number(getHHVars('Hero.energies.kiss.seconds_per_point')));
             currentEnergy=Number(getHHVars('Hero.energies.kiss.amount'));
@@ -4431,7 +4449,7 @@ var setParanoiaSpendings=function()
             }
         }
         //if autoPantheon is on
-        if(getHHScriptVars('isEnabledPantheon',false) && Storage().HHAuto_Setting_autoPantheon === "true")
+        if(getHHScriptVars('isEnabledPantheon',false) && getStoredValue("HHAuto_Setting_autoPantheon") === "true")
         {
             maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHHVars('Hero.energies.worship.next_refresh_ts')))/Number(getHHVars('Hero.energies.worship.seconds_per_point')));
             currentEnergy=Number(getHHVars('Hero.energies.worship.amount'));
@@ -4451,7 +4469,7 @@ var setParanoiaSpendings=function()
         }
 
         logHHAuto("Setting paranoia spending to : "+JSON.stringify(paranoiaSpendings,replacerMap));
-        sessionStorage.HHAuto_Temp_paranoiaSpendings=JSON.stringify(paranoiaSpendings,replacerMap);
+        setStoredValue("HHAuto_Temp_paranoiaSpendings", JSON.stringify(paranoiaSpendings,replacerMap));
     }
 }
 
@@ -4459,7 +4477,7 @@ var flipParanoia=function()
 {
     var burst=getBurst();
 
-    var Setting=Storage().HHAuto_Setting_paranoiaSettings;
+    var Setting=getStoredValue("HHAuto_Setting_paranoiaSettings");
 
     var S1=Setting.split('/').map(s=>s.split('|').map(s=>s.split(':')));
 
@@ -4472,20 +4490,20 @@ var flipParanoia=function()
     {
         var periods=Object.assign(...S1[1].map(d => ({[d[0]]: d[1].split('-')})));
 
-        toNextSwitch=sessionStorage.HHAuto_Temp_NextSwitch?Number((sessionStorage.HHAuto_Temp_NextSwitch-new Date().getTime())/1000):randomInterval(Number(periods[period][0]),Number(periods[period][1]));
+        toNextSwitch=getStoredValue("HHAuto_Temp_NextSwitch")?Number((getStoredValue("HHAuto_Temp_NextSwitch")-new Date().getTime())/1000):randomInterval(Number(periods[period][0]),Number(periods[period][1]));
 
         //match mythic new wave with end of sleep
-        if (Storage().HHAuto_Setting_autoTrollMythicByPassParanoia === "true" && getTimer("eventMythicNextWave") !== -1 && toNextSwitch>getSecondsLeft("eventMythicNextWave"))
+        if (getStoredValue("HHAuto_Setting_autoTrollMythicByPassParanoia") === "true" && getTimer("eventMythicNextWave") !== -1 && toNextSwitch>getSecondsLeft("eventMythicNextWave"))
         {
             logHHAuto("Forced rest only until next mythic wave.");
             toNextSwitch=getSecondsLeft("eventMythicNextWave");
         }
 
         //bypass Paranoia if ongoing mythic
-        if (Storage().HHAuto_Setting_autoTrollMythicByPassParanoia === "true" && sessionStorage.HHAuto_Temp_eventGirl !==undefined && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic==="true")
+        if (getStoredValue("HHAuto_Setting_autoTrollMythicByPassParanoia") === "true" && getStoredValue("HHAuto_Temp_eventGirl") !==undefined && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic==="true")
         {
-            //             var trollThreshold = Number(Storage().HHAuto_Setting_autoTrollThreshold);
-            //             if (Storage().HHAuto_Setting_buyMythicCombat === "true" || Storage().HHAuto_Setting_autoTrollMythicByPassThreshold === "true")
+            //             var trollThreshold = Number(getStoredValue("HHAuto_Setting_autoTrollThreshold"));
+            //             if (getStoredValue("HHAuto_Setting_buyMythicCombat") === "true" || getStoredValue("HHAuto_Setting_autoTrollMythicByPassThreshold") === "true")
             //             {
             //                 trollThreshold = 0;
             //             }
@@ -4511,19 +4529,19 @@ var flipParanoia=function()
             }
         }
 
-        if ( checkParanoiaSpendings() === -1 && Storage().HHAuto_Setting_paranoiaSpendsBefore === "true" )
+        if ( checkParanoiaSpendings() === -1 && getStoredValue("HHAuto_Setting_paranoiaSpendsBefore") === "true" )
         {
-            sessionStorage.HHAuto_Temp_NextSwitch=new Date().getTime() + toNextSwitch * 1000;
+            setStoredValue("HHAuto_Temp_NextSwitch", new Date().getTime() + toNextSwitch * 1000);
             setParanoiaSpendings();
             return;
         }
 
-        if ( checkParanoiaSpendings() === 0 || Storage().HHAuto_Setting_paranoiaSpendsBefore === "false" )
+        if ( checkParanoiaSpendings() === 0 || getStoredValue("HHAuto_Setting_paranoiaSpendsBefore") === "false" )
         {
             clearParanoiaSpendings();
             cleanTempPopToStart();
             //going into hiding
-            sessionStorage.HHAuto_Temp_burst="false";
+            setStoredValue("HHAuto_Temp_burst", "false");
         }
         else
         {
@@ -4537,22 +4555,22 @@ var flipParanoia=function()
     {
         //if (getPage()!='home') return;
         //going to work
-        sessionStorage.HHAuto_Temp_autoLoop = "false";
+        setStoredValue("HHAuto_Temp_autoLoop", "false");
         logHHAuto("setting autoloop to false");
-        sessionStorage.HHAuto_Temp_burst="true";
+        setStoredValue("HHAuto_Temp_burst", "true");
         var b=S1[0][0][0].split('-');
         toNextSwitch=randomInterval(Number(b[0]),Number(b[1]));
     }
     var ND=new Date().getTime() + toNextSwitch * 1000;
     var message=period+(burst?" rest":" burst");
     logHHAuto("PARANOIA: "+message);
-    sessionStorage.HHAuto_Temp_pinfo=message;
+    setStoredValue("HHAuto_Temp_pinfo", message);
 
     setTimer('paranoiaSwitch',toNextSwitch);
     //force recheck non completed event after paranoia
-    if (sessionStorage.HHAuto_Temp_burst=="true")
+    if (getStoredValue("HHAuto_Temp_burst") =="true")
     {
-        let eventList = isJSON(sessionStorage.HHAuto_Temp_eventsList)?JSON.parse(sessionStorage.HHAuto_Temp_eventsList):{};
+        let eventList = isJSON(getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsList")):{};
         for (let eventID of Object.keys(eventList))
         {
             //console.log(eventID);
@@ -4562,7 +4580,7 @@ var flipParanoia=function()
                 //console.log("expire");
                 if(Object.keys(eventList).length >0)
                 {
-                    sessionStorage.HHAuto_Temp_eventsList = JSON.stringify(eventList);
+                    setStoredValue("HHAuto_Temp_eventsList", JSON.stringify(eventList));
                 }
             }
         }
@@ -4836,8 +4854,8 @@ function moduleSimLeague() {
         let opponentsIDList = getLeagueOpponentListData();
         let sorting_id;
         let player;
-        let opponentsPowerList = isJSON(sessionStorage.HHAuto_Temp_LeagueOpponentList) ? JSON.parse(sessionStorage.HHAuto_Temp_LeagueOpponentList) : -1;
-        let opponentsTempPowerList = isJSON(sessionStorage.HHAuto_Temp_LeagueTempOpponentList) ? JSON.parse(sessionStorage.HHAuto_Temp_LeagueTempOpponentList) : -1;
+        let opponentsPowerList = isJSON(getStoredValue("HHAuto_Temp_LeagueOpponentList")) ? JSON.parse(getStoredValue("HHAuto_Temp_LeagueOpponentList")) : -1;
+        let opponentsTempPowerList = isJSON(getStoredValue("HHAuto_Temp_LeagueTempOpponentList")) ? JSON.parse(getStoredValue("HHAuto_Temp_LeagueTempOpponentList")) : -1;
         let maxScore = -1;
         let IdOppo = -1;
         let OppoScore;
@@ -4968,7 +4986,7 @@ function moduleSimLeague() {
                 "hero_caracs_team" : caracsHero,
                 "playersBonuses": getLeaguePlayersData().playersBonuses
             };
-            sessionStorage.HHAuto_Temp_LeagueSavedData = JSON.stringify(leagueSavedData);
+            setStoredValue("HHAuto_Temp_LeagueSavedData", JSON.stringify(leagueSavedData));
             //console.log(JSON.stringify(leagueSavedData));
         });
     }
@@ -5309,7 +5327,7 @@ function moduleSimSeasonBattle()
         {
             price = 12;
         }
-        if (numberOfReds === 3 && Storage().HHAuto_Setting_autoSeasonPassReds === "true" && getHHVars('Hero.infos.hard_currency')>=price+Number(Storage().HHAuto_Setting_kobanBank))
+        if (numberOfReds === 3 && getStoredValue("HHAuto_Setting_autoSeasonPassReds") === "true" && getHHVars('Hero.infos.hard_currency')>=price+Number(getStoredValue("HHAuto_Setting_kobanBank")))
         {
             chosenID = -2;
         }
@@ -5362,7 +5380,7 @@ function moduleSimSeasonBattle()
 
 function CheckSpentPoints()
 {
-    let oldValues=sessionStorage.HHAuto_Temp_CheckSpentPoints?JSON.parse(sessionStorage.HHAuto_Temp_CheckSpentPoints):-1;
+    let oldValues=getStoredValue("HHAuto_Temp_CheckSpentPoints")?JSON.parse(getStoredValue("HHAuto_Temp_CheckSpentPoints")):-1;
     let newValues={};
     if (getHHScriptVars('isEnabledTrollBattle',false))
     {
@@ -5400,7 +5418,7 @@ function CheckSpentPoints()
             }
 
         }
-        sessionStorage.HHAuto_Temp_CheckSpentPoints=JSON.stringify(newValues);
+        setStoredValue("HHAuto_Temp_CheckSpentPoints", JSON.stringify(newValues));
 
         if (getHHScriptVars('isEnabledLeagues',false) && newValues['challenge'] > (oldValues['challenge'] +1))
         {
@@ -5420,7 +5438,16 @@ function CheckSpentPoints()
     }
     else
     {
-        sessionStorage.HHAuto_Temp_CheckSpentPoints=JSON.stringify(newValues);
+        setStoredValue("HHAuto_Temp_CheckSpentPoints", JSON.stringify(newValues));
+    }
+}
+
+function checkAndClosePopup()
+{
+    const popUp = $('#popup_message[style*="display: block"]');
+    if ($('#popup_message[style*="display: block"]').length > 0)
+    {
+        $('close', popUp).click();
     }
 }
 
@@ -5429,17 +5456,17 @@ var busy = false;
 var autoLoop = function () {
 
     updateData();
-    if (!sessionStorage.HHAuto_Temp_questRequirement)
+    if (getStoredValue("HHAuto_Temp_questRequirement") !== undefined)
     {
-        sessionStorage.HHAuto_Temp_questRequirement="none";
+        setStoredValue("HHAuto_Temp_questRequirement", "none");
     }
-    if (!sessionStorage.HHAuto_Temp_userLink)
+    if (getStoredValue("HHAuto_Temp_userLink") != undefined)
     {
-        sessionStorage.HHAuto_Temp_userLink="none"
+        setStoredValue("HHAuto_Temp_userLink", "none");
     }
-    if (!sessionStorage.HHAuto_Temp_battlePowerRequired)
+    if (getStoredValue("HHAuto_Temp_battlePowerRequired") !== undefined)
     {
-        sessionStorage.HHAuto_Temp_battlePowerRequired="0";
+        setStoredValue("HHAuto_Temp_battlePowerRequired", "0");
     }
 
 
@@ -5455,6 +5482,7 @@ var autoLoop = function () {
 
     if (burst /*|| checkTimer('nextMissionTime')*/)
     {
+        checkAndClosePopup();
 
         if (!checkTimer("paranoiaSwitch") )
         {
@@ -5464,7 +5492,7 @@ var autoLoop = function () {
         CheckSpentPoints();
 
         //check what happen to timer if no more wave before uncommenting
-        /*if (Storage().HHAuto_Setting_plusEventMythic==="true" && checkTimerMustExist('eventMythicNextWave'))
+        /*if (getStoredValue("HHAuto_Setting_plusEventMythic") ==="true" && checkTimerMustExist('eventMythicNextWave'))
         {
             gotoPage('home');
         }
@@ -5525,7 +5553,7 @@ var autoLoop = function () {
                 )
             )
         )
-            //&& ( sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh === undefined || getTimer('eventRefreshExpiration') === -1 || sessionStorage.HHAuto_Temp_eventGirl === undefined)
+            //&& ( getStoredValue("HHAuto_Temp_EventFightsBeforeRefresh") === undefined || getTimer('eventRefreshExpiration') === -1 || getStoredValue("HHAuto_Temp_eventGirl") === undefined)
         {
             logHHAuto("Going to check on events.");
             busy = true;
@@ -5533,40 +5561,69 @@ var autoLoop = function () {
         }
 
 
-        if(busy === false && getPage()==="battle" && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        if(busy === false && getPage()==="battle" && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
             busy = true;
             doBattle();
         }
 
-        if(busy === false && getHHScriptVars("isEnabledTrollBattle",false) && Storage().HHAuto_Setting_autoTrollBattle === "true" && getHHVars('Hero.infos.questing.id_world')>0 && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        if(busy === false && getHHScriptVars("isEnabledTrollBattle",false) && getStoredValue("HHAuto_Setting_autoTrollBattle") === "true" && getHHVars('Hero.infos.questing.id_world')>0 && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
-            //logHHAuto("fight amount: "+currentPower+" troll threshold: "+Number(Storage().HHAuto_Setting_autoTrollThreshold)+" paranoia fight: "+Number(checkParanoiaSpendings('fight')));
+            //logHHAuto("fight amount: "+currentPower+" troll threshold: "+Number(getStoredValue("HHAuto_Setting_autoTrollThreshold"))+" paranoia fight: "+Number(checkParanoiaSpendings('fight')));
             if
                 (
-                    currentPower >= Number(sessionStorage.HHAuto_Temp_battlePowerRequired)
-                    && (currentPower > 0 || canBuyFight(false).canBuy)
-                    && Number(currentPower) > Number(Storage().HHAuto_Setting_autoTrollThreshold) //fight is above threshold
+                    //normal case
+                    (
+                        Number(currentPower) >= Number(getStoredValue("HHAuto_Temp_battlePowerRequired"))
+                        && Number(currentPower) > 0
+                        && Number(currentPower) > Number(getStoredValue("HHAuto_Setting_autoTrollThreshold")) //fight is above threshold
+                    )
                     || Number(checkParanoiaSpendings('fight')) > 0 //paranoiaspendings to do
-                    || (sessionStorage.HHAuto_Temp_eventGirl !== undefined
-                        && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "false"
-                        && canBuyFight(false).canBuy
-                       ) // eventGirl available and buy comb true
-                    || (sessionStorage.HHAuto_Temp_eventGirl !== undefined
-                        && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "true"
-                        && Storage().HHAuto_Setting_plusEventMythic==="true"
-                       ) // mythicEventGirl available and fights available
+                    ||
+                    (
+                        // mythic Event Girl available and fights available
+                        (
+                            getStoredValue("HHAuto_Temp_eventGirl") !== undefined
+                            && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true"
+                            && getStoredValue("HHAuto_Setting_plusEventMythic") ==="true"
+                        )
+                        &&
+
+                        (
+                            Number(currentPower) > 0 //has fight => bypassing paranoia
+                            || canBuyFight(false).canBuy // can buy fights
+                        )
+                    )
+                    ||
+                    (
+                        // normal Event Girl available
+                        (
+                            getStoredValue("HHAuto_Temp_eventGirl") !== undefined
+                            && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "false"
+                            && getStoredValue("HHAuto_Setting_plusEvent") ==="true"
+                        )
+                        &&
+                        (
+                            (
+                                Number(currentPower) > 0 //has fight
+                                && Number(currentPower) > Number(getStoredValue("HHAuto_Setting_autoTrollThreshold")) // above paranoia
+                            )
+                            || canBuyFight(false).canBuy // can buy fights
+                        )
+                    )
                 )
+
+
             {
-                sessionStorage.HHAuto_Temp_battlePowerRequired = "0";
+                setStoredValue("HHAuto_Temp_battlePowerRequired", "0");
                 busy = true;
-                if(Storage().HHAuto_Setting_autoQuest === "true")
+                if(getStoredValue("HHAuto_Setting_autoQuest") === "true")
                 {
-                    if(sessionStorage.HHAuto_Temp_questRequirement[0] === 'P')
+                    if(getStoredValue("HHAuto_Temp_questRequirement")[0] === 'P')
                     {
                         logHHAuto("AutoBattle disabled for power collection for AutoQuest.");
                         document.getElementById("autoTrollBattle").checked = false;
-                        Storage().HHAuto_Setting_autoTrollBattle = "false";
+                        setStoredValue("HHAuto_Setting_autoTrollBattle", "false");
                         busy = false;
                     }
                     else
@@ -5592,23 +5649,24 @@ var autoLoop = function () {
         }
         else
         {
-            sessionStorage.HHAuto_Temp_battlePowerRequired = "0";
+            setStoredValue("HHAuto_Temp_battlePowerRequired", "0");
         }
 
-        if (getHHScriptVars("isEnabledGreatPachinko",false) && Storage().HHAuto_Setting_autoFreePachinko === "true" && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true" && checkTimer("nextPachinkoTime")) {
+
+        if (getHHScriptVars("isEnabledGreatPachinko",false) && getStoredValue("HHAuto_Setting_autoFreePachinko") === "true" && busy === false && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer("nextPachinkoTime")) {
             logHHAuto("Time to fetch Great Pachinko.");
             busy = true;
             busy =getFreeGreatPachinko();
 
         }
-        if (getHHScriptVars("isEnabledMythicPachinko",false) && Storage().HHAuto_Setting_autoFreePachinko === "true" && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true" && checkTimer("nextPachinko2Time") && getHHScriptVars("gameID") !== HHEnvVariables["SH_prod"].gameID ) {
+        if (getHHScriptVars("isEnabledMythicPachinko",false) && getStoredValue("HHAuto_Setting_autoFreePachinko") === "true" && busy === false && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer("nextPachinko2Time") && getHHScriptVars("gameID") !== HHEnvVariables["SH_prod"].gameID ) {
             logHHAuto("Time to fetch Mythic Pachinko.");
             busy = true;
             busy = getFreeMythicPachinko();
 
         }
 
-        if(getHHScriptVars("isEnabledContest",false) && Storage().HHAuto_Setting_autoContest === "true" && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        if(getHHScriptVars("isEnabledContest",false) && getStoredValue("HHAuto_Setting_autoContest") === "true" && busy === false && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
             if (checkTimer('nextContestTime') || unsafeWindow.has_contests_datas ||$(".contest .ended button[rel='claim']").size()>0){
                 logHHAuto("Time to get contest rewards.");
@@ -5616,14 +5674,14 @@ var autoLoop = function () {
             }
         }
 
-        if(getHHScriptVars("isEnabledPowerPlaces",false) && Storage().HHAuto_Setting_autoPowerPlaces === "true" && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        if(getHHScriptVars("isEnabledPowerPlaces",false) && getStoredValue("HHAuto_Setting_autoPowerPlaces") === "true" && busy === false && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
 
-            var popToStart = sessionStorage.HHAuto_Temp_PopToStart?JSON.parse(sessionStorage.HHAuto_Temp_PopToStart):[];
+            var popToStart = getStoredValue("HHAuto_Temp_PopToStart")?JSON.parse(getStoredValue("HHAuto_Temp_PopToStart")):[];
             if (popToStart.length != 0 || checkTimer('minPowerPlacesTime'))
             {
                 //if PopToStart exist bypass function
-                var popToStartExist = sessionStorage.HHAuto_Temp_PopToStart?false:true;
+                var popToStartExist = getStoredValue("HHAuto_Temp_PopToStart")?false:true;
                 //logHHAuto("startcollect : "+popToStartExist);
                 if (popToStartExist)
                 {
@@ -5632,9 +5690,9 @@ var autoLoop = function () {
                     busy = true;
                     busy = collectAndUpdatePowerPlaces();
                 }
-                var indexes=(Storage().HHAuto_Setting_autoPowerPlacesIndexFilter).split(";");
+                var indexes=(getStoredValue("HHAuto_Setting_autoPowerPlacesIndexFilter")).split(";");
 
-                popToStart = sessionStorage.HHAuto_Temp_PopToStart?JSON.parse(sessionStorage.HHAuto_Temp_PopToStart):[];
+                popToStart = getStoredValue("HHAuto_Temp_PopToStart")?JSON.parse(getStoredValue("HHAuto_Temp_PopToStart")):[];
                 //logHHAuto("pop2:"+popToStart);
                 for(var index of indexes)
                 {
@@ -5645,8 +5703,8 @@ var autoLoop = function () {
                         busy = doPowerPlacesStuff(index);
                     }
                 }
-                //logHHAuto("pop3:"+sessionStorage.HHAuto_Temp_PopToStart);
-                popToStart = sessionStorage.HHAuto_Temp_PopToStart?JSON.parse(sessionStorage.HHAuto_Temp_PopToStart):[];
+                //logHHAuto("pop3:"+getStoredValue("HHAuto_Temp_PopToStart"));
+                popToStart = getStoredValue("HHAuto_Temp_PopToStart")?JSON.parse(getStoredValue("HHAuto_Temp_PopToStart")):[];
                 //logHHAuto("pop3:"+popToStart);
                 if (busy ===false && popToStart.length === 0)
                 {
@@ -5657,7 +5715,7 @@ var autoLoop = function () {
             }
         }
 
-        if(getHHScriptVars("isEnabledMission",false) && Storage().HHAuto_Setting_autoMission === "true" && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        if(getHHScriptVars("isEnabledMission",false) && getStoredValue("HHAuto_Setting_autoMission") === "true" && busy === false && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
             if (checkTimer('nextMissionTime')){
                 logHHAuto("Time to do missions.");
@@ -5665,53 +5723,53 @@ var autoLoop = function () {
             }
         }
 
-        if (getHHScriptVars("isEnabledQuest",false) && Storage().HHAuto_Setting_autoQuest === "true" && busy === false  && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        if (getHHScriptVars("isEnabledQuest",false) && getStoredValue("HHAuto_Setting_autoQuest") === "true" && busy === false  && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
-            sessionStorage.HHAuto_Temp_autoTrollBattleSaveQuest = (sessionStorage.HHAuto_Temp_autoTrollBattleSaveQuest ? sessionStorage.HHAuto_Temp_autoTrollBattleSaveQuest : "false") ;
-            if (sessionStorage.HHAuto_Temp_questRequirement === "battle")
+            setStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest", (getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") !== undefined? getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") : "false")) ;
+            if (getStoredValue("HHAuto_Temp_questRequirement") === "battle")
             {
-                if (getHHScriptVars("isEnabledTrollBattle",false) && sessionStorage.HHAuto_Temp_autoTrollBattleSaveQuest === "false")
+                if (getHHScriptVars("isEnabledTrollBattle",false) && getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "false")
                 {
                     logHHAuto("Quest requires battle.");
                     logHHAuto("prepare to save one battle for quest");
-                    sessionStorage.HHAuto_Temp_autoTrollBattleSaveQuest = "true";
+                    setStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest", "true");
                     doBossBattle();
                 }
                 busy = true;
             }
-            else if (sessionStorage.HHAuto_Temp_questRequirement[0] === '$')
+            else if (getStoredValue("HHAuto_Temp_questRequirement")[0] === '$')
             {
-                if (Number(sessionStorage.HHAuto_Temp_questRequirement.substr(1)) < getHHVars('Hero.infos.soft_currency')) {
+                if (Number(getStoredValue("HHAuto_Temp_questRequirement").substr(1)) < getHHVars('Hero.infos.soft_currency')) {
                     // We have enough money... requirement fulfilled.
                     logHHAuto("Continuing quest, required money obtained.");
-                    sessionStorage.HHAuto_Temp_questRequirement = "none";
+                    setStoredValue("HHAuto_Temp_questRequirement", "none");
                     proceedQuest();
                     busy = true;
                 }
                 else
                 {
                     //prevent paranoia to wait for quest
-                    sessionStorage.HHAuto_Temp_paranoiaQuestBlocked="true";
-                    if(isNaN(sessionStorage.HHAuto_Temp_questRequirement.substr(1)))
+                    setStoredValue("HHAuto_Temp_paranoiaQuestBlocked", "true");
+                    if(isNaN(getStoredValue("HHAuto_Temp_questRequirement").substr(1)))
                     {
-                        logHHAuto(sessionStorage.HHAuto_Temp_questRequirement);
-                        sessionStorage.HHAuto_Temp_questRequirement = "none";
+                        logHHAuto(getStoredValue("HHAuto_Temp_questRequirement"));
+                        setStoredValue("HHAuto_Temp_questRequirement", "none");
                         logHHAuto("Invalid money in session storage quest requirement !");
                     }
                     busy = false;
                 }
             }
-            else if (sessionStorage.HHAuto_Temp_questRequirement[0] === '*')
+            else if (getStoredValue("HHAuto_Temp_questRequirement")[0] === '*')
             {
-                var energyNeeded = Number(sessionStorage.HHAuto_Temp_questRequirement.substr(1));
+                var energyNeeded = Number(getStoredValue("HHAuto_Temp_questRequirement").substr(1));
                 var energyCurrent = getHHVars('Hero.energies.quest.amount');
                 if (energyNeeded <= energyCurrent)
                 {
-                    if (Number(getHHVars('Hero.energies.quest.amount')) > Number(Storage().HHAuto_Setting_autoQuestThreshold) || Number(checkParanoiaSpendings('quest')) > 0 )
+                    if (Number(getHHVars('Hero.energies.quest.amount')) > Number(getStoredValue("HHAuto_Setting_autoQuestThreshold")) || Number(checkParanoiaSpendings('quest')) > 0 )
                     {
                         // We have enough energy... requirement fulfilled.
                         logHHAuto("Continuing quest, required energy obtained.");
-                        sessionStorage.HHAuto_Temp_questRequirement = "none";
+                        setStoredValue("HHAuto_Temp_questRequirement", "none");
                         proceedQuest();
                         busy = true;
                     }
@@ -5724,53 +5782,53 @@ var autoLoop = function () {
                 else
                 {
                     //prevent paranoia to wait for quest
-                    sessionStorage.HHAuto_Temp_paranoiaQuestBlocked="true";
+                    setStoredValue("HHAuto_Temp_paranoiaQuestBlocked", "true");
                     busy = false;
                     //logHHAuto("Replenishing energy for quest.(" + energyNeeded + " needed)");
                 }
             }
-            else if (sessionStorage.HHAuto_Temp_questRequirement[0] === 'P')
+            else if (getStoredValue("HHAuto_Temp_questRequirement")[0] === 'P')
             {
                 // Battle power required.
-                var neededPower = Number(sessionStorage.HHAuto_Temp_questRequirement.substr(1));
+                var neededPower = Number(getStoredValue("HHAuto_Temp_questRequirement").substr(1));
                 if(currentPower < neededPower)
                 {
                     logHHAuto("Quest requires "+neededPower+" Battle Power for advancement. Waiting...");
                     busy = false;
                     //prevent paranoia to wait for quest
-                    sessionStorage.HHAuto_Temp_paranoiaQuestBlocked="true";
+                    setStoredValue("HHAuto_Temp_paranoiaQuestBlocked", "true");
                 }
                 else
                 {
                     logHHAuto("Battle Power obtained, resuming quest...");
-                    sessionStorage.HHAuto_Temp_questRequirement = "none";
+                    setStoredValue("HHAuto_Temp_questRequirement", "none");
                     proceedQuest();
                     busy = true;
                 }
             }
-            else if (sessionStorage.HHAuto_Temp_questRequirement === "unknownQuestButton")
+            else if (getStoredValue("HHAuto_Temp_questRequirement") === "unknownQuestButton")
             {
                 //prevent paranoia to wait for quest
-                sessionStorage.HHAuto_Temp_paranoiaQuestBlocked="true";
+                setStoredValue("HHAuto_Temp_paranoiaQuestBlocked", "true");
                 logHHAuto("AutoQuest disabled.HHAuto_Setting_AutoQuest cannot be performed due to unknown quest button. Please manually proceed the current quest screen.");
                 document.getElementById("autoQuest").checked = false;
-                Storage().HHAuto_Setting_autoQuest = "false";
-                sessionStorage.HHAuto_Temp_questRequirement = "none";
+                setStoredValue("HHAuto_Setting_autoQuest", "false");
+                setStoredValue("HHAuto_Temp_questRequirement", "none");
                 busy = false;
             }
-            else if (sessionStorage.HHAuto_Temp_questRequirement === "errorInAutoBattle")
+            else if (getStoredValue("HHAuto_Temp_questRequirement") === "errorInAutoBattle")
             {
                 //prevent paranoia to wait for quest
-                sessionStorage.HHAuto_Temp_paranoiaQuestBlocked="true";
+                setStoredValue("HHAuto_Temp_paranoiaQuestBlocked", "true");
                 logHHAuto("AutoQuest disabled.HHAuto_Setting_AutoQuest cannot be performed due errors in AutoBattle. Please manually proceed the current quest screen.");
                 document.getElementById("autoQuest").checked = false;
-                Storage().HHAuto_Setting_autoQuest = "false";
-                sessionStorage.HHAuto_Temp_questRequirement = "none";
+                setStoredValue("HHAuto_Setting_autoQuest", "false");
+                setStoredValue("HHAuto_Temp_questRequirement", "none");
                 busy = false;
             }
-            else if(sessionStorage.HHAuto_Temp_questRequirement === "none")
+            else if(getStoredValue("HHAuto_Temp_questRequirement") === "none")
             {
-                if (Number(getHHVars('Hero.energies.quest.amount')) > Number(Storage().HHAuto_Setting_autoQuestThreshold) || Number(checkParanoiaSpendings('quest')) > 0 )
+                if (Number(getHHVars('Hero.energies.quest.amount')) > Number(getStoredValue("HHAuto_Setting_autoQuestThreshold")) || Number(checkParanoiaSpendings('quest')) > 0 )
                 {
                     //logHHAuto("NONE req.");
                     busy = true;
@@ -5780,19 +5838,19 @@ var autoLoop = function () {
             else
             {
                 //prevent paranoia to wait for quest
-                sessionStorage.HHAuto_Temp_paranoiaQuestBlocked="true";
-                logHHAuto("Invalid quest requirement : "+sessionStorage.HHAuto_Temp_questRequirement);
+                setStoredValue("HHAuto_Temp_paranoiaQuestBlocked", "true");
+                logHHAuto("Invalid quest requirement : "+getStoredValue("HHAuto_Temp_questRequirement"));
                 busy=false;
             }
         }
-        else if(Storage().HHAuto_Setting_autoQuest === "false")
+        else if(getStoredValue("HHAuto_Setting_autoQuest") === "false")
         {
-            sessionStorage.HHAuto_Temp_questRequirement = "none";
+            setStoredValue("HHAuto_Temp_questRequirement", "none");
         }
 
-        if(getHHScriptVars("isEnabledSeason",false) && Storage().HHAuto_Setting_autoSeason === "true" && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        if(getHHScriptVars("isEnabledSeason",false) && getStoredValue("HHAuto_Setting_autoSeason") === "true" && busy === false && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
-            if (Number(getHHVars('Hero.energies.kiss.amount')) > 0 && ( (Number(getHHVars('Hero.energies.kiss.amount')) > Number(Storage().HHAuto_Setting_autoSeasonThreshold) && checkTimer('nextSeasonTime')) || Number(checkParanoiaSpendings('kiss')) > 0 ) )
+            if (Number(getHHVars('Hero.energies.kiss.amount')) > 0 && ( (Number(getHHVars('Hero.energies.kiss.amount')) > Number(getStoredValue("HHAuto_Setting_autoSeasonThreshold")) && checkTimer('nextSeasonTime')) || Number(checkParanoiaSpendings('kiss')) > 0 ) )
             {
                 logHHAuto("Time to fight in Season.");
                 doSeason();
@@ -5815,9 +5873,9 @@ var autoLoop = function () {
 
         }
 
-        if(getHHScriptVars("isEnabledPantheon",false) && Storage().HHAuto_Setting_autoPantheon === "true" && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        if(getHHScriptVars("isEnabledPantheon",false) && getStoredValue("HHAuto_Setting_autoPantheon") === "true" && busy === false && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
-            if (Number(getHHVars('Hero.energies.worship.amount')) > 0 && ( (Number(getHHVars('Hero.energies.worship.amount')) > Number(Storage().HHAuto_Setting_autoPantheonThreshold) && checkTimer('nextPantheonTime')) || Number(checkParanoiaSpendings('worship')) > 0 ) )
+            if (Number(getHHVars('Hero.energies.worship.amount')) > 0 && ( (Number(getHHVars('Hero.energies.worship.amount')) > Number(getStoredValue("HHAuto_Setting_autoPantheonThreshold")) && checkTimer('nextPantheonTime')) || Number(checkParanoiaSpendings('worship')) > 0 ) )
             {
                 logHHAuto("Time to do Pantheon.");
                 doPantheon();
@@ -5841,7 +5899,7 @@ var autoLoop = function () {
         }
 
         var ECt= getHHVars('Hero.energies.quest.amount');
-        if (getHHScriptVars("isEnabledChamps",false) && ECt>=60 && (Storage().HHAuto_Setting_autoChampsUseEne==="true") && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        if (getHHScriptVars("isEnabledChamps",false) && ECt>=60 && (getStoredValue("HHAuto_Setting_autoChampsUseEne") ==="true") && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
             function buyTicket()
             {
@@ -5859,30 +5917,30 @@ var autoLoop = function () {
                     location.reload();
                 });
             }
-            sessionStorage.HHAuto_Temp_autoLoop = "false";
+            setStoredValue("HHAuto_Temp_autoLoop", "false");
             logHHAuto("setting autoloop to false");
             busy = true;
             setTimeout(buyTicket,randomInterval(800,1600));
         }
 
-        if (getHHScriptVars("isEnabledChamps",false) && busy==false && Storage().HHAuto_Setting_autoChamps==="true" && checkTimer('nextChampionTime') && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        if (getHHScriptVars("isEnabledChamps",false) && busy==false && getStoredValue("HHAuto_Setting_autoChamps") ==="true" && checkTimer('nextChampionTime') && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
             logHHAuto("Time to check on champions!");
             busy=true;
             busy=doChampionStuff();
         }
 
-        if (getHHScriptVars("isEnabledClubChamp",false) && busy==false && Storage().HHAuto_Setting_autoClubChamp==="true" && checkTimer('nextClubChampionTime') && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        if (getHHScriptVars("isEnabledClubChamp",false) && busy==false && getStoredValue("HHAuto_Setting_autoClubChamp") ==="true" && checkTimer('nextClubChampionTime') && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
             logHHAuto("Time to check on club champion!");
             busy=true;
             busy=doClubChampionStuff();
         }
 
-        if(getHHScriptVars("isEnabledLeagues",false) && Storage().HHAuto_Setting_autoLeagues === "true" && getHHVars('Hero.infos.level')>=20 && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        if(getHHScriptVars("isEnabledLeagues",false) && getStoredValue("HHAuto_Setting_autoLeagues") === "true" && getHHVars('Hero.infos.level')>=20 && busy === false && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
             // Navigate to leagues
-            if ((checkTimer('nextLeaguesTime') && Number(getHHVars('Hero.energies.challenge.amount')) > Number(Storage().HHAuto_Setting_autoLeaguesThreshold) ) || Number(checkParanoiaSpendings('challenge')) > 0)
+            if ((checkTimer('nextLeaguesTime') && Number(getHHVars('Hero.energies.challenge.amount')) > Number(getStoredValue("HHAuto_Setting_autoLeaguesThreshold")) ) || Number(checkParanoiaSpendings('challenge')) > 0)
             {
                 logHHAuto("Time to fight in Leagues.");
                 doLeagueBattle();
@@ -5901,28 +5959,34 @@ var autoLoop = function () {
                         setTimer('nextLeaguesTime',getHHVars('Hero.energies.challenge.next_refresh_ts'));
                     }
                 }
+                if (getPage() === "leaderboard")
+                {
+                    logHHAuto("Go to home after league fight");
+                    gotoPage("home");
+
+                }
             }
         }
 
-        if (getHHScriptVars("isEnabledDailyRewards",false) && busy==false && sessionStorage.HHAuto_Temp_autoLoop === "true" && getSecondsLeftBeforeEndOfHHDay() < getHHScriptVars("dailyRewardMaxRemainingTime") && getSecondsLeftBeforeEndOfHHDay() > 5*60 && Storage().HHAuto_Setting_collectDailyRewards === "true" && dailyRewardAvailable())
+        if (getHHScriptVars("isEnabledDailyRewards",false) && busy==false && getStoredValue("HHAuto_Temp_autoLoop") === "true" && getSecondsLeftBeforeEndOfHHDay() < getHHScriptVars("dailyRewardMaxRemainingTime") && getSecondsLeftBeforeEndOfHHDay() > 5*60 && getStoredValue("HHAuto_Setting_collectDailyRewards") === "true" && dailyRewardAvailable())
         {
             busy = true;
             collectDailyRewards();
         }
 
-        if (getHHScriptVars("isEnabledShop",false) && busy===false && ( Storage().HHAuto_Setting_paranoia !== "true" || !checkTimer("paranoiaSwitch") )  && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        if (getHHScriptVars("isEnabledShop",false) && busy===false && ( getStoredValue("HHAuto_Setting_paranoia") !== "true" || !checkTimer("paranoiaSwitch") )  && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
-            if (sessionStorage.HHAuto_Temp_charLevel===undefined)
+            if (getStoredValue("HHAuto_Temp_charLevel") ===undefined)
             {
-                sessionStorage.HHAuto_Temp_charLevel=0;
+                setStoredValue("HHAuto_Temp_charLevel", 0);
             }
-            if (checkTimer('nextShopTime') || sessionStorage.HHAuto_Temp_charLevel<getHHVars('Hero.infos.level')) {
+            if (checkTimer('nextShopTime') || getStoredValue("HHAuto_Temp_charLevel")<getHHVars('Hero.infos.level')) {
                 logHHAuto("Time to check shop.");
                 busy = updateShop();
             }
         }
 
-        if (getHHScriptVars("isEnabledSalary",false) && Storage().HHAuto_Setting_autoSalary === "true" && busy === false && ( Storage().HHAuto_Setting_paranoia !== "true" || !checkTimer("paranoiaSwitch") )  && sessionStorage.HHAuto_Temp_autoLoop === "true")
+        if (getHHScriptVars("isEnabledSalary",false) && getStoredValue("HHAuto_Setting_autoSalary") === "true" && busy === false && ( getStoredValue("HHAuto_Setting_paranoia") !== "true" || !checkTimer("paranoiaSwitch") )  && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
             if (checkTimer("nextSalaryTime")) {
                 logHHAuto("Time to fetch salary.");
@@ -5933,60 +5997,60 @@ var autoLoop = function () {
 
         if (
             busy === false
-            && sessionStorage.HHAuto_Temp_autoLoop === "true"
+            && getStoredValue("HHAuto_Temp_autoLoop") === "true"
             && HaremSizeNeedsRefresh(getHHScriptVars("HaremMaxSizeExpirationSecs"))
             && getPage() !== "harem"
 
         )
         {
-            //console.log(! isJSON(sessionStorage.HHAuto_Temp_HaremSize),JSON.parse(sessionStorage.HHAuto_Temp_HaremSize).count_date,new Date().getTime() + getHHScriptVars("HaremSizeExpirationSecs") * 1000);
+            //console.log(! isJSON(getStoredValue("HHAuto_Temp_HaremSize")),JSON.parse(getStoredValue("HHAuto_Temp_HaremSize")).count_date,new Date().getTime() + getHHScriptVars("HaremSizeExpirationSecs") * 1000);
             busy = true;
             gotoPage("harem");
         }
 
 
-        /*if(busy === true && sessionStorage.HHAuto_Temp_userLink==="none" && !window.location.pathname.startsWith("/quest"))
+        /*if(busy === true && getStoredValue("HHAuto_Temp_userLink") ==="none" && !window.location.pathname.startsWith("/quest"))
         {
-            sessionStorage.HHAuto_Temp_userLink = page;
+            setStoredValue("HHAuto_Temp_userLink", page);
         }
-        else if(sessionStorage.HHAuto_Temp_userLink !=="none" && busy === false && sessionStorage.HHAuto_Temp_autoLoop === "true" && getPage() !== "home")
+        else if(getStoredValue("HHAuto_Temp_userLink") !=="none" && busy === false && getStoredValue("HHAuto_Temp_autoLoop") === "true" && getPage() !== "home")
         {
             logHHAuto("Back to home page at the end of actions");
-            //window.location = sessionStorage.HHAuto_Temp_userLink;
+            //window.location = getStoredValue("HHAuto_Temp_userLink");
             gotoPage('home');
-            sessionStorage.HHAuto_Temp_userLink = "none";
+            setStoredValue("HHAuto_Temp_userLink", "none");
         }*/
     }
 
-    if(Storage().HHAuto_Setting_paranoia === "true" && Storage().HHAuto_Setting_master==="true" && busy === false  && sessionStorage.HHAuto_Temp_autoLoop === "true")
+    if(getStoredValue("HHAuto_Setting_paranoia") === "true" && getStoredValue("HHAuto_Setting_master") ==="true" && busy === false  && getStoredValue("HHAuto_Temp_autoLoop") === "true")
     {
         if (checkTimer("paranoiaSwitch")) {
             flipParanoia();
         }
     }
 
-    if (getPage() === "leaderboard" && Storage().HHAuto_Setting_showCalculatePower === "true")
+    if (getPage() === "leaderboard" && getStoredValue("HHAuto_Setting_showCalculatePower") === "true")
     {
         moduleSimLeague();
     }
-    if (getPage() === "season_arena" && Storage().HHAuto_Setting_showCalculatePower === "true")
+    if (getPage() === "season_arena" && getStoredValue("HHAuto_Setting_showCalculatePower") === "true")
     {
         moduleSimSeasonBattle();
     }
-    if (getPage() === "season" && Storage().HHAuto_Setting_SeasonMaskRewards === "true")
+    if (getPage() === "season" && getStoredValue("HHAuto_Setting_SeasonMaskRewards") === "true")
     {
         setTimeout(moduleSimSeasonReward,500);
     }
-    if (getPage() === "event" && ( Storage().HHAuto_Setting_plusEvent==="true" || Storage().HHAuto_Setting_plusEventMythic==="true"))
+    if (getPage() === "event" && ( getStoredValue("HHAuto_Setting_plusEvent") ==="true" || getStoredValue("HHAuto_Setting_plusEventMythic") ==="true"))
     {
         parseEventPage();
         moduleDisplayEventPriority();
     }
-    if (getPage() === "event" && Storage().HHAuto_Setting_PoAMaskRewards === "true")
+    if (getPage() === "event" && getStoredValue("HHAuto_Setting_PoAMaskRewards") === "true")
     {
         setTimeout(modulePathOfAttractionHide,500);
     }
-    if (getPage() == "path_of_attraction" && Storage().HHAuto_Setting_PoAMaskRewards === "true") {
+    if (getPage() == "path_of_attraction" && getStoredValue("HHAuto_Setting_PoAMaskRewards") === "true") {
         setTimeout(moduleOldPathOfAttractionHide,500);
     }
     if (getPage() === "powerplacemain" )
@@ -5995,7 +6059,7 @@ var autoLoop = function () {
     }
     if (getPage() === "shop" )
     {
-        if (Storage().HHAuto_Setting_showMarketTools === "true")
+        if (getStoredValue("HHAuto_Setting_showMarketTools") === "true")
         {
             moduleShopActions();
         }
@@ -6021,20 +6085,20 @@ var autoLoop = function () {
     {
         moduleDisplayContestsDeletion();
     }
-    if (getPage() === "path-of-valor" && Storage().HHAuto_Setting_PoVMaskRewards === "true")
+    if (getPage() === "path-of-valor" && getStoredValue("HHAuto_Setting_PoVMaskRewards") === "true")
     {
         moduleSimPoVMaskReward();
     }
-    if(isNaN(Storage().HHAuto_Temp_autoLoopTimeMili))
+    if(isNaN(getStoredValue("HHAuto_Temp_autoLoopTimeMili")))
     {
         logHHAuto("AutoLoopTimeMili is not a number.");
         setDefaults(true);
     }
     else
     {
-        if (sessionStorage.HHAuto_Temp_autoLoop === "true")
+        if (getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
-            setTimeout(autoLoop, Number(Storage().HHAuto_Temp_autoLoopTimeMili));
+            setTimeout(autoLoop, Number(getStoredValue("HHAuto_Temp_autoLoopTimeMili")));
         }
         else
         {
@@ -6046,16 +6110,16 @@ var autoLoop = function () {
 
 function HaremSizeNeedsRefresh(inCustomExpi)
 {
-    return ! isJSON(sessionStorage.HHAuto_Temp_HaremSize) || JSON.parse(sessionStorage.HHAuto_Temp_HaremSize).count_date < (new Date().getTime() - inCustomExpi * 1000);
+    return ! isJSON(getStoredValue("HHAuto_Temp_HaremSize")) || JSON.parse(getStoredValue("HHAuto_Temp_HaremSize")).count_date < (new Date().getTime() - inCustomExpi * 1000);
 }
 
 function moduleHaremCountMax()
 {
     if (HaremSizeNeedsRefresh(getHHScriptVars("HaremMinSizeExpirationSecs")) && getHHVars('girlsDataList',false) !== null)
     {
-        sessionStorage.HHAuto_Temp_HaremSize = JSON.stringify({count:Object.keys(getHHVars('girlsDataList',false)).length,count_date:new Date().getTime()});
+        setStoredValue("HHAuto_Temp_HaremSize", JSON.stringify({count:Object.keys(getHHVars('girlsDataList',false)).length,count_date:new Date().getTime()}));
         logHHAuto("Harem size updated to : "+Object.keys(getHHVars('girlsDataList',false)).length);
-        //console.log(sessionStorage.HHAuto_Temp_HaremSize);
+        //console.log(getStoredValue("HHAuto_Temp_HaremSize"));
 
         if (busy === false)
         {
@@ -6150,9 +6214,9 @@ function getBoostersData()
 function simFightFunc()
 {
     //console.log('simFightFunc');
-    if (isJSON(sessionStorage.HHAuto_Temp_LeagueSavedData))
+    if (isJSON(getStoredValue("HHAuto_Temp_LeagueSavedData")))
     {
-        let leagueSavedData = JSON.parse(sessionStorage.HHAuto_Temp_LeagueSavedData);
+        let leagueSavedData = JSON.parse(getStoredValue("HHAuto_Temp_LeagueSavedData"));
         let classHero = Number(getHHVars("Hero.infos.class"));
         let defHero = 0;
         let stat;
@@ -6206,7 +6270,7 @@ function moduleShopGetBoosters()
     let boostersArray = [];
     for (let index = 0;index < boosterA.length;index++)
     {
-        const currentBooster = $(boosterA[index]).data("d");
+        const currentBooster = JSON.parse(JSON.stringify($(boosterA[index]).data("d")));
         const propertiesToDelete = ['id_m_i',"id_member", "stacked"];
         for (let prop of propertiesToDelete)
         {
@@ -6215,11 +6279,11 @@ function moduleShopGetBoosters()
                 delete currentBooster[prop];
             }
         }
-        boostersArray.push($(boosterA[index]).data("d"));
+        boostersArray.push(currentBooster);
     }
     if (boostersArray.length > 0 )
     {
-        sessionStorage.HHAuto_Temp_BoostersData = JSON.stringify(boostersArray);
+        setStoredValue("HHAuto_Temp_BoostersData", JSON.stringify(boostersArray));
     }
     else
     {
@@ -6229,9 +6293,9 @@ function moduleShopGetBoosters()
 
 function checkAndCleanBoostersData()
 {
-    if ( isJSON(sessionStorage.HHAuto_Temp_BoostersData))
+    if ( isJSON(getStoredValue("HHAuto_Temp_BoostersData")))
     {
-        const boostersData = JSON.parse(sessionStorage.HHAuto_Temp_BoostersData);
+        const boostersData = JSON.parse(getStoredValue("HHAuto_Temp_BoostersData"));
         boostersData.filter(function(boost)
                             {
             return getBoosterExpiration(boost) !== "0";
@@ -6293,7 +6357,7 @@ function moduleShopActions()
                 '<div id="simResultScore">'+getTextForUI("none","elementText")+'</div>'+
                 '<div id="buttonSimResultMarket" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("SimResultMarketButton","tooltip")+'</span>'+getTextForUI("SimResultMarketButton","elementText")+'</div>'+
                 '</div>';
-            //$('#simResult')[0].outerHTML = 	labelSimFight;
+            //$('#simResult')[0].outerHTML =    labelSimFight;
             GM_addStyle('.plus {'
                         + 'color: #66CD00;}'
                        );
@@ -8105,8 +8169,8 @@ function moduleShopActions()
 var moduleDisplayEventPriority=function()
 {
     if ($('.HHEventPriority').length  > 0) {return}
-    if (sessionStorage.HHAuto_Temp_eventsGirlz === undefined) {return}
-    let eventGirlz=isJSON(sessionStorage.HHAuto_Temp_eventsGirlz)?JSON.parse(sessionStorage.HHAuto_Temp_eventsGirlz):{};
+    if (getStoredValue("HHAuto_Temp_eventsGirlz") === undefined) {return}
+    let eventGirlz=isJSON(getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsGirlz")):{};
 
     //$("div.event-widget div.widget[style='display: block;'] div.container div.scroll-area div.rewards-block-tape div.girl_reward div.HHEventPriority").each(function(){this.remove();});
     if ( eventGirlz.length >0)
@@ -8140,9 +8204,9 @@ var clearEventData=function(inEventID)
     //clearTimer('eventMythicNextWave');
     //clearTimer('eventRefreshExpiration');
     //sessionStorage.removeItem('HHAuto_Temp_EventFightsBeforeRefresh');
-    let eventList = isJSON(sessionStorage.HHAuto_Temp_eventsList)?JSON.parse(sessionStorage.HHAuto_Temp_eventsList):{};
-    let eventsGirlz = isJSON(sessionStorage.HHAuto_Temp_eventsGirlz)?JSON.parse(sessionStorage.HHAuto_Temp_eventsGirlz):[];
-    let eventGirl =isJSON(sessionStorage.HHAuto_Temp_eventGirl)?JSON.parse(sessionStorage.HHAuto_Temp_eventGirl):{};
+    let eventList = isJSON(getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsList")):{};
+    let eventsGirlz = isJSON(getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsGirlz")):[];
+    let eventGirl =isJSON(getStoredValue("HHAuto_Temp_eventGirl"))?JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")):{};
     let hasMythic = false;
     let hasEvent = false;
     for (let prop of Object.keys(eventList))
@@ -8152,12 +8216,12 @@ var clearEventData=function(inEventID)
             ||
             (
                 eventList[prop]["isMythic"]
-                && Storage().HHAuto_Setting_plusEventMythic!=="true"
+                && getStoredValue("HHAuto_Setting_plusEventMythic") !=="true"
             )
             ||
             (
                 !eventList[prop]["isMythic"]
-                && Storage().HHAuto_Setting_plusEvent!=="true"
+                && getStoredValue("HHAuto_Setting_plusEvent") !=="true"
             )
         )
         {
@@ -8212,13 +8276,13 @@ var clearEventData=function(inEventID)
         }
         else
         {
-            sessionStorage.HHAuto_Temp_eventsGirlz = JSON.stringify(eventsGirlz);
+            setStoredValue("HHAuto_Temp_eventsGirlz", JSON.stringify(eventsGirlz));
         }
         if (!eventList.hasOwnProperty(eventGirl.event_id) || eventGirl.event_id ===inEventID)
         {
             sessionStorage.removeItem('HHAuto_Temp_eventGirl');
         }
-        sessionStorage.HHAuto_Temp_eventsList = JSON.stringify(eventList);
+        getStoredValue("HHAuto_Temp_eventsList", JSON.stringify(eventList));
     }
 }
 
@@ -8307,12 +8371,12 @@ function parseEventPage(inTab="global")
         logHHAuto("On event page.");
         clearEventData(eventID);
         //let eventsGirlz=[];
-        let eventList = isJSON(sessionStorage.HHAuto_Temp_eventsList)?JSON.parse(sessionStorage.HHAuto_Temp_eventsList):{};
-        let eventsGirlz = isJSON(sessionStorage.HHAuto_Temp_eventsGirlz)?JSON.parse(sessionStorage.HHAuto_Temp_eventsGirlz):[];
-        let Priority=(Storage().HHAuto_Setting_eventTrollOrder).split(";");
+        let eventList = isJSON(getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsList")):{};
+        let eventsGirlz = isJSON(getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsGirlz")):[];
+        let Priority=(getStoredValue("HHAuto_Setting_eventTrollOrder")).split(";");
 
         let refreshTimer = 3600;
-        if (eventID.startsWith(getHHScriptVars('eventIDReg')) && Storage().HHAuto_Setting_plusEvent==="true")
+        if (eventID.startsWith(getHHScriptVars('eventIDReg')) && getStoredValue("HHAuto_Setting_plusEvent") ==="true")
         {
             logHHAuto("On going event.");
             let timeLeft=$('#contains_all #events .nc-expiration-label#timer').attr("data-seconds-until-event-end");
@@ -8342,7 +8406,7 @@ function parseEventPage(inTab="global")
                 }
             }
         }
-        if (eventID.startsWith(getHHScriptVars('mythicEventIDReg')) && Storage().HHAuto_Setting_plusEventMythic==="true")
+        if (eventID.startsWith(getHHScriptVars('mythicEventIDReg')) && getStoredValue("HHAuto_Setting_plusEventMythic") ==="true")
         {
             logHHAuto("On going mythic event.");
             let timeLeft=$('#contains_all #events .nc-expiration-label#timer').attr("data-seconds-until-event-end");
@@ -8400,7 +8464,7 @@ function parseEventPage(inTab="global")
         }
         if(Object.keys(eventList).length >0)
         {
-            sessionStorage.HHAuto_Temp_eventsList = JSON.stringify(eventList);
+            setStoredValue("HHAuto_Temp_eventsList", JSON.stringify(eventList));
         }
         else
         {
@@ -8439,12 +8503,12 @@ function parseEventPage(inTab="global")
                 });
                 //logHHAuto({log:"Sorted EventGirls",eventGirlz:eventsGirlz});
             }
-            sessionStorage.HHAuto_Temp_eventsGirlz = JSON.stringify(eventsGirlz);
+            setStoredValue("HHAuto_Temp_eventsGirlz", JSON.stringify(eventsGirlz));
             var chosenTroll = Number(eventsGirlz[0].troll_id)
             logHHAuto("ET: "+chosenTroll);
-            sessionStorage.HHAuto_Temp_eventGirl=JSON.stringify(eventsGirlz[0]);
+            setStoredValue("HHAuto_Temp_eventGirl", JSON.stringify(eventsGirlz[0]));
             queryEventTabCheck[0].setAttribute('parsed', 'true');
-            //sessionStorage.HHAuto_Temp_EventFightsBeforeRefresh = "20000";
+            //setStoredValue("HHAuto_Temp_EventFightsBeforeRefresh", "20000");
             //setTimer('eventRefreshExpiration', 3600);
         }
         else
@@ -8470,14 +8534,14 @@ function parseEventPage(inTab="global")
 
 function checkEvent(inEventID)
 {
-    let eventList = isJSON(sessionStorage.HHAuto_Temp_eventsList)?JSON.parse(sessionStorage.HHAuto_Temp_eventsList):{};
+    let eventList = isJSON(getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsList")):{};
     let result = false;
     let eventType = inEventID.startsWith(getHHScriptVars('mythicEventIDReg'))?"mythic":(inEventID.startsWith(getHHScriptVars('eventIDReg'))?"event":"");
-    if (eventType === "mythic" && Storage().HHAuto_Setting_plusEventMythic!=="true")
+    if (eventType === "mythic" && getStoredValue("HHAuto_Setting_plusEventMythic") !=="true")
     {
         return false;
     }
-    if (eventType === "event" && Storage().HHAuto_Setting_plusEvent!=="true")
+    if (eventType === "event" && getStoredValue("HHAuto_Setting_plusEvent") !=="true")
     {
         return false;
     }
@@ -8519,29 +8583,29 @@ function canBuyFight(logging=true)
     let canRecharge20 = false;
     let remainingShards;
 
-    if (sessionStorage.HHAuto_Temp_eventGirl !== undefined && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_shards && Number.isInteger(Number(JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_shards)))
+    if (getStoredValue("HHAuto_Temp_eventGirl") !== undefined && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_shards && Number.isInteger(Number(JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_shards)))
     {
         if (
             (
-                Storage().HHAuto_Setting_buyCombat=="true"
-                && Storage().HHAuto_Setting_plusEvent==="true"
+                getStoredValue("HHAuto_Setting_buyCombat") =="true"
+                && getStoredValue("HHAuto_Setting_plusEvent") ==="true"
                 && getSecondsLeft("eventGoing") !== 0
-                && Number(Storage().HHAuto_Setting_buyCombTimer) !== NaN
-                && getSecondsLeft("eventGoing") < Storage().HHAuto_Setting_buyCombTimer*3600
-                && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "false"
+                && Number(getStoredValue("HHAuto_Setting_buyCombTimer")) !== NaN
+                && getSecondsLeft("eventGoing") < getStoredValue("HHAuto_Setting_buyCombTimer")*3600
+                && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "false"
             )
             ||
             (
-                Storage().HHAuto_Setting_plusEventMythic==="true"
-                && Storage().HHAuto_Setting_buyMythicCombat=="true"
+                getStoredValue("HHAuto_Setting_plusEventMythic") ==="true"
+                && getStoredValue("HHAuto_Setting_buyMythicCombat") === "true"
                 && getSecondsLeft("eventMythicGoing") !== 0
-                && Number(Storage().HHAuto_Setting_buyMythicCombTimer) !== NaN
-                && getSecondsLeft("eventMythicGoing") < Storage().HHAuto_Setting_buyMythicCombTimer*3600
-                && JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic === "true"
+                && Number(getStoredValue("HHAuto_Setting_buyMythicCombTimer")) !== NaN
+                && getSecondsLeft("eventMythicGoing") < getStoredValue("HHAuto_Setting_buyMythicCombTimer")*3600
+                && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true"
             )
         )
         {
-            result.event_mythic = JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).is_mythic;
+            result.event_mythic = JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic;
         }
         else
         {
@@ -8549,15 +8613,17 @@ function canBuyFight(logging=true)
         }
 
         //console.log(result);
-        remainingShards = Number(100 - Number(JSON.parse(sessionStorage.HHAuto_Temp_eventGirl).girl_shards));
-        if (Storage().HHAuto_Setting_minShardsX50
-            && Number.isInteger(Number(Storage().HHAuto_Setting_minShardsX50))
-            && remainingShards >= Number(Storage().HHAuto_Setting_minShardsX50)
-            && getHHVars('Hero.infos.hard_currency')>=pricex50+Number(Storage().HHAuto_Setting_kobanBank)
-            && Storage().HHAuto_Setting_useX50Fights === "true"
-            && currentFight < maxx50
-            && ( result.event_mythic || Storage().HHAuto_Setting_useX50FightsAllowNormalEvent === "true")
-           )
+        remainingShards = Number(100 - Number(JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_shards));
+        if
+            (
+                getStoredValue("HHAuto_Setting_minShardsX50") !== undefined
+                && Number.isInteger(Number(getStoredValue("HHAuto_Setting_minShardsX50")))
+                && remainingShards >= Number(getStoredValue("HHAuto_Setting_minShardsX50"))
+                && getHHVars('Hero.infos.hard_currency')>=pricex50+Number(getStoredValue("HHAuto_Setting_kobanBank"))
+                && getStoredValue("HHAuto_Setting_useX50Fights") === "true"
+                && currentFight < maxx50
+                && ( result.event_mythic || getStoredValue("HHAuto_Setting_useX50FightsAllowNormalEvent") === "true")
+            )
         {
             result.max = maxx50;
             result.canBuy = true;
@@ -8569,9 +8635,9 @@ function canBuyFight(logging=true)
 
             if (logging)
             {
-                logHHAuto('Unable to recharge up to '+maxx50+' for '+pricex50+' kobans : current energy : '+currentFight+', remaining shards : '+remainingShards+'/'+Storage().HHAuto_Setting_minShardsX50+', kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+                logHHAuto('Unable to recharge up to '+maxx50+' for '+pricex50+' kobans : current energy : '+currentFight+', remaining shards : '+remainingShards+'/'+getStoredValue("HHAuto_Setting_minShardsX50")+', kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(getStoredValue("HHAuto_Setting_kobanBank")));
             }
-            if (getHHVars('Hero.infos.hard_currency')>=pricex20+Number(Storage().HHAuto_Setting_kobanBank)
+            if (getHHVars('Hero.infos.hard_currency')>=pricex20+Number(getStoredValue("HHAuto_Setting_kobanBank"))
                )//&& currentFight < 10)
             {
                 result.max = maxx20;
@@ -8583,7 +8649,7 @@ function canBuyFight(logging=true)
             {
                 if (logging)
                 {
-                    logHHAuto('Unable to recharge up to '+maxx20+' for '+pricex20+' kobans : current energy : '+currentFight+', kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(Storage().HHAuto_Setting_kobanBank));
+                    logHHAuto('Unable to recharge up to '+maxx20+' for '+pricex20+' kobans : current energy : '+currentFight+', kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(getStoredValue("HHAuto_Setting_kobanBank")));
                 }
                 return result;
             }
@@ -8643,7 +8709,7 @@ var getBurst=function()
             return false;
         }
     }
-    return Storage().HHAuto_Setting_master==="true"&&(!(Storage().HHAuto_Setting_paranoia==="true") || sessionStorage.HHAuto_Temp_burst==="true");
+    return getStoredValue("HHAuto_Setting_master") ==="true"&&(!(getStoredValue("HHAuto_Setting_paranoia") ==="true") || getStoredValue("HHAuto_Temp_burst") ==="true");
 }
 
 function saveHHVarsSettingsAsJSON() {
@@ -8706,7 +8772,7 @@ function extractHHVars(dataToSave,extractLog = false,extractTemp=true,extractSet
 {
     let storageType;
     let storageName;
-    let currentStorageName = localStorage.HHAuto_Setting_settPerTab==="true"?"sessionStorage":"localStorage";
+    let currentStorageName = getStoredValue("HHAuto_Setting_settPerTab") ==="true"?"sessionStorage":"localStorage";
     let variableName;
     let storageItem;
     let varType;
@@ -8725,13 +8791,13 @@ function extractHHVars(dataToSave,extractLog = false,extractTemp=true,extractSet
             }
             if (variableName !== "HHAuto_Temp_Logging")
             {
-                dataToSave[storageName+"."+variableName] = storageItem.getItem(variableName);
+                dataToSave[storageName+"."+variableName] = getStoredValue(variableName);
             }
         }
     }
     if (extractLog)
     {
-        dataToSave["sessionStorage.HHAuto_Temp_Logging"] = JSON.parse(sessionStorage.getItem('HHAuto_Temp_Logging'));
+        dataToSave["HHAuto_Temp_Logging"] = JSON.parse(sessionStorage.getItem('HHAuto_Temp_Logging'));
     }
     return dataToSave;
 }
@@ -8833,7 +8899,7 @@ function debugDeleteAllVars()
 function manageToolTipsDisplay(important=false)
 {
 
-    if(Storage().HHAuto_Setting_showTooltips === "true")
+    if(getStoredValue("HHAuto_Setting_showTooltips") === "true")
     {
         enableToolTipsDisplay(important);
     }
@@ -8887,9 +8953,9 @@ function debugDeleteTempVars()
 
 function getUserHHStoredVarDefault(inVarName)
 {
-    if (isJSON(localStorage.HHAuto_Setting_saveDefaults))
+    if (isJSON(getStoredValue("HHAuto_Setting_saveDefaults")))
     {
-        let currentDefaults = JSON.parse(localStorage.HHAuto_Setting_saveDefaults);
+        let currentDefaults = JSON.parse(getStoredValue("HHAuto_Setting_saveDefaults"));
         if (currentDefaults !== null && currentDefaults[inVarName] !== undefined)
         {
             return currentDefaults[inVarName];
@@ -8912,7 +8978,7 @@ function saveHHStoredVarsDefaults()
             savedHHStoredVars[variableName] = dataToSave[i];
         }
     }
-    localStorage.HHAuto_Setting_saveDefaults = JSON.stringify(savedHHStoredVars);
+    setStoredValue("HHAuto_Setting_saveDefaults", JSON.stringify(savedHHStoredVars));
     logHHAuto("HHStoredVar defaults saved !");
 }
 
@@ -8979,7 +9045,7 @@ function getStorageItem(inStorageType)
             return sessionStorage;
             break;
         case 'Storage()' :
-            return Storage();
+            return getStorage();
             break;
     }
 }
@@ -10916,7 +10982,7 @@ HHStoredVars.HHAuto_Temp_LeagueSavedData =
 };
 HHStoredVars.HHAuto_Temp_HaremSize =
     {
-    storage:"sessionStorage",
+    storage:"localStorage",
     HHType:"Temp",
     isValid:/{"count":(\d)+,"count_date":(\d)+}/
 };
@@ -10932,41 +10998,41 @@ var updateData = function () {
                                                                   {
         currentInput.checkValidity();
     });
-    if (Storage().HHAuto_Setting_showInfo=="true") // && busy==false // && getPage()=="home"
+    if (getStoredValue("HHAuto_Setting_showInfo") =="true") // && busy==false // && getPage()=="home"
     {
         var Tegzd='';
-        Tegzd+=(Storage().HHAuto_Setting_master==="true"?"<span style='color:LimeGreen'>HH auto ++ ON":"<span style='color:red'>HH auto ++ OFF")+'</span>';
-        //Tegzd+=(Storage().HHAuto_Setting_master==="true"?"<span style='color:LimeGreen'>"+getTextForUI("master","elementText")+" : ON":"<span style='color:red'>"+getTextForUI("master","elementText")+" : OFF")+'</span>';
-        //Tegzd+=getTextForUI("master","elementText")+' : '+(Storage().HHAuto_Setting_master==="true"?"<span style='color:LimeGreen'>ON":"<span style='color:red'>OFF")+'</span>';
-        if (Storage().HHAuto_Setting_paranoia=="true")
+        Tegzd+=(getStoredValue("HHAuto_Setting_master") ==="true"?"<span style='color:LimeGreen'>HH auto ++ ON":"<span style='color:red'>HH auto ++ OFF")+'</span>';
+        //Tegzd+=(getStoredValue("HHAuto_Setting_master") ==="true"?"<span style='color:LimeGreen'>"+getTextForUI("master","elementText")+" : ON":"<span style='color:red'>"+getTextForUI("master","elementText")+" : OFF")+'</span>';
+        //Tegzd+=getTextForUI("master","elementText")+' : '+(getStoredValue("HHAuto_Setting_master") ==="true"?"<span style='color:LimeGreen'>ON":"<span style='color:red'>OFF")+'</span>';
+        if (getStoredValue("HHAuto_Setting_paranoia") =="true")
         {
-            Tegzd += '<br>'+sessionStorage.HHAuto_Temp_pinfo+': '+getTimeLeft('paranoiaSwitch');
+            Tegzd += '<br>'+getStoredValue("HHAuto_Temp_pinfo")+': '+getTimeLeft('paranoiaSwitch');
         }
-        if (getHHScriptVars('isEnabledTrollBattle',false) && Storage().HHAuto_Setting_autoTrollBattle=="true")
+        if (getHHScriptVars('isEnabledTrollBattle',false) && getStoredValue("HHAuto_Setting_autoTrollBattle") =="true")
         {
             Tegzd += '<br>'+getTextForUI("autoTrollTitle","elementText")+' : '+getHHVars('Hero.energies.fight.amount')+'/'+getHHVars('Hero.energies.fight.max_amount');
         }
-        if (getHHScriptVars("isEnabledSalary",false) && Storage().HHAuto_Setting_autoSalary=="true")
+        if (getHHScriptVars("isEnabledSalary",false) && getStoredValue("HHAuto_Setting_autoSalary") =="true")
         {
             Tegzd += '<br>'+getTextForUI("autoSalary","elementText")+' : '+getTimeLeft('nextSalaryTime');
         }
-        if (getHHScriptVars('isEnabledSeason',false) && Storage().HHAuto_Setting_autoSeason=="true")
+        if (getHHScriptVars('isEnabledSeason',false) && getStoredValue("HHAuto_Setting_autoSeason") =="true")
         {
             Tegzd += '<br>'+getTextForUI("autoSeasonTitle","elementText")+' : '+getHHVars('Hero.energies.kiss.amount')+'/'+getHHVars('Hero.energies.kiss.max_amount')+' ('+getTimeLeft('nextSeasonTime')+')';
         }
-        if (getHHScriptVars('isEnabledLeagues',false) && Storage().HHAuto_Setting_autoLeagues=="true")
+        if (getHHScriptVars('isEnabledLeagues',false) && getStoredValue("HHAuto_Setting_autoLeagues") =="true")
         {
             Tegzd += '<br>'+getTextForUI("autoLeaguesTitle","elementText")+' : '+getHHVars('Hero.energies.challenge.amount')+'/'+getHHVars('Hero.energies.challenge.max_amount')+' ('+getTimeLeft('nextLeaguesTime')+')';
         }
-        if (getHHScriptVars("isEnabledChamps",false) && Storage().HHAuto_Setting_autoChamps=="true")
+        if (getHHScriptVars("isEnabledChamps",false) && getStoredValue("HHAuto_Setting_autoChamps") =="true")
         {
             Tegzd += '<br>'+getTextForUI("autoChampsTitle","elementText")+' : '+getTimeLeft('nextChampionTime');
         }
-        if (getHHScriptVars("isEnabledClubChamp",false) && Storage().HHAuto_Setting_autoClubChamp=="true")
+        if (getHHScriptVars("isEnabledClubChamp",false) && getStoredValue("HHAuto_Setting_autoClubChamp") =="true")
         {
             Tegzd += '<br>'+getTextForUI("autoClubChamp","elementText")+' : '+getTimeLeft('nextClubChampionTime');
         }
-        if (getHHScriptVars('isEnabledPantheon',false) && Storage().HHAuto_Setting_autoPantheon=="true")
+        if (getHHScriptVars('isEnabledPantheon',false) && getStoredValue("HHAuto_Setting_autoPantheon") =="true")
         {
             Tegzd += '<br>'+getTextForUI("autoPantheonTitle","elementText")+' : '+getHHVars('Hero.energies.worship.amount')+'/'+getHHVars('Hero.energies.worship.max_amount')+' ('+getTimeLeft('nextPantheonTime')+')';
         }
@@ -10974,19 +11040,19 @@ var updateData = function () {
         {
             Tegzd += '<br>'+getTextForUI("autoBuy","elementText")+' : '+getTimeLeft('nextShopTime');
         }
-        if (getHHScriptVars("isEnabledMission",false) && Storage().HHAuto_Setting_autoMission=="true")
+        if (getHHScriptVars("isEnabledMission",false) && getStoredValue("HHAuto_Setting_autoMission") =="true")
         {
             Tegzd += '<br>'+getTextForUI("autoMission","elementText")+' : '+getTimeLeft('nextMissionTime');
         }
-        if (getHHScriptVars("isEnabledContest",false) && Storage().HHAuto_Setting_autoContest=="true")
+        if (getHHScriptVars("isEnabledContest",false) && getStoredValue("HHAuto_Setting_autoContest") =="true")
         {
             Tegzd += '<br>'+getTextForUI("autoContest","elementText")+' : '+getTimeLeft('nextContestTime');
         }
-        if (getHHScriptVars("isEnabledPowerPlaces",false) && Storage().HHAuto_Setting_autoPowerPlaces=="true")
+        if (getHHScriptVars("isEnabledPowerPlaces",false) && getStoredValue("HHAuto_Setting_autoPowerPlaces") =="true")
         {
             Tegzd += '<br>'+getTextForUI("autoPowerPlaces","elementText")+' : '+getTimeLeft('minPowerPlacesTime');
         }
-        if ( getHHScriptVars("isEnabledPachinko",false) && Storage().HHAuto_Setting_autoFreePachinko=="true")
+        if ( getHHScriptVars("isEnabledPachinko",false) && getStoredValue("HHAuto_Setting_autoFreePachinko") =="true")
         {
             if (getTimer('nextPachinkoTime') !== -1)
             {
@@ -11001,17 +11067,17 @@ var updateData = function () {
         {
             Tegzd += '<br>'+getTextForUI("mythicGirlNext","elementText")+' : '+getTimeLeft('eventMythicNextWave');
         }
-        if (sessionStorage.HHAuto_Temp_haveAff)
+        if (getStoredValue("HHAuto_Temp_haveAff"))
         {
-            Tegzd += '<br>'+getTextForUI("autoAffW","elementText")+' : '+add1000sSeparator(sessionStorage.HHAuto_Temp_haveAff);
+            Tegzd += '<br>'+getTextForUI("autoAffW","elementText")+' : '+add1000sSeparator(getStoredValue("HHAuto_Temp_haveAff"));
         }
-        if (sessionStorage.HHAuto_Temp_haveExp)
+        if (getStoredValue("HHAuto_Temp_haveExp"))
         {
-            Tegzd += '<br>'+getTextForUI("autoExpW","elementText")+' : '+add1000sSeparator(sessionStorage.HHAuto_Temp_haveExp);
+            Tegzd += '<br>'+getTextForUI("autoExpW","elementText")+' : '+add1000sSeparator(getStoredValue("HHAuto_Temp_haveExp"));
         }
-        /*if (isJSON(sessionStorage.HHAuto_Temp_BoostersData))
+        /*if (isJSON(getStoredValue("HHAuto_Temp_BoostersData")))
         {
-            for(let boost of JSON.parse(sessionStorage.HHAuto_Temp_BoostersData))
+            for(let boost of JSON.parse(getStoredValue("HHAuto_Temp_BoostersData")))
             {
                 Tegzd += `<br>${boost.rarity} <img class="iconImg" src="${boost.ico}" /> : ${getBoosterExpiration(boost)}`;
             }
@@ -11087,9 +11153,9 @@ var start = function () {
     $('#starter_offer').hide();
     $('#starter_offer_background').hide();
 
-    if (sessionStorage.HHAuto_Temp_Timers)
+    if (getStoredValue("HHAuto_Temp_Timers"))
     {
-        Timers=JSON.parse(sessionStorage.HHAuto_Temp_Timers);
+        Timers=JSON.parse(getStoredValue("HHAuto_Temp_Timers"));
     }
     clearEventData("onlyCheckEventsHHScript");
     setDefaults();
@@ -11690,11 +11756,11 @@ var start = function () {
     pInfo.addEventListener("dblclick", function() {
         let masterSwitch = document.getElementById("master");
         if (masterSwitch.checked === true) {
-            Storage().HHAuto_Setting_master = "false";
+            setStoredValue("HHAuto_Setting_master", "false");
             masterSwitch.checked = false;
             //console.log("Master switch off");
         } else {
-            Storage().HHAuto_Setting_master = "true";
+            setStoredValue("HHAuto_Setting_master", "true");
             masterSwitch.checked = true;
             //console.log("Master switch on");
         }
@@ -11712,7 +11778,7 @@ var start = function () {
         pInfo.addEventListener("mouseout", setpInfoHomeFolded);
         */
 
-        //Storage().HHAuto_Setting_infoBoxIsHidden = "false";
+        //setStoredValue("HHAuto_Setting_infoBoxIsHidden", "false");
         //console.log("Showing InfoBox");
     }
     else
@@ -11754,7 +11820,7 @@ var start = function () {
         });
         pInfo.addEventListener("mouseout", setpInfoFolded);
         */
-        //Storage().HHAuto_Setting_infoBoxIsHidden = "true";
+        //setStoredValue("HHAuto_Setting_infoBoxIsHidden", "true");
         //console.log("Hiding InfoBox");
     }
 
@@ -11895,22 +11961,22 @@ var start = function () {
         currentInput.addEventListener('invalid', () => {
             currentInput.style.backgroundColor = "red";
             //document.getElementById("master").checked = false;
-            //Storage().HHAuto_Setting_master="false";
+            //setStoredValue("HHAuto_Setting_master", "false");
         });
         currentInput.checkValidity();
     });
 
 
 
-    sessionStorage.HHAuto_Temp_autoLoop = "true";
-    if (typeof Storage().HHAuto_Temp_freshStart == "undefined" || isNaN(Number(Storage().HHAuto_Temp_autoLoopTimeMili))) {
+    setStoredValue("HHAuto_Temp_autoLoop", "true");
+    if (typeof getStoredValue("HHAuto_Temp_freshStart") == "undefined" || isNaN(Number(getStoredValue("HHAuto_Temp_autoLoopTimeMili")))) {
         setDefaults(true);
     }
 
     if (getBurst())
     {
         doShopping();
-        if ( Storage().HHAuto_Setting_autoStatsSwitch==="true" )
+        if ( getStoredValue("HHAuto_Setting_autoStatsSwitch") ==="true" )
         {
             doStatUpgrades();
         }
@@ -11927,7 +11993,7 @@ var start = function () {
         function Alive()
         {
             window.top.postMessage({ImAlive:true},'*');
-            if (sessionStorage.HHAuto_Temp_autoLoop=="true")
+            if (getStoredValue("HHAuto_Temp_autoLoop") =="true")
             {
                 setTimeout(Alive,2000);
             }
@@ -12080,7 +12146,7 @@ function switchHHMenuButton(isActive)
 {
     if(document.getElementById("sMenuButton") !== null)
     {
-        if (Storage().HHAuto_Setting_master === "false")
+        if (getStoredValue("HHAuto_Setting_master") === "false")
         {
             document.getElementById("sMenuButton").style["background-color"] = "red";
             document.getElementById("sMenuButton").style["background-image"] = "none";
@@ -12402,7 +12468,7 @@ function countElementsInTeam(elements) {
 /*
 commented        const girlDictionary
 replaced         const girlCount = girlDictionary.size || 800
-              by const girlCount = isJSON(sessionStorage.HHAuto_Temp_HaremSize)?JSON.parse(sessionStorage.HHAuto_Temp_HaremSize).count:800;
+              by const girlCount = isJSON(getStoredValue("HHAuto_Temp_HaremSize"))?JSON.parse(getStoredValue("HHAuto_Temp_HaremSize")).count:800;
               */
 function calculateSynergiesFromTeamMemberElements(elements) {
     const counts = countElementsInTeam(elements)
@@ -12410,7 +12476,7 @@ function calculateSynergiesFromTeamMemberElements(elements) {
     // Only care about those not included in the stats already: fire, stone, sun and water
     // Assume max harem synergy
     //const girlDictionary = (typeof(localStorage.HHPNMap) == "undefined") ? new Map(): new Map(JSON.parse(localStorage.HHPNMap));
-    const girlCount = isJSON(sessionStorage.HHAuto_Temp_HaremSize)?JSON.parse(sessionStorage.HHAuto_Temp_HaremSize).count:800;
+    const girlCount = isJSON(getStoredValue("HHAuto_Temp_HaremSize"))?JSON.parse(getStoredValue("HHAuto_Temp_HaremSize")).count:800;
     const girlsPerElement = Math.min(girlCount / 8, 100)
 
     return {
