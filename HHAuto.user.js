@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.32
+// @version      5.6.33
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -3487,7 +3487,9 @@ function getLeagueOpponentId(opponentsIDList,force=false)
                    function(data)
                    {
                 //logHHAuto({log:"data for oppo",data:data});
-                var opponentData = JSON.parse(data.html.substring(data.html.indexOf(findText)+findText.length,data.html.lastIndexOf(';')));
+                //console.log(data.html.substring(data.html.indexOf(findText)+findText.length,data.html.indexOf('};')+1))
+                var opponentData = JSON.parse(data.html.substring(data.html.indexOf(findText)+findText.length,data.html.indexOf('};')+1));
+                //console.log(opponentData);
                 const players=getLeaguePlayersData(getHHVars("heroLeaguesData"),opponentData);
 
                 //console.log(player,opponent);
@@ -3500,7 +3502,7 @@ function getLeagueOpponentId(opponentsIDList,force=false)
                 //logHHAuto('matchRating:'+matchRating);
                 //if (!isNaN(matchRating))
                 //{
-                DataOppo[Number(opponentData.id_member)]=simu;
+                DataOppo[Number(opponentData.id_fighter)]=simu;
                 setStoredValue("HHAuto_Temp_LeagueTempOpponentList", JSON.stringify({expirationDate:listExpirationDate,opponentsList:DataOppo}));
                 //}
                 //DataOppo.push(JSON.parse(data.html.substring(data.html.indexOf(findText)+findText.length,data.html.lastIndexOf(';'))));
@@ -4697,11 +4699,10 @@ function getLeaguePlayersData(inHeroLeaguesData, inPlayerLeaguesData)
         chance: opponentCrit,
         damage: opponentAtk,
         defense: opponentDef,
-        ego: opponentEgo,
-    } = inPlayerLeaguesData.caracs
-    const {
+        total_ego: opponentEgo,
         team: opponentTeam
     } = inPlayerLeaguesData
+    
     const opponentTeamMemberElements = [];
     [0,1,2,3,4,5,6].forEach(key => {
         const teamMember = opponentTeam[key]
@@ -12095,7 +12096,7 @@ function manageTranslationPopUp()
 
     function saveTranslationAsTxt()
     {
-        console.log("test");
+        //console.log("test");
         let translation = `Translated to : ${currentLanguage}\n`;
         translation += `From version : ${GM_info.version}\n`;
         let hasTranslation = false;
