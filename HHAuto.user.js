@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.33
+// @version      5.6.34
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -569,7 +569,7 @@ var proceedQuest = function () {
         //logHHAuto("setting autoloop to false");
     }
     else if (proceedType === "battle") {
-        logHHAuto("Proceeding to battle troll...");
+        logHHAuto("Quest need battle...");
         setStoredValue("HHAuto_Temp_questRequirement", "battle");
         // Proceed to battle troll.
         //proceedButtonMatch.click();
@@ -2620,11 +2620,11 @@ var doBossBattle = function()
         logHHAuto("Last troll fight");
     }
 
-    if (getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") == "true")
+    if (getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true")
     {
         TTF=getHHVars('Hero.infos.questing.id_world')-1;
         logHHAuto("Last troll fight for quest item.");
-        setStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest", "false");
+        //setStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest", "false");
         setStoredValue("HHAuto_Temp_questRequirement", "none");
     }
 
@@ -3632,6 +3632,7 @@ var CrushThemFights=function()
                     && canBuyFightsResult.max === 50
                     && getStoredValue("HHAuto_Setting_useX50Fights") === "true"
                     && ( JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true" || getStoredValue("HHAuto_Setting_useX50FightsAllowNormalEvent") === "true")
+                    && TTF === JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).troll_id
                 )
                 ||
                 (
@@ -3640,6 +3641,7 @@ var CrushThemFights=function()
                     && canBuyFightsResult.max === 20
                     && getStoredValue("HHAuto_Setting_useX10Fights") === "true"
                     && ( JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true" || getStoredValue("HHAuto_Setting_useX10FightsAllowNormalEvent") === "true")
+                    && TTF === JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).troll_id
                 )
             )
             {
@@ -3648,7 +3650,15 @@ var CrushThemFights=function()
                 return;
             }
 
-            if (getStoredValue("HHAuto_Temp_eventGirl") !== undefined && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_shards && Number.isInteger(Number(JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_shards)) && battleButtonX10.length > 0 && battleButtonX50.length > 0)
+            if
+                (
+                    getStoredValue("HHAuto_Temp_eventGirl") !== undefined
+                    && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_shards
+                    && Number.isInteger(Number(JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_shards))
+                    && battleButtonX10.length > 0
+                    && battleButtonX50.length > 0
+                    && getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") !== "true"
+                )
             {
                 remainingShards = Number(100 - Number(JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_shards));
                 let bypassThreshold = (
@@ -3819,6 +3829,10 @@ function doBattle()
         }
         else if (window.location.pathname === "/troll-battle.html")
         {
+            if (getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true")
+            {
+                setStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest", "false");
+            }
             if(getStoredValue("HHAuto_Temp_eventGirl") !== undefined)
             {
                 ObserveAndGetGirlRewards();
@@ -4702,7 +4716,7 @@ function getLeaguePlayersData(inHeroLeaguesData, inPlayerLeaguesData)
         total_ego: opponentEgo,
         team: opponentTeam
     } = inPlayerLeaguesData
-    
+
     const opponentTeamMemberElements = [];
     [0,1,2,3,4,5,6].forEach(key => {
         const teamMember = opponentTeam[key]
@@ -5457,15 +5471,15 @@ var busy = false;
 var autoLoop = function () {
 
     updateData();
-    if (getStoredValue("HHAuto_Temp_questRequirement") !== undefined)
+    if (getStoredValue("HHAuto_Temp_questRequirement") === undefined)
     {
         setStoredValue("HHAuto_Temp_questRequirement", "none");
     }
-    if (getStoredValue("HHAuto_Temp_userLink") != undefined)
+    if (getStoredValue("HHAuto_Temp_userLink") === undefined)
     {
         setStoredValue("HHAuto_Temp_userLink", "none");
     }
-    if (getStoredValue("HHAuto_Temp_battlePowerRequired") !== undefined)
+    if (getStoredValue("HHAuto_Temp_battlePowerRequired") === undefined)
     {
         setStoredValue("HHAuto_Temp_battlePowerRequired", "0");
     }
@@ -5577,7 +5591,11 @@ var autoLoop = function () {
                     (
                         Number(currentPower) >= Number(getStoredValue("HHAuto_Temp_battlePowerRequired"))
                         && Number(currentPower) > 0
-                        && Number(currentPower) > Number(getStoredValue("HHAuto_Setting_autoTrollThreshold")) //fight is above threshold
+                        &&
+                        (
+                            Number(currentPower) > Number(getStoredValue("HHAuto_Setting_autoTrollThreshold")) //fight is above threshold
+                            || getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true"
+                        )
                     )
                     || Number(checkParanoiaSpendings('fight')) > 0 //paranoiaspendings to do
                     ||
@@ -5734,7 +5752,7 @@ var autoLoop = function () {
                     logHHAuto("Quest requires battle.");
                     logHHAuto("prepare to save one battle for quest");
                     setStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest", "true");
-                    doBossBattle();
+                    //doBossBattle();
                 }
                 busy = true;
             }
