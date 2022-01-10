@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.35
+// @version      5.6.36
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -99,6 +99,14 @@ function getStorage()
 function getStoredValue(inVarName)
 {
     return HHStoredVars.hasOwnProperty(inVarName) !== undefined?getStorageItem(HHStoredVars[inVarName].storage)[inVarName]:undefined;
+}
+
+function deleteStoredValue(inVarName)
+{
+    if (HHStoredVars.hasOwnProperty(inVarName))
+    {
+        getStorageItem(HHStoredVars[inVarName].storage).removeItem(inVarName);
+    }
 }
 
 function setStoredValue(inVarName, inValue)
@@ -462,6 +470,7 @@ function gotoPage(page,inArgs,delay = -1)
     }
     if(togoto != undefined)
     {
+        setLastPageCalled(togoto);
         if (typeof inArgs === 'object' && Object.keys(inArgs).length > 0)
         {
             for (let arg of Object.keys(inArgs))
@@ -480,6 +489,12 @@ function gotoPage(page,inArgs,delay = -1)
         logHHAuto("Couldn't find page path. Page was undefined...");
         setTimeout(function () {location.reload();},delay);
     }
+}
+
+function setLastPageCalled(inPage)
+{
+    //console.log("testingHome : setting to : "+JSON.stringify({page:inPage, dateTime:new Date().getTime()}));
+    setStoredValue("HHAuto_Temp_LastPageCalled", JSON.stringify({page:inPage, dateTime:new Date().getTime()}));
 }
 
 var proceedQuest = function () {
@@ -906,7 +921,7 @@ function collectDailyRewards()
             logHHAuto('Collected free bundle!');
 
         }*/
-        gotoPage('home');
+        //gotoPage('home');
     }
 
 }
@@ -5475,16 +5490,14 @@ var autoLoop = function () {
     {
         setStoredValue("HHAuto_Temp_questRequirement", "none");
     }
-    if (getStoredValue("HHAuto_Temp_userLink") === undefined)
+    /*if (getStoredValue("HHAuto_Temp_userLink") === undefined)
     {
         setStoredValue("HHAuto_Temp_userLink", "none");
-    }
+    }*/
     if (getStoredValue("HHAuto_Temp_battlePowerRequired") === undefined)
     {
         setStoredValue("HHAuto_Temp_battlePowerRequired", "0");
     }
-
-
 
     //var busy = false;
     busy = false;
@@ -5607,7 +5620,6 @@ var autoLoop = function () {
                             && getStoredValue("HHAuto_Setting_plusEventMythic") ==="true"
                         )
                         &&
-
                         (
                             Number(currentPower) > 0 //has fight => bypassing paranoia
                             || canBuyFight(false).canBuy // can buy fights
@@ -5655,7 +5667,7 @@ var autoLoop = function () {
                     busy = doBossBattle();
                 }
             }
-            else
+            /*else
             {
                 if (getPage() === getHHScriptVars("getPageTrollPreBattle"))
                 {
@@ -5663,7 +5675,7 @@ var autoLoop = function () {
                     gotoPage("home");
 
                 }
-            }
+            }*/
 
         }
         else
@@ -5978,12 +5990,12 @@ var autoLoop = function () {
                         setTimer('nextLeaguesTime',getHHVars('Hero.energies.challenge.next_refresh_ts'));
                     }
                 }
-                if (getPage() === "leaderboard")
+                /*if (getPage() === "leaderboard")
                 {
                     logHHAuto("Go to home after league fight");
                     gotoPage("home");
 
-                }
+                }*/
             }
         }
 
@@ -6039,6 +6051,20 @@ var autoLoop = function () {
             gotoPage('home');
             setStoredValue("HHAuto_Temp_userLink", "none");
         }*/
+
+        if (
+            isJSON(getStoredValue("HHAuto_Temp_LastPageCalled"))
+            && busy === false
+            && getPage() !== "home"
+            && getPage() === JSON.parse(getStoredValue("HHAuto_Temp_LastPageCalled")).page
+            && (new Date().getTime() - JSON.parse(getStoredValue("HHAuto_Temp_LastPageCalled")).dateTime) > getHHScriptVars("minSecsBeforeGoHomeAfterActions") * 1000
+        )
+        {
+            //console.log("testingHome : GotoHome : "+getStoredValue("HHAuto_Temp_LastPageCalled"));
+            logHHAuto("Back to home page at the end of actions");
+            deleteStoredValue("HHAuto_Temp_LastPageCalled");
+            gotoPage('home');
+        }
     }
 
     if(getStoredValue("HHAuto_Setting_paranoia") === "true" && getStoredValue("HHAuto_Setting_master") ==="true" && busy === false  && getStoredValue("HHAuto_Temp_autoLoop") === "true")
@@ -6140,11 +6166,11 @@ function moduleHaremCountMax()
         logHHAuto("Harem size updated to : "+Object.keys(getHHVars('girlsDataList',false)).length);
         //console.log(getStoredValue("HHAuto_Temp_HaremSize"));
 
-        if (busy === false)
+        /*if (busy === false)
         {
             gotoPage("home");
             logHHAuto("Go to home after getting Harem Size");
-        }
+        }*/
     }
 }
 
@@ -9353,6 +9379,7 @@ HHEnvVariables["global"].selectorFilterNotDisplayNone = ':not([style*="display:n
 HHEnvVariables["global"].HaremMaxSizeExpirationSecs = 7*24*60*60;//7 days
 HHEnvVariables["global"].HaremMinSizeExpirationSecs = 24*60*60;//1 days
 HHEnvVariables["global"].LeagueListExpirationSecs = 60*60;//1 hour max
+HHEnvVariables["global"].minSecsBeforeGoHomeAfterActions = 10
 HHEnvVariables["global"].dailyRewardMaxRemainingTime = 60*60;
 HHEnvVariables["global"].STOCHASTIC_SIM_RUNS = 10000;
 HHEnvVariables["global"].ELEMENTS =
@@ -10843,12 +10870,12 @@ HHStoredVars.HHAuto_Temp_questRequirement =
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_userLink =
+/*HHStoredVars.HHAuto_Temp_userLink =
     {
     default:"none",
     storage:"sessionStorage",
     HHType:"Temp"
-};
+};*/
 HHStoredVars.HHAuto_Temp_autoLoopTimeMili =
     {
     default:"500",
@@ -11006,6 +11033,11 @@ HHStoredVars.HHAuto_Temp_HaremSize =
     isValid:/{"count":(\d)+,"count_date":(\d)+}/
 };
 HHStoredVars.HHAuto_Temp_BoostersData =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_LastPageCalled =
     {
     storage:"sessionStorage",
     HHType:"Temp"
@@ -12019,7 +12051,16 @@ var start = function () {
         }
         Alive();
     }
-
+    if (isJSON(getStoredValue("HHAuto_Temp_LastPageCalled")) && JSON.parse(getStoredValue("HHAuto_Temp_LastPageCalled")).page.indexOf(".html") > 0 )
+    {
+        //console.log("testingHome : setting to : "+getPage());
+        setStoredValue("HHAuto_Temp_LastPageCalled", JSON.stringify({page:getPage(), dateTime:new Date().getTime()}));
+    }
+    if (isJSON(getStoredValue("HHAuto_Temp_LastPageCalled")) && JSON.parse(getStoredValue("HHAuto_Temp_LastPageCalled")).page === "home")
+    {
+        //console.log("testingHome : delete");
+        deleteStoredValue("HHAuto_Temp_LastPageCalled");
+    }
     setTimeout(autoLoop,1000);
     GM_registerMenuCommand(getTextForUI("translate","elementText"),manageTranslationPopUp);
 };
