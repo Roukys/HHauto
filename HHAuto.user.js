@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.39
+// @version      5.6.40
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -957,6 +957,43 @@ function modulePathOfAttractionHide()
                     modified = true;
                 }
             }
+        }
+    }
+}
+
+function getPoVRemainingTime()
+{
+    const poVTimerRequest = "#pov_tab_container > div.pov-first-row > div.pov-timer.timer[time-stamp]";
+
+    if ( $(poVTimerRequest).length > 0 && getSecondsLeft("PoVRemainingTime") === 0 )
+    {
+        const poVTimer = Number($(poVTimerRequest).attr("time-stamp"));
+        setTimer("PoVRemainingTime",poVTimer);
+    }
+}
+
+function displayPoVRemainingTime()
+{
+    const displayTimer = getStoredValue("HHAuto_Setting_showInfo") === "true";
+    if(getTimer("PoVRemainingTime") !== -1)
+    {
+        if ($("#HHAutoPoVTimer").length === 0)
+        {
+            if (displayTimer)
+            {
+                $('#homepage a[rel="path-of-valor"').prepend('<span style="position: absolute; top:6px;left:200px;opacity: 80%;background-color: black;font-size: small;" id="HHAutoPoVTimer"></span>')
+            }
+        }
+        else
+        {
+            if (! displayTimer)
+            {
+                $("#HHAutoPoVTimer")[0].remove();
+            }
+        }
+        if (displayTimer)
+        {
+            $("#HHAutoPoVTimer")[0].innerText = getTimeLeft("PoVRemainingTime");
         }
     }
 }
@@ -6074,66 +6111,82 @@ var autoLoop = function () {
         }
     }
 
-    if (getPage() === "leaderboard" && getStoredValue("HHAuto_Setting_showCalculatePower") === "true")
+    switch (getPage())
     {
-        moduleSimLeague();
+        case "leaderboard":
+            if (getStoredValue("HHAuto_Setting_showCalculatePower") === "true")
+            {
+                moduleSimLeague();
+            }
+            break;
+        case "season_arena":
+            if (getStoredValue("HHAuto_Setting_showCalculatePower") === "true")
+            {
+                moduleSimSeasonBattle();
+            }
+            break;
+        case "season":
+            if (getStoredValue("HHAuto_Setting_SeasonMaskRewards") === "true")
+            {
+                setTimeout(moduleSimSeasonReward,500);
+            }
+            break;
+        case "event":
+            if (getStoredValue("HHAuto_Setting_plusEvent") ==="true" || getStoredValue("HHAuto_Setting_plusEventMythic") ==="true")
+            {
+                parseEventPage();
+                moduleDisplayEventPriority();
+            }
+            if (getStoredValue("HHAuto_Setting_PoAMaskRewards") === "true")
+            {
+                setTimeout(modulePathOfAttractionHide,500);
+            }
+            break;
+        case "path_of_attraction":
+            if (getStoredValue("HHAuto_Setting_PoAMaskRewards") === "true")
+            {
+                setTimeout(moduleOldPathOfAttractionHide,500);
+            }
+            break;
+        case "powerplacemain":
+            moduleDisplayPopID();
+            break;
+        case "shop":
+            if (getStoredValue("HHAuto_Setting_showMarketTools") === "true")
+            {
+                moduleShopActions();
+            }
+            moduleShopGetBoosters();
+            break;
+        case "home":
+            displayPoVRemainingTime();
+            break;
+        case "harem":
+            moduleHarem();
+            moduleHaremExportGirlsData();
+            moduleHaremCountMax();
+            moduleHaremNextUpgradableGirl();
+            haremOpenFirstXUpgradable();
+            break;
+        case "pachinko":
+            modulePachinko();
+            break;
+        case getHHScriptVars("pageEditTeam"):
+            moduleChangeTeam();
+            break;
+        case "contests":
+            moduleDisplayContestsDeletion();
+            break;
+        case "path-of-valor":
+            if (getStoredValue("HHAuto_Setting_PoVMaskRewards") === "true")
+            {
+                moduleSimPoVMaskReward();
+            }
+            getPoVRemainingTime();
+            break;
     }
-    if (getPage() === "season_arena" && getStoredValue("HHAuto_Setting_showCalculatePower") === "true")
-    {
-        moduleSimSeasonBattle();
-    }
-    if (getPage() === "season" && getStoredValue("HHAuto_Setting_SeasonMaskRewards") === "true")
-    {
-        setTimeout(moduleSimSeasonReward,500);
-    }
-    if (getPage() === "event" && ( getStoredValue("HHAuto_Setting_plusEvent") ==="true" || getStoredValue("HHAuto_Setting_plusEventMythic") ==="true"))
-    {
-        parseEventPage();
-        moduleDisplayEventPriority();
-    }
-    if (getPage() === "event" && getStoredValue("HHAuto_Setting_PoAMaskRewards") === "true")
-    {
-        setTimeout(modulePathOfAttractionHide,500);
-    }
-    if (getPage() == "path_of_attraction" && getStoredValue("HHAuto_Setting_PoAMaskRewards") === "true") {
-        setTimeout(moduleOldPathOfAttractionHide,500);
-    }
-    if (getPage() === "powerplacemain" )
-    {
-        moduleDisplayPopID();
-    }
-    if (getPage() === "shop" )
-    {
-        if (getStoredValue("HHAuto_Setting_showMarketTools") === "true")
-        {
-            moduleShopActions();
-        }
-        moduleShopGetBoosters();
-    }
-    if (getPage() === "harem")
-    {
-        moduleHarem();
-        moduleHaremExportGirlsData();
-        moduleHaremCountMax();
-        moduleHaremNextUpgradableGirl();
-        haremOpenFirstXUpgradable();
-    }
-    if (getPage() === "pachinko")
-    {
-        modulePachinko();
-    }
-    if (getPage() === getHHScriptVars("pageEditTeam"))
-    {
-        moduleChangeTeam();
-    }
-    if (getPage() === "contests" )
-    {
-        moduleDisplayContestsDeletion();
-    }
-    if (getPage() === "path-of-valor" && getStoredValue("HHAuto_Setting_PoVMaskRewards") === "true")
-    {
-        moduleSimPoVMaskReward();
-    }
+
+
     if(isNaN(getStoredValue("HHAuto_Temp_autoLoopTimeMili")))
     {
         logHHAuto("AutoLoopTimeMili is not a number.");
@@ -9467,8 +9520,8 @@ HHEnvVariables["global"].isEnabledDailyRewards = true;
 HHEnvVariables["global"].isEnabledShop = true;
 HHEnvVariables["global"].isEnabledSalary = true;
 HHEnvVariables["HH_test"].isEnabledDailyRewards = false;// to remove if daily rewards arrives in test
-HHEnvVariables["CH_prod"].isEnabledAllChamps = false;// to remove when Champs arrives in Comix
-HHEnvVariables["CH_prod"].isEnabledChamps = false;// to remove when Champs arrives in Comix
+//HHEnvVariables["CH_prod"].isEnabledAllChamps = false;// to remove when Champs arrives in Comix
+//HHEnvVariables["CH_prod"].isEnabledChamps = false;// to remove when Champs arrives in Comix
 HHEnvVariables["CH_prod"].isEnabledClubChamp = false;// to remove when Club Champs arrives in Comix
 HHEnvVariables["CH_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in Comix
 HHEnvVariables["CH_prod"].isEnabledPowerPlaces = false;// to remove when PoP arrives in Comix
