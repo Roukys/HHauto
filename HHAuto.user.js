@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.40
+// @version      5.6.41
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -328,12 +328,21 @@ function getPage()
         return "";
     }
     //var p=ob.className.match(/.*page-(.*) .*/i)[1];
+    let activitiesMainPage = getHHScriptVars("activitiesMainPage");
     var p=ob.getAttribute('page');
-    if (p=="missions" && $('h4.contests.selected').size()>0)
+    if (p==activitiesMainPage && $('h4.contests.selected').size()>0)
     {
         return "contests"
     }
-    if (p=="missions" && $('h4.pop.selected').size()>0)
+    if (p==activitiesMainPage && $('h4.missions.selected').size()>0)
+    {
+        return "missions"
+    }
+    if (p==activitiesMainPage && $('h4.daily_goals.selected').size()>0)
+    {
+        return "daily_goals"
+    }
+    if (p==activitiesMainPage && $('h4.pop.selected').size()>0)
     {
         // if on Pop menu
         var t;
@@ -5520,7 +5529,8 @@ function checkAndClosePopup()
 
 var busy = false;
 
-var autoLoop = function () {
+var autoLoop = function ()
+{
 
     updateData();
     if (getStoredValue("HHAuto_Temp_questRequirement") === undefined)
@@ -9479,6 +9489,9 @@ switch (getLanguageCode())
         HHEnvVariables["global"].leaguesList = ["Wanker I","Wanker II","Wanker III","Sexpert I","Sexpert II","Sexpert III","Dicktator I","Dicktator II","Dicktator III"];
 }
 
+HHEnvVariables["global"].activitiesMainPage = 'missions';
+HHEnvVariables["HH_test"].activitiesMainPage = 'activities';
+
 HHEnvVariables["global"].gotoPageHome = '/home.html';
 HHEnvVariables["global"].gotoPageActivities = '/activities.html';
 HHEnvVariables["global"].gotoPageHarem = '/harem.html';
@@ -12116,6 +12129,7 @@ var start = function () {
     }
     setTimeout(autoLoop,1000);
     GM_registerMenuCommand(getTextForUI("translate","elementText"),manageTranslationPopUp);
+
 };
 
 function manageTranslationPopUp()
