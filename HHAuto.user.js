@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.41
+// @version      5.6.42
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -1178,7 +1178,7 @@ function modulePachinko()
         });
         function playXPachinko_func()
         {
-            if(!isHHPopUpDisplayed())
+            if(!isDisplayedHHPopUp())
             {
                 logHHAuto("PopUp closed, cancelling interval.");
                 return;
@@ -5518,10 +5518,26 @@ function CheckSpentPoints()
     }
 }
 
-function checkAndClosePopup()
+function isFocused()
+{
+    //let isFoc = false;
+    const docFoc = document.hasFocus();
+    //const iFrameFoc = $('iframe').length===0?false:$('iframe')[0].contentWindow.document.hasFocus();
+    //isFoc = docFoc || iFrameFoc;
+    return docFoc;
+}
+
+function checkAndClosePopup(inBurst)
 {
     const popUp = $('#popup_message[style*="display: block"]');
-    if ($('#popup_message[style*="display: block"]').length > 0)
+    if
+        (
+            (
+                inBurst
+                || isFocused()
+            )
+            && $('#popup_message[style*="display: block"]').length > 0
+        )
     {
         $('close', popUp).click();
     }
@@ -5554,10 +5570,10 @@ var autoLoop = function ()
     var burst=getBurst();
     switchHHMenuButton(burst);
     //console.log("burst : "+burst);
+    checkAndClosePopup(burst);
 
     if (burst /*|| checkTimer('nextMissionTime')*/)
     {
-        checkAndClosePopup();
 
         if (!checkTimer("paranoiaSwitch") )
         {
@@ -6620,10 +6636,11 @@ function moduleShopActions()
         document.getElementById(menuID).addEventListener("click", removeMaxedGirls);
     }
 
-    function findSubsetsPartition(inTotal, inSets)
+    function findSubsetsPartition(inTotal, inSets, inForceLastItemLimit = 0)
     {
         let arr = [];
         var max = 0;
+        const initialTotal = inTotal;
         for ( var sub in inSets)
         {
             //console.log(inSets[sub],sub);
@@ -6637,10 +6654,32 @@ function moduleShopActions()
         var result= SubsetsRepartition(inTotal, inSets);
         //console.log("subset result : ", result);
 
-        while( result.total !== inTotal && inTotal>1)
+        while
+            (
+                result.total !== inTotal
+                &&
+                (
+                    (
+                        inForceLastItemLimit === 0
+                        && inTotal>1
+                    )
+                    ||
+                    (
+                        inForceLastItemLimit !== 0
+                        && Number(inTotal-initialTotal)<=inForceLastItemLimit
+                    )
+
+                )
+            )
         {
-            //console.log("result : "+result,"inTotal : "+inTotal);
-            inTotal -=1;
+            if (inForceLastItemLimit === 0)
+            {
+                inTotal -=1;
+            }
+            else
+            {
+                inTotal +=1;
+            }
             result = SubsetsRepartition(inTotal, inSets);
         };
         if (inTotal === 0)
@@ -6707,14 +6746,12 @@ function moduleShopActions()
     function appendMenuAff()
     {
 
-        const menuID = "AffDialog";
-        const menuAff = '<div style="position: absolute;right: 50px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAff","tooltip")+'</span><label style="width:100px" class="myButton" id="menuAff">'+getTextForUI("menuAff","elementText")+'</label></div>'
+        const menuID = "menuAff";
+        /*const menuAff = '<div style="position: absolute;right: 50px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAff","tooltip")+'</span><label style="width:100px" class="myButton" id="menuAff">'+getTextForUI("menuAff","elementText")+'</label></div>'
         + '<dialog style="min-width: 50%;margin-top: 7%;margin-left: 1%;" id="AffDialog"><form stylemethod="dialog">'
         +  '<div style="justify-content: space-between;align-items: flex-start;"class="HHMenuRow">'
         +   '<div id="menuAff-moveLeft"></div>'
         +   '<div style="padding:10px; display:flex;flex-direction:column;">'
-        +    '<p id="menuAffText"></p>'
-        +    '<p ></p>'
         +    '<div class="HHMenuRow" style="padding:10px;justify-content:center">'
         +     '<div>'+getTextForUI("autoGiveAff","elementText")+'</div>'
         +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoGiveAff","tooltip")+'</span><input id="autoGiveAff" type="checkbox"></div>'
@@ -6725,15 +6762,39 @@ function moduleShopActions()
         +     '</div>'
         +     '<div><label style="margin-left:10px;width:80px" class="myButton" id="menuAffCancel">'+getTextForUI("OptionCancel","elementText")+'</label></div>'
         +    '</div>'
+        +    '<p id="menuAffText"></p>'
         +   '</div>'
         +   '<div id="menuAff-moveRight"></div>'
         +  '</div>'
-        + '</form></dialog>'
+        + '</form></dialog>'*/
+        const menuAff = '<div style="position: absolute;right: 50px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAff","tooltip")+'</span><label style="width:100px" class="myButton" id="menuAff">'+getTextForUI("menuAff","elementText")+'</label></div>'
+        const menuAffContent = '<div style="min-width: 45vw;justify-content: space-between;align-items: flex-start;"class="HHMenuRow">'
+        +   '<div id="menuAff-moveLeft"></div>'
+        +   '<div style="padding:10px; display:flex;flex-direction:column;">'
+        +    '<p style="min-height: 30vh;" id="menuAffText"></p>'
+        +    '<div class="HHMenuRow" style="padding:10px;justify-content:center">'
+        +     '<div>'+getTextForUI("autoGiveAff","elementText")+'</div>'
+        +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoGiveAff","tooltip")+'</span><input id="autoGiveAff" type="checkbox"></div>'
+        +    '</div>'
+        +     '<div style="padding:10px;justify-content:center" class="HHMenuRow">'
+        +    '</div>'
+        +    '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAffSelector","tooltip")+'</span><select id="menuAffSelector"></select></div>'
+        +    '<div style="padding:10px;justify-content:center" class="HHMenuRow">'
+        +     '<div id="menuAffHide" style="display:none">'
+        +      '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAffButton","tooltip")+'</span><label style="width:80px" class="myButton" id="menuAffButton">'+getTextForUI("menuAffButton","elementText")+'</label></div>'
+        +     '</div>'
+        //+     '<div><label style="margin-left:10px;width:80px" class="myButton" id="menuAffCancel">'+getTextForUI("OptionCancel","elementText")+'</label></div>'
+        +    '</div>'
+        +   '</div>'
+        +   '<div id="menuAff-moveRight"></div>'
+        +  '</div>';
         let getSelectGirlID;
         let girl;
         let giftArray = {};
         let AffToGive;
         let canGiveAff = false;
+        let forceLastItemLimit = 0;
+
         if ( getShopType() !== "gift")
         {
 
@@ -6770,19 +6831,35 @@ function moduleShopActions()
         {
 
             $('#inventory > div.gift > label').append(menuAff);
+            fillHHPopUp("menuAff",getTextForUI("menuAff","elementText"),menuAffContent);
+            maskHHPopUp();
+            let optionElement = document.createElement("option");
+            optionElement.value = 0;
+            optionElement.text = getTextForUI("menuAffNoExceed","elementText");
+            document.getElementById("menuAffSelector").add(optionElement);
+            $('div.gift div.inventory_slots div[id_item][data-d]').each(function()
+                                                                        {
+                let data=JSON.parse($(this).attr("data-d"));
+                let optionElement = document.createElement("option");
+                optionElement.value = data.value;
+                optionElement.text = getTextForUI("menuAllowedExceed","elementText")+data.value;
+                document.getElementById("menuAffSelector").add(optionElement);
+            });
+            GM_addStyle('div#menuAff-moveRight {'
+                        + 'border-left-color: blue;}');
             GM_addStyle('#menuAff-moveRight, #menuAff-moveLeft {'
                         + 'width: 0;'
                         + 'float: left;'
                         + 'border: 20px solid transparent;'
                         + 'height: 0;'
-                        + 'opacity: 0.5;'
-                        + 'margin:-1px;}');
+                        + 'opacity: 0.5;}');
 
             GM_addStyle('div#menuAff-moveLeft {'
                         + 'border-right-color: blue;}');
 
-            GM_addStyle('div#menuAff-moveRight {'
-                        + 'border-left-color: blue;}');
+            GM_addStyle('#HHAutoPopupGlobalPopup.'+menuID+' {'
+                        + 'margin-top: 7%;'
+                        + 'margin-left: 1%;');
 
             document.getElementById("menuAff-moveLeft").addEventListener("click", moveLeftAff);
             document.getElementById("menuAff-moveRight").addEventListener("click", moveRightAff);
@@ -6795,8 +6872,15 @@ function moduleShopActions()
                     giveAffAutoNext();
                 }
             });
+            document.getElementById("menuAffSelector").addEventListener('change', function()
+                                                                    {
+                let menuAffSelector = document.getElementById("menuAffSelector");
+                let selectorText = menuAffSelector.options[menuAffSelector.selectedIndex].value;
+                forceLastItemLimit = isNaN(Number(selectorText))?0:Number(selectorText);
+                calculateAffSelectedGirl();
+            });
             document.getElementById("menuAffButton").addEventListener("click", launchGiveAff);
-            document.getElementById("menuAffCancel").addEventListener("click", function(){
+            /*document.getElementById("menuAffCancel").addEventListener("click", function(){
 
                 if (typeof AffDialog.showModal === "function")
                 {
@@ -6808,7 +6892,7 @@ function moduleShopActions()
                 {
                     alert("The <dialog> API is not supported by this browser");
                 }
-            });
+            });*/
         }
         function KeyUpAff(evt)
         {
@@ -6862,20 +6946,9 @@ function moduleShopActions()
                 || $('.bar-wrap.maxed[rel="aff"]', girl).length >0
             )
             {
-                if (typeof AffDialog.showModal === "function")
-                {
-                    document.getElementById("menuAffText").innerHTML = selectedGirl.name+" "+getTextForUI("menuAffNoNeed","elementText");
-                    document.getElementById("menuAffHide").style.display = "none";
-                    if (!document.getElementById("AffDialog").open)
-                    {
-                        AffDialog.showModal();
-
-                    }
-                }
-                else
-                {
-                    alert("The <dialog> API is not supported by this browser");
-                }
+                document.getElementById("menuAffText").innerHTML = selectedGirl.name+" "+getTextForUI("menuAffNoNeed","elementText");
+                document.getElementById("menuAffHide").style.display = "none";
+                displayHHPopUp();
                 return;
             }
 
@@ -6901,10 +6974,10 @@ function moduleShopActions()
                 totalAff+=Number(data.value)*countGift
                 giftArray[Number(data.value)]=$(this).attr("id_item");
             });
-            if (Number(selectedGirl.Affection.cur) < Number(selectedGirl.Affection.max) && totalAff > 0 && (Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur)) >=minAffItem)
+            if (Number(selectedGirl.Affection.cur) < Number(selectedGirl.Affection.max) && totalAff > 0 && (Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur)+forceLastItemLimit) >=minAffItem)
             {
                 let AffMissing = Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur);
-                AffToGive=findSubsetsPartition(AffMissing,giftCount);
+                AffToGive=findSubsetsPartition(AffMissing,giftCount,forceLastItemLimit);
                 menuText = selectedGirl.name+" "+selectedGirl.Affection.cur+"/"+selectedGirl.Affection.max+"<br>"+getTextForUI("menuDistribution","elementText")+"<br>";
                 let Affkeys = Object.keys(AffToGive.partitions);
                 for ( var i of Affkeys )
@@ -6916,24 +6989,13 @@ function moduleShopActions()
                 canGiveAff = true;
 
             }
-            else if (totalAff === 0 || (Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur)) <=minAffItem)
+            else if (totalAff === 0 || (Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur)+forceLastItemLimit) <=minAffItem)
             {
                 menuText = getTextForUI("menuAffNoAff","elementText")+" "+selectedGirl.name;
             }
             logHHAuto(menuText)
-            if (typeof AffDialog.showModal === "function")
-            {
-                document.getElementById("menuAffText").innerHTML = menuText;
-                if (!document.getElementById("AffDialog").open)
-                {
-                    AffDialog.showModal();
-                }
-
-            }
-            else
-            {
-                alert("The <dialog> API is not supported by this browser");
-            }
+            document.getElementById("menuAffText").innerHTML = menuText;
+            displayHHPopUp();
         }
 
         function giveAffAutoNext()
@@ -6983,7 +7045,7 @@ function moduleShopActions()
                 let newTime = new Date();
                 //console.log("giveAff_func : "+Number(newTime-oldTime)+"ms");
                 oldTime = newTime;
-                if (!document.getElementById("AffDialog").open)
+                if (isDisplayedHHPopUp() !== menuID)
                 {
                     logHHAuto('Aff Dialog closed, stopping');$
                     document.removeEventListener('keyup', KeyUpAff, false);
@@ -7108,13 +7170,13 @@ function moduleShopActions()
 
     function appendMenuExp()
     {
-        const menuID = "ExpDialog";
-        const menuExp = '<div style="position: absolute;right: 50px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExp","tooltip")+'</span><label style="width:100px" class="myButton" id="menuExp">'+getTextForUI("menuExp","elementText")+'</label></div>'
+        const menuID = "menuExp";
+        /*const menuExp = '<div style="position: absolute;right: 50px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExp","tooltip")+'</span><label style="width:100px" class="myButton" id="menuExp">'+getTextForUI("menuExp","elementText")+'</label></div>'
         + '<dialog style="width: 50%;margin-top: 7%;margin-left: 1%;" id="ExpDialog"><form stylemethod="dialog">'
         +  '<div style="justify-content: space-between;align-items: flex-start;"class="HHMenuRow">'
         +   '<div id="menuExp-moveLeft"></div>'
         +   '<div style="padding:10px; display:flex;flex-direction:column;">'
-        +    '<p id="menuExpText"></p>'
+        +    '<p style="height: 300px;" id="menuExpText"></p>'
         +    '<div class="HHMenuRow">'
         +     '<p>'+getTextForUI("menuExpLevel","elementText")+'</p>'
         +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExpLevel","tooltip")+'</span><input id="menuExpLevel" style="width:50px;height:20px" required pattern="'+HHAuto_inputPattern.menuExpLevel+'" type="text" value="'+getHHVars('Hero.infos.level')+'"></div>'
@@ -7132,7 +7194,29 @@ function moduleShopActions()
         +   '</div>'
         +   '<div id="menuExp-moveRight"></div>'
         +  '</div>'
-        + '<menu> </menu></form></dialog>'
+        + '<menu> </menu></form></dialog>'*/
+        const menuExp = '<div style="position: absolute;right: 50px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExp","tooltip")+'</span><label style="width:100px" class="myButton" id="menuExp">'+getTextForUI("menuExp","elementText")+'</label></div>'
+        const menuExpContent = '<div style="min-width:45vw;justify-content: space-between;align-items: flex-start;"class="HHMenuRow">'
+        +   '<div id="menuExp-moveLeft"></div>'
+        +   '<div style="padding:10px; display:flex;flex-direction:column;">'
+        +    '<p style="min-height:30vh;" id="menuExpText"></p>'
+        +    '<div class="HHMenuRow">'
+        +     '<p>'+getTextForUI("menuExpLevel","elementText")+'</p>'
+        +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExpLevel","tooltip")+'</span><input id="menuExpLevel" style="width:50px;height:20px" required pattern="'+HHAuto_inputPattern.menuExpLevel+'" type="text" value="'+getHHVars('Hero.infos.level')+'"></div>'
+        +    '</div>'
+        +    '<div class="HHMenuRow" style="padding:10px;justify-content:center">'
+        +     '<div>'+getTextForUI("autoGiveExp","elementText")+'</div>'
+        +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoGiveExp","tooltip")+'</span><input id="autoGiveExp" type="checkbox"></div>'
+        +    '</div>'
+        +    '<div style="padding:10px;justify-content:center" class="HHMenuRow">'
+        +     '<div id="menuExpHide" style="display:none">'
+        +      '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExpButton","tooltip")+'</span><label style="width:80px" class="myButton" id="menuExpButton">'+getTextForUI("menuExpButton","elementText")+'</label></div>'
+        +     '</div>'
+        //+    '<div><label style="margin-left:10px;width:80px" class="myButton" id="menuExpCancel">'+getTextForUI("OptionCancel","elementText")+'</label></div>'
+        +    '</div>'
+        +   '</div>'
+        +   '<div id="menuExp-moveRight"></div>'
+        +  '</div>';
         let canGiveEp = false;
         let getSelectGirlID;
         let potionArray = {};
@@ -7172,13 +7256,14 @@ function moduleShopActions()
         function initExpMenu()
         {
             $('#inventory > div.potion > label').append(menuExp);
+            fillHHPopUp(menuID,getTextForUI("menuExp","elementText"),menuExpContent);
+            maskHHPopUp();
             GM_addStyle('#menuExp-moveRight, #menuExp-moveLeft {'
                         + 'width: 0;'
                         + 'float: left;'
                         + 'border: 20px solid transparent;'
                         + 'height: 0;'
-                        + 'opacity: 0.5;'
-                        + 'margin:-1px;}');
+                        + 'opacity: 0.5;}');
 
             GM_addStyle('div#menuExp-moveLeft {'
                         + 'border-right-color: blue;}');
@@ -7186,7 +7271,9 @@ function moduleShopActions()
             GM_addStyle('div#menuExp-moveRight {'
                         + 'border-left-color: blue;}');
 
-
+            GM_addStyle('#HHAutoPopupGlobalPopup.'+menuID+' {'
+                        + 'margin-top: 7%;'
+                        + 'margin-left: 1%;');
             document.getElementById("menuExp-moveLeft").addEventListener("click", function()
                                                                          {
                 moveLeftExp();
@@ -7211,7 +7298,7 @@ function moduleShopActions()
                                                                       {
                 launchGiveExp();
             });
-            document.getElementById("menuExpCancel").addEventListener("click", function(){
+            /*document.getElementById("menuExpCancel").addEventListener("click", function(){
 
                 if (typeof ExpDialog.showModal === "function")
                 {
@@ -7224,7 +7311,7 @@ function moduleShopActions()
                 {
                     alert("The <dialog> API is not supported by this browser");
                 }
-            });
+            });*/
         }
         function KeyUpExp(evt)
         {
@@ -7246,18 +7333,11 @@ function moduleShopActions()
 
         function displayExpMenu()
         {
-            if (typeof ExpDialog.showModal === "function")
-            {
-                prepareExp();
-                document.removeEventListener('keyup', KeyUpExp, false);
-                document.addEventListener('keyup', KeyUpExp, false);
-                ExpDialog.showModal();
-                giveExpAutoNext();
-            }
-            else
-            {
-                alert("The <dialog> API is not supported by this browser");
-            }
+            prepareExp();
+            document.removeEventListener('keyup', KeyUpExp, false);
+            document.addEventListener('keyup', KeyUpExp, false);
+            displayHHPopUp();
+            giveExpAutoNext();
         }
         function giveExpAutoNext()
         {
@@ -7300,50 +7380,61 @@ function moduleShopActions()
             let selectedGirlTooltip=JSON.parse(girl.attr(getHHScriptVars('girlToolTipData')));
 
             let selectedGirlExp=selectedGirl.Xp.cur;
+            console.log(JSON.stringify(selectedGirl));
             potionArray = {};
             let potionCount = {};
             let minExpItem=99999;
             let totalExp=0;
             let menuText="";
-            $('div.potion div.inventory_slots div[id_item][data-d]').each(function()
-                                                                          {
-                let data=JSON.parse($(this).attr("data-d"));
-                if (data.rarity === "mythic")
-                {
-                    return;
-                }
-                let countpotion=Number($('div.potion div.inventory_slots div[id_item='+$(this).attr("id_item")+'][data-d] .stack_num span')[0].innerHTML.replace(/[^0-9]/gi, ''))
-
-                if (minExpItem > Number(data.value))
-                {
-                    minExpItem = Number(data.value);
-                }
-                potionCount[Number(data.value)]=countpotion;
-                totalExp+=Number(data.value)*countpotion
-                potionArray[Number(data.value)]=$(this).attr("id_item");
-            });
-            //console.log(potionCount);
-            if (totalExp > 0
-                && Number(selectedGirl.Xp.level) < targetedLevel
-                && Number(selectedGirl.Xp.cur) < getLevelXp(selectedGirlTooltip.rarity,targetedLevel)
-                && (Number(getLevelXp(selectedGirlTooltip.rarity,targetedLevel)-Number(selectedGirl.Xp.cur)) >=minExpItem) )
+            if (selectedGirl.Xp.maxed)
             {
-                let ExpMissing = Number(getLevelXp(selectedGirlTooltip.rarity,targetedLevel))-Number(selectedGirl.Xp.cur);
-                ExpToGive=findSubsetsPartition(ExpMissing,potionCount);
-                menuText = selectedGirl.name+" "+selectedGirl.Xp.cur+"/"+getLevelXp(selectedGirlTooltip.rarity,targetedLevel)+"<br>"+getTextForUI("menuDistribution","elementText")+"<br>";
-                let Expkeys = Object.keys(ExpToGive.partitions);
-                for ( var i of Expkeys )
-                {
-                    menuText = menuText+i+"Exp x "+ExpToGive.partitions[i]+"<br>"
-                }
-                menuText = menuText+getTextForUI("Total","elementText")+ExpToGive.total+"/"+ExpMissing;
-                document.getElementById("menuExpHide").style.display = "block";
-                canGiveExp = true;
+                menuText =getTextForUI("menuExpAwakeningNeeded","elementText")+selectedGirl.awakening_costs+"<img style='width: 23px;margin-left: 5px;' src='https://hh.hh-content.com/pictures/design/gems/"+selectedGirl.element+".png'> : "+selectedGirl.name+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
+                canGiveExp = false;
+                document.getElementById("menuExpHide").style.display = "none";
             }
             else
             {
-                menuText = getTextForUI("menuExpNoExp","elementText")+" "+selectedGirl.name;
-                document.getElementById("menuExpHide").style.display = "none";
+                $('div.potion div.inventory_slots div[id_item][data-d]').each(function()
+                                                                              {
+                    let data=JSON.parse($(this).attr("data-d"));
+                    if (data.rarity === "mythic")
+                    {
+                        return;
+                    }
+                    let countpotion=Number($('div.potion div.inventory_slots div[id_item='+$(this).attr("id_item")+'][data-d] .stack_num span')[0].innerHTML.replace(/[^0-9]/gi, ''))
+
+                    if (minExpItem > Number(data.value))
+                    {
+                        minExpItem = Number(data.value);
+                    }
+                    potionCount[Number(data.value)]=countpotion;
+                    totalExp+=Number(data.value)*countpotion
+                    potionArray[Number(data.value)]=$(this).attr("id_item");
+                });
+                //console.log(potionCount);
+                if (totalExp > 0
+                    && Number(selectedGirl.Xp.level) < targetedLevel
+                    && Number(selectedGirl.Xp.cur) < getLevelXp(selectedGirlTooltip.rarity,targetedLevel)
+                    && (Number(getLevelXp(selectedGirlTooltip.rarity,targetedLevel)-Number(selectedGirl.Xp.cur)) >=minExpItem) )
+                {
+                    let ExpMissing = Number(getLevelXp(selectedGirlTooltip.rarity,targetedLevel))-Number(selectedGirl.Xp.cur);
+                    ExpToGive=findSubsetsPartition(ExpMissing,potionCount);
+                    menuText = selectedGirl.name+" "+selectedGirl.Xp.cur+"/"+getLevelXp(selectedGirlTooltip.rarity,targetedLevel)+"<br>"+getTextForUI("menuDistribution","elementText")+"<br>";
+                    let Expkeys = Object.keys(ExpToGive.partitions);
+                    for ( var i of Expkeys )
+                    {
+                        menuText = menuText+i+"Exp x "+ExpToGive.partitions[i]+"<br>";
+                    }
+                    menuText = menuText+getTextForUI("Total","elementText")+ExpToGive.total+"/"+ExpMissing;
+                    document.getElementById("menuExpHide").style.display = "block";
+                    canGiveExp = true;
+                }
+                else
+                {
+                    menuText = getTextForUI("menuExpNoExp","elementText")+" "+selectedGirl.name;
+                    document.getElementById("menuExpHide").style.display = "none";
+                    canGiveExp = false;
+                }
             }
             logHHAuto(menuText);
             document.getElementById("menuExpText").innerHTML = menuText;
@@ -7388,7 +7479,7 @@ function moduleShopActions()
                 //console.log("giveExp_func : "+Number(newTime-oldTime)+"ms");
                 oldTime = newTime;
 
-                if (!document.getElementById("ExpDialog").open)
+                if (isDisplayedHHPopUp() !== menuID)
                 {
                     logHHAuto('Exp Dialog closed, stopping');
                     document.getElementById("autoGiveExp").checked = false;
@@ -7421,15 +7512,17 @@ function moduleShopActions()
                         const awakeningCostBank = $(awakeningCostSelector)[0].innerText.split('/')[1];
                         const awakeningCostGemSRC = $('img',$(awakeningCostButtonSelector)).attr("src");
                         const awakeningCostGemText = awakeningCostGemSRC.match(/\/([^/.]+)\.png/)[1];
-                        clearInterval(giveExp_func);
+                        const awakeningCloseButtonSelector = '#awakening_popup .close_cross';
+                        logHHAuto(`${selectedGirl.name} closing awakening.`);clearInterval(giveExp_func);
                         logHHAuto(`${selectedGirl.name} needs awakening, cost : ${$(awakeningCostSelector)[0].innerText} ${awakeningCostGemText} gems`);
                         let menuText =getTextForUI("menuExpAwakeningNeeded","elementText")+$(awakeningCostSelector)[0].innerText+"<img style='width: 23px;margin-left: 5px;' src='"+awakeningCostGemSRC+"'> : "+selectedGirl.name+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
+                        setTimeout(function(){$(awakeningCloseButtonSelector).click();},randomInterval(200, 300));
                         canGiveExp =false;
                         document.getElementById("menuExpText").innerHTML = menuText;
                         document.getElementById("menuExpHide").style.display = "none";
                         document.getElementById("menuExp-moveLeft").style.visibility = "visible";
                         document.getElementById("menuExp-moveRight").style.visibility = "visible";
-                        giveExpAutoNext();
+                        setTimeout(giveExpAutoNext,randomInterval(500, 1000));
                         return;
                     }
                     else if (awakeningCost === null && document.getElementById("autoGiveExp").checked)
@@ -9164,7 +9257,7 @@ function getMenuValues()
     {
         return;
     }
-    if (isHHPopUpDisplayed() === 'loadConfig') {return}
+    if (isDisplayedHHPopUp() === 'loadConfig') {return}
 
     for (let i of Object.keys(HHStoredVars))
     {
@@ -9692,6 +9785,9 @@ HHAuto_ToolTips.en.menuAffNoAff = { version: "5.6.24", elementText: "No Aff avai
 HHAuto_ToolTips.en.menuAffError = { version: "5.6.24", elementText: "Error fetching girl Aff field, cancelling.", tooltip: ""};
 HHAuto_ToolTips.en.menuAffReadyToUpgrade = { version: "5.6.24", elementText: " is ready for upgrade.", tooltip: ""};
 HHAuto_ToolTips.en.menuAffEnd = { version: "5.6.24", elementText: "All Aff given to :", tooltip: ""};
+HHAuto_ToolTips.en.menuAffSelector = { version: "5.6.42", elementText: "", tooltip: "Allow to exceed needed Aff to unlock upgrade by choosen amount."};
+HHAuto_ToolTips.en.menuAffNoExceed = { version: "5.6.42", elementText: "Do not exceed.", tooltip: ""};
+HHAuto_ToolTips.en.menuAllowedExceed = { version: "5.6.42", elementText: "Allow to exceed by : ", tooltip: ""};
 HHAuto_ToolTips.en.menuDistributed = { version: "5.6.24", elementText: "Items used : ", tooltip: ""};
 HHAuto_ToolTips.en.autoClubChampMax = { version: "5.6.24", elementText: "Max tickets per run", tooltip: "Maximum number of tickets to use on the club champion at each run."};
 HHAuto_ToolTips.en.menuSellLock = { version: "5.6.24", elementText: "Lock/ Unlock", tooltip: "Switch the lock to prevent selected item to be sold."};
@@ -11105,7 +11201,7 @@ HHStoredVars.HHAuto_Temp_BoostersData =
 };
 HHStoredVars.HHAuto_Temp_LastPageCalled =
     {
-    storage:"sessionStorage",
+    storage:"localStorage",
     HHType:"Temp"
 };
 
@@ -12333,7 +12429,7 @@ function createHHPopUp()
     });
 }
 
-function isHHPopUpDisplayed()
+function isDisplayedHHPopUp()
 {
     if (document.getElementById("HHAutoPopupGlobal") === null)
     {
