@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.42
+// @version      5.6.43
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -972,11 +972,11 @@ function modulePathOfAttractionHide()
 
 function getPoVRemainingTime()
 {
-    const poVTimerRequest = "#pov_tab_container > div.pov-first-row > div.pov-timer.timer[time-stamp]";
+    const poVTimerRequest = `#pov_tab_container > div.pov-first-row > div.pov-timer.timer[${getHHScriptVars("PoVTimestampAttributeName")}]`;
 
     if ( $(poVTimerRequest).length > 0 && getSecondsLeft("PoVRemainingTime") === 0 )
     {
-        const poVTimer = Number($(poVTimerRequest).attr("time-stamp"));
+        const poVTimer = Number($(poVTimerRequest).attr(getHHScriptVars("PoVTimestampAttributeName")));
         setTimer("PoVRemainingTime",poVTimer);
     }
 }
@@ -9570,6 +9570,8 @@ HHEnvVariables["global"].boostersIdentifier =
     MB6:   {name:"Alban's travel memories", usage:"+20% xp (5 if level 300 or higher), up to 100000"},
     MB4:   {name:"Angels' semen scent", usage:"+25% power against PoA for next 60 missions"},
 };
+HHEnvVariables["global"].PoVTimestampAttributeName = "time-stamp";
+HHEnvVariables["HH_test"].PoVTimestampAttributeName = "data-time-stamp";
 
 switch (getLanguageCode())
 {
