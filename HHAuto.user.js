@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.44
+// @version      5.6.45
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -523,17 +523,7 @@ var proceedQuest = function () {
         proceedButtonMatch = $("#controls button#free");
     }
     var proceedCostEnergy = Number($("#controls .cost span[cur='*']").text());
-    var units = [" ", "K", "M", "G", "T", "P", "E", "Z", "Y"]
-    var proceedCostMoney = $("#controls .cost span[cur='$']").text();
-    var Unit=proceedCostMoney.substr(-1);
-    if (units.includes(Unit))
-    {
-        proceedCostMoney=Number(proceedCostMoney.split(Unit)[0].replace(/[^0-9]/gi, ''))*(1000**units.indexOf(Unit))
-    }
-    else
-    {
-        proceedCostMoney=Number(proceedCostMoney.replace(/[^0-9]/gi, ''));
-    }
+    var proceedCostMoney = manageUnits($("#controls .cost span[cur='$']").text());
     var proceedType = proceedButtonMatch.attr("id");
     //console.log("DebugQuest proceedType : "+proceedType);
     if (proceedButtonMatch.length === 0)
