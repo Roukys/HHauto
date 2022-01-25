@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.43
+// @version      5.6.44
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -691,16 +691,25 @@ function doMissionStuff()
                 // This is not a fresh mission
                 if(data.remaining_time > 0)
                 {
-                    logHHAuto("Unfinished mission detected...("+data.remaining_time+"sec. remaining)");
-                    setTimer('nextMissionTime',Number(data.remaining_time)+1);
-                    allGood = false;
-                    return;
-                }
-                else{
-                    logHHAuto("Unclaimed mission detected...");
-                    if (canCollect)
+                    if ($('.finish_in_bar[style*="display:none"], .finish_in_bar[style*="display: none"]', missionObject).length === 0)
+                    {
+                        logHHAuto("Unfinished mission detected...("+data.remaining_time+"sec. remaining)");
+                        setTimer('nextMissionTime',Number(data.remaining_time)+1);
+                        allGood = false;
+                        return;
+                    }
+                    else
                     {
                         allGood = false;
+                    }
+                }
+                else
+                {
+                    if (canCollect)
+                    {
+                        logHHAuto("Unclaimed mission detected...");
+                        gotoPage("activities",{tab:"missions"},1500);
+                        return true;
                     }
                 }
                 return;
@@ -752,9 +761,10 @@ function doMissionStuff()
 
             missions.push(data);
         });
-        if(!allGood){
-            logHHAuto("Something went wrong, need to retry later...");
-            // busy
+        if(!allGood && canCollect)
+        {
+            logHHAuto("Something went wrong, need to retry in 15secs.");
+            setTimer('nextMissionTime',15);
             return true;
         }
         logHHAuto("Missions parsed, mission list is:-");
@@ -777,18 +787,18 @@ function doMissionStuff()
         {
             logHHAuto("No missions detected...!");
             // get gift
-            var ck = sessionStorage['giftleft'];
+            var ck = getStoredValue("HHAuto_Temp_missionsGiftLeft");
             var isAfterGift = document.querySelector("#missions .after_gift").style.display === 'block';
             if(!isAfterGift){
                 if(ck === 'giftleft')
                 {
                     logHHAuto("Collecting gift.");
-                    delete sessionStorage['giftleft'];
+                    deleteStoredValue("HHAuto_Temp_missionsGiftLeft");
                     document.querySelector(".end_gift button").click();
                 }
                 else{
                     logHHAuto("Refreshing to collect gift...");
-                    sessionStorage['giftleft']='giftleft';
+                    setStoredValue("HHAuto_Temp_missionsGiftLeft","giftleft");
                     location.reload();
                     // is busy
                     return true;
@@ -974,10 +984,11 @@ function getPoVRemainingTime()
 {
     const poVTimerRequest = `#pov_tab_container > div.pov-first-row > div.pov-timer.timer[${getHHScriptVars("PoVTimestampAttributeName")}]`;
 
-    if ( $(poVTimerRequest).length > 0 && getSecondsLeft("PoVRemainingTime") === 0 )
+    if ( $(poVTimerRequest).length > 0 && (getSecondsLeft("PoVRemainingTime") === 0 || getStoredValue("HHAuto_Temp_PoVEndDate") === undefined) )
     {
         const poVTimer = Number($(poVTimerRequest).attr(getHHScriptVars("PoVTimestampAttributeName")));
         setTimer("PoVRemainingTime",poVTimer);
+        setStoredValue("HHAuto_Temp_PoVEndDate",Math.ceil(new Date().getTime()/1000)+poVTimer);
     }
 }
 
@@ -1003,6 +1014,13 @@ function displayPoVRemainingTime()
         if (displayTimer)
         {
             $("#HHAutoPoVTimer")[0].innerText = getTimeLeft("PoVRemainingTime");
+        }
+    }
+    else
+    {
+        if (getStoredValue("HHAuto_Temp_PoVEndDate") !== undefined)
+        {
+            setTimer("PoVRemainingTime",getStoredValue("HHAuto_Temp_PoVEndDate")-(Math.ceil(new Date().getTime())/1000));
         }
     }
 }
@@ -6873,7 +6891,7 @@ function moduleShopActions()
                 }
             });
             document.getElementById("menuAffSelector").addEventListener('change', function()
-                                                                    {
+                                                                        {
                 let menuAffSelector = document.getElementById("menuAffSelector");
                 let selectorText = menuAffSelector.options[menuAffSelector.selectedIndex].value;
                 forceLastItemLimit = isNaN(Number(selectorText))?0:Number(selectorText);
@@ -7380,7 +7398,7 @@ function moduleShopActions()
             let selectedGirlTooltip=JSON.parse(girl.attr(getHHScriptVars('girlToolTipData')));
 
             let selectedGirlExp=selectedGirl.Xp.cur;
-            console.log(JSON.stringify(selectedGirl));
+            //console.log(JSON.stringify(selectedGirl));
             potionArray = {};
             let potionCount = {};
             let minExpItem=99999;
@@ -11203,7 +11221,18 @@ HHStoredVars.HHAuto_Temp_BoostersData =
 };
 HHStoredVars.HHAuto_Temp_LastPageCalled =
     {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_PoVEndDate =
+    {
     storage:"localStorage",
+    HHType:"Temp"
+};
+
+HHStoredVars.HHAuto_Temp_missionsGiftLeft =
+    {
+    storage:"sessionStorage",
     HHType:"Temp"
 };
 
