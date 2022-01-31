@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         HaremHeroes Automatic++
+// @name         HaremHeroes Automatic draft++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.46
+// @version      5.6.47
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -63,14 +63,32 @@ function nThousand(x) {
     return x.toLocaleString();
 }
 
-function add1000SeparatorEvent()
+function addEventsOnMenuItems()
 {
     for (let i of Object.keys(HHStoredVars))
     {
-        if (HHStoredVars[i].HHType !== undefined && HHStoredVars[i].valueType === "Long Integer")
+        if (HHStoredVars[i].HHType !== undefined )
         {
             let menuID = HHStoredVars[i].customMenuID !== undefined?HHStoredVars[i].customMenuID:i.replace("HHAuto_"+HHStoredVars[i].HHType+"_","");
-            document.getElementById(menuID).addEventListener("keyup",add1000sSeparator1);
+            if ( HHStoredVars[i].valueType === "Long Integer")
+            {
+                document.getElementById(menuID).addEventListener("keyup",add1000sSeparator1);
+            }
+            if (HHStoredVars[i].events !== undefined )
+            {
+                for (let event of Object.keys(HHStoredVars[i].events))
+                {
+                    document.getElementById(menuID).addEventListener(event,HHStoredVars[i].events[event]);
+                }
+            }
+            if (HHStoredVars[i].kobanUsing !== undefined && HHStoredVars[i].kobanUsing)
+            {
+                document.getElementById(menuID).addEventListener("change",preventKobanUsingSwitchUnauthorized);
+            }
+            if (HHStoredVars[i].menuType !== undefined && HHStoredVars[i].menuType === "checked")
+            {
+                document.getElementById(menuID).addEventListener("change",function (){setStoredValue(i,this.checked)});
+            }
         }
     }
 }
@@ -1240,7 +1258,38 @@ function modulePachinko()
 
 }
 
-function moduleSimSeasonReward()
+
+function getSlotRewardType(inSlot)
+{
+    let reward = "undetected";
+    if (inSlot.className.indexOf('slot') >= 0)
+    {
+        if (inSlot.getAttribute("cur") !== null)
+        {
+            //console.log(currentIndicator+" : "+inSlot.getAttribute("cur"));
+            reward = inSlot.getAttribute("cur");
+        }
+        if (inSlot.getAttribute("rarity") !== null)
+        {
+            let objectData = $(inSlot).data("d");
+            //console.log(currentIndicator+" : "+inSlot.getAttribute("rarity")+" "+objectData.type+" "+objectData.value);
+            reward = objectData.type;
+        }
+        if (inSlot.className.indexOf('slot_avatar') >= 0)
+        {
+            //console.log(currentIndicator+" : avatar");
+            reward = 'avatar';
+        }
+    }
+    else if (inSlot.className.indexOf('shards_girl_ico') >= 0)
+    {
+        //console.log(currentIndicator+" : shards_girl_ico");
+        reward = 'shards_girl_ico';
+    }
+    return reward;
+}
+
+function moduleSimSeasonMaskReward()
 {
     var arrayz;
     var nbReward;
@@ -2094,6 +2143,7 @@ function sortByGrade(a, b) {
     else if (!a.gData.own && b.gData.own)
         return 1
 }
+
 
 var CollectMoney = function()
 {
@@ -3021,41 +3071,89 @@ function customMatchRating(inSimu)
     }
 }
 
-var doSeason = function () {
+function goAndCollectSeason()
+{
+    const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoSeasonCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoSeasonCollectablesList")):[];
+
+    if (checkTimer('nextSeasonCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonCollect") === "true" && rewardsToCollect.length > 0 )
+    {
+        if (getPage() === "season")
+        {
+            logHHAuto("Going to collect Season.");
+            logHHAuto("setting autoloop to false");
+            setStoredValue("HHAuto_Temp_autoLoop", "false");
+            function collectSeasonRewards(inHasClicked = false)
+            {
+                let rewardPlaceHolder = $("#reward_placeholder .reward_wrapper_s.reward_wrapper_s_is_claimable, #reward_placeholder .reward_wrapper_s.reward_wrapper_s_is_next");
+                let currentSelectedRewardType = getSlotRewardType($(".slot, .shards_girl_ico",rewardPlaceHolder)[0]);
+                if (rewardsToCollect.includes(currentSelectedRewardType))
+                {
+                    logHHAuto("Collecting : "+currentSelectedRewardType);
+                    setTimeout(function (){$("#claim_btn_s")[0].click();},500);
+                    setTimeout(function (){location.reload();},1000);
+                    return true;
+                }
+                else
+                {
+                    if (inHasClicked)
+                    {
+                        logHHAuto("Seems season collection is stucked, cancelling. (can be due to an already claimed reward not updated by UI.)");
+                    }
+                    let limitClassPass = "";
+                    if ($("div#gsp_btn_holder[style='display: block;']").length)
+                    {
+                        limitClassPass = ".free-reward";
+                    }
+
+                    let allClaimable = $("#seasons_row1 .rewards_pair .reward_wrapper_s_is_claimable"+limitClassPass);
+                    //console.log(allClaimable.length);
+                    for (let currReward = 0;currReward < allClaimable.length; currReward++)
+                    {
+                        //console.log(currReward);
+                        let currentRewardSlot = $(".slot, .shards_girl_ico",allClaimable[currReward])[0];
+                        let currentRewardType = getSlotRewardType(currentRewardSlot);
+                        //console.log(currentRewardType);
+                        if (rewardsToCollect.includes(currentRewardType))
+                        {
+                            currentRewardSlot.click();
+                            setTimeout(function (){collectSeasonRewards(true)},300);
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            }
+            const needCollecting = collectSeasonRewards();
+            if (!needCollecting)
+            {
+                logHHAuto("Season collection finished, putting autoloop back to true");
+                setTimer('nextSeasonCollectTime',getHHScriptVars("seasonCollectionDelay"));
+                setStoredValue("HHAuto_Temp_autoLoop", "true");
+                setTimeout(autoLoop, Number(getStoredValue("HHAuto_Temp_autoLoopTimeMili")));
+                gotoPage("home");
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        else
+        {
+            logHHAuto("Switching to Season Arena screen.");
+            gotoPage("season");
+            return true;
+        }
+    }
+}
+
+var doSeason = function ()
+{
     logHHAuto("Performing auto Season.");
     // Confirm if on correct screen.
     var page = getPage();
     var current_kisses = getHHVars('Hero.energies.kiss.amount');
-    if(page === "season")
-    {
-        logHHAuto("On season page.");
-        if (getStoredValue("HHAuto_Setting_autoSeasonCollect") === "true")
-        {
-            $("button[id='claim_btn_s'").click();
-        }
-        logHHAuto("Remaining kisses : "+ current_kisses);
-        if ( current_kisses > 0 )
-        {
-            logHHAuto("Switching to Season Arena screen.");
-            gotoPage("season_arena");
-        }
-        else
-        {
-            if (getHHVars('Hero.energies.kiss.next_refresh_ts') === 0)
-            {
-                setTimer('nextSeasonTime',15*60);
-            }
-            else
-            {
-                setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts'));
-            }
-
-            gotoPage('home');
-        }
-        return;
-        //<button id="claim_btn_s" class="bordeaux_button_s" style="z-index: 1000; visibility: visible;">Claim</button>
-    }
-    else if (page === "season_arena")
+    if (page === "season_arena")
     {
         logHHAuto("On season arena page.");
 
@@ -3066,6 +3164,7 @@ var doSeason = function () {
             setStoredValue("HHAuto_Temp_autoLoop", "false");
             logHHAuto("setting autoloop to false");
             logHHAuto("Going to crush : "+$("div.season_arena_opponent_container .hero_details div.hero_name")[chosenID].innerText);
+            setTimer('nextSeasonCollectTime',5);
             return true;
         }
         if (chosenID === -2 )
@@ -3104,17 +3203,8 @@ var doSeason = function () {
         logHHAuto("Remaining kisses : "+ current_kisses);
         if ( current_kisses > 0 )
         {
-            if (getStoredValue("HHAuto_Setting_autoSeasonCollect") === "true")
-            {
-                logHHAuto("Switching to Season screen.");
-                gotoPage("season");
-            }
-            else
-            {
-                logHHAuto("Switching to Season Arena screen.");
-                gotoPage("season_arena");
-            }
-            return;
+            logHHAuto("Switching to Season Arena screen.");
+            gotoPage("season_arena");
         }
         else
         {
@@ -4676,7 +4766,7 @@ var flipParanoia=function()
 
 function manageUnits(inText)
 {
-    let units = ["firstUnit", "K", "M", "G", "T", "P", "E", "Z", "Y"];
+    let units = ["firstUnit", "K", "M", "B"];
     let textUnit= "";
     for (let currUnit of units)
     {
@@ -4687,14 +4777,33 @@ function manageUnits(inText)
     }
     if (textUnit !== "")
     {
-        if (inText.includes('.') || inText.includes(','))
+        let integerPart;
+        let decimalPart;
+        if (inText.includes('.') )
         {
-            return parseInt(inText.replace(/[^0-9]/gi, ''))*(100**units.indexOf(textUnit));
+            inText = inText.replace(/[^0-9\.]/gi, '');
+            integerPart = inText.split('.')[0];
+            decimalPart = inText.split('.')[1];
+
+        }
+        else if (inText.includes(','))
+        {
+            inText = inText.replace(/[^0-9,]/gi, '');
+            integerPart = inText.split(',')[0];
+            decimalPart = inText.split(',')[1];
         }
         else
         {
-            return parseInt(inText.replace(/[^0-9]/gi, ''))*(1000**units.indexOf(textUnit));
+            integerPart = inText.replace(/[^0-9]/gi, '');
+            decimalPart = "0";
         }
+        //console.log(integerPart,decimalPart);
+        let decimalNumber = Number(integerPart)
+        if (Number(decimalPart) !== 0)
+        {
+            decimalNumber+= Number(decimalPart)/(10**decimalPart.length)
+        }
+        return decimalNumber*(1000**units.indexOf(textUnit));
     }
     else
     {
@@ -5972,8 +6081,13 @@ var autoLoop = function ()
                     }
                 }
             }
-
         }
+
+        if (checkTimer('nextSeasonCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonCollect") === "true")
+           {
+               busy = true;
+               busy = goAndCollectSeason();
+           }
 
         if(getHHScriptVars("isEnabledPantheon",false) && getStoredValue("HHAuto_Setting_autoPantheon") === "true" && busy === false && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
@@ -6162,7 +6276,7 @@ var autoLoop = function ()
         case "season":
             if (getStoredValue("HHAuto_Setting_SeasonMaskRewards") === "true")
             {
-                setTimeout(moduleSimSeasonReward,500);
+                setTimeout(moduleSimSeasonMaskReward,500);
             }
             break;
         case "event":
@@ -9291,6 +9405,7 @@ function getMenuValues()
                 }
                 //console.log(menuID,HHStoredVars[i].menuType,menuValue,document.getElementById(menuID),HHStoredVars[i].valueType);
                 storageItem[i] = menuValue;
+                //console.log(i,currentValue, menuValue);
                 if (currentValue !== menuValue && HHStoredVars[i].newValueFunction !== undefined)
                 {
                     //console.log(currentValue,menuValue);
@@ -9316,15 +9431,54 @@ function preventKobanUsingSwitchUnauthorized()
     }
 }
 
-function addKobanUsingEvent()
+function getAndStoreCollectPreferences(inVarName)
 {
-    for (let i of Object.keys(HHStoredVars))
+    createPopUpCollectables();
+    function createPopUpCollectables()
     {
-        if (HHStoredVars[i].HHType !== undefined && HHStoredVars[i].kobanUsing)
+        let menuCollectables = '<div style="padding:10px; display:flex;flex-direction:column">'
+        +    '<p>'+getTextForUI("menuCollectableText","elementText")+'</p>'
+        +    '<div style="display:flex;flex-direction:row;justify-content: space-between;">'
+        let count = 0;
+        const possibleRewards = getHHScriptVars("possibleRewardsList");
+        const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoSeasonCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoSeasonCollectablesList")):[];
+        for (let currentItem of Object.keys(possibleRewards))
         {
-            let menuID = HHStoredVars[i].customMenuID !== undefined?HHStoredVars[i].customMenuID:i.replace("HHAuto_"+HHStoredVars[i].HHType+"_","");
-            document.getElementById(menuID).addEventListener("change",preventKobanUsingSwitchUnauthorized);
+            //console.log(currentItem,possibleRewards[currentItem]);
+            if (count === 4)
+            {
+                count = 0;
+                menuCollectables+='</div>';
+                menuCollectables+='<div style="display:flex;flex-direction:row;justify-content: space-between;">';
+            }
+            const checkedBox = rewardsToCollect.includes(currentItem)?"checked":"";
+            menuCollectables+='<div style="display:flex;flex-direction:row">';
+            menuCollectables+='<div class="labelAndButton"><span class="HHMenuItemName">'+possibleRewards[currentItem]+'</span><label class="switch"><input id="'+currentItem+'" class="menuCollectablesItem" type="checkbox" '+checkedBox+'><span class="slider round"></span></label></div>'
+            menuCollectables+='</div>';
+            count++;
         }
+
+        menuCollectables +=    '</div>'
+            +  '</div>';
+        fillHHPopUp("menuCollectable",getTextForUI("menuCollectable","elementText"),menuCollectables);
+        document.querySelectorAll("#HHAutoPopupGlobalPopup.menuCollectable .menuCollectablesItem").forEach(currentInput =>
+                                                                                                           {
+            currentInput.addEventListener("change",getSelectedCollectables);
+        });
+    }
+
+    function getSelectedCollectables()
+    {
+        let collectablesList = [];
+        document.querySelectorAll("#HHAutoPopupGlobalPopup.menuCollectable .menuCollectablesItem").forEach(currentInput =>
+                                                                                                           {
+            if (currentInput.checked)
+            {
+                //console.log(currentInput.id);
+                collectablesList.push(currentInput.id);
+            }
+        });
+        setStoredValue(inVarName, JSON.stringify(collectablesList));
     }
 }
 
@@ -9545,6 +9699,7 @@ HHEnvVariables["global"].HaremMinSizeExpirationSecs = 24*60*60;//1 days
 HHEnvVariables["global"].LeagueListExpirationSecs = 60*60;//1 hour max
 HHEnvVariables["global"].minSecsBeforeGoHomeAfterActions = 10
 HHEnvVariables["global"].dailyRewardMaxRemainingTime = 60*60;
+HHEnvVariables["global"].seasonCollectionDelay = 8*60*60;
 HHEnvVariables["global"].STOCHASTIC_SIM_RUNS = 10000;
 HHEnvVariables["global"].ELEMENTS =
     {
@@ -9579,6 +9734,21 @@ HHEnvVariables["global"].boostersIdentifier =
     MB4:   {name:"Angels' semen scent", usage:"+25% power against PoA for next 60 missions"},
 };
 
+HHEnvVariables["global"].possibleRewardsList = {'energy_kiss':"Kisses",
+                                                'energy_quest':"Quest energy",
+                                                'energy_fight':"Fights",
+                                                'xp' : "Exp",
+                                                'shards_girl_ico' : "Girl shards",
+                                                'soft_currency' : "Ymens",
+                                                'hard_currency' : "Kobans",
+                                                'gift':"Gifts",
+                                                'potion' : "Potions",
+                                                'booster' : "Boosters",
+                                                'orbs': "Orbs",
+                                                'gems' : "Gems",
+                                                'avatar': "Avatar",
+                                                'ticket' : "Champions' tickets"};
+
 HHEnvVariables["global"].PoVTimestampAttributeName = "data-time-stamp";
 
 HHEnvVariables["global"].trollzList =  ["Latest",
@@ -9606,20 +9776,6 @@ HHEnvVariables["global"].leaguesList = ["Wanker I",
                                         "Dicktator I",
                                         "Dicktator II",
                                         "Dicktator III"];
-HHEnvVariables["global"].possibleRewardsList = ['energy_kiss',
-                                                'energy_quest',
-                                                'gift',
-                                                'energy_fight',
-                                                'orbs',
-                                                'gems',
-                                                'potion',
-                                                'soft_currency',
-                                                'booster',
-                                                'xp',
-                                                'avatar',
-                                                'hard_currency',
-                                                'ticket',
-                                                'shards_girl_ico'];
 switch (getLanguageCode())
 {
     case "fr":
@@ -9932,6 +10088,8 @@ HHAuto_ToolTips.en.haremOpenFirstXUpgradable = { version: "5.6.24", elementText:
 HHAuto_ToolTips.en.translate = { version: "5.6.25", elementText: "Translate", tooltip: ""};
 HHAuto_ToolTips.en.saveTranslation = { version: "5.6.25", elementText: "Save translation"};
 HHAuto_ToolTips.en.saveTranslationText = { version: "5.6.25", elementText: "Below you'll find all text that can be translated.<br>To contribute, modify directly in the cell the translation (if empty click on the blue part ;))<br><p style='margin-block-start:0px;margin-block-end:0px;color:gray'>Gray cells are translations needing update.</p><p style='margin-block-start:0px;margin-block-end:0px;color:blue'>Blue cell are missing translations</p><p style='margin-block-start:0px;margin-block-end:0px;color:red'>Please try to keep the text length to prevent UI issues.</p>At the bottom you'll find a button to generate a txt file with your modification.<br>Please upload it to : <a target='_blank' href='https://github.com/Roukys/HHauto/issues/426'>Github</a>", tooltip: ""};
+HHAuto_ToolTips.en.menuCollectable = { version: "5.6.47", elementText: "Collectable preferences.", tooltip: ""};
+HHAuto_ToolTips.en.menuCollectableText = { version: "5.6.47", elementText: "Please select the collectables you want to be automatically collected.", tooltip: ""};
 
 
 HHAuto_ToolTips.fr.saveDebug = { version: "5.6.24", elementText: "Sauver log", tooltip: "Sauvegarder un fichier journal de débogage."};
@@ -10629,7 +10787,22 @@ HHStoredVars.HHAuto_Setting_autoSeasonCollect =
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false
+    kobanUsing:false,
+    events:{"change":function()
+            {
+                if (this.checked)
+                {
+                    getAndStoreCollectPreferences("HHAuto_Setting_autoSeasonCollectablesList");
+                }
+            }
+           }
+};
+HHStoredVars.HHAuto_Setting_autoSeasonCollectablesList =
+    {
+    default:JSON.stringify('[]'),
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Array"
 };
 HHStoredVars.HHAuto_Setting_autoSeasonPassReds =
     {
@@ -11281,7 +11454,6 @@ HHStoredVars.HHAuto_Temp_PoVEndDate =
     storage:"localStorage",
     HHType:"Temp"
 };
-
 HHStoredVars.HHAuto_Temp_missionsGiftLeft =
     {
     storage:"sessionStorage",
@@ -11316,6 +11488,10 @@ var updateData = function () {
         {
             Tegzd += '<br>'+getTextForUI("autoSeasonTitle","elementText")+' : '+getHHVars('Hero.energies.kiss.amount')+'/'+getHHVars('Hero.energies.kiss.max_amount')+' ('+getTimeLeft('nextSeasonTime')+')';
         }
+        /*if (getHHScriptVars('isEnabledSeason',false) && getStoredValue("HHAuto_Setting_autoSeasonCollect") =="true")
+        {
+            Tegzd += '<br>'+getTextForUI("autoSeasonCollect","elementText")+" "+getTextForUI("autoSeasonTitle","elementText")+' : '+getTimeLeft('nextSeasonCollectTime');
+        }*/
         if (getHHScriptVars('isEnabledLeagues',false) && getStoredValue("HHAuto_Setting_autoLeagues") =="true")
         {
             Tegzd += '<br>'+getTextForUI("autoLeaguesTitle","elementText")+' : '+getHHVars('Hero.energies.challenge.amount')+'/'+getHHVars('Hero.energies.challenge.max_amount')+' ('+getTimeLeft('nextLeaguesTime')+')';
@@ -12027,9 +12203,7 @@ var start = function () {
         }
     });
 
-    add1000SeparatorEvent();
-
-    addKobanUsingEvent();
+    addEventsOnMenuItems();
 
     document.getElementById("showTooltips").addEventListener("change",function()
                                                              {
