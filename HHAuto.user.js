@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.49
+// @version      5.6.50
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -19,8 +19,18 @@
 // ==/UserScript==
 
 //CSS Region
-GM_addStyle('/* The switch - the box around the slider */ #sMenu .switch { position: relative; display: inline-block; width: 34px; height: 20px } /* Hide default HTML checkbox */ #sMenu .switch input { display:none } /* The slider */#sMenu .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; -webkit-transition: .4s; transition: .4s; } #sMenu .slider.round:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; -webkit-transition: .4s; transition: .4s; } #sMenu input:checked + .slider { background-color: #2196F3; } #sMenu input:focus + .slider { box-shadow: 0 0 1px #2196F3; } #sMenu input:checked + .slider:before { -webkit-transform: translateX(10px); -ms-transform: translateX(10px); transform: translateX(10px); } /* Rounded sliders */ #sMenu .slider.round { border-radius: 14px; }  #sMenu .slider.round:before { border-radius: 50%; }');
-GM_addStyle('#sMenu input:checked + .slider.kobans { background-color: red; } #sMenu input:not(:checked) + .slider.round.kobans:before { background-color: red } #sMenu input:checked + .slider.round.kobans:before { background-color: white }')
+GM_addStyle('.HHAutoScriptMenu .switch { position: relative; display: inline-block; width: 34px; height: 20px }/* The switch - the box around the slider */ '
+            +'.HHAutoScriptMenu .switch input { display:none } /* Hide default HTML checkbox */ '
+            +'.HHAutoScriptMenu .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; -webkit-transition: .4s; transition: .4s; } /* The slider */'
+            +'.HHAutoScriptMenu .slider.round:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; -webkit-transition: .4s; transition: .4s; } '
+            +'.HHAutoScriptMenu input:checked + .slider { background-color: #2196F3; } '
+            +'.HHAutoScriptMenu input:focus + .slider { box-shadow: 0 0 1px #2196F3; } '
+            +'.HHAutoScriptMenu input:checked + .slider:before { -webkit-transform: translateX(10px); -ms-transform: translateX(10px); transform: translateX(10px); } '
+            +'.HHAutoScriptMenu .slider.round { border-radius: 14px; }/* Rounded sliders */ '
+            +'.HHAutoScriptMenu .slider.round:before { border-radius: 50%; }');
+GM_addStyle('.HHAutoScriptMenu input:checked + .slider.kobans { background-color: red; }'
+            +'.HHAutoScriptMenu input:not(:checked) + .slider.round.kobans:before { background-color: red }'
+            +'.HHAutoScriptMenu input:checked + .slider.round.kobans:before { background-color: white }')
 GM_addStyle('#pInfo {padding-left:3px; z-index:1;white-space: pre;position: absolute;right: 5%; left:77%; height:auto; top:11%; overflow: hidden; border: 1px solid #ffa23e; background-color: rgba(0,0,0,.5); border-radius: 5px; font-size:9pt;}');
 //GM_addStyle('span.HHMenuItemName {font-size: xx-small; line-height: 150%}');
 //GM_addStyle('span.HHMenuItemName {font-size: smaller; line-height: 120%}');
@@ -39,10 +49,13 @@ GM_addStyle('div.labelAndButton {padding:3px; display:flex;flex-direction:column
 GM_addStyle('div.HHMenuItemBox {padding:0.2em}');
 GM_addStyle('div.HHMenuRow {display:flex; flex-direction:row; align-items:center; align-content:center; justify-content:flex-start}');
 GM_addStyle('input.maxMoneyInputField  {text-align:right; width:70px}');
-GM_addStyle('.myButton {box-shadow: 0px 0px 0px 2px #9fb4f2; background:linear-gradient(to bottom, #7892c2 5%, #476e9e 100%); background-color:#7892c2; border-radius:10px; border:1px solid #4e6096; display:inline-block; cursor:pointer; color:#ffffff; font-family:Arial; font-size:8px; padding:3px 7px; text-decoration:none; text-shadow:0px 1px 0px #283966;}.myButton:hover { background:linear-gradient(to bottom, #476e9e 5%, #7892c2 100%); background-color:#476e9e; } .myButton:active { position:relative; top:1px;}');
+GM_addStyle('.myButton {box-shadow: 0px 0px 0px 2px #9fb4f2; background:linear-gradient(to bottom, #7892c2 5%, #476e9e 100%); background-color:#7892c2; border-radius:10px; border:1px solid #4e6096; display:inline-block; cursor:pointer; color:#ffffff; font-family:Arial; font-size:8px; padding:3px 7px; text-decoration:none; text-shadow:0px 1px 0px #283966;}'
+            +'.myButton:hover { background:linear-gradient(to bottom, #476e9e 5%, #7892c2 100%); background-color:#476e9e; }'
+            +'.myButton:active { position:relative; top:1px;}');
 GM_addStyle('.HHEventPriority {position: absolute;z-index: 500;background-color: black}');
 GM_addStyle('.HHPopIDs {background-color: black;z-index: 500;position: absolute;margin-top: 25px}');
-GM_addStyle('.tooltipHH:hover { cursor: help; position: relative; } .tooltipHH span.tooltipHHtext { display: none }');
+GM_addStyle('.tooltipHH:hover { cursor: help; position: relative; }'
+            +'.tooltipHH span.tooltipHHtext { display: none }');
 GM_addStyle('#popup_message_league { border: #666 2px dotted; padding: 5px 20px 5px 5px; display: block; z-index: 1000; background: #e3e3e3; left: 0px; margin: 15px; width: 500px; position: absolute; top: 15px; color: black}');
 GM_addStyle('#sliding-popups#sliding-popups { z-index : 1}');
 //END CSS Region
@@ -9545,7 +9558,7 @@ function getAndStoreCollectPreferences(inVarName, inPopUpText = getTextForUI("me
     createPopUpCollectables();
     function createPopUpCollectables()
     {
-        let menuCollectables = '<div style="padding:10px; display:flex;flex-direction:column">'
+        let menuCollectables = '<div class="HHAutoScriptMenu" style="padding:10px; display:flex;flex-direction:column">'
         +    '<p>'+inPopUpText+'</p>'
         +    '<div style="display:flex;flex-direction:row;justify-content: space-between;">'
         let count = 0;
@@ -9562,7 +9575,7 @@ function getAndStoreCollectPreferences(inVarName, inPopUpText = getTextForUI("me
             }
             const checkedBox = rewardsToCollect.includes(currentItem)?"checked":"";
             menuCollectables+='<div style="display:flex;flex-direction:row">';
-            menuCollectables+='<div class="labelAndButton"><span class="HHMenuItemName">'+possibleRewards[currentItem]+'</span><label class="switch"><input style="display:none;" id="'+currentItem+'" class="menuCollectablesItem" type="checkbox" '+checkedBox+'><span class="slider round"></span></label></div>'
+            menuCollectables+='<div class="labelAndButton"><span class="HHMenuItemName">'+possibleRewards[currentItem]+'</span><label class="switch"><input id="'+currentItem+'" class="menuCollectablesItem" type="checkbox" '+checkedBox+'><span class="slider round"></span></label></div>'
             menuCollectables+='</div>';
             count++;
         }
@@ -11792,7 +11805,7 @@ var start = function () {
     setDefaults();
 
     // Add UI buttons.
-    let sMenu ='<div id="sMenu" style="top: 45px;right: 52px;padding: 4px;display: none;opacity: 1;border-radius: 4px;border: 1px solid #ffa23e;background-color: #1e261e;font-size:x-small; position:absolute; text-align:left; flex-direction:column; justify-content:space-between; z-index:10000">'
+    let sMenu ='<div id="sMenu" class="HHAutoScriptMenu" style="top: 45px;right: 52px;padding: 4px;display: none;opacity: 1;border-radius: 4px;border: 1px solid #ffa23e;background-color: #1e261e;font-size:x-small; position:absolute; text-align:left; flex-direction:column; justify-content:space-between; z-index:10000">'
 
     //dialog Boxes
     //+ '<dialog id="LoadDialog"> <form method="dialog"><p>After you select the file the settings will be automatically updated.</p><p> If nothing happened, then the selected file contains errors.</p><p id="LoadConfError"style="color:#f53939;"></p><p><label><input type="file" id="myfile" accept=".json" name="myfile"> </label></p> <menu> <button value="cancel">'+getTextForUI("OptionCancel","elementText")+'</button></menu> </form></dialog>'
