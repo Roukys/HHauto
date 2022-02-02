@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.48
+// @version      5.6.49
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -116,7 +116,7 @@ function getStorage()
 
 function getStoredValue(inVarName)
 {
-    return HHStoredVars.hasOwnProperty(inVarName) !== undefined?getStorageItem(HHStoredVars[inVarName].storage)[inVarName]:undefined;
+    return HHStoredVars.hasOwnProperty(inVarName)?getStorageItem(HHStoredVars[inVarName].storage)[inVarName]:undefined;
 }
 
 function deleteStoredValue(inVarName)
@@ -485,6 +485,9 @@ function gotoPage(page,inArgs,delay = -1)
             break;
         case "clubs" :
             togoto = getHHScriptVars("gotoPageClub");
+            break;
+        case "path-of-valor" :
+            togoto = getHHScriptVars("gotoPagePoV");
             break;
         case (page.match(/^\/champions\/[123456]$/) || {}).input:
             togoto = page;
@@ -893,67 +896,6 @@ function moduleOldPathOfAttractionHide()
     }
 }
 
-function dailyRewardAvailable()
-{
-    const dailyRewardNotifRequest = getHHScriptVars("dailyRewardNotifRequest",false);
-    const freeBundleButton = document.querySelectorAll(`.purchase_box${getHHScriptVars("selectorFilterNotDisplayNone")} > div > .blue_button_L:not([disabled])`);
-    if
-        (
-            getPage() == "home"
-            &&
-            (
-                (
-                    dailyRewardNotifRequest !==null
-                    && $(dailyRewardNotifRequest).length > 0
-                )
-                //|| freeBundleButton.length > 0
-            )
-        )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-function collectDailyRewards()
-{
-    if (getPage() == "home")
-    {
-        logHHAuto('Trying to get daily rewards!');
-        const dailyRewardNotifRequest = getHHScriptVars("dailyRewardNotifRequest",false);
-        const dailyRewardButtonRequest = '#no_HC .blue_button_L.daily-claim-btn:not([disabled])';
-        const freeBundleButton = document.querySelectorAll(`.purchase_box${getHHScriptVars("selectorFilterNotDisplayNone")} > div > .blue_button_L:not([disabled])`);
-        //console.log(freeBundleButton);
-        //Daily rewards notification check
-        if (dailyRewardNotifRequest !==null && dailyRewardAvailable())
-        {
-            if ($('#no_HC')[0].style.display != "block")
-            {
-                //replaceCheatClick();
-                $(dailyRewardNotifRequest)[0].click();
-            }
-            if ($(dailyRewardButtonRequest).length > 0)
-            {
-                //replaceCheatClick();
-                $(dailyRewardButtonRequest)[0].click();
-                logHHAuto('Collected daily rewards!');
-            }
-        }
-        /*if (freeBundleButton.length > 0 && dailyRewardAvailable())
-        {
-            freeBundleButton[0].click();
-            logHHAuto('Collected free bundle!');
-
-        }*/
-        //gotoPage('home');
-    }
-
-}
-
-
 function modulePathOfAttractionHide()
 {
     if (getPage() === "event" && window.location.search.includes("tab=path_event") && getStoredValue("HHAuto_Setting_PoAMaskRewards") === "true")
@@ -1269,23 +1211,32 @@ function getSlotRewardType(inSlot)
             //console.log(currentIndicator+" : "+inSlot.getAttribute("cur"));
             reward = inSlot.getAttribute("cur");
         }
-        if (inSlot.getAttribute("rarity") !== null)
+        else if (inSlot.className.indexOf('slot_avatar') >= 0)
+        {
+            //console.log(currentIndicator+" : avatar");
+            if (inSlot.className.indexOf('girl_ico') >= 0)
+            {
+                reward = 'girl_shards';
+            }
+            else
+            {
+                reward = 'avatar';
+            }
+        }
+        else if (inSlot.className.indexOf('shards_girl_ico') >= 0)
+        {
+            //console.log(currentIndicator+" : shards_girl_ico");
+            reward = 'girl_shards';
+        }
+        else if (inSlot.getAttribute("rarity") !== null)
         {
             let objectData = $(inSlot).data("d");
             //console.log(currentIndicator+" : "+inSlot.getAttribute("rarity")+" "+objectData.type+" "+objectData.value);
             reward = objectData.type;
         }
-        if (inSlot.className.indexOf('slot_avatar') >= 0)
-        {
-            //console.log(currentIndicator+" : avatar");
-            reward = 'avatar';
-        }
+
     }
-    else if (inSlot.className.indexOf('shards_girl_ico') >= 0)
-    {
-        //console.log(currentIndicator+" : shards_girl_ico");
-        reward = 'shards_girl_ico';
-    }
+    //console.log(reward);
     return reward;
 }
 
@@ -3071,6 +3022,157 @@ function customMatchRating(inSimu)
     }
 }
 
+function collectDailyRewards()
+{
+    const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoDailyCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoDailyCollectablesList")):[];
+    if (getPage() == "home")
+    {
+        const dailyRewardNotifRequest = getHHScriptVars("dailyRewardNotifRequest",false);
+        const dailyRewardSlotRequest = "#popup_daily_rewards .daily_reward_container.daily_claim";
+        //Daily rewards notification check
+        if (dailyRewardNotifRequest !==null)
+        {
+            logHHAuto("setting autoloop to false");
+            setStoredValue("HHAuto_Temp_autoLoop", "false");
+            if ($('#no_HC')[0].style.display != "block")
+            {
+                //replaceCheatClick();
+                logHHAuto('Opening daily rewards window.');
+                $(dailyRewardNotifRequest)[0].click();
+                setTimeout(collectDailyRewards, randomInterval(1000, 1500));
+                return true;
+            }
+            if ($(dailyRewardSlotRequest).length > 0)
+            {
+                //replaceCheatClick();
+                const getRewardType = getSlotRewardType($(".slot",dailyRewardSlotRequest)[0]);
+                if (rewardsToCollect.includes(getRewardType))
+                {
+                    $("button.blue_button_L.daily-claim-btn:not([disabled])", dailyRewardSlotRequest)[0].click();
+                    logHHAuto('Collected immediate daily rewards, setting timer to next day.');
+                    setTimer('nextDailyCollectTime', getSecondsLeftBeforeEndOfHHDay() + 3600);
+                }
+                else if (getSecondsLeftBeforeEndOfHHDay() <= getHHScriptVars("dailyRewardMaxRemainingTime") && getSecondsLeftBeforeEndOfHHDay() > 0)
+                {
+                    logHHAuto('Collected daily rewards, setting timer to next day.');
+                    $("button.blue_button_L.daily-claim-btn:not([disabled])", dailyRewardSlotRequest)[0].click();
+                    setTimer('nextDailyCollectTime', getSecondsLeftBeforeEndOfHHDay() + 3600);
+                }
+                else
+                {
+                    logHHAuto('Reward not set for immediate collection, setting timer to near end of HH day.');
+                    setTimer('nextDailyCollectTime', getSecondsLeftBeforeEndOfHHDay() - getHHScriptVars("dailyRewardMaxRemainingTime"));
+                }
+            }
+            else
+            {
+                logHHAuto('Seems reward already collected, setting timer to 1h.');
+                setTimer('nextDailyCollectTime', 3600);
+            }
+            gotoPage("home");
+        }
+        else
+        {
+            logHHAuto('No more daily reward, setting timer to next day.');
+            setTimer('nextDailyCollectTime', getSecondsLeftBeforeEndOfHHDay() + 3600);
+        }
+
+        /*if (freeBundleButton.length > 0 && dailyRewardAvailable())
+        {
+            freeBundleButton[0].click();
+            logHHAuto('Collected free bundle!');
+
+        }*/
+        //gotoPage('home');
+    }
+    else
+    {
+        logHHAuto("Navigating to home page.");
+        gotoPage("home");
+        // return busy
+        return true;
+    }
+
+}
+
+
+function goAndCollectPoV()
+{
+    const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoPoVCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoPoVCollectablesList")):[];
+
+    if (checkTimer('nextPoVCollectTime') && getStoredValue("HHAuto_Setting_autoPoVCollect") === "true" && rewardsToCollect.length > 0 )
+    {
+        if (getPage() === "path-of-valor")
+        {
+            logHHAuto("Checking Path of Valor for collectable rewards.");
+            logHHAuto("setting autoloop to false");
+            setStoredValue("HHAuto_Temp_autoLoop", "false");
+            let buttonsToCollect = [];
+            const listPoVTiersToClaim = $("#pov_tab_container div.pov-second-row div.pov-central-section div.pov-tier.unclaimed");
+            for (let currentTier = 0 ; currentTier < listPoVTiersToClaim.length ; currentTier++)
+            {
+                const currentButton = $("button[rel='claim']", listPoVTiersToClaim[currentTier])[0];
+                const currentTierNb = currentButton.getAttribute("tier");
+                //console.log("checking tier : "+currentTierNb);
+                const freeSlotType = getSlotRewardType($(".free-slot .slot,.free-slot .shards_girl_ico",listPoVTiersToClaim[currentTier])[0]);
+                if (rewardsToCollect.includes(freeSlotType))
+                {
+                    const paidSlots = $(".paid-slots:not(.paid-locked) .slot,.paid-slots:not(.paid-locked) .shards_girl_ico",listPoVTiersToClaim[currentTier]);
+                    if (paidSlots.length >0)
+                    {
+                        if (rewardsToCollect.includes(getSlotRewardType(paidSlots[0])) && rewardsToCollect.includes(getSlotRewardType(paidSlots[1])))
+                        {
+                            buttonsToCollect.push(currentButton);
+                            logHHAuto("Adding for collection tier (with paid) : "+currentTierNb);
+                        }
+                    }
+                    else
+                    {
+                        buttonsToCollect.push(currentButton);
+                        logHHAuto("Adding for collection tier (only free) : "+currentTierNb);
+                    }
+                }
+            }
+
+
+            if (buttonsToCollect.length >0)
+            {
+                function collectPoVRewards()
+                {
+                    if (buttonsToCollect.length >0)
+                    {
+                        logHHAuto("Collecting tier : "+buttonsToCollect[0].getAttribute('tier'));
+                        buttonsToCollect[0].click();
+                        buttonsToCollect.shift();
+                        setTimeout(collectPoVRewards, randomInterval(300, 500));
+                    }
+                    else
+                    {
+                        logHHAuto("Path of Valor collection finished.");
+                        setTimer('nextPoVCollectTime',getHHScriptVars("maxCollectionDelay"));
+                        gotoPage("home");
+                    }
+                }
+                collectPoVRewards();
+                return true;
+            }
+            else
+            {
+                logHHAuto("No Path of Valor reward to collect.");
+                setTimer('nextPoVCollectTime',getHHScriptVars("maxCollectionDelay"));
+                gotoPage("home");
+                return false;
+            }
+        }
+        else
+        {
+            logHHAuto("Switching to Path of Valor screen.");
+            gotoPage("path-of-valor");
+            return true;
+        }
+    }
+}
+
 function goAndCollectSeason()
 {
     const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoSeasonCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoSeasonCollectablesList")):[];
@@ -3127,9 +3229,7 @@ function goAndCollectSeason()
             if (!needCollecting)
             {
                 logHHAuto("Season collection finished, putting autoloop back to true");
-                setTimer('nextSeasonCollectTime',getHHScriptVars("seasonCollectionDelay"));
-                setStoredValue("HHAuto_Temp_autoLoop", "true");
-                setTimeout(autoLoop, Number(getStoredValue("HHAuto_Temp_autoLoopTimeMili")));
+                setTimer('nextSeasonCollectTime',getHHScriptVars("maxCollectionDelay"));
                 gotoPage("home");
                 return false;
             }
@@ -6083,12 +6183,6 @@ var autoLoop = function ()
             }
         }
 
-        if (checkTimer('nextSeasonCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonCollect") === "true")
-           {
-               busy = true;
-               busy = goAndCollectSeason();
-           }
-
         if(getHHScriptVars("isEnabledPantheon",false) && getStoredValue("HHAuto_Setting_autoPantheon") === "true" && busy === false && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
             if (Number(getHHVars('Hero.energies.worship.amount')) > 0 && ( (Number(getHHVars('Hero.energies.worship.amount')) > Number(getStoredValue("HHAuto_Setting_autoPantheonThreshold")) && checkTimer('nextPantheonTime')) || Number(checkParanoiaSpendings('worship')) > 0 ) )
@@ -6184,10 +6278,25 @@ var autoLoop = function ()
             }
         }
 
-        if (getHHScriptVars("isEnabledDailyRewards",false) && busy==false && getStoredValue("HHAuto_Temp_autoLoop") === "true" && getSecondsLeftBeforeEndOfHHDay() < getHHScriptVars("dailyRewardMaxRemainingTime") && getSecondsLeftBeforeEndOfHHDay() > 5*60 && getStoredValue("HHAuto_Setting_collectDailyRewards") === "true" && dailyRewardAvailable())
+        if (getHHScriptVars("isEnabledSeason",false) && busy==false && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextSeasonCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonCollect") === "true")
+        {
+            logHHAuto("Time to go and check Season for collecting reward.");
+            busy = true;
+            busy = goAndCollectSeason();
+        }
+
+        if (getHHScriptVars("isEnabledPoV",false) && busy==false && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextPoVCollectTime') && getStoredValue("HHAuto_Setting_autoPoVCollect") === "true")
+        {
+            logHHAuto("Time to go and check Path of Valor for collecting reward.");
+            busy = true;
+            busy = goAndCollectPoV();
+        }
+
+        if (getHHScriptVars("isEnabledDailyRewards",false) && busy==false && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextDailyCollectTime') && getStoredValue("HHAuto_Setting_collectDailyRewards") === "true")
         {
             busy = true;
             collectDailyRewards();
+
         }
 
         if (getHHScriptVars("isEnabledShop",false) && busy===false && ( getStoredValue("HHAuto_Setting_paranoia") !== "true" || !checkTimer("paranoiaSwitch") )  && getStoredValue("HHAuto_Temp_autoLoop") === "true")
@@ -9431,17 +9540,17 @@ function preventKobanUsingSwitchUnauthorized()
     }
 }
 
-function getAndStoreCollectPreferences(inVarName)
+function getAndStoreCollectPreferences(inVarName, inPopUpText = getTextForUI("menuCollectableText","elementText"))
 {
     createPopUpCollectables();
     function createPopUpCollectables()
     {
         let menuCollectables = '<div style="padding:10px; display:flex;flex-direction:column">'
-        +    '<p>'+getTextForUI("menuCollectableText","elementText")+'</p>'
+        +    '<p>'+inPopUpText+'</p>'
         +    '<div style="display:flex;flex-direction:row;justify-content: space-between;">'
         let count = 0;
         const possibleRewards = getHHScriptVars("possibleRewardsList");
-        const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoSeasonCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoSeasonCollectablesList")):[];
+        const rewardsToCollect = isJSON(getStoredValue(inVarName))?JSON.parse(getStoredValue(inVarName)):[];
         for (let currentItem of Object.keys(possibleRewards))
         {
             //console.log(currentItem,possibleRewards[currentItem]);
@@ -9453,7 +9562,7 @@ function getAndStoreCollectPreferences(inVarName)
             }
             const checkedBox = rewardsToCollect.includes(currentItem)?"checked":"";
             menuCollectables+='<div style="display:flex;flex-direction:row">';
-            menuCollectables+='<div class="labelAndButton"><span class="HHMenuItemName">'+possibleRewards[currentItem]+'</span><label class="switch"><input id="'+currentItem+'" class="menuCollectablesItem" type="checkbox" '+checkedBox+'><span class="slider round"></span></label></div>'
+            menuCollectables+='<div class="labelAndButton"><span class="HHMenuItemName">'+possibleRewards[currentItem]+'</span><label class="switch"><input style="display:none;" id="'+currentItem+'" class="menuCollectablesItem" type="checkbox" '+checkedBox+'><span class="slider round"></span></label></div>'
             menuCollectables+='</div>';
             count++;
         }
@@ -9697,9 +9806,9 @@ HHEnvVariables["global"].selectorFilterNotDisplayNone = ':not([style*="display:n
 HHEnvVariables["global"].HaremMaxSizeExpirationSecs = 7*24*60*60;//7 days
 HHEnvVariables["global"].HaremMinSizeExpirationSecs = 24*60*60;//1 days
 HHEnvVariables["global"].LeagueListExpirationSecs = 60*60;//1 hour max
-HHEnvVariables["global"].minSecsBeforeGoHomeAfterActions = 10
-HHEnvVariables["global"].dailyRewardMaxRemainingTime = 60*60;
-HHEnvVariables["global"].seasonCollectionDelay = 8*60*60;
+HHEnvVariables["global"].minSecsBeforeGoHomeAfterActions = 10;
+HHEnvVariables["global"].dailyRewardMaxRemainingTime = 2*60*60;
+HHEnvVariables["global"].maxCollectionDelay = 8*60*60;
 HHEnvVariables["global"].STOCHASTIC_SIM_RUNS = 10000;
 HHEnvVariables["global"].ELEMENTS =
     {
@@ -9738,7 +9847,7 @@ HHEnvVariables["global"].possibleRewardsList = {'energy_kiss':"Kisses",
                                                 'energy_quest':"Quest energy",
                                                 'energy_fight':"Fights",
                                                 'xp' : "Exp",
-                                                'shards_girl_ico' : "Girl shards",
+                                                'girl_shards' : "Girl shards",
                                                 'soft_currency' : "Ymens",
                                                 'hard_currency' : "Kobans",
                                                 'gift':"Gifts",
@@ -9830,6 +9939,7 @@ HHEnvVariables["global"].gotoPageClubChampion = "/club-champion.html";
 HHEnvVariables["global"].gotoPageLeagueBattle = "/league-battle.html";
 HHEnvVariables["global"].gotoPageTrollPreBattle = "/troll-pre-battle.html";
 HHEnvVariables["global"].gotoPageEvent = "/event.html";
+HHEnvVariables["global"].gotoPagePoV = "/path-of-valor.html";
 
 //to correct when new troll pre battle page arrives in prod
 //HHEnvVariables["global"].getPageTrollPreBattle = "pre_battle";
@@ -9853,6 +9963,7 @@ HHEnvVariables["global"].isEnabledLeagues = true;
 HHEnvVariables["global"].isEnabledDailyRewards = true;
 HHEnvVariables["global"].isEnabledShop = true;
 HHEnvVariables["global"].isEnabledSalary = true;
+HHEnvVariables["global"].isEnabledPoV = true;
 HHEnvVariables["HH_test"].isEnabledDailyRewards = false;// to remove if daily rewards arrives in test
 //HHEnvVariables["CH_prod"].isEnabledAllChamps = false;// to remove when Champs arrives in Comix
 //HHEnvVariables["CH_prod"].isEnabledChamps = false;// to remove when Champs arrives in Comix
@@ -10069,7 +10180,7 @@ HHAuto_ToolTips.en.ChangeTeamButton2 = {version: "5.6.24", elementText: "Possibl
 HHAuto_ToolTips.en.AssignTopTeam  = {version: "5.6.24", elementText: "Assign first 7", tooltip: "Put the first 7 ones in the team."};
 HHAuto_ToolTips.en.ExportGirlsData = {version: "5.6.24", elementText: "⤓", tooltip: "Export Girls data."};
 HHAuto_ToolTips.en.menuRemoveMaxed = {version: "5.6.24", elementText: "Remove maxed", tooltip: "Remove maxed girls"};
-HHAuto_ToolTips.en.collectDailyRewards = {version: "5.6.24", elementText: "Collect daily", tooltip: "Collect daily rewards if not collected 1 hour before end of HH day."};
+HHAuto_ToolTips.en.collectDailyRewards = {version: "5.6.49", elementText: "Collect daily", tooltip: "Collect daily rewards if not collected 2 hours before end of HH day."};
 HHAuto_ToolTips.en.saveDefaults = {version: "5.6.24", elementText: "Save defaults", tooltip: "Save your own defaults values for new tabs."};
 HHAuto_ToolTips.en.autoGiveAff = {version: "5.6.24", elementText: "Auto Give", tooltip: "If enabled, will automatically give Aff to girls in order ( you can use OCD script to filter )."};
 HHAuto_ToolTips.en.autoGiveExp = {version: "5.6.24", elementText: "Auto Give", tooltip: "If enabled, will automatically give Exp to girls in order ( you can use OCD script to filter )."};
@@ -10090,6 +10201,9 @@ HHAuto_ToolTips.en.saveTranslation = { version: "5.6.25", elementText: "Save tra
 HHAuto_ToolTips.en.saveTranslationText = { version: "5.6.25", elementText: "Below you'll find all text that can be translated.<br>To contribute, modify directly in the cell the translation (if empty click on the blue part ;))<br><p style='margin-block-start:0px;margin-block-end:0px;color:gray'>Gray cells are translations needing update.</p><p style='margin-block-start:0px;margin-block-end:0px;color:blue'>Blue cell are missing translations</p><p style='margin-block-start:0px;margin-block-end:0px;color:red'>Please try to keep the text length to prevent UI issues.</p>At the bottom you'll find a button to generate a txt file with your modification.<br>Please upload it to : <a target='_blank' href='https://github.com/Roukys/HHauto/issues/426'>Github</a>", tooltip: ""};
 HHAuto_ToolTips.en.menuCollectable = { version: "5.6.47", elementText: "Collectable preferences.", tooltip: ""};
 HHAuto_ToolTips.en.menuCollectableText = { version: "5.6.47", elementText: "Please select the collectables you want to be automatically collected.", tooltip: ""};
+HHAuto_ToolTips.en.menuDailyCollectableText = { version: "5.6.49", elementText: "Please select the collectables you want to be immediately collected.", tooltip: ""};
+HHAuto_ToolTips.en.autoPoVCollect = { version: "5.6.49", elementText: "Collect PoV", tooltip: "if enabled : Automatically collect Path of Valor."};
+
 
 
 HHAuto_ToolTips.fr.saveDebug = { version: "5.6.24", elementText: "Sauver log", tooltip: "Sauvegarder un fichier journal de débogage."};
@@ -10793,6 +10907,7 @@ HHStoredVars.HHAuto_Setting_autoSeasonCollect =
                 if (this.checked)
                 {
                     getAndStoreCollectPreferences("HHAuto_Setting_autoSeasonCollectablesList");
+                    clearTimer('nextSeasonCollectTime');
                 }
             }
            }
@@ -10957,7 +11072,23 @@ HHStoredVars.HHAuto_Setting_collectDailyRewards =
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false
+    kobanUsing:false,
+    events:{"change":function()
+            {
+                if (this.checked)
+                {
+                    getAndStoreCollectPreferences("HHAuto_Setting_autoDailyCollectablesList", getTextForUI("menuDailyCollectableText","elementText"));
+                    clearTimer('nextDailyCollectTime');
+                }
+            }
+           }
+};
+HHStoredVars.HHAuto_Setting_autoDailyCollectablesList =
+    {
+    default:JSON.stringify('[]'),
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Array"
 };
 HHStoredVars.HHAuto_Setting_eventTrollOrder =
     {
@@ -11246,6 +11377,34 @@ HHStoredVars.HHAuto_Setting_autoPantheonThreshold =
     menuType:"value",
     kobanUsing:false
 };
+HHStoredVars.HHAuto_Setting_autoPoVCollect =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    events:{"change":function()
+            {
+                if (this.checked)
+                {
+                    getAndStoreCollectPreferences("HHAuto_Setting_autoPoVCollectablesList");
+                    clearTimer('nextPoVCollectTime');
+                }
+            }
+           }
+};
+HHStoredVars.HHAuto_Setting_autoPoVCollectablesList =
+    {
+    default:JSON.stringify('[]'),
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Array"
+};
+
 // Temp vars
 HHStoredVars.HHAuto_Temp_autoLoop =
     {
@@ -11441,7 +11600,7 @@ HHStoredVars.HHAuto_Temp_HaremSize =
 };
 HHStoredVars.HHAuto_Temp_BoostersData =
     {
-    storage:"sessionStorage",
+    storage:"localStorage",
     HHType:"Temp"
 };
 HHStoredVars.HHAuto_Temp_LastPageCalled =
@@ -11572,7 +11731,7 @@ var updateData = function () {
 
 function maskInactiveMenus()
 {
-    let menuIDList =["isEnabledDailyRewards","isEnabledMission","isEnabledContest","isEnabledTrollBattle","isEnabledPowerPlaces","isEnabledSalary","isEnabledPachinko","isEnabledQuest","isEnabledSeason","isEnabledLeagues","isEnabledAllChamps","isEnabledChamps","isEnabledClubChamp","isEnabledPantheon","isEnabledShop"];
+    let menuIDList =["isEnabledPoV","isEnabledDailyRewards","isEnabledMission","isEnabledContest","isEnabledTrollBattle","isEnabledPowerPlaces","isEnabledSalary","isEnabledPachinko","isEnabledQuest","isEnabledSeason","isEnabledLeagues","isEnabledAllChamps","isEnabledChamps","isEnabledClubChamp","isEnabledPantheon","isEnabledShop"];
     for (let menu of menuIDList)
     {
         if ( document.getElementById(menu) !== null && getHHScriptVars(menu,false) !== null && !getHHScriptVars(menu,false) )
@@ -11740,11 +11899,14 @@ var start = function () {
     +     '<div class="optionsColumn">'  //+     '<div style="padding:3px; display:flex; flex-direction:column">'
     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("showInfo","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("showInfo","tooltip")+'</span><label class="switch"><input id="showInfo" type="checkbox"><span class="slider round"></span></label></div></div>'
     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("showTooltips","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("showTooltips","tooltip")+'</span><label class="switch"><input id="showTooltips" type="checkbox"><span class="slider round"></span></label></div></div>'
-    +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("PoVMaskRewards","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PoVMaskRewards","tooltip")+'</span><label class="switch"><input id="PoVMaskRewards" type="checkbox"><span class="slider round"></span></label></div></div>'
+    +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("PoAMaskRewards","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PoAMaskRewards","tooltip")+'</span><label class="switch"><input id="PoAMaskRewards" type="checkbox"><span class="slider round"></span></label></div></div>'
     +     '</div>'
     +     '<div class="optionsColumn">'  //+     '<div style="padding:3px; display:flex; flex-direction:column;">'
     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("showCalculatePower","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("showCalculatePower","tooltip")+'</span><label class="switch"><input id="showCalculatePower" type="checkbox"><span class="slider round"></span></label></div></div>'
-    +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("PoAMaskRewards","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PoAMaskRewards","tooltip")+'</span><label class="switch"><input id="PoAMaskRewards" type="checkbox"><span class="slider round"></span></label></div></div>'
+    +       '<div id="isEnabledPoV">'
+    +        '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("PoVMaskRewards","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PoVMaskRewards","tooltip")+'</span><label class="switch"><input id="PoVMaskRewards" type="checkbox"><span class="slider round"></span></label></div></div>'
+    +        '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoPoVCollect","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoPoVCollect","tooltip")+'</span><label class="switch"><input id="autoPoVCollect" type="checkbox"><span class="slider round"></span></label></div></div>'
+    +       '</div>'
     +     '</div>'
     +    '</div>'
     +   '</div>'
