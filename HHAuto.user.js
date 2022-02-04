@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.51
+// @version      5.6.52
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -3039,7 +3039,7 @@ function customMatchRating(inSimu)
     }
 }
 
-function collectDailyRewards()
+function goAndCollectDailyRewards()
 {
     const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoDailyCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoDailyCollectablesList")):[];
     if (getPage() == "home")
@@ -3205,7 +3205,7 @@ function goAndCollectSeason()
             {
                 let rewardPlaceHolder = $("#reward_placeholder .reward_wrapper_s.reward_wrapper_s_is_claimable, #reward_placeholder .reward_wrapper_s.reward_wrapper_s_is_next");
                 let currentSelectedRewardType = getSlotRewardType($(".slot, .shards_girl_ico",rewardPlaceHolder)[0]);
-                if (rewardsToCollect.includes(currentSelectedRewardType))
+                if (rewardsToCollect.includes(currentSelectedRewardType) && rewardPlaceHolder.length >0)
                 {
                     logHHAuto("Collecting : "+currentSelectedRewardType);
                     setTimeout(function (){$("#claim_btn_s")[0].click();},500);
@@ -6312,7 +6312,7 @@ var autoLoop = function ()
         if (getHHScriptVars("isEnabledDailyRewards",false) && busy==false && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextDailyCollectTime') && getStoredValue("HHAuto_Setting_collectDailyRewards") === "true")
         {
             busy = true;
-            collectDailyRewards();
+            goAndCollectDailyRewards();
 
         }
 
