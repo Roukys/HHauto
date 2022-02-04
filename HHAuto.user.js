@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.53
+// @version      5.6.54
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -359,7 +359,7 @@ function getPage()
         return "";
     }
     //var p=ob.className.match(/.*page-(.*) .*/i)[1];
-    let activitiesMainPage = getHHScriptVars("activitiesMainPage");
+    let activitiesMainPage = 'activities';
     var p=ob.getAttribute('page');
     if (p==activitiesMainPage && $('h4.contests.selected').size()>0)
     {
@@ -1211,46 +1211,6 @@ function modulePachinko()
         setTimeout(playXPachinko_func,randomInterval(500,1500));
     }
 
-}
-
-
-function getSlotRewardType(inSlot)
-{
-    let reward = "undetected";
-    if (inSlot.className.indexOf('slot') >= 0)
-    {
-        if (inSlot.getAttribute("cur") !== null)
-        {
-            //console.log(currentIndicator+" : "+inSlot.getAttribute("cur"));
-            reward = inSlot.getAttribute("cur");
-        }
-        else if (inSlot.className.indexOf('slot_avatar') >= 0)
-        {
-            //console.log(currentIndicator+" : avatar");
-            if (inSlot.className.indexOf('girl_ico') >= 0)
-            {
-                reward = 'girl_shards';
-            }
-            else
-            {
-                reward = 'avatar';
-            }
-        }
-        else if (inSlot.className.indexOf('shards_girl_ico') >= 0)
-        {
-            //console.log(currentIndicator+" : shards_girl_ico");
-            reward = 'girl_shards';
-        }
-        else if (inSlot.getAttribute("rarity") !== null)
-        {
-            let objectData = $(inSlot).data("d");
-            //console.log(currentIndicator+" : "+inSlot.getAttribute("rarity")+" "+objectData.type+" "+objectData.value);
-            reward = objectData.type;
-        }
-
-    }
-    //console.log(reward);
-    return reward;
 }
 
 function moduleSimSeasonMaskReward()
@@ -3039,9 +2999,70 @@ function customMatchRating(inSimu)
     }
 }
 
+function getRewardTypeByData(inData)
+{
+    let reward = "undetected";
+    if (inData.hasOwnProperty("type"))
+    {
+        reward = inData.type;
+    }
+    else if (inData.hasOwnProperty("ico"))
+    {
+        if ( inData.ico.indexOf("items/K") > 0 )
+        {
+            reward = "gift";
+        }
+        else if ( inData.ico.indexOf("items/XP") > 0 )
+        {
+            reward = "potion";
+        }
+    }
+    //console.log(reward);
+    return reward;
+}
+
+function getRewardTypeBySlot(inSlot)
+{
+    let reward = "undetected";
+    if (inSlot.className.indexOf('slot') >= 0)
+    {
+        if (inSlot.getAttribute("cur") !== null)
+        {
+            //console.log(currentIndicator+" : "+inSlot.getAttribute("cur"));
+            reward = inSlot.getAttribute("cur");
+        }
+        else if (inSlot.className.indexOf('slot_avatar') >= 0)
+        {
+            //console.log(currentIndicator+" : avatar");
+            if (inSlot.className.indexOf('girl_ico') >= 0)
+            {
+                reward = 'girl_shards';
+            }
+            else
+            {
+                reward = 'avatar';
+            }
+        }
+        else if (inSlot.className.indexOf('shards_girl_ico') >= 0)
+        {
+            //console.log(currentIndicator+" : shards_girl_ico");
+            reward = 'girl_shards';
+        }
+        else if (inSlot.getAttribute("rarity") !== null)
+        {
+            let objectData = $(inSlot).data("d");
+            //console.log(currentIndicator+" : "+inSlot.getAttribute("rarity")+" "+objectData.type+" "+objectData.value);
+            reward = objectData.type;
+        }
+
+    }
+    //console.log(reward);
+    return reward;
+}
+
 function goAndCollectDailyRewards()
 {
-    const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoDailyCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoDailyCollectablesList")):[];
+    const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoDailyRewardsCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoDailyRewardsCollectablesList")):[];
     if (getPage() == "home")
     {
         const dailyRewardNotifRequest = getHHScriptVars("dailyRewardNotifRequest",false);
@@ -3062,36 +3083,36 @@ function goAndCollectDailyRewards()
             if ($(dailyRewardSlotRequest).length > 0)
             {
                 //replaceCheatClick();
-                const getRewardType = getSlotRewardType($(".slot",dailyRewardSlotRequest)[0]);
+                const getRewardType = getRewardTypeBySlot($(".slot",dailyRewardSlotRequest)[0]);
                 if (rewardsToCollect.includes(getRewardType))
                 {
                     $("button.blue_button_L.daily-claim-btn:not([disabled])", dailyRewardSlotRequest)[0].click();
                     logHHAuto('Collected immediate daily rewards, setting timer to next day.');
-                    setTimer('nextDailyCollectTime', getSecondsLeftBeforeEndOfHHDay() + 3600);
+                    setTimer('nextDailyRewardsCollectTime', getSecondsLeftBeforeEndOfHHDay() + 3600);
                 }
                 else if (getSecondsLeftBeforeEndOfHHDay() <= getHHScriptVars("dailyRewardMaxRemainingTime") && getSecondsLeftBeforeEndOfHHDay() > 0)
                 {
                     logHHAuto('Collected daily rewards, setting timer to next day.');
                     $("button.blue_button_L.daily-claim-btn:not([disabled])", dailyRewardSlotRequest)[0].click();
-                    setTimer('nextDailyCollectTime', getSecondsLeftBeforeEndOfHHDay() + 3600);
+                    setTimer('nextDailyRewardsCollectTime', getSecondsLeftBeforeEndOfHHDay() + 3600);
                 }
                 else
                 {
                     logHHAuto('Reward not set for immediate collection, setting timer to near end of HH day.');
-                    setTimer('nextDailyCollectTime', getSecondsLeftBeforeEndOfHHDay() - getHHScriptVars("dailyRewardMaxRemainingTime"));
+                    setTimer('nextDailyRewardsCollectTime', getSecondsLeftBeforeEndOfHHDay() - getHHScriptVars("dailyRewardMaxRemainingTime"));
                 }
             }
             else
             {
                 logHHAuto('Seems reward already collected, setting timer to 1h.');
-                setTimer('nextDailyCollectTime', 3600);
+                setTimer('nextDailyRewardsCollectTime', 3600);
             }
             gotoPage("home");
         }
         else
         {
             logHHAuto('No more daily reward, setting timer to next day.');
-            setTimer('nextDailyCollectTime', getSecondsLeftBeforeEndOfHHDay() + 3600);
+            setTimer('nextDailyRewardsCollectTime', getSecondsLeftBeforeEndOfHHDay() + 3600);
         }
 
         /*if (freeBundleButton.length > 0 && dailyRewardAvailable())
@@ -3112,6 +3133,95 @@ function goAndCollectDailyRewards()
 
 }
 
+function goAndCollectDailyGoals()
+{
+    const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoDailyGoalsCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoDailyGoalsCollectablesList")):[];
+    //console.log(rewardsToCollect.length);
+    if (checkTimer('nextDailyGoalsCollectTime') && getStoredValue("HHAuto_Setting_autoDailyGoalsCollect") === "true" && rewardsToCollect.length > 0 )
+    {
+        //console.log(getPage());
+        if (getPage() === "daily_goals")
+        {
+            logHHAuto("Checking Daily Goals for collectable rewards.");
+            logHHAuto("setting autoloop to false");
+            setStoredValue("HHAuto_Temp_autoLoop", "false");
+            let buttonsToCollect = [];
+            const listDailyGoalsTiersToClaim = $("#daily_goals .progress-section .daily-goals-rewards-container .daily-goals-reward");
+            for (let currentTier = 0 ; currentTier < listDailyGoalsTiersToClaim.length ; currentTier++)
+            {
+                const currentButton = $("button[rel='claim']", listDailyGoalsTiersToClaim[currentTier]);
+                if(currentButton.length > 0 )
+                {
+                    const currentTierNb = currentButton[0].getAttribute("tier");
+                    const currentChest = $(".daily-goals-reward-chest", listDailyGoalsTiersToClaim[currentTier]);
+                    const currentRewardsList = currentChest.length > 0 ? currentChest.data("rewards") : [];
+                    //console.log("checking tier : "+currentTierNb);
+                    if (getSecondsLeftBeforeEndOfHHDay() <= getHHScriptVars("dailyRewardMaxRemainingTime") && getSecondsLeftBeforeEndOfHHDay() > 0)
+                    {
+                        logHHAuto("Force adding for collection chest n° "+currentTierNb);
+                        buttonsToCollect.push(currentButton[0]);
+                    }
+                    else
+                    {
+                        let validToCollect = true;
+                        for (let reward of currentRewardsList)
+                        {
+                            const rewardType = getRewardTypeByData(reward);
+
+                            if (! rewardsToCollect.includes(rewardType))
+                            {
+                                logHHAuto(`Not adding for collection chest n° ${currentTierNb} because ${rewardType} is not in immediate collection list.`);
+                                validToCollect = false;
+                                break;
+                            }
+                        }
+                        if (validToCollect)
+                        {
+                            buttonsToCollect.push(currentButton[0]);
+                            logHHAuto("Adding for collection chest n° "+currentTierNb);
+                        }
+                    }
+                }
+            }
+
+
+            if (buttonsToCollect.length >0)
+            {
+                function collectDailyGoalsRewards()
+                {
+                    if (buttonsToCollect.length >0)
+                    {
+                        logHHAuto("Collecting chest n° "+buttonsToCollect[0].getAttribute('tier'));
+                        buttonsToCollect[0].click();
+                        buttonsToCollect.shift();
+                        setTimeout(collectDailyGoalsRewards, randomInterval(300, 500));
+                    }
+                    else
+                    {
+                        logHHAuto("Daily Goals collection finished.");
+                        setTimer('nextDailyGoalsCollectTime',getHHScriptVars("maxCollectionDelay"));
+                        gotoPage("home");
+                    }
+                }
+                collectDailyGoalsRewards();
+                return true;
+            }
+            else
+            {
+                logHHAuto("No Daily Goals reward to collect.");
+                setTimer('nextDailyGoalsCollectTime',getHHScriptVars("maxCollectionDelay"));
+                gotoPage("home");
+                return false;
+            }
+        }
+        else
+        {
+            logHHAuto("Switching to Daily Goals screen.");
+            gotoPage("activities",{tab:"daily_goals"});
+            return true;
+        }
+    }
+}
 
 function goAndCollectPoV()
 {
@@ -3131,13 +3241,13 @@ function goAndCollectPoV()
                 const currentButton = $("button[rel='claim']", listPoVTiersToClaim[currentTier])[0];
                 const currentTierNb = currentButton.getAttribute("tier");
                 //console.log("checking tier : "+currentTierNb);
-                const freeSlotType = getSlotRewardType($(".free-slot .slot,.free-slot .shards_girl_ico",listPoVTiersToClaim[currentTier])[0]);
+                const freeSlotType = getRewardTypeBySlot($(".free-slot .slot,.free-slot .shards_girl_ico",listPoVTiersToClaim[currentTier])[0]);
                 if (rewardsToCollect.includes(freeSlotType))
                 {
                     const paidSlots = $(".paid-slots:not(.paid-locked) .slot,.paid-slots:not(.paid-locked) .shards_girl_ico",listPoVTiersToClaim[currentTier]);
                     if (paidSlots.length >0)
                     {
-                        if (rewardsToCollect.includes(getSlotRewardType(paidSlots[0])) && rewardsToCollect.includes(getSlotRewardType(paidSlots[1])))
+                        if (rewardsToCollect.includes(getRewardTypeBySlot(paidSlots[0])) && rewardsToCollect.includes(getRewardTypeBySlot(paidSlots[1])))
                         {
                             buttonsToCollect.push(currentButton);
                             logHHAuto("Adding for collection tier (with paid) : "+currentTierNb);
@@ -3204,7 +3314,7 @@ function goAndCollectSeason()
             function collectSeasonRewards(inHasClicked = false)
             {
                 let rewardPlaceHolder = $("#reward_placeholder .reward_wrapper_s.reward_wrapper_s_is_claimable, #reward_placeholder .reward_wrapper_s.reward_wrapper_s_is_next");
-                let currentSelectedRewardType = getSlotRewardType($(".slot, .shards_girl_ico",rewardPlaceHolder)[0]);
+                let currentSelectedRewardType = getRewardTypeBySlot($(".slot, .shards_girl_ico",rewardPlaceHolder)[0]);
                 if (rewardsToCollect.includes(currentSelectedRewardType) && rewardPlaceHolder.length >0)
                 {
                     logHHAuto("Collecting : "+currentSelectedRewardType);
@@ -3230,7 +3340,7 @@ function goAndCollectSeason()
                     {
                         //console.log(currReward);
                         let currentRewardSlot = $(".slot, .shards_girl_ico",allClaimable[currReward])[0];
-                        let currentRewardType = getSlotRewardType(currentRewardSlot);
+                        let currentRewardType = getRewardTypeBySlot(currentRewardSlot);
                         //console.log(currentRewardType);
                         if (rewardsToCollect.includes(currentRewardType))
                         {
@@ -6309,11 +6419,16 @@ var autoLoop = function ()
             busy = goAndCollectPoV();
         }
 
-        if (getHHScriptVars("isEnabledDailyRewards",false) && busy==false && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextDailyCollectTime') && getStoredValue("HHAuto_Setting_collectDailyRewards") === "true")
+        if (getHHScriptVars("isEnabledDailyRewards",false) && busy==false && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextDailyRewardsCollectTime') && getStoredValue("HHAuto_Setting_autoDailyRewardsCollect") === "true")
         {
             busy = true;
             goAndCollectDailyRewards();
+        }
 
+        if (getHHScriptVars("isEnabledDailyGoals",false) && busy==false && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextDailyGoalsCollectTime') && getStoredValue("HHAuto_Setting_autoDailyGoalsCollect") === "true")
+        {
+            busy = true;
+            goAndCollectDailyGoals();
         }
 
         if (getHHScriptVars("isEnabledShop",false) && busy===false && ( getStoredValue("HHAuto_Setting_paranoia") !== "true" || !checkTimer("paranoiaSwitch") )  && getStoredValue("HHAuto_Temp_autoLoop") === "true")
@@ -9825,7 +9940,7 @@ HHEnvVariables["global"].HaremMinSizeExpirationSecs = 24*60*60;//1 days
 HHEnvVariables["global"].LeagueListExpirationSecs = 60*60;//1 hour max
 HHEnvVariables["global"].minSecsBeforeGoHomeAfterActions = 10;
 HHEnvVariables["global"].dailyRewardMaxRemainingTime = 2*60*60;
-HHEnvVariables["global"].maxCollectionDelay = 8*60*60;
+HHEnvVariables["global"].maxCollectionDelay = 2*60*60;
 HHEnvVariables["global"].STOCHASTIC_SIM_RUNS = 10000;
 HHEnvVariables["global"].ELEMENTS =
     {
@@ -9936,9 +10051,6 @@ switch (getLanguageCode())
         break;
 }
 
-
-HHEnvVariables["global"].activitiesMainPage = 'activities';
-
 HHEnvVariables["global"].gotoPageHome = '/home.html';
 HHEnvVariables["global"].gotoPageActivities = '/activities.html';
 HHEnvVariables["global"].gotoPageHarem = '/harem.html';
@@ -9981,6 +10093,7 @@ HHEnvVariables["global"].isEnabledDailyRewards = true;
 HHEnvVariables["global"].isEnabledShop = true;
 HHEnvVariables["global"].isEnabledSalary = true;
 HHEnvVariables["global"].isEnabledPoV = true;
+HHEnvVariables["global"].isEnabledDailyGoals = true;
 HHEnvVariables["HH_test"].isEnabledDailyRewards = false;// to remove if daily rewards arrives in test
 //HHEnvVariables["CH_prod"].isEnabledAllChamps = false;// to remove when Champs arrives in Comix
 //HHEnvVariables["CH_prod"].isEnabledChamps = false;// to remove when Champs arrives in Comix
@@ -10197,7 +10310,7 @@ HHAuto_ToolTips.en.ChangeTeamButton2 = {version: "5.6.24", elementText: "Possibl
 HHAuto_ToolTips.en.AssignTopTeam  = {version: "5.6.24", elementText: "Assign first 7", tooltip: "Put the first 7 ones in the team."};
 HHAuto_ToolTips.en.ExportGirlsData = {version: "5.6.24", elementText: "⤓", tooltip: "Export Girls data."};
 HHAuto_ToolTips.en.menuRemoveMaxed = {version: "5.6.24", elementText: "Remove maxed", tooltip: "Remove maxed girls"};
-HHAuto_ToolTips.en.collectDailyRewards = {version: "5.6.49", elementText: "Collect daily", tooltip: "Collect daily rewards if not collected 2 hours before end of HH day."};
+HHAuto_ToolTips.en.autoDailyRewardsCollect = {version: "5.6.54", elementText: "Collect daily Rewards", tooltip: "Collect daily rewards if not collected 2 hours before end of HH day."};
 HHAuto_ToolTips.en.saveDefaults = {version: "5.6.24", elementText: "Save defaults", tooltip: "Save your own defaults values for new tabs."};
 HHAuto_ToolTips.en.autoGiveAff = {version: "5.6.24", elementText: "Auto Give", tooltip: "If enabled, will automatically give Aff to girls in order ( you can use OCD script to filter )."};
 HHAuto_ToolTips.en.autoGiveExp = {version: "5.6.24", elementText: "Auto Give", tooltip: "If enabled, will automatically give Exp to girls in order ( you can use OCD script to filter )."};
@@ -10220,8 +10333,7 @@ HHAuto_ToolTips.en.menuCollectable = { version: "5.6.47", elementText: "Collecta
 HHAuto_ToolTips.en.menuCollectableText = { version: "5.6.47", elementText: "Please select the collectables you want to be automatically collected.", tooltip: ""};
 HHAuto_ToolTips.en.menuDailyCollectableText = { version: "5.6.49", elementText: "Please select the collectables you want to be immediately collected.", tooltip: ""};
 HHAuto_ToolTips.en.autoPoVCollect = { version: "5.6.49", elementText: "Collect PoV", tooltip: "if enabled : Automatically collect Path of Valor."};
-
-
+HHAuto_ToolTips.en.autoDailyGoalsCollect = {version: "5.6.54", elementText: "Collect daily Goals", tooltip: "Collect daily Goals if not collected 2 hours before end of HH day."};
 
 HHAuto_ToolTips.fr.saveDebug = { version: "5.6.24", elementText: "Sauver log", tooltip: "Sauvegarder un fichier journal de débogage."};
 HHAuto_ToolTips.fr.gitHub = { version: "5.6.24", elementText: "GitHub", tooltip: "Lien vers le projet GitHub."};
@@ -11080,7 +11192,7 @@ HHStoredVars.HHAuto_Setting_buyMythicCombTimer =
     menuType:"value",
     kobanUsing:false
 };*/
-HHStoredVars.HHAuto_Setting_collectDailyRewards =
+HHStoredVars.HHAuto_Setting_autoDailyRewardsCollect =
     {
     default:"false",
     storage:"Storage()",
@@ -11094,13 +11206,13 @@ HHStoredVars.HHAuto_Setting_collectDailyRewards =
             {
                 if (this.checked)
                 {
-                    getAndStoreCollectPreferences("HHAuto_Setting_autoDailyCollectablesList", getTextForUI("menuDailyCollectableText","elementText"));
-                    clearTimer('nextDailyCollectTime');
+                    getAndStoreCollectPreferences("HHAuto_Setting_autoDailyRewardsCollectablesList", getTextForUI("menuDailyCollectableText","elementText"));
+                    clearTimer('nextDailyRewardsCollectTime');
                 }
             }
            }
 };
-HHStoredVars.HHAuto_Setting_autoDailyCollectablesList =
+HHStoredVars.HHAuto_Setting_autoDailyRewardsCollectablesList =
     {
     default:JSON.stringify('[]'),
     storage:"Storage()",
@@ -11421,7 +11533,33 @@ HHStoredVars.HHAuto_Setting_autoPoVCollectablesList =
     HHType:"Setting",
     valueType:"Array"
 };
-
+HHStoredVars.HHAuto_Setting_autoDailyGoalsCollect =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    events:{"change":function()
+            {
+                if (this.checked)
+                {
+                    getAndStoreCollectPreferences("HHAuto_Setting_autoDailyGoalsCollectablesList", getTextForUI("menuDailyCollectableText","elementText"));
+                    clearTimer('nextDailyGoalsCollectTime');
+                }
+            }
+           }
+};
+HHStoredVars.HHAuto_Setting_autoDailyGoalsCollectablesList =
+    {
+    default:JSON.stringify('[]'),
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Array"
+};
 // Temp vars
 HHStoredVars.HHAuto_Temp_autoLoop =
     {
@@ -11748,7 +11886,7 @@ var updateData = function () {
 
 function maskInactiveMenus()
 {
-    let menuIDList =["isEnabledPoV","isEnabledDailyRewards","isEnabledMission","isEnabledContest","isEnabledTrollBattle","isEnabledPowerPlaces","isEnabledSalary","isEnabledPachinko","isEnabledQuest","isEnabledSeason","isEnabledLeagues","isEnabledAllChamps","isEnabledChamps","isEnabledClubChamp","isEnabledPantheon","isEnabledShop"];
+    let menuIDList =["isEnabledDailyGoals", "isEnabledPoV","isEnabledDailyRewards","isEnabledMission","isEnabledContest","isEnabledTrollBattle","isEnabledPowerPlaces","isEnabledSalary","isEnabledPachinko","isEnabledQuest","isEnabledSeason","isEnabledLeagues","isEnabledAllChamps","isEnabledChamps","isEnabledClubChamp","isEnabledPantheon","isEnabledShop"];
     for (let menu of menuIDList)
     {
         if ( document.getElementById(menu) !== null && getHHScriptVars(menu,false) !== null && !getHHScriptVars(menu,false) )
@@ -11869,11 +12007,12 @@ var start = function () {
     +     '<div class="optionsColumn">'  //+     '<div style="padding:3px; display:flex; flex-direction:column;">'
     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("master","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("master","tooltip")+'</span><label class="switch"><input id="master" type="checkbox"><span class="slider round"></span></label></div></div>'
     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("paranoia","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("paranoia","tooltip")+'</span><label class="switch"><input id="paranoia" type="checkbox"><span class="slider round"></span></label></div></div>'
-    +      '<div id="isEnabledDailyRewards" class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("collectDailyRewards","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("collectDailyRewards","tooltip")+'</span><label class="switch"><input id="collectDailyRewards" type="checkbox"><span class="slider round"></span></label></div></div>'
+    +      '<div id="isEnabledDailyRewards" class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoDailyRewardsCollect","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoDailyRewardsCollect","tooltip")+'</span><label class="switch"><input id="autoDailyRewardsCollect" type="checkbox"><span class="slider round"></span></label></div></div>'
     +     '</div>'
     +     '<div class="optionsColumn">'  //+     '<div style="padding:3px; display:flex; flex-direction:column">'
     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("settPerTab","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("settPerTab","tooltip")+'</span><label class="switch"><input id="settPerTab" type="checkbox"><span class="slider round"></span></label></div></div>'
     +      '<div class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("paranoiaSpendsBefore","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("paranoiaSpendsBefore","tooltip")+'</span><label class="switch"><input id="paranoiaSpendsBefore" type="checkbox"><span class="slider round"></span></label></div></div>'
+    +      '<div id="isEnabledDailyGoals" class="labelAndButton"><span class="HHMenuItemName">'+getTextForUI("autoDailyGoalsCollect","elementText")+'</span><div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoDailyGoalsCollect","tooltip")+'</span><label class="switch"><input id="autoDailyGoalsCollect" type="checkbox"><span class="slider round"></span></label></div></div>'
     +     '</div>'
     +    '</div>'
     +   '</div>'
