@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.54
+// @version      5.6.55
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -3311,63 +3311,101 @@ function goAndCollectSeason()
             logHHAuto("Going to collect Season.");
             logHHAuto("setting autoloop to false");
             setStoredValue("HHAuto_Temp_autoLoop", "false");
-            function collectSeasonRewards(inHasClicked = false)
-            {
-                let rewardPlaceHolder = $("#reward_placeholder .reward_wrapper_s.reward_wrapper_s_is_claimable, #reward_placeholder .reward_wrapper_s.reward_wrapper_s_is_next");
-                let currentSelectedRewardType = getRewardTypeBySlot($(".slot, .shards_girl_ico",rewardPlaceHolder)[0]);
-                if (rewardsToCollect.includes(currentSelectedRewardType) && rewardPlaceHolder.length >0)
-                {
-                    logHHAuto("Collecting : "+currentSelectedRewardType);
-                    setTimeout(function (){$("#claim_btn_s")[0].click();},500);
-                    setTimeout(function (){location.reload();},1000);
-                    return true;
-                }
-                else
-                {
-                    if (inHasClicked)
-                    {
-                        logHHAuto("Seems season collection is stucked, cancelling. (can be due to an already claimed reward not updated by UI.)");
-                    }
-                    let limitClassPass = "";
-                    if ($("div#gsp_btn_holder[style='display: block;']").length)
-                    {
-                        limitClassPass = ".free-reward";
-                    }
 
-                    let allClaimable = $("#seasons_row1 .rewards_pair .reward_wrapper_s_is_claimable"+limitClassPass);
-                    //console.log(allClaimable.length);
-                    for (let currReward = 0;currReward < allClaimable.length; currReward++)
+            let limitClassPass = "";
+            if ($("div#gsp_btn_holder[style='display: block;']").length)
+            {
+                limitClassPass = ".free-reward";
+            }
+
+            let buttonsToCollect = [];
+            const listSeasonTiersToClaim = $("#seasons_row1 .rewards_pair .reward_wrapper_s_is_claimable"+limitClassPass);
+            for (let currentReward = 0 ; currentReward < listSeasonTiersToClaim.length ; currentReward++)
+            {
+                const currentRewardSlot = getRewardTypeBySlot($(".slot, .shards_girl_ico",listSeasonTiersToClaim[currentReward])[0]);
+                const currentTier = $(".number_indicator_s",$(listSeasonTiersToClaim[currentReward]).parent())[0].innerText;
+                if (rewardsToCollect.includes(currentRewardSlot))
+                {
+                    if (listSeasonTiersToClaim[currentReward].className.indexOf('pass-reward') > 0)
                     {
-                        //console.log(currReward);
-                        let currentRewardSlot = $(".slot, .shards_girl_ico",allClaimable[currReward])[0];
-                        let currentRewardType = getRewardTypeBySlot(currentRewardSlot);
-                        //console.log(currentRewardType);
-                        if (rewardsToCollect.includes(currentRewardType))
-                        {
-                            currentRewardSlot.click();
-                            setTimeout(function (){collectSeasonRewards(true)},300);
-                            return true;
-                        }
+                        logHHAuto("Adding for collection tier n°"+currentTier+" reward (paid) : "+currentRewardSlot);
+                        buttonsToCollect.push({reward : currentRewardSlot, button : listSeasonTiersToClaim[currentReward], tier : currentTier, paid:true});
                     }
-                    return false;
+                    else
+                    {
+                        logHHAuto("Adding for collection n°"+currentTier+" reward (free) : "+currentRewardSlot);
+                        buttonsToCollect.push({reward : currentRewardSlot, button : listSeasonTiersToClaim[currentReward], tier : currentTier, paid:false});
+                    }
                 }
             }
-            const needCollecting = collectSeasonRewards();
-            if (!needCollecting)
+
+            console.log(JSON.stringify(buttonsToCollect));
+            if (buttonsToCollect.length >0)
             {
-                logHHAuto("Season collection finished, putting autoloop back to true");
+                function collectSeasonRewards(inHasSelected = false)
+                {
+                    if (buttonsToCollect.length >0)
+                    {
+                        const currentToCollect = buttonsToCollect[0];
+                        if (inHasSelected)
+                        {
+                            const rewardPlaceHolder = $("#reward_placeholder .reward_wrapper_s.reward_wrapper_s_is_claimable, #reward_placeholder .reward_wrapper_s.reward_wrapper_s_is_next");
+                            const currentSelectedRewardType = getRewardTypeBySlot($(".slot, .shards_girl_ico",rewardPlaceHolder)[0]);
+                            const currentTier = $("#tier_text_s")[0].innerText.split(" ")[1];
+                            if (
+                                rewardPlaceHolder.length >0
+                                && rewardsToCollect.includes(currentSelectedRewardType)
+                                && currentSelectedRewardType === currentToCollect.reward
+                                && currentTier === currentToCollect.tier
+                            )
+                            {
+                                logHHAuto("Collecting tier n°"+currentToCollect.tier+" : "+currentSelectedRewardType);
+                                setTimeout(function (){$("#claim_btn_s")[0].click();},500);
+                            }
+                            else
+                            {
+                                logHHAuto(`Issue collecting n°${currentToCollect.tier} : ${currentToCollect.reward} : \n`
+                                         +`rewardPlaceHolder.length : ${rewardPlaceHolder.length}\n`
+                                         +`rewardsToCollect.includes(currentSelectedRewardType) : ${rewardsToCollect.includes(currentSelectedRewardType)}\n`
+                                         +`currentSelectedRewardType : ${currentSelectedRewardType} / currentToCollect.reward : ${currentToCollect.reward} => ${currentSelectedRewardType === currentToCollect.reward}\n`
+                                         +`currentTier : ${currentTier} / currentToCollect.tier : ${currentToCollect.tier} => ${currentTier === currentToCollect.tier}`);
+
+                                logHHAuto("Proceeding with next one.");
+                            }
+
+                            buttonsToCollect.shift();
+                            setTimeout(collectSeasonRewards,1000);
+                            return;
+                        }
+                        else
+                        {
+                            logHHAuto("Selecting reward n°"+currentToCollect.tier+" : "+currentToCollect.reward);
+                            currentToCollect.button.click();
+                            setTimeout(function () {collectSeasonRewards(true);}, randomInterval(300, 500));
+                        }
+                    }
+                    else
+                    {
+                        logHHAuto("Season collection finished.");
+                        setTimer('nextSeasonCollectTime',getHHScriptVars("maxCollectionDelay"));
+                        gotoPage("home");
+                    }
+                }
+                collectSeasonRewards();
+                return true;
+            }
+            else
+            {
+                logHHAuto("No season collection to do.");
                 setTimer('nextSeasonCollectTime',getHHScriptVars("maxCollectionDelay"));
                 gotoPage("home");
                 return false;
             }
-            else
-            {
-                return true;
-            }
+            return;
         }
         else
         {
-            logHHAuto("Switching to Season Arena screen.");
+            logHHAuto("Switching to Season Rewards screen.");
             gotoPage("season");
             return true;
         }
