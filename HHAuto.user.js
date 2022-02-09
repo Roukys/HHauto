@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.55
+// @version      5.6.56
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -1053,7 +1053,7 @@ function modulePachinko()
         +     '<div style="padding:10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoLeft","tooltip")+'</span><span id="PachinkoLeft"></span></div>'
         +    '</div>'
         +    '<div style="display:flex;flex-direction:row;align-items:center;">'
-        +     '<div style="padding:10px"class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoPlayX","tooltip")+'</span><label class="myButton" id="PachinkoPlayX">'+getTextForUI("PachinkoPlayX","elementText")+'</label></div>'
+        +     '<div style="padding:10px"class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("Launch","tooltip")+'</span><label class="myButton" id="PachinkoPlayX">'+getTextForUI("Launch","elementText")+'</label></div>'
         +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoXTimes","tooltip")+'</span><input id="PachinkoXTimes" style="width:50px;height:20px" required pattern="'+HHAuto_inputPattern.menuExpLevel+'" type="text" value="1"></div>'
         +     '<div style="display:flex;flex-direction:column;align-items: center;">'
         +      '<div>'+getTextForUI("PachinkoByPassNoGirls","elementText")+'</div>'
@@ -1425,7 +1425,12 @@ function moduleChangeTeam()
     document.getElementById("ChangeTeamButton2").addEventListener("click", function(){setTopTeam(2)});
 }
 
-function getGirlMapSorted()
+function getCurrentSorting()
+{
+    return localStorage.sort_by;
+}
+
+function getGirlMapSorted(inSortType = "upgrade_cost",inSortReversed = true )
 {
     let girlsMap = getHHVars('GirlSalaryManager.girlsMap');
     if (girlsMap !== null)
@@ -1434,14 +1439,23 @@ function getGirlMapSorted()
         girlsMap = Object.values(girlsMap);
         if (girlsMap.length > 0)
         {
-            const storedSort = localStorage.sort_by;
-            if (storedSort == "name")
-                girlsMap.sort(sortByName);
-            else if (storedSort == "grade")
-                girlsMap.sort(sortByGrade);
+            //console.log(inSortType);
+            if (getHHScriptVars("haremSortingFunctions").hasOwnProperty(inSortType))
+            {
+                girlsMap.sort(getHHScriptVars("haremSortingFunctions")[inSortType]);
+            }
             else
-                girlsMap.sort(sortGirlMapDateAcquired);
+            {
+                logHHAuto("Unknown sorting function, returning Girls Map sorted by date acquired.");
+                girlsMap.sort(getHHScriptVars("haremSortingFunctions").date_acquired);
+            }
         }
+        if (inSortReversed)
+        {
+            girlsMap.reverse();
+        }
+        /*for(let i=0;i<5;i++)
+            console.log(girlsMap[i].gData.name, getGirlUpgradeCost(girlsMap[i].gData.rarity, girlsMap[i].gData.graded + 1));*/
     }
     return girlsMap;
 }
@@ -1453,16 +1467,58 @@ function moduleHaremNextUpgradableGirl()
     if (document.getElementById(menuID) === null)
     {
         $("#contains_all section").prepend(menuHidden);
-        GM_registerMenuCommand(getTextForUI(menuID,"elementText"), selectNextUpgradableGirl);
+        GM_registerMenuCommand(getTextForUI(menuID,"elementText"), popUpHaremSort);
     }
     else
     {
         return;
     }
+    function popUpHaremSort()
+    {
+        let HaremSortMenu = '<div style="padding:50px; display:flex;flex-direction:column">'
+        +    '<p id="HaremSortMenuSortText">'+getTextForUI("HaremSortMenuSortText","elementText")+'</p>'
+        +    '<div style="display:flex;flex-direction:row;align-items: center;">'
+        +     '<div style="padding:10px"><select id="HaremSortMenuSortSelector"></select></div>'
+        +     '<div style="display:flex;flex-direction:column;padding:10px;justify-content:center">'
+        +      '<div>'+getTextForUI("HaremSortMenuSortReverse","elementText")+'</div>'
+        +      '<div><input id="HaremSortMenuSortReverse" type="checkbox"></div>'
+        +     '</div>'
+        +    '</div>'
+        +    '<div style="display:flex;flex-direction:row;align-items:center;">'
+        +     '<div style="display:flex;flex-direction:column;padding:10px;justify-content:center">'
+        //+      '<div>'+getTextForUI("HaremSortMenuSortReverse","elementText")+'</div>'
+        //+      '<div><input id="HaremSortMenuSortNumber" type="number" name="quantity" min="1" max="20" step="1" value="10"></div>'
+        +     '</div>'
+        +     '<div style="padding:10px"><label class="myButton" id="HaremSortMenuLaunch">'+getTextForUI("Launch","elementText")+'</label></div>'
+        +    '</div>'
+        +  '</div>'
+        fillHHPopUp("HaremSortMenu",getTextForUI(menuID,"elementText"), HaremSortMenu);
 
+        document.getElementById("HaremSortMenuLaunch").addEventListener("click", selectNextUpgradableGirl);
+        let selectorOptions = document.getElementById("HaremSortMenuSortSelector");
+
+        const storedDefaultSort = (getStoredValue("HHAuto_Temp_defaultCustomHaremSort") !== undefined && isJSON(getStoredValue("HHAuto_Temp_defaultCustomHaremSort")))?JSON.parse(getStoredValue("HHAuto_Temp_defaultCustomHaremSort")):{sortFunction : "null", reverse:false};
+
+        for (let sortFunction of Object.keys(getHHScriptVars("haremSortingFunctions")))
+        {
+            let optionElement = document.createElement("option");
+            optionElement.value = sortFunction;
+            optionElement.text = getTextForUI("HaremSortMenuSortBy","elementText") + getTextForUI(sortFunction,"elementText");
+            if ( storedDefaultSort.sortFunction === sortFunction)
+            {
+                optionElement.selected = true;
+            }
+            selectorOptions.add(optionElement);
+        }
+
+        document.getElementById("HaremSortMenuSortReverse").checked = storedDefaultSort.reverse;
+    }
     function selectNextUpgradableGirl()
     {
-        const girlsMap = getGirlMapSorted();
+        const selectedSortFunction = document.getElementById("HaremSortMenuSortSelector").options[document.getElementById("HaremSortMenuSortSelector").selectedIndex].value;
+        const isReverseChecked = document.getElementById("HaremSortMenuSortReverse").checked;
+        setStoredValue("HHAuto_Temp_defaultCustomHaremSort",JSON.stringify({sortFunction:selectedSortFunction, reverse:isReverseChecked}));
+        const girlsMap = getGirlMapSorted(selectedSortFunction,isReverseChecked);
         if (girlsMap === null )
             return;
         const currentSelectedGirlIndex = girlsMap.findIndex((element) => element.gId === $('#harem_left .girls_list div.opened[girl]').attr('girl'))+1;
@@ -1490,20 +1546,61 @@ function haremOpenFirstXUpgradable()
         var openedGirlz = 0;
         var maxOpenedGirlz;
         $("#contains_all section").prepend(menuHidden);
-        GM_registerMenuCommand(getTextForUI(menuID,"elementText"), prepareUpgradable);
+        GM_registerMenuCommand(getTextForUI(menuID,"elementText"), popUpHaremSort);
     }
     else
     {
         return;
     }
+    function popUpHaremSort()
+    {
+        let HaremSortMenu = '<div style="padding:50px; display:flex;flex-direction:column">'
+        +    '<p id="HaremSortMenuSortText">'+getTextForUI("HaremSortMenuSortText","elementText")+'</p>'
+        +    '<div style="display:flex;flex-direction:row;align-items: center;">'
+        +     '<div style="padding:10px"><select id="HaremSortMenuSortSelector"></select></div>'
+        +     '<div style="display:flex;flex-direction:column;padding:10px;justify-content:center">'
+        +      '<div>'+getTextForUI("HaremSortMenuSortReverse","elementText")+'</div>'
+        +      '<div><input id="HaremSortMenuSortReverse" type="checkbox"></div>'
+        +     '</div>'
+        +    '</div>'
+        +    '<div style="display:flex;flex-direction:row;align-items:center;">'
+        +     '<div style="display:flex;flex-direction:column;padding:10px;justify-content:center">'
+        //+      '<div>'+getTextForUI("HaremSortMenuSortReverse","elementText")+'</div>'
+        +      '<div><input id="HaremSortMenuSortNumber" type="number" name="quantity" min="1" max="20" step="1" value="10"></div>'
+        +     '</div>'
+        +     '<div style="padding:10px"><label class="myButton" id="HaremSortMenuLaunch">'+getTextForUI("Launch","elementText")+'</label></div>'
+        +    '</div>'
+        +  '</div>'
+        fillHHPopUp("HaremSortMenu",getTextForUI(menuID,"elementText"), HaremSortMenu);
+
+        document.getElementById("HaremSortMenuLaunch").addEventListener("click", prepareUpgradable);
+        let selectorOptions = document.getElementById("HaremSortMenuSortSelector");
+        const storedDefaultSort = (getStoredValue("HHAuto_Temp_defaultCustomHaremSort") !== undefined && isJSON(getStoredValue("HHAuto_Temp_defaultCustomHaremSort")))?JSON.parse(getStoredValue("HHAuto_Temp_defaultCustomHaremSort")):{sortFunction : "null", reverse:false};
+
+        for (let sortFunction of Object.keys(getHHScriptVars("haremSortingFunctions")))
+        {
+            let optionElement = document.createElement("option");
+            optionElement.value = sortFunction;
+            optionElement.text = getTextForUI("HaremSortMenuSortBy","elementText") + getTextForUI(sortFunction,"elementText");
+            if ( storedDefaultSort.sortFunction === sortFunction)
+            {
+                optionElement.selected = true;
+            }
+            selectorOptions.add(optionElement);
+        }
+    }
     function prepareUpgradable()
     {
-        let girlsMap = getGirlMapSorted();
+        const selectedSortFunction = document.getElementById("HaremSortMenuSortSelector").options[document.getElementById("HaremSortMenuSortSelector").selectedIndex].value;
+        const isReverseChecked = document.getElementById("HaremSortMenuSortReverse").checked;
+        setStoredValue("HHAuto_Temp_defaultCustomHaremSort",JSON.stringify({sortFunction:selectedSortFunction, reverse:isReverseChecked}));
+        const girlsMap = getGirlMapSorted(selectedSortFunction,isReverseChecked);
         if (girlsMap === null )
             return;
         openedGirlz = 0;
-        maxOpenedGirlz = Number(window.prompt("How many ?","10"));
+        maxOpenedGirlz = Number(document.getElementById("HaremSortMenuSortNumber").value);
         upgradableGirlz = girlsMap.filter(filterGirlMapCanUpgrade);
+        //console.log(maxOpenedGirlz);
         if (upgradableGirlz.length > 0)
         {
             haremOpenGirlUpgrade();
@@ -1540,6 +1637,7 @@ function haremOpenFirstXUpgradable()
             }
         }
     }
+
 }
 
 function moduleHaremExportGirlsData()
@@ -2033,45 +2131,6 @@ function filterGirlMapCanUpgrade(a)
 {
     return a.gData.can_upgrade;
 }
-
-function sortGirlMapDateAcquired(a, b) {
-    if (getHHVars("all_possible_girls") === null)
-        return -1;
-    if (a.gData.own && b.gData.own) {
-        var dateA = new Date(getHHVars("all_possible_girls")[a.gId].date_added).getTime();
-        var dateB = new Date(getHHVars("all_possible_girls")[b.gId].date_added).getTime();
-        return dateA - dateB
-    } else if (a.gData.own && !b.gData.own)
-        return -1;
-    else if (!a.gData.own && b.gData.own)
-        return 1;
-    else
-        return b.shards - a.shards
-}
-
-function sortByName(a, b) {
-    var nameA = a.gData.name.toUpperCase();
-    var nameB = b.gData.name.toUpperCase();
-    if (a.gData.own == b.gData.own) {
-        if (nameA < nameB)
-            return -1;
-        if (nameA > nameB)
-            return 1;
-        return 0
-    } else if (a.gData.own && !b.gData.own)
-        return -1;
-    else if (!a.gData.own && b.gData.own)
-        return 1
-}
-function sortByGrade(a, b) {
-    if (a.gData.own && b.gData.own)
-        return b.gData.graded - a.gData.graded;
-    else if (a.gData.own && !b.gData.own)
-        return -1;
-    else if (!a.gData.own && b.gData.own)
-        return 1
-}
-
 
 var CollectMoney = function()
 {
@@ -6654,6 +6713,43 @@ function moduleHaremCountMax()
     }
 }
 
+function getGirlUpgradeCost(inRarity, inTargetGrade)
+{
+    const rarity = ["starting", "common", "rare", "epic", "legendary", "mythic"];
+    const rarityFactors = [1, 2, 6, 14, 20, 50];
+    const gradeFactors = [1, 2.5, 2.5, 2, 2, 2];
+    const cost11 = 36000;
+    let calculatedCosts = {};
+    for (let i = 0;i <rarity.length; i++)
+    {
+        let currentRarityCosts = {};
+        for (let j = 0;j < 6;j++)
+        {
+            let currentCost;
+            if (i === 0 && j === 0)
+            {
+                //console.log("init 1");
+                currentCost = cost11;
+            }
+            else if ( j === 0 )
+            {
+                //console.log("init -1");
+                currentCost = calculatedCosts[rarity[0]][0]*rarityFactors[i];
+            }
+            else
+            {
+                //console.log("-1");
+                currentCost = currentRarityCosts[j-1]*gradeFactors[j];
+            }
+
+            currentRarityCosts[j] = currentCost;
+        }
+        //console.log(current);
+        calculatedCosts[rarity[i]] = currentRarityCosts;
+    }
+    return calculatedCosts[inRarity][inTargetGrade];
+}
+
 function getLevelXp(inRarity, inLevel)
 {
     const lvl_max_girl = 750;
@@ -9980,6 +10076,7 @@ HHEnvVariables["global"].minSecsBeforeGoHomeAfterActions = 10;
 HHEnvVariables["global"].dailyRewardMaxRemainingTime = 2*60*60;
 HHEnvVariables["global"].maxCollectionDelay = 2*60*60;
 HHEnvVariables["global"].STOCHASTIC_SIM_RUNS = 10000;
+HHEnvVariables["global"].PoVTimestampAttributeName = "data-time-stamp";
 HHEnvVariables["global"].ELEMENTS =
     {
     chance: {
@@ -10013,9 +10110,9 @@ HHEnvVariables["global"].boostersIdentifier =
     MB4:   {name:"Angels' semen scent", usage:"+25% power against PoA for next 60 missions"},
 };
 
-HHEnvVariables["global"].possibleRewardsList = {'energy_kiss':"Kisses",
-                                                'energy_quest':"Quest energy",
-                                                'energy_fight':"Fights",
+HHEnvVariables["global"].possibleRewardsList = {'energy_kiss' : "Kisses",
+                                                'energy_quest' : "Quest energy",
+                                                'energy_fight' : "Fights",
                                                 'xp' : "Exp",
                                                 'girl_shards' : "Girl shards",
                                                 'soft_currency' : "Ymens",
@@ -10027,8 +10124,6 @@ HHEnvVariables["global"].possibleRewardsList = {'energy_kiss':"Kisses",
                                                 'gems' : "Gems",
                                                 'avatar': "Avatar",
                                                 'ticket' : "Champions' tickets"};
-
-HHEnvVariables["global"].PoVTimestampAttributeName = "data-time-stamp";
 
 HHEnvVariables["global"].trollzList =  ["Latest",
                                         "Dark Lord",
@@ -10046,6 +10141,7 @@ HHEnvVariables["global"].trollzList =  ["Latest",
                                         "Nike",
                                         "Sake",
                                         "WereBunny Police"];
+
 HHEnvVariables["global"].leaguesList = ["Wanker I",
                                         "Wanker II",
                                         "Wanker III",
@@ -10087,6 +10183,66 @@ switch (getLanguageCode())
     default:
 
         break;
+}
+
+function compareOwnFirst(a, b, final_comparaison)
+{
+    if (a.own && !b.own) {
+        return -1
+    } else if (!a.own && b.own) {
+        return 1
+    }
+    return final_comparaison
+}
+
+HHEnvVariables["global"].haremSortingFunctions = {};
+HHEnvVariables["global"].haremSortingFunctions.date_acquired = function (a, b)
+{
+    if (getHHVars("all_possible_girls") === null)
+        return -1;
+    if (a.gData.own && b.gData.own) {
+        var dateA = new Date(getHHVars("all_possible_girls")[a.gId].date_added).getTime();
+        var dateB = new Date(getHHVars("all_possible_girls")[b.gId].date_added).getTime();
+        return dateA - dateB
+    } else if (a.gData.own && !b.gData.own)
+        return -1;
+    else if (!a.gData.own && b.gData.own)
+        return 1;
+    else
+        return b.shards - a.shards
+};
+HHEnvVariables["global"].haremSortingFunctions.name = function sortByName(a, b)
+{
+    var nameA = a.gData.name.toUpperCase();
+    var nameB = b.gData.name.toUpperCase();
+    if (a.gData.own == b.gData.own) {
+        if (nameA < nameB)
+            return -1;
+        if (nameA > nameB)
+            return 1;
+        return 0
+    } else if (a.gData.own && !b.gData.own)
+        return -1;
+    else if (!a.gData.own && b.gData.own)
+        return 1
+};
+HHEnvVariables["global"].haremSortingFunctions.grade = function sortByGrade(a, b)
+{
+    return compareOwnFirst(a.gData, b.gData, b.gData.graded - a.gData.graded)
+};
+HHEnvVariables["global"].haremSortingFunctions.level = function sortByLevel(a, b)
+{
+    return compareOwnFirst(a.gData, b.gData, b.gData.level - a.gData.level)
+};
+HHEnvVariables["global"].haremSortingFunctions.power = function sortByPower(a, b)
+{
+    return compareOwnFirst(a.gData, b.gData, b.gData.caracs.carac1 + b.gData.caracs.carac2 + b.gData.caracs.carac3 - a.gData.caracs.carac1 - a.gData.caracs.carac2 - a.gData.caracs.carac3)
+}
+HHEnvVariables["global"].haremSortingFunctions.upgrade_cost = function sortByUpgradeCost(a, b)
+{
+    const aCost = (Number(a.gData.nb_grades) === Number(a.gData.graded) || !a.gData.own ) ? 0 : getGirlUpgradeCost(a.gData.rarity, a.gData.graded + 1);
+    const bCost = (Number(b.gData.nb_grades) === Number(b.gData.graded) || !b.gData.own ) ? 0 : getGirlUpgradeCost(b.gData.rarity, b.gData.graded + 1);
+    return compareOwnFirst(a.gData, b.gData, bCost - aCost )
 }
 
 HHEnvVariables["global"].gotoPageHome = '/home.html';
@@ -10337,7 +10493,7 @@ HHAuto_ToolTips.en.PachinkoSelectorNoButtons = {version: "5.6.24", elementText: 
 HHAuto_ToolTips.en.PachinkoSelector = {version: "5.6.24", elementText: "", tooltip: "Pachinko Selector."};
 HHAuto_ToolTips.en.PachinkoLeft = {version: "5.6.24", elementText: "", tooltip: "Currently available orbs."};
 HHAuto_ToolTips.en.PachinkoXTimes = {version: "5.6.24", elementText: "Number to use : ", tooltip: "Set the number of orbs tu use o selected pachinko."};
-HHAuto_ToolTips.en.PachinkoPlayX = {version: "5.6.24", elementText: "Launch", tooltip: "Launch X uses of selected orbs"};
+HHAuto_ToolTips.en.Launch = {version: "5.6.56", elementText: "Launch", tooltip: ""};
 HHAuto_ToolTips.en.PachinkoButton = {version: "5.6.24", elementText: "Use Pachinko", tooltip: "Allow to automatically use the selected Pachinko. (Only for Orbs games)"};
 HHAuto_ToolTips.en.PachinkoOrbsLeft = {version: "5.6.24", elementText: " orbs remaining.", tooltip: ""};
 HHAuto_ToolTips.en.PachinkoInvalidOrbsNb = {version: "5.6.24", elementText: 'Invalid orbs number'};
@@ -10372,6 +10528,15 @@ HHAuto_ToolTips.en.menuCollectableText = { version: "5.6.47", elementText: "Plea
 HHAuto_ToolTips.en.menuDailyCollectableText = { version: "5.6.49", elementText: "Please select the collectables you want to be immediately collected.", tooltip: ""};
 HHAuto_ToolTips.en.autoPoVCollect = { version: "5.6.49", elementText: "Collect PoV", tooltip: "if enabled : Automatically collect Path of Valor."};
 HHAuto_ToolTips.en.autoDailyGoalsCollect = {version: "5.6.54", elementText: "Collect daily Goals", tooltip: "Collect daily Goals if not collected 2 hours before end of HH day."};
+HHAuto_ToolTips.en.HaremSortMenuSortText = {version: "5.6.56", elementText: "Select the wanted harem sorting : ", tooltip: ""};
+HHAuto_ToolTips.en.date_acquired = {version: "5.6.56", elementText: "Date recruited", tooltip: ""};
+HHAuto_ToolTips.en.grade = {version: "5.6.56", elementText: "Grade", tooltip: ""};
+HHAuto_ToolTips.en.level = {version: "5.6.56", elementText: "Level", tooltip: ""};
+HHAuto_ToolTips.en.power = {version: "5.6.56", elementText: "Power", tooltip: ""};
+HHAuto_ToolTips.en.upgrade_cost = {version: "5.6.56", elementText: "Upgrade cost", tooltip: ""};
+HHAuto_ToolTips.en.HaremSortMenuSortBy = {version: "5.6.56", elementText: "Sort by ", tooltip: ""};
+HHAuto_ToolTips.en.HaremSortMenuSortReverse = {version: "5.6.56", elementText: "Reverse", tooltip: ""};
+
 
 HHAuto_ToolTips.fr.saveDebug = { version: "5.6.24", elementText: "Sauver log", tooltip: "Sauvegarder un fichier journal de débogage."};
 HHAuto_ToolTips.fr.gitHub = { version: "5.6.24", elementText: "GitHub", tooltip: "Lien vers le projet GitHub."};
@@ -11807,6 +11972,11 @@ HHStoredVars.HHAuto_Temp_PoVEndDate =
     HHType:"Temp"
 };
 HHStoredVars.HHAuto_Temp_missionsGiftLeft =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_defaultCustomHaremSort =
     {
     storage:"sessionStorage",
     HHType:"Temp"
