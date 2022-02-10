@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.56
+// @version      5.6.57
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -1430,7 +1430,7 @@ function getCurrentSorting()
     return localStorage.sort_by;
 }
 
-function getGirlMapSorted(inSortType = "upgrade_cost",inSortReversed = true )
+function getGirlMapSorted(inSortType = "date_acquired",inSortReversed = true )
 {
     let girlsMap = getHHVars('GirlSalaryManager.girlsMap');
     if (girlsMap !== null)
@@ -2228,7 +2228,7 @@ var CollectMoney = function()
             }
         });
         */
-        const girlsList = getGirlMapSorted();
+        const girlsList = getGirlMapSorted(getCurrentSorting(), false);
         if ( girlsList === null)
         {
             gotoPage("home");
