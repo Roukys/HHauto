@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.57
+// @version      5.6.58
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -3258,7 +3258,7 @@ function goAndCollectDailyGoals()
                     else
                     {
                         logHHAuto("Daily Goals collection finished.");
-                        setTimer('nextDailyGoalsCollectTime',getHHScriptVars("maxCollectionDelay"));
+                        setTimer('nextDailyGoalsCollectTime',30*60);
                         gotoPage("home");
                     }
                 }
@@ -3268,7 +3268,7 @@ function goAndCollectDailyGoals()
             else
             {
                 logHHAuto("No Daily Goals reward to collect.");
-                setTimer('nextDailyGoalsCollectTime',getHHScriptVars("maxCollectionDelay"));
+                setTimer('nextDailyGoalsCollectTime',30*60);
                 gotoPage("home");
                 return false;
             }
@@ -5041,6 +5041,7 @@ var flipParanoia=function()
             cleanTempPopToStart();
             //going into hiding
             setStoredValue("HHAuto_Temp_burst", "false");
+            gotoPage("home");
         }
         else
         {
