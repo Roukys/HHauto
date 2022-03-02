@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.60
+// @version      5.6.61
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
 // @match        http*://*.haremheroes.com/*
@@ -3486,7 +3486,7 @@ var doSeason = function ()
             }
             else
             {
-                setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts'));
+                setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts') + 10);
             }
             gotoPage('home');
         }
@@ -3528,7 +3528,7 @@ function doPantheon()
             }
             else
             {
-                setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts'));
+                setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts') + 10);
             }
             gotoPage('home');
         }
@@ -3575,7 +3575,7 @@ function doPantheon()
             }
             else
             {
-                setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts'));
+                setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts') + 10);
             }
             gotoPage('home');
         }
@@ -3649,7 +3649,7 @@ var doLeagueBattle = function () {
             logHHAuto("No power for leagues.");
             //prevent paranoia to wait for league
             setStoredValue("HHAuto_Temp_paranoiaLeagueBlocked", "true");
-            setTimer('nextLeaguesTime',getHHVars('Hero.energies.challenge.next_refresh_ts')+1);
+            setTimer('nextLeaguesTime',getHHVars('Hero.energies.challenge.next_refresh_ts')+10);
             return;
         }
 
@@ -6332,7 +6332,7 @@ var autoLoop = function ()
                     }
                     else
                     {
-                        setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts'));
+                        setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts') + 10);
                     }
                 }
             }
@@ -6356,7 +6356,7 @@ var autoLoop = function ()
                     }
                     else
                     {
-                        setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts'));
+                        setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts') + 10);
                     }
                 }
             }
@@ -6421,7 +6421,7 @@ var autoLoop = function ()
                     }
                     else
                     {
-                        setTimer('nextLeaguesTime',getHHVars('Hero.energies.challenge.next_refresh_ts'));
+                        setTimer('nextLeaguesTime',getHHVars('Hero.energies.challenge.next_refresh_ts') + 10);
                     }
                 }
                 /*if (getPage() === "leaderboard")
@@ -7385,9 +7385,10 @@ function moduleShopActions()
             {
                 return;
             }
-            let girlzCount = Number($(getHHScriptVars("shopGirlCounterRequest")).text().split('/')[1]);
-            let currentGirl = Number($(getHHScriptVars("shopGirlCounterRequest")).text().split('/')[0]);
+            let girlzCount = Number($(getHHScriptVars("shopGirlCountRequest")).text());
+            let currentGirl = Number($(getHHScriptVars("shopGirlCurrentRequest")).text());
             let giftNb = $('div.gift div.inventory_slots div[id_item][data-d]').length;
+            console.log(girlzCount, currentGirl, giftNb);
             if (currentGirl < girlzCount && !canGiveAff && giftNb > 0)
             {
                 logHHAuto("Moving to next girl.");
@@ -7687,8 +7688,8 @@ function moduleShopActions()
             {
                 return;
             }
-            let girlzCount = Number($(getHHScriptVars("shopGirlCounterRequest")).text().split('/')[1]);
-            let currentGirl = Number($(getHHScriptVars("shopGirlCounterRequest")).text().split('/')[0]);
+            let girlzCount = Number($(getHHScriptVars("shopGirlCountRequest")).text());
+            let currentGirl = Number($(getHHScriptVars("shopGirlCurrentRequest")).text());
             let giftNb = $('div.potion div.inventory_slots div[id_item][data-d]').length;
             //console.log(currentGirl,girlzCount,giftNb);
             if (currentGirl < girlzCount && !canGiveExp && giftNb > 0)
@@ -9466,7 +9467,7 @@ function disableToolTipsDisplay(important=false)
 
 function checkClubStatus()
 {
-    let chatVars =getHHVars("Chat_vars.CLUB_ID",false);
+    let chatVars =getHHVars("Chat_vars.CLUB_INFO.id_club",false);
     if (chatVars === null || chatVars === false)
     {
         HHEnvVariables[getHHScriptVars("HHGameName")].isEnabledClubChamp = false;
@@ -9909,9 +9910,8 @@ HHEnvVariables["global"].girlToolTipData = "data-new-girl-tooltip";
 HHEnvVariables["global"].dailyRewardNotifRequest = "#contains_all header .currency .daily-reward-notif";
 HHEnvVariables["global"].pageEditTeam = "edit-team"
 HHEnvVariables["global"].IDpanelEditTeam = "#edit-team-page"
-HHEnvVariables["global"].shopGirlCountRequest = '#girls_list .g1 .number.selected span:not([contenteditable]';
-HHEnvVariables["global"].shopGirlCurrentRequest = '#girls_list .g1 .number.selected span[contenteditable]';
-HHEnvVariables["global"].shopGirlCounterRequest = '#girls_list .g1 .number.selected';
+HHEnvVariables["global"].shopGirlCountRequest = '#girls_list .g1 .nav_placement span:not([contenteditable]';
+HHEnvVariables["global"].shopGirlCurrentRequest = '#girls_list .g1 .nav_placement span[contenteditable]';
 HHEnvVariables["global"].contestMaxDays = 21;
 HHEnvVariables["global"].selectorFilterNotDisplayNone = ':not([style*="display:none"]):not([style*="display: none"])';
 HHEnvVariables["global"].HaremMaxSizeExpirationSecs = 7*24*60*60;//7 days
@@ -11823,7 +11823,7 @@ HHStoredVars.HHAuto_Temp_missionsGiftLeft =
 };
 HHStoredVars.HHAuto_Temp_defaultCustomHaremSort =
     {
-    storage:"sessionStorage",
+    storage:"localStorage",
     HHType:"Temp"
 };
 
