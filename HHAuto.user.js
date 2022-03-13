@@ -3152,14 +3152,14 @@ function goAndCollectDailyGoals()
             logHHAuto("setting autoloop to false");
             setStoredValue("HHAuto_Temp_autoLoop", "false");
             let buttonsToCollect = [];
-            const listDailyGoalsTiersToClaim = $("#daily_goals .progress-section .daily-goals-rewards-container .daily-goals-reward");
+            const listDailyGoalsTiersToClaim = $("#daily_goals .progress-section .progress-bar-rewards-container .progress-bar-reward");
             for (let currentTier = 0 ; currentTier < listDailyGoalsTiersToClaim.length ; currentTier++)
             {
                 const currentButton = $("button[rel='claim']", listDailyGoalsTiersToClaim[currentTier]);
                 if(currentButton.length > 0 )
                 {
                     const currentTierNb = currentButton[0].getAttribute("tier");
-                    const currentChest = $(".daily-goals-reward-chest", listDailyGoalsTiersToClaim[currentTier]);
+                    const currentChest = $(".progress-bar-rewards-container", listDailyGoalsTiersToClaim[currentTier]);
                     const currentRewardsList = currentChest.length > 0 ? currentChest.data("rewards") : [];
                     //console.log("checking tier : "+currentTierNb);
                     if (getSecondsLeftBeforeEndOfHHDay() <= getHHScriptVars("dailyRewardMaxRemainingTime") && getSecondsLeftBeforeEndOfHHDay() > 0)
