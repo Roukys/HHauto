@@ -995,7 +995,7 @@ function moduleSimPoVMaskReward()
     let modified = false;
     arrayz = $('.pov-tier:not([style*="display:none"]):not([style*="display: none"])');
     //doesn sure about  " .purchase-pov-pass"-button visibility
-    if ($('#pov_tab_container .pov-second-row .purchase-pov-pass:not([style*="display:none"]):not([style*="display: none"])').length)
+    if ($('#pov_tab_container .pov-second-row .purchase-pass:not([style*="display:none"]):not([style*="display: none"])').length)
     {
         nbReward = 1;
     }
