@@ -1974,46 +1974,7 @@ function doPowerPlacesStuff(index)
             return false;
         }
 
-
-        // need to get next powerplaces timer data
-        var time = 0;
-        for(var e in unsafeWindow.HHTimers.timers){
-            try
-            {
-                if(unsafeWindow.HHTimers.timers[e].$elm.selector.startsWith(".pop_central_part"))
-                    time=unsafeWindow.HHTimers.timers[e];
-            }
-            catch(e)
-            {
-                logHHAuto("Catched error : Could not parse powerplaces timers : "+e);
-            }
-        }
-        time = time.remainingTime;
-        try{
-            if(time === undefined)
-            {
-                //try again with different selector
-                time = undefined;
-                for(e in unsafeWindow.HHTimers.timers){
-                    if(unsafeWindow.HHTimers.timers[e].$elm && unsafeWindow.HHTimers.timers[e].$elm.selector.startsWith(".pop_remaining"))
-                        // get closest time
-                        if(!(unsafeWindow.HHTimers.timers[e].remainingTime>time))
-                            time=unsafeWindow.HHTimers.timers[e].remainingTime;
-                }
-            }
-        }
-        catch(e)
-        {
-            logHHAuto("Catched error : Could not parse pop remaining timer : "+e);
-        }
-        if(time === undefined){
-            logHHAuto("New powerplace time was undefined... Setting it manually to 30secs.");
-            time = 30;
-        }
-        else
-        {
-            removePopFromPopToStart(index);
-        }
+        removePopFromPopToStart(index);
         // Not busy
         return false;
     }
