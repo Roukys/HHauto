@@ -2295,7 +2295,7 @@ var getSalary = function () {
         if(getPage() == "harem" || getPage() == "home")
         {
             const salaryButton = $("#collect_all_container button[id='collect_all']")
-            const salaryToCollect = salaryButton.attr("style")==="display: inline-block;"?true:false;
+            const salaryToCollect = !(salaryButton.prop('disabled') || salaryButton.attr("style")==="display: none;");
             const getButtonClass = salaryButton.attr("class");
             let salarySumTag = NaN;
             if (getPage() == "harem")
