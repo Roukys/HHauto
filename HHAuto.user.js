@@ -9948,12 +9948,6 @@ HHEnvVariables["global"].trollzList =  ["Latest",
                                         "Sake",
                                         "WereBunny Police"];
 
-HHEnvVariables["CH_prod"].trollzList = ['Latest',
-                                       'BodyHack',
-                                       'Grey Golem',
-                                       'The Nymph',
-                                       'Athicus Ho’ole'];
-
 HHEnvVariables["global"].leaguesList = ["Wanker I",
                                         "Wanker II",
                                         "Wanker III",
@@ -10101,11 +10095,17 @@ HHEnvVariables["global"].isEnabledSalary = true;
 HHEnvVariables["global"].isEnabledPoV = true;
 HHEnvVariables["global"].isEnabledDailyGoals = true;
 HHEnvVariables["HH_test"].isEnabledDailyRewards = false;// to remove if daily rewards arrives in test
-//HHEnvVariables["CH_prod"].isEnabledAllChamps = false;// to remove when Champs arrives in Comix
-//HHEnvVariables["CH_prod"].isEnabledChamps = false;// to remove when Champs arrives in Comix
-HHEnvVariables["CH_prod"].isEnabledClubChamp = false;// to remove when Club Champs arrives in Comix
-HHEnvVariables["CH_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in Comix
-HHEnvVariables["CH_prod"].isEnabledPowerPlaces = false;// to remove when PoP arrives in Comix
+["CH_prod","NCH_prod"].forEach((element) => {
+    HHEnvVariables[element].trollzList = ['Latest',
+                                           'BodyHack',
+                                           'Grey Golem',
+                                           'The Nymph',
+                                           'Athicus Ho’ole',
+                                           'The Mimic'];
+    HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in Comix
+    HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in Comix
+    HHEnvVariables[element].isEnabledPowerPlaces = false;// to remove when PoP arrives in Comix
+})
 HHEnvVariables["SH_prod"].isEnabledPowerPlaces = false;// to remove when PoP arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledMythicPachinko = false;// to remove when Great Pachinko arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledAllChamps = false;// to remove when Champs arrives in hornyheroes
