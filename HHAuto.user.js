@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.64
+// @version      5.6.65
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
-// @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge
+// @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
 // @match        http*://*.hentaiheroes.com/*
 // @match        http*://*.gayharem.com/*
@@ -2720,7 +2720,9 @@ var doChampionStuff=function()
         for (let i=0;i<$('span.stage-bar-tier').length;i++)
         {
             let Impression=$('span.stage-bar-tier')[i].getAttribute("hh_title");
-            let Started=Impression.split('/')[0]!="0";
+            const autoChampsForceStartEventGirl = getStoredValue("HHAuto_Setting_autoChampsForceStartEventGirl") === "true";
+            const autoChampsEventGirls = isJSON(getStoredValue("HHAuto_Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue("HHAuto_Temp_autoChampsEventGirls")):[];
+            let Started=Impression.split('/')[0].replace(/[^0-9]/gi, '')!="0";
             let OnTimerOld=$($('a.champion-lair div.champion-lair-name')[i+1]).find('div[rel=timer]').length>0
             let timerNew=Number($($('a.champion-lair div.champion-lair-name')[i+1]).find('div#championTimer').attr('timer'));
             let OnTimerNew=false;
@@ -2731,9 +2733,10 @@ var doChampionStuff=function()
 
             let OnTimer= OnTimerOld || OnTimerNew;
             let Filtered=Filter.includes(i+1);
-            logHHAuto("Champion "+(i+1)+" ["+Impression+"]"+(Started?" Started;":" Not started;")+(OnTimer?" on timer;":" not on timer;")+(Filtered?" Included in filter":" Excluded from filter"));
+            const eventGirlForced=autoChampsForceStartEventGirl && autoChampsEventGirls.includes(i+1);
+            logHHAuto("Champion "+(i+1)+" ["+Impression+"]"+(Started?" Started;":" Not started;")+(OnTimer?" on timer;":" not on timer;")+(Filtered?" Included in filter":" Excluded from filter;")+(eventGirlForced?" Forced for event":" Not event forced"));
 
-            if (Started && !OnTimer && Filtered)
+            if ((Started || eventGirlForced) && !OnTimer && Filtered)
             {
                 logHHAuto("Let's do him!");
                 gotoPage('/champions/'+Number(i+1));
@@ -10183,7 +10186,7 @@ HHAuto_ToolTips.en.autoTrollBattle = { version: "5.6.24", elementText: "Enable",
 HHAuto_ToolTips.en.autoTrollSelector = { version: "5.6.24", elementText: "Troll selector", tooltip: "Select troll to be fought."};
 HHAuto_ToolTips.en.autoTrollThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "(Integer 0 to 19)<br>Minimum troll fight to keep"};
 HHAuto_ToolTips.en.eventTrollOrder = { version: "5.6.38", elementText: "Event Troll Order", tooltip: "(values separated by ;)<br>Allow to select in which order event troll are automatically battled<br>1 : Dark Lord<br>2 : Ninja Spy<br>3 : Gruntt<br>4 : Edwarda<br>5 : Donatien<br>6 : Sylvanus<br>7 : Bremen<br>8 : Finalmecia<br>9 : Fredy Sih Roko<br>10 : Karole<br>11 : Jackson's Crew<br>12 : Pandora Witch<br>13 : Nike<br>14 : Sake<br>15 : WereBunny Police"};
-HHAuto_ToolTips.en.plusEvent = { version: "5.6.24", elementText: "+Event", tooltip: "If enabled : ignore selected troll during event to battle event"};
+HHAuto_ToolTips.en.autoChampsForceStartEventGirl = { version: "5.6.65", elementText: "Event force", tooltip: "if enabled, will fight for event girl champion even if not started. Champions will need to be activated and champions to be in the filter."};HHAuto_ToolTips.en.plusEvent = { version: "5.6.24", elementText: "+Event", tooltip: "If enabled : ignore selected troll during event to battle event"};
 HHAuto_ToolTips.en.plusEventMythic = { version: "5.6.24", elementText: "+Mythic Event", tooltip: "Enable grabbing girls for mythic event, should only play them when shards are available, Mythic girl troll will be priorized over Event Troll."};
 //HHAuto_ToolTips.en.eventMythicPrio = { version: "5.6.24", elementText: "Priorize over Event Troll Order", tooltip: "Mythic event girl priorized over event troll order if shards available"};
 //HHAuto_ToolTips.en.autoTrollMythicByPassThreshold = { version: "5.6.24", elementText: "Mythic bypass Threshold", tooltip: "Allow mythic to bypass Troll threshold"};
@@ -11152,6 +11155,17 @@ HHStoredVars.HHAuto_Setting_autoTrollThreshold =
     menuType:"value",
     kobanUsing:false
 };
+HHStoredVars.HHAuto_Setting_autoChampsForceStartEventGirl =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_buyCombat =
     {
     default:"false",
@@ -11664,6 +11678,13 @@ HHStoredVars.HHAuto_Temp_eventGirl =
     {
     storage:"sessionStorage",
     HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_autoChampsEventGirls =
+    {
+    default:JSON.stringify('[]'),
+    storage:"sessionStorage",
+    HHType:"Temp",
+    valueType:"Array"
 };
 HHStoredVars.HHAuto_Temp_fought =
     {
@@ -12739,6 +12760,17 @@ var start = function () {
                                 +`<div class="tooltipHH">`
                                     +`<span class="tooltipHHtext">${getTextForUI("autoChampsFilter","tooltip")}</span>`
                                     +`<input style="text-align:center; width:70px" id="autoChampsFilter" required pattern="${HHAuto_inputPattern.autoChampsFilter}" type="text">`
+                                +`</div>`
+                            +`</div>`
+                            +`<div class="labelAndButton" style="display: none;">`
+                                +`<span class="HHMenuItemName">${getTextForUI("autoChampsForceStartEventGirl","elementText")}</span>`
+                                +`<div class="tooltipHH">`
+                                    +`<span class="tooltipHHtext">${getTextForUI("autoChampsForceStartEventGirl","tooltip")}</span>`
+                                    +`<label class="switch">`
+                                        +`<input id="autoChampsForceStartEventGirl" type="checkbox">`
+                                        +`<span class="slider round">`
+                                        +`</span>`
+                                    +`</label>`
                                 +`</div>`
                             +`</div>`
                         +`</div>`
