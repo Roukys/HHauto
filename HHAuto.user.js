@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.65
+// @version      5.6.66
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -10107,7 +10107,6 @@ HHEnvVariables["HH_test"].isEnabledDailyRewards = false;// to remove if daily re
                                            'The Mimic'];
     HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in Comix
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in Comix
-    HHEnvVariables[element].isEnabledPowerPlaces = false;// to remove when PoP arrives in Comix
 })
 HHEnvVariables["SH_prod"].isEnabledPowerPlaces = false;// to remove when PoP arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledMythicPachinko = false;// to remove when Great Pachinko arrives in hornyheroes
