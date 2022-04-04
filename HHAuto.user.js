@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.66
+// @version      5.6.67
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -964,7 +964,8 @@ function displayPoVRemainingTime()
         {
             if (displayTimer)
             {
-                $('#homepage a[rel="path-of-valor"').prepend('<span style="position: absolute; top:6px;left:200px;opacity: 80%;background-color: black;font-size: small;" id="HHAutoPoVTimer"></span>')
+                $('#homepage a[rel="path-of-valor"').prepend('<span id="HHAutoPoVTimer"></span>')
+                GM_addStyle('#HHAutoPoVTimer{position: absolute;top: 36px;left: 86px;color: #f461ff;font-size: .6rem ;z-index: 1;}');
             }
         }
         else
@@ -2733,7 +2734,16 @@ var doChampionStuff=function()
 
             let OnTimer= OnTimerOld || OnTimerNew;
             let Filtered=Filter.includes(i+1);
-            const eventGirlForced=autoChampsForceStartEventGirl && autoChampsEventGirls.includes(i+1);
+            let autoChampGirlInEvent = false;
+            for ( var ec=autoChampsEventGirls.length;ec>0;ec--)
+            {
+                let idArray = Number(ec)-1;
+                if ( Number(autoChampsEventGirls[idArray].champ_id) === i+1)
+                {
+                    autoChampGirlInEvent = true;
+                }
+            }
+            const eventGirlForced=autoChampsForceStartEventGirl && autoChampGirlInEvent;
             logHHAuto("Champion "+(i+1)+" ["+Impression+"]"+(Started?" Started;":" Not started;")+(OnTimer?" on timer;":" not on timer;")+(Filtered?" Included in filter":" Excluded from filter;")+(eventGirlForced?" Forced for event":" Not event forced"));
 
             if ((Started || eventGirlForced) && !OnTimer && Filtered)
@@ -8679,7 +8689,7 @@ var moduleDisplayEventPriority=function()
     if ($('.HHEventPriority').length  > 0) {return}
     if (getStoredValue("HHAuto_Temp_eventsGirlz") === undefined) {return}
     let eventGirlz=isJSON(getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsGirlz")):{};
-
+    let eventChamps = isJSON(getStoredValue("HHAuto_Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue("HHAuto_Temp_autoChampsEventGirls")):[];
     //$("div.event-widget div.widget[style='display: block;'] div.container div.scroll-area div.rewards-block-tape div.girl_reward div.HHEventPriority").each(function(){this.remove();});
     if ( eventGirlz.length >0)
     {
@@ -8688,6 +8698,18 @@ var moduleDisplayEventPriority=function()
         var baseQuery="#events .nc-event-container .scroll-area .nc-event-list-rewards-container .nc-event-list-reward";
         var idArray;
         var currentGirl;
+        for ( var ec=eventChamps.length;ec>0;ec--)
+        {
+            idArray = Number(ec)-1;
+            girl = Number(eventChamps[idArray].girl_id);
+            let query=baseQuery+"[data-select-girl-id="+girl+"]";
+            if ($(query).length >0 )
+            {
+                currentGirl=$(query).parent()[0];
+                $(query).prepend('<div class="HHEventPriority">C'+eventChamps[idArray].champ_id+'</div>');
+                $($(query)).parent().parent()[0].prepend(currentGirl);
+            }
+        }
         for ( var e=eventGirlz.length;e>0;e--)
         {
             idArray = Number(e)-1;
@@ -8765,6 +8787,7 @@ var clearEventData=function(inEventID)
         sessionStorage.removeItem('HHAuto_Temp_eventsGirlz');
         sessionStorage.removeItem('HHAuto_Temp_eventGirl');
         sessionStorage.removeItem('HHAuto_Temp_eventsList');
+        sessionStorage.removeItem('HHAuto_Temp_autoChampsEventGirls');
     }
     else
     {
@@ -8881,6 +8904,7 @@ function parseEventPage(inTab="global")
         //let eventsGirlz=[];
         let eventList = isJSON(getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsList")):{};
         let eventsGirlz = isJSON(getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsGirlz")):[];
+        let eventChamps = isJSON(getStoredValue("HHAuto_Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue("HHAuto_Temp_autoChampsEventGirls")):[];
         let Priority=(getStoredValue("HHAuto_Setting_eventTrollOrder")).split(";");
 
         let refreshTimer = 3600;
@@ -8911,6 +8935,18 @@ function parseEventPage(inTab="global")
                     let girlShards = $('.shards_bar_wrapper .shards[shards]',element).attr('shards');
                     logHHAuto("Event girl : "+girlName+" ("+girlShards+"/100) at troll "+TrollID+" priority : "+Priority.indexOf(TrollID)+" on event : ",eventID);
                     eventsGirlz.push({girl_id:girlId,troll_id:TrollID,girl_shards:girlShards,is_mythic:"false",girl_name:girlName,event_id:eventID});
+                }
+                button = $('.nc-events-prize-locations-buttons-container a:not(.disabled)[href^="/champions/"]', element);
+                if (button.length > 0)
+                {
+                    let buttonHrefC = button.attr("href");
+                    let girlId = element.getAttribute("data-reward-girl-id");
+                    let girlName = $('.shards_bar_wrapper .shards[shards]',element).attr('name');
+                    parsedURL = new URL(buttonHrefC,window.location.origin);
+                    let ChampID = buttonHrefC.split('/champions/')[1];
+                    let girlShards = $('.shards_bar_wrapper .shards[shards]',element).attr('shards');
+                    logHHAuto("Event girl : "+girlName+" ("+girlShards+"/100) at champ "+ChampID+" on event : ",eventID);
+                    eventChamps.push({girl_id:girlId,champ_id:ChampID,girl_shards:girlShards,girl_name:girlName,event_id:eventID});
                 }
             }
         }
@@ -9011,6 +9047,7 @@ function parseEventPage(inTab="global")
                 });
                 //logHHAuto({log:"Sorted EventGirls",eventGirlz:eventsGirlz});
             }
+            setStoredValue("HHAuto_Temp_autoChampsEventGirls", JSON.stringify(eventChamps));
             setStoredValue("HHAuto_Temp_eventsGirlz", JSON.stringify(eventsGirlz));
             var chosenTroll = Number(eventsGirlz[0].troll_id)
             logHHAuto("ET: "+chosenTroll);
@@ -10100,11 +10137,11 @@ HHEnvVariables["global"].isEnabledDailyGoals = true;
 HHEnvVariables["HH_test"].isEnabledDailyRewards = false;// to remove if daily rewards arrives in test
 ["CH_prod","NCH_prod"].forEach((element) => {
     HHEnvVariables[element].trollzList = ['Latest',
-                                           'BodyHack',
-                                           'Grey Golem',
-                                           'The Nymph',
-                                           'Athicus Ho’ole',
-                                           'The Mimic'];
+                                          'BodyHack',
+                                          'Grey Golem',
+                                          'The Nymph',
+                                          'Athicus Ho’ole',
+                                          'The Mimic'];
     HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in Comix
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in Comix
 })
@@ -11680,10 +11717,8 @@ HHStoredVars.HHAuto_Temp_eventGirl =
 };
 HHStoredVars.HHAuto_Temp_autoChampsEventGirls =
     {
-    default:JSON.stringify('[]'),
     storage:"sessionStorage",
-    HHType:"Temp",
-    valueType:"Array"
+    HHType:"Temp"
 };
 HHStoredVars.HHAuto_Temp_fought =
     {
