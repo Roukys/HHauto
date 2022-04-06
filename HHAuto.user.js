@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.69
+// @version      5.6.70
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -6134,9 +6134,10 @@ var autoLoop = function ()
                 var indexes=(getStoredValue("HHAuto_Setting_autoPowerPlacesIndexFilter")).split(";");
 
                 popToStart = getStoredValue("HHAuto_Temp_PopToStart")?JSON.parse(getStoredValue("HHAuto_Temp_PopToStart")):[];
+                //console.log(indexes, popToStart);
                 for(var pop of popToStart)
                 {
-                    if (busy === false && ! indexes.includes(Number(pop)))
+                    if (busy === false && ! indexes.includes(String(pop)))
                     {
                         logHHAuto("PoP is no longer in list :"+pop+" removing it from start list.");
                         removePopFromPopToStart(pop);
@@ -7375,7 +7376,7 @@ function moduleShopActions()
             let girlzCount = Number($(getHHScriptVars("shopGirlCountRequest")).text());
             let currentGirl = Number($(getHHScriptVars("shopGirlCurrentRequest")).text());
             let giftNb = $('div.gift div.inventory_slots div[id_item][data-d]').length;
-            console.log(girlzCount, currentGirl, giftNb);
+            //console.log(girlzCount, currentGirl, giftNb);
             if (currentGirl < girlzCount && !canGiveAff && giftNb > 0)
             {
                 logHHAuto("Moving to next girl.");
