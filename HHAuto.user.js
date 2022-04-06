@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.67
+// @version      5.6.68
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -965,7 +965,7 @@ function displayPoVRemainingTime()
             if (displayTimer)
             {
                 $('#homepage a[rel="path-of-valor"').prepend('<span id="HHAutoPoVTimer"></span>')
-                GM_addStyle('#HHAutoPoVTimer{position: absolute;top: 36px;left: 86px;color: #f461ff;font-size: .6rem ;z-index: 1;}');
+                GM_addStyle('#HHAutoPoVTimer{position: absolute;top: 36px;left: 86px;width: 100px;color: #f461ff;font-size: .6rem ;z-index: 1;}');
             }
         }
         else
@@ -1747,6 +1747,7 @@ function collectAndUpdatePowerPlaces()
         {
             setStoredValue("HHAuto_Setting_autoPowerPlacesIndexFilter", newFilter.substring(1));
         }
+        setStoredValue("HHAuto_Temp_currentlyAvailablePops",newFilter.substring(1))
         //collect all
         let rewardQuery="div#rewards_popup button.blue_button_L";
         let buttonClaimQuery = "button[rel='pop_thumb_claim'].purple_button_L:not([style])";
@@ -6121,9 +6122,9 @@ var autoLoop = function ()
             if (popToStart.length != 0 || checkTimer('minPowerPlacesTime'))
             {
                 //if PopToStart exist bypass function
-                var popToStartExist = getStoredValue("HHAuto_Temp_PopToStart")?false:true;
+                var popToStartExist = getStoredValue("HHAuto_Temp_PopToStart")?true:false;
                 //logHHAuto("startcollect : "+popToStartExist);
-                if (popToStartExist)
+                if (! popToStartExist)
                 {
                     //logHHAuto("pop1:"+popToStart);
                     logHHAuto("Go and collect");
@@ -6132,6 +6133,15 @@ var autoLoop = function ()
                 }
                 var indexes=(getStoredValue("HHAuto_Setting_autoPowerPlacesIndexFilter")).split(";");
 
+                popToStart = getStoredValue("HHAuto_Temp_PopToStart")?JSON.parse(getStoredValue("HHAuto_Temp_PopToStart")):[];
+                for(var pop of popToStart)
+                {
+                    if (busy === false && ! indexes.includes(Number(pop)))
+                    {
+                        logHHAuto("PoP is no longer in list :"+pop+" removing it from start list.");
+                        removePopFromPopToStart(pop);
+                    }
+                }
                 popToStart = getStoredValue("HHAuto_Temp_PopToStart")?JSON.parse(getStoredValue("HHAuto_Temp_PopToStart")):[];
                 //logHHAuto("pop2:"+popToStart);
                 for(var index of indexes)
@@ -6143,14 +6153,17 @@ var autoLoop = function ()
                         busy = doPowerPlacesStuff(index);
                     }
                 }
-                //logHHAuto("pop3:"+getStoredValue("HHAuto_Temp_PopToStart"));
-                popToStart = getStoredValue("HHAuto_Temp_PopToStart")?JSON.parse(getStoredValue("HHAuto_Temp_PopToStart")):[];
-                //logHHAuto("pop3:"+popToStart);
-                if (busy ===false && popToStart.length === 0)
+                if (busy === false)
                 {
-                    //logHHAuto("removing popToStart");
-                    sessionStorage.removeItem('HHAuto_Temp_PopToStart');
-                    gotoPage("home");
+                    //logHHAuto("pop3:"+getStoredValue("HHAuto_Temp_PopToStart"));
+                    popToStart = getStoredValue("HHAuto_Temp_PopToStart")?JSON.parse(getStoredValue("HHAuto_Temp_PopToStart")):[];
+                    //logHHAuto("pop3:"+popToStart);
+                    if (popToStart.length === 0)
+                    {
+                        //logHHAuto("removing popToStart");
+                        sessionStorage.removeItem('HHAuto_Temp_PopToStart');
+                        gotoPage("home");
+                    }
                 }
             }
         }
@@ -11097,7 +11110,7 @@ HHStoredVars.HHAuto_Setting_autoSeasonCollect =
 };
 HHStoredVars.HHAuto_Setting_autoSeasonCollectablesList =
     {
-    default:JSON.stringify('[]'),
+    default:JSON.stringify([]),
     storage:"Storage()",
     HHType:"Setting",
     valueType:"Array"
@@ -11279,7 +11292,7 @@ HHStoredVars.HHAuto_Setting_autoDailyRewardsCollect =
 };
 HHStoredVars.HHAuto_Setting_autoDailyRewardsCollectablesList =
     {
-    default:JSON.stringify('[]'),
+    default:JSON.stringify([]),
     storage:"Storage()",
     HHType:"Setting",
     valueType:"Array"
@@ -11593,7 +11606,7 @@ HHStoredVars.HHAuto_Setting_autoPoVCollect =
 };
 HHStoredVars.HHAuto_Setting_autoPoVCollectablesList =
     {
-    default:JSON.stringify('[]'),
+    default:JSON.stringify([]),
     storage:"Storage()",
     HHType:"Setting",
     valueType:"Array"
@@ -11620,7 +11633,7 @@ HHStoredVars.HHAuto_Setting_autoDailyGoalsCollect =
 };
 HHStoredVars.HHAuto_Setting_autoDailyGoalsCollectablesList =
     {
-    default:JSON.stringify('[]'),
+    default:JSON.stringify([]),
     storage:"Storage()",
     HHType:"Setting",
     valueType:"Array"
@@ -11718,7 +11731,8 @@ HHStoredVars.HHAuto_Temp_eventGirl =
 HHStoredVars.HHAuto_Temp_autoChampsEventGirls =
     {
     storage:"sessionStorage",
-    HHType:"Temp"
+    HHType:"Temp",
+    isValid:/^\[({"girl_id":"(\d)+","champ_id":"(\d)+","girl_shards":"(\d)+","girl_name":"([^"])+","event_id":"([^"])+"},?)+\]$/
 };
 HHStoredVars.HHAuto_Temp_fought =
     {
@@ -11798,6 +11812,11 @@ HHStoredVars.HHAuto_Temp_NextSwitch =
     HHType:"Temp"
 };
 HHStoredVars.HHAuto_Temp_Totalpops =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_currentlyAvailablePops =
     {
     storage:"sessionStorage",
     HHType:"Temp"
