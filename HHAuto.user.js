@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.70
+// @version      5.6.71
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -346,7 +346,7 @@ function getGirlsMap()
     return unsafeWindow.GirlSalaryManager.girlsMap;
 }
 
-function getPage()
+function getPage(checkUnknown = false)
 {
     var ob = document.getElementById(getHHScriptVars("gameID"));
     if(ob===undefined || ob === null)
@@ -359,50 +359,72 @@ function getPage()
         return "";
     }
     //var p=ob.className.match(/.*page-(.*) .*/i)[1];
-    let activitiesMainPage = 'activities';
+    let activitiesMainPage = getHHScriptVars("pagesIDActivities");
     var p=ob.getAttribute('page');
-    if (p==activitiesMainPage && $('h4.contests.selected').size()>0)
+    let page = p;
+    if (p==activitiesMainPage)
     {
-        return "contests"
-    }
-    if (p==activitiesMainPage && $('h4.missions.selected').size()>0)
-    {
-        return "missions"
-    }
-    if (p==activitiesMainPage && $('h4.daily_goals.selected').size()>0)
-    {
-        return "daily_goals"
-    }
-    if (p==activitiesMainPage && $('h4.pop.selected').size()>0)
-    {
-        // if on Pop menu
-        var t;
-        var popList= $("div.pop_list")
-        if (popList.attr('style') !='display:none' )
+        if ($('h4.contests.selected').size()>0)
         {
-            t = 'main';
+            page = getHHScriptVars("pagesIDContests");
         }
-        else
+        if ($('h4.missions.selected').size()>0)
         {
-            t=$(".pop_thumb_selected").attr("pop_id");
-            if (t === undefined)
+            page = getHHScriptVars("pagesIDMissions");
+        }
+        if ($('h4.daily_goals.selected').size()>0)
+        {
+            page = getHHScriptVars("pagesIDDailyGoals");
+        }
+        if ($('h4.pop.selected').size()>0)
+        {
+            // if on Pop menu
+            var t;
+            var popList= $("div.pop_list")
+            if (popList.attr('style') !='display:none' )
             {
-                var index = queryStringGetParam(window.location.search,'index');
-                if (index !== null)
+                t = 'main';
+            }
+            else
+            {
+                t=$(".pop_thumb_selected").attr("pop_id");
+                checkUnknown = false;
+                if (t === undefined)
                 {
-                    addPopToUnableToStart(index,"Unable to go to Pop "+index+" as it is locked.");
-                    removePopFromPopToStart(index);
-                    t='main';
+                    var index = queryStringGetParam(window.location.search,'index');
+                    if (index !== null)
+                    {
+                        addPopToUnableToStart(index,"Unable to go to Pop "+index+" as it is locked.");
+                        removePopFromPopToStart(index);
+                        t='main';
+                    }
                 }
             }
+            page = "powerplace"+t;
         }
-        return "powerplace"+t
     }
-    else
+    if (checkUnknown)
     {
-        return p;
+        const knownPages = getHHScriptVars("pagesKnownList");
+        let isKnown = false;
+        for (let knownPage of knownPages)
+        {
+            //console.log(knownPage)
+            if (page === getHHScriptVars("pagesID"+knownPage))
+            {
+                isKnown = true;
+            }
+        }
+        if (!isKnown && page )
+        {
+            let unknownPageList = isJSON(getStoredValue("HHAuto_Temp_unkownPagesList"))?JSON.parse(getStoredValue("HHAuto_Temp_unkownPagesList")):{};
+            logHHAuto("Page unkown for script : "+page+" / "+window.location.pathname);
+            unknownPageList[page] = window.location.pathname;
+            //console.log(unknownPageList);
+            setStoredValue("HHAuto_Temp_unkownPagesList", JSON.stringify(unknownPageList));
+        }
     }
-
+    return page;
 }
 
 function queryStringGetParam(inQueryString, inParam)
@@ -437,28 +459,44 @@ function gotoPage(page,inArgs,delay = -1)
     // get page path
     switch(page)
     {
-        case "home":
-            togoto = getHHScriptVars("gotoPageHome");
+        case getHHScriptVars("pagesIDHome"):
+            togoto = getHHScriptVars("pagesURLHome");
             break;
-        case "activities":
-            togoto = getHHScriptVars("gotoPageActivities");
+        case getHHScriptVars("pagesIDActivities"):
+            togoto = getHHScriptVars("pagesURLActivities");
             break;
-        case "harem":
-            togoto = getHHScriptVars("gotoPageHarem");
+        case getHHScriptVars("pagesIDMissions"):
+            togoto = getHHScriptVars("pagesURLActivities");
+            togoto = url_add_param(togoto, "tab",getHHScriptVars("pagesIDMissions"));
             break;
-        case "map":
-            togoto = getHHScriptVars("gotoPageMap");
+        case getHHScriptVars("pagesIDPowerplacemain"):
+            togoto = getHHScriptVars("pagesURLActivities");
+            togoto = url_add_param(togoto, "tab","pop");
             break;
-        case "pachinko":
-            togoto = getHHScriptVars("gotoPagePachinko");
+        case getHHScriptVars("pagesIDContests"):
+            togoto = getHHScriptVars("pagesURLActivities");
+            togoto = url_add_param(togoto, "tab",getHHScriptVars("pagesIDContests"));
             break;
-        case "leaderboard":
-            togoto = getHHScriptVars("gotoPageLeaderboard");
+        case getHHScriptVars("pagesIDDailyGoals"):
+            togoto = getHHScriptVars("pagesURLActivities");
+            togoto = url_add_param(togoto, "tab",getHHScriptVars("pagesIDDailyGoals"));
             break;
-        case "shop":
-            togoto = getHHScriptVars("gotoPageShop");
+        case getHHScriptVars("pagesIDHarem"):
+            togoto = getHHScriptVars("pagesURLHarem");
             break;
-        case "quest":
+        case getHHScriptVars("pagesIDMap"):
+            togoto = getHHScriptVars("pagesURLMap");
+            break;
+        case getHHScriptVars("pagesIDPachinko"):
+            togoto = getHHScriptVars("pagesURLPachinko");
+            break;
+        case getHHScriptVars("pagesIDLeaderboard"):
+            togoto = getHHScriptVars("pagesURLLeaderboard");
+            break;
+        case getHHScriptVars("pagesIDShop"):
+            togoto = getHHScriptVars("pagesURLShop");
+            break;
+        case getHHScriptVars("pagesIDQuest"):
             togoto = getHHVars('Hero.infos.questing.current_url');
             if (togoto.includes("world"))
             {
@@ -469,38 +507,38 @@ function gotoPage(page,inArgs,delay = -1)
             }
             logHHAuto("Current quest page: "+togoto);
             break;
-        case "pantheon":
-            togoto = getHHScriptVars("gotoPagePantheon");
+        case getHHScriptVars("pagesIDPantheon"):
+            togoto = getHHScriptVars("pagesURLPantheon");
             break;
-        case "pantheon-pre-battle":
-            togoto = getHHScriptVars("gotoPagePantheonPreBattle");
+        case getHHScriptVars("pagesIDPantheonPreBattle"):
+            togoto = getHHScriptVars("pagesURLPantheonPreBattle");
             break;
-        case "champions_map":
-            togoto = getHHScriptVars("gotoPageChampionsMap");
+        case getHHScriptVars("pagesIDChampionsMap"):
+            togoto = getHHScriptVars("pagesURLChampionsMap");
             break;
-        case "season" :
-            togoto = getHHScriptVars("gotoPageSeason");
+        case getHHScriptVars("pagesIDSeason") :
+            togoto = getHHScriptVars("pagesURLSeason");
             break;
-        case "season_arena" :
-            togoto = getHHScriptVars("gotoPageSeasonArena");
+        case getHHScriptVars("pagesIDSeasonArena") :
+            togoto = getHHScriptVars("pagesURLSeasonArena");
             break;
-        case "club_champion" :
-            togoto = getHHScriptVars("gotoPageClubChampion");
+        case getHHScriptVars("pagesIDClubChampion") :
+            togoto = getHHScriptVars("pagesURLClubChampion");
             break;
-        case "league-battle" :
-            togoto = getHHScriptVars("gotoPageLeagueBattle");
+        case getHHScriptVars("pagesIDLeagueBattle") :
+            togoto = getHHScriptVars("pagesURLLeagueBattle");
             break;
-        case "troll-pre-battle" :
-            togoto = getHHScriptVars("gotoPageTrollPreBattle");
+        case getHHScriptVars("pagesIDTrollPreBattle") :
+            togoto = getHHScriptVars("pagesURLTrollPreBattle");
             break;
-        case "event" :
-            togoto = getHHScriptVars("gotoPageEvent");
+        case getHHScriptVars("pagesIDEvent") :
+            togoto = getHHScriptVars("pagesURLEvent");
             break;
-        case "clubs" :
-            togoto = getHHScriptVars("gotoPageClub");
+        case getHHScriptVars("pagesIDClub") :
+            togoto = getHHScriptVars("pagesURLClub");
             break;
-        case "path-of-valor" :
-            togoto = getHHScriptVars("gotoPagePoV");
+        case getHHScriptVars("pagesIDPoV") :
+            togoto = getHHScriptVars("pagesURLPoV");
             break;
         case (page.match(/^\/champions\/[123456]$/) || {}).input:
             togoto = page;
@@ -543,10 +581,10 @@ function setLastPageCalled(inPage)
 var proceedQuest = function () {
     //logHHAuto("Starting auto quest.");
     // Check if at correct page.
-    if (getPage() !== "quest") {
+    if (getPage() !== getHHScriptVars("pagesIDQuest")) {
         // Click on current quest to naviagte to it.
         logHHAuto("Navigating to current quest.");
-        gotoPage("quest");
+        gotoPage(getHHScriptVars("pagesIDQuest"));
         return;
     }
     $("#popup_message close").click();
@@ -685,10 +723,10 @@ function getSuitableMission(missionsList)
 // returns boolean to set busy
 function doMissionStuff()
 {
-    if(getPage() !== "missions")
+    if(getPage() !== getHHScriptVars("pagesIDMissions"))
     {
         logHHAuto("Navigating to missions page.");
-        gotoPage("activities",{tab:"missions"});
+        gotoPage(getHHScriptVars("pagesIDMissions"));
         // return busy
         return true;
     }
@@ -700,7 +738,7 @@ function doMissionStuff()
         {
             logHHAuto("Collecting finished mission's reward.");
             $(".mission_button button:visible[rel='claim']").click();
-            gotoPage("activities",{tab:"missions"},1500);
+            gotoPage(getHHScriptVars("pagesIDMissions"),{},1500);
             return true;
         }
         // TODO: select new missions and parse reward data from HTML, it's there in data attributes of tags
@@ -732,7 +770,7 @@ function doMissionStuff()
                     if (canCollect)
                     {
                         logHHAuto("Unclaimed mission detected...");
-                        gotoPage("activities",{tab:"missions"},1500);
+                        gotoPage(getHHScriptVars("pagesIDMissions"),{},1500);
                         return true;
                     }
                 }
@@ -804,7 +842,7 @@ function doMissionStuff()
             logHHAuto("Mission button of type: "+missionButton.attr("rel"));
             logHHAuto("Clicking mission button.");
             missionButton.click();
-            gotoPage("activities",{tab:"missions"},1500);
+            gotoPage(getHHScriptVars("pagesIDMissions"),{},1500);
             setTimer('nextMissionTime',Number(mission.duration)+1);
         }
         else
@@ -911,7 +949,7 @@ function moduleOldPathOfAttractionHide()
 
 function modulePathOfAttractionHide()
 {
-    if (getPage() === "event" && window.location.search.includes("tab=path_event") && getStoredValue("HHAuto_Setting_PoAMaskRewards") === "true")
+    if (getPage() === getHHScriptVars("pagesIDEvent") && window.location.search.includes("tab=path_event") && getStoredValue("HHAuto_Setting_PoAMaskRewards") === "true")
     {
         let arrayz;
         let nbReward;
@@ -1729,10 +1767,11 @@ function moduleHaremExportGirlsData()
 
 function collectAndUpdatePowerPlaces()
 {
-    if(getPage() !== "powerplacemain")
+    if(getPage() !== getHHScriptVars("pagesIDPowerplacemain")
+)
     {
         logHHAuto("Navigating to powerplaces main page.");
-        gotoPage("activities",{tab:"pop"});
+        gotoPage(getHHScriptVars("pagesIDPowerplacemain"));
         // return busy
         return true;
     }
@@ -1755,7 +1794,7 @@ function collectAndUpdatePowerPlaces()
         {
             $(buttonClaimQuery)[0].click();
             logHHAuto("Claimed reward for PoP : "+$(buttonClaimQuery)[0].parentElement.getAttribute('pop_id'));
-            gotoPage("activities",{tab:"pop"});
+            gotoPage(getHHScriptVars("pagesIDPowerplacemain"));
             return true;
         }
 
@@ -1919,7 +1958,7 @@ function doPowerPlacesStuff(index)
     if(getPage() !== "powerplace"+index)
     {
         logHHAuto("Navigating to powerplace"+index+" page.");
-        gotoPage("activities",{tab:"pop",index:index});
+        gotoPage(getHHScriptVars("pagesIDActivities"),{tab:"pop",index:index});
         // return busy
         return true;
     }
@@ -1936,7 +1975,7 @@ function doPowerPlacesStuff(index)
             if (getStoredValue("HHAuto_Setting_autoPowerPlacesAll") !== "true")
             {
                 cleanTempPopToStart();
-                gotoPage("activities",{tab:"pop"});
+                gotoPage(getHHScriptVars("pagesIDPowerplacemain"));
                 return;
             }
         }
@@ -1985,10 +2024,10 @@ function doPowerPlacesStuff(index)
 // returns boolean to set busy
 function doContestStuff()
 {
-    if(getPage() !== "contests")
+    if(getPage() !== getHHScriptVars("pagesIDContests"))
     {
         logHHAuto("Navigating to contests page.");
-        gotoPage("activities",{tab:"contests"});
+        gotoPage(getHHScriptVars("pagesIDContests"));
         // return busy
         return true;
     }
@@ -2003,7 +2042,7 @@ function doContestStuff()
             contest_list[0].click();
             if ( contest_list.length > 1 )
             {
-                gotoPage("activities",{tab:"contests"});
+                gotoPage(getHHScriptVars("pagesIDContests"));
             }
         }
         /*
@@ -2013,7 +2052,7 @@ function doContestStuff()
         {
             logHHAuto("Collected legendary contest id : "+contest_list[0].getAttribute('id_contest')+".");
             contest_list[0].click();
-            gotoPage("activities",{tab:"contests"});
+            gotoPage(getHHScriptVars("pagesIDContests"));
         }
 
         contest_list = $(".contest:not(.is_legendary) .ended button[rel='claim']");
@@ -2027,7 +2066,7 @@ function doContestStuff()
         {
             logHHAuto("Collected legendary contest id : "+contest_list[0].getAttribute('id_contest')+".");
             contest_list[0].click();
-            gotoPage("activities",{tab:"contests"});
+            gotoPage(getHHScriptVars("pagesIDContests"));
         }*/
         // need to get next contest timer data
         var time = 0;
@@ -2165,7 +2204,7 @@ var CollectMoney = function()
         const girlsList = getGirlMapSorted(getCurrentSorting(), false);
         if ( girlsList === null)
         {
-            gotoPage("home");
+            gotoPage(getHHScriptVars("pagesIDHome"));
         }
         collectableGirlsList = girlsList.filter(filterGirlMapReadyForCollect);
 
@@ -2207,7 +2246,7 @@ var CollectMoney = function()
                 salaryTimer = 60;
             }
             setTimer('nextSalaryTime',salaryTimer);
-            gotoPage("home",{},randomInterval(300,500));
+            gotoPage(getHHScriptVars("pagesIDHome"),{},randomInterval(300,500));
         }
     }
 
@@ -2255,17 +2294,17 @@ function predictNextSalaryMinTime(inGirlsDataList)
 
 var getSalary = function () {
     try {
-        if(getPage() == "harem" || getPage() == "home")
+        if(getPage() == getHHScriptVars("pagesIDHarem") || getPage() == getHHScriptVars("pagesIDHome"))
         {
             const salaryButton = $("#collect_all_container button[id='collect_all']")
             const salaryToCollect = !(salaryButton.prop('disabled') || salaryButton.attr("style")==="display: none;");
             const getButtonClass = salaryButton.attr("class");
             let salarySumTag = NaN;
-            if (getPage() == "harem")
+            if (getPage() == getHHScriptVars("pagesIDHarem"))
             {
                 salarySumTag = Number($('[rel="next_salary"]',salaryButton)[0].innerText.replace(/[^0-9]/gi, ''));
             }
-            else if (getPage() == "home")
+            else if (getPage() == getHHScriptVars("pagesIDHome"))
             {
                 salarySumTag = Number($('.sum',salaryButton).attr("amount"));
             }
@@ -2279,14 +2318,14 @@ var getSalary = function () {
                     //replaceCheatClick();
                     salaryButton.click();
                     logHHAuto('Collected all Premium salary');
-                    if (getPage() == "harem" )
+                    if (getPage() == getHHScriptVars("pagesIDHarem") )
                     {
                         setTimer('nextSalaryTime',predictNextSalaryMinTime());
                         return false;
                     }
                     else
                     {
-                        gotoPage("home");
+                        gotoPage(getHHScriptVars("pagesIDHome"));
                         return true;
                     }
 
@@ -2294,7 +2333,7 @@ var getSalary = function () {
                 else if ( getButtonClass.indexOf("orange_button_L") !== -1 )
                 {
                     // Not at Harem screen then goto the Harem screen.
-                    if (getPage() == "harem" )
+                    if (getPage() == getHHScriptVars("pagesIDHarem") )
                     {
                         logHHAuto("Detected Harem Screen. Fetching Salary");
                         //replaceCheatClick();
@@ -2305,7 +2344,7 @@ var getSalary = function () {
                     else
                     {
                         logHHAuto("Navigating to Harem window.");
-                        gotoPage("harem");
+                        gotoPage(getHHScriptVars("pagesIDHarem"));
                     }
                     return true;
                 }
@@ -2327,7 +2366,7 @@ var getSalary = function () {
             if (checkTimer('nextSalaryTime'))
             {
                 logHHAuto("Navigating to Home window.");
-                gotoPage("home");
+                gotoPage(getHHScriptVars("pagesIDHome"));
                 return true;
             }
         }
@@ -2658,7 +2697,7 @@ var doBossBattle = function()
     // Battles the latest boss.
     // Navigate to latest boss.
     //console.log(getPage());
-    if(getPage()===getHHScriptVars("getPageTrollPreBattle") && window.location.search=="?id_opponent=" + TTF)
+    if(getPage()===getHHScriptVars("pagesIDTrollPreBattle") && window.location.search=="?id_opponent=" + TTF)
     {
         // On the battle screen.
         CrushThemFights();
@@ -2670,7 +2709,7 @@ var doBossBattle = function()
         logHHAuto("setting autoloop to false");
         //week 28 new battle modification
         //location.href = "/battle.html?id_troll=" + TTF;
-        gotoPage("troll-pre-battle",{id_opponent:TTF});
+        gotoPage(getHHScriptVars("pagesIDTrollPreBattle"),{id_opponent:TTF});
         //End week 28 new battle modification
         return true;
     }
@@ -2679,13 +2718,13 @@ var doBossBattle = function()
 var doChampionStuff=function()
 {
     var page=getPage();
-    if (page=='champions')
+    if (page==getHHScriptVars("pagesIDChampionsPage"))
     {
         logHHAuto('on champion page');
         if ($('button[rel=perform].blue_button_L').length==0)
         {
             logHHAuto('Something is wrong!');
-            gotoPage("home");
+            gotoPage(getHHScriptVars("pagesIDHome"));
             return true;
         }
         else
@@ -2706,12 +2745,12 @@ var doChampionStuff=function()
                     logHHAuto("Using ticket");
                     $('button[rel=perform].blue_button_L').click();
                 }
-                gotoPage('champions_map');
+                gotoPage(getHHScriptVars("pagesIDChampionsMap"));
                 return true;
             }
         }
     }
-    else if (page=='champions_map')
+    else if (page==getHHScriptVars("pagesIDChampionsMap"))
     {
         logHHAuto('on champion map');
         var Filter=getStoredValue("HHAuto_Setting_autoChampsFilter").split(';').map(s=>Number(s));
@@ -2798,12 +2837,12 @@ var doChampionStuff=function()
         {
             setTimer('nextChampionTime',minTime);
         }
-        gotoPage('home');
+        gotoPage(getHHScriptVars("pagesIDHome"));
         return false;
     }
     else
     {
-        gotoPage('champions_map');
+        gotoPage(getHHScriptVars("pagesIDChampionsMap"));
         return true;
     }
 }
@@ -2811,13 +2850,13 @@ var doChampionStuff=function()
 var doClubChampionStuff=function()
 {
     var page=getPage();
-    if (page=='club_champion')
+    if (page==getHHScriptVars("pagesIDClubChampion"))
     {
         logHHAuto('on club_champion page');
         if ($('button[rel=perform].blue_button_L').length==0)
         {
             logHHAuto('Something is wrong!');
-            gotoPage("home");
+            gotoPage(getHHScriptVars("pagesIDHome"));
             return true;
         }
         else
@@ -2839,12 +2878,12 @@ var doClubChampionStuff=function()
                     $('button[rel=perform].blue_button_L').click();
                     setTimer('nextClubChampionTime',3);
                 }
-                gotoPage('clubs');
+                gotoPage(getHHScriptVars("pagesIDClub"));
                 return true;
             }
         }
     }
-    else if (page=='clubs')
+    else if (page==getHHScriptVars("pagesIDClub"))
     {
         logHHAuto('on clubs');
         let Started = $("div.club_champions_panel tr.personal_highlight").length === 1;
@@ -2882,7 +2921,7 @@ var doClubChampionStuff=function()
             if (maxTickets > ticketUsed )
             {
                 logHHAuto("Let's do him!");
-                gotoPage('club_champion');
+                gotoPage(getHHScriptVars("pagesIDClubChampion"));
                 return true;
             }
             else
@@ -2899,12 +2938,12 @@ var doClubChampionStuff=function()
         {
             setTimer('nextClubChampionTime',SecsToNextTimer);
         }
-        gotoPage('home');
+        gotoPage(getHHScriptVars("pagesIDHome"));
         return false;
     }
     else
     {
-        gotoPage('clubs');
+        gotoPage(getHHScriptVars("pagesIDClub"));
         return true;
     }
 }
@@ -3052,7 +3091,7 @@ function getRewardTypeBySlot(inSlot)
 function goAndCollectDailyRewards()
 {
     const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoDailyRewardsCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoDailyRewardsCollectablesList")):[];
-    if (getPage() == "home")
+    if (getPage() == getHHScriptVars("pagesIDHome"))
     {
         const dailyRewardNotifRequest = getHHScriptVars("dailyRewardNotifRequest",false);
         const dailyRewardSlotRequest = "#popup_daily_rewards .daily_reward_container.daily_claim";
@@ -3096,7 +3135,7 @@ function goAndCollectDailyRewards()
                 logHHAuto('Seems reward already collected, setting timer to 1h.');
                 setTimer('nextDailyRewardsCollectTime', 3600);
             }
-            gotoPage("home");
+            gotoPage(getHHScriptVars("pagesIDHome"));
         }
         else
         {
@@ -3107,7 +3146,7 @@ function goAndCollectDailyRewards()
     else
     {
         logHHAuto("Navigating to home page.");
-        gotoPage("home");
+        gotoPage(getHHScriptVars("pagesIDHome"));
         // return busy
         return true;
     }
@@ -3121,7 +3160,7 @@ function goAndCollectDailyGoals()
     if (checkTimer('nextDailyGoalsCollectTime') && getStoredValue("HHAuto_Setting_autoDailyGoalsCollect") === "true" && rewardsToCollect.length > 0 )
     {
         //console.log(getPage());
-        if (getPage() === "daily_goals")
+        if (getPage() === getHHScriptVars("pagesIDDailyGoals"))
         {
             logHHAuto("Checking Daily Goals for collectable rewards.");
             logHHAuto("setting autoloop to false");
@@ -3181,7 +3220,7 @@ function goAndCollectDailyGoals()
                     {
                         logHHAuto("Daily Goals collection finished.");
                         setTimer('nextDailyGoalsCollectTime',30*60);
-                        gotoPage("home");
+                        gotoPage(getHHScriptVars("pagesIDHome"));
                     }
                 }
                 collectDailyGoalsRewards();
@@ -3191,14 +3230,14 @@ function goAndCollectDailyGoals()
             {
                 logHHAuto("No Daily Goals reward to collect.");
                 setTimer('nextDailyGoalsCollectTime',30*60);
-                gotoPage("home");
+                gotoPage(getHHScriptVars("pagesIDHome"));
                 return false;
             }
         }
         else
         {
             logHHAuto("Switching to Daily Goals screen.");
-            gotoPage("activities",{tab:"daily_goals"});
+            gotoPage(getHHScriptVars("pagesIDDailyGoals"));
             return true;
         }
     }
@@ -3210,7 +3249,7 @@ function goAndCollectPoV()
 
     if (checkTimer('nextPoVCollectTime') && getStoredValue("HHAuto_Setting_autoPoVCollect") === "true" && rewardsToCollect.length > 0 )
     {
-        if (getPage() === "path-of-valor")
+        if (getPage() === getHHScriptVars("pagesIDPoV"))
         {
             logHHAuto("Checking Path of Valor for collectable rewards.");
             logHHAuto("setting autoloop to false");
@@ -3258,7 +3297,7 @@ function goAndCollectPoV()
                     {
                         logHHAuto("Path of Valor collection finished.");
                         setTimer('nextPoVCollectTime',getHHScriptVars("maxCollectionDelay"));
-                        gotoPage("home");
+                        gotoPage(getHHScriptVars("pagesIDHome"));
                     }
                 }
                 collectPoVRewards();
@@ -3268,14 +3307,14 @@ function goAndCollectPoV()
             {
                 logHHAuto("No Path of Valor reward to collect.");
                 setTimer('nextPoVCollectTime',getHHScriptVars("maxCollectionDelay"));
-                gotoPage("home");
+                gotoPage(getHHScriptVars("pagesIDHome"));
                 return false;
             }
         }
         else
         {
             logHHAuto("Switching to Path of Valor screen.");
-            gotoPage("path-of-valor");
+            gotoPage(getHHScriptVars("pagesIDPoV"));
             return true;
         }
     }
@@ -3287,7 +3326,7 @@ function goAndCollectSeason()
 
     if (checkTimer('nextSeasonCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonCollect") === "true" && rewardsToCollect.length > 0 )
     {
-        if (getPage() === "season")
+        if (getPage() === getHHScriptVars("pagesIDSeason"))
         {
             logHHAuto("Going to collect Season.");
             logHHAuto("setting autoloop to false");
@@ -3370,7 +3409,7 @@ function goAndCollectSeason()
                     {
                         logHHAuto("Season collection finished.");
                         setTimer('nextSeasonCollectTime',getHHScriptVars("maxCollectionDelay"));
-                        gotoPage("home");
+                        gotoPage(getHHScriptVars("pagesIDHome"));
                     }
                 }
                 collectSeasonRewards();
@@ -3380,7 +3419,7 @@ function goAndCollectSeason()
             {
                 logHHAuto("No season collection to do.");
                 setTimer('nextSeasonCollectTime',getHHScriptVars("maxCollectionDelay"));
-                gotoPage("home");
+                gotoPage(getHHScriptVars("pagesIDHome"));
                 return false;
             }
             return;
@@ -3388,7 +3427,7 @@ function goAndCollectSeason()
         else
         {
             logHHAuto("Switching to Season Rewards screen.");
-            gotoPage("season");
+            gotoPage(getHHScriptVars("pagesIDSeason"));
             return true;
         }
     }
@@ -3400,7 +3439,7 @@ var doSeason = function ()
     // Confirm if on correct screen.
     var page = getPage();
     var current_kisses = getHHVars('Hero.energies.kiss.amount');
-    if (page === "season_arena")
+    if (page === getHHScriptVars("pagesIDSeasonArena"))
     {
         logHHAuto("On season arena page.");
 
@@ -3451,7 +3490,7 @@ var doSeason = function ()
         if ( current_kisses > 0 )
         {
             logHHAuto("Switching to Season Arena screen.");
-            gotoPage("season_arena");
+            gotoPage(getHHScriptVars("pagesIDSeasonArena"));
         }
         else
         {
@@ -3463,7 +3502,7 @@ var doSeason = function ()
             {
                 setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts') + 10);
             }
-            gotoPage('home');
+            gotoPage(getHHScriptVars("pagesIDHome"));
         }
         return;
     }
@@ -3475,7 +3514,7 @@ function doPantheon()
     // Confirm if on correct screen.
     var page = getPage();
     var current_worship = getHHVars('Hero.energies.worship.amount');
-    if(page === "pantheon")
+    if(page === getHHScriptVars("pagesIDPantheon"))
     {
         logHHAuto("On pantheon page.");
         logHHAuto("Remaining worship : "+ current_worship);
@@ -3486,13 +3525,13 @@ function doPantheon()
             if (pantheonButton.length > 0 && templeID !== null )
             {
                 logHHAuto("Going to fight Temple : "+templeID);
-                gotoPage("pantheon-pre-battle",{id_opponent:templeID});
+                gotoPage(getHHScriptVars("pagesIDPantheonPreBattle"),{id_opponent:templeID});
             }
             else
             {
                 logHHAuto("Issue to find templeID retry in 60secs.");
                 setTimer('nextPantheonTime',60);
-                gotoPage('home');
+                gotoPage(getHHScriptVars("pagesIDHome"));
             }
         }
         else
@@ -3505,12 +3544,12 @@ function doPantheon()
             {
                 setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts') + 10);
             }
-            gotoPage('home');
+            gotoPage(getHHScriptVars("pagesIDHome"));
         }
         return;
         //<button id="claim_btn_s" class="bordeaux_button_s" style="z-index: 1000; visibility: visible;">Claim</button>
     }
-    else if (page === "pantheon-pre-battle")
+    else if (page === getHHScriptVars("pagesIDPantheonPreBattle"))
     {
         logHHAuto("On pantheon-pre-battle page.");
         let templeID = queryStringGetParam(window.location.search,'id_opponent');
@@ -3528,7 +3567,7 @@ function doPantheon()
         {
             logHHAuto("Issue to find temple battle button retry in 60secs.");
             setTimer('nextPantheonTime',60);
-            gotoPage('home');
+            gotoPage(getHHScriptVars("pagesIDHome"));
         }
     }
     else
@@ -3538,7 +3577,7 @@ function doPantheon()
         if ( current_worship > 0 )
         {
             logHHAuto("Switching to pantheon screen.");
-            gotoPage("pantheon");
+            gotoPage(getHHScriptVars("pagesIDPantheon"));
 
             return;
         }
@@ -3552,7 +3591,7 @@ function doPantheon()
             {
                 setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts') + 10);
             }
-            gotoPage('home');
+            gotoPage(getHHScriptVars("pagesIDHome"));
         }
         return;
     }
@@ -3600,12 +3639,12 @@ var doLeagueBattle = function () {
     var ltime;
 
     var page = getPage();
-    if(page==='battle')
+    if(page===getHHScriptVars("pagesIDLeagueBattle"))
     {
         // On the battle screen.
         CrushThemFights();
     }
-    else if(page === "leaderboard")
+    else if(page === getHHScriptVars("pagesIDLeaderboard"))
     {
         logHHAuto("On leaderboard page.");
         if (getStoredValue("HHAuto_Setting_autoLeaguesCollect") === "true")
@@ -3613,7 +3652,7 @@ var doLeagueBattle = function () {
             if ($('#leagues_middle .forced_info button[rel="claim"]').length >0)
             {
                 $('#leagues_middle .forced_info button[rel="claim"]').click(); //click reward
-                gotoPage('leaderboard')
+                gotoPage(getHHScriptVars("pagesIDLeaderboard"))
             }
         }
         //logHHAuto('ls! '+$('h4.leagues').size());
@@ -3692,7 +3731,7 @@ var doLeagueBattle = function () {
                     setTimer('nextLeaguesTime',Number(30*60)+1);
                     //prevent paranoia to wait for league
                     setStoredValue("HHAuto_Temp_paranoiaLeagueBlocked", "true");
-                    gotoPage("home");
+                    gotoPage(getHHScriptVars("pagesIDHome"));
                     return;
                 }
             }
@@ -3732,7 +3771,7 @@ var doLeagueBattle = function () {
                     setTimer('nextLeaguesTime',Number(30*60)+1);
                     //prevent paranoia to wait for league
                     setStoredValue("HHAuto_Temp_paranoiaLeagueBlocked", "true");
-                    gotoPage("home");
+                    gotoPage(getHHScriptVars("pagesIDHome"));
                     return;
                 }
             }
@@ -3753,7 +3792,7 @@ var doLeagueBattle = function () {
                     logHHAuto('going to crush ID : '+oppoID);
                     //week 28 new battle modification
                     //location.href = "/battle.html?league_battle=1&id_member=" + oppoID;
-                    gotoPage("league-battle",{number_of_battles:1,id_opponent:oppoID});
+                    gotoPage(getHHScriptVars("pagesIDLeagueBattle"),{number_of_battles:1,id_opponent:oppoID});
                     //End week 28 new battle modification
 
                     clearTimer('nextLeaguesTime');
@@ -3763,7 +3802,7 @@ var doLeagueBattle = function () {
             {
                 //week 28 new battle modification
                 //location.href = "/battle.html?league_battle=1&id_member=" + Data[0]
-                gotoPage("league-battle",{number_of_battles:1,id_opponent:Data[0]});
+                gotoPage(getHHScriptVars("pagesIDLeagueBattle"),{number_of_battles:1,id_opponent:Data[0]});
                 //End week 28 new battle modification
 
             }
@@ -3774,7 +3813,7 @@ var doLeagueBattle = function () {
     {
         // Switch to the correct screen
         logHHAuto("Switching to leagues screen.");
-        gotoPage("leaderboard");
+        gotoPage(getHHScriptVars("pagesIDLeaderboard"));
         return;
     }
 };
@@ -3989,7 +4028,7 @@ function reviverMap(key, value) {
 }
 var CrushThemFights=function()
 {
-    if (getPage() === getHHScriptVars("getPageTrollPreBattle")) {
+    if (getPage() === getHHScriptVars("pagesIDTrollPreBattle")) {
         // On battle page.
         logHHAuto("On Pre battle page.");
         let TTF = queryStringGetParam(window.location.search,'id_opponent');
@@ -4055,7 +4094,7 @@ var CrushThemFights=function()
             )
             {
                 RechargeCombat();
-                gotoPage("troll-pre-battle",{id_opponent:TTF});
+                gotoPage(getHHScriptVars("pagesIDTrollPreBattle"),{id_opponent:TTF});
                 return;
             }
 
@@ -4160,7 +4199,7 @@ var CrushThemFights=function()
                 if ($('#pre-battle div.battle-buttons a.single-battle-button[disabled]').length>0)
                 {
                     logHHAuto("Battle Button seems disabled, force reload of page.");
-                    gotoPage("home");
+                    gotoPage(getHHScriptVars("pagesIDHome"));
                     return;
                 }
                 if(battleButton === undefined || battleButton.length === 0)
@@ -4193,7 +4232,7 @@ var CrushThemFights=function()
                 {
                     setStoredValue("HHAuto_Temp_questRequirement", "P"+battle_price);
                 }
-                gotoPage("home");
+                gotoPage(getHHScriptVars("pagesIDHome"));
                 return;
             }
         }
@@ -4206,7 +4245,7 @@ var CrushThemFights=function()
     else
     {
         logHHAuto('Unable to identify page.');
-        gotoPage("home");
+        gotoPage(getHHScriptVars("pagesIDHome"));
         return;
     }
     return;
@@ -4214,18 +4253,18 @@ var CrushThemFights=function()
 
 function doBattle()
 {
-    if (getPage() === "battle" )
+    if (getPage() === getHHScriptVars("pagesIDLeagueBattle") || getPage() === getHHScriptVars("pagesIDTrollBattle") || getPage() === getHHScriptVars("pagesIDSeasonBattle") || getPage() === getHHScriptVars("pagesIDPantheonBattle") )
     {
         logHHAuto("On battle page.");
         let troll_id = queryStringGetParam(window.location.search,'id_opponent');
-        if (window.location.pathname === "/league-battle.html" && getStoredValue("HHAuto_Setting_autoLeagues") === "true")
+        if (getPage() === getHHScriptVars("pagesIDLeagueBattle") && getStoredValue("HHAuto_Setting_autoLeagues") === "true")
         {
             logHHAuto("Reloading after league fight.");
-            gotoPage("leaderboard",{},randomInterval(4000,5000));
+            gotoPage(getHHScriptVars("pagesIDLeaderboard"),{},randomInterval(4000,5000));
         }
-        else if (window.location.pathname === "/troll-battle.html")
+        else if (getPage() === getHHScriptVars("pagesIDTrollBattle") )
         {
-            if (getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true")
+            if (getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true" && troll_id === getHHVars('Hero.infos.questing.id_world')-1)
             {
                 setStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest", "false");
             }
@@ -4238,39 +4277,39 @@ function doBattle()
                 if (troll_id !== null)
                 {
                     logHHAuto("Go back to Troll after Troll fight.");
-                    gotoPage("troll-pre-battle",{id_opponent:troll_id},randomInterval(2000,4000));
+                    gotoPage(getHHScriptVars("pagesIDTrollPreBattle"),{id_opponent:troll_id},randomInterval(2000,4000));
                 }
                 else
                 {
                     logHHAuto("Go to home after unknown troll fight.");
-                    gotoPage('home',{},randomInterval(2000,4000));
+                    gotoPage(getHHScriptVars("pagesIDHome"),{},randomInterval(2000,4000));
                 }
             }
 
         }
-        else if (window.location.pathname === "/season-battle.html" && getStoredValue("HHAuto_Setting_autoSeason") === "true")
+        else if (getPage() === getHHScriptVars("pagesIDSeasonBattle") && getStoredValue("HHAuto_Setting_autoSeason") === "true")
         {
             logHHAuto("Go back to Season arena after Season fight.");
-            gotoPage('season_arena',{},randomInterval(2000,4000));
+            gotoPage(getHHScriptVars("pagesIDSeasonArena"),{},randomInterval(2000,4000));
         }
-        else if (window.location.pathname === "/pantheon-battle.html" && getStoredValue("HHAuto_Setting_autoPantheon") === "true")
+        else if (getPage() === getHHScriptVars("pagesIDPantheonBattle") && getStoredValue("HHAuto_Setting_autoPantheon") === "true")
         {
             logHHAuto("Go back to Pantheon arena after Pantheon temple.");
-            gotoPage('pantheon',{},randomInterval(2000,4000));
+            gotoPage(getHHScriptVars("pagesIDPantheon"),{},randomInterval(2000,4000));
         }
         return true;
     }
     else
     {
         logHHAuto('Unable to identify page.');
-        gotoPage("home");
+        gotoPage(getHHScriptVars("pagesIDHome"));
         return;
     }
 }
 
 function ObserveAndGetGirlRewards()
 {
-    let inCaseTimer = setTimeout(function(){gotoPage('home');}, 60000); //in case of issue
+    let inCaseTimer = setTimeout(function(){gotoPage(getHHScriptVars("pagesIDHome"));}, 60000); //in case of issue
     function parseReward()
     {
         if (getStoredValue("HHAuto_Temp_eventsGirlz") === undefined
@@ -4287,7 +4326,7 @@ function ObserveAndGetGirlRewards()
         {
             clearTimeout(inCaseTimer);
             logHHAuto("No girl in reward going back to Troll");
-            gotoPage("troll-pre-battle",{id_opponent:TTF});
+            gotoPage(getHHScriptVars("pagesIDTrollPreBattle"),{id_opponent:TTF});
             return;
         }
         let renewEvent = "";
@@ -4347,7 +4386,7 @@ function ObserveAndGetGirlRewards()
         {
             clearTimeout(inCaseTimer);
             logHHAuto("Go back to troll after troll fight.");
-            gotoPage("troll-pre-battle",{id_opponent:TTF});
+            gotoPage(getHHScriptVars("pagesIDTrollPreBattle"),{id_opponent:TTF});
             return;
         }
     }
@@ -4489,11 +4528,11 @@ var getTimeLeft=function(name)
 
 var getFreeGreatPachinko = function(){
     try {
-        if(getPage() !== "pachinko")
+        if(getPage() !== getHHScriptVars("pagesIDPachinko"))
         {
             // Not at Pachinko screen then goto the Pachinko screen.
             logHHAuto("Navigating to Pachinko window.");
-            gotoPage("pachinko");
+            gotoPage(getHHScriptVars("pagesIDPachinko"));
             return true;
         }
         else {
@@ -4539,11 +4578,11 @@ var getFreeGreatPachinko = function(){
 
 var getFreeMythicPachinko = function(){
     try {
-        if(getPage() !== "pachinko")
+        if(getPage() !== getHHScriptVars("pagesIDPachinko"))
         {
             // Not at Pachinko screen then goto the Pachinko screen.
             logHHAuto("Navigating to Pachinko window.");
-            gotoPage("pachinko");
+            gotoPage(getHHScriptVars("pagesIDPachinko"));
             return true;
         }
         else {
@@ -4610,10 +4649,10 @@ var getFreeMythicPachinko = function(){
 
 var updateShop=function()
 {
-    if(getPage() !== "shop")
+    if(getPage() !== getHHScriptVars("pagesIDShop"))
     {
         logHHAuto("Navigating to Market window.");
-        gotoPage("shop");
+        gotoPage(getHHScriptVars("pagesIDShop"));
         return true;
     }
     else {
@@ -4660,7 +4699,7 @@ var updateShop=function()
         }
         setTimer('nextShopTime',shopTimer);
 
-        gotoPage("home");
+        gotoPage(getHHScriptVars("pagesIDHome"));
         logHHAuto("Go to Home after Shopping");
     }
     return false;
@@ -4954,7 +4993,7 @@ var flipParanoia=function()
             cleanTempPopToStart();
             //going into hiding
             setStoredValue("HHAuto_Temp_burst", "false");
-            gotoPage("home");
+            gotoPage(getHHScriptVars("pagesIDHome"));
         }
         else
         {
@@ -4966,7 +5005,7 @@ var flipParanoia=function()
     }
     else
     {
-        //if (getPage()!='home') return;
+        //if (getPage()!=getHHScriptVars("pagesIDHome")) return;
         //going to work
         setStoredValue("HHAuto_Temp_autoLoop", "false");
         logHHAuto("setting autoloop to false");
@@ -4998,7 +5037,7 @@ var flipParanoia=function()
             }
         }
         //sessionStorage.removeItem("HHAuto_Temp_eventsList");
-        gotoPage('home');
+        gotoPage(getHHScriptVars("pagesIDHome"));
     }
 }
 
@@ -5932,7 +5971,7 @@ var autoLoop = function ()
         //check what happen to timer if no more wave before uncommenting
         /*if (getStoredValue("HHAuto_Setting_plusEventMythic") ==="true" && checkTimerMustExist('eventMythicNextWave'))
         {
-            gotoPage('home');
+            gotoPage(getHHScriptVars("pagesIDHome"));
         }
         */
 
@@ -5940,14 +5979,14 @@ var autoLoop = function ()
         let eventQuery = '#contains_all #homepage .event-widget a[rel="event"]:not([href="#"])';
         let mythicEventQuery = '#contains_all #homepage .event-widget a[rel="mythic_event"]:not([href="#"])';
         let eventIDs=[];
-        if (getPage()==="event")
+        if (getPage()===getHHScriptVars("pagesIDEvent"))
         {
             if (queryStringGetParam(window.location.search,'tab') !== null)
             {
                 eventIDs.push(queryStringGetParam(window.location.search,'tab'));
             }
         }
-        else if (getPage() === "home")
+        else if (getPage() === getHHScriptVars("pagesIDHome"))
         {
             let parsedURL;
             queryResults=$(eventQuery);
@@ -5982,11 +6021,11 @@ var autoLoop = function ()
             (
                 (
                     eventIDs.length > 0
-                    && getPage() !== "event"
+                    && getPage() !== getHHScriptVars("pagesIDEvent")
                 )
                 ||
                 (
-                    getPage()==="event"
+                    getPage()===getHHScriptVars("pagesIDEvent")
                     && $("#contains_all #events[parsed]").length === 0
                 )
             )
@@ -5999,7 +6038,18 @@ var autoLoop = function ()
         }
 
 
-        if(busy === false && getPage()==="battle" && getStoredValue("HHAuto_Temp_autoLoop") === "true")
+        if
+            (
+                busy === false
+                &&
+                (
+                    getPage() === getHHScriptVars("pagesIDLeagueBattle")
+                    || getPage() === getHHScriptVars("pagesIDTrollBattle")
+                    || getPage() === getHHScriptVars("pagesIDSeasonBattle")
+                    || getPage() === getHHScriptVars("pagesIDPantheonBattle")
+                )
+                && getStoredValue("HHAuto_Temp_autoLoop") === "true"
+            )
         {
             busy = true;
             doBattle();
@@ -6079,10 +6129,10 @@ var autoLoop = function ()
             }
             /*else
             {
-                if (getPage() === getHHScriptVars("getPageTrollPreBattle"))
+                if (getPage() === getHHScriptVars("pagesIDTrollPreBattle"))
                 {
                     logHHAuto("Go to home after troll fight");
-                    gotoPage("home");
+                    gotoPage(getHHScriptVars("pagesIDHome"));
 
                 }
             }*/
@@ -6163,7 +6213,7 @@ var autoLoop = function ()
                     {
                         //logHHAuto("removing popToStart");
                         sessionStorage.removeItem('HHAuto_Temp_PopToStart');
-                        gotoPage("home");
+                        gotoPage(getHHScriptVars("pagesIDHome"));
                     }
                 }
             }
@@ -6412,10 +6462,10 @@ var autoLoop = function ()
                         setTimer('nextLeaguesTime',getHHVars('Hero.energies.challenge.next_refresh_ts') + 10);
                     }
                 }
-                /*if (getPage() === "leaderboard")
+                /*if (getPage() === getHHScriptVars("pagesIDLeaderboard"))
                 {
                     logHHAuto("Go to home after league fight");
-                    gotoPage("home");
+                    gotoPage(getHHScriptVars("pagesIDHome"));
 
                 }*/
             }
@@ -6472,19 +6522,19 @@ var autoLoop = function ()
             busy === false
             && getStoredValue("HHAuto_Temp_autoLoop") === "true"
             && HaremSizeNeedsRefresh(getHHScriptVars("HaremMaxSizeExpirationSecs"))
-            && getPage() !== "harem"
+            && getPage() !== getHHScriptVars("pagesIDHarem")
 
         )
         {
             //console.log(! isJSON(getStoredValue("HHAuto_Temp_HaremSize")),JSON.parse(getStoredValue("HHAuto_Temp_HaremSize")).count_date,new Date().getTime() + getHHScriptVars("HaremSizeExpirationSecs") * 1000);
             busy = true;
-            gotoPage("harem");
+            gotoPage(getHHScriptVars("pagesIDHarem"));
         }
 
         if (
             isJSON(getStoredValue("HHAuto_Temp_LastPageCalled"))
             && busy === false
-            && getPage() !== "home"
+            && getPage() !== getHHScriptVars("pagesIDHome")
             && getPage() === JSON.parse(getStoredValue("HHAuto_Temp_LastPageCalled")).page
             && (new Date().getTime() - JSON.parse(getStoredValue("HHAuto_Temp_LastPageCalled")).dateTime) > getHHScriptVars("minSecsBeforeGoHomeAfterActions") * 1000
         )
@@ -6492,7 +6542,7 @@ var autoLoop = function ()
             //console.log("testingHome : GotoHome : "+getStoredValue("HHAuto_Temp_LastPageCalled"));
             logHHAuto("Back to home page at the end of actions");
             deleteStoredValue("HHAuto_Temp_LastPageCalled");
-            gotoPage('home');
+            gotoPage(getHHScriptVars("pagesIDHome"));
         }
     }
 
@@ -6505,25 +6555,25 @@ var autoLoop = function ()
 
     switch (getPage())
     {
-        case "leaderboard":
+        case getHHScriptVars("pagesIDLeaderboard"):
             if (getStoredValue("HHAuto_Setting_showCalculatePower") === "true")
             {
                 moduleSimLeague();
             }
             break;
-        case "season_arena":
+        case getHHScriptVars("pagesIDSeasonArena"):
             if (getStoredValue("HHAuto_Setting_showCalculatePower") === "true")
             {
                 moduleSimSeasonBattle();
             }
             break;
-        case "season":
+        case getHHScriptVars("pagesIDSeason"):
             if (getStoredValue("HHAuto_Setting_SeasonMaskRewards") === "true")
             {
                 setTimeout(moduleSimSeasonMaskReward,500);
             }
             break;
-        case "event":
+        case getHHScriptVars("pagesIDEvent"):
             if (getStoredValue("HHAuto_Setting_plusEvent") ==="true" || getStoredValue("HHAuto_Setting_plusEventMythic") ==="true")
             {
                 parseEventPage();
@@ -6534,42 +6584,42 @@ var autoLoop = function ()
                 setTimeout(modulePathOfAttractionHide,500);
             }
             break;
-        case "path_of_attraction":
+        case getHHScriptVars("pagesIDPoA"):
             if (getStoredValue("HHAuto_Setting_PoAMaskRewards") === "true")
             {
                 setTimeout(moduleOldPathOfAttractionHide,500);
             }
             break;
-        case "powerplacemain":
+        case getHHScriptVars("pagesIDPowerplacemain"):
             moduleDisplayPopID();
             break;
-        case "shop":
+        case getHHScriptVars("pagesIDShop"):
             if (getStoredValue("HHAuto_Setting_showMarketTools") === "true")
             {
                 moduleShopActions();
             }
             moduleShopGetBoosters();
             break;
-        case "home":
+        case getHHScriptVars("pagesIDHome"):
             displayPoVRemainingTime();
             break;
-        case "harem":
+        case getHHScriptVars("pagesIDHarem"):
             moduleHarem();
             moduleHaremExportGirlsData();
             moduleHaremCountMax();
             moduleHaremNextUpgradableGirl();
             haremOpenFirstXUpgradable();
             break;
-        case "pachinko":
+        case getHHScriptVars("pagesIDPachinko"):
             modulePachinko();
             break;
-        case getHHScriptVars("pageEditTeam"):
+        case getHHScriptVars("pagesIDEditTeam"):
             moduleChangeTeam();
             break;
-        case "contests":
+        case getHHScriptVars("pagesIDContests"):
             moduleDisplayContestsDeletion();
             break;
-        case "path-of-valor":
+        case getHHScriptVars("pagesIDPoV"):
             if (getStoredValue("HHAuto_Setting_PoVMaskRewards") === "true")
             {
                 moduleSimPoVMaskReward();
@@ -6613,7 +6663,7 @@ function moduleHaremCountMax()
 
         /*if (busy === false)
         {
-            gotoPage("home");
+            gotoPage(getHHScriptVars("pagesIDHome"));
             logHHAuto("Go to home after getting Harem Size");
         }*/
     }
@@ -8885,7 +8935,7 @@ function parseTime(inTimeString)
 
 function parseEventPage(inTab="global")
 {
-    if(getPage() === "event" )
+    if(getPage() === getHHScriptVars("pagesIDEvent") )
     {
         let queryEventTabCheck=$("#contains_all #events");
         let eventHref = $("#contains_all #events .events-list .event-title.active").attr("href");
@@ -9081,11 +9131,11 @@ function parseEventPage(inTab="global")
     {
         if (inTab !== "global")
         {
-            gotoPage("event",{tab:inTab});
+            gotoPage(getHHScriptVars("pagesIDEvent"),{tab:inTab});
         }
         else
         {
-            gotoPage("event");
+            gotoPage(getHHScriptVars("pagesIDEvent"));
         }
         return true;
     }
@@ -9923,7 +9973,6 @@ HHEnvVariables["global"].eventIDReg = "event_";
 HHEnvVariables["global"].mythicEventIDReg = "mythic_event_";
 HHEnvVariables["global"].girlToolTipData = "data-new-girl-tooltip";
 HHEnvVariables["global"].dailyRewardNotifRequest = "#contains_all header .currency .daily-reward-notif";
-HHEnvVariables["global"].pageEditTeam = "edit-team"
 HHEnvVariables["global"].IDpanelEditTeam = "#edit-team-page"
 HHEnvVariables["global"].shopGirlCountRequest = '#girls_list .g1 .nav_placement span:not([contenteditable]';
 HHEnvVariables["global"].shopGirlCurrentRequest = '#girls_list .g1 .nav_placement span[contenteditable]';
@@ -10105,28 +10154,116 @@ HHEnvVariables["global"].haremSortingFunctions.upgrade_cost = function sortByUpg
     return compareOwnFirst(a.gData, b.gData, bCost - aCost )
 }
 
-HHEnvVariables["global"].gotoPageHome = '/home.html';
-HHEnvVariables["global"].gotoPageActivities = '/activities.html';
-HHEnvVariables["global"].gotoPageHarem = '/harem.html';
-HHEnvVariables["global"].gotoPageMap = '/map.html';
-HHEnvVariables["global"].gotoPagePachinko = '/pachinko.html';
-HHEnvVariables["global"].gotoPageLeaderboard = '/tower-of-fame.html';
-HHEnvVariables["global"].gotoPageShop = '/shop.html';
-HHEnvVariables["global"].gotoPageClub = '/clubs.html';
-HHEnvVariables["global"].gotoPagePantheon = "/pantheon.html";
-HHEnvVariables["global"].gotoPagePantheonPreBattle = "/pantheon-pre-battle.html";
-HHEnvVariables["global"].gotoPageChampionsMap = "/champions-map.html";
-HHEnvVariables["global"].gotoPageSeason = "/season.html";
-HHEnvVariables["global"].gotoPageSeasonArena = "/season-arena.html";
-HHEnvVariables["global"].gotoPageClubChampion = "/club-champion.html";
-HHEnvVariables["global"].gotoPageLeagueBattle = "/league-battle.html";
-HHEnvVariables["global"].gotoPageTrollPreBattle = "/troll-pre-battle.html";
-HHEnvVariables["global"].gotoPageEvent = "/event.html";
-HHEnvVariables["global"].gotoPagePoV = "/path-of-valor.html";
+HHEnvVariables["global"].pagesKnownList = [];
 
-//to correct when new troll pre battle page arrives in prod
-//HHEnvVariables["global"].getPageTrollPreBattle = "pre_battle";
-HHEnvVariables["global"].getPageTrollPreBattle = "troll-pre-battle";
+HHEnvVariables["global"].pagesIDHome = "home";
+HHEnvVariables["global"].pagesURLHome = "/home.html";
+HHEnvVariables["global"].pagesKnownList.push("Home");
+
+HHEnvVariables["global"].pagesIDMissions = "missions";
+HHEnvVariables["global"].pagesKnownList.push("Missions");
+
+HHEnvVariables["global"].pagesIDContests = "contests";
+HHEnvVariables["global"].pagesKnownList.push("Contests");
+
+HHEnvVariables["global"].pagesIDDailyGoals = "daily_goals";
+HHEnvVariables["global"].pagesKnownList.push("DailyGoals");
+
+HHEnvVariables["global"].pagesIDQuest = "quest";
+HHEnvVariables["global"].pagesKnownList.push("Quest");
+
+HHEnvVariables["global"].pagesIDActivities = "activities";
+HHEnvVariables["global"].pagesURLActivities = "/activities.html";
+HHEnvVariables["global"].pagesKnownList.push("Activities");
+
+HHEnvVariables["global"].pagesIDHarem = "harem";
+HHEnvVariables["global"].pagesURLHarem = "/harem.html";
+HHEnvVariables["global"].pagesKnownList.push("Harem");
+
+HHEnvVariables["global"].pagesIDMap = "map";
+HHEnvVariables["global"].pagesURLMap = "/map.html";
+HHEnvVariables["global"].pagesKnownList.push("Map");
+
+HHEnvVariables["global"].pagesIDPachinko = "pachinko";
+HHEnvVariables["global"].pagesURLPachinko = "/pachinko.html";
+HHEnvVariables["global"].pagesKnownList.push("Pachinko");
+
+HHEnvVariables["global"].pagesIDLeaderboard = "leaderboard";
+HHEnvVariables["global"].pagesURLLeaderboard = "/tower-of-fame.html";
+HHEnvVariables["global"].pagesKnownList.push("Leaderboard");
+
+HHEnvVariables["global"].pagesIDShop = "shop";
+HHEnvVariables["global"].pagesURLShop = "/shop.html";
+HHEnvVariables["global"].pagesKnownList.push("Shop");
+
+HHEnvVariables["global"].pagesIDClub = "clubs";
+HHEnvVariables["global"].pagesURLClub = "/clubs.html";
+HHEnvVariables["global"].pagesKnownList.push("Club");
+
+HHEnvVariables["global"].pagesIDPantheon = "pantheon";
+HHEnvVariables["global"].pagesURLPantheon = "/pantheon.html";
+HHEnvVariables["global"].pagesKnownList.push("Pantheon");
+
+HHEnvVariables["global"].pagesIDPantheonPreBattle = "pantheon-pre-battle";
+HHEnvVariables["global"].pagesURLPantheonPreBattle = "/pantheon-pre-battle.html";
+HHEnvVariables["global"].pagesKnownList.push("PantheonPreBattle");
+
+HHEnvVariables["global"].pagesIDChampionsPage = "champions";
+HHEnvVariables["global"].pagesKnownList.push("ChampionsPage");
+
+HHEnvVariables["global"].pagesIDChampionsMap = "champions_map";
+HHEnvVariables["global"].pagesURLChampionsMap = "/champions-map.html";
+HHEnvVariables["global"].pagesKnownList.push("ChampionsMap");
+
+HHEnvVariables["global"].pagesIDSeason = "season";
+HHEnvVariables["global"].pagesURLSeason = "/season.html";
+HHEnvVariables["global"].pagesKnownList.push("Season");
+
+HHEnvVariables["global"].pagesIDSeasonArena = "season_arena";
+HHEnvVariables["global"].pagesURLSeasonArena = "/season-arena.html";
+HHEnvVariables["global"].pagesKnownList.push("SeasonArena");
+
+HHEnvVariables["global"].pagesIDClubChampion = "club_champion";
+HHEnvVariables["global"].pagesURLClubChampion = "/club-champion.html";
+HHEnvVariables["global"].pagesKnownList.push("ClubChampion");
+
+HHEnvVariables["global"].pagesIDLeagueBattle = "league-battle";
+HHEnvVariables["global"].pagesURLLeagueBattle = "/league-battle.html";
+HHEnvVariables["global"].pagesKnownList.push("LeagueBattle");
+
+HHEnvVariables["global"].pagesIDTrollBattle = "troll-battle";
+HHEnvVariables["global"].pagesURLTrollBattle = "/troll-battle.html";
+HHEnvVariables["global"].pagesKnownList.push("TrollBattle");
+
+HHEnvVariables["global"].pagesIDSeasonBattle = "season-battle";
+HHEnvVariables["global"].pagesURLSeasonBattle = "/season-battle.html";
+HHEnvVariables["global"].pagesKnownList.push("SeasonBattle");
+
+HHEnvVariables["global"].pagesIDPantheonBattle = "pantheon-battle";
+HHEnvVariables["global"].pagesURLPantheonBattle = "/pantheon-battle.html";
+HHEnvVariables["global"].pagesKnownList.push("PantheonBattle");
+
+HHEnvVariables["global"].pagesIDTrollPreBattle = "troll-pre-battle";
+HHEnvVariables["global"].pagesURLTrollPreBattle = "/troll-pre-battle.html";
+HHEnvVariables["global"].pagesKnownList.push("TrollPreBattle");
+
+HHEnvVariables["global"].pagesIDEvent = "event";
+HHEnvVariables["global"].pagesURLEvent = "/event.html";
+HHEnvVariables["global"].pagesKnownList.push("Event");
+
+HHEnvVariables["global"].pagesIDPoV = "path-of-valor";
+HHEnvVariables["global"].pagesURLPoV = "/path-of-valor.html";
+HHEnvVariables["global"].pagesKnownList.push("PoV");
+
+HHEnvVariables["global"].pagesIDPowerplacemain = "powerplacemain";
+HHEnvVariables["global"].pagesKnownList.push("Powerplacemain");
+
+HHEnvVariables["global"].pagesIDEditTeam = "edit-team";
+HHEnvVariables["global"].pagesURLEditTeam = "";
+HHEnvVariables["global"].pagesKnownList.push("EditTeam");
+
+HHEnvVariables["global"].pagesIDPoA = "path_of_attraction";
+HHEnvVariables["global"].pagesKnownList.push("PoA");
 
 HHEnvVariables["global"].isEnabledEvents = true;
 HHEnvVariables["global"].isEnabledTrollBattle = true;
@@ -11868,6 +12005,11 @@ HHStoredVars.HHAuto_Temp_defaultCustomHaremSort =
     storage:"localStorage",
     HHType:"Temp"
 };
+HHStoredVars.HHAuto_Temp_unkownPagesList =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
 
 var updateData = function () {
     //logHHAuto("updating UI");
@@ -11875,7 +12017,7 @@ var updateData = function () {
                                                                   {
         currentInput.checkValidity();
     });
-    if (getStoredValue("HHAuto_Setting_showInfo") =="true") // && busy==false // && getPage()=="home"
+    if (getStoredValue("HHAuto_Setting_showInfo") =="true") // && busy==false // && getPage()==getHHScriptVars("pagesIDHome")
     {
         var Tegzd='';
         Tegzd+=(getStoredValue("HHAuto_Setting_master") ==="true"?"<span style='color:LimeGreen'>HH auto ++ ON":"<span style='color:red'>HH auto ++ OFF")+'</span>';
@@ -13158,7 +13300,7 @@ var start = function () {
             //console.log("Master switch on");
         }
     });
-    if(getPage()=="home")
+    if(getPage()==getHHScriptVars("pagesIDHome"))
     {
         GM_addStyle('#pInfo:hover {max-height : none} #pInfo { max-height : 220px} @media only screen and (max-width: 1025px) {#pInfo { ;top:17% }}');
     }
@@ -13349,11 +13491,12 @@ var start = function () {
         //console.log("testingHome : setting to : "+getPage());
         setStoredValue("HHAuto_Temp_LastPageCalled", JSON.stringify({page:getPage(), dateTime:new Date().getTime()}));
     }
-    if (isJSON(getStoredValue("HHAuto_Temp_LastPageCalled")) && JSON.parse(getStoredValue("HHAuto_Temp_LastPageCalled")).page === "home")
+    if (isJSON(getStoredValue("HHAuto_Temp_LastPageCalled")) && JSON.parse(getStoredValue("HHAuto_Temp_LastPageCalled")).page === getHHScriptVars("pagesIDHome"))
     {
         //console.log("testingHome : delete");
         deleteStoredValue("HHAuto_Temp_LastPageCalled");
     }
+    getPage(true);
     setTimeout(autoLoop,1000);
     GM_registerMenuCommand(getTextForUI("translate","elementText"),manageTranslationPopUp);
 
