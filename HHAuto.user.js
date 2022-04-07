@@ -12315,7 +12315,7 @@ var start = function () {
                     +`<div class="labelAndButton">`
                         +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("kobanBank","elementText")}</span>`
                         +`<div class="imgAndObjectRow">`
-                            +`<img class="iconImg" src="https://hh2.hh-content.com/design/ic_HC.png" />`
+                            +`<img class="iconImg" src="https://hh2.hh-content.com/pictures/design/ic_hard_currency.png" />`
                             +`<div style="padding-left:5px">`
                                 +`<div class="tooltipHH">`
                                     +`<span class="tooltipHHtext">${getTextForUI("kobanBank","tooltip")}</span>`
@@ -12574,7 +12574,7 @@ var start = function () {
                                     +`<div class="labelAndButton">`
                                         +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("autoQuestThreshold","elementText")}</span>`
                                         +`<div class="imgAndObjectRow">`
-                                            +`<img class="iconImg" src="https://hh2.hh-content.com/design/ic_Energy.png" />`
+                                            +`<img class="iconImg" src="https://hh2.hh-content.com/pictures/design/ic_energy_quest.png" />`
                                             +`<div style="padding-left:5px">`
                                                 +`<div class="tooltipHH">`
                                                     +`<span class="tooltipHHtext">${getTextForUI("autoQuestThreshold","tooltip")}</span>`
@@ -12736,7 +12736,7 @@ var start = function () {
                 +`</div>`
                 +`<div id="isEnabledTrollBattle" class="optionsBoxWithTitle">`
                     +`<div class="optionsBoxTitle">`
-                        +`<img class="iconImg" src="https://hh2.hh-content.com/design/menu/map.svg" />`
+                        +`<img class="iconImg" src="https://hh2.hh-content.com/pictures/design/menu/map.svg" />`
                         +`<span class="optionsBoxTitle">${getTextForUI("autoTrollTitle","elementText")}</span>`
                     +`</div>`
                     +`<div class="optionsBox">`
@@ -12763,7 +12763,7 @@ var start = function () {
                             +`<div class="labelAndButton">`
                                 +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("autoTrollThreshold","elementText")}</span>`
                                 +`<div class="imgAndObjectRow">`
-                                    +`<img class="iconImg" src="https://hh.hh-content.com/design/ic_BattlePts.png" />`
+                                    +`<img class="iconImg" src="https://hh.hh-content.com/pictures/design/ic_energy_fight.png" />`
                                     +`<div style="padding-left:5px">`
                                         +`<div class="tooltipHH">`
                                             +`<span class="tooltipHHtext">${getTextForUI("autoTrollThreshold","tooltip")}</span>`
@@ -12938,7 +12938,7 @@ var start = function () {
                             +`<div class="labelAndButton">`
                                 +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("autoChampsUseEne","elementText")}</span>`
                                 +`<div class="imgAndObjectRow">`
-                                    +`<img class="iconImg" src="https://hh2.hh-content.com/design/ic_Energy.png" />`
+                                    +`<img class="iconImg" src="https://hh2.hh-content.com/pictures/design/ic_energy_quest.png" />`
                                     +`<div style="padding-left:5px">`
                                         +`<div class="tooltipHH">`
                                             +`<span class="tooltipHHtext">${getTextForUI("autoChampsUseEne","tooltip")}</span>`
