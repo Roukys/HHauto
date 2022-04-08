@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.71
+// @version      5.6.72
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -4264,7 +4264,8 @@ function doBattle()
         }
         else if (getPage() === getHHScriptVars("pagesIDTrollBattle") )
         {
-            if (getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true" && troll_id === getHHVars('Hero.infos.questing.id_world')-1)
+            //console.log(Number(troll_id),Number(getHHVars('Hero.infos.questing.id_world'))-1,Number(troll_id) === Number(getHHVars('Hero.infos.questing.id_world'))-1);
+            if (getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true" && Number(troll_id) === Number(getHHVars('Hero.infos.questing.id_world'))-1)
             {
                 setStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest", "false");
             }
