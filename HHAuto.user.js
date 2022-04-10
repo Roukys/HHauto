@@ -445,11 +445,7 @@ function gotoPage(page,inArgs,delay = -1)
     var cp=getPage();
     logHHAuto('going '+cp+'->'+page);
 
-    if (typeof delay != 'number')
-    {
-        delay = -1;
-    }
-    if (delay === -1 )
+    if (typeof delay != 'number' || delay === -1)
     {
         delay = randomInterval(300,500);
     }
@@ -594,8 +590,6 @@ var proceedQuest = function () {
     {
         proceedButtonMatch = $("#controls button#free");
     }
-    var proceedCostEnergy = Number($("#controls .cost span[cur='*']").text());
-    var proceedCostMoney = manageUnits($("#controls .cost span[cur='$']").text());
     var proceedType = proceedButtonMatch.attr("id");
     //console.log("DebugQuest proceedType : "+proceedType);
     if (proceedButtonMatch.length === 0)
@@ -610,6 +604,8 @@ var proceedQuest = function () {
         //proceedButtonMatch.click();
     }
     else if (proceedType === "pay") {
+        var proceedCostEnergy = Number($("#controls .cost span[cur='*']").text());
+        var proceedCostMoney = manageUnits($("#controls .cost span[cur='$']").text());
         var energyCurrent = getHHVars('Hero.energies.quest.amount');
         var moneyCurrent = getHHVars('Hero.infos.soft_currency');
         let payType = $("#controls .cost span[cur]:not([style*='display:none']):not([style*='display: none'])").attr('cur');
@@ -4462,11 +4458,7 @@ var clearTimer=function(name)
 
 var checkTimer=function(name)
 {
-    if (!Timers[name])
-    {
-        return true;
-    }
-    if (Timers[name]<new Date())
+    if (!Timers[name] || Timers[name]<new Date())
     {
         return true;
     }
@@ -4475,11 +4467,7 @@ var checkTimer=function(name)
 
 var checkTimerMustExist=function(name)
 {
-    if (!Timers[name])
-    {
-        return false;
-    }
-    if (Timers[name]<new Date())
+    if (Timers[name] && Timers[name]<new Date())
     {
         return true;
     }
@@ -5921,14 +5909,7 @@ function isFocused()
 function checkAndClosePopup(inBurst)
 {
     const popUp = $('#popup_message[style*="display: block"]');
-    if
-        (
-            (
-                inBurst
-                || isFocused()
-            )
-            && $('#popup_message[style*="display: block"]').length > 0
-        )
+    if ((inBurst || isFocused()) && popUp.length > 0)
     {
         $('close', popUp).click();
     }
@@ -5990,34 +5971,28 @@ var autoLoop = function ()
         else if (getPage() === getHHScriptVars("pagesIDHome"))
         {
             let parsedURL;
-            queryResults=$(eventQuery);
-            if (queryResults.length >0)
+            let queryResults=$(eventQuery);
+            for(let index = 0;index < queryResults.length;index++)
             {
-                for(let index = 0;index < queryResults.length;index++)
+                parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
+                if (queryStringGetParam(parsedURL.search,'tab') !== null && checkEvent(queryStringGetParam(parsedURL.search,'tab')))
                 {
-                    parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
-                    if (queryStringGetParam(parsedURL.search,'tab') !== null && checkEvent(queryStringGetParam(parsedURL.search,'tab')))
-                    {
-                        eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
-                    }
+                    eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
                 }
             }
-            queryResults=$(mythicEventQuery)
-            if(queryResults.length >0)
+            queryResults=$(mythicEventQuery);
+            for(let index = 0;index < queryResults.length;index++)
             {
-                for(let index = 0;index < queryResults.length;index++)
+                parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
+                if (queryStringGetParam(parsedURL.search,'tab') !== null && checkEvent(queryStringGetParam(parsedURL.search,'tab')))
                 {
-                    parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
-                    if (queryStringGetParam(parsedURL.search,'tab') !== null && checkEvent(queryStringGetParam(parsedURL.search,'tab')))
-                    {
-                        eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
-                    }
+                    eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
                 }
             }
         }
         if(
-            getHHScriptVars("isEnabledEvents",false)
-            && busy === false
+            busy === false
+            && getHHScriptVars("isEnabledEvents",false)
             &&
             (
                 (
@@ -6109,23 +6084,16 @@ var autoLoop = function ()
             {
                 setStoredValue("HHAuto_Temp_battlePowerRequired", "0");
                 busy = true;
-                if(getStoredValue("HHAuto_Setting_autoQuest") === "true")
+                if (getStoredValue("HHAuto_Setting_autoQuest") !== "true" || getStoredValue("HHAuto_Temp_questRequirement")[0] !== 'P')
                 {
-                    if(getStoredValue("HHAuto_Temp_questRequirement")[0] === 'P')
-                    {
-                        logHHAuto("AutoBattle disabled for power collection for AutoQuest.");
-                        document.getElementById("autoTrollBattle").checked = false;
-                        setStoredValue("HHAuto_Setting_autoTrollBattle", "false");
-                        busy = false;
-                    }
-                    else
-                    {
-                        busy = doBossBattle();
-                    }
+                    busy = doBossBattle();
                 }
                 else
                 {
-                    busy = doBossBattle();
+                    logHHAuto("AutoBattle disabled for power collection for AutoQuest.");
+                    document.getElementById("autoTrollBattle").checked = false;
+                    setStoredValue("HHAuto_Setting_autoTrollBattle", "false");
+                    busy = false;
                 }
             }
             /*else
@@ -6145,20 +6113,20 @@ var autoLoop = function ()
         }
 
 
-        if (getHHScriptVars("isEnabledGreatPachinko",false) && getStoredValue("HHAuto_Setting_autoFreePachinko") === "true" && busy === false && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer("nextPachinkoTime")) {
+        if (busy === false && getHHScriptVars("isEnabledGreatPachinko",false) && getStoredValue("HHAuto_Setting_autoFreePachinko") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer("nextPachinkoTime")) {
             logHHAuto("Time to fetch Great Pachinko.");
             busy = true;
             busy =getFreeGreatPachinko();
 
         }
-        if (getHHScriptVars("isEnabledMythicPachinko",false) && getStoredValue("HHAuto_Setting_autoFreePachinko") === "true" && busy === false && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer("nextPachinko2Time") && getHHScriptVars("gameID") !== HHEnvVariables["SH_prod"].gameID ) {
+        if (busy === false && getHHScriptVars("isEnabledMythicPachinko",false) && getStoredValue("HHAuto_Setting_autoFreePachinko") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer("nextPachinko2Time")) {
             logHHAuto("Time to fetch Mythic Pachinko.");
             busy = true;
             busy = getFreeMythicPachinko();
 
         }
 
-        if(getHHScriptVars("isEnabledContest",false) && getStoredValue("HHAuto_Setting_autoContest") === "true" && busy === false && getStoredValue("HHAuto_Temp_autoLoop") === "true")
+        if(busy === false && getHHScriptVars("isEnabledContest",false) && getStoredValue("HHAuto_Setting_autoContest") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
             if (checkTimer('nextContestTime') || unsafeWindow.has_contests_datas ||$(".contest .ended button[rel='claim']").size()>0){
                 logHHAuto("Time to get contest rewards.");
@@ -6166,7 +6134,7 @@ var autoLoop = function ()
             }
         }
 
-        if(getHHScriptVars("isEnabledPowerPlaces",false) && getStoredValue("HHAuto_Setting_autoPowerPlaces") === "true" && busy === false && getStoredValue("HHAuto_Temp_autoLoop") === "true")
+        if(busy === false && getHHScriptVars("isEnabledPowerPlaces",false) && getStoredValue("HHAuto_Setting_autoPowerPlaces") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
 
             var popToStart = getStoredValue("HHAuto_Temp_PopToStart")?JSON.parse(getStoredValue("HHAuto_Temp_PopToStart")):[];
@@ -6220,7 +6188,7 @@ var autoLoop = function ()
             }
         }
 
-        if(getHHScriptVars("isEnabledMission",false) && getStoredValue("HHAuto_Setting_autoMission") === "true" && busy === false && getStoredValue("HHAuto_Temp_autoLoop") === "true")
+        if(busy === false && getHHScriptVars("isEnabledMission",false) && getStoredValue("HHAuto_Setting_autoMission") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
             if (checkTimer('nextMissionTime')){
                 logHHAuto("Time to do missions.");
@@ -6228,10 +6196,14 @@ var autoLoop = function ()
             }
         }
 
-        if (getHHScriptVars("isEnabledQuest",false) && getStoredValue("HHAuto_Setting_autoQuest") === "true" && busy === false  && getStoredValue("HHAuto_Temp_autoLoop") === "true")
+        if (busy === false && getHHScriptVars("isEnabledQuest",false) && getStoredValue("HHAuto_Setting_autoQuest") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
-            setStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest", (getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") !== undefined? getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") : "false")) ;
-            if (getStoredValue("HHAuto_Temp_questRequirement") === "battle")
+            if (getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === undefined)
+            {
+                setStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest", "false");
+            }
+            let questRequirement = getStoredValue("HHAuto_Temp_questRequirement");
+            if (questRequirement === "battle")
             {
                 if (getHHScriptVars("isEnabledTrollBattle",false) && getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "false")
                 {
@@ -6242,9 +6214,9 @@ var autoLoop = function ()
                 }
                 busy = true;
             }
-            else if (getStoredValue("HHAuto_Temp_questRequirement")[0] === '$')
+            else if (questRequirement[0] === '$')
             {
-                if (Number(getStoredValue("HHAuto_Temp_questRequirement").substr(1)) < getHHVars('Hero.infos.soft_currency')) {
+                if (Number(questRequirement.substr(1)) < getHHVars('Hero.infos.soft_currency')) {
                     // We have enough money... requirement fulfilled.
                     logHHAuto("Continuing quest, required money obtained.");
                     setStoredValue("HHAuto_Temp_questRequirement", "none");
@@ -6255,22 +6227,22 @@ var autoLoop = function ()
                 {
                     //prevent paranoia to wait for quest
                     setStoredValue("HHAuto_Temp_paranoiaQuestBlocked", "true");
-                    if(isNaN(getStoredValue("HHAuto_Temp_questRequirement").substr(1)))
+                    if(isNaN(questRequirement.substr(1)))
                     {
-                        logHHAuto(getStoredValue("HHAuto_Temp_questRequirement"));
+                        logHHAuto(questRequirement);
                         setStoredValue("HHAuto_Temp_questRequirement", "none");
                         logHHAuto("Invalid money in session storage quest requirement !");
                     }
                     busy = false;
                 }
             }
-            else if (getStoredValue("HHAuto_Temp_questRequirement")[0] === '*')
+            else if (questRequirement[0] === '*')
             {
-                var energyNeeded = Number(getStoredValue("HHAuto_Temp_questRequirement").substr(1));
+                var energyNeeded = Number(questRequirement.substr(1));
                 var energyCurrent = getHHVars('Hero.energies.quest.amount');
                 if (energyNeeded <= energyCurrent)
                 {
-                    if (Number(getHHVars('Hero.energies.quest.amount')) > Number(getStoredValue("HHAuto_Setting_autoQuestThreshold")) || Number(checkParanoiaSpendings('quest')) > 0 )
+                    if (Number(energyCurrent) > Number(getStoredValue("HHAuto_Setting_autoQuestThreshold")) || Number(checkParanoiaSpendings('quest')) > 0 )
                     {
                         // We have enough energy... requirement fulfilled.
                         logHHAuto("Continuing quest, required energy obtained.");
@@ -6292,10 +6264,10 @@ var autoLoop = function ()
                     //logHHAuto("Replenishing energy for quest.(" + energyNeeded + " needed)");
                 }
             }
-            else if (getStoredValue("HHAuto_Temp_questRequirement")[0] === 'P')
+            else if (questRequirement[0] === 'P')
             {
                 // Battle power required.
-                var neededPower = Number(getStoredValue("HHAuto_Temp_questRequirement").substr(1));
+                var neededPower = Number(questRequirement.substr(1));
                 if(currentPower < neededPower)
                 {
                     logHHAuto("Quest requires "+neededPower+" Battle Power for advancement. Waiting...");
@@ -6311,7 +6283,7 @@ var autoLoop = function ()
                     busy = true;
                 }
             }
-            else if (getStoredValue("HHAuto_Temp_questRequirement") === "unknownQuestButton")
+            else if (questRequirement === "unknownQuestButton")
             {
                 //prevent paranoia to wait for quest
                 setStoredValue("HHAuto_Temp_paranoiaQuestBlocked", "true");
@@ -6321,7 +6293,7 @@ var autoLoop = function ()
                 setStoredValue("HHAuto_Temp_questRequirement", "none");
                 busy = false;
             }
-            else if (getStoredValue("HHAuto_Temp_questRequirement") === "errorInAutoBattle")
+            else if (questRequirement === "errorInAutoBattle")
             {
                 //prevent paranoia to wait for quest
                 setStoredValue("HHAuto_Temp_paranoiaQuestBlocked", "true");
@@ -6331,7 +6303,7 @@ var autoLoop = function ()
                 setStoredValue("HHAuto_Temp_questRequirement", "none");
                 busy = false;
             }
-            else if(getStoredValue("HHAuto_Temp_questRequirement") === "none")
+            else if(questRequirement === "none")
             {
                 if (Number(getHHVars('Hero.energies.quest.amount')) > Number(getStoredValue("HHAuto_Setting_autoQuestThreshold")) || Number(checkParanoiaSpendings('quest')) > 0 )
                 {
@@ -6344,7 +6316,7 @@ var autoLoop = function ()
             {
                 //prevent paranoia to wait for quest
                 setStoredValue("HHAuto_Temp_paranoiaQuestBlocked", "true");
-                logHHAuto("Invalid quest requirement : "+getStoredValue("HHAuto_Temp_questRequirement"));
+                logHHAuto("Invalid quest requirement : "+questRequirement);
                 busy=false;
             }
         }
@@ -6353,7 +6325,7 @@ var autoLoop = function ()
             setStoredValue("HHAuto_Temp_questRequirement", "none");
         }
 
-        if(getHHScriptVars("isEnabledSeason",false) && getStoredValue("HHAuto_Setting_autoSeason") === "true" && busy === false && getStoredValue("HHAuto_Temp_autoLoop") === "true")
+        if(busy === false && getHHScriptVars("isEnabledSeason",false) && getStoredValue("HHAuto_Setting_autoSeason") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
             if (Number(getHHVars('Hero.energies.kiss.amount')) > 0 && ( (Number(getHHVars('Hero.energies.kiss.amount')) > Number(getStoredValue("HHAuto_Setting_autoSeasonThreshold")) && checkTimer('nextSeasonTime')) || Number(checkParanoiaSpendings('kiss')) > 0 ) )
             {
@@ -6361,23 +6333,20 @@ var autoLoop = function ()
                 doSeason();
                 busy = true;
             }
-            else
+            else if (checkTimer('nextSeasonTime'))
             {
-                if (checkTimer('nextSeasonTime'))
+                if (getHHVars('Hero.energies.kiss.next_refresh_ts') === 0)
                 {
-                    if (getHHVars('Hero.energies.kiss.next_refresh_ts') === 0)
-                    {
-                        setTimer('nextSeasonTime',15*60);
-                    }
-                    else
-                    {
-                        setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts') + 10);
-                    }
+                    setTimer('nextSeasonTime',15*60);
+                }
+                else
+                {
+                    setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts') + 10);
                 }
             }
         }
 
-        if(getHHScriptVars("isEnabledPantheon",false) && getStoredValue("HHAuto_Setting_autoPantheon") === "true" && busy === false && getStoredValue("HHAuto_Temp_autoLoop") === "true")
+        if(busy === false && getHHScriptVars("isEnabledPantheon",false) && getStoredValue("HHAuto_Setting_autoPantheon") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
             if (Number(getHHVars('Hero.energies.worship.amount')) > 0 && ( (Number(getHHVars('Hero.energies.worship.amount')) > Number(getStoredValue("HHAuto_Setting_autoPantheonThreshold")) && checkTimer('nextPantheonTime')) || Number(checkParanoiaSpendings('worship')) > 0 ) )
             {
@@ -6385,25 +6354,20 @@ var autoLoop = function ()
                 doPantheon();
                 busy = true;
             }
-            else
+            else if (checkTimer('nextPantheonTime'))
             {
-                if (checkTimer('nextPantheonTime'))
+                if (getHHVars('Hero.energies.worship.next_refresh_ts') === 0)
                 {
-                    if (getHHVars('Hero.energies.worship.next_refresh_ts') === 0)
-                    {
-                        setTimer('nextPantheonTime',15*60);
-                    }
-                    else
-                    {
-                        setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts') + 10);
-                    }
+                    setTimer('nextPantheonTime',15*60);
+                }
+                else
+                {
+                    setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts') + 10);
                 }
             }
-
         }
 
-        var ECt= getHHVars('Hero.energies.quest.amount');
-        if (getHHScriptVars("isEnabledChamps",false) && ECt>=60 && (getStoredValue("HHAuto_Setting_autoChampsUseEne") ==="true") && getStoredValue("HHAuto_Temp_autoLoop") === "true")
+        if (busy==false && getHHScriptVars("isEnabledChamps",false) && getHHVars('Hero.energies.quest.amount')>=60 && getStoredValue("HHAuto_Setting_autoChampsUseEne") ==="true" && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
             function buyTicket()
             {
@@ -6427,21 +6391,21 @@ var autoLoop = function ()
             setTimeout(buyTicket,randomInterval(800,1600));
         }
 
-        if (getHHScriptVars("isEnabledChamps",false) && busy==false && getStoredValue("HHAuto_Setting_autoChamps") ==="true" && checkTimer('nextChampionTime') && getStoredValue("HHAuto_Temp_autoLoop") === "true")
+        if (busy==false && getHHScriptVars("isEnabledChamps",false) && getStoredValue("HHAuto_Setting_autoChamps") ==="true" && checkTimer('nextChampionTime') && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
             logHHAuto("Time to check on champions!");
             busy=true;
             busy=doChampionStuff();
         }
 
-        if (getHHScriptVars("isEnabledClubChamp",false) && busy==false && getStoredValue("HHAuto_Setting_autoClubChamp") ==="true" && checkTimer('nextClubChampionTime') && getStoredValue("HHAuto_Temp_autoLoop") === "true")
+        if (busy==false && getHHScriptVars("isEnabledClubChamp",false) && getStoredValue("HHAuto_Setting_autoClubChamp") ==="true" && checkTimer('nextClubChampionTime') && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
             logHHAuto("Time to check on club champion!");
             busy=true;
             busy=doClubChampionStuff();
         }
 
-        if(getHHScriptVars("isEnabledLeagues",false) && getStoredValue("HHAuto_Setting_autoLeagues") === "true" && getHHVars('Hero.infos.level')>=20 && busy === false && getStoredValue("HHAuto_Temp_autoLoop") === "true")
+        if(busy === false && getHHScriptVars("isEnabledLeagues",false) && getStoredValue("HHAuto_Setting_autoLeagues") === "true" && getHHVars('Hero.infos.level')>=20 && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
             // Navigate to leagues
             if ((checkTimer('nextLeaguesTime') && Number(getHHVars('Hero.energies.challenge.amount')) > Number(getStoredValue("HHAuto_Setting_autoLeaguesThreshold")) ) || Number(checkParanoiaSpendings('challenge')) > 0)
@@ -6472,33 +6436,33 @@ var autoLoop = function ()
             }
         }
 
-        if (getHHScriptVars("isEnabledSeason",false) && busy==false && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextSeasonCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonCollect") === "true")
+        if (busy==false && getHHScriptVars("isEnabledSeason",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextSeasonCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonCollect") === "true")
         {
             logHHAuto("Time to go and check Season for collecting reward.");
             busy = true;
             busy = goAndCollectSeason();
         }
 
-        if (getHHScriptVars("isEnabledPoV",false) && busy==false && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextPoVCollectTime') && getStoredValue("HHAuto_Setting_autoPoVCollect") === "true")
+        if (busy==false && getHHScriptVars("isEnabledPoV",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextPoVCollectTime') && getStoredValue("HHAuto_Setting_autoPoVCollect") === "true")
         {
             logHHAuto("Time to go and check Path of Valor for collecting reward.");
             busy = true;
             busy = goAndCollectPoV();
         }
 
-        if (getHHScriptVars("isEnabledDailyRewards",false) && busy==false && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextDailyRewardsCollectTime') && getStoredValue("HHAuto_Setting_autoDailyRewardsCollect") === "true")
+        if (busy==false && getHHScriptVars("isEnabledDailyRewards",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextDailyRewardsCollectTime') && getStoredValue("HHAuto_Setting_autoDailyRewardsCollect") === "true")
         {
             busy = true;
             goAndCollectDailyRewards();
         }
 
-        if (getHHScriptVars("isEnabledDailyGoals",false) && busy==false && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextDailyGoalsCollectTime') && getStoredValue("HHAuto_Setting_autoDailyGoalsCollect") === "true")
+        if (busy==false && getHHScriptVars("isEnabledDailyGoals",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextDailyGoalsCollectTime') && getStoredValue("HHAuto_Setting_autoDailyGoalsCollect") === "true")
         {
             busy = true;
             goAndCollectDailyGoals();
         }
 
-        if (getHHScriptVars("isEnabledShop",false) && busy===false && ( getStoredValue("HHAuto_Setting_paranoia") !== "true" || !checkTimer("paranoiaSwitch") )  && getStoredValue("HHAuto_Temp_autoLoop") === "true")
+        if (busy===false && getHHScriptVars("isEnabledShop",false) && ( getStoredValue("HHAuto_Setting_paranoia") !== "true" || !checkTimer("paranoiaSwitch") )  && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
             if (getStoredValue("HHAuto_Temp_charLevel") ===undefined)
             {
@@ -6510,7 +6474,7 @@ var autoLoop = function ()
             }
         }
 
-        if (getHHScriptVars("isEnabledSalary",false) && getStoredValue("HHAuto_Setting_autoSalary") === "true" && busy === false && ( getStoredValue("HHAuto_Setting_paranoia") !== "true" || !checkTimer("paranoiaSwitch") )  && getStoredValue("HHAuto_Temp_autoLoop") === "true")
+        if (busy === false && getHHScriptVars("isEnabledSalary",false) && getStoredValue("HHAuto_Setting_autoSalary") === "true" && ( getStoredValue("HHAuto_Setting_paranoia") !== "true" || !checkTimer("paranoiaSwitch") )  && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
             if (checkTimer("nextSalaryTime")) {
                 logHHAuto("Time to fetch salary.");
@@ -6533,8 +6497,8 @@ var autoLoop = function ()
         }
 
         if (
-            isJSON(getStoredValue("HHAuto_Temp_LastPageCalled"))
-            && busy === false
+            busy === false
+            && isJSON(getStoredValue("HHAuto_Temp_LastPageCalled"))
             && getPage() !== getHHScriptVars("pagesIDHome")
             && getPage() === JSON.parse(getStoredValue("HHAuto_Temp_LastPageCalled")).page
             && (new Date().getTime() - JSON.parse(getStoredValue("HHAuto_Temp_LastPageCalled")).dateTime) > getHHScriptVars("minSecsBeforeGoHomeAfterActions") * 1000
@@ -6547,7 +6511,7 @@ var autoLoop = function ()
         }
     }
 
-    if(getStoredValue("HHAuto_Setting_paranoia") === "true" && getStoredValue("HHAuto_Setting_master") ==="true" && busy === false  && getStoredValue("HHAuto_Temp_autoLoop") === "true")
+    if(busy === false  && getStoredValue("HHAuto_Setting_paranoia") === "true" && getStoredValue("HHAuto_Setting_master") ==="true" && getStoredValue("HHAuto_Temp_autoLoop") === "true")
     {
         if (checkTimer("paranoiaSwitch")) {
             flipParanoia();
@@ -6635,16 +6599,13 @@ var autoLoop = function ()
         logHHAuto("AutoLoopTimeMili is not a number.");
         setDefaults(true);
     }
+    else if (getStoredValue("HHAuto_Temp_autoLoop") === "true")
+    {
+        setTimeout(autoLoop, Number(getStoredValue("HHAuto_Temp_autoLoopTimeMili")));
+    }
     else
     {
-        if (getStoredValue("HHAuto_Temp_autoLoop") === "true")
-        {
-            setTimeout(autoLoop, Number(getStoredValue("HHAuto_Temp_autoLoopTimeMili")));
-        }
-        else
-        {
-            logHHAuto("autoLoop Disabled");
-        }
+        logHHAuto("autoLoop Disabled");
     }
 
 }
@@ -10374,7 +10335,8 @@ HHAuto_ToolTips.en.autoTrollBattle = { version: "5.6.24", elementText: "Enable",
 HHAuto_ToolTips.en.autoTrollSelector = { version: "5.6.24", elementText: "Troll selector", tooltip: "Select troll to be fought."};
 HHAuto_ToolTips.en.autoTrollThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "(Integer 0 to 19)<br>Minimum troll fight to keep"};
 HHAuto_ToolTips.en.eventTrollOrder = { version: "5.6.38", elementText: "Event Troll Order", tooltip: "(values separated by ;)<br>Allow to select in which order event troll are automatically battled<br>1 : Dark Lord<br>2 : Ninja Spy<br>3 : Gruntt<br>4 : Edwarda<br>5 : Donatien<br>6 : Sylvanus<br>7 : Bremen<br>8 : Finalmecia<br>9 : Fredy Sih Roko<br>10 : Karole<br>11 : Jackson's Crew<br>12 : Pandora Witch<br>13 : Nike<br>14 : Sake<br>15 : WereBunny Police"};
-HHAuto_ToolTips.en.autoChampsForceStartEventGirl = { version: "5.6.65", elementText: "Event force", tooltip: "if enabled, will fight for event girl champion even if not started. Champions will need to be activated and champions to be in the filter."};HHAuto_ToolTips.en.plusEvent = { version: "5.6.24", elementText: "+Event", tooltip: "If enabled : ignore selected troll during event to battle event"};
+HHAuto_ToolTips.en.autoChampsForceStartEventGirl = { version: "5.6.65", elementText: "Event force", tooltip: "if enabled, will fight for event girl champion even if not started. Champions will need to be activated and champions to be in the filter."};
+HHAuto_ToolTips.en.plusEvent = { version: "5.6.24", elementText: "+Event", tooltip: "If enabled : ignore selected troll during event to battle event"};
 HHAuto_ToolTips.en.plusEventMythic = { version: "5.6.24", elementText: "+Mythic Event", tooltip: "Enable grabbing girls for mythic event, should only play them when shards are available, Mythic girl troll will be priorized over Event Troll."};
 //HHAuto_ToolTips.en.eventMythicPrio = { version: "5.6.24", elementText: "Priorize over Event Troll Order", tooltip: "Mythic event girl priorized over event troll order if shards available"};
 //HHAuto_ToolTips.en.autoTrollMythicByPassThreshold = { version: "5.6.24", elementText: "Mythic bypass Threshold", tooltip: "Allow mythic to bypass Troll threshold"};
@@ -13642,25 +13604,23 @@ function manageTranslationPopUp()
 
 function switchHHMenuButton(isActive)
 {
-    if(document.getElementById("sMenuButton") !== null)
+    var element = document.getElementById("sMenuButton");
+    if(element !== null)
     {
         if (getStoredValue("HHAuto_Setting_master") === "false")
         {
-            document.getElementById("sMenuButton").style["background-color"] = "red";
-            document.getElementById("sMenuButton").style["background-image"] = "none";
+            element.style["background-color"] = "red";
+            element.style["background-image"] = "none";
+        }
+        else if (isActive)
+        {
+            element.style["background-color"] = "green";
+            element.style["background-image"] = "none";
         }
         else
         {
-            if (isActive)
-            {
-                document.getElementById("sMenuButton").style["background-color"] = "green";
-                document.getElementById("sMenuButton").style["background-image"] = "none";
-            }
-            else
-            {
-                document.getElementById("sMenuButton").style.removeProperty('background-color');
-                document.getElementById("sMenuButton").style.removeProperty('background-image');
-            }
+            element.style.removeProperty('background-color');
+            element.style.removeProperty('background-image');
         }
     }
 }
