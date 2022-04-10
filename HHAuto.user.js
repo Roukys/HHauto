@@ -496,10 +496,7 @@ function gotoPage(page,inArgs,delay = -1)
             togoto = getHHVars('Hero.infos.questing.current_url');
             if (togoto.includes("world"))
             {
-                logHHAuto("All quests finished, turning off AutoQuest!");
-                setStoredValue("HHAuto_Setting_autoQuest", false);
-                location.reload();
-                return false;
+                togoto = '/side-quests.html';
             }
             logHHAuto("Current quest page: "+togoto);
             break;
@@ -542,6 +539,9 @@ function gotoPage(page,inArgs,delay = -1)
         case (page.match(/^\/harem\/\d+$/) || {}).input:
             togoto = page;
             break;
+        case (page.match(/^\/quest\/\d+$/) || {}).input:
+            togoto = page;
+            break;
         default:
             logHHAuto("Unknown goto page request. No page \'"+page+"\' defined.");
     }
@@ -577,7 +577,26 @@ function setLastPageCalled(inPage)
 var proceedQuest = function () {
     //logHHAuto("Starting auto quest.");
     // Check if at correct page.
-    if (getPage() !== getHHScriptVars("pagesIDQuest")) {
+    let page = getPage();
+    if (page === 'side-quests') {
+        var quests = $('.side-quest:has(.slot) .side-quest-button');
+        if (! getHHVars('Hero.infos.questing.current_url').includes("world")) {
+            logHHAuto("Navigating to current quest.");
+            setStoredValue("HHAuto_Temp_questRequirement", "none");
+            gotoPage(getHHScriptVars("pagesIDQuest"));
+        }
+        else if (quests.length > 0) {
+            logHHAuto("Navigating to side quest.");
+            gotoPage(quests.attr('href'));
+        }
+        else {
+            logHHAuto("All quests finished, turning off AutoQuest!");
+            setStoredValue("HHAuto_Setting_autoQuest", false);
+            location.reload();
+        }
+        return;
+    }
+    if (page !== getHHScriptVars("pagesIDQuest")) {
         // Click on current quest to naviagte to it.
         logHHAuto("Navigating to current quest.");
         gotoPage(getHHScriptVars("pagesIDQuest"));
