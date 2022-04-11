@@ -684,6 +684,12 @@ var proceedQuest = function () {
         //proceedButtonMatch.click();
     }
     else if (proceedType === "end_play") {
+        let rewards = $('#popups[style="display: block;"]>#rewards_popup[style="display: block;"] button.blue_button_L[confirm_blue_button]');
+        if (proceedButtonMatch.attr('disabled') && rewards.length>0){
+            logHHAuto("Reached end of current archive. Claim reward.");
+            rewards.click();
+            return;
+        }
         logHHAuto("Reached end of current play. Proceeding to next play.");
         //setStoredValue("HHAuto_Temp_autoLoop", "false");
         //logHHAuto("setting autoloop to false");
