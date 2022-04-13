@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.75
+// @version      5.6.76
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -100,7 +100,15 @@ function addEventsOnMenuItems()
             }
             if (HHStoredVars[i].menuType !== undefined && HHStoredVars[i].menuType === "checked")
             {
-                document.getElementById(menuID).addEventListener("change",function (){setStoredValue(i,this.checked)});
+                document.getElementById(menuID).addEventListener("change",function ()
+                                                                 {
+                    if (HHStoredVars[i].newValueFunction !== undefined)
+                    {
+                        console.log(currentValue,menuValue);
+                        HHStoredVars[i].newValueFunction.apply();
+                    }
+                    setStoredValue(i,this.checked)
+                });
             }
         }
     }
@@ -1768,7 +1776,7 @@ function moduleHaremExportGirlsData()
 function collectAndUpdatePowerPlaces()
 {
     if(getPage() !== getHHScriptVars("pagesIDPowerplacemain")
-)
+      )
     {
         logHHAuto("Navigating to powerplaces main page.");
         gotoPage(getHHScriptVars("pagesIDPowerplacemain"));
@@ -2763,7 +2771,8 @@ var doChampionStuff=function()
             let Impression=$('span.stage-bar-tier')[i].getAttribute("hh_title");
             const autoChampsForceStartEventGirl = getStoredValue("HHAuto_Setting_autoChampsForceStartEventGirl") === "true";
             const autoChampsEventGirls = isJSON(getStoredValue("HHAuto_Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue("HHAuto_Temp_autoChampsEventGirls")):[];
-            let Started=Impression.split('/')[0].replace(/[^0-9]/gi, '')!="0";
+            const autoChampsForceStart = getStoredValue("HHAuto_Setting_autoChampsForceStart") === "true";
+            let Started=Impression.split('/')[0].replace(/[^0-9]/gi, '')!="0" ;
             let OnTimerOld=$($('a.champion-lair div.champion-lair-name')[i+1]).find('div[rel=timer]').length>0
             let timerNew=Number($($('a.champion-lair div.champion-lair-name')[i+1]).find('div#championTimer').attr('timer'));
             let OnTimerNew=false;
@@ -2784,9 +2793,9 @@ var doChampionStuff=function()
                 }
             }
             const eventGirlForced=autoChampsForceStartEventGirl && autoChampGirlInEvent;
-            logHHAuto("Champion "+(i+1)+" ["+Impression+"]"+(Started?" Started;":" Not started;")+(OnTimer?" on timer;":" not on timer;")+(Filtered?" Included in filter":" Excluded from filter;")+(eventGirlForced?" Forced for event":" Not event forced"));
+            logHHAuto("Champion "+(i+1)+" ["+Impression+"]"+(Started?" Started;":" Not started;")+(autoChampsForceStart?" Force start;":" Not force start;")+(OnTimer?" on timer;":" not on timer;")+(Filtered?" Included in filter;":" Excluded from filter;")+(eventGirlForced?" Forced for event":" Not event forced"));
 
-            if ((Started || eventGirlForced) && !OnTimer && Filtered)
+            if ((Started || eventGirlForced || autoChampsForceStart) && !OnTimer && Filtered)
             {
                 logHHAuto("Let's do him!");
                 gotoPage('/champions/'+Number(i+1));
@@ -10399,6 +10408,7 @@ HHAuto_ToolTips.en.autoPowerPlacesIndexFilter = { version: "5.6.24", elementText
 HHAuto_ToolTips.en.autoPowerPlacesAll = { version: "5.6.24", elementText: "Do All", tooltip: "If enabled : ignore filter and do all powerplaces (will update Filter with current ids)"};
 HHAuto_ToolTips.en.autoChampsTitle = { version: "5.6.24", elementText: "Champions"};
 HHAuto_ToolTips.en.autoChamps = { version: "5.6.24", elementText: "Normal", tooltip: "if enabled : Automatically do champions (if they are started and in filter only)"};
+HHAuto_ToolTips.en.autoChampsForceStart = { version: "5.6.76", elementText: "Force start", tooltip: "if enabled : will fight filtered champions even if not started."};
 HHAuto_ToolTips.en.autoChampsUseEne = { version: "5.6.24", elementText: "Buy tickets", tooltip: "If enabled : use Energy to buy tickets"};
 HHAuto_ToolTips.en.autoChampsFilter = { version: "5.6.24", elementText: "Filter", tooltip: "(values separated by ; 1 to 6)<br>Allow to set filter on champions to be fought"};
 HHAuto_ToolTips.en.autoStats = { version: "5.6.24", elementText: "Money to keep", tooltip: "(Integer)<br>Automatically buy stats in market with money above the setted amount"};
@@ -10854,7 +10864,26 @@ HHStoredVars.HHAuto_Setting_autoChamps =
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        clearTimer('nextChampionTime');
+    }
+};
+HHStoredVars.HHAuto_Setting_autoChampsForceStart =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        clearTimer('nextChampionTime');
+    }
 };
 HHStoredVars.HHAuto_Setting_autoChampsFilter =
     {
@@ -10865,7 +10894,11 @@ HHStoredVars.HHAuto_Setting_autoChampsFilter =
     getMenu:true,
     setMenu:true,
     menuType:"value",
-    kobanUsing:false
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        clearTimer('nextChampionTime');
+    }
 };
 HHStoredVars.HHAuto_Setting_autoChampsUseEne =
     {
@@ -12931,6 +12964,17 @@ var start = function () {
                                     +`<span class="tooltipHHtext">${getTextForUI("autoChamps","tooltip")}</span>`
                                     +`<label class="switch">`
                                         +`<input id="autoChamps" type="checkbox">`
+                                        +`<span class="slider round">`
+                                        +`</span>`
+                                    +`</label>`
+                                +`</div>`
+                            +`</div>`
+                            +`<div class="labelAndButton">`
+                                +`<span class="HHMenuItemName">${getTextForUI("autoChampsForceStart","elementText")}</span>`
+                                +`<div class="tooltipHH">`
+                                    +`<span class="tooltipHHtext">${getTextForUI("autoChampsForceStart","tooltip")}</span>`
+                                    +`<label class="switch">`
+                                        +`<input id="autoChampsForceStart" type="checkbox">`
                                         +`<span class="slider round">`
                                         +`</span>`
                                     +`</label>`
