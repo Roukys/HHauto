@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.76
+// @version      5.6.77
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -3453,6 +3453,15 @@ var doSeason = function ()
         logHHAuto("On season arena page.");
 
         var chosenID=moduleSimSeasonBattle();
+        if (chosenID !== -1 && chosenID !== -2 )
+        {
+            location.href = document.getElementsByClassName("opponent_perform_button_container")[chosenID].children[0].getAttribute('href');
+            setStoredValue("HHAuto_Temp_autoLoop", "false");
+            logHHAuto("setting autoloop to false");
+            logHHAuto("Going to crush : "+$("div.season_arena_opponent_container .hero_details div.hero_name")[chosenID].innerText);
+            setTimer('nextSeasonCollectTime',5);
+            return true;
+        }
         if (chosenID === -2 )
         {
             //change opponents and reload
@@ -3477,19 +3486,10 @@ var doSeason = function ()
 
             return true;
         }
-        else if (chosenID === -1 )
+        if (chosenID === -1 )
         {
             logHHAuto("Season : was not able to choose opponent.");
             setTimer('nextSeasonTime',30*60);
-        }
-        else
-        {
-            location.href = document.getElementsByClassName("opponent_perform_button_container")[chosenID].children[0].getAttribute('href');
-            setStoredValue("HHAuto_Temp_autoLoop", "false");
-            logHHAuto("setting autoloop to false");
-            logHHAuto("Going to crush : "+$("div.season_arena_opponent_container .hero_details div.hero_name")[chosenID].innerText);
-            setTimer('nextSeasonCollectTime',5);
-            return true;
         }
     }
     else
@@ -5648,16 +5648,15 @@ function moduleSimSeasonBattle()
             healOnHit: playerSynergies.find(({element: {type}})=>type==='water').bonus_multiplier
         };
 
-        let opponents = $('div.opponents_arena .season_arena_opponent_container');
         for (let index=0;index<3;index++)
         {
 
-            const opponentName = $("div.hero_name",opponents[index])[0].innerText;
-            const opponentEgo = manageUnits($('.hero_stats .hero_stats_row span.pull_right',opponents[index])[2].innerText);
-            const opponentDef = manageUnits($('.hero_stats .hero_stats_row span.pull_right',opponents[index])[1].innerText);
-            const opponentAtk = manageUnits($('.hero_stats .hero_stats_row span.pull_right',opponents[index])[0].innerText);
-            const opponentCrit = manageUnits($('.hero_stats .hero_stats_row span.pull_right',opponents[index])[3].innerText);
-            const opponentTeam = $('.team-member img',opponents[index]).map((i, el) => $(el).data('new-girl-tooltip')).toArray();
+            const opponentName = $("div.season_arena_opponent_container .hero_details div.hero_name")[index].innerText
+            const opponentEgo = manageUnits($('div.opponents_arena .season_arena_opponent_container .hero_stats')[index].querySelectorAll('.hero_stats_row span.pull_right')[2].innerText);
+            const opponentDef = manageUnits($('div.opponents_arena .season_arena_opponent_container .hero_stats')[index].querySelectorAll('.hero_stats_row span.pull_right')[1].innerText);
+            const opponentAtk = manageUnits($('div.opponents_arena .season_arena_opponent_container .hero_stats')[index].querySelectorAll('.hero_stats_row span.pull_right')[0].innerText);
+            const opponentCrit = manageUnits($('div.opponents_arena .season_arena_opponent_container .hero_stats')[index].querySelectorAll('.hero_stats_row span.pull_right')[3].innerText);
+            const opponentTeam = $('.team-member img',$('#season-arena .opponents_arena .season_arena_opponent_container .hero_team')[index]).map((i, el) => $(el).data('new-girl-tooltip')).toArray();
             const opponentTeamMemberElements = opponentTeam.map(({element})=>element);
             const opponentElements = calculateThemeFromElements(opponentTeamMemberElements);
             const opponentBonuses = calculateSynergiesFromTeamMemberElements(opponentTeamMemberElements);
@@ -5687,18 +5686,18 @@ function moduleSimSeasonBattle()
             //console.log(simu);
             //matchRating=customMatchRating(simu);
             scoreOppo[index]=simu;
-            mojoOppo[index]=Number($(".slot_victory_points p",opponents[index])[0].innerText);
-            //logHHAuto(mojoOppo[index]);
+            mojoOppo[index]=Number($("div.season_arena_opponent_container .slot_victory_points p")[index].innerText);
+            //logHHAuto(Number($("div.season_arena_opponent_container .slot_victory_points p")[index].innerText));
             nameOppo[index]=opponentName;
-            expOppo[index]=Number($(".slot_season_xp_girl",opponents[index])[0].lastElementChild.innerText.replace(/\D/g, ''));
-            affOppo[index]=Number($(".slot_season_affection_girl",opponents[index])[0].lastElementChild.innerText.replace(/\D/g, ''));
+            expOppo[index]=Number($("div.season_arena_opponent_container .slot_season_xp_girl")[index].lastElementChild.innerText.replace(/\D/g, ''));
+            affOppo[index]=Number($("div.season_arena_opponent_container .slot_season_affection_girl")[index].lastElementChild.innerText.replace(/\D/g, ''));
             //Publish the ego difference as a match rating
             //matchRatingFlag = matchRating.substring(0,1);
             //matchRating = matchRating.substring(1);
 
             if (doDisplay)
             {
-                $('.hero_team .icon-area',opponents[index]).prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${nRounding(100*simu.win, 2, -1)}%</div>`);
+                $($('div.season_arena_opponent_container .hero_team .icon-area')[index]).prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${nRounding(100*simu.win, 2, -1)}%</div>`);
             }
         }
 
@@ -5717,7 +5716,6 @@ function moduleSimSeasonBattle()
 
         for (let index=0;index<3;index++)
         {
-            let isBetter = false;
             currentScore = Number(scoreOppo[index].win);
             currentFlag = scoreOppo[index].scoreClass;
             currentMojo = Number(mojoOppo[index]);
@@ -5741,40 +5739,57 @@ function moduleSimSeasonBattle()
             if (chosenRating == -1 || chosenFlag < currentFlag)
             {
                 //logHHAuto('first');
-                isBetter = true;
+                chosenRating = currentScore;
+                chosenFlag = currentFlag;
+                chosenID = index;
+                chosenMojo = currentMojo;
+                oppoName = nameOppo[index];
                 currentGains = currentAff + currentExp;
             }
             //same orange flag but better score
             else if (chosenFlag == currentFlag && currentFlag == 0 && chosenRating < currentScore)
             {
                 //logHHAuto('second');
-                isBetter = true;
+                chosenRating = currentScore;
+                chosenFlag = currentFlag;
+                chosenID = index;
+                chosenMojo = currentMojo;
+                oppoName = nameOppo[index];
             }
             //same red flag but better mojo
             else if (chosenFlag == currentFlag && currentFlag == -1 && chosenMojo < currentMojo)
             {
                 //logHHAuto('second');
-                isBetter = true;
+                chosenRating = currentScore;
+                chosenFlag = currentFlag;
+                chosenID = index;
+                chosenMojo = currentMojo;
+                oppoName = nameOppo[index];
             }
             //same green flag but better mojo
             else if (chosenFlag == currentFlag && currentFlag == 1 && chosenMojo < currentMojo)
             {
                 //logHHAuto('third');
-                isBetter = true;
+                chosenRating = currentScore;
+                chosenFlag = currentFlag;
+                chosenID = index;
+                chosenMojo = currentMojo;
+                oppoName = nameOppo[index];
             }
             //same green flag same mojo but better gains
             else if (chosenFlag == currentFlag && currentFlag == 1 && chosenMojo == currentMojo && currentGains < currentAff + currentExp)
             {
                 //logHHAuto('third');
-                isBetter = true;
+                chosenRating = currentScore;
+                chosenFlag = currentFlag;
+                chosenID = index;
+                chosenMojo = currentMojo;
+                oppoName = nameOppo[index];
             }
             //same green flag same mojo same gains but better score
             else if (chosenFlag == currentFlag && currentFlag == 1 && chosenMojo == currentMojo && currentGains === currentAff + currentExp && currentScore > chosenRating)
             {
                 //logHHAuto('third');
-                isBetter = true;
-            }
-            if (isBetter) {
                 chosenRating = currentScore;
                 chosenFlag = currentFlag;
                 chosenID = index;
@@ -6557,7 +6572,7 @@ var autoLoop = function ()
             }
             break;
         case getHHScriptVars("pagesIDSeasonArena"):
-            if (getStoredValue("HHAuto_Setting_showCalculatePower") === "true" && $("div.matchRatingNew img#powerLevelScouter").length < 3)
+            if (getStoredValue("HHAuto_Setting_showCalculatePower") === "true")
             {
                 moduleSimSeasonBattle();
             }
