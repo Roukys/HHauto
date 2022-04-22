@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.79
+// @version      5.6.80
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -1369,6 +1369,7 @@ function moduleChangeTeam()
     {
         let arr = $('div[id_girl]');
         let numTop = 16;
+        if (numTop > arr.length) numTop = arr.length;
         let deckID = [];
         let deckStat = [];
         for (let z = 0; z < numTop; z++)
@@ -10294,21 +10295,22 @@ HHEnvVariables["HH_test"].isEnabledDailyRewards = false;// to remove if daily re
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in Comix
 })
 HHEnvVariables["SH_prod"].isEnabledPowerPlaces = false;// to remove when PoP arrives in hornyheroes
-HHEnvVariables["SH_prod"].isEnabledMythicPachinko = false;// to remove when Great Pachinko arrives in hornyheroes
+HHEnvVariables["SH_prod"].isEnabledMythicPachinko = false;// to remove when Mythic Pachinko arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledAllChamps = false;// to remove when Champs arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledChamps = false;// to remove when Champs arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledClubChamp = false;// to remove when Club Champs arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in hornyheroes
+HHEnvVariables["SH_prod"].isEnabledPoV = false;// to remove when PoV arrives in hornyheroes
 
 HHEnvVariables["PH_prod"].isEnabledPowerPlaces = false;// to remove when PoP arrives in pornstar
-HHEnvVariables["PH_prod"].isEnabledMythicPachinko = false;// to remove when Great Pachinko arrives in pornstar
+HHEnvVariables["PH_prod"].isEnabledMythicPachinko = false;// to remove when Mythic Pachinko arrives in pornstar
 HHEnvVariables["PH_prod"].isEnabledAllChamps = false;// to remove when Champs arrives in pornstar
 HHEnvVariables["PH_prod"].isEnabledChamps = false;// to remove when Champs arrives in pornstar
 HHEnvVariables["PH_prod"].isEnabledClubChamp = false;// to remove when Club Champs arrives in pornstar
 HHEnvVariables["PH_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in pornstar
 HHEnvVariables["PH_prod"].isEnabledPoV = false;// to remove when PoV arrives in pornstar
-HHEnvVariables["PH_prod"].isEnabledDailyGoals = false;// to remove when DailyGoals arrives in pornstar
-HHEnvVariables["PH_prod"].isEnabledDailyRewards = false;// to remove when DailyRewards arrives in pornstar
+HHEnvVariables["PH_prod"].trollzList = ['Latest',
+                                        'Headmistress Asa Akira'];
 
 const HC = 1;
 const CH = 2;
