@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.78
+// @version      5.6.79
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -9,6 +9,7 @@
 // @match        http*://*.gayharem.com/*
 // @match        http*://*.comixharem.com/*
 // @match        http*://*.hornyheroes.com/*
+// @match        http*://*.pornstarharem.com/*
 // @grant        GM_addStyle
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
@@ -9953,6 +9954,7 @@ HHKnownEnvironnements["thrix.hentaiheroes.com"] = {name:"THH_prod",id:"hh_hentai
 HHKnownEnvironnements["eroges.gayharem.com"] = {name:"EGH_prod",id:"hh_gay"};
 HHKnownEnvironnements["eroges.hentaiheroes.com"] = {name:"EHH_prod",id:"hh_hentai"};
 HHKnownEnvironnements["esprit.hentaiheroes.com"] = {name:"OGHH_prod",id:"hh_hentai"};
+HHKnownEnvironnements["www.pornstarharem.com"] = {name:"PH_prod",id:"hh_star"};
 
 
 var HHEnvVariables = {};
@@ -10297,6 +10299,16 @@ HHEnvVariables["SH_prod"].isEnabledAllChamps = false;// to remove when Champs ar
 HHEnvVariables["SH_prod"].isEnabledChamps = false;// to remove when Champs arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledClubChamp = false;// to remove when Club Champs arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in hornyheroes
+
+HHEnvVariables["PH_prod"].isEnabledPowerPlaces = false;// to remove when PoP arrives in pornstar
+HHEnvVariables["PH_prod"].isEnabledMythicPachinko = false;// to remove when Great Pachinko arrives in pornstar
+HHEnvVariables["PH_prod"].isEnabledAllChamps = false;// to remove when Champs arrives in pornstar
+HHEnvVariables["PH_prod"].isEnabledChamps = false;// to remove when Champs arrives in pornstar
+HHEnvVariables["PH_prod"].isEnabledClubChamp = false;// to remove when Club Champs arrives in pornstar
+HHEnvVariables["PH_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in pornstar
+HHEnvVariables["PH_prod"].isEnabledPoV = false;// to remove when PoV arrives in pornstar
+HHEnvVariables["PH_prod"].isEnabledDailyGoals = false;// to remove when DailyGoals arrives in pornstar
+HHEnvVariables["PH_prod"].isEnabledDailyRewards = false;// to remove when DailyRewards arrives in pornstar
 
 const HC = 1;
 const CH = 2;
