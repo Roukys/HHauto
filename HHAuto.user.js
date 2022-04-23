@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.79
+// @version      5.6.80
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -7747,14 +7747,13 @@ function moduleShopActions()
         function prepareExp()
         {
 
-            let targetedLevel = Number(document.getElementById("menuExpLevel").value);
-
             let girl;
 
             girl=$('div.girl-ico:not(.not-selected)');
             getSelectGirlID=girl.attr("id_girl");
             let selectedGirl=girl.data("g");
             let selectedGirlTooltip=JSON.parse(girl.attr(getHHScriptVars('girlToolTipData')));
+            let targetedLevel = Math.min(Number(document.getElementById("menuExpLevel").value), selectedGirl.level_cap);
 
             let selectedGirlExp=selectedGirl.Xp.cur;
             //console.log(JSON.stringify(selectedGirl));
@@ -7839,7 +7838,7 @@ function moduleShopActions()
             let selectedGirl=girl.data("g");
             let selectedGirlExp=selectedGirl.Xp.cur;
             let selectedGirlTooltip=JSON.parse(girl.attr(getHHScriptVars('girlToolTipData')));
-            let targetedLevel = Number(document.getElementById("menuExpLevel").value);
+            let targetedLevel = Math.min(Number(document.getElementById("menuExpLevel").value), selectedGirl.level_cap);
             let targetedXp = getLevelXp(selectedGirlTooltip.rarity,targetedLevel);
             logHHAuto('start giving Exp to '+selectedGirl.name);
             let currentTotal = selectedGirlExp;
@@ -10307,8 +10306,6 @@ HHEnvVariables["PH_prod"].isEnabledChamps = false;// to remove when Champs arriv
 HHEnvVariables["PH_prod"].isEnabledClubChamp = false;// to remove when Club Champs arrives in pornstar
 HHEnvVariables["PH_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in pornstar
 HHEnvVariables["PH_prod"].isEnabledPoV = false;// to remove when PoV arrives in pornstar
-HHEnvVariables["PH_prod"].isEnabledDailyGoals = false;// to remove when DailyGoals arrives in pornstar
-HHEnvVariables["PH_prod"].isEnabledDailyRewards = false;// to remove when DailyRewards arrives in pornstar
 
 const HC = 1;
 const CH = 2;
