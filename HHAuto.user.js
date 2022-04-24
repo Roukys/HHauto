@@ -7748,14 +7748,13 @@ function moduleShopActions()
         function prepareExp()
         {
 
-            let targetedLevel = Number(document.getElementById("menuExpLevel").value);
-
             let girl;
 
             girl=$('div.girl-ico:not(.not-selected)');
             getSelectGirlID=girl.attr("id_girl");
             let selectedGirl=girl.data("g");
             let selectedGirlTooltip=JSON.parse(girl.attr(getHHScriptVars('girlToolTipData')));
+            let targetedLevel = Math.min(Number(document.getElementById("menuExpLevel").value), selectedGirl.level_cap);
 
             let selectedGirlExp=selectedGirl.Xp.cur;
             //console.log(JSON.stringify(selectedGirl));
@@ -7840,7 +7839,7 @@ function moduleShopActions()
             let selectedGirl=girl.data("g");
             let selectedGirlExp=selectedGirl.Xp.cur;
             let selectedGirlTooltip=JSON.parse(girl.attr(getHHScriptVars('girlToolTipData')));
-            let targetedLevel = Number(document.getElementById("menuExpLevel").value);
+            let targetedLevel = Math.min(Number(document.getElementById("menuExpLevel").value), selectedGirl.level_cap);
             let targetedXp = getLevelXp(selectedGirlTooltip.rarity,targetedLevel);
             logHHAuto('start giving Exp to '+selectedGirl.name);
             let currentTotal = selectedGirlExp;
