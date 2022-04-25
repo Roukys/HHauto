@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.81
+// @version      5.6.82
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -1659,30 +1659,38 @@ function haremOpenFirstXUpgradable()
     {
         if (nextUpgradable<upgradableGirlz.length && openedGirlz < maxOpenedGirlz)
         {
-            let upgradeURL = upgradableGirlz[nextUpgradable].gData.quests.for_upgrade.url;
-            //console.log(upgradeButton.length);
-            if (upgradeURL.length === 0 )
+            const girlzQuests = getHHVars('girl_quests');
+            if (girlzQuests !== null)
             {
-                if (first)
+                let upgradeURL = girlzQuests[upgradableGirlz[nextUpgradable].gId].for_upgrade.url;
+                //console.log(upgradeButton.length);
+                if (upgradeURL.length === 0 )
                 {
-                    setTimeout(function() { haremOpenGirlUpgrade(false);},1000);
+                    if (first)
+                    {
+                        setTimeout(function() { haremOpenGirlUpgrade(false);},1000);
+                    }
+                    else
+                    {
+                        nextUpgradable++;
+                        haremOpenGirlUpgrade();
+                    }
                 }
                 else
                 {
+                    //console.log(upgradeButton[0].getAttribute("href"));
+                    //upgradeButton[0].setAttribute("target","_blank");
+                    //console.log(upgradeButton[0]);
+                    //upgradeButton[0].click();
+                    GM.openInTab(window.location.protocol+"//"+window.location.hostname+upgradeURL, true);
                     nextUpgradable++;
+                    openedGirlz++;
                     haremOpenGirlUpgrade();
                 }
             }
             else
             {
-                //console.log(upgradeButton[0].getAttribute("href"));
-                //upgradeButton[0].setAttribute("target","_blank");
-                //console.log(upgradeButton[0]);
-                //upgradeButton[0].click();
-                GM.openInTab(window.location.protocol+"//"+window.location.hostname+upgradeURL, true);
-                nextUpgradable++;
-                openedGirlz++;
-                haremOpenGirlUpgrade();
+                logHHAuto("Unable to find girl_quest array.");
             }
         }
     }
