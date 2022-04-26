@@ -493,10 +493,20 @@ function gotoPage(page,inArgs,delay = -1)
             togoto = getHHScriptVars("pagesURLShop");
             break;
         case getHHScriptVars("pagesIDQuest"):
+            let mainQuest = getStoredValue("HHAuto_Setting_autoQuest") === "true";
+            let sideQuest = getHHScriptVars("isEnabledSideQuest",false) && getStoredValue("HHAuto_Setting_autoSideQuest") === "true";
             togoto = getHHVars('Hero.infos.questing.current_url');
-            if (togoto.includes("world"))
+            if ((mainQuest && sideQuest && togoto.includes("world")) || (!mainQuest && sideQuest))
             {
                 togoto = '/side-quests.html';
+            }
+            else if (togoto.includes("world"))
+            {
+                logHHAuto("All quests finished, turning off AutoQuest!");
+                setStoredValue("HHAuto_Setting_autoQuest", false);
+                setStoredValue("HHAuto_Setting_autoSideQuest", false);
+                location.reload();
+                return false;
             }
             logHHAuto("Current quest page: "+togoto);
             break;
@@ -578,25 +588,23 @@ var proceedQuest = function () {
     //logHHAuto("Starting auto quest.");
     // Check if at correct page.
     let page = getPage();
-    if (page === 'side-quests') {
+    let mainQuestUrl = getHHVars('Hero.infos.questing.current_url');
+    let doMainQuest = getStoredValue("HHAuto_Setting_autoQuest") === "true" && !mainQuestUrl.includes("world");
+    if (!doMainQuest && page === 'side-quests' && getHHScriptVars("isEnabledSideQuest",false) && getStoredValue("HHAuto_Setting_autoSideQuest") === "true") {
         var quests = $('.side-quest:has(.slot) .side-quest-button');
-        if (! getHHVars('Hero.infos.questing.current_url').includes("world")) {
-            logHHAuto("Navigating to current quest.");
-            setStoredValue("HHAuto_Temp_questRequirement", "none");
-            gotoPage(getHHScriptVars("pagesIDQuest"));
-        }
-        else if (quests.length > 0) {
+        if (quests.length > 0) {
             logHHAuto("Navigating to side quest.");
             gotoPage(quests.attr('href'));
         }
         else {
             logHHAuto("All quests finished, turning off AutoQuest!");
             setStoredValue("HHAuto_Setting_autoQuest", false);
+            setStoredValue("HHAuto_Setting_autoSideQuest", false);
             location.reload();
         }
         return;
     }
-    if (page !== getHHScriptVars("pagesIDQuest")) {
+    if (page !== getHHScriptVars("pagesIDQuest") || (doMainQuest && mainQuestUrl != window.location.pathname)) {
         // Click on current quest to naviagte to it.
         logHHAuto("Navigating to current quest.");
         gotoPage(getHHScriptVars("pagesIDQuest"));
@@ -4854,7 +4862,7 @@ var setParanoiaSpendings=function()
             }
         }
         //if autoquest is on
-        if(getHHScriptVars('isEnabledQuest',false) && getStoredValue("HHAuto_Setting_autoQuest") === "true")
+        if(getHHScriptVars('isEnabledQuest',false) && (getStoredValue("HHAuto_Setting_autoQuest") === "true" || (getHHScriptVars("isEnabledSideQuest",false) && getStoredValue("HHAuto_Setting_autoSideQuest") === "true")))
         {
             if ( getStoredValue("HHAuto_Temp_paranoiaQuestBlocked") === undefined )
             {
@@ -6221,7 +6229,7 @@ var autoLoop = function ()
             }
         }
 
-        if (busy === false && getHHScriptVars("isEnabledQuest",false) && getStoredValue("HHAuto_Setting_autoQuest") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true")
+        if (busy === false && getHHScriptVars("isEnabledQuest",false) && (getStoredValue("HHAuto_Setting_autoQuest") === "true" || (getHHScriptVars("isEnabledSideQuest",false) && getStoredValue("HHAuto_Setting_autoSideQuest") === "true")) && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
             if (getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === undefined)
             {
@@ -6312,9 +6320,18 @@ var autoLoop = function ()
             {
                 //prevent paranoia to wait for quest
                 setStoredValue("HHAuto_Temp_paranoiaQuestBlocked", "true");
-                logHHAuto("AutoQuest disabled.HHAuto_Setting_AutoQuest cannot be performed due to unknown quest button. Please manually proceed the current quest screen.");
-                document.getElementById("autoQuest").checked = false;
-                setStoredValue("HHAuto_Setting_autoQuest", "false");
+                if (getStoredValue("HHAuto_Setting_autoQuest") === "true")
+                {
+                    logHHAuto("AutoQuest disabled.HHAuto_Setting_AutoQuest cannot be performed due to unknown quest button. Please manually proceed the current quest screen.");
+                    document.getElementById("autoQuest").checked = false;
+                    setStoredValue("HHAuto_Setting_autoQuest", "false");
+                }
+                if (getStoredValue("HHAuto_Setting_autoSideQuest") === "true")
+                {
+                    logHHAuto("AutoQuest disabled.HHAuto_Setting_autoSideQuest cannot be performed due to unknown quest button. Please manually proceed the current quest screen.");
+                    document.getElementById("autoSideQuest").checked = false;
+                    setStoredValue("HHAuto_Setting_autoSideQuest", "false");
+                }
                 setStoredValue("HHAuto_Temp_questRequirement", "none");
                 busy = false;
             }
@@ -6322,9 +6339,18 @@ var autoLoop = function ()
             {
                 //prevent paranoia to wait for quest
                 setStoredValue("HHAuto_Temp_paranoiaQuestBlocked", "true");
-                logHHAuto("AutoQuest disabled.HHAuto_Setting_AutoQuest cannot be performed due errors in AutoBattle. Please manually proceed the current quest screen.");
-                document.getElementById("autoQuest").checked = false;
-                setStoredValue("HHAuto_Setting_autoQuest", "false");
+                if (getStoredValue("HHAuto_Setting_autoQuest") === "true")
+                {
+                    logHHAuto("AutoQuest disabled.HHAuto_Setting_AutoQuest cannot be performed due errors in AutoBattle. Please manually proceed the current quest screen.");
+                    document.getElementById("autoQuest").checked = false;
+                    setStoredValue("HHAuto_Setting_autoQuest", "false");
+                }
+                if (getStoredValue("HHAuto_Setting_autoSideQuest") === "true")
+                {
+                    logHHAuto("AutoQuest disabled.HHAuto_Setting_autoSideQuest cannot be performed due errors in AutoBattle. Please manually proceed the current quest screen.");
+                    document.getElementById("autoSideQuest").checked = false;
+                    setStoredValue("HHAuto_Setting_autoSideQuest", "false");
+                }
                 setStoredValue("HHAuto_Temp_questRequirement", "none");
                 busy = false;
             }
@@ -6345,7 +6371,7 @@ var autoLoop = function ()
                 busy=false;
             }
         }
-        else if(getStoredValue("HHAuto_Setting_autoQuest") === "false")
+        else if(getStoredValue("HHAuto_Setting_autoQuest") === "false" && getStoredValue("HHAuto_Setting_autoSideQuest") === "false")
         {
             setStoredValue("HHAuto_Temp_questRequirement", "none");
         }
@@ -10261,6 +10287,7 @@ HHEnvVariables["global"].isEnabledContest = true;
 HHEnvVariables["global"].isEnabledPowerPlaces = true;
 HHEnvVariables["global"].isEnabledMission = true;
 HHEnvVariables["global"].isEnabledQuest = true;
+HHEnvVariables["global"].isEnabledSideQuest = true;
 HHEnvVariables["global"].isEnabledSeason = true;
 HHEnvVariables["global"].isEnabledPantheon = true;
 HHEnvVariables["global"].isEnabledAllChamps = true;
@@ -10283,6 +10310,7 @@ HHEnvVariables["HH_test"].isEnabledDailyRewards = false;// to remove if daily re
     HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in Comix
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in Comix
 })
+HHEnvVariables["SH_prod"].isEnabledSideQuest = false;// to remove when SideQuest arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPowerPlaces = false;// to remove when PoP arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledMythicPachinko = false;// to remove when Great Pachinko arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledAllChamps = false;// to remove when Champs arrives in hornyheroes
@@ -10369,7 +10397,8 @@ HHAuto_ToolTips.en.autoSeasonTitle = { version: "5.6.24", elementText: "Season"}
 HHAuto_ToolTips.en.autoSeason = { version: "5.6.24", elementText: "Enable", tooltip: "if enabled : Automatically fight in Seasons (Opponent chosen following PowerCalculation)"};
 HHAuto_ToolTips.en.autoSeasonCollect = { version: "5.6.24", elementText: "Collect", tooltip: "if enabled : Automatically collect Seasons ( if multiple to collect, will collect one per kiss usage)"};
 HHAuto_ToolTips.en.autoSeasonThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "Minimum kiss to keep"};
-HHAuto_ToolTips.en.autoQuest = { version: "5.6.24", elementText: "Quest", tooltip: "if enabled : Automatically do quest"};
+HHAuto_ToolTips.en.autoQuest = { version: "5.6.74", elementText: "Main Quest", tooltip: "if enabled : Automatically do main quest"};
+HHAuto_ToolTips.en.autoSideQuest = { version: "5.6.74", elementText: "Side Quests", tooltip: "if enabled : Automatically do next available side quest (Enabled main quest has higher priority than side quests)"};
 HHAuto_ToolTips.en.autoQuestThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "(Integer between 0 and 99)<br>Minimum quest energy to keep"};
 HHAuto_ToolTips.en.autoContest = { version: "5.6.24", elementText: "Claim Contest", tooltip: "if enabled : Collect finished contest rewards"};
 HHAuto_ToolTips.en.autoFreePachinko = { version: "5.6.24", elementText: "Pachinko", tooltip: "if enabled : Automatically collect free Pachinkos"};
@@ -11130,6 +11159,17 @@ HHStoredVars.HHAuto_Setting_autoPowerPlacesIndexFilter =
     }
 };
 HHStoredVars.HHAuto_Setting_autoQuest =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoSideQuest =
     {
     default:"false",
     storage:"Storage()",
@@ -12111,7 +12151,7 @@ var updateData = function () {
 
 function maskInactiveMenus()
 {
-    let menuIDList =["isEnabledDailyGoals", "isEnabledPoV","isEnabledDailyRewards","isEnabledMission","isEnabledContest","isEnabledTrollBattle","isEnabledPowerPlaces","isEnabledSalary","isEnabledPachinko","isEnabledQuest","isEnabledSeason","isEnabledLeagues","isEnabledAllChamps","isEnabledChamps","isEnabledClubChamp","isEnabledPantheon","isEnabledShop"];
+    let menuIDList =["isEnabledDailyGoals", "isEnabledPoV","isEnabledDailyRewards","isEnabledMission","isEnabledContest","isEnabledTrollBattle","isEnabledPowerPlaces","isEnabledSalary","isEnabledPachinko","isEnabledQuest","isEnabledSideQuest","isEnabledSeason","isEnabledLeagues","isEnabledAllChamps","isEnabledChamps","isEnabledClubChamp","isEnabledPantheon","isEnabledShop"];
     for (let menu of menuIDList)
     {
         if ( document.getElementById(menu) !== null && getHHScriptVars(menu,false) !== null && !getHHScriptVars(menu,false) )
@@ -12557,6 +12597,17 @@ var start = function () {
                                                     +`</label>`
                                                 +`</div>`
                                             +`</div>`
+                                        +`</div>`
+                                    +`</div>`
+                                    +`<div id="isEnabledSideQuest" class="labelAndButton">`
+                                        +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("autoSideQuest","elementText")}</span>`
+                                        +`<div class="tooltipHH">`
+                                            +`<span class="tooltipHHtext">${getTextForUI("autoSideQuest","tooltip")}</span>`
+                                            +`<label class="switch">`
+                                                +`<input id="autoSideQuest" type="checkbox">`
+                                                +`<span class="slider round">`
+                                                +`</span>`
+                                            +`</label>`
                                         +`</div>`
                                     +`</div>`
                                     +`<div class="labelAndButton">`
