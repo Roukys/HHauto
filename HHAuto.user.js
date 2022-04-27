@@ -513,7 +513,7 @@ function gotoPage(page,inArgs,delay = -1)
             {
                 logHHAuto("All quests finished, turning off AutoQuest!");
                 setStoredValue("HHAuto_Setting_autoQuest", false);
-                setStoredValue("HHAuto_Setting_autoSideQuest", false);
+                //setStoredValue("HHAuto_Setting_autoSideQuest", false);
                 location.reload();
                 return false;
             }
@@ -607,7 +607,7 @@ var proceedQuest = function () {
         }
         else {
             logHHAuto("All quests finished, turning off AutoQuest!");
-            setStoredValue("HHAuto_Setting_autoQuest", false);
+            //setStoredValue("HHAuto_Setting_autoQuest", false);
             setStoredValue("HHAuto_Setting_autoSideQuest", false);
             location.reload();
         }
@@ -10420,7 +10420,7 @@ HHAuto_ToolTips.en.autoSeason = { version: "5.6.24", elementText: "Enable", tool
 HHAuto_ToolTips.en.autoSeasonCollect = { version: "5.6.24", elementText: "Collect", tooltip: "if enabled : Automatically collect Seasons ( if multiple to collect, will collect one per kiss usage)"};
 HHAuto_ToolTips.en.autoSeasonThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "Minimum kiss to keep"};
 HHAuto_ToolTips.en.autoQuest = { version: "5.6.74", elementText: "Main Quest", tooltip: "if enabled : Automatically do main quest"};
-HHAuto_ToolTips.en.autoSideQuest = { version: "5.6.74", elementText: "Side Quests", tooltip: "if enabled : Automatically do next available side quest (Enabled main quest has higher priority than side quests)"};
+HHAuto_ToolTips.en.autoSideQuest = { version: "5.6.83", elementText: "Side Quests", tooltip: "if enabled : Automatically do next available side quest (Enabled main quest has higher priority than side quests)"};
 HHAuto_ToolTips.en.autoQuestThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "(Integer between 0 and 99)<br>Minimum quest energy to keep"};
 HHAuto_ToolTips.en.autoContest = { version: "5.6.24", elementText: "Claim Contest", tooltip: "if enabled : Collect finished contest rewards"};
 HHAuto_ToolTips.en.autoFreePachinko = { version: "5.6.24", elementText: "Pachinko", tooltip: "if enabled : Automatically collect free Pachinkos"};
