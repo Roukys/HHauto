@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.82
+// @version      5.6.83
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -2895,7 +2895,7 @@ var doClubChampionStuff=function()
                 {
                     logHHAuto("Using ticket");
                     $('button[rel=perform].blue_button_L').click();
-                    setTimer('nextClubChampionTime',3);
+                    setTimer('nextClubChampionTime',15*60);
                 }
                 gotoPage(getHHScriptVars("pagesIDClub"));
                 return true;
@@ -3176,7 +3176,7 @@ function goAndCollectDailyGoals()
 {
     const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoDailyGoalsCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoDailyGoalsCollectablesList")):[];
     //console.log(rewardsToCollect.length);
-    if (checkTimer('nextDailyGoalsCollectTime') && getStoredValue("HHAuto_Setting_autoDailyGoalsCollect") === "true" && rewardsToCollect.length > 0 )
+    if (checkTimer('nextDailyGoalsCollectTime') && getStoredValue("HHAuto_Setting_autoDailyGoalsCollect") === "true")
     {
         //console.log(getPage());
         if (getPage() === getHHScriptVars("pagesIDDailyGoals"))
@@ -3266,7 +3266,7 @@ function goAndCollectPoV()
 {
     const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoPoVCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoPoVCollectablesList")):[];
 
-    if (checkTimer('nextPoVCollectTime') && getStoredValue("HHAuto_Setting_autoPoVCollect") === "true" && rewardsToCollect.length > 0 )
+    if (checkTimer('nextPoVCollectTime') && getStoredValue("HHAuto_Setting_autoPoVCollect") === "true")
     {
         if (getPage() === getHHScriptVars("pagesIDPoV"))
         {
@@ -3343,7 +3343,7 @@ function goAndCollectSeason()
 {
     const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoSeasonCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoSeasonCollectablesList")):[];
 
-    if (checkTimer('nextSeasonCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonCollect") === "true" && rewardsToCollect.length > 0 )
+    if (checkTimer('nextSeasonCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonCollect") === "true" )
     {
         if (getPage() === getHHScriptVars("pagesIDSeason"))
         {
@@ -6496,12 +6496,14 @@ var autoLoop = function ()
         if (getHHScriptVars("isEnabledDailyRewards",false) && busy==false && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextDailyRewardsCollectTime') && getStoredValue("HHAuto_Setting_autoDailyRewardsCollect") === "true")
         {
             busy = true;
+            logHHAuto("Time to go and check Daily Rewards for collecting reward.");
             goAndCollectDailyRewards();
         }
 
         if (getHHScriptVars("isEnabledDailyGoals",false) && busy==false && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextDailyGoalsCollectTime') && getStoredValue("HHAuto_Setting_autoDailyGoalsCollect") === "true")
         {
             busy = true;
+            logHHAuto("Time to go and check daily Goals for collecting reward.");
             goAndCollectDailyGoals();
         }
 
