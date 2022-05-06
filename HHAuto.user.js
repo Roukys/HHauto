@@ -105,7 +105,6 @@ function addEventsOnMenuItems()
                                                                  {
                     if (HHStoredVars[i].newValueFunction !== undefined)
                     {
-                        console.log(currentValue,menuValue);
                         HHStoredVars[i].newValueFunction.apply();
                     }
                     setStoredValue(i,this.checked)
@@ -2306,7 +2305,7 @@ function predictNextSalaryMinTime(inGirlsDataList)
     const isGirlMap = getHHVars("GirlSalaryManager.girlsMap")!==null;
     if (!isGirlMap)
     {
-        girlsDataList = ggetHHVars("girlsDataList");
+        girlsDataList = getHHVars("girlsDataList");
     }
     let nextCollect = 0;
     const minSalaryForCollect = Number(getStoredValue("HHAuto_Setting_autoSalaryMinSalary"));
@@ -10042,7 +10041,7 @@ HHEnvVariables["global"].boostersIdentifier =
     MB4:   {name:"Luxurious Watch", usage:"+25% power against PoA for next 60 missions"},
     MB5:   {name:"Combative Cinnamon", usage:"+5 mojo on a win and 0 on a loose for next 100 season fight"},
     MB6:   {name:"Alban's travel memories", usage:"+20% xp (5 if level 300 or higher), up to 100000"},
-    MB4:   {name:"Angels' semen scent", usage:"+25% power against PoA for next 60 missions"},
+    MB7:   {name:"Angels' semen scent", usage:"+25% power against PoA for next 60 missions"},
 };
 
 HHEnvVariables["global"].possibleRewardsList = {'energy_kiss' : "Kisses",
@@ -12614,7 +12613,7 @@ var start = function () {
                                     +`<div class="labelAndButton">`
                                         +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("autoFreePachinko","elementText")}</span>`
                                         +`<div class="imgAndObjectRow">`
-                                            +`<img class="iconImg" src="https://hh2.hh-content.com/design/menu/pachinko.svg" />`
+                                            +`<img class="iconImg" src="https://hh2.hh-content.com/pictures/design/menu/pachinko.svg" />`
                                             +`<div style="padding-left:5px">`
                                                 +`<div class="tooltipHH">`
                                                     +`<span class="tooltipHHtext">${getTextForUI("autoFreePachinko","tooltip")}</span>`
