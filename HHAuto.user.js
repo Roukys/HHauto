@@ -4738,12 +4738,9 @@ var updateShop=function()
             }
         }
         setTimer('nextShopTime',shopTimer);
-        if (isJSON(getStoredValue("HHAuto_Temp_LastPageCalled"))
-            && getPage() === JSON.parse(getStoredValue("HHAuto_Temp_LastPageCalled")).page)
-        {
-            gotoPage(getHHScriptVars("pagesIDHome"));
-            logHHAuto("Go to Home after Shopping");
-        }
+
+        gotoPage(getHHScriptVars("pagesIDHome"));
+        logHHAuto("Go to Home after Shopping");
     }
     return false;
 }
@@ -6621,10 +6618,6 @@ var autoLoop = function ()
             if (getStoredValue("HHAuto_Setting_showMarketTools") === "true")
             {
                 moduleShopActions();
-            }
-            if (getSecondsLeft('nextShopTime') < 3600)
-            {
-                updateShop();
             }
             moduleShopGetBoosters();
             break;
@@ -10333,8 +10326,6 @@ HHEnvVariables["SH_prod"].isEnabledPoV = false;// to remove when PoV arrives in 
 
 HHEnvVariables["PH_prod"].isEnabledPowerPlaces = false;// to remove when PoP arrives in pornstar
 HHEnvVariables["PH_prod"].isEnabledMythicPachinko = false;// to remove when Mythic Pachinko arrives in pornstar
-HHEnvVariables["PH_prod"].isEnabledAllChamps = false;// to remove when Champs arrives in pornstar
-HHEnvVariables["PH_prod"].isEnabledChamps = false;// to remove when Champs arrives in pornstar
 HHEnvVariables["PH_prod"].isEnabledClubChamp = false;// to remove when Club Champs arrives in pornstar
 HHEnvVariables["PH_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in pornstar
 HHEnvVariables["PH_prod"].isEnabledPoV = false;// to remove when PoV arrives in pornstar
