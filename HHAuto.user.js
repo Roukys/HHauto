@@ -10330,7 +10330,8 @@ HHEnvVariables["PH_prod"].isEnabledClubChamp = false;// to remove when Club Cham
 HHEnvVariables["PH_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in pornstar
 HHEnvVariables["PH_prod"].isEnabledPoV = false;// to remove when PoV arrives in pornstar
 HHEnvVariables["PH_prod"].trollzList = ['Latest',
-                                        'Headmistress Asa Akira'];
+                                        'Headmistress Asa Akira',
+                                        'Sammy Jayne'];
 
 const HC = 1;
 const CH = 2;
