@@ -4738,12 +4738,9 @@ var updateShop=function()
             }
         }
         setTimer('nextShopTime',shopTimer);
-        if (isJSON(getStoredValue("HHAuto_Temp_LastPageCalled"))
-            && getPage() === JSON.parse(getStoredValue("HHAuto_Temp_LastPageCalled")).page)
-        {
-            gotoPage(getHHScriptVars("pagesIDHome"));
-            logHHAuto("Go to Home after Shopping");
-        }
+
+        gotoPage(getHHScriptVars("pagesIDHome"));
+        logHHAuto("Go to Home after Shopping");
     }
     return false;
 }
@@ -6621,10 +6618,6 @@ var autoLoop = function ()
             if (getStoredValue("HHAuto_Setting_showMarketTools") === "true")
             {
                 moduleShopActions();
-            }
-            if (getSecondsLeft('nextShopTime') < 3600)
-            {
-                updateShop();
             }
             moduleShopGetBoosters();
             break;
@@ -9983,6 +9976,7 @@ HHKnownEnvironnements["eroges.gayharem.com"] = {name:"EGH_prod",id:"hh_gay"};
 HHKnownEnvironnements["eroges.hentaiheroes.com"] = {name:"EHH_prod",id:"hh_hentai"};
 HHKnownEnvironnements["esprit.hentaiheroes.com"] = {name:"OGHH_prod",id:"hh_hentai"};
 HHKnownEnvironnements["www.pornstarharem.com"] = {name:"PH_prod",id:"hh_star"};
+HHKnownEnvironnements["nutaku.pornstarharem.com"] = {name:"NPH_prod",id:"hh_star"};
 
 
 var HHEnvVariables = {};
@@ -10331,15 +10325,16 @@ HHEnvVariables["SH_prod"].isEnabledClubChamp = false;// to remove when Club Cham
 HHEnvVariables["SH_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPoV = false;// to remove when PoV arrives in hornyheroes
 
-HHEnvVariables["PH_prod"].isEnabledPowerPlaces = false;// to remove when PoP arrives in pornstar
-HHEnvVariables["PH_prod"].isEnabledMythicPachinko = false;// to remove when Mythic Pachinko arrives in pornstar
-HHEnvVariables["PH_prod"].isEnabledAllChamps = false;// to remove when Champs arrives in pornstar
-HHEnvVariables["PH_prod"].isEnabledChamps = false;// to remove when Champs arrives in pornstar
-HHEnvVariables["PH_prod"].isEnabledClubChamp = false;// to remove when Club Champs arrives in pornstar
-HHEnvVariables["PH_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in pornstar
-HHEnvVariables["PH_prod"].isEnabledPoV = false;// to remove when PoV arrives in pornstar
-HHEnvVariables["PH_prod"].trollzList = ['Latest',
-                                        'Headmistress Asa Akira'];
+["PH_prod","NPH_prod"].forEach((element) => {
+    HHEnvVariables[element].trollzList = ['Latest',
+                                          'Headmistress Asa Akira',
+                                          'Sammy Jayne'];
+    HHEnvVariables[element].isEnabledPowerPlaces = false;// to remove when PoP arrives in pornstar
+    HHEnvVariables[element].isEnabledMythicPachinko = false;// to remove when Mythic Pachinko arrives in pornstar
+    HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in pornstar
+    HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in pornstar
+    HHEnvVariables[element].isEnabledPoV = false;// to remove when PoV arrives in pornstar
+})
 
 const HC = 1;
 const CH = 2;
