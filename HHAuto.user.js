@@ -8205,15 +8205,15 @@ function moduleShopActions()
             let filter='#inventory .selected .inventory_slots .slot:not(.empty)';
             if (inCaracsValue !== "*" )
             {
-                filter+='[data-d*="\"name_add\":\"'+inCaracsValue+'\""]';
+                filter+='[data-d*=\'"name_add":"'+inCaracsValue+'"\']';
             }
             if (inTypeValue !== "*" )
             {
-                filter+='[data-d*="\"subtype\":\"'+inTypeValue+'\""]';
+                filter+='[data-d*=\'"subtype":"'+inTypeValue+'"\']';
             }
             if (inRarityValue !== "*" )
             {
-                filter+='[data-d*="\"rarity\":\"'+inRarityValue+'\""]';
+                filter+='[data-d*=\'"rarity":"'+inRarityValue+'"\']';
             }
             if (inLockedValue === "locked" || inLockedValue === true)
             {
