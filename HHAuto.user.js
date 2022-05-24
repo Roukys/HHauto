@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.84
+// @version      5.6.85
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -4738,9 +4738,12 @@ var updateShop=function()
             }
         }
         setTimer('nextShopTime',shopTimer);
-
-        gotoPage(getHHScriptVars("pagesIDHome"));
-        logHHAuto("Go to Home after Shopping");
+        if (isJSON(getStoredValue("HHAuto_Temp_LastPageCalled"))
+            && getPage() === JSON.parse(getStoredValue("HHAuto_Temp_LastPageCalled")).page)
+        {
+            gotoPage(getHHScriptVars("pagesIDHome"));
+            logHHAuto("Go to Home after Shopping");
+        }
     }
     return false;
 }
@@ -5179,7 +5182,7 @@ function getLeaguePlayersData(inHeroLeaguesData, inPlayerLeaguesData)
         chance: playerCrit,
         damage: playerAtk,
         defense: playerDef,
-        total_ego: playerEgo,
+        remaining_ego: playerEgo,
         team: playerTeam
     } = inHeroLeaguesData
     let playerElements;
@@ -5208,7 +5211,7 @@ function getLeaguePlayersData(inHeroLeaguesData, inPlayerLeaguesData)
         chance: opponentCrit,
         damage: opponentAtk,
         defense: opponentDef,
-        total_ego: opponentEgo,
+        remaining_ego: opponentEgo,
         team: opponentTeam
     } = inPlayerLeaguesData
 
@@ -6618,6 +6621,10 @@ var autoLoop = function ()
             if (getStoredValue("HHAuto_Setting_showMarketTools") === "true")
             {
                 moduleShopActions();
+            }
+            if (getSecondsLeft('nextShopTime') < 3600)
+            {
+                updateShop();
             }
             moduleShopGetBoosters();
             break;
