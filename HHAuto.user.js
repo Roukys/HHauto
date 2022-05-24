@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.86
+// @version      5.6.87
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -227,6 +227,19 @@ function logHHAuto(...args)
     var currentLoggingText;
     var nbLines;
     var maxLines = 500;
+
+    const getCircularReplacer = () => {
+        const seen = new WeakSet();
+        return (key, value) => {
+            if (typeof value === 'object' && value !== null) {
+                if (seen.has(value)) {
+                    return;
+                }
+                seen.add(value);
+            }
+            return value;
+        };
+    };
     if (args.length === 1)
     {
         if (typeof args[0] === 'string' || args[0] instanceof String)
@@ -235,12 +248,12 @@ function logHHAuto(...args)
         }
         else
         {
-            text = JSON.stringify(args[0], null, 2);
+            text = JSON.stringify(args[0], getCircularReplacer(), 2);
         }
     }
     else
     {
-        text = JSON.stringify(args, null, 2);
+        text = JSON.stringify(args, getCircularReplacer(), 2);
     }
     currentLoggingText = getStoredValue("HHAuto_Temp_Logging")!==undefined?getStoredValue("HHAuto_Temp_Logging"):"reset";
     //console.log("debug : ",currentLoggingText);
@@ -866,8 +879,7 @@ function doMissionStuff()
             setTimer('nextMissionTime',15);
             return true;
         }
-        logHHAuto("Missions parsed, mission list is:-");
-        logHHAuto(missions);
+        logHHAuto("Missions parsed, mission list is:", missions);
         if(missions.length > 0)
         {
             logHHAuto("Selecting mission from list.");
@@ -3937,7 +3949,7 @@ function getLeagueOpponentId(opponentsIDList,force=false)
             let element = unsafeWindow.HHTimers.timers[e].$elm[0];
             while(element){
                 if (element.classList && element.classList.contains("league_end_in")) {
-                league_end=HHTimers.timers[e].remainingTime;
+                    league_end=HHTimers.timers[e].remainingTime;
                     break;
                 }
                 element=element.parentNode;
@@ -4582,7 +4594,7 @@ var getFreeGreatPachinko = function(){
                 let element = unsafeWindow.HHTimers.timers[e].$elm[0];
                 while(element){
                     if (element.classList && element.classList.contains("pachinko_change")) {
-                    npach=unsafeWindow.HHTimers.timers[e].remainingTime;
+                        npach=unsafeWindow.HHTimers.timers[e].remainingTime;
                         break;
                     }
                     element=element.parentNode;
@@ -4661,7 +4673,7 @@ var getFreeMythicPachinko = function(){
                 while(element){
                     if (element.classList && element.classList.contains("game-simple-block") && element.attributes
                         && element.attributes['type-pachinko'] && element.attributes['type-pachinko'].value ==="mythic") {
-                    npach=unsafeWindow.HHTimers.timers[e].remainingTime;
+                        npach=unsafeWindow.HHTimers.timers[e].remainingTime;
                         break;
                     }
                     element=element.parentNode;
@@ -4723,7 +4735,7 @@ var updateShop=function()
             let element = unsafeWindow.HHTimers.timers[e].$elm[0];
             while(element){
                 if (element.classList && element.classList.contains("shop_count")) {
-                nshop=unsafeWindow.HHTimers.timers[e].remainingTime;
+                    nshop=unsafeWindow.HHTimers.timers[e].remainingTime;
                     break;
                 }
                 element = element.parentNode;
