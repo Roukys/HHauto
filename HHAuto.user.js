@@ -372,19 +372,19 @@ function getPage(checkUnknown = false)
     let page = p;
     if (p==activitiesMainPage)
     {
-        if ($('h4.contests.selected').size()>0)
+        if ($('h4.contests.selected').length>0)
         {
             page = getHHScriptVars("pagesIDContests");
         }
-        if ($('h4.missions.selected').size()>0)
+        if ($('h4.missions.selected').length>0)
         {
             page = getHHScriptVars("pagesIDMissions");
         }
-        if ($('h4.daily_goals.selected').size()>0)
+        if ($('h4.daily_goals.selected').length>0)
         {
             page = getHHScriptVars("pagesIDDailyGoals");
         }
-        if ($('h4.pop.selected').size()>0)
+        if ($('h4.pop.selected').length>0)
         {
             // if on Pop menu
             var t;
@@ -903,35 +903,16 @@ function doMissionStuff()
                     return true;
                 }
             }
-            var time = 0;
+            var time;
             for(var e in unsafeWindow.HHTimers.timers){
-                try{if(unsafeWindow.HHTimers.timers[e].$elm.selector.includes("#missions_counter"))
-                    time=unsafeWindow.HHTimers.timers[e];
-                   }
-                catch(e)
-                {
-                    logHHAuto("Catched error : Could not parse mission timer : "+e);
-                }
-            }
-            if (time !== undefined)
-            {
-                time = time.remainingTime;
-            }
-            if(time === undefined)
-            {
-                //try again with different selector
-                for(e in unsafeWindow.HHTimers.timers){
-                    try{if(unsafeWindow.HHTimers.timers[e].$elm.selector.includes(".after_gift"))
-                        time=unsafeWindow.HHTimers.timers[e];
-                       }
-                    catch(e)
-                    {
-                        logHHAuto("Catched error : Could not parse after gift timer : "+e);
+                if (!unsafeWindow.HHTimers.timers[e].$elm) {continue;}
+                let element = unsafeWindow.HHTimers.timers[e].$elm[0];
+                while(element){
+                    if (element.id === "missions_counter" || (element.classList && element.classList.contains("after_gift"))) {
+                        time=unsafeWindow.HHTimers.timers[e].remainingTime;
+                        break;
                     }
-                }
-                if (time !== undefined)
-                {
-                    time = time.remainingTime;
+                    element = element.parentNode;
                 }
             }
             if(time === undefined){
@@ -1872,11 +1853,11 @@ function collectAndUpdatePowerPlaces()
         clearTimer('minPowerPlacesTime');
         clearTimer('maxPowerPlacesTime');
         for(e in unsafeWindow.HHTimers.timers){
-            try{
-                if(unsafeWindow.HHTimers.timers[e].$elm.selector.includes(".pop_thumb"))
-                {
-                    //logHHAuto("found timer "+HHTimers.timers[e].$elm.context.outerHTML);
-                    currIndex = $(HHTimers.timers[e].$elm.context.outerHTML).attr('pop_id');
+            if (!unsafeWindow.HHTimers.timers[e].$elm) {continue;}
+            let element = unsafeWindow.HHTimers.timers[e].$elm[0];
+            while(element){
+                if (element.classList && element.classList.contains("pop_thumb")) {
+                    currIndex = $(unsafeWindow.HHTimers.timers[e].$elm[0]).parents('.pop_thumb_expanded').attr('pop_id');
                     //if index is in filter
                     if (filteredPops.includes(currIndex) && ! popUnableToStart.includes(currIndex))
                     {
@@ -1891,11 +1872,9 @@ function collectAndUpdatePowerPlaces()
                             maxTime = currTime;
                         }
                     }
+                    break;
                 }
-            }
-            catch(e)
-            {
-                logHHAuto("Catched error : Could not parse powerplace timer : "+e);
+                element=element.parentNode;
             }
         }
 
@@ -3702,7 +3681,7 @@ var doLeagueBattle = function () {
                 gotoPage(getHHScriptVars("pagesIDLeaderboard"))
             }
         }
-        //logHHAuto('ls! '+$('h4.leagues').size());
+        //logHHAuto('ls! '+$('h4.leagues').length);
         $('h4.leagues').each(function(){this.click();});
 
         if(currentPower < 1)
@@ -3714,7 +3693,7 @@ var doLeagueBattle = function () {
             return;
         }
 
-        while ($("span[sort_by='level'][select='asc']").size()==0)
+        while ($("span[sort_by='level'][select='asc']").length==0)
         {
             //logHHAuto('resorting');
             $("span[sort_by='level']").each(function(){this.click()});
@@ -3760,7 +3739,7 @@ var doLeagueBattle = function () {
                 logHHAuto("Current league above target ("+Number(getPlayerCurrentLevel)+"/"+Number(getStoredValue("HHAuto_Temp_leaguesTarget"))+"), needs to demote. max rank : "+rankDemote+"/"+totalOpponents);
                 let getRankDemote = $("div.leagues_table table tr td span:contains("+rankDemote+")").filter(function()
                                                                                                             {
-                    return Number($.trim($(this).text())) === rankDemote;
+                    return Number($(this).text().trim()) === rankDemote;
                 });
                 if (getRankDemote.length > 0 )
                 {
@@ -3800,7 +3779,7 @@ var doLeagueBattle = function () {
                 logHHAuto("Current league is target ("+Number(getPlayerCurrentLevel)+"/"+Number(getStoredValue("HHAuto_Temp_leaguesTarget"))+"), needs to stay. max rank : "+rankStay);
                 let getRankStay = $("div.leagues_table table tr td span:contains("+rankStay+")").filter(function()
                                                                                                         {
-                    return Number($.trim($(this).text())) === rankStay;
+                    return Number($(this).text().trim()) === rankStay;
                 });
                 if (getRankStay.length > 0 )
                 {
@@ -3954,9 +3933,14 @@ function getLeagueOpponentId(opponentsIDList,force=false)
         let maxLeagueListDurationSecs = getHHScriptVars("LeagueListExpirationSecs");
         for(let e in HHTimers.timers)
         {
-            if(HHTimers.timers[e].$elm && HHTimers.timers[e].$elm.selector.startsWith(".league_end_in"))
-            {
+            if (!unsafeWindow.HHTimers.timers[e].$elm) {continue;}
+            let element = unsafeWindow.HHTimers.timers[e].$elm[0];
+            while(element){
+                if (element.classList && element.classList.contains("league_end_in")) {
                 league_end=HHTimers.timers[e].remainingTime;
+                    break;
+                }
+                element=element.parentNode;
             }
         }
         if (league_end !== -1 && league_end < maxLeagueListDurationSecs)
@@ -4594,9 +4578,14 @@ var getFreeGreatPachinko = function(){
             var npach = -1;
             for(let e in unsafeWindow.HHTimers.timers)
             {
-                if(unsafeWindow.HHTimers.timers[e].$elm && unsafeWindow.HHTimers.timers[e].$elm.selector.startsWith(".pachinko_change"))
-                {
+                if (!unsafeWindow.HHTimers.timers[e].$elm) {continue;}
+                let element = unsafeWindow.HHTimers.timers[e].$elm[0];
+                while(element){
+                    if (element.classList && element.classList.contains("pachinko_change")) {
                     npach=unsafeWindow.HHTimers.timers[e].remainingTime;
+                        break;
+                    }
+                    element=element.parentNode;
                 }
             }
             if(npach !== -1)
@@ -4667,8 +4656,16 @@ var getFreeMythicPachinko = function(){
             //}
             var npach = -1;
             for(var e in unsafeWindow.HHTimers.timers){
-                if(unsafeWindow.HHTimers.timers[e].$elm && unsafeWindow.HHTimers.timers[e].$elm.selector.startsWith('.game-simple-block[type-pachinko="mythic"]'))
+                if (!unsafeWindow.HHTimers.timers[e].$elm) {continue;}
+                let element = unsafeWindow.HHTimers.timers[e].$elm[0];
+                while(element){
+                    if (element.classList && element.classList.contains("game-simple-block") && element.attributes
+                        && element.attributes['type-pachinko'] && element.attributes['type-pachinko'].value ==="mythic") {
                     npach=unsafeWindow.HHTimers.timers[e].remainingTime;
+                        break;
+                    }
+                    element=element.parentNode;
+                }
             }
             if(npach !== -1)
             {
@@ -4722,8 +4719,15 @@ var updateShop=function()
 
         var nshop;
         for(var e in unsafeWindow.HHTimers.timers){
-            if(unsafeWindow.HHTimers.timers[e].$elm && unsafeWindow.HHTimers.timers[e].$elm.selector.startsWith(".shop_count"))
+            if (!unsafeWindow.HHTimers.timers[e].$elm) {continue;}
+            let element = unsafeWindow.HHTimers.timers[e].$elm[0];
+            while(element){
+                if (element.classList && element.classList.contains("shop_count")) {
                 nshop=unsafeWindow.HHTimers.timers[e].remainingTime;
+                    break;
+                }
+                element = element.parentNode;
+            }
         }
         let shopTimer=60;
         if(nshop !== undefined && nshop !== 0)
@@ -6167,7 +6171,7 @@ var autoLoop = function ()
 
         if(busy === false && getHHScriptVars("isEnabledContest",false) && getStoredValue("HHAuto_Setting_autoContest") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
-            if (checkTimer('nextContestTime') || unsafeWindow.has_contests_datas ||$(".contest .ended button[rel='claim']").size()>0){
+            if (checkTimer('nextContestTime') || unsafeWindow.has_contests_datas ||$(".contest .ended button[rel='claim']").length>0){
                 logHHAuto("Time to get contest rewards.");
                 busy = doContestStuff();
             }
@@ -8201,15 +8205,15 @@ function moduleShopActions()
             let filter='#inventory .selected .inventory_slots .slot:not(.empty)';
             if (inCaracsValue !== "*" )
             {
-                filter+='[data-d*="\"name_add\":\"'+inCaracsValue+'\""]';
+                filter+='[data-d*=\'"name_add":"'+inCaracsValue+'"\']';
             }
             if (inTypeValue !== "*" )
             {
-                filter+='[data-d*="\"subtype\":\"'+inTypeValue+'\""]';
+                filter+='[data-d*=\'"subtype":"'+inTypeValue+'"\']';
             }
             if (inRarityValue !== "*" )
             {
-                filter+='[data-d*="\"rarity\":\"'+inRarityValue+'\""]';
+                filter+='[data-d*=\'"rarity":"'+inRarityValue+'"\']';
             }
             if (inLockedValue === "locked" || inLockedValue === true)
             {
