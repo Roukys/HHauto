@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.89
+// @version      5.6.90
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -10522,6 +10522,7 @@ HHEnvVariables["HH_test"].isEnabledDailyRewards = false;// to remove if daily re
                                           'The Mimic'];
     HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in Comix
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in Comix
+    HHEnvVariables[element].isEnabledPoG = false;
 })
 HHEnvVariables["SH_prod"].isEnabledSideQuest = false;// to remove when SideQuest arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPowerPlaces = false;// to remove when PoP arrives in hornyheroes
@@ -12679,17 +12680,6 @@ var start = function () {
                                     +`</label>`
                                 +`</div>`
                             +`</div>`
-                            +`<div class="labelAndButton">`
-                                +`<span class="HHMenuItemName">${getTextForUI("PoAMaskRewards","elementText")}</span>`
-                                +`<div class="tooltipHH">`
-                                    +`<span class="tooltipHHtext">${getTextForUI("PoAMaskRewards","tooltip")}</span>`
-                                    +`<label class="switch">`
-                                        +`<input id="PoAMaskRewards" type="checkbox">`
-                                        +`<span class="slider round">`
-                                        +`</span>`
-                                    +`</label>`
-                                +`</div>`
-                            +`</div>`
                         +`</div>`
                         +`<div class="optionsColumn">`
                             +`<div class="labelAndButton">`
@@ -12698,6 +12688,17 @@ var start = function () {
                                     +`<span class="tooltipHHtext">${getTextForUI("showCalculatePower","tooltip")}</span>`
                                     +`<label class="switch">`
                                         +`<input id="showCalculatePower" type="checkbox">`
+                                        +`<span class="slider round">`
+                                        +`</span>`
+                                    +`</label>`
+                                +`</div>`
+                            +`</div>`
+                            +`<div class="labelAndButton">`
+                                +`<span class="HHMenuItemName">${getTextForUI("PoAMaskRewards","elementText")}</span>`
+                                +`<div class="tooltipHH">`
+                                    +`<span class="tooltipHHtext">${getTextForUI("PoAMaskRewards","tooltip")}</span>`
+                                    +`<label class="switch">`
+                                        +`<input id="PoAMaskRewards" type="checkbox">`
                                         +`<span class="slider round">`
                                         +`</span>`
                                     +`</label>`
@@ -13046,6 +13047,58 @@ var start = function () {
                         +`</div>`
                     +`</div>`
                 +`</div>`
+                +`<div class="optionsRow">`
+                    +`<div id="isEnabledPoVPoG" class="optionsBox">`
+                        +`<div id="isEnabledPoV" class="internalOptionsRow" style="justify-content: space-evenly">`
+                            +`<div class="labelAndButton">`
+                                +`<span class="HHMenuItemName">${getTextForUI("PoVMaskRewards","elementText")}</span>`
+                                +`<div class="tooltipHH">`
+                                    +`<span class="tooltipHHtext">${getTextForUI("PoVMaskRewards","tooltip")}</span>`
+                                    +`<label class="switch">`
+                                        +`<input id="PoVMaskRewards" type="checkbox">`
+                                        +`<span class="slider round">`
+                                        +`</span>`
+                                    +`</label>`
+                                +`</div>`
+                            +`</div>`
+                            +`<div class="labelAndButton">`
+                                +`<span class="HHMenuItemName">${getTextForUI("autoPoVCollect","elementText")}</span>`
+                                +`<div class="tooltipHH">`
+                                    +`<span class="tooltipHHtext">${getTextForUI("autoPoVCollect","tooltip")}</span>`
+                                    +`<label class="switch">`
+                                        +`<input id="autoPoVCollect" type="checkbox">`
+                                        +`<span class="slider round">`
+                                        +`</span>`
+                                    +`</label>`
+                                +`</div>`
+                            +`</div>`
+                        +`</div>`
+                        +`<div id="isEnabledPoG" class="internalOptionsRow" style="justify-content: space-evenly">`
+                            +`<div class="labelAndButton">`
+                                +`<span class="HHMenuItemName">${getTextForUI("PoGMaskRewards","elementText")}</span>`
+                                +`<div class="tooltipHH">`
+                                    +`<span class="tooltipHHtext">${getTextForUI("PoGMaskRewards","tooltip")}</span>`
+                                    +`<label class="switch">`
+                                        +`<input id="PoGMaskRewards" type="checkbox">`
+                                        +`<span class="slider round">`
+                                        +`</span>`
+                                    +`</label>`
+                                +`</div>`
+                            +`</div>`
+                            +`<div class="labelAndButton">`
+                                +`<span class="HHMenuItemName">${getTextForUI("autoPoGCollect","elementText")}</span>`
+                                +`<div class="tooltipHH">`
+                                    +`<span class="tooltipHHtext">${getTextForUI("autoPoGCollect","tooltip")}</span>`
+                                    +`<label class="switch">`
+                                        +`<input id="autoPoGCollect" type="checkbox">`
+                                        +`<span class="slider round">`
+                                        +`</span>`
+                                    +`</label>`
+                                +`</div>`
+                            +`</div>`
+                        +`</div>`
+                    +`</div>`
+                +`</div>`
                 +`<div id="isEnabledTrollBattle" class="optionsBoxWithTitle">`
                     +`<div class="optionsBoxTitle">`
                         +`<img class="iconImg" src="https://hh2.hh-content.com/pictures/design/menu/map.svg" />`
@@ -13364,60 +13417,6 @@ var start = function () {
                         +`</div>`
                     +`</div>`
                 +`</div>`
-
-                    +`<div id="isEnabledPoVPoG" class="optionsBox">`
-                        +`<div id="isEnabledPoV" class="internalOptionsRow" style="justify-content: space-evenly">`
-                            +`<div class="labelAndButton">`
-                                +`<span class="HHMenuItemName">${getTextForUI("PoVMaskRewards","elementText")}</span>`
-                                +`<div class="tooltipHH">`
-                                    +`<span class="tooltipHHtext">${getTextForUI("PoVMaskRewards","tooltip")}</span>`
-                                    +`<label class="switch">`
-                                        +`<input id="PoVMaskRewards" type="checkbox">`
-                                        +`<span class="slider round">`
-                                        +`</span>`
-                                    +`</label>`
-                                +`</div>`
-                            +`</div>`
-                            +`<div class="labelAndButton">`
-                                +`<span class="HHMenuItemName">${getTextForUI("autoPoVCollect","elementText")}</span>`
-                                +`<div class="tooltipHH">`
-                                    +`<span class="tooltipHHtext">${getTextForUI("autoPoVCollect","tooltip")}</span>`
-                                    +`<label class="switch">`
-                                        +`<input id="autoPoVCollect" type="checkbox">`
-                                        +`<span class="slider round">`
-                                        +`</span>`
-                                    +`</label>`
-                                +`</div>`
-                            +`</div>`
-                        +`</div>`
-                        +`<div id="isEnabledPoG" class="internalOptionsRow" style="justify-content: space-evenly">`
-                            +`<div class="labelAndButton">`
-                                +`<span class="HHMenuItemName">${getTextForUI("PoGMaskRewards","elementText")}</span>`
-                                +`<div class="tooltipHH">`
-                                    +`<span class="tooltipHHtext">${getTextForUI("PoGMaskRewards","tooltip")}</span>`
-                                    +`<label class="switch">`
-                                        +`<input id="PoGMaskRewards" type="checkbox">`
-                                        +`<span class="slider round">`
-                                        +`</span>`
-                                    +`</label>`
-                                +`</div>`
-                            +`</div>`
-                            +`<div class="labelAndButton">`
-                                +`<span class="HHMenuItemName">${getTextForUI("autoPoGCollect","elementText")}</span>`
-                                +`<div class="tooltipHH">`
-                                    +`<span class="tooltipHHtext">${getTextForUI("autoPoGCollect","tooltip")}</span>`
-                                    +`<label class="switch">`
-                                        +`<input id="autoPoGCollect" type="checkbox">`
-                                        +`<span class="slider round">`
-                                        +`</span>`
-                                    +`</label>`
-                                +`</div>`
-                            +`</div>`
-                        +`</div>`
-                    +`</div>`
-
-
-
                 +`<div id="isEnabledShop" class="optionsBoxWithTitle">`
                     +`<div class="optionsBoxTitle">`
                         +`<img class="iconImg" src="https://hh2.hh-content.com/design/menu/shop.svg" />`
