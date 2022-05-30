@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.88
+// @version      5.6.89
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -564,6 +564,9 @@ function gotoPage(page,inArgs,delay = -1)
         case getHHScriptVars("pagesIDPoV") :
             togoto = getHHScriptVars("pagesURLPoV");
             break;
+        case getHHScriptVars("pagesIDPoG") :
+            togoto = getHHScriptVars("pagesURLPoG");
+            break;
         case (page.match(/^\/champions\/[123456]$/) || {}).input:
             togoto = page;
             break;
@@ -1013,13 +1016,25 @@ function modulePathOfAttractionHide()
 
 function getPoVRemainingTime()
 {
-    const poVTimerRequest = `#pov_tab_container > div.pov-first-row > div.pov-timer.timer[${getHHScriptVars("PoVTimestampAttributeName")}]`;
+    const poVTimerRequest = `#pov_tab_container > div.potions-paths-first-row > div.potions-paths-timer.timer[${getHHScriptVars("PoVPoGTimestampAttributeName")}]`;
 
     if ( $(poVTimerRequest).length > 0 && (getSecondsLeft("PoVRemainingTime") === 0 || getStoredValue("HHAuto_Temp_PoVEndDate") === undefined) )
     {
-        const poVTimer = Number($(poVTimerRequest).attr(getHHScriptVars("PoVTimestampAttributeName")));
+        const poVTimer = Number($(poVTimerRequest).attr(getHHScriptVars("PoVPoGTimestampAttributeName")));
         setTimer("PoVRemainingTime",poVTimer);
         setStoredValue("HHAuto_Temp_PoVEndDate",Math.ceil(new Date().getTime()/1000)+poVTimer);
+    }
+}
+
+function getPoGRemainingTime()
+{
+    const poGTimerRequest = `#pog_tab_container > div.potions-paths-first-row > div.potions-paths-timer.timer[${getHHScriptVars("PoVPoGTimestampAttributeName")}]`;
+
+    if ( $(poGTimerRequest).length > 0 && (getSecondsLeft("PoGRemainingTime") === 0 || getStoredValue("HHAuto_Temp_PoGEndDate") === undefined) )
+    {
+        const poGTimer = Number($(poGTimerRequest).attr(getHHScriptVars("PoVPoGTimestampAttributeName")));
+        setTimer("PoGRemainingTime",poGTimer);
+        setStoredValue("HHAuto_Temp_PoGEndDate",Math.ceil(new Date().getTime()/1000)+poGTimer);
     }
 }
 
@@ -1057,14 +1072,89 @@ function displayPoVRemainingTime()
     }
 }
 
+function displayPoGRemainingTime()
+{
+    const displayTimer = $("#scriptPoGTimer").length === 0;
+    if(getTimer("PoGRemainingTime") !== -1)
+    {
+        if ($("#HHAutoPoGTimer").length === 0)
+        {
+            if (displayTimer)
+            {
+                $('#homepage a[rel="path-of-glory"').prepend('<span id="HHAutoPoGTimer"></span>')
+                GM_addStyle('#HHAutoPoGTimer{position: absolute;top: 26px;left: 30px;width: 100px;color: #f461ff;font-size: .6rem ;z-index: 1;}');
+            }
+        }
+        else
+        {
+            if (! displayTimer)
+            {
+                $("#HHAutoPoGTimer")[0].remove();
+            }
+        }
+        if (displayTimer)
+        {
+            $("#HHAutoPoGTimer")[0].innerText = getTimeLeft("PoGRemainingTime");
+        }
+    }
+    else
+    {
+        if (getStoredValue("HHAuto_Temp_PoGEndDate") !== undefined)
+        {
+            setTimer("PoGRemainingTime",getStoredValue("HHAuto_Temp_PoGEndDate")-(Math.ceil(new Date().getTime())/1000));
+        }
+    }
+}
+
 function moduleSimPoVMaskReward()
 {
     var arrayz;
     var nbReward;
     let modified = false;
-    arrayz = $('.pov-tier:not([style*="display:none"]):not([style*="display: none"])');
+    arrayz = $('.potions-paths-tier:not([style*="display:none"]):not([style*="display: none"])');
     //doesn sure about  " .purchase-pov-pass"-button visibility
-    if ($('#pov_tab_container .pov-second-row .purchase-pass:not([style*="display:none"]):not([style*="display: none"])').length)
+    if ($('#pov_tab_container .potions-paths-second-row .purchase-pass:not([style*="display:none"]):not([style*="display: none"])').length)
+    {
+        nbReward = 1;
+    }
+    else
+    {
+        nbReward = 2;
+    }
+    var obj;
+    if (arrayz.length > 0)
+    {
+        for (var i2 = arrayz.length - 1; i2 >= 0; i2--)
+        {
+            obj = $(arrayz[i2]).find('.claimed-slot:not([style*="display:none"]):not([style*="display: none"])');
+            if (obj.length >= nbReward)
+            {
+                //console.log("width : "+arrayz[i2].offsetWidth);
+                //document.getElementById('rewards_cont_scroll').scrollLeft-=arrayz[i2].offsetWidth;
+                arrayz[i2].style.display = "none";
+                modified = true;
+            }
+        }
+    }
+
+    if (modified)
+    {
+        let divToModify = $('.pov-progress-bar-section');
+        if (divToModify.length > 0)
+        {
+            $('.pov-progress-bar-section')[0].scrollTop = '0';
+        }
+    }
+}
+
+function moduleSimPoGMaskReward()
+{
+    var arrayz;
+    var nbReward;
+    let modified = false;
+    arrayz = $('.potions-paths-tier:not([style*="display:none"]):not([style*="display: none"])');
+    //doesn sure about  " .purchase-pov-pass"-button visibility
+    if ($('#pog_tab_container .potions-paths-second-row .purchase-pass:not([style*="display:none"]):not([style*="display: none"])').length)
     {
         nbReward = 1;
     }
@@ -3293,7 +3383,7 @@ function goAndCollectPoV()
             logHHAuto("setting autoloop to false");
             setStoredValue("HHAuto_Temp_autoLoop", "false");
             let buttonsToCollect = [];
-            const listPoVTiersToClaim = $("#pov_tab_container div.pov-second-row div.pov-central-section div.pov-tier.unclaimed");
+            const listPoVTiersToClaim = $("#pov_tab_container div.potions-paths-second-row div.potions-paths-central-section div.potions-paths-tier.unclaimed");
             for (let currentTier = 0 ; currentTier < listPoVTiersToClaim.length ; currentTier++)
             {
                 const currentButton = $("button[rel='claim']", listPoVTiersToClaim[currentTier])[0];
@@ -3353,6 +3443,83 @@ function goAndCollectPoV()
         {
             logHHAuto("Switching to Path of Valor screen.");
             gotoPage(getHHScriptVars("pagesIDPoV"));
+            return true;
+        }
+    }
+}
+
+function goAndCollectPoG()
+{
+    const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoPoGCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoPoGCollectablesList")):[];
+
+    if (checkTimer('nextPoGCollectTime') && getStoredValue("HHAuto_Setting_autoPoGCollect") === "true")
+    {
+        if (getPage() === getHHScriptVars("pagesIDPoG"))
+        {
+            logHHAuto("Checking Path of Glory for collectable rewards.");
+            logHHAuto("setting autoloop to false");
+            setStoredValue("HHAuto_Temp_autoLoop", "false");
+            let buttonsToCollect = [];
+            const listPoGTiersToClaim = $("#pog_tab_container div.potions-paths-second-row div.potions-paths-central-section div.potions-paths-tier.unclaimed");
+            for (let currentTier = 0 ; currentTier < listPoGTiersToClaim.length ; currentTier++)
+            {
+                const currentButton = $("button[rel='claim']", listPoGTiersToClaim[currentTier])[0];
+                const currentTierNb = currentButton.getAttribute("tier");
+                //console.log("checking tier : "+currentTierNb);
+                const freeSlotType = getRewardTypeBySlot($(".free-slot .slot,.free-slot .shards_girl_ico",listPoGTiersToClaim[currentTier])[0]);
+                if (rewardsToCollect.includes(freeSlotType))
+                {
+                    const paidSlots = $(".paid-slots:not(.paid-locked) .slot,.paid-slots:not(.paid-locked) .shards_girl_ico",listPoGTiersToClaim[currentTier]);
+                    if (paidSlots.length >0)
+                    {
+                        if (rewardsToCollect.includes(getRewardTypeBySlot(paidSlots[0])) && rewardsToCollect.includes(getRewardTypeBySlot(paidSlots[1])))
+                        {
+                            buttonsToCollect.push(currentButton);
+                            logHHAuto("Adding for collection tier (with paid) : "+currentTierNb);
+                        }
+                    }
+                    else
+                    {
+                        buttonsToCollect.push(currentButton);
+                        logHHAuto("Adding for collection tier (only free) : "+currentTierNb);
+                    }
+                }
+            }
+
+
+            if (buttonsToCollect.length >0)
+            {
+                function collectPoGRewards()
+                {
+                    if (buttonsToCollect.length >0)
+                    {
+                        logHHAuto("Collecting tier : "+buttonsToCollect[0].getAttribute('tier'));
+                        buttonsToCollect[0].click();
+                        buttonsToCollect.shift();
+                        setTimeout(collectPoGRewards, randomInterval(300, 500));
+                    }
+                    else
+                    {
+                        logHHAuto("Path of Glory collection finished.");
+                        setTimer('nextPoGCollectTime',getHHScriptVars("maxCollectionDelay"));
+                        gotoPage(getHHScriptVars("pagesIDHome"));
+                    }
+                }
+                collectPoGRewards();
+                return true;
+            }
+            else
+            {
+                logHHAuto("No Path of Glory reward to collect.");
+                setTimer('nextPoGCollectTime',getHHScriptVars("maxCollectionDelay"));
+                gotoPage(getHHScriptVars("pagesIDHome"));
+                return false;
+            }
+        }
+        else
+        {
+            logHHAuto("Switching to Path of Glory screen.");
+            gotoPage(getHHScriptVars("pagesIDPoG"));
             return true;
         }
     }
@@ -6523,6 +6690,13 @@ var autoLoop = function ()
             busy = goAndCollectPoV();
         }
 
+        if (busy==false && getHHScriptVars("isEnabledPoG",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextPoGCollectTime') && getStoredValue("HHAuto_Setting_autoPoGCollect") === "true")
+        {
+            logHHAuto("Time to go and check Path of Glory for collecting reward.");
+            busy = true;
+            busy = goAndCollectPoG();
+        }
+
         if (busy==false && getHHScriptVars("isEnabledDailyRewards",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextDailyRewardsCollectTime') && getStoredValue("HHAuto_Setting_autoDailyRewardsCollect") === "true")
         {
             busy = true;
@@ -6638,14 +6812,11 @@ var autoLoop = function ()
             {
                 moduleShopActions();
             }
-            if (checkTimer('nextShopTime'))
-            {
-                updateShop();
-            }
             moduleShopGetBoosters();
             break;
         case getHHScriptVars("pagesIDHome"):
             displayPoVRemainingTime();
+            displayPoGRemainingTime();
             break;
         case getHHScriptVars("pagesIDHarem"):
             moduleHarem();
@@ -6669,6 +6840,13 @@ var autoLoop = function ()
                 moduleSimPoVMaskReward();
             }
             getPoVRemainingTime();
+            break;
+        case getHHScriptVars("pagesIDPoG"):
+            if (getStoredValue("HHAuto_Setting_PoGMaskRewards") === "true")
+            {
+                moduleSimPoGMaskReward();
+            }
+            getPoGRemainingTime();
             break;
     }
 
@@ -10027,7 +10205,7 @@ HHEnvVariables["global"].minSecsBeforeGoHomeAfterActions = 10;
 HHEnvVariables["global"].dailyRewardMaxRemainingTime = 2*60*60;
 HHEnvVariables["global"].maxCollectionDelay = 2*60*60;
 HHEnvVariables["global"].STOCHASTIC_SIM_RUNS = 10000;
-HHEnvVariables["global"].PoVTimestampAttributeName = "data-time-stamp";
+HHEnvVariables["global"].PoVPoGTimestampAttributeName = "data-time-stamp";
 HHEnvVariables["global"].ELEMENTS =
     {
     chance: {
@@ -10297,6 +10475,10 @@ HHEnvVariables["global"].pagesIDPoV = "path-of-valor";
 HHEnvVariables["global"].pagesURLPoV = "/path-of-valor.html";
 HHEnvVariables["global"].pagesKnownList.push("PoV");
 
+HHEnvVariables["global"].pagesIDPoG = "path-of-glory";
+HHEnvVariables["global"].pagesURLPoG = "/path-of-glory.html";
+HHEnvVariables["global"].pagesKnownList.push("PoG");
+
 HHEnvVariables["global"].pagesIDPowerplacemain = "powerplacemain";
 HHEnvVariables["global"].pagesKnownList.push("Powerplacemain");
 
@@ -10326,7 +10508,9 @@ HHEnvVariables["global"].isEnabledLeagues = true;
 HHEnvVariables["global"].isEnabledDailyRewards = true;
 HHEnvVariables["global"].isEnabledShop = true;
 HHEnvVariables["global"].isEnabledSalary = true;
+HHEnvVariables["global"].isEnabledPoVPoG = true;
 HHEnvVariables["global"].isEnabledPoV = true;
+HHEnvVariables["global"].isEnabledPoG = true;
 HHEnvVariables["global"].isEnabledDailyGoals = true;
 HHEnvVariables["HH_test"].isEnabledDailyRewards = false;// to remove if daily rewards arrives in test
 ["CH_prod","NCH_prod"].forEach((element) => {
@@ -10346,8 +10530,9 @@ HHEnvVariables["SH_prod"].isEnabledAllChamps = false;// to remove when Champs ar
 HHEnvVariables["SH_prod"].isEnabledChamps = false;// to remove when Champs arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledClubChamp = false;// to remove when Club Champs arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in hornyheroes
+HHEnvVariables["SH_prod"].isEnabledPoVPoG = false;
 HHEnvVariables["SH_prod"].isEnabledPoV = false;// to remove when PoV arrives in hornyheroes
-
+HHEnvVariables["SH_prod"].isEnabledPoG = false;// to remove when PoG arrives in hornyheroes
 ["PH_prod","NPH_prod"].forEach((element) => {
     HHEnvVariables[element].trollzList = ['Latest',
                                           'Headmistress Asa Akira',
@@ -10356,7 +10541,9 @@ HHEnvVariables["SH_prod"].isEnabledPoV = false;// to remove when PoV arrives in 
     HHEnvVariables[element].isEnabledMythicPachinko = false;// to remove when Mythic Pachinko arrives in pornstar
     HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in pornstar
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in pornstar
+    HHEnvVariables[element].isEnabledPoVPoG = false;
     HHEnvVariables[element].isEnabledPoV = false;// to remove when PoV arrives in pornstar
+    HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in pornstar
 })
 
 const HC = 1;
@@ -10539,6 +10726,7 @@ HHAuto_ToolTips.en.menuExpLevel =  { version: "5.6.24", elementText: "Enter targ
 HHAuto_ToolTips.en.menuExpAwakeningNeeded =  { version: "5.6.24", elementText: "Girl need awakening ", tooltip: ""};
 HHAuto_ToolTips.en.PoAMaskRewards = { version: "5.6.24", elementText: "PoA mask claimed", tooltip: "Masked claimed rewards for Path of Attraction."};
 HHAuto_ToolTips.en.PoVMaskRewards = { version: "5.6.26", elementText: "PoV mask claimed", tooltip: "Masked claimed rewards for Path of Valor."};
+HHAuto_ToolTips.en.PoGMaskRewards = { version: "5.6.89", elementText: "PoG mask claimed", tooltip: "Masked claimed rewards for Path of Glory."};
 HHAuto_ToolTips.en.showTooltips = { version: "5.6.24", elementText: "Show tooltips", tooltip: "Show tooltip on menu."};
 HHAuto_ToolTips.en.showMarketTools = { version: "5.6.24", elementText: "Show market tools", tooltip: "Show Market tools."};
 HHAuto_ToolTips.en.useX10Fights = { version: "5.6.24", elementText: "Use x10", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Use x10 button if 10 fights or more to do (if not going under Koban bank value).<br>x50 takes precedence on x10 if all conditions are filled."};
@@ -10588,6 +10776,7 @@ HHAuto_ToolTips.en.menuCollectable = { version: "5.6.47", elementText: "Collecta
 HHAuto_ToolTips.en.menuCollectableText = { version: "5.6.47", elementText: "Please select the collectables you want to be automatically collected.", tooltip: ""};
 HHAuto_ToolTips.en.menuDailyCollectableText = { version: "5.6.49", elementText: "Please select the collectables you want to be immediately collected.", tooltip: ""};
 HHAuto_ToolTips.en.autoPoVCollect = { version: "5.6.49", elementText: "Collect PoV", tooltip: "if enabled : Automatically collect Path of Valor."};
+HHAuto_ToolTips.en.autoPoGCollect = { version: "5.6.89", elementText: "Collect PoG", tooltip: "if enabled : Automatically collect Path of Glory."};
 HHAuto_ToolTips.en.autoDailyGoalsCollect = {version: "5.6.54", elementText: "Collect daily Goals", tooltip: "Collect daily Goals if not collected 2 hours before end of HH day."};
 HHAuto_ToolTips.en.HaremSortMenuSortText = {version: "5.6.56", elementText: "Select the wanted harem sorting : ", tooltip: ""};
 HHAuto_ToolTips.en.date_acquired = {version: "5.6.56", elementText: "Date recruited", tooltip: ""};
@@ -11667,6 +11856,17 @@ HHStoredVars.HHAuto_Setting_PoVMaskRewards =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars.HHAuto_Setting_PoGMaskRewards =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_SeasonMaskRewards =
     {
     default:"false",
@@ -11836,6 +12036,33 @@ HHStoredVars.HHAuto_Setting_autoPoVCollect =
            }
 };
 HHStoredVars.HHAuto_Setting_autoPoVCollectablesList =
+    {
+    default:JSON.stringify([]),
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Array"
+};
+HHStoredVars.HHAuto_Setting_autoPoGCollect =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    events:{"change":function()
+            {
+                if (this.checked)
+                {
+                    getAndStoreCollectPreferences("HHAuto_Setting_autoPoGCollectablesList");
+                    clearTimer('nextPoGCollectTime');
+                }
+            }
+           }
+};
+HHStoredVars.HHAuto_Setting_autoPoGCollectablesList =
     {
     default:JSON.stringify([]),
     storage:"Storage()",
@@ -12088,6 +12315,11 @@ HHStoredVars.HHAuto_Temp_PoVEndDate =
     storage:"localStorage",
     HHType:"Temp"
 };
+HHStoredVars.HHAuto_Temp_PoGEndDate =
+    {
+    storage:"localStorage",
+    HHType:"Temp"
+};
 HHStoredVars.HHAuto_Temp_missionsGiftLeft =
     {
     storage:"sessionStorage",
@@ -12216,7 +12448,7 @@ var updateData = function () {
 
 function maskInactiveMenus()
 {
-    let menuIDList =["isEnabledDailyGoals", "isEnabledPoV","isEnabledDailyRewards","isEnabledMission","isEnabledContest","isEnabledTrollBattle","isEnabledPowerPlaces","isEnabledSalary","isEnabledPachinko","isEnabledQuest","isEnabledSideQuest","isEnabledSeason","isEnabledLeagues","isEnabledAllChamps","isEnabledChamps","isEnabledClubChamp","isEnabledPantheon","isEnabledShop"];
+    let menuIDList =["isEnabledDailyGoals", "isEnabledPoVPoG", "isEnabledPoV", "isEnabledPoG", "isEnabledDailyRewards","isEnabledMission","isEnabledContest","isEnabledTrollBattle","isEnabledPowerPlaces","isEnabledSalary","isEnabledPachinko","isEnabledQuest","isEnabledSideQuest","isEnabledSeason","isEnabledLeagues","isEnabledAllChamps","isEnabledChamps","isEnabledClubChamp","isEnabledPantheon","isEnabledShop"];
     for (let menu of menuIDList)
     {
         if ( document.getElementById(menu) !== null && getHHScriptVars(menu,false) !== null && !getHHScriptVars(menu,false) )
@@ -12469,30 +12701,6 @@ var start = function () {
                                         +`<span class="slider round">`
                                         +`</span>`
                                     +`</label>`
-                                +`</div>`
-                            +`</div>`
-                            +`<div id="isEnabledPoV">`
-                                +`<div class="labelAndButton">`
-                                    +`<span class="HHMenuItemName">${getTextForUI("PoVMaskRewards","elementText")}</span>`
-                                    +`<div class="tooltipHH">`
-                                        +`<span class="tooltipHHtext">${getTextForUI("PoVMaskRewards","tooltip")}</span>`
-                                        +`<label class="switch">`
-                                            +`<input id="PoVMaskRewards" type="checkbox">`
-                                            +`<span class="slider round">`
-                                            +`</span>`
-                                        +`</label>`
-                                    +`</div>`
-                                +`</div>`
-                                +`<div class="labelAndButton">`
-                                    +`<span class="HHMenuItemName">${getTextForUI("autoPoVCollect","elementText")}</span>`
-                                    +`<div class="tooltipHH">`
-                                        +`<span class="tooltipHHtext">${getTextForUI("autoPoVCollect","tooltip")}</span>`
-                                        +`<label class="switch">`
-                                            +`<input id="autoPoVCollect" type="checkbox">`
-                                            +`<span class="slider round">`
-                                            +`</span>`
-                                        +`</label>`
-                                    +`</div>`
                                 +`</div>`
                             +`</div>`
                         +`</div>`
@@ -13129,7 +13337,7 @@ var start = function () {
                         +`<span class="optionsBoxTitle">${getTextForUI("autoPantheonTitle","elementText")}</span>`
                     +`</div>`
                     +`<div class="optionsBox">`
-                        +`<div class="internalOptionsRow" style="justify-content: space-between">`
+                        +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
                             +`<div class="labelAndButton">`
                                 +`<span class="HHMenuItemName">${getTextForUI("autoPantheon","elementText")}</span>`
                                 +`<div class="tooltipHH">`
@@ -13156,6 +13364,60 @@ var start = function () {
                         +`</div>`
                     +`</div>`
                 +`</div>`
+
+                    +`<div id="isEnabledPoVPoG" class="optionsBox">`
+                        +`<div id="isEnabledPoV" class="internalOptionsRow" style="justify-content: space-evenly">`
+                            +`<div class="labelAndButton">`
+                                +`<span class="HHMenuItemName">${getTextForUI("PoVMaskRewards","elementText")}</span>`
+                                +`<div class="tooltipHH">`
+                                    +`<span class="tooltipHHtext">${getTextForUI("PoVMaskRewards","tooltip")}</span>`
+                                    +`<label class="switch">`
+                                        +`<input id="PoVMaskRewards" type="checkbox">`
+                                        +`<span class="slider round">`
+                                        +`</span>`
+                                    +`</label>`
+                                +`</div>`
+                            +`</div>`
+                            +`<div class="labelAndButton">`
+                                +`<span class="HHMenuItemName">${getTextForUI("autoPoVCollect","elementText")}</span>`
+                                +`<div class="tooltipHH">`
+                                    +`<span class="tooltipHHtext">${getTextForUI("autoPoVCollect","tooltip")}</span>`
+                                    +`<label class="switch">`
+                                        +`<input id="autoPoVCollect" type="checkbox">`
+                                        +`<span class="slider round">`
+                                        +`</span>`
+                                    +`</label>`
+                                +`</div>`
+                            +`</div>`
+                        +`</div>`
+                        +`<div id="isEnabledPoG" class="internalOptionsRow" style="justify-content: space-evenly">`
+                            +`<div class="labelAndButton">`
+                                +`<span class="HHMenuItemName">${getTextForUI("PoGMaskRewards","elementText")}</span>`
+                                +`<div class="tooltipHH">`
+                                    +`<span class="tooltipHHtext">${getTextForUI("PoGMaskRewards","tooltip")}</span>`
+                                    +`<label class="switch">`
+                                        +`<input id="PoGMaskRewards" type="checkbox">`
+                                        +`<span class="slider round">`
+                                        +`</span>`
+                                    +`</label>`
+                                +`</div>`
+                            +`</div>`
+                            +`<div class="labelAndButton">`
+                                +`<span class="HHMenuItemName">${getTextForUI("autoPoGCollect","elementText")}</span>`
+                                +`<div class="tooltipHH">`
+                                    +`<span class="tooltipHHtext">${getTextForUI("autoPoGCollect","tooltip")}</span>`
+                                    +`<label class="switch">`
+                                        +`<input id="autoPoGCollect" type="checkbox">`
+                                        +`<span class="slider round">`
+                                        +`</span>`
+                                    +`</label>`
+                                +`</div>`
+                            +`</div>`
+                        +`</div>`
+                    +`</div>`
+
+
+
                 +`<div id="isEnabledShop" class="optionsBoxWithTitle">`
                     +`<div class="optionsBoxTitle">`
                         +`<img class="iconImg" src="https://hh2.hh-content.com/design/menu/shop.svg" />`
