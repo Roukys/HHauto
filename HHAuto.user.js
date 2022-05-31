@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.91
+// @version      5.6.92
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -2799,9 +2799,9 @@ var doBossBattle = function()
         TTF=JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).troll_id;
         logHHAuto("Mythic Event troll fight");
     }
-    else if(getStoredValue("HHAuto_Temp_trollToFight") !== undefined && !isNaN(getStoredValue("HHAuto_Temp_trollToFight")) && getStoredValue("HHAuto_Temp_trollToFight") !== "0")
+    else if(getStoredValue("HHAuto_Setting_autoTrollSelectedIndex") !== undefined && !isNaN(getStoredValue("HHAuto_Setting_autoTrollSelectedIndex")) && getStoredValue("HHAuto_Setting_autoTrollSelectedIndex") !== "0")
     {
-        TTF=getStoredValue("HHAuto_Temp_trollToFight");
+        TTF=getStoredValue("HHAuto_Setting_autoTrollSelectedIndex");
         logHHAuto("Custom troll fight.");
     }
     else
@@ -3901,8 +3901,8 @@ var doLeagueBattle = function () {
             }
             var currentRank = Number($("tr[class=personal_highlight] td span")[0].innerText);
             var currentScore = Number($("tr[class=personal_highlight] td")[4].innerText.replace(/\D/g, ''));
-
-            if (Number(getStoredValue("HHAuto_Temp_leaguesTarget")) < Number(getPlayerCurrentLevel))
+            let leagueTargetValue = Number(getStoredValue("HHAuto_Setting_autoLeaguesSelectedIndex"))+1;
+            if (leagueTargetValue < Number(getPlayerCurrentLevel))
             {
                 var maxDemote = 0;
                 var totalOpponents = Number($("div.leagues_table table tr td:contains(/3)").length)+1;
@@ -3915,7 +3915,7 @@ var doLeagueBattle = function () {
                 {
                     rankDemote = totalOpponents - 15;
                 }
-                logHHAuto("Current league above target ("+Number(getPlayerCurrentLevel)+"/"+Number(getStoredValue("HHAuto_Temp_leaguesTarget"))+"), needs to demote. max rank : "+rankDemote+"/"+totalOpponents);
+                logHHAuto("Current league above target ("+Number(getPlayerCurrentLevel)+"/"+leagueTargetValue+"), needs to demote. max rank : "+rankDemote+"/"+totalOpponents);
                 let getRankDemote = $("div.leagues_table table tr td span:contains("+rankDemote+")").filter(function()
                                                                                                             {
                     return Number($(this).text().trim()) === rankDemote;
@@ -3929,7 +3929,7 @@ var doLeagueBattle = function () {
                     maxDemote = 0;
                 }
 
-                logHHAuto("Current league above target ("+Number(getPlayerCurrentLevel)+"/"+Number(getStoredValue("HHAuto_Temp_leaguesTarget"))+"), needs to demote. Score should not be higher than : "+maxDemote);
+                logHHAuto("Current league above target ("+Number(getPlayerCurrentLevel)+"/"+leagueTargetValue+"), needs to demote. Score should not be higher than : "+maxDemote);
                 if ( currentScore + leagueScoreSecurityThreshold >= maxDemote )
                 {
                     logHHAuto("Can't do league as could go above demote, setting timer to 30 mins");
@@ -3947,7 +3947,7 @@ var doLeagueBattle = function () {
                 maxLeague = Leagues.length;
             }
 
-            if (Number(getStoredValue("HHAuto_Temp_leaguesTarget")) === Number(getPlayerCurrentLevel) && Number(getStoredValue("HHAuto_Temp_leaguesTarget")) < maxLeague)
+            if (leagueTargetValue === Number(getPlayerCurrentLevel) && leagueTargetValue < maxLeague)
             {
                 var maxStay = 0;
                 var rankStay = 16;
@@ -3955,7 +3955,7 @@ var doLeagueBattle = function () {
                 {
                     rankStay = 15;
                 }
-                logHHAuto("Current league is target ("+Number(getPlayerCurrentLevel)+"/"+Number(getStoredValue("HHAuto_Temp_leaguesTarget"))+"), needs to stay. max rank : "+rankStay);
+                logHHAuto("Current league is target ("+Number(getPlayerCurrentLevel)+"/"+leagueTargetValue+"), needs to stay. max rank : "+rankStay);
                 let getRankStay = $("div.leagues_table table tr td span:contains("+rankStay+")").filter(function()
                                                                                                         {
                     return Number($(this).text().trim()) === rankStay;
@@ -3969,7 +3969,7 @@ var doLeagueBattle = function () {
                     maxStay = 0;
                 }
 
-                logHHAuto("Current league is target ("+Number(getPlayerCurrentLevel)+"/"+Number(getStoredValue("HHAuto_Temp_leaguesTarget"))+"), needs to stay. Score should not be higher than : "+maxStay);
+                logHHAuto("Current league is target ("+Number(getPlayerCurrentLevel)+"/"+leagueTargetValue+"), needs to stay. Score should not be higher than : "+maxStay);
                 if ( currentScore + leagueScoreSecurityThreshold >= maxStay && getStoredValue("HHAuto_Setting_autoLeaguesAllowWinCurrent") !== "true")
                 {
                     logHHAuto("Can't do league as could go above stay, setting timer to 30 mins");
@@ -11285,7 +11285,8 @@ HHStoredVars.HHAuto_Setting_autoLeaguesSelectedIndex =
     setMenu:true,
     menuType:"selectedIndex",
     kobanUsing:false,
-    customMenuID:"autoLeaguesSelector"
+    customMenuID:"autoLeaguesSelector",
+    isValid:/^[0-9]$/
 };
 HHStoredVars.HHAuto_Setting_autoLeaguesThreshold =
     {
@@ -11617,7 +11618,8 @@ HHStoredVars.HHAuto_Setting_autoTrollSelectedIndex =
     setMenu:true,
     menuType:"selectedIndex",
     kobanUsing:false,
-    customMenuID:"autoTrollSelector"
+    customMenuID:"autoTrollSelector",
+    isValid:/^[0-9]|1[0-5]$/
 };
 HHStoredVars.HHAuto_Setting_autoTrollThreshold =
     {
@@ -12115,7 +12117,7 @@ HHStoredVars.HHAuto_Temp_battlePowerRequired =
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_leaguesTarget =
+/*HHStoredVars.HHAuto_Temp_leaguesTarget =
     {
     default:"9",
     storage:"sessionStorage",
@@ -12126,7 +12128,7 @@ HHStoredVars.HHAuto_Temp_leaguesTarget =
     menuType:"value",
     kobanUsing:false,
     customMenuID:"autoLeaguesSelector"
-};
+};*/
 HHStoredVars.HHAuto_Temp_questRequirement =
     {
     default:"none",
@@ -12156,7 +12158,7 @@ HHStoredVars.HHAuto_Temp_Logging =
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_trollToFight =
+/*HHStoredVars.HHAuto_Temp_trollToFight =
     {
     storage:"sessionStorage",
     HHType:"Temp",
@@ -12166,7 +12168,7 @@ HHStoredVars.HHAuto_Temp_trollToFight =
     menuType:"value",
     kobanUsing:false,
     customMenuID:"autoTrollSelector"
-};
+};*/
 HHStoredVars.HHAuto_Temp_autoTrollBattleSaveQuest =
     {
     storage:"sessionStorage",
