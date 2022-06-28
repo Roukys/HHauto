@@ -8047,22 +8047,25 @@ function moduleShopActions()
 
     function menuSellListItems()
     {
-        GM_addStyle('.tItems {border-collapse: collapse;} '
-                    +'.tItems td,th {border: 1px solid #1B4F72;} '
-                    +'.tItemsColGroup {border: 3px solid #1B4F72;} '
-                    +'.tItemsTh1 {background-color: #2874A6;color: #fff;} '
-                    +'.tItemsTh2 {background-color: #3498DB;color: #fff;} '
-                    +'.tItemsTBody tr:nth-child(odd) {background-color: #85C1E9;} '
-                    +'.tItemsTBody tr:nth-child(even) {background-color: #D6EAF8;} '
-                    +'.tItemsTdItems[itemsLockStatus="allLocked"] {color: #FF0000} '
-                    +'.tItemsTdItems[itemsLockStatus="noneLocked"] {color: #1B4F72}'
-                    +'.tItemsTdItems[itemsLockStatus="someLocked"] {color: #FFA500}' );
+        if ($('#menuSellList>.tItems').length === 0)
+        {
+            GM_addStyle('.tItems {border-collapse: collapse;} '
+                        +'.tItems td,th {border: 1px solid #1B4F72;} '
+                        +'.tItemsColGroup {border: 3px solid #1B4F72;} '
+                        +'.tItemsTh1 {background-color: #2874A6;color: #fff;} '
+                        +'.tItemsTh2 {background-color: #3498DB;color: #fff;} '
+                        +'.tItemsTBody tr:nth-child(odd) {background-color: #85C1E9;} '
+                        +'.tItemsTBody tr:nth-child(even) {background-color: #D6EAF8;} '
+                        +'.tItemsTdItems[itemsLockStatus="allLocked"] {color: #FF0000} '
+                        +'.tItemsTdItems[itemsLockStatus="noneLocked"] {color: #1B4F72}'
+                        +'.tItemsTdItems[itemsLockStatus="someLocked"] {color: #FFA500}');
+        }
 
         let itemsCaracsNb=16;
         let itemsCaracs=[];
         for (let i=1;i<itemsCaracsNb+1;i++)
         {
-            itemsCaracs.push(i)
+            itemsCaracs.push(i);
         }
 
         let itemsRarity=["common", "rare", "epic", "legendary"];
@@ -8072,31 +8075,26 @@ function moduleShopActions()
         let itemsType=[];
         for (let i=1;i<itemsTypeNb+1;i++)
         {
-            itemsType.push(i)
+            itemsType.push(i);
         }
 
         let itemsList={};
         for (let c of itemsCaracs)
         {
-            if (itemsList[c] === undefined)
+            let filteredCarac = $('#inventory .selected .inventory_slots .slot:not(.empty)[data-d*=\'"name_add":"'+c+'"\']');
+            itemsList[c] = {};
+            for (let t of itemsType)
             {
-                itemsList[c] = {};
-            }
-            for( let t of itemsType)
-            {
-                if (itemsList[c][t] === undefined)
-                {
-                    itemsList[c][t] = {};
-                }
+                let filteredType = filteredCarac.filter('[data-d*=\'"subtype":"'+t+'"\']');
+                itemsList[c][t] = {};
                 for (let r of itemsRarity)
                 {
-                    if (itemsList[c][t][r] === undefined)
+                    let filteredRarity = filteredType.filter('[data-d*=\'"rarity":"'+r+'"\']');
+                    itemsList[c][t][r] = {};
+                    for (let l of itemsLockedStatus)
                     {
-                        itemsList[c][t][r] = {};
-                    }
-                    for(let l of itemsLockedStatus)
-                    {
-                        itemsList[c][t][r][l]=$(setSlotFilter(c,t,r,l)).length;
+                        let filteredStatus = filteredRarity.filter(l==="locked"?'[menuSellLocked]':':not([menuSellLocked])');
+                        itemsList[c][t][r][l]=filteredStatus.length;
                     }
                 }
             }
@@ -8145,43 +8143,36 @@ function moduleShopActions()
 
         for (let c of itemsCaracs)
         {
-            let ext="png";
-            if (c === 16)
-            {
-                ext = "svg";
-            }
+            let ext= (c === 16)?"svg":"png";
             itemsListMenu +='  <tr>'
                 +'   <td menuSellFilter="c:'+c+';t:*;r:*"><img style="height:20px;width:20px" src="https://hh2.hh-content.com/pictures/misc/items_icons/'+c+'.'+ext+'"></td>';
-            for( let r of itemsRarity)
+            for (let r of itemsRarity)
             {
                 for (let t of itemsType)
                 {
-                    let total= itemsList[c][t][r][itemsLockedStatus[0]]+itemsList[c][t][r][itemsLockedStatus[1]];
-                    let displayNb = itemsList[c][t][r][itemsLockedStatus[0]]+'/'+total;
+                    let allItems = itemsList[c][t][r];
+                    let total = allItems[itemsLockedStatus[0]]+allItems[itemsLockedStatus[1]];
+                    let displayNb = allItems[itemsLockedStatus[0]]+'/'+total;
                     let itemsLockStatus;
                     if (total === 0)
                     {
                         displayNb = "";
                     }
+                    if (allItems[itemsLockedStatus[1]] === 0)
+                    {
+                        //no lock
+                        itemsLockStatus="noneLocked";
+                    }
+                    else if (allItems[itemsLockedStatus[1]] === total)
+                    {
+                        //all locked
+                        itemsLockStatus="allLocked";
+                    }
                     else
                     {
-                        if (itemsList[c][t][r][itemsLockedStatus[1]] === 0)
-                        {
-                            //no lock
-                            itemsLockStatus="noneLocked";
-                        }
-                        else if ( itemsList[c][t][r][itemsLockedStatus[1]] === total)
-                        {
-                            //all locked
-                            itemsLockStatus="allLocked";
-                        }
-                        else
-                        {
-                            //some locked
-                            itemsLockStatus="someLocked";
-                        }
+                        //some locked
+                        itemsLockStatus="someLocked";
                     }
-
 
                     itemsListMenu +='   <td class="tItemsTdItems" itemsLockStatus="'+itemsLockStatus+'" menuSellFilter="c:'+c+';t:'+t+';r:'+r+'"'+'>'+displayNb+'</td>';
                 }
@@ -8241,29 +8232,17 @@ function moduleShopActions()
             return filter;
         }
 
-        $('table.tItems [menuSellFilter] ').each(function()
-                                                 {
-            this.addEventListener("click", function()
-                                  {
+        $('table.tItems [menuSellFilter] ').each(function(){
+            this.addEventListener("click", function(){
                 let toLock = !(this.getAttribute("itemsLockStatus") === "allLocked");
                 let c=this.getAttribute("menuSellFilter").split(";")[0].split(":")[1];
                 let t=this.getAttribute("menuSellFilter").split(";")[1].split(":")[1];
                 let r=this.getAttribute("menuSellFilter").split(";")[2].split(":")[1];
                 AllLockUnlock(setSlotFilter(c,t,r,!toLock),toLock);
-                if (toLock)
-                {
-                    $(setCellsFilter(c,t,r)).each(function()
-                                                  {
-                        this.setAttribute("itemsLockStatus","allLocked");
-                    });
-                }
-                else
-                {
-                    $(setCellsFilter(c,t,r)).each(function()
-                                                  {
-                        this.setAttribute("itemsLockStatus","noneLocked");
-                    });
-                }
+                let newLockStatus = toLock?"allLocked":"noneLocked";
+                $(setCellsFilter(c,t,r)).each(function(){
+                    this.setAttribute("itemsLockStatus",newLockStatus);
+                });
             });
         });
     }
@@ -8304,7 +8283,7 @@ function moduleShopActions()
         }
     }
 
-    let menuSellStop = false;
+    var allLoaded = false;
     var menuSellMaxItems = "all";
     function appendMenuSell()
     {
@@ -8346,7 +8325,6 @@ function moduleShopActions()
         +    '<p>'+getTextForUI("menuSellCurrentCount","elementText")+'</p>'
         +    '<p id="menuSellCurrentCount">0</p>'
         +   '</div>'
-        +   '<div id="menuSellStop"><label style="width:80px" class="myButton" id="menuSellStop">'+getTextForUI("OptionStop","elementText")+'</label></div>'
         +   '<p ></p>'
         +   '<div id="menuSellHide" style="display:none">'
         +    '<p id="menuSellList"></p>'
@@ -8388,10 +8366,6 @@ function moduleShopActions()
                 $('#inventory .selected .inventory_slots .slot:not(.empty)[canBeSold]').removeAttr('canBeSold');
                 SellDialog.close();
             });
-            document.getElementById("menuSellStop").addEventListener("click", function(){
-                this.style.display = "none";
-                menuSellStop = true;
-            });
 
             document.getElementById("menuSellButton").addEventListener("click", function(){
                 if (Number(document.getElementById("menuSellNumber").value) > 0)
@@ -8413,6 +8387,12 @@ function moduleShopActions()
             if (menuSellMaxItems !== null)
             {
                 menuSellMaxItems = isNaN(menuSellMaxItems)?Number.MAX_VALUE:menuSellMaxItems;
+                allLoaded = false;
+                if ($('#menuSellList>.tItems').length === 0)
+                {
+                    menuSellListItems();
+                }
+                document.getElementById("menuSellHide").style.display = "none";
                 SellDialog.showModal();
                 fetchAllArmorItems();
             }
@@ -8448,11 +8428,12 @@ function moduleShopActions()
 
     function fetchAllArmorItems()
     {
-        var slots = getHHVars('slots');
-        //console.log(slots.armor_pack_load);
-        if (slots.armor_pack_load < 0 || $('#inventory .selected .inventory_slots .slot:not(.empty)').length >= menuSellMaxItems)
+        let oldCount = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
+        document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
+        let scroll = $(".inventory_slots>div")[0];
+        if (allLoaded || oldCount >= menuSellMaxItems)
         {
-            document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
+            scroll.scrollTop = 0;
             document.getElementById("menuSellHide").style.display = "block";
             menuSellListItems();
             return;
@@ -8462,38 +8443,11 @@ function moduleShopActions()
             logHHAuto('Sell Dialog closed, stopping');
             return;
         }
-        slots.armor_pack_load++;
-        hh_ajax({
-            class: "Item",
-            action: "armor_pack_load",
-            pack: slots.armor_pack_load,
-            shift: slots.load_item_shift
-        }, function(data) {
-            //loadingAnimation.stop();
-            //$useB.prop("disabled", false);
-            //$sellB.prop("disabled", false);
-            //var $last = $("#inventory [tab].armor .slot").not(".empty").last();
-            var last = $("#inventory [tab].armor .slot").not(".empty").last();
-            $("#shops #inventory [tab].armor>.inventory_slots>div>.slot.empty").remove();
-            $("#shops #inventory [tab].armor>.inventory_slots>div").find(last).after(data.html);
-            //slots.slotAction.normalizeRow("armor");
-            //$slots = $slots.add($("#shops #inventory [tab].armor .slot"));
-            //if (data.last) slots.armor_pack_load = -100;
-            getHHVars('dragndrop').initInventoryItemsDraggable($("#inventory > div.armor.selected > div > div > div.slot"));
-            if (data.last || menuSellStop)
-            {
-                slots.armor_pack_load = -100;
-                document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
-                document.getElementById("menuSellHide").style.display = "block";
-                menuSellListItems();
-            }
-            else if (document.getElementById("menuSellCurrentCount"))
-            {
-                document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
-                setTimeout(fetchAllArmorItems, randomInterval(800,1600));
-            }
-            //if (callback) callback();
-        });
+        scroll.scrollTop = scroll.scrollHeight-scroll.offsetHeight;
+        setTimeout(function(){
+            allLoaded = oldCount==$('#inventory .selected .inventory_slots .slot:not(.empty)').length;
+            fetchAllArmorItems();
+        }, randomInterval(800,1600));
     }
 
     function sellArmorItems()
