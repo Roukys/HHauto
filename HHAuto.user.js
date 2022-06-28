@@ -10526,7 +10526,8 @@ HHEnvVariables["HH_test"].isEnabledDailyRewards = false;// to remove if daily re
                                           'Grey Golem',
                                           'The Nymph',
                                           'Athicus Ho’ole',
-                                          'The Mimic'];
+                                          'The Mimic',
+                                          'Cockatrice'];
     HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in Comix
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in Comix
     HHEnvVariables[element].isEnabledPoG = false;
@@ -10544,13 +10545,12 @@ HHEnvVariables["SH_prod"].isEnabledPoG = false;// to remove when PoG arrives in 
 ["PH_prod","NPH_prod"].forEach((element) => {
     HHEnvVariables[element].trollzList = ['Latest',
                                           'Headmistress Asa Akira',
-                                          'Sammy Jayne'];
+                                          'Sammy Jayne',
+                                          'Ivy Winters'];
     HHEnvVariables[element].isEnabledPowerPlaces = false;// to remove when PoP arrives in pornstar
     HHEnvVariables[element].isEnabledMythicPachinko = false;// to remove when Mythic Pachinko arrives in pornstar
     HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in pornstar
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in pornstar
-    HHEnvVariables[element].isEnabledPoVPoG = false;
-    HHEnvVariables[element].isEnabledPoV = false;// to remove when PoV arrives in pornstar
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in pornstar
 })
 
