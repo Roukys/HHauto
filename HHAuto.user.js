@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.84
+// @version      5.6.94
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -227,6 +227,19 @@ function logHHAuto(...args)
     var currentLoggingText;
     var nbLines;
     var maxLines = 500;
+
+    const getCircularReplacer = () => {
+        const seen = new WeakSet();
+        return (key, value) => {
+            if (typeof value === 'object' && value !== null) {
+                if (seen.has(value)) {
+                    return;
+                }
+                seen.add(value);
+            }
+            return value;
+        };
+    };
     if (args.length === 1)
     {
         if (typeof args[0] === 'string' || args[0] instanceof String)
@@ -235,12 +248,12 @@ function logHHAuto(...args)
         }
         else
         {
-            text = JSON.stringify(args[0], null, 2);
+            text = JSON.stringify(args[0], getCircularReplacer(), 2);
         }
     }
     else
     {
-        text = JSON.stringify(args, null, 2);
+        text = JSON.stringify(args, getCircularReplacer(), 2);
     }
     currentLoggingText = getStoredValue("HHAuto_Temp_Logging")!==undefined?getStoredValue("HHAuto_Temp_Logging"):"reset";
     //console.log("debug : ",currentLoggingText);
@@ -372,19 +385,19 @@ function getPage(checkUnknown = false)
     let page = p;
     if (p==activitiesMainPage)
     {
-        if ($('h4.contests.selected').size()>0)
+        if ($('h4.contests.selected').length>0)
         {
             page = getHHScriptVars("pagesIDContests");
         }
-        if ($('h4.missions.selected').size()>0)
+        if ($('h4.missions.selected').length>0)
         {
             page = getHHScriptVars("pagesIDMissions");
         }
-        if ($('h4.daily_goals.selected').size()>0)
+        if ($('h4.daily_goals.selected').length>0)
         {
             page = getHHScriptVars("pagesIDDailyGoals");
         }
-        if ($('h4.pop.selected').size()>0)
+        if ($('h4.pop.selected').length>0)
         {
             // if on Pop menu
             var t;
@@ -550,6 +563,9 @@ function gotoPage(page,inArgs,delay = -1)
             break;
         case getHHScriptVars("pagesIDPoV") :
             togoto = getHHScriptVars("pagesURLPoV");
+            break;
+        case getHHScriptVars("pagesIDPoG") :
+            togoto = getHHScriptVars("pagesURLPoG");
             break;
         case (page.match(/^\/champions\/[123456]$/) || {}).input:
             togoto = page;
@@ -866,8 +882,7 @@ function doMissionStuff()
             setTimer('nextMissionTime',15);
             return true;
         }
-        logHHAuto("Missions parsed, mission list is:-");
-        logHHAuto(missions);
+        logHHAuto("Missions parsed, mission list is:", missions);
         if(missions.length > 0)
         {
             logHHAuto("Selecting mission from list.");
@@ -903,35 +918,16 @@ function doMissionStuff()
                     return true;
                 }
             }
-            var time = 0;
+            var time;
             for(var e in unsafeWindow.HHTimers.timers){
-                try{if(unsafeWindow.HHTimers.timers[e].$elm.selector.includes("#missions_counter"))
-                    time=unsafeWindow.HHTimers.timers[e];
-                   }
-                catch(e)
-                {
-                    logHHAuto("Catched error : Could not parse mission timer : "+e);
-                }
-            }
-            if (time !== undefined)
-            {
-                time = time.remainingTime;
-            }
-            if(time === undefined)
-            {
-                //try again with different selector
-                for(e in unsafeWindow.HHTimers.timers){
-                    try{if(unsafeWindow.HHTimers.timers[e].$elm.selector.includes(".after_gift"))
-                        time=unsafeWindow.HHTimers.timers[e];
-                       }
-                    catch(e)
-                    {
-                        logHHAuto("Catched error : Could not parse after gift timer : "+e);
+                if (!unsafeWindow.HHTimers.timers[e].$elm) {continue;}
+                let element = unsafeWindow.HHTimers.timers[e].$elm[0];
+                while(element){
+                    if (element.id === "missions_counter" || (element.classList && element.classList.contains("after_gift"))) {
+                        time=unsafeWindow.HHTimers.timers[e].remainingTime;
+                        break;
                     }
-                }
-                if (time !== undefined)
-                {
-                    time = time.remainingTime;
+                    element = element.parentNode;
                 }
             }
             if(time === undefined){
@@ -1020,13 +1016,25 @@ function modulePathOfAttractionHide()
 
 function getPoVRemainingTime()
 {
-    const poVTimerRequest = `#pov_tab_container > div.pov-first-row > div.pov-timer.timer[${getHHScriptVars("PoVTimestampAttributeName")}]`;
+    const poVTimerRequest = `#pov_tab_container > div.potions-paths-first-row > div.potions-paths-timer.timer[${getHHScriptVars("PoVPoGTimestampAttributeName")}]`;
 
     if ( $(poVTimerRequest).length > 0 && (getSecondsLeft("PoVRemainingTime") === 0 || getStoredValue("HHAuto_Temp_PoVEndDate") === undefined) )
     {
-        const poVTimer = Number($(poVTimerRequest).attr(getHHScriptVars("PoVTimestampAttributeName")));
+        const poVTimer = Number($(poVTimerRequest).attr(getHHScriptVars("PoVPoGTimestampAttributeName")));
         setTimer("PoVRemainingTime",poVTimer);
         setStoredValue("HHAuto_Temp_PoVEndDate",Math.ceil(new Date().getTime()/1000)+poVTimer);
+    }
+}
+
+function getPoGRemainingTime()
+{
+    const poGTimerRequest = `#pog_tab_container > div.potions-paths-first-row > div.potions-paths-timer.timer[${getHHScriptVars("PoVPoGTimestampAttributeName")}]`;
+
+    if ( $(poGTimerRequest).length > 0 && (getSecondsLeft("PoGRemainingTime") === 0 || getStoredValue("HHAuto_Temp_PoGEndDate") === undefined) )
+    {
+        const poGTimer = Number($(poGTimerRequest).attr(getHHScriptVars("PoVPoGTimestampAttributeName")));
+        setTimer("PoGRemainingTime",poGTimer);
+        setStoredValue("HHAuto_Temp_PoGEndDate",Math.ceil(new Date().getTime()/1000)+poGTimer);
     }
 }
 
@@ -1064,14 +1072,89 @@ function displayPoVRemainingTime()
     }
 }
 
+function displayPoGRemainingTime()
+{
+    const displayTimer = $("#scriptPoGTimer").length === 0;
+    if(getTimer("PoGRemainingTime") !== -1)
+    {
+        if ($("#HHAutoPoGTimer").length === 0)
+        {
+            if (displayTimer)
+            {
+                $('#homepage a[rel="path-of-glory"').prepend('<span id="HHAutoPoGTimer"></span>')
+                GM_addStyle('#HHAutoPoGTimer{position: absolute;top: 26px;left: 30px;width: 100px;color: #f461ff;font-size: .6rem ;z-index: 1;}');
+            }
+        }
+        else
+        {
+            if (! displayTimer)
+            {
+                $("#HHAutoPoGTimer")[0].remove();
+            }
+        }
+        if (displayTimer)
+        {
+            $("#HHAutoPoGTimer")[0].innerText = getTimeLeft("PoGRemainingTime");
+        }
+    }
+    else
+    {
+        if (getStoredValue("HHAuto_Temp_PoGEndDate") !== undefined)
+        {
+            setTimer("PoGRemainingTime",getStoredValue("HHAuto_Temp_PoGEndDate")-(Math.ceil(new Date().getTime())/1000));
+        }
+    }
+}
+
 function moduleSimPoVMaskReward()
 {
     var arrayz;
     var nbReward;
     let modified = false;
-    arrayz = $('.pov-tier:not([style*="display:none"]):not([style*="display: none"])');
+    arrayz = $('.potions-paths-tier:not([style*="display:none"]):not([style*="display: none"])');
     //doesn sure about  " .purchase-pov-pass"-button visibility
-    if ($('#pov_tab_container .pov-second-row .purchase-pass:not([style*="display:none"]):not([style*="display: none"])').length)
+    if ($('#pov_tab_container .potions-paths-second-row .purchase-pass:not([style*="display:none"]):not([style*="display: none"])').length)
+    {
+        nbReward = 1;
+    }
+    else
+    {
+        nbReward = 2;
+    }
+    var obj;
+    if (arrayz.length > 0)
+    {
+        for (var i2 = arrayz.length - 1; i2 >= 0; i2--)
+        {
+            obj = $(arrayz[i2]).find('.claimed-slot:not([style*="display:none"]):not([style*="display: none"])');
+            if (obj.length >= nbReward)
+            {
+                //console.log("width : "+arrayz[i2].offsetWidth);
+                //document.getElementById('rewards_cont_scroll').scrollLeft-=arrayz[i2].offsetWidth;
+                arrayz[i2].style.display = "none";
+                modified = true;
+            }
+        }
+    }
+
+    if (modified)
+    {
+        let divToModify = $('.pov-progress-bar-section');
+        if (divToModify.length > 0)
+        {
+            $('.pov-progress-bar-section')[0].scrollTop = '0';
+        }
+    }
+}
+
+function moduleSimPoGMaskReward()
+{
+    var arrayz;
+    var nbReward;
+    let modified = false;
+    arrayz = $('.potions-paths-tier:not([style*="display:none"]):not([style*="display: none"])');
+    //doesn sure about  " .purchase-pov-pass"-button visibility
+    if ($('#pog_tab_container .potions-paths-second-row .purchase-pass:not([style*="display:none"]):not([style*="display: none"])').length)
     {
         nbReward = 1;
     }
@@ -1872,11 +1955,11 @@ function collectAndUpdatePowerPlaces()
         clearTimer('minPowerPlacesTime');
         clearTimer('maxPowerPlacesTime');
         for(e in unsafeWindow.HHTimers.timers){
-            try{
-                if(unsafeWindow.HHTimers.timers[e].$elm.selector.includes(".pop_thumb"))
-                {
-                    //logHHAuto("found timer "+HHTimers.timers[e].$elm.context.outerHTML);
-                    currIndex = $(HHTimers.timers[e].$elm.context.outerHTML).attr('pop_id');
+            if (!unsafeWindow.HHTimers.timers[e].$elm) {continue;}
+            let element = unsafeWindow.HHTimers.timers[e].$elm[0];
+            while(element){
+                if (element.classList && element.classList.contains("pop_thumb")) {
+                    currIndex = $(unsafeWindow.HHTimers.timers[e].$elm[0]).parents('.pop_thumb_expanded').attr('pop_id');
                     //if index is in filter
                     if (filteredPops.includes(currIndex) && ! popUnableToStart.includes(currIndex))
                     {
@@ -1891,11 +1974,9 @@ function collectAndUpdatePowerPlaces()
                             maxTime = currTime;
                         }
                     }
+                    break;
                 }
-            }
-            catch(e)
-            {
-                logHHAuto("Catched error : Could not parse powerplace timer : "+e);
+                element=element.parentNode;
             }
         }
 
@@ -2718,9 +2799,9 @@ var doBossBattle = function()
         TTF=JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).troll_id;
         logHHAuto("Mythic Event troll fight");
     }
-    else if(getStoredValue("HHAuto_Temp_trollToFight") !== undefined && !isNaN(getStoredValue("HHAuto_Temp_trollToFight")) && getStoredValue("HHAuto_Temp_trollToFight") !== "0")
+    else if(getStoredValue("HHAuto_Setting_autoTrollSelectedIndex") !== undefined && !isNaN(getStoredValue("HHAuto_Setting_autoTrollSelectedIndex")) && getStoredValue("HHAuto_Setting_autoTrollSelectedIndex") !== "0")
     {
-        TTF=getStoredValue("HHAuto_Temp_trollToFight");
+        TTF=getStoredValue("HHAuto_Setting_autoTrollSelectedIndex");
         logHHAuto("Custom troll fight.");
     }
     else
@@ -3302,7 +3383,7 @@ function goAndCollectPoV()
             logHHAuto("setting autoloop to false");
             setStoredValue("HHAuto_Temp_autoLoop", "false");
             let buttonsToCollect = [];
-            const listPoVTiersToClaim = $("#pov_tab_container div.pov-second-row div.pov-central-section div.pov-tier.unclaimed");
+            const listPoVTiersToClaim = $("#pov_tab_container div.potions-paths-second-row div.potions-paths-central-section div.potions-paths-tier.unclaimed");
             for (let currentTier = 0 ; currentTier < listPoVTiersToClaim.length ; currentTier++)
             {
                 const currentButton = $("button[rel='claim']", listPoVTiersToClaim[currentTier])[0];
@@ -3362,6 +3443,83 @@ function goAndCollectPoV()
         {
             logHHAuto("Switching to Path of Valor screen.");
             gotoPage(getHHScriptVars("pagesIDPoV"));
+            return true;
+        }
+    }
+}
+
+function goAndCollectPoG()
+{
+    const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoPoGCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoPoGCollectablesList")):[];
+
+    if (checkTimer('nextPoGCollectTime') && getStoredValue("HHAuto_Setting_autoPoGCollect") === "true")
+    {
+        if (getPage() === getHHScriptVars("pagesIDPoG"))
+        {
+            logHHAuto("Checking Path of Glory for collectable rewards.");
+            logHHAuto("setting autoloop to false");
+            setStoredValue("HHAuto_Temp_autoLoop", "false");
+            let buttonsToCollect = [];
+            const listPoGTiersToClaim = $("#pog_tab_container div.potions-paths-second-row div.potions-paths-central-section div.potions-paths-tier.unclaimed");
+            for (let currentTier = 0 ; currentTier < listPoGTiersToClaim.length ; currentTier++)
+            {
+                const currentButton = $("button[rel='claim']", listPoGTiersToClaim[currentTier])[0];
+                const currentTierNb = currentButton.getAttribute("tier");
+                //console.log("checking tier : "+currentTierNb);
+                const freeSlotType = getRewardTypeBySlot($(".free-slot .slot,.free-slot .shards_girl_ico",listPoGTiersToClaim[currentTier])[0]);
+                if (rewardsToCollect.includes(freeSlotType))
+                {
+                    const paidSlots = $(".paid-slots:not(.paid-locked) .slot,.paid-slots:not(.paid-locked) .shards_girl_ico",listPoGTiersToClaim[currentTier]);
+                    if (paidSlots.length >0)
+                    {
+                        if (rewardsToCollect.includes(getRewardTypeBySlot(paidSlots[0])) && rewardsToCollect.includes(getRewardTypeBySlot(paidSlots[1])))
+                        {
+                            buttonsToCollect.push(currentButton);
+                            logHHAuto("Adding for collection tier (with paid) : "+currentTierNb);
+                        }
+                    }
+                    else
+                    {
+                        buttonsToCollect.push(currentButton);
+                        logHHAuto("Adding for collection tier (only free) : "+currentTierNb);
+                    }
+                }
+            }
+
+
+            if (buttonsToCollect.length >0)
+            {
+                function collectPoGRewards()
+                {
+                    if (buttonsToCollect.length >0)
+                    {
+                        logHHAuto("Collecting tier : "+buttonsToCollect[0].getAttribute('tier'));
+                        buttonsToCollect[0].click();
+                        buttonsToCollect.shift();
+                        setTimeout(collectPoGRewards, randomInterval(300, 500));
+                    }
+                    else
+                    {
+                        logHHAuto("Path of Glory collection finished.");
+                        setTimer('nextPoGCollectTime',getHHScriptVars("maxCollectionDelay"));
+                        gotoPage(getHHScriptVars("pagesIDHome"));
+                    }
+                }
+                collectPoGRewards();
+                return true;
+            }
+            else
+            {
+                logHHAuto("No Path of Glory reward to collect.");
+                setTimer('nextPoGCollectTime',getHHScriptVars("maxCollectionDelay"));
+                gotoPage(getHHScriptVars("pagesIDHome"));
+                return false;
+            }
+        }
+        else
+        {
+            logHHAuto("Switching to Path of Glory screen.");
+            gotoPage(getHHScriptVars("pagesIDPoG"));
             return true;
         }
     }
@@ -3702,7 +3860,7 @@ var doLeagueBattle = function () {
                 gotoPage(getHHScriptVars("pagesIDLeaderboard"))
             }
         }
-        //logHHAuto('ls! '+$('h4.leagues').size());
+        //logHHAuto('ls! '+$('h4.leagues').length);
         $('h4.leagues').each(function(){this.click();});
 
         if(currentPower < 1)
@@ -3714,7 +3872,7 @@ var doLeagueBattle = function () {
             return;
         }
 
-        while ($("span[sort_by='level'][select='asc']").size()==0)
+        while ($("span[sort_by='level'][select='asc']").length==0)
         {
             //logHHAuto('resorting');
             $("span[sort_by='level']").each(function(){this.click()});
@@ -3743,8 +3901,8 @@ var doLeagueBattle = function () {
             }
             var currentRank = Number($("tr[class=personal_highlight] td span")[0].innerText);
             var currentScore = Number($("tr[class=personal_highlight] td")[4].innerText.replace(/\D/g, ''));
-
-            if (Number(getStoredValue("HHAuto_Temp_leaguesTarget")) < Number(getPlayerCurrentLevel))
+            let leagueTargetValue = Number(getStoredValue("HHAuto_Setting_autoLeaguesSelectedIndex"))+1;
+            if (leagueTargetValue < Number(getPlayerCurrentLevel))
             {
                 var maxDemote = 0;
                 var totalOpponents = Number($("div.leagues_table table tr td:contains(/3)").length)+1;
@@ -3757,10 +3915,10 @@ var doLeagueBattle = function () {
                 {
                     rankDemote = totalOpponents - 15;
                 }
-                logHHAuto("Current league above target ("+Number(getPlayerCurrentLevel)+"/"+Number(getStoredValue("HHAuto_Temp_leaguesTarget"))+"), needs to demote. max rank : "+rankDemote+"/"+totalOpponents);
+                logHHAuto("Current league above target ("+Number(getPlayerCurrentLevel)+"/"+leagueTargetValue+"), needs to demote. max rank : "+rankDemote+"/"+totalOpponents);
                 let getRankDemote = $("div.leagues_table table tr td span:contains("+rankDemote+")").filter(function()
                                                                                                             {
-                    return Number($.trim($(this).text())) === rankDemote;
+                    return Number($(this).text().trim()) === rankDemote;
                 });
                 if (getRankDemote.length > 0 )
                 {
@@ -3771,7 +3929,7 @@ var doLeagueBattle = function () {
                     maxDemote = 0;
                 }
 
-                logHHAuto("Current league above target ("+Number(getPlayerCurrentLevel)+"/"+Number(getStoredValue("HHAuto_Temp_leaguesTarget"))+"), needs to demote. Score should not be higher than : "+maxDemote);
+                logHHAuto("Current league above target ("+Number(getPlayerCurrentLevel)+"/"+leagueTargetValue+"), needs to demote. Score should not be higher than : "+maxDemote);
                 if ( currentScore + leagueScoreSecurityThreshold >= maxDemote )
                 {
                     logHHAuto("Can't do league as could go above demote, setting timer to 30 mins");
@@ -3789,7 +3947,7 @@ var doLeagueBattle = function () {
                 maxLeague = Leagues.length;
             }
 
-            if (Number(getStoredValue("HHAuto_Temp_leaguesTarget")) === Number(getPlayerCurrentLevel) && Number(getStoredValue("HHAuto_Temp_leaguesTarget")) < maxLeague)
+            if (leagueTargetValue === Number(getPlayerCurrentLevel) && leagueTargetValue < maxLeague)
             {
                 var maxStay = 0;
                 var rankStay = 16;
@@ -3797,10 +3955,10 @@ var doLeagueBattle = function () {
                 {
                     rankStay = 15;
                 }
-                logHHAuto("Current league is target ("+Number(getPlayerCurrentLevel)+"/"+Number(getStoredValue("HHAuto_Temp_leaguesTarget"))+"), needs to stay. max rank : "+rankStay);
+                logHHAuto("Current league is target ("+Number(getPlayerCurrentLevel)+"/"+leagueTargetValue+"), needs to stay. max rank : "+rankStay);
                 let getRankStay = $("div.leagues_table table tr td span:contains("+rankStay+")").filter(function()
                                                                                                         {
-                    return Number($.trim($(this).text())) === rankStay;
+                    return Number($(this).text().trim()) === rankStay;
                 });
                 if (getRankStay.length > 0 )
                 {
@@ -3811,7 +3969,7 @@ var doLeagueBattle = function () {
                     maxStay = 0;
                 }
 
-                logHHAuto("Current league is target ("+Number(getPlayerCurrentLevel)+"/"+Number(getStoredValue("HHAuto_Temp_leaguesTarget"))+"), needs to stay. Score should not be higher than : "+maxStay);
+                logHHAuto("Current league is target ("+Number(getPlayerCurrentLevel)+"/"+leagueTargetValue+"), needs to stay. Score should not be higher than : "+maxStay);
                 if ( currentScore + leagueScoreSecurityThreshold >= maxStay && getStoredValue("HHAuto_Setting_autoLeaguesAllowWinCurrent") !== "true")
                 {
                     logHHAuto("Can't do league as could go above stay, setting timer to 30 mins");
@@ -3954,9 +4112,14 @@ function getLeagueOpponentId(opponentsIDList,force=false)
         let maxLeagueListDurationSecs = getHHScriptVars("LeagueListExpirationSecs");
         for(let e in HHTimers.timers)
         {
-            if(HHTimers.timers[e].$elm && HHTimers.timers[e].$elm.selector.startsWith(".league_end_in"))
-            {
-                league_end=HHTimers.timers[e].remainingTime;
+            if (!unsafeWindow.HHTimers.timers[e].$elm) {continue;}
+            let element = unsafeWindow.HHTimers.timers[e].$elm[0];
+            while(element){
+                if (element.classList && element.classList.contains("league_end_in")) {
+                    league_end=HHTimers.timers[e].remainingTime;
+                    break;
+                }
+                element=element.parentNode;
             }
         }
         if (league_end !== -1 && league_end < maxLeagueListDurationSecs)
@@ -4594,9 +4757,14 @@ var getFreeGreatPachinko = function(){
             var npach = -1;
             for(let e in unsafeWindow.HHTimers.timers)
             {
-                if(unsafeWindow.HHTimers.timers[e].$elm && unsafeWindow.HHTimers.timers[e].$elm.selector.startsWith(".pachinko_change"))
-                {
-                    npach=unsafeWindow.HHTimers.timers[e].remainingTime;
+                if (!unsafeWindow.HHTimers.timers[e].$elm) {continue;}
+                let element = unsafeWindow.HHTimers.timers[e].$elm[0];
+                while(element){
+                    if (element.classList && element.classList.contains("pachinko_change")) {
+                        npach=unsafeWindow.HHTimers.timers[e].remainingTime;
+                        break;
+                    }
+                    element=element.parentNode;
                 }
             }
             if(npach !== -1)
@@ -4667,8 +4835,16 @@ var getFreeMythicPachinko = function(){
             //}
             var npach = -1;
             for(var e in unsafeWindow.HHTimers.timers){
-                if(unsafeWindow.HHTimers.timers[e].$elm && unsafeWindow.HHTimers.timers[e].$elm.selector.startsWith('.game-simple-block[type-pachinko="mythic"]'))
-                    npach=unsafeWindow.HHTimers.timers[e].remainingTime;
+                if (!unsafeWindow.HHTimers.timers[e].$elm) {continue;}
+                let element = unsafeWindow.HHTimers.timers[e].$elm[0];
+                while(element){
+                    if (element.classList && element.classList.contains("game-simple-block") && element.attributes
+                        && element.attributes['type-pachinko'] && element.attributes['type-pachinko'].value ==="mythic") {
+                        npach=unsafeWindow.HHTimers.timers[e].remainingTime;
+                        break;
+                    }
+                    element=element.parentNode;
+                }
             }
             if(npach !== -1)
             {
@@ -4722,8 +4898,20 @@ var updateShop=function()
 
         var nshop;
         for(var e in unsafeWindow.HHTimers.timers){
-            if(unsafeWindow.HHTimers.timers[e].$elm && unsafeWindow.HHTimers.timers[e].$elm.selector.startsWith(".shop_count"))
-                nshop=unsafeWindow.HHTimers.timers[e].remainingTime;
+            if (!unsafeWindow.HHTimers.timers[e].$elm) {continue;}
+            let element = unsafeWindow.HHTimers.timers[e].$elm[0];
+            while(element){
+                if (element.classList && element.classList.contains("shop_count")) {
+                    nshop=unsafeWindow.HHTimers.timers[e].remainingTime;
+                    break;
+                }
+                element = element.parentNode;
+            }
+        }
+        let shopFrozenTimer = $('#shop > div.shop_count > span[rel="count"]')
+        if (nshop === undefined && shopFrozenTimer.length > 0)
+        {
+            nshop = Number(shopFrozenTimer.attr("time"))
         }
         let shopTimer=60;
         if(nshop !== undefined && nshop !== 0)
@@ -5182,7 +5370,7 @@ function getLeaguePlayersData(inHeroLeaguesData, inPlayerLeaguesData)
         chance: playerCrit,
         damage: playerAtk,
         defense: playerDef,
-        total_ego: playerEgo,
+        remaining_ego: playerEgo,
         team: playerTeam
     } = inHeroLeaguesData
     let playerElements;
@@ -5211,7 +5399,7 @@ function getLeaguePlayersData(inHeroLeaguesData, inPlayerLeaguesData)
         chance: opponentCrit,
         damage: opponentAtk,
         defense: opponentDef,
-        total_ego: opponentEgo,
+        remaining_ego: opponentEgo,
         team: opponentTeam
     } = inPlayerLeaguesData
 
@@ -6167,7 +6355,7 @@ var autoLoop = function ()
 
         if(busy === false && getHHScriptVars("isEnabledContest",false) && getStoredValue("HHAuto_Setting_autoContest") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
-            if (checkTimer('nextContestTime') || unsafeWindow.has_contests_datas ||$(".contest .ended button[rel='claim']").size()>0){
+            if (checkTimer('nextContestTime') || unsafeWindow.has_contests_datas ||$(".contest .ended button[rel='claim']").length>0){
                 logHHAuto("Time to get contest rewards.");
                 busy = doContestStuff();
             }
@@ -6507,6 +6695,13 @@ var autoLoop = function ()
             busy = goAndCollectPoV();
         }
 
+        if (busy==false && getHHScriptVars("isEnabledPoG",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextPoGCollectTime') && getStoredValue("HHAuto_Setting_autoPoGCollect") === "true")
+        {
+            logHHAuto("Time to go and check Path of Glory for collecting reward.");
+            busy = true;
+            busy = goAndCollectPoG();
+        }
+
         if (busy==false && getHHScriptVars("isEnabledDailyRewards",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextDailyRewardsCollectTime') && getStoredValue("HHAuto_Setting_autoDailyRewardsCollect") === "true")
         {
             busy = true;
@@ -6622,14 +6817,11 @@ var autoLoop = function ()
             {
                 moduleShopActions();
             }
-            if (getSecondsLeft('nextShopTime') < 3600)
-            {
-                updateShop();
-            }
             moduleShopGetBoosters();
             break;
         case getHHScriptVars("pagesIDHome"):
             displayPoVRemainingTime();
+            displayPoGRemainingTime();
             break;
         case getHHScriptVars("pagesIDHarem"):
             moduleHarem();
@@ -6653,6 +6845,13 @@ var autoLoop = function ()
                 moduleSimPoVMaskReward();
             }
             getPoVRemainingTime();
+            break;
+        case getHHScriptVars("pagesIDPoG"):
+            if (getStoredValue("HHAuto_Setting_PoGMaskRewards") === "true")
+            {
+                moduleSimPoGMaskReward();
+            }
+            getPoGRemainingTime();
             break;
     }
 
@@ -8192,15 +8391,15 @@ function moduleShopActions()
             let filter='#inventory .selected .inventory_slots .slot:not(.empty)';
             if (inCaracsValue !== "*" )
             {
-                filter+='[data-d*="\"name_add\":\"'+inCaracsValue+'\""]';
+                filter+='[data-d*=\'"name_add":"'+inCaracsValue+'"\']';
             }
             if (inTypeValue !== "*" )
             {
-                filter+='[data-d*="\"subtype\":\"'+inTypeValue+'\""]';
+                filter+='[data-d*=\'"subtype":"'+inTypeValue+'"\']';
             }
             if (inRarityValue !== "*" )
             {
-                filter+='[data-d*="\"rarity\":\"'+inRarityValue+'\""]';
+                filter+='[data-d*=\'"rarity":"'+inRarityValue+'"\']';
             }
             if (inLockedValue === "locked" || inLockedValue === true)
             {
@@ -9798,6 +9997,7 @@ HHKnownEnvironnements["eroges.gayharem.com"] = {name:"EGH_prod",id:"hh_gay"};
 HHKnownEnvironnements["eroges.hentaiheroes.com"] = {name:"EHH_prod",id:"hh_hentai"};
 HHKnownEnvironnements["esprit.hentaiheroes.com"] = {name:"OGHH_prod",id:"hh_hentai"};
 HHKnownEnvironnements["www.pornstarharem.com"] = {name:"PH_prod",id:"hh_star"};
+HHKnownEnvironnements["nutaku.pornstarharem.com"] = {name:"NPH_prod",id:"hh_star"};
 
 
 var HHEnvVariables = {};
@@ -9825,7 +10025,7 @@ HHEnvVariables["global"].minSecsBeforeGoHomeAfterActions = 10;
 HHEnvVariables["global"].dailyRewardMaxRemainingTime = 2*60*60;
 HHEnvVariables["global"].maxCollectionDelay = 2*60*60;
 HHEnvVariables["global"].STOCHASTIC_SIM_RUNS = 10000;
-HHEnvVariables["global"].PoVTimestampAttributeName = "data-time-stamp";
+HHEnvVariables["global"].PoVPoGTimestampAttributeName = "data-time-stamp";
 HHEnvVariables["global"].ELEMENTS =
     {
     chance: {
@@ -10095,6 +10295,10 @@ HHEnvVariables["global"].pagesIDPoV = "path-of-valor";
 HHEnvVariables["global"].pagesURLPoV = "/path-of-valor.html";
 HHEnvVariables["global"].pagesKnownList.push("PoV");
 
+HHEnvVariables["global"].pagesIDPoG = "path-of-glory";
+HHEnvVariables["global"].pagesURLPoG = "/path-of-glory.html";
+HHEnvVariables["global"].pagesKnownList.push("PoG");
+
 HHEnvVariables["global"].pagesIDPowerplacemain = "powerplacemain";
 HHEnvVariables["global"].pagesKnownList.push("Powerplacemain");
 
@@ -10124,7 +10328,9 @@ HHEnvVariables["global"].isEnabledLeagues = true;
 HHEnvVariables["global"].isEnabledDailyRewards = true;
 HHEnvVariables["global"].isEnabledShop = true;
 HHEnvVariables["global"].isEnabledSalary = true;
+HHEnvVariables["global"].isEnabledPoVPoG = true;
 HHEnvVariables["global"].isEnabledPoV = true;
+HHEnvVariables["global"].isEnabledPoG = true;
 HHEnvVariables["global"].isEnabledDailyGoals = true;
 HHEnvVariables["HH_test"].isEnabledDailyRewards = false;// to remove if daily rewards arrives in test
 ["CH_prod","NCH_prod"].forEach((element) => {
@@ -10133,9 +10339,11 @@ HHEnvVariables["HH_test"].isEnabledDailyRewards = false;// to remove if daily re
                                           'Grey Golem',
                                           'The Nymph',
                                           'Athicus Ho’ole',
-                                          'The Mimic'];
+                                          'The Mimic',
+                                          'Cockatrice'];
     HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in Comix
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in Comix
+    HHEnvVariables[element].isEnabledPoG = false;
 })
 HHEnvVariables["SH_prod"].isEnabledSideQuest = false;// to remove when SideQuest arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPowerPlaces = false;// to remove when PoP arrives in hornyheroes
@@ -10144,17 +10352,20 @@ HHEnvVariables["SH_prod"].isEnabledAllChamps = false;// to remove when Champs ar
 HHEnvVariables["SH_prod"].isEnabledChamps = false;// to remove when Champs arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledClubChamp = false;// to remove when Club Champs arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in hornyheroes
+HHEnvVariables["SH_prod"].isEnabledPoVPoG = false;
 HHEnvVariables["SH_prod"].isEnabledPoV = false;// to remove when PoV arrives in hornyheroes
-
-HHEnvVariables["PH_prod"].isEnabledPowerPlaces = false;// to remove when PoP arrives in pornstar
-HHEnvVariables["PH_prod"].isEnabledMythicPachinko = false;// to remove when Mythic Pachinko arrives in pornstar
-HHEnvVariables["PH_prod"].isEnabledAllChamps = false;// to remove when Champs arrives in pornstar
-HHEnvVariables["PH_prod"].isEnabledChamps = false;// to remove when Champs arrives in pornstar
-HHEnvVariables["PH_prod"].isEnabledClubChamp = false;// to remove when Club Champs arrives in pornstar
-HHEnvVariables["PH_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in pornstar
-HHEnvVariables["PH_prod"].isEnabledPoV = false;// to remove when PoV arrives in pornstar
-HHEnvVariables["PH_prod"].trollzList = ['Latest',
-                                        'Headmistress Asa Akira'];
+HHEnvVariables["SH_prod"].isEnabledPoG = false;// to remove when PoG arrives in hornyheroes
+["PH_prod","NPH_prod"].forEach((element) => {
+    HHEnvVariables[element].trollzList = ['Latest',
+                                          'Headmistress Asa Akira',
+                                          'Sammy Jayne',
+                                          'Ivy Winters'];
+    HHEnvVariables[element].isEnabledPowerPlaces = false;// to remove when PoP arrives in pornstar
+    HHEnvVariables[element].isEnabledMythicPachinko = false;// to remove when Mythic Pachinko arrives in pornstar
+    HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in pornstar
+    HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in pornstar
+    HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in pornstar
+})
 
 const HC = 1;
 const CH = 2;
@@ -10336,6 +10547,7 @@ HHAuto_ToolTips.en.menuExpLevel =  { version: "5.6.24", elementText: "Enter targ
 HHAuto_ToolTips.en.menuExpAwakeningNeeded =  { version: "5.6.24", elementText: "Girl need awakening ", tooltip: ""};
 HHAuto_ToolTips.en.PoAMaskRewards = { version: "5.6.24", elementText: "PoA mask claimed", tooltip: "Masked claimed rewards for Path of Attraction."};
 HHAuto_ToolTips.en.PoVMaskRewards = { version: "5.6.26", elementText: "PoV mask claimed", tooltip: "Masked claimed rewards for Path of Valor."};
+HHAuto_ToolTips.en.PoGMaskRewards = { version: "5.6.89", elementText: "PoG mask claimed", tooltip: "Masked claimed rewards for Path of Glory."};
 HHAuto_ToolTips.en.showTooltips = { version: "5.6.24", elementText: "Show tooltips", tooltip: "Show tooltip on menu."};
 HHAuto_ToolTips.en.showMarketTools = { version: "5.6.24", elementText: "Show market tools", tooltip: "Show Market tools."};
 HHAuto_ToolTips.en.useX10Fights = { version: "5.6.24", elementText: "Use x10", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Use x10 button if 10 fights or more to do (if not going under Koban bank value).<br>x50 takes precedence on x10 if all conditions are filled."};
@@ -10385,6 +10597,7 @@ HHAuto_ToolTips.en.menuCollectable = { version: "5.6.47", elementText: "Collecta
 HHAuto_ToolTips.en.menuCollectableText = { version: "5.6.47", elementText: "Please select the collectables you want to be automatically collected.", tooltip: ""};
 HHAuto_ToolTips.en.menuDailyCollectableText = { version: "5.6.49", elementText: "Please select the collectables you want to be immediately collected.", tooltip: ""};
 HHAuto_ToolTips.en.autoPoVCollect = { version: "5.6.49", elementText: "Collect PoV", tooltip: "if enabled : Automatically collect Path of Valor."};
+HHAuto_ToolTips.en.autoPoGCollect = { version: "5.6.89", elementText: "Collect PoG", tooltip: "if enabled : Automatically collect Path of Glory."};
 HHAuto_ToolTips.en.autoDailyGoalsCollect = {version: "5.6.54", elementText: "Collect daily Goals", tooltip: "Collect daily Goals if not collected 2 hours before end of HH day."};
 HHAuto_ToolTips.en.HaremSortMenuSortText = {version: "5.6.56", elementText: "Select the wanted harem sorting : ", tooltip: ""};
 HHAuto_ToolTips.en.date_acquired = {version: "5.6.56", elementText: "Date recruited", tooltip: ""};
@@ -10887,7 +11100,8 @@ HHStoredVars.HHAuto_Setting_autoLeaguesSelectedIndex =
     setMenu:true,
     menuType:"selectedIndex",
     kobanUsing:false,
-    customMenuID:"autoLeaguesSelector"
+    customMenuID:"autoLeaguesSelector",
+    isValid:/^[0-9]$/
 };
 HHStoredVars.HHAuto_Setting_autoLeaguesThreshold =
     {
@@ -11219,7 +11433,8 @@ HHStoredVars.HHAuto_Setting_autoTrollSelectedIndex =
     setMenu:true,
     menuType:"selectedIndex",
     kobanUsing:false,
-    customMenuID:"autoTrollSelector"
+    customMenuID:"autoTrollSelector",
+    isValid:/^[0-9]|1[0-5]$/
 };
 HHStoredVars.HHAuto_Setting_autoTrollThreshold =
     {
@@ -11464,6 +11679,17 @@ HHStoredVars.HHAuto_Setting_PoVMaskRewards =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars.HHAuto_Setting_PoGMaskRewards =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_SeasonMaskRewards =
     {
     default:"false",
@@ -11639,6 +11865,33 @@ HHStoredVars.HHAuto_Setting_autoPoVCollectablesList =
     HHType:"Setting",
     valueType:"Array"
 };
+HHStoredVars.HHAuto_Setting_autoPoGCollect =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    events:{"change":function()
+            {
+                if (this.checked)
+                {
+                    getAndStoreCollectPreferences("HHAuto_Setting_autoPoGCollectablesList");
+                    clearTimer('nextPoGCollectTime');
+                }
+            }
+           }
+};
+HHStoredVars.HHAuto_Setting_autoPoGCollectablesList =
+    {
+    default:JSON.stringify([]),
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Array"
+};
 HHStoredVars.HHAuto_Setting_autoDailyGoalsCollect =
     {
     default:"false",
@@ -11679,7 +11932,7 @@ HHStoredVars.HHAuto_Temp_battlePowerRequired =
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_leaguesTarget =
+/*HHStoredVars.HHAuto_Temp_leaguesTarget =
     {
     default:"9",
     storage:"sessionStorage",
@@ -11690,7 +11943,7 @@ HHStoredVars.HHAuto_Temp_leaguesTarget =
     menuType:"value",
     kobanUsing:false,
     customMenuID:"autoLeaguesSelector"
-};
+};*/
 HHStoredVars.HHAuto_Temp_questRequirement =
     {
     default:"none",
@@ -11720,7 +11973,7 @@ HHStoredVars.HHAuto_Temp_Logging =
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_trollToFight =
+/*HHStoredVars.HHAuto_Temp_trollToFight =
     {
     storage:"sessionStorage",
     HHType:"Temp",
@@ -11730,7 +11983,7 @@ HHStoredVars.HHAuto_Temp_trollToFight =
     menuType:"value",
     kobanUsing:false,
     customMenuID:"autoTrollSelector"
-};
+};*/
 HHStoredVars.HHAuto_Temp_autoTrollBattleSaveQuest =
     {
     storage:"sessionStorage",
@@ -11885,6 +12138,11 @@ HHStoredVars.HHAuto_Temp_PoVEndDate =
     storage:"localStorage",
     HHType:"Temp"
 };
+HHStoredVars.HHAuto_Temp_PoGEndDate =
+    {
+    storage:"localStorage",
+    HHType:"Temp"
+};
 HHStoredVars.HHAuto_Temp_missionsGiftLeft =
     {
     storage:"sessionStorage",
@@ -12013,7 +12271,7 @@ var updateData = function () {
 
 function maskInactiveMenus()
 {
-    let menuIDList =["isEnabledDailyGoals", "isEnabledPoV","isEnabledDailyRewards","isEnabledMission","isEnabledContest","isEnabledTrollBattle","isEnabledPowerPlaces","isEnabledSalary","isEnabledPachinko","isEnabledQuest","isEnabledSideQuest","isEnabledSeason","isEnabledLeagues","isEnabledAllChamps","isEnabledChamps","isEnabledClubChamp","isEnabledPantheon","isEnabledShop"];
+    let menuIDList =["isEnabledDailyGoals", "isEnabledPoVPoG", "isEnabledPoV", "isEnabledPoG", "isEnabledDailyRewards","isEnabledMission","isEnabledContest","isEnabledTrollBattle","isEnabledPowerPlaces","isEnabledSalary","isEnabledPachinko","isEnabledQuest","isEnabledSideQuest","isEnabledSeason","isEnabledLeagues","isEnabledAllChamps","isEnabledChamps","isEnabledClubChamp","isEnabledPantheon","isEnabledShop"];
     for (let menu of menuIDList)
     {
         if ( document.getElementById(menu) !== null && getHHScriptVars(menu,false) !== null && !getHHScriptVars(menu,false) )
@@ -12244,17 +12502,6 @@ var start = function () {
                                     +`</label>`
                                 +`</div>`
                             +`</div>`
-                            +`<div class="labelAndButton">`
-                                +`<span class="HHMenuItemName">${getTextForUI("PoAMaskRewards","elementText")}</span>`
-                                +`<div class="tooltipHH">`
-                                    +`<span class="tooltipHHtext">${getTextForUI("PoAMaskRewards","tooltip")}</span>`
-                                    +`<label class="switch">`
-                                        +`<input id="PoAMaskRewards" type="checkbox">`
-                                        +`<span class="slider round">`
-                                        +`</span>`
-                                    +`</label>`
-                                +`</div>`
-                            +`</div>`
                         +`</div>`
                         +`<div class="optionsColumn">`
                             +`<div class="labelAndButton">`
@@ -12268,28 +12515,15 @@ var start = function () {
                                     +`</label>`
                                 +`</div>`
                             +`</div>`
-                            +`<div id="isEnabledPoV">`
-                                +`<div class="labelAndButton">`
-                                    +`<span class="HHMenuItemName">${getTextForUI("PoVMaskRewards","elementText")}</span>`
-                                    +`<div class="tooltipHH">`
-                                        +`<span class="tooltipHHtext">${getTextForUI("PoVMaskRewards","tooltip")}</span>`
-                                        +`<label class="switch">`
-                                            +`<input id="PoVMaskRewards" type="checkbox">`
-                                            +`<span class="slider round">`
-                                            +`</span>`
-                                        +`</label>`
-                                    +`</div>`
-                                +`</div>`
-                                +`<div class="labelAndButton">`
-                                    +`<span class="HHMenuItemName">${getTextForUI("autoPoVCollect","elementText")}</span>`
-                                    +`<div class="tooltipHH">`
-                                        +`<span class="tooltipHHtext">${getTextForUI("autoPoVCollect","tooltip")}</span>`
-                                        +`<label class="switch">`
-                                            +`<input id="autoPoVCollect" type="checkbox">`
-                                            +`<span class="slider round">`
-                                            +`</span>`
-                                        +`</label>`
-                                    +`</div>`
+                            +`<div class="labelAndButton">`
+                                +`<span class="HHMenuItemName">${getTextForUI("PoAMaskRewards","elementText")}</span>`
+                                +`<div class="tooltipHH">`
+                                    +`<span class="tooltipHHtext">${getTextForUI("PoAMaskRewards","tooltip")}</span>`
+                                    +`<label class="switch">`
+                                        +`<input id="PoAMaskRewards" type="checkbox">`
+                                        +`<span class="slider round">`
+                                        +`</span>`
+                                    +`</label>`
                                 +`</div>`
                             +`</div>`
                         +`</div>`
@@ -12635,6 +12869,58 @@ var start = function () {
                         +`</div>`
                     +`</div>`
                 +`</div>`
+                +`<div class="optionsRow">`
+                    +`<div id="isEnabledPoVPoG" class="optionsBox">`
+                        +`<div id="isEnabledPoV" class="internalOptionsRow" style="justify-content: space-evenly">`
+                            +`<div class="labelAndButton">`
+                                +`<span class="HHMenuItemName">${getTextForUI("PoVMaskRewards","elementText")}</span>`
+                                +`<div class="tooltipHH">`
+                                    +`<span class="tooltipHHtext">${getTextForUI("PoVMaskRewards","tooltip")}</span>`
+                                    +`<label class="switch">`
+                                        +`<input id="PoVMaskRewards" type="checkbox">`
+                                        +`<span class="slider round">`
+                                        +`</span>`
+                                    +`</label>`
+                                +`</div>`
+                            +`</div>`
+                            +`<div class="labelAndButton">`
+                                +`<span class="HHMenuItemName">${getTextForUI("autoPoVCollect","elementText")}</span>`
+                                +`<div class="tooltipHH">`
+                                    +`<span class="tooltipHHtext">${getTextForUI("autoPoVCollect","tooltip")}</span>`
+                                    +`<label class="switch">`
+                                        +`<input id="autoPoVCollect" type="checkbox">`
+                                        +`<span class="slider round">`
+                                        +`</span>`
+                                    +`</label>`
+                                +`</div>`
+                            +`</div>`
+                        +`</div>`
+                        +`<div id="isEnabledPoG" class="internalOptionsRow" style="justify-content: space-evenly">`
+                            +`<div class="labelAndButton">`
+                                +`<span class="HHMenuItemName">${getTextForUI("PoGMaskRewards","elementText")}</span>`
+                                +`<div class="tooltipHH">`
+                                    +`<span class="tooltipHHtext">${getTextForUI("PoGMaskRewards","tooltip")}</span>`
+                                    +`<label class="switch">`
+                                        +`<input id="PoGMaskRewards" type="checkbox">`
+                                        +`<span class="slider round">`
+                                        +`</span>`
+                                    +`</label>`
+                                +`</div>`
+                            +`</div>`
+                            +`<div class="labelAndButton">`
+                                +`<span class="HHMenuItemName">${getTextForUI("autoPoGCollect","elementText")}</span>`
+                                +`<div class="tooltipHH">`
+                                    +`<span class="tooltipHHtext">${getTextForUI("autoPoGCollect","tooltip")}</span>`
+                                    +`<label class="switch">`
+                                        +`<input id="autoPoGCollect" type="checkbox">`
+                                        +`<span class="slider round">`
+                                        +`</span>`
+                                    +`</label>`
+                                +`</div>`
+                            +`</div>`
+                        +`</div>`
+                    +`</div>`
+                +`</div>`
                 +`<div id="isEnabledTrollBattle" class="optionsBoxWithTitle">`
                     +`<div class="optionsBoxTitle">`
                         +`<img class="iconImg" src="https://hh2.hh-content.com/pictures/design/menu/map.svg" />`
@@ -12926,7 +13212,7 @@ var start = function () {
                         +`<span class="optionsBoxTitle">${getTextForUI("autoPantheonTitle","elementText")}</span>`
                     +`</div>`
                     +`<div class="optionsBox">`
-                        +`<div class="internalOptionsRow" style="justify-content: space-between">`
+                        +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
                             +`<div class="labelAndButton">`
                                 +`<span class="HHMenuItemName">${getTextForUI("autoPantheon","elementText")}</span>`
                                 +`<div class="tooltipHH">`
