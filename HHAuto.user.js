@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.92
+// @version      5.6.93
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -8677,7 +8677,9 @@ function moduleShopActions()
     function fetchAllArmorItems()
     {
         //console.log(slots.armor_pack_load);
-        if (slots.armor_pack_load < 0 || $('#inventory .selected .inventory_slots .slot:not(.empty)').length >= menuSellMaxItems)
+
+        let workaroundBug535 = true;
+        if (workaroundBug535 || $('#inventory .selected .inventory_slots .slot:not(.empty)').length >= menuSellMaxItems || slots.armor_pack_load < 0)
         {
             document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
             document.getElementById("menuSellHide").style.display = "block";
