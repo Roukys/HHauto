@@ -8246,22 +8246,25 @@ function moduleShopActions()
 
     function menuSellListItems()
     {
-        GM_addStyle('.tItems {border-collapse: collapse;} '
-                    +'.tItems td,th {border: 1px solid #1B4F72;} '
-                    +'.tItemsColGroup {border: 3px solid #1B4F72;} '
-                    +'.tItemsTh1 {background-color: #2874A6;color: #fff;} '
-                    +'.tItemsTh2 {background-color: #3498DB;color: #fff;} '
-                    +'.tItemsTBody tr:nth-child(odd) {background-color: #85C1E9;} '
-                    +'.tItemsTBody tr:nth-child(even) {background-color: #D6EAF8;} '
-                    +'.tItemsTdItems[itemsLockStatus="allLocked"] {color: #FF0000} '
-                    +'.tItemsTdItems[itemsLockStatus="noneLocked"] {color: #1B4F72}'
-                    +'.tItemsTdItems[itemsLockStatus="someLocked"] {color: #FFA500}' );
+        if ($('#menuSellList>.tItems').length === 0)
+        {
+            GM_addStyle('.tItems {border-collapse: collapse;} '
+                        +'.tItems td,th {border: 1px solid #1B4F72;} '
+                        +'.tItemsColGroup {border: 3px solid #1B4F72;} '
+                        +'.tItemsTh1 {background-color: #2874A6;color: #fff;} '
+                        +'.tItemsTh2 {background-color: #3498DB;color: #fff;} '
+                        +'.tItemsTBody tr:nth-child(odd) {background-color: #85C1E9;} '
+                        +'.tItemsTBody tr:nth-child(even) {background-color: #D6EAF8;} '
+                        +'.tItemsTdItems[itemsLockStatus="allLocked"] {color: #FF0000} '
+                        +'.tItemsTdItems[itemsLockStatus="noneLocked"] {color: #1B4F72}'
+                        +'.tItemsTdItems[itemsLockStatus="someLocked"] {color: #FFA500}');
+        }
 
         let itemsCaracsNb=16;
         let itemsCaracs=[];
         for (let i=1;i<itemsCaracsNb+1;i++)
         {
-            itemsCaracs.push(i)
+            itemsCaracs.push(i);
         }
 
         let itemsRarity=["common", "rare", "epic", "legendary"];
@@ -8271,31 +8274,26 @@ function moduleShopActions()
         let itemsType=[];
         for (let i=1;i<itemsTypeNb+1;i++)
         {
-            itemsType.push(i)
+            itemsType.push(i);
         }
 
         let itemsList={};
         for (let c of itemsCaracs)
         {
-            if (itemsList[c] === undefined)
+            let filteredCarac = $('#inventory .selected .inventory_slots .slot:not(.empty)[data-d*=\'"name_add":"'+c+'"\']');
+            itemsList[c] = {};
+            for (let t of itemsType)
             {
-                itemsList[c] = {};
-            }
-            for( let t of itemsType)
-            {
-                if (itemsList[c][t] === undefined)
-                {
-                    itemsList[c][t] = {};
-                }
+                let filteredType = filteredCarac.filter('[data-d*=\'"subtype":"'+t+'"\']');
+                itemsList[c][t] = {};
                 for (let r of itemsRarity)
                 {
-                    if (itemsList[c][t][r] === undefined)
+                    let filteredRarity = filteredType.filter('[data-d*=\'"rarity":"'+r+'"\']');
+                    itemsList[c][t][r] = {};
+                    for (let l of itemsLockedStatus)
                     {
-                        itemsList[c][t][r] = {};
-                    }
-                    for(let l of itemsLockedStatus)
-                    {
-                        itemsList[c][t][r][l]=$(setSlotFilter(c,t,r,l)).length;
+                        let filteredStatus = filteredRarity.filter(l==="locked"?'[menuSellLocked]':':not([menuSellLocked])');
+                        itemsList[c][t][r][l]=filteredStatus.length;
                     }
                 }
             }
@@ -8344,43 +8342,36 @@ function moduleShopActions()
 
         for (let c of itemsCaracs)
         {
-            let ext="png";
-            if (c === 16)
-            {
-                ext = "svg";
-            }
+            let ext= (c === 16)?"svg":"png";
             itemsListMenu +='  <tr>'
                 +'   <td menuSellFilter="c:'+c+';t:*;r:*"><img style="height:20px;width:20px" src="https://hh2.hh-content.com/pictures/misc/items_icons/'+c+'.'+ext+'"></td>';
-            for( let r of itemsRarity)
+            for (let r of itemsRarity)
             {
                 for (let t of itemsType)
                 {
-                    let total= itemsList[c][t][r][itemsLockedStatus[0]]+itemsList[c][t][r][itemsLockedStatus[1]];
-                    let displayNb = itemsList[c][t][r][itemsLockedStatus[0]]+'/'+total;
+                    let allItems = itemsList[c][t][r];
+                    let total = allItems[itemsLockedStatus[0]]+allItems[itemsLockedStatus[1]];
+                    let displayNb = allItems[itemsLockedStatus[0]]+'/'+total;
                     let itemsLockStatus;
                     if (total === 0)
                     {
                         displayNb = "";
                     }
+                    if (allItems[itemsLockedStatus[1]] === 0)
+                    {
+                        //no lock
+                        itemsLockStatus="noneLocked";
+                    }
+                    else if (allItems[itemsLockedStatus[1]] === total)
+                    {
+                        //all locked
+                        itemsLockStatus="allLocked";
+                    }
                     else
                     {
-                        if (itemsList[c][t][r][itemsLockedStatus[1]] === 0)
-                        {
-                            //no lock
-                            itemsLockStatus="noneLocked";
-                        }
-                        else if ( itemsList[c][t][r][itemsLockedStatus[1]] === total)
-                        {
-                            //all locked
-                            itemsLockStatus="allLocked";
-                        }
-                        else
-                        {
-                            //some locked
-                            itemsLockStatus="someLocked";
-                        }
+                        //some locked
+                        itemsLockStatus="someLocked";
                     }
-
 
                     itemsListMenu +='   <td class="tItemsTdItems" itemsLockStatus="'+itemsLockStatus+'" menuSellFilter="c:'+c+';t:'+t+';r:'+r+'"'+'>'+displayNb+'</td>';
                 }
@@ -8440,53 +8431,37 @@ function moduleShopActions()
             return filter;
         }
 
-        $('table.tItems [menuSellFilter] ').each(function()
-                                                 {
-            this.addEventListener("click", function()
-                                  {
+        $('table.tItems [menuSellFilter] ').each(function(){
+            this.addEventListener("click", function(){
                 let toLock = !(this.getAttribute("itemsLockStatus") === "allLocked");
                 let c=this.getAttribute("menuSellFilter").split(";")[0].split(":")[1];
                 let t=this.getAttribute("menuSellFilter").split(";")[1].split(":")[1];
                 let r=this.getAttribute("menuSellFilter").split(";")[2].split(":")[1];
                 AllLockUnlock(setSlotFilter(c,t,r,!toLock),toLock);
-                if (toLock)
-                {
-                    $(setCellsFilter(c,t,r)).each(function()
-                                                  {
-                        this.setAttribute("itemsLockStatus","allLocked");
-                    });
-                }
-                else
-                {
-                    $(setCellsFilter(c,t,r)).each(function()
-                                                  {
-                        this.setAttribute("itemsLockStatus","noneLocked");
-                    });
-                }
+                let newLockStatus = toLock?"allLocked":"noneLocked";
+                $(setCellsFilter(c,t,r)).each(function(){
+                    this.setAttribute("itemsLockStatus",newLockStatus);
+                });
             });
         });
     }
 
     function AllLockUnlock(inFilter,lock)
     {
-        if ($(inFilter).length >0)
+        if (lock)
         {
-            $(inFilter).each(function()
-                             {
-                if (lock)
-                {
-                    this.setAttribute("menuSellLocked", "");
-                    $(this).prepend('<img class="menuSellLocked" style="position:absolute;width:32px;height:32px" src="https://i.postimg.cc/PxgxrBVB/Opponent-red.png">');
-                }
-                else
-                {
-                    this.removeAttribute("menuSellLocked");
-                    this.querySelector("img.menuSellLocked").remove();
-                }
+            $(inFilter).each(function(){
+                this.setAttribute("menuSellLocked", "");
+                $(this).prepend('<img class="menuSellLocked" style="position:absolute;width:32px;height:32px" src="https://i.postimg.cc/PxgxrBVB/Opponent-red.png">');
             });
         }
-
-
+        else
+        {
+            $(inFilter).each(function(){
+                this.removeAttribute("menuSellLocked");
+                this.querySelector("img.menuSellLocked").remove();
+            });
+        }
     }
 
     function lockUnlock(inFilter)
@@ -8507,43 +8482,13 @@ function moduleShopActions()
         }
     }
 
-    let menuSellStop = false;
+    var allLoaded = false;
     var menuSellMaxItems = "all";
     function appendMenuSell()
     {
         let menuID = "SellDialog"
-
-        var menuSellLock = '<div style="position: absolute;left: 70px;top: -10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellLock","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSellLock">'+getTextForUI("menuSellLock","elementText")+'</label></div>'
-        var menuSellMaskLocked = '<div style="position: absolute;left: -5px;top: -10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellMaskLocked","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSellMaskLocked">'+getTextForUI("menuSellMaskLocked","elementText")+'</label></div>'
-        var menuSell = '<div style="position: absolute;right: 50px;top: -10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSell","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSell">'+getTextForUI("menuSell","elementText")+'</label></div>'
-        + '<dialog style="overflow-y:auto;max-width:95%;max-height:95%;"id="SellDialog"><form stylemethod="dialog">'
-        +  '<div style="padding:10px; display:flex;flex-direction:column;">'
-        +   '<p>'+getTextForUI("menuSellText","elementText")+'</p>'
-        +   '<div class="HHMenuRow">'
-        +    '<p>'+getTextForUI("menuSellCurrentCount","elementText")+'</p>'
-        +    '<p id="menuSellCurrentCount">0</p>'
-        +   '</div>'
-        +   '<div id="menuSellStop"><label style="width:80px" class="myButton" id="menuSellStop">'+getTextForUI("OptionStop","elementText")+'</label></div>'
-        +   '<p ></p>'
-        +   '<div id="menuSellHide" style="display:none">'
-        +    '<p id="menuSellList"></p>'
-        +    '<div class="HHMenuRow">'
-        +     '<div style="padding:10px;"class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellButton","tooltip")+'</span><label class="myButton" id="menuSellButton">'+getTextForUI("menuSellButton","elementText")+'</label></div>'
-        +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellNumber","tooltip")+'</span><input id="menuSellNumber" style="width:80%;height:20px" required pattern="'+HHAuto_inputPattern.menuSellNumber+'" type="text" value="0"></div>'
-        +    '</div>'
-        +   '</div>'
-        +   '<div id="menuSoldHide" style="display:none">'
-        +    '<div class="HHMenuRow">'
-        +     '<p>'+getTextForUI("menuSoldText","elementText")+'</p>'
-        +     '<p id="menuSoldCurrentCount">0</p>'
-        +    '</div>'
-        +    '<p id="menuSoldMessage">0</p>'
-        +   '</div>'
-        +  '</div>'
-        + '<menu> <label style="width:80px" class="myButton" id="menuSellCancel">'+getTextForUI("OptionCancel","elementText")+'</label></menu></form></dialog>'
         if (getShopType() !== "armor")
         {
-
             if (document.getElementById(menuID) !== null)
             {
                 try
@@ -8563,52 +8508,66 @@ function moduleShopActions()
             }
             return;
         }
-        else
+        else if (document.getElementById(menuID) !== null)
         {
-
-            if (document.getElementById(menuID) === null)
-            {
-                initMenuSell();
-                initMenuSellLock();
-                initMenuSellMaskLocked();
-                GM_registerMenuCommand(getTextForUI("menuSell","elementText"), displayMenuSell);
-                GM_registerMenuCommand(getTextForUI("menuSellLock","elementText"), launchMenuSellLock);
-                GM_registerMenuCommand(getTextForUI("menuSellMaskLocked","elementText"), launchMenuSellMaskLocked);
-            }
-            else
-            {
-                document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
-                return;
-            }
+            document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
+            return;
         }
+
+        var menuSellLock = '<div style="position: absolute;left: 70px;top: -10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellLock","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSellLock">'+getTextForUI("menuSellLock","elementText")+'</label></div>'
+        var menuSellMaskLocked = '<div style="position: absolute;left: -5px;top: -10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellMaskLocked","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSellMaskLocked">'+getTextForUI("menuSellMaskLocked","elementText")+'</label></div>'
+        var menuSell = '<div style="position: absolute;right: 50px;top: -10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSell","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSell">'+getTextForUI("menuSell","elementText")+'</label></div>'
+        + '<dialog style="overflow-y:auto;max-width:95%;max-height:95%;"id="SellDialog"><form stylemethod="dialog">'
+        +  '<div style="padding:10px; display:flex;flex-direction:column;">'
+        +   '<p>'+getTextForUI("menuSellText","elementText")+'</p>'
+        +   '<div class="HHMenuRow">'
+        +    '<p>'+getTextForUI("menuSellCurrentCount","elementText")+'</p>'
+        +    '<p id="menuSellCurrentCount">0</p>'
+        +   '</div>'
+        +   '<p ></p>'
+        +   '<div id="menuSellHide" style="display:none">'
+        +    '<p id="menuSellList"></p>'
+        +    '<div class="HHMenuRow">'
+        +     '<div style="padding:10px;"class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellButton","tooltip")+'</span><label class="myButton" id="menuSellButton">'+getTextForUI("menuSellButton","elementText")+'</label></div>'
+        +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellNumber","tooltip")+'</span><input id="menuSellNumber" style="width:80%;height:20px" required pattern="'+HHAuto_inputPattern.menuSellNumber+'" type="text" value="0"></div>'
+        +    '</div>'
+        +   '</div>'
+        +   '<div id="menuSoldHide" style="display:none">'
+        +    '<div class="HHMenuRow">'
+        +     '<p>'+getTextForUI("menuSoldText","elementText")+'</p>'
+        +     '<p id="menuSoldCurrentCount">0</p>'
+        +    '</div>'
+        +    '<p id="menuSoldMessage">0</p>'
+        +   '</div>'
+        +  '</div>'
+        + '<menu> <label style="width:80px" class="myButton" id="menuSellCancel">'+getTextForUI("OptionCancel","elementText")+'</label></menu></form></dialog>'
+
+        initMenuSell();
+        initMenuSellLock();
+        initMenuSellMaskLocked();
+        GM_registerMenuCommand(getTextForUI("menuSell","elementText"), displayMenuSell);
+        GM_registerMenuCommand(getTextForUI("menuSellLock","elementText"), launchMenuSellLock);
+        GM_registerMenuCommand(getTextForUI("menuSellMaskLocked","elementText"), launchMenuSellMaskLocked);
 
         function initMenuSell()
         {
-            $('#inventory > div.armor > label').append(menuSell);
+            $('#inventory > div.armor > label').first().append(menuSell);
 
 
             document.getElementById("menuSell").addEventListener("click", displayMenuSell);
             document.getElementById("menuSellCancel").addEventListener("click", function(){
-
-                if (typeof SellDialog.showModal === "function")
-                {
-
-                    SellDialog.close();
-
-                }
-                else
+                var SellDialog = document.getElementById("SellDialog");
+                if (typeof SellDialog.showModal !== "function")
                 {
                     alert("The <dialog> API is not supported by this browser");
+                    return;
                 }
-            });
-            document.getElementById("menuSellStop").addEventListener("click", function(){
-                this.style.display = "none";
-                menuSellStop = true;
+                $('#inventory .selected .inventory_slots .slot:not(.empty)[canBeSold]').removeAttr('canBeSold');
+                SellDialog.close();
             });
 
-            document.getElementById("menuSellButton").addEventListener("click", function()
-                                                                       {
-                if (Number(document.getElementById("menuSellNumber").value) >0 )
+            document.getElementById("menuSellButton").addEventListener("click", function(){
+                if (Number(document.getElementById("menuSellNumber").value) > 0)
                 {
                     logHHAuto("Starting selling "+Number(document.getElementById("menuSellNumber").value)+" items.");
                     sellArmorItems();
@@ -8617,50 +8576,42 @@ function moduleShopActions()
         }
         function displayMenuSell()
         {
-            if (typeof SellDialog.showModal === "function")
-            {
-                menuSellMaxItems = Number(window.prompt("Max amount of inventory to load (all for no limit)",menuSellMaxItems));
-                if (menuSellMaxItems !== null)
-                {
-                    menuSellMaxItems = menuSellMaxItems===NaN?Number.MAX_VALUE:menuSellMaxItems;
-                    SellDialog.showModal();
-                    fetchAllArmorItems();
-                }
-            }
-            else
+            var SellDialog = document.getElementById("SellDialog");
+            if (typeof SellDialog.showModal !== "function")
             {
                 alert("The <dialog> API is not supported by this browser");
+                return;
+            }
+            menuSellMaxItems = Number(window.prompt("Max amount of inventory to load (all for no limit)",menuSellMaxItems));
+            if (menuSellMaxItems !== null)
+            {
+                menuSellMaxItems = isNaN(menuSellMaxItems)?Number.MAX_VALUE:menuSellMaxItems;
+                allLoaded = false;
+                if ($('#menuSellList>.tItems').length === 0)
+                {
+                    menuSellListItems();
+                }
+                document.getElementById("menuSellHide").style.display = "none";
+                SellDialog.showModal();
+                fetchAllArmorItems();
             }
         }
 
         function initMenuSellMaskLocked()
         {
-            $('#inventory > div.armor > label').append(menuSellMaskLocked);
+            $('#inventory > div.armor > label').first().append(menuSellMaskLocked);
             document.getElementById("menuSellMaskLocked").addEventListener("click", launchMenuSellMaskLocked);
         }
         function launchMenuSellMaskLocked()
         {
-            let filterText = "#inventory .selected .inventory_slots .slot[menuSellLocked]";
-            if ($(filterText).length >0)
-            {
-                $(filterText).each(function()
-                                   {
-                    if(this.style.display === "none")
-                    {
-                        this.style.display="block";
-                    }
-                    else
-                    {
-                        this.style.display="none";
-                    }
-                });
-            }
+            $("#inventory .selected .inventory_slots .slot[menuSellLocked]").each(function(){
+                this.style.display = this.style.display==="none"?"block":"none";
+            });
         }
 
         function initMenuSellLock()
         {
-            $('#inventory > div.armor > label').append(menuSellLock);
-
+            $('#inventory > div.armor > label').first().append(menuSellLock);
             document.getElementById("menuSellLock").addEventListener("click", launchMenuSellLock);
         }
         function launchMenuSellLock()
@@ -8676,12 +8627,12 @@ function moduleShopActions()
 
     function fetchAllArmorItems()
     {
-        //console.log(slots.armor_pack_load);
-
-        let workaroundBug535 = true;
-        if (workaroundBug535 || $('#inventory .selected .inventory_slots .slot:not(.empty)').length >= menuSellMaxItems || slots.armor_pack_load < 0)
+        let oldCount = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
+        document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
+        let scroll = $(".inventory_slots>div")[0];
+        if (allLoaded || oldCount >= menuSellMaxItems)
         {
-            document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
+            scroll.scrollTop = 0;
             document.getElementById("menuSellHide").style.display = "block";
             menuSellListItems();
             return;
@@ -8691,41 +8642,11 @@ function moduleShopActions()
             logHHAuto('Sell Dialog closed, stopping');
             return;
         }
-        slots.armor_pack_load++;
-        hh_ajax({
-            class: "Item",
-            action: "armor_pack_load",
-            pack: slots.armor_pack_load,
-            shift: slots.load_item_shift
-        }, function(data) {
-            //loadingAnimation.stop();
-            //$useB.prop("disabled", false);
-            //$sellB.prop("disabled", false);
-            //var $last = $("#inventory [tab].armor .slot").not(".empty").last();
-            var last = $("#inventory [tab].armor .slot").not(".empty").last();
-            $("#shops #inventory [tab].armor>.inventory_slots>div>.slot.empty").remove();
-            $("#shops #inventory [tab].armor>.inventory_slots>div").find(last).after(data.html);
-            //slots.slotAction.normalizeRow("armor");
-            //$slots = $slots.add($("#shops #inventory [tab].armor .slot"));
-            //if (data.last) slots.armor_pack_load = -100;
-            dragndrop.initInventoryItemsDraggable($("#inventory > div.armor.selected > div > div > div.slot"));
-            if (data.last || menuSellStop)
-            {
-                slots.armor_pack_load = -100;
-                document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
-                document.getElementById("menuSellHide").style.display = "block";
-                menuSellListItems();
-            }
-            else
-            {
-                if (document.getElementById("menuSellCurrentCount"))
-                {
-                    document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
-                    setTimeout(fetchAllArmorItems, randomInterval(800,1600));
-                }
-            }
-            //if (callback) callback();
-        });
+        scroll.scrollTop = scroll.scrollHeight-scroll.offsetHeight;
+        setTimeout(function(){
+            allLoaded = oldCount==$('#inventory .selected .inventory_slots .slot:not(.empty)').length;
+            fetchAllArmorItems();
+        }, randomInterval(800,1600));
     }
 
     function sellArmorItems()
@@ -8738,6 +8659,7 @@ function moduleShopActions()
         var itemsToSell = Number(document.getElementById("menuSellNumber").value);
         document.getElementById("menuSoldCurrentCount").innerHTML = "0/"+itemsToSell;
         document.getElementById("menuSoldMessage").innerHTML ="";
+        let PlayerClass = getHHVars('Hero.infos.class') === null ? $('#equiped > div.icon.class_change_btn').attr('carac') : getHHVars('Hero.infos.class');
         function selling_func()
         {
             if ($('#type_item > div.selected[type=armor]').length === 0)
@@ -8750,217 +8672,108 @@ function moduleShopActions()
                 logHHAuto('Sell Dialog closed, stopping');
                 return;
             }
-            else
+            let availebleItems = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])');
+            let currentNumberOfItems = availebleItems.length;
+            if (currentNumberOfItems === 0)
             {
-                let currentNumberOfItems = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
-                if (currentNumberOfItems === 0)
+                logHHAuto('no more items for sale');
+                document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageNoMore","elementText");
+                menuSellListItems();
+                document.getElementById("menuSellHide").style.display = "block";
+                return;
+            }
+            //console.log(initialNumberOfItems,currentNumberOfItems);
+            if ((initialNumberOfItems - currentNumberOfItems) >= itemsToSell) {
+                logHHAuto('Reach wanted sold items.');
+                document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageReachNB","elementText");
+                menuSellListItems();
+                document.getElementById("menuSellHide").style.display = "block";
+                return;
+            }
+            //check Selected item - can we sell it?
+            if (availebleItems.filter('.selected').length > 0)
+            {
+                let can_sell = false;
+                //Non legendary or with specific attribute
+                if (availebleItems.filter('.selected').filter(':not(.legendary),[canBeSold]').length > 0)
                 {
-                    logHHAuto('no more items for sale');
-                    document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageNoMore","elementText");
-                    menuSellListItems();
-                    document.getElementById("menuSellHide").style.display = "block";
+                    can_sell = true;
+                }
+                logHHAuto('can be sold ' + can_sell+ ' : '+ availebleItems.filter('.selected')[0].getAttribute('data-d'));
+                if (can_sell)
+                {
+                    $('#inventory > button.green_text_button[rel=sell]').click();
+                    let currSellNumber = Number((initialNumberOfItems - currentNumberOfItems) +1);
+                    document.getElementById("menuSoldCurrentCount").innerHTML = currSellNumber+"/"+itemsToSell;
+                    document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
+                    setTimeout(selling_func, 300);
                     return;
                 }
-                //console.log(initialNumberOfItems,currentNumberOfItems);
-                if ((initialNumberOfItems - currentNumberOfItems) < itemsToSell)
+            }
+            //Find new sellable items
+            if (availebleItems.filter(':not(.selected):not(.legendary),[canBeSold]').length > 0)
+            {
+                //Select first non legendary item
+                //Or select item that checked before and can be sold
+                availebleItems.filter(':not(.selected):not(.legendary),[canBeSold]')[0].click();
+                setTimeout(selling_func, 300);
+                return;
+            }
+            else if (availebleItems.filter(':not(.selected)').length > 0)
+            {
+                let typesOfSets = ['EQ-LE-06','EQ-LE-05','EQ-LE-04','EQ-LE-0' + PlayerClass];
+                let caracsOfSets = ['carac' + PlayerClass,'chance','endurance','carac' + PlayerClass];
+                //[MaxCarac,Index]
+                let arraysOfSets = [
+                    [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]],//'EQ-LE-06'
+                    [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]],//'EQ-LE-05'
+                    [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]],//'EQ-LE-04'
+                    [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]]//'EQ-LE-0'+ PlayerClass
+                ];
+                /*//Take equipped items into account
+                for (let indexType = 0; indexType < typesOfSets.length; indexType++)
                 {
-                    let PlayerClass = getHHVars('Hero.infos.class') === null ? $('#equiped > div.icon.class_change_btn').attr('carac') : getHHVars('Hero.infos.class');
-                    //check Selected item - can we sell it?
-                    if ($('#inventory .selected .inventory_slots .selected:not([menuSellLocked])').length > 0)
-                    {
-                        let can_sell = false;
-                        //Non legendary check
-                        if ($('#inventory .selected .inventory_slots .selected:not([menuSellLocked])')[0].className.indexOf('legendary') < 0)
-                        {
-                            can_sell = true;
+                    let equipedArray = $('#equiped .armor .slot[data-d*=' + typesOfSets[indexType] + ']');
+                    for (let i5 = 0; i5 < equipedArray.length; i5++) {
+                        let equipedObj = JSON.parse($(equipedArray[i5]).attr('data-d'));
+                        arraysOfSets[indexType][equipedObj.subtype][0] = equipedObj[caracsOfSets[indexType]];
+                    }
+                }*/
 
-                        }
-                        //Legendary but with specific className
-                        else if ($('#inventory .selected .inventory_slots .selected[canBeSold]:not([menuSellLocked])').length > 0)
+                for (let i4 = 0; i4 < availebleItems.length; i4++)
+                {
+                    let sellableItemObj = JSON.parse($(availebleItems[i4]).attr('data-d'));
+                    let indexType = typesOfSets.indexOf(sellableItemObj.id_equip);
+
+                    if (indexType == -1)
+                    {
+                        //console.log('can_sell2');
+                        availebleItems[i4].setAttribute('canBeSold', '');
+                    }
+                    else
+                    {
+                        let currentBest = arraysOfSets[indexType][sellableItemObj.subtype];
+                        let itemCarac = sellableItemObj[caracsOfSets[indexType]];
+                        //checking best gear in inventory based on best class stat
+                        if (currentBest[0] < itemCarac)
                         {
-                            can_sell = true;
+                            currentBest[0] = itemCarac;
+                            if (currentBest[1] >= 0)
+                            {
+                                availebleItems[currentBest[1]].setAttribute('canBeSold', '');
+                            }
+                            currentBest[1] = i4;
                         }
                         else
                         {
-                            let CurrObj;
-                            CurrObj = JSON.parse($('#inventory .selected .inventory_slots .selected:not([menuSellLocked])')[0].getAttribute('data-d'));
-                            if (CurrObj.id_equip != "EQ-LE-06" && CurrObj.id_equip != "EQ-LE-0" + PlayerClass)
-                            {
-                                can_sell = true;
-                            }
-                        }
-                        logHHAuto('can be sold ' + can_sell+ ' : '+ $('#inventory .selected .inventory_slots .selected:not([menuSellLocked])')[0].getAttribute('data-d'));
-                        if (can_sell)
-                        {
-                            $('#inventory > button.green_text_button[rel=sell]').click();
-                            let currSellNumber = Number((initialNumberOfItems - currentNumberOfItems) +1);
-                            document.getElementById("menuSoldCurrentCount").innerHTML = currSellNumber+"/"+itemsToSell;
-                            document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
-                            setTimeout(selling_func, 300);
-                            return;
-                        }
-                    }
-                    //Find new non legendary sellable items
-                    if ($('#inventory .selected .inventory_slots .slot:not(.selected):not(.empty):not(.legendary):not([menuSellLocked])').length > 0)
-                    {
-                        //Select first non legendary item
-                        $('#inventory .selected .inventory_slots .slot:not(.selected):not(.empty):not(.legendary):not([menuSellLocked])')[0].click();
-                        setTimeout(selling_func, 300);
-                        return;
-                    }
-                    else if ($('#inventory .selected .inventory_slots [canBeSold]:not([menuSellLocked])').length > 0)
-                    {
-                        //Select item that checked before and can be sold
-                        $('#inventory .selected .inventory_slots [canBeSold]:not([menuSellLocked])')[0].click();
-                        setTimeout(selling_func, randomInterval(300,500));
-                        return;
-                    }
-                    else if ($('#inventory .selected .inventory_slots .slot:not(.selected):not(.empty):not([menuSellLocked])').length > 0)
-                    {
-                        let sellableslotsLegObj = $('#inventory .selected .inventory_slots .slot:not(.selected):not(.empty):not([menuSellLocked])');
-                        //[MaxCarac,Index]
-                        let TypesArrayPlayerClass = [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]];
-                        let equipedArray = $('#equiped .armor .slot[data-d*=EQ-LE-0' + PlayerClass + ']');
-                        //console.log(equipedArray,TypesArrayPlayerClass);
-                        if (equipedArray.length > 0)
-                        {
-                            let equipedObj;
-                            for (let i5 = 0; i5 < equipedArray.length; i5++)
-                            {
-                                equipedObj = JSON.parse($(equipedArray[i5]).attr('data-d'));
-                                TypesArrayPlayerClass[equipedObj.subtype][0] = equipedObj['carac' + PlayerClass];
-                            }
-                        }
-
-                        let TypesArrayRainbow = [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]];
-                        equipedArray = $('#equiped .armor .slot[data-d*=EQ-LE-06]');
-                        if (equipedArray.length > 0)
-                        {
-                            let equipedObj;
-                            for (let i5 = 0; i5 < equipedArray.length; i5++)
-                            {
-                                equipedObj = JSON.parse($(equipedArray[i5]).attr('data-d'));
-                                TypesArrayRainbow[equipedObj.subtype][0] = equipedObj['carac' + PlayerClass];
-                            }
-                        }
-
-                        let TypesArrayEndurance = [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]];
-                        equipedArray = $('#equiped .armor .slot[data-d*=EQ-LE-04]');
-                        if (equipedArray.length > 0)
-                        {
-                            let equipedObj;
-                            for (let i5 = 0; i5 < equipedArray.length; i5++)
-                            {
-                                equipedObj = JSON.parse($(equipedArray[i5]).attr('data-d'));
-                                TypesArrayEndurance[equipedObj.subtype][0] = equipedObj['endurance'];
-                            }
-                        }
-
-                        let TypesArrayHarmony = [[-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1], [-1, -1]];
-                        equipedArray = $('#equiped .armor .slot[data-d*=EQ-LE-05]');
-                        if (equipedArray.length > 0)
-                        {
-                            let equipedObj;
-                            for (let i5 = 0; i5 < equipedArray.length; i5++)
-                            {
-                                equipedObj = JSON.parse($(equipedArray[i5]).attr('data-d'));
-                                TypesArrayHarmony[equipedObj.subtype][0] = equipedObj['chance'];
-                            }
-                        }
-
-                        let sellableslotsLeg = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])');
-                        for (var i4 = 0; i4 < sellableslotsLeg.length; i4++)
-                        {
-                            sellableslotsLegObj = JSON.parse($(sellableslotsLeg[i4]).attr('data-d'));
-                            //check item type - if not rainbow or not monocolored(NOT for player's class)
-                            if (sellableslotsLegObj.id_equip !== "EQ-LE-06" && sellableslotsLegObj.id_equip !== "EQ-LE-04" && sellableslotsLegObj.id_equip !== "EQ-LE-05" &&sellableslotsLegObj.id_equip !== "EQ-LE-0" + PlayerClass)
-                            {
-                                //console.log('can_sell2');
-                                sellableslotsLeg[i4].setAttribute('canBeSold', '');
-                            }
-                            else if (sellableslotsLegObj.id_equip == "EQ-LE-06")
-                            {
-                                //checking best gear in inventory based on best class stat
-                                if (TypesArrayRainbow[sellableslotsLegObj.subtype][0] < sellableslotsLegObj['carac' + PlayerClass])
-                                {
-                                    TypesArrayRainbow[sellableslotsLegObj.subtype][0] = sellableslotsLegObj['carac' + PlayerClass];
-                                    if (TypesArrayRainbow[sellableslotsLegObj.subtype][1] >= 0)
-                                    {
-                                        sellableslotsLeg[TypesArrayRainbow[sellableslotsLegObj.subtype][1]].setAttribute('canBeSold', '');
-                                    }
-                                    TypesArrayRainbow[sellableslotsLegObj.subtype][1] = i4;
-                                }
-                                else
-                                {
-                                    sellableslotsLeg[i4].setAttribute('canBeSold', '');
-                                }
-                            }
-                            else if (sellableslotsLegObj.id_equip == "EQ-LE-0" + PlayerClass)
-                            {
-                                //checking best gear in inventory based on best class stat
-                                if (TypesArrayPlayerClass[sellableslotsLegObj.subtype][0] < sellableslotsLegObj['carac' + PlayerClass])
-                                {
-                                    TypesArrayPlayerClass[sellableslotsLegObj.subtype][0] = sellableslotsLegObj['carac' + PlayerClass];
-                                    if (TypesArrayPlayerClass[sellableslotsLegObj.subtype][1] >= 0)
-                                    {
-                                        sellableslotsLeg[TypesArrayPlayerClass[sellableslotsLegObj.subtype][1]].setAttribute('canBeSold', '');
-                                    }
-                                    TypesArrayPlayerClass[sellableslotsLegObj.subtype][1] = i4;
-                                }
-                                else
-                                {
-                                    sellableslotsLeg[i4].setAttribute('canBeSold', '');
-                                }
-                            }
-                            else if (sellableslotsLegObj.id_equip == "EQ-LE-04")
-                            {
-                                //checking best gear in inventory based on best class stat
-                                if (TypesArrayEndurance[sellableslotsLegObj.subtype][0] < sellableslotsLegObj['endurance'])
-                                {
-                                    TypesArrayEndurance[sellableslotsLegObj.subtype][0] = sellableslotsLegObj['endurance'];
-                                    if (TypesArrayEndurance[sellableslotsLegObj.subtype][1] >= 0)
-                                    {
-                                        sellableslotsLeg[TypesArrayEndurance[sellableslotsLegObj.subtype][1]].setAttribute('canBeSold', '');
-                                    }
-                                    TypesArrayEndurance[sellableslotsLegObj.subtype][1] = i4;
-                                }
-                                else
-                                {
-                                    sellableslotsLeg[i4].setAttribute('canBeSold', '');
-                                }
-                            }
-                            else if (sellableslotsLegObj.id_equip == "EQ-LE-05")
-                            {
-                                //checking best gear in inventory based on best class stat
-                                if (TypesArrayHarmony[sellableslotsLegObj.subtype][0] < sellableslotsLegObj['chance'])
-                                {
-                                    TypesArrayHarmony[sellableslotsLegObj.subtype][0] = sellableslotsLegObj['chance'];
-                                    if (TypesArrayHarmony[sellableslotsLegObj.subtype][1] >= 0)
-                                    {
-                                        sellableslotsLeg[TypesArrayHarmony[sellableslotsLegObj.subtype][1]].setAttribute('canBeSold', '');
-                                    }
-                                    TypesArrayHarmony[sellableslotsLegObj.subtype][1] = i4;
-                                }
-                                else
-                                {
-                                    sellableslotsLeg[i4].setAttribute('canBeSold', '');
-                                }
-                            }
-                        }
-                        if ($('#inventory .selected .inventory_slots [canBeSold]:not([menuSellLocked])').length == 0)
-                        {
-                            logHHAuto('no more items for sale');
-                            document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageNoMore","elementText");
-                            menuSellListItems();
-                            document.getElementById("menuSellHide").style.display = "block";
-                            return;
+                            availebleItems[i4].setAttribute('canBeSold', '');
                         }
                     }
                 }
-                else
+                if ($('#inventory .selected .inventory_slots [canBeSold]:not([menuSellLocked])').length == 0)
                 {
-                    logHHAuto('Reach wanted sold items.');
-                    document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageReachNB","elementText");
+                    logHHAuto('no more items for sale');
+                    document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageNoMore","elementText");
                     menuSellListItems();
                     document.getElementById("menuSellHide").style.display = "block";
                     return;
