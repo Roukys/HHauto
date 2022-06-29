@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.95
+// @version      5.6.96
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -1590,7 +1590,7 @@ function getCurrentSorting()
     return localStorage.sort_by;
 }
 
-function getGirlMapSorted(inSortType = "date_acquired",inSortReversed = true )
+function getGirlMapSorted(inSortType = "DateAcquired",inSortReversed = true )
 {
     let girlsMap = getHHVars('GirlSalaryManager.girlsMap');
     if (girlsMap !== null)
@@ -1607,7 +1607,7 @@ function getGirlMapSorted(inSortType = "date_acquired",inSortReversed = true )
             else
             {
                 logHHAuto("Unknown sorting function, returning Girls Map sorted by date acquired.");
-                girlsMap.sort(getHHScriptVars("haremSortingFunctions").date_acquired);
+                girlsMap.sort(getHHScriptVars("haremSortingFunctions").DateAcquired);
             }
         }
         if (inSortReversed)
@@ -7150,7 +7150,7 @@ function moduleShopActions()
     {
         if ($("#simResult").length === 0 ) {
             let labelSimFight = '<div id="simResult">'+
-                '<div>'+getTextForUI("name","elementText")+' : </div>'+
+                '<div>'+getTextForUI("Name","elementText")+' : </div>'+
                 '<div id="simResultName">Long User Name</div>'+
                 '<div>'+getTextForUI("simResultMarketPreviousScore","elementText")+'</div>'+
                 '<div id="simResultPreviousScore">'+getTextForUI("none","elementText")+'</div>'+
@@ -10145,13 +10145,11 @@ function compareOwnFirst(a, b, final_comparaison)
 }
 
 HHEnvVariables["global"].haremSortingFunctions = {};
-HHEnvVariables["global"].haremSortingFunctions.date_acquired = function (a, b)
+HHEnvVariables["global"].haremSortingFunctions.DateAcquired = function (a, b)
 {
-    if (getHHVars("all_possible_girls") === null)
-        return -1;
     if (a.gData.own && b.gData.own) {
-        var dateA = new Date(getHHVars("all_possible_girls")[a.gId].date_added).getTime();
-        var dateB = new Date(getHHVars("all_possible_girls")[b.gId].date_added).getTime();
+        var dateA = new Date(a.gData.date_added).getTime();
+        var dateB = new Date(b.gData.date_added).getTime();
         return dateA - dateB
     } else if (a.gData.own && !b.gData.own)
         return -1;
@@ -10160,7 +10158,7 @@ HHEnvVariables["global"].haremSortingFunctions.date_acquired = function (a, b)
     else
         return b.shards - a.shards
 };
-HHEnvVariables["global"].haremSortingFunctions.name = function sortByName(a, b)
+HHEnvVariables["global"].haremSortingFunctions.Name = function sortByName(a, b)
 {
     var nameA = a.gData.name.toUpperCase();
     var nameB = b.gData.name.toUpperCase();
@@ -10175,15 +10173,15 @@ HHEnvVariables["global"].haremSortingFunctions.name = function sortByName(a, b)
     else if (!a.gData.own && b.gData.own)
         return 1
 };
-HHEnvVariables["global"].haremSortingFunctions.grade = function sortByGrade(a, b)
+HHEnvVariables["global"].haremSortingFunctions.Grade = function sortByGrade(a, b)
 {
     return compareOwnFirst(a.gData, b.gData, b.gData.graded - a.gData.graded)
 };
-HHEnvVariables["global"].haremSortingFunctions.level = function sortByLevel(a, b)
+HHEnvVariables["global"].haremSortingFunctions.Level = function sortByLevel(a, b)
 {
     return compareOwnFirst(a.gData, b.gData, b.gData.level - a.gData.level)
 };
-HHEnvVariables["global"].haremSortingFunctions.power = function sortByPower(a, b)
+HHEnvVariables["global"].haremSortingFunctions.Power = function sortByPower(a, b)
 {
     return compareOwnFirst(a.gData, b.gData, b.gData.caracs.carac1 + b.gData.caracs.carac2 + b.gData.caracs.carac3 - a.gData.caracs.carac1 - a.gData.caracs.carac2 - a.gData.caracs.carac3)
 }
@@ -10586,7 +10584,7 @@ HHAuto_ToolTips.en.SimResultMarketButton = { version: "5.6.24", elementText: "Si
 HHAuto_ToolTips.en.simResultMarketPreviousScore = { version: "5.6.24", elementText: "Previous score :", tooltip: ""};
 HHAuto_ToolTips.en.simResultMarketScore = { version: "5.6.24", elementText: "Score : ", tooltip: ""};
 HHAuto_ToolTips.en.none = { version: "5.6.24", elementText: "None", tooltip: ""};
-HHAuto_ToolTips.en.name = { version: "5.6.24", elementText: "Name", tooltip: ""};
+HHAuto_ToolTips.en.Name = { version: "5.6.24", elementText: "Name", tooltip: ""};
 HHAuto_ToolTips.en.sortPowerCalc = { version: "5.6.24", elementText: "Sort by score", tooltip: "Sorting opponents by score."};
 HHAuto_ToolTips.en.haremNextUpgradableGirl = { version: "5.6.24", elementText: "Go to next upgradable Girl.", tooltip: ""};
 HHAuto_ToolTips.en.haremOpenFirstXUpgradable = { version: "5.6.24", elementText: "Open X upgradable girl quest.", tooltip: ""};
@@ -10600,10 +10598,10 @@ HHAuto_ToolTips.en.autoPoVCollect = { version: "5.6.49", elementText: "Collect P
 HHAuto_ToolTips.en.autoPoGCollect = { version: "5.6.89", elementText: "Collect PoG", tooltip: "if enabled : Automatically collect Path of Glory."};
 HHAuto_ToolTips.en.autoDailyGoalsCollect = {version: "5.6.54", elementText: "Collect daily Goals", tooltip: "Collect daily Goals if not collected 2 hours before end of HH day."};
 HHAuto_ToolTips.en.HaremSortMenuSortText = {version: "5.6.56", elementText: "Select the wanted harem sorting : ", tooltip: ""};
-HHAuto_ToolTips.en.date_acquired = {version: "5.6.56", elementText: "Date recruited", tooltip: ""};
-HHAuto_ToolTips.en.grade = {version: "5.6.56", elementText: "Grade", tooltip: ""};
-HHAuto_ToolTips.en.level = {version: "5.6.56", elementText: "Level", tooltip: ""};
-HHAuto_ToolTips.en.power = {version: "5.6.56", elementText: "Power", tooltip: ""};
+HHAuto_ToolTips.en.DateAcquired = {version: "5.6.56", elementText: "Date recruited", tooltip: ""};
+HHAuto_ToolTips.en.Grade = {version: "5.6.56", elementText: "Grade", tooltip: ""};
+HHAuto_ToolTips.en.Level = {version: "5.6.56", elementText: "Level", tooltip: ""};
+HHAuto_ToolTips.en.Power = {version: "5.6.56", elementText: "Power", tooltip: ""};
 HHAuto_ToolTips.en.upgrade_cost = {version: "5.6.56", elementText: "Upgrade cost", tooltip: ""};
 HHAuto_ToolTips.en.HaremSortMenuSortBy = {version: "5.6.56", elementText: "Sort by ", tooltip: ""};
 HHAuto_ToolTips.en.HaremSortMenuSortReverse = {version: "5.6.56", elementText: "Reverse", tooltip: ""};
