@@ -8606,8 +8606,8 @@ function moduleShopActions()
                 if ($('#menuSellList>.tItems').length === 0)
                 {
                     menuSellListItems();
-                    document.getElementById("menuSellHide").style.display = "block";
                 }
+                document.getElementById("menuSellHide").style.display = "block";
                 SellDialog.showModal();
                 document.getElementById("menuSellHide").style.display = "none";
                 fetchAllArmorItems();
