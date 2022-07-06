@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.97
+// @version      5.6.98
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -2903,15 +2903,51 @@ var doChampionStuff=function()
             let OnTimer= OnTimerOld || OnTimerNew;
             let Filtered=Filter.includes(i+1);
             let autoChampGirlInEvent = false;
-            for ( var ec=autoChampsEventGirls.length;ec>0;ec--)
+            let autoChampGirlOnChamp = false;
+            let autoChampGirlsIds = [];
+            let autoChampGirlsEventsID;
+            if (autoChampsForceStartEventGirl)
             {
-                let idArray = Number(ec)-1;
-                if ( Number(autoChampsEventGirls[idArray].champ_id) === i+1)
+                for (let ec=autoChampsEventGirls.length;ec>0;ec--)
                 {
-                    autoChampGirlInEvent = true;
+                    let idArray = Number(ec)-1;
+                    if ( Number(autoChampsEventGirls[idArray].champ_id) === i+1)
+                    {
+                        autoChampGirlInEvent = true;
+                        autoChampGirlsIds.push(Number(autoChampsEventGirls[idArray].girl_id));
+                        autoChampGirlsEventsID=autoChampsEventGirls[idArray].event_id;
+                    }
                 }
+                let firstLockedLevelOfChampRequest ='a.champion-lair[href*=' + Number(i+1) +'] .stage-icon.locked';
+                if ( autoChampGirlInEvent && $(firstLockedLevelOfChampRequest).length > 0 )
+                {
+                    let firstLockedLevelOfChamp = $(firstLockedLevelOfChampRequest)[0].getAttribute("champion-rewards-tooltip");
+                    if
+                        (
+                            firstLockedLevelOfChamp !== undefined
+                            && isJSON(firstLockedLevelOfChamp)
+                            && JSON.parse(firstLockedLevelOfChamp).stage.girl_shards.length > 0
+                        )
+                    {
+                        let parsedFirstLockedLevelOfChamp = JSON.parse(firstLockedLevelOfChamp);
+                        for (let girlIt = 0;girlIt < parsedFirstLockedLevelOfChamp.stage.girl_shards.length; girlIt++)
+                        {
+                            if (autoChampGirlsIds.includes(parsedFirstLockedLevelOfChamp.stage.girl_shards[girlIt].id_girl) )
+                            {
+                                autoChampGirlOnChamp = true;
+                            }
+                        }
+                        if (! autoChampGirlOnChamp)
+                        {
+                            logHHAuto("Seems Girl is no more available at Champion "+Number(i+1)+". Going to event page.");
+                            parseEventPage(autoChampGirlsEventsID);
+                            return true;
+                        }
+                    }
+                }
+
             }
-            const eventGirlForced=autoChampsForceStartEventGirl && autoChampGirlInEvent;
+            const eventGirlForced=autoChampGirlOnChamp;
             logHHAuto("Champion "+(i+1)+" ["+Impression+"]"+(Started?" Started;":" Not started;")+(autoChampsForceStart?" Force start;":" Not force start;")+(OnTimer?" on timer;":" not on timer;")+(Filtered?" Included in filter;":" Excluded from filter;")+(eventGirlForced?" Forced for event":" Not event forced"));
 
             if ((Started || eventGirlForced || autoChampsForceStart) && !OnTimer && Filtered)
@@ -10464,7 +10500,7 @@ HHAuto_ToolTips.en.autoTrollBattle = { version: "5.6.24", elementText: "Enable",
 HHAuto_ToolTips.en.autoTrollSelector = { version: "5.6.24", elementText: "Troll selector", tooltip: "Select troll to be fought."};
 HHAuto_ToolTips.en.autoTrollThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "(Integer 0 to 19)<br>Minimum troll fight to keep"};
 HHAuto_ToolTips.en.eventTrollOrder = { version: "5.6.38", elementText: "Event Troll Order", tooltip: "(values separated by ;)<br>Allow to select in which order event troll are automatically battled<br>1 : Dark Lord<br>2 : Ninja Spy<br>3 : Gruntt<br>4 : Edwarda<br>5 : Donatien<br>6 : Sylvanus<br>7 : Bremen<br>8 : Finalmecia<br>9 : Fredy Sih Roko<br>10 : Karole<br>11 : Jackson's Crew<br>12 : Pandora Witch<br>13 : Nike<br>14 : Sake<br>15 : WereBunny Police"};
-HHAuto_ToolTips.en.autoChampsForceStartEventGirl = { version: "5.6.65", elementText: "Event force", tooltip: "if enabled, will fight for event girl champion even if not started. Champions will need to be activated and champions to be in the filter."};
+HHAuto_ToolTips.en.autoChampsForceStartEventGirl = { version: "5.6.98", elementText: "Event force", tooltip: "if enabled, will fight for event girl champion even if not started. Champions will need to be activated and champions to be in the filter."};
 HHAuto_ToolTips.en.plusEvent = { version: "5.6.24", elementText: "+Event", tooltip: "If enabled : ignore selected troll during event to battle event"};
 HHAuto_ToolTips.en.plusEventMythic = { version: "5.6.24", elementText: "+Mythic Event", tooltip: "Enable grabbing girls for mythic event, should only play them when shards are available, Mythic girl troll will be priorized over Event Troll."};
 //HHAuto_ToolTips.en.eventMythicPrio = { version: "5.6.24", elementText: "Priorize over Event Troll Order", tooltip: "Mythic event girl priorized over event troll order if shards available"};
@@ -13183,7 +13219,7 @@ var start = function () {
                                     +`<input style="text-align:center; width:70px" id="autoChampsFilter" required pattern="${HHAuto_inputPattern.autoChampsFilter}" type="text">`
                                 +`</div>`
                             +`</div>`
-                            +`<div class="labelAndButton" style="display: none;">`
+                            +`<div class="labelAndButton">`
                                 +`<span class="HHMenuItemName">${getTextForUI("autoChampsForceStartEventGirl","elementText")}</span>`
                                 +`<div class="tooltipHH">`
                                     +`<span class="tooltipHHtext">${getTextForUI("autoChampsForceStartEventGirl","tooltip")}</span>`
