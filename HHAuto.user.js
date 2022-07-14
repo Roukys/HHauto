@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.98
+// @version      5.6.99
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -8904,6 +8904,7 @@ var clearEventData=function(inEventID)
     let eventList = isJSON(getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsList")):{};
     let eventsGirlz = isJSON(getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsGirlz")):[];
     let eventGirl =isJSON(getStoredValue("HHAuto_Temp_eventGirl"))?JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")):{};
+    let eventChamps = isJSON(getStoredValue("HHAuto_Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue("HHAuto_Temp_autoChampsEventGirls")):[];
     let hasMythic = false;
     let hasEvent = false;
     for (let prop of Object.keys(eventList))
@@ -8958,6 +8959,26 @@ var clearEventData=function(inEventID)
     }
     else
     {
+        eventChamps = eventChamps.filter(function (a) {
+            if ( !eventChamps.hasOwnProperty(a.event_id) || a.event_id === inEventID)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        });
+        if(Object.keys(eventChamps).length === 0)
+        {
+            sessionStorage.removeItem('HHAuto_Temp_autoChampsEventGirls');
+        }
+        else
+        {
+            setStoredValue("HHAuto_Temp_autoChampsEventGirls", JSON.stringify(eventChamps));
+        }
+
+
         eventsGirlz = eventsGirlz.filter(function (a) {
             if ( !eventList.hasOwnProperty(a.event_id) || a.event_id === inEventID)
             {
@@ -12375,6 +12396,7 @@ var start = function () {
     {
         logHHAuto('???no Hero???');
         $('.hh_logo').click();
+        setTimeout(hardened_start,5000);
         return;
     }
     checkClubStatus();
