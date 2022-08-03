@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.99
+// @version      5.6.100
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -2296,7 +2296,7 @@ var CollectMoney = function()
                 Clicked.shift();
                 if (new Date().getTime() < endCollectTS)
                 {
-                    setTimeout(ClickThem,randomInterval(300,500));
+                    setTimeout(ClickThem,randomInterval(500,600));
                     window.top.postMessage({ImAlive:true},'*');
                 }
                 else
@@ -10444,8 +10444,6 @@ HHEnvVariables["SH_prod"].isEnabledPoG = false;// to remove when PoG arrives in 
                                           'Headmistress Asa Akira',
                                           'Sammy Jayne',
                                           'Ivy Winters'];
-    HHEnvVariables[element].isEnabledPowerPlaces = false;// to remove when PoP arrives in pornstar
-    HHEnvVariables[element].isEnabledMythicPachinko = false;// to remove when Mythic Pachinko arrives in pornstar
     HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in pornstar
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in pornstar
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in pornstar
