@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.100
+// @version      5.6.101
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -8959,8 +8959,9 @@ var clearEventData=function(inEventID)
     }
     else
     {
+        //console.log(JSON.stringify(eventChamps));
         eventChamps = eventChamps.filter(function (a) {
-            if ( !eventChamps.hasOwnProperty(a.event_id) || a.event_id === inEventID)
+            if ( !eventList.hasOwnProperty(a.event_id) || a.event_id === inEventID)
             {
                 return false;
             }
@@ -8969,6 +8970,7 @@ var clearEventData=function(inEventID)
                 return true;
             }
         });
+
         if(Object.keys(eventChamps).length === 0)
         {
             sessionStorage.removeItem('HHAuto_Temp_autoChampsEventGirls');
@@ -8997,10 +8999,12 @@ var clearEventData=function(inEventID)
         {
             setStoredValue("HHAuto_Temp_eventsGirlz", JSON.stringify(eventsGirlz));
         }
+
         if (!eventList.hasOwnProperty(eventGirl.event_id) || eventGirl.event_id ===inEventID)
         {
             sessionStorage.removeItem('HHAuto_Temp_eventGirl');
         }
+
         setStoredValue("HHAuto_Temp_eventsList", JSON.stringify(eventList));
     }
 }
