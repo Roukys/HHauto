@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.101
+// @version      5.6.102
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -2256,6 +2256,7 @@ var CollectMoney = function()
     var collectedGirlzNb = 0;
     var collectedMoney = 0;
     let totalGirlsToCollect = 0;
+    let girlsToCollectBeforeWait = randomInterval(6,12);
     function ClickThem()
     {
         if (endCollectTS === -1)
@@ -2296,7 +2297,15 @@ var CollectMoney = function()
                 Clicked.shift();
                 if (new Date().getTime() < endCollectTS)
                 {
-                    setTimeout(ClickThem,randomInterval(500,600));
+                    let waitBetweenGirlsTime = randomInterval(300,500);
+                    girlsToCollectBeforeWait--;
+                    if (girlsToCollectBeforeWait <= 0)
+                    {
+                        waitBetweenGirlsTime = randomInterval(1200,2000);
+                        girlsToCollectBeforeWait = randomInterval(6,12);
+                    }
+                    logHHAuto("Next girl collection in " + waitBetweenGirlsTime + "ms.");
+                    setTimeout(ClickThem,waitBetweenGirlsTime);
                     window.top.postMessage({ImAlive:true},'*');
                 }
                 else
