@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.102
+// @version      5.6.103
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31
 // @match        http*://*.haremheroes.com/*
@@ -385,19 +385,19 @@ function getPage(checkUnknown = false)
     let page = p;
     if (p==activitiesMainPage)
     {
-        if ($('h4.contests.selected').length>0)
+        if ($('h4.contests.selected').length>0 || $("#tabs_switcher > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='contests']").length>0)
         {
             page = getHHScriptVars("pagesIDContests");
         }
-        if ($('h4.missions.selected').length>0)
+        if ($('h4.missions.selected').length>0 || $("#tabs_switcher > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='missions']").length>0)
         {
             page = getHHScriptVars("pagesIDMissions");
         }
-        if ($('h4.daily_goals.selected').length>0)
+        if ($('h4.daily_goals.selected').length>0 || $("#tabs_switcher > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='daily_goals']").length>0)
         {
             page = getHHScriptVars("pagesIDDailyGoals");
         }
-        if ($('h4.pop.selected').length>0)
+        if ($('h4.pop.selected').length>0 || $("#tabs_switcher > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='pop']").length>0)
         {
             // if on Pop menu
             var t;
@@ -6191,7 +6191,6 @@ var busy = false;
 
 var autoLoop = function ()
 {
-
     updateData();
     if (getStoredValue("HHAuto_Temp_questRequirement") === undefined)
     {
@@ -8863,11 +8862,10 @@ function moduleShopActions()
 var moduleDisplayEventPriority=function()
 {
     if ($('.HHEventPriority').length  > 0) {return}
-    if (getStoredValue("HHAuto_Temp_eventsGirlz") === undefined) {return}
     let eventGirlz=isJSON(getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsGirlz")):{};
     let eventChamps = isJSON(getStoredValue("HHAuto_Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue("HHAuto_Temp_autoChampsEventGirls")):[];
     //$("div.event-widget div.widget[style='display: block;'] div.container div.scroll-area div.rewards-block-tape div.girl_reward div.HHEventPriority").each(function(){this.remove();});
-    if ( eventGirlz.length >0)
+    if ( eventGirlz.length >0 || eventChamps.length >0)
     {
         var girl;
         var prio;
@@ -9140,6 +9138,7 @@ function parseEventPage(inTab="global")
                 button = $('.nc-events-prize-locations-buttons-container a:not(.disabled)[href^="/champions/"]', element);
                 if (button.length > 0)
                 {
+                    eventList[eventID]["isCompleted"] = false;
                     let buttonHrefC = button.attr("href");
                     let girlId = element.getAttribute("data-reward-girl-id");
                     let girlName = $('.shards_bar_wrapper .shards[shards]',element).attr('name');
@@ -9227,32 +9226,39 @@ function parseEventPage(inTab="global")
             }
         });
 
-        if (eventsGirlz.length>0)
+        if (eventsGirlz.length>0 || eventChamps.length>0)
         {
-            if (Priority[0]!=='')
+            if (eventsGirlz.length>0)
             {
-                eventsGirlz.sort(function (a, b) {
+                if (Priority[0]!=='')
+                {
+                    eventsGirlz.sort(function (a, b) {
 
-                    var a_weighted = Number(Priority.indexOf(a.troll_id));
-                    if ( a.is_mythic === "true" )
-                    {
-                        a_weighted=a_weighted-Priority.length;
-                    }
-                    var b_weighted = Number(Priority.indexOf(b.troll_id));
-                    if ( b.is_mythic === "true" )
-                    {
-                        b_weighted=b_weighted-Priority.length;
-                    }
-                    return a_weighted-b_weighted;
+                        var a_weighted = Number(Priority.indexOf(a.troll_id));
+                        if ( a.is_mythic === "true" )
+                        {
+                            a_weighted=a_weighted-Priority.length;
+                        }
+                        var b_weighted = Number(Priority.indexOf(b.troll_id));
+                        if ( b.is_mythic === "true" )
+                        {
+                            b_weighted=b_weighted-Priority.length;
+                        }
+                        return a_weighted-b_weighted;
 
-                });
-                //logHHAuto({log:"Sorted EventGirls",eventGirlz:eventsGirlz});
+                    });
+                    //logHHAuto({log:"Sorted EventGirls",eventGirlz:eventsGirlz});
+                }
+
+                setStoredValue("HHAuto_Temp_eventsGirlz", JSON.stringify(eventsGirlz));
+                var chosenTroll = Number(eventsGirlz[0].troll_id)
+                logHHAuto("ET: "+chosenTroll);
+                setStoredValue("HHAuto_Temp_eventGirl", JSON.stringify(eventsGirlz[0]));
             }
-            setStoredValue("HHAuto_Temp_autoChampsEventGirls", JSON.stringify(eventChamps));
-            setStoredValue("HHAuto_Temp_eventsGirlz", JSON.stringify(eventsGirlz));
-            var chosenTroll = Number(eventsGirlz[0].troll_id)
-            logHHAuto("ET: "+chosenTroll);
-            setStoredValue("HHAuto_Temp_eventGirl", JSON.stringify(eventsGirlz[0]));
+            if (eventChamps.length>0)
+            {
+                setStoredValue("HHAuto_Temp_autoChampsEventGirls", JSON.stringify(eventChamps));
+            }
             queryEventTabCheck[0].setAttribute('parsed', 'true');
             //setStoredValue("HHAuto_Temp_EventFightsBeforeRefresh", "20000");
             //setTimer('eventRefreshExpiration', 3600);
@@ -10472,7 +10478,7 @@ var HHAuto_inputPattern = {
     //kobanBank:"[0-9]+",
     buyCombTimer:"[0-9]+",
     buyMythicCombTimer:"[0-9]+",
-    autoBuyBoostersFilter:"B[1-4](;B[1-4])*",
+    autoBuyBoostersFilter:"M?B[1-4](;M?B[1-4])*",
     //calculatePowerLimits:"(\-?[0-9]+;\-?[0-9]+)|default",
     autoSalaryTimer:"[0-9]+",
     autoTrollThreshold:"[1]?[0-9]",
