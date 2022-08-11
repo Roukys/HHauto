@@ -2114,6 +2114,100 @@ function doPowerPlacesStuff(index)
             return false;
         }
 
+
+        if (getStoredValue("HHAuto_Setting_autoPowerPlacesPrecision") === "true") {
+            if (document.getElementsByClassName("acting-power-text").length>0) {
+
+                // How much power is needed
+                const powerElement = document.getElementsByClassName("acting-power-text");
+                let powerText = powerElement[0].innerText;
+
+                powerText = powerText.substring(powerText.indexOf("/")+1);
+                if (powerText.includes("k") || powerText.includes("K")) {
+                    powerText = parseInt(parseFloat(powerText) * 1000);
+                } else if (powerText.includes("m") || powerText.includes("M")) {
+                    powerText = parseInt(parseFloat(powerText * 1000000));
+                } else {
+                    powerText = parseInt(powerText)
+                }
+
+                // Goal is to select girls which add to required power without going over
+                // Once completed, if the time will be under 7.5 hours, proceed
+                let girlsList = [];
+                if (document.querySelectorAll('[girl]').length>0) {
+                    let availGirls = document.querySelectorAll('[girl]');
+                    availGirls.forEach(girl=>{
+                        const girlObj = {
+                            id : parseInt(girl.attributes["girl"].value),
+                            power : parseInt(girl.attributes["skill"].value)
+                        }
+                        girlsList.push(girlObj);
+
+                    });
+                    girlsList.sort((a,b) => {
+                        return a.power - b.power;
+                    });
+
+                    //const startTime = performance.now();
+
+                    let girlOptions = [];
+                    
+                    for (i = girlsList.length - 1; i >= 0; i--) {
+                        const loopGirls = girlsList.slice(0, i + 1);
+                        const loopPower = powerText;
+                        const loopOptions = girlPower(loopPower, loopGirls, []);
+                        girlOptions.push(loopOptions);
+                    };
+                    
+                    let teamScore = 0;
+                    let chosenTeam = [];
+                    girlOptions.forEach((theseGirls) => {
+                        let thisPower = 0;
+                        theseGirls.forEach((girl) => {
+                            thisPower += girl.power;
+                        });
+                        const thisScore = Math.min(1, ((thisPower/powerText) * ((1 / Math.sqrt(theseGirls.length))+0.28)));
+                        if (thisScore > teamScore) {
+                            teamScore = thisScore;
+                            chosenTeam = theseGirls;
+                        };
+                    });
+
+                    //const endTime = performance.now();
+                    //console.log("DEBUG: Calculating took: "+ (endTime-startTime) +" ms");
+
+                    availGirls.forEach(availGirl => {
+                        chosenTeam.forEach(chosenGirl => {
+                            if (parseInt(availGirl.attributes["girl"].value) == chosenGirl.id) {
+                                availGirl.click();
+                            };
+                        });
+                    });
+                };
+            };
+
+            if (document.getElementsByClassName("pop_remaining").length>0){
+                if (document.getElementsByClassName("pop_remaining")[0].children.length>0) {
+                    let remainText = document.getElementsByClassName("pop_remaining")[0].children[0].innerText
+                    let remainHours = parseInt(remainText.substring(remainText.indexOf("h"), -2))
+                    let remainMins = parseInt(remainText.substring(remainText.indexOf("m"), -2))
+
+                    // If we weren't able to get under 7.5 hours, skip
+                    if ((remainHours > 7) && (remainMins > 30)) {
+                        addPopToUnableToStart(index,"Unable to start Pop "+index+" too much time remaining.");
+                        removePopFromPopToStart(index);
+                        return false;
+                    } else {
+                        querySelectorText = "button.blue_button_L[rel='pop_action']:not([disabled])"
+                        if ($(querySelectorText).length>0)
+                        {
+                            document.querySelector(querySelectorText).click();
+                            logHHAuto("Started powerplace"+index);
+                        };
+                    };
+                };
+            };
+    } else {
         if ($("div.grid_view div.not_selected").length === 1)
         {
             $("div.grid_view div.not_selected").click();
@@ -2128,7 +2222,6 @@ function doPowerPlacesStuff(index)
                 logHHAuto("Autoassigned powerplace"+index);
             }
         }
-
         querySelectorText = "button.blue_button_L[rel='pop_action']:not([disabled])"
         if ($(querySelectorText).length>0)
         {
@@ -2141,12 +2234,29 @@ function doPowerPlacesStuff(index)
             removePopFromPopToStart(index);
             return false;
         }
+    };
 
         removePopFromPopToStart(index);
         // Not busy
         return false;
     }
 }
+
+function girlPower(powerRemaining, girlList, selectedGirls) {
+    //let subList = structuredClone(girlList);
+    let subList = girlList;
+//    let localRemain = powerRemaining;
+//    let localGirls = selectedGirls;
+    if (subList.length>0){
+        let currentGirl = subList.pop();
+        if(currentGirl.power <= powerRemaining) {
+            selectedGirls.push(currentGirl);
+            powerRemaining -= currentGirl.power;              
+        };
+        selectedGirls = girlPower(powerRemaining, subList, selectedGirls);     
+    };
+    return selectedGirls;
+};
 
 // returns boolean to set busy
 function doContestStuff()
@@ -10563,6 +10673,7 @@ HHAuto_ToolTips.en.autoLeaguesThreshold = { version: "5.6.24", elementText: "Thr
 HHAuto_ToolTips.en.autoPowerPlaces = { version: "5.6.24", elementText: "Places of Power", tooltip: "if enabled : Automatically Do powerPlaces"};
 HHAuto_ToolTips.en.autoPowerPlacesIndexFilter = { version: "5.6.24", elementText: "Index Filter", tooltip: "(values separated by ;)<br>Allow to set filter and order on the PowerPlaces to do (order respected only when multiple powerPlace expires at the same time)"};//<table style='font-size: 8px;line-height: 1;'><tr><td>Reward</td>  <td>HC</td>    <td>CH</td>   <td>KH</td></tr><tr><td>Champ tickets & M¥</td>    <td>4</td>   <td>5</td>   <td>6</td></tr><tr><td>Kobans & K¥</td>  <td>7</td>   <td>8</td>   <td>9</td></tr><tr><td>Epic Book & K¥</td> <td>10</td>  <td>11</td> <td>12</td></tr><tr><td>Epic Orbs & K¥</td>  <td>13</td>  <td>14</td>  <td>15</td></tr><tr><td>Leg. Booster & K¥</td>   <td>16</td>  <td>17</td>  <td>18</td></tr><tr><td>Champions tickets & K¥</td>  <td>19</td>  <td>20</td>  <td>21</td></tr><tr><td>Epic Gift & K¥</td>  <td>22</td>  <td>23</td>  <td>24</td></tr></table>"};
 HHAuto_ToolTips.en.autoPowerPlacesAll = { version: "5.6.24", elementText: "Do All", tooltip: "If enabled : ignore filter and do all powerplaces (will update Filter with current ids)"};
+HHAuto_ToolTips.en.autoPowerPlacesPrecision = { version: "5.6.103", elementText: "PoP precision", tooltip: "If enabled : use more advanced algorithm to try and find best team instead of using auto"};
 HHAuto_ToolTips.en.autoChampsTitle = { version: "5.6.24", elementText: "Champions"};
 HHAuto_ToolTips.en.autoChamps = { version: "5.6.24", elementText: "Normal", tooltip: "if enabled : Automatically do champions (if they are started and in filter only)"};
 HHAuto_ToolTips.en.autoChampsForceStart = { version: "5.6.76", elementText: "Force start", tooltip: "if enabled : will fight filtered champions even if not started."};
@@ -11318,6 +11429,17 @@ HHStoredVars.HHAuto_Setting_autoPowerPlacesAll =
         clearTimer('minPowerPlacesTime');
         cleanTempPopToStart();
     }
+};
+HHStoredVars.HHAuto_Setting_autoPowerPlacesPrecision =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
 };
 HHStoredVars.HHAuto_Setting_autoPowerPlacesIndexFilter =
     {
@@ -12718,6 +12840,17 @@ var start = function () {
                                         +`</label>`
                                     +`</div>`
                                 +`</div>`
+                                +`<div class="labelAndButton">`
+                                +`<span class="HHMenuItemName">${getTextForUI("autoPowerPlacesPrecision","elementText")}</span>`
+                                +`<div class="tooltipHH">`
+                                    +`<span class="tooltipHHtext">${getTextForUI("autoPowerPlacesPrecision","tooltip")}</span>`
+                                    +`<label class="switch">`
+                                        +`<input id="autoPowerPlacesPrecision" type="checkbox">`
+                                        +`<span class="slider round">`
+                                        +`</span>`
+                                    +`</label>`
+                                +`</div>`
+                            +`</div>`
                             +`</div>`
                         +`</div>`
                     +`</div>`
