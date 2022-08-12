@@ -12210,6 +12210,12 @@ HHStoredVars.HHAuto_Temp_Logging =
     storage:"sessionStorage",
     HHType:"Temp"
 };
+HHStoredVars.HHAuto_Temp_Debug = 
+    {
+    default: "false",
+    storage: "SessionStorage",
+    valueType: "Boolean",
+};
 /*HHStoredVars.HHAuto_Temp_trollToFight =
     {
     storage:"sessionStorage",
