@@ -2257,6 +2257,8 @@ var CollectMoney = function()
     var collectedMoney = 0;
     let totalGirlsToCollect = 0;
     let girlsToCollectBeforeWait = randomInterval(6,12);
+    let failCount = 0;
+
     function ClickThem()
     {
         if (endCollectTS === -1)
@@ -2294,6 +2296,25 @@ var CollectMoney = function()
                     collectedMoney += data.money;
                     collectedGirlzNb++;
                 }
+                else {
+                    logHHAuto("Salary collection for girl " + params.id_girl + " failed.");
+                    logHHAuto(data);
+                    failCount++;
+
+                    if (failCount >= 3) {
+                        let message = "Failed salary collection more then three times, aborting and trying again in five minutes.";
+                        logHHAuto(message);
+                        fillHHPopUp("sallaryCollection", "failed salary collection", message);
+
+                        let salaryTimer = 60 * 5; // try again in 5 min.
+
+                        setTimer('nextSalaryTime', salaryTimer);
+                        gotoPage(getHHScriptVars("pagesIDHome"),{},randomInterval(300,500));
+
+                        return;
+                    }
+                }
+
                 Clicked.shift();
                 if (new Date().getTime() < endCollectTS)
                 {
