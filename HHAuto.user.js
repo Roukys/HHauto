@@ -9867,7 +9867,7 @@ function getAndStoreCollectPreferences(inVarName, inPopUpText = getTextForUI("me
     {
         let menuCollectables = '<div class="HHAutoScriptMenu" style="padding:10px; display:flex;flex-direction:column">'
         +    '<p>'+inPopUpText+'</p>'
-        +    '<div style="display:flex;flex-direction:row;justify-content: space-between;">'
+        +    '<div style="display:flex;">'
         let count = 0;
         const possibleRewards = getHHScriptVars("possibleRewardsList");
         const rewardsToCollect = isJSON(getStoredValue(inVarName))?JSON.parse(getStoredValue(inVarName)):[];
@@ -9878,15 +9878,21 @@ function getAndStoreCollectPreferences(inVarName, inPopUpText = getTextForUI("me
             {
                 count = 0;
                 menuCollectables+='</div>';
-                menuCollectables+='<div style="display:flex;flex-direction:row;justify-content: space-between;">';
+                menuCollectables+='<div style="display:flex;">';
             }
             const checkedBox = rewardsToCollect.includes(currentItem)?"checked":"";
-            menuCollectables+='<div style="display:flex;flex-direction:row">';
-            menuCollectables+='<div class="labelAndButton"><span class="HHMenuItemName">'+possibleRewards[currentItem]+'</span><label class="switch"><input id="'+currentItem+'" class="menuCollectablesItem" type="checkbox" '+checkedBox+'><span class="slider round"></span></label></div>'
+            menuCollectables+='<div style="display:flex; width:25%">';
+            menuCollectables+='<div class="labelAndButton" style=""><label class="switch"><input id="'+currentItem+'" class="menuCollectablesItem" type="checkbox" '+checkedBox+'><span class="slider round"></span></label><span class="HHMenuItemName">'+possibleRewards[currentItem]+'</span></div>'
             menuCollectables+='</div>';
             count++;
         }
-
+        menuCollectables+='<div style="display:flex;width:25%">';
+        menuCollectables+='<div class="labelAndButton" style=""><span class="HHMenuItemName">Toggle All</span><label class="button">';
+        menuCollectables+='<input id="toggleCollectables" class="menuCollectablesItem" type="button" value="Click!"';
+        menuCollectables+='onclick="let allInputs = window.document.querySelectorAll(\'#HHAutoPopupGlobalPopup.menuCollectable .menuCollectablesItem\'); ';
+        menuCollectables+='allInputs.forEach((currentInput) \=\> {currentInput.checked = !currentInput.checked;}); ';
+        menuCollectables+='evt = document.createEvent(\'HTMLevents\'); evt.initEvent(\'change\',true,true); ';
+        menuCollectables+='allInputs[0].dispatchEvent(evt);"><span class="button"></span></label></div>';
         menuCollectables +=    '</div>'
             +  '</div>';
         fillHHPopUp("menuCollectable",getTextForUI("menuCollectable","elementText"),menuCollectables);
