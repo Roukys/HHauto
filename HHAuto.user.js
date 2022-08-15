@@ -6326,7 +6326,7 @@ var autoLoop = function ()
     //console.log("burst : "+burst);
     checkAndClosePopup(burst);
 
-    if (burst /*|| checkTimer('nextMissionTime')*/)
+    if (burst && !mouseBusy /*|| checkTimer('nextMissionTime')*/)
     {
 
         if (!checkTimer("paranoiaSwitch") )
@@ -10798,6 +10798,7 @@ HHAuto_ToolTips.en.AssignTopTeam  = {version: "5.6.24", elementText: "Assign fir
 HHAuto_ToolTips.en.ExportGirlsData = {version: "5.6.24", elementText: "⤓", tooltip: "Export Girls data."};
 HHAuto_ToolTips.en.menuRemoveMaxed = {version: "5.6.24", elementText: "Remove maxed", tooltip: "Remove maxed girls"};
 HHAuto_ToolTips.en.autoDailyRewardsCollect = {version: "5.6.54", elementText: "Collect daily Rewards", tooltip: "Collect daily rewards if not collected 2 hours before end of HH day."};
+HHAuto_ToolTips.en.mousePause = {version: "5.6.104", elementText: "Mouse Pause", tooltip: "Pause script activity for 5 seconds when mouse movement is detected. Helps stop script from interrupting manual actions."};
 HHAuto_ToolTips.en.saveDefaults = {version: "5.6.24", elementText: "Save defaults", tooltip: "Save your own defaults values for new tabs."};
 HHAuto_ToolTips.en.autoGiveAff = {version: "5.6.24", elementText: "Auto Give", tooltip: "If enabled, will automatically give Aff to girls in order ( you can use OCD script to filter )."};
 HHAuto_ToolTips.en.autoGiveExp = {version: "5.6.24", elementText: "Auto Give", tooltip: "If enabled, will automatically give Exp to girls in order ( you can use OCD script to filter )."};
@@ -11774,6 +11775,17 @@ HHStoredVars.HHAuto_Setting_autoDailyRewardsCollectablesList =
     HHType:"Setting",
     valueType:"Array"
 };
+HHStoredVars.HHAuto_Setting_mousePause =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+};
 HHStoredVars.HHAuto_Setting_eventTrollOrder =
     {
     default:"1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20",
@@ -12540,6 +12552,8 @@ function migrateHHVars()
     }
 }
 
+let mouseBusy = false;
+let mouseBusyTimeout = 0;
 var start = function () {
 
     if (unsafeWindow.Hero===undefined)
@@ -12565,6 +12579,14 @@ var start = function () {
     }
     clearEventData("onlyCheckEventsHHScript");
     setDefaults();
+
+    if (getStoredValue("HHAuto_Setting_mousePause") == "true") {
+        document.onmousemove = function() {
+            clearTimeout(mouseBusyTimeout);
+            mouseBusy = true;
+            mouseBusyTimeout = setTimeout(function(){mouseBusy = false;}, 5000);
+        }
+    }
 
     // Add UI buttons.
     let sMenu =`<div id="sMenu" class="HHAutoScriptMenu" style="top: 45px;right: 52px;padding: 4px;display: none;opacity: 1;border-radius: 4px;border: 1px solid #ffa23e;background-color: #1e261e;font-size:x-small; position:absolute; text-align:left; flex-direction:column; justify-content:space-between; z-index:10000">`
@@ -12640,6 +12662,17 @@ var start = function () {
                                     +`</label>`
                                 +`</div>`
                             +`</div>`
+                            +`<div id="isEnabledMousePause" class="labelAndButton">`
+                                +`<span class="HHMenuItemName">${getTextForUI("mousePause","elementText")}</span>`
+                                +`<div class="tooltipHH">`
+                                    +`<span class="tooltipHHtext">${getTextForUI("mousePause","tooltip")}</span>`
+                                    +`<label class="switch">`
+                                        +`<input id="mousePause" type="checkbox">`
+                                        +`<span class="slider round">`
+                                        +`</span>`
+                                    +`</label>`
+                                +`</div>`
+                            +`</div>`                            
                         +`</div>`
                         +`<div class="optionsColumn">`
                             +`<div class="labelAndButton">`
