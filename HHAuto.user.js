@@ -2148,7 +2148,11 @@ function doPowerPlacesStuff(index)
                         return a.power - b.power;
                     });
 
-                    //const startTime = performance.now();
+                    //Debug can be enabled by manually setting "HHAuto_Temp_Debug" to true in browser console
+                    debugEnabled = getStoredValue("HHAuto_Temp_Debug")!==undefined?getStoredValue("HHAuto_Temp_Logging"):false;
+                    if (debugEnabled) {
+                        const startTime = performance.now();
+                    }
 
                     let girlOptions = [];
 
@@ -2166,6 +2170,7 @@ function doPowerPlacesStuff(index)
                         theseGirls.forEach((girl) => {
                             thisPower += girl.power;
                         });
+                        // Give the team a score to try and use more efficient teams (ie: fewer girls) instead of just the fastest
                         const thisScore = Math.min(1, ((thisPower/powerText) * ((1 / Math.sqrt(theseGirls.length))+0.28)));
                         if (thisScore > teamScore) {
                             teamScore = thisScore;
@@ -2173,8 +2178,10 @@ function doPowerPlacesStuff(index)
                         };
                     });
 
-                    //const endTime = performance.now();
-                    //console.log("DEBUG: Calculating took: "+ (endTime-startTime) +" ms");
+                    if (debugEnabled) {
+                        const endTime = performance.now();
+                        logHHAuto("PoP precision: calculating this team took "+ (endTime-startTime) +"ms");
+                    }
 
                     availGirls.forEach(availGirl => {
                         chosenTeam.forEach(chosenGirl => {
@@ -2189,11 +2196,12 @@ function doPowerPlacesStuff(index)
             if (document.getElementsByClassName("pop_remaining").length>0){
                 if (document.getElementsByClassName("pop_remaining")[0].children.length>0) {
                     let remainText = document.getElementsByClassName("pop_remaining")[0].children[0].innerText
-                    let remainHours = parseInt(remainText.substring(remainText.indexOf("h"), -2))
-                    let remainMins = parseInt(remainText.substring(remainText.indexOf("m"), -2))
+                    const hasRemainDays = remainText.includes("d");
+                    const remainHours = parseInt(remainText.substring(remainText.indexOf("h"), -2))
+                    const remainMins = parseInt(remainText.substring(remainText.indexOf("m"), -2))
 
                     // If we weren't able to get under 7.5 hours, skip
-                    if ((remainHours > 7) && (remainMins > 30)) {
+                    if (((remainHours > 7) && (remainMins > 30)) || (hasRemainDays)) {
                         addPopToUnableToStart(index,"Unable to start Pop "+index+" too much time remaining.");
                         removePopFromPopToStart(index);
                         return false;
@@ -10684,7 +10692,7 @@ HHAuto_ToolTips.en.autoLeaguesThreshold = { version: "5.6.24", elementText: "Thr
 HHAuto_ToolTips.en.autoPowerPlaces = { version: "5.6.24", elementText: "Places of Power", tooltip: "if enabled : Automatically Do powerPlaces"};
 HHAuto_ToolTips.en.autoPowerPlacesIndexFilter = { version: "5.6.24", elementText: "Index Filter", tooltip: "(values separated by ;)<br>Allow to set filter and order on the PowerPlaces to do (order respected only when multiple powerPlace expires at the same time)"};//<table style='font-size: 8px;line-height: 1;'><tr><td>Reward</td>  <td>HC</td>    <td>CH</td>   <td>KH</td></tr><tr><td>Champ tickets & M¥</td>    <td>4</td>   <td>5</td>   <td>6</td></tr><tr><td>Kobans & K¥</td>  <td>7</td>   <td>8</td>   <td>9</td></tr><tr><td>Epic Book & K¥</td> <td>10</td>  <td>11</td> <td>12</td></tr><tr><td>Epic Orbs & K¥</td>  <td>13</td>  <td>14</td>  <td>15</td></tr><tr><td>Leg. Booster & K¥</td>   <td>16</td>  <td>17</td>  <td>18</td></tr><tr><td>Champions tickets & K¥</td>  <td>19</td>  <td>20</td>  <td>21</td></tr><tr><td>Epic Gift & K¥</td>  <td>22</td>  <td>23</td>  <td>24</td></tr></table>"};
 HHAuto_ToolTips.en.autoPowerPlacesAll = { version: "5.6.24", elementText: "Do All", tooltip: "If enabled : ignore filter and do all powerplaces (will update Filter with current ids)"};
-HHAuto_ToolTips.en.autoPowerPlacesPrecision = { version: "5.6.103", elementText: "PoP precision", tooltip: "If enabled : use more advanced algorithm to try and find best team instead of using auto"};
+HHAuto_ToolTips.en.autoPowerPlacesPrecision = { version: "5.6.103", elementText: "PoP precision", tooltip: "If enabled : use more advanced algorithm to try and find best team instead of using auto. This is more useful when you have a smaller roster and may be very slow with large rosters."};
 HHAuto_ToolTips.en.autoChampsTitle = { version: "5.6.24", elementText: "Champions"};
 HHAuto_ToolTips.en.autoChamps = { version: "5.6.24", elementText: "Normal", tooltip: "if enabled : Automatically do champions (if they are started and in filter only)"};
 HHAuto_ToolTips.en.autoChampsForceStart = { version: "5.6.76", elementText: "Force start", tooltip: "if enabled : will fight filtered champions even if not started."};
@@ -12218,6 +12226,12 @@ HHStoredVars.HHAuto_Temp_Logging =
     {
     storage:"sessionStorage",
     HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_Debug = 
+    {
+    default: "false",
+    storage: "SessionStorage",
+    valueType: "Boolean",
 };
 /*HHStoredVars.HHAuto_Temp_trollToFight =
     {
