@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.104
+// @version      5.6.105
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox
 // @match        http*://*.haremheroes.com/*
@@ -2151,14 +2151,14 @@ function doPowerPlacesStuff(index)
                     //const startTime = performance.now();
 
                     let girlOptions = [];
-                    
+
                     for (i = girlsList.length - 1; i >= 0; i--) {
                         const loopGirls = girlsList.slice(0, i + 1);
                         const loopPower = powerText;
                         const loopOptions = girlPower(loopPower, loopGirls, []);
                         girlOptions.push(loopOptions);
                     };
-                    
+
                     let teamScore = 0;
                     let chosenTeam = [];
                     girlOptions.forEach((theseGirls) => {
@@ -2251,9 +2251,9 @@ function girlPower(powerRemaining, girlList, selectedGirls) {
         let currentGirl = subList.pop();
         if(currentGirl.power <= powerRemaining) {
             selectedGirls.push(currentGirl);
-            powerRemaining -= currentGirl.power;              
+            powerRemaining -= currentGirl.power;
         };
-        selectedGirls = girlPower(powerRemaining, subList, selectedGirls);     
+        selectedGirls = girlPower(powerRemaining, subList, selectedGirls);
     };
     return selectedGirls;
 };
@@ -2404,6 +2404,10 @@ var CollectMoney = function()
                     collectedMoney += data.money;
                     collectedGirlzNb++;
                 }
+                else
+                {
+                    logHHAuto("Collect error on n°"+Clicked[0]);
+                }
                 Clicked.shift();
                 if (new Date().getTime() < endCollectTS)
                 {
@@ -2414,7 +2418,7 @@ var CollectMoney = function()
                         waitBetweenGirlsTime = randomInterval(1200,2000);
                         girlsToCollectBeforeWait = randomInterval(6,12);
                     }
-                    logHHAuto("Next girl collection in " + waitBetweenGirlsTime + "ms.");
+                    logHHAuto("Next girl collection in " + waitBetweenGirlsTime + "ms after n°"+Clicked[0]);
                     setTimeout(ClickThem,waitBetweenGirlsTime);
                     window.top.postMessage({ImAlive:true},'*');
                 }
@@ -2426,6 +2430,7 @@ var CollectMoney = function()
             },
                     function(err) {
                 Clicked.shift();
+                logHHAuto("Bypassed n°"+Clicked[0]);
                 setTimeout(ClickThem,randomInterval(300,500));
             });
             //collectedMoney += $('span.s_value',$(ToClick[0])).length>0?Number($('span.s_value',$(ToClick[0]))[0].innerText.replace(/[^0-9]/gi, '')):0;
