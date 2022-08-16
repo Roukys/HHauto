@@ -2153,9 +2153,11 @@ function doPowerPlacesStuff(index)
                     });
 
                     //Debug can be enabled by manually setting "HHAuto_Temp_Debug" to true in browser console
-                    let debugEnabled = getStoredValue("HHAuto_Temp_Debug")!==undefined?getStoredValue("HHAuto_Temp_Logging"):false;
+                    const debugEnabled = Boolean(getStoredValue("HHAuto_Temp_Debug")!==undefined?(getStoredValue("HHAuto_Temp_Debug")===true?true:false):false);
+                    let startTime = 0;
                     if (debugEnabled) {
-                        const startTime = performance.now();
+                        logHHAuto("PoP debug is enabled");
+                        startTime = performance.now();
                     }
 
                     let girlOptions = [];
@@ -2199,13 +2201,16 @@ function doPowerPlacesStuff(index)
 
             if (document.getElementsByClassName("pop_remaining").length>0){
                 if (document.getElementsByClassName("pop_remaining")[0].children.length>0) {
-                    let remainText = document.getElementsByClassName("pop_remaining")[0].children[0].innerText
+                    const remainText = document.getElementsByClassName("pop_remaining")[0].children[0].innerText
+                    logHHAuto("PoP remainText: " + remainText);
                     const hasRemainDays = remainText.includes("d");
-                    const remainHours = parseInt(remainText.substring(remainText.indexOf("h"), -2))
-                    const remainMins = parseInt(remainText.substring(remainText.indexOf("m"), -2))
+                    // If for some reason we cannot parse the text, set time too high to start
+                    // This may cause undesirable loops but for now is considered better than having girls stuck in PoP for days
+                    const remainHours = remainText.indexOf("h")?parseInt(remainText.substring(remainText.indexOf("h")-2, remainText.indexOf("h"))):9;
+                    const remainMins = remainText.indexOf("m")?parseInt(remainText.substring(remainText.indexOf("m")-2, remainText.indexOf("m"))):59;
 
                     // If we weren't able to get under 7.5 hours, skip
-                    if (((remainHours > 7) && (remainMins > 30)) || (hasRemainDays)) {
+                    if ((hasRemainDays) || (remainHours > 7) || ((remainHours == 7) && (remainMins > 30))) {
                         addPopToUnableToStart(index,"Unable to start Pop "+index+" too much time remaining.");
                         removePopFromPopToStart(index);
                         return false;
@@ -2255,10 +2260,7 @@ function doPowerPlacesStuff(index)
 }
 
 function girlPower(powerRemaining, girlList, selectedGirls) {
-    //let subList = structuredClone(girlList);
     let subList = girlList;
-//    let localRemain = powerRemaining;
-//    let localGirls = selectedGirls;
     if (subList.length>0){
         let currentGirl = subList.pop();
         if(currentGirl.power <= powerRemaining) {
