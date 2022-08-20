@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.108
+// @version      5.6.109
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox
 // @match        http*://*.haremheroes.com/*
@@ -2224,34 +2224,34 @@ function doPowerPlacesStuff(index)
                     };
                 };
             };
-    } else {
-        if ($("div.grid_view div.not_selected").length === 1)
-        {
-            $("div.grid_view div.not_selected").click();
-            logHHAuto("Only one girl available for powerplace n°"+index+ " assigning her.");
-        }
-        else
-        {
-            querySelectorText = "button.blue_button_L[rel='pop_auto_assign']:not([disabled])"
+        } else {
+            if ($("div.grid_view div.not_selected").length === 1)
+            {
+                $("div.grid_view div.not_selected").click();
+                logHHAuto("Only one girl available for powerplace n°"+index+ " assigning her.");
+            }
+            else
+            {
+                querySelectorText = "button.blue_button_L[rel='pop_auto_assign']:not([disabled])"
+                if ($(querySelectorText).length>0)
+                {
+                    document.querySelector(querySelectorText).click();
+                    logHHAuto("Autoassigned powerplace"+index);
+                }
+            }
+            querySelectorText = "button.blue_button_L[rel='pop_action']:not([disabled])"
             if ($(querySelectorText).length>0)
             {
                 document.querySelector(querySelectorText).click();
-                logHHAuto("Autoassigned powerplace"+index);
+                logHHAuto("Started powerplace"+index);
             }
-        }
-        querySelectorText = "button.blue_button_L[rel='pop_action']:not([disabled])"
-        if ($(querySelectorText).length>0)
-        {
-            document.querySelector(querySelectorText).click();
-            logHHAuto("Started powerplace"+index);
-        }
-        else if ($("button.blue_button_L[rel='pop_action'][disabled]").length >0 && $("div.grid_view div.pop_selected").length >0)
-        {
-            addPopToUnableToStart(index,"Unable to start Pop "+index+" not enough girls available.");
-            removePopFromPopToStart(index);
-            return false;
-        }
-    };
+            else if ($("button.blue_button_L[rel='pop_action'][disabled]").length >0 && $("div.grid_view div.pop_selected").length >0)
+            {
+                addPopToUnableToStart(index,"Unable to start Pop "+index+" not enough girls available.");
+                removePopFromPopToStart(index);
+                return false;
+            }
+        };
 
         removePopFromPopToStart(index);
         // Not busy
@@ -10215,20 +10215,26 @@ function cmpVersions(a, b)
 function getLanguageCode()
 {
     let HHAuto_Lang = 'en';
-    if ($('html')[0].lang === 'en') {
-        HHAuto_Lang = 'en';
+    try
+    {
+        if ($('html')[0].lang === 'en') {
+            HHAuto_Lang = 'en';
+        }
+        else if ($('html')[0].lang === 'fr') {
+            HHAuto_Lang = 'fr';
+        }
+        else if ($('html')[0].lang === 'es_ES') {
+            HHAuto_Lang = 'es';
+        }
+        else if ($('html')[0].lang === 'de_DE') {
+            HHAuto_Lang = 'de';
+        }
+        else if ($('html')[0].lang === 'it_IT') {
+            HHAuto_Lang = 'it';
+        }
     }
-    else if ($('html')[0].lang === 'fr') {
-        HHAuto_Lang = 'fr';
-    }
-    else if ($('html')[0].lang === 'es_ES') {
-        HHAuto_Lang = 'es';
-    }
-    else if ($('html')[0].lang === 'de_DE') {
-        HHAuto_Lang = 'de';
-    }
-    else if ($('html')[0].lang === 'it_IT') {
-        HHAuto_Lang = 'it';
+    catch
+    {
     }
     return HHAuto_Lang;
 }
@@ -14357,22 +14363,26 @@ function maskHHPopUp()
 }
 
 var started=false;
+var debugMenuID;
 var hardened_start=function()
 {
+    debugMenuID = GM_registerMenuCommand(getTextForUI("saveDebug","elementText"), saveHHDebugLog);
+    //GM_unregisterMenuCommand(debugMenuID);
     if (!started)
     {
         started=true;
         start();
     }
+
 }
+
+setTimeout(hardened_start,5000);
 
 $("document").ready(function()
                     {
     hardened_start();
 
 });
-
-setTimeout(hardened_start,5000);
 
 //all following lines credit:Tom208 OCD script
 //old simuFight
