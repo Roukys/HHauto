@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.109
+// @version      5.6.110
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox
 // @match        http*://*.haremheroes.com/*
@@ -2786,7 +2786,7 @@ function doShopping()
                         });
                         shop[0].splice(n0,1);
                         setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
-                        setTimeout(doShopping, randomInterval(300,500));
+                        setTimeout(doShopping, randomInterval(600,1200));
                         return;
 
                     }
@@ -2826,7 +2826,7 @@ function doShopping()
                             });
                             shop[1].splice(n1,1);
                             setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
-                            setTimeout(doShopping, randomInterval(300,500));
+                            setTimeout(doShopping, randomInterval(600,1200));
                             return;
                         }
                     }
@@ -2862,7 +2862,7 @@ function doShopping()
                     });
                     shop[2].splice(n2,1);
                     setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
-                    setTimeout(doShopping, randomInterval(300,500));
+                    setTimeout(doShopping, randomInterval(600,1200));
                     return;
                 }
             }
@@ -2894,7 +2894,7 @@ function doShopping()
                     });
                     shop[3].splice(n3,1);
                     setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
-                    setTimeout(doShopping, randomInterval(300,500));
+                    setTimeout(doShopping, randomInterval(600,1200));
                     return;
                 }
             }
