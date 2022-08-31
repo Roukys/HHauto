@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.110
+// @version      5.6.111
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox
 // @match        http*://*.haremheroes.com/*
@@ -2783,6 +2783,10 @@ function doShopping()
                         };
                         hh_ajax(params0, function(data) {
                             Hero.updates(data.changes, false);
+                            if (data.success === false)
+                            {
+                                clearTimer('nextShopTime');
+                            }
                         });
                         shop[0].splice(n0,1);
                         setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
@@ -2823,6 +2827,10 @@ function doShopping()
                             };
                             hh_ajax(params1, function(data) {
                                 Hero.updates(data.changes, false);
+                                if (data.success === false)
+                                {
+                                    clearTimer('nextShopTime');
+                                }
                             });
                             shop[1].splice(n1,1);
                             setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
@@ -2859,6 +2867,10 @@ function doShopping()
                     };
                     hh_ajax(params2, function(data) {
                         Hero.updates(data.changes, false);
+                        if (data.success === false)
+                        {
+                            clearTimer('nextShopTime');
+                        }
                     });
                     shop[2].splice(n2,1);
                     setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
@@ -2891,6 +2903,10 @@ function doShopping()
                     };
                     hh_ajax(params3, function(data) {
                         Hero.updates(data.changes, false);
+                        if (data.success === false)
+                        {
+                            clearTimer('nextShopTime');
+                        }
                     });
                     shop[3].splice(n3,1);
                     setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
@@ -10664,7 +10680,6 @@ HHEnvVariables["HH_test"].isEnabledDailyRewards = false;// to remove if daily re
                                           'Cockatrice'];
     HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in Comix
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in Comix
-    HHEnvVariables[element].isEnabledPoG = false;
 })
 HHEnvVariables["SH_prod"].isEnabledSideQuest = false;// to remove when SideQuest arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPowerPlaces = false;// to remove when PoP arrives in hornyheroes
