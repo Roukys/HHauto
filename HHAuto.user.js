@@ -11898,6 +11898,13 @@ HHStoredVars.HHAuto_Setting_mousePause =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars.HHAuto_Setting_mousePauseTimeout =
+    {
+    default:"5000",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer"
+};
 HHStoredVars.HHAuto_Setting_eventTrollOrder =
     {
     default:"1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20",
@@ -12700,6 +12707,11 @@ function migrateHHVars()
 
 let mouseBusy = false;
 let mouseBusyTimeout = 0;
+function makeMouseBusy(ms) {
+    clearTimeout(mouseBusyTimeout);
+    mouseBusy = true;
+    mouseBusyTimeout = setTimeout(function(){mouseBusy = false;}, ms);
+};
 var start = function () {
 
     if (unsafeWindow.Hero===undefined)
@@ -12727,11 +12739,10 @@ var start = function () {
     setDefaults();
 
     if (getStoredValue("HHAuto_Setting_mousePause") === "true") {
-        document.onmousemove = function() {
-            clearTimeout(mouseBusyTimeout);
-            mouseBusy = true;
-            mouseBusyTimeout = setTimeout(function(){mouseBusy = false;}, 5000);
-        }
+        const mouseTimeoutVal = getStoredValue("HHAuto_Setting_mousePauseTimeout").isInteger ? getStoredValue("HHAuto_Setting_mousePauseTimeout") : 5000;
+        document.onmousemove = function() { makeMouseBusy(mouseTimeoutVal); };
+        document.onscroll = function() { makeMouseBusy(mouseTimeoutVal); };
+        document.onmouseup = function() { makeMouseBusy(mouseTimeoutVal); };
     }
 
     // Add UI buttons.
