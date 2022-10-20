@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.112
+// @version      5.6.114
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
-// @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox
+// @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
 // @match        http*://*.hentaiheroes.com/*
 // @match        http*://*.gayharem.com/*
@@ -386,19 +386,19 @@ function getPage(checkUnknown = false)
     let page = p;
     if (p==activitiesMainPage)
     {
-        if ($('h4.contests.selected').length>0 || $("#tabs_switcher > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='contests']").length>0)
+        if ($('h4.contests.selected').length>0 || $("#activities-tabs > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='contests']").length>0)
         {
             page = getHHScriptVars("pagesIDContests");
         }
-        if ($('h4.missions.selected').length>0 || $("#tabs_switcher > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='missions']").length>0)
+        if ($('h4.missions.selected').length>0 || $("#activities-tabs > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='missions']").length>0)
         {
             page = getHHScriptVars("pagesIDMissions");
         }
-        if ($('h4.daily_goals.selected').length>0 || $("#tabs_switcher > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='daily_goals']").length>0)
+        if ($('h4.daily_goals.selected').length>0 || $("#activities-tabs > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='daily_goals']").length>0)
         {
             page = getHHScriptVars("pagesIDDailyGoals");
         }
-        if ($('h4.pop.selected').length>0 || $("#tabs_switcher > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='pop']").length>0)
+        if ($('h4.pop.selected').length>0 || $("#activities-tabs > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='pop']").length>0)
         {
             // if on Pop menu
             var t;
@@ -10695,7 +10695,9 @@ HHEnvVariables["SH_prod"].isEnabledPoG = false;// to remove when PoG arrives in 
     HHEnvVariables[element].trollzList = ['Latest',
                                           'Headmistress Asa Akira',
                                           'Sammy Jayne',
-                                          'Ivy Winters'];
+                                          'Ivy Winters',
+										  'Lily Cade'
+										  'Amia Miley'];
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in pornstar
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in pornstar
 })
