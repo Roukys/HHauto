@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.113
+// @version      5.6.114
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox
 // @match        http*://*.haremheroes.com/*
@@ -10695,7 +10695,9 @@ HHEnvVariables["SH_prod"].isEnabledPoG = false;// to remove when PoG arrives in 
     HHEnvVariables[element].trollzList = ['Latest',
                                           'Headmistress Asa Akira',
                                           'Sammy Jayne',
-                                          'Ivy Winters'];
+                                          'Ivy Winters',
+										  'Lily Cade'
+										  'Amia Miley'];
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in pornstar
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in pornstar
 })
