@@ -10696,7 +10696,7 @@ HHEnvVariables["SH_prod"].isEnabledPoG = false;// to remove when PoG arrives in 
                                           'Headmistress Asa Akira',
                                           'Sammy Jayne',
                                           'Ivy Winters',
-										  'Lily Cade'
+										  'Lily Cade',
 										  'Amia Miley'];
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in pornstar
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in pornstar
