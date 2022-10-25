@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.116
+// @version      5.6.117
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -2746,24 +2746,24 @@ function doShopping()
                 if (
                     (
                         getStoredValue("HHAuto_Setting_autoLGMW") ==="true"
-                        && money>=LGM+Number(shop[0][n0].price)
+                        && money>=LGM+Number(shop[0][n0].price_buy)
                         && shop[0][n0][MS]>0
                         && shop[0][n0][SS1]==0
                         && shop[0][n0][SS2]==0
                         && shop[0][n0].chance==0
                         && shop[0][n0].endurance==0
                         && shop[0][n0].rarity=='legendary'
-                        && shop[0][n0].currency == "sc" // "sc" for soft currency = money, "hc" for hard currency = kobans
+                        && shop[0][n0].item.currency == "sc" // "sc" for soft currency = money, "hc" for hard currency = kobans
                     )
                     ||
                     (
                         getStoredValue("HHAuto_Setting_autoLGRW") ==="true"
-                        && money>=LGR+Number(shop[0][n0].price)
+                        && money>=LGR+Number(shop[0][n0].price_buy)
                         && shop[0][n0][MS]>0
                         && shop[0][n0][SS1]>0
                         && shop[0][n0][SS2]>0
                         && shop[0][n0].rarity=='legendary'
-                        && shop[0][n0].currency == "sc" // "sc" for soft currency = money, "hc" for hard currency = kobans
+                        && shop[0][n0].item.currency == "sc" // "sc" for soft currency = money, "hc" for hard currency = kobans
                     )
                 )
                 {
@@ -2771,13 +2771,12 @@ function doShopping()
                     if (money>=shop[0][n0].price)
                     {
                         logHHAuto({log:'Buying : ',object:shop[0][n0]});
-                        money-=Number(shop[0][n0].price);
+                        money-=Number(shop[0][n0].price_buy);
                         var params0 = {
-                            class: "Item",
-                            action: "buy",
+                            index: shop[0][n0].index,
+                            action: "market_buy",
                             id_item: shop[0][n0].id_item,
                             type: "armor",
-                            who: 1,
                             id_skin: shop[0][n0].id_skin,
                             id_equip: shop[0][n0].id_equip
                         };
@@ -2811,19 +2810,18 @@ function doShopping()
             {
                 for (var n1=shop[1].length-1;n1>=0;n1--)
                 {
-                    if (kobans>=Number(getStoredValue("HHAuto_Setting_kobanBank"))+Number(shop[1][n1].price) && shop[1][n1].currency == "hc" && shop[1][n1].identifier == boost && (shop[1][n1].rarity=='legendary' || shop[1][n1].rarity=='mythic'))
+                    if (kobans>=Number(getStoredValue("HHAuto_Setting_kobanBank"))+Number(shop[1][n1].price_buy) && shop[1][n1].item.currency == "hc" && shop[1][n1].identifier == boost && (shop[1][n1].rarity=='legendary' || shop[1][n1].rarity=='mythic'))
                     {
-                        //logHHAuto({log:'wanna buy ',object:shop[1][n1]});
+                        logHHAuto({log:'wanna buy ',object:shop[1][n1]});
                         if (kobans>=Number(shop[1][n1].price))
                         {
                             logHHAuto({log:'Buying : ',object:shop[1][n1]});
                             kobans-=Number(shop[1][n1].price);
                             var params1 = {
-                                class: "Item",
-                                action: "buy",
+                                index: shop[1][n1].index,
+                                action: "market_buy",
                                 id_item: shop[1][n1].id_item,
-                                type: "booster",
-                                who: 1
+                                type: "booster"
                             };
                             hh_ajax(params1, function(data) {
                                 Hero.updates(data.changes, false);
@@ -2854,16 +2852,15 @@ function doShopping()
             for (var n2=shop[2].length-1;n2>=0;n2--)
             {
                 //logHHAuto({log:'wanna buy ',Object:shop[2][n2]});
-                if (money>=Aff+Number(shop[2][n2].price) && money>=Number(shop[2][n2].price) && shop[2][n2].currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
+                if (money>=Aff+Number(shop[2][n2].price_buy) && money>=Number(shop[2][n2].price_buy) && shop[2][n2].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                 {
                     logHHAuto({log:'Buying : ',Object:shop[2][n2]});
                     money-=Number(shop[2][n2].price);
                     var params2 = {
-                        class: "Item",
-                        action: "buy",
+                        index: shop[2][n2].index,
+                        action: "market_buy",
                         id_item: shop[2][n2].id_item,
-                        type: "gift",
-                        who: 1
+                        type: "gift"
                     };
                     hh_ajax(params2, function(data) {
                         Hero.updates(data.changes, false);
@@ -2890,16 +2887,15 @@ function doShopping()
             for (var n3=shop[3].length-1;n3>=0;n3--)
             {
                 //logHHAuto('wanna buy ',shop[3][n3]);
-                if (money>=Exp+Number(shop[3][n3].price) && money>=Number(shop[3][n3].price) && shop[3][n3].currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
+                if (money>=Exp+Number(shop[3][n3].price_buy) && money>=Number(shop[3][n3].price_buy) && shop[3][n3].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                 {
                     logHHAuto({log:'Buying : ',Object:shop[3][n3]});
                     money-=Number(shop[3][n3].price);
                     var params3 = {
-                        class: "Item",
-                        action: "buy",
+                        index: shop[3][n3].index,
+                        action: "market_buy",
                         id_item: shop[3][n3].id_item,
-                        type: "potion",
-                        who: 1
+                        type: "potion"
                     };
                     hh_ajax(params3, function(data) {
                         Hero.updates(data.changes, false);
@@ -5133,15 +5129,15 @@ var updateShop=function()
         var assB=[];
         var assG=[];
         var assP=[];
-        $('#shop div.armor .slot').each(function(){if (this.dataset.d)assA.push(JSON.parse(this.dataset.d));});
-        $('#shop div.booster .slot').each(function(){if (this.dataset.d)assB.push(JSON.parse(this.dataset.d));});
-        $('#shop div.gift .slot').each(function(){if (this.dataset.d)assG.push(JSON.parse(this.dataset.d));});
-        $('#shop div.potion .slot').each(function(){if (this.dataset.d)assP.push(JSON.parse(this.dataset.d));});
+        $('#shops div.armor.merchant-inventory-item .slot').each(function(){if (this.dataset.d)assA.push(JSON.parse(this.dataset.d));});
+        $('#shops div.booster.merchant-inventory-item .slot').each(function(){if (this.dataset.d)assB.push(JSON.parse(this.dataset.d));});
+        $('#shops div.gift.merchant-inventory-item .slot').each(function(){if (this.dataset.d)assG.push(JSON.parse(this.dataset.d));});
+        $('#shops div.potion.merchant-inventory-item .slot').each(function(){if (this.dataset.d)assP.push(JSON.parse(this.dataset.d));});
 
         var HaveAff=0;
         var HaveExp=0;
-        $('#inventory div.gift .slot').each(function(){if (this.dataset.d) { var d=JSON.parse(this.dataset.d); HaveAff+=d.count*d.value;}});
-        $('#inventory div.potion .slot').each(function(){if (this.dataset.d) { var d=JSON.parse(this.dataset.d); HaveExp+=d.count*d.value;}});
+        $('#shops div.gift.player-inventory-content .slot').each(function(){if (this.dataset.d) { var d=JSON.parse(this.dataset.d); HaveAff+=d.quantity*d.item.value;}});
+        $('#shops div.potion.player-inventory-content .slot').each(function(){if (this.dataset.d) { var d=JSON.parse(this.dataset.d); HaveExp+=d.quantity*d.item.value;}});
 
         setStoredValue("HHAuto_Temp_haveAff", HaveAff);
         setStoredValue("HHAuto_Temp_haveExp", HaveExp);
