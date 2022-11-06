@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.119
+// @version      5.6.120
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -10419,7 +10419,8 @@ HHEnvVariables["global"].trollzList =  ["Latest",
                                         "Pandora witch",
                                         "Nike",
                                         "Sake",
-                                        "WereBunny Police"];
+                                        "WereBunny Police",
+                                        "Auga"];
 
 HHEnvVariables["global"].leaguesList = ["Wanker I",
                                         "Wanker II",
@@ -10448,7 +10449,8 @@ switch (getLanguageCode())
                                                "Pandora",
                                                "Nike",
                                                "Sake",
-                                               "Police des Lapines-Garous"];
+                                               "Police des Lapines-Garous",
+                                               "Auga"];
         HHEnvVariables["global"].leaguesList = ["Branleur I",
                                                 "Branleur II",
                                                 "Branleur III",
