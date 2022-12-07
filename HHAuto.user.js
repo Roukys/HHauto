@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.123
+// @version      5.6.122
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -1572,6 +1572,8 @@ function moduleChangeTeam()
             $(arrSort[0]).find('.topNumber')[0];
             newDiv.innerText=j + 1;
             newDiv.setAttribute('position',j+1);
+            // Go to girl update page on double click
+            newDiv.setAttribute("ondblclick","window.location.href='/girl/"+deckID[j]+"'");
             mainTeamPanel.append(arrSort[0]);
         }
         if (document.getElementById("AssignTopTeam") !== null )
