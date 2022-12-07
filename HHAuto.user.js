@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.121
+// @version      5.6.122
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -659,39 +659,40 @@ var proceedQuest = function () {
         //proceedButtonMatch.click();
     }
     else if (proceedType === "pay") {
-        var proceedCostEnergy = Number($("#controls .cost span[cur='*']").text());
-        var proceedCostMoney = manageUnits($("#controls .cost span[cur='$']").text());
+        var proceedButtonCost = $("#controls button:not([style*='display:none']):not([style*='display: none']) .action-cost .price");
+        var proceedCost = Number(proceedButtonCost[0].innerText);
+        var payTypeNRJ = $("#controls button:not([style*='display:none']):not([style*='display: none']) .action-cost .energy_quest_icn").length>0;
         var energyCurrent = getHHVars('Hero.energies.quest.amount');
         var moneyCurrent = getHHVars('Hero.infos.soft_currency');
         let payType = $("#controls .cost span[cur]:not([style*='display:none']):not([style*='display: none'])").attr('cur');
         //console.log("DebugQuest payType : "+payType);
-        if (payType === "*")
+        if (payTypeNRJ)
         {
-            //console.log("DebugQuest payType : "+payType+" for : "+proceedCostEnergy);
-            if(proceedCostEnergy <= energyCurrent)
+            console.log("DebugQuest ENERGY for : "+proceedCost);
+            if(proceedCost <= energyCurrent)
             {
                 // We have energy.
-                logHHAuto("Spending "+proceedCostEnergy+" Energy to proceed.");
+                logHHAuto("Spending "+proceedCost+" Energy to proceed.");
             }
             else
             {
-                logHHAuto("Quest requires "+proceedCostEnergy+" Energy to proceed.");
-                setStoredValue("HHAuto_Temp_questRequirement", "*"+proceedCostEnergy);
+                logHHAuto("Quest requires "+proceedCost+" Energy to proceed.");
+                setStoredValue("HHAuto_Temp_questRequirement", "*"+proceedCost);
                 return;
             }
         }
-        else if (payType === "$")
+        else
         {
-            //console.log("DebugQuest payType : "+payType+" for : "+proceedCostMoney);
-            if(proceedCostMoney <= moneyCurrent)
+            console.log("DebugQuest MONEY for : "+proceedCost);
+            if(proceedCost <= moneyCurrent)
             {
                 // We have money.
-                logHHAuto("Spending "+proceedCostMoney+" Money to proceed.");
+                logHHAuto("Spending "+proceedCost+" Money to proceed.");
             }
             else
             {
-                logHHAuto("Spending "+proceedCostMoney+" Money to proceed.");
-                setStoredValue("HHAuto_Temp_questRequirement", "$"+proceedCostMoney);
+                logHHAuto("Spending "+proceedCost+" Money to proceed.");
+                setStoredValue("HHAuto_Temp_questRequirement", "$"+proceedCost);
                 return;
             }
         }
@@ -4525,7 +4526,7 @@ var CrushThemFights=function()
                 {
                     let rewardGirlz=$("#pre-battle #opponent-panel .fighter-rewards .rewards_list .girls_reward[data-rewards]");
 
-                    if (rewardGirlz.length ===0 || !rewardGirlz.attr('data-rewards').includes('"id_girl":"'+JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_id+'"'))
+                    if (rewardGirlz.length ===0 || !rewardGirlz.attr('data-rewards').includes('"id_girl":'+JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_id))
                     {
                         logHHAuto("Seems "+JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_name+" is no more available at troll "+Trollz[Number(TTF)]+". Going to event page.");
                         parseEventPage(JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).event_id);
@@ -6869,11 +6870,9 @@ var autoLoop = function ()
             function buyTicket()
             {
                 var params = {
-                    namespace: 'h\\Champions',
-                    class: 'ChampionController',
-                    action: 'buy_ticket',
+                    action: 'champion_buy_ticket',
                     currency: 'energy_quest',
-                    amount: 1
+                    amount: "1"
                 };
                 logHHAuto('Buying ticket with energy');
                 hh_ajax(params, function(data) {
