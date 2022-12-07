@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.123
+// @version      5.6.124
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -3388,13 +3388,30 @@ function getRewardTypeBySlot(inSlot)
                 reward = 'avatar';
             }
         }
-        else if (inSlot.getAttribute("rarity") !== null)
+        else if (inSlot.className.indexOf('girl-shards-slot') >= 0)
+        {
+            reward = 'girl_shards';
+        }
+        else if (inSlot.getAttribute("rarity") !== null && $(inSlot).data("d"))
         {
             let objectData = $(inSlot).data("d");
             //console.log(currentIndicator+" : "+inSlot.getAttribute("rarity")+" "+objectData.item.type+" "+objectData.item.value);
             reward = objectData.item.type;
         }
-
+        else if (inSlot.className.indexOf('mythic') >= 0)
+        {
+            //console.log("mythic equipment");
+            reward = 'mythic';
+        }else{
+            const possibleRewards = getHHScriptVars("possibleRewardsList");
+            for (let currentRewards of Object.keys(possibleRewards))
+            {
+                if (inSlot.className.indexOf('slot_'+currentRewards) >= 0)
+                {
+                    reward = currentRewards;
+                }
+            }
+        }
     }
     else if (inSlot.className.indexOf('shards_girl_ico') >= 0)
     {
@@ -3798,11 +3815,11 @@ function goAndCollectSeason()
             }
 
             let buttonsToCollect = [];
-            const listSeasonTiersToClaim = $("#seasons_row1 .rewards_pair .reward_wrapper_s_is_claimable"+limitClassPass);
+            const listSeasonTiersToClaim = $("#seasons_row1 .rewards_pair .reward_wrapper.reward_is_claimable"+limitClassPass);
             for (let currentReward = 0 ; currentReward < listSeasonTiersToClaim.length ; currentReward++)
             {
                 const currentRewardSlot = getRewardTypeBySlot($(".slot, .shards_girl_ico",listSeasonTiersToClaim[currentReward])[0]);
-                const currentTier = $(".number_indicator_s",$(listSeasonTiersToClaim[currentReward]).parent())[0].innerText;
+                const currentTier = $(".tier_number",$(listSeasonTiersToClaim[currentReward]).parent())[0].innerText;
                 //console.log(currentRewardSlot);
                 if (rewardsToCollect.includes(currentRewardSlot))
                 {
@@ -3829,9 +3846,9 @@ function goAndCollectSeason()
                         const currentToCollect = buttonsToCollect[0];
                         if (inHasSelected)
                         {
-                            const rewardPlaceHolder = $("#reward_placeholder .reward_wrapper_s.reward_wrapper_s_is_claimable, #reward_placeholder .reward_wrapper_s.reward_wrapper_s_is_next");
+                            const rewardPlaceHolder = $("#preview_placeholder .reward_wrapper.reward_is_claimable, #preview_placeholder .reward_wrapper.reward_is_next");
                             const currentSelectedRewardType = getRewardTypeBySlot($(".slot, .shards_girl_ico",rewardPlaceHolder)[0]);
-                            const currentTier = $("#tier_text_s")[0].innerText.split(" ")[1];
+                            const currentTier = $("#preview_tier")[0].innerText.split(" ")[1];
                             if (
                                 rewardPlaceHolder.length >0
                                 && rewardsToCollect.includes(currentSelectedRewardType)
@@ -6440,6 +6457,7 @@ var autoLoop = function ()
         //if a new event is detected
         let eventQuery = '#contains_all #homepage .event-widget a[rel="event"]:not([href="#"])';
         let mythicEventQuery = '#contains_all #homepage .event-widget a[rel="mythic_event"]:not([href="#"])';
+        let seasonalEventQuery = '#contains_all #homepage .seasonal-event a';
         let eventIDs=[];
         if (getPage()===getHHScriptVars("pagesIDEvent"))
         {
@@ -6468,6 +6486,12 @@ var autoLoop = function ()
                 {
                     eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
                 }
+            }
+            queryResults=$(seasonalEventQuery);
+            if(getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true" && queryResults == 0)
+            {
+                logHHAuto("No seasonal event found, deactivate auto collect.");
+                setStoredValue("HHAuto_Setting_autoSeasonalEventCollect", "false");
             }
         }
         if(
@@ -10402,6 +10426,7 @@ HHEnvVariables["global"].possibleRewardsList = {'energy_kiss' : "Kisses",
                                                 'booster' : "Boosters",
                                                 'orbs': "Orbs",
                                                 'gems' : "Gems",
+                                                'mythic' : "Mythic Rquipment",
                                                 'avatar': "Avatar",
                                                 'ticket' : "Champions' tickets"};
 
