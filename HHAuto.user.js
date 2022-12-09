@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.127
+// @version      5.6.128
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -7391,9 +7391,12 @@ function moduleShopActions()
     //appendSimFight();
 
 
+    /**
+     * @return "potion" / "gift" / player-stats / armor / booster / null
+     */
     function getShopType()
     {
-        const shopSelected = $('section #shops #shops_left #type_item .selected');
+        const shopSelected = $('section #shops #tabs-switcher .market-menu-switch-tab.active');
         if (shopSelected.length > 0)
         {
             return shopSelected.attr("type");
@@ -7622,8 +7625,9 @@ function moduleShopActions()
         {
             itemsCaracs.push(i);
         }
+        itemsCaracs.push('mythic'); // Needed for mythic equipement, can't use generic method for them
 
-        let itemsRarity=["common", "rare", "epic", "legendary"];
+        let itemsRarity=["common", "rare", "epic", "legendary", "mythic"];
         let itemsLockedStatus=["not_locked","locked"];
 
         let itemsTypeNb=6;
@@ -7636,7 +7640,13 @@ function moduleShopActions()
         let itemsList={};
         for (let c of itemsCaracs)
         {
-            let filteredCarac = $('#inventory .selected .inventory_slots .slot:not(.empty)[data-d*=\'"name_add":"'+c+'"\']');
+            let filteredCarac;
+            if(c === 'mythic') {
+                filteredCarac = $('#player-inventory.armor .slot:not(.empty)[data-d*=\'"rarity":"mythic"\']');
+            } else {
+                filteredCarac = $('#player-inventory.armor .slot:not(.empty)[data-d*=\'"name_add":"'+c+'"\']');
+            }
+
             itemsList[c] = {};
             for (let t of itemsType)
             {
@@ -7671,6 +7681,9 @@ function moduleShopActions()
         +' <colgroup class="tItemsColGroup">'
         +'  <col class="tItemsColRarity" span="6">'
         +' </colgroup>'
+        +' <colgroup class="tItemsColGroup">'
+        +'  <col class="tItemsColRarity" span="6">'
+        +' </colgroup>'
         +' <thead class="tItemsTHead">'
         +'  <tr>'
         +'   <th class="tItemsTh1">'+getTextForUI("Rarity","elementText")+'</th>'
@@ -7678,6 +7691,7 @@ function moduleShopActions()
         +'   <th class="tItemsTh1" menuSellFilter="c:*;t:*;r:'+itemsRarity[1]+'" colspan="6">'+getTextForUI("RarityRare","elementText")+'</th>'
         +'   <th class="tItemsTh1" menuSellFilter="c:*;t:*;r:'+itemsRarity[2]+'" colspan="6">'+getTextForUI("RarityEpic","elementText")+'</th>'
         +'   <th class="tItemsTh1" menuSellFilter="c:*;t:*;r:'+itemsRarity[3]+'" colspan="6">'+getTextForUI("RarityLegendary","elementText")+'</th>'
+        +'   <th class="tItemsTh1" menuSellFilter="c:*;t:*;r:'+itemsRarity[4]+'" colspan="6">'+getTextForUI("RarityMythic","elementText")+'</th>'
         +'  </tr>'
         +'  <tr>'
         +'   <th class="tItemsTh2">'+getTextForUI("equipementCaracs","elementText")+'/'+getTextForUI("equipementType","elementText")+'</th>';
@@ -7698,9 +7712,15 @@ function moduleShopActions()
 
         for (let c of itemsCaracs)
         {
-            let ext= (c === 16)?"svg":"png";
-            itemsListMenu +='  <tr>'
-                +'   <td menuSellFilter="c:'+c+';t:*;r:*"><img style="height:20px;width:20px" src="https://hh2.hh-content.com/pictures/misc/items_icons/'+c+'.'+ext+'"></td>';
+            if(c === 'mythic') {
+                itemsListMenu +='  <tr>'
+                    +'   <td menuSellFilter="c:'+c+';t:*;r:*">'+getTextForUI("RarityMythic","elementText")+'</td>';
+            } else {
+                let ext= (c === 16)?"svg":"png";
+                itemsListMenu +='  <tr>'
+                    +'   <td menuSellFilter="c:'+c+';t:*;r:*"><img style="height:20px;width:20px" src="https://hh2.hh-content.com/pictures/misc/items_icons/'+c+'.'+ext+'"></td>';
+            }
+
             for (let r of itemsRarity)
             {
                 for (let t of itemsType)
@@ -7744,7 +7764,7 @@ function moduleShopActions()
 
         function setSlotFilter(inCaracsValue,inTypeValue,inRarityValue,inLockedValue)
         {
-            let filter='#inventory .selected .inventory_slots .slot:not(.empty)';
+            let filter='#player-inventory.armor .slot:not(.empty)';
             if (inCaracsValue !== "*" )
             {
                 filter+='[data-d*=\'"name_add":"'+inCaracsValue+'"\']';
@@ -7872,13 +7892,13 @@ function moduleShopActions()
         }
         else if (document.getElementById(menuID) !== null)
         {
-            document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
+            document.getElementById("menuSellCurrentCount").innerHTML = $('#player-inventory.armor .slot:not(.empty):not([menuSellLocked])').length;
             return;
         }
 
-        var menuSellLock = '<div style="position: absolute;left: 70px;top: -10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellLock","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSellLock">'+getTextForUI("menuSellLock","elementText")+'</label></div>'
-        var menuSellMaskLocked = '<div style="position: absolute;left: -5px;top: -10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellMaskLocked","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSellMaskLocked">'+getTextForUI("menuSellMaskLocked","elementText")+'</label></div>'
-        var menuSell = '<div style="position: absolute;right: 50px;top: -10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSell","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSell">'+getTextForUI("menuSell","elementText")+'</label></div>'
+        var menuSellLock = '<div style="position: absolute;right: 220px;top: 70px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellLock","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSellLock">'+getTextForUI("menuSellLock","elementText")+'</label></div>'
+        var menuSellMaskLocked = '<div style="position: absolute;right: 140px;top: 70px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellMaskLocked","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSellMaskLocked">'+getTextForUI("menuSellMaskLocked","elementText")+'</label></div>'
+        var menuSell = '<div style="position: absolute;right: 300px;top: 70px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSell","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSell">'+getTextForUI("menuSell","elementText")+'</label></div>'
         + '<dialog style="overflow-y:auto;max-width:95%;max-height:95%;"id="SellDialog"><form stylemethod="dialog">'
         +  '<div style="padding:10px; display:flex;flex-direction:column;">'
         +   '<p>'+getTextForUI("menuSellText","elementText")+'</p>'
@@ -7887,7 +7907,6 @@ function moduleShopActions()
         +    '<p id="menuSellCurrentCount">0</p>'
         +   '</div>'
         + '<div id="menuSellStop"><label style="width:80px" class="myButton" id="menuSellStop">'+getTextForUI("OptionStop","elementText")+'</label></div>'
-        +   '<p ></p>'
         +   '<div id="menuSellHide" style="display:none">'
         +    '<p id="menuSellList"></p>'
         +    '<div class="HHMenuRow">'
@@ -7915,7 +7934,7 @@ function moduleShopActions()
 
         function initMenuSell()
         {
-            $('#inventory > div.armor > label').first().append(menuSell);
+            $('#player-inventory.armor').append(menuSell);
 
 
             document.getElementById("menuSell").addEventListener("click", displayMenuSell);
@@ -7926,7 +7945,7 @@ function moduleShopActions()
                     alert("The <dialog> API is not supported by this browser");
                     return;
                 }
-                $('#inventory .selected .inventory_slots .slot:not(.empty)[canBeSold]').removeAttr('canBeSold');
+                $('#player-inventory.armor .slot:not(.empty)[canBeSold]').removeAttr('canBeSold');
                 SellDialog.close();
             });
             document.getElementById("menuSellStop").addEventListener("click", function(){
@@ -7972,24 +7991,24 @@ function moduleShopActions()
 
         function initMenuSellMaskLocked()
         {
-            $('#inventory > div.armor > label').first().append(menuSellMaskLocked);
+            $('#player-inventory.armor').append(menuSellMaskLocked);
             document.getElementById("menuSellMaskLocked").addEventListener("click", launchMenuSellMaskLocked);
         }
         function launchMenuSellMaskLocked()
         {
-            $("#inventory .selected .inventory_slots .slot[menuSellLocked]").each(function(){
-                this.style.display = this.style.display==="none"?"block":"none";
+            $("#player-inventory.armor .slot[menuSellLocked]").each(function(){
+                $(this).parent().toggle();
             });
         }
 
         function initMenuSellLock()
         {
-            $('#inventory > div.armor > label').first().append(menuSellLock);
+            $('#player-inventory.armor').append(menuSellLock);
             document.getElementById("menuSellLock").addEventListener("click", launchMenuSellLock);
         }
         function launchMenuSellLock()
         {
-            let filterText = "#inventory .selected .inventory_slots .slot.selected";
+            let filterText = "#player-inventory.armor .slot.selected";
             if ($(filterText).length >0)
             {
                 let toLock=$(filterText)[0].getAttribute("menuSellLocked") === null;
@@ -7999,9 +8018,9 @@ function moduleShopActions()
     }
 
     function checkAjaxComplete(event,request,settings){
-        let match = settings.data.match(/class=Item&action=armor_pack_load&pack=(\d+)&shift=(\d+)/);
+        let match = settings.data.match(/action=market_get_armor&id_member_armor=(\d+)/);
         if (match === null) return;
-        allLoaded = request.responseJSON.last;
+        allLoaded = request.responseJSON.items.length === 0 && request.responseJSON.success; // No more to load
         if (fetchStarted)
         {
             setTimeout(fetchAllArmorItems, randomInterval(800,1600));
@@ -8010,9 +8029,9 @@ function moduleShopActions()
 
     function fetchAllArmorItems()
     {
-        let oldCount = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
-        document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
-        let scroll = $(".inventory_slots>div")[0];
+        let oldCount = $('#player-inventory.armor .slot:not(.empty)').length;
+        document.getElementById("menuSellCurrentCount").innerHTML = $('#player-inventory.armor .slot:not(.empty):not([menuSellLocked])').length;
+        let scroll = $("#player-inventory.armor")[0];
         if (menuSellStop || allLoaded || oldCount >= menuSellMaxItems || !document.getElementById("SellDialog").open)
         {
             document.getElementById("menuSellStop").style.display = "none";
@@ -8036,18 +8055,18 @@ function moduleShopActions()
 
     function sellArmorItems()
     {
-        logHHAuto('start selling not legendary stuff');
+        logHHAuto('start selling common, rare and epic stuff');
         document.getElementById("menuSellHide").style.display = "none";
         document.getElementById("menuSoldHide").style.display = "block";
         // return;
-        var initialNumberOfItems = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
+        var initialNumberOfItems = $('#player-inventory.armor .slot:not(.empty):not([menuSellLocked])').length;
         var itemsToSell = Number(document.getElementById("menuSellNumber").value);
         document.getElementById("menuSoldCurrentCount").innerHTML = "0/"+itemsToSell;
         document.getElementById("menuSoldMessage").innerHTML ="";
         let PlayerClass = getHHVars('Hero.infos.class') === null ? $('#equiped > div.icon.class_change_btn').attr('carac') : getHHVars('Hero.infos.class');
         function selling_func()
         {
-            if ($('#type_item > div.selected[type=armor]').length === 0)
+            if ($('#player-inventory.armor').length === 0)
             {
                 logHHAuto('Wrong tab');
                 return;
@@ -8057,7 +8076,7 @@ function moduleShopActions()
                 logHHAuto('Sell Dialog closed, stopping');
                 return;
             }
-            let availebleItems = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])');
+            let availebleItems = $('#player-inventory.armor .slot:not(.empty):not([menuSellLocked])');
             let currentNumberOfItems = availebleItems.length;
             if (currentNumberOfItems === 0)
             {
@@ -8080,27 +8099,27 @@ function moduleShopActions()
             {
                 let can_sell = false;
                 //Non legendary or with specific attribute
-                if (availebleItems.filter('.selected').filter(':not(.legendary),[canBeSold]').length > 0)
+                if (availebleItems.filter('.selected').filter(':not(.legendary):not(.mythic),[canBeSold]').length > 0)
                 {
                     can_sell = true;
                 }
                 logHHAuto('can be sold ' + can_sell+ ' : '+ availebleItems.filter('.selected')[0].getAttribute('data-d'));
                 if (can_sell)
                 {
-                    $('#inventory > button.green_text_button[rel=sell]').click();
+                    $('#shops .menu-switch-tab-content.active button.green_text_button[rel=sell]').click();
                     let currSellNumber = Number((initialNumberOfItems - currentNumberOfItems) +1);
                     document.getElementById("menuSoldCurrentCount").innerHTML = currSellNumber+"/"+itemsToSell;
-                    document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
+                    document.getElementById("menuSellCurrentCount").innerHTML = $('#player-inventory.armor .slot:not(.empty):not([menuSellLocked])').length;
                     setTimeout(selling_func, 300);
                     return;
                 }
             }
             //Find new sellable items
-            if (availebleItems.filter(':not(.selected):not(.legendary),[canBeSold]').length > 0)
+            if (availebleItems.filter(':not(.selected):not(.legendary):not(.mythic),[canBeSold]').length > 0)
             {
                 //Select first non legendary item
                 //Or select item that checked before and can be sold
-                availebleItems.filter(':not(.selected):not(.legendary),[canBeSold]')[0].click();
+                availebleItems.filter(':not(.selected):not(.legendary):not(.mythic),[canBeSold]')[0].click();
                 setTimeout(selling_func, 300);
                 return;
             }
@@ -8155,7 +8174,7 @@ function moduleShopActions()
                         }
                     }
                 }
-                if ($('#inventory .selected .inventory_slots [canBeSold]:not([menuSellLocked])').length == 0)
+                if ($('#player-inventory.armor [canBeSold]:not([menuSellLocked])').length == 0)
                 {
                     logHHAuto('no more items for sale');
                     document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageNoMore","elementText");
@@ -9936,7 +9955,7 @@ HHAuto_ToolTips.en.timerResetButton = { version: "5.6.24", elementText: "Reset",
 HHAuto_ToolTips.en.timerLeftTime = { version: "5.6.24", elementText: "", tooltip: "Time remaining"};
 HHAuto_ToolTips.en.timerResetNoTimer = { version: "5.6.24", elementText: "No selected timer", tooltip: ""};
 HHAuto_ToolTips.en.menuSell = { version: "5.6.24", elementText: "Sell", tooltip: "Allow to sell items."};
-HHAuto_ToolTips.en.menuSellText = { version: "5.6.24", elementText: "This will sell the number of items asked starting in display order (first all non legendary then legendary)<br> It will sell all non legendary stuff and keep : <br> - 1 set of rainbow legendary (choosen on highest player class stat)<br> - 1 set of legendary mono player class (choosen on highest stats)<br> - 1 set of legendary harmony (choosen on highest stats)<br> - 1 set of legendary endurance (choosen on highest stats)<br>You can lock/Unlock batch by clicking on the corresponding cell/row/column (notlocked/total), red means all locked, orange some locked.", tooltip: ""};
+HHAuto_ToolTips.en.menuSellText = { version: "5.6.126", elementText: "This will sell the number of items asked starting in display order (first all non legendary then legendary)<br> It will sell all Common, Rare, Epic stuff and keep : <br> - 1 set of rainbow legendary (choosen on highest player class stat)<br> - 1 set of legendary mono player class (choosen on highest stats)<br> - 1 set of legendary harmony (choosen on highest stats)<br> - 1 set of legendary endurance (choosen on highest stats)<br> - All mythics<br>You can lock/Unlock batch by clicking on the corresponding cell/row/column (notlocked/total), red means all locked, orange some locked.", tooltip: ""};
 HHAuto_ToolTips.en.menuSellNumber = { version: "5.6.24", elementText: "", tooltip: "Enter the number of items you want to sell : "};
 HHAuto_ToolTips.en.menuSellButton = { version: "5.6.24", elementText: "Sell", tooltip: "Launch selling funtion."};
 HHAuto_ToolTips.en.menuSellCurrentCount = { version: "5.6.24", elementText: "Number of sellable items you currently have : ", tooltip: ""};
@@ -9955,6 +9974,7 @@ HHAuto_ToolTips.en.RarityCommon = { version: "5.6.24", elementText: "Common", to
 HHAuto_ToolTips.en.RarityRare = { version: "5.6.24", elementText: "Rare", tooltip: ""};
 HHAuto_ToolTips.en.RarityEpic = { version: "5.6.24", elementText: "Epic", tooltip: ""};
 HHAuto_ToolTips.en.RarityLegendary = { version: "5.6.24", elementText: "Legendary", tooltip: ""};
+HHAuto_ToolTips.en.RarityMythic = { version: "5.6.126", elementText: "Mythic", tooltip: ""};
 HHAuto_ToolTips.en.equipementHead = { version: "5.6.24", elementText: "Head", tooltip: ""};
 HHAuto_ToolTips.en.equipementBody = { version: "5.6.24", elementText: "Body", tooltip: ""};
 HHAuto_ToolTips.en.equipementLegs = { version: "5.6.24", elementText: "Legs", tooltip: ""};
@@ -11449,7 +11469,7 @@ HHStoredVars.HHAuto_Temp_Logging =
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_Debug = 
+HHStoredVars.HHAuto_Temp_Debug =
     {
     default: "false",
     storage: "sessionStorage",
