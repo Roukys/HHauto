@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.125
+// @version      5.6.126
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -5012,18 +5012,18 @@ var getFreeGreatPachinko = function(){
         else {
             logHHAuto("Detected Pachinko Screen. Fetching Pachinko");
             var counter=0;
-            while ($('#playzone-replace-info button[free=1]')[0]===undefined && (counter++)<250)
+            while ($('#playzone-replace-info button[data-free="true"]')[0]===undefined && (counter++)<250)
             {
                 $('.game-simple-block[type-pachinko=great]')[0].click();
             }
-            //if ($('#playzone-replace-info button[free=1]')[0].style.display=="none")
-            if ($('#playzone-replace-info button[free=1]')[0]===undefined)
+            //if ($('#playzone-replace-info button[data-free="true"]')[0].style.display=="none")
+            if ($('#playzone-replace-info button[data-free="true"]')[0]===undefined)
             {
                 logHHAuto('Not ready yet');
             }
             else
             {
-                $('#playzone-replace-info button[free=1]')[0].click();
+                $('#playzone-replace-info button[data-free="true"]')[0].click();
             }
             var npach = -1;
             for(let e in unsafeWindow.HHTimers.timers)
