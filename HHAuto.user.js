@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.126
+// @version      5.6.127
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -5016,7 +5016,7 @@ var getFreeGreatPachinko = function(){
             {
                 $('.game-simple-block[type-pachinko=great]')[0].click();
             }
-            //if ($('#playzone-replace-info button[data-free="true"]')[0].style.display=="none")
+
             if ($('#playzone-replace-info button[data-free="true"]')[0]===undefined)
             {
                 logHHAuto('Not ready yet');
@@ -5025,6 +5025,7 @@ var getFreeGreatPachinko = function(){
             {
                 $('#playzone-replace-info button[data-free="true"]')[0].click();
             }
+
             var npach = -1;
             for(let e in unsafeWindow.HHTimers.timers)
             {
@@ -5066,44 +5067,22 @@ var getFreeMythicPachinko = function(){
         }
         else {
             logHHAuto("Detected Pachinko Screen. Fetching Pachinko");
-            var butt;
-            if (hh_nutaku)
-            {
-                butt=$('#playzone-replace-info button[play="pachinko5|25|hard_currency"]')[0];
-            }
-            else
-            {
-                butt=$('#playzone-replace-info button[play="pachinko5|150|hard_currency"]')[0];
-            }
             var counter=0;
-            //while (butt===undefined && (counter++)<250)
             logHHAuto('to mythic');
-            while ($('#playzone-replace-info button[free=1]')[0]===undefined && (counter++)<250)
+            while ($('#playzone-replace-info button[data-free="true"]')[0]===undefined && (counter++)<250)
             {
-                //logHHAuto('to mythic');
                 $('.game-simple-block[type-pachinko=mythic]')[0].click();
             }
-            //if (butt===undefined)
-            if ($('#playzone-replace-info button[free=1]')[0]===undefined)
+
+            if ($('#playzone-replace-info button[data-free="true"]')[0]===undefined)
             {
-                //   logHHAuto("Fuck my life!");
-                //    setTimer('nextPachinko2Time',600);
-                //    return false;
                 logHHAuto('Not ready yet');
             }
             else
             {
-                $('#playzone-replace-info button[free=1]')[0].click();
+                $('#playzone-replace-info button[data-free="true"]')[0].click();
             }
-            //if (butt.className!="blue_button_L")
-            //{
-            //   logHHAuto('Not ready yet');
-            //}
-            //else
-            //{
-            //   logHHAuto('click');
-            //    butt.click();
-            //}
+
             var npach = -1;
             for(var e in unsafeWindow.HHTimers.timers){
                 if (!unsafeWindow.HHTimers.timers[e].$elm) {continue;}
