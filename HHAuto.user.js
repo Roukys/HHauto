@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.127
+// @version      5.6.128
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -7388,15 +7388,15 @@ function getBoosterExpiration(booster)
 function moduleShopActions()
 {
     appendMenuSell();
-    appendMenuAff();
-    appendMenuExp();
-    appendMenuRemoveMaxed();
     //appendSimFight();
 
 
+    /**
+     * @return "potion" / "gift" / player-stats / armor / booster / null
+     */
     function getShopType()
     {
-        const shopSelected = $('section #shops #shops_left #type_item .selected');
+        const shopSelected = $('section #shops #tabs-switcher .market-menu-switch-tab.active');
         if (shopSelected.length > 0)
         {
             return shopSelected.attr("type");
@@ -7494,84 +7494,6 @@ function moduleShopActions()
             document.getElementById("buttonSimResultMarket").addEventListener("click", function () {simFightFunc()});
             simFightFunc();
         }
-    }
-
-    function appendMenuRemoveMaxed()
-    {
-        const menuID = "menuRemoveMaxed"
-
-        var menuRemoveMaxed = '<div style="position: absolute;right:0px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI(menuID,"tooltip")+'</span><label style="width:80px;text-align: center;" class="myButton" id='+menuID+'>'+getTextForUI(menuID,"elementText")+'</label></div>'
-
-        if (getShopType() !== "potion" && getShopType() !== "gift")
-        {
-
-            if (document.getElementById(menuID) !== null)
-            {
-                try
-                {
-                    const GMMenuID = GM_registerMenuCommand(getTextForUI(menuID,"elementText"), removeMaxedGirls);
-                    document.getElementById(menuID).remove();
-                    GM_unregisterMenuCommand(GMMenuID);
-                }
-                catch(e)
-                {
-                    logHHAuto("Catched error : Couldn't remove "+menuID+" menu : "+e);
-                }
-            }
-            return;
-        }
-        else
-        {
-
-            if (document.getElementById(menuID) === null)
-            {
-                $('section #shops #shops_right #girls_list').append(menuRemoveMaxed);
-                GM_registerMenuCommand(getTextForUI(menuID,"elementText"), removeMaxedGirls);
-            }
-            else
-            {
-                return;
-            }
-        }
-
-        function removeMaxedGirls()
-        {
-            let count=0;
-            let girlzQuery="div.girl-ico[id_girl][data-g]";
-            let girlNb=Number($(girlzQuery).length);
-            let shopType = $('section #shops #shops_left #type_item .selected').attr("type");
-            $(girlzQuery).each(function ()
-                               {
-                let dataG = $(this).data("g");
-                if
-                    (
-                        (
-                            shopType === "gift"
-                            &&
-                            (
-                                dataG.can_upgrade
-                                || dataG.Affection.maxed
-                            )
-                        )
-                        ||
-                        (
-                            shopType === "potion"
-                            &&
-                            (
-                                dataG.Xp.maxed
-                            )
-                        )
-                    )
-                {
-                    this.remove();
-                    count++;
-                }
-            });
-            $(getHHScriptVars("shopGirlCountRequest"))[0].innerText = girlNb-count;
-            $(getHHScriptVars("shopGirlCurrentRequest"))[0].innerText=1;
-        }
-
-        document.getElementById(menuID).addEventListener("click", removeMaxedGirls);
     }
 
     function findSubsetsPartition(inTotal, inSets, inForceLastItemLimit = 0)
@@ -7681,830 +7603,6 @@ function moduleShopActions()
         }
     }
 
-    function appendMenuAff()
-    {
-
-        const menuID = "menuAff";
-        const menuAff = '<div style="position: absolute;right: 50px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAff","tooltip")+'</span><label style="width:100px" class="myButton" id="menuAff">'+getTextForUI("menuAff","elementText")+'</label></div>'
-        const menuAffContent = '<div style="min-width: 45vw;justify-content: space-between;align-items: flex-start;"class="HHMenuRow">'
-        +   '<div id="menuAff-moveLeft"></div>'
-        +   '<div style="padding:10px; display:flex;flex-direction:column;">'
-        +    '<p style="min-height: 30vh;" id="menuAffText"></p>'
-        +    '<div class="HHMenuRow" style="padding:10px;justify-content:center">'
-        +     '<div>'+getTextForUI("autoGiveAff","elementText")+'</div>'
-        +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoGiveAff","tooltip")+'</span><input id="autoGiveAff" type="checkbox"></div>'
-        +    '</div>'
-        +     '<div style="padding:10px;justify-content:center" class="HHMenuRow">'
-        +    '</div>'
-        +    '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAffSelector","tooltip")+'</span><select id="menuAffSelector"></select></div>'
-        +    '<div style="padding:10px;justify-content:center" class="HHMenuRow">'
-        +     '<div id="menuAffHide" style="display:none">'
-        +      '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuAffButton","tooltip")+'</span><label style="width:80px" class="myButton" id="menuAffButton">'+getTextForUI("menuAffButton","elementText")+'</label></div>'
-        +     '</div>'
-        +    '</div>'
-        +   '</div>'
-        +   '<div id="menuAff-moveRight"></div>'
-        +  '</div>';
-        let getSelectGirlID;
-        let girl;
-        let giftArray = {};
-        let AffToGive;
-        let canGiveAff = false;
-        let forceLastItemLimit = 0;
-
-        if ( getShopType() !== "gift")
-        {
-
-            if (document.getElementById(menuID) !== null)
-            {
-                try
-                {
-                    const GMMenuID = GM_registerMenuCommand(getTextForUI("menuAff","elementText"), function(){});
-                    document.getElementById("menuAff").remove();
-                    document.getElementById(menuID).remove();
-                    GM_unregisterMenuCommand(GMMenuID);
-                }
-                catch(e)
-                {
-                    logHHAuto("Catched error : Couldn't remove "+menuID+" menu : "+e);
-                }
-            }
-            return;
-        }
-        else
-        {
-            if (document.getElementById(menuID) === null)
-            {
-                initAffMenu();
-                GM_registerMenuCommand(getTextForUI("menuAff","elementText"), displayPopUpAff);
-            }
-            else
-            {
-                return;
-            }
-        }
-
-        function initAffMenu()
-        {
-
-            $('#inventory > div.gift > label').append(menuAff);
-            fillHHPopUp("menuAff",getTextForUI("menuAff","elementText"),menuAffContent);
-            maskHHPopUp();
-            let optionElement = document.createElement("option");
-            optionElement.value = 0;
-            optionElement.text = getTextForUI("menuAffNoExceed","elementText");
-            document.getElementById("menuAffSelector").add(optionElement);
-            $('div.gift div.inventory_slots div[id_item][data-d]').each(function()
-                                                                        {
-                let data=JSON.parse($(this).attr("data-d"));
-                let optionElement = document.createElement("option");
-                optionElement.value = data.value;
-                optionElement.text = getTextForUI("menuAllowedExceed","elementText")+data.value;
-                document.getElementById("menuAffSelector").add(optionElement);
-            });
-            GM_addStyle('div#menuAff-moveRight {'
-                        + 'border-left-color: blue;}');
-            GM_addStyle('#menuAff-moveRight, #menuAff-moveLeft {'
-                        + 'width: 0;'
-                        + 'float: left;'
-                        + 'border: 20px solid transparent;'
-                        + 'height: 0;'
-                        + 'opacity: 0.5;}');
-
-            GM_addStyle('div#menuAff-moveLeft {'
-                        + 'border-right-color: blue;}');
-
-            GM_addStyle('#HHAutoPopupGlobalPopup.'+menuID+' {'
-                        + 'margin-top: 7%;'
-                        + 'margin-left: 1%;');
-
-            document.getElementById("menuAff-moveLeft").addEventListener("click", moveLeftAff);
-            document.getElementById("menuAff-moveRight").addEventListener("click", moveRightAff);
-
-            document.getElementById("menuAff").addEventListener("click", displayPopUpAff);
-            document.getElementById("autoGiveAff").addEventListener('change', function()
-                                                                    {
-                if (this.checked)
-                {
-                    giveAffAutoNext();
-                }
-            });
-            document.getElementById("menuAffSelector").addEventListener('change', function()
-                                                                        {
-                let menuAffSelector = document.getElementById("menuAffSelector");
-                let selectorText = menuAffSelector.options[menuAffSelector.selectedIndex].value;
-                forceLastItemLimit = isNaN(Number(selectorText))?0:Number(selectorText);
-                calculateAffSelectedGirl();
-            });
-            document.getElementById("menuAffButton").addEventListener("click", launchGiveAff);
-        }
-        function KeyUpAff(evt)
-        {
-            if (evt.key === 'Enter')
-            {
-                launchGiveAff();
-            }
-            else if (evt.keyCode == '37')
-            {
-                // left arrow
-                moveLeftAff();
-            }
-            else if (evt.keyCode == '39')
-            {
-                // right arrow
-                moveRightAff();
-            }
-        }
-        function displayPopUpAff()
-        {
-            calculateAffSelectedGirl();
-            document.removeEventListener('keyup', KeyUpAff, false);
-            document.addEventListener('keyup', KeyUpAff, false);
-            giveAffAutoNext();
-        }
-        function moveLeftAff()
-        {
-            $('div.g1 span[nav="left"]').click();
-            calculateAffSelectedGirl();
-        }
-        function moveRightAff()
-        {
-            $('div.g1 span[nav="right"]').click();
-            calculateAffSelectedGirl();
-        }
-        function launchGiveAff()
-        {
-            document.getElementById("menuAff-moveLeft").style.visibility = "hidden";
-            document.getElementById("menuAff-moveRight").style.visibility = "hidden";
-            giveAff(getSelectGirlID, AffToGive, giftArray);
-        }
-        function calculateAffSelectedGirl()
-        {
-            girl=$('div.girl-ico:not(.not-selected)');
-            getSelectGirlID=girl.attr("id_girl");
-            let selectedGirl=girl.data("g");
-            //console.log(getSelectGirlID,$('.bar-wrap.upgrade.button_glow[rel="aff"]', girl).length >0 || $('.bar-wrap.maxed[rel="aff"]', girl).length >0);
-            document.getElementById("menuAffHide").style.display = "none";
-            if (
-                $('.bar-wrap.upgrade.button_glow[rel="aff"]', girl).length >0
-                || $('.bar-wrap.maxed[rel="aff"]', girl).length >0
-            )
-            {
-                document.getElementById("menuAffText").innerHTML = selectedGirl.name+" "+getTextForUI("menuAffNoNeed","elementText");
-                document.getElementById("menuAffHide").style.display = "none";
-                displayHHPopUp();
-                return;
-            }
-
-            let selectedGirlAff=selectedGirl.Affection.cur;
-            giftArray = {};
-            let giftCount = {};
-            let minAffItem=99999;
-            let totalAff=0;
-            let menuText="";
-            $('div.gift div.inventory_slots div[id_item][data-d]').each(function()
-                                                                        {
-                let data=JSON.parse($(this).attr("data-d"));
-                let countGift=Number($('div.gift div.inventory_slots div[id_item='+$(this).attr("id_item")+'][data-d] .stack_num span')[0].innerHTML.replace(/[^0-9]/gi, ''))
-                if (data.rarity === "mythic")
-                {
-                    return;
-                }
-                if (minAffItem > Number(data.value))
-                {
-                    minAffItem = Number(data.value);
-                }
-                giftCount[Number(data.value)]=countGift;
-                totalAff+=Number(data.value)*countGift
-                giftArray[Number(data.value)]=$(this).attr("id_item");
-            });
-            if (Number(selectedGirl.Affection.cur) < Number(selectedGirl.Affection.max) && totalAff > 0 && (Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur)+forceLastItemLimit) >=minAffItem)
-            {
-                let AffMissing = Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur);
-                AffToGive=findSubsetsPartition(AffMissing,giftCount,forceLastItemLimit);
-                menuText = selectedGirl.name+" "+selectedGirl.Affection.cur+"/"+selectedGirl.Affection.max+"<br>"+getTextForUI("menuDistribution","elementText")+"<br>";
-                let Affkeys = Object.keys(AffToGive.partitions);
-                for ( var i of Affkeys )
-                {
-                    menuText = menuText+i+"Aff x "+AffToGive.partitions[i]+"<br>"
-                }
-                menuText = menuText+getTextForUI("Total","elementText")+AffToGive.total+"/"+AffMissing;
-                document.getElementById("menuAffHide").style.display = "block";
-                canGiveAff = true;
-
-            }
-            else if (totalAff === 0 || (Number(selectedGirl.Affection.max)-Number(selectedGirl.Affection.cur)+forceLastItemLimit) <=minAffItem)
-            {
-                menuText = getTextForUI("menuAffNoAff","elementText")+" "+selectedGirl.name;
-            }
-            logHHAuto(menuText)
-            document.getElementById("menuAffText").innerHTML = menuText;
-            displayHHPopUp();
-        }
-
-        function giveAffAutoNext()
-        {
-            if (!document.getElementById("autoGiveAff").checked)
-            {
-                return;
-            }
-            let girlzCount = Number($(getHHScriptVars("shopGirlCountRequest")).text());
-            let currentGirl = Number($(getHHScriptVars("shopGirlCurrentRequest")).text());
-            let giftNb = $('div.gift div.inventory_slots div[id_item][data-d]').length;
-            //console.log(girlzCount, currentGirl, giftNb);
-            if (currentGirl < girlzCount && !canGiveAff && giftNb > 0)
-            {
-                logHHAuto("Moving to next girl.");
-                moveRightAff();
-                setTimeout(giveAffAutoNext,randomInterval(300, 600));
-            }
-            else if ( canGiveAff && giftNb > 0)
-            {
-                logHHAuto("Auto give Aff.");
-                launchGiveAff();
-            }
-            else
-            {
-                logHHAuto("Can't give more aff.");
-                document.getElementById("autoGiveAff").checked = false;
-            }
-
-        }
-
-        function giveAff(inGirlID, inAffToGive, inAffArray)
-        {
-            let girl=$('div.girl-ico:not(.not-selected)');
-            let selectedGirl=girl.data("g");
-            let selectedGirlAff=selectedGirl.Affection.cur;
-            logHHAuto('start giving Aff to '+selectedGirl.name);
-            let currentTotal = selectedGirlAff;
-            let currentItem = -1;
-            let inAffToGivePartitionBackup = { ...inAffToGive.partitions }
-            document.getElementById("menuAffHide").style.display = "none";
-            document.getElementById("menuAffText").innerHTML = selectedGirl.name+" "+selectedGirlAff+"/"+selectedGirl.Affection.max+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
-
-            let oldTime = new Date();
-
-            function giveAff_func()
-            {
-                let newTime = new Date();
-                //console.log("giveAff_func : "+Number(newTime-oldTime)+"ms");
-                oldTime = newTime;
-                if (isDisplayedHHPopUp() !== menuID)
-                {
-                    logHHAuto('Aff Dialog closed, stopping');$
-                    document.removeEventListener('keyup', KeyUpAff, false);
-                    document.getElementById("autoGiveAff").checked = false;
-                    return;
-                }
-
-                if ($('div[id_girl='+inGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length >0)
-                {
-                    selectedGirlAff = currentTotal;
-                }
-                else
-                {
-                    girl=$('div.girl-ico:not(.not-selected)');
-                    selectedGirl=girl.data("g");
-                    selectedGirlAff=selectedGirl.Affection.cur;
-                }
-                //console.log(currentItem, inAffToGive.partitions[currentItem],inAffToGive.partitions,selectedGirlAff,currentTotal);
-
-                //check if previous click has worked
-                if (selectedGirlAff === currentTotal)
-                {
-                    //decrease count
-                    if (currentItem !== -1)
-                    {
-                        logHHAuto('Spent one '+currentItem);
-                        inAffToGive.partitions[currentItem] = inAffToGive.partitions[currentItem]-1;
-                        let menuText = selectedGirl.name+" "+selectedGirlAff+"/"+selectedGirl.Affection.max+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
-                        let Affkeys = Object.keys(inAffToGivePartitionBackup);
-                        let givenTotal = 0;
-                        logHHAuto({log:"Remains to spend",inAffToGive:inAffToGive});
-                        for ( var i of Affkeys )
-                        {
-                            let diff=Number(inAffToGivePartitionBackup[i]-inAffToGive.partitions[i]);
-                            givenTotal += diff*Number(i);
-                            if (diff >0)
-                            {
-                                //menuText = menuText+i+"Aff x "+diff+"<br>";
-                            }
-                            menuText = menuText+i+"Aff x "+diff+"/"+inAffToGivePartitionBackup[i]+"<br>";
-                        }
-                        menuText = menuText+getTextForUI("Total","elementText")+givenTotal+"/"+inAffToGive.total;
-                        document.getElementById("menuAffText").innerHTML = menuText;
-
-                    }
-                    //select item
-                    let itemKeys=Object.keys(inAffToGive.partitions);
-                    currentItem = -1;
-                    for ( let i of itemKeys )
-                    {
-                        if (inAffToGive.partitions[i] >0)
-                        {
-                            currentItem = i;
-                        }
-                    }
-
-                    if (currentItem === -1)
-                    {
-                        let menuText;
-                        if ($('div[id_girl='+inGirlID+'][data-g] .bar-wrap.upgrade.button_glow').length >0)
-                        {
-                            logHHAuto(selectedGirl.name+ " is ready to be upgrade");
-                            menuText =selectedGirl.name+" "+getTextForUI("menuAffReadyToUpgrade","elementText")+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
-                        }
-                        else
-                        {
-                            logHHAuto(selectedGirl.name+ "max aff given.");
-                            menuText =getTextForUI("menuAffEnd","elementText")+" "+selectedGirl.name+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
-                        }
-                        let givenTotal = 0;
-                        let Affkeys = Object.keys(inAffToGivePartitionBackup);
-                        for ( var i of Affkeys )
-                        {
-                            let diff=Number(inAffToGivePartitionBackup[i]-inAffToGive.partitions[i]);
-                            givenTotal += diff*Number(i);
-                            if (diff >0)
-                            {
-                                //menuText = menuText+i+"Aff x "+diff+"<br>";
-                            }
-                            menuText = menuText+i+"Aff x "+diff+"/"+inAffToGivePartitionBackup[i]+"<br>";
-                        }
-                        menuText = menuText+getTextForUI("Total","elementText")+givenTotal;
-                        document.getElementById("menuAffText").innerHTML = menuText;
-                        document.getElementById("menuAffHide").style.display = "none";
-                        document.getElementById("menuAff-moveLeft").style.visibility = "visible";
-                        document.getElementById("menuAff-moveRight").style.visibility = "visible";
-                        canGiveAff = false;
-                        giveAffAutoNext();
-                    }
-                    else
-                    {
-                        currentTotal+=Number(currentItem);
-                        const currentItemSelector = 'div.gift div.inventory_slots div[id_item='+inAffArray[currentItem]+'][data-d]';
-                        if ($(currentItemSelector+'.selected').length === 0 )
-                        {
-                            logHHAuto("selected item : "+currentItem);
-                            $(currentItemSelector).click();
-                            setTimeout(giveAff_func, randomInterval(400,800));
-                        }
-                        else
-                        {
-                            giveAff_func();
-                        }
-                    }
-                    return;
-                }
-                else
-                {
-                    if (inAffArray[currentItem] === $('div.gift div.inventory_slots div[id_item][data-d].selected').attr("id_item") && inAffToGive.partitions[currentItem] >0 )
-                    {
-                        logHHAuto("clicked on "+currentItem);
-                        $('#inventory > button.blue_text_button[rel=use]').click();
-                        setTimeout(giveAff_func, randomInterval(100,200));
-                        return;
-                    }
-                }
-            }
-            setTimeout(giveAff_func, randomInterval(300,600));
-        }
-    }
-
-
-    function appendMenuExp()
-    {
-        const menuID = "menuExp";
-        const menuExp = '<div style="position: absolute;right: 50px;top: -10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExp","tooltip")+'</span><label style="width:100px" class="myButton" id="menuExp">'+getTextForUI("menuExp","elementText")+'</label></div>'
-        const menuExpContent = '<div style="min-width:45vw;justify-content: space-between;align-items: flex-start;"class="HHMenuRow">'
-        +   '<div id="menuExp-moveLeft"></div>'
-        +   '<div style="padding:10px; display:flex;flex-direction:column;">'
-        +    '<p style="min-height:30vh;" id="menuExpText"></p>'
-        +    '<div class="HHMenuRow">'
-        +     '<p>'+getTextForUI("menuExpLevel","elementText")+'</p>'
-        +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExpLevel","tooltip")+'</span><input id="menuExpLevel" style="width:50px;height:20px" required pattern="'+HHAuto_inputPattern.menuExpLevel+'" type="text" value="'+getHHVars('Hero.infos.level')+'"></div>'
-        +    '</div>'
-        +    '<div class="HHMenuRow" style="padding:10px;justify-content:center">'
-        +     '<div>'+getTextForUI("autoGiveExp","elementText")+'</div>'
-        +     '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("autoGiveExp","tooltip")+'</span><input id="autoGiveExp" type="checkbox"></div>'
-        +    '</div>'
-        +    '<div style="padding:10px;justify-content:center" class="HHMenuRow">'
-        +     '<div id="menuExpHide" style="display:none">'
-        +      '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExpButton","tooltip")+'</span><label style="width:80px" class="myButton" id="menuExpButton">'+getTextForUI("menuExpButton","elementText")+'</label></div>'
-        +     '</div>'
-        +    '</div>'
-        +   '</div>'
-        +   '<div id="menuExp-moveRight"></div>'
-        +  '</div>';
-        let canGiveEp = false;
-        let getSelectGirlID;
-        let potionArray = {};
-        let ExpToGive;
-        let canGiveExp = false;
-        if ( getShopType() !== "potion")
-        {
-
-            if (document.getElementById(menuID) !== null)
-            {
-                try
-                {
-                    const GMMenuID = GM_registerMenuCommand(getTextForUI("menuExp","elementText"), function(){});
-                    document.getElementById("menuExp").remove();
-                    document.getElementById(menuID).remove();
-                    GM_unregisterMenuCommand(GMMenuID);
-                }
-                catch(e)
-                {
-                    logHHAuto("Catched error : Couldn't remove "+menuID+" menu : "+e);
-                }
-            }
-            return;
-        }
-        else
-        {
-            if (document.getElementById(menuID) === null)
-            {
-                initExpMenu();
-                GM_registerMenuCommand(getTextForUI("menuExp","elementText"), displayExpMenu);
-            }
-            else
-            {
-                return;
-            }
-        }
-        function initExpMenu()
-        {
-            $('#inventory > div.potion > label').append(menuExp);
-            fillHHPopUp(menuID,getTextForUI("menuExp","elementText"),menuExpContent);
-            maskHHPopUp();
-            GM_addStyle('#menuExp-moveRight, #menuExp-moveLeft {'
-                        + 'width: 0;'
-                        + 'float: left;'
-                        + 'border: 20px solid transparent;'
-                        + 'height: 0;'
-                        + 'opacity: 0.5;}');
-
-            GM_addStyle('div#menuExp-moveLeft {'
-                        + 'border-right-color: blue;}');
-
-            GM_addStyle('div#menuExp-moveRight {'
-                        + 'border-left-color: blue;}');
-
-            GM_addStyle('#HHAutoPopupGlobalPopup.'+menuID+' {'
-                        + 'margin-top: 7%;'
-                        + 'margin-left: 1%;');
-            document.getElementById("menuExp-moveLeft").addEventListener("click", function()
-                                                                         {
-                moveLeftExp();
-            });
-            document.getElementById("menuExp-moveRight").addEventListener("click", function()
-                                                                          {
-                moveRightExp();
-            });
-            document.getElementById("autoGiveExp").addEventListener('change', function()
-                                                                    {
-                if (this.checked)
-                {
-                    giveExpAutoNext();
-                }
-            });
-            document.getElementById("menuExp").addEventListener("click", displayExpMenu);
-            document.getElementById("menuExpLevel").addEventListener("change", function()
-                                                                     {
-                prepareExp();
-            });
-            document.getElementById("menuExpButton").addEventListener("click", function()
-                                                                      {
-                launchGiveExp();
-            });
-        }
-        function KeyUpExp(evt)
-        {
-            if (evt.key === 'Enter')
-            {
-                launchGiveExp();
-            }
-            else if (evt.keyCode == '37')
-            {
-                // left arrow
-                moveLeftExp();
-            }
-            else if (evt.keyCode == '39')
-            {
-                // right arrow
-                moveRightExp();
-            }
-        }
-
-        function displayExpMenu()
-        {
-            prepareExp();
-            document.removeEventListener('keyup', KeyUpExp, false);
-            document.addEventListener('keyup', KeyUpExp, false);
-            displayHHPopUp();
-            giveExpAutoNext();
-        }
-        function giveExpAutoNext()
-        {
-            if (!document.getElementById("autoGiveExp").checked)
-            {
-                return;
-            }
-            let girlzCount = Number($(getHHScriptVars("shopGirlCountRequest")).text());
-            let currentGirl = Number($(getHHScriptVars("shopGirlCurrentRequest")).text());
-            let giftNb = $('div.potion div.inventory_slots div[id_item][data-d]').length;
-            //console.log(currentGirl,girlzCount,giftNb);
-            if (currentGirl < girlzCount && !canGiveExp && giftNb > 0)
-            {
-                logHHAuto("Moving to next girl.");
-                moveRightExp();
-                setTimeout(giveExpAutoNext,randomInterval(300, 600));
-            }
-            else if ( canGiveExp && giftNb > 0)
-            {
-                logHHAuto("Auto give Exp.");
-                launchGiveExp();
-            }
-            else
-            {
-                logHHAuto("Can't give more exp.");
-                document.getElementById("autoGiveExp").checked = false;
-            }
-
-        }
-        function prepareExp()
-        {
-
-            let girl;
-
-            girl=$('div.girl-ico:not(.not-selected)');
-            getSelectGirlID=girl.attr("id_girl");
-            let selectedGirl=girl.data("g");
-            let selectedGirlTooltip=JSON.parse(girl.attr(getHHScriptVars('girlToolTipData')));
-            let targetedLevel = Math.min(Number(document.getElementById("menuExpLevel").value), selectedGirl.level_cap);
-
-            let selectedGirlExp=selectedGirl.Xp.cur;
-            //console.log(JSON.stringify(selectedGirl));
-            potionArray = {};
-            let potionCount = {};
-            let minExpItem=99999;
-            let totalExp=0;
-            let menuText="";
-            if (selectedGirl.Xp.maxed)
-            {
-                menuText =getTextForUI("menuExpAwakeningNeeded","elementText")+selectedGirl.awakening_costs+"<img style='width: 23px;margin-left: 5px;' src='https://hh.hh-content.com/pictures/design/gems/"+selectedGirl.element+".png'> : "+selectedGirl.name+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
-                canGiveExp = false;
-                document.getElementById("menuExpHide").style.display = "none";
-            }
-            else
-            {
-                $('div.potion div.inventory_slots div[id_item][data-d]').each(function()
-                                                                              {
-                    let data=JSON.parse($(this).attr("data-d"));
-                    if (data.rarity === "mythic")
-                    {
-                        return;
-                    }
-                    let countpotion=Number($('div.potion div.inventory_slots div[id_item='+$(this).attr("id_item")+'][data-d] .stack_num span')[0].innerHTML.replace(/[^0-9]/gi, ''))
-
-                    if (minExpItem > Number(data.value))
-                    {
-                        minExpItem = Number(data.value);
-                    }
-                    potionCount[Number(data.value)]=countpotion;
-                    totalExp+=Number(data.value)*countpotion
-                    potionArray[Number(data.value)]=$(this).attr("id_item");
-                });
-                //console.log(potionCount);
-                if (totalExp > 0
-                    && Number(selectedGirl.Xp.level) < targetedLevel
-                    && Number(selectedGirl.Xp.cur) < getLevelXp(selectedGirlTooltip.rarity,targetedLevel)
-                    && (Number(getLevelXp(selectedGirlTooltip.rarity,targetedLevel)-Number(selectedGirl.Xp.cur)) >=minExpItem) )
-                {
-                    let ExpMissing = Number(getLevelXp(selectedGirlTooltip.rarity,targetedLevel))-Number(selectedGirl.Xp.cur);
-                    ExpToGive=findSubsetsPartition(ExpMissing,potionCount);
-                    menuText = selectedGirl.name+" "+selectedGirl.Xp.cur+"/"+getLevelXp(selectedGirlTooltip.rarity,targetedLevel)+"<br>"+getTextForUI("menuDistribution","elementText")+"<br>";
-                    let Expkeys = Object.keys(ExpToGive.partitions);
-                    for ( var i of Expkeys )
-                    {
-                        menuText = menuText+i+"Exp x "+ExpToGive.partitions[i]+"<br>";
-                    }
-                    menuText = menuText+getTextForUI("Total","elementText")+ExpToGive.total+"/"+ExpMissing;
-                    document.getElementById("menuExpHide").style.display = "block";
-                    canGiveExp = true;
-                }
-                else
-                {
-                    menuText = getTextForUI("menuExpNoExp","elementText")+" "+selectedGirl.name;
-                    document.getElementById("menuExpHide").style.display = "none";
-                    canGiveExp = false;
-                }
-            }
-            logHHAuto(menuText);
-            document.getElementById("menuExpText").innerHTML = menuText;
-        }
-        function moveLeftExp()
-        {
-            $('div.g1 span[nav="left"]').click();
-            prepareExp();
-        }
-        function moveRightExp()
-        {
-            $('div.g1 span[nav="right"]').click();
-            prepareExp();
-        }
-        function launchGiveExp()
-        {
-            document.getElementById("menuExp-moveLeft").style.visibility = "hidden";
-            document.getElementById("menuExp-moveRight").style.visibility = "hidden";
-            giveExp(getSelectGirlID, ExpToGive, potionArray);
-
-        }
-        function giveExp(inGirlID, inExpToGive, inExpArray)
-        {
-            let girl=$('div.girl-ico:not(.not-selected)');
-            let selectedGirl=girl.data("g");
-            let selectedGirlExp=selectedGirl.Xp.cur;
-            let selectedGirlTooltip=JSON.parse(girl.attr(getHHScriptVars('girlToolTipData')));
-            let targetedLevel = Math.min(Number(document.getElementById("menuExpLevel").value), selectedGirl.level_cap);
-            let targetedXp = getLevelXp(selectedGirlTooltip.rarity,targetedLevel);
-            logHHAuto('start giving Exp to '+selectedGirl.name);
-            let currentTotal = selectedGirlExp;
-            let currentItem = -1;
-            let inExpToGivePartitionBackup = { ...inExpToGive.partitions }
-            document.getElementById("menuExpHide").style.display = "none";
-            document.getElementById("menuExpText").innerHTML = selectedGirl.name+" "+selectedGirlExp+"/"+targetedXp+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
-
-            let oldTime = new Date();
-
-            function giveExp_func()
-            {
-                let newTime = new Date();
-                //console.log("giveExp_func : "+Number(newTime-oldTime)+"ms");
-                oldTime = newTime;
-
-                if (isDisplayedHHPopUp() !== menuID)
-                {
-                    logHHAuto('Exp Dialog closed, stopping');
-                    document.getElementById("autoGiveExp").checked = false;
-                    document.removeEventListener('keyup', KeyUpExp, false);
-                    return;
-                }
-
-                girl=$('div.girl-ico:not(.not-selected)');
-                selectedGirl=girl.data("g");
-                selectedGirlExp=selectedGirl.Xp.cur;
-
-                //console.log(currentItem, inExpToGive.partitions[currentItem],inExpToGive.partitions,selectedGirlExp,currentTotal);
-                //check awakening
-                const awakeningCostButtonSelector = '#awakening_popup'+getHHScriptVars("selectorFilterNotDisplayNone")+' > div.awakening-container > div:nth-child(3) > button';
-                const awakeningCostSelector = awakeningCostButtonSelector+' > div.action-cost';
-
-                if ($(awakeningCostSelector).length > 0)
-                {
-
-                    const awakeningCost = $(awakeningCostSelector)[0].innerText.length>0?$(awakeningCostSelector)[0].innerText.split('/')[0]:null;
-                    if (awakeningCost === 0)
-                    {
-                        $(awakeningCostButtonSelector).click();
-                        setTimeout(giveExp_func, randomInterval(400,800));
-                        logHHAuto(`Auto free awakening for ${selectedGirl.name}`);
-                        return;
-                    }
-                    else if (awakeningCost > 0)
-                    {
-                        const awakeningCostBank = $(awakeningCostSelector)[0].innerText.split('/')[1];
-                        const awakeningCostGemSRC = $('img',$(awakeningCostButtonSelector)).attr("src");
-                        const awakeningCostGemText = awakeningCostGemSRC.match(/\/([^/.]+)\.png/)[1];
-                        const awakeningCloseButtonSelector = '#awakening_popup .close_cross';
-                        logHHAuto(`${selectedGirl.name} closing awakening.`);clearInterval(giveExp_func);
-                        logHHAuto(`${selectedGirl.name} needs awakening, cost : ${$(awakeningCostSelector)[0].innerText} ${awakeningCostGemText} gems`);
-                        let menuText =getTextForUI("menuExpAwakeningNeeded","elementText")+$(awakeningCostSelector)[0].innerText+"<img style='width: 23px;margin-left: 5px;' src='"+awakeningCostGemSRC+"'> : "+selectedGirl.name+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
-                        setTimeout(function(){$(awakeningCloseButtonSelector).click();},randomInterval(200, 300));
-                        canGiveExp =false;
-                        document.getElementById("menuExpText").innerHTML = menuText;
-                        document.getElementById("menuExpHide").style.display = "none";
-                        document.getElementById("menuExp-moveLeft").style.visibility = "visible";
-                        document.getElementById("menuExp-moveRight").style.visibility = "visible";
-                        setTimeout(giveExpAutoNext,randomInterval(500, 1000));
-                        return;
-                    }
-                    else if (awakeningCost === null && document.getElementById("autoGiveExp").checked)
-                    {
-                        const awakeningCloseButtonSelector = '#awakening_popup .close_cross';
-                        $(awakeningCloseButtonSelector).click();
-                        clearInterval(giveExp_func);
-                        logHHAuto(`${selectedGirl.name} closing awakening.`);
-                        let menuText =getTextForUI("menuExpAwakeningNeeded","elementText")+" : "+selectedGirl.name+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
-                        canGiveExp =false;
-                        document.getElementById("menuExpText").innerHTML = menuText;
-                        document.getElementById("menuExpHide").style.display = "none";
-                        document.getElementById("menuExp-moveLeft").style.visibility = "visible";
-                        document.getElementById("menuExp-moveRight").style.visibility = "visible";
-                        setTimeout(giveExpAutoNext,randomInterval(500, 1000));
-                        return;
-                    }
-                }
-                //check if previous click has worked
-                if (selectedGirlExp === currentTotal)
-                {
-                    //decrease count
-                    if (currentItem !== -1)
-                    {
-                        logHHAuto('Spent one '+currentItem);
-                        inExpToGive.partitions[currentItem] = inExpToGive.partitions[currentItem]-1;
-                        let menuText = selectedGirl.name+" "+selectedGirlExp+"/"+targetedXp+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
-                        let Expkeys = Object.keys(inExpToGivePartitionBackup);
-                        let givenTotal = 0;
-                        logHHAuto({log:"Remains to spend",inExpToGive:inExpToGive});
-                        for ( var i of Expkeys )
-                        {
-                            let diff=Number(inExpToGivePartitionBackup[i]-inExpToGive.partitions[i]);
-                            givenTotal += diff*Number(i);
-                            if (diff >0)
-                            {
-                                //menuText = menuText+i+"Exp x "+diff+"<br>";
-                            }
-                            menuText = menuText+i+"Exp x "+diff+"/"+inExpToGivePartitionBackup[i]+"<br>";
-                        }
-                        menuText = menuText+getTextForUI("Total","elementText")+givenTotal+"/"+inExpToGive.total;
-                        document.getElementById("menuExpText").innerHTML = menuText;
-
-                    }
-                    //select item
-                    let itemKeys=Object.keys(inExpToGive.partitions);
-                    currentItem = -1;
-                    for ( let i of itemKeys )
-                    {
-                        if (inExpToGive.partitions[i] >0)
-                        {
-                            currentItem = i;
-                        }
-                    }
-
-
-                    if (currentItem === -1)
-                    {
-                        clearInterval(giveExp_func);
-                        let menuText;
-
-                        logHHAuto(selectedGirl.name+ "max Exp given.");
-                        menuText =getTextForUI("menuExpEnd","elementText")+" "+selectedGirl.name+"<br>"+getTextForUI("menuDistributed","elementText")+"<br>";
-                        let givenTotal = 0;
-                        let Expkeys = Object.keys(inExpToGivePartitionBackup);
-                        for ( var i of Expkeys )
-                        {
-                            let diff=Number(inExpToGivePartitionBackup[i]-inExpToGive.partitions[i]);
-                            givenTotal += diff*Number(i);
-                            if (diff >0)
-                            {
-                                //menuText = menuText+i+"Exp x "+diff+"<br>";
-                            }
-                            menuText = menuText+i+"Exp x "+diff+"/"+inExpToGivePartitionBackup[i]+"<br>";
-                        }
-                        menuText = menuText+getTextForUI("Total","elementText")+givenTotal;
-                        canGiveExp =false;
-                        document.getElementById("menuExpText").innerHTML = menuText;
-                        document.getElementById("menuExpHide").style.display = "none";
-                        document.getElementById("menuExp-moveLeft").style.visibility = "visible";
-                        document.getElementById("menuExp-moveRight").style.visibility = "visible";
-                        giveExpAutoNext();
-                    }
-                    else
-                    {
-                        currentTotal+=Number(currentItem);
-                        const currentItemSelector = 'div.potion div.inventory_slots div[id_item='+inExpArray[currentItem]+'][data-d]';
-                        if ($(currentItemSelector+'.selected').length === 0 )
-                        {
-                            logHHAuto("selected item : "+currentItem);
-                            $(currentItemSelector).click();
-                            setTimeout(giveExp_func, randomInterval(400,800));
-                        }
-                        else
-                        {
-                            giveExp_func();
-                        }
-                    }
-                    return;
-                }
-                else
-                {
-                    if (inExpArray[currentItem] === $('div.potion div.inventory_slots div[id_item][data-d].selected').attr("id_item") && inExpToGive.partitions[currentItem] >0 )
-                    {
-                        logHHAuto("clicked on "+currentItem);
-                        $('#inventory > button.blue_text_button[rel=use]').click();
-                        setTimeout(giveExp_func, randomInterval(100,200));
-                        return;
-                    }
-                }
-            }
-            setTimeout(giveExp_func, randomInterval(300,600));
-        }
-
-
-    }
-
     function menuSellListItems()
     {
         if ($('#menuSellList>.tItems').length === 0)
@@ -8527,8 +7625,9 @@ function moduleShopActions()
         {
             itemsCaracs.push(i);
         }
+        itemsCaracs.push('mythic'); // Needed for mythic equipement, can't use generic method for them
 
-        let itemsRarity=["common", "rare", "epic", "legendary"];
+        let itemsRarity=["common", "rare", "epic", "legendary", "mythic"];
         let itemsLockedStatus=["not_locked","locked"];
 
         let itemsTypeNb=6;
@@ -8541,7 +7640,13 @@ function moduleShopActions()
         let itemsList={};
         for (let c of itemsCaracs)
         {
-            let filteredCarac = $('#inventory .selected .inventory_slots .slot:not(.empty)[data-d*=\'"name_add":"'+c+'"\']');
+            let filteredCarac;
+            if(c === 'mythic') {
+                filteredCarac = $('#player-inventory.armor .slot:not(.empty)[data-d*=\'"rarity":"mythic"\']');
+            } else {
+                filteredCarac = $('#player-inventory.armor .slot:not(.empty)[data-d*=\'"name_add":"'+c+'"\']');
+            }
+
             itemsList[c] = {};
             for (let t of itemsType)
             {
@@ -8576,6 +7681,9 @@ function moduleShopActions()
         +' <colgroup class="tItemsColGroup">'
         +'  <col class="tItemsColRarity" span="6">'
         +' </colgroup>'
+        +' <colgroup class="tItemsColGroup">'
+        +'  <col class="tItemsColRarity" span="6">'
+        +' </colgroup>'
         +' <thead class="tItemsTHead">'
         +'  <tr>'
         +'   <th class="tItemsTh1">'+getTextForUI("Rarity","elementText")+'</th>'
@@ -8583,6 +7691,7 @@ function moduleShopActions()
         +'   <th class="tItemsTh1" menuSellFilter="c:*;t:*;r:'+itemsRarity[1]+'" colspan="6">'+getTextForUI("RarityRare","elementText")+'</th>'
         +'   <th class="tItemsTh1" menuSellFilter="c:*;t:*;r:'+itemsRarity[2]+'" colspan="6">'+getTextForUI("RarityEpic","elementText")+'</th>'
         +'   <th class="tItemsTh1" menuSellFilter="c:*;t:*;r:'+itemsRarity[3]+'" colspan="6">'+getTextForUI("RarityLegendary","elementText")+'</th>'
+        +'   <th class="tItemsTh1" menuSellFilter="c:*;t:*;r:'+itemsRarity[4]+'" colspan="6">'+getTextForUI("RarityMythic","elementText")+'</th>'
         +'  </tr>'
         +'  <tr>'
         +'   <th class="tItemsTh2">'+getTextForUI("equipementCaracs","elementText")+'/'+getTextForUI("equipementType","elementText")+'</th>';
@@ -8603,9 +7712,15 @@ function moduleShopActions()
 
         for (let c of itemsCaracs)
         {
-            let ext= (c === 16)?"svg":"png";
-            itemsListMenu +='  <tr>'
-                +'   <td menuSellFilter="c:'+c+';t:*;r:*"><img style="height:20px;width:20px" src="https://hh2.hh-content.com/pictures/misc/items_icons/'+c+'.'+ext+'"></td>';
+            if(c === 'mythic') {
+                itemsListMenu +='  <tr>'
+                    +'   <td menuSellFilter="c:'+c+';t:*;r:*">'+getTextForUI("RarityMythic","elementText")+'</td>';
+            } else {
+                let ext= (c === 16)?"svg":"png";
+                itemsListMenu +='  <tr>'
+                    +'   <td menuSellFilter="c:'+c+';t:*;r:*"><img style="height:20px;width:20px" src="https://hh2.hh-content.com/pictures/misc/items_icons/'+c+'.'+ext+'"></td>';
+            }
+
             for (let r of itemsRarity)
             {
                 for (let t of itemsType)
@@ -8649,7 +7764,7 @@ function moduleShopActions()
 
         function setSlotFilter(inCaracsValue,inTypeValue,inRarityValue,inLockedValue)
         {
-            let filter='#inventory .selected .inventory_slots .slot:not(.empty)';
+            let filter='#player-inventory.armor .slot:not(.empty)';
             if (inCaracsValue !== "*" )
             {
                 filter+='[data-d*=\'"name_add":"'+inCaracsValue+'"\']';
@@ -8777,13 +7892,13 @@ function moduleShopActions()
         }
         else if (document.getElementById(menuID) !== null)
         {
-            document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
+            document.getElementById("menuSellCurrentCount").innerHTML = $('#player-inventory.armor .slot:not(.empty):not([menuSellLocked])').length;
             return;
         }
 
-        var menuSellLock = '<div style="position: absolute;left: 70px;top: -10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellLock","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSellLock">'+getTextForUI("menuSellLock","elementText")+'</label></div>'
-        var menuSellMaskLocked = '<div style="position: absolute;left: -5px;top: -10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellMaskLocked","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSellMaskLocked">'+getTextForUI("menuSellMaskLocked","elementText")+'</label></div>'
-        var menuSell = '<div style="position: absolute;right: 50px;top: -10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSell","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSell">'+getTextForUI("menuSell","elementText")+'</label></div>'
+        var menuSellLock = '<div style="position: absolute;right: 220px;top: 70px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellLock","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSellLock">'+getTextForUI("menuSellLock","elementText")+'</label></div>'
+        var menuSellMaskLocked = '<div style="position: absolute;right: 140px;top: 70px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellMaskLocked","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSellMaskLocked">'+getTextForUI("menuSellMaskLocked","elementText")+'</label></div>'
+        var menuSell = '<div style="position: absolute;right: 300px;top: 70px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSell","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSell">'+getTextForUI("menuSell","elementText")+'</label></div>'
         + '<dialog style="overflow-y:auto;max-width:95%;max-height:95%;"id="SellDialog"><form stylemethod="dialog">'
         +  '<div style="padding:10px; display:flex;flex-direction:column;">'
         +   '<p>'+getTextForUI("menuSellText","elementText")+'</p>'
@@ -8792,7 +7907,6 @@ function moduleShopActions()
         +    '<p id="menuSellCurrentCount">0</p>'
         +   '</div>'
         + '<div id="menuSellStop"><label style="width:80px" class="myButton" id="menuSellStop">'+getTextForUI("OptionStop","elementText")+'</label></div>'
-        +   '<p ></p>'
         +   '<div id="menuSellHide" style="display:none">'
         +    '<p id="menuSellList"></p>'
         +    '<div class="HHMenuRow">'
@@ -8820,7 +7934,7 @@ function moduleShopActions()
 
         function initMenuSell()
         {
-            $('#inventory > div.armor > label').first().append(menuSell);
+            $('#player-inventory.armor').append(menuSell);
 
 
             document.getElementById("menuSell").addEventListener("click", displayMenuSell);
@@ -8831,7 +7945,7 @@ function moduleShopActions()
                     alert("The <dialog> API is not supported by this browser");
                     return;
                 }
-                $('#inventory .selected .inventory_slots .slot:not(.empty)[canBeSold]').removeAttr('canBeSold');
+                $('#player-inventory.armor .slot:not(.empty)[canBeSold]').removeAttr('canBeSold');
                 SellDialog.close();
             });
             document.getElementById("menuSellStop").addEventListener("click", function(){
@@ -8877,24 +7991,24 @@ function moduleShopActions()
 
         function initMenuSellMaskLocked()
         {
-            $('#inventory > div.armor > label').first().append(menuSellMaskLocked);
+            $('#player-inventory.armor').append(menuSellMaskLocked);
             document.getElementById("menuSellMaskLocked").addEventListener("click", launchMenuSellMaskLocked);
         }
         function launchMenuSellMaskLocked()
         {
-            $("#inventory .selected .inventory_slots .slot[menuSellLocked]").each(function(){
-                this.style.display = this.style.display==="none"?"block":"none";
+            $("#player-inventory.armor .slot[menuSellLocked]").each(function(){
+                $(this).parent().toggle();
             });
         }
 
         function initMenuSellLock()
         {
-            $('#inventory > div.armor > label').first().append(menuSellLock);
+            $('#player-inventory.armor').append(menuSellLock);
             document.getElementById("menuSellLock").addEventListener("click", launchMenuSellLock);
         }
         function launchMenuSellLock()
         {
-            let filterText = "#inventory .selected .inventory_slots .slot.selected";
+            let filterText = "#player-inventory.armor .slot.selected";
             if ($(filterText).length >0)
             {
                 let toLock=$(filterText)[0].getAttribute("menuSellLocked") === null;
@@ -8904,9 +8018,9 @@ function moduleShopActions()
     }
 
     function checkAjaxComplete(event,request,settings){
-        let match = settings.data.match(/class=Item&action=armor_pack_load&pack=(\d+)&shift=(\d+)/);
+        let match = settings.data.match(/action=market_get_armor&id_member_armor=(\d+)/);
         if (match === null) return;
-        allLoaded = request.responseJSON.last;
+        allLoaded = request.responseJSON.items.length === 0 && request.responseJSON.success; // No more to load
         if (fetchStarted)
         {
             setTimeout(fetchAllArmorItems, randomInterval(800,1600));
@@ -8915,9 +8029,9 @@ function moduleShopActions()
 
     function fetchAllArmorItems()
     {
-        let oldCount = $('#inventory .selected .inventory_slots .slot:not(.empty)').length;
-        document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
-        let scroll = $(".inventory_slots>div")[0];
+        let oldCount = $('#player-inventory.armor .slot:not(.empty)').length;
+        document.getElementById("menuSellCurrentCount").innerHTML = $('#player-inventory.armor .slot:not(.empty):not([menuSellLocked])').length;
+        let scroll = $("#player-inventory.armor")[0];
         if (menuSellStop || allLoaded || oldCount >= menuSellMaxItems || !document.getElementById("SellDialog").open)
         {
             document.getElementById("menuSellStop").style.display = "none";
@@ -8941,18 +8055,18 @@ function moduleShopActions()
 
     function sellArmorItems()
     {
-        logHHAuto('start selling not legendary stuff');
+        logHHAuto('start selling common, rare and epic stuff');
         document.getElementById("menuSellHide").style.display = "none";
         document.getElementById("menuSoldHide").style.display = "block";
         // return;
-        var initialNumberOfItems = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
+        var initialNumberOfItems = $('#player-inventory.armor .slot:not(.empty):not([menuSellLocked])').length;
         var itemsToSell = Number(document.getElementById("menuSellNumber").value);
         document.getElementById("menuSoldCurrentCount").innerHTML = "0/"+itemsToSell;
         document.getElementById("menuSoldMessage").innerHTML ="";
         let PlayerClass = getHHVars('Hero.infos.class') === null ? $('#equiped > div.icon.class_change_btn').attr('carac') : getHHVars('Hero.infos.class');
         function selling_func()
         {
-            if ($('#type_item > div.selected[type=armor]').length === 0)
+            if ($('#player-inventory.armor').length === 0)
             {
                 logHHAuto('Wrong tab');
                 return;
@@ -8962,7 +8076,7 @@ function moduleShopActions()
                 logHHAuto('Sell Dialog closed, stopping');
                 return;
             }
-            let availebleItems = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])');
+            let availebleItems = $('#player-inventory.armor .slot:not(.empty):not([menuSellLocked])');
             let currentNumberOfItems = availebleItems.length;
             if (currentNumberOfItems === 0)
             {
@@ -8985,27 +8099,27 @@ function moduleShopActions()
             {
                 let can_sell = false;
                 //Non legendary or with specific attribute
-                if (availebleItems.filter('.selected').filter(':not(.legendary),[canBeSold]').length > 0)
+                if (availebleItems.filter('.selected').filter(':not(.legendary):not(.mythic),[canBeSold]').length > 0)
                 {
                     can_sell = true;
                 }
                 logHHAuto('can be sold ' + can_sell+ ' : '+ availebleItems.filter('.selected')[0].getAttribute('data-d'));
                 if (can_sell)
                 {
-                    $('#inventory > button.green_text_button[rel=sell]').click();
+                    $('#shops .menu-switch-tab-content.active button.green_text_button[rel=sell]').click();
                     let currSellNumber = Number((initialNumberOfItems - currentNumberOfItems) +1);
                     document.getElementById("menuSoldCurrentCount").innerHTML = currSellNumber+"/"+itemsToSell;
-                    document.getElementById("menuSellCurrentCount").innerHTML = $('#inventory .selected .inventory_slots .slot:not(.empty):not([menuSellLocked])').length;
+                    document.getElementById("menuSellCurrentCount").innerHTML = $('#player-inventory.armor .slot:not(.empty):not([menuSellLocked])').length;
                     setTimeout(selling_func, 300);
                     return;
                 }
             }
             //Find new sellable items
-            if (availebleItems.filter(':not(.selected):not(.legendary),[canBeSold]').length > 0)
+            if (availebleItems.filter(':not(.selected):not(.legendary):not(.mythic),[canBeSold]').length > 0)
             {
                 //Select first non legendary item
                 //Or select item that checked before and can be sold
-                availebleItems.filter(':not(.selected):not(.legendary),[canBeSold]')[0].click();
+                availebleItems.filter(':not(.selected):not(.legendary):not(.mythic),[canBeSold]')[0].click();
                 setTimeout(selling_func, 300);
                 return;
             }
@@ -9060,7 +8174,7 @@ function moduleShopActions()
                         }
                     }
                 }
-                if ($('#inventory .selected .inventory_slots [canBeSold]:not([menuSellLocked])').length == 0)
+                if ($('#player-inventory.armor [canBeSold]:not([menuSellLocked])').length == 0)
                 {
                     logHHAuto('no more items for sale');
                     document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageNoMore","elementText");
@@ -10841,7 +9955,7 @@ HHAuto_ToolTips.en.timerResetButton = { version: "5.6.24", elementText: "Reset",
 HHAuto_ToolTips.en.timerLeftTime = { version: "5.6.24", elementText: "", tooltip: "Time remaining"};
 HHAuto_ToolTips.en.timerResetNoTimer = { version: "5.6.24", elementText: "No selected timer", tooltip: ""};
 HHAuto_ToolTips.en.menuSell = { version: "5.6.24", elementText: "Sell", tooltip: "Allow to sell items."};
-HHAuto_ToolTips.en.menuSellText = { version: "5.6.24", elementText: "This will sell the number of items asked starting in display order (first all non legendary then legendary)<br> It will sell all non legendary stuff and keep : <br> - 1 set of rainbow legendary (choosen on highest player class stat)<br> - 1 set of legendary mono player class (choosen on highest stats)<br> - 1 set of legendary harmony (choosen on highest stats)<br> - 1 set of legendary endurance (choosen on highest stats)<br>You can lock/Unlock batch by clicking on the corresponding cell/row/column (notlocked/total), red means all locked, orange some locked.", tooltip: ""};
+HHAuto_ToolTips.en.menuSellText = { version: "5.6.126", elementText: "This will sell the number of items asked starting in display order (first all non legendary then legendary)<br> It will sell all Common, Rare, Epic stuff and keep : <br> - 1 set of rainbow legendary (choosen on highest player class stat)<br> - 1 set of legendary mono player class (choosen on highest stats)<br> - 1 set of legendary harmony (choosen on highest stats)<br> - 1 set of legendary endurance (choosen on highest stats)<br> - All mythics<br>You can lock/Unlock batch by clicking on the corresponding cell/row/column (notlocked/total), red means all locked, orange some locked.", tooltip: ""};
 HHAuto_ToolTips.en.menuSellNumber = { version: "5.6.24", elementText: "", tooltip: "Enter the number of items you want to sell : "};
 HHAuto_ToolTips.en.menuSellButton = { version: "5.6.24", elementText: "Sell", tooltip: "Launch selling funtion."};
 HHAuto_ToolTips.en.menuSellCurrentCount = { version: "5.6.24", elementText: "Number of sellable items you currently have : ", tooltip: ""};
@@ -10849,17 +9963,8 @@ HHAuto_ToolTips.en.menuSellMaskLocked = { version: "5.6.24", elementText: "Mask 
 HHAuto_ToolTips.en.menuSoldText = { version: "5.6.24", elementText: "Number of items sold : ", tooltip: ""};
 HHAuto_ToolTips.en.menuSoldMessageReachNB = { version: "5.6.24", elementText: "Wanted sold items reached.", tooltip: ""};
 HHAuto_ToolTips.en.menuSoldMessageNoMore = { version: "5.6.24", elementText: " No more sellable items.", tooltip: ""};
-HHAuto_ToolTips.en.menuAff = { version: "5.6.24", elementText: "Give Aff", tooltip: "Automatically give Aff to selected girl."};
-HHAuto_ToolTips.en.menuAffButton = { version: "5.6.24", elementText: "Go !", tooltip: "Launch giving aff."};
 HHAuto_ToolTips.en.menuDistribution = { version: "5.6.24", elementText: "Items to be used : ", tooltip: ""};
 HHAuto_ToolTips.en.Total = { version: "5.6.24", elementText: "Total : ", tooltip: ""};
-HHAuto_ToolTips.en.menuAffNoNeed = { version: "5.6.24", elementText: "don't need Aff.", tooltip: ""};
-HHAuto_ToolTips.en.menuAffNoAff = { version: "5.6.24", elementText: "No Aff available to be given to :", tooltip: ""};
-HHAuto_ToolTips.en.menuAffError = { version: "5.6.24", elementText: "Error fetching girl Aff field, cancelling.", tooltip: ""};
-HHAuto_ToolTips.en.menuAffReadyToUpgrade = { version: "5.6.24", elementText: " is ready for upgrade.", tooltip: ""};
-HHAuto_ToolTips.en.menuAffEnd = { version: "5.6.24", elementText: "All Aff given to :", tooltip: ""};
-HHAuto_ToolTips.en.menuAffSelector = { version: "5.6.42", elementText: "", tooltip: "Allow to exceed needed Aff to unlock upgrade by choosen amount."};
-HHAuto_ToolTips.en.menuAffNoExceed = { version: "5.6.42", elementText: "Do not exceed.", tooltip: ""};
 HHAuto_ToolTips.en.menuAllowedExceed = { version: "5.6.42", elementText: "Allow to exceed by : ", tooltip: ""};
 HHAuto_ToolTips.en.menuDistributed = { version: "5.6.24", elementText: "Items used : ", tooltip: ""};
 HHAuto_ToolTips.en.autoClubChampMax = { version: "5.6.24", elementText: "Max tickets per run", tooltip: "Maximum number of tickets to use on the club champion at each run."};
@@ -10869,6 +9974,7 @@ HHAuto_ToolTips.en.RarityCommon = { version: "5.6.24", elementText: "Common", to
 HHAuto_ToolTips.en.RarityRare = { version: "5.6.24", elementText: "Rare", tooltip: ""};
 HHAuto_ToolTips.en.RarityEpic = { version: "5.6.24", elementText: "Epic", tooltip: ""};
 HHAuto_ToolTips.en.RarityLegendary = { version: "5.6.24", elementText: "Legendary", tooltip: ""};
+HHAuto_ToolTips.en.RarityMythic = { version: "5.6.126", elementText: "Mythic", tooltip: ""};
 HHAuto_ToolTips.en.equipementHead = { version: "5.6.24", elementText: "Head", tooltip: ""};
 HHAuto_ToolTips.en.equipementBody = { version: "5.6.24", elementText: "Body", tooltip: ""};
 HHAuto_ToolTips.en.equipementLegs = { version: "5.6.24", elementText: "Legs", tooltip: ""};
@@ -10878,14 +9984,6 @@ HHAuto_ToolTips.en.equipementWeapon = { version: "5.6.24", elementText: "Weapon"
 HHAuto_ToolTips.en.equipementCaracs = { version: "5.6.24", elementText: "Caracs", tooltip: ""};
 HHAuto_ToolTips.en.equipementType = { version: "5.6.24", elementText: "Type", tooltip: ""};
 HHAuto_ToolTips.en.autoMissionKFirst = { version: "5.6.24", elementText: "Kobans first", tooltip: "Start by missions rewarded with Kobans."};
-HHAuto_ToolTips.en.menuExp = { version: "5.6.24", elementText: "Give Exp", tooltip: "Automatically give max Exp to selected girl."};
-HHAuto_ToolTips.en.menuExpButton = { version: "5.6.24", elementText: "Go !", tooltip: "Launch giving exp."};
-HHAuto_ToolTips.en.menuExpNoNeed = { version: "5.6.24", elementText: "don't need Exp.", tooltip: ""};
-HHAuto_ToolTips.en.menuExpNoExp = { version: "5.6.24", elementText: "No Exp available to be given to :", tooltip: ""};
-HHAuto_ToolTips.en.menuExpError = { version: "5.6.24", elementText: "Error fetching girl Exp field, cancelling.", tooltip: ""};
-HHAuto_ToolTips.en.menuExpEnd = { version: "5.6.24", elementText: "All Exp given to :", tooltip: ""};
-HHAuto_ToolTips.en.menuExpLevel =  { version: "5.6.24", elementText: "Enter target Exp level :", tooltip: "Target Exp level for girl"};
-HHAuto_ToolTips.en.menuExpAwakeningNeeded =  { version: "5.6.24", elementText: "Girl need awakening ", tooltip: ""};
 HHAuto_ToolTips.en.PoAMaskRewards = { version: "5.6.24", elementText: "PoA mask claimed", tooltip: "Masked claimed rewards for Path of Attraction."};
 HHAuto_ToolTips.en.PoVMaskRewards = { version: "5.6.26", elementText: "PoV mask claimed", tooltip: "Masked claimed rewards for Path of Valor."};
 HHAuto_ToolTips.en.PoGMaskRewards = { version: "5.6.89", elementText: "PoG mask claimed", tooltip: "Masked claimed rewards for Path of Glory."};
@@ -10914,7 +10012,6 @@ HHAuto_ToolTips.en.ChangeTeamButton = {version: "5.6.24", elementText: "Current 
 HHAuto_ToolTips.en.ChangeTeamButton2 = {version: "5.6.24", elementText: "Possible Best", tooltip: "Get list of top 16 girls for your team if they are Max Lv & Aff"};
 HHAuto_ToolTips.en.AssignTopTeam = {version: "5.6.24", elementText: "Assign first 7", tooltip: "Put the first 7 ones in the team."};
 HHAuto_ToolTips.en.ExportGirlsData = {version: "5.6.24", elementText: "⤓", tooltip: "Export Girls data."};
-HHAuto_ToolTips.en.menuRemoveMaxed = {version: "5.6.24", elementText: "Remove maxed", tooltip: "Remove maxed girls"};
 HHAuto_ToolTips.en.autoDailyRewardsCollect = {version: "5.6.54", elementText: "Collect daily Rewards", tooltip: "Collect daily rewards if not collected 2 hours before end of HH day."};
 HHAuto_ToolTips.en.mousePause = {version: "5.6.104", elementText: "Mouse Pause", tooltip: "Pause script activity for 5 seconds when mouse movement is detected. Helps stop script from interrupting manual actions."};
 HHAuto_ToolTips.en.saveDefaults = {version: "5.6.24", elementText: "Save defaults", tooltip: "Save your own defaults values for new tabs."};
@@ -12372,7 +11469,7 @@ HHStoredVars.HHAuto_Temp_Logging =
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_Debug = 
+HHStoredVars.HHAuto_Temp_Debug =
     {
     default: "false",
     storage: "sessionStorage",
