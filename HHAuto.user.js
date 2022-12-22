@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.128
+// @version      5.6.129
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -612,6 +612,19 @@ function setLastPageCalled(inPage)
     setStoredValue("HHAuto_Temp_LastPageCalled", JSON.stringify({page:inPage, dateTime:new Date().getTime()}));
 }
 
+function parsePrice(princeStr){
+    // Parse price to number 105K to 105000, 6.38M to 6380000
+    let ret = Number.NaN;
+    if(princeStr && princeStr.indexOf('B')>0) {
+        ret = Number(princeStr.replace(/B/g, '')) * 1000000000;
+    } else if(princeStr && princeStr.indexOf('M')>0) {
+        ret = Number(princeStr.replace(/M/g, '')) * 1000000;
+    } else if(princeStr && princeStr.indexOf('K')>0) {
+        ret = Number(princeStr.replace(/K/g, '')) * 1000;
+    }
+    return ret;
+}
+
 var proceedQuest = function () {
     //logHHAuto("Starting auto quest.");
     // Check if at correct page.
@@ -660,7 +673,7 @@ var proceedQuest = function () {
     }
     else if (proceedType === "pay") {
         var proceedButtonCost = $("#controls button:not([style*='display:none']):not([style*='display: none']) .action-cost .price");
-        var proceedCost = Number(proceedButtonCost[0].innerText);
+        var proceedCost = parsePrice(proceedButtonCost[0].innerText);
         var payTypeNRJ = $("#controls button:not([style*='display:none']):not([style*='display: none']) .action-cost .energy_quest_icn").length>0;
         var energyCurrent = getHHVars('Hero.energies.quest.amount');
         var moneyCurrent = getHHVars('Hero.infos.soft_currency');
