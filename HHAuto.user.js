@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.129.2
+// @version      5.6.130
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -2867,30 +2867,62 @@ function doShopping()
         {
             //logHHAuto('gifts');
             Was=shop[2].length;
+            var allGiftsPriceSc = 0;
             for (var n2=shop[2].length-1;n2>=0;n2--)
             {
-                //logHHAuto({log:'wanna buy ',Object:shop[2][n2]});
-                if (money>=Aff+Number(shop[2][n2].price_buy) && money>=Number(shop[2][n2].price_buy) && shop[2][n2].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
+                if (shop[2][n2].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                 {
-                    logHHAuto({log:'Buying : ',Object:shop[2][n2]});
-                    money-=Number(shop[2][n2].price);
-                    var params2 = {
-                        index: shop[2][n2].index,
-                        action: "market_buy",
-                        id_item: shop[2][n2].id_item,
-                        type: "gift"
-                    };
-                    hh_ajax(params2, function(data) {
-                        Hero.updates(data.changes, false);
-                        if (data.success === false)
-                        {
-                            clearTimer('nextShopTime');
-                        }
-                    });
-                    shop[2].splice(n2,1);
-                    setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
-                    setTimeout(doShopping, randomInterval(600,1200));
-                    return;
+                    allGiftsPriceSc += Number(shop[2][n2].price_buy);
+                }
+            }
+            if (allGiftsPriceSc>0 && money>=Exp+allGiftsPriceSc) {
+                logHHAuto('Buy all gifts for price:' + allGiftsPriceSc);
+                money-=allGiftsPriceSc;
+                var params2 = {
+                    action: "market_auto_buy",
+                    type: "gift"
+                };
+                hh_ajax(params2, function(data) {
+                    Hero.updates(data.changes, false);
+                    if (data.success === false)
+                    {
+                        clearTimer('nextShopTime');
+                    }
+                });
+                for (var n2=shop[2].length-1;n2>=0;n2--)
+                {
+                    if (shop[2][n2].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
+                    {
+                        shop[2].splice(n2,1);
+                    }
+                }
+                setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
+            } else {
+                for (var n2=shop[2].length-1;n2>=0;n2--)
+                {
+                    //logHHAuto({log:'wanna buy ',Object:shop[2][n2]});
+                    if (money>=Aff+Number(shop[2][n2].price_buy) && money>=Number(shop[2][n2].price_buy) && shop[2][n2].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
+                    {
+                        logHHAuto({log:'Buying : ',Object:shop[2][n2]});
+                        money-=Number(shop[2][n2].price);
+                        var params2 = {
+                            index: shop[2][n2].index,
+                            action: "market_buy",
+                            id_item: shop[2][n2].id_item,
+                            type: "gift"
+                        };
+                        hh_ajax(params2, function(data) {
+                            Hero.updates(data.changes, false);
+                            if (data.success === false)
+                            {
+                                clearTimer('nextShopTime');
+                            }
+                        });
+                        shop[2].splice(n2,1);
+                        setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
+                        setTimeout(doShopping, randomInterval(600,1200));
+                        return;
+                    }
                 }
             }
             if (shop[2].length==0 && Was>0)
@@ -2902,30 +2934,62 @@ function doShopping()
         {
             //logHHAuto('books');
             Was=shop[3].length;
+            var allPotionPriceSc = 0;
             for (var n3=shop[3].length-1;n3>=0;n3--)
             {
-                //logHHAuto('wanna buy ',shop[3][n3]);
-                if (money>=Exp+Number(shop[3][n3].price_buy) && money>=Number(shop[3][n3].price_buy) && shop[3][n3].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
+                if (shop[3][n3].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                 {
-                    logHHAuto({log:'Buying : ',Object:shop[3][n3]});
-                    money-=Number(shop[3][n3].price);
-                    var params3 = {
-                        index: shop[3][n3].index,
-                        action: "market_buy",
-                        id_item: shop[3][n3].id_item,
-                        type: "potion"
-                    };
-                    hh_ajax(params3, function(data) {
-                        Hero.updates(data.changes, false);
-                        if (data.success === false)
-                        {
-                            clearTimer('nextShopTime');
-                        }
-                    });
-                    shop[3].splice(n3,1);
-                    setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
-                    setTimeout(doShopping, randomInterval(600,1200));
-                    return;
+                    allPotionPriceSc += Number(shop[3][n3].price_buy);
+                }
+            }
+            if (allPotionPriceSc>0 && money>=Exp+allPotionPriceSc) {
+                logHHAuto('Buy all books for price:' + allPotionPriceSc);
+                money-=allPotionPriceSc;
+                var params3 = {
+                    action: "market_auto_buy",
+                    type: "potion"
+                };
+                hh_ajax(params3, function(data) {
+                    Hero.updates(data.changes, false);
+                    if (data.success === false)
+                    {
+                        clearTimer('nextShopTime');
+                    }
+                });
+                for (var n3=shop[3].length-1;n3>=0;n3--)
+                {
+                    if (shop[3][n3].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
+                    {
+                        shop[3].splice(n3,1);
+                    }
+                }
+                setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
+            } else {
+                for (var n3=shop[3].length-1;n3>=0;n3--)
+                {
+                    //logHHAuto('wanna buy ',shop[3][n3]);
+                    if (money>=Exp+Number(shop[3][n3].price_buy) && money>=Number(shop[3][n3].price_buy) && shop[3][n3].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
+                    {
+                        logHHAuto({log:'Buying : ',Object:shop[3][n3]});
+                        money-=Number(shop[3][n3].price);
+                        var params3 = {
+                            index: shop[3][n3].index,
+                            action: "market_buy",
+                            id_item: shop[3][n3].id_item,
+                            type: "potion"
+                        };
+                        hh_ajax(params3, function(data) {
+                            Hero.updates(data.changes, false);
+                            if (data.success === false)
+                            {
+                                clearTimer('nextShopTime');
+                            }
+                        });
+                        shop[3].splice(n3,1);
+                        setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
+                        setTimeout(doShopping, randomInterval(600,1200));
+                        return;
+                    }
                 }
             }
             if (shop[3].length==0 && Was>0)
