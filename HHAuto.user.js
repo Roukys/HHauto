@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.15.6
+// @version      5.16.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3731,6 +3731,91 @@ function getRewardTypeBySlot(inSlot)
     }
     //console.log(reward);
     return reward;
+}
+
+function goAndCollectFreeBundles()
+{
+    if (getPage() == getHHScriptVars("pagesIDHome"))
+    {
+        logHHAuto("setting autoloop to false");
+        setStoredValue("HHAuto_Temp_autoLoop", "false");
+        const plusButton = $("header .currency .reversed_tooltip");
+        if(plusButton.length > 0) {
+            logHHAuto("click button for popup.");
+            plusButton[0].click();
+        }
+        else
+        {
+            logHHAuto("No button for popup.");
+            return false;
+        }
+
+        function parseAndCollectFreeBubndles(){
+            let freeButtonBundle= "#popups .payments-wrapper .tab.bundles .purchase_box[method='credit_card'] .blue_button_L:enabled[price='0.00']";
+
+            const freeBundlesNumber=$(freeButtonBundle).length;
+            if(getStoredValue("HHAuto_Setting_autoFreeBundlesCollect") === "true" && freeBundlesNumber > 0)
+            {
+                logHHAuto("Free Bundles found: " + freeBundlesNumber);
+                let buttonsToCollect = [];
+                for (let currentBundle = 0; currentBundle < freeBundlesNumber ; currentBundle++)
+                {
+                    buttonsToCollect.push($(freeButtonBundle)[currentBundle]);
+                }
+
+                function collectFreeBundle()
+                {
+                    if (buttonsToCollect.length >0)
+                    {
+                        logHHAuto("Collecting bundle n°"+ buttonsToCollect[0].getAttribute('product'));
+                        buttonsToCollect[0].click();
+                        buttonsToCollect.shift();
+                        setTimeout(collectFreeBundle, randomInterval(300, 500));
+                    }
+                    else
+                    {
+                        logHHAuto("Free bundle collection finished.");
+                        setTimer('nextFreeBundlesCollectTime', getSecondsLeftBeforeEndOfHHDay() + 3600);
+                        gotoPage(getHHScriptVars("pagesIDHome"));
+                        setStoredValue("HHAuto_Temp_autoLoop", "true");
+                        logHHAuto("setting autoloop to true");
+                    }
+                }
+                collectFreeBundle();
+                return true;
+            } else {
+                setTimer('nextFreeBundlesCollectTime', getSecondsLeftBeforeEndOfHHDay() + 3600);
+                gotoPage(getHHScriptVars("pagesIDHome"));
+            }
+        }
+
+        function switchToBundleTabs(){
+            const bundleButton = $("#popups .payments-wrapper .payment-tabs .bundles");
+            if(bundleButton.length > 0) {
+                logHHAuto("click button for bundles.");
+                bundleButton[0].click();
+                // Wait tabs
+                setTimeout(parseAndCollectFreeBubndles,randomInterval(800, 1500));
+            }
+            else
+            {
+                logHHAuto("No bundle tabs in popup.");
+                return false;
+            }
+        }
+
+        // Wait popup is opened
+        setTimeout(switchToBundleTabs,randomInterval(1000, 1500));
+        
+        return true;
+    }
+    else
+    {
+        logHHAuto("Navigating to home page.");
+        gotoPage(getHHScriptVars("pagesIDHome"));
+        // return busy
+        return true;
+    }
 }
 
 function goAndCollectDailyRewards()
@@ -7551,6 +7636,13 @@ var autoLoop = function ()
             goAndCollectDailyRewards();
         }
 
+        if (busy==false && getHHScriptVars("isEnabledFreeBundles",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextFreeBundlesCollectTime') && getStoredValue("HHAuto_Setting_autoFreeBundlesCollect") === "true")
+        {
+            busy = true;
+            logHHAuto("Time to go and check Free Bundles for collecting reward.");
+            goAndCollectFreeBundles();
+        }
+
         if (busy==false && getHHScriptVars("isEnabledDailyGoals",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextDailyGoalsCollectTime') && getStoredValue("HHAuto_Setting_autoDailyGoalsCollect") === "true")
         {
             busy = true;
@@ -10554,6 +10646,7 @@ HHEnvVariables["global"].isEnabledChamps = true;
 HHEnvVariables["global"].isEnabledClubChamp = true;
 HHEnvVariables["global"].isEnabledLeagues = true;
 HHEnvVariables["global"].isEnabledDailyRewards = true;
+HHEnvVariables["global"].isEnabledFreeBundles = true;
 HHEnvVariables["global"].isEnabledShop = true;
 HHEnvVariables["global"].isEnabledSalary = true;
 HHEnvVariables["global"].isEnabledPoVPoG = true;
@@ -10563,6 +10656,7 @@ HHEnvVariables["global"].isEnabledSeasonalEvent = true;
 HHEnvVariables["global"].isEnabledBossBangEvent = true;
 HHEnvVariables["global"].isEnabledDailyGoals = true;
 HHEnvVariables["HH_test"].isEnabledDailyRewards = false;// to remove if daily rewards arrives in test
+HHEnvVariables["HH_test"].isEnabledFreeBundles = false;// to remove if bundles arrives in test
 ["CH_prod","NCH_prod"].forEach((element) => {
     HHEnvVariables[element].trollzList = ['Latest',
                                           'BodyHack',
@@ -10834,6 +10928,7 @@ HHAuto_ToolTips.en.ChangeTeamButton2 = {version: "5.6.24", elementText: "Possibl
 HHAuto_ToolTips.en.AssignTopTeam = {version: "5.6.24", elementText: "Assign first 7", tooltip: "Put the first 7 ones in the team."};
 HHAuto_ToolTips.en.ExportGirlsData = {version: "5.6.24", elementText: "⤓", tooltip: "Export Girls data."};
 HHAuto_ToolTips.en.autoDailyRewardsCollect = {version: "5.6.54", elementText: "Collect daily Rewards", tooltip: "Collect daily rewards if not collected 2 hours before end of HH day."};
+HHAuto_ToolTips.en.autoFreeBundlesCollect = {version: "5.16.0", elementText: "Collect free bundles", tooltip: "Collect free bundles."};
 HHAuto_ToolTips.en.mousePause = {version: "5.6.135", elementText: "Mouse Pause", tooltip: "Pause script activity for 5 seconds when mouse movement is detected. Helps stop script from interrupting manual actions. (in ms, 5000ms=5s)"};
 HHAuto_ToolTips.en.saveDefaults = {version: "5.6.24", elementText: "Save defaults", tooltip: "Save your own defaults values for new tabs."};
 HHAuto_ToolTips.en.autoGiveAff = {version: "5.6.24", elementText: "Auto Give", tooltip: "If enabled, will automatically give Aff to girls in order ( you can use OCD script to filter )."};
@@ -10970,6 +11065,7 @@ HHAuto_ToolTips.fr.SeasonalEventMaskRewards = { version: "5.6.133", elementText:
 HHAuto_ToolTips.fr.BossBangEvent = { version: "5.6.137", elementText: "Evènements Boss Bang", tooltip: "Si activé : Effectue les combats boss bang en commençant par l'équipe configuré si après."};
 HHAuto_ToolTips.fr.bossBangMinTeam = { version: "5.6.137", elementText: "Première équipe", tooltip: "Première équipe à utiliser<br>Si 5, le script commencera par la dernière pour finir par la premiere."};
 HHAuto_ToolTips.fr.autoDailyRewardsCollect = {version: "5.6.133", elementText: "Collecter récompense journalier", tooltip: "Permet de collecter les récompenses journalières si non collectées 2 heures avant la fin du jour HH."};
+HHAuto_ToolTips.fr.autoFreeBundlesCollect = {version: "5.16.0", elementText: "Collecter offres gratuites", tooltip: "Permet de collecter les offres gratuites."};
 HHAuto_ToolTips.fr.autoDailyGoalsCollect = {version: "5.6.133", elementText: "Collecter objectifs journalier", tooltip: "Permet de collecter les objectifs journaliers si non collectés 2 heures avant la fin du jour HH."};
 HHAuto_ToolTips.fr.autoPoVCollect = { version: "5.6.133", elementText: "Collecter VDLV", tooltip: "Permet de collecter les gains de la Voie de la Valeur."};
 HHAuto_ToolTips.fr.autoSeasonalEventCollect = { version: "5.7.0", elementText: "Collecter", tooltip: "Permet de collecter les gains des évènements saisoniers."};
@@ -11855,6 +11951,33 @@ HHStoredVars.HHAuto_Setting_autoDailyRewardsCollectablesList =
     HHType:"Setting",
     valueType:"Array"
 };
+HHStoredVars.HHAuto_Setting_autoFreeBundlesCollect =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    events:{"change":function()
+            {
+                if (this.checked)
+                {
+                    getAndStoreCollectPreferences("HHAuto_Setting_autoFreeBundlesCollectablesList", getTextForUI("menuDailyCollectableText","elementText"));
+                    clearTimer('nextFreeBundlesCollectTime');
+                }
+            }
+           }
+};
+HHStoredVars.HHAuto_Setting_autoFreeBundlesCollectablesList =
+    {
+    default:JSON.stringify([]),
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Array"
+};
 HHStoredVars.HHAuto_Setting_mousePause =
     {
     default:"false",
@@ -12730,7 +12853,7 @@ var updateData = function () {
 
 function maskInactiveMenus()
 {
-    let menuIDList =["isEnabledDailyGoals", "isEnabledPoVPoG", "isEnabledPoV", "isEnabledPoG", "isEnabledSeasonalEvent" , "isEnabledBossBangEvent" , "isEnabledDailyRewards","isEnabledMission","isEnabledContest","isEnabledTrollBattle","isEnabledPowerPlaces","isEnabledSalary","isEnabledPachinko","isEnabledQuest","isEnabledSideQuest","isEnabledSeason","isEnabledLeagues","isEnabledAllChamps","isEnabledChamps","isEnabledClubChamp","isEnabledPantheon","isEnabledShop"];
+    let menuIDList =["isEnabledDailyGoals", "isEnabledPoVPoG", "isEnabledPoV", "isEnabledPoG", "isEnabledSeasonalEvent" , "isEnabledBossBangEvent" , "isEnabledDailyRewards", "isEnabledFreeBundles", "isEnabledMission","isEnabledContest","isEnabledTrollBattle","isEnabledPowerPlaces","isEnabledSalary","isEnabledPachinko","isEnabledQuest","isEnabledSideQuest","isEnabledSeason","isEnabledLeagues","isEnabledAllChamps","isEnabledChamps","isEnabledClubChamp","isEnabledPantheon","isEnabledShop"];
     for (let menu of menuIDList)
     {
         if ( document.getElementById(menu) !== null && getHHScriptVars(menu,false) !== null && !getHHScriptVars(menu,false) )
@@ -12933,6 +13056,17 @@ var start = function () {
                                     +`<span class="tooltipHHtext">${getTextForUI("autoDailyGoalsCollect","tooltip")}</span>`
                                     +`<label class="switch">`
                                         +`<input id="autoDailyGoalsCollect" type="checkbox">`
+                                        +`<span class="slider round">`
+                                        +`</span>`
+                                    +`</label>`
+                                +`</div>`
+                            +`</div>`
+                            +`<div id="isEnabledFreeBundles" class="labelAndButton">`
+                                +`<span class="HHMenuItemName">${getTextForUI("autoFreeBundlesCollect","elementText")}</span>`
+                                +`<div class="tooltipHH">`
+                                    +`<span class="tooltipHHtext">${getTextForUI("autoFreeBundlesCollect","tooltip")}</span>`
+                                    +`<label class="switch">`
+                                        +`<input id="autoFreeBundlesCollect" type="checkbox">`
                                         +`<span class="slider round">`
                                         +`</span>`
                                     +`</label>`
