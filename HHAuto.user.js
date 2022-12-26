@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.131
+// @version      5.6.132
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -1204,6 +1204,45 @@ function moduleSimPoGMaskReward()
         if (divToModify.length > 0)
         {
             $('.pov-progress-bar-section')[0].scrollTop = '0';
+        }
+    }
+}
+
+function moduleSimSeasonalMaskReward()
+{
+    var arrayz;
+    let modified = false;
+    arrayz = $('.seasonal-progress-bar-tiers .seasonal-tier-container:not([style*="display:none"]):not([style*="display: none"])');
+    var obj;
+    if (arrayz.length > 0)
+    {
+        for (var i2 = arrayz.length - 1; i2 >= 0; i2--)
+        {
+            obj = $(arrayz[i2]).find('.claimed-slot:not([style*="display:none"]):not([style*="display: none"])');
+            if (obj.length >= 1)
+            {
+                arrayz[i2].style.display = "none";
+                modified = true;
+            }
+        }
+    }
+
+    if (modified)
+    {
+        let divToModify = $('.seasonal-progress-bar-section');
+        if (divToModify.length > 0)
+        {
+            divToModify.getNiceScroll().resize();
+
+            const width_px = 152.1;
+            const start_px = 101;
+            const rewards_unclaimed = $('.seasonal-tier.unclaimed').length;
+            const scroll_width_hidden = parseInt(start_px + (rewards_unclaimed - 1) * width_px, 10);
+            $('.seasonal-progress-bar-current').css('width', scroll_width_hidden + 'px');
+            
+            try {
+                divToModify.getNiceScroll(0).doScrollLeft(0, 200);
+            } catch(err) {}
         }
     }
 }
@@ -7193,6 +7232,13 @@ var autoLoop = function ()
             }
             getPoGRemainingTime();
             break;
+        case getHHScriptVars("pagesIDSeasonalEvent"):
+            if (getStoredValue("HHAuto_Setting_SeasonalEventMaskRewards") === "true")
+            {
+                moduleSimSeasonalMaskReward();
+            }
+            getPoGRemainingTime();
+            break;
     }
 
 
@@ -10066,6 +10112,7 @@ HHAuto_ToolTips.en.autoMissionKFirst = { version: "5.6.24", elementText: "Kobans
 HHAuto_ToolTips.en.PoAMaskRewards = { version: "5.6.24", elementText: "PoA mask claimed", tooltip: "Masked claimed rewards for Path of Attraction."};
 HHAuto_ToolTips.en.PoVMaskRewards = { version: "5.6.26", elementText: "PoV mask claimed", tooltip: "Masked claimed rewards for Path of Valor."};
 HHAuto_ToolTips.en.PoGMaskRewards = { version: "5.6.89", elementText: "PoG mask claimed", tooltip: "Masked claimed rewards for Path of Glory."};
+HHAuto_ToolTips.en.SeasonalEventMaskRewards = { version: "5.6.132", elementText: "Seasonal Event mask claimed", tooltip: "Masked claimed rewards for Seasonal Event."};
 HHAuto_ToolTips.en.showTooltips = { version: "5.6.24", elementText: "Show tooltips", tooltip: "Show tooltip on menu."};
 HHAuto_ToolTips.en.showMarketTools = { version: "5.6.24", elementText: "Show market tools", tooltip: "Show Market tools."};
 HHAuto_ToolTips.en.useX10Fights = { version: "5.6.24", elementText: "Use x10", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Use x10 button if 10 fights or more to do (if not going under Koban bank value).<br>x50 takes precedence on x10 if all conditions are filled."};
@@ -11239,6 +11286,17 @@ HHStoredVars.HHAuto_Setting_PoGMaskRewards =
     kobanUsing:false
 };
 HHStoredVars.HHAuto_Setting_SeasonMaskRewards =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_SeasonalEventMaskRewards =
     {
     default:"false",
     storage:"Storage()",
@@ -12491,7 +12549,7 @@ var start = function () {
                 +`<div class="optionsRow">`
                     +`<div id="isEnabledPoVPoG" class="optionsBox">`
                         +`<div id="isEnabledPoV" class="internalOptionsRow" style="justify-content: space-evenly">`
-                            +`<div class="labelAndButton">`
+                            +`<div class="labelAndButton" style="width: 55%">`
                                 +`<span class="HHMenuItemName">${getTextForUI("PoVMaskRewards","elementText")}</span>`
                                 +`<div class="tooltipHH">`
                                     +`<span class="tooltipHHtext">${getTextForUI("PoVMaskRewards","tooltip")}</span>`
@@ -12502,7 +12560,7 @@ var start = function () {
                                     +`</label>`
                                 +`</div>`
                             +`</div>`
-                            +`<div class="labelAndButton">`
+                            +`<div class="labelAndButton" style="width: 45%">`
                                 +`<span class="HHMenuItemName">${getTextForUI("autoPoVCollect","elementText")}</span>`
                                 +`<div class="tooltipHH">`
                                     +`<span class="tooltipHHtext">${getTextForUI("autoPoVCollect","tooltip")}</span>`
@@ -12515,7 +12573,7 @@ var start = function () {
                             +`</div>`
                         +`</div>`
                         +`<div id="isEnabledPoG" class="internalOptionsRow" style="justify-content: space-evenly">`
-                            +`<div class="labelAndButton">`
+                            +`<div class="labelAndButton"  style="width: 55%">`
                                 +`<span class="HHMenuItemName">${getTextForUI("PoGMaskRewards","elementText")}</span>`
                                 +`<div class="tooltipHH">`
                                     +`<span class="tooltipHHtext">${getTextForUI("PoGMaskRewards","tooltip")}</span>`
@@ -12526,7 +12584,7 @@ var start = function () {
                                     +`</label>`
                                 +`</div>`
                             +`</div>`
-                            +`<div class="labelAndButton">`
+                            +`<div class="labelAndButton"  style="width: 45%">`
                                 +`<span class="HHMenuItemName">${getTextForUI("autoPoGCollect","elementText")}</span>`
                                 +`<div class="tooltipHH">`
                                     +`<span class="tooltipHHtext">${getTextForUI("autoPoGCollect","tooltip")}</span>`
@@ -12539,17 +12597,17 @@ var start = function () {
                             +`</div>`
                         +`</div>`
                         +`<div id="isEnabledSeasonalEvent" class="internalOptionsRow" style="justify-content: space-evenly">`
-                            /*+`<div class="labelAndButton">`
-                                +`<span class="HHMenuItemName">${getTextForUI("PoGMaskRewards","elementText")}</span>`
+                            +`<div class="labelAndButton">`
+                                +`<span class="HHMenuItemName">${getTextForUI("SeasonalEventMaskRewards","elementText")}</span>`
                                 +`<div class="tooltipHH">`
-                                    +`<span class="tooltipHHtext">${getTextForUI("PoGMaskRewards","tooltip")}</span>`
+                                    +`<span class="tooltipHHtext">${getTextForUI("SeasonalEventMaskRewards","tooltip")}</span>`
                                     +`<label class="switch">`
-                                        +`<input id="PoGMaskRewards" type="checkbox">`
+                                        +`<input id="SeasonalEventMaskRewards" type="checkbox">`
                                         +`<span class="slider round">`
                                         +`</span>`
                                     +`</label>`
                                 +`</div>`
-                            +`</div>`*/
+                            +`</div>`
                             +`<div class="labelAndButton">`
                                 +`<span class="HHMenuItemName">${getTextForUI("autoSeasonalEventCollect","elementText")}</span>`
                                 +`<div class="tooltipHH">`
