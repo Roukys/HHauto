@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.132
+// @version      5.6.133
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -20,7 +20,7 @@
 // ==/UserScript==
 
 //CSS Region
-GM_addStyle('.HHAutoScriptMenu .switch { position: relative; display: inline-block; width: 34px; height: 20px }/* The switch - the box around the slider */ '
+GM_addStyle('.HHAutoScriptMenu .switch { position: relative; display: inline-block; width: 34px; height: 20px; top:0 }/* The switch - the box around the slider */ '
             +'.HHAutoScriptMenu .switch input { display:none } /* Hide default HTML checkbox */ '
             +'.HHAutoScriptMenu .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; -webkit-transition: .4s; transition: .4s; } /* The slider */'
             +'.HHAutoScriptMenu .slider.round:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; -webkit-transition: .4s; transition: .4s; } '
@@ -9596,7 +9596,7 @@ HHEnvVariables["global"].HaremMinSizeExpirationSecs = 24*60*60;//1 days
 HHEnvVariables["global"].LeagueListExpirationSecs = 60*60;//1 hour max
 HHEnvVariables["global"].minSecsBeforeGoHomeAfterActions = 10;
 HHEnvVariables["global"].dailyRewardMaxRemainingTime = 2*60*60;
-HHEnvVariables["global"].maxCollectionDelay = 2*60*60;
+HHEnvVariables["global"].maxCollectionDelay = 4*60*60;
 HHEnvVariables["global"].STOCHASTIC_SIM_RUNS = 10000;
 HHEnvVariables["global"].PoVPoGTimestampAttributeName = "data-time-stamp";
 HHEnvVariables["global"].ELEMENTS =
@@ -10109,6 +10109,8 @@ HHAuto_ToolTips.en.equipementWeapon = { version: "5.6.24", elementText: "Weapon"
 HHAuto_ToolTips.en.equipementCaracs = { version: "5.6.24", elementText: "Caracs", tooltip: ""};
 HHAuto_ToolTips.en.equipementType = { version: "5.6.24", elementText: "Type", tooltip: ""};
 HHAuto_ToolTips.en.autoMissionKFirst = { version: "5.6.24", elementText: "Kobans first", tooltip: "Start by missions rewarded with Kobans."};
+HHAuto_ToolTips.en.povpogTitle = { version: "5.6.133", elementText: "Path of Value/Glory"};
+HHAuto_ToolTips.en.seasonalEventTitle = { version: "5.6.133", elementText: "Seasonal Event"};
 HHAuto_ToolTips.en.PoAMaskRewards = { version: "5.6.24", elementText: "PoA mask claimed", tooltip: "Masked claimed rewards for Path of Attraction."};
 HHAuto_ToolTips.en.PoVMaskRewards = { version: "5.6.26", elementText: "PoV mask claimed", tooltip: "Masked claimed rewards for Path of Valor."};
 HHAuto_ToolTips.en.PoGMaskRewards = { version: "5.6.89", elementText: "PoG mask claimed", tooltip: "Masked claimed rewards for Path of Glory."};
@@ -10145,7 +10147,7 @@ HHAuto_ToolTips.en.autoGiveAff = {version: "5.6.24", elementText: "Auto Give", t
 HHAuto_ToolTips.en.autoGiveExp = {version: "5.6.24", elementText: "Auto Give", tooltip: "If enabled, will automatically give Exp to girls in order ( you can use OCD script to filter )."};
 HHAuto_ToolTips.en.autoPantheonTitle = {version: "5.6.24", elementText: "Pantheon", tooltip: ""};
 HHAuto_ToolTips.en.autoPantheon = { version: "5.6.24", elementText: "Enable", tooltip: "if enabled : Automatically do Pantheon"};
-HHAuto_ToolTips.en.autoPantheonThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "(Integer 0 to 19)<br>Minimum worship to keep"};
+HHAuto_ToolTips.en.autoPantheonThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "Minimum worship to keep<br>Max 10"};
 HHAuto_ToolTips.en.buttonSaveOpponent = { version: "5.6.24", elementText: "Save opponent data", tooltip: "Save opponent data for fight simulation in market."};
 HHAuto_ToolTips.en.SimResultMarketButton = { version: "5.6.24", elementText: "Sim. results", tooltip: "Simulate result with League saved opponent."};
 HHAuto_ToolTips.en.simResultMarketPreviousScore = { version: "5.6.24", elementText: "Previous score :", tooltip: ""};
@@ -10262,6 +10264,20 @@ HHAuto_ToolTips.fr.autoBuy = { version: "5.6.24", elementText: "Marché"};
 HHAuto_ToolTips.fr.minShardsX50 = { version: "5.6.24", elementText: "Frags min. x50", tooltip: "Utiliser le bouton x50 si le nombre de fragments restant est supérieur ou égal à..."};
 HHAuto_ToolTips.fr.minShardsX10 = { version: "5.6.24", elementText: "Frags min. x10", tooltip: "Utiliser le bouton x10 si le nombre de fragments restant est supérieur ou égal à..."};
 HHAuto_ToolTips.fr.autoMissionKFirst = { version: "5.6.24", elementText: "Prioriser Kobans", tooltip: "Si activé : commence par les missions qui rapportent des kobans."};
+HHAuto_ToolTips.fr.povpogTitle = { version: "5.6.133", elementText: "Voie de la Valeur/Gloire"};
+HHAuto_ToolTips.fr.seasonalEventTitle = { version: "5.6.133", elementText: "Evènements saisoniers"};
+HHAuto_ToolTips.fr.mousePause = {version: "5.6.133", elementText: "Pause souris", tooltip: "Pause le script pour 5 secondes quand des mouvements de la souris sont detecté. Evite le sript d'interrompre les actions manuelles."};
+HHAuto_ToolTips.fr.PoVMaskRewards = { version: "5.6.133", elementText: "Masquer gains VDLV", tooltip: "Permet de masquer les gains réclamés de la Voie de la Valeur."};
+HHAuto_ToolTips.fr.PoGMaskRewards = { version: "5.6.133", elementText: "Masquer gains VDLG", tooltip: "Permet de masquer les gains réclamés de la Voie de la Gloire."};
+HHAuto_ToolTips.fr.SeasonalEventMaskRewards = { version: "5.6.133", elementText: "Masquer gains saisonier", tooltip: "Permet de masquer les gains réclamés des évènements saisoniers."};
+HHAuto_ToolTips.fr.autoDailyRewardsCollect = {version: "5.6.133", elementText: "Collecter récompense journalier", tooltip: "Permet de collecter les récompenses journalières si non collectées 2 heures avant la fin du jour HH."};
+HHAuto_ToolTips.fr.autoDailyGoalsCollect = {version: "5.6.133", elementText: "Collecter objectifs journalier", tooltip: "Permet de collecter les objectifs journaliers si non collectés 2 heures avant la fin du jour HH."};
+HHAuto_ToolTips.fr.autoPoVCollect = { version: "5.6.133", elementText: "Collecter VDLV", tooltip: "Permet de collecter les gains de la Voie de la Valeur."};
+HHAuto_ToolTips.fr.autoSeasonalEventCollect = { version: "5.6.133", elementText: "Collecter évènements saisoniers", tooltip: "Permet de collecter les gains des évènements saisoniers."};
+HHAuto_ToolTips.fr.autoPoGCollect = { version: "5.6.133", elementText: "Collecter VDLG", tooltip: "Permet de collecter les gains de la Voie de la Gloire."};
+HHAuto_ToolTips.fr.autoPantheonTitle = {version: "5.6.24", elementText: "Pantheon", tooltip: ""};
+HHAuto_ToolTips.fr.autoPantheon = { version: "5.6.24", elementText: "Activer", tooltip: "Si activé : combat automatiquement le Pantheon"};
+HHAuto_ToolTips.fr.autoPantheonThreshold = { version: "5.6.24", elementText: "Réserve", tooltip: "Vénération minimum à garder<br>Max 10"};
 HHAuto_ToolTips.fr.autoTrollMythicByPassParanoia = { version: "5.6.24", elementText: "Mythique annule paranoïa", tooltip: "Si activé : autorise le script à ne pas respecter le mode Parano lors d'un événement mythique.<br>Si la prochaine vague est pendant une phase de sommeil le script combattra quand même<br>tant que des combats et des fragments sont disponibles."};
 HHAuto_ToolTips.fr.buyMythicCombat = { version: "5.6.24", elementText: "Achat comb. pour mythique", tooltip: "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>("+HHAuto_ToolTips.fr.spendKobans0.elementText+" doit être activé)</p>Si activé : achète des points de combat (poings) pendant les X dernières heures de l'événement mythique (sans dépasser la limite de la banque de kobans), passera outre la réserve de combats si nécessaire."};
 HHAuto_ToolTips.fr.buyMythicCombTimer = { version: "5.6.24", elementText: "Heures d'achat comb.", tooltip: "(Nombre entier)<br>X dernières heures de l'événement mythique"};
@@ -11916,7 +11932,7 @@ function maskInactiveMenus()
     {
         if ( document.getElementById(menu) !== null && getHHScriptVars(menu,false) !== null && !getHHScriptVars(menu,false) )
         {
-            document.getElementById(menu).style.visibility = "hidden";
+            document.getElementById(menu).style.display = "none";
         }
     }
 }
@@ -11987,7 +12003,7 @@ var start = function () {
     }
 
     // Add UI buttons.
-    let sMenu =`<div id="sMenu" class="HHAutoScriptMenu" style="top: 45px;right: 52px;padding: 4px;display: none;opacity: 1;border-radius: 4px;border: 1px solid #ffa23e;background-color: #1e261e;font-size:x-small; position:absolute; text-align:left; flex-direction:column; justify-content:space-between; z-index:10000">`
+    let sMenu =`<div id="sMenu" class="HHAutoScriptMenu" style="top: 45px;right: 52px;padding: 4px;display: none;opacity: 1;border-radius: 4px;border: 1px solid #ffa23e;background-color: #1e261e;font-size:x-small; position:absolute; text-align:left; flex-direction:column; justify-content:space-between; z-index:10000; overflow:auto; max-height:calc(100% - 45px)">`
         +`<div class="optionsRow">`
             +`<div class="optionsColumn">`
                 +`<div style="padding:3px; display:flex; flex-direction:column;">`
@@ -12547,76 +12563,88 @@ var start = function () {
                     +`</div>`
                 +`</div>`
                 +`<div class="optionsRow">`
-                    +`<div id="isEnabledPoVPoG" class="optionsBox">`
-                        +`<div id="isEnabledPoV" class="internalOptionsRow" style="justify-content: space-evenly">`
-                            +`<div class="labelAndButton" style="width: 55%">`
-                                +`<span class="HHMenuItemName">${getTextForUI("PoVMaskRewards","elementText")}</span>`
-                                +`<div class="tooltipHH">`
-                                    +`<span class="tooltipHHtext">${getTextForUI("PoVMaskRewards","tooltip")}</span>`
-                                    +`<label class="switch">`
-                                        +`<input id="PoVMaskRewards" type="checkbox">`
-                                        +`<span class="slider round">`
-                                        +`</span>`
-                                    +`</label>`
+                    +`<div class="optionsBoxWithTitle">`
+                        +`<div class="optionsBoxTitle">`
+                            +`<span class="optionsBoxTitle">${getTextForUI("povpogTitle","elementText")}</span>`
+                        +`</div>`
+                        +`<div id="isEnabledPoVPoG" class="optionsBox">`
+                            +`<div id="isEnabledPoV" class="internalOptionsRow" style="justify-content: space-evenly">`
+                                +`<div class="labelAndButton">`
+                                    +`<span class="HHMenuItemName">${getTextForUI("PoVMaskRewards","elementText")}</span>`
+                                    +`<div class="tooltipHH">`
+                                        +`<span class="tooltipHHtext">${getTextForUI("PoVMaskRewards","tooltip")}</span>`
+                                        +`<label class="switch">`
+                                            +`<input id="PoVMaskRewards" type="checkbox">`
+                                            +`<span class="slider round">`
+                                            +`</span>`
+                                        +`</label>`
+                                    +`</div>`
+                                +`</div>`
+                                +`<div class="labelAndButton">`
+                                    +`<span class="HHMenuItemName">${getTextForUI("autoPoVCollect","elementText")}</span>`
+                                    +`<div class="tooltipHH">`
+                                        +`<span class="tooltipHHtext">${getTextForUI("autoPoVCollect","tooltip")}</span>`
+                                        +`<label class="switch">`
+                                            +`<input id="autoPoVCollect" type="checkbox">`
+                                            +`<span class="slider round">`
+                                            +`</span>`
+                                        +`</label>`
+                                    +`</div>`
                                 +`</div>`
                             +`</div>`
-                            +`<div class="labelAndButton" style="width: 45%">`
-                                +`<span class="HHMenuItemName">${getTextForUI("autoPoVCollect","elementText")}</span>`
-                                +`<div class="tooltipHH">`
-                                    +`<span class="tooltipHHtext">${getTextForUI("autoPoVCollect","tooltip")}</span>`
-                                    +`<label class="switch">`
-                                        +`<input id="autoPoVCollect" type="checkbox">`
-                                        +`<span class="slider round">`
-                                        +`</span>`
-                                    +`</label>`
+                            +`<div id="isEnabledPoG" class="internalOptionsRow" style="justify-content: space-evenly">`
+                                +`<div class="labelAndButton">`
+                                    +`<span class="HHMenuItemName">${getTextForUI("PoGMaskRewards","elementText")}</span>`
+                                    +`<div class="tooltipHH">`
+                                        +`<span class="tooltipHHtext">${getTextForUI("PoGMaskRewards","tooltip")}</span>`
+                                        +`<label class="switch">`
+                                            +`<input id="PoGMaskRewards" type="checkbox">`
+                                            +`<span class="slider round">`
+                                            +`</span>`
+                                        +`</label>`
+                                    +`</div>`
+                                +`</div>`
+                                +`<div class="labelAndButton">`
+                                    +`<span class="HHMenuItemName">${getTextForUI("autoPoGCollect","elementText")}</span>`
+                                    +`<div class="tooltipHH">`
+                                        +`<span class="tooltipHHtext">${getTextForUI("autoPoGCollect","tooltip")}</span>`
+                                        +`<label class="switch">`
+                                            +`<input id="autoPoGCollect" type="checkbox">`
+                                            +`<span class="slider round">`
+                                            +`</span>`
+                                        +`</label>`
+                                    +`</div>`
                                 +`</div>`
                             +`</div>`
                         +`</div>`
-                        +`<div id="isEnabledPoG" class="internalOptionsRow" style="justify-content: space-evenly">`
-                            +`<div class="labelAndButton"  style="width: 55%">`
-                                +`<span class="HHMenuItemName">${getTextForUI("PoGMaskRewards","elementText")}</span>`
-                                +`<div class="tooltipHH">`
-                                    +`<span class="tooltipHHtext">${getTextForUI("PoGMaskRewards","tooltip")}</span>`
-                                    +`<label class="switch">`
-                                        +`<input id="PoGMaskRewards" type="checkbox">`
-                                        +`<span class="slider round">`
-                                        +`</span>`
-                                    +`</label>`
-                                +`</div>`
-                            +`</div>`
-                            +`<div class="labelAndButton"  style="width: 45%">`
-                                +`<span class="HHMenuItemName">${getTextForUI("autoPoGCollect","elementText")}</span>`
-                                +`<div class="tooltipHH">`
-                                    +`<span class="tooltipHHtext">${getTextForUI("autoPoGCollect","tooltip")}</span>`
-                                    +`<label class="switch">`
-                                        +`<input id="autoPoGCollect" type="checkbox">`
-                                        +`<span class="slider round">`
-                                        +`</span>`
-                                    +`</label>`
-                                +`</div>`
-                            +`</div>`
+                    +`</div>`
+                    +`<div id="isEnabledSeasonalEvent" class="optionsBoxWithTitle">`
+                        +`<div class="optionsBoxTitle">`
+                            +`<span class="optionsBoxTitle">${getTextForUI("seasonalEventTitle","elementText")}</span>`
                         +`</div>`
-                        +`<div id="isEnabledSeasonalEvent" class="internalOptionsRow" style="justify-content: space-evenly">`
-                            +`<div class="labelAndButton">`
-                                +`<span class="HHMenuItemName">${getTextForUI("SeasonalEventMaskRewards","elementText")}</span>`
-                                +`<div class="tooltipHH">`
-                                    +`<span class="tooltipHHtext">${getTextForUI("SeasonalEventMaskRewards","tooltip")}</span>`
-                                    +`<label class="switch">`
-                                        +`<input id="SeasonalEventMaskRewards" type="checkbox">`
-                                        +`<span class="slider round">`
-                                        +`</span>`
-                                    +`</label>`
+                        +`<div class="optionsBox">`
+                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                +`<div class="labelAndButton">`
+                                    +`<span class="HHMenuItemName">${getTextForUI("SeasonalEventMaskRewards","elementText")}</span>`
+                                    +`<div class="tooltipHH">`
+                                        +`<span class="tooltipHHtext">${getTextForUI("SeasonalEventMaskRewards","tooltip")}</span>`
+                                        +`<label class="switch">`
+                                            +`<input id="SeasonalEventMaskRewards" type="checkbox">`
+                                            +`<span class="slider round">`
+                                            +`</span>`
+                                        +`</label>`
+                                    +`</div>`
                                 +`</div>`
-                            +`</div>`
-                            +`<div class="labelAndButton">`
-                                +`<span class="HHMenuItemName">${getTextForUI("autoSeasonalEventCollect","elementText")}</span>`
-                                +`<div class="tooltipHH">`
-                                    +`<span class="tooltipHHtext">${getTextForUI("autoSeasonalEventCollect","tooltip")}</span>`
-                                    +`<label class="switch">`
-                                        +`<input id="autoSeasonalEventCollect" type="checkbox">`
-                                        +`<span class="slider round">`
-                                        +`</span>`
-                                    +`</label>`
+                                +`<div class="labelAndButton">`
+                                    +`<span class="HHMenuItemName">${getTextForUI("autoSeasonalEventCollect","elementText")}</span>`
+                                    +`<div class="tooltipHH">`
+                                        +`<span class="tooltipHHtext">${getTextForUI("autoSeasonalEventCollect","tooltip")}</span>`
+                                        +`<label class="switch">`
+                                            +`<input id="autoSeasonalEventCollect" type="checkbox">`
+                                            +`<span class="slider round">`
+                                            +`</span>`
+                                        +`</label>`
+                                    +`</div>`
                                 +`</div>`
                             +`</div>`
                         +`</div>`
