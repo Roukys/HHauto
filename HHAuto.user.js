@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.133
+// @version      5.6.134
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -1273,6 +1273,10 @@ function modulePachinko()
         +    '<div style="display:flex;flex-direction:row;align-items:center;">'
         +     '<div style="padding:10px"class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("Launch","tooltip")+'</span><label class="myButton" id="PachinkoPlayX">'+getTextForUI("Launch","elementText")+'</label></div>'
         +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoXTimes","tooltip")+'</span><input id="PachinkoXTimes" style="width:50px;height:20px" required pattern="'+HHAuto_inputPattern.menuExpLevel+'" type="text" value="1"></div>'
+        +     '<div style="display:flex;flex-direction:column;align-items: center;padding-right:3px">'
+        +      '<div>'+getTextForUI("PachinkoFillOrbs","elementText")+'</div>'
+        +      '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoFillOrbs","tooltip")+'</span><input id="PachinkoFillOrbs" type="checkbox"></div>'
+        +     '</div>'
         +     '<div style="display:flex;flex-direction:column;align-items: center;">'
         +      '<div>'+getTextForUI("PachinkoByPassNoGirls","elementText")+'</div>'
         +      '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoByPassNoGirls","tooltip")+'</span><input id="PachinkoByPassNoGirls" type="checkbox"></div>'
@@ -1283,6 +1287,18 @@ function modulePachinko()
         fillHHPopUp("PachinkoMenu",getTextForUI("PachinkoButton","elementText"), PachinkoMenu);
 
 
+        function updateOrbsNumber(orbsLeft){
+            let fillAllOrbs = document.getElementById("PachinkoFillOrbs").checked;
+
+            if (fillAllOrbs && orbsLeft.length >0)
+            {
+                document.getElementById("PachinkoXTimes").value = orbsLeft[0].innerText;
+            }
+            else
+            {
+                document.getElementById("PachinkoXTimes").value = 1;
+            }
+        }
 
         document.getElementById("PachinkoPlayX").addEventListener("click", pachinkoPlayXTimes);
         $(document).on('change',"#PachinkoSelector", function() {
@@ -1303,7 +1319,17 @@ function modulePachinko()
             {
                 document.getElementById("PachinkoLeft").innerText = 0;
             }
+            updateOrbsNumber(orbsLeft);
         });
+        $(document).on('change',"#PachinkoFillOrbs", function() {
+            let fillAllOrbs = document.getElementById("PachinkoFillOrbs").checked;
+
+            let timerSelector = document.getElementById("PachinkoSelector");
+            let orbsLeft = $("div.playing-zone div.btns-section button.blue_button_L[nb_games="+timerSelector.options[timerSelector.selectedIndex].value+"] span[total_orbs]");
+
+            updateOrbsNumber(orbsLeft);
+        });
+        
         // Add Timer reset options //changed
         let timerOptions = document.getElementById("PachinkoSelector");
         let countTimers=0;
@@ -10136,6 +10162,7 @@ HHAuto_ToolTips.en.PachinkoOrbsLeft = {version: "5.6.24", elementText: " orbs re
 HHAuto_ToolTips.en.PachinkoInvalidOrbsNb = {version: "5.6.24", elementText: 'Invalid orbs number'};
 HHAuto_ToolTips.en.PachinkoNoGirls = {version: "5.6.24", elementText: 'No more any girls available.'};
 HHAuto_ToolTips.en.PachinkoByPassNoGirls = {version: "5.6.24", elementText: 'Bypass no girls', tooltip: "Bypass the no girls in Pachinko warning."};
+HHAuto_ToolTips.en.PachinkoFillOrbs = {version: "5.6.134", elementText: 'Fill all orbs', tooltip: "Fill input with all available orbs."};
 HHAuto_ToolTips.en.ChangeTeamButton = {version: "5.6.24", elementText: "Current Best", tooltip: "Get list of top 16 girls for your team."};
 HHAuto_ToolTips.en.ChangeTeamButton2 = {version: "5.6.24", elementText: "Possible Best", tooltip: "Get list of top 16 girls for your team if they are Max Lv & Aff"};
 HHAuto_ToolTips.en.AssignTopTeam = {version: "5.6.24", elementText: "Assign first 7", tooltip: "Put the first 7 ones in the team."};
@@ -10282,6 +10309,7 @@ HHAuto_ToolTips.fr.autoTrollMythicByPassParanoia = { version: "5.6.24", elementT
 HHAuto_ToolTips.fr.buyMythicCombat = { version: "5.6.24", elementText: "Achat comb. pour mythique", tooltip: "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>("+HHAuto_ToolTips.fr.spendKobans0.elementText+" doit être activé)</p>Si activé : achète des points de combat (poings) pendant les X dernières heures de l'événement mythique (sans dépasser la limite de la banque de kobans), passera outre la réserve de combats si nécessaire."};
 HHAuto_ToolTips.fr.buyMythicCombTimer = { version: "5.6.24", elementText: "Heures d'achat comb.", tooltip: "(Nombre entier)<br>X dernières heures de l'événement mythique"};
 HHAuto_ToolTips.fr.mythicGirlNext = { version: "5.6.24", elementText: "Vague mythique"};
+HHAuto_ToolTips.fr.PachinkoFillOrbs = {version: "5.6.134", elementText: 'Remplir orbes', tooltip: "Remplir le champs avec toutes les orbes disponibles."};
 
 
 HHAuto_ToolTips.de.saveDebug = { version: "5.6.24", elementText: "Save Debug", tooltip: "Erlaube das Erstellen einer Debug Log Datei."};
