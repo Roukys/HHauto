@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.134
+// @version      5.6.134.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -1273,13 +1273,15 @@ function modulePachinko()
         +    '<div style="display:flex;flex-direction:row;align-items:center;">'
         +     '<div style="padding:10px"class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("Launch","tooltip")+'</span><label class="myButton" id="PachinkoPlayX">'+getTextForUI("Launch","elementText")+'</label></div>'
         +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoXTimes","tooltip")+'</span><input id="PachinkoXTimes" style="width:50px;height:20px" required pattern="'+HHAuto_inputPattern.menuExpLevel+'" type="text" value="1"></div>'
-        +     '<div style="display:flex;flex-direction:column;align-items: center;padding-right:3px">'
-        +      '<div>'+getTextForUI("PachinkoFillOrbs","elementText")+'</div>'
-        +      '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoFillOrbs","tooltip")+'</span><input id="PachinkoFillOrbs" type="checkbox"></div>'
-        +     '</div>'
-        +     '<div style="display:flex;flex-direction:column;align-items: center;">'
-        +      '<div>'+getTextForUI("PachinkoByPassNoGirls","elementText")+'</div>'
-        +      '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoByPassNoGirls","tooltip")+'</span><input id="PachinkoByPassNoGirls" type="checkbox"></div>'
+        +     '<div>'
+        +      '<div style="display:flex;flex-direction:row;align-items: center;">'
+        +       '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoFillOrbs","tooltip")+'</span><input id="PachinkoFillOrbs" type="checkbox"></div>'
+        +       '<div>'+getTextForUI("PachinkoFillOrbs","elementText")+'</div>'
+        +      '</div>'
+        +      '<div style="display:flex;flex-direction:row;align-items: center;">'
+        +       '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoByPassNoGirls","tooltip")+'</span><input id="PachinkoByPassNoGirls" type="checkbox"></div>'
+        +       '<div>'+getTextForUI("PachinkoByPassNoGirls","elementText")+'</div>'
+        +      '</div>'
         +     '</div>'
         +    '</div>'
         +   '<p style="color: red;" id="PachinkoError"></p>'
