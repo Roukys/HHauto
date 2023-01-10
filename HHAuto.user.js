@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.135
+// @version      5.6.136
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -578,6 +578,9 @@ function gotoPage(page,inArgs,delay = -1)
             togoto = page;
             break;
         case (page.match(/^\/quest\/\d+$/) || {}).input:
+            togoto = page;
+            break;
+        case (page.match(/^\/boss-bang-battle.html\?number_of_battles=\d&bb_team_index=[01234]$/) || {}).input:
             togoto = page;
             break;
         default:
@@ -6582,8 +6585,10 @@ var autoLoop = function ()
         //if a new event is detected
         let eventQuery = '#contains_all #homepage .event-widget a[rel="event"]:not([href="#"])';
         let mythicEventQuery = '#contains_all #homepage .event-widget a[rel="mythic_event"]:not([href="#"])';
+        let bossBangEventQuery = '#contains_all #homepage .event-widget a[rel="boss_bang_event"]:not([href="#"])';
         let seasonalEventQuery = '#contains_all #homepage .seasonal-event a';
         let eventIDs=[];
+        let bossBangEventIDs=[];
         if (getPage()===getHHScriptVars("pagesIDEvent"))
         {
             if (queryStringGetParam(window.location.search,'tab') !== null)
@@ -6610,6 +6615,15 @@ var autoLoop = function ()
                 if (queryStringGetParam(parsedURL.search,'tab') !== null && checkEvent(queryStringGetParam(parsedURL.search,'tab')))
                 {
                     eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
+                }
+            }
+            queryResults=$(bossBangEventQuery);
+            for(let index = 0;index < queryResults.length;index++)
+            {
+                parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
+                if (queryStringGetParam(parsedURL.search,'tab') !== null && checkEvent(queryStringGetParam(parsedURL.search,'tab')))
+                {
+                    bossBangEventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
                 }
             }
             queryResults=$(seasonalEventQuery);
@@ -7144,6 +7158,28 @@ var autoLoop = function ()
             }
         }
 
+        if(
+            busy === false
+            && getHHScriptVars("isEnabledBossBangEvent",false)
+            &&
+            (
+                (
+                    bossBangEventIDs.length > 0
+                    && getPage() !== getHHScriptVars("pagesIDEvent")
+                )
+                ||
+                (
+                    getPage()===getHHScriptVars("pagesIDEvent")
+                    && $('#contains_all #events #boss_bang .completed-event').length === 0
+                )
+            )
+        )
+        {
+            logHHAuto("Going to boss bang event.");
+            busy = true;
+            busy = parseEventPage(bossBangEventIDs[0]);
+        }
+
         if (
             busy === false
             && getStoredValue("HHAuto_Temp_autoLoop") === "true"
@@ -7205,9 +7241,20 @@ var autoLoop = function ()
                 parseEventPage();
                 moduleDisplayEventPriority();
             }
+            if (getStoredValue("HHAuto_Setting_plusEventBossBang") ==="true")
+            {
+                parseEventPage();
+                setTimeout(goToBossBangeFightPage, randomInterval(500,1500));
+            }
             if (getStoredValue("HHAuto_Setting_PoAMaskRewards") === "true")
             {
                 setTimeout(modulePathOfAttractionHide,500);
+            }
+            break;
+        case getHHScriptVars("pagesIDBossBang"):
+            if (getStoredValue("HHAuto_Setting_plusEventBossBang") === "true")
+            {
+                setTimeout(skipBossBangFightPage,randomInterval(500,1500));
             }
             break;
         case getHHScriptVars("pagesIDPoA"):
@@ -8552,6 +8599,33 @@ function parseTime(inTimeString)
     return (day*24*3600 + hour*3600 + minute*60 + second);
 }
 
+function skipBossBangFightPage()
+{
+    const rewardsButton = $('#rewards_popup .blue_button_L:not([disabled]):visible');
+    const skipFightButton = $('#new_battle #new-battle-skip-btn:not([disabled]):visible');
+    if(rewardsButton.length > 0)
+    {
+        logHHAuto("Click get rewards bang fight");
+        rewardsButton.click();
+        
+    } 
+    else if(skipFightButton.length > 0) 
+    {
+        logHHAuto("Click skip boss bang fight");
+        skipFightButton.click();
+        setTimeout(skipBossBangFightPage,randomInterval(500,1500));
+    }
+    setStoredValue("HHAuto_Temp_autoLoop", "false");
+}
+
+function goToBossBangeFightPage(){
+    const teamIndexFound = parseInt(getStoredValue("HHAuto_Temp_bossBangTeam"));
+    let bangButton = $('#contains_all #events #boss_bang .boss-bang-event-info #start-bang-button:not([disabled])');
+    if(teamIndexFound >= 0 && bangButton.length > 0) {
+        gotoPage(bangButton.attr('href'));
+    }
+}
+
 function parseEventPage(inTab="global")
 {
     if(getPage() === getHHScriptVars("pagesIDEvent") )
@@ -8563,6 +8637,7 @@ function parseEventPage(inTab="global")
         if (
             !eventID.startsWith(getHHScriptVars('eventIDReg'))
             && !eventID.startsWith(getHHScriptVars('mythicEventIDReg'))
+            && !eventID.startsWith(getHHScriptVars('bossBangEventIDReg'))
         )
         {
             if (queryEventTabCheck.attr('parsed') === undefined)
@@ -8690,6 +8765,50 @@ function parseEventPage(inTab="global")
                 }
             }
         }
+        if (eventID.startsWith(getHHScriptVars('bossBangEventIDReg')) && getStoredValue("HHAuto_Setting_plusEventBossBang") ==="true")
+        {
+            logHHAuto("On going bossBang event.");
+            let timeLeft=$('#contains_all #events .nc-expiration-label#timer').attr("data-seconds-until-event-end");
+            eventList[eventID]={};
+            eventList[eventID]["id"]=eventID;
+            eventList[eventID]["isMythic"]=false;
+            eventList[eventID]["bossBang"]=true;
+            eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(timeLeft) * 1000;
+            eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
+            eventList[eventID]["isCompleted"] = true;
+            setTimer('eventBossBangGoing',timeLeft);
+            let teamEventz = $('#contains_all #events #boss_bang .boss-bang-teams-container .boss-bang-team-slot');
+            let teamFound = false;
+            if($('.boss-bang-team-ego', teamEventz[4]).length > 0)
+            {
+                // Do not trigger event if not all teams are set
+                for (let currIndex = teamEventz.length-1;currIndex>=0 && !teamFound;currIndex--)
+                {
+                    // start with last team first
+                    let teamz = $(teamEventz[currIndex]);
+                    const teamIndex = teamz.data('slot-index');
+                    const teamEgo = $('.boss-bang-team-ego', teamz);
+                    if(teamEgo.length > 0 && parseInt(teamEgo.text()) > 0) {
+                        if(!teamFound) {
+                            if(!teamz.hasClass('.selected-hero-team')) teamz.click();
+                            teamFound = true;
+                            logHHAuto("Select team " + teamIndex + ", Ego: "+parseInt(teamEgo.text()));
+                            setStoredValue("HHAuto_Temp_bossBangTeam", teamIndex);
+                        }
+                    } else {
+                        logHHAuto("Team " + teamIndex + " not eligible");
+                    }
+                }
+            }
+            else if( $('#contains_all #events #boss_bang .completed-event').length > 0) 
+            {
+                logHHAuto("Boss bang completed, disabled boss bang event setting");
+                setStoredValue("HHAuto_Setting_plusEventBossBang", false);
+            }
+            if(!teamFound) {
+                setStoredValue("HHAuto_Temp_bossBangTeam", -1);
+            }
+        }
         if(Object.keys(eventList).length >0)
         {
             setStoredValue("HHAuto_Temp_eventsList", JSON.stringify(eventList));
@@ -8768,16 +8887,27 @@ function parseEventPage(inTab="global")
     }
 }
 
+function getEventType(inEventID){
+    if(inEventID.startsWith(getHHScriptVars('mythicEventIDReg'))) return "mythic";
+    if(inEventID.startsWith(getHHScriptVars('eventIDReg'))) return "event";
+    if(inEventID.startsWith(getHHScriptVars('bossBangEventIDReg'))) return "bossBang";
+    return "";
+}
+
 function checkEvent(inEventID)
 {
     let eventList = isJSON(getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsList")):{};
     let result = false;
-    let eventType = inEventID.startsWith(getHHScriptVars('mythicEventIDReg'))?"mythic":(inEventID.startsWith(getHHScriptVars('eventIDReg'))?"event":"");
+    let eventType = getEventType(inEventID);
     if (eventType === "mythic" && getStoredValue("HHAuto_Setting_plusEventMythic") !=="true")
     {
         return false;
     }
     if (eventType === "event" && getStoredValue("HHAuto_Setting_plusEvent") !=="true")
+    {
+        return false;
+    }
+    if (eventType === "bossBang" && getStoredValue("HHAuto_Setting_plusEventBossBang") !=="true")
     {
         return false;
     }
@@ -9612,6 +9742,7 @@ for (let i in HHKnownEnvironnements)
 
 HHEnvVariables["global"].eventIDReg = "event_";
 HHEnvVariables["global"].mythicEventIDReg = "mythic_event_";
+HHEnvVariables["global"].bossBangEventIDReg = "boss_bang_event_";
 HHEnvVariables["global"].girlToolTipData = "data-new-girl-tooltip";
 HHEnvVariables["global"].dailyRewardNotifRequest = "#contains_all header .currency .daily-reward-notif";
 HHEnvVariables["global"].IDpanelEditTeam = "#edit-team-page"
@@ -9915,6 +10046,9 @@ HHEnvVariables["global"].pagesKnownList.push("EditTeam");
 HHEnvVariables["global"].pagesIDPoA = "path_of_attraction";
 HHEnvVariables["global"].pagesKnownList.push("PoA");
 
+HHEnvVariables["global"].pagesIDBossBang = "boss-bang-battle";
+HHEnvVariables["global"].pagesKnownList.push("BossBang");
+
 HHEnvVariables["global"].isEnabledEvents = true;
 HHEnvVariables["global"].isEnabledTrollBattle = true;
 HHEnvVariables["global"].isEnabledPachinko = true;
@@ -9938,6 +10072,7 @@ HHEnvVariables["global"].isEnabledPoVPoG = true;
 HHEnvVariables["global"].isEnabledPoV = true;
 HHEnvVariables["global"].isEnabledPoG = true;
 HHEnvVariables["global"].isEnabledSeasonalEvent = true;
+HHEnvVariables["global"].isEnabledBossBangEvent = true;
 HHEnvVariables["global"].isEnabledDailyGoals = true;
 HHEnvVariables["HH_test"].isEnabledDailyRewards = false;// to remove if daily rewards arrives in test
 ["CH_prod","NCH_prod"].forEach((element) => {
@@ -10144,6 +10279,7 @@ HHAuto_ToolTips.en.PoAMaskRewards = { version: "5.6.24", elementText: "PoA mask 
 HHAuto_ToolTips.en.PoVMaskRewards = { version: "5.6.26", elementText: "PoV mask claimed", tooltip: "Masked claimed rewards for Path of Valor."};
 HHAuto_ToolTips.en.PoGMaskRewards = { version: "5.6.89", elementText: "PoG mask claimed", tooltip: "Masked claimed rewards for Path of Glory."};
 HHAuto_ToolTips.en.SeasonalEventMaskRewards = { version: "5.6.132", elementText: "Seasonal Event mask claimed", tooltip: "Masked claimed rewards for Seasonal Event."};
+HHAuto_ToolTips.en.BossBangEvent = { version: "5.6.136", elementText: "Boss Bang Event", tooltip: "Perform boss bang fight when all 5 teams are filled, script will start with last one first."};
 HHAuto_ToolTips.en.showTooltips = { version: "5.6.24", elementText: "Show tooltips", tooltip: "Show tooltip on menu."};
 HHAuto_ToolTips.en.showMarketTools = { version: "5.6.24", elementText: "Show market tools", tooltip: "Show Market tools."};
 HHAuto_ToolTips.en.useX10Fights = { version: "5.6.24", elementText: "Use x10", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Use x10 button if 10 fights or more to do (if not going under Koban bank value).<br>x50 takes precedence on x10 if all conditions are filled."};
@@ -10300,6 +10436,7 @@ HHAuto_ToolTips.fr.mousePause = {version: "5.6.135", elementText: "Pause souris"
 HHAuto_ToolTips.fr.PoVMaskRewards = { version: "5.6.133", elementText: "Masquer gains VDLV", tooltip: "Permet de masquer les gains réclamés de la Voie de la Valeur."};
 HHAuto_ToolTips.fr.PoGMaskRewards = { version: "5.6.133", elementText: "Masquer gains VDLG", tooltip: "Permet de masquer les gains réclamés de la Voie de la Gloire."};
 HHAuto_ToolTips.fr.SeasonalEventMaskRewards = { version: "5.6.133", elementText: "Masquer gains saisonier", tooltip: "Permet de masquer les gains réclamés des évènements saisoniers."};
+HHAuto_ToolTips.fr.BossBangEvent = { version: "5.6.136", elementText: "Evènements Boss Bang", tooltip: "Si activé : Effectue les combats boss bang lorsque les 5 équipes sont remplies, le script commencera par la derniere en premier."};
 HHAuto_ToolTips.fr.autoDailyRewardsCollect = {version: "5.6.133", elementText: "Collecter récompense journalier", tooltip: "Permet de collecter les récompenses journalières si non collectées 2 heures avant la fin du jour HH."};
 HHAuto_ToolTips.fr.autoDailyGoalsCollect = {version: "5.6.133", elementText: "Collecter objectifs journalier", tooltip: "Permet de collecter les objectifs journaliers si non collectés 2 heures avant la fin du jour HH."};
 HHAuto_ToolTips.fr.autoPoVCollect = { version: "5.6.133", elementText: "Collecter VDLV", tooltip: "Permet de collecter les gains de la Voie de la Valeur."};
@@ -11302,6 +11439,17 @@ HHStoredVars.HHAuto_Setting_plusEventMythic =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars.HHAuto_Setting_plusEventBossBang =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_PoAMaskRewards =
     {
     default:"false",
@@ -11802,6 +11950,11 @@ HHStoredVars.HHAuto_Temp_eventsList =
     storage:"sessionStorage",
     HHType:"Temp"
 };
+HHStoredVars.HHAuto_Temp_bossBangTeam =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
 HHStoredVars.HHAuto_Temp_LeagueSavedData =
     {
     storage:"sessionStorage",
@@ -11961,7 +12114,7 @@ var updateData = function () {
 
 function maskInactiveMenus()
 {
-    let menuIDList =["isEnabledDailyGoals", "isEnabledPoVPoG", "isEnabledPoV", "isEnabledPoG", "isEnabledSeasonalEvent" , "isEnabledDailyRewards","isEnabledMission","isEnabledContest","isEnabledTrollBattle","isEnabledPowerPlaces","isEnabledSalary","isEnabledPachinko","isEnabledQuest","isEnabledSideQuest","isEnabledSeason","isEnabledLeagues","isEnabledAllChamps","isEnabledChamps","isEnabledClubChamp","isEnabledPantheon","isEnabledShop"];
+    let menuIDList =["isEnabledDailyGoals", "isEnabledPoVPoG", "isEnabledPoV", "isEnabledPoG", "isEnabledSeasonalEvent" , "isEnabledBossBangEvent" , "isEnabledDailyRewards","isEnabledMission","isEnabledContest","isEnabledTrollBattle","isEnabledPowerPlaces","isEnabledSalary","isEnabledPachinko","isEnabledQuest","isEnabledSideQuest","isEnabledSeason","isEnabledLeagues","isEnabledAllChamps","isEnabledChamps","isEnabledClubChamp","isEnabledPantheon","isEnabledShop"];
     for (let menu of menuIDList)
     {
         if ( document.getElementById(menu) !== null && getHHScriptVars(menu,false) !== null && !getHHScriptVars(menu,false) )
@@ -12653,32 +12806,53 @@ var start = function () {
                             +`</div>`
                         +`</div>`
                     +`</div>`
-                    +`<div id="isEnabledSeasonalEvent" class="optionsBoxWithTitle">`
-                        +`<div class="optionsBoxTitle">`
-                            +`<span class="optionsBoxTitle">${getTextForUI("seasonalEventTitle","elementText")}</span>`
-                        +`</div>`
-                        +`<div class="optionsBox">`
-                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                                +`<div class="labelAndButton">`
-                                    +`<span class="HHMenuItemName">${getTextForUI("SeasonalEventMaskRewards","elementText")}</span>`
-                                    +`<div class="tooltipHH">`
-                                        +`<span class="tooltipHHtext">${getTextForUI("SeasonalEventMaskRewards","tooltip")}</span>`
-                                        +`<label class="switch">`
-                                            +`<input id="SeasonalEventMaskRewards" type="checkbox">`
-                                            +`<span class="slider round">`
-                                            +`</span>`
-                                        +`</label>`
+                    +`<div class="optionsColumn">`
+                        +`<div class="optionsRow">`
+                            +`<div id="isEnabledSeasonalEvent" class="optionsBoxWithTitle">`
+                                +`<div class="optionsBoxTitle">`
+                                    +`<span class="optionsBoxTitle">${getTextForUI("seasonalEventTitle","elementText")}</span>`
+                                +`</div>`
+                                +`<div class="optionsBox">`
+                                    +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                        +`<div class="labelAndButton">`
+                                            +`<span class="HHMenuItemName">${getTextForUI("SeasonalEventMaskRewards","elementText")}</span>`
+                                            +`<div class="tooltipHH">`
+                                                +`<span class="tooltipHHtext">${getTextForUI("SeasonalEventMaskRewards","tooltip")}</span>`
+                                                +`<label class="switch">`
+                                                    +`<input id="SeasonalEventMaskRewards" type="checkbox">`
+                                                    +`<span class="slider round">`
+                                                    +`</span>`
+                                                +`</label>`
+                                            +`</div>`
+                                        +`</div>`
+                                        +`<div class="labelAndButton">`
+                                            +`<span class="HHMenuItemName">${getTextForUI("autoSeasonalEventCollect","elementText")}</span>`
+                                            +`<div class="tooltipHH">`
+                                                +`<span class="tooltipHHtext">${getTextForUI("autoSeasonalEventCollect","tooltip")}</span>`
+                                                +`<label class="switch">`
+                                                    +`<input id="autoSeasonalEventCollect" type="checkbox">`
+                                                    +`<span class="slider round">`
+                                                    +`</span>`
+                                                +`</label>`
+                                            +`</div>`
+                                        +`</div>`
                                     +`</div>`
                                 +`</div>`
-                                +`<div class="labelAndButton">`
-                                    +`<span class="HHMenuItemName">${getTextForUI("autoSeasonalEventCollect","elementText")}</span>`
-                                    +`<div class="tooltipHH">`
-                                        +`<span class="tooltipHHtext">${getTextForUI("autoSeasonalEventCollect","tooltip")}</span>`
-                                        +`<label class="switch">`
-                                            +`<input id="autoSeasonalEventCollect" type="checkbox">`
-                                            +`<span class="slider round">`
-                                            +`</span>`
-                                        +`</label>`
+                            +`</div>`
+                        +`</div>`
+                        +`<div class="optionsRow">`
+                            +`<div class="optionsBox">`
+                                +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                    +`<div class="labelAndButton">`
+                                        +`<span class="HHMenuItemName">${getTextForUI("BossBangEvent","elementText")}</span>`
+                                        +`<div class="tooltipHH">`
+                                            +`<span class="tooltipHHtext">${getTextForUI("BossBangEvent","tooltip")}</span>`
+                                            +`<label class="switch">`
+                                                +`<input id="plusEventBossBang" type="checkbox">`
+                                                +`<span class="slider round">`
+                                                +`</span>`
+                                            +`</label>`
+                                        +`</div>`
                                     +`</div>`
                                 +`</div>`
                             +`</div>`
@@ -12832,7 +13006,7 @@ var start = function () {
                                         +`<span class="slider round">`
                                         +`</span>`
                                     +`</label>`
-                                +`</div>`
+                                +`</div>` 
                             +`</div>`
                             +`<div class="labelAndButton">`
                                 +`<span class="HHMenuItemName">${getTextForUI("autoTrollMythicByPassParanoia","elementText")}</span>`
