@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.136
+// @version      5.6.137
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -8779,7 +8779,8 @@ function parseEventPage(inTab="global")
             setTimer('eventBossBangGoing',timeLeft);
             let teamEventz = $('#contains_all #events #boss_bang .boss-bang-teams-container .boss-bang-team-slot');
             let teamFound = false;
-            if($('.boss-bang-team-ego', teamEventz[4]).length > 0)
+            const firstTeamToStartWith = getStoredValue("HHAuto_Setting_bossBangMinTeam");
+            if($('.boss-bang-team-ego', teamEventz[firstTeamToStartWith -1]).length > 0)
             {
                 // Do not trigger event if not all teams are set
                 for (let currIndex = teamEventz.length-1;currIndex>=0 && !teamFound;currIndex--)
@@ -10127,6 +10128,7 @@ var HHAuto_inputPattern = {
     eventTrollOrder:"([1-2][0-9]|[1-9])(;([1-2][0-9]|[1-9]))*",
     autoSeasonThreshold:"[0-9]",
     autoPantheonThreshold:"[0-9]",
+    bossBangMinTeam:"[1-5]",
     autoQuestThreshold:"[1-9]?[0-9]",
     autoLeaguesThreshold:"1[0-4]|[0-9]",
     autoPowerPlacesIndexFilter:"[1-9][0-9]{0,1}(;[1-9][0-9]{0,1})*",
@@ -10279,7 +10281,8 @@ HHAuto_ToolTips.en.PoAMaskRewards = { version: "5.6.24", elementText: "PoA mask 
 HHAuto_ToolTips.en.PoVMaskRewards = { version: "5.6.26", elementText: "PoV mask claimed", tooltip: "Masked claimed rewards for Path of Valor."};
 HHAuto_ToolTips.en.PoGMaskRewards = { version: "5.6.89", elementText: "PoG mask claimed", tooltip: "Masked claimed rewards for Path of Glory."};
 HHAuto_ToolTips.en.SeasonalEventMaskRewards = { version: "5.6.132", elementText: "Seasonal Event mask claimed", tooltip: "Masked claimed rewards for Seasonal Event."};
-HHAuto_ToolTips.en.BossBangEvent = { version: "5.6.136", elementText: "Boss Bang Event", tooltip: "Perform boss bang fight when all 5 teams are filled, script will start with last one first."};
+HHAuto_ToolTips.en.BossBangEvent = { version: "5.6.137", elementText: "Boss Bang Event", tooltip: "Perform boss bang fight script will start with the team configured after."};
+HHAuto_ToolTips.en.bossBangMinTeam = { version: "5.6.137", elementText: "First Team", tooltip: "First team to start with<br>If 5 will start with last team and reach the first one."};
 HHAuto_ToolTips.en.showTooltips = { version: "5.6.24", elementText: "Show tooltips", tooltip: "Show tooltip on menu."};
 HHAuto_ToolTips.en.showMarketTools = { version: "5.6.24", elementText: "Show market tools", tooltip: "Show Market tools."};
 HHAuto_ToolTips.en.useX10Fights = { version: "5.6.24", elementText: "Use x10", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Use x10 button if 10 fights or more to do (if not going under Koban bank value).<br>x50 takes precedence on x10 if all conditions are filled."};
@@ -10436,7 +10439,8 @@ HHAuto_ToolTips.fr.mousePause = {version: "5.6.135", elementText: "Pause souris"
 HHAuto_ToolTips.fr.PoVMaskRewards = { version: "5.6.133", elementText: "Masquer gains VDLV", tooltip: "Permet de masquer les gains réclamés de la Voie de la Valeur."};
 HHAuto_ToolTips.fr.PoGMaskRewards = { version: "5.6.133", elementText: "Masquer gains VDLG", tooltip: "Permet de masquer les gains réclamés de la Voie de la Gloire."};
 HHAuto_ToolTips.fr.SeasonalEventMaskRewards = { version: "5.6.133", elementText: "Masquer gains saisonier", tooltip: "Permet de masquer les gains réclamés des évènements saisoniers."};
-HHAuto_ToolTips.fr.BossBangEvent = { version: "5.6.136", elementText: "Evènements Boss Bang", tooltip: "Si activé : Effectue les combats boss bang lorsque les 5 équipes sont remplies, le script commencera par la derniere en premier."};
+HHAuto_ToolTips.fr.BossBangEvent = { version: "5.6.137", elementText: "Evènements Boss Bang", tooltip: "Si activé : Effectue les combats boss bang en commençant par l'équipe configuré si après."};
+HHAuto_ToolTips.fr.bossBangMinTeam = { version: "5.6.137", elementText: "Première équipe", tooltip: "Première équipe à utiliser<br>Si 5, le script commencera par la dernière pour finir par la premiere."};
 HHAuto_ToolTips.fr.autoDailyRewardsCollect = {version: "5.6.133", elementText: "Collecter récompense journalier", tooltip: "Permet de collecter les récompenses journalières si non collectées 2 heures avant la fin du jour HH."};
 HHAuto_ToolTips.fr.autoDailyGoalsCollect = {version: "5.6.133", elementText: "Collecter objectifs journalier", tooltip: "Permet de collecter les objectifs journaliers si non collectés 2 heures avant la fin du jour HH."};
 HHAuto_ToolTips.fr.autoPoVCollect = { version: "5.6.133", elementText: "Collecter VDLV", tooltip: "Permet de collecter les gains de la Voie de la Valeur."};
@@ -11448,6 +11452,17 @@ HHStoredVars.HHAuto_Setting_plusEventBossBang =
     getMenu:true,
     setMenu:true,
     menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_bossBangMinTeam =
+    {
+    default:"5",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
     kobanUsing:false
 };
 HHStoredVars.HHAuto_Setting_PoAMaskRewards =
@@ -12806,53 +12821,32 @@ var start = function () {
                             +`</div>`
                         +`</div>`
                     +`</div>`
-                    +`<div class="optionsColumn">`
-                        +`<div class="optionsRow">`
-                            +`<div id="isEnabledSeasonalEvent" class="optionsBoxWithTitle">`
-                                +`<div class="optionsBoxTitle">`
-                                    +`<span class="optionsBoxTitle">${getTextForUI("seasonalEventTitle","elementText")}</span>`
-                                +`</div>`
-                                +`<div class="optionsBox">`
-                                    +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                                        +`<div class="labelAndButton">`
-                                            +`<span class="HHMenuItemName">${getTextForUI("SeasonalEventMaskRewards","elementText")}</span>`
-                                            +`<div class="tooltipHH">`
-                                                +`<span class="tooltipHHtext">${getTextForUI("SeasonalEventMaskRewards","tooltip")}</span>`
-                                                +`<label class="switch">`
-                                                    +`<input id="SeasonalEventMaskRewards" type="checkbox">`
-                                                    +`<span class="slider round">`
-                                                    +`</span>`
-                                                +`</label>`
-                                            +`</div>`
-                                        +`</div>`
-                                        +`<div class="labelAndButton">`
-                                            +`<span class="HHMenuItemName">${getTextForUI("autoSeasonalEventCollect","elementText")}</span>`
-                                            +`<div class="tooltipHH">`
-                                                +`<span class="tooltipHHtext">${getTextForUI("autoSeasonalEventCollect","tooltip")}</span>`
-                                                +`<label class="switch">`
-                                                    +`<input id="autoSeasonalEventCollect" type="checkbox">`
-                                                    +`<span class="slider round">`
-                                                    +`</span>`
-                                                +`</label>`
-                                            +`</div>`
-                                        +`</div>`
+                    +`<div id="isEnabledSeasonalEvent" class="optionsBoxWithTitle">`
+                        +`<div class="optionsBoxTitle">`
+                            +`<span class="optionsBoxTitle">${getTextForUI("seasonalEventTitle","elementText")}</span>`
+                        +`</div>`
+                        +`<div class="optionsBox">`
+                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                +`<div class="labelAndButton">`
+                                    +`<span class="HHMenuItemName">${getTextForUI("SeasonalEventMaskRewards","elementText")}</span>`
+                                    +`<div class="tooltipHH">`
+                                        +`<span class="tooltipHHtext">${getTextForUI("SeasonalEventMaskRewards","tooltip")}</span>`
+                                        +`<label class="switch">`
+                                            +`<input id="SeasonalEventMaskRewards" type="checkbox">`
+                                            +`<span class="slider round">`
+                                            +`</span>`
+                                        +`</label>`
                                     +`</div>`
                                 +`</div>`
-                            +`</div>`
-                        +`</div>`
-                        +`<div class="optionsRow">`
-                            +`<div class="optionsBox">`
-                                +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                                    +`<div class="labelAndButton">`
-                                        +`<span class="HHMenuItemName">${getTextForUI("BossBangEvent","elementText")}</span>`
-                                        +`<div class="tooltipHH">`
-                                            +`<span class="tooltipHHtext">${getTextForUI("BossBangEvent","tooltip")}</span>`
-                                            +`<label class="switch">`
-                                                +`<input id="plusEventBossBang" type="checkbox">`
-                                                +`<span class="slider round">`
-                                                +`</span>`
-                                            +`</label>`
-                                        +`</div>`
+                                +`<div class="labelAndButton">`
+                                    +`<span class="HHMenuItemName">${getTextForUI("autoSeasonalEventCollect","elementText")}</span>`
+                                    +`<div class="tooltipHH">`
+                                        +`<span class="tooltipHHtext">${getTextForUI("autoSeasonalEventCollect","tooltip")}</span>`
+                                        +`<label class="switch">`
+                                            +`<input id="autoSeasonalEventCollect" type="checkbox">`
+                                            +`<span class="slider round">`
+                                            +`</span>`
+                                        +`</label>`
                                     +`</div>`
                                 +`</div>`
                             +`</div>`
@@ -13006,7 +13000,7 @@ var start = function () {
                                         +`<span class="slider round">`
                                         +`</span>`
                                     +`</label>`
-                                +`</div>` 
+                                +`</div>`
                             +`</div>`
                             +`<div class="labelAndButton">`
                                 +`<span class="HHMenuItemName">${getTextForUI("autoTrollMythicByPassParanoia","elementText")}</span>`
@@ -13144,34 +13138,58 @@ var start = function () {
                         +`</div>`
                     +`</div>`
                 +`</div>`
-                +`<div id="isEnabledPantheon" class="optionsBoxWithTitle">`
-                    +`<div class="optionsBoxTitle">`
-                        +`<img class="iconImg" src="https://hh2.hh-content.com/design/menu/ic_champions.svg" />`
-                        +`<span class="optionsBoxTitle">${getTextForUI("autoPantheonTitle","elementText")}</span>`
+                +`<div class="optionsRow" style="justify-content: space-evenly">`
+                    +`<div id="isEnabledPantheon" class="optionsBoxWithTitle">`
+                        +`<div class="optionsBoxTitle">`
+                            +`<img class="iconImg" src="https://hh2.hh-content.com/design/menu/ic_champions.svg" />`
+                            +`<span class="optionsBoxTitle">${getTextForUI("autoPantheonTitle","elementText")}</span>`
+                        +`</div>`
+                        +`<div class="optionsBox">`
+                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                +`<div class="labelAndButton">`
+                                    +`<span class="HHMenuItemName">${getTextForUI("autoPantheon","elementText")}</span>`
+                                    +`<div class="tooltipHH">`
+                                        +`<span class="tooltipHHtext">${getTextForUI("autoPantheon","tooltip")}</span>`
+                                        +`<label class="switch">`
+                                            +`<input id="autoPantheon" type="checkbox">`
+                                            +`<span class="slider round">`
+                                            +`</span>`
+                                        +`</label>`
+                                    +`</div>`
+                                +`</div>`
+                                +`<div class="labelAndButton">`
+                                    +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("autoPantheonThreshold","elementText")}</span>`
+                                    +`<div class="imgAndObjectRow">`
+                                        +`<img class="iconImg" src="https://hh.hh-content.com/pictures/design/ic_worship.svg" />`
+                                        +`<div style="padding-left:5px">`
+                                            +`<div class="tooltipHH">`
+                                                +`<span class="tooltipHHtext">${getTextForUI("autoPantheonThreshold","tooltip")}</span>`
+                                                +`<input style="text-align:center; width:25px" id="autoPantheonThreshold" required pattern="${HHAuto_inputPattern.autoPantheonThreshold}" type="text">`
+                                            +`</div>`
+                                        +`</div>`
+                                    +`</div>`
+                                +`</div>`
+                            +`</div>`
+                        +`</div>`
                     +`</div>`
-                    +`<div class="optionsBox">`
+                    +`<div id="isEnabledBossBangEvent" class="optionsBox">`
                         +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
                             +`<div class="labelAndButton">`
-                                +`<span class="HHMenuItemName">${getTextForUI("autoPantheon","elementText")}</span>`
+                                +`<span class="HHMenuItemName">${getTextForUI("BossBangEvent","elementText")}</span>`
                                 +`<div class="tooltipHH">`
-                                    +`<span class="tooltipHHtext">${getTextForUI("autoPantheon","tooltip")}</span>`
+                                    +`<span class="tooltipHHtext">${getTextForUI("BossBangEvent","tooltip")}</span>`
                                     +`<label class="switch">`
-                                        +`<input id="autoPantheon" type="checkbox">`
+                                        +`<input id="plusEventBossBang" type="checkbox">`
                                         +`<span class="slider round">`
                                         +`</span>`
                                     +`</label>`
                                 +`</div>`
                             +`</div>`
                             +`<div class="labelAndButton">`
-                                +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("autoPantheonThreshold","elementText")}</span>`
-                                +`<div class="imgAndObjectRow">`
-                                    +`<img class="iconImg" src="https://hh.hh-content.com/pictures/design/ic_worship.svg" />`
-                                    +`<div style="padding-left:5px">`
-                                        +`<div class="tooltipHH">`
-                                            +`<span class="tooltipHHtext">${getTextForUI("autoPantheonThreshold","tooltip")}</span>`
-                                            +`<input style="text-align:center; width:25px" id="autoPantheonThreshold" required pattern="${HHAuto_inputPattern.autoPantheonThreshold}" type="text">`
-                                        +`</div>`
-                                    +`</div>`
+                                +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("bossBangMinTeam","elementText")}</span>`
+                                +`<div class="tooltipHH">`
+                                    +`<span class="tooltipHHtext">${getTextForUI("bossBangMinTeam","tooltip")}</span>`
+                                    +`<input style="text-align:center; width:25px" id="bossBangMinTeam" required pattern="${HHAuto_inputPattern.bossBangMinTeam}" type="text">`
                                 +`</div>`
                             +`</div>`
                         +`</div>`
