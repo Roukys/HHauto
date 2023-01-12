@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.137
+// @version      5.6.138
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -10562,7 +10562,7 @@ HHAuto_ToolTips.es.autoSeasonThreshold = { version: "5.6.24", elementText: "Lím
 HHAuto_ToolTips.es.autoQuest = { version: "5.6.24", elementText: "AutoAventura", tooltip: "Si habilitado : Juega aventura de manera automática"};
 HHAuto_ToolTips.es.autoQuestThreshold = { version: "5.6.24", elementText: "Límite", tooltip: "(Entero entre 0 y 99)<br>Minima energía a conservar"};
 HHAuto_ToolTips.es.autoContest = { version: "5.6.24", elementText: "AutoCompetición", tooltip: "Si habilitado: Recauda recompensas de competición finalizada"};
-HHAuto_ToolTips.es.autoFreePachinko = { version: "5.6.24", elementText: "AutoPachinko(Gratis)", tooltip: "Si habilitado: Recauda pachinkos gratuitos de manera automática"};
+HHAuto_ToolTips.es.autoFreePachinko = { version: "5.6.138", elementText: "AutoPachinko (Gratis)", tooltip: "Si habilitado: Recauda pachinkos gratuitos de manera automática"};
 HHAuto_ToolTips.es.autoLeagues = { version: "5.6.24", elementText: "AutoLigas", tooltip: "Si habilitado: Combate en ligas de manera automática"};
 HHAuto_ToolTips.es.autoLeaguesPowerCalc = { version: "5.6.24", elementText: "UsarCalcPotencia", tooltip: "Si habilitado: Elige oponentes usando calculadora de potencia (La lista expira cada 10 mins. y tarda pocos minutos en reconstruirse)"};
 HHAuto_ToolTips.es.autoLeaguesCollect = { version: "5.6.24", elementText: "Recaudar", tooltip: "Si habilitado: Recauda premios de ligas de manera automática"};
@@ -10571,7 +10571,7 @@ HHAuto_ToolTips.es.autoLeaguesThreshold = { version: "5.6.24", elementText: "Lí
 HHAuto_ToolTips.es.autoPowerPlaces = { version: "5.6.24", elementText: "AutoLugaresPoder", tooltip: "Si habilitado: Juega Lugares de Poder de manera automática"};
 HHAuto_ToolTips.es.autoPowerPlacesIndexFilter = { version: "5.6.24", elementText: "Filtro de índice", tooltip: "Permite establecer un filto y un orden para jugar Lugares de Poder (el orden solo se respeta cuando multiples Lugares de Poder finalizan al mismo tiempo)"};
 HHAuto_ToolTips.es.autoPowerPlacesAll = { version: "5.6.24", elementText: "Juega todos", tooltip: "Si habilitado: ignora el filtro y juega todos los Lugares de Poder (actualizará del Filtro con las actuales ids)"};
-HHAuto_ToolTips.es.autoChamps = { version: "5.6.24", elementText: "AutoCampeones", tooltip: "Si habilitado: Combate a campeones de manera automática (Sólo si han empezado un combate y están en el filtro)"};
+HHAuto_ToolTips.es.autoChamps = { version: "5.6.138", elementText: "Auto Campeones", tooltip: "Si habilitado: Combate a campeones de manera automática (Sólo si han empezado un combate y están en el filtro)"};
 HHAuto_ToolTips.es.autoChampsUseEne = { version: "5.6.24", elementText: "UsaEne", tooltip: "Si habilitado: Usa energía para comprar tickets"};
 HHAuto_ToolTips.es.autoChampsFilter = { version: "5.6.24", elementText: "Filtro", tooltip: "Permite establecer un filtro para luchar con campeones"};
 HHAuto_ToolTips.es.autoStats = { version: "5.6.24", elementText: "Min dinero", tooltip: "(Entero)<br>Compra equipamiento de manera automática en el mercado con dinero por encima de la cantidad establecida"};
