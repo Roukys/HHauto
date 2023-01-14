@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.138
+// @version      5.6.139
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -8775,7 +8775,7 @@ function parseEventPage(inTab="global")
             eventList[eventID]["bossBang"]=true;
             eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(timeLeft) * 1000;
             eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
-            eventList[eventID]["isCompleted"] = true;
+            eventList[eventID]["isCompleted"] = $('#contains_all #events #boss_bang .completed-event').length > 0;
             setTimer('eventBossBangGoing',timeLeft);
             let teamEventz = $('#contains_all #events #boss_bang .boss-bang-teams-container .boss-bang-team-slot');
             let teamFound = false;
@@ -8795,13 +8795,14 @@ function parseEventPage(inTab="global")
                             teamFound = true;
                             logHHAuto("Select team " + teamIndex + ", Ego: "+parseInt(teamEgo.text()));
                             setStoredValue("HHAuto_Temp_bossBangTeam", teamIndex);
+                            return true;
                         }
                     } else {
                         logHHAuto("Team " + teamIndex + " not eligible");
                     }
                 }
             }
-            else if( $('#contains_all #events #boss_bang .completed-event').length > 0) 
+            else if(eventList[eventID]["isCompleted"]) 
             {
                 logHHAuto("Boss bang completed, disabled boss bang event setting");
                 setStoredValue("HHAuto_Setting_plusEventBossBang", false);
