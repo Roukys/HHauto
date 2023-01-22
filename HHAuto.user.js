@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.141
+// @version      5.6.142
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -170,8 +170,8 @@ function getDSTOffset()
 {
     function stdTimezoneOffset()
     {
-        var jan = new Date(0, 1);
-        var jul = new Date(6, 1);
+        var jan = new Date(2020,0, 1);
+        var jul = new Date(2020,6, 1);
         return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
     }
 
@@ -184,11 +184,11 @@ function getDSTOffset()
 
     if (isDstObserved(today))
     {
-        return -120;
+        return -120; // Summer time
     }
     else
     {
-        return -60;
+        return -60; // Winter time
     }
 }
 function getServerTS()
