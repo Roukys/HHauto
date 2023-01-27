@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.142
+// @version      5.6.143
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -681,7 +681,7 @@ var proceedQuest = function () {
         var proceedCost = parsePrice(proceedButtonCost[0].innerText);
         var payTypeNRJ = $("#controls button:not([style*='display:none']):not([style*='display: none']) .action-cost .energy_quest_icn").length>0;
         var energyCurrent = getHHVars('Hero.energies.quest.amount');
-        var moneyCurrent = getHHVars('Hero.infos.soft_currency');
+        var moneyCurrent = getHHVars('Hero.currencies.soft_currency');
         let payType = $("#controls .cost span[cur]:not([style*='display:none']):not([style*='display: none'])").attr('cur');
         //console.log("DebugQuest payType : "+payType);
         if (payTypeNRJ)
@@ -2738,7 +2738,7 @@ var doStatUpgrades=function()
     var Hero=getHero();
     var level=getHHVars('Hero.infos.level');
     var stats=[getHHVars('Hero.infos.carac1'),getHHVars('Hero.infos.carac2'),getHHVars('Hero.infos.carac3')];
-    var money=getHHVars('Hero.infos.soft_currency');
+    var money=getHHVars('Hero.currencies.soft_currency');
     var count=0;
     var M=Number(getStoredValue("HHAuto_Setting_autoStats"));
     var MainStat=stats[getHHVars('Hero.infos.class')-1];
@@ -2792,8 +2792,8 @@ function doShopping()
         var MS='carac'+getHHVars('Hero.infos.class');
         var SS1='carac'+(getHHVars('Hero.infos.class')%3+1);
         var SS2='carac'+((getHHVars('Hero.infos.class')+1)%3+1);
-        var money=getHHVars('Hero.infos.soft_currency');
-        var kobans=getHHVars('Hero.infos.hard_currency');
+        var money=getHHVars('Hero.currencies.soft_currency');
+        var kobans=getHHVars('Hero.currencies.hard_currency');
 
 
         if (getStoredValue("HHAuto_Temp_storeContents") === undefined )
@@ -3068,7 +3068,7 @@ function doShopping()
             }
         }
         setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
-        //unsafeWindow.Hero.infos.soft_currency=money;
+        //unsafeWindow.Hero.currencies.soft_currency=money;
         //Hero.update("soft_currency", money, false);
     }
     catch (ex)
@@ -4752,7 +4752,7 @@ var CrushThemFights=function()
                     && getStoredValue("HHAuto_Setting_minShardsX50")
                     && Number.isInteger(Number(getStoredValue("HHAuto_Setting_minShardsX50")))
                     && remainingShards >= Number(getStoredValue("HHAuto_Setting_minShardsX50"))
-                    && (battleButtonX50Price === 0 || getHHVars('Hero.infos.hard_currency')>=battleButtonX50Price+Number(getStoredValue("HHAuto_Setting_kobanBank")))
+                    && (battleButtonX50Price === 0 || getHHVars('Hero.currencies.hard_currency')>=battleButtonX50Price+Number(getStoredValue("HHAuto_Setting_kobanBank")))
                     && currentPower >= 50
                     && (currentPower >= (Number(getStoredValue("HHAuto_Setting_autoTrollThreshold")) + 50)
                         || bypassThreshold
@@ -4780,7 +4780,7 @@ var CrushThemFights=function()
                 {
                     if (getStoredValue("HHAuto_Setting_useX50Fights") === "true")
                     {
-                        logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+getHHVars('Hero.energies.fight.amount')+'/50, remaining shards : '+remainingShards+'/'+getStoredValue("HHAuto_Setting_minShardsX50")+', kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(getStoredValue("HHAuto_Setting_kobanBank")));
+                        logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+getHHVars('Hero.energies.fight.amount')+'/50, remaining shards : '+remainingShards+'/'+getStoredValue("HHAuto_Setting_minShardsX50")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(getStoredValue("HHAuto_Setting_kobanBank")));
                     }
                 }
 
@@ -4788,7 +4788,7 @@ var CrushThemFights=function()
                     && getStoredValue("HHAuto_Setting_minShardsX10")
                     && Number.isInteger(Number(getStoredValue("HHAuto_Setting_minShardsX10")))
                     && remainingShards >= Number(getStoredValue("HHAuto_Setting_minShardsX10"))
-                    && (battleButtonX10Price === 0 || getHHVars('Hero.infos.hard_currency')>=battleButtonX10Price+Number(getStoredValue("HHAuto_Setting_kobanBank")))
+                    && (battleButtonX10Price === 0 || getHHVars('Hero.currencies.hard_currency')>=battleButtonX10Price+Number(getStoredValue("HHAuto_Setting_kobanBank")))
                     && currentPower >= 10
                     && (currentPower >= (Number(getStoredValue("HHAuto_Setting_autoTrollThreshold")) + 10)
                         || bypassThreshold
@@ -4816,7 +4816,7 @@ var CrushThemFights=function()
                 {
                     if (getStoredValue("HHAuto_Setting_useX10Fights") === "true")
                     {
-                        logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+getHHVars('Hero.energies.fight.amount')+'/10, remaining shards : '+remainingShards+'/'+getStoredValue("HHAuto_Setting_minShardsX10")+', kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(getStoredValue("HHAuto_Setting_kobanBank")));
+                        logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+getHHVars('Hero.energies.fight.amount')+'/10, remaining shards : '+remainingShards+'/'+getStoredValue("HHAuto_Setting_minShardsX10")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(getStoredValue("HHAuto_Setting_kobanBank")));
                     }
                 }
             }
@@ -6408,7 +6408,7 @@ function moduleSimSeasonBattle()
         {
             price = 12;
         }
-        if (numberOfReds === 3 && getStoredValue("HHAuto_Setting_autoSeasonPassReds") === "true" && getHHVars('Hero.infos.hard_currency')>=price+Number(getStoredValue("HHAuto_Setting_kobanBank")))
+        if (numberOfReds === 3 && getStoredValue("HHAuto_Setting_autoSeasonPassReds") === "true" && getHHVars('Hero.currencies.hard_currency')>=price+Number(getStoredValue("HHAuto_Setting_kobanBank")))
         {
             chosenID = -2;
         }
@@ -6859,7 +6859,7 @@ var autoLoop = function ()
             }
             else if (questRequirement[0] === '$')
             {
-                if (Number(questRequirement.substr(1)) < getHHVars('Hero.infos.soft_currency')) {
+                if (Number(questRequirement.substr(1)) < getHHVars('Hero.currencies.soft_currency')) {
                     // We have enough money... requirement fulfilled.
                     logHHAuto("Continuing quest, required money obtained.");
                     setStoredValue("HHAuto_Temp_questRequirement", "none");
@@ -8987,7 +8987,7 @@ function canBuyFight(logging=true)
                 getStoredValue("HHAuto_Setting_minShardsX50") !== undefined
                 && Number.isInteger(Number(getStoredValue("HHAuto_Setting_minShardsX50")))
                 && remainingShards >= Number(getStoredValue("HHAuto_Setting_minShardsX50"))
-                && getHHVars('Hero.infos.hard_currency')>=pricex50+Number(getStoredValue("HHAuto_Setting_kobanBank"))
+                && getHHVars('Hero.currencies.hard_currency')>=pricex50+Number(getStoredValue("HHAuto_Setting_kobanBank"))
                 && getStoredValue("HHAuto_Setting_useX50Fights") === "true"
                 && currentFight < maxx50
                 && ( result.event_mythic || getStoredValue("HHAuto_Setting_useX50FightsAllowNormalEvent") === "true")
@@ -9003,9 +9003,9 @@ function canBuyFight(logging=true)
 
             if (logging)
             {
-                logHHAuto('Unable to recharge up to '+maxx50+' for '+pricex50+' kobans : current energy : '+currentFight+', remaining shards : '+remainingShards+'/'+getStoredValue("HHAuto_Setting_minShardsX50")+', kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(getStoredValue("HHAuto_Setting_kobanBank")));
+                logHHAuto('Unable to recharge up to '+maxx50+' for '+pricex50+' kobans : current energy : '+currentFight+', remaining shards : '+remainingShards+'/'+getStoredValue("HHAuto_Setting_minShardsX50")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(getStoredValue("HHAuto_Setting_kobanBank")));
             }
-            if (getHHVars('Hero.infos.hard_currency')>=pricex20+Number(getStoredValue("HHAuto_Setting_kobanBank"))
+            if (getHHVars('Hero.currencies.hard_currency')>=pricex20+Number(getStoredValue("HHAuto_Setting_kobanBank"))
                )//&& currentFight < 10)
             {
                 result.max = maxx20;
@@ -9017,7 +9017,7 @@ function canBuyFight(logging=true)
             {
                 if (logging)
                 {
-                    logHHAuto('Unable to recharge up to '+maxx20+' for '+pricex20+' kobans : current energy : '+currentFight+', kobans : '+getHHVars('Hero.infos.hard_currency')+'/'+Number(getStoredValue("HHAuto_Setting_kobanBank")));
+                    logHHAuto('Unable to recharge up to '+maxx20+' for '+pricex20+' kobans : current energy : '+currentFight+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(getStoredValue("HHAuto_Setting_kobanBank")));
                 }
                 return result;
             }
