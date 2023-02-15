@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.146
+// @version      5.6.147
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -7165,7 +7165,7 @@ var autoLoop = function ()
 
         if(
             busy === false
-            && getHHScriptVars("isEnabledBossBangEvent",false)
+            && getHHScriptVars("isEnabledBossBangEvent",false) && getStoredValue("HHAuto_Setting_plusEventBossBang") === "true"
             &&
             (
                 (
@@ -8405,7 +8405,7 @@ var moduleDisplayEventPriority=function()
     {
         var girl;
         var prio;
-        var baseQuery="#events .nc-event-container .scroll-area .nc-event-list-rewards-container .nc-event-list-reward";
+        var baseQuery="#events .scroll-area .nc-event-list-reward-container .nc-event-list-reward";
         var idArray;
         var currentGirl;
         for ( var ec=eventChamps.length;ec>0;ec--)
@@ -8669,6 +8669,10 @@ function parseEventPage(inTab="global")
         let eventsGirlz = isJSON(getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsGirlz")):[];
         let eventChamps = isJSON(getStoredValue("HHAuto_Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue("HHAuto_Temp_autoChampsEventGirls")):[];
         let Priority=(getStoredValue("HHAuto_Setting_eventTrollOrder")).split(";");
+        const hhEventData = unsafeWindow.event_data;
+        if (!hhEventData) {
+            logHHAuto("Error getting current event Data from HH.");
+        }
 
         let refreshTimer = 3600;
         if (eventID.startsWith(getHHScriptVars('eventIDReg')) && getStoredValue("HHAuto_Setting_plusEvent") ==="true")
@@ -8682,35 +8686,52 @@ function parseEventPage(inTab="global")
             eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
             eventList[eventID]["isCompleted"] = true;
             setTimer('eventGoing',timeLeft);
-            let allEventGirlz = $('#contains_all #events .nc-panel-body .nc-event-container .nc-event-reward-container');
+            let allEventGirlz = hhEventData ? hhEventData.girls : [];
             for (let currIndex = 0;currIndex<allEventGirlz.length;currIndex++)
             {
-                let element = allEventGirlz[currIndex];
-                let button = $('.nc-events-prize-locations-buttons-container a:not(.disabled)[href^="/troll-pre-battle.html"]', element);
-                if (button.length > 0)
-                {
+                let girlData = allEventGirlz[currIndex];
+                if (girlData.shards < 100) {
                     eventList[eventID]["isCompleted"] = false;
-                    let buttonHref = button.attr("href");
-                    let girlId = element.getAttribute("data-reward-girl-id");
-                    let girlName = $('.shards_bar_wrapper .shards[shards]',element).attr('name');
-                    parsedURL = new URL(buttonHref,window.location.origin);
-                    let TrollID = queryStringGetParam(parsedURL.search,'id_opponent');
-                    let girlShards = $('.shards_bar_wrapper .shards[shards]',element).attr('shards');
-                    logHHAuto("Event girl : "+girlName+" ("+girlShards+"/100) at troll "+TrollID+" priority : "+Priority.indexOf(TrollID)+" on event : ",eventID);
-                    eventsGirlz.push({girl_id:girlId,troll_id:TrollID,girl_shards:girlShards,is_mythic:"false",girl_name:girlName,event_id:eventID});
-                }
-                button = $('.nc-events-prize-locations-buttons-container a:not(.disabled)[href^="/champions/"]', element);
-                if (button.length > 0)
-                {
-                    eventList[eventID]["isCompleted"] = false;
-                    let buttonHrefC = button.attr("href");
-                    let girlId = element.getAttribute("data-reward-girl-id");
-                    let girlName = $('.shards_bar_wrapper .shards[shards]',element).attr('name');
-                    parsedURL = new URL(buttonHrefC,window.location.origin);
-                    let ChampID = buttonHrefC.split('/champions/')[1];
-                    let girlShards = $('.shards_bar_wrapper .shards[shards]',element).attr('shards');
-                    logHHAuto("Event girl : "+girlName+" ("+girlShards+"/100) at champ "+ChampID+" on event : ",eventID);
-                    eventChamps.push({girl_id:girlId,champ_id:ChampID,girl_shards:girlShards,girl_name:girlName,event_id:eventID});
+                    let girlId = girlData.id_girl;
+                    let girlName = girlData.name;
+                    let girlShards = girlData.shards;
+                    let TrollID;
+                    let ChampID;
+
+                    if (girlData.source) {
+                        if (girlData.source.name === 'event_troll') {
+                            try {
+                                let parsedURL = new URL(girlData.source.anchor_source.url,window.location.origin);
+                                TrollID = queryStringGetParam(parsedURL.search,'id_opponent');
+                            } catch (error) {
+                                try {
+                                    let parsedURL = new URL(girlData.source.anchor_win_from[0].url ,window.location.origin);
+                                    TrollID = queryStringGetParam(parsedURL.search,'id_opponent');
+                                } catch (error) {
+                                    logHHAuto("Can't get troll from girls " +  girlName + " (" + girlId + ")");
+                                }
+                            }
+                        } else if (girlData.source.name === 'event_champion_girl') {
+                            try {
+                                ChampID = girlData.source.anchor_source.url.split('/champions/')[1];
+                            } catch (error) {
+                                try {
+                                    ChampID = girlData.source.anchor_win_from[0].url.split('/champions/')[1];
+                                } catch (error) {
+                                    logHHAuto("Can't get champion from girls " +  girlName + " (" + girlId + ")");
+                                }
+                            }
+                        
+                        }
+                    }
+                    if (TrollID) {                    
+                        logHHAuto("Event girl : "+girlName+" ("+girlShards+"/100) at troll "+TrollID+" priority : "+Priority.indexOf(TrollID)+" on event : ",eventID);
+                        eventsGirlz.push({girl_id:girlId,troll_id:TrollID,girl_shards:girlShards,is_mythic:"false",girl_name:girlName,event_id:eventID});
+                    }
+                    if (ChampID) {
+                        logHHAuto("Event girl : "+girlName+" ("+girlShards+"/100) at champ "+ChampID+" on event : ",eventID);
+                        eventChamps.push({girl_id:girlId,champ_id:ChampID,girl_shards:girlShards,girl_name:girlName,event_id:eventID});
+                    }
                 }
             }
         }
