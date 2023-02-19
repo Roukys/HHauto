@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.148
+// @version      5.6.149
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -5141,6 +5141,10 @@ var getSecondsLeft=function(name)
 
 var getTimeLeft=function(name)
 {
+    if (!canCollectCompetitionActive())
+    {
+        return "Wait for compet";
+    }
     if (!Timers[name])
     {
         return "No timer";
@@ -6661,6 +6665,17 @@ var autoLoop = function ()
             busy = parseEventPage(eventIDs[0]);
         }
 
+        if (busy===false && getHHScriptVars("isEnabledShop",false) && ( getStoredValue("HHAuto_Setting_paranoia") !== "true" || !checkTimer("paranoiaSwitch") )  && getStoredValue("HHAuto_Temp_autoLoop") === "true")
+        {
+            if (getStoredValue("HHAuto_Temp_charLevel") ===undefined)
+            {
+                setStoredValue("HHAuto_Temp_charLevel", 0);
+            }
+            if (checkTimer('nextShopTime') || getStoredValue("HHAuto_Temp_charLevel")<getHHVars('Hero.infos.level')) {
+                logHHAuto("Time to check shop.");
+                busy = updateShop();
+            }
+        }
 
         if
             (
@@ -7141,18 +7156,6 @@ var autoLoop = function ()
             busy = true;
             logHHAuto("Time to go and check daily Goals for collecting reward.");
             goAndCollectDailyGoals();
-        }
-
-        if (busy===false && getHHScriptVars("isEnabledShop",false) && ( getStoredValue("HHAuto_Setting_paranoia") !== "true" || !checkTimer("paranoiaSwitch") )  && getStoredValue("HHAuto_Temp_autoLoop") === "true")
-        {
-            if (getStoredValue("HHAuto_Temp_charLevel") ===undefined)
-            {
-                setStoredValue("HHAuto_Temp_charLevel", 0);
-            }
-            if (checkTimer('nextShopTime') || getStoredValue("HHAuto_Temp_charLevel")<getHHVars('Hero.infos.level')) {
-                logHHAuto("Time to check shop.");
-                busy = updateShop();
-            }
         }
 
         if (busy === false && getHHScriptVars("isEnabledSalary",false) && getStoredValue("HHAuto_Setting_autoSalary") === "true" && ( getStoredValue("HHAuto_Setting_paranoia") !== "true" || !checkTimer("paranoiaSwitch") )  && getStoredValue("HHAuto_Temp_autoLoop") === "true")
