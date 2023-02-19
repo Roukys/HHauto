@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.6.149.1
+// @version      5.7.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -221,6 +221,18 @@ function getSecondsLeftBeforeNewCompetition()
 
 function canCollectCompetitionActive(){
     return getSecondsLeftBeforeNewCompetition() > 35*60 && getSecondsLeftBeforeNewCompetition() < (24*3600-5*60);
+}
+
+function debugDate(sec_num){
+    let days = Math.floor(sec_num / 86400);
+    let hours = Math.floor(sec_num / 3600) % 24;
+    let minutes = Math.floor(sec_num / 60) % 60;
+    let seconds = sec_num % 60;
+    return JSON.stringify({days:days,hours:hours,minutes:minutes,seconds:seconds});
+}
+
+function getLimitTimeBeforeEnd(){
+    return Number(getStoredValue("HHAuto_Setting_collectAllTimer"));
 }
 
 function logHHAuto(...args)
@@ -1040,6 +1052,31 @@ function modulePathOfAttractionHide()
     }
 }
 
+function getSeasonRemainingTime()
+{
+    const seasonTimer = unsafeWindow.season_sec_untill_event_end;
+
+    if ( seasonTimer != undefined && (getSecondsLeft("SeasonRemainingTime") === 0 || getStoredValue("HHAuto_Temp_SeasonEndDate") === undefined) )
+    {
+        setTimer("SeasonRemainingTime",seasonTimer);
+        setStoredValue("HHAuto_Temp_SeasonEndDate",Math.ceil(new Date().getTime()/1000)+seasonTimer);
+    }
+}
+
+function getSeasonalEventRemainingTime()
+{
+    /*
+    const seasonalEventTimerRequest = `#pog_tab_container > div.potions-paths-first-row > div.potions-paths-timer.timer[${getHHScriptVars("PoVPoGTimestampAttributeName")}]`;
+
+    if ( $(seasonalEventTimerRequest).length > 0 && (getSecondsLeft("SeasonalEventRemainingTime") === 0 || getStoredValue("HHAuto_Temp_SeasonalEventEndDate") === undefined) )
+    {
+        const seasonalEventTimer = Number($(seasonalEventTimerRequest).attr(getHHScriptVars("PoVPoGTimestampAttributeName")));
+        setTimer("SeasonalEventRemainingTime",seasonalEventTimer);
+        setStoredValue("HHAuto_Temp_SeasonalEventEndDate",Math.ceil(new Date().getTime()/1000)+seasonalEventTimer);
+    }
+    */
+}
+
 function getPoVRemainingTime()
 {
     const poVTimerRequest = `#pov_tab_container > div.potions-paths-first-row > div.potions-paths-timer.timer[${getHHScriptVars("PoVPoGTimestampAttributeName")}]`;
@@ -1064,72 +1101,60 @@ function getPoGRemainingTime()
     }
 }
 
-function displayPoVRemainingTime()
+function displayGenericRemainingTime(scriptId, aRel, hhtimerId, timerName, timerEndDateName)
 {
-    const displayTimer = $("#scriptPoVTimer").length === 0;
-    if(getTimer("PoVRemainingTime") !== -1)
+    const displayTimer = $(scriptId).length === 0;
+    if(getTimer(timerName) !== -1)
     {
-        if ($("#HHAutoPoVTimer").length === 0)
+        const domSelector = '#homepage a[rel="'+aRel+'"] .notif-position > span';
+        if ($("#"+hhtimerId).length === 0)
         {
             if (displayTimer)
             {
-                $('#homepage a[rel="path-of-valor"').prepend('<span id="HHAutoPoVTimer"></span>')
-                GM_addStyle('#HHAutoPoVTimer{position: absolute;top: 26px;left: 30px;width: 100px;color: #f461ff;font-size: .6rem ;z-index: 1;}');
+                $(domSelector).prepend('<span id="'+hhtimerId+'"></span>')
+                GM_addStyle('#'+hhtimerId+'{position: absolute;top: 26px;left: 30px;width: 100px;font-size: .6rem ;z-index: 1;}');
             }
         }
         else
         {
-            if (! displayTimer)
+            if (!displayTimer)
             {
-                $("#HHAutoPoVTimer")[0].remove();
+                $("#"+hhtimerId)[0].remove();
             }
         }
         if (displayTimer)
         {
-            $("#HHAutoPoVTimer")[0].innerText = getTimeLeft("PoVRemainingTime");
+            $("#"+hhtimerId)[0].innerText = getTimeLeft(timerName);
         }
     }
     else
     {
-        if (getStoredValue("HHAuto_Temp_PoVEndDate") !== undefined)
+        if (getStoredValue(timerEndDateName) !== undefined)
         {
-            setTimer("PoVRemainingTime",getStoredValue("HHAuto_Temp_PoVEndDate")-(Math.ceil(new Date().getTime())/1000));
+            setTimer(timerName,getStoredValue(timerEndDateName)-(Math.ceil(new Date().getTime())/1000));
         }
     }
 }
 
+function displaySeasonRemainingTime()
+{
+    displayGenericRemainingTime("#scriptSeasonTime", "season", "HHAutoSeasonTimer", "SeasonRemainingTime", "HHAuto_Temp_SeasonEndDate");
+}
+
+function displaySeasonalEventRemainingTime()
+{
+    // TODO
+    // displayGenericRemainingTime("#scriptSeasonalEventTime", "seasonalEvent", "HHAutoSeasonalEventTimer", "SeasonalEventRemainingTime", "HHAuto_Temp_SeasonalEventEndDate");
+}
+
+function displayPoVRemainingTime()
+{
+    displayGenericRemainingTime("#scriptPovTime", "path-of-valor", "HHAutoPoVTimer", "PoVRemainingTime", "HHAuto_Temp_PoVEndDate");
+}
+
 function displayPoGRemainingTime()
 {
-    const displayTimer = $("#scriptPoGTimer").length === 0;
-    if(getTimer("PoGRemainingTime") !== -1)
-    {
-        if ($("#HHAutoPoGTimer").length === 0)
-        {
-            if (displayTimer)
-            {
-                $('#homepage a[rel="path-of-glory"').prepend('<span id="HHAutoPoGTimer"></span>')
-                GM_addStyle('#HHAutoPoGTimer{position: absolute;top: 26px;left: 30px;width: 100px;color: #f461ff;font-size: .6rem ;z-index: 1;}');
-            }
-        }
-        else
-        {
-            if (! displayTimer)
-            {
-                $("#HHAutoPoGTimer")[0].remove();
-            }
-        }
-        if (displayTimer)
-        {
-            $("#HHAutoPoGTimer")[0].innerText = getTimeLeft("PoGRemainingTime");
-        }
-    }
-    else
-    {
-        if (getStoredValue("HHAuto_Temp_PoGEndDate") !== undefined)
-        {
-            setTimer("PoGRemainingTime",getStoredValue("HHAuto_Temp_PoGEndDate")-(Math.ceil(new Date().getTime())/1000));
-        }
-    }
+    displayGenericRemainingTime("#scriptPogTime", "path-of-glory", "HHAutoPoGTimer", "PoGRemainingTime", "HHAuto_Temp_PoGEndDate");
 }
 
 function moduleSimPoVMaskReward()
@@ -3735,9 +3760,30 @@ function goAndCollectSeasonalEvent()
 {
     const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoSeasonalEventCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoSeasonalEventCollectablesList")):[];
 
-    if (checkTimer('nextSeasonalEventCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true")
+    if (getPage() === getHHScriptVars("pagesIDSeasonalEvent"))
     {
-        if (getPage() === getHHScriptVars("pagesIDSeasonalEvent"))
+        // TODO fix timer during next seasonal event
+        const seasonalEventEnd = 30*24*60*60;// Temp 30 days to prevent script collection // getSecondsLeft("SeasonalEventRemainingTime");
+        // logHHAuto("Seasonal end in " + seasonalEventEnd);
+
+        if (checkTimer('nextSeasonalEventCollectAllTime') && seasonalEventEnd < getLimitTimeBeforeEnd() && getStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll") === "true")
+        {
+            if ($(getHHScriptVars("selectorClaimAllRewards")).length > 0)
+            {
+                logHHAuto("Going to collect all seasonal item at once.");
+                setTimeout(function (){
+                    $(getHHScriptVars("selectorClaimAllRewards"))[0].click();
+                    setTimer('nextSeasonalEventCollectAllTime',getHHScriptVars("maxCollectionDelay")); // Add timer to check again later if there is new items to collect
+                    setTimeout(function (){gotoPage(getHHScriptVars("pagesIDHome"));},500);
+                },500);
+                return true;
+            }
+            else
+            {
+                setTimer('nextSeasonalEventCollectAllTime',getHHScriptVars("maxCollectionDelay"));
+            }
+        }
+        if (checkTimer('nextSeasonalEventCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true")
         {
             logHHAuto("Checking SeasonalEvent for collectable rewards.");
             logHHAuto("setting autoloop to false");
@@ -3783,16 +3829,18 @@ function goAndCollectSeasonalEvent()
             {
                 logHHAuto("No SeasonalEvent reward to collect.");
                 setTimer('nextSeasonalEventCollectTime',getHHScriptVars("maxCollectionDelay"));
+                setTimer('nextSeasonalEventCollectAllTime',getHHScriptVars("maxCollectionDelay"));
                 gotoPage(getHHScriptVars("pagesIDHome"));
                 return false;
             }
         }
-        else
-        {
-            logHHAuto("Switching to SeasonalEvent screen.");
-            gotoPage(getHHScriptVars("pagesIDSeasonalEvent"));
-            return true;
-        }
+        return false;
+    }
+    else
+    {
+        logHHAuto("Switching to SeasonalEvent screen.");
+        gotoPage(getHHScriptVars("pagesIDSeasonalEvent"));
+        return true;
     }
 }
 
@@ -3800,9 +3848,29 @@ function goAndCollectPoV()
 {
     const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoPoVCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoPoVCollectablesList")):[];
 
-    if (checkTimer('nextPoVCollectTime') && getStoredValue("HHAuto_Setting_autoPoVCollect") === "true")
+    if (getPage() === getHHScriptVars("pagesIDPoV"))
     {
-        if (getPage() === getHHScriptVars("pagesIDPoV"))
+        const povEnd = getSecondsLeft("PoVRemainingTime");
+        logHHAuto("PoV end in " + debugDate(povEnd));
+
+        if (checkTimer('nextPoVCollectAllTime') && povEnd < getLimitTimeBeforeEnd() && getStoredValue("HHAuto_Setting_autoPoVCollectAll") === "true")
+        {
+            if ($(getHHScriptVars("selectorClaimAllRewards")).length > 0)
+            {
+                logHHAuto("Going to collect all POV item at once.");
+                setTimeout(function (){
+                    $(getHHScriptVars("selectorClaimAllRewards"))[0].click();
+                    setTimer('nextPoVCollectAllTime',getHHScriptVars("maxCollectionDelay")); // Add timer to check again later if there is new items to collect
+                    setTimeout(function (){gotoPage(getHHScriptVars("pagesIDHome"));},500);
+                },500);
+                return true;
+            }
+            else
+            {
+                setTimer('nextPoVCollectAllTime',getHHScriptVars("maxCollectionDelay"));
+            }
+        }
+        if (checkTimer('nextPoVCollectTime') && getStoredValue("HHAuto_Setting_autoPoVCollect") === "true")
         {
             logHHAuto("Checking Path of Valor for collectable rewards.");
             logHHAuto("setting autoloop to false");
@@ -3860,16 +3928,18 @@ function goAndCollectPoV()
             {
                 logHHAuto("No Path of Valor reward to collect.");
                 setTimer('nextPoVCollectTime',getHHScriptVars("maxCollectionDelay"));
+                setTimer('nextPoVCollectAllTime',getHHScriptVars("maxCollectionDelay"));
                 gotoPage(getHHScriptVars("pagesIDHome"));
                 return false;
             }
         }
-        else
-        {
-            logHHAuto("Switching to Path of Valor screen.");
-            gotoPage(getHHScriptVars("pagesIDPoV"));
-            return true;
-        }
+        return false;
+    }
+    else
+    {
+        logHHAuto("Switching to Path of Valor screen.");
+        gotoPage(getHHScriptVars("pagesIDPoV"));
+        return true;
     }
 }
 
@@ -3877,9 +3947,29 @@ function goAndCollectPoG()
 {
     const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoPoGCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoPoGCollectablesList")):[];
 
-    if (checkTimer('nextPoGCollectTime') && getStoredValue("HHAuto_Setting_autoPoGCollect") === "true")
+    if (getPage() === getHHScriptVars("pagesIDPoG"))
     {
-        if (getPage() === getHHScriptVars("pagesIDPoG"))
+        const pogEnd = getSecondsLeft("PoGRemainingTime");
+        logHHAuto("PoG end in " + debugDate(pogEnd));
+
+        if (checkTimer('nextPoGCollectAllTime') && pogEnd < getLimitTimeBeforeEnd() && getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true")
+        {
+            if ($(getHHScriptVars("selectorClaimAllRewards")).length > 0)
+            {
+                logHHAuto("Going to collect all POG item at once.");
+                setTimeout(function (){
+                    $(getHHScriptVars("selectorClaimAllRewards"))[0].click();
+                    setTimer('nextPoGCollectAllTime',getHHScriptVars("maxCollectionDelay")); // Add timer to check again later if there is new items to collect
+                    setTimeout(function (){gotoPage(getHHScriptVars("pagesIDHome"));},500);
+                },500);
+                return true;
+            }
+            else
+            {
+                setTimer('nextPoGCollectAllTime',getHHScriptVars("maxCollectionDelay"));
+            }
+        }
+        if (checkTimer('nextPoGCollectTime') && (getStoredValue("HHAuto_Setting_autoPoGCollect") === "true" || getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true"))
         {
             logHHAuto("Checking Path of Glory for collectable rewards.");
             logHHAuto("setting autoloop to false");
@@ -3937,16 +4027,18 @@ function goAndCollectPoG()
             {
                 logHHAuto("No Path of Glory reward to collect.");
                 setTimer('nextPoGCollectTime',getHHScriptVars("maxCollectionDelay"));
+                setTimer('nextPoGCollectAllTime',getHHScriptVars("maxCollectionDelay"));
                 gotoPage(getHHScriptVars("pagesIDHome"));
                 return false;
             }
         }
-        else
-        {
-            logHHAuto("Switching to Path of Glory screen.");
-            gotoPage(getHHScriptVars("pagesIDPoG"));
-            return true;
-        }
+        return false;
+    }
+    else
+    {
+        logHHAuto("Switching to Path of Glory screen.");
+        gotoPage(getHHScriptVars("pagesIDPoG"));
+        return true;
     }
 }
 
@@ -3954,9 +4046,29 @@ function goAndCollectSeason()
 {
     const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoSeasonCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoSeasonCollectablesList")):[];
 
-    if (checkTimer('nextSeasonCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonCollect") === "true" )
+    if (getPage() === getHHScriptVars("pagesIDSeason"))
     {
-        if (getPage() === getHHScriptVars("pagesIDSeason"))
+        const seasonEnd = unsafeWindow.season_sec_untill_event_end;
+        logHHAuto("Season end in " + debugDate(seasonEnd));
+
+        if (checkTimer('nextSeasonCollectAllTime') && seasonEnd < getLimitTimeBeforeEnd() && getStoredValue("HHAuto_Setting_autoSeasonCollectAll") === "true")
+        {
+            if($(getHHScriptVars("selectorClaimAllRewards")).length > 0)
+            {
+                logHHAuto("Going to collect all Season item at once.");
+                setTimeout(function (){
+                    $(getHHScriptVars("selectorClaimAllRewards"))[0].click();
+                    setTimer('nextSeasonCollectAllTime', getHHScriptVars("maxCollectionDelay")); // Add timer to check again later if there is new items to collect
+                    setTimeout(function (){gotoPage(getHHScriptVars("pagesIDHome"));},500);
+                },500);
+                return true;
+            }
+            else 
+            {
+                setTimer('nextSeasonCollectAllTime', getHHScriptVars("maxCollectionDelay"));
+            }
+        }
+        if (checkTimer('nextSeasonCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonCollect") === "true")
         {
             logHHAuto("Going to collect Season.");
             logHHAuto("setting autoloop to false");
@@ -4049,17 +4161,18 @@ function goAndCollectSeason()
             {
                 logHHAuto("No season collection to do.");
                 setTimer('nextSeasonCollectTime',getHHScriptVars("maxCollectionDelay"));
+                setTimer('nextSeasonCollectAllTime',getHHScriptVars("maxCollectionDelay"));
                 gotoPage(getHHScriptVars("pagesIDHome"));
                 return false;
             }
-            return;
         }
-        else
-        {
-            logHHAuto("Switching to Season Rewards screen.");
-            gotoPage(getHHScriptVars("pagesIDSeason"));
-            return true;
-        }
+        return false;
+    }
+    else
+    {
+        logHHAuto("Switching to Season Rewards screen.");
+        gotoPage(getHHScriptVars("pagesIDSeason"));
+        return true;
     }
 }
 
@@ -7120,28 +7233,56 @@ var autoLoop = function ()
             }
         }
 
-        if (busy==false && getHHScriptVars("isEnabledSeason",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextSeasonCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonCollect") === "true")
+        if (
+            busy==false && getHHScriptVars("isEnabledSeason",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && 
+            (
+                checkTimer('nextSeasonCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonCollect") === "true" 
+                || 
+                getStoredValue("HHAuto_Setting_autoSeasonCollectAll") === "true" && checkTimer('nextSeasonCollectAllTime') && (getTimer('SeasonRemainingTime') == -1 || getSecondsLeft('SeasonRemainingTime') < getLimitTimeBeforeEnd())
+            )
+        )
         {
             logHHAuto("Time to go and check Season for collecting reward.");
             busy = true;
             busy = goAndCollectSeason();
         }
 
-        if (busy==false && getHHScriptVars("isEnabledSeasonalEvent",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextSeasonalEventCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true")
+        if (
+            busy==false && getHHScriptVars("isEnabledSeasonalEvent",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && 
+            (
+                checkTimer('nextSeasonalEventCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true"
+                ||
+                getStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll") === "true" && checkTimer('nextSeasonalEventCollectAllTime') && (getTimer('SeasonalEventRemainingTime') == -1 || getSecondsLeft('SeasonalEventRemainingTime') < getLimitTimeBeforeEnd())
+            )
+        )
         {
             logHHAuto("Time to go and check SeasonalEvent for collecting reward.");
             busy = true;
             busy = goAndCollectSeasonalEvent();
         }
 
-        if (busy==false && getHHScriptVars("isEnabledPoV",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextPoVCollectTime') && getStoredValue("HHAuto_Setting_autoPoVCollect") === "true")
+        if (
+            busy==false && getHHScriptVars("isEnabledPoV",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && 
+            (
+                checkTimer('nextPoVCollectTime') && getStoredValue("HHAuto_Setting_autoPoVCollect") === "true" 
+                || 
+                getStoredValue("HHAuto_Setting_autoPoVCollectAll") === "true" && checkTimer('nextPoVCollectAllTime') && (getTimer('PoVRemainingTime') == -1 || getSecondsLeft('PoVRemainingTime') < getLimitTimeBeforeEnd())
+            )
+        )
         {
             logHHAuto("Time to go and check Path of Valor for collecting reward.");
             busy = true;
             busy = goAndCollectPoV();
         }
 
-        if (busy==false && getHHScriptVars("isEnabledPoG",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextPoGCollectTime') && getStoredValue("HHAuto_Setting_autoPoGCollect") === "true")
+        if (
+            busy==false && getHHScriptVars("isEnabledPoG",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && 
+            (
+                checkTimer('nextPoGCollectTime') && getStoredValue("HHAuto_Setting_autoPoGCollect") === "true" 
+                || 
+                getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true" && checkTimer('nextPoGCollectAllTime') && (getTimer('PoGRemainingTime') == -1 || getSecondsLeft('PoGRemainingTime') < getLimitTimeBeforeEnd())
+            )
+        )
         {
             logHHAuto("Time to go and check Path of Glory for collecting reward.");
             busy = true;
@@ -7247,6 +7388,7 @@ var autoLoop = function ()
             {
                 setTimeout(moduleSimSeasonMaskReward,500);
             }
+            getSeasonRemainingTime();
             break;
         case getHHScriptVars("pagesIDEvent"):
             if (getStoredValue("HHAuto_Setting_plusEvent") ==="true" || getStoredValue("HHAuto_Setting_plusEventMythic") ==="true")
@@ -7287,8 +7429,10 @@ var autoLoop = function ()
             moduleShopGetBoosters();
             break;
         case getHHScriptVars("pagesIDHome"):
-            displayPoVRemainingTime();
-            displayPoGRemainingTime();
+            setTimeout(displaySeasonRemainingTime,500);
+            setTimeout(displaySeasonalEventRemainingTime,500);
+            setTimeout(displayPoVRemainingTime,500);
+            setTimeout(displayPoGRemainingTime,500);
             break;
         case getHHScriptVars("pagesIDHarem"):
             moduleHarem();
@@ -7325,7 +7469,7 @@ var autoLoop = function ()
             {
                 moduleSimSeasonalMaskReward();
             }
-            getPoGRemainingTime();
+            getSeasonalEventRemainingTime();
             break;
     }
 
@@ -9786,6 +9930,7 @@ HHEnvVariables["global"].shopGirlCountRequest = '#girls_list .g1 .nav_placement 
 HHEnvVariables["global"].shopGirlCurrentRequest = '#girls_list .g1 .nav_placement span[contenteditable]';
 HHEnvVariables["global"].contestMaxDays = 21;
 HHEnvVariables["global"].selectorFilterNotDisplayNone = ':not([style*="display:none"]):not([style*="display: none"])';
+HHEnvVariables["global"].selectorClaimAllRewards = "#claim-all:not([disabled]):visible:not([style*='visibility: hidden;'])"; // KK use visibility: hidden or visibility: visible to display this button
 HHEnvVariables["global"].HaremMaxSizeExpirationSecs = 7*24*60*60;//7 days
 HHEnvVariables["global"].HaremMinSizeExpirationSecs = 24*60*60;//1 days
 HHEnvVariables["global"].LeagueListExpirationSecs = 60*60;//1 hour max
@@ -10158,6 +10303,7 @@ var HHAuto_inputPattern = {
     autoBuyBoostersFilter:"M?B[1-4](;M?B[1-4])*",
     //calculatePowerLimits:"(\-?[0-9]+;\-?[0-9]+)|default",
     mousePauseTimeout:"[0-9]+",
+    collectAllTimer:"[1-9][0-9]|[1-9]",
     autoSalaryTimer:"[0-9]+",
     autoTrollThreshold:"[1]?[0-9]",
     eventTrollOrder:"([1-2][0-9]|[1-9])(;([1-2][0-9]|[1-9]))*",
@@ -10225,6 +10371,7 @@ HHAuto_ToolTips.en.plusEventMythic = { version: "5.6.24", elementText: "+Mythic 
 HHAuto_ToolTips.en.autoSeasonTitle = { version: "5.6.24", elementText: "Season"};
 HHAuto_ToolTips.en.autoSeason = { version: "5.6.24", elementText: "Enable", tooltip: "if enabled : Automatically fight in Seasons (Opponent chosen following PowerCalculation)"};
 HHAuto_ToolTips.en.autoSeasonCollect = { version: "5.6.24", elementText: "Collect", tooltip: "if enabled : Automatically collect Seasons ( if multiple to collect, will collect one per kiss usage)"};
+HHAuto_ToolTips.en.autoSeasonCollectAll = { version: "5.7.0", elementText: "Collect all", tooltip: "if enabled : Automatically collect all items before end of season (configured with Collect all timer)"};
 HHAuto_ToolTips.en.autoSeasonThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "Minimum kiss to keep"};
 HHAuto_ToolTips.en.autoQuest = { version: "5.6.74", elementText: "Main Quest", tooltip: "if enabled : Automatically do main quest"};
 HHAuto_ToolTips.en.autoSideQuest = { version: "5.6.83", elementText: "Side Quests", tooltip: "if enabled : Automatically do next available side quest (Enabled main quest has higher priority than side quests)"};
@@ -10368,8 +10515,11 @@ HHAuto_ToolTips.en.menuCollectable = { version: "5.6.47", elementText: "Collecta
 HHAuto_ToolTips.en.menuCollectableText = { version: "5.6.47", elementText: "Please select the collectables you want to be automatically collected.", tooltip: ""};
 HHAuto_ToolTips.en.menuDailyCollectableText = { version: "5.6.49", elementText: "Please select the collectables you want to be immediately collected.", tooltip: ""};
 HHAuto_ToolTips.en.autoPoVCollect = { version: "5.6.49", elementText: "Collect PoV", tooltip: "if enabled : Automatically collect Path of Valor."};
-HHAuto_ToolTips.en.autoSeasonalEventCollect = { version: "5.6.107", elementText: "Collect Seasonal Event", tooltip: "if enabled : Automatically collect Seasonal Event."};
+HHAuto_ToolTips.en.autoPoVCollectAll = { version: "5.7.0", elementText: "Collect All PoV", tooltip: "if enabled : Automatically collect all items before end of Path of Valor (configured with Collect all timer)"};
+HHAuto_ToolTips.en.autoSeasonalEventCollect = { version: "5.7.0", elementText: "Collect", tooltip: "if enabled : Automatically collect Seasonal Event."};
+HHAuto_ToolTips.en.autoSeasonalEventCollectAll = { version: "5.7.0", elementText: "Collect all", tooltip: "if enabled : Automatically collect all items before end of seasonal event (configured with Collect all timer)"};
 HHAuto_ToolTips.en.autoPoGCollect = { version: "5.6.89", elementText: "Collect PoG", tooltip: "if enabled : Automatically collect Path of Glory."};
+HHAuto_ToolTips.en.autoPoGCollectAll = { version: "5.7.0", elementText: "Collect All PoG", tooltip: "if enabled : Automatically collect all items before end of Path of Glory (configured with Collect all timer)"};
 HHAuto_ToolTips.en.autoDailyGoalsCollect = {version: "5.6.54", elementText: "Collect daily Goals", tooltip: "Collect daily Goals if not collected 2 hours before end of HH day."};
 HHAuto_ToolTips.en.HaremSortMenuSortText = {version: "5.6.56", elementText: "Select the wanted harem sorting : ", tooltip: ""};
 HHAuto_ToolTips.en.DateAcquired = {version: "5.6.56", elementText: "Date recruited", tooltip: ""};
@@ -10379,6 +10529,7 @@ HHAuto_ToolTips.en.Power = {version: "5.6.56", elementText: "Power", tooltip: ""
 HHAuto_ToolTips.en.upgrade_cost = {version: "5.6.56", elementText: "Upgrade cost", tooltip: ""};
 HHAuto_ToolTips.en.HaremSortMenuSortBy = {version: "5.6.56", elementText: "Sort by ", tooltip: ""};
 HHAuto_ToolTips.en.HaremSortMenuSortReverse = {version: "5.6.56", elementText: "Reverse", tooltip: ""};
+HHAuto_ToolTips.en.collectAllTimer = {version: "5.7.0", elementText: "Collect all timer (in hour)", tooltip: "Hour(s) before end of events to collect all rewards (Low time create risk of not collecting), Need activation on each events (POV, POG, season)"};
 
 
 HHAuto_ToolTips.fr.saveDebug = { version: "5.6.24", elementText: "Sauver log", tooltip: "Sauvegarder un fichier journal de débogage."};
@@ -10479,7 +10630,7 @@ HHAuto_ToolTips.fr.bossBangMinTeam = { version: "5.6.137", elementText: "Premiè
 HHAuto_ToolTips.fr.autoDailyRewardsCollect = {version: "5.6.133", elementText: "Collecter récompense journalier", tooltip: "Permet de collecter les récompenses journalières si non collectées 2 heures avant la fin du jour HH."};
 HHAuto_ToolTips.fr.autoDailyGoalsCollect = {version: "5.6.133", elementText: "Collecter objectifs journalier", tooltip: "Permet de collecter les objectifs journaliers si non collectés 2 heures avant la fin du jour HH."};
 HHAuto_ToolTips.fr.autoPoVCollect = { version: "5.6.133", elementText: "Collecter VDLV", tooltip: "Permet de collecter les gains de la Voie de la Valeur."};
-HHAuto_ToolTips.fr.autoSeasonalEventCollect = { version: "5.6.133", elementText: "Collecter évènements saisoniers", tooltip: "Permet de collecter les gains des évènements saisoniers."};
+HHAuto_ToolTips.fr.autoSeasonalEventCollect = { version: "5.7.0", elementText: "Collecter", tooltip: "Permet de collecter les gains des évènements saisoniers."};
 HHAuto_ToolTips.fr.autoPoGCollect = { version: "5.6.133", elementText: "Collecter VDLG", tooltip: "Permet de collecter les gains de la Voie de la Gloire."};
 HHAuto_ToolTips.fr.autoPantheonTitle = {version: "5.6.24", elementText: "Pantheon", tooltip: ""};
 HHAuto_ToolTips.fr.autoPantheon = { version: "5.6.24", elementText: "Activer", tooltip: "Si activé : combat automatiquement le Pantheon"};
@@ -11150,6 +11301,17 @@ HHStoredVars.HHAuto_Setting_autoSeasonCollect =
             }
            }
 };
+HHStoredVars.HHAuto_Setting_autoSeasonCollectAll =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_autoSeasonCollectablesList =
     {
     default:JSON.stringify([]),
@@ -11360,6 +11522,17 @@ HHStoredVars.HHAuto_Setting_mousePauseTimeout =
     getMenu:true,
     setMenu:true,
     menuType:"value"
+};
+HHStoredVars.HHAuto_Setting_collectAllTimer =
+    {
+    default:"12",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    isValid:/^[1-9][0-9]|[1-9]$/
 };
 HHStoredVars.HHAuto_Setting_eventTrollOrder =
     {
@@ -11712,6 +11885,17 @@ HHStoredVars.HHAuto_Setting_autoSeasonalEventCollect =
             }
            }
 };
+HHStoredVars.HHAuto_Setting_autoSeasonalEventCollectAll =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_autoSeasonalEventCollectablesList =
     {
     default:JSON.stringify([]),
@@ -11739,6 +11923,17 @@ HHStoredVars.HHAuto_Setting_autoPoVCollect =
             }
            }
 };
+HHStoredVars.HHAuto_Setting_autoPoVCollectAll =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_autoPoVCollectablesList =
     {
     default:JSON.stringify([]),
@@ -11765,6 +11960,17 @@ HHStoredVars.HHAuto_Setting_autoPoGCollect =
                 }
             }
            }
+};
+HHStoredVars.HHAuto_Setting_autoPoGCollectAll =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
 };
 HHStoredVars.HHAuto_Setting_autoPoGCollectablesList =
     {
@@ -12325,6 +12531,13 @@ var start = function () {
                                     +`<input style="text-align:center; width:40px" id="mousePauseTimeout" required pattern="${HHAuto_inputPattern.mousePauseTimeout}" type="text">`
                                 +`</div>`
                             +`</div>`
+                            +`<div class="labelAndButton">`
+                                +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("collectAllTimer","elementText")}</span>`
+                                +`<div class="tooltipHH">`
+                                    +`<span class="tooltipHHtext">${getTextForUI("collectAllTimer","tooltip")}</span>`
+                                    +`<input style="text-align:center; width:25px" id="collectAllTimer" required pattern="${HHAuto_inputPattern.collectAllTimer}" type="text">`
+                                +`</div>`
+                            +`</div>`
                         +`</div>`
                         +`<div class="optionsColumn">`
                             +`<div class="labelAndButton">`
@@ -12685,6 +12898,17 @@ var start = function () {
                                     +`</div>`
                                 +`</div>`
                                 +`<div class="labelAndButton">`
+                                    +`<span class="HHMenuItemName">${getTextForUI("autoSeasonCollectAll","elementText")}</span>`
+                                    +`<div class="tooltipHH">`
+                                        +`<span class="tooltipHHtext">${getTextForUI("autoSeasonCollectAll","tooltip")}</span>`
+                                        +`<label class="switch">`
+                                            +`<input id="autoSeasonCollectAll" type="checkbox">`
+                                            +`<span class="slider round">`
+                                            +`</span>`
+                                        +`</label>`
+                                    +`</div>`
+                                +`</div>`
+                                +`<div class="labelAndButton">`
                                     +`<span class="HHMenuItemName">${getTextForUI("SeasonMaskRewards","elementText")}</span>`
                                     +`<div class="tooltipHH">`
                                         +`<span class="tooltipHHtext">${getTextForUI("SeasonMaskRewards","tooltip")}</span>`
@@ -12829,6 +13053,17 @@ var start = function () {
                                         +`</label>`
                                     +`</div>`
                                 +`</div>`
+                                +`<div class="labelAndButton">`
+                                    +`<span class="HHMenuItemName">${getTextForUI("autoPoVCollectAll","elementText")}</span>`
+                                    +`<div class="tooltipHH">`
+                                        +`<span class="tooltipHHtext">${getTextForUI("autoPoVCollectAll","tooltip")}</span>`
+                                        +`<label class="switch">`
+                                            +`<input id="autoPoVCollectAll" type="checkbox">`
+                                            +`<span class="slider round">`
+                                            +`</span>`
+                                        +`</label>`
+                                    +`</div>`
+                                +`</div>`
                             +`</div>`
                             +`<div id="isEnabledPoG" class="internalOptionsRow" style="justify-content: space-evenly">`
                                 +`<div class="labelAndButton">`
@@ -12848,6 +13083,17 @@ var start = function () {
                                         +`<span class="tooltipHHtext">${getTextForUI("autoPoGCollect","tooltip")}</span>`
                                         +`<label class="switch">`
                                             +`<input id="autoPoGCollect" type="checkbox">`
+                                            +`<span class="slider round">`
+                                            +`</span>`
+                                        +`</label>`
+                                    +`</div>`
+                                +`</div>`
+                                +`<div class="labelAndButton">`
+                                    +`<span class="HHMenuItemName">${getTextForUI("autoPoGCollectAll","elementText")}</span>`
+                                    +`<div class="tooltipHH">`
+                                        +`<span class="tooltipHHtext">${getTextForUI("autoPoGCollectAll","tooltip")}</span>`
+                                        +`<label class="switch">`
+                                            +`<input id="autoPoGCollectAll" type="checkbox">`
                                             +`<span class="slider round">`
                                             +`</span>`
                                         +`</label>`
@@ -12879,6 +13125,17 @@ var start = function () {
                                         +`<span class="tooltipHHtext">${getTextForUI("autoSeasonalEventCollect","tooltip")}</span>`
                                         +`<label class="switch">`
                                             +`<input id="autoSeasonalEventCollect" type="checkbox">`
+                                            +`<span class="slider round">`
+                                            +`</span>`
+                                        +`</label>`
+                                    +`</div>`
+                                +`</div>`
+                                +`<div class="labelAndButton" style="display:none;">` // Hidden until next seasonal event
+                                    +`<span class="HHMenuItemName">${getTextForUI("autoSeasonalEventCollectAll","elementText")}</span>`
+                                    +`<div class="tooltipHH">`
+                                        +`<span class="tooltipHHtext">${getTextForUI("autoSeasonalEventCollectAll","tooltip")}</span>`
+                                        +`<label class="switch">`
+                                            +`<input id="autoSeasonalEventCollectAll" type="checkbox">`
                                             +`<span class="slider round">`
                                             +`</span>`
                                         +`</label>`
