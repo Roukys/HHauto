@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.7.1
+// @version      5.7.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -5981,8 +5981,17 @@ function moduleSimLeague() {
         //matchRatingFlag = matchRating.substring(0,1);
         //matchRating = matchRating.substring(1);
 
-        $('div#leagues_right .player_block .challenge').prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${nRounding(100*simu.win, 2, -1)}%</div>`);
-        $("tr.lead_table_default div[second-row]").append(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${nRounding(100*simu.win, 2, -1)}%</div>`);
+        const oppoPoints = simu.points;
+        let expectedValue = 0;
+        for (let i=25; i>=3; i--) {
+            if (oppoPoints[i]) {
+                expectedValue += i*oppoPoints[i];
+            }
+        }
+        
+        const pointText = `${nRounding(100*simu.win, 2, -1)}% (${nRounding(expectedValue, 1, -1)})`;
+        $('div#leagues_right .player_block .challenge').prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${pointText}</div>`);
+        $("tr.lead_table_default td span.nickname").append(`<span class="${simu.scoreClass}" title="${pointText}">${pointText}</span>`);
 
         //CSS
 
@@ -5998,7 +6007,7 @@ function moduleSimLeague() {
                     + '.matchRatingNew {'
                     + 'position: absolute;'
                     + 'margin-top: 20px; '
-                    + 'margin-left: 40px; '
+                    + 'margin-left: 20px; '
                     + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
                     + 'line-height: 17px; '
                     + 'font-size: 14px;}}'
