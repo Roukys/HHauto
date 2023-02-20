@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.7.0
+// @version      5.7.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -4547,9 +4547,7 @@ var doLeagueBattle = function () {
                 //location.href = "/battle.html?league_battle=1&id_member=" + Data[0]
                 gotoPage(getHHScriptVars("pagesIDLeagueBattle"),{number_of_battles:1,id_opponent:Data[0]});
                 //End week 28 new battle modification
-
             }
-
         }
     }
     else
@@ -6147,6 +6145,8 @@ function moduleSimLeague() {
     var test2 = $('div#leagues_middle div.leagues_table tbody')[0];
     observer2.observe(test2, {attributes: true, childList: true, subtree: false});
 
+    moduleSimLeagueHideBeatenOppo();
+
     let buttonLaunchList='<div style="position: absolute;left: 300px;top: 14px;width:100px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("RefreshOppoList","tooltip")+'</span><label style="width:100%;" class="myButton" id="RefreshOppoList">'+getTextForUI("RefreshOppoList","elementText")+'</label></div>';
     if (document.getElementById("RefreshOppoList") === null)
     {
@@ -6173,7 +6173,7 @@ function moduleSimLeague() {
                 //console.log($('#HHPowerCalcScore',$(a)));
                 const score_a = $('#HHPowerCalcScore',$(a)).length===0?0:Number($('#HHPowerCalcScore',$(a))[0].innerText);
                 const score_b = $('#HHPowerCalcScore',$(b)).length===0?0:Number($('#HHPowerCalcScore',$(b))[0].innerText);
-                const points_a = $('#HHPowerCalcScore',$(a)).length===0?0:Number($('#HHPowerCalcPoints',$(a))[0].innerText);
+                const points_a = $('#HHPowerCalcPoints',$(a)).length===0?0:Number($('#HHPowerCalcPoints',$(a))[0].innerText);
                 const points_b = $('#HHPowerCalcPoints',$(b)).length===0?0:Number($('#HHPowerCalcPoints',$(b))[0].innerText);
                 //console.log(score_a,score_b,points_a,points_b);
                 if (score_b === score_a)
@@ -6194,30 +6194,77 @@ function moduleSimLeague() {
         });
     }
 
-    /*let buttonSaveOpponent='<div style="position: absolute;left: 520px;top: 14px;width:100px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("buttonSaveOpponent","tooltip")+'</span><label style="width:100%;" class="myButton" id="buttonSaveOpponent">'+getTextForUI("buttonSaveOpponent","elementText")+'</label></div>';
-    if (document.getElementById("buttonSaveOpponent") === null) {
-        $("#leagues_middle").append(buttonSaveOpponent);
-        document.getElementById("buttonSaveOpponent").addEventListener("click", function () {
-            let caracsHero = 0;
-            for (let j = 0; j<heroLeaguesData.team.girls.length;j++)
-            {
-                for (let z=1;z<4;z++)
-                {
-                    caracsHero = caracsHero +  Number(heroLeaguesData.team.girls[j].caracs['carac'+z]);}
+}
+
+function moduleSimLeagueHideBeatenOppo()
+{
+    const beatenOpponents ='<div style="position: absolute;left: 190px;top: 14px;width:100px;"  class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("HideBeatenOppo","tooltip")+'</span><label style="width:100%;" class="myButton" id="HideBeatenOppo">'+getTextForUI("HideBeatenOppo","elementText")+'</label></div>';
+    if (
+        document.getElementById("beaten_opponents") === null // button from HH OCD script
+        &&  document.getElementById("HideBeatenOppo") === null 
+    )
+    { 
+        function removeBeatenOpponents() {
+            var board = document.getElementsByClassName("leadTable")[0];
+            if(!board) return;
+            var opponents = board.getElementsByTagName("tr");
+            for (var i=0; i<opponents.length; i++) {
+                try {
+                    const playerId = $(opponents[i]).attr('sorting_id');
+                    if(unsafeWindow.leagues_list.find(({id_player}) => id_player === playerId).nb_challenges_played === "3" && opponents[i].className.indexOf('selected-player-leagues') == -1){
+                        opponents[i].style.display="none";
+                    }
+                } catch(e) {}
             }
-            //caracsHero = caracsHero * 0.12;
-            //console.log(caracsHero);
-            let leagueSavedData = {
-                "opponent": getLeaguePlayersData().opponent,
-                "hero_caracs_team" : caracsHero,
-                "playersBonuses": getLeaguePlayersData().playersBonuses
-            };
-            setStoredValue("HHAuto_Temp_LeagueSavedData", JSON.stringify(leagueSavedData));
-            //console.log(JSON.stringify(leagueSavedData));
+            $('.lead_table_view').getNiceScroll().resize()
+        }
+
+        function displayBeatenOpponents() {
+            var board = document.getElementsByClassName("leadTable")[0];
+            if(!board) return;
+            var opponents = board.getElementsByTagName("tr");
+            for (var i=0; i<opponents.length; i++) {
+                try {
+                    const playerId = $(opponents[i]).attr('sorting_id');
+                    if(unsafeWindow.leagues_list.find(({id_player}) => id_player === playerId).nb_challenges_played === "3"){
+                        opponents[i].style.display="";
+                    }
+                } catch(e) {}
+            }
+            $('.lead_table_view').getNiceScroll().resize()
+        }
+
+        $("#leagues_middle").append(beatenOpponents);
+
+        let hideBeatenOppo = getStoredValue("HHAuto_Temp_hideBeatenOppo");
+        if (!hideBeatenOppo) {
+            hideBeatenOppo = 0;
+            setStoredValue("HHAuto_Temp_hideBeatenOppo", hideBeatenOppo);
+        }
+
+        if (hideBeatenOppo == 1) {
+            removeBeatenOpponents();
+            $('#HideBeatenOppo').html(getTextForUI("display","elementText"));
+        }
+        else {
+            $('#HideBeatenOppo').html(getTextForUI("HideBeatenOppo","elementText"));
+        }
+
+        document.getElementById("HideBeatenOppo").addEventListener('click', function(){
+            if (hideBeatenOppo == 0) {
+                removeBeatenOpponents();
+                hideBeatenOppo = 1;
+                setStoredValue("HHAuto_Temp_hideBeatenOppo", hideBeatenOppo);
+                $('#HideBeatenOppo').html(getTextForUI("display","elementText"));
+            }
+            else {
+                displayBeatenOpponents();
+                hideBeatenOppo = 0;
+                setStoredValue("HHAuto_Temp_hideBeatenOppo", hideBeatenOppo);
+                $('#HideBeatenOppo').html(getTextForUI("HideBeatenOppo","elementText"));
+            }
         });
     }
-    */
-
 }
 
 function moduleHarem()
@@ -10331,6 +10378,8 @@ var HHAuto_ToolTips = {en:{}, fr:{}, es:{}, de:{}, it:{}};
 
 HHAuto_ToolTips.en.saveDebug = { version: "5.6.24", elementText: "Save Debug", tooltip: "Allow to produce a debug log file."};
 HHAuto_ToolTips.en.gitHub = { version: "5.6.24", elementText: "GitHub", tooltip: "Link to GitHub project."};
+HHAuto_ToolTips.en.ReportBugs = { version: "5.7.1", elementText: "Report Bugs", tooltip: "Link to GitHub issue list to open and follow bugs."};
+HHAuto_ToolTips.en.noOtherScripts = { version: "5.7.1", elementText: "Please do not use other scripts, it can create incompatibility (HH++ OCD supported)", tooltip: ""};
 HHAuto_ToolTips.en.saveConfig = { version: "5.6.24", elementText: "Save Config", tooltip: "Allow to save configuration."};
 HHAuto_ToolTips.en.loadConfig = { version: "5.6.24", elementText: "Load Config", tooltip: "Allow to load configuration."};
 HHAuto_ToolTips.en.globalTitle = { version: "5.6.24", elementText: "Global options"};
@@ -10476,6 +10525,8 @@ HHAuto_ToolTips.en.minShardsX50 = { version: "5.6.24", elementText: "Min. shards
 HHAuto_ToolTips.en.minShardsX10 = { version: "5.6.24", elementText: "Min. shards x10", tooltip: "Only use x10 button if remaining shards of current girl is equal or above this limit."};
 HHAuto_ToolTips.en.mythicGirlNext = { version: "5.6.24", elementText: "Mythic girl wave"};
 HHAuto_ToolTips.en.RefreshOppoList = { version: "5.6.24", elementText: "Refresh Opponent list", tooltip: "Allow to force a refresh of opponent list."};
+HHAuto_ToolTips.en.HideBeatenOppo = { version: "5.7.1", elementText: "Hide", tooltip: "Allow to hide beaten opponent from the list."};
+HHAuto_ToolTips.en.display = { version: "5.7.1", elementText: "Display", tooltip: ""};
 HHAuto_ToolTips.en.PachinkoSelectorNoButtons = {version: "5.6.24", elementText: "No Orbs available.", tooltip: ""};
 HHAuto_ToolTips.en.PachinkoSelector = {version: "5.6.24", elementText: "", tooltip: "Pachinko Selector."};
 HHAuto_ToolTips.en.PachinkoLeft = {version: "5.6.24", elementText: "", tooltip: "Currently available orbs."};
@@ -12447,6 +12498,7 @@ var start = function () {
 
     // Add UI buttons.
     let sMenu =`<div id="sMenu" class="HHAutoScriptMenu" style="top: 45px;right: 52px;padding: 4px;display: none;opacity: 1;border-radius: 4px;border: 1px solid #ffa23e;background-color: #1e261e;font-size:x-small; position:absolute; text-align:left; flex-direction:column; justify-content:space-between; z-index:10000; overflow:auto; max-height:calc(100% - 45px)">`
+        +`<div style="position: absolute;left: 40%;color: #F00">${getTextForUI("noOtherScripts","elementText")}</div>`
         +`<div class="optionsRow">`
             +`<div class="optionsColumn">`
                 +`<div style="padding:3px; display:flex; flex-direction:column;">`
@@ -12456,6 +12508,10 @@ var start = function () {
                         +`<div class="tooltipHH">`
                             +`<span class="tooltipHHtext">${getTextForUI("gitHub","tooltip")}</span>`
                             +`<label class="myButton" id="git">${getTextForUI("gitHub","elementText")}</label>`
+                        +`</div>`
+                        +`<div class="tooltipHH">`
+                            +`<span class="tooltipHHtext">${getTextForUI("ReportBugs","tooltip")}</span>`
+                            +`<label class="myButton" id="ReportBugs">${getTextForUI("ReportBugs","elementText")}</label>`
                         +`</div>`
                         +`<div class="tooltipHH">`
                             +`<span class="tooltipHHtext">${getTextForUI("DebugMenu","tooltip")}</span>`
@@ -13803,6 +13859,7 @@ var start = function () {
     manageToolTipsDisplay();
 
     document.getElementById("git").addEventListener("click", function(){ window.open("https://github.com/Roukys/HHauto/wiki"); });
+    document.getElementById("ReportBugs").addEventListener("click", function(){ window.open("https://github.com/Roukys/HHauto/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc"); });
     document.getElementById("loadConfig").addEventListener("click", function(){
         let LoadDialog='<p>After you select the file the settings will be automatically updated.</p><p> If nothing happened, then the selected file contains errors.</p><p id="LoadConfError"style="color:#f53939;"></p><p><label><input type="file" id="myfile" accept=".json" name="myfile"> </label></p>';
         fillHHPopUp("loadConfig",getTextForUI("loadConfig","elementText"), LoadDialog);
