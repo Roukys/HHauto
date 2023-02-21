@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.7.2
+// @version      5.7.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -5252,9 +5252,10 @@ var getSecondsLeft=function(name)
 
 var getTimeLeft=function(name)
 {
+    const timerWaitingCompet = ['nextPachinkoTime','nextPachinko2Time','nextSeasonTime','nextLeaguesTime','nextMissionTime'];
     if (!Timers[name])
     {
-        if (!canCollectCompetitionActive())
+        if (!canCollectCompetitionActive() && timerWaitingCompet.contains[name])
         {
             return "Wait for compet";
         }
@@ -5263,7 +5264,7 @@ var getTimeLeft=function(name)
     var diff=getSecondsLeft(name);
     if (diff<=0)
     {
-        if (!canCollectCompetitionActive())
+        if (!canCollectCompetitionActive() && timerWaitingCompet.contains[name])
         {
             return "Wait for compet";
         }
@@ -5988,10 +5989,17 @@ function moduleSimLeague() {
                 expectedValue += i*oppoPoints[i];
             }
         }
-        
+
         const pointText = `${nRounding(100*simu.win, 2, -1)}% (${nRounding(expectedValue, 1, -1)})`;
         $('div#leagues_right .player_block .challenge').prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${pointText}</div>`);
-        $("tr.lead_table_default td span.nickname").append(`<span class="${simu.scoreClass}" title="${pointText}">${pointText}</span>`);
+
+        if ($('tr.lead_table_default td span.nickname span.OppoScore').length == 0)
+        {
+            if($('tr.lead_table_default td span.nickname span.OppoScoreTemp').length > 0) {
+                $('tr.lead_table_default td span.nickname span.OppoScoreTemp').remove();
+            }
+            $("tr.lead_table_default td span.nickname").append(`<span class="OppoScoreTemp ${simu.scoreClass}" title="${pointText}">${pointText}</span>`);
+        }
 
         //CSS
 
