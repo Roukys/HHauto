@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.7.4
+// @version      5.7.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -5971,7 +5971,8 @@ function moduleSimLeague() {
             return;
         }
 
-        let leaguePlayers = getLeaguePlayersData(getHHVars("heroLeaguesData"),getHHVars("playerLeaguesData"));
+        var opponentData = getHHVars("playerLeaguesData");
+        let leaguePlayers = getLeaguePlayersData(getHHVars("heroLeaguesData"),opponentData);
         //console.log("HH simuFight",JSON.stringify(leaguePlayers.player),JSON.stringify(leaguePlayers.opponent));
         let simu = calculateBattleProbabilities(leaguePlayers.player, leaguePlayers.opponent);
         //console.log(opponent);
@@ -5981,6 +5982,8 @@ function moduleSimLeague() {
         //Publish the ego difference as a match rating
         //matchRatingFlag = matchRating.substring(0,1);
         //matchRating = matchRating.substring(1);
+        var opponentsTempPowerList = isJSON(getStoredValue("HHAuto_Temp_LeagueTempOpponentList"))?JSON.parse(getStoredValue("HHAuto_Temp_LeagueTempOpponentList")):{expirationDate:new Date().getTime() + getHHScriptVars("LeagueListExpirationSecs") * 1000,opponentsList:{}};
+        var DataOppo = opponentsTempPowerList.opponentsList;
 
         const oppoPoints = simu.points;
         let expectedValue = 0;
@@ -5993,13 +5996,12 @@ function moduleSimLeague() {
         const pointText = `${nRounding(100*simu.win, 2, -1)}% (${nRounding(expectedValue, 1, -1)})`;
         $('div#leagues_right .player_block .challenge').prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${pointText}</div>`);
 
-        if ($('tr.lead_table_default td span.nickname span.OppoScore').length == 0)
-        {
-            if($('tr.lead_table_default td span.nickname span.OppoScoreTemp').length > 0) {
-                $('tr.lead_table_default td span.nickname span.OppoScoreTemp').remove();
-            }
-            $("tr.lead_table_default td span.nickname").append(`<span class="OppoScoreTemp ${simu.scoreClass}" title="${pointText}">${pointText}</span>`);
+        if($('tr.lead_table_default td span.nickname span.OppoScore').length > 0) {
+            $('tr.lead_table_default td span.nickname span.OppoScore').remove();
         }
+        $("tr.lead_table_default td span.nickname").append(`<span class='OppoScore ${simu.scoreClass}' title="${pointText}"><span style="margin:0;" id="HHPowerCalcScore">${nRounding(100*simu.win, 2, -1)}</span>% (<span style="margin:0;" id="HHPowerCalcPoints">${nRounding(expectedValue, 1, -1)}</span>)</span>`);
+        DataOppo[Number(opponentData.id_fighter)]=simu;
+        setStoredValue("HHAuto_Temp_LeagueTempOpponentList", JSON.stringify({expirationDate:opponentsTempPowerList.expirationDate,opponentsList:DataOppo}));
 
         //CSS
 
@@ -6087,7 +6089,7 @@ function moduleSimLeague() {
 
 
     function DisplayMatchScore() {
-        if ($('tr[sorting_id] td span.nickname span.OppoScore').length > 0)
+        if ($('tr[sorting_id] td span.nickname span.OppoScore').length > 1)
         {
             return
         }
