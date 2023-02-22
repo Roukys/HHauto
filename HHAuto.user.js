@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.7.5
+// @version      5.7.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -5255,7 +5255,7 @@ var getTimeLeft=function(name)
     const timerWaitingCompet = ['nextPachinkoTime','nextPachinko2Time','nextSeasonTime','nextLeaguesTime','nextMissionTime'];
     if (!Timers[name])
     {
-        if (!canCollectCompetitionActive() && timerWaitingCompet.contains[name])
+        if (!canCollectCompetitionActive() && timerWaitingCompet.indexOf(name) >= 0)
         {
             return "Wait for compet";
         }
@@ -5264,7 +5264,7 @@ var getTimeLeft=function(name)
     var diff=getSecondsLeft(name);
     if (diff<=0)
     {
-        if (!canCollectCompetitionActive() && timerWaitingCompet.contains[name])
+        if (!canCollectCompetitionActive() && timerWaitingCompet.indexOf(name) >= 0)
         {
             return "Wait for compet";
         }
