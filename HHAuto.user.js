@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.7.6
+// @version      5.7.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -8964,18 +8964,17 @@ function parseEventPage(inTab="global")
             eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
             eventList[eventID]["isCompleted"] = true;
             setTimer('eventMythicGoing',timeLeft);
-            let allEventGirlz = $('#contains_all #events .nc-panel-body .nc-event-container .nc-event-reward-container');
+            let allEventGirlz = hhEventData ? hhEventData.girls : [];
             for (let currIndex = 0;currIndex<allEventGirlz.length;currIndex++)
             {
-                let element = allEventGirlz[currIndex];
-                let button = $('.nc-events-prize-locations-buttons-container a:not(.disabled)[href^="/troll-pre-battle.html"]', element);
+                let girlData = allEventGirlz[currIndex];
                 let ShardsQuery = '#events .nc-panel .nc-panel-body .nc-event-reward-container .nc-events-prize-locations-container .shards-info span.number';
                 let timerQuery= '#events .nc-panel .nc-panel-body .nc-event-reward-container .nc-events-prize-locations-container .shards-info span.timer'
                 if ($(ShardsQuery).length > 0 )
                 {
                     let remShards=Number($(ShardsQuery)[0].innerText);
                     let nextWave=($(timerQuery).length > 0)?parseTime($(timerQuery)[0].innerText):-1;
-                    if (button.length > 0)
+                    if (girlData.shards < 100)
                     {
                         eventList[eventID]["isCompleted"] = false;
                         if (nextWave === -1)
@@ -8988,12 +8987,11 @@ function parseEventPage(inTab="global")
                         }
                         if (remShards !== 0 )
                         {
-                            let buttonHref = button.attr("href");
-                            let girlId = element.getAttribute("data-reward-girl-id");
-                            let girlName = $('.shards_bar_wrapper .shards[shards]',element).attr('name');
-                            parsedURL = new URL(buttonHref,window.location.origin);
-                            let TrollID = queryStringGetParam(parsedURL.search,'id_opponent');
-                            let girlShards = $('.shards_bar_wrapper .shards[shards]',element).attr('shards');
+                            let girlId = girlData.id_girl;
+                            let girlName = girlData.name;
+                            let girlShards = girlData.shards;
+                            let parsedURL = new URL(girlData.source.anchor_source.url,window.location.origin);
+                            TrollID = queryStringGetParam(parsedURL.search,'id_opponent');
                             logHHAuto("Event girl : "+girlName+" ("+girlShards+"/100) at troll "+TrollID+" priority : "+Priority.indexOf(TrollID)+" on event : ",eventID);
                             eventsGirlz.push({girl_id:girlId,troll_id:TrollID,girl_shards:girlShards,is_mythic:"true",girl_name:girlName,event_id:eventID});
                         }
