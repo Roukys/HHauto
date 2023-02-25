@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.7.7
+// @version      5.8.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -1155,6 +1155,71 @@ function displayPoVRemainingTime()
 function displayPoGRemainingTime()
 {
     displayGenericRemainingTime("#scriptPogTime", "path-of-glory", "HHAutoPoGTimer", "PoGRemainingTime", "HHAuto_Temp_PoGEndDate");
+}
+
+function moduleSimChampions()
+{
+    setStoredValue("HHAuto_Temp_autoLoop", "false");
+    logHHAuto("setting autoloop to false");
+
+    var getPoses = function($images){
+        var poses=[];
+        $images.each(function(idx,pose){
+            var imgSrc = $(pose).attr('src');
+            var poseNumber = imgSrc.substring(imgSrc.lastIndexOf('/')+1).replace(/\D/g, '');
+            poses.push(poseNumber);
+        });
+        return poses;
+    }
+
+    let champTeamButton = '<div style="position: absolute;left: 330px;top: 10px;width:90px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ChampTeamButton","tooltip")+'</span><label class="myButton" id="ChampTeamButton">'+getTextForUI("ChampTeamButton","elementText")+'</label></div>';
+
+    $(".champions-top__inner-wrapper").append(champTeamButton);
+    var champTeam = unsafeWindow.championData.team;
+
+    var indicateBestTeam = function() {
+        const championRequiredPoses = getPoses($(".champions-over__champion-info.champions-animation .champion-pose"));
+        const girlBoxes = $(".champions-middle__girl-selection.champions-animation .girl-selection__girl-box");
+        var girlsPerPose={};
+        $(".hhgirlOrder").remove();
+
+        girlBoxes.each(function(girlIndex,girlBox){
+            const $girl = $('.girl-box__draggable ', $(girlBox));
+            const girlData = champTeam[girlIndex];
+
+            if (girlData.id_girl != $girl.attr('id_girl')) {
+                logHHAuto('Invalid girls ' + girlData.id_girl + 'vs' + $girl.attr('id_girl'));
+                return;
+            }
+
+            const poseNumber = girlData.figure;
+            if(!girlsPerPose[poseNumber]) {girlsPerPose[poseNumber] = [];}
+            girlsPerPose[poseNumber].push({data:girlData,htmlDom:$girl});
+            girlsPerPose[poseNumber].sort((a,b) => b.data.damage - a.data.damage);
+        });
+
+        for(var i=0;i<10;i++) {
+            var expectedPose = championRequiredPoses[i%5];
+            if(girlsPerPose[expectedPose] && girlsPerPose[expectedPose].length > 0){
+                girlsPerPose[expectedPose][0].htmlDom.append('<span class="hhgirlOrder" title="'+getTextForUI("ChampGirlOrder","tooltip")+' '+(i+1)+'" style="position: absolute;top: 70px;left: 10px;z-index: 10;">'+(i+1)+'</span>');
+                girlsPerPose[expectedPose].shift();
+            }
+        }
+    };
+
+    var checkAjaxCompleteOnChampionPage = function(event,request,settings){ 
+        let match = settings.data.match(/action=champion_team_draft/);
+        if (match === null) return;
+        champTeam = request.responseJSON.teamArray;
+
+        setTimeout(indicateBestTeam, 1000);
+    };
+
+    $(document).on('ajaxComplete',checkAjaxCompleteOnChampionPage);
+    
+    document.getElementById("ChampTeamButton").addEventListener("click", indicateBestTeam);
+    GM_registerMenuCommand(getTextForUI("ChampTeamButton","elementText"), indicateBestTeam);
+    setTimeout(indicateBestTeam, 1000);
 }
 
 function moduleSimPoVMaskReward()
@@ -6860,6 +6925,60 @@ var autoLoop = function ()
             }
         }
 
+        if(busy === false && getHHScriptVars("isEnabledPowerPlaces",false) && getStoredValue("HHAuto_Setting_autoPowerPlaces") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true")
+        {
+
+            var popToStart = getStoredValue("HHAuto_Temp_PopToStart")?JSON.parse(getStoredValue("HHAuto_Temp_PopToStart")):[];
+            if (popToStart.length != 0 || checkTimer('minPowerPlacesTime'))
+            {
+                //if PopToStart exist bypass function
+                var popToStartExist = getStoredValue("HHAuto_Temp_PopToStart")?true:false;
+                //logHHAuto("startcollect : "+popToStartExist);
+                if (! popToStartExist)
+                {
+                    //logHHAuto("pop1:"+popToStart);
+                    logHHAuto("Go and collect");
+                    busy = true;
+                    busy = collectAndUpdatePowerPlaces();
+                }
+                var indexes=(getStoredValue("HHAuto_Setting_autoPowerPlacesIndexFilter")).split(";");
+
+                popToStart = getStoredValue("HHAuto_Temp_PopToStart")?JSON.parse(getStoredValue("HHAuto_Temp_PopToStart")):[];
+                //console.log(indexes, popToStart);
+                for(var pop of popToStart)
+                {
+                    if (busy === false && ! indexes.includes(String(pop)))
+                    {
+                        logHHAuto("PoP is no longer in list :"+pop+" removing it from start list.");
+                        removePopFromPopToStart(pop);
+                    }
+                }
+                popToStart = getStoredValue("HHAuto_Temp_PopToStart")?JSON.parse(getStoredValue("HHAuto_Temp_PopToStart")):[];
+                //logHHAuto("pop2:"+popToStart);
+                for(var index of indexes)
+                {
+                    if (busy === false && popToStart.includes(Number(index)))
+                    {
+                        logHHAuto("Time to do PowerPlace"+index+".");
+                        busy = true;
+                        busy = doPowerPlacesStuff(index);
+                    }
+                }
+                if (busy === false)
+                {
+                    //logHHAuto("pop3:"+getStoredValue("HHAuto_Temp_PopToStart"));
+                    popToStart = getStoredValue("HHAuto_Temp_PopToStart")?JSON.parse(getStoredValue("HHAuto_Temp_PopToStart")):[];
+                    //logHHAuto("pop3:"+popToStart);
+                    if (popToStart.length === 0)
+                    {
+                        //logHHAuto("removing popToStart");
+                        sessionStorage.removeItem('HHAuto_Temp_PopToStart');
+                        gotoPage(getHHScriptVars("pagesIDHome"));
+                    }
+                }
+            }
+        }
+
         if
             (
                 busy === false
@@ -6978,60 +7097,6 @@ var autoLoop = function ()
             if (checkTimer('nextContestTime') || unsafeWindow.has_contests_datas ||$(".contest .ended button[rel='claim']").length>0){
                 logHHAuto("Time to get contest rewards.");
                 busy = doContestStuff();
-            }
-        }
-
-        if(busy === false && getHHScriptVars("isEnabledPowerPlaces",false) && getStoredValue("HHAuto_Setting_autoPowerPlaces") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true")
-        {
-
-            var popToStart = getStoredValue("HHAuto_Temp_PopToStart")?JSON.parse(getStoredValue("HHAuto_Temp_PopToStart")):[];
-            if (popToStart.length != 0 || checkTimer('minPowerPlacesTime'))
-            {
-                //if PopToStart exist bypass function
-                var popToStartExist = getStoredValue("HHAuto_Temp_PopToStart")?true:false;
-                //logHHAuto("startcollect : "+popToStartExist);
-                if (! popToStartExist)
-                {
-                    //logHHAuto("pop1:"+popToStart);
-                    logHHAuto("Go and collect");
-                    busy = true;
-                    busy = collectAndUpdatePowerPlaces();
-                }
-                var indexes=(getStoredValue("HHAuto_Setting_autoPowerPlacesIndexFilter")).split(";");
-
-                popToStart = getStoredValue("HHAuto_Temp_PopToStart")?JSON.parse(getStoredValue("HHAuto_Temp_PopToStart")):[];
-                //console.log(indexes, popToStart);
-                for(var pop of popToStart)
-                {
-                    if (busy === false && ! indexes.includes(String(pop)))
-                    {
-                        logHHAuto("PoP is no longer in list :"+pop+" removing it from start list.");
-                        removePopFromPopToStart(pop);
-                    }
-                }
-                popToStart = getStoredValue("HHAuto_Temp_PopToStart")?JSON.parse(getStoredValue("HHAuto_Temp_PopToStart")):[];
-                //logHHAuto("pop2:"+popToStart);
-                for(var index of indexes)
-                {
-                    if (busy === false && popToStart.includes(Number(index)))
-                    {
-                        logHHAuto("Time to do PowerPlace"+index+".");
-                        busy = true;
-                        busy = doPowerPlacesStuff(index);
-                    }
-                }
-                if (busy === false)
-                {
-                    //logHHAuto("pop3:"+getStoredValue("HHAuto_Temp_PopToStart"));
-                    popToStart = getStoredValue("HHAuto_Temp_PopToStart")?JSON.parse(getStoredValue("HHAuto_Temp_PopToStart")):[];
-                    //logHHAuto("pop3:"+popToStart);
-                    if (popToStart.length === 0)
-                    {
-                        //logHHAuto("removing popToStart");
-                        sessionStorage.removeItem('HHAuto_Temp_PopToStart');
-                        gotoPage(getHHScriptVars("pagesIDHome"));
-                    }
-                }
             }
         }
 
@@ -7536,6 +7601,12 @@ var autoLoop = function ()
                 moduleSimSeasonalMaskReward();
             }
             getSeasonalEventRemainingTime();
+            break;
+        case getHHScriptVars("pagesIDChampionsPage"):
+            moduleSimChampions();
+            break;
+        case getHHScriptVars("pagesIDClubChampion"):
+            moduleSimChampions();
             break;
     }
 
@@ -10461,6 +10532,8 @@ HHAuto_ToolTips.en.autoChamps = { version: "5.6.24", elementText: "Normal", tool
 HHAuto_ToolTips.en.autoChampsForceStart = { version: "5.6.76", elementText: "Force start", tooltip: "if enabled : will fight filtered champions even if not started."};
 HHAuto_ToolTips.en.autoChampsUseEne = { version: "5.6.24", elementText: "Buy tickets", tooltip: "If enabled : use Energy to buy tickets"};
 HHAuto_ToolTips.en.autoChampsFilter = { version: "5.6.24", elementText: "Filter", tooltip: "(values separated by ; 1 to 6)<br>Allow to set filter on champions to be fought"};
+HHAuto_ToolTips.en.ChampTeamButton = { version: "5.8.0", elementText: "Indicate team order", tooltip: "Add number for the prefered girl order to fight champion"};
+HHAuto_ToolTips.en.ChampGirlOrder = { version: "5.8.0", elementText: "", tooltip: "Girl to be used at position"};
 HHAuto_ToolTips.en.autoStats = { version: "5.6.24", elementText: "Money to keep", tooltip: "(Integer)<br>Automatically buy stats in market with money above the setted amount"};
 HHAuto_ToolTips.en.autoStatsSwitch = { version: "5.6.24", elementText: "Stats", tooltip: "Allow to on/off autoStats"};
 HHAuto_ToolTips.en.autoExpW = { version: "5.6.24", elementText: "Books", tooltip: "if enabled : allow to buy Exp in market<br>Only buy if money bank is above the value<br>Only buy if total Exp owned is below value"};
