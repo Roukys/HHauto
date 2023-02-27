@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.8.0
+// @version      5.8.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -32,7 +32,9 @@ GM_addStyle('.HHAutoScriptMenu .switch { position: relative; display: inline-blo
 GM_addStyle('.HHAutoScriptMenu input:checked + .slider.kobans { background-color: red; }'
             +'.HHAutoScriptMenu input:not(:checked) + .slider.round.kobans:before { background-color: red }'
             +'.HHAutoScriptMenu input:checked + .slider.round.kobans:before { background-color: white }')
-GM_addStyle('#pInfo {padding-left:3px; z-index:1;white-space: pre;position: absolute;right: 5%; left:77%; height:auto; top:11%; overflow: hidden; border: 1px solid #ffa23e; background-color: rgba(0,0,0,.5); border-radius: 5px; font-size:9pt;}');
+GM_addStyle('#pInfo {padding-left:3px; z-index:1;white-space: pre;position: absolute;right: 5%; left:57%; height:auto; top:11%; overflow: hidden; border: 1px solid #ffa23e; background-color: rgba(0,0,0,.5); border-radius: 5px; font-size:9pt; user-select: none; -webkit-user-select: none; -moz-user-select: none;}'
+            + '#pInfo ul {margin:0; padding:0; columns:2; list-style-type: none;}'
+            + '#pInfo ul li {margin:0}');
 //GM_addStyle('span.HHMenuItemName {font-size: xx-small; line-height: 150%}');
 //GM_addStyle('span.HHMenuItemName {font-size: smaller; line-height: 120%}');
 GM_addStyle('span.HHMenuItemName {padding-bottom:2px; line-height:120%}');
@@ -12411,92 +12413,94 @@ var updateData = function () {
         Tegzd+=(getStoredValue("HHAuto_Setting_master") ==="true"?"<span style='color:LimeGreen'>HH auto ++ ON":"<span style='color:red'>HH auto ++ OFF")+'</span>';
         //Tegzd+=(getStoredValue("HHAuto_Setting_master") ==="true"?"<span style='color:LimeGreen'>"+getTextForUI("master","elementText")+" : ON":"<span style='color:red'>"+getTextForUI("master","elementText")+" : OFF")+'</span>';
         //Tegzd+=getTextForUI("master","elementText")+' : '+(getStoredValue("HHAuto_Setting_master") ==="true"?"<span style='color:LimeGreen'>ON":"<span style='color:red'>OFF")+'</span>';
+        Tegzd += '<ul>';
         if (getStoredValue("HHAuto_Setting_paranoia") =="true")
         {
-            Tegzd += '<br>'+getStoredValue("HHAuto_Temp_pinfo")+': '+getTimeLeft('paranoiaSwitch');
+            Tegzd += '<li>'+getStoredValue("HHAuto_Temp_pinfo")+': '+getTimeLeft('paranoiaSwitch')+'</li>';
         }
         if (getHHScriptVars('isEnabledTrollBattle',false) && getStoredValue("HHAuto_Setting_autoTrollBattle") =="true")
         {
-            Tegzd += '<br>'+getTextForUI("autoTrollTitle","elementText")+' : '+getHHVars('Hero.energies.fight.amount')+'/'+getHHVars('Hero.energies.fight.max_amount');
+            Tegzd += '<li>'+getTextForUI("autoTrollTitle","elementText")+' : '+getHHVars('Hero.energies.fight.amount')+'/'+getHHVars('Hero.energies.fight.max_amount')+'</li>';
         }
         if (getHHScriptVars("isEnabledSalary",false) && getStoredValue("HHAuto_Setting_autoSalary") =="true")
         {
-            Tegzd += '<br>'+getTextForUI("autoSalary","elementText")+' : '+getTimeLeft('nextSalaryTime');
+            Tegzd += '<li>'+getTextForUI("autoSalary","elementText")+' : '+getTimeLeft('nextSalaryTime')+'</li>';
         }
         if (getHHScriptVars('isEnabledSeason',false) && getStoredValue("HHAuto_Setting_autoSeason") =="true")
         {
-            Tegzd += '<br>'+getTextForUI("autoSeasonTitle","elementText")+' : '+getHHVars('Hero.energies.kiss.amount')+'/'+getHHVars('Hero.energies.kiss.max_amount')+' ('+getTimeLeft('nextSeasonTime')+')';
+            Tegzd += '<li>'+getTextForUI("autoSeasonTitle","elementText")+' : '+getHHVars('Hero.energies.kiss.amount')+'/'+getHHVars('Hero.energies.kiss.max_amount')+' ('+getTimeLeft('nextSeasonTime')+')'+'</li>';
         }
         /*if (getHHScriptVars('isEnabledSeason',false) && getStoredValue("HHAuto_Setting_autoSeasonCollect") =="true")
         {
-            Tegzd += '<br>'+getTextForUI("autoSeasonCollect","elementText")+" "+getTextForUI("autoSeasonTitle","elementText")+' : '+getTimeLeft('nextSeasonCollectTime');
+            Tegzd += '<li>'+getTextForUI("autoSeasonCollect","elementText")+" "+getTextForUI("autoSeasonTitle","elementText")+' : '+getTimeLeft('nextSeasonCollectTime')+'</li>';
         }*/
         if (getHHScriptVars('isEnabledLeagues',false) && getStoredValue("HHAuto_Setting_autoLeagues") =="true")
         {
-            Tegzd += '<br>'+getTextForUI("autoLeaguesTitle","elementText")+' : '+getHHVars('Hero.energies.challenge.amount')+'/'+getHHVars('Hero.energies.challenge.max_amount')+' ('+getTimeLeft('nextLeaguesTime')+')';
+            Tegzd += '<li>'+getTextForUI("autoLeaguesTitle","elementText")+' : '+getHHVars('Hero.energies.challenge.amount')+'/'+getHHVars('Hero.energies.challenge.max_amount')+' ('+getTimeLeft('nextLeaguesTime')+')'+'</li>';
         }
         if (getHHScriptVars("isEnabledChamps",false) && getStoredValue("HHAuto_Setting_autoChamps") =="true")
         {
-            Tegzd += '<br>'+getTextForUI("autoChampsTitle","elementText")+' : '+getTimeLeft('nextChampionTime');
+            Tegzd += '<li>'+getTextForUI("autoChampsTitle","elementText")+' : '+getTimeLeft('nextChampionTime')+'</li>';
         }
         if (getHHScriptVars("isEnabledClubChamp",false) && getStoredValue("HHAuto_Setting_autoClubChamp") =="true")
         {
-            Tegzd += '<br>'+getTextForUI("autoClubChamp","elementText")+' : '+getTimeLeft('nextClubChampionTime');
+            Tegzd += '<li>'+getTextForUI("autoClubChamp","elementText")+' : '+getTimeLeft('nextClubChampionTime')+'</li>';
         }
         if (getHHScriptVars('isEnabledPantheon',false) && getStoredValue("HHAuto_Setting_autoPantheon") =="true")
         {
-            Tegzd += '<br>'+getTextForUI("autoPantheonTitle","elementText")+' : '+getHHVars('Hero.energies.worship.amount')+'/'+getHHVars('Hero.energies.worship.max_amount')+' ('+getTimeLeft('nextPantheonTime')+')';
+            Tegzd += '<li>'+getTextForUI("autoPantheonTitle","elementText")+' : '+getHHVars('Hero.energies.worship.amount')+'/'+getHHVars('Hero.energies.worship.max_amount')+' ('+getTimeLeft('nextPantheonTime')+')'+'</li>';
         }
         if (getHHScriptVars("isEnabledShop",false))
         {
-            Tegzd += '<br>'+getTextForUI("autoBuy","elementText")+' : '+getTimeLeft('nextShopTime');
+            Tegzd += '<li>'+getTextForUI("autoBuy","elementText")+' : '+getTimeLeft('nextShopTime')+'</li>';
         }
         if (getHHScriptVars("isEnabledMission",false) && getStoredValue("HHAuto_Setting_autoMission") =="true")
         {
-            Tegzd += '<br>'+getTextForUI("autoMission","elementText")+' : '+getTimeLeft('nextMissionTime');
+            Tegzd += '<li>'+getTextForUI("autoMission","elementText")+' : '+getTimeLeft('nextMissionTime')+'</li>';
         }
         if (getHHScriptVars("isEnabledContest",false) && getStoredValue("HHAuto_Setting_autoContest") =="true")
         {
-            Tegzd += '<br>'+getTextForUI("autoContest","elementText")+' : '+getTimeLeft('nextContestTime');
+            Tegzd += '<li>'+getTextForUI("autoContest","elementText")+' : '+getTimeLeft('nextContestTime')+'</li>';
         }
         if (getHHScriptVars("isEnabledPowerPlaces",false) && getStoredValue("HHAuto_Setting_autoPowerPlaces") =="true")
         {
-            Tegzd += '<br>'+getTextForUI("autoPowerPlaces","elementText")+' : '+getTimeLeft('minPowerPlacesTime');
+            Tegzd += '<li>'+getTextForUI("autoPowerPlaces","elementText")+' : '+getTimeLeft('minPowerPlacesTime')+'</li>';
         }
         if ( getHHScriptVars("isEnabledPachinko",false) && getStoredValue("HHAuto_Setting_autoFreePachinko") =="true")
         {
             if (getTimer('nextPachinkoTime') !== -1)
             {
-                Tegzd += '<br>'+getTextForUI("autoFreePachinko","elementText")+' : '+getTimeLeft('nextPachinkoTime');
+                Tegzd += '<li>'+getTextForUI("autoFreePachinko","elementText")+' : '+getTimeLeft('nextPachinkoTime')+'</li>';
             }
             if (getTimer('nextPachinko2Time') !== -1)
             {
-                Tegzd += '<br>'+getTextForUI("autoMythicPachinko","elementText")+' : '+getTimeLeft('nextPachinko2Time');
+                Tegzd += '<li>'+getTextForUI("autoMythicPachinko","elementText")+' : '+getTimeLeft('nextPachinko2Time')+'</li>';
             }
         }
         if (getTimer('eventMythicNextWave') !== -1)
         {
-            Tegzd += '<br>'+getTextForUI("mythicGirlNext","elementText")+' : '+getTimeLeft('eventMythicNextWave');
+            Tegzd += '<li>'+getTextForUI("mythicGirlNext","elementText")+' : '+getTimeLeft('eventMythicNextWave')+'</li>';
         }
         if (getStoredValue("HHAuto_Temp_haveAff"))
         {
-            Tegzd += '<br>'+getTextForUI("autoAffW","elementText")+' : '+add1000sSeparator(getStoredValue("HHAuto_Temp_haveAff"));
+            Tegzd += '<li>'+getTextForUI("autoAffW","elementText")+' : '+add1000sSeparator(getStoredValue("HHAuto_Temp_haveAff"))+'</li>';
         }
         if (getStoredValue("HHAuto_Temp_haveExp"))
         {
-            Tegzd += '<br>'+getTextForUI("autoExpW","elementText")+' : '+add1000sSeparator(getStoredValue("HHAuto_Temp_haveExp"));
+            Tegzd += '<li>'+getTextForUI("autoExpW","elementText")+' : '+add1000sSeparator(getStoredValue("HHAuto_Temp_haveExp"))+'</li>';
         }
         /*if (isJSON(getStoredValue("HHAuto_Temp_BoostersData")))
         {
             for(let boost of JSON.parse(getStoredValue("HHAuto_Temp_BoostersData")))
             {
-                Tegzd += `<br>${boost.rarity} <img class="iconImg" src="${boost.ico}" /> : ${getBoosterExpiration(boost)}`;
+                Tegzd += `<li>${boost.rarity} <img class="iconImg" src="${boost.ico}" /> : ${getBoosterExpiration(boost)} </li>`;
             }
         }*/
+        Tegzd += '</ul>';
         //if (Tegzd.length>0)
         //{
         document.getElementById('pInfo').style.display='block';
-        document.getElementById('pInfo').innerHTML =Tegzd;  //document.getElementById('pInfo').textContent=Tegzd;
+        document.getElementById('pInfo').innerHTML = Tegzd; //document.getElementById('pInfo').textContent=Tegzd;
         // }
         // else
         // {
@@ -13902,7 +13906,7 @@ var start = function () {
                     +'#pInfo:hover {'
                     +'   padding-top : 22px;'
                     +'   height : auto;'
-                    +'   left : 77%;'
+                    +'   left : 57%;'
                     +'}'
                     +'#pInfo {'
                     +'   right : 1%;'
