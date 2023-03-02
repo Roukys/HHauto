@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.8.1
+// @version      5.8.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -4144,7 +4144,7 @@ function goAndCollectSeason()
             let limitClassPass = "";
             if ($("div#gsp_btn_holder:visible").length)
             {
-                limitClassPass = ".free-reward"; // without season pass
+                limitClassPass = ".free_reward"; // without season pass
             }
 
             let buttonsToCollect = [];
@@ -10418,7 +10418,7 @@ HHEnvVariables["SH_prod"].isEnabledPoG = false;// to remove when PoG arrives in 
                                           'Headmistress Asa Akira',
                                           'Sammy Jayne',
                                           'Ivy Winters',
-                                          'Lily Cade',
+                                          'Sophia  Jade',
                                           'Amia Miley',
                                           'Alyssa Reece',
                                           'Kelly Kline',
