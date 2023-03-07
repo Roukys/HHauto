@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.8.2
+// @version      5.8.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -8994,10 +8994,18 @@ function parseEventPage(inTab="global")
                             try {
                                 let parsedURL = new URL(girlData.source.anchor_source.url,window.location.origin);
                                 TrollID = queryStringGetParam(parsedURL.search,'id_opponent');
+                                if (girlData.source.anchor_source.disabled) {
+                                    logHHAuto("Troll " + TrollID + " is not available for girl " +  girlName + " (" + girlId + ") ignoring");
+                                    TrollID = undefined;
+                                }
                             } catch (error) {
                                 try {
                                     let parsedURL = new URL(girlData.source.anchor_win_from[0].url ,window.location.origin);
                                     TrollID = queryStringGetParam(parsedURL.search,'id_opponent');
+                                    if (girlData.source.anchor_win_from.disabled) {
+                                        logHHAuto("Troll " + TrollID + " is not available for girl " +  girlName + " (" + girlId + ") ignoring");
+                                        TrollID = undefined;
+                                    }
                                 } catch (error) {
                                     logHHAuto("Can't get troll from girls " +  girlName + " (" + girlId + ")");
                                 }
@@ -9005,9 +9013,17 @@ function parseEventPage(inTab="global")
                         } else if (girlData.source.name === 'event_champion_girl') {
                             try {
                                 ChampID = girlData.source.anchor_source.url.split('/champions/')[1];
+                                if (girlData.source.anchor_source.disabled) {
+                                    logHHAuto("Champion " + ChampID + " is not available for girl " +  girlName + " (" + girlId + ") ignoring");
+                                    ChampID = undefined;
+                                }
                             } catch (error) {
                                 try {
                                     ChampID = girlData.source.anchor_win_from[0].url.split('/champions/')[1];
+                                    if (girlData.source.anchor_win_from.disabled) {
+                                        logHHAuto("Champion " + ChampID + " is not available for girl " +  girlName + " (" + girlId + ") ignoring");
+                                        ChampID = undefined;
+                                    }
                                 } catch (error) {
                                     logHHAuto("Can't get champion from girls " +  girlName + " (" + girlId + ")");
                                 }
@@ -9065,8 +9081,12 @@ function parseEventPage(inTab="global")
                             let girlShards = girlData.shards;
                             let parsedURL = new URL(girlData.source.anchor_source.url,window.location.origin);
                             TrollID = queryStringGetParam(parsedURL.search,'id_opponent');
-                            logHHAuto("Event girl : "+girlName+" ("+girlShards+"/100) at troll "+TrollID+" priority : "+Priority.indexOf(TrollID)+" on event : ",eventID);
-                            eventsGirlz.push({girl_id:girlId,troll_id:TrollID,girl_shards:girlShards,is_mythic:"true",girl_name:girlName,event_id:eventID});
+                            if (girlData.source.anchor_source.disabled) {
+                                logHHAuto("Troll " + TrollID + " is not available for mythic girl " +  girlName + " (" + girlId + ") ignoring");
+                            } else {
+                                logHHAuto("Event girl : "+girlName+" ("+girlShards+"/100) at troll "+TrollID+" priority : "+Priority.indexOf(TrollID)+" on event : ",eventID);
+                                eventsGirlz.push({girl_id:girlId,troll_id:TrollID,girl_shards:girlShards,is_mythic:"true",girl_name:girlName,event_id:eventID});
+                            }
                         }
                         else
                         {
