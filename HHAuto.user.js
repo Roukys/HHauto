@@ -14702,9 +14702,9 @@ $(document).on('click', '.harem-girl , .variation_girl', function (e) {
 
     $.ajax({
         url: 'https://api.github.com/repos/S5gbe8Fe962HgB/HH/contents/girls_scenes/' + girl_id,
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader('Authorization', 'Bearer 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'); // https://github.com/settings/tokens
-        },
+        //beforeSend: function (xhr) {
+        //    xhr.setRequestHeader('Authorization', 'Bearer key');
+        //},
         success: function (data) { // If there is a folder on git
 
             // 1. no scenes or a girl closed - generate img from the git
