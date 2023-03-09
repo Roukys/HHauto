@@ -14703,7 +14703,7 @@ $(document).on('click', '.harem-girl , .variation_girl', function (e) {
     $.ajax({
         url: 'https://api.github.com/repos/S5gbe8Fe962HgB/HH/contents/girls_scenes/' + girl_id,
         beforeSend: function (xhr) {
-            xhr.setRequestHeader('Authorization', 'Bearer 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'); // https://github.com/settings/tokens
+            xhr.setRequestHeader('Authorization', 'Bearer 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'); // https://github.com/settings/tokens
         },
         success: function (data) { // If there is a folder on git
 
