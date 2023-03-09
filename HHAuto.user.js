@@ -14643,3 +14643,137 @@ function calculateCritChanceShare(ownHarmony, otherHarmony)
 {
     return 0.3*ownHarmony/(ownHarmony+otherHarmony)
 }
+
+// ===========================================================================================================================
+
+function async_ajax(url, method, dataType, data = null) {
+    return new Promise(function (resolve, reject) {
+        $.ajax({
+            url: url,
+            method: method,
+            dataType: dataType, /*  (xml, json, script, html). */
+            data: data,
+            beforeSend: function () {},
+            success: function (data) {
+                resolve(data) // Resolve promise and when success
+            },
+            error: function (err) {
+                reject(err) // Reject the promise and go to catch()
+            }
+        });
+    });
+}
+
+function async_img_to_base64(url) {
+    return new Promise(function (resolve, reject) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('get', url);
+        xhr.responseType = 'blob';
+        xhr.onload = function () {
+            var fr = new FileReader();
+
+            fr.onload = function () {
+                resolve(this.result)
+            };
+
+            fr.readAsDataURL(xhr.response);
+        };
+
+        xhr.send();
+    });
+}
+// ========
+
+$('head').append('<style>	.stars_container {		position: absolute;		top: 410px;		left: 90px;	}	.stars_container .star {		display: inline-block;		margin: 0 -2px;		text-decoration: none;	}	.stars_container .star g {		display: inline-block;		width: 35px;height: 35px;		background: url(https://hh2.hh-content.com/design_v2/affstar.png) center no-repeat;background-size: contain;} #hh_share_scenes , #hh_share_scenes_thanks {  position: absolute;		top: 360px;		left: 10px;	}  </style>');
+
+// ========
+
+$(document).on('click', '.harem-girl , .variation_girl', function (e) {
+    if (getHHScriptVars("HHGameName") != 'HH_prod') return; // HH_test HH_prod
+
+    var generate_scenes = false;
+    var count_orig_scenes = 0;
+    var girl_id = $(this).attr('girl');
+
+    // If the last star is gray, then the girl is not open or all the scenes are not open
+    if ($(this).find('.graded g:last-child').hasClass("grey")) generate_scenes = true;
+    // have girl and full scenes
+    else count_orig_scenes = $('#harem_right .girl_infos_area .girl_quests a').length;
+
+    $.ajax({
+        url: 'https://api.github.com/repos/S5gbe8Fe962HgB/HH/contents/girls_scenes/' + girl_id,
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader('Authorization', 'Bearer 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'); // https://github.com/settings/tokens
+        },
+        success: function (data) { // If there is a folder on git
+
+            // 1. no scenes or a girl closed - generate img from the git
+            if (generate_scenes) {
+                var stars_tpl = '<div class="stars_container">';
+                for (let i = 0; i < data.length; i++) {
+                    stars_tpl += '<a target="_blank" href="' + data[i]['download_url'] + '" class="star"><g></g></a>';
+                }
+                stars_tpl += '</div>';
+                $('#harem_right .middle_part').append(stars_tpl);
+            } else {
+                // not enough img on git
+                if (count_orig_scenes != data.length)
+                    $('#harem_right .middle_part').append('<button id="hh_share_scenes" class="blue_button_L">Share scenes to community</button>');
+            }
+        },
+        error: function (data) { // no img on git
+            // and girl full scenes
+            if (count_orig_scenes > 0)
+                $('#harem_right .middle_part').append('<button id="hh_share_scenes" class="blue_button_L">Share scenes to community</button>');
+        },
+    });
+
+});
+
+
+$(document).on('click', '#hh_share_scenes', async function (e) {
+    if (getHHScriptVars("HHGameName") != 'HH_prod') return;
+
+    $('#hh_share_scenes').attr('disabled', 'disabled');
+
+    // scenes elems
+    var scenes = $('#harem_right .girl_quests a');
+    var scenes_img = [];
+    var scenes_img_src = [];
+    var girl_id = $('#harem_right div.opened').attr('girl');
+
+    for (let i = 0; i < scenes.length; i++) {
+
+        // get/generate scene img
+        let scene_page = await async_ajax(scenes[i].href, 'GET', 'html');
+        let el = document.createElement('html');
+        el.innerHTML = scene_page;
+        scenes_img.push(await async_img_to_base64(el.querySelector("#background").src));
+        scenes_img_src.push(el.querySelector("#background").src);
+
+        // if last - send
+        if (i == scenes.length - 1) {
+            let answer = await async_ajax( 'https://hh.api99.site/get_hh_img.php' , 'POST', 'json', {
+                step: 'send_hh_img',
+                user_id: getHHVars('Hero.infos.id'),
+                girl_id: girl_id,
+                scenes_img: scenes_img,
+                scenes_img_src: scenes_img_src
+            });
+
+            if (answer['status'] == 'success') {
+                $('#hh_share_scenes').hide(300);
+                $('#harem_right .middle_part').append('<h3 id="hh_share_scenes_thanks">Thanks for share!<br/>We soon publish scenes for all!</h3>');
+            }
+            if (answer['status'] == 'error') {
+                $('#hh_share_scenes').hide(300);
+                $('#harem_right .middle_part').append('<h3 id="hh_share_scenes_thanks">Error!<br/>Please try again!</h3>');
+            }
+        }
+    }
+
+    $('#hh_share_scenes').removeAttr('disabled');
+});
+
+// ===========================================================================================================================
+
