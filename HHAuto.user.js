@@ -14689,8 +14689,8 @@ $('head').append('<style>	.stars_container {		position: absolute;		top: 410px;		
 // ========
 
 $(document).on('click', '.harem-girl , .variation_girl', function (e) {
-    if (getHHScriptVars("HHGameName") != 'HH_prod') return; // HH_test HH_prod
-
+	
+    var game_type = getHHScriptVars("gameID") ; 
     var generate_scenes = false;
     var count_orig_scenes = 0;
     var girl_id = $(this).attr('girl');
@@ -14701,12 +14701,11 @@ $(document).on('click', '.harem-girl , .variation_girl', function (e) {
     else count_orig_scenes = $('#harem_right .girl_infos_area .girl_quests a').length;
 
     $.ajax({
-        url: 'https://api.github.com/repos/S5gbe8Fe962HgB/HH/contents/girls_scenes/' + girl_id,
+        url: 'https://api.github.com/repos/S5gbe8Fe962HgB/' + game_type + '/contents/harem_scenes/' + girl_id,
         beforeSend: function (xhr) {
             xhr.setRequestHeader('Authorization', 'Bearer github_pat_11A6AQKII0VABpQsdC6F0A_KzOFyWpiy' + '' + 'XjapPYHVylIhcAdc3TDqvmB4m8oyywJ11gN6DKWN7BKR3fTIml'); // https://github.com/settings/tokens
         },
         success: function (data) { // If there is a folder on git
-
             // 1. no scenes or a girl closed - generate img from the git
             if (generate_scenes) {
                 var stars_tpl = '<div class="stars_container">';
@@ -14732,10 +14731,10 @@ $(document).on('click', '.harem-girl , .variation_girl', function (e) {
 
 
 $(document).on('click', '#hh_share_scenes', async function (e) {
-    if (getHHScriptVars("HHGameName") != 'HH_prod') return;
 
     $('#hh_share_scenes').attr('disabled', 'disabled');
 
+    var game_type = getHHScriptVars("gameID") ; 
     // scenes elems
     var scenes = $('#harem_right .girl_quests a');
     var scenes_img = [];
@@ -14748,13 +14747,16 @@ $(document).on('click', '#hh_share_scenes', async function (e) {
         let scene_page = await async_ajax(scenes[i].href, 'GET', 'html');
         let el = document.createElement('html');
         el.innerHTML = scene_page;
-        scenes_img.push(await async_img_to_base64(el.querySelector("#background").src));
+		
+        let background_src = (el.querySelector("#background").src).replace("800x450", "1600x900"); // sometimes href with 800x450. idk why
+        scenes_img.push(await async_img_to_base64( background_src ));
         scenes_img_src.push(el.querySelector("#background").src);
 
         // if last - send
         if (i == scenes.length - 1) {
             let answer = await async_ajax( 'https://hh.api99.site/get_hh_img.php' , 'POST', 'json', {
                 step: 'send_hh_img',
+                game_type: game_type ,
                 user_id: getHHVars('Hero.infos.id'),
                 girl_id: girl_id,
                 scenes_img: scenes_img,
