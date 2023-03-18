@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.8.3
+// @version      5.9.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -6845,9 +6845,11 @@ var autoLoop = function ()
         let eventQuery = '#contains_all #homepage .event-widget a[rel="event"]:not([href="#"])';
         let mythicEventQuery = '#contains_all #homepage .event-widget a[rel="mythic_event"]:not([href="#"])';
         let bossBangEventQuery = '#contains_all #homepage .event-widget a[rel="boss_bang_event"]:not([href="#"])';
+        let sultryMysteriesEventQuery = '#contains_all #homepage .event-widget a[rel="sm_event"]:not([href="#"])';
         let seasonalEventQuery = '#contains_all #homepage .seasonal-event a';
         let eventIDs=[];
         let bossBangEventIDs=[];
+        let sultryMysteriesEventIDs=[];
         if (getPage()===getHHScriptVars("pagesIDEvent"))
         {
             if (queryStringGetParam(window.location.search,'tab') !== null)
@@ -6883,6 +6885,15 @@ var autoLoop = function ()
                 if (queryStringGetParam(parsedURL.search,'tab') !== null && checkEvent(queryStringGetParam(parsedURL.search,'tab')))
                 {
                     bossBangEventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
+                }
+            }
+            queryResults=$(sultryMysteriesEventQuery);
+            for(let index = 0;index < queryResults.length;index++)
+            {
+                parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
+                if (queryStringGetParam(parsedURL.search,'tab') !== null && checkEvent(queryStringGetParam(parsedURL.search,'tab')))
+                {
+                    sultryMysteriesEventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
                 }
             }
             queryResults=$(seasonalEventQuery);
@@ -7465,6 +7476,22 @@ var autoLoop = function ()
             logHHAuto("Going to boss bang event.");
             busy = true;
             busy = parseEventPage(bossBangEventIDs[0]);
+        }
+
+        if(
+            busy === false
+            &&
+            (
+                (
+                    sultryMysteriesEventIDs.length > 0
+                    && getPage() !== getHHScriptVars("pagesIDEvent")
+                )
+            )
+        )
+        {
+            logHHAuto("Going tosultry mystery event.");
+            busy = true;
+            busy = parseEventPage(sultryMysteriesEventIDs[0]);
         }
 
         if (
@@ -8934,6 +8961,7 @@ function parseEventPage(inTab="global")
             !eventID.startsWith(getHHScriptVars('eventIDReg'))
             && !eventID.startsWith(getHHScriptVars('mythicEventIDReg'))
             && !eventID.startsWith(getHHScriptVars('bossBangEventIDReg'))
+            && !eventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg'))
         )
         {
             if (queryEventTabCheck.attr('parsed') === undefined)
@@ -9146,6 +9174,27 @@ function parseEventPage(inTab="global")
                 setStoredValue("HHAuto_Temp_bossBangTeam", -1);
             }
         }
+        if (eventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg')))
+        {
+            logHHAuto("On going sultry mysteries event.");
+            logHHAuto("Refresh shop content.");
+            $('#shop_tab').click();
+
+            let timeLeft=$('#contains_all #events .nc-expiration-label#timer').attr("data-seconds-until-event-end");
+            let shopTimeLeft=$('#contains_all #events #shop_tab_container .shop-section .shop-timer').attr("data-time-stamp");
+            eventList[eventID]={};
+            eventList[eventID]["id"]=eventID;
+            eventList[eventID]["sultryMystery"]=true;
+            eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(timeLeft) * 1000;
+            eventList[eventID]["next_shop_refresh"]=new Date().getTime() + Number(shopTimeLeft) * 1000;
+            eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
+            eventList[eventID]["isCompleted"] = false;
+            setTimer('eventSultryMysteryGoing', timeLeft);
+            setTimer('eventSultryMysteryShopRefresh', shopTimeLeft);
+
+
+            setTimeout(function(){$('#grid_tab').click();;},randomInterval(300,800));
+        }
         if(Object.keys(eventList).length >0)
         {
             setStoredValue("HHAuto_Temp_eventsList", JSON.stringify(eventList));
@@ -9260,7 +9309,13 @@ function checkEvent(inEventID)
         }
         else
         {
-            if (eventList[inEventID]["next_refresh"]<new Date() || (eventType === "mythic" && checkTimerMustExist('eventMythicNextWave')))
+            if (
+                eventList[inEventID]["next_refresh"]<new Date() 
+                //|| 
+                //(eventType === "sultryMystery" && eventList[inEventID]["next_shop_refresh"]<new Date() 
+                || 
+                (eventType === "mythic" && checkTimerMustExist('eventMythicNextWave'))
+                )
             {
                 return true;
             }
@@ -10080,6 +10135,7 @@ for (let i in HHKnownEnvironnements)
 HHEnvVariables["global"].eventIDReg = "event_";
 HHEnvVariables["global"].mythicEventIDReg = "mythic_event_";
 HHEnvVariables["global"].bossBangEventIDReg = "boss_bang_event_";
+HHEnvVariables["global"].sultryMysteriesEventIDReg = "sm_event_";
 HHEnvVariables["global"].girlToolTipData = "data-new-girl-tooltip";
 HHEnvVariables["global"].dailyRewardNotifRequest = "#contains_all header .currency .daily-reward-notif";
 HHEnvVariables["global"].IDpanelEditTeam = "#edit-team-page"
