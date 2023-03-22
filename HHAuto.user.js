@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.9.0
+// @version      5.9.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -4288,7 +4288,7 @@ var doSeason = function ()
             location.href = document.getElementsByClassName("opponent_perform_button_container")[chosenID].children[0].getAttribute('href');
             setStoredValue("HHAuto_Temp_autoLoop", "false");
             logHHAuto("setting autoloop to false");
-            logHHAuto("Going to crush : "+$("div.season_arena_opponent_container .hero_details div.hero_name")[chosenID].innerText);
+            logHHAuto("Going to crush : "+$("div.season_arena_opponent_container .personal_info div.player-name")[chosenID].innerText);
             setTimer('nextSeasonCollectTime',5);
             return true;
         }
@@ -4748,10 +4748,9 @@ function getLeagueOpponentId(opponentsIDList,force=false)
                    function(data)
                    {
                 //logHHAuto({log:"data for oppo",data:data});
-                //console.log(data.html.substring(data.html.indexOf(findText)+findText.length,data.html.indexOf('};')+1))
-                var opponentData = JSON.parse(data.html.substring(data.html.indexOf(findText)+findText.length,data.html.indexOf('};')+1));
+                var opponentData = data.player;
                 //console.log(opponentData);
-                const players=getLeaguePlayersData(getHHVars("heroLeaguesData"),opponentData);
+                const players=getLeaguePlayersData(getHHVars("hero_fighter"),opponentData);
 
                 //console.log(player,opponent);
                 let simu = calculateBattleProbabilities(players.player, players.opponent);
@@ -6015,7 +6014,7 @@ function getLeaguePlayersData(inHeroLeaguesData, inPlayerLeaguesData)
         hp: opponentEgo * (1 + dominanceBonuses.opponent.ego),
         dmg: (opponentAtk * (1 + dominanceBonuses.opponent.attack)) - (playerDef * (1 - opponentBonuses.defReduce)),
         critchance: calculateCritChanceShare(opponentCrit, playerCrit) + dominanceBonuses.opponent.chance + opponentBonuses.critChance,
-        name: $('#leagues_right .player_block .title').text(),
+        name: $('#leagues_right .leagues_team_block .title').text(),
         bonuses: opponentBonuses
     };
     return {player:player, opponent:opponent, dominanceBonuses:dominanceBonuses}
@@ -6038,8 +6037,12 @@ function moduleSimLeague() {
             return;
         }
 
-        var opponentData = getHHVars("playerLeaguesData");
-        let leaguePlayers = getLeaguePlayersData(getHHVars("heroLeaguesData"),opponentData);
+        let opponentData;
+        const opponentId = $('#leagues_right .avatar_border>img').attr('hero-page-id');
+        const loadedLeaguePlayers = getHHVars("loadedLeaguePlayers");
+        if(Object.keys(loadedLeaguePlayers).length) opponentData = loadedLeaguePlayers[opponentId].player;
+        else opponentData = getHHVars("opponent_fighter.player");
+        let leaguePlayers = getLeaguePlayersData(getHHVars("hero_fighter"), opponentData);
         //console.log("HH simuFight",JSON.stringify(leaguePlayers.player),JSON.stringify(leaguePlayers.opponent));
         let simu = calculateBattleProbabilities(leaguePlayers.player, leaguePlayers.opponent);
         //console.log(opponent);
@@ -6061,7 +6064,7 @@ function moduleSimLeague() {
         }
 
         const pointText = `${nRounding(100*simu.win, 2, -1)}% (${nRounding(expectedValue, 1, -1)})`;
-        $('div#leagues_right .player_block .challenge').prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${pointText}</div>`);
+        $('div#leagues_right .leagues_team_block  .challenge').prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${pointText}</div>`);
 
         if($('tr.lead_table_default td span.nickname span.OppoScore').length > 0) {
             $('tr.lead_table_default td span.nickname span.OppoScore').remove();
@@ -6072,18 +6075,18 @@ function moduleSimLeague() {
 
         //CSS
 
-        GM_addStyle('#leagues_right .player_block .lead_player_profile .level_wrapper {'
+        GM_addStyle('#leagues_right .leagues_team_block  .lead_player_profile .level_wrapper {'
                     + 'top: -8px !important;}'
                    );
 
-        GM_addStyle('#leagues_right .player_block .lead_player_profile .icon {'
+        GM_addStyle('#leagues_right .leagues_team_block  .lead_player_profile .icon {'
                     + 'top: 5px !important;}'
                    );
 
         GM_addStyle('@media only screen and (min-width: 1026px) {'
                     + '.matchRatingNew {'
                     + 'position: absolute;'
-                    + 'margin-top: 20px; '
+                    + 'margin-top: -25px; '
                     + 'margin-left: 20px; '
                     + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
                     + 'line-height: 17px; '
@@ -6132,7 +6135,7 @@ function moduleSimLeague() {
     })
     function waitOpnt() {
         setTimeout(function() {
-            if (JSON.parse($('div#leagues_right .player_block .team-hexagon-container .team-member-container[data-team-member-position=0] img').attr(girlDataName)))
+            if (JSON.parse($('div#leagues_right .leagues_team_block  .team-hexagon-container .team-member-container[data-team-member-position=0] img').attr(girlDataName)))
             {
                 SimPower();
             }
@@ -6143,7 +6146,7 @@ function moduleSimLeague() {
     }
     var observeCallback = function()
     {
-        var opntNameNew = $('div#leagues_right div.player_block div.title')[0].innerHTML
+        var opntNameNew = $('div#leagues_right div.leagues_team_block .title')[0].innerHTML
         if (opntName !== opntNameNew)
         {
             opntName = opntNameNew;
@@ -6501,7 +6504,7 @@ function moduleSimSeasonBattle()
             doDisplay=true;
         }
         const playerStats = {};
-        $('#season-arena .battle_hero .hero_stats .hero_stats_row div').each(function ()
+        $('#season-arena .battle_hero .player_stats .player_stats_row div').each(function ()
                                                                              {
             playerStats[$('span[carac]',this).attr('carac')]=$('span:not([carac])',this)[0].innerText.replace(/[^0-9]/gi, '');
         });
@@ -6516,8 +6519,8 @@ function moduleSimSeasonBattle()
             const teamElement = $('#season-arena .battle_hero .team-theme.icon')[i].attributes.src.value.match(/girls_elements\/(.*?).png/)[1];
             playerTeamElement.push(teamElement);
         }
-        const playerTeam = $('#season-arena .battle_hero .hero_team .team-member img').map((i, el) => $(el).data('new-girl-tooltip')).toArray();
-        const playerSynergies = JSON.parse($('#season-arena .battle_hero .hero_team .icon-area').attr('synergy-data'));
+        const playerTeam = $('#season-arena .battle_hero .player-team .team-member img').map((i, el) => $(el).data('new-girl-tooltip')).toArray();
+        const playerSynergies = JSON.parse($('#season-arena .battle_hero .player-team .icon-area').attr('synergy-data'));
         const playerTeamMemberElements = playerTeam.map(({element_data: {type: element}})=>element);
         const playerElements = calculateThemeFromElements(playerTeamMemberElements)
         const playerBonuses = {
@@ -6531,11 +6534,11 @@ function moduleSimSeasonBattle()
         for (let index=0;index<3;index++)
         {
 
-            const opponentName = $("div.hero_name",opponents[index])[0].innerText;
-            const opponentEgo = manageUnits($('.hero_stats .hero_stats_row span.pull_right',opponents[index])[2].innerText);
-            const opponentDef = manageUnits($('.hero_stats .hero_stats_row span.pull_right',opponents[index])[1].innerText);
-            const opponentAtk = manageUnits($('.hero_stats .hero_stats_row span.pull_right',opponents[index])[0].innerText);
-            const opponentCrit = manageUnits($('.hero_stats .hero_stats_row span.pull_right',opponents[index])[3].innerText);
+            const opponentName = $("div.player-name",opponents[index])[0].innerText;
+            const opponentEgo = manageUnits($('.player_stats .player_stats_row span.carac_value',opponents[index])[2].innerText);
+            const opponentDef = manageUnits($('.player_stats .player_stats_row span.carac_value',opponents[index])[1].innerText);
+            const opponentAtk = manageUnits($('.player_stats .player_stats_row span.carac_value',opponents[index])[0].innerText);
+            const opponentCrit = manageUnits($('.player_stats .player_stats_row span.carac_value',opponents[index])[3].innerText);
             const opponentTeam = $('.team-member img',opponents[index]).map((i, el) => $(el).data('new-girl-tooltip')).toArray();
             const opponentTeamMemberElements = opponentTeam.map(({element})=>element);
             const opponentElements = calculateThemeFromElements(opponentTeamMemberElements);
@@ -6577,7 +6580,7 @@ function moduleSimSeasonBattle()
 
             if (doDisplay)
             {
-                $('.hero_team .icon-area',opponents[index]).prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${nRounding(100*simu.win, 2, -1)}%</div>`);
+                $('.player-team .icon-area',opponents[index]).prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${nRounding(100*simu.win, 2, -1)}%</div>`);
             }
         }
 
