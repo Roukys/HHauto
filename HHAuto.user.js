@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.9.2
+// @version      5.9.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -4853,7 +4853,16 @@ var CrushThemFights=function()
         let hero=getHero();
         let hcConfirmValue = getHHVars('Hero.infos.hc_confirm');
         let remainingShards;
+        let previousPower = getStoredValue("HHAuto_Temp_trollPoints") !== undefined ? getStoredValue("HHAuto_Temp_trollPoints") : 0;
         let currentPower = Number(getHHVars('Hero.energies.fight.amount'));
+
+        var checkPreviousFightDone = function(){
+            // The goal of this function is to detect slow server response to avoid loop without fight
+            if(previousPower > 0 && previousPower == currentPower) {
+                setStoredValue("HHAuto_Temp_autoLoop", "false");
+                logHHAuto("Server seems slow to reply, setting autoloop to false to wait for troll page to load");
+            }
+        }
 
         //check if girl still available at troll in case of event
         if (TTF !== null)
@@ -4872,7 +4881,7 @@ var CrushThemFights=function()
                     )
                 )
                 {
-                    let rewardGirlz=$("#pre-battle #opponent-panel .fighter-rewards .rewards_list .girls_reward[data-rewards]");
+                    let rewardGirlz=$("#pre-battle .oponnent-panel .opponent_rewards .rewards_list .girls_reward[data-rewards]");
 
                     if (rewardGirlz.length ===0 || !rewardGirlz.attr('data-rewards').includes('"id_girl":'+JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_id))
                     {
@@ -5033,6 +5042,8 @@ var CrushThemFights=function()
                 logHHAuto("Crushing: "+Trollz[Number(TTF)]);
                 //console.log(battleButton);
                 //replaceCheatClick();
+                checkPreviousFightDone();
+                setStoredValue("HHAuto_Temp_trollPoints", currentPower);
                 battleButton[0].click();
             }
             else
@@ -5050,6 +5061,8 @@ var CrushThemFights=function()
         }
         else
         {
+            checkPreviousFightDone();
+            setStoredValue("HHAuto_Temp_trollPoints", currentPower);
             //replaceCheatClick();
             battleButton[0].click();
         }
@@ -10436,6 +10449,10 @@ HHEnvVariables["global"].pagesKnownList.push("SeasonalEvent");
 HHEnvVariables["global"].pagesIDPowerplacemain = "powerplacemain";
 HHEnvVariables["global"].pagesKnownList.push("Powerplacemain");
 
+HHEnvVariables["global"].pagesIDBattleTeams = "teams";
+HHEnvVariables["global"].pagesURLBattleTeams = "/teams.html";
+HHEnvVariables["global"].pagesKnownList.push("BattleTeams");
+
 HHEnvVariables["global"].pagesIDEditTeam = "edit-team";
 HHEnvVariables["global"].pagesURLEditTeam = "";
 HHEnvVariables["global"].pagesKnownList.push("EditTeam");
@@ -12475,6 +12492,11 @@ HHStoredVars.HHAuto_Temp_defaultCustomHaremSort =
     HHType:"Temp"
 };
 HHStoredVars.HHAuto_Temp_unkownPagesList =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_trollPoints =
     {
     storage:"sessionStorage",
     HHType:"Temp"
