@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.9.3
+// @version      5.10.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
 // @match        http*://*.haremheroes.com/*
@@ -2097,7 +2097,15 @@ function collectAndUpdatePowerPlaces()
         setStoredValue("HHAuto_Temp_Totalpops", $("div.pop_list div[pop_id]").length); //Count how many different POPs there are and store them locally
         logHHAuto("totalpops : "+getStoredValue("HHAuto_Temp_Totalpops"));
         var newFilter="";
-        $("div.pop_list div[pop_id]").each(function(){newFilter=newFilter+';'+$(this).attr('pop_id');});
+        if (getStoredValue("HHAuto_Setting_autoPowerPlacesInverted") === "true")
+        {
+            // starting from last one.
+            $("div.pop_list div[pop_id]").each(function(){newFilter=';'+$(this).attr('pop_id')+newFilter;});
+        }
+        else
+        {
+            $("div.pop_list div[pop_id]").each(function(){newFilter=newFilter+';'+$(this).attr('pop_id');});
+        }
         if (getStoredValue("HHAuto_Setting_autoPowerPlacesAll") === "true")
         {
             setStoredValue("HHAuto_Setting_autoPowerPlacesIndexFilter", newFilter.substring(1));
@@ -10625,6 +10633,7 @@ HHAuto_ToolTips.en.autoPowerPlaces = { version: "5.6.24", elementText: "Places o
 HHAuto_ToolTips.en.autoPowerPlacesIndexFilter = { version: "5.6.24", elementText: "Index Filter", tooltip: "(values separated by ;)<br>Allow to set filter and order on the PowerPlaces to do (order respected only when multiple powerPlace expires at the same time)"};//<table style='font-size: 8px;line-height: 1;'><tr><td>Reward</td>  <td>HC</td>    <td>CH</td>   <td>KH</td></tr><tr><td>Champ tickets & M¥</td>    <td>4</td>   <td>5</td>   <td>6</td></tr><tr><td>Kobans & K¥</td>  <td>7</td>   <td>8</td>   <td>9</td></tr><tr><td>Epic Book & K¥</td> <td>10</td>  <td>11</td> <td>12</td></tr><tr><td>Epic Orbs & K¥</td>  <td>13</td>  <td>14</td>  <td>15</td></tr><tr><td>Leg. Booster & K¥</td>   <td>16</td>  <td>17</td>  <td>18</td></tr><tr><td>Champions tickets & K¥</td>  <td>19</td>  <td>20</td>  <td>21</td></tr><tr><td>Epic Gift & K¥</td>  <td>22</td>  <td>23</td>  <td>24</td></tr></table>"};
 HHAuto_ToolTips.en.autoPowerPlacesAll = { version: "5.6.24", elementText: "Do All", tooltip: "If enabled : ignore filter and do all powerplaces (will update Filter with current ids)"};
 HHAuto_ToolTips.en.autoPowerPlacesPrecision = { version: "5.6.103", elementText: "PoP precision", tooltip: "If enabled : use more advanced algorithm to try and find best team instead of using auto. This is more useful when you have a smaller roster and may be very slow with large rosters."};
+HHAuto_ToolTips.en.autoPowerPlacesInverted = { version: "5.10.0", elementText: "PoP inverted", tooltip: "If enabled : fill the POP starting from the last one."};
 HHAuto_ToolTips.en.autoChampsTitle = { version: "5.6.24", elementText: "Champions"};
 HHAuto_ToolTips.en.autoChamps = { version: "5.6.24", elementText: "Normal", tooltip: "if enabled : Automatically do champions (if they are started and in filter only)"};
 HHAuto_ToolTips.en.autoChampsForceStart = { version: "5.6.76", elementText: "Force start", tooltip: "if enabled : will fight filtered champions even if not started."};
@@ -11398,6 +11407,17 @@ HHStoredVars.HHAuto_Setting_autoPowerPlacesAll =
     }
 };
 HHStoredVars.HHAuto_Setting_autoPowerPlacesPrecision =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+};
+HHStoredVars.HHAuto_Setting_autoPowerPlacesInverted =
     {
     default:"false",
     storage:"Storage()",
@@ -13001,16 +13021,27 @@ var start = function () {
                                     +`</div>`
                                 +`</div>`
                                 +`<div class="labelAndButton">`
-                                +`<span class="HHMenuItemName">${getTextForUI("autoPowerPlacesPrecision","elementText")}</span>`
-                                +`<div class="tooltipHH">`
-                                    +`<span class="tooltipHHtext">${getTextForUI("autoPowerPlacesPrecision","tooltip")}</span>`
-                                    +`<label class="switch">`
-                                        +`<input id="autoPowerPlacesPrecision" type="checkbox">`
-                                        +`<span class="slider round">`
-                                        +`</span>`
-                                    +`</label>`
+                                    +`<span class="HHMenuItemName">${getTextForUI("autoPowerPlacesPrecision","elementText")}</span>`
+                                    +`<div class="tooltipHH">`
+                                        +`<span class="tooltipHHtext">${getTextForUI("autoPowerPlacesPrecision","tooltip")}</span>`
+                                        +`<label class="switch">`
+                                            +`<input id="autoPowerPlacesPrecision" type="checkbox">`
+                                            +`<span class="slider round">`
+                                            +`</span>`
+                                        +`</label>`
+                                    +`</div>`
                                 +`</div>`
-                            +`</div>`
+                                +`<div class="labelAndButton">`
+                                    +`<span class="HHMenuItemName">${getTextForUI("autoPowerPlacesInverted","elementText")}</span>`
+                                    +`<div class="tooltipHH">`
+                                        +`<span class="tooltipHHtext">${getTextForUI("autoPowerPlacesInverted","tooltip")}</span>`
+                                        +`<label class="switch">`
+                                            +`<input id="autoPowerPlacesInverted" type="checkbox">`
+                                            +`<span class="slider round">`
+                                            +`</span>`
+                                        +`</label>`
+                                    +`</div>`
+                                +`</div>`
                             +`</div>`
                         +`</div>`
                     +`</div>`
