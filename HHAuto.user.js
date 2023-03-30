@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.11.1
+// @version      5.11.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh
 // @match        http*://*.haremheroes.com/*
@@ -247,7 +247,7 @@ function getCurLocale(){
 function convertTimeToInt(remainingTimer){
     let splittedTime = remainingTimer.split(' ');
     let newTimer = 0;
-    if (Number.isNaN(remainingTimer)) {    
+    if (Number.isNaN(remainingTimer)) {
         let curLocale = getCurLocale();
         for (let i = 0; i < splittedTime.length; i++) {
             switch (splittedTime[i].match(/[^0-9]+/)[0]) {
@@ -990,7 +990,7 @@ function doMissionStuff()
                 }
             }
             let time = $('.after_gift span[rel="expires"]').text();
-            if(time === undefined || time === null || time.length === 0)){
+            if(time === undefined || time === null || time.length === 0) {
                 logHHAuto("New mission time was undefined... Setting it manually to 10min.");
                 time = 10*60;
             }
