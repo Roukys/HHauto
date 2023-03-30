@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.10.0
+// @version      5.11.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
-// @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977
+// @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh
 // @match        http*://*.haremheroes.com/*
 // @match        http*://*.hentaiheroes.com/*
 // @match        http*://*.gayharem.com/*
@@ -235,6 +235,37 @@ function debugDate(sec_num){
 
 function getLimitTimeBeforeEnd(){
     return Number(getStoredValue("HHAuto_Setting_collectAllTimer"));
+}
+
+function getCurLocale(){
+    let uiLang = $('body[page][id]').attr('class').match(/lang-.*\b/)[0].split('-')[1];
+    if (uiLang === undefined || uiLang === null || uiLang.length == 0) {
+        logHHAuto('UI language not found or missing: ' + uiLang);
+    } else return uiLang;
+}
+
+function convertTimeToInt(remainingTimer){
+    let splittedTime = remainingTimer.split(' ');
+    let newTimer = 0;
+    if (Number.isNaN(remainingTimer)) {
+        let curLocale = getCurLocale();
+        for (let i = 0; i < splittedTime.length; i++) {
+            switch (splittedTime[i].match(/[^0-9]+/)[0]) {
+                case uiLanguage[curLocale].hours:
+                    newTimer += parseInt(splittedTime[i])*3600;
+                    break;
+                case uiLanguage[curLocale].minutes:
+                    newTimer += parseInt(splittedTime[i])*60;
+                    break;
+                case uiLanguage[curLocale].seconds:
+                    newTimer += parseInt(splittedTime[i]);
+                    break;
+            }
+        }
+    } else {
+       newTimer = remainingTimer;
+    }
+    return newTimer;
 }
 
 function logHHAuto(...args)
@@ -958,23 +989,12 @@ function doMissionStuff()
                     return true;
                 }
             }
-            var time;
-            for(var e in unsafeWindow.HHTimers.timers){
-                if (!unsafeWindow.HHTimers.timers[e].$elm) {continue;}
-                let element = unsafeWindow.HHTimers.timers[e].$elm[0];
-                while(element){
-                    if (element.id === "missions_counter" || (element.classList && element.classList.contains("after_gift"))) {
-                        time=unsafeWindow.HHTimers.timers[e].remainingTime;
-                        break;
-                    }
-                    element = element.parentNode;
-                }
-            }
-            if(time === undefined){
+            let time = $('.after_gift span[rel="expires"]').text();
+            if(time === undefined || time === null || time.length === 0) {
                 logHHAuto("New mission time was undefined... Setting it manually to 10min.");
                 time = 10*60;
             }
-            setTimer('nextMissionTime',Number(time)+1);
+            setTimer('nextMissionTime',Number(convertTimeToInt(time))+1);
         }
         // not busy
         return false;
@@ -1183,6 +1203,7 @@ function moduleSimChampions()
         const championRequiredPoses = getPoses($(".champions-over__champion-info.champions-animation .champion-pose"));
         const girlBoxes = $(".champions-middle__girl-selection.champions-animation .girl-selection__girl-box");
         var girlsPerPose={};
+        var girls=[];
         $(".hhgirlOrder").remove();
 
         girlBoxes.each(function(girlIndex,girlBox){
@@ -1198,14 +1219,18 @@ function moduleSimChampions()
             if(!girlsPerPose[poseNumber]) {girlsPerPose[poseNumber] = [];}
             girlsPerPose[poseNumber].push({data:girlData,htmlDom:$girl});
             girlsPerPose[poseNumber].sort((a,b) => b.data.damage - a.data.damage);
+            girls.push({data:girlData,htmlDom:$girl});
+            girls.sort((a,b) => a.data.damage - b.data.damage);
         });
 
         for(var i=0;i<10;i++) {
             var expectedPose = championRequiredPoses[i%5];
             if(girlsPerPose[expectedPose] && girlsPerPose[expectedPose].length > 0){
-                girlsPerPose[expectedPose][0].htmlDom.append('<span class="hhgirlOrder" title="'+getTextForUI("ChampGirlOrder","tooltip")+' '+(i+1)+'" style="position: absolute;top: 70px;left: 10px;z-index: 10;">'+(i+1)+'</span>');
+                let color = i >= 5 ? 'white' : 'gold';
+                girlsPerPose[expectedPose][0].htmlDom.append('<span class="hhgirlOrder" title="'+getTextForUI("ChampGirlOrder","tooltip")+' '+(i+1)+'" style="position: absolute;top: 41px;left: 3px;z-index: 10;color:'+color+';">'+(i+1)+'</span>');
                 girlsPerPose[expectedPose].shift();
             }
+            girls[i].htmlDom.append('<span class="hhgirlOrder" title="'+getTextForUI("ChampGirlLowOrder","tooltip")+' '+(i+1)+'" style="position: absolute;top: 41px;left: 47px;z-index: 10;color:silver;">'+(i+1)+'</span>');
         }
     };
 
@@ -2149,31 +2174,26 @@ function collectAndUpdatePowerPlaces()
 
         clearTimer('minPowerPlacesTime');
         clearTimer('maxPowerPlacesTime');
-        for(e in unsafeWindow.HHTimers.timers){
-            if (!unsafeWindow.HHTimers.timers[e].$elm) {continue;}
-            let element = unsafeWindow.HHTimers.timers[e].$elm[0];
-            while(element){
-                if (element.classList && element.classList.contains("pop_thumb")) {
-                    currIndex = $(unsafeWindow.HHTimers.timers[e].$elm[0]).parents('.pop_thumb_expanded').attr('pop_id');
-                    //if index is in filter
-                    if (filteredPops.includes(currIndex) && ! popUnableToStart.includes(currIndex))
-                    {
-                        currTime=unsafeWindow.HHTimers.timers[e].remainingTime;
-                        if (minTime === -1 || currTime === -1 || minTime>currTime)
-                        {
-                            minTime = currTime;
+  
+        let popListRemaining = $('#pop_info .pop_thumb .pop_thumb_remaining > span');
+        popListRemaining.each(function() {
+            let $elem=$(this);
+            let elementText=$elem.text();
+            currIndex = $elem.parents('.pop_thumb_expanded').attr('pop_id');
+            if (filteredPops.includes(currIndex) && ! popUnableToStart.includes(currIndex))
+            {
+                currTime=convertTimeToInt($elem.text());
+                if (minTime === -1 || currTime === -1 || minTime>currTime)
+                {
+                    minTime = currTime;
 
-                        }
-                        if (maxTime === -1 || maxTime<currTime)
-                        {
-                            maxTime = currTime;
-                        }
-                    }
-                    break;
                 }
-                element=element.parentNode;
+                if (maxTime === -1 || maxTime<currTime)
+                {
+                    maxTime = currTime;
+                }
             }
-        }
+        })
 
         if (minTime != -1)
         {
@@ -2182,7 +2202,11 @@ function collectAndUpdatePowerPlaces()
                 //force check of PowerPlaces every 7 hours
                 setTimer('minPowerPlacesTime',Number(20*60)+1);
             }
-            else
+            else if (getStoredValue("HHAuto_Setting_autoPowerPlacesAll") === "true")
+            {
+                setTimer('minPowerPlacesTime',Number(maxTime)+1);
+            }
+            else 
             {
                 setTimer('minPowerPlacesTime',Number(minTime)+1);
             }
@@ -5387,22 +5411,10 @@ var getFreeGreatPachinko = function(){
                 $('#playzone-replace-info button[data-free="true"]')[0].click();
             }
 
-            var npach = -1;
-            for(let e in unsafeWindow.HHTimers.timers)
+            var npach = $('.great_pachinko_timer span[rel="expires"]').text();
+            if(npach !== undefined && npach !== null && npach.length > 0)
             {
-                if (!unsafeWindow.HHTimers.timers[e].$elm) {continue;}
-                let element = unsafeWindow.HHTimers.timers[e].$elm[0];
-                while(element){
-                    if (element.classList && element.classList.contains("pachinko_change")) {
-                        npach=unsafeWindow.HHTimers.timers[e].remainingTime;
-                        break;
-                    }
-                    element=element.parentNode;
-                }
-            }
-            if(npach !== -1)
-            {
-                setTimer('nextPachinkoTime',Number(npach)+1);
+                setTimer('nextPachinkoTime',Number(convertTimeToInt(npach))+1);
             }
             else
             {
@@ -5444,26 +5456,14 @@ var getFreeMythicPachinko = function(){
                 $('#playzone-replace-info button[data-free="true"]')[0].click();
             }
 
-            var npach = -1;
-            for(var e in unsafeWindow.HHTimers.timers){
-                if (!unsafeWindow.HHTimers.timers[e].$elm) {continue;}
-                let element = unsafeWindow.HHTimers.timers[e].$elm[0];
-                while(element){
-                    if (element.classList && element.classList.contains("game-simple-block") && element.attributes
-                        && element.attributes['type-pachinko'] && element.attributes['type-pachinko'].value ==="mythic") {
-                        npach=unsafeWindow.HHTimers.timers[e].remainingTime;
-                        break;
-                    }
-                    element=element.parentNode;
-                }
-            }
-            if(npach !== -1)
+            var npach = $('.mythic-timer span[rel="expires"]').text();
+            if(npach !== undefined && npach !== null && npach.length > 0)
             {
-                setTimer('nextPachinko2Time',Number(npach)+1);
+                setTimer('nextPachinko2Time',Number(convertTimeToInt(npach))+1);
             }
             else
             {
-                logHHAuto("Unable to find Great Pachinko time, wait 1h.");
+                logHHAuto("Unable to find Mythic Pachinko time, wait 1h.");
                 setTimer('nextPachinko2Time',3600);
             }
         }
@@ -5508,21 +5508,10 @@ var updateShop=function()
         setStoredValue("HHAuto_Temp_charLevel", getHHVars('Hero.infos.level'));
 
         var nshop;
-        for(var e in unsafeWindow.HHTimers.timers){
-            if (!unsafeWindow.HHTimers.timers[e].$elm) {continue;}
-            let element = unsafeWindow.HHTimers.timers[e].$elm[0];
-            while(element){
-                if (element.classList && element.classList.contains("shop_count")) {
-                    nshop=unsafeWindow.HHTimers.timers[e].remainingTime;
-                    break;
-                }
-                element = element.parentNode;
-            }
-        }
-        let shopFrozenTimer = $('#shop > div.shop_count > span[rel="count"]')
+        let shopFrozenTimer = $('.shop div.shop_count span[rel="expires"]').first().text();
         if (nshop === undefined && shopFrozenTimer.length > 0)
         {
-            nshop = Number(shopFrozenTimer.attr("time"))
+            nshop = convertTimeToInt(shopFrozenTimer);
         }
         let shopTimer=60;
         if(nshop !== undefined && nshop !== 0)
@@ -10569,6 +10558,15 @@ var HHAuto_inputPattern = {
 }
 
 var HHAuto_ToolTips = {en:{}, fr:{}, es:{}, de:{}, it:{}};
+var uiLanguage = {
+    'en':{'hours': "h", minutes: "m", seconds: "s"}, 
+    'de_DE':{hours: "h", minutes: "m", seconds: "s"}, 
+    'es_ES':{hours: "h", minutes: "m", seconds: "s"}, 
+    'fr':{hours: "h", minutes: "m", seconds: "s"}, 
+    'it_IT':{hours: "h", minutes: "m", seconds: "s"}, 
+    'ru_RU':{hours: "ч", minutes: "мин", seconds: "сек"},
+    'ja_JP':{hours: "時間", minutes: "分", seconds: "秒"}
+};
 
 HHAuto_ToolTips.en.saveDebug = { version: "5.6.24", elementText: "Save Debug", tooltip: "Allow to produce a debug log file."};
 HHAuto_ToolTips.en.gitHub = { version: "5.6.24", elementText: "GitHub", tooltip: "Link to GitHub project."};
@@ -10641,6 +10639,7 @@ HHAuto_ToolTips.en.autoChampsUseEne = { version: "5.6.24", elementText: "Buy tic
 HHAuto_ToolTips.en.autoChampsFilter = { version: "5.6.24", elementText: "Filter", tooltip: "(values separated by ; 1 to 6)<br>Allow to set filter on champions to be fought"};
 HHAuto_ToolTips.en.ChampTeamButton = { version: "5.8.0", elementText: "Indicate team order", tooltip: "Add number for the prefered girl order to fight champion"};
 HHAuto_ToolTips.en.ChampGirlOrder = { version: "5.8.0", elementText: "", tooltip: "Girl to be used at position"};
+HHAuto_ToolTips.en.ChampGirlLowOrder = { version: "5.11.0", elementText: "", tooltip: "For Worst team, girl to be used at position"};
 HHAuto_ToolTips.en.autoStats = { version: "5.6.24", elementText: "Money to keep", tooltip: "(Integer)<br>Automatically buy stats in market with money above the setted amount"};
 HHAuto_ToolTips.en.autoStatsSwitch = { version: "5.6.24", elementText: "Stats", tooltip: "Allow to on/off autoStats"};
 HHAuto_ToolTips.en.autoExpW = { version: "5.6.24", elementText: "Books", tooltip: "if enabled : allow to buy Exp in market<br>Only buy if money bank is above the value<br>Only buy if total Exp owned is below value"};
