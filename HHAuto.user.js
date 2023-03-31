@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.11.4
+// @version      5.11.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh
 // @match        http*://*.haremheroes.com/*
@@ -242,18 +242,27 @@ function convertTimeToInt(remainingTimer){
     if (remainingTimer && remainingTimer.length > 0) {
         let splittedTime = remainingTimer.split(' ');
         for (let i = 0; i < splittedTime.length; i++) {
-            switch (splittedTime[i].match(/[^0-9]+/)[0]) {
-                case uiLanguage[HHAuto_Lang].hours:
+            let timerSymbol = splittedTime[i].match(/[^0-9]+/)[0];
+            switch (timerSymbol) {
+                case timerDefinitions[hhTimerLocale].days:
+                    newTimer += parseInt(splittedTime[i])*86400;
+                    break;
+                case timerDefinitions[hhTimerLocale].hours:
                     newTimer += parseInt(splittedTime[i])*3600;
                     break;
-                case uiLanguage[HHAuto_Lang].minutes:
+                case timerDefinitions[hhTimerLocale].minutes:
                     newTimer += parseInt(splittedTime[i])*60;
                     break;
-                case uiLanguage[HHAuto_Lang].seconds:
+                case timerDefinitions[hhTimerLocale].seconds:
                     newTimer += parseInt(splittedTime[i]);
                     break;
+                default:                    
+                    logHHAuto('Timer symbol not recognized: ' + timerSymbol);
             }
         }
+    } else {
+            logHHAuto('No valid timer definitions, reset to 15min');
+            newTimer = 15*60;
     }
     return newTimer;
 }
@@ -1091,11 +1100,11 @@ function getSeasonalEventRemainingTime()
 
 function getPoVRemainingTime()
 {
-    const poVTimerRequest = `#pov_tab_container > div.potions-paths-first-row > div.potions-paths-timer.timer[${getHHScriptVars("PoVPoGTimestampAttributeName")}]`;
+    const poVTimerRequest = '#pov_tab_container > div.potions-paths-first-row .potions-paths-timer span[rel=expires]';
 
     if ( $(poVTimerRequest).length > 0 && (getSecondsLeft("PoVRemainingTime") === 0 || getStoredValue("HHAuto_Temp_PoVEndDate") === undefined) )
     {
-        const poVTimer = Number($(poVTimerRequest).attr(getHHScriptVars("PoVPoGTimestampAttributeName")));
+        const poVTimer = Number(convertTimeToInt($(poVTimerRequest).text()));
         setTimer("PoVRemainingTime",poVTimer);
         setStoredValue("HHAuto_Temp_PoVEndDate",Math.ceil(new Date().getTime()/1000)+poVTimer);
     }
@@ -1103,11 +1112,11 @@ function getPoVRemainingTime()
 
 function getPoGRemainingTime()
 {
-    const poGTimerRequest = `#pog_tab_container > div.potions-paths-first-row > div.potions-paths-timer.timer[${getHHScriptVars("PoVPoGTimestampAttributeName")}]`;
+    const poGTimerRequest = '#pog_tab_container > div.potions-paths-first-row .potions-paths-timer span[rel=expires]';
 
     if ( $(poGTimerRequest).length > 0 && (getSecondsLeft("PoGRemainingTime") === 0 || getStoredValue("HHAuto_Temp_PoGEndDate") === undefined) )
     {
-        const poGTimer = Number($(poGTimerRequest).attr(getHHScriptVars("PoVPoGTimestampAttributeName")));
+        const poGTimer = Number(convertTimeToInt($(poGTimerRequest).text()));
         setTimer("PoGRemainingTime",poGTimer);
         setStoredValue("HHAuto_Temp_PoGEndDate",Math.ceil(new Date().getTime()/1000)+poGTimer);
     }
@@ -3313,9 +3322,9 @@ var doChampionStuff=function()
             const autoChampsForceStart = getStoredValue("HHAuto_Setting_autoChampsForceStart") === "true";
             let Started=Impression.split('/')[0].replace(/[^0-9]/gi, '')!="0";
             let OnTimerOld=$($('a.champion-lair div.champion-lair-name')[i+1]).find('div[rel=timer]').length>0;
-            let timerNew = Number(convertTimeToInt($($('a.champion-lair div.champion-lair-name')[i+1]).find('span[rel=expires]').text()));
+            let timerNew = $($('a.champion-lair div.champion-lair-name')[i+1]).find('span[rel=expires]').text();
             let OnTimerNew=false;
-            if ( ! isNaN(timerNew) && (timerNew > 0))
+            if ( isNaN(timerNew) && (timerNew.length > 0))
             {
                 OnTimerNew = true;
             }
@@ -3925,10 +3934,11 @@ function goAndCollectPoV()
 
     if (getPage() === getHHScriptVars("pagesIDPoV"))
     {
+        getPoVRemainingTime();
         const povEnd = getSecondsLeft("PoVRemainingTime");
         logHHAuto("PoV end in " + debugDate(povEnd));
 
-        if (checkTimer('nextPoVCollectAllTime') && povEnd < getLimitTimeBeforeEnd() && getStoredValue("HHAuto_Setting_autoPoVCollectAll") === "true")
+        if (checkTimer('nextPoVCollectAllTime') && povEnd < getLimitTimeBeforeEnd()*60 && getStoredValue("HHAuto_Setting_autoPoVCollectAll") === "true")
         {
             if ($(getHHScriptVars("selectorClaimAllRewards")).length > 0)
             {
@@ -4024,10 +4034,11 @@ function goAndCollectPoG()
 
     if (getPage() === getHHScriptVars("pagesIDPoG"))
     {
+        getPoGRemainingTime();
         const pogEnd = getSecondsLeft("PoGRemainingTime");
         logHHAuto("PoG end in " + debugDate(pogEnd));
 
-        if (checkTimer('nextPoGCollectAllTime') && pogEnd < getLimitTimeBeforeEnd() && getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true")
+        if (checkTimer('nextPoGCollectAllTime') && pogEnd < getLimitTimeBeforeEnd()*60 && getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true")
         {
             if ($(getHHScriptVars("selectorClaimAllRewards")).length > 0)
             {
@@ -4440,8 +4451,11 @@ function getLeagueOpponentListData()
         }
         else
         {
-            if (this.cells[3].innerHTML==='0/3' || this.cells[3].innerHTML==='1/3' || this.cells[3].innerHTML==='2/3')
+            if (this.cells[3].innerHTML.split('/').length===2 && this.cells[3].innerHTML.split('/')[0] < 3)
             {
+                Data.push(sorting_id);
+            } 
+            else if (this.cells[3].innerHTML.split('/').length===3 && this.cells[3].innerHTML.indexOf("-") >= 0) {
                 Data.push(sorting_id);
             }
         }
@@ -7604,14 +7618,14 @@ var autoLoop = function ()
             {
                 moduleSimPoVMaskReward();
             }
-            getPoVRemainingTime();
+            //getPoVRemainingTime();
             break;
         case getHHScriptVars("pagesIDPoG"):
             if (getStoredValue("HHAuto_Setting_PoGMaskRewards") === "true")
             {
                 moduleSimPoGMaskReward();
             }
-            getPoGRemainingTime();
+            //getPoGRemainingTime();
             break;
         case getHHScriptVars("pagesIDSeasonalEvent"):
             if (getStoredValue("HHAuto_Setting_SeasonalEventMaskRewards") === "true")
@@ -10541,15 +10555,21 @@ var HHAuto_inputPattern = {
 }
 
 var HHAuto_ToolTips = {en:{}, fr:{}, es:{}, de:{}, it:{}};
-var uiLanguage = {
-    'en':{'hours': "h", minutes: "m", seconds: "s"}, 
-    'de':{hours: "h", minutes: "m", seconds: "s"}, 
-    'es':{hours: "h", minutes: "m", seconds: "s"}, 
-    'fr':{hours: "h", minutes: "m", seconds: "s"}, 
-    'it':{hours: "h", minutes: "m", seconds: "s"}, 
-    'ru':{hours: "ч", minutes: "мин", seconds: "сек"},
-    'ja':{hours: "時間", minutes: "分", seconds: "秒"}
-};
+var hhTimerLocale = Phoenix.language;
+var timerDefinitions;
+if (hhTimerLocale !== undefined || hhTimerLocale !== null || hhTimerLocale.length > 0) {
+    timerDefinitions = {
+    [hhTimerLocale]: {
+        days: Phoenix.__.DateTime.time_short_days, 
+        hours: Phoenix.__.DateTime.time_short_hours, 
+        minutes: Phoenix.__.DateTime.time_short_min, 
+        seconds: Phoenix.__.DateTime.time_short_sec
+        }
+    }
+} else {
+    hhTimerLocale = 'en';
+    timerDefinitions = {'en':{days: "d", hours: "h", minutes: "m", seconds: "s"}};
+}
 
 HHAuto_ToolTips.en.saveDebug = { version: "5.6.24", elementText: "Save Debug", tooltip: "Allow to produce a debug log file."};
 HHAuto_ToolTips.en.gitHub = { version: "5.6.24", elementText: "GitHub", tooltip: "Link to GitHub project."};
