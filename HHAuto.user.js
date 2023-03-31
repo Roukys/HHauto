@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.11.3
+// @version      5.11.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh
 // @match        http*://*.haremheroes.com/*
@@ -237,28 +237,22 @@ function getLimitTimeBeforeEnd(){
     return Number(getStoredValue("HHAuto_Setting_collectAllTimer"));
 }
 
-function getCurLocale(){
-    let uiLang = $('body[page][id]').attr('class').match(/lang-.*\b/)[0].split('-')[1];
-    if (uiLang === undefined || uiLang === null || uiLang.length == 0) {
-        logHHAuto('UI language not found or missing: ' + uiLang);
-    } else return uiLang;
-}
-
 function convertTimeToInt(remainingTimer){
-    let splittedTime = remainingTimer.split(' ');
     let newTimer = 0;
-    let curLocale = getCurLocale();
-    for (let i = 0; i < splittedTime.length; i++) {
-        switch (splittedTime[i].match(/[^0-9]+/)[0]) {
-            case uiLanguage[curLocale].hours:
-                newTimer += parseInt(splittedTime[i])*3600;
-                break;
-            case uiLanguage[curLocale].minutes:
-                newTimer += parseInt(splittedTime[i])*60;
-                break;
-            case uiLanguage[curLocale].seconds:
-                newTimer += parseInt(splittedTime[i]);
-                break;
+    if (remainingTimer && remainingTimer.length > 0) {
+        let splittedTime = remainingTimer.split(' ');
+        for (let i = 0; i < splittedTime.length; i++) {
+            switch (splittedTime[i].match(/[^0-9]+/)[0]) {
+                case uiLanguage[HHAuto_Lang].hours:
+                    newTimer += parseInt(splittedTime[i])*3600;
+                    break;
+                case uiLanguage[HHAuto_Lang].minutes:
+                    newTimer += parseInt(splittedTime[i])*60;
+                    break;
+                case uiLanguage[HHAuto_Lang].seconds:
+                    newTimer += parseInt(splittedTime[i]);
+                    break;
+            }
         }
     }
     return newTimer;
@@ -3317,11 +3311,11 @@ var doChampionStuff=function()
             const autoChampsForceStartEventGirl = getStoredValue("HHAuto_Setting_autoChampsForceStartEventGirl") === "true";
             const autoChampsEventGirls = isJSON(getStoredValue("HHAuto_Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue("HHAuto_Temp_autoChampsEventGirls")):[];
             const autoChampsForceStart = getStoredValue("HHAuto_Setting_autoChampsForceStart") === "true";
-            let Started=Impression.split('/')[0].replace(/[^0-9]/gi, '')!="0" ;
-            let OnTimerOld=$($('a.champion-lair div.champion-lair-name')[i+1]).find('div[rel=timer]').length>0
-            let timerNew=Number($($('a.champion-lair div.champion-lair-name')[i+1]).find('div#championTimer').attr('timer'));
+            let Started=Impression.split('/')[0].replace(/[^0-9]/gi, '')!="0";
+            let OnTimerOld=$($('a.champion-lair div.champion-lair-name')[i+1]).find('div[rel=timer]').length>0;
+            let timerNew = Number(convertTimeToInt($($('a.champion-lair div.champion-lair-name')[i+1]).find('span[rel=expires]').text()));
             let OnTimerNew=false;
-            if ( ! isNaN(timerNew) && (timerNew > Math.ceil(new Date().getTime()/1000)))
+            if ( ! isNaN(timerNew) && (timerNew > 0))
             {
                 OnTimerNew = true;
             }
@@ -3386,37 +3380,23 @@ var doChampionStuff=function()
         }
 
         logHHAuto("No good candidate");
-        currTime = -1;
-        $('a.champion-lair div.champion-lair-name div#championTimer').each(function()
-                                                                           {
-            var timer = $(this).attr('timer');
-            var currTime=Number(timer)-Math.ceil(new Date().getTime()/1000);
 
-            if (minTime === -1 || currTime === -1 || minTime>currTime)
-            {
-                minTime = currTime;
-            }
-        });
-
-        for(e in unsafeWindow.HHTimers.timers){
-            try
-            {
-                var hhTimer = unsafeWindow.HHTimers.timers[e];
-                if(hhTimer.$elm[0].offsetParent && hhTimer.$elm[0].offsetParent.className === "champion-lair")
-                {
-                    currTime=hhTimer.remainingTime;
-                    if (minTime === -1 || currTime === -1 || minTime>currTime)
-                    {
-                        minTime = currTime;
-                    }
+        $('a.champion-lair div.champion-lair-name span[rel=expires]').each(function(){
+            let timerElm = $(this);
+            if (timerElm !== undefined && timerElm !== null && timerElm.length > 0) {
+                if (currTime == -1 || minTime == -1) {
+                    currTime = Number(convertTimeToInt(timerElm.text()));
+                    minTime = Number(convertTimeToInt(timerElm.text()));
+                } else {
+                    currTime = Number(convertTimeToInt(timerElm.text()));
+                    if (currTime > minTime) {minTime = currTime;}
                 }
-            }
-            catch(e)
+            } 
+            else 
             {
-                logHHAuto("Catched error : Could not parse champion timer : "+e);
+                logHHAuto("Catched error : Could not parse champion timer : "+timerElm);
             }
-
-        }
+        })
         //fetching min
 
 
@@ -10026,9 +10006,10 @@ function cmpVersions(a, b)
     return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }) ;
 }
 
+let HHAuto_Lang = 'en';
+
 function getLanguageCode()
 {
-    let HHAuto_Lang = 'en';
     try
     {
         if ($('html')[0].lang === 'en') {
@@ -10045,6 +10026,12 @@ function getLanguageCode()
         }
         else if ($('html')[0].lang === 'it_IT') {
             HHAuto_Lang = 'it';
+        }
+        else if ($('html')[0].lang === 'ja_JP') {
+            HHAuto_Lang = 'ja';
+        }
+        else if ($('html')[0].lang === 'ru_RU') {
+            HHAuto_Lang = 'ru';
         }
     }
     catch
@@ -10556,12 +10543,12 @@ var HHAuto_inputPattern = {
 var HHAuto_ToolTips = {en:{}, fr:{}, es:{}, de:{}, it:{}};
 var uiLanguage = {
     'en':{'hours': "h", minutes: "m", seconds: "s"}, 
-    'de_DE':{hours: "h", minutes: "m", seconds: "s"}, 
-    'es_ES':{hours: "h", minutes: "m", seconds: "s"}, 
+    'de':{hours: "h", minutes: "m", seconds: "s"}, 
+    'es':{hours: "h", minutes: "m", seconds: "s"}, 
     'fr':{hours: "h", minutes: "m", seconds: "s"}, 
-    'it_IT':{hours: "h", minutes: "m", seconds: "s"}, 
-    'ru_RU':{hours: "ч", minutes: "мин", seconds: "сек"},
-    'ja_JP':{hours: "時間", minutes: "分", seconds: "秒"}
+    'it':{hours: "h", minutes: "m", seconds: "s"}, 
+    'ru':{hours: "ч", minutes: "мин", seconds: "сек"},
+    'ja':{hours: "時間", minutes: "分", seconds: "秒"}
 };
 
 HHAuto_ToolTips.en.saveDebug = { version: "5.6.24", elementText: "Save Debug", tooltip: "Allow to produce a debug log file."};
