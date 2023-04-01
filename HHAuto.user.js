@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.11.5
+// @version      5.11.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh
 // @match        http*://*.haremheroes.com/*
@@ -3938,7 +3938,7 @@ function goAndCollectPoV()
         const povEnd = getSecondsLeft("PoVRemainingTime");
         logHHAuto("PoV end in " + debugDate(povEnd));
 
-        if (checkTimer('nextPoVCollectAllTime') && povEnd < getLimitTimeBeforeEnd()*60 && getStoredValue("HHAuto_Setting_autoPoVCollectAll") === "true")
+        if (checkTimer('nextPoVCollectAllTime') && (Math.floor(povEnd / 3600) % 24) < getLimitTimeBeforeEnd() && getStoredValue("HHAuto_Setting_autoPoVCollectAll") === "true")
         {
             if ($(getHHScriptVars("selectorClaimAllRewards")).length > 0)
             {
@@ -4038,7 +4038,7 @@ function goAndCollectPoG()
         const pogEnd = getSecondsLeft("PoGRemainingTime");
         logHHAuto("PoG end in " + debugDate(pogEnd));
 
-        if (checkTimer('nextPoGCollectAllTime') && pogEnd < getLimitTimeBeforeEnd()*60 && getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true")
+        if (checkTimer('nextPoGCollectAllTime') && (Math.floor(pogEnd / 3600) % 24) < getLimitTimeBeforeEnd() && getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true")
         {
             if ($(getHHScriptVars("selectorClaimAllRewards")).length > 0)
             {
@@ -4134,10 +4134,11 @@ function goAndCollectSeason()
 
     if (getPage() === getHHScriptVars("pagesIDSeason"))
     {
-        const seasonEnd = unsafeWindow.season_sec_untill_event_end;
+        getSeasonRemainingTime();
+        const seasonEnd = getSecondsLeft("SeasonRemainingTime");
         logHHAuto("Season end in " + debugDate(seasonEnd));
 
-        if (checkTimer('nextSeasonCollectAllTime') && seasonEnd < getLimitTimeBeforeEnd() && getStoredValue("HHAuto_Setting_autoSeasonCollectAll") === "true")
+        if (checkTimer('nextSeasonCollectAllTime') && (Math.floor(seasonEnd / 3600) % 24) < getLimitTimeBeforeEnd() && getStoredValue("HHAuto_Setting_autoSeasonCollectAll") === "true")
         {
             if($(getHHScriptVars("selectorClaimAllRewards")).length > 0)
             {
@@ -4451,11 +4452,10 @@ function getLeagueOpponentListData()
         }
         else
         {
-            if (this.cells[3].innerHTML.split('/').length===2 && this.cells[3].innerHTML.split('/')[0] < 3)
+            let challengesAttempts = this.cells[3].innerHTML;
+            if (challengesAttempts.length > 0 &&
+             ((challengesAttempts.length===3 && challengesAttempts[0] < 3) || (challengesAttempts.indexOf("-") !== -1)))
             {
-                Data.push(sorting_id);
-            } 
-            else if (this.cells[3].innerHTML.split('/').length===3 && this.cells[3].innerHTML.indexOf("-") >= 0) {
                 Data.push(sorting_id);
             }
         }
@@ -7551,7 +7551,7 @@ var autoLoop = function ()
             {
                 setTimeout(moduleSimSeasonMaskReward,500);
             }
-            getSeasonRemainingTime();
+            // getSeasonRemainingTime();
             break;
         case getHHScriptVars("pagesIDEvent"):
             if (getStoredValue("HHAuto_Setting_plusEvent") ==="true" || getStoredValue("HHAuto_Setting_plusEventMythic") ==="true")
@@ -10020,10 +10020,9 @@ function cmpVersions(a, b)
     return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }) ;
 }
 
-let HHAuto_Lang = 'en';
-
 function getLanguageCode()
 {
+    let HHAuto_Lang = 'en';
     try
     {
         if ($('html')[0].lang === 'en') {
