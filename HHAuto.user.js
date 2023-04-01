@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.11.7
+// @version      5.11.8
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh
 // @match        http*://*.haremheroes.com/*
@@ -10569,15 +10569,15 @@ var HHAuto_inputPattern = {
 }
 
 var HHAuto_ToolTips = {en:{}, fr:{}, es:{}, de:{}, it:{}};
-var hhTimerLocale = Phoenix.language;
+var hhTimerLocale = unsafeWindow.Phoenix.language;
 var timerDefinitions;
 if (hhTimerLocale !== undefined || hhTimerLocale !== null || hhTimerLocale.length > 0) {
     timerDefinitions = {
     [hhTimerLocale]: {
-        days: Phoenix.__.DateTime.time_short_days, 
-        hours: Phoenix.__.DateTime.time_short_hours, 
-        minutes: Phoenix.__.DateTime.time_short_min, 
-        seconds: Phoenix.__.DateTime.time_short_sec
+        days: unsafeWindow.Phoenix.__.DateTime.time_short_days, 
+        hours: unsafeWindow.Phoenix.__.DateTime.time_short_hours, 
+        minutes: unsafeWindow.Phoenix.__.DateTime.time_short_min, 
+        seconds: unsafeWindow.Phoenix.__.DateTime.time_short_sec
         }
     }
 } else {
