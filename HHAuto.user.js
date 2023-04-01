@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.11.6
+// @version      5.11.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh
 // @match        http*://*.haremheroes.com/*
@@ -9000,14 +9000,17 @@ function parseEventPage(inTab="global")
         if (eventID.startsWith(getHHScriptVars('eventIDReg')) && getStoredValue("HHAuto_Setting_plusEvent") ==="true")
         {
             logHHAuto("On going event.");
-            let timeLeft=$('#contains_all #events .nc-expiration-label#timer').attr("data-seconds-until-event-end");
+            let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
+            if (timeLeft !== undefined && timeLeft.length)
+            {
+                setTimer('eventGoing',Number(convertTimeToInt(timeLeft)));
+            } else setTimer('eventGoing', refreshTimer);
             eventList[eventID]={};
             eventList[eventID]["id"]=eventID;
             eventList[eventID]["isMythic"]=false;
-            eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(timeLeft) * 1000;
+            eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
             eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
             eventList[eventID]["isCompleted"] = true;
-            setTimer('eventGoing',timeLeft);
             let allEventGirlz = hhEventData ? hhEventData.girls : [];
             for (let currIndex = 0;currIndex<allEventGirlz.length;currIndex++)
             {
@@ -9076,14 +9079,18 @@ function parseEventPage(inTab="global")
         if (eventID.startsWith(getHHScriptVars('mythicEventIDReg')) && getStoredValue("HHAuto_Setting_plusEventMythic") ==="true")
         {
             logHHAuto("On going mythic event.");
-            let timeLeft=$('#contains_all #events .nc-expiration-label#timer').attr("data-seconds-until-event-end");
+            let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
+            if (timeLeft !== undefined && timeLeft.length)
+            {
+                setTimer('eventGoing',Number(convertTimeToInt(timeLeft)));
+            } else setTimer('eventGoing', refreshTimer);
             eventList[eventID]={};
             eventList[eventID]["id"]=eventID;
             eventList[eventID]["isMythic"]=true;
-            eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(timeLeft) * 1000;
+            eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
             eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
             eventList[eventID]["isCompleted"] = true;
-            setTimer('eventMythicGoing',timeLeft);
+            setTimer('eventMythicGoing',Number(convertTimeToInt(timeLeft)));
             let allEventGirlz = hhEventData ? hhEventData.girls : [];
             for (let currIndex = 0;currIndex<allEventGirlz.length;currIndex++)
             {
@@ -9134,15 +9141,19 @@ function parseEventPage(inTab="global")
         if (eventID.startsWith(getHHScriptVars('bossBangEventIDReg')) && getStoredValue("HHAuto_Setting_plusEventBossBang") ==="true")
         {
             logHHAuto("On going bossBang event.");
-            let timeLeft=$('#contains_all #events .nc-expiration-label#timer').attr("data-seconds-until-event-end");
+            let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
+            if (timeLeft !== undefined && timeLeft.length)
+            {
+                setTimer('eventGoing',Number(convertTimeToInt(timeLeft)));
+            } else setTimer('eventGoing', refreshTimer);
             eventList[eventID]={};
             eventList[eventID]["id"]=eventID;
             eventList[eventID]["isMythic"]=false;
             eventList[eventID]["bossBang"]=true;
-            eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(timeLeft) * 1000;
+            eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
             eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
             eventList[eventID]["isCompleted"] = $('#contains_all #events #boss_bang .completed-event').length > 0;
-            setTimer('eventBossBangGoing',timeLeft);
+            setTimer('eventBossBangGoing',Number(convertTimeToInt(timeLeft)));
             let teamEventz = $('#contains_all #events #boss_bang .boss-bang-teams-container .boss-bang-team-slot');
             let teamFound = false;
             const firstTeamToStartWith = getStoredValue("HHAuto_Setting_bossBangMinTeam");
@@ -9183,16 +9194,20 @@ function parseEventPage(inTab="global")
             logHHAuto("Refresh shop content.");
             $('#shop_tab').click();
 
-            let timeLeft=$('#contains_all #events .nc-expiration-label#timer').attr("data-seconds-until-event-end");
+            let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
+            if (timeLeft !== undefined && timeLeft.length)
+            {
+                setTimer('eventGoing',Number(convertTimeToInt(timeLeft)));
+            } else setTimer('eventGoing', 3600);
             let shopTimeLeft=$('#contains_all #events #shop_tab_container .shop-section .shop-timer').attr("data-time-stamp");
             eventList[eventID]={};
             eventList[eventID]["id"]=eventID;
             eventList[eventID]["sultryMystery"]=true;
-            eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(timeLeft) * 1000;
+            eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
             eventList[eventID]["next_shop_refresh"]=new Date().getTime() + Number(shopTimeLeft) * 1000;
             eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
             eventList[eventID]["isCompleted"] = false;
-            setTimer('eventSultryMysteryGoing', timeLeft);
+            setTimer('eventSultryMysteryGoing', Number(convertTimeToInt(timeLeft)));
             setTimer('eventSultryMysteryShopRefresh', shopTimeLeft);
 
 
