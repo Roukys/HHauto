@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.12.0
+// @version      5.13.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
-// @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh
+// @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
 // @match        http*://*.hentaiheroes.com/*
 // @match        http*://*.gayharem.com/*
@@ -6091,7 +6091,7 @@ function moduleSimLeague() {
         }
 
         const pointText = `${nRounding(100*simu.win, 2, -1)}% (${nRounding(expectedValue, 1, -1)})`;
-        $('div#leagues_right .leagues_team_block  .challenge').prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${pointText}</div>`);
+        $('div#leagues_right .leagues_team_block  .challenge .blue_button_L').prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${pointText}</div>`);
 
         if($('tr.lead_table_default td span.nickname span.OppoScore').length > 0) {
             $('tr.lead_table_default td span.nickname span.OppoScore').remove();
@@ -6110,11 +6110,30 @@ function moduleSimLeague() {
                     + 'top: 5px !important;}'
                    );
 
+        GM_addStyle('.leagues_team_block .challenge .wrapper {'
+                    + 'display: flex; '
+                    + 'justify-content: space-between;}}'
+                   );
+
+        GM_addStyle('.leagues_team_block .challenge button {'
+                    + 'width: 160px; '
+                    + 'color: transparent;}}'
+                   );
+
+        GM_addStyle('.leagues_team_block .challenge button>[class*="_icn"] {'
+                    + 'opacity: 0;}}'
+                   );
+
         GM_addStyle('@media only screen and (min-width: 1026px) {'
                     + '.matchRatingNew {'
                     + 'position: absolute;'
-                    + 'margin-top: -25px; '
-                    + 'margin-left: 20px; '
+                    + 'width: auto;'
+                    + 'left: 10px;'
+                    + 'right: 10px;'
+                    + 'display: flex;'
+                    + 'flex-wrap: nowrap;'
+                    + 'align-items: center;'
+                    + 'justify-content: center;'
                     + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
                     + 'line-height: 17px; '
                     + 'font-size: 14px;}}'
@@ -6140,8 +6159,6 @@ function moduleSimLeague() {
                    );
 
         GM_addStyle('#powerLevelScouter {'
-                    + 'margin-left: -8px; '
-                    + 'margin-right: 1px; '
                     + 'width: 25px;}'
                    );
 
@@ -6605,9 +6622,28 @@ function moduleSimSeasonBattle()
             //matchRatingFlag = matchRating.substring(0,1);
             //matchRating = matchRating.substring(1);
 
+            GM_addStyle('.green_button_L.btn_season_perform, .leagues_team_block .challenge button.blue_button_L {'
+                    + 'width: 200px !important;'
+                    + 'color: transparent;'
+                    + 'line-height: 0px;'
+                    + 'background-image: linear-gradient(to top,#008ed5 0,#05719c 100%);'
+                    + '-webkit-box-shadow: 0 3px 0 rgb(13 22 25 / 35%), inset 0 3px 0 #6df0ff;'
+                    + '-moz-box-shadow: 0 3px 0 rgba(13,22,25,.35),inset 0 3px 0 #6df0ff;'
+                    + 'box-shadow: 0 3px 0 rgb(13 22 25 / 35%), inset 0 3px 0 #6df0ff;}'
+                   );
+
+            GM_addStyle('#season-arena .matchRatingNew {'
+                    + 'width: 100%;'
+                    + 'display: flex;'
+                    + 'align-items: center;'
+                    + 'justify-content: space-between;}'
+                   );
+
+            $('.player-panel-buttons .opponent_perform_button_container .green_button_L.btn_season_perform .energy_kiss_icn.kiss_icon_s').remove();
+
             if (doDisplay)
             {
-                $('.player-team .icon-area',opponents[index]).prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${nRounding(100*simu.win, 2, -1)}%</div>`);
+                $('.player-panel-buttons .opponent_perform_button_container .green_button_L.btn_season_perform',opponents[index]).prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${nRounding(100*simu.win, 2, -1)}%</div>`);
             }
         }
 
@@ -6702,10 +6738,16 @@ function moduleSimSeasonBattle()
             chosenID = -2;
         }
 
+        $($('div.season_arena_opponent_container div.matchRatingNew')).append(`<img id="powerLevelScouterNonChosen"}>`);
+
+        GM_addStyle('#powerLevelScouterChosen, #powerLevelScouterNonChosen {'
+                    + 'width: 25px;}'
+                   );
+
         //logHHAuto("Best opportunity opponent : "+oppoName+'('+chosenRating+')');
         if (doDisplay)
         {
-
+            $($('.season_arena_opponent_container .matchRatingNew #powerLevelScouterNonChosen')[chosenID]).remove();
             $($('div.season_arena_opponent_container div.matchRatingNew')[chosenID]).append(`<img id="powerLevelScouterChosen" src=${getHHScriptVars("powerCalcImages").chosen}>`);
 
             //CSS
@@ -6731,10 +6773,8 @@ function moduleSimSeasonBattle()
                        );
 
             GM_addStyle('#powerLevelScouter {'
-                        + 'margin-left: -8px; '
-                        + 'margin-right: 1px; '
-                        + 'width: 25px;}'
-                       );
+                    + 'width: 25px;}'
+                   );
             GM_addStyle('#powerLevelScouterChosen {'
                         + 'width: 25px;}'
                        );
