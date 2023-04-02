@@ -4482,7 +4482,7 @@ function getLeagueOpponentListData()
         {
             let challengesAttempts = this.cells[3].innerHTML;
             if (challengesAttempts.length > 0 &&
-             ((challengesAttempts.length===3 && challengesAttempts[0] < 3) || (challengesAttempts.indexOf("-") !== -1)))
+             ((challengesAttempts.length===3 && challengesAttempts[0] < 3) || (challengesAttempts.length>3 && challengesAttempts.indexOf("-") !== -1)))
             {
                 Data.push(sorting_id);
             }
