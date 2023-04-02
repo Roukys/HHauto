@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.11.9
+// @version      5.12.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh
 // @match        http*://*.haremheroes.com/*
@@ -3430,6 +3430,56 @@ var doChampionStuff=function()
     }
 }
 
+var getNextClubChampionTimer=function()
+{
+    var page=getPage();
+    if (page==getHHScriptVars("pagesIDClub"))
+    {
+        let noTimer = true;
+        let SecsToNextTimer = -1;
+        let restTeamFilter = "div.club_champions_details_container div.team_rest_timer[data-rest-timer]";
+        let restChampionFilter = "div.club_champions_details_container div.champion_rest_timer[data-rest-timer]";
+
+        if ($(restTeamFilter).length > 0)
+        {
+            SecsToNextTimer = Number($(restTeamFilter).attr("data-rest-timer"));
+            noTimer = false;
+            logHHAuto("Team is resting for : "+toHHMMSS(SecsToNextTimer));
+        }
+        if ($(restChampionFilter).length > 0)
+        {
+            SecsToNextTimer = Number($(restChampionFilter).attr("data-rest-timer"));
+            noTimer = false;
+            logHHAuto("Champion is resting for : "+toHHMMSS(SecsToNextTimer));
+        }
+        logHHAuto('on clubs, next timer:'+ SecsToNextTimer);
+        return SecsToNextTimer;
+    }
+    return -1;
+};
+
+var updateClubChampionTimer=function()
+{
+    var page=getPage();
+    if (page==getHHScriptVars("pagesIDClub"))
+    {
+        logHHAuto('on clubs');
+        let noTimer = true;
+        let SecsToNextTimer = getNextClubChampionTimer();
+
+        if (SecsToNextTimer === -1)
+        {
+            setTimer('nextClubChampionTime', 1);
+        }
+        else
+        {
+            setTimer('nextClubChampionTime', SecsToNextTimer);
+        }
+        return noTimer;
+    }
+    return true;
+};
+
 var doClubChampionStuff=function()
 {
     var page=getPage();
@@ -3439,6 +3489,7 @@ var doClubChampionStuff=function()
         if ($('button[rel=perform].blue_button_L').length==0)
         {
             logHHAuto('Something is wrong!');
+            setTimer('nextClubChampionTime',15*60);
             gotoPage(getHHScriptVars("pagesIDHome"));
             return true;
         }
@@ -3470,24 +3521,7 @@ var doClubChampionStuff=function()
     {
         logHHAuto('on clubs');
         let Started = $("div.club_champions_panel tr.personal_highlight").length === 1;
-        let noTimer = true;
-        let Timer= -1;
-        let SecsToNextTimer = -1;
-        let restTeamFilter = "div.club_champions_details_container div.team_rest_timer[data-rest-timer]";
-        let restChampionFilter = "div.club_champions_details_container div.champion_rest_timer[data-rest-timer]";
-
-        if ($(restTeamFilter).length > 0)
-        {
-            SecsToNextTimer = Number($(restTeamFilter).attr("data-rest-timer"));
-            noTimer = false;
-            logHHAuto("Team is resting for : "+toHHMMSS(SecsToNextTimer));
-        }
-        if ($(restChampionFilter).length > 0)
-        {
-            SecsToNextTimer = Number($(restChampionFilter).attr("data-rest-timer"));
-            noTimer = false;
-            logHHAuto("Champion is resting for : "+toHHMMSS(SecsToNextTimer));
-        }
+        let noTimer = updateClubChampionTimer();
 
         if ((Started || getStoredValue("HHAuto_Setting_autoClubForceStart") === "true") && noTimer)
         {
@@ -3510,14 +3544,6 @@ var doClubChampionStuff=function()
                 logHHAuto("Max tickets to use on Club Champ reached.");
             }
 
-        }
-        if (SecsToNextTimer === -1 || SecsToNextTimer > 30*60)
-        {
-            setTimer('nextClubChampionTime',15*60);
-        }
-        else
-        {
-            setTimer('nextClubChampionTime',SecsToNextTimer);
         }
         gotoPage(getHHScriptVars("pagesIDHome"));
         return false;
@@ -7640,6 +7666,11 @@ var autoLoop = function ()
             break;
         case getHHScriptVars("pagesIDClubChampion"):
             moduleSimChampions();
+            break;
+        case getHHScriptVars("pagesIDClub"):
+            if (!checkTimer('nextClubChampionTime') && getNextClubChampionTimer() == -1) {
+                updateClubChampionTimer();
+            }
             break;
     }
 
