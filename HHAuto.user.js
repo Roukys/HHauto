@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.11.8
+// @version      5.11.9
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh
 // @match        http*://*.haremheroes.com/*
@@ -2201,10 +2201,13 @@ function collectAndUpdatePowerPlaces()
                 //force check of PowerPlaces every 7 hours
                 setTimer('minPowerPlacesTime',Number(20*60)+1);
             }
+            /*
+            // TODO plan a new config for this option based an a delta timr.
             else if (getStoredValue("HHAuto_Setting_autoPowerPlacesAll") === "true")
             {
                 setTimer('minPowerPlacesTime',Number(maxTime)+1);
             }
+            */
             else 
             {
                 setTimer('minPowerPlacesTime',Number(minTime)+1);
@@ -3475,15 +3478,13 @@ var doClubChampionStuff=function()
 
         if ($(restTeamFilter).length > 0)
         {
-            Timer = Number($(restTeamFilter).attr("data-rest-timer"));
-            SecsToNextTimer = Number(Timer)-Math.ceil(new Date().getTime()/1000);
+            SecsToNextTimer = Number($(restTeamFilter).attr("data-rest-timer"));
             noTimer = false;
             logHHAuto("Team is resting for : "+toHHMMSS(SecsToNextTimer));
         }
         if ($(restChampionFilter).length > 0)
         {
-            Timer = Number($(restChampionFilter).attr("data-rest-timer"));
-            SecsToNextTimer = Number(Timer)-Math.ceil(new Date().getTime()/1000);
+            SecsToNextTimer = Number($(restChampionFilter).attr("data-rest-timer"));
             noTimer = false;
             logHHAuto("Champion is resting for : "+toHHMMSS(SecsToNextTimer));
         }
@@ -5506,14 +5507,14 @@ var updateShop=function()
         let shopTimer=60;
         if(nshop !== undefined && nshop !== 0)
         {
-            if (Number(nshop)+1 > 2*60*60)
-            {
-                shopTimer=2*60*60;
-            }
-            else
-            {
+            // if (Number(nshop)+1 > 2*60*60)
+            // {
+            //     shopTimer=2*60*60;
+            // }
+            // else
+            // {
                 shopTimer=Number(nshop)+1;
-            }
+            // }
         }
         setTimer('nextShopTime',shopTimer);
         if (isJSON(getStoredValue("HHAuto_Temp_LastPageCalled"))
