@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.13.3
+// @version      5.13.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -8946,58 +8946,6 @@ var clearEventData=function(inEventID)
     }
 }
 
-function parseTime(inTimeString)
-{
-    let textDay= 'd';
-    let textHour= 'h';
-    let textMinute= 'm';
-    let textSecond= 's';
-    if ($('html')[0].lang === 'en')
-    {
-        textDay= 'd';
-        textHour= 'h';
-        textMinute= 'm';
-        textSecond= 's';
-    }
-    else if ($('html')[0].lang === 'fr')
-    {
-        textDay= 'j';
-        textHour= 'h';
-        textMinute= 'm';
-        textSecond= 's';
-    }
-    else if ($('html')[0].lang === 'es_ES')
-    {
-        textDay= 'd';
-        textHour= 'h';
-        textMinute= 'm';
-        textSecond= 's';
-    }
-    else if ($('html')[0].lang === 'de_DE')
-    {
-        textDay= 'd';
-        textHour= 'h';
-        textMinute= 'm';
-        textSecond= 'z';
-    }
-    else if ($('html')[0].lang === 'it_IT')
-    {
-        textDay= 'g';
-        textHour= 'h';
-        textMinute= 'm';
-        textSecond= 's';
-    }
-    let atDay = inTimeString.indexOf(textDay);
-    let atHour = inTimeString.indexOf(textHour);
-    let atMinute = inTimeString.indexOf(textMinute);
-    let atSecond = inTimeString.indexOf(textSecond);
-    let day = atDay == -1 ? 0 : parseInt(inTimeString.substring(0, atDay).trim());
-    let hour = atHour == -1 ? 0 : parseInt(inTimeString.substring(atDay+1, atHour).trim());
-    let minute = atMinute == -1 ? 0 : parseInt(inTimeString.substring(atHour+1, atMinute).trim());
-    let second = atSecond == -1 ? 0 : parseInt(inTimeString.substring(atMinute+1, atSecond).trim());
-    return (day*24*3600 + hour*3600 + minute*60 + second);
-}
-
 function skipBossBangFightPage()
 {
     const rewardsButton = $('#rewards_popup .blue_button_L:not([disabled]):visible');
@@ -9173,7 +9121,7 @@ function parseEventPage(inTab="global")
                 if ($(ShardsQuery).length > 0 )
                 {
                     let remShards=Number($(ShardsQuery)[0].innerText);
-                    let nextWave=($(timerQuery).length > 0)?parseTime($(timerQuery)[0].innerText):-1;
+                    let nextWave=($(timerQuery).length > 0)?convertTimeToInt($(timerQuery)[0].innerText):-1;
                     if (girlData.shards < 100)
                     {
                         eventList[eventID]["isCompleted"] = false;
