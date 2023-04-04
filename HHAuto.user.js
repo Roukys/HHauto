@@ -547,10 +547,9 @@ function gotoPage(page,inArgs,delay = -1)
             }
             else if (togoto.includes("world"))
             {
-                logHHAuto("All quests finished, turning off AutoQuest!");
-                setStoredValue("HHAuto_Setting_autoQuest", false);
-                //setStoredValue("HHAuto_Setting_autoSideQuest", false);
-                location.reload();
+                logHHAuto("All quests finished, setting timer to check back later!");
+                setTimer('nextMainQuestAttempt', 604800); // 1 week delay
+                gotoPage(getHHScriptVars("pagesIDHome"));
                 return false;
             }
             logHHAuto("Current quest page: "+togoto);
@@ -666,9 +665,9 @@ var proceedQuest = function () {
             gotoPage(quests.attr('href'));
         }
         else {
-            logHHAuto("All quests finished, turning off AutoQuest!");
-            setStoredValue("HHAuto_Setting_autoQuest", false);
-            setStoredValue("HHAuto_Setting_autoSideQuest", false);
+            logHHAuto("All quests finished, setting timer to check back later!");
+            if (checkTimer('nextMainQuestAttempt')) {setTimer('nextMainQuestAttempt', 604800);} // 1 week delay
+            setTimer('nextSideQuestAttempt', 604800); // 1 week delay
             location.reload();
         }
         return;
@@ -7370,11 +7369,14 @@ var autoLoop = function ()
             }
             else if(questRequirement === "none")
             {
-                if (Number(getHHVars('Hero.energies.quest.amount')) > Number(getStoredValue("HHAuto_Setting_autoQuestThreshold")) || Number(checkParanoiaSpendings('quest')) > 0 )
+                if (checkTimer('nextMainQuestAttempt') && checkTimer('nextSideQuestAttempt'))
                 {
-                    //logHHAuto("NONE req.");
-                    busy = true;
-                    proceedQuest();
+                    if (Number(getHHVars('Hero.energies.quest.amount')) > Number(getStoredValue("HHAuto_Setting_autoQuestThreshold")) || Number(checkParanoiaSpendings('quest')) > 0 )
+                    {
+                        //logHHAuto("NONE req.");
+                        busy = true;
+                        proceedQuest();
+                    }    
                 }
             }
             else
