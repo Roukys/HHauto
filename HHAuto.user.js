@@ -3962,9 +3962,19 @@ function goAndCollectSeasonalEvent()
     }
     else
     {
-        logHHAuto("Switching to SeasonalEvent screen.");
-        gotoPage(getHHScriptVars("pagesIDSeasonalEvent"));
-        return true;
+        // If we return here within the 60 second timer set below, assume something is wrong
+        if (checkTimer('trySeasonalEventPage'))
+        {
+            logHHAuto("Switching to SeasonalEvent screen.");
+            setTimer('trySeasonalEventPage', 60) 
+            gotoPage(getHHScriptVars("pagesIDSeasonalEvent"));    
+            return true;
+        } else {
+            logHHAuto("Switching to SeasonalEvent screen failed, will retry later.")
+            setTimer('nextSeasonalEventCollectTime', 86400) // 1 day
+            gotoPage(getHHScriptVars('pagesIDHome'));
+            return true;
+        }
     }
 }
 
