@@ -2408,7 +2408,9 @@ function doPowerPlacesStuff(index)
                             thisPower += girl.power;
                         });
                         // Give the team a score to try and use more efficient teams (ie: fewer girls) instead of just the fastest
-                        const thisScore = Math.min(1, ((thisPower/powerText) * ((1 / Math.sqrt(theseGirls.length))+0.28)));
+                        const kValue = 40;
+                        const xValue = thisPower / powerText;
+                        const thisScore = Math.min(1, ( (1 - Math.pow(xValue, theseGirls.length)) / (1 - Math.pow(xValue, kValue))));
                         if (thisScore > teamScore) {
                             teamScore = thisScore;
                             chosenTeam = theseGirls;
