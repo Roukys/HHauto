@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.13.4
+// @version      5.13.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3435,7 +3435,6 @@ var getNextClubChampionTimer=function()
     var page=getPage();
     if (page==getHHScriptVars("pagesIDClub"))
     {
-        let noTimer = true;
         let SecsToNextTimer = -1;
         let restTeamFilter = "div.club_champions_details_container div.team_rest_timer[data-rest-timer]";
         let restChampionFilter = "div.club_champions_details_container div.champion_rest_timer[data-rest-timer]";
@@ -3443,19 +3442,20 @@ var getNextClubChampionTimer=function()
         if ($(restTeamFilter).length > 0)
         {
             SecsToNextTimer = Number($(restTeamFilter).attr("data-rest-timer"));
-            noTimer = false;
             logHHAuto("Team is resting for : "+toHHMMSS(SecsToNextTimer));
         }
-        if ($(restChampionFilter).length > 0)
+        else if ($(restChampionFilter).length > 0)
         {
             SecsToNextTimer = Number($(restChampionFilter).attr("data-rest-timer"));
-            noTimer = false;
             logHHAuto("Champion is resting for : "+toHHMMSS(SecsToNextTimer));
+        }
+        else {
+            logHHAuto('No timer found');
         }
         logHHAuto('on clubs, next timer:'+ SecsToNextTimer);
         return SecsToNextTimer;
     }
-    return -1;
+    return 0; // -1 is only when no timer on club page
 };
 
 var updateClubChampionTimer=function()
@@ -3464,16 +3464,20 @@ var updateClubChampionTimer=function()
     if (page==getHHScriptVars("pagesIDClub"))
     {
         logHHAuto('on clubs');
-        let noTimer = true;
-        let SecsToNextTimer = getNextClubChampionTimer();
+        let secsToNextTimer = getNextClubChampionTimer();
+        let noTimer = secsToNextTimer !== -1;
 
-        if (SecsToNextTimer === -1)
+        if (secsToNextTimer === -1)
         {
-            setTimer('nextClubChampionTime', 1);
+            setTimer('nextClubChampionTime', 15*60);
+        }
+        else if (secsToNextTimer > 30*60)
+        {
+            setTimer('nextClubChampionTime', 30*60);
         }
         else
         {
-            setTimer('nextClubChampionTime', SecsToNextTimer);
+            setTimer('nextClubChampionTime', secsToNextTimer);
         }
         return noTimer;
     }
