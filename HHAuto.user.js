@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.14.1
+// @version      5.14.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -5685,7 +5685,7 @@ var setParanoiaSpendings=function()
             {
                 maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHHVars('Hero.energies.challenge.next_refresh_ts')))/Number(getHHVars('Hero.energies.challenge.seconds_per_point')));
                 currentEnergy=Number(getHHVars('Hero.energies.challenge.amount'));
-                maxEnergy=Number(getHHVars('Hero.energies.challenge.max_amount'));
+                maxEnergy=Number(getHHVars('Hero.energies.challenge.max_regen_amount'));
                 totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
                 //if point refreshed during paranoia would go above max
                 if ( totalPointsEndParanoia >= maxEnergy)
@@ -5707,7 +5707,7 @@ var setParanoiaSpendings=function()
             {
                 maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHHVars('Hero.energies.quest.next_refresh_ts')))/Number(getHHVars('Hero.energies.quest.seconds_per_point')));
                 currentEnergy=Number(getHHVars('Hero.energies.quest.amount'));
-                maxEnergy=Number(getHHVars('Hero.energies.quest.max_amount'));
+                maxEnergy=Number(getHHVars('Hero.energies.quest.max_regen_amount'));
                 totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
                 //if point refreshed during paranoia would go above max
                 if ( totalPointsEndParanoia >= maxEnergy)
@@ -5727,7 +5727,7 @@ var setParanoiaSpendings=function()
         {
             maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHHVars('Hero.energies.fight.next_refresh_ts')))/Number(getHHVars('Hero.energies.fight.seconds_per_point')));
             currentEnergy=Number(getHHVars('Hero.energies.fight.amount'));
-            maxEnergy=Number(getHHVars('Hero.energies.fight.max_amount'));
+            maxEnergy=Number(getHHVars('Hero.energies.fight.max_regen_amount'));
             totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
             //if point refreshed during paranoia would go above max
             if ( totalPointsEndParanoia >= maxEnergy)
@@ -5746,7 +5746,7 @@ var setParanoiaSpendings=function()
         {
             maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHHVars('Hero.energies.kiss.next_refresh_ts')))/Number(getHHVars('Hero.energies.kiss.seconds_per_point')));
             currentEnergy=Number(getHHVars('Hero.energies.kiss.amount'));
-            maxEnergy=Number(getHHVars('Hero.energies.kiss.max_amount'));
+            maxEnergy=Number(getHHVars('Hero.energies.kiss.max_regen_amount'));
             totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
             //if point refreshed during paranoia would go above max
             if ( totalPointsEndParanoia >= maxEnergy)
@@ -5765,7 +5765,7 @@ var setParanoiaSpendings=function()
         {
             maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHHVars('Hero.energies.worship.next_refresh_ts')))/Number(getHHVars('Hero.energies.worship.seconds_per_point')));
             currentEnergy=Number(getHHVars('Hero.energies.worship.amount'));
-            maxEnergy=Number(getHHVars('Hero.energies.worship.max_amount'));
+            maxEnergy=Number(getHHVars('Hero.energies.worship.max_regen_amount'));
             totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
             //if point refreshed during paranoia would go above max
             if ( totalPointsEndParanoia >= maxEnergy)
@@ -9494,10 +9494,10 @@ var RechargeCombat=function()
     //             max: max
     //         }, function(data)
     //         {
-    //             Hero.update("energy_"+type, max || Hero.energies[type].max_amount);
+    //             Hero.update("energy_"+type, max || Hero.energies[type].max_regen_amount);
     //             Hero.update("hard_currency", 0 - price, true);
     //             setTimeout(function(){location.reload();},randomInterval(500,1500));
-    //             //Hero.update("fight.amount", getHHVars('Hero.energies.fight.max_amount'));
+    //             //Hero.update("fight.amount", getHHVars('Hero.energies.fight.max_regen_amount'));
     //             //Hero.update("hard_currency", 0 - price, true);
     //         });
     //    logHHAuto('Recharged up to 50 fights.');
@@ -12591,7 +12591,7 @@ var updateData = function () {
         }
         if (getHHScriptVars('isEnabledTrollBattle',false) && getStoredValue("HHAuto_Setting_autoTrollBattle") =="true")
         {
-            Tegzd += '<li>'+getTextForUI("autoTrollTitle","elementText")+' : '+getHHVars('Hero.energies.fight.amount')+'/'+getHHVars('Hero.energies.fight.max_amount')+'</li>';
+            Tegzd += '<li>'+getTextForUI("autoTrollTitle","elementText")+' : '+getHHVars('Hero.energies.fight.amount')+'/'+getHHVars('Hero.energies.fight.max_regen_amount')+'</li>';
         }
         if (getHHScriptVars("isEnabledSalary",false) && getStoredValue("HHAuto_Setting_autoSalary") =="true")
         {
@@ -12599,7 +12599,7 @@ var updateData = function () {
         }
         if (getHHScriptVars('isEnabledSeason',false) && getStoredValue("HHAuto_Setting_autoSeason") =="true")
         {
-            Tegzd += '<li>'+getTextForUI("autoSeasonTitle","elementText")+' : '+getHHVars('Hero.energies.kiss.amount')+'/'+getHHVars('Hero.energies.kiss.max_amount')+' ('+getTimeLeft('nextSeasonTime')+')'+'</li>';
+            Tegzd += '<li>'+getTextForUI("autoSeasonTitle","elementText")+' : '+getHHVars('Hero.energies.kiss.amount')+'/'+getHHVars('Hero.energies.kiss.max_regen_amount')+' ('+getTimeLeft('nextSeasonTime')+')'+'</li>';
         }
         /*if (getHHScriptVars('isEnabledSeason',false) && getStoredValue("HHAuto_Setting_autoSeasonCollect") =="true")
         {
@@ -12607,7 +12607,7 @@ var updateData = function () {
         }*/
         if (getHHScriptVars('isEnabledLeagues',false) && getStoredValue("HHAuto_Setting_autoLeagues") =="true")
         {
-            Tegzd += '<li>'+getTextForUI("autoLeaguesTitle","elementText")+' : '+getHHVars('Hero.energies.challenge.amount')+'/'+getHHVars('Hero.energies.challenge.max_amount')+' ('+getTimeLeft('nextLeaguesTime')+')'+'</li>';
+            Tegzd += '<li>'+getTextForUI("autoLeaguesTitle","elementText")+' : '+getHHVars('Hero.energies.challenge.amount')+'/'+getHHVars('Hero.energies.challenge.max_regen_amount')+' ('+getTimeLeft('nextLeaguesTime')+')'+'</li>';
         }
         if (getHHScriptVars("isEnabledChamps",false) && getStoredValue("HHAuto_Setting_autoChamps") =="true")
         {
@@ -12619,7 +12619,7 @@ var updateData = function () {
         }
         if (getHHScriptVars('isEnabledPantheon',false) && getStoredValue("HHAuto_Setting_autoPantheon") =="true")
         {
-            Tegzd += '<li>'+getTextForUI("autoPantheonTitle","elementText")+' : '+getHHVars('Hero.energies.worship.amount')+'/'+getHHVars('Hero.energies.worship.max_amount')+' ('+getTimeLeft('nextPantheonTime')+')'+'</li>';
+            Tegzd += '<li>'+getTextForUI("autoPantheonTitle","elementText")+' : '+getHHVars('Hero.energies.worship.amount')+'/'+getHHVars('Hero.energies.worship.max_regen_amount')+' ('+getTimeLeft('nextPantheonTime')+')'+'</li>';
         }
         if (getHHScriptVars("isEnabledShop",false))
         {
