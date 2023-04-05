@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.15.1
+// @version      5.15.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -10575,18 +10575,20 @@ HHEnvVariables["SH_prod"].isEnabledPoG = false;// to remove when PoG arrives in 
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in pornstar
 });
 
-HHEnvVariables["TPH_prod"].trollzList = ['Latest',
-                                      'Unknown TS'];
-HHEnvVariables["TPH_prod"].isEnabledSideQuest = false;// to remove when SideQuest arrives in transpornstar
-HHEnvVariables["TPH_prod"].isEnabledPowerPlaces = false;// to remove when PoP arrives in transpornstar
-HHEnvVariables["TPH_prod"].isEnabledMythicPachinko = false;// to remove when Mythic Pachinko arrives in transpornstar
-HHEnvVariables["TPH_prod"].isEnabledAllChamps = false;// to remove when Champs arrives in transpornstar
-HHEnvVariables["TPH_prod"].isEnabledChamps = false;// to remove when Champs arrives in transpornstar
-HHEnvVariables["TPH_prod"].isEnabledClubChamp = false;// to remove when Club Champs arrives in transpornstar
-HHEnvVariables["TPH_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in transpornstar
-HHEnvVariables["TPH_prod"].isEnabledPoVPoG = false;
-HHEnvVariables["TPH_prod"].isEnabledPoV = false;// to remove when PoV arrives in transpornstar
-HHEnvVariables["TPH_prod"].isEnabledPoG = false;// to remove when PoG arrives in transpornstar
+["TPH_prod","NTPH_prod"].forEach((element) => {
+    HHEnvVariables[element].trollzList = ['Latest',
+                                          'Unknown TS'];
+    HHEnvVariables[element].isEnabledSideQuest = false;// to remove when SideQuest arrives in transpornstar
+    HHEnvVariables[element].isEnabledPowerPlaces = false;// to remove when PoP arrives in transpornstar
+    HHEnvVariables[element].isEnabledMythicPachinko = false;// to remove when Mythic Pachinko arrives in transpornstar
+    HHEnvVariables[element].isEnabledAllChamps = false;// to remove when Champs arrives in transpornstar
+    HHEnvVariables[element].isEnabledChamps = false;// to remove when Champs arrives in transpornstar
+    HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in transpornstar
+    HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in transpornstar
+    HHEnvVariables[element].isEnabledPoVPoG = false;
+    HHEnvVariables[element].isEnabledPoV = false;// to remove when PoV arrives in transpornstar
+    HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in transpornstar
+});
 
 const HC = 1;
 const CH = 2;
