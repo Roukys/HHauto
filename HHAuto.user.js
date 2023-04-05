@@ -6062,6 +6062,22 @@ function getLeaguePlayersData(inHeroLeaguesData, inPlayerLeaguesData)
     return {player:player, opponent:opponent, dominanceBonuses:dominanceBonuses}
 }
 
+GM_addStyle('[hero-leagues-fixed-bar] [second-row] .theme-container {'
+            + 'display: flex;'
+            + 'flex-wrap: wrap;'
+            + 'align-content: center;'
+            + 'justify-content: center;}'
+           );
+
+GM_addStyle('#leagues_middle .lead_table_view .theme-container {'
+            + 'margin-top: unset;}'
+           );
+
+GM_addStyle('#leagues_middle .theme-container .theme-element {'
+            + 'margin: 0 5%;'
+            + 'margin-left: unset;}'
+           );
+
 function moduleSimLeague() {
     //let matchRating;
     //let matchRatingFlag;
@@ -6107,6 +6123,12 @@ function moduleSimLeague() {
 
         const pointText = `${nRounding(100*simu.win, 2, -1)}% (${nRounding(expectedValue, 1, -1)})`;
         $('div#leagues_right .leagues_team_block  .challenge .blue_button_L').prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${pointText}</div>`);
+        $('[hero-leagues-fixed-bar] [main-row] [challenge-mobile-btn]').prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${pointText}</div>`);
+        $('div#leagues_right .leagues_team_block  .challenge .blue_button_L').contents().filter(function() {return this.nodeType===3;}).remove();
+        $('[hero-leagues-fixed-bar] [main-row] [challenge-mobile-btn]').contents().filter(function() {return this.nodeType===3;}).remove();
+        $('div#leagues_right .leagues_team_block  .challenge .blue_button_L').find('span').remove();
+        $('[hero-leagues-fixed-bar] [main-row] [challenge-mobile-btn]').find('span').remove();
+        $('.leagues_team_block .challenge button>[class*="_icn"], [hero-leagues-fixed-bar] [main-row] [challenge-mobile-btn] .energy_challenge_icn').remove();
 
         if($('tr.lead_table_default td span.nickname span.OppoScore').length > 0) {
             $('tr.lead_table_default td span.nickname span.OppoScore').remove();
@@ -6130,21 +6152,13 @@ function moduleSimLeague() {
                     + 'justify-content: space-between;}}'
                    );
 
-        GM_addStyle('.leagues_team_block .challenge button {'
+        GM_addStyle('.leagues_team_block .challenge button, [hero-leagues-fixed-bar] [main-row] [challenge-mobile-btn] {'
                     + 'width: 160px; '
-                    + 'color: transparent;}}'
-                   );
-
-        GM_addStyle('.leagues_team_block .challenge button>[class*="_icn"] {'
-                    + 'opacity: 0;}}'
+                    + 'padding: 6px 4px;}'
                    );
 
         GM_addStyle('@media only screen and (min-width: 1026px) {'
                     + '.matchRatingNew {'
-                    + 'position: absolute;'
-                    + 'width: auto;'
-                    + 'left: 10px;'
-                    + 'right: 10px;'
                     + 'display: flex;'
                     + 'flex-wrap: nowrap;'
                     + 'align-items: center;'
@@ -6156,6 +6170,11 @@ function moduleSimLeague() {
 
         GM_addStyle('@media only screen and (max-width: 1025px) {'
                     + '.matchRatingNew {'
+                    + 'width: auto;'
+                    + 'display: flex;'
+                    + 'flex-wrap: nowrap;'
+                    + 'align-items: center;'
+                    + 'justify-content: center;'
                     + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
                     + 'line-height: 17px; '
                     + 'font-size: 14px;}}'
@@ -6637,10 +6656,11 @@ function moduleSimSeasonBattle()
             //matchRatingFlag = matchRating.substring(0,1);
             //matchRating = matchRating.substring(1);
 
+            GM_addStyle('#season-arena .opponents_arena .opponent_perform_button_container {'
+                    + 'width: 200px;}'
+                   );
+
             GM_addStyle('.green_button_L.btn_season_perform, .leagues_team_block .challenge button.blue_button_L {'
-                    + 'width: 200px !important;'
-                    + 'color: transparent;'
-                    + 'line-height: 0px;'
                     + 'background-image: linear-gradient(to top,#008ed5 0,#05719c 100%);'
                     + '-webkit-box-shadow: 0 3px 0 rgb(13 22 25 / 35%), inset 0 3px 0 #6df0ff;'
                     + '-moz-box-shadow: 0 3px 0 rgba(13,22,25,.35),inset 0 3px 0 #6df0ff;'
@@ -6648,12 +6668,13 @@ function moduleSimSeasonBattle()
                    );
 
             GM_addStyle('#season-arena .matchRatingNew {'
-                    + 'width: 100%;'
                     + 'display: flex;'
                     + 'align-items: center;'
                     + 'justify-content: space-between;}'
                    );
 
+            $('.player-panel-buttons .btn_season_perform',opponents[index]).contents().filter(function() {return this.nodeType===3;}).remove();
+            $('.player-panel-buttons .btn_season_perform',opponents[index]).find('span').remove();
             $('.player-panel-buttons .opponent_perform_button_container .green_button_L.btn_season_perform .energy_kiss_icn.kiss_icon_s').remove();
 
             if (doDisplay)
@@ -6769,7 +6790,6 @@ function moduleSimSeasonBattle()
 
             GM_addStyle('.matchRatingNew {'
                         + 'text-align: center; '
-                        + 'margin-right: 5px; '
                         + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
                         + 'line-height: 17px; '
                         + 'font-size: 14px;}'
