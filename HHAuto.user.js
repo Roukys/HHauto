@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.15.4
+// @version      5.15.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -8358,7 +8358,7 @@ function moduleShopActions()
             } else {
                 let ext= (c === 16)?"svg":"png";
                 itemsListMenu +='  <tr>'
-                    +'   <td menuSellFilter="c:'+c+';t:*;r:*"><img style="height:20px;width:20px" src="https://hh2.hh-content.com/pictures/misc/items_icons/'+c+'.'+ext+'"></td>';
+                    +'   <td menuSellFilter="c:'+c+';t:*;r:*"><img style="height:20px;width:20px" src="${getHHScriptVars("baseImgPath")}/pictures/misc/items_icons/'+c+'.'+ext+'"></td>';
             }
 
             for (let r of itemsRarity)
@@ -10195,7 +10195,7 @@ function getHHScriptVars(id, logNotFound = true)
 let HHKnownEnvironnements = {};
 HHKnownEnvironnements["www.hentaiheroes.com"] = {name:"HH_prod",id:"hh_hentai"};
 HHKnownEnvironnements["test.hentaiheroes.com"] = {name:"HH_test",id:"hh_hentai"};
-HHKnownEnvironnements["www.comixharem.com"] = {name:"CH_prod",id:"hh_comix"};
+HHKnownEnvironnements["www.comixharem.com"] = {name:"CH_prod",id:"hh_comix", baseImgPath:"https://ch.hh-content.com"};
 HHKnownEnvironnements["www.gayharem.com"] = {name:"GH_prod",id:"hh_gay"};
 HHKnownEnvironnements["www.hornyheroes.com"] = {name:"SH_prod",id:"hh_sexy"};
 HHKnownEnvironnements["nutaku.comixharem.com"] = {name:"NCH_prod",id:"hh_comix"};
@@ -10205,10 +10205,10 @@ HHKnownEnvironnements["thrix.hentaiheroes.com"] = {name:"THH_prod",id:"hh_hentai
 HHKnownEnvironnements["eroges.gayharem.com"] = {name:"EGH_prod",id:"hh_gay"};
 HHKnownEnvironnements["eroges.hentaiheroes.com"] = {name:"EHH_prod",id:"hh_hentai"};
 HHKnownEnvironnements["esprit.hentaiheroes.com"] = {name:"OGHH_prod",id:"hh_hentai"};
-HHKnownEnvironnements["www.pornstarharem.com"] = {name:"PH_prod",id:"hh_star"};
-HHKnownEnvironnements["nutaku.pornstarharem.com"] = {name:"NPH_prod",id:"hh_star"};
-HHKnownEnvironnements["www.transpornstarharem.com"] = {name:"TPH_prod",id:"hh_startrans"};
-HHKnownEnvironnements["nutaku.transpornstarharem.com"] = {name:"NTPH_prod",id:"hh_startrans"};
+HHKnownEnvironnements["www.pornstarharem.com"] = {name:"PH_prod",id:"hh_star", baseImgPath:"https://th.hh-content.com"};
+HHKnownEnvironnements["nutaku.pornstarharem.com"] = {name:"NPH_prod",id:"hh_star", baseImgPath:"https://th.hh-content.co"};
+HHKnownEnvironnements["www.transpornstarharem.com"] = {name:"TPH_prod",id:"hh_startrans", baseImgPath:"https://images.hh-content.com/startrans"};
+HHKnownEnvironnements["nutaku.transpornstarharem.com"] = {name:"NTPH_prod",id:"hh_startrans", baseImgPath:"https://images.hh-content.com/startrans"};
 
 
 var HHEnvVariables = {};
@@ -10218,6 +10218,8 @@ for (let i in HHKnownEnvironnements)
     HHEnvVariables[HHKnownEnvironnements[i].name] = {};
     HHEnvVariables[HHKnownEnvironnements[i].name].gameID = HHKnownEnvironnements[i].id;
     HHEnvVariables[HHKnownEnvironnements[i].name].HHGameName = HHKnownEnvironnements[i].name;
+    let baseImgPath =  HHKnownEnvironnements[i].baseImgPath ? HHKnownEnvironnements[i].baseImgPath : 'https://hh2.hh-content.com';
+    HHEnvVariables[HHKnownEnvironnements[i].name].baseImgPath = baseImgPath;
 }
 
 HHEnvVariables["global"].eventIDReg = "event_";
@@ -12847,7 +12849,7 @@ var start = function () {
                 +`</div>`
                 +`<div class="optionsBoxWithTitle">`
                     +`<div class="optionsBoxTitle">`
-                        +`<img class="iconImg" src="https://hh2.hh-content.com/design/menu/panel.svg" />`
+                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/panel.svg" />`
                         +`<span class="optionsBoxTitle">${getTextForUI("globalTitle","elementText")}</span>`
                     +`</div>`
                     +`<div class="rowOptionsBox">`
@@ -12946,7 +12948,7 @@ var start = function () {
                     +`<div class="labelAndButton">`
                         +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("spendKobans0","elementText")}</span>`
                         +`<div class="imgAndObjectRow">`
-                            +`<img class="iconImg" src="https://hh2.hh-content.com/design/menu/affil_prog.svg" />`
+                            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/affil_prog.svg" />`
                             +`<div style="padding-left:5px">`
                                 +`<div class="tooltipHH">`
                                     +`<span class="tooltipHHtext">${getTextForUI("spendKobans0","tooltip")}</span>`
@@ -12962,7 +12964,7 @@ var start = function () {
                     +`<div class="labelAndButton">`
                         +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("kobanBank","elementText")}</span>`
                         +`<div class="imgAndObjectRow">`
-                            +`<img class="iconImg" src="https://hh2.hh-content.com/pictures/design/ic_hard_currency.png" />`
+                            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/pictures/design/ic_hard_currency.png" />`
                             +`<div style="padding-left:5px">`
                                 +`<div class="tooltipHH">`
                                     +`<span class="tooltipHHtext">${getTextForUI("kobanBank","tooltip")}</span>`
@@ -12974,7 +12976,7 @@ var start = function () {
                 +`</div>`
                 +`<div class="optionsBoxWithTitle">`
                     +`<div class="optionsBoxTitle">`
-                        +`<img class="iconImg" src="https://hh2.hh-content.com/design/menu/sex_friends.svg" />`
+                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/sex_friends.svg" />`
                         +`<span class="optionsBoxTitle">${getTextForUI("displayTitle","elementText")}</span>`
                     +`</div>`
                     +`<div class="rowOptionsBox">`
@@ -13033,7 +13035,7 @@ var start = function () {
                 +`<div class="optionsRow">`
                     +`<div class="optionsBoxWithTitle">`
                         +`<div class="optionsBoxTitle">`
-                            +`<img class="iconImg" src="https://hh2.hh-content.com/design/menu/missions.svg" />`
+                            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/missions.svg" />`
                             +`<span class="optionsBoxTitle">${getTextForUI("autoActivitiesTitle","elementText")}</span>`
                         +`</div>`
                         +`<div class="optionsBox">`
@@ -13148,7 +13150,7 @@ var start = function () {
                                 +`<div class="labelAndButton">`
                                     +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("autoSalary","elementText")}</span>`
                                     +`<div class="imgAndObjectRow">`
-                                        +`<img class="iconImg" src="https://hh2.hh-content.com/pictures/design/harem.svg" />`
+                                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/pictures/design/harem.svg" />`
                                         +`<div style="padding-left:5px">`
                                             +`<div class="tooltipHH">`
                                                 +`<span class="tooltipHHtext">${getTextForUI("autoSalary","tooltip")}</span>`
@@ -13183,7 +13185,7 @@ var start = function () {
                                     +`<div class="labelAndButton">`
                                         +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("autoFreePachinko","elementText")}</span>`
                                         +`<div class="imgAndObjectRow">`
-                                            +`<img class="iconImg" src="https://hh2.hh-content.com/pictures/design/menu/pachinko.svg" />`
+                                            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/pictures/design/menu/pachinko.svg" />`
                                             +`<div style="padding-left:5px">`
                                                 +`<div class="tooltipHH">`
                                                     +`<span class="tooltipHHtext">${getTextForUI("autoFreePachinko","tooltip")}</span>`
@@ -13203,7 +13205,7 @@ var start = function () {
                                     +`<div class="labelAndButton">`
                                         +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("autoQuest","elementText")}</span>`
                                         +`<div class="imgAndObjectRow">`
-                                            +`<img class="iconImg" src="https://hh2.hh-content.com/design/menu/forward.svg" />`
+                                            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/forward.svg" />`
                                             +`<div style="padding-left:5px">`
                                                 +`<div class="tooltipHH">`
                                                     +`<span class="tooltipHHtext">${getTextForUI("autoQuest","tooltip")}</span>`
@@ -13230,7 +13232,7 @@ var start = function () {
                                     +`<div class="labelAndButton">`
                                         +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("autoQuestThreshold","elementText")}</span>`
                                         +`<div class="imgAndObjectRow">`
-                                            +`<img class="iconImg" src="https://hh2.hh-content.com/pictures/design/ic_energy_quest.png" />`
+                                            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/pictures/design/ic_energy_quest.png" />`
                                             +`<div style="padding-left:5px">`
                                                 +`<div class="tooltipHH">`
                                                     +`<span class="tooltipHHtext">${getTextForUI("autoQuestThreshold","tooltip")}</span>`
@@ -13247,7 +13249,7 @@ var start = function () {
                 +`<div class="optionsRow">`
                     +`<div id="isEnabledSeason" class="optionsBoxWithTitle">`
                         +`<div class="optionsBoxTitle">`
-                            +`<img class="iconImg" src="https://hh2.hh-content.com/design/menu/seasons.svg" />`
+                            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/seasons.svg" />`
                             +`<span class="optionsBoxTitle">${getTextForUI("autoSeasonTitle","elementText")}</span>`
                         +`</div>`
                         +`<div class="optionsBox">`
@@ -13312,7 +13314,7 @@ var start = function () {
                                 +`<div class="labelAndButton">`
                                     +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("autoSeasonThreshold","elementText")}</span>`
                                     +`<div class="imgAndObjectRow">`
-                                        +`<img class="iconImg" src="https://hh2.hh-content.com/pictures/design/ic_kiss.png" />`
+                                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/pictures/design/ic_kiss.png" />`
                                         +`<div style="padding-left:5px">`
                                             +`<div class="tooltipHH">`
                                                 +`<span class="tooltipHHtext">${getTextForUI("autoSeasonThreshold","tooltip")}</span>`
@@ -13326,7 +13328,7 @@ var start = function () {
                     +`</div>`
                     +`<div id="isEnabledLeagues" class="optionsBoxWithTitle">`
                         +`<div class="optionsBoxTitle">`
-                            +`<img class="iconImg" src="https://hh2.hh-content.com/design/menu/leaderboard.svg" />`
+                            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/leaderboard.svg" />`
                             +`<span class="optionsBoxTitle">${getTextForUI("autoLeaguesTitle","elementText")}</span>`
                         +`</div>`
                         +`<div class="optionsBox">`
@@ -13388,7 +13390,7 @@ var start = function () {
                                 +`<div class="labelAndButton">`
                                     +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("autoLeaguesThreshold","elementText")}</span>`
                                     +`<div class="imgAndObjectRow">`
-                                        +`<img class="iconImg" src="https://hh2.hh-content.com/league_points.png" />`
+                                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/league_points.png" />`
                                         +`<div style="padding-left:5px">`
                                             +`<div class="tooltipHH">`
                                                 +`<span class="tooltipHHtext">${getTextForUI("autoLeaguesThreshold","tooltip")}</span>`
@@ -13524,7 +13526,7 @@ var start = function () {
                 +`</div>`
                 +`<div id="isEnabledTrollBattle" class="optionsBoxWithTitle">`
                     +`<div class="optionsBoxTitle">`
-                        +`<img class="iconImg" src="https://hh2.hh-content.com/pictures/design/menu/map.svg" />`
+                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/pictures/design/menu/map.svg" />`
                         +`<span class="optionsBoxTitle">${getTextForUI("autoTrollTitle","elementText")}</span>`
                     +`</div>`
                     +`<div class="optionsBox">`
@@ -13707,7 +13709,7 @@ var start = function () {
             +`<div class="optionsColumn">`
                 +`<div id="isEnabledAllChamps" class="optionsBoxWithTitle">`
                     +`<div class="optionsBoxTitle">`
-                        +`<img class="iconImg" src="https://hh2.hh-content.com/design/menu/ic_champions.svg" />`
+                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
                         +`<span class="optionsBoxTitle">${getTextForUI("autoChampsTitle","elementText")}</span>`
                     +`</div>`
                     +`<div class="optionsBox">`
@@ -13737,7 +13739,7 @@ var start = function () {
                             +`<div class="labelAndButton">`
                                 +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("autoChampsUseEne","elementText")}</span>`
                                 +`<div class="imgAndObjectRow">`
-                                    +`<img class="iconImg" src="https://hh2.hh-content.com/pictures/design/ic_energy_quest.png" />`
+                                    +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/pictures/design/ic_energy_quest.png" />`
                                     +`<div style="padding-left:5px">`
                                         +`<div class="tooltipHH">`
                                             +`<span class="tooltipHHtext">${getTextForUI("autoChampsUseEne","tooltip")}</span>`
@@ -13795,7 +13797,7 @@ var start = function () {
                             +`<div class="labelAndButton" style="align-items: flex-end;">`
                                 +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("autoClubChampMax","elementText")}</span>`
                                 +`<div class="imgAndObjectRow">`
-                                    +`<img class="iconImg" src="https://hh2.hh-content.com/pictures/design/champion_ticket.png" />`
+                                    +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/pictures/design/champion_ticket.png" />`
                                     +`<div style="padding-left:5px">`
                                         +`<div class="tooltipHH">`
                                             +`<span class="tooltipHHtext">${getTextForUI("autoClubChampMax","tooltip")}</span>`
@@ -13810,7 +13812,7 @@ var start = function () {
                 +`<div class="optionsRow" style="justify-content: space-evenly">`
                     +`<div id="isEnabledPantheon" class="optionsBoxWithTitle">`
                         +`<div class="optionsBoxTitle">`
-                            +`<img class="iconImg" src="https://hh2.hh-content.com/design/menu/ic_champions.svg" />`
+                            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
                             +`<span class="optionsBoxTitle">${getTextForUI("autoPantheonTitle","elementText")}</span>`
                         +`</div>`
                         +`<div class="optionsBox">`
@@ -13866,7 +13868,7 @@ var start = function () {
                 +`</div>`
                 +`<div id="isEnabledShop" class="optionsBoxWithTitle">`
                     +`<div class="optionsBoxTitle">`
-                        +`<img class="iconImg" src="https://hh2.hh-content.com/design/menu/shop.svg" />`
+                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/shop.svg" />`
                         +`<span class="optionsBoxTitle">${getTextForUI("autoBuy","elementText")}</span>`
                     +`</div>`
                     +`<div class="optionsBox">`
@@ -13874,7 +13876,7 @@ var start = function () {
                             +`<div class="labelAndButton">`
                                 +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("autoStatsSwitch","elementText")}</span>`
                                 +`<div class="imgAndObjectRow">`
-                                    +`<img class="iconImg" src="https://hh2.hh-content.com/design/ic_plus.svg" />`
+                                    +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/ic_plus.svg" />`
                                     +`<div style="padding-left:5px">`
                                         +`<div class="tooltipHH">`
                                             +`<span class="tooltipHHtext">${getTextForUI("autoStatsSwitch","tooltip")}</span>`
@@ -13899,7 +13901,7 @@ var start = function () {
                             +`<div class="labelAndButton">`
                                 +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("autoExpW","elementText")}</span>`
                                 +`<div class="imgAndObjectRow">`
-                                    +`<img class="iconImg" src="https://hh2.hh-content.com/design/ic_books_gray.svg" />`
+                                    +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/ic_books_gray.svg" />`
                                     +`<div style="padding-left:5px">`
                                         +`<div class="tooltipHH">`
                                             +`<span class="tooltipHHtext">${getTextForUI("autoExpW","tooltip")}</span>`
@@ -13931,7 +13933,7 @@ var start = function () {
                             +`<div class="labelAndButton">`
                                 +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("autoAffW","elementText")}</span>`
                                 +`<div class="imgAndObjectRow">`
-                                    +`<img class="iconImg" src="https://hh2.hh-content.com/design/ic_gifts_gray.svg" />`
+                                    +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/ic_gifts_gray.svg" />`
                                     +`<div style="padding-left:5px">`
                                         +`<div class="tooltipHH">`
                                             +`<span class="tooltipHHtext">${getTextForUI("autoAffW","tooltip")}</span>`
@@ -13963,7 +13965,7 @@ var start = function () {
                             +`<div class="labelAndButton">`
                                 +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("autoLGMW","elementText")}</span>`
                                 +`<div class="imgAndObjectRow">`
-                                    +`<img class="iconImg" src="https://hh2.hh-content.com/design/ic_equipment_gray.svg" />`
+                                    +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/ic_equipment_gray.svg" />`
                                     +`<div style="padding-left:5px">`
                                         +`<div class="tooltipHH">`
                                             +`<span class="tooltipHHtext">${getTextForUI("autoLGMW","tooltip")}</span>`
@@ -13988,7 +13990,7 @@ var start = function () {
                             +`<div class="labelAndButton">`
                                 +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("autoLGRW","elementText")}</span>`
                                 +`<div class="imgAndObjectRow">`
-                                    +`<img class="iconImg" src="https://hh2.hh-content.com/pictures/misc/items_icons/16.svg" />`
+                                    +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/pictures/misc/items_icons/16.svg" />`
                                     +`<div style="padding-left:5px">`
                                         +`<div class="tooltipHH">`
                                             +`<span class="tooltipHHtext">${getTextForUI("autoLGRW","tooltip")}</span>`
@@ -14013,7 +14015,7 @@ var start = function () {
                             +`<div class="labelAndButton">`
                                 +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("autoBuyBoosters","elementText")}</span>`
                                 +`<div class="imgAndObjectRow">`
-                                    +`<img class="iconImg" src="https://hh2.hh-content.com/design/ic_boosters_gray.svg" />`
+                                    +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/ic_boosters_gray.svg" />`
                                     +`<div style="padding-left:5px">`
                                         +`<div class="tooltipHH">`
                                             +`<span class="tooltipHHtext">${getTextForUI("autoBuyBoosters","tooltip")}</span>`
@@ -14038,7 +14040,7 @@ var start = function () {
                             +`<div class="labelAndButton">`
                                 +`<span class="HHMenuItemName" style="padding-bottom:2px">${getTextForUI("showMarketTools","elementText")}</span>`
                                 +`<div class="imgAndObjectRow">`
-                                    +`<img class="iconImg" src="https://hh2.hh-content.com/design/menu/panel.svg" />`
+                                    +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/panel.svg" />`
                                     +`<div style="padding-left:5px">`
                                         +`<div class="tooltipHH">`
                                             +`<span class="tooltipHHtext">${getTextForUI("showMarketTools","tooltip")}</span>`
