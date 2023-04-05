@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.14.3
+// @version      5.14.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -881,7 +881,8 @@ function doMissionStuff()
                         logHHAuto("Unfinished mission detected...("+data.remaining_time+"sec. remaining)");
                         setTimer('nextMissionTime',Number(data.remaining_time)+1);
                         allGood = false;
-                        return;
+                        missions = []; // Clear missions to avoid selecting a smaller one than the one ongoing
+                        return false;
                     }
                     else
                     {
@@ -950,6 +951,10 @@ function doMissionStuff()
         {
             logHHAuto("Something went wrong, need to retry in 15secs.");
             setTimer('nextMissionTime',15);
+            return true;
+        }
+        if (!allGood) {
+            logHHAuto("Mission ongoing waiting it ends.");
             return true;
         }
         logHHAuto("Missions parsed, mission list is:", missions);
