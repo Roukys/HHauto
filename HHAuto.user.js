@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.14.4
+// @version      5.15
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -10,6 +10,7 @@
 // @match        http*://*.comixharem.com/*
 // @match        http*://*.hornyheroes.com/*
 // @match        http*://*.pornstarharem.com/*
+// @match        http*://*.transpornstarharem.com/*
 // @grant        GM_addStyle
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
@@ -10186,6 +10187,8 @@ HHKnownEnvironnements["eroges.hentaiheroes.com"] = {name:"EHH_prod",id:"hh_henta
 HHKnownEnvironnements["esprit.hentaiheroes.com"] = {name:"OGHH_prod",id:"hh_hentai"};
 HHKnownEnvironnements["www.pornstarharem.com"] = {name:"PH_prod",id:"hh_star"};
 HHKnownEnvironnements["nutaku.pornstarharem.com"] = {name:"NPH_prod",id:"hh_star"};
+HHKnownEnvironnements["www.transpornstarharem.com"] = {name:"TPH_prod",id:"hh_tstar"};
+HHKnownEnvironnements["nutaku.transpornstarharem.com"] = {name:"NTPH_prod",id:"hh_tstar"};
 
 
 var HHEnvVariables = {};
@@ -10570,6 +10573,20 @@ HHEnvVariables["SH_prod"].isEnabledPoG = false;// to remove when PoG arrives in 
                                           'Jamie Brooks'];
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in pornstar
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in pornstar
+})
+["TPH_prod","TNPH_prod"].forEach((element) => {
+    HHEnvVariables[element].trollzList = ['Latest',
+                                          'Unknown TS'];
+    HHEnvVariables[element].isEnabledSideQuest = false;// to remove when SideQuest arrives in transpornstar
+    HHEnvVariables[element].isEnabledPowerPlaces = false;// to remove when PoP arrives in transpornstar
+    HHEnvVariables[element].isEnabledMythicPachinko = false;// to remove when Mythic Pachinko arrives in transpornstar
+    HHEnvVariables[element].isEnabledAllChamps = false;// to remove when Champs arrives in transpornstar
+    HHEnvVariables[element].isEnabledChamps = false;// to remove when Champs arrives in transpornstar
+    HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in transpornstar
+    HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in transpornstar
+    HHEnvVariables[element].isEnabledPoVPoG = false;
+    HHEnvVariables[element].isEnabledPoV = false;// to remove when PoV arrives in transpornstar
+    HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in transpornstar
 })
 
 const HC = 1;
