@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.16.3
+// @version      5.16.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -2530,59 +2530,8 @@ function doContestStuff()
                 gotoPage(getHHScriptVars("pagesIDContests"));
             }
         }
-        /*
-        //getting legendary contest first not cumulating them
-        let contest_list = $(".contest.is_legendary .ended button[rel='claim']");
-        if ( contest_list.length > 0)
-        {
-            logHHAuto("Collected legendary contest id : "+contest_list[0].getAttribute('id_contest')+".");
-            contest_list[0].click();
-            gotoPage(getHHScriptVars("pagesIDContests"));
-        }
 
-        contest_list = $(".contest:not(.is_legendary) .ended button[rel='claim']");
-        let lastContestId = parseInt(contests.last().attr('id_contest'));
-        let laterDayToCollect = lastContestId - getHHScriptVars("contestMaxDays");
-        contest_list.filter(function()
-                            {
-            return parseInt($(this).attr('id_contest')) - laterDayToCollect < 0;
-        });
-        if ( contest_list.length > 0)
-        {
-            logHHAuto("Collected legendary contest id : "+contest_list[0].getAttribute('id_contest')+".");
-            contest_list[0].click();
-            gotoPage(getHHScriptVars("pagesIDContests"));
-        }*/
-        // need to get next contest timer data
-        var time = 0;
-        for(var e in unsafeWindow.HHTimers.timers){
-            try{if(unsafeWindow.HHTimers.timers[e].$barElm/*.selector.includes(".contest_timer")*/)
-                time=unsafeWindow.HHTimers.timers[e];
-               }
-            catch(e)
-            {
-                logHHAuto("Catched error : Could not parse contest timer : "+e);
-            }
-        }
-        time = time.remainingTime;
-        try{if(time === undefined)
-        {
-            //try again with different selector
-            time = undefined;
-            for(e in unsafeWindow.HHTimers.timers){
-                if(unsafeWindow.HHTimers.timers[e].$elm && unsafeWindow.HHTimers.timers[e].$elm[0].className.includes("contest_timer"))
-                    // get closest time
-                    if(!(unsafeWindow.HHTimers.timers[e].remainingTime>time))
-                        time=unsafeWindow.HHTimers.timers[e].remainingTime;
-            }
-        }}catch(e)
-        {
-            logHHAuto("Catched error : Could not parse contest timer : "+e);
-        }
-        if(time === undefined){
-            logHHAuto("New contest time was undefined... Setting it manually to 10min.");
-            time = 10*60;
-        }
+        var time = getSecondsLeftBeforeNewCompetition() + 30*60; // 30 min after new compet
         setTimer('nextContestTime',Number(time)+1);
         // Not busy
         return false;
