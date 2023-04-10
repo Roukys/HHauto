@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.16.5
+// @version      5.16.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -9457,8 +9457,9 @@ function canBuyFight(logging=true)
     let maxx50 = 50;
     let maxx20 = 20;
     let currentFight =Number( getHHVars('Hero.energies.fight.amount'));
-    let pricex50=hero.get_max_recharge_cost(type,maxx50)
-    let pricex20=hero.get_recharge_cost(type);
+    const pricePerFight = hero.energies[type].seconds_per_point * (unsafeWindow.hh_prices[type + '_cost_per_minute'] / 60);
+    let pricex50= pricePerFight * maxx50;
+    let pricex20= pricePerFight * maxx20;
     let canRecharge20 = false;
     let remainingShards;
 
@@ -9551,25 +9552,10 @@ var RechargeCombat=function()
         // We have the power.
         //replaceCheatClick();
         //console.log($("plus[type='energy_fight']"), canBuyResult.price,canBuyResult.type, canBuyResult.max);
-        hero.recharge($("plus[type='energy_fight']"), canBuyResult.price,canBuyResult.type, canBuyResult.max);
+        hero.recharge($("button.orange_text_button.manual-recharge"), canBuyResult.type, canBuyResult.max, canBuyResult.price);
         setHHVars('Hero.infos.hc_confirm',hcConfirmValue);
         logHHAuto('Recharged up to '+canBuyResult.max+' fights for '+canBuyResult.price+' kobans.');
     }
-    //     hh_ajax(
-    //         {
-    //             class: "Hero",
-    //             action: "recharge",
-    //             type: type,
-    //             max: max
-    //         }, function(data)
-    //         {
-    //             Hero.update("energy_"+type, max || Hero.energies[type].max_regen_amount);
-    //             Hero.update("hard_currency", 0 - price, true);
-    //             setTimeout(function(){location.reload();},randomInterval(500,1500));
-    //             //Hero.update("fight.amount", getHHVars('Hero.energies.fight.max_regen_amount'));
-    //             //Hero.update("hard_currency", 0 - price, true);
-    //         });
-    //    logHHAuto('Recharged up to 50 fights.');
 }
 
 var getBurst=function()
