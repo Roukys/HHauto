@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.16.6
+// @version      5.16.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -169,36 +169,9 @@ function getCallerCallerFunction()
 {
     return getCallerCallerFunction.caller.caller.name
 }
-function getDSTOffset()
-{
-    function stdTimezoneOffset()
-    {
-        var jan = new Date(2020,0, 1);
-        var jul = new Date(2020,6, 1);
-        return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
-    }
-
-    var today = new Date();
-
-    function isDstObserved(today)
-    {
-        return today.getTimezoneOffset() < stdTimezoneOffset();
-    }
-
-    if (isDstObserved(today))
-    {
-        return -120; // Summer time
-    }
-    else
-    {
-        return -60; // Winter time
-    }
-}
 function getServerTS()
 {
     let sec_num = parseInt(getHHVars('server_now_ts'), 10);
-    const DST = new Date().getTimezoneOffset();
-    sec_num -= getDSTOffset() * 60;
     let days = Math.floor(sec_num / 86400);
     let hours = Math.floor(sec_num / 3600) % 24;
     let minutes = Math.floor(sec_num / 60) % 60;
@@ -208,18 +181,20 @@ function getServerTS()
 
 function getSecondsLeftBeforeEndOfHHDay()
 {
-    let HHEndOfDay = {days:0,hours:13,minutes:0,seconds:0};
+    let HHEndOfDay = {days:0,hours:11,minutes:0,seconds:0};
     let server_TS = getServerTS();
     HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?server_TS.days:server_TS.days+1;
-    return (HHEndOfDay.days - server_TS.days)*86400 + (HHEndOfDay.hours - server_TS.hours)*3600 + (HHEndOfDay.minutes - server_TS.minutes)*60 + (HHEndOfDay.days - server_TS.days);
+    let diffResetTime = (HHEndOfDay.hours * 3600 + HHEndOfDay.minutes * 60) - (server_TS.hours * 3600 + server_TS.minutes * 60);
+    return (HHEndOfDay.days - server_TS.days)*86400 + diffResetTime + (HHEndOfDay.days - server_TS.days);
 }
 
 function getSecondsLeftBeforeNewCompetition()
 {
-    let HHEndOfDay = {days:0,hours:13,minutes:30,seconds:0};
+    let HHEndOfDay = {days:0,hours:11,minutes:30,seconds:0};
     let server_TS = getServerTS();
     HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?server_TS.days:server_TS.days+1;
-    return (HHEndOfDay.days - server_TS.days)*86400 + (HHEndOfDay.hours - server_TS.hours)*3600 + (HHEndOfDay.minutes - server_TS.minutes)*60 + (HHEndOfDay.days - server_TS.days);
+    let diffResetTime = (HHEndOfDay.hours * 3600 + HHEndOfDay.minutes * 60) - (server_TS.hours * 3600 + server_TS.minutes * 60);
+    return (HHEndOfDay.days - server_TS.days)*86400 + diffResetTime + (HHEndOfDay.days - server_TS.days);
 }
 
 function canCollectCompetitionActive(){
