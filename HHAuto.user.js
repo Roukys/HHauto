@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.18.0
+// @version      5.18.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -184,18 +184,18 @@ function getSecondsLeftBeforeEndOfHHDay()
 {
     let HHEndOfDay = {days:0,hours:11,minutes:0,seconds:0};
     let server_TS = getServerTS();
-    HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?server_TS.days:server_TS.days+1;
-    let diffResetTime = (HHEndOfDay.hours * 3600 + HHEndOfDay.minutes * 60) - (server_TS.hours * 3600 + server_TS.minutes * 60);
-    return (HHEndOfDay.days - server_TS.days)*86400 + diffResetTime + (HHEndOfDay.days - server_TS.days);
+    HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?0:1;
+    let diffResetTime = (HHEndOfDay.days*86400 + HHEndOfDay.hours * 3600 + HHEndOfDay.minutes * 60) - (server_TS.hours * 3600 + server_TS.minutes * 60);
+    return diffResetTime;
 }
 
 function getSecondsLeftBeforeNewCompetition()
 {
     let HHEndOfDay = {days:0,hours:11,minutes:30,seconds:0};
     let server_TS = getServerTS();
-    HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?server_TS.days:server_TS.days+1;
-    let diffResetTime = (HHEndOfDay.hours * 3600 + HHEndOfDay.minutes * 60) - (server_TS.hours * 3600 + server_TS.minutes * 60);
-    return (HHEndOfDay.days - server_TS.days)*86400 + diffResetTime + (HHEndOfDay.days - server_TS.days);
+    HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?0:1;
+    let diffResetTime = (HHEndOfDay.days*86400 + HHEndOfDay.hours * 3600 + HHEndOfDay.minutes * 60) - (server_TS.hours * 3600 + server_TS.minutes * 60);
+    return diffResetTime;
 }
 
 function canCollectCompetitionActive(){
