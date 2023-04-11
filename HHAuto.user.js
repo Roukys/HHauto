@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.16.8
+// @version      5.16.9
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3978,11 +3978,17 @@ function goAndCollectSeasonalEvent()
         }
         return false;
     }
-    else
+    else if(unsafeWindow.seasonal_event_active)
     {
         logHHAuto("Switching to SeasonalEvent screen.");
         gotoPage(getHHScriptVars("pagesIDSeasonalEvent"));
         return true;
+    }
+    else
+    {
+        logHHAuto("No SeasonalEvent active.");
+        setTimer('nextSeasonalEventCollectTime', 604800); // 1 week delay
+        return false;
     }
 }
 
