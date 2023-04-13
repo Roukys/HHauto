@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.18.2
+// @version      5.18.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -385,11 +385,6 @@ function setHHVars(infoSearched,newValue)
             returnValue = returnValue[splittedInfoSearched[i]];
         }
     }
-}
-
-function getGirlsMap()
-{
-    return unsafeWindow.GirlSalaryManager.girlsMap;
 }
 
 function getPage(checkUnknown = false)
@@ -2561,9 +2556,10 @@ var CollectMoney = function()
                 if (data.success)
                 {
                     //console.log(Clicked[0]);
-                    if (getHHVars('GirlSalaryManager.girlsMap') !== null && getHHVars('GirlSalaryManager.girlsMap')[Clicked[0]] !== undefined)
+                    let girlsDataList = getHHVars("GirlSalaryManager.girlsMap");
+                    if (girlsDataList !== null && girlsDataList[Clicked[0]] !== undefined)
                     {
-                        const _this2 =getHHVars('GirlSalaryManager.girlsMap')[Clicked[0]];
+                        const _this2 = girlsDataList[Clicked[0]];
                         _this2.gData.pay_in = data.time + 60;
                         _this2._noDoubleClick = false;
                         _this2._resetSalaryDisplay();
@@ -2656,10 +2652,9 @@ var CollectMoney = function()
         }
         else//nothing to collect
         {
-            let salaryTimer =predictNextSalaryMinTime();
+            let salaryTimer = predictNextSalaryMinTime();
             if (salaryTimer > 0)
             {
-                salaryTimer = predictNextSalaryMinTime();
                 logHHAuto("Setting salary timer to "+salaryTimer+" secs.");
             }
             else
@@ -2678,7 +2673,7 @@ var CollectMoney = function()
 function predictNextSalaryMinTime(inGirlsDataList)
 {
     let girlsDataList = getHHVars("GirlSalaryManager.girlsMap");
-    const isGirlMap = getHHVars("GirlSalaryManager.girlsMap")!==null;
+    const isGirlMap = girlsDataList!==null;
     if (!isGirlMap)
     {
         girlsDataList = getHHVars("girlsDataList");
@@ -2776,10 +2771,15 @@ var getSalary = function () {
                     setTimer('nextSalaryTime',60);
                 }
             }
+            else if (!salaryToCollect)
+            {
+                logHHAuto("No salary to collect");
+                setTimer('nextSalaryTime',predictNextSalaryMinTime());
+            }
             else
             {
-                logHHAuto("Not enough salary to collect");
-                setTimer('nextSalaryTime',predictNextSalaryMinTime());
+                logHHAuto("Not enough salary to collect, wait 15min");
+                setTimer('nextSalaryTime', 15*60);
             }
         }
         else
