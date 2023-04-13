@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.18.1
+// @version      5.18.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3823,6 +3823,7 @@ function goAndCollectDailyGoals()
             setStoredValue("HHAuto_Temp_autoLoop", "false");
             let buttonsToCollect = [];
             const listDailyGoalsTiersToClaim = $("#daily_goals .progress-section .progress-bar-rewards-container .progress-bar-reward");
+            let potionsNum = Number($('.progress-section div.potions-total > div > p').text());
             for (let currentTier = 0 ; currentTier < listDailyGoalsTiersToClaim.length ; currentTier++)
             {
                 const currentButton = $("button[rel='claim']", listDailyGoalsTiersToClaim[currentTier]);
@@ -3861,7 +3862,7 @@ function goAndCollectDailyGoals()
             }
 
 
-            if (buttonsToCollect.length >0)
+            if (buttonsToCollect.length >0 || potionsNum <100)
             {
                 function collectDailyGoalsRewards()
                 {
@@ -3885,7 +3886,7 @@ function goAndCollectDailyGoals()
             else
             {
                 logHHAuto("No Daily Goals reward to collect.");
-                setTimer('nextDailyGoalsCollectTime',30*60);
+                setTimer('nextDailyGoalsCollectTime',getSecondsLeftBeforeEndOfHHDay() + 3600);
                 gotoPage(getHHScriptVars("pagesIDHome"));
                 return false;
             }
