@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.18.3
+// @version      5.19.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -7517,7 +7517,7 @@ var autoLoop = function ()
         if (
             busy==false && getHHScriptVars("isEnabledSeason",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && 
             (
-                checkTimer('nextSeasonCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonCollect") === "true" 
+                checkTimer('nextSeasonCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonCollect") === "true" && canCollectCompetitionActive()
                 || 
                 getStoredValue("HHAuto_Setting_autoSeasonCollectAll") === "true" && checkTimer('nextSeasonCollectAllTime') && (getTimer('SeasonRemainingTime') == -1 || getSecondsLeft('SeasonRemainingTime') < getLimitTimeBeforeEnd())
             )
@@ -7531,7 +7531,7 @@ var autoLoop = function ()
         if (
             busy==false && getHHScriptVars("isEnabledSeasonalEvent",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && 
             (
-                checkTimer('nextSeasonalEventCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true"
+                checkTimer('nextSeasonalEventCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true" && canCollectCompetitionActive()
                 ||
                 getStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll") === "true" && checkTimer('nextSeasonalEventCollectAllTime') && (getTimer('SeasonalEventRemainingTime') == -1 || getSecondsLeft('SeasonalEventRemainingTime') < getLimitTimeBeforeEnd())
             )
@@ -7545,7 +7545,7 @@ var autoLoop = function ()
         if (
             busy==false && getHHScriptVars("isEnabledPoV",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && 
             (
-                checkTimer('nextPoVCollectTime') && getStoredValue("HHAuto_Setting_autoPoVCollect") === "true" 
+                checkTimer('nextPoVCollectTime') && getStoredValue("HHAuto_Setting_autoPoVCollect") === "true" && canCollectCompetitionActive()
                 || 
                 getStoredValue("HHAuto_Setting_autoPoVCollectAll") === "true" && checkTimer('nextPoVCollectAllTime') && (getTimer('PoVRemainingTime') == -1 || getSecondsLeft('PoVRemainingTime') < getLimitTimeBeforeEnd())
             )
@@ -7559,7 +7559,7 @@ var autoLoop = function ()
         if (
             busy==false && getHHScriptVars("isEnabledPoG",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && 
             (
-                checkTimer('nextPoGCollectTime') && getStoredValue("HHAuto_Setting_autoPoGCollect") === "true" 
+                checkTimer('nextPoGCollectTime') && getStoredValue("HHAuto_Setting_autoPoGCollect") === "true" && canCollectCompetitionActive()
                 || 
                 getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true" && checkTimer('nextPoGCollectAllTime') && (getTimer('PoGRemainingTime') == -1 || getSecondsLeft('PoGRemainingTime') < getLimitTimeBeforeEnd())
             )
@@ -7570,21 +7570,21 @@ var autoLoop = function ()
             busy = goAndCollectPoG();
         }
 
-        if (busy==false && getHHScriptVars("isEnabledDailyRewards",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextDailyRewardsCollectTime') && getStoredValue("HHAuto_Setting_autoDailyRewardsCollect") === "true")
+        if (busy==false && getHHScriptVars("isEnabledDailyRewards",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextDailyRewardsCollectTime') && getStoredValue("HHAuto_Setting_autoDailyRewardsCollect") === "true" && canCollectCompetitionActive())
         {
             busy = true;
             logHHAuto("Time to go and check Daily Rewards for collecting reward.");
             goAndCollectDailyRewards();
         }
 
-        if (busy==false && getHHScriptVars("isEnabledFreeBundles",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextFreeBundlesCollectTime') && getStoredValue("HHAuto_Setting_autoFreeBundlesCollect") === "true")
+        if (busy==false && getHHScriptVars("isEnabledFreeBundles",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextFreeBundlesCollectTime') && getStoredValue("HHAuto_Setting_autoFreeBundlesCollect") === "true" && canCollectCompetitionActive())
         {
             busy = true;
             logHHAuto("Time to go and check Free Bundles for collecting reward.");
             goAndCollectFreeBundles();
         }
 
-        if (busy==false && getHHScriptVars("isEnabledDailyGoals",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextDailyGoalsCollectTime') && getStoredValue("HHAuto_Setting_autoDailyGoalsCollect") === "true")
+        if (busy==false && getHHScriptVars("isEnabledDailyGoals",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextDailyGoalsCollectTime') && getStoredValue("HHAuto_Setting_autoDailyGoalsCollect") === "true" && canCollectCompetitionActive())
         {
             busy = true;
             logHHAuto("Time to go and check daily Goals for collecting reward.");
