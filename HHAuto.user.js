@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.19.0
+// @version      5.19.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4748,9 +4748,6 @@ function getLeagueOpponentId(opponentsIDList,force=false)
     var DataOppo={};
     var maxTime = 1.6;
 
-    //toremove after migration in prod
-    var girlDataName = getHHScriptVars('girlToolTipData');
-
     if (Object.keys(opponentsPowerList.opponentsList).length === 0 ||  opponentsPowerList.expirationDate < new Date() || force)
     {
         sessionStorage.removeItem("HHAuto_Temp_LeagueOpponentList");
@@ -6108,8 +6105,6 @@ GM_addStyle('#leagues_middle .theme-container .theme-element {'
            );
 
 function moduleSimLeague() {
-    //let matchRating;
-    //let matchRatingFlag;
 
     if ($("#popup_message_league").length >0)
     {
@@ -6134,13 +6129,19 @@ function moduleSimLeague() {
         let simu = calculateBattleProbabilities(leaguePlayers.player, leaguePlayers.opponent);
         //console.log(opponent);
         //console.log(simu);
-        //matchRating=customMatchRating(simu);
 
-        //Publish the ego difference as a match rating
-        //matchRatingFlag = matchRating.substring(0,1);
-        //matchRating = matchRating.substring(1);
-        var opponentsTempPowerList = isJSON(getStoredValue("HHAuto_Temp_LeagueTempOpponentList"))?JSON.parse(getStoredValue("HHAuto_Temp_LeagueTempOpponentList")):{expirationDate:new Date().getTime() + getHHScriptVars("LeagueListExpirationSecs") * 1000,opponentsList:{}};
-        var DataOppo = opponentsTempPowerList.opponentsList;
+        let opponentsPowerList = isJSON(getStoredValue("HHAuto_Temp_LeagueOpponentList")) ? JSON.parse(getStoredValue("HHAuto_Temp_LeagueOpponentList")) : -1;
+        let opponentsTempPowerList = isJSON(getStoredValue("HHAuto_Temp_LeagueTempOpponentList")) ? JSON.parse(getStoredValue("HHAuto_Temp_LeagueTempOpponentList")) : -1;
+        if (opponentsPowerList === -1 ||  opponentsPowerList.expirationDate < new Date())
+        {
+            opponentsPowerList = opponentsTempPowerList;
+        }
+
+        if (opponentsPowerList === -1 ||  opponentsPowerList.expirationDate < new Date())
+        {
+            opponentsPowerList = {expirationDate: (new Date().getTime()) + (getHHScriptVars("LeagueListExpirationSecs") * 1000),opponentsList:{}}
+        }
+        var DataOppo = opponentsPowerList.opponentsList;
 
         const oppoPoints = simu.points;
         let expectedValue = 0;
@@ -6164,7 +6165,7 @@ function moduleSimLeague() {
         }
         $("tr.lead_table_default td span.nickname").append(`<span class='OppoScore ${simu.scoreClass}' title="${pointText}"><span style="margin:0;" id="HHPowerCalcScore">${nRounding(100*simu.win, 2, -1)}</span>% (<span style="margin:0;" id="HHPowerCalcPoints">${nRounding(expectedValue, 1, -1)}</span>)</span>`);
         DataOppo[Number(opponentData.id_fighter)]=simu;
-        setStoredValue("HHAuto_Temp_LeagueTempOpponentList", JSON.stringify({expirationDate:opponentsTempPowerList.expirationDate,opponentsList:DataOppo}));
+        setStoredValue("HHAuto_Temp_LeagueOpponentList", JSON.stringify({expirationDate:opponentsTempPowerList.expirationDate,opponentsList:DataOppo}));
 
         //CSS
 
