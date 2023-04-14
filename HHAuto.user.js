@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.19.3
+// @version      5.19.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -211,7 +211,7 @@ function debugDate(sec_num){
 }
 
 function getLimitTimeBeforeEnd(){
-    return Number(getStoredValue("HHAuto_Setting_collectAllTimer"));
+    return Number(getStoredValue("HHAuto_Setting_collectAllTimer")) * 3600;
 }
 
 function convertTimeToInt(remainingTimer){
@@ -7220,14 +7220,13 @@ var autoLoop = function ()
         if (busy === false && getHHScriptVars("isEnabledGreatPachinko",false) && getStoredValue("HHAuto_Setting_autoFreePachinko") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer("nextPachinkoTime") && canCollectCompetitionActive()) {
             logHHAuto("Time to fetch Great Pachinko.");
             busy = true;
-            busy =getFreeGreatPachinko();
-
+            busy = getFreeGreatPachinko();
         }
+
         if (busy === false && getHHScriptVars("isEnabledMythicPachinko",false) && getStoredValue("HHAuto_Setting_autoFreePachinko") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer("nextPachinko2Time") && canCollectCompetitionActive()) {
             logHHAuto("Time to fetch Mythic Pachinko.");
             busy = true;
             busy = getFreeMythicPachinko();
-
         }
 
         if(busy === false && getHHScriptVars("isEnabledContest",false) && getStoredValue("HHAuto_Setting_autoContest") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true")
