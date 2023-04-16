@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.19.8
+// @version      5.19.9
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1062,16 +1062,14 @@ function getSeasonRemainingTime()
 
 function getSeasonalEventRemainingTime()
 {
-    /*
-    const seasonalEventTimerRequest = `#pog_tab_container > div.potions-paths-first-row > div.potions-paths-timer.timer[${getHHScriptVars("PoVPoGTimestampAttributeName")}]`;
+    const seasonalEventTimerRequest = `.seasonal-event-panel .seasonal-event-container .seasonal-timer span[rel=expires]`;
 
     if ( $(seasonalEventTimerRequest).length > 0 && (getSecondsLeft("SeasonalEventRemainingTime") === 0 || getStoredValue("HHAuto_Temp_SeasonalEventEndDate") === undefined) )
     {
-        const seasonalEventTimer = Number($(seasonalEventTimerRequest).attr(getHHScriptVars("PoVPoGTimestampAttributeName")));
+        const seasonalEventTimer = Number(convertTimeToInt($(seasonalEventTimerRequest).text()));
         setTimer("SeasonalEventRemainingTime",seasonalEventTimer);
         setStoredValue("HHAuto_Temp_SeasonalEventEndDate",Math.ceil(new Date().getTime()/1000)+seasonalEventTimer);
     }
-    */
 }
 
 function getPoVRemainingTime()
@@ -3907,29 +3905,16 @@ function goAndCollectSeasonalEvent()
     if (getPage() === getHHScriptVars("pagesIDSeasonalEvent"))
     {
         // TODO fix timer during next seasonal event
+        getSeasonalEventRemainingTime();
         const seasonalEventEnd = 30*24*60*60;// Temp 30 days to prevent script collection // getSecondsLeft("SeasonalEventRemainingTime");
         // logHHAuto("Seasonal end in " + seasonalEventEnd);
+        const needToCollect = (checkTimer('nextSeasonalEventCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true")
+        const needToCollectAllBeforeEnd = (checkTimer('nextSeasonalEventCollectAllTime') && seasonalEventEnd < getLimitTimeBeforeEnd() && getStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll") === "true");
 
-        if (checkTimer('nextSeasonalEventCollectAllTime') && seasonalEventEnd < getLimitTimeBeforeEnd() && getStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll") === "true")
+        if (needToCollect || needToCollectAllBeforeEnd)
         {
-            if ($(getHHScriptVars("selectorClaimAllRewards")).length > 0)
-            {
-                logHHAuto("Going to collect all seasonal item at once.");
-                setTimeout(function (){
-                    $(getHHScriptVars("selectorClaimAllRewards"))[0].click();
-                    setTimer('nextSeasonalEventCollectAllTime',getHHScriptVars("maxCollectionDelay")); // Add timer to check again later if there is new items to collect
-                    setTimeout(function (){gotoPage(getHHScriptVars("pagesIDHome"));},500);
-                },500);
-                return true;
-            }
-            else
-            {
-                setTimer('nextSeasonalEventCollectAllTime',getHHScriptVars("maxCollectionDelay"));
-            }
-        }
-        if (checkTimer('nextSeasonalEventCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true")
-        {
-            logHHAuto("Checking SeasonalEvent for collectable rewards.");
+            if (needToCollect) logHHAuto("Checking SeasonalEvent for collectable rewards.");
+            if (needToCollectAllBeforeEnd) logHHAuto("Going to collect all SeasonalEvent rewards.");
             logHHAuto("setting autoloop to false");
             setStoredValue("HHAuto_Temp_autoLoop", "false");
             let buttonsToCollect = [];
@@ -3940,7 +3925,7 @@ function goAndCollectSeasonalEvent()
                 const currentTierNb = currentButton.getAttribute("tier");
                 //console.log("checking tier : "+currentTierNb);
                 const freeSlotType = getRewardTypeBySlot($(".free-slot .slot,.free-slot .shards_girl_ico",listSeasonalEventTiersToClaim[currentTier])[0]);
-                if (rewardsToCollect.includes(freeSlotType))
+                if (rewardsToCollect.includes(freeSlotType) || needToCollectAllBeforeEnd)
                 {
                     buttonsToCollect.push(currentButton);
                     logHHAuto("Adding for collection tier (only free) : "+currentTierNb);
@@ -7766,7 +7751,7 @@ var autoLoop = function ()
             {
                 moduleSimSeasonalMaskReward();
             }
-            getSeasonalEventRemainingTime();
+            //getSeasonalEventRemainingTime();
             break;
         case getHHScriptVars("pagesIDChampionsPage"):
             moduleSimChampions();
@@ -13148,17 +13133,7 @@ var start = function () {
                             +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
                                 + hhMenuSwitch('SeasonalEventMaskRewards')
                                 + hhMenuSwitch('autoSeasonalEventCollect')
-                                +`<div class="labelAndButton" style="display:none;">` // Hidden until next seasonal event
-                                    +`<span class="HHMenuItemName">${getTextForUI("autoSeasonalEventCollectAll","elementText")}</span>`
-                                    +`<div class="tooltipHH">`
-                                        +`<span class="tooltipHHtext">${getTextForUI("autoSeasonalEventCollectAll","tooltip")}</span>`
-                                        +`<label class="switch">`
-                                            +`<input id="autoSeasonalEventCollectAll" type="checkbox">`
-                                            +`<span class="slider round">`
-                                            +`</span>`
-                                        +`</label>`
-                                    +`</div>`
-                                +`</div>`
+                                + hhMenuSwitch('autoSeasonalEventCollectAll')
                             +`</div>`
                         +`</div>`
                     +`</div>`
