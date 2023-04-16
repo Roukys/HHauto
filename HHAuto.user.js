@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.19.6
+// @version      5.19.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4004,7 +4004,7 @@ function goAndCollectPoV()
         const povEnd = getSecondsLeft("PoVRemainingTime");
         logHHAuto("PoV end in " + debugDate(povEnd));
 
-        if (checkTimer('nextPoVCollectAllTime') && (povEnd < getLimitTimeBeforeEnd() && getStoredValue("HHAuto_Setting_autoPoVCollectAll") === "true")
+        if (checkTimer('nextPoVCollectAllTime') && povEnd < getLimitTimeBeforeEnd() && getStoredValue("HHAuto_Setting_autoPoVCollectAll") === "true")
         {
             if ($(getHHScriptVars("selectorClaimAllRewards")).length > 0)
             {
@@ -4104,7 +4104,7 @@ function goAndCollectPoG()
         const pogEnd = getSecondsLeft("PoGRemainingTime");
         logHHAuto("PoG end in " + debugDate(pogEnd));
 
-        if (checkTimer('nextPoGCollectAllTime') && (pogEnd < getLimitTimeBeforeEnd() && getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true")
+        if (checkTimer('nextPoGCollectAllTime') && pogEnd < getLimitTimeBeforeEnd() && getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true")
         {
             if ($(getHHScriptVars("selectorClaimAllRewards")).length > 0)
             {
@@ -4204,7 +4204,7 @@ function goAndCollectSeason()
         const seasonEnd = getSecondsLeft("SeasonRemainingTime");
         logHHAuto("Season end in " + debugDate(seasonEnd));
 
-        if (checkTimer('nextSeasonCollectAllTime') && (seasonEnd < getLimitTimeBeforeEnd() && getStoredValue("HHAuto_Setting_autoSeasonCollectAll") === "true")
+        if (checkTimer('nextSeasonCollectAllTime') && seasonEnd < getLimitTimeBeforeEnd() && getStoredValue("HHAuto_Setting_autoSeasonCollectAll") === "true")
         {
             if($(getHHScriptVars("selectorClaimAllRewards")).length > 0)
             {
@@ -13100,6 +13100,18 @@ var start = function () {
                                 + hhMenuSwitch('autoLeaguesAllowWinCurrent')
                                 + hhMenuInputWithImg('autoLeaguesThreshold', HHAuto_inputPattern.autoLeaguesThreshold, 'text-align:center; width:25px', 'league_points.png' )
                                 + hhMenuInput('autoLeaguesSecurityThreshold', HHAuto_inputPattern.autoLeaguesSecurityThreshold, 'text-align:center; width:25px' )
+                                
+                                +`<div class="labelAndButton" style="display:none;">` // Hidden
+                                    +`<span class="HHMenuItemName">${getTextForUI("storeSimuInStorage","elementText")}</span>`
+                                    +`<div class="tooltipHH">`
+                                        +`<span class="tooltipHHtext">${getTextForUI("storeSimuInStorage","tooltip")}</span>`
+                                        +`<label class="switch">`
+                                            +`<input id="storeSimuInStorage" type="checkbox">`
+                                            +`<span class="slider round">`
+                                            +`</span>`
+                                        +`</label>`
+                                    +`</div>`
+                                +`</div>`
                             +`</div>`
                         +`</div>`
                     +`</div>`
