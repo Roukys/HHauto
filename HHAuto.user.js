@@ -3904,9 +3904,8 @@ function goAndCollectSeasonalEvent()
 
     if (getPage() === getHHScriptVars("pagesIDSeasonalEvent"))
     {
-        // TODO fix timer during next seasonal event
         getSeasonalEventRemainingTime();
-        const seasonalEventEnd = 30*24*60*60;// Temp 30 days to prevent script collection // getSecondsLeft("SeasonalEventRemainingTime");
+        const seasonalEventEnd = getSecondsLeft("SeasonalEventRemainingTime");
         // logHHAuto("Seasonal end in " + seasonalEventEnd);
         const needToCollect = (checkTimer('nextSeasonalEventCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true")
         const needToCollectAllBeforeEnd = (checkTimer('nextSeasonalEventCollectAllTime') && seasonalEventEnd < getLimitTimeBeforeEnd() && getStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll") === "true");
