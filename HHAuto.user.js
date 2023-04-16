@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.19.9
+// @version      5.19.10
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -5411,7 +5411,7 @@ var getTimeLeft=function(name)
     {
         if (!canCollectCompetitionActive() && timerWaitingCompet.indexOf(name) >= 0)
         {
-            return "Wait for compet";
+            return "Wait for contest";
         }
         return "No timer";
     }
@@ -5420,7 +5420,7 @@ var getTimeLeft=function(name)
     {
         if (!canCollectCompetitionActive() && timerWaitingCompet.indexOf(name) >= 0)
         {
-            return "Wait for compet";
+            return "Wait for contest";
         }
         return "Time's up!";
     }
@@ -12683,6 +12683,8 @@ var updateData = function () {
     });
     if (getStoredValue("HHAuto_Setting_showInfo") =="true") // && busy==false // && getPage()==getHHScriptVars("pagesIDHome")
     {
+        let contest = '';
+        if (!canCollectCompetitionActive()) contest = " : Wait for contest";
         var Tegzd='';
         Tegzd+=(getStoredValue("HHAuto_Setting_master") ==="true"?"<span style='color:LimeGreen'>HH auto ++ ON":"<span style='color:red'>HH auto ++ OFF")+'</span>';
         //Tegzd+=(getStoredValue("HHAuto_Setting_master") ==="true"?"<span style='color:LimeGreen'>"+getTextForUI("master","elementText")+" : ON":"<span style='color:red'>"+getTextForUI("master","elementText")+" : OFF")+'</span>';
@@ -12694,7 +12696,7 @@ var updateData = function () {
         }
         if (getHHScriptVars('isEnabledTrollBattle',false) && getStoredValue("HHAuto_Setting_autoTrollBattle") =="true")
         {
-            Tegzd += '<li>'+getTextForUI("autoTrollTitle","elementText")+' : '+getHHVars('Hero.energies.fight.amount')+'/'+getHHVars('Hero.energies.fight.max_regen_amount')+'</li>';
+            Tegzd += '<li>'+getTextForUI("autoTrollTitle","elementText")+' : '+getHHVars('Hero.energies.fight.amount')+'/'+getHHVars('Hero.energies.fight.max_regen_amount')+contest+'</li>';
         }
         if (getHHScriptVars("isEnabledSalary",false) && getStoredValue("HHAuto_Setting_autoSalary") =="true")
         {
@@ -12702,7 +12704,7 @@ var updateData = function () {
         }
         if (getHHScriptVars('isEnabledSeason',false) && getStoredValue("HHAuto_Setting_autoSeason") =="true")
         {
-            Tegzd += '<li>'+getTextForUI("autoSeasonTitle","elementText")+' : '+getHHVars('Hero.energies.kiss.amount')+'/'+getHHVars('Hero.energies.kiss.max_regen_amount')+' ('+getTimeLeft('nextSeasonTime')+')'+'</li>';
+            Tegzd += '<li>'+getTextForUI("autoSeasonTitle","elementText")+' '+getHHVars('Hero.energies.kiss.amount')+'/'+getHHVars('Hero.energies.kiss.max_regen_amount')+' : '+getTimeLeft('nextSeasonTime')+'</li>';
         }
         /*if (getHHScriptVars('isEnabledSeason',false) && getStoredValue("HHAuto_Setting_autoSeasonCollect") =="true")
         {
@@ -12710,7 +12712,7 @@ var updateData = function () {
         }*/
         if (getHHScriptVars('isEnabledLeagues',false) && getStoredValue("HHAuto_Setting_autoLeagues") =="true")
         {
-            Tegzd += '<li>'+getTextForUI("autoLeaguesTitle","elementText")+' : '+getHHVars('Hero.energies.challenge.amount')+'/'+getHHVars('Hero.energies.challenge.max_regen_amount')+' ('+getTimeLeft('nextLeaguesTime')+')'+'</li>';
+            Tegzd += '<li>'+getTextForUI("autoLeaguesTitle","elementText")+' '+getHHVars('Hero.energies.challenge.amount')+'/'+getHHVars('Hero.energies.challenge.max_regen_amount')+' : '+getTimeLeft('nextLeaguesTime')+'</li>';
         }
         if (getHHScriptVars("isEnabledChamps",false) && getStoredValue("HHAuto_Setting_autoChamps") =="true")
         {
