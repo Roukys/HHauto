@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.19.11
+// @version      5.20.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -41,7 +41,7 @@ GM_addStyle('#pInfo {padding-left:3px; z-index:1;white-space: pre;position: abso
 GM_addStyle('span.HHMenuItemName {padding-bottom:2px; line-height:120%}');
 GM_addStyle('div.optionsRow {display:flex; flex-direction:row; justify-content: space-between}'); //; padding:3px;
 GM_addStyle('span.optionsBoxTitle {padding-left:5px}'); //; padding-bottom:2px
-GM_addStyle('div.optionsColumn {display:flex; flex-direction:column; justify-content: space-between}'); //; padding:3px;
+GM_addStyle('div.optionsColumn {display:flex; flex-direction:column}');
 GM_addStyle('div.optionsBoxWithTitle {display:flex; flex-direction:column}');
 GM_addStyle('img.iconImg {max-width:15px; height:15px}');
 GM_addStyle('#sMenu {top: 45px;right: 52px;padding: 4px;opacity: 1;border-radius: 4px;border: 1px solid #ffa23e;background-color: #1e261e;font-size:x-small; position:absolute; text-align:left; flex-direction:column; justify-content:space-between; z-index:10000; overflow:auto; max-height:calc(100% - 45px); scrollbar-width: thin;}');
@@ -1211,7 +1211,8 @@ function moduleSimChampions()
                 girlsPerPose[expectedPose][0].htmlDom.append('<span class="hhgirlOrder" title="'+getTextForUI("ChampGirlOrder","tooltip")+' '+(i+1)+'" style="position: absolute;top: 41px;left: 3px;z-index: 10;color:'+color+';">'+(i+1)+'</span>');
                 girlsPerPose[expectedPose].shift();
             }
-            girls[i].htmlDom.append('<span class="hhgirlOrder" title="'+getTextForUI("ChampGirlLowOrder","tooltip")+' '+(i+1)+'" style="position: absolute;top: 41px;left: 47px;z-index: 10;color:red;">'+(i+1)+'</span>');
+            if(girls && girls[i])
+                girls[i].htmlDom.append('<span class="hhgirlOrder" title="'+getTextForUI("ChampGirlLowOrder","tooltip")+' '+(i+1)+'" style="position: absolute;top: 41px;left: 47px;z-index: 10;color:red;">'+(i+1)+'</span>');
         }
     };
 
@@ -2183,13 +2184,10 @@ function collectAndUpdatePowerPlaces()
                 //force check of PowerPlaces every 7 hours
                 setTimer('minPowerPlacesTime',Number(20*60)+1);
             }
-            /*
-            // TODO plan a new config for this option based an a delta timr.
-            else if (getStoredValue("HHAuto_Setting_autoPowerPlacesAll") === "true")
+            else if (getStoredValue("HHAuto_Setting_autoPowerPlacesWaitMax") === "true" && maxTime != -1)
             {
                 setTimer('minPowerPlacesTime',Number(maxTime)+1);
             }
-            */
             else 
             {
                 setTimer('minPowerPlacesTime',Number(minTime)+1);
@@ -10716,6 +10714,7 @@ HHAuto_ToolTips.en.autoContest = { version: "5.6.24", elementText: "Claim Contes
 HHAuto_ToolTips.en.autoFreePachinko = { version: "5.6.24", elementText: "Pachinko", tooltip: "if enabled : Automatically collect free Pachinkos"};
 HHAuto_ToolTips.en.autoMythicPachinko = { version: "5.6.24", elementText: "Mythic Pachinko"};
 HHAuto_ToolTips.en.autoLeaguesTitle = { version: "5.6.24", elementText: "Leagues"};
+HHAuto_ToolTips.en.storeSimuInStorage = { version: "5.19.7", elementText: "Store simu in storage", tooltip: ""};
 HHAuto_ToolTips.en.autoLeagues = { version: "5.6.24", elementText: "Enable", tooltip: "if enabled : Automatically battle Leagues"};
 HHAuto_ToolTips.en.autoLeaguesPowerCalc = { version: "5.6.24", elementText: "Use PowerCalc", tooltip: "if enabled : will choose opponent using PowerCalc (Opponent list expires every 10 mins and take few mins to be built)"};
 HHAuto_ToolTips.en.autoLeaguesCollect = { version: "5.6.24", elementText: "Collect", tooltip: "If enabled : Automatically collect Leagues"};
@@ -10728,6 +10727,7 @@ HHAuto_ToolTips.en.autoPowerPlacesIndexFilter = { version: "5.6.24", elementText
 HHAuto_ToolTips.en.autoPowerPlacesAll = { version: "5.6.24", elementText: "Do All", tooltip: "If enabled : ignore filter and do all powerplaces (will update Filter with current ids)"};
 HHAuto_ToolTips.en.autoPowerPlacesPrecision = { version: "5.6.103", elementText: "PoP precision", tooltip: "If enabled : use more advanced algorithm to try and find best team instead of using auto. This is more useful when you have a smaller roster and may be very slow with large rosters."};
 HHAuto_ToolTips.en.autoPowerPlacesInverted = { version: "5.10.0", elementText: "PoP inverted", tooltip: "If enabled : fill the POP starting from the last one."};
+HHAuto_ToolTips.en.autoPowerPlacesWaitMax = { version: "5.20.0", elementText: "PoP wait max", tooltip: "If enabled : POP will wait all POP are ended before starting new one."};
 HHAuto_ToolTips.en.autoChampsTitle = { version: "5.6.24", elementText: "Champions"};
 HHAuto_ToolTips.en.autoChamps = { version: "5.6.24", elementText: "Normal", tooltip: "if enabled : Automatically do champions (if they are started and in filter only)"};
 HHAuto_ToolTips.en.autoChampsForceStart = { version: "5.6.76", elementText: "Force start", tooltip: "if enabled : will fight filtered champions even if not started."};
@@ -11537,6 +11537,17 @@ HHStoredVars.HHAuto_Setting_autoPowerPlacesPrecision =
     kobanUsing:false,
 };
 HHStoredVars.HHAuto_Setting_autoPowerPlacesInverted =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+};
+HHStoredVars.HHAuto_Setting_autoPowerPlacesWaitMax =
     {
     default:"false",
     storage:"Storage()",
@@ -12936,7 +12947,7 @@ var start = function () {
     let sMenu =`<div id="sMenu" class="HHAutoScriptMenu" style="display: none;">`
         +`<div style="position: absolute;left: 40%;color: #F00">${getTextForUI("noOtherScripts","elementText")}</div>`
         +`<div class="optionsRow">`
-            +`<div class="optionsColumn">`
+            +`<div class="optionsColumn" style="min-width: 185px;">`
                 +`<div style="padding:3px; display:flex; flex-direction:column;">`
                     +`<span>HH Automatic ++</span>`
                     +`<span style="font-size:smaller; padding-bottom:10px">Version ${GM_info.script.version}</span>`
@@ -12985,9 +12996,15 @@ var start = function () {
                         +`</div>`
                     +`</div>`
                 +`</div>`
-                +`<div class="rowOptionsBox">`
-                    + hhMenuSwitchWithImg('spendKobans0', 'design/menu/affil_prog.svg', true)
-                    + hhMenuInputWithImg('kobanBank', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px', 'pictures/design/ic_hard_currency.png' )
+                +`<div class="optionsBoxWithTitle">`
+                    +`<div class="optionsBoxTitle">`
+                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/pictures/design/ic_hard_currency.png" />`
+                        +`<span class="optionsBoxTitle">Kobans</span>`
+                    +`</div>`
+                    +`<div class="rowOptionsBox">`
+                        + hhMenuSwitchWithImg('spendKobans0', 'design/menu/affil_prog.svg', true)
+                        + hhMenuInputWithImg('kobanBank', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px', 'pictures/design/ic_hard_currency.png' )
+                    +`</div>`
                 +`</div>`
                 +`<div class="optionsBoxWithTitle">`
                     +`<div class="optionsBoxTitle">`
@@ -13008,26 +13025,36 @@ var start = function () {
             +`</div>`
             +`<div class="optionsColumn">`
                 +`<div class="optionsRow">`
-                    +`<div class="optionsBoxWithTitle">`
-                        +`<div class="optionsBoxTitle">`
-                            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/missions.svg" />`
-                            +`<span class="optionsBoxTitle">${getTextForUI("autoActivitiesTitle","elementText")}</span>`
-                        +`</div>`
-                        +`<div class="optionsBox">`
-                            +`<div class="internalOptionsRow">`
-                                +`<div id="isEnabledMission" class="internalOptionsRow">`
-                                    + hhMenuSwitch('autoMission')
-                                    + hhMenuSwitch('autoMissionCollect')
-                                    + hhMenuSwitch('autoMissionKFirst')
-                                +`</div>`
-                                + hhMenuSwitch('autoContest', 'isEnabledContest')
+                    +`<div class="optionsColumn">`
+                        +`<div class="optionsBoxWithTitle">`
+                            +`<div class="optionsBoxTitle">`
+                                +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/missions.svg" />`
+                                +`<span class="optionsBoxTitle">${getTextForUI("autoActivitiesTitle","elementText")}</span>`
                             +`</div>`
-                            +`<div id="isEnabledPowerPlaces" class="internalOptionsRow">`
-                                + hhMenuSwitch('autoPowerPlaces')
-                                + hhMenuInput('autoPowerPlacesIndexFilter', HHAuto_inputPattern.autoPowerPlacesIndexFilter, '' )
-                                + hhMenuSwitch('autoPowerPlacesAll')
-                                + hhMenuSwitch('autoPowerPlacesPrecision')
-                                + hhMenuSwitch('autoPowerPlacesInverted')
+                            +`<div class="optionsBox">`
+                                +`<div class="internalOptionsRow">`
+                                    +`<div id="isEnabledMission" class="internalOptionsRow">`
+                                        + hhMenuSwitch('autoMission')
+                                        + hhMenuSwitch('autoMissionCollect')
+                                        + hhMenuSwitch('autoMissionKFirst')
+                                    +`</div>`
+                                    + hhMenuSwitch('autoContest', 'isEnabledContest')
+                                +`</div>`
+                            +`</div>`
+                        +`</div>`
+                        +`<div id="isEnabledPowerPlaces" class="optionsBoxWithTitle">`
+                            +`<div class="optionsBoxTitle">`
+                                +`<span class="optionsBoxTitle">${getTextForUI("autoPowerPlaces","elementText")}</span>`
+                            +`</div>`
+                            +`<div class="optionsBox">`
+                                +`<div class="internalOptionsRow">`
+                                    + hhMenuSwitch('autoPowerPlaces')
+                                    + hhMenuInput('autoPowerPlacesIndexFilter', HHAuto_inputPattern.autoPowerPlacesIndexFilter, '' )
+                                    + hhMenuSwitch('autoPowerPlacesAll')
+                                    + hhMenuSwitch('autoPowerPlacesPrecision')
+                                    + hhMenuSwitch('autoPowerPlacesInverted')
+                                    + hhMenuSwitch('autoPowerPlacesWaitMax')
+                                +`</div>`
                             +`</div>`
                         +`</div>`
                     +`</div>`
