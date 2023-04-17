@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.20.1
+// @version      5.20.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -44,7 +44,8 @@ GM_addStyle('span.optionsBoxTitle {padding-left:5px}'); //; padding-bottom:2px
 GM_addStyle('div.optionsColumn {display:flex; flex-direction:column}');
 GM_addStyle('div.optionsBoxWithTitle {display:flex; flex-direction:column}');
 GM_addStyle('img.iconImg {max-width:15px; height:15px}');
-GM_addStyle('#sMenu {top: 45px;right: 52px;padding: 4px;opacity: 1;border-radius: 4px;border: 1px solid #ffa23e;background-color: #1e261e;font-size:x-small; position:absolute; text-align:left; flex-direction:column; justify-content:space-between; z-index:10000; overflow:auto; max-height:calc(100% - 45px); scrollbar-width: thin;}');
+GM_addStyle('#sMenu {top: 45px;right: 52px;padding: 4px;opacity: 1;border-radius: 4px;border: 1px solid #ffa23e;background-color: #1e261e;font-size:x-small; position:absolute; text-align:left; flex-direction:column; justify-content:space-between; z-index:10000; overflow:auto; max-height:calc(100% - 45px); scrollbar-width: thin;max-width: calc(100% - 52px);}');
+GM_addStyle('#sMenu::-webkit-scrollbar {width: 6px;}');
 GM_addStyle('div.optionsBoxTitle {padding:5px 15px 0px 5px; height:15px; display:flex; flex-direction:row; justify-content:center; align-items:center;}'); //; padding:2px; padding-bottom:0px;
 GM_addStyle('div.rowOptionsBox {margin:3px; padding:3px; font-size:smaller; display:flex; flex-direction:row; align-items:flex-start; border: 1px solid #ffa23e; border-radius: 5px}');
 GM_addStyle('div.optionsBox {margin:3px; padding:3px; font-size:smaller; display:flex; flex-direction:column; border:1px solid #ffa23e; border-radius:5px}');
@@ -13023,7 +13024,7 @@ var start = function () {
                     +`</div>`
                 +`</div>`
             +`</div>`
-            +`<div class="optionsColumn">`
+            +`<div class="optionsColumn" style="min-width: 500px;">`
                 +`<div class="optionsRow">`
                     +`<div class="optionsColumn">`
                         +`<div class="optionsBoxWithTitle">`
@@ -13051,6 +13052,8 @@ var start = function () {
                                     + hhMenuSwitch('autoPowerPlaces')
                                     + hhMenuInput('autoPowerPlacesIndexFilter', HHAuto_inputPattern.autoPowerPlacesIndexFilter, '' )
                                     + hhMenuSwitch('autoPowerPlacesAll')
+                                +`</div>`
+                                +`<div class="internalOptionsRow">`
                                     + hhMenuSwitch('autoPowerPlacesPrecision')
                                     + hhMenuSwitch('autoPowerPlacesInverted')
                                     + hhMenuSwitch('autoPowerPlacesWaitMax')
@@ -13200,7 +13203,7 @@ var start = function () {
                     +`</div>`
                 +`</div>`
             +`</div>`
-            +`<div class="optionsColumn">`
+            +`<div class="optionsColumn" style="width: 280px;">`
                 +`<div id="isEnabledAllChamps" class="optionsBoxWithTitle">`
                     +`<div class="optionsBoxTitle">`
                         +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
