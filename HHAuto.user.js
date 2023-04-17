@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.20.2
+// @version      5.20.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -10800,12 +10800,15 @@ HHAuto_ToolTips.en.equipementCaracs = { version: "5.6.24", elementText: "Caracs"
 HHAuto_ToolTips.en.equipementType = { version: "5.6.24", elementText: "Type", tooltip: ""};
 HHAuto_ToolTips.en.autoMissionKFirst = { version: "5.6.24", elementText: "Kobans first", tooltip: "Start by missions rewarded with Kobans."};
 HHAuto_ToolTips.en.povpogTitle = { version: "5.6.133", elementText: "Path of Value/Glory"};
+HHAuto_ToolTips.en.povTitle = { version: "5.20.3", elementText: "Path of Value"};
+HHAuto_ToolTips.en.pogTitle = { version: "5.20.3", elementText: "Path of Glory"};
 HHAuto_ToolTips.en.seasonalEventTitle = { version: "5.6.133", elementText: "Seasonal Event"};
 HHAuto_ToolTips.en.PoAMaskRewards = { version: "5.6.24", elementText: "PoA mask claimed", tooltip: "Masked claimed rewards for Path of Attraction."};
 HHAuto_ToolTips.en.PoVMaskRewards = { version: "5.6.26", elementText: "PoV mask claimed", tooltip: "Masked claimed rewards for Path of Valor."};
 HHAuto_ToolTips.en.PoGMaskRewards = { version: "5.6.89", elementText: "PoG mask claimed", tooltip: "Masked claimed rewards for Path of Glory."};
 HHAuto_ToolTips.en.SeasonalEventMaskRewards = { version: "5.6.132", elementText: "Seasonal Event mask claimed", tooltip: "Masked claimed rewards for Seasonal Event."};
-HHAuto_ToolTips.en.bossBangEvent = { version: "5.6.137", elementText: "Boss Bang Event", tooltip: "Perform boss bang fight script will start with the team configured after."};
+HHAuto_ToolTips.en.bossBangEvent = { version: "5.20.3", elementText: "Enable", tooltip: "Perform boss bang fight script will start with the team configured after."};
+HHAuto_ToolTips.en.bossBangEventTitle = { version: "5.20.3", elementText: "Boss Bang Event"};
 HHAuto_ToolTips.en.bossBangMinTeam = { version: "5.6.137", elementText: "First Team", tooltip: "First team to start with<br>If 5 will start with last team and reach the first one."};
 HHAuto_ToolTips.en.showTooltips = { version: "5.6.24", elementText: "Show tooltips", tooltip: "Show tooltip on menu."};
 HHAuto_ToolTips.en.showMarketTools = { version: "5.6.24", elementText: "Show market tools", tooltip: "Show Market tools."};
@@ -10965,12 +10968,15 @@ HHAuto_ToolTips.fr.minShardsX50 = { version: "5.6.24", elementText: "Frags min. 
 HHAuto_ToolTips.fr.minShardsX10 = { version: "5.6.24", elementText: "Frags min. x10", tooltip: "Utiliser le bouton x10 si le nombre de fragments restant est supérieur ou égal à..."};
 HHAuto_ToolTips.fr.autoMissionKFirst = { version: "5.6.24", elementText: "Prioriser Kobans", tooltip: "Si activé : commence par les missions qui rapportent des kobans."};
 HHAuto_ToolTips.fr.povpogTitle = { version: "5.6.133", elementText: "Voie de la Valeur/Gloire"};
+HHAuto_ToolTips.fr.povTitle = { version: "5.20.3", elementText: "Voie de la Valeur"};
+HHAuto_ToolTips.fr.pogTitle = { version: "5.20.3", elementText: "Voie de la Gloire"};
 HHAuto_ToolTips.fr.seasonalEventTitle = { version: "5.6.133", elementText: "Evènements saisoniers"};
 HHAuto_ToolTips.fr.mousePause = {version: "5.6.135", elementText: "Pause souris", tooltip: "Pause le script pour 5 secondes quand des mouvements de la souris sont detecté. Evite le sript d'interrompre les actions manuelles. (en ms, 5000ms=5s)"};
 HHAuto_ToolTips.fr.PoVMaskRewards = { version: "5.6.133", elementText: "Masquer gains VDLV", tooltip: "Permet de masquer les gains réclamés de la Voie de la Valeur."};
 HHAuto_ToolTips.fr.PoGMaskRewards = { version: "5.6.133", elementText: "Masquer gains VDLG", tooltip: "Permet de masquer les gains réclamés de la Voie de la Gloire."};
 HHAuto_ToolTips.fr.SeasonalEventMaskRewards = { version: "5.6.133", elementText: "Masquer gains saisonier", tooltip: "Permet de masquer les gains réclamés des évènements saisoniers."};
-HHAuto_ToolTips.fr.bossBangEvent = { version: "5.6.137", elementText: "Evènements Boss Bang", tooltip: "Si activé : Effectue les combats boss bang en commençant par l'équipe configuré si après."};
+HHAuto_ToolTips.fr.bossBangEvent = { version: "5.20.3", elementText: "Activer", tooltip: "Si activé : Effectue les combats boss bang en commençant par l'équipe configuré si après."};
+HHAuto_ToolTips.fr.bossBangEventTitle = { version: "5.20.3", elementText: "Evènements Boss Bang"};
 HHAuto_ToolTips.fr.bossBangMinTeam = { version: "5.6.137", elementText: "Première équipe", tooltip: "Première équipe à utiliser<br>Si 5, le script commencera par la dernière pour finir par la premiere."};
 HHAuto_ToolTips.fr.autoDailyRewardsCollect = {version: "5.6.133", elementText: "Collecter récompense journalier", tooltip: "Permet de collecter les récompenses journalières si non collectées 2 heures avant la fin du jour HH."};
 HHAuto_ToolTips.fr.autoFreeBundlesCollect = {version: "5.16.0", elementText: "Collecter offres gratuites", tooltip: "Permet de collecter les offres gratuites."};
@@ -11054,6 +11060,8 @@ HHAuto_ToolTips.de.autoLGRW = { version: "5.6.24", elementText: "Buy Leg Gear Ra
 HHAuto_ToolTips.de.autoLGR = { version: "5.6.24", elementText: "Min Geld verbleib", tooltip: "Minimum an Geld das behalten wird."};
 HHAuto_ToolTips.de.OpponentListBuilding = { version: "5.6.24", elementText: "Gegnerliste wird erstellt", tooltip: ""};
 HHAuto_ToolTips.de.OpponentParsed = { version: "5.6.24", elementText: "Gegner analysiert", tooltip: ""};
+HHAuto_ToolTips.de.povTitle = { version: "5.20.3", elementText: "Pfad der Tapferkeit (PoV)"};
+HHAuto_ToolTips.de.pogTitle = { version: "5.20.3", elementText: "Pfad des Ruhmes (PoG)"};
 
 HHAuto_ToolTips.es.saveDebug = { version: "5.6.24", elementText: "Salvar Debug", tooltip: "Permite generar un fichero log de depuración."};
 HHAuto_ToolTips.es.gitHub = { version: "5.6.24", elementText: "GitHub", tooltip: "Link al proyecto GitHub."};
@@ -11135,6 +11143,8 @@ HHAuto_ToolTips.es.timerResetSelector = { version: "5.6.24", elementText: "Selec
 HHAuto_ToolTips.es.timerResetButton = { version: "5.6.24", elementText: "Restablecer", tooltip: "Establece el temporizador a 0."};
 HHAuto_ToolTips.es.timerLeftTime = { version: "5.6.24", elementText: "", tooltip: "Tiempo restante"};
 HHAuto_ToolTips.es.timerResetNoTimer = { version: "5.6.24", elementText: "No hay temporizador seleccionado", tooltip: ""};
+HHAuto_ToolTips.es.povTitle = { version: "5.20.3", elementText: "Camino del Valor"};
+HHAuto_ToolTips.es.pogTitle = { version: "5.20.3", elementText: "Camino de la Gloria"};
 
 var Trollz = getHHScriptVars("trollzList");
 var Leagues = getHHScriptVars("leaguesList");
@@ -13138,33 +13148,28 @@ var start = function () {
                         +`</div>`
                     +`</div>`
                 +`</div>`
-                +`<div class="optionsRow">`
-                    +`<div class="optionsBoxWithTitle">`
+                +`<div id="isEnabledPoVPoG" class="optionsRow">`
+                    +`<div id="isEnabledPoV" class="optionsBoxWithTitle">`
                         +`<div class="optionsBoxTitle">`
-                            +`<span class="optionsBoxTitle">${getTextForUI("povpogTitle","elementText")}</span>`
+                            +`<span class="optionsBoxTitle">${getTextForUI("povTitle","elementText")}</span>`
                         +`</div>`
-                        +`<div id="isEnabledPoVPoG" class="optionsBox">`
-                            +`<div id="isEnabledPoV" class="internalOptionsRow" style="justify-content: space-evenly">`
+                        +`<div class="optionsBox">`
+                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
                                 + hhMenuSwitch('PoVMaskRewards')
                                 + hhMenuSwitch('autoPoVCollect')
                                 + hhMenuSwitch('autoPoVCollectAll')
                             +`</div>`
-                            +`<div id="isEnabledPoG" class="internalOptionsRow" style="justify-content: space-evenly">`
+                        +`</div>`
+                    +`</div>`
+                    +`<div id="isEnabledPoG" class="optionsBoxWithTitle">`
+                        +`<div class="optionsBoxTitle">`
+                            +`<span class="optionsBoxTitle">${getTextForUI("pogTitle","elementText")}</span>`
+                        +`</div>`
+                        +`<div id="isEnabledPoVPoG" class="optionsBox">`
+                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
                                 + hhMenuSwitch('PoGMaskRewards')
                                 + hhMenuSwitch('autoPoGCollect')
                                 + hhMenuSwitch('autoPoGCollectAll')
-                            +`</div>`
-                        +`</div>`
-                    +`</div>`
-                    +`<div id="isEnabledSeasonalEvent" class="optionsBoxWithTitle">`
-                        +`<div class="optionsBoxTitle">`
-                            +`<span class="optionsBoxTitle">${getTextForUI("seasonalEventTitle","elementText")}</span>`
-                        +`</div>`
-                        +`<div class="optionsBox">`
-                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                                + hhMenuSwitch('SeasonalEventMaskRewards')
-                                + hhMenuSwitch('autoSeasonalEventCollect')
-                                + hhMenuSwitch('autoSeasonalEventCollectAll')
                             +`</div>`
                         +`</div>`
                     +`</div>`
@@ -13237,10 +13242,15 @@ var start = function () {
                             +`</div>`
                         +`</div>`
                     +`</div>`
-                    +`<div id="isEnabledBossBangEvent" class="optionsBox">`
-                        +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                            + hhMenuSwitch('bossBangEvent')
-                            + hhMenuInput('bossBangMinTeam', HHAuto_inputPattern.bossBangMinTeam, 'text-align:center; width:25px')
+                    +`<div id="isEnabledBossBangEvent" class="optionsBoxWithTitle">`
+                        +`<div class="optionsBoxTitle">`
+                            +`<span class="optionsBoxTitle">${getTextForUI("bossBangEventTitle","elementText")}</span>`
+                        +`</div>`
+                        +`<div class="optionsBox">`
+                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                + hhMenuSwitch('bossBangEvent')
+                                + hhMenuInput('bossBangMinTeam', HHAuto_inputPattern.bossBangMinTeam, 'text-align:center; width:25px')
+                            +`</div>`
                         +`</div>`
                     +`</div>`
                 +`</div>`
@@ -13278,6 +13288,18 @@ var start = function () {
                         +`</div>`
                         +`<div class="internalOptionsRow">`
                             + hhMenuSwitchWithImg('showMarketTools', 'design/menu/panel.svg')
+                        +`</div>`
+                    +`</div>`
+                +`</div>`
+                +`<div id="isEnabledSeasonalEvent" class="optionsBoxWithTitle">`
+                    +`<div class="optionsBoxTitle">`
+                        +`<span class="optionsBoxTitle">${getTextForUI("seasonalEventTitle","elementText")}</span>`
+                    +`</div>`
+                    +`<div class="optionsBox">`
+                        +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                            + hhMenuSwitch('SeasonalEventMaskRewards')
+                            + hhMenuSwitch('autoSeasonalEventCollect')
+                            + hhMenuSwitch('autoSeasonalEventCollectAll')
                         +`</div>`
                     +`</div>`
                 +`</div>`
