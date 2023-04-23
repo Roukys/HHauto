@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.22.1
+// @version      5.22.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -7702,23 +7702,6 @@ var autoLoop = function ()
             busy = parseEventPage(bossBangEventIDs[0]);
         }
 
-        if(
-            busy === false
-            && getHHScriptVars("isEnabledSultryMysteriesEvent",false) && getStoredValue("HHAuto_Setting_sultryMysteriesEventRefreshShop") === "true"
-            &&
-            (
-                (
-                    sultryMysteriesEventIDs.length > 0
-                    && getPage() !== getHHScriptVars("pagesIDEvent")
-                )
-            )
-        )
-        {
-            logHHAuto("Going to sultry mystery event.");
-            busy = true;
-            busy = parseEventPage(sultryMysteriesEventIDs[0]);
-        }
-
         if (
             busy === false
             && getStoredValue("HHAuto_Temp_autoLoop") === "true"
@@ -9341,7 +9324,7 @@ function parseEventPage(inTab="global")
             setTimer('eventSultryMysteryGoing', Number(convertTimeToInt(timeLeft)));
 
             if (checkTimer("eventSultryMysteryShopRefresh")) {
-                logHHAuto("Refresh shop content.");
+                logHHAuto("Refresh sultry mysteries shop content.");
 
                 const shopButton = $('#shop_tab');
                 const gridButton = $('#grid_tab');
