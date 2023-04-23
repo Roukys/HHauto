@@ -6246,14 +6246,6 @@ function moduleSimLeague() {
         }
         $("tr.lead_table_default td span.nickname").append(`<span class='OppoScore ${simu.scoreClass}' title="${pointText}"><span style="margin:0;" id="HHPowerCalcScore">${nRounding(100*simu.win, 2, -1)}</span>% (<span style="margin:0;" id="HHPowerCalcPoints">${nRounding(expectedValue, 1, -1)}</span>)</span>`);
 
-        // This creates issues in opponent list 
-        if (getStoredValue("HHAuto_Setting_storeSimuInStorage")) {
-            var opponentsTempPowerList = isJSON(getStoredValue("HHAuto_Temp_LeagueTempOpponentList"))?JSON.parse(getStoredValue("HHAuto_Temp_LeagueTempOpponentList")):{expirationDate:new Date().getTime() + getHHScriptVars("LeagueListExpirationSecs") * 1000,opponentsList:{}};
-            var DataOppo = opponentsTempPowerList.opponentsList;
-            DataOppo[Number(opponentData.id_fighter)]=simu;
-            setStoredValue("HHAuto_Temp_LeagueTempOpponentList", JSON.stringify({expirationDate:opponentsTempPowerList.expirationDate,opponentsList:DataOppo}));
-        }
-
         //CSS
 
         GM_addStyle('#leagues_right .leagues_team_block  .lead_player_profile .level_wrapper {'
@@ -10835,7 +10827,6 @@ HHAuto_ToolTips.en.autoContest = { version: "5.6.24", elementText: "Claim Contes
 HHAuto_ToolTips.en.autoFreePachinko = { version: "5.6.24", elementText: "Pachinko", tooltip: "if enabled : Automatically collect free Pachinkos"};
 HHAuto_ToolTips.en.autoMythicPachinko = { version: "5.6.24", elementText: "Mythic Pachinko"};
 HHAuto_ToolTips.en.autoLeaguesTitle = { version: "5.6.24", elementText: "Leagues"};
-HHAuto_ToolTips.en.storeSimuInStorage = { version: "5.19.7", elementText: "Store simu in storage", tooltip: ""};
 HHAuto_ToolTips.en.autoLeagues = { version: "5.6.24", elementText: "Enable", tooltip: "if enabled : Automatically battle Leagues"};
 HHAuto_ToolTips.en.autoLeaguesPowerCalc = { version: "5.6.24", elementText: "Use PowerCalc", tooltip: "if enabled : will choose opponent using PowerCalc (Opponent list expires every 10 mins and take few mins to be built)"};
 HHAuto_ToolTips.en.autoLeaguesCollect = { version: "5.6.24", elementText: "Collect", tooltip: "If enabled : Automatically collect Leagues"};
@@ -11478,17 +11469,6 @@ HHStoredVars.HHAuto_Setting_autoFreePachinko =
     kobanUsing:false
 };
 HHStoredVars.HHAuto_Setting_autoLeagues =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars.HHAuto_Setting_storeSimuInStorage =
     {
     default:"false",
     storage:"Storage()",
@@ -13267,18 +13247,6 @@ var start = function () {
                                 + hhMenuSwitch('autoLeaguesAllowWinCurrent')
                                 + hhMenuInputWithImg('autoLeaguesThreshold', HHAuto_inputPattern.autoLeaguesThreshold, 'text-align:center; width:25px', 'pictures/design/league_points.png' )
                                 + hhMenuInput('autoLeaguesSecurityThreshold', HHAuto_inputPattern.autoLeaguesSecurityThreshold, 'text-align:center; width:25px' )
-                                
-                                +`<div class="labelAndButton" style="display:none;">` // Hidden
-                                    +`<span class="HHMenuItemName">${getTextForUI("storeSimuInStorage","elementText")}</span>`
-                                    +`<div class="tooltipHH">`
-                                        +`<span class="tooltipHHtext">${getTextForUI("storeSimuInStorage","tooltip")}</span>`
-                                        +`<label class="switch">`
-                                            +`<input id="storeSimuInStorage" type="checkbox">`
-                                            +`<span class="slider round">`
-                                            +`</span>`
-                                        +`</label>`
-                                    +`</div>`
-                                +`</div>`
                             +`</div>`
                         +`</div>`
                     +`</div>`
