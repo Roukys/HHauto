@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.21.4
+// @version      5.21.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -9375,7 +9375,6 @@ function parseEventPage(inTab="global")
             eventList[eventID]["id"]=eventID;
             eventList[eventID]["sultryMystery"]=true;
             eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
-            eventList[eventID]["next_shop_refresh"]=new Date().getTime() + Number(shopTimeLeft) * 1000;
             eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
             eventList[eventID]["isCompleted"] = false;
             setTimer('eventSultryMysteryGoing', Number(convertTimeToInt(timeLeft)));
@@ -9390,6 +9389,7 @@ function parseEventPage(inTab="global")
                 setTimeout(function(){ // Wait tab switch and timer init
                     let shopTimeLeft=$('#contains_all #events #shop_tab_container .shop-section .shop-timer span[rel="expires"]').text();
                     setTimer('eventSultryMysteryShopRefresh', Number(convertTimeToInt(shopTimeLeft)));
+                    eventList[eventID]["next_shop_refresh"]=new Date().getTime() + Number(shopTimeLeft) * 1000;
     
                     setTimeout(function(){gridButton.click();},randomInterval(800,1200));
                 },randomInterval(300,500));
