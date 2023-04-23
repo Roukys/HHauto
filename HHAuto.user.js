@@ -7626,7 +7626,7 @@ var autoLoop = function ()
             busy==false && getHHScriptVars("isEnabledPoV",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" &&
             (
                 checkTimer('nextPoVCollectTime') && getStoredValue("HHAuto_Setting_autoPoVCollect") === "true" && canCollectCompetitionActive()
-                || 
+                ||
                 getStoredValue("HHAuto_Setting_autoPoVCollectAll") === "true" && checkTimer('nextPoVCollectAllTime') && (getTimer('PoVRemainingTime') == -1 || getSecondsLeft('PoVRemainingTime') < getLimitTimeBeforeEnd())
             )
         )
@@ -9334,7 +9334,7 @@ function parseEventPage(inTab="global")
                     let shopTimeLeft=$('#contains_all #events #shop_tab_container .shop-section .shop-timer span[rel="expires"]').text();
                     setTimer('eventSultryMysteryShopRefresh', Number(convertTimeToInt(shopTimeLeft)));
                     eventList[eventID]["next_shop_refresh"]=new Date().getTime() + Number(shopTimeLeft) * 1000;
-    
+
                     setTimeout(function(){gridButton.click();},randomInterval(800,1200));
                 },randomInterval(300,500));
             }
@@ -9459,10 +9459,8 @@ function checkEvent(inEventID)
         else
         {
             if (
-                eventList[inEventID]["next_refresh"]<new Date() 
-                //|| 
-                //(eventType === "sultryMystery" && eventList[inEventID]["next_shop_refresh"]<new Date() 
-                || 
+                eventList[inEventID]["next_refresh"]<new Date()
+                ||
                 (eventType === "mythic" && checkTimerMustExist('eventMythicNextWave'))
                 )
             {
