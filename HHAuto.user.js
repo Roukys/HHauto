@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.22.0
+// @version      5.22.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1314,7 +1314,7 @@ function moduleSimChampions()
             }
         }
 
-        var newDraftInterval = girlsClicked ? randomInterval(1800,2500) : randomIntervfal(800,1500);
+        var newDraftInterval = girlsClicked ? randomInterval(1800,2500) : randomInterval(800,1500);
         setTimeout(function() {
             if( $(newDraftButtonQuery).length > 0) $(newDraftButtonQuery).click();
         }, newDraftInterval);
@@ -7047,7 +7047,6 @@ var autoLoop = function ()
         {
             clearParanoiaSpendings();
         }
-        checkAndCleanBoostersData();
         CheckSpentPoints();
 
         //check what happen to timer if no more wave before uncommenting
@@ -7812,7 +7811,6 @@ var autoLoop = function ()
             {
                 moduleShopActions();
             }
-            moduleShopGetBoosters();
             break;
         case getHHScriptVars("pagesIDHome"):
             setTimeout(displaySeasonRemainingTime,500);
@@ -8078,45 +8076,6 @@ function simFightFunc()
         $('#simResultName')[0].innerText = 'empty';
         $('#simResultScore')[0].innerText = '0';
         $('#simResultScore')[0].className = 'close';
-    }
-}
-
-function moduleShopGetBoosters()
-{
-    let boosterA = $('#equiped .sub_block .booster .slot:not(.empty)');
-    let boostersArray = [];
-    for (let index = 0;index < boosterA.length;index++)
-    {
-        const currentBooster = JSON.parse(JSON.stringify($(boosterA[index]).data("d")));
-        const propertiesToDelete = ['id_m_i',"id_member", "stacked"];
-        for (let prop of propertiesToDelete)
-        {
-            if (currentBooster.hasOwnProperty(prop))
-            {
-                delete currentBooster[prop];
-            }
-        }
-        boostersArray.push(currentBooster);
-    }
-    if (boostersArray.length > 0 )
-    {
-        setStoredValue("HHAuto_Temp_BoostersData", JSON.stringify(boostersArray));
-    }
-    else
-    {
-        sessionStorage.removeItem("HHAuto_Temp_BoostersData");
-    }
-}
-
-function checkAndCleanBoostersData()
-{
-    if ( isJSON(getStoredValue("HHAuto_Temp_BoostersData")))
-    {
-        const boostersData = JSON.parse(getStoredValue("HHAuto_Temp_BoostersData"));
-        boostersData.filter(function(boost)
-                            {
-            return getBoosterExpiration(boost) !== "0";
-        });
     }
 }
 
@@ -12808,11 +12767,6 @@ HHStoredVars.HHAuto_Temp_HaremSize =
     HHType:"Temp",
     isValid:/{"count":(\d)+,"count_date":(\d)+}/
 };
-HHStoredVars.HHAuto_Temp_BoostersData =
-    {
-    storage:"localStorage",
-    HHType:"Temp"
-};
 HHStoredVars.HHAuto_Temp_LastPageCalled =
     {
     storage:"sessionStorage",
@@ -12939,13 +12893,6 @@ var updateData = function () {
         {
             Tegzd += '<li>'+getTextForUI("autoExpW","elementText")+' : '+add1000sSeparator(getStoredValue("HHAuto_Temp_haveExp"))+'</li>';
         }
-        /*if (isJSON(getStoredValue("HHAuto_Temp_BoostersData")))
-        {
-            for(let boost of JSON.parse(getStoredValue("HHAuto_Temp_BoostersData")))
-            {
-                Tegzd += `<li>${boost.rarity} <img class="iconImg" src="${boost.ico}" /> : ${getBoosterExpiration(boost)} </li>`;
-            }
-        }*/
         Tegzd += '</ul>';
         //if (Tegzd.length>0)
         //{
