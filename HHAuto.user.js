@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.21.1
+// @version      5.21.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -9374,26 +9374,29 @@ function parseEventPage(inTab="global")
         {
             logHHAuto("On going sultry mysteries event.");
             logHHAuto("Refresh shop content.");
-            // $('#shop_tab').click();
+            const shopButton = $('#shop_tab');
+            const gridButton = $('#grid_tab');
+            shopButton.click();
 
-            let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
-            if (timeLeft !== undefined && timeLeft.length)
-            {
-                setTimer('eventGoing',Number(convertTimeToInt(timeLeft)));
-            } else setTimer('eventGoing', 3600);
-            let shopTimeLeft=$('#contains_all #events #shop_tab_container .shop-section .shop-timer span[rel="expires"]').text();
-            eventList[eventID]={};
-            eventList[eventID]["id"]=eventID;
-            eventList[eventID]["sultryMystery"]=true;
-            eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
-            eventList[eventID]["next_shop_refresh"]=new Date().getTime() + Number(shopTimeLeft) * 1000;
-            eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
-            eventList[eventID]["isCompleted"] = false;
-            setTimer('eventSultryMysteryGoing', Number(convertTimeToInt(timeLeft)));
-            setTimer('eventSultryMysteryShopRefresh', 12 * 3600);// Number(convertTimeToInt(shopTimeLeft)));
+            setTimeout(function(){ // Wait tab switch and timer init
+                let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
+                if (timeLeft !== undefined && timeLeft.length)
+                {
+                    setTimer('eventGoing',Number(convertTimeToInt(timeLeft)));
+                } else setTimer('eventGoing', 3600);
+                let shopTimeLeft=$('#contains_all #events #shop_tab_container .shop-section .shop-timer span[rel="expires"]').text();
+                eventList[eventID]={};
+                eventList[eventID]["id"]=eventID;
+                eventList[eventID]["sultryMystery"]=true;
+                eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
+                eventList[eventID]["next_shop_refresh"]=new Date().getTime() + Number(shopTimeLeft) * 1000;
+                eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
+                eventList[eventID]["isCompleted"] = false;
+                setTimer('eventSultryMysteryGoing', Number(convertTimeToInt(timeLeft)));
+                setTimer('eventSultryMysteryShopRefresh', Number(convertTimeToInt(shopTimeLeft)));
 
-
-            // setTimeout(function(){$('#grid_tab').click();;},randomInterval(300,800));
+                setTimeout(function(){gridButton.click();},randomInterval(800,1200));
+            },randomInterval(300,500));
         }
         if(Object.keys(eventList).length >0)
         {
