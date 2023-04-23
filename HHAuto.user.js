@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.20.4
+// @version      5.21.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -23,7 +23,7 @@
 //CSS Region
 GM_addStyle('.HHAutoScriptMenu .switch { position: relative; display: inline-block; width: 34px; height: 20px; top:0 }/* The switch - the box around the slider */ '
             +'.HHAutoScriptMenu .switch input { display:none } /* Hide default HTML checkbox */ '
-            +'.HHAutoScriptMenu .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; -webkit-transition: .4s; transition: .4s; } /* The slider */'
+            +'.HHAutoScriptMenu .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; -webkit-transition: .4s; transition: .4s; margin-right: 4px; } /* The slider */'
             +'.HHAutoScriptMenu .slider.round:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; -webkit-transition: .4s; transition: .4s; } '
             +'.HHAutoScriptMenu input:checked + .slider { background-color: #2196F3; } '
             +'.HHAutoScriptMenu input:focus + .slider { box-shadow: 0 0 1px #2196F3; } '
@@ -44,8 +44,10 @@ GM_addStyle('span.optionsBoxTitle {padding-left:5px}'); //; padding-bottom:2px
 GM_addStyle('div.optionsColumn {display:flex; flex-direction:column}');
 GM_addStyle('div.optionsBoxWithTitle {display:flex; flex-direction:column}');
 GM_addStyle('img.iconImg {max-width:15px; height:15px}');
-GM_addStyle('#sMenu {top: 45px;right: 52px;padding: 4px;opacity: 1;border-radius: 4px;border: 1px solid #ffa23e;background-color: #1e261e;font-size:x-small; position:absolute; text-align:left; flex-direction:column; justify-content:space-between; z-index:10000; overflow:auto; max-height:calc(100% - 45px); scrollbar-width: thin;max-width: calc(100% - 52px);}');
-GM_addStyle('#sMenu::-webkit-scrollbar {width: 6px;}');
+GM_addStyle('#sMenu {top: 40px;right: 52px;padding: 4px;opacity: 1;border-radius: 4px;border: 1px solid #ffa23e;background-color: #1e261e;font-size:x-small; position:absolute; text-align:left; flex-direction:column; justify-content:space-between; z-index:10000; overflow:auto; max-height:calc(100% - 45px); scrollbar-width: thin;max-width: calc(100% - 52px);}');
+GM_addStyle('#sMenu::-webkit-scrollbar {width: 6px;height: 6px;background: #000;}');
+GM_addStyle('#sMenu::-webkit-scrollbar-thumb { background: #ffa23e; -webkit-border-radius: 1ex; -webkit-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.75);}');
+GM_addStyle('#sMenu::-webkit-scrollbar-corner {background: #000;}');
 GM_addStyle('div.optionsBoxTitle {padding:5px 15px 0px 5px; height:15px; display:flex; flex-direction:row; justify-content:center; align-items:center;}'); //; padding:2px; padding-bottom:0px;
 GM_addStyle('div.rowOptionsBox {margin:3px; padding:3px; font-size:smaller; display:flex; flex-direction:row; align-items:flex-start; border: 1px solid #ffa23e; border-radius: 5px}');
 GM_addStyle('div.optionsBox {margin:3px; padding:3px; font-size:smaller; display:flex; flex-direction:column; border:1px solid #ffa23e; border-radius:5px}');
@@ -57,7 +59,8 @@ GM_addStyle('div.HHMenuRow {display:flex; flex-direction:row; align-items:center
 GM_addStyle('input.maxMoneyInputField  {text-align:right; width:70px}');
 GM_addStyle('.myButton {box-shadow: 0px 0px 0px 2px #9fb4f2; background:linear-gradient(to bottom, #7892c2 5%, #476e9e 100%); background-color:#7892c2; border-radius:10px; border:1px solid #4e6096; display:inline-block; cursor:pointer; color:#ffffff; font-family:Arial; font-size:8px; padding:3px 7px; text-decoration:none; text-shadow:0px 1px 0px #283966;}'
             +'.myButton:hover { background:linear-gradient(to bottom, #476e9e 5%, #7892c2 100%); background-color:#476e9e; }'
-            +'.myButton:active { position:relative; top:1px;}');
+            +'.myButton:active { position:relative; top:1px;}'
+            +'.myButton:disabled, .myButton[disabled] { background: grey;}');
 GM_addStyle('.HHEventPriority {position: absolute;z-index: 500;background-color: black}');
 GM_addStyle('.HHPopIDs {background-color: black;z-index: 500;position: absolute;margin-top: 25px}');
 GM_addStyle('.tooltipHH:hover { cursor: help; position: relative; }'
@@ -1176,14 +1179,25 @@ function moduleSimChampions()
         return poses;
     }
 
-    let champTeamButton = '<div style="position: absolute;left: 330px;top: 10px;width:90px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ChampTeamButton","tooltip")+'</span><label class="myButton" id="ChampTeamButton">'+getTextForUI("ChampTeamButton","elementText")+'</label></div>';
+    //let champTeamButton = '<div style="position: absolute;left: 330px;top: 10px;width:90px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ChampTeamButton","tooltip")+'</span><label class="myButton" id="ChampTeamButton">'+getTextForUI("ChampTeamButton","elementText")+'</label></div>';
 
-    $(".champions-top__inner-wrapper").append(champTeamButton);
     var champTeam = unsafeWindow.championData.team;
+    var freeDrafts = unsafeWindow.championData.freeDrafts;
+    var counterLoop = 0;
+    const maxLoops = getStoredValue("HHAuto_Setting_autoChampsTeamLoop") !== undefined ? getStoredValue("HHAuto_Setting_autoChampsTeamLoop") : 10;
+    const championRequiredPoses = getPoses($(".champions-over__champion-info.champions-animation .champion-pose"));
+    const girlBoxesQuery = ".champions-middle__girl-selection.champions-animation .girl-selection__girl-box";
+    const changeDraftButtonQuery =  ".champions-bottom__footer button.champions-bottom__draft-team";
+    const newDraftButtonQuery =  ".champions-bottom__footer button.champions-bottom__make-draft";
+    const confirmDraftButtonQuery =  ".champions-bottom__footer button.champions-bottom__confirm-team";
+    //$(".champions-top__inner-wrapper").append(champTeamButton);
+    if(freeDrafts > 0) {
+        let updateChampTeamButton = '<div style="position: absolute;left: 330px;top: 10px;width:90px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("updateChampTeamButton","tooltip")+'</span><label class="myButton" id="updateChampTeamButton">'+getTextForUI("updateChampTeamButton","elementText")+' x'+maxLoops+'</label></div>';
+        $(".champions-top__inner-wrapper").append(updateChampTeamButton);
+    }
 
     var indicateBestTeam = function() {
-        const championRequiredPoses = getPoses($(".champions-over__champion-info.champions-animation .champion-pose"));
-        const girlBoxes = $(".champions-middle__girl-selection.champions-animation .girl-selection__girl-box");
+        const girlBoxes = $(girlBoxesQuery);
         var girlsPerPose={};
         var girls=[];
         $(".hhgirlOrder").remove();
@@ -1208,7 +1222,7 @@ function moduleSimChampions()
         for(var i=0;i<10;i++) {
             var expectedPose = championRequiredPoses[i%5];
             if(girlsPerPose[expectedPose] && girlsPerPose[expectedPose].length > 0){
-                let color = i >= 5 ? 'white' : 'gold';
+                let color = 'gold'; // i >= 5 ? 'white' : 'gold';
                 girlsPerPose[expectedPose][0].htmlDom.append('<span class="hhgirlOrder" title="'+getTextForUI("ChampGirlOrder","tooltip")+' '+(i+1)+'" style="position: absolute;top: 41px;left: 3px;z-index: 10;color:'+color+';">'+(i+1)+'</span>');
                 girlsPerPose[expectedPose].shift();
             }
@@ -1217,19 +1231,116 @@ function moduleSimChampions()
         }
     };
 
+    //document.getElementById("ChampTeamButton").addEventListener("click", indicateBestTeam);
+    GM_registerMenuCommand(getTextForUI("ChampTeamButton","elementText"), indicateBestTeam);
+    $(document).on('click', changeDraftButtonQuery, indicateBestTeam);
+    $(document).on('click', newDraftButtonQuery, indicateBestTeam);
+    $(document).on('click', confirmDraftButtonQuery, indicateBestTeam);
+
     var checkAjaxCompleteOnChampionPage = function(event,request,settings){ 
         let match = settings.data.match(/action=champion_team_draft/);
         if (match === null) return;
         champTeam = request.responseJSON.teamArray;
+        freeDrafts = request.responseJSON.freeDrafts
 
         setTimeout(indicateBestTeam, 1000);
     };
 
+    var selectGirls = function() {
+        $('#updateChampTeamButton').text( 'Loop ' + (counterLoop+1) + '/' + maxLoops);
+        const girlBoxes = $(".champions-middle__girl-selection.champions-animation .girl-selection__girl-box");
+        var girlsPerPose={};
+        var girls=[];
+        var teamGirls=[];
+        var girlsClicked = false;
+
+        girlBoxes.each(function(girlIndex,girlBox){
+            const $girl = $('.girl-box__draggable ', $(girlBox));
+            const girlData = champTeam[girlIndex];
+
+            if (girlData.id_girl != $girl.attr('id_girl')) {
+                logHHAuto('Invalid girls ' + girlData.id_girl + 'vs' + $girl.attr('id_girl'));
+                return;
+            }
+
+            const poseNumber = girlData.figure;
+            if(!girlsPerPose[poseNumber]) {girlsPerPose[poseNumber] = [];}
+            girlsPerPose[poseNumber].push({data:girlData,htmlDom:$girl});
+            girlsPerPose[poseNumber].sort((a,b) => b.data.damage - a.data.damage);
+            girls.push({data:girlData,htmlDom:$girl});
+            girls.sort((a,b) => a.data.damage - b.data.damage);
+        });
+
+        // Build team
+        for(var i=0;i<5;i++) {
+            var expectedPose = championRequiredPoses[i%5];
+            teamGirls[i] = -1;
+            if(girlsPerPose[expectedPose] && girlsPerPose[expectedPose].length > 0){
+                teamGirls[i] = girlsPerPose[expectedPose][0].data.id_girl;
+                girlsPerPose[expectedPose].shift();
+            }
+        }
+
+        var toggleSelectGirl = function(girlId, girlDraggable, timer = 1000){
+            setTimeout(function() {
+                console.log("click " + girlId, girlDraggable);
+                girlDraggable.click();
+            }, timer);
+        };
+        // Unselect girls
+        const selectedGirls = $(".champions-middle__girl-selection.champions-animation .girl-selection__girl-box .girl-box__draggable.selected");
+        selectedGirls.each(function(girlIndex,girlBox){
+            const selectedGirlId = $(girlBox).attr('id_girl');
+            if(teamGirls.indexOf(selectedGirlId) < 0) {
+                girlsClicked = true;
+                logHHAuto("Unselected as out of the team :" + selectedGirlId);
+                toggleSelectGirl(selectedGirlId, $(girlBox), randomInterval(300,600));
+            }
+        });
+
+        // Select girls
+        for(var i=0;i<5;i++) {
+            if(teamGirls[i] >=0) {
+                var girlDraggable = $('.girl-box__draggable[id_girl="'+teamGirls[i]+'"]');
+                if(!girlDraggable.hasClass('selected')) {
+                    girlsClicked = true;
+                    logHHAuto("Girl not selected :" + teamGirls[i]);
+                    toggleSelectGirl(teamGirls[i], girlDraggable, randomInterval(800,1200));
+                } else {
+                    logHHAuto("Girl already selected :" + teamGirls[i]);
+                }
+            }
+        }
+
+        var newDraftInterval = girlsClicked ? randomInterval(1800,2500) : randomInterval(800,1500);
+        setTimeout(function() { 
+            if( $(newDraftButtonQuery).length > 0) $(newDraftButtonQuery).click();
+        }, newDraftInterval);
+
+        logHHAuto("Free drafts remanings :" + freeDrafts);
+        counterLoop++;
+        if(freeDrafts > 0 && counterLoop <= maxLoops) {
+            setTimeout(selectGirls, randomInterval(3500,5500)); // Wait animation
+        } else {
+            $('#updateChampTeamButton').removeAttr('disabled').text( getTextForUI("updateChampTeamButton","elementText") +' x'+maxLoops);
+            if($(confirmDraftButtonQuery).length > 0) $(confirmDraftButtonQuery).click();
+        }
+    };
+
+    var findBestTeam = function() {
+        $('#updateChampTeamButton').attr('disabled', 'disabled').text( 'Starting soon...');
+        counterLoop = 0;
+        if( $(changeDraftButtonQuery).length > 0) $(changeDraftButtonQuery).click();
+        setTimeout(selectGirls, randomInterval(800,1300));
+    };
+
     $(document).on('ajaxComplete',checkAjaxCompleteOnChampionPage);
-    
-    document.getElementById("ChampTeamButton").addEventListener("click", indicateBestTeam);
-    GM_registerMenuCommand(getTextForUI("ChampTeamButton","elementText"), indicateBestTeam);
-    setTimeout(indicateBestTeam, 1000);
+    setTimeout(indicateBestTeam, randomInterval(800,1200));
+
+    if(freeDrafts > 0) {
+        document.getElementById("updateChampTeamButton").addEventListener("click", findBestTeam);
+        GM_registerMenuCommand(getTextForUI("updateChampTeamButton","elementText"), findBestTeam);
+    }
 }
 
 function moduleSimPoVMaskReward()
@@ -9756,7 +9867,12 @@ function disableToolTipsDisplay(important=false)
 
 function checkClubStatus()
 {
-    let chatVars =getHHVars("Chat_vars.CLUB_INFO.id_club",false);
+    let chatVars = null;
+    try {
+        chatVars = getHHVars("Chat_vars.CLUB_INFO.id_club", false);
+    } catch(e) {
+        logHHAuto("Catched error : Couldn't parse CLUB_INFO : "+e);
+    }
     if (chatVars === null || chatVars === false)
     {
         HHEnvVariables[getHHScriptVars("HHGameName")].isEnabledClubChamp = false;
@@ -10632,6 +10748,7 @@ var HHAuto_inputPattern = {
     autoLeaguesSecurityThreshold:"[0-9]+",
     autoPowerPlacesIndexFilter:"[1-9][0-9]{0,1}(;[1-9][0-9]{0,1})*",
     autoChampsFilter:"[1-6](;[1-6])*",
+    autoChampsTeamLoop:"[1-9][0-9]|[1-9]",
     //autoStats:"[0-9]+",
     //autoExp:"[0-9]+",
     //maxExp:"[0-9]+",
@@ -10734,7 +10851,9 @@ HHAuto_ToolTips.en.autoChamps = { version: "5.6.24", elementText: "Normal", tool
 HHAuto_ToolTips.en.autoChampsForceStart = { version: "5.6.76", elementText: "Force start", tooltip: "if enabled : will fight filtered champions even if not started."};
 HHAuto_ToolTips.en.autoChampsUseEne = { version: "5.6.24", elementText: "Buy tickets", tooltip: "If enabled : use Energy to buy tickets"};
 HHAuto_ToolTips.en.autoChampsFilter = { version: "5.6.24", elementText: "Filter", tooltip: "(values separated by ; 1 to 6)<br>Allow to set filter on champions to be fought"};
+HHAuto_ToolTips.en.autoChampsTeamLoop = { version: "5.21.0", elementText: "Auto team Loops", tooltip: "Number of loop to search for champion team for every button click"};
 HHAuto_ToolTips.en.ChampTeamButton = { version: "5.8.0", elementText: "Indicate team order", tooltip: "Add number for the prefered girl order to fight champion"};
+HHAuto_ToolTips.en.updateChampTeamButton = { version: "5.21.0", elementText: "Find best team", tooltip: ""};
 HHAuto_ToolTips.en.ChampGirlOrder = { version: "5.8.0", elementText: "", tooltip: "Girl to be used at position"};
 HHAuto_ToolTips.en.ChampGirlLowOrder = { version: "5.11.0", elementText: "", tooltip: "For Worst team, girl to be used at position"};
 HHAuto_ToolTips.en.autoStats = { version: "5.6.24", elementText: "Money to keep", tooltip: "(Integer)<br>Automatically buy stats in market with money above the setted amount"};
@@ -10900,6 +11019,8 @@ HHAuto_ToolTips.fr.showCalculatePower = { version: "5.6.24", elementText: "Power
 HHAuto_ToolTips.fr.showInfo = { version: "5.6.24", elementText: "Infos", tooltip: "Si activé : affiche une fenêtre d'informations sur le script."};
 HHAuto_ToolTips.fr.autoSalary = { version: "5.6.24", elementText: "Salaire", tooltip: "Si activé :<br>Collecte les salaires toutes les X secondes."};
 //HHAuto_ToolTips.fr.autoSalaryMinTimer = { version: "5.6.24", elementText: "Attente min.", tooltip: "(Nombre entier)<br>Secondes d'attente minimum entre deux collectes."};
+HHAuto_ToolTips.fr.autoSalaryMinSalary = { version: "5.20.3", elementText: "Salaire mini", tooltip: "(Integer)<br>Salare minium pour démarrer la collecte"};
+HHAuto_ToolTips.fr.autoSalaryMaxTimer = { version: "5.20.3", elementText: "Temps de collecte max", tooltip: "(Integer)<br>X secs pour collecter le salaire avant d'arrêter."};
 HHAuto_ToolTips.fr.autoMission = { version: "5.6.24", elementText: "Missions", tooltip: "Si activé : lance automatiquement les missions."};
 HHAuto_ToolTips.fr.autoMissionCollect = { version: "5.6.24", elementText: "Collecter", tooltip: "Si activé : collecte automatiquement les récompenses des missions."};
 HHAuto_ToolTips.fr.autoTrollBattle = { version: "5.6.24", elementText: "Activer", tooltip: "Si activé : combat automatiquement le troll."};
@@ -11253,6 +11374,17 @@ HHStoredVars.HHAuto_Setting_autoChampsFilter =
     {
         clearTimer('nextChampionTime');
     }
+};
+HHStoredVars.HHAuto_Setting_autoChampsTeamLoop =
+    {
+    default:"10",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
 };
 HHStoredVars.HHAuto_Setting_autoChampsUseEne =
     {
@@ -12956,7 +13088,7 @@ var start = function () {
 
     // Add UI buttons.
     let sMenu =`<div id="sMenu" class="HHAutoScriptMenu" style="display: none;">`
-        +`<div style="position: absolute;left: 40%;color: #F00">${getTextForUI("noOtherScripts","elementText")}</div>`
+        +`<div style="position: absolute;left: 36%;color: #F00">${getTextForUI("noOtherScripts","elementText")}</div>`
         +`<div class="optionsRow">`
             +`<div class="optionsColumn" style="min-width: 185px;">`
                 +`<div style="padding:3px; display:flex; flex-direction:column;">`
@@ -13208,7 +13340,7 @@ var start = function () {
                     +`</div>`
                 +`</div>`
             +`</div>`
-            +`<div class="optionsColumn" style="width: 280px;">`
+            +`<div class="optionsColumn" style="width: 300px;">`
                 +`<div id="isEnabledAllChamps" class="optionsBoxWithTitle">`
                     +`<div class="optionsBoxTitle">`
                         +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
@@ -13219,8 +13351,9 @@ var start = function () {
                             + hhMenuSwitch('autoChamps')
                             + hhMenuSwitch('autoChampsForceStart')
                             + hhMenuSwitchWithImg('autoChampsUseEne', 'pictures/design/ic_energy_quest.png')
-                            + hhMenuInput('autoChampsFilter', HHAuto_inputPattern.autoChampsFilter, 'text-align:center; width:70px')
+                            + hhMenuInput('autoChampsFilter', HHAuto_inputPattern.autoChampsFilter, 'text-align:center; width:55px')
                             + hhMenuSwitch('autoChampsForceStartEventGirl')
+                            + hhMenuInput('autoChampsTeamLoop', HHAuto_inputPattern.autoChampsTeamLoop, 'text-align:center; width:25px')
                         +`</div>`
                         +`<div id="isEnabledClubChamp" class="internalOptionsRow">`
                             + hhMenuSwitch('autoClubChamp')
