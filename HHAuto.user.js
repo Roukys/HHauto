@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.21.5
+// @version      5.21.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -43,6 +43,8 @@ GM_addStyle('div.optionsRow {display:flex; flex-direction:row; justify-content: 
 GM_addStyle('span.optionsBoxTitle {padding-left:5px}'); //; padding-bottom:2px
 GM_addStyle('div.optionsColumn {display:flex; flex-direction:column}');
 GM_addStyle('div.optionsBoxWithTitle {display:flex; flex-direction:column}');
+GM_addStyle('div.optionsBoxWithTitleInline {display:flex; flex-direction:row; border:1px solid #ffa23e; border-radius:5px}');
+GM_addStyle('div.optionsBoxWithTitleInline .optionsBox {border: none}');
 GM_addStyle('img.iconImg {max-width:15px; height:15px}');
 GM_addStyle('#sMenu {top: 40px;right: 52px;padding: 4px;opacity: 1;border-radius: 4px;border: 1px solid #ffa23e;background-color: #1e261e;font-size:x-small; position:absolute; text-align:left; flex-direction:column; justify-content:space-between; z-index:10000; overflow:auto; max-height:calc(100% - 45px); scrollbar-width: thin;max-width: calc(100% - 52px);}');
 GM_addStyle('#sMenu::-webkit-scrollbar {width: 6px;height: 6px;background: #000;}');
@@ -7703,6 +7705,7 @@ var autoLoop = function ()
 
         if(
             busy === false
+            && getHHScriptVars("isEnabledSultryMysteriesEvent",false) && getStoredValue("HHAuto_Setting_sultryMysteriesEventRefreshShop") === "true"
             &&
             (
                 (
@@ -7712,7 +7715,7 @@ var autoLoop = function ()
             )
         )
         {
-            logHHAuto("Going tosultry mystery event.");
+            logHHAuto("Going to sultry mystery event.");
             busy = true;
             busy = parseEventPage(sultryMysteriesEventIDs[0]);
         }
@@ -7774,12 +7777,12 @@ var autoLoop = function ()
             // getSeasonRemainingTime();
             break;
         case getHHScriptVars("pagesIDEvent"):
-            if (getStoredValue("HHAuto_Setting_plusEvent") ==="true" || getStoredValue("HHAuto_Setting_plusEventMythic") ==="true")
+            if (getStoredValue("HHAuto_Setting_plusEvent") === "true" || getStoredValue("HHAuto_Setting_plusEventMythic") ==="true")
             {
                 parseEventPage();
                 moduleDisplayEventPriority();
             }
-            if (getStoredValue("HHAuto_Setting_bossBangEvent") ==="true")
+            if (getStoredValue("HHAuto_Setting_bossBangEvent") === "true")
             {
                 parseEventPage();
                 setTimeout(goToBossBangeFightPage, randomInterval(500,1500));
@@ -9362,7 +9365,7 @@ function parseEventPage(inTab="global")
                 setStoredValue("HHAuto_Temp_bossBangTeam", -1);
             }
         }
-        if (eventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg')))
+        if (eventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg')) && getStoredValue("HHAuto_Setting_sultryMysteriesEventRefreshShop") ==="true")
         {
             logHHAuto("On going sultry mysteries event.");
 
@@ -9477,6 +9480,7 @@ function getEventType(inEventID){
     if(inEventID.startsWith(getHHScriptVars('mythicEventIDReg'))) return "mythic";
     if(inEventID.startsWith(getHHScriptVars('eventIDReg'))) return "event";
     if(inEventID.startsWith(getHHScriptVars('bossBangEventIDReg'))) return "bossBang";
+    if(inEventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg'))) return "sultryMysteries";
     return "";
 }
 
@@ -9494,6 +9498,10 @@ function checkEvent(inEventID)
         return false;
     }
     if (eventType === "bossBang" && getStoredValue("HHAuto_Setting_bossBangEvent") !=="true")
+    {
+        return false;
+    }
+    if (eventType === "sultryMysteries" && getStoredValue("HHAuto_Setting_sultryMysteriesEventRefreshShop") !=="true")
     {
         return false;
     }
@@ -10673,6 +10681,7 @@ HHEnvVariables["global"].isEnabledPoV = true;
 HHEnvVariables["global"].isEnabledPoG = true;
 HHEnvVariables["global"].isEnabledSeasonalEvent = true;
 HHEnvVariables["global"].isEnabledBossBangEvent = true;
+HHEnvVariables["global"].isEnabledSultryMysteriesEvent = true;
 HHEnvVariables["global"].isEnabledDailyGoals = true;
 HHEnvVariables["HH_test"].isEnabledDailyRewards = false;// to remove if daily rewards arrives in test
 HHEnvVariables["HH_test"].isEnabledFreeBundles = false;// to remove if bundles arrives in test
@@ -10928,6 +10937,8 @@ HHAuto_ToolTips.en.SeasonalEventMaskRewards = { version: "5.6.132", elementText:
 HHAuto_ToolTips.en.bossBangEvent = { version: "5.20.3", elementText: "Enable", tooltip: "Perform boss bang fight script will start with the team configured after."};
 HHAuto_ToolTips.en.bossBangEventTitle = { version: "5.20.3", elementText: "Boss Bang Event"};
 HHAuto_ToolTips.en.bossBangMinTeam = { version: "5.6.137", elementText: "First Team", tooltip: "First team to start with<br>If 5 will start with last team and reach the first one."};
+HHAuto_ToolTips.en.sultryMysteriesEventTitle = { version: "5.21.6", elementText: "Sultry Mysteries Event"};
+HHAuto_ToolTips.en.sultryMysteriesEventRefreshShop = { version: "5.21.6", elementText: "Refresh Shop", tooltip: "Open Sultry Mysteries shop tab to trigger shop update."};
 HHAuto_ToolTips.en.showTooltips = { version: "5.6.24", elementText: "Show tooltips", tooltip: "Show tooltip on menu."};
 HHAuto_ToolTips.en.showMarketTools = { version: "5.6.24", elementText: "Show market tools", tooltip: "Show Market tools."};
 HHAuto_ToolTips.en.useX10Fights = { version: "5.6.24", elementText: "Use x10", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Use x10 button if 10 fights or more to do (if not going under Koban bank value).<br>x50 takes precedence on x10 if all conditions are filled."};
@@ -12220,6 +12231,17 @@ HHStoredVars.HHAuto_Setting_bossBangMinTeam =
     menuType:"value",
     kobanUsing:false
 };
+HHStoredVars.HHAuto_Setting_sultryMysteriesEventRefreshShop =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_PoAMaskRewards =
     {
     default:"false",
@@ -12932,7 +12954,11 @@ var updateData = function () {
 
 function maskInactiveMenus()
 {
-    let menuIDList =["isEnabledDailyGoals", "isEnabledPoVPoG", "isEnabledPoV", "isEnabledPoG", "isEnabledSeasonalEvent" , "isEnabledBossBangEvent" , "isEnabledDailyRewards", "isEnabledFreeBundles", "isEnabledMission","isEnabledContest","isEnabledTrollBattle","isEnabledPowerPlaces","isEnabledSalary","isEnabledPachinko","isEnabledQuest","isEnabledSideQuest","isEnabledSeason","isEnabledLeagues","isEnabledAllChamps","isEnabledChamps","isEnabledClubChamp","isEnabledPantheon","isEnabledShop"];
+    let menuIDList =["isEnabledDailyGoals", "isEnabledPoVPoG", "isEnabledPoV", "isEnabledPoG", 
+                    "isEnabledSeasonalEvent" , "isEnabledBossBangEvent" , "isEnabledSultryMysteriesEvent", 
+                    "isEnabledDailyRewards", "isEnabledFreeBundles", "isEnabledMission","isEnabledContest",
+                    "isEnabledTrollBattle","isEnabledPowerPlaces","isEnabledSalary","isEnabledPachinko","isEnabledQuest","isEnabledSideQuest","isEnabledSeason","isEnabledLeagues",
+                    "isEnabledAllChamps","isEnabledChamps","isEnabledClubChamp","isEnabledPantheon","isEnabledShop"];
     for (let menu of menuIDList)
     {
         if ( document.getElementById(menu) !== null && getHHScriptVars(menu,false) !== null && !getHHScriptVars(menu,false) )
@@ -13215,6 +13241,20 @@ var start = function () {
                                 +`</div>`
                             +`</div>`
                         +`</div>`
+                        +`<div class="optionsRow" style="justify-content: space-evenly">`
+                            +`<div id="isEnabledPantheon" class="optionsBoxWithTitleInline">`
+                                +`<div class="optionsBoxTitle">`
+                                    +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
+                                    +`<span class="optionsBoxTitle">${getTextForUI("autoPantheonTitle","elementText")}</span>`
+                                +`</div>`
+                                +`<div class="optionsBox">`
+                                    +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                        + hhMenuSwitch('autoPantheon')
+                                        + hhMenuInputWithImg('autoPantheonThreshold', HHAuto_inputPattern.autoPantheonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg' )
+                                    +`</div>`
+                                +`</div>`
+                            +`</div>`
+                        +`</div>`
                     +`</div>`
                 +`</div>`
                 +`<div class="optionsRow">`
@@ -13338,31 +13378,6 @@ var start = function () {
                         +`</div>`
                     +`</div>`
                 +`</div>`
-                +`<div class="optionsRow" style="justify-content: space-evenly">`
-                    +`<div id="isEnabledPantheon" class="optionsBoxWithTitle">`
-                        +`<div class="optionsBoxTitle">`
-                            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
-                            +`<span class="optionsBoxTitle">${getTextForUI("autoPantheonTitle","elementText")}</span>`
-                        +`</div>`
-                        +`<div class="optionsBox">`
-                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                                + hhMenuSwitch('autoPantheon')
-                                + hhMenuInputWithImg('autoPantheonThreshold', HHAuto_inputPattern.autoPantheonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg' )
-                            +`</div>`
-                        +`</div>`
-                    +`</div>`
-                    +`<div id="isEnabledBossBangEvent" class="optionsBoxWithTitle">`
-                        +`<div class="optionsBoxTitle">`
-                            +`<span class="optionsBoxTitle">${getTextForUI("bossBangEventTitle","elementText")}</span>`
-                        +`</div>`
-                        +`<div class="optionsBox">`
-                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                                + hhMenuSwitch('bossBangEvent')
-                                + hhMenuInput('bossBangMinTeam', HHAuto_inputPattern.bossBangMinTeam, 'text-align:center; width:25px')
-                            +`</div>`
-                        +`</div>`
-                    +`</div>`
-                +`</div>`
                 +`<div id="isEnabledShop" class="optionsBoxWithTitle">`
                     +`<div class="optionsBoxTitle">`
                         +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/shop.svg" />`
@@ -13409,6 +13424,29 @@ var start = function () {
                             + hhMenuSwitch('SeasonalEventMaskRewards')
                             + hhMenuSwitch('autoSeasonalEventCollect')
                             + hhMenuSwitch('autoSeasonalEventCollectAll')
+                        +`</div>`
+                    +`</div>`
+                +`</div>`
+                +`<div class="optionsRow" style="justify-content: space-evenly">`
+                    +`<div id="isEnabledSultryMysteriesEvent" class="optionsBoxWithTitle">`
+                        +`<div class="optionsBoxTitle">`
+                            +`<span class="optionsBoxTitle">${getTextForUI("sultryMysteriesEventTitle","elementText")}</span>`
+                        +`</div>`
+                        +`<div class="optionsBox">`
+                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                + hhMenuSwitch('sultryMysteriesEventRefreshShop')
+                            +`</div>`
+                        +`</div>`
+                    +`</div>`
+                    +`<div id="isEnabledBossBangEvent" class="optionsBoxWithTitle">`
+                        +`<div class="optionsBoxTitle">`
+                            +`<span class="optionsBoxTitle">${getTextForUI("bossBangEventTitle","elementText")}</span>`
+                        +`</div>`
+                        +`<div class="optionsBox">`
+                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                + hhMenuSwitch('bossBangEvent')
+                                + hhMenuInput('bossBangMinTeam', HHAuto_inputPattern.bossBangMinTeam, 'text-align:center; width:25px')
+                            +`</div>`
                         +`</div>`
                     +`</div>`
                 +`</div>`
