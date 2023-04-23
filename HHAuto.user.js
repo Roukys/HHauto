@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.21.6
+// @version      5.22.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -239,7 +239,7 @@ function convertTimeToInt(remainingTimer){
                 case timerDefinitions[hhTimerLocale].seconds:
                     newTimer += parseInt(splittedTime[i]);
                     break;
-                default:                    
+                default:
                     logHHAuto('Timer symbol not recognized: ' + timerSymbol);
             }
         }
@@ -1239,7 +1239,7 @@ function moduleSimChampions()
     $(document).on('click', newDraftButtonQuery, indicateBestTeam);
     $(document).on('click', confirmDraftButtonQuery, indicateBestTeam);
 
-    var checkAjaxCompleteOnChampionPage = function(event,request,settings){ 
+    var checkAjaxCompleteOnChampionPage = function(event,request,settings) {
         let match = settings.data.match(/action=champion_team_draft/);
         if (match === null) return;
         champTeam = request.responseJSON.teamArray;
@@ -1314,8 +1314,8 @@ function moduleSimChampions()
             }
         }
 
-        var newDraftInterval = girlsClicked ? randomInterval(1800,2500) : randomInterval(800,1500);
-        setTimeout(function() { 
+        var newDraftInterval = girlsClicked ? randomInterval(1800,2500) : randomIntervfal(800,1500);
+        setTimeout(function() {
             if( $(newDraftButtonQuery).length > 0) $(newDraftButtonQuery).click();
         }, newDraftInterval);
 
@@ -1458,7 +1458,7 @@ function moduleSimSeasonalMaskReward()
             const rewards_unclaimed = $('.seasonal-tier.unclaimed').length;
             const scroll_width_hidden = parseInt(start_px + (rewards_unclaimed - 1) * width_px, 10);
             $('.seasonal-progress-bar-current').css('width', scroll_width_hidden + 'px');
-            
+
             try {
                 divToModify.getNiceScroll(0).doScrollLeft(0, 200);
             } catch(err) {}
@@ -1550,7 +1550,7 @@ function modulePachinko()
 
             updateOrbsNumber(orbsLeft);
         });
-        
+
         // Add Timer reset options //changed
         let timerOptions = document.getElementById("PachinkoSelector");
         let countTimers=0;
@@ -2270,7 +2270,7 @@ function collectAndUpdatePowerPlaces()
 
         clearTimer('minPowerPlacesTime');
         clearTimer('maxPowerPlacesTime');
-  
+
         let popListRemaining = $('#pop_info .pop_thumb .pop_thumb_remaining > span');
         popListRemaining.each(function() {
             let $elem=$(this);
@@ -2302,7 +2302,7 @@ function collectAndUpdatePowerPlaces()
             {
                 setTimer('minPowerPlacesTime',Number(maxTime)+1);
             }
-            else 
+            else
             {
                 setTimer('minPowerPlacesTime',Number(minTime)+1);
             }
@@ -3453,8 +3453,8 @@ var doChampionStuff=function()
                     currTime = Number(convertTimeToInt(timerElm.text()));
                     if (currTime > minTime) {minTime = currTime;}
                 }
-            } 
-            else 
+            }
+            else
             {
                 logHHAuto("Catched error : Could not parse champion timer : "+timerElm);
             }
@@ -3842,7 +3842,7 @@ function goAndCollectFreeBundles()
 
         // Wait popup is opened
         setTimeout(switchToBundleTabs,randomInterval(1000, 1500));
-        
+
         return true;
     }
     else
@@ -4312,7 +4312,7 @@ function goAndCollectSeason()
                 },500);
                 return true;
             }
-            else 
+            else
             {
                 setTimer('nextSeasonCollectAllTime', getHHScriptVars("maxCollectionDelay"));
             }
@@ -6479,9 +6479,9 @@ function moduleSimLeagueHideBeatenOppo()
     const beatenOpponents ='<div style="position: absolute;left: 190px;top: 14px;width:100px;"  class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("HideBeatenOppo","tooltip")+'</span><label style="width:100%;" class="myButton" id="HideBeatenOppo">'+getTextForUI("HideBeatenOppo","elementText")+'</label></div>';
     if (
         document.getElementById("beaten_opponents") === null // button from HH OCD script
-        &&  document.getElementById("HideBeatenOppo") === null 
+        &&  document.getElementById("HideBeatenOppo") === null
     )
-    { 
+    {
         function removeBeatenOpponents() {
             var board = document.getElementsByClassName("leadTable")[0];
             if(!board) return;
@@ -7142,7 +7142,7 @@ var autoLoop = function ()
             busy = parseEventPage(eventIDs[0]);
         }
 
-        if (busy===false && getHHScriptVars("isEnabledShop",false) && ( getStoredValue("HHAuto_Setting_paranoia") !== "true" || !checkTimer("paranoiaSwitch") )  && getStoredValue("HHAuto_Temp_autoLoop") === "true")
+        if (busy===false && getHHScriptVars("isEnabledShop",false) && getStoredValue("HHAuto_Setting_updateMarket")  === "true" && ( getStoredValue("HHAuto_Setting_paranoia") !== "true" || !checkTimer("paranoiaSwitch") )  && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
             if (getStoredValue("HHAuto_Temp_charLevel") ===undefined)
             {
@@ -7470,7 +7470,7 @@ var autoLoop = function ()
                         //logHHAuto("NONE req.");
                         busy = true;
                         proceedQuest();
-                    }    
+                    }
                 }
             }
             else
@@ -7596,10 +7596,10 @@ var autoLoop = function ()
         }
 
         if (
-            busy==false && getHHScriptVars("isEnabledSeason",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && 
+            busy==false && getHHScriptVars("isEnabledSeason",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" &&
             (
                 checkTimer('nextSeasonCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonCollect") === "true" && canCollectCompetitionActive()
-                || 
+                ||
                 getStoredValue("HHAuto_Setting_autoSeasonCollectAll") === "true" && checkTimer('nextSeasonCollectAllTime') && (getTimer('SeasonRemainingTime') == -1 || getSecondsLeft('SeasonRemainingTime') < getLimitTimeBeforeEnd())
             )
         )
@@ -7610,7 +7610,7 @@ var autoLoop = function ()
         }
 
         if (
-            busy==false && getHHScriptVars("isEnabledSeasonalEvent",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && 
+            busy==false && getHHScriptVars("isEnabledSeasonalEvent",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" &&
             (
                 checkTimer('nextSeasonalEventCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true" && canCollectCompetitionActive()
                 ||
@@ -7624,7 +7624,7 @@ var autoLoop = function ()
         }
 
         if (
-            busy==false && getHHScriptVars("isEnabledPoV",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && 
+            busy==false && getHHScriptVars("isEnabledPoV",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" &&
             (
                 checkTimer('nextPoVCollectTime') && getStoredValue("HHAuto_Setting_autoPoVCollect") === "true" && canCollectCompetitionActive()
                 || 
@@ -7638,10 +7638,10 @@ var autoLoop = function ()
         }
 
         if (
-            busy==false && getHHScriptVars("isEnabledPoG",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && 
+            busy==false && getHHScriptVars("isEnabledPoG",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" &&
             (
                 checkTimer('nextPoGCollectTime') && getStoredValue("HHAuto_Setting_autoPoGCollect") === "true" && canCollectCompetitionActive()
-                || 
+                ||
                 getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true" && checkTimer('nextPoGCollectAllTime') && (getTimer('PoGRemainingTime') == -1 || getSecondsLeft('PoGRemainingTime') < getLimitTimeBeforeEnd())
             )
         )
@@ -9111,8 +9111,8 @@ function skipBossBangFightPage()
         logHHAuto("Click get rewards bang fight");
         rewardsButton.click();
         
-    } 
-    else if(skipFightButton.length > 0) 
+    }
+    else if(skipFightButton.length > 0)
     {
         logHHAuto("Click skip boss bang fight");
         skipFightButton.click();
@@ -9239,10 +9239,9 @@ function parseEventPage(inTab="global")
                                     logHHAuto("Can't get champion from girls " +  girlName + " (" + girlId + ")");
                                 }
                             }
-                        
                         }
                     }
-                    if (TrollID) {                    
+                    if (TrollID) {
                         logHHAuto("Event girl : "+girlName+" ("+girlShards+"/100) at troll "+TrollID+" priority : "+Priority.indexOf(TrollID)+" on event : ",eventID);
                         eventsGirlz.push({girl_id:girlId,troll_id:TrollID,girl_shards:girlShards,is_mythic:"false",girl_name:girlName,event_id:eventID});
                     }
@@ -9356,7 +9355,7 @@ function parseEventPage(inTab="global")
                     }
                 }
             }
-            else if(eventList[eventID]["isCompleted"]) 
+            else if(eventList[eventID]["isCompleted"])
             {
                 logHHAuto("Boss bang completed, disabled boss bang event setting");
                 setStoredValue("HHAuto_Setting_bossBangEvent", false);
@@ -10941,6 +10940,7 @@ HHAuto_ToolTips.en.sultryMysteriesEventTitle = { version: "5.21.6", elementText:
 HHAuto_ToolTips.en.sultryMysteriesEventRefreshShop = { version: "5.21.6", elementText: "Refresh Shop", tooltip: "Open Sultry Mysteries shop tab to trigger shop update."};
 HHAuto_ToolTips.en.showTooltips = { version: "5.6.24", elementText: "Show tooltips", tooltip: "Show tooltip on menu."};
 HHAuto_ToolTips.en.showMarketTools = { version: "5.6.24", elementText: "Show market tools", tooltip: "Show Market tools."};
+HHAuto_ToolTips.en.updateMarket = { version: "5.22.0", elementText: "Update market", tooltip: "Update player data from market screens (Equipement, books and gift owned as well as next refresh time)."};
 HHAuto_ToolTips.en.useX10Fights = { version: "5.6.24", elementText: "Use x10", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Use x10 button if 10 fights or more to do (if not going under Koban bank value).<br>x50 takes precedence on x10 if all conditions are filled."};
 HHAuto_ToolTips.en.useX50Fights = { version: "5.6.24", elementText: "Use x50", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Use x50 button if 50 fights or more to do (if not going under Koban bank value).<br>Takes precedence on x10 if all conditions are filled."};
 HHAuto_ToolTips.en.useX10FightsAllowNormalEvent = { version: "5.6.24", elementText: "x10 for Event", tooltip: "If off:<br> X10 will only be used for mythic event<br>If enabled : <br>Allow x10 button for normal event if 10 fights or more to do (if not going under Koban bank value).<br>x50 takes precedence on x10 if all conditions are filled."};
@@ -12159,6 +12159,17 @@ HHStoredVars.HHAuto_Setting_minShardsX50 =
     menuType:"value",
     kobanUsing:false
 };
+HHStoredVars.HHAuto_Setting_updateMarket =
+    {
+    default:"true",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_paranoia =
     {
     default:"true",
@@ -12889,7 +12900,7 @@ var updateData = function () {
         {
             Tegzd += '<li>'+getTextForUI("autoPantheonTitle","elementText")+' : '+getHHVars('Hero.energies.worship.amount')+'/'+getHHVars('Hero.energies.worship.max_regen_amount')+' ('+getTimeLeft('nextPantheonTime')+')'+'</li>';
         }
-        if (getHHScriptVars("isEnabledShop",false))
+        if (getHHScriptVars("isEnabledShop",false) && getStoredValue("HHAuto_Setting_updateMarket") =="true")
         {
             Tegzd += '<li>'+getTextForUI("autoBuy","elementText")+' : '+getTimeLeft('nextShopTime')+'</li>';
         }
@@ -13412,6 +13423,7 @@ var start = function () {
                         +`</div>`
                         +`<div class="internalOptionsRow">`
                             + hhMenuSwitchWithImg('showMarketTools', 'design/menu/panel.svg')
+                            + hhMenuSwitch('updateMarket')
                         +`</div>`
                     +`</div>`
                 +`</div>`
