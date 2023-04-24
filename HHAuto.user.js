@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.22.3
+// @version      5.22.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -7065,7 +7065,6 @@ var autoLoop = function ()
         let seasonalEventQuery = '#contains_all #homepage .seasonal-event a';
         let eventIDs=[];
         let bossBangEventIDs=[];
-        let sultryMysteriesEventIDs=[];
         if (getPage()===getHHScriptVars("pagesIDEvent"))
         {
             if (queryStringGetParam(window.location.search,'tab') !== null)
@@ -7109,7 +7108,7 @@ var autoLoop = function ()
                 parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
                 if (queryStringGetParam(parsedURL.search,'tab') !== null && checkEvent(queryStringGetParam(parsedURL.search,'tab')))
                 {
-                    sultryMysteriesEventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
+                    eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
                 }
             }
             queryResults=$(seasonalEventQuery);
@@ -9053,7 +9052,6 @@ function skipBossBangFightPage()
     {
         logHHAuto("Click get rewards bang fight");
         rewardsButton.click();
-        
     }
     else if(skipFightButton.length > 0)
     {
@@ -9307,7 +9305,7 @@ function parseEventPage(inTab="global")
                 setStoredValue("HHAuto_Temp_bossBangTeam", -1);
             }
         }
-        if (eventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg')) && getStoredValue("HHAuto_Setting_sultryMysteriesEventRefreshShop") ==="true")
+        if (eventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg')) && getStoredValue("HHAuto_Setting_sultryMysteriesEventRefreshShop") === "true")
         {
             logHHAuto("On going sultry mysteries event.");
 
@@ -10717,9 +10715,9 @@ var timerDefinitions;
 if (hhTimerLocale !== undefined || hhTimerLocale !== null || hhTimerLocale.length > 0) {
     timerDefinitions = {
     [hhTimerLocale]: {
-        days: unsafeWindow.Phoenix.__.DateTime.time_short_days, 
-        hours: unsafeWindow.Phoenix.__.DateTime.time_short_hours, 
-        minutes: unsafeWindow.Phoenix.__.DateTime.time_short_min, 
+        days: unsafeWindow.Phoenix.__.DateTime.time_short_days,
+        hours: unsafeWindow.Phoenix.__.DateTime.time_short_hours,
+        minutes: unsafeWindow.Phoenix.__.DateTime.time_short_min,
         seconds: unsafeWindow.Phoenix.__.DateTime.time_short_sec
         }
     }
@@ -10879,6 +10877,7 @@ HHAuto_ToolTips.en.bossBangEventTitle = { version: "5.20.3", elementText: "Boss 
 HHAuto_ToolTips.en.bossBangMinTeam = { version: "5.6.137", elementText: "First Team", tooltip: "First team to start with<br>If 5 will start with last team and reach the first one."};
 HHAuto_ToolTips.en.sultryMysteriesEventTitle = { version: "5.21.6", elementText: "Sultry Mysteries Event"};
 HHAuto_ToolTips.en.sultryMysteriesEventRefreshShop = { version: "5.21.6", elementText: "Refresh Shop", tooltip: "Open Sultry Mysteries shop tab to trigger shop update."};
+HHAuto_ToolTips.en.sultryMysteriesEventRefreshShopNext = { version: "5.22.4", elementText: "Shop refresh SM event"};
 HHAuto_ToolTips.en.showTooltips = { version: "5.6.24", elementText: "Show tooltips", tooltip: "Show tooltip on menu."};
 HHAuto_ToolTips.en.showMarketTools = { version: "5.6.24", elementText: "Show market tools", tooltip: "Show Market tools."};
 HHAuto_ToolTips.en.updateMarket = { version: "5.22.0", elementText: "Update market", tooltip: "Update player data from market screens (Equipement, books and gift owned as well as next refresh time)."};
@@ -12867,6 +12866,10 @@ var updateData = function () {
         {
             Tegzd += '<li>'+getTextForUI("mythicGirlNext","elementText")+' : '+getTimeLeft('eventMythicNextWave')+'</li>';
         }
+        if (getTimer('eventSultryMysteryShopRefresh') !== -1)
+        {
+            Tegzd += '<li>'+getTextForUI("sultryMysteriesEventRefreshShopNext","elementText")+' : '+getTimeLeft('eventSultryMysteryShopRefresh')+'</li>';
+        }
         if (getStoredValue("HHAuto_Temp_haveAff"))
         {
             Tegzd += '<li>'+getTextForUI("autoAffW","elementText")+' : '+add1000sSeparator(getStoredValue("HHAuto_Temp_haveAff"))+'</li>';
@@ -12894,8 +12897,8 @@ var updateData = function () {
 
 function maskInactiveMenus()
 {
-    let menuIDList =["isEnabledDailyGoals", "isEnabledPoVPoG", "isEnabledPoV", "isEnabledPoG", 
-                    "isEnabledSeasonalEvent" , "isEnabledBossBangEvent" , "isEnabledSultryMysteriesEvent", 
+    let menuIDList =["isEnabledDailyGoals", "isEnabledPoVPoG", "isEnabledPoV", "isEnabledPoG",
+                    "isEnabledSeasonalEvent" , "isEnabledBossBangEvent" , "isEnabledSultryMysteriesEvent",
                     "isEnabledDailyRewards", "isEnabledFreeBundles", "isEnabledMission","isEnabledContest",
                     "isEnabledTrollBattle","isEnabledPowerPlaces","isEnabledSalary","isEnabledPachinko","isEnabledQuest","isEnabledSideQuest","isEnabledSeason","isEnabledLeagues",
                     "isEnabledAllChamps","isEnabledChamps","isEnabledClubChamp","isEnabledPantheon","isEnabledShop"];
