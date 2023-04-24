@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.22.2
+// @version      5.22.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3003,7 +3003,8 @@ function doShopping()
         var HaveExp=Number(getStoredValue("HHAuto_Temp_haveExp"));
 
 
-        if (getStoredValue("HHAuto_Setting_autoLGMW") ==="true" || getStoredValue("HHAuto_Setting_autoLGRW") ==="true" )
+
+/*         if ( getStoredValue("HHAuto_Setting_autoLGMW") ==="true" || getStoredValue("HHAuto_Setting_autoLGRW") ==="true" )
         {
             //logHHAuto('items');
             var Was=shop[0].length;
@@ -3066,7 +3067,7 @@ function doShopping()
             {
                 setStoredValue("HHAuto_Temp_charLevel", 0);
             }
-        }
+        } */
 
         var boosterFilter = getStoredValue("HHAuto_Setting_autoBuyBoostersFilter").split(";");
         if (getStoredValue("HHAuto_Setting_autoBuyBoosters") ==="true" && boosterFilter.length > 0)
@@ -13337,11 +13338,11 @@ var start = function () {
                             + hhMenuInput('maxAff', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:60px')
                             + hhMenuInput('autoAff', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
                         +`</div>`
-                        +`<div class="internalOptionsRow">`
+                        +`<div class="internalOptionsRow" style="display:none;">`
                             + hhMenuSwitchWithImg('autoLGMW', 'design/ic_equipment_gray.svg')
                             + hhMenuInput('autoLGM', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
                         +`</div>`
-                        +`<div class="internalOptionsRow">`
+                        +`<div class="internalOptionsRow" style="display:none;">`
                             + hhMenuSwitchWithImg('autoLGRW', 'pictures/misc/items_icons/16.svg')
                             + hhMenuInput('autoLGR', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
                         +`</div>`
