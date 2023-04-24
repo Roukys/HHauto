@@ -7137,6 +7137,7 @@ var autoLoop = function ()
             //&& ( getStoredValue("HHAuto_Temp_EventFightsBeforeRefresh") === undefined || getTimer('eventRefreshExpiration') === -1 || getStoredValue("HHAuto_Temp_eventGirl") === undefined)
         {
             logHHAuto("Going to check on events.");
+            logHHAuto("Event " + eventIDs[0]);
             busy = true;
             busy = parseEventPage(eventIDs[0]);
         }
@@ -9102,20 +9103,24 @@ function parseEventPage(inTab="global")
             }
         }
         queryEventTabCheck[0].setAttribute('parsed', 'true');
-        logHHAuto("On event page.");
+        logHHAuto("On event page : " + eventID);
         clearEventData(eventID);
         //let eventsGirlz=[];
         let eventList = isJSON(getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsList")):{};
         let eventsGirlz = isJSON(getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsGirlz")):[];
         let eventChamps = isJSON(getStoredValue("HHAuto_Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue("HHAuto_Temp_autoChampsEventGirls")):[];
         let Priority=(getStoredValue("HHAuto_Setting_eventTrollOrder")).split(";");
+        const isPlusEvent = eventID.startsWith(getHHScriptVars('eventIDReg')) && getStoredValue("HHAuto_Setting_plusEvent") ==="true";
+        const isPlusEventMythic = eventID.startsWith(getHHScriptVars('mythicEventIDReg')) && getStoredValue("HHAuto_Setting_plusEventMythic") ==="true";
+        const isBossBangEvent = eventID.startsWith(getHHScriptVars('bossBangEventIDReg')) && getStoredValue("HHAuto_Setting_bossBangEvent") ==="true";
+        const isSultryMysteriesEvent = eventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg')) && getStoredValue("HHAuto_Setting_sultryMysteriesEventRefreshShop") === "true";
         const hhEventData = unsafeWindow.event_data;
-        if (!hhEventData) {
+        if ((isPlusEvent || isPlusEventMythic) && !hhEventData) {
             logHHAuto("Error getting current event Data from HH.");
         }
 
         let refreshTimer = 3600;
-        if (eventID.startsWith(getHHScriptVars('eventIDReg')) && getStoredValue("HHAuto_Setting_plusEvent") ==="true")
+        if (isPlusEvent)
         {
             logHHAuto("On going event.");
             let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
@@ -9193,7 +9198,7 @@ function parseEventPage(inTab="global")
                 }
             }
         }
-        if (eventID.startsWith(getHHScriptVars('mythicEventIDReg')) && getStoredValue("HHAuto_Setting_plusEventMythic") ==="true")
+        if (isPlusEventMythic)
         {
             logHHAuto("On going mythic event.");
             let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
@@ -9255,7 +9260,7 @@ function parseEventPage(inTab="global")
                 }
             }
         }
-        if (eventID.startsWith(getHHScriptVars('bossBangEventIDReg')) && getStoredValue("HHAuto_Setting_bossBangEvent") ==="true")
+        if (isBossBangEvent)
         {
             logHHAuto("On going bossBang event.");
             let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
@@ -9305,7 +9310,7 @@ function parseEventPage(inTab="global")
                 setStoredValue("HHAuto_Temp_bossBangTeam", -1);
             }
         }
-        if (eventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg')) && getStoredValue("HHAuto_Setting_sultryMysteriesEventRefreshShop") === "true")
+        if (isSultryMysteriesEvent)
         {
             logHHAuto("On going sultry mysteries event.");
 
@@ -9338,6 +9343,7 @@ function parseEventPage(inTab="global")
                 },randomInterval(300,500));
             }
         }
+        logHHAuto("Number of event in list : " + Object.keys(eventList).length);
         if(Object.keys(eventList).length >0)
         {
             setStoredValue("HHAuto_Temp_eventsList", JSON.stringify(eventList));
