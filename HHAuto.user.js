@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.23.1
+// @version      5.23.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -36,7 +36,7 @@ GM_addStyle('.HHAutoScriptMenu input:checked + .slider.kobans { background-color
 GM_addStyle('#pInfo {padding-left:3px; z-index:1;white-space: pre;position: absolute;right: 5%; left:57%; height:auto; top:11%; overflow: hidden; border: 1px solid #ffa23e; background-color: rgba(0,0,0,.5); border-radius: 5px; font-size:9pt; user-select: none; -webkit-user-select: none; -moz-user-select: none;}'
             + '#pInfo ul {margin:0; padding:0; columns:2; list-style-type: none;}'
             + '#pInfo ul li {margin:0}');
-GM_addStyle('#pInfo.left {right: 47%; left:15%; top:12%;');
+GM_addStyle('#pInfo.left {right: 480px; left:220px; top:12%;');
 //GM_addStyle('span.HHMenuItemName {font-size: xx-small; line-height: 150%}');
 //GM_addStyle('span.HHMenuItemName {font-size: smaller; line-height: 120%}');
 GM_addStyle('span.HHMenuItemName {padding-bottom:2px; line-height:120%}');
