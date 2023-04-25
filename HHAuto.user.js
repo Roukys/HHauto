@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.22.6
+// @version      5.23.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -36,6 +36,7 @@ GM_addStyle('.HHAutoScriptMenu input:checked + .slider.kobans { background-color
 GM_addStyle('#pInfo {padding-left:3px; z-index:1;white-space: pre;position: absolute;right: 5%; left:57%; height:auto; top:11%; overflow: hidden; border: 1px solid #ffa23e; background-color: rgba(0,0,0,.5); border-radius: 5px; font-size:9pt; user-select: none; -webkit-user-select: none; -moz-user-select: none;}'
             + '#pInfo ul {margin:0; padding:0; columns:2; list-style-type: none;}'
             + '#pInfo ul li {margin:0}');
+GM_addStyle('#pInfo.left {right: 47%; left:15%; top:12%;');
 //GM_addStyle('span.HHMenuItemName {font-size: xx-small; line-height: 150%}');
 //GM_addStyle('span.HHMenuItemName {font-size: smaller; line-height: 120%}');
 GM_addStyle('span.HHMenuItemName {padding-bottom:2px; line-height:120%}');
@@ -10754,6 +10755,7 @@ HHAuto_ToolTips.en.autoSeasonPassReds = { version: "5.6.24", elementText: "Pass 
 HHAuto_ToolTips.en.showCalculatePower = { version: "5.6.24", elementText: "Show PowerCalc", tooltip: "Display battle simulation indicator for Leagues, battle, Seasons "};
 //HHAuto_ToolTips.en.calculatePowerLimits = { version: "5.6.24", elementText: "Own limits", tooltip: "(red;orange)<br>Define your own red and orange limits for Opponents<br> -6000;0 do mean<br> <-6000 is red, between -6000 and 0 is orange and >=0 is green"};
 HHAuto_ToolTips.en.showInfo = { version: "5.6.24", elementText: "Show info", tooltip: "if enabled : show info on script values and next runs"};
+HHAuto_ToolTips.en.showInfoLeft = { version: "5.23.0", elementText: "Show info Left", tooltip: "Show info on left side vs on right side"};
 HHAuto_ToolTips.en.autoSalary = { version: "5.6.24", elementText: "Salary", tooltip: "(Integer)<br>if enabled :<br>Collect salaries every X secs"};
 //HHAuto_ToolTips.en.autoSalaryMinTimer = { version: "5.6.24", elementText: "Minimum wait", tooltip: "(Integer)<br>X secs to next Salary collection"};
 HHAuto_ToolTips.en.autoSalaryMinSalary = { version: "5.6.24", elementText: "Min. salary", tooltip: "(Integer)<br>Minium salary to start collection"};
@@ -10970,6 +10972,7 @@ HHAuto_ToolTips.fr.autoSeasonPassReds = { version: "5.6.24", elementText: "Passe
 HHAuto_ToolTips.fr.showCalculatePower = { version: "5.6.24", elementText: "PowerCalc", tooltip: "Si activé : affiche le résultat des calculs du module PowerCalc (Simulateur de combats pour Ligues, Trolls, Saisons)."};
 //HHAuto_ToolTips.fr.calculatePowerLimits = { version: "5.6.24", elementText: "Limites perso", tooltip: "(rouge;orange)<br>Définissez vos propres limites de rouge et d'orange pour les opposants<br> -6000;0 veux dire<br> <-6000 est rouge, entre -6000 et 0 est orange et >=0 est vert"};
 HHAuto_ToolTips.fr.showInfo = { version: "5.6.24", elementText: "Infos", tooltip: "Si activé : affiche une fenêtre d'informations sur le script."};
+HHAuto_ToolTips.fr.showInfoLeft = { version: "5.23.0", elementText: "Infos à gauche", tooltip: "Affiche la fenêtre d'information à gauche plutot qu'à droite"};
 HHAuto_ToolTips.fr.autoSalary = { version: "5.6.24", elementText: "Salaire", tooltip: "Si activé :<br>Collecte les salaires toutes les X secondes."};
 //HHAuto_ToolTips.fr.autoSalaryMinTimer = { version: "5.6.24", elementText: "Attente min.", tooltip: "(Nombre entier)<br>Secondes d'attente minimum entre deux collectes."};
 HHAuto_ToolTips.fr.autoSalaryMinSalary = { version: "5.20.3", elementText: "Salaire mini", tooltip: "(Integer)<br>Salare minium pour démarrer la collecte"};
@@ -12273,6 +12276,17 @@ HHStoredVars.HHAuto_Setting_showInfo =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars.HHAuto_Setting_showInfoLeft =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_showMarketTools =
     {
     default:"false",
@@ -12882,15 +12896,12 @@ var updateData = function () {
             Tegzd += '<li>'+getTextForUI("autoExpW","elementText")+' : '+add1000sSeparator(getStoredValue("HHAuto_Temp_haveExp"))+'</li>';
         }
         Tegzd += '</ul>';
-        //if (Tegzd.length>0)
-        //{
+
         document.getElementById('pInfo').style.display='block';
-        document.getElementById('pInfo').innerHTML = Tegzd; //document.getElementById('pInfo').textContent=Tegzd;
-        // }
-        // else
-        // {
-        //     document.getElementById('pInfo').style.display='none';
-        // }
+        if (getStoredValue("HHAuto_Setting_showInfoLeft") === 'true' && getPage() === getHHScriptVars("pagesIDHome")) {
+            document.getElementById('pInfo').className='left';
+        }
+        document.getElementById('pInfo').innerHTML = Tegzd;
     }
     else
     {
@@ -13117,6 +13128,7 @@ var start = function () {
                     +`<div class="rowOptionsBox">`
                         +`<div class="optionsColumn">`
                             + hhMenuSwitch('showInfo')
+                            + hhMenuSwitch('showInfoLeft')
                             + hhMenuSwitch('showTooltips')
                         +`</div>`
                         +`<div class="optionsColumn">`
