@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.23.3
+// @version      5.23.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -6350,9 +6350,9 @@ function moduleSimLeague() {
 
 
     function DisplayMatchScore() {
-        if ($('tr[sorting_id] td span.nickname span.OppoScore').length > 1)
+        if ($('tr[sorting_id]:not(.lead_table_default) td span.nickname span.OppoScore').length > 1)
         {
-            return
+            return;
         }
 
         let opponentsIDList = getLeagueOpponentListData();
@@ -6373,6 +6373,10 @@ function moduleSimLeague() {
         if (opponentsPowerList === -1 ||  opponentsPowerList.expirationDate < new Date())
         {
             return;
+        }
+
+        if($('tr.lead_table_default td span.nickname span.OppoScore').length > 0) {
+            $('tr.lead_table_default td span.nickname span.OppoScore').remove();
         }
 
         for (let oppo of opponentsIDList)
