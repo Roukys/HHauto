@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.23.4
+// @version      5.24.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -65,11 +65,12 @@ GM_addStyle('.myButton {box-shadow: 0px 0px 0px 2px #9fb4f2; background:linear-g
             +'.myButton:active { position:relative; top:1px;}'
             +'.myButton:disabled, .myButton[disabled] { background: grey;}');
 GM_addStyle('.HHEventPriority {position: absolute;z-index: 500;background-color: black}');
-GM_addStyle('.HHPopIDs {background-color: black;z-index: 500;position: absolute;margin-top: 25px}');
+GM_addStyle('.HHPopIDs {background-color: black;z-index: 500;position: absolute;}');
 GM_addStyle('.tooltipHH:hover { cursor: help; position: relative; }'
             +'.tooltipHH span.tooltipHHtext { display: none }');
 GM_addStyle('#popup_message_league { border: #666 2px dotted; padding: 5px 20px 5px 5px; display: block; z-index: 1000; background: #e3e3e3; left: 0px; margin: 15px; width: 500px; position: absolute; top: 15px; color: black}');
 GM_addStyle('#sliding-popups#sliding-popups { z-index : 1}');
+GM_addStyle('.HHcontest { color:#d08467; font-size: 0.7rem;}');
 //END CSS Region
 
 function replaceCheatClick()
@@ -86,6 +87,17 @@ function nThousand(x) {
         x = 0;
     }
     return x.toLocaleString();
+}
+
+function callItOnce(fn) {
+    var called = false;
+    return function() {
+        if (!called) {
+            called = true;
+            return fn();
+        }
+        return;
+    }
 }
 
 function addEventsOnMenuItems()
@@ -989,6 +1001,197 @@ function moduleDisplayPopID()
     $('div.pop_list div[pop_id]').each(function() {
         $(this).prepend('<div class="HHPopIDs">'+$(this).attr('pop_id')+'</div>');
     });
+}
+
+function moduleMissionssStyles()
+{
+    GM_addStyle('#missions .missions_wrap  {'
+        + 'display:flex;'
+        + 'flex-wrap: wrap;'
+    +'}');
+    const missionsContainerPath = '#missions .missions_wrap .mission_object.mission_entry';
+    GM_addStyle(missionsContainerPath + ' {'
+        + 'height: 56px;'
+        + 'margin-right:3px;'
+        + 'width: 49%;'
+    +'}');
+    GM_addStyle(missionsContainerPath + ' .mission_reward {'
+        + 'width: 110px;'
+        + 'padding-left: 5px;'
+        + 'padding-top: 5px;'
+    +'}');
+    GM_addStyle(missionsContainerPath + ' .mission_image {'
+        + 'height: 50px;'
+        + 'width: 50px;'
+        + 'margin-top: 0;'
+    +'}');
+    GM_addStyle(missionsContainerPath + ' .mission_details {'
+        + 'display:none;'
+    +'}');
+    GM_addStyle(missionsContainerPath + ' .mission_button {'
+    + 'display:flex;'
+    +'}');
+    GM_addStyle(missionsContainerPath + ' .mission_button .duration {'
+        + 'top:5px;'
+        + 'left:5px;'
+    +'}');
+    GM_addStyle(missionsContainerPath + ' .mission_button button {'
+        + 'margin:0;'
+    +'}');
+    GM_addStyle(missionsContainerPath + ' .mission_button button[rel="finish"] {'
+        + 'height: 50px;'
+        + 'top:0;'
+        + 'left:145px;'
+        + 'padding: 4px 4px;;'
+    +'}');
+    GM_addStyle(missionsContainerPath + ' .mission_button button[rel="claim"] {'
+        + 'left:0;'
+    +'}');
+    GM_addStyle(missionsContainerPath + ' .mission_button .hh_bar {'
+        + 'left:5px;'
+    +'}');
+}
+
+function moduleDailyGoalsStyles()
+{
+    const dailGoalsContainerPath = '#daily_goals .daily-goals-row .daily-goals-left-part .daily-goals-objectives-container';
+    GM_addStyle(dailGoalsContainerPath + ' {'
+        + 'flex-wrap:wrap;'
+        + 'padding: 5px;'
+    +'}');
+    GM_addStyle(dailGoalsContainerPath + ' .daily-goals-objective .daily-goals-objective-reward .daily_goals_potion_icn {'
+        + 'background-size: 20px;'
+        + 'height: 30px;'
+    +'}');
+    GM_addStyle(dailGoalsContainerPath + ' .daily-goals-objective .daily-goals-objective-reward > p {'
+        + 'margin-top: 0;'
+    +'}');
+    
+    GM_addStyle(dailGoalsContainerPath + ' .daily-goals-objective {'
+        + 'width:49%;'
+        + 'margin-bottom:5px;'
+    +'}');
+    
+    GM_addStyle(dailGoalsContainerPath + ' .daily-goals-objective .daily-goals-objective-status .objective-progress-bar {'
+        + 'height: 20px;'
+        + 'width: 11.1rem;'
+    +'}');
+    
+    GM_addStyle(dailGoalsContainerPath + ' .daily-goals-objective .daily-goals-objective-status .objective-progress-bar > p {'
+        + 'font-size: 0.7rem;'
+    +'}');
+    
+    GM_addStyle(dailGoalsContainerPath + ' .daily-goals-objective .daily-goals-objective-reward {'
+        + 'height: 40px;'
+        + 'width: 40px;'
+    +'}');
+    
+    GM_addStyle(dailGoalsContainerPath + ' p {'
+        + 'overflow: hidden;'
+        + 'text-overflow: ellipsis;'
+        + 'white-space: nowrap;'
+        + 'max-width: 174px;' 
+        + 'font-size: 0.7rem;'
+    +'}');
+}
+
+function modulePowerPlacesStyles()
+{
+    const popPagePath = '#pop #pop_info .pop_list';
+    const popBtnPath = popPagePath +' .pop-action-btn';
+    const popContainerPath = popPagePath + ' .pop_list_scrolling_area .pop_thumb_container';
+
+    const popButtonStyles = function()
+    {
+        GM_addStyle( popBtnPath + ' .pop-auto-asign-all, ' + popBtnPath + ' .pop-claim-all {'
+            + 'min-width: auto !important;'
+            + 'height: 26px;'
+            + 'flex-direction: inherit;'
+            + 'column-gap: 12px;'
+            + 'display: inline-flex;'
+        +'}');
+        
+        GM_addStyle( popBtnPath + ' .battle-action-button .action-cost {'
+            + 'width:auto;'
+        +'}');
+        
+        GM_addStyle(popBtnPath + ' .pop-claim-all .action-cost {'
+            + 'display: flex;'
+        +'}');
+        
+        GM_addStyle(popBtnPath + ' .pop-claim-all .action-cost .hc-cost {'
+            + 'display: flex;'
+            + 'align-items: center;'
+        +'}');
+    }
+
+    const popStyles = function()
+    {
+        GM_addStyle(popContainerPath + ' {'
+            + 'margin:2px;'
+            + 'width: 135px;'
+            + 'min-height: 130px;'
+        +'}');
+        
+        GM_addStyle(popContainerPath + ' .pop_thumb > button {'
+            + 'width: 128px;'
+            + 'height: 25px;'
+        +'}');
+        
+        GM_addStyle(popContainerPath + ' .pop_thumb > .pop_thumb_title {'
+            + 'display: none;'
+        +'}');
+        
+        GM_addStyle(popContainerPath + ' .pop_thumb_expanded,' + popContainerPath + ' .pop_thumb_active {'
+            + 'height: 130px;'
+        +'}');
+        
+        GM_addStyle(popContainerPath + ' .pop_thumb img {'
+            + 'width: 100%;'
+            + 'height: auto;'
+        +'}');
+        
+        GM_addStyle(popContainerPath + ' .pop_thumb > .pop_thumb_progress_bar {'
+            + 'width: 128px;'
+            + 'height: 30px;'
+        +'}');
+        
+        GM_addStyle(popContainerPath + ' .pop_thumb > .pop_thumb_space {'
+            + 'height: 30px;'
+        +'}');
+        
+        GM_addStyle(popContainerPath + ' .pop_thumb > .pop_thumb_progress_bar .hh_bar > .backbar {'
+            + 'width: 123px !important;'
+        +'}');
+    }
+    popButtonStyles();
+    popStyles();
+}
+
+function moduleContestsStyles()
+{
+    const contestsContainerPath = '#contests > div > div.left_part > .scroll_area > .contest > .contest_header.ended';
+    GM_addStyle(contestsContainerPath + ' {'
+        + 'height: 50px;'
+        + 'font-size: 0.7rem;'
+    +'}');
+    GM_addStyle(contestsContainerPath + ' > .contest_title{'
+        + 'font-size: 14px;'
+        + 'left: 97px;'
+        + 'bottom: 24px;'
+    +'}');
+    GM_addStyle(contestsContainerPath + ' > .personal_rewards {'
+        + 'height: 40px;'
+        + 'margin-top: -42px;'
+        + 'padding-top: 1px;'
+        + 'width: 420px;'
+    +'}');
+    GM_addStyle(contestsContainerPath + ' > .personal_rewards > button {'
+        + 'height: 23px;'
+        + 'float: left;'
+        + 'margin-left: 20px;'
+        + 'margin-top: 16px;'
+    +'}');
 }
 
 function moduleDisplayContestsDeletion()
@@ -7794,6 +7997,25 @@ var autoLoop = function ()
             break;
         case getHHScriptVars("pagesIDPowerplacemain"):
             moduleDisplayPopID();
+            if (getStoredValue("HHAuto_Setting_compactPowerPlace") === "true")
+            {
+                modulePowerPlacesStyles = callItOnce(modulePowerPlacesStyles);
+                modulePowerPlacesStyles();
+            }
+            break;
+        case getHHScriptVars("pagesIDDailyGoals"):
+            if (getStoredValue("HHAuto_Setting_compactDailyGoals") === "true")
+            {
+                moduleDailyGoalsStyles = callItOnce(moduleDailyGoalsStyles);
+                moduleDailyGoalsStyles();
+            }
+            break;
+        case getHHScriptVars("pagesIDMissions"):
+            if (getStoredValue("HHAuto_Setting_compactMissions") === "true")
+            {
+                moduleMissionssStyles = callItOnce(moduleMissionssStyles);
+                moduleMissionssStyles();
+            }
             break;
         case getHHScriptVars("pagesIDShop"):
             if (getStoredValue("HHAuto_Setting_showMarketTools") === "true")
@@ -7822,6 +8044,11 @@ var autoLoop = function ()
             break;
         case getHHScriptVars("pagesIDContests"):
             moduleDisplayContestsDeletion();
+            if (getStoredValue("HHAuto_Setting_compactEndedContests") === "true")
+            {
+                moduleContestsStyles = callItOnce(moduleContestsStyles);
+                moduleContestsStyles();
+            }
             break;
         case getHHScriptVars("pagesIDPoV"):
             if (getStoredValue("HHAuto_Setting_PoVMaskRewards") === "true")
@@ -10767,6 +10994,7 @@ HHAuto_ToolTips.en.autoSalaryMinSalary = { version: "5.6.24", elementText: "Min.
 HHAuto_ToolTips.en.autoSalaryMaxTimer = { version: "5.6.24", elementText: "Max. collect time", tooltip: "(Integer)<br>X secs to collect Salary, before stopping."};
 HHAuto_ToolTips.en.autoMission = { version: "5.6.24", elementText: "Mission", tooltip: "if enabled : Automatically do missions"};
 HHAuto_ToolTips.en.autoMissionCollect = { version: "5.6.24", elementText: "Collect", tooltip: "if enabled : Automatically collect missions after start of new competition."};
+HHAuto_ToolTips.en.compactMissions ={ version: "5.24.0", elementText: "Compact", tooltip: "Add styles to compact missions display"};
 HHAuto_ToolTips.en.autoTrollTitle = { version: "5.6.24", elementText: "Battle Troll"};
 HHAuto_ToolTips.en.autoTrollBattle = { version: "5.6.24", elementText: "Enable", tooltip: "if enabled : Automatically battle troll selected"};
 HHAuto_ToolTips.en.autoTrollSelector = { version: "5.6.24", elementText: "Troll selector", tooltip: "Select troll to be fought."};
@@ -10786,6 +11014,7 @@ HHAuto_ToolTips.en.autoQuest = { version: "5.6.74", elementText: "Main Quest", t
 HHAuto_ToolTips.en.autoSideQuest = { version: "5.6.83", elementText: "Side Quests", tooltip: "if enabled : Automatically do next available side quest (Enabled main quest has higher priority than side quests)"};
 HHAuto_ToolTips.en.autoQuestThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "(Integer between 0 and 99)<br>Minimum quest energy to keep"};
 HHAuto_ToolTips.en.autoContest = { version: "5.6.24", elementText: "Claim Contest", tooltip: "if enabled : Collect finished contest rewards"};
+HHAuto_ToolTips.en.compactEndedContests = { version: "5.24.0", elementText: "Compact", tooltip: "Add styles to compact ended contests display"};
 HHAuto_ToolTips.en.autoFreePachinko = { version: "5.6.24", elementText: "Pachinko", tooltip: "if enabled : Automatically collect free Pachinkos"};
 HHAuto_ToolTips.en.autoMythicPachinko = { version: "5.6.24", elementText: "Mythic Pachinko"};
 HHAuto_ToolTips.en.autoLeaguesTitle = { version: "5.6.24", elementText: "Leagues"};
@@ -10802,6 +11031,7 @@ HHAuto_ToolTips.en.autoPowerPlacesAll = { version: "5.6.24", elementText: "Do Al
 HHAuto_ToolTips.en.autoPowerPlacesPrecision = { version: "5.6.103", elementText: "PoP precision", tooltip: "If enabled : use more advanced algorithm to try and find best team instead of using auto. This is more useful when you have a smaller roster and may be very slow with large rosters."};
 HHAuto_ToolTips.en.autoPowerPlacesInverted = { version: "5.10.0", elementText: "PoP inverted", tooltip: "If enabled : fill the POP starting from the last one."};
 HHAuto_ToolTips.en.autoPowerPlacesWaitMax = { version: "5.20.0", elementText: "PoP wait max", tooltip: "If enabled : POP will wait all POP are ended before starting new one."};
+HHAuto_ToolTips.en.compactPowerPlace = { version: "5.24.0", elementText: "Compact", tooltip: "Add styles to compact power places display"};
 HHAuto_ToolTips.en.autoChampsTitle = { version: "5.6.24", elementText: "Champions"};
 HHAuto_ToolTips.en.autoChamps = { version: "5.6.24", elementText: "Normal", tooltip: "if enabled : Automatically do champions (if they are started and in filter only)"};
 HHAuto_ToolTips.en.autoChampsForceStart = { version: "5.6.76", elementText: "Force start", tooltip: "if enabled : will fight filtered champions even if not started."};
@@ -10947,7 +11177,9 @@ HHAuto_ToolTips.en.autoSeasonalEventCollect = { version: "5.7.0", elementText: "
 HHAuto_ToolTips.en.autoSeasonalEventCollectAll = { version: "5.7.0", elementText: "Collect all", tooltip: "if enabled : Automatically collect all items before end of seasonal event (configured with Collect all timer)"};
 HHAuto_ToolTips.en.autoPoGCollect = { version: "5.6.89", elementText: "Collect PoG", tooltip: "if enabled : Automatically collect Path of Glory."};
 HHAuto_ToolTips.en.autoPoGCollectAll = { version: "5.7.0", elementText: "Collect All PoG", tooltip: "if enabled : Automatically collect all items before end of Path of Glory (configured with Collect all timer)"};
-HHAuto_ToolTips.en.autoDailyGoalsCollect = {version: "5.6.54", elementText: "Collect daily Goals", tooltip: "Collect daily Goals if not collected 2 hours before end of HH day."};
+HHAuto_ToolTips.en.dailyGoalsTitle = {version: "5.24.0", elementText: "Daily Goals"};
+HHAuto_ToolTips.en.autoDailyGoalsCollect = {version: "5.6.54", elementText: "Collect", tooltip: "Collect daily Goals if not collected 2 hours before end of HH day."};
+HHAuto_ToolTips.en.compactDailyGoals = { version: "5.24.0", elementText: "Compact", tooltip: "Add styles to compact daily goals display"};
 HHAuto_ToolTips.en.HaremSortMenuSortText = {version: "5.6.56", elementText: "Select the wanted harem sorting : ", tooltip: ""};
 HHAuto_ToolTips.en.DateAcquired = {version: "5.6.56", elementText: "Date recruited", tooltip: ""};
 HHAuto_ToolTips.en.Grade = {version: "5.6.56", elementText: "Grade", tooltip: ""};
@@ -10984,6 +11216,7 @@ HHAuto_ToolTips.fr.autoSalaryMinSalary = { version: "5.20.3", elementText: "Sala
 HHAuto_ToolTips.fr.autoSalaryMaxTimer = { version: "5.20.3", elementText: "Temps de collecte max", tooltip: "(Integer)<br>X secs pour collecter le salaire avant d'arrêter."};
 HHAuto_ToolTips.fr.autoMission = { version: "5.6.24", elementText: "Missions", tooltip: "Si activé : lance automatiquement les missions."};
 HHAuto_ToolTips.fr.autoMissionCollect = { version: "5.6.24", elementText: "Collecter", tooltip: "Si activé : collecte automatiquement les récompenses des missions."};
+HHAuto_ToolTips.fr.compactMissions ={ version: "5.24.0", elementText: "Compacter", tooltip: "Compacter l'affichage des missions"};
 HHAuto_ToolTips.fr.autoTrollBattle = { version: "5.6.24", elementText: "Activer", tooltip: "Si activé : combat automatiquement le troll."};
 HHAuto_ToolTips.fr.autoTrollSelector = { version: "5.6.24", elementText: "Sélection troll", tooltip: "Sélection du troll à combattre"};
 HHAuto_ToolTips.fr.autoTrollThreshold = { version: "5.6.24", elementText: "Réserve", tooltip: "Points de combat de trolls (poings) minimum à conserver"};
@@ -10996,6 +11229,7 @@ HHAuto_ToolTips.fr.autoSeasonThreshold = { version: "5.6.24", elementText: "Rés
 HHAuto_ToolTips.fr.autoQuest = { version: "5.6.24", elementText: "Quête", tooltip: "Si activé : Fait automatiquement les quêtes"};
 HHAuto_ToolTips.fr.autoQuestThreshold = { version: "5.6.24", elementText: "Réserve", tooltip: "Energie de quête minimum à conserver"};
 HHAuto_ToolTips.fr.autoContest = { version: "5.6.24", elementText: "Compét'", tooltip: "Si activé : récolter les récompenses de la compét' terminée"};
+HHAuto_ToolTips.fr.compactEndedContests = { version: "5.24.0", elementText: "Compacter", tooltip: "Compacter l'affichage des compet'"};
 HHAuto_ToolTips.fr.autoFreePachinko = { version: "5.6.24", elementText: "Pachinko", tooltip: "Si activé : collecte automatiquement les Pachinkos gratuits"};
 HHAuto_ToolTips.fr.autoMythicPachinko = { version: "5.6.24", elementText: "Pachinko mythique"};
 HHAuto_ToolTips.fr.autoLeagues = { version: "5.6.24", elementText: "Activer", tooltip: "Si activé : Combattre automatiquement en Ligues"};
@@ -11007,6 +11241,7 @@ HHAuto_ToolTips.fr.autoLeaguesThreshold = { version: "5.6.24", elementText: "Ré
 HHAuto_ToolTips.fr.autoPowerPlaces = { version: "5.6.24", elementText: "Lieux de pouvoir", tooltip: "Si activé : Fait automatiquement les lieux de pouvoir."};
 HHAuto_ToolTips.fr.autoPowerPlacesIndexFilter = { version: "5.6.24", elementText: "Filtre", tooltip: "Permet de définir un filtre et un ordre sur les lieux de pouvoir à faire (uniquement lorsque plusieurs lieux de pouvoir expirent en même temps)."};
 HHAuto_ToolTips.fr.autoPowerPlacesAll = { version: "5.6.24", elementText: "Tous", tooltip: "Si activé : ignore le filtre et fait tous les lieux de pouvoir (mettra à jour le filtre avec les identifiants actuels)"};
+HHAuto_ToolTips.fr.compactPowerPlace = { version: "5.24.0", elementText: "Compacter", tooltip: "Compacter l'affichage des leux de pouvoir"};
 HHAuto_ToolTips.fr.autoChampsTitle = { version: "5.6.24", elementText: "Champions"};
 HHAuto_ToolTips.fr.autoChamps = { version: "5.6.24", elementText: "Normal", tooltip: "Si activé : combat automatiquement les champions (s'ils sont démarrés manuellement et en filtre uniquement)."};
 HHAuto_ToolTips.fr.autoChampsUseEne = { version: "5.6.24", elementText: "Achat tickets", tooltip: "Si activé : utiliser l'énergie pour acheter des tickets de champion (60 énergie nécessaire ; ne marchera pas si Quête auto activée)."};
@@ -11062,7 +11297,9 @@ HHAuto_ToolTips.fr.bossBangEventTitle = { version: "5.20.3", elementText: "Evèn
 HHAuto_ToolTips.fr.bossBangMinTeam = { version: "5.6.137", elementText: "Première équipe", tooltip: "Première équipe à utiliser<br>Si 5, le script commencera par la dernière pour finir par la premiere."};
 HHAuto_ToolTips.fr.autoDailyRewardsCollect = {version: "5.6.133", elementText: "Collecter récompense journalier", tooltip: "Permet de collecter les récompenses journalières si non collectées 2 heures avant la fin du jour HH."};
 HHAuto_ToolTips.fr.autoFreeBundlesCollect = {version: "5.16.0", elementText: "Collecter offres gratuites", tooltip: "Permet de collecter les offres gratuites."};
-HHAuto_ToolTips.fr.autoDailyGoalsCollect = {version: "5.6.133", elementText: "Collecter objectifs journalier", tooltip: "Permet de collecter les objectifs journaliers si non collectés 2 heures avant la fin du jour HH."};
+HHAuto_ToolTips.fr.dailyGoalsTitle = {version: "5.24.0", elementText: "Objectifs journalier"};
+HHAuto_ToolTips.fr.autoDailyGoalsCollect = {version: "5.24.0", elementText: "Collecter", tooltip: "Permet de collecter les objectifs journaliers si non collectés 2 heures avant la fin du jour HH."};
+HHAuto_ToolTips.fr.compactDailyGoals = { version: "5.24.0", elementText: "Compacter", tooltip: "Compacter l'affichage des objectifs journalier"};
 HHAuto_ToolTips.fr.autoPoVCollect = { version: "5.6.133", elementText: "Collecter VDLV", tooltip: "Permet de collecter les gains de la Voie de la Valeur."};
 HHAuto_ToolTips.fr.autoSeasonalEventCollect = { version: "5.7.0", elementText: "Collecter", tooltip: "Permet de collecter les gains des évènements saisoniers."};
 HHAuto_ToolTips.fr.autoPoGCollect = { version: "5.6.133", elementText: "Collecter VDLG", tooltip: "Permet de collecter les gains de la Voie de la Gloire."};
@@ -11402,6 +11639,17 @@ HHStoredVars.HHAuto_Setting_autoContest =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars.HHAuto_Setting_compactEndedContests =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_autoExp =
     {
     default:"500000000",
@@ -11558,6 +11806,17 @@ HHStoredVars.HHAuto_Setting_autoLGRW =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars.HHAuto_Setting_compactMissions =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_autoMission =
     {
     default:"false",
@@ -11581,6 +11840,17 @@ HHStoredVars.HHAuto_Setting_autoMissionCollect =
     kobanUsing:false
 };
 HHStoredVars.HHAuto_Setting_autoMissionKFirst =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_compactPowerPlace =
     {
     default:"false",
     storage:"Storage()",
@@ -12521,6 +12791,17 @@ HHStoredVars.HHAuto_Setting_autoPoGCollectablesList =
     HHType:"Setting",
     valueType:"Array"
 };
+HHStoredVars.HHAuto_Setting_compactDailyGoals =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_autoDailyGoalsCollect =
     {
     default:"false",
@@ -13069,7 +13350,7 @@ var start = function () {
             +`<div class="optionsColumn" style="min-width: 185px;">`
                 +`<div style="padding:3px; display:flex; flex-direction:column;">`
                     +`<span>HH Automatic ++</span>`
-                    +`<span style="font-size:smaller; padding-bottom:10px">Version ${GM_info.script.version}</span>`
+                    +`<span style="font-size:smaller;">Version ${GM_info.script.version}</span>`
                     +`<div class="internalOptionsRow" style="padding:3px">`
                         + hhButton('gitHub', 'git')
                         + hhButton('ReportBugs', 'ReportBugs')
@@ -13110,7 +13391,6 @@ var start = function () {
                         +`<div class="optionsColumn">`
                             + hhMenuSwitch('settPerTab')
                             + hhMenuSwitch('paranoiaSpendsBefore')
-                            + hhMenuSwitch('autoDailyGoalsCollect', 'isEnabledDailyGoals')
                             + hhMenuSwitch('autoFreeBundlesCollect', 'isEnabledFreeBundles')
                         +`</div>`
                     +`</div>`
@@ -13151,14 +13431,18 @@ var start = function () {
                                 +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/missions.svg" />`
                                 +`<span class="optionsBoxTitle">${getTextForUI("autoActivitiesTitle","elementText")}</span>`
                             +`</div>`
-                            +`<div class="optionsBox">`
+                            +`<div class="optionsBox" style="border:none;padding:0">`
                                 +`<div class="internalOptionsRow">`
-                                    +`<div id="isEnabledMission" class="internalOptionsRow">`
+                                    +`<div id="isEnabledMission" class="internalOptionsRow optionsBox" style="padding:0;margin:0 3px 0 0;">`
                                         + hhMenuSwitch('autoMission')
                                         + hhMenuSwitch('autoMissionCollect')
                                         + hhMenuSwitch('autoMissionKFirst')
+                                        + hhMenuSwitch('compactMissions')
                                     +`</div>`
-                                    + hhMenuSwitch('autoContest', 'isEnabledContest')
+                                    +`<div id="isEnabledContest" class="internalOptionsRow optionsBox" style="padding:0;margin:0 0 0 3px;">`
+                                        + hhMenuSwitch('autoContest')
+                                        + hhMenuSwitch('compactEndedContests')
+                                    +`</div>`
                                 +`</div>`
                             +`</div>`
                         +`</div>`
@@ -13176,6 +13460,7 @@ var start = function () {
                                     + hhMenuSwitch('autoPowerPlacesPrecision')
                                     + hhMenuSwitch('autoPowerPlacesInverted')
                                     + hhMenuSwitch('autoPowerPlacesWaitMax')
+                                    + hhMenuSwitch('compactPowerPlace')
                                 +`</div>`
                             +`</div>`
                         +`</div>`
@@ -13205,17 +13490,17 @@ var start = function () {
                             +`</div>`
                         +`</div>`
                         +`<div class="optionsRow" style="justify-content: space-evenly">`
-                            +`<div id="isEnabledPantheon" class="optionsBoxWithTitleInline">`
+                            +`<div id="isEnabledDailyGoals" class="optionsBoxWithTitleInline">`
                                 +`<div class="optionsBoxTitle">`
-                                    +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
-                                    +`<span class="optionsBoxTitle">${getTextForUI("autoPantheonTitle","elementText")}</span>`
+                                    +`<span class="optionsBoxTitle">${getTextForUI("dailyGoalsTitle","elementText")}</span>`
                                 +`</div>`
-                                +`<div class="optionsBox">`
+                               // +`<div class="optionsBox">`
                                     +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                                        + hhMenuSwitch('autoPantheon')
-                                        + hhMenuInputWithImg('autoPantheonThreshold', HHAuto_inputPattern.autoPantheonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg' )
+                                        + hhMenuSwitch('autoDailyGoalsCollect')
+                                        + hhMenuSwitch('compactDailyGoals')
                                     +`</div>`
-                                +`</div>`
+                               // +`</div>`
+                               //
                             +`</div>`
                         +`</div>`
                     +`</div>`
@@ -13340,6 +13625,18 @@ var start = function () {
                             + hhMenuInputWithImg('autoClubChampMax', HHAuto_inputPattern.autoClubChampMax, 'text-align:center; width:45px', 'pictures/design/champion_ticket.png')
                         +`</div>`
                     +`</div>`
+                +`</div>`
+                +`<div id="isEnabledPantheon" class="optionsBoxWithTitleInline">`
+                    +`<div class="optionsBoxTitle">`
+                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
+                        +`<span class="optionsBoxTitle">${getTextForUI("autoPantheonTitle","elementText")}</span>`
+                    +`</div>`
+                    // +`<div class="optionsBox">`
+                        +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                            + hhMenuSwitch('autoPantheon')
+                            + hhMenuInputWithImg('autoPantheonThreshold', HHAuto_inputPattern.autoPantheonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg' )
+                        +`</div>`
+                    // +`</div>`
                 +`</div>`
                 +`<div id="isEnabledShop" class="optionsBoxWithTitle">`
                     +`<div class="optionsBoxTitle">`
