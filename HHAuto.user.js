@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.24.1
+// @version      5.25.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1225,9 +1225,22 @@ function moduleOldPathOfAttractionHide()
     }
 }
 
+function modulePathOfAttraction()
+{
+    if (getPage() === getHHScriptVars("pagesIDEvent") && getHHScriptVars("isEnabledClubChamp",false) && window.location.search.includes("tab="+getHHScriptVars('poaEventIDReg')))
+    {
+        logHHAuto("On path of attraction event.");
+        if($(".hh-club-poa").length <= 0) {
+            const championsGoal = $('#poa-content .buttons:has(button[data-href="/champions-map.html"])');
+            const clubButton = `<button data-href="${getHHScriptVars("pagesURLClubChampion")}" class="blue_button_L hh-club-poa">${getTextForUI("goToClubChampions","elementText")}</button>`;
+            championsGoal.append(clubButton);
+        }
+    }
+}
+
 function modulePathOfAttractionHide()
 {
-    if (getPage() === getHHScriptVars("pagesIDEvent") && window.location.search.includes("tab=path_event") && getStoredValue("HHAuto_Setting_PoAMaskRewards") === "true")
+    if (getPage() === getHHScriptVars("pagesIDEvent") && window.location.search.includes("tab="+getHHScriptVars('poaEventIDReg')) && getStoredValue("HHAuto_Setting_PoAMaskRewards") === "true")
     {
         let arrayz;
         let nbReward;
@@ -7982,6 +7995,11 @@ var autoLoop = function ()
             {
                 setTimeout(modulePathOfAttractionHide,500);
             }
+            if (getStoredValue("HHAuto_Setting_showClubButtonInPoa") === "true")
+            {
+                modulePathOfAttraction = callItOnce(modulePathOfAttraction);
+                modulePathOfAttraction();
+            }
             break;
         case getHHScriptVars("pagesIDBossBang"):
             if (getStoredValue("HHAuto_Setting_bossBangEvent") === "true")
@@ -9657,6 +9675,7 @@ function getEventType(inEventID){
     if(inEventID.startsWith(getHHScriptVars('eventIDReg'))) return "event";
     if(inEventID.startsWith(getHHScriptVars('bossBangEventIDReg'))) return "bossBang";
     if(inEventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg'))) return "sultryMysteries";
+//    if(inEventID.startsWith(getHHScriptVars('poaEventIDReg'))) return "poa";
     return "";
 }
 
@@ -10519,6 +10538,7 @@ HHEnvVariables["global"].eventIDReg = "event_";
 HHEnvVariables["global"].mythicEventIDReg = "mythic_event_";
 HHEnvVariables["global"].bossBangEventIDReg = "boss_bang_event_";
 HHEnvVariables["global"].sultryMysteriesEventIDReg = "sm_event_";
+HHEnvVariables["global"].poaEventIDReg = "path_event_";
 HHEnvVariables["global"].girlToolTipData = "data-new-girl-tooltip";
 HHEnvVariables["global"].dailyRewardNotifRequest = "#contains_all header .currency .daily-reward-notif";
 HHEnvVariables["global"].IDpanelEditTeam = "#edit-team-page"
@@ -11043,6 +11063,7 @@ HHAuto_ToolTips.en.ChampTeamButton = { version: "5.8.0", elementText: "Indicate 
 HHAuto_ToolTips.en.updateChampTeamButton = { version: "5.21.0", elementText: "Find best team", tooltip: ""};
 HHAuto_ToolTips.en.ChampGirlOrder = { version: "5.8.0", elementText: "", tooltip: "Girl to be used at position"};
 HHAuto_ToolTips.en.ChampGirlLowOrder = { version: "5.11.0", elementText: "", tooltip: "For Worst team, girl to be used at position"};
+HHAuto_ToolTips.en.goToClubChampions = { version: "5.25.0", elementText: "Go To Club Champion"};
 HHAuto_ToolTips.en.autoStats = { version: "5.6.24", elementText: "Money to keep", tooltip: "(Integer)<br>Automatically buy stats in market with money above the setted amount"};
 HHAuto_ToolTips.en.autoStatsSwitch = { version: "5.6.24", elementText: "Stats", tooltip: "Allow to on/off autoStats"};
 HHAuto_ToolTips.en.autoExpW = { version: "5.6.24", elementText: "Books", tooltip: "if enabled : allow to buy Exp in market<br>Only buy if money bank is above the value<br>Only buy if total Exp owned is below value"};
@@ -11065,6 +11086,7 @@ HHAuto_ToolTips.en.DebugFileText = { version: "5.6.24", elementText: "Click on b
 HHAuto_ToolTips.en.OptionCancel = { version: "5.6.24", elementText: "Cancel", tooltip: ""};
 HHAuto_ToolTips.en.OptionStop = { version: "5.6.24", elementText: "Stop", tooltip: ""};
 HHAuto_ToolTips.en.SeasonMaskRewards = { version: "5.6.24", elementText: "Mask claimed", tooltip: "Allow to mask all claimed rewards on Season screen"};
+HHAuto_ToolTips.en.showClubButtonInPoa = { version: "5.25.0", elementText: "Go to in POA", tooltip: "if enabled, add a 'go to' button in POA related objectives."};
 HHAuto_ToolTips.en.autoClubChamp = { version: "5.6.24", elementText: "Club", tooltip: "if enabled, automatically fight club champion if champion has already been fought once."};
 HHAuto_ToolTips.en.autoClubForceStart = { version: "5.6.24", elementText: "Force start", tooltip: "if enabled, will fight club champion even if not started."};
 HHAuto_ToolTips.en.autoTrollMythicByPassParanoia = { version: "5.6.24", elementText: "Mythic bypass Paranoia", tooltip: "Allow mythic to bypass paranoia.<br>if next wave is during rest, it will force it to wake up for wave.<br>If still fight or can buy fights it will continue."};
@@ -11247,6 +11269,7 @@ HHAuto_ToolTips.fr.autoChampsTitle = { version: "5.6.24", elementText: "Champion
 HHAuto_ToolTips.fr.autoChamps = { version: "5.6.24", elementText: "Normal", tooltip: "Si activé : combat automatiquement les champions (s'ils sont démarrés manuellement et en filtre uniquement)."};
 HHAuto_ToolTips.fr.autoChampsUseEne = { version: "5.6.24", elementText: "Achat tickets", tooltip: "Si activé : utiliser l'énergie pour acheter des tickets de champion (60 énergie nécessaire ; ne marchera pas si Quête auto activée)."};
 HHAuto_ToolTips.fr.autoChampsFilter = { version: "5.6.24", elementText: "Filtre", tooltip: "Permet de filtrer les champions à combattre."};
+HHAuto_ToolTips.fr.goToClubChampions = { version: "5.25.0", elementText: "Aller au Champion de Club"};
 HHAuto_ToolTips.fr.autoStatsSwitch = { version: "5.6.24", elementText: "Stats", tooltip: "Achète automatiquement des statistiques sur le marché."};
 HHAuto_ToolTips.fr.autoStats = { version: "5.6.24", elementText: "Argent à garder", tooltip: "Argent minimum à conserver lors de l'achat automatique de statistiques."};
 HHAuto_ToolTips.fr.autoExpW = { version: "5.6.24", elementText: "Livres", tooltip: "Si activé : permet d'acheter des livres d'expérience sur le marché tout en respectant les limites d'expérience et d'argent ci-après."};
@@ -11588,6 +11611,17 @@ HHStoredVars.HHAuto_Setting_autoChampsTeamLoop =
 HHStoredVars.HHAuto_Setting_autoChampsUseEne =
     {
     default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_showClubButtonInPoa =
+    {
+    default:"true",
     storage:"Storage()",
     HHType:"Setting",
     valueType:"Boolean",
@@ -13624,6 +13658,7 @@ var start = function () {
                             + hhMenuSwitch('autoClubChamp')
                             + hhMenuSwitch('autoClubForceStart')
                             + hhMenuInputWithImg('autoClubChampMax', HHAuto_inputPattern.autoClubChampMax, 'text-align:center; width:45px', 'pictures/design/champion_ticket.png')
+                            + hhMenuSwitch('showClubButtonInPoa')
                         +`</div>`
                     +`</div>`
                 +`</div>`
