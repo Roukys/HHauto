@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.25.1
+// @version      5.26.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -11,6 +11,7 @@
 // @match        http*://*.hornyheroes.com/*
 // @match        http*://*.pornstarharem.com/*
 // @match        http*://*.transpornstarharem.com/*
+// @match        http*://*.mangarpg.com/*
 // @grant        GM_addStyle
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
@@ -7846,7 +7847,7 @@ var autoLoop = function ()
         }
 
         if (
-            busy==false && getHHScriptVars("isEnabledPoV",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" &&
+            busy==false && getHHScriptVars("isEnabledPoV",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && getHHVars('Hero.infos.level')>=30 &&
             (
                 checkTimer('nextPoVCollectTime') && getStoredValue("HHAuto_Setting_autoPoVCollect") === "true" && canCollectCompetitionActive()
                 ||
@@ -7860,7 +7861,7 @@ var autoLoop = function ()
         }
 
         if (
-            busy==false && getHHScriptVars("isEnabledPoG",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" &&
+            busy==false && getHHScriptVars("isEnabledPoG",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && getHHVars('Hero.infos.level')>=30 &&
             (
                 checkTimer('nextPoGCollectTime') && getStoredValue("HHAuto_Setting_autoPoGCollect") === "true" && canCollectCompetitionActive()
                 ||
@@ -10522,6 +10523,7 @@ HHKnownEnvironnements["www.pornstarharem.com"] = {name:"PH_prod",id:"hh_star", b
 HHKnownEnvironnements["nutaku.pornstarharem.com"] = {name:"NPH_prod",id:"hh_star", baseImgPath:"https://th.hh-content.co"};
 HHKnownEnvironnements["www.transpornstarharem.com"] = {name:"TPH_prod",id:"hh_startrans", baseImgPath:"https://images.hh-content.com/startrans"};
 HHKnownEnvironnements["nutaku.transpornstarharem.com"] = {name:"NTPH_prod",id:"hh_startrans", baseImgPath:"https://images.hh-content.com/startrans"};
+HHKnownEnvironnements["www.mangarpg.com"] = {name:"MRPG_prod",id:"hh_mangarpg", baseImgPath:"https://mh.hh-content.com"};
 
 
 var HHEnvVariables = {};
@@ -10900,6 +10902,17 @@ HHEnvVariables["SH_prod"].isEnabledPantheon = false;// to remove when Pantheon a
 HHEnvVariables["SH_prod"].isEnabledPoVPoG = false;
 HHEnvVariables["SH_prod"].isEnabledPoV = false;// to remove when PoV arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPoG = false;// to remove when PoG arrives in hornyheroes
+HHEnvVariables["MRPG_prod"].isEnabledSideQuest = false;// to remove when SideQuest arrives in Manga RPG
+HHEnvVariables["MRPG_prod"].isEnabledMythicPachinko = false;// to remove when Mythic Pachinko arrives in Manga RPG
+HHEnvVariables["MRPG_prod"].isEnabledAllChamps = false;// to remove when Champs arrives in Manga RPG
+HHEnvVariables["MRPG_prod"].isEnabledChamps = false;// to remove when Champs arrives in Manga RPG
+HHEnvVariables["MRPG_prod"].isEnabledClubChamp = false;// to remove when Club Champs arrives in Manga RPG
+HHEnvVariables["MRPG_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in Manga RPG
+HHEnvVariables["MRPG_prod"].isEnabledSeasonalEvent = false;// to remove when event arrives in Manga RPG
+HHEnvVariables["MRPG_prod"].isEnabledBossBangEvent = false;// to remove when event arrives in Manga RPG
+HHEnvVariables["MRPG_prod"].isEnabledSultryMysteriesEvent = false;// to remove when event arrives in Manga RPG
+HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
+                                        'William Scarlett'];
 ["PH_prod","NPH_prod"].forEach((element) => {
     HHEnvVariables[element].trollzList = ['Latest',
                                           'Headmistress Asa Akira',
