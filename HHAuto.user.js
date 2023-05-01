@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.26.2
+// @version      5.26.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1359,12 +1359,6 @@ function displayGenericRemainingTime(scriptId, aRel, hhtimerId, timerName, timer
 function displaySeasonRemainingTime()
 {
     displayGenericRemainingTime("#scriptSeasonTime", "season", "HHAutoSeasonTimer", "SeasonRemainingTime", "HHAuto_Temp_SeasonEndDate");
-}
-
-function displaySeasonalEventRemainingTime()
-{
-    // TODO
-    // displayGenericRemainingTime("#scriptSeasonalEventTime", "seasonalEvent", "HHAutoSeasonalEventTimer", "SeasonalEventRemainingTime", "HHAuto_Temp_SeasonalEventEndDate");
 }
 
 function displayPoVRemainingTime()
@@ -5763,7 +5757,6 @@ var getFreeGreatPachinko = function(){
     try {
         if(getPage() !== getHHScriptVars("pagesIDPachinko"))
         {
-            // Not at Pachinko screen then goto the Pachinko screen.
             logHHAuto("Navigating to Pachinko window.");
             gotoPage(getHHScriptVars("pagesIDPachinko"));
             return true;
@@ -5807,7 +5800,6 @@ var getFreeMythicPachinko = function(){
     try {
         if(getPage() !== getHHScriptVars("pagesIDPachinko"))
         {
-            // Not at Pachinko screen then goto the Pachinko screen.
             logHHAuto("Navigating to Pachinko window.");
             gotoPage(getHHScriptVars("pagesIDPachinko"));
             return true;
@@ -6772,134 +6764,6 @@ function moduleSimLeagueHideBeatenOppo()
 
 function moduleHarem()
 {
-
-
-    var emptyStar = emptyStar ? emptyStar : 0;
-    function haremEmptyStar(classHide) {
-        if ($('#emptyStarPanel').length == 0) {
-            let emptyStarArray0 = $("div.girls_list div[girl]:not(.not_owned) g." + classHide);
-            $('#harem_left').append('<div id="emptyStarPanel">'
-                                    + '<div id="emptyStarPanel-moveLeft">'
-                                    + '</div>'
-                                    + '<g id="iconHideStars" class="can_upgrade" ></g>' //onclick="switchHideButton();"
-                                    + '<div id="emptyStarPanel-moveRight">'
-                                    + '</div>'
-                                    + '<div id="emptyStarPanel-description">' + emptyStarArray0.length
-                                    + '</div>'
-                                    + '</div>');
-            $('#emptyStarPanel div#emptyStarPanel-moveRight')[0].addEventListener("click", function () {
-                setOffsetEmptyStar(1);
-            }, true);
-            $('#emptyStarPanel div#emptyStarPanel-moveLeft')[0].addEventListener("click", function () {
-                setOffsetEmptyStar(-1);
-            }, true);
-            GM_addStyle('#emptyStarPanel {'
-                        + 'z-index: 99; '
-                        + 'width: 50px; '
-                        + 'padding: 3px 10px 0 3px; '
-                        + 'position: absolute; bottom: 23px;right: 10px;}');
-
-            GM_addStyle('#emptyStarPanel div:hover {'
-                        + 'opacity: 1; '
-                        + 'cursor: pointer;}');
-
-            GM_addStyle('#emptyStarPanel {'
-                        + 'z-index: 99;'
-                        + 'width: 120px;'
-                        + 'padding: 0;'
-                        + 'position: absolute;'
-                        + 'bottom: 17px;'
-                        + 'right: -24px;'
-                        + 'height: 50px;}');
-
-            GM_addStyle('#emptyStarPanel-moveRight, #emptyStarPanel-moveLeft {'
-                        + 'width: 0;'
-                        + 'float: left;'
-                        + 'border: 20px solid transparent;'
-                        + 'height: 0;'
-                        + 'opacity: 0.5;'
-                        + 'margin:-1px;}');
-
-            GM_addStyle('#emptyStarPanel-description {'
-                        + 'width: 110px;'
-                        + 'line-height: 20px;'
-                        + 'text-align: center;}');
-
-            GM_addStyle('#emptyStarPanel g {'
-                        + 'background-size: 100% auto;'
-                        + 'width: 38px;'
-                        + 'float: left;'
-                        + 'height: 34px;'
-                        + 'opacity: 1;}');
-            GM_addStyle('#emptyStarPanel g.grey {'
-                        + 'background-image: url(https://hh.hh-content.com/design_v2/affstar_empty_S.png);}');
-            GM_addStyle('#emptyStarPanel g.can_upgrade {'
-                        + 'background-image: url(https://hh.hh-content.com/design_v2/affstar_upgrade.png);}');
-
-            GM_addStyle('#emptyStarPanel div#emptyStarPanel-moveLeft {'
-                        + 'border-right-color: red;}');
-
-            GM_addStyle('#emptyStarPanel div#emptyStarPanel-moveRight {'
-                        + 'border-left-color: red;}');
-        }
-    }
-    function switchHideButton() {
-        if ($('#emptyStarPanel g')[0].className == 'grey') {
-            $('#emptyStarPanel g')[0].className = 'can_upgrade'
-        } else {
-            $('#emptyStarPanel g')[0].className = 'grey'
-        }
-        emptyStar = 0;
-        setOffsetEmptyStar(0);
-    }
-    function haremHideStars() {
-        let girlArrayHide = $('div[id_girl] div[girl]:not(.not_owned) .g_infos .graded');
-        if (girlArrayHide.length > 0) {
-            for (let i = 0; i < girlArrayHide.length; i++) {
-                if ($(girlArrayHide[i]).find('g[class]').length == 0) {
-                    girlArrayHide[i].parentElement.parentElement.parentElement.parentElement.style.display = "none";
-                }
-            }
-        }
-    }
-    function setOffsetEmptyStar(offer) {
-        let classHide = $('#emptyStarPanel g#iconHideStars')[0].className == "grey" ? "grey" : ($('#emptyStarPanel g#iconHideStars')[0].className == "can_upgrade" ? "green" : "");
-        let emptyStarArray = $("div.girls_list div[girl]:not(.not_owned) g." + classHide);
-        if (emptyStarArray.length == 0) {
-            $('#emptyStarPanel-description')[0].innerHTML = '0';
-            return;
-        }
-        emptyStar = Number(emptyStar) + Number(offer);
-        if (emptyStar < 0) {
-            emptyStar = emptyStarArray.length - 1;
-        }
-        if (emptyStar > emptyStarArray.length - 1) {
-            emptyStar = 0;
-        }
-        $(".girls_list g." + classHide + "[style]").each(function () {
-            this.removeAttribute("style");
-        });
-        emptyStarArray[emptyStar].scrollIntoView({
-            block: "center",
-            inline: "nearest"
-        });
-        let borderColor = classHide == "grey" ? "red" : (classHide == "green" ? "#1ff51f" : "red");
-        emptyStarArray[emptyStar].style.border = '3px ' + borderColor + ' dashed';
-        emptyStarArray[emptyStar].style.padding = '8px';
-        $('#emptyStarPanel-description')[0].innerHTML = (Number(emptyStar) + 1) + '/' + emptyStarArray.length;
-    }
-
-    /*if ($('#emptyStarPanel g').length >0 && $('#emptyStarPanel g.green').length >0)
-    {
-        haremEmptyStar("green");
-    }
-    else
-    {
-        haremEmptyStar("grey");
-    }
-    */
-
-    //haremEmptyStar("green");
 }
 
 
@@ -8050,7 +7914,6 @@ var autoLoop = function ()
             break;
         case getHHScriptVars("pagesIDHome"):
             setTimeout(displaySeasonRemainingTime,500);
-            setTimeout(displaySeasonalEventRemainingTime,500);
             setTimeout(displayPoVRemainingTime,500);
             setTimeout(displayPoGRemainingTime,500);
             break;
@@ -8138,13 +8001,6 @@ function moduleHaremCountMax()
     {
         setStoredValue("HHAuto_Temp_HaremSize", JSON.stringify({count:Object.keys(getHHVars('girlsDataList',false)).length,count_date:new Date().getTime()}));
         logHHAuto("Harem size updated to : "+Object.keys(getHHVars('girlsDataList',false)).length);
-        //console.log(getStoredValue("HHAuto_Temp_HaremSize"));
-
-        /*if (busy === false)
-        {
-            gotoPage(getHHScriptVars("pagesIDHome"));
-            logHHAuto("Go to home after getting Harem Size");
-        }*/
     }
 }
 
@@ -8267,84 +8123,9 @@ function getBoostersData()
     return boostersArray;
 }
 
-function simFightFunc()
-{
-    //console.log('simFightFunc');
-    if (isJSON(getStoredValue("HHAuto_Temp_LeagueSavedData")))
-    {
-        let leagueSavedData = JSON.parse(getStoredValue("HHAuto_Temp_LeagueSavedData"));
-        let classHero = Number(getHHVars("Hero.infos.class"));
-        let defHero = 0;
-        let stat;
-        let boosters = getBoostersData();
-        //console.log("Data: ");
-        //console.log(leagueSavedData);
-        for (let i=1;i<4;i++)
-        {
-            if (i != classHero)
-            {
-                defHero = defHero + getHHVars("Hero.infos.caracs.carac"+i);
-                //console.log(`${classHero},${i},${defHero}` );
-            }
-        }
-        defHero = defHero * 0.25 + leagueSavedData.hero_caracs_team * 0.12;
-        //console.log(defHero+':'+getSetHeroInfos('caracs.defense'));
-        let endurance = Number(getHHVars("Hero.infos.caracs.endurance"));
-        let ego = (parseFloat(endurance + leagueSavedData.hero_caracs_team * 2) + Number(boosters.flat.ego)) * (1+(Number(boosters.percent.ego)/100));
-        let damage = (Number(getHHVars("Hero.infos.caracs.carac" + classHero)) + Number(boosters.flat.damage));
-        let atk = parseFloat(damage + leagueSavedData.hero_caracs_team * 0.25) * (1+(Number(boosters.percent.damage)/100));
-        //console.log(endurance,parseFloat(endurance + leagueSavedData.hero_caracs_team * 2),ego,Number(getHHVars("Hero.infos.caracs.carac" + classHero)),damage,parseFloat(damage + leagueSavedData.hero_caracs_team * 0.25),atk);
-        let player =
-            {
-                ego: ego*(1+leagueSavedData.playersBonuses.playerBonus*0.1),
-                originEgo: ego*(1+leagueSavedData.playersBonuses.playerBonus*0.1),
-                atk: atk*(1+leagueSavedData.playersBonuses.playerBonus*0.1),
-                def: defHero,
-                text: 'Player',
-            };
-        let opponent = leagueSavedData.opponent;
-        //console.log("HH simuFight",JSON.stringify(player),JSON.stringify(opponent));
-        let result = simuFight(player, opponent);
-        $('#simResultPreviousScore')[0].innerText = $('#simResultScore')[0].innerText;
-        $('#simResultPreviousScore')[0].className = $('#simResultScore')[0].className;
-        $('#simResultName')[0].innerText = opponent.name;
-        $('#simResultScore')[0].innerText = result.scoreStr;
-        $('#simResultScore')[0].className = result.scoreClass;
-        //console.log(result);
-    }
-    else
-    {
-        $('#simResultName')[0].innerText = 'empty';
-        $('#simResultScore')[0].innerText = '0';
-        $('#simResultScore')[0].className = 'close';
-    }
-}
-
-function getBoosterExpiration(booster)
-{
-    if (booster.rarity === "mythic")
-    {
-        return booster.usages_remaining;
-    }
-    else
-    {
-        const secsLeft = Math.ceil(Number(booster.lifetime))-Math.ceil(new Date().getTime()/1000);
-        if (secsLeft > 0 )
-        {
-            return toHHMMSS(secsLeft);
-        }
-        else
-        {
-            return "0";
-        }
-    }
-}
-
 function moduleShopActions()
 {
     appendMenuSell();
-    //appendSimFight();
-
 
     /**
      * @return "potion" / "gift" / player-stats / armor / booster / null
@@ -8359,202 +8140,6 @@ function moduleShopActions()
         else
         {
             return null;
-        }
-    }
-
-    function appendSimFight()
-    {
-        if ($("#simResult").length === 0 ) {
-            let labelSimFight = '<div id="simResult">'+
-                '<div>'+getTextForUI("Name","elementText")+' : </div>'+
-                '<div id="simResultName">Long User Name</div>'+
-                '<div>'+getTextForUI("simResultMarketPreviousScore","elementText")+'</div>'+
-                '<div id="simResultPreviousScore">'+getTextForUI("none","elementText")+'</div>'+
-                '<div>'+getTextForUI("simResultMarketScore","elementText")+'</div>'+
-                '<div id="simResultScore">'+getTextForUI("none","elementText")+'</div>'+
-                '<div id="buttonSimResultMarket" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("SimResultMarketButton","tooltip")+'</span>'+getTextForUI("SimResultMarketButton","elementText")+'</div>'+
-                '</div>';
-            //$('#simResult')[0].outerHTML =    labelSimFight;
-            GM_addStyle('.plus {'
-                        + 'color: #66CD00;}'
-                       );
-            GM_addStyle('#shops #equiped div.sub_block div.booster {'
-                        + 'width: 77%;}'
-                       );
-
-            GM_addStyle('.minus {'
-                        + 'color: #FF2F2F;}'
-                       );
-
-            GM_addStyle('.close {'
-                        + 'color: #FFA500;}'
-                       );
-            GM_addStyle('#simResultScore, #simResultPreviousScore {'+
-                        'font-size:13px;'+
-                        'line-height: 20px;'+
-                        'height:20px;}');
-            GM_addStyle('#simResultName {'+
-                        'font-size:14px;'+
-                        'padding: 0 5px;'+
-                        'line-height: 30px;'+
-                        'height:30px;}');
-            GM_addStyle('#simResult {'+
-                        'position: absolute;'+
-                        'width: 80px;'+
-                        'height: 135px;'+
-                        'z-index: 9;'+
-                        'right: 80px;'+
-                        'top: 70px;'+
-                        'font-size: 10px;'+
-                        'text-align: center;'+
-                        'color: #057;'+
-                        'line-height: 1em;'+
-                        'border: solid 1px #057;}');
-            GM_addStyle('#buttonSimResultMarket {'+
-                        'box-sizing: inherit;'+
-                        'vertical-align: bottom;'+
-                        'font: inherit;'+
-                        'color: #fff;'+
-                        'box-shadow: 0 3px 0 rgba(13,22,25,.6),inset 0 3px 0 #6df0ff;'+
-                        'border: 1px solid #000;'+
-                        'background-image: linear-gradient(to top,#008ed5 0,#05719c 100%);'+
-                        'cursor: pointer;'+
-                        'text-decoration: none;'+
-                        'display: inline-block;'+
-                        'transition: box-shadow 90ms ease-in-out;'+
-                        'position: absolute;'+
-                        'bottom: 0;'+
-                        'left: 0;'+
-                        'width: 100%;'+
-                        'padding: 10px 5px 10px;');
-            $('#equiped').append(labelSimFight);
-            let observer = new MutationObserver(mutationRecords => {
-                for(const mutation of mutationRecords) {
-                    if (mutation.type === 'childList') {
-                        let type = mutation.target.attributes[0];
-                        if (type.nodeValue == 'armor' && mutation.removedNodes.length == 0){
-                            //console.log(mutation);
-                            simFightFunc();
-                        }
-                    }
-                }
-                //console.log(mutationRecords);
-            });
-            elem = document.getElementById('equiped');
-            observer.observe(elem, {
-                childList: true,
-                subtree: true,
-                characterDataOldValue: false
-            });
-            document.getElementById("buttonSimResultMarket").addEventListener("click", function () {simFightFunc()});
-            simFightFunc();
-        }
-    }
-
-    function findSubsetsPartition(inTotal, inSets, inForceLastItemLimit = 0)
-    {
-        let arr = [];
-        var max = 0;
-        const initialTotal = inTotal;
-        for ( var sub in inSets)
-        {
-            //console.log(inSets[sub],sub);
-            max+= inSets[sub]*sub;
-        }
-        //console.log(max);
-        if (inTotal>max)
-        {
-            return {total:max,partitions:{...inSets}};
-        }
-        var result= SubsetsRepartition(inTotal, inSets);
-        //console.log("subset result : ", result);
-
-        while
-            (
-                result.total !== inTotal
-                &&
-                (
-                    (
-                        inForceLastItemLimit === 0
-                        && inTotal>1
-                    )
-                    ||
-                    (
-                        inForceLastItemLimit !== 0
-                        && Number(inTotal-initialTotal)<=inForceLastItemLimit
-                    )
-
-                )
-            )
-        {
-            if (inForceLastItemLimit === 0)
-            {
-                inTotal -=1;
-            }
-            else
-            {
-                inTotal +=1;
-            }
-            result = SubsetsRepartition(inTotal, inSets);
-        };
-        if (inTotal === 0)
-        {
-            return -1;
-        }
-        return result;
-
-        function SubsetsRepartition(inMax, subSets, currentMax = inMax, currentset = 0 )
-        {
-            //console.log("start subset with :",inMax, subSets, currentMax, currentset);
-            var currentSets={...subSets};
-            if ( currentMax > 0 )
-            {
-                var result = -1;
-                var keys = Object.keys(currentSets);
-                //console.log(keys);
-                keys = keys.sort((b, a) => a - b);
-                //console.log(keys);
-                for ( var i of keys )
-                {
-                    //console.log(inTotal);
-                    if (Number(i) <=currentMax && currentSets[i] >0)
-                    {
-                        currentSets[i] = currentSets[i] -1;
-                        arr[currentset] = Number(i);
-                        //console.log(arr);
-                        //console.log(inTotal-Number(i));
-                        return SubsetsRepartition(inMax, currentSets,currentMax-Number(i), currentset+1);
-                        //console.log("tmp_result",tmp_result);
-                        //if (tmp_result !== -1)
-                        //{
-                        //console.log("result : ",result);
-                        //  return tmp_result;
-                        //}
-                    }
-                }
-                //console.log("result : ",result);
-                return result;
-            }
-
-            //if ( arr[0] == currentMax )
-            //{
-            //  return 2;
-            //}
-            var needs={};
-            needs[arr[0]]=1;
-            for (var k = 1; k < currentset; k++) {
-                if ( needs[arr[k]] === undefined)
-                {
-                    needs[arr[k]]=1;
-                }
-                else
-                {
-                    needs[arr[k]]=needs[arr[k]]+1
-                }
-            }
-            //document.write(sum + '<br/>')
-            //console.log(result);
-            return {total:inMax,partitions:needs};
         }
     }
 
