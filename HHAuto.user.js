@@ -1856,7 +1856,7 @@ function modulePachinko()
                     document.getElementById("PachinkoError").innerText=getTextForUI("PachinkoNoGirls","elementText");
                 }
             }
-            let pachinkoSelectedButton= $(buttonSelector);
+            let pachinkoSelectedButton= $(buttonSelector)[0];
             let rewardQuery="div#rewards_popup button.blue_button_L";
             if ($(rewardQuery).length >0 )
             {
