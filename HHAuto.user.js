@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.26.4
+// @version      5.26.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -5113,17 +5113,10 @@ function getLeagueOpponentId(opponentsIDList,force=false)
         var findText = 'playerLeaguesData = ';
         let league_end = -1;
         let maxLeagueListDurationSecs = getHHScriptVars("LeagueListExpirationSecs");
-        for(let e in HHTimers.timers)
+        const league_end_in = $('#leagues_middle .league_end_in .timer span[rel="expires"]').text();
+        if(league_end_in !== undefined && league_end_in !== null && league_end_in.length > 0)
         {
-            if (!unsafeWindow.HHTimers.timers[e].$elm) {continue;}
-            let element = unsafeWindow.HHTimers.timers[e].$elm[0];
-            while(element){
-                if (element.classList && element.classList.contains("league_end_in")) {
-                    league_end=HHTimers.timers[e].remainingTime;
-                    break;
-                }
-                element=element.parentNode;
-            }
+            league_end = Number(convertTimeToInt(league_end_in));
         }
         if (league_end !== -1 && league_end < maxLeagueListDurationSecs)
         {
