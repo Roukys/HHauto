@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.26.6
+// @version      5.26.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1006,6 +1006,8 @@ function moduleDisplayPopID()
 
 function moduleMissionssStyles()
 {
+    if(getStoredValue("HHAuto_Setting_compactMissions") === "true")
+    {
     GM_addStyle('#missions .missions_wrap  {'
         + 'display:flex;'
         + 'flex-wrap: wrap;'
@@ -1052,10 +1054,13 @@ function moduleMissionssStyles()
     GM_addStyle(missionsContainerPath + ' .mission_button .hh_bar {'
         + 'left:5px;'
     +'}');
+    }
 }
 
 function moduleDailyGoalsStyles()
 {
+    if(getStoredValue("HHAuto_Setting_compactDailyGoals") === "true")
+    {
     const dailGoalsContainerPath = '#daily_goals .daily-goals-row .daily-goals-left-part .daily-goals-objectives-container';
     GM_addStyle(dailGoalsContainerPath + ' {'
         + 'flex-wrap:wrap;'
@@ -1095,10 +1100,13 @@ function moduleDailyGoalsStyles()
         + 'max-width: 174px;' 
         + 'font-size: 0.7rem;'
     +'}');
+    }
 }
 
 function modulePowerPlacesStyles()
 {
+    if(getStoredValue("HHAuto_Setting_compactPowerPlace") === "true")
+    {
     const popPagePath = '#pop #pop_info .pop_list';
     const popBtnPath = popPagePath +' .pop-action-btn';
     const popContainerPath = popPagePath + ' .pop_list_scrolling_area .pop_thumb_container';
@@ -1168,10 +1176,13 @@ function modulePowerPlacesStyles()
     }
     popButtonStyles();
     popStyles();
+    }
 }
 
 function moduleContestsStyles()
 {
+    if(getStoredValue("HHAuto_Setting_compactEndedContests") === "true")
+    {
     const contestsContainerPath = '#contests > div > div.left_part > .scroll_area > .contest > .contest_header.ended';
     GM_addStyle(contestsContainerPath + ' {'
         + 'height: 50px;'
@@ -1194,6 +1205,7 @@ function moduleContestsStyles()
         + 'margin-left: 20px;'
         + 'margin-top: 16px;'
     +'}');
+    }
 }
 
 function moduleDisplayContestsDeletion()
@@ -7879,25 +7891,10 @@ var autoLoop = function ()
             break;
         case getHHScriptVars("pagesIDPowerplacemain"):
             moduleDisplayPopID();
-            if (getStoredValue("HHAuto_Setting_compactPowerPlace") === "true")
-            {
-                modulePowerPlacesStyles = callItOnce(modulePowerPlacesStyles);
-                modulePowerPlacesStyles();
-            }
             break;
         case getHHScriptVars("pagesIDDailyGoals"):
-            if (getStoredValue("HHAuto_Setting_compactDailyGoals") === "true")
-            {
-                moduleDailyGoalsStyles = callItOnce(moduleDailyGoalsStyles);
-                moduleDailyGoalsStyles();
-            }
             break;
         case getHHScriptVars("pagesIDMissions"):
-            if (getStoredValue("HHAuto_Setting_compactMissions") === "true")
-            {
-                moduleMissionssStyles = callItOnce(moduleMissionssStyles);
-                moduleMissionssStyles();
-            }
             break;
         case getHHScriptVars("pagesIDShop"):
             if (getStoredValue("HHAuto_Setting_showMarketTools") === "true")
@@ -7925,11 +7922,6 @@ var autoLoop = function ()
             break;
         case getHHScriptVars("pagesIDContests"):
             moduleDisplayContestsDeletion();
-            if (getStoredValue("HHAuto_Setting_compactEndedContests") === "true")
-            {
-                moduleContestsStyles = callItOnce(moduleContestsStyles);
-                moduleContestsStyles();
-            }
             break;
         case getHHScriptVars("pagesIDPoV"):
             if (getStoredValue("HHAuto_Setting_PoVMaskRewards") === "true")
@@ -13438,6 +13430,19 @@ var start = function () {
                     +'      top : 13%;'
                     +'   }'
                     +'}');
+    }
+
+    if(
+        getPage()==getHHScriptVars("pagesIDMissions") 
+    || getPage()==getHHScriptVars("pagesIDContests") 
+    || getPage()==getHHScriptVars("pagesIDPowerplacemain") 
+    || getPage()==getHHScriptVars("pagesIDDailyGoals")
+    )
+    {
+        moduleContestsStyles();
+        modulePowerPlacesStyles();
+        moduleDailyGoalsStyles();
+        moduleMissionssStyles();
     }
 
     document.getElementById('contains_all').appendChild(div.firstChild);
