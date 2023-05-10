@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.26.9
+// @version      5.26.10
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3217,82 +3217,12 @@ function doShopping()
         }
         var shop=JSON.parse(getStoredValue("HHAuto_Temp_storeContents"));
 
-
-        var LGM=Number(getStoredValue("HHAuto_Setting_autoLGM"));
-        var LGR=Number(getStoredValue("HHAuto_Setting_autoLGR"));
         var Exp=Number(getStoredValue("HHAuto_Setting_autoExp"));
         var Aff=Number(getStoredValue("HHAuto_Setting_autoAff"));
         var MaxAff=Number(getStoredValue("HHAuto_Setting_maxAff"));
         var MaxExp=Number(getStoredValue("HHAuto_Setting_maxExp"));
         var HaveAff=Number(getStoredValue("HHAuto_Temp_haveAff"));
         var HaveExp=Number(getStoredValue("HHAuto_Temp_haveExp"));
-
-
-
-/*         if ( getStoredValue("HHAuto_Setting_autoLGMW") ==="true" || getStoredValue("HHAuto_Setting_autoLGRW") ==="true" )
-        {
-            //logHHAuto('items');
-            var Was=shop[0].length;
-            for (var n0=shop[0].length-1;n0>=0;n0--)
-            {
-
-                if (
-                    (
-                        getStoredValue("HHAuto_Setting_autoLGMW") ==="true"
-                        && money>=LGM+Number(shop[0][n0].price_buy)
-                        && shop[0][n0][MS]>0
-                        && shop[0][n0][SS1]==0
-                        && shop[0][n0][SS2]==0
-                        && shop[0][n0].chance==0
-                        && shop[0][n0].endurance==0
-                        && shop[0][n0].rarity=='legendary'
-                        && shop[0][n0].item.currency == "sc" // "sc" for soft currency = money, "hc" for hard currency = kobans
-                    )
-                    ||
-                    (
-                        getStoredValue("HHAuto_Setting_autoLGRW") ==="true"
-                        && money>=LGR+Number(shop[0][n0].price_buy)
-                        && shop[0][n0][MS]>0
-                        && shop[0][n0][SS1]>0
-                        && shop[0][n0][SS2]>0
-                        && shop[0][n0].rarity=='legendary'
-                        && shop[0][n0].item.currency == "sc" // "sc" for soft currency = money, "hc" for hard currency = kobans
-                    )
-                )
-                {
-                    //logHHAuto({log:'wanna buy ',object:shop[0][n0]});
-                    if (money>=shop[0][n0].price)
-                    {
-                        logHHAuto({log:'Buying : ',object:shop[0][n0]});
-                        money-=Number(shop[0][n0].price_buy);
-                        var params0 = {
-                            index: shop[0][n0].index,
-                            action: "market_buy",
-                            id_item: shop[0][n0].id_item,
-                            type: "armor",
-                            id_skin: shop[0][n0].id_skin,
-                            id_equip: shop[0][n0].id_equip
-                        };
-                        hh_ajax(params0, function(data) {
-                            Hero.updates(data.changes, false);
-                            if (data.success === false)
-                            {
-                                clearTimer('nextShopTime');
-                            }
-                        });
-                        shop[0].splice(n0,1);
-                        setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
-                        setTimeout(doShopping, randomInterval(600,1200));
-                        return;
-
-                    }
-                }
-            }
-            if (shop[0].length==0 && Was>0)
-            {
-                setStoredValue("HHAuto_Temp_charLevel", 0);
-            }
-        } */
 
         var boosterFilter = getStoredValue("HHAuto_Setting_autoBuyBoostersFilter").split(";");
         if (getStoredValue("HHAuto_Setting_autoBuyBoosters") ==="true" && boosterFilter.length > 0)
@@ -10546,8 +10476,6 @@ var HHAuto_inputPattern = {
     //maxExp:"[0-9]+",
     //autoAff:"[0-9]+",
     //maxAff:"[0-9]+",
-    //autoLGM:"[0-9]+",
-    //autoLGR:"[0-9]+",
     menuSellNumber:"[0-9]+",
     autoClubChampMax:"[0-9]+",
     menuExpLevel:"[1-4]?[0-9]?[0-9]",
@@ -10660,10 +10588,6 @@ HHAuto_ToolTips.en.maxExp = { version: "5.6.24", elementText: "Max Exp.", toolti
 HHAuto_ToolTips.en.autoAffW = { version: "5.6.24", elementText: "Gifts", tooltip: "if enabled : allow to buy Aff in market<br>Only buy if money bank is above the value<br>Only buy if total Aff owned is below value"};
 HHAuto_ToolTips.en.autoAff = { version: "5.6.24", elementText: "Money to keep", tooltip: "(Integer)<br>Minimum money to keep."};
 HHAuto_ToolTips.en.maxAff = { version: "5.6.24", elementText: "Max Aff.", tooltip: "(Integer)<br>Maximum Aff to buy"};
-HHAuto_ToolTips.en.autoLGMW = { version: "5.6.24", elementText: "Leg. Class Gear", tooltip: "if enabled : allow to buy Mono Legendary gear in the market<br>Only buy if money bank is above the value"};
-HHAuto_ToolTips.en.autoLGM = { version: "5.6.24", elementText: "Money to keep", tooltip: "(Integer)<br>Minimum money to keep."};
-HHAuto_ToolTips.en.autoLGRW = { version: "5.6.24", elementText: "Leg. Rainbow Gear", tooltip: "if enabled : allow to buy Rainbow Legendary gear in the market<br>Only buy if money bank is above the value"};
-HHAuto_ToolTips.en.autoLGR = { version: "5.6.24", elementText: "Money to keep", tooltip: "(Integer)<br>Minimum money to keep."};
 HHAuto_ToolTips.en.OpponentListBuilding = { version: "5.6.24", elementText: "Opponent list is building", tooltip: ""};
 HHAuto_ToolTips.en.OpponentParsed = { version: "5.6.24", elementText: "opponents parsed", tooltip: ""};
 HHAuto_ToolTips.en.DebugMenu = { version: "5.6.24", elementText: "Debug Menu", tooltip: "Options for debug"};
@@ -10866,10 +10790,6 @@ HHAuto_ToolTips.fr.maxExp = { version: "5.6.24", elementText: "Exp. max", toolti
 HHAuto_ToolTips.fr.autoAffW = { version: "5.6.24", elementText: "Cadeaux", tooltip: "Si activé : permet d'acheter des cadeaux d'affection sur le marché tout en respectant les limites d'affection et d'argent ci-après."};
 HHAuto_ToolTips.fr.autoAff = { version: "5.6.24", elementText: "Argent à garder", tooltip: "Argent minimum à conserver lors de l'achat automatique de cadeaux d'affection."};
 HHAuto_ToolTips.fr.maxAff = { version: "5.6.24", elementText: "Aff. max", tooltip: "Affection maximum en stock pour l'achat de cadeaux d'affection."};
-HHAuto_ToolTips.fr.autoLGMW = { version: "5.6.24", elementText: "Eq. de classe lég.", tooltip: "Si activé : permet d'acheter du matériel de classe Légendaire sur le marché tout en respectant la limite d'argent ci-après."};
-HHAuto_ToolTips.fr.autoLGM = { version: "5.6.24", elementText: "Argent à garder", tooltip: "Argent minimum à conserver lors de l'achat automatique d'équipement de classe légendaire."};
-HHAuto_ToolTips.fr.autoLGRW = { version: "5.6.24", elementText: "Eq. super-sexe lég.", tooltip: "Si activé : permet d'acheter du matériel super-sexe Légendaire sur le marché tout en respectant la limite d'argent ci-après."};
-HHAuto_ToolTips.fr.autoLGR = { version: "5.6.24", elementText: "Argent à garder", tooltip: "Argent minimum à conserver lors de l'achat automatique d'équipement super-sexe."};
 HHAuto_ToolTips.fr.OpponentListBuilding = { version: "5.6.24", elementText: "La liste des adversaires est en construction", tooltip: ""};
 HHAuto_ToolTips.fr.OpponentParsed = { version: "5.6.24", elementText: "adversaires parcourus", tooltip: ""};
 HHAuto_ToolTips.fr.DebugMenu = { version: "5.6.24", elementText: "Debug Menu", tooltip: "Options pour le debug"};
@@ -10985,10 +10905,6 @@ HHAuto_ToolTips.de.maxExp = { version: "5.6.24", elementText: "Max ErfahrKauf", 
 HHAuto_ToolTips.de.autoAffW = { version: "5.6.24", elementText: "KaufAnziehung", tooltip: "Wenn aktiv : Erlaube Anziehung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt<br>Kauft nur wenn sich im Besitz befinden potentielle Anziehung unter dem Wert liegt"};
 HHAuto_ToolTips.de.autoAff = { version: "5.6.24", elementText: "Min Geld verbleib", tooltip: "Minimum an Geld das behalten wird."};
 HHAuto_ToolTips.de.maxAff = { version: "5.6.24", elementText: "Max AnziehungKauf", tooltip: "Maximum an Anziehung die gekauft wird"};
-HHAuto_ToolTips.de.autoLGMW = { version: "5.6.24", elementText: "Buy Leg Gear Mono", tooltip: "Wenn aktiv : Erlaube es Mono legendäre Rüstung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt"};
-HHAuto_ToolTips.de.autoLGM = { version: "5.6.24", elementText: "Min Geld verbleib", tooltip: "Minimum an Geld das behalten wird."};
-HHAuto_ToolTips.de.autoLGRW = { version: "5.6.24", elementText: "Buy Leg Gear Rainbow", tooltip: "Wenn aktiv : Erlaube es Regenbogenausrüstung im Markt zu kaufen<br>Kauft nur wenn dein Geld über dem Wert liegt"};
-HHAuto_ToolTips.de.autoLGR = { version: "5.6.24", elementText: "Min Geld verbleib", tooltip: "Minimum an Geld das behalten wird."};
 HHAuto_ToolTips.de.OpponentListBuilding = { version: "5.6.24", elementText: "Gegnerliste wird erstellt", tooltip: ""};
 HHAuto_ToolTips.de.OpponentParsed = { version: "5.6.24", elementText: "Gegner analysiert", tooltip: ""};
 HHAuto_ToolTips.de.povTitle = { version: "5.20.3", elementText: "Pfad der Tapferkeit (PoV)"};
@@ -11052,10 +10968,6 @@ HHAuto_ToolTips.es.maxExp = { version: "5.6.24", elementText: "Max experiencia",
 HHAuto_ToolTips.es.autoAffW = { version: "5.6.24", elementText: "Compra afec", tooltip: "Si habilitado: Compra afecto en el mercado<br>Solo si el dinero en el banco es superior a este valor<br>Solo compra si el total de afecto poseído está por debajo de este valor"};
 HHAuto_ToolTips.es.autoAff = { version: "5.6.24", elementText: "Min dinero", tooltip: "(Entero)<br>Mínimo dinero a guardar"};
 HHAuto_ToolTips.es.maxAff = { version: "5.6.24", elementText: "Max afecto", tooltip: "(Entero)<br>Máximo afecto a comprar"};
-HHAuto_ToolTips.es.autoLGMW = { version: "5.6.24", elementText: "Compra Eqip.Leg.Mono", tooltip: "Si habilitado: Compra equipamiento legendario mono en el mercado<br>Solo compra si el banco de dinero es superior a este valor"};
-HHAuto_ToolTips.es.autoLGM = { version: "5.6.24", elementText: "Min dinero", tooltip: "(Entero)<br>Mínimo dinero a guardar"};
-HHAuto_ToolTips.es.autoLGRW = { version: "5.6.24", elementText: "Compra Eqip.Leg.Arcoiris", tooltip: "Si habilitado: Compra equipamiento legendario arcoiris en el mercado<br>Solo compra si el banco de dinero es superior a este valor"};
-HHAuto_ToolTips.es.autoLGR = { version: "5.6.24", elementText: "Min dinero", tooltip: "(Entero)<br>Mínimo dinero a guardar"};
 HHAuto_ToolTips.es.OpponentListBuilding = { version: "5.6.24", elementText: "Lista de oponentes en construcción", tooltip: ""};
 HHAuto_ToolTips.es.OpponentParsed = { version: "5.6.24", elementText: "opositores analizados", tooltip: ""};
 HHAuto_ToolTips.es.DebugMenu = { version: "5.6.24", elementText: "Menú depur.", tooltip: "Opciones de depuración"};
@@ -11383,50 +11295,6 @@ HHStoredVars.HHAuto_Setting_autoLeaguesSecurityThreshold =
     getMenu:true,
     setMenu:true,
     menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars.HHAuto_Setting_autoLGM =
-    {
-    default:"500000000",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Long Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars.HHAuto_Setting_autoLGMW =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars.HHAuto_Setting_autoLGR =
-    {
-    default:"500000000",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Long Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars.HHAuto_Setting_autoLGRW =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
     kobanUsing:false
 };
 HHStoredVars.HHAuto_Setting_compactMissions =
@@ -13281,14 +13149,6 @@ var start = function () {
                             + hhMenuSwitchWithImg('autoAffW', 'design/ic_gifts_gray.svg')
                             + hhMenuInput('maxAff', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:60px')
                             + hhMenuInput('autoAff', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
-                        +`</div>`
-                        +`<div class="internalOptionsRow" style="display:none;">`
-                            + hhMenuSwitchWithImg('autoLGMW', 'design/ic_equipment_gray.svg')
-                            + hhMenuInput('autoLGM', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
-                        +`</div>`
-                        +`<div class="internalOptionsRow" style="display:none;">`
-                            + hhMenuSwitchWithImg('autoLGRW', 'pictures/misc/items_icons/16.svg')
-                            + hhMenuInput('autoLGR', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
                         +`</div>`
                         +`<div class="internalOptionsRow">`
                             + hhMenuSwitchWithImg('autoBuyBoosters', 'design/ic_boosters_gray.svg')
