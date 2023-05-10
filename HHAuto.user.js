@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.26.10
+// @version      5.26.11
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -867,7 +867,7 @@ function doMissionStuff()
                 // This is not a fresh mission
                 if(data.remaining_time > 0)
                 {
-                    if ($('.finish_in_bar[style*="display:none"], .finish_in_bar[style*="display: none"]', missionObject).length === 0)
+                    if ($('.finish_in_bar[style*="display:none;"], .finish_in_bar[style*="display: none;"]', missionObject).length === 0)
                     {
                         logHHAuto("Unfinished mission detected...("+data.remaining_time+"sec. remaining)");
                         setTimer('nextMissionTime',Number(data.remaining_time)+1);
@@ -890,6 +890,11 @@ function doMissionStuff()
                     }
                 }
                 return;
+            }
+            else if(data.remaining_cost !== null) {
+                // Finished missioned
+                data.finished = true;
+                data.remaining_time = 0;
             }
             data.missionObject = missionObject;
             var rewards = [];
@@ -4242,6 +4247,7 @@ function goAndCollectSeasonalEvent()
     {
         logHHAuto("No SeasonalEvent active.");
         setTimer('nextSeasonalEventCollectTime', 604800); // 1 week delay
+        setTimer('nextSeasonalEventCollectAllTime', 604800); // 1 week delay
         return false;
     }
 }
