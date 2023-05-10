@@ -891,7 +891,7 @@ function doMissionStuff()
                 }
                 return;
             }
-            else if(data.remaining_cost !== null) {
+            else if(data.remaining_cost === null) {
                 // Finished missioned
                 data.finished = true;
                 data.remaining_time = 0;
