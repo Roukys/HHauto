@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.26.11
+// @version      5.26.12
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -7791,7 +7791,8 @@ var autoLoop = function ()
             {
                 setTimeout(moduleSimSeasonMaskReward,500);
             }
-            // getSeasonRemainingTime();
+            getSeasonRemainingTime = callItOnce(getSeasonRemainingTime);
+            getSeasonRemainingTime();
             break;
         case getHHScriptVars("pagesIDEvent"):
             if (getStoredValue("HHAuto_Setting_plusEvent") === "true" || getStoredValue("HHAuto_Setting_plusEventMythic") ==="true")
@@ -7865,21 +7866,24 @@ var autoLoop = function ()
             {
                 moduleSimPoVMaskReward();
             }
-            //getPoVRemainingTime();
+            getPoVRemainingTime = callItOnce(getPoVRemainingTime);
+            getPoVRemainingTime();
             break;
         case getHHScriptVars("pagesIDPoG"):
             if (getStoredValue("HHAuto_Setting_PoGMaskRewards") === "true")
             {
                 moduleSimPoGMaskReward();
             }
-            //getPoGRemainingTime();
+            getPoGRemainingTime = callItOnce(getPoGRemainingTime);
+            getPoGRemainingTime();
             break;
         case getHHScriptVars("pagesIDSeasonalEvent"):
             if (getStoredValue("HHAuto_Setting_SeasonalEventMaskRewards") === "true")
             {
                 moduleSimSeasonalMaskReward();
             }
-            //getSeasonalEventRemainingTime();
+            getSeasonalEventRemainingTime = callItOnce(getSeasonalEventRemainingTime);
+            getSeasonalEventRemainingTime();
             break;
         case getHHScriptVars("pagesIDChampionsPage"):
             moduleSimChampions();
