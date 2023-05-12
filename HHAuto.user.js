@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.26.13
+// @version      5.26.14
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -834,6 +834,17 @@ function getSuitableMission(missionsList)
     return msn;
 }
 
+function closeRewardPopupIfAny() {
+    let rewardQuery="div#rewards_popup button.blue_button_L:not([disabled]):visible";
+    if ($(rewardQuery).length >0 )
+    {
+        logHHAuto("Close reward popup.");
+        $(rewardQuery).click();
+        return true;
+    }
+    return false;
+}
+
 // returns boolean to set busy
 function doMissionStuff()
 {
@@ -847,12 +858,14 @@ function doMissionStuff()
     else
     {
         logHHAuto("On missions page.");
+        if(closeRewardPopupIfAny()) {
+            return true;
+        }
         let canCollect = getStoredValue("HHAuto_Setting_autoMissionCollect") ==="true" && $(".mission_button button:visible[rel='claim']").length >0 && canCollectCompetitionActive();
         if (canCollect)
         {
             logHHAuto("Collecting finished mission's reward.");
-            $(".mission_button button:visible[rel='claim']").click();
-            gotoPage(getHHScriptVars("pagesIDMissions"),{},1500);
+            $(".mission_button button:visible[rel='claim']").first().click();
             return true;
         }
         // TODO: select new missions and parse reward data from HTML, it's there in data attributes of tags
@@ -885,7 +898,7 @@ function doMissionStuff()
                     if (canCollect)
                     {
                         logHHAuto("Unclaimed mission detected...");
-                        gotoPage(getHHScriptVars("pagesIDMissions"),{},1500);
+                        gotoPage(getHHScriptVars("pagesIDMissions"),{},randomInterval(1300,1800));
                         return true;
                     }
                 }
@@ -959,15 +972,19 @@ function doMissionStuff()
         {
             logHHAuto("Selecting mission from list.");
             var mission = getSuitableMission(missions);
-            logHHAuto("Selected mission:-");
+            logHHAuto("Selected mission to be started (duration: "+mission.duration+"sec):");
             logHHAuto(mission);
-            logHHAuto("Selected mission duration: "+mission.duration+"sec.");
-            var missionButton = $(mission.missionObject).find("button:visible").first();
-            logHHAuto("Mission button of type: "+missionButton.attr("rel"));
-            logHHAuto("Clicking mission button.");
-            missionButton.click();
-            gotoPage(getHHScriptVars("pagesIDMissions"),{},1500);
-            setTimer('nextMissionTime',Number(mission.duration)+1);
+            var missionButton = $(mission.missionObject).find("button:visible[rel='mission_start']").first();
+            if(missionButton.length > 0) {
+                missionButton.click();
+                gotoPage(getHHScriptVars("pagesIDMissions"),{},randomInterval(1300,1800));
+                setTimer('nextMissionTime',Number(mission.duration)+1);
+            } 
+            else {
+                logHHAuto("Something went wrong, no start button");
+                setTimer('nextMissionTime',15);
+                return true;
+            }
         }
         else
         {
@@ -1875,11 +1892,7 @@ function modulePachinko()
                 }
             }
             let pachinkoSelectedButton= $(buttonSelector)[0];
-            let rewardQuery="div#rewards_popup button.blue_button_L";
-            if ($(rewardQuery).length >0 )
-            {
-                $(rewardQuery).click();
-            }
+            closeRewardPopupIfAny();
             let currentOrbsLeft = $(orbsLeftSelector);
             if (currentOrbsLeft.length >0)
             {
@@ -2464,7 +2477,6 @@ function collectAndUpdatePowerPlaces()
         }
         setStoredValue("HHAuto_Temp_currentlyAvailablePops",newFilter.substring(1))
         //collect all
-        let rewardQuery="div#rewards_popup button.blue_button_L";
         let buttonClaimQuery = "button[rel='pop_thumb_claim'].purple_button_L:not([style])";
         if ($(buttonClaimQuery).length >0)
         {
@@ -5674,7 +5686,7 @@ var getSecondsLeft=function(name)
 
 var getTimeLeft=function(name)
 {
-    const timerWaitingCompet = ['nextPachinkoTime','nextPachinko2Time','nextSeasonTime','nextLeaguesTime','nextMissionTime'];
+    const timerWaitingCompet = ['nextPachinkoTime','nextPachinko2Time','nextSeasonTime','nextLeaguesTime'];
     if (!Timers[name])
     {
         if (!canCollectCompetitionActive() && timerWaitingCompet.indexOf(name) >= 0)
