@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.26.14
+// @version      5.26.15
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -6714,6 +6714,13 @@ function moduleSimLeagueHideBeatenOppo()
                 $('#HideBeatenOppo').html(getTextForUI("HideBeatenOppo","elementText"));
             }
         });
+
+        let sort_by = document.querySelectorAll('span[sort_by]');
+        for (var sort of sort_by) {
+            sort.addEventListener('click', function() {
+                if (hideBeatenOppo == 1) removeBeatenOpponents();
+            });
+        }
     }
 }
 
