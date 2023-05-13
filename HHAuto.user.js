@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.27.00
+// @version      5.27.01
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1549,7 +1549,7 @@ function moduleSimChampions()
             var teamGirlIndex = 0;
             for(var i=0;i<10;i++) {
                 var expectedPose = championRequiredPoses[i%5];
-                if(girlsPerPose[expectedPose] && girlsPerPose[expectedPose].length > 0){
+                if(girlsPerPose[expectedPose] && girlsPerPose[expectedPose].length > 0 && teamGirlIndex < 5){
                     teamGirls[teamGirlIndex++] = girlsPerPose[expectedPose][0].data.id_girl;
                     girlsPerPose[expectedPose].shift();
                 }
