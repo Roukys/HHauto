@@ -13457,8 +13457,8 @@ var start = function () {
                 +'#sMenuButton {'
                 +'   width: 40px;'
                 +'   height: 40px;'
-                +'   top: 20px;'
-                +'   right: 74px;'
+                +'   top: 75px;'
+                +'   right: 10px;'
                 +'}}'
                );
     $("#contains_all nav").prepend('<div class="square_blue_btn" id="sMenuButton" ><img src="https://i.postimg.cc/bv7n83z3/script-Icon2.png"></div>');
