@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.29.00
+// @version      5.29.01
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -10923,8 +10923,8 @@ HHAuto_ToolTips.en.Power = {version: "5.6.56", elementText: "Power", tooltip: ""
 HHAuto_ToolTips.en.upgrade_cost = {version: "5.6.56", elementText: "Upgrade cost", tooltip: ""};
 HHAuto_ToolTips.en.HaremSortMenuSortBy = {version: "5.6.56", elementText: "Sort by ", tooltip: ""};
 HHAuto_ToolTips.en.HaremSortMenuSortReverse = {version: "5.6.56", elementText: "Reverse", tooltip: ""};
-HHAuto_ToolTips.en.haremGiveXP = {version: "5.29.0", elementText: "Give XP to filtered girls", tooltip: ""};
-HHAuto_ToolTips.en.haremGiveGifts = {version: "5.29.0", elementText: "Give Gifts to filtered girls", tooltip: ""};
+HHAuto_ToolTips.en.haremGiveXP = {version: "5.29.1", elementText: "Max out XP of filtered girls", tooltip: ""};
+HHAuto_ToolTips.en.haremGiveGifts = {version: "5.29.1", elementText: "Max out affection of filtered girls", tooltip: ""};
 HHAuto_ToolTips.en.collectAllTimer = {version: "5.7.0", elementText: "Collect all timer (in hour)", tooltip: "Hour(s) before end of events to collect all rewards (Low time create risk of not collecting), Need activation on each events (POV, POG, season)"};
 
 
