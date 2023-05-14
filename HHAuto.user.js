@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.27.01
+// @version      5.28.00
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -8887,7 +8887,7 @@ function skipBossBangFightPage()
     {
         logHHAuto("Click skip boss bang fight");
         skipFightButton.click();
-        setTimeout(skipBossBangFightPage,randomInterval(500,1500));
+        setTimeout(skipBossBangFightPage,randomInterval(1300,1900));
     }
     setStoredValue("HHAuto_Temp_autoLoop", "false");
 }
@@ -8900,6 +8900,17 @@ function goToBossBangeFightPage(){
     }
 }
 
+function collectEventChestIfPossible()
+{
+    if (getStoredValue("HHAuto_Setting_collectEventChest") === "true") {
+        const eventChestId = "#extra-rewards-claim-btn:not([disabled])";
+        if ($(eventChestId).length > 0) {
+            logHHAuto("Collect event chest");
+            $(eventChestId).click();
+        }
+    }
+}
+
 function parseEventPage(inTab="global")
 {
     if(getPage() === getHHScriptVars("pagesIDEvent") )
@@ -8907,13 +8918,9 @@ function parseEventPage(inTab="global")
         let queryEventTabCheck=$("#contains_all #events");
         let eventHref = $("#contains_all #events .events-list .event-title.active").attr("href");
         let parsedURL = new URL(eventHref,window.location.origin);
-        let eventID = queryStringGetParam(parsedURL.search,'tab')
-        if (
-            !eventID.startsWith(getHHScriptVars('eventIDReg'))
-            && !eventID.startsWith(getHHScriptVars('mythicEventIDReg'))
-            && !eventID.startsWith(getHHScriptVars('bossBangEventIDReg'))
-            && !eventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg'))
-        )
+        let eventID = queryStringGetParam(parsedURL.search,'tab');
+        const hhEvent = getEvent(eventID);
+        if (!hhEvent.eventTypeKnown)
         {
             if (queryEventTabCheck.attr('parsed') === undefined)
             {
@@ -8924,7 +8931,6 @@ function parseEventPage(inTab="global")
         }
         if (queryEventTabCheck.attr('parsed') !== undefined)
         {
-
             if (!checkEvent(eventID))
             {
                 //logHHAuto("Events already parsed.");
@@ -8939,18 +8945,13 @@ function parseEventPage(inTab="global")
         let eventsGirlz = isJSON(getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsGirlz")):[];
         let eventChamps = isJSON(getStoredValue("HHAuto_Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue("HHAuto_Temp_autoChampsEventGirls")):[];
         let Priority=(getStoredValue("HHAuto_Setting_eventTrollOrder")).split(";");
-        let eventType = getEventType(eventID);
-        const isPlusEvent = eventID.startsWith(getHHScriptVars('eventIDReg')) && getStoredValue("HHAuto_Setting_plusEvent") ==="true";
-        const isPlusEventMythic = eventID.startsWith(getHHScriptVars('mythicEventIDReg')) && getStoredValue("HHAuto_Setting_plusEventMythic") ==="true";
-        const isBossBangEvent = eventID.startsWith(getHHScriptVars('bossBangEventIDReg')) && getStoredValue("HHAuto_Setting_bossBangEvent") ==="true";
-        const isSultryMysteriesEvent = eventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg')) && getStoredValue("HHAuto_Setting_sultryMysteriesEventRefreshShop") === "true";
         const hhEventData = unsafeWindow.event_data;
-        if ((isPlusEvent || isPlusEventMythic) && !hhEventData) {
+        if ((hhEvent.isPlusEvent || hhEvent.isPlusEventMythic) && !hhEventData) {
             logHHAuto("Error getting current event Data from HH.");
         }
 
         let refreshTimer = 3600;
-        if (isPlusEvent)
+        if (hhEvent.isPlusEvent)
         {
             logHHAuto("On going event.");
             let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
@@ -8960,7 +8961,7 @@ function parseEventPage(inTab="global")
             } else setTimer('eventGoing', refreshTimer);
             eventList[eventID]={};
             eventList[eventID]["id"]=eventID;
-            eventList[eventID]["type"]=eventType;
+            eventList[eventID]["type"]=hhEvent.eventType;
             eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
             eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
             eventList[eventID]["isCompleted"] = true;
@@ -9027,8 +9028,11 @@ function parseEventPage(inTab="global")
                     }
                 }
             }
+            if(eventList[eventID]["isCompleted"]){
+                collectEventChestIfPossible();
+            }
         }
-        if (isPlusEventMythic)
+        if (hhEvent.isPlusEventMythic)
         {
             logHHAuto("On going mythic event.");
             let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
@@ -9038,7 +9042,7 @@ function parseEventPage(inTab="global")
             } else setTimer('eventGoing', refreshTimer);
             eventList[eventID]={};
             eventList[eventID]["id"]=eventID;
-            eventList[eventID]["type"]=eventType;
+            eventList[eventID]["type"]=hhEvent.eventType;
             eventList[eventID]["isMythic"]=true;
             eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
             eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
@@ -9091,7 +9095,7 @@ function parseEventPage(inTab="global")
                 }
             }
         }
-        if (isBossBangEvent)
+        if (hhEvent.isBossBangEvent)
         {
             logHHAuto("On going bossBang event.");
             let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
@@ -9101,7 +9105,7 @@ function parseEventPage(inTab="global")
             } else setTimer('eventGoing', refreshTimer);
             eventList[eventID]={};
             eventList[eventID]["id"]=eventID;
-            eventList[eventID]["type"]=eventType;
+            eventList[eventID]["type"]=hhEvent.eventType;
             eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
             eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
             eventList[eventID]["isCompleted"] = $('#contains_all #events #boss_bang .completed-event').length > 0;
@@ -9140,7 +9144,7 @@ function parseEventPage(inTab="global")
                 setStoredValue("HHAuto_Temp_bossBangTeam", -1);
             }
         }
-        if (isSultryMysteriesEvent)
+        if (hhEvent.isSultryMysteriesEvent)
         {
             logHHAuto("On going sultry mysteries event.");
 
@@ -9151,7 +9155,7 @@ function parseEventPage(inTab="global")
 
             eventList[eventID]={};
             eventList[eventID]["id"]=eventID;
-            eventList[eventID]["type"]=eventType;
+            eventList[eventID]["type"]=hhEvent.eventType;
             eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
             eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
             eventList[eventID]["isCompleted"] = false;
@@ -9260,24 +9264,29 @@ function getEventType(inEventID){
     return "";
 }
 
+function getEvent(inEventID){
+    const eventType = getEventType(inEventID);
+    const isPlusEvent = inEventID.startsWith(getHHScriptVars('eventIDReg')) && getStoredValue("HHAuto_Setting_plusEvent") ==="true";
+    const isPlusEventMythic = inEventID.startsWith(getHHScriptVars('mythicEventIDReg')) && getStoredValue("HHAuto_Setting_plusEventMythic") ==="true";
+    const isBossBangEvent = inEventID.startsWith(getHHScriptVars('bossBangEventIDReg')) && getStoredValue("HHAuto_Setting_bossBangEvent") ==="true";
+    const isSultryMysteriesEvent = inEventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg')) && getStoredValue("HHAuto_Setting_sultryMysteriesEventRefreshShop") === "true";
+    return {
+        eventTypeKnown: eventType !== '',
+        eventId: inEventID,
+        eventType: eventType,
+        isPlusEvent: isPlusEvent, // and activated
+        isPlusEventMythic: isPlusEventMythic, // and activated
+        isBossBangEvent: isBossBangEvent, // and activated
+        isSultryMysteriesEvent: isSultryMysteriesEvent, // and activated
+        isEnabled: isPlusEvent || isPlusEventMythic || isBossBangEvent || isSultryMysteriesEvent
+    }
+}
+
 function checkEvent(inEventID)
 {
     let eventList = isJSON(getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsList")):{};
-    let result = false;
-    let eventType = getEventType(inEventID);
-    if (eventType === "mythic" && getStoredValue("HHAuto_Setting_plusEventMythic") !=="true")
-    {
-        return false;
-    }
-    if (eventType === "event" && getStoredValue("HHAuto_Setting_plusEvent") !=="true")
-    {
-        return false;
-    }
-    if (eventType === "bossBang" && getStoredValue("HHAuto_Setting_bossBangEvent") !=="true")
-    {
-        return false;
-    }
-    if (eventType === "sultryMysteries" && getStoredValue("HHAuto_Setting_sultryMysteriesEventRefreshShop") !=="true")
+    const hhEvent = getEvent(inEventID);
+    if(hhEvent.eventTypeKnown && !hhEvent.isEnabled)
     {
         return false;
     }
@@ -9293,20 +9302,13 @@ function checkEvent(inEventID)
         }
         else
         {
-            if (
+           return (
                 eventList[inEventID]["next_refresh"]<new Date()
                 ||
-                (eventType === "mythic" && checkTimerMustExist('eventMythicNextWave'))
+                (hhEvent.isPlusEventMythic && checkTimerMustExist('eventMythicNextWave'))
                 || 
-                (eventType === "sultryMysteries" && checkTimerMustExist('eventSultryMysteryShopRefresh'))
-                )
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+                (hhEvent.isSultryMysteriesEvent && checkTimerMustExist('eventSultryMysteryShopRefresh'))
+                );
         }
     }
 }
@@ -10727,6 +10729,7 @@ HHAuto_ToolTips.en.bossBangMinTeam = { version: "5.6.137", elementText: "First T
 HHAuto_ToolTips.en.sultryMysteriesEventTitle = { version: "5.21.6", elementText: "Sultry Mysteries Event"};
 HHAuto_ToolTips.en.sultryMysteriesEventRefreshShop = { version: "5.21.6", elementText: "Refresh Shop", tooltip: "Open Sultry Mysteries shop tab to trigger shop update."};
 HHAuto_ToolTips.en.sultryMysteriesEventRefreshShopNext = { version: "5.22.5", elementText: "Sultry Shop"};
+HHAuto_ToolTips.en.collectEventChest = { version: "5.28.0", elementText: "Collect event chest", tooltip: "If enabled: collect event chest when active after getting all girls"};
 HHAuto_ToolTips.en.showTooltips = { version: "5.6.24", elementText: "Show tooltips", tooltip: "Show tooltip on menu."};
 HHAuto_ToolTips.en.showMarketTools = { version: "5.6.24", elementText: "Show market tools", tooltip: "Show Market tools."};
 HHAuto_ToolTips.en.updateMarket = { version: "5.22.0", elementText: "Update market", tooltip: "Update player data from market screens (Equipement, books and gift owned as well as next refresh time)."};
@@ -12050,6 +12053,17 @@ HHStoredVars.HHAuto_Setting_sultryMysteriesEventRefreshShop =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars.HHAuto_Setting_collectEventChest =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_PoAMaskRewards =
     {
     default:"false",
@@ -12976,6 +12990,7 @@ var start = function () {
                             + hhMenuSwitch('settPerTab')
                             + hhMenuSwitch('paranoiaSpendsBefore')
                             + hhMenuSwitch('autoFreeBundlesCollect', 'isEnabledFreeBundles')
+                            + hhMenuSwitch('collectEventChest')
                         +`</div>`
                     +`</div>`
                 +`</div>`
