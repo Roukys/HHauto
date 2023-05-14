@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.28.00
+// @version      5.29.00
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -614,6 +614,9 @@ function gotoPage(page,inArgs,delay = -1)
             togoto = page;
             break;
         case (page.match(/^\/harem\/\d+$/) || {}).input:
+            togoto = page;
+            break;
+        case (page.match(/^\/girl\/\d+$/) || {}).input:
             togoto = page;
             break;
         case (page.match(/^\/quest\/\d+$/) || {}).input:
@@ -6769,8 +6772,118 @@ function moduleSimLeagueHideBeatenOppo()
 
 function moduleHarem()
 {
+    var getFilteredGirlList = function() {
+        // Store girls for harem tools
+        let filteredGirlsList = [];
+
+        if (unsafeWindow.harem.filteredGirlsList.length > 0) {
+            unsafeWindow.harem.filteredGirlsList.forEach((girl) => {
+                if (girl.shards >= 100) filteredGirlsList.push(""+girl.id_girl);
+            });
+        }
+        else if (unsafeWindow.harem.filteredGirlsList.length == 0 && unsafeWindow.harem.preselectedGirlId != null) {
+            unsafeWindow.harem.girlsBeforeSelected.forEach((girl) => {
+                if (girl.shards >= 100) filteredGirlsList.push(""+girl.id_girl);
+            });
+            filteredGirlsList.push(unsafeWindow.harem.preselectedGirlId);
+            unsafeWindow.harem.girlsAfterSelected.forEach((girl) => {
+                if (girl.shards >= 100) filteredGirlsList.push(""+girl.id_girl);
+            });
+        }
+        return filteredGirlsList;
+    };
+    
+    const menuIDXp = "haremGiveXP";
+    const menuIDGifts = "haremGiveGifts";
+
+    let menuHidden = `<div style="visibility:hidden" id="${menuIDXp}"></div>`;
+    if (document.getElementById(menuIDXp) === null)
+    {
+        // Avoid looping on add menu item
+        $("#contains_all section").prepend(menuHidden);
+        
+        var giveHaremItem = function(haremItem){
+            let filteredGirlsList = getFilteredGirlList();
+            const displayedGirl = $('#harem_right .opened').attr('girl'); // unsafeWindow.harem.preselectedGirlId
+
+            if (filteredGirlsList && filteredGirlsList.length > 0) {
+                let girlToGoTo = filteredGirlsList[0];
+                if(displayedGirl && filteredGirlsList.indexOf(""+displayedGirl) >=0) {
+                    girlToGoTo = displayedGirl;
+                }
+                logHHAuto("Go to " + girlToGoTo);
+                gotoPage('/girl/'+girlToGoTo,{resource:haremItem});
+                setStoredValue("HHAuto_Temp_autoLoop", "false");
+                logHHAuto("setting autoloop to false");
+            }
+            setStoredValue("HHAuto_Temp_haremGirlActions", haremItem);
+            setStoredValue("HHAuto_Temp_filteredGirlsList", JSON.stringify(filteredGirlsList));
+        };
+
+        var giveHaremXp = function() {giveHaremItem('experience');};
+        var giveHaremGifts = function() {giveHaremItem('affection');};
+
+        GM_registerMenuCommand(getTextForUI(menuIDXp,"elementText"), giveHaremXp);
+        GM_registerMenuCommand(getTextForUI(menuIDGifts,"elementText"), giveHaremGifts);
+    }
 }
 
+function clearHaremVariables()
+{
+    deleteStoredValue("HHAuto_Temp_haremGirlActions");
+}
+
+function moduleHaremGirl()
+{
+    try {
+        const girl = unsafeWindow.girl;
+        logHHAuto("moduleHaremGirl: " + girl.id_girl);
+        const haremItem = getStoredValue("HHAuto_Temp_haremGirlActions");
+        if(!haremItem) {
+            // No action to be peformed
+            return;
+        }
+        setStoredValue("HHAuto_Temp_autoLoop", "false");
+        logHHAuto("setting autoloop to false as action to be performed on girl");
+
+        var confirmMaxOut = function(){
+            $('#girl_max_out_popup button.blue_button_L:not([disabled]):visible[confirm_callback]').click();
+        }
+        
+        logHHAuto("Action to be performed : give " + haremItem);
+        const maxOutButton = $('#girl-leveler-max-out:not([disabled])');
+        if(maxOutButton.length > 0) {
+            logHHAuto('Max out ' + haremItem + ' for girl ' + girl.id_girl);
+            maxOutButton.click();
+            setTimeout(confirmMaxOut, randomInterval(500,1000))
+        } else {
+            logHHAuto('Max out button for' + haremItem + ' for girl ' + girl.id_girl + ' not enabled, skipping...');
+        }
+        
+        let filteredGirlsList = getStoredValue("HHAuto_Temp_filteredGirlsList")?JSON.parse(getStoredValue("HHAuto_Temp_filteredGirlsList")):[];
+        logHHAuto("filteredGirlsList", filteredGirlsList);
+        if (filteredGirlsList && filteredGirlsList.length > 0) {
+            const girlPosInList = filteredGirlsList.indexOf(""+girl.id_girl);
+            if (girlPosInList >=0 && filteredGirlsList.length > (girlPosInList+1)) {
+                logHHAuto('Go to next girl (' + filteredGirlsList[girlPosInList+1] + ') remaining ' + (filteredGirlsList.length - girlPosInList - 1) + ' girls');
+                gotoPage('/girl/'+filteredGirlsList[girlPosInList+1],{resource:haremItem}, randomInterval(1500,2500));
+            } else {
+                logHHAuto("No more girls, go back to harem list");
+                setStoredValue("HHAuto_Temp_autoLoop", "true");
+                gotoPage('/harem/'+girl.id_girl,{}, randomInterval(1500,2500));
+                clearHaremVariables();
+            }
+        } else {
+            logHHAuto("ERROR: no girls stored");
+            setStoredValue("HHAuto_Temp_autoLoop", "true");
+            clearHaremVariables();
+        }
+    } catch (error) {
+        logHHAuto("ERROR: Can't perform action ", error);
+        setStoredValue("HHAuto_Temp_autoLoop", "true");
+        clearHaremVariables();
+    }
+}
 
 function moduleSimSeasonBattle()
 {
@@ -7907,6 +8020,9 @@ var autoLoop = function ()
             setTimeout(displaySeasonRemainingTime,500);
             setTimeout(displayPoVRemainingTime,500);
             setTimeout(displayPoGRemainingTime,500);
+
+            clearHaremVariables = callItOnce(clearHaremVariables); // Avoid wired loop, if user reach home page, ensure temp var from harem are cleared
+            clearHaremVariables();
             break;
         case getHHScriptVars("pagesIDHarem"):
             moduleHarem();
@@ -7914,6 +8030,10 @@ var autoLoop = function ()
             moduleHaremCountMax();
             moduleHaremNextUpgradableGirl();
             haremOpenFirstXUpgradable();
+            break;
+        case getHHScriptVars("pagesIDGirlPage"):
+            moduleHaremGirl = callItOnce(moduleHaremGirl);
+            moduleHaremGirl();
             break;
         case getHHScriptVars("pagesIDPachinko"):
             modulePachinko();
@@ -10336,6 +10456,9 @@ HHEnvVariables["global"].pagesIDHarem = "harem";
 HHEnvVariables["global"].pagesURLHarem = "/harem.html";
 HHEnvVariables["global"].pagesKnownList.push("Harem");
 
+HHEnvVariables["global"].pagesIDGirlPage = "girl";
+HHEnvVariables["global"].pagesKnownList.push("GirlPage");
+
 HHEnvVariables["global"].pagesIDMap = "map";
 HHEnvVariables["global"].pagesURLMap = "/map.html";
 HHEnvVariables["global"].pagesKnownList.push("Map");
@@ -10800,6 +10923,8 @@ HHAuto_ToolTips.en.Power = {version: "5.6.56", elementText: "Power", tooltip: ""
 HHAuto_ToolTips.en.upgrade_cost = {version: "5.6.56", elementText: "Upgrade cost", tooltip: ""};
 HHAuto_ToolTips.en.HaremSortMenuSortBy = {version: "5.6.56", elementText: "Sort by ", tooltip: ""};
 HHAuto_ToolTips.en.HaremSortMenuSortReverse = {version: "5.6.56", elementText: "Reverse", tooltip: ""};
+HHAuto_ToolTips.en.haremGiveXP = {version: "5.29.0", elementText: "Give XP to filtered girls", tooltip: ""};
+HHAuto_ToolTips.en.haremGiveGifts = {version: "5.29.0", elementText: "Give Gifts to filtered girls", tooltip: ""};
 HHAuto_ToolTips.en.collectAllTimer = {version: "5.7.0", elementText: "Collect all timer (in hour)", tooltip: "Hour(s) before end of events to collect all rewards (Low time create risk of not collecting), Need activation on each events (POV, POG, season)"};
 
 
@@ -12502,6 +12627,16 @@ HHStoredVars.HHAuto_Temp_burst =
     HHType:"Temp"
 };
 HHStoredVars.HHAuto_Temp_charLevel =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_filteredGirlsList =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_haremGirlActions =
     {
     storage:"sessionStorage",
     HHType:"Temp"
