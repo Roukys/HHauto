@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.29.02
+// @version      5.29.03
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -9381,6 +9381,7 @@ function getEventType(inEventID){
     if(inEventID.startsWith(getHHScriptVars('bossBangEventIDReg'))) return "bossBang";
     if(inEventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg'))) return "sultryMysteries";
 //    if(inEventID.startsWith(getHHScriptVars('poaEventIDReg'))) return "poa";
+//    if(inEventID.startsWith('cumback_contest_')) return "";
     return "";
 }
 
@@ -12654,8 +12655,8 @@ HHStoredVars.HHAuto_Temp_eventGirl =
 HHStoredVars.HHAuto_Temp_autoChampsEventGirls =
     {
     storage:"sessionStorage",
-    HHType:"Temp",
-    isValid:/^\[({"girl_id":"(\d)+","champ_id":"(\d)+","girl_shards":"(\d)+","girl_name":"([^"])+","event_id":"([^"])+"},?)+\]$/
+    HHType:"Temp"
+    //isValid:/^\[({"girl_id":"(\d)+","champ_id":"(\d)+","girl_shards":"(\d)+","girl_name":"([^"])+","event_id":"([^"])+"},?)+\]$/
 };
 HHStoredVars.HHAuto_Temp_fought =
     {
@@ -12999,7 +13000,7 @@ var start = function () {
     {
         Timers=JSON.parse(getStoredValue("HHAuto_Temp_Timers"));
     }
-    clearEventData("onlyCheckEventsHHScript");
+    // clearEventData("onlyCheckEventsHHScript");
     setDefaults();
 
     if (getStoredValue("HHAuto_Setting_mousePause") === "true") {
