@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.30.00
+// @version      5.30.01
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -6969,7 +6969,6 @@ function moduleHaremGirl()
                 else 
                     logHHAuto("Girl and max out will be above target, ignoring action");
             }
-            // HaremUpdateGirlPopup(haremItem, selectedGirl.name + ' '+selectedGirl.Xp.cur+"xp, level "+selectedGirl.level+"/"+haremGirlLimit, (1)*5 );
         };
 
         var KeyUpExp = function(evt)
@@ -7004,7 +7003,7 @@ function moduleHaremGirl()
 
         if(canAwakeGirl)
             GM_registerMenuCommand(getTextForUI(menuIDXp,"elementText"), giveHaremXp);
-        //if(canGiftGirl)
+        //if(canGiftGirl) // Not supported yet
         //   GM_registerMenuCommand(getTextForUI(menuIDGifts,"elementText"), giveHaremGifts);
 
     } catch (error) {
@@ -10801,7 +10800,8 @@ HHEnvVariables["HH_test"].isEnabledFreeBundles = false;// to remove if bundles a
                                           'Athicus Ho’ole',
                                           'The Mimic',
                                           'Cockatrice',
-                                          'Pomelo'];
+                                          'Pomelo',
+                                          'Alexa Sl\'Thor'];
 });
 HHEnvVariables["SH_prod"].isEnabledSideQuest = false;// to remove when SideQuest arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPowerPlaces = false;// to remove when PoP arrives in hornyheroes
