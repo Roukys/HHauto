@@ -5282,7 +5282,7 @@ var CrushThemFights=function()
                     )
                 )
                 {
-                    let rewardGirlz=$("#pre-battle .oponnent-panel .opponent_rewards .rewards_list .girls_reward[data-rewards]");
+                    let rewardGirlz=$("#pre-battle .oponnent-panel .opponent_rewards .rewards_list .slot.girl_ico[data-rewards]");
 
                     if (rewardGirlz.length ===0 || !rewardGirlz.attr('data-rewards').includes('"id_girl":'+JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_id))
                     {
