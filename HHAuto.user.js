@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.30.01
+// @version      5.30.02
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -7168,7 +7168,7 @@ function moduleSimSeasonBattle()
             //console.log(simu);
             //matchRating=customMatchRating(simu);
             scoreOppo[index]=simu;
-            mojoOppo[index]=Number($(".slot_victory_points p",opponents[index])[0].innerText);
+            mojoOppo[index]=Number($(".slot_victory_points .amount",opponents[index])[0].innerText);
             //logHHAuto(mojoOppo[index]);
             nameOppo[index]=opponentName;
             expOppo[index]=Number($(".slot_season_xp_girl",opponents[index])[0].lastElementChild.innerText.replace(/\D/g, ''));
