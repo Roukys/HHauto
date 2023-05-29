@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.31.0
+// @version      5.31.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3959,16 +3959,16 @@ function getRewardTypeBySlot(inSlot)
         {
             reward = 'girl_shards';
         }
-        else if (inSlot.getAttribute("rarity") !== null && $(inSlot).data("d"))
-        {
-            let objectData = $(inSlot).data("d");
-            //console.log(currentIndicator+" : "+inSlot.getAttribute("rarity")+" "+objectData.item.type+" "+objectData.item.value);
-            reward = objectData.item.type;
-        }
         else if (inSlot.className.indexOf('mythic') >= 0)
         {
             //console.log("mythic equipment");
             reward = 'mythic';
+        }
+        else if (inSlot.getAttribute("data-d") !== null && $(inSlot).data("d"))
+        {
+            let objectData = $(inSlot).data("d");
+            //console.log(currentIndicator+" : "+inSlot.getAttribute("rarity")+" "+objectData.item.type+" "+objectData.item.value);
+            reward = objectData.item.type;
         }else{
             const possibleRewards = getHHScriptVars("possibleRewardsList");
             for (let currentRewards of Object.keys(possibleRewards))
@@ -9987,7 +9987,7 @@ function updateInputPatternBasedOnMonslyCard()
                 case 25 : HHAuto_inputPattern.autoPantheonThreshold = "2[0-4]|1[0-9]|[0-9]"; break;
                 case 30 : HHAuto_inputPattern.autoPantheonThreshold = "[1-2][0-9]|[0-9]"; break;
             }
-        } 
+        }
     } catch(e) {
         logHHAuto("Catched error : Couldn't parse card info, input patern kept as default : "+e);
     }
