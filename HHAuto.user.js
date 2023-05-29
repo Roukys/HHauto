@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.30.02
+// @version      5.31.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -983,7 +983,7 @@ function doMissionStuff()
                 missionButton.click();
                 gotoPage(getHHScriptVars("pagesIDMissions"),{},randomInterval(1300,1800));
                 setTimer('nextMissionTime',Number(mission.duration)+1);
-            } 
+            }
             else {
                 logHHAuto("Something went wrong, no start button");
                 setTimer('nextMissionTime',15);
@@ -1100,31 +1100,31 @@ function moduleDailyGoalsStyles()
     GM_addStyle(dailGoalsContainerPath + ' .daily-goals-objective .daily-goals-objective-reward > p {'
         + 'margin-top: 0;'
     +'}');
-    
+
     GM_addStyle(dailGoalsContainerPath + ' .daily-goals-objective {'
         + 'width:49%;'
         + 'margin-bottom:5px;'
     +'}');
-    
+
     GM_addStyle(dailGoalsContainerPath + ' .daily-goals-objective .daily-goals-objective-status .objective-progress-bar {'
         + 'height: 20px;'
         + 'width: 11.1rem;'
     +'}');
-    
+
     GM_addStyle(dailGoalsContainerPath + ' .daily-goals-objective .daily-goals-objective-status .objective-progress-bar > p {'
         + 'font-size: 0.7rem;'
     +'}');
-    
+
     GM_addStyle(dailGoalsContainerPath + ' .daily-goals-objective .daily-goals-objective-reward {'
         + 'height: 40px;'
         + 'width: 40px;'
     +'}');
-    
+
     GM_addStyle(dailGoalsContainerPath + ' p {'
         + 'overflow: hidden;'
         + 'text-overflow: ellipsis;'
         + 'white-space: nowrap;'
-        + 'max-width: 174px;' 
+        + 'max-width: 174px;'
         + 'font-size: 0.7rem;'
     +'}');
     }
@@ -1147,15 +1147,15 @@ function modulePowerPlacesStyles()
             + 'column-gap: 12px;'
             + 'display: inline-flex;'
         +'}');
-        
+
         GM_addStyle( popBtnPath + ' .battle-action-button .action-cost {'
             + 'width:auto;'
         +'}');
-        
+
         GM_addStyle(popBtnPath + ' .pop-claim-all .action-cost {'
             + 'display: flex;'
         +'}');
-        
+
         GM_addStyle(popBtnPath + ' .pop-claim-all .action-cost .hc-cost {'
             + 'display: flex;'
             + 'align-items: center;'
@@ -1169,34 +1169,34 @@ function modulePowerPlacesStyles()
             + 'width: 135px;'
             + 'min-height: 130px;'
         +'}');
-        
+
         GM_addStyle(popContainerPath + ' .pop_thumb > button {'
             + 'width: 128px;'
             + 'height: 25px;'
         +'}');
-        
+
         GM_addStyle(popContainerPath + ' .pop_thumb > .pop_thumb_title {'
             + 'display: none;'
         +'}');
-        
+
         GM_addStyle(popContainerPath + ' .pop_thumb_expanded,' + popContainerPath + ' .pop_thumb_active {'
             + 'height: 130px;'
         +'}');
-        
+
         GM_addStyle(popContainerPath + ' .pop_thumb img {'
             + 'width: 100%;'
             + 'height: auto;'
         +'}');
-        
+
         GM_addStyle(popContainerPath + ' .pop_thumb > .pop_thumb_progress_bar {'
             + 'width: 128px;'
             + 'height: 30px;'
         +'}');
-        
+
         GM_addStyle(popContainerPath + ' .pop_thumb > .pop_thumb_space {'
             + 'height: 30px;'
         +'}');
-        
+
         GM_addStyle(popContainerPath + ' .pop_thumb > .pop_thumb_progress_bar .hh_bar > .backbar {'
             + 'width: 123px !important;'
         +'}');
@@ -1622,7 +1622,7 @@ function moduleSimChampions()
         $('#updateChampTeamButton').attr('disabled', 'disabled').text( 'Starting soon...');
         ChamppUpdateAutoTeamPopup('Starting soon...',maxLoops, (maxLoops) * 2);
         logHHAuto("keep second line : " + keepSecondLineGirls);
-        
+
         counterLoop = 0;
         if( $(changeDraftButtonQuery).length > 0) $(changeDraftButtonQuery).click();
         setTimeout(selectGirls, randomInterval(800,1300));
@@ -6792,7 +6792,7 @@ function moduleHarem()
         }
         return filteredGirlsList;
     };
-    
+
     const menuIDXp = "haremGiveXP";
     const menuIDGifts = "haremGiveGifts";
 
@@ -6801,7 +6801,7 @@ function moduleHarem()
     {
         // Avoid looping on add menu item
         $("#contains_all section").prepend(menuHidden);
-        
+
         var giveHaremItem = function(haremItem){
             let filteredGirlsList = getFilteredGirlList();
             const displayedGirl = $('#harem_right .opened').attr('girl'); // unsafeWindow.harem.preselectedGirlId
@@ -6941,10 +6941,10 @@ function moduleHaremGirl()
         logHHAuto("Number of gem needed in next awakening : " + girl.awakening_costs);
         logHHAuto("Number of gem in stock : " + numberOfGem);
         logHHAuto("Girl grade : " + girl.graded + '/' + girl.nb_grades);
-        
+
         const menuIDXp = "haremGirlGiveXP";
         const menuIDGifts = "haremGirlGiveGifts";
-        
+
         var giveHaremGirlItem = function(haremItem){
             const selectedGirl = unsafeWindow.girl;
             $('#girl-leveler-tabs .switch-tab[data-tab="'+haremItem+'"]').click();
@@ -6952,7 +6952,7 @@ function moduleHaremGirl()
 
             if((Number(selectedGirl.level) + 50) <= Number(userHaremGirlLimit)) {
                 HaremDisplayGirlPopup(haremItem, selectedGirl.name + ' '+selectedGirl.Xp.cur+"xp, level "+selectedGirl.level+"/"+userHaremGirlLimit, (1)*5 );
-    
+
                 setStoredValue("HHAuto_Temp_haremGirlActions", haremItem);
                 setStoredValue("HHAuto_Temp_haremGirlMode", 'girl');
                 setStoredValue("HHAuto_Temp_haremGirlLimit", userHaremGirlLimit);
@@ -6966,7 +6966,7 @@ function moduleHaremGirl()
             } else{
                 if(Number(selectedGirl.level) >= Number(userHaremGirlLimit))
                     logHHAuto("Girl already above target, ignoring action");
-                else 
+                else
                     logHHAuto("Girl and max out will be above target, ignoring action");
             }
         };
@@ -6990,7 +6990,7 @@ function moduleHaremGirl()
 
             document.removeEventListener('keyup', KeyUpExp, false);
             document.addEventListener('keyup', KeyUpExp, false);
-            
+
             document.getElementById("menuExpButton").addEventListener("click", function()
             {
                 maskHHPopUp();
@@ -7029,7 +7029,7 @@ function moduleHaremGirl()
             if((Number(girl.level) + 50) >= Number(haremGirlLimit)) {
                 maxOutButtonAndConfirm(haremItem, girl);
                 HaremClearGirlPopup();
-                
+
                 clearHaremToolVariables(); // TODO to make it mode list, do not clear ^^
             }
             else
@@ -7043,7 +7043,7 @@ function moduleHaremGirl()
             let remainingGirls = 0;
             let girlListProgress = '<br />' + getTextForUI("giveLastGirl","elementText");
 
-            
+
             let filteredGirlsList = getStoredValue("HHAuto_Temp_filteredGirlsList")?JSON.parse(getStoredValue("HHAuto_Temp_filteredGirlsList")):[];
             logHHAuto("filteredGirlsList", filteredGirlsList);
             if (filteredGirlsList && filteredGirlsList.length > 0) {
@@ -7520,7 +7520,7 @@ var autoLoop = function ()
                     eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
                 }
             }
-            if (queryResults.length <= 0 && getTimer("eventSultryMysteryShopRefresh") !== -1) 
+            if (queryResults.length <= 0 && getTimer("eventSultryMysteryShopRefresh") !== -1)
             {
                 // event is over
                 clearTimer("eventSultryMysteryShopRefresh");
@@ -8353,7 +8353,7 @@ function getGirlUpgradeCost(inRarity, inTargetGrade)
     return calculatedCosts[inRarity][inTargetGrade];
 }
 
-function getLevelXp(inRarity, inLevel)
+/*function getLevelXp(inRarity, inLevel)
 {
     const lvl_max_girl = 750;
     let GIRLS_EXP_LEVELS = [];
@@ -8382,58 +8382,7 @@ function getLevelXp(inRarity, inLevel)
     }
     inLevel--;
     return GIRLS_EXP_LEVELS[inRarity][inLevel];
-}
-
-function getBoostersData()
-{
-    let boosterA = $('#equiped .sub_block .booster .slot:not(.empty):not(.mythic)');
-    let boostersArray = {flat:{carac1:0,carac2:0,carac3:0,damage:0,ego:0,endurance:0},percent:{carac1:0,carac2:0,carac3:0,damage:0,ego:0,endurance:0}};
-    for (let bi = 0;bi< boosterA.length;bi++)
-    {
-        let boosterItem = JSON.parse($('#equiped .sub_block .booster .slot:not(.empty)')[bi].attributes['data-d'].value);
-        let bossterId = Number(boosterItem.id_item);
-        switch (bossterId)
-        {
-            case 7 : /*Ginseng root */
-            case 8 : /*Ginseng root */
-            case 9 : /*Ginseng root */
-                boostersArray.flat.carac1 += boosterItem.carac1;
-                boostersArray.flat.carac2 += boosterItem.carac2;
-                boostersArray.flat.carac3 += boosterItem.carac3;
-                break
-            case 10 : /*Jujubes */
-            case 11 : /*Jujubes */
-            case 12 : /*Jujubes */
-                boostersArray.flat.chance += boosterItem.chance;
-                break
-            case 28 : /*Chlorella */
-            case 29 : /*Chlorella */
-            case 30 : /*Chlorella */
-                boostersArray.flat.ego += boosterItem.ego;
-                break
-            case 31 : /*Cordyceps */
-            case 32 : /*Cordyceps */
-            case 33 : /*Cordyceps */
-                boostersArray.flat.damage += boosterItem.damage;
-                break
-            case 316 : /*Ginseng root*/
-                boostersArray.percent.carac1 += boosterItem.carac1;
-                boostersArray.percent.carac2 += boosterItem.carac2;
-                boostersArray.percent.carac3 += boosterItem.carac3;
-                break
-            case 317 : /*Jujubes*/
-                boostersArray.percent.chance += boosterItem.chance;
-                break
-            case 318 : /*Chlorella*/
-                boostersArray.percent.ego += boosterItem.ego;
-                break
-            case 319 : /*Cordyceps*/
-                boostersArray.percent.damage += boosterItem.damage;
-                break
-        }
-    }
-    return boostersArray;
-}
+}*/
 
 function moduleShopActions()
 {
@@ -9630,7 +9579,7 @@ function checkEvent(inEventID)
                 eventList[inEventID]["next_refresh"]<new Date()
                 ||
                 (hhEvent.isPlusEventMythic && checkTimerMustExist('eventMythicNextWave'))
-                || 
+                ||
                 (hhEvent.isSultryMysteriesEvent && checkTimerMustExist('eventSultryMysteryShopRefresh'))
                 );
         }
@@ -9986,6 +9935,61 @@ function checkClubStatus()
     if (chatVars === null || chatVars === false)
     {
         HHEnvVariables[getHHScriptVars("HHGameName")].isEnabledClubChamp = false;
+    }
+}
+
+function updateInputPatternBasedOnMonslyCard()
+{
+    try {
+        const maxRegenFight = getHHVars('Hero.energies.fight.max_regen_amount');
+        const maxRegenKiss = getHHVars('Hero.energies.kiss.max_regen_amount');
+        const maxRegenQuest = getHHVars('Hero.energies.quest.max_regen_amount');
+        const maxRegenLeague = getHHVars('Hero.energies.challenge.max_regen_amount');
+        const maxRegenPantheon = getHHVars('Hero.energies.worship.max_regen_amount');
+
+        if(maxRegenFight && maxRegenFight > 20) {
+            // 20 - 30 - 40 - 50 - 60
+            const lastAllowedTenth = (maxRegenFight / 10) - 1;
+            HHAuto_inputPattern.autoTrollThreshold = "[1-"+lastAllowedTenth+"]?[0-9]";
+        }
+        if(maxRegenKiss && maxRegenKiss > 10) {
+            // 10 - 20 - 30 - 40 - 50
+            const lastAllowedTenth = (maxRegenKiss / 10) - 1;
+            HHAuto_inputPattern.autoSeasonThreshold = "[1-"+lastAllowedTenth+"]?[0-9]";
+        }
+        if(maxRegenQuest && maxRegenQuest > 100) {
+            // 100 - 150 - 200 - 250 - 300
+            if(maxRegenQuest === 200 || maxRegenQuest === 300) {
+                const lastAllowedHundred = (Hero.energies.kiss.max_regen_amount / 100) - 1;
+                HHAuto_inputPattern.autoQuestThreshold = "[1-"+lastAllowedHundred+"][0-9][0-9]|[1-9]?[0-9]";
+            } else if(maxRegenQuest === 250 ){
+                HHAuto_inputPattern.autoQuestThreshold = "2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]";
+            } else {
+                HHAuto_inputPattern.autoQuestThreshold = "1[0-4][0-9]|[1-9]?[0-9]";
+            }
+        }
+        if(maxRegenLeague && maxRegenLeague > 15) {
+            // 15 - 18 - 23 - 26 - 30
+            switch (maxRegenLeague)
+            {
+                case 18 : HHAuto_inputPattern.autoLeaguesThreshold = "1[0-7]|[0-9]"; break;
+                case 23 : HHAuto_inputPattern.autoLeaguesThreshold = "2[0-2]|1[0-9]|[0-9]"; break;
+                case 26 : HHAuto_inputPattern.autoLeaguesThreshold = "2[0-5]|1[0-9]|[0-9]"; break;
+                case 30 : HHAuto_inputPattern.autoLeaguesThreshold = "2[0-9]|1[0-9]|[0-9]"; break;
+            }
+        }
+        if(maxRegenPantheon && maxRegenPantheon > 10) {
+            // 10 - 15 - 20 - 25 - 30
+            switch (maxRegenPantheon)
+            {
+                case 15 : HHAuto_inputPattern.autoPantheonThreshold = "1[0-4]|[0-9]"; break;
+                case 20 : HHAuto_inputPattern.autoPantheonThreshold = "1[0-9]|[0-9]"; break;
+                case 25 : HHAuto_inputPattern.autoPantheonThreshold = "2[0-4]|1[0-9]|[0-9]"; break;
+                case 30 : HHAuto_inputPattern.autoPantheonThreshold = "[1-2][0-9]|[0-9]"; break;
+            }
+        } 
+    } catch(e) {
+        logHHAuto("Catched error : Couldn't parse card info, input patern kept as default : "+e);
     }
 }
 
@@ -13212,6 +13216,7 @@ var start = function () {
         return;
     }
     checkClubStatus();
+    updateInputPatternBasedOnMonslyCard();
     replaceCheatClick();
     migrateHHVars();
 
@@ -13764,9 +13769,9 @@ var start = function () {
     }
 
     if(
-        getPage()==getHHScriptVars("pagesIDMissions") 
-    || getPage()==getHHScriptVars("pagesIDContests") 
-    || getPage()==getHHScriptVars("pagesIDPowerplacemain") 
+        getPage()==getHHScriptVars("pagesIDMissions")
+    || getPage()==getHHScriptVars("pagesIDContests")
+    || getPage()==getHHScriptVars("pagesIDPowerplacemain")
     || getPage()==getHHScriptVars("pagesIDDailyGoals")
     )
     {
