@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.31.2
+// @version      5.32.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3199,6 +3199,56 @@ var getSalary = function () {
     }
 };
 
+function getGirlsList() {
+    let girlsDataList = getHHVars("GirlSalaryManager.girlsMap");
+    const isGirlMap = girlsDataList!==null;
+    if (!isGirlMap) { girlsDataList = getHHVars("girlsDataList"); }
+
+    let keys = Object.keys(girlsDataList);
+
+    var girlList = new Map()
+    for (let j = 0, l = keys.length; j < l; j++){
+        let key = parseInt(keys[j], 10);
+        let girlData = {gId: key, shards: 100}
+        girlList.set(key, girlData);
+    }
+    return girlList;
+}
+
+function getTrollWithGirls(){
+    const girlDictionary = getGirlsList();
+    const trollGirlsID = getHHScriptVars("trollGirlsID");
+    const trollWithGirls = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []];
+
+    if (girlDictionary) {
+        for (var tIdx = 0; tIdx < trollGirlsID.length; tIdx++) {
+            for (var pIdx = 0; pIdx < trollGirlsID[tIdx].length; pIdx++) {
+                trollWithGirls[tIdx][pIdx] = false;
+                for (var gIdx = 0; gIdx < trollGirlsID[tIdx][pIdx].length; gIdx++) {
+                    var idGirl = parseInt(trollGirlsID[tIdx][pIdx][gIdx], 10);
+                    if (idGirl == 0) {
+                        trollWithGirls[tIdx][pIdx] = false;
+                    }
+                    else if (girlDictionary.get(idGirl) == undefined) {
+                        trollWithGirls[tIdx][pIdx] = true;
+                    }
+                    else {
+                        if (girlDictionary.get(idGirl).shards == 100 && trollWithGirls[tIdx][pIdx] == false) {
+                            trollWithGirls[tIdx][pIdx] = false;
+                        }
+                        else {
+                            trollWithGirls[tIdx][pIdx] = true;
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+    // const trollWithGirls = isJSON(getStoredValue("HHAuto_Temp_trollWithGirls"))?JSON.parse(getStoredValue("HHAuto_Temp_trollWithGirls")):[];
+    return trollWithGirls;
+}
+
 var doStatUpgrades=function()
 {
     //Stats?
@@ -3489,6 +3539,14 @@ var doBossBattle = function()
         }
     }
 
+    let trollWithGirls = isJSON(getStoredValue("HHAuto_Temp_trollWithGirls"))?JSON.parse(getStoredValue("HHAuto_Temp_trollWithGirls")):[];
+    let autoTrollSelectedIndex = getStoredValue("HHAuto_Setting_autoTrollSelectedIndex");
+    if(autoTrollSelectedIndex === undefined || isNaN(autoTrollSelectedIndex)) {
+        autoTrollSelectedIndex -1
+    }else {
+        autoTrollSelectedIndex = Number(autoTrollSelectedIndex);
+    }
+
     var TTF;
     if (getStoredValue("HHAuto_Setting_plusEvent") ==="true" && !checkTimer("eventGoing") && getStoredValue("HHAuto_Temp_eventGirl") !== undefined && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic==="false")
     {
@@ -3500,9 +3558,34 @@ var doBossBattle = function()
         TTF=JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).troll_id;
         logHHAuto("Mythic Event troll fight");
     }
-    else if(getStoredValue("HHAuto_Setting_autoTrollSelectedIndex") !== undefined && !isNaN(getStoredValue("HHAuto_Setting_autoTrollSelectedIndex")) && getStoredValue("HHAuto_Setting_autoTrollSelectedIndex") !== "0")
+    else if (autoTrollSelectedIndex === 98 || autoTrollSelectedIndex === 99) {
+        if (trollWithGirls === undefined || trollWithGirls.length === 0) {
+            logHHAuto("No troll with girls from storage, parsing game info ...");
+            trollWithGirls = getTrollWithGirls();
+            setStoredValue("HHAuto_Temp_trollWithGirls", JSON.stringify(trollWithGirls));
+        }
+
+        if (trollWithGirls !== undefined && trollWithGirls.length > 0) {
+            if(autoTrollSelectedIndex === 98) {
+                TTF = trollWithGirls.findIndex(troll => troll.find(trollTier => trollTier === true)) + 1;
+            }
+            else if(autoTrollSelectedIndex === 99) {
+                TTF = trollWithGirls.findLastIndex(troll => troll.find(trollTier => trollTier === true)) + 1;
+                if(TTF > getHHVars('Hero.infos.questing.id_world')-1) {
+                    TTF=getHHVars('Hero.infos.questing.id_world')-1;
+                }
+            }
+        } else if(getPage()!==getHHScriptVars("pagesIDHome")) {
+            logHHAuto("Can't get troll with girls, going to home page to get girl list.");
+            gotoPage(getHHScriptVars("pagesIDHome"));
+        } else {
+            logHHAuto("Can't get troll with girls, going to last troll.");
+            TTF=getHHVars('Hero.infos.questing.id_world')-1;
+        }
+    }
+    else if(autoTrollSelectedIndex > 0 && autoTrollSelectedIndex < 98)
     {
-        TTF=getStoredValue("HHAuto_Setting_autoTrollSelectedIndex");
+        TTF=autoTrollSelectedIndex;
         logHHAuto("Custom troll fight.");
     }
     else
@@ -10545,6 +10628,25 @@ HHEnvVariables["global"].trollzList =  ["Latest",
                                         "WereBunny Police",
                                         "Auga"];
 
+HHEnvVariables["global"].trollGirlsID = [
+    [['8', '9', '10'], ['7270263'], ['979916751']],
+    [['14', '13', '12'], ['318292466'], ['936580004']],
+    [['19', '16', '18'], ['610468472'], ['54950499']],
+    [['29', '28', '26'], ['4749652'], ['345655744']],
+    [['39', '40', '41'], ['267784162'], ['763020698']],
+    [['64', '63', '31'], ['406004250'], ['864899873']],
+    [['85', '86', '84'], ['267120960'], ['536361248']],
+    [['114', '115', '116'], ['379441499'], ['447396000']],
+    [['1247315', '4649579', '7968301'], ['46227677'], ['933487713']],
+    [['1379661', '4479579', '1800186'], ['985085118'], ['339765042']],
+    [['24316446', '219651566', '501847856'], ['383709663'], ['90685795']],
+    [['225365882', '478693885', '231765083'], ['155415482'], ['769649470']],
+    [['86962133', '243793871', '284483399'], [0], [0]],
+    [['612527302', '167231135', '560979916', '184523411', '549524850', '784911160'], [0], [0]],
+    [['164866290', '696124016', '841591253'], [0], [0]],
+    [['344730128', '735302216', '851893423'], [0], [0]],
+];
+
 HHEnvVariables["global"].leaguesList = ["Wanker I",
                                         "Wanker II",
                                         "Wanker III",
@@ -10816,6 +10918,18 @@ HHEnvVariables["HH_test"].isEnabledFreeBundles = false;// to remove if bundles a
                                           'Pomelo',
                                           'Alexa Sl\'Thor'];
 });
+["CH_prod","NCH_prod"].forEach((element) => {
+    HHEnvVariables[element].trollGirlsID = [
+        [['830009523', '907801218', '943323021'], [0], [0]],
+        [['271746999', '303805209', '701946373'], [0], [0]],
+        [['743748788', '977228200', '943323021'], [0], [0]],
+        [['140401381', '232860230', '514994766'], [0], [0]],
+        [['623293037', '764791769', '801271903'], [0], [0]],
+        [['921365371', '942523553', '973271744'], [0], [0]],
+        [['364639341', '879781833', '895546748'], [0], [0]],
+        [['148877065', '218927643', '340369336'], [0], [0]],
+    ];
+});
 HHEnvVariables["SH_prod"].isEnabledSideQuest = false;// to remove when SideQuest arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPowerPlaces = false;// to remove when PoP arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledMythicPachinko = false;// to remove when Mythic Pachinko arrives in hornyheroes
@@ -10849,6 +10963,19 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in pornstar
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in pornstar
 });
+["PH_prod","NPH_prod"].forEach((element) => {
+    HHEnvVariables[element].trollGirlsID = [
+        [['261345306', '795788039', '973280579'], [0], [0]],
+        [['482529771', '658322339', '833308213'], [0], [0]],
+        [['117837840', '160370794', '306287449', '828011942'], [0], [0]],
+        [['564593641', '719705773', '934421949'], [0], [0]],
+        [['270611414', '464811282', '781232070'], [0], [0]],
+        [['219241809', '380385497', '879198752'], [0], [0]],
+        [['165066536', '734325005', '805020628'], [0], [0]],
+        [['191661045', '369105612', '665836932'], [0], [0]],
+        [['169356639', '383702874', '943667167'], [0], [0]],
+    ];
+});
 
 ["TPH_prod","NTPH_prod"].forEach((element) => {
     HHEnvVariables[element].trollzList = ['Latest',
@@ -10859,6 +10986,12 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
     HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in transpornstar
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in transpornstar
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in transpornstar
+});
+["TPH_prod","NTPH_prod"].forEach((element) => {
+    HHEnvVariables[element].trollGirlsID = [
+        [['171883542', '229180984', '771348244'], [0], [0]],
+        [['484962893', '879574564', '910924260'], [0], [0]],
+    ];
 });
 
 const HC = 1;
@@ -10953,6 +11086,8 @@ HHAuto_ToolTips.en.autoTrollBattle = { version: "5.6.24", elementText: "Enable",
 HHAuto_ToolTips.en.autoTrollSelector = { version: "5.6.24", elementText: "Troll selector", tooltip: "Select troll to be fought."};
 HHAuto_ToolTips.en.autoTrollThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "(Integer 0 to 19)<br>Minimum troll fight to keep"};
 HHAuto_ToolTips.en.eventTrollOrder = { version: "5.6.38", elementText: "Event Troll Order", tooltip: "(values separated by ;)<br>Allow to select in which order event troll are automatically battled<br>1 : Dark Lord<br>2 : Ninja Spy<br>3 : Gruntt<br>4 : Edwarda<br>5 : Donatien<br>6 : Sylvanus<br>7 : Bremen<br>8 : Finalmecia<br>9 : Fredy Sih Roko<br>10 : Karole<br>11 : Jackson's Crew<br>12 : Pandora Witch<br>13 : Nike<br>14 : Sake<br>15 : WereBunny Police"};
+HHAuto_ToolTips.en.firstTrollWithGirls = { version: "5.32.0", elementText: "First troll with girl"};
+HHAuto_ToolTips.en.lastTrollWithGirls = { version: "5.32.0", elementText: "Last troll with girl"};
 HHAuto_ToolTips.en.autoChampsForceStartEventGirl = { version: "5.6.98", elementText: "Event force", tooltip: "if enabled, will fight for event girl champion even if not started. Champions will need to be activated and champions to be in the filter."};
 HHAuto_ToolTips.en.plusEvent = { version: "5.6.24", elementText: "+Event", tooltip: "If enabled : ignore selected troll during event to battle event"};
 HHAuto_ToolTips.en.plusEventMythic = { version: "5.6.24", elementText: "+Mythic Event", tooltip: "Enable grabbing girls for mythic event, should only play them when shards are available, Mythic girl troll will be priorized over Event Troll."};
@@ -11187,6 +11322,8 @@ HHAuto_ToolTips.fr.autoTrollBattle = { version: "5.6.24", elementText: "Activer"
 HHAuto_ToolTips.fr.autoTrollSelector = { version: "5.6.24", elementText: "Sélection troll", tooltip: "Sélection du troll à combattre"};
 HHAuto_ToolTips.fr.autoTrollThreshold = { version: "5.6.24", elementText: "Réserve", tooltip: "Points de combat de trolls (poings) minimum à conserver"};
 HHAuto_ToolTips.fr.eventTrollOrder = { version: "5.6.24", elementText: "Ordre Trolls d'événement", tooltip: "Permet de sélectionner l'ordre dans lequel les trolls d'événements sont automatiquement combattus."};
+HHAuto_ToolTips.fr.firstTrollWithGirls = { version: "5.32.0", elementText: "Premier troll avec une fille"};
+HHAuto_ToolTips.fr.lastTrollWithGirls = { version: "5.32.0", elementText: "Dernier troll avec une fille"};
 HHAuto_ToolTips.fr.plusEvent = { version: "5.6.24", elementText: "+Evénmt.", tooltip: "Si activé : ignore le troll sélectionné et combat les trolls d'événement s'il y a une fille à gagner."};
 HHAuto_ToolTips.fr.plusEventMythic = { version: "5.6.24", elementText: "+Evénmt. mythique", tooltip: "Si activé : ignorer le troll sélectionné et combat le troll d'événement mythique s'il y a une fille à gagner et des fragments disponibles."};
 HHAuto_ToolTips.fr.autoSeason = { version: "5.6.24", elementText: "Activer", tooltip: "Si activé : combat automatique de saison (Adversaire sélectionné avec PowerCalc)."};
@@ -12078,10 +12215,10 @@ HHStoredVars.HHAuto_Setting_autoTrollSelectedIndex =
     valueType:"Small Integer",
     getMenu:true,
     setMenu:true,
-    menuType:"selectedIndex",
+    menuType:"value",
     kobanUsing:false,
     customMenuID:"autoTrollSelector",
-    isValid:/^[0-9]|1[0-5]$/
+    isValid:/^[0-9]|1[0-5]|98|99$/
 };
 HHStoredVars.HHAuto_Setting_autoTrollThreshold =
     {
@@ -12895,6 +13032,11 @@ HHStoredVars.HHAuto_Temp_autoChampsEventGirls =
     storage:"sessionStorage",
     HHType:"Temp"
     //isValid:/^\[({"girl_id":"(\d)+","champ_id":"(\d)+","girl_shards":"(\d)+","girl_name":"([^"])+","event_id":"([^"])+"},?)+\]$/
+};
+HHStoredVars.HHAuto_Temp_trollWithGirls =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
 };
 HHStoredVars.HHAuto_Temp_fought =
     {
@@ -13803,6 +13945,16 @@ var start = function () {
         option.text = Trollz[i];
         trollOptions.add(option);
     };
+
+    var optionFWG = document.createElement("option");
+    optionFWG.value = 98;
+    optionFWG.text = getTextForUI("firstTrollWithGirls","elementText");
+    trollOptions.add(optionFWG);
+
+    var optionLWG = document.createElement("option");
+    optionLWG.value = 99;
+    optionLWG.text = getTextForUI("lastTrollWithGirls","elementText");
+    trollOptions.add(optionLWG);
 
     // Add league options
     var leaguesOptions = document.getElementById("autoLeaguesSelector");
