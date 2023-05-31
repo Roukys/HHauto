@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.31.1
+// @version      5.31.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -9941,51 +9941,60 @@ function checkClubStatus()
 function updateInputPatternBasedOnMonslyCard()
 {
     try {
-        const maxRegenFight = getHHVars('Hero.energies.fight.max_regen_amount');
-        const maxRegenKiss = getHHVars('Hero.energies.kiss.max_regen_amount');
-        const maxRegenQuest = getHHVars('Hero.energies.quest.max_regen_amount');
-        const maxRegenLeague = getHHVars('Hero.energies.challenge.max_regen_amount');
-        const maxRegenPantheon = getHHVars('Hero.energies.worship.max_regen_amount');
-
-        if(maxRegenFight && maxRegenFight > 20) {
-            // 20 - 30 - 40 - 50 - 60
-            const lastAllowedTenth = (maxRegenFight / 10) - 1;
-            HHAuto_inputPattern.autoTrollThreshold = "[1-"+lastAllowedTenth+"]?[0-9]";
-        }
-        if(maxRegenKiss && maxRegenKiss > 10) {
-            // 10 - 20 - 30 - 40 - 50
-            const lastAllowedTenth = (maxRegenKiss / 10) - 1;
-            HHAuto_inputPattern.autoSeasonThreshold = "[1-"+lastAllowedTenth+"]?[0-9]";
-        }
-        if(maxRegenQuest && maxRegenQuest > 100) {
-            // 100 - 150 - 200 - 250 - 300
-            if(maxRegenQuest === 200 || maxRegenQuest === 300) {
-                const lastAllowedHundred = (Hero.energies.kiss.max_regen_amount / 100) - 1;
-                HHAuto_inputPattern.autoQuestThreshold = "[1-"+lastAllowedHundred+"][0-9][0-9]|[1-9]?[0-9]";
-            } else if(maxRegenQuest === 250 ){
-                HHAuto_inputPattern.autoQuestThreshold = "2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]";
-            } else {
-                HHAuto_inputPattern.autoQuestThreshold = "1[0-4][0-9]|[1-9]?[0-9]";
+        if(getHHScriptVars('isEnabledTrollBattle',false)) {
+            const maxRegenFight = getHHVars('Hero.energies.fight.max_regen_amount');
+            if(maxRegenFight && maxRegenFight > 20) {
+                // 20 - 30 - 40 - 50 - 60
+                const lastAllowedTenth = (maxRegenFight / 10) - 1;
+                HHAuto_inputPattern.autoTrollThreshold = "[1-"+lastAllowedTenth+"]?[0-9]";
             }
         }
-        if(maxRegenLeague && maxRegenLeague > 15) {
-            // 15 - 18 - 23 - 26 - 30
-            switch (maxRegenLeague)
-            {
-                case 18 : HHAuto_inputPattern.autoLeaguesThreshold = "1[0-7]|[0-9]"; break;
-                case 23 : HHAuto_inputPattern.autoLeaguesThreshold = "2[0-2]|1[0-9]|[0-9]"; break;
-                case 26 : HHAuto_inputPattern.autoLeaguesThreshold = "2[0-5]|1[0-9]|[0-9]"; break;
-                case 30 : HHAuto_inputPattern.autoLeaguesThreshold = "2[0-9]|1[0-9]|[0-9]"; break;
+        if(getHHScriptVars('isEnabledSeason',false)) {
+            const maxRegenKiss = getHHVars('Hero.energies.kiss.max_regen_amount');
+            if(maxRegenKiss && maxRegenKiss > 10) {
+                // 10 - 20 - 30 - 40 - 50
+                const lastAllowedTenth = (maxRegenKiss / 10) - 1;
+                HHAuto_inputPattern.autoSeasonThreshold = "[1-"+lastAllowedTenth+"]?[0-9]";
             }
         }
-        if(maxRegenPantheon && maxRegenPantheon > 10) {
-            // 10 - 15 - 20 - 25 - 30
-            switch (maxRegenPantheon)
-            {
-                case 15 : HHAuto_inputPattern.autoPantheonThreshold = "1[0-4]|[0-9]"; break;
-                case 20 : HHAuto_inputPattern.autoPantheonThreshold = "1[0-9]|[0-9]"; break;
-                case 25 : HHAuto_inputPattern.autoPantheonThreshold = "2[0-4]|1[0-9]|[0-9]"; break;
-                case 30 : HHAuto_inputPattern.autoPantheonThreshold = "[1-2][0-9]|[0-9]"; break;
+        if(getHHScriptVars('isEnabledQuest',false)) {
+            const maxRegenQuest = getHHVars('Hero.energies.quest.max_regen_amount');
+            if(maxRegenQuest && maxRegenQuest > 100) {
+                // 100 - 150 - 200 - 250 - 300
+                if(maxRegenQuest === 200 || maxRegenQuest === 300) {
+                    const lastAllowedHundred = (Hero.energies.kiss.max_regen_amount / 100) - 1;
+                    HHAuto_inputPattern.autoQuestThreshold = "[1-"+lastAllowedHundred+"][0-9][0-9]|[1-9]?[0-9]";
+                } else if(maxRegenQuest === 250 ){
+                    HHAuto_inputPattern.autoQuestThreshold = "2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]";
+                } else {
+                    HHAuto_inputPattern.autoQuestThreshold = "1[0-4][0-9]|[1-9]?[0-9]";
+                }
+            }
+        }
+        if(getHHScriptVars('isEnabledLeagues',false)) {
+            const maxRegenLeague = getHHVars('Hero.energies.challenge.max_regen_amount');
+            if(maxRegenLeague && maxRegenLeague > 15) {
+                // 15 - 18 - 23 - 26 - 30
+                switch (maxRegenLeague)
+                {
+                    case 18 : HHAuto_inputPattern.autoLeaguesThreshold = "1[0-7]|[0-9]"; break;
+                    case 23 : HHAuto_inputPattern.autoLeaguesThreshold = "2[0-2]|1[0-9]|[0-9]"; break;
+                    case 26 : HHAuto_inputPattern.autoLeaguesThreshold = "2[0-5]|1[0-9]|[0-9]"; break;
+                    case 30 : HHAuto_inputPattern.autoLeaguesThreshold = "2[0-9]|1[0-9]|[0-9]"; break;
+                }
+            }
+        }
+        if(getHHScriptVars('isEnabledPantheon',false)) {
+            const maxRegenPantheon = getHHVars('Hero.energies.worship.max_regen_amount');
+            if(maxRegenPantheon && maxRegenPantheon > 10) {
+                // 10 - 15 - 20 - 25 - 30
+                switch (maxRegenPantheon)
+                {
+                    case 15 : HHAuto_inputPattern.autoPantheonThreshold = "1[0-4]|[0-9]"; break;
+                    case 20 : HHAuto_inputPattern.autoPantheonThreshold = "1[0-9]|[0-9]"; break;
+                    case 25 : HHAuto_inputPattern.autoPantheonThreshold = "2[0-4]|1[0-9]|[0-9]"; break;
+                    case 30 : HHAuto_inputPattern.autoPantheonThreshold = "[1-2][0-9]|[0-9]"; break;
+                }
             }
         }
     } catch(e) {
