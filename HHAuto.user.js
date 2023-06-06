@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.32.1
+// @version      5.32.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -10977,8 +10977,9 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
 
 ["TPH_prod","NTPH_prod"].forEach((element) => {
     HHEnvVariables[element].trollzList = ['Latest',
-                                          'Domino Presley',
-                                          'Emma Rose'];
+                                          'Ariel Demure',
+                                          'Emma Rose',
+                                          'Natalie Stone'];
     HHEnvVariables[element].isEnabledSideQuest = false;// to remove when SideQuest arrives in transpornstar
     HHEnvVariables[element].isEnabledPowerPlaces = false;// to remove when PoP arrives in transpornstar
     HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in transpornstar
