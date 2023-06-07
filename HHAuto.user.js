@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.33.0
+// @version      5.34.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1779,29 +1779,24 @@ function modulePachinko()
 
     function buildPachinkoSelectPopUp()
     {
-        let PachinkoMenu =   '<div style="padding:50px; display:flex;flex-direction:column">'
+        let PachinkoMenu =   '<div style="padding:50px; display:flex;flex-direction:column;font-size:15px;" class="HHAutoScriptMenu">'
         +    '<div style="display:flex;flex-direction:row">'
         +     '<div style="padding:10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoSelector","tooltip")+'</span><select id="PachinkoSelector"></select></div>'
         +     '<div style="padding:10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoLeft","tooltip")+'</span><span id="PachinkoLeft"></span></div>'
         +    '</div>'
-        +    '<div style="display:flex;flex-direction:row;align-items:center;">'
-        +     '<div style="padding:10px"class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("Launch","tooltip")+'</span><label class="myButton" id="PachinkoPlayX">'+getTextForUI("Launch","elementText")+'</label></div>'
+        +    '<div class="rowLine">'
+        +       hhMenuSwitch('PachinkoFillOrbs')
+        +       hhMenuSwitch('PachinkoByPassNoGirls')
+        +    '</div>'
+        +    '<div class="rowLine">'
         +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoXTimes","tooltip")+'</span><input id="PachinkoXTimes" style="width:50px;height:20px" required pattern="'+HHAuto_inputPattern.menuExpLevel+'" type="text" value="1"></div>'
-        +     '<div>'
-        +      '<div style="display:flex;flex-direction:row;align-items: center;padding-bottom:8px">'
-        +       '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoFillOrbs","tooltip")+'</span><input id="PachinkoFillOrbs" name="PachinkoFillOrbs" type="checkbox"></div>'
-        +       '<div><label for="PachinkoFillOrbs">'+getTextForUI("PachinkoFillOrbs","elementText")+'</label></div>'
-        +      '</div>'
-        +      '<div style="display:flex;flex-direction:row;align-items: center;">'
-        +       '<div class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoByPassNoGirls","tooltip")+'</span><input id="PachinkoByPassNoGirls" name="PachinkoByPassNoGirls" type="checkbox"></div>'
-        +       '<div><label for="PachinkoByPassNoGirls">'+getTextForUI("PachinkoByPassNoGirls","elementText")+'</label></div>'
-        +      '</div>'
-        +     '</div>'
+        +    '</div>'
+        +    '<div class="rowLine">'
+        +     '<div style="padding:10px;width:50%" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("Launch","tooltip")+'</span><label class="myButton" id="PachinkoPlayX" style="font-size:15px; width:100%;text-align:center">'+getTextForUI("Launch","elementText")+'</label></div>'
         +    '</div>'
         +   '<p style="color: red;" id="PachinkoError"></p>'
         +  '</div>'
         fillHHPopUp("PachinkoMenu",getTextForUI("PachinkoButton","elementText"), PachinkoMenu);
-
 
         function updateOrbsNumber(orbsLeft){
             let fillAllOrbs = document.getElementById("PachinkoFillOrbs").checked;
@@ -13362,6 +13357,73 @@ function migrateHHVars()
     }
 }
 
+function hhButton(textKeyId, buttonId){
+    return `<div class="tooltipHH">`
+                +`<span class="tooltipHHtext">${getTextForUI(textKeyId,"tooltip")}</span>`
+                +`<label class="myButton" id="${buttonId}">${getTextForUI(textKeyId,"elementText")}</label>`
+            +`</div>`;
+}
+
+function hhMenuSwitch(textKeyAndInputId, isEnabledDivId, isKobanSwitch=false){
+    return `<div ${isEnabledDivId ? 'id="'+isEnabledDivId+'"' : '' } class="labelAndButton">`
+        +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
+        +`<div class="tooltipHH">`
+            +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
+            +`<label class="switch"><input id="${textKeyAndInputId}" type="checkbox"><span class="slider round ${isKobanSwitch ? 'kobans' : ''}"></span></label>`
+        +`</div>`
+    +`</div>`;
+}
+
+function hhMenuSwitchWithImg(textKeyAndInputId, imgPath, isKobanSwitch=false) {
+    return `<div class="labelAndButton">`
+        +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
+        +`<div class="imgAndObjectRow">`
+            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/${imgPath}" />`
+            +`<div style="padding-left:5px">`
+                +`<div class="tooltipHH">`
+                    +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
+                    +`<label class="switch"><input id="${textKeyAndInputId}" type="checkbox"><span class="slider round ${isKobanSwitch ? 'kobans' : ''}"></span></label>`
+                +`</div>`
+            +`</div>`
+        +`</div>`
+    +`</div>`;
+}
+
+function hhMenuSelect(textKeyAndInputId) {
+    return `<div class="labelAndButton">`
+        +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
+        +`<div class="tooltipHH">`
+            +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
+            +`<select id="${textKeyAndInputId}"></select>`
+        +`</div>`
+    +`</div>`;
+}
+
+function hhMenuInput(textKeyAndInputId, inputPattern, inputStyle='', inputClass='') {
+    return `<div class="labelAndButton">`
+        +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
+        +`<div class="tooltipHH">`
+            +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
+            +`<input id="${textKeyAndInputId}" class="${inputClass}" style="${inputStyle}" required pattern="${inputPattern}" type="text">`
+        +`</div>`
+    +`</div>`;
+}
+
+function hhMenuInputWithImg(textKeyAndInputId, inputPattern, inputStyle, imgPath) {
+    return `<div class="labelAndButton">`
+        +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
+        +`<div class="imgAndObjectRow">`
+            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/${imgPath}" />`
+            +`<div style="padding-left:5px">`
+                +`<div class="tooltipHH">`
+                    +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
+                    +`<input style="${inputStyle}" id="${textKeyAndInputId}" required pattern="${inputPattern}" type="text">`
+                +`</div>`
+            +`</div>`
+        +`</div>`
+    +`</div>`;
+}
+
 let mouseBusy = false;
 let mouseBusyTimeout = 0;
 function makeMouseBusy(ms) {
@@ -13402,73 +13464,6 @@ var start = function () {
         document.onscroll = function() { makeMouseBusy(mouseTimeoutVal); };
         document.onmouseup = function() { makeMouseBusy(mouseTimeoutVal); };
     }
-
-    var hhButton = function(textKeyId, buttonId){
-        return `<div class="tooltipHH">`
-                    +`<span class="tooltipHHtext">${getTextForUI(textKeyId,"tooltip")}</span>`
-                    +`<label class="myButton" id="${buttonId}">${getTextForUI(textKeyId,"elementText")}</label>`
-                +`</div>`;
-    };
-
-    var hhMenuSwitch = function(textKeyAndInputId, isEnabledDivId, isKobanSwitch=false){
-        return `<div ${isEnabledDivId ? 'id="'+isEnabledDivId+'"' : '' } class="labelAndButton">`
-            +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
-            +`<div class="tooltipHH">`
-                +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
-                +`<label class="switch"><input id="${textKeyAndInputId}" type="checkbox"><span class="slider round ${isKobanSwitch ? 'kobans' : ''}"></span></label>`
-            +`</div>`
-        +`</div>`;
-    };
-
-    var hhMenuSwitchWithImg = function(textKeyAndInputId, imgPath, isKobanSwitch=false) {
-        return `<div class="labelAndButton">`
-            +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
-            +`<div class="imgAndObjectRow">`
-                +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/${imgPath}" />`
-                +`<div style="padding-left:5px">`
-                    +`<div class="tooltipHH">`
-                        +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
-                        +`<label class="switch"><input id="${textKeyAndInputId}" type="checkbox"><span class="slider round ${isKobanSwitch ? 'kobans' : ''}"></span></label>`
-                    +`</div>`
-                +`</div>`
-            +`</div>`
-        +`</div>`;
-    };
-
-    var hhMenuSelect = function(textKeyAndInputId) {
-        return `<div class="labelAndButton">`
-            +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
-            +`<div class="tooltipHH">`
-                +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
-                +`<select id="${textKeyAndInputId}"></select>`
-            +`</div>`
-        +`</div>`;
-    };
-
-    var hhMenuInput = function(textKeyAndInputId, inputPattern, inputStyle='', inputClass='') {
-        return `<div class="labelAndButton">`
-            +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
-            +`<div class="tooltipHH">`
-                +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
-                +`<input id="${textKeyAndInputId}" class="${inputClass}" style="${inputStyle}" required pattern="${inputPattern}" type="text">`
-            +`</div>`
-        +`</div>`;
-    };
-
-    var hhMenuInputWithImg = function(textKeyAndInputId, inputPattern, inputStyle, imgPath) {
-        return `<div class="labelAndButton">`
-            +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
-            +`<div class="imgAndObjectRow">`
-                +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/${imgPath}" />`
-                +`<div style="padding-left:5px">`
-                    +`<div class="tooltipHH">`
-                        +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
-                        +`<input style="${inputStyle}" id="${textKeyAndInputId}" required pattern="${inputPattern}" type="text">`
-                    +`</div>`
-                +`</div>`
-            +`</div>`
-        +`</div>`;
-    };
 
     // Add UI buttons.
     let sMenu =`<div id="sMenu" class="HHAutoScriptMenu" style="display: none;">`
@@ -14308,7 +14303,17 @@ function fillHHPopUp(inClass,inTitle, inContent)
 
 function createHHPopUp()
 {
-    GM_addStyle('#HHAutoPopupGlobal.HHAutoOverlay { overflow: auto;  z-index:1000;   position: fixed;   top: 0;   bottom: 0;   left: 0;   right: 0;   background: rgba(0, 0, 0, 0.7);   transition: opacity 500ms;     display: flex;   align-items: center; }  #HHAutoPopupGlobalPopup {   margin: auto;   padding: 20px;   background: #fff;   border-radius: 5px;   position: relative;   transition: all 5s ease-in-out; }  #HHAutoPopupGlobalTitle {   margin-top: 0;   color: #333;   font-size: larger; } #HHAutoPopupGlobalClose {   position: absolute;   top: 20px;   right: 30px;   transition: all 200ms;   font-size: 30px;   font-weight: bold;   text-decoration: none;   color: #333; } #HHAutoPopupGlobalClose:hover {   color: #06D85F; } #HHAutoPopupGlobalContent {   max-height: 30%;   overflow: auto;   color: #333;   font-size: x-small; }')
+    GM_addStyle('#HHAutoPopupGlobal.HHAutoOverlay { overflow: auto;  z-index:1000;   position: fixed;   top: 0;   bottom: 0;   left: 0;   right: 0;   background: rgba(0, 0, 0, 0.7);   transition: opacity 500ms;     display: flex;   align-items: center; }  '
+    + '#HHAutoPopupGlobalPopup {   margin: auto;   padding: 20px;   background: #fff;   border-radius: 5px;   position: relative;   transition: all 5s ease-in-out; }  '
+    + '#HHAutoPopupGlobalTitle {   margin-top: 0;   color: #333;   font-size: larger; } '
+    + '#HHAutoPopupGlobalClose {   position: absolute;   top: 0;   right: 30px;   transition: all 200ms;   font-size: 50px;   font-weight: bold;   text-decoration: none;   color: #333; } '
+    + '#HHAutoPopupGlobalClose:hover {   color: #06D85F; } '
+    + '#HHAutoPopupGlobalContent .HHAutoScriptMenu .rowLine { display:flex;flex-direction:row;align-items:center;column-gap:20px;justify-content: center; } '
+    + '#HHAutoPopupGlobalContent {   max-height: 30%;   overflow: auto;   color: #333;   font-size: x-small; }'
+    + '#HHAutoPopupGlobalContent .HHAutoScriptMenu .switch {  width: 55px; height: 32px; }'
+    + '#HHAutoPopupGlobalContent .HHAutoScriptMenu input:checked + .slider:before { -webkit-transform: translateX(20px); -ms-transform: translateX(20px); transform: translateX(20px); } '
+    + '#HHAutoPopupGlobalContent .HHAutoScriptMenu .slider.round::before {  width: 22px; height: 22px; bottom: 5px; }');
+
     let popUp = '<div id="HHAutoPopupGlobal" class="HHAutoOverlay">'
     +' <div id="HHAutoPopupGlobalPopup">'
     +'   <h2 id="HHAutoPopupGlobalTitle">Here i am</h2>'
