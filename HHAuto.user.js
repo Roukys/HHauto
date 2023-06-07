@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.32.2
+// @version      5.33.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -219,8 +219,9 @@ function getSecondsLeftBeforeNewCompetition()
     return diffResetTime;
 }
 
-function canCollectCompetitionActive(){
-    return getSecondsLeftBeforeNewCompetition() > 35*60 && getSecondsLeftBeforeNewCompetition() < (24*3600-5*60);
+function canCollectCompetitionActive()
+{
+    return getStoredValue("HHAuto_Setting_waitforContest") !== "true" || getSecondsLeftBeforeNewCompetition() > 35*60 && getSecondsLeftBeforeNewCompetition() < (24*3600-5*60);
 }
 
 function debugDate(sec_num){
@@ -8022,7 +8023,7 @@ var autoLoop = function ()
             }
         }
 
-        if (busy==false && getHHScriptVars("isEnabledChamps",false) && getHHVars('Hero.energies.quest.amount')>=60 && getStoredValue("HHAuto_Setting_autoChampsUseEne") ==="true" && getStoredValue("HHAuto_Temp_autoLoop") === "true")
+        if (busy==false && getHHScriptVars("isEnabledChamps",false) && getHHVars('Hero.energies.quest.amount')>=60 && getStoredValue("HHAuto_Setting_autoChampsUseEne") ==="true" && getStoredValue("HHAuto_Temp_autoLoop") === "true" && canCollectCompetitionActive())
         {
             function buyTicket()
             {
@@ -11055,6 +11056,7 @@ HHAuto_ToolTips.en.saveConfig = { version: "5.6.24", elementText: "Save Config",
 HHAuto_ToolTips.en.loadConfig = { version: "5.6.24", elementText: "Load Config", tooltip: "Allow to load configuration."};
 HHAuto_ToolTips.en.globalTitle = { version: "5.6.24", elementText: "Global options"};
 HHAuto_ToolTips.en.master = { version: "5.6.24", elementText: "Master switch", tooltip: "On/off switch for full script"};
+HHAuto_ToolTips.en.waitforContest = { version: "5.33.0", elementText: "Wait for contest", tooltip: "If enabled, most of activities using ressources are pending when not contest is active"};
 HHAuto_ToolTips.en.settPerTab = { version: "5.6.24", elementText: "Settings per tab", tooltip: "Allow the settings to be set for this tab only"};
 HHAuto_ToolTips.en.paranoia = { version: "5.6.24", elementText: "Paranoia mode", tooltip: "Allow to simulate sleep, and human user (To be documented further)"};
 HHAuto_ToolTips.en.paranoiaSpendsBefore = { version: "5.6.24", elementText: "Spend points before", tooltip: "On will spend points for options (quest, Troll, Leagues and Season)<br>only if they are enabled<br>and spend points that would be above max limits<br>Ex : you have power for troll at 17, but going 4h45 in paranoia<br>it would mean having 17+10 points (rounded to higher int), thus being above the 20 max<br> it will then spend 8 points to fall back to 19 end of Paranoia, preventing to loose points."};
@@ -12350,6 +12352,17 @@ HHStoredVars.HHAuto_Setting_autoFreeBundlesCollectablesList =
     HHType:"Setting",
     valueType:"Array"
 };
+HHStoredVars.HHAuto_Setting_waitforContest =
+    {
+    default:"true",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_mousePause =
     {
     default:"false",
@@ -13503,6 +13516,7 @@ var start = function () {
                             + hhMenuInput('collectAllTimer', HHAuto_inputPattern.collectAllTimer, 'text-align:center; width:25px')
                         +`</div>`
                         +`<div class="optionsColumn">`
+                            + hhMenuSwitch('waitforContest')
                             + hhMenuSwitch('settPerTab')
                             + hhMenuSwitch('paranoiaSpendsBefore')
                             + hhMenuSwitch('autoFreeBundlesCollect', 'isEnabledFreeBundles')
