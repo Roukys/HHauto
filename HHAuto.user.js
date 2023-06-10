@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.34.2
+// @version      5.34.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -13399,17 +13399,17 @@ function hhMenuSelect(textKeyAndInputId) {
     +`</div>`;
 }
 
-function hhMenuInput(textKeyAndInputId, inputPattern, inputStyle='', inputClass='') {
+function hhMenuInput(textKeyAndInputId, inputPattern, inputStyle='', inputClass='', inputMode='text') {
     return `<div class="labelAndButton">`
         +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
         +`<div class="tooltipHH">`
             +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
-            +`<input id="${textKeyAndInputId}" class="${inputClass}" style="${inputStyle}" required pattern="${inputPattern}" type="text">`
+            +`<input id="${textKeyAndInputId}" class="${inputClass}" style="${inputStyle}" required pattern="${inputPattern}" type="text" inputMode="${inputMode}">`
         +`</div>`
     +`</div>`;
 }
 
-function hhMenuInputWithImg(textKeyAndInputId, inputPattern, inputStyle, imgPath) {
+function hhMenuInputWithImg(textKeyAndInputId, inputPattern, inputStyle, imgPath, inputMode='text') {
     return `<div class="labelAndButton">`
         +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
         +`<div class="imgAndObjectRow">`
@@ -13417,7 +13417,7 @@ function hhMenuInputWithImg(textKeyAndInputId, inputPattern, inputStyle, imgPath
             +`<div style="padding-left:5px">`
                 +`<div class="tooltipHH">`
                     +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
-                    +`<input style="${inputStyle}" id="${textKeyAndInputId}" required pattern="${inputPattern}" type="text">`
+                    +`<input style="${inputStyle}" id="${textKeyAndInputId}" required pattern="${inputPattern}" type="text" inputMode="${inputMode}">`
                 +`</div>`
             +`</div>`
         +`</div>`
@@ -13609,7 +13609,7 @@ var start = function () {
                                 +`<div class="internalOptionsRow">`
                                     + hhMenuSwitchWithImg('autoQuest', 'design/menu/forward.svg')
                                     + hhMenuSwitch('autoSideQuest', 'isEnabledSideQuest')
-                                    + hhMenuInputWithImg('autoQuestThreshold', HHAuto_inputPattern.autoQuestThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_quest.png' )
+                                    + hhMenuInputWithImg('autoQuestThreshold', HHAuto_inputPattern.autoQuestThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_quest.png', 'numeric')
                                 +`</div>`
                             +`</div>`
                         +`</div>`
@@ -13644,7 +13644,7 @@ var start = function () {
                             +`</div>`
                             +`<div class="internalOptionsRow">`
                                 + hhMenuSwitch('autoSeasonPassReds', '', true)
-                                + hhMenuInputWithImg('autoSeasonThreshold', HHAuto_inputPattern.autoSeasonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_kiss.png' )
+                                + hhMenuInputWithImg('autoSeasonThreshold', HHAuto_inputPattern.autoSeasonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_kiss.png', 'numeric' )
                             +`</div>`
                         +`</div>`
                     +`</div>`
@@ -13662,8 +13662,8 @@ var start = function () {
                             +`<div class="internalOptionsRow">`
                                 + hhMenuSelect('autoLeaguesSelector')
                                 + hhMenuSwitch('autoLeaguesAllowWinCurrent')
-                                + hhMenuInputWithImg('autoLeaguesThreshold', HHAuto_inputPattern.autoLeaguesThreshold, 'text-align:center; width:25px', 'pictures/design/league_points.png' )
-                                + hhMenuInput('autoLeaguesSecurityThreshold', HHAuto_inputPattern.autoLeaguesSecurityThreshold, 'text-align:center; width:25px' )
+                                + hhMenuInputWithImg('autoLeaguesThreshold', HHAuto_inputPattern.autoLeaguesThreshold, 'text-align:center; width:25px', 'pictures/design/league_points.png', 'numeric' )
+                                + hhMenuInput('autoLeaguesSecurityThreshold', HHAuto_inputPattern.autoLeaguesSecurityThreshold, 'text-align:center; width:25px', '', 'numeric' )
                             +`</div>`
                         +`</div>`
                     +`</div>`
@@ -13703,7 +13703,7 @@ var start = function () {
                         +`<div class="internalOptionsRow" style="justify-content: space-between">`
                             + hhMenuSwitch('autoTrollBattle')
                             + hhMenuSelect('autoTrollSelector')
-                            + hhMenuInputWithImg('autoTrollThreshold', HHAuto_inputPattern.autoTrollThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png' )
+                            + hhMenuInputWithImg('autoTrollThreshold', HHAuto_inputPattern.autoTrollThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png', 'numeric' )
                         +`</div>`
                         +`<div class="internalOptionsRow">`
                             + hhMenuSwitch('useX10Fights', '', true)
@@ -13717,13 +13717,13 @@ var start = function () {
                             + hhMenuSwitch('plusEvent')
                             + hhMenuInput('eventTrollOrder', HHAuto_inputPattern.eventTrollOrder, 'width:120px')
                             + hhMenuSwitch('buyCombat', '', true)
-                            + hhMenuInput('buyCombTimer', HHAuto_inputPattern.buyCombTimer, 'text-align:center; width:50%')
+                            + hhMenuInput('buyCombTimer', HHAuto_inputPattern.buyCombTimer, 'text-align:center; width:50%', '', 'numeric')
                         +`</div>`
                         +`<div class="internalOptionsRow">`
                             + hhMenuSwitch('plusEventMythic')
                             + hhMenuSwitch('autoTrollMythicByPassParanoia')
                             + hhMenuSwitch('buyMythicCombat', '', true)
-                            + hhMenuInput('buyMythicCombTimer', HHAuto_inputPattern.buyMythicCombTimer, 'text-align:center; width:50%')
+                            + hhMenuInput('buyMythicCombTimer', HHAuto_inputPattern.buyMythicCombTimer, 'text-align:center; width:50%', '', 'numeric')
                         +`</div>`
                     +`</div>`
                 +`</div>`
@@ -13745,11 +13745,11 @@ var start = function () {
                         +`<div id="isEnabledClubChamp" class="internalOptionsRow separator">`
                             + hhMenuSwitch('autoClubChamp')
                             + hhMenuSwitch('autoClubForceStart')
-                            + hhMenuInputWithImg('autoClubChampMax', HHAuto_inputPattern.autoClubChampMax, 'text-align:center; width:45px', 'pictures/design/champion_ticket.png')
+                            + hhMenuInputWithImg('autoClubChampMax', HHAuto_inputPattern.autoClubChampMax, 'text-align:center; width:45px', 'pictures/design/champion_ticket.png', 'numeric')
                             + hhMenuSwitch('showClubButtonInPoa')
                         +`</div>`
                         +`<div class="internalOptionsRow separator">`
-                            + hhMenuInput('autoChampsTeamLoop', HHAuto_inputPattern.autoChampsTeamLoop, 'text-align:center; width:25px')
+                            + hhMenuInput('autoChampsTeamLoop', HHAuto_inputPattern.autoChampsTeamLoop, 'text-align:center; width:25px', '', 'numeric')
                             + hhMenuSwitch('autoChampsTeamKeepSecondLine')
                         +`</div>`
                     +`</div>`
@@ -13762,7 +13762,7 @@ var start = function () {
                     // +`<div class="optionsBox">`
                         +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
                             + hhMenuSwitch('autoPantheon')
-                            + hhMenuInputWithImg('autoPantheonThreshold', HHAuto_inputPattern.autoPantheonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg' )
+                            + hhMenuInputWithImg('autoPantheonThreshold', HHAuto_inputPattern.autoPantheonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg' , 'numeric')
                         +`</div>`
                     // +`</div>`
                 +`</div>`
@@ -13826,7 +13826,7 @@ var start = function () {
                         +`<div class="optionsBox">`
                             +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
                                 + hhMenuSwitch('bossBangEvent')
-                                + hhMenuInput('bossBangMinTeam', HHAuto_inputPattern.bossBangMinTeam, 'text-align:center; width:25px')
+                                + hhMenuInput('bossBangMinTeam', HHAuto_inputPattern.bossBangMinTeam, 'text-align:center; width:25px', '', 'numeric')
                             +`</div>`
                         +`</div>`
                     +`</div>`
