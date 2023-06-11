@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.34.3
+// @version      5.34.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4072,8 +4072,10 @@ function goAndCollectFreeBundles()
 {
     if (getPage() == getHHScriptVars("pagesIDHome"))
     {
-        logHHAuto("setting autoloop to false");
-        setStoredValue("HHAuto_Temp_autoLoop", "false");
+        if(getStoredValue("HHAuto_Setting_autoFreeBundlesCollect") !== "true") {
+            logHHAuto("Error autoFreeBundlesCollect not activated.");
+            return;
+        }
         const plusButton = $("header .currency .reversed_tooltip");
         if(plusButton.length > 0) {
             logHHAuto("click button for popup.");
@@ -4084,63 +4086,81 @@ function goAndCollectFreeBundles()
             logHHAuto("No button for popup.");
             return false;
         }
+        logHHAuto("setting autoloop to false");
+        setStoredValue("HHAuto_Temp_autoLoop", "false");
+        const bundleTabsContainerQuery = "#popups .payments-wrapper .payment-tabs";
+        const bundleTabsListQuery = '.event_bundles, .special_offers, .period_deal';
+        const subTabsQuery= "#popups .payments-wrapper .content-container .subtabs-container .card-container";
+        const freeButtonBundleQuery= "#popups .payments-wrapper .bundle .bundle-offer-price .blue_button_L:enabled[price='0.00']";
 
-        function parseAndCollectFreeBubndles(){
-            let freeButtonBundle= "#popups .payments-wrapper .tab.bundles .purchase_box[method='credit_card'] .blue_button_L:enabled[price='0.00']";
+        function collectFreeBundlesFinished(message, nextFreeBundlesCollectTime) {
+            logHHAuto(message);
+            setTimer('nextFreeBundlesCollectTime', nextFreeBundlesCollectTime);
+            gotoPage(getHHScriptVars("pagesIDHome"));
+            setStoredValue("HHAuto_Temp_autoLoop", "true");
+            logHHAuto("setting autoloop to true");
+        }
 
-            const freeBundlesNumber=$(freeButtonBundle).length;
-            if(getStoredValue("HHAuto_Setting_autoFreeBundlesCollect") === "true" && freeBundlesNumber > 0)
+        function parseAndCollectFreeBundles(){
+
+            const freeBundlesNumber=$(freeButtonBundleQuery).length;
+            if(freeBundlesNumber > 0)
             {
                 logHHAuto("Free Bundles found: " + freeBundlesNumber);
                 let buttonsToCollect = [];
                 for (let currentBundle = 0; currentBundle < freeBundlesNumber ; currentBundle++)
                 {
-                    buttonsToCollect.push($(freeButtonBundle)[currentBundle]);
+                    buttonsToCollect.push($(freeButtonBundleQuery)[currentBundle]);
                 }
 
                 function collectFreeBundle()
                 {
-                    if (buttonsToCollect.length >0)
+                    if (buttonsToCollect.length > 0)
                     {
                         logHHAuto("Collecting bundle n°"+ buttonsToCollect[0].getAttribute('product'));
                         buttonsToCollect[0].click();
                         buttonsToCollect.shift();
-                        setTimeout(collectFreeBundle, randomInterval(300, 500));
-                    }
-                    else
-                    {
-                        logHHAuto("Free bundle collection finished.");
-                        setTimer('nextFreeBundlesCollectTime', getSecondsLeftBeforeEndOfHHDay() + 3600);
-                        gotoPage(getHHScriptVars("pagesIDHome"));
-                        setStoredValue("HHAuto_Temp_autoLoop", "true");
-                        logHHAuto("setting autoloop to true");
+                        setTimer('nextFreeBundlesCollectTime', 15);
                     }
                 }
                 collectFreeBundle();
                 return true;
             } else {
-                setTimer('nextFreeBundlesCollectTime', getSecondsLeftBeforeEndOfHHDay() + 3600);
-                gotoPage(getHHScriptVars("pagesIDHome"));
+                return false;
             }
         }
 
-        function switchToBundleTabs(){
-            const bundleButton = $("#popups .payments-wrapper .payment-tabs .bundles");
-            if(bundleButton.length > 0) {
-                logHHAuto("click button for bundles.");
-                bundleButton[0].click();
-                // Wait tabs
-                setTimeout(parseAndCollectFreeBubndles,randomInterval(800, 1500));
+        function switchToBundleTabs() {
+            const bundleTabs = $(bundleTabsListQuery, $(bundleTabsContainerQuery));
+            if(bundleTabs.length > 0) {
+                let freeBundleFound = false;
+                for(let bundleIndex = 0;bundleIndex < bundleTabs.length && !freeBundleFound;bundleIndex++)
+                {
+                    bundleTabs[bundleIndex].click();
+                    logHHAuto("Looking in tabs '" + $(bundleTabs[bundleIndex]).attr('type') + "'.");
+                    freeBundleFound = parseAndCollectFreeBundles();
+                    if (!freeBundleFound && $(subTabsQuery).length > 0) {
+                        const subTabs = $(subTabsQuery);
+                        logHHAuto("Sub tabs found, switching to next one");
+                        for(let subTabIndex = 1;subTabIndex < subTabs.length && !freeBundleFound;subTabIndex++)
+                        {
+                            subTabs[subTabIndex].click();
+                            logHHAuto("Looking in sub tabs '" + $(subTabs[subTabIndex]).attr('period_deal') + "'.");
+                            freeBundleFound = parseAndCollectFreeBundles();
+                        }
+                    }
+                }
+                if(!freeBundleFound) collectFreeBundlesFinished("Free bundle collection finished.", getSecondsLeftBeforeEndOfHHDay() + 3600);
             }
             else
             {
-                logHHAuto("No bundle tabs in popup.");
+                collectFreeBundlesFinished("No bundle tabs in popup, wait one hour.", 60 * 60);
                 return false;
             }
         }
 
         // Wait popup is opened
-        setTimeout(switchToBundleTabs,randomInterval(1000, 1500));
+        setTimeout(switchToBundleTabs,randomInterval(1400, 1800));
 
         return true;
     }
