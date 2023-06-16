@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.34.4
+// @version      5.34.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3873,14 +3873,14 @@ var doClubChampionStuff=function()
     else if (page==getHHScriptVars("pagesIDClub"))
     {
         logHHAuto('on clubs');
-        let Started = $("div.club_champions_panel tr.personal_highlight").length === 1;
+        let Started = $("div.club-champion-members-challenges .player-row").length === 1;
         let secsToNextTimer = getNextClubChampionTimer();
         let noTimer = secsToNextTimer === -1;
 
         if ((Started || getStoredValue("HHAuto_Setting_autoClubForceStart") === "true") && noTimer)
         {
             let ticketUsed = 0;
-            let ticketsUsedRequest = "div.club_champions_panel tr.personal_highlight td.challenges_count";
+            let ticketsUsedRequest = "div.club-champion-members-challenges .player-row .data-column:nth-of-type(3)";
             if ($(ticketsUsedRequest).length >0)
             {
                 ticketUsed = Number($(ticketsUsedRequest)[0].innerText.replace(/[^0-9]/gi, ''));
