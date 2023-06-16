@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.34.5
+// @version      5.34.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1413,9 +1413,12 @@ function displayPoGRemainingTime()
 
 function moduleClub()
 {
-    $('button.orange_button_L.btn_skip_team_cooldown').css('display', 'none');
-    if (!$('button.orange_button_L.btn_skip_champion_cooldown').length) {
-        $('.challenge_container').css('display', 'block');
+    const onChampTab = $("div.club-champion-members-challenges:visible").length === 1;
+    if(onChampTab) {
+        $('button.orange_button_L.btn_skip_team_cooldown').css('display', 'none');
+        if (!$('button.orange_button_L.btn_skip_champion_cooldown').length) {
+            $('.challenge_container').css('display', 'block');
+        }
     }
 }
 
@@ -3873,6 +3876,12 @@ var doClubChampionStuff=function()
     else if (page==getHHScriptVars("pagesIDClub"))
     {
         logHHAuto('on clubs');
+        const onChampTab = $("div.club-champion-members-challenges:visible").length === 1; // 
+        if (!onChampTab) {
+            logHHAuto('Click champions tab');
+            $("#club_champions_tab").click();
+        }
+
         let Started = $("div.club-champion-members-challenges .player-row").length === 1;
         let secsToNextTimer = getNextClubChampionTimer();
         let noTimer = secsToNextTimer === -1;
