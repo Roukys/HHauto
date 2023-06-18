@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.34.6
+// @version      5.34.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4182,71 +4182,6 @@ function goAndCollectFreeBundles()
     }
 }
 
-function goAndCollectDailyRewards()
-{
-    const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoDailyRewardsCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoDailyRewardsCollectablesList")):[];
-    if (getPage() == getHHScriptVars("pagesIDHome"))
-    {
-        const dailyRewardNotifRequest = getHHScriptVars("dailyRewardNotifRequest",false);
-        const dailyRewardSlotRequest = "#popup_daily_rewards .daily_reward_container.daily_claim";
-        //Daily rewards notification check
-        if ($(dailyRewardNotifRequest).length > 0)
-        {
-            logHHAuto("setting autoloop to false");
-            setStoredValue("HHAuto_Temp_autoLoop", "false");
-            if ($('#no_HC')[0].style.display != "block")
-            {
-                //replaceCheatClick();
-                logHHAuto('Opening daily rewards window.');
-                $(dailyRewardNotifRequest)[0].click();
-                setTimeout(goAndCollectDailyRewards, randomInterval(1000, 1500));
-                return true;
-            }
-            if ($(dailyRewardSlotRequest).length > 0)
-            {
-                //replaceCheatClick();
-                const getRewardType = getRewardTypeBySlot($(".slot",dailyRewardSlotRequest)[0]);
-                if (rewardsToCollect.includes(getRewardType))
-                {
-                    $("button.blue_button_L.daily-claim-btn:not([disabled])", dailyRewardSlotRequest)[0].click();
-                    logHHAuto('Collected immediate daily rewards, setting timer to next day.');
-                    setTimer('nextDailyRewardsCollectTime', getSecondsLeftBeforeEndOfHHDay() + 3600);
-                }
-                else if (getSecondsLeftBeforeEndOfHHDay() <= getHHScriptVars("dailyRewardMaxRemainingTime") && getSecondsLeftBeforeEndOfHHDay() > 0)
-                {
-                    logHHAuto('Collected daily rewards, setting timer to next day.');
-                    $("button.blue_button_L.daily-claim-btn:not([disabled])", dailyRewardSlotRequest)[0].click();
-                    setTimer('nextDailyRewardsCollectTime', getSecondsLeftBeforeEndOfHHDay() + 3600);
-                }
-                else
-                {
-                    logHHAuto('Reward not set for immediate collection, setting timer to near end of HH day.');
-                    setTimer('nextDailyRewardsCollectTime', getSecondsLeftBeforeEndOfHHDay() - getHHScriptVars("dailyRewardMaxRemainingTime"));
-                }
-            }
-            else
-            {
-                logHHAuto('Seems reward already collected, setting timer to 1h.');
-                setTimer('nextDailyRewardsCollectTime', 3600);
-            }
-            gotoPage(getHHScriptVars("pagesIDHome"));
-        }
-        else
-        {
-            logHHAuto('No more daily reward, setting timer to next day.');
-            setTimer('nextDailyRewardsCollectTime', getSecondsLeftBeforeEndOfHHDay() + 3600);
-        }
-    }
-    else
-    {
-        logHHAuto("Navigating to home page.");
-        gotoPage(getHHScriptVars("pagesIDHome"));
-        // return busy
-        return true;
-    }
-
-}
-
 function goAndCollectDailyGoals()
 {
     const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoDailyGoalsCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoDailyGoalsCollectablesList")):[];
@@ -8170,13 +8105,6 @@ var autoLoop = function ()
             busy = goAndCollectPoG();
         }
 
-        if (busy==false && getHHScriptVars("isEnabledDailyRewards",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextDailyRewardsCollectTime') && getStoredValue("HHAuto_Setting_autoDailyRewardsCollect") === "true" && canCollectCompetitionActive())
-        {
-            busy = true;
-            logHHAuto("Time to go and check Daily Rewards for collecting reward.");
-            goAndCollectDailyRewards();
-        }
-
         if (busy==false && getHHScriptVars("isEnabledFreeBundles",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer('nextFreeBundlesCollectTime') && getStoredValue("HHAuto_Setting_autoFreeBundlesCollect") === "true" && canCollectCompetitionActive())
         {
             busy = true;
@@ -11269,7 +11197,6 @@ HHAuto_ToolTips.en.ChangeTeamButton = {version: "5.6.24", elementText: "Current 
 HHAuto_ToolTips.en.ChangeTeamButton2 = {version: "5.6.24", elementText: "Possible Best", tooltip: "Get list of top 16 girls for your team if they are Max Lv & Aff"};
 HHAuto_ToolTips.en.AssignTopTeam = {version: "5.6.24", elementText: "Assign first 7", tooltip: "Put the first 7 ones in the team."};
 HHAuto_ToolTips.en.ExportGirlsData = {version: "5.6.24", elementText: "⤓", tooltip: "Export Girls data."};
-HHAuto_ToolTips.en.autoDailyRewardsCollect = {version: "5.6.54", elementText: "Collect daily Rewards", tooltip: "Collect daily rewards if not collected 2 hours before end of HH day."};
 HHAuto_ToolTips.en.autoFreeBundlesCollect = {version: "5.16.0", elementText: "Collect free bundles", tooltip: "Collect free bundles."};
 HHAuto_ToolTips.en.mousePause = {version: "5.6.135", elementText: "Mouse Pause", tooltip: "Pause script activity for 5 seconds when mouse movement is detected. Helps stop script from interrupting manual actions. (in ms, 5000ms=5s)"};
 HHAuto_ToolTips.en.saveDefaults = {version: "5.6.24", elementText: "Save defaults", tooltip: "Save your own defaults values for new tabs."};
@@ -11420,7 +11347,6 @@ HHAuto_ToolTips.fr.SeasonalEventMaskRewards = { version: "5.6.133", elementText:
 HHAuto_ToolTips.fr.bossBangEvent = { version: "5.20.3", elementText: "Activer", tooltip: "Si activé : Effectue les combats boss bang en commençant par l'équipe configuré si après."};
 HHAuto_ToolTips.fr.bossBangEventTitle = { version: "5.20.3", elementText: "Evènements Boss Bang"};
 HHAuto_ToolTips.fr.bossBangMinTeam = { version: "5.6.137", elementText: "Première équipe", tooltip: "Première équipe à utiliser<br>Si 5, le script commencera par la dernière pour finir par la premiere."};
-HHAuto_ToolTips.fr.autoDailyRewardsCollect = {version: "5.6.133", elementText: "Collecter récompense journalier", tooltip: "Permet de collecter les récompenses journalières si non collectées 2 heures avant la fin du jour HH."};
 HHAuto_ToolTips.fr.autoFreeBundlesCollect = {version: "5.16.0", elementText: "Collecter offres gratuites", tooltip: "Permet de collecter les offres gratuites."};
 HHAuto_ToolTips.fr.dailyGoalsTitle = {version: "5.24.0", elementText: "Objectifs journalier"};
 HHAuto_ToolTips.fr.autoDailyGoalsCollect = {version: "5.24.0", elementText: "Collecter", tooltip: "Permet de collecter les objectifs journaliers si non collectés 2 heures avant la fin du jour HH."};
@@ -12310,44 +12236,6 @@ HHStoredVars.HHAuto_Setting_buyMythicCombTimer =
     setMenu:true,
     menuType:"value",
     kobanUsing:false
-};
-/*HHStoredVars.HHAuto_Setting_calculatePowerLimits =
-    {
-    default:"default",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"List",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};*/
-HHStoredVars.HHAuto_Setting_autoDailyRewardsCollect =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false,
-    events:{"change":function()
-            {
-                if (this.checked)
-                {
-                    getAndStoreCollectPreferences("HHAuto_Setting_autoDailyRewardsCollectablesList", getTextForUI("menuDailyCollectableText","elementText"));
-                    clearTimer('nextDailyRewardsCollectTime');
-                }
-            }
-           }
-};
-HHStoredVars.HHAuto_Setting_autoDailyRewardsCollectablesList =
-    {
-    default:JSON.stringify([]),
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Array"
 };
 HHStoredVars.HHAuto_Setting_autoFreeBundlesCollect =
     {
@@ -13524,7 +13412,6 @@ var start = function () {
                         +`<div class="optionsColumn">`
                             + hhMenuSwitch('master') // Master switch
                             + hhMenuSwitch('paranoia')
-                            + hhMenuSwitch('autoDailyRewardsCollect', 'isEnabledDailyRewards')
                             +`<div id="isEnabledMousePause" class="labelAndButton">`
                                 +`<span class="HHMenuItemName">${getTextForUI("mousePause","elementText")}</span>`
                                 +`<div class="tooltipHH">`
