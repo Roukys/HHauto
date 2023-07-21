@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.34.8
+// @version      5.34.9
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -7763,13 +7763,11 @@ var autoLoop = function ()
 
         if (busy === false && getHHScriptVars("isEnabledGreatPachinko",false) && getStoredValue("HHAuto_Setting_autoFreePachinko") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer("nextPachinkoTime") && canCollectCompetitionActive()) {
             logHHAuto("Time to fetch Great Pachinko.");
-            busy = true;
-            busy = getFreeGreatPachinko();
+            busy = getFreeGreatPachinko(); 
         }
 
         if (busy === false && getHHScriptVars("isEnabledMythicPachinko",false) && getStoredValue("HHAuto_Setting_autoFreePachinko") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer("nextPachinko2Time") && canCollectCompetitionActive()) {
             logHHAuto("Time to fetch Mythic Pachinko.");
-            busy = true;
             busy = getFreeMythicPachinko();
         }
 
@@ -10909,7 +10907,8 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
                                           'Alyssa Reece',
                                           'Kelly Kline',
                                           'Jamie Brooks',
-                                          'Jordan Kingsley'];
+                                          'Jordan Kingsley',
+                                          'Sierra Sinn'];
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in pornstar
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in pornstar
 });
