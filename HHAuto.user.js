@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.34.8
+// @version      5.34.9
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -5772,7 +5772,7 @@ var getSecondsLeft=function(name)
 
 var getTimeLeft=function(name)
 {
-    const timerWaitingCompet = ['nextPachinkoTime','nextPachinko2Time','nextSeasonTime','nextLeaguesTime'];
+    const timerWaitingCompet = ['nextPachinkoTime','nextPachinko2Time','nextPachinkoEquipTime','nextSeasonTime','nextLeaguesTime'];
     if (!Timers[name])
     {
         if (!canCollectCompetitionActive() && timerWaitingCompet.indexOf(name) >= 0)
@@ -5878,6 +5878,57 @@ var getFreeMythicPachinko = function(){
     }
     catch (ex) {
         logHHAuto("Catched error : Could not collect Mythic Pachinko... " + ex);
+    }
+};
+
+var getFreePachinko = function(pachinkoType, pachinkoTimer, timerClass){
+    if(!pachinkoType || !pachinkoTimer){
+        return false;
+    }
+
+    try {
+        if(getPage() !== getHHScriptVars("pagesIDPachinko"))
+        {
+            logHHAuto("Navigating to Pachinko window.");
+            gotoPage(getHHScriptVars("pagesIDPachinko"));
+            return true;
+        }
+        else {
+            logHHAuto("Detected Pachinko Screen. Fetching Pachinko ");
+            var counter=0;
+            logHHAuto('switch to ' + pachinkoType);
+            const freeButtonQuery = '#playzone-replace-info button:not([orbs]):not([price]), #playzone-replace-info button[data-free="true"]';
+            while ($(freeButtonQuery).length === 0 && (counter++)<250)
+            {
+                $('.game-simple-block[type-pachinko='+pachinkoType+']')[0].click();
+            }
+
+            if ($(freeButtonQuery).length === 0)
+            {
+                logHHAuto('Not ready yet');
+            }
+            else
+            {
+                $(freeButtonQuery)[0].click();
+            }
+
+            var npach = $('.'+timerClass+' span[rel="expires"]').text();
+            if(npach !== undefined && npach !== null && npach.length > 0)
+            {
+                setTimer(pachinkoTimer,Number(convertTimeToInt(npach))+1);
+            }
+            else
+            {
+                logHHAuto("Unable to find "+pachinkoType+" Pachinko time, wait 4h.");
+                setTimer(pachinkoTimer, getHHScriptVars("maxCollectionDelay"));
+            }
+        }
+        return true;
+    }
+    catch (ex) {
+        logHHAuto("Catched error : Could not collect "+pachinkoType+" Pachinko... " + ex);
+        setTimer(pachinkoTimer, getHHScriptVars("maxCollectionDelay"));
+        return false;
     }
 };
 
@@ -7763,14 +7814,17 @@ var autoLoop = function ()
 
         if (busy === false && getHHScriptVars("isEnabledGreatPachinko",false) && getStoredValue("HHAuto_Setting_autoFreePachinko") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer("nextPachinkoTime") && canCollectCompetitionActive()) {
             logHHAuto("Time to fetch Great Pachinko.");
-            busy = true;
-            busy = getFreeGreatPachinko();
+            busy = getFreeGreatPachinko(); // TODO use getFreePachinko generic function getFreePachinko('great','nextPachinkoTime','great_pachinko_timer');
         }
 
         if (busy === false && getHHScriptVars("isEnabledMythicPachinko",false) && getStoredValue("HHAuto_Setting_autoFreePachinko") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer("nextPachinko2Time") && canCollectCompetitionActive()) {
             logHHAuto("Time to fetch Mythic Pachinko.");
-            busy = true;
-            busy = getFreeMythicPachinko();
+            busy = getFreeMythicPachinko(); // TODO use getFreePachinko generic function getFreePachinko('mythic','nextPachinko2Time', 'mythic-timer');
+        }
+
+        if (busy === false && getHHScriptVars("isEnabledEquipmentPachinko",false) && getStoredValue("HHAuto_Setting_autoFreePachinko") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true" && checkTimer("nextPachinkoEquipTime") && canCollectCompetitionActive()) {
+            logHHAuto("Time to fetch Equipment Pachinko.");
+            busy = getFreePachinko('equipment','nextPachinkoEquipTime', 'equipment-timer');
         }
 
         if(busy === false && getHHScriptVars("isEnabledContest",false) && getStoredValue("HHAuto_Setting_autoContest") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true")
@@ -10833,6 +10887,7 @@ HHEnvVariables["global"].isEnabledTrollBattle = true;
 HHEnvVariables["global"].isEnabledPachinko = true;
 HHEnvVariables["global"].isEnabledGreatPachinko = true;
 HHEnvVariables["global"].isEnabledMythicPachinko = true;
+HHEnvVariables["global"].isEnabledEquipmentPachinko = true;
 HHEnvVariables["global"].isEnabledContest = true;
 HHEnvVariables["global"].isEnabledPowerPlaces = true;
 HHEnvVariables["global"].isEnabledMission = true;
@@ -10883,6 +10938,7 @@ HHEnvVariables["HH_test"].isEnabledFreeBundles = false;// to remove if bundles a
 HHEnvVariables["SH_prod"].isEnabledSideQuest = false;// to remove when SideQuest arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPowerPlaces = false;// to remove when PoP arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledMythicPachinko = false;// to remove when Mythic Pachinko arrives in hornyheroes
+HHEnvVariables["SH_prod"].isEnabledEquipmentPachinko = false;// to remove when Equipment Pachinko arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledAllChamps = false;// to remove when Champs arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledChamps = false;// to remove when Champs arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledClubChamp = false;// to remove when Club Champs arrives in hornyheroes
@@ -10892,6 +10948,7 @@ HHEnvVariables["SH_prod"].isEnabledPoV = false;// to remove when PoV arrives in 
 HHEnvVariables["SH_prod"].isEnabledPoG = false;// to remove when PoG arrives in hornyheroes
 HHEnvVariables["MRPG_prod"].isEnabledSideQuest = false;// to remove when SideQuest arrives in Manga RPG
 HHEnvVariables["MRPG_prod"].isEnabledMythicPachinko = false;// to remove when Mythic Pachinko arrives in Manga RPG
+HHEnvVariables["MRPG_prod"].isEnabledEquipmentPachinko = false;// to remove when Equipment Pachinko arrives in Manga RPG
 HHEnvVariables["MRPG_prod"].isEnabledClubChamp = false;// to remove when Club Champs arrives in Manga RPG
 HHEnvVariables["MRPG_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in Manga RPG
 HHEnvVariables["MRPG_prod"].isEnabledSeasonalEvent = false;// to remove when event arrives in Manga RPG
@@ -10909,7 +10966,8 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
                                           'Alyssa Reece',
                                           'Kelly Kline',
                                           'Jamie Brooks',
-                                          'Jordan Kingsley'];
+                                          'Jordan Kingsley',
+                                          'Sierra Sinn'];
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in pornstar
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in pornstar
 });
@@ -11057,6 +11115,7 @@ HHAuto_ToolTips.en.autoContest = { version: "5.6.24", elementText: "Claim Contes
 HHAuto_ToolTips.en.compactEndedContests = { version: "5.24.0", elementText: "Compact", tooltip: "Add styles to compact ended contests display"};
 HHAuto_ToolTips.en.autoFreePachinko = { version: "5.6.24", elementText: "Pachinko", tooltip: "if enabled : Automatically collect free Pachinkos"};
 HHAuto_ToolTips.en.autoMythicPachinko = { version: "5.6.24", elementText: "Mythic Pachinko"};
+HHAuto_ToolTips.en.autoEquipmentPachinko = { version: "5.34.9", elementText: "Equipment Pachinko"};
 HHAuto_ToolTips.en.autoLeaguesTitle = { version: "5.6.24", elementText: "Leagues"};
 HHAuto_ToolTips.en.autoLeagues = { version: "5.6.24", elementText: "Enable", tooltip: "if enabled : Automatically battle Leagues"};
 HHAuto_ToolTips.en.autoLeaguesPowerCalc = { version: "5.6.24", elementText: "Use PowerCalc", tooltip: "if enabled : will choose opponent using PowerCalc (Opponent list expires every 10 mins and take few mins to be built)"};
@@ -11286,6 +11345,7 @@ HHAuto_ToolTips.fr.autoContest = { version: "5.6.24", elementText: "Compét'", t
 HHAuto_ToolTips.fr.compactEndedContests = { version: "5.24.0", elementText: "Compacter", tooltip: "Compacter l'affichage des compet'"};
 HHAuto_ToolTips.fr.autoFreePachinko = { version: "5.6.24", elementText: "Pachinko", tooltip: "Si activé : collecte automatiquement les Pachinkos gratuits"};
 HHAuto_ToolTips.fr.autoMythicPachinko = { version: "5.6.24", elementText: "Pachinko mythique"};
+HHAuto_ToolTips.fr.autoEquipmentPachinko = { version: "5.34.9", elementText: "Pachinko d'équipment"};
 HHAuto_ToolTips.fr.autoLeagues = { version: "5.6.24", elementText: "Activer", tooltip: "Si activé : Combattre automatiquement en Ligues"};
 HHAuto_ToolTips.fr.autoLeaguesPowerCalc = { version: "5.6.24", elementText: "Utiliser PowerCalc", tooltip: "Si activé : choisira l'adversaire en utilisant PowerCalc (la liste des adversaires expire toutes les 10 minutes et prend quelques minutes pour être construite)."};
 HHAuto_ToolTips.fr.autoLeaguesCollect = { version: "5.6.24", elementText: "Collecter", tooltip: "Si activé : Collecte automatiquement les récompenses de la Ligue terminée"};
@@ -13200,6 +13260,10 @@ var updateData = function () {
             if (getTimer('nextPachinko2Time') !== -1)
             {
                 Tegzd += '<li>'+getTextForUI("autoMythicPachinko","elementText")+' : '+getTimeLeft('nextPachinko2Time')+'</li>';
+            }
+            if (getTimer('nextPachinkoEquipTime') !== -1)
+            {
+                Tegzd += '<li>'+getTextForUI("autoEquipmentPachinko","elementText")+' : '+getTimeLeft('nextPachinkoEquipTime')+'</li>';
             }
         }
         if (getTimer('eventMythicNextWave') !== -1)
