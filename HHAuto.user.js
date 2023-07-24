@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.34.9
+// @version      5.34.10
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -7787,7 +7787,7 @@ var autoLoop = function ()
             }
         }
 
-        if (busy === false && getHHScriptVars("isEnabledQuest",false) && (getStoredValue("HHAuto_Setting_autoQuest") === "true" || (getHHScriptVars("isEnabledSideQuest",false) && getStoredValue("HHAuto_Setting_autoSideQuest") === "true")) && getStoredValue("HHAuto_Temp_autoLoop") === "true")
+        if (busy === false && getHHScriptVars("isEnabledQuest",false) && (getStoredValue("HHAuto_Setting_autoQuest") === "true" || (getHHScriptVars("isEnabledSideQuest",false) && getStoredValue("HHAuto_Setting_autoSideQuest") === "true")) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && canCollectCompetitionActive())
         {
             if (getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === undefined)
             {
@@ -7958,7 +7958,7 @@ var autoLoop = function ()
             }
         }
 
-        if(busy === false && getHHScriptVars("isEnabledPantheon",false) && getStoredValue("HHAuto_Setting_autoPantheon") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true")
+        if(busy === false && getHHScriptVars("isEnabledPantheon",false) && getStoredValue("HHAuto_Setting_autoPantheon") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true" && canCollectCompetitionActive())
         {
             if (Number(getHHVars('Hero.energies.worship.amount')) > 0 && ( (Number(getHHVars('Hero.energies.worship.amount')) > Number(getStoredValue("HHAuto_Setting_autoPantheonThreshold")) && checkTimer('nextPantheonTime')) || Number(checkParanoiaSpendings('worship')) > 0 ) )
             {
