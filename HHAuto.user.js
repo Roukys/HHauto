@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.34.12
+// @version      5.34.13
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4599,7 +4599,7 @@ function goAndCollectSeason()
             }
 
             let buttonsToCollect = [];
-            const listSeasonTiersToClaim = $("#seasons_row1 .rewards_pair .reward_wrapper.reward_is_claimable"+limitClassPass);
+            const listSeasonTiersToClaim = $("#seasons_tab_container .rewards_pair .reward_wrapper.reward_is_claimable"+limitClassPass);
             logHHAuto('Found ' + listSeasonTiersToClaim.length + ' rewards available for collection before filtering');
             for (let currentReward = 0 ; currentReward < listSeasonTiersToClaim.length ; currentReward++)
             {
