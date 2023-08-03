@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.34.15
+// @version      5.34.16
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -2090,7 +2090,7 @@ function moduleChangeTeam()
         for (let i = arr.length - 1; i > -1; i--)
         {
             let gID = Number($(arr[i]).attr('id_girl'));
-            let obj = JSON.parse($(arr[i]).attr(getHHScriptVars('girlToolTipData')));
+            let obj = JSON.parse($('.girl_img', $(arr[i])).attr(getHHScriptVars('girlToolTipData')));
             //sum formula
             let tempGrades = obj.graded2;
             //console.log(obj,tempGrades);
