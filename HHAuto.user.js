@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.34.16
+// @version      5.34.17
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -7495,6 +7495,8 @@ var autoLoop = function ()
         let bossBangEventQuery = '#contains_all #homepage .event-widget a[rel="boss_bang_event"]:not([href="#"])';
         let sultryMysteriesEventQuery = '#contains_all #homepage .event-widget a[rel="sm_event"]:not([href="#"])';
         let seasonalEventQuery = '#contains_all #homepage .seasonal-event a';
+        let povEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-valor"]';
+        let pogEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-glory"]';
         let eventIDs=[];
         let bossBangEventIDs=[];
         if (getPage()===getHHScriptVars("pagesIDEvent"))
@@ -7549,10 +7551,25 @@ var autoLoop = function ()
                 clearTimer("eventSultryMysteryShopRefresh");
             }
             queryResults=$(seasonalEventQuery);
-            if(getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true" && queryResults == 0)
+            if((getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true" || getStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll") === "true") && queryResults.length == 0)
             {
-                logHHAuto("No seasonal event found, deactivate auto collect.");
+                logHHAuto("No seasonal event found, deactivate collect.");
                 setStoredValue("HHAuto_Setting_autoSeasonalEventCollect", "false");
+                setStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll", "false");
+            }
+            queryResults=$(povEventQuery);
+            if((getStoredValue("HHAuto_Setting_autoPoVCollect") === "true" || getStoredValue("HHAuto_Setting_autoPoVCollectAll") === "true") && queryResults.length == 0)
+            {
+                logHHAuto("No pov event found, deactivate collect.");
+                setStoredValue("HHAuto_Setting_autoPoVCollect", "false");
+                setStoredValue("HHAuto_Setting_autoPoVCollectAll", "false");
+            }
+            queryResults=$(pogEventQuery);
+            if((getStoredValue("HHAuto_Setting_autoPoGCollect") === "true" || getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true") && queryResults.length == 0)
+            {
+                logHHAuto("No pog event found, deactivate collect.");
+                setStoredValue("HHAuto_Setting_autoPoGCollect", "false");
+                setStoredValue("HHAuto_Setting_autoPoGCollectAll", "false");
             }
         }
         if(
