@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         HaremHeroes Automatic++
+// @name         HaremHeroes Automatic++ Beta
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.34.17
+// @version      5.34.19
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -71,7 +71,6 @@ GM_addStyle('.HHPopIDs {background-color: black;z-index: 500;position: absolute;
 GM_addStyle('.tooltipHH:hover { cursor: help; position: relative; }'
             +'.tooltipHH span.tooltipHHtext { display: none }');
 GM_addStyle('.HHpopup_message { border: #666 2px dotted; padding: 5px 20px 5px 5px; display: block; z-index: 1000; background: #e3e3e3; left: 0px; margin: 15px; width: 500px; position: absolute; top: 15px; color: black}');
-GM_addStyle('.HHcontest { color:#d08467; font-size: 0.7rem;}');
 //END CSS Region
 
 function replaceCheatClick()
@@ -1217,14 +1216,14 @@ function moduleContestsStyles()
     +'}');
     GM_addStyle(contestsContainerPath + ' > .contest_title{'
         + 'font-size: 14px;'
-        + 'left: 97px;'
+        + 'left: 140px;'
         + 'bottom: 24px;'
     +'}');
     GM_addStyle(contestsContainerPath + ' > .personal_rewards {'
         + 'height: 40px;'
         + 'margin-top: -42px;'
         + 'padding-top: 1px;'
-        + 'width: 420px;'
+        + 'width: 380px;'
     +'}');
     GM_addStyle(contestsContainerPath + ' > .personal_rewards > button {'
         + 'height: 23px;'
@@ -1232,23 +1231,10 @@ function moduleContestsStyles()
         + 'margin-left: 20px;'
         + 'margin-top: 16px;'
     +'}');
+    GM_addStyle(contestsContainerPath + ' > .contest_expiration_timer {'
+        + 'bottom: 95px;'
+    +'}');
     }
-}
-
-function moduleDisplayContestsDeletion()
-{
-    if($('.HHcontest').length > 0)
-    {
-        return
-    }
-    let contests = $('div.contest:not(.is_legendary)');
-    let lastContestId = parseInt(contests.last().attr('id_contest'));
-    let laterDayToCollect = lastContestId - getHHScriptVars("contestMaxDays");
-    contests.each(function()
-                  {
-        const activeUntil = parseInt($(this).attr('id_contest')) - laterDayToCollect;
-        $('.shadow',$(this)).append('<div class="HHcontest">Deleted in '+activeUntil+' days</div>');
-    });
 }
 
 function moduleOldPathOfAttractionHide()
@@ -3549,7 +3535,7 @@ var doBossBattle = function()
     }
 
     var TTF;
-    if (getStoredValue("HHAuto_Setting_plusEvent") ==="true" && !checkTimer("eventGoing") && getStoredValue("HHAuto_Temp_eventGirl") !== undefined && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic==="false")
+    if (getStoredValue("HHAuto_Setting_plusEvent") === "true" && !checkTimer("eventGoing") && getStoredValue("HHAuto_Temp_eventGirl") !== undefined && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic==="false")
     {
         TTF=JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).troll_id;
         logHHAuto("Event troll fight");
@@ -4136,7 +4122,7 @@ function goAndCollectFreeBundles()
                         logHHAuto("Collecting bundle n°"+ buttonsToCollect[0].getAttribute('product'));
                         buttonsToCollect[0].click();
                         buttonsToCollect.shift();
-                        setTimeout(closeRewardPopupIfAny,randomInterval(200,400));
+                        gotoPage(getHHScriptVars("pagesIDHome"));
                         setTimer('nextFreeBundlesCollectTime', 15);
                     }
                 }
@@ -4864,37 +4850,38 @@ function doPantheon()
 
 var getLeagueCurrentLevel = function ()
 {
-    if(unsafeWindow.league_tag === undefined)
+    if(unsafeWindow.current_tier_number === undefined)
     {
         setTimeout(autoLoop, Number(getStoredValue("HHAuto_Temp_autoLoopTimeMili")))
     }
-    return unsafeWindow.league_tag;
+    return unsafeWindow.current_tier_number;
 }
 
 function getLeagueOpponentListData()
 {
     let Data=[];
-    let sorting_id;
-    $(".leadTable[sorting_table] tr").each(function()
-                                           {
-        sorting_id = $(this).attr("sorting_id");
-        if (this.className.indexOf('selected-player-leagues') !== -1)
-        {
-            if ( ($(".leadTable[sorting_table] tr.selected-player-leagues div.result.won").length + $(".leadTable[sorting_table] tr.selected-player-leagues div.result.lost").length) < 3)
-            {
-                Data.push(sorting_id);
-            }
-        }
-        else
-        {
-            let challengesAttempts = this.cells[3].innerHTML;
-            if (challengesAttempts.length > 0 &&
-             ((challengesAttempts.length===3 && challengesAttempts[0] < 3) || (challengesAttempts.length>3 && challengesAttempts.indexOf("-") !== -1)))
-            {
-                Data.push(sorting_id);
-            }
+    let opponent_id;
+    let fightButton;
+
+    $(".data-list .data-row.body-row").each(function()
+    {
+        fightButton = $('a', $(this));
+        if(fightButton.length > 0) {
+            opponent_id = queryStringGetParam(new URL(fightButton.attr("href"),window.location.origin).search, 'id_opponent');
+            let opponnent = {
+                opponent_id: opponent_id,
+                rank:  Number($('.data-column[column="place"]', $(this)).text()),
+                nickname: $('.nickname', $(this)).text(),
+                level: Number($('.data-column[column="level"]', $(this)).text()),
+                power: parsePrice($('.data-column[column="power"]', $(this)).text()),
+                player_league_points: Number($('.data-column[column="player_league_points"]', $(this)).text().replace(/\D/g, '')),
+                stats: {}, // fill stats if needed
+                nb_boosters: $('.boosters', $(this)).children().length,
+            };
+            Data.push(opponnent);
         }
     });
+    Data.sort((a,b) => (a.power > b.power) ? 1 : ((b.power > a.power) ? -1 : 0)); // sort by power
     return Data;
 }
 
@@ -4939,11 +4926,12 @@ var doLeagueBattle = function () {
             return;
         }
 
+        /*
         while ($("span[sort_by='level'][select='asc']").length==0)
         {
             //logHHAuto('resorting');
             $("span[sort_by='level']").each(function(){this.click()});
-        }
+        }*/
         logHHAuto('parsing enemies');
         var Data=getLeagueOpponentListData();
         if (Data.length==0)
@@ -4966,13 +4954,13 @@ var doLeagueBattle = function () {
                 setTimer('nextLeaguesTime',Number(30*60)+1);
                 return;
             }
-            var currentRank = Number($("tr[class=personal_highlight] td span")[0].innerText);
-            var currentScore = Number($("tr[class=personal_highlight] td")[4].innerText.replace(/\D/g, ''));
+            var currentRank = Number($('.data-list .data-row.body-row.player-row .data-column[column="place"]').text());
+            var currentScore = Number($('.data-list .data-row.body-row.player-row .data-column[column="player_league_points"]').text().replace(/\D/g, ''));
             let leagueTargetValue = Number(getStoredValue("HHAuto_Setting_autoLeaguesSelectedIndex"))+1;
             if (leagueTargetValue < Number(getPlayerCurrentLevel))
             {
                 var maxDemote = 0;
-                var totalOpponents = Number($("div.leagues_table table tr td:contains(/3)").length)+1;
+                var totalOpponents = Number($('.data-list .data-row.body-row').length)+1;
                 if (screen.width < 1026)
                 {
                     totalOpponents = totalOpponents+1;
@@ -4983,13 +4971,13 @@ var doLeagueBattle = function () {
                     rankDemote = totalOpponents - 15;
                 }
                 logHHAuto("Current league above target ("+Number(getPlayerCurrentLevel)+"/"+leagueTargetValue+"), needs to demote. max rank : "+rankDemote+"/"+totalOpponents);
-                let getRankDemote = $("div.leagues_table table tr td span:contains("+rankDemote+")").filter(function()
+                let getRankDemote = $(".data-list .data-row.body-row .data-column[column='place']:contains("+rankDemote+")").filter(function()
                                                                                                             {
                     return Number($(this).text().trim()) === rankDemote;
                 });
                 if (getRankDemote.length > 0 )
                 {
-                    maxDemote = Number(getRankDemote.parent().parent()[0].lastElementChild.innerText.replace(/\D/g, ''));
+                    maxDemote = Number( $(".data-column[column='player_league_points']", getRankDemote.parent()).text().replace(/\D/g, ''));
                 }
                 else
                 {
@@ -5023,13 +5011,13 @@ var doLeagueBattle = function () {
                     rankStay = 15;
                 }
                 logHHAuto("Current league is target ("+Number(getPlayerCurrentLevel)+"/"+leagueTargetValue+"), needs to stay. max rank : "+rankStay);
-                let getRankStay = $("div.leagues_table table tr td span:contains("+rankStay+")").filter(function()
+                let getRankStay = $(".data-list .data-row.body-row .data-column[column='place']:contains("+rankStay+")").filter(function()
                                                                                                         {
                     return Number($(this).text().trim()) === rankStay;
                 });
                 if (getRankStay.length > 0 )
                 {
-                    maxStay = Number(getRankStay.parent().parent()[0].lastElementChild.innerText.replace(/\D/g, ''));
+                    maxStay = Number( $(".data-column[column='player_league_points']", getRankStay.parent()).text().replace(/\D/g, ''));
                 }
                 else
                 {
@@ -5051,7 +5039,8 @@ var doLeagueBattle = function () {
             setStoredValue("HHAuto_Temp_autoLoop", "false");
             logHHAuto("setting autoloop to false");
             logHHAuto("Hit?" );
-            if (getStoredValue("HHAuto_Setting_autoLeaguesPowerCalc") == "true")
+            // if (getStoredValue("HHAuto_Setting_autoLeaguesPowerCalc") == "true")
+            if (false) // TODO Fix power calc if needed
             {
                 var oppoID = getLeagueOpponentId(Data);
                 if (oppoID == -1)
@@ -5072,10 +5061,45 @@ var doLeagueBattle = function () {
             }
             else
             {
-                //week 28 new battle modification
-                //location.href = "/battle.html?league_battle=1&id_member=" + Data[0]
-                gotoPage(getHHScriptVars("pagesIDLeagueBattle"),{number_of_battles:1,id_opponent:Data[0]});
-                //End week 28 new battle modification
+                logHHAuto("Going to fight " + Data[0].nickname + "(" + Data[0].opponent_id + ")");
+                // change referer
+                window.history.replaceState(null, '', '/leagues-pre-battle.html?id_opponent='+Data[0].opponent_id);
+
+                const opponents_list = getHHVars("opponents_list");
+                let opponentDataFromList = opponents_list.filter(obj => {
+                    return obj.player.id_fighter == Data[0].opponent_id;
+                });
+
+                const canFightThreeTimes = function(opponent) {
+                    const matchs = opponent.match_history[opponent.player.id_fighter];
+                    return matchs && matchs.length === 3 && (matchs[0] == null && matchs[1] == null && matchs[2] == null)
+                }
+
+                let numberOfBattle = 1;
+                if(currentPower >= 3 && opponentDataFromList && opponentDataFromList.length > 0 && canFightThreeTimes(opponentDataFromList[0])){
+                    numberOfBattle = 3;
+                }
+                logHHAuto("Going to fight " +numberOfBattle + " times");
+
+                if(numberOfBattle === 1) {
+                    gotoPage(getHHScriptVars("pagesIDLeagueBattle"),{number_of_battles:1,id_opponent:Data[0].opponent_id});
+                } else {
+                    var params1 = {
+                        action: "do_battles_leagues",
+                        id_opponent: Data[0].opponent_id,
+                        number_of_battles: numberOfBattle
+                    };
+                    hh_ajax(params1, function(data) {
+                        // change referer
+                        window.history.replaceState(null, '', '/tower-of-fame.html');
+
+                        closeRewardPopupIfAny();
+
+                        // gotoPage(getHHScriptVars("pagesIDLeaderboard"));
+                        location.reload();
+                        Hero.updates(data.hero_changes);
+                    });
+                }
             }
         }
     }
@@ -5185,6 +5209,7 @@ function getLeagueOpponentId(opponentsIDList,force=false)
         {
             maxLeagueListDurationSecs = 1;
         }
+        // TODO fixme
         let listExpirationDate =isJSON(getStoredValue("HHAuto_Temp_LeagueTempOpponentList"))?JSON.parse(getStoredValue("HHAuto_Temp_LeagueTempOpponentList")).expirationDate:new Date().getTime() + maxLeagueListDurationSecs * 1000;
         if (opponentsIDList.length>0)
         {
@@ -5544,8 +5569,14 @@ function doBattle()
             {
                 setStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest", "false");
             }
-            if(getStoredValue("HHAuto_Temp_eventGirl") !== undefined)
+            if(getStoredValue("HHAuto_Temp_eventGirl") !== undefined &&
+                (
+                    getStoredValue("HHAuto_Setting_plusEvent") === "true" && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic==="false"
+                    || 
+                    getStoredValue("HHAuto_Setting_plusEventMythic") === "true" && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic==="true"
+                ))
             {
+                logHHAuto("Event ongoing search for girl rewards in popup.");
                 ObserveAndGetGirlRewards();
             }
             else
@@ -6307,51 +6338,6 @@ function manageUnits(inText)
     }
 }
 
-function calculatePlayersBonuses(inPlayerTeamElement, inOpponentTeamElement)
-{
-    let playerBonus = 0;
-    let opponentBonus = 0;
-
-    for (let i=0; i<inOpponentTeamElement.length; i++) {
-        for (let j=0; j<inPlayerTeamElement.length; j++) {
-            switch (inOpponentTeamElement[i]) {
-                case "fire":
-                    if (inPlayerTeamElement[j] == "water")
-                        playerBonus += 1;
-                    else if (inPlayerTeamElement[j] == "nature")
-                        opponentBonus += 1;
-                    break;
-                case "nature":
-                    if (inPlayerTeamElement[j] == "fire")
-                        playerBonus += 1;
-                    else if (inPlayerTeamElement[j] == "stone")
-                        opponentBonus += 1;
-                    break;
-                case "stone":
-                    if (inPlayerTeamElement[j] == "nature")
-                        playerBonus += 1;
-                    else if (inPlayerTeamElement[j] == "sun")
-                        opponentBonus += 1;
-                    break;
-                case "sun":
-                    if (inPlayerTeamElement[j] == "stone")
-                        playerBonus += 1;
-                    else if (inPlayerTeamElement[j] == "water")
-                        opponentBonus += 1;
-                    break;
-                case "water":
-                    if (inPlayerTeamElement[j] == "sun")
-                        playerBonus += 1;
-                    else if (inPlayerTeamElement[j] == "fire")
-                        opponentBonus += 1;
-                    break;
-            }
-        }
-    }
-
-    return {playerBonus:playerBonus, opponentBonus:opponentBonus};
-}
-
 function getLeaguePlayersData(inHeroLeaguesData, inPlayerLeaguesData)
 {
     const {
@@ -6360,7 +6346,7 @@ function getLeaguePlayersData(inHeroLeaguesData, inPlayerLeaguesData)
         defense: playerDef,
         remaining_ego: playerEgo,
         team: playerTeam
-    } = inHeroLeaguesData
+    } = inHeroLeaguesData;
     let playerElements;
     let playerSynergies
     if (playerTeam.theme_elements != undefined && playerTeam.synergies != undefined)
@@ -6370,11 +6356,12 @@ function getLeaguePlayersData(inHeroLeaguesData, inPlayerLeaguesData)
     }
     else
     {
-        const playerTeam_new = $('#leagues_left').find('.team-hexagon-container .team-member img').map((i, el) => $(el).data('new-girl-tooltip')).toArray();
-        const playerTeamMemberElements = playerTeam_new.map(({element_data: {type: element}})=>element);
-        playerElements = calculateThemeFromElements(playerTeamMemberElements);
-        const playerSynergyDataJSON = $('#leagues_left').find('.hexa .icon-area').attr('synergy-data');
-        playerSynergies = JSON.parse(playerSynergyDataJSON);
+        // TODO fixme
+        // const playerTeam_new = $('#leagues_left').find('.team-hexagon-container .team-member img').map((i, el) => $(el).data('new-girl-tooltip')).toArray();
+        // const playerTeamMemberElements = playerTeam_new.map(({element_data: {type: element}})=>element);
+        // playerElements = calculateThemeFromElements(playerTeamMemberElements);
+        // const playerSynergyDataJSON = $('#leagues_left').find('.hexa .icon-area').attr('synergy-data');
+        // playerSynergies = JSON.parse(playerSynergyDataJSON);
     }
     const playerBonuses = {
         critDamage: playerSynergies.find(({element: {type}})=>type==='fire').bonus_multiplier,
@@ -6412,12 +6399,13 @@ function getLeaguePlayersData(inHeroLeaguesData, inPlayerLeaguesData)
         hp: opponentEgo * (1 + dominanceBonuses.opponent.ego),
         dmg: (opponentAtk * (1 + dominanceBonuses.opponent.attack)) - (playerDef * (1 - opponentBonuses.defReduce)),
         critchance: calculateCritChanceShare(opponentCrit, playerCrit) + dominanceBonuses.opponent.chance + opponentBonuses.critChance,
-        name: $('#leagues_right .leagues_team_block .title').text(),
+        name: inPlayerLeaguesData.nickname,
         bonuses: opponentBonuses
     };
     return {player:player, opponent:opponent, dominanceBonuses:dominanceBonuses}
 }
 
+/*
 GM_addStyle('[hero-leagues-fixed-bar] [second-row] .theme-container {'
             + 'display: flex;'
             + 'flex-wrap: wrap;'
@@ -6433,259 +6421,215 @@ GM_addStyle('#leagues_middle .theme-container .theme-element {'
             + 'margin: 0 5%;'
             + 'margin-left: unset;}'
            );
+*/
+
+function moduleSimLeagueSyles(){
+
+    GM_addStyle('#leagues .league_content .league_table .data-list .data-row .data-column[column="can_fight"] {'
+        + 'min-width: 8.5rem;}'
+    );
+
+    GM_addStyle('@media only screen and (min-width: 1026px) {'
+        + '.matchRatingNew {'
+        + 'display: flex;'
+        + 'flex-wrap: nowrap;'
+        + 'align-items: center;'
+        + 'justify-content: center;'
+        + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
+        + 'line-height: 17px; '
+        + 'max-width: 65px; '
+        + 'font-size: 12px;}}'
+    );
+
+    GM_addStyle('@media only screen and (max-width: 1025px) {'
+        + '.matchRatingNew {'
+        + 'width: auto;'
+        + 'display: flex;'
+        + 'flex-wrap: nowrap;'
+        + 'align-items: center;'
+        + 'justify-content: center;'
+        + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
+        + 'line-height: 17px; '
+        + 'max-width: 65px; '
+        + 'font-size: 12px;}}'
+    );
+
+    GM_addStyle('.plus {'
+        + 'color: #66CD00;}'
+    );
+
+    GM_addStyle('.minus {'
+        + 'color: #FF2F2F;}'
+    );
+
+    GM_addStyle('.close {'
+        + 'color: #FFA500;}'
+    );
+
+    GM_addStyle('.powerLevelScouter {'
+        + 'width: 20px;}'
+    );
+}
 
 function moduleSimLeague() {
 
-    if ($("#popup_message_league").length >0)
+    moduleSimLeagueHideBeatenOppo();
+
+    if ($("#popup_message_league").length >0 || getStoredValue("HHAuto_Setting_leagueListDisplayPowerCalc") !== "true")
     {
         return;
     }
-    let girlDataName=getHHScriptVars('girlToolTipData');
+
+    const opponentButtons = $('a.go_pre_battle.blue_button_L');
+    const opponentSim = $("div.matchRatingNew img.powerLevelScouter");
+    const allOpponentsSimDisplayed = (opponentSim.length >= opponentButtons.length);
+
+
+    const displayOppoSimuOnButton = function(id_fighter, simu, force=0) {
+        const opponentGoButton = $('a[href*="id_opponent='+id_fighter+'"]');
+        if((opponentGoButton.length <= 0 || $('.powerLevelScouter',opponentGoButton).length > 0) && !force) {
+            return;
+        }
+        logHHAuto('powerLevelScouter not present adding it ' + id_fighter);
+
+        const percentage = nRounding(100*simu.win, 2, -1);
+        const points = nRounding(simu.expectedValue, 1, -1);
+        const pointText = `${percentage}% (${points})` +
+        `<span style="margin:0;display:none;" id="HHPowerCalcScore">${percentage}</span>
+         <span style="margin:0;display:none;" id="HHPowerCalcPoints">${points}</span>`;
+        // const opponentRow = opponentGoButton.parent().parent();
+        opponentGoButton.html(`<div class="matchRatingNew ${simu.scoreClass}"><img class="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${pointText}</div>`);
+    }
+
+    var opponentsPowerList = isJSON(getStoredValue("HHAuto_Temp_LeagueOpponentList"))?JSON.parse(getStoredValue("HHAuto_Temp_LeagueOpponentList")):{expirationDate:0,opponentsList:{}};
+    var opponentsTempPowerList = isJSON(getStoredValue("HHAuto_Temp_LeagueTempOpponentList"))?JSON.parse(getStoredValue("HHAuto_Temp_LeagueTempOpponentList")):{expirationDate:0,opponentsList:{}};
+
+    if(opponentsTempPowerList.expirationDate > 0 && opponentsTempPowerList.expirationDate < new Date()) {
+        logHHAuto('opponentsTempPowerList expired, resetting');
+        opponentsTempPowerList = {expirationDate:new Date().getTime() + getHHScriptVars("LeagueListExpirationSecs") * 1000,opponentsList:{}};
+        deleteStoredValue("HHAuto_Temp_LeagueTempOpponentList");
+    }
+
+    if (Object.keys(opponentsTempPowerList.opponentsList).length > opponentSim.length)
+    {
+        //logHHAuto("Opponents list already started, display result not already displayed.");
+
+        for (var i of Object.keys(opponentsTempPowerList.opponentsList))
+        {
+            //logHHAuto("Display " + i + "");
+            displayOppoSimuOnButton(i, opponentsTempPowerList.opponentsList[i]);
+        }
+    }
+    else
+    {
+        // logHHAuto("");
+    }
 
     let SimPower = function()
     {
-        if ($("div.matchRatingNew img#powerLevelScouter").length !== 0)
+        if (allOpponentsSimDisplayed)
         {
+            // logHHAuto("Stop simu");
             return;
         }
 
-        let opponentData;
-        const opponentId = $('#leagues_right .avatar_border>img').attr('hero-page-id');
-        const loadedLeaguePlayers = getHHVars("loadedLeaguePlayers");
-        if(Object.keys(loadedLeaguePlayers).length) opponentData = loadedLeaguePlayers[opponentId].player;
-        else opponentData = getHHVars("opponent_fighter.player");
-        let leaguePlayers = getLeaguePlayersData(getHHVars("hero_fighter"), opponentData);
-        //console.log("HH simuFight",JSON.stringify(leaguePlayers.player),JSON.stringify(leaguePlayers.opponent));
-        let simu = calculateBattleProbabilities(leaguePlayers.player, leaguePlayers.opponent);
-        //console.log(opponent);
-        //console.log(simu);
+        const opponents_list = getHHVars("opponents_list");
+        if(!opponents_list)
+        {
+            logHHAuto('ERROR: Can\'t find opponent list');
+            return;
+        }
+        let heroFighter = opponents_list.filter(obj => {
+            return obj.player.id_fighter == getHHVars("Hero.infos.id");
+          });
+        if(heroFighter.length > 0) heroFighter = heroFighter[0].player;
+        else return;
 
-        const oppoPoints = simu.points;
-        let expectedValue = 0;
-        for (let i=25; i>=3; i--) {
-            if (oppoPoints[i]) {
-                expectedValue += i*oppoPoints[i];
+        const canFight = function(opponents) {
+            const matchs = opponents.match_history[opponents.player.id_fighter];
+            return matchs && matchs.length === 3 && (matchs[0] == null || matchs[1] == null || matchs[2] == null)
+        }
+
+        const containsSimuScore = function(opponents) {
+            return $('a[href*="id_opponent='+opponents.player.id_fighter+'"] .matchRatingNew').length > 0;
+        }
+
+
+        const SimPowerOpponent = function(heroFighter, opponents) {
+            var opponentsTempPowerList = isJSON(getStoredValue("HHAuto_Temp_LeagueTempOpponentList"))?JSON.parse(getStoredValue("HHAuto_Temp_LeagueTempOpponentList")):{expirationDate:new Date().getTime() + getHHScriptVars("LeagueListExpirationSecs") * 1000,opponentsList:{}};
+
+            const opponentData = opponents.player;
+            let leaguePlayers = getLeaguePlayersData(heroFighter, opponentData);
+            //console.log("HH simuFight",JSON.stringify(leaguePlayers.player),JSON.stringify(leaguePlayers.opponent));
+            let simu = calculateBattleProbabilities(leaguePlayers.player, leaguePlayers.opponent);
+
+            const oppoPoints = simu.points;
+            let expectedValue = 0;
+            for (let i=25; i>=3; i--) {
+                if (oppoPoints[i]) {
+                    expectedValue += i*oppoPoints[i];
+                }
+            }
+            simu.expectedValue = expectedValue;
+            opponentsTempPowerList.opponentsList[Number(opponentData.id_fighter)]=simu;
+
+            displayOppoSimuOnButton(opponentData.id_fighter, simu);
+            setStoredValue("HHAuto_Temp_LeagueTempOpponentList", JSON.stringify(opponentsTempPowerList));
+        }
+        
+        let limitOfOpponentLoop = 1 /*opponents_list.length*/;
+        for(let opponentIndex = 0;opponentIndex < Math.min(limitOfOpponentLoop, opponents_list.length) ; opponentIndex++)
+        {
+            let opponents = opponents_list[opponentIndex];
+            // TODO remove beatten opponent
+            if (canFight(opponents) && !containsSimuScore(opponents)) {
+                // logHHAuto("Simu " + opponents.player.nickname + "(id:" + opponents.player.id_fighter +")");
+                //setTimeout(function() { 
+                    SimPowerOpponent(heroFighter, opponents); 
+                //}, randomInterval(100, 1000));
+            } else {
+                // increase the limit to have the same amount of opponent displayed
+                limitOfOpponentLoop++;
             }
         }
-
-        const pointText = `${nRounding(100*simu.win, 2, -1)}% (${nRounding(expectedValue, 1, -1)})`;
-        $('div#leagues_right .leagues_team_block  .challenge .blue_button_L').prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${pointText}</div>`);
-        $('[hero-leagues-fixed-bar] [main-row] [challenge-mobile-btn]').prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${pointText}</div>`);
-        $('div#leagues_right .leagues_team_block  .challenge .blue_button_L').contents().filter(function() {return this.nodeType===3;}).remove();
-        $('[hero-leagues-fixed-bar] [main-row] [challenge-mobile-btn]').contents().filter(function() {return this.nodeType===3;}).remove();
-        $('div#leagues_right .leagues_team_block  .challenge .blue_button_L').find('span').remove();
-        $('[hero-leagues-fixed-bar] [main-row] [challenge-mobile-btn]').find('span').remove();
-        $('.leagues_team_block .challenge button>[class*="_icn"], [hero-leagues-fixed-bar] [main-row] [challenge-mobile-btn] .energy_challenge_icn').remove();
-
-        if($('tr.lead_table_default td span.nickname span.OppoScore').length > 0) {
-            $('tr.lead_table_default td span.nickname span.OppoScore').remove();
-        }
-        $("tr.lead_table_default td span.nickname").append(`<span class='OppoScore ${simu.scoreClass}' title="${pointText}"><span style="margin:0;" id="HHPowerCalcScore">${nRounding(100*simu.win, 2, -1)}</span>% (<span style="margin:0;" id="HHPowerCalcPoints">${nRounding(expectedValue, 1, -1)}</span>)</span>`);
-
+        
         //CSS
-
-        GM_addStyle('#leagues_right .leagues_team_block  .lead_player_profile .level_wrapper {'
-                    + 'top: -8px !important;}'
-                   );
-
-        GM_addStyle('#leagues_right .leagues_team_block  .lead_player_profile .icon {'
-                    + 'top: 5px !important;}'
-                   );
-
-        GM_addStyle('.leagues_team_block .challenge .wrapper {'
-                    + 'display: flex; '
-                    + 'justify-content: space-between;}}'
-                   );
-
-        GM_addStyle('.leagues_team_block .challenge button, [hero-leagues-fixed-bar] [main-row] [challenge-mobile-btn] {'
-                    + 'width: 160px; '
-                    + 'padding: 6px 4px;}'
-                   );
-
-        GM_addStyle('@media only screen and (min-width: 1026px) {'
-                    + '.matchRatingNew {'
-                    + 'display: flex;'
-                    + 'flex-wrap: nowrap;'
-                    + 'align-items: center;'
-                    + 'justify-content: center;'
-                    + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
-                    + 'line-height: 17px; '
-                    + 'font-size: 14px;}}'
-                   );
-
-        GM_addStyle('@media only screen and (max-width: 1025px) {'
-                    + '.matchRatingNew {'
-                    + 'width: auto;'
-                    + 'display: flex;'
-                    + 'flex-wrap: nowrap;'
-                    + 'align-items: center;'
-                    + 'justify-content: center;'
-                    + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
-                    + 'line-height: 17px; '
-                    + 'font-size: 14px;}}'
-                   );
-
-        GM_addStyle('.plus {'
-                    + 'color: #66CD00;}'
-                   );
-
-        GM_addStyle('.minus {'
-                    + 'color: #FF2F2F;}'
-                   );
-
-        GM_addStyle('.close {'
-                    + 'color: #FFA500;}'
-                   );
-
-        GM_addStyle('#powerLevelScouter {'
-                    + 'width: 25px;}'
-                   );
-
-        //Replace opponent excitement with the correct value
-        //$('div#leagues_right div.stats_wrap div:nth-child(9) span:nth-child(2)').empty().append(nRounding(opponentExcitement, 0, 1));
-
-        //Replace player excitement with the correct value
-        //$('div#leagues_left div.stats_wrap div:nth-child(9) span:nth-child(2)').empty().append(nRounding(playerExcitement, 0, 1));
     }
 
     SimPower();
 
-    // Refresh sim on new opponent selection (Credit: BenBrazke)
-    var opntName;
-    $('.leadTable').click(function()
-                          {
-        opntName=''
-    })
-    function waitOpnt() {
-        setTimeout(function() {
-            if (JSON.parse($('div#leagues_right .leagues_team_block  .team-hexagon-container .team-member-container[data-team-member-position=0] img').attr(girlDataName)))
+    let listUpdateStatus='<div style="position: absolute;left: 600px;top: 14px;width:100px;" class="tooltipHH" id="HHListUpdate"></div>';
+    if (document.getElementById("HHListUpdate") === null) {
+        $(".leagues_middle_header_script").append(listUpdateStatus);
+    }
+
+    if(allOpponentsSimDisplayed || opponentSim.length <=1) {
+        let buttonLaunchList='<span class="tooltipHHtext">'+getTextForUI("RefreshOppoList","tooltip")+'</span><label style="width:100%;" class="myButton" id="RefreshOppoList">'+getTextForUI("RefreshOppoList","elementText")+'</label>';
+        if (document.getElementById("RefreshOppoList") === null)
+        {
+            $("#HHListUpdate").html('').append(buttonLaunchList);
+            document.getElementById("RefreshOppoList").addEventListener("click", function()
             {
-                SimPower();
-            }
-            else {
-                waitOpnt()
-            }
-        }, 50);
-    }
-    var observeCallback = function()
-    {
-        var opntNameNew = $('div#leagues_right div.leagues_team_block .title')[0].innerHTML
-        if (opntName !== opntNameNew)
-        {
-            opntName = opntNameNew;
-            waitOpnt();
-        }
-    }
-    var observer = new MutationObserver(observeCallback);
-    var test = document.getElementById('leagues_right');
-    observer.observe(test, {attributes: false, childList: true, subtree: false});
-
-
-    function DisplayMatchScore() {
-        if ($('tr[sorting_id]:not(.lead_table_default) td span.nickname span.OppoScore').length > 1)
-        {
-            return;
-        }
-
-        let opponentsIDList = getLeagueOpponentListData();
-        let sorting_id;
-        let player;
-        let opponentsPowerList = isJSON(getStoredValue("HHAuto_Temp_LeagueOpponentList")) ? JSON.parse(getStoredValue("HHAuto_Temp_LeagueOpponentList")) : -1;
-        let opponentsTempPowerList = isJSON(getStoredValue("HHAuto_Temp_LeagueTempOpponentList")) ? JSON.parse(getStoredValue("HHAuto_Temp_LeagueTempOpponentList")) : -1;
-        let maxScore = -1;
-        let IdOppo = -1;
-        let OppoScore;
-
-        //console.log(opponentsPowerList,opponentsTempPowerList,opponentsListExpirationDate,opponentsListExpirationDate < new Date());
-        if (opponentsPowerList === -1 ||  opponentsPowerList.expirationDate < new Date())
-        {
-            opponentsPowerList = opponentsTempPowerList;
-        }
-
-        if (opponentsPowerList === -1 ||  opponentsPowerList.expirationDate < new Date())
-        {
-            return;
-        }
-
-        if($('tr.lead_table_default td span.nickname span.OppoScore').length > 0) {
-            $('tr.lead_table_default td span.nickname span.OppoScore').remove();
-        }
-
-        for (let oppo of opponentsIDList)
-        {
-            const oppoSimu = opponentsPowerList.opponentsList[Number(oppo)];
-            if (oppoSimu === undefined)
-            {
-                continue;
-            }
-            OppoScore = Number(oppoSimu.win);
-            const oppoPoints = oppoSimu.points;
-            let expectedValue = 0;
-            if ($('tr[sorting_id=' + oppo + '] td span.nickname').length > 0 && opponentsPowerList.opponentsList[Number(oppo)] !== undefined)
-            {
-                for (let i=25; i>=3; i--) {
-                    if (oppoPoints[i]) {
-                        expectedValue += i*oppoPoints[i];
-                    }
-                }
-                $('tr[sorting_id=' + oppo + '] td span.nickname').append(`<span class='OppoScore ${oppoSimu.scoreClass}'><span style="margin:0;" id="HHPowerCalcScore">${nRounding(100*OppoScore, 2, -1)}</span>% (<span style="margin:0;" id="HHPowerCalcPoints">${nRounding(expectedValue, 1, -1)}</span>)</span>`);
-
-            }
-        }
-
-    }
-    DisplayMatchScore();
-    // Refresh sim on new opponent selection (Credit: BenBrazke)
-    var opntName2;
-    $('#leagues_middle').click(function() {
-        opntName2=''
-    })
-    function waitOpnt2() {
-        setTimeout(function() {
-            if ($('div#leagues_middle div.leagues_table .personal_highlight').length >0) {
-                DisplayMatchScore();
-            }
-            else {
-                waitOpnt2()
-            }
-        }, 50);
-    }
-    var observeCallback2 = function() {
-        var opntNameNew2 = $('div#leagues_middle div.leagues_table thead')[0].innerHTML
-        if (opntName2 !== opntNameNew2) {
-            opntName2 = opntNameNew2;
-            waitOpnt2();
-        }
-    }
-    var observer2 = new MutationObserver(observeCallback2);
-    var test2 = $('div#leagues_middle div.leagues_table tbody')[0];
-    observer2.observe(test2, {attributes: true, childList: true, subtree: false});
-
-    moduleSimLeagueHideBeatenOppo();
-
-    let buttonLaunchList='<div style="position: absolute;left: 300px;top: 14px;width:100px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("RefreshOppoList","tooltip")+'</span><label style="width:100%;" class="myButton" id="RefreshOppoList">'+getTextForUI("RefreshOppoList","elementText")+'</label></div>';
-    if (document.getElementById("RefreshOppoList") === null)
-    {
-        $("#leagues_middle").append(buttonLaunchList);
-        document.getElementById("RefreshOppoList").addEventListener("click", function()
-                                                                    {
-            document.getElementById("RefreshOppoList").remove();
-            $('tr[sorting_id] td span.nickname span.OppoScore').each(function () {
-                this.remove();
+                document.getElementById("RefreshOppoList").remove();
+                $('a[href*="id_opponent"]').each(function () {
+                    $(this).html('Go'); // TODO translate
+                });
+                opponentsTempPowerList = {expirationDate:new Date().getTime() + getHHScriptVars("LeagueListExpirationSecs") * 1000,opponentsList:{}};
+                deleteStoredValue("HHAuto_Temp_LeagueTempOpponentList");
             });
-            setStoredValue("HHAuto_Temp_autoLoop", "false");
-            logHHAuto("setting autoloop to false to wait for opponents list update");
-            getLeagueOpponentId(getLeagueOpponentListData(),true);
-        });
+        }
+    } else {
+        $("#HHListUpdate").html('Building:' + opponentSim.length +"/"+ opponentButtons.length);
     }
-    let buttonSortList='<div style="position: absolute;left: 410px;top: 14px;width:75px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("sortPowerCalc","tooltip")+'</span><label style="width:100%;" class="myButton" id="sortPowerCalc">'+getTextForUI("sortPowerCalc","elementText")+'</label></div>';
-    const league_table = $('#leagues_middle tbody.leadTable');
-    if (document.getElementById("sortPowerCalc") === null && $('.OppoScore',league_table).length >0)
+
+    let buttonSortList='<div style="position: absolute;left: 720px;top: 14px;width:75px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("sortPowerCalc","tooltip")+'</span><label style="width:100%;" class="myButton" id="sortPowerCalc">'+getTextForUI("sortPowerCalc","elementText")+'</label></div>';
+    const league_table = $('.league_content .data-list');
+    if (document.getElementById("sortPowerCalc") === null && $('.matchRatingNew',league_table).length >0)
     {
-        $('#leagues_middle').append(buttonSortList);
+        $('.leagues_middle_header_script').append(buttonSortList);
         document.getElementById("sortPowerCalc").addEventListener("click", function ()
-                                                                  {
-            let items = $('tr',league_table).map((i, el) => el).toArray();
+        {
+            let items = $('.data-row.body-row:visible',league_table).map((i, el) => el).toArray();
             items.sort(function(a, b)
                        {
                 //console.log($('#HHPowerCalcScore',$(a)));
@@ -6709,10 +6653,9 @@ function moduleSimLeague() {
                 $(items[item]).detach();
                 league_table.append(items[item]);
             }
-            $('#leagues_middle .lead_table_view').animate({scrollTop: 0});
+            $('.league_content .league_table').animate({scrollTop: 0});
         });
     }
-
 }
 
 function moduleSimLeagueHideBeatenOppo()
@@ -6723,37 +6666,53 @@ function moduleSimLeagueHideBeatenOppo()
         &&  document.getElementById("HideBeatenOppo") === null
     )
     {
+        if($(".leagues_middle_header_script").length == 0) {
+            $('#tower_of_fame .tabs').append('<div class="leagues_middle_header_script"></div>');
+            
+            GM_addStyle('.leagues_middle_header_script {'
+                + 'display: flow-root;'
+                + 'margin-top: 4px;}'
+            );
+        }
         function removeBeatenOpponents() {
-            var board = document.getElementsByClassName("leadTable")[0];
+            var board = document.getElementsByClassName("data-list")[0];
             if(!board) return;
-            var opponents = board.getElementsByTagName("tr");
+            var opponents = board.getElementsByClassName("data-row body-row");
             for (var i=0; i<opponents.length; i++) {
                 try {
-                    const playerId = $(opponents[i]).attr('sorting_id');
-                    if(unsafeWindow.leagues_list.find(({id_player}) => id_player === playerId).nb_challenges_played === "3" && opponents[i].className.indexOf('selected-player-leagues') == -1){
-                        opponents[i].style.display="none";
+                    if (!opponents[i].className.includes("player-row")) {
+                        let hide = true;
+                        let results = $(opponents[i]).find('div[column = "match_history"]')[0].children;
+                        for (let j=0; j<results.length; j++) {
+                            if (results[j].className == "result ") hide = false;
+                        }
+                        if (hide) opponents[i].style.display="none";
                     }
                 } catch(e) {}
             }
-            $('.lead_table_view').getNiceScroll().resize()
+            $('#leagues .league_content .league_table').getNiceScroll().resize()
         }
 
         function displayBeatenOpponents() {
-            var board = document.getElementsByClassName("leadTable")[0];
+            var board = document.getElementsByClassName("data-list")[0];
             if(!board) return;
-            var opponents = board.getElementsByTagName("tr");
+            var opponents = board.getElementsByClassName("data-row body-row");
             for (var i=0; i<opponents.length; i++) {
                 try {
-                    const playerId = $(opponents[i]).attr('sorting_id');
-                    if(unsafeWindow.leagues_list.find(({id_player}) => id_player === playerId).nb_challenges_played === "3"){
-                        opponents[i].style.display="";
+                    if (!opponents[i].className.includes("player-row")) {
+                        let hide = true;
+                        let results = $(opponents[i]).find('div[column = "match_history"]')[0].children;
+                        for (let j=0; j<results.length; j++) {
+                            if (results[j].className == "result ") hide = false;
+                        }
+                        if (hide) opponents[i].style.display="";
                     }
                 } catch(e) {}
             }
-            $('.lead_table_view').getNiceScroll().resize()
+            $('#leagues .league_content .league_table').getNiceScroll().resize()
         }
 
-        $("#leagues_middle").append(beatenOpponents);
+        $(".leagues_middle_header_script").append(beatenOpponents);
 
         let hideBeatenOppo = getStoredValue("HHAuto_Temp_hideBeatenOppo");
         if (!hideBeatenOppo) {
@@ -7121,6 +7080,7 @@ function moduleSimSeasonBattle()
     let affOppo=[];
     try
     {
+        // TODO update
         if ($("div.matchRatingNew img#powerLevelScouter").length != 3)
         {
             doDisplay=true;
@@ -7996,7 +7956,7 @@ var autoLoop = function ()
                 logHHAuto('Buying ticket with energy');
                 hh_ajax(params, function(data) {
                     //anim_number($('.tickets_number_amount'), data.tokens - amount, amount);
-                    Hero.updates(data.heroChangesUpdate);
+                    Hero.updates(data.hero_changes);
                     location.reload();
                 });
             }
@@ -8193,6 +8153,8 @@ var autoLoop = function ()
             if (getStoredValue("HHAuto_Setting_showCalculatePower") === "true")
             {
                 moduleSimLeague();
+                moduleSimLeagueSyles = callItOnce(moduleSimLeagueSyles);
+                moduleSimLeagueSyles();
             }
             break;
         case getHHScriptVars("pagesIDSeasonArena"):
@@ -8281,7 +8243,6 @@ var autoLoop = function ()
             moduleChangeTeam();
             break;
         case getHHScriptVars("pagesIDContests"):
-            moduleDisplayContestsDeletion();
             break;
         case getHHScriptVars("pagesIDPoV"):
             if (getStoredValue("HHAuto_Setting_PoVMaskRewards") === "true")
@@ -10785,6 +10746,10 @@ HHEnvVariables["global"].pagesIDLeagueBattle = "league-battle";
 HHEnvVariables["global"].pagesURLLeagueBattle = "/league-battle.html";
 HHEnvVariables["global"].pagesKnownList.push("LeagueBattle");
 
+HHEnvVariables["global"].pagesIDLeaguePreBattle = "leagues-pre-battle";
+HHEnvVariables["global"].pagesURLLeaguPreBattle = "/leagues-pre-battle.html";
+HHEnvVariables["global"].pagesKnownList.push("LeaguePreBattle");
+
 HHEnvVariables["global"].pagesIDTrollBattle = "troll-battle";
 HHEnvVariables["global"].pagesURLTrollBattle = "/troll-battle.html";
 HHEnvVariables["global"].pagesKnownList.push("TrollBattle");
@@ -11072,6 +11037,7 @@ HHAuto_ToolTips.en.autoEquipmentPachinko = { version: "5.34.9", elementText: "Eq
 HHAuto_ToolTips.en.autoLeaguesTitle = { version: "5.6.24", elementText: "Leagues"};
 HHAuto_ToolTips.en.autoLeagues = { version: "5.6.24", elementText: "Enable", tooltip: "if enabled : Automatically battle Leagues"};
 HHAuto_ToolTips.en.autoLeaguesPowerCalc = { version: "5.6.24", elementText: "Use PowerCalc", tooltip: "if enabled : will choose opponent using PowerCalc (Opponent list expires every 10 mins and take few mins to be built)"};
+HHAuto_ToolTips.en.leagueListDisplayPowerCalc = { version: "5.34.18", elementText: "Display PowerCalc", tooltip: "Display powerCalc in league list (stil in developpment)"};
 HHAuto_ToolTips.en.autoLeaguesCollect = { version: "5.6.24", elementText: "Collect", tooltip: "If enabled : Automatically collect Leagues"};
 HHAuto_ToolTips.en.autoLeaguesSelector = { version: "5.6.24", elementText: "Target League", tooltip: "League to target, to try to demote, stay or go in higher league depending"};
 HHAuto_ToolTips.en.autoLeaguesAllowWinCurrent = {version: "5.6.24", elementText:"Allow win", tooltip: "If check will allow to win targeted league and then demote next league to fall back to targeted league."};
@@ -11795,6 +11761,17 @@ HHStoredVars.HHAuto_Setting_autoLeaguesCollect =
     kobanUsing:false
 };
 HHStoredVars.HHAuto_Setting_autoLeaguesPowerCalc =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_leagueListDisplayPowerCalc =
     {
     default:"false",
     storage:"Storage()",
@@ -13017,7 +12994,7 @@ HHStoredVars.HHAuto_Temp_LeagueTempOpponentList =
     {
     storage:"sessionStorage",
     HHType:"Temp",
-    isValid:/^{"expirationDate":\d+,"opponentsList":{("\d+":{((("(win|loss|avgTurns)":\d*[.,]?\d+)|("scoreClass":"(minus|plus|close)")|("points":{("\d{1,3}":\d*[.,]?\d+,?)+})),?)+},?)+}}$/
+    isValid:/^{"expirationDate":\d+,"opponentsList":{("\d+":{((("(win|loss|avgTurns|expectedValue)":\d*[.,]?\d+)|("scoreClass":"(minus|plus|close)")|("points":{("\d{1,3}":\d*[.,]?\d+,?)+})),?)+},?)+}}$/
 };
 /*HHStoredVars.HHAuto_Temp_opponentsListExpirationDate =
     {
@@ -13601,8 +13578,11 @@ var start = function () {
                         +`<div class="optionsBox">`
                             +`<div class="internalOptionsRow">`
                                 + hhMenuSwitch('autoLeagues')
+                                +`<div style="display:none">`
                                 + hhMenuSwitch('autoLeaguesPowerCalc')
+                                +`</div>`
                                 + hhMenuSwitch('autoLeaguesCollect')
+                                + hhMenuSwitch('leagueListDisplayPowerCalc')
                             +`</div>`
                             +`<div class="internalOptionsRow">`
                                 + hhMenuSelect('autoLeaguesSelector')
