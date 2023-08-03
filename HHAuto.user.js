@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.34.14
+// @version      5.34.15
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -71,7 +71,6 @@ GM_addStyle('.HHPopIDs {background-color: black;z-index: 500;position: absolute;
 GM_addStyle('.tooltipHH:hover { cursor: help; position: relative; }'
             +'.tooltipHH span.tooltipHHtext { display: none }');
 GM_addStyle('.HHpopup_message { border: #666 2px dotted; padding: 5px 20px 5px 5px; display: block; z-index: 1000; background: #e3e3e3; left: 0px; margin: 15px; width: 500px; position: absolute; top: 15px; color: black}');
-GM_addStyle('#sliding-popups#sliding-popups { z-index : 1}');
 GM_addStyle('.HHcontest { color:#d08467; font-size: 0.7rem;}');
 //END CSS Region
 
@@ -4055,6 +4054,10 @@ function getRewardTypeBySlot(inSlot)
         {
             //console.log("mythic equipment");
             reward = 'mythic';
+        }
+        else if (inSlot.className.indexOf('slot_scrolls_') >= 0)
+        {
+            reward = 'scrolls';
         }
         else if (inSlot.getAttribute("data-d") !== null && $(inSlot).data("d"))
         {
@@ -10222,6 +10225,8 @@ function getAndStoreCollectPreferences(inVarName, inPopUpText = getTextForUI("me
             menuCollectables+='</div>';
             count++;
         }
+        menuCollectables+='</div>';
+        menuCollectables+='<div style="display:flex;">';
         menuCollectables+='<div style="display:flex;width:25%">';
         menuCollectables+='<div class="labelAndButton" style=""><span class="HHMenuItemName">Toggle All</span><label class="button">';
         menuCollectables+='<input id="toggleCollectables" class="menuCollectablesItem" type="button" value="Click!"';
@@ -10539,6 +10544,7 @@ HHEnvVariables["global"].possibleRewardsList = {'energy_kiss' : "Kisses",
                                                 'booster' : "Boosters",
                                                 'orbs': "Orbs",
                                                 'gems' : "Gems",
+                                                'scrolls' : "Light Bulbs",
                                                 'mythic' : "Mythic Rquipment",
                                                 'avatar': "Avatar",
                                                 'ticket' : "Champions' tickets"};
@@ -11010,6 +11016,7 @@ HHAuto_ToolTips.en.autoBuyBoosters = { version: "5.6.25", elementText: "Myth. & 
 HHAuto_ToolTips.en.autoBuyBoostersFilter = { version: "5.6.25", elementText: "Filter", tooltip: "(values separated by ;)<br>Set list of codes of booster to buy, order is respected.<br>Code:Name<br>B1:Ginseng<br>B2:Jujubes<br>B3:Chlorella<br>B4:Cordyceps<br>MB1:Sandalwood perfume<br>MB2:All Mastery's Emblem<br>MB3:Headband of determination<br>MB4:Luxurious Watch<br>MB5:Combative Cinnamon<br>MB6:Alban's travel memories<br>MB7:Angels' semen scent"};
 HHAuto_ToolTips.en.autoSeasonPassReds = { version: "5.6.24", elementText: "Pass 3 reds", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>Use kobans to renew Season opponents if 3 reds"};
 HHAuto_ToolTips.en.showCalculatePower = { version: "5.6.24", elementText: "Show PowerCalc", tooltip: "Display battle simulation indicator for Leagues, battle, Seasons "};
+HHAuto_ToolTips.en.showAdsBack = { version: "5.34.15", elementText: "Move ads to the back", tooltip: "Move the ads section to the background."};
 //HHAuto_ToolTips.en.calculatePowerLimits = { version: "5.6.24", elementText: "Own limits", tooltip: "(red;orange)<br>Define your own red and orange limits for Opponents<br> -6000;0 do mean<br> <-6000 is red, between -6000 and 0 is orange and >=0 is green"};
 HHAuto_ToolTips.en.showInfo = { version: "5.6.24", elementText: "Show info", tooltip: "if enabled : show info on script values and next runs"};
 HHAuto_ToolTips.en.showInfoLeft = { version: "5.23.0", elementText: "Show info Left", tooltip: "Show info on left side vs on right side"};
@@ -11247,6 +11254,7 @@ HHAuto_ToolTips.fr.autoBuyBoosters = { version: "5.6.24", elementText: "Boosters
 HHAuto_ToolTips.fr.autoBuyBoostersFilter = { version: "5.6.24", elementText: "Filtre", tooltip: "(valeurs séparées par ;)<br>Définit quel(s) booster(s) acheter, respecter l'ordre (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)."};
 HHAuto_ToolTips.fr.autoSeasonPassReds = { version: "5.6.24", elementText: "Passer 3 rouges", tooltip: "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>("+HHAuto_ToolTips.fr.spendKobans0.elementText+" doit être activé)</p>Utilise des kobans pour renouveler les adversaires de la saison si PowerCalc détermine 3 combats rouges (perdus)."};
 HHAuto_ToolTips.fr.showCalculatePower = { version: "5.6.24", elementText: "PowerCalc", tooltip: "Si activé : affiche le résultat des calculs du module PowerCalc (Simulateur de combats pour Ligues, Trolls, Saisons)."};
+HHAuto_ToolTips.fr.showAdsBack = { version: "5.34.15", elementText: "Move ads to the back", tooltip: "Si activé : deplace les pubs à l'arrière plan."};
 //HHAuto_ToolTips.fr.calculatePowerLimits = { version: "5.6.24", elementText: "Limites perso", tooltip: "(rouge;orange)<br>Définissez vos propres limites de rouge et d'orange pour les opposants<br> -6000;0 veux dire<br> <-6000 est rouge, entre -6000 et 0 est orange et >=0 est vert"};
 HHAuto_ToolTips.fr.showInfo = { version: "5.6.24", elementText: "Infos", tooltip: "Si activé : affiche une fenêtre d'informations sur le script."};
 HHAuto_ToolTips.fr.showInfoLeft = { version: "5.23.0", elementText: "Infos à gauche", tooltip: "Affiche la fenêtre d'information à gauche plutot qu'à droite"};
@@ -12533,6 +12541,17 @@ HHStoredVars.HHAuto_Setting_showCalculatePower =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars.HHAuto_Setting_showAdsBack =
+    {
+    default:"true",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_showInfo =
     {
     default:"true",
@@ -13451,6 +13470,7 @@ var start = function () {
                         +`<div class="optionsColumn">`
                             + hhMenuSwitch('showCalculatePower')
                             + hhMenuSwitch('PoAMaskRewards')
+                            + hhMenuSwitch('showAdsBack')
                         +`</div>`
                     +`</div>`
                 +`</div>`
@@ -13811,6 +13831,11 @@ var start = function () {
     if(getPage()==getHHScriptVars("pagesIDHome"))
     {
         GM_addStyle('#pInfo:hover {max-height : none} #pInfo { max-height : 220px} @media only screen and (max-width: 1025px) {#pInfo { ;top:17% }}');
+
+        if (getStoredValue("HHAuto_Setting_showAdsBack") === "true")
+        {
+            GM_addStyle('#sliding-popups#sliding-popups { z-index : 1}');
+        }
     }
     else
     {
