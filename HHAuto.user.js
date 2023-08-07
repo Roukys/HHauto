@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.34.19.1
+// @version      5.34.20
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -5071,7 +5071,8 @@ var doLeagueBattle = function () {
                 });
 
                 const canFightThreeTimes = function(opponent) {
-                    const matchs = opponent.match_history[opponent.player.id_fighter];
+                     // remove match_history after w32 update
+                    const matchs = opponent.match_history ? opponent.match_history[opponent.player.id_fighter]: opponent.match_history_sorting[opponent.player.id_fighter];
                     return matchs && matchs.length === 3 && (matchs[0] == null && matchs[1] == null && matchs[2] == null)
                 }
 
@@ -6360,8 +6361,8 @@ function getLeaguePlayersData(inHeroLeaguesData, inPlayerLeaguesData)
         // const playerTeam_new = $('#leagues_left').find('.team-hexagon-container .team-member img').map((i, el) => $(el).data('new-girl-tooltip')).toArray();
         // const playerTeamMemberElements = playerTeam_new.map(({element_data: {type: element}})=>element);
         // playerElements = calculateThemeFromElements(playerTeamMemberElements);
-        // const playerSynergyDataJSON = $('#leagues_left').find('.hexa .icon-area').attr('synergy-data');
-        // playerSynergies = JSON.parse(playerSynergyDataJSON);
+        const playerSynergyDataJSON = $('.player-row .button_team_synergy').attr('synergy-data');
+        playerSynergies = JSON.parse(playerSynergyDataJSON);
     }
     const playerBonuses = {
         critDamage: playerSynergies.find(({element: {type}})=>type==='fire').bonus_multiplier,
@@ -6466,14 +6467,25 @@ function moduleSimLeagueSyles(){
         + 'color: #FFA500;}'
     );
 
-    GM_addStyle('.powerLevelScouter {'
-        + 'width: 20px;}'
+}
+
+function addChangeTeamButton() {
+    $('.league_buttons_block').append('<div class="change_team_container"><a id="change_team" href="/teams.html" class="blue_button_L" anim-step="afterStartButton"><div>Change team</div></a></div>');
+    
+    GM_addStyle('#leagues .league_content .league_buttons {'
+        + 'max-width: none;}'
+    );
+    GM_addStyle('#leagues .league_content .league_buttons .league_buttons_block {'
+        + 'width: auto;}'
     );
 }
 
 function moduleSimLeague() {
 
     moduleSimLeagueHideBeatenOppo();
+    if($('.change_team_container').length <= 0) {
+        addChangeTeamButton();
+    }
 
     if ($("#popup_message_league").length >0 || getStoredValue("HHAuto_Setting_leagueListDisplayPowerCalc") !== "true")
     {
@@ -6545,8 +6557,9 @@ function moduleSimLeague() {
         if(heroFighter.length > 0) heroFighter = heroFighter[0].player;
         else return;
 
-        const canFight = function(opponents) {
-            const matchs = opponents.match_history[opponents.player.id_fighter];
+        const canFight = function(opponent) {
+             // remove match_history after w32 update
+            const matchs = opponent.match_history ? opponent.match_history[opponent.player.id_fighter]: opponent.match_history_sorting[opponent.player.id_fighter];
             return matchs && matchs.length === 3 && (matchs[0] == null || matchs[1] == null || matchs[2] == null)
         }
 
@@ -6682,7 +6695,7 @@ function moduleSimLeagueHideBeatenOppo()
                 try {
                     if (!opponents[i].className.includes("player-row")) {
                         let hide = true;
-                        let results = $(opponents[i]).find('div[column = "match_history"]')[0].children;
+                        let results = $(opponents[i]).find('div[column = "match_history"], div[column = "match_history_sorting"]')[0].children; // remove match_history after w32 update
                         for (let j=0; j<results.length; j++) {
                             if (results[j].className == "result ") hide = false;
                         }
@@ -6701,7 +6714,7 @@ function moduleSimLeagueHideBeatenOppo()
                 try {
                     if (!opponents[i].className.includes("player-row")) {
                         let hide = true;
-                        let results = $(opponents[i]).find('div[column = "match_history"]')[0].children;
+                        let results = $(opponents[i]).find('div[column = "match_history"], div[column = "match_history_sorting"]')[0].children; // remove match_history after w32 update
                         for (let j=0; j<results.length; j++) {
                             if (results[j].className == "result ") hide = false;
                         }
@@ -6743,7 +6756,7 @@ function moduleSimLeagueHideBeatenOppo()
             }
         });
 
-        let sort_by = document.querySelectorAll('span[sort_by]');
+        let sort_by = document.querySelectorAll('.data-column.head-column');
         for (var sort of sort_by) {
             sort.addEventListener('click', function() {
                 if (hideBeatenOppo == 1) removeBeatenOpponents();
