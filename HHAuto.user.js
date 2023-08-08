@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.34.21
+// @version      5.34.22
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1230,6 +1230,7 @@ function moduleContestsStyles()
         + 'float: left;'
         + 'margin-left: 20px;'
         + 'margin-top: 16px;'
+        + 'width: 120px;'
     +'}');
     GM_addStyle(contestsContainerPath + ' > .contest_expiration_timer {'
         + 'bottom: 95px;'
@@ -6531,7 +6532,6 @@ function moduleSimLeague() {
 
         for (var i of Object.keys(opponentsTempPowerList.opponentsList))
         {
-            //logHHAuto("Display " + i + "");
             displayOppoSimuOnButton(i, opponentsTempPowerList.opponentsList[i]);
         }
     }
@@ -8528,11 +8528,11 @@ function moduleShopActions()
         {
             if(c === 'mythic') {
                 itemsListMenu +='  <tr>'
-                    +'   <td menuSellFilter="c:'+c+';t:*;r:*">'+getTextForUI("RarityMythic","elementText")+'</td>';
+                    +'   <td class="type" menuSellFilter="c:'+c+';t:*;r:*">'+getTextForUI("RarityMythic","elementText")+'</td>';
             } else {
                 let ext= (c === 16)?"svg":"png";
                 itemsListMenu +='  <tr>'
-                    +'   <td menuSellFilter="c:'+c+';t:*;r:*"><img style="height:20px;width:20px" src="'+getHHScriptVars("baseImgPath")+'/pictures/misc/items_icons/'+c+'.'+ext+'"></td>';
+                    +'   <td class="type" menuSellFilter="c:'+c+';t:*;r:*"><img style="height:20px;width:20px" src="'+getHHScriptVars("baseImgPath")+'/pictures/misc/items_icons/'+c+'.'+ext+'"></td>';
             }
 
             for (let r of itemsRarity)
@@ -8710,21 +8710,30 @@ function moduleShopActions()
             return;
         }
 
+        GM_addStyle(
+            '#SellDialog .close {   position: absolute;   top: 0;   right: 30px;   transition: all 200ms;   font-size: 50px;   font-weight: bold;   text-decoration: none;   color: #333; } '
+        + '#SellDialog .close:hover {   color: #06D85F; }'
+        + '#SellDialog p { font-size: 15px; }'
+        + '#SellDialog p.intro { margin: 0; }'
+        + '#SellDialog .myButton { font-size: 12px; min-width: 100px; text-align: center; }'
+        + '#SellDialog td.type { text-align: center; }'
+        );
+
         var menuSellLock = '<div style="position: absolute;right: 220px;top: 70px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellLock","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSellLock">'+getTextForUI("menuSellLock","elementText")+'</label></div>'
         var menuSellMaskLocked = '<div style="position: absolute;right: 140px;top: 70px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellMaskLocked","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSellMaskLocked">'+getTextForUI("menuSellMaskLocked","elementText")+'</label></div>'
         var menuSell = '<div style="position: absolute;right: 300px;top: 70px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSell","tooltip")+'</span><label style="width:70px" class="myButton" id="menuSell">'+getTextForUI("menuSell","elementText")+'</label></div>'
-        + '<dialog style="overflow-y:auto;max-width:95%;max-height:95%;"id="SellDialog"><form stylemethod="dialog">'
-        +  '<div style="padding:10px; display:flex;flex-direction:column;">'
-        +   '<p>'+getTextForUI("menuSellText","elementText")+'</p>'
+        + '<dialog style="overflow-y:auto;max-width:95%;max-height:95%;"id="SellDialog"><a class="close" id="SellDialogClose">&times;</a><form stylemethod="dialog">'
+        +  '<div style="padding:0 10px; display:flex;flex-direction:column;">'
+        +   '<p class="intro">'+getTextForUI("menuSellText","elementText")+'</p>'
         +   '<div class="HHMenuRow">'
         +    '<p>'+getTextForUI("menuSellCurrentCount","elementText")+'</p>'
         +    '<p id="menuSellCurrentCount">0</p>'
         +   '</div>'
         + '<div id="menuSellStop"><label style="width:80px" class="myButton" id="menuSellStop">'+getTextForUI("OptionStop","elementText")+'</label></div>'
         +   '<div id="menuSellHide" style="display:none">'
-        +    '<p id="menuSellList"></p>'
+        +    '<p id="menuSellList" style="margin:0;"></p>'
         +    '<div class="HHMenuRow">'
-        +     '<div style="padding:10px;"class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellButton","tooltip")+'</span><label class="myButton" id="menuSellButton">'+getTextForUI("menuSellButton","elementText")+'</label></div>'
+        +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellButton","tooltip")+'</span><label class="myButton" id="menuSellButton">'+getTextForUI("menuSellButton","elementText")+'</label></div>'
         +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuSellNumber","tooltip")+'</span><input id="menuSellNumber" style="width:80%;height:20px" required pattern="'+HHAuto_inputPattern.menuSellNumber+'" type="text" value="0"></div>'
         +    '</div>'
         +   '</div>'
@@ -8736,7 +8745,7 @@ function moduleShopActions()
         +    '<p id="menuSoldMessage">0</p>'
         +   '</div>'
         +  '</div>'
-        + '<menu> <label style="width:80px" class="myButton" id="menuSellCancel">'+getTextForUI("OptionCancel","elementText")+'</label></menu></form></dialog>'
+        + '<menu> <label style="margin-left:800px" class="myButton" id="menuSellCancel">'+getTextForUI("OptionCancel","elementText")+'</label></menu></form></dialog>'
 
         initMenuSell();
         initMenuSellLock();
@@ -8750,9 +8759,7 @@ function moduleShopActions()
         {
             $('#player-inventory.armor').append(menuSell);
 
-
-            document.getElementById("menuSell").addEventListener("click", displayMenuSell);
-            document.getElementById("menuSellCancel").addEventListener("click", function(){
+            const closeSellDialog = function(){
                 var SellDialog = document.getElementById("SellDialog");
                 if (typeof SellDialog.showModal !== "function")
                 {
@@ -8761,7 +8768,11 @@ function moduleShopActions()
                 }
                 $('#player-inventory.armor .slot:not(.empty)[canBeSold]').removeAttr('canBeSold');
                 SellDialog.close();
-            });
+            }
+
+            document.getElementById("menuSell").addEventListener("click", displayMenuSell);
+            document.getElementById("menuSellCancel").addEventListener("click", closeSellDialog);
+            document.getElementById("SellDialogClose").addEventListener("click", closeSellDialog);
             document.getElementById("menuSellStop").addEventListener("click", function(){
                 this.style.display = "none";
                 menuSellStop = true;
