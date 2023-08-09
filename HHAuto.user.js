@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.34.23
+// @version      5.34.24
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -8900,7 +8900,7 @@ function moduleShopActions()
                 logHHAuto('Sell Dialog closed, stopping');
                 return;
             }
-            let availebleItems = $('#player-inventory.armor .slot:not(.empty):not([menuSellLocked])');
+            let availebleItems = $('#player-inventory.armor .slot:not(.empty):not([menuSellLocked]):not(.mythic)');
             let currentNumberOfItems = availebleItems.length;
             if (currentNumberOfItems === 0)
             {
@@ -8923,7 +8923,7 @@ function moduleShopActions()
             {
                 let can_sell = false;
                 //Non legendary or with specific attribute
-                if (availebleItems.filter('.selected').filter(':not(.legendary):not(.mythic),[canBeSold]').length > 0)
+                if (availebleItems.filter('.selected').filter(':not(.legendary),[canBeSold]').length > 0)
                 {
                     can_sell = true;
                 }
@@ -8939,7 +8939,7 @@ function moduleShopActions()
                 }
             }
             //Find new sellable items
-            if (availebleItems.filter(':not(.selected):not(.legendary):not(.mythic),[canBeSold]').length > 0)
+            if (availebleItems.filter(':not(.selected):not(.legendary),[canBeSold]').length > 0)
             {
                 //Select first non legendary item
                 //Or select item that checked before and can be sold
@@ -8998,7 +8998,7 @@ function moduleShopActions()
                         }
                     }
                 }
-                if ($('#player-inventory.armor [canBeSold]:not([menuSellLocked])').length == 0)
+                if ($('#player-inventory.armor [canBeSold]:not([menuSellLocked]):not(.mythic)').length == 0)
                 {
                     logHHAuto('no more items for sale');
                     document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageNoMore","elementText");
