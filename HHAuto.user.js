@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.34.24
+// @version      5.34.25
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -8398,6 +8398,7 @@ function getGirlUpgradeCost(inRarity, inTargetGrade)
 
 function moduleShopActions()
 {
+    const itemsQuery = '#player-inventory.armor .slot:not(.empty):not([menuSellLocked]):not(.mythic)';
     appendMenuSell();
 
     /**
@@ -8705,7 +8706,7 @@ function moduleShopActions()
         }
         else if (document.getElementById(menuID) !== null)
         {
-            document.getElementById("menuSellCurrentCount").innerHTML = $('#player-inventory.armor .slot:not(.empty):not([menuSellLocked])').length;
+            document.getElementById("menuSellCurrentCount").innerHTML = $(itemsQuery).length;
             return;
         }
 
@@ -8854,7 +8855,7 @@ function moduleShopActions()
     function fetchAllArmorItems()
     {
         let oldCount = $('#player-inventory.armor .slot:not(.empty)').length;
-        document.getElementById("menuSellCurrentCount").innerHTML = $('#player-inventory.armor .slot:not(.empty):not([menuSellLocked])').length;
+        document.getElementById("menuSellCurrentCount").innerHTML = $(itemsQuery).length;
         let scroll = $("#player-inventory.armor")[0];
         if (menuSellStop || allLoaded || oldCount >= menuSellMaxItems || !document.getElementById("SellDialog").open)
         {
@@ -8883,7 +8884,7 @@ function moduleShopActions()
         document.getElementById("menuSellHide").style.display = "none";
         document.getElementById("menuSoldHide").style.display = "block";
         // return;
-        var initialNumberOfItems = $('#player-inventory.armor .slot:not(.empty):not([menuSellLocked])').length;
+        var initialNumberOfItems = $(itemsQuery).length;
         var itemsToSell = Number(document.getElementById("menuSellNumber").value);
         document.getElementById("menuSoldCurrentCount").innerHTML = "0/"+itemsToSell;
         document.getElementById("menuSoldMessage").innerHTML ="";
@@ -8900,7 +8901,7 @@ function moduleShopActions()
                 logHHAuto('Sell Dialog closed, stopping');
                 return;
             }
-            let availebleItems = $('#player-inventory.armor .slot:not(.empty):not([menuSellLocked]):not(.mythic)');
+            let availebleItems = $(itemsQuery);
             let currentNumberOfItems = availebleItems.length;
             if (currentNumberOfItems === 0)
             {
@@ -8933,7 +8934,7 @@ function moduleShopActions()
                     $('#shops .menu-switch-tab-content.active button.green_text_button[rel=sell]').click();
                     let currSellNumber = Number((initialNumberOfItems - currentNumberOfItems) +1);
                     document.getElementById("menuSoldCurrentCount").innerHTML = currSellNumber+"/"+itemsToSell;
-                    document.getElementById("menuSellCurrentCount").innerHTML = $('#player-inventory.armor .slot:not(.empty):not([menuSellLocked])').length;
+                    document.getElementById("menuSellCurrentCount").innerHTML = $(itemsQuery).length;
                     setTimeout(selling_func, 300);
                     return;
                 }
