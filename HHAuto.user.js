@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.34.22
+// @version      5.34.23
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1214,7 +1214,7 @@ function moduleContestsStyles()
         + 'height: 50px;'
         + 'font-size: 0.7rem;'
     +'}');
-    GM_addStyle(contestsContainerPath + ' > .contest_title{'
+    GM_addStyle(contestsContainerPath + ' > .contest_title {'
         + 'font-size: 14px;'
         + 'left: 140px;'
         + 'bottom: 24px;'
@@ -1227,9 +1227,8 @@ function moduleContestsStyles()
     +'}');
     GM_addStyle(contestsContainerPath + ' > .personal_rewards > button {'
         + 'height: 23px;'
-        + 'float: left;'
-        + 'margin-left: 20px;'
-        + 'margin-top: 16px;'
+        + 'margin-right: 241px;'
+        + 'margin-top: -6px;'
         + 'width: 120px;'
     +'}');
     GM_addStyle(contestsContainerPath + ' > .contest_expiration_timer {'
