@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.34.25
+// @version      5.35.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1765,6 +1765,17 @@ function modulePachinko()
         return;
     }
 
+    function getNumberOfGirlToWinPatchinko(){
+        const girlsRewards = $("div.playing-zone .game-rewards .list-prizes .girl_shards");
+        let numberOfGirlsToWin = 0;
+        if (girlsRewards.length > 0) {
+            try {
+                numberOfGirlsToWin = JSON.parse(girlsRewards.attr("data-rewards")).length;
+            } catch(exp) {}
+        }
+        return numberOfGirlsToWin;
+    }
+
     function buildPachinkoSelectPopUp()
     {
         let PachinkoMenu =   '<div style="padding:50px; display:flex;flex-direction:column;font-size:15px;" class="HHAutoScriptMenu">'
@@ -1773,8 +1784,12 @@ function modulePachinko()
         +     '<div style="padding:10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoLeft","tooltip")+'</span><span id="PachinkoLeft"></span></div>'
         +    '</div>'
         +    '<div class="rowLine">'
+        +      '<p id="girls_to_win"></p>'
+        +    '</div>'
+        +    '<div class="rowLine">'
         +       hhMenuSwitch('PachinkoFillOrbs')
         +       hhMenuSwitch('PachinkoByPassNoGirls')
+        +       hhMenuSwitch('PachinkoStopFirstGirl')
         +    '</div>'
         +    '<div class="rowLine">'
         +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoXTimes","tooltip")+'</span><input id="PachinkoXTimes" style="width:50px;height:20px" required pattern="'+HHAuto_inputPattern.menuExpLevel+'" type="text" value="1"></div>'
@@ -1850,6 +1865,10 @@ function modulePachinko()
             }
         });
 
+        let numberOfGirlsToWin = getNumberOfGirlToWinPatchinko();
+        document.getElementById("girls_to_win").innerText= numberOfGirlsToWin + " girls to win"; // TODO translate
+        $('#PachinkoStopFirstGirl').parent().parent().parent().toggle(numberOfGirlsToWin>0);
+
 
         if(countTimers === 0)
         {
@@ -1866,6 +1885,7 @@ function modulePachinko()
         logHHAuto("setting autoloop to false");
         let timerSelector = document.getElementById("PachinkoSelector");
         let ByPassNoGirlChecked = document.getElementById("PachinkoByPassNoGirls").checked;
+        let stopFirstGirlChecked = document.getElementById("PachinkoStopFirstGirl").checked;
         let buttonValue = Number(timerSelector.options[timerSelector.selectedIndex].value);
         let buttonSelector = "div.playing-zone div.btns-section button.blue_button_L[nb_games="+buttonValue+"]";
         let orbsLeftSelector = buttonSelector+ " span[total_orbs]";
@@ -1902,6 +1922,12 @@ function modulePachinko()
             logHHAuto("Cancel clicked, closing popUp.");
 
         });
+        function stopXPachinkoNoGirl(){
+            logHHAuto("No more girl on Pachinko, cancelling.");
+            maskHHPopUp();
+            buildPachinkoSelectPopUp();
+            document.getElementById("PachinkoError").innerText=getTextForUI("PachinkoNoGirls","elementText");
+        }
         function playXPachinko_func()
         {
             if(!isDisplayedHHPopUp())
@@ -1919,11 +1945,22 @@ function modulePachinko()
                 }
                 else
                 {
-                    logHHAuto("No more girl on Pachinko, cancelling.");
-                    maskHHPopUp();
-                    buildPachinkoSelectPopUp();
-                    document.getElementById("PachinkoError").innerText=getTextForUI("PachinkoNoGirls","elementText");
+                    stopXPachinkoNoGirl();
+                    return;
                 }
+            }
+            let numberOfGirlsToWin = getNumberOfGirlToWinPatchinko();
+            // if(!ByPassNoGirlChecked && numberOfGirlsToWin === 0) {
+            //     stopXPachinkoNoGirl();
+            //     return;
+            // }
+
+            if (stopFirstGirlChecked && $('#rewards_popup #reward_holder .shards_wrapper:visible').length > 0)
+            {
+                logHHAuto("Girl in reward, stopping...");
+                maskHHPopUp();
+                buildPachinkoSelectPopUp();
+                return;
             }
             let pachinkoSelectedButton= $(buttonSelector)[0];
             closeRewardPopupIfAny();
@@ -2493,6 +2530,9 @@ function collectAndUpdatePowerPlaces()
     else
     {
         logHHAuto("On powerplaces main page.");
+        setStoredValue("HHAuto_Temp_autoLoop", "false");
+        logHHAuto("setting autoloop to false");
+
         setStoredValue("HHAuto_Temp_Totalpops", $("div.pop_list div[pop_id]").length); //Count how many different POPs there are and store them locally
         logHHAuto("totalpops : "+getStoredValue("HHAuto_Temp_Totalpops"));
         var newFilter="";
@@ -2609,6 +2649,8 @@ function collectAndUpdatePowerPlaces()
         }
         logHHAuto("build popToStart : "+PopToStart);
         setStoredValue("HHAuto_Temp_PopToStart", JSON.stringify(PopToStart));
+        setStoredValue("HHAuto_Temp_autoLoop", "true");
+        setTimeout(autoLoop, Number(getStoredValue("HHAuto_Temp_autoLoopTimeMili")));
         return false;
     }
 }
@@ -11196,6 +11238,7 @@ HHAuto_ToolTips.en.PachinkoOrbsLeft = {version: "5.6.24", elementText: " orbs re
 HHAuto_ToolTips.en.PachinkoInvalidOrbsNb = {version: "5.6.24", elementText: 'Invalid orbs number'};
 HHAuto_ToolTips.en.PachinkoNoGirls = {version: "5.6.24", elementText: 'No more any girls available.'};
 HHAuto_ToolTips.en.PachinkoByPassNoGirls = {version: "5.6.24", elementText: 'Bypass no girls', tooltip: "Bypass the no girls in Pachinko warning."};
+HHAuto_ToolTips.en.PachinkoStopFirstGirl = {version: "5.35.00", elementText: 'Stop first girl', tooltip: "Stop when a girl is won."};
 HHAuto_ToolTips.en.PachinkoFillOrbs = {version: "5.6.134", elementText: 'Fill all orbs', tooltip: "Fill input with all available orbs."};
 HHAuto_ToolTips.en.ChangeTeamButton = {version: "5.6.24", elementText: "Current Best", tooltip: "Get list of top 16 girls for your team."};
 HHAuto_ToolTips.en.ChangeTeamButton2 = {version: "5.6.24", elementText: "Possible Best", tooltip: "Get list of top 16 girls for your team if they are Max Lv & Aff"};
