@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.35.0
+// @version      5.35.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -6655,7 +6655,7 @@ function moduleSimLeague() {
 
     SimPower();
 
-    let listUpdateStatus='<div style="position: absolute;left: 600px;top: 14px;width:100px;" class="tooltipHH" id="HHListUpdate"></div>';
+    let listUpdateStatus='<div style="position: absolute;left: 650px;top: 14px;width:100px;" class="tooltipHH" id="HHListUpdate"></div>';
     if (document.getElementById("HHListUpdate") === null) {
         $(".leagues_middle_header_script").append(listUpdateStatus);
     }
@@ -6679,7 +6679,7 @@ function moduleSimLeague() {
         $("#HHListUpdate").html('Building:' + opponentSim.length +"/"+ opponentButtons.length);
     }
 
-    let buttonSortList='<div style="position: absolute;left: 720px;top: 14px;width:75px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("sortPowerCalc","tooltip")+'</span><label style="width:100%;" class="myButton" id="sortPowerCalc">'+getTextForUI("sortPowerCalc","elementText")+'</label></div>';
+    let buttonSortList='<div style="position: absolute;left: 780px;top: 14px;width:75px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("sortPowerCalc","tooltip")+'</span><label style="width:100%;" class="myButton" id="sortPowerCalc">'+getTextForUI("sortPowerCalc","elementText")+'</label></div>';
     const league_table = $('.league_content .data-list');
     if (document.getElementById("sortPowerCalc") === null && $('.matchRatingNew',league_table).length >0)
     {
