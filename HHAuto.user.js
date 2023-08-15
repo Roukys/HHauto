@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.35.1
+// @version      5.35.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4950,6 +4950,7 @@ var doLeagueBattle = function () {
         logHHAuto("On leaderboard page.");
         if (getStoredValue("HHAuto_Setting_autoLeaguesCollect") === "true")
         {
+            // TODO update
             if ($('#leagues_middle .forced_info button[rel="claim"]').length >0)
             {
                 $('#leagues_middle .forced_info button[rel="claim"]').click(); //click reward
@@ -8197,7 +8198,7 @@ var autoLoop = function ()
         }
     }
 
-    if(busy === false  && getStoredValue("HHAuto_Setting_paranoia") === "true" && getStoredValue("HHAuto_Setting_master") ==="true" && getStoredValue("HHAuto_Temp_autoLoop") === "true")
+    if(busy === false && !mouseBusy  && getStoredValue("HHAuto_Setting_paranoia") === "true" && getStoredValue("HHAuto_Setting_master") ==="true" && getStoredValue("HHAuto_Temp_autoLoop") === "true")
     {
         if (checkTimer("paranoiaSwitch")) {
             flipParanoia();
