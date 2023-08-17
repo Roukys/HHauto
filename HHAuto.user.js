@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.35.2
+// @version      5.35.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -5000,9 +5000,9 @@ var doLeagueBattle = function () {
             var currentRank = Number($('.data-list .data-row.body-row.player-row .data-column[column="place"]').text());
             var currentScore = Number($('.data-list .data-row.body-row.player-row .data-column[column="player_league_points"]').text().replace(/\D/g, ''));
             let leagueTargetValue = Number(getStoredValue("HHAuto_Setting_autoLeaguesSelectedIndex"))+1;
+            var maxDemote = 0;
             if (leagueTargetValue < Number(getPlayerCurrentLevel))
             {
-                var maxDemote = 0;
                 var totalOpponents = Number($('.data-list .data-row.body-row').length)+1;
                 if (screen.width < 1026)
                 {
@@ -5121,7 +5121,8 @@ var doLeagueBattle = function () {
 
                 let numberOfBattle = 1;
                 if(currentPower >= 3 && opponentDataFromList && opponentDataFromList.length > 0 && canFightThreeTimes(opponentDataFromList[0])){
-                    numberOfBattle = 3;
+                    if(currentScore + ( 3 * leagueScoreSecurityThreshold) >= maxDemote ) logHHAuto('Can\'t do 3 fights in league as could go above demote');
+                    else numberOfBattle = 3;
                 }
                 logHHAuto("Going to fight " +numberOfBattle + " times");
 
@@ -6513,6 +6514,7 @@ function moduleSimLeagueSyles(){
     GM_addStyle('.powerLevelScouter {'
             + 'width: 25px;}'
            );
+    GM_addStyle('#leagues .league_content .league_table .data-list .data-row .data-column[column="nickname"].clubmate .nickname { color: #00CC00 }');
 }
 
 function addChangeTeamButton() {
@@ -6541,6 +6543,7 @@ function moduleSimLeague() {
     const opponentButtons = $('a.go_pre_battle.blue_button_L');
     const opponentSim = $("div.matchRatingNew img.powerLevelScouter");
     const allOpponentsSimDisplayed = (opponentSim.length >= opponentButtons.length);
+    const Hero=getHero();
 
 
     const displayOppoSimuOnButton = function(id_fighter, simu, force=0) {
@@ -6575,6 +6578,13 @@ function moduleSimLeague() {
         for (var i of Object.keys(opponentsTempPowerList.opponentsList))
         {
             displayOppoSimuOnButton(i, opponentsTempPowerList.opponentsList[i]);
+
+            //add clubmate class to column
+            if(Hero.infos.id !== id && Hero.club !== null && opponent.player.club !== null && Hero.club.id_club == opponent.player.club.id_club) {
+                const opponentGoButton = $('a[href*="id_opponent='+id_fighter+'"]');
+                const opponentRow = opponentGoButton.parent().parent();
+                opponentRow.querySelector('.data-column[column="nickname"]').classList.add('clubmate');
+            }
         }
     }
     else
@@ -6597,7 +6607,7 @@ function moduleSimLeague() {
             return;
         }
         let heroFighter = opponents_list.filter(obj => {
-            return obj.player.id_fighter == getHHVars("Hero.infos.id");
+            return obj.player.id_fighter == Hero.infos.id;
           });
         if(heroFighter.length > 0) heroFighter = heroFighter[0].player;
         else return;
