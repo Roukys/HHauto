@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.35.4
+// @version      5.35.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -6575,16 +6575,9 @@ function moduleSimLeague() {
     {
         //logHHAuto("Opponents list already started, display result not already displayed.");
 
-        for (var i of Object.keys(opponentsTempPowerList.opponentsList))
+        for (var id_fighter of Object.keys(opponentsTempPowerList.opponentsList))
         {
-            displayOppoSimuOnButton(i, opponentsTempPowerList.opponentsList[i]);
-
-            //add clubmate class to column
-            if(Hero.infos.id !== id && Hero.club !== null && opponent.player.club !== null && Hero.club.id_club == opponent.player.club.id_club) {
-                const opponentGoButton = $('a[href*="id_opponent='+id_fighter+'"]');
-                const opponentRow = opponentGoButton.parent().parent();
-                opponentRow.querySelector('.data-column[column="nickname"]').classList.add('clubmate');
-            }
+            displayOppoSimuOnButton(id_fighter, opponentsTempPowerList.opponentsList[id_fighter]);
         }
     }
     else
@@ -7346,7 +7339,7 @@ function moduleSimSeasonBattle()
             chosenID = -2;
         }
 
-        $($('div.season_arena_opponent_container div.matchRatingNew')).append(`<img id="powerLevelScouterNonChosen"}>`);
+        $($('div.season_arena_opponent_container div.matchRatingNew')).append(`<img id="powerLevelScouterNonChosen">`);
 
         GM_addStyle('#powerLevelScouterChosen, #powerLevelScouterNonChosen {'
                     + 'width: 25px;}'
