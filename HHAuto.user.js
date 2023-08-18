@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.35.6
+// @version      5.35.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -161,7 +161,16 @@ function getStorage()
 
 function getStoredValue(inVarName)
 {
-    return HHStoredVars.hasOwnProperty(inVarName)?getStorageItem(HHStoredVars[inVarName].storage)[inVarName]:undefined;
+    if (HHStoredVars.hasOwnProperty(inVarName))
+    {
+        const storedValue = getStorageItem(HHStoredVars[inVarName].storage)[inVarName];
+        if(HHStoredVars[inVarName].kobanUsing) {
+            // Check main switch for spenind Koban
+            return getStoredValue('HHAuto_Setting_spendKobans0') === "true" ? storedValue : "false";
+        }
+        return storedValue
+    }
+    return undefined;
 }
 
 function deleteStoredValue(inVarName)
@@ -13753,7 +13762,7 @@ var start = function () {
                             + hhMenuInput('autoAff', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
                         +`</div>`
                         +`<div class="internalOptionsRow">`
-                            + hhMenuSwitchWithImg('autoBuyBoosters', 'design/ic_boosters_gray.svg')
+                            + hhMenuSwitchWithImg('autoBuyBoosters', 'design/ic_boosters_gray.svg', true)
                             + hhMenuInput('autoBuyBoostersFilter', HHAuto_inputPattern.autoBuyBoostersFilter, 'text-align:center; width:70px')
                         +`</div>`
                         +`<div class="internalOptionsRow">`
