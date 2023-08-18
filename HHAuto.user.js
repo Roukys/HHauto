@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.35.7
+// @version      5.35.8
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -13401,6 +13401,7 @@ let mouseBusy = false;
 let mouseBusyTimeout = 0;
 function makeMouseBusy(ms) {
     clearTimeout(mouseBusyTimeout);
+    //logHHAuto('mouseBusy' + mouseBusy + ' ' + ms);
     mouseBusy = true;
     mouseBusyTimeout = setTimeout(function(){mouseBusy = false;}, ms);
 };
@@ -13432,7 +13433,7 @@ var start = function () {
     setDefaults();
 
     if (getStoredValue("HHAuto_Setting_mousePause") === "true") {
-        const mouseTimeoutVal = getStoredValue("HHAuto_Setting_mousePauseTimeout").isInteger ? getStoredValue("HHAuto_Setting_mousePauseTimeout") : 5000;
+        const mouseTimeoutVal = Number.isInteger(Number(getStoredValue("HHAuto_Setting_mousePauseTimeout"))) ? Number(getStoredValue("HHAuto_Setting_mousePauseTimeout")) : 5000;
         document.onmousemove = function() { makeMouseBusy(mouseTimeoutVal); };
         document.onscroll = function() { makeMouseBusy(mouseTimeoutVal); };
         document.onmouseup = function() { makeMouseBusy(mouseTimeoutVal); };
