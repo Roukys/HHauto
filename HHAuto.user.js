@@ -4915,6 +4915,7 @@ function getLeagueOpponentListData(isFirstCall = true)
     let fightButton;
 
     const hasHHBdsmChangeBefore = $('.data-column[column="power"] .matchRating').length > 0;
+    if (hasHHBdsmChangeBefore) logHHAuto('HH++ BDSM detected');
     const tableRow = $(".data-list .data-row.body-row");
 
     var getPowerOrPoints = function (hasHHBdsmChangeBefore, oppoRow)
@@ -4930,7 +4931,7 @@ function getLeagueOpponentListData(isFirstCall = true)
 
     tableRow.each(function()
     {
-        fightButton = $('a', $(this));
+        fightButton = $('.data-column[column="can_fight"] a.go_pre_battle', $(this));
         if(fightButton.length > 0) {
             opponent_id = queryStringGetParam(new URL(fightButton.attr("href"),window.location.origin).search, 'id_opponent');
             let opponnent = {
