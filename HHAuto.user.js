@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.36.0
+// @version      5.36.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -430,23 +430,34 @@ function getPage(checkUnknown = false)
     }
     //var p=ob.className.match(/.*page-(.*) .*/i)[1];
     let activitiesMainPage = getHHScriptVars("pagesIDActivities");
+    var tab = queryStringGetParam(window.location.search,'tab');
     var p=ob.getAttribute('page');
     let page = p;
     if (p==activitiesMainPage)
     {
-        if ($('h4.contests.selected').length>0 || $("#activities-tabs > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='contests']").length>0)
+        if (tab === 'contests' || $("#activities-tabs > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='contests']").length>0)
         {
             page = getHHScriptVars("pagesIDContests");
         }
-        if ($('h4.missions.selected').length>0 || $("#activities-tabs > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='missions']").length>0)
+        if (tab === 'missions' || $("#activities-tabs > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='missions']").length>0)
         {
             page = getHHScriptVars("pagesIDMissions");
         }
-        if ($('h4.daily_goals.selected').length>0 || $("#activities-tabs > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='daily_goals']").length>0)
+        if (tab === 'daily_goals' || $("#activities-tabs > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='daily_goals']").length>0)
         {
             page = getHHScriptVars("pagesIDDailyGoals");
+
+            if (tab === 'pop') {
+                // Wrong POP targetted
+                var index = queryStringGetParam(window.location.search,'index');
+                if (index !== null)
+                {
+                    addPopToUnableToStart(index,"Unable to go to Pop "+index+" as it is locked.");
+                    removePopFromPopToStart(index);
+                }
+            }
         }
-        if ($('h4.pop.selected').length>0 || $("#activities-tabs > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='pop']").length>0)
+        if (tab === 'pop' || $("#activities-tabs > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='pop']").length>0)
         {
             // if on Pop menu
             var t;
@@ -457,6 +468,7 @@ function getPage(checkUnknown = false)
             }
             else
             {
+                // Keep this but not triggered anymore. When Wrong POP is targetted, daily goals is highlighted
                 t=$(".pop_thumb_selected").attr("pop_id");
                 checkUnknown = false;
                 if (t === undefined)
