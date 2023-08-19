@@ -563,15 +563,8 @@ function gotoPage(page,inArgs,delay = -1)
             togoto = getHHScriptVars("pagesURLShop");
             break;
         case getHHScriptVars("pagesIDQuest"):
-            let mainQuest = getStoredValue("HHAuto_Setting_autoQuest") === "true";
-            let sideQuest = getHHScriptVars("isEnabledSideQuest",false) && getStoredValue("HHAuto_Setting_autoSideQuest") === "true";
-            togoto = getHHVars('Hero.infos.questing.current_url');
-            if ((mainQuest && sideQuest && togoto.includes("world")) || (!mainQuest && sideQuest))
-            {
-                togoto = '/side-quests.html';
-            }
-            else if (togoto.includes("world"))
-            {
+            togoto = getQuestLink();
+            if(togoto === false) {
                 logHHAuto("All quests finished, setting timer to check back later!");
                 setTimer('nextMainQuestAttempt', 604800); // 1 week delay
                 gotoPage(getHHScriptVars("pagesIDHome"));
@@ -679,6 +672,21 @@ function parsePrice(princeStr){
         ret = remove1000sSeparator(princeStr);
     }
     return ret;
+}
+
+function getQuestLink(){
+    let mainQuest = getStoredValue("HHAuto_Setting_autoQuest") === "true";
+    let sideQuest = getHHScriptVars("isEnabledSideQuest",false) && getStoredValue("HHAuto_Setting_autoSideQuest") === "true";
+    let togoto = getHHVars('Hero.infos.questing.current_url');
+    if ((mainQuest && sideQuest && togoto.includes("world")) || (!mainQuest && sideQuest))
+    {
+        togoto = '/side-quests.html';
+    }
+    else if (togoto.includes("world"))
+    {
+        togoto = false;
+    }
+    return togoto;
 }
 
 var proceedQuest = function () {
@@ -4930,6 +4938,9 @@ function getLeagueOpponentListData(isFirstCall = true)
         }
     }
 
+    logHHAuto('Number of player in league:' + tableRow.length);
+    logHHAuto('Number of opponent not fought in league:' + $('.data-list .data-row.body-row .data-column[column="can_fight"] a.go_pre_battle').length);
+
     tableRow.each(function()
     {
         fightButton = $('.data-column[column="can_fight"] a.go_pre_battle', $(this));
@@ -4950,7 +4961,7 @@ function getLeagueOpponentListData(isFirstCall = true)
         }
     });
     const hasHHBdsmChangeAfter = $('.data-column[column="power"] .matchRating').length > 0;
-    if(hasHHBdsmChangeBefore != hasHHBdsmChangeAfter) {
+    if(!hasHHBdsmChangeBefore && hasHHBdsmChangeAfter) {
         logHHAuto('HH++ BDSM edit table during computation');
         if(isFirstCall) {
             logHHAuto('Try again');
@@ -6557,13 +6568,12 @@ function moduleSimLeague() {
     const allOpponentsSimDisplayed = (opponentSim.length >= opponentButtons.length);
     const Hero=getHero();
 
-
     const displayOppoSimuOnButton = function(id_fighter, simu, force=0) {
         const opponentGoButton = $('a[href*="id_opponent='+id_fighter+'"]');
         if((opponentGoButton.length <= 0 || $('.powerLevelScouter',opponentGoButton).length > 0) && !force) {
             return;
         }
-        logHHAuto('powerLevelScouter not present adding it ' + id_fighter);
+        // logHHAuto('powerLevelScouter not present adding it ' + id_fighter);
 
         const percentage = nRounding(100*simu.win, 2, -1);
         const points = nRounding(simu.expectedValue, 1, -1);
