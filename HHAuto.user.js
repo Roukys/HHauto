@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.35.9
+// @version      5.36.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -563,7 +563,7 @@ function gotoPage(page,inArgs,delay = -1)
             togoto = getHHScriptVars("pagesURLShop");
             break;
         case getHHScriptVars("pagesIDQuest"):
-            togoto = getQuestLink();
+            togoto = QuestHelper.getNextQuestLink();
             if(togoto === false) {
                 logHHAuto("All quests finished, setting timer to check back later!");
                 setTimer('nextMainQuestAttempt', 604800); // 1 week delay
@@ -674,26 +674,42 @@ function parsePrice(princeStr){
     return ret;
 }
 
-function getQuestLink(){
-    let mainQuest = getStoredValue("HHAuto_Setting_autoQuest") === "true";
-    let sideQuest = getHHScriptVars("isEnabledSideQuest",false) && getStoredValue("HHAuto_Setting_autoSideQuest") === "true";
-    let togoto = getHHVars('Hero.infos.questing.current_url');
-    if ((mainQuest && sideQuest && togoto.includes("world")) || (!mainQuest && sideQuest))
-    {
-        togoto = '/side-quests.html';
+const QuestHelper = {
+    SITE_QUEST_PAGE: '/side-quests.html',
+    getNextQuestLink: function() {
+        const mainQuest = getStoredValue("HHAuto_Setting_autoQuest") === "true";
+        const sideQuest = getHHScriptVars("isEnabledSideQuest",false) && getStoredValue("HHAuto_Setting_autoSideQuest") === "true";
+        let nextQuestUrl = QuestHelper.getMainQuestUrl();
+
+        if ((mainQuest && sideQuest && (nextQuestUrl.includes("world"))) || (!mainQuest && sideQuest))
+        {
+            nextQuestUrl = QuestHelper.SITE_QUEST_PAGE;
+        }
+        else if (nextQuestUrl.includes("world"))
+        {
+            return false;
+        }
+        return nextQuestUrl;
+    },
+    getMainQuestUrl: function() {
+        let mainQuestUrl = getHHVars('Hero.infos.questing.current_url');
+        const id_world = getHHVars('Hero.infos.questing.id_world');
+        const id_quest = getHHVars('Hero.infos.questing.id_quest');
+        const lastQuestId = getHHScriptVars("lastQuestId",false);
+
+        if (id_world < (Trollz.length) || lastQuestId > 0 && id_quest != lastQuestId) {
+            // Fix when KK quest url is world url
+            mainQuestUrl = "/quest/" + id_quest;
+        }
+        return mainQuestUrl;
     }
-    else if (togoto.includes("world"))
-    {
-        togoto = false;
-    }
-    return togoto;
 }
 
 var proceedQuest = function () {
     //logHHAuto("Starting auto quest.");
     // Check if at correct page.
     let page = getPage();
-    let mainQuestUrl = getHHVars('Hero.infos.questing.current_url');
+    let mainQuestUrl = QuestHelper.getMainQuestUrl();
     let doMainQuest = getStoredValue("HHAuto_Setting_autoQuest") === "true" && !mainQuestUrl.includes("world");
     if (!doMainQuest && page === 'side-quests' && getHHScriptVars("isEnabledSideQuest",false) && getStoredValue("HHAuto_Setting_autoSideQuest") === "true") {
         var quests = $('.side-quest:has(.slot) .side-quest-button');
@@ -10624,6 +10640,7 @@ HHEnvVariables["global"].trollGirlsID = [
     [['164866290', '696124016', '841591253'], [0], [0]],
     [['344730128', '735302216', '851893423'], [0], [0]],
 ];
+HHEnvVariables["global"].lastQuestId = 1768; //  TODO update when new quest comes
 
 HHEnvVariables["global"].leaguesList = ["Wanker I",
                                         "Wanker II",
@@ -10912,6 +10929,7 @@ HHEnvVariables["HH_test"].isEnabledFreeBundles = false;// to remove if bundles a
         [['364639341', '879781833', '895546748'], [0], [0]],
         [['148877065', '218927643', '340369336'], [0], [0]],
     ];
+    HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
 });
 HHEnvVariables["SH_prod"].isEnabledSideQuest = false;// to remove when SideQuest arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPowerPlaces = false;// to remove when PoP arrives in hornyheroes
@@ -10924,6 +10942,7 @@ HHEnvVariables["SH_prod"].isEnabledPantheon = false;// to remove when Pantheon a
 HHEnvVariables["SH_prod"].isEnabledPoVPoG = false;
 HHEnvVariables["SH_prod"].isEnabledPoV = false;// to remove when PoV arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPoG = false;// to remove when PoG arrives in hornyheroes
+HHEnvVariables["SH_prod"].lastQuestId = -1; //  TODO update when new quest comes
 HHEnvVariables["MRPG_prod"].isEnabledSideQuest = false;// to remove when SideQuest arrives in Manga RPG
 HHEnvVariables["MRPG_prod"].isEnabledMythicPachinko = false;// to remove when Mythic Pachinko arrives in Manga RPG
 HHEnvVariables["MRPG_prod"].isEnabledEquipmentPachinko = false;// to remove when Equipment Pachinko arrives in Manga RPG
@@ -10932,6 +10951,7 @@ HHEnvVariables["MRPG_prod"].isEnabledPantheon = false;// to remove when Pantheon
 HHEnvVariables["MRPG_prod"].isEnabledSeasonalEvent = false;// to remove when event arrives in Manga RPG
 HHEnvVariables["MRPG_prod"].isEnabledBossBangEvent = false;// to remove when event arrives in Manga RPG
 HHEnvVariables["MRPG_prod"].isEnabledSultryMysteriesEvent = false;// to remove when event arrives in Manga RPG
+HHEnvVariables["MRPG_prod"].lastQuestId = -1; //  TODO update when new quest comes
 HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
                                         'William Scarlett'];
 ["PH_prod","NPH_prod"].forEach((element) => {
@@ -10947,6 +10967,7 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
                                           'Jordan Kingsley',
                                           'Sierra Sinn'];
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in pornstar
+    HHEnvVariables[element].lastQuestId = 14060; //  TODO update when new quest comes
 });
 ["PH_prod","NPH_prod"].forEach((element) => {
     HHEnvVariables[element].trollGirlsID = [
@@ -10973,12 +10994,14 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
     HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in transpornstar
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in transpornstar
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in transpornstar
+    HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
 });
 ["TPH_prod","NTPH_prod"].forEach((element) => {
     HHEnvVariables[element].trollGirlsID = [
         [['171883542', '229180984', '771348244'], [0], [0]],
         [['484962893', '879574564', '910924260'], [0], [0]],
     ];
+    HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
 });
 
 const HC = 1;
