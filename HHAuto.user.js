@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.36.1
+// @version      5.36.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4967,11 +4967,11 @@ function getLeagueOpponentListData(isFirstCall = true)
     }
 
     logHHAuto('Number of player in league:' + tableRow.length);
-    logHHAuto('Number of opponent not fought in league:' + $('.data-list .data-row.body-row .data-column[column="can_fight"] a.go_pre_battle').length);
+    logHHAuto('Number of opponent not fought in league:' + $('.data-list .data-row.body-row a').length);
 
     tableRow.each(function()
     {
-        fightButton = $('.data-column[column="can_fight"] a.go_pre_battle', $(this));
+        fightButton = $('a', $(this));
         if(fightButton.length > 0) {
             opponent_id = queryStringGetParam(new URL(fightButton.attr("href"),window.location.origin).search, 'id_opponent');
             let opponnent = {
