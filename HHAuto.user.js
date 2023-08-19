@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.35.8
+// @version      5.35.9
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -667,13 +667,14 @@ function setLastPageCalled(inPage)
 
 function parsePrice(princeStr){
     // Parse price to number 105K to 105000, 6.38M to 6380000
+    // Replace comma by dots for local supports
     let ret = Number.NaN;
     if(princeStr && princeStr.indexOf('B')>0) {
-        ret = Number(princeStr.replace(/B/g, '')) * 1000000000;
+        ret = Number(princeStr.replace(/B/g, '').replace(',', '.')) * 1000000000;
     } else if(princeStr && princeStr.indexOf('M')>0) {
-        ret = Number(princeStr.replace(/M/g, '')) * 1000000;
+        ret = Number(princeStr.replace(/M/g, '').replace(',', '.')) * 1000000;
     } else if(princeStr && princeStr.indexOf('K')>0) {
-        ret = Number(princeStr.replace(/K/g, '')) * 1000;
+        ret = Number(princeStr.replace(/K/g, '').replace(',', '.')) * 1000;
     } else {
         ret = remove1000sSeparator(princeStr);
     }
