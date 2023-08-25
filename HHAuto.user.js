@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.36.3
+// @version      5.36.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -6918,14 +6918,17 @@ function HaremUpdateGirlPopup(haremItem,haremText,remainingTime)
 function moduleHaremGirl()
 {
     var confirmMaxOut = function(){
-        $('#girl_max_out_popup button.blue_button_L:not([disabled]):visible[confirm_callback]').click();
+        const confirmMaxOutButton = $('#girl_max_out_popup button.blue_button_L:not([disabled]):visible[confirm_callback]');
+        if(confirmMaxOutButton.length > 0) {
+            confirmMaxOutButton.click();
+        } else logHHAuto('Confirm max out button not found');
     };
     var maxOutButtonAndConfirm = function(haremItem, girl) {
-        const maxOutButton = $('#girl-leveler-max-out:not([disabled])');
+        const maxOutButton = $('#girl-leveler-max-out-'+haremItem+':not([disabled])');
         if(maxOutButton.length > 0) {
             logHHAuto('Max out ' + haremItem + ' for girl ' + girl.id_girl);
             maxOutButton.click();
-            setTimeout(confirmMaxOut, randomInterval(500,1000));
+            setTimeout(confirmMaxOut, randomInterval(700,1100));
             return true;
         } else {
             logHHAuto('Max out button for' + haremItem + ' for girl ' + girl.id_girl + ' not enabled');
@@ -7117,12 +7120,13 @@ function moduleHaremGirl()
             } else {
                 logHHAuto("ERROR: no girls stored");
             }
-            const canMaxOut = $('#girl-leveler-max-out:not([disabled])').length > 0;
+            const canMaxOut = $('#girl-leveler-max-out-'+haremItem+':not([disabled])').length > 0;
             if (canMaxOut)
             {
                 HaremDisplayGirlPopup(haremItem, getTextForUI("giveMaxingOut","elementText")  + ' ' + girl.name + ' : '+ girlListProgress, (remainingGirls+1)*5 );
                 maxOutButtonAndConfirm(haremItem, girl);
             } else {
+                logHHAuto("Max out button not clickable or not found");
                 HaremDisplayGirlPopup(haremItem, girl.name + ' ' + getTextForUI("giveMaxedOut","elementText")+' : '+ girlListProgress, (remainingGirls+1)*5 );
             }
 
