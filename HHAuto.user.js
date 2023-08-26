@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.37.0
+// @version      5.37.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -8373,7 +8373,10 @@ var autoLoop = function ()
             }
             getSeasonRemainingTime = callItOnce(getSeasonRemainingTime);
             getSeasonRemainingTime();
-            RewardHelper.displayRewardsSeasonDiv();
+            if (getStoredValue("HHAuto_Setting_showRewardsRecap") === "true")
+            {
+                RewardHelper.displayRewardsSeasonDiv();
+            }
             break;
         case getHHScriptVars("pagesIDEvent"):
             if (getStoredValue("HHAuto_Setting_plusEvent") === "true" || getStoredValue("HHAuto_Setting_plusEventMythic") ==="true")
@@ -8455,7 +8458,10 @@ var autoLoop = function ()
             }
             getPoVRemainingTime = callItOnce(getPoVRemainingTime);
             getPoVRemainingTime();
-            RewardHelper.displayRewardsPovPogDiv();
+            if (getStoredValue("HHAuto_Setting_showRewardsRecap") === "true")
+            {
+                RewardHelper.displayRewardsPovPogDiv();
+            }
             break;
         case getHHScriptVars("pagesIDPoG"):
             if (getStoredValue("HHAuto_Setting_PoGMaskRewards") === "true")
@@ -8464,7 +8470,10 @@ var autoLoop = function ()
             }
             getPoGRemainingTime = callItOnce(getPoGRemainingTime);
             getPoGRemainingTime();
-            RewardHelper.displayRewardsPovPogDiv();
+            if (getStoredValue("HHAuto_Setting_showRewardsRecap") === "true")
+            {
+                RewardHelper.displayRewardsPovPogDiv();
+            }
             break;
         case getHHScriptVars("pagesIDSeasonalEvent"):
             if (getStoredValue("HHAuto_Setting_SeasonalEventMaskRewards") === "true")
@@ -8473,7 +8482,10 @@ var autoLoop = function ()
             }
             getSeasonalEventRemainingTime = callItOnce(getSeasonalEventRemainingTime);
             getSeasonalEventRemainingTime();
-            RewardHelper.displayRewardsSeasonalDiv();
+            if (getStoredValue("HHAuto_Setting_showRewardsRecap") === "true")
+            {
+                RewardHelper.displayRewardsSeasonalDiv();
+            }
             break;
         case getHHScriptVars("pagesIDChampionsPage"):
             moduleSimChampions();
@@ -11221,7 +11233,7 @@ HHAuto_ToolTips.en.autoActivitiesTitle = { version: "5.6.24", elementText: "Acti
 HHAuto_ToolTips.en.buyCombat = { version: "5.6.24", elementText: "Buy comb. for events", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>If enabled : <br>Buying combat point during last X hours of event (if not going under Koban bank value), this will bypass threshold if event girl shards available."};
 HHAuto_ToolTips.en.buyCombTimer = { version: "5.6.24", elementText: "Hours to buy Combats", tooltip: "(Integer)<br>X last hours of event"};
 HHAuto_ToolTips.en.autoBuyBoosters = { version: "5.6.25", elementText: "Myth. & Leg. Boosters", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>Allow to buy booster in the market (if not going under Koban bank value)"};
-HHAuto_ToolTips.en.autoBuyBoostersFilter = { version: "5.6.25", elementText: "Filter", tooltip: "(values separated by ;)<br>Set list of codes of booster to buy, order is respected.<br>Code:Name<br>B1:Ginseng<br>B2:Jujubes<br>B3:Chlorella<br>B4:Cordyceps<br>MB1:Sandalwood perfume<br>MB2:All Mastery's Emblem<br>MB3:Headband of determination<br>MB4:Luxurious Watch<br>MB5:Combative Cinnamon<br>MB6:Alban's travel memories<br>MB7:Angels' semen scent"};
+HHAuto_ToolTips.en.autoBuyBoostersFilter = { version: "5.6.25", elementText: "Filter", tooltip: "(values separated by ;)<br>Set list of codes of booster to buy, order is respected.<br>Code:Name<br>B1:Ginseng<br>B2:Jujubes<br>B3:Chlorella<br>B4:Cordyceps<br>MB1:Sandalwood perfume<br>MB2:All Mastery's Emblem<br>MB3:Headband of determination<br>MB4:Luxurious Watch<br>MB5:Combative Cinnamon<br>MB6:Alban's travel memories<br>MB7:Angels' semen scent<br>MB8:Leagues mastery emblem<br>MB9:Seasons mastery emblem<br>MB10:Gem Detector<br>MB11:Banger<br>MB11:Shiny Aura"};
 HHAuto_ToolTips.en.autoSeasonPassReds = { version: "5.6.24", elementText: "Pass 3 reds", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>Use kobans to renew Season opponents if 3 reds"};
 HHAuto_ToolTips.en.showCalculatePower = { version: "5.6.24", elementText: "Show PowerCalc", tooltip: "Display battle simulation indicator for Leagues, battle, Seasons "};
 HHAuto_ToolTips.en.showAdsBack = { version: "5.34.15", elementText: "Move ads to the back", tooltip: "Move the ads section to the background."};
@@ -11364,7 +11376,7 @@ HHAuto_ToolTips.en.PoAMaskRewards = { version: "5.6.24", elementText: "PoA mask 
 HHAuto_ToolTips.en.PoVMaskRewards = { version: "5.6.26", elementText: "PoV mask claimed", tooltip: "Masked claimed rewards for Path of Valor."};
 HHAuto_ToolTips.en.PoGMaskRewards = { version: "5.6.89", elementText: "PoG mask claimed", tooltip: "Masked claimed rewards for Path of Glory."};
 HHAuto_ToolTips.en.rewardsToCollectTitle = { version: "5.37.0", elementText: "Energies, XP, currencies available to collect"};
-// HHAuto_ToolTips.en.rewardsToCollect = { version: "5.37.0", elementText: "Show rewards available to collect"};
+HHAuto_ToolTips.en.showRewardsRecap = { version: "5.37.0", elementText: "Show rewards recap", tooltip: "Show cululated information for energies, XP and currencies"};
 HHAuto_ToolTips.en.SeasonalEventMaskRewards = { version: "5.6.132", elementText: "Seasonal Event mask claimed", tooltip: "Masked claimed rewards for Seasonal Event."};
 HHAuto_ToolTips.en.bossBangEvent = { version: "5.20.3", elementText: "Enable", tooltip: "Perform boss bang fight script will start with the team configured after."};
 HHAuto_ToolTips.en.bossBangEventTitle = { version: "5.20.3", elementText: "Boss Bang Event"};
@@ -12775,6 +12787,17 @@ HHStoredVars.HHAuto_Setting_showAdsBack =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars.HHAuto_Setting_showRewardsRecap =
+    {
+    default:"true",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_showInfo =
     {
     default:"true",
@@ -13695,6 +13718,7 @@ var start = function () {
                             + hhMenuSwitch('showCalculatePower')
                             + hhMenuSwitch('PoAMaskRewards')
                             + hhMenuSwitch('showAdsBack')
+                            + hhMenuSwitch('showRewardsRecap')
                         +`</div>`
                     +`</div>`
                 +`</div>`
