@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.38.0
+// @version      5.38.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3119,6 +3119,15 @@ var CollectMoney = function()
             //logHHAuto('clicking N '+ToClick[0].formAction.split('/').last())
             //console.log($(ToClick[0]));
             //$(ToClick[0]).click();
+            try{
+                // Scroll to girl
+                $('[id_girl="'+Clicked[0]+'"]')[0].scrollIntoView();
+            } catch (err) {
+                try{
+                    // Girl must not be visible, scroll to girl list bottom
+                    $('.girls_list')[0].scrollTop = $('.girls_list')[0].scrollHeight;
+                }catch (err) {}
+            }
             var params = {
                 class: "Girl",
                 id_girl: Clicked[0],
@@ -3219,6 +3228,10 @@ var CollectMoney = function()
             //logHHAuto("Adding time to burst to cover getting salary : +"+addedTime+"secs");
             //addedTime += getSecondsLeft("paranoiaSwitch");
             //setTimer("paranoiaSwitch",addedTime);
+            try{
+                // reset filters to better simulate manual collection
+                $('#reset-filters').click();
+            } catch (err) {}
 
             setTimeout(ClickThem,randomInterval(500,1500));
         }
