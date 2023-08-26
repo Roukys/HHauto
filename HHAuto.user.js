@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.36.4
+// @version      5.36.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1674,14 +1674,14 @@ function moduleSimChampions()
     }
 }
 
-function moduleSimPoVMaskReward()
+function moduleSimPoVPogMaskReward(containerId)
 {
     var arrayz;
     var nbReward;
     let modified = false;
     arrayz = $('.potions-paths-tier:not([style*="display:none"]):not([style*="display: none"])');
     //doesn sure about  " .purchase-pov-pass"-button visibility
-    if ($('#pov_tab_container .potions-paths-second-row .purchase-pass:not([style*="display:none"]):not([style*="display: none"])').length)
+    if ($('#'+containerId+' .potions-paths-second-row .purchase-pass:not([style*="display:none"]):not([style*="display: none"])').length)
     {
         nbReward = 1;
     }
@@ -1707,51 +1707,10 @@ function moduleSimPoVMaskReward()
 
     if (modified)
     {
-        let divToModify = $('.pov-progress-bar-section');
+        let divToModify = $('.potions-paths-progress-bar-section');
         if (divToModify.length > 0)
         {
-            $('.pov-progress-bar-section')[0].scrollTop = '0';
-        }
-    }
-}
-
-function moduleSimPoGMaskReward()
-{
-    var arrayz;
-    var nbReward;
-    let modified = false;
-    arrayz = $('.potions-paths-tier:not([style*="display:none"]):not([style*="display: none"])');
-    //doesn sure about  " .purchase-pov-pass"-button visibility
-    if ($('#pog_tab_container .potions-paths-second-row .purchase-pass:not([style*="display:none"]):not([style*="display: none"])').length)
-    {
-        nbReward = 1;
-    }
-    else
-    {
-        nbReward = 2;
-    }
-    var obj;
-    if (arrayz.length > 0)
-    {
-        for (var i2 = arrayz.length - 1; i2 >= 0; i2--)
-        {
-            obj = $(arrayz[i2]).find('.claimed-slot:not([style*="display:none"]):not([style*="display: none"])');
-            if (obj.length >= nbReward)
-            {
-                //console.log("width : "+arrayz[i2].offsetWidth);
-                //document.getElementById('rewards_cont_scroll').scrollLeft-=arrayz[i2].offsetWidth;
-                arrayz[i2].style.display = "none";
-                modified = true;
-            }
-        }
-    }
-
-    if (modified)
-    {
-        let divToModify = $('.pov-progress-bar-section');
-        if (divToModify.length > 0)
-        {
-            $('.pov-progress-bar-section')[0].scrollTop = '0';
+            $('.potions-paths-progress-bar-section')[0].scrollTop = '0';
         }
     }
 }
@@ -8328,7 +8287,7 @@ var autoLoop = function ()
         case getHHScriptVars("pagesIDPoV"):
             if (getStoredValue("HHAuto_Setting_PoVMaskRewards") === "true")
             {
-                moduleSimPoVMaskReward();
+                moduleSimPoVPogMaskReward('pov_tab_container');
             }
             getPoVRemainingTime = callItOnce(getPoVRemainingTime);
             getPoVRemainingTime();
@@ -8336,7 +8295,7 @@ var autoLoop = function ()
         case getHHScriptVars("pagesIDPoG"):
             if (getStoredValue("HHAuto_Setting_PoGMaskRewards") === "true")
             {
-                moduleSimPoGMaskReward();
+                moduleSimPoVPogMaskReward('pog_tab_container');
             }
             getPoGRemainingTime = callItOnce(getPoGRemainingTime);
             getPoGRemainingTime();
