@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.36.5
+// @version      5.37.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -71,6 +71,9 @@ GM_addStyle('.HHPopIDs {background-color: black;z-index: 500;position: absolute;
 GM_addStyle('.tooltipHH:hover { cursor: help; position: relative; }'
             +'.tooltipHH span.tooltipHHtext { display: none }');
 GM_addStyle('.HHpopup_message { border: #666 2px dotted; padding: 5px 20px 5px 5px; display: block; z-index: 1000; background: #e3e3e3; left: 0px; margin: 15px; width: 500px; position: absolute; top: 15px; color: black}');
+GM_addStyle('#HHPovPogRewards {  position: relative; top: -37px; transform: scale(0.8);}'); // border: 2px solid #ffb827;
+// GM_addStyle('.HHRewardNotCollected {  }'); // border: 2px solid #ffb827;
+GM_addStyle('.HHRewardNotCollected .slot { margin: 1px 1px 0}'); 
 //END CSS Region
 
 function replaceCheatClick()
@@ -1673,6 +1676,141 @@ function moduleSimChampions()
         logHHAuto("No more free draft available");
     }
 }
+
+const RewardHelper = {
+    getPovNotClaimedRewards: function(){
+        const arrayz = $('.potions-paths-tiers-section .potions-paths-tier.unclaimed');
+        const freeSlotSelectors = ".free-slot:not(.claimed-locked) .slot,.free-slot:not(.claimed-locked) .shards_girl_ico";
+        const paidSlotSelectors = ".paid-slots:not(.paid-locked):not(.claimed-locked) .slot,.paid-slots:not(.paid-locked):not(.claimed-locked) .shards_girl_ico";
+
+        return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
+    },
+    getSeasonalNotClaimedRewards: function(){
+        const arrayz = $('.seasonal-tier.unclaimed');
+        const freeSlotSelectors = ".slot";
+        const paidSlotSelectors = ""; // Not available
+
+        return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
+    },
+    getSeasonNotClaimedRewards: function(){
+        const arrayz = $('.rewards_pair');
+        const freeSlotSelectors = ".free_reward.reward_is_claimable .slot";
+        let paidSlotSelectors = "";
+        if($("div#gsp_btn_holder[style='display: none;']").length) {
+            // Season pass paid
+            paidSlotSelectors = ".pass_reward.reward_is_claimable .slot";
+        }
+
+        return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
+    },
+    computeRewardsCount: function(arrayz, freeSlotSelectors, paidSlotSelectors) {
+        const rewardCountByType = {};
+        var rewardType, rewardSlot, rewardAmount;
+
+// data-d='{"item":{"id_item":"323","type":"potion","identifier":"XP4","rarity":"legendary","price":"500000","currency":"sc","value":"2500","carac1":"0","carac2":"0","carac3":"0","endurance":"0","chance":"0.00","ego":"0","damage":"0","duration":"0","skin":"hentai,gay,sexy","name":"Spell book","ico":"https://hh.hh-content.com/pictures/items/XP4.png","display_price":500000},"quantity":"1"}'
+
+        rewardCountByType['all'] = arrayz.length; 
+        if (arrayz.length > 0)
+        {
+            for (var slotIndex = arrayz.length - 1; slotIndex >= 0; slotIndex--)
+            {
+                [freeSlotSelectors, paidSlotSelectors].forEach((selector) => {
+                    rewardSlot = $(selector,arrayz[slotIndex]);
+                    if(rewardSlot.length > 0) {
+                        rewardType = getRewardTypeBySlot(rewardSlot[0]);
+                        rewardAmount = getRewardQuantityByType(rewardType, rewardSlot[0]);
+                        if(rewardCountByType.hasOwnProperty(rewardType)) {
+                            rewardCountByType[rewardType] = rewardCountByType[rewardType] + rewardAmount;
+                        }else{
+                            rewardCountByType[rewardType] = rewardAmount;
+                        }
+                    }
+                });
+            }
+        }
+        return rewardCountByType;
+    },
+    getRewardsAsHtml: function(rewardCountByType) {
+        let html = '';
+        for (const [rewardType, rewardCount] of Object.entries(rewardCountByType)) {
+            switch(rewardType)
+            {
+                // case 'girl_shards' :    return Number($('.shards', inSlot).attr('shards'));
+                case 'energy_kiss':     html += '<div class="slot slot_energy_kiss  size_xs"><span class="energy_kiss_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
+                case 'energy_quest':    html += '<div class="slot slot_energy_quest size_xs"><span class="energy_quest_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
+                case 'energy_fight' :   html += '<div class="slot slot_energy_fight  size_xs"><span class="energy_fight_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
+                case 'xp' :             html += '<div class="slot slot_xp size_xs"><span class="xp_icn"></span><div class="amount">'+nRounding(rewardCount,1,-1)+'</div></div>'; break;
+                case 'soft_currency' :  html += '<div class="slot slot_soft_currency size_xs"><span class="soft_currency_icn"></span><div class="amount">'+nRounding(rewardCount,1,-1)+'</div></div>'; break;
+                case 'hard_currency' :  html += '<div class="slot slot_hard_currency size_xs"><span class="hard_currency_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
+                // case 'gift':
+                // case 'potion' :
+                // case 'booster' :
+                // case 'orbs':
+                // case 'gems' :           html += '<div class="slot slot_gems size_xs"><span class="gem_all_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
+                // case 'scrolls' :
+                case 'ticket' :         html += '<div class="slot slot_ticket size_xs"><span class="ticket_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
+                // case 'mythic' :         html += '<div class="slot mythic random_equipment size_xs"><span class="mythic_equipment_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
+                // case 'avatar':          return 1;
+                default: 
+            }
+        }
+        return html;
+    },
+    displayRewardsPovPogDiv: function() {
+        const target = $('.potions-paths-first-row .potions-paths-title-panel');
+        const hhRewardId = 'HHPovPogRewards';
+        try{
+            if($('#' + hhRewardId).length <= 0) {
+                const rewardCountByType = RewardHelper.getPovNotClaimedRewards();
+                if (rewardCountByType['all'] > 0) {
+                    const rewardsHtml = RewardHelper.getRewardsAsHtml(rewardCountByType);
+                    target.after($('<div id='+hhRewardId+' class="HHRewardNotCollected"><h1 style="font-size: small;">'+getTextForUI('rewardsToCollectTitle',"elementText")+'</h1>' + rewardsHtml + '</div>'));
+                } else {
+                    target.after($('<div id='+hhRewardId+' style="display:none;"></div>'));
+                }
+            }
+        } catch(err) {
+            target.append($('<div id='+hhRewardId+' style="display:none;"></div>'));
+        }
+    },
+    displayRewardsSeasonalDiv: function() {
+        const target = $('.event-resource-location');
+        const hhRewardId = 'HHSeasonalRewards';
+        try{
+            if($('#' + hhRewardId).length <= 0) {
+                const rewardCountByType = RewardHelper.getSeasonalNotClaimedRewards();
+                if (rewardCountByType['all'] > 0) {
+                    GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container { height: 5rem;}'); 
+                    GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container a { height: 2rem;}'); 
+
+                    const rewardsHtml = RewardHelper.getRewardsAsHtml(rewardCountByType);
+                    target.append($('<div id='+hhRewardId+' class="HHRewardNotCollected"><h1 style="font-size: small;">'+getTextForUI('rewardsToCollectTitle',"elementText")+'</h1>' + rewardsHtml + '</div>'));
+                } else {
+                    target.append($('<div id='+hhRewardId+' style="display:none;"></div>'));
+                }
+            }
+        } catch(err) {
+            target.append($('<div id='+hhRewardId+' style="display:none;"></div>'));
+        }
+    },
+    displayRewardsSeasonDiv: function() {
+        const target = $('.controls_right_side');
+        const hhRewardId = 'HHSeasonRewards';
+        try{
+            if($('#' + hhRewardId).length <= 0) {
+                const rewardCountByType = RewardHelper.getSeasonNotClaimedRewards();
+                if (rewardCountByType['all'] > 0) {
+                    const rewardsHtml = RewardHelper.getRewardsAsHtml(rewardCountByType);
+                    target.append($('<div id='+hhRewardId+' class="HHRewardNotCollected"><h1 style="font-size: small;">'+getTextForUI('rewardsToCollectTitle',"elementText")+'</h1>' + rewardsHtml + '</div>'));
+                } else {
+                    target.append($('<div id='+hhRewardId+' style="display:none;"></div>'));
+                }
+            }
+        } catch(err) {
+            target.append($('<div id='+hhRewardId+' style="display:none;"></div>'));
+        }
+    }
+};
 
 function moduleSimPoVPogMaskReward(containerId)
 {
@@ -4115,6 +4253,31 @@ function getRewardTypeBySlot(inSlot)
     }
     //console.log(reward);
     return reward;
+}
+
+function getRewardQuantityByType(rewardType, inSlot){
+    // TODO update logic for potion / gift to be more accurate
+    switch(rewardType)
+    {
+        case 'girl_shards' :    return Number($('.shards', inSlot).attr('shards'));
+        case 'energy_kiss':
+        case 'energy_quest':
+        case 'energy_fight' :
+        case 'xp' :
+        case 'soft_currency' :
+        case 'hard_currency' :
+        case 'gift':
+        case 'potion' :
+        case 'booster' :
+        case 'orbs':
+        case 'gems' :
+        case 'scrolls' :
+        case 'ticket' :         return parsePrice($('.amount', inSlot).text());
+        case 'mythic' :         return 1;
+        case 'avatar':          return 1;
+        default: logHHAuto('Error: reward type unknown ' + rewardType);
+        return 0;
+    }
 }
 
 function goAndCollectFreeBundles()
@@ -8210,6 +8373,7 @@ var autoLoop = function ()
             }
             getSeasonRemainingTime = callItOnce(getSeasonRemainingTime);
             getSeasonRemainingTime();
+            RewardHelper.displayRewardsSeasonDiv();
             break;
         case getHHScriptVars("pagesIDEvent"):
             if (getStoredValue("HHAuto_Setting_plusEvent") === "true" || getStoredValue("HHAuto_Setting_plusEventMythic") ==="true")
@@ -8291,6 +8455,7 @@ var autoLoop = function ()
             }
             getPoVRemainingTime = callItOnce(getPoVRemainingTime);
             getPoVRemainingTime();
+            RewardHelper.displayRewardsPovPogDiv();
             break;
         case getHHScriptVars("pagesIDPoG"):
             if (getStoredValue("HHAuto_Setting_PoGMaskRewards") === "true")
@@ -8299,6 +8464,7 @@ var autoLoop = function ()
             }
             getPoGRemainingTime = callItOnce(getPoGRemainingTime);
             getPoGRemainingTime();
+            RewardHelper.displayRewardsPovPogDiv();
             break;
         case getHHScriptVars("pagesIDSeasonalEvent"):
             if (getStoredValue("HHAuto_Setting_SeasonalEventMaskRewards") === "true")
@@ -8307,6 +8473,7 @@ var autoLoop = function ()
             }
             getSeasonalEventRemainingTime = callItOnce(getSeasonalEventRemainingTime);
             getSeasonalEventRemainingTime();
+            RewardHelper.displayRewardsSeasonalDiv();
             break;
         case getHHScriptVars("pagesIDChampionsPage"):
             moduleSimChampions();
@@ -11196,6 +11363,8 @@ HHAuto_ToolTips.en.seasonalEventTitle = { version: "5.6.133", elementText: "Seas
 HHAuto_ToolTips.en.PoAMaskRewards = { version: "5.6.24", elementText: "PoA mask claimed", tooltip: "Masked claimed rewards for Path of Attraction."};
 HHAuto_ToolTips.en.PoVMaskRewards = { version: "5.6.26", elementText: "PoV mask claimed", tooltip: "Masked claimed rewards for Path of Valor."};
 HHAuto_ToolTips.en.PoGMaskRewards = { version: "5.6.89", elementText: "PoG mask claimed", tooltip: "Masked claimed rewards for Path of Glory."};
+HHAuto_ToolTips.en.rewardsToCollectTitle = { version: "5.37.0", elementText: "Energies, XP, currencies available to collect"};
+// HHAuto_ToolTips.en.rewardsToCollect = { version: "5.37.0", elementText: "Show rewards available to collect"};
 HHAuto_ToolTips.en.SeasonalEventMaskRewards = { version: "5.6.132", elementText: "Seasonal Event mask claimed", tooltip: "Masked claimed rewards for Seasonal Event."};
 HHAuto_ToolTips.en.bossBangEvent = { version: "5.20.3", elementText: "Enable", tooltip: "Perform boss bang fight script will start with the team configured after."};
 HHAuto_ToolTips.en.bossBangEventTitle = { version: "5.20.3", elementText: "Boss Bang Event"};
