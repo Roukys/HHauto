@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.37.1
+// @version      5.38.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3509,6 +3509,8 @@ function doShopping()
         var MaxExp=Number(getStoredValue("HHAuto_Setting_maxExp"));
         var HaveAff=Number(getStoredValue("HHAuto_Temp_haveAff"));
         var HaveExp=Number(getStoredValue("HHAuto_Temp_haveExp"));
+        var HaveBooster=JSON.parse(getStoredValue("HHAuto_Temp_haveBooster"));
+        var MaxBooster=Number(getStoredValue("HHAuto_Setting_maxBooster"));
 
         var boosterFilter = getStoredValue("HHAuto_Setting_autoBuyBoostersFilter").split(";");
         if (getStoredValue("HHAuto_Setting_autoBuyBoosters") ==="true" && boosterFilter.length > 0)
@@ -3517,15 +3519,16 @@ function doShopping()
 
             for (var boost of boosterFilter)
             {
+                const boosterOwned = HaveBooster.hasOwnProperty(boost) ? Number(HaveBooster[boost]) : 0;
                 for (var n1=shop[1].length-1;n1>=0;n1--)
                 {
-                    if (kobans>=Number(getStoredValue("HHAuto_Setting_kobanBank"))+Number(shop[1][n1].price_buy) && shop[1][n1].item.currency == "hc" && shop[1][n1].identifier == boost && (shop[1][n1].rarity=='legendary' || shop[1][n1].rarity=='mythic'))
+                    if (kobans>=Number(getStoredValue("HHAuto_Setting_kobanBank"))+Number(shop[1][n1].price_buy) && shop[1][n1].item.currency == "hc" && shop[1][n1].item.identifier == boost && (shop[1][n1].item.rarity=='legendary' || shop[1][n1].item.rarity=='mythic') && boosterOwned <= MaxBooster)
                     {
                         logHHAuto({log:'wanna buy ',object:shop[1][n1]});
-                        if (kobans>=Number(shop[1][n1].price))
+                        if (kobans>=Number(shop[1][n1].price_buy))
                         {
                             logHHAuto({log:'Buying : ',object:shop[1][n1]});
-                            kobans-=Number(shop[1][n1].price);
+                            kobans-=Number(shop[1][n1].price_buy);
                             var params1 = {
                                 index: shop[1][n1].index,
                                 action: "market_buy",
@@ -3595,7 +3598,7 @@ function doShopping()
                     if (money>=Aff+Number(shop[2][n2].price_buy) && money>=Number(shop[2][n2].price_buy) && shop[2][n2].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                     {
                         logHHAuto({log:'Buying : ',Object:shop[2][n2]});
-                        money-=Number(shop[2][n2].price);
+                        money-=Number(shop[2][n2].price_buy);
                         var params2 = {
                             index: shop[2][n2].index,
                             action: "market_buy",
@@ -6157,13 +6160,17 @@ var updateShop=function()
 
         var HaveAff=0;
         var HaveExp=0;
+        var HaveBooster={};
         $('#shops div.gift.player-inventory-content .slot').each(function(){if (this.dataset.d) { var d=JSON.parse(this.dataset.d); HaveAff+=d.quantity*d.item.value;}});
         $('#shops div.potion.player-inventory-content .slot').each(function(){if (this.dataset.d) { var d=JSON.parse(this.dataset.d); HaveExp+=d.quantity*d.item.value;}});
 
+        $('#shops div.booster.player-inventory-content .slot').each(function(){ if (this.dataset.d) { var d=JSON.parse(this.dataset.d); HaveBooster[d.item.identifier] = d.quantity;}});
+
         setStoredValue("HHAuto_Temp_haveAff", HaveAff);
         setStoredValue("HHAuto_Temp_haveExp", HaveExp);
+        setStoredValue("HHAuto_Temp_haveBooster", JSON.stringify(HaveBooster));
 
-        logHHAuto('counted '+getStoredValue("HHAuto_Temp_haveAff")+' Aff '+getStoredValue("HHAuto_Temp_haveExp")+' Exp');
+        logHHAuto('counted '+getStoredValue("HHAuto_Temp_haveAff")+' Aff, '+getStoredValue("HHAuto_Temp_haveExp")+' Exp, Booster: ' + JSON.stringify(HaveBooster));
 
         setStoredValue("HHAuto_Temp_storeContents", JSON.stringify([assA,assB,assG,assP]));
         setStoredValue("HHAuto_Temp_charLevel", getHHVars('Hero.infos.level'));
@@ -11308,6 +11315,7 @@ HHAuto_ToolTips.en.maxExp = { version: "5.6.24", elementText: "Max Exp.", toolti
 HHAuto_ToolTips.en.autoAffW = { version: "5.6.24", elementText: "Gifts", tooltip: "if enabled : allow to buy Aff in market<br>Only buy if money bank is above the value<br>Only buy if total Aff owned is below value"};
 HHAuto_ToolTips.en.autoAff = { version: "5.6.24", elementText: "Money to keep", tooltip: "(Integer)<br>Minimum money to keep."};
 HHAuto_ToolTips.en.maxAff = { version: "5.6.24", elementText: "Max Aff.", tooltip: "(Integer)<br>Maximum Aff to buy"};
+HHAuto_ToolTips.en.maxBooster = { version: "5.38.0", elementText: "Max Booster.", tooltip: "(Integer)<br>Maximum booster to buy (limit for each booster type)"};
 HHAuto_ToolTips.en.OpponentListBuilding = { version: "5.6.24", elementText: "Opponent list is building", tooltip: ""};
 HHAuto_ToolTips.en.OpponentParsed = { version: "5.6.24", elementText: "opponents parsed", tooltip: ""};
 HHAuto_ToolTips.en.DebugMenu = { version: "5.6.24", elementText: "Debug Menu", tooltip: "Options for debug"};
@@ -12571,6 +12579,17 @@ HHStoredVars.HHAuto_Setting_maxAff =
     menuType:"value",
     kobanUsing:false
 };
+HHStoredVars.HHAuto_Setting_maxBooster =
+    {
+    default:"10",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_maxExp =
     {
     default:"10000",
@@ -13226,6 +13245,11 @@ HHStoredVars.HHAuto_Temp_haveAff =
     HHType:"Temp"
 };
 HHStoredVars.HHAuto_Temp_haveExp =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_haveBooster =
     {
     storage:"sessionStorage",
     HHType:"Temp"
@@ -13967,6 +13991,7 @@ var start = function () {
                         +`</div>`
                         +`<div class="internalOptionsRow">`
                             + hhMenuSwitchWithImg('autoBuyBoosters', 'design/ic_boosters_gray.svg', true)
+                            + hhMenuInput('maxBooster', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
                             + hhMenuInput('autoBuyBoostersFilter', HHAuto_inputPattern.autoBuyBoostersFilter, 'text-align:center; width:70px')
                         +`</div>`
                         +`<div class="internalOptionsRow">`
