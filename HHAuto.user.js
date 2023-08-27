@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.38.2
+// @version      5.38.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3543,6 +3543,8 @@ function doShopping()
                         if (kobans>=Number(shop[1][n1].price_buy))
                         {
                             logHHAuto({log:'Buying : ',object:shop[1][n1]});
+                            // change referer
+                            window.history.replaceState(null, '', '/shop.html');
                             kobans-=Number(shop[1][n1].price_buy);
                             var params1 = {
                                 index: shop[1][n1].index,
@@ -3556,6 +3558,8 @@ function doShopping()
                                 {
                                     clearTimer('nextShopTime');
                                 }
+                                // change referer
+                                window.history.replaceState(null, '', '/home.html');
                             });
                             shop[1].splice(n1,1);
                             setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
@@ -3586,6 +3590,8 @@ function doShopping()
             }
             if (allGiftsPriceSc>0 && money>=Exp+allGiftsPriceSc) {
                 logHHAuto('Buy all gifts for price:' + allGiftsPriceSc);
+                // change referer
+                window.history.replaceState(null, '', '/shop.html');
                 money-=allGiftsPriceSc;
                 var params2 = {
                     action: "market_auto_buy",
@@ -3597,6 +3603,8 @@ function doShopping()
                     {
                         clearTimer('nextShopTime');
                     }
+                    // change referer
+                    window.history.replaceState(null, '', '/home.html');
                 });
                 for (var n2=shop[2].length-1;n2>=0;n2--)
                 {
@@ -3613,6 +3621,8 @@ function doShopping()
                     if (money>=Aff+Number(shop[2][n2].price_buy) && money>=Number(shop[2][n2].price_buy) && shop[2][n2].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                     {
                         logHHAuto({log:'Buying : ',Object:shop[2][n2]});
+                        // change referer
+                        window.history.replaceState(null, '', '/shop.html');
                         money-=Number(shop[2][n2].price_buy);
                         var params2 = {
                             index: shop[2][n2].index,
@@ -3626,6 +3636,8 @@ function doShopping()
                             {
                                 clearTimer('nextShopTime');
                             }
+                            // change referer
+                            window.history.replaceState(null, '', '/home.html');
                         });
                         shop[2].splice(n2,1);
                         setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
@@ -3653,6 +3665,8 @@ function doShopping()
             }
             if (allPotionPriceSc>0 && money>=Exp+allPotionPriceSc) {
                 logHHAuto('Buy all books for price:' + allPotionPriceSc);
+                // change referer
+                window.history.replaceState(null, '', '/shop.html');
                 money-=allPotionPriceSc;
                 var params3 = {
                     action: "market_auto_buy",
@@ -3664,6 +3678,8 @@ function doShopping()
                     {
                         clearTimer('nextShopTime');
                     }
+                    // change referer
+                    window.history.replaceState(null, '', '/home.html');
                 });
                 for (var n3=shop[3].length-1;n3>=0;n3--)
                 {
@@ -3680,6 +3696,8 @@ function doShopping()
                     if (money>=Exp+Number(shop[3][n3].price_buy) && money>=Number(shop[3][n3].price_buy) && shop[3][n3].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
                     {
                         logHHAuto({log:'Buying : ',Object:shop[3][n3]});
+                        // change referer
+                        window.history.replaceState(null, '', '/shop.html');
                         money-=Number(shop[3][n3].price);
                         var params3 = {
                             index: shop[3][n3].index,
@@ -3693,6 +3711,8 @@ function doShopping()
                             {
                                 clearTimer('nextShopTime');
                             }
+                            // change referer
+                            window.history.replaceState(null, '', '/home.html');
                         });
                         shop[3].splice(n3,1);
                         setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
