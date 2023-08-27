@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.38.1
+// @version      5.38.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -71,9 +71,11 @@ GM_addStyle('.HHPopIDs {background-color: black;z-index: 500;position: absolute;
 GM_addStyle('.tooltipHH:hover { cursor: help; position: relative; }'
             +'.tooltipHH span.tooltipHHtext { display: none }');
 GM_addStyle('.HHpopup_message { border: #666 2px dotted; padding: 5px 20px 5px 5px; display: block; z-index: 1000; background: #e3e3e3; left: 0px; margin: 15px; width: 500px; position: absolute; top: 15px; color: black}');
-GM_addStyle('#HHPovPogRewards {  position: relative; top: -37px; transform: scale(0.8);}'); // border: 2px solid #ffb827;
-// GM_addStyle('.HHRewardNotCollected {  }'); // border: 2px solid #ffb827;
+GM_addStyle('#HHPovPogRewards { position: absolute; bottom: 6.9rem; left: -0.75rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}');
+GM_addStyle('.HHRewardNotCollected { max-width: 17.9rem; transform: scale(0.8); }');
 GM_addStyle('.HHRewardNotCollected .slot { margin: 1px 1px 0}'); 
+GM_addStyle('#HHSeasonRewards { position: absolute; right: 1.25rem; bottom: 12.25rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px;}'); 
+//GM_addStyle('#HHSeasonalRewards { }'); 
 //END CSS Region
 
 function replaceCheatClick()
@@ -1780,7 +1782,7 @@ const RewardHelper = {
             if($('#' + hhRewardId).length <= 0) {
                 const rewardCountByType = RewardHelper.getSeasonalNotClaimedRewards();
                 if (rewardCountByType['all'] > 0) {
-                    GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container { height: 5rem;}'); 
+                    GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container { height: 5rem; margin-top: 0;}'); 
                     GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container a { height: 2rem;}'); 
 
                     const rewardsHtml = RewardHelper.getRewardsAsHtml(rewardCountByType);
