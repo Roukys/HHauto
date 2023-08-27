@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.38.3
+// @version      5.38.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1478,8 +1478,9 @@ function ChamppUpdateAutoTeamPopup(numberDone,numberEnd,remainingTime)
 
 function moduleSimChampions()
 {
-    setStoredValue("HHAuto_Temp_autoLoop", "false");
-    logHHAuto("setting autoloop to false");
+    if($('#updateChampTeamButton').length > 0) {
+        return;
+    }
 
     var getPoses = function($images){
         var poses=[];
@@ -1496,6 +1497,7 @@ function moduleSimChampions()
     //let champTeamButton = '<div style="position: absolute;left: 330px;top: 10px;width:90px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ChampTeamButton","tooltip")+'</span><label class="myButton" id="ChampTeamButton">'+getTextForUI("ChampTeamButton","elementText")+'</label></div>';
 
     var champTeam = unsafeWindow.championData.team;
+    const champTeamId = Number(getHHVars('championData.champion.id'));
     var freeDrafts = unsafeWindow.championData.freeDrafts;
     var counterLoop = 0;
     let maxLoops = getChampMaxLoop();
@@ -1653,10 +1655,16 @@ function moduleSimChampions()
             ChampClearAutoTeamPopup();
             $('#updateChampTeamButton').removeAttr('disabled').text( getTextForUI("updateChampTeamButton","elementText") +' x'+maxLoops);
             if($(confirmDraftButtonQuery).length > 0) $(confirmDraftButtonQuery).click();
+
+            logHHAuto("Auto team ended, refresh page, restarting autoloop");
+            location.reload();
         }
     };
 
     var findBestTeam = function() {
+        setStoredValue("HHAuto_Temp_autoLoop", "false");
+        logHHAuto("setting autoloop to false");
+
         maxLoops = getChampMaxLoop();
         keepSecondLineGirls = getChampSecondLine();
         $('#updateChampTeamButton').attr('disabled', 'disabled').text( 'Starting soon...');
