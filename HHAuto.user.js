@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.38.5
+// @version      5.38.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3231,18 +3231,6 @@ var CollectMoney = function()
         }
         if (Clicked.length>0 && inStart)
         {
-            //logHHAuto('clicking!');
-
-            // add time to paranoia
-            //var addedTime=ToClick.length*1.6;
-            //logHHAuto("Adding time to burst to cover getting salary : +"+addedTime+"secs");
-            //addedTime += getSecondsLeft("paranoiaSwitch");
-            //setTimer("paranoiaSwitch",addedTime);
-            try{
-                // reset filters to better simulate manual collection
-                $('#reset-filters').click();
-            } catch (err) {}
-
             setTimeout(ClickThem,randomInterval(500,1500));
         }
         else//nothing to collect
