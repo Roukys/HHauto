@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.38.4
+// @version      5.38.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -5273,10 +5273,16 @@ var doLeagueBattle = function () {
                 logHHAuto("Current league above target ("+Number(getPlayerCurrentLevel)+"/"+leagueTargetValue+"), needs to demote. Score should not be higher than : "+maxDemote);
                 if ( currentScore + leagueScoreSecurityThreshold >= maxDemote )
                 {
-                    logHHAuto("Can't do league as could go above demote, setting timer to 30 mins");
-                    setTimer('nextLeaguesTime',Number(30*60)+1);
-                    //prevent paranoia to wait for league
-                    setStoredValue("HHAuto_Temp_paranoiaLeagueBlocked", "true");
+                    let league_end = LeagueHelper.getLeagueEndTime();
+                    if (league_end <= (60*60)) {
+                        logHHAuto("Can't do league as could go above demote, as last hour setting timer to 5 mins"); 
+                        setTimer('nextLeaguesTime',Number(5*60)+1);
+                    } else {
+                        logHHAuto("Can't do league as could go above demote, setting timer to 30 mins");
+                        setTimer('nextLeaguesTime',Number(30*60)+1);
+                        //prevent paranoia to wait for league
+                        setStoredValue("HHAuto_Temp_paranoiaLeagueBlocked", "true");
+                    }
                     gotoPage(getHHScriptVars("pagesIDHome"));
                     return;
                 }
@@ -5482,13 +5488,8 @@ function getLeagueOpponentId(opponentsIDList,force=false)
     {
         //logHHAuto('Need to click: '+ToClick.length);
         var findText = 'playerLeaguesData = ';
-        let league_end = -1;
+        let league_end = LeagueHelper.getLeagueEndTime();
         let maxLeagueListDurationSecs = getHHScriptVars("LeagueListExpirationSecs");
-        const league_end_in = $('#leagues_middle .league_end_in .timer span[rel="expires"]').text();
-        if(league_end_in !== undefined && league_end_in !== null && league_end_in.length > 0)
-        {
-            league_end = Number(convertTimeToInt(league_end_in));
-        }
         if (league_end !== -1 && league_end < maxLeagueListDurationSecs)
         {
             maxLeagueListDurationSecs = league_end;
@@ -6749,6 +6750,19 @@ function addChangeTeamButton() {
     GM_addStyle('#leagues .league_content .league_buttons .league_buttons_block {'
         + 'width: auto;}'
     );
+}
+
+const LeagueHelper= {
+    /* get time in sec */
+    getLeagueEndTime: function(){
+        let league_end = -1;
+        const league_end_in = $('#leagues .league_end_in .timer span[rel="expires"]').text();
+        if(league_end_in !== undefined && league_end_in !== null && league_end_in.length > 0)
+        {
+            league_end = Number(convertTimeToInt(league_end_in));
+        }
+        return league_end;
+    }
 }
 
 function moduleSimLeague() {
