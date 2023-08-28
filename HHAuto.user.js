@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      5.38.6
+// @version      5.38.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -715,6 +715,7 @@ const QuestHelper = {
         const lastQuestId = getHHScriptVars("lastQuestId",false);
 
         if (id_world < (Trollz.length) || lastQuestId > 0 && id_quest != lastQuestId) {
+            // TODO review case for PH, 10th world have ID 14 (with a skipping troll ID)
             // Fix when KK quest url is world url
             mainQuestUrl = "/quest/" + id_quest;
         }
@@ -3807,7 +3808,10 @@ var doBossBattle = function()
         //setStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest", "false");
         setStoredValue("HHAuto_Temp_questRequirement", "none");
     }
-
+    if(TTF >= Trollz.length) {
+        logHHAuto("Error: New troll implemented (List to be updated) or wrong troll target found");
+        TTF = Trollz.length-1;
+    }
     logHHAuto("Fighting troll N "+TTF);
     logHHAuto("Going to crush: "+Trollz[Number(TTF)]);
 
@@ -5346,22 +5350,22 @@ var doLeagueBattle = function () {
                 window.history.replaceState(null, '', '/leagues-pre-battle.html?id_opponent='+Data[0].opponent_id);
 
                 const opponents_list = getHHVars("opponents_list");
-                let opponentDataFromList = opponents_list.filter(obj => {
+                const opponentDataFromList = opponents_list.filter(obj => {
                     return obj.player.id_fighter == Data[0].opponent_id;
                 });
 
-                const canFightThreeTimes = function(opponent) {
-                     // remove match_history after w32 update
-                    const matchs = opponent.match_history ? opponent.match_history[opponent.player.id_fighter]: opponent.match_history_sorting[opponent.player.id_fighter];
-                    return matchs && matchs.length === 3 && (matchs[0] == null && matchs[1] == null && matchs[2] == null)
-                }
+                let numberOfFightAvailable = 0;
+                if(opponentDataFromList && opponentDataFromList.length> 0)
+                    numberOfFightAvailable = LeagueHelper.numberOfFightAvailable(opponentDataFromList[0])
+                else
+                    logHHAuto('ERROR opponent ' + Data[0].opponent_id + ' not found in JS list');
 
                 let numberOfBattle = 1;
-                if(currentPower >= (3 + leagueThreshold) && opponentDataFromList && opponentDataFromList.length > 0 && canFightThreeTimes(opponentDataFromList[0])){
-                    if(maxStay > 0 && currentScore + ( 3 * leagueScoreSecurityThreshold) >= maxStay) logHHAuto('Can\'t do 3 fights in league as could go above stay');
-                    else numberOfBattle = 3;
+                if(numberOfFightAvailable > 1 && currentPower >= (numberOfFightAvailable + leagueThreshold)){
+                    if(maxStay > 0 && currentScore + ( numberOfFightAvailable * leagueScoreSecurityThreshold) >= maxStay) logHHAuto('Can\'t do '+numberOfFightAvailable+' fights in league as could go above stay');
+                    else numberOfBattle = numberOfFightAvailable;
                 }
-                logHHAuto("Going to fight " +numberOfBattle + " times");
+                logHHAuto("Going to fight " + numberOfBattle + " times (Number fights available from opponent:" + numberOfFightAvailable + ")");
 
                 if(numberOfBattle === 1) {
                     gotoPage(getHHScriptVars("pagesIDLeagueBattle"),{number_of_battles:1,id_opponent:Data[0].opponent_id});
@@ -6750,7 +6754,12 @@ const LeagueHelper= {
             league_end = Number(convertTimeToInt(league_end_in));
         }
         return league_end;
-    }
+    },
+    numberOfFightAvailable: function(opponent) {
+        // remove match_history after w32 update
+       const matchs = opponent.match_history ? opponent.match_history[opponent.player.id_fighter]: opponent.match_history_sorting[opponent.player.id_fighter];
+       return matchs ? matchs.filter(match=>match == null).length : 0
+   }
 }
 
 function moduleSimLeague() {
@@ -11171,6 +11180,7 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
                                           'Kelly Kline',
                                           'Jamie Brooks',
                                           'Jordan Kingsley',
+                                          'EMPTY',
                                           'Sierra Sinn'];
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in pornstar
     HHEnvVariables[element].lastQuestId = 14060; //  TODO update when new quest comes
@@ -14205,7 +14215,10 @@ var start = function () {
         var option = document.createElement("option");
         option.value=i;
         option.text = Trollz[i];
-        trollOptions.add(option);
+        if(option.text !== 'EMPTY' && Trollz[i]) {
+            // Supports for PH and missing trols or parallel advantures (id world "missing")
+            trollOptions.add(option);
+        }
     };
 
     var optionFWG = document.createElement("option");
