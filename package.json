@@ -1,0 +1,31 @@
+{
+  "name": "hhauto",
+  "version": "6.0.0",
+  "description": "[English](https://github.com/Roukys/HHauto/wiki/English)",
+  "main": "HHAuto.user.js",
+  "scripts": {
+    "test": "jasmine",
+    "build": "webpack --config webpack.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Roukys/HHauto.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Roukys/HHauto/issues"
+  },
+  "homepage": "https://github.com/Roukys/HHauto#readme",
+  "devDependencies": {
+    "jasmine": "^5.1.0",
+    "jasmine-core": "^5.1.0",
+    "karma": "^6.4.2",
+    "karma-browserify": "^8.1.0",
+    "karma-chrome-launcher": "^3.2.0",
+    "karma-commonjs": "^1.0.0",
+    "karma-jasmine": "^5.1.0",
+    "terser-webpack-plugin": "^5.3.9",
+    "webpack-cli": "^5.1.4"
+  }
+}
