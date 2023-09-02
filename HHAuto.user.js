@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.0.0
+// @version      6.0.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -6726,6 +6726,9 @@ class Season {
     }
     static maskReward()
     {
+        if($('.HHaHidden').length > 0 || $('.script-hide-claimed').length > 0  /*OCD*/) {
+            return;
+        }
         var arrayz;
         var nbReward;
         let modified=false;
@@ -6740,9 +6743,6 @@ class Season {
         }
 
         var obj;
-        //console.log("scroll before : "+document.getElementById('rewards_cont_scroll').scrollLeft);
-
-
         if (arrayz.length > 0) {
             for (var i2 = arrayz.length - 1; i2 >= 0; i2--) {
                 obj = $(arrayz[i2]).find('.tick_s:not([style*="display:none"]):not([style*="display: none"])');
@@ -6750,27 +6750,21 @@ class Season {
                     //console.log("width : "+arrayz[i2].offsetWidth);
                     //document.getElementById('rewards_cont_scroll').scrollLeft-=arrayz[i2].offsetWidth;
                     arrayz[i2].style.display = "none";
+                    $(arrayz[i2]).addClass('HHaHidden');
                     modified = true;
                 }
             }
         }
         if (modified)
         {
-            let divToModify = $('#seasons_row1');
-            if (divToModify.length > 0)
-            {
-                divToModify[0].style.transform ="translate3d(0px, 0px, 0px)";
-            }
-            divToModify = $('#ascrail2000-hr .nicescroll-cursors');
-            if (divToModify.length > 0)
-            {
-                divToModify[0].style.left = '0px';
+            $('.rewards_seasons_row').css('width', 'max-content');
+            const $rowScroll = $('.rewards_container_seasons');
+            if ($rowScroll.length && $rowScroll.getNiceScroll(0).doScrollLeft) {
+                $rowScroll.getNiceScroll().resize();
+                $rowScroll.getNiceScroll(0).doScrollLeft(0,200);
             }
         }
-        //console.log("scroll after : "+document.getElementById('rewards_cont_scroll').scrollLeft);
     }
-
-
 }
 ;// CONCATENATED MODULE: ./src/Module/Events/Seasonal.js
 
