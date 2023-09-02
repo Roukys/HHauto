@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.0.1
+// @version      6.0.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -10593,7 +10593,6 @@ class Pantheon {
                 gotoPage(getHHScriptVars("pagesIDHome"));
             }
             return;
-            //<button id="claim_btn_s" class="bordeaux_button_s" style="z-index: 1000; visibility: visible;">Claim</button>
         }
         else if (page === getHHScriptVars("pagesIDPantheonPreBattle"))
         {
@@ -10604,10 +10603,8 @@ class Pantheon {
             if (pantheonTempleBattleButton.length >0)
             {
                 //replaceCheatClick();
-                StorageHelper_setStoredValue("HHAuto_Temp_autoLoop", "false");
-                LogUtils_logHHAuto("setting autoloop to false");
                 pantheonTempleBattleButton[0].click();
-                setTimeout(function () {location.reload();}, 1000);
+                setTimeout(RewardHelper.closeRewardPopupIfAny, randomInterval(800,1500));
             }
             else
             {

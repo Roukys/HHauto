@@ -1,8 +1,10 @@
 import {
+    RewardHelper,
     getHHScriptVars,
     getHHVars,
     getPage,
     queryStringGetParam,
+    randomInterval,
     setStoredValue,
     setTimer
 } from "../Helper";
@@ -49,7 +51,6 @@ export class Pantheon {
                 gotoPage(getHHScriptVars("pagesIDHome"));
             }
             return;
-            //<button id="claim_btn_s" class="bordeaux_button_s" style="z-index: 1000; visibility: visible;">Claim</button>
         }
         else if (page === getHHScriptVars("pagesIDPantheonPreBattle"))
         {
@@ -60,10 +61,8 @@ export class Pantheon {
             if (pantheonTempleBattleButton.length >0)
             {
                 //replaceCheatClick();
-                setStoredValue("HHAuto_Temp_autoLoop", "false");
-                logHHAuto("setting autoloop to false");
                 pantheonTempleBattleButton[0].click();
-                setTimeout(function () {location.reload();}, 1000);
+                setTimeout(RewardHelper.closeRewardPopupIfAny, randomInterval(800,1500));
             }
             else
             {
