@@ -284,8 +284,8 @@ export function flipParanoia()
             }
 
             //mythic ongoing and can buyCombat
-            var hero=getHero();
-            var price=hero.get_recharge_cost("fight");
+            // const Hero=getHero();
+            // var price=Hero.get_recharge_cost("fight");
             if (Troll.canBuyFight().canBuy
                 && getHHVars('Hero.energies.fight.amount')==0
                )

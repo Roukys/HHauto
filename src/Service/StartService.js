@@ -27,6 +27,7 @@ import {
     setTimer
  } from "../Helper";
 import {
+    // Booster,
     Club,
     Contest,
     DailyGoals,
@@ -40,6 +41,7 @@ import {
     isJSON,
     logHHAuto,
     maskHHPopUp,
+    myfileLoad_onChange,
     replaceCheatClick, 
     saveHHDebugLog
 } from "../Utils";
@@ -202,6 +204,8 @@ export function start() {
         DailyGoals.styles();
         Missions.styles();
     }
+
+    // Booster.collectBoostersFromAjaxResponses();
 
     document.getElementById('contains_all').appendChild(div.firstChild);
     maskInactiveMenus();

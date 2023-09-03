@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.0.2
+// @version      6.0.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -77,7 +77,7 @@ GM_addStyle(".HHpopup_message .close {   position: absolute;   top: 20px;   righ
 GM_addStyle('#HHPovPogRewards { position: absolute; bottom: 6.9rem; left: -0.75rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}');
 GM_addStyle('.HHRewardNotCollected { max-width: 17.9rem; transform: scale(0.8); }');
 GM_addStyle('.HHRewardNotCollected .slot { margin: 1px 1px 0}'); 
-GM_addStyle('.HHGirlMilestone { position: absolute; bottom: -1rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1; font-size:smaller; width: 156px; text-align: center;}'); 
+GM_addStyle('.HHGirlMilestone { position: absolute; bottom: 0; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1; font-size:smaller; width: 156px; text-align: center;}'); 
 GM_addStyle('.HHGirlMilestone.green { border: solid 1px green }'); 
 GM_addStyle('.HHGirlMilestone .nc-claimed-reward-check { width:20px; position:absolute; }'); 
 GM_addStyle('#HHSeasonRewards { position: absolute; right: 1.25rem; bottom: 12.25rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px;}'); 
@@ -135,235 +135,6 @@ var __webpack_exports__ = {};
 (() => {
 "use strict";
 
-;// CONCATENATED MODULE: ./src/Utils/Utils.js
-function callItOnce(fn) {
-    var called = false;
-    return function() {
-        if (!called) {
-            called = true;
-            return fn();
-        }
-        return;
-    }
-}
-
-function getCallerFunction()
-{
-    var stackTrace = (new Error()).stack; // Only tested in latest FF and Chrome
-    var callerName = stackTrace.replace(/^Error\s+/, ''); // Sanitize Chrome
-    callerName = callerName.split("\n")[1]; // 1st item is this, 2nd item is caller
-    callerName = callerName.replace(/^\s+at Object./, ''); // Sanitize Chrome
-    callerName = callerName.replace(/ \(.+\)$/, ''); // Sanitize Chrome
-    callerName = callerName.replace(/\@.+/, ''); // Sanitize Firefox
-    return callerName;
-}
-
-function getCallerCallerFunction()
-{
-
-    let stackTrace = (new Error()).stack; // Only tested in latest FF and Chrome
-    let match
-    try {
-        match = stackTrace.match(/at Object\.(\w+) \((\S+)\)/);
-        match[1] // throw error if match is null
-    } catch {
-        // Firefox
-        match = stackTrace.match(/\n(\w+)@(\S+)/);
-    }
-    let [callerName, callerPlace] = [match[1], match[2]]
-
-    try{
-    console.log('Function ' + match[3] + ' at ' + match[4])
-    }catch(err){}
-    /*
-    var callerName;
-    {
-        let re = /([^(]+)@|at ([^(]+) \(/g;
-        let aRegexResult = re.exec(new Error().stack);
-        callerName = aRegexResult[1] || aRegexResult[2];
-    }*/
-    //console.log(callerName);
-    return callerName;
-    //return getCallerCallerFunction.caller.caller.name
-}
-function isFocused()
-{
-    //let isFoc = false;
-    const docFoc = document.hasFocus();
-    //const iFrameFoc = $('iframe').length===0?false:$('iframe')[0].contentWindow.document.hasFocus();
-    //isFoc = docFoc || iFrameFoc;
-    return docFoc;
-}
-function isJSON(str)
-{
-    if (str === undefined || str === null || /^\s*$/.test(str) ) return false;
-    str = str.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@');
-    str = str.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']');
-    str = str.replace(/(?:^|:|,)(?:\s*\[)+/g, '');
-    return (/^[\],:{}\s]*$/).test(str);
-}
-
-
-function replaceCheatClick()
-{
-    is_cheat_click=function(e) {
-        return false;
-    };
-}
-
-function Utils_getCurrentSorting()
-{
-    return localStorage.sort_by;
-}
-
-/* Used ? */
-function waitForKeyElements (selectorTxt,maxMilliWaitTime)
-{
-    var targetNodes;
-    var timer= new Date().getTime() + maxMilliWaitTime;
-    targetNodes = jQuery(selectorTxt);
-
-    while ( targetNodes.length === 0 && Math.ceil(timer)-Math.ceil(new Date().getTime()) > 0)
-    {
-        targetNodes = jQuery(selectorTxt);
-    }
-    if (targetNodes.length === 0)
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
-}
-
-
-function Utils_myfileLoad_onChange(event)
-{
-    $('#LoadConfError')[0].innerText =' ';
-    if (event.target.files.length == 0) {return}
-    var reader = new FileReader();
-    reader.onload = myfileLoad_onReaderLoad;
-    reader.readAsText(event.target.files[0]);
-}
-
-
-
-function myfileLoad_onReaderLoad(event){
-    var text = event.target.result;
-    var storageType;
-    var storageItem;
-    var variableName;
-
-    //Json validation
-    if (isJSON(text))
-    {
-        logHHAuto('the json is ok');
-        var jsonNewSettings = JSON.parse(event.target.result);
-        //Assign new values to Storage();
-        for (const [key, value] of Object.entries(jsonNewSettings))
-        {
-            storageType=key.split(".")[0];
-            variableName=key.split(".")[1];
-            storageItem = getStorageItem(storageType);
-            logHHAuto(key+':'+ value);
-            storageItem[variableName] = value;
-        }
-        location.reload();
-    }else{
-        $('#LoadConfError')[0].innerText ='Selected file broken!';
-        logHHAuto('the json is Not ok');
-    }
-}
-;// CONCATENATED MODULE: ./src/Utils/HHPopup.js
-
-
-function fillHHPopUp(inClass,inTitle, inContent)
-{
-    if (document.getElementById("HHAutoPopupGlobal") === null)
-    {
-        createHHPopUp();
-    }
-    else
-    {
-        HHPopup_displayHHPopUp();
-    }
-    document.getElementById("HHAutoPopupGlobalContent").innerHTML=inContent;
-    document.getElementById("HHAutoPopupGlobalTitle").innerHTML=inTitle;
-    document.getElementById("HHAutoPopupGlobalPopup").className =inClass;
-}
-
-function createHHPopUp()
-{
-    GM_addStyle('#HHAutoPopupGlobal.HHAutoOverlay { overflow: auto;  z-index:1000;   position: fixed;   top: 0;   bottom: 0;   left: 0;   right: 0;   background: rgba(0, 0, 0, 0.7);   transition: opacity 500ms;     display: flex;   align-items: center; }  '
-    + '#HHAutoPopupGlobalPopup {   margin: auto;   padding: 20px;   background: #fff;   border-radius: 5px;   position: relative;   transition: all 5s ease-in-out; }  '
-    + '#HHAutoPopupGlobalTitle {   margin-top: 0;   color: #333;   font-size: larger; } '
-    + '#HHAutoPopupGlobalClose {   position: absolute;   top: 0;   right: 30px;   transition: all 200ms;   font-size: 50px;   font-weight: bold;   text-decoration: none;   color: #333; } '
-    + '#HHAutoPopupGlobalClose:hover {   color: #06D85F; } '
-    + '#HHAutoPopupGlobalContent .HHAutoScriptMenu .rowLine { display:flex;flex-direction:row;align-items:center;column-gap:20px;justify-content: center; } '
-    + '#HHAutoPopupGlobalContent {   max-height: 30%;   overflow: auto;   color: #333;   font-size: x-small; }'
-    + '#HHAutoPopupGlobalContent .HHAutoScriptMenu .switch {  width: 55px; height: 32px; }'
-    + '#HHAutoPopupGlobalContent .HHAutoScriptMenu input:checked + .slider:before { -webkit-transform: translateX(20px); -ms-transform: translateX(20px); transform: translateX(20px); } '
-    + '#HHAutoPopupGlobalContent .HHAutoScriptMenu .slider.round::before {  width: 22px; height: 22px; bottom: 5px; }');
-
-    let popUp = '<div id="HHAutoPopupGlobal" class="HHAutoOverlay">'
-    +' <div id="HHAutoPopupGlobalPopup">'
-    +'   <h2 id="HHAutoPopupGlobalTitle">Here i am</h2>'
-    +'   <a id="HHAutoPopupGlobalClose">&times;</a>'
-    +'   <div id="HHAutoPopupGlobalContent" class="content">'
-    +'      Thank to pop me out of that button, but now im done so you can close this window.'
-    +'   </div>'
-    +' </div>'
-    +'</div>';
-    $('body').prepend(popUp);
-    document.getElementById("HHAutoPopupGlobalClose").addEventListener("click", function(){
-        maskHHPopUp();
-    });
-    document.addEventListener('keyup', evt => {
-        if (evt.key === 'Escape')
-        {
-            maskHHPopUp();
-        }
-    });
-}
-
-function isDisplayedHHPopUp()
-{
-    if (document.getElementById("HHAutoPopupGlobal") === null)
-    {
-        return false;
-    }
-    if (document.getElementById("HHAutoPopupGlobal").style.display === "none")
-    {
-        return false;
-    }
-    return document.getElementById("HHAutoPopupGlobalPopup").className;
-}
-
-function HHPopup_displayHHPopUp()
-{
-    if (document.getElementById("HHAutoPopupGlobal") === null)
-    {
-        return false;
-    }
-    document.getElementById("HHAutoPopupGlobal").style.display = "";
-    document.getElementById("HHAutoPopupGlobal").style.opacity = 1;
-}
-
-function maskHHPopUp()
-{
-    document.getElementById("HHAutoPopupGlobal").style.display = "none";
-    document.getElementById("HHAutoPopupGlobal").style.opacity = 0;
-}
-
-function checkAndClosePopup(inBurst)
-{
-    const popUp = $('#popup_message[style*="display: block"]');
-    if ((inBurst || isFocused()) && popUp.length > 0)
-    {
-        $('close', popUp).click();
-    }
-}
 ;// CONCATENATED MODULE: ./src/i18n/empty.js
 const HHAuto_ToolTips = {en:{}, fr:{}, es:{}, de:{}, it:{}};
 
@@ -3540,7 +3311,7 @@ function setMenuValues()
     {
         if (HHStoredVars_HHStoredVars[i].storage !== undefined && HHStoredVars_HHStoredVars[i].HHType !== undefined)
         {
-            let storageItem = StorageHelper_getStorageItem(HHStoredVars_HHStoredVars[i].storage);
+            let storageItem = getStorageItem(HHStoredVars_HHStoredVars[i].storage);
             let menuID = HHStoredVars_HHStoredVars[i].customMenuID !== undefined?HHStoredVars_HHStoredVars[i].customMenuID:i.replace("HHAuto_"+HHStoredVars_HHStoredVars[i].HHType+"_","");
             if (
                 HHStoredVars_HHStoredVars[i].setMenu !== undefined
@@ -3584,7 +3355,7 @@ function getMenuValues()
     {
         if (HHStoredVars_HHStoredVars[i].storage !== undefined && HHStoredVars_HHStoredVars[i].HHType !== undefined)
         {
-            let storageItem = StorageHelper_getStorageItem(HHStoredVars_HHStoredVars[i].storage);
+            let storageItem = getStorageItem(HHStoredVars_HHStoredVars[i].storage);
             let menuID = HHStoredVars_HHStoredVars[i].customMenuID !== undefined?HHStoredVars_HHStoredVars[i].customMenuID:i.replace("HHAuto_"+HHStoredVars_HHStoredVars[i].HHType+"_","");
             if (
                 HHStoredVars_HHStoredVars[i].getMenu !== undefined
@@ -4064,7 +3835,7 @@ function StorageHelper_getStoredValue(inVarName)
 {
     if (HHStoredVars_HHStoredVars.hasOwnProperty(inVarName))
     {
-        const storedValue = StorageHelper_getStorageItem(HHStoredVars_HHStoredVars[inVarName].storage)[inVarName];
+        const storedValue = getStorageItem(HHStoredVars_HHStoredVars[inVarName].storage)[inVarName];
         if(HHStoredVars_HHStoredVars[inVarName].kobanUsing) {
             // Check main switch for spenind Koban
             return StorageHelper_getStoredValue('HHAuto_Setting_spendKobans0') === "true" ? storedValue : "false";
@@ -4078,7 +3849,7 @@ function deleteStoredValue(inVarName)
 {
     if (HHStoredVars_HHStoredVars.hasOwnProperty(inVarName))
     {
-        StorageHelper_getStorageItem(HHStoredVars_HHStoredVars[inVarName].storage).removeItem(inVarName);
+        getStorageItem(HHStoredVars_HHStoredVars[inVarName].storage).removeItem(inVarName);
     }
 }
 
@@ -4086,7 +3857,7 @@ function StorageHelper_setStoredValue(inVarName, inValue)
 {
     if (HHStoredVars_HHStoredVars.hasOwnProperty(inVarName))
     {
-        StorageHelper_getStorageItem(HHStoredVars_HHStoredVars[inVarName].storage)[inVarName] = inValue;
+        getStorageItem(HHStoredVars_HHStoredVars[inVarName].storage)[inVarName] = inValue;
     }
 }
 
@@ -4107,7 +3878,7 @@ function extractHHVars(dataToSave,extractLog = false,extractTemp=true,extractSet
             storageType = HHStoredVars_HHStoredVars[i].storage;
             variableName = i;
             storageName = storageType;
-            storageItem = StorageHelper_getStorageItem(storageType);
+            storageItem = getStorageItem(storageType);
             if (storageType === 'Storage()')
             {
                 storageName = currentStorageName;
@@ -4135,7 +3906,7 @@ function saveHHVarsSettingsAsJSON() {
     a.click()
 }
 
-function StorageHelper_getStorageItem(inStorageType)
+function getStorageItem(inStorageType)
 {
     switch (inStorageType)
     {
@@ -4214,7 +3985,7 @@ function setHHStoredVarToDefault(inVarName)
         if (HHStoredVars_HHStoredVars[inVarName].default !== undefined && HHStoredVars_HHStoredVars[inVarName].storage !== undefined)
         {
             let storageItem;
-            storageItem = StorageHelper_getStorageItem(HHStoredVars_HHStoredVars[inVarName].storage);
+            storageItem = getStorageItem(HHStoredVars_HHStoredVars[inVarName].storage);
 
             let userDefinedDefault = getUserHHStoredVarDefault(inVarName);
             let isValid = HHStoredVars_HHStoredVars[inVarName].isValid===undefined?true:HHStoredVars_HHStoredVars[inVarName].isValid.test(userDefinedDefault);
@@ -4308,7 +4079,7 @@ function debugDeleteTempVars()
     {
         storageType=i.split(".")[0];
         variableName=i.split(".")[1];
-        storageItem = StorageHelper_getStorageItem(storageType);
+        storageItem = getStorageItem(storageType);
         LogUtils_logHHAuto(i+':'+ dataToSave[i]);
         storageItem[variableName] = dataToSave[i];
     }
@@ -4438,8 +4209,20 @@ function LogUtils_logHHAuto(...args)
         match = stackTrace.match(/at Object\.(\w+) \((\S+)\)/);
         match[1] // throw error if match is null
     } catch {
-        // Firefox
-        match = stackTrace.match(/\n(\w+)@(\S+)/);
+        try {
+            // Firefox
+            match = stackTrace.match(/\n(\w+)@(\S+)/);
+            match[1] // throw error if match is null
+        } catch {
+            try {
+                // Chrome 2 ?
+                match = stackTrace.match(/at (\w+) \((\S+)\)/)
+                match[1] // throw error if match is null
+            } catch {
+                // ?
+                match = ['Unknown','Unknown'];
+            }
+        }
     }
     let [callerName, callerPlace] = [match[1], match[2]]
 
@@ -4531,6 +4314,238 @@ function saveHHDebugLog()
     a.download = name
     a.href = URL.createObjectURL(new Blob([JSON.stringify(dataToSave, null, 2)], {type: 'application/json'}))
     a.click()
+}
+;// CONCATENATED MODULE: ./src/Utils/Utils.js
+
+
+
+function callItOnce(fn) {
+    var called = false;
+    return function() {
+        if (!called) {
+            called = true;
+            return fn();
+        }
+        return;
+    }
+}
+
+function getCallerFunction()
+{
+    var stackTrace = (new Error()).stack; // Only tested in latest FF and Chrome
+    var callerName = stackTrace.replace(/^Error\s+/, ''); // Sanitize Chrome
+    callerName = callerName.split("\n")[1]; // 1st item is this, 2nd item is caller
+    callerName = callerName.replace(/^\s+at Object./, ''); // Sanitize Chrome
+    callerName = callerName.replace(/ \(.+\)$/, ''); // Sanitize Chrome
+    callerName = callerName.replace(/\@.+/, ''); // Sanitize Firefox
+    return callerName;
+}
+
+function getCallerCallerFunction()
+{
+
+    let stackTrace = (new Error()).stack; // Only tested in latest FF and Chrome
+    let match
+    try {
+        match = stackTrace.match(/at Object\.(\w+) \((\S+)\)/);
+        match[1] // throw error if match is null
+    } catch {
+        // Firefox
+        match = stackTrace.match(/\n(\w+)@(\S+)/);
+    }
+    let [callerName, callerPlace] = [match[1], match[2]]
+
+    try{
+    console.log('Function ' + match[3] + ' at ' + match[4])
+    }catch(err){}
+    /*
+    var callerName;
+    {
+        let re = /([^(]+)@|at ([^(]+) \(/g;
+        let aRegexResult = re.exec(new Error().stack);
+        callerName = aRegexResult[1] || aRegexResult[2];
+    }*/
+    //console.log(callerName);
+    return callerName;
+    //return getCallerCallerFunction.caller.caller.name
+}
+function isFocused()
+{
+    //let isFoc = false;
+    const docFoc = document.hasFocus();
+    //const iFrameFoc = $('iframe').length===0?false:$('iframe')[0].contentWindow.document.hasFocus();
+    //isFoc = docFoc || iFrameFoc;
+    return docFoc;
+}
+function isJSON(str)
+{
+    if (str === undefined || str === null || /^\s*$/.test(str) ) return false;
+    str = str.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@');
+    str = str.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']');
+    str = str.replace(/(?:^|:|,)(?:\s*\[)+/g, '');
+    return (/^[\],:{}\s]*$/).test(str);
+}
+
+
+function replaceCheatClick()
+{
+    is_cheat_click=function(e) {
+        return false;
+    };
+}
+
+function Utils_getCurrentSorting()
+{
+    return localStorage.sort_by;
+}
+
+/* Used ? */
+function waitForKeyElements (selectorTxt,maxMilliWaitTime)
+{
+    var targetNodes;
+    var timer= new Date().getTime() + maxMilliWaitTime;
+    targetNodes = jQuery(selectorTxt);
+
+    while ( targetNodes.length === 0 && Math.ceil(timer)-Math.ceil(new Date().getTime()) > 0)
+    {
+        targetNodes = jQuery(selectorTxt);
+    }
+    if (targetNodes.length === 0)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+
+function myfileLoad_onChange(event)
+{
+    $('#LoadConfError')[0].innerText =' ';
+    if (event.target.files.length == 0) {return}
+    var reader = new FileReader();
+    reader.onload = myfileLoad_onReaderLoad;
+    reader.readAsText(event.target.files[0]);
+}
+
+
+
+function myfileLoad_onReaderLoad(event){
+    var text = event.target.result;
+    var storageType;
+    var storageItem;
+    var variableName;
+
+    //Json validation
+    if (isJSON(text))
+    {
+        LogUtils_logHHAuto('the json is ok');
+        var jsonNewSettings = JSON.parse(event.target.result);
+        //Assign new values to Storage();
+        for (const [key, value] of Object.entries(jsonNewSettings))
+        {
+            storageType=key.split(".")[0];
+            variableName=key.split(".")[1];
+            storageItem = getStorageItem(storageType);
+            LogUtils_logHHAuto(key+':'+ value);
+            storageItem[variableName] = value;
+        }
+        location.reload();
+    }else{
+        $('#LoadConfError')[0].innerText ='Selected file broken!';
+        LogUtils_logHHAuto('the json is Not ok');
+    }
+}
+;// CONCATENATED MODULE: ./src/Utils/HHPopup.js
+
+
+function fillHHPopUp(inClass,inTitle, inContent)
+{
+    if (document.getElementById("HHAutoPopupGlobal") === null)
+    {
+        createHHPopUp();
+    }
+    else
+    {
+        HHPopup_displayHHPopUp();
+    }
+    document.getElementById("HHAutoPopupGlobalContent").innerHTML=inContent;
+    document.getElementById("HHAutoPopupGlobalTitle").innerHTML=inTitle;
+    document.getElementById("HHAutoPopupGlobalPopup").className =inClass;
+}
+
+function createHHPopUp()
+{
+    GM_addStyle('#HHAutoPopupGlobal.HHAutoOverlay { overflow: auto;  z-index:1000;   position: fixed;   top: 0;   bottom: 0;   left: 0;   right: 0;   background: rgba(0, 0, 0, 0.7);   transition: opacity 500ms;     display: flex;   align-items: center; }  '
+    + '#HHAutoPopupGlobalPopup {   margin: auto;   padding: 20px;   background: #fff;   border-radius: 5px;   position: relative;   transition: all 5s ease-in-out; }  '
+    + '#HHAutoPopupGlobalTitle {   margin-top: 0;   color: #333;   font-size: larger; } '
+    + '#HHAutoPopupGlobalClose {   position: absolute;   top: 0;   right: 30px;   transition: all 200ms;   font-size: 50px;   font-weight: bold;   text-decoration: none;   color: #333; } '
+    + '#HHAutoPopupGlobalClose:hover {   color: #06D85F; } '
+    + '#HHAutoPopupGlobalContent .HHAutoScriptMenu .rowLine { display:flex;flex-direction:row;align-items:center;column-gap:20px;justify-content: center; } '
+    + '#HHAutoPopupGlobalContent {   max-height: 30%;   overflow: auto;   color: #333;   font-size: x-small; }'
+    + '#HHAutoPopupGlobalContent .HHAutoScriptMenu .switch {  width: 55px; height: 32px; }'
+    + '#HHAutoPopupGlobalContent .HHAutoScriptMenu input:checked + .slider:before { -webkit-transform: translateX(20px); -ms-transform: translateX(20px); transform: translateX(20px); } '
+    + '#HHAutoPopupGlobalContent .HHAutoScriptMenu .slider.round::before {  width: 22px; height: 22px; bottom: 5px; }');
+
+    let popUp = '<div id="HHAutoPopupGlobal" class="HHAutoOverlay">'
+    +' <div id="HHAutoPopupGlobalPopup">'
+    +'   <h2 id="HHAutoPopupGlobalTitle">Here i am</h2>'
+    +'   <a id="HHAutoPopupGlobalClose">&times;</a>'
+    +'   <div id="HHAutoPopupGlobalContent" class="content">'
+    +'      Thank to pop me out of that button, but now im done so you can close this window.'
+    +'   </div>'
+    +' </div>'
+    +'</div>';
+    $('body').prepend(popUp);
+    document.getElementById("HHAutoPopupGlobalClose").addEventListener("click", function(){
+        maskHHPopUp();
+    });
+    document.addEventListener('keyup', evt => {
+        if (evt.key === 'Escape')
+        {
+            maskHHPopUp();
+        }
+    });
+}
+
+function isDisplayedHHPopUp()
+{
+    if (document.getElementById("HHAutoPopupGlobal") === null)
+    {
+        return false;
+    }
+    if (document.getElementById("HHAutoPopupGlobal").style.display === "none")
+    {
+        return false;
+    }
+    return document.getElementById("HHAutoPopupGlobalPopup").className;
+}
+
+function HHPopup_displayHHPopUp()
+{
+    if (document.getElementById("HHAutoPopupGlobal") === null)
+    {
+        return false;
+    }
+    document.getElementById("HHAutoPopupGlobal").style.display = "";
+    document.getElementById("HHAutoPopupGlobal").style.opacity = 1;
+}
+
+function maskHHPopUp()
+{
+    document.getElementById("HHAutoPopupGlobal").style.display = "none";
+    document.getElementById("HHAutoPopupGlobal").style.opacity = 0;
+}
+
+function checkAndClosePopup(inBurst)
+{
+    const popUp = $('#popup_message[style*="display: block"]');
+    if ((inBurst || isFocused()) && popUp.length > 0)
+    {
+        $('close', popUp).click();
+    }
 }
 ;// CONCATENATED MODULE: ./src/Utils/index.js
 
@@ -5000,7 +5015,7 @@ function debugDate(sec_num){
     return JSON.stringify({days:days,hours:hours,minutes:minutes,seconds:seconds});
 }
 
-function TimeHelper_convertTimeToInt(remainingTimer){
+function convertTimeToInt(remainingTimer){
     let newTimer = 0;
     if (remainingTimer && remainingTimer.length > 0) {
         let splittedTime = remainingTimer.split(' ');
@@ -5422,12 +5437,12 @@ class EventModule {
                 let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
                 if (timeLeft !== undefined && timeLeft.length)
                 {
-                    setTimer('eventGoing',Number(TimeHelper_convertTimeToInt(timeLeft)));
+                    setTimer('eventGoing',Number(convertTimeToInt(timeLeft)));
                 } else setTimer('eventGoing', refreshTimer);
                 eventList[eventID]={};
                 eventList[eventID]["id"]=eventID;
                 eventList[eventID]["type"]=hhEvent.eventType;
-                eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(TimeHelper_convertTimeToInt(timeLeft)) * 1000;
+                eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
                 eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
                 eventList[eventID]["isCompleted"] = true;
                 let allEventGirlz = hhEventData ? hhEventData.girls : [];
@@ -5503,16 +5518,16 @@ class EventModule {
                 let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
                 if (timeLeft !== undefined && timeLeft.length)
                 {
-                    setTimer('eventGoing',Number(TimeHelper_convertTimeToInt(timeLeft)));
+                    setTimer('eventGoing',Number(convertTimeToInt(timeLeft)));
                 } else setTimer('eventGoing', refreshTimer);
                 eventList[eventID]={};
                 eventList[eventID]["id"]=eventID;
                 eventList[eventID]["type"]=hhEvent.eventType;
                 eventList[eventID]["isMythic"]=true;
-                eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(TimeHelper_convertTimeToInt(timeLeft)) * 1000;
+                eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
                 eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
                 eventList[eventID]["isCompleted"] = true;
-                setTimer('eventMythicGoing',Number(TimeHelper_convertTimeToInt(timeLeft)));
+                setTimer('eventMythicGoing',Number(convertTimeToInt(timeLeft)));
                 let allEventGirlz = hhEventData ? hhEventData.girls : [];
                 for (let currIndex = 0;currIndex<allEventGirlz.length;currIndex++)
                 {
@@ -5522,7 +5537,7 @@ class EventModule {
                     if ($(ShardsQuery).length > 0 )
                     {
                         let remShards=Number($(ShardsQuery)[0].innerText);
-                        let nextWave=($(timerQuery).length > 0)?TimeHelper_convertTimeToInt($(timerQuery)[0].innerText):-1;
+                        let nextWave=($(timerQuery).length > 0)?convertTimeToInt($(timerQuery)[0].innerText):-1;
                         if (girlData.shards < 100)
                         {
                             eventList[eventID]["isCompleted"] = false;
@@ -5540,7 +5555,7 @@ class EventModule {
                                 let girlName = girlData.name;
                                 let girlShards = girlData.shards;
                                 let parsedURL = new URL(girlData.source.anchor_source.url,window.location.origin);
-                                TrollID = queryStringGetParam(parsedURL.search,'id_opponent');
+                                let TrollID = queryStringGetParam(parsedURL.search,'id_opponent');
                                 if (girlData.source.anchor_source.disabled) {
                                     LogUtils_logHHAuto("Troll " + TrollID + " is not available for mythic girl " +  girlName + " (" + girlId + ") ignoring");
                                 } else {
@@ -5566,15 +5581,15 @@ class EventModule {
                 let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
                 if (timeLeft !== undefined && timeLeft.length)
                 {
-                    setTimer('eventGoing',Number(TimeHelper_convertTimeToInt(timeLeft)));
+                    setTimer('eventGoing',Number(convertTimeToInt(timeLeft)));
                 } else setTimer('eventGoing', refreshTimer);
                 eventList[eventID]={};
                 eventList[eventID]["id"]=eventID;
                 eventList[eventID]["type"]=hhEvent.eventType;
-                eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(TimeHelper_convertTimeToInt(timeLeft)) * 1000;
+                eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
                 eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
                 eventList[eventID]["isCompleted"] = $('#contains_all #events #boss_bang .completed-event').length > 0;
-                setTimer('eventBossBangGoing',Number(TimeHelper_convertTimeToInt(timeLeft)));
+                setTimer('eventBossBangGoing',Number(convertTimeToInt(timeLeft)));
                 let teamEventz = $('#contains_all #events #boss_bang .boss-bang-teams-container .boss-bang-team-slot');
                 let teamFound = false;
                 const firstTeamToStartWith = StorageHelper_getStoredValue("HHAuto_Setting_bossBangMinTeam");
@@ -5615,16 +5630,16 @@ class EventModule {
 
                 let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
                 if (timeLeft !== undefined && timeLeft.length) {
-                    setTimer('eventGoing',Number(TimeHelper_convertTimeToInt(timeLeft)));
+                    setTimer('eventGoing',Number(convertTimeToInt(timeLeft)));
                 } else setTimer('eventGoing', 3600);
 
                 eventList[eventID]={};
                 eventList[eventID]["id"]=eventID;
                 eventList[eventID]["type"]=hhEvent.eventType;
-                eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(TimeHelper_convertTimeToInt(timeLeft)) * 1000;
+                eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
                 eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
                 eventList[eventID]["isCompleted"] = false;
-                setTimer('eventSultryMysteryGoing', Number(TimeHelper_convertTimeToInt(timeLeft)));
+                setTimer('eventSultryMysteryGoing', Number(convertTimeToInt(timeLeft)));
 
                 if (checkTimer("eventSultryMysteryShopRefresh")) {
                     LogUtils_logHHAuto("Refresh sultry mysteries shop content.");
@@ -5635,7 +5650,7 @@ class EventModule {
 
                     setTimeout(function(){ // Wait tab switch and timer init
                         let shopTimeLeft=$('#contains_all #events #shop_tab_container .shop-section .shop-timer span[rel="expires"]').text();
-                        setTimer('eventSultryMysteryShopRefresh', Number(TimeHelper_convertTimeToInt(shopTimeLeft)));
+                        setTimer('eventSultryMysteryShopRefresh', Number(convertTimeToInt(shopTimeLeft)));
                         eventList[eventID]["next_shop_refresh"]=new Date().getTime() + Number(shopTimeLeft) * 1000;
 
                         setTimeout(function(){gridButton.click();},randomInterval(800,1200));
@@ -5985,9 +6000,9 @@ class PathOfGlory {
     static getRemainingTime(){
         const poGTimerRequest = '#pog_tab_container > div.potions-paths-first-row .potions-paths-timer span[rel=expires]';
     
-        if ( $(poGTimerRequest).length > 0 && (TimerHelper_getSecondsLeft("PoGRemainingTime") === 0 || StorageHelper_getStoredValue("HHAuto_Temp_PoGEndDate") === undefined) )
+        if ( $(poGTimerRequest).length > 0 && (getSecondsLeft("PoGRemainingTime") === 0 || StorageHelper_getStoredValue("HHAuto_Temp_PoGEndDate") === undefined) )
         {
-            const poGTimer = Number(TimeHelper_convertTimeToInt($(poGTimerRequest).text()));
+            const poGTimer = Number(convertTimeToInt($(poGTimerRequest).text()));
             setTimer("PoGRemainingTime",poGTimer);
             StorageHelper_setStoredValue("HHAuto_Temp_PoGEndDate",Math.ceil(new Date().getTime()/1000)+poGTimer);
         }
@@ -6003,7 +6018,7 @@ class PathOfGlory {
         if (getPage() === getHHScriptVars("pagesIDPoG"))
         {
             PathOfGlory.getRemainingTime();
-            const pogEnd = TimerHelper_getSecondsLeft("PoGRemainingTime");
+            const pogEnd = getSecondsLeft("PoGRemainingTime");
             LogUtils_logHHAuto("PoG end in " + debugDate(pogEnd));
 
             if (checkTimer('nextPoGCollectAllTime') && pogEnd < getLimitTimeBeforeEnd() && StorageHelper_getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true")
@@ -6114,9 +6129,9 @@ class PathOfValue {
     static getRemainingTime(){
         const poVTimerRequest = '#pov_tab_container > div.potions-paths-first-row .potions-paths-timer span[rel=expires]';
 
-        if ( $(poVTimerRequest).length > 0 && (TimerHelper_getSecondsLeft("PoVRemainingTime") === 0 || StorageHelper_getStoredValue("HHAuto_Temp_PoVEndDate") === undefined) )
+        if ( $(poVTimerRequest).length > 0 && (getSecondsLeft("PoVRemainingTime") === 0 || StorageHelper_getStoredValue("HHAuto_Temp_PoVEndDate") === undefined) )
         {
-            const poVTimer = Number(TimeHelper_convertTimeToInt($(poVTimerRequest).text()));
+            const poVTimer = Number(convertTimeToInt($(poVTimerRequest).text()));
             setTimer("PoVRemainingTime",poVTimer);
             StorageHelper_setStoredValue("HHAuto_Temp_PoVEndDate",Math.ceil(new Date().getTime()/1000)+poVTimer);
         }
@@ -6132,7 +6147,7 @@ class PathOfValue {
         if (getPage() === getHHScriptVars("pagesIDPoV"))
         {
             PathOfValue.getRemainingTime();
-            const povEnd = TimerHelper_getSecondsLeft("PoVRemainingTime");
+            const povEnd = getSecondsLeft("PoVRemainingTime");
             LogUtils_logHHAuto("PoV end in " + debugDate(povEnd));
 
             if (checkTimer('nextPoVCollectAllTime') && povEnd < getLimitTimeBeforeEnd() && StorageHelper_getStoredValue("HHAuto_Setting_autoPoVCollectAll") === "true")
@@ -6242,7 +6257,7 @@ class Season {
     static getRemainingTime(){
         const seasonTimer = unsafeWindow.season_sec_untill_event_end;
 
-        if ( seasonTimer != undefined && (TimerHelper_getSecondsLeft("SeasonRemainingTime") === 0 || StorageHelper_getStoredValue("HHAuto_Temp_SeasonEndDate") === undefined) )
+        if ( seasonTimer != undefined && (getSecondsLeft("SeasonRemainingTime") === 0 || StorageHelper_getStoredValue("HHAuto_Temp_SeasonEndDate") === undefined) )
         {
             setTimer("SeasonRemainingTime",seasonTimer);
             StorageHelper_setStoredValue("HHAuto_Temp_SeasonEndDate",Math.ceil(new Date().getTime()/1000)+seasonTimer);
@@ -6590,7 +6605,7 @@ class Season {
         if (getPage() === getHHScriptVars("pagesIDSeason"))
         {
             Season.getRemainingTime();
-            const seasonEnd = TimerHelper_getSecondsLeft("SeasonRemainingTime");
+            const seasonEnd = getSecondsLeft("SeasonRemainingTime");
             LogUtils_logHHAuto("Season end in " + debugDate(seasonEnd));
 
             if (checkTimer('nextSeasonCollectAllTime') && seasonEnd < getLimitTimeBeforeEnd() && StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonCollectAll") === "true")
@@ -6772,12 +6787,15 @@ class Season {
 
 
 class SeasonalEvent {
+    static isMegaSeasonalEvent() {
+        return $('.mega-event-container').length > 0
+    }
     static getRemainingTime(){
         const seasonalEventTimerRequest = `.seasonal-event-panel .seasonal-event-container .seasonal-timer span[rel=expires]`;
     
-        if ( $(seasonalEventTimerRequest).length > 0 && (TimerHelper_getSecondsLeft("SeasonalEventRemainingTime") === 0 || StorageHelper_getStoredValue("HHAuto_Temp_SeasonalEventEndDate") === undefined) )
+        if ( $(seasonalEventTimerRequest).length > 0 && (getSecondsLeft("SeasonalEventRemainingTime") === 0 || StorageHelper_getStoredValue("HHAuto_Temp_SeasonalEventEndDate") === undefined) )
         {
-            const seasonalEventTimer = Number(TimeHelper_convertTimeToInt($(seasonalEventTimerRequest).text()));
+            const seasonalEventTimer = Number(convertTimeToInt($(seasonalEventTimerRequest).text()));
             setTimer("SeasonalEventRemainingTime",seasonalEventTimer);
             StorageHelper_setStoredValue("HHAuto_Temp_SeasonalEventEndDate",Math.ceil(new Date().getTime()/1000)+seasonalEventTimer);
         }
@@ -6793,7 +6811,7 @@ class SeasonalEvent {
         if (getPage() === getHHScriptVars("pagesIDSeasonalEvent"))
         {
             SeasonalEvent.getRemainingTime();
-            const seasonalEventEnd = TimerHelper_getSecondsLeft("SeasonalEventRemainingTime");
+            const seasonalEventEnd = getSecondsLeft("SeasonalEventRemainingTime");
             // logHHAuto("Seasonal end in " + seasonalEventEnd);
             const needToCollect = (checkTimer('nextSeasonalEventCollectTime') && StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true")
             const needToCollectAllBeforeEnd = (checkTimer('nextSeasonalEventCollectAllTime') && seasonalEventEnd < getLimitTimeBeforeEnd() && StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll") === "true");
@@ -6916,10 +6934,10 @@ class SeasonalEvent {
 
         const girlContainer = $('.girls-reward-container');
         
-        girlContainer.append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, 4600, 0))
-        .append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, 9000, 1))
-        .append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, 13500, 2))
-        .append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, 18000, 3));
+        girlContainer.append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, 4600, 1))
+        .append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, 9000, 2))
+        .append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, 13500, 3))
+        .append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, 18000, 4));
     }
     static getGirlMileStonesDiv(playerPoints, girlPointsTarget, girlIndex) {
         const greeNitckHtml = '<img class="nc-claimed-reward-check" src="'+getHHScriptVars("baseImgPath")+'/clubs/ic_Tick.png">';
@@ -7305,10 +7323,10 @@ class Champion {
                 let timerElm = $(this);
                 if (timerElm !== undefined && timerElm !== null && timerElm.length > 0) {
                     if (currTime == -1 || minTime == -1) {
-                        currTime = Number(TimeHelper_convertTimeToInt(timerElm.text()));
-                        minTime = Number(TimeHelper_convertTimeToInt(timerElm.text()));
+                        currTime = Number(convertTimeToInt(timerElm.text()));
+                        minTime = Number(convertTimeToInt(timerElm.text()));
                     } else {
-                        currTime = Number(TimeHelper_convertTimeToInt(timerElm.text()));
+                        currTime = Number(convertTimeToInt(timerElm.text()));
                         if (currTime > minTime) {minTime = currTime;}
                     }
                 }
@@ -9656,7 +9674,7 @@ class Market {
         try
         {
             //logHHAuto("Go shopping");
-            var Hero=getHero();
+            const Hero=getHero();
             var MS='carac'+getHHVars('Hero.infos.class');
             var SS1='carac'+(getHHVars('Hero.infos.class')%3+1);
             var SS2='carac'+((getHHVars('Hero.infos.class')+1)%3+1);
@@ -10101,7 +10119,7 @@ class Missions {
                     LogUtils_logHHAuto("New mission time was undefined... Setting it manually to 10min.");
                     setTimer('nextMissionTime', 10*60);
                 }
-                setTimer('nextMissionTime',Number(TimeHelper_convertTimeToInt(time))+1);
+                setTimer('nextMissionTime',Number(convertTimeToInt(time))+1);
             }
             // not busy
             return false;
@@ -10189,7 +10207,7 @@ class MonthlyCards {
                 if(maxRegenQuest && maxRegenQuest > 100) {
                     // 100 - 150 - 200 - 250 - 300
                     if(maxRegenQuest === 200 || maxRegenQuest === 300) {
-                        const lastAllowedHundred = (Hero.energies.kiss.max_regen_amount / 100) - 1;
+                        const lastAllowedHundred = (getHHVars('Hero.energies.kiss.max_regen_amount') / 100) - 1;
                         HHAuto_inputPattern.autoQuestThreshold = "[1-"+lastAllowedHundred+"][0-9][0-9]|[1-9]?[0-9]";
                     } else if(maxRegenQuest === 250 ){
                         HHAuto_inputPattern.autoQuestThreshold = "2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]";
@@ -10282,7 +10300,7 @@ class Pachinko {
                 var npach = $('.'+timerClass+' span[rel="expires"]').text();
                 if(npach !== undefined && npach !== null && npach.length > 0)
                 {
-                    setTimer(pachinkoTimer,Number(TimeHelper_convertTimeToInt(npach))+1);
+                    setTimer(pachinkoTimer,Number(convertTimeToInt(npach))+1);
                 }
                 else
                 {
@@ -10839,7 +10857,7 @@ class PlaceOfPower {
                 currIndex = $elem.parents('.pop_thumb_expanded').attr('pop_id');
                 if (filteredPops.includes(currIndex) && ! popUnableToStart.includes(currIndex))
                 {
-                    currTime=TimeHelper_convertTimeToInt($elem.text());
+                    currTime=convertTimeToInt($elem.text());
                     if (minTime === -1 || currTime === -1 || minTime>currTime)
                     {
                         minTime = currTime;
@@ -11097,7 +11115,7 @@ class PlaceOfPower {
 
 
 class QuestHelper {
-    SITE_QUEST_PAGE = '/side-quests.html';
+    static SITE_QUEST_PAGE = '/side-quests.html';
     static getNextQuestLink() {
         const mainQuest = StorageHelper_getStoredValue("HHAuto_Setting_autoQuest") === "true";
         const sideQuest = getHHScriptVars("isEnabledSideQuest",false) && StorageHelper_getStoredValue("HHAuto_Setting_autoSideQuest") === "true";
@@ -11181,7 +11199,7 @@ class QuestHelper {
             //console.log("DebugQuest payType : "+payType);
             if (payTypeNRJ)
             {
-                console.log("DebugQuest ENERGY for : "+proceedCost);
+                // console.log("DebugQuest ENERGY for : "+proceedCost + " / " + energyCurrent);
                 if(proceedCost <= energyCurrent)
                 {
                     // We have energy.
@@ -11257,7 +11275,7 @@ class QuestHelper {
             proceedButtonMatch.click();
             StorageHelper_setStoredValue("HHAuto_Temp_autoLoop", "true");
             LogUtils_logHHAuto("setting autoloop to true");
-            setTimeout(autoLoop,randomInterval(500,800));
+            setTimeout(autoLoop,randomInterval(800,1200));
         },randomInterval(500,800));
         //setTimeout(function () {location.reload();},randomInterval(800,1500));
         
@@ -11866,18 +11884,18 @@ class Troll {
                 (
                     StorageHelper_getStoredValue("HHAuto_Setting_buyCombat") =="true"
                     && StorageHelper_getStoredValue("HHAuto_Setting_plusEvent") ==="true"
-                    && TimerHelper_getSecondsLeft("eventGoing") !== 0
+                    && getSecondsLeft("eventGoing") !== 0
                     && Number(StorageHelper_getStoredValue("HHAuto_Setting_buyCombTimer")) !== NaN
-                    && TimerHelper_getSecondsLeft("eventGoing") < StorageHelper_getStoredValue("HHAuto_Setting_buyCombTimer")*3600
+                    && getSecondsLeft("eventGoing") < StorageHelper_getStoredValue("HHAuto_Setting_buyCombTimer")*3600
                     && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "false"
                 )
                 ||
                 (
                     StorageHelper_getStoredValue("HHAuto_Setting_plusEventMythic") ==="true"
                     && StorageHelper_getStoredValue("HHAuto_Setting_buyMythicCombat") === "true"
-                    && TimerHelper_getSecondsLeft("eventMythicGoing") !== 0
+                    && getSecondsLeft("eventMythicGoing") !== 0
                     && Number(StorageHelper_getStoredValue("HHAuto_Setting_buyMythicCombTimer")) !== NaN
-                    && TimerHelper_getSecondsLeft("eventMythicGoing") < StorageHelper_getStoredValue("HHAuto_Setting_buyMythicCombTimer")*3600
+                    && getSecondsLeft("eventMythicGoing") < StorageHelper_getStoredValue("HHAuto_Setting_buyMythicCombTimer")*3600
                     && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true"
                 )
             )
@@ -11937,6 +11955,7 @@ class Troll {
     }
 }
 ;// CONCATENATED MODULE: ./src/Module/index.js
+// export * from './Booster'
 
 
 
@@ -12261,7 +12280,7 @@ class RewardHelper {
         return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
     }
     static getSeasonalNotClaimedRewards(){
-        const arrayz = $('.seasonal-tier.unclaimed');
+        const arrayz = $('.seasonal-tier.unclaimed, .mega-tier.free-slot:has(button.mega-claim-reward)');
         const freeSlotSelectors = ".slot";
         const paidSlotSelectors = ""; // Not available
 
@@ -12349,12 +12368,13 @@ class RewardHelper {
             target.append($('<div id='+hhRewardId+' style="display:none;"></div>'));
         }
     }
-    static displayRewardsSeasonalDiv() {
+    static displayRewardsSeasonalDiv(isMegaSeasonalEvent=false) {
         const target = $('.event-resource-location');
         const hhRewardId = 'HHSeasonalRewards';
         try{
             if($('#' + hhRewardId).length <= 0) {
                 const rewardCountByType = RewardHelper.getSeasonalNotClaimedRewards();
+                // logHHAuto("Rewards seasonal event:", JSON.stringify(rewardCountByType));
                 if (rewardCountByType['all'] > 0) {
                     GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container { height: 5rem; margin-top: 0;}'); 
                     GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container a { height: 2rem;}'); 
@@ -12585,7 +12605,7 @@ function TimerHelper_getTimer(name)
     return Timers[name];
 }
 
-function TimerHelper_getSecondsLeft(name)
+function getSecondsLeft(name)
 {
     if (!Timers[name])
     {
@@ -12613,7 +12633,7 @@ function getTimeLeft(name)
         }
         return "No timer";
     }
-    var diff=TimerHelper_getSecondsLeft(name);
+    var diff=getSecondsLeft(name);
     if (diff<=0)
     {
         if (!canCollectCompetitionActive() && timerWaitingCompet.indexOf(name) >= 0)
@@ -12693,7 +12713,7 @@ class Shop {
             let shopFrozenTimer = $('.shop div.shop_count span[rel="expires"]').first().text();
             if (nshop === undefined && shopFrozenTimer.length > 0)
             {
-                nshop = TimeHelper_convertTimeToInt(shopFrozenTimer);
+                nshop = convertTimeToInt(shopFrozenTimer);
             }
             let shopTimer=60;
             if(nshop !== undefined && nshop !== 0)
@@ -13939,10 +13959,10 @@ function flipParanoia()
         toNextSwitch=StorageHelper_getStoredValue("HHAuto_Temp_NextSwitch")?Number((StorageHelper_getStoredValue("HHAuto_Temp_NextSwitch")-new Date().getTime())/1000):randomInterval(Number(periods[period][0]),Number(periods[period][1]));
 
         //match mythic new wave with end of sleep
-        if (StorageHelper_getStoredValue("HHAuto_Setting_autoTrollMythicByPassParanoia") === "true" && getTimer("eventMythicNextWave") !== -1 && toNextSwitch>TimerHelper_getSecondsLeft("eventMythicNextWave"))
+        if (StorageHelper_getStoredValue("HHAuto_Setting_autoTrollMythicByPassParanoia") === "true" && getTimer("eventMythicNextWave") !== -1 && toNextSwitch>getSecondsLeft("eventMythicNextWave"))
         {
             LogUtils_logHHAuto("Forced rest only until next mythic wave.");
-            toNextSwitch=TimerHelper_getSecondsLeft("eventMythicNextWave");
+            toNextSwitch=getSecondsLeft("eventMythicNextWave");
         }
 
         //bypass Paranoia if ongoing mythic
@@ -13962,8 +13982,8 @@ function flipParanoia()
             }
 
             //mythic ongoing and can buyCombat
-            var hero=getHero();
-            var price=hero.get_recharge_cost("fight");
+            // const Hero=getHero();
+            // var price=Hero.get_recharge_cost("fight");
             if (Troll.canBuyFight().canBuy
                 && getHHVars('Hero.energies.fight.amount')==0
                )
@@ -14171,6 +14191,7 @@ function autoLoop()
         }
         */
 
+        const Hero = getHero();
         //if a new event is detected
         let eventQuery = '#contains_all #homepage .event-widget a[rel="event"]:not([href="#"])';
         let mythicEventQuery = '#contains_all #homepage .event-widget a[rel="mythic_event"]:not([href="#"])';
@@ -14740,7 +14761,7 @@ function autoLoop()
             (
                 checkTimer('nextSeasonCollectTime') && StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonCollect") === "true" && canCollectCompetitionActive()
                 ||
-                StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonCollectAll") === "true" && checkTimer('nextSeasonCollectAllTime') && (TimerHelper_getTimer('SeasonRemainingTime') == -1 || TimerHelper_getSecondsLeft('SeasonRemainingTime') < getLimitTimeBeforeEnd())
+                StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonCollectAll") === "true" && checkTimer('nextSeasonCollectAllTime') && (TimerHelper_getTimer('SeasonRemainingTime') == -1 || getSecondsLeft('SeasonRemainingTime') < getLimitTimeBeforeEnd())
             )
         )
         {
@@ -14754,7 +14775,7 @@ function autoLoop()
             (
                 checkTimer('nextSeasonalEventCollectTime') && StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true" && canCollectCompetitionActive()
                 ||
-                StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll") === "true" && checkTimer('nextSeasonalEventCollectAllTime') && (TimerHelper_getTimer('SeasonalEventRemainingTime') == -1 || TimerHelper_getSecondsLeft('SeasonalEventRemainingTime') < getLimitTimeBeforeEnd())
+                StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll") === "true" && checkTimer('nextSeasonalEventCollectAllTime') && (TimerHelper_getTimer('SeasonalEventRemainingTime') == -1 || getSecondsLeft('SeasonalEventRemainingTime') < getLimitTimeBeforeEnd())
             )
         )
         {
@@ -14768,7 +14789,7 @@ function autoLoop()
             (
                 checkTimer('nextPoVCollectTime') && StorageHelper_getStoredValue("HHAuto_Setting_autoPoVCollect") === "true" && canCollectCompetitionActive()
                 ||
-                StorageHelper_getStoredValue("HHAuto_Setting_autoPoVCollectAll") === "true" && checkTimer('nextPoVCollectAllTime') && (TimerHelper_getTimer('PoVRemainingTime') == -1 || TimerHelper_getSecondsLeft('PoVRemainingTime') < getLimitTimeBeforeEnd())
+                StorageHelper_getStoredValue("HHAuto_Setting_autoPoVCollectAll") === "true" && checkTimer('nextPoVCollectAllTime') && (TimerHelper_getTimer('PoVRemainingTime') == -1 || getSecondsLeft('PoVRemainingTime') < getLimitTimeBeforeEnd())
             )
         )
         {
@@ -14782,7 +14803,7 @@ function autoLoop()
             (
                 checkTimer('nextPoGCollectTime') && StorageHelper_getStoredValue("HHAuto_Setting_autoPoGCollect") === "true" && canCollectCompetitionActive()
                 ||
-                StorageHelper_getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true" && checkTimer('nextPoGCollectAllTime') && (TimerHelper_getTimer('PoGRemainingTime') == -1 || TimerHelper_getSecondsLeft('PoGRemainingTime') < getLimitTimeBeforeEnd())
+                StorageHelper_getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true" && checkTimer('nextPoGCollectAllTime') && (TimerHelper_getTimer('PoGRemainingTime') == -1 || getSecondsLeft('PoGRemainingTime') < getLimitTimeBeforeEnd())
             )
         )
         {
@@ -14944,6 +14965,8 @@ function autoLoop()
             {
                 Shop.moduleShopActions();
             }
+            // Booster.collectBoostersFromMarket = callItOnce(Booster.collectBoostersFromMarket);
+            // Booster.collectBoostersFromMarket();
             break;
         case getHHScriptVars("pagesIDHome"):
             setTimeout(Season.displayRemainingTime,500);
@@ -15005,8 +15028,8 @@ function autoLoop()
             SeasonalEvent.getRemainingTime();
             if (StorageHelper_getStoredValue("HHAuto_Setting_showRewardsRecap") === "true")
             {
-                RewardHelper.displayRewardsSeasonalDiv();
-                SeasonalEvent.displayGirlsMileStones();
+                RewardHelper.displayRewardsSeasonalDiv(SeasonalEvent.isMegaSeasonalEvent());
+                //SeasonalEvent.displayGirlsMileStones();
             }
             break;
         case getHHScriptVars("pagesIDChampionsPage"):
@@ -15085,7 +15108,7 @@ function setDefaults(force = false)
     {
         if (HHStoredVars_HHStoredVars[i].storage !== undefined )
         {
-            let storageItem = StorageHelper_getStorageItem(HHStoredVars_HHStoredVars[i].storage);
+            let storageItem = getStorageItem(HHStoredVars_HHStoredVars[i].storage);
             let isInvalid = false;
             //console.log(storageItem[i], storageItem[i] !== undefined);
             if (HHStoredVars_HHStoredVars[i].isValid !== undefined && storageItem[i] !== undefined)
@@ -15225,6 +15248,8 @@ function start() {
         DailyGoals.styles();
         Missions.styles();
     }
+
+    // Booster.collectBoostersFromAjaxResponses();
 
     document.getElementById('contains_all').appendChild(div.firstChild);
     maskInactiveMenus();

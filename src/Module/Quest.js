@@ -14,7 +14,7 @@ import { autoLoop, gotoPage } from "../Service";
 import { logHHAuto } from "../Utils";
 
 export class QuestHelper {
-    SITE_QUEST_PAGE = '/side-quests.html';
+    static SITE_QUEST_PAGE = '/side-quests.html';
     static getNextQuestLink() {
         const mainQuest = getStoredValue("HHAuto_Setting_autoQuest") === "true";
         const sideQuest = getHHScriptVars("isEnabledSideQuest",false) && getStoredValue("HHAuto_Setting_autoSideQuest") === "true";
@@ -98,7 +98,7 @@ export class QuestHelper {
             //console.log("DebugQuest payType : "+payType);
             if (payTypeNRJ)
             {
-                console.log("DebugQuest ENERGY for : "+proceedCost);
+                // console.log("DebugQuest ENERGY for : "+proceedCost + " / " + energyCurrent);
                 if(proceedCost <= energyCurrent)
                 {
                     // We have energy.
@@ -174,7 +174,7 @@ export class QuestHelper {
             proceedButtonMatch.click();
             setStoredValue("HHAuto_Temp_autoLoop", "true");
             logHHAuto("setting autoloop to true");
-            setTimeout(autoLoop,randomInterval(500,800));
+            setTimeout(autoLoop,randomInterval(800,1200));
         },randomInterval(500,800));
         //setTimeout(function () {location.reload();},randomInterval(800,1500));
         

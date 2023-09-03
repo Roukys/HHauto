@@ -14,6 +14,9 @@ import { gotoPage } from "../../Service";
 import { isJSON, logHHAuto } from "../../Utils";
 
 export class SeasonalEvent {
+    static isMegaSeasonalEvent() {
+        return $('.mega-event-container').length > 0
+    }
     static getRemainingTime(){
         const seasonalEventTimerRequest = `.seasonal-event-panel .seasonal-event-container .seasonal-timer span[rel=expires]`;
     
@@ -158,10 +161,10 @@ export class SeasonalEvent {
 
         const girlContainer = $('.girls-reward-container');
         
-        girlContainer.append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, 4600, 0))
-        .append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, 9000, 1))
-        .append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, 13500, 2))
-        .append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, 18000, 3));
+        girlContainer.append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, 4600, 1))
+        .append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, 9000, 2))
+        .append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, 13500, 3))
+        .append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, 18000, 4));
     }
     static getGirlMileStonesDiv(playerPoints, girlPointsTarget, girlIndex) {
         const greeNitckHtml = '<img class="nc-claimed-reward-check" src="'+getHHScriptVars("baseImgPath")+'/clubs/ic_Tick.png">';

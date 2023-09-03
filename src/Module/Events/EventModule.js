@@ -295,7 +295,7 @@ export class EventModule {
                                 let girlName = girlData.name;
                                 let girlShards = girlData.shards;
                                 let parsedURL = new URL(girlData.source.anchor_source.url,window.location.origin);
-                                TrollID = queryStringGetParam(parsedURL.search,'id_opponent');
+                                let TrollID = queryStringGetParam(parsedURL.search,'id_opponent');
                                 if (girlData.source.anchor_source.disabled) {
                                     logHHAuto("Troll " + TrollID + " is not available for mythic girl " +  girlName + " (" + girlId + ") ignoring");
                                 } else {

@@ -7,6 +7,7 @@ import {
      deleteStoredValue,
      getHHScriptVars, 
      getHHVars,
+     getHero,
      getLimitTimeBeforeEnd,
      getPage,
      getSecondsLeft, 
@@ -19,6 +20,7 @@ import {
      switchHHMenuButton
 } from "../Helper";
 import {
+    // Booster,
     BossBang,
     Bundles,
     Champion,
@@ -181,6 +183,7 @@ export function autoLoop()
         }
         */
 
+        const Hero = getHero();
         //if a new event is detected
         let eventQuery = '#contains_all #homepage .event-widget a[rel="event"]:not([href="#"])';
         let mythicEventQuery = '#contains_all #homepage .event-widget a[rel="mythic_event"]:not([href="#"])';
@@ -954,6 +957,8 @@ export function autoLoop()
             {
                 Shop.moduleShopActions();
             }
+            // Booster.collectBoostersFromMarket = callItOnce(Booster.collectBoostersFromMarket);
+            // Booster.collectBoostersFromMarket();
             break;
         case getHHScriptVars("pagesIDHome"):
             setTimeout(Season.displayRemainingTime,500);
@@ -1015,8 +1020,8 @@ export function autoLoop()
             SeasonalEvent.getRemainingTime();
             if (getStoredValue("HHAuto_Setting_showRewardsRecap") === "true")
             {
-                RewardHelper.displayRewardsSeasonalDiv();
-                SeasonalEvent.displayGirlsMileStones();
+                RewardHelper.displayRewardsSeasonalDiv(SeasonalEvent.isMegaSeasonalEvent());
+                //SeasonalEvent.displayGirlsMileStones();
             }
             break;
         case getHHScriptVars("pagesIDChampionsPage"):

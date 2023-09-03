@@ -12,7 +12,7 @@ export class Market {
         try
         {
             //logHHAuto("Go shopping");
-            var Hero=getHero();
+            const Hero=getHero();
             var MS='carac'+getHHVars('Hero.infos.class');
             var SS1='carac'+(getHHVars('Hero.infos.class')%3+1);
             var SS2='carac'+((getHHVars('Hero.infos.class')+1)%3+1);
