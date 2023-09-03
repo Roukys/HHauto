@@ -1,3 +1,6 @@
+import { getStorageItem } from "../Helper";
+import { logHHAuto } from "./LogUtils";
+
 export function callItOnce(fn) {
     var called = false;
     return function() {

@@ -10,8 +10,20 @@ export function logHHAuto(...args)
         match = stackTrace.match(/at Object\.(\w+) \((\S+)\)/);
         match[1] // throw error if match is null
     } catch {
-        // Firefox
-        match = stackTrace.match(/\n(\w+)@(\S+)/);
+        try {
+            // Firefox
+            match = stackTrace.match(/\n(\w+)@(\S+)/);
+            match[1] // throw error if match is null
+        } catch {
+            try {
+                // Chrome 2 ?
+                match = stackTrace.match(/at (\w+) \((\S+)\)/)
+                match[1] // throw error if match is null
+            } catch {
+                // ?
+                match = ['Unknown','Unknown'];
+            }
+        }
     }
     let [callerName, callerPlace] = [match[1], match[2]]
 

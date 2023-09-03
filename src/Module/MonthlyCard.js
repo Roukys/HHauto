@@ -30,7 +30,7 @@ export class MonthlyCards {
                 if(maxRegenQuest && maxRegenQuest > 100) {
                     // 100 - 150 - 200 - 250 - 300
                     if(maxRegenQuest === 200 || maxRegenQuest === 300) {
-                        const lastAllowedHundred = (Hero.energies.kiss.max_regen_amount / 100) - 1;
+                        const lastAllowedHundred = (getHHVars('Hero.energies.kiss.max_regen_amount') / 100) - 1;
                         HHAuto_inputPattern.autoQuestThreshold = "[1-"+lastAllowedHundred+"][0-9][0-9]|[1-9]?[0-9]";
                     } else if(maxRegenQuest === 250 ){
                         HHAuto_inputPattern.autoQuestThreshold = "2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]";

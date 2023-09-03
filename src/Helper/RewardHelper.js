@@ -123,7 +123,7 @@ export class RewardHelper {
         return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
     }
     static getSeasonalNotClaimedRewards(){
-        const arrayz = $('.seasonal-tier.unclaimed');
+        const arrayz = $('.seasonal-tier.unclaimed, .mega-tier.free-slot:has(button.mega-claim-reward)');
         const freeSlotSelectors = ".slot";
         const paidSlotSelectors = ""; // Not available
 
@@ -211,12 +211,13 @@ export class RewardHelper {
             target.append($('<div id='+hhRewardId+' style="display:none;"></div>'));
         }
     }
-    static displayRewardsSeasonalDiv() {
+    static displayRewardsSeasonalDiv(isMegaSeasonalEvent=false) {
         const target = $('.event-resource-location');
         const hhRewardId = 'HHSeasonalRewards';
         try{
             if($('#' + hhRewardId).length <= 0) {
                 const rewardCountByType = RewardHelper.getSeasonalNotClaimedRewards();
+                // logHHAuto("Rewards seasonal event:", JSON.stringify(rewardCountByType));
                 if (rewardCountByType['all'] > 0) {
                     GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container { height: 5rem; margin-top: 0;}'); 
                     GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container a { height: 2rem;}'); 

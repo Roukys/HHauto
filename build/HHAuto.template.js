@@ -77,7 +77,7 @@ GM_addStyle(".HHpopup_message .close {   position: absolute;   top: 20px;   righ
 GM_addStyle('#HHPovPogRewards { position: absolute; bottom: 6.9rem; left: -0.75rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}');
 GM_addStyle('.HHRewardNotCollected { max-width: 17.9rem; transform: scale(0.8); }');
 GM_addStyle('.HHRewardNotCollected .slot { margin: 1px 1px 0}'); 
-GM_addStyle('.HHGirlMilestone { position: absolute; bottom: -1rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1; font-size:smaller; width: 156px; text-align: center;}'); 
+GM_addStyle('.HHGirlMilestone { position: absolute; bottom: 0; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1; font-size:smaller; width: 156px; text-align: center;}'); 
 GM_addStyle('.HHGirlMilestone.green { border: solid 1px green }'); 
 GM_addStyle('.HHGirlMilestone .nc-claimed-reward-check { width:20px; position:absolute; }'); 
 GM_addStyle('#HHSeasonRewards { position: absolute; right: 1.25rem; bottom: 12.25rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px;}'); 
