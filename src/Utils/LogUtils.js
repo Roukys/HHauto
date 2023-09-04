@@ -4,28 +4,15 @@ import { getBrowserData } from "./BrowserUtils";
 export function logHHAuto(...args)
 {
 
-    let stackTrace = (new Error()).stack; // Only tested in latest FF and Chrome
+    const stackTrace = (new Error()).stack;
     let match
-    try {
-        match = stackTrace.match(/at Object\.(\w+) \((\S+)\)/);
-        match[1] // throw error if match is null
-    } catch {
-        try {
-            // Firefox
-            match = stackTrace.match(/\n(\w+)@(\S+)/);
-            match[1] // throw error if match is null
-        } catch {
-            try {
-                // Chrome 2 ?
-                match = stackTrace.match(/at (\w+) \((\S+)\)/)
-                match[1] // throw error if match is null
-            } catch {
-                // ?
-                match = ['Unknown','Unknown'];
-            }
-        }
-    }
-    let [callerName, callerPlace] = [match[1], match[2]]
+    const regExps = [/at Object\.([\w_.]+) \((\S+)\)/, /\n([\w_.]+)@(\S+)/, /\)\n    at ([\w_.]+) \((\S+)\)/];
+    regExps.forEach(element => {
+        if(!(match && match.length >= 2)) match = stackTrace.match(element);
+    });
+    if(!(match && match.length >= 2)) match = ['Unknown','Unknown'];
+
+    const callerName = match[1];
 
     let currDate = new Date();
     var prefix = currDate.toLocaleString()+"."+currDate.getMilliseconds()+":"+callerName;

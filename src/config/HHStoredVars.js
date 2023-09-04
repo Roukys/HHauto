@@ -3,6 +3,7 @@ import {
     getAndStoreCollectPreferences,
     getTextForUI
 } from "../Helper";
+import { PlaceOfPower } from "../Module";
 
 export const HHStoredVars = {};
 //Settings Vars
@@ -409,7 +410,7 @@ HHStoredVars.HHAuto_Setting_autoPowerPlacesAll =
     newValueFunction:function()
     {
         clearTimer('minPowerPlacesTime');
-        cleanTempPopToStart();
+        PlaceOfPower.cleanTempPopToStart();
     }
 };
 HHStoredVars.HHAuto_Setting_autoPowerPlacesPrecision =
@@ -458,7 +459,7 @@ HHStoredVars.HHAuto_Setting_autoPowerPlacesIndexFilter =
     newValueFunction:function()
     {
         clearTimer('minPowerPlacesTime');
-        cleanTempPopToStart();
+        PlaceOfPower.cleanTempPopToStart();
     }
 };
 HHStoredVars.HHAuto_Setting_autoQuest =

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.0.5
+// @version      6.0.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1401,3733 +1401,6 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
 });
 
-;// CONCATENATED MODULE: ./src/config/HHStoredVars.js
-
-
-const HHStoredVars_HHStoredVars = {};
-//Settings Vars
-//Do not move, has to be first one
-HHStoredVars_HHStoredVars.HHAuto_Setting_settPerTab =
-    {
-    default:"false",
-    storage:"localStorage",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-// Rest of settings vars
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoAff =
-    {
-    default:"500000000",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Long Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoAffW =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoBuyBoosters =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:true
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoBuyBoostersFilter =
-    {
-    default:"B1;B2;B3;B4",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"List",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoChamps =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false,
-    newValueFunction:function()
-    {
-        TimerHelper_clearTimer('nextChampionTime');
-    }
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoChampsForceStart =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false,
-    newValueFunction:function()
-    {
-        TimerHelper_clearTimer('nextChampionTime');
-    }
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoChampsFilter =
-    {
-    default:"1;2;3;4;5;6",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"List",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false,
-    newValueFunction:function()
-    {
-        TimerHelper_clearTimer('nextChampionTime');
-    }
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoChampsTeamLoop =
-    {
-    default:"10",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Small Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoChampsTeamKeepSecondLine =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoChampsUseEne =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_showClubButtonInPoa =
-    {
-    default:"true",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoClubChamp =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoClubChampMax =
-    {
-    default:"999",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Small Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoClubForceStart =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoContest =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_compactEndedContests =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoExp =
-    {
-    default:"500000000",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Long Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoExpW =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoFreePachinko =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoLeagues =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoLeaguesAllowWinCurrent =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoLeaguesCollect =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoLeaguesPowerCalc =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_leagueListDisplayPowerCalc =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoLeaguesSelectedIndex =
-    {
-    default:"0",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Small Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"selectedIndex",
-    kobanUsing:false,
-    customMenuID:"autoLeaguesSelector",
-    isValid:/^[0-9]$/
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoLeaguesThreshold =
-    {
-    default:"0",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Small Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoLeaguesSecurityThreshold =
-    {
-    default:"40",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Small Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_compactMissions =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoMission =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoMissionCollect =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoMissionKFirst =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_compactPowerPlace =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoPowerPlaces =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoPowerPlacesAll =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false,
-    newValueFunction:function()
-    {
-        TimerHelper_clearTimer('minPowerPlacesTime');
-        cleanTempPopToStart();
-    }
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoPowerPlacesPrecision =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false,
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoPowerPlacesInverted =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false,
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoPowerPlacesWaitMax =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false,
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoPowerPlacesIndexFilter =
-    {
-    default:"1;2;3",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"List",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false,
-    newValueFunction:function()
-    {
-        TimerHelper_clearTimer('minPowerPlacesTime');
-        cleanTempPopToStart();
-    }
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoQuest =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoSideQuest =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoQuestThreshold =
-    {
-    default:"0",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Small Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoSalary =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false,
-    newValueFunction:function()
-    {
-        TimerHelper_clearTimer('nextSalaryTime');
-    }
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoSalaryMaxTimer =
-    {
-    default:"1200",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Long Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-/*HHStoredVars.HHAuto_Setting_autoSalaryMinTimer =
-    {
-    default:"120",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Long Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};*/
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoSalaryMinSalary =
-    {
-    default:"20000",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Long Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false,
-    newValueFunction:function()
-    {
-        TimerHelper_clearTimer('nextSalaryTime');
-    }
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoSeason =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoSeasonCollect =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false,
-    events:{"change":function()
-            {
-                if (this.checked)
-                {
-                    getAndStoreCollectPreferences("HHAuto_Setting_autoSeasonCollectablesList");
-                    TimerHelper_clearTimer('nextSeasonCollectTime');
-                }
-            }
-           }
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoSeasonCollectAll =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoSeasonCollectablesList =
-    {
-    default:JSON.stringify([]),
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Array"
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoSeasonPassReds =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:true
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoSeasonThreshold =
-    {
-    default:"0",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Small Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoStats =
-    {
-    default:"500000000",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Long Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoStatsSwitch =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoTrollBattle =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoTrollMythicByPassParanoia =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoTrollSelectedIndex =
-    {
-    default:"0",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Small Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false,
-    customMenuID:"autoTrollSelector",
-    isValid:/^[0-9]|1[0-5]|98|99$/
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoTrollThreshold =
-    {
-    default:"0",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Small Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoChampsForceStartEventGirl =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_buyCombat =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:true
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_buyCombTimer =
-    {
-    default:"16",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Small Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_buyMythicCombat =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:true
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_buyMythicCombTimer =
-    {
-    default:"16",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Small Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoFreeBundlesCollect =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false,
-    events:{"change":function()
-            {
-                if (this.checked)
-                {
-                    getAndStoreCollectPreferences("HHAuto_Setting_autoFreeBundlesCollectablesList", getTextForUI("menuDailyCollectableText","elementText"));
-                    TimerHelper_clearTimer('nextFreeBundlesCollectTime');
-                }
-            }
-           }
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoFreeBundlesCollectablesList =
-    {
-    default:JSON.stringify([]),
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Array"
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_waitforContest =
-    {
-    default:"true",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_mousePause =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_mousePauseTimeout =
-    {
-    default:"5000",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Small Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value"
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_collectAllTimer =
-    {
-    default:"12",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Small Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    isValid:/^[1-9][0-9]|[1-9]$/
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_eventTrollOrder =
-    {
-    default:"1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"List",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_master =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_maxAff =
-    {
-    default:"50000",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Long Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_maxBooster =
-    {
-    default:"10",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Long Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_maxExp =
-    {
-    default:"10000",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Long Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_minShardsX10 =
-    {
-    default:"10",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Small Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false,
-    isValid:/^(\d)+$/
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_minShardsX50 =
-    {
-    default:"50",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Small Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_updateMarket =
-    {
-    default:"true",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_paranoia =
-    {
-    default:"true",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_paranoiaSettings =
-    {
-    default:"140-320/Sleep:28800-30400|Active:250-460|Casual:1500-2700/6:Sleep|8:Casual|10:Active|12:Casual|14:Active|18:Casual|20:Active|22:Casual|24:Sleep",
-    storage:"Storage()",
-    HHType:"Setting"
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_paranoiaSpendsBefore =
-    {
-    default:"true",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_plusEvent =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_plusEventMythic =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_bossBangEvent =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_bossBangMinTeam =
-    {
-    default:"5",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Small Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_sultryMysteriesEventRefreshShop =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_collectEventChest =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_PoAMaskRewards =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_PoVMaskRewards =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_PoGMaskRewards =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_SeasonMaskRewards =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_SeasonalEventMaskRewards =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_showCalculatePower =
-    {
-    default:"true",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_showAdsBack =
-    {
-    default:"true",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_showRewardsRecap =
-    {
-    default:"true",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_showInfo =
-    {
-    default:"true",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_showInfoLeft =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_showMarketTools =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_showTooltips =
-    {
-    default:"true",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_spendKobans0 =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_kobanBank =
-    {
-    default:"1000000",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Long Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_useX10Fights =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:true
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_useX10FightsAllowNormalEvent =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_useX50Fights =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:true
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_useX50FightsAllowNormalEvent =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_saveDefaults =
-    {
-    storage:"localStorage",
-    HHType:"Setting"
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoPantheon =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoPantheonThreshold =
-    {
-    default:"0",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Small Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoSeasonalEventCollect =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false,
-    events:{"change":function()
-            {
-                if (this.checked)
-                {
-                    getAndStoreCollectPreferences("HHAuto_Setting_autoSeasonalEventCollectablesList");
-                    TimerHelper_clearTimer('nextSeasonalEventCollectTime');
-                }
-            }
-           }
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoSeasonalEventCollectAll =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoSeasonalEventCollectablesList =
-    {
-    default:JSON.stringify([]),
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Array"
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoPoVCollect =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false,
-    events:{"change":function()
-            {
-                if (this.checked)
-                {
-                    getAndStoreCollectPreferences("HHAuto_Setting_autoPoVCollectablesList");
-                    TimerHelper_clearTimer('nextPoVCollectTime');
-                }
-            }
-           }
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoPoVCollectAll =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoPoVCollectablesList =
-    {
-    default:JSON.stringify([]),
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Array"
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoPoGCollect =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false,
-    events:{"change":function()
-            {
-                if (this.checked)
-                {
-                    getAndStoreCollectPreferences("HHAuto_Setting_autoPoGCollectablesList");
-                    TimerHelper_clearTimer('nextPoGCollectTime');
-                }
-            }
-           }
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoPoGCollectAll =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoPoGCollectablesList =
-    {
-    default:JSON.stringify([]),
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Array"
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_compactDailyGoals =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoDailyGoalsCollect =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false,
-    events:{"change":function()
-            {
-                if (this.checked)
-                {
-                    getAndStoreCollectPreferences("HHAuto_Setting_autoDailyGoalsCollectablesList", getTextForUI("menuDailyCollectableText","elementText"));
-                    TimerHelper_clearTimer('nextDailyGoalsCollectTime');
-                }
-            }
-           }
-};
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoDailyGoalsCollectablesList =
-    {
-    default:JSON.stringify([]),
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Array"
-};
-// Temp vars
-HHStoredVars_HHStoredVars.HHAuto_Temp_autoLoop =
-    {
-    default:"true",
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_battlePowerRequired =
-    {
-    default:"0",
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-/*HHStoredVars.HHAuto_Temp_leaguesTarget =
-    {
-    default:"9",
-    storage:"sessionStorage",
-    HHType:"Temp",
-    valueType:"Small Integer",
-    getMenu:true,
-    setMenu:false,
-    menuType:"value",
-    kobanUsing:false,
-    customMenuID:"autoLeaguesSelector"
-};*/
-HHStoredVars_HHStoredVars.HHAuto_Temp_questRequirement =
-    {
-    default:"none",
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-/*HHStoredVars.HHAuto_Temp_userLink =
-    {
-    default:"none",
-    storage:"sessionStorage",
-    HHType:"Temp"
-};*/
-HHStoredVars_HHStoredVars.HHAuto_Temp_autoLoopTimeMili =
-    {
-    default:"500",
-    storage:"Storage()",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_freshStart =
-    {
-    default:"no",
-    storage:"Storage()",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_Logging =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_Debug =
-    {
-    default: "false",
-    storage: "sessionStorage",
-    valueType: "Boolean",
-    HHType:"Temp"
-};
-/*HHStoredVars.HHAuto_Temp_trollToFight =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp",
-    valueType:"Small Integer",
-    getMenu:true,
-    setMenu:false,
-    menuType:"value",
-    kobanUsing:false,
-    customMenuID:"autoTrollSelector"
-};*/
-HHStoredVars_HHStoredVars.HHAuto_Temp_autoTrollBattleSaveQuest =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_burst =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_charLevel =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_filteredGirlsList =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_haremGirlActions =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_haremGirlMode =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_haremGirlLimit =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_eventsGirlz =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_eventGirl =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_autoChampsEventGirls =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-    //isValid:/^\[({"girl_id":"(\d)+","champ_id":"(\d)+","girl_shards":"(\d)+","girl_name":"([^"])+","event_id":"([^"])+"},?)+\]$/
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_trollWithGirls =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_fought =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_haveAff =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_haveExp =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_haveBooster =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_hideBeatenOppo =
-{
-    default:"0",
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_LeagueOpponentList =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp",
-    isValid:/^{"expirationDate":\d+,"opponentsList":{("\d+":{((("(win|loss|avgTurns)":\d*[.,]?\d+)|("scoreClass":"(minus|plus|close)")|("points":{("\d{1,3}":\d*[.,]?\d+,?)+})),?)+},?)+}}$/
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_LeagueTempOpponentList =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp",
-    isValid:/^{"expirationDate":\d+,"opponentsList":{("\d+":{((("(win|loss|avgTurns|expectedValue)":\d*[.,]?\d+)|("scoreClass":"(minus|plus|close)")|("points":{("\d{1,3}":\d*[.,]?\d+,?)+})),?)+},?)+}}$/
-};
-/*HHStoredVars.HHAuto_Temp_opponentsListExpirationDate =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};*/
-HHStoredVars_HHStoredVars.HHAuto_Temp_paranoiaLeagueBlocked =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_paranoiaQuestBlocked =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_paranoiaSpendings =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_pinfo =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_PopToStart =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_PopUnableToStart =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_storeContents =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_Timers =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_NextSwitch =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_Totalpops =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_currentlyAvailablePops =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_CheckSpentPoints =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_eventsList =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_bossBangTeam =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_LeagueSavedData =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_HaremSize =
-    {
-    storage:"localStorage",
-    HHType:"Temp",
-    isValid:/{"count":(\d)+,"count_date":(\d)+}/
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_LastPageCalled =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_PoVEndDate =
-    {
-    storage:"localStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_PoGEndDate =
-    {
-    storage:"localStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_missionsGiftLeft =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_defaultCustomHaremSort =
-    {
-    storage:"localStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_unkownPagesList =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-HHStoredVars_HHStoredVars.HHAuto_Temp_trollPoints =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
-
-;// CONCATENATED MODULE: ./src/config/InputPattern.js
-
-
-
-const thousandsSeparator = nThousand(11111).replace(/1+/g, '');
-
-const HHAuto_inputPattern = {
-    nWith1000sSeparator:"[0-9"+thousandsSeparator+"]+",
-
-    //kobanBank:"[0-9]+",
-    buyCombTimer:"[0-9]+",
-    buyMythicCombTimer:"[0-9]+",
-    autoBuyBoostersFilter:"M?B[1-4](;M?B[1-4])*",
-    //calculatePowerLimits:"(\-?[0-9]+;\-?[0-9]+)|default",
-    mousePauseTimeout:"[0-9]+",
-    collectAllTimer:"[1-9][0-9]|[1-9]",
-    autoSalaryTimer:"[0-9]+",
-    autoTrollThreshold:"[1]?[0-9]",
-    eventTrollOrder:"([1-2][0-9]|[1-9])(;([1-2][0-9]|[1-9]))*",
-    autoSeasonThreshold:"[0-9]",
-    autoPantheonThreshold:"[0-9]",
-    bossBangMinTeam:"[1-5]",
-    autoQuestThreshold:"[1-9]?[0-9]",
-    autoLeaguesThreshold:"1[0-4]|[0-9]",
-    autoLeaguesSecurityThreshold:"[0-9]+",
-    autoPowerPlacesIndexFilter:"[1-9][0-9]{0,1}(;[1-9][0-9]{0,1})*",
-    autoChampsFilter:"[1-6](;[1-6])*",
-    autoChampsTeamLoop:"[1-9][0-9]|[1-9]",
-    //autoStats:"[0-9]+",
-    //autoExp:"[0-9]+",
-    //maxExp:"[0-9]+",
-    //autoAff:"[0-9]+",
-    //maxAff:"[0-9]+",
-    menuSellNumber:"[0-9]+",
-    autoClubChampMax:"[0-9]+",
-    menuExpLevel:"[1-4]?[0-9]?[0-9]",
-    minShardsX:"(100|[1-9][0-9]|[0-9])"
-}
-;// CONCATENATED MODULE: ./src/config/index.js
-
-
-
-;// CONCATENATED MODULE: ./src/Helper/ConfigHelper.js
-
-
-
-function getHHScriptVars(id, logNotFound = true)
-{
-    let environnement = "global";
-    if (HHKnownEnvironnements[window.location.hostname] !== undefined)
-    {
-        environnement= HHKnownEnvironnements[window.location.hostname].name;
-    }
-    else
-    {
-        fillHHPopUp("unknownURL","Game URL unknown",'<p>This HH URL is unknown to the script.<br>To add it please open an issue in <a href="https://github.com/Roukys/HHauto/issues" target="_blank">Github</a> with following informations : <br>Hostname : '+window.location.hostname+'<br>gameID : '+$('body[page][id]').attr('id')+'<br>You can also use this direct link : <a  target="_blank" href="https://github.com/Roukys/HHauto/issues/new?template=enhancement_request.md&title=Support%20for%20'+window.location.hostname+'&body=Please%20add%20new%20URL%20with%20these%20infos%20%3A%20%0A-%20hostname%20%3A%20'+window.location.hostname+'%0A-%20gameID%20%3A%20'+$('body[page][id]').attr('id')+'%0AThanks">Github issue</a></p>');
-    }
-    if (HHEnvVariables[environnement] !== undefined && HHEnvVariables[environnement][id] !== undefined)
-    {
-        return HHEnvVariables[environnement][id];
-    }
-    else
-    {
-        if (HHEnvVariables["global"] !== undefined && HHEnvVariables["global"][id] !== undefined )
-        {
-            return HHEnvVariables["global"][id];
-        }
-        else
-        {
-            if (logNotFound)
-            {
-                LogUtils_logHHAuto("not found var for "+environnement+"/"+id);
-            }
-            return null;
-        }
-    }
-}
-;// CONCATENATED MODULE: ./src/Helper/NumberHelper.js
-function add1000sSeparator1()
-{
-    var nToFormat = this.value;
-    this.value = add1000sSeparator(nToFormat);
-}
-
-function add1000sSeparator(nToFormat)
-{
-    return nThousand(remove1000sSeparator(nToFormat));
-}
-
-function remove1000sSeparator(nToFormat)
-{
-    return Number(nToFormat.replace(/\D/g, ''));
-}
-
-function nThousand(x) {
-    if (typeof x != 'number') {
-        x = 0;
-    }
-    return x.toLocaleString();
-}
-
-// Numbers: rounding to K, M, G and T
-function nRounding(num, digits, updown) {
-    var power = [
-        { value: 1, symbol: '' },
-        { value: 1E3, symbol: 'K' },
-        { value: 1E6, symbol: 'M' },
-        { value: 1E9, symbol: 'B' },
-        { value: 1E12, symbol: 'T' },
-    ];
-    var i;
-    for (i = power.length - 1; i > 0; i--) {
-        if (num >= power[i].value) {
-            break;
-        }
-    }
-    if (updown == 1) {
-        return (Math.ceil(num / power[i].value * Math.pow(10, digits)) / Math.pow(10, digits)).toFixed(digits) + power[i].symbol;
-    }
-    else if (updown == 0) {
-        return (Math.round(num / power[i].value * Math.pow(10, digits)) / Math.pow(10, digits)).toFixed(digits) + power[i].symbol;
-    }
-    else if (updown == -1) {
-        return (Math.floor(num / power[i].value * Math.pow(10, digits)) / Math.pow(10, digits)).toFixed(digits) + power[i].symbol;
-    }
-}
-;// CONCATENATED MODULE: ./src/Helper/HHMenuHelper.js
-
-
-
-
-
-
-
-
-function maskInactiveMenus()
-{
-    let menuIDList =["isEnabledDailyGoals", "isEnabledPoVPoG", "isEnabledPoV", "isEnabledPoG",
-                    "isEnabledSeasonalEvent" , "isEnabledBossBangEvent" , "isEnabledSultryMysteriesEvent",
-                    "isEnabledDailyRewards", "isEnabledFreeBundles", "isEnabledMission","isEnabledContest",
-                    "isEnabledTrollBattle","isEnabledPowerPlaces","isEnabledSalary","isEnabledPachinko","isEnabledQuest","isEnabledSideQuest","isEnabledSeason","isEnabledLeagues",
-                    "isEnabledAllChamps","isEnabledChamps","isEnabledClubChamp","isEnabledPantheon","isEnabledShop"];
-    for (let menu of menuIDList)
-    {
-        if ( document.getElementById(menu) !== null && getHHScriptVars(menu,false) !== null && !getHHScriptVars(menu,false) )
-        {
-            document.getElementById(menu).style.display = "none";
-        }
-    }
-}
-
-function hhButton(textKeyId, buttonId){
-    return `<div class="tooltipHH">`
-                +`<span class="tooltipHHtext">${getTextForUI(textKeyId,"tooltip")}</span>`
-                +`<label class="myButton" id="${buttonId}">${getTextForUI(textKeyId,"elementText")}</label>`
-            +`</div>`;
-}
-
-function hhMenuSwitch(textKeyAndInputId, isEnabledDivId, isKobanSwitch=false){
-    return `<div ${isEnabledDivId ? 'id="'+isEnabledDivId+'"' : '' } class="labelAndButton">`
-        +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
-        +`<div class="tooltipHH">`
-            +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
-            +`<label class="switch"><input id="${textKeyAndInputId}" type="checkbox"><span class="slider round ${isKobanSwitch ? 'kobans' : ''}"></span></label>`
-        +`</div>`
-    +`</div>`;
-}
-
-function hhMenuSwitchWithImg(textKeyAndInputId, imgPath, isKobanSwitch=false) {
-    return `<div class="labelAndButton">`
-        +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
-        +`<div class="imgAndObjectRow">`
-            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/${imgPath}" />`
-            +`<div style="padding-left:5px">`
-                +`<div class="tooltipHH">`
-                    +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
-                    +`<label class="switch"><input id="${textKeyAndInputId}" type="checkbox"><span class="slider round ${isKobanSwitch ? 'kobans' : ''}"></span></label>`
-                +`</div>`
-            +`</div>`
-        +`</div>`
-    +`</div>`;
-}
-
-function hhMenuSelect(textKeyAndInputId) {
-    return `<div class="labelAndButton">`
-        +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
-        +`<div class="tooltipHH">`
-            +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
-            +`<select id="${textKeyAndInputId}"></select>`
-        +`</div>`
-    +`</div>`;
-}
-
-function hhMenuInput(textKeyAndInputId, inputPattern, inputStyle='', inputClass='', inputMode='text') {
-    return `<div class="labelAndButton">`
-        +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
-        +`<div class="tooltipHH">`
-            +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
-            +`<input id="${textKeyAndInputId}" class="${inputClass}" style="${inputStyle}" required pattern="${inputPattern}" type="text" inputMode="${inputMode}">`
-        +`</div>`
-    +`</div>`;
-}
-
-function hhMenuInputWithImg(textKeyAndInputId, inputPattern, inputStyle, imgPath, inputMode='text') {
-    return `<div class="labelAndButton">`
-        +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
-        +`<div class="imgAndObjectRow">`
-            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/${imgPath}" />`
-            +`<div style="padding-left:5px">`
-                +`<div class="tooltipHH">`
-                    +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
-                    +`<input style="${inputStyle}" id="${textKeyAndInputId}" required pattern="${inputPattern}" type="text" inputMode="${inputMode}">`
-                +`</div>`
-            +`</div>`
-        +`</div>`
-    +`</div>`;
-}
-
-function switchHHMenuButton(isActive)
-{
-    var element = document.getElementById("sMenuButton");
-    if(element !== null)
-    {
-        if (StorageHelper_getStoredValue("HHAuto_Setting_master") === "false")
-        {
-            element.style["background-color"] = "red";
-            element.style["background-image"] = "none";
-        }
-        else if (isActive)
-        {
-            element.style["background-color"] = "green";
-            element.style["background-image"] = "none";
-        }
-        else
-        {
-            element.style.removeProperty('background-color');
-            element.style.removeProperty('background-image');
-        }
-    }
-}
-
-function setMenuValues()
-{
-    if (document.getElementById("sMenu") === null)
-    {
-        return;
-    }
-    setDefaults();
-
-    for (let i of Object.keys(HHStoredVars_HHStoredVars))
-    {
-        if (HHStoredVars_HHStoredVars[i].storage !== undefined && HHStoredVars_HHStoredVars[i].HHType !== undefined)
-        {
-            let storageItem = getStorageItem(HHStoredVars_HHStoredVars[i].storage);
-            let menuID = HHStoredVars_HHStoredVars[i].customMenuID !== undefined?HHStoredVars_HHStoredVars[i].customMenuID:i.replace("HHAuto_"+HHStoredVars_HHStoredVars[i].HHType+"_","");
-            if (
-                HHStoredVars_HHStoredVars[i].setMenu !== undefined
-                && storageItem[i] !== undefined
-                && HHStoredVars_HHStoredVars[i].setMenu
-                && HHStoredVars_HHStoredVars[i].valueType !== undefined
-                && HHStoredVars_HHStoredVars[i].menuType !== undefined
-            )
-            {
-                let itemValue = storageItem[i];
-                switch (HHStoredVars_HHStoredVars[i].valueType)
-                {
-                    case "Long Integer":
-                        itemValue = add1000sSeparator(itemValue);
-                        break;
-                    case "Boolean":
-                        itemValue = itemValue === "true";
-                        break;
-                }
-                //console.log(menuID,HHStoredVars[i].menuType,itemValue);
-                document.getElementById(menuID)[HHStoredVars_HHStoredVars[i].menuType] = itemValue;
-            }
-        }
-        else
-        {
-            LogUtils_logHHAuto("HHStoredVar "+i+" has no storage or type defined.");
-        }
-    }
-}
-
-
-function getMenuValues()
-{
-    if (document.getElementById("sMenu") === null)
-    {
-        return;
-    }
-    if (isDisplayedHHPopUp() === 'loadConfig') {return}
-
-    for (let i of Object.keys(HHStoredVars_HHStoredVars))
-    {
-        if (HHStoredVars_HHStoredVars[i].storage !== undefined && HHStoredVars_HHStoredVars[i].HHType !== undefined)
-        {
-            let storageItem = getStorageItem(HHStoredVars_HHStoredVars[i].storage);
-            let menuID = HHStoredVars_HHStoredVars[i].customMenuID !== undefined?HHStoredVars_HHStoredVars[i].customMenuID:i.replace("HHAuto_"+HHStoredVars_HHStoredVars[i].HHType+"_","");
-            if (
-                HHStoredVars_HHStoredVars[i].getMenu !== undefined
-                && document.getElementById(menuID) !== null
-                && HHStoredVars_HHStoredVars[i].getMenu
-                && HHStoredVars_HHStoredVars[i].valueType !== undefined
-                && HHStoredVars_HHStoredVars[i].menuType !== undefined
-            )
-            {
-                let currentValue = storageItem[i];
-                let menuValue = String(document.getElementById(menuID)[HHStoredVars_HHStoredVars[i].menuType]);
-                switch (HHStoredVars_HHStoredVars[i].valueType)
-                {
-                    case "Long Integer":
-                        menuValue = String(remove1000sSeparator(menuValue));
-                        break;
-                }
-                //console.log(menuID,HHStoredVars[i].menuType,menuValue,document.getElementById(menuID),HHStoredVars[i].valueType);
-                storageItem[i] = menuValue;
-                //console.log(i,currentValue, menuValue);
-                if (currentValue !== menuValue && HHStoredVars_HHStoredVars[i].newValueFunction !== undefined)
-                {
-                    //console.log(currentValue,menuValue);
-                    HHStoredVars_HHStoredVars[i].newValueFunction.apply();
-                }
-            }
-        }
-        else
-        {
-            LogUtils_logHHAuto("HHStoredVar "+i+" has no storage or type defined.");
-        }
-    }
-    setDefaults();
-}
-
-
-function preventKobanUsingSwitchUnauthorized()
-{
-
-    if (this.checked && !document.getElementById("spendKobans0").checked)
-    {
-        let idToDisable = this.id;
-        setTimeout(function(){document.getElementById(idToDisable).checked = false;},500);
-    }
-}
-
-function addEventsOnMenuItems()
-{
-    for (let i of Object.keys(HHStoredVars_HHStoredVars))
-    {
-        //console.log(i);
-        if (HHStoredVars_HHStoredVars[i].HHType !== undefined )
-        {
-            let menuID = HHStoredVars_HHStoredVars[i].customMenuID !== undefined?HHStoredVars_HHStoredVars[i].customMenuID:i.replace("HHAuto_"+HHStoredVars_HHStoredVars[i].HHType+"_","");
-            if ( HHStoredVars_HHStoredVars[i].valueType === "Long Integer")
-            {
-                document.getElementById(menuID).addEventListener("keyup",add1000sSeparator1);
-            }
-            if (HHStoredVars_HHStoredVars[i].events !== undefined )
-            {
-                for (let event of Object.keys(HHStoredVars_HHStoredVars[i].events))
-                {
-                    document.getElementById(menuID).addEventListener(event,HHStoredVars_HHStoredVars[i].events[event]);
-                }
-            }
-            if (HHStoredVars_HHStoredVars[i].kobanUsing !== undefined && HHStoredVars_HHStoredVars[i].kobanUsing)
-            {
-                document.getElementById(menuID).addEventListener("change", preventKobanUsingSwitchUnauthorized);
-            }
-            if (HHStoredVars_HHStoredVars[i].menuType !== undefined && HHStoredVars_HHStoredVars[i].menuType === "checked")
-            {
-                document.getElementById(menuID).addEventListener("change",function ()
-                                                                 {
-                    if (HHStoredVars_HHStoredVars[i].newValueFunction !== undefined)
-                    {
-                        HHStoredVars_HHStoredVars[i].newValueFunction.apply();
-                    }
-                    StorageHelper_setStoredValue(i,this.checked)
-                });
-            }
-        }
-    }
-}
-
-
-function getMenu() {
-    
-    // Add UI buttons.
-    return `<div id="sMenu" class="HHAutoScriptMenu" style="display: none;">`
-        +`<div style="position: absolute;left: 36%;color: #F00">${getTextForUI("noOtherScripts","elementText")}</div>`
-        +`<div class="optionsRow">`
-            +`<div class="optionsColumn" style="min-width: 185px;">`
-                +`<div style="padding:3px; display:flex; flex-direction:column;">`
-                    +`<span>HH Automatic ++</span>`
-                    +`<span style="font-size:smaller;">Version ${GM_info.script.version}</span>`
-                    +`<div class="internalOptionsRow" style="padding:3px">`
-                        + hhButton('gitHub', 'git')
-                        + hhButton('ReportBugs', 'ReportBugs')
-                        + hhButton('DebugMenu', 'DebugMenu')
-                    +`</div>`
-                    +`<div class="internalOptionsRow" style="padding:3px">`
-                        + hhButton('saveConfig', 'saveConfig')
-                        + hhButton('loadConfig', 'loadConfig')
-                    +`</div>`
-                    +`<div class="internalOptionsRow" style="padding:3px">`
-                        + hhButton('saveDefaults', 'saveDefaults')
-                    +`</div>`
-                +`</div>`
-                +`<div class="optionsBoxWithTitle">`
-                    +`<div class="optionsBoxTitle">`
-                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/panel.svg" />`
-                        +`<span class="optionsBoxTitle">${getTextForUI("globalTitle","elementText")}</span>`
-                    +`</div>`
-                    +`<div class="rowOptionsBox">`
-                        +`<div class="optionsColumn">`
-                            + hhMenuSwitch('master') // Master switch
-                            + hhMenuSwitch('paranoia')
-                            +`<div id="isEnabledMousePause" class="labelAndButton">`
-                                +`<span class="HHMenuItemName">${getTextForUI("mousePause","elementText")}</span>`
-                                +`<div class="tooltipHH">`
-                                    +`<span class="tooltipHHtext">${getTextForUI("mousePause","tooltip")}</span>`
-                                    +`<label class="switch">`
-                                        +`<input id="mousePause" type="checkbox">`
-                                        +`<span class="slider round">`
-                                        +`</span>`
-                                    +`</label>`
-                                    +`<input style="text-align:center; width:40px" id="mousePauseTimeout" required pattern="${HHAuto_inputPattern.mousePauseTimeout}" type="text">`
-                                +`</div>`
-                            +`</div>`
-                            + hhMenuInput('collectAllTimer', HHAuto_inputPattern.collectAllTimer, 'text-align:center; width:25px')
-                        +`</div>`
-                        +`<div class="optionsColumn">`
-                            + hhMenuSwitch('waitforContest')
-                            + hhMenuSwitch('settPerTab')
-                            + hhMenuSwitch('paranoiaSpendsBefore')
-                            + hhMenuSwitch('autoFreeBundlesCollect', 'isEnabledFreeBundles')
-                            + hhMenuSwitch('collectEventChest')
-                        +`</div>`
-                    +`</div>`
-                +`</div>`
-                +`<div class="optionsBoxWithTitle">`
-                    +`<div class="optionsBoxTitle">`
-                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/pictures/design/ic_hard_currency.png" />`
-                        +`<span class="optionsBoxTitle">Kobans</span>`
-                    +`</div>`
-                    +`<div class="rowOptionsBox">`
-                        + hhMenuSwitchWithImg('spendKobans0', 'design/menu/affil_prog.svg', true)
-                        + hhMenuInputWithImg('kobanBank', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px', 'pictures/design/ic_hard_currency.png' )
-                    +`</div>`
-                +`</div>`
-                +`<div class="optionsBoxWithTitle">`
-                    +`<div class="optionsBoxTitle">`
-                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/sex_friends.svg" />`
-                        +`<span class="optionsBoxTitle">${getTextForUI("displayTitle","elementText")}</span>`
-                    +`</div>`
-                    +`<div class="rowOptionsBox">`
-                        +`<div class="optionsColumn">`
-                            + hhMenuSwitch('showInfo')
-                            + hhMenuSwitch('showInfoLeft')
-                            + hhMenuSwitch('showTooltips')
-                        +`</div>`
-                        +`<div class="optionsColumn">`
-                            + hhMenuSwitch('showCalculatePower')
-                            + hhMenuSwitch('PoAMaskRewards')
-                            + hhMenuSwitch('showAdsBack')
-                            + hhMenuSwitch('showRewardsRecap')
-                        +`</div>`
-                    +`</div>`
-                +`</div>`
-            +`</div>`
-            +`<div class="optionsColumn" style="min-width: 500px;">`
-                +`<div class="optionsRow">`
-                    +`<div class="optionsColumn">`
-                        +`<div class="optionsBoxWithTitle">`
-                            +`<div class="optionsBoxTitle">`
-                                +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/missions.svg" />`
-                                +`<span class="optionsBoxTitle">${getTextForUI("autoActivitiesTitle","elementText")}</span>`
-                            +`</div>`
-                            +`<div class="optionsBox" style="border:none;padding:0">`
-                                +`<div class="internalOptionsRow">`
-                                    +`<div id="isEnabledMission" class="internalOptionsRow optionsBox" style="padding:0;margin:0 3px 0 0;">`
-                                        + hhMenuSwitch('autoMission')
-                                        + hhMenuSwitch('autoMissionCollect')
-                                        + hhMenuSwitch('autoMissionKFirst')
-                                        + hhMenuSwitch('compactMissions')
-                                    +`</div>`
-                                    +`<div id="isEnabledContest" class="internalOptionsRow optionsBox" style="padding:0;margin:0 0 0 3px;">`
-                                        + hhMenuSwitch('autoContest')
-                                        + hhMenuSwitch('compactEndedContests')
-                                    +`</div>`
-                                +`</div>`
-                            +`</div>`
-                        +`</div>`
-                        +`<div id="isEnabledPowerPlaces" class="optionsBoxWithTitle">`
-                            +`<div class="optionsBoxTitle">`
-                                +`<span class="optionsBoxTitle">${getTextForUI("autoPowerPlaces","elementText")}</span>`
-                            +`</div>`
-                            +`<div class="optionsBox">`
-                                +`<div class="internalOptionsRow">`
-                                    + hhMenuSwitch('autoPowerPlaces')
-                                    + hhMenuInput('autoPowerPlacesIndexFilter', HHAuto_inputPattern.autoPowerPlacesIndexFilter, '' )
-                                    + hhMenuSwitch('autoPowerPlacesAll')
-                                +`</div>`
-                                +`<div class="internalOptionsRow">`
-                                    + hhMenuSwitch('autoPowerPlacesPrecision')
-                                    + hhMenuSwitch('autoPowerPlacesInverted')
-                                    + hhMenuSwitch('autoPowerPlacesWaitMax')
-                                    + hhMenuSwitch('compactPowerPlace')
-                                +`</div>`
-                            +`</div>`
-                        +`</div>`
-                    +`</div>`
-                    +`<div class="optionsColumn">`
-                        +`<div class="optionsBoxTitle">`
-                        +`</div>`
-                        +`<div id="isEnabledSalary" class="rowOptionsBox">`
-                            +`<div class="internalOptionsRow">`
-                                + hhMenuSwitchWithImg('autoSalary', 'pictures/design/harem.svg')
-                                + hhMenuInput('autoSalaryMinSalary', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
-                                + hhMenuInput('autoSalaryMaxTimer', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
-                            +`</div>`
-                        +`</div>`
-                        +`<div class="optionsRow">`
-                            +`<div id="isEnabledPachinko" class="rowOptionsBox">`
-                                +`<div class="internalOptionsRow" style="justify-content: space-between">`
-                                    + hhMenuSwitchWithImg('autoFreePachinko', 'pictures/design/menu/pachinko.svg')
-                                +`</div>`
-                            +`</div>`
-                            +`<div id="isEnabledQuest" class="rowOptionsBox">`
-                                +`<div class="internalOptionsRow">`
-                                    + hhMenuSwitchWithImg('autoQuest', 'design/menu/forward.svg')
-                                    + hhMenuSwitch('autoSideQuest', 'isEnabledSideQuest')
-                                    + hhMenuInputWithImg('autoQuestThreshold', HHAuto_inputPattern.autoQuestThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_quest.png', 'numeric')
-                                +`</div>`
-                            +`</div>`
-                        +`</div>`
-                        +`<div class="optionsRow" style="justify-content: space-evenly">`
-                            +`<div id="isEnabledDailyGoals" class="optionsBoxWithTitleInline">`
-                                +`<div class="optionsBoxTitle">`
-                                    +`<span class="optionsBoxTitle">${getTextForUI("dailyGoalsTitle","elementText")}</span>`
-                                +`</div>`
-                               // +`<div class="optionsBox">`
-                                    +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                                        + hhMenuSwitch('autoDailyGoalsCollect')
-                                        + hhMenuSwitch('compactDailyGoals')
-                                    +`</div>`
-                               // +`</div>`
-                               //
-                            +`</div>`
-                        +`</div>`
-                    +`</div>`
-                +`</div>`
-                +`<div class="optionsRow">`
-                    +`<div id="isEnabledSeason" class="optionsBoxWithTitle">`
-                        +`<div class="optionsBoxTitle">`
-                            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/seasons.svg" />`
-                            +`<span class="optionsBoxTitle">${getTextForUI("autoSeasonTitle","elementText")}</span>`
-                        +`</div>`
-                        +`<div class="optionsBox">`
-                            +`<div class="internalOptionsRow">`
-                                + hhMenuSwitch('autoSeason')
-                                + hhMenuSwitch('autoSeasonCollect')
-                                + hhMenuSwitch('autoSeasonCollectAll')
-                                + hhMenuSwitch('SeasonMaskRewards')
-                            +`</div>`
-                            +`<div class="internalOptionsRow">`
-                                + hhMenuSwitch('autoSeasonPassReds', '', true)
-                                + hhMenuInputWithImg('autoSeasonThreshold', HHAuto_inputPattern.autoSeasonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_kiss.png', 'numeric' )
-                            +`</div>`
-                        +`</div>`
-                    +`</div>`
-                    +`<div id="isEnabledLeagues" class="optionsBoxWithTitle">`
-                        +`<div class="optionsBoxTitle">`
-                            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/leaderboard.svg" />`
-                            +`<span class="optionsBoxTitle">${getTextForUI("autoLeaguesTitle","elementText")}</span>`
-                        +`</div>`
-                        +`<div class="optionsBox">`
-                            +`<div class="internalOptionsRow">`
-                                + hhMenuSwitch('autoLeagues')
-                                +`<div style="display:none">`
-                                + hhMenuSwitch('autoLeaguesPowerCalc')
-                                +`</div>`
-                                + hhMenuSwitch('autoLeaguesCollect')
-                                + hhMenuSwitch('leagueListDisplayPowerCalc')
-                            +`</div>`
-                            +`<div class="internalOptionsRow">`
-                                + hhMenuSelect('autoLeaguesSelector')
-                                + hhMenuSwitch('autoLeaguesAllowWinCurrent')
-                                + hhMenuInputWithImg('autoLeaguesThreshold', HHAuto_inputPattern.autoLeaguesThreshold, 'text-align:center; width:25px', 'pictures/design/league_points.png', 'numeric' )
-                                + hhMenuInput('autoLeaguesSecurityThreshold', HHAuto_inputPattern.autoLeaguesSecurityThreshold, 'text-align:center; width:25px', '', 'numeric' )
-                            +`</div>`
-                        +`</div>`
-                    +`</div>`
-                +`</div>`
-                +`<div id="isEnabledPoVPoG" class="optionsRow">`
-                    +`<div id="isEnabledPoV" class="optionsBoxWithTitle">`
-                        +`<div class="optionsBoxTitle">`
-                            +`<span class="optionsBoxTitle">${getTextForUI("povTitle","elementText")}</span>`
-                        +`</div>`
-                        +`<div class="optionsBox">`
-                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                                + hhMenuSwitch('PoVMaskRewards')
-                                + hhMenuSwitch('autoPoVCollect')
-                                + hhMenuSwitch('autoPoVCollectAll')
-                            +`</div>`
-                        +`</div>`
-                    +`</div>`
-                    +`<div id="isEnabledPoG" class="optionsBoxWithTitle">`
-                        +`<div class="optionsBoxTitle">`
-                            +`<span class="optionsBoxTitle">${getTextForUI("pogTitle","elementText")}</span>`
-                        +`</div>`
-                        +`<div id="isEnabledPoVPoG" class="optionsBox">`
-                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                                + hhMenuSwitch('PoGMaskRewards')
-                                + hhMenuSwitch('autoPoGCollect')
-                                + hhMenuSwitch('autoPoGCollectAll')
-                            +`</div>`
-                        +`</div>`
-                    +`</div>`
-                +`</div>`
-                +`<div id="isEnabledTrollBattle" class="optionsBoxWithTitle">`
-                    +`<div class="optionsBoxTitle">`
-                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/pictures/design/menu/map.svg" />`
-                        +`<span class="optionsBoxTitle">${getTextForUI("autoTrollTitle","elementText")}</span>`
-                    +`</div>`
-                    +`<div class="optionsBox">`
-                        +`<div class="internalOptionsRow" style="justify-content: space-between">`
-                            + hhMenuSwitch('autoTrollBattle')
-                            + hhMenuSelect('autoTrollSelector')
-                            + hhMenuInputWithImg('autoTrollThreshold', HHAuto_inputPattern.autoTrollThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png', 'numeric' )
-                        +`</div>`
-                        +`<div class="internalOptionsRow">`
-                            + hhMenuSwitch('useX10Fights', '', true)
-                            + hhMenuSwitch('useX10FightsAllowNormalEvent')
-                            + hhMenuInput('minShardsX10', HHAuto_inputPattern.minShardsX, 'text-align:center; width:7em')
-                            + hhMenuSwitch('useX50Fights', '', true)
-                            + hhMenuSwitch('useX50FightsAllowNormalEvent')
-                            + hhMenuInput('minShardsX50', HHAuto_inputPattern.minShardsX, 'text-align:center; width:7em')
-                        +`</div>`
-                        +`<div class="internalOptionsRow">`
-                            + hhMenuSwitch('plusEvent')
-                            + hhMenuInput('eventTrollOrder', HHAuto_inputPattern.eventTrollOrder, 'width:120px')
-                            + hhMenuSwitch('buyCombat', '', true)
-                            + hhMenuInput('buyCombTimer', HHAuto_inputPattern.buyCombTimer, 'text-align:center; width:50%', '', 'numeric')
-                        +`</div>`
-                        +`<div class="internalOptionsRow">`
-                            + hhMenuSwitch('plusEventMythic')
-                            + hhMenuSwitch('autoTrollMythicByPassParanoia')
-                            + hhMenuSwitch('buyMythicCombat', '', true)
-                            + hhMenuInput('buyMythicCombTimer', HHAuto_inputPattern.buyMythicCombTimer, 'text-align:center; width:50%', '', 'numeric')
-                        +`</div>`
-                    +`</div>`
-                +`</div>`
-            +`</div>`
-            +`<div class="optionsColumn" style="width: 340px;">`
-                +`<div id="isEnabledAllChamps" class="optionsBoxWithTitle">`
-                    +`<div class="optionsBoxTitle">`
-                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
-                        +`<span class="optionsBoxTitle">${getTextForUI("autoChampsTitle","elementText")}</span>`
-                    +`</div>`
-                    +`<div class="optionsBox">`
-                        +`<div id="isEnabledChamps" class="internalOptionsRow">`
-                            + hhMenuSwitch('autoChamps')
-                            + hhMenuSwitch('autoChampsForceStart')
-                            + hhMenuSwitchWithImg('autoChampsUseEne', 'pictures/design/ic_energy_quest.png')
-                            + hhMenuInput('autoChampsFilter', HHAuto_inputPattern.autoChampsFilter, 'text-align:center; width:55px')
-                            + hhMenuSwitch('autoChampsForceStartEventGirl')
-                        +`</div>`
-                        +`<div id="isEnabledClubChamp" class="internalOptionsRow separator">`
-                            + hhMenuSwitch('autoClubChamp')
-                            + hhMenuSwitch('autoClubForceStart')
-                            + hhMenuInputWithImg('autoClubChampMax', HHAuto_inputPattern.autoClubChampMax, 'text-align:center; width:45px', 'pictures/design/champion_ticket.png', 'numeric')
-                            + hhMenuSwitch('showClubButtonInPoa')
-                        +`</div>`
-                        +`<div class="internalOptionsRow separator">`
-                            + hhMenuInput('autoChampsTeamLoop', HHAuto_inputPattern.autoChampsTeamLoop, 'text-align:center; width:25px', '', 'numeric')
-                            + hhMenuSwitch('autoChampsTeamKeepSecondLine')
-                        +`</div>`
-                    +`</div>`
-                +`</div>`
-                +`<div id="isEnabledPantheon" class="optionsBoxWithTitleInline">`
-                    +`<div class="optionsBoxTitle">`
-                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
-                        +`<span class="optionsBoxTitle">${getTextForUI("autoPantheonTitle","elementText")}</span>`
-                    +`</div>`
-                    // +`<div class="optionsBox">`
-                        +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                            + hhMenuSwitch('autoPantheon')
-                            + hhMenuInputWithImg('autoPantheonThreshold', HHAuto_inputPattern.autoPantheonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg' , 'numeric')
-                        +`</div>`
-                    // +`</div>`
-                +`</div>`
-                +`<div id="isEnabledShop" class="optionsBoxWithTitle">`
-                    +`<div class="optionsBoxTitle">`
-                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/shop.svg" />`
-                        +`<span class="optionsBoxTitle">${getTextForUI("autoBuy","elementText")}</span>`
-                    +`</div>`
-                    +`<div class="optionsBox">`
-                        +`<div class="internalOptionsRow">`
-                            + hhMenuSwitchWithImg('autoStatsSwitch', 'design/ic_plus.svg')
-                            + hhMenuInput('autoStats', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
-                        +`</div>`
-                        +`<div class="internalOptionsRow">`
-                            + hhMenuSwitchWithImg('autoExpW', 'design/ic_books_gray.svg')
-                            + hhMenuInput('maxExp', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:60px')
-                            + hhMenuInput('autoExp', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
-                        +`</div>`
-                        +`<div class="internalOptionsRow">`
-                            + hhMenuSwitchWithImg('autoAffW', 'design/ic_gifts_gray.svg')
-                            + hhMenuInput('maxAff', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:60px')
-                            + hhMenuInput('autoAff', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
-                        +`</div>`
-                        +`<div class="internalOptionsRow">`
-                            + hhMenuSwitchWithImg('autoBuyBoosters', 'design/ic_boosters_gray.svg', true)
-                            + hhMenuInput('maxBooster', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
-                            + hhMenuInput('autoBuyBoostersFilter', HHAuto_inputPattern.autoBuyBoostersFilter, 'text-align:center; width:70px')
-                        +`</div>`
-                        +`<div class="internalOptionsRow">`
-                            + hhMenuSwitchWithImg('showMarketTools', 'design/menu/panel.svg')
-                            + hhMenuSwitch('updateMarket')
-                        +`</div>`
-                    +`</div>`
-                +`</div>`
-                +`<div id="isEnabledSeasonalEvent" class="optionsBoxWithTitle">`
-                    +`<div class="optionsBoxTitle">`
-                        +`<span class="optionsBoxTitle">${getTextForUI("seasonalEventTitle","elementText")}</span>`
-                    +`</div>`
-                    +`<div class="optionsBox">`
-                        +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                            + hhMenuSwitch('SeasonalEventMaskRewards')
-                            + hhMenuSwitch('autoSeasonalEventCollect')
-                            + hhMenuSwitch('autoSeasonalEventCollectAll')
-                        +`</div>`
-                    +`</div>`
-                +`</div>`
-                +`<div class="optionsRow" style="justify-content: space-evenly">`
-                    +`<div id="isEnabledSultryMysteriesEvent" class="optionsBoxWithTitle">`
-                        +`<div class="optionsBoxTitle">`
-                            +`<span class="optionsBoxTitle">${getTextForUI("sultryMysteriesEventTitle","elementText")}</span>`
-                        +`</div>`
-                        +`<div class="optionsBox">`
-                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                                + hhMenuSwitch('sultryMysteriesEventRefreshShop')
-                            +`</div>`
-                        +`</div>`
-                    +`</div>`
-                    +`<div id="isEnabledBossBangEvent" class="optionsBoxWithTitle">`
-                        +`<div class="optionsBoxTitle">`
-                            +`<span class="optionsBoxTitle">${getTextForUI("bossBangEventTitle","elementText")}</span>`
-                        +`</div>`
-                        +`<div class="optionsBox">`
-                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                                + hhMenuSwitch('bossBangEvent')
-                                + hhMenuInput('bossBangMinTeam', HHAuto_inputPattern.bossBangMinTeam, 'text-align:center; width:25px', '', 'numeric')
-                            +`</div>`
-                        +`</div>`
-                    +`</div>`
-                +`</div>`
-            +`</div>`
-        +`</div>`
-    +`</div>`
-}
-;// CONCATENATED MODULE: ./src/Helper/StorageHelper.js
-
-
-
-
-
-
-
-function getStorage()
-{
-    return StorageHelper_getStoredValue("HHAuto_Setting_settPerTab") === "true"?sessionStorage:localStorage;
-}
-
-function StorageHelper_getStoredValue(inVarName)
-{
-    if (HHStoredVars_HHStoredVars.hasOwnProperty(inVarName))
-    {
-        const storedValue = getStorageItem(HHStoredVars_HHStoredVars[inVarName].storage)[inVarName];
-        if(HHStoredVars_HHStoredVars[inVarName].kobanUsing) {
-            // Check main switch for spenind Koban
-            return StorageHelper_getStoredValue('HHAuto_Setting_spendKobans0') === "true" ? storedValue : "false";
-        }
-        return storedValue
-    }
-    return undefined;
-}
-
-function deleteStoredValue(inVarName)
-{
-    if (HHStoredVars_HHStoredVars.hasOwnProperty(inVarName))
-    {
-        getStorageItem(HHStoredVars_HHStoredVars[inVarName].storage).removeItem(inVarName);
-    }
-}
-
-function StorageHelper_setStoredValue(inVarName, inValue)
-{
-    if (HHStoredVars_HHStoredVars.hasOwnProperty(inVarName))
-    {
-        getStorageItem(HHStoredVars_HHStoredVars[inVarName].storage)[inVarName] = inValue;
-    }
-}
-
-
-function extractHHVars(dataToSave,extractLog = false,extractTemp=true,extractSettings=true)
-{
-    let storageType;
-    let storageName;
-    let currentStorageName = StorageHelper_getStoredValue("HHAuto_Setting_settPerTab") ==="true"?"sessionStorage":"localStorage";
-    let variableName;
-    let storageItem;
-    let varType;
-    for (let i of Object.keys(HHStoredVars_HHStoredVars))
-    {
-        varType = HHStoredVars_HHStoredVars[i].HHType;
-        if (varType === "Setting" && extractSettings || varType === "Temp" && extractTemp)
-        {
-            storageType = HHStoredVars_HHStoredVars[i].storage;
-            variableName = i;
-            storageName = storageType;
-            storageItem = getStorageItem(storageType);
-            if (storageType === 'Storage()')
-            {
-                storageName = currentStorageName;
-            }
-            if (variableName !== "HHAuto_Temp_Logging")
-            {
-                dataToSave[storageName+"."+variableName] = StorageHelper_getStoredValue(variableName);
-            }
-        }
-    }
-    if (extractLog)
-    {
-        dataToSave["HHAuto_Temp_Logging"] = JSON.parse(sessionStorage.getItem('HHAuto_Temp_Logging'));
-    }
-    return dataToSave;
-}
-
-function saveHHVarsSettingsAsJSON() {
-    var dataToSave={};
-    extractHHVars(dataToSave,false,false,true);
-    var name='HH_SaveSettings_'+Date.now()+'.json';
-    const a = document.createElement('a')
-    a.download = name
-    a.href = URL.createObjectURL(new Blob([JSON.stringify(dataToSave)], {type: 'application/json'}))
-    a.click()
-}
-
-function getStorageItem(inStorageType)
-{
-    switch (inStorageType)
-    {
-        case 'localStorage' :
-            return localStorage;
-            break;
-        case 'sessionStorage' :
-            return sessionStorage;
-            break;
-        case 'Storage()' :
-            return getStorage();
-            break;
-    }
-}
-
-function migrateHHVars()
-{
-    const varReplacement =
-          [
-              {from:"HHAuto_Setting_MaxAff", to:"HHAuto_Setting_maxAff"},
-              {from:"HHAuto_Setting_MaxExp", to:"HHAuto_Setting_maxExp"},
-              {from:"HHAuto_Setting_autoMissionC", to:"HHAuto_Setting_autoMissionCollect"},
-          ];
-    for(let replacement of varReplacement)
-    {
-        const oldVar = replacement.from;
-        const newVar = replacement.to;
-        if (sessionStorage[oldVar] !== undefined)
-        {
-            sessionStorage[newVar] = sessionStorage[oldVar];
-            sessionStorage.removeItem(oldVar);
-        }
-        if (localStorage[oldVar] !== undefined)
-        {
-            localStorage[newVar] = localStorage[oldVar];
-            localStorage.removeItem(oldVar);
-        }
-    }
-}
-
-function getUserHHStoredVarDefault(inVarName)
-{
-    if (isJSON(StorageHelper_getStoredValue("HHAuto_Setting_saveDefaults")))
-    {
-        let currentDefaults = JSON.parse(StorageHelper_getStoredValue("HHAuto_Setting_saveDefaults"));
-        if (currentDefaults !== null && currentDefaults[inVarName] !== undefined)
-        {
-            return currentDefaults[inVarName];
-        }
-    }
-    return null;
-}
-
-function saveHHStoredVarsDefaults()
-{
-    var dataToSave={};
-    getMenuValues();
-    extractHHVars(dataToSave,false,false,true);
-    let savedHHStoredVars={};
-    for(var i of Object.keys(dataToSave))
-    {
-        let variableName = i.split(".")[1];
-        if (variableName !== "HHAuto_Setting_saveDefaults" && HHStoredVars_HHStoredVars[variableName].default !== dataToSave[i])
-        {
-            savedHHStoredVars[variableName] = dataToSave[i];
-        }
-    }
-    StorageHelper_setStoredValue("HHAuto_Setting_saveDefaults", JSON.stringify(savedHHStoredVars));
-    LogUtils_logHHAuto("HHStoredVar defaults saved !");
-}
-
-function setHHStoredVarToDefault(inVarName)
-{
-    if (HHStoredVars_HHStoredVars[inVarName] !== undefined)
-    {
-        if (HHStoredVars_HHStoredVars[inVarName].default !== undefined && HHStoredVars_HHStoredVars[inVarName].storage !== undefined)
-        {
-            let storageItem;
-            storageItem = getStorageItem(HHStoredVars_HHStoredVars[inVarName].storage);
-
-            let userDefinedDefault = getUserHHStoredVarDefault(inVarName);
-            let isValid = HHStoredVars_HHStoredVars[inVarName].isValid===undefined?true:HHStoredVars_HHStoredVars[inVarName].isValid.test(userDefinedDefault);
-            if (userDefinedDefault !== null && isValid)
-            {
-                LogUtils_logHHAuto("HHStoredVar "+inVarName+" set to user default value : "+userDefinedDefault);
-                storageItem[inVarName] = userDefinedDefault;
-            }
-            else
-            {
-                LogUtils_logHHAuto("HHStoredVar "+inVarName+" set to default value : "+HHStoredVars_HHStoredVars[inVarName].default);
-                storageItem[inVarName] = HHStoredVars_HHStoredVars[inVarName].default;
-            }
-        }
-        else
-        {
-            LogUtils_logHHAuto("HHStoredVar "+inVarName+" either have no storage or default defined.");
-        }
-    }
-    else
-    {
-        LogUtils_logHHAuto("HHStoredVar "+inVarName+" doesn't exist.");
-    }
-}
-
-function getHHStoredVarDefault(inVarName)
-{
-    if (HHStoredVars[inVarName] !== undefined)
-    {
-        if (HHStoredVars[inVarName].default !== undefined)
-        {
-            return HHStoredVars[inVarName].default;
-        }
-        else
-        {
-            logHHAuto("HHStoredVar "+inVarName+" have no default defined.");
-        }
-    }
-    else
-    {
-        logHHAuto("HHStoredVar "+inVarName+" doesn't exist.");
-    }
-}
-
-function debugDeleteAllVars()
-{
-    Object.keys(localStorage).forEach((key) =>
-                                      {
-        if (key.startsWith("HHAuto_Setting_"))
-        {
-            localStorage.removeItem(key);
-        }
-    });
-    Object.keys(sessionStorage).forEach((key) =>
-                                        {
-        if (key.startsWith("HHAuto_Setting_"))
-        {
-            sessionStorage.removeItem(key);
-        }
-    });
-    Object.keys(localStorage).forEach((key) =>
-                                      {
-        if (key.startsWith("HHAuto_Temp_"))
-        {
-            localStorage.removeItem(key);
-        }
-    });
-    Object.keys(sessionStorage).forEach((key) =>
-                                        {
-        if (key.startsWith("HHAuto_Temp_") && key !== "HHAuto_Temp_Logging")
-        {
-            sessionStorage.removeItem(key);
-        }
-    });
-    LogUtils_logHHAuto('Deleted all script vars.');
-}
-
-
-function debugDeleteTempVars()
-{
-    var dataToSave={};
-    extractHHVars(dataToSave,false,false,true);
-    var storageType;
-    var variableName;
-    var storageItem;
-
-    debugDeleteAllVars();
-    setDefaults(true);
-    var keys=Object.keys(dataToSave);
-    for(var i of keys)
-    {
-        storageType=i.split(".")[0];
-        variableName=i.split(".")[1];
-        storageItem = getStorageItem(storageType);
-        LogUtils_logHHAuto(i+':'+ dataToSave[i]);
-        storageItem[variableName] = dataToSave[i];
-    }
-}
-
-
-function getAndStoreCollectPreferences(inVarName, inPopUpText = getTextForUI("menuCollectableText","elementText"))
-{
-    createPopUpCollectables();
-    function createPopUpCollectables()
-    {
-        let menuCollectables = '<div class="HHAutoScriptMenu" style="padding:10px; display:flex;flex-direction:column">'
-        +    '<p>'+inPopUpText+'</p>'
-        +    '<div style="display:flex;">'
-        let count = 0;
-        const possibleRewards = getHHScriptVars("possibleRewardsList");
-        const rewardsToCollect = isJSON(StorageHelper_getStoredValue(inVarName))?JSON.parse(StorageHelper_getStoredValue(inVarName)):[];
-        for (let currentItem of Object.keys(possibleRewards))
-        {
-            //console.log(currentItem,possibleRewards[currentItem]);
-            if (count === 4)
-            {
-                count = 0;
-                menuCollectables+='</div>';
-                menuCollectables+='<div style="display:flex;">';
-            }
-            const checkedBox = rewardsToCollect.includes(currentItem)?"checked":"";
-            menuCollectables+='<div style="display:flex; width:25%">';
-            menuCollectables+='<div class="labelAndButton" style=""><label class="switch"><input id="'+currentItem+'" class="menuCollectablesItem" type="checkbox" '+checkedBox+'><span class="slider round"></span></label><span class="HHMenuItemName">'+possibleRewards[currentItem]+'</span></div>'
-            menuCollectables+='</div>';
-            count++;
-        }
-        menuCollectables+='</div>';
-        menuCollectables+='<div style="display:flex;">';
-        menuCollectables+='<div style="display:flex;width:25%">';
-        menuCollectables+='<div class="labelAndButton" style=""><span class="HHMenuItemName">Toggle All</span><label class="button">';
-        menuCollectables+='<input id="toggleCollectables" class="menuCollectablesItem" type="button" value="Click!"';
-        menuCollectables+='onclick="let allInputs = window.document.querySelectorAll(\'#HHAutoPopupGlobalPopup.menuCollectable .menuCollectablesItem\'); ';
-        menuCollectables+='allInputs.forEach((currentInput) \=\> {currentInput.checked = !currentInput.checked;}); ';
-        menuCollectables+='evt = document.createEvent(\'HTMLevents\'); evt.initEvent(\'change\',true,true); ';
-        menuCollectables+='allInputs[0].dispatchEvent(evt);"><span class="button"></span></label></div>';
-        menuCollectables +=    '</div>'
-            +  '</div>';
-        fillHHPopUp("menuCollectable",getTextForUI("menuCollectable","elementText"),menuCollectables);
-        document.querySelectorAll("#HHAutoPopupGlobalPopup.menuCollectable .menuCollectablesItem").forEach(currentInput =>
-                                                                                                           {
-            currentInput.addEventListener("change",getSelectedCollectables);
-        });
-    }
-
-    function getSelectedCollectables()
-    {
-        let collectablesList = [];
-        document.querySelectorAll("#HHAutoPopupGlobalPopup.menuCollectable .menuCollectablesItem").forEach(currentInput =>
-                                                                                                           {
-            if (currentInput.checked)
-            {
-                //console.log(currentInput.id);
-                collectablesList.push(currentInput.id);
-            }
-        });
-        StorageHelper_setStoredValue(inVarName, JSON.stringify(collectablesList));
-    }
-}
-
-
-
-const Trollz = getHHScriptVars("trollzList");
-const StorageHelper_Leagues = getHHScriptVars("leaguesList");
-
-;// CONCATENATED MODULE: ./src/Utils/BrowserUtils.js
-function getBrowserData(nav) {
-    var data = {};
-
-    var ua = data.uaString = nav.userAgent;
-    var browserMatch = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*([\d\.]+)/i) || [];
-    if (browserMatch[1]) { browserMatch[1] = browserMatch[1].toLowerCase(); }
-    var operaMatch = browserMatch[1] === 'chrome';
-    if (operaMatch) { operaMatch = ua.match(/\bOPR\/([\d\.]+)/); }
-
-    if (/trident/i.test(browserMatch[1])) {
-        var msieMatch = /\brv[ :]+([\d\.]+)/g.exec(ua) || [];
-        data.name = 'msie';
-        data.version = msieMatch[1];
-    }
-    else if (operaMatch) {
-        data.name = 'opera';
-        data.version = operaMatch[1];
-    }
-    else if (browserMatch[1] === 'safari') {
-        var safariVersionMatch = ua.match(/version\/([\d\.]+)/i);
-        data.name = 'safari';
-        data.version = safariVersionMatch[1];
-    }
-    else {
-        data.name = browserMatch[1];
-        data.version = browserMatch[2];
-    }
-
-    var versionParts = [];
-    if (data.version) {
-        var versionPartsMatch = data.version.match(/(\d+)/g) || [];
-        for (var i=0; i < versionPartsMatch.length; i++) {
-            versionParts.push(versionPartsMatch[i]);
-        }
-        if (versionParts.length > 0) { data.majorVersion = versionParts[0]; }
-    }
-    data.name = data.name || '(unknown browser name)';
-    data.version = {
-        full: data.version || '(unknown full browser version)',
-        parts: versionParts,
-        major: versionParts.length > 0 ? versionParts[0] : '(unknown major browser version)'
-    };
-
-    return data.name + ' ' + data.version['full'];
-};
-;// CONCATENATED MODULE: ./src/Utils/LogUtils.js
-
-
-
-function LogUtils_logHHAuto(...args)
-{
-
-    let stackTrace = (new Error()).stack; // Only tested in latest FF and Chrome
-    let match
-    try {
-        match = stackTrace.match(/at Object\.(\w+) \((\S+)\)/);
-        match[1] // throw error if match is null
-    } catch {
-        try {
-            // Firefox
-            match = stackTrace.match(/\n(\w+)@(\S+)/);
-            match[1] // throw error if match is null
-        } catch {
-            try {
-                // Chrome 2 ?
-                match = stackTrace.match(/at (\w+) \((\S+)\)/)
-                match[1] // throw error if match is null
-            } catch {
-                // ?
-                match = ['Unknown','Unknown'];
-            }
-        }
-    }
-    let [callerName, callerPlace] = [match[1], match[2]]
-
-    let currDate = new Date();
-    var prefix = currDate.toLocaleString()+"."+currDate.getMilliseconds()+":"+callerName;
-    var text;
-    var currentLoggingText;
-    var nbLines;
-    var maxLines = 500;
-
-    const getCircularReplacer = () => {
-        const seen = new WeakSet();
-        return (key, value) => {
-            if (typeof value === 'object' && value !== null) {
-                if (seen.has(value)) {
-                    return;
-                }
-                seen.add(value);
-            }
-            return value;
-        };
-    };
-    if (args.length === 1)
-    {
-        if (typeof args[0] === 'string' || args[0] instanceof String)
-        {
-            text = args[0];
-        }
-        else
-        {
-            text = JSON.stringify(args[0], getCircularReplacer(), 2);
-        }
-    }
-    else
-    {
-        text = JSON.stringify(args, getCircularReplacer(), 2);
-    }
-    currentLoggingText = StorageHelper_getStoredValue("HHAuto_Temp_Logging")!==undefined?StorageHelper_getStoredValue("HHAuto_Temp_Logging"):"reset";
-    //console.log("debug : ",currentLoggingText);
-    if (!currentLoggingText.startsWith("{"))
-    {
-        //console.log("debug : delete currentLog");
-        currentLoggingText={};
-    }
-    else
-    {
-
-        currentLoggingText = JSON.parse(currentLoggingText);
-    }
-    nbLines = Object.keys(currentLoggingText).length;
-    //console.log("Debug : Counting log lines : "+nbLines);
-    if( nbLines >maxLines)
-    {
-        var keys=Object.keys(currentLoggingText);
-        //console.log("Debug : removing old lines");
-        for(var i = 0; i < nbLines-maxLines; i++)
-        {
-            //console.log("debug delete : "+currentLoggingText[keys[i]]);
-            delete currentLoggingText[keys[i]];
-        }
-    }
-    let count=1;
-    let newPrefix = prefix;
-    while (currentLoggingText.hasOwnProperty(newPrefix) && count < 10)
-    {
-        newPrefix = prefix + "-" + count;
-        count++;
-    }
-    prefix=newPrefix;
-    console.log(prefix+":"+text);
-    currentLoggingText[prefix]=text;
-
-    StorageHelper_setStoredValue("HHAuto_Temp_Logging", JSON.stringify(currentLoggingText));
-
-}
-
-
-function saveHHDebugLog()
-{
-    var dataToSave={}
-
-    var name='HH_DebugLog_'+Date.now()+'.log';
-    dataToSave['HHAuto_browserVersion']=getBrowserData(window.navigator || navigator);
-    dataToSave['HHAuto_scriptHandler']=GM_info.scriptHandler+' '+GM_info.version;
-    dataToSave['HHAuto_version']=GM_info.script.version;
-    dataToSave['HHAuto_HHSite']=window.location.origin;
-    extractHHVars(dataToSave,true);
-    const a = document.createElement('a')
-    a.download = name
-    a.href = URL.createObjectURL(new Blob([JSON.stringify(dataToSave, null, 2)], {type: 'application/json'}))
-    a.click()
-}
-;// CONCATENATED MODULE: ./src/Utils/Utils.js
-
-
-
-function callItOnce(fn) {
-    var called = false;
-    return function() {
-        if (!called) {
-            called = true;
-            return fn();
-        }
-        return;
-    }
-}
-
-function getCallerFunction()
-{
-    var stackTrace = (new Error()).stack; // Only tested in latest FF and Chrome
-    var callerName = stackTrace.replace(/^Error\s+/, ''); // Sanitize Chrome
-    callerName = callerName.split("\n")[1]; // 1st item is this, 2nd item is caller
-    callerName = callerName.replace(/^\s+at Object./, ''); // Sanitize Chrome
-    callerName = callerName.replace(/ \(.+\)$/, ''); // Sanitize Chrome
-    callerName = callerName.replace(/\@.+/, ''); // Sanitize Firefox
-    return callerName;
-}
-
-function getCallerCallerFunction()
-{
-
-    let stackTrace = (new Error()).stack; // Only tested in latest FF and Chrome
-    let match
-    try {
-        match = stackTrace.match(/at Object\.(\w+) \((\S+)\)/);
-        match[1] // throw error if match is null
-    } catch {
-        // Firefox
-        match = stackTrace.match(/\n(\w+)@(\S+)/);
-    }
-    let [callerName, callerPlace] = [match[1], match[2]]
-
-    try{
-    console.log('Function ' + match[3] + ' at ' + match[4])
-    }catch(err){}
-    /*
-    var callerName;
-    {
-        let re = /([^(]+)@|at ([^(]+) \(/g;
-        let aRegexResult = re.exec(new Error().stack);
-        callerName = aRegexResult[1] || aRegexResult[2];
-    }*/
-    //console.log(callerName);
-    return callerName;
-    //return getCallerCallerFunction.caller.caller.name
-}
-function isFocused()
-{
-    //let isFoc = false;
-    const docFoc = document.hasFocus();
-    //const iFrameFoc = $('iframe').length===0?false:$('iframe')[0].contentWindow.document.hasFocus();
-    //isFoc = docFoc || iFrameFoc;
-    return docFoc;
-}
-function isJSON(str)
-{
-    if (str === undefined || str === null || /^\s*$/.test(str) ) return false;
-    str = str.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@');
-    str = str.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']');
-    str = str.replace(/(?:^|:|,)(?:\s*\[)+/g, '');
-    return (/^[\],:{}\s]*$/).test(str);
-}
-
-
-function replaceCheatClick()
-{
-    is_cheat_click=function(e) {
-        return false;
-    };
-}
-
-function Utils_getCurrentSorting()
-{
-    return localStorage.sort_by;
-}
-
-/* Used ? */
-function waitForKeyElements (selectorTxt,maxMilliWaitTime)
-{
-    var targetNodes;
-    var timer= new Date().getTime() + maxMilliWaitTime;
-    targetNodes = jQuery(selectorTxt);
-
-    while ( targetNodes.length === 0 && Math.ceil(timer)-Math.ceil(new Date().getTime()) > 0)
-    {
-        targetNodes = jQuery(selectorTxt);
-    }
-    if (targetNodes.length === 0)
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
-}
-
-
-function myfileLoad_onChange(event)
-{
-    $('#LoadConfError')[0].innerText =' ';
-    if (event.target.files.length == 0) {return}
-    var reader = new FileReader();
-    reader.onload = myfileLoad_onReaderLoad;
-    reader.readAsText(event.target.files[0]);
-}
-
-
-
-function myfileLoad_onReaderLoad(event){
-    var text = event.target.result;
-    var storageType;
-    var storageItem;
-    var variableName;
-
-    //Json validation
-    if (isJSON(text))
-    {
-        LogUtils_logHHAuto('the json is ok');
-        var jsonNewSettings = JSON.parse(event.target.result);
-        //Assign new values to Storage();
-        for (const [key, value] of Object.entries(jsonNewSettings))
-        {
-            storageType=key.split(".")[0];
-            variableName=key.split(".")[1];
-            storageItem = getStorageItem(storageType);
-            LogUtils_logHHAuto(key+':'+ value);
-            storageItem[variableName] = value;
-        }
-        location.reload();
-    }else{
-        $('#LoadConfError')[0].innerText ='Selected file broken!';
-        LogUtils_logHHAuto('the json is Not ok');
-    }
-}
-;// CONCATENATED MODULE: ./src/Utils/HHPopup.js
-
-
-function fillHHPopUp(inClass,inTitle, inContent)
-{
-    if (document.getElementById("HHAutoPopupGlobal") === null)
-    {
-        createHHPopUp();
-    }
-    else
-    {
-        HHPopup_displayHHPopUp();
-    }
-    document.getElementById("HHAutoPopupGlobalContent").innerHTML=inContent;
-    document.getElementById("HHAutoPopupGlobalTitle").innerHTML=inTitle;
-    document.getElementById("HHAutoPopupGlobalPopup").className =inClass;
-}
-
-function createHHPopUp()
-{
-    GM_addStyle('#HHAutoPopupGlobal.HHAutoOverlay { overflow: auto;  z-index:1000;   position: fixed;   top: 0;   bottom: 0;   left: 0;   right: 0;   background: rgba(0, 0, 0, 0.7);   transition: opacity 500ms;     display: flex;   align-items: center; }  '
-    + '#HHAutoPopupGlobalPopup {   margin: auto;   padding: 20px;   background: #fff;   border-radius: 5px;   position: relative;   transition: all 5s ease-in-out; }  '
-    + '#HHAutoPopupGlobalTitle {   margin-top: 0;   color: #333;   font-size: larger; } '
-    + '#HHAutoPopupGlobalClose {   position: absolute;   top: 0;   right: 30px;   transition: all 200ms;   font-size: 50px;   font-weight: bold;   text-decoration: none;   color: #333; } '
-    + '#HHAutoPopupGlobalClose:hover {   color: #06D85F; } '
-    + '#HHAutoPopupGlobalContent .HHAutoScriptMenu .rowLine { display:flex;flex-direction:row;align-items:center;column-gap:20px;justify-content: center; } '
-    + '#HHAutoPopupGlobalContent {   max-height: 30%;   overflow: auto;   color: #333;   font-size: x-small; }'
-    + '#HHAutoPopupGlobalContent .HHAutoScriptMenu .switch {  width: 55px; height: 32px; }'
-    + '#HHAutoPopupGlobalContent .HHAutoScriptMenu input:checked + .slider:before { -webkit-transform: translateX(20px); -ms-transform: translateX(20px); transform: translateX(20px); } '
-    + '#HHAutoPopupGlobalContent .HHAutoScriptMenu .slider.round::before {  width: 22px; height: 22px; bottom: 5px; }');
-
-    let popUp = '<div id="HHAutoPopupGlobal" class="HHAutoOverlay">'
-    +' <div id="HHAutoPopupGlobalPopup">'
-    +'   <h2 id="HHAutoPopupGlobalTitle">Here i am</h2>'
-    +'   <a id="HHAutoPopupGlobalClose">&times;</a>'
-    +'   <div id="HHAutoPopupGlobalContent" class="content">'
-    +'      Thank to pop me out of that button, but now im done so you can close this window.'
-    +'   </div>'
-    +' </div>'
-    +'</div>';
-    $('body').prepend(popUp);
-    document.getElementById("HHAutoPopupGlobalClose").addEventListener("click", function(){
-        maskHHPopUp();
-    });
-    document.addEventListener('keyup', evt => {
-        if (evt.key === 'Escape')
-        {
-            maskHHPopUp();
-        }
-    });
-}
-
-function isDisplayedHHPopUp()
-{
-    if (document.getElementById("HHAutoPopupGlobal") === null)
-    {
-        return false;
-    }
-    if (document.getElementById("HHAutoPopupGlobal").style.display === "none")
-    {
-        return false;
-    }
-    return document.getElementById("HHAutoPopupGlobalPopup").className;
-}
-
-function HHPopup_displayHHPopUp()
-{
-    if (document.getElementById("HHAutoPopupGlobal") === null)
-    {
-        return false;
-    }
-    document.getElementById("HHAutoPopupGlobal").style.display = "";
-    document.getElementById("HHAutoPopupGlobal").style.opacity = 1;
-}
-
-function maskHHPopUp()
-{
-    document.getElementById("HHAutoPopupGlobal").style.display = "none";
-    document.getElementById("HHAutoPopupGlobal").style.opacity = 0;
-}
-
-function checkAndClosePopup(inBurst)
-{
-    const popUp = $('#popup_message[style*="display: block"]');
-    if ((inBurst || isFocused()) && popUp.length > 0)
-    {
-        $('close', popUp).click();
-    }
-}
-;// CONCATENATED MODULE: ./src/Utils/index.js
-
-
-
-
-;// CONCATENATED MODULE: ./src/Helper/BDSMHelper.js
-
-
-
-
-
-function customMatchRating(inSimu) // NOT used ?
-{
-    let matchRating = inSimu.score;
-    var customLimits = getStoredValue("HHAuto_Setting_calculatePowerLimits").split(";");
-    if(customLimits.length === 2 && Number(customLimits[0]) < Number(customLimits[1]))
-    {
-        if (matchRating >= 0)
-        {
-            matchRating = '+' + matchRating;
-        }
-        if ( Number(matchRating) < Number(customLimits[0]) )
-        {
-            return 'r'+matchRating
-        }
-        else
-        {
-            if ( Number(matchRating) < Number(customLimits[1]) )
-            {
-                return 'y'+matchRating
-            }
-            else
-            {
-                return 'g'+matchRating
-            }
-        }
-    }
-    else
-    {
-        if ( getStoredValue("HHAuto_Setting_calculatePowerLimits") !== "default")
-        {
-            setStoredValue("HHAuto_Setting_calculatePowerLimits", "Invalid limits");
-        }
-        if (matchRating >= 0)
-        {
-            matchRating = '+' + matchRating;
-
-            if (inSimu.playerEgoCheck <= 0)
-            {
-                return 'y'+matchRating
-            }
-            else
-            {
-                return 'g'+matchRating
-            }
-        }
-        else {
-            matchRating = matchRating;
-            return 'r'+matchRating
-        }
-    }
-}
-
-let _player;
-let _opponent;
-let _cache;
-let _runs;
-//all following lines credit:Tom208 OCD script
-function calculateBattleProbabilities(player, opponent) {
-    _player = player;
-    _opponent = opponent;
-
-    const setup = x => {
-        x.critMultiplier = 2 + x.bonuses.critDamage;
-        x.dmg = Math.max(0, x.dmg);
-        x.baseAttack = {
-            probability: 1 - x.critchance,
-            damageAmount: Math.ceil(x.dmg),
-            healAmount: Math.ceil(x.dmg * x.bonuses.healOnHit)
-        };
-        x.critAttack = {
-            probability: x.critchance,
-            damageAmount: Math.ceil(x.dmg * x.critMultiplier),
-            healAmount: Math.ceil(x.dmg * x.critMultiplier * x.bonuses.healOnHit)
-        };
-        x.hp = Math.ceil(x.hp);
-    }
-
-    setup(_player);
-    setup(_opponent);
-
-    _cache = {};
-    _runs = 0;
-
-    let ret;
-    try {
-        // start simulation from player's turn
-        ret = playerTurn(_player.hp, _opponent.hp, 0);
-    } catch (error) {
-        return {
-            points: [],
-            win: Number.NaN,
-            loss: Number.NaN,
-            avgTurns: Number.NaN,
-            scoreClass: 'minus'
-        };
-    }
-
-    const sum = ret.win + ret.loss;
-    ret.win /= sum;
-    ret.loss /= sum;
-    ret.scoreClass = ret.win>0.9?'plus':ret.win<0.5?'minus':'close';
-
-    return ret;
-
-
-    function mergeResult(x, xProbability, y, yProbability) {
-        const points = {};
-        Object.entries(x.points).map(([point, probability]) => [point, probability * xProbability])
-            .concat(Object.entries(y.points).map(([point, probability]) => [point, probability * yProbability]))
-            .forEach(([point, probability]) => {
-            points[point] = (points[point] || 0) + probability
-        });
-        const merge = (x, y) => x * xProbability + y * yProbability;
-        const win = merge(x.win, y.win);
-        const loss = merge(x.loss, y.loss);
-        const avgTurns = merge(x.avgTurns, y.avgTurns);
-        return { points, win, loss, avgTurns };
-    }
-
-    function playerTurn(playerHP, opponentHP, turns) {
-        turns += 1;
-        // avoid a stack overflow
-        const maxAllowedTurns = 50;
-        if (turns > maxAllowedTurns) throw new Error();
-
-        // read cache
-        const cachedResult = _cache?.[playerHP]?.[opponentHP];
-        if (cachedResult) return cachedResult;
-
-        // simulate base attack and critical attack
-        const baseAtk = _player.baseAttack;
-        const baseAtkResult = playerAttack(playerHP, opponentHP, baseAtk, turns);
-        const critAtk = _player.critAttack;
-        const critAtkResult = playerAttack(playerHP, opponentHP, critAtk, turns);
-        // merge result
-        const mergedResult = mergeResult(baseAtkResult, baseAtk.probability, critAtkResult, critAtk.probability);
-
-        // count player's turn
-        mergedResult.avgTurns += 1;
-
-        // write cache
-        if (!_cache[playerHP]) _cache[playerHP] = {};
-        if (!_cache[playerHP][opponentHP]) _cache[playerHP][opponentHP] = {};
-        _cache[playerHP][opponentHP] = mergedResult;
-
-        return mergedResult;
-    }
-
-    function playerAttack(playerHP, opponentHP, attack, turns) {
-        // damage
-        opponentHP -= attack.damageAmount;
-
-        // heal on hit
-        playerHP += attack.healAmount;
-        playerHP = Math.min(playerHP, _player.hp);
-
-        // check win
-        if (opponentHP <= 0) {
-            const point = 15 + Math.ceil(10 * playerHP / _player.hp);
-            _runs += 1;
-            return { points: { [point]: 1 }, win: 1, loss: 0, avgTurns: 0 };
-        }
-
-        // next turn
-        return opponentTurn(playerHP, opponentHP, turns);
-    }
-
-    function opponentTurn(playerHP, opponentHP, turns) {
-        // simulate base attack and critical attack
-        const baseAtk = _opponent.baseAttack;
-        const baseAtkResult = opponentAttack(playerHP, opponentHP, baseAtk, turns);
-        const critAtk = _opponent.critAttack;
-        const critAtkResult = opponentAttack(playerHP, opponentHP, critAtk, turns);
-        // merge result
-        return mergeResult(baseAtkResult, baseAtk.probability, critAtkResult, critAtk.probability);
-    }
-
-    function opponentAttack(playerHP, opponentHP, attack, turns) {
-        // damage
-        playerHP -= attack.damageAmount;
-
-        // heal on hit
-        opponentHP += attack.healAmount;
-        opponentHP = Math.min(opponentHP, _opponent.hp);
-
-        // check loss
-        if (playerHP <= 0) {
-            const point = 3 + Math.ceil(10 * (_opponent.hp - opponentHP) / _opponent.hp);
-            _runs += 1;
-            return { points: { [point]: 1 }, win: 0, loss: 1, avgTurns: 0 };
-        }
-
-        // next turn
-        return playerTurn(playerHP, opponentHP, turns);
-    }
-}
-
-function calculateThemeFromElements(elements) {
-    const counts = countElementsInTeam(elements)
-
-    const theme = []
-    Object.entries(counts).forEach(([element, count]) => {
-        if (count >= 3) {
-            theme.push(element)
-        }
-    })
-    return theme;
-}
-
-function countElementsInTeam(elements) {
-    return elements.reduce((a,b)=>{a[b]++;return a}, {
-        fire: 0,
-        stone: 0,
-        sun: 0,
-        water: 0,
-        nature: 0,
-        darkness: 0,
-        light: 0,
-        psychic: 0
-    })
-}
-
-function simulateBattle (player, opponent) {
-    let points
-
-    const playerStartHP = player.hp
-    const opponentStartHP = opponent.hp
-
-    let turns = 0
-
-    while (true) {
-        turns++
-        //your turn
-        let damageAmount = player.dmg
-        if (Math.random() < player.critchance) {
-            damageAmount = player.dmg * player.critMultiplier
-        }
-        let healAmount = Math.min(playerStartHP - player.hp, damageAmount * player.bonuses.healOnHit)
-        opponent.hp -= damageAmount;
-        player.hp += healAmount;
-
-        //check win
-        if(opponent.hp<=0){
-            //count score
-            points = 15+Math.ceil(player.hp/playerStartHP * 10);
-            break;
-        }
-
-        //opp's turn
-        damageAmount = opponent.dmg
-        if (Math.random() < opponent.critchance) {
-            damageAmount = opponent.dmg * opponent.critMultiplier
-        }
-        healAmount = Math.min(opponentStartHP - opponent.hp, damageAmount * opponent.bonuses.healOnHit)
-        player.hp -= damageAmount;
-        opponent.hp += healAmount;
-
-        //check loss
-        if(player.hp<=0){
-            //count score
-            points = 3+Math.ceil((opponentStartHP - opponent.hp)/opponentStartHP * 10);
-            break;
-        }
-    }
-
-    return {points, turns}
-}
-
-/*
-commented        const girlDictionary
-replaced         const girlCount = girlDictionary.size || 800
-              by const girlCount = isJSON(getStoredValue("HHAuto_Temp_HaremSize"))?JSON.parse(getStoredValue("HHAuto_Temp_HaremSize")).count:800;
-              */
-function calculateSynergiesFromTeamMemberElements(elements) {
-    const counts = countElementsInTeam(elements)
-
-    // Only care about those not included in the stats already: fire, stone, sun and water
-    // Assume max harem synergy
-    //const girlDictionary = (typeof(localStorage.HHPNMap) == "undefined") ? new Map(): new Map(JSON.parse(localStorage.HHPNMap));
-    const girlCount = isJSON(StorageHelper_getStoredValue("HHAuto_Temp_HaremSize"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_HaremSize")).count:800;
-    const girlsPerElement = Math.min(girlCount / 8, 100)
-
-    return {
-        critDamage: (0.0035 * girlsPerElement) + (0.1  * counts.fire),
-        critChance: (0.0007 * girlsPerElement) + (0.02 * counts.stone),
-        defReduce:  (0.0007 * girlsPerElement) + (0.02 * counts.sun),
-        healOnHit:  (0.001  * girlsPerElement) + (0.03 * counts.water)
-    }
-}
-/*
-replaced       ELEMENTS
-by getHHScriptVars("ELEMENTS")
-*/
-function calculateDominationBonuses(playerElements, opponentElements) {
-    const bonuses = {
-        player: {
-            ego: 0,
-            attack: 0,
-            chance: 0
-        },
-        opponent: {
-            ego: 0,
-            attack: 0,
-            chance: 0
-        }
-    };
-
-    [
-        {a: playerElements, b: opponentElements, k: 'player'},
-        {a: opponentElements, b: playerElements, k: 'opponent'}
-    ].forEach(({a,b,k})=>{
-        a.forEach(element => {
-            if (getHHScriptVars("ELEMENTS").egoDamage[element] && b.includes(getHHScriptVars("ELEMENTS").egoDamage[element])) {
-                bonuses[k].ego += 0.1
-                bonuses[k].attack += 0.1
-            }
-            if (getHHScriptVars("ELEMENTS").chance[element] && b.includes(getHHScriptVars("ELEMENTS").chance[element])) {
-                bonuses[k].chance += 0.2
-            }
-        })
-    })
-
-    return bonuses
-}
-
-function calculateCritChanceShare(ownHarmony, otherHarmony)
-{
-    return 0.3*ownHarmony/(ownHarmony+otherHarmony)
-}
-;// CONCATENATED MODULE: ./src/Helper/ButtonHelper.js
-
-
-
-function getGoToChangeTeamButton() {
-    // TODO change href and translate
-    return '<div class="change_team_container"><a id="change_team" href="/teams.html" class="blue_button_L" anim-step="afterStartButton"><div>Change team</div></a></div>';
-}
-
-function getGoToClubChampionButton() {
-    return `<button data-href="${getHHScriptVars("pagesURLClubChampion")}" class="blue_button_L hh-club-poa">${getTextForUI("goToClubChampions","elementText")}</button>`;
-}
-;// CONCATENATED MODULE: ./src/Helper/HHHelper.js
-
-
-
-function getHHVars(infoSearched, logging = true)
-{
-    let returnValue = unsafeWindow;
-    if (getHHScriptVars(infoSearched,false) !== null)
-    {
-        infoSearched = getHHScriptVars(infoSearched);
-    }
-
-    let splittedInfoSearched = infoSearched.split(".");
-
-    for (let i=0;i<splittedInfoSearched.length;i++)
-    {
-        if (returnValue[splittedInfoSearched[i]] === undefined)
-        {
-            if (logging)
-            {
-                LogUtils_logHHAuto("HH var not found : "+infoSearched+" ("+splittedInfoSearched[i]+" not defined).");
-            }
-            return null;
-        }
-        else
-        {
-            returnValue = returnValue[splittedInfoSearched[i]];
-        }
-    }
-    return returnValue;
-}
-
-function setHHVars(infoSearched,newValue)
-{
-    let returnValue = unsafeWindow;
-    if (getHHScriptVars(infoSearched,false) !== null)
-    {
-        infoSearched = getHHScriptVars(infoSearched);
-    }
-
-    let splittedInfoSearched = infoSearched.split(".");
-
-    for (let i=0;i<splittedInfoSearched.length;i++)
-    {
-        if (returnValue[splittedInfoSearched[i]] === undefined)
-        {
-            LogUtils_logHHAuto("HH var not found : "+infoSearched+" ("+splittedInfoSearched[i]+" not defined).");
-            return -1;
-        }
-        else if ( i === splittedInfoSearched.length - 1)
-        {
-            returnValue[splittedInfoSearched[i]] = newValue;
-            return 0;
-        }
-        else
-        {
-            returnValue = returnValue[splittedInfoSearched[i]];
-        }
-    }
-}
-
-;// CONCATENATED MODULE: ./src/Helper/TimeHelper.js
-
-
-
-
-
-function getServerTS()
-{
-    let sec_num = parseInt(getHHVars('server_now_ts'), 10);
-    let days = Math.floor(sec_num / 86400);
-    let hours = Math.floor(sec_num / 3600) % 24;
-    let minutes = Math.floor(sec_num / 60) % 60;
-    let seconds = sec_num % 60;
-    return {days:days,hours:hours,minutes:minutes,seconds:seconds};
-}
-
-function TimeHelper_toHHMMSS(secs)  {
-    var sec_num = parseInt(secs, 10);
-    var days = Math.floor(sec_num / 86400);
-    var hours = Math.floor(sec_num / 3600) % 24;
-    var minutes = Math.floor(sec_num / 60) % 60;
-    var seconds = sec_num % 60;
-    var n=0;
-    return [days,hours,minutes,seconds]
-        .map(v => v < 10 ? "0" + v : v)
-        .filter((v,i) => {if (v !== "00"){n++; return true;} return n > 0})
-        .join(":");
-}
-
-function getSecondsLeftBeforeEndOfHHDay()
-{
-    let HHEndOfDay = {days:0,hours:11,minutes:0,seconds:0};
-    let server_TS = getServerTS();
-    HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?0:1;
-    let diffResetTime = (HHEndOfDay.days*86400 + HHEndOfDay.hours * 3600 + HHEndOfDay.minutes * 60) - (server_TS.hours * 3600 + server_TS.minutes * 60);
-    return diffResetTime;
-}
-
-function getSecondsLeftBeforeNewCompetition()
-{
-    let HHEndOfDay = {days:0,hours:11,minutes:30,seconds:0};
-    let server_TS = getServerTS();
-    HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?0:1;
-    let diffResetTime = (HHEndOfDay.days*86400 + HHEndOfDay.hours * 3600 + HHEndOfDay.minutes * 60) - (server_TS.hours * 3600 + server_TS.minutes * 60);
-    return diffResetTime;
-}
-
-function debugDate(sec_num){
-    let days = Math.floor(sec_num / 86400);
-    let hours = Math.floor(sec_num / 3600) % 24;
-    let minutes = Math.floor(sec_num / 60) % 60;
-    let seconds = sec_num % 60;
-    return JSON.stringify({days:days,hours:hours,minutes:minutes,seconds:seconds});
-}
-
-function convertTimeToInt(remainingTimer){
-    let newTimer = 0;
-    if (remainingTimer && remainingTimer.length > 0) {
-        let splittedTime = remainingTimer.split(' ');
-        for (let i = 0; i < splittedTime.length; i++) {
-            let timerSymbol = splittedTime[i].match(/[^0-9]+/)[0];
-            switch (timerSymbol) {
-                case timerDefinitions[hhTimerLocale].days:
-                    newTimer += parseInt(splittedTime[i])*86400;
-                    break;
-                case timerDefinitions[hhTimerLocale].hours:
-                    newTimer += parseInt(splittedTime[i])*3600;
-                    break;
-                case timerDefinitions[hhTimerLocale].minutes:
-                    newTimer += parseInt(splittedTime[i])*60;
-                    break;
-                case timerDefinitions[hhTimerLocale].seconds:
-                    newTimer += parseInt(splittedTime[i]);
-                    break;
-                default:
-                    LogUtils_logHHAuto('Timer symbol not recognized: ' + timerSymbol);
-            }
-        }
-    } else {
-            LogUtils_logHHAuto('No valid timer definitions, reset to 15min');
-            newTimer = 15*60;
-    }
-    return newTimer;
-}
-
-function canCollectCompetitionActive()
-{
-    return StorageHelper_getStoredValue("HHAuto_Setting_waitforContest") !== "true" || getSecondsLeftBeforeNewCompetition() > 35*60 && getSecondsLeftBeforeNewCompetition() < (24*3600-5*60);
-}
-
-
-function getLimitTimeBeforeEnd(){
-    return Number(StorageHelper_getStoredValue("HHAuto_Setting_collectAllTimer")) * 3600;
-}
-
-
-function randomInterval(min,max) // min and max included
-{
-    return Math.floor(Math.random()*(max-min+1)+min);
-}
-;// CONCATENATED MODULE: ./src/Helper/HeroHelper.js
-
-
-
-
-
-
-function getHero()
-{
-    if(unsafeWindow.Hero === undefined)
-    {
-        setTimeout(autoLoop, Number(StorageHelper_getStoredValue("HHAuto_Temp_autoLoopTimeMili")))
-        //logHHAuto(window.wrappedJSObject)
-    }
-    //logHHAuto(unsafeWindow.Hero);
-    return unsafeWindow.Hero;
-}
-
-function doStatUpgrades()
-{
-    //Stats?
-    //logHHAuto('stats');
-    var Hero=getHero();
-    var level=getHHVars('Hero.infos.level');
-    var stats=[getHHVars('Hero.infos.carac1'),getHHVars('Hero.infos.carac2'),getHHVars('Hero.infos.carac3')];
-    var money=getHHVars('Hero.currencies.soft_currency');
-    var count=0;
-    var M=Number(StorageHelper_getStoredValue("HHAuto_Setting_autoStats"));
-    var MainStat=stats[getHHVars('Hero.infos.class')-1];
-    var Limit=getHHVars('Hero.infos.level')*30;//getHHVars('Hero.infos.level')*19+Math.min(getHHVars('Hero.infos.level'),25)*21;
-    var carac=getHHVars('Hero.infos.class');
-    var mp=0;
-    var mults=[60,30,10,1];
-    for (var car=0; car<3; car++)
-    {
-        //logHHAuto('stat '+carac);
-        var s=stats[carac-1];
-        for (var mu=0;mu<5;mu++)
-        {
-            var mult=mults[mu];
-            var price = 5+s*2+(Math.max(0,s-2000)*2)+(Math.max(0,s-4000)*2)+(Math.max(0,s-6000)*2)+(Math.max(0,s-8000)*2);
-            price*=mult;
-            if (carac==getHHVars('Hero.infos.class'))
-            {
-                mp=price;
-            }
-            //logHHAuto('money: '+money+' stat'+carac+': '+stats[carac-1]+' price: '+price);
-            if ((stats[carac-1]+mult)<=Limit && (money-price)>M && (carac==getHHVars('Hero.infos.class') || price<mp/2 || (MainStat+mult)>Limit))
-            {
-                count++;
-                LogUtils_logHHAuto('money: '+money+' stat'+carac+': '+stats[carac-1]+' [+'+mult+'] price: '+price);
-                money-=price;
-                var params = {
-                    carac: "carac" + carac,
-                    action: "hero_update_stats",
-                    nb: mult
-                };
-                hh_ajax(params, function(data) {
-                    Hero.update("soft_currency", 0 - price, true);
-                });
-                setTimeout(doStatUpgrades, randomInterval(300,500));
-                return;
-                break;
-            }
-        }
-        carac=(carac+1)%3+1;
-    }
-}
 ;// CONCATENATED MODULE: ./src/Module/Bundles.js
 
 
@@ -6790,6 +3063,9 @@ class SeasonalEvent {
     static isMegaSeasonalEvent() {
         return $('.mega-event-container').length > 0
     }
+    static isMegaPassPaid() {
+        return $('#get_mega_pass_kobans_btn:visible').length <= 0
+    }
     static getRemainingTime(){
         const seasonalEventTimerRequest = `.seasonal-event-panel .seasonal-event-container .seasonal-timer span[rel=expires]`;
     
@@ -6804,6 +3080,20 @@ class SeasonalEvent {
     {
         LogUtils_logHHAuto('Not implemented');
     }
+    static getSeasonalNotClaimedRewards(){
+        const arrayz = $('.seasonal-tier.unclaimed');
+        const freeSlotSelectors = ".slot";
+        const paidSlotSelectors = ""; // Not available
+
+        return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
+    }
+    static getMegaSeasonalNotClaimedRewards(){
+        const arrayz = $('.mega-tier-container:has(.free-slot button.mega-claim-reward)');
+        const freeSlotSelectors = ".free-slot .slot";
+        const paidSlotSelectors = SeasonalEvent.isMegaPassPaid() ? ".paid-unclaimed .slot" : "";
+
+        return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
+    }
     static goAndCollect()
     {
         const rewardsToCollect = isJSON(StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonalEventCollectablesList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonalEventCollectablesList")):[];
@@ -6811,10 +3101,18 @@ class SeasonalEvent {
         if (getPage() === getHHScriptVars("pagesIDSeasonalEvent"))
         {
             SeasonalEvent.getRemainingTime();
+            const isMegaSeasonalEvent = SeasonalEvent.isMegaSeasonalEvent();
             const seasonalEventEnd = getSecondsLeft("SeasonalEventRemainingTime");
             // logHHAuto("Seasonal end in " + seasonalEventEnd);
             const needToCollect = (checkTimer('nextSeasonalEventCollectTime') && StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true")
             const needToCollectAllBeforeEnd = (checkTimer('nextSeasonalEventCollectAllTime') && seasonalEventEnd < getLimitTimeBeforeEnd() && StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll") === "true");
+
+            const seasonalTierQuery = "#home_tab_container div.bottom-container div.right-part-container div.seasonal-progress-bar-tiers div.seasonal-tier.unclaimed";
+            const megaSeasonalTierQuery = "#home_tab_container div.bottom-container div.right-part-container div.mega-progress-bar-section div.mega-tier-container:has(.free-slot button.mega-claim-reward)";
+            const seasonalFreeSlotQuery = ".seasonal-slot .slot,.seasonal-slot .slot_girl_shards";
+            const seasonalPaidSlotQuery = ""; // N/A
+            const megaSeasonalFreeSlotQuery = ".free-slot .slot";
+            const megaSeasonalPaidSlotQuery = ".pass-slot.paid-unclaimed .slot";
 
             if (needToCollect || needToCollectAllBeforeEnd)
             {
@@ -6823,18 +3121,35 @@ class SeasonalEvent {
                 LogUtils_logHHAuto("setting autoloop to false");
                 StorageHelper_setStoredValue("HHAuto_Temp_autoLoop", "false");
                 let buttonsToCollect = [];
-                const listSeasonalEventTiersToClaim = $("#home_tab_container div.bottom-container div.right-part-container div.seasonal-progress-bar-tiers div.seasonal-tier.unclaimed");
+
+                const listSeasonalEventTiersToClaim = isMegaSeasonalEvent ? $(megaSeasonalTierQuery) : $(seasonalTierQuery);
+                const freeSlotQuery =  isMegaSeasonalEvent ? megaSeasonalFreeSlotQuery : seasonalFreeSlotQuery;
+                const paidSlotQuery =  isMegaSeasonalEvent ? megaSeasonalPaidSlotQuery : seasonalPaidSlotQuery;
+                const isPassPaid =  SeasonalEvent.isMegaPassPaid();
+
                 for (let currentTier = 0 ; currentTier < listSeasonalEventTiersToClaim.length ; currentTier++)
                 {
                     const currentButton = $("button[rel='claim']", listSeasonalEventTiersToClaim[currentTier])[0];
                     const currentTierNb = currentButton.getAttribute("tier");
                     //console.log("checking tier : "+currentTierNb);
-                    const freeSlotType = RewardHelper.getRewardTypeBySlot($(".seasonal-slot .slot,.seasonal-slot .slot_girl_shards",listSeasonalEventTiersToClaim[currentTier])[0]);
+                    const freeSlotType = RewardHelper.getRewardTypeBySlot($(freeSlotQuery,listSeasonalEventTiersToClaim[currentTier])[0]);
                     if (rewardsToCollect.includes(freeSlotType) || needToCollectAllBeforeEnd)
                     {
-                        buttonsToCollect.push(currentButton);
-                        LogUtils_logHHAuto("Adding for collection tier (only free) : "+currentTierNb);
-
+                        
+                        if (isPassPaid) {
+                            // One button for both
+                            const paidSlotType = RewardHelper.getRewardTypeBySlot($(paidSlotQuery, listSeasonalEventTiersToClaim[currentTier])[0]);
+                            if (rewardsToCollect.includes(paidSlotType) || needToCollectAllBeforeEnd)
+                            {
+                                buttonsToCollect.push(currentButton);
+                                LogUtils_logHHAuto("Adding for collection tier (free + paid) : "+currentTierNb);
+                            } else {
+                                LogUtils_logHHAuto("Can't add tier " + currentTierNb + " as paid reward isn't to be colled");
+                            }
+                        } else {
+                            buttonsToCollect.push(currentButton);
+                            LogUtils_logHHAuto("Adding for collection tier (only free) : "+currentTierNb);
+                        }
                     }
                 }
 
@@ -6870,7 +3185,7 @@ class SeasonalEvent {
             }
             return false;
         }
-        else if(unsafeWindow.seasonal_event_active)
+        else if(unsafeWindow.seasonal_event_active || unsafeWindow.seasonal_time_remaining > 0)
         {
             LogUtils_logHHAuto("Switching to SeasonalEvent screen.");
             gotoPage(getHHScriptVars("pagesIDSeasonalEvent"));
@@ -6894,13 +3209,18 @@ class SeasonalEvent {
 
         var arrayz;
         let modified = false;
-        arrayz = $('.seasonal-progress-bar-tiers .seasonal-tier-container:not([style*="display:none"]):not([style*="display: none"])');
+        
+        const isMegaSeasonalEvent = SeasonalEvent.isMegaSeasonalEvent();
+        const seasonalTierQuery = ".seasonal-progress-bar-tiers .seasonal-tier-container";
+        const megaSeasonalTierQuery = ".mega-progress-bar-tiers .mega-tier-container";
+
+        arrayz = $((isMegaSeasonalEvent ? megaSeasonalTierQuery : seasonalTierQuery) + ':not([style*="display:none"]):not([style*="display: none"])');
         var obj;
         if (arrayz.length > 0)
         {
             for (var i2 = arrayz.length - 1; i2 >= 0; i2--)
             {
-                obj = $(arrayz[i2]).find('.claimed:not([style*="display:none"]):not([style*="display: none"])');
+                obj = $(arrayz[i2]).find('.claimed:not([style*="display:none"]):not([style*="display: none"])'); // TODO ".paid-claimed .slot"
                 if (obj.length >= 1)
                 {
                     arrayz[i2].style.display = "none";
@@ -6911,16 +3231,16 @@ class SeasonalEvent {
     
         if (modified)
         {
-            let divToModify = $('.seasonal-progress-bar-section');
+            let divToModify = $('.seasonal-progress-bar-section, .mega-progress-bar-section');
             if (divToModify.length > 0)
             {
                 divToModify.getNiceScroll().resize();
     
                 const width_px = 152.1;
                 const start_px = 101;
-                const rewards_unclaimed = $('.seasonal-tier.unclaimed').length;
+                const rewards_unclaimed = $('.seasonal-tier.unclaimed, .free-slot:not(.claimed)').length;
                 const scroll_width_hidden = parseInt(start_px + (rewards_unclaimed - 1) * width_px, 10);
-                $('.seasonal-progress-bar-current').css('width', scroll_width_hidden + 'px');
+                $('.seasonal-progress-bar-current, .mega-progress-bar').css('width', scroll_width_hidden + 'px');
     
                 try {
                     divToModify.getNiceScroll(0).doScrollLeft(0, 200);
@@ -6947,6 +3267,29 @@ class SeasonalEvent {
             girlDiv.append($(greeNitckHtml));
         }
         return girlDiv;
+    }
+    static displayRewardsSeasonalDiv() {
+        const target = $('.event-resource-location');
+        const hhRewardId = 'HHSeasonalRewards';
+        const isMegaSeasonalEvent = SeasonalEvent.isMegaSeasonalEvent();
+        try{
+            if($('#' + hhRewardId).length <= 0) {
+                const rewardCountByType = isMegaSeasonalEvent ? SeasonalEvent.getMegaSeasonalNotClaimedRewards() : SeasonalEvent.getSeasonalNotClaimedRewards();
+                LogUtils_logHHAuto("Rewards seasonal event:", JSON.stringify(rewardCountByType));
+                if (rewardCountByType['all'] > 0) {
+                    GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container { height: 5rem; margin-top: 0;}'); 
+                    GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container a { height: 2rem;}'); 
+
+                    const rewardsHtml = RewardHelper.getRewardsAsHtml(rewardCountByType);
+                    target.append($('<div id='+hhRewardId+' class="HHRewardNotCollected"><h1 style="font-size: small;">'+getTextForUI('rewardsToCollectTitle',"elementText")+'</h1>' + rewardsHtml + '</div>'));
+                } else {
+                    target.append($('<div id='+hhRewardId+' style="display:none;"></div>'));
+                }
+            }
+        } catch(err) {
+            LogUtils_logHHAuto("ERROR:", err.message);
+            target.append($('<div id='+hhRewardId+' style="display:none;"></div>'));
+        }
     }
 }
 ;// CONCATENATED MODULE: ./src/Module/Events/index.js
@@ -11977,6 +8320,3721 @@ class Troll {
 
 
 
+;// CONCATENATED MODULE: ./src/config/HHStoredVars.js
+
+
+
+const HHStoredVars_HHStoredVars = {};
+//Settings Vars
+//Do not move, has to be first one
+HHStoredVars_HHStoredVars.HHAuto_Setting_settPerTab =
+    {
+    default:"false",
+    storage:"localStorage",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+// Rest of settings vars
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoAff =
+    {
+    default:"500000000",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoAffW =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoBuyBoosters =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:true
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoBuyBoostersFilter =
+    {
+    default:"B1;B2;B3;B4",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"List",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoChamps =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        TimerHelper_clearTimer('nextChampionTime');
+    }
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoChampsForceStart =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        TimerHelper_clearTimer('nextChampionTime');
+    }
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoChampsFilter =
+    {
+    default:"1;2;3;4;5;6",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"List",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        TimerHelper_clearTimer('nextChampionTime');
+    }
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoChampsTeamLoop =
+    {
+    default:"10",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoChampsTeamKeepSecondLine =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoChampsUseEne =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_showClubButtonInPoa =
+    {
+    default:"true",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoClubChamp =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoClubChampMax =
+    {
+    default:"999",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoClubForceStart =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoContest =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_compactEndedContests =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoExp =
+    {
+    default:"500000000",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoExpW =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoFreePachinko =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoLeagues =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoLeaguesAllowWinCurrent =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoLeaguesCollect =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoLeaguesPowerCalc =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_leagueListDisplayPowerCalc =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoLeaguesSelectedIndex =
+    {
+    default:"0",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"selectedIndex",
+    kobanUsing:false,
+    customMenuID:"autoLeaguesSelector",
+    isValid:/^[0-9]$/
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoLeaguesThreshold =
+    {
+    default:"0",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoLeaguesSecurityThreshold =
+    {
+    default:"40",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_compactMissions =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoMission =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoMissionCollect =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoMissionKFirst =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_compactPowerPlace =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoPowerPlaces =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoPowerPlacesAll =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        TimerHelper_clearTimer('minPowerPlacesTime');
+        PlaceOfPower.cleanTempPopToStart();
+    }
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoPowerPlacesPrecision =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoPowerPlacesInverted =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoPowerPlacesWaitMax =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoPowerPlacesIndexFilter =
+    {
+    default:"1;2;3",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"List",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        TimerHelper_clearTimer('minPowerPlacesTime');
+        PlaceOfPower.cleanTempPopToStart();
+    }
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoQuest =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoSideQuest =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoQuestThreshold =
+    {
+    default:"0",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoSalary =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        TimerHelper_clearTimer('nextSalaryTime');
+    }
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoSalaryMaxTimer =
+    {
+    default:"1200",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+/*HHStoredVars.HHAuto_Setting_autoSalaryMinTimer =
+    {
+    default:"120",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};*/
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoSalaryMinSalary =
+    {
+    default:"20000",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        TimerHelper_clearTimer('nextSalaryTime');
+    }
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoSeason =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoSeasonCollect =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    events:{"change":function()
+            {
+                if (this.checked)
+                {
+                    getAndStoreCollectPreferences("HHAuto_Setting_autoSeasonCollectablesList");
+                    TimerHelper_clearTimer('nextSeasonCollectTime');
+                }
+            }
+           }
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoSeasonCollectAll =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoSeasonCollectablesList =
+    {
+    default:JSON.stringify([]),
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Array"
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoSeasonPassReds =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:true
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoSeasonThreshold =
+    {
+    default:"0",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoStats =
+    {
+    default:"500000000",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoStatsSwitch =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoTrollBattle =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoTrollMythicByPassParanoia =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoTrollSelectedIndex =
+    {
+    default:"0",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false,
+    customMenuID:"autoTrollSelector",
+    isValid:/^[0-9]|1[0-5]|98|99$/
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoTrollThreshold =
+    {
+    default:"0",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoChampsForceStartEventGirl =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_buyCombat =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:true
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_buyCombTimer =
+    {
+    default:"16",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_buyMythicCombat =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:true
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_buyMythicCombTimer =
+    {
+    default:"16",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoFreeBundlesCollect =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    events:{"change":function()
+            {
+                if (this.checked)
+                {
+                    getAndStoreCollectPreferences("HHAuto_Setting_autoFreeBundlesCollectablesList", getTextForUI("menuDailyCollectableText","elementText"));
+                    TimerHelper_clearTimer('nextFreeBundlesCollectTime');
+                }
+            }
+           }
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoFreeBundlesCollectablesList =
+    {
+    default:JSON.stringify([]),
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Array"
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_waitforContest =
+    {
+    default:"true",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_mousePause =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_mousePauseTimeout =
+    {
+    default:"5000",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value"
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_collectAllTimer =
+    {
+    default:"12",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    isValid:/^[1-9][0-9]|[1-9]$/
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_eventTrollOrder =
+    {
+    default:"1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"List",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_master =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_maxAff =
+    {
+    default:"50000",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_maxBooster =
+    {
+    default:"10",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_maxExp =
+    {
+    default:"10000",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_minShardsX10 =
+    {
+    default:"10",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false,
+    isValid:/^(\d)+$/
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_minShardsX50 =
+    {
+    default:"50",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_updateMarket =
+    {
+    default:"true",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_paranoia =
+    {
+    default:"true",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_paranoiaSettings =
+    {
+    default:"140-320/Sleep:28800-30400|Active:250-460|Casual:1500-2700/6:Sleep|8:Casual|10:Active|12:Casual|14:Active|18:Casual|20:Active|22:Casual|24:Sleep",
+    storage:"Storage()",
+    HHType:"Setting"
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_paranoiaSpendsBefore =
+    {
+    default:"true",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_plusEvent =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_plusEventMythic =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_bossBangEvent =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_bossBangMinTeam =
+    {
+    default:"5",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_sultryMysteriesEventRefreshShop =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_collectEventChest =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_PoAMaskRewards =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_PoVMaskRewards =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_PoGMaskRewards =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_SeasonMaskRewards =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_SeasonalEventMaskRewards =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_showCalculatePower =
+    {
+    default:"true",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_showAdsBack =
+    {
+    default:"true",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_showRewardsRecap =
+    {
+    default:"true",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_showInfo =
+    {
+    default:"true",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_showInfoLeft =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_showMarketTools =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_showTooltips =
+    {
+    default:"true",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_spendKobans0 =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_kobanBank =
+    {
+    default:"1000000",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_useX10Fights =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:true
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_useX10FightsAllowNormalEvent =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_useX50Fights =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:true
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_useX50FightsAllowNormalEvent =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_saveDefaults =
+    {
+    storage:"localStorage",
+    HHType:"Setting"
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoPantheon =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoPantheonThreshold =
+    {
+    default:"0",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoSeasonalEventCollect =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    events:{"change":function()
+            {
+                if (this.checked)
+                {
+                    getAndStoreCollectPreferences("HHAuto_Setting_autoSeasonalEventCollectablesList");
+                    TimerHelper_clearTimer('nextSeasonalEventCollectTime');
+                }
+            }
+           }
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoSeasonalEventCollectAll =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoSeasonalEventCollectablesList =
+    {
+    default:JSON.stringify([]),
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Array"
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoPoVCollect =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    events:{"change":function()
+            {
+                if (this.checked)
+                {
+                    getAndStoreCollectPreferences("HHAuto_Setting_autoPoVCollectablesList");
+                    TimerHelper_clearTimer('nextPoVCollectTime');
+                }
+            }
+           }
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoPoVCollectAll =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoPoVCollectablesList =
+    {
+    default:JSON.stringify([]),
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Array"
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoPoGCollect =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    events:{"change":function()
+            {
+                if (this.checked)
+                {
+                    getAndStoreCollectPreferences("HHAuto_Setting_autoPoGCollectablesList");
+                    TimerHelper_clearTimer('nextPoGCollectTime');
+                }
+            }
+           }
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoPoGCollectAll =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoPoGCollectablesList =
+    {
+    default:JSON.stringify([]),
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Array"
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_compactDailyGoals =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoDailyGoalsCollect =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    events:{"change":function()
+            {
+                if (this.checked)
+                {
+                    getAndStoreCollectPreferences("HHAuto_Setting_autoDailyGoalsCollectablesList", getTextForUI("menuDailyCollectableText","elementText"));
+                    TimerHelper_clearTimer('nextDailyGoalsCollectTime');
+                }
+            }
+           }
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoDailyGoalsCollectablesList =
+    {
+    default:JSON.stringify([]),
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Array"
+};
+// Temp vars
+HHStoredVars_HHStoredVars.HHAuto_Temp_autoLoop =
+    {
+    default:"true",
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_battlePowerRequired =
+    {
+    default:"0",
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+/*HHStoredVars.HHAuto_Temp_leaguesTarget =
+    {
+    default:"9",
+    storage:"sessionStorage",
+    HHType:"Temp",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:false,
+    menuType:"value",
+    kobanUsing:false,
+    customMenuID:"autoLeaguesSelector"
+};*/
+HHStoredVars_HHStoredVars.HHAuto_Temp_questRequirement =
+    {
+    default:"none",
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+/*HHStoredVars.HHAuto_Temp_userLink =
+    {
+    default:"none",
+    storage:"sessionStorage",
+    HHType:"Temp"
+};*/
+HHStoredVars_HHStoredVars.HHAuto_Temp_autoLoopTimeMili =
+    {
+    default:"500",
+    storage:"Storage()",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_freshStart =
+    {
+    default:"no",
+    storage:"Storage()",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_Logging =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_Debug =
+    {
+    default: "false",
+    storage: "sessionStorage",
+    valueType: "Boolean",
+    HHType:"Temp"
+};
+/*HHStoredVars.HHAuto_Temp_trollToFight =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:false,
+    menuType:"value",
+    kobanUsing:false,
+    customMenuID:"autoTrollSelector"
+};*/
+HHStoredVars_HHStoredVars.HHAuto_Temp_autoTrollBattleSaveQuest =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_burst =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_charLevel =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_filteredGirlsList =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_haremGirlActions =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_haremGirlMode =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_haremGirlLimit =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_eventsGirlz =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_eventGirl =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_autoChampsEventGirls =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+    //isValid:/^\[({"girl_id":"(\d)+","champ_id":"(\d)+","girl_shards":"(\d)+","girl_name":"([^"])+","event_id":"([^"])+"},?)+\]$/
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_trollWithGirls =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_fought =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_haveAff =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_haveExp =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_haveBooster =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_hideBeatenOppo =
+{
+    default:"0",
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_LeagueOpponentList =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp",
+    isValid:/^{"expirationDate":\d+,"opponentsList":{("\d+":{((("(win|loss|avgTurns)":\d*[.,]?\d+)|("scoreClass":"(minus|plus|close)")|("points":{("\d{1,3}":\d*[.,]?\d+,?)+})),?)+},?)+}}$/
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_LeagueTempOpponentList =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp",
+    isValid:/^{"expirationDate":\d+,"opponentsList":{("\d+":{((("(win|loss|avgTurns|expectedValue)":\d*[.,]?\d+)|("scoreClass":"(minus|plus|close)")|("points":{("\d{1,3}":\d*[.,]?\d+,?)+})),?)+},?)+}}$/
+};
+/*HHStoredVars.HHAuto_Temp_opponentsListExpirationDate =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};*/
+HHStoredVars_HHStoredVars.HHAuto_Temp_paranoiaLeagueBlocked =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_paranoiaQuestBlocked =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_paranoiaSpendings =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_pinfo =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_PopToStart =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_PopUnableToStart =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_storeContents =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_Timers =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_NextSwitch =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_Totalpops =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_currentlyAvailablePops =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_CheckSpentPoints =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_eventsList =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_bossBangTeam =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_LeagueSavedData =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_HaremSize =
+    {
+    storage:"localStorage",
+    HHType:"Temp",
+    isValid:/{"count":(\d)+,"count_date":(\d)+}/
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_LastPageCalled =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_PoVEndDate =
+    {
+    storage:"localStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_PoGEndDate =
+    {
+    storage:"localStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_missionsGiftLeft =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_defaultCustomHaremSort =
+    {
+    storage:"localStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_unkownPagesList =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_trollPoints =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+
+;// CONCATENATED MODULE: ./src/config/InputPattern.js
+
+
+
+const thousandsSeparator = nThousand(11111).replace(/1+/g, '');
+
+const HHAuto_inputPattern = {
+    nWith1000sSeparator:"[0-9"+thousandsSeparator+"]+",
+
+    //kobanBank:"[0-9]+",
+    buyCombTimer:"[0-9]+",
+    buyMythicCombTimer:"[0-9]+",
+    autoBuyBoostersFilter:"M?B[1-4](;M?B[1-4])*",
+    //calculatePowerLimits:"(\-?[0-9]+;\-?[0-9]+)|default",
+    mousePauseTimeout:"[0-9]+",
+    collectAllTimer:"[1-9][0-9]|[1-9]",
+    autoSalaryTimer:"[0-9]+",
+    autoTrollThreshold:"[1]?[0-9]",
+    eventTrollOrder:"([1-2][0-9]|[1-9])(;([1-2][0-9]|[1-9]))*",
+    autoSeasonThreshold:"[0-9]",
+    autoPantheonThreshold:"[0-9]",
+    bossBangMinTeam:"[1-5]",
+    autoQuestThreshold:"[1-9]?[0-9]",
+    autoLeaguesThreshold:"1[0-4]|[0-9]",
+    autoLeaguesSecurityThreshold:"[0-9]+",
+    autoPowerPlacesIndexFilter:"[1-9][0-9]{0,1}(;[1-9][0-9]{0,1})*",
+    autoChampsFilter:"[1-6](;[1-6])*",
+    autoChampsTeamLoop:"[1-9][0-9]|[1-9]",
+    //autoStats:"[0-9]+",
+    //autoExp:"[0-9]+",
+    //maxExp:"[0-9]+",
+    //autoAff:"[0-9]+",
+    //maxAff:"[0-9]+",
+    menuSellNumber:"[0-9]+",
+    autoClubChampMax:"[0-9]+",
+    menuExpLevel:"[1-4]?[0-9]?[0-9]",
+    minShardsX:"(100|[1-9][0-9]|[0-9])"
+}
+;// CONCATENATED MODULE: ./src/config/index.js
+
+
+
+;// CONCATENATED MODULE: ./src/Helper/ConfigHelper.js
+
+
+
+function getHHScriptVars(id, logNotFound = true)
+{
+    let environnement = "global";
+    if (HHKnownEnvironnements[window.location.hostname] !== undefined)
+    {
+        environnement= HHKnownEnvironnements[window.location.hostname].name;
+    }
+    else
+    {
+        fillHHPopUp("unknownURL","Game URL unknown",'<p>This HH URL is unknown to the script.<br>To add it please open an issue in <a href="https://github.com/Roukys/HHauto/issues" target="_blank">Github</a> with following informations : <br>Hostname : '+window.location.hostname+'<br>gameID : '+$('body[page][id]').attr('id')+'<br>You can also use this direct link : <a  target="_blank" href="https://github.com/Roukys/HHauto/issues/new?template=enhancement_request.md&title=Support%20for%20'+window.location.hostname+'&body=Please%20add%20new%20URL%20with%20these%20infos%20%3A%20%0A-%20hostname%20%3A%20'+window.location.hostname+'%0A-%20gameID%20%3A%20'+$('body[page][id]').attr('id')+'%0AThanks">Github issue</a></p>');
+    }
+    if (HHEnvVariables[environnement] !== undefined && HHEnvVariables[environnement][id] !== undefined)
+    {
+        return HHEnvVariables[environnement][id];
+    }
+    else
+    {
+        if (HHEnvVariables["global"] !== undefined && HHEnvVariables["global"][id] !== undefined )
+        {
+            return HHEnvVariables["global"][id];
+        }
+        else
+        {
+            if (logNotFound)
+            {
+                LogUtils_logHHAuto("not found var for "+environnement+"/"+id);
+            }
+            return null;
+        }
+    }
+}
+;// CONCATENATED MODULE: ./src/Helper/NumberHelper.js
+function add1000sSeparator1()
+{
+    var nToFormat = this.value;
+    this.value = add1000sSeparator(nToFormat);
+}
+
+function add1000sSeparator(nToFormat)
+{
+    return nThousand(remove1000sSeparator(nToFormat));
+}
+
+function remove1000sSeparator(nToFormat)
+{
+    return Number(nToFormat.replace(/\D/g, ''));
+}
+
+function nThousand(x) {
+    if (typeof x != 'number') {
+        x = 0;
+    }
+    return x.toLocaleString();
+}
+
+// Numbers: rounding to K, M, G and T
+function nRounding(num, digits, updown) {
+    var power = [
+        { value: 1, symbol: '' },
+        { value: 1E3, symbol: 'K' },
+        { value: 1E6, symbol: 'M' },
+        { value: 1E9, symbol: 'B' },
+        { value: 1E12, symbol: 'T' },
+    ];
+    var i;
+    for (i = power.length - 1; i > 0; i--) {
+        if (num >= power[i].value) {
+            break;
+        }
+    }
+    if (updown == 1) {
+        return (Math.ceil(num / power[i].value * Math.pow(10, digits)) / Math.pow(10, digits)).toFixed(digits) + power[i].symbol;
+    }
+    else if (updown == 0) {
+        return (Math.round(num / power[i].value * Math.pow(10, digits)) / Math.pow(10, digits)).toFixed(digits) + power[i].symbol;
+    }
+    else if (updown == -1) {
+        return (Math.floor(num / power[i].value * Math.pow(10, digits)) / Math.pow(10, digits)).toFixed(digits) + power[i].symbol;
+    }
+}
+;// CONCATENATED MODULE: ./src/Helper/HHMenuHelper.js
+
+
+
+
+
+
+
+
+function maskInactiveMenus()
+{
+    let menuIDList =["isEnabledDailyGoals", "isEnabledPoVPoG", "isEnabledPoV", "isEnabledPoG",
+                    "isEnabledSeasonalEvent" , "isEnabledBossBangEvent" , "isEnabledSultryMysteriesEvent",
+                    "isEnabledDailyRewards", "isEnabledFreeBundles", "isEnabledMission","isEnabledContest",
+                    "isEnabledTrollBattle","isEnabledPowerPlaces","isEnabledSalary","isEnabledPachinko","isEnabledQuest","isEnabledSideQuest","isEnabledSeason","isEnabledLeagues",
+                    "isEnabledAllChamps","isEnabledChamps","isEnabledClubChamp","isEnabledPantheon","isEnabledShop"];
+    for (let menu of menuIDList)
+    {
+        if ( document.getElementById(menu) !== null && getHHScriptVars(menu,false) !== null && !getHHScriptVars(menu,false) )
+        {
+            document.getElementById(menu).style.display = "none";
+        }
+    }
+}
+
+function hhButton(textKeyId, buttonId){
+    return `<div class="tooltipHH">`
+                +`<span class="tooltipHHtext">${getTextForUI(textKeyId,"tooltip")}</span>`
+                +`<label class="myButton" id="${buttonId}">${getTextForUI(textKeyId,"elementText")}</label>`
+            +`</div>`;
+}
+
+function hhMenuSwitch(textKeyAndInputId, isEnabledDivId, isKobanSwitch=false){
+    return `<div ${isEnabledDivId ? 'id="'+isEnabledDivId+'"' : '' } class="labelAndButton">`
+        +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
+        +`<div class="tooltipHH">`
+            +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
+            +`<label class="switch"><input id="${textKeyAndInputId}" type="checkbox"><span class="slider round ${isKobanSwitch ? 'kobans' : ''}"></span></label>`
+        +`</div>`
+    +`</div>`;
+}
+
+function hhMenuSwitchWithImg(textKeyAndInputId, imgPath, isKobanSwitch=false) {
+    return `<div class="labelAndButton">`
+        +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
+        +`<div class="imgAndObjectRow">`
+            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/${imgPath}" />`
+            +`<div style="padding-left:5px">`
+                +`<div class="tooltipHH">`
+                    +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
+                    +`<label class="switch"><input id="${textKeyAndInputId}" type="checkbox"><span class="slider round ${isKobanSwitch ? 'kobans' : ''}"></span></label>`
+                +`</div>`
+            +`</div>`
+        +`</div>`
+    +`</div>`;
+}
+
+function hhMenuSelect(textKeyAndInputId) {
+    return `<div class="labelAndButton">`
+        +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
+        +`<div class="tooltipHH">`
+            +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
+            +`<select id="${textKeyAndInputId}"></select>`
+        +`</div>`
+    +`</div>`;
+}
+
+function hhMenuInput(textKeyAndInputId, inputPattern, inputStyle='', inputClass='', inputMode='text') {
+    return `<div class="labelAndButton">`
+        +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
+        +`<div class="tooltipHH">`
+            +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
+            +`<input id="${textKeyAndInputId}" class="${inputClass}" style="${inputStyle}" required pattern="${inputPattern}" type="text" inputMode="${inputMode}">`
+        +`</div>`
+    +`</div>`;
+}
+
+function hhMenuInputWithImg(textKeyAndInputId, inputPattern, inputStyle, imgPath, inputMode='text') {
+    return `<div class="labelAndButton">`
+        +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
+        +`<div class="imgAndObjectRow">`
+            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/${imgPath}" />`
+            +`<div style="padding-left:5px">`
+                +`<div class="tooltipHH">`
+                    +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
+                    +`<input style="${inputStyle}" id="${textKeyAndInputId}" required pattern="${inputPattern}" type="text" inputMode="${inputMode}">`
+                +`</div>`
+            +`</div>`
+        +`</div>`
+    +`</div>`;
+}
+
+function switchHHMenuButton(isActive)
+{
+    var element = document.getElementById("sMenuButton");
+    if(element !== null)
+    {
+        if (StorageHelper_getStoredValue("HHAuto_Setting_master") === "false")
+        {
+            element.style["background-color"] = "red";
+            element.style["background-image"] = "none";
+        }
+        else if (isActive)
+        {
+            element.style["background-color"] = "green";
+            element.style["background-image"] = "none";
+        }
+        else
+        {
+            element.style.removeProperty('background-color');
+            element.style.removeProperty('background-image');
+        }
+    }
+}
+
+function setMenuValues()
+{
+    if (document.getElementById("sMenu") === null)
+    {
+        return;
+    }
+    setDefaults();
+
+    for (let i of Object.keys(HHStoredVars_HHStoredVars))
+    {
+        if (HHStoredVars_HHStoredVars[i].storage !== undefined && HHStoredVars_HHStoredVars[i].HHType !== undefined)
+        {
+            let storageItem = getStorageItem(HHStoredVars_HHStoredVars[i].storage);
+            let menuID = HHStoredVars_HHStoredVars[i].customMenuID !== undefined?HHStoredVars_HHStoredVars[i].customMenuID:i.replace("HHAuto_"+HHStoredVars_HHStoredVars[i].HHType+"_","");
+            if (
+                HHStoredVars_HHStoredVars[i].setMenu !== undefined
+                && storageItem[i] !== undefined
+                && HHStoredVars_HHStoredVars[i].setMenu
+                && HHStoredVars_HHStoredVars[i].valueType !== undefined
+                && HHStoredVars_HHStoredVars[i].menuType !== undefined
+            )
+            {
+                let itemValue = storageItem[i];
+                switch (HHStoredVars_HHStoredVars[i].valueType)
+                {
+                    case "Long Integer":
+                        itemValue = add1000sSeparator(itemValue);
+                        break;
+                    case "Boolean":
+                        itemValue = itemValue === "true";
+                        break;
+                }
+                //console.log(menuID,HHStoredVars[i].menuType,itemValue);
+                document.getElementById(menuID)[HHStoredVars_HHStoredVars[i].menuType] = itemValue;
+            }
+        }
+        else
+        {
+            LogUtils_logHHAuto("HHStoredVar "+i+" has no storage or type defined.");
+        }
+    }
+}
+
+
+function getMenuValues()
+{
+    if (document.getElementById("sMenu") === null)
+    {
+        return;
+    }
+    if (isDisplayedHHPopUp() === 'loadConfig') {return}
+
+    for (let i of Object.keys(HHStoredVars_HHStoredVars))
+    {
+        if (HHStoredVars_HHStoredVars[i].storage !== undefined && HHStoredVars_HHStoredVars[i].HHType !== undefined)
+        {
+            let storageItem = getStorageItem(HHStoredVars_HHStoredVars[i].storage);
+            let menuID = HHStoredVars_HHStoredVars[i].customMenuID !== undefined?HHStoredVars_HHStoredVars[i].customMenuID:i.replace("HHAuto_"+HHStoredVars_HHStoredVars[i].HHType+"_","");
+            if (
+                HHStoredVars_HHStoredVars[i].getMenu !== undefined
+                && document.getElementById(menuID) !== null
+                && HHStoredVars_HHStoredVars[i].getMenu
+                && HHStoredVars_HHStoredVars[i].valueType !== undefined
+                && HHStoredVars_HHStoredVars[i].menuType !== undefined
+            )
+            {
+                let currentValue = storageItem[i];
+                let menuValue = String(document.getElementById(menuID)[HHStoredVars_HHStoredVars[i].menuType]);
+                switch (HHStoredVars_HHStoredVars[i].valueType)
+                {
+                    case "Long Integer":
+                        menuValue = String(remove1000sSeparator(menuValue));
+                        break;
+                }
+                //console.log(menuID,HHStoredVars[i].menuType,menuValue,document.getElementById(menuID),HHStoredVars[i].valueType);
+                storageItem[i] = menuValue;
+                //console.log(i,currentValue, menuValue);
+                if (currentValue !== menuValue && HHStoredVars_HHStoredVars[i].newValueFunction !== undefined)
+                {
+                    //console.log(currentValue,menuValue);
+                    HHStoredVars_HHStoredVars[i].newValueFunction.apply();
+                }
+            }
+        }
+        else
+        {
+            LogUtils_logHHAuto("HHStoredVar "+i+" has no storage or type defined.");
+        }
+    }
+    setDefaults();
+}
+
+
+function preventKobanUsingSwitchUnauthorized()
+{
+
+    if (this.checked && !document.getElementById("spendKobans0").checked)
+    {
+        let idToDisable = this.id;
+        setTimeout(function(){document.getElementById(idToDisable).checked = false;},500);
+    }
+}
+
+function addEventsOnMenuItems()
+{
+    for (let i of Object.keys(HHStoredVars_HHStoredVars))
+    {
+        //console.log(i);
+        if (HHStoredVars_HHStoredVars[i].HHType !== undefined )
+        {
+            let menuID = HHStoredVars_HHStoredVars[i].customMenuID !== undefined?HHStoredVars_HHStoredVars[i].customMenuID:i.replace("HHAuto_"+HHStoredVars_HHStoredVars[i].HHType+"_","");
+            if ( HHStoredVars_HHStoredVars[i].valueType === "Long Integer")
+            {
+                document.getElementById(menuID).addEventListener("keyup",add1000sSeparator1);
+            }
+            if (HHStoredVars_HHStoredVars[i].events !== undefined )
+            {
+                for (let event of Object.keys(HHStoredVars_HHStoredVars[i].events))
+                {
+                    document.getElementById(menuID).addEventListener(event,HHStoredVars_HHStoredVars[i].events[event]);
+                }
+            }
+            if (HHStoredVars_HHStoredVars[i].kobanUsing !== undefined && HHStoredVars_HHStoredVars[i].kobanUsing)
+            {
+                document.getElementById(menuID).addEventListener("change", preventKobanUsingSwitchUnauthorized);
+            }
+            if (HHStoredVars_HHStoredVars[i].menuType !== undefined && HHStoredVars_HHStoredVars[i].menuType === "checked")
+            {
+                document.getElementById(menuID).addEventListener("change",function ()
+                                                                 {
+                    if (HHStoredVars_HHStoredVars[i].newValueFunction !== undefined)
+                    {
+                        HHStoredVars_HHStoredVars[i].newValueFunction.apply();
+                    }
+                    StorageHelper_setStoredValue(i,this.checked)
+                });
+            }
+        }
+    }
+}
+
+
+function getMenu() {
+    
+    // Add UI buttons.
+    return `<div id="sMenu" class="HHAutoScriptMenu" style="display: none;">`
+        +`<div style="position: absolute;left: 36%;color: #F00">${getTextForUI("noOtherScripts","elementText")}</div>`
+        +`<div class="optionsRow">`
+            +`<div class="optionsColumn" style="min-width: 185px;">`
+                +`<div style="padding:3px; display:flex; flex-direction:column;">`
+                    +`<span>HH Automatic ++</span>`
+                    +`<span style="font-size:smaller;">Version ${GM_info.script.version}</span>`
+                    +`<div class="internalOptionsRow" style="padding:3px">`
+                        + hhButton('gitHub', 'git')
+                        + hhButton('ReportBugs', 'ReportBugs')
+                        + hhButton('DebugMenu', 'DebugMenu')
+                    +`</div>`
+                    +`<div class="internalOptionsRow" style="padding:3px">`
+                        + hhButton('saveConfig', 'saveConfig')
+                        + hhButton('loadConfig', 'loadConfig')
+                    +`</div>`
+                    +`<div class="internalOptionsRow" style="padding:3px">`
+                        + hhButton('saveDefaults', 'saveDefaults')
+                    +`</div>`
+                +`</div>`
+                +`<div class="optionsBoxWithTitle">`
+                    +`<div class="optionsBoxTitle">`
+                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/panel.svg" />`
+                        +`<span class="optionsBoxTitle">${getTextForUI("globalTitle","elementText")}</span>`
+                    +`</div>`
+                    +`<div class="rowOptionsBox">`
+                        +`<div class="optionsColumn">`
+                            + hhMenuSwitch('master') // Master switch
+                            + hhMenuSwitch('paranoia')
+                            +`<div id="isEnabledMousePause" class="labelAndButton">`
+                                +`<span class="HHMenuItemName">${getTextForUI("mousePause","elementText")}</span>`
+                                +`<div class="tooltipHH">`
+                                    +`<span class="tooltipHHtext">${getTextForUI("mousePause","tooltip")}</span>`
+                                    +`<label class="switch">`
+                                        +`<input id="mousePause" type="checkbox">`
+                                        +`<span class="slider round">`
+                                        +`</span>`
+                                    +`</label>`
+                                    +`<input style="text-align:center; width:40px" id="mousePauseTimeout" required pattern="${HHAuto_inputPattern.mousePauseTimeout}" type="text">`
+                                +`</div>`
+                            +`</div>`
+                            + hhMenuInput('collectAllTimer', HHAuto_inputPattern.collectAllTimer, 'text-align:center; width:25px')
+                        +`</div>`
+                        +`<div class="optionsColumn">`
+                            + hhMenuSwitch('waitforContest')
+                            + hhMenuSwitch('settPerTab')
+                            + hhMenuSwitch('paranoiaSpendsBefore')
+                            + hhMenuSwitch('autoFreeBundlesCollect', 'isEnabledFreeBundles')
+                            + hhMenuSwitch('collectEventChest')
+                        +`</div>`
+                    +`</div>`
+                +`</div>`
+                +`<div class="optionsBoxWithTitle">`
+                    +`<div class="optionsBoxTitle">`
+                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/pictures/design/ic_hard_currency.png" />`
+                        +`<span class="optionsBoxTitle">Kobans</span>`
+                    +`</div>`
+                    +`<div class="rowOptionsBox">`
+                        + hhMenuSwitchWithImg('spendKobans0', 'design/menu/affil_prog.svg', true)
+                        + hhMenuInputWithImg('kobanBank', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px', 'pictures/design/ic_hard_currency.png' )
+                    +`</div>`
+                +`</div>`
+                +`<div class="optionsBoxWithTitle">`
+                    +`<div class="optionsBoxTitle">`
+                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/sex_friends.svg" />`
+                        +`<span class="optionsBoxTitle">${getTextForUI("displayTitle","elementText")}</span>`
+                    +`</div>`
+                    +`<div class="rowOptionsBox">`
+                        +`<div class="optionsColumn">`
+                            + hhMenuSwitch('showInfo')
+                            + hhMenuSwitch('showInfoLeft')
+                            + hhMenuSwitch('showTooltips')
+                        +`</div>`
+                        +`<div class="optionsColumn">`
+                            + hhMenuSwitch('showCalculatePower')
+                            + hhMenuSwitch('PoAMaskRewards')
+                            + hhMenuSwitch('showAdsBack')
+                            + hhMenuSwitch('showRewardsRecap')
+                        +`</div>`
+                    +`</div>`
+                +`</div>`
+            +`</div>`
+            +`<div class="optionsColumn" style="min-width: 500px;">`
+                +`<div class="optionsRow">`
+                    +`<div class="optionsColumn">`
+                        +`<div class="optionsBoxWithTitle">`
+                            +`<div class="optionsBoxTitle">`
+                                +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/missions.svg" />`
+                                +`<span class="optionsBoxTitle">${getTextForUI("autoActivitiesTitle","elementText")}</span>`
+                            +`</div>`
+                            +`<div class="optionsBox" style="border:none;padding:0">`
+                                +`<div class="internalOptionsRow">`
+                                    +`<div id="isEnabledMission" class="internalOptionsRow optionsBox" style="padding:0;margin:0 3px 0 0;">`
+                                        + hhMenuSwitch('autoMission')
+                                        + hhMenuSwitch('autoMissionCollect')
+                                        + hhMenuSwitch('autoMissionKFirst')
+                                        + hhMenuSwitch('compactMissions')
+                                    +`</div>`
+                                    +`<div id="isEnabledContest" class="internalOptionsRow optionsBox" style="padding:0;margin:0 0 0 3px;">`
+                                        + hhMenuSwitch('autoContest')
+                                        + hhMenuSwitch('compactEndedContests')
+                                    +`</div>`
+                                +`</div>`
+                            +`</div>`
+                        +`</div>`
+                        +`<div id="isEnabledPowerPlaces" class="optionsBoxWithTitle">`
+                            +`<div class="optionsBoxTitle">`
+                                +`<span class="optionsBoxTitle">${getTextForUI("autoPowerPlaces","elementText")}</span>`
+                            +`</div>`
+                            +`<div class="optionsBox">`
+                                +`<div class="internalOptionsRow">`
+                                    + hhMenuSwitch('autoPowerPlaces')
+                                    + hhMenuInput('autoPowerPlacesIndexFilter', HHAuto_inputPattern.autoPowerPlacesIndexFilter, '' )
+                                    + hhMenuSwitch('autoPowerPlacesAll')
+                                +`</div>`
+                                +`<div class="internalOptionsRow">`
+                                    + hhMenuSwitch('autoPowerPlacesPrecision')
+                                    + hhMenuSwitch('autoPowerPlacesInverted')
+                                    + hhMenuSwitch('autoPowerPlacesWaitMax')
+                                    + hhMenuSwitch('compactPowerPlace')
+                                +`</div>`
+                            +`</div>`
+                        +`</div>`
+                    +`</div>`
+                    +`<div class="optionsColumn">`
+                        +`<div class="optionsBoxTitle">`
+                        +`</div>`
+                        +`<div id="isEnabledSalary" class="rowOptionsBox">`
+                            +`<div class="internalOptionsRow">`
+                                + hhMenuSwitchWithImg('autoSalary', 'pictures/design/harem.svg')
+                                + hhMenuInput('autoSalaryMinSalary', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
+                                + hhMenuInput('autoSalaryMaxTimer', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
+                            +`</div>`
+                        +`</div>`
+                        +`<div class="optionsRow">`
+                            +`<div id="isEnabledPachinko" class="rowOptionsBox">`
+                                +`<div class="internalOptionsRow" style="justify-content: space-between">`
+                                    + hhMenuSwitchWithImg('autoFreePachinko', 'pictures/design/menu/pachinko.svg')
+                                +`</div>`
+                            +`</div>`
+                            +`<div id="isEnabledQuest" class="rowOptionsBox">`
+                                +`<div class="internalOptionsRow">`
+                                    + hhMenuSwitchWithImg('autoQuest', 'design/menu/forward.svg')
+                                    + hhMenuSwitch('autoSideQuest', 'isEnabledSideQuest')
+                                    + hhMenuInputWithImg('autoQuestThreshold', HHAuto_inputPattern.autoQuestThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_quest.png', 'numeric')
+                                +`</div>`
+                            +`</div>`
+                        +`</div>`
+                        +`<div class="optionsRow" style="justify-content: space-evenly">`
+                            +`<div id="isEnabledDailyGoals" class="optionsBoxWithTitleInline">`
+                                +`<div class="optionsBoxTitle">`
+                                    +`<span class="optionsBoxTitle">${getTextForUI("dailyGoalsTitle","elementText")}</span>`
+                                +`</div>`
+                               // +`<div class="optionsBox">`
+                                    +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                        + hhMenuSwitch('autoDailyGoalsCollect')
+                                        + hhMenuSwitch('compactDailyGoals')
+                                    +`</div>`
+                               // +`</div>`
+                               //
+                            +`</div>`
+                        +`</div>`
+                    +`</div>`
+                +`</div>`
+                +`<div class="optionsRow">`
+                    +`<div id="isEnabledSeason" class="optionsBoxWithTitle">`
+                        +`<div class="optionsBoxTitle">`
+                            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/seasons.svg" />`
+                            +`<span class="optionsBoxTitle">${getTextForUI("autoSeasonTitle","elementText")}</span>`
+                        +`</div>`
+                        +`<div class="optionsBox">`
+                            +`<div class="internalOptionsRow">`
+                                + hhMenuSwitch('autoSeason')
+                                + hhMenuSwitch('autoSeasonCollect')
+                                + hhMenuSwitch('autoSeasonCollectAll')
+                                + hhMenuSwitch('SeasonMaskRewards')
+                            +`</div>`
+                            +`<div class="internalOptionsRow">`
+                                + hhMenuSwitch('autoSeasonPassReds', '', true)
+                                + hhMenuInputWithImg('autoSeasonThreshold', HHAuto_inputPattern.autoSeasonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_kiss.png', 'numeric' )
+                            +`</div>`
+                        +`</div>`
+                    +`</div>`
+                    +`<div id="isEnabledLeagues" class="optionsBoxWithTitle">`
+                        +`<div class="optionsBoxTitle">`
+                            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/leaderboard.svg" />`
+                            +`<span class="optionsBoxTitle">${getTextForUI("autoLeaguesTitle","elementText")}</span>`
+                        +`</div>`
+                        +`<div class="optionsBox">`
+                            +`<div class="internalOptionsRow">`
+                                + hhMenuSwitch('autoLeagues')
+                                +`<div style="display:none">`
+                                + hhMenuSwitch('autoLeaguesPowerCalc')
+                                +`</div>`
+                                + hhMenuSwitch('autoLeaguesCollect')
+                                + hhMenuSwitch('leagueListDisplayPowerCalc')
+                            +`</div>`
+                            +`<div class="internalOptionsRow">`
+                                + hhMenuSelect('autoLeaguesSelector')
+                                + hhMenuSwitch('autoLeaguesAllowWinCurrent')
+                                + hhMenuInputWithImg('autoLeaguesThreshold', HHAuto_inputPattern.autoLeaguesThreshold, 'text-align:center; width:25px', 'pictures/design/league_points.png', 'numeric' )
+                                + hhMenuInput('autoLeaguesSecurityThreshold', HHAuto_inputPattern.autoLeaguesSecurityThreshold, 'text-align:center; width:25px', '', 'numeric' )
+                            +`</div>`
+                        +`</div>`
+                    +`</div>`
+                +`</div>`
+                +`<div id="isEnabledPoVPoG" class="optionsRow">`
+                    +`<div id="isEnabledPoV" class="optionsBoxWithTitle">`
+                        +`<div class="optionsBoxTitle">`
+                            +`<span class="optionsBoxTitle">${getTextForUI("povTitle","elementText")}</span>`
+                        +`</div>`
+                        +`<div class="optionsBox">`
+                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                + hhMenuSwitch('PoVMaskRewards')
+                                + hhMenuSwitch('autoPoVCollect')
+                                + hhMenuSwitch('autoPoVCollectAll')
+                            +`</div>`
+                        +`</div>`
+                    +`</div>`
+                    +`<div id="isEnabledPoG" class="optionsBoxWithTitle">`
+                        +`<div class="optionsBoxTitle">`
+                            +`<span class="optionsBoxTitle">${getTextForUI("pogTitle","elementText")}</span>`
+                        +`</div>`
+                        +`<div id="isEnabledPoVPoG" class="optionsBox">`
+                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                + hhMenuSwitch('PoGMaskRewards')
+                                + hhMenuSwitch('autoPoGCollect')
+                                + hhMenuSwitch('autoPoGCollectAll')
+                            +`</div>`
+                        +`</div>`
+                    +`</div>`
+                +`</div>`
+                +`<div id="isEnabledTrollBattle" class="optionsBoxWithTitle">`
+                    +`<div class="optionsBoxTitle">`
+                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/pictures/design/menu/map.svg" />`
+                        +`<span class="optionsBoxTitle">${getTextForUI("autoTrollTitle","elementText")}</span>`
+                    +`</div>`
+                    +`<div class="optionsBox">`
+                        +`<div class="internalOptionsRow" style="justify-content: space-between">`
+                            + hhMenuSwitch('autoTrollBattle')
+                            + hhMenuSelect('autoTrollSelector')
+                            + hhMenuInputWithImg('autoTrollThreshold', HHAuto_inputPattern.autoTrollThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png', 'numeric' )
+                        +`</div>`
+                        +`<div class="internalOptionsRow">`
+                            + hhMenuSwitch('useX10Fights', '', true)
+                            + hhMenuSwitch('useX10FightsAllowNormalEvent')
+                            + hhMenuInput('minShardsX10', HHAuto_inputPattern.minShardsX, 'text-align:center; width:7em')
+                            + hhMenuSwitch('useX50Fights', '', true)
+                            + hhMenuSwitch('useX50FightsAllowNormalEvent')
+                            + hhMenuInput('minShardsX50', HHAuto_inputPattern.minShardsX, 'text-align:center; width:7em')
+                        +`</div>`
+                        +`<div class="internalOptionsRow">`
+                            + hhMenuSwitch('plusEvent')
+                            + hhMenuInput('eventTrollOrder', HHAuto_inputPattern.eventTrollOrder, 'width:120px')
+                            + hhMenuSwitch('buyCombat', '', true)
+                            + hhMenuInput('buyCombTimer', HHAuto_inputPattern.buyCombTimer, 'text-align:center; width:50%', '', 'numeric')
+                        +`</div>`
+                        +`<div class="internalOptionsRow">`
+                            + hhMenuSwitch('plusEventMythic')
+                            + hhMenuSwitch('autoTrollMythicByPassParanoia')
+                            + hhMenuSwitch('buyMythicCombat', '', true)
+                            + hhMenuInput('buyMythicCombTimer', HHAuto_inputPattern.buyMythicCombTimer, 'text-align:center; width:50%', '', 'numeric')
+                        +`</div>`
+                    +`</div>`
+                +`</div>`
+            +`</div>`
+            +`<div class="optionsColumn" style="width: 340px;">`
+                +`<div id="isEnabledAllChamps" class="optionsBoxWithTitle">`
+                    +`<div class="optionsBoxTitle">`
+                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
+                        +`<span class="optionsBoxTitle">${getTextForUI("autoChampsTitle","elementText")}</span>`
+                    +`</div>`
+                    +`<div class="optionsBox">`
+                        +`<div id="isEnabledChamps" class="internalOptionsRow">`
+                            + hhMenuSwitch('autoChamps')
+                            + hhMenuSwitch('autoChampsForceStart')
+                            + hhMenuSwitchWithImg('autoChampsUseEne', 'pictures/design/ic_energy_quest.png')
+                            + hhMenuInput('autoChampsFilter', HHAuto_inputPattern.autoChampsFilter, 'text-align:center; width:55px')
+                            + hhMenuSwitch('autoChampsForceStartEventGirl')
+                        +`</div>`
+                        +`<div id="isEnabledClubChamp" class="internalOptionsRow separator">`
+                            + hhMenuSwitch('autoClubChamp')
+                            + hhMenuSwitch('autoClubForceStart')
+                            + hhMenuInputWithImg('autoClubChampMax', HHAuto_inputPattern.autoClubChampMax, 'text-align:center; width:45px', 'pictures/design/champion_ticket.png', 'numeric')
+                            + hhMenuSwitch('showClubButtonInPoa')
+                        +`</div>`
+                        +`<div class="internalOptionsRow separator">`
+                            + hhMenuInput('autoChampsTeamLoop', HHAuto_inputPattern.autoChampsTeamLoop, 'text-align:center; width:25px', '', 'numeric')
+                            + hhMenuSwitch('autoChampsTeamKeepSecondLine')
+                        +`</div>`
+                    +`</div>`
+                +`</div>`
+                +`<div id="isEnabledPantheon" class="optionsBoxWithTitleInline">`
+                    +`<div class="optionsBoxTitle">`
+                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
+                        +`<span class="optionsBoxTitle">${getTextForUI("autoPantheonTitle","elementText")}</span>`
+                    +`</div>`
+                    // +`<div class="optionsBox">`
+                        +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                            + hhMenuSwitch('autoPantheon')
+                            + hhMenuInputWithImg('autoPantheonThreshold', HHAuto_inputPattern.autoPantheonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg' , 'numeric')
+                        +`</div>`
+                    // +`</div>`
+                +`</div>`
+                +`<div id="isEnabledShop" class="optionsBoxWithTitle">`
+                    +`<div class="optionsBoxTitle">`
+                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/shop.svg" />`
+                        +`<span class="optionsBoxTitle">${getTextForUI("autoBuy","elementText")}</span>`
+                    +`</div>`
+                    +`<div class="optionsBox">`
+                        +`<div class="internalOptionsRow">`
+                            + hhMenuSwitchWithImg('autoStatsSwitch', 'design/ic_plus.svg')
+                            + hhMenuInput('autoStats', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
+                        +`</div>`
+                        +`<div class="internalOptionsRow">`
+                            + hhMenuSwitchWithImg('autoExpW', 'design/ic_books_gray.svg')
+                            + hhMenuInput('maxExp', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:60px')
+                            + hhMenuInput('autoExp', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
+                        +`</div>`
+                        +`<div class="internalOptionsRow">`
+                            + hhMenuSwitchWithImg('autoAffW', 'design/ic_gifts_gray.svg')
+                            + hhMenuInput('maxAff', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:60px')
+                            + hhMenuInput('autoAff', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
+                        +`</div>`
+                        +`<div class="internalOptionsRow">`
+                            + hhMenuSwitchWithImg('autoBuyBoosters', 'design/ic_boosters_gray.svg', true)
+                            + hhMenuInput('maxBooster', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
+                            + hhMenuInput('autoBuyBoostersFilter', HHAuto_inputPattern.autoBuyBoostersFilter, 'text-align:center; width:70px')
+                        +`</div>`
+                        +`<div class="internalOptionsRow">`
+                            + hhMenuSwitchWithImg('showMarketTools', 'design/menu/panel.svg')
+                            + hhMenuSwitch('updateMarket')
+                        +`</div>`
+                    +`</div>`
+                +`</div>`
+                +`<div id="isEnabledSeasonalEvent" class="optionsBoxWithTitle">`
+                    +`<div class="optionsBoxTitle">`
+                        +`<span class="optionsBoxTitle">${getTextForUI("seasonalEventTitle","elementText")}</span>`
+                    +`</div>`
+                    +`<div class="optionsBox">`
+                        +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                            + hhMenuSwitch('SeasonalEventMaskRewards')
+                            + hhMenuSwitch('autoSeasonalEventCollect')
+                            + hhMenuSwitch('autoSeasonalEventCollectAll')
+                        +`</div>`
+                    +`</div>`
+                +`</div>`
+                +`<div class="optionsRow" style="justify-content: space-evenly">`
+                    +`<div id="isEnabledSultryMysteriesEvent" class="optionsBoxWithTitle">`
+                        +`<div class="optionsBoxTitle">`
+                            +`<span class="optionsBoxTitle">${getTextForUI("sultryMysteriesEventTitle","elementText")}</span>`
+                        +`</div>`
+                        +`<div class="optionsBox">`
+                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                + hhMenuSwitch('sultryMysteriesEventRefreshShop')
+                            +`</div>`
+                        +`</div>`
+                    +`</div>`
+                    +`<div id="isEnabledBossBangEvent" class="optionsBoxWithTitle">`
+                        +`<div class="optionsBoxTitle">`
+                            +`<span class="optionsBoxTitle">${getTextForUI("bossBangEventTitle","elementText")}</span>`
+                        +`</div>`
+                        +`<div class="optionsBox">`
+                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                + hhMenuSwitch('bossBangEvent')
+                                + hhMenuInput('bossBangMinTeam', HHAuto_inputPattern.bossBangMinTeam, 'text-align:center; width:25px', '', 'numeric')
+                            +`</div>`
+                        +`</div>`
+                    +`</div>`
+                +`</div>`
+            +`</div>`
+        +`</div>`
+    +`</div>`
+}
+;// CONCATENATED MODULE: ./src/Helper/StorageHelper.js
+
+
+
+
+
+
+
+function getStorage()
+{
+    return StorageHelper_getStoredValue("HHAuto_Setting_settPerTab") === "true"?sessionStorage:localStorage;
+}
+
+function StorageHelper_getStoredValue(inVarName)
+{
+    if (HHStoredVars_HHStoredVars.hasOwnProperty(inVarName))
+    {
+        const storedValue = getStorageItem(HHStoredVars_HHStoredVars[inVarName].storage)[inVarName];
+        if(HHStoredVars_HHStoredVars[inVarName].kobanUsing) {
+            // Check main switch for spenind Koban
+            return StorageHelper_getStoredValue('HHAuto_Setting_spendKobans0') === "true" ? storedValue : "false";
+        }
+        return storedValue
+    }
+    return undefined;
+}
+
+function deleteStoredValue(inVarName)
+{
+    if (HHStoredVars_HHStoredVars.hasOwnProperty(inVarName))
+    {
+        getStorageItem(HHStoredVars_HHStoredVars[inVarName].storage).removeItem(inVarName);
+    }
+}
+
+function StorageHelper_setStoredValue(inVarName, inValue)
+{
+    if (HHStoredVars_HHStoredVars.hasOwnProperty(inVarName))
+    {
+        getStorageItem(HHStoredVars_HHStoredVars[inVarName].storage)[inVarName] = inValue;
+    }
+}
+
+
+function extractHHVars(dataToSave,extractLog = false,extractTemp=true,extractSettings=true)
+{
+    let storageType;
+    let storageName;
+    let currentStorageName = StorageHelper_getStoredValue("HHAuto_Setting_settPerTab") ==="true"?"sessionStorage":"localStorage";
+    let variableName;
+    let storageItem;
+    let varType;
+    for (let i of Object.keys(HHStoredVars_HHStoredVars))
+    {
+        varType = HHStoredVars_HHStoredVars[i].HHType;
+        if (varType === "Setting" && extractSettings || varType === "Temp" && extractTemp)
+        {
+            storageType = HHStoredVars_HHStoredVars[i].storage;
+            variableName = i;
+            storageName = storageType;
+            storageItem = getStorageItem(storageType);
+            if (storageType === 'Storage()')
+            {
+                storageName = currentStorageName;
+            }
+            if (variableName !== "HHAuto_Temp_Logging")
+            {
+                dataToSave[storageName+"."+variableName] = StorageHelper_getStoredValue(variableName);
+            }
+        }
+    }
+    if (extractLog)
+    {
+        dataToSave["HHAuto_Temp_Logging"] = JSON.parse(sessionStorage.getItem('HHAuto_Temp_Logging'));
+    }
+    return dataToSave;
+}
+
+function saveHHVarsSettingsAsJSON() {
+    var dataToSave={};
+    extractHHVars(dataToSave,false,false,true);
+    var name='HH_SaveSettings_'+Date.now()+'.json';
+    const a = document.createElement('a')
+    a.download = name
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(dataToSave)], {type: 'application/json'}))
+    a.click()
+}
+
+function getStorageItem(inStorageType)
+{
+    switch (inStorageType)
+    {
+        case 'localStorage' :
+            return localStorage;
+            break;
+        case 'sessionStorage' :
+            return sessionStorage;
+            break;
+        case 'Storage()' :
+            return getStorage();
+            break;
+    }
+}
+
+function migrateHHVars()
+{
+    const varReplacement =
+          [
+              {from:"HHAuto_Setting_MaxAff", to:"HHAuto_Setting_maxAff"},
+              {from:"HHAuto_Setting_MaxExp", to:"HHAuto_Setting_maxExp"},
+              {from:"HHAuto_Setting_autoMissionC", to:"HHAuto_Setting_autoMissionCollect"},
+          ];
+    for(let replacement of varReplacement)
+    {
+        const oldVar = replacement.from;
+        const newVar = replacement.to;
+        if (sessionStorage[oldVar] !== undefined)
+        {
+            sessionStorage[newVar] = sessionStorage[oldVar];
+            sessionStorage.removeItem(oldVar);
+        }
+        if (localStorage[oldVar] !== undefined)
+        {
+            localStorage[newVar] = localStorage[oldVar];
+            localStorage.removeItem(oldVar);
+        }
+    }
+}
+
+function getUserHHStoredVarDefault(inVarName)
+{
+    if (isJSON(StorageHelper_getStoredValue("HHAuto_Setting_saveDefaults")))
+    {
+        let currentDefaults = JSON.parse(StorageHelper_getStoredValue("HHAuto_Setting_saveDefaults"));
+        if (currentDefaults !== null && currentDefaults[inVarName] !== undefined)
+        {
+            return currentDefaults[inVarName];
+        }
+    }
+    return null;
+}
+
+function saveHHStoredVarsDefaults()
+{
+    var dataToSave={};
+    getMenuValues();
+    extractHHVars(dataToSave,false,false,true);
+    let savedHHStoredVars={};
+    for(var i of Object.keys(dataToSave))
+    {
+        let variableName = i.split(".")[1];
+        if (variableName !== "HHAuto_Setting_saveDefaults" && HHStoredVars_HHStoredVars[variableName].default !== dataToSave[i])
+        {
+            savedHHStoredVars[variableName] = dataToSave[i];
+        }
+    }
+    StorageHelper_setStoredValue("HHAuto_Setting_saveDefaults", JSON.stringify(savedHHStoredVars));
+    LogUtils_logHHAuto("HHStoredVar defaults saved !");
+}
+
+function setHHStoredVarToDefault(inVarName)
+{
+    if (HHStoredVars_HHStoredVars[inVarName] !== undefined)
+    {
+        if (HHStoredVars_HHStoredVars[inVarName].default !== undefined && HHStoredVars_HHStoredVars[inVarName].storage !== undefined)
+        {
+            let storageItem;
+            storageItem = getStorageItem(HHStoredVars_HHStoredVars[inVarName].storage);
+
+            let userDefinedDefault = getUserHHStoredVarDefault(inVarName);
+            let isValid = HHStoredVars_HHStoredVars[inVarName].isValid===undefined?true:HHStoredVars_HHStoredVars[inVarName].isValid.test(userDefinedDefault);
+            if (userDefinedDefault !== null && isValid)
+            {
+                LogUtils_logHHAuto("HHStoredVar "+inVarName+" set to user default value : "+userDefinedDefault);
+                storageItem[inVarName] = userDefinedDefault;
+            }
+            else
+            {
+                LogUtils_logHHAuto("HHStoredVar "+inVarName+" set to default value : "+HHStoredVars_HHStoredVars[inVarName].default);
+                storageItem[inVarName] = HHStoredVars_HHStoredVars[inVarName].default;
+            }
+        }
+        else
+        {
+            LogUtils_logHHAuto("HHStoredVar "+inVarName+" either have no storage or default defined.");
+        }
+    }
+    else
+    {
+        LogUtils_logHHAuto("HHStoredVar "+inVarName+" doesn't exist.");
+    }
+}
+
+function getHHStoredVarDefault(inVarName)
+{
+    if (HHStoredVars[inVarName] !== undefined)
+    {
+        if (HHStoredVars[inVarName].default !== undefined)
+        {
+            return HHStoredVars[inVarName].default;
+        }
+        else
+        {
+            logHHAuto("HHStoredVar "+inVarName+" have no default defined.");
+        }
+    }
+    else
+    {
+        logHHAuto("HHStoredVar "+inVarName+" doesn't exist.");
+    }
+}
+
+function debugDeleteAllVars()
+{
+    Object.keys(localStorage).forEach((key) =>
+                                      {
+        if (key.startsWith("HHAuto_Setting_"))
+        {
+            localStorage.removeItem(key);
+        }
+    });
+    Object.keys(sessionStorage).forEach((key) =>
+                                        {
+        if (key.startsWith("HHAuto_Setting_"))
+        {
+            sessionStorage.removeItem(key);
+        }
+    });
+    Object.keys(localStorage).forEach((key) =>
+                                      {
+        if (key.startsWith("HHAuto_Temp_"))
+        {
+            localStorage.removeItem(key);
+        }
+    });
+    Object.keys(sessionStorage).forEach((key) =>
+                                        {
+        if (key.startsWith("HHAuto_Temp_") && key !== "HHAuto_Temp_Logging")
+        {
+            sessionStorage.removeItem(key);
+        }
+    });
+    LogUtils_logHHAuto('Deleted all script vars.');
+}
+
+
+function debugDeleteTempVars()
+{
+    var dataToSave={};
+    extractHHVars(dataToSave,false,false,true);
+    var storageType;
+    var variableName;
+    var storageItem;
+
+    debugDeleteAllVars();
+    setDefaults(true);
+    var keys=Object.keys(dataToSave);
+    for(var i of keys)
+    {
+        storageType=i.split(".")[0];
+        variableName=i.split(".")[1];
+        storageItem = getStorageItem(storageType);
+        LogUtils_logHHAuto(i+':'+ dataToSave[i]);
+        storageItem[variableName] = dataToSave[i];
+    }
+}
+
+
+function getAndStoreCollectPreferences(inVarName, inPopUpText = getTextForUI("menuCollectableText","elementText"))
+{
+    createPopUpCollectables();
+    function createPopUpCollectables()
+    {
+        let menuCollectables = '<div class="HHAutoScriptMenu" style="padding:10px; display:flex;flex-direction:column">'
+        +    '<p>'+inPopUpText+'</p>'
+        +    '<div style="display:flex;">'
+        let count = 0;
+        const possibleRewards = getHHScriptVars("possibleRewardsList");
+        const rewardsToCollect = isJSON(StorageHelper_getStoredValue(inVarName))?JSON.parse(StorageHelper_getStoredValue(inVarName)):[];
+        for (let currentItem of Object.keys(possibleRewards))
+        {
+            //console.log(currentItem,possibleRewards[currentItem]);
+            if (count === 4)
+            {
+                count = 0;
+                menuCollectables+='</div>';
+                menuCollectables+='<div style="display:flex;">';
+            }
+            const checkedBox = rewardsToCollect.includes(currentItem)?"checked":"";
+            menuCollectables+='<div style="display:flex; width:25%">';
+            menuCollectables+='<div class="labelAndButton" style=""><label class="switch"><input id="'+currentItem+'" class="menuCollectablesItem" type="checkbox" '+checkedBox+'><span class="slider round"></span></label><span class="HHMenuItemName">'+possibleRewards[currentItem]+'</span></div>'
+            menuCollectables+='</div>';
+            count++;
+        }
+        menuCollectables+='</div>';
+        menuCollectables+='<div style="display:flex;">';
+        menuCollectables+='<div style="display:flex;width:25%">';
+        menuCollectables+='<div class="labelAndButton" style=""><span class="HHMenuItemName">Toggle All</span><label class="button">';
+        menuCollectables+='<input id="toggleCollectables" class="menuCollectablesItem" type="button" value="Click!"';
+        menuCollectables+='onclick="let allInputs = window.document.querySelectorAll(\'#HHAutoPopupGlobalPopup.menuCollectable .menuCollectablesItem\'); ';
+        menuCollectables+='allInputs.forEach((currentInput) \=\> {currentInput.checked = !currentInput.checked;}); ';
+        menuCollectables+='evt = document.createEvent(\'HTMLevents\'); evt.initEvent(\'change\',true,true); ';
+        menuCollectables+='allInputs[0].dispatchEvent(evt);"><span class="button"></span></label></div>';
+        menuCollectables +=    '</div>'
+            +  '</div>';
+        fillHHPopUp("menuCollectable",getTextForUI("menuCollectable","elementText"),menuCollectables);
+        document.querySelectorAll("#HHAutoPopupGlobalPopup.menuCollectable .menuCollectablesItem").forEach(currentInput =>
+                                                                                                           {
+            currentInput.addEventListener("change",getSelectedCollectables);
+        });
+    }
+
+    function getSelectedCollectables()
+    {
+        let collectablesList = [];
+        document.querySelectorAll("#HHAutoPopupGlobalPopup.menuCollectable .menuCollectablesItem").forEach(currentInput =>
+                                                                                                           {
+            if (currentInput.checked)
+            {
+                //console.log(currentInput.id);
+                collectablesList.push(currentInput.id);
+            }
+        });
+        StorageHelper_setStoredValue(inVarName, JSON.stringify(collectablesList));
+    }
+}
+
+
+
+const Trollz = getHHScriptVars("trollzList");
+const StorageHelper_Leagues = getHHScriptVars("leaguesList");
+
+;// CONCATENATED MODULE: ./src/Utils/BrowserUtils.js
+function getBrowserData(nav) {
+    var data = {};
+
+    var ua = data.uaString = nav.userAgent;
+    var browserMatch = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*([\d\.]+)/i) || [];
+    if (browserMatch[1]) { browserMatch[1] = browserMatch[1].toLowerCase(); }
+    var operaMatch = browserMatch[1] === 'chrome';
+    if (operaMatch) { operaMatch = ua.match(/\bOPR\/([\d\.]+)/); }
+
+    if (/trident/i.test(browserMatch[1])) {
+        var msieMatch = /\brv[ :]+([\d\.]+)/g.exec(ua) || [];
+        data.name = 'msie';
+        data.version = msieMatch[1];
+    }
+    else if (operaMatch) {
+        data.name = 'opera';
+        data.version = operaMatch[1];
+    }
+    else if (browserMatch[1] === 'safari') {
+        var safariVersionMatch = ua.match(/version\/([\d\.]+)/i);
+        data.name = 'safari';
+        data.version = safariVersionMatch[1];
+    }
+    else {
+        data.name = browserMatch[1];
+        data.version = browserMatch[2];
+    }
+
+    var versionParts = [];
+    if (data.version) {
+        var versionPartsMatch = data.version.match(/(\d+)/g) || [];
+        for (var i=0; i < versionPartsMatch.length; i++) {
+            versionParts.push(versionPartsMatch[i]);
+        }
+        if (versionParts.length > 0) { data.majorVersion = versionParts[0]; }
+    }
+    data.name = data.name || '(unknown browser name)';
+    data.version = {
+        full: data.version || '(unknown full browser version)',
+        parts: versionParts,
+        major: versionParts.length > 0 ? versionParts[0] : '(unknown major browser version)'
+    };
+
+    return data.name + ' ' + data.version['full'];
+};
+;// CONCATENATED MODULE: ./src/Utils/LogUtils.js
+
+
+
+function LogUtils_logHHAuto(...args)
+{
+
+    const stackTrace = (new Error()).stack;
+    let match
+    const regExps = [/at Object\.([\w_.]+) \((\S+)\)/, /\n([\w_.]+)@(\S+)/, /\)\n    at ([\w_.]+) \((\S+)\)/];
+    regExps.forEach(element => {
+        if(!(match && match.length >= 2)) match = stackTrace.match(element);
+    });
+    if(!(match && match.length >= 2)) match = ['Unknown','Unknown'];
+
+    const callerName = match[1];
+
+    let currDate = new Date();
+    var prefix = currDate.toLocaleString()+"."+currDate.getMilliseconds()+":"+callerName;
+    var text;
+    var currentLoggingText;
+    var nbLines;
+    var maxLines = 500;
+
+    const getCircularReplacer = () => {
+        const seen = new WeakSet();
+        return (key, value) => {
+            if (typeof value === 'object' && value !== null) {
+                if (seen.has(value)) {
+                    return;
+                }
+                seen.add(value);
+            }
+            return value;
+        };
+    };
+    if (args.length === 1)
+    {
+        if (typeof args[0] === 'string' || args[0] instanceof String)
+        {
+            text = args[0];
+        }
+        else
+        {
+            text = JSON.stringify(args[0], getCircularReplacer(), 2);
+        }
+    }
+    else
+    {
+        text = JSON.stringify(args, getCircularReplacer(), 2);
+    }
+    currentLoggingText = StorageHelper_getStoredValue("HHAuto_Temp_Logging")!==undefined?StorageHelper_getStoredValue("HHAuto_Temp_Logging"):"reset";
+    //console.log("debug : ",currentLoggingText);
+    if (!currentLoggingText.startsWith("{"))
+    {
+        //console.log("debug : delete currentLog");
+        currentLoggingText={};
+    }
+    else
+    {
+
+        currentLoggingText = JSON.parse(currentLoggingText);
+    }
+    nbLines = Object.keys(currentLoggingText).length;
+    //console.log("Debug : Counting log lines : "+nbLines);
+    if( nbLines >maxLines)
+    {
+        var keys=Object.keys(currentLoggingText);
+        //console.log("Debug : removing old lines");
+        for(var i = 0; i < nbLines-maxLines; i++)
+        {
+            //console.log("debug delete : "+currentLoggingText[keys[i]]);
+            delete currentLoggingText[keys[i]];
+        }
+    }
+    let count=1;
+    let newPrefix = prefix;
+    while (currentLoggingText.hasOwnProperty(newPrefix) && count < 10)
+    {
+        newPrefix = prefix + "-" + count;
+        count++;
+    }
+    prefix=newPrefix;
+    console.log(prefix+":"+text);
+    currentLoggingText[prefix]=text;
+
+    StorageHelper_setStoredValue("HHAuto_Temp_Logging", JSON.stringify(currentLoggingText));
+
+}
+
+
+function saveHHDebugLog()
+{
+    var dataToSave={}
+
+    var name='HH_DebugLog_'+Date.now()+'.log';
+    dataToSave['HHAuto_browserVersion']=getBrowserData(window.navigator || navigator);
+    dataToSave['HHAuto_scriptHandler']=GM_info.scriptHandler+' '+GM_info.version;
+    dataToSave['HHAuto_version']=GM_info.script.version;
+    dataToSave['HHAuto_HHSite']=window.location.origin;
+    extractHHVars(dataToSave,true);
+    const a = document.createElement('a')
+    a.download = name
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(dataToSave, null, 2)], {type: 'application/json'}))
+    a.click()
+}
+;// CONCATENATED MODULE: ./src/Utils/Utils.js
+
+
+
+function callItOnce(fn) {
+    var called = false;
+    return function() {
+        if (!called) {
+            called = true;
+            return fn();
+        }
+        return;
+    }
+}
+
+function getCallerFunction()
+{
+    var stackTrace = (new Error()).stack; // Only tested in latest FF and Chrome
+    var callerName = stackTrace.replace(/^Error\s+/, ''); // Sanitize Chrome
+    callerName = callerName.split("\n")[1]; // 1st item is this, 2nd item is caller
+    callerName = callerName.replace(/^\s+at Object./, ''); // Sanitize Chrome
+    callerName = callerName.replace(/ \(.+\)$/, ''); // Sanitize Chrome
+    callerName = callerName.replace(/\@.+/, ''); // Sanitize Firefox
+    return callerName;
+}
+
+function getCallerCallerFunction()
+{
+
+    let stackTrace = (new Error()).stack; // Only tested in latest FF and Chrome
+    let match
+    try {
+        match = stackTrace.match(/at Object\.(\w+) \((\S+)\)/);
+        match[1] // throw error if match is null
+    } catch {
+        // Firefox
+        match = stackTrace.match(/\n(\w+)@(\S+)/);
+    }
+    let [callerName, callerPlace] = [match[1], match[2]]
+
+    try{
+    console.log('Function ' + match[3] + ' at ' + match[4])
+    }catch(err){}
+    /*
+    var callerName;
+    {
+        let re = /([^(]+)@|at ([^(]+) \(/g;
+        let aRegexResult = re.exec(new Error().stack);
+        callerName = aRegexResult[1] || aRegexResult[2];
+    }*/
+    //console.log(callerName);
+    return callerName;
+    //return getCallerCallerFunction.caller.caller.name
+}
+function isFocused()
+{
+    //let isFoc = false;
+    const docFoc = document.hasFocus();
+    //const iFrameFoc = $('iframe').length===0?false:$('iframe')[0].contentWindow.document.hasFocus();
+    //isFoc = docFoc || iFrameFoc;
+    return docFoc;
+}
+function isJSON(str)
+{
+    if (str === undefined || str === null || /^\s*$/.test(str) ) return false;
+    str = str.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@');
+    str = str.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']');
+    str = str.replace(/(?:^|:|,)(?:\s*\[)+/g, '');
+    return (/^[\],:{}\s]*$/).test(str);
+}
+
+
+function replaceCheatClick()
+{
+    is_cheat_click=function(e) {
+        return false;
+    };
+}
+
+function Utils_getCurrentSorting()
+{
+    return localStorage.sort_by;
+}
+
+/* Used ? */
+function waitForKeyElements (selectorTxt,maxMilliWaitTime)
+{
+    var targetNodes;
+    var timer= new Date().getTime() + maxMilliWaitTime;
+    targetNodes = jQuery(selectorTxt);
+
+    while ( targetNodes.length === 0 && Math.ceil(timer)-Math.ceil(new Date().getTime()) > 0)
+    {
+        targetNodes = jQuery(selectorTxt);
+    }
+    if (targetNodes.length === 0)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+
+function myfileLoad_onChange(event)
+{
+    $('#LoadConfError')[0].innerText =' ';
+    if (event.target.files.length == 0) {return}
+    var reader = new FileReader();
+    reader.onload = myfileLoad_onReaderLoad;
+    reader.readAsText(event.target.files[0]);
+}
+
+
+
+function myfileLoad_onReaderLoad(event){
+    var text = event.target.result;
+    var storageType;
+    var storageItem;
+    var variableName;
+
+    //Json validation
+    if (isJSON(text))
+    {
+        LogUtils_logHHAuto('the json is ok');
+        var jsonNewSettings = JSON.parse(event.target.result);
+        //Assign new values to Storage();
+        for (const [key, value] of Object.entries(jsonNewSettings))
+        {
+            storageType=key.split(".")[0];
+            variableName=key.split(".")[1];
+            storageItem = getStorageItem(storageType);
+            LogUtils_logHHAuto(key+':'+ value);
+            storageItem[variableName] = value;
+        }
+        location.reload();
+    }else{
+        $('#LoadConfError')[0].innerText ='Selected file broken!';
+        LogUtils_logHHAuto('the json is Not ok');
+    }
+}
+;// CONCATENATED MODULE: ./src/Utils/HHPopup.js
+
+
+function fillHHPopUp(inClass,inTitle, inContent)
+{
+    if (document.getElementById("HHAutoPopupGlobal") === null)
+    {
+        createHHPopUp();
+    }
+    else
+    {
+        HHPopup_displayHHPopUp();
+    }
+    document.getElementById("HHAutoPopupGlobalContent").innerHTML=inContent;
+    document.getElementById("HHAutoPopupGlobalTitle").innerHTML=inTitle;
+    document.getElementById("HHAutoPopupGlobalPopup").className =inClass;
+}
+
+function createHHPopUp()
+{
+    GM_addStyle('#HHAutoPopupGlobal.HHAutoOverlay { overflow: auto;  z-index:1000;   position: fixed;   top: 0;   bottom: 0;   left: 0;   right: 0;   background: rgba(0, 0, 0, 0.7);   transition: opacity 500ms;     display: flex;   align-items: center; }  '
+    + '#HHAutoPopupGlobalPopup {   margin: auto;   padding: 20px;   background: #fff;   border-radius: 5px;   position: relative;   transition: all 5s ease-in-out; }  '
+    + '#HHAutoPopupGlobalTitle {   margin-top: 0;   color: #333;   font-size: larger; } '
+    + '#HHAutoPopupGlobalClose {   position: absolute;   top: 0;   right: 30px;   transition: all 200ms;   font-size: 50px;   font-weight: bold;   text-decoration: none;   color: #333; } '
+    + '#HHAutoPopupGlobalClose:hover {   color: #06D85F; } '
+    + '#HHAutoPopupGlobalContent .HHAutoScriptMenu .rowLine { display:flex;flex-direction:row;align-items:center;column-gap:20px;justify-content: center; } '
+    + '#HHAutoPopupGlobalContent {   max-height: 30%;   overflow: auto;   color: #333;   font-size: x-small; }'
+    + '#HHAutoPopupGlobalContent .HHAutoScriptMenu .switch {  width: 55px; height: 32px; }'
+    + '#HHAutoPopupGlobalContent .HHAutoScriptMenu input:checked + .slider:before { -webkit-transform: translateX(20px); -ms-transform: translateX(20px); transform: translateX(20px); } '
+    + '#HHAutoPopupGlobalContent .HHAutoScriptMenu .slider.round::before {  width: 22px; height: 22px; bottom: 5px; }');
+
+    let popUp = '<div id="HHAutoPopupGlobal" class="HHAutoOverlay">'
+    +' <div id="HHAutoPopupGlobalPopup">'
+    +'   <h2 id="HHAutoPopupGlobalTitle">Here i am</h2>'
+    +'   <a id="HHAutoPopupGlobalClose">&times;</a>'
+    +'   <div id="HHAutoPopupGlobalContent" class="content">'
+    +'      Thank to pop me out of that button, but now im done so you can close this window.'
+    +'   </div>'
+    +' </div>'
+    +'</div>';
+    $('body').prepend(popUp);
+    document.getElementById("HHAutoPopupGlobalClose").addEventListener("click", function(){
+        maskHHPopUp();
+    });
+    document.addEventListener('keyup', evt => {
+        if (evt.key === 'Escape')
+        {
+            maskHHPopUp();
+        }
+    });
+}
+
+function isDisplayedHHPopUp()
+{
+    if (document.getElementById("HHAutoPopupGlobal") === null)
+    {
+        return false;
+    }
+    if (document.getElementById("HHAutoPopupGlobal").style.display === "none")
+    {
+        return false;
+    }
+    return document.getElementById("HHAutoPopupGlobalPopup").className;
+}
+
+function HHPopup_displayHHPopUp()
+{
+    if (document.getElementById("HHAutoPopupGlobal") === null)
+    {
+        return false;
+    }
+    document.getElementById("HHAutoPopupGlobal").style.display = "";
+    document.getElementById("HHAutoPopupGlobal").style.opacity = 1;
+}
+
+function maskHHPopUp()
+{
+    document.getElementById("HHAutoPopupGlobal").style.display = "none";
+    document.getElementById("HHAutoPopupGlobal").style.opacity = 0;
+}
+
+function checkAndClosePopup(inBurst)
+{
+    const popUp = $('#popup_message[style*="display: block"]');
+    if ((inBurst || isFocused()) && popUp.length > 0)
+    {
+        $('close', popUp).click();
+    }
+}
+;// CONCATENATED MODULE: ./src/Utils/index.js
+
+
+
+
+;// CONCATENATED MODULE: ./src/Helper/BDSMHelper.js
+
+
+
+
+
+function customMatchRating(inSimu) // NOT used ?
+{
+    let matchRating = inSimu.score;
+    var customLimits = getStoredValue("HHAuto_Setting_calculatePowerLimits").split(";");
+    if(customLimits.length === 2 && Number(customLimits[0]) < Number(customLimits[1]))
+    {
+        if (matchRating >= 0)
+        {
+            matchRating = '+' + matchRating;
+        }
+        if ( Number(matchRating) < Number(customLimits[0]) )
+        {
+            return 'r'+matchRating
+        }
+        else
+        {
+            if ( Number(matchRating) < Number(customLimits[1]) )
+            {
+                return 'y'+matchRating
+            }
+            else
+            {
+                return 'g'+matchRating
+            }
+        }
+    }
+    else
+    {
+        if ( getStoredValue("HHAuto_Setting_calculatePowerLimits") !== "default")
+        {
+            setStoredValue("HHAuto_Setting_calculatePowerLimits", "Invalid limits");
+        }
+        if (matchRating >= 0)
+        {
+            matchRating = '+' + matchRating;
+
+            if (inSimu.playerEgoCheck <= 0)
+            {
+                return 'y'+matchRating
+            }
+            else
+            {
+                return 'g'+matchRating
+            }
+        }
+        else {
+            matchRating = matchRating;
+            return 'r'+matchRating
+        }
+    }
+}
+
+let _player;
+let _opponent;
+let _cache;
+let _runs;
+//all following lines credit:Tom208 OCD script
+function calculateBattleProbabilities(player, opponent) {
+    _player = player;
+    _opponent = opponent;
+
+    const setup = x => {
+        x.critMultiplier = 2 + x.bonuses.critDamage;
+        x.dmg = Math.max(0, x.dmg);
+        x.baseAttack = {
+            probability: 1 - x.critchance,
+            damageAmount: Math.ceil(x.dmg),
+            healAmount: Math.ceil(x.dmg * x.bonuses.healOnHit)
+        };
+        x.critAttack = {
+            probability: x.critchance,
+            damageAmount: Math.ceil(x.dmg * x.critMultiplier),
+            healAmount: Math.ceil(x.dmg * x.critMultiplier * x.bonuses.healOnHit)
+        };
+        x.hp = Math.ceil(x.hp);
+    }
+
+    setup(_player);
+    setup(_opponent);
+
+    _cache = {};
+    _runs = 0;
+
+    let ret;
+    try {
+        // start simulation from player's turn
+        ret = playerTurn(_player.hp, _opponent.hp, 0);
+    } catch (error) {
+        return {
+            points: [],
+            win: Number.NaN,
+            loss: Number.NaN,
+            avgTurns: Number.NaN,
+            scoreClass: 'minus'
+        };
+    }
+
+    const sum = ret.win + ret.loss;
+    ret.win /= sum;
+    ret.loss /= sum;
+    ret.scoreClass = ret.win>0.9?'plus':ret.win<0.5?'minus':'close';
+
+    return ret;
+
+
+    function mergeResult(x, xProbability, y, yProbability) {
+        const points = {};
+        Object.entries(x.points).map(([point, probability]) => [point, probability * xProbability])
+            .concat(Object.entries(y.points).map(([point, probability]) => [point, probability * yProbability]))
+            .forEach(([point, probability]) => {
+            points[point] = (points[point] || 0) + probability
+        });
+        const merge = (x, y) => x * xProbability + y * yProbability;
+        const win = merge(x.win, y.win);
+        const loss = merge(x.loss, y.loss);
+        const avgTurns = merge(x.avgTurns, y.avgTurns);
+        return { points, win, loss, avgTurns };
+    }
+
+    function playerTurn(playerHP, opponentHP, turns) {
+        turns += 1;
+        // avoid a stack overflow
+        const maxAllowedTurns = 50;
+        if (turns > maxAllowedTurns) throw new Error();
+
+        // read cache
+        const cachedResult = _cache?.[playerHP]?.[opponentHP];
+        if (cachedResult) return cachedResult;
+
+        // simulate base attack and critical attack
+        const baseAtk = _player.baseAttack;
+        const baseAtkResult = playerAttack(playerHP, opponentHP, baseAtk, turns);
+        const critAtk = _player.critAttack;
+        const critAtkResult = playerAttack(playerHP, opponentHP, critAtk, turns);
+        // merge result
+        const mergedResult = mergeResult(baseAtkResult, baseAtk.probability, critAtkResult, critAtk.probability);
+
+        // count player's turn
+        mergedResult.avgTurns += 1;
+
+        // write cache
+        if (!_cache[playerHP]) _cache[playerHP] = {};
+        if (!_cache[playerHP][opponentHP]) _cache[playerHP][opponentHP] = {};
+        _cache[playerHP][opponentHP] = mergedResult;
+
+        return mergedResult;
+    }
+
+    function playerAttack(playerHP, opponentHP, attack, turns) {
+        // damage
+        opponentHP -= attack.damageAmount;
+
+        // heal on hit
+        playerHP += attack.healAmount;
+        playerHP = Math.min(playerHP, _player.hp);
+
+        // check win
+        if (opponentHP <= 0) {
+            const point = 15 + Math.ceil(10 * playerHP / _player.hp);
+            _runs += 1;
+            return { points: { [point]: 1 }, win: 1, loss: 0, avgTurns: 0 };
+        }
+
+        // next turn
+        return opponentTurn(playerHP, opponentHP, turns);
+    }
+
+    function opponentTurn(playerHP, opponentHP, turns) {
+        // simulate base attack and critical attack
+        const baseAtk = _opponent.baseAttack;
+        const baseAtkResult = opponentAttack(playerHP, opponentHP, baseAtk, turns);
+        const critAtk = _opponent.critAttack;
+        const critAtkResult = opponentAttack(playerHP, opponentHP, critAtk, turns);
+        // merge result
+        return mergeResult(baseAtkResult, baseAtk.probability, critAtkResult, critAtk.probability);
+    }
+
+    function opponentAttack(playerHP, opponentHP, attack, turns) {
+        // damage
+        playerHP -= attack.damageAmount;
+
+        // heal on hit
+        opponentHP += attack.healAmount;
+        opponentHP = Math.min(opponentHP, _opponent.hp);
+
+        // check loss
+        if (playerHP <= 0) {
+            const point = 3 + Math.ceil(10 * (_opponent.hp - opponentHP) / _opponent.hp);
+            _runs += 1;
+            return { points: { [point]: 1 }, win: 0, loss: 1, avgTurns: 0 };
+        }
+
+        // next turn
+        return playerTurn(playerHP, opponentHP, turns);
+    }
+}
+
+function calculateThemeFromElements(elements) {
+    const counts = countElementsInTeam(elements)
+
+    const theme = []
+    Object.entries(counts).forEach(([element, count]) => {
+        if (count >= 3) {
+            theme.push(element)
+        }
+    })
+    return theme;
+}
+
+function countElementsInTeam(elements) {
+    return elements.reduce((a,b)=>{a[b]++;return a}, {
+        fire: 0,
+        stone: 0,
+        sun: 0,
+        water: 0,
+        nature: 0,
+        darkness: 0,
+        light: 0,
+        psychic: 0
+    })
+}
+
+function simulateBattle (player, opponent) {
+    let points
+
+    const playerStartHP = player.hp
+    const opponentStartHP = opponent.hp
+
+    let turns = 0
+
+    while (true) {
+        turns++
+        //your turn
+        let damageAmount = player.dmg
+        if (Math.random() < player.critchance) {
+            damageAmount = player.dmg * player.critMultiplier
+        }
+        let healAmount = Math.min(playerStartHP - player.hp, damageAmount * player.bonuses.healOnHit)
+        opponent.hp -= damageAmount;
+        player.hp += healAmount;
+
+        //check win
+        if(opponent.hp<=0){
+            //count score
+            points = 15+Math.ceil(player.hp/playerStartHP * 10);
+            break;
+        }
+
+        //opp's turn
+        damageAmount = opponent.dmg
+        if (Math.random() < opponent.critchance) {
+            damageAmount = opponent.dmg * opponent.critMultiplier
+        }
+        healAmount = Math.min(opponentStartHP - opponent.hp, damageAmount * opponent.bonuses.healOnHit)
+        player.hp -= damageAmount;
+        opponent.hp += healAmount;
+
+        //check loss
+        if(player.hp<=0){
+            //count score
+            points = 3+Math.ceil((opponentStartHP - opponent.hp)/opponentStartHP * 10);
+            break;
+        }
+    }
+
+    return {points, turns}
+}
+
+/*
+commented        const girlDictionary
+replaced         const girlCount = girlDictionary.size || 800
+              by const girlCount = isJSON(getStoredValue("HHAuto_Temp_HaremSize"))?JSON.parse(getStoredValue("HHAuto_Temp_HaremSize")).count:800;
+              */
+function calculateSynergiesFromTeamMemberElements(elements) {
+    const counts = countElementsInTeam(elements)
+
+    // Only care about those not included in the stats already: fire, stone, sun and water
+    // Assume max harem synergy
+    //const girlDictionary = (typeof(localStorage.HHPNMap) == "undefined") ? new Map(): new Map(JSON.parse(localStorage.HHPNMap));
+    const girlCount = isJSON(StorageHelper_getStoredValue("HHAuto_Temp_HaremSize"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_HaremSize")).count:800;
+    const girlsPerElement = Math.min(girlCount / 8, 100)
+
+    return {
+        critDamage: (0.0035 * girlsPerElement) + (0.1  * counts.fire),
+        critChance: (0.0007 * girlsPerElement) + (0.02 * counts.stone),
+        defReduce:  (0.0007 * girlsPerElement) + (0.02 * counts.sun),
+        healOnHit:  (0.001  * girlsPerElement) + (0.03 * counts.water)
+    }
+}
+/*
+replaced       ELEMENTS
+by getHHScriptVars("ELEMENTS")
+*/
+function calculateDominationBonuses(playerElements, opponentElements) {
+    const bonuses = {
+        player: {
+            ego: 0,
+            attack: 0,
+            chance: 0
+        },
+        opponent: {
+            ego: 0,
+            attack: 0,
+            chance: 0
+        }
+    };
+
+    [
+        {a: playerElements, b: opponentElements, k: 'player'},
+        {a: opponentElements, b: playerElements, k: 'opponent'}
+    ].forEach(({a,b,k})=>{
+        a.forEach(element => {
+            if (getHHScriptVars("ELEMENTS").egoDamage[element] && b.includes(getHHScriptVars("ELEMENTS").egoDamage[element])) {
+                bonuses[k].ego += 0.1
+                bonuses[k].attack += 0.1
+            }
+            if (getHHScriptVars("ELEMENTS").chance[element] && b.includes(getHHScriptVars("ELEMENTS").chance[element])) {
+                bonuses[k].chance += 0.2
+            }
+        })
+    })
+
+    return bonuses
+}
+
+function calculateCritChanceShare(ownHarmony, otherHarmony)
+{
+    return 0.3*ownHarmony/(ownHarmony+otherHarmony)
+}
+;// CONCATENATED MODULE: ./src/Helper/ButtonHelper.js
+
+
+
+function getGoToChangeTeamButton() {
+    // TODO change href and translate
+    return '<div class="change_team_container"><a id="change_team" href="/teams.html" class="blue_button_L" anim-step="afterStartButton"><div>Change team</div></a></div>';
+}
+
+function getGoToClubChampionButton() {
+    return `<button data-href="${getHHScriptVars("pagesURLClubChampion")}" class="blue_button_L hh-club-poa">${getTextForUI("goToClubChampions","elementText")}</button>`;
+}
+;// CONCATENATED MODULE: ./src/Helper/HHHelper.js
+
+
+
+function getHHVars(infoSearched, logging = true)
+{
+    let returnValue = unsafeWindow;
+    if (getHHScriptVars(infoSearched,false) !== null)
+    {
+        infoSearched = getHHScriptVars(infoSearched);
+    }
+
+    let splittedInfoSearched = infoSearched.split(".");
+
+    for (let i=0;i<splittedInfoSearched.length;i++)
+    {
+        if (returnValue[splittedInfoSearched[i]] === undefined)
+        {
+            if (logging)
+            {
+                LogUtils_logHHAuto("HH var not found : "+infoSearched+" ("+splittedInfoSearched[i]+" not defined).");
+            }
+            return null;
+        }
+        else
+        {
+            returnValue = returnValue[splittedInfoSearched[i]];
+        }
+    }
+    return returnValue;
+}
+
+function setHHVars(infoSearched,newValue)
+{
+    let returnValue = unsafeWindow;
+    if (getHHScriptVars(infoSearched,false) !== null)
+    {
+        infoSearched = getHHScriptVars(infoSearched);
+    }
+
+    let splittedInfoSearched = infoSearched.split(".");
+
+    for (let i=0;i<splittedInfoSearched.length;i++)
+    {
+        if (returnValue[splittedInfoSearched[i]] === undefined)
+        {
+            LogUtils_logHHAuto("HH var not found : "+infoSearched+" ("+splittedInfoSearched[i]+" not defined).");
+            return -1;
+        }
+        else if ( i === splittedInfoSearched.length - 1)
+        {
+            returnValue[splittedInfoSearched[i]] = newValue;
+            return 0;
+        }
+        else
+        {
+            returnValue = returnValue[splittedInfoSearched[i]];
+        }
+    }
+}
+
+;// CONCATENATED MODULE: ./src/Helper/TimeHelper.js
+
+
+
+
+
+function getServerTS()
+{
+    let sec_num = parseInt(getHHVars('server_now_ts'), 10);
+    let days = Math.floor(sec_num / 86400);
+    let hours = Math.floor(sec_num / 3600) % 24;
+    let minutes = Math.floor(sec_num / 60) % 60;
+    let seconds = sec_num % 60;
+    return {days:days,hours:hours,minutes:minutes,seconds:seconds};
+}
+
+function TimeHelper_toHHMMSS(secs)  {
+    var sec_num = parseInt(secs, 10);
+    var days = Math.floor(sec_num / 86400);
+    var hours = Math.floor(sec_num / 3600) % 24;
+    var minutes = Math.floor(sec_num / 60) % 60;
+    var seconds = sec_num % 60;
+    var n=0;
+    return [days,hours,minutes,seconds]
+        .map(v => v < 10 ? "0" + v : v)
+        .filter((v,i) => {if (v !== "00"){n++; return true;} return n > 0})
+        .join(":");
+}
+
+function getSecondsLeftBeforeEndOfHHDay()
+{
+    let HHEndOfDay = {days:0,hours:11,minutes:0,seconds:0};
+    let server_TS = getServerTS();
+    HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?0:1;
+    let diffResetTime = (HHEndOfDay.days*86400 + HHEndOfDay.hours * 3600 + HHEndOfDay.minutes * 60) - (server_TS.hours * 3600 + server_TS.minutes * 60);
+    return diffResetTime;
+}
+
+function getSecondsLeftBeforeNewCompetition()
+{
+    let HHEndOfDay = {days:0,hours:11,minutes:30,seconds:0};
+    let server_TS = getServerTS();
+    HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?0:1;
+    let diffResetTime = (HHEndOfDay.days*86400 + HHEndOfDay.hours * 3600 + HHEndOfDay.minutes * 60) - (server_TS.hours * 3600 + server_TS.minutes * 60);
+    return diffResetTime;
+}
+
+function debugDate(sec_num){
+    let days = Math.floor(sec_num / 86400);
+    let hours = Math.floor(sec_num / 3600) % 24;
+    let minutes = Math.floor(sec_num / 60) % 60;
+    let seconds = sec_num % 60;
+    return JSON.stringify({days:days,hours:hours,minutes:minutes,seconds:seconds});
+}
+
+function convertTimeToInt(remainingTimer){
+    let newTimer = 0;
+    if (remainingTimer && remainingTimer.length > 0) {
+        let splittedTime = remainingTimer.split(' ');
+        for (let i = 0; i < splittedTime.length; i++) {
+            let timerSymbol = splittedTime[i].match(/[^0-9]+/)[0];
+            switch (timerSymbol) {
+                case timerDefinitions[hhTimerLocale].days:
+                    newTimer += parseInt(splittedTime[i])*86400;
+                    break;
+                case timerDefinitions[hhTimerLocale].hours:
+                    newTimer += parseInt(splittedTime[i])*3600;
+                    break;
+                case timerDefinitions[hhTimerLocale].minutes:
+                    newTimer += parseInt(splittedTime[i])*60;
+                    break;
+                case timerDefinitions[hhTimerLocale].seconds:
+                    newTimer += parseInt(splittedTime[i]);
+                    break;
+                default:
+                    LogUtils_logHHAuto('Timer symbol not recognized: ' + timerSymbol);
+            }
+        }
+    } else {
+            LogUtils_logHHAuto('No valid timer definitions, reset to 15min');
+            newTimer = 15*60;
+    }
+    return newTimer;
+}
+
+function canCollectCompetitionActive()
+{
+    return StorageHelper_getStoredValue("HHAuto_Setting_waitforContest") !== "true" || getSecondsLeftBeforeNewCompetition() > 35*60 && getSecondsLeftBeforeNewCompetition() < (24*3600-5*60);
+}
+
+
+function getLimitTimeBeforeEnd(){
+    return Number(StorageHelper_getStoredValue("HHAuto_Setting_collectAllTimer")) * 3600;
+}
+
+
+function randomInterval(min,max) // min and max included
+{
+    return Math.floor(Math.random()*(max-min+1)+min);
+}
+;// CONCATENATED MODULE: ./src/Helper/HeroHelper.js
+
+
+
+
+
+
+function getHero()
+{
+    if(unsafeWindow.Hero === undefined)
+    {
+        setTimeout(autoLoop, Number(StorageHelper_getStoredValue("HHAuto_Temp_autoLoopTimeMili")))
+        //logHHAuto(window.wrappedJSObject)
+    }
+    //logHHAuto(unsafeWindow.Hero);
+    return unsafeWindow.Hero;
+}
+
+function doStatUpgrades()
+{
+    //Stats?
+    //logHHAuto('stats');
+    var Hero=getHero();
+    var level=getHHVars('Hero.infos.level');
+    var stats=[getHHVars('Hero.infos.carac1'),getHHVars('Hero.infos.carac2'),getHHVars('Hero.infos.carac3')];
+    var money=getHHVars('Hero.currencies.soft_currency');
+    var count=0;
+    var M=Number(StorageHelper_getStoredValue("HHAuto_Setting_autoStats"));
+    var MainStat=stats[getHHVars('Hero.infos.class')-1];
+    var Limit=getHHVars('Hero.infos.level')*30;//getHHVars('Hero.infos.level')*19+Math.min(getHHVars('Hero.infos.level'),25)*21;
+    var carac=getHHVars('Hero.infos.class');
+    var mp=0;
+    var mults=[60,30,10,1];
+    for (var car=0; car<3; car++)
+    {
+        //logHHAuto('stat '+carac);
+        var s=stats[carac-1];
+        for (var mu=0;mu<5;mu++)
+        {
+            var mult=mults[mu];
+            var price = 5+s*2+(Math.max(0,s-2000)*2)+(Math.max(0,s-4000)*2)+(Math.max(0,s-6000)*2)+(Math.max(0,s-8000)*2);
+            price*=mult;
+            if (carac==getHHVars('Hero.infos.class'))
+            {
+                mp=price;
+            }
+            //logHHAuto('money: '+money+' stat'+carac+': '+stats[carac-1]+' price: '+price);
+            if ((stats[carac-1]+mult)<=Limit && (money-price)>M && (carac==getHHVars('Hero.infos.class') || price<mp/2 || (MainStat+mult)>Limit))
+            {
+                count++;
+                LogUtils_logHHAuto('money: '+money+' stat'+carac+': '+stats[carac-1]+' [+'+mult+'] price: '+price);
+                money-=price;
+                var params = {
+                    carac: "carac" + carac,
+                    action: "hero_update_stats",
+                    nb: mult
+                };
+                hh_ajax(params, function(data) {
+                    Hero.update("soft_currency", 0 - price, true);
+                });
+                setTimeout(doStatUpgrades, randomInterval(300,500));
+                return;
+                break;
+            }
+        }
+        carac=(carac+1)%3+1;
+    }
+}
 ;// CONCATENATED MODULE: ./src/Helper/UrlHelper.js
 function queryStringGetParam(inQueryString, inParam)
 {
@@ -12279,13 +12337,6 @@ class RewardHelper {
 
         return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
     }
-    static getSeasonalNotClaimedRewards(){
-        const arrayz = $('.seasonal-tier.unclaimed, .mega-tier.free-slot:has(button.mega-claim-reward)');
-        const freeSlotSelectors = ".slot";
-        const paidSlotSelectors = ""; // Not available
-
-        return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
-    }
     static getSeasonNotClaimedRewards(){
         const arrayz = $('.rewards_pair');
         const freeSlotSelectors = ".free_reward.reward_is_claimable .slot";
@@ -12361,28 +12412,6 @@ class RewardHelper {
                     target.after($('<div id='+hhRewardId+' class="HHRewardNotCollected"><h1 style="font-size: small;">'+getTextForUI('rewardsToCollectTitle',"elementText")+'</h1>' + rewardsHtml + '</div>'));
                 } else {
                     target.after($('<div id='+hhRewardId+' style="display:none;"></div>'));
-                }
-            }
-        } catch(err) {
-            LogUtils_logHHAuto("ERROR:", err.message);
-            target.append($('<div id='+hhRewardId+' style="display:none;"></div>'));
-        }
-    }
-    static displayRewardsSeasonalDiv(isMegaSeasonalEvent=false) {
-        const target = $('.event-resource-location');
-        const hhRewardId = 'HHSeasonalRewards';
-        try{
-            if($('#' + hhRewardId).length <= 0) {
-                const rewardCountByType = RewardHelper.getSeasonalNotClaimedRewards();
-                // logHHAuto("Rewards seasonal event:", JSON.stringify(rewardCountByType));
-                if (rewardCountByType['all'] > 0) {
-                    GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container { height: 5rem; margin-top: 0;}'); 
-                    GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container a { height: 2rem;}'); 
-
-                    const rewardsHtml = RewardHelper.getRewardsAsHtml(rewardCountByType);
-                    target.append($('<div id='+hhRewardId+' class="HHRewardNotCollected"><h1 style="font-size: small;">'+getTextForUI('rewardsToCollectTitle',"elementText")+'</h1>' + rewardsHtml + '</div>'));
-                } else {
-                    target.append($('<div id='+hhRewardId+' style="display:none;"></div>'));
                 }
             }
         } catch(err) {
@@ -15028,7 +15057,7 @@ function autoLoop()
             SeasonalEvent.getRemainingTime();
             if (StorageHelper_getStoredValue("HHAuto_Setting_showRewardsRecap") === "true")
             {
-                RewardHelper.displayRewardsSeasonalDiv(SeasonalEvent.isMegaSeasonalEvent());
+                SeasonalEvent.displayRewardsSeasonalDiv();
                 //SeasonalEvent.displayGirlsMileStones();
             }
             break;

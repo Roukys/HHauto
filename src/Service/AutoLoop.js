@@ -1020,7 +1020,7 @@ export function autoLoop()
             SeasonalEvent.getRemainingTime();
             if (getStoredValue("HHAuto_Setting_showRewardsRecap") === "true")
             {
-                RewardHelper.displayRewardsSeasonalDiv(SeasonalEvent.isMegaSeasonalEvent());
+                SeasonalEvent.displayRewardsSeasonalDiv();
                 //SeasonalEvent.displayGirlsMileStones();
             }
             break;

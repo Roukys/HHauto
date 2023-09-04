@@ -6,7 +6,7 @@ import { getTextForUI } from "./LanguageHelper";
 import { nRounding } from "./NumberHelper";
 import { getStoredValue, setStoredValue } from "./StorageHelper";
 import { randomInterval } from "./TimeHelper";
-import { EventModule } from "../Module";
+import { EventModule, SeasonalEvent } from "../Module";
 
 export class RewardHelper {
     static getRewardTypeBySlot(inSlot)
@@ -122,13 +122,6 @@ export class RewardHelper {
 
         return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
     }
-    static getSeasonalNotClaimedRewards(){
-        const arrayz = $('.seasonal-tier.unclaimed, .mega-tier.free-slot:has(button.mega-claim-reward)');
-        const freeSlotSelectors = ".slot";
-        const paidSlotSelectors = ""; // Not available
-
-        return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
-    }
     static getSeasonNotClaimedRewards(){
         const arrayz = $('.rewards_pair');
         const freeSlotSelectors = ".free_reward.reward_is_claimable .slot";
@@ -204,28 +197,6 @@ export class RewardHelper {
                     target.after($('<div id='+hhRewardId+' class="HHRewardNotCollected"><h1 style="font-size: small;">'+getTextForUI('rewardsToCollectTitle',"elementText")+'</h1>' + rewardsHtml + '</div>'));
                 } else {
                     target.after($('<div id='+hhRewardId+' style="display:none;"></div>'));
-                }
-            }
-        } catch(err) {
-            logHHAuto("ERROR:", err.message);
-            target.append($('<div id='+hhRewardId+' style="display:none;"></div>'));
-        }
-    }
-    static displayRewardsSeasonalDiv(isMegaSeasonalEvent=false) {
-        const target = $('.event-resource-location');
-        const hhRewardId = 'HHSeasonalRewards';
-        try{
-            if($('#' + hhRewardId).length <= 0) {
-                const rewardCountByType = RewardHelper.getSeasonalNotClaimedRewards();
-                // logHHAuto("Rewards seasonal event:", JSON.stringify(rewardCountByType));
-                if (rewardCountByType['all'] > 0) {
-                    GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container { height: 5rem; margin-top: 0;}'); 
-                    GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container a { height: 2rem;}'); 
-
-                    const rewardsHtml = RewardHelper.getRewardsAsHtml(rewardCountByType);
-                    target.append($('<div id='+hhRewardId+' class="HHRewardNotCollected"><h1 style="font-size: small;">'+getTextForUI('rewardsToCollectTitle',"elementText")+'</h1>' + rewardsHtml + '</div>'));
-                } else {
-                    target.append($('<div id='+hhRewardId+' style="display:none;"></div>'));
                 }
             }
         } catch(err) {
