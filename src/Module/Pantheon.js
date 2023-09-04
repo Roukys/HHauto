@@ -61,8 +61,9 @@ export class Pantheon {
             if (pantheonTempleBattleButton.length >0)
             {
                 //replaceCheatClick();
+                setStoredValue("HHAuto_Temp_autoLoop", "false");
+                logHHAuto("setting autoloop to false");
                 pantheonTempleBattleButton[0].click();
-                setTimeout(RewardHelper.closeRewardPopupIfAny, randomInterval(800,1500));
             }
             else
             {
