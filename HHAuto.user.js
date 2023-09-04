@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.0.6
+// @version      6.0.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4868,6 +4868,7 @@ class Harem {
 
 
 
+
 class HaremSalary {
 
     static CollectMoney ()
@@ -4977,7 +4978,7 @@ class HaremSalary {
         {
             let allCollected = true;
             let collectableGirlsList = [];
-            const girlsList = getGirlMapSorted(getCurrentSorting(), false);
+            const girlsList = Harem.getGirlMapSorted(getCurrentSorting(), false);
             if ( girlsList === null)
             {
                 gotoPage(getHHScriptVars("pagesIDHome"));
@@ -6964,8 +6965,9 @@ class Pantheon {
             if (pantheonTempleBattleButton.length >0)
             {
                 //replaceCheatClick();
+                StorageHelper_setStoredValue("HHAuto_Temp_autoLoop", "false");
+                LogUtils_logHHAuto("setting autoloop to false");
                 pantheonTempleBattleButton[0].click();
-                setTimeout(RewardHelper.closeRewardPopupIfAny, randomInterval(800,1500));
             }
             else
             {
@@ -11954,7 +11956,7 @@ function convertTimeToInt(remainingTimer){
 
 function canCollectCompetitionActive()
 {
-    return StorageHelper_getStoredValue("HHAuto_Setting_waitforContest") !== "true" || getSecondsLeftBeforeNewCompetition() > 35*60 && getSecondsLeftBeforeNewCompetition() < (24*3600-5*60);
+    return StorageHelper_getStoredValue("HHAuto_Setting_waitforContest") !== "true" || getSecondsLeftBeforeNewCompetition() > 32*60 && getSecondsLeftBeforeNewCompetition() < (24*3600-2*60);
 }
 
 

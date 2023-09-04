@@ -11,6 +11,7 @@ import {
 } from "../Helper";
 import { gotoPage } from "../Service";
 import { logHHAuto } from "../Utils";
+import { Harem } from "./Harem";
 
 export class HaremSalary {
 
@@ -121,7 +122,7 @@ export class HaremSalary {
         {
             let allCollected = true;
             let collectableGirlsList = [];
-            const girlsList = getGirlMapSorted(getCurrentSorting(), false);
+            const girlsList = Harem.getGirlMapSorted(getCurrentSorting(), false);
             if ( girlsList === null)
             {
                 gotoPage(getHHScriptVars("pagesIDHome"));
