@@ -13,11 +13,6 @@ import { HHAuto_inputPattern } from "../config";
 
 
 export class Harem {
-    static filterGirlMapReadyForCollect(a)
-    {
-        return a.readyForCollect;
-    }
-
     static filterGirlMapCanUpgrade(a)
     {
         return a.gData.can_upgrade;

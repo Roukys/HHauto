@@ -10,10 +10,14 @@ import {
     getHero
 } from "../Helper";
 import { gotoPage } from "../Service";
-import { logHHAuto } from "../Utils";
+import { getCurrentSorting, logHHAuto } from "../Utils";
 import { Harem } from "./Harem";
 
 export class HaremSalary {
+    static filterGirlMapReadyForCollect(a)
+    {
+        return a.readyForCollect;
+    }
 
     static CollectMoney ()
     {
@@ -127,7 +131,7 @@ export class HaremSalary {
             {
                 gotoPage(getHHScriptVars("pagesIDHome"));
             }
-            collectableGirlsList = girlsList.filter(filterGirlMapReadyForCollect);
+            collectableGirlsList = girlsList.filter(HaremSalary.filterGirlMapReadyForCollect);
     
             totalGirlsToCollect = collectableGirlsList.length;
     
@@ -232,7 +236,7 @@ export class HaremSalary {
                         logHHAuto('Collected all Premium salary');
                         if (getPage() == getHHScriptVars("pagesIDHarem") )
                         {
-                            setTimer('nextSalaryTime',predictNextSalaryMinTime());
+                            setTimer('nextSalaryTime',HaremSalary.predictNextSalaryMinTime());
                             return false;
                         }
                         else
