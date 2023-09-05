@@ -1021,7 +1021,7 @@ export function autoLoop()
             if (getStoredValue("HHAuto_Setting_showRewardsRecap") === "true")
             {
                 SeasonalEvent.displayRewardsSeasonalDiv();
-                //SeasonalEvent.displayGirlsMileStones();
+                SeasonalEvent.displayGirlsMileStones();
             }
             break;
         case getHHScriptVars("pagesIDChampionsPage"):
