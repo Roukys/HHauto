@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.0.7
+// @version      6.0.8
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4159,11 +4159,6 @@ class GenericBattle {
 
 
 class Harem {
-    static filterGirlMapReadyForCollect(a)
-    {
-        return a.readyForCollect;
-    }
-
     static filterGirlMapCanUpgrade(a)
     {
         return a.gData.can_upgrade;
@@ -4870,6 +4865,10 @@ class Harem {
 
 
 class HaremSalary {
+    static filterGirlMapReadyForCollect(a)
+    {
+        return a.readyForCollect;
+    }
 
     static CollectMoney ()
     {
@@ -4983,7 +4982,7 @@ class HaremSalary {
             {
                 gotoPage(getHHScriptVars("pagesIDHome"));
             }
-            collectableGirlsList = girlsList.filter(filterGirlMapReadyForCollect);
+            collectableGirlsList = girlsList.filter(HaremSalary.filterGirlMapReadyForCollect);
     
             totalGirlsToCollect = collectableGirlsList.length;
     
@@ -5088,7 +5087,7 @@ class HaremSalary {
                         LogUtils_logHHAuto('Collected all Premium salary');
                         if (getPage() == getHHScriptVars("pagesIDHarem") )
                         {
-                            setTimer('nextSalaryTime',predictNextSalaryMinTime());
+                            setTimer('nextSalaryTime',HaremSalary.predictNextSalaryMinTime());
                             return false;
                         }
                         else
@@ -11303,7 +11302,7 @@ function replaceCheatClick()
     };
 }
 
-function Utils_getCurrentSorting()
+function getCurrentSorting()
 {
     return localStorage.sort_by;
 }
