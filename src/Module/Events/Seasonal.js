@@ -208,15 +208,23 @@ export class SeasonalEvent {
         const playerPoints = Number($('.player-shards .circle-container').text());
 
         const girlContainer = $('.girls-reward-container');
-        
-        girlContainer.append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, 4600, 1))
-        .append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, 9000, 2))
-        .append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, 13500, 3))
-        .append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, 18000, 4));
+
+        const girlSlotRewards = $('#home_tab_container .bottom-container .slot.slot_girl_shards');
+        if(SeasonalEvent.isMegaSeasonalEvent()) {
+            girlSlotRewards.each(function(index, girlSlot) {
+                const milestone = Number($('.tier-level p',$(girlSlot).parents('.mega-tier-container')).text());
+                if(milestone > 0) {
+                    girlContainer.append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, milestone, index+1))
+                }
+            });
+        } else {
+            logHHAuto('Seasonal event not mega is not Yet implemented');
+            girlContainer.append($('<div class="HHGirlMilestone" style="display:none;"></div>'));
+        }
     }
     static getGirlMileStonesDiv(playerPoints, girlPointsTarget, girlIndex) {
         const greeNitckHtml = '<img class="nc-claimed-reward-check" src="'+getHHScriptVars("baseImgPath")+'/clubs/ic_Tick.png">';
-        const girlDiv = $('<div class="HHGirlMilestone girl-img-'+girlIndex+'">Girl '+(girlIndex+1)+':'+playerPoints+'/'+girlPointsTarget+'</div>');
+        const girlDiv = $('<div class="HHGirlMilestone girl-img-'+girlIndex+'"><div>Girl '+girlIndex+':'+playerPoints+'/'+girlPointsTarget+'</div></div>');
         if(playerPoints >= girlPointsTarget) {
             girlDiv.addClass('green');
             girlDiv.append($(greeNitckHtml));
@@ -224,7 +232,7 @@ export class SeasonalEvent {
         return girlDiv;
     }
     static displayRewardsSeasonalDiv() {
-        const target = $('.event-resource-location');
+        const target = $('.girls-reward-container'); // $('.event-resource-location');
         const hhRewardId = 'HHSeasonalRewards';
         const isMegaSeasonalEvent = SeasonalEvent.isMegaSeasonalEvent();
         try{
@@ -232,8 +240,8 @@ export class SeasonalEvent {
                 const rewardCountByType = isMegaSeasonalEvent ? SeasonalEvent.getMegaSeasonalNotClaimedRewards() : SeasonalEvent.getSeasonalNotClaimedRewards();
                 logHHAuto("Rewards seasonal event:", JSON.stringify(rewardCountByType));
                 if (rewardCountByType['all'] > 0) {
-                    GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container { height: 5rem; margin-top: 0;}'); 
-                    GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container a { height: 2rem;}'); 
+                    // GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container { height: 5rem; margin-top: 0;}'); 
+                    // GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container a { height: 2rem;}'); 
 
                     const rewardsHtml = RewardHelper.getRewardsAsHtml(rewardCountByType);
                     target.append($('<div id='+hhRewardId+' class="HHRewardNotCollected"><h1 style="font-size: small;">'+getTextForUI('rewardsToCollectTitle',"elementText")+'</h1>' + rewardsHtml + '</div>'));

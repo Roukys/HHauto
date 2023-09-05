@@ -4,6 +4,7 @@ import {
     getHero,
     getSecondsLeft,
     getStoredValue,
+    getTimer,
     randomInterval,
     setStoredValue,
     setTimer

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.0.8
+// @version      6.0.9
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -77,11 +77,12 @@ GM_addStyle(".HHpopup_message .close {   position: absolute;   top: 20px;   righ
 GM_addStyle('#HHPovPogRewards { position: absolute; bottom: 6.9rem; left: -0.75rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}');
 GM_addStyle('.HHRewardNotCollected { max-width: 17.9rem; transform: scale(0.8); }');
 GM_addStyle('.HHRewardNotCollected .slot { margin: 1px 1px 0}'); 
-GM_addStyle('.HHGirlMilestone { position: absolute; bottom: 0; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1; font-size:smaller; width: 156px; text-align: center;}'); 
+GM_addStyle('.HHGirlMilestone { position: absolute; bottom: 0;  z-index: 1; font-size:smaller; width: 200px; text-align: center;}'); 
+GM_addStyle('.HHGirlMilestone > div { background: rgba(0,0,0,.5); border-radius: 10px; margin:auto;  width: 140px; }'); 
 GM_addStyle('.HHGirlMilestone.green { border: solid 1px green }'); 
 GM_addStyle('.HHGirlMilestone .nc-claimed-reward-check { width:20px; position:absolute; }'); 
-GM_addStyle('#HHSeasonRewards { position: absolute; right: 1.25rem; bottom: 12.25rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px;}'); 
-//GM_addStyle('#HHSeasonalRewards { }'); 
+GM_addStyle('#HHSeasonRewards { position: absolute; right: 1.25rem; bottom: 12.25rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
+GM_addStyle('#HHSeasonalRewards { position: absolute; left: 1.25rem; bottom: 1rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
 //END CSS Region
 
 
@@ -2113,7 +2114,7 @@ class EventModule {
     static displayGenericRemainingTime(scriptId, aRel, hhtimerId, timerName, timerEndDateName)
     {
         const displayTimer = $(scriptId).length === 0;
-        if(TimerHelper_getTimer(timerName) !== -1)
+        if(getTimer(timerName) !== -1)
         {
             const domSelector = '#homepage a[rel="'+aRel+'"] .notif-position > span';
             if ($("#"+hhtimerId).length === 0)
@@ -3253,15 +3254,23 @@ class SeasonalEvent {
         const playerPoints = Number($('.player-shards .circle-container').text());
 
         const girlContainer = $('.girls-reward-container');
-        
-        girlContainer.append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, 4600, 1))
-        .append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, 9000, 2))
-        .append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, 13500, 3))
-        .append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, 18000, 4));
+
+        const girlSlotRewards = $('#home_tab_container .bottom-container .slot.slot_girl_shards');
+        if(SeasonalEvent.isMegaSeasonalEvent()) {
+            girlSlotRewards.each(function(index, girlSlot) {
+                const milestone = Number($('.tier-level p',$(girlSlot).parents('.mega-tier-container')).text());
+                if(milestone > 0) {
+                    girlContainer.append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, milestone, index+1))
+                }
+            });
+        } else {
+            LogUtils_logHHAuto('Seasonal event not mega is not Yet implemented');
+            girlContainer.append($('<div class="HHGirlMilestone" style="display:none;"></div>'));
+        }
     }
     static getGirlMileStonesDiv(playerPoints, girlPointsTarget, girlIndex) {
         const greeNitckHtml = '<img class="nc-claimed-reward-check" src="'+getHHScriptVars("baseImgPath")+'/clubs/ic_Tick.png">';
-        const girlDiv = $('<div class="HHGirlMilestone girl-img-'+girlIndex+'">Girl '+(girlIndex+1)+':'+playerPoints+'/'+girlPointsTarget+'</div>');
+        const girlDiv = $('<div class="HHGirlMilestone girl-img-'+girlIndex+'"><div>Girl '+girlIndex+':'+playerPoints+'/'+girlPointsTarget+'</div></div>');
         if(playerPoints >= girlPointsTarget) {
             girlDiv.addClass('green');
             girlDiv.append($(greeNitckHtml));
@@ -3269,7 +3278,7 @@ class SeasonalEvent {
         return girlDiv;
     }
     static displayRewardsSeasonalDiv() {
-        const target = $('.event-resource-location');
+        const target = $('.girls-reward-container'); // $('.event-resource-location');
         const hhRewardId = 'HHSeasonalRewards';
         const isMegaSeasonalEvent = SeasonalEvent.isMegaSeasonalEvent();
         try{
@@ -3277,8 +3286,8 @@ class SeasonalEvent {
                 const rewardCountByType = isMegaSeasonalEvent ? SeasonalEvent.getMegaSeasonalNotClaimedRewards() : SeasonalEvent.getSeasonalNotClaimedRewards();
                 LogUtils_logHHAuto("Rewards seasonal event:", JSON.stringify(rewardCountByType));
                 if (rewardCountByType['all'] > 0) {
-                    GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container { height: 5rem; margin-top: 0;}'); 
-                    GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container a { height: 2rem;}'); 
+                    // GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container { height: 5rem; margin-top: 0;}'); 
+                    // GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container a { height: 2rem;}'); 
 
                     const rewardsHtml = RewardHelper.getRewardsAsHtml(rewardCountByType);
                     target.append($('<div id='+hhRewardId+' class="HHRewardNotCollected"><h1 style="font-size: small;">'+getTextForUI('rewardsToCollectTitle',"elementText")+'</h1>' + rewardsHtml + '</div>'));
@@ -12626,7 +12635,7 @@ function checkTimerMustExist(name)
     return false;
 }
 
-function TimerHelper_getTimer(name)
+function getTimer(name)
 {
     if (!Timers[name])
     {
@@ -13521,24 +13530,24 @@ function updateData() {
         }
         if ( getHHScriptVars("isEnabledPachinko",false) && StorageHelper_getStoredValue("HHAuto_Setting_autoFreePachinko") =="true")
         {
-            if (TimerHelper_getTimer('nextPachinkoTime') !== -1)
+            if (getTimer('nextPachinkoTime') !== -1)
             {
                 Tegzd += '<li>'+getTextForUI("autoFreePachinko","elementText")+' : '+getTimeLeft('nextPachinkoTime')+'</li>';
             }
-            if (TimerHelper_getTimer('nextPachinko2Time') !== -1)
+            if (getTimer('nextPachinko2Time') !== -1)
             {
                 Tegzd += '<li>'+getTextForUI("autoMythicPachinko","elementText")+' : '+getTimeLeft('nextPachinko2Time')+'</li>';
             }
-            if (TimerHelper_getTimer('nextPachinkoEquipTime') !== -1)
+            if (getTimer('nextPachinkoEquipTime') !== -1)
             {
                 Tegzd += '<li>'+getTextForUI("autoEquipmentPachinko","elementText")+' : '+getTimeLeft('nextPachinkoEquipTime')+'</li>';
             }
         }
-        if (TimerHelper_getTimer('eventMythicNextWave') !== -1)
+        if (getTimer('eventMythicNextWave') !== -1)
         {
             Tegzd += '<li>'+getTextForUI("mythicGirlNext","elementText")+' : '+getTimeLeft('eventMythicNextWave')+'</li>';
         }
-        if (TimerHelper_getTimer('eventSultryMysteryShopRefresh') !== -1)
+        if (getTimer('eventSultryMysteryShopRefresh') !== -1)
         {
             Tegzd += '<li>'+getTextForUI("sultryMysteriesEventRefreshShopNext","elementText")+' : '+getTimeLeft('eventSultryMysteryShopRefresh')+'</li>';
         }
@@ -14278,7 +14287,7 @@ function autoLoop()
                     eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
                 }
             }
-            if (queryResults.length <= 0 && TimerHelper_getTimer("eventSultryMysteryShopRefresh") !== -1)
+            if (queryResults.length <= 0 && getTimer("eventSultryMysteryShopRefresh") !== -1)
             {
                 // event is over
                 TimerHelper_clearTimer("eventSultryMysteryShopRefresh");
@@ -14791,7 +14800,7 @@ function autoLoop()
             (
                 checkTimer('nextSeasonCollectTime') && StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonCollect") === "true" && canCollectCompetitionActive()
                 ||
-                StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonCollectAll") === "true" && checkTimer('nextSeasonCollectAllTime') && (TimerHelper_getTimer('SeasonRemainingTime') == -1 || getSecondsLeft('SeasonRemainingTime') < getLimitTimeBeforeEnd())
+                StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonCollectAll") === "true" && checkTimer('nextSeasonCollectAllTime') && (getTimer('SeasonRemainingTime') == -1 || getSecondsLeft('SeasonRemainingTime') < getLimitTimeBeforeEnd())
             )
         )
         {
@@ -14805,7 +14814,7 @@ function autoLoop()
             (
                 checkTimer('nextSeasonalEventCollectTime') && StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true" && canCollectCompetitionActive()
                 ||
-                StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll") === "true" && checkTimer('nextSeasonalEventCollectAllTime') && (TimerHelper_getTimer('SeasonalEventRemainingTime') == -1 || getSecondsLeft('SeasonalEventRemainingTime') < getLimitTimeBeforeEnd())
+                StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll") === "true" && checkTimer('nextSeasonalEventCollectAllTime') && (getTimer('SeasonalEventRemainingTime') == -1 || getSecondsLeft('SeasonalEventRemainingTime') < getLimitTimeBeforeEnd())
             )
         )
         {
@@ -14819,7 +14828,7 @@ function autoLoop()
             (
                 checkTimer('nextPoVCollectTime') && StorageHelper_getStoredValue("HHAuto_Setting_autoPoVCollect") === "true" && canCollectCompetitionActive()
                 ||
-                StorageHelper_getStoredValue("HHAuto_Setting_autoPoVCollectAll") === "true" && checkTimer('nextPoVCollectAllTime') && (TimerHelper_getTimer('PoVRemainingTime') == -1 || getSecondsLeft('PoVRemainingTime') < getLimitTimeBeforeEnd())
+                StorageHelper_getStoredValue("HHAuto_Setting_autoPoVCollectAll") === "true" && checkTimer('nextPoVCollectAllTime') && (getTimer('PoVRemainingTime') == -1 || getSecondsLeft('PoVRemainingTime') < getLimitTimeBeforeEnd())
             )
         )
         {
@@ -14833,7 +14842,7 @@ function autoLoop()
             (
                 checkTimer('nextPoGCollectTime') && StorageHelper_getStoredValue("HHAuto_Setting_autoPoGCollect") === "true" && canCollectCompetitionActive()
                 ||
-                StorageHelper_getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true" && checkTimer('nextPoGCollectAllTime') && (TimerHelper_getTimer('PoGRemainingTime') == -1 || getSecondsLeft('PoGRemainingTime') < getLimitTimeBeforeEnd())
+                StorageHelper_getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true" && checkTimer('nextPoGCollectAllTime') && (getTimer('PoGRemainingTime') == -1 || getSecondsLeft('PoGRemainingTime') < getLimitTimeBeforeEnd())
             )
         )
         {
@@ -15059,7 +15068,7 @@ function autoLoop()
             if (StorageHelper_getStoredValue("HHAuto_Setting_showRewardsRecap") === "true")
             {
                 SeasonalEvent.displayRewardsSeasonalDiv();
-                //SeasonalEvent.displayGirlsMileStones();
+                SeasonalEvent.displayGirlsMileStones();
             }
             break;
         case getHHScriptVars("pagesIDChampionsPage"):
