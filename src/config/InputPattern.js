@@ -16,6 +16,7 @@ export const HHAuto_inputPattern = {
     autoSalaryTimer:"[0-9]+",
     autoTrollThreshold:"[1]?[0-9]",
     eventTrollOrder:"([1-2][0-9]|[1-9])(;([1-2][0-9]|[1-9]))*",
+    autoBuyTrollNumber:"200|1[0-9][0-9]|[1-9]?[0-9]",
     autoSeasonThreshold:"[0-9]",
     autoPantheonThreshold:"[0-9]",
     bossBangMinTeam:"[1-5]",

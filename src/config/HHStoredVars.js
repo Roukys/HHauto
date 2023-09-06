@@ -822,6 +822,28 @@ HHStoredVars.HHAuto_Setting_eventTrollOrder =
     menuType:"value",
     kobanUsing:false
 };
+HHStoredVars.HHAuto_Setting_autoBuyTrollNumber =
+    {
+    default:"200",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"List",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoBuyMythicTrollNumber =
+    {
+    default:"200",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"List",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_master =
     {
     default:"false",

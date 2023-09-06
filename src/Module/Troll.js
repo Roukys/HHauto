@@ -424,13 +424,13 @@ export class Troll {
         let type="fight";
         let hero=getHero();
         let result = {canBuy:false, price:0, max:0, toBuy:0, event_mythic:"false", type:type};
+        const MAX_BUY = 200;
         let maxx50 = 50;
         let maxx20 = 20;
-        let currentFight =Number( getHHVars('Hero.energies.fight.amount'));
+        const currentFight = Number( getHHVars('Hero.energies.fight.amount'));
+        const eventAutoBuy =  Math.min(Number(getStoredValue("HHAuto_Setting_autoBuyTrollNumber"))       || maxx20, MAX_BUY-currentFight);
+        const mythicAutoBuy = Math.min(Number(getStoredValue("HHAuto_Setting_autoBuyMythicTrollNumber")) || maxx20, MAX_BUY-currentFight);
         const pricePerFight = hero.energies[type].seconds_per_point * (unsafeWindow.hh_prices[type + '_cost_per_minute'] / 60);
-        let pricex50= pricePerFight * maxx50;
-        let pricex20= pricePerFight * maxx20;
-        let canRecharge20 = false;
         let remainingShards;
 
         if (getStoredValue("HHAuto_Temp_eventGirl") !== undefined && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_shards && Number.isInteger(Number(JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_shards)))
@@ -462,6 +462,9 @@ export class Troll {
                 return result;
             }
 
+            maxx50 = result.event_mythic === "true" ? Math.max(maxx50, mythicAutoBuy) : Math.max(maxx50, eventAutoBuy);
+            maxx20 = result.event_mythic === "true" ? Math.max(maxx20, mythicAutoBuy) : Math.max(maxx20, eventAutoBuy);
+
             //console.log(result);
             remainingShards = Number(100 - Number(JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_shards));
             if
@@ -469,37 +472,37 @@ export class Troll {
                     getStoredValue("HHAuto_Setting_minShardsX50") !== undefined
                     && Number.isInteger(Number(getStoredValue("HHAuto_Setting_minShardsX50")))
                     && remainingShards >= Number(getStoredValue("HHAuto_Setting_minShardsX50"))
-                    && getHHVars('Hero.currencies.hard_currency')>=pricex50+Number(getStoredValue("HHAuto_Setting_kobanBank"))
+                    && getHHVars('Hero.currencies.hard_currency')>= (pricePerFight * maxx50)+Number(getStoredValue("HHAuto_Setting_kobanBank"))
                     && getStoredValue("HHAuto_Setting_useX50Fights") === "true"
                     && currentFight < maxx50
-                    && ( result.event_mythic || getStoredValue("HHAuto_Setting_useX50FightsAllowNormalEvent") === "true")
+                    && ( result.event_mythic === "true" || getStoredValue("HHAuto_Setting_useX50FightsAllowNormalEvent") === "true")
                 )
             {
                 result.max = maxx50;
                 result.canBuy = true;
-                result.price = pricex50;
-                result.toBuy = maxx50-currentFight;
+                result.price = pricePerFight * maxx50;
+                result.toBuy = maxx50;
             }
             else
             {
 
-                if (logging)
+                if (logging && getStoredValue("HHAuto_Setting_useX50Fights") === "true")
                 {
-                    logHHAuto('Unable to recharge up to '+maxx50+' for '+pricex50+' kobans : current energy : '+currentFight+', remaining shards : '+remainingShards+'/'+getStoredValue("HHAuto_Setting_minShardsX50")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(getStoredValue("HHAuto_Setting_kobanBank")));
+                    logHHAuto('Unable to recharge up to '+maxx50+' for '+(pricePerFight * maxx50)+' kobans : current energy : '+currentFight+', remaining shards : '+remainingShards+'/'+getStoredValue("HHAuto_Setting_minShardsX50")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(getStoredValue("HHAuto_Setting_kobanBank")));
                 }
-                if (getHHVars('Hero.currencies.hard_currency')>=pricex20+Number(getStoredValue("HHAuto_Setting_kobanBank"))
+                if (getHHVars('Hero.currencies.hard_currency')>=(pricePerFight * maxx20)+Number(getStoredValue("HHAuto_Setting_kobanBank"))
                 )//&& currentFight < 10)
                 {
                     result.max = maxx20;
                     result.canBuy = true;
-                    result.price = pricex20;
-                    result.toBuy = maxx20-currentFight;
+                    result.price = pricePerFight * maxx20;
+                    result.toBuy = maxx20;
                 }
                 else
                 {
                     if (logging)
                     {
-                        logHHAuto('Unable to recharge up to '+maxx20+' for '+pricex20+' kobans : current energy : '+currentFight+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(getStoredValue("HHAuto_Setting_kobanBank")));
+                        logHHAuto('Unable to recharge up to '+maxx20+' for '+(pricePerFight * maxx20)+' kobans : current energy : '+currentFight+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(getStoredValue("HHAuto_Setting_kobanBank")));
                     }
                     return result;
                 }
