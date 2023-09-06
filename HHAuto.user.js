@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.0.9
+// @version      6.1.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -200,6 +200,8 @@ HHAuto_ToolTips.en.autoTrollBattle = { version: "5.6.24", elementText: "Enable",
 HHAuto_ToolTips.en.autoTrollSelector = { version: "5.6.24", elementText: "Troll selector", tooltip: "Select troll to be fought."};
 HHAuto_ToolTips.en.autoTrollThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "(Integer 0 to 19)<br>Minimum troll fight to keep"};
 HHAuto_ToolTips.en.eventTrollOrder = { version: "5.6.38", elementText: "Event Troll Order", tooltip: "(values separated by ;)<br>Allow to select in which order event troll are automatically battled<br>1 : Dark Lord<br>2 : Ninja Spy<br>3 : Gruntt<br>4 : Edwarda<br>5 : Donatien<br>6 : Sylvanus<br>7 : Bremen<br>8 : Finalmecia<br>9 : Fredy Sih Roko<br>10 : Karole<br>11 : Jackson's Crew<br>12 : Pandora Witch<br>13 : Nike<br>14 : Sake<br>15 : WereBunny Police"};
+HHAuto_ToolTips.en.autoBuyTrollNumber = { version: "6.1.0", elementText: "Troll auto buy", tooltip: "Number of combat points to be bought during an event"};
+HHAuto_ToolTips.en.autoBuyMythicTrollNumber = { version: "6.1.0", elementText: "Mythic auto buy", tooltip: "Number of combat points to be bought during a mythics event"};
 HHAuto_ToolTips.en.firstTrollWithGirls = { version: "5.32.0", elementText: "First troll with girl"};
 HHAuto_ToolTips.en.lastTrollWithGirls = { version: "5.32.0", elementText: "Last troll with girl"};
 HHAuto_ToolTips.en.autoChampsForceStartEventGirl = { version: "5.6.98", elementText: "Event force", tooltip: "if enabled, will fight for event girl champion even if not started. Champions will need to be activated and champions to be in the filter."};
@@ -8222,13 +8224,13 @@ class Troll {
         let type="fight";
         let hero=getHero();
         let result = {canBuy:false, price:0, max:0, toBuy:0, event_mythic:"false", type:type};
+        const MAX_BUY = 200;
         let maxx50 = 50;
         let maxx20 = 20;
-        let currentFight =Number( getHHVars('Hero.energies.fight.amount'));
+        const currentFight = Number( getHHVars('Hero.energies.fight.amount'));
+        const eventAutoBuy =  Math.min(Number(StorageHelper_getStoredValue("HHAuto_Setting_autoBuyTrollNumber"))       || maxx20, MAX_BUY-currentFight);
+        const mythicAutoBuy = Math.min(Number(StorageHelper_getStoredValue("HHAuto_Setting_autoBuyMythicTrollNumber")) || maxx20, MAX_BUY-currentFight);
         const pricePerFight = hero.energies[type].seconds_per_point * (unsafeWindow.hh_prices[type + '_cost_per_minute'] / 60);
-        let pricex50= pricePerFight * maxx50;
-        let pricex20= pricePerFight * maxx20;
-        let canRecharge20 = false;
         let remainingShards;
 
         if (StorageHelper_getStoredValue("HHAuto_Temp_eventGirl") !== undefined && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).girl_shards && Number.isInteger(Number(JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).girl_shards)))
@@ -8260,6 +8262,9 @@ class Troll {
                 return result;
             }
 
+            maxx50 = result.event_mythic === "true" ? Math.max(maxx50, mythicAutoBuy) : Math.max(maxx50, eventAutoBuy);
+            maxx20 = result.event_mythic === "true" ? Math.max(maxx20, mythicAutoBuy) : Math.max(maxx20, eventAutoBuy);
+
             //console.log(result);
             remainingShards = Number(100 - Number(JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).girl_shards));
             if
@@ -8267,37 +8272,37 @@ class Troll {
                     StorageHelper_getStoredValue("HHAuto_Setting_minShardsX50") !== undefined
                     && Number.isInteger(Number(StorageHelper_getStoredValue("HHAuto_Setting_minShardsX50")))
                     && remainingShards >= Number(StorageHelper_getStoredValue("HHAuto_Setting_minShardsX50"))
-                    && getHHVars('Hero.currencies.hard_currency')>=pricex50+Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank"))
+                    && getHHVars('Hero.currencies.hard_currency')>= (pricePerFight * maxx50)+Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank"))
                     && StorageHelper_getStoredValue("HHAuto_Setting_useX50Fights") === "true"
                     && currentFight < maxx50
-                    && ( result.event_mythic || StorageHelper_getStoredValue("HHAuto_Setting_useX50FightsAllowNormalEvent") === "true")
+                    && ( result.event_mythic === "true" || StorageHelper_getStoredValue("HHAuto_Setting_useX50FightsAllowNormalEvent") === "true")
                 )
             {
                 result.max = maxx50;
                 result.canBuy = true;
-                result.price = pricex50;
-                result.toBuy = maxx50-currentFight;
+                result.price = pricePerFight * maxx50;
+                result.toBuy = maxx50;
             }
             else
             {
 
-                if (logging)
+                if (logging && StorageHelper_getStoredValue("HHAuto_Setting_useX50Fights") === "true")
                 {
-                    LogUtils_logHHAuto('Unable to recharge up to '+maxx50+' for '+pricex50+' kobans : current energy : '+currentFight+', remaining shards : '+remainingShards+'/'+StorageHelper_getStoredValue("HHAuto_Setting_minShardsX50")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank")));
+                    LogUtils_logHHAuto('Unable to recharge up to '+maxx50+' for '+(pricePerFight * maxx50)+' kobans : current energy : '+currentFight+', remaining shards : '+remainingShards+'/'+StorageHelper_getStoredValue("HHAuto_Setting_minShardsX50")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank")));
                 }
-                if (getHHVars('Hero.currencies.hard_currency')>=pricex20+Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank"))
+                if (getHHVars('Hero.currencies.hard_currency')>=(pricePerFight * maxx20)+Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank"))
                 )//&& currentFight < 10)
                 {
                     result.max = maxx20;
                     result.canBuy = true;
-                    result.price = pricex20;
-                    result.toBuy = maxx20-currentFight;
+                    result.price = pricePerFight * maxx20;
+                    result.toBuy = maxx20;
                 }
                 else
                 {
                     if (logging)
                     {
-                        LogUtils_logHHAuto('Unable to recharge up to '+maxx20+' for '+pricex20+' kobans : current energy : '+currentFight+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank")));
+                        LogUtils_logHHAuto('Unable to recharge up to '+maxx20+' for '+(pricePerFight * maxx20)+' kobans : current energy : '+currentFight+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank")));
                     }
                     return result;
                 }
@@ -8307,6 +8312,7 @@ class Troll {
         return result;
     }
 }
+
 ;// CONCATENATED MODULE: ./src/Module/index.js
 // export * from './Booster'
 
@@ -9143,6 +9149,28 @@ HHStoredVars_HHStoredVars.HHAuto_Setting_collectAllTimer =
 HHStoredVars_HHStoredVars.HHAuto_Setting_eventTrollOrder =
     {
     default:"1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"List",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoBuyTrollNumber =
+    {
+    default:"200",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"List",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoBuyMythicTrollNumber =
+    {
+    default:"200",
     storage:"Storage()",
     HHType:"Setting",
     valueType:"List",
@@ -10007,6 +10035,7 @@ const HHAuto_inputPattern = {
     autoSalaryTimer:"[0-9]+",
     autoTrollThreshold:"[1]?[0-9]",
     eventTrollOrder:"([1-2][0-9]|[1-9])(;([1-2][0-9]|[1-9]))*",
+    autoBuyTrollNumber:"200|1[0-9][0-9]|[1-9]?[0-9]",
     autoSeasonThreshold:"[0-9]",
     autoPantheonThreshold:"[0-9]",
     bossBangMinTeam:"[1-5]",
@@ -10629,13 +10658,15 @@ function getMenu() {
                             + hhMenuSwitch('plusEvent')
                             + hhMenuInput('eventTrollOrder', HHAuto_inputPattern.eventTrollOrder, 'width:120px')
                             + hhMenuSwitch('buyCombat', '', true)
-                            + hhMenuInput('buyCombTimer', HHAuto_inputPattern.buyCombTimer, 'text-align:center; width:50%', '', 'numeric')
+                            + hhMenuInput('autoBuyTrollNumber', HHAuto_inputPattern.autoBuyTrollNumber, 'width:40px')
+                            + hhMenuInput('buyCombTimer', HHAuto_inputPattern.buyCombTimer, 'text-align:center; width:40px', '', 'numeric')
                         +`</div>`
                         +`<div class="internalOptionsRow">`
                             + hhMenuSwitch('plusEventMythic')
                             + hhMenuSwitch('autoTrollMythicByPassParanoia')
                             + hhMenuSwitch('buyMythicCombat', '', true)
-                            + hhMenuInput('buyMythicCombTimer', HHAuto_inputPattern.buyMythicCombTimer, 'text-align:center; width:50%', '', 'numeric')
+                            + hhMenuInput('autoBuyMythicTrollNumber', HHAuto_inputPattern.autoBuyTrollNumber, 'width:40px')
+                            + hhMenuInput('buyMythicCombTimer', HHAuto_inputPattern.buyMythicCombTimer, 'text-align:center; width:40px', '', 'numeric')
                         +`</div>`
                     +`</div>`
                 +`</div>`
