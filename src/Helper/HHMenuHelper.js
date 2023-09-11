@@ -452,7 +452,7 @@ export function getMenu() {
                                 + hhMenuSwitch('autoLeaguesPowerCalc')
                                 +`</div>`
                                 + hhMenuSwitch('autoLeaguesCollect')
-                                // + hhMenuSwitch('autoLeaguesThreeFights')
+                                + `<div style="display:none;">` + hhMenuSwitch('autoLeaguesThreeFights') + `</div>`
                                 + hhMenuSwitch('leagueListDisplayPowerCalc')
                             +`</div>`
                             +`<div class="internalOptionsRow">`
