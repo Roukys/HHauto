@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.1.0
+// @version      6.1.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -227,6 +227,7 @@ HHAuto_ToolTips.en.autoLeagues = { version: "5.6.24", elementText: "Enable", too
 HHAuto_ToolTips.en.autoLeaguesPowerCalc = { version: "5.6.24", elementText: "Use PowerCalc", tooltip: "if enabled : will choose opponent using PowerCalc (Opponent list expires every 10 mins and take few mins to be built)"};
 HHAuto_ToolTips.en.leagueListDisplayPowerCalc = { version: "5.34.18", elementText: "Display PowerCalc", tooltip: "Display powerCalc in league list (stil in developpment)"};
 HHAuto_ToolTips.en.autoLeaguesCollect = { version: "5.6.24", elementText: "Collect", tooltip: "If enabled : Automatically collect Leagues"};
+HHAuto_ToolTips.en.autoLeaguesThreeFights = { version: "6.2.0", elementText: "3 fights", tooltip: "If enabled : Wait to have 3 energy (above threshold) before fighting"};
 HHAuto_ToolTips.en.autoLeaguesSelector = { version: "5.6.24", elementText: "Target League", tooltip: "League to target, to try to demote, stay or go in higher league depending"};
 HHAuto_ToolTips.en.autoLeaguesAllowWinCurrent = {version: "5.6.24", elementText:"Allow win", tooltip: "If check will allow to win targeted league and then demote next league to fall back to targeted league."};
 HHAuto_ToolTips.en.autoLeaguesThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "(Integer between 0 and 14)<br>Minimum league fights to keep"};
@@ -5630,14 +5631,18 @@ class LeagueHelper {
     static doLeagueBattle() {
         //logHHAuto("Performing auto leagues.");
         // Confirm if on correct screen.
-        var currentPower = getHHVars('Hero.energies.challenge.amount');
+        const currentPower = getHHVars('Hero.energies.challenge.amount');
+        const maxLeagueRegen = getHHVars('Hero.energies.challenge.max_regen_amount');
         const leagueThreshold = Number(StorageHelper_getStoredValue("HHAuto_Setting_autoLeaguesThreshold"));
+        const autoLeaguesThreeFights = StorageHelper_getStoredValue("HHAuto_Setting_autoLeaguesThreeFights") === "true";
         let leagueScoreSecurityThreshold = StorageHelper_getStoredValue("HHAuto_Setting_autoLeaguesSecurityThreshold");
         if (leagueScoreSecurityThreshold) {
             leagueScoreSecurityThreshold = Number(leagueScoreSecurityThreshold);
         }else{
             leagueScoreSecurityThreshold = 40;
         }
+        // const enoughChallengeForLeague = currentLeagueEnergy > leaguesThreshold && !autoLeaguesThreeFights
+        // ||  (currentLeagueEnergy >= (leaguesThreshold+3) || currentLeagueEnergy >= maxLeague && currentLeagueEnergy > leaguesThreshold) && autoLeaguesThreeFights;
         var ltime;
 
         var page = getPage();
@@ -6073,9 +6078,9 @@ class Market {
                     const boosterOwned = HaveBooster.hasOwnProperty(boost) ? Number(HaveBooster[boost]) : 0;
                     for (var n1=shop[1].length-1;n1>=0;n1--)
                     {
-                        if (kobans>=Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank"))+Number(shop[1][n1].price_buy) && shop[1][n1].item.currency == "hc" && shop[1][n1].item.identifier == boost && (shop[1][n1].item.rarity=='legendary' || shop[1][n1].item.rarity=='mythic') && boosterOwned <= MaxBooster)
+                        if (kobans>=Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank"))+Number(shop[1][n1].price_buy) && shop[1][n1].item.currency == "hc" && shop[1][n1].item.identifier == boost && (shop[1][n1].item.rarity=='legendary' || shop[1][n1].item.rarity=='mythic') && boosterOwned < MaxBooster)
                         {
-                            LogUtils_logHHAuto({log:'wanna buy ',object:shop[1][n1]});
+                            LogUtils_logHHAuto({log:'wanna buy ',object:shop[1][n1],owning: boosterOwned});
                             if (kobans>=Number(shop[1][n1].price_buy))
                             {
                                 LogUtils_logHHAuto({log:'Buying : ',object:shop[1][n1]});
@@ -6093,6 +6098,9 @@ class Market {
                                     if (data.success === false)
                                     {
                                         clearTimer('nextShopTime');
+                                    } else {
+                                        HaveBooster[boost] = boosterOwned++;
+                                        StorageHelper_setStoredValue("HHAuto_Temp_haveBooster", JSON.stringify(HaveBooster));
                                     }
                                     // change referer
                                     window.history.replaceState(null, '', '/home.html');
@@ -8609,6 +8617,17 @@ HHStoredVars_HHStoredVars.HHAuto_Setting_autoLeaguesCollect =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoLeaguesThreeFights =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars_HHStoredVars.HHAuto_Setting_autoLeaguesPowerCalc =
     {
     default:"false",
@@ -10598,6 +10617,7 @@ function getMenu() {
                                 + hhMenuSwitch('autoLeaguesPowerCalc')
                                 +`</div>`
                                 + hhMenuSwitch('autoLeaguesCollect')
+                                + hhMenuSwitch('autoLeaguesThreeFights')
                                 + hhMenuSwitch('leagueListDisplayPowerCalc')
                             +`</div>`
                             +`<div class="internalOptionsRow">`
@@ -14452,7 +14472,9 @@ function autoLoop()
             GenericBattle.doBattle();
         }
 
-        if(busy === false && getHHScriptVars("isEnabledTrollBattle",false) && StorageHelper_getStoredValue("HHAuto_Setting_autoTrollBattle") === "true" && getHHVars('Hero.infos.questing.id_world')>0 && StorageHelper_getStoredValue("HHAuto_Temp_autoLoop") === "true" && canCollectCompetitionActive())
+        if(busy === false && getHHScriptVars("isEnabledTrollBattle",false) 
+        && (StorageHelper_getStoredValue("HHAuto_Setting_autoTrollBattle") === "true" || StorageHelper_getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true")
+        && getHHVars('Hero.infos.questing.id_world')>0 && StorageHelper_getStoredValue("HHAuto_Temp_autoLoop") === "true" && canCollectCompetitionActive())
         {
             //logHHAuto("fight amount: "+currentPower+" troll threshold: "+Number(getStoredValue("HHAuto_Setting_autoTrollThreshold"))+" paranoia fight: "+Number(checkParanoiaSpendings('fight')));
             if
@@ -14579,7 +14601,9 @@ function autoLoop()
                     LogUtils_logHHAuto("Quest requires battle.");
                     LogUtils_logHHAuto("prepare to save one battle for quest");
                     StorageHelper_setStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest", "true");
-                    //doBossBattle();
+                    if(StorageHelper_getStoredValue("HHAuto_Setting_autoTrollBattle") !== "true") {
+                        Troll.doBossBattle();
+                    }
                 }
                 busy = true;
             }

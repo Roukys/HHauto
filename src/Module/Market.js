@@ -57,9 +57,9 @@ export class Market {
                     const boosterOwned = HaveBooster.hasOwnProperty(boost) ? Number(HaveBooster[boost]) : 0;
                     for (var n1=shop[1].length-1;n1>=0;n1--)
                     {
-                        if (kobans>=Number(getStoredValue("HHAuto_Setting_kobanBank"))+Number(shop[1][n1].price_buy) && shop[1][n1].item.currency == "hc" && shop[1][n1].item.identifier == boost && (shop[1][n1].item.rarity=='legendary' || shop[1][n1].item.rarity=='mythic') && boosterOwned <= MaxBooster)
+                        if (kobans>=Number(getStoredValue("HHAuto_Setting_kobanBank"))+Number(shop[1][n1].price_buy) && shop[1][n1].item.currency == "hc" && shop[1][n1].item.identifier == boost && (shop[1][n1].item.rarity=='legendary' || shop[1][n1].item.rarity=='mythic') && boosterOwned < MaxBooster)
                         {
-                            logHHAuto({log:'wanna buy ',object:shop[1][n1]});
+                            logHHAuto({log:'wanna buy ',object:shop[1][n1],owning: boosterOwned});
                             if (kobans>=Number(shop[1][n1].price_buy))
                             {
                                 logHHAuto({log:'Buying : ',object:shop[1][n1]});
@@ -77,6 +77,9 @@ export class Market {
                                     if (data.success === false)
                                     {
                                         clearTimer('nextShopTime');
+                                    } else {
+                                        HaveBooster[boost] = boosterOwned++;
+                                        setStoredValue("HHAuto_Temp_haveBooster", JSON.stringify(HaveBooster));
                                     }
                                     // change referer
                                     window.history.replaceState(null, '', '/home.html');
