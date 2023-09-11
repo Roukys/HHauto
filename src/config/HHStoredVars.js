@@ -274,6 +274,17 @@ HHStoredVars.HHAuto_Setting_autoLeaguesCollect =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars.HHAuto_Setting_autoLeaguesThreeFights =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_autoLeaguesPowerCalc =
     {
     default:"false",

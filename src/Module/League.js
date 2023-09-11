@@ -491,14 +491,18 @@ export class LeagueHelper {
     static doLeagueBattle() {
         //logHHAuto("Performing auto leagues.");
         // Confirm if on correct screen.
-        var currentPower = getHHVars('Hero.energies.challenge.amount');
+        const currentPower = getHHVars('Hero.energies.challenge.amount');
+        const maxLeagueRegen = getHHVars('Hero.energies.challenge.max_regen_amount');
         const leagueThreshold = Number(getStoredValue("HHAuto_Setting_autoLeaguesThreshold"));
+        const autoLeaguesThreeFights = getStoredValue("HHAuto_Setting_autoLeaguesThreeFights") === "true";
         let leagueScoreSecurityThreshold = getStoredValue("HHAuto_Setting_autoLeaguesSecurityThreshold");
         if (leagueScoreSecurityThreshold) {
             leagueScoreSecurityThreshold = Number(leagueScoreSecurityThreshold);
         }else{
             leagueScoreSecurityThreshold = 40;
         }
+        // const enoughChallengeForLeague = currentLeagueEnergy > leaguesThreshold && !autoLeaguesThreeFights
+        // ||  (currentLeagueEnergy >= (leaguesThreshold+3) || currentLeagueEnergy >= maxLeague && currentLeagueEnergy > leaguesThreshold) && autoLeaguesThreeFights;
         var ltime;
 
         var page = getPage();

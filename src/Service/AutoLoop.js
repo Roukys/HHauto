@@ -374,7 +374,9 @@ export function autoLoop()
             GenericBattle.doBattle();
         }
 
-        if(busy === false && getHHScriptVars("isEnabledTrollBattle",false) && getStoredValue("HHAuto_Setting_autoTrollBattle") === "true" && getHHVars('Hero.infos.questing.id_world')>0 && getStoredValue("HHAuto_Temp_autoLoop") === "true" && canCollectCompetitionActive())
+        if(busy === false && getHHScriptVars("isEnabledTrollBattle",false) 
+        && (getStoredValue("HHAuto_Setting_autoTrollBattle") === "true" || getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true")
+        && getHHVars('Hero.infos.questing.id_world')>0 && getStoredValue("HHAuto_Temp_autoLoop") === "true" && canCollectCompetitionActive())
         {
             //logHHAuto("fight amount: "+currentPower+" troll threshold: "+Number(getStoredValue("HHAuto_Setting_autoTrollThreshold"))+" paranoia fight: "+Number(checkParanoiaSpendings('fight')));
             if
@@ -501,7 +503,9 @@ export function autoLoop()
                     logHHAuto("Quest requires battle.");
                     logHHAuto("prepare to save one battle for quest");
                     setStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest", "true");
-                    //doBossBattle();
+                    if(getStoredValue("HHAuto_Setting_autoTrollBattle") !== "true") {
+                        Troll.doBossBattle();
+                    }
                 }
                 busy = true;
             }
