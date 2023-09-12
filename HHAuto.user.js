@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.1.3
+// @version      6.1.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4446,7 +4446,7 @@ class Harem {
 
         function extractHHGirls()
         {
-            dataToSave = "Name,Rarity,Class,Figure,Level,Stars,Of,Left,Hardcore,Charm,Know-how,Total,Position,Eyes,Hair,Zodiac,Own\r\n";
+            var dataToSave = "Name,Rarity,Class,Figure,Level,Stars,Of,Left,Hardcore,Charm,Know-how,Total,Position,Eyes,Hair,Zodiac,Own\r\n";
             var gMap = getHHVars('GirlSalaryManager.girlsMap');
             if(gMap === null)
             {
@@ -4691,8 +4691,11 @@ class Harem {
                         maxOutButtonAndConfirm(haremItem, selectedGirl);
                         Harem.HaremClearGirlPopup();
                     }
-                    else
-                        maxOutAndAwake(haremItem, selectedGirl);
+                    else {
+                        setTimeout(function() {
+                            maxOutAndAwake(haremItem, selectedGirl);
+                        }, randomInterval(500,1000));
+                    }
                 } else{
                     if(Number(selectedGirl.level) >= Number(userHaremGirlLimit))
                         LogUtils_logHHAuto("Girl already above target, ignoring action");

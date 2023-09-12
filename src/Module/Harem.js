@@ -288,7 +288,7 @@ export class Harem {
 
         function extractHHGirls()
         {
-            dataToSave = "Name,Rarity,Class,Figure,Level,Stars,Of,Left,Hardcore,Charm,Know-how,Total,Position,Eyes,Hair,Zodiac,Own\r\n";
+            var dataToSave = "Name,Rarity,Class,Figure,Level,Stars,Of,Left,Hardcore,Charm,Know-how,Total,Position,Eyes,Hair,Zodiac,Own\r\n";
             var gMap = getHHVars('GirlSalaryManager.girlsMap');
             if(gMap === null)
             {
@@ -533,8 +533,11 @@ export class Harem {
                         maxOutButtonAndConfirm(haremItem, selectedGirl);
                         Harem.HaremClearGirlPopup();
                     }
-                    else
-                        maxOutAndAwake(haremItem, selectedGirl);
+                    else {
+                        setTimeout(function() {
+                            maxOutAndAwake(haremItem, selectedGirl);
+                        }, randomInterval(500,1000));
+                    }
                 } else{
                     if(Number(selectedGirl.level) >= Number(userHaremGirlLimit))
                         logHHAuto("Girl already above target, ignoring action");
