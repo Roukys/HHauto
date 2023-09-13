@@ -134,7 +134,7 @@ export class Harem {
             if (girlsMap === null )
                 return;
             const currentSelectedGirlIndex = girlsMap.findIndex((element) => element.gId === $('#harem_left .girls_list div.opened[girl]').attr('girl'))+1;
-            const upgradableGirls = girlsMap.slice(currentSelectedGirlIndex).filter(filterGirlMapCanUpgrade)
+            const upgradableGirls = girlsMap.slice(currentSelectedGirlIndex).filter(Harem.filterGirlMapCanUpgrade)
             if (upgradableGirls.length > 0)
             {
                 gotoPage(`/harem/${upgradableGirls[0].gId}`);
@@ -211,7 +211,7 @@ export class Harem {
                 return;
             openedGirlz = 0;
             maxOpenedGirlz = Number(document.getElementById("HaremSortMenuSortNumber").value);
-            upgradableGirlz = girlsMap.filter(filterGirlMapCanUpgrade);
+            upgradableGirlz = girlsMap.filter(Harem.filterGirlMapCanUpgrade);
             //console.log(maxOpenedGirlz);
             if (upgradableGirlz.length > 0)
             {

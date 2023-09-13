@@ -1,4 +1,5 @@
 import { getLanguageCode } from "../Helper/LanguageHelper";
+import { Harem } from "../Module";
 
 export const HHKnownEnvironnements = {};
 HHKnownEnvironnements["www.hentaiheroes.com"] = {name:"HH_prod",id:"hh_hentai"};
@@ -227,8 +228,8 @@ HHEnvVariables["global"].haremSortingFunctions.Power = function sortByPower(a, b
 }
 HHEnvVariables["global"].haremSortingFunctions.upgrade_cost = function sortByUpgradeCost(a, b)
 {
-    const aCost = (Number(a.gData.nb_grades) === Number(a.gData.graded) || !a.gData.own ) ? 0 : getGirlUpgradeCost(a.gData.rarity, a.gData.graded + 1);
-    const bCost = (Number(b.gData.nb_grades) === Number(b.gData.graded) || !b.gData.own ) ? 0 : getGirlUpgradeCost(b.gData.rarity, b.gData.graded + 1);
+    const aCost = (Number(a.gData.nb_grades) === Number(a.gData.graded) || !a.gData.own ) ? 0 : Harem.getGirlUpgradeCost(a.gData.rarity, a.gData.graded + 1);
+    const bCost = (Number(b.gData.nb_grades) === Number(b.gData.graded) || !b.gData.own ) ? 0 : Harem.getGirlUpgradeCost(b.gData.rarity, b.gData.graded + 1);
     return compareOwnFirst(a.gData, b.gData, bCost - aCost )
 }
 
