@@ -835,7 +835,7 @@ HHStoredVars.HHAuto_Setting_eventTrollOrder =
 };
 HHStoredVars.HHAuto_Setting_autoBuyTrollNumber =
     {
-    default:"200",
+    default:"20",
     storage:"Storage()",
     HHType:"Setting",
     valueType:"List",
@@ -846,7 +846,7 @@ HHStoredVars.HHAuto_Setting_autoBuyTrollNumber =
 };
 HHStoredVars.HHAuto_Setting_autoBuyMythicTrollNumber =
     {
-    default:"200",
+    default:"20",
     storage:"Storage()",
     HHType:"Setting",
     valueType:"List",
