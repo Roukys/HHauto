@@ -22,8 +22,11 @@ export class SeasonalEvent {
         return $('#get_mega_pass_kobans_btn:visible').length <= 0
     }
     static getRemainingTime(){
-        const seasonalEventTimerRequest = `.seasonal-event-panel .seasonal-event-container .seasonal-timer span[rel=expires]`;
-    
+        const isMegaSeasonalEvent = SeasonalEvent.isMegaSeasonalEvent();
+        const seasonalEventTimerRequest = isMegaSeasonalEvent 
+                                        ? `.mega-event-panel .mega-event-container .mega-timer span[rel=expires]`
+                                        : `.seasonal-event-panel .seasonal-event-container .seasonal-timer span[rel=expires]`;
+
         if ( $(seasonalEventTimerRequest).length > 0 && (getSecondsLeft("SeasonalEventRemainingTime") === 0 || getStoredValue("HHAuto_Temp_SeasonalEventEndDate") === undefined) )
         {
             const seasonalEventTimer = Number(convertTimeToInt($(seasonalEventTimerRequest).text()));

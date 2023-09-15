@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.1.6
+// @version      6.1.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -2575,8 +2575,11 @@ class SeasonalEvent {
         return $('#get_mega_pass_kobans_btn:visible').length <= 0
     }
     static getRemainingTime(){
-        const seasonalEventTimerRequest = `.seasonal-event-panel .seasonal-event-container .seasonal-timer span[rel=expires]`;
-    
+        const isMegaSeasonalEvent = SeasonalEvent.isMegaSeasonalEvent();
+        const seasonalEventTimerRequest = isMegaSeasonalEvent 
+                                        ? `.mega-event-panel .mega-event-container .mega-timer span[rel=expires]`
+                                        : `.seasonal-event-panel .seasonal-event-container .seasonal-timer span[rel=expires]`;
+
         if ( $(seasonalEventTimerRequest).length > 0 && (getSecondsLeft("SeasonalEventRemainingTime") === 0 || StorageHelper_getStoredValue("HHAuto_Temp_SeasonalEventEndDate") === undefined) )
         {
             const seasonalEventTimer = Number(convertTimeToInt($(seasonalEventTimerRequest).text()));
@@ -14300,7 +14303,7 @@ function autoLoop()
         let mythicEventQuery = '#contains_all #homepage .event-widget a[rel="mythic_event"]:not([href="#"])';
         let bossBangEventQuery = '#contains_all #homepage .event-widget a[rel="boss_bang_event"]:not([href="#"])';
         let sultryMysteriesEventQuery = '#contains_all #homepage .event-widget a[rel="sm_event"]:not([href="#"])';
-        let seasonalEventQuery = '#contains_all #homepage .seasonal-event a';
+        let seasonalEventQuery = '#contains_all #homepage .seasonal-event a'; // Mega event have same query
         let povEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-valor"]';
         let pogEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-glory"]';
         let eventIDs=[];

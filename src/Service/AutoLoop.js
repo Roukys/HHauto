@@ -189,7 +189,7 @@ export function autoLoop()
         let mythicEventQuery = '#contains_all #homepage .event-widget a[rel="mythic_event"]:not([href="#"])';
         let bossBangEventQuery = '#contains_all #homepage .event-widget a[rel="boss_bang_event"]:not([href="#"])';
         let sultryMysteriesEventQuery = '#contains_all #homepage .event-widget a[rel="sm_event"]:not([href="#"])';
-        let seasonalEventQuery = '#contains_all #homepage .seasonal-event a';
+        let seasonalEventQuery = '#contains_all #homepage .seasonal-event a'; // Mega event have same query
         let povEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-valor"]';
         let pogEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-glory"]';
         let eventIDs=[];
