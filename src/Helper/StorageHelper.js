@@ -124,6 +124,15 @@ export function migrateHHVars()
             localStorage.removeItem(oldVar);
         }
     }
+
+    // TODO to be deleted in NOV23
+    if (getStoredValue("HHAuto_Setting_autoBuyTrollNumber") == "200") {
+        setStoredValue("HHAuto_Setting_autoBuyTrollNumber", "20");
+    }
+    // TODO to be deleted in NOV23
+    if (getStoredValue("HHAuto_Setting_autoBuyMythicTrollNumber") == "200") {
+        setStoredValue("HHAuto_Setting_autoBuyMythicTrollNumber", "20");
+    }
 }
 
 export function getUserHHStoredVarDefault(inVarName)

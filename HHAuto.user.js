@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.1.5
+// @version      6.1.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -9182,7 +9182,7 @@ HHStoredVars_HHStoredVars.HHAuto_Setting_eventTrollOrder =
 };
 HHStoredVars_HHStoredVars.HHAuto_Setting_autoBuyTrollNumber =
     {
-    default:"200",
+    default:"20",
     storage:"Storage()",
     HHType:"Setting",
     valueType:"List",
@@ -9193,7 +9193,7 @@ HHStoredVars_HHStoredVars.HHAuto_Setting_autoBuyTrollNumber =
 };
 HHStoredVars_HHStoredVars.HHAuto_Setting_autoBuyMythicTrollNumber =
     {
-    default:"200",
+    default:"20",
     storage:"Storage()",
     HHType:"Setting",
     valueType:"List",
@@ -10058,7 +10058,7 @@ const HHAuto_inputPattern = {
     autoSalaryTimer:"[0-9]+",
     autoTrollThreshold:"[1]?[0-9]",
     eventTrollOrder:"([1-2][0-9]|[1-9])(;([1-2][0-9]|[1-9]))*",
-    autoBuyTrollNumber:"200|1[0-9][0-9]|[1-9]?[0-9]",
+    autoBuyTrollNumber:"1[0-9][0-9]|[1-9]?[0-9]",//"200|1[0-9][0-9]|[1-9]?[0-9]", // TODO revert in NOV23
     autoSeasonThreshold:"[0-9]",
     autoPantheonThreshold:"[0-9]",
     bossBangMinTeam:"[1-5]",
@@ -10929,6 +10929,15 @@ function migrateHHVars()
             localStorage[newVar] = localStorage[oldVar];
             localStorage.removeItem(oldVar);
         }
+    }
+
+    // TODO to be deleted in NOV23
+    if (StorageHelper_getStoredValue("HHAuto_Setting_autoBuyTrollNumber") == "200") {
+        StorageHelper_setStoredValue("HHAuto_Setting_autoBuyTrollNumber", "20");
+    }
+    // TODO to be deleted in NOV23
+    if (StorageHelper_getStoredValue("HHAuto_Setting_autoBuyMythicTrollNumber") == "200") {
+        StorageHelper_setStoredValue("HHAuto_Setting_autoBuyMythicTrollNumber", "20");
     }
 }
 
