@@ -21,7 +21,7 @@ export class Harem {
 
     static clearHaremToolVariables()
     {
-        logHHAuto('clearHaremToolVariables');
+        // logHHAuto('clearHaremToolVariables');
         deleteStoredValue("HHAuto_Temp_haremGirlActions");
         deleteStoredValue("HHAuto_Temp_haremGirlMode");
         deleteStoredValue("HHAuto_Temp_haremGirlEnd");

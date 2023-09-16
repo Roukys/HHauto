@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.2.0
+// @version      6.3.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -2816,6 +2816,34 @@ class SeasonalEvent {
             target.append($('<div id='+hhRewardId+' style="display:none;"></div>'));
         }
     }
+    static goAndCollectMegaEventRankRewards() {
+        if (getPage() === getHHScriptVars("pagesIDSeasonalEvent"))
+        {
+            const isMegaSeasonalEvent = SeasonalEvent.isMegaSeasonalEvent();
+            if(!isMegaSeasonalEvent) {
+                LogUtils_logHHAuto('Not Mega Event');
+                setTimer('nextMegaEventRankCollectTime', 604800); // 1 week delay
+                return;
+            }
+            LogUtils_logHHAuto('Collect Mega Event Rank Rewards');
+            // switch tabs
+            $('#mega-event-tabs #top_ranking_tab').click();
+
+            setTimer('nextMegaEventRankCollectTime', getSecondsLeftBeforeEndOfHHDay() + 3600);
+        }
+        else if(unsafeWindow.seasonal_event_active || unsafeWindow.seasonal_time_remaining > 0)
+        {
+            LogUtils_logHHAuto("Switching to SeasonalEvent screen.");
+            gotoPage(getHHScriptVars("pagesIDSeasonalEvent"));
+            return true;
+        }
+        else
+        {
+            LogUtils_logHHAuto("No SeasonalEvent active.");
+            setTimer('nextMegaEventRankCollectTime', 604800); // 1 week delay
+            return false;
+        }
+    }
 }
 ;// CONCATENATED MODULE: ./src/Module/Events/index.js
 
@@ -3753,7 +3781,7 @@ class HaremGirl {
             return true;
         } else {
             LogUtils_logHHAuto('Can\'t upgrade girl ' + girl.id_girl + ': grade (' + girl.graded +'/'+ girl.nb_grades + '), quest :' + upgradeQuest);
-            if(!upgradeQuest && retry===0) {
+            if(!upgradeQuest && retry<2) {
                 LogUtils_logHHAuto('Can be loading time, retry in 1s');
                 setTimeout(() => {
                     HaremGirl.goToGirlQuest(girl, 1);
@@ -4127,7 +4155,7 @@ class Harem {
 
     static clearHaremToolVariables()
     {
-        LogUtils_logHHAuto('clearHaremToolVariables');
+        // logHHAuto('clearHaremToolVariables');
         deleteStoredValue("HHAuto_Temp_haremGirlActions");
         deleteStoredValue("HHAuto_Temp_haremGirlMode");
         deleteStoredValue("HHAuto_Temp_haremGirlEnd");
@@ -15159,6 +15187,16 @@ function autoLoop()
             LogUtils_logHHAuto("Time to go and check SeasonalEvent for collecting reward.");
             busy = true;
             busy = SeasonalEvent.goAndCollect();
+        }
+
+        if (
+            busy==false && getHHScriptVars("isEnabledSeasonalEvent",false) && StorageHelper_getStoredValue("HHAuto_Temp_autoLoop") === "true" &&
+            checkTimer('nextMegaEventRankCollectTime') && StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true" && canCollectCompetitionActive()
+        )
+        {
+            LogUtils_logHHAuto("Time to go and check  SeasonalEvent for collecting rank reward.");
+            busy = true;
+            busy = SeasonalEvent.goAndCollectMegaEventRankRewards();
         }
 
         if (
