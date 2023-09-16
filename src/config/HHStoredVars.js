@@ -1506,6 +1506,11 @@ HHStoredVars.HHAuto_Temp_haremGirlMode =
     storage:"sessionStorage",
     HHType:"Temp"
 };
+HHStoredVars.HHAuto_Temp_haremGirlEnd =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
 HHStoredVars.HHAuto_Temp_haremGirlLimit =
     {
     storage:"sessionStorage",
