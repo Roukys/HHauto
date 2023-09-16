@@ -121,7 +121,7 @@ export class QuestHelper {
                 }
                 else
                 {
-                    logHHAuto("Spending "+proceedCost+" Money to proceed.");
+                    logHHAuto("Need "+proceedCost+" Money to proceed.");
                     setStoredValue("HHAuto_Temp_questRequirement", "$"+proceedCost);
                     return;
                 }

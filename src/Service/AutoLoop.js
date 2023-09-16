@@ -31,6 +31,7 @@ import {
     EventModule,
     GenericBattle,
     Harem,
+    HaremGirl,
     HaremSalary,
     LeagueHelper,
     Missions,
@@ -980,8 +981,8 @@ export function autoLoop()
             Harem.haremOpenFirstXUpgradable();
             break;
         case getHHScriptVars("pagesIDGirlPage"):
-            Harem.moduleHaremGirl = callItOnce(Harem.moduleHaremGirl);
-            Harem.moduleHaremGirl();
+            HaremGirl.moduleHaremGirl = callItOnce(HaremGirl.moduleHaremGirl);
+            HaremGirl.moduleHaremGirl();
             break;
         case getHHScriptVars("pagesIDPachinko"):
             Pachinko.modulePachinko();
@@ -1033,6 +1034,14 @@ export function autoLoop()
             break;
         case getHHScriptVars("pagesIDClubChampion"):
             Champion.moduleSimChampions();
+            break;
+        case getHHScriptVars("pagesIDQuest"):
+            const haremItem = getStoredValue("HHAuto_Temp_haremGirlActions");
+            const haremGirlMode = getStoredValue("HHAuto_Temp_haremGirlMode");
+            if(haremGirlMode && haremItem === HaremGirl.AFFECTION_TYPE) {
+                HaremGirl.payGirlQuest = callItOnce(HaremGirl.payGirlQuest);
+                HaremGirl.payGirlQuest();
+            }
             break;
         case getHHScriptVars("pagesIDClub"):
             Club.run();
