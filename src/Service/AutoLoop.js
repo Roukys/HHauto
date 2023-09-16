@@ -782,6 +782,16 @@ export function autoLoop()
         }
 
         if (
+            busy==false && getHHScriptVars("isEnabledSeasonalEvent",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" &&
+            checkTimer('nextMegaEventRankCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true" && canCollectCompetitionActive()
+        )
+        {
+            logHHAuto("Time to go and check  SeasonalEvent for collecting rank reward.");
+            busy = true;
+            busy = SeasonalEvent.goAndCollectMegaEventRankRewards();
+        }
+
+        if (
             busy==false && getHHScriptVars("isEnabledPoV",false) && getStoredValue("HHAuto_Temp_autoLoop") === "true" && getHHVars('Hero.infos.level')>=30 &&
             (
                 checkTimer('nextPoVCollectTime') && getStoredValue("HHAuto_Setting_autoPoVCollect") === "true" && canCollectCompetitionActive()

@@ -6,6 +6,7 @@ import {
     getLimitTimeBeforeEnd,
     getPage,
     getSecondsLeft,
+    getSecondsLeftBeforeEndOfHHDay,
     getStoredValue,
     getTextForUI,
     randomInterval,
@@ -255,6 +256,34 @@ export class SeasonalEvent {
         } catch(err) {
             logHHAuto("ERROR:", err.message);
             target.append($('<div id='+hhRewardId+' style="display:none;"></div>'));
+        }
+    }
+    static goAndCollectMegaEventRankRewards() {
+        if (getPage() === getHHScriptVars("pagesIDSeasonalEvent"))
+        {
+            const isMegaSeasonalEvent = SeasonalEvent.isMegaSeasonalEvent();
+            if(!isMegaSeasonalEvent) {
+                logHHAuto('Not Mega Event');
+                setTimer('nextMegaEventRankCollectTime', 604800); // 1 week delay
+                return;
+            }
+            logHHAuto('Collect Mega Event Rank Rewards');
+            // switch tabs
+            $('#mega-event-tabs #top_ranking_tab').click();
+
+            setTimer('nextMegaEventRankCollectTime', getSecondsLeftBeforeEndOfHHDay() + 3600);
+        }
+        else if(unsafeWindow.seasonal_event_active || unsafeWindow.seasonal_time_remaining > 0)
+        {
+            logHHAuto("Switching to SeasonalEvent screen.");
+            gotoPage(getHHScriptVars("pagesIDSeasonalEvent"));
+            return true;
+        }
+        else
+        {
+            logHHAuto("No SeasonalEvent active.");
+            setTimer('nextMegaEventRankCollectTime', 604800); // 1 week delay
+            return false;
         }
     }
 }
