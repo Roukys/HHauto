@@ -85,6 +85,7 @@ HHAuto_ToolTips.en.autoChampsForceStart = { version: "5.6.76", elementText: "For
 HHAuto_ToolTips.en.autoChampsUseEne = { version: "5.39.0", elementText: "Buy tickets", tooltip: "If enabled : use Energy to buy tickets respecting the energy quest threshold"};
 HHAuto_ToolTips.en.autoChampsFilter = { version: "5.6.24", elementText: "Filter", tooltip: "(values separated by ; 1 to 6)<br>Allow to set filter on champions to be fought"};
 HHAuto_ToolTips.en.autoChampsTeamLoop = { version: "5.21.0", elementText: "Auto team Loops", tooltip: "Number of loop to search for champion team for every button click"};
+HHAuto_ToolTips.en.autoChampsGirlThreshold = { version: "6.4.0", elementText: "Girl min power", tooltip: "Minimum power for the girl to be considered (power without pose boost, in white)"};
 HHAuto_ToolTips.en.autoChampsTeamKeepSecondLine = { version: "5.27.0", elementText: "Keep second line girls", tooltip: "If enabled: keep second line matching girls when first line is not full"};
 HHAuto_ToolTips.en.ChampTeamButton = { version: "5.8.0", elementText: "Indicate team order", tooltip: "Add number for the prefered girl order to fight champion"};
 HHAuto_ToolTips.en.updateChampTeamButton = { version: "5.21.0", elementText: "Find best team", tooltip: ""};

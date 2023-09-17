@@ -120,6 +120,17 @@ HHStoredVars.HHAuto_Setting_autoChampsTeamLoop =
     menuType:"value",
     kobanUsing:false
 };
+HHStoredVars.HHAuto_Setting_autoChampsGirlThreshold =
+    {
+    default:"0",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_autoChampsTeamKeepSecondLine =
     {
     default:"false",

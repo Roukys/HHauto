@@ -548,6 +548,7 @@ export function getMenu() {
                         +`</div>`
                         +`<div class="internalOptionsRow separator">`
                             + hhMenuInput('autoChampsTeamLoop', HHAuto_inputPattern.autoChampsTeamLoop, 'text-align:center; width:25px', '', 'numeric')
+                            + hhMenuInput('autoChampsGirlThreshold', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:center; width:45px')
                             + hhMenuSwitch('autoChampsTeamKeepSecondLine')
                         +`</div>`
                     +`</div>`

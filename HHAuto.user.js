@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.3.0
+// @version      6.4.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -245,6 +245,7 @@ HHAuto_ToolTips.en.autoChampsForceStart = { version: "5.6.76", elementText: "For
 HHAuto_ToolTips.en.autoChampsUseEne = { version: "5.39.0", elementText: "Buy tickets", tooltip: "If enabled : use Energy to buy tickets respecting the energy quest threshold"};
 HHAuto_ToolTips.en.autoChampsFilter = { version: "5.6.24", elementText: "Filter", tooltip: "(values separated by ; 1 to 6)<br>Allow to set filter on champions to be fought"};
 HHAuto_ToolTips.en.autoChampsTeamLoop = { version: "5.21.0", elementText: "Auto team Loops", tooltip: "Number of loop to search for champion team for every button click"};
+HHAuto_ToolTips.en.autoChampsGirlThreshold = { version: "6.4.0", elementText: "Girl min power", tooltip: "Minimum power for the girl to be considered (power without pose boost, in white)"};
 HHAuto_ToolTips.en.autoChampsTeamKeepSecondLine = { version: "5.27.0", elementText: "Keep second line girls", tooltip: "If enabled: keep second line matching girls when first line is not full"};
 HHAuto_ToolTips.en.ChampTeamButton = { version: "5.8.0", elementText: "Indicate team order", tooltip: "Add number for the prefered girl order to fight champion"};
 HHAuto_ToolTips.en.updateChampTeamButton = { version: "5.21.0", elementText: "Find best team", tooltip: ""};
@@ -2897,6 +2898,7 @@ class Champion {
             return poses;
         }
         var getChampMaxLoop = function(){return StorageHelper_getStoredValue("HHAuto_Setting_autoChampsTeamLoop") !== undefined ? StorageHelper_getStoredValue("HHAuto_Setting_autoChampsTeamLoop") : 10;}
+        var getMinGirlPower = function(){return StorageHelper_getStoredValue("HHAuto_Setting_autoChampsGirlThreshold") !== undefined ? StorageHelper_getStoredValue("HHAuto_Setting_autoChampsGirlThreshold") : 50000;}
         var getChampSecondLine = function(){return StorageHelper_getStoredValue("HHAuto_Setting_autoChampsTeamKeepSecondLine") === 'true';}
 
         //let champTeamButton = '<div style="position: absolute;left: 330px;top: 10px;width:90px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ChampTeamButton","tooltip")+'</span><label class="myButton" id="ChampTeamButton">'+getTextForUI("ChampTeamButton","elementText")+'</label></div>';
@@ -2906,6 +2908,7 @@ class Champion {
         var freeDrafts = unsafeWindow.championData.freeDrafts;
         var counterLoop = 0;
         let maxLoops = getChampMaxLoop();
+        const girlMinPower = getMinGirlPower();
         let keepSecondLineGirls = getChampSecondLine();
         const championRequiredPoses = getPoses($(".champions-over__champion-info.champions-animation .champion-pose"));
         const girlBoxesQuery = ".champions-middle__girl-selection.champions-animation .girl-selection__girl-box";
@@ -2994,13 +2997,16 @@ class Champion {
                 girls.sort((a,b) => a.data.damage - b.data.damage);
             });
 
+            const hero_damage = unsafeWindow.championData.hero_damage;
             // Build team
             if (keepSecondLineGirls) {
                 var teamGirlIndex = 0;
                 for(var i=0;i<10;i++) {
                     var expectedPose = championRequiredPoses[i%5];
                     if(girlsPerPose[expectedPose] && girlsPerPose[expectedPose].length > 0 && teamGirlIndex < 5){
-                        teamGirls[teamGirlIndex++] = girlsPerPose[expectedPose][0].data.id_girl;
+                        if((girlsPerPose[expectedPose][0].data.damage + hero_damage) >= girlMinPower) {
+                            teamGirls[teamGirlIndex++] = girlsPerPose[expectedPose][0].data.id_girl;
+                        }
                         girlsPerPose[expectedPose].shift();
                     }
                 }
@@ -3009,7 +3015,9 @@ class Champion {
                     var expectedPose = championRequiredPoses[i%5];
                     teamGirls[i] = -1;
                     if(girlsPerPose[expectedPose] && girlsPerPose[expectedPose].length > 0){
-                        teamGirls[i] = girlsPerPose[expectedPose][0].data.id_girl;
+                        if((girlsPerPose[expectedPose][0].data.damage + hero_damage) >= girlMinPower) {
+                            teamGirls[i] = girlsPerPose[expectedPose][0].data.id_girl;
+                        }
                         girlsPerPose[expectedPose].shift();
                     }
                 }
@@ -8760,6 +8768,17 @@ HHStoredVars_HHStoredVars.HHAuto_Setting_autoChampsTeamLoop =
     menuType:"value",
     kobanUsing:false
 };
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoChampsGirlThreshold =
+    {
+    default:"0",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
 HHStoredVars_HHStoredVars.HHAuto_Setting_autoChampsTeamKeepSecondLine =
     {
     default:"false",
@@ -11015,6 +11034,7 @@ function getMenu() {
                         +`</div>`
                         +`<div class="internalOptionsRow separator">`
                             + hhMenuInput('autoChampsTeamLoop', HHAuto_inputPattern.autoChampsTeamLoop, 'text-align:center; width:25px', '', 'numeric')
+                            + hhMenuInput('autoChampsGirlThreshold', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:center; width:45px')
                             + hhMenuSwitch('autoChampsTeamKeepSecondLine')
                         +`</div>`
                     +`</div>`

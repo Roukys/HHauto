@@ -6,6 +6,7 @@ import {
     getStoredValue,
     getTextForUI,
     randomInterval,
+    remove1000sSeparator,
     setStoredValue,
     setTimer
 } from "../Helper";
@@ -50,6 +51,7 @@ export class Champion {
             return poses;
         }
         var getChampMaxLoop = function(){return getStoredValue("HHAuto_Setting_autoChampsTeamLoop") !== undefined ? getStoredValue("HHAuto_Setting_autoChampsTeamLoop") : 10;}
+        var getMinGirlPower = function(){return getStoredValue("HHAuto_Setting_autoChampsGirlThreshold") !== undefined ? getStoredValue("HHAuto_Setting_autoChampsGirlThreshold") : 50000;}
         var getChampSecondLine = function(){return getStoredValue("HHAuto_Setting_autoChampsTeamKeepSecondLine") === 'true';}
 
         //let champTeamButton = '<div style="position: absolute;left: 330px;top: 10px;width:90px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ChampTeamButton","tooltip")+'</span><label class="myButton" id="ChampTeamButton">'+getTextForUI("ChampTeamButton","elementText")+'</label></div>';
@@ -59,6 +61,7 @@ export class Champion {
         var freeDrafts = unsafeWindow.championData.freeDrafts;
         var counterLoop = 0;
         let maxLoops = getChampMaxLoop();
+        const girlMinPower = getMinGirlPower();
         let keepSecondLineGirls = getChampSecondLine();
         const championRequiredPoses = getPoses($(".champions-over__champion-info.champions-animation .champion-pose"));
         const girlBoxesQuery = ".champions-middle__girl-selection.champions-animation .girl-selection__girl-box";
@@ -147,13 +150,16 @@ export class Champion {
                 girls.sort((a,b) => a.data.damage - b.data.damage);
             });
 
+            const hero_damage = unsafeWindow.championData.hero_damage;
             // Build team
             if (keepSecondLineGirls) {
                 var teamGirlIndex = 0;
                 for(var i=0;i<10;i++) {
                     var expectedPose = championRequiredPoses[i%5];
                     if(girlsPerPose[expectedPose] && girlsPerPose[expectedPose].length > 0 && teamGirlIndex < 5){
-                        teamGirls[teamGirlIndex++] = girlsPerPose[expectedPose][0].data.id_girl;
+                        if((girlsPerPose[expectedPose][0].data.damage + hero_damage) >= girlMinPower) {
+                            teamGirls[teamGirlIndex++] = girlsPerPose[expectedPose][0].data.id_girl;
+                        }
                         girlsPerPose[expectedPose].shift();
                     }
                 }
@@ -162,7 +168,9 @@ export class Champion {
                     var expectedPose = championRequiredPoses[i%5];
                     teamGirls[i] = -1;
                     if(girlsPerPose[expectedPose] && girlsPerPose[expectedPose].length > 0){
-                        teamGirls[i] = girlsPerPose[expectedPose][0].data.id_girl;
+                        if((girlsPerPose[expectedPose][0].data.damage + hero_damage) >= girlMinPower) {
+                            teamGirls[i] = girlsPerPose[expectedPose][0].data.id_girl;
+                        }
                         girlsPerPose[expectedPose].shift();
                     }
                 }
