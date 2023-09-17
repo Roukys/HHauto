@@ -116,7 +116,7 @@ export class Troll {
             setStoredValue("HHAuto_Temp_questRequirement", "none");
         }
         if(TTF >= Trollz.length) {
-            logHHAuto("Error: New troll implemented (List to be updated) or wrong troll target found");
+            logHHAuto("Error: New troll implemented '"+TTF+"' (List to be updated) or wrong troll target found");
             TTF = Trollz.length-1;
         }
         return TTF;

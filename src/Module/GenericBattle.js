@@ -1,5 +1,6 @@
 import {
     RewardHelper,
+    Trollz,
     getHHScriptVars,
     getHHVars,
     getPage,
@@ -26,7 +27,7 @@ export class GenericBattle {
             else if (getPage() === getHHScriptVars("pagesIDTrollBattle") )
             {
                 //console.log(Number(troll_id),Number(getHHVars('Hero.infos.questing.id_world'))-1,Number(troll_id) === Number(getHHVars('Hero.infos.questing.id_world'))-1);
-                if (getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true" && Number(troll_id) === Number(getHHVars('Hero.infos.questing.id_world'))-1)
+                if (getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true" && (Number(troll_id) === Number(getHHVars('Hero.infos.questing.id_world'))-1 || Number(troll_id) === Trollz.length-1 /*PSH*/))
                 {
                     setStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest", "false");
                 }
