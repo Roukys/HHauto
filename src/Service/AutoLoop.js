@@ -1,5 +1,6 @@
 import { setDefaults } from ".";
 import {
+    HeroHelper,
     RewardHelper,
     canCollectCompetitionActive,
     checkTimer,
@@ -20,7 +21,7 @@ import {
      switchHHMenuButton
 } from "../Helper";
 import {
-    // Booster,
+    Booster,
     BossBang,
     Bundles,
     Champion,
@@ -186,102 +187,14 @@ export function autoLoop()
 
         const Hero = getHero();
         //if a new event is detected
-        let eventQuery = '#contains_all #homepage .event-widget a[rel="event"]:not([href="#"])';
-        let mythicEventQuery = '#contains_all #homepage .event-widget a[rel="mythic_event"]:not([href="#"])';
-        let bossBangEventQuery = '#contains_all #homepage .event-widget a[rel="boss_bang_event"]:not([href="#"])';
-        let sultryMysteriesEventQuery = '#contains_all #homepage .event-widget a[rel="sm_event"]:not([href="#"])';
-        let seasonalEventQuery = '#contains_all #homepage .seasonal-event a'; // Mega event have same query
-        let povEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-valor"]';
-        let pogEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-glory"]';
-        let eventIDs=[];
-        let bossBangEventIDs=[];
-        if (getPage()===getHHScriptVars("pagesIDEvent"))
-        {
-            if (queryStringGetParam(window.location.search,'tab') !== null)
-            {
-                eventIDs.push(queryStringGetParam(window.location.search,'tab'));
-            }
-        }
-        else if (getPage() === getHHScriptVars("pagesIDHome"))
-        {
-            let parsedURL;
-            let queryResults=$(eventQuery);
-            for(let index = 0;index < queryResults.length;index++)
-            {
-                parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
-                if (queryStringGetParam(parsedURL.search,'tab') !== null && EventModule.checkEvent(queryStringGetParam(parsedURL.search,'tab')))
-                {
-                    eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
-                }
-            }
-            queryResults=$(mythicEventQuery);
-            for(let index = 0;index < queryResults.length;index++)
-            {
-                parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
-                if (queryStringGetParam(parsedURL.search,'tab') !== null && EventModule.checkEvent(queryStringGetParam(parsedURL.search,'tab')))
-                {
-                    eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
-                }
-            }
-            queryResults=$(bossBangEventQuery);
-            for(let index = 0;index < queryResults.length;index++)
-            {
-                parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
-                if (queryStringGetParam(parsedURL.search,'tab') !== null && EventModule.checkEvent(queryStringGetParam(parsedURL.search,'tab')))
-                {
-                    bossBangEventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
-                }
-            }
-            queryResults=$(sultryMysteriesEventQuery);
-            for(let index = 0;index < queryResults.length;index++)
-            {
-                parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
-                if (queryStringGetParam(parsedURL.search,'tab') !== null && EventModule.checkEvent(queryStringGetParam(parsedURL.search,'tab')))
-                {
-                    eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
-                }
-            }
-            if (queryResults.length <= 0 && getTimer("eventSultryMysteryShopRefresh") !== -1)
-            {
-                // event is over
-                clearTimer("eventSultryMysteryShopRefresh");
-            }
-            queryResults=$(seasonalEventQuery);
-            if((getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true" || getStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll") === "true") && queryResults.length == 0)
-            {
-                logHHAuto("No seasonal event found, deactivate collect.");
-                setStoredValue("HHAuto_Setting_autoSeasonalEventCollect", "false");
-                setStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll", "false");
-            }
-            queryResults=$(povEventQuery);
-            if((getStoredValue("HHAuto_Setting_autoPoVCollect") === "true" || getStoredValue("HHAuto_Setting_autoPoVCollectAll") === "true") && queryResults.length == 0)
-            {
-                logHHAuto("No pov event found, deactivate collect.");
-                setStoredValue("HHAuto_Setting_autoPoVCollect", "false");
-                setStoredValue("HHAuto_Setting_autoPoVCollectAll", "false");
-            }
-            queryResults=$(pogEventQuery);
-            if((getStoredValue("HHAuto_Setting_autoPoGCollect") === "true" || getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true") && queryResults.length == 0)
-            {
-                logHHAuto("No pog event found, deactivate collect.");
-                setStoredValue("HHAuto_Setting_autoPoGCollect", "false");
-                setStoredValue("HHAuto_Setting_autoPoGCollectAll", "false");
-            }
-        }
+        const {eventIDs, bossBangEventIDs} = EventModule.parsePageForEventId();
         if(
-            busy === false
-            && getHHScriptVars("isEnabledEvents",false)
+            busy === false && getHHScriptVars("isEnabledEvents",false)
             &&
             (
-                (
-                    eventIDs.length > 0
-                    && getPage() !== getHHScriptVars("pagesIDEvent")
-                )
+                (eventIDs.length > 0 && getPage() !== getHHScriptVars("pagesIDEvent"))
                 ||
-                (
-                    getPage()===getHHScriptVars("pagesIDEvent")
-                    && $("#contains_all #events[parsed]").length === 0
-                )
+                (getPage()===getHHScriptVars("pagesIDEvent") && $("#contains_all #events[parsed]").length === 0)
             )
         )
             //&& ( getStoredValue("HHAuto_Temp_EventFightsBeforeRefresh") === undefined || getTimer('eventRefreshExpiration') === -1 || getStoredValue("HHAuto_Temp_eventGirl") === undefined)
@@ -291,7 +204,7 @@ export function autoLoop()
             busy = EventModule.parseEventPage(eventIDs[0]);
         }
 
-        if (busy===false && getHHScriptVars("isEnabledShop",false) && getStoredValue("HHAuto_Setting_updateMarket")  === "true" && ( getStoredValue("HHAuto_Setting_paranoia") !== "true" || !checkTimer("paranoiaSwitch") )  && getStoredValue("HHAuto_Temp_autoLoop") === "true")
+        if (busy===false && getHHScriptVars("isEnabledShop",false) && Shop.isTimeToCheckShop() && getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
             if (getStoredValue("HHAuto_Temp_charLevel") ===undefined)
             {
@@ -722,10 +635,10 @@ export function autoLoop()
             busy= ClubChampion.doClubChampionStuff();
         }
 
-        if(busy === false && getHHScriptVars("isEnabledLeagues",false) && getStoredValue("HHAuto_Setting_autoLeagues") === "true" && getHHVars('Hero.infos.level')>=20 && getStoredValue("HHAuto_Temp_autoLoop") === "true" && canCollectCompetitionActive())
+        if(busy === false && getHHScriptVars("isEnabledLeagues",false) && LeagueHelper.isAutoLeagueActivated() && getStoredValue("HHAuto_Temp_autoLoop") === "true" && canCollectCompetitionActive())
         {
             // Navigate to leagues
-            if ((checkTimer('nextLeaguesTime') && Number(getHHVars('Hero.energies.challenge.amount')) > Number(getStoredValue("HHAuto_Setting_autoLeaguesThreshold")) ) || Number(checkParanoiaSpendings('challenge')) > 0)
+            if (LeagueHelper.isTimeToFightLeague())
             {
                 logHHAuto("Time to fight in Leagues.");
                 LeagueHelper.doLeagueBattle();
@@ -972,8 +885,10 @@ export function autoLoop()
             {
                 Shop.moduleShopActions();
             }
-            // Booster.collectBoostersFromMarket = callItOnce(Booster.collectBoostersFromMarket);
-            // Booster.collectBoostersFromMarket();
+            if(Booster.needBoosterStatusFromStore()) {
+                Booster.collectBoostersFromMarket = callItOnce(Booster.collectBoostersFromMarket);
+                Booster.collectBoostersFromMarket();
+            }
             break;
         case getHHScriptVars("pagesIDHome"):
             setTimeout(Season.displayRemainingTime,500);

@@ -452,6 +452,7 @@ export function getMenu() {
                                 + hhMenuSwitch('autoLeaguesPowerCalc')
                                 +`</div>`
                                 + hhMenuSwitch('autoLeaguesCollect')
+                                + hhMenuSwitch('autoLeaguesBoostedOnly')
                                 + `<div style="display:none;">` + hhMenuSwitch('autoLeaguesThreeFights') + `</div>`
                                 + hhMenuSwitch('leagueListDisplayPowerCalc')
                             +`</div>`
@@ -522,6 +523,7 @@ export function getMenu() {
                             + hhMenuSwitch('buyMythicCombat', '', true)
                             + hhMenuInput('autoBuyMythicTrollNumber', HHAuto_inputPattern.autoBuyTrollNumber, 'width:40px')
                             + hhMenuInput('buyMythicCombTimer', HHAuto_inputPattern.buyMythicCombTimer, 'text-align:center; width:40px', '', 'numeric')
+                            + `<div style="display:none;">` + hhMenuSwitch('plusEventMythicSandalWood') + '</div>'
                         +`</div>`
                     +`</div>`
                 +`</div>`
