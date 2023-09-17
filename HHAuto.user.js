@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.4.0
+// @version      6.4.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3662,7 +3662,7 @@ class GenericBattle {
             else if (getPage() === getHHScriptVars("pagesIDTrollBattle") )
             {
                 //console.log(Number(troll_id),Number(getHHVars('Hero.infos.questing.id_world'))-1,Number(troll_id) === Number(getHHVars('Hero.infos.questing.id_world'))-1);
-                if (StorageHelper_getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true" && Number(troll_id) === Number(getHHVars('Hero.infos.questing.id_world'))-1)
+                if (StorageHelper_getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true" && (Number(troll_id) === Number(getHHVars('Hero.infos.questing.id_world'))-1 || Number(troll_id) === Trollz.length-1 /*PSH*/))
                 {
                     StorageHelper_setStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest", "false");
                 }
@@ -7731,7 +7731,7 @@ class Troll {
             StorageHelper_setStoredValue("HHAuto_Temp_questRequirement", "none");
         }
         if(TTF >= Trollz.length) {
-            LogUtils_logHHAuto("Error: New troll implemented (List to be updated) or wrong troll target found");
+            LogUtils_logHHAuto("Error: New troll implemented '"+TTF+"' (List to be updated) or wrong troll target found");
             TTF = Trollz.length-1;
         }
         return TTF;
