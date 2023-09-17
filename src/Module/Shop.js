@@ -1,4 +1,5 @@
 import {
+    checkTimer,
     convertTimeToInt,
     getHHScriptVars,
     getHHVars,
@@ -12,8 +13,15 @@ import {
 import { gotoPage } from "../Service";
 import { isJSON, logHHAuto } from "../Utils";
 import { HHAuto_inputPattern } from "../config";
+import { Booster } from "./Booster";
 
 export class Shop {
+
+    static isTimeToCheckShop() {
+        const updateMarket = getStoredValue("HHAuto_Setting_updateMarket")  === "true";
+        const needBoosterStatus = Booster.needBoosterStatusFromStore();
+        return (updateMarket || needBoosterStatus) && ( getStoredValue("HHAuto_Setting_paranoia") !== "true" || !checkTimer("paranoiaSwitch") )
+    }
 
     static updateShop()
     {

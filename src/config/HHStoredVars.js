@@ -285,6 +285,17 @@ HHStoredVars.HHAuto_Setting_autoLeaguesCollect =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars.HHAuto_Setting_autoLeaguesBoostedOnly =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_autoLeaguesThreeFights =
     {
     default:"false",
@@ -994,6 +1005,17 @@ HHStoredVars.HHAuto_Setting_plusEventMythic =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars.HHAuto_Setting_plusEventMythicSandalWood =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_bossBangEvent =
     {
     default:"false",
@@ -1657,6 +1679,11 @@ HHStoredVars.HHAuto_Temp_eventsList =
     HHType:"Temp"
 };
 HHStoredVars.HHAuto_Temp_bossBangTeam =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_boosterStatus =
     {
     storage:"sessionStorage",
     HHType:"Temp"

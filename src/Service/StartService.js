@@ -27,7 +27,7 @@ import {
     setTimer
  } from "../Helper";
 import {
-    // Booster,
+    Booster,
     Club,
     Contest,
     DailyGoals,
@@ -205,7 +205,7 @@ export function start() {
         Missions.styles();
     }
 
-    // Booster.collectBoostersFromAjaxResponses();
+    Booster.collectBoostersFromAjaxResponses();
 
     document.getElementById('contains_all').appendChild(div.firstChild);
     maskInactiveMenus();

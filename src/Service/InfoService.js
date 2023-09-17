@@ -10,6 +10,7 @@ import {
     getPage,
     setStoredValue
 } from "../Helper";
+import { Booster } from "../Module";
 
 export function createPInfo() {
     var div = document.createElement('div');
@@ -109,7 +110,19 @@ export function updateData() {
         }*/
         if (getHHScriptVars('isEnabledLeagues',false) && getStoredValue("HHAuto_Setting_autoLeagues") =="true")
         {
-            Tegzd += '<li>'+getTextForUI("autoLeaguesTitle","elementText")+' '+getHHVars('Hero.energies.challenge.amount')+'/'+getHHVars('Hero.energies.challenge.max_regen_amount')+' : '+getTimeLeft('nextLeaguesTime')+'</li>';
+            Tegzd += '<li>';
+            const boostLimited = getStoredValue("HHAuto_Setting_autoLeaguesBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
+            if(boostLimited) {
+                Tegzd += '<li style="color:red!important;" title="'+getTextForUI("boostMissing","elementText")+'">';
+            }else {
+                Tegzd += '<li>';
+            }
+            Tegzd += getTextForUI("autoLeaguesTitle","elementText")+' '+getHHVars('Hero.energies.challenge.amount')+'/'+getHHVars('Hero.energies.challenge.max_regen_amount')+' : '+getTimeLeft('nextLeaguesTime');
+            if(boostLimited) {
+                Tegzd += ' ' + getTextForUI("boostMissing","elementText") + '</li>';
+            }else {
+                Tegzd += '</li>';
+            }
         }
         if (getHHScriptVars("isEnabledChamps",false) && getStoredValue("HHAuto_Setting_autoChamps") =="true")
         {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.4.1
+// @version      6.5.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -207,6 +207,7 @@ HHAuto_ToolTips.en.lastTrollWithGirls = { version: "5.32.0", elementText: "Last 
 HHAuto_ToolTips.en.autoChampsForceStartEventGirl = { version: "5.6.98", elementText: "Event force", tooltip: "if enabled, will fight for event girl champion even if not started. Champions will need to be activated and champions to be in the filter."};
 HHAuto_ToolTips.en.plusEvent = { version: "5.6.24", elementText: "+Event", tooltip: "If enabled : ignore selected troll during event to battle event"};
 HHAuto_ToolTips.en.plusEventMythic = { version: "5.6.24", elementText: "+Mythic Event", tooltip: "Enable grabbing girls for mythic event, should only play them when shards are available, Mythic girl troll will be priorized over Event Troll."};
+HHAuto_ToolTips.en.plusEventMythicSandalWood = { version: "6.5.0", elementText: "Equip Sandalwood", tooltip: "Will try to equip sandalwood before mythic fight."};
 //HHAuto_ToolTips.en.eventMythicPrio = { version: "5.6.24", elementText: "Priorize over Event Troll Order", tooltip: "Mythic event girl priorized over event troll order if shards available"};
 //HHAuto_ToolTips.en.autoTrollMythicByPassThreshold = { version: "5.6.24", elementText: "Mythic bypass Threshold", tooltip: "Allow mythic to bypass Troll threshold"};
 HHAuto_ToolTips.en.autoSeasonTitle = { version: "5.6.24", elementText: "Season"};
@@ -228,6 +229,8 @@ HHAuto_ToolTips.en.autoLeaguesPowerCalc = { version: "5.6.24", elementText: "Use
 HHAuto_ToolTips.en.leagueListDisplayPowerCalc = { version: "5.34.18", elementText: "Display PowerCalc", tooltip: "Display powerCalc in league list (stil in developpment)"};
 HHAuto_ToolTips.en.autoLeaguesCollect = { version: "5.6.24", elementText: "Collect", tooltip: "If enabled : Automatically collect Leagues"};
 HHAuto_ToolTips.en.autoLeaguesThreeFights = { version: "6.2.0", elementText: "3 fights", tooltip: "If enabled : Wait to have 3 energy (above threshold) before fighting"};
+HHAuto_ToolTips.en.autoLeaguesBoostedOnly = { version: "6.5.0", elementText: "Boosted only", tooltip: "If enabled : Need booster to fight in league"};
+HHAuto_ToolTips.en.boostMissing = { version: "6.5.0", elementText: "No booster Equipped"};
 HHAuto_ToolTips.en.autoLeaguesSelector = { version: "5.6.24", elementText: "Target League", tooltip: "League to target, to try to demote, stay or go in higher league depending"};
 HHAuto_ToolTips.en.autoLeaguesAllowWinCurrent = {version: "5.6.24", elementText:"Allow win", tooltip: "If check will allow to win targeted league and then demote next league to fall back to targeted league."};
 HHAuto_ToolTips.en.autoLeaguesThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "(Integer between 0 and 14)<br>Minimum league fights to keep"};
@@ -916,6 +919,217 @@ function manageTranslationPopUp()
     }
 }
 
+;// CONCATENATED MODULE: ./src/Module/Booster.js
+
+
+
+
+
+const DEFAULT_BOOSTERS = {normal: [], mythic:[]};
+
+class Booster {
+    static GINSENG_ROOT = {"id_item":"316","identifier":"B1","name":"Ginseng root"};
+    static SANDALWOOD_PERFUME = {"id_item":"632","identifier":"MB1","name":"Sandalwood perfume"};
+    
+    //all following lines credit:Tom208 OCD script  
+    static collectBoostersFromAjaxResponses () {
+        $(document).ajaxComplete(function(evt, xhr, opt) {
+            if(opt && opt.data && opt.data.search && ~opt.data.search(/(action|class)/)) {
+                setTimeout(function() {
+                    if(!xhr || !xhr.responseText || !xhr.responseText.length) {
+                        return
+                    }
+
+                    const boosterStatus = Booster.getBoosterFromStorage();
+
+                    const response = JSON.parse(xhr.responseText);
+
+                    if(!response || !response.success) return;
+
+                    const searchParams = new URLSearchParams(opt.data)
+                    const mappedParams = ['action', 'class', 'type', 'id_item', 'number_of_battles', 'battles_amount'].map(key => ({[key]: searchParams.get(key)})).reduce((a,b)=>Object.assign(a,b),{})
+                    const {action, class: className, type, id_item, number_of_battles, battles_amount} = mappedParams
+                    const {success, equipped_booster} = response
+
+                    if (!success) {
+                        return
+                    }
+
+                    if (action === 'market_equip_booster' && type === 'booster') {
+                        const idItemParsed = parseInt(id_item)
+                        //const isMythic = idItemParsed >= 632 && idItemParsed <= 638
+                        const isMythic = idItemParsed >= 632
+
+                        const boosterData = equipped_booster
+
+                        if (boosterData) {
+                            const clonedData = {...boosterData}
+
+                            if (isMythic) {
+                                boosterStatus.mythic.push(clonedData)
+                            } else {
+                                boosterStatus.normal.push({...clonedData, endAt: clonedData.lifetime})
+                            }
+
+                            StorageHelper_setStoredValue('HHAuto_Temp_boosterStatus', JSON.stringify(boosterStatus));
+                            //$(document).trigger('boosters:equipped', {id_item, isMythic, new_id: clonedData.id_member_booster_equipped})
+                        }
+                        return
+                    }
+
+                    let mythicUpdated = false
+                    let sandalwoodEnded = false;
+
+                    let sandalwood, allMastery, leagueMastery, seasonMastery, headband, watch, cinnamon, perfume;
+                    boosterStatus.mythic.forEach(booster => {
+                        switch (booster.item.identifier){
+                            case 'MB1':
+                                sandalwood = booster;
+                                break;
+                                /*
+                            case 'MB2':
+                                allMastery = booster;
+                                break;
+                            case 'MB3':
+                                headband = booster;
+                                break;
+                            case 'MB4':
+                                watch = booster;
+                                break;
+                            case 'MB5':
+                                cinnamon = booster;
+                                break;
+                            case 'MB7':
+                                perfume = booster;
+                                break;
+                            case 'MB8':
+                                leagueMastery = booster;
+                                break;
+                            case 'MB9':
+                                seasonMastery = booster;
+                                break;*/
+                        }
+                    })
+
+                    if (sandalwood && action === 'do_battles_trolls') {
+                        const isMultibattle = parseInt(number_of_battles) > 1
+                        const {rewards} = response
+                        if (rewards && rewards.data && rewards.data.shards) {
+                            let drops = 0
+                            rewards.data.shards.forEach(({previous_value, value}) => {
+                                if (isMultibattle) {
+                                    // Can't reliably determine how many drops, assume MD where each drop would be 1 shard.
+                                    const shardsDropped = value - previous_value
+                                    drops += Math.floor(shardsDropped/2)
+                                } else {
+                                    drops++
+                                }
+                            })
+                            sandalwood.usages_remaining -= drops
+                            mythicUpdated = true
+                            sandalwoodEnded = sandalwood.usages_remaining <= 0;
+                        }
+                    }
+/*
+                    if (allMastery && (action === 'do_battles_leagues' || action === 'do_battles_seasons')) {
+                        allMastery.usages_remaining -= parseInt(number_of_battles)
+                        mythicUpdated = true
+                    }
+
+                    if (leagueMastery && (action === 'do_battles_leagues')) {
+                        leagueMastery.usages_remaining -= parseInt(number_of_battles)
+                        mythicUpdated = true
+                    }
+
+                    if (seasonMastery && (action === 'do_battles_seasons')) {
+                        seasonMastery.usages_remaining -= parseInt(number_of_battles)
+                        mythicUpdated = true
+                    }
+
+                    if (headband && (action === 'do_battles_pantheon' || action === 'do_battles_trolls')) {
+                        headband.usages_remaining -= parseInt(number_of_battles)
+                        mythicUpdated = true
+                    }
+
+                    if (watch && className === 'TeamBattle') {
+                        watch.usages_remaining -= parseInt(battles_amount)
+                        mythicUpdated = true
+                    }
+
+                    if (cinnamon && action === 'do_battles_seasons') {
+                        cinnamon.usages_remaining -= parseInt(number_of_battles)
+                        mythicUpdated = true
+                    }
+
+                    if (perfume && action === 'start' && className === 'TempPlaceOfPower') {
+                        perfume.usages_remaining--
+                        mythicUpdated = true
+                    }
+*/
+                    boosterStatus.mythic = boosterStatus.mythic.filter(({usages_remaining}) => usages_remaining > 0)
+
+                    StorageHelper_setStoredValue('HHAuto_Temp_boosterStatus', JSON.stringify(boosterStatus));
+
+                    /*if (mythicUpdated) {
+                        $(document).trigger('boosters:updated-mythic')
+                    }*/
+
+                    try{
+                        if (sandalwood && mythicUpdated && sandalwoodEnded) {
+                            const isMultibattle = parseInt(number_of_battles) > 1
+                            LogUtils_logHHAuto("sandalwood may be ended need a new one");
+                            if(StorageHelper_getStoredValue("HHAuto_Setting_plusEventMythic") === "true" && StorageHelper_getStoredValue("HHAuto_Setting_plusEventMythicSandalWood") === "true" && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic==="true") {
+                                if (isMultibattle) {
+                                    // TODO go to market if sandalwood not ended, continue. If ended, buy a new one
+                                    gotoPage(getHHScriptVars("pagesIDShop"));
+                                } else {
+                                    // Buy a new one
+                                    // HeroHelper.equipBooster(Booster.SANDALWOOD_PERFUME);
+                                }
+                            }
+                        }
+                    } catch(err) {
+                        // logHHAuto('Catch error during equip sandalwood for mythic' + err);
+                    }
+                }, 200);
+            }
+        })
+    }
+
+    static needBoosterStatusFromStore() {
+        const isMythicAutoSandalWood = StorageHelper_getStoredValue("HHAuto_Setting_plusEventMythicSandalWood") === "true";
+        const isFightWithBooster = StorageHelper_getStoredValue("HHAuto_Setting_autoLeaguesBoostedOnly") === "true";
+        return isFightWithBooster || isMythicAutoSandalWood && !Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_boosterStatus"));
+    }
+
+    static getBoosterFromStorage(){
+        return Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_boosterStatus"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_boosterStatus")):DEFAULT_BOOSTERS;
+    }
+
+    static haveBoosterEquiped(boosterCode=undefined) {
+        const boosterStatus = Booster.getBoosterFromStorage();
+        if(!boosterCode) {
+            // have at least one
+            return boosterStatus.mythic.length > 0 || boosterStatus.normal.length > 0
+        }else {
+            return boosterStatus.mythic.find((booster) => booster.item.identifier === boosterCode) || boosterStatus.normal.find((booster) => booster.item.identifier === boosterCode)
+        }
+    }
+
+    static collectBoostersFromMarket() {
+        setTimeout(function() {
+            const activeSlots = $('#equiped .booster .slot:not(.empty):not(.mythic)').map((i, el)=> $(el).data('d')).toArray()
+            const activeMythicSlots = $('#equiped .booster .slot:not(.empty).mythic').map((i, el)=> $(el).data('d')).toArray()
+
+            const boosterStatus = {
+                normal: activeSlots.map((data) => ({...data, endAt: window.server_now_ts + data.expiration})),
+                mythic: activeMythicSlots,
+            }
+
+            StorageHelper_setStoredValue('HHAuto_Temp_boosterStatus', JSON.stringify(boosterStatus));
+        }, 200)
+    }
+}
 ;// CONCATENATED MODULE: ./src/Module/Bundles.js
 
 
@@ -1072,10 +1286,10 @@ class EventModule {
         //clearTimer('eventMythicNextWave');
         //clearTimer('eventRefreshExpiration');
         //sessionStorage.removeItem('HHAuto_Temp_EventFightsBeforeRefresh');
-        let eventList = isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventsList")):{};
-        let eventsGirlz = isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventsGirlz")):[];
-        let eventGirl =isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")):{};
-        let eventChamps = isJSON(StorageHelper_getStoredValue("HHAuto_Temp_autoChampsEventGirls"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_autoChampsEventGirls")):[];
+        let eventList = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventsList")):{};
+        let eventsGirlz = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventsGirlz")):[];
+        let eventGirl =Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")):{};
+        let eventChamps = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_autoChampsEventGirls"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_autoChampsEventGirls")):[];
         let hasMythic = false;
         let hasEvent = false;
         for (let prop of Object.keys(eventList))
@@ -1209,9 +1423,9 @@ class EventModule {
             LogUtils_logHHAuto("On event page : " + eventID);
             EventModule.clearEventData(eventID);
             //let eventsGirlz=[];
-            let eventList = isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventsList")):{};
-            let eventsGirlz = isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventsGirlz")):[];
-            let eventChamps = isJSON(StorageHelper_getStoredValue("HHAuto_Temp_autoChampsEventGirls"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_autoChampsEventGirls")):[];
+            let eventList = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventsList")):{};
+            let eventsGirlz = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventsGirlz")):[];
+            let eventChamps = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_autoChampsEventGirls"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_autoChampsEventGirls")):[];
             let Priority=(StorageHelper_getStoredValue("HHAuto_Setting_eventTrollOrder")).split(";");
             const hhEventData = unsafeWindow.event_data;
             if ((hhEvent.isPlusEvent || hhEvent.isPlusEventMythic) && !hhEventData) {
@@ -1553,7 +1767,7 @@ class EventModule {
 
     static checkEvent(inEventID)
     {
-        let eventList = isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventsList")):{};
+        let eventList = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventsList")):{};
         const hhEvent = EventModule.getEvent(inEventID);
         if(hhEvent.eventTypeKnown && !hhEvent.isEnabled)
         {
@@ -1585,8 +1799,8 @@ class EventModule {
     static moduleDisplayEventPriority()
     {
         if ($('.HHEventPriority').length  > 0) {return}
-        let eventGirlz=isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventsGirlz")):{};
-        let eventChamps = isJSON(StorageHelper_getStoredValue("HHAuto_Temp_autoChampsEventGirls"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_autoChampsEventGirls")):[];
+        let eventGirlz=Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventsGirlz")):{};
+        let eventChamps = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_autoChampsEventGirls"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_autoChampsEventGirls")):[];
         //$("div.event-widget div.widget[style='display: block;'] div.container div.scroll-area div.rewards-block-tape div.girl_reward div.HHEventPriority").each(function(){this.remove();});
         if ( eventGirlz.length >0 || eventChamps.length >0)
         {
@@ -1709,6 +1923,95 @@ class EventModule {
             }
         }
     }
+
+    static parsePageForEventId()
+    {
+        let eventQuery = '#contains_all #homepage .event-widget a[rel="event"]:not([href="#"])';
+        let mythicEventQuery = '#contains_all #homepage .event-widget a[rel="mythic_event"]:not([href="#"])';
+        let bossBangEventQuery = '#contains_all #homepage .event-widget a[rel="boss_bang_event"]:not([href="#"])';
+        let sultryMysteriesEventQuery = '#contains_all #homepage .event-widget a[rel="sm_event"]:not([href="#"])';
+        let seasonalEventQuery = '#contains_all #homepage .seasonal-event a'; // Mega event have same query
+        let povEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-valor"]';
+        let pogEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-glory"]';
+        let eventIDs=[];
+        let bossBangEventIDs=[];
+
+        if (getPage()===getHHScriptVars("pagesIDEvent"))
+        {
+            if (queryStringGetParam(window.location.search,'tab') !== null)
+            {
+                eventIDs.push(queryStringGetParam(window.location.search,'tab'));
+            }
+        }
+        else if (getPage() === getHHScriptVars("pagesIDHome"))
+        {
+            let parsedURL;
+            let queryResults=$(eventQuery);
+            for(let index = 0;index < queryResults.length;index++)
+            {
+                parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
+                if (queryStringGetParam(parsedURL.search,'tab') !== null && EventModule.checkEvent(queryStringGetParam(parsedURL.search,'tab')))
+                {
+                    eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
+                }
+            }
+            queryResults=$(mythicEventQuery);
+            for(let index = 0;index < queryResults.length;index++)
+            {
+                parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
+                if (queryStringGetParam(parsedURL.search,'tab') !== null && EventModule.checkEvent(queryStringGetParam(parsedURL.search,'tab')))
+                {
+                    eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
+                }
+            }
+            queryResults=$(bossBangEventQuery);
+            for(let index = 0;index < queryResults.length;index++)
+            {
+                parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
+                if (queryStringGetParam(parsedURL.search,'tab') !== null && EventModule.checkEvent(queryStringGetParam(parsedURL.search,'tab')))
+                {
+                    bossBangEventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
+                }
+            }
+            queryResults=$(sultryMysteriesEventQuery);
+            for(let index = 0;index < queryResults.length;index++)
+            {
+                parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
+                if (queryStringGetParam(parsedURL.search,'tab') !== null && EventModule.checkEvent(queryStringGetParam(parsedURL.search,'tab')))
+                {
+                    eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
+                }
+            }
+            if (queryResults.length <= 0 && getTimer("eventSultryMysteryShopRefresh") !== -1)
+            {
+                // event is over
+                TimerHelper_clearTimer("eventSultryMysteryShopRefresh");
+            }
+            queryResults=$(seasonalEventQuery);
+            if((StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true" || StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll") === "true") && queryResults.length == 0)
+            {
+                LogUtils_logHHAuto("No seasonal event found, deactivate collect.");
+                StorageHelper_setStoredValue("HHAuto_Setting_autoSeasonalEventCollect", "false");
+                StorageHelper_setStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll", "false");
+            }
+            queryResults=$(povEventQuery);
+            if((StorageHelper_getStoredValue("HHAuto_Setting_autoPoVCollect") === "true" || StorageHelper_getStoredValue("HHAuto_Setting_autoPoVCollectAll") === "true") && queryResults.length == 0)
+            {
+                LogUtils_logHHAuto("No pov event found, deactivate collect.");
+                StorageHelper_setStoredValue("HHAuto_Setting_autoPoVCollect", "false");
+                StorageHelper_setStoredValue("HHAuto_Setting_autoPoVCollectAll", "false");
+            }
+            queryResults=$(pogEventQuery);
+            if((StorageHelper_getStoredValue("HHAuto_Setting_autoPoGCollect") === "true" || StorageHelper_getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true") && queryResults.length == 0)
+            {
+                LogUtils_logHHAuto("No pog event found, deactivate collect.");
+                StorageHelper_setStoredValue("HHAuto_Setting_autoPoGCollect", "false");
+                StorageHelper_setStoredValue("HHAuto_Setting_autoPoGCollectAll", "false");
+            }
+        }
+        
+        return {eventIDs:eventIDs,bossBangEventIDs:bossBangEventIDs};
+    }
 }
 ;// CONCATENATED MODULE: ./src/Module/Events/PathOfAttraction.js
 
@@ -1801,7 +2104,7 @@ class PathOfGlory {
     }
     static goAndCollect()
     {
-        const rewardsToCollect = isJSON(StorageHelper_getStoredValue("HHAuto_Setting_autoPoGCollectablesList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Setting_autoPoGCollectablesList")):[];
+        const rewardsToCollect = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Setting_autoPoGCollectablesList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Setting_autoPoGCollectablesList")):[];
 
         if (getPage() === getHHScriptVars("pagesIDPoG"))
         {
@@ -1930,7 +2233,7 @@ class PathOfValue {
     }
     static goAndCollect()
     {
-        const rewardsToCollect = isJSON(StorageHelper_getStoredValue("HHAuto_Setting_autoPoVCollectablesList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Setting_autoPoVCollectablesList")):[];
+        const rewardsToCollect = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Setting_autoPoVCollectablesList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Setting_autoPoVCollectablesList")):[];
 
         if (getPage() === getHHScriptVars("pagesIDPoV"))
         {
@@ -2388,7 +2691,7 @@ class Season {
     }
     static goAndCollect()
     {
-        const rewardsToCollect = isJSON(StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonCollectablesList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonCollectablesList")):[];
+        const rewardsToCollect = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonCollectablesList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonCollectablesList")):[];
 
         if (getPage() === getHHScriptVars("pagesIDSeason"))
         {
@@ -2614,7 +2917,7 @@ class SeasonalEvent {
     }
     static goAndCollect()
     {
-        const rewardsToCollect = isJSON(StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonalEventCollectablesList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonalEventCollectablesList")):[];
+        const rewardsToCollect = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonalEventCollectablesList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonalEventCollectablesList")):[];
 
         if (getPage() === getHHScriptVars("pagesIDSeasonalEvent"))
         {
@@ -3150,7 +3453,7 @@ class Champion {
             {
                 let Impression=$('span.stage-bar-tier')[i].getAttribute("hh_title");
                 const autoChampsForceStartEventGirl = StorageHelper_getStoredValue("HHAuto_Setting_autoChampsForceStartEventGirl") === "true";
-                const autoChampsEventGirls = isJSON(StorageHelper_getStoredValue("HHAuto_Temp_autoChampsEventGirls"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_autoChampsEventGirls")):[];
+                const autoChampsEventGirls = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_autoChampsEventGirls"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_autoChampsEventGirls")):[];
                 const autoChampsForceStart = StorageHelper_getStoredValue("HHAuto_Setting_autoChampsForceStart") === "true";
                 let Started=Impression.split('/')[0].replace(/[^0-9]/gi, '')!="0";
                 let OnTimerOld=$($('a.champion-lair div.champion-lair-name')[i+1]).find('div[rel=timer]').length>0;
@@ -3186,7 +3489,7 @@ class Champion {
                         if
                             (
                                 firstLockedLevelOfChamp !== undefined
-                                && isJSON(firstLockedLevelOfChamp)
+                                && Utils_isJSON(firstLockedLevelOfChamp)
                                 && JSON.parse(firstLockedLevelOfChamp).stage.girl_shards
                                 && JSON.parse(firstLockedLevelOfChamp).stage.girl_shards.length > 0
                             )
@@ -3553,7 +3856,7 @@ class DailyGoals {
     }
     static goAndCollect()
     {
-        const rewardsToCollect = isJSON(StorageHelper_getStoredValue("HHAuto_Setting_autoDailyGoalsCollectablesList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Setting_autoDailyGoalsCollectablesList")):[];
+        const rewardsToCollect = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Setting_autoDailyGoalsCollectablesList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Setting_autoDailyGoalsCollectablesList")):[];
         //console.log(rewardsToCollect.length);
         if (checkTimer('nextDailyGoalsCollectTime') && StorageHelper_getStoredValue("HHAuto_Setting_autoDailyGoalsCollect") === "true")
         {
@@ -4263,7 +4566,7 @@ class Harem {
         document.getElementById("HaremSortMenuLaunch").addEventListener("click", Harem.selectNextUpgradableGirl);
         let selectorOptions = document.getElementById("HaremSortMenuSortSelector");
 
-        const storedDefaultSort = (StorageHelper_getStoredValue("HHAuto_Temp_defaultCustomHaremSort") !== undefined && isJSON(StorageHelper_getStoredValue("HHAuto_Temp_defaultCustomHaremSort")))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_defaultCustomHaremSort")):{sortFunction : "null", reverse:false};
+        const storedDefaultSort = (StorageHelper_getStoredValue("HHAuto_Temp_defaultCustomHaremSort") !== undefined && Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_defaultCustomHaremSort")))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_defaultCustomHaremSort")):{sortFunction : "null", reverse:false};
 
         for (let sortFunction of Object.keys(getHHScriptVars("haremSortingFunctions")))
         {
@@ -4335,7 +4638,7 @@ class Harem {
 
             document.getElementById("HaremSortMenuLaunch").addEventListener("click", prepareUpgradable);
             let selectorOptions = document.getElementById("HaremSortMenuSortSelector");
-            const storedDefaultSort = (StorageHelper_getStoredValue("HHAuto_Temp_defaultCustomHaremSort") !== undefined && isJSON(StorageHelper_getStoredValue("HHAuto_Temp_defaultCustomHaremSort")))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_defaultCustomHaremSort")):{sortFunction : "null", reverse:false};
+            const storedDefaultSort = (StorageHelper_getStoredValue("HHAuto_Temp_defaultCustomHaremSort") !== undefined && Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_defaultCustomHaremSort")))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_defaultCustomHaremSort")):{sortFunction : "null", reverse:false};
 
             for (let sortFunction of Object.keys(getHHScriptVars("haremSortingFunctions")))
             {
@@ -4628,7 +4931,7 @@ class Harem {
    
     static HaremSizeNeedsRefresh(inCustomExpi)
     {
-        return ! isJSON(StorageHelper_getStoredValue("HHAuto_Temp_HaremSize")) || JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_HaremSize")).count_date < (new Date().getTime() - inCustomExpi * 1000);
+        return ! Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_HaremSize")) || JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_HaremSize")).count_date < (new Date().getTime() - inCustomExpi * 1000);
     }
 
     static moduleHaremCountMax()
@@ -4974,6 +5277,7 @@ class HaremSalary {
 
 
 
+
 class LeagueHelper {
     /* get time in sec */
     static getLeagueEndTime(){
@@ -5074,6 +5378,22 @@ class LeagueHelper {
         <span style="margin:0;display:none;" id="HHPowerCalcPoints">${points}</span>`;
         // const opponentRow = opponentGoButton.parent().parent();
         opponentGoButton.html(`<div class="matchRatingNew ${simu.scoreClass}"><img class="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${pointText}</div>`);
+    }
+
+    static isAutoLeagueActivated(){
+        return StorageHelper_getStoredValue("HHAuto_Setting_autoLeagues") === "true" && getHHVars('Hero.infos.level')>=20;
+    }
+
+    static isTimeToFightLeague(){
+        const energyAboveThreshold = Number(getHHVars('Hero.energies.challenge.amount')) > Number(StorageHelper_getStoredValue("HHAuto_Setting_autoLeaguesThreshold"));
+        const needBoosterToFight = StorageHelper_getStoredValue("HHAuto_Setting_autoLeaguesBoostedOnly") === "true";
+        const haveBoosterEquiped = Booster.haveBoosterEquiped();
+
+        if(checkTimer('nextLeaguesTime') && energyAboveThreshold && needBoosterToFight && !haveBoosterEquiped) {
+            LogUtils_logHHAuto('Time for league but no booster equipped');
+        }
+
+        return (checkTimer('nextLeaguesTime') && energyAboveThreshold && (needBoosterToFight && haveBoosterEquiped || !needBoosterToFight)) || Number(checkParanoiaSpendings('challenge')) > 0;
     }
     
     static moduleSimLeague() {
@@ -5655,8 +5975,8 @@ class LeagueHelper {
 
     static getLeagueOpponentId(opponentsIDList,force=false)
     {
-        var opponentsPowerList = isJSON(StorageHelper_getStoredValue("HHAuto_Temp_LeagueOpponentList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_LeagueOpponentList")):{expirationDate:0,opponentsList:{}};
-        var opponentsTempPowerList = isJSON(StorageHelper_getStoredValue("HHAuto_Temp_LeagueTempOpponentList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_LeagueTempOpponentList")):{expirationDate:0,opponentsList:{}};
+        var opponentsPowerList = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_LeagueOpponentList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_LeagueOpponentList")):{expirationDate:0,opponentsList:{}};
+        var opponentsTempPowerList = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_LeagueTempOpponentList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_LeagueTempOpponentList")):{expirationDate:0,opponentsList:{}};
         var opponentsIDs= opponentsIDList;
         var oppoNumber = opponentsIDList.length;
         var DataOppo={};
@@ -5726,7 +6046,7 @@ class LeagueHelper {
                 maxLeagueListDurationSecs = 1;
             }
             // TODO fixme
-            let listExpirationDate =isJSON(StorageHelper_getStoredValue("HHAuto_Temp_LeagueTempOpponentList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_LeagueTempOpponentList")).expirationDate:new Date().getTime() + maxLeagueListDurationSecs * 1000;
+            let listExpirationDate =Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_LeagueTempOpponentList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_LeagueTempOpponentList")).expirationDate:new Date().getTime() + maxLeagueListDurationSecs * 1000;
             if (opponentsIDList.length>0)
             {
                 //logHHAuto('getting data for opponent : '+opponentsIDList[0]);
@@ -5850,7 +6170,7 @@ class Market {
 
             if (StorageHelper_getStoredValue("HHAuto_Temp_storeContents") === undefined )
             {
-                if (! isJSON(StorageHelper_getStoredValue("HHAuto_Temp_storeContents")) )
+                if (! Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_storeContents")) )
                 {
                     LogUtils_logHHAuto("Catched error : Could not parse store content.");
                 }
@@ -7668,7 +7988,7 @@ class Troll {
     }
 
     static getTrollIdToFight() {
-        let trollWithGirls = isJSON(StorageHelper_getStoredValue("HHAuto_Temp_trollWithGirls"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_trollWithGirls")):[];
+        let trollWithGirls = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_trollWithGirls"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_trollWithGirls")):[];
         let autoTrollSelectedIndex = StorageHelper_getStoredValue("HHAuto_Setting_autoTrollSelectedIndex");
         if(autoTrollSelectedIndex === undefined || isNaN(autoTrollSelectedIndex)) {
             autoTrollSelectedIndex -1
@@ -8129,7 +8449,7 @@ class Troll {
 }
 
 ;// CONCATENATED MODULE: ./src/Module/index.js
-// export * from './Booster'
+
 
 
 
@@ -8933,6 +9253,17 @@ HHStoredVars_HHStoredVars.HHAuto_Setting_autoLeaguesCollect =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoLeaguesBoostedOnly =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars_HHStoredVars.HHAuto_Setting_autoLeaguesThreeFights =
     {
     default:"false",
@@ -9642,6 +9973,17 @@ HHStoredVars_HHStoredVars.HHAuto_Setting_plusEventMythic =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars_HHStoredVars.HHAuto_Setting_plusEventMythicSandalWood =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars_HHStoredVars.HHAuto_Setting_bossBangEvent =
     {
     default:"false",
@@ -10309,6 +10651,11 @@ HHStoredVars_HHStoredVars.HHAuto_Temp_bossBangTeam =
     storage:"sessionStorage",
     HHType:"Temp"
 };
+HHStoredVars_HHStoredVars.HHAuto_Temp_boosterStatus =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
 HHStoredVars_HHStoredVars.HHAuto_Temp_LeagueSavedData =
     {
     storage:"sessionStorage",
@@ -10938,6 +11285,7 @@ function getMenu() {
                                 + hhMenuSwitch('autoLeaguesPowerCalc')
                                 +`</div>`
                                 + hhMenuSwitch('autoLeaguesCollect')
+                                + hhMenuSwitch('autoLeaguesBoostedOnly')
                                 + `<div style="display:none;">` + hhMenuSwitch('autoLeaguesThreeFights') + `</div>`
                                 + hhMenuSwitch('leagueListDisplayPowerCalc')
                             +`</div>`
@@ -11008,6 +11356,7 @@ function getMenu() {
                             + hhMenuSwitch('buyMythicCombat', '', true)
                             + hhMenuInput('autoBuyMythicTrollNumber', HHAuto_inputPattern.autoBuyTrollNumber, 'width:40px')
                             + hhMenuInput('buyMythicCombTimer', HHAuto_inputPattern.buyMythicCombTimer, 'text-align:center; width:40px', '', 'numeric')
+                            + `<div style="display:none;">` + hhMenuSwitch('plusEventMythicSandalWood') + '</div>'
                         +`</div>`
                     +`</div>`
                 +`</div>`
@@ -11261,7 +11610,7 @@ function migrateHHVars()
 
 function getUserHHStoredVarDefault(inVarName)
 {
-    if (isJSON(StorageHelper_getStoredValue("HHAuto_Setting_saveDefaults")))
+    if (Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Setting_saveDefaults")))
     {
         let currentDefaults = JSON.parse(StorageHelper_getStoredValue("HHAuto_Setting_saveDefaults"));
         if (currentDefaults !== null && currentDefaults[inVarName] !== undefined)
@@ -11408,7 +11757,7 @@ function getAndStoreCollectPreferences(inVarName, inPopUpText = getTextForUI("me
         +    '<div style="display:flex;">'
         let count = 0;
         const possibleRewards = getHHScriptVars("possibleRewardsList");
-        const rewardsToCollect = isJSON(StorageHelper_getStoredValue(inVarName))?JSON.parse(StorageHelper_getStoredValue(inVarName)):[];
+        const rewardsToCollect = Utils_isJSON(StorageHelper_getStoredValue(inVarName))?JSON.parse(StorageHelper_getStoredValue(inVarName)):[];
         for (let currentItem of Object.keys(possibleRewards))
         {
             //console.log(currentItem,possibleRewards[currentItem]);
@@ -11676,7 +12025,7 @@ function isFocused()
     //isFoc = docFoc || iFrameFoc;
     return docFoc;
 }
-function isJSON(str)
+function Utils_isJSON(str)
 {
     if (str === undefined || str === null || /^\s*$/.test(str) ) return false;
     str = str.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@');
@@ -11738,7 +12087,7 @@ function myfileLoad_onReaderLoad(event){
     var variableName;
 
     //Json validation
-    if (isJSON(text))
+    if (Utils_isJSON(text))
     {
         LogUtils_logHHAuto('the json is ok');
         var jsonNewSettings = JSON.parse(event.target.result);
@@ -12136,7 +12485,7 @@ function calculateSynergiesFromTeamMemberElements(elements) {
     // Only care about those not included in the stats already: fire, stone, sun and water
     // Assume max harem synergy
     //const girlDictionary = (typeof(localStorage.HHPNMap) == "undefined") ? new Map(): new Map(JSON.parse(localStorage.HHPNMap));
-    const girlCount = isJSON(StorageHelper_getStoredValue("HHAuto_Temp_HaremSize"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_HaremSize")).count:800;
+    const girlCount = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_HaremSize"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_HaremSize")).count:800;
     const girlsPerElement = Math.min(girlCount / 8, 100)
 
     return {
@@ -12427,6 +12776,38 @@ function doStatUpgrades()
         carac=(carac+1)%3+1;
     }
 }
+
+class HeroHelper {
+    static haveBoosterInInventory(idBooster){
+        const HaveBooster=isJSON(getStoredValue("HHAuto_Temp_haveBooster"))?JSON.parse(getStoredValue("HHAuto_Temp_haveBooster")):{};
+        const boosterOwned = HaveBooster.hasOwnProperty(idBooster) ? Number(HaveBooster[idBooster]) : 0;
+        return boosterOwned > 0
+    }
+    static equipBooster(booster){
+        logHHAuto("Not yet enough tested, do not use");
+        if(!booster) return false;
+        if(!HeroHelper.haveBoosterInInventory(booster.identifier)) return false;
+        //action=market_equip_booster&id_item=316&type=booster
+        setStoredValue("HHAuto_Temp_autoLoop", "false");
+        logHHAuto("Equip "+booster.name+", setting autoloop to false");
+        const params = {
+            action: "market_equip_booster",
+            id_item: booster.id_item,
+            type: "booster"
+        };
+        /*
+        hh_ajax(params, function(data) {
+            if (data.success) logHHAuto('Booster equipped');
+            setStoredValue("HHAuto_Temp_autoLoop", "true");
+            setTimeout(autoLoop,randomInterval(500,800));
+        }, function (err){
+            logHHAuto('Error occured booster not equipped, could be booster is already equipped');
+            setStoredValue("HHAuto_Temp_autoLoop", "true");
+            setTimeout(autoLoop,randomInterval(500,800));
+        });
+        */
+    }
+}
 ;// CONCATENATED MODULE: ./src/Helper/UrlHelper.js
 function queryStringGetParam(inQueryString, inParam)
 {
@@ -12529,7 +12910,7 @@ function getPage(checkUnknown = false)
         }
         if (!isKnown && page )
         {
-            let unknownPageList = isJSON(StorageHelper_getStoredValue("HHAuto_Temp_unkownPagesList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_unkownPagesList")):{};
+            let unknownPageList = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_unkownPagesList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_unkownPagesList")):{};
             LogUtils_logHHAuto("Page unkown for script : "+page+" / "+window.location.pathname);
             unknownPageList[page] = window.location.pathname;
             //console.log(unknownPageList);
@@ -12846,13 +13227,13 @@ class RewardHelper {
         {
             if (StorageHelper_getStoredValue("HHAuto_Temp_eventsGirlz") === undefined
                 || StorageHelper_getStoredValue("HHAuto_Temp_eventGirl") === undefined
-                || !isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventsGirlz"))
-                || !isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")))
+                || !Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventsGirlz"))
+                || !Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")))
             {
                 return -1;
             }
-            let eventsGirlz =isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventsGirlz")):{}
-            let eventGirl = isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")):{};
+            let eventsGirlz =Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventsGirlz")):{}
+            let eventGirl = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")):{};
             let TTF = eventGirl.troll_id;
             if ($('#rewards_popup #reward_holder .shards_wrapper').length === 0)
             {
@@ -13091,7 +13472,14 @@ var WindowHelper = __webpack_require__(620);
 
 
 
+
 class Shop {
+
+    static isTimeToCheckShop() {
+        const updateMarket = StorageHelper_getStoredValue("HHAuto_Setting_updateMarket")  === "true";
+        const needBoosterStatus = Booster.needBoosterStatusFromStore();
+        return (updateMarket || needBoosterStatus) && ( StorageHelper_getStoredValue("HHAuto_Setting_paranoia") !== "true" || !checkTimer("paranoiaSwitch") )
+    }
 
     static updateShop()
     {
@@ -13149,7 +13537,7 @@ class Shop {
                 // }
             }
             setTimer('nextShopTime',shopTimer);
-            if (isJSON(StorageHelper_getStoredValue("HHAuto_Temp_LastPageCalled"))
+            if (Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_LastPageCalled"))
                 && getPage() === JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_LastPageCalled")).page)
             {
                 gotoPage(getHHScriptVars("pagesIDHome"));
@@ -13782,6 +14170,7 @@ class Shop {
 ;// CONCATENATED MODULE: ./src/Service/InfoService.js
 
 
+
 function createPInfo() {
     var div = document.createElement('div');
     div.innerHTML = '<div id="pInfo" ></div>'.trim(); //height: auto;
@@ -13880,7 +14269,19 @@ function updateData() {
         }*/
         if (getHHScriptVars('isEnabledLeagues',false) && StorageHelper_getStoredValue("HHAuto_Setting_autoLeagues") =="true")
         {
-            Tegzd += '<li>'+getTextForUI("autoLeaguesTitle","elementText")+' '+getHHVars('Hero.energies.challenge.amount')+'/'+getHHVars('Hero.energies.challenge.max_regen_amount')+' : '+getTimeLeft('nextLeaguesTime')+'</li>';
+            Tegzd += '<li>';
+            const boostLimited = StorageHelper_getStoredValue("HHAuto_Setting_autoLeaguesBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
+            if(boostLimited) {
+                Tegzd += '<li style="color:red!important;" title="'+getTextForUI("boostMissing","elementText")+'">';
+            }else {
+                Tegzd += '<li>';
+            }
+            Tegzd += getTextForUI("autoLeaguesTitle","elementText")+' '+getHHVars('Hero.energies.challenge.amount')+'/'+getHHVars('Hero.energies.challenge.max_regen_amount')+' : '+getTimeLeft('nextLeaguesTime');
+            if(boostLimited) {
+                Tegzd += ' ' + getTextForUI("boostMissing","elementText") + '</li>';
+            }else {
+                Tegzd += '</li>';
+            }
         }
         if (getHHScriptVars("isEnabledChamps",false) && StorageHelper_getStoredValue("HHAuto_Setting_autoChamps") =="true")
         {
@@ -14458,7 +14859,7 @@ function flipParanoia()
     //force recheck non completed event after paranoia
     if (StorageHelper_getStoredValue("HHAuto_Temp_burst") =="true")
     {
-        let eventList = isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventsList")):{};
+        let eventList = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventsList")):{};
         for (let eventID of Object.keys(eventList))
         {
             //console.log(eventID);
@@ -14614,102 +15015,14 @@ function autoLoop()
 
         const Hero = getHero();
         //if a new event is detected
-        let eventQuery = '#contains_all #homepage .event-widget a[rel="event"]:not([href="#"])';
-        let mythicEventQuery = '#contains_all #homepage .event-widget a[rel="mythic_event"]:not([href="#"])';
-        let bossBangEventQuery = '#contains_all #homepage .event-widget a[rel="boss_bang_event"]:not([href="#"])';
-        let sultryMysteriesEventQuery = '#contains_all #homepage .event-widget a[rel="sm_event"]:not([href="#"])';
-        let seasonalEventQuery = '#contains_all #homepage .seasonal-event a'; // Mega event have same query
-        let povEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-valor"]';
-        let pogEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-glory"]';
-        let eventIDs=[];
-        let bossBangEventIDs=[];
-        if (getPage()===getHHScriptVars("pagesIDEvent"))
-        {
-            if (queryStringGetParam(window.location.search,'tab') !== null)
-            {
-                eventIDs.push(queryStringGetParam(window.location.search,'tab'));
-            }
-        }
-        else if (getPage() === getHHScriptVars("pagesIDHome"))
-        {
-            let parsedURL;
-            let queryResults=$(eventQuery);
-            for(let index = 0;index < queryResults.length;index++)
-            {
-                parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
-                if (queryStringGetParam(parsedURL.search,'tab') !== null && EventModule.checkEvent(queryStringGetParam(parsedURL.search,'tab')))
-                {
-                    eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
-                }
-            }
-            queryResults=$(mythicEventQuery);
-            for(let index = 0;index < queryResults.length;index++)
-            {
-                parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
-                if (queryStringGetParam(parsedURL.search,'tab') !== null && EventModule.checkEvent(queryStringGetParam(parsedURL.search,'tab')))
-                {
-                    eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
-                }
-            }
-            queryResults=$(bossBangEventQuery);
-            for(let index = 0;index < queryResults.length;index++)
-            {
-                parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
-                if (queryStringGetParam(parsedURL.search,'tab') !== null && EventModule.checkEvent(queryStringGetParam(parsedURL.search,'tab')))
-                {
-                    bossBangEventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
-                }
-            }
-            queryResults=$(sultryMysteriesEventQuery);
-            for(let index = 0;index < queryResults.length;index++)
-            {
-                parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
-                if (queryStringGetParam(parsedURL.search,'tab') !== null && EventModule.checkEvent(queryStringGetParam(parsedURL.search,'tab')))
-                {
-                    eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
-                }
-            }
-            if (queryResults.length <= 0 && getTimer("eventSultryMysteryShopRefresh") !== -1)
-            {
-                // event is over
-                TimerHelper_clearTimer("eventSultryMysteryShopRefresh");
-            }
-            queryResults=$(seasonalEventQuery);
-            if((StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true" || StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll") === "true") && queryResults.length == 0)
-            {
-                LogUtils_logHHAuto("No seasonal event found, deactivate collect.");
-                StorageHelper_setStoredValue("HHAuto_Setting_autoSeasonalEventCollect", "false");
-                StorageHelper_setStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll", "false");
-            }
-            queryResults=$(povEventQuery);
-            if((StorageHelper_getStoredValue("HHAuto_Setting_autoPoVCollect") === "true" || StorageHelper_getStoredValue("HHAuto_Setting_autoPoVCollectAll") === "true") && queryResults.length == 0)
-            {
-                LogUtils_logHHAuto("No pov event found, deactivate collect.");
-                StorageHelper_setStoredValue("HHAuto_Setting_autoPoVCollect", "false");
-                StorageHelper_setStoredValue("HHAuto_Setting_autoPoVCollectAll", "false");
-            }
-            queryResults=$(pogEventQuery);
-            if((StorageHelper_getStoredValue("HHAuto_Setting_autoPoGCollect") === "true" || StorageHelper_getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true") && queryResults.length == 0)
-            {
-                LogUtils_logHHAuto("No pog event found, deactivate collect.");
-                StorageHelper_setStoredValue("HHAuto_Setting_autoPoGCollect", "false");
-                StorageHelper_setStoredValue("HHAuto_Setting_autoPoGCollectAll", "false");
-            }
-        }
+        const {eventIDs, bossBangEventIDs} = EventModule.parsePageForEventId();
         if(
-            busy === false
-            && getHHScriptVars("isEnabledEvents",false)
+            busy === false && getHHScriptVars("isEnabledEvents",false)
             &&
             (
-                (
-                    eventIDs.length > 0
-                    && getPage() !== getHHScriptVars("pagesIDEvent")
-                )
+                (eventIDs.length > 0 && getPage() !== getHHScriptVars("pagesIDEvent"))
                 ||
-                (
-                    getPage()===getHHScriptVars("pagesIDEvent")
-                    && $("#contains_all #events[parsed]").length === 0
-                )
+                (getPage()===getHHScriptVars("pagesIDEvent") && $("#contains_all #events[parsed]").length === 0)
             )
         )
             //&& ( getStoredValue("HHAuto_Temp_EventFightsBeforeRefresh") === undefined || getTimer('eventRefreshExpiration') === -1 || getStoredValue("HHAuto_Temp_eventGirl") === undefined)
@@ -14719,7 +15032,7 @@ function autoLoop()
             busy = EventModule.parseEventPage(eventIDs[0]);
         }
 
-        if (busy===false && getHHScriptVars("isEnabledShop",false) && StorageHelper_getStoredValue("HHAuto_Setting_updateMarket")  === "true" && ( StorageHelper_getStoredValue("HHAuto_Setting_paranoia") !== "true" || !checkTimer("paranoiaSwitch") )  && StorageHelper_getStoredValue("HHAuto_Temp_autoLoop") === "true")
+        if (busy===false && getHHScriptVars("isEnabledShop",false) && Shop.isTimeToCheckShop() && StorageHelper_getStoredValue("HHAuto_Temp_autoLoop") === "true")
         {
             if (StorageHelper_getStoredValue("HHAuto_Temp_charLevel") ===undefined)
             {
@@ -15150,10 +15463,10 @@ function autoLoop()
             busy= ClubChampion.doClubChampionStuff();
         }
 
-        if(busy === false && getHHScriptVars("isEnabledLeagues",false) && StorageHelper_getStoredValue("HHAuto_Setting_autoLeagues") === "true" && getHHVars('Hero.infos.level')>=20 && StorageHelper_getStoredValue("HHAuto_Temp_autoLoop") === "true" && canCollectCompetitionActive())
+        if(busy === false && getHHScriptVars("isEnabledLeagues",false) && LeagueHelper.isAutoLeagueActivated() && StorageHelper_getStoredValue("HHAuto_Temp_autoLoop") === "true" && canCollectCompetitionActive())
         {
             // Navigate to leagues
-            if ((checkTimer('nextLeaguesTime') && Number(getHHVars('Hero.energies.challenge.amount')) > Number(StorageHelper_getStoredValue("HHAuto_Setting_autoLeaguesThreshold")) ) || Number(checkParanoiaSpendings('challenge')) > 0)
+            if (LeagueHelper.isTimeToFightLeague())
             {
                 LogUtils_logHHAuto("Time to fight in Leagues.");
                 LeagueHelper.doLeagueBattle();
@@ -15307,7 +15620,7 @@ function autoLoop()
 
         if (
             busy === false
-            && isJSON(StorageHelper_getStoredValue("HHAuto_Temp_LastPageCalled"))
+            && Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_LastPageCalled"))
             && getPage() !== getHHScriptVars("pagesIDHome")
             && getPage() === JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_LastPageCalled")).page
             && (new Date().getTime() - JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_LastPageCalled")).dateTime) > getHHScriptVars("minSecsBeforeGoHomeAfterActions") * 1000
@@ -15400,8 +15713,10 @@ function autoLoop()
             {
                 Shop.moduleShopActions();
             }
-            // Booster.collectBoostersFromMarket = callItOnce(Booster.collectBoostersFromMarket);
-            // Booster.collectBoostersFromMarket();
+            if(Booster.needBoosterStatusFromStore()) {
+                Booster.collectBoostersFromMarket = callItOnce(Booster.collectBoostersFromMarket);
+                Booster.collectBoostersFromMarket();
+            }
             break;
         case getHHScriptVars("pagesIDHome"):
             setTimeout(Season.displayRemainingTime,500);
@@ -15692,7 +16007,7 @@ function start() {
         Missions.styles();
     }
 
-    // Booster.collectBoostersFromAjaxResponses();
+    Booster.collectBoostersFromAjaxResponses();
 
     document.getElementById('contains_all').appendChild(div.firstChild);
     maskInactiveMenus();
@@ -15867,12 +16182,12 @@ function start() {
         }
         Alive();
     }
-    if (isJSON(StorageHelper_getStoredValue("HHAuto_Temp_LastPageCalled")) && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_LastPageCalled")).page.indexOf(".html") > 0 )
+    if (Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_LastPageCalled")) && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_LastPageCalled")).page.indexOf(".html") > 0 )
     {
         //console.log("testingHome : setting to : "+getPage());
         StorageHelper_setStoredValue("HHAuto_Temp_LastPageCalled", JSON.stringify({page:getPage(), dateTime:new Date().getTime()}));
     }
-    if (isJSON(StorageHelper_getStoredValue("HHAuto_Temp_LastPageCalled")) && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_LastPageCalled")).page === getHHScriptVars("pagesIDHome"))
+    if (Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_LastPageCalled")) && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_LastPageCalled")).page === getHHScriptVars("pagesIDHome"))
     {
         //console.log("testingHome : delete");
         deleteStoredValue("HHAuto_Temp_LastPageCalled");

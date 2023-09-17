@@ -1,7 +1,7 @@
 import { autoLoop } from "../Service";
-import { logHHAuto } from "../Utils";
+import { isJSON, logHHAuto } from "../Utils";
 import { getHHVars } from "./HHHelper";
-import { getStoredValue } from "./StorageHelper";
+import { getStoredValue, setStoredValue } from "./StorageHelper";
 import { randomInterval } from "./TimeHelper";
 
 export function getHero()
@@ -63,5 +63,37 @@ export function doStatUpgrades()
             }
         }
         carac=(carac+1)%3+1;
+    }
+}
+
+export class HeroHelper {
+    static haveBoosterInInventory(idBooster){
+        const HaveBooster=isJSON(getStoredValue("HHAuto_Temp_haveBooster"))?JSON.parse(getStoredValue("HHAuto_Temp_haveBooster")):{};
+        const boosterOwned = HaveBooster.hasOwnProperty(idBooster) ? Number(HaveBooster[idBooster]) : 0;
+        return boosterOwned > 0
+    }
+    static equipBooster(booster){
+        logHHAuto("Not yet enough tested, do not use");
+        if(!booster) return false;
+        if(!HeroHelper.haveBoosterInInventory(booster.identifier)) return false;
+        //action=market_equip_booster&id_item=316&type=booster
+        setStoredValue("HHAuto_Temp_autoLoop", "false");
+        logHHAuto("Equip "+booster.name+", setting autoloop to false");
+        const params = {
+            action: "market_equip_booster",
+            id_item: booster.id_item,
+            type: "booster"
+        };
+        /*
+        hh_ajax(params, function(data) {
+            if (data.success) logHHAuto('Booster equipped');
+            setStoredValue("HHAuto_Temp_autoLoop", "true");
+            setTimeout(autoLoop,randomInterval(500,800));
+        }, function (err){
+            logHHAuto('Error occured booster not equipped, could be booster is already equipped');
+            setStoredValue("HHAuto_Temp_autoLoop", "true");
+            setTimeout(autoLoop,randomInterval(500,800));
+        });
+        */
     }
 }

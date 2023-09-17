@@ -661,4 +661,93 @@ export class EventModule {
             }
         }
     }
+
+    static parsePageForEventId()
+    {
+        let eventQuery = '#contains_all #homepage .event-widget a[rel="event"]:not([href="#"])';
+        let mythicEventQuery = '#contains_all #homepage .event-widget a[rel="mythic_event"]:not([href="#"])';
+        let bossBangEventQuery = '#contains_all #homepage .event-widget a[rel="boss_bang_event"]:not([href="#"])';
+        let sultryMysteriesEventQuery = '#contains_all #homepage .event-widget a[rel="sm_event"]:not([href="#"])';
+        let seasonalEventQuery = '#contains_all #homepage .seasonal-event a'; // Mega event have same query
+        let povEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-valor"]';
+        let pogEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-glory"]';
+        let eventIDs=[];
+        let bossBangEventIDs=[];
+
+        if (getPage()===getHHScriptVars("pagesIDEvent"))
+        {
+            if (queryStringGetParam(window.location.search,'tab') !== null)
+            {
+                eventIDs.push(queryStringGetParam(window.location.search,'tab'));
+            }
+        }
+        else if (getPage() === getHHScriptVars("pagesIDHome"))
+        {
+            let parsedURL;
+            let queryResults=$(eventQuery);
+            for(let index = 0;index < queryResults.length;index++)
+            {
+                parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
+                if (queryStringGetParam(parsedURL.search,'tab') !== null && EventModule.checkEvent(queryStringGetParam(parsedURL.search,'tab')))
+                {
+                    eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
+                }
+            }
+            queryResults=$(mythicEventQuery);
+            for(let index = 0;index < queryResults.length;index++)
+            {
+                parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
+                if (queryStringGetParam(parsedURL.search,'tab') !== null && EventModule.checkEvent(queryStringGetParam(parsedURL.search,'tab')))
+                {
+                    eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
+                }
+            }
+            queryResults=$(bossBangEventQuery);
+            for(let index = 0;index < queryResults.length;index++)
+            {
+                parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
+                if (queryStringGetParam(parsedURL.search,'tab') !== null && EventModule.checkEvent(queryStringGetParam(parsedURL.search,'tab')))
+                {
+                    bossBangEventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
+                }
+            }
+            queryResults=$(sultryMysteriesEventQuery);
+            for(let index = 0;index < queryResults.length;index++)
+            {
+                parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
+                if (queryStringGetParam(parsedURL.search,'tab') !== null && EventModule.checkEvent(queryStringGetParam(parsedURL.search,'tab')))
+                {
+                    eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
+                }
+            }
+            if (queryResults.length <= 0 && getTimer("eventSultryMysteryShopRefresh") !== -1)
+            {
+                // event is over
+                clearTimer("eventSultryMysteryShopRefresh");
+            }
+            queryResults=$(seasonalEventQuery);
+            if((getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true" || getStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll") === "true") && queryResults.length == 0)
+            {
+                logHHAuto("No seasonal event found, deactivate collect.");
+                setStoredValue("HHAuto_Setting_autoSeasonalEventCollect", "false");
+                setStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll", "false");
+            }
+            queryResults=$(povEventQuery);
+            if((getStoredValue("HHAuto_Setting_autoPoVCollect") === "true" || getStoredValue("HHAuto_Setting_autoPoVCollectAll") === "true") && queryResults.length == 0)
+            {
+                logHHAuto("No pov event found, deactivate collect.");
+                setStoredValue("HHAuto_Setting_autoPoVCollect", "false");
+                setStoredValue("HHAuto_Setting_autoPoVCollectAll", "false");
+            }
+            queryResults=$(pogEventQuery);
+            if((getStoredValue("HHAuto_Setting_autoPoGCollect") === "true" || getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true") && queryResults.length == 0)
+            {
+                logHHAuto("No pog event found, deactivate collect.");
+                setStoredValue("HHAuto_Setting_autoPoGCollect", "false");
+                setStoredValue("HHAuto_Setting_autoPoGCollectAll", "false");
+            }
+        }
+        
+        return {eventIDs:eventIDs,bossBangEventIDs:bossBangEventIDs};
+    }
 }

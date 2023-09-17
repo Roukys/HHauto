@@ -24,8 +24,9 @@ import {
     setStoredValue,
     setTimer
 } from "../Helper";
-import { autoLoop, gotoPage } from "../Service";
+import { autoLoop, checkParanoiaSpendings, gotoPage } from "../Service";
 import { isJSON, logHHAuto } from "../Utils";
+import { Booster } from "./Booster";
 
 export class LeagueHelper {
     /* get time in sec */
@@ -127,6 +128,22 @@ export class LeagueHelper {
         <span style="margin:0;display:none;" id="HHPowerCalcPoints">${points}</span>`;
         // const opponentRow = opponentGoButton.parent().parent();
         opponentGoButton.html(`<div class="matchRatingNew ${simu.scoreClass}"><img class="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${pointText}</div>`);
+    }
+
+    static isAutoLeagueActivated(){
+        return getStoredValue("HHAuto_Setting_autoLeagues") === "true" && getHHVars('Hero.infos.level')>=20;
+    }
+
+    static isTimeToFightLeague(){
+        const energyAboveThreshold = Number(getHHVars('Hero.energies.challenge.amount')) > Number(getStoredValue("HHAuto_Setting_autoLeaguesThreshold"));
+        const needBoosterToFight = getStoredValue("HHAuto_Setting_autoLeaguesBoostedOnly") === "true";
+        const haveBoosterEquiped = Booster.haveBoosterEquiped();
+
+        if(checkTimer('nextLeaguesTime') && energyAboveThreshold && needBoosterToFight && !haveBoosterEquiped) {
+            logHHAuto('Time for league but no booster equipped');
+        }
+
+        return (checkTimer('nextLeaguesTime') && energyAboveThreshold && (needBoosterToFight && haveBoosterEquiped || !needBoosterToFight)) || Number(checkParanoiaSpendings('challenge')) > 0;
     }
     
     static moduleSimLeague() {
