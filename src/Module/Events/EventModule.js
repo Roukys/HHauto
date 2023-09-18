@@ -547,6 +547,7 @@ export class EventModule {
                 {
                     let currentGirl=$(query).parent()[0];
                     $(query).prepend('<div class="HHEventPriority" title="'+getTextForUI('dailyMissionGirlTitle','elementText')+'">DM</div>');
+                    $(query).css('position','relative');
                     $($(query)).parent().parent()[0].prepend(currentGirl);
                 }
             }
@@ -577,6 +578,7 @@ export class EventModule {
                 {
                     currentGirl=$(query).parent()[0];
                     $(query).prepend('<div class="HHEventPriority">C'+eventChamps[idArray].champ_id+'</div>');
+                    $(query).css('position','relative');
                     $($(query)).parent().parent()[0].prepend(currentGirl);
                 }
             }
@@ -590,6 +592,7 @@ export class EventModule {
                     currentGirl=$(query).parent()[0];
                     $(query).prepend('<div class="HHEventPriority">'+e+'</div>');
                     $($(query)).parent().parent()[0].prepend(currentGirl);
+                    $(query).css('position','relative');
                     $(query).click();
                 }
             }
