@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.5.1
+// @version      6.5.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -346,6 +346,7 @@ HHAuto_ToolTips.en.sultryMysteriesEventTitle = { version: "5.21.6", elementText:
 HHAuto_ToolTips.en.sultryMysteriesEventRefreshShop = { version: "5.21.6", elementText: "Refresh Shop", tooltip: "Open Sultry Mysteries shop tab to trigger shop update."};
 HHAuto_ToolTips.en.sultryMysteriesEventRefreshShopNext = { version: "5.22.5", elementText: "Sultry Shop"};
 HHAuto_ToolTips.en.collectEventChest = { version: "5.28.0", elementText: "Collect event chest", tooltip: "If enabled: collect event chest when active after getting all girls"};
+HHAuto_ToolTips.en.dailyMissionGirlTitle = { version: "6.5.2", elementText: "Complete the Daily Missions of to get me!"};
 HHAuto_ToolTips.en.showTooltips = { version: "5.6.24", elementText: "Show tooltips", tooltip: "Show tooltip on menu."};
 HHAuto_ToolTips.en.showMarketTools = { version: "5.6.24", elementText: "Show market tools", tooltip: "Show Market tools."};
 HHAuto_ToolTips.en.updateMarket = { version: "5.22.0", elementText: "Update market", tooltip: "Update player data from market screens (Equipement, books and gift owned as well as next refresh time)."};
@@ -1800,9 +1801,30 @@ class EventModule {
         }
     }
 
+    static displayPrioInDailyMissionGirl(baseQuery){
+        let allEventGirlz = unsafeWindow.event_data ? unsafeWindow.event_data.girls : [];
+        for (let currIndex = 0;currIndex<allEventGirlz.length;currIndex++)
+        {
+            let girlData = allEventGirlz[currIndex];
+            if (girlData.shards < 100 && girlData.source && girlData.source.name === 'event_dm') {
+
+                let query=baseQuery+"[data-select-girl-id="+girlData.id_girl+"]";
+                if ($(query).length >0 )
+                {
+                    let currentGirl=$(query).parent()[0];
+                    $(query).prepend('<div class="HHEventPriority" title="'+getTextForUI('dailyMissionGirlTitle','elementText')+'">DM</div>');
+                    $($(query)).parent().parent()[0].prepend(currentGirl);
+                }
+            }
+        }
+    }
+
     static moduleDisplayEventPriority()
     {
         if ($('.HHEventPriority').length  > 0) {return}
+        const baseQuery="#events .scroll-area .nc-event-list-reward-container .nc-event-list-reward";
+        EventModule.displayPrioInDailyMissionGirl(baseQuery);
+
         let eventGirlz=Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventsGirlz")):{};
         let eventChamps = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_autoChampsEventGirls"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_autoChampsEventGirls")):[];
         //$("div.event-widget div.widget[style='display: block;'] div.container div.scroll-area div.rewards-block-tape div.girl_reward div.HHEventPriority").each(function(){this.remove();});
@@ -1810,7 +1832,6 @@ class EventModule {
         {
             var girl;
             var prio;
-            var baseQuery="#events .scroll-area .nc-event-list-reward-container .nc-event-list-reward";
             var idArray;
             var currentGirl;
             for ( var ec=eventChamps.length;ec>0;ec--)
@@ -1839,7 +1860,6 @@ class EventModule {
                 }
             }
         }
-
     }
 
     

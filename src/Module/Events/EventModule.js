@@ -6,6 +6,7 @@ import {
     getHHScriptVars, 
     getPage, 
     getStoredValue,
+    getTextForUI,
     getTimeLeft,
     getTimer,
     queryStringGetParam,
@@ -534,9 +535,30 @@ export class EventModule {
         }
     }
 
+    static displayPrioInDailyMissionGirl(baseQuery){
+        let allEventGirlz = unsafeWindow.event_data ? unsafeWindow.event_data.girls : [];
+        for (let currIndex = 0;currIndex<allEventGirlz.length;currIndex++)
+        {
+            let girlData = allEventGirlz[currIndex];
+            if (girlData.shards < 100 && girlData.source && girlData.source.name === 'event_dm') {
+
+                let query=baseQuery+"[data-select-girl-id="+girlData.id_girl+"]";
+                if ($(query).length >0 )
+                {
+                    let currentGirl=$(query).parent()[0];
+                    $(query).prepend('<div class="HHEventPriority" title="'+getTextForUI('dailyMissionGirlTitle','elementText')+'">DM</div>');
+                    $($(query)).parent().parent()[0].prepend(currentGirl);
+                }
+            }
+        }
+    }
+
     static moduleDisplayEventPriority()
     {
         if ($('.HHEventPriority').length  > 0) {return}
+        const baseQuery="#events .scroll-area .nc-event-list-reward-container .nc-event-list-reward";
+        EventModule.displayPrioInDailyMissionGirl(baseQuery);
+
         let eventGirlz=isJSON(getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsGirlz")):{};
         let eventChamps = isJSON(getStoredValue("HHAuto_Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue("HHAuto_Temp_autoChampsEventGirls")):[];
         //$("div.event-widget div.widget[style='display: block;'] div.container div.scroll-area div.rewards-block-tape div.girl_reward div.HHEventPriority").each(function(){this.remove();});
@@ -544,7 +566,6 @@ export class EventModule {
         {
             var girl;
             var prio;
-            var baseQuery="#events .scroll-area .nc-event-list-reward-container .nc-event-list-reward";
             var idArray;
             var currentGirl;
             for ( var ec=eventChamps.length;ec>0;ec--)
@@ -573,7 +594,6 @@ export class EventModule {
                 }
             }
         }
-
     }
 
     
