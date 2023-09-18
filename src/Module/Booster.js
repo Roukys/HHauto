@@ -1,4 +1,4 @@
-import { HeroHelper, getHHScriptVars, getStoredValue, setStoredValue } from "../Helper";
+import { HeroHelper, getHHScriptVars, getHHVars, getStoredValue, setStoredValue } from "../Helper";
 import { gotoPage } from "../Service";
 import { isJSON, logHHAuto } from "../Utils";
 
@@ -176,8 +176,9 @@ export class Booster {
 
     static needBoosterStatusFromStore() {
         const isMythicAutoSandalWood = getStoredValue("HHAuto_Setting_plusEventMythicSandalWood") === "true";
-        const isFightWithBooster = getStoredValue("HHAuto_Setting_autoLeaguesBoostedOnly") === "true";
-        return isFightWithBooster || isMythicAutoSandalWood && !isJSON(getStoredValue("HHAuto_Temp_boosterStatus"));
+        const isLeagueWithBooster = getStoredValue("HHAuto_Setting_autoLeaguesBoostedOnly") === "true";
+        const isSeasonWithBooster = getStoredValue("HHAuto_Setting_autoSeasonBoostedOnly") === "true";
+        return isLeagueWithBooster || isSeasonWithBooster || isMythicAutoSandalWood;
     }
 
     static getBoosterFromStorage(){
@@ -186,11 +187,13 @@ export class Booster {
 
     static haveBoosterEquiped(boosterCode=undefined) {
         const boosterStatus = Booster.getBoosterFromStorage();
+        const serverNow = getHHVars('server_now_ts');
         if(!boosterCode) {
             // have at least one
-            return boosterStatus.mythic.length > 0 || boosterStatus.normal.length > 0
+            return boosterStatus.mythic.length > 0 || boosterStatus.normal.filter((booster) => booster.endAt > serverNow).length > 0
         }else {
-            return boosterStatus.mythic.find((booster) => booster.item.identifier === boosterCode) || boosterStatus.normal.find((booster) => booster.item.identifier === boosterCode)
+            return boosterStatus.mythic.find((booster) => booster.item.identifier === boosterCode).length > 0 
+            || boosterStatus.normal.find((booster) => booster.item.identifier === boosterCode && booster.endAt > serverNow).length > 0 
         }
     }
 
@@ -200,7 +203,7 @@ export class Booster {
             const activeMythicSlots = $('#equiped .booster .slot:not(.empty).mythic').map((i, el)=> $(el).data('d')).toArray()
 
             const boosterStatus = {
-                normal: activeSlots.map((data) => ({...data, endAt: window.server_now_ts + data.expiration})),
+                normal: activeSlots.map((data) => ({...data, endAt: getHHVars('server_now_ts') + data.expiration})),
                 mythic: activeMythicSlots,
             }
 

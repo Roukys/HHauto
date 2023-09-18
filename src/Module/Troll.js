@@ -18,6 +18,15 @@ import { EventModule } from "./Events";
 import { Harem } from "./Harem";
 
 export class Troll {
+
+    static getEnergy() {
+        return Number(getHHVars('Hero.energies.fight.amount'));
+    }
+
+    static getEnergyMax() {
+        return Number(getHHVars('Hero.energies.fight.max_regen_amount'));
+    }
+
     static getTrollWithGirls() {
         const girlDictionary = Harem.getGirlsList();
         const trollGirlsID = getHHScriptVars("trollGirlsID");
@@ -124,7 +133,7 @@ export class Troll {
 
     static doBossBattle()
     {
-        var currentPower = getHHVars('Hero.energies.fight.amount');
+        var currentPower = Troll.getEnergy();
         if(currentPower < 1)
         {
             //logHHAuto("No power for battle.");
@@ -177,7 +186,7 @@ export class Troll {
             let hcConfirmValue = getHHVars('Hero.infos.hc_confirm');
             let remainingShards;
             let previousPower = getStoredValue("HHAuto_Temp_trollPoints") !== undefined ? getStoredValue("HHAuto_Temp_trollPoints") : 0;
-            let currentPower = Number(getHHVars('Hero.energies.fight.amount'));
+            let currentPower = Troll.getEnergy();
 
             var checkPreviousFightDone = function(){
                 // The goal of this function is to detect slow server response to avoid loop without fight
@@ -294,7 +303,7 @@ export class Troll {
                     {
                         if (getStoredValue("HHAuto_Setting_useX50Fights") === "true")
                         {
-                            logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+getHHVars('Hero.energies.fight.amount')+'/50, remaining shards : '+remainingShards+'/'+getStoredValue("HHAuto_Setting_minShardsX50")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(getStoredValue("HHAuto_Setting_kobanBank")));
+                            logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+Troll.getEnergy()+'/50, remaining shards : '+remainingShards+'/'+getStoredValue("HHAuto_Setting_minShardsX50")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(getStoredValue("HHAuto_Setting_kobanBank")));
                         }
                     }
 
@@ -330,7 +339,7 @@ export class Troll {
                     {
                         if (getStoredValue("HHAuto_Setting_useX10Fights") === "true")
                         {
-                            logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+getHHVars('Hero.energies.fight.amount')+'/10, remaining shards : '+remainingShards+'/'+getStoredValue("HHAuto_Setting_minShardsX10")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(getStoredValue("HHAuto_Setting_kobanBank")));
+                            logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+Troll.getEnergy()+'/10, remaining shards : '+remainingShards+'/'+getStoredValue("HHAuto_Setting_minShardsX10")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(getStoredValue("HHAuto_Setting_kobanBank")));
                         }
                     }
                 }
@@ -427,7 +436,7 @@ export class Troll {
         const MAX_BUY = 200;
         let maxx50 = 50;
         let maxx20 = 20;
-        const currentFight = Number( getHHVars('Hero.energies.fight.amount'));
+        const currentFight = Troll.getEnergy();
         const eventAutoBuy =  Math.min(Number(getStoredValue("HHAuto_Setting_autoBuyTrollNumber"))       || maxx20, MAX_BUY-currentFight);
         const mythicAutoBuy = Math.min(Number(getStoredValue("HHAuto_Setting_autoBuyMythicTrollNumber")) || maxx20, MAX_BUY-currentFight);
         const pricePerFight = hero.energies[type].seconds_per_point * (unsafeWindow.hh_prices[type + '_cost_per_minute'] / 60);

@@ -1,23 +1,41 @@
 import {
     RewardHelper,
+    checkTimer,
     getHHScriptVars,
     getHHVars,
     getPage,
+    getStoredValue,
     queryStringGetParam,
     randomInterval,
     setStoredValue,
     setTimer
 } from "../Helper";
-import { gotoPage } from "../Service";
+import { checkParanoiaSpendings, gotoPage } from "../Service";
 import { logHHAuto } from "../Utils";
 
 export class Pantheon {
+
+    static getEnergy() {
+        return Number(getHHVars('Hero.energies.worship.amount'));
+    }
+
+    static getEnergyMax() {
+        return Number(getHHVars('Hero.energies.worship.max_regen_amount'));
+    }
+
+    static isTimeToFight(){
+        const energyAboveThreshold = Pantheon.getEnergy() > Number(getStoredValue("HHAuto_Setting_autoPantheonThreshold"));
+        const paranoiaSpending = Pantheon.getEnergy() > 0 && Number(checkParanoiaSpendings('worship')) > 0;
+
+        return checkTimer('nextPantheonTime') && energyAboveThreshold || paranoiaSpending;Sa
+    }
+
     static run()
     {
         logHHAuto("Performing auto Pantheon.");
         // Confirm if on correct screen.
         var page = getPage();
-        var current_worship = getHHVars('Hero.energies.worship.amount');
+        var current_worship = Pantheon.getEnergy();
         if(page === getHHScriptVars("pagesIDPantheon"))
         {
             logHHAuto("On pantheon page.");

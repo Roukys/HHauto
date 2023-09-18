@@ -10,7 +10,7 @@ import {
     getPage,
     setStoredValue
 } from "../Helper";
-import { Booster } from "../Module";
+import { Booster, LeagueHelper, Pantheon, Season, Troll } from "../Module";
 
 export function createPInfo() {
     var div = document.createElement('div');
@@ -86,7 +86,7 @@ export function updateData() {
         }
         if (getHHScriptVars('isEnabledTrollBattle',false) && getStoredValue("HHAuto_Setting_autoTrollBattle") =="true")
         {
-            Tegzd += '<li>'+getTextForUI("autoTrollTitle","elementText")+' : '+getHHVars('Hero.energies.fight.amount')+'/'+getHHVars('Hero.energies.fight.max_regen_amount')+contest+'</li>';
+            Tegzd += '<li>'+getTextForUI("autoTrollTitle","elementText")+' : '+Troll.getEnergy()+'/'+Troll.getEnergyMax()+contest+'</li>';
         }
         if (getHHScriptVars("isEnabledSalary",false) && getStoredValue("HHAuto_Setting_autoSalary") =="true")
         {
@@ -94,7 +94,19 @@ export function updateData() {
         }
         if (getHHScriptVars('isEnabledSeason',false) && getStoredValue("HHAuto_Setting_autoSeason") =="true")
         {
-            Tegzd += '<li>'+getTextForUI("autoSeasonTitle","elementText")+' '+getHHVars('Hero.energies.kiss.amount')+'/'+getHHVars('Hero.energies.kiss.max_regen_amount')+' : '+getTimeLeft('nextSeasonTime')+'</li>';
+            Tegzd += '<li>';
+            const boostLimited = getStoredValue("HHAuto_Setting_autoSeasonBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
+            if(boostLimited) {
+                Tegzd += '<li style="color:red!important;" title="'+getTextForUI("boostMissing","elementText")+'">';
+            }else {
+                Tegzd += '<li>';
+            }
+            Tegzd += getTextForUI("autoSeasonTitle","elementText")+' '+Season.getEnergy()+'/'+Season.getEnergyMax()+' : '+getTimeLeft('nextSeasonTime');
+            if(boostLimited) {
+                Tegzd += ' ' + getTextForUI("boostMissing","elementText") + '</li>';
+            }else {
+                Tegzd += '</li>';
+            }
         }
         /*if (getHHScriptVars('isEnabledSeason',false) && getStoredValue("HHAuto_Setting_autoSeasonCollect") =="true")
         {
@@ -117,7 +129,7 @@ export function updateData() {
             }else {
                 Tegzd += '<li>';
             }
-            Tegzd += getTextForUI("autoLeaguesTitle","elementText")+' '+getHHVars('Hero.energies.challenge.amount')+'/'+getHHVars('Hero.energies.challenge.max_regen_amount')+' : '+getTimeLeft('nextLeaguesTime');
+            Tegzd += getTextForUI("autoLeaguesTitle","elementText")+' '+LeagueHelper.getEnergy()+'/'+LeagueHelper.getEnergyMax()+' : '+getTimeLeft('nextLeaguesTime');
             if(boostLimited) {
                 Tegzd += ' ' + getTextForUI("boostMissing","elementText") + '</li>';
             }else {
@@ -134,7 +146,7 @@ export function updateData() {
         }
         if (getHHScriptVars('isEnabledPantheon',false) && getStoredValue("HHAuto_Setting_autoPantheon") =="true")
         {
-            Tegzd += '<li>'+getTextForUI("autoPantheonTitle","elementText")+' : '+getHHVars('Hero.energies.worship.amount')+'/'+getHHVars('Hero.energies.worship.max_regen_amount')+' ('+getTimeLeft('nextPantheonTime')+')'+'</li>';
+            Tegzd += '<li>'+getTextForUI("autoPantheonTitle","elementText")+' : '+Pantheon.getEnergy()+'/'+Pantheon.getEnergyMax()+' ('+getTimeLeft('nextPantheonTime')+')'+'</li>';
         }
         if (getHHScriptVars("isEnabledShop",false) && getStoredValue("HHAuto_Setting_updateMarket") =="true")
         {

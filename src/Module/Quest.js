@@ -15,6 +15,15 @@ import { logHHAuto } from "../Utils";
 
 export class QuestHelper {
     static SITE_QUEST_PAGE = '/side-quests.html';
+
+    static getEnergy() {
+        return Number(getHHVars('Hero.energies.quest.amount'));
+    }
+
+    static getEnergyMax() {
+        return Number(getHHVars('Hero.energies.quest.max_regen_amount'));
+    }
+
     static getNextQuestLink() {
         const mainQuest = getStoredValue("HHAuto_Setting_autoQuest") === "true";
         const sideQuest = getHHScriptVars("isEnabledSideQuest",false) && getStoredValue("HHAuto_Setting_autoSideQuest") === "true";
@@ -92,7 +101,7 @@ export class QuestHelper {
             var proceedButtonCost = $("#controls button:not([style*='display:none']):not([style*='display: none']) .action-cost .price");
             var proceedCost = parsePrice(proceedButtonCost[0].innerText);
             var payTypeNRJ = $("#controls button:not([style*='display:none']):not([style*='display: none']) .action-cost .energy_quest_icn").length>0;
-            var energyCurrent = getHHVars('Hero.energies.quest.amount');
+            var energyCurrent = QuestHelper.getEnergy();
             var moneyCurrent = getHHVars('Hero.currencies.soft_currency');
             let payType = $("#controls .cost span[cur]:not([style*='display:none']):not([style*='display: none'])").attr('cur');
             //console.log("DebugQuest payType : "+payType);
