@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.5.2
+// @version      6.5.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1813,6 +1813,7 @@ class EventModule {
                 {
                     let currentGirl=$(query).parent()[0];
                     $(query).prepend('<div class="HHEventPriority" title="'+getTextForUI('dailyMissionGirlTitle','elementText')+'">DM</div>');
+                    $(query).css('position','relative');
                     $($(query)).parent().parent()[0].prepend(currentGirl);
                 }
             }
@@ -1843,6 +1844,7 @@ class EventModule {
                 {
                     currentGirl=$(query).parent()[0];
                     $(query).prepend('<div class="HHEventPriority">C'+eventChamps[idArray].champ_id+'</div>');
+                    $(query).css('position','relative');
                     $($(query)).parent().parent()[0].prepend(currentGirl);
                 }
             }
@@ -1856,6 +1858,7 @@ class EventModule {
                     currentGirl=$(query).parent()[0];
                     $(query).prepend('<div class="HHEventPriority">'+e+'</div>');
                     $($(query)).parent().parent()[0].prepend(currentGirl);
+                    $(query).css('position','relative');
                     $(query).click();
                 }
             }
