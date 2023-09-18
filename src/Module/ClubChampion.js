@@ -8,6 +8,7 @@ import {
 } from "../Helper";
 import { gotoPage } from "../Service";
 import { logHHAuto } from "../Utils";
+import { QuestHelper } from "./Quest";
 
 export class ClubChampion {
 
@@ -81,7 +82,7 @@ export class ClubChampion {
             else
             {
                 var TCount=Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
-                var ECount= getHHVars('Hero.energies.quest.amount');
+                var ECount= QuestHelper.getEnergy();
                 logHHAuto("T:"+TCount+" E:"+ECount)
                 if ( TCount==0)
                 {

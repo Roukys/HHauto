@@ -89,23 +89,23 @@ export function CheckSpentPoints()
     let newValues={};
     if (getHHScriptVars('isEnabledTrollBattle',false))
     {
-        newValues['fight']=Number(getHHVars('Hero.energies.fight.amount'));
+        newValues['fight']=Troll.getEnergy();
     }
     if (getHHScriptVars('isEnabledSeason',false))
     {
-        newValues['kiss']=Number(getHHVars('Hero.energies.kiss.amount'));
+        newValues['kiss']=Season.getEnergy();
     }
     if (getHHScriptVars('isEnabledQuest',false))
     {
-        newValues['quest']=Number(getHHVars('Hero.energies.quest.amount'));
+        newValues['quest']=QuestHelper.getEnergy();
     }
     if (getHHScriptVars('isEnabledLeagues',false))
     {
-        newValues['challenge']=Number(getHHVars('Hero.energies.challenge.amount'));
+        newValues['challenge']=LeagueHelper.getEnergy();
     }
     if (getHHScriptVars('isEnabledPantheon',false))
     {
-        newValues['worship']=Number(getHHVars('Hero.energies.worship.amount'));
+        newValues['worship']=Pantheon.getEnergy();
     }
 
     if ( oldValues !== -1)
@@ -162,7 +162,7 @@ export function autoLoop()
     //var busy = false;
     busy = false;
     var page = window.location.href;
-    var currentPower = getHHVars('Hero.energies.fight.amount');
+    var currentPower = Troll.getEnergy();
 
     var burst=getBurst();
     switchHHMenuButton(burst);
@@ -448,7 +448,7 @@ export function autoLoop()
             else if (questRequirement[0] === '*')
             {
                 var energyNeeded = Number(questRequirement.substr(1));
-                var energyCurrent = getHHVars('Hero.energies.quest.amount');
+                var energyCurrent = QuestHelper.getEnergy();
                 if (energyNeeded <= energyCurrent)
                 {
                     if (Number(energyCurrent) > Number(getStoredValue("HHAuto_Setting_autoQuestThreshold")) || Number(checkParanoiaSpendings('quest')) > 0 )
@@ -534,7 +534,7 @@ export function autoLoop()
             {
                 if (checkTimer('nextMainQuestAttempt') && checkTimer('nextSideQuestAttempt'))
                 {
-                    if (Number(getHHVars('Hero.energies.quest.amount')) > Number(getStoredValue("HHAuto_Setting_autoQuestThreshold")) || Number(checkParanoiaSpendings('quest')) > 0 )
+                    if (QuestHelper.getEnergy() > Number(getStoredValue("HHAuto_Setting_autoQuestThreshold")) || Number(checkParanoiaSpendings('quest')) > 0 )
                     {
                         //logHHAuto("NONE req.");
                         busy = true;
@@ -557,7 +557,7 @@ export function autoLoop()
 
         if(busy === false && getHHScriptVars("isEnabledSeason",false) && getStoredValue("HHAuto_Setting_autoSeason") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true" && canCollectCompetitionActive())
         {
-            if (Number(getHHVars('Hero.energies.kiss.amount')) > 0 && ( (Number(getHHVars('Hero.energies.kiss.amount')) > Number(getStoredValue("HHAuto_Setting_autoSeasonThreshold")) && checkTimer('nextSeasonTime')) || Number(checkParanoiaSpendings('kiss')) > 0 ) )
+            if (Season.isTimeToFight())
             {
                 logHHAuto("Time to fight in Season.");
                 Season.run();
@@ -578,7 +578,7 @@ export function autoLoop()
 
         if(busy === false && getHHScriptVars("isEnabledPantheon",false) && getStoredValue("HHAuto_Setting_autoPantheon") === "true" && getStoredValue("HHAuto_Temp_autoLoop") === "true" && canCollectCompetitionActive())
         {
-            if (Number(getHHVars('Hero.energies.worship.amount')) > 0 && ( (Number(getHHVars('Hero.energies.worship.amount')) > Number(getStoredValue("HHAuto_Setting_autoPantheonThreshold")) && checkTimer('nextPantheonTime')) || Number(checkParanoiaSpendings('worship')) > 0 ) )
+            if (Pantheon.isTimeToFight())
             {
                 logHHAuto("Time to do Pantheon.");
                 Pantheon.run();
@@ -598,7 +598,7 @@ export function autoLoop()
         }
 
         if (busy==false && getHHScriptVars("isEnabledChamps",false) 
-            && getHHVars('Hero.energies.quest.amount')>=60 && Number(getHHVars('Hero.energies.quest.amount')) > Number(getStoredValue("HHAuto_Setting_autoQuestThreshold"))
+            && QuestHelper.getEnergy()>=60 && QuestHelper.getEnergy() > Number(getStoredValue("HHAuto_Setting_autoQuestThreshold"))
             && getStoredValue("HHAuto_Setting_autoChampsUseEne") ==="true" && getStoredValue("HHAuto_Temp_autoLoop") === "true" && canCollectCompetitionActive())
         {
             function buyTicket()
@@ -638,7 +638,7 @@ export function autoLoop()
         if(busy === false && getHHScriptVars("isEnabledLeagues",false) && LeagueHelper.isAutoLeagueActivated() && getStoredValue("HHAuto_Temp_autoLoop") === "true" && canCollectCompetitionActive())
         {
             // Navigate to leagues
-            if (LeagueHelper.isTimeToFightLeague())
+            if (LeagueHelper.isTimeToFight())
             {
                 logHHAuto("Time to fight in Leagues.");
                 LeagueHelper.doLeagueBattle();

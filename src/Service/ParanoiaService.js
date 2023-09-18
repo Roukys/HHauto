@@ -9,7 +9,7 @@ import {
     setStoredValue,
     setTimer
 } from "../Helper";
-import { PlaceOfPower, Troll } from "../Module";
+import { LeagueHelper, Pantheon, PlaceOfPower, QuestHelper, Season, Troll } from "../Module";
 import { isJSON, logHHAuto } from "../Utils";
 import { getBurst } from "./AutoLoop";
 import { gotoPage } from "./PageNavigationService";
@@ -141,8 +141,8 @@ export function setParanoiaSpendings()
             if ( getStoredValue("HHAuto_Temp_paranoiaLeagueBlocked") === undefined )
             {
                 maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHHVars('Hero.energies.challenge.next_refresh_ts')))/Number(getHHVars('Hero.energies.challenge.seconds_per_point')));
-                currentEnergy=Number(getHHVars('Hero.energies.challenge.amount'));
-                maxEnergy=Number(getHHVars('Hero.energies.challenge.max_regen_amount'));
+                currentEnergy=LeagueHelper.getEnergy();
+                maxEnergy=LeagueHelper.getEnergyMax();
                 totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
                 //if point refreshed during paranoia would go above max
                 if ( totalPointsEndParanoia >= maxEnergy)
@@ -163,8 +163,8 @@ export function setParanoiaSpendings()
             if ( getStoredValue("HHAuto_Temp_paranoiaQuestBlocked") === undefined )
             {
                 maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHHVars('Hero.energies.quest.next_refresh_ts')))/Number(getHHVars('Hero.energies.quest.seconds_per_point')));
-                currentEnergy=Number(getHHVars('Hero.energies.quest.amount'));
-                maxEnergy=Number(getHHVars('Hero.energies.quest.max_regen_amount'));
+                currentEnergy=QuestHelper.getEnergy();
+                maxEnergy=QuestHelper.getEnergyMax();
                 totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
                 //if point refreshed during paranoia would go above max
                 if ( totalPointsEndParanoia >= maxEnergy)
@@ -183,8 +183,8 @@ export function setParanoiaSpendings()
         if(getHHScriptVars('isEnabledTrollBattle',false) && getStoredValue("HHAuto_Setting_autoTrollBattle") === "true" && getHHVars('Hero.infos.questing.id_world')>0)
         {
             maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHHVars('Hero.energies.fight.next_refresh_ts')))/Number(getHHVars('Hero.energies.fight.seconds_per_point')));
-            currentEnergy=Number(getHHVars('Hero.energies.fight.amount'));
-            maxEnergy=Number(getHHVars('Hero.energies.fight.max_regen_amount'));
+            currentEnergy=Troll.getEnergy();
+            maxEnergy=Troll.getEnergyMax();
             totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
             //if point refreshed during paranoia would go above max
             if ( totalPointsEndParanoia >= maxEnergy)
@@ -202,8 +202,8 @@ export function setParanoiaSpendings()
         if(getHHScriptVars('isEnabledSeason',false) && getStoredValue("HHAuto_Setting_autoSeason") === "true")
         {
             maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHHVars('Hero.energies.kiss.next_refresh_ts')))/Number(getHHVars('Hero.energies.kiss.seconds_per_point')));
-            currentEnergy=Number(getHHVars('Hero.energies.kiss.amount'));
-            maxEnergy=Number(getHHVars('Hero.energies.kiss.max_regen_amount'));
+            currentEnergy=Season.getEnergy();
+            maxEnergy=Season.getEnergyMax();
             totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
             //if point refreshed during paranoia would go above max
             if ( totalPointsEndParanoia >= maxEnergy)
@@ -221,8 +221,8 @@ export function setParanoiaSpendings()
         if(getHHScriptVars('isEnabledPantheon',false) && getStoredValue("HHAuto_Setting_autoPantheon") === "true")
         {
             maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHHVars('Hero.energies.worship.next_refresh_ts')))/Number(getHHVars('Hero.energies.worship.seconds_per_point')));
-            currentEnergy=Number(getHHVars('Hero.energies.worship.amount'));
-            maxEnergy=Number(getHHVars('Hero.energies.worship.max_regen_amount'));
+            currentEnergy=Pantheon.getEnergy();
+            maxEnergy=Pantheon.getEnergyMax();
             totalPointsEndParanoia = currentEnergy+maxPointsDuringParanoia;
             //if point refreshed during paranoia would go above max
             if ( totalPointsEndParanoia >= maxEnergy)
@@ -277,7 +277,7 @@ export function flipParanoia()
             //                 trollThreshold = 0;
             //             }
             //mythic onGoing and still have some fight above threshold
-            if (Number(getHHVars('Hero.energies.fight.amount')) > 0) //trollThreshold)
+            if (Troll.getEnergy() > 0) //trollThreshold)
             {
                 logHHAuto("Forced bypass Paranoia for mythic (can fight).");
                 setTimer('paranoiaSwitch',60);
@@ -287,9 +287,7 @@ export function flipParanoia()
             //mythic ongoing and can buyCombat
             // const Hero=getHero();
             // var price=Hero.get_recharge_cost("fight");
-            if (Troll.canBuyFight().canBuy
-                && getHHVars('Hero.energies.fight.amount')==0
-               )
+            if (Troll.canBuyFight().canBuy && Troll.getEnergy()==0)
             {
 
                 logHHAuto("Forced bypass Paranoia for mythic (can buy).");

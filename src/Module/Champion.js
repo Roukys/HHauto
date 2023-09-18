@@ -13,6 +13,7 @@ import {
 import { gotoPage } from "../Service";
 import { isJSON, logHHAuto } from "../Utils";
 import { EventModule } from "./Events";
+import { QuestHelper } from "./Quest";
 
 export class Champion {
     run(){
@@ -271,7 +272,7 @@ export class Champion {
             else
             {
                 var TCount=Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
-                var ECount= getHHVars('Hero.energies.quest.amount');
+                var ECount= QuestHelper.getEnergy();
                 logHHAuto("T:"+TCount+" E:"+ECount+" "+(getStoredValue("HHAuto_Setting_autoChampsUseEne") ==="true"))
                 if ( TCount==0)
                 {

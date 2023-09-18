@@ -20,8 +20,9 @@ import {
     randomInterval,
     setStoredValue,
     setTimer } from "../../Helper";
-    import { gotoPage } from "../../Service";
+    import { checkParanoiaSpendings, gotoPage } from "../../Service";
     import { isJSON, logHHAuto } from "../../Utils";
+import { Booster } from "../Booster";
 import { EventModule } from "./EventModule";
 
 export class Season {
@@ -37,6 +38,27 @@ export class Season {
     static displayRemainingTime()
     {
         EventModule.displayGenericRemainingTime("#scriptSeasonTime", "season", "HHAutoSeasonTimer", "SeasonRemainingTime", "HHAuto_Temp_SeasonEndDate");
+    }
+
+    static getEnergy() {
+        return Number(getHHVars('Hero.energies.kiss.amount'));
+    }
+
+    static getEnergyMax() {
+        return Number(getHHVars('Hero.energies.kiss.max_regen_amount'));
+    }
+
+    static isTimeToFight() {
+        const energyAboveThreshold = Season.getEnergy() > Number(getStoredValue("HHAuto_Setting_autoSeasonThreshold"));
+        const paranoiaSpending = Season.getEnergy() > 0 && Number(checkParanoiaSpendings('kiss')) > 0;
+        const needBoosterToFight = getStoredValue("HHAuto_Setting_autoSeasonBoostedOnly") === "true";
+        const haveBoosterEquiped = Booster.haveBoosterEquiped();
+
+        if(checkTimer('nextSeasonTime') && energyAboveThreshold && needBoosterToFight && !haveBoosterEquiped) {
+            logHHAuto('Time for season but no booster equipped');
+        }
+
+        return (checkTimer('nextSeasonTime') && energyAboveThreshold && (needBoosterToFight && haveBoosterEquiped || !needBoosterToFight)) || paranoiaSpending;
     }
 
     static moduleSimSeasonBattle()
@@ -300,7 +322,7 @@ export class Season {
         // Confirm if on correct screen.
         const Hero = getHero();
         var page = getPage();
-        var current_kisses = getHHVars('Hero.energies.kiss.amount');
+        var current_kisses = Season.getEnergy();
         if (page === getHHScriptVars("pagesIDSeasonArena"))
         {
             logHHAuto("On season arena page.");

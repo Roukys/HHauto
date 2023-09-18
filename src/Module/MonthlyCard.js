@@ -4,13 +4,18 @@ import {
 } from "../Helper";
 import { logHHAuto } from "../Utils";
 import { HHAuto_inputPattern } from "../config";
+import { Season } from "./Events";
+import { LeagueHelper } from "./League";
+import { Pantheon } from "./Pantheon";
+import { QuestHelper } from "./Quest";
+import { Troll } from "./Troll";
 
 
 export class MonthlyCards {
     static updateInputPattern() {
         try {
             if(getHHScriptVars('isEnabledTrollBattle',false)) {
-                const maxRegenFight = getHHVars('Hero.energies.fight.max_regen_amount');
+                const maxRegenFight = Troll.getEnergyMax();
                 if(maxRegenFight && maxRegenFight > 20) {
                     // 20 - 30 - 40 - 50 - 60
                     const lastAllowedTenth = (maxRegenFight / 10) - 1;
@@ -18,7 +23,7 @@ export class MonthlyCards {
                 }
             }
             if(getHHScriptVars('isEnabledSeason',false)) {
-                const maxRegenKiss = getHHVars('Hero.energies.kiss.max_regen_amount');
+                const maxRegenKiss = Season.getEnergyMax();
                 if(maxRegenKiss && maxRegenKiss > 10) {
                     // 10 - 20 - 30 - 40 - 50
                     const lastAllowedTenth = (maxRegenKiss / 10) - 1;
@@ -26,11 +31,11 @@ export class MonthlyCards {
                 }
             }
             if(getHHScriptVars('isEnabledQuest',false)) {
-                const maxRegenQuest = getHHVars('Hero.energies.quest.max_regen_amount');
+                const maxRegenQuest = QuestHelper.getEnergyMax();
                 if(maxRegenQuest && maxRegenQuest > 100) {
                     // 100 - 150 - 200 - 250 - 300
                     if(maxRegenQuest === 200 || maxRegenQuest === 300) {
-                        const lastAllowedHundred = (getHHVars('Hero.energies.kiss.max_regen_amount') / 100) - 1;
+                        const lastAllowedHundred = ( QuestHelper.getEnergyMax() / 100) - 1;
                         HHAuto_inputPattern.autoQuestThreshold = "[1-"+lastAllowedHundred+"][0-9][0-9]|[1-9]?[0-9]";
                     } else if(maxRegenQuest === 250 ){
                         HHAuto_inputPattern.autoQuestThreshold = "2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]";
@@ -40,7 +45,7 @@ export class MonthlyCards {
                 }
             }
             if(getHHScriptVars('isEnabledLeagues',false)) {
-                const maxRegenLeague = getHHVars('Hero.energies.challenge.max_regen_amount');
+                const maxRegenLeague = LeagueHelper.getEnergyMax();
                 if(maxRegenLeague && maxRegenLeague > 15) {
                     // 15 - 18 - 23 - 26 - 30
                     switch (maxRegenLeague)
@@ -53,7 +58,7 @@ export class MonthlyCards {
                 }
             }
             if(getHHScriptVars('isEnabledPantheon',false)) {
-                const maxRegenPantheon = getHHVars('Hero.energies.worship.max_regen_amount');
+                const maxRegenPantheon = Pantheon.getEnergyMax();
                 if(maxRegenPantheon && maxRegenPantheon > 10) {
                     // 10 - 15 - 20 - 25 - 30
                     switch (maxRegenPantheon)

@@ -436,6 +436,7 @@ export function getMenu() {
                             +`</div>`
                             +`<div class="internalOptionsRow">`
                                 + hhMenuSwitch('autoSeasonPassReds', '', true)
+                                + hhMenuSwitch('autoSeasonBoostedOnly')
                                 + hhMenuInputWithImg('autoSeasonThreshold', HHAuto_inputPattern.autoSeasonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_kiss.png', 'numeric' )
                             +`</div>`
                         +`</div>`

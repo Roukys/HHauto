@@ -130,12 +130,21 @@ export class LeagueHelper {
         opponentGoButton.html(`<div class="matchRatingNew ${simu.scoreClass}"><img class="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${pointText}</div>`);
     }
 
+    static getEnergy() {
+        return Number(getHHVars('Hero.energies.challenge.amount'));
+    }
+
+    static getEnergyMax() {
+        return Number(getHHVars('Hero.energies.challenge.max_regen_amount'));
+    }
+
     static isAutoLeagueActivated(){
         return getStoredValue("HHAuto_Setting_autoLeagues") === "true" && getHHVars('Hero.infos.level')>=20;
     }
 
-    static isTimeToFightLeague(){
-        const energyAboveThreshold = Number(getHHVars('Hero.energies.challenge.amount')) > Number(getStoredValue("HHAuto_Setting_autoLeaguesThreshold"));
+    static isTimeToFight(){
+        const energyAboveThreshold = LeagueHelper.getEnergy() > Number(getStoredValue("HHAuto_Setting_autoLeaguesThreshold"));
+        const paranoiaSpending = LeagueHelper.getEnergy() > 0 && Number(checkParanoiaSpendings('challenge')) > 0;
         const needBoosterToFight = getStoredValue("HHAuto_Setting_autoLeaguesBoostedOnly") === "true";
         const haveBoosterEquiped = Booster.haveBoosterEquiped();
 
@@ -143,7 +152,7 @@ export class LeagueHelper {
             logHHAuto('Time for league but no booster equipped');
         }
 
-        return (checkTimer('nextLeaguesTime') && energyAboveThreshold && (needBoosterToFight && haveBoosterEquiped || !needBoosterToFight)) || Number(checkParanoiaSpendings('challenge')) > 0;
+        return (checkTimer('nextLeaguesTime') && energyAboveThreshold && (needBoosterToFight && haveBoosterEquiped || !needBoosterToFight)) || paranoiaSpending;
     }
     
     static moduleSimLeague() {
@@ -508,8 +517,8 @@ export class LeagueHelper {
     static doLeagueBattle() {
         //logHHAuto("Performing auto leagues.");
         // Confirm if on correct screen.
-        const currentPower = getHHVars('Hero.energies.challenge.amount');
-        const maxLeagueRegen = getHHVars('Hero.energies.challenge.max_regen_amount');
+        const currentPower = LeagueHelper.getEnergy();
+        const maxLeagueRegen = LeagueHelper.getEnergyMax();
         const leagueThreshold = Number(getStoredValue("HHAuto_Setting_autoLeaguesThreshold"));
         const autoLeaguesThreeFights = getStoredValue("HHAuto_Setting_autoLeaguesThreeFights") === "true";
         let leagueScoreSecurityThreshold = getStoredValue("HHAuto_Setting_autoLeaguesSecurityThreshold");
