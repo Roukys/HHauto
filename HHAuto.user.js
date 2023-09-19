@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.5.3
+// @version      6.5.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1749,6 +1749,7 @@ class EventModule {
         if(inEventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg'))) return "sultryMysteries";
     //    if(inEventID.startsWith(getHHScriptVars('poaEventIDReg'))) return "poa";
     //    if(inEventID.startsWith('cumback_contest_')) return "";
+    //    if(inEventID.startsWith('legendary_contest_')) return "";
         return "";
     }
 
@@ -13343,9 +13344,14 @@ class RewardHelper {
             {
                 return -1;
             }
+            let foughtTrollId = queryStringGetParam(window.location.search,'id_opponent');
             let eventsGirlz =Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventsGirlz")):{}
             let eventGirl = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")):{};
             let TTF = eventGirl.troll_id;
+            if (foughtTrollId != TTF) {
+                LogUtils_logHHAuto('Troll from event not fought, can be issue in event variable (event finished ?)');
+                TTF = foughtTrollId;
+            }
             if ($('#rewards_popup #reward_holder .shards_wrapper').length === 0)
             {
                 clearTimeout(inCaseTimer);
