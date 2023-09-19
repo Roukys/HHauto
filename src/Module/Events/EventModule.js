@@ -483,6 +483,7 @@ export class EventModule {
         if(inEventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg'))) return "sultryMysteries";
     //    if(inEventID.startsWith(getHHScriptVars('poaEventIDReg'))) return "poa";
     //    if(inEventID.startsWith('cumback_contest_')) return "";
+    //    if(inEventID.startsWith('legendary_contest_')) return "";
         return "";
     }
 

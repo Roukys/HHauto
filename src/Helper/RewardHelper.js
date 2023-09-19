@@ -7,6 +7,7 @@ import { nRounding } from "./NumberHelper";
 import { getStoredValue, setStoredValue } from "./StorageHelper";
 import { randomInterval } from "./TimeHelper";
 import { EventModule, SeasonalEvent } from "../Module";
+import { queryStringGetParam } from "./UrlHelper";
 
 export class RewardHelper {
     static getRewardTypeBySlot(inSlot)
@@ -244,9 +245,14 @@ export class RewardHelper {
             {
                 return -1;
             }
+            let foughtTrollId = queryStringGetParam(window.location.search,'id_opponent');
             let eventsGirlz =isJSON(getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsGirlz")):{}
             let eventGirl = isJSON(getStoredValue("HHAuto_Temp_eventGirl"))?JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")):{};
             let TTF = eventGirl.troll_id;
+            if (foughtTrollId != TTF) {
+                logHHAuto('Troll from event not fought, can be issue in event variable (event finished ?)');
+                TTF = foughtTrollId;
+            }
             if ($('#rewards_popup #reward_holder .shards_wrapper').length === 0)
             {
                 clearTimeout(inCaseTimer);
