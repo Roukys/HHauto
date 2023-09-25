@@ -538,6 +538,7 @@ export class EventModule {
 
     static displayPrioInDailyMissionGirl(baseQuery){
         let allEventGirlz = unsafeWindow.event_data ? unsafeWindow.event_data.girls : [];
+        if(!allEventGirlz) return;
         for (let currIndex = 0;currIndex<allEventGirlz.length;currIndex++)
         {
             let girlData = allEventGirlz[currIndex];
