@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.5.4
+// @version      6.5.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1804,6 +1804,7 @@ class EventModule {
 
     static displayPrioInDailyMissionGirl(baseQuery){
         let allEventGirlz = unsafeWindow.event_data ? unsafeWindow.event_data.girls : [];
+        if(!allEventGirlz) return;
         for (let currIndex = 0;currIndex<allEventGirlz.length;currIndex++)
         {
             let girlData = allEventGirlz[currIndex];
@@ -13098,6 +13099,7 @@ function manageUnits(inText)
 }
 
 ;// CONCATENATED MODULE: ./src/Helper/RewardHelper.js
+
 
 
 
