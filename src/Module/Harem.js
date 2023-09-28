@@ -419,13 +419,16 @@ export class Harem {
         if($('#'+goToGirlPageButtonId).length > 0) return;
 
         const displayedGirl = $('#harem_right .opened').attr('girl'); // unsafeWindow.harem.preselectedGirlId
-        
-        const goToGirlPageButton = '<div style="position: absolute;right: 185px;top: 22px; font-size: small; z-index:30;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("goToGirlPage","tooltip")+'</span><label style="width:100px" class="myButton" id="'+goToGirlPageButtonId+'">'+getTextForUI("goToGirlPage","elementText")+'</label></div>';
+
+        GM_addStyle('.goToGirlPage {margin-right:10px; font-size: small; z-index:30;} '
+        +'@media only screen and (max-width: 1025px) {.goToGirlPage {position: relative; right: -5rem;}}');
+
+        const goToGirlPageButton = '<div class="tooltipHH goToGirlPage"><span class="tooltipHHtext">'+getTextForUI("goToGirlPage","tooltip")+'</span><label class="myButton" id="'+goToGirlPageButtonId+'">'+getTextForUI("goToGirlPage","elementText")+'</label></div>';
         var goToGirl = function(){
             const displayedGirl = $('#harem_right .opened').attr('girl'); // unsafeWindow.harem.preselectedGirlId
             gotoPage('/girl/'+displayedGirl,{resource:'experience'});
         };
-        $('.haremdex-wrapper').append(goToGirlPageButton);
+        $('#gems-and-token-container').prepend(goToGirlPageButton);
 
         GM_registerMenuCommand(getTextForUI('goToGirlPage',"elementText"), goToGirl);
         document.getElementById(goToGirlPageButtonId).addEventListener("click", goToGirl);
