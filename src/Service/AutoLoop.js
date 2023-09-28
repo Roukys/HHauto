@@ -860,6 +860,10 @@ export function autoLoop()
                 PathOfAttraction.run = callItOnce(PathOfAttraction.run);
                 PathOfAttraction.run();
             }
+            if (getStoredValue("HHAuto_Setting_showRewardsRecap") === "true")
+            {
+                RewardHelper.displayRewardsPoaDiv();
+            }
             break;
         case getHHScriptVars("pagesIDBossBang"):
             if (getStoredValue("HHAuto_Setting_bossBangEvent") === "true")

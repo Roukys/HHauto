@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.5.8
+// @version      6.6.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -81,8 +81,9 @@ GM_addStyle('.HHGirlMilestone { position: absolute; bottom: 0;  z-index: 1; font
 GM_addStyle('.HHGirlMilestone > div { background: rgba(0,0,0,.5); border-radius: 10px; margin:auto;  width: 140px; }'); 
 GM_addStyle('.HHGirlMilestone.green { border: solid 1px green }'); 
 GM_addStyle('.HHGirlMilestone .nc-claimed-reward-check { width:20px; position:absolute; }'); 
-GM_addStyle('#HHSeasonRewards { position: absolute; right: 1.25rem; bottom: 12.25rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
+GM_addStyle('#HHSeasonRewards { position: absolute; right: 1.25rem; bottom: 14rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
 GM_addStyle('#HHSeasonalRewards { position: absolute; left: 1.25rem; bottom: 1rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
+GM_addStyle('#HHPoaRewards { position: absolute; left: 15rem; bottom: 0; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
 //END CSS Region
 
 
@@ -5026,13 +5027,16 @@ class Harem {
         if($('#'+goToGirlPageButtonId).length > 0) return;
 
         const displayedGirl = $('#harem_right .opened').attr('girl'); // unsafeWindow.harem.preselectedGirlId
-        
-        const goToGirlPageButton = '<div style="position: absolute;right: 185px;top: 22px; font-size: small; z-index:30;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("goToGirlPage","tooltip")+'</span><label style="width:100px" class="myButton" id="'+goToGirlPageButtonId+'">'+getTextForUI("goToGirlPage","elementText")+'</label></div>';
+
+        GM_addStyle('.goToGirlPage {margin-right:10px; font-size: small; z-index:30;} '
+        +'@media only screen and (max-width: 1025px) {.goToGirlPage {position: relative; right: -5rem;}}');
+
+        const goToGirlPageButton = '<div class="tooltipHH goToGirlPage"><span class="tooltipHHtext">'+getTextForUI("goToGirlPage","tooltip")+'</span><label class="myButton" id="'+goToGirlPageButtonId+'">'+getTextForUI("goToGirlPage","elementText")+'</label></div>';
         var goToGirl = function(){
             const displayedGirl = $('#harem_right .opened').attr('girl'); // unsafeWindow.harem.preselectedGirlId
             gotoPage('/girl/'+displayedGirl,{resource:'experience'});
         };
-        $('.haremdex-wrapper').append(goToGirlPageButton);
+        $('#gems-and-token-container').prepend(goToGirlPageButton);
 
         GM_registerMenuCommand(getTextForUI('goToGirlPage',"elementText"), goToGirl);
         document.getElementById(goToGirlPageButtonId).addEventListener("click", goToGirl);
@@ -13265,6 +13269,17 @@ class RewardHelper {
 
         return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
     }
+    static getPoaNotClaimedRewards(){
+        const arrayz = $('.nc-poa-reward-pair');
+        const freeSlotSelectors = ".nc-poa-free-reward.claimable .slot";
+        let paidSlotSelectors = "";
+        if($("div#nc-poa-tape-blocker").length == 0) {
+            // Season pass paid
+            paidSlotSelectors = ".nc-poa-locked-reward.claimable .slot";
+        }
+
+        return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
+    }
     static computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors) {
         const rewardCountByType = {};
         var rewardType, rewardSlot, rewardAmount;
@@ -13318,30 +13333,9 @@ class RewardHelper {
         }
         return html;
     }
-    static displayRewardsPovPogDiv() {
-        const target = $('.potions-paths-first-row .potions-paths-title-panel');
-        const hhRewardId = 'HHPovPogRewards';
+    static displayRewardsDiv(target,hhRewardId, rewardCountByType ) {
         try{
             if($('#' + hhRewardId).length <= 0) {
-                const rewardCountByType = RewardHelper.getPovNotClaimedRewards();
-                if (rewardCountByType['all'] > 0) {
-                    const rewardsHtml = RewardHelper.getRewardsAsHtml(rewardCountByType);
-                    target.after($('<div id='+hhRewardId+' class="HHRewardNotCollected"><h1 style="font-size: small;">'+getTextForUI('rewardsToCollectTitle',"elementText")+'</h1>' + rewardsHtml + '</div>'));
-                } else {
-                    target.after($('<div id='+hhRewardId+' style="display:none;"></div>'));
-                }
-            }
-        } catch(err) {
-            LogUtils_logHHAuto("ERROR:", err.message);
-            target.append($('<div id='+hhRewardId+' style="display:none;"></div>'));
-        }
-    }
-    static displayRewardsSeasonDiv() {
-        const target = $('.controls_right_side');
-        const hhRewardId = 'HHSeasonRewards';
-        try{
-            if($('#' + hhRewardId).length <= 0) {
-                const rewardCountByType = RewardHelper.getSeasonNotClaimedRewards();
                 if (rewardCountByType['all'] > 0) {
                     const rewardsHtml = RewardHelper.getRewardsAsHtml(rewardCountByType);
                     target.append($('<div id='+hhRewardId+' class="HHRewardNotCollected"><h1 style="font-size: small;">'+getTextForUI('rewardsToCollectTitle',"elementText")+'</h1>' + rewardsHtml + '</div>'));
@@ -13352,6 +13346,31 @@ class RewardHelper {
         } catch(err) {
             LogUtils_logHHAuto("ERROR:", err.message);
             target.append($('<div id='+hhRewardId+' style="display:none;"></div>'));
+        }
+    }
+    static displayRewardsPovPogDiv() {
+        const target = $('.potions-paths-first-row');
+        const hhRewardId = 'HHPovPogRewards';
+        
+        if($('#' + hhRewardId).length <= 0) {
+            const rewardCountByType = RewardHelper.getPovNotClaimedRewards();
+            RewardHelper.displayRewardsDiv(target, hhRewardId, rewardCountByType);
+        }
+    }
+    static displayRewardsSeasonDiv() {
+        const target = $('.seasons_controls_holder_global');
+        const hhRewardId = 'HHSeasonRewards';
+        if($('#' + hhRewardId).length <= 0) {
+            const rewardCountByType = RewardHelper.getSeasonNotClaimedRewards();
+            RewardHelper.displayRewardsDiv(target, hhRewardId, rewardCountByType);
+        }
+    }
+    static displayRewardsPoaDiv() {
+        const target = $('#poa-content .girls');
+        const hhRewardId = 'HHPoaRewards';
+        if($('#' + hhRewardId).length <= 0) {
+            const rewardCountByType = RewardHelper.getPoaNotClaimedRewards();
+            RewardHelper.displayRewardsDiv(target, hhRewardId, rewardCountByType);
         }
     }
     static closeRewardPopupIfAny() {
@@ -15846,6 +15865,10 @@ function autoLoop()
             {
                 PathOfAttraction.run = callItOnce(PathOfAttraction.run);
                 PathOfAttraction.run();
+            }
+            if (StorageHelper_getStoredValue("HHAuto_Setting_showRewardsRecap") === "true")
+            {
+                RewardHelper.displayRewardsPoaDiv();
             }
             break;
         case getHHScriptVars("pagesIDBossBang"):

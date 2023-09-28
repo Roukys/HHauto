@@ -134,6 +134,17 @@ export class RewardHelper {
 
         return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
     }
+    static getPoaNotClaimedRewards(){
+        const arrayz = $('.nc-poa-reward-pair');
+        const freeSlotSelectors = ".nc-poa-free-reward.claimable .slot";
+        let paidSlotSelectors = "";
+        if($("div#nc-poa-tape-blocker").length == 0) {
+            // Season pass paid
+            paidSlotSelectors = ".nc-poa-locked-reward.claimable .slot";
+        }
+
+        return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
+    }
     static computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors) {
         const rewardCountByType = {};
         var rewardType, rewardSlot, rewardAmount;
@@ -187,30 +198,9 @@ export class RewardHelper {
         }
         return html;
     }
-    static displayRewardsPovPogDiv() {
-        const target = $('.potions-paths-first-row .potions-paths-title-panel');
-        const hhRewardId = 'HHPovPogRewards';
+    static displayRewardsDiv(target,hhRewardId, rewardCountByType ) {
         try{
             if($('#' + hhRewardId).length <= 0) {
-                const rewardCountByType = RewardHelper.getPovNotClaimedRewards();
-                if (rewardCountByType['all'] > 0) {
-                    const rewardsHtml = RewardHelper.getRewardsAsHtml(rewardCountByType);
-                    target.after($('<div id='+hhRewardId+' class="HHRewardNotCollected"><h1 style="font-size: small;">'+getTextForUI('rewardsToCollectTitle',"elementText")+'</h1>' + rewardsHtml + '</div>'));
-                } else {
-                    target.after($('<div id='+hhRewardId+' style="display:none;"></div>'));
-                }
-            }
-        } catch(err) {
-            logHHAuto("ERROR:", err.message);
-            target.append($('<div id='+hhRewardId+' style="display:none;"></div>'));
-        }
-    }
-    static displayRewardsSeasonDiv() {
-        const target = $('.controls_right_side');
-        const hhRewardId = 'HHSeasonRewards';
-        try{
-            if($('#' + hhRewardId).length <= 0) {
-                const rewardCountByType = RewardHelper.getSeasonNotClaimedRewards();
                 if (rewardCountByType['all'] > 0) {
                     const rewardsHtml = RewardHelper.getRewardsAsHtml(rewardCountByType);
                     target.append($('<div id='+hhRewardId+' class="HHRewardNotCollected"><h1 style="font-size: small;">'+getTextForUI('rewardsToCollectTitle',"elementText")+'</h1>' + rewardsHtml + '</div>'));
@@ -221,6 +211,31 @@ export class RewardHelper {
         } catch(err) {
             logHHAuto("ERROR:", err.message);
             target.append($('<div id='+hhRewardId+' style="display:none;"></div>'));
+        }
+    }
+    static displayRewardsPovPogDiv() {
+        const target = $('.potions-paths-first-row');
+        const hhRewardId = 'HHPovPogRewards';
+        
+        if($('#' + hhRewardId).length <= 0) {
+            const rewardCountByType = RewardHelper.getPovNotClaimedRewards();
+            RewardHelper.displayRewardsDiv(target, hhRewardId, rewardCountByType);
+        }
+    }
+    static displayRewardsSeasonDiv() {
+        const target = $('.seasons_controls_holder_global');
+        const hhRewardId = 'HHSeasonRewards';
+        if($('#' + hhRewardId).length <= 0) {
+            const rewardCountByType = RewardHelper.getSeasonNotClaimedRewards();
+            RewardHelper.displayRewardsDiv(target, hhRewardId, rewardCountByType);
+        }
+    }
+    static displayRewardsPoaDiv() {
+        const target = $('#poa-content .girls');
+        const hhRewardId = 'HHPoaRewards';
+        if($('#' + hhRewardId).length <= 0) {
+            const rewardCountByType = RewardHelper.getPoaNotClaimedRewards();
+            RewardHelper.displayRewardsDiv(target, hhRewardId, rewardCountByType);
         }
     }
     static closeRewardPopupIfAny() {
