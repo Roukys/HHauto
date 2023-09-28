@@ -11,6 +11,7 @@ import {
 } from "../Helper";
 import { gotoPage } from "../Service";
 import { logHHAuto } from "../Utils";
+import { Troll } from "./Troll";
 
 export class GenericBattle {
     static doBattle()
@@ -19,6 +20,7 @@ export class GenericBattle {
         {
             logHHAuto("On battle page.");
             let troll_id = queryStringGetParam(window.location.search,'id_opponent');
+            const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
             if (getPage() === getHHScriptVars("pagesIDLeagueBattle") && getStoredValue("HHAuto_Setting_autoLeagues") === "true")
             {
                 logHHAuto("Reloading after league fight.");
@@ -27,7 +29,7 @@ export class GenericBattle {
             else if (getPage() === getHHScriptVars("pagesIDTrollBattle") )
             {
                 //console.log(Number(troll_id),Number(getHHVars('Hero.infos.questing.id_world'))-1,Number(troll_id) === Number(getHHVars('Hero.infos.questing.id_world'))-1);
-                if (getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true" && (Number(troll_id) === Number(getHHVars('Hero.infos.questing.id_world'))-1 || Number(troll_id) === Trollz.length-1 /*PSH*/))
+                if (getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true" && (Number(troll_id) === lastTrollIdAvailable))
                 {
                     setStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest", "false");
                 }

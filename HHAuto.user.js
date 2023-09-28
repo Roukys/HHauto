@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.5.7
+// @version      6.5.8
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4179,76 +4179,6 @@ class DailyGoals {
         }
     }
 }
-;// CONCATENATED MODULE: ./src/Module/GenericBattle.js
-
-
-
-
-class GenericBattle {
-    static doBattle()
-    {
-        if (getPage() === getHHScriptVars("pagesIDLeagueBattle") || getPage() === getHHScriptVars("pagesIDTrollBattle") || getPage() === getHHScriptVars("pagesIDSeasonBattle") || getPage() === getHHScriptVars("pagesIDPantheonBattle") )
-        {
-            LogUtils_logHHAuto("On battle page.");
-            let troll_id = queryStringGetParam(window.location.search,'id_opponent');
-            if (getPage() === getHHScriptVars("pagesIDLeagueBattle") && StorageHelper_getStoredValue("HHAuto_Setting_autoLeagues") === "true")
-            {
-                LogUtils_logHHAuto("Reloading after league fight.");
-                gotoPage(getHHScriptVars("pagesIDLeaderboard"),{},randomInterval(4000,5000));
-            }
-            else if (getPage() === getHHScriptVars("pagesIDTrollBattle") )
-            {
-                //console.log(Number(troll_id),Number(getHHVars('Hero.infos.questing.id_world'))-1,Number(troll_id) === Number(getHHVars('Hero.infos.questing.id_world'))-1);
-                if (StorageHelper_getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true" && (Number(troll_id) === Number(getHHVars('Hero.infos.questing.id_world'))-1 || Number(troll_id) === Trollz.length-1 /*PSH*/))
-                {
-                    StorageHelper_setStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest", "false");
-                }
-                if(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl") !== undefined &&
-                    (
-                        StorageHelper_getStoredValue("HHAuto_Setting_plusEvent") === "true" && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic==="false"
-                        || 
-                        StorageHelper_getStoredValue("HHAuto_Setting_plusEventMythic") === "true" && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic==="true"
-                    ))
-                {
-                    LogUtils_logHHAuto("Event ongoing search for girl rewards in popup.");
-                    RewardHelper.ObserveAndGetGirlRewards();
-                }
-                else
-                {
-                    if (troll_id !== null)
-                    {
-                        LogUtils_logHHAuto("Go back to Troll after Troll fight.");
-                        gotoPage(getHHScriptVars("pagesIDTrollPreBattle"),{id_opponent:troll_id},randomInterval(2000,4000));
-                    }
-                    else
-                    {
-                        LogUtils_logHHAuto("Go to home after unknown troll fight.");
-                        gotoPage(getHHScriptVars("pagesIDHome"),{},randomInterval(2000,4000));
-                    }
-                }
-
-            }
-            else if (getPage() === getHHScriptVars("pagesIDSeasonBattle") && StorageHelper_getStoredValue("HHAuto_Setting_autoSeason") === "true")
-            {
-                LogUtils_logHHAuto("Go back to Season arena after Season fight.");
-                gotoPage(getHHScriptVars("pagesIDSeasonArena"),{},randomInterval(2000,4000));
-            }
-            else if (getPage() === getHHScriptVars("pagesIDPantheonBattle") && StorageHelper_getStoredValue("HHAuto_Setting_autoPantheon") === "true")
-            {
-                LogUtils_logHHAuto("Go back to Pantheon arena after Pantheon temple.");
-                gotoPage(getHHScriptVars("pagesIDPantheon"),{},randomInterval(2000,4000));
-            }
-            return true;
-        }
-        else
-        {
-            LogUtils_logHHAuto('Unable to identify page.');
-            gotoPage(getHHScriptVars("pagesIDHome"));
-            return;
-        }
-    }
-
-}
 ;// CONCATENATED MODULE: ./src/Module/harem/HaremGirl.js
 
 
@@ -4682,8 +4612,6 @@ class HaremGirl {
         HaremGirl.HaremDisplayGirlPopup(haremItem,haremText,remainingTime);
     }
 }
-;// CONCATENATED MODULE: ./src/Module/harem/index.js
-
 ;// CONCATENATED MODULE: ./src/Module/Harem.js
 
 
@@ -5214,6 +5142,603 @@ class Harem {
         return calculatedCosts[inRarity][inTargetGrade];
     }
 }
+;// CONCATENATED MODULE: ./src/Module/Troll.js
+
+
+
+
+
+
+class Troll {
+
+    static getEnergy() {
+        return Number(getHHVars('Hero.energies.fight.amount'));
+    }
+
+    static getEnergyMax() {
+        return Number(getHHVars('Hero.energies.fight.max_regen_amount'));
+    }
+
+    static getTrollWithGirls() {
+        const girlDictionary = Harem.getGirlsList();
+        const trollGirlsID = getHHScriptVars("trollGirlsID");
+        const trollWithGirls = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []];
+    
+        if (girlDictionary) {
+            for (var tIdx = 0; tIdx < trollGirlsID.length; tIdx++) {
+                for (var pIdx = 0; pIdx < trollGirlsID[tIdx].length; pIdx++) {
+                    trollWithGirls[tIdx][pIdx] = false;
+                    for (var gIdx = 0; gIdx < trollGirlsID[tIdx][pIdx].length; gIdx++) {
+                        var idGirl = parseInt(trollGirlsID[tIdx][pIdx][gIdx], 10);
+                        if (idGirl == 0) {
+                            trollWithGirls[tIdx][pIdx] = false;
+                        }
+                        else if (girlDictionary.get(idGirl) == undefined) {
+                            trollWithGirls[tIdx][pIdx] = true;
+                        }
+                        else {
+                            if (girlDictionary.get(idGirl).shards == 100 && trollWithGirls[tIdx][pIdx] == false) {
+                                trollWithGirls[tIdx][pIdx] = false;
+                            }
+                            else {
+                                trollWithGirls[tIdx][pIdx] = true;
+                            }
+                        }
+                    }
+    
+                }
+            }
+        }
+        // const trollWithGirls = isJSON(getStoredValue("HHAuto_Temp_trollWithGirls"))?JSON.parse(getStoredValue("HHAuto_Temp_trollWithGirls")):[];
+        return trollWithGirls;
+    }
+
+    static getLastTrollIdAvailable() {
+        const id_world = getHHVars('Hero.infos.questing.id_world');
+        if(isPshEnvironnement() && id_world > 10) {
+            return id_world-3; // PSH parallele adventures
+        }else {
+            return id_world-1;
+        }
+    }
+
+    static getTrollIdToFight() {
+        let trollWithGirls = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_trollWithGirls"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_trollWithGirls")):[];
+        let autoTrollSelectedIndex = StorageHelper_getStoredValue("HHAuto_Setting_autoTrollSelectedIndex");
+        if(autoTrollSelectedIndex === undefined || isNaN(autoTrollSelectedIndex)) {
+            autoTrollSelectedIndex -1
+        }else {
+            autoTrollSelectedIndex = Number(autoTrollSelectedIndex);
+        }
+
+        var TTF;
+        const id_world = getHHVars('Hero.infos.questing.id_world');
+        const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
+        if (StorageHelper_getStoredValue("HHAuto_Setting_plusEvent") === "true" && !checkTimer("eventGoing") && StorageHelper_getStoredValue("HHAuto_Temp_eventGirl") !== undefined && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic==="false")
+        {
+            TTF=JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).troll_id;
+            LogUtils_logHHAuto("Event troll fight");
+        }
+        else if (StorageHelper_getStoredValue("HHAuto_Setting_plusEventMythic") ==="true" && !checkTimer("eventMythicGoing") && StorageHelper_getStoredValue("HHAuto_Temp_eventGirl") !== undefined && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic==="true")
+        {
+            TTF=JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).troll_id;
+            LogUtils_logHHAuto("Mythic Event troll fight");
+        }
+        else if (autoTrollSelectedIndex === 98 || autoTrollSelectedIndex === 99) {
+            if (trollWithGirls === undefined || trollWithGirls.length === 0) {
+                LogUtils_logHHAuto("No troll with girls from storage, parsing game info ...");
+                trollWithGirls = Troll.getTrollWithGirls();
+                StorageHelper_setStoredValue("HHAuto_Temp_trollWithGirls", JSON.stringify(trollWithGirls));
+            }
+
+            if (trollWithGirls !== undefined && trollWithGirls.length > 0) {
+                if(autoTrollSelectedIndex === 98) {
+                    TTF = trollWithGirls.findIndex(troll => troll.find(trollTier => trollTier === true)) + 1;
+                }
+                else if(autoTrollSelectedIndex === 99) {
+                    TTF = trollWithGirls.findLastIndex(troll => troll.find(trollTier => trollTier === true)) + 1;
+                    if(TTF > id_world-1) {
+                        TTF=id_world-1;
+                    }
+                }
+            } else if(getPage()!==getHHScriptVars("pagesIDHome")) {
+                LogUtils_logHHAuto("Can't get troll with girls, going to home page to get girl list.");
+                gotoPage(getHHScriptVars("pagesIDHome"));
+            } else {
+                LogUtils_logHHAuto("Can't get troll with girls, going to last troll.");
+                TTF=id_world-1;
+            }
+        }
+        else if(autoTrollSelectedIndex > 0 && autoTrollSelectedIndex < 98)
+        {
+            TTF=autoTrollSelectedIndex;
+            LogUtils_logHHAuto("Custom troll fight.");
+        }
+        else
+        {
+            TTF = lastTrollIdAvailable;
+            LogUtils_logHHAuto("Last troll fight: " + TTF);
+        }
+
+        if (StorageHelper_getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true")
+        {
+            TTF = lastTrollIdAvailable;
+            LogUtils_logHHAuto("Last troll fight for quest item: " + TTF);
+            //setStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest", "false");
+            StorageHelper_setStoredValue("HHAuto_Temp_questRequirement", "none");
+        }
+        if(TTF >= Trollz.length) {
+            LogUtils_logHHAuto("Error: New troll implemented '"+TTF+"' (List to be updated) or wrong troll target found");
+            TTF = 1;
+        }
+        return TTF;
+    }
+
+    static doBossBattle()
+    {
+        var currentPower = Troll.getEnergy();
+        if(currentPower < 1)
+        {
+            //logHHAuto("No power for battle.");
+            if (!Troll.canBuyFight().canBuy)
+            {
+                return false;
+            }
+        }
+
+        const TTF = Troll.getTrollIdToFight();
+
+        LogUtils_logHHAuto("Fighting troll N "+TTF);
+        LogUtils_logHHAuto("Going to crush: "+Trollz[Number(TTF)]);
+
+        // Battles the latest boss.
+        // Navigate to latest boss.
+        //console.log(getPage());
+        if(getPage()===getHHScriptVars("pagesIDTrollPreBattle") && window.location.search=="?id_opponent=" + TTF)
+        {
+            // On the battle screen.
+            Troll.CrushThemFights();
+            return true;
+        }
+        else
+        {
+            LogUtils_logHHAuto("Navigating to chosen Troll.");
+            StorageHelper_setStoredValue("HHAuto_Temp_autoLoop", "false");
+            LogUtils_logHHAuto("setting autoloop to false");
+            //week 28 new battle modification
+            //location.href = "/battle.html?id_troll=" + TTF;
+            gotoPage(getHHScriptVars("pagesIDTrollPreBattle"),{id_opponent:TTF});
+            //End week 28 new battle modification
+            return true;
+        }
+    }
+
+    static CrushThemFights()
+    {
+        if (getPage() === getHHScriptVars("pagesIDTrollPreBattle")) {
+            // On battle page.
+            LogUtils_logHHAuto("On Pre battle page.");
+            let TTF = queryStringGetParam(window.location.search,'id_opponent');
+
+            let battleButton = $('#pre-battle .battle-buttons a.green_button_L.battle-action-button');
+            let battleButtonX10 = $('#pre-battle .battle-buttons button.autofight[data-battles="10"]');
+            let battleButtonX50 = $('#pre-battle .battle-buttons button.autofight[data-battles="50"]');
+            let battleButtonX10Price = Number(battleButtonX10.attr('price'));
+            let battleButtonX50Price = Number(battleButtonX50.attr('price'));
+            // let Hero=getHero();
+            let hcConfirmValue = getHHVars('Hero.infos.hc_confirm');
+            let remainingShards;
+            let previousPower = StorageHelper_getStoredValue("HHAuto_Temp_trollPoints") !== undefined ? StorageHelper_getStoredValue("HHAuto_Temp_trollPoints") : 0;
+            let currentPower = Troll.getEnergy();
+
+            var checkPreviousFightDone = function(){
+                // The goal of this function is to detect slow server response to avoid loop without fight
+                if(previousPower > 0 && previousPower == currentPower) {
+                    StorageHelper_setStoredValue("HHAuto_Temp_autoLoop", "false");
+                    LogUtils_logHHAuto("Server seems slow to reply, setting autoloop to false to wait for troll page to load");
+                }
+            }
+
+            //check if girl still available at troll in case of event
+            if (TTF !== null)
+            {
+                if (StorageHelper_getStoredValue("HHAuto_Temp_eventGirl") !== undefined && TTF === JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).troll_id)
+                {
+                    if (
+                        (
+                            JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true"
+                            && StorageHelper_getStoredValue("HHAuto_Setting_plusEventMythic") ==="true"
+                        )
+                        ||
+                        (
+                            JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "false"
+                            && StorageHelper_getStoredValue("HHAuto_Setting_plusEvent") ==="true"
+                        )
+                    )
+                    {
+                        let rewardGirlz=$("#pre-battle .oponnent-panel .opponent_rewards .rewards_list .slot.girl_ico[data-rewards]");
+
+                        if (rewardGirlz.length ===0 || !rewardGirlz.attr('data-rewards').includes('"id_girl":'+JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).girl_id))
+                        {
+                            LogUtils_logHHAuto("Seems "+JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).girl_name+" is no more available at troll "+Trollz[Number(TTF)]+". Going to event page.");
+                            EventModule.parseEventPage(JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).event_id);
+                            return true;
+                        }
+                    }
+                }
+                let canBuyFightsResult=Troll.canBuyFight();
+                if (
+                    (canBuyFightsResult.canBuy && currentPower === 0)
+                    ||
+                    (
+                        canBuyFightsResult.canBuy
+                        && currentPower < 50
+                        && canBuyFightsResult.max === 50
+                        && StorageHelper_getStoredValue("HHAuto_Setting_useX50Fights") === "true"
+                        && ( JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true" || StorageHelper_getStoredValue("HHAuto_Setting_useX50FightsAllowNormalEvent") === "true")
+                        && TTF === JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).troll_id
+                    )
+                    ||
+                    (
+                        canBuyFightsResult.canBuy
+                        && currentPower < 10
+                        && canBuyFightsResult.max === 20
+                        && StorageHelper_getStoredValue("HHAuto_Setting_useX10Fights") === "true"
+                        && ( JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true" || StorageHelper_getStoredValue("HHAuto_Setting_useX10FightsAllowNormalEvent") === "true")
+                        && TTF === JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).troll_id
+                    )
+                )
+                {
+                    Troll.RechargeCombat();
+                    gotoPage(getHHScriptVars("pagesIDTrollPreBattle"),{id_opponent:TTF});
+                    return;
+                }
+
+                if
+                    (
+                        StorageHelper_getStoredValue("HHAuto_Temp_eventGirl") !== undefined
+                        && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).girl_shards
+                        && Number.isInteger(Number(JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).girl_shards))
+                        && battleButtonX10.length > 0
+                        && battleButtonX50.length > 0
+                        && StorageHelper_getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") !== "true"
+                    )
+                {
+                    remainingShards = Number(100 - Number(JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).girl_shards));
+                    let bypassThreshold = (
+                        (JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "false"
+                        && canBuyFightsResult.canBuy
+                        ) // eventGirl available and buy comb true
+                        || (JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true"
+                            && StorageHelper_getStoredValue("HHAuto_Setting_plusEventMythic") ==="true"
+                        )
+                    );
+
+                    if (StorageHelper_getStoredValue("HHAuto_Setting_useX50Fights") === "true"
+                        && StorageHelper_getStoredValue("HHAuto_Setting_minShardsX50")
+                        && Number.isInteger(Number(StorageHelper_getStoredValue("HHAuto_Setting_minShardsX50")))
+                        && remainingShards >= Number(StorageHelper_getStoredValue("HHAuto_Setting_minShardsX50"))
+                        && (battleButtonX50Price === 0 || getHHVars('Hero.currencies.hard_currency')>=battleButtonX50Price+Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank")))
+                        && currentPower >= 50
+                        && (currentPower >= (Number(StorageHelper_getStoredValue("HHAuto_Setting_autoTrollThreshold")) + 50)
+                            || bypassThreshold
+                        )
+                        && ( JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true" || StorageHelper_getStoredValue("HHAuto_Setting_useX50FightsAllowNormalEvent") === "true")
+                    )
+                    {
+                        LogUtils_logHHAuto("Going to crush 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
+
+                        setHHVars('Hero.infos.hc_confirm',true);
+                        // We have the power.
+                        //replaceCheatClick();
+                        battleButtonX50[0].click();
+                        setHHVars('Hero.infos.hc_confirm',hcConfirmValue);
+                        //setStoredValue("HHAuto_Temp_EventFightsBeforeRefresh", Number(getStoredValue("HHAuto_Temp_EventFightsBeforeRefresh")) - 50);
+                        LogUtils_logHHAuto("Crushed 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
+                        if (StorageHelper_getStoredValue("HHAuto_Temp_questRequirement") === "battle") {
+                            // Battle Done.
+                            StorageHelper_setStoredValue("HHAuto_Temp_questRequirement", "none");
+                        }
+                        RewardHelper.ObserveAndGetGirlRewards();
+                        return;
+                    }
+                    else
+                    {
+                        if (StorageHelper_getStoredValue("HHAuto_Setting_useX50Fights") === "true")
+                        {
+                            LogUtils_logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+Troll.getEnergy()+'/50, remaining shards : '+remainingShards+'/'+StorageHelper_getStoredValue("HHAuto_Setting_minShardsX50")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank")));
+                        }
+                    }
+
+                    if (StorageHelper_getStoredValue("HHAuto_Setting_useX10Fights") === "true"
+                        && StorageHelper_getStoredValue("HHAuto_Setting_minShardsX10")
+                        && Number.isInteger(Number(StorageHelper_getStoredValue("HHAuto_Setting_minShardsX10")))
+                        && remainingShards >= Number(StorageHelper_getStoredValue("HHAuto_Setting_minShardsX10"))
+                        && (battleButtonX10Price === 0 || getHHVars('Hero.currencies.hard_currency')>=battleButtonX10Price+Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank")))
+                        && currentPower >= 10
+                        && (currentPower >= (Number(StorageHelper_getStoredValue("HHAuto_Setting_autoTrollThreshold")) + 10)
+                            || bypassThreshold
+                        )
+                        && ( JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true" || StorageHelper_getStoredValue("HHAuto_Setting_useX10FightsAllowNormalEvent") === "true")
+                    )
+                    {
+                        LogUtils_logHHAuto("Going to crush 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
+
+                        setHHVars('Hero.infos.hc_confirm',true);
+                        // We have the power.
+                        //replaceCheatClick();
+                        battleButtonX10[0].click();
+                        setHHVars('Hero.infos.hc_confirm',hcConfirmValue);
+                        //setStoredValue("HHAuto_Temp_EventFightsBeforeRefresh", Number(getStoredValue("HHAuto_Temp_EventFightsBeforeRefresh")) - 10);
+                        LogUtils_logHHAuto("Crushed 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
+                        if (StorageHelper_getStoredValue("HHAuto_Temp_questRequirement") === "battle") {
+                            // Battle Done.
+                            StorageHelper_setStoredValue("HHAuto_Temp_questRequirement", "none");
+                        }
+                        RewardHelper.ObserveAndGetGirlRewards();
+                        return;
+                    }
+                    else
+                    {
+                        if (StorageHelper_getStoredValue("HHAuto_Setting_useX10Fights") === "true")
+                        {
+                            LogUtils_logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+Troll.getEnergy()+'/10, remaining shards : '+remainingShards+'/'+StorageHelper_getStoredValue("HHAuto_Setting_minShardsX10")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank")));
+                        }
+                    }
+                }
+
+                //Crushing one by one
+
+
+                if (currentPower > 0)
+                {
+                    if ($('#pre-battle div.battle-buttons a.single-battle-button[disabled]').length>0)
+                    {
+                        LogUtils_logHHAuto("Battle Button seems disabled, force reload of page.");
+                        gotoPage(getHHScriptVars("pagesIDHome"));
+                        return;
+                    }
+                    if(battleButton === undefined || battleButton.length === 0)
+                    {
+                        LogUtils_logHHAuto("Battle Button was undefined. Disabling all auto-battle.");
+                        document.getElementById("autoTrollBattle").checked = false;
+                        StorageHelper_setStoredValue("HHAuto_Setting_autoTrollBattle", "false");
+
+                        //document.getElementById("autoArenaCheckbox").checked = false;
+                        if (StorageHelper_getStoredValue("HHAuto_Temp_questRequirement") === "battle")
+                        {
+                            document.getElementById("autoQuest").checked = false;
+                            StorageHelper_setStoredValue("HHAuto_Setting_autoQuest", "false");
+
+                            LogUtils_logHHAuto("Auto-quest disabled since it requires battle and auto-battle has errors.");
+                        }
+                        return;
+                    }
+                    LogUtils_logHHAuto("Crushing: "+Trollz[Number(TTF)]);
+                    //console.log(battleButton);
+                    //replaceCheatClick();
+                    checkPreviousFightDone();
+                    StorageHelper_setStoredValue("HHAuto_Temp_trollPoints", currentPower);
+                    battleButton[0].click();
+                }
+                else
+                {
+                    // We need more power.
+                    LogUtils_logHHAuto("Battle requires "+battle_price+" power.");
+                    StorageHelper_setStoredValue("HHAuto_Temp_battlePowerRequired", battle_price);
+                    if(StorageHelper_getStoredValue("HHAuto_Temp_questRequirement") === "battle")
+                    {
+                        StorageHelper_setStoredValue("HHAuto_Temp_questRequirement", "P"+battle_price);
+                    }
+                    gotoPage(getHHScriptVars("pagesIDHome"));
+                    return;
+                }
+            }
+            else
+            {
+                checkPreviousFightDone();
+                StorageHelper_setStoredValue("HHAuto_Temp_trollPoints", currentPower);
+                //replaceCheatClick();
+                battleButton[0].click();
+            }
+        }
+        else
+        {
+            LogUtils_logHHAuto('Unable to identify page.');
+            gotoPage(getHHScriptVars("pagesIDHome"));
+            return;
+        }
+        return;
+    }
+
+    static RechargeCombat()
+    {
+        const Hero=getHero();
+
+        let canBuyResult = Troll.canBuyFight();
+        if (canBuyResult.canBuy)
+        {
+            LogUtils_logHHAuto('Recharging '+canBuyResult.toBuy+' fights for '+canBuyResult.price+' kobans.');
+            let hcConfirmValue = getHHVars('Hero.infos.hc_confirm');
+            setHHVars('Hero.infos.hc_confirm',true);
+            // We have the power.
+            //replaceCheatClick();
+            //console.log($("plus[type='energy_fight']"), canBuyResult.price,canBuyResult.type, canBuyResult.max);
+            Hero.recharge($("button.orange_text_button.manual-recharge"), canBuyResult.type, canBuyResult.max, canBuyResult.price);
+            setHHVars('Hero.infos.hc_confirm',hcConfirmValue);
+            LogUtils_logHHAuto('Recharged up to '+canBuyResult.max+' fights for '+canBuyResult.price+' kobans.');
+        }
+    }
+
+    
+    static canBuyFight(logging=true)
+    {
+        let type="fight";
+        let hero=getHero();
+        let result = {canBuy:false, price:0, max:0, toBuy:0, event_mythic:"false", type:type};
+        const MAX_BUY = 200;
+        let maxx50 = 50;
+        let maxx20 = 20;
+        const currentFight = Troll.getEnergy();
+        const eventAutoBuy =  Math.min(Number(StorageHelper_getStoredValue("HHAuto_Setting_autoBuyTrollNumber"))       || maxx20, MAX_BUY-currentFight);
+        const mythicAutoBuy = Math.min(Number(StorageHelper_getStoredValue("HHAuto_Setting_autoBuyMythicTrollNumber")) || maxx20, MAX_BUY-currentFight);
+        const pricePerFight = hero.energies[type].seconds_per_point * (unsafeWindow.hh_prices[type + '_cost_per_minute'] / 60);
+        let remainingShards;
+
+        if (StorageHelper_getStoredValue("HHAuto_Temp_eventGirl") !== undefined && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).girl_shards && Number.isInteger(Number(JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).girl_shards)))
+        {
+            if (
+                (
+                    StorageHelper_getStoredValue("HHAuto_Setting_buyCombat") =="true"
+                    && StorageHelper_getStoredValue("HHAuto_Setting_plusEvent") ==="true"
+                    && getSecondsLeft("eventGoing") !== 0
+                    && Number(StorageHelper_getStoredValue("HHAuto_Setting_buyCombTimer")) !== NaN
+                    && getSecondsLeft("eventGoing") < StorageHelper_getStoredValue("HHAuto_Setting_buyCombTimer")*3600
+                    && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "false"
+                )
+                ||
+                (
+                    StorageHelper_getStoredValue("HHAuto_Setting_plusEventMythic") ==="true"
+                    && StorageHelper_getStoredValue("HHAuto_Setting_buyMythicCombat") === "true"
+                    && getSecondsLeft("eventMythicGoing") !== 0
+                    && Number(StorageHelper_getStoredValue("HHAuto_Setting_buyMythicCombTimer")) !== NaN
+                    && getSecondsLeft("eventMythicGoing") < StorageHelper_getStoredValue("HHAuto_Setting_buyMythicCombTimer")*3600
+                    && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true"
+                )
+            )
+            {
+                result.event_mythic = JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic;
+            }
+            else
+            {
+                return result;
+            }
+
+            maxx50 = result.event_mythic === "true" ? Math.max(maxx50, mythicAutoBuy) : Math.max(maxx50, eventAutoBuy);
+            maxx20 = result.event_mythic === "true" ? Math.max(maxx20, mythicAutoBuy) : Math.max(maxx20, eventAutoBuy);
+
+            //console.log(result);
+            remainingShards = Number(100 - Number(JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).girl_shards));
+            if
+                (
+                    StorageHelper_getStoredValue("HHAuto_Setting_minShardsX50") !== undefined
+                    && Number.isInteger(Number(StorageHelper_getStoredValue("HHAuto_Setting_minShardsX50")))
+                    && remainingShards >= Number(StorageHelper_getStoredValue("HHAuto_Setting_minShardsX50"))
+                    && getHHVars('Hero.currencies.hard_currency')>= (pricePerFight * maxx50)+Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank"))
+                    && StorageHelper_getStoredValue("HHAuto_Setting_useX50Fights") === "true"
+                    && currentFight < maxx50
+                    && ( result.event_mythic === "true" || StorageHelper_getStoredValue("HHAuto_Setting_useX50FightsAllowNormalEvent") === "true")
+                )
+            {
+                result.max = maxx50;
+                result.canBuy = true;
+                result.price = pricePerFight * maxx50;
+                result.toBuy = maxx50;
+            }
+            else
+            {
+
+                if (logging && StorageHelper_getStoredValue("HHAuto_Setting_useX50Fights") === "true")
+                {
+                    LogUtils_logHHAuto('Unable to recharge up to '+maxx50+' for '+(pricePerFight * maxx50)+' kobans : current energy : '+currentFight+', remaining shards : '+remainingShards+'/'+StorageHelper_getStoredValue("HHAuto_Setting_minShardsX50")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank")));
+                }
+                if (getHHVars('Hero.currencies.hard_currency')>=(pricePerFight * maxx20)+Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank"))
+                )//&& currentFight < 10)
+                {
+                    result.max = maxx20;
+                    result.canBuy = true;
+                    result.price = pricePerFight * maxx20;
+                    result.toBuy = maxx20;
+                }
+                else
+                {
+                    if (logging)
+                    {
+                        LogUtils_logHHAuto('Unable to recharge up to '+maxx20+' for '+(pricePerFight * maxx20)+' kobans : current energy : '+currentFight+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank")));
+                    }
+                    return result;
+                }
+            }
+        }
+
+        return result;
+    }
+}
+
+;// CONCATENATED MODULE: ./src/Module/GenericBattle.js
+
+
+
+
+
+class GenericBattle {
+    static doBattle()
+    {
+        if (getPage() === getHHScriptVars("pagesIDLeagueBattle") || getPage() === getHHScriptVars("pagesIDTrollBattle") || getPage() === getHHScriptVars("pagesIDSeasonBattle") || getPage() === getHHScriptVars("pagesIDPantheonBattle") )
+        {
+            LogUtils_logHHAuto("On battle page.");
+            let troll_id = queryStringGetParam(window.location.search,'id_opponent');
+            const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
+            if (getPage() === getHHScriptVars("pagesIDLeagueBattle") && StorageHelper_getStoredValue("HHAuto_Setting_autoLeagues") === "true")
+            {
+                LogUtils_logHHAuto("Reloading after league fight.");
+                gotoPage(getHHScriptVars("pagesIDLeaderboard"),{},randomInterval(4000,5000));
+            }
+            else if (getPage() === getHHScriptVars("pagesIDTrollBattle") )
+            {
+                //console.log(Number(troll_id),Number(getHHVars('Hero.infos.questing.id_world'))-1,Number(troll_id) === Number(getHHVars('Hero.infos.questing.id_world'))-1);
+                if (StorageHelper_getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true" && (Number(troll_id) === lastTrollIdAvailable))
+                {
+                    StorageHelper_setStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest", "false");
+                }
+                if(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl") !== undefined &&
+                    (
+                        StorageHelper_getStoredValue("HHAuto_Setting_plusEvent") === "true" && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic==="false"
+                        || 
+                        StorageHelper_getStoredValue("HHAuto_Setting_plusEventMythic") === "true" && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic==="true"
+                    ))
+                {
+                    LogUtils_logHHAuto("Event ongoing search for girl rewards in popup.");
+                    RewardHelper.ObserveAndGetGirlRewards();
+                }
+                else
+                {
+                    if (troll_id !== null)
+                    {
+                        LogUtils_logHHAuto("Go back to Troll after Troll fight.");
+                        gotoPage(getHHScriptVars("pagesIDTrollPreBattle"),{id_opponent:troll_id},randomInterval(2000,4000));
+                    }
+                    else
+                    {
+                        LogUtils_logHHAuto("Go to home after unknown troll fight.");
+                        gotoPage(getHHScriptVars("pagesIDHome"),{},randomInterval(2000,4000));
+                    }
+                }
+
+            }
+            else if (getPage() === getHHScriptVars("pagesIDSeasonBattle") && StorageHelper_getStoredValue("HHAuto_Setting_autoSeason") === "true")
+            {
+                LogUtils_logHHAuto("Go back to Season arena after Season fight.");
+                gotoPage(getHHScriptVars("pagesIDSeasonArena"),{},randomInterval(2000,4000));
+            }
+            else if (getPage() === getHHScriptVars("pagesIDPantheonBattle") && StorageHelper_getStoredValue("HHAuto_Setting_autoPantheon") === "true")
+            {
+                LogUtils_logHHAuto("Go back to Pantheon arena after Pantheon temple.");
+                gotoPage(getHHScriptVars("pagesIDPantheon"),{},randomInterval(2000,4000));
+            }
+            return true;
+        }
+        else
+        {
+            LogUtils_logHHAuto('Unable to identify page.');
+            gotoPage(getHHScriptVars("pagesIDHome"));
+            return;
+        }
+    }
+
+}
+;// CONCATENATED MODULE: ./src/Module/harem/index.js
+
 ;// CONCATENATED MODULE: ./src/Module/HaremSalary.js
 
 
@@ -7018,518 +7543,6 @@ class Pantheon {
         }
     }
 }
-;// CONCATENATED MODULE: ./src/Module/Troll.js
-
-
-
-
-
-
-class Troll {
-
-    static getEnergy() {
-        return Number(getHHVars('Hero.energies.fight.amount'));
-    }
-
-    static getEnergyMax() {
-        return Number(getHHVars('Hero.energies.fight.max_regen_amount'));
-    }
-
-    static getTrollWithGirls() {
-        const girlDictionary = Harem.getGirlsList();
-        const trollGirlsID = getHHScriptVars("trollGirlsID");
-        const trollWithGirls = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []];
-    
-        if (girlDictionary) {
-            for (var tIdx = 0; tIdx < trollGirlsID.length; tIdx++) {
-                for (var pIdx = 0; pIdx < trollGirlsID[tIdx].length; pIdx++) {
-                    trollWithGirls[tIdx][pIdx] = false;
-                    for (var gIdx = 0; gIdx < trollGirlsID[tIdx][pIdx].length; gIdx++) {
-                        var idGirl = parseInt(trollGirlsID[tIdx][pIdx][gIdx], 10);
-                        if (idGirl == 0) {
-                            trollWithGirls[tIdx][pIdx] = false;
-                        }
-                        else if (girlDictionary.get(idGirl) == undefined) {
-                            trollWithGirls[tIdx][pIdx] = true;
-                        }
-                        else {
-                            if (girlDictionary.get(idGirl).shards == 100 && trollWithGirls[tIdx][pIdx] == false) {
-                                trollWithGirls[tIdx][pIdx] = false;
-                            }
-                            else {
-                                trollWithGirls[tIdx][pIdx] = true;
-                            }
-                        }
-                    }
-    
-                }
-            }
-        }
-        // const trollWithGirls = isJSON(getStoredValue("HHAuto_Temp_trollWithGirls"))?JSON.parse(getStoredValue("HHAuto_Temp_trollWithGirls")):[];
-        return trollWithGirls;
-    }
-
-    static getTrollIdToFight() {
-        let trollWithGirls = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_trollWithGirls"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_trollWithGirls")):[];
-        let autoTrollSelectedIndex = StorageHelper_getStoredValue("HHAuto_Setting_autoTrollSelectedIndex");
-        if(autoTrollSelectedIndex === undefined || isNaN(autoTrollSelectedIndex)) {
-            autoTrollSelectedIndex -1
-        }else {
-            autoTrollSelectedIndex = Number(autoTrollSelectedIndex);
-        }
-
-        var TTF;
-        if (StorageHelper_getStoredValue("HHAuto_Setting_plusEvent") === "true" && !checkTimer("eventGoing") && StorageHelper_getStoredValue("HHAuto_Temp_eventGirl") !== undefined && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic==="false")
-        {
-            TTF=JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).troll_id;
-            LogUtils_logHHAuto("Event troll fight");
-        }
-        else if (StorageHelper_getStoredValue("HHAuto_Setting_plusEventMythic") ==="true" && !checkTimer("eventMythicGoing") && StorageHelper_getStoredValue("HHAuto_Temp_eventGirl") !== undefined && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic==="true")
-        {
-            TTF=JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).troll_id;
-            LogUtils_logHHAuto("Mythic Event troll fight");
-        }
-        else if (autoTrollSelectedIndex === 98 || autoTrollSelectedIndex === 99) {
-            if (trollWithGirls === undefined || trollWithGirls.length === 0) {
-                LogUtils_logHHAuto("No troll with girls from storage, parsing game info ...");
-                trollWithGirls = Troll.getTrollWithGirls();
-                StorageHelper_setStoredValue("HHAuto_Temp_trollWithGirls", JSON.stringify(trollWithGirls));
-            }
-
-            if (trollWithGirls !== undefined && trollWithGirls.length > 0) {
-                if(autoTrollSelectedIndex === 98) {
-                    TTF = trollWithGirls.findIndex(troll => troll.find(trollTier => trollTier === true)) + 1;
-                }
-                else if(autoTrollSelectedIndex === 99) {
-                    TTF = trollWithGirls.findLastIndex(troll => troll.find(trollTier => trollTier === true)) + 1;
-                    if(TTF > getHHVars('Hero.infos.questing.id_world')-1) {
-                        TTF=getHHVars('Hero.infos.questing.id_world')-1;
-                    }
-                }
-            } else if(getPage()!==getHHScriptVars("pagesIDHome")) {
-                LogUtils_logHHAuto("Can't get troll with girls, going to home page to get girl list.");
-                gotoPage(getHHScriptVars("pagesIDHome"));
-            } else {
-                LogUtils_logHHAuto("Can't get troll with girls, going to last troll.");
-                TTF=getHHVars('Hero.infos.questing.id_world')-1;
-            }
-        }
-        else if(autoTrollSelectedIndex > 0 && autoTrollSelectedIndex < 98)
-        {
-            TTF=autoTrollSelectedIndex;
-            LogUtils_logHHAuto("Custom troll fight.");
-        }
-        else
-        {
-            TTF=getHHVars('Hero.infos.questing.id_world')-1;
-            LogUtils_logHHAuto("Last troll fight");
-        }
-
-        if (StorageHelper_getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true")
-        {
-            TTF=getHHVars('Hero.infos.questing.id_world')-1;
-            LogUtils_logHHAuto("Last troll fight for quest item.");
-            //setStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest", "false");
-            StorageHelper_setStoredValue("HHAuto_Temp_questRequirement", "none");
-        }
-        if(TTF >= Trollz.length) {
-            LogUtils_logHHAuto("Error: New troll implemented '"+TTF+"' (List to be updated) or wrong troll target found");
-            TTF = Trollz.length-1;
-        }
-        return TTF;
-    }
-
-    static doBossBattle()
-    {
-        var currentPower = Troll.getEnergy();
-        if(currentPower < 1)
-        {
-            //logHHAuto("No power for battle.");
-            if (!Troll.canBuyFight().canBuy)
-            {
-                return false;
-            }
-        }
-
-        const TTF = Troll.getTrollIdToFight();
-
-        LogUtils_logHHAuto("Fighting troll N "+TTF);
-        LogUtils_logHHAuto("Going to crush: "+Trollz[Number(TTF)]);
-
-        // Battles the latest boss.
-        // Navigate to latest boss.
-        //console.log(getPage());
-        if(getPage()===getHHScriptVars("pagesIDTrollPreBattle") && window.location.search=="?id_opponent=" + TTF)
-        {
-            // On the battle screen.
-            Troll.CrushThemFights();
-            return true;
-        }
-        else
-        {
-            LogUtils_logHHAuto("Navigating to chosen Troll.");
-            StorageHelper_setStoredValue("HHAuto_Temp_autoLoop", "false");
-            LogUtils_logHHAuto("setting autoloop to false");
-            //week 28 new battle modification
-            //location.href = "/battle.html?id_troll=" + TTF;
-            gotoPage(getHHScriptVars("pagesIDTrollPreBattle"),{id_opponent:TTF});
-            //End week 28 new battle modification
-            return true;
-        }
-    }
-
-    static CrushThemFights()
-    {
-        if (getPage() === getHHScriptVars("pagesIDTrollPreBattle")) {
-            // On battle page.
-            LogUtils_logHHAuto("On Pre battle page.");
-            let TTF = queryStringGetParam(window.location.search,'id_opponent');
-
-            let battleButton = $('#pre-battle .battle-buttons a.green_button_L.battle-action-button');
-            let battleButtonX10 = $('#pre-battle .battle-buttons button.autofight[data-battles="10"]');
-            let battleButtonX50 = $('#pre-battle .battle-buttons button.autofight[data-battles="50"]');
-            let battleButtonX10Price = Number(battleButtonX10.attr('price'));
-            let battleButtonX50Price = Number(battleButtonX50.attr('price'));
-            // let Hero=getHero();
-            let hcConfirmValue = getHHVars('Hero.infos.hc_confirm');
-            let remainingShards;
-            let previousPower = StorageHelper_getStoredValue("HHAuto_Temp_trollPoints") !== undefined ? StorageHelper_getStoredValue("HHAuto_Temp_trollPoints") : 0;
-            let currentPower = Troll.getEnergy();
-
-            var checkPreviousFightDone = function(){
-                // The goal of this function is to detect slow server response to avoid loop without fight
-                if(previousPower > 0 && previousPower == currentPower) {
-                    StorageHelper_setStoredValue("HHAuto_Temp_autoLoop", "false");
-                    LogUtils_logHHAuto("Server seems slow to reply, setting autoloop to false to wait for troll page to load");
-                }
-            }
-
-            //check if girl still available at troll in case of event
-            if (TTF !== null)
-            {
-                if (StorageHelper_getStoredValue("HHAuto_Temp_eventGirl") !== undefined && TTF === JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).troll_id)
-                {
-                    if (
-                        (
-                            JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true"
-                            && StorageHelper_getStoredValue("HHAuto_Setting_plusEventMythic") ==="true"
-                        )
-                        ||
-                        (
-                            JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "false"
-                            && StorageHelper_getStoredValue("HHAuto_Setting_plusEvent") ==="true"
-                        )
-                    )
-                    {
-                        let rewardGirlz=$("#pre-battle .oponnent-panel .opponent_rewards .rewards_list .slot.girl_ico[data-rewards]");
-
-                        if (rewardGirlz.length ===0 || !rewardGirlz.attr('data-rewards').includes('"id_girl":'+JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).girl_id))
-                        {
-                            LogUtils_logHHAuto("Seems "+JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).girl_name+" is no more available at troll "+Trollz[Number(TTF)]+". Going to event page.");
-                            EventModule.parseEventPage(JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).event_id);
-                            return true;
-                        }
-                    }
-                }
-                let canBuyFightsResult=Troll.canBuyFight();
-                if (
-                    (canBuyFightsResult.canBuy && currentPower === 0)
-                    ||
-                    (
-                        canBuyFightsResult.canBuy
-                        && currentPower < 50
-                        && canBuyFightsResult.max === 50
-                        && StorageHelper_getStoredValue("HHAuto_Setting_useX50Fights") === "true"
-                        && ( JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true" || StorageHelper_getStoredValue("HHAuto_Setting_useX50FightsAllowNormalEvent") === "true")
-                        && TTF === JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).troll_id
-                    )
-                    ||
-                    (
-                        canBuyFightsResult.canBuy
-                        && currentPower < 10
-                        && canBuyFightsResult.max === 20
-                        && StorageHelper_getStoredValue("HHAuto_Setting_useX10Fights") === "true"
-                        && ( JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true" || StorageHelper_getStoredValue("HHAuto_Setting_useX10FightsAllowNormalEvent") === "true")
-                        && TTF === JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).troll_id
-                    )
-                )
-                {
-                    Troll.RechargeCombat();
-                    gotoPage(getHHScriptVars("pagesIDTrollPreBattle"),{id_opponent:TTF});
-                    return;
-                }
-
-                if
-                    (
-                        StorageHelper_getStoredValue("HHAuto_Temp_eventGirl") !== undefined
-                        && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).girl_shards
-                        && Number.isInteger(Number(JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).girl_shards))
-                        && battleButtonX10.length > 0
-                        && battleButtonX50.length > 0
-                        && StorageHelper_getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") !== "true"
-                    )
-                {
-                    remainingShards = Number(100 - Number(JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).girl_shards));
-                    let bypassThreshold = (
-                        (JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "false"
-                        && canBuyFightsResult.canBuy
-                        ) // eventGirl available and buy comb true
-                        || (JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true"
-                            && StorageHelper_getStoredValue("HHAuto_Setting_plusEventMythic") ==="true"
-                        )
-                    );
-
-                    if (StorageHelper_getStoredValue("HHAuto_Setting_useX50Fights") === "true"
-                        && StorageHelper_getStoredValue("HHAuto_Setting_minShardsX50")
-                        && Number.isInteger(Number(StorageHelper_getStoredValue("HHAuto_Setting_minShardsX50")))
-                        && remainingShards >= Number(StorageHelper_getStoredValue("HHAuto_Setting_minShardsX50"))
-                        && (battleButtonX50Price === 0 || getHHVars('Hero.currencies.hard_currency')>=battleButtonX50Price+Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank")))
-                        && currentPower >= 50
-                        && (currentPower >= (Number(StorageHelper_getStoredValue("HHAuto_Setting_autoTrollThreshold")) + 50)
-                            || bypassThreshold
-                        )
-                        && ( JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true" || StorageHelper_getStoredValue("HHAuto_Setting_useX50FightsAllowNormalEvent") === "true")
-                    )
-                    {
-                        LogUtils_logHHAuto("Going to crush 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
-
-                        setHHVars('Hero.infos.hc_confirm',true);
-                        // We have the power.
-                        //replaceCheatClick();
-                        battleButtonX50[0].click();
-                        setHHVars('Hero.infos.hc_confirm',hcConfirmValue);
-                        //setStoredValue("HHAuto_Temp_EventFightsBeforeRefresh", Number(getStoredValue("HHAuto_Temp_EventFightsBeforeRefresh")) - 50);
-                        LogUtils_logHHAuto("Crushed 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
-                        if (StorageHelper_getStoredValue("HHAuto_Temp_questRequirement") === "battle") {
-                            // Battle Done.
-                            StorageHelper_setStoredValue("HHAuto_Temp_questRequirement", "none");
-                        }
-                        RewardHelper.ObserveAndGetGirlRewards();
-                        return;
-                    }
-                    else
-                    {
-                        if (StorageHelper_getStoredValue("HHAuto_Setting_useX50Fights") === "true")
-                        {
-                            LogUtils_logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+Troll.getEnergy()+'/50, remaining shards : '+remainingShards+'/'+StorageHelper_getStoredValue("HHAuto_Setting_minShardsX50")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank")));
-                        }
-                    }
-
-                    if (StorageHelper_getStoredValue("HHAuto_Setting_useX10Fights") === "true"
-                        && StorageHelper_getStoredValue("HHAuto_Setting_minShardsX10")
-                        && Number.isInteger(Number(StorageHelper_getStoredValue("HHAuto_Setting_minShardsX10")))
-                        && remainingShards >= Number(StorageHelper_getStoredValue("HHAuto_Setting_minShardsX10"))
-                        && (battleButtonX10Price === 0 || getHHVars('Hero.currencies.hard_currency')>=battleButtonX10Price+Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank")))
-                        && currentPower >= 10
-                        && (currentPower >= (Number(StorageHelper_getStoredValue("HHAuto_Setting_autoTrollThreshold")) + 10)
-                            || bypassThreshold
-                        )
-                        && ( JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true" || StorageHelper_getStoredValue("HHAuto_Setting_useX10FightsAllowNormalEvent") === "true")
-                    )
-                    {
-                        LogUtils_logHHAuto("Going to crush 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
-
-                        setHHVars('Hero.infos.hc_confirm',true);
-                        // We have the power.
-                        //replaceCheatClick();
-                        battleButtonX10[0].click();
-                        setHHVars('Hero.infos.hc_confirm',hcConfirmValue);
-                        //setStoredValue("HHAuto_Temp_EventFightsBeforeRefresh", Number(getStoredValue("HHAuto_Temp_EventFightsBeforeRefresh")) - 10);
-                        LogUtils_logHHAuto("Crushed 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
-                        if (StorageHelper_getStoredValue("HHAuto_Temp_questRequirement") === "battle") {
-                            // Battle Done.
-                            StorageHelper_setStoredValue("HHAuto_Temp_questRequirement", "none");
-                        }
-                        RewardHelper.ObserveAndGetGirlRewards();
-                        return;
-                    }
-                    else
-                    {
-                        if (StorageHelper_getStoredValue("HHAuto_Setting_useX10Fights") === "true")
-                        {
-                            LogUtils_logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+Troll.getEnergy()+'/10, remaining shards : '+remainingShards+'/'+StorageHelper_getStoredValue("HHAuto_Setting_minShardsX10")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank")));
-                        }
-                    }
-                }
-
-                //Crushing one by one
-
-
-                if (currentPower > 0)
-                {
-                    if ($('#pre-battle div.battle-buttons a.single-battle-button[disabled]').length>0)
-                    {
-                        LogUtils_logHHAuto("Battle Button seems disabled, force reload of page.");
-                        gotoPage(getHHScriptVars("pagesIDHome"));
-                        return;
-                    }
-                    if(battleButton === undefined || battleButton.length === 0)
-                    {
-                        LogUtils_logHHAuto("Battle Button was undefined. Disabling all auto-battle.");
-                        document.getElementById("autoTrollBattle").checked = false;
-                        StorageHelper_setStoredValue("HHAuto_Setting_autoTrollBattle", "false");
-
-                        //document.getElementById("autoArenaCheckbox").checked = false;
-                        if (StorageHelper_getStoredValue("HHAuto_Temp_questRequirement") === "battle")
-                        {
-                            document.getElementById("autoQuest").checked = false;
-                            StorageHelper_setStoredValue("HHAuto_Setting_autoQuest", "false");
-
-                            LogUtils_logHHAuto("Auto-quest disabled since it requires battle and auto-battle has errors.");
-                        }
-                        return;
-                    }
-                    LogUtils_logHHAuto("Crushing: "+Trollz[Number(TTF)]);
-                    //console.log(battleButton);
-                    //replaceCheatClick();
-                    checkPreviousFightDone();
-                    StorageHelper_setStoredValue("HHAuto_Temp_trollPoints", currentPower);
-                    battleButton[0].click();
-                }
-                else
-                {
-                    // We need more power.
-                    LogUtils_logHHAuto("Battle requires "+battle_price+" power.");
-                    StorageHelper_setStoredValue("HHAuto_Temp_battlePowerRequired", battle_price);
-                    if(StorageHelper_getStoredValue("HHAuto_Temp_questRequirement") === "battle")
-                    {
-                        StorageHelper_setStoredValue("HHAuto_Temp_questRequirement", "P"+battle_price);
-                    }
-                    gotoPage(getHHScriptVars("pagesIDHome"));
-                    return;
-                }
-            }
-            else
-            {
-                checkPreviousFightDone();
-                StorageHelper_setStoredValue("HHAuto_Temp_trollPoints", currentPower);
-                //replaceCheatClick();
-                battleButton[0].click();
-            }
-        }
-        else
-        {
-            LogUtils_logHHAuto('Unable to identify page.');
-            gotoPage(getHHScriptVars("pagesIDHome"));
-            return;
-        }
-        return;
-    }
-
-    static RechargeCombat()
-    {
-        const Hero=getHero();
-
-        let canBuyResult = Troll.canBuyFight();
-        if (canBuyResult.canBuy)
-        {
-            LogUtils_logHHAuto('Recharging '+canBuyResult.toBuy+' fights for '+canBuyResult.price+' kobans.');
-            let hcConfirmValue = getHHVars('Hero.infos.hc_confirm');
-            setHHVars('Hero.infos.hc_confirm',true);
-            // We have the power.
-            //replaceCheatClick();
-            //console.log($("plus[type='energy_fight']"), canBuyResult.price,canBuyResult.type, canBuyResult.max);
-            Hero.recharge($("button.orange_text_button.manual-recharge"), canBuyResult.type, canBuyResult.max, canBuyResult.price);
-            setHHVars('Hero.infos.hc_confirm',hcConfirmValue);
-            LogUtils_logHHAuto('Recharged up to '+canBuyResult.max+' fights for '+canBuyResult.price+' kobans.');
-        }
-    }
-
-    
-    static canBuyFight(logging=true)
-    {
-        let type="fight";
-        let hero=getHero();
-        let result = {canBuy:false, price:0, max:0, toBuy:0, event_mythic:"false", type:type};
-        const MAX_BUY = 200;
-        let maxx50 = 50;
-        let maxx20 = 20;
-        const currentFight = Troll.getEnergy();
-        const eventAutoBuy =  Math.min(Number(StorageHelper_getStoredValue("HHAuto_Setting_autoBuyTrollNumber"))       || maxx20, MAX_BUY-currentFight);
-        const mythicAutoBuy = Math.min(Number(StorageHelper_getStoredValue("HHAuto_Setting_autoBuyMythicTrollNumber")) || maxx20, MAX_BUY-currentFight);
-        const pricePerFight = hero.energies[type].seconds_per_point * (unsafeWindow.hh_prices[type + '_cost_per_minute'] / 60);
-        let remainingShards;
-
-        if (StorageHelper_getStoredValue("HHAuto_Temp_eventGirl") !== undefined && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).girl_shards && Number.isInteger(Number(JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).girl_shards)))
-        {
-            if (
-                (
-                    StorageHelper_getStoredValue("HHAuto_Setting_buyCombat") =="true"
-                    && StorageHelper_getStoredValue("HHAuto_Setting_plusEvent") ==="true"
-                    && getSecondsLeft("eventGoing") !== 0
-                    && Number(StorageHelper_getStoredValue("HHAuto_Setting_buyCombTimer")) !== NaN
-                    && getSecondsLeft("eventGoing") < StorageHelper_getStoredValue("HHAuto_Setting_buyCombTimer")*3600
-                    && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "false"
-                )
-                ||
-                (
-                    StorageHelper_getStoredValue("HHAuto_Setting_plusEventMythic") ==="true"
-                    && StorageHelper_getStoredValue("HHAuto_Setting_buyMythicCombat") === "true"
-                    && getSecondsLeft("eventMythicGoing") !== 0
-                    && Number(StorageHelper_getStoredValue("HHAuto_Setting_buyMythicCombTimer")) !== NaN
-                    && getSecondsLeft("eventMythicGoing") < StorageHelper_getStoredValue("HHAuto_Setting_buyMythicCombTimer")*3600
-                    && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true"
-                )
-            )
-            {
-                result.event_mythic = JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic;
-            }
-            else
-            {
-                return result;
-            }
-
-            maxx50 = result.event_mythic === "true" ? Math.max(maxx50, mythicAutoBuy) : Math.max(maxx50, eventAutoBuy);
-            maxx20 = result.event_mythic === "true" ? Math.max(maxx20, mythicAutoBuy) : Math.max(maxx20, eventAutoBuy);
-
-            //console.log(result);
-            remainingShards = Number(100 - Number(JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).girl_shards));
-            if
-                (
-                    StorageHelper_getStoredValue("HHAuto_Setting_minShardsX50") !== undefined
-                    && Number.isInteger(Number(StorageHelper_getStoredValue("HHAuto_Setting_minShardsX50")))
-                    && remainingShards >= Number(StorageHelper_getStoredValue("HHAuto_Setting_minShardsX50"))
-                    && getHHVars('Hero.currencies.hard_currency')>= (pricePerFight * maxx50)+Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank"))
-                    && StorageHelper_getStoredValue("HHAuto_Setting_useX50Fights") === "true"
-                    && currentFight < maxx50
-                    && ( result.event_mythic === "true" || StorageHelper_getStoredValue("HHAuto_Setting_useX50FightsAllowNormalEvent") === "true")
-                )
-            {
-                result.max = maxx50;
-                result.canBuy = true;
-                result.price = pricePerFight * maxx50;
-                result.toBuy = maxx50;
-            }
-            else
-            {
-
-                if (logging && StorageHelper_getStoredValue("HHAuto_Setting_useX50Fights") === "true")
-                {
-                    LogUtils_logHHAuto('Unable to recharge up to '+maxx50+' for '+(pricePerFight * maxx50)+' kobans : current energy : '+currentFight+', remaining shards : '+remainingShards+'/'+StorageHelper_getStoredValue("HHAuto_Setting_minShardsX50")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank")));
-                }
-                if (getHHVars('Hero.currencies.hard_currency')>=(pricePerFight * maxx20)+Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank"))
-                )//&& currentFight < 10)
-                {
-                    result.max = maxx20;
-                    result.canBuy = true;
-                    result.price = pricePerFight * maxx20;
-                    result.toBuy = maxx20;
-                }
-                else
-                {
-                    if (logging)
-                    {
-                        LogUtils_logHHAuto('Unable to recharge up to '+maxx20+' for '+(pricePerFight * maxx20)+' kobans : current energy : '+currentFight+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(StorageHelper_getStoredValue("HHAuto_Setting_kobanBank")));
-                    }
-                    return result;
-                }
-            }
-        }
-
-        return result;
-    }
-}
-
 ;// CONCATENATED MODULE: ./src/Module/MonthlyCard.js
 
 
@@ -10868,7 +10881,7 @@ const HHAuto_inputPattern = {
 
 
 
-function getHHScriptVars(id, logNotFound = true)
+function getEnvironnement()
 {
     let environnement = "global";
     if (HHKnownEnvironnements[window.location.hostname] !== undefined)
@@ -10879,6 +10892,17 @@ function getHHScriptVars(id, logNotFound = true)
     {
         fillHHPopUp("unknownURL","Game URL unknown",'<p>This HH URL is unknown to the script.<br>To add it please open an issue in <a href="https://github.com/Roukys/HHauto/issues" target="_blank">Github</a> with following informations : <br>Hostname : '+window.location.hostname+'<br>gameID : '+$('body[page][id]').attr('id')+'<br>You can also use this direct link : <a  target="_blank" href="https://github.com/Roukys/HHauto/issues/new?template=enhancement_request.md&title=Support%20for%20'+window.location.hostname+'&body=Please%20add%20new%20URL%20with%20these%20infos%20%3A%20%0A-%20hostname%20%3A%20'+window.location.hostname+'%0A-%20gameID%20%3A%20'+$('body[page][id]').attr('id')+'%0AThanks">Github issue</a></p>');
     }
+    return environnement;
+}
+
+function isPshEnvironnement()
+{
+    return ["PH_prod","NPH_prod"].includes(getEnvironnement());
+}
+
+function getHHScriptVars(id, logNotFound = true)
+{
+    const environnement = getEnvironnement();
     if (HHEnvVariables[environnement] !== undefined && HHEnvVariables[environnement][id] !== undefined)
     {
         return HHEnvVariables[environnement][id];
@@ -16150,7 +16174,8 @@ function start() {
     // Add auto troll options
     var trollOptions = document.getElementById("autoTrollSelector");
 
-    for (var i=0;i<getHHVars('Hero.infos.questing.id_world');i++)
+    const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
+    for (var i=0;i<=lastTrollIdAvailable;i++)
     {
         var option = document.createElement("option");
         option.value=i;

@@ -8,6 +8,7 @@ import {
     getPage,
     getSecondsLeft,
     getStoredValue,
+    isPshEnvironnement,
     queryStringGetParam,
     setHHVars,
     setStoredValue,
@@ -61,6 +62,15 @@ export class Troll {
         return trollWithGirls;
     }
 
+    static getLastTrollIdAvailable() {
+        const id_world = getHHVars('Hero.infos.questing.id_world');
+        if(isPshEnvironnement() && id_world > 10) {
+            return id_world-3; // PSH parallele adventures
+        }else {
+            return id_world-1;
+        }
+    }
+
     static getTrollIdToFight() {
         let trollWithGirls = isJSON(getStoredValue("HHAuto_Temp_trollWithGirls"))?JSON.parse(getStoredValue("HHAuto_Temp_trollWithGirls")):[];
         let autoTrollSelectedIndex = getStoredValue("HHAuto_Setting_autoTrollSelectedIndex");
@@ -71,6 +81,8 @@ export class Troll {
         }
 
         var TTF;
+        const id_world = getHHVars('Hero.infos.questing.id_world');
+        const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
         if (getStoredValue("HHAuto_Setting_plusEvent") === "true" && !checkTimer("eventGoing") && getStoredValue("HHAuto_Temp_eventGirl") !== undefined && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic==="false")
         {
             TTF=JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).troll_id;
@@ -94,8 +106,8 @@ export class Troll {
                 }
                 else if(autoTrollSelectedIndex === 99) {
                     TTF = trollWithGirls.findLastIndex(troll => troll.find(trollTier => trollTier === true)) + 1;
-                    if(TTF > getHHVars('Hero.infos.questing.id_world')-1) {
-                        TTF=getHHVars('Hero.infos.questing.id_world')-1;
+                    if(TTF > id_world-1) {
+                        TTF=id_world-1;
                     }
                 }
             } else if(getPage()!==getHHScriptVars("pagesIDHome")) {
@@ -103,7 +115,7 @@ export class Troll {
                 gotoPage(getHHScriptVars("pagesIDHome"));
             } else {
                 logHHAuto("Can't get troll with girls, going to last troll.");
-                TTF=getHHVars('Hero.infos.questing.id_world')-1;
+                TTF=id_world-1;
             }
         }
         else if(autoTrollSelectedIndex > 0 && autoTrollSelectedIndex < 98)
@@ -113,20 +125,20 @@ export class Troll {
         }
         else
         {
-            TTF=getHHVars('Hero.infos.questing.id_world')-1;
-            logHHAuto("Last troll fight");
+            TTF = lastTrollIdAvailable;
+            logHHAuto("Last troll fight: " + TTF);
         }
 
         if (getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true")
         {
-            TTF=getHHVars('Hero.infos.questing.id_world')-1;
-            logHHAuto("Last troll fight for quest item.");
+            TTF = lastTrollIdAvailable;
+            logHHAuto("Last troll fight for quest item: " + TTF);
             //setStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest", "false");
             setStoredValue("HHAuto_Temp_questRequirement", "none");
         }
         if(TTF >= Trollz.length) {
             logHHAuto("Error: New troll implemented '"+TTF+"' (List to be updated) or wrong troll target found");
-            TTF = Trollz.length-1;
+            TTF = 1;
         }
         return TTF;
     }
