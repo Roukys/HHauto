@@ -34,7 +34,8 @@ import {
     Market,
     Missions,
     MonthlyCards,
-    PlaceOfPower
+    PlaceOfPower,
+    Troll
 } from "../Module";
 import { 
     fillHHPopUp,
@@ -213,7 +214,8 @@ export function start() {
     // Add auto troll options
     var trollOptions = document.getElementById("autoTrollSelector");
 
-    for (var i=0;i<getHHVars('Hero.infos.questing.id_world');i++)
+    const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
+    for (var i=0;i<=lastTrollIdAvailable;i++)
     {
         var option = document.createElement("option");
         option.value=i;
