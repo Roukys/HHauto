@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.5.6
+// @version      6.5.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -9031,7 +9031,8 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
                                           'Jamie Brooks',
                                           'Jordan Kingsley',
                                           'EMPTY',
-                                          'Sierra Sinn'];
+                                          'Sierra Sinn',
+                                          'Jasmine Jae'];
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in pornstar
     HHEnvVariables[element].lastQuestId = 14060; //  TODO update when new quest comes
 });
@@ -9046,6 +9047,9 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
         [['165066536', '734325005', '805020628'], [0], [0]],
         [['191661045', '369105612', '665836932'], [0], [0]],
         [['169356639', '383702874', '943667167'], [0], [0]],
+        [[0], [0], [0]],
+        [['169741198', '459885596', '507702178'], [0], [0]],
+        [['258984943', '837109131', '888135956'], [0], [0]],
     ];
 });
 
@@ -9066,6 +9070,8 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
     HHEnvVariables[element].trollGirlsID = [
         [['171883542', '229180984', '771348244'], [0], [0]],
         [['484962893', '879574564', '910924260'], [0], [0]],
+        [['334144727', '667194919', '911144911'], [0], [0]],
+        [['473470854', '708191289', '945710078'], [0], [0]],
     ];
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
 });
