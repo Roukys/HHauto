@@ -254,7 +254,6 @@ export class Missions {
             GM_addStyle(missionsContainerPath + ' .mission_button button[rel="finish"] {'
                 + 'height: 50px;'
                 + 'top:0;'
-                + 'left:145px;'
                 + 'padding: 4px 4px;;'
             +'}');
             GM_addStyle(missionsContainerPath + ' .mission_button button[rel="claim"] {'
