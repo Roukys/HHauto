@@ -565,6 +565,7 @@ export function getMenu() {
                         +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
                             + hhMenuSwitch('autoPantheon')
                             + hhMenuInputWithImg('autoPantheonThreshold', HHAuto_inputPattern.autoPantheonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg' , 'numeric')
+                            + hhMenuSwitch('autoPantheonBoostedOnly')
                         +`</div>`
                     // +`</div>`
                 +`</div>`

@@ -1,11 +1,21 @@
 import {
     getHHScriptVars,
     getHHVars,
+    getStoredValue,
     getTextForUI,
-    randomInterval
+    randomInterval,
+    setStoredValue
 } from "../Helper";
+import { logHHAuto } from "../Utils";
 
 export class TeamModule {
+
+    static resetTeam() {
+        $('#clear-team').click();
+    }
+    static validateTeam() {
+        $('#validate-team').click();
+    }
     
     static moduleChangeTeam()
     {
@@ -23,6 +33,8 @@ export class TeamModule {
 
         function assignTopTeam()
         {
+            setStoredValue("HHAuto_Temp_autoLoop", "false");
+            logHHAuto("setting autoloop to false");
             function selectFromHaremBest(i,best)
             {
                 let girlToSelect = best?i:i+7;
@@ -42,7 +54,7 @@ export class TeamModule {
                     }
                     else
                     {
-                        $("#validate-team").click();
+                        TeamModule.validateTeam();
                     }
                 }
 
@@ -61,7 +73,8 @@ export class TeamModule {
             let topNumbers=$('.topNumber')
             if (topNumbers.length >0)
             {
-                assignToTeam();
+                TeamModule.resetTeam();
+                assignToTeam(1,true); // true = jump to best team directly
             }
         }
 

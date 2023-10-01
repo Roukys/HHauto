@@ -1296,6 +1296,17 @@ HHStoredVars.HHAuto_Setting_autoPantheonThreshold =
     menuType:"value",
     kobanUsing:false
 };
+HHStoredVars.HHAuto_Setting_autoPantheonBoostedOnly =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_autoSeasonalEventCollect =
     {
     default:"false",

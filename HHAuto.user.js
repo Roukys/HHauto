@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.6.1
+// @version      6.7.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -84,6 +84,8 @@ GM_addStyle('.HHGirlMilestone .nc-claimed-reward-check { width:20px; position:ab
 GM_addStyle('#HHSeasonRewards { position: absolute; right: 1.25rem; bottom: 14rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
 GM_addStyle('#HHSeasonalRewards { position: absolute; left: 1.25rem; bottom: 1rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
 GM_addStyle('#HHPoaRewards { position: absolute; left: 15rem; bottom: 0; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
+// copy CSS from HH OCD, to make it work on other game than HH
+GM_addStyle('#pov_tab_container .potions-paths-first-row .potions-paths-title-panel { transform: scale(0.5);  position: relative; top: -37px; }');
 //END CSS Region
 
 
@@ -386,6 +388,7 @@ HHAuto_ToolTips.en.autoGiveExp = {version: "5.6.24", elementText: "Auto Give", t
 HHAuto_ToolTips.en.autoPantheonTitle = {version: "5.6.24", elementText: "Pantheon", tooltip: ""};
 HHAuto_ToolTips.en.autoPantheon = { version: "5.6.24", elementText: "Enable", tooltip: "if enabled : Automatically do Pantheon"};
 HHAuto_ToolTips.en.autoPantheonThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "Minimum worship to keep<br>Max 10"};
+HHAuto_ToolTips.en.autoPantheonBoostedOnly = { version: "6.7.0", elementText: "Boosted only", tooltip: "If enabled : Need booster to fight in Pantheon"};
 HHAuto_ToolTips.en.buttonSaveOpponent = { version: "5.6.24", elementText: "Save opponent data", tooltip: "Save opponent data for fight simulation in market."};
 HHAuto_ToolTips.en.SimResultMarketButton = { version: "5.6.24", elementText: "Sim. results", tooltip: "Simulate result with League saved opponent."};
 HHAuto_ToolTips.en.simResultMarketPreviousScore = { version: "5.6.24", elementText: "Previous score :", tooltip: ""};
@@ -1103,7 +1106,8 @@ class Booster {
         const isMythicAutoSandalWood = StorageHelper_getStoredValue("HHAuto_Setting_plusEventMythicSandalWood") === "true";
         const isLeagueWithBooster = StorageHelper_getStoredValue("HHAuto_Setting_autoLeaguesBoostedOnly") === "true";
         const isSeasonWithBooster = StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonBoostedOnly") === "true";
-        return isLeagueWithBooster || isSeasonWithBooster || isMythicAutoSandalWood;
+        const isPantheonWithBooster = StorageHelper_getStoredValue("HHAuto_Setting_autoPantheonBoostedOnly") === "true";
+        return isLeagueWithBooster || isSeasonWithBooster || isPantheonWithBooster || isMythicAutoSandalWood;
     }
 
     static getBoosterFromStorage(){
@@ -5028,18 +5032,17 @@ class Harem {
 
         const displayedGirl = $('#harem_right .opened').attr('girl'); // unsafeWindow.harem.preselectedGirlId
 
-        GM_addStyle('.goToGirlPage {margin-right:10px; font-size: small; z-index:30;} '
-        +'@media only screen and (max-width: 1025px) {.goToGirlPage {position: relative; right: -5rem;}}');
+        GM_addStyle('.goToGirlPage {position: relative; bottom: 3rem; font-size: small; z-index:30;}');
 
-        const goToGirlPageButton = '<div class="tooltipHH goToGirlPage"><span class="tooltipHHtext">'+getTextForUI("goToGirlPage","tooltip")+'</span><label class="myButton" id="'+goToGirlPageButtonId+'">'+getTextForUI("goToGirlPage","elementText")+'</label></div>';
+        // using a for new tab option
+        const goToGirlPageButton = '<div class="tooltipHH goToGirlPage"><span class="tooltipHHtext">'+getTextForUI("goToGirlPage","tooltip")+'</span><a href="/girl/'+displayedGirl+'?resource=experience" class="myButton" id="'+goToGirlPageButtonId+'">'+getTextForUI("goToGirlPage","elementText")+'</a></div>';
         var goToGirl = function(){
             const displayedGirl = $('#harem_right .opened').attr('girl'); // unsafeWindow.harem.preselectedGirlId
             gotoPage('/girl/'+displayedGirl,{resource:'experience'});
         };
-        $('#gems-and-token-container').prepend(goToGirlPageButton);
+        $('#harem_right .middle_part').append(goToGirlPageButton);
 
         GM_registerMenuCommand(getTextForUI('goToGirlPage',"elementText"), goToGirl);
-        document.getElementById(goToGirlPageButtonId).addEventListener("click", goToGirl);
     }
 
     static addGirlListMenu(){
@@ -7442,6 +7445,7 @@ class Missions {
 
 
 
+
 class Pantheon {
 
     static getEnergy() {
@@ -7455,8 +7459,14 @@ class Pantheon {
     static isTimeToFight(){
         const energyAboveThreshold = Pantheon.getEnergy() > Number(StorageHelper_getStoredValue("HHAuto_Setting_autoPantheonThreshold"));
         const paranoiaSpending = Pantheon.getEnergy() > 0 && Number(checkParanoiaSpendings('worship')) > 0;
+        const needBoosterToFight = StorageHelper_getStoredValue("HHAuto_Setting_autoPantheonBoostedOnly") === "true";
+        const haveBoosterEquiped = Booster.haveBoosterEquiped();
 
-        return checkTimer('nextPantheonTime') && energyAboveThreshold || paranoiaSpending;Sa
+        if(checkTimer('nextPantheonTime') && energyAboveThreshold && needBoosterToFight && !haveBoosterEquiped) {
+            LogUtils_logHHAuto('Time for pantheon but no booster equipped');
+        }
+
+        return (checkTimer('nextPantheonTime') && energyAboveThreshold && (needBoosterToFight && haveBoosterEquiped || !needBoosterToFight)) || paranoiaSpending;
     }
 
     static run()
@@ -8394,7 +8404,15 @@ class PlaceOfPower {
 ;// CONCATENATED MODULE: ./src/Module/TeamModule.js
 
 
+
 class TeamModule {
+
+    static resetTeam() {
+        $('#clear-team').click();
+    }
+    static validateTeam() {
+        $('#validate-team').click();
+    }
     
     static moduleChangeTeam()
     {
@@ -8412,6 +8430,8 @@ class TeamModule {
 
         function assignTopTeam()
         {
+            StorageHelper_setStoredValue("HHAuto_Temp_autoLoop", "false");
+            LogUtils_logHHAuto("setting autoloop to false");
             function selectFromHaremBest(i,best)
             {
                 let girlToSelect = best?i:i+7;
@@ -8431,7 +8451,7 @@ class TeamModule {
                     }
                     else
                     {
-                        $("#validate-team").click();
+                        TeamModule.validateTeam();
                     }
                 }
 
@@ -8450,7 +8470,8 @@ class TeamModule {
             let topNumbers=$('.topNumber')
             if (topNumbers.length >0)
             {
-                assignToTeam();
+                TeamModule.resetTeam();
+                assignToTeam(1,true); // true = jump to best team directly
             }
         }
 
@@ -10387,6 +10408,17 @@ HHStoredVars_HHStoredVars.HHAuto_Setting_autoPantheonThreshold =
     menuType:"value",
     kobanUsing:false
 };
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoPantheonBoostedOnly =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars_HHStoredVars.HHAuto_Setting_autoSeasonalEventCollect =
     {
     default:"false",
@@ -11543,6 +11575,7 @@ function getMenu() {
                         +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
                             + hhMenuSwitch('autoPantheon')
                             + hhMenuInputWithImg('autoPantheonThreshold', HHAuto_inputPattern.autoPantheonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg' , 'numeric')
+                            + hhMenuSwitch('autoPantheonBoostedOnly')
                         +`</div>`
                     // +`</div>`
                 +`</div>`
@@ -14471,8 +14504,20 @@ function updateData() {
             Tegzd += '<li>'+getTextForUI("autoClubChamp","elementText")+' : '+getTimeLeft('nextClubChampionTime')+'</li>';
         }
         if (getHHScriptVars('isEnabledPantheon',false) && StorageHelper_getStoredValue("HHAuto_Setting_autoPantheon") =="true")
-        {
-            Tegzd += '<li>'+getTextForUI("autoPantheonTitle","elementText")+' : '+Pantheon.getEnergy()+'/'+Pantheon.getEnergyMax()+' ('+getTimeLeft('nextPantheonTime')+')'+'</li>';
+        {            
+            Tegzd += '<li>';
+            const boostLimited = StorageHelper_getStoredValue("HHAuto_Setting_autoPantheonBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
+            if(boostLimited) {
+                Tegzd += '<li style="color:red!important;" title="'+getTextForUI("boostMissing","elementText")+'">';
+            }else {
+                Tegzd += '<li>';
+            }
+            Tegzd += getTextForUI("autoPantheonTitle","elementText")+' '+Pantheon.getEnergy()+'/'+Pantheon.getEnergyMax()+' : '+getTimeLeft('nextPantheonTime');
+            if(boostLimited) {
+                Tegzd += ' ' + getTextForUI("boostMissing","elementText") + '</li>';
+            }else {
+                Tegzd += '</li>';
+            }
         }
         if (getHHScriptVars("isEnabledShop",false) && StorageHelper_getStoredValue("HHAuto_Setting_updateMarket") =="true")
         {

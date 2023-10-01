@@ -12,6 +12,7 @@ import {
 } from "../Helper";
 import { checkParanoiaSpendings, gotoPage } from "../Service";
 import { logHHAuto } from "../Utils";
+import { Booster } from "./Booster";
 
 export class Pantheon {
 
@@ -26,8 +27,14 @@ export class Pantheon {
     static isTimeToFight(){
         const energyAboveThreshold = Pantheon.getEnergy() > Number(getStoredValue("HHAuto_Setting_autoPantheonThreshold"));
         const paranoiaSpending = Pantheon.getEnergy() > 0 && Number(checkParanoiaSpendings('worship')) > 0;
+        const needBoosterToFight = getStoredValue("HHAuto_Setting_autoPantheonBoostedOnly") === "true";
+        const haveBoosterEquiped = Booster.haveBoosterEquiped();
 
-        return checkTimer('nextPantheonTime') && energyAboveThreshold || paranoiaSpending;Sa
+        if(checkTimer('nextPantheonTime') && energyAboveThreshold && needBoosterToFight && !haveBoosterEquiped) {
+            logHHAuto('Time for pantheon but no booster equipped');
+        }
+
+        return (checkTimer('nextPantheonTime') && energyAboveThreshold && (needBoosterToFight && haveBoosterEquiped || !needBoosterToFight)) || paranoiaSpending;
     }
 
     static run()
