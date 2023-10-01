@@ -145,8 +145,20 @@ export function updateData() {
             Tegzd += '<li>'+getTextForUI("autoClubChamp","elementText")+' : '+getTimeLeft('nextClubChampionTime')+'</li>';
         }
         if (getHHScriptVars('isEnabledPantheon',false) && getStoredValue("HHAuto_Setting_autoPantheon") =="true")
-        {
-            Tegzd += '<li>'+getTextForUI("autoPantheonTitle","elementText")+' : '+Pantheon.getEnergy()+'/'+Pantheon.getEnergyMax()+' ('+getTimeLeft('nextPantheonTime')+')'+'</li>';
+        {            
+            Tegzd += '<li>';
+            const boostLimited = getStoredValue("HHAuto_Setting_autoPantheonBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
+            if(boostLimited) {
+                Tegzd += '<li style="color:red!important;" title="'+getTextForUI("boostMissing","elementText")+'">';
+            }else {
+                Tegzd += '<li>';
+            }
+            Tegzd += getTextForUI("autoPantheonTitle","elementText")+' '+Pantheon.getEnergy()+'/'+Pantheon.getEnergyMax()+' : '+getTimeLeft('nextPantheonTime');
+            if(boostLimited) {
+                Tegzd += ' ' + getTextForUI("boostMissing","elementText") + '</li>';
+            }else {
+                Tegzd += '</li>';
+            }
         }
         if (getHHScriptVars("isEnabledShop",false) && getStoredValue("HHAuto_Setting_updateMarket") =="true")
         {

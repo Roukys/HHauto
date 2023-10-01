@@ -178,7 +178,8 @@ export class Booster {
         const isMythicAutoSandalWood = getStoredValue("HHAuto_Setting_plusEventMythicSandalWood") === "true";
         const isLeagueWithBooster = getStoredValue("HHAuto_Setting_autoLeaguesBoostedOnly") === "true";
         const isSeasonWithBooster = getStoredValue("HHAuto_Setting_autoSeasonBoostedOnly") === "true";
-        return isLeagueWithBooster || isSeasonWithBooster || isMythicAutoSandalWood;
+        const isPantheonWithBooster = getStoredValue("HHAuto_Setting_autoPantheonBoostedOnly") === "true";
+        return isLeagueWithBooster || isSeasonWithBooster || isPantheonWithBooster || isMythicAutoSandalWood;
     }
 
     static getBoosterFromStorage(){

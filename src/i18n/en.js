@@ -225,6 +225,7 @@ HHAuto_ToolTips.en.autoGiveExp = {version: "5.6.24", elementText: "Auto Give", t
 HHAuto_ToolTips.en.autoPantheonTitle = {version: "5.6.24", elementText: "Pantheon", tooltip: ""};
 HHAuto_ToolTips.en.autoPantheon = { version: "5.6.24", elementText: "Enable", tooltip: "if enabled : Automatically do Pantheon"};
 HHAuto_ToolTips.en.autoPantheonThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "Minimum worship to keep<br>Max 10"};
+HHAuto_ToolTips.en.autoPantheonBoostedOnly = { version: "6.7.0", elementText: "Boosted only", tooltip: "If enabled : Need booster to fight in Pantheon"};
 HHAuto_ToolTips.en.buttonSaveOpponent = { version: "5.6.24", elementText: "Save opponent data", tooltip: "Save opponent data for fight simulation in market."};
 HHAuto_ToolTips.en.SimResultMarketButton = { version: "5.6.24", elementText: "Sim. results", tooltip: "Simulate result with League saved opponent."};
 HHAuto_ToolTips.en.simResultMarketPreviousScore = { version: "5.6.24", elementText: "Previous score :", tooltip: ""};
