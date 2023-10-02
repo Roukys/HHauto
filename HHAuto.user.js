@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.7.0
+// @version      6.7.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -79,7 +79,7 @@ GM_addStyle('.HHRewardNotCollected { max-width: 17.9rem; transform: scale(0.8); 
 GM_addStyle('.HHRewardNotCollected .slot { margin: 1px 1px 0}'); 
 GM_addStyle('.HHGirlMilestone { position: absolute; bottom: 0;  z-index: 1; font-size:smaller; width: 200px; text-align: center;}'); 
 GM_addStyle('.HHGirlMilestone > div { background: rgba(0,0,0,.5); border-radius: 10px; margin:auto;  width: 140px; }'); 
-GM_addStyle('.HHGirlMilestone.green { border: solid 1px green }'); 
+// GM_addStyle('.HHGirlMilestone.green { border: solid 1px green }');
 GM_addStyle('.HHGirlMilestone .nc-claimed-reward-check { width:20px; position:absolute; }'); 
 GM_addStyle('#HHSeasonRewards { position: absolute; right: 1.25rem; bottom: 14rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
 GM_addStyle('#HHSeasonalRewards { position: absolute; left: 1.25rem; bottom: 1rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
@@ -1776,6 +1776,15 @@ class EventModule {
         }
     }
 
+    static isEventActive(inEventID)
+    {
+        let eventList = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventsList")):{};
+        if (eventList.hasOwnProperty(inEventID) && eventList[inEventID]["isCompleted"]) {
+            return eventList[inEventID]["seconds_before_end"]>new Date()
+        }
+        return false;
+    }
+
     static checkEvent(inEventID)
     {
         let eventList = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventsList")):{};
@@ -1784,7 +1793,7 @@ class EventModule {
         {
             return false;
         }
-        if (eventList === {} || !eventList.hasOwnProperty(inEventID))
+        if (!eventList.hasOwnProperty(inEventID))
         {
             return true;
         }
@@ -5031,8 +5040,9 @@ class Harem {
         if($('#'+goToGirlPageButtonId).length > 0) return;
 
         const displayedGirl = $('#harem_right .opened').attr('girl'); // unsafeWindow.harem.preselectedGirlId
+        const girlOwned = !(getHHVars('girlsDataList',false) != null && getHHVars('girlsDataList',false)[displayedGirl].shards < 100);
 
-        GM_addStyle('.goToGirlPage {position: relative; bottom: 3rem; font-size: small; z-index:30;}');
+        GM_addStyle('.goToGirlPage {position: relative; font-size: small; z-index:30;}'); // bottom: 3rem; 
 
         // using a for new tab option
         const goToGirlPageButton = '<div class="tooltipHH goToGirlPage"><span class="tooltipHHtext">'+getTextForUI("goToGirlPage","tooltip")+'</span><a href="/girl/'+displayedGirl+'?resource=experience" class="myButton" id="'+goToGirlPageButtonId+'">'+getTextForUI("goToGirlPage","elementText")+'</a></div>';
@@ -5042,7 +5052,11 @@ class Harem {
         };
         $('#harem_right .middle_part').append(goToGirlPageButton);
 
-        GM_registerMenuCommand(getTextForUI('goToGirlPage',"elementText"), goToGirl);
+        if(girlOwned) {
+            GM_registerMenuCommand(getTextForUI('goToGirlPage',"elementText"), goToGirl);
+        } else {
+            $('#'+goToGirlPageButtonId).hide();
+        }
     }
 
     static addGirlListMenu(){
@@ -5209,6 +5223,16 @@ class Troll {
         }
     }
 
+    static getTrollIdFromEvent(eventGirl){
+        if(EventModule.isEventActive(eventGirl.event_id)) {
+            return eventGirl.troll_id;
+        }else {
+            EventModule.clearEventData(eventGirl.event_id);
+            LogUtils_logHHAuto("Event troll completed, clear event and get new troll ID");
+            return getTrollIdToFight();
+        }
+    }
+
     static getTrollIdToFight() {
         let trollWithGirls = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_trollWithGirls"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_trollWithGirls")):[];
         let autoTrollSelectedIndex = StorageHelper_getStoredValue("HHAuto_Setting_autoTrollSelectedIndex");
@@ -5221,15 +5245,16 @@ class Troll {
         var TTF;
         const id_world = getHHVars('Hero.infos.questing.id_world');
         const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
-        if (StorageHelper_getStoredValue("HHAuto_Setting_plusEvent") === "true" && !checkTimer("eventGoing") && StorageHelper_getStoredValue("HHAuto_Temp_eventGirl") !== undefined && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic==="false")
+        const eventGirl = StorageHelper_getStoredValue("HHAuto_Temp_eventGirl") !== undefined ? JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")) : undefined
+        if (StorageHelper_getStoredValue("HHAuto_Setting_plusEvent") === "true" && !checkTimer("eventGoing") && eventGirl !== undefined && eventGirl.is_mythic==="false")
         {
-            TTF=JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).troll_id;
             LogUtils_logHHAuto("Event troll fight");
+            TTF=getTrollIdFromEvent(eventGirl);
         }
-        else if (StorageHelper_getStoredValue("HHAuto_Setting_plusEventMythic") ==="true" && !checkTimer("eventMythicGoing") && StorageHelper_getStoredValue("HHAuto_Temp_eventGirl") !== undefined && JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).is_mythic==="true")
+        else if (StorageHelper_getStoredValue("HHAuto_Setting_plusEventMythic") ==="true" && !checkTimer("eventMythicGoing") && eventGirl !== undefined && eventGirl.is_mythic==="true")
         {
-            TTF=JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")).troll_id;
             LogUtils_logHHAuto("Mythic Event troll fight");
+            TTF=getTrollIdFromEvent(eventGirl);
         }
         else if (autoTrollSelectedIndex === 98 || autoTrollSelectedIndex === 99) {
             if (trollWithGirls === undefined || trollWithGirls.length === 0) {
@@ -5244,8 +5269,8 @@ class Troll {
                 }
                 else if(autoTrollSelectedIndex === 99) {
                     TTF = trollWithGirls.findLastIndex(troll => troll.find(trollTier => trollTier === true)) + 1;
-                    if(TTF > id_world-1) {
-                        TTF=id_world-1;
+                    if(TTF > lastTrollIdAvailable) {
+                        TTF=lastTrollIdAvailable;
                     }
                 }
             } else if(getPage()!==getHHScriptVars("pagesIDHome")) {
@@ -5253,7 +5278,7 @@ class Troll {
                 gotoPage(getHHScriptVars("pagesIDHome"));
             } else {
                 LogUtils_logHHAuto("Can't get troll with girls, going to last troll.");
-                TTF=id_world-1;
+                TTF=lastTrollIdAvailable;
             }
         }
         else if(autoTrollSelectedIndex > 0 && autoTrollSelectedIndex < 98)
@@ -15247,7 +15272,6 @@ function autoLoop()
                 (getPage()===getHHScriptVars("pagesIDEvent") && $("#contains_all #events[parsed]").length === 0)
             )
         )
-            //&& ( getStoredValue("HHAuto_Temp_EventFightsBeforeRefresh") === undefined || getTimer('eventRefreshExpiration') === -1 || getStoredValue("HHAuto_Temp_eventGirl") === undefined)
         {
             LogUtils_logHHAuto("Going to check on events.");
             busy = true;

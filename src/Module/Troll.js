@@ -71,6 +71,16 @@ export class Troll {
         }
     }
 
+    static getTrollIdFromEvent(eventGirl){
+        if(EventModule.isEventActive(eventGirl.event_id)) {
+            return eventGirl.troll_id;
+        }else {
+            EventModule.clearEventData(eventGirl.event_id);
+            logHHAuto("Event troll completed, clear event and get new troll ID");
+            return getTrollIdToFight();
+        }
+    }
+
     static getTrollIdToFight() {
         let trollWithGirls = isJSON(getStoredValue("HHAuto_Temp_trollWithGirls"))?JSON.parse(getStoredValue("HHAuto_Temp_trollWithGirls")):[];
         let autoTrollSelectedIndex = getStoredValue("HHAuto_Setting_autoTrollSelectedIndex");
@@ -83,15 +93,16 @@ export class Troll {
         var TTF;
         const id_world = getHHVars('Hero.infos.questing.id_world');
         const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
-        if (getStoredValue("HHAuto_Setting_plusEvent") === "true" && !checkTimer("eventGoing") && getStoredValue("HHAuto_Temp_eventGirl") !== undefined && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic==="false")
+        const eventGirl = getStoredValue("HHAuto_Temp_eventGirl") !== undefined ? JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")) : undefined
+        if (getStoredValue("HHAuto_Setting_plusEvent") === "true" && !checkTimer("eventGoing") && eventGirl !== undefined && eventGirl.is_mythic==="false")
         {
-            TTF=JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).troll_id;
             logHHAuto("Event troll fight");
+            TTF=getTrollIdFromEvent(eventGirl);
         }
-        else if (getStoredValue("HHAuto_Setting_plusEventMythic") ==="true" && !checkTimer("eventMythicGoing") && getStoredValue("HHAuto_Temp_eventGirl") !== undefined && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic==="true")
+        else if (getStoredValue("HHAuto_Setting_plusEventMythic") ==="true" && !checkTimer("eventMythicGoing") && eventGirl !== undefined && eventGirl.is_mythic==="true")
         {
-            TTF=JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).troll_id;
             logHHAuto("Mythic Event troll fight");
+            TTF=getTrollIdFromEvent(eventGirl);
         }
         else if (autoTrollSelectedIndex === 98 || autoTrollSelectedIndex === 99) {
             if (trollWithGirls === undefined || trollWithGirls.length === 0) {
@@ -106,8 +117,8 @@ export class Troll {
                 }
                 else if(autoTrollSelectedIndex === 99) {
                     TTF = trollWithGirls.findLastIndex(troll => troll.find(trollTier => trollTier === true)) + 1;
-                    if(TTF > id_world-1) {
-                        TTF=id_world-1;
+                    if(TTF > lastTrollIdAvailable) {
+                        TTF=lastTrollIdAvailable;
                     }
                 }
             } else if(getPage()!==getHHScriptVars("pagesIDHome")) {
@@ -115,7 +126,7 @@ export class Troll {
                 gotoPage(getHHScriptVars("pagesIDHome"));
             } else {
                 logHHAuto("Can't get troll with girls, going to last troll.");
-                TTF=id_world-1;
+                TTF=lastTrollIdAvailable;
             }
         }
         else if(autoTrollSelectedIndex > 0 && autoTrollSelectedIndex < 98)

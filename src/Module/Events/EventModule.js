@@ -505,6 +505,15 @@ export class EventModule {
         }
     }
 
+    static isEventActive(inEventID)
+    {
+        let eventList = isJSON(getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsList")):{};
+        if (eventList.hasOwnProperty(inEventID) && eventList[inEventID]["isCompleted"]) {
+            return eventList[inEventID]["seconds_before_end"]>new Date()
+        }
+        return false;
+    }
+
     static checkEvent(inEventID)
     {
         let eventList = isJSON(getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsList")):{};
@@ -513,7 +522,7 @@ export class EventModule {
         {
             return false;
         }
-        if (eventList === {} || !eventList.hasOwnProperty(inEventID))
+        if (!eventList.hasOwnProperty(inEventID))
         {
             return true;
         }

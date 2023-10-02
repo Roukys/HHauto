@@ -197,7 +197,6 @@ export function autoLoop()
                 (getPage()===getHHScriptVars("pagesIDEvent") && $("#contains_all #events[parsed]").length === 0)
             )
         )
-            //&& ( getStoredValue("HHAuto_Temp_EventFightsBeforeRefresh") === undefined || getTimer('eventRefreshExpiration') === -1 || getStoredValue("HHAuto_Temp_eventGirl") === undefined)
         {
             logHHAuto("Going to check on events.");
             busy = true;

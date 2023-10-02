@@ -419,8 +419,9 @@ export class Harem {
         if($('#'+goToGirlPageButtonId).length > 0) return;
 
         const displayedGirl = $('#harem_right .opened').attr('girl'); // unsafeWindow.harem.preselectedGirlId
+        const girlOwned = !(getHHVars('girlsDataList',false) != null && getHHVars('girlsDataList',false)[displayedGirl].shards < 100);
 
-        GM_addStyle('.goToGirlPage {position: relative; bottom: 3rem; font-size: small; z-index:30;}');
+        GM_addStyle('.goToGirlPage {position: relative; font-size: small; z-index:30;}'); // bottom: 3rem; 
 
         // using a for new tab option
         const goToGirlPageButton = '<div class="tooltipHH goToGirlPage"><span class="tooltipHHtext">'+getTextForUI("goToGirlPage","tooltip")+'</span><a href="/girl/'+displayedGirl+'?resource=experience" class="myButton" id="'+goToGirlPageButtonId+'">'+getTextForUI("goToGirlPage","elementText")+'</a></div>';
@@ -430,7 +431,11 @@ export class Harem {
         };
         $('#harem_right .middle_part').append(goToGirlPageButton);
 
-        GM_registerMenuCommand(getTextForUI('goToGirlPage',"elementText"), goToGirl);
+        if(girlOwned) {
+            GM_registerMenuCommand(getTextForUI('goToGirlPage',"elementText"), goToGirl);
+        } else {
+            $('#'+goToGirlPageButtonId).hide();
+        }
     }
 
     static addGirlListMenu(){
