@@ -508,7 +508,7 @@ export class EventModule {
     static isEventActive(inEventID)
     {
         let eventList = isJSON(getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsList")):{};
-        if (eventList.hasOwnProperty(inEventID) && eventList[inEventID]["isCompleted"]) {
+        if (eventList.hasOwnProperty(inEventID) && !eventList[inEventID]["isCompleted"]) {
             return eventList[inEventID]["seconds_before_end"]>new Date()
         }
         return false;

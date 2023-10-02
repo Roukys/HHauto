@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.7.1
+// @version      6.7.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1779,7 +1779,7 @@ class EventModule {
     static isEventActive(inEventID)
     {
         let eventList = Utils_isJSON(StorageHelper_getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventsList")):{};
-        if (eventList.hasOwnProperty(inEventID) && eventList[inEventID]["isCompleted"]) {
+        if (eventList.hasOwnProperty(inEventID) && !eventList[inEventID]["isCompleted"]) {
             return eventList[inEventID]["seconds_before_end"]>new Date()
         }
         return false;
@@ -5229,7 +5229,7 @@ class Troll {
         }else {
             EventModule.clearEventData(eventGirl.event_id);
             LogUtils_logHHAuto("Event troll completed, clear event and get new troll ID");
-            return getTrollIdToFight();
+            return Troll.getTrollIdToFight();
         }
     }
 
@@ -5249,12 +5249,12 @@ class Troll {
         if (StorageHelper_getStoredValue("HHAuto_Setting_plusEvent") === "true" && !checkTimer("eventGoing") && eventGirl !== undefined && eventGirl.is_mythic==="false")
         {
             LogUtils_logHHAuto("Event troll fight");
-            TTF=getTrollIdFromEvent(eventGirl);
+            TTF=Troll.getTrollIdFromEvent(eventGirl);
         }
         else if (StorageHelper_getStoredValue("HHAuto_Setting_plusEventMythic") ==="true" && !checkTimer("eventMythicGoing") && eventGirl !== undefined && eventGirl.is_mythic==="true")
         {
             LogUtils_logHHAuto("Mythic Event troll fight");
-            TTF=getTrollIdFromEvent(eventGirl);
+            TTF=Troll.getTrollIdFromEvent(eventGirl);
         }
         else if (autoTrollSelectedIndex === 98 || autoTrollSelectedIndex === 99) {
             if (trollWithGirls === undefined || trollWithGirls.length === 0) {
