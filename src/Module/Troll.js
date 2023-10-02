@@ -77,7 +77,7 @@ export class Troll {
         }else {
             EventModule.clearEventData(eventGirl.event_id);
             logHHAuto("Event troll completed, clear event and get new troll ID");
-            return getTrollIdToFight();
+            return Troll.getTrollIdToFight();
         }
     }
 
@@ -97,12 +97,12 @@ export class Troll {
         if (getStoredValue("HHAuto_Setting_plusEvent") === "true" && !checkTimer("eventGoing") && eventGirl !== undefined && eventGirl.is_mythic==="false")
         {
             logHHAuto("Event troll fight");
-            TTF=getTrollIdFromEvent(eventGirl);
+            TTF=Troll.getTrollIdFromEvent(eventGirl);
         }
         else if (getStoredValue("HHAuto_Setting_plusEventMythic") ==="true" && !checkTimer("eventMythicGoing") && eventGirl !== undefined && eventGirl.is_mythic==="true")
         {
             logHHAuto("Mythic Event troll fight");
-            TTF=getTrollIdFromEvent(eventGirl);
+            TTF=Troll.getTrollIdFromEvent(eventGirl);
         }
         else if (autoTrollSelectedIndex === 98 || autoTrollSelectedIndex === 99) {
             if (trollWithGirls === undefined || trollWithGirls.length === 0) {
