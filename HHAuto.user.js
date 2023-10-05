@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.7.2
+// @version      6.7.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -2944,16 +2944,13 @@ class Season {
 
 class SeasonalEvent {
     static isMegaSeasonalEvent() {
-        return $('.mega-event-container').length > 0
+        return $('#get_mega_pass_kobans_btn').length > 0
     }
     static isMegaPassPaid() {
         return $('#get_mega_pass_kobans_btn:visible').length <= 0
     }
     static getRemainingTime(){
-        const isMegaSeasonalEvent = SeasonalEvent.isMegaSeasonalEvent();
-        const seasonalEventTimerRequest = isMegaSeasonalEvent 
-                                        ? `.mega-event-panel .mega-event-container .mega-timer span[rel=expires]`
-                                        : `.seasonal-event-panel .seasonal-event-container .seasonal-timer span[rel=expires]`;
+        const seasonalEventTimerRequest = `.mega-event-panel .mega-event-container .mega-timer span[rel=expires]`
 
         if ( $(seasonalEventTimerRequest).length > 0 && (getSecondsLeft("SeasonalEventRemainingTime") === 0 || StorageHelper_getStoredValue("HHAuto_Temp_SeasonalEventEndDate") === undefined) )
         {
@@ -2967,7 +2964,7 @@ class SeasonalEvent {
         LogUtils_logHHAuto('Not implemented');
     }
     static getSeasonalNotClaimedRewards(){
-        const arrayz = $('.seasonal-tier.unclaimed');
+        const arrayz = $('.mega-tier.unclaimed');
         const freeSlotSelectors = ".slot";
         const paidSlotSelectors = ""; // Not available
 
@@ -2993,9 +2990,9 @@ class SeasonalEvent {
             const needToCollect = (checkTimer('nextSeasonalEventCollectTime') && StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true")
             const needToCollectAllBeforeEnd = (checkTimer('nextSeasonalEventCollectAllTime') && seasonalEventEnd < getLimitTimeBeforeEnd() && StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll") === "true");
 
-            const seasonalTierQuery = "#home_tab_container div.bottom-container div.right-part-container div.seasonal-progress-bar-tiers div.seasonal-tier.unclaimed";
+            const seasonalTierQuery = "#home_tab_container div.bottom-container div.right-part-container div.mega-progress-bar-tiers div.mega-tier.unclaimed";
             const megaSeasonalTierQuery = "#home_tab_container div.bottom-container div.right-part-container div.mega-progress-bar-section div.mega-tier-container:has(.free-slot button.mega-claim-reward)";
-            const seasonalFreeSlotQuery = ".seasonal-slot .slot,.seasonal-slot .slot_girl_shards";
+            const seasonalFreeSlotQuery = ".mega-slot .slot,.mega-slot .slot_girl_shards";
             const seasonalPaidSlotQuery = ""; // N/A
             const megaSeasonalFreeSlotQuery = ".free-slot .slot";
             const megaSeasonalPaidSlotQuery = ".pass-slot.paid-unclaimed .slot";
@@ -3097,7 +3094,7 @@ class SeasonalEvent {
         let modified = false;
         
         const isMegaSeasonalEvent = SeasonalEvent.isMegaSeasonalEvent();
-        const seasonalTierQuery = ".seasonal-progress-bar-tiers .seasonal-tier-container";
+        const seasonalTierQuery = ".mega-progress-bar-tiers .mega-tier-container";
         const megaSeasonalTierQuery = ".mega-progress-bar-tiers .mega-tier-container";
 
         arrayz = $((isMegaSeasonalEvent ? megaSeasonalTierQuery : seasonalTierQuery) + ':not([style*="display:none"]):not([style*="display: none"])');
@@ -3124,7 +3121,7 @@ class SeasonalEvent {
     
                 const width_px = 152.1;
                 const start_px = 101;
-                const rewards_unclaimed = $('.seasonal-tier.unclaimed, .free-slot:not(.claimed)').length;
+                const rewards_unclaimed = $('.mega-tier.unclaimed, .free-slot:not(.claimed)').length;
                 const scroll_width_hidden = parseInt(start_px + (rewards_unclaimed - 1) * width_px, 10);
                 $('.seasonal-progress-bar-current, .mega-progress-bar').css('width', scroll_width_hidden + 'px');
     
@@ -3141,17 +3138,17 @@ class SeasonalEvent {
         const girlContainer = $('.girls-reward-container');
 
         const girlSlotRewards = $('#home_tab_container .bottom-container .slot.slot_girl_shards');
-        if(SeasonalEvent.isMegaSeasonalEvent()) {
+        //if(SeasonalEvent.isMegaSeasonalEvent()) {
             girlSlotRewards.each(function(index, girlSlot) {
                 const milestone = Number($('.tier-level p',$(girlSlot).parents('.mega-tier-container')).text());
                 if(milestone > 0) {
                     girlContainer.append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, milestone, index+1))
                 }
             });
-        } else {
-            LogUtils_logHHAuto('Seasonal event not mega is not Yet implemented');
-            girlContainer.append($('<div class="HHGirlMilestone" style="display:none;"></div>'));
-        }
+        //} else {
+        //    logHHAuto('Seasonal event not mega is not Yet implemented');
+        //    girlContainer.append($('<div class="HHGirlMilestone" style="display:none;"></div>'));
+       // }
     }
     static getGirlMileStonesDiv(playerPoints, girlPointsTarget, girlIndex) {
         const greeNitckHtml = '<img class="nc-claimed-reward-check" src="'+getHHScriptVars("baseImgPath")+'/clubs/ic_Tick.png">';
