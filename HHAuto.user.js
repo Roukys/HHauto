@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.7.3
+// @version      6.7.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3008,7 +3008,7 @@ class SeasonalEvent {
                 const listSeasonalEventTiersToClaim = isMegaSeasonalEvent ? $(megaSeasonalTierQuery) : $(seasonalTierQuery);
                 const freeSlotQuery =  isMegaSeasonalEvent ? megaSeasonalFreeSlotQuery : seasonalFreeSlotQuery;
                 const paidSlotQuery =  isMegaSeasonalEvent ? megaSeasonalPaidSlotQuery : seasonalPaidSlotQuery;
-                const isPassPaid =  SeasonalEvent.isMegaPassPaid();
+                const isPassPaid = isMegaSeasonalEvent && SeasonalEvent.isMegaPassPaid();
 
                 for (let currentTier = 0 ; currentTier < listSeasonalEventTiersToClaim.length ; currentTier++)
                 {
@@ -3138,17 +3138,12 @@ class SeasonalEvent {
         const girlContainer = $('.girls-reward-container');
 
         const girlSlotRewards = $('#home_tab_container .bottom-container .slot.slot_girl_shards');
-        //if(SeasonalEvent.isMegaSeasonalEvent()) {
-            girlSlotRewards.each(function(index, girlSlot) {
-                const milestone = Number($('.tier-level p',$(girlSlot).parents('.mega-tier-container')).text());
-                if(milestone > 0) {
-                    girlContainer.append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, milestone, index+1))
-                }
-            });
-        //} else {
-        //    logHHAuto('Seasonal event not mega is not Yet implemented');
-        //    girlContainer.append($('<div class="HHGirlMilestone" style="display:none;"></div>'));
-       // }
+        girlSlotRewards.each(function(index, girlSlot) {
+            const milestone = Number($('.tier-level p',$(girlSlot).parents('.mega-tier-container')).text());
+            if(milestone > 0) {
+                girlContainer.append(SeasonalEvent.getGirlMileStonesDiv(playerPoints, milestone, index+1))
+            }
+        });
     }
     static getGirlMileStonesDiv(playerPoints, girlPointsTarget, girlIndex) {
         const greeNitckHtml = '<img class="nc-claimed-reward-check" src="'+getHHScriptVars("baseImgPath")+'/clubs/ic_Tick.png">';
@@ -13202,7 +13197,7 @@ class RewardHelper {
     static getRewardTypeBySlot(inSlot)
     {
         let reward = "undetected";
-        if (inSlot.className.indexOf('slot') >= 0)
+        if (inSlot && inSlot.className.indexOf('slot') >= 0)
         {
             if (inSlot.getAttribute("cur") !== null)
             {
@@ -13250,7 +13245,7 @@ class RewardHelper {
                 }
             }
         }
-        else if (inSlot.className.indexOf('shards_girl_ico') >= 0)
+        else if (inSlot && inSlot.className.indexOf('shards_girl_ico') >= 0)
         {
             //console.log(currentIndicator+" : shards_girl_ico");
             reward = 'girl_shards';

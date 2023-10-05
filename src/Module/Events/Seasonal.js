@@ -81,7 +81,7 @@ export class SeasonalEvent {
                 const listSeasonalEventTiersToClaim = isMegaSeasonalEvent ? $(megaSeasonalTierQuery) : $(seasonalTierQuery);
                 const freeSlotQuery =  isMegaSeasonalEvent ? megaSeasonalFreeSlotQuery : seasonalFreeSlotQuery;
                 const paidSlotQuery =  isMegaSeasonalEvent ? megaSeasonalPaidSlotQuery : seasonalPaidSlotQuery;
-                const isPassPaid =  SeasonalEvent.isMegaPassPaid();
+                const isPassPaid = isMegaSeasonalEvent && SeasonalEvent.isMegaPassPaid();
 
                 for (let currentTier = 0 ; currentTier < listSeasonalEventTiersToClaim.length ; currentTier++)
                 {

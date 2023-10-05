@@ -13,7 +13,7 @@ export class RewardHelper {
     static getRewardTypeBySlot(inSlot)
     {
         let reward = "undetected";
-        if (inSlot.className.indexOf('slot') >= 0)
+        if (inSlot && inSlot.className.indexOf('slot') >= 0)
         {
             if (inSlot.getAttribute("cur") !== null)
             {
@@ -61,7 +61,7 @@ export class RewardHelper {
                 }
             }
         }
-        else if (inSlot.className.indexOf('shards_girl_ico') >= 0)
+        else if (inSlot && inSlot.className.indexOf('shards_girl_ico') >= 0)
         {
             //console.log(currentIndicator+" : shards_girl_ico");
             reward = 'girl_shards';
