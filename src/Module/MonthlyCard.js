@@ -20,6 +20,7 @@ export class MonthlyCards {
                     // 20 - 30 - 40 - 50 - 60
                     const lastAllowedTenth = (maxRegenFight / 10) - 1;
                     HHAuto_inputPattern.autoTrollThreshold = "[1-"+lastAllowedTenth+"]?[0-9]";
+                    HHAuto_inputPattern.autoTrollRunThreshold = maxRegenFight + "|" + HHAuto_inputPattern.autoTrollThreshold;
                 }
             }
             if(getHHScriptVars('isEnabledSeason',false)) {
@@ -28,6 +29,7 @@ export class MonthlyCards {
                     // 10 - 20 - 30 - 40 - 50
                     const lastAllowedTenth = (maxRegenKiss / 10) - 1;
                     HHAuto_inputPattern.autoSeasonThreshold = "[1-"+lastAllowedTenth+"]?[0-9]";
+                    HHAuto_inputPattern.autoSeasonRunThreshold = maxRegenKiss + "|" + HHAuto_inputPattern.autoSeasonThreshold;
                 }
             }
             if(getHHScriptVars('isEnabledQuest',false)) {
@@ -50,10 +52,22 @@ export class MonthlyCards {
                     // 15 - 18 - 23 - 26 - 30
                     switch (maxRegenLeague)
                     {
-                        case 18 : HHAuto_inputPattern.autoLeaguesThreshold = "1[0-7]|[0-9]"; break;
-                        case 23 : HHAuto_inputPattern.autoLeaguesThreshold = "2[0-2]|1[0-9]|[0-9]"; break;
-                        case 26 : HHAuto_inputPattern.autoLeaguesThreshold = "2[0-5]|1[0-9]|[0-9]"; break;
-                        case 30 : HHAuto_inputPattern.autoLeaguesThreshold = "2[0-9]|1[0-9]|[0-9]"; break;
+                        case 18 : 
+                            HHAuto_inputPattern.autoLeaguesThreshold = "1[0-7]|[0-9]"; 
+                            HHAuto_inputPattern.autoLeaguesRunThreshold = "1[0-8]|[0-9]"; 
+                        break;
+                        case 23 : 
+                            HHAuto_inputPattern.autoLeaguesThreshold = "2[0-2]|1[0-9]|[0-9]"; 
+                            HHAuto_inputPattern.autoLeaguesRunThreshold = "2[0-3]|1[0-9]|[0-9]"; 
+                        break;
+                        case 26 : 
+                            HHAuto_inputPattern.autoLeaguesThreshold = "2[0-5]|1[0-9]|[0-9]"; 
+                            HHAuto_inputPattern.autoLeaguesRunThreshold = "2[0-6]|1[0-9]|[0-9]"; 
+                        break;
+                        case 30 : 
+                            HHAuto_inputPattern.autoLeaguesThreshold = "2[0-9]|1[0-9]|[0-9]"; 
+                            HHAuto_inputPattern.autoLeaguesRunThreshold = "30|[1-2][0-9]|[0-9]"; 
+                        break;
                     }
                 }
             }
@@ -63,10 +77,22 @@ export class MonthlyCards {
                     // 10 - 15 - 20 - 25 - 30
                     switch (maxRegenPantheon)
                     {
-                        case 15 : HHAuto_inputPattern.autoPantheonThreshold = "1[0-4]|[0-9]"; break;
-                        case 20 : HHAuto_inputPattern.autoPantheonThreshold = "1[0-9]|[0-9]"; break;
-                        case 25 : HHAuto_inputPattern.autoPantheonThreshold = "2[0-4]|1[0-9]|[0-9]"; break;
-                        case 30 : HHAuto_inputPattern.autoPantheonThreshold = "[1-2][0-9]|[0-9]"; break;
+                        case 15 : 
+                            HHAuto_inputPattern.autoPantheonThreshold = "1[0-4]|[0-9]";
+                            HHAuto_inputPattern.autoPantheonRunThreshold = "1[0-5]|[0-9]";
+                        break;
+                        case 20 : 
+                            HHAuto_inputPattern.autoPantheonThreshold = "1[0-9]|[0-9]";
+                            HHAuto_inputPattern.autoPantheonRunThreshold = "20|1[0-9]|[0-9]";
+                        break;
+                        case 25 : 
+                            HHAuto_inputPattern.autoPantheonThreshold = "2[0-4]|1[0-9]|[0-9]";
+                            HHAuto_inputPattern.autoPantheonRunThreshold = "2[0-5]|1[0-9]|[0-9]";
+                        break;
+                        case 30 : 
+                            HHAuto_inputPattern.autoPantheonThreshold = "[1-2][0-9]|[0-9]";
+                            HHAuto_inputPattern.autoPantheonRunThreshold = "30|[1-2][0-9]|[0-9]";
+                        break;
                     }
                 }
             }

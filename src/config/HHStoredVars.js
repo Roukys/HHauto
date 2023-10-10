@@ -296,15 +296,15 @@ HHStoredVars.HHAuto_Setting_autoLeaguesBoostedOnly =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoLeaguesThreeFights =
+HHStoredVars.HHAuto_Setting_autoLeaguesRunThreshold =
     {
-    default:"false",
+    default:"0",
     storage:"Storage()",
     HHType:"Setting",
-    valueType:"Boolean",
+    valueType:"Small Integer",
     getMenu:true,
     setMenu:true,
-    menuType:"checked",
+    menuType:"value",
     kobanUsing:false
 };
 HHStoredVars.HHAuto_Setting_autoLeaguesPowerCalc =
@@ -651,6 +651,17 @@ HHStoredVars.HHAuto_Setting_autoSeasonThreshold =
     menuType:"value",
     kobanUsing:false
 };
+HHStoredVars.HHAuto_Setting_autoSeasonRunThreshold =
+    {
+    default:"0",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_autoSeasonBoostedOnly =
     {
     default:"false",
@@ -720,6 +731,17 @@ HHStoredVars.HHAuto_Setting_autoTrollSelectedIndex =
     isValid:/^[0-9]|1[0-5]|98|99$/
 };
 HHStoredVars.HHAuto_Setting_autoTrollThreshold =
+    {
+    default:"0",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars.HHAuto_Setting_autoTrollRunThreshold =
     {
     default:"0",
     storage:"Storage()",
@@ -1296,6 +1318,17 @@ HHStoredVars.HHAuto_Setting_autoPantheonThreshold =
     menuType:"value",
     kobanUsing:false
 };
+HHStoredVars.HHAuto_Setting_autoPantheonRunThreshold =
+    {
+    default:"0",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
 HHStoredVars.HHAuto_Setting_autoPantheonBoostedOnly =
     {
     default:"false",
@@ -1711,6 +1744,26 @@ HHStoredVars.HHAuto_Temp_boosterStatus =
     HHType:"Temp"
 };
 HHStoredVars.HHAuto_Temp_LeagueSavedData =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_LeagueHumanLikeRun =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_TrollHumanLikeRun =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_PantheonHumanLikeRun =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars.HHAuto_Temp_SeasonHumanLikeRun =
     {
     storage:"sessionStorage",
     HHType:"Temp"

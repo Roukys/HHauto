@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.7.5
+// @version      6.8.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -36,7 +36,7 @@ GM_addStyle('.HHAutoScriptMenu .switch { position: relative; display: inline-blo
 GM_addStyle('.HHAutoScriptMenu input:checked + .slider.kobans { background-color: red; }'
             +'.HHAutoScriptMenu input:not(:checked) + .slider.round.kobans:before { background-color: red }'
             +'.HHAutoScriptMenu input:checked + .slider.round.kobans:before { background-color: white }')
-GM_addStyle('#pInfo {padding-left:3px; z-index:1;white-space: pre;position: absolute;right: 5%; left:57%; height:auto; top:11%; overflow: hidden; border: 1px solid #ffa23e; background-color: rgba(0,0,0,.5); border-radius: 5px; font-size:9pt; user-select: none; -webkit-user-select: none; -moz-user-select: none;}'
+GM_addStyle('#pInfo {padding-left:3px; z-index:1;white-space: pre;position: absolute;right: 5%; left:51%; height:auto; top:11%; overflow: hidden; border: 1px solid #ffa23e; background-color: rgba(0,0,0,.5); border-radius: 5px; font-size:9pt; user-select: none; -webkit-user-select: none; -moz-user-select: none;}'
             + '#pInfo ul {margin:0; padding:0; columns:2; list-style-type: none;}'
             + '#pInfo ul li {margin:0}');
 GM_addStyle('#pInfo.left {right: 480px; left:220px; top:12%;');
@@ -186,7 +186,7 @@ HHAuto_ToolTips.en.buyCombTimer = { version: "5.6.24", elementText: "Hours to bu
 HHAuto_ToolTips.en.autoBuyBoosters = { version: "5.6.25", elementText: "Myth. & Leg. Boosters", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>Allow to buy booster in the market (if not going under Koban bank value)"};
 HHAuto_ToolTips.en.autoBuyBoostersFilter = { version: "5.37.0", elementText: "Filter", tooltip: "(values separated by ;)<br>Set list of codes of booster to buy, order is respected.<br>Code:Name<br>B1:Ginseng<br>B2:Jujubes<br>B3:Chlorella<br>B4:Cordyceps<br>MB1:Sandalwood perfume<br>MB2:All Mastery's Emblem<br>MB3:Headband of determination<br>MB4:Luxurious Watch<br>MB5:Combative Cinnamon<br>MB6:Alban's travel memories<br>MB7:Angels' semen scent<br>MB8:Leagues mastery emblem<br>MB9:Seasons mastery emblem<br>MB10:Gem Detector<br>MB11:Banger<br>MB12:Shiny Aura"};
 HHAuto_ToolTips.en.autoSeasonPassReds = { version: "5.6.24", elementText: "Pass 3 reds", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en.spendKobans0.elementText+" must be ON)</p>Use kobans to renew Season opponents if 3 reds"};
-HHAuto_ToolTips.en.showCalculatePower = { version: "5.6.24", elementText: "Show PowerCalc", tooltip: "Display battle simulation indicator for Leagues, battle, Seasons "};
+HHAuto_ToolTips.en.showCalculatePower = { version: "6.8.0", elementText: "PowerCalc", tooltip: "Display battle simulation indicator for Leagues, battle, Seasons "};
 HHAuto_ToolTips.en.showAdsBack = { version: "5.34.15", elementText: "Move ads to the back", tooltip: "Move the ads section to the background."};
 //HHAuto_ToolTips.en.calculatePowerLimits = { version: "5.6.24", elementText: "Own limits", tooltip: "(red;orange)<br>Define your own red and orange limits for Opponents<br> -6000;0 do mean<br> <-6000 is red, between -6000 and 0 is orange and >=0 is green"};
 HHAuto_ToolTips.en.showInfo = { version: "5.6.24", elementText: "Show info", tooltip: "if enabled : show info on script values and next runs"};
@@ -202,6 +202,7 @@ HHAuto_ToolTips.en.autoTrollTitle = { version: "5.6.24", elementText: "Battle Tr
 HHAuto_ToolTips.en.autoTrollBattle = { version: "5.6.24", elementText: "Enable", tooltip: "if enabled : Automatically battle troll selected"};
 HHAuto_ToolTips.en.autoTrollSelector = { version: "5.6.24", elementText: "Troll selector", tooltip: "Select troll to be fought."};
 HHAuto_ToolTips.en.autoTrollThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "(Integer 0 to 19)<br>Minimum troll fight to keep"};
+HHAuto_ToolTips.en.autoTrollRunThreshold = { version: "6.8.0", elementText: "Run Threshold", tooltip: "Minimum troll fights before script start spending<br> 0 to spend as soon as energy above threshold"};
 HHAuto_ToolTips.en.eventTrollOrder = { version: "5.6.38", elementText: "Event Troll Order", tooltip: "(values separated by ;)<br>Allow to select in which order event troll are automatically battled<br>1 : Dark Lord<br>2 : Ninja Spy<br>3 : Gruntt<br>4 : Edwarda<br>5 : Donatien<br>6 : Sylvanus<br>7 : Bremen<br>8 : Finalmecia<br>9 : Fredy Sih Roko<br>10 : Karole<br>11 : Jackson's Crew<br>12 : Pandora Witch<br>13 : Nike<br>14 : Sake<br>15 : WereBunny Police"};
 HHAuto_ToolTips.en.autoBuyTrollNumber = { version: "6.1.0", elementText: "Troll auto buy", tooltip: "Number of combat points to be bought during an event"};
 HHAuto_ToolTips.en.autoBuyMythicTrollNumber = { version: "6.1.0", elementText: "Mythic auto buy", tooltip: "Number of combat points to be bought during a mythics event"};
@@ -218,6 +219,7 @@ HHAuto_ToolTips.en.autoSeason = { version: "5.6.24", elementText: "Enable", tool
 HHAuto_ToolTips.en.autoSeasonCollect = { version: "5.6.24", elementText: "Collect", tooltip: "if enabled : Automatically collect Seasons ( if multiple to collect, will collect one per kiss usage)"};
 HHAuto_ToolTips.en.autoSeasonCollectAll = { version: "5.7.0", elementText: "Collect all", tooltip: "if enabled : Automatically collect all items before end of season (configured with Collect all timer)"};
 HHAuto_ToolTips.en.autoSeasonThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "Minimum kiss to keep"};
+HHAuto_ToolTips.en.autoSeasonRunThreshold = { version: "6.8.0", elementText: "Run Threshold", tooltip: "Minimum kiss fights before script start spending<br> 0 to spend as soon as energy above threshold"};
 HHAuto_ToolTips.en.autoSeasonBoostedOnly = { version: "6.5.0", elementText: "Boosted only", tooltip: "If enabled : Need booster to fight in season"};
 HHAuto_ToolTips.en.autoQuest = { version: "5.6.74", elementText: "Main Quest", tooltip: "if enabled : Automatically do main quest"};
 HHAuto_ToolTips.en.autoSideQuest = { version: "5.6.83", elementText: "Side Quests", tooltip: "if enabled : Automatically do next available side quest (Enabled main quest has higher priority than side quests)"};
@@ -232,14 +234,16 @@ HHAuto_ToolTips.en.autoLeagues = { version: "5.6.24", elementText: "Enable", too
 HHAuto_ToolTips.en.autoLeaguesPowerCalc = { version: "5.6.24", elementText: "Use PowerCalc", tooltip: "if enabled : will choose opponent using PowerCalc (Opponent list expires every 10 mins and take few mins to be built)"};
 HHAuto_ToolTips.en.leagueListDisplayPowerCalc = { version: "5.34.18", elementText: "Display PowerCalc", tooltip: "Display powerCalc in league list (stil in developpment)"};
 HHAuto_ToolTips.en.autoLeaguesCollect = { version: "5.6.24", elementText: "Collect", tooltip: "If enabled : Automatically collect Leagues"};
-HHAuto_ToolTips.en.autoLeaguesThreeFights = { version: "6.2.0", elementText: "3 fights", tooltip: "If enabled : Wait to have 3 energy (above threshold) before fighting"};
+HHAuto_ToolTips.en.autoLeaguesRunThreshold = { version: "6.8.0", elementText: "Run Threshold", tooltip: "Minimum league fights before script start spending<br> 0 to spend as soon as energy above threshold"};
 HHAuto_ToolTips.en.autoLeaguesBoostedOnly = { version: "6.5.0", elementText: "Boosted only", tooltip: "If enabled : Need booster to fight in league"};
 HHAuto_ToolTips.en.boostMissing = { version: "6.5.0", elementText: "No booster Equipped"};
+HHAuto_ToolTips.en.waitRunThreshold  = { version: "6.8.0", elementText: "Wait run threshold"};
 HHAuto_ToolTips.en.autoLeaguesSelector = { version: "5.6.24", elementText: "Target League", tooltip: "League to target, to try to demote, stay or go in higher league depending"};
 HHAuto_ToolTips.en.autoLeaguesAllowWinCurrent = {version: "5.6.24", elementText:"Allow win", tooltip: "If check will allow to win targeted league and then demote next league to fall back to targeted league."};
 HHAuto_ToolTips.en.autoLeaguesThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "(Integer between 0 and 14)<br>Minimum league fights to keep"};
 HHAuto_ToolTips.en.autoLeaguesSecurityThreshold = { version: "5.18.0", elementText: "Security Threshold", tooltip: "(Integer)<br>Points limit to prevent the script performing any league fight to keep user in targetted league and avoid promotion. Change only if you accept the risk"};
-HHAuto_ToolTips.en.autoPowerPlaces = { version: "5.6.24", elementText: "Places of Power", tooltip: "if enabled : Automatically Do powerPlaces"};
+HHAuto_ToolTips.en.powerPlacesTitle = { version: "6.8.0", elementText: "Places of Power", tooltip: ""};
+HHAuto_ToolTips.en.autoPowerPlaces = { version: "6.8.0", elementText: "Enable", tooltip: "if enabled : Automatically Do powerPlaces"};
 HHAuto_ToolTips.en.autoPowerPlacesIndexFilter = { version: "5.6.24", elementText: "Index Filter", tooltip: "(values separated by ;)<br>Allow to set filter and order on the PowerPlaces to do (order respected only when multiple powerPlace expires at the same time)"};//<table style='font-size: 8px;line-height: 1;'><tr><td>Reward</td>  <td>HC</td>    <td>CH</td>   <td>KH</td></tr><tr><td>Champ tickets & M¥</td>    <td>4</td>   <td>5</td>   <td>6</td></tr><tr><td>Kobans & K¥</td>  <td>7</td>   <td>8</td>   <td>9</td></tr><tr><td>Epic Book & K¥</td> <td>10</td>  <td>11</td> <td>12</td></tr><tr><td>Epic Orbs & K¥</td>  <td>13</td>  <td>14</td>  <td>15</td></tr><tr><td>Leg. Booster & K¥</td>   <td>16</td>  <td>17</td>  <td>18</td></tr><tr><td>Champions tickets & K¥</td>  <td>19</td>  <td>20</td>  <td>21</td></tr><tr><td>Epic Gift & K¥</td>  <td>22</td>  <td>23</td>  <td>24</td></tr></table>"};
 HHAuto_ToolTips.en.autoPowerPlacesAll = { version: "5.6.24", elementText: "Do All", tooltip: "If enabled : ignore filter and do all powerplaces (will update Filter with current ids)"};
 HHAuto_ToolTips.en.autoPowerPlacesPrecision = { version: "5.6.103", elementText: "PoP precision", tooltip: "If enabled : use more advanced algorithm to try and find best team instead of using auto. This is more useful when you have a smaller roster and may be very slow with large rosters."};
@@ -386,8 +390,9 @@ HHAuto_ToolTips.en.saveDefaults = {version: "5.6.24", elementText: "Save default
 HHAuto_ToolTips.en.autoGiveAff = {version: "5.6.24", elementText: "Auto Give", tooltip: "If enabled, will automatically give Aff to girls in order ( you can use OCD script to filter )."};
 HHAuto_ToolTips.en.autoGiveExp = {version: "5.6.24", elementText: "Auto Give", tooltip: "If enabled, will automatically give Exp to girls in order ( you can use OCD script to filter )."};
 HHAuto_ToolTips.en.autoPantheonTitle = {version: "5.6.24", elementText: "Pantheon", tooltip: ""};
-HHAuto_ToolTips.en.autoPantheon = { version: "5.6.24", elementText: "Enable", tooltip: "if enabled : Automatically do Pantheon"};
+HHAuto_ToolTips.en.autoPantheon = { version: "6.8.0", elementText: "Pantheon", tooltip: "if enabled : Automatically do Pantheon"};
 HHAuto_ToolTips.en.autoPantheonThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "Minimum worship to keep<br>Max 10"};
+HHAuto_ToolTips.en.autoPantheonRunThreshold = { version: "6.8.0", elementText: "Run Threshold", tooltip: "Minimum worship before script start spending<br> 0 to spend as soon as energy above threshold"};
 HHAuto_ToolTips.en.autoPantheonBoostedOnly = { version: "6.7.0", elementText: "Boosted only", tooltip: "If enabled : Need booster to fight in Pantheon"};
 HHAuto_ToolTips.en.buttonSaveOpponent = { version: "5.6.24", elementText: "Save opponent data", tooltip: "Save opponent data for fight simulation in market."};
 HHAuto_ToolTips.en.SimResultMarketButton = { version: "5.6.24", elementText: "Sim. results", tooltip: "Simulate result with League saved opponent."};
@@ -447,7 +452,7 @@ HHAuto_ToolTips.fr.buyCombTimer = { version: "5.6.24", elementText: "Heures d'ac
 HHAuto_ToolTips.fr.autoBuyBoosters = { version: "5.6.24", elementText: "Boosters lég.", tooltip: "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>("+HHAuto_ToolTips.fr.spendKobans0.elementText+" doit être activé)</p>Permet d'acheter des boosters sur le marché (sans faire passer sous la valeur de la réserve de Kobans)."};
 HHAuto_ToolTips.fr.autoBuyBoostersFilter = { version: "5.6.24", elementText: "Filtre", tooltip: "(valeurs séparées par ;)<br>Définit quel(s) booster(s) acheter, respecter l'ordre (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)."};
 HHAuto_ToolTips.fr.autoSeasonPassReds = { version: "5.6.24", elementText: "Passer 3 rouges", tooltip: "<p style='color:red'>/!\\ Dépense des Kobans /!\\<br>("+HHAuto_ToolTips.fr.spendKobans0.elementText+" doit être activé)</p>Utilise des kobans pour renouveler les adversaires de la saison si PowerCalc détermine 3 combats rouges (perdus)."};
-HHAuto_ToolTips.fr.showCalculatePower = { version: "5.6.24", elementText: "PowerCalc", tooltip: "Si activé : affiche le résultat des calculs du module PowerCalc (Simulateur de combats pour Ligues, Trolls, Saisons)."};
+HHAuto_ToolTips.fr.showCalculatePower = { version: "6.8.0", elementText: "PowerCalc", tooltip: "Si activé : affiche le résultat des calculs du module PowerCalc (Simulateur de combats pour Ligues, Trolls, Saisons)."};
 HHAuto_ToolTips.fr.showAdsBack = { version: "5.34.15", elementText: "Move ads to the back", tooltip: "Si activé : deplace les pubs à l'arrière plan."};
 //HHAuto_ToolTips.fr.calculatePowerLimits = { version: "5.6.24", elementText: "Limites perso", tooltip: "(rouge;orange)<br>Définissez vos propres limites de rouge et d'orange pour les opposants<br> -6000;0 veux dire<br> <-6000 est rouge, entre -6000 et 0 est orange et >=0 est vert"};
 HHAuto_ToolTips.fr.showInfo = { version: "5.6.24", elementText: "Infos", tooltip: "Si activé : affiche une fenêtre d'informations sur le script."};
@@ -483,7 +488,8 @@ HHAuto_ToolTips.fr.autoLeaguesCollect = { version: "5.6.24", elementText: "Colle
 HHAuto_ToolTips.fr.autoLeaguesSelector = { version: "5.6.24", elementText: "Ligue ciblée", tooltip: "Objectif de niveau de ligue (à atteindre, à conserver ou à dépasser selon le choix)."};
 HHAuto_ToolTips.fr.autoLeaguesAllowWinCurrent = {version: "5.6.24", elementText:"Autoriser dépassement", tooltip: "Si activé, le script tentera de gagner la ligue ciblée puis rétrogradera la semaine suivante pour retourner dans la ligue ciblée."};
 HHAuto_ToolTips.fr.autoLeaguesThreshold = { version: "5.6.24", elementText: "Réserve", tooltip: "Points de combat de ligue minimum à conserver."};
-HHAuto_ToolTips.fr.autoPowerPlaces = { version: "5.6.24", elementText: "Lieux de pouvoir", tooltip: "Si activé : Fait automatiquement les lieux de pouvoir."};
+HHAuto_ToolTips.fr.powerPlacesTitle = { version: "6.8.0", elementText: "Lieux de pouvoir", tooltip: ""};
+HHAuto_ToolTips.fr.autoPowerPlaces = { version: "6.8.0", elementText: "Activer", tooltip: "Si activé : Fait automatiquement les lieux de pouvoir."};
 HHAuto_ToolTips.fr.autoPowerPlacesIndexFilter = { version: "5.6.24", elementText: "Filtre", tooltip: "Permet de définir un filtre et un ordre sur les lieux de pouvoir à faire (uniquement lorsque plusieurs lieux de pouvoir expirent en même temps)."};
 HHAuto_ToolTips.fr.autoPowerPlacesAll = { version: "5.6.24", elementText: "Tous", tooltip: "Si activé : ignore le filtre et fait tous les lieux de pouvoir (mettra à jour le filtre avec les identifiants actuels)"};
 HHAuto_ToolTips.fr.compactPowerPlace = { version: "5.24.0", elementText: "Compacter", tooltip: "Compacter l'affichage des leux de pouvoir"};
@@ -544,7 +550,6 @@ HHAuto_ToolTips.fr.compactDailyGoals = { version: "5.24.0", elementText: "Compac
 HHAuto_ToolTips.fr.autoPoVCollect = { version: "5.6.133", elementText: "Collecter VDLV", tooltip: "Permet de collecter les gains de la Voie de la Valeur."};
 HHAuto_ToolTips.fr.autoSeasonalEventCollect = { version: "5.7.0", elementText: "Collecter", tooltip: "Permet de collecter les gains des évènements saisoniers."};
 HHAuto_ToolTips.fr.autoPoGCollect = { version: "5.6.133", elementText: "Collecter VDLG", tooltip: "Permet de collecter les gains de la Voie de la Gloire."};
-HHAuto_ToolTips.fr.autoPantheonTitle = {version: "5.6.24", elementText: "Pantheon", tooltip: ""};
 HHAuto_ToolTips.fr.autoPantheon = { version: "5.6.24", elementText: "Activer", tooltip: "Si activé : combat automatiquement le Pantheon"};
 HHAuto_ToolTips.fr.autoPantheonThreshold = { version: "5.6.24", elementText: "Réserve", tooltip: "Vénération minimum à garder<br>Max 10"};
 HHAuto_ToolTips.fr.autoTrollMythicByPassParanoia = { version: "5.6.24", elementText: "Mythique annule paranoïa", tooltip: "Si activé : autorise le script à ne pas respecter le mode Parano lors d'un événement mythique.<br>Si la prochaine vague est pendant une phase de sommeil le script combattra quand même<br>tant que des combats et des fragments sont disponibles."};
@@ -573,7 +578,7 @@ HHAuto_ToolTips.de.buyCombTimer = { version: "5.6.24", elementText: "Stunden bis
 HHAuto_ToolTips.de.autoBuyBoosters = { version: "5.6.24", elementText: "Kaufe Booster", tooltip: "'Koban ausgeben Funktion'<br>Erlaubt es Booster im Markt zu kaufen(Wenn es das Minimum nicht unterschreitet)"};
 HHAuto_ToolTips.de.autoBuyBoostersFilter = { version: "5.6.24", elementText: "Filter", tooltip: "(Werte getrennt durch ;)<br>Gib an welches Booster gekauft werden sollen, Reihenfolge wird beachtet (B1:Ginseng B2:Jujubes B3:Chlorella B4:Cordyceps)"};
 HHAuto_ToolTips.de.autoSeasonPassReds = { version: "5.6.24", elementText: "Überspringe drei Rote", tooltip: "'Koban ausgeben Funktion'<br>Benutze Kobans um Season Gegner zu tauschen wenn alle drei Rote sind"};
-HHAuto_ToolTips.de.showCalculatePower = { version: "5.6.24", elementText: "Zeige Kraftrechner", tooltip: "Zeige Kampfsimulationsindikator an für Liga, Kampf und Season"};
+HHAuto_ToolTips.de.showCalculatePower = { version: "6.8.0", elementText: "Zeige Kraftrechner", tooltip: "Zeige Kampfsimulationsindikator an für Liga, Kampf und Season"};
 //HHAuto_ToolTips.de.calculatePowerLimits = { version: "5.6.24", elementText: "Eigene Grenzen (rot;gelb)", tooltip: "(rot;gelb)<br>Definiere deine eigenen Grenzen für rote und orange Gegner<br> -6000;0 meint<br> <-6000 ist rot, zwischen -6000 und 0 ist orange und >=0 ist grün"};
 HHAuto_ToolTips.de.showInfo = { version: "5.6.24", elementText: "Zeige Info", tooltip: "Wenn aktiv : zeige Information auf Skriptwerten und nächsten Durchläufen"};
 HHAuto_ToolTips.de.autoSalary = { version: "5.6.24", elementText: "Auto Einkommen", tooltip: "Wenn aktiv :<br>Sammelt das gesamte Einkommen alle X Sek."};
@@ -602,7 +607,8 @@ HHAuto_ToolTips.de.autoLeaguesPowerCalc = { version: "5.6.24", elementText: "Nut
 HHAuto_ToolTips.de.autoLeaguesCollect = { version: "5.6.24", elementText: "Einsammeln", tooltip: "Wenn aktiv : Sammelt automatisch Ligagewinn ein"};
 HHAuto_ToolTips.de.autoLeaguesSelector = { version: "5.6.24", elementText: "Ligaziel", tooltip: "Ligaziel, versuche abzusteigen, Platz zu halten oder aufzusteigen"};
 HHAuto_ToolTips.de.autoLeaguesThreshold = { version: "5.6.24", elementText: "Schwellwert", tooltip: "Minimum an Ligakämpfe behalten"};
-HHAuto_ToolTips.de.autoPowerPlaces = { version: "5.6.24", elementText: "Auto Orte der Macht", tooltip: "Wenn aktiv : macht automatisch Orte der Macht"};
+HHAuto_ToolTips.de.powerPlacesTitle = { version: "6.8.0", elementText: "Auto Orte der Macht", tooltip: ""};
+HHAuto_ToolTips.de.autoPowerPlaces = { version: "6.8.0", elementText: "Aktivieren", tooltip: "Wenn aktiv : macht automatisch Orte der Macht"};
 HHAuto_ToolTips.de.autoPowerPlacesIndexFilter = { version: "5.6.24", elementText: "Index Filter", tooltip: "Erlaubt es Filter zusetzen für Orte der Macht und eine Reihenfolge festzulegen (Reihenfolge wird beachtet, sollten mehrere zur gleichen Zeit fertig werden)"};
 HHAuto_ToolTips.de.autoPowerPlacesAll = { version: "5.6.24", elementText: "Mach alle", tooltip: "Wenn aktiv : ignoriere Filter und mache alle (aktualisiert den Filter mit korrekten IDs)"};
 HHAuto_ToolTips.de.autoChamps = { version: "5.6.24", elementText: "AutoChampions", tooltip: "Wenn aktiv : Macht automatisch Championkämpfe (nur wenn sie gestartet wurden und im Filter stehen)"};
@@ -641,7 +647,7 @@ HHAuto_ToolTips.es.buyCombTimer = { version: "5.6.24", elementText: "Horas para 
 HHAuto_ToolTips.es.autoBuyBoosters = { version: "5.6.24", elementText: "Compra Potenciad. Leg.", tooltip: "Funciones de gasto de Kobans<br>Permite comprar potenciadores en el mercado (si no se baja del valor de Banco de Kobans)"};
 HHAuto_ToolTips.es.autoBuyBoostersFilter = { version: "5.6.24", elementText: "Filtro", tooltip: "(valores separados por ;)<br>Selecciona que potenciador comprar, se respeta el orden (B1:Ginseng B2:Azufaifo B3:Clorela B4:Cordyceps)"};
 HHAuto_ToolTips.es.autoSeasonPassReds = { version: "5.6.24", elementText: "Pasa 3 rojos", tooltip: "Funciones de gasto de Kobans<br>Usa kobans para renovar oponentes si los 3 rojos"};
-HHAuto_ToolTips.es.showCalculatePower = { version: "5.6.24", elementText: "Mostar PowerCalc", tooltip: "Muestra simulador de batalla para Liga, batallas, Temporadas "};
+HHAuto_ToolTips.es.showCalculatePower = { version: "6.8.0", elementText: "Mostar PowerCalc", tooltip: "Muestra simulador de batalla para Liga, batallas, Temporadas "};
 //HHAuto_ToolTips.es.calculatePowerLimits = { version: "5.6.24", elementText: "Límites propios (rojo;naranja)", tooltip: "(rojo;naranja)<br>Define tus propios límites rojos y naranjas para los oponentes<br> -6000;0 significa<br> <-6000 is rojo, entre -6000 and 0 is naranja and >=0 is verde"};
 HHAuto_ToolTips.es.showInfo = { version: "5.6.24", elementText: "Muestra info", tooltip: "Si habilitado: muestra información de los valores del script y siguientes ejecuciones"};
 HHAuto_ToolTips.es.autoSalary = { version: "5.6.24", elementText: "AutoSal.", tooltip: "(Entero)<br>Si habilitado:<br>Recauda salario cada X segundos"};
@@ -669,7 +675,8 @@ HHAuto_ToolTips.es.autoLeaguesPowerCalc = { version: "5.6.24", elementText: "Usa
 HHAuto_ToolTips.es.autoLeaguesCollect = { version: "5.6.24", elementText: "Recaudar", tooltip: "Si habilitado: Recauda premios de ligas de manera automática"};
 HHAuto_ToolTips.es.autoLeaguesSelector = { version: "5.6.24", elementText: "Liga objetivo", tooltip: "Liga objetivo, para intentar descender, permanecer o ascender a otra liga en función de ello"};
 HHAuto_ToolTips.es.autoLeaguesThreshold = { version: "5.6.24", elementText: "Límite", tooltip: "Mínimos combates de liga a conservar"};
-HHAuto_ToolTips.es.autoPowerPlaces = { version: "5.6.24", elementText: "AutoLugaresPoder", tooltip: "Si habilitado: Juega Lugares de Poder de manera automática"};
+HHAuto_ToolTips.es.powerPlacesTitle = { version: "6.8.0", elementText: "AutoLugaresPoder", tooltip: "Si habilitado: Juega Lugares de Poder de manera automática"};
+HHAuto_ToolTips.es.autoPowerPlaces = { version: "6.8.0", elementText: "Habilitar", tooltip: "Si habilitado: Juega Lugares de Poder de manera automática"};
 HHAuto_ToolTips.es.autoPowerPlacesIndexFilter = { version: "5.6.24", elementText: "Filtro de índice", tooltip: "Permite establecer un filto y un orden para jugar Lugares de Poder (el orden solo se respeta cuando multiples Lugares de Poder finalizan al mismo tiempo)"};
 HHAuto_ToolTips.es.autoPowerPlacesAll = { version: "5.6.24", elementText: "Juega todos", tooltip: "Si habilitado: ignora el filtro y juega todos los Lugares de Poder (actualizará del Filtro con las actuales ids)"};
 HHAuto_ToolTips.es.autoChamps = { version: "5.6.138", elementText: "Auto Campeones", tooltip: "Si habilitado: Combate a campeones de manera automática (Sólo si han empezado un combate y están en el filtro)"};
@@ -2411,8 +2418,40 @@ class Season {
         return Number(getHHVars('Hero.energies.kiss.max_regen_amount'));
     }
 
+    static getPinfo() {
+        const threshold = Number(StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonThreshold"));
+        const runThreshold = Number(StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonRunThreshold"));
+
+        let Tegzd = '';
+        const boostLimited = StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
+        if(boostLimited) {
+            Tegzd += '<li style="color:red!important;" title="'+getTextForUI("boostMissing","elementText")+'">';
+        }else {
+            Tegzd += '<li>';
+        }
+        Tegzd += getTextForUI("autoSeasonTitle","elementText")+' '+Season.getEnergy()+'/'+Season.getEnergyMax();
+        if (runThreshold > 0) {
+            Tegzd += ' ('+threshold+'<'+Season.getEnergy()+'<'+runThreshold+')';
+        }
+        if(runThreshold > 0  && Season.getEnergy() < runThreshold) {
+            Tegzd += ' ' + getTextForUI("waitRunThreshold","elementText");
+        }else {
+            Tegzd += ' : ' + getTimeLeft('nextSeasonTime');
+        }
+        if (boostLimited) {
+            Tegzd += ' ' + getTextForUI("boostMissing","elementText") + '</li>';
+        } else {
+            Tegzd += '</li>';
+        }
+        return Tegzd;
+    }
+
     static isTimeToFight() {
-        const energyAboveThreshold = Season.getEnergy() > Number(StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonThreshold"));
+        const threshold = Number(StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonThreshold"));
+        const runThreshold = Number(StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonRunThreshold"));
+        const humanLikeRun = StorageHelper_getStoredValue("HHAuto_Temp_SeasonHumanLikeRun") === "true";
+
+        const energyAboveThreshold = humanLikeRun && Season.getEnergy() > threshold || Season.getEnergy() > Math.max(threshold, runThreshold-1);
         const paranoiaSpending = Season.getEnergy() > 0 && Number(checkParanoiaSpendings('kiss')) > 0;
         const needBoosterToFight = StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonBoostedOnly") === "true";
         const haveBoosterEquiped = Booster.haveBoosterEquiped();
@@ -2722,6 +2761,10 @@ class Season {
             }
             else
             {
+                const runThreshold = Number(StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonRunThreshold"));
+                if (runThreshold > 0) {
+                    StorageHelper_setStoredValue("HHAuto_Temp_SeasonHumanLikeRun", "true");
+                }
                 location.href = document.getElementsByClassName("opponent_perform_button_container")[chosenID].children[0].getAttribute('href');
                 StorageHelper_setStoredValue("HHAuto_Temp_autoLoop", "false");
                 LogUtils_logHHAuto("setting autoloop to false");
@@ -4560,6 +4603,7 @@ class HaremGirl {
                 }
 
                 if(haremGirlEnd && haremItem == HaremGirl.AFFECTION_TYPE) {
+                    HaremGirl.HaremDisplayGirlPopup(haremItem, girl.name + ' '+girl.graded+"/"+girl.nb_grades+"star : Girl "+ girlListProgress, (remainingGirls+1)*5 );
                     if(HaremGirl.fillAllAffection()){
                         LogUtils_logHHAuto("Going to girl quest");
                         return;
@@ -5034,7 +5078,8 @@ class Harem {
         const displayedGirl = $('#harem_right .opened').attr('girl'); // unsafeWindow.harem.preselectedGirlId
         const girlOwned = !(getHHVars('girlsDataList',false) != null && getHHVars('girlsDataList',false)[displayedGirl].shards < 100);
 
-        GM_addStyle('.goToGirlPage {position: relative; font-size: small; z-index:30;}'); // bottom: 3rem; 
+        GM_addStyle('#harem_right>div[girl] .middle_part div.avatar-box img.avatar { height: 365px; margin-bottom: 30px;}');
+        GM_addStyle('.goToGirlPage {position: relative; bottom: 46px; font-size: small; z-index:30;}');
 
         // using a for new tab option
         const goToGirlPageButton = '<div class="tooltipHH goToGirlPage"><span class="tooltipHHtext">'+getTextForUI("goToGirlPage","tooltip")+'</span><a href="/girl/'+displayedGirl+'?resource=experience" class="myButton" id="'+goToGirlPageButtonId+'">'+getTextForUI("goToGirlPage","elementText")+'</a></div>';
@@ -5206,10 +5251,25 @@ class Troll {
         return trollWithGirls;
     }
 
+    static getPinfo(contest) {
+        const threshold = Number(StorageHelper_getStoredValue("HHAuto_Setting_autoTrollThreshold"));
+        const runThreshold = Number(StorageHelper_getStoredValue("HHAuto_Setting_autoTrollRunThreshold"));
+
+        let Tegzd = '<li>';
+        Tegzd += getTextForUI("autoTrollTitle","elementText")+' ' + Troll.getEnergy()+'/'+Troll.getEnergyMax()+contest;
+        if (runThreshold > 0) {
+            Tegzd += ' ('+threshold+'<'+Troll.getEnergy()+'<'+runThreshold+')';
+            if(Troll.getEnergy() < runThreshold)  Tegzd += ' ' + getTextForUI("waitRunThreshold","elementText");
+        }
+        Tegzd += '</li>';
+        return Tegzd;
+    }
+
     static getLastTrollIdAvailable() {
         const id_world = getHHVars('Hero.infos.questing.id_world');
         if(isPshEnvironnement() && id_world > 10) {
-            return id_world-3; // PSH parallele adventures
+            const trollIdMapping = getHHScriptVars("trollIdMapping");
+            return trollIdMapping[id_world]; // PSH parallele adventures
         }else {
             return id_world-1;
         }
@@ -5235,7 +5295,6 @@ class Troll {
         }
 
         var TTF;
-        const id_world = getHHVars('Hero.infos.questing.id_world');
         const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
         const eventGirl = StorageHelper_getStoredValue("HHAuto_Temp_eventGirl") !== undefined ? JSON.parse(StorageHelper_getStoredValue("HHAuto_Temp_eventGirl")) : undefined
         if (StorageHelper_getStoredValue("HHAuto_Setting_plusEvent") === "true" && !checkTimer("eventGoing") && eventGirl !== undefined && eventGirl.is_mythic==="false")
@@ -5308,6 +5367,11 @@ class Troll {
             {
                 return false;
             }
+        }
+
+        const runThreshold = Number(StorageHelper_getStoredValue("HHAuto_Setting_autoTrollRunThreshold"));
+        if (runThreshold > 0 && currentPower == runThreshold) {
+            StorageHelper_setStoredValue("HHAuto_Temp_TrollHumanLikeRun", "true");
         }
 
         const TTF = Troll.getTrollIdToFight();
@@ -6175,11 +6239,47 @@ class LeagueHelper {
         return StorageHelper_getStoredValue("HHAuto_Setting_autoLeagues") === "true" && getHHVars('Hero.infos.level')>=20;
     }
 
+    static getPinfo() {
+        const threshold = Number(StorageHelper_getStoredValue("HHAuto_Setting_autoLeaguesThreshold"));
+        const runThreshold = Number(StorageHelper_getStoredValue("HHAuto_Setting_autoLeaguesRunThreshold"));
+
+        let Tegzd = '';
+        const boostLimited = StorageHelper_getStoredValue("HHAuto_Setting_autoLeaguesBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
+        if (boostLimited) {
+            Tegzd += '<li style="color:red!important;" title="'+getTextForUI("boostMissing","elementText")+'">';
+        } else {
+            Tegzd += '<li>';
+        }
+        Tegzd += getTextForUI("autoLeaguesTitle","elementText")+' ' + LeagueHelper.getEnergy()+'/'+LeagueHelper.getEnergyMax();
+        if (runThreshold > 0) {
+            Tegzd += ' ('+threshold+'<'+LeagueHelper.getEnergy()+'<'+runThreshold+')';
+        }
+        if(runThreshold > 0  && LeagueHelper.getEnergy() < runThreshold) {
+            Tegzd += ' ' + getTextForUI("waitRunThreshold","elementText");
+        }else {
+            Tegzd += ' : ' + getTimeLeft('nextLeaguesTime');
+        }
+        if (boostLimited) {
+            Tegzd += ' ' + getTextForUI("boostMissing","elementText") + '</li>';
+        } else {
+            Tegzd += '</li>';
+        }
+        return Tegzd;
+    }
+
     static isTimeToFight(){
-        const energyAboveThreshold = LeagueHelper.getEnergy() > Number(StorageHelper_getStoredValue("HHAuto_Setting_autoLeaguesThreshold"));
+        const threshold = Number(StorageHelper_getStoredValue("HHAuto_Setting_autoLeaguesThreshold"));
+        const runThreshold = Number(StorageHelper_getStoredValue("HHAuto_Setting_autoLeaguesRunThreshold"));
+        const humanLikeRun = StorageHelper_getStoredValue("HHAuto_Temp_LeagueHumanLikeRun") === "true";
+        const league_end = LeagueHelper.getLeagueEndTime();
+        if (league_end > 0 && league_end <= (60*60)) {
+            // Last league hour //TODO
+        }
+        const energyAboveThreshold = humanLikeRun && LeagueHelper.getEnergy() > threshold || LeagueHelper.getEnergy() > Math.max(threshold, runThreshold-1);
         const paranoiaSpending = LeagueHelper.getEnergy() > 0 && Number(checkParanoiaSpendings('challenge')) > 0;
         const needBoosterToFight = StorageHelper_getStoredValue("HHAuto_Setting_autoLeaguesBoostedOnly") === "true";
         const haveBoosterEquiped = Booster.haveBoosterEquiped();
+        // logHHAuto('League:', {threshold: threshold, runThreshold:runThreshold, energyAboveThreshold: energyAboveThreshold});
 
         if(checkTimer('nextLeaguesTime') && energyAboveThreshold && needBoosterToFight && !haveBoosterEquiped) {
             LogUtils_logHHAuto('Time for league but no booster equipped');
@@ -6553,15 +6653,12 @@ class LeagueHelper {
         const currentPower = LeagueHelper.getEnergy();
         const maxLeagueRegen = LeagueHelper.getEnergyMax();
         const leagueThreshold = Number(StorageHelper_getStoredValue("HHAuto_Setting_autoLeaguesThreshold"));
-        const autoLeaguesThreeFights = StorageHelper_getStoredValue("HHAuto_Setting_autoLeaguesThreeFights") === "true";
         let leagueScoreSecurityThreshold = StorageHelper_getStoredValue("HHAuto_Setting_autoLeaguesSecurityThreshold");
         if (leagueScoreSecurityThreshold) {
             leagueScoreSecurityThreshold = Number(leagueScoreSecurityThreshold);
         }else{
             leagueScoreSecurityThreshold = 40;
         }
-        // const enoughChallengeForLeague = currentLeagueEnergy > leaguesThreshold && !autoLeaguesThreeFights
-        // ||  (currentLeagueEnergy >= (leaguesThreshold+3) || currentLeagueEnergy >= maxLeague && currentLeagueEnergy > leaguesThreshold) && autoLeaguesThreeFights;
         var ltime;
 
         var page = getPage();
@@ -6712,6 +6809,11 @@ class LeagueHelper {
                 { var oppoID; }
                 else
                 {
+                    const runThreshold = Number(StorageHelper_getStoredValue("HHAuto_Setting_autoLeaguesRunThreshold"));
+                    if (runThreshold > 0) {
+                        StorageHelper_setStoredValue("HHAuto_Temp_LeagueHumanLikeRun", "true");
+                    }
+
                     LogUtils_logHHAuto("Going to fight " + Data[0].nickname + "(" + Data[0].opponent_id + ") with power " + Data[0].power);
                     // change referer
                     window.history.replaceState(null, '', '/leagues-pre-battle.html?id_opponent='+Data[0].opponent_id);
@@ -7473,8 +7575,40 @@ class Pantheon {
         return Number(getHHVars('Hero.energies.worship.max_regen_amount'));
     }
 
+    static getPinfo() {
+        const threshold = Number(StorageHelper_getStoredValue("HHAuto_Setting_autoPantheonThreshold"));
+        const runThreshold = Number(StorageHelper_getStoredValue("HHAuto_Setting_autoPantheonRunThreshold"));
+
+        let Tegzd = '';
+        const boostLimited = StorageHelper_getStoredValue("HHAuto_Setting_autoPantheonBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
+        if(boostLimited) {
+            Tegzd += '<li style="color:red!important;" title="'+getTextForUI("boostMissing","elementText")+'">';
+        }else {
+            Tegzd += '<li>';
+        }
+        Tegzd += getTextForUI("autoPantheonTitle","elementText")+' '+Pantheon.getEnergy()+'/'+Pantheon.getEnergyMax();
+        if (runThreshold > 0) {
+            Tegzd += ' ('+threshold+'<'+Pantheon.getEnergy()+'<'+runThreshold+')';
+        }
+        if(runThreshold > 0  && Pantheon.getEnergy() < runThreshold) {
+            Tegzd += ' ' + getTextForUI("waitRunThreshold","elementText");
+        }else {
+            Tegzd += ' : ' + getTimeLeft('nextPantheonTime');
+        }
+        if (boostLimited) {
+            Tegzd += ' ' + getTextForUI("boostMissing","elementText") + '</li>';
+        } else {
+            Tegzd += '</li>';
+        }
+        return Tegzd;
+    }
+
     static isTimeToFight(){
-        const energyAboveThreshold = Pantheon.getEnergy() > Number(StorageHelper_getStoredValue("HHAuto_Setting_autoPantheonThreshold"));
+        const threshold = Number(StorageHelper_getStoredValue("HHAuto_Setting_autoPantheonThreshold"));
+        const runThreshold = Number(StorageHelper_getStoredValue("HHAuto_Setting_autoPantheonRunThreshold"));
+        const humanLikeRun = StorageHelper_getStoredValue("HHAuto_Temp_PantheonHumanLikeRun") === "true";
+
+        const energyAboveThreshold = humanLikeRun && Pantheon.getEnergy() > threshold || Pantheon.getEnergy() > Math.max(threshold, runThreshold-1);
         const paranoiaSpending = Pantheon.getEnergy() > 0 && Number(checkParanoiaSpendings('worship')) > 0;
         const needBoosterToFight = StorageHelper_getStoredValue("HHAuto_Setting_autoPantheonBoostedOnly") === "true";
         const haveBoosterEquiped = Booster.haveBoosterEquiped();
@@ -7498,6 +7632,10 @@ class Pantheon {
             LogUtils_logHHAuto("Remaining worship : "+ current_worship);
             if ( current_worship > 0 )
             {
+                const runThreshold = Number(StorageHelper_getStoredValue("HHAuto_Setting_autoPantheonRunThreshold"));
+                if (runThreshold > 0) {
+                    StorageHelper_setStoredValue("HHAuto_Temp_PantheonHumanLikeRun", "true");
+                }
                 let pantheonButton = $("#pantheon_tab_container .bottom-container a.blue_button_L.pantheon-pre-battle-btn");
                 let templeID = queryStringGetParam(new URL(pantheonButton[0].getAttribute("href"),window.location.origin).search, 'id_opponent');
                 if (pantheonButton.length > 0 && templeID !== null )
@@ -7593,6 +7731,7 @@ class MonthlyCards {
                     // 20 - 30 - 40 - 50 - 60
                     const lastAllowedTenth = (maxRegenFight / 10) - 1;
                     HHAuto_inputPattern.autoTrollThreshold = "[1-"+lastAllowedTenth+"]?[0-9]";
+                    HHAuto_inputPattern.autoTrollRunThreshold = maxRegenFight + "|" + HHAuto_inputPattern.autoTrollThreshold;
                 }
             }
             if(getHHScriptVars('isEnabledSeason',false)) {
@@ -7601,6 +7740,7 @@ class MonthlyCards {
                     // 10 - 20 - 30 - 40 - 50
                     const lastAllowedTenth = (maxRegenKiss / 10) - 1;
                     HHAuto_inputPattern.autoSeasonThreshold = "[1-"+lastAllowedTenth+"]?[0-9]";
+                    HHAuto_inputPattern.autoSeasonRunThreshold = maxRegenKiss + "|" + HHAuto_inputPattern.autoSeasonThreshold;
                 }
             }
             if(getHHScriptVars('isEnabledQuest',false)) {
@@ -7623,10 +7763,22 @@ class MonthlyCards {
                     // 15 - 18 - 23 - 26 - 30
                     switch (maxRegenLeague)
                     {
-                        case 18 : HHAuto_inputPattern.autoLeaguesThreshold = "1[0-7]|[0-9]"; break;
-                        case 23 : HHAuto_inputPattern.autoLeaguesThreshold = "2[0-2]|1[0-9]|[0-9]"; break;
-                        case 26 : HHAuto_inputPattern.autoLeaguesThreshold = "2[0-5]|1[0-9]|[0-9]"; break;
-                        case 30 : HHAuto_inputPattern.autoLeaguesThreshold = "2[0-9]|1[0-9]|[0-9]"; break;
+                        case 18 : 
+                            HHAuto_inputPattern.autoLeaguesThreshold = "1[0-7]|[0-9]"; 
+                            HHAuto_inputPattern.autoLeaguesRunThreshold = "1[0-8]|[0-9]"; 
+                        break;
+                        case 23 : 
+                            HHAuto_inputPattern.autoLeaguesThreshold = "2[0-2]|1[0-9]|[0-9]"; 
+                            HHAuto_inputPattern.autoLeaguesRunThreshold = "2[0-3]|1[0-9]|[0-9]"; 
+                        break;
+                        case 26 : 
+                            HHAuto_inputPattern.autoLeaguesThreshold = "2[0-5]|1[0-9]|[0-9]"; 
+                            HHAuto_inputPattern.autoLeaguesRunThreshold = "2[0-6]|1[0-9]|[0-9]"; 
+                        break;
+                        case 30 : 
+                            HHAuto_inputPattern.autoLeaguesThreshold = "2[0-9]|1[0-9]|[0-9]"; 
+                            HHAuto_inputPattern.autoLeaguesRunThreshold = "30|[1-2][0-9]|[0-9]"; 
+                        break;
                     }
                 }
             }
@@ -7636,10 +7788,22 @@ class MonthlyCards {
                     // 10 - 15 - 20 - 25 - 30
                     switch (maxRegenPantheon)
                     {
-                        case 15 : HHAuto_inputPattern.autoPantheonThreshold = "1[0-4]|[0-9]"; break;
-                        case 20 : HHAuto_inputPattern.autoPantheonThreshold = "1[0-9]|[0-9]"; break;
-                        case 25 : HHAuto_inputPattern.autoPantheonThreshold = "2[0-4]|1[0-9]|[0-9]"; break;
-                        case 30 : HHAuto_inputPattern.autoPantheonThreshold = "[1-2][0-9]|[0-9]"; break;
+                        case 15 : 
+                            HHAuto_inputPattern.autoPantheonThreshold = "1[0-4]|[0-9]";
+                            HHAuto_inputPattern.autoPantheonRunThreshold = "1[0-5]|[0-9]";
+                        break;
+                        case 20 : 
+                            HHAuto_inputPattern.autoPantheonThreshold = "1[0-9]|[0-9]";
+                            HHAuto_inputPattern.autoPantheonRunThreshold = "20|1[0-9]|[0-9]";
+                        break;
+                        case 25 : 
+                            HHAuto_inputPattern.autoPantheonThreshold = "2[0-4]|1[0-9]|[0-9]";
+                            HHAuto_inputPattern.autoPantheonRunThreshold = "2[0-5]|1[0-9]|[0-9]";
+                        break;
+                        case 30 : 
+                            HHAuto_inputPattern.autoPantheonThreshold = "[1-2][0-9]|[0-9]";
+                            HHAuto_inputPattern.autoPantheonRunThreshold = "30|[1-2][0-9]|[0-9]";
+                        break;
                     }
                 }
             }
@@ -8741,6 +8905,8 @@ HHEnvVariables["global"].trollzList =  ["Latest",
                                         "WereBunny Police",
                                         "Auga"];
 
+HHEnvVariables["global"].trollIdMapping =  []; // Empty means no specific mapping
+
 HHEnvVariables["global"].trollGirlsID = [
     [['8', '9', '10'], ['7270263'], ['979916751']],
     [['14', '13', '12'], ['318292466'], ['936580004']],
@@ -9087,8 +9253,9 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
                                           'EMPTY',
                                           'Sierra Sinn',
                                           'Jasmine Jae'];
+    HHEnvVariables[element].trollIdMapping =  {10:9,14:11,16:12}; // under 10 id as usual
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in pornstar
-    HHEnvVariables[element].lastQuestId = 14060; //  TODO update when new quest comes
+    HHEnvVariables[element].lastQuestId = 16020; //  TODO update when new quest comes
 });
 ["PH_prod","NPH_prod"].forEach((element) => {
     HHEnvVariables[element].trollGirlsID = [
@@ -9132,6 +9299,7 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
 });
 // Object.values(girlsDataList).filter(girl => girl.source?.name == "troll_tier" && girl.source?.group?.id == "7")
+
 ;// CONCATENATED MODULE: ./src/config/HHStoredVars.js
 
 
@@ -9427,15 +9595,15 @@ HHStoredVars_HHStoredVars.HHAuto_Setting_autoLeaguesBoostedOnly =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars_HHStoredVars.HHAuto_Setting_autoLeaguesThreeFights =
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoLeaguesRunThreshold =
     {
-    default:"false",
+    default:"0",
     storage:"Storage()",
     HHType:"Setting",
-    valueType:"Boolean",
+    valueType:"Small Integer",
     getMenu:true,
     setMenu:true,
-    menuType:"checked",
+    menuType:"value",
     kobanUsing:false
 };
 HHStoredVars_HHStoredVars.HHAuto_Setting_autoLeaguesPowerCalc =
@@ -9782,6 +9950,17 @@ HHStoredVars_HHStoredVars.HHAuto_Setting_autoSeasonThreshold =
     menuType:"value",
     kobanUsing:false
 };
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoSeasonRunThreshold =
+    {
+    default:"0",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
 HHStoredVars_HHStoredVars.HHAuto_Setting_autoSeasonBoostedOnly =
     {
     default:"false",
@@ -9851,6 +10030,17 @@ HHStoredVars_HHStoredVars.HHAuto_Setting_autoTrollSelectedIndex =
     isValid:/^[0-9]|1[0-5]|98|99$/
 };
 HHStoredVars_HHStoredVars.HHAuto_Setting_autoTrollThreshold =
+    {
+    default:"0",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoTrollRunThreshold =
     {
     default:"0",
     storage:"Storage()",
@@ -10427,6 +10617,17 @@ HHStoredVars_HHStoredVars.HHAuto_Setting_autoPantheonThreshold =
     menuType:"value",
     kobanUsing:false
 };
+HHStoredVars_HHStoredVars.HHAuto_Setting_autoPantheonRunThreshold =
+    {
+    default:"0",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
 HHStoredVars_HHStoredVars.HHAuto_Setting_autoPantheonBoostedOnly =
     {
     default:"false",
@@ -10846,6 +11047,26 @@ HHStoredVars_HHStoredVars.HHAuto_Temp_LeagueSavedData =
     storage:"sessionStorage",
     HHType:"Temp"
 };
+HHStoredVars_HHStoredVars.HHAuto_Temp_LeagueHumanLikeRun =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_TrollHumanLikeRun =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_PantheonHumanLikeRun =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars.HHAuto_Temp_SeasonHumanLikeRun =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
 HHStoredVars_HHStoredVars.HHAuto_Temp_HaremSize =
     {
     storage:"localStorage",
@@ -10906,13 +11127,17 @@ const HHAuto_inputPattern = {
     collectAllTimer:"[1-9][0-9]|[1-9]",
     autoSalaryTimer:"[0-9]+",
     autoTrollThreshold:"[1]?[0-9]",
+    autoTrollRunThreshold:"(20|[1]?[0-9])",
     eventTrollOrder:"([1-2][0-9]|[1-9])(;([1-2][0-9]|[1-9]))*",
     autoBuyTrollNumber:"1[0-9][0-9]|[1-9]?[0-9]",//"200|1[0-9][0-9]|[1-9]?[0-9]", // TODO revert in NOV23
     autoSeasonThreshold:"[0-9]",
+    autoSeasonRunThreshold:"10|[0-9]",
     autoPantheonThreshold:"[0-9]",
+    autoPantheonRunThreshold:"10|[0-9]",
     bossBangMinTeam:"[1-5]",
     autoQuestThreshold:"[1-9]?[0-9]",
     autoLeaguesThreshold:"1[0-4]|[0-9]",
+    autoLeaguesRunThreshold:"1[0-5]|[0-9]",
     autoLeaguesSecurityThreshold:"[0-9]+",
     autoPowerPlacesIndexFilter:"[1-9][0-9]{0,1}(;[1-9][0-9]{0,1})*",
     autoChampsFilter:"[1-6](;[1-6])*",
@@ -11363,6 +11588,8 @@ function getMenu() {
                             + hhMenuSwitch('showCalculatePower')
                             + hhMenuSwitch('PoAMaskRewards')
                             + hhMenuSwitch('showAdsBack')
+                        +`</div>`
+                        +`<div class="optionsColumn">`
                             + hhMenuSwitch('showRewardsRecap')
                         +`</div>`
                     +`</div>`
@@ -11393,7 +11620,7 @@ function getMenu() {
                         +`</div>`
                         +`<div id="isEnabledPowerPlaces" class="optionsBoxWithTitle">`
                             +`<div class="optionsBoxTitle">`
-                                +`<span class="optionsBoxTitle">${getTextForUI("autoPowerPlaces","elementText")}</span>`
+                                +`<span class="optionsBoxTitle">${getTextForUI("powerPlacesTitle","elementText")}</span>`
                             +`</div>`
                             +`<div class="optionsBox">`
                                 +`<div class="internalOptionsRow">`
@@ -11466,7 +11693,10 @@ function getMenu() {
                             +`<div class="internalOptionsRow">`
                                 + hhMenuSwitch('autoSeasonPassReds', '', true)
                                 + hhMenuSwitch('autoSeasonBoostedOnly')
+                            +`</div>`
+                            +`<div class="internalOptionsRow">`
                                 + hhMenuInputWithImg('autoSeasonThreshold', HHAuto_inputPattern.autoSeasonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_kiss.png', 'numeric' )
+                                + hhMenuInputWithImg('autoSeasonRunThreshold', HHAuto_inputPattern.autoSeasonRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_kiss.png', 'numeric' )
                             +`</div>`
                         +`</div>`
                     +`</div>`
@@ -11483,13 +11713,15 @@ function getMenu() {
                                 +`</div>`
                                 + hhMenuSwitch('autoLeaguesCollect')
                                 + hhMenuSwitch('autoLeaguesBoostedOnly')
-                                + `<div style="display:none;">` + hhMenuSwitch('autoLeaguesThreeFights') + `</div>`
                                 + hhMenuSwitch('leagueListDisplayPowerCalc')
                             +`</div>`
                             +`<div class="internalOptionsRow">`
                                 + hhMenuSelect('autoLeaguesSelector')
                                 + hhMenuSwitch('autoLeaguesAllowWinCurrent')
+                            +`</div>`
+                            +`<div class="internalOptionsRow">`
                                 + hhMenuInputWithImg('autoLeaguesThreshold', HHAuto_inputPattern.autoLeaguesThreshold, 'text-align:center; width:25px', 'pictures/design/league_points.png', 'numeric' )
+                                + hhMenuInputWithImg('autoLeaguesRunThreshold', HHAuto_inputPattern.autoLeaguesRunThreshold, 'text-align:center; width:25px', 'pictures/design/league_points.png', 'numeric' )
                                 + hhMenuInput('autoLeaguesSecurityThreshold', HHAuto_inputPattern.autoLeaguesSecurityThreshold, 'text-align:center; width:25px', '', 'numeric' )
                             +`</div>`
                         +`</div>`
@@ -11531,6 +11763,7 @@ function getMenu() {
                             + hhMenuSwitch('autoTrollBattle')
                             + hhMenuSelect('autoTrollSelector')
                             + hhMenuInputWithImg('autoTrollThreshold', HHAuto_inputPattern.autoTrollThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png', 'numeric' )
+                            + hhMenuInputWithImg('autoTrollRunThreshold', HHAuto_inputPattern.autoTrollRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png', 'numeric' )
                         +`</div>`
                         +`<div class="internalOptionsRow">`
                             + hhMenuSwitch('useX10Fights', '', true)
@@ -11585,18 +11818,19 @@ function getMenu() {
                         +`</div>`
                     +`</div>`
                 +`</div>`
-                +`<div id="isEnabledPantheon" class="optionsBoxWithTitleInline">`
-                    +`<div class="optionsBoxTitle">`
-                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
-                        +`<span class="optionsBoxTitle">${getTextForUI("autoPantheonTitle","elementText")}</span>`
-                    +`</div>`
-                    // +`<div class="optionsBox">`
+                +`<div id="isEnabledPantheon" class="">` // optionsBoxWithTitle
+                    // +`<div class="optionsBoxTitle">`
+                    //     +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
+                    //     +`<span class="optionsBoxTitle">${getTextForUI("autoPantheonTitle","elementText")}</span>`
+                    // +`</div>`
+                    +`<div class="optionsBox">`
                         +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
                             + hhMenuSwitch('autoPantheon')
                             + hhMenuInputWithImg('autoPantheonThreshold', HHAuto_inputPattern.autoPantheonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg' , 'numeric')
+                            + hhMenuInputWithImg('autoPantheonRunThreshold', HHAuto_inputPattern.autoPantheonRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg' , 'numeric')
                             + hhMenuSwitch('autoPantheonBoostedOnly')
                         +`</div>`
-                    // +`</div>`
+                    +`</div>`
                 +`</div>`
                 +`<div id="isEnabledShop" class="optionsBoxWithTitle">`
                     +`<div class="optionsBoxTitle">`
@@ -14424,7 +14658,7 @@ function createPInfo() {
                     +'#pInfo:hover {'
                     +'   padding-top : 22px;'
                     +'   height : auto;'
-                    +'   left : 57%;'
+                    +'   left : 51%;'
                     +'}'
                     +'#pInfo {'
                     +'   right : 1%;'
@@ -14462,9 +14696,9 @@ function updateData() {
         {
             Tegzd += '<li>'+StorageHelper_getStoredValue("HHAuto_Temp_pinfo")+': '+getTimeLeft('paranoiaSwitch')+'</li>';
         }
-        if (getHHScriptVars('isEnabledTrollBattle',false) && StorageHelper_getStoredValue("HHAuto_Setting_autoTrollBattle") =="true")
+        if (getHHScriptVars('isEnabledTrollBattle',false) && StorageHelper_getStoredValue("HHAuto_Setting_autoTrollBattle") == "true")
         {
-            Tegzd += '<li>'+getTextForUI("autoTrollTitle","elementText")+' : '+Troll.getEnergy()+'/'+Troll.getEnergyMax()+contest+'</li>';
+            Tegzd += Troll.getPinfo(contest);
         }
         if (getHHScriptVars("isEnabledSalary",false) && StorageHelper_getStoredValue("HHAuto_Setting_autoSalary") =="true")
         {
@@ -14472,7 +14706,7 @@ function updateData() {
         }
         if (getHHScriptVars('isEnabledSeason',false) && StorageHelper_getStoredValue("HHAuto_Setting_autoSeason") =="true")
         {
-            Tegzd += '<li>';
+            Tegzd += Season.getPinfo();
             const boostLimited = StorageHelper_getStoredValue("HHAuto_Setting_autoSeasonBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
             if(boostLimited) {
                 Tegzd += '<li style="color:red!important;" title="'+getTextForUI("boostMissing","elementText")+'">';
@@ -14500,19 +14734,7 @@ function updateData() {
         }*/
         if (getHHScriptVars('isEnabledLeagues',false) && StorageHelper_getStoredValue("HHAuto_Setting_autoLeagues") =="true")
         {
-            Tegzd += '<li>';
-            const boostLimited = StorageHelper_getStoredValue("HHAuto_Setting_autoLeaguesBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
-            if(boostLimited) {
-                Tegzd += '<li style="color:red!important;" title="'+getTextForUI("boostMissing","elementText")+'">';
-            }else {
-                Tegzd += '<li>';
-            }
-            Tegzd += getTextForUI("autoLeaguesTitle","elementText")+' '+LeagueHelper.getEnergy()+'/'+LeagueHelper.getEnergyMax()+' : '+getTimeLeft('nextLeaguesTime');
-            if(boostLimited) {
-                Tegzd += ' ' + getTextForUI("boostMissing","elementText") + '</li>';
-            }else {
-                Tegzd += '</li>';
-            }
+            Tegzd += LeagueHelper.getPinfo();
         }
         if (getHHScriptVars("isEnabledChamps",false) && StorageHelper_getStoredValue("HHAuto_Setting_autoChamps") =="true")
         {
@@ -14523,20 +14745,8 @@ function updateData() {
             Tegzd += '<li>'+getTextForUI("autoClubChamp","elementText")+' : '+getTimeLeft('nextClubChampionTime')+'</li>';
         }
         if (getHHScriptVars('isEnabledPantheon',false) && StorageHelper_getStoredValue("HHAuto_Setting_autoPantheon") =="true")
-        {            
-            Tegzd += '<li>';
-            const boostLimited = StorageHelper_getStoredValue("HHAuto_Setting_autoPantheonBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
-            if(boostLimited) {
-                Tegzd += '<li style="color:red!important;" title="'+getTextForUI("boostMissing","elementText")+'">';
-            }else {
-                Tegzd += '<li>';
-            }
-            Tegzd += getTextForUI("autoPantheonTitle","elementText")+' '+Pantheon.getEnergy()+'/'+Pantheon.getEnergyMax()+' : '+getTimeLeft('nextPantheonTime');
-            if(boostLimited) {
-                Tegzd += ' ' + getTextForUI("boostMissing","elementText") + '</li>';
-            }else {
-                Tegzd += '</li>';
-            }
+        {
+            Tegzd += Pantheon.getPinfo();
         }
         if (getHHScriptVars("isEnabledShop",false) && StorageHelper_getStoredValue("HHAuto_Setting_updateMarket") =="true")
         {
@@ -14552,7 +14762,7 @@ function updateData() {
         }
         if (getHHScriptVars("isEnabledPowerPlaces",false) && StorageHelper_getStoredValue("HHAuto_Setting_autoPowerPlaces") =="true")
         {
-            Tegzd += '<li>'+getTextForUI("autoPowerPlaces","elementText")+' : '+getTimeLeft('minPowerPlacesTime')+'</li>';
+            Tegzd += '<li>'+getTextForUI("powerPlacesTitle","elementText")+' : '+getTimeLeft('minPowerPlacesTime')+'</li>';
         }
         if ( getHHScriptVars("isEnabledPachinko",false) && StorageHelper_getStoredValue("HHAuto_Setting_autoFreePachinko") =="true")
         {
@@ -15360,16 +15570,20 @@ function autoLoop()
         && (StorageHelper_getStoredValue("HHAuto_Setting_autoTrollBattle") === "true" || StorageHelper_getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true")
         && getHHVars('Hero.infos.questing.id_world')>0 && StorageHelper_getStoredValue("HHAuto_Temp_autoLoop") === "true" && canCollectCompetitionActive())
         {
-            //logHHAuto("fight amount: "+currentPower+" troll threshold: "+Number(getStoredValue("HHAuto_Setting_autoTrollThreshold"))+" paranoia fight: "+Number(checkParanoiaSpendings('fight')));
+            const threshold = Number(StorageHelper_getStoredValue("HHAuto_Setting_autoTrollThreshold"));
+            const runThreshold = Number(StorageHelper_getStoredValue("HHAuto_Setting_autoTrollRunThreshold"));
+            const humanLikeRun = StorageHelper_getStoredValue("HHAuto_Temp_TrollHumanLikeRun") === "true";
+            const energyAboveThreshold = humanLikeRun && currentPower > threshold || currentPower > Math.max(threshold, runThreshold-1);
+            //logHHAuto("fight amount: "+currentPower+" troll threshold: "+threshold+" paranoia fight: "+Number(checkParanoiaSpendings('fight')));
             if
                 (
                     //normal case
                     (
-                        Number(currentPower) >= Number(StorageHelper_getStoredValue("HHAuto_Temp_battlePowerRequired"))
-                        && Number(currentPower) > 0
+                        currentPower >= Number(StorageHelper_getStoredValue("HHAuto_Temp_battlePowerRequired"))
+                        && currentPower > 0
                         &&
                         (
-                            Number(currentPower) > Number(StorageHelper_getStoredValue("HHAuto_Setting_autoTrollThreshold")) //fight is above threshold
+                            energyAboveThreshold
                             || StorageHelper_getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true"
                         )
                     )
@@ -15384,7 +15598,7 @@ function autoLoop()
                         )
                         &&
                         (
-                            Number(currentPower) > 0 //has fight => bypassing paranoia
+                            currentPower > 0 //has fight => bypassing paranoia
                             || Troll.canBuyFight(false).canBuy // can buy fights
                         )
                     )
@@ -15398,10 +15612,7 @@ function autoLoop()
                         )
                         &&
                         (
-                            (
-                                Number(currentPower) > 0 //has fight
-                                && Number(currentPower) > Number(StorageHelper_getStoredValue("HHAuto_Setting_autoTrollThreshold")) // above paranoia
-                            )
+                            energyAboveThreshold
                             || Troll.canBuyFight(false).canBuy // can buy fights
                         )
                     )
@@ -15409,6 +15620,7 @@ function autoLoop()
 
 
             {
+                LogUtils_logHHAuto('Troll:', {threshold: threshold, runThreshold:runThreshold, TrollHumanLikeRun: humanLikeRun});
                 StorageHelper_setStoredValue("HHAuto_Temp_battlePowerRequired", "0");
                 busy = true;
                 if (StorageHelper_getStoredValue("HHAuto_Setting_autoQuest") !== "true" || StorageHelper_getStoredValue("HHAuto_Temp_questRequirement")[0] !== 'P')
@@ -15423,15 +15635,19 @@ function autoLoop()
                     busy = false;
                 }
             }
-            /*else
+            else
             {
-                if (getPage() === getHHScriptVars("pagesIDTrollPreBattle"))
+                if(StorageHelper_getStoredValue("HHAuto_Temp_TrollHumanLikeRun") === "true") {
+                    // end run
+                    StorageHelper_setStoredValue("HHAuto_Temp_TrollHumanLikeRun", "false");
+                }
+                /*if (getPage() === getHHScriptVars("pagesIDTrollPreBattle"))
                 {
                     logHHAuto("Go to home after troll fight");
                     gotoPage(getHHScriptVars("pagesIDHome"));
 
-                }
-            }*/
+                }*/
+            }
 
         }
         else
@@ -15633,6 +15849,10 @@ function autoLoop()
             }
             else if (checkTimer('nextSeasonTime'))
             {
+                if(StorageHelper_getStoredValue("HHAuto_Temp_SeasonHumanLikeRun") === "true") {
+                    // end run
+                    StorageHelper_setStoredValue("HHAuto_Temp_SeasonHumanLikeRun", "false");
+                }
                 if (getHHVars('Hero.energies.kiss.next_refresh_ts') === 0)
                 {
                     setTimer('nextSeasonTime',15*60);
@@ -15654,6 +15874,10 @@ function autoLoop()
             }
             else if (checkTimer('nextPantheonTime'))
             {
+                if(StorageHelper_getStoredValue("HHAuto_Temp_PantheonHumanLikeRun") === "true") {
+                    // end run
+                    StorageHelper_setStoredValue("HHAuto_Temp_PantheonHumanLikeRun", "false");
+                }
                 if (getHHVars('Hero.energies.worship.next_refresh_ts') === 0)
                 {
                     setTimer('nextPantheonTime',15*60);
@@ -15714,6 +15938,10 @@ function autoLoop()
             }
             else
             {
+                if(StorageHelper_getStoredValue("HHAuto_Temp_LeagueHumanLikeRun") === "true") {
+                    // end run
+                    StorageHelper_setStoredValue("HHAuto_Temp_LeagueHumanLikeRun", "false");
+                }
                 if (checkTimer('nextLeaguesTime'))
                 {
                     if (getHHVars('Hero.energies.challenge.next_refresh_ts') === 0)

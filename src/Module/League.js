@@ -17,6 +17,7 @@ import {
     getSecondsLeft,
     getStoredValue,
     getTextForUI,
+    getTimeLeft,
     nRounding,
     parsePrice,
     queryStringGetParam,
@@ -142,11 +143,47 @@ export class LeagueHelper {
         return getStoredValue("HHAuto_Setting_autoLeagues") === "true" && getHHVars('Hero.infos.level')>=20;
     }
 
+    static getPinfo() {
+        const threshold = Number(getStoredValue("HHAuto_Setting_autoLeaguesThreshold"));
+        const runThreshold = Number(getStoredValue("HHAuto_Setting_autoLeaguesRunThreshold"));
+
+        let Tegzd = '';
+        const boostLimited = getStoredValue("HHAuto_Setting_autoLeaguesBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
+        if (boostLimited) {
+            Tegzd += '<li style="color:red!important;" title="'+getTextForUI("boostMissing","elementText")+'">';
+        } else {
+            Tegzd += '<li>';
+        }
+        Tegzd += getTextForUI("autoLeaguesTitle","elementText")+' ' + LeagueHelper.getEnergy()+'/'+LeagueHelper.getEnergyMax();
+        if (runThreshold > 0) {
+            Tegzd += ' ('+threshold+'<'+LeagueHelper.getEnergy()+'<'+runThreshold+')';
+        }
+        if(runThreshold > 0  && LeagueHelper.getEnergy() < runThreshold) {
+            Tegzd += ' ' + getTextForUI("waitRunThreshold","elementText");
+        }else {
+            Tegzd += ' : ' + getTimeLeft('nextLeaguesTime');
+        }
+        if (boostLimited) {
+            Tegzd += ' ' + getTextForUI("boostMissing","elementText") + '</li>';
+        } else {
+            Tegzd += '</li>';
+        }
+        return Tegzd;
+    }
+
     static isTimeToFight(){
-        const energyAboveThreshold = LeagueHelper.getEnergy() > Number(getStoredValue("HHAuto_Setting_autoLeaguesThreshold"));
+        const threshold = Number(getStoredValue("HHAuto_Setting_autoLeaguesThreshold"));
+        const runThreshold = Number(getStoredValue("HHAuto_Setting_autoLeaguesRunThreshold"));
+        const humanLikeRun = getStoredValue("HHAuto_Temp_LeagueHumanLikeRun") === "true";
+        const league_end = LeagueHelper.getLeagueEndTime();
+        if (league_end > 0 && league_end <= (60*60)) {
+            // Last league hour //TODO
+        }
+        const energyAboveThreshold = humanLikeRun && LeagueHelper.getEnergy() > threshold || LeagueHelper.getEnergy() > Math.max(threshold, runThreshold-1);
         const paranoiaSpending = LeagueHelper.getEnergy() > 0 && Number(checkParanoiaSpendings('challenge')) > 0;
         const needBoosterToFight = getStoredValue("HHAuto_Setting_autoLeaguesBoostedOnly") === "true";
         const haveBoosterEquiped = Booster.haveBoosterEquiped();
+        // logHHAuto('League:', {threshold: threshold, runThreshold:runThreshold, energyAboveThreshold: energyAboveThreshold});
 
         if(checkTimer('nextLeaguesTime') && energyAboveThreshold && needBoosterToFight && !haveBoosterEquiped) {
             logHHAuto('Time for league but no booster equipped');
@@ -520,15 +557,12 @@ export class LeagueHelper {
         const currentPower = LeagueHelper.getEnergy();
         const maxLeagueRegen = LeagueHelper.getEnergyMax();
         const leagueThreshold = Number(getStoredValue("HHAuto_Setting_autoLeaguesThreshold"));
-        const autoLeaguesThreeFights = getStoredValue("HHAuto_Setting_autoLeaguesThreeFights") === "true";
         let leagueScoreSecurityThreshold = getStoredValue("HHAuto_Setting_autoLeaguesSecurityThreshold");
         if (leagueScoreSecurityThreshold) {
             leagueScoreSecurityThreshold = Number(leagueScoreSecurityThreshold);
         }else{
             leagueScoreSecurityThreshold = 40;
         }
-        // const enoughChallengeForLeague = currentLeagueEnergy > leaguesThreshold && !autoLeaguesThreeFights
-        // ||  (currentLeagueEnergy >= (leaguesThreshold+3) || currentLeagueEnergy >= maxLeague && currentLeagueEnergy > leaguesThreshold) && autoLeaguesThreeFights;
         var ltime;
 
         var page = getPage();
@@ -696,6 +730,11 @@ export class LeagueHelper {
                 }
                 else
                 {
+                    const runThreshold = Number(getStoredValue("HHAuto_Setting_autoLeaguesRunThreshold"));
+                    if (runThreshold > 0) {
+                        setStoredValue("HHAuto_Temp_LeagueHumanLikeRun", "true");
+                    }
+
                     logHHAuto("Going to fight " + Data[0].nickname + "(" + Data[0].opponent_id + ") with power " + Data[0].power);
                     // change referer
                     window.history.replaceState(null, '', '/leagues-pre-battle.html?id_opponent='+Data[0].opponent_id);

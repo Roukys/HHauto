@@ -334,6 +334,8 @@ export function getMenu() {
                             + hhMenuSwitch('showCalculatePower')
                             + hhMenuSwitch('PoAMaskRewards')
                             + hhMenuSwitch('showAdsBack')
+                        +`</div>`
+                        +`<div class="optionsColumn">`
                             + hhMenuSwitch('showRewardsRecap')
                         +`</div>`
                     +`</div>`
@@ -364,7 +366,7 @@ export function getMenu() {
                         +`</div>`
                         +`<div id="isEnabledPowerPlaces" class="optionsBoxWithTitle">`
                             +`<div class="optionsBoxTitle">`
-                                +`<span class="optionsBoxTitle">${getTextForUI("autoPowerPlaces","elementText")}</span>`
+                                +`<span class="optionsBoxTitle">${getTextForUI("powerPlacesTitle","elementText")}</span>`
                             +`</div>`
                             +`<div class="optionsBox">`
                                 +`<div class="internalOptionsRow">`
@@ -437,7 +439,10 @@ export function getMenu() {
                             +`<div class="internalOptionsRow">`
                                 + hhMenuSwitch('autoSeasonPassReds', '', true)
                                 + hhMenuSwitch('autoSeasonBoostedOnly')
+                            +`</div>`
+                            +`<div class="internalOptionsRow">`
                                 + hhMenuInputWithImg('autoSeasonThreshold', HHAuto_inputPattern.autoSeasonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_kiss.png', 'numeric' )
+                                + hhMenuInputWithImg('autoSeasonRunThreshold', HHAuto_inputPattern.autoSeasonRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_kiss.png', 'numeric' )
                             +`</div>`
                         +`</div>`
                     +`</div>`
@@ -454,13 +459,15 @@ export function getMenu() {
                                 +`</div>`
                                 + hhMenuSwitch('autoLeaguesCollect')
                                 + hhMenuSwitch('autoLeaguesBoostedOnly')
-                                + `<div style="display:none;">` + hhMenuSwitch('autoLeaguesThreeFights') + `</div>`
                                 + hhMenuSwitch('leagueListDisplayPowerCalc')
                             +`</div>`
                             +`<div class="internalOptionsRow">`
                                 + hhMenuSelect('autoLeaguesSelector')
                                 + hhMenuSwitch('autoLeaguesAllowWinCurrent')
+                            +`</div>`
+                            +`<div class="internalOptionsRow">`
                                 + hhMenuInputWithImg('autoLeaguesThreshold', HHAuto_inputPattern.autoLeaguesThreshold, 'text-align:center; width:25px', 'pictures/design/league_points.png', 'numeric' )
+                                + hhMenuInputWithImg('autoLeaguesRunThreshold', HHAuto_inputPattern.autoLeaguesRunThreshold, 'text-align:center; width:25px', 'pictures/design/league_points.png', 'numeric' )
                                 + hhMenuInput('autoLeaguesSecurityThreshold', HHAuto_inputPattern.autoLeaguesSecurityThreshold, 'text-align:center; width:25px', '', 'numeric' )
                             +`</div>`
                         +`</div>`
@@ -502,6 +509,7 @@ export function getMenu() {
                             + hhMenuSwitch('autoTrollBattle')
                             + hhMenuSelect('autoTrollSelector')
                             + hhMenuInputWithImg('autoTrollThreshold', HHAuto_inputPattern.autoTrollThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png', 'numeric' )
+                            + hhMenuInputWithImg('autoTrollRunThreshold', HHAuto_inputPattern.autoTrollRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png', 'numeric' )
                         +`</div>`
                         +`<div class="internalOptionsRow">`
                             + hhMenuSwitch('useX10Fights', '', true)
@@ -556,18 +564,19 @@ export function getMenu() {
                         +`</div>`
                     +`</div>`
                 +`</div>`
-                +`<div id="isEnabledPantheon" class="optionsBoxWithTitleInline">`
-                    +`<div class="optionsBoxTitle">`
-                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
-                        +`<span class="optionsBoxTitle">${getTextForUI("autoPantheonTitle","elementText")}</span>`
-                    +`</div>`
-                    // +`<div class="optionsBox">`
+                +`<div id="isEnabledPantheon" class="">` // optionsBoxWithTitle
+                    // +`<div class="optionsBoxTitle">`
+                    //     +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
+                    //     +`<span class="optionsBoxTitle">${getTextForUI("autoPantheonTitle","elementText")}</span>`
+                    // +`</div>`
+                    +`<div class="optionsBox">`
                         +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
                             + hhMenuSwitch('autoPantheon')
                             + hhMenuInputWithImg('autoPantheonThreshold', HHAuto_inputPattern.autoPantheonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg' , 'numeric')
+                            + hhMenuInputWithImg('autoPantheonRunThreshold', HHAuto_inputPattern.autoPantheonRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg' , 'numeric')
                             + hhMenuSwitch('autoPantheonBoostedOnly')
                         +`</div>`
-                    // +`</div>`
+                    +`</div>`
                 +`</div>`
                 +`<div id="isEnabledShop" class="optionsBoxWithTitle">`
                     +`<div class="optionsBoxTitle">`

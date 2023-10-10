@@ -291,16 +291,20 @@ export function autoLoop()
         && (getStoredValue("HHAuto_Setting_autoTrollBattle") === "true" || getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true")
         && getHHVars('Hero.infos.questing.id_world')>0 && getStoredValue("HHAuto_Temp_autoLoop") === "true" && canCollectCompetitionActive())
         {
-            //logHHAuto("fight amount: "+currentPower+" troll threshold: "+Number(getStoredValue("HHAuto_Setting_autoTrollThreshold"))+" paranoia fight: "+Number(checkParanoiaSpendings('fight')));
+            const threshold = Number(getStoredValue("HHAuto_Setting_autoTrollThreshold"));
+            const runThreshold = Number(getStoredValue("HHAuto_Setting_autoTrollRunThreshold"));
+            const humanLikeRun = getStoredValue("HHAuto_Temp_TrollHumanLikeRun") === "true";
+            const energyAboveThreshold = humanLikeRun && currentPower > threshold || currentPower > Math.max(threshold, runThreshold-1);
+            //logHHAuto("fight amount: "+currentPower+" troll threshold: "+threshold+" paranoia fight: "+Number(checkParanoiaSpendings('fight')));
             if
                 (
                     //normal case
                     (
-                        Number(currentPower) >= Number(getStoredValue("HHAuto_Temp_battlePowerRequired"))
-                        && Number(currentPower) > 0
+                        currentPower >= Number(getStoredValue("HHAuto_Temp_battlePowerRequired"))
+                        && currentPower > 0
                         &&
                         (
-                            Number(currentPower) > Number(getStoredValue("HHAuto_Setting_autoTrollThreshold")) //fight is above threshold
+                            energyAboveThreshold
                             || getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true"
                         )
                     )
@@ -315,7 +319,7 @@ export function autoLoop()
                         )
                         &&
                         (
-                            Number(currentPower) > 0 //has fight => bypassing paranoia
+                            currentPower > 0 //has fight => bypassing paranoia
                             || Troll.canBuyFight(false).canBuy // can buy fights
                         )
                     )
@@ -329,10 +333,7 @@ export function autoLoop()
                         )
                         &&
                         (
-                            (
-                                Number(currentPower) > 0 //has fight
-                                && Number(currentPower) > Number(getStoredValue("HHAuto_Setting_autoTrollThreshold")) // above paranoia
-                            )
+                            energyAboveThreshold
                             || Troll.canBuyFight(false).canBuy // can buy fights
                         )
                     )
@@ -340,6 +341,7 @@ export function autoLoop()
 
 
             {
+                logHHAuto('Troll:', {threshold: threshold, runThreshold:runThreshold, TrollHumanLikeRun: humanLikeRun});
                 setStoredValue("HHAuto_Temp_battlePowerRequired", "0");
                 busy = true;
                 if (getStoredValue("HHAuto_Setting_autoQuest") !== "true" || getStoredValue("HHAuto_Temp_questRequirement")[0] !== 'P')
@@ -354,15 +356,19 @@ export function autoLoop()
                     busy = false;
                 }
             }
-            /*else
+            else
             {
-                if (getPage() === getHHScriptVars("pagesIDTrollPreBattle"))
+                if(getStoredValue("HHAuto_Temp_TrollHumanLikeRun") === "true") {
+                    // end run
+                    setStoredValue("HHAuto_Temp_TrollHumanLikeRun", "false");
+                }
+                /*if (getPage() === getHHScriptVars("pagesIDTrollPreBattle"))
                 {
                     logHHAuto("Go to home after troll fight");
                     gotoPage(getHHScriptVars("pagesIDHome"));
 
-                }
-            }*/
+                }*/
+            }
 
         }
         else
@@ -564,6 +570,10 @@ export function autoLoop()
             }
             else if (checkTimer('nextSeasonTime'))
             {
+                if(getStoredValue("HHAuto_Temp_SeasonHumanLikeRun") === "true") {
+                    // end run
+                    setStoredValue("HHAuto_Temp_SeasonHumanLikeRun", "false");
+                }
                 if (getHHVars('Hero.energies.kiss.next_refresh_ts') === 0)
                 {
                     setTimer('nextSeasonTime',15*60);
@@ -585,6 +595,10 @@ export function autoLoop()
             }
             else if (checkTimer('nextPantheonTime'))
             {
+                if(getStoredValue("HHAuto_Temp_PantheonHumanLikeRun") === "true") {
+                    // end run
+                    setStoredValue("HHAuto_Temp_PantheonHumanLikeRun", "false");
+                }
                 if (getHHVars('Hero.energies.worship.next_refresh_ts') === 0)
                 {
                     setTimer('nextPantheonTime',15*60);
@@ -645,6 +659,10 @@ export function autoLoop()
             }
             else
             {
+                if(getStoredValue("HHAuto_Temp_LeagueHumanLikeRun") === "true") {
+                    // end run
+                    setStoredValue("HHAuto_Temp_LeagueHumanLikeRun", "false");
+                }
                 if (checkTimer('nextLeaguesTime'))
                 {
                     if (getHHVars('Hero.energies.challenge.next_refresh_ts') === 0)

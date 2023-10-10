@@ -5,6 +5,8 @@ import {
     getHHVars,
     getPage,
     getStoredValue,
+    getTextForUI,
+    getTimeLeft,
     queryStringGetParam,
     randomInterval,
     setStoredValue,
@@ -24,8 +26,40 @@ export class Pantheon {
         return Number(getHHVars('Hero.energies.worship.max_regen_amount'));
     }
 
+    static getPinfo() {
+        const threshold = Number(getStoredValue("HHAuto_Setting_autoPantheonThreshold"));
+        const runThreshold = Number(getStoredValue("HHAuto_Setting_autoPantheonRunThreshold"));
+
+        let Tegzd = '';
+        const boostLimited = getStoredValue("HHAuto_Setting_autoPantheonBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
+        if(boostLimited) {
+            Tegzd += '<li style="color:red!important;" title="'+getTextForUI("boostMissing","elementText")+'">';
+        }else {
+            Tegzd += '<li>';
+        }
+        Tegzd += getTextForUI("autoPantheonTitle","elementText")+' '+Pantheon.getEnergy()+'/'+Pantheon.getEnergyMax();
+        if (runThreshold > 0) {
+            Tegzd += ' ('+threshold+'<'+Pantheon.getEnergy()+'<'+runThreshold+')';
+        }
+        if(runThreshold > 0  && Pantheon.getEnergy() < runThreshold) {
+            Tegzd += ' ' + getTextForUI("waitRunThreshold","elementText");
+        }else {
+            Tegzd += ' : ' + getTimeLeft('nextPantheonTime');
+        }
+        if (boostLimited) {
+            Tegzd += ' ' + getTextForUI("boostMissing","elementText") + '</li>';
+        } else {
+            Tegzd += '</li>';
+        }
+        return Tegzd;
+    }
+
     static isTimeToFight(){
-        const energyAboveThreshold = Pantheon.getEnergy() > Number(getStoredValue("HHAuto_Setting_autoPantheonThreshold"));
+        const threshold = Number(getStoredValue("HHAuto_Setting_autoPantheonThreshold"));
+        const runThreshold = Number(getStoredValue("HHAuto_Setting_autoPantheonRunThreshold"));
+        const humanLikeRun = getStoredValue("HHAuto_Temp_PantheonHumanLikeRun") === "true";
+
+        const energyAboveThreshold = humanLikeRun && Pantheon.getEnergy() > threshold || Pantheon.getEnergy() > Math.max(threshold, runThreshold-1);
         const paranoiaSpending = Pantheon.getEnergy() > 0 && Number(checkParanoiaSpendings('worship')) > 0;
         const needBoosterToFight = getStoredValue("HHAuto_Setting_autoPantheonBoostedOnly") === "true";
         const haveBoosterEquiped = Booster.haveBoosterEquiped();
@@ -49,6 +83,10 @@ export class Pantheon {
             logHHAuto("Remaining worship : "+ current_worship);
             if ( current_worship > 0 )
             {
+                const runThreshold = Number(getStoredValue("HHAuto_Setting_autoPantheonRunThreshold"));
+                if (runThreshold > 0) {
+                    setStoredValue("HHAuto_Temp_PantheonHumanLikeRun", "true");
+                }
                 let pantheonButton = $("#pantheon_tab_container .bottom-container a.blue_button_L.pantheon-pre-battle-btn");
                 let templeID = queryStringGetParam(new URL(pantheonButton[0].getAttribute("href"),window.location.origin).search, 'id_opponent');
                 if (pantheonButton.length > 0 && templeID !== null )
