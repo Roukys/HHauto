@@ -111,6 +111,8 @@ HHEnvVariables["global"].trollzList =  ["Latest",
                                         "WereBunny Police",
                                         "Auga"];
 
+HHEnvVariables["global"].trollIdMapping =  []; // Empty means no specific mapping
+
 HHEnvVariables["global"].trollGirlsID = [
     [['8', '9', '10'], ['7270263'], ['979916751']],
     [['14', '13', '12'], ['318292466'], ['936580004']],
@@ -457,8 +459,9 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
                                           'EMPTY',
                                           'Sierra Sinn',
                                           'Jasmine Jae'];
+    HHEnvVariables[element].trollIdMapping =  {10:9,14:11,16:12}; // under 10 id as usual
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in pornstar
-    HHEnvVariables[element].lastQuestId = 14060; //  TODO update when new quest comes
+    HHEnvVariables[element].lastQuestId = 16020; //  TODO update when new quest comes
 });
 ["PH_prod","NPH_prod"].forEach((element) => {
     HHEnvVariables[element].trollGirlsID = [

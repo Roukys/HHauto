@@ -46,7 +46,7 @@ export function createPInfo() {
                     +'#pInfo:hover {'
                     +'   padding-top : 22px;'
                     +'   height : auto;'
-                    +'   left : 57%;'
+                    +'   left : 51%;'
                     +'}'
                     +'#pInfo {'
                     +'   right : 1%;'
@@ -84,9 +84,9 @@ export function updateData() {
         {
             Tegzd += '<li>'+getStoredValue("HHAuto_Temp_pinfo")+': '+getTimeLeft('paranoiaSwitch')+'</li>';
         }
-        if (getHHScriptVars('isEnabledTrollBattle',false) && getStoredValue("HHAuto_Setting_autoTrollBattle") =="true")
+        if (getHHScriptVars('isEnabledTrollBattle',false) && getStoredValue("HHAuto_Setting_autoTrollBattle") == "true")
         {
-            Tegzd += '<li>'+getTextForUI("autoTrollTitle","elementText")+' : '+Troll.getEnergy()+'/'+Troll.getEnergyMax()+contest+'</li>';
+            Tegzd += Troll.getPinfo(contest);
         }
         if (getHHScriptVars("isEnabledSalary",false) && getStoredValue("HHAuto_Setting_autoSalary") =="true")
         {
@@ -94,7 +94,7 @@ export function updateData() {
         }
         if (getHHScriptVars('isEnabledSeason',false) && getStoredValue("HHAuto_Setting_autoSeason") =="true")
         {
-            Tegzd += '<li>';
+            Tegzd += Season.getPinfo();
             const boostLimited = getStoredValue("HHAuto_Setting_autoSeasonBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
             if(boostLimited) {
                 Tegzd += '<li style="color:red!important;" title="'+getTextForUI("boostMissing","elementText")+'">';
@@ -122,19 +122,7 @@ export function updateData() {
         }*/
         if (getHHScriptVars('isEnabledLeagues',false) && getStoredValue("HHAuto_Setting_autoLeagues") =="true")
         {
-            Tegzd += '<li>';
-            const boostLimited = getStoredValue("HHAuto_Setting_autoLeaguesBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
-            if(boostLimited) {
-                Tegzd += '<li style="color:red!important;" title="'+getTextForUI("boostMissing","elementText")+'">';
-            }else {
-                Tegzd += '<li>';
-            }
-            Tegzd += getTextForUI("autoLeaguesTitle","elementText")+' '+LeagueHelper.getEnergy()+'/'+LeagueHelper.getEnergyMax()+' : '+getTimeLeft('nextLeaguesTime');
-            if(boostLimited) {
-                Tegzd += ' ' + getTextForUI("boostMissing","elementText") + '</li>';
-            }else {
-                Tegzd += '</li>';
-            }
+            Tegzd += LeagueHelper.getPinfo();
         }
         if (getHHScriptVars("isEnabledChamps",false) && getStoredValue("HHAuto_Setting_autoChamps") =="true")
         {
@@ -145,20 +133,8 @@ export function updateData() {
             Tegzd += '<li>'+getTextForUI("autoClubChamp","elementText")+' : '+getTimeLeft('nextClubChampionTime')+'</li>';
         }
         if (getHHScriptVars('isEnabledPantheon',false) && getStoredValue("HHAuto_Setting_autoPantheon") =="true")
-        {            
-            Tegzd += '<li>';
-            const boostLimited = getStoredValue("HHAuto_Setting_autoPantheonBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
-            if(boostLimited) {
-                Tegzd += '<li style="color:red!important;" title="'+getTextForUI("boostMissing","elementText")+'">';
-            }else {
-                Tegzd += '<li>';
-            }
-            Tegzd += getTextForUI("autoPantheonTitle","elementText")+' '+Pantheon.getEnergy()+'/'+Pantheon.getEnergyMax()+' : '+getTimeLeft('nextPantheonTime');
-            if(boostLimited) {
-                Tegzd += ' ' + getTextForUI("boostMissing","elementText") + '</li>';
-            }else {
-                Tegzd += '</li>';
-            }
+        {
+            Tegzd += Pantheon.getPinfo();
         }
         if (getHHScriptVars("isEnabledShop",false) && getStoredValue("HHAuto_Setting_updateMarket") =="true")
         {
@@ -174,7 +150,7 @@ export function updateData() {
         }
         if (getHHScriptVars("isEnabledPowerPlaces",false) && getStoredValue("HHAuto_Setting_autoPowerPlaces") =="true")
         {
-            Tegzd += '<li>'+getTextForUI("autoPowerPlaces","elementText")+' : '+getTimeLeft('minPowerPlacesTime')+'</li>';
+            Tegzd += '<li>'+getTextForUI("powerPlacesTitle","elementText")+' : '+getTimeLeft('minPowerPlacesTime')+'</li>';
         }
         if ( getHHScriptVars("isEnabledPachinko",false) && getStoredValue("HHAuto_Setting_autoFreePachinko") =="true")
         {

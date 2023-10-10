@@ -421,7 +421,8 @@ export class Harem {
         const displayedGirl = $('#harem_right .opened').attr('girl'); // unsafeWindow.harem.preselectedGirlId
         const girlOwned = !(getHHVars('girlsDataList',false) != null && getHHVars('girlsDataList',false)[displayedGirl].shards < 100);
 
-        GM_addStyle('.goToGirlPage {position: relative; font-size: small; z-index:30;}'); // bottom: 3rem; 
+        GM_addStyle('#harem_right>div[girl] .middle_part div.avatar-box img.avatar { height: 365px; margin-bottom: 30px;}');
+        GM_addStyle('.goToGirlPage {position: relative; bottom: 46px; font-size: small; z-index:30;}');
 
         // using a for new tab option
         const goToGirlPageButton = '<div class="tooltipHH goToGirlPage"><span class="tooltipHHtext">'+getTextForUI("goToGirlPage","tooltip")+'</span><a href="/girl/'+displayedGirl+'?resource=experience" class="myButton" id="'+goToGirlPageButtonId+'">'+getTextForUI("goToGirlPage","elementText")+'</a></div>';

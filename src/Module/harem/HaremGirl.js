@@ -381,6 +381,7 @@ export class HaremGirl {
                 }
 
                 if(haremGirlEnd && haremItem == HaremGirl.AFFECTION_TYPE) {
+                    HaremGirl.HaremDisplayGirlPopup(haremItem, girl.name + ' '+girl.graded+"/"+girl.nb_grades+"star : Girl "+ girlListProgress, (remainingGirls+1)*5 );
                     if(HaremGirl.fillAllAffection()){
                         logHHAuto("Going to girl quest");
                         return;

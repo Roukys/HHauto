@@ -15,6 +15,8 @@ import {
     getPage,
     getSecondsLeft,
     getStoredValue,
+    getTextForUI,
+    getTimeLeft,
     manageUnits,
     nRounding,
     randomInterval,
@@ -48,8 +50,40 @@ export class Season {
         return Number(getHHVars('Hero.energies.kiss.max_regen_amount'));
     }
 
+    static getPinfo() {
+        const threshold = Number(getStoredValue("HHAuto_Setting_autoSeasonThreshold"));
+        const runThreshold = Number(getStoredValue("HHAuto_Setting_autoSeasonRunThreshold"));
+
+        let Tegzd = '';
+        const boostLimited = getStoredValue("HHAuto_Setting_autoSeasonBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
+        if(boostLimited) {
+            Tegzd += '<li style="color:red!important;" title="'+getTextForUI("boostMissing","elementText")+'">';
+        }else {
+            Tegzd += '<li>';
+        }
+        Tegzd += getTextForUI("autoSeasonTitle","elementText")+' '+Season.getEnergy()+'/'+Season.getEnergyMax();
+        if (runThreshold > 0) {
+            Tegzd += ' ('+threshold+'<'+Season.getEnergy()+'<'+runThreshold+')';
+        }
+        if(runThreshold > 0  && Season.getEnergy() < runThreshold) {
+            Tegzd += ' ' + getTextForUI("waitRunThreshold","elementText");
+        }else {
+            Tegzd += ' : ' + getTimeLeft('nextSeasonTime');
+        }
+        if (boostLimited) {
+            Tegzd += ' ' + getTextForUI("boostMissing","elementText") + '</li>';
+        } else {
+            Tegzd += '</li>';
+        }
+        return Tegzd;
+    }
+
     static isTimeToFight() {
-        const energyAboveThreshold = Season.getEnergy() > Number(getStoredValue("HHAuto_Setting_autoSeasonThreshold"));
+        const threshold = Number(getStoredValue("HHAuto_Setting_autoSeasonThreshold"));
+        const runThreshold = Number(getStoredValue("HHAuto_Setting_autoSeasonRunThreshold"));
+        const humanLikeRun = getStoredValue("HHAuto_Temp_SeasonHumanLikeRun") === "true";
+
+        const energyAboveThreshold = humanLikeRun && Season.getEnergy() > threshold || Season.getEnergy() > Math.max(threshold, runThreshold-1);
         const paranoiaSpending = Season.getEnergy() > 0 && Number(checkParanoiaSpendings('kiss')) > 0;
         const needBoosterToFight = getStoredValue("HHAuto_Setting_autoSeasonBoostedOnly") === "true";
         const haveBoosterEquiped = Booster.haveBoosterEquiped();
@@ -359,6 +393,10 @@ export class Season {
             }
             else
             {
+                const runThreshold = Number(getStoredValue("HHAuto_Setting_autoSeasonRunThreshold"));
+                if (runThreshold > 0) {
+                    setStoredValue("HHAuto_Temp_SeasonHumanLikeRun", "true");
+                }
                 location.href = document.getElementsByClassName("opponent_perform_button_container")[chosenID].children[0].getAttribute('href');
                 setStoredValue("HHAuto_Temp_autoLoop", "false");
                 logHHAuto("setting autoloop to false");

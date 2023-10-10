@@ -8,6 +8,8 @@ import {
     getPage,
     getSecondsLeft,
     getStoredValue,
+    getTextForUI,
+    getTimeLeft,
     isPshEnvironnement,
     queryStringGetParam,
     setHHVars,
@@ -62,10 +64,25 @@ export class Troll {
         return trollWithGirls;
     }
 
+    static getPinfo(contest) {
+        const threshold = Number(getStoredValue("HHAuto_Setting_autoTrollThreshold"));
+        const runThreshold = Number(getStoredValue("HHAuto_Setting_autoTrollRunThreshold"));
+
+        let Tegzd = '<li>';
+        Tegzd += getTextForUI("autoTrollTitle","elementText")+' ' + Troll.getEnergy()+'/'+Troll.getEnergyMax()+contest;
+        if (runThreshold > 0) {
+            Tegzd += ' ('+threshold+'<'+Troll.getEnergy()+'<'+runThreshold+')';
+            if(Troll.getEnergy() < runThreshold)  Tegzd += ' ' + getTextForUI("waitRunThreshold","elementText");
+        }
+        Tegzd += '</li>';
+        return Tegzd;
+    }
+
     static getLastTrollIdAvailable() {
         const id_world = getHHVars('Hero.infos.questing.id_world');
         if(isPshEnvironnement() && id_world > 10) {
-            return id_world-3; // PSH parallele adventures
+            const trollIdMapping = getHHScriptVars("trollIdMapping");
+            return trollIdMapping[id_world]; // PSH parallele adventures
         }else {
             return id_world-1;
         }
@@ -91,7 +108,6 @@ export class Troll {
         }
 
         var TTF;
-        const id_world = getHHVars('Hero.infos.questing.id_world');
         const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
         const eventGirl = getStoredValue("HHAuto_Temp_eventGirl") !== undefined ? JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")) : undefined
         if (getStoredValue("HHAuto_Setting_plusEvent") === "true" && !checkTimer("eventGoing") && eventGirl !== undefined && eventGirl.is_mythic==="false")
@@ -164,6 +180,11 @@ export class Troll {
             {
                 return false;
             }
+        }
+
+        const runThreshold = Number(getStoredValue("HHAuto_Setting_autoTrollRunThreshold"));
+        if (runThreshold > 0 && currentPower == runThreshold) {
+            setStoredValue("HHAuto_Temp_TrollHumanLikeRun", "true");
         }
 
         const TTF = Troll.getTrollIdToFight();
