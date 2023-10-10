@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.7.4
+// @version      6.7.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -9112,7 +9112,8 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
                                           'Ariel Demure',
                                           'Emma Rose',
                                           'Natalie Stone',
-                                          'Janie Blade'];
+                                          'Janie Blade',
+                                          'Nikki Nort'];
     HHEnvVariables[element].isEnabledSideQuest = false;// to remove when SideQuest arrives in transpornstar
     HHEnvVariables[element].isEnabledPowerPlaces = false;// to remove when PoP arrives in transpornstar
     HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in transpornstar
@@ -9126,10 +9127,11 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
         [['484962893', '879574564', '910924260'], [0], [0]],
         [['334144727', '667194919', '911144911'], [0], [0]],
         [['473470854', '708191289', '945710078'], [0], [0]],
+        [['104549634', '521022556', '526732951'], [0], [0]],
     ];
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
 });
-
+// Object.values(girlsDataList).filter(girl => girl.source?.name == "troll_tier" && girl.source?.group?.id == "7")
 ;// CONCATENATED MODULE: ./src/config/HHStoredVars.js
 
 
