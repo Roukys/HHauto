@@ -4,6 +4,7 @@ import {
     getHHScriptVars,
     getPage,
     getStoredValue,
+    randomInterval,
     setStoredValue,
     setTimer
 } from "../Helper";
@@ -222,24 +223,24 @@ export class PlaceOfPower {
                 if ( minTime > 7*60*60 )
                 {
                     //force check of PowerPlaces every 7 hours // TODO: check time 20min != 7h
-                    setTimer('minPowerPlacesTime',Number(20*60)+1);
+                    setTimer('minPowerPlacesTime',randomInterval(20*60, 25*60));
                 }
                 else if (getStoredValue("HHAuto_Setting_autoPowerPlacesWaitMax") === "true" && maxTime != -1)
                 {
-                    setTimer('minPowerPlacesTime',Number(maxTime) + 2*60);
+                    setTimer('minPowerPlacesTime',Number(maxTime) + randomInterval(2*60, 5*60));
                 }
                 else
                 {
-                    setTimer('minPowerPlacesTime',Number(minTime) + 1*60);
+                    setTimer('minPowerPlacesTime',Number(minTime) + randomInterval(1*60, 3*60));
                 }
             }
             else
             {
-                setTimer('minPowerPlacesTime',60);
+                setTimer('minPowerPlacesTime', randomInterval(60,100));
             }
             if (maxTime != -1)
             {
-                setTimer('maxPowerPlacesTime',Number(maxTime)+1);
+                setTimer('maxPowerPlacesTime',Number(maxTime)+ randomInterval(1,10));
             }
             //building list of Pop to start
             $("div.pop_thumb[status='can_start']").each(function()

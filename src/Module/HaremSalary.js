@@ -161,7 +161,7 @@ export class HaremSalary {
                     logHHAuto("Next salary set to 60 secs as remains girls to collect");
                     salaryTimer = 60;
                 }
-                setTimer('nextSalaryTime', randomInterval(salaryTimer, 3*60 + salaryTimer));
+                setTimer('nextSalaryTime', randomInterval(salaryTimer, 180 + salaryTimer));
                 gotoPage(getHHScriptVars("pagesIDHome"),{}, randomInterval(300,500));
             }
         }
@@ -237,7 +237,7 @@ export class HaremSalary {
                         if (getPage() == getHHScriptVars("pagesIDHarem") )
                         {
                             const nexstSalaryTime = HaremSalary.predictNextSalaryMinTime();
-                            setTimer('nextSalaryTime', randomInterval(nexstSalaryTime, 3*60 + nexstSalaryTime));
+                            setTimer('nextSalaryTime', randomInterval(nexstSalaryTime, 180 + nexstSalaryTime));
                             return false;
                         }
                         else
@@ -275,7 +275,7 @@ export class HaremSalary {
                 {
                     logHHAuto("No salary to collect");
                     const nexstSalaryTime = HaremSalary.predictNextSalaryMinTime();
-                    setTimer('nextSalaryTime', randomInterval(nexstSalaryTime, 3*60 + nexstSalaryTime));
+                    setTimer('nextSalaryTime', randomInterval(nexstSalaryTime, 180 + nexstSalaryTime));
                 }
                 else
                 {

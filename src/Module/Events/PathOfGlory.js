@@ -47,14 +47,14 @@ export class PathOfGlory {
                     logHHAuto("Going to collect all POG item at once.");
                     setTimeout(function (){
                         $(getHHScriptVars("selectorClaimAllRewards"))[0].click();
-                        setTimer('nextPoGCollectAllTime',getHHScriptVars("maxCollectionDelay")); // Add timer to check again later if there is new items to collect
+                        setTimer('nextPoGCollectAllTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180)); // Add timer to check again later if there is new items to collect
                         setTimeout(function (){gotoPage(getHHScriptVars("pagesIDHome"));},500);
                     },500);
                     return true;
                 }
                 else
                 {
-                    setTimer('nextPoGCollectAllTime',getHHScriptVars("maxCollectionDelay"));
+                    setTimer('nextPoGCollectAllTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
                 }
             }
             if (checkTimer('nextPoGCollectTime') && (getStoredValue("HHAuto_Setting_autoPoGCollect") === "true" || getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true"))
@@ -104,7 +104,7 @@ export class PathOfGlory {
                         else
                         {
                             logHHAuto("Path of Glory collection finished.");
-                            setTimer('nextPoGCollectTime',getHHScriptVars("maxCollectionDelay"));
+                            setTimer('nextPoGCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
                             gotoPage(getHHScriptVars("pagesIDHome"));
                         }
                     }
@@ -114,8 +114,8 @@ export class PathOfGlory {
                 else
                 {
                     logHHAuto("No Path of Glory reward to collect.");
-                    setTimer('nextPoGCollectTime',getHHScriptVars("maxCollectionDelay"));
-                    setTimer('nextPoGCollectAllTime',getHHScriptVars("maxCollectionDelay"));
+                    setTimer('nextPoGCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
+                    setTimer('nextPoGCollectAllTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
                     gotoPage(getHHScriptVars("pagesIDHome"));
                     return false;
                 }

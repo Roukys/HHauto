@@ -391,7 +391,7 @@ export class EventModule {
 
                     setTimeout(function(){ // Wait tab switch and timer init
                         let shopTimeLeft=$('#contains_all #events #shop_tab_container .shop-section .shop-timer span[rel="expires"]').text();
-                        setTimer('eventSultryMysteryShopRefresh', Number(convertTimeToInt(shopTimeLeft)));
+                        setTimer('eventSultryMysteryShopRefresh', Number(convertTimeToInt(shopTimeLeft)) + randomInterval(60,180) );
                         eventList[eventID]["next_shop_refresh"]=new Date().getTime() + Number(shopTimeLeft) * 1000;
 
                         setTimeout(function(){gridButton.click();},randomInterval(800,1200));

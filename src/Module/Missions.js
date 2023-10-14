@@ -79,7 +79,7 @@ export class Missions {
                         if ($('.finish_in_bar[style*="display:none;"], .finish_in_bar[style*="display: none;"]', missionObject).length === 0)
                         {
                             logHHAuto("Unfinished mission detected...("+data.remaining_time+"sec. remaining)");
-                            setTimer('nextMissionTime',Number(data.remaining_time)+1);
+                            setTimer('nextMissionTime',Number(data.remaining_time)+randomInterval(1,5));
                             allGood = false;
                             missions = []; // Clear missions to avoid selecting a smaller one than the one ongoing
                             return false;
@@ -156,7 +156,7 @@ export class Missions {
             if(!allGood && canCollect)
             {
                 logHHAuto("Something went wrong, need to retry in 15secs.");
-                setTimer('nextMissionTime',15);
+                setTimer('nextMissionTime', randomInterval(15, 30));
                 return true;
             }
             if (!allGood) {
@@ -174,11 +174,11 @@ export class Missions {
                 if(missionButton.length > 0) {
                     missionButton.click();
                     gotoPage(getHHScriptVars("pagesIDMissions"),{},randomInterval(1300,1800));
-                    setTimer('nextMissionTime',Number(mission.duration)+1);
+                    setTimer('nextMissionTime',Number(mission.duration) + randomInterval(1,5));
                 }
                 else {
                     logHHAuto("Something went wrong, no start button");
-                    setTimer('nextMissionTime',15);
+                    setTimer('nextMissionTime', randomInterval(15, 30));
                     return true;
                 }
             }
@@ -206,9 +206,9 @@ export class Missions {
                 let time = $('.after_gift span[rel="expires"]').text();
                 if(time === undefined || time === null || time.length === 0) {
                     logHHAuto("New mission time was undefined... Setting it manually to 10min.");
-                    setTimer('nextMissionTime', 10*60);
+                    setTimer('nextMissionTime', randomInterval(10*60, 12*60));
                 }
-                setTimer('nextMissionTime',Number(convertTimeToInt(time))+1);
+                setTimer('nextMissionTime',Number(convertTimeToInt(time))+ randomInterval(1,5));
             }
             // not busy
             return false;
