@@ -563,7 +563,6 @@ export class LeagueHelper {
         }else{
             leagueScoreSecurityThreshold = 40;
         }
-        var ltime;
 
         var page = getPage();
         const Hero=getHero();
@@ -591,7 +590,8 @@ export class LeagueHelper {
                 logHHAuto("No power for leagues.");
                 //prevent paranoia to wait for league
                 setStoredValue("HHAuto_Temp_paranoiaLeagueBlocked", "true");
-                setTimer('nextLeaguesTime',getHHVars('Hero.energies.challenge.next_refresh_ts')+10);
+                const next_refresh = getHHVars('Hero.energies.challenge.next_refresh_ts')
+                setTimer('nextLeaguesTime', randomInterval(next_refresh+10, next_refresh + 3*60));
                 return;
             }
 
@@ -599,11 +599,10 @@ export class LeagueHelper {
             var Data=LeagueHelper.getLeagueOpponentListData();
             if (Data.length==0)
             {
-                ltime=35*60;
                 logHHAuto('No valid targets!');
                 //prevent paranoia to wait for league
                 setStoredValue("HHAuto_Temp_paranoiaLeagueBlocked", "true");
-                setTimer('nextLeaguesTime',ltime);
+                setTimer('nextLeaguesTime', randomInterval(35*60, 40*60));
             }
             else
             {
@@ -614,7 +613,7 @@ export class LeagueHelper {
                     logHHAuto("Could not get current Rank, stopping League.");
                     //prevent paranoia to wait for league
                     setStoredValue("HHAuto_Temp_paranoiaLeagueBlocked", "true");
-                    setTimer('nextLeaguesTime',Number(30*60)+1);
+                    setTimer('nextLeaguesTime', randomInterval(30*60, 35*60));
                     return;
                 }
                 var currentRank = Number($('.data-list .data-row.body-row.player-row .data-column[column="place"]').text());
@@ -653,10 +652,10 @@ export class LeagueHelper {
                         let league_end = LeagueHelper.getLeagueEndTime();
                         if (league_end <= (60*60)) {
                             logHHAuto("Can't do league as could go above demote, as last hour setting timer to 5 mins"); 
-                            setTimer('nextLeaguesTime',Number(5*60)+1);
+                            setTimer('nextLeaguesTime', randomInterval(5*60, 8*60));
                         } else {
                             logHHAuto("Can't do league as could go above demote, setting timer to 30 mins");
-                            setTimer('nextLeaguesTime',Number(30*60)+1);
+                            setTimer('nextLeaguesTime', randomInterval(30*60, 35*60));
                             //prevent paranoia to wait for league
                             setStoredValue("HHAuto_Temp_paranoiaLeagueBlocked", "true");
                         }
@@ -697,7 +696,7 @@ export class LeagueHelper {
                     if ( currentScore + leagueScoreSecurityThreshold >= maxStay && getStoredValue("HHAuto_Setting_autoLeaguesAllowWinCurrent") !== "true")
                     {
                         logHHAuto("Can't do league as could go above stay, setting timer to 30 mins");
-                        setTimer('nextLeaguesTime',Number(30*60)+1);
+                        setTimer('nextLeaguesTime', randomInterval(30*60, 35*60));
                         //prevent paranoia to wait for league
                         setStoredValue("HHAuto_Temp_paranoiaLeagueBlocked", "true");
                         gotoPage(getHHScriptVars("pagesIDHome"));
@@ -715,7 +714,7 @@ export class LeagueHelper {
                     if (oppoID == -1)
                     {
                         logHHAuto('opponent list is building next waiting');
-                        //setTimer('nextLeaguesTime',2*60);
+                        //setTimer('nextLeaguesTime',randomInterval(2*60, 4*60));
                     }
                     else
                     {

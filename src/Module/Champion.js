@@ -277,7 +277,7 @@ export class Champion {
                 if ( TCount==0)
                 {
                     logHHAuto("No tickets!");
-                    setTimer('nextChampionTime',15*60);
+                    setTimer('nextChampionTime', randomInterval(15*60, 17*60));
                     return false;
                 }
                 else
@@ -398,11 +398,11 @@ export class Champion {
 
             if (minTime === -1 || minTime > 30*60)
             {
-                setTimer('nextChampionTime',15*60);
+                setTimer('nextChampionTime', randomInterval(15*60, 17*60));
             }
             else
             {
-                setTimer('nextChampionTime',minTime);
+                setTimer('nextChampionTime', randomInterval(minTime, 3*60 + minTime));
             }
             gotoPage(getHHScriptVars("pagesIDHome"));
             return false;
