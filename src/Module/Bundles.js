@@ -64,7 +64,7 @@ export class Bundles {
                             buttonsToCollect[0].click();
                             buttonsToCollect.shift();
                             gotoPage(getHHScriptVars("pagesIDHome"));
-                            setTimer('nextFreeBundlesCollectTime', 15);
+                            setTimer('nextFreeBundlesCollectTime', randomInterval(15,30));
                         }
                     }
                     collectFreeBundle();
@@ -94,7 +94,7 @@ export class Bundles {
                             }
                         }
                     }
-                    if(!freeBundleFound) collectFreeBundlesFinished("Free bundle collection finished.", getSecondsLeftBeforeEndOfHHDay() + 3600);
+                    if(!freeBundleFound) collectFreeBundlesFinished("Free bundle collection finished.", getSecondsLeftBeforeEndOfHHDay() + randomInterval(3600, 4000));
                 }
                 else
                 {

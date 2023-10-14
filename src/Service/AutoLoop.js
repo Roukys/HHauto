@@ -581,7 +581,7 @@ export function autoLoop()
                 else
                 {
                     const next_refresh = getHHVars('Hero.energies.kiss.next_refresh_ts')
-                    setTimer('nextSeasonTime', randomInterval(next_refresh+10, next_refresh + 3*60));
+                    setTimer('nextSeasonTime', randomInterval(next_refresh+10, next_refresh + 180));
                 }
             }
         }
@@ -607,7 +607,7 @@ export function autoLoop()
                 else
                 {
                     const next_refresh = getHHVars('Hero.energies.worship.next_refresh_ts')
-                    setTimer('nextPantheonTime', randomInterval(next_refresh+10, next_refresh + 3*60));
+                    setTimer('nextPantheonTime', randomInterval(next_refresh+10, next_refresh + 180));
                 }
             }
         }
@@ -674,7 +674,7 @@ export function autoLoop()
                     else
                     {
                         const next_refresh = getHHVars('Hero.energies.challenge.next_refresh_ts')
-                        setTimer('nextLeaguesTime', randomInterval(next_refresh+10, next_refresh + 3*60));
+                        setTimer('nextLeaguesTime', randomInterval(next_refresh+10, next_refresh + 180));
                     }
                 }
                 /*if (getPage() === getHHScriptVars("pagesIDLeaderboard"))

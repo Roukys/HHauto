@@ -60,7 +60,7 @@ export class ClubChampion {
             }
             else
             {
-                setTimer('nextClubChampionTime', randomInterval(secsToNextTimer, 3*60 + secsToNextTimer) );
+                setTimer('nextClubChampionTime', randomInterval(secsToNextTimer, 180 + secsToNextTimer) );
             }
             return noTimer;
         }

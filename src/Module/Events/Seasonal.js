@@ -123,7 +123,7 @@ export class SeasonalEvent {
                         else
                         {
                             logHHAuto("SeasonalEvent collection finished.");
-                            setTimer('nextSeasonalEventCollectTime',getHHScriptVars("maxCollectionDelay"));
+                            setTimer('nextSeasonalEventCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
                             gotoPage(getHHScriptVars("pagesIDHome"));
                         }
                     }
@@ -133,8 +133,8 @@ export class SeasonalEvent {
                 else
                 {
                     logHHAuto("No SeasonalEvent reward to collect.");
-                    setTimer('nextSeasonalEventCollectTime',getHHScriptVars("maxCollectionDelay"));
-                    setTimer('nextSeasonalEventCollectAllTime',getHHScriptVars("maxCollectionDelay"));
+                    setTimer('nextSeasonalEventCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
+                    setTimer('nextSeasonalEventCollectAllTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
                     gotoPage(getHHScriptVars("pagesIDHome"));
                     return false;
                 }
@@ -263,7 +263,7 @@ export class SeasonalEvent {
             // switch tabs
             $('#mega-event-tabs #top_ranking_tab').click();
 
-            setTimer('nextMegaEventRankCollectTime', getSecondsLeftBeforeEndOfHHDay() + 3600);
+            setTimer('nextMegaEventRankCollectTime', getSecondsLeftBeforeEndOfHHDay()  + randomInterval(3600,4000));
         }
         else if(unsafeWindow.seasonal_event_active || unsafeWindow.seasonal_time_remaining > 0)
         {

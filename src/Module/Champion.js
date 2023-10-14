@@ -402,7 +402,7 @@ export class Champion {
             }
             else
             {
-                setTimer('nextChampionTime', randomInterval(minTime, 3*60 + minTime));
+                setTimer('nextChampionTime', randomInterval(minTime, 180 + minTime));
             }
             gotoPage(getHHScriptVars("pagesIDHome"));
             return false;

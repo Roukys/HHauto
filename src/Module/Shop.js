@@ -78,7 +78,7 @@ export class Shop {
                     shopTimer=Number(nshop)+1;
                 // }
             }
-            setTimer('nextShopTime',shopTimer);
+            setTimer('nextShopTime',shopTimer + randomInterval(60,180));
             if (isJSON(getStoredValue("HHAuto_Temp_LastPageCalled"))
                 && getPage() === JSON.parse(getStoredValue("HHAuto_Temp_LastPageCalled")).page)
             {

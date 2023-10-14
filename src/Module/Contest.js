@@ -3,6 +3,7 @@ import {
     getPage,
     getSecondsLeftBeforeNewCompetition,
     getStoredValue,
+    randomInterval,
     setTimer
 } from "../Helper";
 import { gotoPage } from "../Service";
@@ -33,8 +34,8 @@ export class Contest {
                 }
             }
     
-            var time = getSecondsLeftBeforeNewCompetition() + 30*60; // 30 min after new compet
-            setTimer('nextContestTime',Number(time)+1);
+            var time = getSecondsLeftBeforeNewCompetition() + randomInterval(30*60, 35*60); // 30 min after new compet
+            setTimer('nextContestTime',time);
             // Not busy
             return false;
         }

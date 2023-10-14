@@ -61,12 +61,12 @@ export class Pachinko {
                 var npach = $('.'+timerClass+' span[rel="expires"]').text();
                 if(npach !== undefined && npach !== null && npach.length > 0)
                 {
-                    setTimer(pachinkoTimer,Number(convertTimeToInt(npach))+1);
+                    setTimer(pachinkoTimer,Number(convertTimeToInt(npach)) + randomInterval(1,5));
                 }
                 else
                 {
                     logHHAuto("Unable to find "+pachinkoType+" Pachinko time, wait 4h.");
-                    setTimer(pachinkoTimer, getHHScriptVars("maxCollectionDelay"));
+                    setTimer(pachinkoTimer, getHHScriptVars("maxCollectionDelay") + randomInterval(1,10));
                 }
 
                 setTimeout( function() {
@@ -80,7 +80,7 @@ export class Pachinko {
         }
         catch (ex) {
             logHHAuto("Catched error : Could not collect "+pachinkoType+" Pachinko... " + ex);
-            setTimer(pachinkoTimer, getHHScriptVars("maxCollectionDelay"));
+            setTimer(pachinkoTimer, getHHScriptVars("maxCollectionDelay") + randomInterval(1,10));
             return false;
         }
     }

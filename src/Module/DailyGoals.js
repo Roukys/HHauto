@@ -124,7 +124,7 @@ export class DailyGoals {
                         else
                         {
                             logHHAuto("Daily Goals collection finished.");
-                            setTimer('nextDailyGoalsCollectTime',30*60);
+                            setTimer('nextDailyGoalsCollectTime', randomInterval(30*60, 35*60));
                             gotoPage(getHHScriptVars("pagesIDHome"));
                         }
                     }
@@ -134,7 +134,7 @@ export class DailyGoals {
                 else
                 {
                     logHHAuto("No Daily Goals reward to collect.");
-                    setTimer('nextDailyGoalsCollectTime',getSecondsLeftBeforeEndOfHHDay() + 3600);
+                    setTimer('nextDailyGoalsCollectTime', getSecondsLeftBeforeEndOfHHDay() + randomInterval(3600, 4000));
                     gotoPage(getHHScriptVars("pagesIDHome"));
                     return false;
                 }

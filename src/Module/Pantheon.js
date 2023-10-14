@@ -110,7 +110,7 @@ export class Pantheon {
                 else
                 {
                     const next_refresh = getHHVars('Hero.energies.worship.next_refresh_ts')
-                    setTimer('nextPantheonTime', randomInterval(next_refresh+10, next_refresh + 3*60));
+                    setTimer('nextPantheonTime', randomInterval(next_refresh+10, next_refresh + 180));
                 }
                 gotoPage(getHHScriptVars("pagesIDHome"));
             }
@@ -156,7 +156,7 @@ export class Pantheon {
                 else
                 {
                     const next_refresh = getHHVars('Hero.energies.worship.next_refresh_ts')
-                    setTimer('nextPantheonTime', randomInterval(next_refresh+10, next_refresh + 3*60));
+                    setTimer('nextPantheonTime', randomInterval(next_refresh+10, next_refresh + 180));
                 }
                 gotoPage(getHHScriptVars("pagesIDHome"));
             }
