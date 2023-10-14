@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.8.0
+// @version      6.8.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1246,7 +1246,7 @@ class Bundles {
             }
 
             // Wait popup is opened
-            setTimeout(switchToBundleTabs,randomInterval(1400, 1800));
+            setTimeout(switchToBundleTabs,TimeHelper_randomInterval(1400, 1800));
 
             return true;
         }
@@ -1278,7 +1278,7 @@ class BossBang {
         {
             LogUtils_logHHAuto("Click skip boss bang fight");
             skipFightButton.click();
-            setTimeout(BossBang.skipFightPage,randomInterval(1300,1900));
+            setTimeout(BossBang.skipFightPage,TimeHelper_randomInterval(1300,1900));
         }
         StorageHelper_setStoredValue("HHAuto_Temp_autoLoop", "false");
     }
@@ -1672,8 +1672,8 @@ class EventModule {
                         setTimer('eventSultryMysteryShopRefresh', Number(convertTimeToInt(shopTimeLeft)));
                         eventList[eventID]["next_shop_refresh"]=new Date().getTime() + Number(shopTimeLeft) * 1000;
 
-                        setTimeout(function(){gridButton.click();},randomInterval(800,1200));
-                    },randomInterval(300,500));
+                        setTimeout(function(){gridButton.click();},TimeHelper_randomInterval(800,1200));
+                    },TimeHelper_randomInterval(300,500));
                 }
             }
             if(Object.keys(eventList).length >0)
@@ -2221,7 +2221,7 @@ class PathOfGlory {
                             LogUtils_logHHAuto("Collecting tier : "+buttonsToCollect[0].getAttribute('tier'));
                             buttonsToCollect[0].click();
                             buttonsToCollect.shift();
-                            setTimeout(collectPoGRewards, randomInterval(300, 500));
+                            setTimeout(collectPoGRewards, TimeHelper_randomInterval(300, 500));
                         }
                         else
                         {
@@ -2350,7 +2350,7 @@ class PathOfValue {
                             LogUtils_logHHAuto("Collecting tier : "+buttonsToCollect[0].getAttribute('tier'));
                             buttonsToCollect[0].click();
                             buttonsToCollect.shift();
-                            setTimeout(collectPoVRewards, randomInterval(300, 500));
+                            setTimeout(collectPoVRewards, TimeHelper_randomInterval(300, 500));
                         }
                         else
                         {
@@ -2749,15 +2749,15 @@ class Season {
                 }
                 StorageHelper_setStoredValue("HHAuto_Temp_autoLoop", "false");
                 LogUtils_logHHAuto("setting autoloop to false");
-                setTimer('nextSeasonTime',5);
-                setTimeout(refreshOpponents,randomInterval(800,1600));
+                setTimer('nextSeasonTime', TimeHelper_randomInterval(5,10));
+                setTimeout(refreshOpponents,TimeHelper_randomInterval(800,1600));
     
                 return true;
             }
             else if (chosenID === -1 )
             {
                 LogUtils_logHHAuto("Season : was not able to choose opponent.");
-                setTimer('nextSeasonTime',30*60);
+                setTimer('nextSeasonTime',TimeHelper_randomInterval(30*60, 35*60));
             }
             else
             {
@@ -2769,7 +2769,7 @@ class Season {
                 StorageHelper_setStoredValue("HHAuto_Temp_autoLoop", "false");
                 LogUtils_logHHAuto("setting autoloop to false");
                 LogUtils_logHHAuto("Going to crush : "+$("div.season_arena_opponent_container .personal_info div.player-name")[chosenID].innerText);
-                setTimer('nextSeasonTime',5);
+                setTimer('nextSeasonTime', TimeHelper_randomInterval(5,10));
                 return true;
             }
         }
@@ -2786,11 +2786,12 @@ class Season {
             {
                 if (getHHVars('Hero.energies.kiss.next_refresh_ts') === 0)
                 {
-                    setTimer('nextSeasonTime',15*60);
+                    setTimer('nextSeasonTime', TimeHelper_randomInterval(15*60, 17*60));
                 }
                 else
                 {
-                    setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts') + 10);
+                    const next_refresh = getHHVars('Hero.energies.kiss.next_refresh_ts')
+                    setTimer('nextSeasonTime', TimeHelper_randomInterval(next_refresh+10, next_refresh + 3*60));
                 }
                 gotoPage(getHHScriptVars("pagesIDHome"));
             }
@@ -2901,7 +2902,7 @@ class Season {
                             {
                                 LogUtils_logHHAuto("Selecting reward n°"+currentToCollect.tier+" : "+currentToCollect.reward);
                                 currentToCollect.button.click();
-                                setTimeout(function () {collectSeasonRewards(true);}, randomInterval(300, 500));
+                                setTimeout(function () {collectSeasonRewards(true);}, TimeHelper_randomInterval(300, 500));
                             }
                         }
                         else
@@ -3088,7 +3089,7 @@ class SeasonalEvent {
                             LogUtils_logHHAuto("Collecting tier : "+buttonsToCollect[0].getAttribute('tier'));
                             buttonsToCollect[0].click();
                             buttonsToCollect.shift();
-                            setTimeout(collectSeasonalEventRewards, randomInterval(300, 500));
+                            setTimeout(collectSeasonalEventRewards, TimeHelper_randomInterval(300, 500));
                         }
                         else
                         {
@@ -3433,8 +3434,8 @@ class QuestHelper {
             proceedButtonMatch.click();
             StorageHelper_setStoredValue("HHAuto_Temp_autoLoop", "true");
             LogUtils_logHHAuto("setting autoloop to true");
-            setTimeout(autoLoop,randomInterval(800,1200));
-        },randomInterval(500,800));
+            setTimeout(autoLoop,TimeHelper_randomInterval(800,1200));
+        },TimeHelper_randomInterval(500,800));
         //setTimeout(function () {location.reload();},randomInterval(800,1500));
         
     }
@@ -3622,7 +3623,7 @@ class Champion {
                 if(teamGirls.indexOf(selectedGirlId) < 0) {
                     girlsClicked = true;
                     LogUtils_logHHAuto("Unselected as out of the team :" + selectedGirlId);
-                    toggleSelectGirl(selectedGirlId, $(girlBox), randomInterval(300,600));
+                    toggleSelectGirl(selectedGirlId, $(girlBox), TimeHelper_randomInterval(300,600));
                 }
             });
 
@@ -3633,14 +3634,14 @@ class Champion {
                     if(!girlDraggable.hasClass('selected')) {
                         girlsClicked = true;
                         LogUtils_logHHAuto("Girl not selected :" + teamGirls[i]);
-                        toggleSelectGirl(teamGirls[i], girlDraggable, randomInterval(800,1200));
+                        toggleSelectGirl(teamGirls[i], girlDraggable, TimeHelper_randomInterval(800,1200));
                     } else {
                         LogUtils_logHHAuto("Girl already selected :" + teamGirls[i]);
                     }
                 }
             }
 
-            var newDraftInterval = girlsClicked ? randomInterval(1800,2500) : randomInterval(800,1500);
+            var newDraftInterval = girlsClicked ? TimeHelper_randomInterval(1800,2500) : TimeHelper_randomInterval(800,1500);
             setTimeout(function() {
                 if( $(newDraftButtonQuery).length > 0) $(newDraftButtonQuery).click();
             }, newDraftInterval);
@@ -3648,7 +3649,7 @@ class Champion {
             LogUtils_logHHAuto("Free drafts remanings :" + freeDrafts);
             counterLoop++;
             if(freeDrafts > 0 && counterLoop <= maxLoops) {
-                setTimeout(selectGirls, randomInterval(3500,5500)); // Wait animation
+                setTimeout(selectGirls, TimeHelper_randomInterval(3500,5500)); // Wait animation
             } else {
                 Champion.ChampClearAutoTeamPopup();
                 $('#updateChampTeamButton').removeAttr('disabled').text( getTextForUI("updateChampTeamButton","elementText") +' x'+maxLoops);
@@ -3671,11 +3672,11 @@ class Champion {
 
             counterLoop = 0;
             if( $(changeDraftButtonQuery).length > 0) $(changeDraftButtonQuery).click();
-            setTimeout(selectGirls, randomInterval(800,1300));
+            setTimeout(selectGirls, TimeHelper_randomInterval(800,1300));
         };
 
         $(document).on('ajaxComplete',checkAjaxCompleteOnChampionPage);
-        setTimeout(indicateBestTeam, randomInterval(800,1200));
+        setTimeout(indicateBestTeam, TimeHelper_randomInterval(800,1200));
 
         if(freeDrafts > 0) {
             if($('#updateChampTeamButton').length > 0)
@@ -3708,7 +3709,7 @@ class Champion {
                 if ( TCount==0)
                 {
                     LogUtils_logHHAuto("No tickets!");
-                    setTimer('nextChampionTime',15*60);
+                    setTimer('nextChampionTime', TimeHelper_randomInterval(15*60, 17*60));
                     return false;
                 }
                 else
@@ -3829,11 +3830,11 @@ class Champion {
 
             if (minTime === -1 || minTime > 30*60)
             {
-                setTimer('nextChampionTime',15*60);
+                setTimer('nextChampionTime', TimeHelper_randomInterval(15*60, 17*60));
             }
             else
             {
-                setTimer('nextChampionTime',minTime);
+                setTimer('nextChampionTime', TimeHelper_randomInterval(minTime, 3*60 + minTime));
             }
             gotoPage(getHHScriptVars("pagesIDHome"));
             return false;
@@ -3917,19 +3918,19 @@ class ClubChampion {
         {
             LogUtils_logHHAuto('on clubs');
             let secsToNextTimer = ClubChampion.getNextClubChampionTimer();
-            let noTimer = secsToNextTimer === -1;
+            let noTimer = (secsToNextTimer === -1);
     
             if (secsToNextTimer === -1)
             {
-                setTimer('nextClubChampionTime', 15*60);
+                setTimer('nextClubChampionTime', randomInterval(15*60, 17*60));
             }
             else if (secsToNextTimer > 30*60 && StorageHelper_getStoredValue("HHAuto_Setting_autoClubForceStart") === "true")
             {
-                setTimer('nextClubChampionTime', 30*60);
+                setTimer('nextClubChampionTime', randomInterval(30*60, 34*60));
             }
             else
             {
-                setTimer('nextClubChampionTime', secsToNextTimer);
+                setTimer('nextClubChampionTime', randomInterval(secsToNextTimer, 3*60 + secsToNextTimer) );
             }
             return noTimer;
         }
@@ -3945,7 +3946,7 @@ class ClubChampion {
             if ($('button[rel=perform].blue_button_L').length==0)
             {
                 LogUtils_logHHAuto('Something is wrong!');
-                setTimer('nextClubChampionTime',15*60);
+                setTimer('nextClubChampionTime', randomInterval(15*60, 17*60));
                 gotoPage(getHHScriptVars("pagesIDHome"));
                 return true;
             }
@@ -3957,7 +3958,7 @@ class ClubChampion {
                 if ( TCount==0)
                 {
                     LogUtils_logHHAuto("No tickets!");
-                    setTimer('nextClubChampionTime',15*60);
+                    setTimer('nextClubChampionTime', randomInterval(15*60, 17*60));
                     return false;
                 }
                 else
@@ -3966,7 +3967,7 @@ class ClubChampion {
                     {
                         LogUtils_logHHAuto("Using ticket");
                         $('button[rel=perform].blue_button_L').click();
-                        setTimer('nextClubChampionTime',15*60);
+                        setTimer('nextClubChampionTime', randomInterval(15*60, 17*60));
                     }
                     gotoPage(getHHScriptVars("pagesIDClub"));
                     return true;
@@ -4005,7 +4006,7 @@ class ClubChampion {
                 else
                 {
                     LogUtils_logHHAuto("Max tickets to use on Club Champ reached.");
-                    setTimer('nextClubChampionTime', 60*60);
+                    setTimer('nextClubChampionTime', randomInterval(60*60, 65*60));
                 }
     
             }
@@ -4199,7 +4200,7 @@ class DailyGoals {
                             LogUtils_logHHAuto("Collecting chest n° "+buttonsToCollect[0].getAttribute('tier'));
                             buttonsToCollect[0].click();
                             buttonsToCollect.shift();
-                            setTimeout(collectDailyGoalsRewards, randomInterval(300, 500));
+                            setTimeout(collectDailyGoalsRewards, TimeHelper_randomInterval(300, 500));
                         }
                         else
                         {
@@ -4260,7 +4261,7 @@ class HaremGirl {
         if(maxOutButton.length > 0) {
             LogUtils_logHHAuto('Max out ' + haremItem + ' for girl ' + girl.id_girl);
             maxOutButton.click();
-            setTimeout(HaremGirl.confirmMaxOut, randomInterval(700,1100));
+            setTimeout(HaremGirl.confirmMaxOut, TimeHelper_randomInterval(700,1100));
             return true;
         } else {
             LogUtils_logHHAuto('Max out button for' + haremItem + ' for girl ' + girl.id_girl + ' not enabled');
@@ -4288,7 +4289,7 @@ class HaremGirl {
         if(awakButton.length > 0 && canXpGirl) {
             LogUtils_logHHAuto('Awake for girl ' + girl.id_girl);
             awakButton.click();
-            setTimeout(HaremGirl.confirmAwake, randomInterval(500,1000)); // Page will be refreshed if done
+            setTimeout(HaremGirl.confirmAwake, TimeHelper_randomInterval(500,1000)); // Page will be refreshed if done
             return true;
         } else {
             LogUtils_logHHAuto('Awake button for girl ' + girl.id_girl + ' not enabled or not enough gems (' + numberOfGem +'<'+ girl.awakening_costs + ')');
@@ -4309,7 +4310,7 @@ class HaremGirl {
                 LogUtils_logHHAuto('Can be loading time, retry in 1s');
                 setTimeout(() => {
                     HaremGirl.goToGirlQuest(girl, 1);
-                }, randomInterval(1000,1500));
+                }, TimeHelper_randomInterval(1000,1500));
             }
             return false;
         }
@@ -4328,7 +4329,7 @@ class HaremGirl {
             LogUtils_logHHAuto("Spending "+proceedCost+" Money to proceed.");
             setTimeout(function () {
                 proceedButtonMatch.click();
-            },randomInterval(500,800));
+            },TimeHelper_randomInterval(500,800));
         }
         else
         {
@@ -4343,7 +4344,7 @@ class HaremGirl {
         HaremGirl.maxOutButtonAndConfirm(haremItem, selectedGirl);
         setTimeout(function() {
             HaremGirl.awakGirl(selectedGirl);
-        }, randomInterval(1500,2500));
+        }, TimeHelper_randomInterval(1500,2500));
     }
     
     static giveHaremGirlItem(haremItem){
@@ -4365,7 +4366,7 @@ class HaremGirl {
             else {
                 setTimeout(function() {
                     HaremGirl.maxOutAndAwake(haremItem, selectedGirl);
-                }, randomInterval(500,1000));
+                }, TimeHelper_randomInterval(500,1000));
             }
         } else{
             if(Number(selectedGirl.level) >= Number(userHaremGirlLimit))
@@ -4392,7 +4393,7 @@ class HaremGirl {
             if(!lastGirlGrad) {
                 setTimeout(function() {
                     HaremGirl.goToGirlQuest(selectedGirl);
-                }, randomInterval(1500,2000));
+                }, TimeHelper_randomInterval(1500,2000));
                 return true;
             } else {
                 LogUtils_logHHAuto("Girl grade reach, keep last to buy manually");
@@ -4451,7 +4452,7 @@ class HaremGirl {
                     StorageHelper_setStoredValue("HHAuto_Temp_haremGirlActions", HaremGirl.AFFECTION_TYPE);
                     StorageHelper_setStoredValue("HHAuto_Temp_haremGirlMode", 'girl');
                     StorageHelper_setStoredValue("HHAuto_Temp_haremGirlEnd", 'true');
-                    setTimeout(HaremGirl.fillAllAffection, randomInterval(500,800));
+                    setTimeout(HaremGirl.fillAllAffection, TimeHelper_randomInterval(500,800));
                 });
             }
         };
@@ -4622,11 +4623,11 @@ class HaremGirl {
 
                 if (nextGirlId >= 0) {
                     LogUtils_logHHAuto('Go to next girl (' + nextGirlId + ') remaining ' + remainingGirls + ' girls');
-                    gotoPage('/girl/'+nextGirlId,{resource:haremItem}, randomInterval(1500,2500));
+                    gotoPage('/girl/'+nextGirlId,{resource:haremItem}, TimeHelper_randomInterval(1500,2500));
                 } else {
                     LogUtils_logHHAuto("No more girls, go back to harem list");
                     StorageHelper_setStoredValue("HHAuto_Temp_autoLoop", "true");
-                    gotoPage('/harem/'+girl.id_girl,{}, randomInterval(1500,2500));
+                    gotoPage('/harem/'+girl.id_girl,{}, TimeHelper_randomInterval(1500,2500));
                     Harem.clearHaremToolVariables();
                 }
             } else {
@@ -5770,7 +5771,7 @@ class GenericBattle {
             if (getPage() === getHHScriptVars("pagesIDLeagueBattle") && StorageHelper_getStoredValue("HHAuto_Setting_autoLeagues") === "true")
             {
                 LogUtils_logHHAuto("Reloading after league fight.");
-                gotoPage(getHHScriptVars("pagesIDLeaderboard"),{},randomInterval(4000,5000));
+                gotoPage(getHHScriptVars("pagesIDLeaderboard"),{},TimeHelper_randomInterval(4000,5000));
             }
             else if (getPage() === getHHScriptVars("pagesIDTrollBattle") )
             {
@@ -5794,12 +5795,12 @@ class GenericBattle {
                     if (troll_id !== null)
                     {
                         LogUtils_logHHAuto("Go back to Troll after Troll fight.");
-                        gotoPage(getHHScriptVars("pagesIDTrollPreBattle"),{id_opponent:troll_id},randomInterval(2000,4000));
+                        gotoPage(getHHScriptVars("pagesIDTrollPreBattle"),{id_opponent:troll_id},TimeHelper_randomInterval(2000,4000));
                     }
                     else
                     {
                         LogUtils_logHHAuto("Go to home after unknown troll fight.");
-                        gotoPage(getHHScriptVars("pagesIDHome"),{},randomInterval(2000,4000));
+                        gotoPage(getHHScriptVars("pagesIDHome"),{},TimeHelper_randomInterval(2000,4000));
                     }
                 }
 
@@ -5807,12 +5808,12 @@ class GenericBattle {
             else if (getPage() === getHHScriptVars("pagesIDSeasonBattle") && StorageHelper_getStoredValue("HHAuto_Setting_autoSeason") === "true")
             {
                 LogUtils_logHHAuto("Go back to Season arena after Season fight.");
-                gotoPage(getHHScriptVars("pagesIDSeasonArena"),{},randomInterval(2000,4000));
+                gotoPage(getHHScriptVars("pagesIDSeasonArena"),{},TimeHelper_randomInterval(2000,4000));
             }
             else if (getPage() === getHHScriptVars("pagesIDPantheonBattle") && StorageHelper_getStoredValue("HHAuto_Setting_autoPantheon") === "true")
             {
                 LogUtils_logHHAuto("Go back to Pantheon arena after Pantheon temple.");
-                gotoPage(getHHScriptVars("pagesIDPantheon"),{},randomInterval(2000,4000));
+                gotoPage(getHHScriptVars("pagesIDPantheon"),{},TimeHelper_randomInterval(2000,4000));
             }
             return true;
         }
@@ -5850,7 +5851,7 @@ class HaremSalary {
         var collectedGirlzNb = 0;
         var collectedMoney = 0;
         let totalGirlsToCollect = 0;
-        let girlsToCollectBeforeWait = randomInterval(6,12);
+        let girlsToCollectBeforeWait = TimeHelper_randomInterval(6,12);
         function ClickThem()
         {
             if (endCollectTS === -1)
@@ -5905,12 +5906,12 @@ class HaremSalary {
                     Clicked.shift();
                     if (new Date().getTime() < endCollectTS)
                     {
-                        let waitBetweenGirlsTime = randomInterval(300,500);
+                        let waitBetweenGirlsTime = TimeHelper_randomInterval(300,500);
                         girlsToCollectBeforeWait--;
                         if (girlsToCollectBeforeWait <= 0)
                         {
-                            waitBetweenGirlsTime = randomInterval(1200,2000);
-                            girlsToCollectBeforeWait = randomInterval(6,12);
+                            waitBetweenGirlsTime = TimeHelper_randomInterval(1200,2000);
+                            girlsToCollectBeforeWait = TimeHelper_randomInterval(6,12);
                         }
                         LogUtils_logHHAuto("Next girl collection in " + waitBetweenGirlsTime + "ms after n°"+Clicked[0]);
                         setTimeout(ClickThem,waitBetweenGirlsTime);
@@ -5919,13 +5920,13 @@ class HaremSalary {
                     else
                     {
                         LogUtils_logHHAuto('Salary collection reached to the max time of '+maxSecsForSalary+' secs, collected '+collectedGirlzNb+'/'+totalGirlsToCollect+' girls and '+collectedMoney+' money');
-                        setTimeout(CollectData,randomInterval(300,500));
+                        setTimeout(CollectData,TimeHelper_randomInterval(300,500));
                     }
                 },
                         function(err) {
                     Clicked.shift();
                     LogUtils_logHHAuto("Bypassed n°"+Clicked[0]);
-                    setTimeout(ClickThem,randomInterval(300,500));
+                    setTimeout(ClickThem,TimeHelper_randomInterval(300,500));
                 });
                 //collectedMoney += $('span.s_value',$(ToClick[0])).length>0?Number($('span.s_value',$(ToClick[0]))[0].innerText.replace(/[^0-9]/gi, '')):0;
                 //collectedGirlzNb++;
@@ -5938,7 +5939,7 @@ class HaremSalary {
             {
                 const collectionTime = Math.ceil((new Date().getTime() - startCollectTS)/1000);
                 LogUtils_logHHAuto(`Salary collection done : collected ${collectedGirlzNb} / ${totalGirlsToCollect} girls and ${collectedMoney} money in ${collectionTime} secs`);
-                setTimeout(CollectData,randomInterval(300,500));
+                setTimeout(CollectData,TimeHelper_randomInterval(300,500));
             }
         }
     
@@ -5967,7 +5968,7 @@ class HaremSalary {
             }
             if (Clicked.length>0 && inStart)
             {
-                setTimeout(ClickThem,randomInterval(500,1500));
+                setTimeout(ClickThem,TimeHelper_randomInterval(500,1500));
             }
             else//nothing to collect
             {
@@ -5981,8 +5982,8 @@ class HaremSalary {
                     LogUtils_logHHAuto("Next salary set to 60 secs as remains girls to collect");
                     salaryTimer = 60;
                 }
-                setTimer('nextSalaryTime',salaryTimer);
-                gotoPage(getHHScriptVars("pagesIDHome"),{},randomInterval(300,500));
+                setTimer('nextSalaryTime', TimeHelper_randomInterval(salaryTimer, 3*60 + salaryTimer));
+                gotoPage(getHHScriptVars("pagesIDHome"),{}, TimeHelper_randomInterval(300,500));
             }
         }
     
@@ -6056,7 +6057,8 @@ class HaremSalary {
                         LogUtils_logHHAuto('Collected all Premium salary');
                         if (getPage() == getHHScriptVars("pagesIDHarem") )
                         {
-                            setTimer('nextSalaryTime',HaremSalary.predictNextSalaryMinTime());
+                            const nexstSalaryTime = HaremSalary.predictNextSalaryMinTime();
+                            setTimer('nextSalaryTime', TimeHelper_randomInterval(nexstSalaryTime, 3*60 + nexstSalaryTime));
                             return false;
                         }
                         else
@@ -6087,18 +6089,19 @@ class HaremSalary {
                     else
                     {
                         LogUtils_logHHAuto("Unknown salary button color : "+getButtonClass);
-                        setTimer('nextSalaryTime',60);
+                        setTimer('nextSalaryTime', TimeHelper_randomInterval(60, 70));
                     }
                 }
                 else if (!salaryToCollect)
                 {
                     LogUtils_logHHAuto("No salary to collect");
-                    setTimer('nextSalaryTime',HaremSalary.predictNextSalaryMinTime());
+                    const nexstSalaryTime = HaremSalary.predictNextSalaryMinTime();
+                    setTimer('nextSalaryTime', TimeHelper_randomInterval(nexstSalaryTime, 3*60 + nexstSalaryTime));
                 }
                 else
                 {
                     LogUtils_logHHAuto("Not enough salary to collect, wait 15min");
-                    setTimer('nextSalaryTime', 15*60);
+                    setTimer('nextSalaryTime', TimeHelper_randomInterval(15*60, 17*60));
                 }
             }
             else
@@ -6659,7 +6662,6 @@ class LeagueHelper {
         }else{
             leagueScoreSecurityThreshold = 40;
         }
-        var ltime;
 
         var page = getPage();
         const Hero=getHero();
@@ -6687,7 +6689,8 @@ class LeagueHelper {
                 LogUtils_logHHAuto("No power for leagues.");
                 //prevent paranoia to wait for league
                 StorageHelper_setStoredValue("HHAuto_Temp_paranoiaLeagueBlocked", "true");
-                setTimer('nextLeaguesTime',getHHVars('Hero.energies.challenge.next_refresh_ts')+10);
+                const next_refresh = getHHVars('Hero.energies.challenge.next_refresh_ts')
+                setTimer('nextLeaguesTime', TimeHelper_randomInterval(next_refresh+10, next_refresh + 3*60));
                 return;
             }
 
@@ -6695,11 +6698,10 @@ class LeagueHelper {
             var Data=LeagueHelper.getLeagueOpponentListData();
             if (Data.length==0)
             {
-                ltime=35*60;
                 LogUtils_logHHAuto('No valid targets!');
                 //prevent paranoia to wait for league
                 StorageHelper_setStoredValue("HHAuto_Temp_paranoiaLeagueBlocked", "true");
-                setTimer('nextLeaguesTime',ltime);
+                setTimer('nextLeaguesTime', TimeHelper_randomInterval(35*60, 40*60));
             }
             else
             {
@@ -6710,7 +6712,7 @@ class LeagueHelper {
                     LogUtils_logHHAuto("Could not get current Rank, stopping League.");
                     //prevent paranoia to wait for league
                     StorageHelper_setStoredValue("HHAuto_Temp_paranoiaLeagueBlocked", "true");
-                    setTimer('nextLeaguesTime',Number(30*60)+1);
+                    setTimer('nextLeaguesTime', TimeHelper_randomInterval(30*60, 35*60));
                     return;
                 }
                 var currentRank = Number($('.data-list .data-row.body-row.player-row .data-column[column="place"]').text());
@@ -6749,10 +6751,10 @@ class LeagueHelper {
                         let league_end = LeagueHelper.getLeagueEndTime();
                         if (league_end <= (60*60)) {
                             LogUtils_logHHAuto("Can't do league as could go above demote, as last hour setting timer to 5 mins"); 
-                            setTimer('nextLeaguesTime',Number(5*60)+1);
+                            setTimer('nextLeaguesTime', TimeHelper_randomInterval(5*60, 8*60));
                         } else {
                             LogUtils_logHHAuto("Can't do league as could go above demote, setting timer to 30 mins");
-                            setTimer('nextLeaguesTime',Number(30*60)+1);
+                            setTimer('nextLeaguesTime', TimeHelper_randomInterval(30*60, 35*60));
                             //prevent paranoia to wait for league
                             StorageHelper_setStoredValue("HHAuto_Temp_paranoiaLeagueBlocked", "true");
                         }
@@ -6793,7 +6795,7 @@ class LeagueHelper {
                     if ( currentScore + leagueScoreSecurityThreshold >= maxStay && StorageHelper_getStoredValue("HHAuto_Setting_autoLeaguesAllowWinCurrent") !== "true")
                     {
                         LogUtils_logHHAuto("Can't do league as could go above stay, setting timer to 30 mins");
-                        setTimer('nextLeaguesTime',Number(30*60)+1);
+                        setTimer('nextLeaguesTime', TimeHelper_randomInterval(30*60, 35*60));
                         //prevent paranoia to wait for league
                         StorageHelper_setStoredValue("HHAuto_Temp_paranoiaLeagueBlocked", "true");
                         gotoPage(getHHScriptVars("pagesIDHome"));
@@ -6976,7 +6978,7 @@ class LeagueHelper {
 
                 opponentsIDList.shift();
                 LeagueHelper.LeagueUpdateGetOpponentPopup(Object.keys(DataOppo).length+'/'+oppoNumber, toHHMMSS((oppoNumber-Object.keys(DataOppo).length)*maxTime));
-                setTimeout(getOpponents,randomInterval(800,maxTime*1000));
+                setTimeout(getOpponents,TimeHelper_randomInterval(800,maxTime*1000));
 
                 window.top.postMessage({ImAlive:true},'*');
             }
@@ -7128,7 +7130,7 @@ class Market {
                                 });
                                 shop[1].splice(n1,1);
                                 StorageHelper_setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
-                                setTimeout(doShopping, randomInterval(600,1200));
+                                setTimeout(doShopping, TimeHelper_randomInterval(600,1200));
                                 return;
                             }
                         }
@@ -7206,7 +7208,7 @@ class Market {
                             });
                             shop[2].splice(n2,1);
                             StorageHelper_setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
-                            setTimeout(doShopping, randomInterval(600,1200));
+                            setTimeout(doShopping, TimeHelper_randomInterval(600,1200));
                             return;
                         }
                     }
@@ -7281,7 +7283,7 @@ class Market {
                             });
                             shop[3].splice(n3,1);
                             StorageHelper_setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
-                            setTimeout(doShopping, randomInterval(600,1200));
+                            setTimeout(doShopping, TimeHelper_randomInterval(600,1200));
                             return;
                         }
                     }
@@ -7388,7 +7390,7 @@ class Missions {
                         if (canCollect)
                         {
                             LogUtils_logHHAuto("Unclaimed mission detected...");
-                            gotoPage(getHHScriptVars("pagesIDMissions"),{},randomInterval(1300,1800));
+                            gotoPage(getHHScriptVars("pagesIDMissions"),{},TimeHelper_randomInterval(1300,1800));
                             return true;
                         }
                     }
@@ -7467,7 +7469,7 @@ class Missions {
                 var missionButton = $(mission.missionObject).find("button:visible[rel='mission_start']").first();
                 if(missionButton.length > 0) {
                     missionButton.click();
-                    gotoPage(getHHScriptVars("pagesIDMissions"),{},randomInterval(1300,1800));
+                    gotoPage(getHHScriptVars("pagesIDMissions"),{},TimeHelper_randomInterval(1300,1800));
                     setTimer('nextMissionTime',Number(mission.duration)+1);
                 }
                 else {
@@ -7646,7 +7648,7 @@ class Pantheon {
                 else
                 {
                     LogUtils_logHHAuto("Issue to find templeID retry in 60secs.");
-                    setTimer('nextPantheonTime',60);
+                    setTimer('nextPantheonTime', TimeHelper_randomInterval(60, 70));
                     gotoPage(getHHScriptVars("pagesIDHome"));
                 }
             }
@@ -7654,11 +7656,12 @@ class Pantheon {
             {
                 if (getHHVars('Hero.energies.worship.next_refresh_ts') === 0)
                 {
-                    setTimer('nextPantheonTime',15*60);
+                    setTimer('nextPantheonTime', TimeHelper_randomInterval(15*60, 17*60));
                 }
                 else
                 {
-                    setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts') + 10);
+                    const next_refresh = getHHVars('Hero.energies.worship.next_refresh_ts')
+                    setTimer('nextPantheonTime', TimeHelper_randomInterval(next_refresh+10, next_refresh + 3*60));
                 }
                 gotoPage(getHHScriptVars("pagesIDHome"));
             }
@@ -7680,7 +7683,7 @@ class Pantheon {
             else
             {
                 LogUtils_logHHAuto("Issue to find temple battle button retry in 60secs.");
-                setTimer('nextPantheonTime',60);
+                setTimer('nextPantheonTime', TimeHelper_randomInterval(60, 70));
                 gotoPage(getHHScriptVars("pagesIDHome"));
             }
         }
@@ -7699,11 +7702,12 @@ class Pantheon {
             {
                 if (getHHVars('Hero.energies.worship.next_refresh_ts') === 0)
                 {
-                    setTimer('nextPantheonTime',15*60);
+                    setTimer('nextPantheonTime', TimeHelper_randomInterval(15*60, 17*60));
                 }
                 else
                 {
-                    setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts') + 10);
+                    const next_refresh = getHHVars('Hero.energies.worship.next_refresh_ts')
+                    setTimer('nextPantheonTime', TimeHelper_randomInterval(next_refresh+10, next_refresh + 3*60));
                 }
                 gotoPage(getHHScriptVars("pagesIDHome"));
             }
@@ -7877,8 +7881,8 @@ class Pachinko {
                     RewardHelper.closeRewardPopupIfAny();
                     StorageHelper_setStoredValue("HHAuto_Temp_autoLoop", "true");
                     LogUtils_logHHAuto("setting autoloop to true");
-                    setTimeout(autoLoop,randomInterval(500,800));
-                },randomInterval(300,600));
+                    setTimeout(autoLoop,TimeHelper_randomInterval(500,800));
+                },TimeHelper_randomInterval(300,600));
             }
             return true;
         }
@@ -8124,9 +8128,9 @@ class Pachinko {
                     buildPachinkoSelectPopUp();
                     return;
                 }
-                setTimeout(playXPachinko_func,randomInterval(500,1500));
+                setTimeout(playXPachinko_func,TimeHelper_randomInterval(500,1500));
             }
-            setTimeout(playXPachinko_func,randomInterval(500,1500));
+            setTimeout(playXPachinko_func,TimeHelper_randomInterval(500,1500));
         }
     
     }
@@ -8622,7 +8626,7 @@ class TeamModule {
                 //console.log(selectedGirl);
                 if ($('.topNumber').length > girlToSelect && i<7)
                 {
-                    setTimeout(function () {assignToTeam(i+1,best)},randomInterval(300,600));
+                    setTimeout(function () {assignToTeam(i+1,best)},TimeHelper_randomInterval(300,600));
                 }
                 else
                 {
@@ -8644,7 +8648,7 @@ class TeamModule {
                 let selectedPosition = $('#contains_all section .player-panel .player-team .team-hexagon .team-member-container.selectable[data-team-member-position="'+position+'"]');
                 selectedPosition.click();
                 //console.log(selectedPosition);
-                setTimeout(function () {selectFromHaremBest(i,best)},randomInterval(300,600));
+                setTimeout(function () {selectFromHaremBest(i,best)},TimeHelper_randomInterval(300,600));
 
             }
 
@@ -8925,7 +8929,7 @@ HHEnvVariables["global"].trollGirlsID = [
     [['164866290', '696124016', '841591253'], [0], [0]],
     [['344730128', '735302216', '851893423'], [0], [0]],
 ];
-HHEnvVariables["global"].lastQuestId = 1768; //  TODO update when new quest comes
+HHEnvVariables["global"].lastQuestId = 1776; //  TODO update when new quest comes
 
 HHEnvVariables["global"].leaguesList = ["Wanker I",
                                         "Wanker II",
@@ -9255,7 +9259,7 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
                                           'Jasmine Jae'];
     HHEnvVariables[element].trollIdMapping =  {10:9,14:11,16:12}; // under 10 id as usual
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in pornstar
-    HHEnvVariables[element].lastQuestId = 16020; //  TODO update when new quest comes
+    HHEnvVariables[element].lastQuestId = 16030; //  TODO update when new quest comes
 });
 ["PH_prod","NPH_prod"].forEach((element) => {
     HHEnvVariables[element].trollGirlsID = [
@@ -13120,7 +13124,7 @@ function convertTimeToInt(remainingTimer){
         }
     } else {
             LogUtils_logHHAuto('No valid timer definitions, reset to 15min');
-            newTimer = 15*60;
+            newTimer = TimeHelper_randomInterval(15*60, 17*60);
     }
     return newTimer;
 }
@@ -13136,7 +13140,7 @@ function getLimitTimeBeforeEnd(){
 }
 
 
-function randomInterval(min,max) // min and max included
+function TimeHelper_randomInterval(min,max) // min and max included
 {
     return Math.floor(Math.random()*(max-min+1)+min);
 }
@@ -13200,7 +13204,7 @@ function doStatUpgrades()
                 hh_ajax(params, function(data) {
                     Hero.update("soft_currency", 0 - price, true);
                 });
-                setTimeout(doStatUpgrades, randomInterval(300,500));
+                setTimeout(doStatUpgrades, TimeHelper_randomInterval(300,500));
                 return;
                 break;
             }
@@ -13797,7 +13801,7 @@ class RewardHelper {
                             {
                         $(querySkip)[0].click();
                         LogUtils_logHHAuto("Clicking on pass battle.");
-                    }, randomInterval(800,1200));
+                    }, TimeHelper_randomInterval(800,1200));
                 }
             })
         });
@@ -14452,7 +14456,7 @@ class Shop {
             allLoaded = request.responseJSON.items.length === 0 && request.responseJSON.success; // No more to load
             if (fetchStarted)
             {
-                setTimeout(fetchAllArmorItems, randomInterval(800,1600));
+                setTimeout(fetchAllArmorItems, TimeHelper_randomInterval(800,1600));
             }
         }
     
@@ -14839,7 +14843,7 @@ function gotoPage(page,inArgs,delay = -1)
 
     if (typeof delay != 'number' || delay === -1)
     {
-        delay = randomInterval(300,500);
+        delay = TimeHelper_randomInterval(300,500);
     }
 
     var togoto = undefined;
@@ -15231,7 +15235,7 @@ function flipParanoia()
     {
         var periods=Object.assign(...S1[1].map(d => ({[d[0]]: d[1].split('-')})));
 
-        toNextSwitch=StorageHelper_getStoredValue("HHAuto_Temp_NextSwitch")?Number((StorageHelper_getStoredValue("HHAuto_Temp_NextSwitch")-new Date().getTime())/1000):randomInterval(Number(periods[period][0]),Number(periods[period][1]));
+        toNextSwitch=StorageHelper_getStoredValue("HHAuto_Temp_NextSwitch")?Number((StorageHelper_getStoredValue("HHAuto_Temp_NextSwitch")-new Date().getTime())/1000):TimeHelper_randomInterval(Number(periods[period][0]),Number(periods[period][1]));
 
         //match mythic new wave with end of sleep
         if (StorageHelper_getStoredValue("HHAuto_Setting_autoTrollMythicByPassParanoia") === "true" && getTimer("eventMythicNextWave") !== -1 && toNextSwitch>getSecondsLeft("eventMythicNextWave"))
@@ -15299,7 +15303,7 @@ function flipParanoia()
         LogUtils_logHHAuto("setting autoloop to false");
         StorageHelper_setStoredValue("HHAuto_Temp_burst", "true");
         var b=S1[0][0][0].split('-');
-        toNextSwitch=randomInterval(Number(b[0]),Number(b[1]));
+        toNextSwitch=TimeHelper_randomInterval(Number(b[0]),Number(b[1]));
     }
     var ND=new Date().getTime() + toNextSwitch * 1000;
     var message=period+(burst?" rest":" burst");
@@ -15855,11 +15859,12 @@ function autoLoop()
                 }
                 if (getHHVars('Hero.energies.kiss.next_refresh_ts') === 0)
                 {
-                    setTimer('nextSeasonTime',15*60);
+                    setTimer('nextSeasonTime', TimeHelper_randomInterval(15*60, 17*60));
                 }
                 else
                 {
-                    setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts') + 10);
+                    const next_refresh = getHHVars('Hero.energies.kiss.next_refresh_ts')
+                    setTimer('nextSeasonTime', TimeHelper_randomInterval(next_refresh+10, next_refresh + 3*60));
                 }
             }
         }
@@ -15880,11 +15885,12 @@ function autoLoop()
                 }
                 if (getHHVars('Hero.energies.worship.next_refresh_ts') === 0)
                 {
-                    setTimer('nextPantheonTime',15*60);
+                    setTimer('nextPantheonTime', TimeHelper_randomInterval(15*60, 17*60));
                 }
                 else
                 {
-                    setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts') + 10);
+                    const next_refresh = getHHVars('Hero.energies.worship.next_refresh_ts')
+                    setTimer('nextPantheonTime', TimeHelper_randomInterval(next_refresh+10, next_refresh + 3*60));
                 }
             }
         }
@@ -15910,7 +15916,7 @@ function autoLoop()
             StorageHelper_setStoredValue("HHAuto_Temp_autoLoop", "false");
             LogUtils_logHHAuto("setting autoloop to false");
             busy = true;
-            setTimeout(buyTicket,randomInterval(800,1600));
+            setTimeout(buyTicket,TimeHelper_randomInterval(800,1600));
         }
 
         if (busy==false && getHHScriptVars("isEnabledChamps",false) && StorageHelper_getStoredValue("HHAuto_Setting_autoChamps") ==="true" && checkTimer('nextChampionTime') && StorageHelper_getStoredValue("HHAuto_Temp_autoLoop") === "true")
@@ -15946,11 +15952,12 @@ function autoLoop()
                 {
                     if (getHHVars('Hero.energies.challenge.next_refresh_ts') === 0)
                     {
-                        setTimer('nextLeaguesTime',15*60);
+                        setTimer('nextLeaguesTime', TimeHelper_randomInterval(15*60, 17*60));
                     }
                     else
                     {
-                        setTimer('nextLeaguesTime',getHHVars('Hero.energies.challenge.next_refresh_ts') + 10);
+                        const next_refresh = getHHVars('Hero.energies.challenge.next_refresh_ts')
+                        setTimer('nextLeaguesTime', TimeHelper_randomInterval(next_refresh+10, next_refresh + 3*60));
                     }
                 }
                 /*if (getPage() === getHHScriptVars("pagesIDLeaderboard"))
@@ -16145,7 +16152,7 @@ function autoLoop()
             if (StorageHelper_getStoredValue("HHAuto_Setting_bossBangEvent") === "true")
             {
                 EventModule.parseEventPage();
-                setTimeout(BossBang.goToFightPage, randomInterval(500,1500));
+                setTimeout(BossBang.goToFightPage, TimeHelper_randomInterval(500,1500));
             }
             if (StorageHelper_getStoredValue("HHAuto_Setting_PoAMaskRewards") === "true")
             {
@@ -16164,7 +16171,7 @@ function autoLoop()
         case getHHScriptVars("pagesIDBossBang"):
             if (StorageHelper_getStoredValue("HHAuto_Setting_bossBangEvent") === "true")
             {
-                setTimeout(BossBang.skipFightPage, randomInterval(500,1500));
+                setTimeout(BossBang.skipFightPage, TimeHelper_randomInterval(500,1500));
             }
             break;
         case getHHScriptVars("pagesIDPoA"):

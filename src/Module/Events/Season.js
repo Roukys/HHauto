@@ -381,7 +381,7 @@ export class Season {
                 }
                 setStoredValue("HHAuto_Temp_autoLoop", "false");
                 logHHAuto("setting autoloop to false");
-                setTimer('nextSeasonTime',5);
+                setTimer('nextSeasonTime', randomInterval(5,10));
                 setTimeout(refreshOpponents,randomInterval(800,1600));
     
                 return true;
@@ -389,7 +389,7 @@ export class Season {
             else if (chosenID === -1 )
             {
                 logHHAuto("Season : was not able to choose opponent.");
-                setTimer('nextSeasonTime',30*60);
+                setTimer('nextSeasonTime',randomInterval(30*60, 35*60));
             }
             else
             {
@@ -401,7 +401,7 @@ export class Season {
                 setStoredValue("HHAuto_Temp_autoLoop", "false");
                 logHHAuto("setting autoloop to false");
                 logHHAuto("Going to crush : "+$("div.season_arena_opponent_container .personal_info div.player-name")[chosenID].innerText);
-                setTimer('nextSeasonTime',5);
+                setTimer('nextSeasonTime', randomInterval(5,10));
                 return true;
             }
         }
@@ -418,11 +418,12 @@ export class Season {
             {
                 if (getHHVars('Hero.energies.kiss.next_refresh_ts') === 0)
                 {
-                    setTimer('nextSeasonTime',15*60);
+                    setTimer('nextSeasonTime', randomInterval(15*60, 17*60));
                 }
                 else
                 {
-                    setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts') + 10);
+                    const next_refresh = getHHVars('Hero.energies.kiss.next_refresh_ts')
+                    setTimer('nextSeasonTime', randomInterval(next_refresh+10, next_refresh + 3*60));
                 }
                 gotoPage(getHHScriptVars("pagesIDHome"));
             }

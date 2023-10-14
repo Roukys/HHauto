@@ -576,11 +576,12 @@ export function autoLoop()
                 }
                 if (getHHVars('Hero.energies.kiss.next_refresh_ts') === 0)
                 {
-                    setTimer('nextSeasonTime',15*60);
+                    setTimer('nextSeasonTime', randomInterval(15*60, 17*60));
                 }
                 else
                 {
-                    setTimer('nextSeasonTime',getHHVars('Hero.energies.kiss.next_refresh_ts') + 10);
+                    const next_refresh = getHHVars('Hero.energies.kiss.next_refresh_ts')
+                    setTimer('nextSeasonTime', randomInterval(next_refresh+10, next_refresh + 3*60));
                 }
             }
         }
@@ -601,11 +602,12 @@ export function autoLoop()
                 }
                 if (getHHVars('Hero.energies.worship.next_refresh_ts') === 0)
                 {
-                    setTimer('nextPantheonTime',15*60);
+                    setTimer('nextPantheonTime', randomInterval(15*60, 17*60));
                 }
                 else
                 {
-                    setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts') + 10);
+                    const next_refresh = getHHVars('Hero.energies.worship.next_refresh_ts')
+                    setTimer('nextPantheonTime', randomInterval(next_refresh+10, next_refresh + 3*60));
                 }
             }
         }
@@ -667,11 +669,12 @@ export function autoLoop()
                 {
                     if (getHHVars('Hero.energies.challenge.next_refresh_ts') === 0)
                     {
-                        setTimer('nextLeaguesTime',15*60);
+                        setTimer('nextLeaguesTime', randomInterval(15*60, 17*60));
                     }
                     else
                     {
-                        setTimer('nextLeaguesTime',getHHVars('Hero.energies.challenge.next_refresh_ts') + 10);
+                        const next_refresh = getHHVars('Hero.energies.challenge.next_refresh_ts')
+                        setTimer('nextLeaguesTime', randomInterval(next_refresh+10, next_refresh + 3*60));
                     }
                 }
                 /*if (getPage() === getHHScriptVars("pagesIDLeaderboard"))

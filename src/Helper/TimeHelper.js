@@ -77,7 +77,7 @@ export function convertTimeToInt(remainingTimer){
         }
     } else {
             logHHAuto('No valid timer definitions, reset to 15min');
-            newTimer = 15*60;
+            newTimer = randomInterval(15*60, 17*60);
     }
     return newTimer;
 }

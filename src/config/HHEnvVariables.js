@@ -131,7 +131,7 @@ HHEnvVariables["global"].trollGirlsID = [
     [['164866290', '696124016', '841591253'], [0], [0]],
     [['344730128', '735302216', '851893423'], [0], [0]],
 ];
-HHEnvVariables["global"].lastQuestId = 1768; //  TODO update when new quest comes
+HHEnvVariables["global"].lastQuestId = 1776; //  TODO update when new quest comes
 
 HHEnvVariables["global"].leaguesList = ["Wanker I",
                                         "Wanker II",
@@ -461,7 +461,7 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
                                           'Jasmine Jae'];
     HHEnvVariables[element].trollIdMapping =  {10:9,14:11,16:12}; // under 10 id as usual
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in pornstar
-    HHEnvVariables[element].lastQuestId = 16020; //  TODO update when new quest comes
+    HHEnvVariables[element].lastQuestId = 16030; //  TODO update when new quest comes
 });
 ["PH_prod","NPH_prod"].forEach((element) => {
     HHEnvVariables[element].trollGirlsID = [

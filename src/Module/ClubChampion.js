@@ -3,6 +3,7 @@ import {
     getHHVars,
     getPage,
     getStoredValue,
+    randomInterval,
     setTimer,
     toHHMMSS
 } from "../Helper";
@@ -47,19 +48,19 @@ export class ClubChampion {
         {
             logHHAuto('on clubs');
             let secsToNextTimer = ClubChampion.getNextClubChampionTimer();
-            let noTimer = secsToNextTimer === -1;
+            let noTimer = (secsToNextTimer === -1);
     
             if (secsToNextTimer === -1)
             {
-                setTimer('nextClubChampionTime', 15*60);
+                setTimer('nextClubChampionTime', randomInterval(15*60, 17*60));
             }
             else if (secsToNextTimer > 30*60 && getStoredValue("HHAuto_Setting_autoClubForceStart") === "true")
             {
-                setTimer('nextClubChampionTime', 30*60);
+                setTimer('nextClubChampionTime', randomInterval(30*60, 34*60));
             }
             else
             {
-                setTimer('nextClubChampionTime', secsToNextTimer);
+                setTimer('nextClubChampionTime', randomInterval(secsToNextTimer, 3*60 + secsToNextTimer) );
             }
             return noTimer;
         }
@@ -75,7 +76,7 @@ export class ClubChampion {
             if ($('button[rel=perform].blue_button_L').length==0)
             {
                 logHHAuto('Something is wrong!');
-                setTimer('nextClubChampionTime',15*60);
+                setTimer('nextClubChampionTime', randomInterval(15*60, 17*60));
                 gotoPage(getHHScriptVars("pagesIDHome"));
                 return true;
             }
@@ -87,7 +88,7 @@ export class ClubChampion {
                 if ( TCount==0)
                 {
                     logHHAuto("No tickets!");
-                    setTimer('nextClubChampionTime',15*60);
+                    setTimer('nextClubChampionTime', randomInterval(15*60, 17*60));
                     return false;
                 }
                 else
@@ -96,7 +97,7 @@ export class ClubChampion {
                     {
                         logHHAuto("Using ticket");
                         $('button[rel=perform].blue_button_L').click();
-                        setTimer('nextClubChampionTime',15*60);
+                        setTimer('nextClubChampionTime', randomInterval(15*60, 17*60));
                     }
                     gotoPage(getHHScriptVars("pagesIDClub"));
                     return true;
@@ -135,7 +136,7 @@ export class ClubChampion {
                 else
                 {
                     logHHAuto("Max tickets to use on Club Champ reached.");
-                    setTimer('nextClubChampionTime', 60*60);
+                    setTimer('nextClubChampionTime', randomInterval(60*60, 65*60));
                 }
     
             }

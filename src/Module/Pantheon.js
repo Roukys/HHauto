@@ -97,7 +97,7 @@ export class Pantheon {
                 else
                 {
                     logHHAuto("Issue to find templeID retry in 60secs.");
-                    setTimer('nextPantheonTime',60);
+                    setTimer('nextPantheonTime', randomInterval(60, 70));
                     gotoPage(getHHScriptVars("pagesIDHome"));
                 }
             }
@@ -105,11 +105,12 @@ export class Pantheon {
             {
                 if (getHHVars('Hero.energies.worship.next_refresh_ts') === 0)
                 {
-                    setTimer('nextPantheonTime',15*60);
+                    setTimer('nextPantheonTime', randomInterval(15*60, 17*60));
                 }
                 else
                 {
-                    setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts') + 10);
+                    const next_refresh = getHHVars('Hero.energies.worship.next_refresh_ts')
+                    setTimer('nextPantheonTime', randomInterval(next_refresh+10, next_refresh + 3*60));
                 }
                 gotoPage(getHHScriptVars("pagesIDHome"));
             }
@@ -131,7 +132,7 @@ export class Pantheon {
             else
             {
                 logHHAuto("Issue to find temple battle button retry in 60secs.");
-                setTimer('nextPantheonTime',60);
+                setTimer('nextPantheonTime', randomInterval(60, 70));
                 gotoPage(getHHScriptVars("pagesIDHome"));
             }
         }
@@ -150,11 +151,12 @@ export class Pantheon {
             {
                 if (getHHVars('Hero.energies.worship.next_refresh_ts') === 0)
                 {
-                    setTimer('nextPantheonTime',15*60);
+                    setTimer('nextPantheonTime', randomInterval(15*60, 17*60));
                 }
                 else
                 {
-                    setTimer('nextPantheonTime',getHHVars('Hero.energies.worship.next_refresh_ts') + 10);
+                    const next_refresh = getHHVars('Hero.energies.worship.next_refresh_ts')
+                    setTimer('nextPantheonTime', randomInterval(next_refresh+10, next_refresh + 3*60));
                 }
                 gotoPage(getHHScriptVars("pagesIDHome"));
             }

@@ -161,8 +161,8 @@ export class HaremSalary {
                     logHHAuto("Next salary set to 60 secs as remains girls to collect");
                     salaryTimer = 60;
                 }
-                setTimer('nextSalaryTime',salaryTimer);
-                gotoPage(getHHScriptVars("pagesIDHome"),{},randomInterval(300,500));
+                setTimer('nextSalaryTime', randomInterval(salaryTimer, 3*60 + salaryTimer));
+                gotoPage(getHHScriptVars("pagesIDHome"),{}, randomInterval(300,500));
             }
         }
     
@@ -236,7 +236,8 @@ export class HaremSalary {
                         logHHAuto('Collected all Premium salary');
                         if (getPage() == getHHScriptVars("pagesIDHarem") )
                         {
-                            setTimer('nextSalaryTime',HaremSalary.predictNextSalaryMinTime());
+                            const nexstSalaryTime = HaremSalary.predictNextSalaryMinTime();
+                            setTimer('nextSalaryTime', randomInterval(nexstSalaryTime, 3*60 + nexstSalaryTime));
                             return false;
                         }
                         else
@@ -267,18 +268,19 @@ export class HaremSalary {
                     else
                     {
                         logHHAuto("Unknown salary button color : "+getButtonClass);
-                        setTimer('nextSalaryTime',60);
+                        setTimer('nextSalaryTime', randomInterval(60, 70));
                     }
                 }
                 else if (!salaryToCollect)
                 {
                     logHHAuto("No salary to collect");
-                    setTimer('nextSalaryTime',HaremSalary.predictNextSalaryMinTime());
+                    const nexstSalaryTime = HaremSalary.predictNextSalaryMinTime();
+                    setTimer('nextSalaryTime', randomInterval(nexstSalaryTime, 3*60 + nexstSalaryTime));
                 }
                 else
                 {
                     logHHAuto("Not enough salary to collect, wait 15min");
-                    setTimer('nextSalaryTime', 15*60);
+                    setTimer('nextSalaryTime', randomInterval(15*60, 17*60));
                 }
             }
             else
