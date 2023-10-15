@@ -609,15 +609,27 @@ export function getMenu() {
                         +`</div>`
                     +`</div>`
                 +`</div>`
-                +`<div id="isEnabledSeasonalEvent" class="optionsBoxWithTitle">`
-                    +`<div class="optionsBoxTitle">`
-                        +`<span class="optionsBoxTitle">${getTextForUI("seasonalEventTitle","elementText")}</span>`
+                +`<div class="optionsRow" style="justify-content: space-evenly">`
+                    +`<div id="isEnabledSeasonalEvent" class="optionsBoxWithTitle">`
+                        +`<div class="optionsBoxTitle">`
+                            +`<span class="optionsBoxTitle">${getTextForUI("seasonalEventTitle","elementText")}</span>`
+                        +`</div>`
+                        +`<div class="optionsBox">`
+                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                + hhMenuSwitch('SeasonalEventMaskRewards')
+                                + hhMenuSwitch('autoSeasonalEventCollect')
+                                + hhMenuSwitch('autoSeasonalEventCollectAll')
+                            +`</div>`
+                        +`</div>`
                     +`</div>`
-                    +`<div class="optionsBox">`
-                        +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                            + hhMenuSwitch('SeasonalEventMaskRewards')
-                            + hhMenuSwitch('autoSeasonalEventCollect')
-                            + hhMenuSwitch('autoSeasonalEventCollectAll')
+                    +`<div id="isEnabledDPEvent" class="optionsBoxWithTitle">`
+                        +`<div class="optionsBoxTitle">`
+                            +`<span class="optionsBoxTitle">${getTextForUI("doublePenetrationEventTitle","elementText")}</span>`
+                        +`</div>`
+                        +`<div class="optionsBox">`
+                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                + hhMenuSwitch('autodpEventCollect')
+                            +`</div>`
                         +`</div>`
                     +`</div>`
                 +`</div>`

@@ -17,6 +17,7 @@ import {
 import { gotoPage } from "../../Service";
 import { isJSON, logHHAuto } from "../../Utils";
 import { HHStoredVarPrefixKey } from "../../config";
+import { DoublePenetration } from "./DoublePenetration";
 
 export class EventModule {
     static clearEventData(inEventID)
@@ -399,6 +400,27 @@ export class EventModule {
                     },randomInterval(300,500));
                 }
             }
+            if (hhEvent.isDPEvent)
+            {
+                logHHAuto("On going double penetration event.");
+
+                let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
+                if (timeLeft !== undefined && timeLeft.length) {
+                    setTimer('eventGoing',Number(convertTimeToInt(timeLeft)));
+                } else setTimer('eventGoing', 3600);
+
+                eventList[eventID]={};
+                eventList[eventID]["id"]=eventID;
+                eventList[eventID]["type"]=hhEvent.eventType;
+                eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
+                eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
+                eventList[eventID]["isCompleted"] = false;
+                setTimer('eventDPGoing', Number(convertTimeToInt(timeLeft)));
+
+                if(getStoredValue(HHStoredVarPrefixKey+"Setting_autodpEventCollect") === "true") {
+                    DoublePenetration.goAndCollect();
+                }
+            }
             if(Object.keys(eventList).length >0)
             {
                 setStoredValue(HHStoredVarPrefixKey+"Temp_eventsList", JSON.stringify(eventList));
@@ -482,6 +504,7 @@ export class EventModule {
         if(inEventID.startsWith(getHHScriptVars('eventIDReg'))) return "event";
         if(inEventID.startsWith(getHHScriptVars('bossBangEventIDReg'))) return "bossBang";
         if(inEventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg'))) return "sultryMysteries";
+        if(inEventID.startsWith(getHHScriptVars('doublePenetrationEventIDReg'))) return "doublePenetration";
     //    if(inEventID.startsWith(getHHScriptVars('poaEventIDReg'))) return "poa";
     //    if(inEventID.startsWith('cumback_contest_')) return "";
     //    if(inEventID.startsWith('legendary_contest_')) return "";
@@ -494,6 +517,7 @@ export class EventModule {
         const isPlusEventMythic = inEventID.startsWith(getHHScriptVars('mythicEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") ==="true";
         const isBossBangEvent = inEventID.startsWith(getHHScriptVars('bossBangEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_bossBangEvent") ==="true";
         const isSultryMysteriesEvent = inEventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_sultryMysteriesEventRefreshShop") === "true";
+        const isDPEvent = inEventID.startsWith(getHHScriptVars('doublePenetrationEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_autodpEventCollect") === "true";
         return {
             eventTypeKnown: eventType !== '',
             eventId: inEventID,
@@ -502,7 +526,8 @@ export class EventModule {
             isPlusEventMythic: isPlusEventMythic, // and activated
             isBossBangEvent: isBossBangEvent, // and activated
             isSultryMysteriesEvent: isSultryMysteriesEvent, // and activated
-            isEnabled: isPlusEvent || isPlusEventMythic || isBossBangEvent || isSultryMysteriesEvent
+            isDPEvent: isDPEvent, // and activated
+            isEnabled: isPlusEvent || isPlusEventMythic || isBossBangEvent || isSultryMysteriesEvent || isDPEvent
         }
     }
 
@@ -703,6 +728,7 @@ export class EventModule {
         let mythicEventQuery = '#contains_all #homepage .event-widget a[rel="mythic_event"]:not([href="#"])';
         let bossBangEventQuery = '#contains_all #homepage .event-widget a[rel="boss_bang_event"]:not([href="#"])';
         let sultryMysteriesEventQuery = '#contains_all #homepage .event-widget a[rel="sm_event"]:not([href="#"])';
+        let dpEventQuery = '#contains_all #homepage .event-widget a[rel="dp_event"]:not([href="#"])';
         let seasonalEventQuery = '#contains_all #homepage .seasonal-event a'; // Mega event have same query
         let povEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-valor"]';
         let pogEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-glory"]';
@@ -759,6 +785,20 @@ export class EventModule {
             {
                 // event is over
                 clearTimer("eventSultryMysteryShopRefresh");
+            }
+            queryResults=$(dpEventQuery);
+            for(let index = 0;index < queryResults.length;index++)
+            {
+                parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
+                if (queryStringGetParam(parsedURL.search,'tab') !== null && EventModule.checkEvent(queryStringGetParam(parsedURL.search,'tab')))
+                {
+                    eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
+                }
+            }
+            if(getStoredValue(HHStoredVarPrefixKey+"Setting_autodpEventCollect") === "true" && queryResults.length == 0)
+            {
+                logHHAuto("No double penetration event found, deactivate collect.");
+                setStoredValue(HHStoredVarPrefixKey+"Setting_autodpEventCollect", "false");
             }
             queryResults=$(seasonalEventQuery);
             if((getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollect") === "true" || getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollectAll") === "true") && queryResults.length == 0)
