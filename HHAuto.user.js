@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.8.4
+// @version      6.8.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1363,7 +1363,7 @@ class DoublePenetration {
                     {
                         LogUtils_logHHAuto("Double penetration collection finished.");
                         //setTimer('nextDpEventCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180)); // No need, handle by next event refresh
-                        gotoPage(getHHScriptVars("pagesIDHome"));
+                        //gotoPage(getHHScriptVars("pagesIDHome"));
                     }
                 }
                 collectDpEventRewards();
@@ -1373,7 +1373,7 @@ class DoublePenetration {
             {
                 LogUtils_logHHAuto("No double penetration reward to collect.");
                 //setTimer('nextDpEventCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180)); // No need, handle by next event refresh
-                gotoPage(getHHScriptVars("pagesIDHome"));
+                //gotoPage(getHHScriptVars("pagesIDHome"));
                 return false;
             }
         }
