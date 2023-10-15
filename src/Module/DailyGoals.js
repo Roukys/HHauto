@@ -11,10 +11,11 @@ import {
 } from "../Helper";
 import { gotoPage } from "../Service";
 import { isJSON, logHHAuto } from "../Utils";
+import { HHStoredVarPrefixKey } from "../config";
 
 export class DailyGoals {
     static styles(){
-        if(getStoredValue("HHAuto_Setting_compactDailyGoals") === "true")
+        if(getStoredValue(HHStoredVarPrefixKey+"Setting_compactDailyGoals") === "true")
         {
             const dailGoalsContainerPath = '#daily_goals .daily-goals-row .daily-goals-left-part .daily-goals-objectives-container';
             GM_addStyle(dailGoalsContainerPath + ' {'
@@ -59,16 +60,16 @@ export class DailyGoals {
     }
     static goAndCollect()
     {
-        const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoDailyGoalsCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoDailyGoalsCollectablesList")):[];
+        const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey+"Setting_autoDailyGoalsCollectablesList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Setting_autoDailyGoalsCollectablesList")):[];
         //console.log(rewardsToCollect.length);
-        if (checkTimer('nextDailyGoalsCollectTime') && getStoredValue("HHAuto_Setting_autoDailyGoalsCollect") === "true")
+        if (checkTimer('nextDailyGoalsCollectTime') && getStoredValue(HHStoredVarPrefixKey+"Setting_autoDailyGoalsCollect") === "true")
         {
             //console.log(getPage());
             if (getPage() === getHHScriptVars("pagesIDDailyGoals"))
             {
                 logHHAuto("Checking Daily Goals for collectable rewards.");
                 logHHAuto("setting autoloop to false");
-                setStoredValue("HHAuto_Temp_autoLoop", "false");
+                setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                 let buttonsToCollect = [];
                 const listDailyGoalsTiersToClaim = $("#daily_goals .progress-section .progress-bar-rewards-container .progress-bar-reward");
                 let potionsNum = Number($('.progress-section div.potions-total > div > p').text());

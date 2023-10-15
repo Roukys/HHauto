@@ -1,13 +1,13 @@
 import { setDefaults } from "../Service";
 import { fillHHPopUp, isJSON, logHHAuto } from "../Utils";
-import { HHStoredVars } from "../config";
+import { HHStoredVarPrefixKey, HHStoredVars } from "../config";
 import { getHHScriptVars } from "./ConfigHelper";
 import { getMenuValues } from "./HHMenuHelper";
 import { getTextForUI } from "./LanguageHelper";
 
 export function getStorage()
 {
-    return getStoredValue("HHAuto_Setting_settPerTab") === "true"?sessionStorage:localStorage;
+    return getStoredValue(HHStoredVarPrefixKey+"Setting_settPerTab") === "true"?sessionStorage:localStorage;
 }
 
 export function getStoredValue(inVarName)
@@ -17,7 +17,7 @@ export function getStoredValue(inVarName)
         const storedValue = getStorageItem(HHStoredVars[inVarName].storage)[inVarName];
         if(HHStoredVars[inVarName].kobanUsing) {
             // Check main switch for spenind Koban
-            return getStoredValue('HHAuto_Setting_spendKobans0') === "true" ? storedValue : "false";
+            return getStoredValue(HHStoredVarPrefixKey+'Setting_spendKobans0') === "true" ? storedValue : "false";
         }
         return storedValue
     }
@@ -45,7 +45,7 @@ export function extractHHVars(dataToSave,extractLog = false,extractTemp=true,ext
 {
     let storageType;
     let storageName;
-    let currentStorageName = getStoredValue("HHAuto_Setting_settPerTab") ==="true"?"sessionStorage":"localStorage";
+    let currentStorageName = getStoredValue(HHStoredVarPrefixKey+"Setting_settPerTab") ==="true"?"sessionStorage":"localStorage";
     let variableName;
     let storageItem;
     let varType;
@@ -62,7 +62,7 @@ export function extractHHVars(dataToSave,extractLog = false,extractTemp=true,ext
             {
                 storageName = currentStorageName;
             }
-            if (variableName !== "HHAuto_Temp_Logging")
+            if (variableName !== HHStoredVarPrefixKey + "Temp_Logging")
             {
                 dataToSave[storageName+"."+variableName] = getStoredValue(variableName);
             }
@@ -70,7 +70,7 @@ export function extractHHVars(dataToSave,extractLog = false,extractTemp=true,ext
     }
     if (extractLog)
     {
-        dataToSave["HHAuto_Temp_Logging"] = JSON.parse(sessionStorage.getItem('HHAuto_Temp_Logging'));
+        dataToSave[HHStoredVarPrefixKey+"Temp_Logging"] = JSON.parse(sessionStorage.getItem(HHStoredVarPrefixKey+'Temp_Logging'));
     }
     return dataToSave;
 }
@@ -103,6 +103,7 @@ export function getStorageItem(inStorageType)
 
 export function migrateHHVars()
 {
+    /*
     const varReplacement =
           [
               {from:"HHAuto_Setting_MaxAff", to:"HHAuto_Setting_maxAff"},
@@ -123,23 +124,45 @@ export function migrateHHVars()
             localStorage[newVar] = localStorage[oldVar];
             localStorage.removeItem(oldVar);
         }
-    }
+    }*/
 
     // TODO to be deleted in NOV23
     if (getStoredValue("HHAuto_Setting_autoBuyTrollNumber") == "200") {
-        setStoredValue("HHAuto_Setting_autoBuyTrollNumber", "20");
+        setStoredValue(HHStoredVarPrefixKey+"Setting_autoBuyTrollNumber", "20");
     }
     // TODO to be deleted in NOV23
     if (getStoredValue("HHAuto_Setting_autoBuyMythicTrollNumber") == "200") {
-        setStoredValue("HHAuto_Setting_autoBuyMythicTrollNumber", "20");
+        setStoredValue(HHStoredVarPrefixKey+"Setting_autoBuyMythicTrollNumber", "20");
     }
+
+    if(HHStoredVarPrefixKey !== 'HHAuto_' && haveHHAutoSettings()) {
+        // Migrate from default to custom keys
+        for (const newKey of Object.keys(HHStoredVars))
+        {
+            const oldKeys = newKey.replace(HHStoredVarPrefixKey,'HHAuto_');
+            const storageItem = getStorageItem(HHStoredVars[newKey].storage);
+            const itemValue = storageItem[oldKeys];
+
+            storageItem.removeItem(oldKeys);
+            if (itemValue) {
+                setStoredValue(newKey, itemValue);
+            }
+        }
+    }
+}
+
+function haveHHAutoSettings() {
+    let have = false;
+    have |= Object.keys(localStorage).some((key) => key.startsWith("HHAuto_"));
+    have |= Object.keys(sessionStorage).some((key) => key.startsWith("HHAuto_"));
+    return have;
 }
 
 export function getUserHHStoredVarDefault(inVarName)
 {
-    if (isJSON(getStoredValue("HHAuto_Setting_saveDefaults")))
+    if (isJSON(getStoredValue(HHStoredVarPrefixKey+"Setting_saveDefaults")))
     {
-        let currentDefaults = JSON.parse(getStoredValue("HHAuto_Setting_saveDefaults"));
+        let currentDefaults = JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Setting_saveDefaults"));
         if (currentDefaults !== null && currentDefaults[inVarName] !== undefined)
         {
             return currentDefaults[inVarName];
@@ -157,12 +180,12 @@ export function saveHHStoredVarsDefaults()
     for(var i of Object.keys(dataToSave))
     {
         let variableName = i.split(".")[1];
-        if (variableName !== "HHAuto_Setting_saveDefaults" && HHStoredVars[variableName].default !== dataToSave[i])
+        if (variableName !== HHStoredVarPrefixKey+"Setting_saveDefaults" && HHStoredVars[variableName].default !== dataToSave[i])
         {
             savedHHStoredVars[variableName] = dataToSave[i];
         }
     }
-    setStoredValue("HHAuto_Setting_saveDefaults", JSON.stringify(savedHHStoredVars));
+    setStoredValue(HHStoredVarPrefixKey+"Setting_saveDefaults", JSON.stringify(savedHHStoredVars));
     logHHAuto("HHStoredVar defaults saved !");
 }
 
@@ -222,28 +245,28 @@ export function debugDeleteAllVars()
 {
     Object.keys(localStorage).forEach((key) =>
                                       {
-        if (key.startsWith("HHAuto_Setting_"))
+        if (key.startsWith(HHStoredVarPrefixKey+"Setting_"))
         {
             localStorage.removeItem(key);
         }
     });
     Object.keys(sessionStorage).forEach((key) =>
                                         {
-        if (key.startsWith("HHAuto_Setting_"))
+        if (key.startsWith(HHStoredVarPrefixKey+"Setting_"))
         {
             sessionStorage.removeItem(key);
         }
     });
     Object.keys(localStorage).forEach((key) =>
                                       {
-        if (key.startsWith("HHAuto_Temp_"))
+        if (key.startsWith(HHStoredVarPrefixKey+"Temp_"))
         {
             localStorage.removeItem(key);
         }
     });
     Object.keys(sessionStorage).forEach((key) =>
                                         {
-        if (key.startsWith("HHAuto_Temp_") && key !== "HHAuto_Temp_Logging")
+        if (key.startsWith(HHStoredVarPrefixKey+"Temp_") && key !== HHStoredVarPrefixKey+"Temp_Logging")
         {
             sessionStorage.removeItem(key);
         }

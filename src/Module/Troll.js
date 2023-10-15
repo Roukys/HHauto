@@ -17,6 +17,7 @@ import {
 } from "../Helper";
 import { gotoPage } from "../Service";
 import { isJSON, logHHAuto } from "../Utils";
+import { HHStoredVarPrefixKey } from "../config";
 import { EventModule } from "./Events";
 import { Harem } from "./Harem";
 
@@ -60,13 +61,13 @@ export class Troll {
                 }
             }
         }
-        // const trollWithGirls = isJSON(getStoredValue("HHAuto_Temp_trollWithGirls"))?JSON.parse(getStoredValue("HHAuto_Temp_trollWithGirls")):[];
+        // const trollWithGirls = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_trollWithGirls"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_trollWithGirls")):[];
         return trollWithGirls;
     }
 
     static getPinfo(contest) {
-        const threshold = Number(getStoredValue("HHAuto_Setting_autoTrollThreshold"));
-        const runThreshold = Number(getStoredValue("HHAuto_Setting_autoTrollRunThreshold"));
+        const threshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollThreshold"));
+        const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollRunThreshold"));
 
         let Tegzd = '<li>';
         Tegzd += getTextForUI("autoTrollTitle","elementText")+' ' + Troll.getEnergy()+'/'+Troll.getEnergyMax()+contest;
@@ -99,8 +100,8 @@ export class Troll {
     }
 
     static getTrollIdToFight() {
-        let trollWithGirls = isJSON(getStoredValue("HHAuto_Temp_trollWithGirls"))?JSON.parse(getStoredValue("HHAuto_Temp_trollWithGirls")):[];
-        let autoTrollSelectedIndex = getStoredValue("HHAuto_Setting_autoTrollSelectedIndex");
+        let trollWithGirls = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_trollWithGirls"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_trollWithGirls")):[];
+        let autoTrollSelectedIndex = getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollSelectedIndex");
         if(autoTrollSelectedIndex === undefined || isNaN(autoTrollSelectedIndex)) {
             autoTrollSelectedIndex -1
         }else {
@@ -109,13 +110,13 @@ export class Troll {
 
         var TTF;
         const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
-        const eventGirl = getStoredValue("HHAuto_Temp_eventGirl") !== undefined ? JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")) : undefined
-        if (getStoredValue("HHAuto_Setting_plusEvent") === "true" && !checkTimer("eventGoing") && eventGirl !== undefined && eventGirl.is_mythic==="false")
+        const eventGirl = getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl") !== undefined ? JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")) : undefined
+        if (getStoredValue(HHStoredVarPrefixKey+"Setting_plusEvent") === "true" && !checkTimer("eventGoing") && eventGirl !== undefined && eventGirl.is_mythic==="false")
         {
             logHHAuto("Event troll fight");
             TTF=Troll.getTrollIdFromEvent(eventGirl);
         }
-        else if (getStoredValue("HHAuto_Setting_plusEventMythic") ==="true" && !checkTimer("eventMythicGoing") && eventGirl !== undefined && eventGirl.is_mythic==="true")
+        else if (getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") ==="true" && !checkTimer("eventMythicGoing") && eventGirl !== undefined && eventGirl.is_mythic==="true")
         {
             logHHAuto("Mythic Event troll fight");
             TTF=Troll.getTrollIdFromEvent(eventGirl);
@@ -124,7 +125,7 @@ export class Troll {
             if (trollWithGirls === undefined || trollWithGirls.length === 0) {
                 logHHAuto("No troll with girls from storage, parsing game info ...");
                 trollWithGirls = Troll.getTrollWithGirls();
-                setStoredValue("HHAuto_Temp_trollWithGirls", JSON.stringify(trollWithGirls));
+                setStoredValue(HHStoredVarPrefixKey+"Temp_trollWithGirls", JSON.stringify(trollWithGirls));
             }
 
             if (trollWithGirls !== undefined && trollWithGirls.length > 0) {
@@ -156,12 +157,12 @@ export class Troll {
             logHHAuto("Last troll fight: " + TTF);
         }
 
-        if (getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") === "true")
+        if (getStoredValue(HHStoredVarPrefixKey+"Temp_autoTrollBattleSaveQuest") === "true")
         {
             TTF = lastTrollIdAvailable;
             logHHAuto("Last troll fight for quest item: " + TTF);
-            //setStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest", "false");
-            setStoredValue("HHAuto_Temp_questRequirement", "none");
+            //setStoredValue(HHStoredVarPrefixKey+"Temp_autoTrollBattleSaveQuest", "false");
+            setStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement", "none");
         }
         if(TTF >= Trollz.length) {
             logHHAuto("Error: New troll implemented '"+TTF+"' (List to be updated) or wrong troll target found");
@@ -182,9 +183,9 @@ export class Troll {
             }
         }
 
-        const runThreshold = Number(getStoredValue("HHAuto_Setting_autoTrollRunThreshold"));
+        const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollRunThreshold"));
         if (runThreshold > 0 && currentPower == runThreshold) {
-            setStoredValue("HHAuto_Temp_TrollHumanLikeRun", "true");
+            setStoredValue(HHStoredVarPrefixKey+"Temp_TrollHumanLikeRun", "true");
         }
 
         const TTF = Troll.getTrollIdToFight();
@@ -204,7 +205,7 @@ export class Troll {
         else
         {
             logHHAuto("Navigating to chosen Troll.");
-            setStoredValue("HHAuto_Temp_autoLoop", "false");
+            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
             logHHAuto("setting autoloop to false");
             //week 28 new battle modification
             //location.href = "/battle.html?id_troll=" + TTF;
@@ -229,13 +230,13 @@ export class Troll {
             // let Hero=getHero();
             let hcConfirmValue = getHHVars('Hero.infos.hc_confirm');
             let remainingShards;
-            let previousPower = getStoredValue("HHAuto_Temp_trollPoints") !== undefined ? getStoredValue("HHAuto_Temp_trollPoints") : 0;
+            let previousPower = getStoredValue(HHStoredVarPrefixKey+"Temp_trollPoints") !== undefined ? getStoredValue(HHStoredVarPrefixKey+"Temp_trollPoints") : 0;
             let currentPower = Troll.getEnergy();
 
             var checkPreviousFightDone = function(){
                 // The goal of this function is to detect slow server response to avoid loop without fight
                 if(previousPower > 0 && previousPower == currentPower) {
-                    setStoredValue("HHAuto_Temp_autoLoop", "false");
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                     logHHAuto("Server seems slow to reply, setting autoloop to false to wait for troll page to load");
                 }
             }
@@ -243,26 +244,26 @@ export class Troll {
             //check if girl still available at troll in case of event
             if (TTF !== null)
             {
-                if (getStoredValue("HHAuto_Temp_eventGirl") !== undefined && TTF === JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).troll_id)
+                if (getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl") !== undefined && TTF === JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).troll_id)
                 {
                     if (
                         (
-                            JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true"
-                            && getStoredValue("HHAuto_Setting_plusEventMythic") ==="true"
+                            JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).is_mythic === "true"
+                            && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") ==="true"
                         )
                         ||
                         (
-                            JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "false"
-                            && getStoredValue("HHAuto_Setting_plusEvent") ==="true"
+                            JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).is_mythic === "false"
+                            && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEvent") ==="true"
                         )
                     )
                     {
                         let rewardGirlz=$("#pre-battle .oponnent-panel .opponent_rewards .rewards_list .slot.girl_ico[data-rewards]");
 
-                        if (rewardGirlz.length ===0 || !rewardGirlz.attr('data-rewards').includes('"id_girl":'+JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_id))
+                        if (rewardGirlz.length ===0 || !rewardGirlz.attr('data-rewards').includes('"id_girl":'+JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).girl_id))
                         {
-                            logHHAuto("Seems "+JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_name+" is no more available at troll "+Trollz[Number(TTF)]+". Going to event page.");
-                            EventModule.parseEventPage(JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).event_id);
+                            logHHAuto("Seems "+JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).girl_name+" is no more available at troll "+Trollz[Number(TTF)]+". Going to event page.");
+                            EventModule.parseEventPage(JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).event_id);
                             return true;
                         }
                     }
@@ -275,18 +276,18 @@ export class Troll {
                         canBuyFightsResult.canBuy
                         && currentPower < 50
                         && canBuyFightsResult.max === 50
-                        && getStoredValue("HHAuto_Setting_useX50Fights") === "true"
-                        && ( JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true" || getStoredValue("HHAuto_Setting_useX50FightsAllowNormalEvent") === "true")
-                        && TTF === JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).troll_id
+                        && getStoredValue(HHStoredVarPrefixKey+"Setting_useX50Fights") === "true"
+                        && ( JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).is_mythic === "true" || getStoredValue(HHStoredVarPrefixKey+"Setting_useX50FightsAllowNormalEvent") === "true")
+                        && TTF === JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).troll_id
                     )
                     ||
                     (
                         canBuyFightsResult.canBuy
                         && currentPower < 10
                         && canBuyFightsResult.max === 20
-                        && getStoredValue("HHAuto_Setting_useX10Fights") === "true"
-                        && ( JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true" || getStoredValue("HHAuto_Setting_useX10FightsAllowNormalEvent") === "true")
-                        && TTF === JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).troll_id
+                        && getStoredValue(HHStoredVarPrefixKey+"Setting_useX10Fights") === "true"
+                        && ( JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).is_mythic === "true" || getStoredValue(HHStoredVarPrefixKey+"Setting_useX10FightsAllowNormalEvent") === "true")
+                        && TTF === JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).troll_id
                     )
                 )
                 {
@@ -297,34 +298,34 @@ export class Troll {
 
                 if
                     (
-                        getStoredValue("HHAuto_Temp_eventGirl") !== undefined
-                        && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_shards
-                        && Number.isInteger(Number(JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_shards))
+                        getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl") !== undefined
+                        && JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).girl_shards
+                        && Number.isInteger(Number(JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).girl_shards))
                         && battleButtonX10.length > 0
                         && battleButtonX50.length > 0
-                        && getStoredValue("HHAuto_Temp_autoTrollBattleSaveQuest") !== "true"
+                        && getStoredValue(HHStoredVarPrefixKey+"Temp_autoTrollBattleSaveQuest") !== "true"
                     )
                 {
-                    remainingShards = Number(100 - Number(JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_shards));
+                    remainingShards = Number(100 - Number(JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).girl_shards));
                     let bypassThreshold = (
-                        (JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "false"
+                        (JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).is_mythic === "false"
                         && canBuyFightsResult.canBuy
                         ) // eventGirl available and buy comb true
-                        || (JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true"
-                            && getStoredValue("HHAuto_Setting_plusEventMythic") ==="true"
+                        || (JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).is_mythic === "true"
+                            && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") ==="true"
                         )
                     );
 
-                    if (getStoredValue("HHAuto_Setting_useX50Fights") === "true"
-                        && getStoredValue("HHAuto_Setting_minShardsX50")
-                        && Number.isInteger(Number(getStoredValue("HHAuto_Setting_minShardsX50")))
-                        && remainingShards >= Number(getStoredValue("HHAuto_Setting_minShardsX50"))
-                        && (battleButtonX50Price === 0 || getHHVars('Hero.currencies.hard_currency')>=battleButtonX50Price+Number(getStoredValue("HHAuto_Setting_kobanBank")))
+                    if (getStoredValue(HHStoredVarPrefixKey+"Setting_useX50Fights") === "true"
+                        && getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX50")
+                        && Number.isInteger(Number(getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX50")))
+                        && remainingShards >= Number(getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX50"))
+                        && (battleButtonX50Price === 0 || getHHVars('Hero.currencies.hard_currency')>=battleButtonX50Price+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank")))
                         && currentPower >= 50
-                        && (currentPower >= (Number(getStoredValue("HHAuto_Setting_autoTrollThreshold")) + 50)
+                        && (currentPower >= (Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollThreshold")) + 50)
                             || bypassThreshold
                         )
-                        && ( JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true" || getStoredValue("HHAuto_Setting_useX50FightsAllowNormalEvent") === "true")
+                        && ( JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).is_mythic === "true" || getStoredValue(HHStoredVarPrefixKey+"Setting_useX50FightsAllowNormalEvent") === "true")
                     )
                     {
                         logHHAuto("Going to crush 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
@@ -334,33 +335,33 @@ export class Troll {
                         //replaceCheatClick();
                         battleButtonX50[0].click();
                         setHHVars('Hero.infos.hc_confirm',hcConfirmValue);
-                        //setStoredValue("HHAuto_Temp_EventFightsBeforeRefresh", Number(getStoredValue("HHAuto_Temp_EventFightsBeforeRefresh")) - 50);
+                        //setStoredValue(HHStoredVarPrefixKey+"Temp_EventFightsBeforeRefresh", Number(getStoredValue(HHStoredVarPrefixKey+"Temp_EventFightsBeforeRefresh")) - 50);
                         logHHAuto("Crushed 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
-                        if (getStoredValue("HHAuto_Temp_questRequirement") === "battle") {
+                        if (getStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement") === "battle") {
                             // Battle Done.
-                            setStoredValue("HHAuto_Temp_questRequirement", "none");
+                            setStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement", "none");
                         }
                         RewardHelper.ObserveAndGetGirlRewards();
                         return;
                     }
                     else
                     {
-                        if (getStoredValue("HHAuto_Setting_useX50Fights") === "true")
+                        if (getStoredValue(HHStoredVarPrefixKey+"Setting_useX50Fights") === "true")
                         {
-                            logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+Troll.getEnergy()+'/50, remaining shards : '+remainingShards+'/'+getStoredValue("HHAuto_Setting_minShardsX50")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(getStoredValue("HHAuto_Setting_kobanBank")));
+                            logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+Troll.getEnergy()+'/50, remaining shards : '+remainingShards+'/'+getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX50")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank")));
                         }
                     }
 
-                    if (getStoredValue("HHAuto_Setting_useX10Fights") === "true"
-                        && getStoredValue("HHAuto_Setting_minShardsX10")
-                        && Number.isInteger(Number(getStoredValue("HHAuto_Setting_minShardsX10")))
-                        && remainingShards >= Number(getStoredValue("HHAuto_Setting_minShardsX10"))
-                        && (battleButtonX10Price === 0 || getHHVars('Hero.currencies.hard_currency')>=battleButtonX10Price+Number(getStoredValue("HHAuto_Setting_kobanBank")))
+                    if (getStoredValue(HHStoredVarPrefixKey+"Setting_useX10Fights") === "true"
+                        && getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX10")
+                        && Number.isInteger(Number(getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX10")))
+                        && remainingShards >= Number(getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX10"))
+                        && (battleButtonX10Price === 0 || getHHVars('Hero.currencies.hard_currency')>=battleButtonX10Price+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank")))
                         && currentPower >= 10
-                        && (currentPower >= (Number(getStoredValue("HHAuto_Setting_autoTrollThreshold")) + 10)
+                        && (currentPower >= (Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollThreshold")) + 10)
                             || bypassThreshold
                         )
-                        && ( JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true" || getStoredValue("HHAuto_Setting_useX10FightsAllowNormalEvent") === "true")
+                        && ( JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).is_mythic === "true" || getStoredValue(HHStoredVarPrefixKey+"Setting_useX10FightsAllowNormalEvent") === "true")
                     )
                     {
                         logHHAuto("Going to crush 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
@@ -370,20 +371,20 @@ export class Troll {
                         //replaceCheatClick();
                         battleButtonX10[0].click();
                         setHHVars('Hero.infos.hc_confirm',hcConfirmValue);
-                        //setStoredValue("HHAuto_Temp_EventFightsBeforeRefresh", Number(getStoredValue("HHAuto_Temp_EventFightsBeforeRefresh")) - 10);
+                        //setStoredValue(HHStoredVarPrefixKey+"Temp_EventFightsBeforeRefresh", Number(getStoredValue(HHStoredVarPrefixKey+"Temp_EventFightsBeforeRefresh")) - 10);
                         logHHAuto("Crushed 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
-                        if (getStoredValue("HHAuto_Temp_questRequirement") === "battle") {
+                        if (getStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement") === "battle") {
                             // Battle Done.
-                            setStoredValue("HHAuto_Temp_questRequirement", "none");
+                            setStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement", "none");
                         }
                         RewardHelper.ObserveAndGetGirlRewards();
                         return;
                     }
                     else
                     {
-                        if (getStoredValue("HHAuto_Setting_useX10Fights") === "true")
+                        if (getStoredValue(HHStoredVarPrefixKey+"Setting_useX10Fights") === "true")
                         {
-                            logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+Troll.getEnergy()+'/10, remaining shards : '+remainingShards+'/'+getStoredValue("HHAuto_Setting_minShardsX10")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(getStoredValue("HHAuto_Setting_kobanBank")));
+                            logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+Troll.getEnergy()+'/10, remaining shards : '+remainingShards+'/'+getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX10")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank")));
                         }
                     }
                 }
@@ -403,13 +404,13 @@ export class Troll {
                     {
                         logHHAuto("Battle Button was undefined. Disabling all auto-battle.");
                         document.getElementById("autoTrollBattle").checked = false;
-                        setStoredValue("HHAuto_Setting_autoTrollBattle", "false");
+                        setStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollBattle", "false");
 
                         //document.getElementById("autoArenaCheckbox").checked = false;
-                        if (getStoredValue("HHAuto_Temp_questRequirement") === "battle")
+                        if (getStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement") === "battle")
                         {
                             document.getElementById("autoQuest").checked = false;
-                            setStoredValue("HHAuto_Setting_autoQuest", "false");
+                            setStoredValue(HHStoredVarPrefixKey+"Setting_autoQuest", "false");
 
                             logHHAuto("Auto-quest disabled since it requires battle and auto-battle has errors.");
                         }
@@ -419,17 +420,17 @@ export class Troll {
                     //console.log(battleButton);
                     //replaceCheatClick();
                     checkPreviousFightDone();
-                    setStoredValue("HHAuto_Temp_trollPoints", currentPower);
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_trollPoints", currentPower);
                     battleButton[0].click();
                 }
                 else
                 {
                     // We need more power.
                     logHHAuto("Battle requires "+battle_price+" power.");
-                    setStoredValue("HHAuto_Temp_battlePowerRequired", battle_price);
-                    if(getStoredValue("HHAuto_Temp_questRequirement") === "battle")
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_battlePowerRequired", battle_price);
+                    if(getStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement") === "battle")
                     {
-                        setStoredValue("HHAuto_Temp_questRequirement", "P"+battle_price);
+                        setStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement", "P"+battle_price);
                     }
                     gotoPage(getHHScriptVars("pagesIDHome"));
                     return;
@@ -438,7 +439,7 @@ export class Troll {
             else
             {
                 checkPreviousFightDone();
-                setStoredValue("HHAuto_Temp_trollPoints", currentPower);
+                setStoredValue(HHStoredVarPrefixKey+"Temp_trollPoints", currentPower);
                 //replaceCheatClick();
                 battleButton[0].click();
             }
@@ -481,34 +482,34 @@ export class Troll {
         let maxx50 = 50;
         let maxx20 = 20;
         const currentFight = Troll.getEnergy();
-        const eventAutoBuy =  Math.min(Number(getStoredValue("HHAuto_Setting_autoBuyTrollNumber"))       || maxx20, MAX_BUY-currentFight);
-        const mythicAutoBuy = Math.min(Number(getStoredValue("HHAuto_Setting_autoBuyMythicTrollNumber")) || maxx20, MAX_BUY-currentFight);
+        const eventAutoBuy =  Math.min(Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoBuyTrollNumber"))       || maxx20, MAX_BUY-currentFight);
+        const mythicAutoBuy = Math.min(Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoBuyMythicTrollNumber")) || maxx20, MAX_BUY-currentFight);
         const pricePerFight = hero.energies[type].seconds_per_point * (unsafeWindow.hh_prices[type + '_cost_per_minute'] / 60);
         let remainingShards;
 
-        if (getStoredValue("HHAuto_Temp_eventGirl") !== undefined && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_shards && Number.isInteger(Number(JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_shards)))
+        if (getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl") !== undefined && JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).girl_shards && Number.isInteger(Number(JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).girl_shards)))
         {
             if (
                 (
-                    getStoredValue("HHAuto_Setting_buyCombat") =="true"
-                    && getStoredValue("HHAuto_Setting_plusEvent") ==="true"
+                    getStoredValue(HHStoredVarPrefixKey+"Setting_buyCombat") =="true"
+                    && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEvent") ==="true"
                     && getSecondsLeft("eventGoing") !== 0
-                    && Number(getStoredValue("HHAuto_Setting_buyCombTimer")) !== NaN
-                    && getSecondsLeft("eventGoing") < getStoredValue("HHAuto_Setting_buyCombTimer")*3600
-                    && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "false"
+                    && Number(getStoredValue(HHStoredVarPrefixKey+"Setting_buyCombTimer")) !== NaN
+                    && getSecondsLeft("eventGoing") < getStoredValue(HHStoredVarPrefixKey+"Setting_buyCombTimer")*3600
+                    && JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).is_mythic === "false"
                 )
                 ||
                 (
-                    getStoredValue("HHAuto_Setting_plusEventMythic") ==="true"
-                    && getStoredValue("HHAuto_Setting_buyMythicCombat") === "true"
+                    getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") ==="true"
+                    && getStoredValue(HHStoredVarPrefixKey+"Setting_buyMythicCombat") === "true"
                     && getSecondsLeft("eventMythicGoing") !== 0
-                    && Number(getStoredValue("HHAuto_Setting_buyMythicCombTimer")) !== NaN
-                    && getSecondsLeft("eventMythicGoing") < getStoredValue("HHAuto_Setting_buyMythicCombTimer")*3600
-                    && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic === "true"
+                    && Number(getStoredValue(HHStoredVarPrefixKey+"Setting_buyMythicCombTimer")) !== NaN
+                    && getSecondsLeft("eventMythicGoing") < getStoredValue(HHStoredVarPrefixKey+"Setting_buyMythicCombTimer")*3600
+                    && JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).is_mythic === "true"
                 )
             )
             {
-                result.event_mythic = JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic;
+                result.event_mythic = JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).is_mythic;
             }
             else
             {
@@ -519,16 +520,16 @@ export class Troll {
             maxx20 = result.event_mythic === "true" ? Math.max(maxx20, mythicAutoBuy) : Math.max(maxx20, eventAutoBuy);
 
             //console.log(result);
-            remainingShards = Number(100 - Number(JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).girl_shards));
+            remainingShards = Number(100 - Number(JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).girl_shards));
             if
                 (
-                    getStoredValue("HHAuto_Setting_minShardsX50") !== undefined
-                    && Number.isInteger(Number(getStoredValue("HHAuto_Setting_minShardsX50")))
-                    && remainingShards >= Number(getStoredValue("HHAuto_Setting_minShardsX50"))
-                    && getHHVars('Hero.currencies.hard_currency')>= (pricePerFight * maxx50)+Number(getStoredValue("HHAuto_Setting_kobanBank"))
-                    && getStoredValue("HHAuto_Setting_useX50Fights") === "true"
+                    getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX50") !== undefined
+                    && Number.isInteger(Number(getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX50")))
+                    && remainingShards >= Number(getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX50"))
+                    && getHHVars('Hero.currencies.hard_currency')>= (pricePerFight * maxx50)+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank"))
+                    && getStoredValue(HHStoredVarPrefixKey+"Setting_useX50Fights") === "true"
                     && currentFight < maxx50
-                    && ( result.event_mythic === "true" || getStoredValue("HHAuto_Setting_useX50FightsAllowNormalEvent") === "true")
+                    && ( result.event_mythic === "true" || getStoredValue(HHStoredVarPrefixKey+"Setting_useX50FightsAllowNormalEvent") === "true")
                 )
             {
                 result.max = maxx50;
@@ -539,11 +540,11 @@ export class Troll {
             else
             {
 
-                if (logging && getStoredValue("HHAuto_Setting_useX50Fights") === "true")
+                if (logging && getStoredValue(HHStoredVarPrefixKey+"Setting_useX50Fights") === "true")
                 {
-                    logHHAuto('Unable to recharge up to '+maxx50+' for '+(pricePerFight * maxx50)+' kobans : current energy : '+currentFight+', remaining shards : '+remainingShards+'/'+getStoredValue("HHAuto_Setting_minShardsX50")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(getStoredValue("HHAuto_Setting_kobanBank")));
+                    logHHAuto('Unable to recharge up to '+maxx50+' for '+(pricePerFight * maxx50)+' kobans : current energy : '+currentFight+', remaining shards : '+remainingShards+'/'+getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX50")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank")));
                 }
-                if (getHHVars('Hero.currencies.hard_currency')>=(pricePerFight * maxx20)+Number(getStoredValue("HHAuto_Setting_kobanBank"))
+                if (getHHVars('Hero.currencies.hard_currency')>=(pricePerFight * maxx20)+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank"))
                 )//&& currentFight < 10)
                 {
                     result.max = maxx20;
@@ -555,7 +556,7 @@ export class Troll {
                 {
                     if (logging)
                     {
-                        logHHAuto('Unable to recharge up to '+maxx20+' for '+(pricePerFight * maxx20)+' kobans : current energy : '+currentFight+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(getStoredValue("HHAuto_Setting_kobanBank")));
+                        logHHAuto('Unable to recharge up to '+maxx20+' for '+(pricePerFight * maxx20)+' kobans : current energy : '+currentFight+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank")));
                     }
                     return result;
                 }

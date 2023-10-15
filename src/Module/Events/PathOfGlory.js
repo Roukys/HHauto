@@ -13,26 +13,27 @@ import {
     setTimer } from "../../Helper";
     import { gotoPage } from "../../Service";
     import { isJSON, logHHAuto } from "../../Utils";
+import { HHStoredVarPrefixKey } from "../../config";
 import { EventModule } from "./EventModule";
 
 export class PathOfGlory {
     static getRemainingTime(){
         const poGTimerRequest = '#pog_tab_container > div.potions-paths-first-row .potions-paths-timer span[rel=expires]';
     
-        if ( $(poGTimerRequest).length > 0 && (getSecondsLeft("PoGRemainingTime") === 0 || getStoredValue("HHAuto_Temp_PoGEndDate") === undefined) )
+        if ( $(poGTimerRequest).length > 0 && (getSecondsLeft("PoGRemainingTime") === 0 || getStoredValue(HHStoredVarPrefixKey+"Temp_PoGEndDate") === undefined) )
         {
             const poGTimer = Number(convertTimeToInt($(poGTimerRequest).text()));
             setTimer("PoGRemainingTime",poGTimer);
-            setStoredValue("HHAuto_Temp_PoGEndDate",Math.ceil(new Date().getTime()/1000)+poGTimer);
+            setStoredValue(HHStoredVarPrefixKey+"Temp_PoGEndDate",Math.ceil(new Date().getTime()/1000)+poGTimer);
         }
     }
     static displayRemainingTime()
     {
-        EventModule.displayGenericRemainingTime("#scriptPogTime", "path-of-glory", "HHAutoPoGTimer", "PoGRemainingTime", "HHAuto_Temp_PoGEndDate");
+        EventModule.displayGenericRemainingTime("#scriptPogTime", "path-of-glory", "HHAutoPoGTimer", "PoGRemainingTime", HHStoredVarPrefixKey+"Temp_PoGEndDate");
     }
     static goAndCollect()
     {
-        const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoPoGCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoPoGCollectablesList")):[];
+        const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoGCollectablesList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoGCollectablesList")):[];
 
         if (getPage() === getHHScriptVars("pagesIDPoG"))
         {
@@ -40,7 +41,7 @@ export class PathOfGlory {
             const pogEnd = getSecondsLeft("PoGRemainingTime");
             logHHAuto("PoG end in " + debugDate(pogEnd));
 
-            if (checkTimer('nextPoGCollectAllTime') && pogEnd < getLimitTimeBeforeEnd() && getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true")
+            if (checkTimer('nextPoGCollectAllTime') && pogEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoGCollectAll") === "true")
             {
                 if ($(getHHScriptVars("selectorClaimAllRewards")).length > 0)
                 {
@@ -57,11 +58,11 @@ export class PathOfGlory {
                     setTimer('nextPoGCollectAllTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
                 }
             }
-            if (checkTimer('nextPoGCollectTime') && (getStoredValue("HHAuto_Setting_autoPoGCollect") === "true" || getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true"))
+            if (checkTimer('nextPoGCollectTime') && (getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoGCollect") === "true" || getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoGCollectAll") === "true"))
             {
                 logHHAuto("Checking Path of Glory for collectable rewards.");
                 logHHAuto("setting autoloop to false");
-                setStoredValue("HHAuto_Temp_autoLoop", "false");
+                setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                 let buttonsToCollect = [];
                 const listPoGTiersToClaim = $("#pog_tab_container div.potions-paths-second-row div.potions-paths-central-section div.potions-paths-tier.unclaimed");
                 for (let currentTier = 0 ; currentTier < listPoGTiersToClaim.length ; currentTier++)

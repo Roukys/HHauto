@@ -1,6 +1,6 @@
 import { setDefaults } from "../Service";
 import { isDisplayedHHPopUp, logHHAuto } from "../Utils";
-import { HHAuto_inputPattern, HHStoredVars } from "../config";
+import { HHAuto_inputPattern, HHStoredVarPrefixKey, HHStoredVars } from "../config";
 import { getHHScriptVars } from "./ConfigHelper";
 import { getTextForUI } from "./LanguageHelper";
 import { add1000sSeparator, add1000sSeparator1, remove1000sSeparator } from "./NumberHelper";
@@ -94,7 +94,7 @@ export function switchHHMenuButton(isActive)
     var element = document.getElementById("sMenuButton");
     if(element !== null)
     {
-        if (getStoredValue("HHAuto_Setting_master") === "false")
+        if (getStoredValue(HHStoredVarPrefixKey+"Setting_master") === "false")
         {
             element.style["background-color"] = "red";
             element.style["background-image"] = "none";
@@ -125,7 +125,7 @@ export function setMenuValues()
         if (HHStoredVars[i].storage !== undefined && HHStoredVars[i].HHType !== undefined)
         {
             let storageItem = getStorageItem(HHStoredVars[i].storage);
-            let menuID = HHStoredVars[i].customMenuID !== undefined?HHStoredVars[i].customMenuID:i.replace("HHAuto_"+HHStoredVars[i].HHType+"_","");
+            let menuID = HHStoredVars[i].customMenuID !== undefined?HHStoredVars[i].customMenuID:i.replace(HHStoredVarPrefixKey+HHStoredVars[i].HHType+"_","");
             if (
                 HHStoredVars[i].setMenu !== undefined
                 && storageItem[i] !== undefined
@@ -169,7 +169,7 @@ export function getMenuValues()
         if (HHStoredVars[i].storage !== undefined && HHStoredVars[i].HHType !== undefined)
         {
             let storageItem = getStorageItem(HHStoredVars[i].storage);
-            let menuID = HHStoredVars[i].customMenuID !== undefined?HHStoredVars[i].customMenuID:i.replace("HHAuto_"+HHStoredVars[i].HHType+"_","");
+            let menuID = HHStoredVars[i].customMenuID !== undefined?HHStoredVars[i].customMenuID:i.replace(HHStoredVarPrefixKey+HHStoredVars[i].HHType+"_","");
             if (
                 HHStoredVars[i].getMenu !== undefined
                 && document.getElementById(menuID) !== null
@@ -222,7 +222,7 @@ export function addEventsOnMenuItems()
         //console.log(i);
         if (HHStoredVars[i].HHType !== undefined )
         {
-            let menuID = HHStoredVars[i].customMenuID !== undefined?HHStoredVars[i].customMenuID:i.replace("HHAuto_"+HHStoredVars[i].HHType+"_","");
+            let menuID = HHStoredVars[i].customMenuID !== undefined?HHStoredVars[i].customMenuID:i.replace(HHStoredVarPrefixKey+HHStoredVars[i].HHType+"_","");
             if ( HHStoredVars[i].valueType === "Long Integer")
             {
                 document.getElementById(menuID).addEventListener("keyup",add1000sSeparator1);

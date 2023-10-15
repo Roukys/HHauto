@@ -1,4 +1,5 @@
 import { logHHAuto } from "../Utils";
+import { HHStoredVarPrefixKey } from "../config";
 import { setStoredValue } from "./StorageHelper";
 import { canCollectCompetitionActive, toHHMMSS } from "./TimeHelper";
 
@@ -8,7 +9,7 @@ export function setTimer(name, seconds)
 {
     var ND=new Date().getTime() + seconds * 1000;
     Timers[name]=ND;
-    setStoredValue("HHAuto_Temp_Timers", JSON.stringify(Timers));
+    setStoredValue(HHStoredVarPrefixKey+"Temp_Timers", JSON.stringify(Timers));
     logHHAuto(name+" set to "+toHHMMSS(ND/1000-new Date().getTimezoneOffset()*60)+' ('+ toHHMMSS(seconds)+')');
 }
 
@@ -16,7 +17,7 @@ export function setTimer(name, seconds)
 export function clearTimer(name)
 {
     delete Timers[name];
-    setStoredValue("HHAuto_Temp_Timers", JSON.stringify(Timers));
+    setStoredValue(HHStoredVarPrefixKey+"Temp_Timers", JSON.stringify(Timers));
 }
 
 export function checkTimer(name)

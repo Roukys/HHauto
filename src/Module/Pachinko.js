@@ -12,7 +12,7 @@ import {
 } from "../Helper";
 import { autoLoop, gotoPage } from "../Service";
 import { isDisplayedHHPopUp, fillHHPopUp, logHHAuto, maskHHPopUp } from "../Utils";
-import { HHAuto_inputPattern } from "../config";
+import { HHAuto_inputPattern, HHStoredVarPrefixKey } from "../config";
 
 export class Pachinko {
 
@@ -40,7 +40,7 @@ export class Pachinko {
             }
             else {
                 logHHAuto("Detected Pachinko Screen. Fetching Pachinko, setting autoloop to false");
-                setStoredValue("HHAuto_Temp_autoLoop", "false");
+                setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                 var counter=0;
                 logHHAuto('switch to ' + pachinkoType);
                 const freeButtonQuery = '#playzone-replace-info button:not([orbs]):not([price]), #playzone-replace-info button[data-free="true"]';
@@ -71,7 +71,7 @@ export class Pachinko {
 
                 setTimeout( function() {
                     RewardHelper.closeRewardPopupIfAny();
-                    setStoredValue("HHAuto_Temp_autoLoop", "true");
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
                     logHHAuto("setting autoloop to true");
                     setTimeout(autoLoop,randomInterval(500,800));
                 },randomInterval(300,600));
@@ -215,7 +215,7 @@ export class Pachinko {
     
         function pachinkoPlayXTimes()
         {
-            setStoredValue("HHAuto_Temp_autoLoop", "false");
+            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
             logHHAuto("setting autoloop to false");
             let timerSelector = document.getElementById("PachinkoSelector");
             let ByPassNoGirlChecked = document.getElementById("PachinkoByPassNoGirls").checked;
@@ -267,8 +267,8 @@ export class Pachinko {
                 if(!isDisplayedHHPopUp())
                 {
                     logHHAuto("PopUp closed, cancelling interval, restart autoloop.");
-                    setStoredValue("HHAuto_Temp_autoLoop", "true");
-                    setTimeout(autoLoop, Number(getStoredValue("HHAuto_Temp_autoLoopTimeMili")));
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
+                    setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")));
                     return;
                 }
                 if (document.getElementById("confirm_pachinko") !== null )

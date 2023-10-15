@@ -47,6 +47,7 @@ import {
     saveHHDebugLog
 } from "../Utils";
 import {
+    HHStoredVarPrefixKey,
     HHStoredVars
 } from "../config";
 import { autoLoop, getBurst } from "./AutoLoop";
@@ -131,14 +132,14 @@ export function start() {
     $('#starter_offer').hide();
     $('#starter_offer_background').hide();
 
-    if (getStoredValue("HHAuto_Temp_Timers"))
+    if (getStoredValue(HHStoredVarPrefixKey+"Temp_Timers"))
     {
-        Timers=JSON.parse(getStoredValue("HHAuto_Temp_Timers"));
+        Timers=JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_Timers"));
     }
     // clearEventData("onlyCheckEventsHHScript");
     setDefaults();
 
-    if (getStoredValue("HHAuto_Setting_mousePause") === "true") {
+    if (getStoredValue(HHStoredVarPrefixKey+"Setting_mousePause") === "true") {
         bindMouseEvents();
     }
 
@@ -349,22 +350,22 @@ export function start() {
         currentInput.addEventListener('invalid', () => {
             currentInput.style.backgroundColor = "red";
             //document.getElementById("master").checked = false;
-            //setStoredValue("HHAuto_Setting_master", "false");
+            //setStoredValue(HHStoredVarPrefixKey+"Setting_master", "false");
         });
         currentInput.checkValidity();
     });
 
 
 
-    setStoredValue("HHAuto_Temp_autoLoop", "true");
-    if (typeof getStoredValue("HHAuto_Temp_freshStart") == "undefined" || isNaN(Number(getStoredValue("HHAuto_Temp_autoLoopTimeMili")))) {
+    setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
+    if (typeof getStoredValue(HHStoredVarPrefixKey+"Temp_freshStart") == "undefined" || isNaN(Number(getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")))) {
         setDefaults(true);
     }
 
     if (getBurst())
     {
         Market.doShopping();
-        if ( getStoredValue("HHAuto_Setting_autoStatsSwitch") ==="true" )
+        if ( getStoredValue(HHStoredVarPrefixKey+"Setting_autoStatsSwitch") ==="true" )
         {
             doStatUpgrades();
         }
@@ -375,22 +376,22 @@ export function start() {
         function Alive()
         {
             window.top.postMessage({ImAlive:true},'*');
-            if (getStoredValue("HHAuto_Temp_autoLoop") =="true")
+            if (getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") =="true")
             {
                 setTimeout(Alive,2000);
             }
         }
         Alive();
     }
-    if (isJSON(getStoredValue("HHAuto_Temp_LastPageCalled")) && JSON.parse(getStoredValue("HHAuto_Temp_LastPageCalled")).page.indexOf(".html") > 0 )
+    if (isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_LastPageCalled")) && JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_LastPageCalled")).page.indexOf(".html") > 0 )
     {
         //console.log("testingHome : setting to : "+getPage());
-        setStoredValue("HHAuto_Temp_LastPageCalled", JSON.stringify({page:getPage(), dateTime:new Date().getTime()}));
+        setStoredValue(HHStoredVarPrefixKey+"Temp_LastPageCalled", JSON.stringify({page:getPage(), dateTime:new Date().getTime()}));
     }
-    if (isJSON(getStoredValue("HHAuto_Temp_LastPageCalled")) && JSON.parse(getStoredValue("HHAuto_Temp_LastPageCalled")).page === getHHScriptVars("pagesIDHome"))
+    if (isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_LastPageCalled")) && JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_LastPageCalled")).page === getHHScriptVars("pagesIDHome"))
     {
         //console.log("testingHome : delete");
-        deleteStoredValue("HHAuto_Temp_LastPageCalled");
+        deleteStoredValue(HHStoredVarPrefixKey+"Temp_LastPageCalled");
     }
     getPage(true);
     setTimeout(autoLoop,1000);

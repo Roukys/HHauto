@@ -8,6 +8,7 @@ import { getStoredValue, setStoredValue } from "./StorageHelper";
 import { randomInterval } from "./TimeHelper";
 import { EventModule, SeasonalEvent } from "../Module";
 import { queryStringGetParam } from "./UrlHelper";
+import { HHStoredVarPrefixKey } from "../config";
 
 export class RewardHelper {
     static getRewardTypeBySlot(inSlot)
@@ -253,16 +254,16 @@ export class RewardHelper {
         let inCaseTimer = setTimeout(function(){gotoPage(getHHScriptVars("pagesIDHome"));}, 60000); //in case of issue
         function parseReward()
         {
-            if (getStoredValue("HHAuto_Temp_eventsGirlz") === undefined
-                || getStoredValue("HHAuto_Temp_eventGirl") === undefined
-                || !isJSON(getStoredValue("HHAuto_Temp_eventsGirlz"))
-                || !isJSON(getStoredValue("HHAuto_Temp_eventGirl")))
+            if (getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz") === undefined
+                || getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl") === undefined
+                || !isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz"))
+                || !isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")))
             {
                 return -1;
             }
             let foughtTrollId = queryStringGetParam(window.location.search,'id_opponent');
-            let eventsGirlz =isJSON(getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsGirlz")):{}
-            let eventGirl = isJSON(getStoredValue("HHAuto_Temp_eventGirl"))?JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")):{};
+            let eventsGirlz =isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz")):{}
+            let eventGirl = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")):{};
             let TTF = eventGirl.troll_id;
             if (foughtTrollId != TTF) {
                 logHHAuto('Troll from event not fought, can be issue in event variable (event finished ?)');
@@ -309,10 +310,10 @@ export class RewardHelper {
                     }
                 }
             }
-            setStoredValue("HHAuto_Temp_eventsGirlz", JSON.stringify(eventsGirlz));
-            setStoredValue("HHAuto_Temp_eventGirl", JSON.stringify(eventGirl));
+            setStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz", JSON.stringify(eventsGirlz));
+            setStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl", JSON.stringify(eventGirl));
             if (renewEvent !== ""
-                //|| Number(getStoredValue("HHAuto_Temp_EventFightsBeforeRefresh")) < 1
+                //|| Number(getStoredValue(HHStoredVarPrefixKey+"Temp_EventFightsBeforeRefresh")) < 1
                 || EventModule.checkEvent(eventGirl.event_id)
             )
             {
@@ -345,7 +346,7 @@ export class RewardHelper {
         {
             if ($('#rewards_popup')[0].style.display!=="block")
             {
-                setStoredValue("HHAuto_Temp_autoLoop", "false");
+                setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                 logHHAuto("setting autoloop to false to wait for troll rewards");
                 observerReward.observe($('#rewards_popup')[0], {
                     childList: false

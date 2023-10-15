@@ -13,26 +13,27 @@ import {
     setTimer } from "../../Helper";
     import { gotoPage } from "../../Service";
     import { isJSON, logHHAuto } from "../../Utils";
+import { HHStoredVarPrefixKey } from "../../config";
 import { EventModule } from "./EventModule";
 
 export class PathOfValue {
     static getRemainingTime(){
         const poVTimerRequest = '#pov_tab_container > div.potions-paths-first-row .potions-paths-timer span[rel=expires]';
 
-        if ( $(poVTimerRequest).length > 0 && (getSecondsLeft("PoVRemainingTime") === 0 || getStoredValue("HHAuto_Temp_PoVEndDate") === undefined) )
+        if ( $(poVTimerRequest).length > 0 && (getSecondsLeft("PoVRemainingTime") === 0 || getStoredValue(HHStoredVarPrefixKey+"Temp_PoVEndDate") === undefined) )
         {
             const poVTimer = Number(convertTimeToInt($(poVTimerRequest).text()));
             setTimer("PoVRemainingTime",poVTimer);
-            setStoredValue("HHAuto_Temp_PoVEndDate",Math.ceil(new Date().getTime()/1000)+poVTimer);
+            setStoredValue(HHStoredVarPrefixKey+"Temp_PoVEndDate",Math.ceil(new Date().getTime()/1000)+poVTimer);
         }
     }
     static displayRemainingTime()
     {
-        EventModule.displayGenericRemainingTime("#scriptPovTime", "path-of-valor", "HHAutoPoVTimer", "PoVRemainingTime", "HHAuto_Temp_PoVEndDate");
+        EventModule.displayGenericRemainingTime("#scriptPovTime", "path-of-valor", "HHAutoPoVTimer", "PoVRemainingTime", HHStoredVarPrefixKey+"Temp_PoVEndDate");
     }
     static goAndCollect()
     {
-        const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoPoVCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoPoVCollectablesList")):[];
+        const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoVCollectablesList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoVCollectablesList")):[];
 
         if (getPage() === getHHScriptVars("pagesIDPoV"))
         {
@@ -40,7 +41,7 @@ export class PathOfValue {
             const povEnd = getSecondsLeft("PoVRemainingTime");
             logHHAuto("PoV end in " + debugDate(povEnd));
 
-            if (checkTimer('nextPoVCollectAllTime') && povEnd < getLimitTimeBeforeEnd() && getStoredValue("HHAuto_Setting_autoPoVCollectAll") === "true")
+            if (checkTimer('nextPoVCollectAllTime') && povEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoVCollectAll") === "true")
             {
                 if ($(getHHScriptVars("selectorClaimAllRewards")).length > 0)
                 {
@@ -57,11 +58,11 @@ export class PathOfValue {
                     setTimer('nextPoVCollectAllTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
                 }
             }
-            if (checkTimer('nextPoVCollectTime') && getStoredValue("HHAuto_Setting_autoPoVCollect") === "true")
+            if (checkTimer('nextPoVCollectTime') && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoVCollect") === "true")
             {
                 logHHAuto("Checking Path of Valor for collectable rewards.");
                 logHHAuto("setting autoloop to false");
-                setStoredValue("HHAuto_Temp_autoLoop", "false");
+                setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                 let buttonsToCollect = [];
                 const listPoVTiersToClaim = $("#pov_tab_container div.potions-paths-second-row div.potions-paths-central-section div.potions-paths-tier.unclaimed");
                 for (let currentTier = 0 ; currentTier < listPoVTiersToClaim.length ; currentTier++)

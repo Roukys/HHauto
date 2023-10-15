@@ -1,4 +1,5 @@
 import { isJSON } from "../Utils";
+import { HHStoredVarPrefixKey } from "../config";
 import { getHHScriptVars } from "./ConfigHelper";
 import { getStoredValue, setStoredValue } from "./StorageHelper";
 
@@ -6,7 +7,7 @@ import { getStoredValue, setStoredValue } from "./StorageHelper";
 export function customMatchRating(inSimu) // NOT used ?
 {
     let matchRating = inSimu.score;
-    var customLimits = getStoredValue("HHAuto_Setting_calculatePowerLimits").split(";");
+    var customLimits = getStoredValue(HHStoredVarPrefixKey+"Setting_calculatePowerLimits").split(";");
     if(customLimits.length === 2 && Number(customLimits[0]) < Number(customLimits[1]))
     {
         if (matchRating >= 0)
@@ -31,9 +32,9 @@ export function customMatchRating(inSimu) // NOT used ?
     }
     else
     {
-        if ( getStoredValue("HHAuto_Setting_calculatePowerLimits") !== "default")
+        if ( getStoredValue(HHStoredVarPrefixKey+"Setting_calculatePowerLimits") !== "default")
         {
-            setStoredValue("HHAuto_Setting_calculatePowerLimits", "Invalid limits");
+            setStoredValue(HHStoredVarPrefixKey+"Setting_calculatePowerLimits", "Invalid limits");
         }
         if (matchRating >= 0)
         {
@@ -274,7 +275,7 @@ export function simulateBattle (player, opponent) {
 /*
 commented        const girlDictionary
 replaced         const girlCount = girlDictionary.size || 800
-              by const girlCount = isJSON(getStoredValue("HHAuto_Temp_HaremSize"))?JSON.parse(getStoredValue("HHAuto_Temp_HaremSize")).count:800;
+              by const girlCount = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_HaremSize"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_HaremSize")).count:800;
               */
 export function calculateSynergiesFromTeamMemberElements(elements) {
     const counts = countElementsInTeam(elements)
@@ -282,7 +283,7 @@ export function calculateSynergiesFromTeamMemberElements(elements) {
     // Only care about those not included in the stats already: fire, stone, sun and water
     // Assume max harem synergy
     //const girlDictionary = (typeof(localStorage.HHPNMap) == "undefined") ? new Map(): new Map(JSON.parse(localStorage.HHPNMap));
-    const girlCount = isJSON(getStoredValue("HHAuto_Temp_HaremSize"))?JSON.parse(getStoredValue("HHAuto_Temp_HaremSize")).count:800;
+    const girlCount = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_HaremSize"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_HaremSize")).count:800;
     const girlsPerElement = Math.min(girlCount / 8, 100)
 
     return {

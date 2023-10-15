@@ -9,13 +9,14 @@ import {
 } from "../Helper";
 import { gotoPage } from "../Service";
 import { logHHAuto } from "../Utils";
+import { HHStoredVarPrefixKey } from "../config";
 
 export class Bundles {
     static goAndCollectFreeBundles()
     {
         if (getPage() == getHHScriptVars("pagesIDHome"))
         {
-            if(getStoredValue("HHAuto_Setting_autoFreeBundlesCollect") !== "true") {
+            if(getStoredValue(HHStoredVarPrefixKey+"Setting_autoFreeBundlesCollect") !== "true") {
                 logHHAuto("Error autoFreeBundlesCollect not activated.");
                 return;
             }
@@ -30,7 +31,7 @@ export class Bundles {
                 return false;
             }
             logHHAuto("setting autoloop to false");
-            setStoredValue("HHAuto_Temp_autoLoop", "false");
+            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
             const bundleTabsContainerQuery = "#popups .payments-wrapper .payment-tabs";
             const bundleTabsListQuery = '.event_bundles, .special_offers, .period_deal';
             const subTabsQuery= "#popups .payments-wrapper .content-container .subtabs-container .card-container";
@@ -40,7 +41,7 @@ export class Bundles {
                 logHHAuto(message);
                 setTimer('nextFreeBundlesCollectTime', nextFreeBundlesCollectTime);
                 gotoPage(getHHScriptVars("pagesIDHome"));
-                setStoredValue("HHAuto_Temp_autoLoop", "true");
+                setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
                 logHHAuto("setting autoloop to true");
             }
 

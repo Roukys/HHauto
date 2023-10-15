@@ -10,6 +10,7 @@ import {
 } from "../Helper";
 import { autoLoop, gotoPage } from "../Service";
 import { logHHAuto } from "../Utils";
+import { HHStoredVarPrefixKey } from "../config";
 
 export class PlaceOfPower {
     static moduleDisplayPopID()
@@ -20,7 +21,7 @@ export class PlaceOfPower {
         });
     }
     static styles(){
-        if(getStoredValue("HHAuto_Setting_compactPowerPlace") === "true")
+        if(getStoredValue(HHStoredVarPrefixKey+"Setting_compactPowerPlace") === "true")
         {
             const popPagePath = '#pop #pop_info .pop_list';
             const popBtnPath = popPagePath +' .pop-action-btn';
@@ -94,28 +95,28 @@ export class PlaceOfPower {
         }
     }
     static addPopToUnableToStart(popIndex,message){
-        var popUnableToStart=getStoredValue("HHAuto_Temp_PopUnableToStart")?getStoredValue("HHAuto_Temp_PopUnableToStart"):"";
+        var popUnableToStart=getStoredValue(HHStoredVarPrefixKey+"Temp_PopUnableToStart")?getStoredValue(HHStoredVarPrefixKey+"Temp_PopUnableToStart"):"";
         logHHAuto(message);
         if (popUnableToStart === "")
         {
-            setStoredValue("HHAuto_Temp_PopUnableToStart", String(popIndex));
+            setStoredValue(HHStoredVarPrefixKey+"Temp_PopUnableToStart", String(popIndex));
         }
         else
         {
-            setStoredValue("HHAuto_Temp_PopUnableToStart", popUnableToStart+";"+String(popIndex));
+            setStoredValue(HHStoredVarPrefixKey+"Temp_PopUnableToStart", popUnableToStart+";"+String(popIndex));
         }
     }
     static cleanTempPopToStart()
     {
-        sessionStorage.removeItem('HHAuto_Temp_PopUnableToStart');
-        sessionStorage.removeItem('HHAuto_Temp_popToStart');
+        sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_PopUnableToStart');
+        sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_popToStart');
     }
     static removePopFromPopToStart(index)
     {
         var epop;
         var popToSart;
         var newPopToStart;
-        popToSart= getStoredValue("HHAuto_Temp_PopToStart")?JSON.parse(getStoredValue("HHAuto_Temp_PopToStart")):[];
+        popToSart= getStoredValue(HHStoredVarPrefixKey+"Temp_PopToStart")?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_PopToStart")):[];
         newPopToStart=[];
         for (epop of popToSart)
         {
@@ -124,7 +125,7 @@ export class PlaceOfPower {
                 newPopToStart.push(epop);
             }
         }
-        setStoredValue("HHAuto_Temp_PopToStart", JSON.stringify(newPopToStart));
+        setStoredValue(HHStoredVarPrefixKey+"Temp_PopToStart", JSON.stringify(newPopToStart));
     }
 
     static collectAndUpdate()
@@ -140,13 +141,13 @@ export class PlaceOfPower {
         else
         {
             logHHAuto("On powerplaces main page.");
-            setStoredValue("HHAuto_Temp_autoLoop", "false");
+            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
             logHHAuto("setting autoloop to false");
 
-            setStoredValue("HHAuto_Temp_Totalpops", $("div.pop_list div[pop_id]").length); //Count how many different POPs there are and store them locally
-            logHHAuto("totalpops : "+getStoredValue("HHAuto_Temp_Totalpops"));
+            setStoredValue(HHStoredVarPrefixKey+"Temp_Totalpops", $("div.pop_list div[pop_id]").length); //Count how many different POPs there are and store them locally
+            logHHAuto("totalpops : "+getStoredValue(HHStoredVarPrefixKey+"Temp_Totalpops"));
             var newFilter="";
-            if (getStoredValue("HHAuto_Setting_autoPowerPlacesInverted") === "true")
+            if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoPowerPlacesInverted") === "true")
             {
                 // starting from last one.
                 $("div.pop_list div[pop_id]").each(function(){newFilter=';'+$(this).attr('pop_id')+newFilter;});
@@ -155,11 +156,11 @@ export class PlaceOfPower {
             {
                 $("div.pop_list div[pop_id]").each(function(){newFilter=newFilter+';'+$(this).attr('pop_id');});
             }
-            if (getStoredValue("HHAuto_Setting_autoPowerPlacesAll") === "true")
+            if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoPowerPlacesAll") === "true")
             {
-                setStoredValue("HHAuto_Setting_autoPowerPlacesIndexFilter", newFilter.substring(1));
+                setStoredValue(HHStoredVarPrefixKey+"Setting_autoPowerPlacesIndexFilter", newFilter.substring(1));
             }
-            setStoredValue("HHAuto_Temp_currentlyAvailablePops",newFilter.substring(1))
+            setStoredValue(HHStoredVarPrefixKey+"Temp_currentlyAvailablePops",newFilter.substring(1))
             //collect all
             let buttonClaimQuery = "button[rel='pop_thumb_claim'].purple_button_L:not([style])";
             if ($(buttonClaimQuery).length >0)
@@ -172,8 +173,8 @@ export class PlaceOfPower {
 
 
 
-            var filteredPops = getStoredValue("HHAuto_Setting_autoPowerPlacesIndexFilter")?getStoredValue("HHAuto_Setting_autoPowerPlacesIndexFilter").split(";"):[];
-            var popUnableToStart = getStoredValue("HHAuto_Temp_PopUnableToStart")?getStoredValue("HHAuto_Temp_PopUnableToStart").split(";"):[];
+            var filteredPops = getStoredValue(HHStoredVarPrefixKey+"Setting_autoPowerPlacesIndexFilter")?getStoredValue(HHStoredVarPrefixKey+"Setting_autoPowerPlacesIndexFilter").split(";"):[];
+            var popUnableToStart = getStoredValue(HHStoredVarPrefixKey+"Temp_PopUnableToStart")?getStoredValue(HHStoredVarPrefixKey+"Temp_PopUnableToStart").split(";"):[];
             //logHHAuto("filteredPops : "+filteredPops);
             var PopToStart=[];
             $("div.pop_thumb[status='pending_reward']").each(function()
@@ -225,7 +226,7 @@ export class PlaceOfPower {
                     //force check of PowerPlaces every 7 hours // TODO: check time 20min != 7h
                     setTimer('minPowerPlacesTime',randomInterval(20*60, 25*60));
                 }
-                else if (getStoredValue("HHAuto_Setting_autoPowerPlacesWaitMax") === "true" && maxTime != -1)
+                else if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoPowerPlacesWaitMax") === "true" && maxTime != -1)
                 {
                     setTimer('minPowerPlacesTime',Number(maxTime) + randomInterval(2*60, 5*60));
                 }
@@ -255,12 +256,12 @@ export class PlaceOfPower {
             });
             if (PopToStart.length === 0)
             {
-                sessionStorage.removeItem('HHAuto_Temp_PopUnableToStart');
+                sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_PopUnableToStart');
             }
             logHHAuto("build popToStart : "+PopToStart);
-            setStoredValue("HHAuto_Temp_PopToStart", JSON.stringify(PopToStart));
-            setStoredValue("HHAuto_Temp_autoLoop", "true");
-            setTimeout(autoLoop, Number(getStoredValue("HHAuto_Temp_autoLoopTimeMili")));
+            setStoredValue(HHStoredVarPrefixKey+"Temp_PopToStart", JSON.stringify(PopToStart));
+            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
+            setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")));
             return false;
         }
     }
@@ -299,7 +300,7 @@ export class PlaceOfPower {
             {
                 $(querySelectorText).click();
                 logHHAuto("Claimed powerplace"+index);
-                if (getStoredValue("HHAuto_Setting_autoPowerPlacesAll") !== "true")
+                if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoPowerPlacesAll") !== "true")
                 {
                     PlaceOfPower.cleanTempPopToStart();
                     gotoPage(getHHScriptVars("pagesIDPowerplacemain"));
@@ -315,7 +316,7 @@ export class PlaceOfPower {
             }
 
 
-            if (getStoredValue("HHAuto_Setting_autoPowerPlacesPrecision") === "true") {
+            if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoPowerPlacesPrecision") === "true") {
                 if (document.getElementsByClassName("acting-power-text").length>0) {
 
                     // How much power is needed
@@ -349,7 +350,7 @@ export class PlaceOfPower {
                         });
 
                         //Debug can be enabled by manually setting "HHAuto_Temp_Debug" to true in browser console
-                        const debugEnabled = Boolean(getStoredValue("HHAuto_Temp_Debug")!==undefined?(getStoredValue("HHAuto_Temp_Debug")===true?true:false):false);
+                        const debugEnabled = Boolean(getStoredValue(HHStoredVarPrefixKey+"Temp_Debug")!==undefined?(getStoredValue(HHStoredVarPrefixKey+"Temp_Debug")===true?true:false):false);
                         let startTime = 0;
                         if (debugEnabled) {
                             logHHAuto("PoP debug is enabled");

@@ -7,6 +7,7 @@ import {
     setStoredValue
 } from "../Helper";
 import { logHHAuto } from "../Utils";
+import { HHStoredVarPrefixKey } from "../config";
 
 export class TeamModule {
 
@@ -33,7 +34,7 @@ export class TeamModule {
 
         function assignTopTeam()
         {
-            setStoredValue("HHAuto_Temp_autoLoop", "false");
+            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
             logHHAuto("setting autoloop to false");
             function selectFromHaremBest(i,best)
             {

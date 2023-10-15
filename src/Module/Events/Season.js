@@ -24,6 +24,7 @@ import {
     setTimer } from "../../Helper";
     import { checkParanoiaSpendings, gotoPage } from "../../Service";
     import { isJSON, logHHAuto } from "../../Utils";
+import { HHStoredVarPrefixKey } from "../../config";
 import { Booster } from "../Booster";
 import { EventModule } from "./EventModule";
 
@@ -31,15 +32,15 @@ export class Season {
     static getRemainingTime(){
         const seasonTimer = unsafeWindow.season_sec_untill_event_end;
 
-        if ( seasonTimer != undefined && (getSecondsLeft("SeasonRemainingTime") === 0 || getStoredValue("HHAuto_Temp_SeasonEndDate") === undefined) )
+        if ( seasonTimer != undefined && (getSecondsLeft("SeasonRemainingTime") === 0 || getStoredValue(HHStoredVarPrefixKey+"Temp_SeasonEndDate") === undefined) )
         {
             setTimer("SeasonRemainingTime",seasonTimer);
-            setStoredValue("HHAuto_Temp_SeasonEndDate",Math.ceil(new Date().getTime()/1000)+seasonTimer);
+            setStoredValue(HHStoredVarPrefixKey+"Temp_SeasonEndDate",Math.ceil(new Date().getTime()/1000)+seasonTimer);
         }
     }
     static displayRemainingTime()
     {
-        EventModule.displayGenericRemainingTime("#scriptSeasonTime", "season", "HHAutoSeasonTimer", "SeasonRemainingTime", "HHAuto_Temp_SeasonEndDate");
+        EventModule.displayGenericRemainingTime("#scriptSeasonTime", "season", "HHAutoSeasonTimer", "SeasonRemainingTime", HHStoredVarPrefixKey+"Temp_SeasonEndDate");
     }
 
     static getEnergy() {
@@ -51,11 +52,11 @@ export class Season {
     }
 
     static getPinfo() {
-        const threshold = Number(getStoredValue("HHAuto_Setting_autoSeasonThreshold"));
-        const runThreshold = Number(getStoredValue("HHAuto_Setting_autoSeasonRunThreshold"));
+        const threshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonThreshold"));
+        const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonRunThreshold"));
 
         let Tegzd = '';
-        const boostLimited = getStoredValue("HHAuto_Setting_autoSeasonBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
+        const boostLimited = getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
         if(boostLimited) {
             Tegzd += '<li style="color:red!important;" title="'+getTextForUI("boostMissing","elementText")+'">';
         }else {
@@ -79,13 +80,13 @@ export class Season {
     }
 
     static isTimeToFight() {
-        const threshold = Number(getStoredValue("HHAuto_Setting_autoSeasonThreshold"));
-        const runThreshold = Number(getStoredValue("HHAuto_Setting_autoSeasonRunThreshold"));
-        const humanLikeRun = getStoredValue("HHAuto_Temp_SeasonHumanLikeRun") === "true";
+        const threshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonThreshold"));
+        const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonRunThreshold"));
+        const humanLikeRun = getStoredValue(HHStoredVarPrefixKey+"Temp_SeasonHumanLikeRun") === "true";
 
         const energyAboveThreshold = humanLikeRun && Season.getEnergy() > threshold || Season.getEnergy() > Math.max(threshold, runThreshold-1);
         const paranoiaSpending = Season.getEnergy() > 0 && Number(checkParanoiaSpendings('kiss')) > 0;
-        const needBoosterToFight = getStoredValue("HHAuto_Setting_autoSeasonBoostedOnly") === "true";
+        const needBoosterToFight = getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonBoostedOnly") === "true";
         const haveBoosterEquiped = Booster.haveBoosterEquiped();
 
         if(checkTimer('nextSeasonTime') && energyAboveThreshold && needBoosterToFight && !haveBoosterEquiped) {
@@ -298,7 +299,7 @@ export class Season {
             {
                 price = 12;
             }
-            if (numberOfReds === 3 && getStoredValue("HHAuto_Setting_autoSeasonPassReds") === "true" && getHHVars('Hero.currencies.hard_currency')>=price+Number(getStoredValue("HHAuto_Setting_kobanBank")))
+            if (numberOfReds === 3 && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonPassReds") === "true" && getHHVars('Hero.currencies.hard_currency')>=price+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank")))
             {
                 chosenID = -2;
             }
@@ -379,7 +380,7 @@ export class Season {
                         location.reload();
                     })
                 }
-                setStoredValue("HHAuto_Temp_autoLoop", "false");
+                setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                 logHHAuto("setting autoloop to false");
                 setTimer('nextSeasonTime', randomInterval(5,10));
                 setTimeout(refreshOpponents,randomInterval(800,1600));
@@ -393,12 +394,12 @@ export class Season {
             }
             else
             {
-                const runThreshold = Number(getStoredValue("HHAuto_Setting_autoSeasonRunThreshold"));
+                const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonRunThreshold"));
                 if (runThreshold > 0) {
-                    setStoredValue("HHAuto_Temp_SeasonHumanLikeRun", "true");
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_SeasonHumanLikeRun", "true");
                 }
                 location.href = document.getElementsByClassName("opponent_perform_button_container")[chosenID].children[0].getAttribute('href');
-                setStoredValue("HHAuto_Temp_autoLoop", "false");
+                setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                 logHHAuto("setting autoloop to false");
                 logHHAuto("Going to crush : "+$("div.season_arena_opponent_container .personal_info div.player-name")[chosenID].innerText);
                 setTimer('nextSeasonTime', randomInterval(5,10));
@@ -432,7 +433,7 @@ export class Season {
     }
     static goAndCollect()
     {
-        const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoSeasonCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoSeasonCollectablesList")):[];
+        const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonCollectablesList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonCollectablesList")):[];
 
         if (getPage() === getHHScriptVars("pagesIDSeason"))
         {
@@ -440,7 +441,7 @@ export class Season {
             const seasonEnd = getSecondsLeft("SeasonRemainingTime");
             logHHAuto("Season end in " + debugDate(seasonEnd));
 
-            if (checkTimer('nextSeasonCollectAllTime') && seasonEnd < getLimitTimeBeforeEnd() && getStoredValue("HHAuto_Setting_autoSeasonCollectAll") === "true")
+            if (checkTimer('nextSeasonCollectAllTime') && seasonEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonCollectAll") === "true")
             {
                 if($(getHHScriptVars("selectorClaimAllRewards")).length > 0)
                 {
@@ -457,11 +458,11 @@ export class Season {
                     setTimer('nextSeasonCollectAllTime', getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
                 }
             }
-            if (checkTimer('nextSeasonCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonCollect") === "true")
+            if (checkTimer('nextSeasonCollectTime') && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonCollect") === "true")
             {
                 logHHAuto("Going to collect Season.");
                 logHHAuto("setting autoloop to false");
-                setStoredValue("HHAuto_Temp_autoLoop", "false");
+                setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
 
                 let limitClassPass = "";
                 if ($("div#gsp_btn_holder:visible").length)
@@ -566,7 +567,7 @@ export class Season {
         }
     }
     static styles(){
-        if (getStoredValue("HHAuto_Setting_SeasonMaskRewards") === "true")
+        if (getStoredValue(HHStoredVarPrefixKey+"Setting_SeasonMaskRewards") === "true")
         {
             Season.maskReward();
         }

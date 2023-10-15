@@ -11,6 +11,7 @@ import {
 } from "../Helper";
 import { gotoPage } from "../Service";
 import { getCurrentSorting, logHHAuto } from "../Utils";
+import { HHStoredVarPrefixKey } from "../config";
 import { Harem } from "./Harem";
 
 export class HaremSalary {
@@ -26,7 +27,7 @@ export class HaremSalary {
         //var ToClick=[];
         var endCollectTS = -1;
         let startCollectTS = -1;
-        var maxSecsForSalary = Number(getStoredValue("HHAuto_Setting_autoSalaryMaxTimer"));
+        var maxSecsForSalary = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSalaryMaxTimer"));
         var collectedGirlzNb = 0;
         var collectedMoney = 0;
         let totalGirlsToCollect = 0;
@@ -178,7 +179,7 @@ export class HaremSalary {
             girlsDataList = getHHVars("girlsDataList");
         }
         let nextCollect = 0;
-        const minSalaryForCollect = Number(getStoredValue("HHAuto_Setting_autoSalaryMinSalary"));
+        const minSalaryForCollect = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSalaryMinSalary"));
         let currentCollectSalary = 0;
         if (girlsDataList !== null && minSalaryForCollect !== NaN)
         {
@@ -225,7 +226,7 @@ export class HaremSalary {
                     salarySumTag = Number($('.sum',salaryButton).attr("amount"));
                 }
     
-                const enoughSalaryToCollect = salarySumTag === NaN?true:salarySumTag > Number(getStoredValue("HHAuto_Setting_autoSalaryMinSalary"));
+                const enoughSalaryToCollect = salarySumTag === NaN?true:salarySumTag > Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSalaryMinSalary"));
                 //console.log(salarySumTag, enoughSalaryToCollect);
                 if (salaryToCollect && enoughSalaryToCollect )
                 {
@@ -254,7 +255,7 @@ export class HaremSalary {
                         {
                             logHHAuto("Detected Harem Screen. Fetching Salary");
                             //replaceCheatClick();
-                            setStoredValue("HHAuto_Temp_autoLoop", "false");
+                            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                             logHHAuto("setting autoloop to false");
                             HaremSalary.CollectMoney();
                         }

@@ -9,6 +9,7 @@ import {
 } from "../Helper";
 import { gotoPage } from "../Service";
 import { logHHAuto } from "../Utils";
+import { HHStoredVarPrefixKey } from "../config";
 import { QuestHelper } from "./Quest";
 
 export class ClubChampion {
@@ -54,7 +55,7 @@ export class ClubChampion {
             {
                 setTimer('nextClubChampionTime', randomInterval(15*60, 17*60));
             }
-            else if (secsToNextTimer > 30*60 && getStoredValue("HHAuto_Setting_autoClubForceStart") === "true")
+            else if (secsToNextTimer > 30*60 && getStoredValue(HHStoredVarPrefixKey+"Setting_autoClubForceStart") === "true")
             {
                 setTimer('nextClubChampionTime', randomInterval(30*60, 34*60));
             }
@@ -117,7 +118,7 @@ export class ClubChampion {
             let secsToNextTimer = ClubChampion.getNextClubChampionTimer();
             let noTimer = secsToNextTimer === -1;
     
-            if ((Started || getStoredValue("HHAuto_Setting_autoClubForceStart") === "true") && noTimer)
+            if ((Started || getStoredValue(HHStoredVarPrefixKey+"Setting_autoClubForceStart") === "true") && noTimer)
             {
                 let ticketUsed = 0;
                 let ticketsUsedRequest = "div.club-champion-members-challenges .player-row .data-column:nth-of-type(3)";
@@ -125,7 +126,7 @@ export class ClubChampion {
                 {
                     ticketUsed = Number($(ticketsUsedRequest)[0].innerText.replace(/[^0-9]/gi, ''));
                 }
-                let maxTickets = Number(getStoredValue("HHAuto_Setting_autoClubChampMax"));
+                let maxTickets = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoClubChampMax"));
                 //console.log(maxTickets, ticketUsed);
                 if (maxTickets > ticketUsed )
                 {

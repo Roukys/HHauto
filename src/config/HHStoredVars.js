@@ -7,8 +7,9 @@ import { PlaceOfPower } from "../Module";
 
 export const HHStoredVars = {};
 //Settings Vars
+export const HHStoredVarPrefixKey = "HHAuto_"; // default HHAuto_
 //Do not move, has to be first one
-HHStoredVars.HHAuto_Setting_settPerTab =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_settPerTab"] =
     {
     default:"false",
     storage:"localStorage",
@@ -20,7 +21,7 @@ HHStoredVars.HHAuto_Setting_settPerTab =
     kobanUsing:false
 };
 // Rest of settings vars
-HHStoredVars.HHAuto_Setting_autoAff =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoAff"] =
     {
     default:"500000000",
     storage:"Storage()",
@@ -31,7 +32,7 @@ HHStoredVars.HHAuto_Setting_autoAff =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoAffW =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoAffW"] =
     {
     default:"false",
     storage:"Storage()",
@@ -42,7 +43,7 @@ HHStoredVars.HHAuto_Setting_autoAffW =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoBuyBoosters =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoBuyBoosters"] =
     {
     default:"false",
     storage:"Storage()",
@@ -53,7 +54,7 @@ HHStoredVars.HHAuto_Setting_autoBuyBoosters =
     menuType:"checked",
     kobanUsing:true
 };
-HHStoredVars.HHAuto_Setting_autoBuyBoostersFilter =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoBuyBoostersFilter"] =
     {
     default:"B1;B2;B3;B4",
     storage:"Storage()",
@@ -64,7 +65,7 @@ HHStoredVars.HHAuto_Setting_autoBuyBoostersFilter =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoChamps =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoChamps"] =
     {
     default:"false",
     storage:"Storage()",
@@ -79,7 +80,7 @@ HHStoredVars.HHAuto_Setting_autoChamps =
         clearTimer('nextChampionTime');
     }
 };
-HHStoredVars.HHAuto_Setting_autoChampsForceStart =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoChampsForceStart"] =
     {
     default:"false",
     storage:"Storage()",
@@ -94,7 +95,7 @@ HHStoredVars.HHAuto_Setting_autoChampsForceStart =
         clearTimer('nextChampionTime');
     }
 };
-HHStoredVars.HHAuto_Setting_autoChampsFilter =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoChampsFilter"] =
     {
     default:"1;2;3;4;5;6",
     storage:"Storage()",
@@ -109,7 +110,7 @@ HHStoredVars.HHAuto_Setting_autoChampsFilter =
         clearTimer('nextChampionTime');
     }
 };
-HHStoredVars.HHAuto_Setting_autoChampsTeamLoop =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoChampsTeamLoop"] =
     {
     default:"10",
     storage:"Storage()",
@@ -120,7 +121,7 @@ HHStoredVars.HHAuto_Setting_autoChampsTeamLoop =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoChampsGirlThreshold =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoChampsGirlThreshold"] =
     {
     default:"0",
     storage:"Storage()",
@@ -131,7 +132,7 @@ HHStoredVars.HHAuto_Setting_autoChampsGirlThreshold =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoChampsTeamKeepSecondLine =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoChampsTeamKeepSecondLine"] =
     {
     default:"false",
     storage:"Storage()",
@@ -142,7 +143,7 @@ HHStoredVars.HHAuto_Setting_autoChampsTeamKeepSecondLine =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoChampsUseEne =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoChampsUseEne"] =
     {
     default:"false",
     storage:"Storage()",
@@ -153,7 +154,7 @@ HHStoredVars.HHAuto_Setting_autoChampsUseEne =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_showClubButtonInPoa =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_showClubButtonInPoa"] =
     {
     default:"true",
     storage:"Storage()",
@@ -164,7 +165,7 @@ HHStoredVars.HHAuto_Setting_showClubButtonInPoa =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoClubChamp =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoClubChamp"] =
     {
     default:"false",
     storage:"Storage()",
@@ -175,7 +176,7 @@ HHStoredVars.HHAuto_Setting_autoClubChamp =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoClubChampMax =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoClubChampMax"] =
     {
     default:"999",
     storage:"Storage()",
@@ -186,7 +187,7 @@ HHStoredVars.HHAuto_Setting_autoClubChampMax =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoClubForceStart =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoClubForceStart"] =
     {
     default:"false",
     storage:"Storage()",
@@ -197,7 +198,7 @@ HHStoredVars.HHAuto_Setting_autoClubForceStart =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoContest =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoContest"] =
     {
     default:"false",
     storage:"Storage()",
@@ -208,7 +209,7 @@ HHStoredVars.HHAuto_Setting_autoContest =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_compactEndedContests =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_compactEndedContests"] =
     {
     default:"false",
     storage:"Storage()",
@@ -219,7 +220,7 @@ HHStoredVars.HHAuto_Setting_compactEndedContests =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoExp =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoExp"] =
     {
     default:"500000000",
     storage:"Storage()",
@@ -230,7 +231,7 @@ HHStoredVars.HHAuto_Setting_autoExp =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoExpW =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoExpW"] =
     {
     default:"false",
     storage:"Storage()",
@@ -241,7 +242,7 @@ HHStoredVars.HHAuto_Setting_autoExpW =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoFreePachinko =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoFreePachinko"] =
     {
     default:"false",
     storage:"Storage()",
@@ -252,7 +253,7 @@ HHStoredVars.HHAuto_Setting_autoFreePachinko =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoLeagues =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLeagues"] =
     {
     default:"false",
     storage:"Storage()",
@@ -263,7 +264,7 @@ HHStoredVars.HHAuto_Setting_autoLeagues =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoLeaguesAllowWinCurrent =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLeaguesAllowWinCurrent"] =
     {
     default:"false",
     storage:"Storage()",
@@ -274,7 +275,7 @@ HHStoredVars.HHAuto_Setting_autoLeaguesAllowWinCurrent =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoLeaguesCollect =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLeaguesCollect"] =
     {
     default:"false",
     storage:"Storage()",
@@ -285,7 +286,7 @@ HHStoredVars.HHAuto_Setting_autoLeaguesCollect =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoLeaguesBoostedOnly =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLeaguesBoostedOnly"] =
     {
     default:"false",
     storage:"Storage()",
@@ -296,7 +297,7 @@ HHStoredVars.HHAuto_Setting_autoLeaguesBoostedOnly =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoLeaguesRunThreshold =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLeaguesRunThreshold"] =
     {
     default:"0",
     storage:"Storage()",
@@ -307,7 +308,7 @@ HHStoredVars.HHAuto_Setting_autoLeaguesRunThreshold =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoLeaguesPowerCalc =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLeaguesPowerCalc"] =
     {
     default:"false",
     storage:"Storage()",
@@ -318,7 +319,7 @@ HHStoredVars.HHAuto_Setting_autoLeaguesPowerCalc =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_leagueListDisplayPowerCalc =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_leagueListDisplayPowerCalc"] =
     {
     default:"false",
     storage:"Storage()",
@@ -329,7 +330,7 @@ HHStoredVars.HHAuto_Setting_leagueListDisplayPowerCalc =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoLeaguesSelectedIndex =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLeaguesSelectedIndex"] =
     {
     default:"0",
     storage:"Storage()",
@@ -342,7 +343,7 @@ HHStoredVars.HHAuto_Setting_autoLeaguesSelectedIndex =
     customMenuID:"autoLeaguesSelector",
     isValid:/^[0-9]$/
 };
-HHStoredVars.HHAuto_Setting_autoLeaguesThreshold =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLeaguesThreshold"] =
     {
     default:"0",
     storage:"Storage()",
@@ -353,7 +354,7 @@ HHStoredVars.HHAuto_Setting_autoLeaguesThreshold =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoLeaguesSecurityThreshold =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLeaguesSecurityThreshold"] =
     {
     default:"40",
     storage:"Storage()",
@@ -364,7 +365,7 @@ HHStoredVars.HHAuto_Setting_autoLeaguesSecurityThreshold =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_compactMissions =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_compactMissions"] =
     {
     default:"false",
     storage:"Storage()",
@@ -375,7 +376,7 @@ HHStoredVars.HHAuto_Setting_compactMissions =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoMission =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoMission"] =
     {
     default:"false",
     storage:"Storage()",
@@ -386,7 +387,7 @@ HHStoredVars.HHAuto_Setting_autoMission =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoMissionCollect =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoMissionCollect"] =
     {
     default:"false",
     storage:"Storage()",
@@ -397,7 +398,7 @@ HHStoredVars.HHAuto_Setting_autoMissionCollect =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoMissionKFirst =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoMissionKFirst"] =
     {
     default:"false",
     storage:"Storage()",
@@ -408,7 +409,7 @@ HHStoredVars.HHAuto_Setting_autoMissionKFirst =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_compactPowerPlace =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_compactPowerPlace"] =
     {
     default:"false",
     storage:"Storage()",
@@ -419,7 +420,7 @@ HHStoredVars.HHAuto_Setting_compactPowerPlace =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoPowerPlaces =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPowerPlaces"] =
     {
     default:"false",
     storage:"Storage()",
@@ -430,7 +431,7 @@ HHStoredVars.HHAuto_Setting_autoPowerPlaces =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoPowerPlacesAll =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPowerPlacesAll"] =
     {
     default:"false",
     storage:"Storage()",
@@ -446,7 +447,7 @@ HHStoredVars.HHAuto_Setting_autoPowerPlacesAll =
         PlaceOfPower.cleanTempPopToStart();
     }
 };
-HHStoredVars.HHAuto_Setting_autoPowerPlacesPrecision =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPowerPlacesPrecision"] =
     {
     default:"false",
     storage:"Storage()",
@@ -457,7 +458,7 @@ HHStoredVars.HHAuto_Setting_autoPowerPlacesPrecision =
     menuType:"checked",
     kobanUsing:false,
 };
-HHStoredVars.HHAuto_Setting_autoPowerPlacesInverted =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPowerPlacesInverted"] =
     {
     default:"false",
     storage:"Storage()",
@@ -468,7 +469,7 @@ HHStoredVars.HHAuto_Setting_autoPowerPlacesInverted =
     menuType:"checked",
     kobanUsing:false,
 };
-HHStoredVars.HHAuto_Setting_autoPowerPlacesWaitMax =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPowerPlacesWaitMax"] =
     {
     default:"false",
     storage:"Storage()",
@@ -479,7 +480,7 @@ HHStoredVars.HHAuto_Setting_autoPowerPlacesWaitMax =
     menuType:"checked",
     kobanUsing:false,
 };
-HHStoredVars.HHAuto_Setting_autoPowerPlacesIndexFilter =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPowerPlacesIndexFilter"] =
     {
     default:"1;2;3",
     storage:"Storage()",
@@ -495,7 +496,7 @@ HHStoredVars.HHAuto_Setting_autoPowerPlacesIndexFilter =
         PlaceOfPower.cleanTempPopToStart();
     }
 };
-HHStoredVars.HHAuto_Setting_autoQuest =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoQuest"] =
     {
     default:"false",
     storage:"Storage()",
@@ -506,7 +507,7 @@ HHStoredVars.HHAuto_Setting_autoQuest =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoSideQuest =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSideQuest"] =
     {
     default:"false",
     storage:"Storage()",
@@ -517,7 +518,7 @@ HHStoredVars.HHAuto_Setting_autoSideQuest =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoQuestThreshold =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoQuestThreshold"] =
     {
     default:"0",
     storage:"Storage()",
@@ -528,7 +529,7 @@ HHStoredVars.HHAuto_Setting_autoQuestThreshold =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoSalary =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSalary"] =
     {
     default:"false",
     storage:"Storage()",
@@ -543,7 +544,7 @@ HHStoredVars.HHAuto_Setting_autoSalary =
         clearTimer('nextSalaryTime');
     }
 };
-HHStoredVars.HHAuto_Setting_autoSalaryMaxTimer =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSalaryMaxTimer"] =
     {
     default:"1200",
     storage:"Storage()",
@@ -554,7 +555,7 @@ HHStoredVars.HHAuto_Setting_autoSalaryMaxTimer =
     menuType:"value",
     kobanUsing:false
 };
-/*HHStoredVars.HHAuto_Setting_autoSalaryMinTimer =
+/*HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSalaryMinTimer"] =
     {
     default:"120",
     storage:"Storage()",
@@ -565,7 +566,7 @@ HHStoredVars.HHAuto_Setting_autoSalaryMaxTimer =
     menuType:"value",
     kobanUsing:false
 };*/
-HHStoredVars.HHAuto_Setting_autoSalaryMinSalary =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSalaryMinSalary"] =
     {
     default:"20000",
     storage:"Storage()",
@@ -580,7 +581,7 @@ HHStoredVars.HHAuto_Setting_autoSalaryMinSalary =
         clearTimer('nextSalaryTime');
     }
 };
-HHStoredVars.HHAuto_Setting_autoSeason =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSeason"] =
     {
     default:"false",
     storage:"Storage()",
@@ -591,7 +592,7 @@ HHStoredVars.HHAuto_Setting_autoSeason =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoSeasonCollect =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSeasonCollect"] =
     {
     default:"false",
     storage:"Storage()",
@@ -605,13 +606,13 @@ HHStoredVars.HHAuto_Setting_autoSeasonCollect =
             {
                 if (this.checked)
                 {
-                    getAndStoreCollectPreferences("HHAuto_Setting_autoSeasonCollectablesList");
+                    getAndStoreCollectPreferences(HHStoredVarPrefixKey+"Setting_autoSeasonCollectablesList");
                     clearTimer('nextSeasonCollectTime');
                 }
             }
            }
 };
-HHStoredVars.HHAuto_Setting_autoSeasonCollectAll =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSeasonCollectAll"] =
     {
     default:"false",
     storage:"Storage()",
@@ -622,14 +623,14 @@ HHStoredVars.HHAuto_Setting_autoSeasonCollectAll =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoSeasonCollectablesList =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSeasonCollectablesList"] =
     {
     default:JSON.stringify([]),
     storage:"Storage()",
     HHType:"Setting",
     valueType:"Array"
 };
-HHStoredVars.HHAuto_Setting_autoSeasonPassReds =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSeasonPassReds"] =
     {
     default:"false",
     storage:"Storage()",
@@ -640,7 +641,7 @@ HHStoredVars.HHAuto_Setting_autoSeasonPassReds =
     menuType:"checked",
     kobanUsing:true
 };
-HHStoredVars.HHAuto_Setting_autoSeasonThreshold =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSeasonThreshold"] =
     {
     default:"0",
     storage:"Storage()",
@@ -651,7 +652,7 @@ HHStoredVars.HHAuto_Setting_autoSeasonThreshold =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoSeasonRunThreshold =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSeasonRunThreshold"] =
     {
     default:"0",
     storage:"Storage()",
@@ -662,7 +663,7 @@ HHStoredVars.HHAuto_Setting_autoSeasonRunThreshold =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoSeasonBoostedOnly =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSeasonBoostedOnly"] =
     {
     default:"false",
     storage:"Storage()",
@@ -673,7 +674,7 @@ HHStoredVars.HHAuto_Setting_autoSeasonBoostedOnly =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoStats =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoStats"] =
     {
     default:"500000000",
     storage:"Storage()",
@@ -684,7 +685,7 @@ HHStoredVars.HHAuto_Setting_autoStats =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoStatsSwitch =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoStatsSwitch"] =
     {
     default:"false",
     storage:"Storage()",
@@ -695,7 +696,7 @@ HHStoredVars.HHAuto_Setting_autoStatsSwitch =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoTrollBattle =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoTrollBattle"] =
     {
     default:"false",
     storage:"Storage()",
@@ -706,7 +707,7 @@ HHStoredVars.HHAuto_Setting_autoTrollBattle =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoTrollMythicByPassParanoia =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoTrollMythicByPassParanoia"] =
     {
     default:"false",
     storage:"Storage()",
@@ -717,7 +718,7 @@ HHStoredVars.HHAuto_Setting_autoTrollMythicByPassParanoia =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoTrollSelectedIndex =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoTrollSelectedIndex"] =
     {
     default:"0",
     storage:"Storage()",
@@ -730,7 +731,7 @@ HHStoredVars.HHAuto_Setting_autoTrollSelectedIndex =
     customMenuID:"autoTrollSelector",
     isValid:/^[0-9]|1[0-5]|98|99$/
 };
-HHStoredVars.HHAuto_Setting_autoTrollThreshold =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoTrollThreshold"] =
     {
     default:"0",
     storage:"Storage()",
@@ -741,7 +742,7 @@ HHStoredVars.HHAuto_Setting_autoTrollThreshold =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoTrollRunThreshold =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoTrollRunThreshold"] =
     {
     default:"0",
     storage:"Storage()",
@@ -752,7 +753,7 @@ HHStoredVars.HHAuto_Setting_autoTrollRunThreshold =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoChampsForceStartEventGirl =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoChampsForceStartEventGirl"] =
     {
     default:"false",
     storage:"Storage()",
@@ -763,29 +764,7 @@ HHStoredVars.HHAuto_Setting_autoChampsForceStartEventGirl =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_buyCombat =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:true
-};
-HHStoredVars.HHAuto_Setting_buyCombTimer =
-    {
-    default:"16",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Small Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-HHStoredVars.HHAuto_Setting_buyMythicCombat =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_buyCombat"] =
     {
     default:"false",
     storage:"Storage()",
@@ -796,7 +775,7 @@ HHStoredVars.HHAuto_Setting_buyMythicCombat =
     menuType:"checked",
     kobanUsing:true
 };
-HHStoredVars.HHAuto_Setting_buyMythicCombTimer =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_buyCombTimer"] =
     {
     default:"16",
     storage:"Storage()",
@@ -807,7 +786,29 @@ HHStoredVars.HHAuto_Setting_buyMythicCombTimer =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoFreeBundlesCollect =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_buyMythicCombat"] =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:true
+};
+HHStoredVars[HHStoredVarPrefixKey+"Setting_buyMythicCombTimer"] =
+    {
+    default:"16",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoFreeBundlesCollect"] =
     {
     default:"false",
     storage:"Storage()",
@@ -821,20 +822,20 @@ HHStoredVars.HHAuto_Setting_autoFreeBundlesCollect =
             {
                 if (this.checked)
                 {
-                    getAndStoreCollectPreferences("HHAuto_Setting_autoFreeBundlesCollectablesList", getTextForUI("menuDailyCollectableText","elementText"));
+                    getAndStoreCollectPreferences(HHStoredVarPrefixKey+"Setting_autoFreeBundlesCollectablesList", getTextForUI("menuDailyCollectableText","elementText"));
                     clearTimer('nextFreeBundlesCollectTime');
                 }
             }
            }
 };
-HHStoredVars.HHAuto_Setting_autoFreeBundlesCollectablesList =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoFreeBundlesCollectablesList"] =
     {
     default:JSON.stringify([]),
     storage:"Storage()",
     HHType:"Setting",
     valueType:"Array"
 };
-HHStoredVars.HHAuto_Setting_waitforContest =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_waitforContest"] =
     {
     default:"true",
     storage:"Storage()",
@@ -845,7 +846,7 @@ HHStoredVars.HHAuto_Setting_waitforContest =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_mousePause =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_mousePause"] =
     {
     default:"false",
     storage:"Storage()",
@@ -856,7 +857,7 @@ HHStoredVars.HHAuto_Setting_mousePause =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_mousePauseTimeout =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_mousePauseTimeout"] =
     {
     default:"5000",
     storage:"Storage()",
@@ -866,7 +867,7 @@ HHStoredVars.HHAuto_Setting_mousePauseTimeout =
     setMenu:true,
     menuType:"value"
 };
-HHStoredVars.HHAuto_Setting_collectAllTimer =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_collectAllTimer"] =
     {
     default:"12",
     storage:"Storage()",
@@ -877,7 +878,7 @@ HHStoredVars.HHAuto_Setting_collectAllTimer =
     menuType:"value",
     isValid:/^[1-9][0-9]|[1-9]$/
 };
-HHStoredVars.HHAuto_Setting_eventTrollOrder =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_eventTrollOrder"] =
     {
     default:"1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20",
     storage:"Storage()",
@@ -888,7 +889,7 @@ HHStoredVars.HHAuto_Setting_eventTrollOrder =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoBuyTrollNumber =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoBuyTrollNumber"] =
     {
     default:"20",
     storage:"Storage()",
@@ -899,7 +900,7 @@ HHStoredVars.HHAuto_Setting_autoBuyTrollNumber =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoBuyMythicTrollNumber =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoBuyMythicTrollNumber"] =
     {
     default:"20",
     storage:"Storage()",
@@ -910,7 +911,7 @@ HHStoredVars.HHAuto_Setting_autoBuyMythicTrollNumber =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_master =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_master"] =
     {
     default:"false",
     storage:"Storage()",
@@ -921,7 +922,7 @@ HHStoredVars.HHAuto_Setting_master =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_maxAff =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_maxAff"] =
     {
     default:"50000",
     storage:"Storage()",
@@ -932,7 +933,7 @@ HHStoredVars.HHAuto_Setting_maxAff =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_maxBooster =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_maxBooster"] =
     {
     default:"10",
     storage:"Storage()",
@@ -943,7 +944,7 @@ HHStoredVars.HHAuto_Setting_maxBooster =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_maxExp =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_maxExp"] =
     {
     default:"10000",
     storage:"Storage()",
@@ -954,7 +955,7 @@ HHStoredVars.HHAuto_Setting_maxExp =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_minShardsX10 =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_minShardsX10"] =
     {
     default:"10",
     storage:"Storage()",
@@ -966,7 +967,7 @@ HHStoredVars.HHAuto_Setting_minShardsX10 =
     kobanUsing:false,
     isValid:/^(\d)+$/
 };
-HHStoredVars.HHAuto_Setting_minShardsX50 =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_minShardsX50"] =
     {
     default:"50",
     storage:"Storage()",
@@ -977,7 +978,7 @@ HHStoredVars.HHAuto_Setting_minShardsX50 =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_updateMarket =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_updateMarket"] =
     {
     default:"true",
     storage:"Storage()",
@@ -988,7 +989,7 @@ HHStoredVars.HHAuto_Setting_updateMarket =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_paranoia =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_paranoia"] =
     {
     default:"true",
     storage:"Storage()",
@@ -999,13 +1000,13 @@ HHStoredVars.HHAuto_Setting_paranoia =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_paranoiaSettings =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_paranoiaSettings"] =
     {
     default:"140-320/Sleep:28800-30400|Active:250-460|Casual:1500-2700/6:Sleep|8:Casual|10:Active|12:Casual|14:Active|18:Casual|20:Active|22:Casual|24:Sleep",
     storage:"Storage()",
     HHType:"Setting"
 };
-HHStoredVars.HHAuto_Setting_paranoiaSpendsBefore =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_paranoiaSpendsBefore"] =
     {
     default:"true",
     storage:"Storage()",
@@ -1016,7 +1017,7 @@ HHStoredVars.HHAuto_Setting_paranoiaSpendsBefore =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_plusEvent =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_plusEvent"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1027,7 +1028,7 @@ HHStoredVars.HHAuto_Setting_plusEvent =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_plusEventMythic =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_plusEventMythic"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1038,7 +1039,7 @@ HHStoredVars.HHAuto_Setting_plusEventMythic =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_plusEventMythicSandalWood =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_plusEventMythicSandalWood"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1049,7 +1050,7 @@ HHStoredVars.HHAuto_Setting_plusEventMythicSandalWood =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_bossBangEvent =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_bossBangEvent"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1060,7 +1061,7 @@ HHStoredVars.HHAuto_Setting_bossBangEvent =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_bossBangMinTeam =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_bossBangMinTeam"] =
     {
     default:"5",
     storage:"Storage()",
@@ -1071,7 +1072,7 @@ HHStoredVars.HHAuto_Setting_bossBangMinTeam =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_sultryMysteriesEventRefreshShop =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_sultryMysteriesEventRefreshShop"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1082,7 +1083,7 @@ HHStoredVars.HHAuto_Setting_sultryMysteriesEventRefreshShop =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_collectEventChest =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_collectEventChest"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1093,7 +1094,7 @@ HHStoredVars.HHAuto_Setting_collectEventChest =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_PoAMaskRewards =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_PoAMaskRewards"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1104,7 +1105,7 @@ HHStoredVars.HHAuto_Setting_PoAMaskRewards =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_PoVMaskRewards =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_PoVMaskRewards"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1115,7 +1116,7 @@ HHStoredVars.HHAuto_Setting_PoVMaskRewards =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_PoGMaskRewards =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_PoGMaskRewards"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1126,7 +1127,7 @@ HHStoredVars.HHAuto_Setting_PoGMaskRewards =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_SeasonMaskRewards =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_SeasonMaskRewards"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1137,7 +1138,7 @@ HHStoredVars.HHAuto_Setting_SeasonMaskRewards =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_SeasonalEventMaskRewards =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_SeasonalEventMaskRewards"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1148,7 +1149,7 @@ HHStoredVars.HHAuto_Setting_SeasonalEventMaskRewards =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_showCalculatePower =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_showCalculatePower"] =
     {
     default:"true",
     storage:"Storage()",
@@ -1159,7 +1160,7 @@ HHStoredVars.HHAuto_Setting_showCalculatePower =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_showAdsBack =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_showAdsBack"] =
     {
     default:"true",
     storage:"Storage()",
@@ -1170,7 +1171,7 @@ HHStoredVars.HHAuto_Setting_showAdsBack =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_showRewardsRecap =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_showRewardsRecap"] =
     {
     default:"true",
     storage:"Storage()",
@@ -1181,7 +1182,7 @@ HHStoredVars.HHAuto_Setting_showRewardsRecap =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_showInfo =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_showInfo"] =
     {
     default:"true",
     storage:"Storage()",
@@ -1192,7 +1193,7 @@ HHStoredVars.HHAuto_Setting_showInfo =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_showInfoLeft =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_showInfoLeft"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1203,7 +1204,7 @@ HHStoredVars.HHAuto_Setting_showInfoLeft =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_showMarketTools =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_showMarketTools"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1214,7 +1215,7 @@ HHStoredVars.HHAuto_Setting_showMarketTools =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_showTooltips =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_showTooltips"] =
     {
     default:"true",
     storage:"Storage()",
@@ -1225,7 +1226,7 @@ HHStoredVars.HHAuto_Setting_showTooltips =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_spendKobans0 =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_spendKobans0"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1236,7 +1237,7 @@ HHStoredVars.HHAuto_Setting_spendKobans0 =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_kobanBank =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_kobanBank"] =
     {
     default:"1000000",
     storage:"Storage()",
@@ -1247,7 +1248,7 @@ HHStoredVars.HHAuto_Setting_kobanBank =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_useX10Fights =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_useX10Fights"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1258,7 +1259,7 @@ HHStoredVars.HHAuto_Setting_useX10Fights =
     menuType:"checked",
     kobanUsing:true
 };
-HHStoredVars.HHAuto_Setting_useX10FightsAllowNormalEvent =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_useX10FightsAllowNormalEvent"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1269,7 +1270,7 @@ HHStoredVars.HHAuto_Setting_useX10FightsAllowNormalEvent =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_useX50Fights =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_useX50Fights"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1280,7 +1281,7 @@ HHStoredVars.HHAuto_Setting_useX50Fights =
     menuType:"checked",
     kobanUsing:true
 };
-HHStoredVars.HHAuto_Setting_useX50FightsAllowNormalEvent =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_useX50FightsAllowNormalEvent"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1291,12 +1292,12 @@ HHStoredVars.HHAuto_Setting_useX50FightsAllowNormalEvent =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_saveDefaults =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_saveDefaults"] =
     {
     storage:"localStorage",
     HHType:"Setting"
 };
-HHStoredVars.HHAuto_Setting_autoPantheon =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPantheon"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1307,7 +1308,7 @@ HHStoredVars.HHAuto_Setting_autoPantheon =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoPantheonThreshold =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPantheonThreshold"] =
     {
     default:"0",
     storage:"Storage()",
@@ -1318,7 +1319,7 @@ HHStoredVars.HHAuto_Setting_autoPantheonThreshold =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoPantheonRunThreshold =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPantheonRunThreshold"] =
     {
     default:"0",
     storage:"Storage()",
@@ -1329,7 +1330,7 @@ HHStoredVars.HHAuto_Setting_autoPantheonRunThreshold =
     menuType:"value",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoPantheonBoostedOnly =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPantheonBoostedOnly"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1340,7 +1341,7 @@ HHStoredVars.HHAuto_Setting_autoPantheonBoostedOnly =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoSeasonalEventCollect =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollect"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1354,13 +1355,13 @@ HHStoredVars.HHAuto_Setting_autoSeasonalEventCollect =
             {
                 if (this.checked)
                 {
-                    getAndStoreCollectPreferences("HHAuto_Setting_autoSeasonalEventCollectablesList");
+                    getAndStoreCollectPreferences(HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollectablesList");
                     clearTimer('nextSeasonalEventCollectTime');
                 }
             }
            }
 };
-HHStoredVars.HHAuto_Setting_autoSeasonalEventCollectAll =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollectAll"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1371,14 +1372,14 @@ HHStoredVars.HHAuto_Setting_autoSeasonalEventCollectAll =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoSeasonalEventCollectablesList =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollectablesList"] =
     {
     default:JSON.stringify([]),
     storage:"Storage()",
     HHType:"Setting",
     valueType:"Array"
 };
-HHStoredVars.HHAuto_Setting_autoPoVCollect =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPoVCollect"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1392,13 +1393,13 @@ HHStoredVars.HHAuto_Setting_autoPoVCollect =
             {
                 if (this.checked)
                 {
-                    getAndStoreCollectPreferences("HHAuto_Setting_autoPoVCollectablesList");
+                    getAndStoreCollectPreferences(HHStoredVarPrefixKey+"Setting_autoPoVCollectablesList");
                     clearTimer('nextPoVCollectTime');
                 }
             }
            }
 };
-HHStoredVars.HHAuto_Setting_autoPoVCollectAll =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPoVCollectAll"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1409,14 +1410,14 @@ HHStoredVars.HHAuto_Setting_autoPoVCollectAll =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoPoVCollectablesList =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPoVCollectablesList"] =
     {
     default:JSON.stringify([]),
     storage:"Storage()",
     HHType:"Setting",
     valueType:"Array"
 };
-HHStoredVars.HHAuto_Setting_autoPoGCollect =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPoGCollect"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1430,13 +1431,13 @@ HHStoredVars.HHAuto_Setting_autoPoGCollect =
             {
                 if (this.checked)
                 {
-                    getAndStoreCollectPreferences("HHAuto_Setting_autoPoGCollectablesList");
+                    getAndStoreCollectPreferences(HHStoredVarPrefixKey+"Setting_autoPoGCollectablesList");
                     clearTimer('nextPoGCollectTime');
                 }
             }
            }
 };
-HHStoredVars.HHAuto_Setting_autoPoGCollectAll =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPoGCollectAll"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1447,14 +1448,14 @@ HHStoredVars.HHAuto_Setting_autoPoGCollectAll =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoPoGCollectablesList =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPoGCollectablesList"] =
     {
     default:JSON.stringify([]),
     storage:"Storage()",
     HHType:"Setting",
     valueType:"Array"
 };
-HHStoredVars.HHAuto_Setting_compactDailyGoals =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_compactDailyGoals"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1465,7 +1466,7 @@ HHStoredVars.HHAuto_Setting_compactDailyGoals =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars.HHAuto_Setting_autoDailyGoalsCollect =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoDailyGoalsCollect"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1479,13 +1480,13 @@ HHStoredVars.HHAuto_Setting_autoDailyGoalsCollect =
             {
                 if (this.checked)
                 {
-                    getAndStoreCollectPreferences("HHAuto_Setting_autoDailyGoalsCollectablesList", getTextForUI("menuDailyCollectableText","elementText"));
+                    getAndStoreCollectPreferences(HHStoredVarPrefixKey+"Setting_autoDailyGoalsCollectablesList", getTextForUI("menuDailyCollectableText","elementText"));
                     clearTimer('nextDailyGoalsCollectTime');
                 }
             }
            }
 };
-HHStoredVars.HHAuto_Setting_autoDailyGoalsCollectablesList =
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoDailyGoalsCollectablesList"] =
     {
     default:JSON.stringify([]),
     storage:"Storage()",
@@ -1493,19 +1494,19 @@ HHStoredVars.HHAuto_Setting_autoDailyGoalsCollectablesList =
     valueType:"Array"
 };
 // Temp vars
-HHStoredVars.HHAuto_Temp_autoLoop =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_autoLoop"] =
     {
     default:"true",
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_battlePowerRequired =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_battlePowerRequired"] =
     {
     default:"0",
     storage:"sessionStorage",
     HHType:"Temp"
 };
-/*HHStoredVars.HHAuto_Temp_leaguesTarget =
+/*HHStoredVars[HHStoredVarPrefixKey+"Temp_leaguesTarget"] =
     {
     default:"9",
     storage:"sessionStorage",
@@ -1517,43 +1518,43 @@ HHStoredVars.HHAuto_Temp_battlePowerRequired =
     kobanUsing:false,
     customMenuID:"autoLeaguesSelector"
 };*/
-HHStoredVars.HHAuto_Temp_questRequirement =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_questRequirement"] =
     {
     default:"none",
     storage:"sessionStorage",
     HHType:"Temp"
 };
-/*HHStoredVars.HHAuto_Temp_userLink =
+/*HHStoredVars[HHStoredVarPrefixKey+"Temp_userLink"] =
     {
     default:"none",
     storage:"sessionStorage",
     HHType:"Temp"
 };*/
-HHStoredVars.HHAuto_Temp_autoLoopTimeMili =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_autoLoopTimeMili"] =
     {
     default:"500",
     storage:"Storage()",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_freshStart =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_freshStart"] =
     {
     default:"no",
     storage:"Storage()",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_Logging =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_Logging"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_Debug =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_Debug"] =
     {
     default: "false",
     storage: "sessionStorage",
     valueType: "Boolean",
     HHType:"Temp"
 };
-/*HHStoredVars.HHAuto_Temp_trollToFight =
+/*HHStoredVars[HHStoredVarPrefixKey+"Temp_trollToFight"] =
     {
     storage:"sessionStorage",
     HHType:"Temp",
@@ -1564,247 +1565,247 @@ HHStoredVars.HHAuto_Temp_Debug =
     kobanUsing:false,
     customMenuID:"autoTrollSelector"
 };*/
-HHStoredVars.HHAuto_Temp_autoTrollBattleSaveQuest =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_autoTrollBattleSaveQuest"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_burst =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_burst"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_charLevel =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_charLevel"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_filteredGirlsList =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_filteredGirlsList"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_haremGirlActions =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_haremGirlActions"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_haremGirlMode =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_haremGirlMode"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_haremGirlEnd =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_haremGirlEnd"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_haremGirlLimit =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_haremGirlLimit"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_eventsGirlz =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_eventsGirlz"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_eventGirl =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_eventGirl"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_autoChampsEventGirls =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_autoChampsEventGirls"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
     //isValid:/^\[({"girl_id":"(\d)+","champ_id":"(\d)+","girl_shards":"(\d)+","girl_name":"([^"])+","event_id":"([^"])+"},?)+\]$/
 };
-HHStoredVars.HHAuto_Temp_trollWithGirls =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_trollWithGirls"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_fought =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_fought"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_haveAff =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_haveAff"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_haveExp =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_haveExp"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_haveBooster =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_haveBooster"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_hideBeatenOppo =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_hideBeatenOppo"] =
 {
     default:"0",
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_LeagueOpponentList =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_LeagueOpponentList"] =
     {
     storage:"sessionStorage",
     HHType:"Temp",
     isValid:/^{"expirationDate":\d+,"opponentsList":{("\d+":{((("(win|loss|avgTurns)":\d*[.,]?\d+)|("scoreClass":"(minus|plus|close)")|("points":{("\d{1,3}":\d*[.,]?\d+,?)+})),?)+},?)+}}$/
 };
-HHStoredVars.HHAuto_Temp_LeagueTempOpponentList =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_LeagueTempOpponentList"] =
     {
     storage:"sessionStorage",
     HHType:"Temp",
     isValid:/^{"expirationDate":\d+,"opponentsList":{("\d+":{((("(win|loss|avgTurns|expectedValue)":\d*[.,]?\d+)|("scoreClass":"(minus|plus|close)")|("points":{("\d{1,3}":\d*[.,]?\d+,?)+})),?)+},?)+}}$/
 };
-/*HHStoredVars.HHAuto_Temp_opponentsListExpirationDate =
+/*HHStoredVars[HHStoredVarPrefixKey+"Temp_opponentsListExpirationDate"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };*/
-HHStoredVars.HHAuto_Temp_paranoiaLeagueBlocked =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_paranoiaLeagueBlocked"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_paranoiaQuestBlocked =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_paranoiaQuestBlocked"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_paranoiaSpendings =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_paranoiaSpendings"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_pinfo =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_pinfo"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_PopToStart =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_PopToStart"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_PopUnableToStart =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_PopUnableToStart"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_storeContents =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_storeContents"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_Timers =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_Timers"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_NextSwitch =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_NextSwitch"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_Totalpops =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_Totalpops"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_currentlyAvailablePops =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_currentlyAvailablePops"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_CheckSpentPoints =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_CheckSpentPoints"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_eventsList =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_eventsList"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_bossBangTeam =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_bossBangTeam"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_boosterStatus =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_boosterStatus"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_LeagueSavedData =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_LeagueSavedData"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_LeagueHumanLikeRun =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_LeagueHumanLikeRun"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_TrollHumanLikeRun =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_TrollHumanLikeRun"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_PantheonHumanLikeRun =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_PantheonHumanLikeRun"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_SeasonHumanLikeRun =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_SeasonHumanLikeRun"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_HaremSize =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_HaremSize"] =
     {
     storage:"localStorage",
     HHType:"Temp",
     isValid:/{"count":(\d)+,"count_date":(\d)+}/
 };
-HHStoredVars.HHAuto_Temp_LastPageCalled =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_LastPageCalled"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_PoVEndDate =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_PoVEndDate"] =
     {
     storage:"localStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_PoGEndDate =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_PoGEndDate"] =
     {
     storage:"localStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_missionsGiftLeft =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_missionsGiftLeft"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_defaultCustomHaremSort =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort"] =
     {
     storage:"localStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_unkownPagesList =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_unkownPagesList"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"
 };
-HHStoredVars.HHAuto_Temp_trollPoints =
+HHStoredVars[HHStoredVarPrefixKey+"Temp_trollPoints"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"

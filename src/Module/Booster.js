@@ -1,6 +1,7 @@
 import { HeroHelper, getHHScriptVars, getHHVars, getStoredValue, setStoredValue } from "../Helper";
 import { gotoPage } from "../Service";
 import { isJSON, logHHAuto } from "../Utils";
+import { HHStoredVarPrefixKey } from "../config";
 
 
 const DEFAULT_BOOSTERS = {normal: [], mythic:[]};
@@ -49,7 +50,7 @@ export class Booster {
                                 boosterStatus.normal.push({...clonedData, endAt: clonedData.lifetime})
                             }
 
-                            setStoredValue('HHAuto_Temp_boosterStatus', JSON.stringify(boosterStatus));
+                            setStoredValue(HHStoredVarPrefixKey+'Temp_boosterStatus', JSON.stringify(boosterStatus));
                             //$(document).trigger('boosters:equipped', {id_item, isMythic, new_id: clonedData.id_member_booster_equipped})
                         }
                         return
@@ -146,7 +147,7 @@ export class Booster {
 */
                     boosterStatus.mythic = boosterStatus.mythic.filter(({usages_remaining}) => usages_remaining > 0)
 
-                    setStoredValue('HHAuto_Temp_boosterStatus', JSON.stringify(boosterStatus));
+                    setStoredValue(HHStoredVarPrefixKey+'Temp_boosterStatus', JSON.stringify(boosterStatus));
 
                     /*if (mythicUpdated) {
                         $(document).trigger('boosters:updated-mythic')
@@ -156,7 +157,7 @@ export class Booster {
                         if (sandalwood && mythicUpdated && sandalwoodEnded) {
                             const isMultibattle = parseInt(number_of_battles) > 1
                             logHHAuto("sandalwood may be ended need a new one");
-                            if(getStoredValue("HHAuto_Setting_plusEventMythic") === "true" && getStoredValue("HHAuto_Setting_plusEventMythicSandalWood") === "true" && JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")).is_mythic==="true") {
+                            if(getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") === "true" && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythicSandalWood") === "true" && JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).is_mythic==="true") {
                                 if (isMultibattle) {
                                     // TODO go to market if sandalwood not ended, continue. If ended, buy a new one
                                     gotoPage(getHHScriptVars("pagesIDShop"));
@@ -175,15 +176,15 @@ export class Booster {
     }
 
     static needBoosterStatusFromStore() {
-        const isMythicAutoSandalWood = getStoredValue("HHAuto_Setting_plusEventMythicSandalWood") === "true";
-        const isLeagueWithBooster = getStoredValue("HHAuto_Setting_autoLeaguesBoostedOnly") === "true";
-        const isSeasonWithBooster = getStoredValue("HHAuto_Setting_autoSeasonBoostedOnly") === "true";
-        const isPantheonWithBooster = getStoredValue("HHAuto_Setting_autoPantheonBoostedOnly") === "true";
+        const isMythicAutoSandalWood = getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythicSandalWood") === "true";
+        const isLeagueWithBooster = getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesBoostedOnly") === "true";
+        const isSeasonWithBooster = getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonBoostedOnly") === "true";
+        const isPantheonWithBooster = getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheonBoostedOnly") === "true";
         return isLeagueWithBooster || isSeasonWithBooster || isPantheonWithBooster || isMythicAutoSandalWood;
     }
 
     static getBoosterFromStorage(){
-        return isJSON(getStoredValue("HHAuto_Temp_boosterStatus"))?JSON.parse(getStoredValue("HHAuto_Temp_boosterStatus")):DEFAULT_BOOSTERS;
+        return isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_boosterStatus"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_boosterStatus")):DEFAULT_BOOSTERS;
     }
 
     static haveBoosterEquiped(boosterCode=undefined) {
@@ -208,7 +209,7 @@ export class Booster {
                 mythic: activeMythicSlots,
             }
 
-            setStoredValue('HHAuto_Temp_boosterStatus', JSON.stringify(boosterStatus));
+            setStoredValue(HHStoredVarPrefixKey+'Temp_boosterStatus', JSON.stringify(boosterStatus));
         }, 200)
     }
 }

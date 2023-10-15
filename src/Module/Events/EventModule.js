@@ -16,19 +16,20 @@ import {
 } from "../../Helper";
 import { gotoPage } from "../../Service";
 import { isJSON, logHHAuto } from "../../Utils";
+import { HHStoredVarPrefixKey } from "../../config";
 
 export class EventModule {
     static clearEventData(inEventID)
     {
-        //sessionStorage.removeItem('HHAuto_Temp_eventsGirlz');
-        //sessionStorage.removeItem('HHAuto_Temp_eventGirl');
+        //sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_eventsGirlz');
+        //sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_eventGirl');
         //clearTimer('eventMythicNextWave');
         //clearTimer('eventRefreshExpiration');
-        //sessionStorage.removeItem('HHAuto_Temp_EventFightsBeforeRefresh');
-        let eventList = isJSON(getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsList")):{};
-        let eventsGirlz = isJSON(getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsGirlz")):[];
-        let eventGirl =isJSON(getStoredValue("HHAuto_Temp_eventGirl"))?JSON.parse(getStoredValue("HHAuto_Temp_eventGirl")):{};
-        let eventChamps = isJSON(getStoredValue("HHAuto_Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue("HHAuto_Temp_autoChampsEventGirls")):[];
+        //sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_EventFightsBeforeRefresh');
+        let eventList = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsList")):{};
+        let eventsGirlz = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz")):[];
+        let eventGirl =isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")):{};
+        let eventChamps = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls")):[];
         let hasMythic = false;
         let hasEvent = false;
         for (let prop of Object.keys(eventList))
@@ -36,13 +37,13 @@ export class EventModule {
             if (
                 eventList[prop]["seconds_before_end"]<new Date()
                 ||
-                (eventList[prop]["type"] === 'mythic' && getStoredValue("HHAuto_Setting_plusEventMythic") !=="true")
+                (eventList[prop]["type"] === 'mythic' && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") !=="true")
                 ||
-                (eventList[prop]["type"] === 'event' && getStoredValue("HHAuto_Setting_plusEvent") !=="true")
+                (eventList[prop]["type"] === 'event' && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEvent") !=="true")
                 ||
-                (eventList[prop]["type"] === 'bossBang' && getStoredValue("HHAuto_Setting_bossBangEvent") !=="true")
+                (eventList[prop]["type"] === 'bossBang' && getStoredValue(HHStoredVarPrefixKey+"Setting_bossBangEvent") !=="true")
                 ||
-                (eventList[prop]["type"] === 'sultryMysteries' && getStoredValue("HHAuto_Setting_sultryMysteriesEventRefreshShop") !=="true")
+                (eventList[prop]["type"] === 'sultryMysteries' && getStoredValue(HHStoredVarPrefixKey+"Setting_sultryMysteriesEventRefreshShop") !=="true")
             )
             {
                 delete eventList[prop];
@@ -74,10 +75,10 @@ export class EventModule {
         }
         if (Object.keys(eventList).length === 0)
         {
-            sessionStorage.removeItem('HHAuto_Temp_eventsGirlz');
-            sessionStorage.removeItem('HHAuto_Temp_eventGirl');
-            sessionStorage.removeItem('HHAuto_Temp_eventsList');
-            sessionStorage.removeItem('HHAuto_Temp_autoChampsEventGirls');
+            sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_eventsGirlz');
+            sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_eventGirl');
+            sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_eventsList');
+            sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_autoChampsEventGirls');
         }
         else
         {
@@ -95,11 +96,11 @@ export class EventModule {
 
             if(Object.keys(eventChamps).length === 0)
             {
-                sessionStorage.removeItem('HHAuto_Temp_autoChampsEventGirls');
+                sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_autoChampsEventGirls');
             }
             else
             {
-                setStoredValue("HHAuto_Temp_autoChampsEventGirls", JSON.stringify(eventChamps));
+                setStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls", JSON.stringify(eventChamps));
             }
 
 
@@ -115,19 +116,19 @@ export class EventModule {
             });
             if(Object.keys(eventsGirlz).length === 0)
             {
-                sessionStorage.removeItem('HHAuto_Temp_eventsGirlz');
+                sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_eventsGirlz');
             }
             else
             {
-                setStoredValue("HHAuto_Temp_eventsGirlz", JSON.stringify(eventsGirlz));
+                setStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz", JSON.stringify(eventsGirlz));
             }
 
             if (!eventList.hasOwnProperty(eventGirl.event_id) || eventGirl.event_id ===inEventID)
             {
-                sessionStorage.removeItem('HHAuto_Temp_eventGirl');
+                sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_eventGirl');
             }
 
-            setStoredValue("HHAuto_Temp_eventsList", JSON.stringify(eventList));
+            setStoredValue(HHStoredVarPrefixKey+"Temp_eventsList", JSON.stringify(eventList));
         }
     }
 
@@ -162,16 +163,16 @@ export class EventModule {
             logHHAuto("On event page : " + eventID);
             EventModule.clearEventData(eventID);
             //let eventsGirlz=[];
-            let eventList = isJSON(getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsList")):{};
-            let eventsGirlz = isJSON(getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsGirlz")):[];
-            let eventChamps = isJSON(getStoredValue("HHAuto_Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue("HHAuto_Temp_autoChampsEventGirls")):[];
-            let Priority=(getStoredValue("HHAuto_Setting_eventTrollOrder")).split(";");
+            let eventList = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsList")):{};
+            let eventsGirlz = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz")):[];
+            let eventChamps = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls")):[];
+            let Priority=(getStoredValue(HHStoredVarPrefixKey+"Setting_eventTrollOrder")).split(";");
             const hhEventData = unsafeWindow.event_data;
             if ((hhEvent.isPlusEvent || hhEvent.isPlusEventMythic) && !hhEventData) {
                 logHHAuto("Error getting current event Data from HH.");
             }
 
-            let refreshTimer = 3600;
+            let refreshTimer = randomInterval(3600, 4000);
             if (hhEvent.isPlusEvent)
             {
                 logHHAuto("On going event.");
@@ -333,7 +334,7 @@ export class EventModule {
                 setTimer('eventBossBangGoing',Number(convertTimeToInt(timeLeft)));
                 let teamEventz = $('#contains_all #events #boss_bang .boss-bang-teams-container .boss-bang-team-slot');
                 let teamFound = false;
-                const firstTeamToStartWith = getStoredValue("HHAuto_Setting_bossBangMinTeam");
+                const firstTeamToStartWith = getStoredValue(HHStoredVarPrefixKey+"Setting_bossBangMinTeam");
                 if($('.boss-bang-team-ego', teamEventz[firstTeamToStartWith -1]).length > 0)
                 {
                     // Do not trigger event if not all teams are set
@@ -348,7 +349,7 @@ export class EventModule {
                                 if(!teamz.hasClass('.selected-hero-team')) teamz.click();
                                 teamFound = true;
                                 logHHAuto("Select team " + teamIndex + ", Ego: "+parseInt(teamEgo.text()));
-                                setStoredValue("HHAuto_Temp_bossBangTeam", teamIndex);
+                                setStoredValue(HHStoredVarPrefixKey+"Temp_bossBangTeam", teamIndex);
                                 return true;
                             }
                         } else {
@@ -359,10 +360,10 @@ export class EventModule {
                 else if(eventList[eventID]["isCompleted"])
                 {
                     logHHAuto("Boss bang completed, disabled boss bang event setting");
-                    setStoredValue("HHAuto_Setting_bossBangEvent", false);
+                    setStoredValue(HHStoredVarPrefixKey+"Setting_bossBangEvent", false);
                 }
                 if(!teamFound) {
-                    setStoredValue("HHAuto_Temp_bossBangTeam", -1);
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_bossBangTeam", -1);
                 }
             }
             if (hhEvent.isSultryMysteriesEvent)
@@ -400,11 +401,11 @@ export class EventModule {
             }
             if(Object.keys(eventList).length >0)
             {
-                setStoredValue("HHAuto_Temp_eventsList", JSON.stringify(eventList));
+                setStoredValue(HHStoredVarPrefixKey+"Temp_eventsList", JSON.stringify(eventList));
             }
             else
             {
-                sessionStorage.removeItem("HHAuto_Temp_eventsList");
+                sessionStorage.removeItem(HHStoredVarPrefixKey+"Temp_eventsList");
             }
             eventsGirlz = eventsGirlz.filter(function (a) {
                 var a_weighted = Number(Priority.indexOf(a.troll_id));
@@ -442,17 +443,17 @@ export class EventModule {
                         //logHHAuto({log:"Sorted EventGirls",eventGirlz:eventsGirlz});
                     }
 
-                    setStoredValue("HHAuto_Temp_eventsGirlz", JSON.stringify(eventsGirlz));
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz", JSON.stringify(eventsGirlz));
                     var chosenTroll = Number(eventsGirlz[0].troll_id)
                     logHHAuto("ET: "+chosenTroll);
-                    setStoredValue("HHAuto_Temp_eventGirl", JSON.stringify(eventsGirlz[0]));
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl", JSON.stringify(eventsGirlz[0]));
                 }
                 if (eventChamps.length>0)
                 {
-                    setStoredValue("HHAuto_Temp_autoChampsEventGirls", JSON.stringify(eventChamps));
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls", JSON.stringify(eventChamps));
                 }
                 queryEventTabCheck[0].setAttribute('parsed', 'true');
-                //setStoredValue("HHAuto_Temp_EventFightsBeforeRefresh", "20000");
+                //setStoredValue(HHStoredVarPrefixKey+"Temp_EventFightsBeforeRefresh", "20000");
                 //setTimer('eventRefreshExpiration', 3600);
             }
             else
@@ -489,10 +490,10 @@ export class EventModule {
 
     static getEvent(inEventID){
         const eventType = EventModule.getEventType(inEventID);
-        const isPlusEvent = inEventID.startsWith(getHHScriptVars('eventIDReg')) && getStoredValue("HHAuto_Setting_plusEvent") ==="true";
-        const isPlusEventMythic = inEventID.startsWith(getHHScriptVars('mythicEventIDReg')) && getStoredValue("HHAuto_Setting_plusEventMythic") ==="true";
-        const isBossBangEvent = inEventID.startsWith(getHHScriptVars('bossBangEventIDReg')) && getStoredValue("HHAuto_Setting_bossBangEvent") ==="true";
-        const isSultryMysteriesEvent = inEventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg')) && getStoredValue("HHAuto_Setting_sultryMysteriesEventRefreshShop") === "true";
+        const isPlusEvent = inEventID.startsWith(getHHScriptVars('eventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEvent") ==="true";
+        const isPlusEventMythic = inEventID.startsWith(getHHScriptVars('mythicEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") ==="true";
+        const isBossBangEvent = inEventID.startsWith(getHHScriptVars('bossBangEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_bossBangEvent") ==="true";
+        const isSultryMysteriesEvent = inEventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_sultryMysteriesEventRefreshShop") === "true";
         return {
             eventTypeKnown: eventType !== '',
             eventId: inEventID,
@@ -507,7 +508,7 @@ export class EventModule {
 
     static isEventActive(inEventID)
     {
-        let eventList = isJSON(getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsList")):{};
+        let eventList = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsList")):{};
         if (eventList.hasOwnProperty(inEventID) && !eventList[inEventID]["isCompleted"]) {
             return eventList[inEventID]["seconds_before_end"]>new Date()
         }
@@ -516,7 +517,7 @@ export class EventModule {
 
     static checkEvent(inEventID)
     {
-        let eventList = isJSON(getStoredValue("HHAuto_Temp_eventsList"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsList")):{};
+        let eventList = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsList")):{};
         const hhEvent = EventModule.getEvent(inEventID);
         if(hhEvent.eventTypeKnown && !hhEvent.isEnabled)
         {
@@ -571,8 +572,8 @@ export class EventModule {
         const baseQuery="#events .scroll-area .nc-event-list-reward-container .nc-event-list-reward";
         EventModule.displayPrioInDailyMissionGirl(baseQuery);
 
-        let eventGirlz=isJSON(getStoredValue("HHAuto_Temp_eventsGirlz"))?JSON.parse(getStoredValue("HHAuto_Temp_eventsGirlz")):{};
-        let eventChamps = isJSON(getStoredValue("HHAuto_Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue("HHAuto_Temp_autoChampsEventGirls")):[];
+        let eventGirlz=isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz")):{};
+        let eventChamps = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls")):[];
         //$("div.event-widget div.widget[style='display: block;'] div.container div.scroll-area div.rewards-block-tape div.girl_reward div.HHEventPriority").each(function(){this.remove();});
         if ( eventGirlz.length >0 || eventChamps.length >0)
         {
@@ -687,7 +688,7 @@ export class EventModule {
     }
     static collectEventChestIfPossible()
     {
-        if (getStoredValue("HHAuto_Setting_collectEventChest") === "true") {
+        if (getStoredValue(HHStoredVarPrefixKey+"Setting_collectEventChest") === "true") {
             const eventChestId = "#extra-rewards-claim-btn:not([disabled])";
             if ($(eventChestId).length > 0) {
                 logHHAuto("Collect event chest");
@@ -760,25 +761,25 @@ export class EventModule {
                 clearTimer("eventSultryMysteryShopRefresh");
             }
             queryResults=$(seasonalEventQuery);
-            if((getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true" || getStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll") === "true") && queryResults.length == 0)
+            if((getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollect") === "true" || getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollectAll") === "true") && queryResults.length == 0)
             {
                 logHHAuto("No seasonal event found, deactivate collect.");
-                setStoredValue("HHAuto_Setting_autoSeasonalEventCollect", "false");
-                setStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll", "false");
+                setStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollect", "false");
+                setStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollectAll", "false");
             }
             queryResults=$(povEventQuery);
-            if((getStoredValue("HHAuto_Setting_autoPoVCollect") === "true" || getStoredValue("HHAuto_Setting_autoPoVCollectAll") === "true") && queryResults.length == 0)
+            if((getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoVCollect") === "true" || getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoVCollectAll") === "true") && queryResults.length == 0)
             {
                 logHHAuto("No pov event found, deactivate collect.");
-                setStoredValue("HHAuto_Setting_autoPoVCollect", "false");
-                setStoredValue("HHAuto_Setting_autoPoVCollectAll", "false");
+                setStoredValue(HHStoredVarPrefixKey+"Setting_autoPoVCollect", "false");
+                setStoredValue(HHStoredVarPrefixKey+"Setting_autoPoVCollectAll", "false");
             }
             queryResults=$(pogEventQuery);
-            if((getStoredValue("HHAuto_Setting_autoPoGCollect") === "true" || getStoredValue("HHAuto_Setting_autoPoGCollectAll") === "true") && queryResults.length == 0)
+            if((getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoGCollect") === "true" || getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoGCollectAll") === "true") && queryResults.length == 0)
             {
                 logHHAuto("No pog event found, deactivate collect.");
-                setStoredValue("HHAuto_Setting_autoPoGCollect", "false");
-                setStoredValue("HHAuto_Setting_autoPoGCollectAll", "false");
+                setStoredValue(HHStoredVarPrefixKey+"Setting_autoPoGCollect", "false");
+                setStoredValue(HHStoredVarPrefixKey+"Setting_autoPoGCollectAll", "false");
             }
         }
         
