@@ -1,4 +1,5 @@
 export * from './BossBang'
+export * from './DoublePenetration'
 export * from './EventModule'
 export * from './PathOfAttraction'
 export * from './PathOfGlory'

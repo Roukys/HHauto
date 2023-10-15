@@ -102,7 +102,7 @@ HHAuto_ToolTips.fr.seasonalEventTitle = { version: "5.6.133", elementText: "Evè
 HHAuto_ToolTips.fr.mousePause = {version: "5.6.135", elementText: "Pause souris", tooltip: "Pause le script pour 5 secondes quand des mouvements de la souris sont detecté. Evite le sript d'interrompre les actions manuelles. (en ms, 5000ms=5s)"};
 HHAuto_ToolTips.fr.PoVMaskRewards = { version: "5.6.133", elementText: "Masquer gains VDLV", tooltip: "Permet de masquer les gains réclamés de la Voie de la Valeur."};
 HHAuto_ToolTips.fr.PoGMaskRewards = { version: "5.6.133", elementText: "Masquer gains VDLG", tooltip: "Permet de masquer les gains réclamés de la Voie de la Gloire."};
-HHAuto_ToolTips.fr.SeasonalEventMaskRewards = { version: "5.6.133", elementText: "Masquer gains saisonier", tooltip: "Permet de masquer les gains réclamés des évènements saisoniers."};
+HHAuto_ToolTips.fr.SeasonalEventMaskRewards = { version: "6.8.4", elementText: "Masquer gains", tooltip: "Permet de masquer les gains réclamés des évènements saisoniers."};
 HHAuto_ToolTips.fr.bossBangEvent = { version: "5.20.3", elementText: "Activer", tooltip: "Si activé : Effectue les combats boss bang en commençant par l'équipe configuré si après."};
 HHAuto_ToolTips.fr.bossBangEventTitle = { version: "5.20.3", elementText: "Evènements Boss Bang"};
 HHAuto_ToolTips.fr.bossBangMinTeam = { version: "5.6.137", elementText: "Première équipe", tooltip: "Première équipe à utiliser<br>Si 5, le script commencera par la dernière pour finir par la premiere."};

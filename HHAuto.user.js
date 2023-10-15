@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.8.3
+// @version      6.8.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -345,11 +345,13 @@ HHAuto_ToolTips.en.PoVMaskRewards = { version: "5.6.26", elementText: "PoV mask 
 HHAuto_ToolTips.en.PoGMaskRewards = { version: "5.6.89", elementText: "PoG mask claimed", tooltip: "Masked claimed rewards for Path of Glory."};
 HHAuto_ToolTips.en.rewardsToCollectTitle = { version: "5.37.0", elementText: "Energies, XP, currencies available to collect"};
 HHAuto_ToolTips.en.showRewardsRecap = { version: "5.37.0", elementText: "Show rewards recap", tooltip: "Show cululated information for energies, XP and currencies"};
-HHAuto_ToolTips.en.SeasonalEventMaskRewards = { version: "5.6.132", elementText: "Seasonal Event mask claimed", tooltip: "Masked claimed rewards for Seasonal Event."};
+HHAuto_ToolTips.en.SeasonalEventMaskRewards = { version: "6.8.4", elementText: "Mask claimed", tooltip: "Masked claimed rewards for Seasonal Event."};
 HHAuto_ToolTips.en.bossBangEvent = { version: "5.20.3", elementText: "Enable", tooltip: "Perform boss bang fight script will start with the team configured after."};
 HHAuto_ToolTips.en.bossBangEventTitle = { version: "5.20.3", elementText: "Boss Bang Event"};
 HHAuto_ToolTips.en.bossBangMinTeam = { version: "5.6.137", elementText: "First Team", tooltip: "First team to start with<br>If 5 will start with last team and reach the first one."};
 HHAuto_ToolTips.en.sultryMysteriesEventTitle = { version: "5.21.6", elementText: "Sultry Mysteries Event"};
+HHAuto_ToolTips.en.doublePenetrationEventTitle = { version: "6.8.4", elementText: "DP Event"};
+HHAuto_ToolTips.en.autodpEventCollect = { version: "6.8.4", elementText: "Collect", tooltip: "Collect double penetration event rewards"};
 HHAuto_ToolTips.en.sultryMysteriesEventRefreshShop = { version: "5.21.6", elementText: "Refresh Shop", tooltip: "Open Sultry Mysteries shop tab to trigger shop update."};
 HHAuto_ToolTips.en.sultryMysteriesEventRefreshShopNext = { version: "5.22.5", elementText: "Sultry Shop"};
 HHAuto_ToolTips.en.collectEventChest = { version: "5.28.0", elementText: "Collect event chest", tooltip: "If enabled: collect event chest when active after getting all girls"};
@@ -539,7 +541,7 @@ HHAuto_ToolTips.fr.seasonalEventTitle = { version: "5.6.133", elementText: "Evè
 HHAuto_ToolTips.fr.mousePause = {version: "5.6.135", elementText: "Pause souris", tooltip: "Pause le script pour 5 secondes quand des mouvements de la souris sont detecté. Evite le sript d'interrompre les actions manuelles. (en ms, 5000ms=5s)"};
 HHAuto_ToolTips.fr.PoVMaskRewards = { version: "5.6.133", elementText: "Masquer gains VDLV", tooltip: "Permet de masquer les gains réclamés de la Voie de la Valeur."};
 HHAuto_ToolTips.fr.PoGMaskRewards = { version: "5.6.133", elementText: "Masquer gains VDLG", tooltip: "Permet de masquer les gains réclamés de la Voie de la Gloire."};
-HHAuto_ToolTips.fr.SeasonalEventMaskRewards = { version: "5.6.133", elementText: "Masquer gains saisonier", tooltip: "Permet de masquer les gains réclamés des évènements saisoniers."};
+HHAuto_ToolTips.fr.SeasonalEventMaskRewards = { version: "6.8.4", elementText: "Masquer gains", tooltip: "Permet de masquer les gains réclamés des évènements saisoniers."};
 HHAuto_ToolTips.fr.bossBangEvent = { version: "5.20.3", elementText: "Activer", tooltip: "Si activé : Effectue les combats boss bang en commençant par l'équipe configuré si après."};
 HHAuto_ToolTips.fr.bossBangEventTitle = { version: "5.20.3", elementText: "Evènements Boss Bang"};
 HHAuto_ToolTips.fr.bossBangMinTeam = { version: "5.6.137", elementText: "Première équipe", tooltip: "Première équipe à utiliser<br>Si 5, le script commencera par la dernière pour finir par la premiere."};
@@ -1293,7 +1295,93 @@ class BossBang {
         }
     }
 }
+;// CONCATENATED MODULE: ./src/Module/Events/DoublePenetration.js
+
+
+
+
+
+class DoublePenetration {
+    
+    static goAndCollect()
+    {
+        const rewardsToCollect = Utils_isJSON(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autodpEventCollectablesList"))?JSON.parse(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autodpEventCollectablesList")):[];
+
+        const needToCollect = (/*checkTimer('nextDpEventCollectTime') && */ StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autodpEventCollect") === "true")
+
+        const dPTierQuery = "#dp-content .tiers-container .player-progression-container .tier-container:has(button.display-block)";
+        const dPFreeSlotQuery = ".free-slot .slot,.free-slot .slot_girl_shards";
+        const dPPaidSlotQuery = ".paid-slot .slot,.paid-slot .slot_girl_shards";
+        const isPassPaid = $("#nc-poa-tape-blocker button.unlock-poa-bonus-rewards:visible").length <= 0;
+
+        if (needToCollect)
+        {
+            if (needToCollect) LogUtils_logHHAuto("Checking double penetration event for collectable rewards.");
+            LogUtils_logHHAuto("setting autoloop to false");
+            StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop", "false");
+            let buttonsToCollect = [];
+            const listDpEventTiersToClaim = $(dPTierQuery);
+
+            for (let currentTier = 0 ; currentTier < listDpEventTiersToClaim.length ; currentTier++)
+            {
+                const currentButton = $("button[rel='reward-claim']", listDpEventTiersToClaim[currentTier])[0];
+                const currentTierNb = currentButton.getAttribute("tier");
+                //console.log("checking tier : "+currentTierNb);
+                const freeSlotType = RewardHelper.getRewardTypeBySlot($(dPFreeSlotQuery,listDpEventTiersToClaim[currentTier])[0]);
+                if (rewardsToCollect.includes(freeSlotType))
+                {
+                    
+                    if (isPassPaid) {
+                        // One button for both
+                        const paidSlotType = RewardHelper.getRewardTypeBySlot($(dPPaidSlotQuery, listDpEventTiersToClaim[currentTier])[0]);
+                        if (rewardsToCollect.includes(paidSlotType))
+                        {
+                            buttonsToCollect.push(currentButton);
+                            LogUtils_logHHAuto("Adding for collection tier (free + paid) : "+currentTierNb);
+                        } else {
+                            LogUtils_logHHAuto("Can't add tier " + currentTierNb + " as paid reward isn't to be colled");
+                        }
+                    } else {
+                        buttonsToCollect.push(currentButton);
+                        LogUtils_logHHAuto("Adding for collection tier (only free) : "+currentTierNb);
+                    }
+                }
+            }
+
+            if (buttonsToCollect.length >0)
+            {
+                function collectDpEventRewards()
+                {
+                    if (buttonsToCollect.length >0)
+                    {
+                        LogUtils_logHHAuto("Collecting tier : "+buttonsToCollect[0].getAttribute('tier'));
+                        buttonsToCollect[0].click();
+                        buttonsToCollect.shift();
+                        setTimeout(collectDpEventRewards, randomInterval(300, 500));
+                    }
+                    else
+                    {
+                        LogUtils_logHHAuto("Double penetration collection finished.");
+                        //setTimer('nextDpEventCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180)); // No need, handle by next event refresh
+                        gotoPage(getHHScriptVars("pagesIDHome"));
+                    }
+                }
+                collectDpEventRewards();
+                return true;
+            }
+            else
+            {
+                LogUtils_logHHAuto("No double penetration reward to collect.");
+                //setTimer('nextDpEventCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180)); // No need, handle by next event refresh
+                gotoPage(getHHScriptVars("pagesIDHome"));
+                return false;
+            }
+        }
+        return false;
+    }
+}
 ;// CONCATENATED MODULE: ./src/Module/Events/EventModule.js
+
 
 
 
@@ -1680,6 +1768,27 @@ class EventModule {
                     },randomInterval(300,500));
                 }
             }
+            if (hhEvent.isDPEvent)
+            {
+                LogUtils_logHHAuto("On going double penetration event.");
+
+                let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
+                if (timeLeft !== undefined && timeLeft.length) {
+                    setTimer('eventGoing',Number(convertTimeToInt(timeLeft)));
+                } else setTimer('eventGoing', 3600);
+
+                eventList[eventID]={};
+                eventList[eventID]["id"]=eventID;
+                eventList[eventID]["type"]=hhEvent.eventType;
+                eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
+                eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
+                eventList[eventID]["isCompleted"] = false;
+                setTimer('eventDPGoing', Number(convertTimeToInt(timeLeft)));
+
+                if(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autodpEventCollect") === "true") {
+                    DoublePenetration.goAndCollect();
+                }
+            }
             if(Object.keys(eventList).length >0)
             {
                 StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_eventsList", JSON.stringify(eventList));
@@ -1763,6 +1872,7 @@ class EventModule {
         if(inEventID.startsWith(getHHScriptVars('eventIDReg'))) return "event";
         if(inEventID.startsWith(getHHScriptVars('bossBangEventIDReg'))) return "bossBang";
         if(inEventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg'))) return "sultryMysteries";
+        if(inEventID.startsWith(getHHScriptVars('doublePenetrationEventIDReg'))) return "doublePenetration";
     //    if(inEventID.startsWith(getHHScriptVars('poaEventIDReg'))) return "poa";
     //    if(inEventID.startsWith('cumback_contest_')) return "";
     //    if(inEventID.startsWith('legendary_contest_')) return "";
@@ -1775,6 +1885,7 @@ class EventModule {
         const isPlusEventMythic = inEventID.startsWith(getHHScriptVars('mythicEventIDReg')) && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_plusEventMythic") ==="true";
         const isBossBangEvent = inEventID.startsWith(getHHScriptVars('bossBangEventIDReg')) && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_bossBangEvent") ==="true";
         const isSultryMysteriesEvent = inEventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg')) && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_sultryMysteriesEventRefreshShop") === "true";
+        const isDPEvent = inEventID.startsWith(getHHScriptVars('doublePenetrationEventIDReg')) && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autodpEventCollect") === "true";
         return {
             eventTypeKnown: eventType !== '',
             eventId: inEventID,
@@ -1783,7 +1894,8 @@ class EventModule {
             isPlusEventMythic: isPlusEventMythic, // and activated
             isBossBangEvent: isBossBangEvent, // and activated
             isSultryMysteriesEvent: isSultryMysteriesEvent, // and activated
-            isEnabled: isPlusEvent || isPlusEventMythic || isBossBangEvent || isSultryMysteriesEvent
+            isDPEvent: isDPEvent, // and activated
+            isEnabled: isPlusEvent || isPlusEventMythic || isBossBangEvent || isSultryMysteriesEvent || isDPEvent
         }
     }
 
@@ -1984,6 +2096,7 @@ class EventModule {
         let mythicEventQuery = '#contains_all #homepage .event-widget a[rel="mythic_event"]:not([href="#"])';
         let bossBangEventQuery = '#contains_all #homepage .event-widget a[rel="boss_bang_event"]:not([href="#"])';
         let sultryMysteriesEventQuery = '#contains_all #homepage .event-widget a[rel="sm_event"]:not([href="#"])';
+        let dpEventQuery = '#contains_all #homepage .event-widget a[rel="dp_event"]:not([href="#"])';
         let seasonalEventQuery = '#contains_all #homepage .seasonal-event a'; // Mega event have same query
         let povEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-valor"]';
         let pogEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-glory"]';
@@ -2040,6 +2153,20 @@ class EventModule {
             {
                 // event is over
                 TimerHelper_clearTimer("eventSultryMysteryShopRefresh");
+            }
+            queryResults=$(dpEventQuery);
+            for(let index = 0;index < queryResults.length;index++)
+            {
+                parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
+                if (queryStringGetParam(parsedURL.search,'tab') !== null && EventModule.checkEvent(queryStringGetParam(parsedURL.search,'tab')))
+                {
+                    eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
+                }
+            }
+            if(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autodpEventCollect") === "true" && queryResults.length == 0)
+            {
+                LogUtils_logHHAuto("No double penetration event found, deactivate collect.");
+                StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autodpEventCollect", "false");
             }
             queryResults=$(seasonalEventQuery);
             if((StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollect") === "true" || StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollectAll") === "true") && queryResults.length == 0)
@@ -3260,6 +3387,7 @@ class SeasonalEvent {
     }
 }
 ;// CONCATENATED MODULE: ./src/Module/Events/index.js
+
 
 
 
@@ -8857,6 +8985,7 @@ HHEnvVariables["global"].eventIDReg = "event_";
 HHEnvVariables["global"].mythicEventIDReg = "mythic_event_";
 HHEnvVariables["global"].bossBangEventIDReg = "boss_bang_event_";
 HHEnvVariables["global"].sultryMysteriesEventIDReg = "sm_event_";
+HHEnvVariables["global"].doublePenetrationEventIDReg = "dp_event_";
 HHEnvVariables["global"].poaEventIDReg = "path_event_";
 HHEnvVariables["global"].girlToolTipData = "data-new-girl-tooltip";
 HHEnvVariables["global"].dailyRewardNotifRequest = "#contains_all header .currency .daily-reward-notif";
@@ -9215,6 +9344,7 @@ HHEnvVariables["global"].isEnabledPoV = true;
 HHEnvVariables["global"].isEnabledPoG = true;
 HHEnvVariables["global"].isEnabledSeasonalEvent = true;
 HHEnvVariables["global"].isEnabledBossBangEvent = true;
+HHEnvVariables["global"].isEnabledDPEvent = true;
 HHEnvVariables["global"].isEnabledSultryMysteriesEvent = true;
 HHEnvVariables["global"].isEnabledDailyGoals = true;
 HHEnvVariables["HH_test"].isEnabledDailyRewards = false;// to remove if daily rewards arrives in test
@@ -10375,6 +10505,33 @@ HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_plusEventMy
     setMenu:true,
     menuType:"checked",
     kobanUsing:false
+};
+HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_autodpEventCollect"] =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    events:{"change":function()
+            {
+                if (this.checked)
+                {
+                    getAndStoreCollectPreferences(HHStoredVars_HHStoredVarPrefixKey+"Setting_autodpEventCollectablesList");
+                    TimerHelper_clearTimer('nextdpEventCollectTime');
+                }
+            }
+           }
+};
+HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_autodpEventCollectablesList"] =
+    {
+    default:JSON.stringify([]),
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Array"
 };
 HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_bossBangEvent"] =
     {
@@ -11891,15 +12048,27 @@ function getMenu() {
                         +`</div>`
                     +`</div>`
                 +`</div>`
-                +`<div id="isEnabledSeasonalEvent" class="optionsBoxWithTitle">`
-                    +`<div class="optionsBoxTitle">`
-                        +`<span class="optionsBoxTitle">${getTextForUI("seasonalEventTitle","elementText")}</span>`
+                +`<div class="optionsRow" style="justify-content: space-evenly">`
+                    +`<div id="isEnabledSeasonalEvent" class="optionsBoxWithTitle">`
+                        +`<div class="optionsBoxTitle">`
+                            +`<span class="optionsBoxTitle">${getTextForUI("seasonalEventTitle","elementText")}</span>`
+                        +`</div>`
+                        +`<div class="optionsBox">`
+                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                + hhMenuSwitch('SeasonalEventMaskRewards')
+                                + hhMenuSwitch('autoSeasonalEventCollect')
+                                + hhMenuSwitch('autoSeasonalEventCollectAll')
+                            +`</div>`
+                        +`</div>`
                     +`</div>`
-                    +`<div class="optionsBox">`
-                        +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                            + hhMenuSwitch('SeasonalEventMaskRewards')
-                            + hhMenuSwitch('autoSeasonalEventCollect')
-                            + hhMenuSwitch('autoSeasonalEventCollectAll')
+                    +`<div id="isEnabledDPEvent" class="optionsBoxWithTitle">`
+                        +`<div class="optionsBoxTitle">`
+                            +`<span class="optionsBoxTitle">${getTextForUI("doublePenetrationEventTitle","elementText")}</span>`
+                        +`</div>`
+                        +`<div class="optionsBox">`
+                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                + hhMenuSwitch('autodpEventCollect')
+                            +`</div>`
                         +`</div>`
                     +`</div>`
                 +`</div>`
@@ -12075,7 +12244,7 @@ function migrateHHVars()
             const oldKeys = newKey.replace(HHStoredVars_HHStoredVarPrefixKey,'HHAuto_');
             const storageItem = getStorageItem(HHStoredVars_HHStoredVars[newKey].storage);
             const itemValue = storageItem[oldKeys];
-            
+
             storageItem.removeItem(oldKeys);
             if (itemValue) {
                 StorageHelper_setStoredValue(newKey, itemValue);

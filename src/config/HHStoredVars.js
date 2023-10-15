@@ -1050,6 +1050,33 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_plusEventMythicSandalWood"] =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autodpEventCollect"] =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    events:{"change":function()
+            {
+                if (this.checked)
+                {
+                    getAndStoreCollectPreferences(HHStoredVarPrefixKey+"Setting_autodpEventCollectablesList");
+                    clearTimer('nextdpEventCollectTime');
+                }
+            }
+           }
+};
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autodpEventCollectablesList"] =
+    {
+    default:JSON.stringify([]),
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Array"
+};
 HHStoredVars[HHStoredVarPrefixKey+"Setting_bossBangEvent"] =
     {
     default:"false",
