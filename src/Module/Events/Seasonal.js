@@ -14,6 +14,7 @@ import {
     setTimer } from "../../Helper";
 import { gotoPage } from "../../Service";
 import { isJSON, logHHAuto } from "../../Utils";
+import { HHStoredVarPrefixKey } from "../../config";
 
 export class SeasonalEvent {
     static isMegaSeasonalEvent() {
@@ -25,11 +26,11 @@ export class SeasonalEvent {
     static getRemainingTime(){
         const seasonalEventTimerRequest = `.mega-event-panel .mega-event-container .mega-timer span[rel=expires]`
 
-        if ( $(seasonalEventTimerRequest).length > 0 && (getSecondsLeft("SeasonalEventRemainingTime") === 0 || getStoredValue("HHAuto_Temp_SeasonalEventEndDate") === undefined) )
+        if ( $(seasonalEventTimerRequest).length > 0 && (getSecondsLeft("SeasonalEventRemainingTime") === 0 || getStoredValue(HHStoredVarPrefixKey+"Temp_SeasonalEventEndDate") === undefined) )
         {
             const seasonalEventTimer = Number(convertTimeToInt($(seasonalEventTimerRequest).text()));
             setTimer("SeasonalEventRemainingTime",seasonalEventTimer);
-            setStoredValue("HHAuto_Temp_SeasonalEventEndDate",Math.ceil(new Date().getTime()/1000)+seasonalEventTimer);
+            setStoredValue(HHStoredVarPrefixKey+"Temp_SeasonalEventEndDate",Math.ceil(new Date().getTime()/1000)+seasonalEventTimer);
         }
     }
     static displayRemainingTime()
@@ -52,7 +53,7 @@ export class SeasonalEvent {
     }
     static goAndCollect()
     {
-        const rewardsToCollect = isJSON(getStoredValue("HHAuto_Setting_autoSeasonalEventCollectablesList"))?JSON.parse(getStoredValue("HHAuto_Setting_autoSeasonalEventCollectablesList")):[];
+        const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollectablesList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollectablesList")):[];
 
         if (getPage() === getHHScriptVars("pagesIDSeasonalEvent"))
         {
@@ -60,8 +61,8 @@ export class SeasonalEvent {
             const isMegaSeasonalEvent = SeasonalEvent.isMegaSeasonalEvent();
             const seasonalEventEnd = getSecondsLeft("SeasonalEventRemainingTime");
             // logHHAuto("Seasonal end in " + seasonalEventEnd);
-            const needToCollect = (checkTimer('nextSeasonalEventCollectTime') && getStoredValue("HHAuto_Setting_autoSeasonalEventCollect") === "true")
-            const needToCollectAllBeforeEnd = (checkTimer('nextSeasonalEventCollectAllTime') && seasonalEventEnd < getLimitTimeBeforeEnd() && getStoredValue("HHAuto_Setting_autoSeasonalEventCollectAll") === "true");
+            const needToCollect = (checkTimer('nextSeasonalEventCollectTime') && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollect") === "true")
+            const needToCollectAllBeforeEnd = (checkTimer('nextSeasonalEventCollectAllTime') && seasonalEventEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollectAll") === "true");
 
             const seasonalTierQuery = "#home_tab_container div.bottom-container div.right-part-container div.mega-progress-bar-tiers div.mega-tier.unclaimed";
             const megaSeasonalTierQuery = "#home_tab_container div.bottom-container div.right-part-container div.mega-progress-bar-section div.mega-tier-container:has(.free-slot button.mega-claim-reward)";
@@ -75,7 +76,7 @@ export class SeasonalEvent {
                 if (needToCollect) logHHAuto("Checking SeasonalEvent for collectable rewards.");
                 if (needToCollectAllBeforeEnd) logHHAuto("Going to collect all SeasonalEvent rewards.");
                 logHHAuto("setting autoloop to false");
-                setStoredValue("HHAuto_Temp_autoLoop", "false");
+                setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                 let buttonsToCollect = [];
 
                 const listSeasonalEventTiersToClaim = isMegaSeasonalEvent ? $(megaSeasonalTierQuery) : $(seasonalTierQuery);
@@ -156,7 +157,7 @@ export class SeasonalEvent {
         }
     }
     static styles(){
-        if (getStoredValue("HHAuto_Setting_SeasonalEventMaskRewards") === "true")
+        if (getStoredValue(HHStoredVarPrefixKey+"Setting_SeasonalEventMaskRewards") === "true")
         {
             SeasonalEvent.maskReward();
         }

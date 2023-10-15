@@ -1,4 +1,5 @@
 import { extractHHVars, getStoredValue, setStoredValue } from "../Helper/StorageHelper";
+import { HHStoredVarPrefixKey } from "../config";
 import { getBrowserData } from "./BrowserUtils";
 
 export function logHHAuto(...args)
@@ -48,7 +49,7 @@ export function logHHAuto(...args)
     {
         text = JSON.stringify(args, getCircularReplacer(), 2);
     }
-    currentLoggingText = getStoredValue("HHAuto_Temp_Logging")!==undefined?getStoredValue("HHAuto_Temp_Logging"):"reset";
+    currentLoggingText = getStoredValue(HHStoredVarPrefixKey+"Temp_Logging")!==undefined?getStoredValue(HHStoredVarPrefixKey+"Temp_Logging"):"reset";
     //console.log("debug : ",currentLoggingText);
     if (!currentLoggingText.startsWith("{"))
     {
@@ -83,7 +84,7 @@ export function logHHAuto(...args)
     console.log(prefix+":"+text);
     currentLoggingText[prefix]=text;
 
-    setStoredValue("HHAuto_Temp_Logging", JSON.stringify(currentLoggingText));
+    setStoredValue(HHStoredVarPrefixKey+"Temp_Logging", JSON.stringify(currentLoggingText));
 
 }
 

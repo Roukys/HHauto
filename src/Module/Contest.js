@@ -8,6 +8,7 @@ import {
 } from "../Helper";
 import { gotoPage } from "../Service";
 import { logHHAuto } from "../Utils";
+import { HHStoredVarPrefixKey } from "../config";
 
 export class Contest {
     // returns boolean to set busy
@@ -41,7 +42,7 @@ export class Contest {
         }
     }
     static styles(){
-        if(getStoredValue("HHAuto_Setting_compactEndedContests") === "true")
+        if(getStoredValue(HHStoredVarPrefixKey+"Setting_compactEndedContests") === "true")
         {
             const contestsContainerPath = '#contests > div > div.left_part > .scroll_area > .contest > .contest_header.ended';
             GM_addStyle(contestsContainerPath + ' {'

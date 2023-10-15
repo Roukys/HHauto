@@ -11,7 +11,7 @@ import {
 import { Harem } from "..";
 import { gotoPage } from "../../Service";
 import { displayHHPopUp, fillHHPopUp, isJSON, logHHAuto, maskHHPopUp } from "../../Utils";
-import { HHAuto_inputPattern } from "../../config";
+import { HHAuto_inputPattern, HHStoredVarPrefixKey } from "../../config";
 
 
 export class HaremGirl {
@@ -132,9 +132,9 @@ export class HaremGirl {
         if((Number(selectedGirl.level) + 50) <= Number(userHaremGirlLimit)) {
             HaremGirl.HaremDisplayGirlPopup(haremItem, selectedGirl.name + ' '+selectedGirl.Xp.cur+"xp, level "+selectedGirl.level+"/"+userHaremGirlLimit, (1)*5 );
 
-            setStoredValue("HHAuto_Temp_haremGirlActions", haremItem);
-            setStoredValue("HHAuto_Temp_haremGirlMode", 'girl');
-            setStoredValue("HHAuto_Temp_haremGirlLimit", userHaremGirlLimit);
+            setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlActions", haremItem);
+            setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlMode", 'girl');
+            setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlLimit", userHaremGirlLimit);
 
             if((Number(selectedGirl.level) + 50) >= Number(userHaremGirlLimit)) {
                 HaremGirl.maxOutButtonAndConfirm(haremItem, selectedGirl);
@@ -226,9 +226,9 @@ export class HaremGirl {
                 document.getElementById(menuIDMaxGifts+'Button').addEventListener("click", function() {
                     maskHHPopUp();
                     HaremGirl.switchTabs(HaremGirl.AFFECTION_TYPE);
-                    setStoredValue("HHAuto_Temp_haremGirlActions", HaremGirl.AFFECTION_TYPE);
-                    setStoredValue("HHAuto_Temp_haremGirlMode", 'girl');
-                    setStoredValue("HHAuto_Temp_haremGirlEnd", 'true');
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlActions", HaremGirl.AFFECTION_TYPE);
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlMode", 'girl');
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlEnd", 'true');
                     setTimeout(HaremGirl.fillAllAffection, randomInterval(500,800));
                 });
             }
@@ -290,10 +290,10 @@ export class HaremGirl {
     
     static moduleHaremGirl()
     {
-        const haremItem = getStoredValue("HHAuto_Temp_haremGirlActions");
-        const haremGirlMode = getStoredValue("HHAuto_Temp_haremGirlMode");
-        const haremGirlEnd = getStoredValue("HHAuto_Temp_haremGirlEnd") === 'true';
-        const haremGirlLimit = getStoredValue("HHAuto_Temp_haremGirlLimit");
+        const haremItem = getStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlActions");
+        const haremGirlMode = getStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlMode");
+        const haremGirlEnd = getStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlEnd") === 'true';
+        const haremGirlLimit = getStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlLimit");
 
         try {
             const girl = unsafeWindow.girl;
@@ -330,7 +330,7 @@ export class HaremGirl {
                 // No action to be peformed
                 return;
             }
-            setStoredValue("HHAuto_Temp_autoLoop", "false");
+            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
             logHHAuto("setting autoloop to false as action to be performed on girl");
             logHHAuto("haremGirlMode: " + haremGirlMode);
 
@@ -367,7 +367,7 @@ export class HaremGirl {
                 let girlListProgress = '<br />' + getTextForUI("giveLastGirl","elementText");
 
 
-                let filteredGirlsList = getStoredValue("HHAuto_Temp_filteredGirlsList")?JSON.parse(getStoredValue("HHAuto_Temp_filteredGirlsList")):[];
+                let filteredGirlsList = getStoredValue(HHStoredVarPrefixKey+"Temp_filteredGirlsList")?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_filteredGirlsList")):[];
                 logHHAuto("filteredGirlsList", filteredGirlsList);
                 if (filteredGirlsList && filteredGirlsList.length > 0) {
                     girlPosInList = filteredGirlsList.indexOf(""+girl.id_girl);
@@ -403,18 +403,18 @@ export class HaremGirl {
                     gotoPage('/girl/'+nextGirlId,{resource:haremItem}, randomInterval(1500,2500));
                 } else {
                     logHHAuto("No more girls, go back to harem list");
-                    setStoredValue("HHAuto_Temp_autoLoop", "true");
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
                     gotoPage('/harem/'+girl.id_girl,{}, randomInterval(1500,2500));
                     Harem.clearHaremToolVariables();
                 }
             } else {
-                setStoredValue("HHAuto_Temp_autoLoop", "true");
+                setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
                 Harem.clearHaremToolVariables();
             }
         } catch (error) {
             logHHAuto("ERROR: Can't perform action ");
             console.error(error);
-            setStoredValue("HHAuto_Temp_autoLoop", "true");
+            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
             Harem.clearHaremToolVariables();
         }
     }

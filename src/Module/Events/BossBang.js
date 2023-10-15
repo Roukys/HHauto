@@ -1,6 +1,7 @@
 import { getStoredValue, randomInterval, setStoredValue } from "../../Helper";
 import { gotoPage } from "../../Service";
 import { logHHAuto } from "../../Utils";
+import { HHStoredVarPrefixKey } from "../../config";
 
 export class BossBang {
     static skipFightPage()
@@ -18,10 +19,10 @@ export class BossBang {
             skipFightButton.click();
             setTimeout(BossBang.skipFightPage,randomInterval(1300,1900));
         }
-        setStoredValue("HHAuto_Temp_autoLoop", "false");
+        setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
     }
     static goToFightPage(){
-        const teamIndexFound = parseInt(getStoredValue("HHAuto_Temp_bossBangTeam"));
+        const teamIndexFound = parseInt(getStoredValue(HHStoredVarPrefixKey+"Temp_bossBangTeam"));
         let bangButton = $('#contains_all #events #boss_bang .boss-bang-event-info #start-bang-button:not([disabled])');
         if(teamIndexFound >= 0 && bangButton.length > 0) {
             gotoPage(bangButton.attr('href'));

@@ -9,7 +9,7 @@ import {
 } from "../Helper";
 import { gotoPage } from "../Service";
 import { fillHHPopUp, isJSON, logHHAuto, maskHHPopUp } from "../Utils";
-import { HHAuto_inputPattern } from "../config";
+import { HHAuto_inputPattern, HHStoredVarPrefixKey } from "../config";
 import { HaremGirl } from "./harem/HaremGirl";
 
 
@@ -79,7 +79,7 @@ export class Harem {
     {
         const selectedSortFunction = document.getElementById("HaremSortMenuSortSelector").options[document.getElementById("HaremSortMenuSortSelector").selectedIndex].value;
         const isReverseChecked = document.getElementById("HaremSortMenuSortReverse").checked;
-        setStoredValue("HHAuto_Temp_defaultCustomHaremSort",JSON.stringify({sortFunction:selectedSortFunction, reverse:isReverseChecked}));
+        setStoredValue(HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort",JSON.stringify({sortFunction:selectedSortFunction, reverse:isReverseChecked}));
         const girlsMap = Harem.getGirlMapSorted(selectedSortFunction,isReverseChecked);
         if (girlsMap === null )
             return;
@@ -121,7 +121,7 @@ export class Harem {
         document.getElementById("HaremSortMenuLaunch").addEventListener("click", Harem.selectNextUpgradableGirl);
         let selectorOptions = document.getElementById("HaremSortMenuSortSelector");
 
-        const storedDefaultSort = (getStoredValue("HHAuto_Temp_defaultCustomHaremSort") !== undefined && isJSON(getStoredValue("HHAuto_Temp_defaultCustomHaremSort")))?JSON.parse(getStoredValue("HHAuto_Temp_defaultCustomHaremSort")):{sortFunction : "null", reverse:false};
+        const storedDefaultSort = (getStoredValue(HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort") !== undefined && isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort")))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort")):{sortFunction : "null", reverse:false};
 
         for (let sortFunction of Object.keys(getHHScriptVars("haremSortingFunctions")))
         {
@@ -193,7 +193,7 @@ export class Harem {
 
             document.getElementById("HaremSortMenuLaunch").addEventListener("click", prepareUpgradable);
             let selectorOptions = document.getElementById("HaremSortMenuSortSelector");
-            const storedDefaultSort = (getStoredValue("HHAuto_Temp_defaultCustomHaremSort") !== undefined && isJSON(getStoredValue("HHAuto_Temp_defaultCustomHaremSort")))?JSON.parse(getStoredValue("HHAuto_Temp_defaultCustomHaremSort")):{sortFunction : "null", reverse:false};
+            const storedDefaultSort = (getStoredValue(HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort") !== undefined && isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort")))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort")):{sortFunction : "null", reverse:false};
 
             for (let sortFunction of Object.keys(getHHScriptVars("haremSortingFunctions")))
             {
@@ -211,7 +211,7 @@ export class Harem {
         {
             const selectedSortFunction = document.getElementById("HaremSortMenuSortSelector").options[document.getElementById("HaremSortMenuSortSelector").selectedIndex].value;
             const isReverseChecked = document.getElementById("HaremSortMenuSortReverse").checked;
-            setStoredValue("HHAuto_Temp_defaultCustomHaremSort",JSON.stringify({sortFunction:selectedSortFunction, reverse:isReverseChecked}));
+            setStoredValue(HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort",JSON.stringify({sortFunction:selectedSortFunction, reverse:isReverseChecked}));
             const girlsMap = Harem.getGirlMapSorted(selectedSortFunction,isReverseChecked);
             if (girlsMap === null )
                 return;
@@ -406,12 +406,12 @@ export class Harem {
             }
             logHHAuto("Go to " + girlToGoTo);
             gotoPage('/girl/'+girlToGoTo,{resource:haremItem});
-            setStoredValue("HHAuto_Temp_autoLoop", "false");
+            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
             logHHAuto("setting autoloop to false");
         }
-        setStoredValue("HHAuto_Temp_haremGirlActions", haremItem);
-        setStoredValue("HHAuto_Temp_haremGirlMode", 'list');
-        setStoredValue("HHAuto_Temp_filteredGirlsList", JSON.stringify(filteredGirlsList));
+        setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlActions", haremItem);
+        setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlMode", 'list');
+        setStoredValue(HHStoredVarPrefixKey+"Temp_filteredGirlsList", JSON.stringify(filteredGirlsList));
     };
 
     static addGoToGirlPageButton(){
@@ -478,7 +478,7 @@ export class Harem {
             document.getElementById(menuIDXp+'Button').addEventListener("click", function() { Harem.fillCurrentGirlItem('experience');});
             document.getElementById(menuIDGifts+'Button').addEventListener("click", function() { Harem.fillCurrentGirlItem('affection');});
             document.getElementById(menuIDMaxGifts+'Button').addEventListener("click", function() {
-                setStoredValue("HHAuto_Temp_haremGirlEnd", 'true');
+                setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlEnd", 'true');
                 Harem.fillCurrentGirlItem('affection');
             });
             document.getElementById(menuNextUpgrad+'Button').addEventListener("click", function() { 
@@ -494,14 +494,14 @@ export class Harem {
    
     static HaremSizeNeedsRefresh(inCustomExpi)
     {
-        return ! isJSON(getStoredValue("HHAuto_Temp_HaremSize")) || JSON.parse(getStoredValue("HHAuto_Temp_HaremSize")).count_date < (new Date().getTime() - inCustomExpi * 1000);
+        return ! isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_HaremSize")) || JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_HaremSize")).count_date < (new Date().getTime() - inCustomExpi * 1000);
     }
 
     static moduleHaremCountMax()
     {
         if (Harem.HaremSizeNeedsRefresh(getHHScriptVars("HaremMinSizeExpirationSecs")) && getHHVars('girlsDataList',false) !== null)
         {
-            setStoredValue("HHAuto_Temp_HaremSize", JSON.stringify({count:Object.keys(getHHVars('girlsDataList',false)).length,count_date:new Date().getTime()}));
+            setStoredValue(HHStoredVarPrefixKey+"Temp_HaremSize", JSON.stringify({count:Object.keys(getHHVars('girlsDataList',false)).length,count_date:new Date().getTime()}));
             logHHAuto("Harem size updated to : "+Object.keys(getHHVars('girlsDataList',false)).length);
         }
     }

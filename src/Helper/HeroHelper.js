@@ -1,5 +1,6 @@
 import { autoLoop } from "../Service";
 import { isJSON, logHHAuto } from "../Utils";
+import { HHStoredVarPrefixKey } from "../config";
 import { getHHVars } from "./HHHelper";
 import { getStoredValue, setStoredValue } from "./StorageHelper";
 import { randomInterval } from "./TimeHelper";
@@ -8,7 +9,7 @@ export function getHero()
 {
     if(unsafeWindow.Hero === undefined)
     {
-        setTimeout(autoLoop, Number(getStoredValue("HHAuto_Temp_autoLoopTimeMili")))
+        setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")))
         //logHHAuto(window.wrappedJSObject)
     }
     //logHHAuto(unsafeWindow.Hero);
@@ -24,7 +25,7 @@ export function doStatUpgrades()
     var stats=[getHHVars('Hero.infos.carac1'),getHHVars('Hero.infos.carac2'),getHHVars('Hero.infos.carac3')];
     var money=getHHVars('Hero.currencies.soft_currency');
     var count=0;
-    var M=Number(getStoredValue("HHAuto_Setting_autoStats"));
+    var M=Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoStats"));
     var MainStat=stats[getHHVars('Hero.infos.class')-1];
     var Limit=getHHVars('Hero.infos.level')*30;//getHHVars('Hero.infos.level')*19+Math.min(getHHVars('Hero.infos.level'),25)*21;
     var carac=getHHVars('Hero.infos.class');
@@ -68,7 +69,7 @@ export function doStatUpgrades()
 
 export class HeroHelper {
     static haveBoosterInInventory(idBooster){
-        const HaveBooster=isJSON(getStoredValue("HHAuto_Temp_haveBooster"))?JSON.parse(getStoredValue("HHAuto_Temp_haveBooster")):{};
+        const HaveBooster=isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_haveBooster"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_haveBooster")):{};
         const boosterOwned = HaveBooster.hasOwnProperty(idBooster) ? Number(HaveBooster[idBooster]) : 0;
         return boosterOwned > 0
     }
@@ -77,7 +78,7 @@ export class HeroHelper {
         if(!booster) return false;
         if(!HeroHelper.haveBoosterInInventory(booster.identifier)) return false;
         //action=market_equip_booster&id_item=316&type=booster
-        setStoredValue("HHAuto_Temp_autoLoop", "false");
+        setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
         logHHAuto("Equip "+booster.name+", setting autoloop to false");
         const params = {
             action: "market_equip_booster",
@@ -87,11 +88,11 @@ export class HeroHelper {
         /*
         hh_ajax(params, function(data) {
             if (data.success) logHHAuto('Booster equipped');
-            setStoredValue("HHAuto_Temp_autoLoop", "true");
+            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
             setTimeout(autoLoop,randomInterval(500,800));
         }, function (err){
             logHHAuto('Error occured booster not equipped, could be booster is already equipped');
-            setStoredValue("HHAuto_Temp_autoLoop", "true");
+            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
             setTimeout(autoLoop,randomInterval(500,800));
         });
         */

@@ -12,15 +12,15 @@ import {
 } from "../Helper";
 import { gotoPage } from "../Service";
 import { isJSON, logHHAuto } from "../Utils";
-import { HHAuto_inputPattern } from "../config";
+import { HHAuto_inputPattern, HHStoredVarPrefixKey } from "../config";
 import { Booster } from "./Booster";
 
 export class Shop {
 
     static isTimeToCheckShop() {
-        const updateMarket = getStoredValue("HHAuto_Setting_updateMarket")  === "true";
+        const updateMarket = getStoredValue(HHStoredVarPrefixKey+"Setting_updateMarket")  === "true";
         const needBoosterStatus = Booster.needBoosterStatusFromStore();
-        return (updateMarket || needBoosterStatus) && ( getStoredValue("HHAuto_Setting_paranoia") !== "true" || !checkTimer("paranoiaSwitch") )
+        return (updateMarket || needBoosterStatus) && ( getStoredValue(HHStoredVarPrefixKey+"Setting_paranoia") !== "true" || !checkTimer("paranoiaSwitch") )
     }
 
     static updateShop()
@@ -51,14 +51,14 @@ export class Shop {
     
             $('#shops div.booster.player-inventory-content .slot').each(function(){ if (this.dataset.d) { var d=JSON.parse(this.dataset.d); HaveBooster[d.item.identifier] = d.quantity;}});
     
-            setStoredValue("HHAuto_Temp_haveAff", HaveAff);
-            setStoredValue("HHAuto_Temp_haveExp", HaveExp);
-            setStoredValue("HHAuto_Temp_haveBooster", JSON.stringify(HaveBooster));
+            setStoredValue(HHStoredVarPrefixKey+"Temp_haveAff", HaveAff);
+            setStoredValue(HHStoredVarPrefixKey+"Temp_haveExp", HaveExp);
+            setStoredValue(HHStoredVarPrefixKey+"Temp_haveBooster", JSON.stringify(HaveBooster));
     
-            logHHAuto('counted '+getStoredValue("HHAuto_Temp_haveAff")+' Aff, '+getStoredValue("HHAuto_Temp_haveExp")+' Exp, Booster: ' + JSON.stringify(HaveBooster));
+            logHHAuto('counted '+getStoredValue(HHStoredVarPrefixKey+"Temp_haveAff")+' Aff, '+getStoredValue(HHStoredVarPrefixKey+"Temp_haveExp")+' Exp, Booster: ' + JSON.stringify(HaveBooster));
     
-            setStoredValue("HHAuto_Temp_storeContents", JSON.stringify([assA,assB,assG,assP]));
-            setStoredValue("HHAuto_Temp_charLevel", getHHVars('Hero.infos.level'));
+            setStoredValue(HHStoredVarPrefixKey+"Temp_storeContents", JSON.stringify([assA,assB,assG,assP]));
+            setStoredValue(HHStoredVarPrefixKey+"Temp_charLevel", getHHVars('Hero.infos.level'));
     
             var nshop;
             let shopFrozenTimer = $('.shop div.shop_count span[rel="expires"]').first().text();
@@ -79,8 +79,8 @@ export class Shop {
                 // }
             }
             setTimer('nextShopTime',shopTimer + randomInterval(60,180));
-            if (isJSON(getStoredValue("HHAuto_Temp_LastPageCalled"))
-                && getPage() === JSON.parse(getStoredValue("HHAuto_Temp_LastPageCalled")).page)
+            if (isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_LastPageCalled"))
+                && getPage() === JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_LastPageCalled")).page)
             {
                 gotoPage(getHHScriptVars("pagesIDHome"));
                 logHHAuto("Go to Home after Shopping");

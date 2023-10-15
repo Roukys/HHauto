@@ -1,10 +1,11 @@
 const { Trollz } = require("./Helper");
+const { HHStoredVarPrefixKey } = require("./config");
 
 const QuestHelper = {
     SITE_QUEST_PAGE: '/side-quests.html',
     getNextQuestLink: function() {
-        const mainQuest = getStoredValue("HHAuto_Setting_autoQuest") === "true";
-        const sideQuest = getHHScriptVars("isEnabledSideQuest",false) && getStoredValue("HHAuto_Setting_autoSideQuest") === "true";
+        const mainQuest = getStoredValue(HHStoredVarPrefixKey+"Setting_autoQuest") === "true";
+        const sideQuest = getHHScriptVars("isEnabledSideQuest",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSideQuest") === "true";
         let nextQuestUrl = QuestHelper.getMainQuestUrl();
 
         if ((mainQuest && sideQuest && (nextQuestUrl.includes("world"))) || (!mainQuest && sideQuest))

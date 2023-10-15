@@ -5,6 +5,7 @@ import {
     getGoToClubChampionButton
 } from "../../Helper";
 import { logHHAuto } from "../../Utils";
+import { HHStoredVarPrefixKey } from "../../config";
 
 export class PathOfAttraction {
     static runOld(){
@@ -31,13 +32,13 @@ export class PathOfAttraction {
         }
     }
     static styles(){
-        if (getStoredValue("HHAuto_Setting_PoAMaskRewards") === "true")
+        if (getStoredValue(HHStoredVarPrefixKey+"Setting_PoAMaskRewards") === "true")
         {
             setTimeout(PathOfAttraction.Hide(),500);
         }
     }
     static Hide(){
-        if (getPage() === getHHScriptVars("pagesIDEvent") && window.location.search.includes("tab="+getHHScriptVars('poaEventIDReg')) && getStoredValue("HHAuto_Setting_PoAMaskRewards") === "true")
+        if (getPage() === getHHScriptVars("pagesIDEvent") && window.location.search.includes("tab="+getHHScriptVars('poaEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_PoAMaskRewards") === "true")
         {
             let arrayz;
             let nbReward;

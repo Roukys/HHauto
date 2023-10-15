@@ -12,6 +12,7 @@ import {
 } from "../Helper";
 import { gotoPage } from "../Service";
 import { logHHAuto } from "../Utils";
+import { HHStoredVarPrefixKey } from "../config";
 
 export class Missions {
     /**
@@ -31,7 +32,7 @@ export class Missions {
 
         for(var m in missionsList)
         {
-            if (JSON.stringify(missionsList[m].rewards).includes("koban") && getStoredValue("HHAuto_Setting_autoMissionKFirst") === "true")
+            if (JSON.stringify(missionsList[m].rewards).includes("koban") && getStoredValue(HHStoredVarPrefixKey+"Setting_autoMissionKFirst") === "true")
             {
                 return missionsList[m];
             }
@@ -57,7 +58,7 @@ export class Missions {
             if(RewardHelper.closeRewardPopupIfAny()) {
                 return true;
             }
-            let canCollect = getStoredValue("HHAuto_Setting_autoMissionCollect") ==="true" && $(".mission_button button:visible[rel='claim']").length >0 && canCollectCompetitionActive();
+            let canCollect = getStoredValue(HHStoredVarPrefixKey+"Setting_autoMissionCollect") ==="true" && $(".mission_button button:visible[rel='claim']").length >0 && canCollectCompetitionActive();
             if (canCollect)
             {
                 logHHAuto("Collecting finished mission's reward.");
@@ -186,18 +187,18 @@ export class Missions {
             {
                 logHHAuto("No missions detected...!");
                 // get gift
-                var ck = getStoredValue("HHAuto_Temp_missionsGiftLeft");
+                var ck = getStoredValue(HHStoredVarPrefixKey+"Temp_missionsGiftLeft");
                 var isAfterGift = document.querySelector("#missions .after_gift").style.display === 'block';
                 if(!isAfterGift){
                     if(ck === 'giftleft')
                     {
                         logHHAuto("Collecting gift.");
-                        deleteStoredValue("HHAuto_Temp_missionsGiftLeft");
+                        deleteStoredValue(HHStoredVarPrefixKey+"Temp_missionsGiftLeft");
                         document.querySelector(".end_gift button").click();
                     }
                     else{
                         logHHAuto("Refreshing to collect gift...");
-                        setStoredValue("HHAuto_Temp_missionsGiftLeft","giftleft");
+                        setStoredValue(HHStoredVarPrefixKey+"Temp_missionsGiftLeft","giftleft");
                         location.reload();
                         // is busy
                         return true;
@@ -215,7 +216,7 @@ export class Missions {
         }
     }
     static styles() {
-        if(getStoredValue("HHAuto_Setting_compactMissions") === "true")
+        if(getStoredValue(HHStoredVarPrefixKey+"Setting_compactMissions") === "true")
         {
             GM_addStyle('#missions .missions_wrap  {'
                 + 'display:flex;'

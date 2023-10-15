@@ -6,6 +6,7 @@ import {
     setStoredValue
 } from "../Helper";
 import { isJSON, logHHAuto } from "../Utils";
+import { HHStoredVarPrefixKey } from "../config";
 
 export class Market {
     static doShopping() {
@@ -20,35 +21,35 @@ export class Market {
             var kobans=getHHVars('Hero.currencies.hard_currency');
 
 
-            if (getStoredValue("HHAuto_Temp_storeContents") === undefined )
+            if (getStoredValue(HHStoredVarPrefixKey+"Temp_storeContents") === undefined )
             {
-                if (! isJSON(getStoredValue("HHAuto_Temp_storeContents")) )
+                if (! isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_storeContents")) )
                 {
                     logHHAuto("Catched error : Could not parse store content.");
                 }
-                setStoredValue("HHAuto_Temp_charLevel",0);
+                setStoredValue(HHStoredVarPrefixKey+"Temp_charLevel",0);
                 return;
             }
 
-            if (getStoredValue("HHAuto_Temp_haveAff") === undefined || getStoredValue("HHAuto_Temp_haveExp") === undefined)
+            if (getStoredValue(HHStoredVarPrefixKey+"Temp_haveAff") === undefined || getStoredValue(HHStoredVarPrefixKey+"Temp_haveExp") === undefined)
             {
-                setStoredValue("HHAuto_Temp_charLevel", 0);
+                setStoredValue(HHStoredVarPrefixKey+"Temp_charLevel", 0);
                 return;
             }
-            var shop=JSON.parse(getStoredValue("HHAuto_Temp_storeContents"));
+            var shop=JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_storeContents"));
 
-            var Exp=Number(getStoredValue("HHAuto_Setting_autoExp"));
-            var Aff=Number(getStoredValue("HHAuto_Setting_autoAff"));
-            var MaxAff=Number(getStoredValue("HHAuto_Setting_maxAff"));
-            var MaxExp=Number(getStoredValue("HHAuto_Setting_maxExp"));
-            var HaveAff=Number(getStoredValue("HHAuto_Temp_haveAff"));
-            var HaveExp=Number(getStoredValue("HHAuto_Temp_haveExp"));
-            var HaveBooster=JSON.parse(getStoredValue("HHAuto_Temp_haveBooster"));
-            var MaxBooster=Number(getStoredValue("HHAuto_Setting_maxBooster"));
+            var Exp=Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoExp"));
+            var Aff=Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoAff"));
+            var MaxAff=Number(getStoredValue(HHStoredVarPrefixKey+"Setting_maxAff"));
+            var MaxExp=Number(getStoredValue(HHStoredVarPrefixKey+"Setting_maxExp"));
+            var HaveAff=Number(getStoredValue(HHStoredVarPrefixKey+"Temp_haveAff"));
+            var HaveExp=Number(getStoredValue(HHStoredVarPrefixKey+"Temp_haveExp"));
+            var HaveBooster=JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_haveBooster"));
+            var MaxBooster=Number(getStoredValue(HHStoredVarPrefixKey+"Setting_maxBooster"));
             let Was;
 
-            var boosterFilter = getStoredValue("HHAuto_Setting_autoBuyBoostersFilter").split(";");
-            if (getStoredValue("HHAuto_Setting_autoBuyBoosters") ==="true" && boosterFilter.length > 0)
+            var boosterFilter = getStoredValue(HHStoredVarPrefixKey+"Setting_autoBuyBoostersFilter").split(";");
+            if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoBuyBoosters") ==="true" && boosterFilter.length > 0)
             {
                 Was=shop[1].length;
 
@@ -57,7 +58,7 @@ export class Market {
                     const boosterOwned = HaveBooster.hasOwnProperty(boost) ? Number(HaveBooster[boost]) : 0;
                     for (var n1=shop[1].length-1;n1>=0;n1--)
                     {
-                        if (kobans>=Number(getStoredValue("HHAuto_Setting_kobanBank"))+Number(shop[1][n1].price_buy) && shop[1][n1].item.currency == "hc" && shop[1][n1].item.identifier == boost && (shop[1][n1].item.rarity=='legendary' || shop[1][n1].item.rarity=='mythic') && boosterOwned < MaxBooster)
+                        if (kobans>=Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank"))+Number(shop[1][n1].price_buy) && shop[1][n1].item.currency == "hc" && shop[1][n1].item.identifier == boost && (shop[1][n1].item.rarity=='legendary' || shop[1][n1].item.rarity=='mythic') && boosterOwned < MaxBooster)
                         {
                             logHHAuto({log:'wanna buy ',object:shop[1][n1],owning: boosterOwned});
                             if (kobans>=Number(shop[1][n1].price_buy))
@@ -79,13 +80,13 @@ export class Market {
                                         clearTimer('nextShopTime');
                                     } else {
                                         HaveBooster[boost] = boosterOwned++;
-                                        setStoredValue("HHAuto_Temp_haveBooster", JSON.stringify(HaveBooster));
+                                        setStoredValue(HHStoredVarPrefixKey+"Temp_haveBooster", JSON.stringify(HaveBooster));
                                     }
                                     // change referer
                                     window.history.replaceState(null, '', '/home.html');
                                 });
                                 shop[1].splice(n1,1);
-                                setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
+                                setStoredValue(HHStoredVarPrefixKey+"Temp_storeContents", JSON.stringify(shop));
                                 setTimeout(doShopping, randomInterval(600,1200));
                                 return;
                             }
@@ -95,11 +96,11 @@ export class Market {
 
                 if (shop[1].length==0 && Was>0)
                 {
-                    setStoredValue("HHAuto_Temp_charLevel", 0);
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_charLevel", 0);
                 }
             }
 
-            if (getStoredValue("HHAuto_Setting_autoAffW") ==="true" && HaveAff<MaxAff)
+            if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoAffW") ==="true" && HaveAff<MaxAff)
             {
                 //logHHAuto('gifts');
                 Was=shop[2].length;
@@ -136,7 +137,7 @@ export class Market {
                             shop[2].splice(n2,1);
                         }
                     }
-                    setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_storeContents", JSON.stringify(shop));
                 } else {
                     for (var n2=shop[2].length-1;n2>=0;n2--)
                     {
@@ -163,7 +164,7 @@ export class Market {
                                 window.history.replaceState(null, '', '/home.html');
                             });
                             shop[2].splice(n2,1);
-                            setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
+                            setStoredValue(HHStoredVarPrefixKey+"Temp_storeContents", JSON.stringify(shop));
                             setTimeout(doShopping, randomInterval(600,1200));
                             return;
                         }
@@ -171,10 +172,10 @@ export class Market {
                 }
                 if (shop[2].length==0 && Was>0)
                 {
-                    setStoredValue("HHAuto_Temp_charLevel", 0);
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_charLevel", 0);
                 }
             }
-            if (getStoredValue("HHAuto_Setting_autoExpW") ==="true" && HaveExp<MaxExp)
+            if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoExpW") ==="true" && HaveExp<MaxExp)
             {
                 //logHHAuto('books');
                 Was=shop[3].length;
@@ -211,7 +212,7 @@ export class Market {
                             shop[3].splice(n3,1);
                         }
                     }
-                    setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_storeContents", JSON.stringify(shop));
                 } else {
                     for (var n3=shop[3].length-1;n3>=0;n3--)
                     {
@@ -238,7 +239,7 @@ export class Market {
                                 window.history.replaceState(null, '', '/home.html');
                             });
                             shop[3].splice(n3,1);
-                            setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
+                            setStoredValue(HHStoredVarPrefixKey+"Temp_storeContents", JSON.stringify(shop));
                             setTimeout(doShopping, randomInterval(600,1200));
                             return;
                         }
@@ -246,17 +247,17 @@ export class Market {
                 }
                 if (shop[3].length==0 && Was>0)
                 {
-                    setStoredValue("HHAuto_Temp_charLevel", 0);
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_charLevel", 0);
                 }
             }
-            setStoredValue("HHAuto_Temp_storeContents", JSON.stringify(shop));
+            setStoredValue(HHStoredVarPrefixKey+"Temp_storeContents", JSON.stringify(shop));
             //unsafeWindow.Hero.currencies.soft_currency=money;
             //Hero.update("soft_currency", money, false);
         }
         catch (ex)
         {
             logHHAuto("Catched error : Could not buy : "+ex);
-            setStoredValue("HHAuto_Temp_charLevel", 0);
+            setStoredValue(HHStoredVarPrefixKey+"Temp_charLevel", 0);
         }
     }
 }

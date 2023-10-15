@@ -11,6 +11,7 @@ import {
     setStoredValue
 } from "../Helper";
 import { Booster, LeagueHelper, Pantheon, Season, Troll } from "../Module";
+import { HHStoredVarPrefixKey } from "../config";
 
 export function createPInfo() {
     var div = document.createElement('div');
@@ -21,11 +22,11 @@ export function createPInfo() {
     pInfo.addEventListener("dblclick", function() {
         let masterSwitch = document.getElementById("master");
         if (masterSwitch.checked === true) {
-            setStoredValue("HHAuto_Setting_master", "false");
+            setStoredValue(HHStoredVarPrefixKey+"Setting_master", "false");
             masterSwitch.checked = false;
             //console.log("Master switch off");
         } else {
-            setStoredValue("HHAuto_Setting_master", "true");
+            setStoredValue(HHStoredVarPrefixKey+"Setting_master", "true");
             masterSwitch.checked = true;
             //console.log("Master switch on");
         }
@@ -35,7 +36,7 @@ export function createPInfo() {
     {
         GM_addStyle('#pInfo:hover {max-height : none} #pInfo { max-height : 220px} @media only screen and (max-width: 1025px) {#pInfo { ;top:17% }}');
 
-        if (getStoredValue("HHAuto_Setting_showAdsBack") === "true")
+        if (getStoredValue(HHStoredVarPrefixKey+"Setting_showAdsBack") === "true")
         {
             GM_addStyle('#sliding-popups#sliding-popups { z-index : 1}');
         }
@@ -71,31 +72,31 @@ export function updateData() {
                                                                   {
         currentInput.checkValidity();
     });
-    if (getStoredValue("HHAuto_Setting_showInfo") =="true") // && busy==false // && getPage()==getHHScriptVars("pagesIDHome")
+    if (getStoredValue(HHStoredVarPrefixKey+"Setting_showInfo") =="true") // && busy==false // && getPage()==getHHScriptVars("pagesIDHome")
     {
         let contest = '';
         if (!canCollectCompetitionActive()) contest = " : Wait for contest";
         var Tegzd='';
-        Tegzd+=(getStoredValue("HHAuto_Setting_master") ==="true"?"<span style='color:LimeGreen'>HH auto ++ ON":"<span style='color:red'>HH auto ++ OFF")+'</span>';
-        //Tegzd+=(getStoredValue("HHAuto_Setting_master") ==="true"?"<span style='color:LimeGreen'>"+getTextForUI("master","elementText")+" : ON":"<span style='color:red'>"+getTextForUI("master","elementText")+" : OFF")+'</span>';
-        //Tegzd+=getTextForUI("master","elementText")+' : '+(getStoredValue("HHAuto_Setting_master") ==="true"?"<span style='color:LimeGreen'>ON":"<span style='color:red'>OFF")+'</span>';
+        Tegzd+=(getStoredValue(HHStoredVarPrefixKey+"Setting_master") ==="true"?"<span style='color:LimeGreen'>HH auto ++ ON":"<span style='color:red'>HH auto ++ OFF")+'</span>';
+        //Tegzd+=(getStoredValue(HHStoredVarPrefixKey+"Setting_master") ==="true"?"<span style='color:LimeGreen'>"+getTextForUI("master","elementText")+" : ON":"<span style='color:red'>"+getTextForUI("master","elementText")+" : OFF")+'</span>';
+        //Tegzd+=getTextForUI("master","elementText")+' : '+(getStoredValue(HHStoredVarPrefixKey+"Setting_master") ==="true"?"<span style='color:LimeGreen'>ON":"<span style='color:red'>OFF")+'</span>';
         Tegzd += '<ul>';
-        if (getStoredValue("HHAuto_Setting_paranoia") =="true")
+        if (getStoredValue(HHStoredVarPrefixKey+"Setting_paranoia") =="true")
         {
-            Tegzd += '<li>'+getStoredValue("HHAuto_Temp_pinfo")+': '+getTimeLeft('paranoiaSwitch')+'</li>';
+            Tegzd += '<li>'+getStoredValue(HHStoredVarPrefixKey+"Temp_pinfo")+': '+getTimeLeft('paranoiaSwitch')+'</li>';
         }
-        if (getHHScriptVars('isEnabledTrollBattle',false) && getStoredValue("HHAuto_Setting_autoTrollBattle") == "true")
+        if (getHHScriptVars('isEnabledTrollBattle',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollBattle") == "true")
         {
             Tegzd += Troll.getPinfo(contest);
         }
-        if (getHHScriptVars("isEnabledSalary",false) && getStoredValue("HHAuto_Setting_autoSalary") =="true")
+        if (getHHScriptVars("isEnabledSalary",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSalary") =="true")
         {
             Tegzd += '<li>'+getTextForUI("autoSalary","elementText")+' : '+getTimeLeft('nextSalaryTime')+'</li>';
         }
-        if (getHHScriptVars('isEnabledSeason',false) && getStoredValue("HHAuto_Setting_autoSeason") =="true")
+        if (getHHScriptVars('isEnabledSeason',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeason") =="true")
         {
             Tegzd += Season.getPinfo();
-            const boostLimited = getStoredValue("HHAuto_Setting_autoSeasonBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
+            const boostLimited = getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
             if(boostLimited) {
                 Tegzd += '<li style="color:red!important;" title="'+getTextForUI("boostMissing","elementText")+'">';
             }else {
@@ -108,51 +109,51 @@ export function updateData() {
                 Tegzd += '</li>';
             }
         }
-        /*if (getHHScriptVars('isEnabledSeason',false) && getStoredValue("HHAuto_Setting_autoSeasonCollect") =="true")
+        /*if (getHHScriptVars('isEnabledSeason',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonCollect") =="true")
         {
             Tegzd += '<li>'+getTextForUI("autoSeasonCollect","elementText")+" "+getTextForUI("autoSeasonTitle","elementText")+' : '+getTimeLeft('nextSeasonCollectTime')+'</li>';
         }
-        if (getHHScriptVars('isEnabledPoV',false) && getStoredValue("HHAuto_Setting_autoPoVCollect") =="true")
+        if (getHHScriptVars('isEnabledPoV',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoVCollect") =="true")
         {
             Tegzd += '<li>Collect POV : '+getTimeLeft('nextPoVCollectTime')+'</li>';
         }
-        if (getHHScriptVars('isEnabledPoG',false) && getStoredValue("HHAuto_Setting_autoPoGCollect") =="true")
+        if (getHHScriptVars('isEnabledPoG',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoGCollect") =="true")
         {
             Tegzd += '<li>Collect POG : '+getTimeLeft('nextPoGCollectTime')+'</li>';
         }*/
-        if (getHHScriptVars('isEnabledLeagues',false) && getStoredValue("HHAuto_Setting_autoLeagues") =="true")
+        if (getHHScriptVars('isEnabledLeagues',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeagues") =="true")
         {
             Tegzd += LeagueHelper.getPinfo();
         }
-        if (getHHScriptVars("isEnabledChamps",false) && getStoredValue("HHAuto_Setting_autoChamps") =="true")
+        if (getHHScriptVars("isEnabledChamps",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoChamps") =="true")
         {
             Tegzd += '<li>'+getTextForUI("autoChampsTitle","elementText")+' : '+getTimeLeft('nextChampionTime')+'</li>';
         }
-        if (getHHScriptVars("isEnabledClubChamp",false) && getStoredValue("HHAuto_Setting_autoClubChamp") =="true")
+        if (getHHScriptVars("isEnabledClubChamp",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoClubChamp") =="true")
         {
             Tegzd += '<li>'+getTextForUI("autoClubChamp","elementText")+' : '+getTimeLeft('nextClubChampionTime')+'</li>';
         }
-        if (getHHScriptVars('isEnabledPantheon',false) && getStoredValue("HHAuto_Setting_autoPantheon") =="true")
+        if (getHHScriptVars('isEnabledPantheon',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheon") =="true")
         {
             Tegzd += Pantheon.getPinfo();
         }
-        if (getHHScriptVars("isEnabledShop",false) && getStoredValue("HHAuto_Setting_updateMarket") =="true")
+        if (getHHScriptVars("isEnabledShop",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_updateMarket") =="true")
         {
             Tegzd += '<li>'+getTextForUI("autoBuy","elementText")+' : '+getTimeLeft('nextShopTime')+'</li>';
         }
-        if (getHHScriptVars("isEnabledMission",false) && getStoredValue("HHAuto_Setting_autoMission") =="true")
+        if (getHHScriptVars("isEnabledMission",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoMission") =="true")
         {
             Tegzd += '<li>'+getTextForUI("autoMission","elementText")+' : '+getTimeLeft('nextMissionTime')+'</li>';
         }
-        if (getHHScriptVars("isEnabledContest",false) && getStoredValue("HHAuto_Setting_autoContest") =="true")
+        if (getHHScriptVars("isEnabledContest",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoContest") =="true")
         {
             Tegzd += '<li>'+getTextForUI("autoContest","elementText")+' : '+getTimeLeft('nextContestTime')+'</li>';
         }
-        if (getHHScriptVars("isEnabledPowerPlaces",false) && getStoredValue("HHAuto_Setting_autoPowerPlaces") =="true")
+        if (getHHScriptVars("isEnabledPowerPlaces",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPowerPlaces") =="true")
         {
             Tegzd += '<li>'+getTextForUI("powerPlacesTitle","elementText")+' : '+getTimeLeft('minPowerPlacesTime')+'</li>';
         }
-        if ( getHHScriptVars("isEnabledPachinko",false) && getStoredValue("HHAuto_Setting_autoFreePachinko") =="true")
+        if ( getHHScriptVars("isEnabledPachinko",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoFreePachinko") =="true")
         {
             if (getTimer('nextPachinkoTime') !== -1)
             {
@@ -175,18 +176,18 @@ export function updateData() {
         {
             Tegzd += '<li>'+getTextForUI("sultryMysteriesEventRefreshShopNext","elementText")+' : '+getTimeLeft('eventSultryMysteryShopRefresh')+'</li>';
         }
-        if (getStoredValue("HHAuto_Temp_haveAff"))
+        if (getStoredValue(HHStoredVarPrefixKey+"Temp_haveAff"))
         {
-            Tegzd += '<li>'+getTextForUI("autoAffW","elementText")+' : '+add1000sSeparator(getStoredValue("HHAuto_Temp_haveAff"))+'</li>';
+            Tegzd += '<li>'+getTextForUI("autoAffW","elementText")+' : '+add1000sSeparator(getStoredValue(HHStoredVarPrefixKey+"Temp_haveAff"))+'</li>';
         }
-        if (getStoredValue("HHAuto_Temp_haveExp"))
+        if (getStoredValue(HHStoredVarPrefixKey+"Temp_haveExp"))
         {
-            Tegzd += '<li>'+getTextForUI("autoExpW","elementText")+' : '+add1000sSeparator(getStoredValue("HHAuto_Temp_haveExp"))+'</li>';
+            Tegzd += '<li>'+getTextForUI("autoExpW","elementText")+' : '+add1000sSeparator(getStoredValue(HHStoredVarPrefixKey+"Temp_haveExp"))+'</li>';
         }
         Tegzd += '</ul>';
 
         document.getElementById('pInfo').style.display='block';
-        if (getStoredValue("HHAuto_Setting_showInfoLeft") === 'true' && getPage() === getHHScriptVars("pagesIDHome")) {
+        if (getStoredValue(HHStoredVarPrefixKey+"Setting_showInfoLeft") === 'true' && getPage() === getHHScriptVars("pagesIDHome")) {
             document.getElementById('pInfo').className='left';
         }
         document.getElementById('pInfo').innerHTML = Tegzd;

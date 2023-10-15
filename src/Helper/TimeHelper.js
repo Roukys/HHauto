@@ -1,4 +1,5 @@
 import { logHHAuto } from "../Utils";
+import { HHStoredVarPrefixKey } from "../config";
 import { hhTimerLocale, timerDefinitions } from "../i18n";
 import { getHHVars } from "./HHHelper";
 import { getStoredValue } from "./StorageHelper";
@@ -84,12 +85,12 @@ export function convertTimeToInt(remainingTimer){
 
 export function canCollectCompetitionActive()
 {
-    return getStoredValue("HHAuto_Setting_waitforContest") !== "true" || getSecondsLeftBeforeNewCompetition() > 32*60 && getSecondsLeftBeforeNewCompetition() < (24*3600-2*60);
+    return getStoredValue(HHStoredVarPrefixKey+"Setting_waitforContest") !== "true" || getSecondsLeftBeforeNewCompetition() > 32*60 && getSecondsLeftBeforeNewCompetition() < (24*3600-2*60);
 }
 
 
 export function getLimitTimeBeforeEnd(){
-    return Number(getStoredValue("HHAuto_Setting_collectAllTimer")) * 3600;
+    return Number(getStoredValue(HHStoredVarPrefixKey+"Setting_collectAllTimer")) * 3600;
 }
 
 

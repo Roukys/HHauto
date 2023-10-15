@@ -12,6 +12,7 @@ import {
 } from "../Helper";
 import { autoLoop, gotoPage } from "../Service";
 import { logHHAuto } from "../Utils";
+import { HHStoredVarPrefixKey } from "../config";
 
 export class QuestHelper {
     static SITE_QUEST_PAGE = '/side-quests.html';
@@ -25,8 +26,8 @@ export class QuestHelper {
     }
 
     static getNextQuestLink() {
-        const mainQuest = getStoredValue("HHAuto_Setting_autoQuest") === "true";
-        const sideQuest = getHHScriptVars("isEnabledSideQuest",false) && getStoredValue("HHAuto_Setting_autoSideQuest") === "true";
+        const mainQuest = getStoredValue(HHStoredVarPrefixKey+"Setting_autoQuest") === "true";
+        const sideQuest = getHHScriptVars("isEnabledSideQuest",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSideQuest") === "true";
         let nextQuestUrl = QuestHelper.getMainQuestUrl();
 
         if ((mainQuest && sideQuest && (nextQuestUrl.includes("world"))) || (!mainQuest && sideQuest))
@@ -56,8 +57,8 @@ export class QuestHelper {
         // Check if at correct page.
         let page = getPage();
         let mainQuestUrl = QuestHelper.getMainQuestUrl();
-        let doMainQuest = getStoredValue("HHAuto_Setting_autoQuest") === "true" && !mainQuestUrl.includes("world");
-        if (!doMainQuest && page === 'side-quests' && getHHScriptVars("isEnabledSideQuest",false) && getStoredValue("HHAuto_Setting_autoSideQuest") === "true") {
+        let doMainQuest = getStoredValue(HHStoredVarPrefixKey+"Setting_autoQuest") === "true" && !mainQuestUrl.includes("world");
+        if (!doMainQuest && page === 'side-quests' && getHHScriptVars("isEnabledSideQuest",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSideQuest") === "true") {
             var quests = $('.side-quest:has(.slot) .side-quest-button');
             if (quests.length > 0) {
                 logHHAuto("Navigating to side quest.");
@@ -116,7 +117,7 @@ export class QuestHelper {
                 else
                 {
                     logHHAuto("Quest requires "+proceedCost+" Energy to proceed.");
-                    setStoredValue("HHAuto_Temp_questRequirement", "*"+proceedCost);
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement", "*"+proceedCost);
                     return;
                 }
             }
@@ -131,31 +132,31 @@ export class QuestHelper {
                 else
                 {
                     logHHAuto("Need "+proceedCost+" Money to proceed.");
-                    setStoredValue("HHAuto_Temp_questRequirement", "$"+proceedCost);
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement", "$"+proceedCost);
                     return;
                 }
             }
             //proceedButtonMatch.click();
-            //setStoredValue("HHAuto_Temp_autoLoop", "false");
+            //setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
             //logHHAuto("setting autoloop to false");
         }
         else if (proceedType === "use_item") {
             logHHAuto("Proceeding by using X" + Number($("#controls .item span").text()) + " of the required item.");
             //proceedButtonMatch.click();
-            //setStoredValue("HHAuto_Temp_autoLoop", "false");
+            //setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
             //logHHAuto("setting autoloop to false");
         }
         else if (proceedType === "battle") {
             logHHAuto("Quest need battle...");
-            setStoredValue("HHAuto_Temp_questRequirement", "battle");
+            setStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement", "battle");
             // Proceed to battle troll.
             //proceedButtonMatch.click();
-            //setStoredValue("HHAuto_Temp_autoLoop", "false");
+            //setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
             //logHHAuto("setting autoloop to false");
         }
         else if (proceedType === "end_archive") {
             logHHAuto("Reached end of current archive. Proceeding to next archive.");
-            //setStoredValue("HHAuto_Temp_autoLoop", "false");
+            //setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
             //logHHAuto("setting autoloop to false");
             //proceedButtonMatch.click();
         }
@@ -167,21 +168,21 @@ export class QuestHelper {
                 return;
             }
             logHHAuto("Reached end of current play. Proceeding to next play.");
-            //setStoredValue("HHAuto_Temp_autoLoop", "false");
+            //setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
             //logHHAuto("setting autoloop to false");
             //proceedButtonMatch.click();
         }
         else {
             logHHAuto("Could not identify given resume button.");
-            setStoredValue("HHAuto_Temp_questRequirement", "unknownQuestButton");
+            setStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement", "unknownQuestButton");
             return;
         }
-        setStoredValue("HHAuto_Temp_autoLoop", "false");
+        setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
         logHHAuto("setting autoloop to false");
         setTimeout(function ()
                     {
             proceedButtonMatch.click();
-            setStoredValue("HHAuto_Temp_autoLoop", "true");
+            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
             logHHAuto("setting autoloop to true");
             setTimeout(autoLoop,randomInterval(800,1200));
         },randomInterval(500,800));

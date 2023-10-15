@@ -1,5 +1,6 @@
 import { PlaceOfPower } from "../Module";
 import { isJSON, logHHAuto } from "../Utils";
+import { HHStoredVarPrefixKey } from "../config";
 import { getHHScriptVars } from "./ConfigHelper";
 import { getStoredValue, setStoredValue } from "./StorageHelper";
 import { queryStringGetParam } from "./UrlHelper";
@@ -10,8 +11,8 @@ export function getPage(checkUnknown = false)
     if(ob===undefined || ob === null)
     {
         logHHAuto("Unable to find page attribute, stopping script");
-        setStoredValue("HHAuto_Setting_master", "false");
-        setStoredValue("HHAuto_Temp_autoLoop", "false");
+        setStoredValue(HHStoredVarPrefixKey+"Setting_master", "false");
+        setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
         logHHAuto("setting autoloop to false");
         throw new Error("Unable to find page attribute, stopping script.");
         return "";
@@ -87,11 +88,11 @@ export function getPage(checkUnknown = false)
         }
         if (!isKnown && page )
         {
-            let unknownPageList = isJSON(getStoredValue("HHAuto_Temp_unkownPagesList"))?JSON.parse(getStoredValue("HHAuto_Temp_unkownPagesList")):{};
+            let unknownPageList = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_unkownPagesList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_unkownPagesList")):{};
             logHHAuto("Page unkown for script : "+page+" / "+window.location.pathname);
             unknownPageList[page] = window.location.pathname;
             //console.log(unknownPageList);
-            setStoredValue("HHAuto_Temp_unkownPagesList", JSON.stringify(unknownPageList));
+            setStoredValue(HHStoredVarPrefixKey+"Temp_unkownPagesList", JSON.stringify(unknownPageList));
         }
     }
     return page;

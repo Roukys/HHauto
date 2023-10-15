@@ -12,6 +12,7 @@ import {
 } from "../Helper";
 import { gotoPage } from "../Service";
 import { isJSON, logHHAuto } from "../Utils";
+import { HHStoredVarPrefixKey } from "../config";
 import { EventModule } from "./Events";
 import { QuestHelper } from "./Quest";
 
@@ -51,9 +52,9 @@ export class Champion {
             });
             return poses;
         }
-        var getChampMaxLoop = function(){return getStoredValue("HHAuto_Setting_autoChampsTeamLoop") !== undefined ? getStoredValue("HHAuto_Setting_autoChampsTeamLoop") : 10;}
-        var getMinGirlPower = function(){return getStoredValue("HHAuto_Setting_autoChampsGirlThreshold") !== undefined ? getStoredValue("HHAuto_Setting_autoChampsGirlThreshold") : 50000;}
-        var getChampSecondLine = function(){return getStoredValue("HHAuto_Setting_autoChampsTeamKeepSecondLine") === 'true';}
+        var getChampMaxLoop = function(){return getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsTeamLoop") !== undefined ? getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsTeamLoop") : 10;}
+        var getMinGirlPower = function(){return getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsGirlThreshold") !== undefined ? getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsGirlThreshold") : 50000;}
+        var getChampSecondLine = function(){return getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsTeamKeepSecondLine") === 'true';}
 
         //let champTeamButton = '<div style="position: absolute;left: 330px;top: 10px;width:90px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ChampTeamButton","tooltip")+'</span><label class="myButton" id="ChampTeamButton">'+getTextForUI("ChampTeamButton","elementText")+'</label></div>';
 
@@ -229,7 +230,7 @@ export class Champion {
         };
 
         var findBestTeam = function() {
-            setStoredValue("HHAuto_Temp_autoLoop", "false");
+            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
             logHHAuto("setting autoloop to false");
 
             maxLoops = getChampMaxLoop();
@@ -273,7 +274,7 @@ export class Champion {
             {
                 var TCount=Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
                 var ECount= QuestHelper.getEnergy();
-                logHHAuto("T:"+TCount+" E:"+ECount+" "+(getStoredValue("HHAuto_Setting_autoChampsUseEne") ==="true"))
+                logHHAuto("T:"+TCount+" E:"+ECount+" "+(getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsUseEne") ==="true"))
                 if ( TCount==0)
                 {
                     logHHAuto("No tickets!");
@@ -295,7 +296,7 @@ export class Champion {
         else if (page==getHHScriptVars("pagesIDChampionsMap"))
         {
             logHHAuto('on champion map');
-            var Filter=getStoredValue("HHAuto_Setting_autoChampsFilter").split(';').map(s=>Number(s));
+            var Filter=getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsFilter").split(';').map(s=>Number(s));
             var minTime = -1;
             var currTime;
             var e;
@@ -303,9 +304,9 @@ export class Champion {
             for (let i=0;i<$('span.stage-bar-tier').length;i++)
             {
                 let Impression=$('span.stage-bar-tier')[i].getAttribute("hh_title");
-                const autoChampsForceStartEventGirl = getStoredValue("HHAuto_Setting_autoChampsForceStartEventGirl") === "true";
-                const autoChampsEventGirls = isJSON(getStoredValue("HHAuto_Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue("HHAuto_Temp_autoChampsEventGirls")):[];
-                const autoChampsForceStart = getStoredValue("HHAuto_Setting_autoChampsForceStart") === "true";
+                const autoChampsForceStartEventGirl = getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsForceStartEventGirl") === "true";
+                const autoChampsEventGirls = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls")):[];
+                const autoChampsForceStart = getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsForceStart") === "true";
                 let Started=Impression.split('/')[0].replace(/[^0-9]/gi, '')!="0";
                 let OnTimerOld=$($('a.champion-lair div.champion-lair-name')[i+1]).find('div[rel=timer]').length>0;
                 let timerNew = $($('a.champion-lair div.champion-lair-name')[i+1]).find('span[rel=expires]').text();
