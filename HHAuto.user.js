@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.8.5
+// @version      6.8.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1159,7 +1159,7 @@ class Booster {
 class Bundles {
     static goAndCollectFreeBundles()
     {
-        if (getPage() == getHHScriptVars("pagesIDHome"))
+        if (getPage() === getHHScriptVars("pagesIDHome"))
         {
             if(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoFreeBundlesCollect") !== "true") {
                 LogUtils_logHHAuto("Error autoFreeBundlesCollect not activated.");
@@ -1185,9 +1185,10 @@ class Bundles {
             function collectFreeBundlesFinished(message, nextFreeBundlesCollectTime) {
                 LogUtils_logHHAuto(message);
                 setTimer('nextFreeBundlesCollectTime', nextFreeBundlesCollectTime);
-                gotoPage(getHHScriptVars("pagesIDHome"));
+                $("#popups .close_cross").click(); // Close popup
                 StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop", "true");
                 LogUtils_logHHAuto("setting autoloop to true");
+                setTimeout(autoLoop, Number(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")));
             }
 
             function parseAndCollectFreeBundles(){
@@ -1209,8 +1210,8 @@ class Bundles {
                             LogUtils_logHHAuto("Collecting bundle n°"+ buttonsToCollect[0].getAttribute('product'));
                             buttonsToCollect[0].click();
                             buttonsToCollect.shift();
-                            gotoPage(getHHScriptVars("pagesIDHome"));
-                            setTimer('nextFreeBundlesCollectTime', randomInterval(15,30));
+                            setTimeout(RewardHelper.closeRewardPopupIfAny, randomInterval(500,800));
+                            setTimeout(switchToBundleTabs, randomInterval(1500,2500));
                         }
                     }
                     collectFreeBundle();
@@ -1364,6 +1365,7 @@ class DoublePenetration {
                         LogUtils_logHHAuto("Double penetration collection finished.");
                         //setTimer('nextDpEventCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180)); // No need, handle by next event refresh
                         //gotoPage(getHHScriptVars("pagesIDHome"));
+                        StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop", "true");
                     }
                 }
                 collectDpEventRewards();
@@ -1374,6 +1376,7 @@ class DoublePenetration {
                 LogUtils_logHHAuto("No double penetration reward to collect.");
                 //setTimer('nextDpEventCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180)); // No need, handle by next event refresh
                 //gotoPage(getHHScriptVars("pagesIDHome"));
+                StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop", "true");
                 return false;
             }
         }
@@ -6176,7 +6179,7 @@ class HaremSalary {
     
     static getSalary() {
         try {
-            if(getPage() == getHHScriptVars("pagesIDHarem") || getPage() == getHHScriptVars("pagesIDHome"))
+            if(getPage() == getHHScriptVars("pagesIDHarem") || getPage() === getHHScriptVars("pagesIDHome"))
             {
                 const salaryButton = $("#collect_all_container button[id='collect_all']")
                 const salaryToCollect = !(salaryButton.prop('disabled') || salaryButton.attr("style")==="display: none;");
@@ -6186,7 +6189,7 @@ class HaremSalary {
                 {
                     salarySumTag = Number($('[rel="next_salary"]',salaryButton)[0].innerText.replace(/[^0-9]/gi, ''));
                 }
-                else if (getPage() == getHHScriptVars("pagesIDHome"))
+                else if (getPage() === getHHScriptVars("pagesIDHome"))
                 {
                     salarySumTag = Number($('.sum',salaryButton).attr("amount"));
                 }
@@ -9000,7 +9003,7 @@ HHEnvVariables["global"].HaremMinSizeExpirationSecs = 24*60*60;//1 days
 HHEnvVariables["global"].LeagueListExpirationSecs = 60*60;//1 hour max
 HHEnvVariables["global"].minSecsBeforeGoHomeAfterActions = 10;
 HHEnvVariables["global"].dailyRewardMaxRemainingTime = 2*60*60;
-HHEnvVariables["global"].maxCollectionDelay = 4*60*60;
+HHEnvVariables["global"].maxCollectionDelay = 6*60*60;
 HHEnvVariables["global"].STOCHASTIC_SIM_RUNS = 10000;
 HHEnvVariables["global"].PoVPoGTimestampAttributeName = "data-time-stamp";
 HHEnvVariables["global"].ELEMENTS =
@@ -11015,7 +11018,7 @@ HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Temp_questRequireme
 };*/
 HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoopTimeMili"] =
     {
-    default:"500",
+    default:"1000",
     storage:"Storage()",
     HHType:"Temp"
 };

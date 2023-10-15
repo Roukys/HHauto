@@ -1,4 +1,5 @@
 import {
+    RewardHelper,
     getHHScriptVars,
     getPage,
     getSecondsLeftBeforeEndOfHHDay,
@@ -7,14 +8,14 @@ import {
     setStoredValue,
     setTimer
 } from "../Helper";
-import { gotoPage } from "../Service";
+import { autoLoop, gotoPage } from "../Service";
 import { logHHAuto } from "../Utils";
 import { HHStoredVarPrefixKey } from "../config";
 
 export class Bundles {
     static goAndCollectFreeBundles()
     {
-        if (getPage() == getHHScriptVars("pagesIDHome"))
+        if (getPage() === getHHScriptVars("pagesIDHome"))
         {
             if(getStoredValue(HHStoredVarPrefixKey+"Setting_autoFreeBundlesCollect") !== "true") {
                 logHHAuto("Error autoFreeBundlesCollect not activated.");
@@ -40,9 +41,10 @@ export class Bundles {
             function collectFreeBundlesFinished(message, nextFreeBundlesCollectTime) {
                 logHHAuto(message);
                 setTimer('nextFreeBundlesCollectTime', nextFreeBundlesCollectTime);
-                gotoPage(getHHScriptVars("pagesIDHome"));
+                $("#popups .close_cross").click(); // Close popup
                 setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
                 logHHAuto("setting autoloop to true");
+                setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")));
             }
 
             function parseAndCollectFreeBundles(){
@@ -64,8 +66,8 @@ export class Bundles {
                             logHHAuto("Collecting bundle n°"+ buttonsToCollect[0].getAttribute('product'));
                             buttonsToCollect[0].click();
                             buttonsToCollect.shift();
-                            gotoPage(getHHScriptVars("pagesIDHome"));
-                            setTimer('nextFreeBundlesCollectTime', randomInterval(15,30));
+                            setTimeout(RewardHelper.closeRewardPopupIfAny, randomInterval(500,800));
+                            setTimeout(switchToBundleTabs, randomInterval(1500,2500));
                         }
                     }
                     collectFreeBundle();

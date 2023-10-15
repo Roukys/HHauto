@@ -211,7 +211,7 @@ export class HaremSalary {
     
     static getSalary() {
         try {
-            if(getPage() == getHHScriptVars("pagesIDHarem") || getPage() == getHHScriptVars("pagesIDHome"))
+            if(getPage() == getHHScriptVars("pagesIDHarem") || getPage() === getHHScriptVars("pagesIDHome"))
             {
                 const salaryButton = $("#collect_all_container button[id='collect_all']")
                 const salaryToCollect = !(salaryButton.prop('disabled') || salaryButton.attr("style")==="display: none;");
@@ -221,7 +221,7 @@ export class HaremSalary {
                 {
                     salarySumTag = Number($('[rel="next_salary"]',salaryButton)[0].innerText.replace(/[^0-9]/gi, ''));
                 }
-                else if (getPage() == getHHScriptVars("pagesIDHome"))
+                else if (getPage() === getHHScriptVars("pagesIDHome"))
                 {
                     salarySumTag = Number($('.sum',salaryButton).attr("amount"));
                 }
