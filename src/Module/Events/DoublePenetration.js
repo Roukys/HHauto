@@ -72,6 +72,7 @@ export class DoublePenetration {
                         logHHAuto("Double penetration collection finished.");
                         //setTimer('nextDpEventCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180)); // No need, handle by next event refresh
                         //gotoPage(getHHScriptVars("pagesIDHome"));
+                        setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
                     }
                 }
                 collectDpEventRewards();
@@ -82,6 +83,7 @@ export class DoublePenetration {
                 logHHAuto("No double penetration reward to collect.");
                 //setTimer('nextDpEventCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180)); // No need, handle by next event refresh
                 //gotoPage(getHHScriptVars("pagesIDHome"));
+                setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
                 return false;
             }
         }

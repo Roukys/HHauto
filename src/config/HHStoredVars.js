@@ -1559,7 +1559,7 @@ HHStoredVars[HHStoredVarPrefixKey+"Temp_questRequirement"] =
 };*/
 HHStoredVars[HHStoredVarPrefixKey+"Temp_autoLoopTimeMili"] =
     {
-    default:"500",
+    default:"1000",
     storage:"Storage()",
     HHType:"Temp"
 };
