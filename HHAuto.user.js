@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.8.6
+// @version      6.8.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1308,7 +1308,7 @@ class DoublePenetration {
     {
         const rewardsToCollect = Utils_isJSON(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autodpEventCollectablesList"))?JSON.parse(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autodpEventCollectablesList")):[];
 
-        const needToCollect = (/*checkTimer('nextDpEventCollectTime') && */ StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autodpEventCollect") === "true")
+        const needToCollect = (checkTimer('nextDpEventCollectTime') && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autodpEventCollect") === "true")
 
         const dPTierQuery = "#dp-content .tiers-container .player-progression-container .tier-container:has(button.display-block)";
         const dPFreeSlotQuery = ".free-slot .slot,.free-slot .slot_girl_shards";
@@ -1358,14 +1358,16 @@ class DoublePenetration {
                         LogUtils_logHHAuto("Collecting tier : "+buttonsToCollect[0].getAttribute('tier'));
                         buttonsToCollect[0].click();
                         buttonsToCollect.shift();
-                        setTimeout(collectDpEventRewards, randomInterval(300, 500));
+                        setTimeout(RewardHelper.closeRewardPopupIfAny, randomInterval(300, 500));
+                        setTimeout(collectDpEventRewards, randomInterval(500,800));
                     }
                     else
                     {
                         LogUtils_logHHAuto("Double penetration collection finished.");
-                        //setTimer('nextDpEventCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180)); // No need, handle by next event refresh
+                        setTimer('nextDpEventCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
                         //gotoPage(getHHScriptVars("pagesIDHome"));
                         StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop", "true");
+                        setTimeout(autoLoop, Number(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")));
                     }
                 }
                 collectDpEventRewards();
@@ -1374,9 +1376,10 @@ class DoublePenetration {
             else
             {
                 LogUtils_logHHAuto("No double penetration reward to collect.");
-                //setTimer('nextDpEventCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180)); // No need, handle by next event refresh
+                setTimer('nextDpEventCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
                 //gotoPage(getHHScriptVars("pagesIDHome"));
                 StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop", "true");
+                setTimeout(autoLoop, Number(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")));
                 return false;
             }
         }
@@ -1632,8 +1635,8 @@ class EventModule {
                 let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
                 if (timeLeft !== undefined && timeLeft.length)
                 {
-                    setTimer('eventGoing',Number(convertTimeToInt(timeLeft)));
-                } else setTimer('eventGoing', refreshTimer);
+                    setTimer('eventMythicGoing',Number(convertTimeToInt(timeLeft)));
+                } else setTimer('eventMythicGoing', refreshTimer);
                 eventList[eventID]={};
                 eventList[eventID]["id"]=eventID;
                 eventList[eventID]["type"]=hhEvent.eventType;
@@ -1641,7 +1644,6 @@ class EventModule {
                 eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
                 eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
                 eventList[eventID]["isCompleted"] = true;
-                setTimer('eventMythicGoing',Number(convertTimeToInt(timeLeft)));
                 let allEventGirlz = hhEventData ? hhEventData.girls : [];
                 for (let currIndex = 0;currIndex<allEventGirlz.length;currIndex++)
                 {
@@ -1695,15 +1697,14 @@ class EventModule {
                 let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
                 if (timeLeft !== undefined && timeLeft.length)
                 {
-                    setTimer('eventGoing',Number(convertTimeToInt(timeLeft)));
-                } else setTimer('eventGoing', refreshTimer);
+                    setTimer('eventBossBangGoing',Number(convertTimeToInt(timeLeft)));
+                } else setTimer('eventBossBangGoing', refreshTimer);
                 eventList[eventID]={};
                 eventList[eventID]["id"]=eventID;
                 eventList[eventID]["type"]=hhEvent.eventType;
                 eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
                 eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
                 eventList[eventID]["isCompleted"] = $('#contains_all #events #boss_bang .completed-event').length > 0;
-                setTimer('eventBossBangGoing',Number(convertTimeToInt(timeLeft)));
                 let teamEventz = $('#contains_all #events #boss_bang .boss-bang-teams-container .boss-bang-team-slot');
                 let teamFound = false;
                 const firstTeamToStartWith = StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_bossBangMinTeam");
@@ -1744,8 +1745,8 @@ class EventModule {
 
                 let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
                 if (timeLeft !== undefined && timeLeft.length) {
-                    setTimer('eventGoing',Number(convertTimeToInt(timeLeft)));
-                } else setTimer('eventGoing', 3600);
+                    setTimer('eventSultryMysteryGoing',Number(convertTimeToInt(timeLeft)));
+                } else setTimer('eventSultryMysteryGoing', 3600);
 
                 eventList[eventID]={};
                 eventList[eventID]["id"]=eventID;
@@ -1753,7 +1754,6 @@ class EventModule {
                 eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
                 eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
                 eventList[eventID]["isCompleted"] = false;
-                setTimer('eventSultryMysteryGoing', Number(convertTimeToInt(timeLeft)));
 
                 if (checkTimer("eventSultryMysteryShopRefresh")) {
                     LogUtils_logHHAuto("Refresh sultry mysteries shop content.");
@@ -1777,8 +1777,8 @@ class EventModule {
 
                 let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
                 if (timeLeft !== undefined && timeLeft.length) {
-                    setTimer('eventGoing',Number(convertTimeToInt(timeLeft)));
-                } else setTimer('eventGoing', 3600);
+                    setTimer('eventDPGoing',Number(convertTimeToInt(timeLeft)));
+                } else setTimer('eventDPGoing', 3600);
 
                 eventList[eventID]={};
                 eventList[eventID]["id"]=eventID;
@@ -1786,7 +1786,6 @@ class EventModule {
                 eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
                 eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
                 eventList[eventID]["isCompleted"] = false;
-                setTimer('eventDPGoing', Number(convertTimeToInt(timeLeft)));
 
                 if(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autodpEventCollect") === "true") {
                     DoublePenetration.goAndCollect();
@@ -1937,6 +1936,8 @@ class EventModule {
                     (hhEvent.isPlusEventMythic && checkTimerMustExist('eventMythicNextWave'))
                     ||
                     (hhEvent.isSultryMysteriesEvent && checkTimerMustExist('eventSultryMysteryShopRefresh'))
+                    ||
+                    (hhEvent.isDPEvent && checkTimerMustExist('nextDpEventCollectTime'))
                     );
             }
         }

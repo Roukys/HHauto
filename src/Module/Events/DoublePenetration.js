@@ -1,11 +1,13 @@
 import {
     RewardHelper,
+    checkTimer,
     getHHScriptVars,
     getStoredValue,
     randomInterval,
     setStoredValue,
+    setTimer,
 } from "../../Helper";
-import { gotoPage } from "../../Service";
+import { autoLoop, gotoPage } from "../../Service";
 import { isJSON, logHHAuto } from "../../Utils";
 import { HHStoredVarPrefixKey } from "../../config";
 
@@ -15,7 +17,7 @@ export class DoublePenetration {
     {
         const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey+"Setting_autodpEventCollectablesList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Setting_autodpEventCollectablesList")):[];
 
-        const needToCollect = (/*checkTimer('nextDpEventCollectTime') && */ getStoredValue(HHStoredVarPrefixKey+"Setting_autodpEventCollect") === "true")
+        const needToCollect = (checkTimer('nextDpEventCollectTime') && getStoredValue(HHStoredVarPrefixKey+"Setting_autodpEventCollect") === "true")
 
         const dPTierQuery = "#dp-content .tiers-container .player-progression-container .tier-container:has(button.display-block)";
         const dPFreeSlotQuery = ".free-slot .slot,.free-slot .slot_girl_shards";
@@ -65,14 +67,16 @@ export class DoublePenetration {
                         logHHAuto("Collecting tier : "+buttonsToCollect[0].getAttribute('tier'));
                         buttonsToCollect[0].click();
                         buttonsToCollect.shift();
-                        setTimeout(collectDpEventRewards, randomInterval(300, 500));
+                        setTimeout(RewardHelper.closeRewardPopupIfAny, randomInterval(300, 500));
+                        setTimeout(collectDpEventRewards, randomInterval(500,800));
                     }
                     else
                     {
                         logHHAuto("Double penetration collection finished.");
-                        //setTimer('nextDpEventCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180)); // No need, handle by next event refresh
+                        setTimer('nextDpEventCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
                         //gotoPage(getHHScriptVars("pagesIDHome"));
                         setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
+                        setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")));
                     }
                 }
                 collectDpEventRewards();
@@ -81,9 +85,10 @@ export class DoublePenetration {
             else
             {
                 logHHAuto("No double penetration reward to collect.");
-                //setTimer('nextDpEventCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180)); // No need, handle by next event refresh
+                setTimer('nextDpEventCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
                 //gotoPage(getHHScriptVars("pagesIDHome"));
                 setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
+                setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")));
                 return false;
             }
         }
