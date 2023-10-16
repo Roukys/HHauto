@@ -261,8 +261,8 @@ export class EventModule {
                 let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
                 if (timeLeft !== undefined && timeLeft.length)
                 {
-                    setTimer('eventGoing',Number(convertTimeToInt(timeLeft)));
-                } else setTimer('eventGoing', refreshTimer);
+                    setTimer('eventMythicGoing',Number(convertTimeToInt(timeLeft)));
+                } else setTimer('eventMythicGoing', refreshTimer);
                 eventList[eventID]={};
                 eventList[eventID]["id"]=eventID;
                 eventList[eventID]["type"]=hhEvent.eventType;
@@ -270,7 +270,6 @@ export class EventModule {
                 eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
                 eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
                 eventList[eventID]["isCompleted"] = true;
-                setTimer('eventMythicGoing',Number(convertTimeToInt(timeLeft)));
                 let allEventGirlz = hhEventData ? hhEventData.girls : [];
                 for (let currIndex = 0;currIndex<allEventGirlz.length;currIndex++)
                 {
@@ -324,15 +323,14 @@ export class EventModule {
                 let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
                 if (timeLeft !== undefined && timeLeft.length)
                 {
-                    setTimer('eventGoing',Number(convertTimeToInt(timeLeft)));
-                } else setTimer('eventGoing', refreshTimer);
+                    setTimer('eventBossBangGoing',Number(convertTimeToInt(timeLeft)));
+                } else setTimer('eventBossBangGoing', refreshTimer);
                 eventList[eventID]={};
                 eventList[eventID]["id"]=eventID;
                 eventList[eventID]["type"]=hhEvent.eventType;
                 eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
                 eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
                 eventList[eventID]["isCompleted"] = $('#contains_all #events #boss_bang .completed-event').length > 0;
-                setTimer('eventBossBangGoing',Number(convertTimeToInt(timeLeft)));
                 let teamEventz = $('#contains_all #events #boss_bang .boss-bang-teams-container .boss-bang-team-slot');
                 let teamFound = false;
                 const firstTeamToStartWith = getStoredValue(HHStoredVarPrefixKey+"Setting_bossBangMinTeam");
@@ -373,8 +371,8 @@ export class EventModule {
 
                 let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
                 if (timeLeft !== undefined && timeLeft.length) {
-                    setTimer('eventGoing',Number(convertTimeToInt(timeLeft)));
-                } else setTimer('eventGoing', 3600);
+                    setTimer('eventSultryMysteryGoing',Number(convertTimeToInt(timeLeft)));
+                } else setTimer('eventSultryMysteryGoing', 3600);
 
                 eventList[eventID]={};
                 eventList[eventID]["id"]=eventID;
@@ -382,7 +380,6 @@ export class EventModule {
                 eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
                 eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
                 eventList[eventID]["isCompleted"] = false;
-                setTimer('eventSultryMysteryGoing', Number(convertTimeToInt(timeLeft)));
 
                 if (checkTimer("eventSultryMysteryShopRefresh")) {
                     logHHAuto("Refresh sultry mysteries shop content.");
@@ -406,8 +403,8 @@ export class EventModule {
 
                 let timeLeft=$('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
                 if (timeLeft !== undefined && timeLeft.length) {
-                    setTimer('eventGoing',Number(convertTimeToInt(timeLeft)));
-                } else setTimer('eventGoing', 3600);
+                    setTimer('eventDPGoing',Number(convertTimeToInt(timeLeft)));
+                } else setTimer('eventDPGoing', 3600);
 
                 eventList[eventID]={};
                 eventList[eventID]["id"]=eventID;
@@ -415,7 +412,6 @@ export class EventModule {
                 eventList[eventID]["seconds_before_end"]=new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
                 eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimer * 1000;
                 eventList[eventID]["isCompleted"] = false;
-                setTimer('eventDPGoing', Number(convertTimeToInt(timeLeft)));
 
                 if(getStoredValue(HHStoredVarPrefixKey+"Setting_autodpEventCollect") === "true") {
                     DoublePenetration.goAndCollect();
@@ -566,6 +562,8 @@ export class EventModule {
                     (hhEvent.isPlusEventMythic && checkTimerMustExist('eventMythicNextWave'))
                     ||
                     (hhEvent.isSultryMysteriesEvent && checkTimerMustExist('eventSultryMysteryShopRefresh'))
+                    ||
+                    (hhEvent.isDPEvent && checkTimerMustExist('nextDpEventCollectTime'))
                     );
             }
         }
