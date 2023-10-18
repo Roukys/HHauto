@@ -50,8 +50,7 @@ export function createPInfo() {
                     +'   left : 51%;'
                     +'}'
                     +'#pInfo {'
-                    +'   right : 1%;'
-                    +'   left : 88%;'
+                    +'   left : 84%;'
                     +'   top : 8%;'
                     +'   z-index : 1000;'
                     +'   height : 22px;'
@@ -59,7 +58,7 @@ export function createPInfo() {
                     +'}'
                     +'@media only screen and (max-width: 1025px) {'
                     +'   #pInfo {'
-                    +'      top : 13%;'
+                    +'      top : 14%;'
                     +'   }'
                     +'}');
     }
@@ -80,6 +79,7 @@ export function updateData() {
         Tegzd+=(getStoredValue(HHStoredVarPrefixKey+"Setting_master") ==="true"?"<span style='color:LimeGreen'>HH auto ++ ON":"<span style='color:red'>HH auto ++ OFF")+'</span>';
         //Tegzd+=(getStoredValue(HHStoredVarPrefixKey+"Setting_master") ==="true"?"<span style='color:LimeGreen'>"+getTextForUI("master","elementText")+" : ON":"<span style='color:red'>"+getTextForUI("master","elementText")+" : OFF")+'</span>';
         //Tegzd+=getTextForUI("master","elementText")+' : '+(getStoredValue(HHStoredVarPrefixKey+"Setting_master") ==="true"?"<span style='color:LimeGreen'>ON":"<span style='color:red'>OFF")+'</span>';
+        //Tegzd+=(getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") ==="true"?"<span style='color:LimeGreen;float:right'>Loop ON":"<span style='color:red;float:right'>Loop OFF")+'</span>';
         Tegzd += '<ul>';
         if (getStoredValue(HHStoredVarPrefixKey+"Setting_paranoia") =="true")
         {

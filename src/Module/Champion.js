@@ -13,6 +13,7 @@ import {
 import { gotoPage } from "../Service";
 import { isJSON, logHHAuto } from "../Utils";
 import { HHStoredVarPrefixKey } from "../config";
+import { ChampionModel } from "../model";
 import { EventModule } from "./Events";
 import { QuestHelper } from "./Quest";
 
@@ -256,6 +257,22 @@ export class Champion {
         }
     }
 
+    /**
+     * @returns {ChampionModel[]}
+     */
+    static getChampionListFromMap() {
+        const championMap = [];
+        $('span.stage-bar-tier').each(function(i, tier){
+            const champion = new ChampionModel(i, tier.getAttribute("hh_title").split('/')[0].replace(/[^0-9]/gi, ''));
+
+            let timerElm = $($('a.champion-lair div.champion-lair-name')[i+1]).find('span[rel=expires]').text();
+            if (timerElm !== undefined && timerElm !== null && timerElm.length > 0) {
+                champion.timer = Number(convertTimeToInt(timerElm));
+            }
+            championMap.push(champion);
+        });
+        return championMap;
+    }
 
 
     static doChampionStuff()
@@ -297,26 +314,15 @@ export class Champion {
         {
             logHHAuto('on champion map');
             var Filter=getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsFilter").split(';').map(s=>Number(s));
-            var minTime = -1;
-            var currTime;
-            var e;
 
-            for (let i=0;i<$('span.stage-bar-tier').length;i++)
+            const championMap = Champion.getChampionListFromMap();
+            for (let i=0;i<championMap.length;i++)
             {
-                let Impression=$('span.stage-bar-tier')[i].getAttribute("hh_title");
                 const autoChampsForceStartEventGirl = getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsForceStartEventGirl") === "true";
                 const autoChampsEventGirls = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls")):[];
                 const autoChampsForceStart = getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsForceStart") === "true";
-                let Started=Impression.split('/')[0].replace(/[^0-9]/gi, '')!="0";
-                let OnTimerOld=$($('a.champion-lair div.champion-lair-name')[i+1]).find('div[rel=timer]').length>0;
-                let timerNew = $($('a.champion-lair div.champion-lair-name')[i+1]).find('span[rel=expires]').text();
-                let OnTimerNew=false;
-                if ( isNaN(timerNew) && (timerNew.length > 0))
-                {
-                    OnTimerNew = true;
-                }
 
-                let OnTimer= OnTimerOld || OnTimerNew;
+                let OnTimer= championMap[i].timer > 0;
                 let Filtered=Filter.includes(i+1);
                 let autoChampGirlInEvent = false;
                 let autoChampGirlOnChamp = false;
@@ -365,9 +371,14 @@ export class Champion {
 
                 }
                 const eventGirlForced=autoChampGirlOnChamp;
-                logHHAuto("Champion "+(i+1)+" ["+Impression+"]"+(Started?" Started;":" Not started;")+(autoChampsForceStart?" Force start;":" Not force start;")+(OnTimer?" on timer;":" not on timer;")+(Filtered?" Included in filter;":" Excluded from filter;")+(eventGirlForced?" Forced for event":" Not event forced"));
+                logHHAuto("Champion "+(i+1)+" ["+championMap[i].impression+"]"
+                    +(championMap[i].started?" Started;":" Not started;")
+                    +(autoChampsForceStart?" Force start;":" Not force start;")
+                    +(OnTimer?" on timer;":" not on timer;")
+                    +(Filtered?" Included in filter;":" Excluded from filter;")
+                    +(eventGirlForced?" Forced for event":" Not event forced"));
 
-                if ((Started || eventGirlForced || autoChampsForceStart) && !OnTimer && Filtered)
+                if ((championMap[i].started || eventGirlForced || autoChampsForceStart) && !OnTimer && Filtered)
                 {
                     logHHAuto("Let's do him!");
                     gotoPage('/champions/'+Number(i+1));
@@ -377,34 +388,7 @@ export class Champion {
             }
 
             logHHAuto("No good candidate");
-
-            $('a.champion-lair div.champion-lair-name span[rel=expires]').each(function(){
-                let timerElm = $(this);
-                if (timerElm !== undefined && timerElm !== null && timerElm.length > 0) {
-                    if (currTime == -1 || minTime == -1) {
-                        currTime = Number(convertTimeToInt(timerElm.text()));
-                        minTime = Number(convertTimeToInt(timerElm.text()));
-                    } else {
-                        currTime = Number(convertTimeToInt(timerElm.text()));
-                        if (currTime > minTime) {minTime = currTime;}
-                    }
-                }
-                else
-                {
-                    logHHAuto("Catched error : Could not parse champion timer : "+timerElm);
-                }
-            })
-            //fetching min
-
-
-            if (minTime === -1 || minTime > 30*60)
-            {
-                setTimer('nextChampionTime', randomInterval(15*60, 17*60));
-            }
-            else
-            {
-                setTimer('nextChampionTime', randomInterval(minTime, 180 + minTime));
-            }
+            Champion.findNextChamptionTime();
             gotoPage(getHHScriptVars("pagesIDHome"));
             return false;
         }
@@ -412,6 +396,42 @@ export class Champion {
         {
             gotoPage(getHHScriptVars("pagesIDChampionsMap"));
             return true;
+        }
+    }
+
+    static findNextChamptionTime() {
+        if (getPage()==getHHScriptVars("pagesIDChampionsMap")) {
+            var minTime = -1; // less than 15min
+            var minTimeEnded = -1;
+            var currTime;
+
+            const championMap = Champion.getChampionListFromMap();
+            for (let i=0;i<championMap.length;i++)
+            {
+                currTime = championMap[i].timer;
+                if (currTime >= 0) {
+                    if (currTime > minTimeEnded) {minTimeEnded = currTime;}
+                    if (currTime > minTime && currTime < 1800) {minTime = currTime;} // less than 30min
+                }
+            }
+            //fetching min
+
+            logHHAuto('minTimeEnded: ' + minTimeEnded + ', minTime:' + minTime);
+            if (minTime === -1 && minTimeEnded === -1)
+            {
+                setTimer('nextChampionTime', randomInterval(3600, 4000));
+            }
+            else if (minTime === -1)
+            {
+                logHHAuto('Champion ended, next time: ' + minTimeEnded);
+                setTimer('nextChampionTime', randomInterval(minTimeEnded, 180 + minTimeEnded));
+            }
+            else
+            {
+                logHHAuto('Champion next time: ' + minTime);
+                const maxTime = minTime > 0 ? 180 + minTime : 0.5;
+                setTimer('nextChampionTime', randomInterval(minTime, maxTime));
+            }
         }
     }
 }

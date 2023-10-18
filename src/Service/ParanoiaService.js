@@ -339,6 +339,7 @@ export function flipParanoia()
     //force recheck non completed event after paranoia
     if (getStoredValue(HHStoredVarPrefixKey+"Temp_burst") =="true")
     {
+        /*
         let eventList = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsList")):{};
         for (let eventID of Object.keys(eventList))
         {
@@ -353,6 +354,7 @@ export function flipParanoia()
                 }
             }
         }
+        */
         //sessionStorage.removeItem(HHStoredVarPrefixKey+"Temp_eventsList");
         gotoPage(getHHScriptVars("pagesIDHome"));
     }

@@ -17,7 +17,7 @@ import { HHAuto_inputPattern, HHStoredVarPrefixKey } from "../config";
 export class Pachinko {
 
     static getGreatPachinko() {
-        Pachinko.getFreePachinko('great','nextPachinkoTime','great_pachinko_timer');
+        Pachinko.getFreePachinko('great','nextPachinkoTime','great-timer');
     }
     static getMythicPachinko() {
         Pachinko.getFreePachinko('mythic','nextPachinko2Time', 'mythic-timer');
