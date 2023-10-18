@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.8.9
+// @version      6.8.10
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -2888,7 +2888,7 @@ class Season {
                 }
                 StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                 LogUtils_logHHAuto("setting autoloop to false");
-                setTimer('nextSeasonTime', randomInterval(5,10));
+                setTimer('nextSeasonTime',5);
                 setTimeout(refreshOpponents,randomInterval(800,1600));
     
                 return true;
@@ -2908,7 +2908,7 @@ class Season {
                 StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                 LogUtils_logHHAuto("setting autoloop to false");
                 LogUtils_logHHAuto("Going to crush : "+$("div.season_arena_opponent_container .personal_info div.player-name")[chosenID].innerText);
-                setTimer('nextSeasonTime', randomInterval(5,6));
+                setTimer('nextSeasonTime',5);
                 return true;
             }
         }
@@ -15931,14 +15931,14 @@ function autoLoop()
         }
 
 
-        if (busy === false && getHHScriptVars("isEnabledGreatPachinko",false) && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoFreePachinko") === "true" && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && checkTimer("nextPachinkoTime") && canCollectCompetitionActive()) {
-            LogUtils_logHHAuto("Time to fetch Great Pachinko.");
-            busy = Pachinko.getGreatPachinko();
-        }
-
         if (busy === false && getHHScriptVars("isEnabledMythicPachinko",false) && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoFreePachinko") === "true" && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && checkTimer("nextPachinko2Time") && canCollectCompetitionActive()) {
             LogUtils_logHHAuto("Time to fetch Mythic Pachinko.");
             busy = Pachinko.getMythicPachinko();
+        }
+
+        if (busy === false && getHHScriptVars("isEnabledGreatPachinko",false) && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoFreePachinko") === "true" && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && checkTimer("nextPachinkoTime") && canCollectCompetitionActive()) {
+            LogUtils_logHHAuto("Time to fetch Great Pachinko.");
+            busy = Pachinko.getGreatPachinko();
         }
 
         if (busy === false && getHHScriptVars("isEnabledEquipmentPachinko",false) && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoFreePachinko") === "true" && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && checkTimer("nextPachinkoEquipTime") && canCollectCompetitionActive()) {
