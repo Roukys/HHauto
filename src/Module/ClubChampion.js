@@ -55,9 +55,9 @@ export class ClubChampion {
             {
                 setTimer('nextClubChampionTime', randomInterval(15*60, 17*60));
             }
-            else if (secsToNextTimer > 30*60 && getStoredValue(HHStoredVarPrefixKey+"Setting_autoClubForceStart") === "true")
+            else if (secsToNextTimer > 3600 && getStoredValue(HHStoredVarPrefixKey+"Setting_autoClubForceStart") === "true")
             {
-                setTimer('nextClubChampionTime', randomInterval(30*60, 34*60));
+                setTimer('nextClubChampionTime', randomInterval(50*60, 70*60));
             }
             else
             {
