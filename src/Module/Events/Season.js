@@ -382,7 +382,7 @@ export class Season {
                 }
                 setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                 logHHAuto("setting autoloop to false");
-                setTimer('nextSeasonTime', randomInterval(5,10));
+                setTimer('nextSeasonTime',5);
                 setTimeout(refreshOpponents,randomInterval(800,1600));
     
                 return true;
@@ -402,7 +402,7 @@ export class Season {
                 setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                 logHHAuto("setting autoloop to false");
                 logHHAuto("Going to crush : "+$("div.season_arena_opponent_container .personal_info div.player-name")[chosenID].innerText);
-                setTimer('nextSeasonTime', randomInterval(5,6));
+                setTimer('nextSeasonTime',5);
                 return true;
             }
         }
