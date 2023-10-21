@@ -401,6 +401,7 @@ export class Champion {
 
     static findNextChamptionTime() {
         if (getPage()==getHHScriptVars("pagesIDChampionsMap")) {
+            const autoChampsForceStart = getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsForceStart") === "true";
             var minTime = -1; // less than 15min
             var minTimeEnded = -1;
             var currTime;
@@ -412,6 +413,10 @@ export class Champion {
                 if (currTime >= 0) {
                     if (currTime > minTimeEnded) {minTimeEnded = currTime;}
                     if (currTime > minTime && currTime < 1800) {minTime = currTime;} // less than 30min
+                } else if(!championMap[i].started && autoChampsForceStart) {
+                    minTime = 0;
+                    minTimeEnded = -1; // end loop so value is not accurate
+                    break;
                 }
             }
             //fetching min
