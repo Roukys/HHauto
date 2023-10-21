@@ -250,6 +250,7 @@ export class Missions {
             GM_addStyle(missionsContainerPath + ' .mission_button .duration {'
                 + 'top:5px;'
                 + 'left:5px;'
+                + 'width: auto;'
             +'}');
             GM_addStyle(missionsContainerPath + ' .mission_button button {'
                 + 'margin:0;'
@@ -257,7 +258,8 @@ export class Missions {
             GM_addStyle(missionsContainerPath + ' .mission_button button[rel="finish"] {'
                 + 'height: 50px;'
                 + 'top:0;'
-                + 'padding: 4px 4px;;'
+                + 'left: 2rem;'
+                + 'padding: 4px 4px;'
             +'}');
             GM_addStyle(missionsContainerPath + ' .mission_button button[rel="claim"] {'
                 + 'left:0;'

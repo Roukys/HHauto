@@ -422,6 +422,7 @@ export class Champion {
             //fetching min
 
             logHHAuto('minTimeEnded: ' + minTimeEnded + ', minTime:' + minTime);
+            // logHHAuto('Champions: ' + JSON.stringify(championMap));
             if (minTime === -1 && minTimeEnded === -1)
             {
                 setTimer('nextChampionTime', randomInterval(3600, 4000));

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.9.0
+// @version      6.9.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -7739,6 +7739,7 @@ class Missions {
             GM_addStyle(missionsContainerPath + ' .mission_button .duration {'
                 + 'top:5px;'
                 + 'left:5px;'
+                + 'width: auto;'
             +'}');
             GM_addStyle(missionsContainerPath + ' .mission_button button {'
                 + 'margin:0;'
@@ -7746,7 +7747,8 @@ class Missions {
             GM_addStyle(missionsContainerPath + ' .mission_button button[rel="finish"] {'
                 + 'height: 50px;'
                 + 'top:0;'
-                + 'padding: 4px 4px;;'
+                + 'left: 2rem;'
+                + 'padding: 4px 4px;'
             +'}');
             GM_addStyle(missionsContainerPath + ' .mission_button button[rel="claim"] {'
                 + 'left:0;'
@@ -16599,8 +16601,8 @@ function autoLoop()
             break;
         case getHHScriptVars("pagesIDChampionsMap"):
             if (StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoChamps") ==="true") {
-                Champion.findNextChamptionTime = callItOnce(Champion.findNextChamptionTime);
-                Champion.findNextChamptionTime();
+                // Champion.findNextChamptionTime = callItOnce(Champion.findNextChamptionTime);
+                // Champion.findNextChamptionTime();
             }
             break;
         case getHHScriptVars("pagesIDChampionsPage"):
