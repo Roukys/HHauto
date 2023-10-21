@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.8.11
+// @version      6.8.12
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3992,6 +3992,7 @@ class Champion {
 
     static findNextChamptionTime() {
         if (getPage()==getHHScriptVars("pagesIDChampionsMap")) {
+            const autoChampsForceStart = StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoChampsForceStart") === "true";
             var minTime = -1; // less than 15min
             var minTimeEnded = -1;
             var currTime;
@@ -4003,6 +4004,10 @@ class Champion {
                 if (currTime >= 0) {
                     if (currTime > minTimeEnded) {minTimeEnded = currTime;}
                     if (currTime > minTime && currTime < 1800) {minTime = currTime;} // less than 30min
+                } else if(!championMap[i].started && autoChampsForceStart) {
+                    minTime = 0;
+                    minTimeEnded = -1; // end loop so value is not accurate
+                    break;
                 }
             }
             //fetching min
