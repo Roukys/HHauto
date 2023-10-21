@@ -244,6 +244,8 @@ export class Missions {
             +'}');
             GM_addStyle(missionsContainerPath + ' .mission_button {'
             + 'display:flex;'
+            + 'flex-direction:inherit;'
+            + 'width:245px;'
             +'}');
             GM_addStyle(missionsContainerPath + ' .mission_button .duration {'
                 + 'top:5px;'

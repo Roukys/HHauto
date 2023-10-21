@@ -1545,6 +1545,12 @@ HHStoredVars[HHStoredVarPrefixKey+"Temp_battlePowerRequired"] =
     kobanUsing:false,
     customMenuID:"autoLeaguesSelector"
 };*/
+HHStoredVars[HHStoredVarPrefixKey+"Temp_lastActionPerformed"] =
+    {
+    default:"none",
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
 HHStoredVars[HHStoredVarPrefixKey+"Temp_questRequirement"] =
     {
     default:"none",
