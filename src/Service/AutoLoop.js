@@ -1048,8 +1048,8 @@ export function autoLoop()
             break;
         case getHHScriptVars("pagesIDChampionsMap"):
             if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoChamps") ==="true") {
-                Champion.findNextChamptionTime = callItOnce(Champion.findNextChamptionTime);
-                Champion.findNextChamptionTime();
+                // Champion.findNextChamptionTime = callItOnce(Champion.findNextChamptionTime);
+                // Champion.findNextChamptionTime();
             }
             break;
         case getHHScriptVars("pagesIDChampionsPage"):
