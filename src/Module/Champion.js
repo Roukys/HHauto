@@ -410,7 +410,11 @@ export class Champion {
             for (let i=0;i<championMap.length;i++)
             {
                 currTime = championMap[i].timer;
-                if (currTime >= 0) {
+                if(currTime === 0) {
+                    minTime = 0;
+                    minTimeEnded = -1; // end loop so value is not accurate
+                    break;
+                }else if (currTime > 0) {
                     if (currTime > minTimeEnded) {minTimeEnded = currTime;}
                     if (currTime > minTime && currTime < 1800) {minTime = currTime;} // less than 30min
                 } else if(!championMap[i].started && autoChampsForceStart) {
@@ -422,7 +426,6 @@ export class Champion {
             //fetching min
 
             logHHAuto('minTimeEnded: ' + minTimeEnded + ', minTime:' + minTime);
-            // logHHAuto('Champions: ' + JSON.stringify(championMap));
             if (minTime === -1 && minTimeEnded === -1)
             {
                 setTimer('nextChampionTime', randomInterval(3600, 4000));
