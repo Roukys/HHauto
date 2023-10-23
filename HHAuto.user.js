@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.9.1
+// @version      6.9.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4001,7 +4001,11 @@ class Champion {
             for (let i=0;i<championMap.length;i++)
             {
                 currTime = championMap[i].timer;
-                if (currTime >= 0) {
+                if(currTime === 0) {
+                    minTime = 0;
+                    minTimeEnded = -1; // end loop so value is not accurate
+                    break;
+                }else if (currTime > 0) {
                     if (currTime > minTimeEnded) {minTimeEnded = currTime;}
                     if (currTime > minTime && currTime < 1800) {minTime = currTime;} // less than 30min
                 } else if(!championMap[i].started && autoChampsForceStart) {
@@ -16601,8 +16605,8 @@ function autoLoop()
             break;
         case getHHScriptVars("pagesIDChampionsMap"):
             if (StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoChamps") ==="true") {
-                // Champion.findNextChamptionTime = callItOnce(Champion.findNextChamptionTime);
-                // Champion.findNextChamptionTime();
+                Champion.findNextChamptionTime = callItOnce(Champion.findNextChamptionTime);
+                setTimeout(Champion.findNextChamptionTime,500);
             }
             break;
         case getHHScriptVars("pagesIDChampionsPage"):
