@@ -338,7 +338,7 @@ export class LeagueHelper {
     {
         const beatenOpponents ='<div style="position: absolute;left: 190px;top: 14px;width:100px;"  class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("HideBeatenOppo","tooltip")+'</span><label style="width:100%;" class="myButton" id="HideBeatenOppo">'+getTextForUI("HideBeatenOppo","elementText")+'</label></div>';
         if (
-            document.getElementById("beaten_opponents") === null // button from HH OCD script
+            (document.getElementById("beaten_opponents") === null || document.getElementById("league_filter") === null ) // button from HH OCD script
             &&  document.getElementById("HideBeatenOppo") === null
         )
         {

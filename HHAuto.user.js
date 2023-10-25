@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.9.2
+// @version      6.9.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -6632,7 +6632,7 @@ class LeagueHelper {
     {
         const beatenOpponents ='<div style="position: absolute;left: 190px;top: 14px;width:100px;"  class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("HideBeatenOppo","tooltip")+'</span><label style="width:100%;" class="myButton" id="HideBeatenOppo">'+getTextForUI("HideBeatenOppo","elementText")+'</label></div>';
         if (
-            document.getElementById("beaten_opponents") === null // button from HH OCD script
+            (document.getElementById("beaten_opponents") === null || document.getElementById("league_filter") === null ) // button from HH OCD script
             &&  document.getElementById("HideBeatenOppo") === null
         )
         {
@@ -14826,7 +14826,7 @@ class Shop {
                         let currSellNumber = Number((initialNumberOfItems - currentNumberOfItems) +1);
                         document.getElementById("menuSoldCurrentCount").innerHTML = currSellNumber+"/"+itemsToSell;
                         document.getElementById("menuSellCurrentCount").innerHTML = $(itemsQuery).length;
-                        setTimeout(selling_func, 300);
+                        setTimeout(selling_func, randomInterval(300,700));
                         return;
                     }
                 }
@@ -14836,7 +14836,7 @@ class Shop {
                     //Select first non legendary item
                     //Or select item that checked before and can be sold
                     availebleItems.filter(':not(.selected):not(.legendary):not(.mythic),[canBeSold]')[0].click();
-                    setTimeout(selling_func, 300);
+                    setTimeout(selling_func, randomInterval(300,700));
                     return;
                 }
                 else if (availebleItems.filter(':not(.selected)').length > 0)
@@ -14900,7 +14900,7 @@ class Shop {
                     }
                 }
     
-                setTimeout(selling_func, 300);
+                setTimeout(selling_func, randomInterval(300,700));
             }
             selling_func();
         }
