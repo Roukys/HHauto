@@ -1,7 +1,7 @@
 import { logHHAuto } from "../Utils";
 import { HHStoredVarPrefixKey } from "../config";
 import { setStoredValue } from "./StorageHelper";
-import { canCollectCompetitionActive, toHHMMSS } from "./TimeHelper";
+import { TimeHelper, toHHMMSS } from "./TimeHelper";
 
 export let Timers = {};
 
@@ -69,7 +69,7 @@ export function getTimeLeft(name)
     const timerWaitingCompet = ['nextPachinkoTime','nextPachinko2Time','nextPachinkoEquipTime','nextSeasonTime','nextLeaguesTime'];
     if (!Timers[name])
     {
-        if (!canCollectCompetitionActive() && timerWaitingCompet.indexOf(name) >= 0)
+        if (!TimeHelper.canCollectCompetitionActive() && timerWaitingCompet.indexOf(name) >= 0)
         {
             return "Wait for contest";
         }
@@ -78,7 +78,7 @@ export function getTimeLeft(name)
     var diff=getSecondsLeft(name);
     if (diff<=0)
     {
-        if (!canCollectCompetitionActive() && timerWaitingCompet.indexOf(name) >= 0)
+        if (!TimeHelper.canCollectCompetitionActive() && timerWaitingCompet.indexOf(name) >= 0)
         {
             return "Wait for contest";
         }

@@ -4,14 +4,24 @@ import { hhTimerLocale, timerDefinitions } from "../i18n";
 import { getHHVars } from "./HHHelper";
 import { getStoredValue } from "./StorageHelper";
 
-export function getServerTS()
-{
-    let sec_num = parseInt(getHHVars('server_now_ts'), 10);
-    let days = Math.floor(sec_num / 86400);
-    let hours = Math.floor(sec_num / 3600) % 24;
-    let minutes = Math.floor(sec_num / 60) % 60;
-    let seconds = sec_num % 60;
-    return {days:days,hours:hours,minutes:minutes,seconds:seconds};
+export class TimeHelper {
+
+    static getServerTS()
+    {
+        let sec_num = parseInt(getHHVars('server_now_ts'), 10);
+        let days = Math.floor(sec_num / 86400);
+        let hours = Math.floor(sec_num / 3600) % 24;
+        let minutes = Math.floor(sec_num / 60) % 60;
+        let seconds = sec_num % 60;
+        return {days:days,hours:hours,minutes:minutes,seconds:seconds};
+    }
+
+    static canCollectCompetitionActive()
+    {
+        let safeTime = getStoredValue(HHStoredVarPrefixKey+"Setting_safeSecondsForContest") !== undefined ? Number(getStoredValue(HHStoredVarPrefixKey+"Setting_safeSecondsForContest")) : 120;
+        if(isNaN(safeTime) || safeTime < 0) safeTime = 120;
+        return getStoredValue(HHStoredVarPrefixKey+"Setting_waitforContest") !== "true" || getSecondsLeftBeforeNewCompetition() > (30*60 + safeTime) && getSecondsLeftBeforeNewCompetition() < (24*3600-safeTime);
+    }
 }
 
 export function toHHMMSS(secs)  {
@@ -30,7 +40,7 @@ export function toHHMMSS(secs)  {
 export function getSecondsLeftBeforeEndOfHHDay()
 {
     let HHEndOfDay = {days:0,hours:11,minutes:0,seconds:0};
-    let server_TS = getServerTS();
+    let server_TS = TimeHelper.getServerTS();
     HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?0:1;
     let diffResetTime = (HHEndOfDay.days*86400 + HHEndOfDay.hours * 3600 + HHEndOfDay.minutes * 60) - (server_TS.hours * 3600 + server_TS.minutes * 60);
     return diffResetTime;
@@ -39,7 +49,7 @@ export function getSecondsLeftBeforeEndOfHHDay()
 export function getSecondsLeftBeforeNewCompetition()
 {
     let HHEndOfDay = {days:0,hours:11,minutes:30,seconds:0};
-    let server_TS = getServerTS();
+    let server_TS = TimeHelper.getServerTS();
     HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?0:1;
     let diffResetTime = (HHEndOfDay.days*86400 + HHEndOfDay.hours * 3600 + HHEndOfDay.minutes * 60) - (server_TS.hours * 3600 + server_TS.minutes * 60);
     return diffResetTime;
@@ -81,11 +91,6 @@ export function convertTimeToInt(remainingTimer){
         newTimer = randomInterval(15*60, 17*60);
     }
     return newTimer;
-}
-
-export function canCollectCompetitionActive()
-{
-    return getStoredValue(HHStoredVarPrefixKey+"Setting_waitforContest") !== "true" || getSecondsLeftBeforeNewCompetition() > 32*60 && getSecondsLeftBeforeNewCompetition() < (24*3600-2*60);
 }
 
 

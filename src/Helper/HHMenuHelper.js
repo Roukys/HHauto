@@ -301,7 +301,18 @@ export function getMenu() {
                             + hhMenuInput('collectAllTimer', HHAuto_inputPattern.collectAllTimer, 'text-align:center; width:25px')
                         +`</div>`
                         +`<div class="optionsColumn">`
-                            + hhMenuSwitch('waitforContest')
+                            +`<div class="labelAndButton">`
+                                +`<span class="HHMenuItemName">${getTextForUI("waitforContest","elementText")}</span>`
+                                +`<div class="tooltipHH">`
+                                    +`<span class="tooltipHHtext">${getTextForUI("waitforContest","tooltip")}</span>`
+                                    +`<label class="switch">`
+                                        +`<input id="waitforContest" type="checkbox">`
+                                        +`<span class="slider round">`
+                                        +`</span>`
+                                    +`</label>`
+                                    +`<input style="text-align:center; width:30px" id="safeSecondsForContest" required pattern="${HHAuto_inputPattern.safeSecondsForContest}" type="text">`
+                                +`</div>`
+                            +`</div>`
                             + hhMenuSwitch('settPerTab')
                             + hhMenuSwitch('paranoiaSpendsBefore')
                             + hhMenuSwitch('autoFreeBundlesCollect', 'isEnabledFreeBundles')

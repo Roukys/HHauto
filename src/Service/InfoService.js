@@ -1,14 +1,14 @@
 import { 
+    add1000sSeparator,
+    getHHScriptVars,
     getHHVars,
+    getPage,
     getStoredValue, 
     getTextForUI,
     getTimeLeft ,
-    canCollectCompetitionActive, 
-    getHHScriptVars,
     getTimer,
-    add1000sSeparator,
-    getPage,
-    setStoredValue
+    setStoredValue,
+    TimeHelper
 } from "../Helper";
 import { Booster, LeagueHelper, Pantheon, Season, Troll } from "../Module";
 import { HHStoredVarPrefixKey } from "../config";
@@ -74,7 +74,7 @@ export function updateData() {
     if (getStoredValue(HHStoredVarPrefixKey+"Setting_showInfo") =="true") // && busy==false // && getPage()==getHHScriptVars("pagesIDHome")
     {
         let contest = '';
-        if (!canCollectCompetitionActive()) contest = " : Wait for contest";
+        if (!TimeHelper.canCollectCompetitionActive()) contest = " : Wait for contest";
         var Tegzd='';
         Tegzd+=(getStoredValue(HHStoredVarPrefixKey+"Setting_master") ==="true"?"<span style='color:LimeGreen'>HH auto ++ ON":"<span style='color:red'>HH auto ++ OFF")+'</span>';
         //Tegzd+=(getStoredValue(HHStoredVarPrefixKey+"Setting_master") ==="true"?"<span style='color:LimeGreen'>"+getTextForUI("master","elementText")+" : ON":"<span style='color:red'>"+getTextForUI("master","elementText")+" : OFF")+'</span>';
