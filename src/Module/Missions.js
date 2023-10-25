@@ -1,6 +1,6 @@
 import {
     RewardHelper,
-    canCollectCompetitionActive,
+    TimeHelper,
     convertTimeToInt,
     deleteStoredValue,
     getHHScriptVars,
@@ -58,7 +58,7 @@ export class Missions {
             if(RewardHelper.closeRewardPopupIfAny()) {
                 return true;
             }
-            let canCollect = getStoredValue(HHStoredVarPrefixKey+"Setting_autoMissionCollect") ==="true" && $(".mission_button button:visible[rel='claim']").length >0 && canCollectCompetitionActive();
+            let canCollect = getStoredValue(HHStoredVarPrefixKey+"Setting_autoMissionCollect") ==="true" && $(".mission_button button:visible[rel='claim']").length >0 && TimeHelper.canCollectCompetitionActive();
             if (canCollect)
             {
                 logHHAuto("Collecting finished mission's reward.");

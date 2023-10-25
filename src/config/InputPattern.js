@@ -12,6 +12,7 @@ export const HHAuto_inputPattern = {
     autoBuyBoostersFilter:"M?B[1-4](;M?B[1-4])*",
     //calculatePowerLimits:"(\-?[0-9]+;\-?[0-9]+)|default",
     mousePauseTimeout:"[0-9]+",
+    safeSecondsForContest:"[0-9]+",
     collectAllTimer:"[1-9][0-9]|[1-9]",
     autoSalaryTimer:"[0-9]+",
     autoTrollThreshold:"[1]?[0-9]",

@@ -846,6 +846,16 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_waitforContest"] =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars[HHStoredVarPrefixKey+"Setting_safeSecondsForContest"] =
+{
+    default:"120",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value"
+};
 HHStoredVars[HHStoredVarPrefixKey+"Setting_mousePause"] =
     {
     default:"false",
