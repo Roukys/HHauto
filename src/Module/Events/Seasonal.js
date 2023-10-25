@@ -255,14 +255,19 @@ export class SeasonalEvent {
         if (getPage() === getHHScriptVars("pagesIDSeasonalEvent"))
         {
             const isMegaSeasonalEvent = SeasonalEvent.isMegaSeasonalEvent();
-            if(!isMegaSeasonalEvent) {
+            const topRank = $('#mega-event-tabs #top_ranking_tab');
+            const eventRank = $('#mega-event-tabs #event_ranking_tab');
+            if(!isMegaSeasonalEvent && topRank.length === 0 && eventRank.length === 0) {
                 logHHAuto('Not Mega Event');
                 setTimer('nextMegaEventRankCollectTime', 604800); // 1 week delay
                 return;
+            } else if(topRank.length > 0 || eventRank.length > 0) {
+                logHHAuto('Not Mega Event but rank tab exist');
             }
             logHHAuto('Collect Mega Event Rank Rewards');
             // switch tabs
-            $('#mega-event-tabs #top_ranking_tab').click();
+            if( topRank.length > 0) topRank.click();
+            else if( eventRank.length > 0) eventRank.click();
 
             setTimer('nextMegaEventRankCollectTime', getSecondsLeftBeforeEndOfHHDay()  + randomInterval(3600,4000));
         }
