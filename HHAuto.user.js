@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.10.0
+// @version      6.10.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3365,14 +3365,19 @@ class SeasonalEvent {
         if (getPage() === getHHScriptVars("pagesIDSeasonalEvent"))
         {
             const isMegaSeasonalEvent = SeasonalEvent.isMegaSeasonalEvent();
-            if(!isMegaSeasonalEvent) {
+            const topRank = $('#mega-event-tabs #top_ranking_tab');
+            const eventRank = $('#mega-event-tabs #event_ranking_tab');
+            if(!isMegaSeasonalEvent && topRank.length === 0 && eventRank.length === 0) {
                 LogUtils_logHHAuto('Not Mega Event');
                 setTimer('nextMegaEventRankCollectTime', 604800); // 1 week delay
                 return;
+            } else if(topRank.length > 0 || eventRank.length > 0) {
+                LogUtils_logHHAuto('Not Mega Event but rank tab exist');
             }
             LogUtils_logHHAuto('Collect Mega Event Rank Rewards');
             // switch tabs
-            $('#mega-event-tabs #top_ranking_tab').click();
+            if( topRank.length > 0) topRank.click();
+            else if( eventRank.length > 0) eventRank.click();
 
             setTimer('nextMegaEventRankCollectTime', getSecondsLeftBeforeEndOfHHDay()  + randomInterval(3600,4000));
         }
