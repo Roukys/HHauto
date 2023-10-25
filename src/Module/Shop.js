@@ -628,7 +628,7 @@ export class Shop {
                         let currSellNumber = Number((initialNumberOfItems - currentNumberOfItems) +1);
                         document.getElementById("menuSoldCurrentCount").innerHTML = currSellNumber+"/"+itemsToSell;
                         document.getElementById("menuSellCurrentCount").innerHTML = $(itemsQuery).length;
-                        setTimeout(selling_func, 300);
+                        setTimeout(selling_func, randomInterval(300,700));
                         return;
                     }
                 }
@@ -638,7 +638,7 @@ export class Shop {
                     //Select first non legendary item
                     //Or select item that checked before and can be sold
                     availebleItems.filter(':not(.selected):not(.legendary):not(.mythic),[canBeSold]')[0].click();
-                    setTimeout(selling_func, 300);
+                    setTimeout(selling_func, randomInterval(300,700));
                     return;
                 }
                 else if (availebleItems.filter(':not(.selected)').length > 0)
@@ -702,7 +702,7 @@ export class Shop {
                     }
                 }
     
-                setTimeout(selling_func, 300);
+                setTimeout(selling_func, randomInterval(300,700));
             }
             selling_func();
         }
