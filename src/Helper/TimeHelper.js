@@ -39,7 +39,7 @@ export function toHHMMSS(secs)  {
 
 export function getSecondsLeftBeforeEndOfHHDay()
 {
-    let HHEndOfDay = {days:0,hours:11,minutes:0,seconds:0};
+    let HHEndOfDay = {days:0,hours:12,minutes:0,seconds:0}; // TODO get dynamic timezone
     let server_TS = TimeHelper.getServerTS();
     HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?0:1;
     let diffResetTime = (HHEndOfDay.days*86400 + HHEndOfDay.hours * 3600 + HHEndOfDay.minutes * 60) - (server_TS.hours * 3600 + server_TS.minutes * 60);
@@ -48,7 +48,7 @@ export function getSecondsLeftBeforeEndOfHHDay()
 
 export function getSecondsLeftBeforeNewCompetition()
 {
-    let HHEndOfDay = {days:0,hours:11,minutes:30,seconds:0};
+    let HHEndOfDay = {days:0,hours:12,minutes:30,seconds:0}; // TODO get dynamic timezone
     let server_TS = TimeHelper.getServerTS();
     HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?0:1;
     let diffResetTime = (HHEndOfDay.days*86400 + HHEndOfDay.hours * 3600 + HHEndOfDay.minutes * 60) - (server_TS.hours * 3600 + server_TS.minutes * 60);

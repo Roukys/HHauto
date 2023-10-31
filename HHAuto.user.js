@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.10.1
+// @version      6.10.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -13391,7 +13391,7 @@ function TimeHelper_toHHMMSS(secs)  {
 
 function getSecondsLeftBeforeEndOfHHDay()
 {
-    let HHEndOfDay = {days:0,hours:11,minutes:0,seconds:0};
+    let HHEndOfDay = {days:0,hours:12,minutes:0,seconds:0}; // TODO get dynamic timezone
     let server_TS = TimeHelper.getServerTS();
     HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?0:1;
     let diffResetTime = (HHEndOfDay.days*86400 + HHEndOfDay.hours * 3600 + HHEndOfDay.minutes * 60) - (server_TS.hours * 3600 + server_TS.minutes * 60);
@@ -13400,7 +13400,7 @@ function getSecondsLeftBeforeEndOfHHDay()
 
 function getSecondsLeftBeforeNewCompetition()
 {
-    let HHEndOfDay = {days:0,hours:11,minutes:30,seconds:0};
+    let HHEndOfDay = {days:0,hours:12,minutes:30,seconds:0}; // TODO get dynamic timezone
     let server_TS = TimeHelper.getServerTS();
     HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?0:1;
     let diffResetTime = (HHEndOfDay.days*86400 + HHEndOfDay.hours * 3600 + HHEndOfDay.minutes * 60) - (server_TS.hours * 3600 + server_TS.minutes * 60);
