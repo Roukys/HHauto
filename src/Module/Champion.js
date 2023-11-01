@@ -261,9 +261,10 @@ export class Champion {
      * @returns {ChampionModel[]}
      */
     static getChampionListFromMap() {
+        const Filter=getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsFilter").split(';').map(s=>Number(s));
         const championMap = [];
         $('span.stage-bar-tier').each(function(i, tier){
-            const champion = new ChampionModel(i, tier.getAttribute("hh_title").split('/')[0].replace(/[^0-9]/gi, ''));
+            const champion = new ChampionModel(i, tier.getAttribute("hh_title").split('/')[0].replace(/[^0-9]/gi, ''), Filter.includes(i+1));
 
             let timerElm = $($('a.champion-lair div.champion-lair-name')[i+1]).find('span[rel=expires]').text();
             if (timerElm !== undefined && timerElm !== null && timerElm.length > 0) {
@@ -313,17 +314,15 @@ export class Champion {
         else if (page==getHHScriptVars("pagesIDChampionsMap"))
         {
             logHHAuto('on champion map');
-            var Filter=getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsFilter").split(';').map(s=>Number(s));
 
             const championMap = Champion.getChampionListFromMap();
+            const autoChampsForceStartEventGirl = getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsForceStartEventGirl") === "true";
+            const autoChampsEventGirls = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls")):[];
+            const autoChampsForceStart = getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsForceStart") === "true";
+
             for (let i=0;i<championMap.length;i++)
             {
-                const autoChampsForceStartEventGirl = getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsForceStartEventGirl") === "true";
-                const autoChampsEventGirls = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls")):[];
-                const autoChampsForceStart = getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsForceStart") === "true";
-
                 let OnTimer= championMap[i].timer > 0;
-                let Filtered=Filter.includes(i+1);
                 let autoChampGirlInEvent = false;
                 let autoChampGirlOnChamp = false;
                 let autoChampGirlsIds = [];
@@ -375,10 +374,10 @@ export class Champion {
                     +(championMap[i].started?" Started;":" Not started;")
                     +(autoChampsForceStart?" Force start;":" Not force start;")
                     +(OnTimer?" on timer;":" not on timer;")
-                    +(Filtered?" Included in filter;":" Excluded from filter;")
+                    +(championMap[i].inFilter?" Included in filter;":" Excluded from filter;")
                     +(eventGirlForced?" Forced for event":" Not event forced"));
 
-                if ((championMap[i].started || eventGirlForced || autoChampsForceStart) && !OnTimer && Filtered)
+                if ((championMap[i].started || eventGirlForced || autoChampsForceStart) && !OnTimer && championMap[i].inFilter)
                 {
                     logHHAuto("Let's do him!");
                     gotoPage('/champions/'+Number(i+1));
@@ -409,18 +408,20 @@ export class Champion {
             const championMap = Champion.getChampionListFromMap();
             for (let i=0;i<championMap.length;i++)
             {
-                currTime = championMap[i].timer;
-                if(currTime === 0) {
-                    minTime = 0;
-                    minTimeEnded = -1; // end loop so value is not accurate
-                    break;
-                }else if (currTime > 0) {
-                    if (currTime > minTimeEnded) {minTimeEnded = currTime;}
-                    if (currTime > minTime && currTime < 1800) {minTime = currTime;} // less than 30min
-                } else if(!championMap[i].started && autoChampsForceStart) {
-                    minTime = 0;
-                    minTimeEnded = -1; // end loop so value is not accurate
-                    break;
+                if(championMap[i].inFilter) {
+                    currTime = championMap[i].timer;
+                    if(currTime === 0) {
+                        minTime = 0;
+                        minTimeEnded = -1; // end loop so value is not accurate
+                        break;
+                    }else if (currTime > 0) {
+                        if (currTime > minTimeEnded) {minTimeEnded = currTime;}
+                        if (currTime > minTime && currTime < 1800) {minTime = currTime;} // less than 30min
+                    } else if(!championMap[i].started && autoChampsForceStart) {
+                        minTime = 0;
+                        minTimeEnded = -1; // end loop so value is not accurate
+                        break;
+                    }
                 }
             }
             //fetching min
