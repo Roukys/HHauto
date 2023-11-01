@@ -1,8 +1,8 @@
 import {
     RewardHelper,
+    TimeHelper,
     checkTimer,
     convertTimeToInt,
-    debugDate,
     getHHScriptVars,
     getLimitTimeBeforeEnd,
     getPage,
@@ -39,7 +39,7 @@ export class PathOfValue {
         {
             PathOfValue.getRemainingTime();
             const povEnd = getSecondsLeft("PoVRemainingTime");
-            logHHAuto("PoV end in " + debugDate(povEnd));
+            logHHAuto("PoV end in " + TimeHelper.debugDate(povEnd));
 
             if (checkTimer('nextPoVCollectAllTime') && povEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoVCollectAll") === "true")
             {

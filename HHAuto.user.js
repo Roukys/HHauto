@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.10.2
+// @version      6.10.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1241,7 +1241,7 @@ class Bundles {
                             }
                         }
                     }
-                    if(!freeBundleFound) collectFreeBundlesFinished("Free bundle collection finished.", getSecondsLeftBeforeEndOfHHDay() + randomInterval(3600, 4000));
+                    if(!freeBundleFound) collectFreeBundlesFinished("Free bundle collection finished.", TimeHelper.getSecondsLeftBeforeEndOfHHDay() + randomInterval(3600, 4000));
                 }
                 else
                 {
@@ -2297,7 +2297,7 @@ class PathOfGlory {
         {
             PathOfGlory.getRemainingTime();
             const pogEnd = getSecondsLeft("PoGRemainingTime");
-            LogUtils_logHHAuto("PoG end in " + debugDate(pogEnd));
+            LogUtils_logHHAuto("PoG end in " + TimeHelper.debugDate(pogEnd));
 
             if (checkTimer('nextPoGCollectAllTime') && pogEnd < getLimitTimeBeforeEnd() && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoPoGCollectAll") === "true")
             {
@@ -2427,7 +2427,7 @@ class PathOfValue {
         {
             PathOfValue.getRemainingTime();
             const povEnd = getSecondsLeft("PoVRemainingTime");
-            LogUtils_logHHAuto("PoV end in " + debugDate(povEnd));
+            LogUtils_logHHAuto("PoV end in " + TimeHelper.debugDate(povEnd));
 
             if (checkTimer('nextPoVCollectAllTime') && povEnd < getLimitTimeBeforeEnd() && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoPoVCollectAll") === "true")
             {
@@ -2945,7 +2945,7 @@ class Season {
         {
             Season.getRemainingTime();
             const seasonEnd = getSecondsLeft("SeasonRemainingTime");
-            LogUtils_logHHAuto("Season end in " + debugDate(seasonEnd));
+            LogUtils_logHHAuto("Season end in " + TimeHelper.debugDate(seasonEnd));
 
             if (checkTimer('nextSeasonCollectAllTime') && seasonEnd < getLimitTimeBeforeEnd() && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoSeasonCollectAll") === "true")
             {
@@ -3379,7 +3379,7 @@ class SeasonalEvent {
             if( topRank.length > 0) topRank.click();
             else if( eventRank.length > 0) eventRank.click();
 
-            setTimer('nextMegaEventRankCollectTime', getSecondsLeftBeforeEndOfHHDay()  + randomInterval(3600,4000));
+            setTimer('nextMegaEventRankCollectTime', TimeHelper.getSecondsLeftBeforeEndOfHHDay()  + randomInterval(3600,4000));
         }
         else if(unsafeWindow.seasonal_event_active || unsafeWindow.seasonal_time_remaining > 0)
         {
@@ -4090,12 +4090,12 @@ class ClubChampion {
             if ($(restTeamFilter).length > 0)
             {
                 SecsToNextTimer = Number($(restTeamFilter).attr("data-rest-timer"));
-                LogUtils_logHHAuto("Team is resting for : "+TimeHelper_toHHMMSS(SecsToNextTimer));
+                LogUtils_logHHAuto("Team is resting for : "+TimeHelper.toHHMMSS(SecsToNextTimer));
             }
             else if ($(restChampionFilter).length > 0)
             {
                 SecsToNextTimer = Number($(restChampionFilter).attr("data-rest-timer"));
-                LogUtils_logHHAuto("Champion is resting for : "+TimeHelper_toHHMMSS(SecsToNextTimer));
+                LogUtils_logHHAuto("Champion is resting for : "+TimeHelper.toHHMMSS(SecsToNextTimer));
             }
             else {
                 LogUtils_logHHAuto('No timer found');
@@ -4247,7 +4247,7 @@ class Contest {
                 }
             }
     
-            var time = getSecondsLeftBeforeNewCompetition() + randomInterval(30*60, 35*60); // 30 min after new compet
+            var time = TimeHelper.getSecondsLeftBeforeNewCompetition() + randomInterval(30*60, 35*60); // 30 min after new compet
             setTimer('nextContestTime',time);
             // Not busy
             return false;
@@ -4359,7 +4359,7 @@ class DailyGoals {
                         const currentChest = $(".progress-bar-rewards-container", listDailyGoalsTiersToClaim[currentTier]);
                         const currentRewardsList = currentChest.length > 0 ? currentChest.data("rewards") : [];
                         //console.log("checking tier : "+currentTierNb);
-                        if (getSecondsLeftBeforeEndOfHHDay() <= getHHScriptVars("dailyRewardMaxRemainingTime") && getSecondsLeftBeforeEndOfHHDay() > 0)
+                        if (TimeHelper.getSecondsLeftBeforeEndOfHHDay() <= getHHScriptVars("dailyRewardMaxRemainingTime") && TimeHelper.getSecondsLeftBeforeEndOfHHDay() > 0)
                         {
                             LogUtils_logHHAuto("Force adding for collection chest n° "+currentTierNb);
                             buttonsToCollect.push(currentButton[0]);
@@ -4412,7 +4412,7 @@ class DailyGoals {
                 else
                 {
                     LogUtils_logHHAuto("No Daily Goals reward to collect.");
-                    setTimer('nextDailyGoalsCollectTime', getSecondsLeftBeforeEndOfHHDay() + randomInterval(3600, 4000));
+                    setTimer('nextDailyGoalsCollectTime', TimeHelper.getSecondsLeftBeforeEndOfHHDay() + randomInterval(3600, 4000));
                     gotoPage(getHHScriptVars("pagesIDHome"));
                     return false;
                 }
@@ -7178,7 +7178,7 @@ class LeagueHelper {
                 });
 
                 opponentsIDList.shift();
-                LeagueHelper.LeagueUpdateGetOpponentPopup(Object.keys(DataOppo).length+'/'+oppoNumber, toHHMMSS((oppoNumber-Object.keys(DataOppo).length)*maxTime));
+                LeagueHelper.LeagueUpdateGetOpponentPopup(Object.keys(DataOppo).length+'/'+oppoNumber, TimeHelper.toHHMMSS((oppoNumber-Object.keys(DataOppo).length)*maxTime));
                 setTimeout(getOpponents,randomInterval(800,maxTime*1000));
 
                 window.top.postMessage({ImAlive:true},'*');
@@ -13356,11 +13356,65 @@ function setHHVars(infoSearched,newValue)
 
 
 
+Date.prototype.stdTimezoneOffset = function () {
+    var jan = new Date(this.getFullYear(), 0, 1);
+    var jul = new Date(this.getFullYear(), 6, 1);
+    return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+}
+
+Date.prototype.isDstObserved = function () {
+    return this.getTimezoneOffset() < this.stdTimezoneOffset();
+}
+/*
+(new Date()).toLocaleString([], {
+    timeZone: 'Europe/Paris',
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+  })
+  */
+
 class TimeHelper {
+
+    static dSTOffset = -1;
+
+    static getEETDSTOffset()
+    {
+        if(TimeHelper.dSTOffset < 0) {
+            const today = new Date();
+
+            function getEuropeStdTimezoneOffset(today)
+            {
+                // KK is in Sofia
+                var jan = new Date(new Date(today.getFullYear(), 0, 1).toLocaleString('en-US', {timeZone:'Europe/Sofia'}));
+                var jul = new Date(new Date(today.getFullYear(), 6, 1).toLocaleString('en-US', {timeZone:'Europe/Sofia'}));
+                return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+            }
+
+            function isDstObserved(today)
+            {
+                return today.getTimezoneOffset() < getEuropeStdTimezoneOffset(today);
+            }
+        
+            if (isDstObserved(today))
+            {
+                TimeHelper.dSTOffset = 120; // Summer time
+            }
+            else
+            {
+                TimeHelper.dSTOffset = 60; // Winter time
+            }
+        }
+        return TimeHelper.dSTOffset;
+    }
 
     static getServerTS()
     {
         let sec_num = parseInt(getHHVars('server_now_ts'), 10);
+        sec_num += TimeHelper.getEETDSTOffset() * 60;
         let days = Math.floor(sec_num / 86400);
         let hours = Math.floor(sec_num / 3600) % 24;
         let minutes = Math.floor(sec_num / 60) % 60;
@@ -13372,47 +13426,48 @@ class TimeHelper {
     {
         let safeTime = StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_safeSecondsForContest") !== undefined ? Number(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_safeSecondsForContest")) : 120;
         if(isNaN(safeTime) || safeTime < 0) safeTime = 120;
-        return StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_waitforContest") !== "true" || getSecondsLeftBeforeNewCompetition() > (30*60 + safeTime) && getSecondsLeftBeforeNewCompetition() < (24*3600-safeTime);
+        return StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_waitforContest") !== "true" || TimeHelper.getSecondsLeftBeforeNewCompetition() > (30*60 + safeTime) && TimeHelper.getSecondsLeftBeforeNewCompetition() < (24*3600-safeTime);
     }
-}
 
-function TimeHelper_toHHMMSS(secs)  {
-    var sec_num = parseInt(secs, 10);
-    var days = Math.floor(sec_num / 86400);
-    var hours = Math.floor(sec_num / 3600) % 24;
-    var minutes = Math.floor(sec_num / 60) % 60;
-    var seconds = sec_num % 60;
-    var n=0;
-    return [days,hours,minutes,seconds]
-        .map(v => v < 10 ? "0" + v : v)
-        .filter((v,i) => {if (v !== "00"){n++; return true;} return n > 0})
-        .join(":");
-}
+    static toHHMMSS(secs)  {
+        var sec_num = parseInt(secs, 10);
+        var days = Math.floor(sec_num / 86400);
+        var hours = Math.floor(sec_num / 3600) % 24;
+        var minutes = Math.floor(sec_num / 60) % 60;
+        var seconds = sec_num % 60;
+        var n=0;
+        return [days,hours,minutes,seconds]
+            .map(v => v < 10 ? "0" + v : v)
+            .filter((v,i) => {if (v !== "00"){n++; return true;} return n > 0})
+            .join(":");
+    }
 
-function getSecondsLeftBeforeEndOfHHDay()
-{
-    let HHEndOfDay = {days:0,hours:12,minutes:0,seconds:0}; // TODO get dynamic timezone
-    let server_TS = TimeHelper.getServerTS();
-    HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?0:1;
-    let diffResetTime = (HHEndOfDay.days*86400 + HHEndOfDay.hours * 3600 + HHEndOfDay.minutes * 60) - (server_TS.hours * 3600 + server_TS.minutes * 60);
-    return diffResetTime;
-}
+    static getSecondsLeftBeforeEndOfHHDay()
+    {
+        let HHEndOfDay = {days:0,hours:13,minutes:0,seconds:0};
+        let server_TS = TimeHelper.getServerTS();
+        HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?0:1;
+        let diffResetTime = (HHEndOfDay.days*86400 + HHEndOfDay.hours * 3600 + HHEndOfDay.minutes * 60) - (server_TS.hours * 3600 + server_TS.minutes * 60);
+        return diffResetTime;
+    }
 
-function getSecondsLeftBeforeNewCompetition()
-{
-    let HHEndOfDay = {days:0,hours:12,minutes:30,seconds:0}; // TODO get dynamic timezone
-    let server_TS = TimeHelper.getServerTS();
-    HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?0:1;
-    let diffResetTime = (HHEndOfDay.days*86400 + HHEndOfDay.hours * 3600 + HHEndOfDay.minutes * 60) - (server_TS.hours * 3600 + server_TS.minutes * 60);
-    return diffResetTime;
-}
+    static getSecondsLeftBeforeNewCompetition()
+    {
+        let HHEndOfDay = {days:0,hours:13,minutes:30,seconds:0};
+        let server_TS = TimeHelper.getServerTS();
+        HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?0:1;
+        let diffResetTime = (HHEndOfDay.days*86400 + HHEndOfDay.hours * 3600 + HHEndOfDay.minutes * 60) - (server_TS.hours * 3600 + server_TS.minutes * 60);
+        return diffResetTime;
+    }
 
-function debugDate(sec_num){
-    let days = Math.floor(sec_num / 86400);
-    let hours = Math.floor(sec_num / 3600) % 24;
-    let minutes = Math.floor(sec_num / 60) % 60;
-    let seconds = sec_num % 60;
-    return JSON.stringify({days:days,hours:hours,minutes:minutes,seconds:seconds});
+    static debugDate(sec_num)
+    {
+        let days = Math.floor(sec_num / 86400);
+        let hours = Math.floor(sec_num / 3600) % 24;
+        let minutes = Math.floor(sec_num / 60) % 60;
+        let seconds = sec_num % 60;
+        return JSON.stringify({days:days,hours:hours,minutes:minutes,seconds:seconds});
+    }
 }
 
 function convertTimeToInt(remainingTimer){
@@ -13770,9 +13825,13 @@ class RewardHelper {
                     reward = 'avatar';
                 }
             }
-            else if (inSlot.className.indexOf('girl-shards-slot') >= 0)
+            else if (inSlot.className.indexOf('girl-shards-slot') >= 0 || inSlot.className.indexOf('slot_girl_shards') >= 0)
             {
                 reward = 'girl_shards';
+            }
+            else if (inSlot.className.indexOf('slot_random_girl') >= 0)
+            {
+                reward = 'girl_shards'; // Random girl shards
             }
             else if (inSlot.className.indexOf('mythic') >= 0)
             {
@@ -14142,7 +14201,7 @@ function setTimer(name, seconds)
     var ND=new Date().getTime() + seconds * 1000;
     Timers[name]=ND;
     StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_Timers", JSON.stringify(Timers));
-    LogUtils_logHHAuto(name+" set to "+TimeHelper_toHHMMSS(ND/1000-new Date().getTimezoneOffset()*60)+' ('+ TimeHelper_toHHMMSS(seconds)+')');
+    LogUtils_logHHAuto(name+" set to "+TimeHelper.toHHMMSS(ND/1000-new Date().getTimezoneOffset()*60)+' ('+ TimeHelper.toHHMMSS(seconds)+')');
 }
 
 
@@ -14216,7 +14275,7 @@ function getTimeLeft(name)
         }
         return "Time's up!";
     }
-    return TimeHelper_toHHMMSS(diff);
+    return TimeHelper.toHHMMSS(diff);
 }
 // EXTERNAL MODULE: ./src/Helper/WindowHelper.js
 var WindowHelper = __webpack_require__(620);

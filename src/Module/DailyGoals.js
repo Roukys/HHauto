@@ -1,9 +1,9 @@
 import {
     RewardHelper,
+    TimeHelper,
     checkTimer,
     getHHScriptVars,
     getPage,
-    getSecondsLeftBeforeEndOfHHDay,
     getStoredValue,
     randomInterval,
     setStoredValue,
@@ -82,7 +82,7 @@ export class DailyGoals {
                         const currentChest = $(".progress-bar-rewards-container", listDailyGoalsTiersToClaim[currentTier]);
                         const currentRewardsList = currentChest.length > 0 ? currentChest.data("rewards") : [];
                         //console.log("checking tier : "+currentTierNb);
-                        if (getSecondsLeftBeforeEndOfHHDay() <= getHHScriptVars("dailyRewardMaxRemainingTime") && getSecondsLeftBeforeEndOfHHDay() > 0)
+                        if (TimeHelper.getSecondsLeftBeforeEndOfHHDay() <= getHHScriptVars("dailyRewardMaxRemainingTime") && TimeHelper.getSecondsLeftBeforeEndOfHHDay() > 0)
                         {
                             logHHAuto("Force adding for collection chest n° "+currentTierNb);
                             buttonsToCollect.push(currentButton[0]);
@@ -135,7 +135,7 @@ export class DailyGoals {
                 else
                 {
                     logHHAuto("No Daily Goals reward to collect.");
-                    setTimer('nextDailyGoalsCollectTime', getSecondsLeftBeforeEndOfHHDay() + randomInterval(3600, 4000));
+                    setTimer('nextDailyGoalsCollectTime', TimeHelper.getSecondsLeftBeforeEndOfHHDay() + randomInterval(3600, 4000));
                     gotoPage(getHHScriptVars("pagesIDHome"));
                     return false;
                 }

@@ -1,5 +1,6 @@
 import {
     RewardHelper,
+    TimeHelper,
     calculateBattleProbabilities,
     calculateCritChanceShare,
     calculateDominationBonuses,
@@ -896,7 +897,7 @@ export class LeagueHelper {
                 });
 
                 opponentsIDList.shift();
-                LeagueHelper.LeagueUpdateGetOpponentPopup(Object.keys(DataOppo).length+'/'+oppoNumber, toHHMMSS((oppoNumber-Object.keys(DataOppo).length)*maxTime));
+                LeagueHelper.LeagueUpdateGetOpponentPopup(Object.keys(DataOppo).length+'/'+oppoNumber, TimeHelper.toHHMMSS((oppoNumber-Object.keys(DataOppo).length)*maxTime));
                 setTimeout(getOpponents,randomInterval(800,maxTime*1000));
 
                 window.top.postMessage({ImAlive:true},'*');
