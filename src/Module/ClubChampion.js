@@ -1,11 +1,11 @@
 import {
+    TimeHelper,
     getHHScriptVars,
     getHHVars,
     getPage,
     getStoredValue,
     randomInterval,
-    setTimer,
-    toHHMMSS
+    setTimer
 } from "../Helper";
 import { gotoPage } from "../Service";
 import { logHHAuto } from "../Utils";
@@ -26,12 +26,12 @@ export class ClubChampion {
             if ($(restTeamFilter).length > 0)
             {
                 SecsToNextTimer = Number($(restTeamFilter).attr("data-rest-timer"));
-                logHHAuto("Team is resting for : "+toHHMMSS(SecsToNextTimer));
+                logHHAuto("Team is resting for : "+TimeHelper.toHHMMSS(SecsToNextTimer));
             }
             else if ($(restChampionFilter).length > 0)
             {
                 SecsToNextTimer = Number($(restChampionFilter).attr("data-rest-timer"));
-                logHHAuto("Champion is resting for : "+toHHMMSS(SecsToNextTimer));
+                logHHAuto("Champion is resting for : "+TimeHelper.toHHMMSS(SecsToNextTimer));
             }
             else {
                 logHHAuto('No timer found');

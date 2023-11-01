@@ -1,12 +1,12 @@
 import {
     RewardHelper,
+    TimeHelper,
     checkTimer,
     convertTimeToInt,
     getHHScriptVars,
     getLimitTimeBeforeEnd,
     getPage,
     getSecondsLeft,
-    getSecondsLeftBeforeEndOfHHDay,
     getStoredValue,
     getTextForUI,
     randomInterval,
@@ -269,7 +269,7 @@ export class SeasonalEvent {
             if( topRank.length > 0) topRank.click();
             else if( eventRank.length > 0) eventRank.click();
 
-            setTimer('nextMegaEventRankCollectTime', getSecondsLeftBeforeEndOfHHDay()  + randomInterval(3600,4000));
+            setTimer('nextMegaEventRankCollectTime', TimeHelper.getSecondsLeftBeforeEndOfHHDay()  + randomInterval(3600,4000));
         }
         else if(unsafeWindow.seasonal_event_active || unsafeWindow.seasonal_time_remaining > 0)
         {

@@ -1,7 +1,7 @@
 import {
+    TimeHelper,
     getHHScriptVars,
     getPage,
-    getSecondsLeftBeforeNewCompetition,
     getStoredValue,
     randomInterval,
     setTimer
@@ -35,7 +35,7 @@ export class Contest {
                 }
             }
     
-            var time = getSecondsLeftBeforeNewCompetition() + randomInterval(30*60, 35*60); // 30 min after new compet
+            var time = TimeHelper.getSecondsLeftBeforeNewCompetition() + randomInterval(30*60, 35*60); // 30 min after new compet
             setTimer('nextContestTime',time);
             // Not busy
             return false;

@@ -1,7 +1,7 @@
 import { logHHAuto } from "../Utils";
 import { HHStoredVarPrefixKey } from "../config";
 import { setStoredValue } from "./StorageHelper";
-import { TimeHelper, toHHMMSS } from "./TimeHelper";
+import { TimeHelper } from "./TimeHelper";
 
 export let Timers = {};
 
@@ -10,7 +10,7 @@ export function setTimer(name, seconds)
     var ND=new Date().getTime() + seconds * 1000;
     Timers[name]=ND;
     setStoredValue(HHStoredVarPrefixKey+"Temp_Timers", JSON.stringify(Timers));
-    logHHAuto(name+" set to "+toHHMMSS(ND/1000-new Date().getTimezoneOffset()*60)+' ('+ toHHMMSS(seconds)+')');
+    logHHAuto(name+" set to "+TimeHelper.toHHMMSS(ND/1000-new Date().getTimezoneOffset()*60)+' ('+ TimeHelper.toHHMMSS(seconds)+')');
 }
 
 
@@ -84,5 +84,5 @@ export function getTimeLeft(name)
         }
         return "Time's up!";
     }
-    return toHHMMSS(diff);
+    return TimeHelper.toHHMMSS(diff);
 }

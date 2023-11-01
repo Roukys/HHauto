@@ -33,9 +33,13 @@ export class RewardHelper {
                     reward = 'avatar';
                 }
             }
-            else if (inSlot.className.indexOf('girl-shards-slot') >= 0)
+            else if (inSlot.className.indexOf('girl-shards-slot') >= 0 || inSlot.className.indexOf('slot_girl_shards') >= 0)
             {
                 reward = 'girl_shards';
+            }
+            else if (inSlot.className.indexOf('slot_random_girl') >= 0)
+            {
+                reward = 'girl_shards'; // Random girl shards
             }
             else if (inSlot.className.indexOf('mythic') >= 0)
             {

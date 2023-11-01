@@ -1,8 +1,8 @@
 import {
     RewardHelper,
+    TimeHelper,
     checkTimer,
     convertTimeToInt,
-    debugDate,
     getHHScriptVars,
     getLimitTimeBeforeEnd,
     getPage,
@@ -39,7 +39,7 @@ export class PathOfGlory {
         {
             PathOfGlory.getRemainingTime();
             const pogEnd = getSecondsLeft("PoGRemainingTime");
-            logHHAuto("PoG end in " + debugDate(pogEnd));
+            logHHAuto("PoG end in " + TimeHelper.debugDate(pogEnd));
 
             if (checkTimer('nextPoGCollectAllTime') && pogEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoGCollectAll") === "true")
             {

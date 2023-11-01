@@ -1,5 +1,6 @@
 import {
     RewardHelper,
+    TimeHelper,
     calculateBattleProbabilities,
     calculateCritChanceShare,
     calculateDominationBonuses,
@@ -7,7 +8,6 @@ import {
     calculateThemeFromElements,
     checkTimer,
     convertTimeToInt,
-    debugDate,
     getHHScriptVars,
     getHHVars,
     getHero,
@@ -439,7 +439,7 @@ export class Season {
         {
             Season.getRemainingTime();
             const seasonEnd = getSecondsLeft("SeasonRemainingTime");
-            logHHAuto("Season end in " + debugDate(seasonEnd));
+            logHHAuto("Season end in " + TimeHelper.debugDate(seasonEnd));
 
             if (checkTimer('nextSeasonCollectAllTime') && seasonEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonCollectAll") === "true")
             {

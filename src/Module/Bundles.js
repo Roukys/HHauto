@@ -1,8 +1,8 @@
 import {
     RewardHelper,
+    TimeHelper,
     getHHScriptVars,
     getPage,
-    getSecondsLeftBeforeEndOfHHDay,
     getStoredValue,
     randomInterval,
     setStoredValue,
@@ -97,7 +97,7 @@ export class Bundles {
                             }
                         }
                     }
-                    if(!freeBundleFound) collectFreeBundlesFinished("Free bundle collection finished.", getSecondsLeftBeforeEndOfHHDay() + randomInterval(3600, 4000));
+                    if(!freeBundleFound) collectFreeBundlesFinished("Free bundle collection finished.", TimeHelper.getSecondsLeftBeforeEndOfHHDay() + randomInterval(3600, 4000));
                 }
                 else
                 {
