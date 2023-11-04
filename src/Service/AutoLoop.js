@@ -827,9 +827,8 @@ export function autoLoop()
         {
             if (checkTimer("nextSalaryTime")) {
                 logHHAuto("Time to fetch salary.");
-                busy = true;
                 busy = HaremSalary.getSalary();
-                lastActionPerformed = "salary";
+                if(busy) lastActionPerformed = "salary";
             }
         }
 

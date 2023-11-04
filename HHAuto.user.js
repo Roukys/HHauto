@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.10.4
+// @version      6.10.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -9103,7 +9103,8 @@ HHEnvVariables["global"].possibleRewardsList = {'energy_kiss' : "Kisses",
                                                 'scrolls' : "Light Bulbs",
                                                 'mythic' : "Mythic Rquipment",
                                                 'avatar': "Avatar",
-                                                'ticket' : "Champions' tickets"};
+                                                'ticket' : "Champions' tickets",
+                                                'event_cash' : "Event cash"};
 
 HHEnvVariables["global"].trollzList =  ["Latest",
                                         "Dark Lord",
@@ -9420,7 +9421,8 @@ HHEnvVariables["HH_test"].isEnabledFreeBundles = false;// to remove if bundles a
                                           'The Mimic',
                                           'Cockatrice',
                                           'Pomelo',
-                                          'Alexa Sl\'Thor'];
+                                          'Alexa Sl\'Thor',
+                                          'D\'KLONG'];
 });
 ["CH_prod","NCH_prod"].forEach((element) => {
     HHEnvVariables[element].trollGirlsID = [
@@ -9432,6 +9434,7 @@ HHEnvVariables["HH_test"].isEnabledFreeBundles = false;// to remove if bundles a
         [['921365371', '942523553', '973271744'], [0], [0]],
         [['364639341', '879781833', '895546748'], [0], [0]],
         [['148877065', '218927643', '340369336'], [0], [0]],
+        [['258185125', '897951171', '971686222'], [0], [0]],
     ];
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
 });
@@ -13845,6 +13848,10 @@ class RewardHelper {
             {
                 reward = 'scrolls';
             }
+            else if (inSlot.className.indexOf('slot_seasonal_event_cash') >= 0)
+            {
+                reward = 'event_cash';
+            }
             else if (inSlot.getAttribute("data-d") !== null && $(inSlot).data("d"))
             {
                 let objectData = $(inSlot).data("d");
@@ -13903,6 +13910,7 @@ class RewardHelper {
             case 'xp' :
             case 'soft_currency' :
             case 'hard_currency' :
+            case 'event_cash' :
             case 'gift':
             case 'potion' :
             case 'booster' :
@@ -13984,6 +13992,7 @@ class RewardHelper {
                 case 'xp' :             html += '<div class="slot slot_xp size_xs"><span class="xp_icn"></span><div class="amount">'+nRounding(rewardCount,1,-1)+'</div></div>'; break;
                 case 'soft_currency' :  html += '<div class="slot slot_soft_currency size_xs"><span class="soft_currency_icn"></span><div class="amount">'+nRounding(rewardCount,1,-1)+'</div></div>'; break;
                 case 'hard_currency' :  html += '<div class="slot slot_hard_currency size_xs"><span class="hard_currency_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
+                case 'event_cash' :     html += '<div class="slot slot_seasonal_event_cash size_xs"><span class="mega_event_cash_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
                 // case 'gift':
                 // case 'potion' :
                 // case 'booster' :
@@ -16478,9 +16487,8 @@ function autoLoop()
         {
             if (checkTimer("nextSalaryTime")) {
                 LogUtils_logHHAuto("Time to fetch salary.");
-                busy = true;
                 busy = HaremSalary.getSalary();
-                lastActionPerformed = "salary";
+                if(busy) lastActionPerformed = "salary";
             }
         }
 
