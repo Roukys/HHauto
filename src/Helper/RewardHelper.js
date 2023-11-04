@@ -50,6 +50,10 @@ export class RewardHelper {
             {
                 reward = 'scrolls';
             }
+            else if (inSlot.className.indexOf('slot_seasonal_event_cash') >= 0)
+            {
+                reward = 'event_cash';
+            }
             else if (inSlot.getAttribute("data-d") !== null && $(inSlot).data("d"))
             {
                 let objectData = $(inSlot).data("d");
@@ -108,6 +112,7 @@ export class RewardHelper {
             case 'xp' :
             case 'soft_currency' :
             case 'hard_currency' :
+            case 'event_cash' :
             case 'gift':
             case 'potion' :
             case 'booster' :
@@ -189,6 +194,7 @@ export class RewardHelper {
                 case 'xp' :             html += '<div class="slot slot_xp size_xs"><span class="xp_icn"></span><div class="amount">'+nRounding(rewardCount,1,-1)+'</div></div>'; break;
                 case 'soft_currency' :  html += '<div class="slot slot_soft_currency size_xs"><span class="soft_currency_icn"></span><div class="amount">'+nRounding(rewardCount,1,-1)+'</div></div>'; break;
                 case 'hard_currency' :  html += '<div class="slot slot_hard_currency size_xs"><span class="hard_currency_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
+                case 'event_cash' :     html += '<div class="slot slot_seasonal_event_cash size_xs"><span class="mega_event_cash_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
                 // case 'gift':
                 // case 'potion' :
                 // case 'booster' :

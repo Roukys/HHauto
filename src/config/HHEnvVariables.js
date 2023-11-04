@@ -92,7 +92,8 @@ HHEnvVariables["global"].possibleRewardsList = {'energy_kiss' : "Kisses",
                                                 'scrolls' : "Light Bulbs",
                                                 'mythic' : "Mythic Rquipment",
                                                 'avatar': "Avatar",
-                                                'ticket' : "Champions' tickets"};
+                                                'ticket' : "Champions' tickets",
+                                                'event_cash' : "Event cash"};
 
 HHEnvVariables["global"].trollzList =  ["Latest",
                                         "Dark Lord",
@@ -409,7 +410,8 @@ HHEnvVariables["HH_test"].isEnabledFreeBundles = false;// to remove if bundles a
                                           'The Mimic',
                                           'Cockatrice',
                                           'Pomelo',
-                                          'Alexa Sl\'Thor'];
+                                          'Alexa Sl\'Thor',
+                                          'D\'KLONG'];
 });
 ["CH_prod","NCH_prod"].forEach((element) => {
     HHEnvVariables[element].trollGirlsID = [
@@ -421,6 +423,7 @@ HHEnvVariables["HH_test"].isEnabledFreeBundles = false;// to remove if bundles a
         [['921365371', '942523553', '973271744'], [0], [0]],
         [['364639341', '879781833', '895546748'], [0], [0]],
         [['148877065', '218927643', '340369336'], [0], [0]],
+        [['258185125', '897951171', '971686222'], [0], [0]],
     ];
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
 });
