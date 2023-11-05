@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.10.5
+// @version      6.10.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -6135,8 +6135,6 @@ class HaremSalary {
                 //collectedGirlzNb++;
                 //logHHAuto('will click again');
                 //console.log(new Date().getTime(),endCollectTS,new Date().getTime() < endCollectTS);
-    
-    
             }
             else
             {
@@ -6148,7 +6146,6 @@ class HaremSalary {
     
         function CollectData(inStart = false)
         {
-            let allCollected = true;
             let collectableGirlsList = [];
             const girlsList = Harem.getGirlMapSorted(getCurrentSorting(), false);
             if ( girlsList === null)
@@ -6161,7 +6158,6 @@ class HaremSalary {
     
             if (collectableGirlsList.length>0 )
             {
-                allCollected = false;
                 //console.log(JSON.stringify(collectableGirlsList));
                 for ( let girl of collectableGirlsList)
                 {
@@ -6173,7 +6169,7 @@ class HaremSalary {
             {
                 setTimeout(ClickThem,randomInterval(500,1500));
             }
-            else//nothing to collect
+            else//nothing to collect or time spent already
             {
                 let salaryTimer = HaremSalary.predictNextSalaryMinTime();
                 if (salaryTimer > 0)
@@ -6234,13 +6230,13 @@ class HaremSalary {
     
     static getSalary() {
         try {
-            if(getPage() == getHHScriptVars("pagesIDHarem") || getPage() === getHHScriptVars("pagesIDHome"))
+            if(getPage() === getHHScriptVars("pagesIDHarem") || getPage() === getHHScriptVars("pagesIDHome"))
             {
                 const salaryButton = $("#collect_all_container button[id='collect_all']")
                 const salaryToCollect = !(salaryButton.prop('disabled') || salaryButton.attr("style")==="display: none;");
                 const getButtonClass = salaryButton.attr("class");
                 let salarySumTag = NaN;
-                if (getPage() == getHHScriptVars("pagesIDHarem"))
+                if (getPage() === getHHScriptVars("pagesIDHarem"))
                 {
                     salarySumTag = Number($('[rel="next_salary"]',salaryButton)[0].innerText.replace(/[^0-9]/gi, ''));
                 }
@@ -6258,23 +6254,17 @@ class HaremSalary {
                         //replaceCheatClick();
                         salaryButton.click();
                         LogUtils_logHHAuto('Collected all Premium salary');
-                        if (getPage() == getHHScriptVars("pagesIDHarem") )
+                        if (getPage() === getHHScriptVars("pagesIDHarem") )
                         {
                             const nexstSalaryTime = HaremSalary.predictNextSalaryMinTime();
                             setTimer('nextSalaryTime', randomInterval(nexstSalaryTime, 180 + nexstSalaryTime));
-                            return false;
                         }
-                        else
-                        {
-                            gotoPage(getHHScriptVars("pagesIDHome"));
-                            return true;
-                        }
-    
+                        return false;
                     }
                     else if ( getButtonClass.indexOf("orange_button_L") !== -1 )
                     {
                         // Not at Harem screen then goto the Harem screen.
-                        if (getPage() == getHHScriptVars("pagesIDHarem") )
+                        if (getPage() === getHHScriptVars("pagesIDHarem") )
                         {
                             LogUtils_logHHAuto("Detected Harem Screen. Fetching Salary");
                             //replaceCheatClick();
@@ -6309,20 +6299,22 @@ class HaremSalary {
             }
             else
             {
-                // Not at Harem screen then goto the Harem screen.
+                // Not at Harem screen then goto the Harem screen nor home page.
                 if (checkTimer('nextSalaryTime'))
                 {
-                    LogUtils_logHHAuto("Navigating to Home window.");
-                    gotoPage(getHHScriptVars("pagesIDHome"));
+                    LogUtils_logHHAuto("Navigating to Harem page");
+                    gotoPage(getHHScriptVars("pagesIDHarem"));
                     return true;
                 }
             }
         }
         catch (ex) {
             LogUtils_logHHAuto("Catched error : Could not collect salary... " + ex);
+            setTimer('nextSalaryTime', randomInterval(3600, 4200));
             // return not busy
             return false;
         }
+        return false;
     }
 }
 ;// CONCATENATED MODULE: ./src/Module/League.js
@@ -11396,7 +11388,7 @@ const HHAuto_inputPattern = {
     autoTrollThreshold:"[1]?[0-9]",
     autoTrollRunThreshold:"(20|[1]?[0-9])",
     eventTrollOrder:"([1-2][0-9]|[1-9])(;([1-2][0-9]|[1-9]))*",
-    autoBuyTrollNumber:"1[0-9][0-9]|[1-9]?[0-9]",//"200|1[0-9][0-9]|[1-9]?[0-9]", // TODO revert in NOV23
+    autoBuyTrollNumber:"200|1[0-9][0-9]|[1-9]?[0-9]",
     autoSeasonThreshold:"[0-9]",
     autoSeasonRunThreshold:"10|[0-9]",
     autoPantheonThreshold:"[0-9]",
@@ -12320,15 +12312,6 @@ function migrateHHVars()
             localStorage.removeItem(oldVar);
         }
     }*/
-
-    // TODO to be deleted in NOV23
-    if (StorageHelper_getStoredValue("HHAuto_Setting_autoBuyTrollNumber") == "200") {
-        StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoBuyTrollNumber", "20");
-    }
-    // TODO to be deleted in NOV23
-    if (StorageHelper_getStoredValue("HHAuto_Setting_autoBuyMythicTrollNumber") == "200") {
-        StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoBuyMythicTrollNumber", "20");
-    }
 
     if(HHStoredVars_HHStoredVarPrefixKey !== 'HHAuto_' && haveHHAutoSettings()) {
         // Migrate from default to custom keys
@@ -16488,7 +16471,7 @@ function autoLoop()
             if (checkTimer("nextSalaryTime")) {
                 LogUtils_logHHAuto("Time to fetch salary.");
                 busy = HaremSalary.getSalary();
-                if(busy) lastActionPerformed = "salary";
+                // if(busy) lastActionPerformed = "salary"; // Removed from continuous actions for now
             }
         }
 

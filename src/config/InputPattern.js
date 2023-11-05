@@ -18,7 +18,7 @@ export const HHAuto_inputPattern = {
     autoTrollThreshold:"[1]?[0-9]",
     autoTrollRunThreshold:"(20|[1]?[0-9])",
     eventTrollOrder:"([1-2][0-9]|[1-9])(;([1-2][0-9]|[1-9]))*",
-    autoBuyTrollNumber:"1[0-9][0-9]|[1-9]?[0-9]",//"200|1[0-9][0-9]|[1-9]?[0-9]", // TODO revert in NOV23
+    autoBuyTrollNumber:"200|1[0-9][0-9]|[1-9]?[0-9]",
     autoSeasonThreshold:"[0-9]",
     autoSeasonRunThreshold:"10|[0-9]",
     autoPantheonThreshold:"[0-9]",
