@@ -126,15 +126,6 @@ export function migrateHHVars()
         }
     }*/
 
-    // TODO to be deleted in NOV23
-    if (getStoredValue("HHAuto_Setting_autoBuyTrollNumber") == "200") {
-        setStoredValue(HHStoredVarPrefixKey+"Setting_autoBuyTrollNumber", "20");
-    }
-    // TODO to be deleted in NOV23
-    if (getStoredValue("HHAuto_Setting_autoBuyMythicTrollNumber") == "200") {
-        setStoredValue(HHStoredVarPrefixKey+"Setting_autoBuyMythicTrollNumber", "20");
-    }
-
     if(HHStoredVarPrefixKey !== 'HHAuto_' && haveHHAutoSettings()) {
         // Migrate from default to custom keys
         for (const newKey of Object.keys(HHStoredVars))

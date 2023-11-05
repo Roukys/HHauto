@@ -112,8 +112,6 @@ export class HaremSalary {
                 //collectedGirlzNb++;
                 //logHHAuto('will click again');
                 //console.log(new Date().getTime(),endCollectTS,new Date().getTime() < endCollectTS);
-    
-    
             }
             else
             {
@@ -125,7 +123,6 @@ export class HaremSalary {
     
         function CollectData(inStart = false)
         {
-            let allCollected = true;
             let collectableGirlsList = [];
             const girlsList = Harem.getGirlMapSorted(getCurrentSorting(), false);
             if ( girlsList === null)
@@ -138,7 +135,6 @@ export class HaremSalary {
     
             if (collectableGirlsList.length>0 )
             {
-                allCollected = false;
                 //console.log(JSON.stringify(collectableGirlsList));
                 for ( let girl of collectableGirlsList)
                 {
@@ -150,7 +146,7 @@ export class HaremSalary {
             {
                 setTimeout(ClickThem,randomInterval(500,1500));
             }
-            else//nothing to collect
+            else//nothing to collect or time spent already
             {
                 let salaryTimer = HaremSalary.predictNextSalaryMinTime();
                 if (salaryTimer > 0)
@@ -211,13 +207,13 @@ export class HaremSalary {
     
     static getSalary() {
         try {
-            if(getPage() == getHHScriptVars("pagesIDHarem") || getPage() === getHHScriptVars("pagesIDHome"))
+            if(getPage() === getHHScriptVars("pagesIDHarem") || getPage() === getHHScriptVars("pagesIDHome"))
             {
                 const salaryButton = $("#collect_all_container button[id='collect_all']")
                 const salaryToCollect = !(salaryButton.prop('disabled') || salaryButton.attr("style")==="display: none;");
                 const getButtonClass = salaryButton.attr("class");
                 let salarySumTag = NaN;
-                if (getPage() == getHHScriptVars("pagesIDHarem"))
+                if (getPage() === getHHScriptVars("pagesIDHarem"))
                 {
                     salarySumTag = Number($('[rel="next_salary"]',salaryButton)[0].innerText.replace(/[^0-9]/gi, ''));
                 }
@@ -235,23 +231,17 @@ export class HaremSalary {
                         //replaceCheatClick();
                         salaryButton.click();
                         logHHAuto('Collected all Premium salary');
-                        if (getPage() == getHHScriptVars("pagesIDHarem") )
+                        if (getPage() === getHHScriptVars("pagesIDHarem") )
                         {
                             const nexstSalaryTime = HaremSalary.predictNextSalaryMinTime();
                             setTimer('nextSalaryTime', randomInterval(nexstSalaryTime, 180 + nexstSalaryTime));
-                            return false;
                         }
-                        else
-                        {
-                            gotoPage(getHHScriptVars("pagesIDHome"));
-                            return true;
-                        }
-    
+                        return false;
                     }
                     else if ( getButtonClass.indexOf("orange_button_L") !== -1 )
                     {
                         // Not at Harem screen then goto the Harem screen.
-                        if (getPage() == getHHScriptVars("pagesIDHarem") )
+                        if (getPage() === getHHScriptVars("pagesIDHarem") )
                         {
                             logHHAuto("Detected Harem Screen. Fetching Salary");
                             //replaceCheatClick();
@@ -286,19 +276,21 @@ export class HaremSalary {
             }
             else
             {
-                // Not at Harem screen then goto the Harem screen.
+                // Not at Harem screen then goto the Harem screen nor home page.
                 if (checkTimer('nextSalaryTime'))
                 {
-                    logHHAuto("Navigating to Home window.");
-                    gotoPage(getHHScriptVars("pagesIDHome"));
+                    logHHAuto("Navigating to Harem page");
+                    gotoPage(getHHScriptVars("pagesIDHarem"));
                     return true;
                 }
             }
         }
         catch (ex) {
             logHHAuto("Catched error : Could not collect salary... " + ex);
+            setTimer('nextSalaryTime', randomInterval(3600, 4200));
             // return not busy
             return false;
         }
+        return false;
     }
 }
