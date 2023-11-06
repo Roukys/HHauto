@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.10.6
+// @version      6.11.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -323,6 +323,9 @@ HHAuto_ToolTips.en.equipementWeapon = { version: "5.6.24", elementText: "Weapon"
 HHAuto_ToolTips.en.equipementCaracs = { version: "5.6.24", elementText: "Caracs", tooltip: ""};
 HHAuto_ToolTips.en.equipementType = { version: "5.6.24", elementText: "Type", tooltip: ""};
 HHAuto_ToolTips.en.autoMissionKFirst = { version: "5.6.24", elementText: "Kobans first", tooltip: "Start by missions rewarded with Kobans."};
+HHAuto_ToolTips.en.affection = { version: "6.11.0", elementText: "Affection"};
+HHAuto_ToolTips.en.experience = { version: "6.11.0", elementText: "Experience"};
+HHAuto_ToolTips.en.upradable = { version: "6.11.0", elementText: "Upradable"};
 HHAuto_ToolTips.en.giveexperience = { version: "6.2.0", elementText: "Give experience", tooltip: "Automatically give max current range Exp to selected girl."};
 HHAuto_ToolTips.en.giveaffection = { version: "6.2.0", elementText: "Give Affection", tooltip: "Automatically give max current range affection to selected girl."};
 HHAuto_ToolTips.en.giveAllaffection = { version: "6.2.0", elementText: "Give All Affection", tooltip: "Automatically give all affection to selected girl."};
@@ -430,7 +433,8 @@ HHAuto_ToolTips.en.HaremSortMenuSortBy = {version: "5.6.56", elementText: "Sort 
 HHAuto_ToolTips.en.HaremSortMenuSortReverse = {version: "5.6.56", elementText: "Reverse", tooltip: ""};
 HHAuto_ToolTips.en.haremGiveXP = {version: "6.2.0", elementText: "Fill current XP of filtered girls", tooltip: "Use max out button XP on current level for filtered girls"};
 HHAuto_ToolTips.en.haremGiveGifts = {version: "6.2.0", elementText: "Fill current affection of filtered girls", tooltip: "Use max out button affection on current level for filtered girls"};
-HHAuto_ToolTips.en.haremGiveMaxGifts = {version: "6.2.0", elementText: "Fill all affection of filtered girls", tooltip: "Give all affection for filtered girls, pay for necessary grades"};
+HHAuto_ToolTips.en.haremGiveMaxGifts = {version: "6.11.0", elementText: "Fill all affection of filtered girls", tooltip: "Give all affection for filtered girls, pay for necessary grades<br/>Not pay last grade"};
+HHAuto_ToolTips.en.haremUpgradeMax = {version: "6.11.0", elementText: "Full upgrade of filtered girls", tooltip: "Perform all upgrades for filtered girls (including last one), give necessary affections"};
 HHAuto_ToolTips.en.haremGirlGiveXP = {version: "5.30.0", elementText: "Give XP to girl", tooltip: "Open submenu to give xp to girl"};
 HHAuto_ToolTips.en.haremGirlGiveGifts = {version: "5.30.0", elementText: "Give Gifts to girl", tooltip: ""};
 HHAuto_ToolTips.en.haremGirlGiveMaxGifts = {version: "6.2.0", elementText: "Give max Gifts to girl", tooltip: "Use max out button to reach max grade, pay for necessary grades<br> Don't pay the last one"};
@@ -4580,6 +4584,7 @@ class HaremGirl {
         const haremItem = HaremGirl.AFFECTION_TYPE;
         const selectedGirl = unsafeWindow.girl;
         HaremGirl.switchTabs(haremItem);
+        const haremGirlPayLast = StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_haremGirlPayLast") == 'true';
         const canGiftGirl = selectedGirl.nb_grades > selectedGirl.graded;
         const lastGirlGrad = selectedGirl.nb_grades <= (selectedGirl.graded+1);
         const maxOutButton = HaremGirl.getMaxOutButton(haremItem);
@@ -4590,7 +4595,7 @@ class HaremGirl {
                 HaremGirl.maxOutButtonAndConfirm(haremItem, selectedGirl);
             }
             
-            if(!lastGirlGrad) {
+            if(!lastGirlGrad || haremGirlPayLast) {
                 setTimeout(function() {
                     HaremGirl.goToGirlQuest(selectedGirl);
                 }, randomInterval(1500,2000));
@@ -4627,17 +4632,25 @@ class HaremGirl {
             const menuIDXpButton = createMenuButton(menuIDXp);
             const menuIDGiftsButton = createMenuButton(menuIDGifts);
             const menuIDMaxGiftsButton = createMenuButton(menuIDMaxGifts, !canGiftGirl);
+            const imgPath = getHHScriptVars("baseImgPath");
 
             
-            const girlListMenu = '<div style="padding:50px; display:flex;flex-direction:column">'
-            +    '<p id="HaremSortMenuSortText">'+getTextForUI("girlMenu","elementText")+'</p>'
-            +    '<div>'
-            +     '<div style="padding:10px">'+menuIDXpButton+'</div>'
-            //+     '<div style="padding:10px">'+menuIDGiftsButton+'</div>'
-            +     '<div style="padding:10px">'+menuIDMaxGiftsButton+'</div>'
+            const girlMenu = '<div style="padding:50px; display:flex;flex-direction:column">'
+            //+    '<p id="HaremGirlMenuText">'+getTextForUI("girlMenu","elementText")+'</p>'
+            +    '<div class="optionsBoxWithTitle">'
+            +       '<div class="optionsBoxTitle"><img class="iconImg" src="'+imgPath+'/design/ic_books_gray.svg"><span class="optionsBoxTitle">'+getTextForUI("experience","elementText")+'</span></div>'
+            +       '<div class="optionsBox">'
+            +         '<div style="padding:10px">'+menuIDXpButton+'</div>'
+            +       '</div>'
             +    '</div>'
-            +  '</div>'
-            fillHHPopUp("GirlListMenu",getTextForUI("girlListMenu","elementText"), girlListMenu);
+            +    '<div class="optionsBoxWithTitle">'
+            +       '<div class="optionsBoxTitle"><img class="iconImg" src="'+imgPath+'/design/ic_gifts_gray.svg"><span class="optionsBoxTitle">'+getTextForUI("affection","elementText")+'</span></div>'
+            +       '<div class="optionsBox">'
+            //+       '<div style="padding:10px">'+menuIDGiftsButton+'</div>'
+            +         '<div style="padding:10px">'+menuIDMaxGiftsButton+'</div>'
+            +       '</div>'
+            +    '</div>'
+            fillHHPopUp("GirlMenu",getTextForUI("girlMenu","elementText"), girlMenu);
             document.getElementById(menuIDXp+'Button').addEventListener("click", function()
             {
                 maskHHPopUp();
@@ -4880,10 +4893,11 @@ class Harem {
     static clearHaremToolVariables()
     {
         // logHHAuto('clearHaremToolVariables');
-        deleteStoredValue("HHAuto_Temp_haremGirlActions");
-        deleteStoredValue("HHAuto_Temp_haremGirlMode");
-        deleteStoredValue("HHAuto_Temp_haremGirlEnd");
-        deleteStoredValue("HHAuto_Temp_haremGirlLimit");
+        deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlActions");
+        deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlMode");
+        deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlEnd");
+        deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlPayLast");
+        deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlLimit");
     }
 
     static getGirlMapSorted(inSortType = "DateAcquired",inSortReversed = true )
@@ -5253,7 +5267,7 @@ class Harem {
         Harem.addGirlListMenu();
     }
 
-    static fillCurrentGirlItem(haremItem){
+    static fillCurrentGirlItem(haremItem, payLast=false){
         let filteredGirlsList = Harem.getFilteredGirlList();
         const displayedGirl = $('#harem_right .opened').attr('girl'); // unsafeWindow.harem.preselectedGirlId
 
@@ -5269,6 +5283,7 @@ class Harem {
         }
         StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_haremGirlActions", haremItem);
         StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_haremGirlMode", 'list');
+        if (payLast) StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_haremGirlPayLast", 'true');
         StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_filteredGirlsList", JSON.stringify(filteredGirlsList));
     };
 
@@ -5304,7 +5319,7 @@ class Harem {
         var createMenuButton = function(menuId, disabled=false){
             return '<div class="tooltipHH">'
             +    '<span class="tooltipHHtext">'+getTextForUI(menuId,"tooltip")+'</span>'
-            +    '<label style="width:200px;font-size: initial;" class="myButton" '+(disabled?'disabled="disabled"':'')+' id="'+menuId+'Button">'+getTextForUI(menuId,"elementText")
+            +    '<label style="font-size: initial;" class="myButton" '+(disabled?'disabled="disabled"':'')+' id="'+menuId+'Button">'+getTextForUI(menuId,"elementText")
             +'</label></div>';
         }
         
@@ -5315,29 +5330,50 @@ class Harem {
             const menuIDXp = "haremGiveXP";
             const menuIDGifts = "haremGiveGifts";
             const menuIDMaxGifts = "haremGiveMaxGifts";
+            const menuIDUpgradeMax = "haremUpgradeMax";
             const menuNextUpgrad = "haremNextUpgradableGirl";
 
             const menuIDXpButton = createMenuButton(menuIDXp);
             const menuIDGiftsButton = createMenuButton(menuIDGifts);
             const menuIDMaxGiftsButton = createMenuButton(menuIDMaxGifts);
+            const menuIDUpgradeMaxButton = createMenuButton(menuIDUpgradeMax);
             const menuNextUpgradButton = createMenuButton(menuNextUpgrad);
+            const imgPath = getHHScriptVars("baseImgPath");
 
             
-            const girlListMenu = '<div style="padding:50px; display:flex;flex-direction:column">'
-            +    '<p id="HaremSortMenuSortText">'+getTextForUI("girlListMenu","elementText")+'</p>'
-            +    '<div>'
-            +     '<div style="padding:10px">'+menuIDXpButton+'</div>'
-            +     '<div style="padding:10px">'+menuIDGiftsButton+'</div>'
-            +     '<div style="padding:10px">'+menuIDMaxGiftsButton+'</div>'
-            +     '<div style="padding:10px">'+menuNextUpgradButton+'</div>'
+            const girlListMenu = '<div style="padding:50px; display:flex;flex-direction:column;width:400px">'
+            // +    '<p id="HaremGirlListMenuText">'+getTextForUI("girlListMenu","elementText")+'</p>'
+            +    '<div class="optionsBoxWithTitle">'
+            +       '<div class="optionsBoxTitle"><img class="iconImg" src="'+imgPath+'/design/ic_books_gray.svg"><span class="optionsBoxTitle">'+getTextForUI("experience","elementText")+'</span></div>'
+            +       '<div class="optionsBox">'
+            +         '<div style="padding:10px">'+menuIDXpButton+'</div>'
+            +       '</div>'
             +    '</div>'
-            +  '</div>'
+            +    '<div class="optionsBoxWithTitle">'
+            +       '<div class="optionsBoxTitle"><img class="iconImg" src="'+imgPath+'/design/ic_gifts_gray.svg"><span class="optionsBoxTitle">'+getTextForUI("affection","elementText")+'</span></div>'
+            +       '<div class="optionsBox">'
+            +         '<div style="padding:10px">'+menuIDGiftsButton+'</div>'
+            +         '<div style="padding:10px">'+menuIDMaxGiftsButton+'</div>'
+            +         '<div style="padding:10px">'+menuIDUpgradeMaxButton+'</div>'
+            +       '</div>'
+            +    '</div>'
+            +    '<div class="optionsBoxWithTitle">'
+            +       '<div class="optionsBoxTitle"><img class="iconImg" src="'+imgPath+'/design_v2/affstar_upgrade.png"><span class="optionsBoxTitle">'+getTextForUI("upradable","elementText")+'</span></div>'
+            +       '<div class="optionsBox">'
+            +         '<div style="padding:10px">'+menuNextUpgradButton+'</div>'
+            +       '</div>'
+            +    '</div>'
+            +  '</div>';
             fillHHPopUp("GirlListMenu",getTextForUI("girlListMenu","elementText"), girlListMenu);
             document.getElementById(menuIDXp+'Button').addEventListener("click", function() { Harem.fillCurrentGirlItem('experience');});
             document.getElementById(menuIDGifts+'Button').addEventListener("click", function() { Harem.fillCurrentGirlItem('affection');});
             document.getElementById(menuIDMaxGifts+'Button').addEventListener("click", function() {
                 StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_haremGirlEnd", 'true');
                 Harem.fillCurrentGirlItem('affection');
+            });
+            document.getElementById(menuIDUpgradeMax+'Button').addEventListener("click", function() {
+                StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_haremGirlEnd", 'true');
+                Harem.fillCurrentGirlItem('affection', true);
             });
             document.getElementById(menuNextUpgrad+'Button').addEventListener("click", function() { 
                 maskHHPopUp();
@@ -11147,6 +11183,11 @@ HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Temp_haremGirlActio
     HHType:"Temp"
 };
 HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Temp_haremGirlMode"] =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Temp_haremGirlPayLast"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"

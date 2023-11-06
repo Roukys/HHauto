@@ -1638,6 +1638,11 @@ HHStoredVars[HHStoredVarPrefixKey+"Temp_haremGirlMode"] =
     storage:"sessionStorage",
     HHType:"Temp"
 };
+HHStoredVars[HHStoredVarPrefixKey+"Temp_haremGirlPayLast"] =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
 HHStoredVars[HHStoredVarPrefixKey+"Temp_haremGirlEnd"] =
     {
     storage:"sessionStorage",

@@ -157,6 +157,7 @@ export class HaremGirl {
         const haremItem = HaremGirl.AFFECTION_TYPE;
         const selectedGirl = unsafeWindow.girl;
         HaremGirl.switchTabs(haremItem);
+        const haremGirlPayLast = getStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlPayLast") == 'true';
         const canGiftGirl = selectedGirl.nb_grades > selectedGirl.graded;
         const lastGirlGrad = selectedGirl.nb_grades <= (selectedGirl.graded+1);
         const maxOutButton = HaremGirl.getMaxOutButton(haremItem);
@@ -167,7 +168,7 @@ export class HaremGirl {
                 HaremGirl.maxOutButtonAndConfirm(haremItem, selectedGirl);
             }
             
-            if(!lastGirlGrad) {
+            if(!lastGirlGrad || haremGirlPayLast) {
                 setTimeout(function() {
                     HaremGirl.goToGirlQuest(selectedGirl);
                 }, randomInterval(1500,2000));
@@ -204,17 +205,25 @@ export class HaremGirl {
             const menuIDXpButton = createMenuButton(menuIDXp);
             const menuIDGiftsButton = createMenuButton(menuIDGifts);
             const menuIDMaxGiftsButton = createMenuButton(menuIDMaxGifts, !canGiftGirl);
+            const imgPath = getHHScriptVars("baseImgPath");
 
             
-            const girlListMenu = '<div style="padding:50px; display:flex;flex-direction:column">'
-            +    '<p id="HaremSortMenuSortText">'+getTextForUI("girlMenu","elementText")+'</p>'
-            +    '<div>'
-            +     '<div style="padding:10px">'+menuIDXpButton+'</div>'
-            //+     '<div style="padding:10px">'+menuIDGiftsButton+'</div>'
-            +     '<div style="padding:10px">'+menuIDMaxGiftsButton+'</div>'
+            const girlMenu = '<div style="padding:50px; display:flex;flex-direction:column">'
+            //+    '<p id="HaremGirlMenuText">'+getTextForUI("girlMenu","elementText")+'</p>'
+            +    '<div class="optionsBoxWithTitle">'
+            +       '<div class="optionsBoxTitle"><img class="iconImg" src="'+imgPath+'/design/ic_books_gray.svg"><span class="optionsBoxTitle">'+getTextForUI("experience","elementText")+'</span></div>'
+            +       '<div class="optionsBox">'
+            +         '<div style="padding:10px">'+menuIDXpButton+'</div>'
+            +       '</div>'
             +    '</div>'
-            +  '</div>'
-            fillHHPopUp("GirlListMenu",getTextForUI("girlListMenu","elementText"), girlListMenu);
+            +    '<div class="optionsBoxWithTitle">'
+            +       '<div class="optionsBoxTitle"><img class="iconImg" src="'+imgPath+'/design/ic_gifts_gray.svg"><span class="optionsBoxTitle">'+getTextForUI("affection","elementText")+'</span></div>'
+            +       '<div class="optionsBox">'
+            //+       '<div style="padding:10px">'+menuIDGiftsButton+'</div>'
+            +         '<div style="padding:10px">'+menuIDMaxGiftsButton+'</div>'
+            +       '</div>'
+            +    '</div>'
+            fillHHPopUp("GirlMenu",getTextForUI("girlMenu","elementText"), girlMenu);
             document.getElementById(menuIDXp+'Button').addEventListener("click", function()
             {
                 maskHHPopUp();
