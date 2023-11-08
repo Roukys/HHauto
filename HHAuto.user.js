@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.11.0
+// @version      6.12.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -9504,7 +9504,6 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
                                           'Sierra Sinn',
                                           'Jasmine Jae'];
     HHEnvVariables[element].trollIdMapping =  {10:9,14:11,16:12}; // under 10 id as usual
-    HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in pornstar
     HHEnvVariables[element].lastQuestId = 16030; //  TODO update when new quest comes
 });
 ["PH_prod","NPH_prod"].forEach((element) => {
