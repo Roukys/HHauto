@@ -465,7 +465,6 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
                                           'Sierra Sinn',
                                           'Jasmine Jae'];
     HHEnvVariables[element].trollIdMapping =  {10:9,14:11,16:12}; // under 10 id as usual
-    HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in pornstar
     HHEnvVariables[element].lastQuestId = 16030; //  TODO update when new quest comes
 });
 ["PH_prod","NPH_prod"].forEach((element) => {
