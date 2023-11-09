@@ -92,7 +92,12 @@ export class QuestHelper {
             logHHAuto("Could not find resume button.");
             return;
         }
-        else if (proceedType === "free") {
+        else if(proceedButtonMatch.attr('disabled') && proceedType != "end_play") {
+            logHHAuto("Button is disabled for animation wait a bit.");
+            return;
+        }
+        
+        if (proceedType === "free") {
             logHHAuto("Proceeding for free.");
             //setStoredValue"HHAuto_Temp_autoLoop", "false");
             //logHHAuto("setting autoloop to false");

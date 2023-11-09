@@ -350,10 +350,11 @@ export class PlaceOfPower {
                         });
 
                         //Debug can be enabled by manually setting "HHAuto_Temp_Debug" to true in browser console
-                        const debugEnabled = Boolean(getStoredValue(HHStoredVarPrefixKey+"Temp_Debug")!==undefined?(getStoredValue(HHStoredVarPrefixKey+"Temp_Debug")===true?true:false):false);
+                        const debugEnabled = getStoredValue(HHStoredVarPrefixKey+"Temp_Debug")==='true';
                         let startTime = 0;
                         if (debugEnabled) {
                             logHHAuto("PoP debug is enabled");
+                            logHHAuto("PoP power needed:" + powerText);
                             startTime = performance.now();
                         }
 
@@ -386,6 +387,14 @@ export class PlaceOfPower {
                         if (debugEnabled) {
                             const endTime = performance.now();
                             logHHAuto("PoP precision: calculating this team took "+ (endTime-startTime) +"ms");
+                            logHHAuto("PoP availGirls:" + JSON.stringify(availGirls));
+                            let teamPower = 0;
+                            chosenTeam.forEach((girl) => {
+                                teamPower += girl.power;
+                            });
+                            logHHAuto("PoP teamPower:" + teamPower);
+                            logHHAuto("PoP teamScore:" + teamScore);
+                            logHHAuto("PoP chosenTeam:" + JSON.stringify(chosenTeam));
                         }
 
                         availGirls.forEach(availGirl => {

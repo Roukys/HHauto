@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.12.1
+// @version      6.12.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3513,7 +3513,12 @@ class QuestHelper {
             LogUtils_logHHAuto("Could not find resume button.");
             return;
         }
-        else if (proceedType === "free") {
+        else if(proceedButtonMatch.attr('disabled') && proceedType != "end_play") {
+            LogUtils_logHHAuto("Button is disabled for animation wait a bit.");
+            return;
+        }
+        
+        if (proceedType === "free") {
             LogUtils_logHHAuto("Proceeding for free.");
             //setStoredValue"HHAuto_Temp_autoLoop", "false");
             //logHHAuto("setting autoloop to false");
@@ -4901,6 +4906,7 @@ class HaremGirl {
         }
     }
 }
+
 ;// CONCATENATED MODULE: ./src/Module/Harem.js
 
 
@@ -8743,10 +8749,11 @@ class PlaceOfPower {
                         });
 
                         //Debug can be enabled by manually setting "HHAuto_Temp_Debug" to true in browser console
-                        const debugEnabled = Boolean(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_Debug")!==undefined?(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_Debug")===true?true:false):false);
+                        const debugEnabled = StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_Debug")==='true';
                         let startTime = 0;
                         if (debugEnabled) {
                             LogUtils_logHHAuto("PoP debug is enabled");
+                            LogUtils_logHHAuto("PoP power needed:" + powerText);
                             startTime = performance.now();
                         }
 
@@ -8779,6 +8786,14 @@ class PlaceOfPower {
                         if (debugEnabled) {
                             const endTime = performance.now();
                             LogUtils_logHHAuto("PoP precision: calculating this team took "+ (endTime-startTime) +"ms");
+                            LogUtils_logHHAuto("PoP availGirls:" + JSON.stringify(availGirls));
+                            let teamPower = 0;
+                            chosenTeam.forEach((girl) => {
+                                teamPower += girl.power;
+                            });
+                            LogUtils_logHHAuto("PoP teamPower:" + teamPower);
+                            LogUtils_logHHAuto("PoP teamScore:" + teamScore);
+                            LogUtils_logHHAuto("PoP chosenTeam:" + JSON.stringify(chosenTeam));
                         }
 
                         availGirls.forEach(availGirl => {
