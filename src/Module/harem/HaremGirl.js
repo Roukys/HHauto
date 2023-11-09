@@ -34,16 +34,22 @@ export class HaremGirl {
     }
 
     static maxOutButtonAndConfirm(haremItem, girl) {
-        const maxOutButton = HaremGirl.getMaxOutButton(haremItem);
-        if(maxOutButton.length > 0) {
-            logHHAuto('Max out ' + haremItem + ' for girl ' + girl.id_girl);
-            maxOutButton.click();
-            setTimeout(HaremGirl.confirmMaxOut, randomInterval(700,1100));
-            return true;
-        } else {
-            logHHAuto('Max out button for' + haremItem + ' for girl ' + girl.id_girl + ' not enabled');
-            return false;
-        }
+        return new Promise((resolve) => {
+            const maxOutButton = HaremGirl.getMaxOutButton(haremItem);
+            if(maxOutButton.length > 0) {
+                logHHAuto('Max out ' + haremItem + ' for girl ' + girl.id_girl);
+                maxOutButton.click();
+                setTimeout(() => {
+                    HaremGirl.confirmMaxOut();
+                    setTimeout(() => {
+                        resolve(true); 
+                    }, 200);
+                }, randomInterval(700,1100));
+            } else {
+                logHHAuto('Max out button for' + haremItem + ' for girl ' + girl.id_girl + ' not enabled');
+                resolve(false);
+            }
+        });
     }
 
     static confirmAwake(){
@@ -153,7 +159,7 @@ export class HaremGirl {
         }
     }
 
-    static fillAllAffection(){
+    static async fillAllAffection() {
         const haremItem = HaremGirl.AFFECTION_TYPE;
         const selectedGirl = unsafeWindow.girl;
         HaremGirl.switchTabs(haremItem);
@@ -165,7 +171,7 @@ export class HaremGirl {
         if(canGiftGirl) {
 
             if(maxOutButton.length > 0) {
-                HaremGirl.maxOutButtonAndConfirm(haremItem, selectedGirl);
+                await HaremGirl.maxOutButtonAndConfirm(haremItem, selectedGirl);
             }
             
             if(!lastGirlGrad || haremGirlPayLast) {
@@ -189,7 +195,7 @@ export class HaremGirl {
         var createMenuButton = function(menuId, disabled=false){
             return '<div class="tooltipHH">'
             +    '<span class="tooltipHHtext">'+getTextForUI(menuId,"tooltip")+'</span>'
-            +    '<label style="width:200px;font-size: initial;" class="myButton" '+(disabled?'disabled="disabled"':'')+' id="'+menuId+'Button">'+getTextForUI(menuId,"elementText")
+            +    '<label style="font-size: initial;" class="myButton" '+(disabled?'disabled="disabled"':'')+' id="'+menuId+'Button">'+getTextForUI(menuId,"elementText")
             +'</label></div>';
         }
         
@@ -201,10 +207,12 @@ export class HaremGirl {
             const menuIDXp = "haremGirlGiveXP";
             const menuIDGifts = "haremGirlGiveGifts";
             const menuIDMaxGifts = "haremGirlGiveMaxGifts";
+            const menuIDUpgradeMax = "haremGirlUpgradeMax";
 
             const menuIDXpButton = createMenuButton(menuIDXp);
             const menuIDGiftsButton = createMenuButton(menuIDGifts);
             const menuIDMaxGiftsButton = createMenuButton(menuIDMaxGifts, !canGiftGirl);
+            const menuIDUpgradeMaxButton = createMenuButton(menuIDUpgradeMax, !canGiftGirl);
             const imgPath = getHHScriptVars("baseImgPath");
 
             
@@ -221,6 +229,7 @@ export class HaremGirl {
             +       '<div class="optionsBox">'
             //+       '<div style="padding:10px">'+menuIDGiftsButton+'</div>'
             +         '<div style="padding:10px">'+menuIDMaxGiftsButton+'</div>'
+            +         '<div style="padding:10px">'+menuIDUpgradeMaxButton+'</div>'
             +       '</div>'
             +    '</div>'
             fillHHPopUp("GirlMenu",getTextForUI("girlMenu","elementText"), girlMenu);
@@ -230,15 +239,20 @@ export class HaremGirl {
                 HaremGirl.switchTabs(HaremGirl.EXPERIENCE_TYPE);
                 HaremGirl.displayExpMenu(HaremGirl.EXPERIENCE_TYPE);
             });
-            //document.getElementById(menuIDGifts+'Button').addEventListener("click", function() { Harem.fillCurrentGirlItem(HaremGirl.AFFECTION_TYPE);});
+
             if(canGiftGirl) {
-                document.getElementById(menuIDMaxGifts+'Button').addEventListener("click", function() {
+                const fillGirlGifts = (payLast = false) => {
                     maskHHPopUp();
                     HaremGirl.switchTabs(HaremGirl.AFFECTION_TYPE);
                     setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlActions", HaremGirl.AFFECTION_TYPE);
                     setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlMode", 'girl');
                     setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlEnd", 'true');
+                    if (payLast) setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlPayLast", 'true');
                     setTimeout(HaremGirl.fillAllAffection, randomInterval(500,800));
+                }
+                document.getElementById(menuIDMaxGifts+'Button').addEventListener("click", fillGirlGifts);
+                document.getElementById(menuIDUpgradeMax+'Button').addEventListener("click", () => {
+                    fillGirlGifts(true);
                 });
             }
         };
@@ -297,18 +311,20 @@ export class HaremGirl {
         });
     }
     
-    static moduleHaremGirl()
+    static async moduleHaremGirl()
     {
         const haremItem = getStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlActions");
         const haremGirlMode = getStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlMode");
         const haremGirlEnd = getStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlEnd") === 'true';
         const haremGirlLimit = getStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlLimit");
+        let canAwakeGirl = false;
+        let canGiftGirl = false;
 
         try {
             const girl = unsafeWindow.girl;
             const numberOfGem =unsafeWindow.player_gems_amount[girl.element].amount;
-            const canAwakeGirl = numberOfGem >= girl.awakening_costs;
-            const canGiftGirl = girl.nb_grades > girl.graded && HaremGirl.getMaxOutButton(HaremGirl.AFFECTION_TYPE).length > 0;
+            canAwakeGirl = numberOfGem >= girl.awakening_costs;
+            canGiftGirl = girl.nb_grades > girl.graded && HaremGirl.getMaxOutButton(HaremGirl.AFFECTION_TYPE).length > 0;
             //logHHAuto("moduleHaremGirl: " + girl.id_girl);
             logHHAuto("Current level : " + girl.level + ', max level without gems : ' + girl.level_cap);
             logHHAuto("Number of gem needed in next awakening : " + girl.awakening_costs +" / Gem in stock : " + numberOfGem);
@@ -341,7 +357,7 @@ export class HaremGirl {
             }
             setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
             logHHAuto("setting autoloop to false as action to be performed on girl");
-            logHHAuto("haremGirlMode: " + haremGirlMode);
+            logHHAuto("Action to be performed (mode: "+haremGirlMode+") : give " + haremItem);
 
             if(haremGirlMode === 'girl')
             {
@@ -352,28 +368,30 @@ export class HaremGirl {
                         HaremGirl.maxOutButtonAndConfirm(haremItem, girl);
                         HaremGirl.HaremClearGirlPopup();
 
-                        Harem.clearHaremToolVariables(); // TODO to make it mode list, do not clear ^^
+                        Harem.clearHaremToolVariables();
                     }
                     else
                         HaremGirl.maxOutAndAwake(haremItem, girl);
-                } else if(haremItem == HaremGirl.AFFECTION_TYPE){
+                } else if(haremItem == HaremGirl.AFFECTION_TYPE && (canGiftGirl)){
                     HaremGirl.HaremDisplayGirlPopup(haremItem, girl.name + ' '+girl.graded+"/"+girl.nb_grades+"star",2);
-                    if(!HaremGirl.fillAllAffection()){
+                    if(!(await HaremGirl.fillAllAffection())){
+                        logHHAuto("No more quest");
                         // No more quest
                         HaremGirl.HaremClearGirlPopup();
                         Harem.clearHaremToolVariables();
                     }
                 } else {
-                    logHHAuto('ERROR, item unknown' + haremItem);
+                    logHHAuto('ERROR, no action found to be executed. ', {haremItem: haremItem, canGiftGirl:canGiftGirl, canAwakeGirl:canAwakeGirl});
+                    Harem.clearHaremToolVariables();
                 }
             }
             else if(haremGirlMode === 'list')
             {
-                logHHAuto("Action to be performed : give " + haremItem);
                 let nextGirlId = -1;
                 let girlPosInList = 0;
                 let remainingGirls = 0;
-                let girlListProgress = '<br />' + getTextForUI("giveLastGirl","elementText");
+                let girlListProgress = '';
+                const lastGirlListProgress = '<br />' + getTextForUI("giveLastGirl","elementText");
 
 
                 let filteredGirlsList = getStoredValue(HHStoredVarPrefixKey+"Temp_filteredGirlsList")?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_filteredGirlsList")):[];
@@ -390,13 +408,15 @@ export class HaremGirl {
                 }
 
                 if(haremGirlEnd && haremItem == HaremGirl.AFFECTION_TYPE) {
+                    if(girl.graded == girl.nb_grades && nextGirlId < 0) girlListProgress += lastGirlListProgress;
                     HaremGirl.HaremDisplayGirlPopup(haremItem, girl.name + ' '+girl.graded+"/"+girl.nb_grades+"star : Girl "+ girlListProgress, (remainingGirls+1)*5 );
-                    if(HaremGirl.fillAllAffection()){
+                    if(await HaremGirl.fillAllAffection()){
                         logHHAuto("Going to girl quest");
                         return;
                     }
                 } else {
                     const canMaxOut = HaremGirl.getMaxOutButton(haremItem).length > 0;
+                    if(nextGirlId < 0) girlListProgress += lastGirlListProgress;
                     if (canMaxOut)
                     {
                         HaremGirl.HaremDisplayGirlPopup(haremItem, getTextForUI("giveMaxingOut","elementText")  + ' ' + girl.name + ' : '+ girlListProgress, (remainingGirls+1)*5 );
@@ -432,20 +452,24 @@ export class HaremGirl {
     {
         $(".girl-leveler-panel .girl-section").prepend('<div id="popup_message_harem" class="HHpopup_message" name="popup_message_harem" style="" ><a id="popup_message_harem_close" class="close">&times;</a>'
                         +getTextForUI("give"+haremItem,"elementText")+' : <br>'+haremText+' ('+remainingTime+'sec)</div>');
-        document.getElementById("popup_message_harem_close").addEventListener("click", function() {
-            Harem.clearHaremToolVariables();
-            location.reload();
-        });
+        setTimeout(() => {
+            $("#popup_message_harem_close").one("click", function() {
+                Harem.clearHaremToolVariables();
+                location.reload();
+            });
+        }, 200);
+        
     }
 
-    static HaremClearGirlPopup()
+    static HaremClearGirlPopup(retry = false)
     {
-        $("#popup_message_harem").remove();
-    }
-
-    static HaremUpdateGirlPopup(haremItem,haremText,remainingTime)
-    {
-        HaremGirl.HaremClearGirlPopup();
-        HaremGirl.HaremDisplayGirlPopup(haremItem,haremText,remainingTime);
+        try {
+            document.getElementById("popup_message_harem").remove(); 
+            if($("#popup_message_harem").length > 0 && !retry) {
+                setTimeout(() => { HaremGirl.HaremClearGirlPopup(true)}, 1500);
+            }
+        } catch (error) {
+            logHHAuto("Can't remove popup_message_harem");
+        }
     }
 }
