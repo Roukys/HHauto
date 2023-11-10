@@ -424,6 +424,7 @@ export class Harem {
         const girlOwned = !(getHHVars('girlsDataList',false) != null && getHHVars('girlsDataList',false)[displayedGirl].shards < 100);
 
         GM_addStyle('#harem_right>div[girl] .middle_part div.avatar-box img.avatar { height: 365px; margin-bottom: 30px;}');
+        GM_addStyle('#harem_right>div[girl] .middle_part div.avatar-box canvas.animated-girl-display { height: 59rem; top: -18rem;}');
         GM_addStyle('.goToGirlPage {position: relative; bottom: 46px; font-size: small; z-index:30;}');
 
         // using a for new tab option
