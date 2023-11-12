@@ -72,6 +72,7 @@ HHAuto_ToolTips.en.autoLeaguesPowerCalc = { version: "5.6.24", elementText: "Use
 HHAuto_ToolTips.en.leagueListDisplayPowerCalc = { version: "5.34.18", elementText: "Display PowerCalc", tooltip: "Display powerCalc in league list (stil in developpment)"};
 HHAuto_ToolTips.en.autoLeaguesCollect = { version: "5.6.24", elementText: "Collect", tooltip: "If enabled : Automatically collect Leagues"};
 HHAuto_ToolTips.en.autoLeaguesRunThreshold = { version: "6.8.0", elementText: "Run Threshold", tooltip: "Minimum league fights before script start spending<br> 0 to spend as soon as energy above threshold"};
+HHAuto_ToolTips.en.autoLeaguesForceOneFight = { version: "6.12.4", elementText: "One fight", tooltip: "Only use one fight at a time in league"};
 HHAuto_ToolTips.en.autoLeaguesBoostedOnly = { version: "6.5.0", elementText: "Boosted only", tooltip: "If enabled : Need booster to fight in league"};
 HHAuto_ToolTips.en.boostMissing = { version: "6.5.0", elementText: "No booster Equipped"};
 HHAuto_ToolTips.en.waitRunThreshold  = { version: "6.8.0", elementText: "Wait run threshold"};
