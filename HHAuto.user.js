@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.12.3
+// @version      6.12.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -235,6 +235,7 @@ HHAuto_ToolTips.en.autoLeaguesPowerCalc = { version: "5.6.24", elementText: "Use
 HHAuto_ToolTips.en.leagueListDisplayPowerCalc = { version: "5.34.18", elementText: "Display PowerCalc", tooltip: "Display powerCalc in league list (stil in developpment)"};
 HHAuto_ToolTips.en.autoLeaguesCollect = { version: "5.6.24", elementText: "Collect", tooltip: "If enabled : Automatically collect Leagues"};
 HHAuto_ToolTips.en.autoLeaguesRunThreshold = { version: "6.8.0", elementText: "Run Threshold", tooltip: "Minimum league fights before script start spending<br> 0 to spend as soon as energy above threshold"};
+HHAuto_ToolTips.en.autoLeaguesForceOneFight = { version: "6.12.4", elementText: "One fight", tooltip: "Only use one fight at a time in league"};
 HHAuto_ToolTips.en.autoLeaguesBoostedOnly = { version: "6.5.0", elementText: "Boosted only", tooltip: "If enabled : Need booster to fight in league"};
 HHAuto_ToolTips.en.boostMissing = { version: "6.5.0", elementText: "No booster Equipped"};
 HHAuto_ToolTips.en.waitRunThreshold  = { version: "6.8.0", elementText: "Wait run threshold"};
@@ -6404,6 +6405,8 @@ class LeagueHelper {
         return league_end;
     }
     static numberOfFightAvailable(opponent) {
+        const forceOneFight = StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoLeaguesForceOneFight") === 'true';
+        if(forceOneFight) return 1;
         // remove match_history after w32 update
         const matchs = opponent.match_history ? opponent.match_history[opponent.player.id_fighter]: opponent.match_history_sorting[opponent.player.id_fighter];
         return matchs ? matchs.filter(match=>match == null).length : 0
@@ -7102,7 +7105,7 @@ class LeagueHelper {
                     }
                     LogUtils_logHHAuto("Going to fight " + numberOfBattle + " times (Number fights available from opponent:" + numberOfFightAvailable + ")");
 
-                    if(numberOfBattle === 1) {
+                    if(numberOfBattle <= 1) {
                         gotoPage(getHHScriptVars("pagesIDLeagueBattle"),{number_of_battles:1,id_opponent:Data[0].opponent_id});
                     } else {
                         var params1 = {
@@ -9897,6 +9900,17 @@ HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_autoLeagues
     menuType:"value",
     kobanUsing:false
 };
+HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_autoLeaguesForceOneFight"] =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_autoLeaguesPowerCalc"] =
     {
     default:"false",
@@ -12069,6 +12083,7 @@ function getMenu() {
                             +`<div class="internalOptionsRow">`
                                 + hhMenuSelect('autoLeaguesSelector')
                                 + hhMenuSwitch('autoLeaguesAllowWinCurrent')
+                                + hhMenuSwitch('autoLeaguesForceOneFight')
                             +`</div>`
                             +`<div class="internalOptionsRow">`
                                 + hhMenuInputWithImg('autoLeaguesThreshold', HHAuto_inputPattern.autoLeaguesThreshold, 'text-align:center; width:25px', 'pictures/design/league_points.png', 'numeric' )

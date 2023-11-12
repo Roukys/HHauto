@@ -475,6 +475,7 @@ export function getMenu() {
                             +`<div class="internalOptionsRow">`
                                 + hhMenuSelect('autoLeaguesSelector')
                                 + hhMenuSwitch('autoLeaguesAllowWinCurrent')
+                                + hhMenuSwitch('autoLeaguesForceOneFight')
                             +`</div>`
                             +`<div class="internalOptionsRow">`
                                 + hhMenuInputWithImg('autoLeaguesThreshold', HHAuto_inputPattern.autoLeaguesThreshold, 'text-align:center; width:25px', 'pictures/design/league_points.png', 'numeric' )

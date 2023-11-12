@@ -308,6 +308,17 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLeaguesRunThreshold"] =
     menuType:"value",
     kobanUsing:false
 };
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLeaguesForceOneFight"] =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLeaguesPowerCalc"] =
     {
     default:"false",

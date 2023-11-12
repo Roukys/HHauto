@@ -43,6 +43,8 @@ export class LeagueHelper {
         return league_end;
     }
     static numberOfFightAvailable(opponent) {
+        const forceOneFight = getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesForceOneFight") === 'true';
+        if(forceOneFight) return 1;
         // remove match_history after w32 update
         const matchs = opponent.match_history ? opponent.match_history[opponent.player.id_fighter]: opponent.match_history_sorting[opponent.player.id_fighter];
         return matchs ? matchs.filter(match=>match == null).length : 0
@@ -758,7 +760,7 @@ export class LeagueHelper {
                     }
                     logHHAuto("Going to fight " + numberOfBattle + " times (Number fights available from opponent:" + numberOfFightAvailable + ")");
 
-                    if(numberOfBattle === 1) {
+                    if(numberOfBattle <= 1) {
                         gotoPage(getHHScriptVars("pagesIDLeagueBattle"),{number_of_battles:1,id_opponent:Data[0].opponent_id});
                     } else {
                         var params1 = {
