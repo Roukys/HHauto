@@ -905,6 +905,7 @@ export function autoLoop()
         case getHHScriptVars("pagesIDLeaderboard"):
             if (getStoredValue(HHStoredVarPrefixKey+"Setting_showCalculatePower") === "true")
             {
+                LeagueHelper.moduleSimLeague = callItOnce(LeagueHelper.moduleSimLeague);
                 LeagueHelper.moduleSimLeague();
                 LeagueHelper.style = callItOnce(LeagueHelper.style);
                 LeagueHelper.style();

@@ -465,9 +465,7 @@ export function getMenu() {
                         +`<div class="optionsBox">`
                             +`<div class="internalOptionsRow">`
                                 + hhMenuSwitch('autoLeagues')
-                                +`<div style="display:none">`
                                 + hhMenuSwitch('autoLeaguesPowerCalc')
-                                +`</div>`
                                 + hhMenuSwitch('autoLeaguesCollect')
                                 + hhMenuSwitch('autoLeaguesBoostedOnly')
                                 + hhMenuSwitch('leagueListDisplayPowerCalc')

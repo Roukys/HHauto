@@ -1,58 +1,64 @@
 import { isJSON } from "../Utils";
 import { HHStoredVarPrefixKey } from "../config";
+import { BDSMPlayer, BDSMSimu } from "../model";
 import { getHHScriptVars } from "./ConfigHelper";
 import { getStoredValue, setStoredValue } from "./StorageHelper";
 
+export class BDSMHelper {
 
-export function customMatchRating(inSimu) // NOT used ?
-{
-    let matchRating = inSimu.score;
-    var customLimits = getStoredValue(HHStoredVarPrefixKey+"Setting_calculatePowerLimits").split(";");
-    if(customLimits.length === 2 && Number(customLimits[0]) < Number(customLimits[1]))
-    {
-        if (matchRating >= 0)
-        {
-            matchRating = '+' + matchRating;
-        }
-        if ( Number(matchRating) < Number(customLimits[0]) )
-        {
-            return 'r'+matchRating
-        }
-        else
-        {
-            if ( Number(matchRating) < Number(customLimits[1]) )
-            {
-                return 'y'+matchRating
-            }
-            else
-            {
-                return 'g'+matchRating
-            }
+    static fightBonues(team){
+        return {
+            critDamage: team.synergies.find(({element: {type}})=>type==='fire').bonus_multiplier,
+            critChance: team.synergies.find(({element: {type}})=>type==='stone').bonus_multiplier,
+            defReduce: team.synergies.find(({element: {type}})=>type==='sun').bonus_multiplier,
+            healOnHit: team.synergies.find(({element: {type}})=>type==='water').bonus_multiplier
         }
     }
-    else
+        
+    static getBdsmPlayersData(inHeroData, opponentData, inLeague=false)
     {
-        if ( getStoredValue(HHStoredVarPrefixKey+"Setting_calculatePowerLimits") !== "default")
-        {
-            setStoredValue(HHStoredVarPrefixKey+"Setting_calculatePowerLimits", "Invalid limits");
-        }
-        if (matchRating >= 0)
-        {
-            matchRating = '+' + matchRating;
-
-            if (inSimu.playerEgoCheck <= 0)
-            {
-                return 'y'+matchRating
-            }
-            else
-            {
-                return 'g'+matchRating
-            }
-        }
-        else {
-            matchRating = matchRating;
-            return 'r'+matchRating
-        }
+        // player stats
+        const playerEgo = inHeroData.remaining_ego;
+        const playerDef = inHeroData.defense;
+        const playerAtk = inHeroData.damage;
+        const playerCrit = inHeroData.chance;
+        
+        let playerElements = [];
+        inHeroData.team.theme_elements.forEach((el) => playerElements.push(el.type));
+        const playerBonuses = BDSMHelper.fightBonues(inHeroData.team);
+    
+        const opponentEgo = opponentData.remaining_ego;
+        const opponentDef = opponentData.defense;
+        const opponentAtk = opponentData.damage;
+        const opponentCrit = opponentData.chance;
+    
+        let opponentElements = [];
+        opponentData.team.theme_elements.forEach((el) => opponentElements.push(el.type));
+        
+        const opponentBonuses = BDSMHelper.fightBonues(opponentData.team);
+        const dominanceBonuses = calculateDominationBonuses(playerElements, opponentElements);
+    
+        const player = new BDSMPlayer(
+            inLeague ? playerEgo * (1+dominanceBonuses.player.ego) : playerEgo,
+            inLeague ? playerAtk * (1+dominanceBonuses.player.attack) : playerAtk,
+            opponentDef,
+            calculateCritChanceShare(playerCrit, opponentCrit) + dominanceBonuses.player.chance + playerBonuses.critChance,
+            playerBonuses,
+            calculateTier4SkillValue(inHeroData.team.girls),
+            calculateTier5SkillValue(inHeroData.team.girls),
+            inHeroData.nickname
+        );
+        const opponent = new BDSMPlayer(
+            opponentEgo,
+            opponentAtk,
+            inLeague ? playerDef * (1-opponentBonuses.defReduce) : playerDef,
+            calculateCritChanceShare(opponentCrit, playerCrit) + dominanceBonuses.opponent.chance + opponentBonuses.critChance,
+            opponentBonuses,
+            calculateTier4SkillValue(opponentData.team.girls),
+            calculateTier5SkillValue(opponentData.team.girls),
+            opponentData.nickname
+        );
+        return {player:player, opponent:opponent, dominanceBonuses:dominanceBonuses}
     }
 }
 
@@ -60,24 +66,17 @@ let _player;
 let _opponent;
 let _cache;
 let _runs;
+/**
+ * @returns {BDSMSimu}
+ */
 //all following lines credit:Tom208 OCD script
+const tier5_Skill_Id = [11, 12, 13, 14];
 export function calculateBattleProbabilities(player, opponent) {
     _player = player;
     _opponent = opponent;
 
     const setup = x => {
         x.critMultiplier = 2 + x.bonuses.critDamage;
-        x.dmg = Math.max(0, x.dmg);
-        x.baseAttack = {
-            probability: 1 - x.critchance,
-            damageAmount: Math.ceil(x.dmg),
-            healAmount: Math.ceil(x.dmg * x.bonuses.healOnHit)
-        };
-        x.critAttack = {
-            probability: x.critchance,
-            damageAmount: Math.ceil(x.dmg * x.critMultiplier),
-            healAmount: Math.ceil(x.dmg * x.critMultiplier * x.bonuses.healOnHit)
-        };
         x.hp = Math.ceil(x.hp);
     }
 
@@ -86,6 +85,10 @@ export function calculateBattleProbabilities(player, opponent) {
 
     _cache = {};
     _runs = 0;
+
+    //Tier 5 skill : Shield
+    let playerShield = 0;
+    let opponentShield = 0;
 
     let ret;
     try {
@@ -108,6 +111,20 @@ export function calculateBattleProbabilities(player, opponent) {
 
     return ret;
 
+    function calculateDmg(x, turns) {
+        const dmg = x.atk * (1 + x.tier4.dmg) ** turns - x.adv_def * (1 + x.tier4.def) ** turns;
+
+        return {
+            baseAtk : {
+                probability: 1 - x.critchance,
+                damageAmount: Math.ceil(dmg)
+            },
+            critAtk : {
+                probability: x.critchance,
+                damageAmount: Math.ceil(dmg * x.critMultiplier)
+            }
+        }
+    }
 
     function mergeResult(x, xProbability, y, yProbability) {
         const points = {};
@@ -134,9 +151,8 @@ export function calculateBattleProbabilities(player, opponent) {
         if (cachedResult) return cachedResult;
 
         // simulate base attack and critical attack
-        const baseAtk = _player.baseAttack;
+        const {baseAtk, critAtk} = calculateDmg(_player, turns);
         const baseAtkResult = playerAttack(playerHP, opponentHP, baseAtk, turns);
-        const critAtk = _player.critAttack;
         const critAtkResult = playerAttack(playerHP, opponentHP, critAtk, turns);
         // merge result
         const mergedResult = mergeResult(baseAtkResult, baseAtk.probability, critAtkResult, critAtk.probability);
@@ -153,16 +169,49 @@ export function calculateBattleProbabilities(player, opponent) {
     }
 
     function playerAttack(playerHP, opponentHP, attack, turns) {
-        // damage
-        opponentHP -= attack.damageAmount;
+        //Tier 5 skill : Stun
+        if (_opponent.tier5.id == 11 && (turns == 2 || turns == 3)) {
+            // next turn
+            return playerTurn(playerHP, opponentHP, turns);
+        }
+
+        let playerDamage = Math.max(0, (attack.damageAmount - opponentShield));
+        opponentHP -= playerDamage;
+
+        //Tier 5 skill : Shield
+        if (_player.tier5.id == 12 && turns == 1) {
+            playerShield = Math.ceil(_player.tier5.value * _player.hp);
+        }
+        if (_opponent.tier5.id == 12 && turns > 1) {
+            opponentShield -= attack.damageAmount;
+            opponentShield = Math.max(0, opponentShield);
+        }
+
+        //Tier 5 skill : Reflect
+        let opponentReflectDmg = 0;
+        if (_opponent.tier5.id == 13 && (turns == 2 || turns == 3)) {
+            opponentReflectDmg = Math.ceil(_opponent.tier5.value * attack.damageAmount);
+            playerHP -= Math.max(0, (opponentReflectDmg - playerShield));
+            playerShield -= opponentReflectDmg;
+            playerShield = Math.max(0, playerShield);
+        }
+
+        //Tier 5 skill : Execute
+        if (_player.tier5.id == 14) {
+            let opponentHPRate = opponentHP / _opponent.hp;
+            if (opponentHPRate <= _player.tier5.value) {
+                opponentHP = 0;
+            }
+        }
 
         // heal on hit
-        playerHP += attack.healAmount;
+        let playerHeal = Math.ceil(_player.bonuses.healOnHit * playerDamage);
+        playerHP += playerHeal;
         playerHP = Math.min(playerHP, _player.hp);
 
         // check win
         if (opponentHP <= 0) {
-            const point = 15 + Math.ceil(10 * playerHP / _player.hp);
+            const point = Math.min(25, 15 + Math.ceil(10 * playerHP / _player.hp));
             _runs += 1;
             return { points: { [point]: 1 }, win: 1, loss: 0, avgTurns: 0 };
         }
@@ -173,25 +222,59 @@ export function calculateBattleProbabilities(player, opponent) {
 
     function opponentTurn(playerHP, opponentHP, turns) {
         // simulate base attack and critical attack
-        const baseAtk = _opponent.baseAttack;
+        const {baseAtk, critAtk} = calculateDmg(_opponent, turns);
         const baseAtkResult = opponentAttack(playerHP, opponentHP, baseAtk, turns);
-        const critAtk = _opponent.critAttack;
         const critAtkResult = opponentAttack(playerHP, opponentHP, critAtk, turns);
         // merge result
         return mergeResult(baseAtkResult, baseAtk.probability, critAtkResult, critAtk.probability);
     }
 
     function opponentAttack(playerHP, opponentHP, attack, turns) {
+        //Tier 5 skill : Stun
+        if (_player.tier5.id == 11 && (turns == 1 || turns == 2)) {
+            // next turn
+            return playerTurn(playerHP, opponentHP, turns);
+        }
+
         // damage
-        playerHP -= attack.damageAmount;
+        let opponentDamage = Math.max(0, (attack.damageAmount - playerShield));
+        playerHP -= opponentDamage;
+
+        //Tier 5 skill : Shield
+        if (_opponent.tier5.id == 12 && turns == 1) {
+            opponentShield = Math.ceil(_opponent.tier5.value * _opponent.hp);
+        }
+        if (_player.tier5.id == 12) {
+            playerShield -= attack.damageAmount;
+            playerShield = Math.max(0, playerShield);
+        }
+
+        //Tier 5 skill : Reflect
+        let playerReflectDmg = 0;
+        if (_player.tier5.id == 13 && (turns == 1 || turns == 2)) {
+            playerReflectDmg = Math.ceil(_player.tier5.value * attack.damageAmount);
+            opponentHP -= Math.max(0, (playerReflectDmg - opponentShield));
+            opponentShield -= playerReflectDmg;
+            opponentShield = Math.max(0, opponentShield);
+        }
+
+        //Tier 5 skill : Execute
+        if (_opponent.tier5.id == 14) {
+            let playerHPRate = playerHP / _player.hp;
+            if (playerHPRate <= _opponent.tier5.value) {
+                playerHP = 0;
+                //console.log("PLAYER EXECUTED!!");
+            }
+        }
 
         // heal on hit
-        opponentHP += attack.healAmount;
+        let opponentHeal = Math.ceil(_opponent.bonuses.healOnHit * opponentDamage);
+        opponentHP += opponentHeal;
         opponentHP = Math.min(opponentHP, _opponent.hp);
 
         // check loss
         if (playerHP <= 0) {
-            const point = 3 + Math.ceil(10 * (_opponent.hp - opponentHP) / _opponent.hp);
+            const point = Math.max(3, 3 + Math.ceil(10 * (_opponent.hp - opponentHP) / _opponent.hp));
             _runs += 1;
             return { points: { [point]: 1 }, win: 0, loss: 1, avgTurns: 0 };
         }
@@ -199,6 +282,29 @@ export function calculateBattleProbabilities(player, opponent) {
         // next turn
         return playerTurn(playerHP, opponentHP, turns);
     }
+}
+
+export function calculateTier4SkillValue(teamGirlsArray) {
+    let skill_tier_4 = {dmg: 0, def: 0};
+
+    teamGirlsArray.forEach((girl) => {
+        if (girl.skills[9]) skill_tier_4.dmg += girl.skills[9].skill.percentage_value/100;
+        if (girl.skills[10]) skill_tier_4.def += girl.skills[10].skill.percentage_value/100;
+    })
+    return skill_tier_4;
+}
+
+export function calculateTier5SkillValue(teamGirlsArray) {
+    let skill_tier_5 = {id: 0, value: 0};
+    const girl = teamGirlsArray[0];
+
+    tier5_Skill_Id.forEach((id) => {
+        if (girl.skills[id]) {
+            skill_tier_5.id = id;
+            skill_tier_5.value = (id == 11) ? parseInt(girl.skills[id].skill.display_value_text, 10)/100 : girl.skills[id].skill.percentage_value/100;
+        }
+    })
+    return skill_tier_5;
 }
 
 export function calculateThemeFromElements(elements) {
@@ -224,52 +330,6 @@ export function countElementsInTeam(elements) {
         light: 0,
         psychic: 0
     })
-}
-
-export function simulateBattle (player, opponent) {
-    let points
-
-    const playerStartHP = player.hp
-    const opponentStartHP = opponent.hp
-
-    let turns = 0
-
-    while (true) {
-        turns++
-        //your turn
-        let damageAmount = player.dmg
-        if (Math.random() < player.critchance) {
-            damageAmount = player.dmg * player.critMultiplier
-        }
-        let healAmount = Math.min(playerStartHP - player.hp, damageAmount * player.bonuses.healOnHit)
-        opponent.hp -= damageAmount;
-        player.hp += healAmount;
-
-        //check win
-        if(opponent.hp<=0){
-            //count score
-            points = 15+Math.ceil(player.hp/playerStartHP * 10);
-            break;
-        }
-
-        //opp's turn
-        damageAmount = opponent.dmg
-        if (Math.random() < opponent.critchance) {
-            damageAmount = opponent.dmg * opponent.critMultiplier
-        }
-        healAmount = Math.min(opponentStartHP - opponent.hp, damageAmount * opponent.bonuses.healOnHit)
-        player.hp -= damageAmount;
-        opponent.hp += healAmount;
-
-        //check loss
-        if(player.hp<=0){
-            //count score
-            points = 3+Math.ceil((opponentStartHP - opponent.hp)/opponentStartHP * 10);
-            break;
-        }
-    }
-
-    return {points, turns}
 }
 
 /*
