@@ -1,11 +1,8 @@
 import {
+    BDSMHelper,
     RewardHelper,
     TimeHelper,
     calculateBattleProbabilities,
-    calculateCritChanceShare,
-    calculateDominationBonuses,
-    calculateSynergiesFromTeamMemberElements,
-    calculateThemeFromElements,
     checkTimer,
     clearTimer,
     convertTimeToInt,
@@ -29,6 +26,7 @@ import {
 import { autoLoop, checkParanoiaSpendings, gotoPage } from "../Service";
 import { isJSON, logHHAuto } from "../Utils";
 import { HHStoredVarPrefixKey } from "../config";
+import { BDSMSimu, LeagueOpponent } from "../model";
 import { Booster } from "./Booster";
 
 export class LeagueHelper {
@@ -118,6 +116,24 @@ export class LeagueHelper {
         );
     }
 
+    /**
+     * @returns {BDSMSimu}
+     */
+    static getSimPowerOpponent(heroFighter, opponents) {
+        const opponentData = opponents.player;
+        let leaguePlayers = BDSMHelper.getBdsmPlayersData(heroFighter, opponentData, true);
+        let simu = calculateBattleProbabilities(leaguePlayers.player, leaguePlayers.opponent);
+
+        const oppoPoints = simu.points;
+        let expectedValue = 0;
+        for (let i=25; i>=3; i--) {
+            if (oppoPoints[i]) {
+                expectedValue += i*oppoPoints[i];
+            }
+        }
+        simu.expectedValue = expectedValue;
+        return simu;
+    }
     
     static displayOppoSimuOnButton(id_fighter, simu, force=0) {
         const opponentGoButton = $('a[href*="id_opponent='+id_fighter+'"]');
@@ -228,47 +244,17 @@ export class LeagueHelper {
                 logHHAuto('ERROR: Can\'t find opponent list');
                 return;
             }
-            let heroFighter = opponents_list.filter(obj => {
-                return obj.player.id_fighter == Hero.infos.id;
-            });
-            if(heroFighter.length > 0) heroFighter = heroFighter[0].player;
-            else return;
+            let heroFighter = opponents_list.find((el) => el.player.id_fighter == Hero.infos.id).player;
 
-            /*const canFight = function(opponent) {
-                // remove match_history after w32 update
-                const matchs = opponent.match_history ? opponent.match_history[opponent.player.id_fighter]: opponent.match_history_sorting[opponent.player.id_fighter];
-                return matchs && matchs.length === 3 && (matchs[0] == null || matchs[1] == null || matchs[2] == null)
-            }*/
-
-            const containsSimuScore = function(opponents) {
-                return $('a[href*="id_opponent='+opponents.player.id_fighter+'"] .matchRatingNew').length > 0;
-            }
-
-
-            const SimPowerOpponent = function(heroFighter, opponents) {
-
-                const opponentData = opponents.player;
-                let leaguePlayers = LeagueHelper.getLeaguePlayersData(heroFighter, opponentData);
-                //console.log("HH simuFight",JSON.stringify(leaguePlayers.player),JSON.stringify(leaguePlayers.opponent));
-                let simu = calculateBattleProbabilities(leaguePlayers.player, leaguePlayers.opponent);
-
-                const oppoPoints = simu.points;
-                let expectedValue = 0;
-                for (let i=25; i>=3; i--) {
-                    if (oppoPoints[i]) {
-                        expectedValue += i*oppoPoints[i];
-                    }
-                }
-                simu.expectedValue = expectedValue;
-
-                LeagueHelper.displayOppoSimuOnButton(opponentData.id_fighter, simu);
-            }
+            const containsSimuScore = function(opponents) { return $('a[href*="id_opponent='+opponents.player.id_fighter+'"] .matchRatingNew').length > 0;}
+            const containsOcdScore = function(opponents) { return $('.matchRating', $('a[href*="id_opponent='+opponents.player.id_fighter+'"]').parent()).length > 0;}
 
             for(let opponentIndex = 0;opponentIndex < opponents_list.length ; opponentIndex++)
             {
                 let opponents = opponents_list[opponentIndex];
-                if (LeagueHelper.numberOfFightAvailable(opponents) > 0 && !containsSimuScore(opponents)) {
-                    SimPowerOpponent(heroFighter, opponents); 
+                if (LeagueHelper.numberOfFightAvailable(opponents) > 0 && !containsSimuScore(opponents) && !containsOcdScore(opponents)) {
+                    const simu = LeagueHelper.getSimPowerOpponent(heroFighter, opponents); 
+                    LeagueHelper.displayOppoSimuOnButton(opponents.player.id_fighter, simu);
                 }
             }
             
@@ -277,7 +263,7 @@ export class LeagueHelper {
 
         SimPower();
 
-        let listUpdateStatus='<div style="position: absolute;left: 650px;top: 14px;width:100px;" class="tooltipHH" id="HHListUpdate"></div>';
+        let listUpdateStatus='<div style="position: absolute;left: 720px;top: 0px;width:100px;" class="tooltipHH" id="HHListUpdate"></div>';
         if (document.getElementById("HHListUpdate") === null) {
             $(".leagues_middle_header_script").append(listUpdateStatus);
         }
@@ -430,74 +416,21 @@ export class LeagueHelper {
             }
         }
     }
-    
-    static getLeaguePlayersData(inHeroLeaguesData, inPlayerLeaguesData)
-    {
-        const {
-            chance: playerCrit,
-            damage: playerAtk,
-            defense: playerDef,
-            remaining_ego: playerEgo,
-            team: playerTeam
-        } = inHeroLeaguesData;
-        let playerElements = playerTeam.theme_elements;
-        let playerSynergies = playerTeam.synergies;
-        if(!playerSynergies) {
-            const playerSynergyDataJSON = $('.player-row .button_team_synergy').attr('synergy-data');
-            playerSynergies = JSON.parse(playerSynergyDataJSON);
-        }
-        if (!playerElements || playerElements.length === 0) {
-            const playerTeamMemberElements = [0,1,2,3,4,5,6].map(key => playerTeam.girls[key].girl.element_data.type);
-            playerElements = calculateThemeFromElements(playerTeamMemberElements);
-        }
-        const playerBonuses = {
-            critDamage: playerSynergies.find(({element: {type}})=>type==='fire').bonus_multiplier,
-            critChance: playerSynergies.find(({element: {type}})=>type==='stone').bonus_multiplier,
-            defReduce: playerSynergies.find(({element: {type}})=>type==='sun').bonus_multiplier,
-            healOnHit: playerSynergies.find(({element: {type}})=>type==='water').bonus_multiplier
-        };
 
-        const {
-            chance: opponentCrit,
-            damage: opponentAtk,
-            defense: opponentDef,
-            remaining_ego: opponentEgo,
-            team: opponentTeam
-        } = inPlayerLeaguesData
-
-        const opponentTeamMemberElements = [];
-        [0,1,2,3,4,5,6].forEach(key => {
-            const teamMember = opponentTeam[key]
-            if (teamMember && teamMember.element) {
-                opponentTeamMemberElements.push(teamMember.element)
-            }
-        })
-        const opponentElements = opponentTeam.theme_elements.map(({type}) => type);
-        const opponentBonuses = calculateSynergiesFromTeamMemberElements(opponentTeamMemberElements)
-        const dominanceBonuses = calculateDominationBonuses(playerElements, opponentElements)
-
-        const player = {
-            hp: playerEgo * (1 + dominanceBonuses.player.ego),
-            dmg: (playerAtk * (1 + dominanceBonuses.player.attack)) - (opponentDef * (1 - playerBonuses.defReduce)),
-            critchance: calculateCritChanceShare(playerCrit, opponentCrit) + dominanceBonuses.player.chance + playerBonuses.critChance,
-            bonuses: playerBonuses
-        };
-        const opponent = {
-            hp: opponentEgo * (1 + dominanceBonuses.opponent.ego),
-            dmg: (opponentAtk * (1 + dominanceBonuses.opponent.attack)) - (playerDef * (1 - opponentBonuses.defReduce)),
-            critchance: calculateCritChanceShare(opponentCrit, playerCrit) + dominanceBonuses.opponent.chance + opponentBonuses.critChance,
-            name: inPlayerLeaguesData.nickname,
-            bonuses: opponentBonuses
-        };
-        return {player:player, opponent:opponent, dominanceBonuses:dominanceBonuses}
-    }   
-
+    /**
+     * @returns {LeagueOpponent[]}
+     */
     static getLeagueOpponentListData(isFirstCall = true)
-    {
+    { 
+        /**
+         * @type {LeagueOpponent[]}
+         */
         let Data=[];
         let opponent_id;
         let fightButton;
 
+        const usePowerCalc = getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesPowerCalc") === 'true';
+        const debugEnabled = getStoredValue(HHStoredVarPrefixKey+"Temp_Debug")==='true';
         const hasHHBdsmChangeBefore = $('.data-column[column="power"] .matchRating').length > 0;
         if (hasHHBdsmChangeBefore) logHHAuto('HH++ BDSM detected');
         const tableRow = $(".data-list .data-row.body-row");
@@ -513,25 +446,52 @@ export class LeagueHelper {
             }
         }
 
-        logHHAuto('Number of player in league:' + tableRow.length);
-        logHHAuto('Number of opponent not fought in league:' + $('.data-list .data-row.body-row a').length);
+        logHHAuto('Number of player in league:' + tableRow.length + '. Number of opponent not fought in league:' + $('.data-list .data-row.body-row a').length);
 
+        const opponents_list = getHHVars("opponents_list");
+        let heroFighter;
+        if (usePowerCalc) {
+            try {
+                heroFighter = opponents_list?.find((el) => el.player.id_fighter == Hero.infos.id).player
+            } catch (error) {
+                logHHAuto('Error, falback to not use powercalc');
+                if(debugEnabled) logHHAuto(error);
+                usePowerCalc = false;
+            }
+        }
+
+        let canUseSimu = usePowerCalc && !!opponents_list && !!heroFighter;
         tableRow.each(function()
         {
             fightButton = $('a', $(this));
             if(fightButton.length > 0) {
                 opponent_id = queryStringGetParam(new URL(fightButton.attr("href"),window.location.origin).search, 'id_opponent');
-                let opponnent = {
-                    opponent_id: opponent_id,
-                    rank:  Number($('.data-column[column="place"]', $(this)).text()),
-                    nickname: $('.nickname', $(this)).text(),
-                    level: Number($('.data-column[column="level"]', $(this)).text()),
-                    power: getPowerOrPoints(hasHHBdsmChangeBefore, $(this)),
-                    player_league_points: Number($('.data-column[column="player_league_points"]', $(this)).text().replace(/\D/g, '')),
-                    simuPoints :  Number($('#HHPowerCalcPoints', $(this)).text()), // not filled yet when building this list
-                    stats: {}, // fill stats if needed
-                    nb_boosters: $('.boosters', $(this)).children().length,
-                };
+
+                let expectedPoints = 0;
+                let opponents;
+                if(canUseSimu) {
+                    try{
+                        opponents = opponents_list.find((el) => el.player.id_fighter == opponent_id);
+                        const simu = LeagueHelper.getSimPowerOpponent(heroFighter, opponents); 
+                        expectedPoints = Number(nRounding(simu.expectedValue, 1, -1));
+                    }catch(error){
+                        logHHAuto("Error in simu for oppo " + opponent_id +", falback to not use powercalc");
+                        if(debugEnabled) logHHAuto(error);
+                        canUseSimu = false;
+                    }
+                }
+
+                let opponnent = new LeagueOpponent(
+                    opponent_id,
+                    Number($('.data-column[column="place"]', $(this)).text()),
+                    $('.nickname', $(this)).text(),
+                    Number($('.data-column[column="level"]', $(this)).text()),
+                    getPowerOrPoints(hasHHBdsmChangeBefore, $(this)),
+                    Number($('.data-column[column="player_league_points"]', $(this)).text().replace(/\D/g, '')),
+                    expectedPoints,
+                    $('.boosters', $(this)).children().length,
+                    opponents
+                );
                 Data.push(opponnent);
             }
         });
@@ -546,11 +506,15 @@ export class LeagueHelper {
                 return [];
             }
         }
-        if(hasHHBdsmChangeBefore) {
-            // HH++ BDSM script exist
-            Data.sort((a,b) => (b.power > a.power) ? 1 : ((a.power > b.power) ? -1 : 0)); // sort by higher score
-        }else {
-            Data.sort((a,b) => (a.power > b.power) ? 1 : ((b.power > a.power) ? -1 : 0)); // sort by lower power
+        if(canUseSimu) {
+            Data.sort((a,b) => (b.simuPoints > a.simuPoints) ? 1 : ((a.simuPoints > b.simuPoints) ? -1 : 0)); // sort by higher score
+        } else {
+            if(hasHHBdsmChangeBefore) {
+                // HH++ BDSM script exist
+                Data.sort((a,b) => (b.power > a.power) ? 1 : ((a.power > b.power) ? -1 : 0)); // sort by higher score
+            }else {
+                Data.sort((a,b) => (a.power > b.power) ? 1 : ((b.power > a.power) ? -1 : 0)); // sort by lower power
+            }
         }
         return Data;
     }
@@ -561,6 +525,7 @@ export class LeagueHelper {
         const currentPower = LeagueHelper.getEnergy();
         const maxLeagueRegen = LeagueHelper.getEnergyMax();
         const leagueThreshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesThreshold"));
+        const debugEnabled = getStoredValue(HHStoredVarPrefixKey+"Temp_Debug")==='true';
         let leagueScoreSecurityThreshold = getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesSecurityThreshold");
         if (leagueScoreSecurityThreshold) {
             leagueScoreSecurityThreshold = Number(leagueScoreSecurityThreshold);
@@ -711,75 +676,56 @@ export class LeagueHelper {
                 setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                 logHHAuto("setting autoloop to false");
                 logHHAuto("Hit?" );
-                // if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesPowerCalc") == "true")
-                if (false) // TODO Fix power calc if needed
-                {
-                    var oppoID = getLeagueOpponentId(Data);
-                    if (oppoID == -1)
-                    {
-                        logHHAuto('opponent list is building next waiting');
-                        //setTimer('nextLeaguesTime',randomInterval(2*60, 4*60));
-                    }
-                    else
-                    {
-                        logHHAuto('going to crush ID : '+oppoID);
-                        //week 28 new battle modification
-                        //location.href = "/battle.html?league_battle=1&id_member=" + oppoID;
-                        gotoPage(getHHScriptVars("pagesIDLeagueBattle"),{number_of_battles:1,id_opponent:oppoID});
-                        //End week 28 new battle modification
 
-                        clearTimer('nextLeaguesTime');
-                    }
+                const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesRunThreshold"));
+                if (runThreshold > 0) {
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_LeagueHumanLikeRun", "true");
                 }
+
+                logHHAuto("Going to fight " + Data[0].nickname + "(" + Data[0].opponent_id + ") with power " + Data[0].power);
+                if(debugEnabled) logHHAuto(JSON.stringify(Data[0]));
+                // change referer
+                window.history.replaceState(null, '', '/leagues-pre-battle.html?id_opponent='+Data[0].opponent_id);
+
+                const opponents_list = getHHVars("opponents_list");
+                const opponentDataFromList = opponents_list.filter(obj => {
+                    return obj.player.id_fighter == Data[0].opponent_id;
+                });
+                if(debugEnabled) logHHAuto("opponentDataFromList ", JSON.stringify(opponentDataFromList));
+
+                let numberOfFightAvailable = 0;
+                if(opponentDataFromList && opponentDataFromList.length> 0)
+                    numberOfFightAvailable = LeagueHelper.numberOfFightAvailable(opponentDataFromList[0])
                 else
-                {
-                    const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesRunThreshold"));
-                    if (runThreshold > 0) {
-                        setStoredValue(HHStoredVarPrefixKey+"Temp_LeagueHumanLikeRun", "true");
-                    }
+                    logHHAuto('ERROR opponent ' + Data[0].opponent_id + ' not found in JS list');
 
-                    logHHAuto("Going to fight " + Data[0].nickname + "(" + Data[0].opponent_id + ") with power " + Data[0].power);
-                    // change referer
-                    window.history.replaceState(null, '', '/leagues-pre-battle.html?id_opponent='+Data[0].opponent_id);
-
-                    const opponents_list = getHHVars("opponents_list");
-                    const opponentDataFromList = opponents_list.filter(obj => {
-                        return obj.player.id_fighter == Data[0].opponent_id;
-                    });
-
-                    let numberOfFightAvailable = 0;
-                    if(opponentDataFromList && opponentDataFromList.length> 0)
-                        numberOfFightAvailable = LeagueHelper.numberOfFightAvailable(opponentDataFromList[0])
-                    else
-                        logHHAuto('ERROR opponent ' + Data[0].opponent_id + ' not found in JS list');
-
-                    let numberOfBattle = 1;
-                    if(numberOfFightAvailable > 1 && currentPower >= (numberOfFightAvailable + leagueThreshold)){
-                        if(maxStay > 0 && currentScore + ( numberOfFightAvailable * leagueScoreSecurityThreshold) >= maxStay) logHHAuto('Can\'t do '+numberOfFightAvailable+' fights in league as could go above stay');
-                        else numberOfBattle = numberOfFightAvailable;
-                    }
-                    logHHAuto("Going to fight " + numberOfBattle + " times (Number fights available from opponent:" + numberOfFightAvailable + ")");
-
-                    if(numberOfBattle <= 1) {
-                        gotoPage(getHHScriptVars("pagesIDLeagueBattle"),{number_of_battles:1,id_opponent:Data[0].opponent_id});
-                    } else {
-                        var params1 = {
-                            action: "do_battles_leagues",
-                            id_opponent: Data[0].opponent_id,
-                            number_of_battles: numberOfBattle
-                        };
-                        hh_ajax(params1, function(data) {
-                            // change referer
-                            window.history.replaceState(null, '', '/tower-of-fame.html');
-
-                            RewardHelper.closeRewardPopupIfAny();
-
-                            // gotoPage(getHHScriptVars("pagesIDLeaderboard"));
-                            location.reload();
-                            Hero.updates(data.hero_changes);
-                        });
-                    }
+                let numberOfBattle = 1;
+                if(numberOfFightAvailable > 1 && currentPower >= (numberOfFightAvailable + leagueThreshold)){
+                    if(maxStay > 0 && currentScore + ( numberOfFightAvailable * leagueScoreSecurityThreshold) >= maxStay) logHHAuto('Can\'t do '+numberOfFightAvailable+' fights in league as could go above stay');
+                    else numberOfBattle = numberOfFightAvailable;
                 }
+                logHHAuto("Going to fight " + numberOfBattle + " times (Number fights available from opponent:" + numberOfFightAvailable + ")");
+
+                if(numberOfBattle <= 1) {
+                    gotoPage(getHHScriptVars("pagesIDLeagueBattle"),{number_of_battles:1,id_opponent:Data[0].opponent_id});
+                } else {
+                    var params1 = {
+                        action: "do_battles_leagues",
+                        id_opponent: Data[0].opponent_id,
+                        number_of_battles: numberOfBattle
+                    };
+                    hh_ajax(params1, function(data) {
+                        // change referer
+                        window.history.replaceState(null, '', '/tower-of-fame.html');
+
+                        RewardHelper.closeRewardPopupIfAny();
+
+                        // gotoPage(getHHScriptVars("pagesIDLeaderboard"));
+                        location.reload();
+                        Hero.updates(data.hero_changes);
+                    });
+                }
+                
             }
         }
         else
@@ -790,164 +736,6 @@ export class LeagueHelper {
             return;
         }
     }
-
-    static getLeagueOpponentId(opponentsIDList,force=false)
-    {
-        var opponentsPowerList = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_LeagueOpponentList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_LeagueOpponentList")):{expirationDate:0,opponentsList:{}};
-        var opponentsTempPowerList = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_LeagueTempOpponentList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_LeagueTempOpponentList")):{expirationDate:0,opponentsList:{}};
-        var opponentsIDs= opponentsIDList;
-        var oppoNumber = opponentsIDList.length;
-        var DataOppo={};
-        var maxTime = 1.6;
-
-        if (Object.keys(opponentsPowerList.opponentsList).length === 0 ||  opponentsPowerList.expirationDate < new Date() || force)
-        {
-            sessionStorage.removeItem(HHStoredVarPrefixKey+"Temp_LeagueOpponentList");
-            if (Object.keys(opponentsTempPowerList.opponentsList).length > 0 && opponentsTempPowerList.expirationDate > new Date())
-            {
-                logHHAuto("Opponents list already started, continuing.");
-
-                for (var i of Object.keys(opponentsTempPowerList.opponentsList))
-                {
-                    //removing oppo no longer in list
-                    if (opponentsIDList.indexOf(i.toString()) !== -1)
-                    {
-                        //console.log(opponentsTempPowerList[i]);
-                        DataOppo[i]=opponentsTempPowerList.opponentsList[i];
-                        //console.log(JSON.stringify(DataOppo));
-                        //console.log('removed');
-                    }
-                    //removing already done in opponentsIDList
-                    //console.log(opponentsIDList.length)
-                    opponentsIDList = opponentsIDList.filter(item => Number(item) !== Number(i));
-                    //console.log(opponentsIDList.length)
-                }
-                //console.log(JSON.stringify(DataOppo));
-                sessionStorage.removeItem(HHStoredVarPrefixKey+"Temp_LeagueTempOpponentList");
-            }
-            else
-            {
-                logHHAuto("Opponents list not found or expired. Fetching all opponents.");
-            }
-
-
-
-            //if paranoia not is time's up and not in paranoia spendings
-            if (!checkTimer("paranoiaSwitch"))
-            {
-                let addedTime=opponentsIDList.length*maxTime;
-                logHHAuto("Adding time to burst to cover building list : +"+addedTime+"secs");
-                addedTime += getSecondsLeft("paranoiaSwitch");
-                setTimer("paranoiaSwitch",addedTime);
-            }
-            getOpponents();
-            return -1;
-        }
-        else
-        {
-            logHHAuto("Found valid opponents list, using it.")
-            return FindOpponent(opponentsPowerList,opponentsIDs);
-        }
-
-        function getOpponents()
-        {
-            //logHHAuto('Need to click: '+ToClick.length);
-            var findText = 'playerLeaguesData = ';
-            let league_end = LeagueHelper.getLeagueEndTime();
-            let maxLeagueListDurationSecs = getHHScriptVars("LeagueListExpirationSecs");
-            if (league_end !== -1 && league_end < maxLeagueListDurationSecs)
-            {
-                maxLeagueListDurationSecs = league_end;
-            }
-            if (maxLeagueListDurationSecs <1)
-            {
-                maxLeagueListDurationSecs = 1;
-            }
-            // TODO fixme
-            let listExpirationDate =isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_LeagueTempOpponentList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_LeagueTempOpponentList")).expirationDate:new Date().getTime() + maxLeagueListDurationSecs * 1000;
-            if (opponentsIDList.length>0)
-            {
-                //logHHAuto('getting data for opponent : '+opponentsIDList[0]);
-                //logHHAuto({log:"Opponent list",opponentsIDList:opponentsIDList});
-                $.post('/ajax.php',
-                    {
-                    action: 'leagues_get_opponent_info',
-                    opponent_id: opponentsIDList[0]
-                },
-                    function(data)
-                    {
-                    //logHHAuto({log:"data for oppo",data:data});
-                    var opponentData = data.player;
-                    //console.log(opponentData);
-                    const players=LeagueHelper.getLeaguePlayersData(getHHVars("hero_fighter"),opponentData);
-
-                    //console.log(player,opponent);
-                    let simu = calculateBattleProbabilities(players.player, players.opponent);
-                    //console.log(opponent);
-                    //console.log(simu);
-                    //matchRating=customMatchRating(simu);
-
-                    //matchRating = Number(matchRating.substring(1));
-                    //logHHAuto('matchRating:'+matchRating);
-                    //if (!isNaN(matchRating))
-                    //{
-                    DataOppo[Number(opponentData.id_fighter)]=simu;
-                    setStoredValue(HHStoredVarPrefixKey+"Temp_LeagueTempOpponentList", JSON.stringify({expirationDate:listExpirationDate,opponentsList:DataOppo}));
-                    //}
-                    //DataOppo.push(JSON.parse(data.html.substring(data.html.indexOf(findText)+findText.length,data.html.lastIndexOf(';'))));
-
-                });
-
-                opponentsIDList.shift();
-                LeagueHelper.LeagueUpdateGetOpponentPopup(Object.keys(DataOppo).length+'/'+oppoNumber, TimeHelper.toHHMMSS((oppoNumber-Object.keys(DataOppo).length)*maxTime));
-                setTimeout(getOpponents,randomInterval(800,maxTime*1000));
-
-                window.top.postMessage({ImAlive:true},'*');
-            }
-            else
-            {
-                //logHHAuto('nothing to click, checking data');
-
-                //logHHAuto(DataOppo);
-                sessionStorage.removeItem(HHStoredVarPrefixKey+"Temp_LeagueTempOpponentList");
-                setStoredValue(HHStoredVarPrefixKey+"Temp_LeagueOpponentList", JSON.stringify({expirationDate:listExpirationDate,opponentsList:DataOppo}));
-                LeagueHelper.LeagueClearDisplayGetOpponentPopup();
-                //doLeagueBattle();
-                logHHAuto("Building list finished, putting autoloop back to true.");
-                setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
-                setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")));
-            }
-        }
-
-        function FindOpponent(opponentsPowerList,opponentsIDList)
-        {
-            var maxScore = -1;
-            var IdOppo = -1;
-            var OppoScore;
-            logHHAuto('finding best chance opponent in '+opponentsIDList.length);
-            for (var oppo of opponentsIDList)
-            {
-                //logHHAuto({Opponent:oppo,OppoGet:Number(opponentsPowerList.get(oppo)),maxScore:maxScore});
-                const oppoSimu = opponentsPowerList.opponentsList[Number(oppo)];
-                if (oppoSimu === undefined)
-                {
-                    continue;
-                }
-                OppoScore = Number(oppoSimu.win);
-                if (( maxScore == -1 || OppoScore > maxScore ) && !isNaN(OppoScore))
-                {
-
-                    maxScore = OppoScore;
-                    IdOppo = oppo;
-                }
-            }
-            logHHAuto("highest score opponent : "+IdOppo+'('+nRounding(100*maxScore, 2, -1)+'%)');
-            return IdOppo;
-        }
-        return true;
-    }
-
-    
 
     static LeagueDisplayGetOpponentPopup(numberDone,remainingTime)
     {
@@ -969,3 +757,4 @@ export class LeagueHelper {
         LeagueHelper.LeagueDisplayGetOpponentPopup(numberDone,remainingTime);
     }
 }
+unsafeWindow.LeagueHelper = LeagueHelper;

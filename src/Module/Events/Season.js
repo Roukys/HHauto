@@ -1,11 +1,9 @@
+
 import {
+    BDSMHelper,
     RewardHelper,
     TimeHelper,
     calculateBattleProbabilities,
-    calculateCritChanceShare,
-    calculateDominationBonuses,
-    calculateSynergiesFromTeamMemberElements,
-    calculateThemeFromElements,
     checkTimer,
     convertTimeToInt,
     getHHScriptVars,
@@ -98,6 +96,7 @@ export class Season {
 
     static moduleSimSeasonBattle()
     {
+        const hero_data = unsafeWindow.hero_data;
         let doDisplay=false;
         let mojoOppo=[];
         let scoreOppo=[];
@@ -111,61 +110,12 @@ export class Season {
             {
                 doDisplay=true;
             }
-            const playerStats = {};
-            $('#season-arena .battle_hero .player_stats .player_stats_row div').each(function ()
-                                                                                {
-                playerStats[$('span[carac]',this).attr('carac')]=$('span:not([carac])',this)[0].innerText.replace(/[^0-9]/gi, '');
-            });
-            // player stats
-            const playerEgo = Math.round(playerStats.ego);
-            const playerDef = Math.round(playerStats.def0);
-            const playerAtk = Math.round(playerStats.damage);
-            const playerCrit = Math.round(playerStats.chance);
-            const playerTeamElement = Array();
-            for (var i=0; i<$('#season-arena .battle_hero .team-theme.icon').length; i++)
-            {
-                const teamElement = $('#season-arena .battle_hero .team-theme.icon')[i].attributes.src.value.match(/girls_elements\/(.*?).png/)[1];
-                playerTeamElement.push(teamElement);
-            }
-            const playerTeam = $('#season-arena .battle_hero .player-team .team-member img').map((i, el) => $(el).data('new-girl-tooltip')).toArray();
-            const playerSynergies = JSON.parse($('#season-arena .battle_hero .player-team .icon-area').attr('synergy-data'));
-            const playerTeamMemberElements = playerTeam.map(({element_data: {type: element}})=>element);
-            const playerElements = calculateThemeFromElements(playerTeamMemberElements)
-            const playerBonuses = {
-                critDamage: playerSynergies.find(({element: {type}})=>type==='fire').bonus_multiplier,
-                critChance: playerSynergies.find(({element: {type}})=>type==='stone').bonus_multiplier,
-                defReduce: playerSynergies.find(({element: {type}})=>type==='sun').bonus_multiplier,
-                healOnHit: playerSynergies.find(({element: {type}})=>type==='water').bonus_multiplier
-            };
 
             let opponents = $('div.opponents_arena .season_arena_opponent_container');
             for (let index=0;index<3;index++)
             {
 
-                const opponentName = $("div.player-name",opponents[index])[0].innerText;
-                const opponentEgo = manageUnits($('.player_stats .player_stats_row span.carac_value',opponents[index])[2].innerText);
-                const opponentDef = manageUnits($('.player_stats .player_stats_row span.carac_value',opponents[index])[1].innerText);
-                const opponentAtk = manageUnits($('.player_stats .player_stats_row span.carac_value',opponents[index])[0].innerText);
-                const opponentCrit = manageUnits($('.player_stats .player_stats_row span.carac_value',opponents[index])[3].innerText);
-                const opponentTeam = $('.team-member img',opponents[index]).map((i, el) => $(el).data('new-girl-tooltip')).toArray();
-                const opponentTeamMemberElements = opponentTeam.map(({element})=>element);
-                const opponentElements = calculateThemeFromElements(opponentTeamMemberElements);
-                const opponentBonuses = calculateSynergiesFromTeamMemberElements(opponentTeamMemberElements);
-                const dominanceBonuses = calculateDominationBonuses(playerElements, opponentElements);
-                const player = {
-                    hp: playerEgo * (1 + dominanceBonuses.player.ego),
-                    dmg: (playerAtk * (1 + dominanceBonuses.player.attack)) - (opponentDef * (1 - playerBonuses.defReduce)),
-                    critchance: calculateCritChanceShare(playerCrit, opponentCrit) + dominanceBonuses.player.chance + playerBonuses.critChance,
-                    bonuses: playerBonuses
-                };
-                const opponent = {
-                    hp: opponentEgo * (1 + dominanceBonuses.opponent.ego),
-                    dmg: (opponentAtk * (1 + dominanceBonuses.opponent.attack)) - (playerDef * (1 - opponentBonuses.defReduce)),
-                    critchance: calculateCritChanceShare(opponentCrit, playerCrit) + dominanceBonuses.opponent.chance + opponentBonuses.critChance,
-                    name: opponentName,
-                    bonuses: opponentBonuses
-                };
-
+                const {player, opponent} = BDSMHelper.getBdsmPlayersData(heroFighter, opponentData);
 
                 if (doDisplay)
                 {
@@ -173,18 +123,12 @@ export class Season {
                 }
                 const simu = calculateBattleProbabilities(player, opponent)
 
-                //console.log(player,opponent);
-                //console.log(simu);
-                //matchRating=customMatchRating(simu);
                 scoreOppo[index]=simu;
                 mojoOppo[index]=Number($(".slot_victory_points .amount",opponents[index])[0].innerText);
                 //logHHAuto(mojoOppo[index]);
-                nameOppo[index]=opponentName;
+                nameOppo[index]=opponent.name;
                 expOppo[index]=Number($(".slot_season_xp_girl",opponents[index])[0].lastElementChild.innerText.replace(/\D/g, ''));
                 affOppo[index]=Number($(".slot_season_affection_girl",opponents[index])[0].lastElementChild.innerText.replace(/\D/g, ''));
-                //Publish the ego difference as a match rating
-                //matchRatingFlag = matchRating.substring(0,1);
-                //matchRating = matchRating.substring(1);
 
                 GM_addStyle('#season-arena .opponents_arena .opponent_perform_button_container {'
                         + 'width: 200px;}'

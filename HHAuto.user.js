@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.12.4
+// @version      6.14.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -231,7 +231,7 @@ HHAuto_ToolTips.en.autoMythicPachinko = { version: "5.6.24", elementText: "Mythi
 HHAuto_ToolTips.en.autoEquipmentPachinko = { version: "5.34.9", elementText: "Equipment Pachinko"};
 HHAuto_ToolTips.en.autoLeaguesTitle = { version: "5.6.24", elementText: "Leagues"};
 HHAuto_ToolTips.en.autoLeagues = { version: "5.6.24", elementText: "Enable", tooltip: "if enabled : Automatically battle Leagues"};
-HHAuto_ToolTips.en.autoLeaguesPowerCalc = { version: "5.6.24", elementText: "Use PowerCalc", tooltip: "if enabled : will choose opponent using PowerCalc (Opponent list expires every 10 mins and take few mins to be built)"};
+HHAuto_ToolTips.en.autoLeaguesPowerCalc = { version: "6.14.0", elementText: "Use PowerCalc", tooltip: "if enabled : will choose opponent using PowerCalc"};
 HHAuto_ToolTips.en.leagueListDisplayPowerCalc = { version: "5.34.18", elementText: "Display PowerCalc", tooltip: "Display powerCalc in league list (stil in developpment)"};
 HHAuto_ToolTips.en.autoLeaguesCollect = { version: "5.6.24", elementText: "Collect", tooltip: "If enabled : Automatically collect Leagues"};
 HHAuto_ToolTips.en.autoLeaguesRunThreshold = { version: "6.8.0", elementText: "Run Threshold", tooltip: "Minimum league fights before script start spending<br> 0 to spend as soon as energy above threshold"};
@@ -491,7 +491,7 @@ HHAuto_ToolTips.fr.autoFreePachinko = { version: "5.6.24", elementText: "Pachink
 HHAuto_ToolTips.fr.autoMythicPachinko = { version: "5.6.24", elementText: "Pachinko mythique"};
 HHAuto_ToolTips.fr.autoEquipmentPachinko = { version: "5.34.9", elementText: "Pachinko d'équipment"};
 HHAuto_ToolTips.fr.autoLeagues = { version: "5.6.24", elementText: "Activer", tooltip: "Si activé : Combattre automatiquement en Ligues"};
-HHAuto_ToolTips.fr.autoLeaguesPowerCalc = { version: "5.6.24", elementText: "Utiliser PowerCalc", tooltip: "Si activé : choisira l'adversaire en utilisant PowerCalc (la liste des adversaires expire toutes les 10 minutes et prend quelques minutes pour être construite)."};
+HHAuto_ToolTips.fr.autoLeaguesPowerCalc = { version: "6.14.0", elementText: "Utiliser PowerCalc", tooltip: "Si activé : choisira l'adversaire en utilisant PowerCalc."};
 HHAuto_ToolTips.fr.autoLeaguesCollect = { version: "5.6.24", elementText: "Collecter", tooltip: "Si activé : Collecte automatiquement les récompenses de la Ligue terminée"};
 HHAuto_ToolTips.fr.autoLeaguesSelector = { version: "5.6.24", elementText: "Ligue ciblée", tooltip: "Objectif de niveau de ligue (à atteindre, à conserver ou à dépasser selon le choix)."};
 HHAuto_ToolTips.fr.autoLeaguesAllowWinCurrent = {version: "5.6.24", elementText:"Autoriser dépassement", tooltip: "Si activé, le script tentera de gagner la ligue ciblée puis rétrogradera la semaine suivante pour retourner dans la ligue ciblée."};
@@ -611,7 +611,7 @@ HHAuto_ToolTips.de.autoQuestThreshold = { version: "5.6.24", elementText: "Schwe
 HHAuto_ToolTips.de.autoContest = { version: "5.6.24", elementText: "AutoAufgabe", tooltip: "Wenn aktiv : Sammelt abgeschlossene Aufgabenbelohnungen ein"};
 HHAuto_ToolTips.de.autoFreePachinko = { version: "5.6.24", elementText: "AutoPachinko(Gratis)", tooltip: "Wenn aktiv : Sammelt freien Glücksspielgewinn ein"};
 HHAuto_ToolTips.de.autoLeagues = { version: "5.6.24", elementText: "AutoLiga", tooltip: "Wenn aktiv : Kämpft automatisch in der Liga"};
-HHAuto_ToolTips.de.autoLeaguesPowerCalc = { version: "5.6.24", elementText: "Nutze Kraftrechner", tooltip: "Wenn aktiv : wählt Gegner durch Kraftrechner (Gegnerliste verfällt alle 10 Min und braucht ein Minuten zur Erneuerung)"};
+HHAuto_ToolTips.de.autoLeaguesPowerCalc = { version: "6.14.0", elementText: "Nutze Kraftrechner", tooltip: "Wenn aktiv : wählt Gegner durch Kraftrechner"};
 HHAuto_ToolTips.de.autoLeaguesCollect = { version: "5.6.24", elementText: "Einsammeln", tooltip: "Wenn aktiv : Sammelt automatisch Ligagewinn ein"};
 HHAuto_ToolTips.de.autoLeaguesSelector = { version: "5.6.24", elementText: "Ligaziel", tooltip: "Ligaziel, versuche abzusteigen, Platz zu halten oder aufzusteigen"};
 HHAuto_ToolTips.de.autoLeaguesThreshold = { version: "5.6.24", elementText: "Schwellwert", tooltip: "Minimum an Ligakämpfe behalten"};
@@ -679,7 +679,7 @@ HHAuto_ToolTips.es.autoQuestThreshold = { version: "5.6.24", elementText: "Lími
 HHAuto_ToolTips.es.autoContest = { version: "5.6.24", elementText: "AutoCompetición", tooltip: "Si habilitado: Recauda recompensas de competición finalizada"};
 HHAuto_ToolTips.es.autoFreePachinko = { version: "5.6.138", elementText: "AutoPachinko (Gratis)", tooltip: "Si habilitado: Recauda pachinkos gratuitos de manera automática"};
 HHAuto_ToolTips.es.autoLeagues = { version: "5.6.24", elementText: "AutoLigas", tooltip: "Si habilitado: Combate en ligas de manera automática"};
-HHAuto_ToolTips.es.autoLeaguesPowerCalc = { version: "5.6.24", elementText: "UsarCalcPotencia", tooltip: "Si habilitado: Elige oponentes usando calculadora de potencia (La lista expira cada 10 mins. y tarda pocos minutos en reconstruirse)"};
+HHAuto_ToolTips.es.autoLeaguesPowerCalc = { version: "6.14.0", elementText: "UsarCalcPotencia", tooltip: "Si habilitado: Elige oponentes usando calculadora de potencia"};
 HHAuto_ToolTips.es.autoLeaguesCollect = { version: "5.6.24", elementText: "Recaudar", tooltip: "Si habilitado: Recauda premios de ligas de manera automática"};
 HHAuto_ToolTips.es.autoLeaguesSelector = { version: "5.6.24", elementText: "Liga objetivo", tooltip: "Liga objetivo, para intentar descender, permanecer o ascender a otra liga en función de ello"};
 HHAuto_ToolTips.es.autoLeaguesThreshold = { version: "5.6.24", elementText: "Límite", tooltip: "Mínimos combates de liga a conservar"};
@@ -2534,6 +2534,7 @@ class PathOfValue {
 }
 ;// CONCATENATED MODULE: ./src/Module/Events/Season.js
 
+
     
     
 
@@ -2610,6 +2611,7 @@ class Season {
 
     static moduleSimSeasonBattle()
     {
+        const hero_data = unsafeWindow.hero_data;
         let doDisplay=false;
         let mojoOppo=[];
         let scoreOppo=[];
@@ -2623,61 +2625,12 @@ class Season {
             {
                 doDisplay=true;
             }
-            const playerStats = {};
-            $('#season-arena .battle_hero .player_stats .player_stats_row div').each(function ()
-                                                                                {
-                playerStats[$('span[carac]',this).attr('carac')]=$('span:not([carac])',this)[0].innerText.replace(/[^0-9]/gi, '');
-            });
-            // player stats
-            const playerEgo = Math.round(playerStats.ego);
-            const playerDef = Math.round(playerStats.def0);
-            const playerAtk = Math.round(playerStats.damage);
-            const playerCrit = Math.round(playerStats.chance);
-            const playerTeamElement = Array();
-            for (var i=0; i<$('#season-arena .battle_hero .team-theme.icon').length; i++)
-            {
-                const teamElement = $('#season-arena .battle_hero .team-theme.icon')[i].attributes.src.value.match(/girls_elements\/(.*?).png/)[1];
-                playerTeamElement.push(teamElement);
-            }
-            const playerTeam = $('#season-arena .battle_hero .player-team .team-member img').map((i, el) => $(el).data('new-girl-tooltip')).toArray();
-            const playerSynergies = JSON.parse($('#season-arena .battle_hero .player-team .icon-area').attr('synergy-data'));
-            const playerTeamMemberElements = playerTeam.map(({element_data: {type: element}})=>element);
-            const playerElements = calculateThemeFromElements(playerTeamMemberElements)
-            const playerBonuses = {
-                critDamage: playerSynergies.find(({element: {type}})=>type==='fire').bonus_multiplier,
-                critChance: playerSynergies.find(({element: {type}})=>type==='stone').bonus_multiplier,
-                defReduce: playerSynergies.find(({element: {type}})=>type==='sun').bonus_multiplier,
-                healOnHit: playerSynergies.find(({element: {type}})=>type==='water').bonus_multiplier
-            };
 
             let opponents = $('div.opponents_arena .season_arena_opponent_container');
             for (let index=0;index<3;index++)
             {
 
-                const opponentName = $("div.player-name",opponents[index])[0].innerText;
-                const opponentEgo = manageUnits($('.player_stats .player_stats_row span.carac_value',opponents[index])[2].innerText);
-                const opponentDef = manageUnits($('.player_stats .player_stats_row span.carac_value',opponents[index])[1].innerText);
-                const opponentAtk = manageUnits($('.player_stats .player_stats_row span.carac_value',opponents[index])[0].innerText);
-                const opponentCrit = manageUnits($('.player_stats .player_stats_row span.carac_value',opponents[index])[3].innerText);
-                const opponentTeam = $('.team-member img',opponents[index]).map((i, el) => $(el).data('new-girl-tooltip')).toArray();
-                const opponentTeamMemberElements = opponentTeam.map(({element})=>element);
-                const opponentElements = calculateThemeFromElements(opponentTeamMemberElements);
-                const opponentBonuses = calculateSynergiesFromTeamMemberElements(opponentTeamMemberElements);
-                const dominanceBonuses = calculateDominationBonuses(playerElements, opponentElements);
-                const player = {
-                    hp: playerEgo * (1 + dominanceBonuses.player.ego),
-                    dmg: (playerAtk * (1 + dominanceBonuses.player.attack)) - (opponentDef * (1 - playerBonuses.defReduce)),
-                    critchance: calculateCritChanceShare(playerCrit, opponentCrit) + dominanceBonuses.player.chance + playerBonuses.critChance,
-                    bonuses: playerBonuses
-                };
-                const opponent = {
-                    hp: opponentEgo * (1 + dominanceBonuses.opponent.ego),
-                    dmg: (opponentAtk * (1 + dominanceBonuses.opponent.attack)) - (playerDef * (1 - opponentBonuses.defReduce)),
-                    critchance: calculateCritChanceShare(opponentCrit, playerCrit) + dominanceBonuses.opponent.chance + opponentBonuses.critChance,
-                    name: opponentName,
-                    bonuses: opponentBonuses
-                };
-
+                const {player, opponent} = BDSMHelper.getBdsmPlayersData(heroFighter, opponentData);
 
                 if (doDisplay)
                 {
@@ -2685,18 +2638,12 @@ class Season {
                 }
                 const simu = calculateBattleProbabilities(player, opponent)
 
-                //console.log(player,opponent);
-                //console.log(simu);
-                //matchRating=customMatchRating(simu);
                 scoreOppo[index]=simu;
                 mojoOppo[index]=Number($(".slot_victory_points .amount",opponents[index])[0].innerText);
                 //logHHAuto(mojoOppo[index]);
-                nameOppo[index]=opponentName;
+                nameOppo[index]=opponent.name;
                 expOppo[index]=Number($(".slot_season_xp_girl",opponents[index])[0].lastElementChild.innerText.replace(/\D/g, ''));
                 affOppo[index]=Number($(".slot_season_affection_girl",opponents[index])[0].lastElementChild.innerText.replace(/\D/g, ''));
-                //Publish the ego difference as a match rating
-                //matchRatingFlag = matchRating.substring(0,1);
-                //matchRating = matchRating.substring(1);
 
                 GM_addStyle('#season-arena .opponents_arena .opponent_perform_button_container {'
                         + 'width: 200px;}'
@@ -3412,7 +3359,7 @@ class SeasonalEvent {
 
 
 ;// CONCATENATED MODULE: ./src/model/Champion.js
-
+//@ts-check
 class ChampionModel {
     index;
     timer=-1;
@@ -3420,6 +3367,12 @@ class ChampionModel {
     impression;
     inFilter = false;
 
+    /**
+     * 
+     * @param {number} index 
+     * @param {string} impression 
+     * @param {boolean} inFilter 
+     */
     constructor(index, impression, inFilter) {
         this.index = index;
         this.impression = impression;
@@ -6386,7 +6339,48 @@ class HaremSalary {
         return false;
     }
 }
+;// CONCATENATED MODULE: ./src/model/LeagueOpponent.js
+
+
+//@ts-check
+class LeagueOpponent {
+    opponent_id;
+    rank;
+    nickname;
+    level;
+    power;
+    player_league_points;
+    simuPoints;
+    stats= {}; // fill stats if needed
+    nb_boosters = 0;
+    kkOpponent = {};
+
+    /**
+     * 
+     * @param {*} opponent_id 
+     * @param {number} rank 
+     * @param {string} nickname 
+     * @param {number} level 
+     * @param {number} power 
+     * @param {number} player_league_points 
+     * @param {number} simuPoints 
+     * @param {number} nb_boosters 
+     * @param {KKLeagueOpponent} kkOpponent 
+     */
+    constructor(opponent_id,rank,nickname,level,power,player_league_points,simuPoints,nb_boosters, kkOpponent){
+        this.opponent_id = opponent_id;
+        this.rank = rank;
+        this.nickname = nickname;
+        this.level = level;
+        this.power = power;
+        this.player_league_points = player_league_points;
+        this.simuPoints = simuPoints;
+        this.nb_boosters = nb_boosters;
+        this.kkOpponent = kkOpponent;
+    }
+}
 ;// CONCATENATED MODULE: ./src/Module/League.js
+
 
 
 
@@ -6480,6 +6474,31 @@ class LeagueHelper {
         );
     }
 
+    /**
+     * @returns {BDSMSimu}
+     */
+    static getSimPowerOpponent(heroFighter, opponents) {
+        const opponentData = opponents.player;
+        let leaguePlayers = BDSMHelper.getBdsmPlayersData(heroFighter, opponentData, true);
+        //console.log("HH simuFight",JSON.stringify(leaguePlayers.player),JSON.stringify(leaguePlayers.opponent));
+        let simu = calculateBattleProbabilities(leaguePlayers.player, leaguePlayers.opponent);
+
+        if("4363922" == opponents.player.id_fighter) {
+            console.log("HH Auto Hero", leaguePlayers.player);
+            console.log("HH Auto Shizik", leaguePlayers.opponent);
+            console.log("HH Auto Simu", simu);
+        }
+        
+        const oppoPoints = simu.points;
+        let expectedValue = 0;
+        for (let i=25; i>=3; i--) {
+            if (oppoPoints[i]) {
+                expectedValue += i*oppoPoints[i];
+            }
+        }
+        simu.expectedValue = expectedValue;
+        return simu;
+    }
     
     static displayOppoSimuOnButton(id_fighter, simu, force=0) {
         const opponentGoButton = $('a[href*="id_opponent='+id_fighter+'"]');
@@ -6590,47 +6609,17 @@ class LeagueHelper {
                 LogUtils_logHHAuto('ERROR: Can\'t find opponent list');
                 return;
             }
-            let heroFighter = opponents_list.filter(obj => {
-                return obj.player.id_fighter == Hero.infos.id;
-            });
-            if(heroFighter.length > 0) heroFighter = heroFighter[0].player;
-            else return;
+            let heroFighter = opponents_list.find((el) => el.player.id_fighter == Hero.infos.id).player;
 
-            /*const canFight = function(opponent) {
-                // remove match_history after w32 update
-                const matchs = opponent.match_history ? opponent.match_history[opponent.player.id_fighter]: opponent.match_history_sorting[opponent.player.id_fighter];
-                return matchs && matchs.length === 3 && (matchs[0] == null || matchs[1] == null || matchs[2] == null)
-            }*/
-
-            const containsSimuScore = function(opponents) {
-                return $('a[href*="id_opponent='+opponents.player.id_fighter+'"] .matchRatingNew').length > 0;
-            }
-
-
-            const SimPowerOpponent = function(heroFighter, opponents) {
-
-                const opponentData = opponents.player;
-                let leaguePlayers = LeagueHelper.getLeaguePlayersData(heroFighter, opponentData);
-                //console.log("HH simuFight",JSON.stringify(leaguePlayers.player),JSON.stringify(leaguePlayers.opponent));
-                let simu = calculateBattleProbabilities(leaguePlayers.player, leaguePlayers.opponent);
-
-                const oppoPoints = simu.points;
-                let expectedValue = 0;
-                for (let i=25; i>=3; i--) {
-                    if (oppoPoints[i]) {
-                        expectedValue += i*oppoPoints[i];
-                    }
-                }
-                simu.expectedValue = expectedValue;
-
-                LeagueHelper.displayOppoSimuOnButton(opponentData.id_fighter, simu);
-            }
+            const containsSimuScore = function(opponents) { return $('a[href*="id_opponent='+opponents.player.id_fighter+'"] .matchRatingNew').length > 0;}
+            const containsOcdScore = function(opponents) { return $('.matchRating', $('a[href*="id_opponent='+opponents.player.id_fighter+'"]').parent()).length > 0;}
 
             for(let opponentIndex = 0;opponentIndex < opponents_list.length ; opponentIndex++)
             {
                 let opponents = opponents_list[opponentIndex];
-                if (LeagueHelper.numberOfFightAvailable(opponents) > 0 && !containsSimuScore(opponents)) {
-                    SimPowerOpponent(heroFighter, opponents); 
+                if (LeagueHelper.numberOfFightAvailable(opponents) > 0 && !containsSimuScore(opponents) && !containsOcdScore(opponents)) {
+                    const simu = LeagueHelper.getSimPowerOpponent(heroFighter, opponents); 
+                    LeagueHelper.displayOppoSimuOnButton(opponents.player.id_fighter, simu);
                 }
             }
             
@@ -6639,7 +6628,7 @@ class LeagueHelper {
 
         SimPower();
 
-        let listUpdateStatus='<div style="position: absolute;left: 650px;top: 14px;width:100px;" class="tooltipHH" id="HHListUpdate"></div>';
+        let listUpdateStatus='<div style="position: absolute;left: 720px;top: 0px;width:100px;" class="tooltipHH" id="HHListUpdate"></div>';
         if (document.getElementById("HHListUpdate") === null) {
             $(".leagues_middle_header_script").append(listUpdateStatus);
         }
@@ -6792,74 +6781,21 @@ class LeagueHelper {
             }
         }
     }
-    
-    static getLeaguePlayersData(inHeroLeaguesData, inPlayerLeaguesData)
-    {
-        const {
-            chance: playerCrit,
-            damage: playerAtk,
-            defense: playerDef,
-            remaining_ego: playerEgo,
-            team: playerTeam
-        } = inHeroLeaguesData;
-        let playerElements = playerTeam.theme_elements;
-        let playerSynergies = playerTeam.synergies;
-        if(!playerSynergies) {
-            const playerSynergyDataJSON = $('.player-row .button_team_synergy').attr('synergy-data');
-            playerSynergies = JSON.parse(playerSynergyDataJSON);
-        }
-        if (!playerElements || playerElements.length === 0) {
-            const playerTeamMemberElements = [0,1,2,3,4,5,6].map(key => playerTeam.girls[key].girl.element_data.type);
-            playerElements = calculateThemeFromElements(playerTeamMemberElements);
-        }
-        const playerBonuses = {
-            critDamage: playerSynergies.find(({element: {type}})=>type==='fire').bonus_multiplier,
-            critChance: playerSynergies.find(({element: {type}})=>type==='stone').bonus_multiplier,
-            defReduce: playerSynergies.find(({element: {type}})=>type==='sun').bonus_multiplier,
-            healOnHit: playerSynergies.find(({element: {type}})=>type==='water').bonus_multiplier
-        };
 
-        const {
-            chance: opponentCrit,
-            damage: opponentAtk,
-            defense: opponentDef,
-            remaining_ego: opponentEgo,
-            team: opponentTeam
-        } = inPlayerLeaguesData
-
-        const opponentTeamMemberElements = [];
-        [0,1,2,3,4,5,6].forEach(key => {
-            const teamMember = opponentTeam[key]
-            if (teamMember && teamMember.element) {
-                opponentTeamMemberElements.push(teamMember.element)
-            }
-        })
-        const opponentElements = opponentTeam.theme_elements.map(({type}) => type);
-        const opponentBonuses = calculateSynergiesFromTeamMemberElements(opponentTeamMemberElements)
-        const dominanceBonuses = calculateDominationBonuses(playerElements, opponentElements)
-
-        const player = {
-            hp: playerEgo * (1 + dominanceBonuses.player.ego),
-            dmg: (playerAtk * (1 + dominanceBonuses.player.attack)) - (opponentDef * (1 - playerBonuses.defReduce)),
-            critchance: calculateCritChanceShare(playerCrit, opponentCrit) + dominanceBonuses.player.chance + playerBonuses.critChance,
-            bonuses: playerBonuses
-        };
-        const opponent = {
-            hp: opponentEgo * (1 + dominanceBonuses.opponent.ego),
-            dmg: (opponentAtk * (1 + dominanceBonuses.opponent.attack)) - (playerDef * (1 - opponentBonuses.defReduce)),
-            critchance: calculateCritChanceShare(opponentCrit, playerCrit) + dominanceBonuses.opponent.chance + opponentBonuses.critChance,
-            name: inPlayerLeaguesData.nickname,
-            bonuses: opponentBonuses
-        };
-        return {player:player, opponent:opponent, dominanceBonuses:dominanceBonuses}
-    }   
-
+    /**
+     * @returns {LeagueOpponent[]}
+     */
     static getLeagueOpponentListData(isFirstCall = true)
-    {
+    { 
+        /**
+         * @type {LeagueOpponent[]}
+         */
         let Data=[];
         let opponent_id;
         let fightButton;
 
+        const usePowerCalc = StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoLeaguesPowerCalc") === 'true';
+        const debugEnabled = StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_Debug")==='true';
         const hasHHBdsmChangeBefore = $('.data-column[column="power"] .matchRating').length > 0;
         if (hasHHBdsmChangeBefore) LogUtils_logHHAuto('HH++ BDSM detected');
         const tableRow = $(".data-list .data-row.body-row");
@@ -6875,25 +6811,52 @@ class LeagueHelper {
             }
         }
 
-        LogUtils_logHHAuto('Number of player in league:' + tableRow.length);
-        LogUtils_logHHAuto('Number of opponent not fought in league:' + $('.data-list .data-row.body-row a').length);
+        LogUtils_logHHAuto('Number of player in league:' + tableRow.length + '. Number of opponent not fought in league:' + $('.data-list .data-row.body-row a').length);
 
+        const opponents_list = getHHVars("opponents_list");
+        let heroFighter;
+        if (usePowerCalc) {
+            try {
+                heroFighter = opponents_list?.find((el) => el.player.id_fighter == Hero.infos.id).player
+            } catch (error) {
+                LogUtils_logHHAuto('Error, falback to not use powercalc');
+                if(debugEnabled) LogUtils_logHHAuto(error);
+                usePowerCalc = false;
+            }
+        }
+
+        let canUseSimu = usePowerCalc && !!opponents_list && !!heroFighter;
         tableRow.each(function()
         {
             fightButton = $('a', $(this));
             if(fightButton.length > 0) {
                 opponent_id = queryStringGetParam(new URL(fightButton.attr("href"),window.location.origin).search, 'id_opponent');
-                let opponnent = {
-                    opponent_id: opponent_id,
-                    rank:  Number($('.data-column[column="place"]', $(this)).text()),
-                    nickname: $('.nickname', $(this)).text(),
-                    level: Number($('.data-column[column="level"]', $(this)).text()),
-                    power: getPowerOrPoints(hasHHBdsmChangeBefore, $(this)),
-                    player_league_points: Number($('.data-column[column="player_league_points"]', $(this)).text().replace(/\D/g, '')),
-                    simuPoints :  Number($('#HHPowerCalcPoints', $(this)).text()), // not filled yet when building this list
-                    stats: {}, // fill stats if needed
-                    nb_boosters: $('.boosters', $(this)).children().length,
-                };
+
+                let expectedPoints = 0;
+                let opponents;
+                if(canUseSimu) {
+                    try{
+                        opponents = opponents_list.find((el) => el.player.id_fighter == opponent_id);
+                        const simu = LeagueHelper.getSimPowerOpponent(heroFighter, opponents); 
+                        expectedPoints = Number(nRounding(simu.expectedValue, 1, -1));
+                    }catch(error){
+                        LogUtils_logHHAuto("Error in simu for oppo " + opponent_id +", falback to not use powercalc");
+                        if(debugEnabled) LogUtils_logHHAuto(error);
+                        canUseSimu = false;
+                    }
+                }
+
+                let opponnent = new LeagueOpponent(
+                    opponent_id,
+                    Number($('.data-column[column="place"]', $(this)).text()),
+                    $('.nickname', $(this)).text(),
+                    Number($('.data-column[column="level"]', $(this)).text()),
+                    getPowerOrPoints(hasHHBdsmChangeBefore, $(this)),
+                    Number($('.data-column[column="player_league_points"]', $(this)).text().replace(/\D/g, '')),
+                    expectedPoints,
+                    $('.boosters', $(this)).children().length,
+                    opponents
+                );
                 Data.push(opponnent);
             }
         });
@@ -6908,11 +6871,15 @@ class LeagueHelper {
                 return [];
             }
         }
-        if(hasHHBdsmChangeBefore) {
-            // HH++ BDSM script exist
-            Data.sort((a,b) => (b.power > a.power) ? 1 : ((a.power > b.power) ? -1 : 0)); // sort by higher score
-        }else {
-            Data.sort((a,b) => (a.power > b.power) ? 1 : ((b.power > a.power) ? -1 : 0)); // sort by lower power
+        if(canUseSimu) {
+            Data.sort((a,b) => (b.simuPoints > a.simuPoints) ? 1 : ((a.simuPoints > b.simuPoints) ? -1 : 0)); // sort by higher score
+        } else {
+            if(hasHHBdsmChangeBefore) {
+                // HH++ BDSM script exist
+                Data.sort((a,b) => (b.power > a.power) ? 1 : ((a.power > b.power) ? -1 : 0)); // sort by higher score
+            }else {
+                Data.sort((a,b) => (a.power > b.power) ? 1 : ((b.power > a.power) ? -1 : 0)); // sort by lower power
+            }
         }
         return Data;
     }
@@ -6923,6 +6890,7 @@ class LeagueHelper {
         const currentPower = LeagueHelper.getEnergy();
         const maxLeagueRegen = LeagueHelper.getEnergyMax();
         const leagueThreshold = Number(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoLeaguesThreshold"));
+        const debugEnabled = StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_Debug")==='true';
         let leagueScoreSecurityThreshold = StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoLeaguesSecurityThreshold");
         if (leagueScoreSecurityThreshold) {
             leagueScoreSecurityThreshold = Number(leagueScoreSecurityThreshold);
@@ -7073,58 +7041,56 @@ class LeagueHelper {
                 StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                 LogUtils_logHHAuto("setting autoloop to false");
                 LogUtils_logHHAuto("Hit?" );
-                // if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesPowerCalc") == "true")
-                if (false) // TODO Fix power calc if needed
-                { var oppoID; }
-                else
-                {
-                    const runThreshold = Number(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoLeaguesRunThreshold"));
-                    if (runThreshold > 0) {
-                        StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueHumanLikeRun", "true");
-                    }
 
-                    LogUtils_logHHAuto("Going to fight " + Data[0].nickname + "(" + Data[0].opponent_id + ") with power " + Data[0].power);
-                    // change referer
-                    window.history.replaceState(null, '', '/leagues-pre-battle.html?id_opponent='+Data[0].opponent_id);
-
-                    const opponents_list = getHHVars("opponents_list");
-                    const opponentDataFromList = opponents_list.filter(obj => {
-                        return obj.player.id_fighter == Data[0].opponent_id;
-                    });
-
-                    let numberOfFightAvailable = 0;
-                    if(opponentDataFromList && opponentDataFromList.length> 0)
-                        numberOfFightAvailable = LeagueHelper.numberOfFightAvailable(opponentDataFromList[0])
-                    else
-                        LogUtils_logHHAuto('ERROR opponent ' + Data[0].opponent_id + ' not found in JS list');
-
-                    let numberOfBattle = 1;
-                    if(numberOfFightAvailable > 1 && currentPower >= (numberOfFightAvailable + leagueThreshold)){
-                        if(maxStay > 0 && currentScore + ( numberOfFightAvailable * leagueScoreSecurityThreshold) >= maxStay) LogUtils_logHHAuto('Can\'t do '+numberOfFightAvailable+' fights in league as could go above stay');
-                        else numberOfBattle = numberOfFightAvailable;
-                    }
-                    LogUtils_logHHAuto("Going to fight " + numberOfBattle + " times (Number fights available from opponent:" + numberOfFightAvailable + ")");
-
-                    if(numberOfBattle <= 1) {
-                        gotoPage(getHHScriptVars("pagesIDLeagueBattle"),{number_of_battles:1,id_opponent:Data[0].opponent_id});
-                    } else {
-                        var params1 = {
-                            action: "do_battles_leagues",
-                            id_opponent: Data[0].opponent_id,
-                            number_of_battles: numberOfBattle
-                        };
-                        hh_ajax(params1, function(data) {
-                            // change referer
-                            window.history.replaceState(null, '', '/tower-of-fame.html');
-
-                            RewardHelper.closeRewardPopupIfAny();
-
-                            // gotoPage(getHHScriptVars("pagesIDLeaderboard"));
-                            location.reload();
-                            Hero.updates(data.hero_changes);
-                        });
-                    }
+                const runThreshold = Number(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoLeaguesRunThreshold"));
+                if (runThreshold > 0) {
+                    StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueHumanLikeRun", "true");
                 }
+
+                LogUtils_logHHAuto("Going to fight " + Data[0].nickname + "(" + Data[0].opponent_id + ") with power " + Data[0].power);
+                if(debugEnabled) LogUtils_logHHAuto(Data[0]);
+                // change referer
+                window.history.replaceState(null, '', '/leagues-pre-battle.html?id_opponent='+Data[0].opponent_id);
+
+                const opponents_list = getHHVars("opponents_list");
+                const opponentDataFromList = opponents_list.filter(obj => {
+                    return obj.player.id_fighter == Data[0].opponent_id;
+                });
+                if(debugEnabled) LogUtils_logHHAuto("opponentDataFromList", opponentDataFromList);
+
+                let numberOfFightAvailable = 0;
+                if(opponentDataFromList && opponentDataFromList.length> 0)
+                    numberOfFightAvailable = LeagueHelper.numberOfFightAvailable(opponentDataFromList[0])
+                else
+                    LogUtils_logHHAuto('ERROR opponent ' + Data[0].opponent_id + ' not found in JS list');
+
+                let numberOfBattle = 1;
+                if(numberOfFightAvailable > 1 && currentPower >= (numberOfFightAvailable + leagueThreshold)){
+                    if(maxStay > 0 && currentScore + ( numberOfFightAvailable * leagueScoreSecurityThreshold) >= maxStay) LogUtils_logHHAuto('Can\'t do '+numberOfFightAvailable+' fights in league as could go above stay');
+                    else numberOfBattle = numberOfFightAvailable;
+                }
+                LogUtils_logHHAuto("Going to fight " + numberOfBattle + " times (Number fights available from opponent:" + numberOfFightAvailable + ")");
+
+                if(numberOfBattle <= 1) {
+                    gotoPage(getHHScriptVars("pagesIDLeagueBattle"),{number_of_battles:1,id_opponent:Data[0].opponent_id});
+                } else {
+                    var params1 = {
+                        action: "do_battles_leagues",
+                        id_opponent: Data[0].opponent_id,
+                        number_of_battles: numberOfBattle
+                    };
+                    hh_ajax(params1, function(data) {
+                        // change referer
+                        window.history.replaceState(null, '', '/tower-of-fame.html');
+
+                        RewardHelper.closeRewardPopupIfAny();
+
+                        // gotoPage(getHHScriptVars("pagesIDLeaderboard"));
+                        location.reload();
+                        Hero.updates(data.hero_changes);
+                    });
+                }
+                
             }
         }
         else
@@ -7135,164 +7101,6 @@ class LeagueHelper {
             return;
         }
     }
-
-    static getLeagueOpponentId(opponentsIDList,force=false)
-    {
-        var opponentsPowerList = Utils_isJSON(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueOpponentList"))?JSON.parse(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueOpponentList")):{expirationDate:0,opponentsList:{}};
-        var opponentsTempPowerList = Utils_isJSON(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueTempOpponentList"))?JSON.parse(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueTempOpponentList")):{expirationDate:0,opponentsList:{}};
-        var opponentsIDs= opponentsIDList;
-        var oppoNumber = opponentsIDList.length;
-        var DataOppo={};
-        var maxTime = 1.6;
-
-        if (Object.keys(opponentsPowerList.opponentsList).length === 0 ||  opponentsPowerList.expirationDate < new Date() || force)
-        {
-            sessionStorage.removeItem(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueOpponentList");
-            if (Object.keys(opponentsTempPowerList.opponentsList).length > 0 && opponentsTempPowerList.expirationDate > new Date())
-            {
-                LogUtils_logHHAuto("Opponents list already started, continuing.");
-
-                for (var i of Object.keys(opponentsTempPowerList.opponentsList))
-                {
-                    //removing oppo no longer in list
-                    if (opponentsIDList.indexOf(i.toString()) !== -1)
-                    {
-                        //console.log(opponentsTempPowerList[i]);
-                        DataOppo[i]=opponentsTempPowerList.opponentsList[i];
-                        //console.log(JSON.stringify(DataOppo));
-                        //console.log('removed');
-                    }
-                    //removing already done in opponentsIDList
-                    //console.log(opponentsIDList.length)
-                    opponentsIDList = opponentsIDList.filter(item => Number(item) !== Number(i));
-                    //console.log(opponentsIDList.length)
-                }
-                //console.log(JSON.stringify(DataOppo));
-                sessionStorage.removeItem(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueTempOpponentList");
-            }
-            else
-            {
-                LogUtils_logHHAuto("Opponents list not found or expired. Fetching all opponents.");
-            }
-
-
-
-            //if paranoia not is time's up and not in paranoia spendings
-            if (!checkTimer("paranoiaSwitch"))
-            {
-                let addedTime=opponentsIDList.length*maxTime;
-                LogUtils_logHHAuto("Adding time to burst to cover building list : +"+addedTime+"secs");
-                addedTime += getSecondsLeft("paranoiaSwitch");
-                setTimer("paranoiaSwitch",addedTime);
-            }
-            getOpponents();
-            return -1;
-        }
-        else
-        {
-            LogUtils_logHHAuto("Found valid opponents list, using it.")
-            return FindOpponent(opponentsPowerList,opponentsIDs);
-        }
-
-        function getOpponents()
-        {
-            //logHHAuto('Need to click: '+ToClick.length);
-            var findText = 'playerLeaguesData = ';
-            let league_end = LeagueHelper.getLeagueEndTime();
-            let maxLeagueListDurationSecs = getHHScriptVars("LeagueListExpirationSecs");
-            if (league_end !== -1 && league_end < maxLeagueListDurationSecs)
-            {
-                maxLeagueListDurationSecs = league_end;
-            }
-            if (maxLeagueListDurationSecs <1)
-            {
-                maxLeagueListDurationSecs = 1;
-            }
-            // TODO fixme
-            let listExpirationDate =Utils_isJSON(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueTempOpponentList"))?JSON.parse(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueTempOpponentList")).expirationDate:new Date().getTime() + maxLeagueListDurationSecs * 1000;
-            if (opponentsIDList.length>0)
-            {
-                //logHHAuto('getting data for opponent : '+opponentsIDList[0]);
-                //logHHAuto({log:"Opponent list",opponentsIDList:opponentsIDList});
-                $.post('/ajax.php',
-                    {
-                    action: 'leagues_get_opponent_info',
-                    opponent_id: opponentsIDList[0]
-                },
-                    function(data)
-                    {
-                    //logHHAuto({log:"data for oppo",data:data});
-                    var opponentData = data.player;
-                    //console.log(opponentData);
-                    const players=LeagueHelper.getLeaguePlayersData(getHHVars("hero_fighter"),opponentData);
-
-                    //console.log(player,opponent);
-                    let simu = calculateBattleProbabilities(players.player, players.opponent);
-                    //console.log(opponent);
-                    //console.log(simu);
-                    //matchRating=customMatchRating(simu);
-
-                    //matchRating = Number(matchRating.substring(1));
-                    //logHHAuto('matchRating:'+matchRating);
-                    //if (!isNaN(matchRating))
-                    //{
-                    DataOppo[Number(opponentData.id_fighter)]=simu;
-                    StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueTempOpponentList", JSON.stringify({expirationDate:listExpirationDate,opponentsList:DataOppo}));
-                    //}
-                    //DataOppo.push(JSON.parse(data.html.substring(data.html.indexOf(findText)+findText.length,data.html.lastIndexOf(';'))));
-
-                });
-
-                opponentsIDList.shift();
-                LeagueHelper.LeagueUpdateGetOpponentPopup(Object.keys(DataOppo).length+'/'+oppoNumber, TimeHelper.toHHMMSS((oppoNumber-Object.keys(DataOppo).length)*maxTime));
-                setTimeout(getOpponents,randomInterval(800,maxTime*1000));
-
-                window.top.postMessage({ImAlive:true},'*');
-            }
-            else
-            {
-                //logHHAuto('nothing to click, checking data');
-
-                //logHHAuto(DataOppo);
-                sessionStorage.removeItem(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueTempOpponentList");
-                StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueOpponentList", JSON.stringify({expirationDate:listExpirationDate,opponentsList:DataOppo}));
-                LeagueHelper.LeagueClearDisplayGetOpponentPopup();
-                //doLeagueBattle();
-                LogUtils_logHHAuto("Building list finished, putting autoloop back to true.");
-                StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop", "true");
-                setTimeout(autoLoop, Number(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")));
-            }
-        }
-
-        function FindOpponent(opponentsPowerList,opponentsIDList)
-        {
-            var maxScore = -1;
-            var IdOppo = -1;
-            var OppoScore;
-            LogUtils_logHHAuto('finding best chance opponent in '+opponentsIDList.length);
-            for (var oppo of opponentsIDList)
-            {
-                //logHHAuto({Opponent:oppo,OppoGet:Number(opponentsPowerList.get(oppo)),maxScore:maxScore});
-                const oppoSimu = opponentsPowerList.opponentsList[Number(oppo)];
-                if (oppoSimu === undefined)
-                {
-                    continue;
-                }
-                OppoScore = Number(oppoSimu.win);
-                if (( maxScore == -1 || OppoScore > maxScore ) && !isNaN(OppoScore))
-                {
-
-                    maxScore = OppoScore;
-                    IdOppo = oppo;
-                }
-            }
-            LogUtils_logHHAuto("highest score opponent : "+IdOppo+'('+nRounding(100*maxScore, 2, -1)+'%)');
-            return IdOppo;
-        }
-        return true;
-    }
-
-    
 
     static LeagueDisplayGetOpponentPopup(numberDone,remainingTime)
     {
@@ -12073,9 +11881,7 @@ function getMenu() {
                         +`<div class="optionsBox">`
                             +`<div class="internalOptionsRow">`
                                 + hhMenuSwitch('autoLeagues')
-                                +`<div style="display:none">`
                                 + hhMenuSwitch('autoLeaguesPowerCalc')
-                                +`</div>`
                                 + hhMenuSwitch('autoLeaguesCollect')
                                 + hhMenuSwitch('autoLeaguesBoostedOnly')
                                 + hhMenuSwitch('leagueListDisplayPowerCalc')
@@ -13025,6 +12831,40 @@ function checkAndClosePopup(inBurst)
 
 
 
+;// CONCATENATED MODULE: ./src/model/BDSMPlayer.js
+//@ts-check
+class BDSMPlayer {
+    hp;
+    atk;
+    adv_def;
+    critchance;
+    bonuses;
+    tier4 = {dmg: 0, def: 0};
+    tier5 = {id: 0, value: 0};
+    name = '';
+
+    /**
+     * 
+     * @param {number} hp 
+     * @param {number} atk 
+     * @param {number} adv_def 
+     * @param {number} critchance 
+     * @param {Object} bonuses 
+     * @param {Object} tier4 
+     * @param {Object} tier5 
+     * @param {string} name 
+     */
+    constructor(hp,atk,adv_def,critchance,bonuses,tier4,tier5, name=''){
+        this.hp = hp;
+        this.atk = atk;
+        this.adv_def = adv_def;
+        this.critchance = critchance;
+        this.bonuses = bonuses;
+        this.tier4 = tier4;
+        this.tier5 = tier5;
+        this.name = name;
+    }
+}
 ;// CONCATENATED MODULE: ./src/Helper/BDSMHelper.js
 
 
@@ -13032,55 +12872,61 @@ function checkAndClosePopup(inBurst)
 
 
 
-function customMatchRating(inSimu) // NOT used ?
-{
-    let matchRating = inSimu.score;
-    var customLimits = getStoredValue(HHStoredVarPrefixKey+"Setting_calculatePowerLimits").split(";");
-    if(customLimits.length === 2 && Number(customLimits[0]) < Number(customLimits[1]))
-    {
-        if (matchRating >= 0)
-        {
-            matchRating = '+' + matchRating;
-        }
-        if ( Number(matchRating) < Number(customLimits[0]) )
-        {
-            return 'r'+matchRating
-        }
-        else
-        {
-            if ( Number(matchRating) < Number(customLimits[1]) )
-            {
-                return 'y'+matchRating
-            }
-            else
-            {
-                return 'g'+matchRating
-            }
+class BDSMHelper {
+
+    static fightBonues(team){
+        return {
+            critDamage: team.synergies.find(({element: {type}})=>type==='fire').bonus_multiplier,
+            critChance: team.synergies.find(({element: {type}})=>type==='stone').bonus_multiplier,
+            defReduce: team.synergies.find(({element: {type}})=>type==='sun').bonus_multiplier,
+            healOnHit: team.synergies.find(({element: {type}})=>type==='water').bonus_multiplier
         }
     }
-    else
+        
+    static getBdsmPlayersData(inHeroData, opponentData, inLeague=false)
     {
-        if ( getStoredValue(HHStoredVarPrefixKey+"Setting_calculatePowerLimits") !== "default")
-        {
-            setStoredValue(HHStoredVarPrefixKey+"Setting_calculatePowerLimits", "Invalid limits");
-        }
-        if (matchRating >= 0)
-        {
-            matchRating = '+' + matchRating;
-
-            if (inSimu.playerEgoCheck <= 0)
-            {
-                return 'y'+matchRating
-            }
-            else
-            {
-                return 'g'+matchRating
-            }
-        }
-        else {
-            matchRating = matchRating;
-            return 'r'+matchRating
-        }
+        // player stats
+        const playerEgo = inHeroData.remaining_ego;
+        const playerDef = inHeroData.defense;
+        const playerAtk = inHeroData.damage;
+        const playerCrit = inHeroData.chance;
+        
+        let playerElements = [];
+        inHeroData.team.theme_elements.forEach((el) => playerElements.push(el.type));
+        const playerBonuses = BDSMHelper.fightBonues(inHeroData.team);
+    
+        const opponentEgo = opponentData.remaining_ego;
+        const opponentDef = opponentData.defense;
+        const opponentAtk = opponentData.damage;
+        const opponentCrit = opponentData.chance;
+    
+        let opponentElements = [];
+        opponentData.team.theme_elements.forEach((el) => opponentElements.push(el.type));
+        
+        const opponentBonuses = BDSMHelper.fightBonues(opponentData.team);
+        const dominanceBonuses = calculateDominationBonuses(playerElements, opponentElements);
+    
+        const player = new BDSMPlayer(
+            inLeague ? playerEgo * (1+dominanceBonuses.player.ego) : playerEgo,
+            inLeague ? playerAtk * (1+dominanceBonuses.player.attack) : playerAtk,
+            opponentDef,
+            calculateCritChanceShare(playerCrit, opponentCrit) + dominanceBonuses.player.chance + playerBonuses.critChance,
+            playerBonuses,
+            calculateTier4SkillValue(inHeroData.team.girls),
+            calculateTier5SkillValue(inHeroData.team.girls),
+            inHeroData.nickname
+        );
+        const opponent = new BDSMPlayer(
+            opponentEgo,
+            opponentAtk,
+            inLeague ? playerDef * (1-opponentBonuses.defReduce) : playerDef,
+            calculateCritChanceShare(opponentCrit, playerCrit) + dominanceBonuses.opponent.chance + opponentBonuses.critChance,
+            opponentBonuses,
+            calculateTier4SkillValue(opponentData.team.girls),
+            calculateTier5SkillValue(opponentData.team.girls),
+            opponentData.nickname
+        );
+        return {player:player, opponent:opponent, dominanceBonuses:dominanceBonuses}
     }
 }
 
@@ -13088,24 +12934,17 @@ let _player;
 let _opponent;
 let _cache;
 let _runs;
+/**
+ * @returns {BDSMSimu}
+ */
 //all following lines credit:Tom208 OCD script
+const tier5_Skill_Id = [11, 12, 13, 14];
 function calculateBattleProbabilities(player, opponent) {
     _player = player;
     _opponent = opponent;
 
     const setup = x => {
         x.critMultiplier = 2 + x.bonuses.critDamage;
-        x.dmg = Math.max(0, x.dmg);
-        x.baseAttack = {
-            probability: 1 - x.critchance,
-            damageAmount: Math.ceil(x.dmg),
-            healAmount: Math.ceil(x.dmg * x.bonuses.healOnHit)
-        };
-        x.critAttack = {
-            probability: x.critchance,
-            damageAmount: Math.ceil(x.dmg * x.critMultiplier),
-            healAmount: Math.ceil(x.dmg * x.critMultiplier * x.bonuses.healOnHit)
-        };
         x.hp = Math.ceil(x.hp);
     }
 
@@ -13114,6 +12953,10 @@ function calculateBattleProbabilities(player, opponent) {
 
     _cache = {};
     _runs = 0;
+
+    //Tier 5 skill : Shield
+    let playerShield = 0;
+    let opponentShield = 0;
 
     let ret;
     try {
@@ -13136,6 +12979,20 @@ function calculateBattleProbabilities(player, opponent) {
 
     return ret;
 
+    function calculateDmg(x, turns) {
+        const dmg = x.atk * (1 + x.tier4.dmg) ** turns - x.adv_def * (1 + x.tier4.def) ** turns;
+
+        return {
+            baseAtk : {
+                probability: 1 - x.critchance,
+                damageAmount: Math.ceil(dmg)
+            },
+            critAtk : {
+                probability: x.critchance,
+                damageAmount: Math.ceil(dmg * x.critMultiplier)
+            }
+        }
+    }
 
     function mergeResult(x, xProbability, y, yProbability) {
         const points = {};
@@ -13162,9 +13019,8 @@ function calculateBattleProbabilities(player, opponent) {
         if (cachedResult) return cachedResult;
 
         // simulate base attack and critical attack
-        const baseAtk = _player.baseAttack;
+        const {baseAtk, critAtk} = calculateDmg(_player, turns);
         const baseAtkResult = playerAttack(playerHP, opponentHP, baseAtk, turns);
-        const critAtk = _player.critAttack;
         const critAtkResult = playerAttack(playerHP, opponentHP, critAtk, turns);
         // merge result
         const mergedResult = mergeResult(baseAtkResult, baseAtk.probability, critAtkResult, critAtk.probability);
@@ -13181,16 +13037,49 @@ function calculateBattleProbabilities(player, opponent) {
     }
 
     function playerAttack(playerHP, opponentHP, attack, turns) {
-        // damage
-        opponentHP -= attack.damageAmount;
+        //Tier 5 skill : Stun
+        if (_opponent.tier5.id == 11 && (turns == 2 || turns == 3)) {
+            // next turn
+            return playerTurn(playerHP, opponentHP, turns);
+        }
+
+        let playerDamage = Math.max(0, (attack.damageAmount - opponentShield));
+        opponentHP -= playerDamage;
+
+        //Tier 5 skill : Shield
+        if (_player.tier5.id == 12 && turns == 1) {
+            playerShield = Math.ceil(_player.tier5.value * _player.hp);
+        }
+        if (_opponent.tier5.id == 12 && turns > 1) {
+            opponentShield -= attack.damageAmount;
+            opponentShield = Math.max(0, opponentShield);
+        }
+
+        //Tier 5 skill : Reflect
+        let opponentReflectDmg = 0;
+        if (_opponent.tier5.id == 13 && (turns == 2 || turns == 3)) {
+            opponentReflectDmg = Math.ceil(_opponent.tier5.value * attack.damageAmount);
+            playerHP -= Math.max(0, (opponentReflectDmg - playerShield));
+            playerShield -= opponentReflectDmg;
+            playerShield = Math.max(0, playerShield);
+        }
+
+        //Tier 5 skill : Execute
+        if (_player.tier5.id == 14) {
+            let opponentHPRate = opponentHP / _opponent.hp;
+            if (opponentHPRate <= _player.tier5.value) {
+                opponentHP = 0;
+            }
+        }
 
         // heal on hit
-        playerHP += attack.healAmount;
+        let playerHeal = Math.ceil(_player.bonuses.healOnHit * playerDamage);
+        playerHP += playerHeal;
         playerHP = Math.min(playerHP, _player.hp);
 
         // check win
         if (opponentHP <= 0) {
-            const point = 15 + Math.ceil(10 * playerHP / _player.hp);
+            const point = Math.min(25, 15 + Math.ceil(10 * playerHP / _player.hp));
             _runs += 1;
             return { points: { [point]: 1 }, win: 1, loss: 0, avgTurns: 0 };
         }
@@ -13201,25 +13090,59 @@ function calculateBattleProbabilities(player, opponent) {
 
     function opponentTurn(playerHP, opponentHP, turns) {
         // simulate base attack and critical attack
-        const baseAtk = _opponent.baseAttack;
+        const {baseAtk, critAtk} = calculateDmg(_opponent, turns);
         const baseAtkResult = opponentAttack(playerHP, opponentHP, baseAtk, turns);
-        const critAtk = _opponent.critAttack;
         const critAtkResult = opponentAttack(playerHP, opponentHP, critAtk, turns);
         // merge result
         return mergeResult(baseAtkResult, baseAtk.probability, critAtkResult, critAtk.probability);
     }
 
     function opponentAttack(playerHP, opponentHP, attack, turns) {
+        //Tier 5 skill : Stun
+        if (_player.tier5.id == 11 && (turns == 1 || turns == 2)) {
+            // next turn
+            return playerTurn(playerHP, opponentHP, turns);
+        }
+
         // damage
-        playerHP -= attack.damageAmount;
+        let opponentDamage = Math.max(0, (attack.damageAmount - playerShield));
+        playerHP -= opponentDamage;
+
+        //Tier 5 skill : Shield
+        if (_opponent.tier5.id == 12 && turns == 1) {
+            opponentShield = Math.ceil(_opponent.tier5.value * _opponent.hp);
+        }
+        if (_player.tier5.id == 12) {
+            playerShield -= attack.damageAmount;
+            playerShield = Math.max(0, playerShield);
+        }
+
+        //Tier 5 skill : Reflect
+        let playerReflectDmg = 0;
+        if (_player.tier5.id == 13 && (turns == 1 || turns == 2)) {
+            playerReflectDmg = Math.ceil(_player.tier5.value * attack.damageAmount);
+            opponentHP -= Math.max(0, (playerReflectDmg - opponentShield));
+            opponentShield -= playerReflectDmg;
+            opponentShield = Math.max(0, opponentShield);
+        }
+
+        //Tier 5 skill : Execute
+        if (_opponent.tier5.id == 14) {
+            let playerHPRate = playerHP / _player.hp;
+            if (playerHPRate <= _opponent.tier5.value) {
+                playerHP = 0;
+                //console.log("PLAYER EXECUTED!!");
+            }
+        }
 
         // heal on hit
-        opponentHP += attack.healAmount;
+        let opponentHeal = Math.ceil(_opponent.bonuses.healOnHit * opponentDamage);
+        opponentHP += opponentHeal;
         opponentHP = Math.min(opponentHP, _opponent.hp);
 
         // check loss
         if (playerHP <= 0) {
-            const point = 3 + Math.ceil(10 * (_opponent.hp - opponentHP) / _opponent.hp);
+            const point = Math.max(3, 3 + Math.ceil(10 * (_opponent.hp - opponentHP) / _opponent.hp));
             _runs += 1;
             return { points: { [point]: 1 }, win: 0, loss: 1, avgTurns: 0 };
         }
@@ -13227,6 +13150,29 @@ function calculateBattleProbabilities(player, opponent) {
         // next turn
         return playerTurn(playerHP, opponentHP, turns);
     }
+}
+
+function calculateTier4SkillValue(teamGirlsArray) {
+    let skill_tier_4 = {dmg: 0, def: 0};
+
+    teamGirlsArray.forEach((girl) => {
+        if (girl.skills[9]) skill_tier_4.dmg += girl.skills[9].skill.percentage_value/100;
+        if (girl.skills[10]) skill_tier_4.def += girl.skills[10].skill.percentage_value/100;
+    })
+    return skill_tier_4;
+}
+
+function calculateTier5SkillValue(teamGirlsArray) {
+    let skill_tier_5 = {id: 0, value: 0};
+    const girl = teamGirlsArray[0];
+
+    tier5_Skill_Id.forEach((id) => {
+        if (girl.skills[id]) {
+            skill_tier_5.id = id;
+            skill_tier_5.value = (id == 11) ? parseInt(girl.skills[id].skill.display_value_text, 10)/100 : girl.skills[id].skill.percentage_value/100;
+        }
+    })
+    return skill_tier_5;
 }
 
 function calculateThemeFromElements(elements) {
@@ -13254,52 +13200,6 @@ function countElementsInTeam(elements) {
     })
 }
 
-function simulateBattle (player, opponent) {
-    let points
-
-    const playerStartHP = player.hp
-    const opponentStartHP = opponent.hp
-
-    let turns = 0
-
-    while (true) {
-        turns++
-        //your turn
-        let damageAmount = player.dmg
-        if (Math.random() < player.critchance) {
-            damageAmount = player.dmg * player.critMultiplier
-        }
-        let healAmount = Math.min(playerStartHP - player.hp, damageAmount * player.bonuses.healOnHit)
-        opponent.hp -= damageAmount;
-        player.hp += healAmount;
-
-        //check win
-        if(opponent.hp<=0){
-            //count score
-            points = 15+Math.ceil(player.hp/playerStartHP * 10);
-            break;
-        }
-
-        //opp's turn
-        damageAmount = opponent.dmg
-        if (Math.random() < opponent.critchance) {
-            damageAmount = opponent.dmg * opponent.critMultiplier
-        }
-        healAmount = Math.min(opponentStartHP - opponent.hp, damageAmount * opponent.bonuses.healOnHit)
-        player.hp -= damageAmount;
-        opponent.hp += healAmount;
-
-        //check loss
-        if(player.hp<=0){
-            //count score
-            points = 3+Math.ceil((opponentStartHP - opponent.hp)/opponentStartHP * 10);
-            break;
-        }
-    }
-
-    return {points, turns}
-}
-
 /*
 commented        const girlDictionary
 replaced         const girlCount = girlDictionary.size || 800
@@ -13311,7 +13211,7 @@ function calculateSynergiesFromTeamMemberElements(elements) {
     // Only care about those not included in the stats already: fire, stone, sun and water
     // Assume max harem synergy
     //const girlDictionary = (typeof(localStorage.HHPNMap) == "undefined") ? new Map(): new Map(JSON.parse(localStorage.HHPNMap));
-    const girlCount = Utils_isJSON(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_HaremSize"))?JSON.parse(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_HaremSize")).count:800;
+    const girlCount = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_HaremSize"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_HaremSize")).count:800;
     const girlsPerElement = Math.min(girlCount / 8, 100)
 
     return {
@@ -16644,6 +16544,7 @@ function autoLoop()
         case getHHScriptVars("pagesIDLeaderboard"):
             if (StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_showCalculatePower") === "true")
             {
+                LeagueHelper.moduleSimLeague = callItOnce(LeagueHelper.moduleSimLeague);
                 LeagueHelper.moduleSimLeague();
                 LeagueHelper.style = callItOnce(LeagueHelper.style);
                 LeagueHelper.style();

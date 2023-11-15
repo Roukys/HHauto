@@ -1,4 +1,4 @@
-
+//@ts-check
 export class ChampionModel {
     index;
     timer=-1;
@@ -6,6 +6,12 @@ export class ChampionModel {
     impression;
     inFilter = false;
 
+    /**
+     * 
+     * @param {number} index 
+     * @param {string} impression 
+     * @param {boolean} inFilter 
+     */
     constructor(index, impression, inFilter) {
         this.index = index;
         this.impression = impression;
