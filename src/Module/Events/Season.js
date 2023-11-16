@@ -97,6 +97,7 @@ export class Season {
     static moduleSimSeasonBattle()
     {
         const hero_data = unsafeWindow.hero_data;
+        const opponentDatas = unsafeWindow.opponents;
         let doDisplay=false;
         let mojoOppo=[];
         let scoreOppo=[];
@@ -115,7 +116,7 @@ export class Season {
             for (let index=0;index<3;index++)
             {
 
-                const {player, opponent} = BDSMHelper.getBdsmPlayersData(heroFighter, opponentData);
+                const {player, opponent} = BDSMHelper.getBdsmPlayersData(hero_data, opponentDatas[index].player);
 
                 if (doDisplay)
                 {
