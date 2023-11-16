@@ -80,6 +80,17 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoChamps"] =
         clearTimer('nextChampionTime');
     }
 };
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoChampAlignTimer"] =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars[HHStoredVarPrefixKey+"Setting_autoChampsForceStart"] =
     {
     default:"false",
@@ -174,7 +185,11 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoClubChamp"] =
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        clearTimer('nextClubChampionTime');
+    }
 };
 HHStoredVars[HHStoredVarPrefixKey+"Setting_autoClubChampMax"] =
     {
@@ -196,7 +211,11 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoClubForceStart"] =
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        clearTimer('nextClubChampionTime');
+    }
 };
 HHStoredVars[HHStoredVarPrefixKey+"Setting_autoContest"] =
     {
@@ -262,7 +281,11 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLeagues"] =
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        clearTimer('nextLeaguesTime');
+    }
 };
 HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLeaguesAllowWinCurrent"] =
     {

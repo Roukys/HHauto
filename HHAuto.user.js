@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.14.1
+// @version      6.15.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -254,6 +254,7 @@ HHAuto_ToolTips.en.compactPowerPlace = { version: "5.24.0", elementText: "Compac
 HHAuto_ToolTips.en.autoChampsTitle = { version: "5.6.24", elementText: "Champions"};
 HHAuto_ToolTips.en.autoChamps = { version: "5.6.24", elementText: "Normal", tooltip: "if enabled : Automatically do champions (if they are started and in filter only)"};
 HHAuto_ToolTips.en.autoChampsForceStart = { version: "5.6.76", elementText: "Force start", tooltip: "if enabled : will fight filtered champions even if not started."};
+HHAuto_ToolTips.en.autoChampAlignTimer = { version: "6.15.0", elementText: "Align timers", tooltip: "if enabled : will align champion and club champion timers."};
 HHAuto_ToolTips.en.autoChampsUseEne = { version: "5.39.0", elementText: "Buy tickets", tooltip: "If enabled : use Energy to buy tickets respecting the energy quest threshold"};
 HHAuto_ToolTips.en.autoChampsFilter = { version: "5.6.24", elementText: "Filter", tooltip: "(values separated by ; 1 to 6)<br>Allow to set filter on champions to be fought"};
 HHAuto_ToolTips.en.autoChampsTeamLoop = { version: "5.21.0", elementText: "Auto team Loops", tooltip: "Number of loop to search for champion team for every button click"};
@@ -3859,7 +3860,12 @@ class Champion {
                 if ( TCount==0)
                 {
                     LogUtils_logHHAuto("No tickets!");
-                    setTimer('nextChampionTime', randomInterval(15*60, 17*60));
+                    const nextTime = randomInterval(3600, 4000);
+                    setTimer('nextChampionTime', nextTime);
+                    if (StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoClubChamp") ==="true") {
+                        // no ticket for both
+                        setTimer('nextClubChampionTime', nextTime);
+                    }
                     return false;
                 }
                 else
@@ -3988,24 +3994,45 @@ class Champion {
                 }
             }
             //fetching min
+            let nextChampionTime;
 
             LogUtils_logHHAuto('minTimeEnded: ' + minTimeEnded + ', minTime:' + minTime);
             if (minTime === -1 && minTimeEnded === -1)
             {
-                setTimer('nextChampionTime', randomInterval(3600, 4000));
+                nextChampionTime = randomInterval(3600, 4000);
             }
             else if (minTime === -1)
             {
                 LogUtils_logHHAuto('Champion ended, next time: ' + minTimeEnded);
-                setTimer('nextChampionTime', randomInterval(minTimeEnded, 180 + minTimeEnded));
+                nextChampionTime = randomInterval(minTimeEnded, 180 + minTimeEnded);
             }
             else
             {
                 LogUtils_logHHAuto('Champion next time: ' + minTime);
                 const maxTime = minTime > 0 ? 180 + minTime : 0.5;
-                setTimer('nextChampionTime', randomInterval(minTime, maxTime));
+                nextChampionTime = randomInterval(minTime, maxTime);
+            }
+            Champion._setTimer(nextChampionTime);
+        }
+    }
+
+    /**
+     * 
+     * @param {number} nextChampionTime 
+     * @private
+     */
+    static _setTimer(nextChampionTime){
+        if (StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoClubChamp") === "true" 
+            && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoChampAlignTimer") === "true" 
+            && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_clubChampLimitReached" !== "true"))
+            {
+            const champClubTimeLeft = getSecondsLeft('nextClubChampionTime');
+            if(nextChampionTime > 10 && champClubTimeLeft < 1200 && nextChampionTime < 1200) { // align settings
+                // 20 min for standard wait time
+                nextChampionTime = Math.max(nextChampionTime, champClubTimeLeft);
             }
         }
+        setTimer('nextChampionTime', nextChampionTime);
     }
 }
 ;// CONCATENATED MODULE: ./src/Module/Club.js
@@ -4082,24 +4109,47 @@ class ClubChampion {
             LogUtils_logHHAuto('on clubs');
             let secsToNextTimer = ClubChampion.getNextClubChampionTimer();
             let noTimer = (secsToNextTimer === -1);
+            let nextClubChampionTime;
     
             if (secsToNextTimer === -1)
             {
-                setTimer('nextClubChampionTime', randomInterval(15*60, 17*60));
+                nextClubChampionTime = randomInterval(15*60, 17*60);
             }
             else if (secsToNextTimer > 3600 && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoClubForceStart") === "true")
             {
-                setTimer('nextClubChampionTime', randomInterval(50*60, 70*60));
+                nextClubChampionTime = randomInterval(50*60, 70*60);
             }
             else
             {
-                setTimer('nextClubChampionTime', randomInterval(secsToNextTimer, 180 + secsToNextTimer) );
+                nextClubChampionTime = randomInterval(secsToNextTimer, 180 + secsToNextTimer);
             }
+            ClubChampion._setTimer(nextClubChampionTime);
             return noTimer;
         }
         return true;
     }
-    
+
+    static getRemainingRestTime(){
+        let remainingRestTime = 0;
+        
+        let timerElm = $('.champions-bottom__rest .timer span[rel=expires]').text();
+        if (timerElm !== undefined && timerElm !== null && timerElm.length > 0) {
+            remainingRestTime = Number(convertTimeToInt(timerElm));
+        }
+        return remainingRestTime;
+    }
+
+    static resetTimerIfNeeded(){
+        if ($('button[rel=perform].blue_button_L').length>0 && $('.champions-bottom__rest').length == 0
+            && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoClubChamp") === "true") {
+            const champTimeLeft = getSecondsLeft('nextClubChampionTime');
+            if (champTimeLeft > 60) {
+                LogUtils_logHHAuto("Club champion seems available, reduce next timer to 30-60s.");
+                ClubChampion._setTimer(randomInterval(30, 60));
+            }
+        }
+    }
+
     static doClubChampionStuff()
     {
         var page=getPage();
@@ -4108,8 +4158,14 @@ class ClubChampion {
             LogUtils_logHHAuto('on club_champion page');
             if ($('button[rel=perform].blue_button_L').length==0)
             {
-                LogUtils_logHHAuto('Something is wrong!');
-                setTimer('nextClubChampionTime', randomInterval(15*60, 17*60));
+                if($('.champions-bottom__rest').length > 0) {
+                    LogUtils_logHHAuto('Girls are resting');
+                    const restTime = ClubChampion.getRemainingRestTime();
+                    ClubChampion._setTimer(randomInterval(restTime + 10, restTime + 2*60));
+                } else {
+                    LogUtils_logHHAuto('Something is wrong!');
+                    ClubChampion._setTimer(randomInterval(15*60, 17*60));
+                }
                 gotoPage(getHHScriptVars("pagesIDHome"));
                 return true;
             }
@@ -4121,7 +4177,12 @@ class ClubChampion {
                 if ( TCount==0)
                 {
                     LogUtils_logHHAuto("No tickets!");
-                    setTimer('nextClubChampionTime', randomInterval(15*60, 17*60));
+                    const nextTime = randomInterval(3600, 4000);
+                    if (StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoChamps") ==="true") {
+                        // No ticket for boths
+                        setTimer('nextChampionTime', nextTime);
+                    }
+                    setTimer('nextClubChampionTime', nextTime);
                     return false;
                 }
                 else
@@ -4130,7 +4191,7 @@ class ClubChampion {
                     {
                         LogUtils_logHHAuto("Using ticket");
                         $('button[rel=perform].blue_button_L').click();
-                        setTimer('nextClubChampionTime', randomInterval(15*60, 17*60));
+                        ClubChampion._setTimer(randomInterval(15*60, 17*60));
                     }
                     gotoPage(getHHScriptVars("pagesIDClub"));
                     return true;
@@ -4139,6 +4200,7 @@ class ClubChampion {
         }
         else if (page==getHHScriptVars("pagesIDClub"))
         {
+            deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_clubChampLimitReached");
             LogUtils_logHHAuto('on clubs');
             const onChampTab = $("div.club-champion-members-challenges:visible").length === 1;
             if (!onChampTab) {
@@ -4169,7 +4231,8 @@ class ClubChampion {
                 else
                 {
                     LogUtils_logHHAuto("Max tickets to use on Club Champ reached.");
-                    setTimer('nextClubChampionTime', randomInterval(60*60, 65*60));
+                    StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_clubChampLimitReached", "true");
+                    setTimer('nextClubChampionTime', randomInterval(4*60*60, 5*60*60));
                 }
     
             }
@@ -4182,6 +4245,22 @@ class ClubChampion {
             gotoPage(getHHScriptVars("pagesIDClub"));
             return true;
         }
+    }
+
+    /**
+     * 
+     * @param {number} nextClubChampionTime 
+     * @private
+     */
+    static _setTimer(nextClubChampionTime){
+        if (StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoChamps") ==="true" && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoChampAlignTimer") === "true") {
+            const champTimeLeft = getSecondsLeft('nextChampionTime');
+            if(nextClubChampionTime > 10 && champTimeLeft < 1200 && nextClubChampionTime < 1200) { // align settings
+                // 20 min for standard wait time
+                nextClubChampionTime = Math.max(nextClubChampionTime, champTimeLeft);
+            }
+        }
+        setTimer('nextClubChampionTime', nextClubChampionTime);
     }
 }
 ;// CONCATENATED MODULE: ./src/Module/Contest.js
@@ -6557,6 +6636,7 @@ class LeagueHelper {
         const league_end = LeagueHelper.getLeagueEndTime();
         if (league_end > 0 && league_end <= (60*60)) {
             // Last league hour //TODO
+            LogUtils_logHHAuto("Last League hour");
         }
         const energyAboveThreshold = humanLikeRun && LeagueHelper.getEnergy() > threshold || LeagueHelper.getEnergy() > Math.max(threshold, runThreshold-1);
         const paranoiaSpending = LeagueHelper.getEnergy() > 0 && Number(checkParanoiaSpendings('challenge')) > 0;
@@ -6910,10 +6990,12 @@ class LeagueHelper {
                     gotoPage(getHHScriptVars("pagesIDLeaderboard"))
                 }
             }
-            //logHHAuto('ls! '+$('h4.leagues').length);
-            //$('h4.leagues').each(function(){this.click();}); // ???
 
-            if(currentPower < 1)
+            LogUtils_logHHAuto('parsing enemies');
+            var Data=LeagueHelper.getLeagueOpponentListData();
+            const league_end = LeagueHelper.getLeagueEndTime();
+
+            if(currentPower < 1 && Data.length > 0)
             {
                 LogUtils_logHHAuto("No power for leagues.");
                 //prevent paranoia to wait for league
@@ -6923,14 +7005,12 @@ class LeagueHelper {
                 return;
             }
 
-            LogUtils_logHHAuto('parsing enemies');
-            var Data=LeagueHelper.getLeagueOpponentListData();
             if (Data.length==0)
             {
-                LogUtils_logHHAuto('No valid targets!');
+                LogUtils_logHHAuto('No valid targets! Set timer to league ends.');
                 //prevent paranoia to wait for league
                 StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_paranoiaLeagueBlocked", "true");
-                setTimer('nextLeaguesTime', randomInterval(35*60, 40*60));
+                setTimer('nextLeaguesTime', randomInterval(league_end - 5*60, league_end));
             }
             else
             {
@@ -6977,16 +7057,15 @@ class LeagueHelper {
                     LogUtils_logHHAuto("Current league above target ("+Number(getPlayerCurrentLevel)+"/"+leagueTargetValue+"), needs to demote. Score should not be higher than : "+maxDemote);
                     if ( currentScore + leagueScoreSecurityThreshold >= maxDemote )
                     {
-                        let league_end = LeagueHelper.getLeagueEndTime();
                         if (league_end <= (60*60)) {
                             LogUtils_logHHAuto("Can't do league as could go above demote, as last hour setting timer to 5 mins"); 
                             setTimer('nextLeaguesTime', randomInterval(5*60, 8*60));
                         } else {
                             LogUtils_logHHAuto("Can't do league as could go above demote, setting timer to 30 mins");
                             setTimer('nextLeaguesTime', randomInterval(30*60, 35*60));
-                            //prevent paranoia to wait for league
-                            StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_paranoiaLeagueBlocked", "true");
                         }
+                        //prevent paranoia to wait for league
+                        StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_paranoiaLeagueBlocked", "true");
                         gotoPage(getHHScriptVars("pagesIDHome"));
                         return;
                     }
@@ -9474,6 +9553,17 @@ HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_autoChamps"
         TimerHelper_clearTimer('nextChampionTime');
     }
 };
+HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_autoChampAlignTimer"] =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_autoChampsForceStart"] =
     {
     default:"false",
@@ -9568,7 +9658,11 @@ HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_autoClubCha
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        TimerHelper_clearTimer('nextClubChampionTime');
+    }
 };
 HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_autoClubChampMax"] =
     {
@@ -9590,7 +9684,11 @@ HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_autoClubFor
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        TimerHelper_clearTimer('nextClubChampionTime');
+    }
 };
 HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_autoContest"] =
     {
@@ -9656,7 +9754,11 @@ HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_autoLeagues
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        TimerHelper_clearTimer('nextLeaguesTime');
+    }
 };
 HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_autoLeaguesAllowWinCurrent"] =
     {
@@ -11976,6 +12078,7 @@ function getMenu() {
                             + hhMenuSwitch('autoClubForceStart')
                             + hhMenuInputWithImg('autoClubChampMax', HHAuto_inputPattern.autoClubChampMax, 'text-align:center; width:45px', 'pictures/design/champion_ticket.png', 'numeric')
                             + hhMenuSwitch('showClubButtonInPoa')
+                            + hhMenuSwitch('autoChampAlignTimer')
                         +`</div>`
                         +`<div class="internalOptionsRow separator">`
                             + hhMenuInput('autoChampsTeamLoop', HHAuto_inputPattern.autoChampsTeamLoop, 'text-align:center; width:25px', '', 'numeric')
@@ -16691,6 +16794,8 @@ function autoLoop()
             break;
         case getHHScriptVars("pagesIDClubChampion"):
             Champion.moduleSimChampions();
+            ClubChampion.resetTimerIfNeeded = callItOnce(ClubChampion.resetTimerIfNeeded);
+            ClubChampion.resetTimerIfNeeded();
             break;
         case getHHScriptVars("pagesIDQuest"):
             const haremItem = StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_haremGirlActions");
@@ -16702,9 +16807,6 @@ function autoLoop()
             break;
         case getHHScriptVars("pagesIDClub"):
             Club.run();
-            // if (!checkTimer('nextClubChampionTime') && getNextClubChampionTimer() == -1) {
-            //     updateClubChampionTimer();
-            // }
             break;
     }
 

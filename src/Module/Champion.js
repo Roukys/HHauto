@@ -3,6 +3,7 @@ import {
     getHHScriptVars,
     getHHVars,
     getPage,
+    getSecondsLeft,
     getStoredValue,
     getTextForUI,
     randomInterval,
@@ -296,7 +297,12 @@ export class Champion {
                 if ( TCount==0)
                 {
                     logHHAuto("No tickets!");
-                    setTimer('nextChampionTime', randomInterval(15*60, 17*60));
+                    const nextTime = randomInterval(3600, 4000);
+                    setTimer('nextChampionTime', nextTime);
+                    if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoClubChamp") ==="true") {
+                        // no ticket for both
+                        setTimer('nextClubChampionTime', nextTime);
+                    }
                     return false;
                 }
                 else
@@ -425,23 +431,44 @@ export class Champion {
                 }
             }
             //fetching min
+            let nextChampionTime;
 
             logHHAuto('minTimeEnded: ' + minTimeEnded + ', minTime:' + minTime);
             if (minTime === -1 && minTimeEnded === -1)
             {
-                setTimer('nextChampionTime', randomInterval(3600, 4000));
+                nextChampionTime = randomInterval(3600, 4000);
             }
             else if (minTime === -1)
             {
                 logHHAuto('Champion ended, next time: ' + minTimeEnded);
-                setTimer('nextChampionTime', randomInterval(minTimeEnded, 180 + minTimeEnded));
+                nextChampionTime = randomInterval(minTimeEnded, 180 + minTimeEnded);
             }
             else
             {
                 logHHAuto('Champion next time: ' + minTime);
                 const maxTime = minTime > 0 ? 180 + minTime : 0.5;
-                setTimer('nextChampionTime', randomInterval(minTime, maxTime));
+                nextChampionTime = randomInterval(minTime, maxTime);
+            }
+            Champion._setTimer(nextChampionTime);
+        }
+    }
+
+    /**
+     * 
+     * @param {number} nextChampionTime 
+     * @private
+     */
+    static _setTimer(nextChampionTime){
+        if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoClubChamp") === "true" 
+            && getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampAlignTimer") === "true" 
+            && getStoredValue(HHStoredVarPrefixKey+"Temp_clubChampLimitReached" !== "true"))
+            {
+            const champClubTimeLeft = getSecondsLeft('nextClubChampionTime');
+            if(nextChampionTime > 10 && champClubTimeLeft < 1200 && nextChampionTime < 1200) { // align settings
+                // 20 min for standard wait time
+                nextChampionTime = Math.max(nextChampionTime, champClubTimeLeft);
             }
         }
+        setTimer('nextChampionTime', nextChampionTime);
     }
 }
