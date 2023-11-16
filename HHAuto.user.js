@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.14.0
+// @version      6.14.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -2612,6 +2612,7 @@ class Season {
     static moduleSimSeasonBattle()
     {
         const hero_data = unsafeWindow.hero_data;
+        const opponentDatas = unsafeWindow.opponents;
         let doDisplay=false;
         let mojoOppo=[];
         let scoreOppo=[];
@@ -2630,7 +2631,7 @@ class Season {
             for (let index=0;index<3;index++)
             {
 
-                const {player, opponent} = BDSMHelper.getBdsmPlayersData(heroFighter, opponentData);
+                const {player, opponent} = BDSMHelper.getBdsmPlayersData(hero_data, opponentDatas[index].player);
 
                 if (doDisplay)
                 {
@@ -6480,15 +6481,8 @@ class LeagueHelper {
     static getSimPowerOpponent(heroFighter, opponents) {
         const opponentData = opponents.player;
         let leaguePlayers = BDSMHelper.getBdsmPlayersData(heroFighter, opponentData, true);
-        //console.log("HH simuFight",JSON.stringify(leaguePlayers.player),JSON.stringify(leaguePlayers.opponent));
         let simu = calculateBattleProbabilities(leaguePlayers.player, leaguePlayers.opponent);
 
-        if("4363922" == opponents.player.id_fighter) {
-            console.log("HH Auto Hero", leaguePlayers.player);
-            console.log("HH Auto Shizik", leaguePlayers.opponent);
-            console.log("HH Auto Simu", simu);
-        }
-        
         const oppoPoints = simu.points;
         let expectedValue = 0;
         for (let i=25; i>=3; i--) {
@@ -7048,7 +7042,7 @@ class LeagueHelper {
                 }
 
                 LogUtils_logHHAuto("Going to fight " + Data[0].nickname + "(" + Data[0].opponent_id + ") with power " + Data[0].power);
-                if(debugEnabled) LogUtils_logHHAuto(Data[0]);
+                if(debugEnabled) LogUtils_logHHAuto(JSON.stringify(Data[0]));
                 // change referer
                 window.history.replaceState(null, '', '/leagues-pre-battle.html?id_opponent='+Data[0].opponent_id);
 
@@ -7056,7 +7050,7 @@ class LeagueHelper {
                 const opponentDataFromList = opponents_list.filter(obj => {
                     return obj.player.id_fighter == Data[0].opponent_id;
                 });
-                if(debugEnabled) LogUtils_logHHAuto("opponentDataFromList", opponentDataFromList);
+                if(debugEnabled) LogUtils_logHHAuto("opponentDataFromList ", JSON.stringify(opponentDataFromList));
 
                 let numberOfFightAvailable = 0;
                 if(opponentDataFromList && opponentDataFromList.length> 0)
