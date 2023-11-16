@@ -198,6 +198,7 @@ export class LeagueHelper {
         const league_end = LeagueHelper.getLeagueEndTime();
         if (league_end > 0 && league_end <= (60*60)) {
             // Last league hour //TODO
+            logHHAuto("Last League hour");
         }
         const energyAboveThreshold = humanLikeRun && LeagueHelper.getEnergy() > threshold || LeagueHelper.getEnergy() > Math.max(threshold, runThreshold-1);
         const paranoiaSpending = LeagueHelper.getEnergy() > 0 && Number(checkParanoiaSpendings('challenge')) > 0;
@@ -551,10 +552,12 @@ export class LeagueHelper {
                     gotoPage(getHHScriptVars("pagesIDLeaderboard"))
                 }
             }
-            //logHHAuto('ls! '+$('h4.leagues').length);
-            //$('h4.leagues').each(function(){this.click();}); // ???
 
-            if(currentPower < 1)
+            logHHAuto('parsing enemies');
+            var Data=LeagueHelper.getLeagueOpponentListData();
+            const league_end = LeagueHelper.getLeagueEndTime();
+
+            if(currentPower < 1 && Data.length > 0)
             {
                 logHHAuto("No power for leagues.");
                 //prevent paranoia to wait for league
@@ -564,14 +567,12 @@ export class LeagueHelper {
                 return;
             }
 
-            logHHAuto('parsing enemies');
-            var Data=LeagueHelper.getLeagueOpponentListData();
             if (Data.length==0)
             {
-                logHHAuto('No valid targets!');
+                logHHAuto('No valid targets! Set timer to league ends.');
                 //prevent paranoia to wait for league
                 setStoredValue(HHStoredVarPrefixKey+"Temp_paranoiaLeagueBlocked", "true");
-                setTimer('nextLeaguesTime', randomInterval(35*60, 40*60));
+                setTimer('nextLeaguesTime', randomInterval(league_end - 5*60, league_end));
             }
             else
             {
@@ -618,16 +619,15 @@ export class LeagueHelper {
                     logHHAuto("Current league above target ("+Number(getPlayerCurrentLevel)+"/"+leagueTargetValue+"), needs to demote. Score should not be higher than : "+maxDemote);
                     if ( currentScore + leagueScoreSecurityThreshold >= maxDemote )
                     {
-                        let league_end = LeagueHelper.getLeagueEndTime();
                         if (league_end <= (60*60)) {
                             logHHAuto("Can't do league as could go above demote, as last hour setting timer to 5 mins"); 
                             setTimer('nextLeaguesTime', randomInterval(5*60, 8*60));
                         } else {
                             logHHAuto("Can't do league as could go above demote, setting timer to 30 mins");
                             setTimer('nextLeaguesTime', randomInterval(30*60, 35*60));
-                            //prevent paranoia to wait for league
-                            setStoredValue(HHStoredVarPrefixKey+"Temp_paranoiaLeagueBlocked", "true");
                         }
+                        //prevent paranoia to wait for league
+                        setStoredValue(HHStoredVarPrefixKey+"Temp_paranoiaLeagueBlocked", "true");
                         gotoPage(getHHScriptVars("pagesIDHome"));
                         return;
                     }
@@ -757,4 +757,3 @@ export class LeagueHelper {
         LeagueHelper.LeagueDisplayGetOpponentPopup(numberDone,remainingTime);
     }
 }
-unsafeWindow.LeagueHelper = LeagueHelper;

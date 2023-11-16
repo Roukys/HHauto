@@ -1058,6 +1058,8 @@ export function autoLoop()
             break;
         case getHHScriptVars("pagesIDClubChampion"):
             Champion.moduleSimChampions();
+            ClubChampion.resetTimerIfNeeded = callItOnce(ClubChampion.resetTimerIfNeeded);
+            ClubChampion.resetTimerIfNeeded();
             break;
         case getHHScriptVars("pagesIDQuest"):
             const haremItem = getStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlActions");
@@ -1069,9 +1071,6 @@ export function autoLoop()
             break;
         case getHHScriptVars("pagesIDClub"):
             Club.run();
-            // if (!checkTimer('nextClubChampionTime') && getNextClubChampionTimer() == -1) {
-            //     updateClubChampionTimer();
-            // }
             break;
     }
 

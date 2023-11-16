@@ -91,6 +91,7 @@ HHAuto_ToolTips.en.compactPowerPlace = { version: "5.24.0", elementText: "Compac
 HHAuto_ToolTips.en.autoChampsTitle = { version: "5.6.24", elementText: "Champions"};
 HHAuto_ToolTips.en.autoChamps = { version: "5.6.24", elementText: "Normal", tooltip: "if enabled : Automatically do champions (if they are started and in filter only)"};
 HHAuto_ToolTips.en.autoChampsForceStart = { version: "5.6.76", elementText: "Force start", tooltip: "if enabled : will fight filtered champions even if not started."};
+HHAuto_ToolTips.en.autoChampAlignTimer = { version: "6.15.0", elementText: "Align timers", tooltip: "if enabled : will align champion and club champion timers."};
 HHAuto_ToolTips.en.autoChampsUseEne = { version: "5.39.0", elementText: "Buy tickets", tooltip: "If enabled : use Energy to buy tickets respecting the energy quest threshold"};
 HHAuto_ToolTips.en.autoChampsFilter = { version: "5.6.24", elementText: "Filter", tooltip: "(values separated by ; 1 to 6)<br>Allow to set filter on champions to be fought"};
 HHAuto_ToolTips.en.autoChampsTeamLoop = { version: "5.21.0", elementText: "Auto team Loops", tooltip: "Number of loop to search for champion team for every button click"};

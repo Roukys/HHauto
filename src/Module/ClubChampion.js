@@ -1,10 +1,14 @@
 import {
     TimeHelper,
+    convertTimeToInt,
+    deleteStoredValue,
     getHHScriptVars,
     getHHVars,
     getPage,
+    getSecondsLeft,
     getStoredValue,
     randomInterval,
+    setStoredValue,
     setTimer
 } from "../Helper";
 import { gotoPage } from "../Service";
@@ -50,24 +54,47 @@ export class ClubChampion {
             logHHAuto('on clubs');
             let secsToNextTimer = ClubChampion.getNextClubChampionTimer();
             let noTimer = (secsToNextTimer === -1);
+            let nextClubChampionTime;
     
             if (secsToNextTimer === -1)
             {
-                setTimer('nextClubChampionTime', randomInterval(15*60, 17*60));
+                nextClubChampionTime = randomInterval(15*60, 17*60);
             }
             else if (secsToNextTimer > 3600 && getStoredValue(HHStoredVarPrefixKey+"Setting_autoClubForceStart") === "true")
             {
-                setTimer('nextClubChampionTime', randomInterval(50*60, 70*60));
+                nextClubChampionTime = randomInterval(50*60, 70*60);
             }
             else
             {
-                setTimer('nextClubChampionTime', randomInterval(secsToNextTimer, 180 + secsToNextTimer) );
+                nextClubChampionTime = randomInterval(secsToNextTimer, 180 + secsToNextTimer);
             }
+            ClubChampion._setTimer(nextClubChampionTime);
             return noTimer;
         }
         return true;
     }
-    
+
+    static getRemainingRestTime(){
+        let remainingRestTime = 0;
+        
+        let timerElm = $('.champions-bottom__rest .timer span[rel=expires]').text();
+        if (timerElm !== undefined && timerElm !== null && timerElm.length > 0) {
+            remainingRestTime = Number(convertTimeToInt(timerElm));
+        }
+        return remainingRestTime;
+    }
+
+    static resetTimerIfNeeded(){
+        if ($('button[rel=perform].blue_button_L').length>0 && $('.champions-bottom__rest').length == 0
+            && getStoredValue(HHStoredVarPrefixKey+"Setting_autoClubChamp") === "true") {
+            const champTimeLeft = getSecondsLeft('nextClubChampionTime');
+            if (champTimeLeft > 60) {
+                logHHAuto("Club champion seems available, reduce next timer to 30-60s.");
+                ClubChampion._setTimer(randomInterval(30, 60));
+            }
+        }
+    }
+
     static doClubChampionStuff()
     {
         var page=getPage();
@@ -76,8 +103,14 @@ export class ClubChampion {
             logHHAuto('on club_champion page');
             if ($('button[rel=perform].blue_button_L').length==0)
             {
-                logHHAuto('Something is wrong!');
-                setTimer('nextClubChampionTime', randomInterval(15*60, 17*60));
+                if($('.champions-bottom__rest').length > 0) {
+                    logHHAuto('Girls are resting');
+                    const restTime = ClubChampion.getRemainingRestTime();
+                    ClubChampion._setTimer(randomInterval(restTime + 10, restTime + 2*60));
+                } else {
+                    logHHAuto('Something is wrong!');
+                    ClubChampion._setTimer(randomInterval(15*60, 17*60));
+                }
                 gotoPage(getHHScriptVars("pagesIDHome"));
                 return true;
             }
@@ -89,7 +122,12 @@ export class ClubChampion {
                 if ( TCount==0)
                 {
                     logHHAuto("No tickets!");
-                    setTimer('nextClubChampionTime', randomInterval(15*60, 17*60));
+                    const nextTime = randomInterval(3600, 4000);
+                    if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoChamps") ==="true") {
+                        // No ticket for boths
+                        setTimer('nextChampionTime', nextTime);
+                    }
+                    setTimer('nextClubChampionTime', nextTime);
                     return false;
                 }
                 else
@@ -98,7 +136,7 @@ export class ClubChampion {
                     {
                         logHHAuto("Using ticket");
                         $('button[rel=perform].blue_button_L').click();
-                        setTimer('nextClubChampionTime', randomInterval(15*60, 17*60));
+                        ClubChampion._setTimer(randomInterval(15*60, 17*60));
                     }
                     gotoPage(getHHScriptVars("pagesIDClub"));
                     return true;
@@ -107,6 +145,7 @@ export class ClubChampion {
         }
         else if (page==getHHScriptVars("pagesIDClub"))
         {
+            deleteStoredValue(HHStoredVarPrefixKey+"Temp_clubChampLimitReached");
             logHHAuto('on clubs');
             const onChampTab = $("div.club-champion-members-challenges:visible").length === 1;
             if (!onChampTab) {
@@ -137,7 +176,8 @@ export class ClubChampion {
                 else
                 {
                     logHHAuto("Max tickets to use on Club Champ reached.");
-                    setTimer('nextClubChampionTime', randomInterval(60*60, 65*60));
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_clubChampLimitReached", "true");
+                    setTimer('nextClubChampionTime', randomInterval(4*60*60, 5*60*60));
                 }
     
             }
@@ -150,5 +190,21 @@ export class ClubChampion {
             gotoPage(getHHScriptVars("pagesIDClub"));
             return true;
         }
+    }
+
+    /**
+     * 
+     * @param {number} nextClubChampionTime 
+     * @private
+     */
+    static _setTimer(nextClubChampionTime){
+        if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoChamps") ==="true" && getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampAlignTimer") === "true") {
+            const champTimeLeft = getSecondsLeft('nextChampionTime');
+            if(nextClubChampionTime > 10 && champTimeLeft < 1200 && nextClubChampionTime < 1200) { // align settings
+                // 20 min for standard wait time
+                nextClubChampionTime = Math.max(nextClubChampionTime, champTimeLeft);
+            }
+        }
+        setTimer('nextClubChampionTime', nextClubChampionTime);
     }
 }

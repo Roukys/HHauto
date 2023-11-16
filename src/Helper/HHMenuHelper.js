@@ -566,6 +566,7 @@ export function getMenu() {
                             + hhMenuSwitch('autoClubForceStart')
                             + hhMenuInputWithImg('autoClubChampMax', HHAuto_inputPattern.autoClubChampMax, 'text-align:center; width:45px', 'pictures/design/champion_ticket.png', 'numeric')
                             + hhMenuSwitch('showClubButtonInPoa')
+                            + hhMenuSwitch('autoChampAlignTimer')
                         +`</div>`
                         +`<div class="internalOptionsRow separator">`
                             + hhMenuInput('autoChampsTeamLoop', HHAuto_inputPattern.autoChampsTeamLoop, 'text-align:center; width:25px', '', 'numeric')
