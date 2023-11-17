@@ -192,7 +192,7 @@ export class Booster {
         const serverNow = getHHVars('server_now_ts');
         if(!boosterCode) {
             // have at least one
-            return boosterStatus.mythic.length > 0 || boosterStatus.normal.filter((booster) => booster.endAt > serverNow).length > 0
+            return /*boosterStatus.mythic.length > 0 ||*/ boosterStatus.normal.filter((booster) => booster.endAt > serverNow).length > 0
         }else {
             return boosterStatus.mythic.find((booster) => booster.item.identifier === boosterCode).length > 0 
             || boosterStatus.normal.find((booster) => booster.item.identifier === boosterCode && booster.endAt > serverNow).length > 0 

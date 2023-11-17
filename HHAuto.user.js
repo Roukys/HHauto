@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.15.0
+// @version      6.15.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1136,7 +1136,7 @@ class Booster {
         const serverNow = getHHVars('server_now_ts');
         if(!boosterCode) {
             // have at least one
-            return boosterStatus.mythic.length > 0 || boosterStatus.normal.filter((booster) => booster.endAt > serverNow).length > 0
+            return /*boosterStatus.mythic.length > 0 ||*/ boosterStatus.normal.filter((booster) => booster.endAt > serverNow).length > 0
         }else {
             return boosterStatus.mythic.find((booster) => booster.item.identifier === boosterCode).length > 0 
             || boosterStatus.normal.find((booster) => booster.item.identifier === boosterCode && booster.endAt > serverNow).length > 0 
