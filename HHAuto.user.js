@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.15.1
+// @version      6.15.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -6422,6 +6422,7 @@ class HaremSalary {
 ;// CONCATENATED MODULE: ./src/model/LeagueOpponent.js
 
 
+
 //@ts-check
 class LeagueOpponent {
     opponent_id;
@@ -6434,6 +6435,7 @@ class LeagueOpponent {
     stats= {}; // fill stats if needed
     nb_boosters = 0;
     kkOpponent = {};
+    simu = {};
 
     /**
      * 
@@ -6446,8 +6448,9 @@ class LeagueOpponent {
      * @param {number} simuPoints 
      * @param {number} nb_boosters 
      * @param {KKLeagueOpponent} kkOpponent 
+     * @param {BDSMSimu} simu 
      */
-    constructor(opponent_id,rank,nickname,level,power,player_league_points,simuPoints,nb_boosters, kkOpponent){
+    constructor(opponent_id,rank,nickname,level,power,player_league_points,simuPoints,nb_boosters, kkOpponent, simu){
         this.opponent_id = opponent_id;
         this.rank = rank;
         this.nickname = nickname;
@@ -6457,6 +6460,7 @@ class LeagueOpponent {
         this.simuPoints = simuPoints;
         this.nb_boosters = nb_boosters;
         this.kkOpponent = kkOpponent;
+        this.simu = simu;
     }
 }
 ;// CONCATENATED MODULE: ./src/Module/League.js
@@ -6558,8 +6562,7 @@ class LeagueHelper {
      * @returns {BDSMSimu}
      */
     static getSimPowerOpponent(heroFighter, opponents) {
-        const opponentData = opponents.player;
-        let leaguePlayers = BDSMHelper.getBdsmPlayersData(heroFighter, opponentData, true);
+        let leaguePlayers = BDSMHelper.getBdsmPlayersData(heroFighter, opponents.player, true);
         let simu = calculateBattleProbabilities(leaguePlayers.player, leaguePlayers.opponent);
 
         const oppoPoints = simu.points;
@@ -6667,6 +6670,7 @@ class LeagueHelper {
         const opponentSim = $("div.matchRatingNew img.powerLevelScouter");
         const allOpponentsSimDisplayed = (opponentSim.length >= opponentButtons.length);
         const Hero=getHero();
+        const debugEnabled = StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_Debug")==='true';
 
 
         let SimPower = function()
@@ -6687,14 +6691,53 @@ class LeagueHelper {
 
             const containsSimuScore = function(opponents) { return $('a[href*="id_opponent='+opponents.player.id_fighter+'"] .matchRatingNew').length > 0;}
             const containsOcdScore = function(opponents) { return $('.matchRating', $('a[href*="id_opponent='+opponents.player.id_fighter+'"]').parent()).length > 0;}
+            let opponentsPowerList = LeagueHelper._getTempLeagueOpponentList();
+            let opponentsPowerListChanged = false;
 
             for(let opponentIndex = 0;opponentIndex < opponents_list.length ; opponentIndex++)
             {
+                /**
+                 * @type {KKLeagueOpponent}
+                 */
                 let opponents = opponents_list[opponentIndex];
                 if (LeagueHelper.numberOfFightAvailable(opponents) > 0 && !containsSimuScore(opponents) && !containsOcdScore(opponents)) {
-                    const simu = LeagueHelper.getSimPowerOpponent(heroFighter, opponents); 
+                    let simu;
+                    let leagueOpponent;
+                    if(opponentsPowerList && opponentsPowerList.opponentsList.length > 0) {
+                        try{
+                            leagueOpponent = opponentsPowerList.opponentsList.find((el) => el.opponent_id == opponents.player.id_fighter);
+                            if(leagueOpponent) simu = leagueOpponent.simu;
+                        }catch(error){
+                            LogUtils_logHHAuto("Error when getting oppo " + opponents.player.id_fighter +"from storage");
+                            if(debugEnabled) LogUtils_logHHAuto(error);
+                        }
+                    }
+                    if(!simu) {
+                        simu = LeagueHelper.getSimPowerOpponent(heroFighter, opponents); 
+                        leagueOpponent = new LeagueOpponent(
+                            opponents.player.id_fighter,
+                            opponents.place,
+                            opponents.nickname,
+                            opponents.level,
+                            opponents.power,
+                            opponents.player_league_points,
+                            Number(nRounding(simu.expectedValue, 1, -1)),
+                            0, // Boster numbers?
+                            opponents,
+                            simu
+                        );
+
+                        opponentsPowerList.opponentsList.push(leagueOpponent);
+                        opponentsPowerListChanged = true;
+                    }
+                    
                     LeagueHelper.displayOppoSimuOnButton(opponents.player.id_fighter, simu);
                 }
+            }
+            
+            if(opponentsPowerListChanged) {
+                LogUtils_logHHAuto('Save opponent list for later');
+                StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueOpponentList", JSON.stringify(opponentsPowerList));
             }
             
             //CSS
@@ -6856,6 +6899,19 @@ class LeagueHelper {
         }
     }
 
+    static _getTempLeagueOpponentList() {
+        const maxLeagueListDurationSecs = getHHScriptVars("LeagueListExpirationSecs");
+        let opponentsPowerList = Utils_isJSON(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueOpponentList"))?JSON.parse(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueOpponentList")):{expirationDate:0,opponentsList:[]};
+        if (Object.keys(opponentsPowerList.opponentsList).length === 0 ||  opponentsPowerList.expirationDate < new Date())
+        {
+            sessionStorage.removeItem(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueOpponentList");
+            opponentsPowerList.expirationDate = new Date().getTime() + maxLeagueListDurationSecs * 1000;
+        } else {
+            LogUtils_logHHAuto('Found valid opponent list in storage, reuse it');
+        }
+        return opponentsPowerList;
+    }
+
     /**
      * @returns {LeagueOpponent[]}
      */
@@ -6867,6 +6923,7 @@ class LeagueHelper {
         let Data=[];
         let opponent_id;
         let fightButton;
+        let opponentsPowerList;
 
         const usePowerCalc = StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoLeaguesPowerCalc") === 'true';
         const debugEnabled = StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_Debug")==='true';
@@ -6890,6 +6947,8 @@ class LeagueHelper {
         const opponents_list = getHHVars("opponents_list");
         let heroFighter;
         if (usePowerCalc) {
+            opponentsPowerList = LeagueHelper._getTempLeagueOpponentList()
+
             try {
                 heroFighter = opponents_list?.find((el) => el.player.id_fighter == Hero.infos.id).player
             } catch (error) {
@@ -6906,32 +6965,46 @@ class LeagueHelper {
             if(fightButton.length > 0) {
                 opponent_id = queryStringGetParam(new URL(fightButton.attr("href"),window.location.origin).search, 'id_opponent');
 
-                let expectedPoints = 0;
-                let opponents;
-                if(canUseSimu) {
+                let leagueOpponent;
+                if(opponentsPowerList && opponentsPowerList.opponentsList.length > 0) {
                     try{
-                        opponents = opponents_list.find((el) => el.player.id_fighter == opponent_id);
-                        const simu = LeagueHelper.getSimPowerOpponent(heroFighter, opponents); 
-                        expectedPoints = Number(nRounding(simu.expectedValue, 1, -1));
+                        leagueOpponent = opponentsPowerList.opponentsList.find((el) => el.opponent_id == opponent_id);
                     }catch(error){
-                        LogUtils_logHHAuto("Error in simu for oppo " + opponent_id +", falback to not use powercalc");
-                        if(debugEnabled) LogUtils_logHHAuto(error);
-                        canUseSimu = false;
+                        LogUtils_logHHAuto("Error when getting oppo " + opponent_id +" from storage");
                     }
                 }
+                if(!leagueOpponent) {
+                    let expectedPoints = 0;
+                    let opponents;
+                    /**
+                     * @type {BDSMSimu}
+                     */
+                    let simu = {};
+                    if(canUseSimu) {
+                        try{
+                            opponents = opponents_list.find((el) => el.player.id_fighter == opponent_id);
+                            simu = LeagueHelper.getSimPowerOpponent(heroFighter, opponents); 
+                            expectedPoints = Number(nRounding(simu.expectedValue, 1, -1));
+                        }catch(error){
+                            LogUtils_logHHAuto("Error in simu for oppo " + opponent_id +", falback to not use powercalc");
+                            canUseSimu = false;
+                        }
+                    }
 
-                let opponnent = new LeagueOpponent(
-                    opponent_id,
-                    Number($('.data-column[column="place"]', $(this)).text()),
-                    $('.nickname', $(this)).text(),
-                    Number($('.data-column[column="level"]', $(this)).text()),
-                    getPowerOrPoints(hasHHBdsmChangeBefore, $(this)),
-                    Number($('.data-column[column="player_league_points"]', $(this)).text().replace(/\D/g, '')),
-                    expectedPoints,
-                    $('.boosters', $(this)).children().length,
-                    opponents
-                );
-                Data.push(opponnent);
+                    leagueOpponent = new LeagueOpponent(
+                        opponent_id,
+                        Number($('.data-column[column="place"]', $(this)).text()),
+                        $('.nickname', $(this)).text(),
+                        Number($('.data-column[column="level"]', $(this)).text()),
+                        getPowerOrPoints(hasHHBdsmChangeBefore, $(this)),
+                        Number($('.data-column[column="player_league_points"]', $(this)).text().replace(/\D/g, '')),
+                        expectedPoints,
+                        $('.boosters', $(this)).children().length,
+                        opponents,
+                        simu
+                    );
+                }
+                Data.push(leagueOpponent);
             }
         });
         const hasHHBdsmChangeAfter = $('.data-column[column="power"] .matchRating').length > 0;
@@ -6954,6 +7027,10 @@ class LeagueHelper {
             }else {
                 Data.sort((a,b) => (a.power > b.power) ? 1 : ((b.power > a.power) ? -1 : 0)); // sort by lower power
             }
+        }
+        if (usePowerCalc) {
+            LogUtils_logHHAuto('Save opponent list for later');
+            StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueOpponentList", JSON.stringify({expirationDate:opponentsPowerList.expirationDate,opponentsList:Data}));
         }
         return Data;
     }
@@ -9012,7 +9089,7 @@ HHEnvVariables["global"].selectorFilterNotDisplayNone = ':not([style*="display:n
 HHEnvVariables["global"].selectorClaimAllRewards = "#claim-all:not([disabled]):visible:not([style*='visibility: hidden;'])"; // KK use visibility: hidden or visibility: visible to display this button
 HHEnvVariables["global"].HaremMaxSizeExpirationSecs = 7*24*60*60;//7 days
 HHEnvVariables["global"].HaremMinSizeExpirationSecs = 24*60*60;//1 days
-HHEnvVariables["global"].LeagueListExpirationSecs = 60*60;//1 hour max
+HHEnvVariables["global"].LeagueListExpirationSecs = 2*60;//2 min
 HHEnvVariables["global"].minSecsBeforeGoHomeAfterActions = 10;
 HHEnvVariables["global"].dailyRewardMaxRemainingTime = 2*60*60;
 HHEnvVariables["global"].maxCollectionDelay = 6*60*60;
@@ -11211,18 +11288,14 @@ HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueOpponent
     {
     storage:"sessionStorage",
     HHType:"Temp",
-    isValid:/^{"expirationDate":\d+,"opponentsList":{("\d+":{((("(win|loss|avgTurns)":\d*[.,]?\d+)|("scoreClass":"(minus|plus|close)")|("points":{("\d{1,3}":\d*[.,]?\d+,?)+})),?)+},?)+}}$/
+    //isValid:/^{"expirationDate":\d+,"opponentsList":{("\d+":{((("(win|loss|avgTurns)":\d*[.,]?\d+)|("scoreClass":"(minus|plus|close)")|("points":{("\d{1,3}":\d*[.,]?\d+,?)+})),?)+},?)+}}$/
 };
-HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueTempOpponentList"] =
+/*
+HHStoredVars[HHStoredVarPrefixKey+"Temp_LeagueTempOpponentList"] =
     {
     storage:"sessionStorage",
     HHType:"Temp",
     isValid:/^{"expirationDate":\d+,"opponentsList":{("\d+":{((("(win|loss|avgTurns|expectedValue)":\d*[.,]?\d+)|("scoreClass":"(minus|plus|close)")|("points":{("\d{1,3}":\d*[.,]?\d+,?)+})),?)+},?)+}}$/
-};
-/*HHStoredVars[HHStoredVarPrefixKey+"Temp_opponentsListExpirationDate"] =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
 };*/
 HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Temp_paranoiaLeagueBlocked"] =
     {

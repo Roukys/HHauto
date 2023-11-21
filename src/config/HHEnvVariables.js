@@ -48,7 +48,7 @@ HHEnvVariables["global"].selectorFilterNotDisplayNone = ':not([style*="display:n
 HHEnvVariables["global"].selectorClaimAllRewards = "#claim-all:not([disabled]):visible:not([style*='visibility: hidden;'])"; // KK use visibility: hidden or visibility: visible to display this button
 HHEnvVariables["global"].HaremMaxSizeExpirationSecs = 7*24*60*60;//7 days
 HHEnvVariables["global"].HaremMinSizeExpirationSecs = 24*60*60;//1 days
-HHEnvVariables["global"].LeagueListExpirationSecs = 60*60;//1 hour max
+HHEnvVariables["global"].LeagueListExpirationSecs = 2*60;//2 min
 HHEnvVariables["global"].minSecsBeforeGoHomeAfterActions = 10;
 HHEnvVariables["global"].dailyRewardMaxRemainingTime = 2*60*60;
 HHEnvVariables["global"].maxCollectionDelay = 6*60*60;
