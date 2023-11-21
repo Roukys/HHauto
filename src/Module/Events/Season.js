@@ -212,6 +212,12 @@ export class Season {
                     //logHHAuto('second');
                     isBetter = true;
                 }
+                // same red flag same mojo but better score
+                else if (chosenFlag == currentFlag && currentFlag == -1 && chosenMojo == currentMojo && currentScore > chosenRating)
+                {
+                    //logHHAuto('second');
+                    isBetter = true;
+                }
                 //same green flag but better mojo
                 else if (chosenFlag == currentFlag && currentFlag == 1 && chosenMojo < currentMojo)
                 {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.15.2
+// @version      6.15.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -2724,6 +2724,12 @@ class Season {
                 }
                 //same red flag but better mojo
                 else if (chosenFlag == currentFlag && currentFlag == -1 && chosenMojo < currentMojo)
+                {
+                    //logHHAuto('second');
+                    isBetter = true;
+                }
+                // same red flag same mojo but better score
+                else if (chosenFlag == currentFlag && currentFlag == -1 && chosenMojo == currentMojo && currentScore > chosenRating)
                 {
                     //logHHAuto('second');
                     isBetter = true;
@@ -13736,7 +13742,7 @@ function doStatUpgrades()
 }
 
 class HeroHelper {
-    static haveBoosterInInventory(idBooster){
+    static haveBoosterInInventory(idBooster) {
         const HaveBooster=isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_haveBooster"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_haveBooster")):{};
         const boosterOwned = HaveBooster.hasOwnProperty(idBooster) ? Number(HaveBooster[idBooster]) : 0;
         return boosterOwned > 0
