@@ -1738,18 +1738,14 @@ HHStoredVars[HHStoredVarPrefixKey+"Temp_LeagueOpponentList"] =
     {
     storage:"sessionStorage",
     HHType:"Temp",
-    isValid:/^{"expirationDate":\d+,"opponentsList":{("\d+":{((("(win|loss|avgTurns)":\d*[.,]?\d+)|("scoreClass":"(minus|plus|close)")|("points":{("\d{1,3}":\d*[.,]?\d+,?)+})),?)+},?)+}}$/
+    //isValid:/^{"expirationDate":\d+,"opponentsList":{("\d+":{((("(win|loss|avgTurns)":\d*[.,]?\d+)|("scoreClass":"(minus|plus|close)")|("points":{("\d{1,3}":\d*[.,]?\d+,?)+})),?)+},?)+}}$/
 };
+/*
 HHStoredVars[HHStoredVarPrefixKey+"Temp_LeagueTempOpponentList"] =
     {
     storage:"sessionStorage",
     HHType:"Temp",
     isValid:/^{"expirationDate":\d+,"opponentsList":{("\d+":{((("(win|loss|avgTurns|expectedValue)":\d*[.,]?\d+)|("scoreClass":"(minus|plus|close)")|("points":{("\d{1,3}":\d*[.,]?\d+,?)+})),?)+},?)+}}$/
-};
-/*HHStoredVars[HHStoredVarPrefixKey+"Temp_opponentsListExpirationDate"] =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
 };*/
 HHStoredVars[HHStoredVarPrefixKey+"Temp_paranoiaLeagueBlocked"] =
     {
