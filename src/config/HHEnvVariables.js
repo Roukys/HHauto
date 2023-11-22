@@ -111,7 +111,8 @@ HHEnvVariables["global"].trollzList =  ["Latest",
                                         "Nike",
                                         "Sake",
                                         "WereBunny Police",
-                                        "Auga"];
+                                        "Auga",
+                                        "Gross"];
 
 HHEnvVariables["global"].trollIdMapping =  []; // Empty means no specific mapping
 
@@ -132,8 +133,9 @@ HHEnvVariables["global"].trollGirlsID = [
     [['612527302', '167231135', '560979916', '184523411', '549524850', '784911160'], [0], [0]],
     [['164866290', '696124016', '841591253'], [0], [0]],
     [['344730128', '735302216', '851893423'], [0], [0]],
+    [['547099506', '572827174', '653889168'], [0], [0]],
 ];
-HHEnvVariables["global"].lastQuestId = 1776; //  TODO update when new quest comes
+HHEnvVariables["global"].lastQuestId = 1804; //  TODO update when new quest comes
 
 HHEnvVariables["global"].leaguesList = ["Wanker I",
                                         "Wanker II",
@@ -163,7 +165,8 @@ switch (getLanguageCode())
                                                "Nike",
                                                "Sake",
                                                "Police des Lapines-Garous",
-                                               "Auga"];
+                                               "Auga",
+                                               "Gross"];
         HHEnvVariables["global"].leaguesList = ["Branleur I",
                                                 "Branleur II",
                                                 "Branleur III",
