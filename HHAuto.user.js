@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.15.5
+// @version      6.15.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -7091,10 +7091,15 @@ class LeagueHelper {
 
             if (Data.length==0)
             {
-                LogUtils_logHHAuto('No valid targets! Set timer to league ends.');
+                LogUtils_logHHAuto('No valid targets!');
                 //prevent paranoia to wait for league
                 StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_paranoiaLeagueBlocked", "true");
-                setTimer('nextLeaguesTime', randomInterval(league_end - 5*60, league_end));
+                if ($('#leagues .forced_info').length > 0) {
+                    setTimer('nextLeaguesTime', randomInterval(30*60, 35*60));
+                } else {
+                    LogUtils_logHHAuto('Set timer to league ends.');
+                    setTimer('nextLeaguesTime', randomInterval(league_end - 5*60, league_end));
+                }
             }
             else
             {
