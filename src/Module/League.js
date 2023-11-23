@@ -642,10 +642,15 @@ export class LeagueHelper {
 
             if (Data.length==0)
             {
-                logHHAuto('No valid targets! Set timer to league ends.');
+                logHHAuto('No valid targets!');
                 //prevent paranoia to wait for league
                 setStoredValue(HHStoredVarPrefixKey+"Temp_paranoiaLeagueBlocked", "true");
-                setTimer('nextLeaguesTime', randomInterval(league_end - 5*60, league_end));
+                if ($('#leagues .forced_info').length > 0) {
+                    setTimer('nextLeaguesTime', randomInterval(30*60, 35*60));
+                } else {
+                    logHHAuto('Set timer to league ends.');
+                    setTimer('nextLeaguesTime', randomInterval(league_end - 5*60, league_end));
+                }
             }
             else
             {
