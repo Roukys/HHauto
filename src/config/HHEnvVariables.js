@@ -495,7 +495,6 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
                                           'Janie Blade',
                                           'Nikki Nort'];
     HHEnvVariables[element].isEnabledSideQuest = false;// to remove when SideQuest arrives in transpornstar
-    HHEnvVariables[element].isEnabledPowerPlaces = false;// to remove when PoP arrives in transpornstar
     HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in transpornstar
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in transpornstar
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in transpornstar

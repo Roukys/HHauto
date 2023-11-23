@@ -28,7 +28,8 @@ export class Bundles {
             }
             else
             {
-                logHHAuto("No button for popup.");
+                logHHAuto("No button for popup. Try again in 5h.");
+                setTimer('nextFreeBundlesCollectTime', randomInterval(4*60*60,6*60*60));
                 return false;
             }
             logHHAuto("setting autoloop to false");

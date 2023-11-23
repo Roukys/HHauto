@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.15.4
+// @version      6.15.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1179,7 +1179,8 @@ class Bundles {
             }
             else
             {
-                LogUtils_logHHAuto("No button for popup.");
+                LogUtils_logHHAuto("No button for popup. Try again in 5h.");
+                setTimer('nextFreeBundlesCollectTime', randomInterval(4*60*60,6*60*60));
                 return false;
             }
             LogUtils_logHHAuto("setting autoloop to false");
@@ -9542,7 +9543,6 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
                                           'Janie Blade',
                                           'Nikki Nort'];
     HHEnvVariables[element].isEnabledSideQuest = false;// to remove when SideQuest arrives in transpornstar
-    HHEnvVariables[element].isEnabledPowerPlaces = false;// to remove when PoP arrives in transpornstar
     HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in transpornstar
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in transpornstar
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in transpornstar
