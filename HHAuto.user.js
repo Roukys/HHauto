@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.15.6
+// @version      6.15.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -7563,17 +7563,21 @@ class Missions {
     static getSuitableMission(missionsList)
     {
         var msn = missionsList[0];
-
-        for(var m in missionsList)
-        {
-            if (JSON.stringify(missionsList[m].rewards).includes("koban") && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoMissionKFirst") === "true")
+        try {   
+            for(var m in missionsList)
             {
-                return missionsList[m];
+                if (JSON.stringify(missionsList[m].rewards).includes("koban") && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoMissionKFirst") === "true")
+                {
+                    return missionsList[m];
+                }
+                if(Number(msn.duration) > Number(missionsList[m].duration))
+                {
+                    msn = missionsList[m];
+                }
             }
-            if(Number(msn.duration) > Number(missionsList[m].duration))
-            {
-                msn = missionsList[m];
-            }
+        } catch (error) {
+            LogUtils_logHHAuto("Something went wrong, starting first mission in the list ", error);
+            msn = missionsList[0];
         }
         return msn;
     }
