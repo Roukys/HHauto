@@ -29,17 +29,21 @@ export class Missions {
     static getSuitableMission(missionsList)
     {
         var msn = missionsList[0];
-
-        for(var m in missionsList)
-        {
-            if (JSON.stringify(missionsList[m].rewards).includes("koban") && getStoredValue(HHStoredVarPrefixKey+"Setting_autoMissionKFirst") === "true")
+        try {   
+            for(var m in missionsList)
             {
-                return missionsList[m];
+                if (JSON.stringify(missionsList[m].rewards).includes("koban") && getStoredValue(HHStoredVarPrefixKey+"Setting_autoMissionKFirst") === "true")
+                {
+                    return missionsList[m];
+                }
+                if(Number(msn.duration) > Number(missionsList[m].duration))
+                {
+                    msn = missionsList[m];
+                }
             }
-            if(Number(msn.duration) > Number(missionsList[m].duration))
-            {
-                msn = missionsList[m];
-            }
+        } catch (error) {
+            logHHAuto("Something went wrong, starting first mission in the list ", error);
+            msn = missionsList[0];
         }
         return msn;
     }
