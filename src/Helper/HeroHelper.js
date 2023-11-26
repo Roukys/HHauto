@@ -68,15 +68,19 @@ export function doStatUpgrades()
 }
 
 export class HeroHelper {
-    static haveBoosterInInventory(idBooster){
+    static haveBoosterInInventory(idBooster) {
         const HaveBooster=isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_haveBooster"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_haveBooster")):{};
         const boosterOwned = HaveBooster.hasOwnProperty(idBooster) ? Number(HaveBooster[idBooster]) : 0;
         return boosterOwned > 0
     }
-    static equipBooster(booster){
+
+    static async equipBooster(booster) {
         logHHAuto("Not yet enough tested, do not use");
-        if(!booster) return false;
-        if(!HeroHelper.haveBoosterInInventory(booster.identifier)) return false;
+        if(!booster) return Promise.resolve(false);
+        if(!HeroHelper.haveBoosterInInventory(booster.identifier)) {
+            logHHAuto("Boostrer" + booster + " not in inventory");
+            return Promise.resolve(false);
+        }
         //action=market_equip_booster&id_item=316&type=booster
         setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
         logHHAuto("Equip "+booster.name+", setting autoloop to false");
@@ -85,16 +89,22 @@ export class HeroHelper {
             id_item: booster.id_item,
             type: "booster"
         };
-        /*
-        hh_ajax(params, function(data) {
-            if (data.success) logHHAuto('Booster equipped');
-            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
-            setTimeout(autoLoop,randomInterval(500,800));
-        }, function (err){
-            logHHAuto('Error occured booster not equipped, could be booster is already equipped');
-            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
-            setTimeout(autoLoop,randomInterval(500,800));
+
+        return Promise.resolve(false);
+/*
+        return new Promise((resolve) => {
+            hh_ajax(params, function(data) {
+                if (data.success) logHHAuto('Booster equipped');
+                setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
+                setTimeout(autoLoop,randomInterval(500,800));
+                resolve(true);
+            }, function (err){
+                logHHAuto('Error occured booster not equipped, could be booster is already equipped');
+                setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
+                setTimeout(autoLoop,randomInterval(500,800));
+                resolve(false);
+            });
         });
-        */
+*/
     }
 }

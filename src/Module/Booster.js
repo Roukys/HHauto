@@ -14,7 +14,7 @@ export class Booster {
     static collectBoostersFromAjaxResponses () {
         $(document).ajaxComplete(function(evt, xhr, opt) {
             if(opt && opt.data && opt.data.search && ~opt.data.search(/(action|class)/)) {
-                setTimeout(function() {
+                setTimeout(async function() {
                     if(!xhr || !xhr.responseText || !xhr.responseText.length) {
                         return
                     }
@@ -162,13 +162,21 @@ export class Booster {
                                     // TODO go to market if sandalwood not ended, continue. If ended, buy a new one
                                     gotoPage(getHHScriptVars("pagesIDShop"));
                                 } else {
-                                    // Buy a new one
-                                    // HeroHelper.equipBooster(Booster.SANDALWOOD_PERFUME);
+                                    // Equip a new one
+                                    /*
+                                    const equiped = await HeroHelper.equipBooster(Booster.SANDALWOOD_PERFUME);
+                                    if(!equiped) {
+                                        logHHAuto("Failure when equip Sandalwood for mythic, deactivated auto sandalwood");
+                                        setStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythicSandalWood", 'false');
+
+                                        // TODO For debug to be removed
+                                        setStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic", 'false');
+                                    }*/
                                 }
                             }
                         }
                     } catch(err) {
-                        // logHHAuto('Catch error during equip sandalwood for mythic' + err);
+                        logHHAuto('Catch error during equip sandalwood for mythic' + err);
                     }
                 }, 200);
             }

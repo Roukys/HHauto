@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.15.7
+// @version      6.15.8
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -54,9 +54,9 @@ GM_addStyle('#sMenu {top: 5px;right: 52px;padding: 4px;opacity: 1;border-radius:
 GM_addStyle('#sMenu::-webkit-scrollbar {width: 6px;height: 6px;background: #000;}');
 GM_addStyle('#sMenu::-webkit-scrollbar-thumb { background: #ffa23e; -webkit-border-radius: 1ex; -webkit-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.75);}');
 GM_addStyle('#sMenu::-webkit-scrollbar-corner {background: #000;}');
-GM_addStyle('div.optionsBoxTitle {padding:5px 15px 0px 5px; height:15px; display:flex; flex-direction:row; justify-content:center; align-items:center;}'); //; padding:2px; padding-bottom:0px;
+GM_addStyle('div.optionsBoxTitle {padding:3px 15px 0px 5px; height:12px; display:flex; flex-direction:row; justify-content:center; align-items:center;}'); //; padding:2px; padding-bottom:0px;
 GM_addStyle('div.rowOptionsBox {margin:3px; padding:3px; font-size:smaller; display:flex; flex-direction:row; align-items:flex-start; border: 1px solid #ffa23e; border-radius: 5px}');
-GM_addStyle('div.optionsBox {margin:3px; padding:3px; font-size:smaller; display:flex; flex-direction:column; border:1px solid #ffa23e; border-radius:5px}');
+GM_addStyle('div.optionsBox {margin:3px 3px 1px; padding:3px; font-size:smaller; display:flex; flex-direction:column; border:1px solid #ffa23e; border-radius:5px}');
 GM_addStyle('div.internalOptionsRow {display:flex; flex-direction:row; justify-content: space-between; align-items: flex-end}'); //; padding:3px;
 GM_addStyle('div.internalOptionsRow.separator {border-top:1px solid #ffa23e}'); //; padding:3px;
 GM_addStyle('div.imgAndObjectRow {display:flex; flex-direction:row; justify-content:flex-start; align-items:center}'); //; padding:3px;//class="internalOptionsRow" style="justify-content:flex-start; align-items:center"
@@ -166,7 +166,7 @@ if (w.Phoenix && (hhTimerLocale !== undefined || hhTimerLocale !== null || hhTim
 HHAuto_ToolTips.en.saveDebug = { version: "5.6.24", elementText: "Save Debug", tooltip: "Allow to produce a debug log file."};
 HHAuto_ToolTips.en.gitHub = { version: "5.6.24", elementText: "GitHub", tooltip: "Link to GitHub project."};
 HHAuto_ToolTips.en.ReportBugs = { version: "5.7.1", elementText: "Report Bugs", tooltip: "Link to GitHub issue list to open and follow bugs."};
-HHAuto_ToolTips.en.noOtherScripts = { version: "5.7.1", elementText: "Please do not use other scripts, it can create incompatibility (HH++ OCD supported)", tooltip: ""};
+HHAuto_ToolTips.en.noOtherScripts = { version: "6.15.8", elementText: "Please do not use other scripts, it can create incompatibility (HH++ supported)", tooltip: ""};
 HHAuto_ToolTips.en.saveConfig = { version: "5.6.24", elementText: "Save Config", tooltip: "Allow to save configuration."};
 HHAuto_ToolTips.en.loadConfig = { version: "5.6.24", elementText: "Load Config", tooltip: "Allow to load configuration."};
 HHAuto_ToolTips.en.globalTitle = { version: "5.6.24", elementText: "Global options"};
@@ -284,7 +284,7 @@ HHAuto_ToolTips.en.DebugFileText = { version: "5.6.24", elementText: "Click on b
 HHAuto_ToolTips.en.OptionCancel = { version: "5.6.24", elementText: "Cancel", tooltip: ""};
 HHAuto_ToolTips.en.OptionStop = { version: "5.6.24", elementText: "Stop", tooltip: ""};
 HHAuto_ToolTips.en.SeasonMaskRewards = { version: "5.6.24", elementText: "Mask claimed", tooltip: "Allow to mask all claimed rewards on Season screen"};
-HHAuto_ToolTips.en.showClubButtonInPoa = { version: "5.25.0", elementText: "Go to in POA", tooltip: "if enabled, add a 'go to' button in POA related objectives."};
+HHAuto_ToolTips.en.showClubButtonInPoa = { version: "6.15.8", elementText: "Go to in Events", tooltip: "if enabled, add a 'go to' button in Event related objectives."};
 HHAuto_ToolTips.en.autoClubChamp = { version: "5.6.24", elementText: "Club", tooltip: "if enabled, automatically fight club champion if champion has already been fought once."};
 HHAuto_ToolTips.en.autoClubForceStart = { version: "5.6.24", elementText: "Force start", tooltip: "if enabled, will fight club champion even if not started."};
 HHAuto_ToolTips.en.autoTrollMythicByPassParanoia = { version: "5.6.24", elementText: "Mythic bypass Paranoia", tooltip: "Allow mythic to bypass paranoia.<br>if next wave is during rest, it will force it to wake up for wave.<br>If still fight or can buy fights it will continue."};
@@ -344,18 +344,20 @@ HHAuto_ToolTips.en.girlMenu = { version: "6.2.0", elementText: "Girl menu", tool
 HHAuto_ToolTips.en.povpogTitle = { version: "5.6.133", elementText: "Path of Valor/Glory"};
 HHAuto_ToolTips.en.povTitle = { version: "5.20.3", elementText: "Path of Valor"};
 HHAuto_ToolTips.en.pogTitle = { version: "5.20.3", elementText: "Path of Glory"};
+HHAuto_ToolTips.en.poaTitle = { version: "6.15.8", elementText: "Path of Attraction"};
 HHAuto_ToolTips.en.seasonalEventTitle = { version: "5.6.133", elementText: "Seasonal Event"};
-HHAuto_ToolTips.en.PoAMaskRewards = { version: "5.6.24", elementText: "PoA mask claimed", tooltip: "Masked claimed rewards for Path of Attraction."};
-HHAuto_ToolTips.en.PoVMaskRewards = { version: "5.6.26", elementText: "PoV mask claimed", tooltip: "Masked claimed rewards for Path of Valor."};
-HHAuto_ToolTips.en.PoGMaskRewards = { version: "5.6.89", elementText: "PoG mask claimed", tooltip: "Masked claimed rewards for Path of Glory."};
+HHAuto_ToolTips.en.PoAMaskRewards = { version: "6.15.8", elementText: "Mask claimed", tooltip: "Masked claimed rewards for Path of Attraction."};
+HHAuto_ToolTips.en.PoVMaskRewards = { version: "6.15.8", elementText: "Mask claimed", tooltip: "Masked claimed rewards for Path of Valor."};
+HHAuto_ToolTips.en.PoGMaskRewards = { version: "6.15.8", elementText: "Mask claimed", tooltip: "Masked claimed rewards for Path of Glory."};
 HHAuto_ToolTips.en.rewardsToCollectTitle = { version: "5.37.0", elementText: "Energies, XP, currencies available to collect"};
-HHAuto_ToolTips.en.showRewardsRecap = { version: "5.37.0", elementText: "Show rewards recap", tooltip: "Show cululated information for energies, XP and currencies"};
+HHAuto_ToolTips.en.showRewardsRecap = { version: "5.37.0", elementText: "Show rewards recap", tooltip: "Show cumulated information for energies, XP and currencies"};
 HHAuto_ToolTips.en.SeasonalEventMaskRewards = { version: "6.8.4", elementText: "Mask claimed", tooltip: "Masked claimed rewards for Seasonal Event."};
 HHAuto_ToolTips.en.bossBangEvent = { version: "5.20.3", elementText: "Enable", tooltip: "Perform boss bang fight script will start with the team configured after."};
-HHAuto_ToolTips.en.bossBangEventTitle = { version: "5.20.3", elementText: "Boss Bang Event"};
+HHAuto_ToolTips.en.bossBangEventTitle = { version: "5.20.3", elementText: "Boss Bang"};
 HHAuto_ToolTips.en.bossBangMinTeam = { version: "5.6.137", elementText: "First Team", tooltip: "First team to start with<br>If 5 will start with last team and reach the first one."};
-HHAuto_ToolTips.en.sultryMysteriesEventTitle = { version: "5.21.6", elementText: "Sultry Mysteries Event"};
-HHAuto_ToolTips.en.doublePenetrationEventTitle = { version: "6.8.4", elementText: "DP Event"};
+HHAuto_ToolTips.en.sultryMysteriesEventTitle = { version: "6.15.8", elementText: "Sultry Mysteries"};
+HHAuto_ToolTips.en.eventTitle = { version: "6.15.8", elementText: "Events"};
+HHAuto_ToolTips.en.doublePenetrationEventTitle = { version: "6.15.8", elementText: "DP"};
 HHAuto_ToolTips.en.autodpEventCollect = { version: "6.8.4", elementText: "Collect", tooltip: "Collect double penetration event rewards"};
 HHAuto_ToolTips.en.sultryMysteriesEventRefreshShop = { version: "5.21.6", elementText: "Refresh Shop", tooltip: "Open Sultry Mysteries shop tab to trigger shop update."};
 HHAuto_ToolTips.en.sultryMysteriesEventRefreshShopNext = { version: "5.22.5", elementText: "Sultry Shop"};
@@ -416,12 +418,12 @@ HHAuto_ToolTips.en.saveTranslationText = { version: "5.6.25", elementText: "Belo
 HHAuto_ToolTips.en.menuCollectable = { version: "5.6.47", elementText: "Collectable preferences.", tooltip: ""};
 HHAuto_ToolTips.en.menuCollectableText = { version: "5.6.47", elementText: "Please select the collectables you want to be automatically collected.", tooltip: ""};
 HHAuto_ToolTips.en.menuDailyCollectableText = { version: "5.6.49", elementText: "Please select the collectables you want to be immediately collected.", tooltip: ""};
-HHAuto_ToolTips.en.autoPoVCollect = { version: "5.6.49", elementText: "Collect PoV", tooltip: "if enabled : Automatically collect Path of Valor."};
-HHAuto_ToolTips.en.autoPoVCollectAll = { version: "5.7.0", elementText: "Collect All PoV", tooltip: "if enabled : Automatically collect all items before end of Path of Valor (configured with Collect all timer)"};
+HHAuto_ToolTips.en.autoPoVCollect = { version: "6.15.8", elementText: "Collect", tooltip: "if enabled : Automatically collect Path of Valor."};
+HHAuto_ToolTips.en.autoPoVCollectAll = { version: "6.15.8", elementText: "Collect All", tooltip: "if enabled : Automatically collect all items before end of Path of Valor (configured with Collect all timer)"};
 HHAuto_ToolTips.en.autoSeasonalEventCollect = { version: "5.7.0", elementText: "Collect", tooltip: "if enabled : Automatically collect Seasonal Event."};
 HHAuto_ToolTips.en.autoSeasonalEventCollectAll = { version: "5.7.0", elementText: "Collect all", tooltip: "if enabled : Automatically collect all items before end of seasonal event (configured with Collect all timer)"};
-HHAuto_ToolTips.en.autoPoGCollect = { version: "5.6.89", elementText: "Collect PoG", tooltip: "if enabled : Automatically collect Path of Glory."};
-HHAuto_ToolTips.en.autoPoGCollectAll = { version: "5.7.0", elementText: "Collect All PoG", tooltip: "if enabled : Automatically collect all items before end of Path of Glory (configured with Collect all timer)"};
+HHAuto_ToolTips.en.autoPoGCollect = { version: "6.15.8", elementText: "Collect", tooltip: "if enabled : Automatically collect Path of Glory."};
+HHAuto_ToolTips.en.autoPoGCollectAll = { version: "6.15.8", elementText: "Collect All", tooltip: "if enabled : Automatically collect all items before end of Path of Glory (configured with Collect all timer)"};
 HHAuto_ToolTips.en.dailyGoalsTitle = {version: "5.24.0", elementText: "Daily Goals"};
 HHAuto_ToolTips.en.autoDailyGoalsCollect = {version: "5.6.54", elementText: "Collect", tooltip: "Collect daily Goals if not collected 2 hours before end of HH day."};
 HHAuto_ToolTips.en.compactDailyGoals = { version: "5.24.0", elementText: "Compact", tooltip: "Add styles to compact daily goals display"};
@@ -479,10 +481,12 @@ HHAuto_ToolTips.fr.autoTrollThreshold = { version: "5.6.24", elementText: "Rése
 HHAuto_ToolTips.fr.eventTrollOrder = { version: "5.6.24", elementText: "Ordre Trolls d'événement", tooltip: "Permet de sélectionner l'ordre dans lequel les trolls d'événements sont automatiquement combattus."};
 HHAuto_ToolTips.fr.firstTrollWithGirls = { version: "5.32.0", elementText: "Premier troll avec une fille"};
 HHAuto_ToolTips.fr.lastTrollWithGirls = { version: "5.32.0", elementText: "Dernier troll avec une fille"};
+HHAuto_ToolTips.fr.eventTrollOrder = { version: "6.15.8", elementText: "Ordre des Trolls lors des évènements", tooltip: "(valeurs séparées par ;)<br>Défini l'ordre dans lequels les combats de Troll seront effectué<br>1 : Dark Lord<br>2 : Espion Ninja<br>[]...]"};
 HHAuto_ToolTips.fr.plusEvent = { version: "5.6.24", elementText: "+Evénmt.", tooltip: "Si activé : ignore le troll sélectionné et combat les trolls d'événement s'il y a une fille à gagner."};
 HHAuto_ToolTips.fr.plusEventMythic = { version: "5.6.24", elementText: "+Evénmt. mythique", tooltip: "Si activé : ignorer le troll sélectionné et combat le troll d'événement mythique s'il y a une fille à gagner et des fragments disponibles."};
 HHAuto_ToolTips.fr.autoSeason = { version: "5.6.24", elementText: "Activer", tooltip: "Si activé : combat automatique de saison (Adversaire sélectionné avec PowerCalc)."};
 HHAuto_ToolTips.fr.autoSeasonCollect = { version: "5.6.24", elementText: "Collecter", tooltip: "Si activé : collecte automatiquement les récompenses de saison (si plusieurs à collecter, en collectera une par combat)."};
+HHAuto_ToolTips.fr.autoSeasonCollectAll = { version: "6.15.8", elementText: "Tout collecter", tooltip: "Si activé : Collect Automatiquement toutes les récompense avant la fin de la Saison (configuré avec le timer \"Tout collecter\")"};
 HHAuto_ToolTips.fr.autoSeasonThreshold = { version: "5.6.24", elementText: "Réserve", tooltip: "Points de combat de saison (Baiser) minimum à conserver."};
 HHAuto_ToolTips.fr.autoQuest = { version: "5.6.24", elementText: "Quête", tooltip: "Si activé : Fait automatiquement les quêtes"};
 HHAuto_ToolTips.fr.autoQuestThreshold = { version: "5.6.24", elementText: "Réserve", tooltip: "Energie de quête minimum à conserver"};
@@ -530,7 +534,7 @@ HHAuto_ToolTips.fr.autoActivitiesTitle = { version: "5.6.24", elementText: "Acti
 HHAuto_ToolTips.fr.autoTrollTitle = { version: "5.6.24", elementText: "Combat troll"};
 HHAuto_ToolTips.fr.autoSeasonTitle = { version: "5.6.24", elementText: "Saison"};
 HHAuto_ToolTips.fr.autoLeaguesTitle = { version: "5.6.24", elementText: "Ligues"};
-HHAuto_ToolTips.fr.PoAMaskRewards = { version: "5.6.24", elementText: "Cacher gains chemin", tooltip: "Si activé : masque les récompenses déjà réclamées du chemin d'affection."};
+HHAuto_ToolTips.fr.PoAMaskRewards = { version: "6.15.8", elementText: "Masquer gains", tooltip: "Si activé : masque les récompenses déjà réclamées du chemin d'affection."};
 HHAuto_ToolTips.fr.showTooltips = { version: "5.6.24", elementText: "Infobulles", tooltip: "Si activé : affiche des bulles d'aide lors du survol des éléments avec la souris."};
 HHAuto_ToolTips.fr.autoClubChamp = { version: "5.6.24", elementText: "Club", tooltip: "Si activé : combat automatiquement le champion de club si au moins un combat a déjà été effectué."};
 HHAuto_ToolTips.fr.autoClubChampMax = { version: "5.6.24", elementText: "Max. tickets par session", tooltip: "Nombre maximum de ticket à utiliser sur une même session du champion de club."};
@@ -544,21 +548,30 @@ HHAuto_ToolTips.fr.autoMissionKFirst = { version: "5.6.24", elementText: "Priori
 HHAuto_ToolTips.fr.povpogTitle = { version: "5.6.133", elementText: "Voie de la Valeur/Gloire"};
 HHAuto_ToolTips.fr.povTitle = { version: "5.20.3", elementText: "Voie de la Valeur"};
 HHAuto_ToolTips.fr.pogTitle = { version: "5.20.3", elementText: "Voie de la Gloire"};
+HHAuto_ToolTips.fr.poaTitle = { version: "6.15.8", elementText: "Chemin d'affection"};
 HHAuto_ToolTips.fr.seasonalEventTitle = { version: "5.6.133", elementText: "Evènements saisoniers"};
 HHAuto_ToolTips.fr.mousePause = {version: "5.6.135", elementText: "Pause souris", tooltip: "Pause le script pour 5 secondes quand des mouvements de la souris sont detecté. Evite le sript d'interrompre les actions manuelles. (en ms, 5000ms=5s)"};
-HHAuto_ToolTips.fr.PoVMaskRewards = { version: "5.6.133", elementText: "Masquer gains VDLV", tooltip: "Permet de masquer les gains réclamés de la Voie de la Valeur."};
-HHAuto_ToolTips.fr.PoGMaskRewards = { version: "5.6.133", elementText: "Masquer gains VDLG", tooltip: "Permet de masquer les gains réclamés de la Voie de la Gloire."};
+HHAuto_ToolTips.fr.PoVMaskRewards = { version: "6.15.8", elementText: "Masquer gains", tooltip: "Permet de masquer les gains réclamés de la Voie de la Valeur."};
+HHAuto_ToolTips.fr.PoGMaskRewards = { version: "6.15.8", elementText: "Masquer gains", tooltip: "Permet de masquer les gains réclamés de la Voie de la Gloire."};
+HHAuto_ToolTips.fr.rewardsToCollectTitle = { version: "6.15.8", elementText: "Energies, XP, monnaies à collecter"};
+HHAuto_ToolTips.fr.showRewardsRecap = { version: "6.15.8", elementText: "Affiche recap de récompenses", tooltip: "Affiche les récompenses cumulés des energies, l'XP et les monnaies"};
 HHAuto_ToolTips.fr.SeasonalEventMaskRewards = { version: "6.8.4", elementText: "Masquer gains", tooltip: "Permet de masquer les gains réclamés des évènements saisoniers."};
 HHAuto_ToolTips.fr.bossBangEvent = { version: "5.20.3", elementText: "Activer", tooltip: "Si activé : Effectue les combats boss bang en commençant par l'équipe configuré si après."};
-HHAuto_ToolTips.fr.bossBangEventTitle = { version: "5.20.3", elementText: "Evènements Boss Bang"};
+HHAuto_ToolTips.fr.bossBangEventTitle = { version: "6.15.8", elementText: "Boss Bang"};
 HHAuto_ToolTips.fr.bossBangMinTeam = { version: "5.6.137", elementText: "Première équipe", tooltip: "Première équipe à utiliser<br>Si 5, le script commencera par la dernière pour finir par la premiere."};
+HHAuto_ToolTips.fr.sultryMysteriesEventTitle = { version: "6.15.8", elementText: "Mystère sensuel"};
+HHAuto_ToolTips.fr.eventTitle = { version: "6.15.8", elementText: "Evènements"};
+HHAuto_ToolTips.fr.autodpEventCollect = { version: "6.15.8", elementText: "Collecter", tooltip: "Permet de collecter les gains de l'évènement double penetration"};
 HHAuto_ToolTips.fr.autoFreeBundlesCollect = {version: "5.16.0", elementText: "Collecter offres gratuites", tooltip: "Permet de collecter les offres gratuites."};
 HHAuto_ToolTips.fr.dailyGoalsTitle = {version: "5.24.0", elementText: "Objectifs journalier"};
 HHAuto_ToolTips.fr.autoDailyGoalsCollect = {version: "5.24.0", elementText: "Collecter", tooltip: "Permet de collecter les objectifs journaliers si non collectés 2 heures avant la fin du jour HH."};
 HHAuto_ToolTips.fr.compactDailyGoals = { version: "5.24.0", elementText: "Compacter", tooltip: "Compacter l'affichage des objectifs journalier"};
-HHAuto_ToolTips.fr.autoPoVCollect = { version: "5.6.133", elementText: "Collecter VDLV", tooltip: "Permet de collecter les gains de la Voie de la Valeur."};
+HHAuto_ToolTips.fr.autoPoVCollect = { version: "6.15.8", elementText: "Collecter", tooltip: "Permet de collecter les gains de la Voie de la Valeur."};
+HHAuto_ToolTips.fr.autoPoVCollectAll = { version: "6.15.8", elementText: "Tout collecter", tooltip: "Si activé : Collect Automatiquement toutes les récompense avant la fin de la Voie de la Valeur (configuré avec le timer \"Tout collecter\")"};
 HHAuto_ToolTips.fr.autoSeasonalEventCollect = { version: "5.7.0", elementText: "Collecter", tooltip: "Permet de collecter les gains des évènements saisoniers."};
-HHAuto_ToolTips.fr.autoPoGCollect = { version: "5.6.133", elementText: "Collecter VDLG", tooltip: "Permet de collecter les gains de la Voie de la Gloire."};
+HHAuto_ToolTips.fr.autoSeasonalEventCollectAll = { version: "6.15.8", elementText: "Tout collecter", tooltip: "Si activé : Collect Automatiquement toutes les récompense avant la fin de l'évenement saisonier (configuré avec le timer \"Tout collecter\")"};
+HHAuto_ToolTips.fr.autoPoGCollect = { version: "6.15.8", elementText: "Collecter", tooltip: "Permet de collecter les gains de la Voie de la Gloire."};
+HHAuto_ToolTips.fr.autoPoGCollectAll = { version: "6.15.8", elementText: "Tout collecter", tooltip: "Si activé : Collect Automatiquement toutes les récompense avant la fin de la Voie de la Gloire (configuré avec le timer \"Tout collecter\")"};
 HHAuto_ToolTips.fr.autoPantheon = { version: "5.6.24", elementText: "Activer", tooltip: "Si activé : combat automatiquement le Pantheon"};
 HHAuto_ToolTips.fr.autoPantheonThreshold = { version: "5.6.24", elementText: "Réserve", tooltip: "Vénération minimum à garder<br>Max 10"};
 HHAuto_ToolTips.fr.autoTrollMythicByPassParanoia = { version: "5.6.24", elementText: "Mythique annule paranoïa", tooltip: "Si activé : autorise le script à ne pas respecter le mode Parano lors d'un événement mythique.<br>Si la prochaine vague est pendant une phase de sommeil le script combattra quand même<br>tant que des combats et des fragments sont disponibles."};
@@ -566,6 +579,7 @@ HHAuto_ToolTips.fr.buyMythicCombat = { version: "5.6.24", elementText: "Achat co
 HHAuto_ToolTips.fr.buyMythicCombTimer = { version: "5.6.24", elementText: "Heures d'achat comb.", tooltip: "(Nombre entier)<br>X dernières heures de l'événement mythique"};
 HHAuto_ToolTips.fr.mythicGirlNext = { version: "5.6.24", elementText: "Vague mythique"};
 HHAuto_ToolTips.fr.PachinkoFillOrbs = {version: "5.6.134", elementText: 'Remplir orbes', tooltip: "Remplir le champs avec toutes les orbes disponibles."};
+HHAuto_ToolTips.fr.collectAllTimer = {version: "6.15.8", elementText: "Timer Tout collecter (en heure)", tooltip: "Nombre d'heure avant la fin de l'evenement pour collecter toutes les récompenses (Faible temps peu entrainer un echec de collecte), Nécéssite une activation sur chaque évenement (POV, POG, season)"};
 
 ;// CONCATENATED MODULE: ./src/i18n/de.js
 
@@ -958,7 +972,7 @@ class Booster {
     static collectBoostersFromAjaxResponses () {
         $(document).ajaxComplete(function(evt, xhr, opt) {
             if(opt && opt.data && opt.data.search && ~opt.data.search(/(action|class)/)) {
-                setTimeout(function() {
+                setTimeout(async function() {
                     if(!xhr || !xhr.responseText || !xhr.responseText.length) {
                         return
                     }
@@ -1106,13 +1120,21 @@ class Booster {
                                     // TODO go to market if sandalwood not ended, continue. If ended, buy a new one
                                     gotoPage(getHHScriptVars("pagesIDShop"));
                                 } else {
-                                    // Buy a new one
-                                    // HeroHelper.equipBooster(Booster.SANDALWOOD_PERFUME);
+                                    // Equip a new one
+                                    /*
+                                    const equiped = await HeroHelper.equipBooster(Booster.SANDALWOOD_PERFUME);
+                                    if(!equiped) {
+                                        logHHAuto("Failure when equip Sandalwood for mythic, deactivated auto sandalwood");
+                                        setStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythicSandalWood", 'false');
+
+                                        // TODO For debug to be removed
+                                        setStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic", 'false');
+                                    }*/
                                 }
                             }
                         }
                     } catch(err) {
-                        // logHHAuto('Catch error during equip sandalwood for mythic' + err);
+                        LogUtils_logHHAuto('Catch error during equip sandalwood for mythic' + err);
                     }
                 }, 200);
             }
@@ -7603,95 +7625,7 @@ class Missions {
                 $(".mission_button button:visible[rel='claim']").first().click();
                 return true;
             }
-            // TODO: select new missions and parse reward data from HTML, it's there in data attributes of tags
-            var missions = [];
-            var allGood = true;
-            // parse missions
-            $(".mission_object").each(function(idx,missionObject){
-                var data = $.data(missionObject).d;
-                // Do not list completed missions
-                var toAdd=true;
-                if(data.remaining_time !== null){
-                    // This is not a fresh mission
-                    if(data.remaining_time > 0)
-                    {
-                        if ($('.finish_in_bar[style*="display:none;"], .finish_in_bar[style*="display: none;"]', missionObject).length === 0)
-                        {
-                            LogUtils_logHHAuto("Unfinished mission detected...("+data.remaining_time+"sec. remaining)");
-                            setTimer('nextMissionTime',Number(data.remaining_time)+randomInterval(1,5));
-                            allGood = false;
-                            missions = []; // Clear missions to avoid selecting a smaller one than the one ongoing
-                            return false;
-                        }
-                        else
-                        {
-                            allGood = false;
-                        }
-                    }
-                    else
-                    {
-                        if (canCollect)
-                        {
-                            LogUtils_logHHAuto("Unclaimed mission detected...");
-                            gotoPage(getHHScriptVars("pagesIDMissions"),{},randomInterval(1300,1800));
-                            return true;
-                        }
-                    }
-                    return;
-                }
-                else if(data.remaining_cost === null) {
-                    // Finished missioned
-                    data.finished = true;
-                    data.remaining_time = 0;
-                    toAdd = false;
-                }
-                data.missionObject = missionObject;
-                var rewards = [];
-                // set rewards
-                {
-                    // get Reward slots
-                    var slots = missionObject.querySelectorAll(".slot");
-                    // traverse slots
-                    $.each(slots,function(idx,slotDiv){
-                        var reward = {};
-                        // get slot class list
-                        reward.classList = slotDiv.classList;
-                        // set reward type
-                        if(reward.classList.contains("slot_xp"))reward.type = "xp";
-                        else if(reward.classList.contains("slot_soft_currency"))reward.type = "money";
-                        else if(reward.classList.contains("slot_hard_currency"))reward.type = "koban";
-                        else reward.type = "item";
-                        // set value if xp
-                        if(reward.type === "xp" || reward.type === "money" || reward.type === "koban")
-                        {
-                            // remove all non numbers and HTML tags
-                            try{
-                                reward.data = Number(slotDiv.innerHTML.replace(/<.*?>/g,'').replace(/\D/g,''));
-                            }
-                            catch(e){
-                                LogUtils_logHHAuto("Catched error : Couldn't parse xp/money data : "+e);
-                                LogUtils_logHHAuto(slotDiv);
-                            }
-                        }
-                        // set item details if item
-                        else if(reward.type === "item")
-                        {
-                            try{
-                                reward.data = $.data(slotDiv).d;
-                            }
-                            catch(e){
-                                LogUtils_logHHAuto("Catched error : Couldn't parse item reward slot details : "+e);
-                                LogUtils_logHHAuto(slotDiv);
-                                reward.type = "unknown";
-                            }
-                        }
-                        rewards.push(reward);
-                    });
-                }
-                data.rewards = rewards;
-
-                if (toAdd) missions.push(data);
-            });
+            var { allGood, missions } = Missions.parseMissions(canCollect);
             if(!allGood && canCollect)
             {
                 LogUtils_logHHAuto("Something went wrong, need to retry in 15secs.");
@@ -7753,6 +7687,112 @@ class Missions {
             return false;
         }
     }
+
+    static parseMissions(canCollect) {
+        var missions = [];
+        var lastMissionData = {};
+        var allGood = true;
+        // parse missions
+        const allMissions = $(".mission_object");
+        LogUtils_logHHAuto("Found " + allMissions.length + " missions to be parsed.");
+
+        try {
+            allMissions.each(function (idx, missionObject) {
+                var data = $.data(missionObject).d;
+                lastMissionData = data;
+                // Do not list completed missions
+                var toAdd = true;
+                if (data.remaining_time !== null) {
+                    // This is not a fresh mission
+                    if (data.remaining_time > 0) {
+                        if ($('.finish_in_bar[style*="display:none;"], .finish_in_bar[style*="display: none;"]', missionObject).length === 0) {
+                            LogUtils_logHHAuto("Unfinished mission detected...(" + data.remaining_time + "sec. remaining)");
+                            setTimer('nextMissionTime', Number(data.remaining_time) + randomInterval(1, 5));
+                            allGood = false;
+                            missions = []; // Clear missions to avoid selecting a smaller one than the one ongoing
+                            return false;
+                        }
+                        else {
+                            allGood = false;
+                        }
+                    }
+                    else {
+                        if (canCollect) {
+                            LogUtils_logHHAuto("Unclaimed mission detected...");
+                            gotoPage(getHHScriptVars("pagesIDMissions"), {}, randomInterval(1300, 1800));
+                            return true;
+                        }
+                    }
+                    return;
+                }
+                else if (data.remaining_cost === null) {
+                    // Finished missioned
+                    data.finished = true;
+                    data.remaining_time = 0;
+                    toAdd = false;
+                }
+                data.missionObject = missionObject;
+                var rewards = Missions.getMissionRewards(missionObject);
+                data.rewards = rewards;
+
+                if (toAdd) missions.push(data);
+            });
+        } catch (error) {
+            LogUtils_logHHAuto("Catched error : Couldn't parse missions (try again in 15min) : " + error);
+            LogUtils_logHHAuto("Last mission parsed : " + JSON.stringify(lastMissionData));
+            setTimer('nextMissionTime', randomInterval(15*60, 20*60));
+            allGood = false;
+        }
+        return { allGood, missions };
+    }
+
+    static getMissionRewards(missionObject) {
+        var rewards = [];
+        // set rewards
+        try {
+            // get Reward slots
+            var slots = missionObject.querySelectorAll(".slot");
+            // traverse slots
+            $.each(slots, function (idx, slotDiv) {
+                var reward = {};
+                // get slot class list
+                reward.classList = slotDiv.classList;
+                // set reward type
+                if (reward.classList.contains("slot_xp")) reward.type = "xp";
+                else if (reward.classList.contains("slot_soft_currency")) reward.type = "money";
+                else if (reward.classList.contains("slot_hard_currency")) reward.type = "koban";
+                else reward.type = "item";
+                // set value if xp
+                if (reward.type === "xp" || reward.type === "money" || reward.type === "koban") {
+                    // remove all non numbers and HTML tags
+                    try {
+                        reward.data = Number(slotDiv.innerHTML.replace(/<.*?>/g, '').replace(/\D/g, ''));
+                    }
+                    catch (e) {
+                        LogUtils_logHHAuto("Catched error : Couldn't parse xp/money data : " + e);
+                        LogUtils_logHHAuto(slotDiv);
+                    }
+                }
+
+                // set item details if item
+                else if (reward.type === "item") {
+                    try {
+                        reward.data = $.data(slotDiv).d;
+                    }
+                    catch (e) {
+                        LogUtils_logHHAuto("Catched error : Couldn't parse item reward slot details : " + e);
+                        LogUtils_logHHAuto(slotDiv);
+                        reward.type = "unknown";
+                    }
+                }
+                rewards.push(reward);
+            });
+        } catch(error) {
+            LogUtils_logHHAuto("Catched error : Couldn't parse rewards for missions : " + error);
+        }
+        return rewards;
+    }
+
     static styles() {
         if(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_compactMissions") === "true")
         {
@@ -7808,6 +7848,7 @@ class Missions {
         }
     }
 }
+
 ;// CONCATENATED MODULE: ./src/Module/Pantheon.js
 
 
@@ -9451,7 +9492,6 @@ HHEnvVariables["global"].isEnabledDailyRewards = true;
 HHEnvVariables["global"].isEnabledFreeBundles = true;
 HHEnvVariables["global"].isEnabledShop = true;
 HHEnvVariables["global"].isEnabledSalary = true;
-HHEnvVariables["global"].isEnabledPoVPoG = true;
 HHEnvVariables["global"].isEnabledPoV = true;
 HHEnvVariables["global"].isEnabledPoG = true;
 HHEnvVariables["global"].isEnabledSeasonalEvent = true;
@@ -9495,7 +9535,6 @@ HHEnvVariables["SH_prod"].isEnabledAllChamps = false;// to remove when Champs ar
 HHEnvVariables["SH_prod"].isEnabledChamps = false;// to remove when Champs arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledClubChamp = false;// to remove when Club Champs arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in hornyheroes
-HHEnvVariables["SH_prod"].isEnabledPoVPoG = false;
 HHEnvVariables["SH_prod"].isEnabledPoV = false;// to remove when PoV arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPoG = false;// to remove when PoG arrives in hornyheroes
 HHEnvVariables["SH_prod"].lastQuestId = -1; //  TODO update when new quest comes
@@ -11611,7 +11650,7 @@ function nRounding(num, digits, updown) {
 
 function maskInactiveMenus()
 {
-    let menuIDList =["isEnabledDailyGoals", "isEnabledPoVPoG", "isEnabledPoV", "isEnabledPoG",
+    let menuIDList =["isEnabledDailyGoals", "isEnabledPoV", "isEnabledPoG",
                     "isEnabledSeasonalEvent" , "isEnabledBossBangEvent" , "isEnabledSultryMysteriesEvent",
                     "isEnabledDailyRewards", "isEnabledFreeBundles", "isEnabledMission","isEnabledContest",
                     "isEnabledTrollBattle","isEnabledPowerPlaces","isEnabledSalary","isEnabledPachinko","isEnabledQuest","isEnabledSideQuest","isEnabledSeason","isEnabledLeagues",
@@ -11859,418 +11898,448 @@ function addEventsOnMenuItems()
 
 function getMenu() {
     
+    const getLeftColumn = () => {
+        return `<div class="optionsColumn" style="min-width: 185px;">`
+            +`<div style="padding:3px; display:flex; flex-direction:column;">`
+                +`<span>HH Automatic ++</span>`
+                +`<span style="font-size:smaller;">Version ${GM_info.script.version}</span>`
+                +`<div class="internalOptionsRow" style="padding:3px">`
+                    + hhButton('gitHub', 'git')
+                    + hhButton('ReportBugs', 'ReportBugs')
+                    + hhButton('DebugMenu', 'DebugMenu')
+                +`</div>`
+                +`<div class="internalOptionsRow" style="padding:3px">`
+                    + hhButton('saveConfig', 'saveConfig')
+                    + hhButton('loadConfig', 'loadConfig')
+                +`</div>`
+                +`<div class="internalOptionsRow" style="padding:3px">`
+                    + hhButton('saveDefaults', 'saveDefaults')
+                +`</div>`
+            +`</div>`
+            +`<div class="optionsBoxWithTitle">`
+                +`<div class="optionsBoxTitle">`
+                    +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/panel.svg" />`
+                    +`<span class="optionsBoxTitle">${getTextForUI("globalTitle","elementText")}</span>`
+                +`</div>`
+                +`<div class="rowOptionsBox" style="display:grid;grid-auto-flow: column;">`
+                    +`<div class="optionsColumn">`
+                        + hhMenuSwitch('master') // Master switch
+                        + hhMenuSwitch('paranoia')
+                        +`<div id="isEnabledMousePause" class="labelAndButton">`
+                            +`<span class="HHMenuItemName">${getTextForUI("mousePause","elementText")}</span>`
+                            +`<div class="tooltipHH">`
+                                +`<span class="tooltipHHtext">${getTextForUI("mousePause","tooltip")}</span>`
+                                +`<label class="switch">`
+                                    +`<input id="mousePause" type="checkbox">`
+                                    +`<span class="slider round">`
+                                    +`</span>`
+                                +`</label>`
+                                +`<input style="text-align:center; width:40px" id="mousePauseTimeout" required pattern="${HHAuto_inputPattern.mousePauseTimeout}" type="text">`
+                            +`</div>`
+                        +`</div>`
+                        + hhMenuInput('collectAllTimer', HHAuto_inputPattern.collectAllTimer, 'text-align:center; width:25px')
+                    +`</div>`
+                    +`<div class="optionsColumn">`
+                        +`<div class="labelAndButton">`
+                            +`<span class="HHMenuItemName">${getTextForUI("waitforContest","elementText")}</span>`
+                            +`<div class="tooltipHH">`
+                                +`<span class="tooltipHHtext">${getTextForUI("waitforContest","tooltip")}</span>`
+                                +`<label class="switch">`
+                                    +`<input id="waitforContest" type="checkbox">`
+                                    +`<span class="slider round">`
+                                    +`</span>`
+                                +`</label>`
+                                +`<input style="text-align:center; width:30px" id="safeSecondsForContest" required pattern="${HHAuto_inputPattern.safeSecondsForContest}" type="text">`
+                            +`</div>`
+                        +`</div>`
+                        + hhMenuSwitch('settPerTab')
+                        + hhMenuSwitch('paranoiaSpendsBefore')
+                        + hhMenuSwitch('autoFreeBundlesCollect', 'isEnabledFreeBundles')
+                        + hhMenuSwitch('collectEventChest')
+                    +`</div>`
+                +`</div>`
+            +`</div>`
+            +`<div class="optionsBoxWithTitle">`
+                +`<div class="optionsBoxTitle">`
+                    +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/pictures/design/ic_hard_currency.png" />`
+                    +`<span class="optionsBoxTitle">Kobans</span>`
+                +`</div>`
+                +`<div class="rowOptionsBox">`
+                    + hhMenuSwitchWithImg('spendKobans0', 'design/menu/affil_prog.svg', true)
+                    + hhMenuInputWithImg('kobanBank', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:50px', 'pictures/design/ic_hard_currency.png' )
+                +`</div>`
+            +`</div>`
+            +`<div class="optionsBoxWithTitle">`
+                +`<div class="optionsBoxTitle">`
+                    +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/sex_friends.svg" />`
+                    +`<span class="optionsBoxTitle">${getTextForUI("displayTitle","elementText")}</span>`
+                +`</div>`
+                +`<div class="rowOptionsBox">`
+                    +`<div class="optionsColumn">`
+                        + hhMenuSwitch('showInfo')
+                        + hhMenuSwitch('showTooltips')
+                    +`</div>`
+                    +`<div class="optionsColumn">`
+                        + hhMenuSwitch('showCalculatePower')
+                        + hhMenuSwitch('showAdsBack')
+                    +`</div>`
+                    +`<div class="optionsColumn">`
+                        + hhMenuSwitch('showRewardsRecap')
+                        + hhMenuSwitch('showInfoLeft')
+                    +`</div>`
+                +`</div>`
+            +`</div>`
+            +`<div id="isEnabledPoa" class="optionsBoxWithTitle">`
+                +`<div class="optionsBoxTitle">`
+                    +`<span class="optionsBoxTitle">${getTextForUI("poaTitle","elementText")}</span>`
+                +`</div>`
+                +`<div class="optionsBox">`
+                    +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                        + hhMenuSwitch('PoAMaskRewards')
+                    +`</div>`
+                +`</div>`
+            +`</div>`
+        +`</div>`;
+    }
+
+    const getMiddleColumn = () => {
+        return `<div class="optionsColumn" style="min-width: 500px;">`
+            +`<div class="optionsRow">`
+                +`<div class="optionsColumn">`
+                    +`<div class="optionsBoxWithTitle">`
+                        +`<div class="optionsBoxTitle">`
+                            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/missions.svg" />`
+                            +`<span class="optionsBoxTitle">${getTextForUI("autoActivitiesTitle","elementText")}</span>`
+                        +`</div>`
+                        +`<div class="optionsBox" style="border:none;padding:0">`
+                            +`<div class="internalOptionsRow">`
+                                +`<div id="isEnabledMission" class="internalOptionsRow optionsBox" style="padding:0;margin:0 3px 0 0;">`
+                                    + hhMenuSwitch('autoMission')
+                                    + hhMenuSwitch('autoMissionCollect')
+                                    + hhMenuSwitch('autoMissionKFirst')
+                                    + hhMenuSwitch('compactMissions')
+                                +`</div>`
+                                +`<div id="isEnabledContest" class="internalOptionsRow optionsBox" style="padding:0;margin:0 0 0 3px;">`
+                                    + hhMenuSwitch('autoContest')
+                                    + hhMenuSwitch('compactEndedContests')
+                                +`</div>`
+                            +`</div>`
+                        +`</div>`
+                    +`</div>`
+                    +`<div id="isEnabledPowerPlaces" class="optionsBoxWithTitle">`
+                        +`<div class="optionsBoxTitle">`
+                            +`<span class="optionsBoxTitle">${getTextForUI("powerPlacesTitle","elementText")}</span>`
+                        +`</div>`
+                        +`<div class="optionsBox">`
+                            +`<div class="internalOptionsRow">`
+                                + hhMenuSwitch('autoPowerPlaces')
+                                + hhMenuInput('autoPowerPlacesIndexFilter', HHAuto_inputPattern.autoPowerPlacesIndexFilter, '' )
+                                + hhMenuSwitch('autoPowerPlacesAll')
+                            +`</div>`
+                            +`<div class="internalOptionsRow">`
+                                + hhMenuSwitch('autoPowerPlacesPrecision')
+                                + hhMenuSwitch('autoPowerPlacesInverted')
+                                + hhMenuSwitch('autoPowerPlacesWaitMax')
+                                + hhMenuSwitch('compactPowerPlace')
+                            +`</div>`
+                        +`</div>`
+                    +`</div>`
+                +`</div>`
+                +`<div class="optionsColumn">`
+                    +`<div class="optionsBoxTitle">`
+                    +`</div>`
+                    +`<div id="isEnabledSalary" class="rowOptionsBox">`
+                        +`<div class="internalOptionsRow">`
+                            + hhMenuSwitchWithImg('autoSalary', 'pictures/design/harem.svg')
+                            + hhMenuInput('autoSalaryMinSalary', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
+                            + hhMenuInput('autoSalaryMaxTimer', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
+                        +`</div>`
+                    +`</div>`
+                    +`<div class="optionsRow">`
+                        +`<div id="isEnabledPachinko" class="rowOptionsBox">`
+                            +`<div class="internalOptionsRow" style="justify-content: space-between">`
+                                + hhMenuSwitchWithImg('autoFreePachinko', 'pictures/design/menu/pachinko.svg')
+                            +`</div>`
+                        +`</div>`
+                        +`<div id="isEnabledQuest" class="rowOptionsBox">`
+                            +`<div class="internalOptionsRow">`
+                                + hhMenuSwitchWithImg('autoQuest', 'design/menu/forward.svg')
+                                + hhMenuSwitch('autoSideQuest', 'isEnabledSideQuest')
+                                + hhMenuInputWithImg('autoQuestThreshold', HHAuto_inputPattern.autoQuestThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_quest.png', 'numeric')
+                            +`</div>`
+                        +`</div>`
+                    +`</div>`
+                    +`<div class="optionsRow" style="justify-content: space-evenly">`
+                        +`<div id="isEnabledDailyGoals" class="optionsBoxWithTitleInline">`
+                            +`<div class="optionsBoxTitle">`
+                                +`<span class="optionsBoxTitle">${getTextForUI("dailyGoalsTitle","elementText")}</span>`
+                            +`</div>`
+                        // +`<div class="optionsBox">`
+                                +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                    + hhMenuSwitch('autoDailyGoalsCollect')
+                                    + hhMenuSwitch('compactDailyGoals')
+                                +`</div>`
+                        // +`</div>`
+                        //
+                        +`</div>`
+                    +`</div>`
+                +`</div>`
+            +`</div>`
+            +`<div class="optionsRow">`
+                +`<div id="isEnabledSeason" class="optionsBoxWithTitle">`
+                    +`<div class="optionsBoxTitle">`
+                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/seasons.svg" />`
+                        +`<span class="optionsBoxTitle">${getTextForUI("autoSeasonTitle","elementText")}</span>`
+                    +`</div>`
+                    +`<div class="optionsBox">`
+                        +`<div class="internalOptionsRow">`
+                            + hhMenuSwitch('autoSeason')
+                            + hhMenuSwitch('autoSeasonCollect')
+                            + hhMenuSwitch('autoSeasonCollectAll')
+                            + hhMenuSwitch('SeasonMaskRewards')
+                        +`</div>`
+                        +`<div class="internalOptionsRow">`
+                            + hhMenuSwitch('autoSeasonPassReds', '', true)
+                            + hhMenuSwitch('autoSeasonBoostedOnly')
+                        +`</div>`
+                        +`<div class="internalOptionsRow">`
+                            + hhMenuInputWithImg('autoSeasonThreshold', HHAuto_inputPattern.autoSeasonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_kiss.png', 'numeric' )
+                            + hhMenuInputWithImg('autoSeasonRunThreshold', HHAuto_inputPattern.autoSeasonRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_kiss.png', 'numeric' )
+                        +`</div>`
+                    +`</div>`
+                +`</div>`
+                +`<div id="isEnabledLeagues" class="optionsBoxWithTitle">`
+                    +`<div class="optionsBoxTitle">`
+                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/leaderboard.svg" />`
+                        +`<span class="optionsBoxTitle">${getTextForUI("autoLeaguesTitle","elementText")}</span>`
+                    +`</div>`
+                    +`<div class="optionsBox">`
+                        +`<div class="internalOptionsRow">`
+                            + hhMenuSwitch('autoLeagues')
+                            + hhMenuSwitch('autoLeaguesPowerCalc')
+                            + hhMenuSwitch('autoLeaguesCollect')
+                            + hhMenuSwitch('autoLeaguesBoostedOnly')
+                            + hhMenuSwitch('leagueListDisplayPowerCalc')
+                        +`</div>`
+                        +`<div class="internalOptionsRow">`
+                            + hhMenuSelect('autoLeaguesSelector')
+                            + hhMenuSwitch('autoLeaguesAllowWinCurrent')
+                            + hhMenuSwitch('autoLeaguesForceOneFight')
+                        +`</div>`
+                        +`<div class="internalOptionsRow">`
+                            + hhMenuInputWithImg('autoLeaguesThreshold', HHAuto_inputPattern.autoLeaguesThreshold, 'text-align:center; width:25px', 'pictures/design/league_points.png', 'numeric' )
+                            + hhMenuInputWithImg('autoLeaguesRunThreshold', HHAuto_inputPattern.autoLeaguesRunThreshold, 'text-align:center; width:25px', 'pictures/design/league_points.png', 'numeric' )
+                            + hhMenuInput('autoLeaguesSecurityThreshold', HHAuto_inputPattern.autoLeaguesSecurityThreshold, 'text-align:center; width:25px', '', 'numeric' )
+                        +`</div>`
+                    +`</div>`
+                +`</div>`
+            +`</div>`
+            +`<div class="optionsRow">`
+                +`<div id="isEnabledPoV" class="optionsBoxWithTitle">`
+                    +`<div class="optionsBoxTitle">`
+                        +`<span class="optionsBoxTitle">${getTextForUI("povTitle","elementText")}</span>`
+                    +`</div>`
+                    +`<div class="optionsBox">`
+                        +`<div class="internalOptionsRow">`
+                            + hhMenuSwitch('PoVMaskRewards')
+                            + hhMenuSwitch('autoPoVCollect')
+                            + hhMenuSwitch('autoPoVCollectAll')
+                        +`</div>`
+                    +`</div>`
+                +`</div>`
+                +`<div id="isEnabledPoG" class="optionsBoxWithTitle">`
+                    +`<div class="optionsBoxTitle">`
+                        +`<span class="optionsBoxTitle">${getTextForUI("pogTitle","elementText")}</span>`
+                    +`</div>`
+                    +`<div class="optionsBox">`
+                        +`<div class="internalOptionsRow">`
+                            + hhMenuSwitch('PoGMaskRewards')
+                            + hhMenuSwitch('autoPoGCollect')
+                            + hhMenuSwitch('autoPoGCollectAll')
+                        +`</div>`
+                    +`</div>`
+                +`</div>`
+                +`<div id="isEnabledSeasonalEvent" class="optionsBoxWithTitle">`
+                    +`<div class="optionsBoxTitle">`
+                        +`<span class="optionsBoxTitle">${getTextForUI("seasonalEventTitle","elementText")}</span>`
+                    +`</div>`
+                    +`<div class="optionsBox">`
+                        +`<div class="internalOptionsRow">`
+                            + hhMenuSwitch('SeasonalEventMaskRewards')
+                            + hhMenuSwitch('autoSeasonalEventCollect')
+                            + hhMenuSwitch('autoSeasonalEventCollectAll')
+                        +`</div>`
+                    +`</div>`
+                +`</div>`
+            +`</div>`
+            +`<div id="isEnabledTrollBattle" class="optionsBoxWithTitle">`
+                +`<div class="optionsBoxTitle">`
+                    +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/pictures/design/menu/map.svg" />`
+                    +`<span class="optionsBoxTitle">${getTextForUI("autoTrollTitle","elementText")}</span>`
+                +`</div>`
+                +`<div class="optionsBox">`
+                    +`<div class="internalOptionsRow" style="justify-content: space-between">`
+                        + hhMenuSwitch('autoTrollBattle')
+                        + hhMenuSelect('autoTrollSelector')
+                        + hhMenuInputWithImg('autoTrollThreshold', HHAuto_inputPattern.autoTrollThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png', 'numeric' )
+                        + hhMenuInputWithImg('autoTrollRunThreshold', HHAuto_inputPattern.autoTrollRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png', 'numeric' )
+                    +`</div>`
+                    +`<div class="internalOptionsRow">`
+                        + hhMenuSwitch('useX10Fights', '', true)
+                        + hhMenuSwitch('useX10FightsAllowNormalEvent')
+                        + hhMenuInput('minShardsX10', HHAuto_inputPattern.minShardsX, 'text-align:center; width:7em')
+                        + hhMenuSwitch('useX50Fights', '', true)
+                        + hhMenuSwitch('useX50FightsAllowNormalEvent')
+                        + hhMenuInput('minShardsX50', HHAuto_inputPattern.minShardsX, 'text-align:center; width:7em')
+                    +`</div>`
+                    +`<div class="internalOptionsRow">`
+                        + hhMenuSwitch('plusEvent')
+                        + hhMenuInput('eventTrollOrder', HHAuto_inputPattern.eventTrollOrder, 'width:150px')
+                        + hhMenuSwitch('buyCombat', '', true)
+                        + hhMenuInput('autoBuyTrollNumber', HHAuto_inputPattern.autoBuyTrollNumber, 'width:40px')
+                        + hhMenuInput('buyCombTimer', HHAuto_inputPattern.buyCombTimer, 'text-align:center; width:40px', '', 'numeric')
+                    +`</div>`
+                    +`<div class="internalOptionsRow">`
+                        + hhMenuSwitch('plusEventMythic')
+                        + hhMenuSwitch('autoTrollMythicByPassParanoia')
+                        + hhMenuSwitch('buyMythicCombat', '', true)
+                        + hhMenuInput('autoBuyMythicTrollNumber', HHAuto_inputPattern.autoBuyTrollNumber, 'width:40px')
+                        + hhMenuInput('buyMythicCombTimer', HHAuto_inputPattern.buyMythicCombTimer, 'text-align:center; width:40px', '', 'numeric')
+                        + `<div style="display:none;">` + hhMenuSwitch('plusEventMythicSandalWood') + '</div>'
+                    +`</div>`
+                +`</div>`
+            +`</div>`
+        +`</div>`;
+    }
+
+    const getRightColumn = () => {
+        return `<div class="optionsColumn" style="width: 340px;">`
+            +`<div id="isEnabledAllChamps" class="optionsBoxWithTitle">`
+                +`<div class="optionsBoxTitle">`
+                    +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
+                    +`<span class="optionsBoxTitle">${getTextForUI("autoChampsTitle","elementText")}</span>`
+                +`</div>`
+                +`<div class="optionsBox">`
+                    +`<div id="isEnabledChamps" class="internalOptionsRow">`
+                        + hhMenuSwitch('autoChamps')
+                        + hhMenuSwitch('autoChampsForceStart')
+                        + hhMenuSwitchWithImg('autoChampsUseEne', 'pictures/design/ic_energy_quest.png')
+                        + hhMenuInput('autoChampsFilter', HHAuto_inputPattern.autoChampsFilter, 'text-align:center; width:55px')
+                        + hhMenuSwitch('autoChampsForceStartEventGirl')
+                    +`</div>`
+                    +`<div id="isEnabledClubChamp" class="internalOptionsRow separator">`
+                        + hhMenuSwitch('autoClubChamp')
+                        + hhMenuSwitch('autoClubForceStart')
+                        + hhMenuInputWithImg('autoClubChampMax', HHAuto_inputPattern.autoClubChampMax, 'text-align:center; width:45px', 'pictures/design/champion_ticket.png', 'numeric')
+                        + hhMenuSwitch('showClubButtonInPoa')
+                        + hhMenuSwitch('autoChampAlignTimer')
+                    +`</div>`
+                    +`<div class="internalOptionsRow separator">`
+                        + hhMenuInput('autoChampsTeamLoop', HHAuto_inputPattern.autoChampsTeamLoop, 'text-align:center; width:25px', '', 'numeric')
+                        + hhMenuInput('autoChampsGirlThreshold', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:center; width:45px')
+                        + hhMenuSwitch('autoChampsTeamKeepSecondLine')
+                    +`</div>`
+                +`</div>`
+            +`</div>`
+            +`<div id="isEnabledPantheon" class="">` // optionsBoxWithTitle
+                // +`<div class="optionsBoxTitle">`
+                //     +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
+                //     +`<span class="optionsBoxTitle">${getTextForUI("autoPantheonTitle","elementText")}</span>`
+                // +`</div>`
+                +`<div class="optionsBox">`
+                    +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                        + hhMenuSwitch('autoPantheon')
+                        + hhMenuInputWithImg('autoPantheonThreshold', HHAuto_inputPattern.autoPantheonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg' , 'numeric')
+                        + hhMenuInputWithImg('autoPantheonRunThreshold', HHAuto_inputPattern.autoPantheonRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg' , 'numeric')
+                        + hhMenuSwitch('autoPantheonBoostedOnly')
+                    +`</div>`
+                +`</div>`
+            +`</div>`
+            +`<div id="isEnabledShop" class="optionsBoxWithTitle">`
+                +`<div class="optionsBoxTitle">`
+                    +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/shop.svg" />`
+                    +`<span class="optionsBoxTitle">${getTextForUI("autoBuy","elementText")}</span>`
+                +`</div>`
+                +`<div class="optionsBox">`
+                    +`<div class="internalOptionsRow">`
+                        + hhMenuSwitchWithImg('autoStatsSwitch', 'design/ic_plus.svg')
+                        + hhMenuInput('autoStats', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
+                    +`</div>`
+                    +`<div class="internalOptionsRow">`
+                        + hhMenuSwitchWithImg('autoExpW', 'design/ic_books_gray.svg')
+                        + hhMenuInput('maxExp', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
+                        + hhMenuInput('autoExp', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
+                    +`</div>`
+                    +`<div class="internalOptionsRow">`
+                        + hhMenuSwitchWithImg('autoAffW', 'design/ic_gifts_gray.svg')
+                        + hhMenuInput('maxAff', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
+                        + hhMenuInput('autoAff', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
+                    +`</div>`
+                    +`<div class="internalOptionsRow">`
+                        + hhMenuSwitchWithImg('autoBuyBoosters', 'design/ic_boosters_gray.svg', true)
+                        + hhMenuInput('maxBooster', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
+                        + hhMenuInput('autoBuyBoostersFilter', HHAuto_inputPattern.autoBuyBoostersFilter, 'text-align:center; width:70px')
+                    +`</div>`
+                    +`<div class="internalOptionsRow">`
+                        + hhMenuSwitchWithImg('showMarketTools', 'design/menu/panel.svg')
+                        + hhMenuSwitch('updateMarket')
+                    +`</div>`
+                +`</div>`
+            +`</div>`
+            +`<div class="optionsRow" style="display:block">`
+                +`<div id="isEnabledEvents" class="optionsBoxWithTitle">`
+                    +`<div class="optionsBoxTitle">`
+                        +`<span class="optionsBoxTitle">${getTextForUI("eventTitle","elementText")}</span>`
+                    +`</div>`
+                    +`<div class="optionsBox" style="border-style: dotted;">`
+                        +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                            +`<div id="isEnabledDPEvent" class="optionsBoxWithTitle">`
+                                +`<div class="optionsBoxTitle">`
+                                    +`<span class="optionsBoxTitle">${getTextForUI("doublePenetrationEventTitle","elementText")}</span>`
+                                +`</div>`
+                                +`<div class="optionsBox">`
+                                    +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                        + hhMenuSwitch('autodpEventCollect')
+                                    +`</div>`
+                                +`</div>`
+                            +`</div>`
+                        +`</div>`
+                        +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                            +`<div id="isEnabledSultryMysteriesEvent" class="optionsBoxWithTitle">`
+                                +`<div class="optionsBoxTitle">`
+                                    +`<span class="optionsBoxTitle">${getTextForUI("sultryMysteriesEventTitle","elementText")}</span>`
+                                +`</div>`
+                                +`<div class="optionsBox">`
+                                    +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                        + hhMenuSwitch('sultryMysteriesEventRefreshShop')
+                                    +`</div>`
+                                +`</div>`
+                            +`</div>`
+                            +`<div id="isEnabledBossBangEvent" class="optionsBoxWithTitle">`
+                                +`<div class="optionsBoxTitle">`
+                                    +`<span class="optionsBoxTitle">${getTextForUI("bossBangEventTitle","elementText")}</span>`
+                                +`</div>`
+                                +`<div class="optionsBox">`
+                                    +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                        + hhMenuSwitch('bossBangEvent')
+                                        + hhMenuInput('bossBangMinTeam', HHAuto_inputPattern.bossBangMinTeam, 'text-align:center; width:25px', '', 'numeric')
+                                    +`</div>`
+                                +`</div>`
+                            +`</div>`
+                        +`</div>`
+                    +`</div>`
+                +`</div>`
+            +`</div>`
+        +`</div>`;
+    }
+
     // Add UI buttons.
     return `<div id="sMenu" class="HHAutoScriptMenu" style="display: none;">`
-        +`<div style="position: absolute;left: 36%;color: #F00">${getTextForUI("noOtherScripts","elementText")}</div>`
+        +`<div style="position: absolute;left: 380px;color: #F00">${getTextForUI("noOtherScripts","elementText")}</div>`
         +`<div class="optionsRow">`
-            +`<div class="optionsColumn" style="min-width: 185px;">`
-                +`<div style="padding:3px; display:flex; flex-direction:column;">`
-                    +`<span>HH Automatic ++</span>`
-                    +`<span style="font-size:smaller;">Version ${GM_info.script.version}</span>`
-                    +`<div class="internalOptionsRow" style="padding:3px">`
-                        + hhButton('gitHub', 'git')
-                        + hhButton('ReportBugs', 'ReportBugs')
-                        + hhButton('DebugMenu', 'DebugMenu')
-                    +`</div>`
-                    +`<div class="internalOptionsRow" style="padding:3px">`
-                        + hhButton('saveConfig', 'saveConfig')
-                        + hhButton('loadConfig', 'loadConfig')
-                    +`</div>`
-                    +`<div class="internalOptionsRow" style="padding:3px">`
-                        + hhButton('saveDefaults', 'saveDefaults')
-                    +`</div>`
-                +`</div>`
-                +`<div class="optionsBoxWithTitle">`
-                    +`<div class="optionsBoxTitle">`
-                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/panel.svg" />`
-                        +`<span class="optionsBoxTitle">${getTextForUI("globalTitle","elementText")}</span>`
-                    +`</div>`
-                    +`<div class="rowOptionsBox">`
-                        +`<div class="optionsColumn">`
-                            + hhMenuSwitch('master') // Master switch
-                            + hhMenuSwitch('paranoia')
-                            +`<div id="isEnabledMousePause" class="labelAndButton">`
-                                +`<span class="HHMenuItemName">${getTextForUI("mousePause","elementText")}</span>`
-                                +`<div class="tooltipHH">`
-                                    +`<span class="tooltipHHtext">${getTextForUI("mousePause","tooltip")}</span>`
-                                    +`<label class="switch">`
-                                        +`<input id="mousePause" type="checkbox">`
-                                        +`<span class="slider round">`
-                                        +`</span>`
-                                    +`</label>`
-                                    +`<input style="text-align:center; width:40px" id="mousePauseTimeout" required pattern="${HHAuto_inputPattern.mousePauseTimeout}" type="text">`
-                                +`</div>`
-                            +`</div>`
-                            + hhMenuInput('collectAllTimer', HHAuto_inputPattern.collectAllTimer, 'text-align:center; width:25px')
-                        +`</div>`
-                        +`<div class="optionsColumn">`
-                            +`<div class="labelAndButton">`
-                                +`<span class="HHMenuItemName">${getTextForUI("waitforContest","elementText")}</span>`
-                                +`<div class="tooltipHH">`
-                                    +`<span class="tooltipHHtext">${getTextForUI("waitforContest","tooltip")}</span>`
-                                    +`<label class="switch">`
-                                        +`<input id="waitforContest" type="checkbox">`
-                                        +`<span class="slider round">`
-                                        +`</span>`
-                                    +`</label>`
-                                    +`<input style="text-align:center; width:30px" id="safeSecondsForContest" required pattern="${HHAuto_inputPattern.safeSecondsForContest}" type="text">`
-                                +`</div>`
-                            +`</div>`
-                            + hhMenuSwitch('settPerTab')
-                            + hhMenuSwitch('paranoiaSpendsBefore')
-                            + hhMenuSwitch('autoFreeBundlesCollect', 'isEnabledFreeBundles')
-                            + hhMenuSwitch('collectEventChest')
-                        +`</div>`
-                    +`</div>`
-                +`</div>`
-                +`<div class="optionsBoxWithTitle">`
-                    +`<div class="optionsBoxTitle">`
-                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/pictures/design/ic_hard_currency.png" />`
-                        +`<span class="optionsBoxTitle">Kobans</span>`
-                    +`</div>`
-                    +`<div class="rowOptionsBox">`
-                        + hhMenuSwitchWithImg('spendKobans0', 'design/menu/affil_prog.svg', true)
-                        + hhMenuInputWithImg('kobanBank', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px', 'pictures/design/ic_hard_currency.png' )
-                    +`</div>`
-                +`</div>`
-                +`<div class="optionsBoxWithTitle">`
-                    +`<div class="optionsBoxTitle">`
-                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/sex_friends.svg" />`
-                        +`<span class="optionsBoxTitle">${getTextForUI("displayTitle","elementText")}</span>`
-                    +`</div>`
-                    +`<div class="rowOptionsBox">`
-                        +`<div class="optionsColumn">`
-                            + hhMenuSwitch('showInfo')
-                            + hhMenuSwitch('showInfoLeft')
-                            + hhMenuSwitch('showTooltips')
-                        +`</div>`
-                        +`<div class="optionsColumn">`
-                            + hhMenuSwitch('showCalculatePower')
-                            + hhMenuSwitch('PoAMaskRewards')
-                            + hhMenuSwitch('showAdsBack')
-                        +`</div>`
-                        +`<div class="optionsColumn">`
-                            + hhMenuSwitch('showRewardsRecap')
-                        +`</div>`
-                    +`</div>`
-                +`</div>`
-            +`</div>`
-            +`<div class="optionsColumn" style="min-width: 500px;">`
-                +`<div class="optionsRow">`
-                    +`<div class="optionsColumn">`
-                        +`<div class="optionsBoxWithTitle">`
-                            +`<div class="optionsBoxTitle">`
-                                +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/missions.svg" />`
-                                +`<span class="optionsBoxTitle">${getTextForUI("autoActivitiesTitle","elementText")}</span>`
-                            +`</div>`
-                            +`<div class="optionsBox" style="border:none;padding:0">`
-                                +`<div class="internalOptionsRow">`
-                                    +`<div id="isEnabledMission" class="internalOptionsRow optionsBox" style="padding:0;margin:0 3px 0 0;">`
-                                        + hhMenuSwitch('autoMission')
-                                        + hhMenuSwitch('autoMissionCollect')
-                                        + hhMenuSwitch('autoMissionKFirst')
-                                        + hhMenuSwitch('compactMissions')
-                                    +`</div>`
-                                    +`<div id="isEnabledContest" class="internalOptionsRow optionsBox" style="padding:0;margin:0 0 0 3px;">`
-                                        + hhMenuSwitch('autoContest')
-                                        + hhMenuSwitch('compactEndedContests')
-                                    +`</div>`
-                                +`</div>`
-                            +`</div>`
-                        +`</div>`
-                        +`<div id="isEnabledPowerPlaces" class="optionsBoxWithTitle">`
-                            +`<div class="optionsBoxTitle">`
-                                +`<span class="optionsBoxTitle">${getTextForUI("powerPlacesTitle","elementText")}</span>`
-                            +`</div>`
-                            +`<div class="optionsBox">`
-                                +`<div class="internalOptionsRow">`
-                                    + hhMenuSwitch('autoPowerPlaces')
-                                    + hhMenuInput('autoPowerPlacesIndexFilter', HHAuto_inputPattern.autoPowerPlacesIndexFilter, '' )
-                                    + hhMenuSwitch('autoPowerPlacesAll')
-                                +`</div>`
-                                +`<div class="internalOptionsRow">`
-                                    + hhMenuSwitch('autoPowerPlacesPrecision')
-                                    + hhMenuSwitch('autoPowerPlacesInverted')
-                                    + hhMenuSwitch('autoPowerPlacesWaitMax')
-                                    + hhMenuSwitch('compactPowerPlace')
-                                +`</div>`
-                            +`</div>`
-                        +`</div>`
-                    +`</div>`
-                    +`<div class="optionsColumn">`
-                        +`<div class="optionsBoxTitle">`
-                        +`</div>`
-                        +`<div id="isEnabledSalary" class="rowOptionsBox">`
-                            +`<div class="internalOptionsRow">`
-                                + hhMenuSwitchWithImg('autoSalary', 'pictures/design/harem.svg')
-                                + hhMenuInput('autoSalaryMinSalary', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
-                                + hhMenuInput('autoSalaryMaxTimer', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
-                            +`</div>`
-                        +`</div>`
-                        +`<div class="optionsRow">`
-                            +`<div id="isEnabledPachinko" class="rowOptionsBox">`
-                                +`<div class="internalOptionsRow" style="justify-content: space-between">`
-                                    + hhMenuSwitchWithImg('autoFreePachinko', 'pictures/design/menu/pachinko.svg')
-                                +`</div>`
-                            +`</div>`
-                            +`<div id="isEnabledQuest" class="rowOptionsBox">`
-                                +`<div class="internalOptionsRow">`
-                                    + hhMenuSwitchWithImg('autoQuest', 'design/menu/forward.svg')
-                                    + hhMenuSwitch('autoSideQuest', 'isEnabledSideQuest')
-                                    + hhMenuInputWithImg('autoQuestThreshold', HHAuto_inputPattern.autoQuestThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_quest.png', 'numeric')
-                                +`</div>`
-                            +`</div>`
-                        +`</div>`
-                        +`<div class="optionsRow" style="justify-content: space-evenly">`
-                            +`<div id="isEnabledDailyGoals" class="optionsBoxWithTitleInline">`
-                                +`<div class="optionsBoxTitle">`
-                                    +`<span class="optionsBoxTitle">${getTextForUI("dailyGoalsTitle","elementText")}</span>`
-                                +`</div>`
-                               // +`<div class="optionsBox">`
-                                    +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                                        + hhMenuSwitch('autoDailyGoalsCollect')
-                                        + hhMenuSwitch('compactDailyGoals')
-                                    +`</div>`
-                               // +`</div>`
-                               //
-                            +`</div>`
-                        +`</div>`
-                    +`</div>`
-                +`</div>`
-                +`<div class="optionsRow">`
-                    +`<div id="isEnabledSeason" class="optionsBoxWithTitle">`
-                        +`<div class="optionsBoxTitle">`
-                            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/seasons.svg" />`
-                            +`<span class="optionsBoxTitle">${getTextForUI("autoSeasonTitle","elementText")}</span>`
-                        +`</div>`
-                        +`<div class="optionsBox">`
-                            +`<div class="internalOptionsRow">`
-                                + hhMenuSwitch('autoSeason')
-                                + hhMenuSwitch('autoSeasonCollect')
-                                + hhMenuSwitch('autoSeasonCollectAll')
-                                + hhMenuSwitch('SeasonMaskRewards')
-                            +`</div>`
-                            +`<div class="internalOptionsRow">`
-                                + hhMenuSwitch('autoSeasonPassReds', '', true)
-                                + hhMenuSwitch('autoSeasonBoostedOnly')
-                            +`</div>`
-                            +`<div class="internalOptionsRow">`
-                                + hhMenuInputWithImg('autoSeasonThreshold', HHAuto_inputPattern.autoSeasonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_kiss.png', 'numeric' )
-                                + hhMenuInputWithImg('autoSeasonRunThreshold', HHAuto_inputPattern.autoSeasonRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_kiss.png', 'numeric' )
-                            +`</div>`
-                        +`</div>`
-                    +`</div>`
-                    +`<div id="isEnabledLeagues" class="optionsBoxWithTitle">`
-                        +`<div class="optionsBoxTitle">`
-                            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/leaderboard.svg" />`
-                            +`<span class="optionsBoxTitle">${getTextForUI("autoLeaguesTitle","elementText")}</span>`
-                        +`</div>`
-                        +`<div class="optionsBox">`
-                            +`<div class="internalOptionsRow">`
-                                + hhMenuSwitch('autoLeagues')
-                                + hhMenuSwitch('autoLeaguesPowerCalc')
-                                + hhMenuSwitch('autoLeaguesCollect')
-                                + hhMenuSwitch('autoLeaguesBoostedOnly')
-                                + hhMenuSwitch('leagueListDisplayPowerCalc')
-                            +`</div>`
-                            +`<div class="internalOptionsRow">`
-                                + hhMenuSelect('autoLeaguesSelector')
-                                + hhMenuSwitch('autoLeaguesAllowWinCurrent')
-                                + hhMenuSwitch('autoLeaguesForceOneFight')
-                            +`</div>`
-                            +`<div class="internalOptionsRow">`
-                                + hhMenuInputWithImg('autoLeaguesThreshold', HHAuto_inputPattern.autoLeaguesThreshold, 'text-align:center; width:25px', 'pictures/design/league_points.png', 'numeric' )
-                                + hhMenuInputWithImg('autoLeaguesRunThreshold', HHAuto_inputPattern.autoLeaguesRunThreshold, 'text-align:center; width:25px', 'pictures/design/league_points.png', 'numeric' )
-                                + hhMenuInput('autoLeaguesSecurityThreshold', HHAuto_inputPattern.autoLeaguesSecurityThreshold, 'text-align:center; width:25px', '', 'numeric' )
-                            +`</div>`
-                        +`</div>`
-                    +`</div>`
-                +`</div>`
-                +`<div id="isEnabledPoVPoG" class="optionsRow">`
-                    +`<div id="isEnabledPoV" class="optionsBoxWithTitle">`
-                        +`<div class="optionsBoxTitle">`
-                            +`<span class="optionsBoxTitle">${getTextForUI("povTitle","elementText")}</span>`
-                        +`</div>`
-                        +`<div class="optionsBox">`
-                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                                + hhMenuSwitch('PoVMaskRewards')
-                                + hhMenuSwitch('autoPoVCollect')
-                                + hhMenuSwitch('autoPoVCollectAll')
-                            +`</div>`
-                        +`</div>`
-                    +`</div>`
-                    +`<div id="isEnabledPoG" class="optionsBoxWithTitle">`
-                        +`<div class="optionsBoxTitle">`
-                            +`<span class="optionsBoxTitle">${getTextForUI("pogTitle","elementText")}</span>`
-                        +`</div>`
-                        +`<div id="isEnabledPoVPoG" class="optionsBox">`
-                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                                + hhMenuSwitch('PoGMaskRewards')
-                                + hhMenuSwitch('autoPoGCollect')
-                                + hhMenuSwitch('autoPoGCollectAll')
-                            +`</div>`
-                        +`</div>`
-                    +`</div>`
-                +`</div>`
-                +`<div id="isEnabledTrollBattle" class="optionsBoxWithTitle">`
-                    +`<div class="optionsBoxTitle">`
-                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/pictures/design/menu/map.svg" />`
-                        +`<span class="optionsBoxTitle">${getTextForUI("autoTrollTitle","elementText")}</span>`
-                    +`</div>`
-                    +`<div class="optionsBox">`
-                        +`<div class="internalOptionsRow" style="justify-content: space-between">`
-                            + hhMenuSwitch('autoTrollBattle')
-                            + hhMenuSelect('autoTrollSelector')
-                            + hhMenuInputWithImg('autoTrollThreshold', HHAuto_inputPattern.autoTrollThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png', 'numeric' )
-                            + hhMenuInputWithImg('autoTrollRunThreshold', HHAuto_inputPattern.autoTrollRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png', 'numeric' )
-                        +`</div>`
-                        +`<div class="internalOptionsRow">`
-                            + hhMenuSwitch('useX10Fights', '', true)
-                            + hhMenuSwitch('useX10FightsAllowNormalEvent')
-                            + hhMenuInput('minShardsX10', HHAuto_inputPattern.minShardsX, 'text-align:center; width:7em')
-                            + hhMenuSwitch('useX50Fights', '', true)
-                            + hhMenuSwitch('useX50FightsAllowNormalEvent')
-                            + hhMenuInput('minShardsX50', HHAuto_inputPattern.minShardsX, 'text-align:center; width:7em')
-                        +`</div>`
-                        +`<div class="internalOptionsRow">`
-                            + hhMenuSwitch('plusEvent')
-                            + hhMenuInput('eventTrollOrder', HHAuto_inputPattern.eventTrollOrder, 'width:120px')
-                            + hhMenuSwitch('buyCombat', '', true)
-                            + hhMenuInput('autoBuyTrollNumber', HHAuto_inputPattern.autoBuyTrollNumber, 'width:40px')
-                            + hhMenuInput('buyCombTimer', HHAuto_inputPattern.buyCombTimer, 'text-align:center; width:40px', '', 'numeric')
-                        +`</div>`
-                        +`<div class="internalOptionsRow">`
-                            + hhMenuSwitch('plusEventMythic')
-                            + hhMenuSwitch('autoTrollMythicByPassParanoia')
-                            + hhMenuSwitch('buyMythicCombat', '', true)
-                            + hhMenuInput('autoBuyMythicTrollNumber', HHAuto_inputPattern.autoBuyTrollNumber, 'width:40px')
-                            + hhMenuInput('buyMythicCombTimer', HHAuto_inputPattern.buyMythicCombTimer, 'text-align:center; width:40px', '', 'numeric')
-                            + `<div style="display:none;">` + hhMenuSwitch('plusEventMythicSandalWood') + '</div>'
-                        +`</div>`
-                    +`</div>`
-                +`</div>`
-            +`</div>`
-            +`<div class="optionsColumn" style="width: 340px;">`
-                +`<div id="isEnabledAllChamps" class="optionsBoxWithTitle">`
-                    +`<div class="optionsBoxTitle">`
-                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
-                        +`<span class="optionsBoxTitle">${getTextForUI("autoChampsTitle","elementText")}</span>`
-                    +`</div>`
-                    +`<div class="optionsBox">`
-                        +`<div id="isEnabledChamps" class="internalOptionsRow">`
-                            + hhMenuSwitch('autoChamps')
-                            + hhMenuSwitch('autoChampsForceStart')
-                            + hhMenuSwitchWithImg('autoChampsUseEne', 'pictures/design/ic_energy_quest.png')
-                            + hhMenuInput('autoChampsFilter', HHAuto_inputPattern.autoChampsFilter, 'text-align:center; width:55px')
-                            + hhMenuSwitch('autoChampsForceStartEventGirl')
-                        +`</div>`
-                        +`<div id="isEnabledClubChamp" class="internalOptionsRow separator">`
-                            + hhMenuSwitch('autoClubChamp')
-                            + hhMenuSwitch('autoClubForceStart')
-                            + hhMenuInputWithImg('autoClubChampMax', HHAuto_inputPattern.autoClubChampMax, 'text-align:center; width:45px', 'pictures/design/champion_ticket.png', 'numeric')
-                            + hhMenuSwitch('showClubButtonInPoa')
-                            + hhMenuSwitch('autoChampAlignTimer')
-                        +`</div>`
-                        +`<div class="internalOptionsRow separator">`
-                            + hhMenuInput('autoChampsTeamLoop', HHAuto_inputPattern.autoChampsTeamLoop, 'text-align:center; width:25px', '', 'numeric')
-                            + hhMenuInput('autoChampsGirlThreshold', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:center; width:45px')
-                            + hhMenuSwitch('autoChampsTeamKeepSecondLine')
-                        +`</div>`
-                    +`</div>`
-                +`</div>`
-                +`<div id="isEnabledPantheon" class="">` // optionsBoxWithTitle
-                    // +`<div class="optionsBoxTitle">`
-                    //     +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
-                    //     +`<span class="optionsBoxTitle">${getTextForUI("autoPantheonTitle","elementText")}</span>`
-                    // +`</div>`
-                    +`<div class="optionsBox">`
-                        +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                            + hhMenuSwitch('autoPantheon')
-                            + hhMenuInputWithImg('autoPantheonThreshold', HHAuto_inputPattern.autoPantheonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg' , 'numeric')
-                            + hhMenuInputWithImg('autoPantheonRunThreshold', HHAuto_inputPattern.autoPantheonRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg' , 'numeric')
-                            + hhMenuSwitch('autoPantheonBoostedOnly')
-                        +`</div>`
-                    +`</div>`
-                +`</div>`
-                +`<div id="isEnabledShop" class="optionsBoxWithTitle">`
-                    +`<div class="optionsBoxTitle">`
-                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/shop.svg" />`
-                        +`<span class="optionsBoxTitle">${getTextForUI("autoBuy","elementText")}</span>`
-                    +`</div>`
-                    +`<div class="optionsBox">`
-                        +`<div class="internalOptionsRow">`
-                            + hhMenuSwitchWithImg('autoStatsSwitch', 'design/ic_plus.svg')
-                            + hhMenuInput('autoStats', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
-                        +`</div>`
-                        +`<div class="internalOptionsRow">`
-                            + hhMenuSwitchWithImg('autoExpW', 'design/ic_books_gray.svg')
-                            + hhMenuInput('maxExp', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:60px')
-                            + hhMenuInput('autoExp', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
-                        +`</div>`
-                        +`<div class="internalOptionsRow">`
-                            + hhMenuSwitchWithImg('autoAffW', 'design/ic_gifts_gray.svg')
-                            + hhMenuInput('maxAff', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:60px')
-                            + hhMenuInput('autoAff', HHAuto_inputPattern.nWith1000sSeparator, '', 'maxMoneyInputField')
-                        +`</div>`
-                        +`<div class="internalOptionsRow">`
-                            + hhMenuSwitchWithImg('autoBuyBoosters', 'design/ic_boosters_gray.svg', true)
-                            + hhMenuInput('maxBooster', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
-                            + hhMenuInput('autoBuyBoostersFilter', HHAuto_inputPattern.autoBuyBoostersFilter, 'text-align:center; width:70px')
-                        +`</div>`
-                        +`<div class="internalOptionsRow">`
-                            + hhMenuSwitchWithImg('showMarketTools', 'design/menu/panel.svg')
-                            + hhMenuSwitch('updateMarket')
-                        +`</div>`
-                    +`</div>`
-                +`</div>`
-                +`<div class="optionsRow" style="justify-content: space-evenly">`
-                    +`<div id="isEnabledSeasonalEvent" class="optionsBoxWithTitle">`
-                        +`<div class="optionsBoxTitle">`
-                            +`<span class="optionsBoxTitle">${getTextForUI("seasonalEventTitle","elementText")}</span>`
-                        +`</div>`
-                        +`<div class="optionsBox">`
-                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                                + hhMenuSwitch('SeasonalEventMaskRewards')
-                                + hhMenuSwitch('autoSeasonalEventCollect')
-                                + hhMenuSwitch('autoSeasonalEventCollectAll')
-                            +`</div>`
-                        +`</div>`
-                    +`</div>`
-                    +`<div id="isEnabledDPEvent" class="optionsBoxWithTitle">`
-                        +`<div class="optionsBoxTitle">`
-                            +`<span class="optionsBoxTitle">${getTextForUI("doublePenetrationEventTitle","elementText")}</span>`
-                        +`</div>`
-                        +`<div class="optionsBox">`
-                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                                + hhMenuSwitch('autodpEventCollect')
-                            +`</div>`
-                        +`</div>`
-                    +`</div>`
-                +`</div>`
-                +`<div class="optionsRow" style="justify-content: space-evenly">`
-                    +`<div id="isEnabledSultryMysteriesEvent" class="optionsBoxWithTitle">`
-                        +`<div class="optionsBoxTitle">`
-                            +`<span class="optionsBoxTitle">${getTextForUI("sultryMysteriesEventTitle","elementText")}</span>`
-                        +`</div>`
-                        +`<div class="optionsBox">`
-                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                                + hhMenuSwitch('sultryMysteriesEventRefreshShop')
-                            +`</div>`
-                        +`</div>`
-                    +`</div>`
-                    +`<div id="isEnabledBossBangEvent" class="optionsBoxWithTitle">`
-                        +`<div class="optionsBoxTitle">`
-                            +`<span class="optionsBoxTitle">${getTextForUI("bossBangEventTitle","elementText")}</span>`
-                        +`</div>`
-                        +`<div class="optionsBox">`
-                            +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                                + hhMenuSwitch('bossBangEvent')
-                                + hhMenuInput('bossBangMinTeam', HHAuto_inputPattern.bossBangMinTeam, 'text-align:center; width:25px', '', 'numeric')
-                            +`</div>`
-                        +`</div>`
-                    +`</div>`
-                +`</div>`
-            +`</div>`
+            + getLeftColumn()
+            + getMiddleColumn()
+            + getRightColumn()
         +`</div>`
     +`</div>`
 }
@@ -13759,10 +13828,14 @@ class HeroHelper {
         const boosterOwned = HaveBooster.hasOwnProperty(idBooster) ? Number(HaveBooster[idBooster]) : 0;
         return boosterOwned > 0
     }
-    static equipBooster(booster){
+
+    static async equipBooster(booster) {
         logHHAuto("Not yet enough tested, do not use");
-        if(!booster) return false;
-        if(!HeroHelper.haveBoosterInInventory(booster.identifier)) return false;
+        if(!booster) return Promise.resolve(false);
+        if(!HeroHelper.haveBoosterInInventory(booster.identifier)) {
+            logHHAuto("Boostrer" + booster + " not in inventory");
+            return Promise.resolve(false);
+        }
         //action=market_equip_booster&id_item=316&type=booster
         setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
         logHHAuto("Equip "+booster.name+", setting autoloop to false");
@@ -13771,17 +13844,23 @@ class HeroHelper {
             id_item: booster.id_item,
             type: "booster"
         };
-        /*
-        hh_ajax(params, function(data) {
-            if (data.success) logHHAuto('Booster equipped');
-            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
-            setTimeout(autoLoop,randomInterval(500,800));
-        }, function (err){
-            logHHAuto('Error occured booster not equipped, could be booster is already equipped');
-            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
-            setTimeout(autoLoop,randomInterval(500,800));
+
+        return Promise.resolve(false);
+/*
+        return new Promise((resolve) => {
+            hh_ajax(params, function(data) {
+                if (data.success) logHHAuto('Booster equipped');
+                setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
+                setTimeout(autoLoop,randomInterval(500,800));
+                resolve(true);
+            }, function (err){
+                logHHAuto('Error occured booster not equipped, could be booster is already equipped');
+                setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
+                setTimeout(autoLoop,randomInterval(500,800));
+                resolve(false);
+            });
         });
-        */
+*/
     }
 }
 ;// CONCATENATED MODULE: ./src/Helper/UrlHelper.js
@@ -14175,18 +14254,23 @@ class RewardHelper {
         return html;
     }
     static displayRewardsDiv(target,hhRewardId, rewardCountByType ) {
+        const emptyRewardDiv = $('<div id='+hhRewardId+' style="display:none;"></div>');
         try{
             if($('#' + hhRewardId).length <= 0) {
                 if (rewardCountByType['all'] > 0) {
                     const rewardsHtml = RewardHelper.getRewardsAsHtml(rewardCountByType);
-                    target.append($('<div id='+hhRewardId+' class="HHRewardNotCollected"><h1 style="font-size: small;">'+getTextForUI('rewardsToCollectTitle',"elementText")+'</h1>' + rewardsHtml + '</div>'));
+                    if(rewardsHtml && rewardsHtml != '') {
+                        target.append($('<div id='+hhRewardId+' class="HHRewardNotCollected"><h1 style="font-size: small;">'+getTextForUI('rewardsToCollectTitle',"elementText")+'</h1>' + rewardsHtml + '</div>'));
+                    } else {
+                        target.append(emptyRewardDiv);
+                    }
                 } else {
-                    target.append($('<div id='+hhRewardId+' style="display:none;"></div>'));
+                    target.append(emptyRewardDiv);
                 }
             }
         } catch(err) {
             LogUtils_logHHAuto("ERROR:", err.message);
-            target.append($('<div id='+hhRewardId+' style="display:none;"></div>'));
+            target.append(emptyRewardDiv);
         }
     }
     static displayRewardsPovPogDiv() {
