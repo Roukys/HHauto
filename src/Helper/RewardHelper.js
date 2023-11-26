@@ -210,18 +210,23 @@ export class RewardHelper {
         return html;
     }
     static displayRewardsDiv(target,hhRewardId, rewardCountByType ) {
+        const emptyRewardDiv = $('<div id='+hhRewardId+' style="display:none;"></div>');
         try{
             if($('#' + hhRewardId).length <= 0) {
                 if (rewardCountByType['all'] > 0) {
                     const rewardsHtml = RewardHelper.getRewardsAsHtml(rewardCountByType);
-                    target.append($('<div id='+hhRewardId+' class="HHRewardNotCollected"><h1 style="font-size: small;">'+getTextForUI('rewardsToCollectTitle',"elementText")+'</h1>' + rewardsHtml + '</div>'));
+                    if(rewardsHtml && rewardsHtml != '') {
+                        target.append($('<div id='+hhRewardId+' class="HHRewardNotCollected"><h1 style="font-size: small;">'+getTextForUI('rewardsToCollectTitle',"elementText")+'</h1>' + rewardsHtml + '</div>'));
+                    } else {
+                        target.append(emptyRewardDiv);
+                    }
                 } else {
-                    target.append($('<div id='+hhRewardId+' style="display:none;"></div>'));
+                    target.append(emptyRewardDiv);
                 }
             }
         } catch(err) {
             logHHAuto("ERROR:", err.message);
-            target.append($('<div id='+hhRewardId+' style="display:none;"></div>'));
+            target.append(emptyRewardDiv);
         }
     }
     static displayRewardsPovPogDiv() {

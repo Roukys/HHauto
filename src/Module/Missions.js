@@ -69,95 +69,7 @@ export class Missions {
                 $(".mission_button button:visible[rel='claim']").first().click();
                 return true;
             }
-            // TODO: select new missions and parse reward data from HTML, it's there in data attributes of tags
-            var missions = [];
-            var allGood = true;
-            // parse missions
-            $(".mission_object").each(function(idx,missionObject){
-                var data = $.data(missionObject).d;
-                // Do not list completed missions
-                var toAdd=true;
-                if(data.remaining_time !== null){
-                    // This is not a fresh mission
-                    if(data.remaining_time > 0)
-                    {
-                        if ($('.finish_in_bar[style*="display:none;"], .finish_in_bar[style*="display: none;"]', missionObject).length === 0)
-                        {
-                            logHHAuto("Unfinished mission detected...("+data.remaining_time+"sec. remaining)");
-                            setTimer('nextMissionTime',Number(data.remaining_time)+randomInterval(1,5));
-                            allGood = false;
-                            missions = []; // Clear missions to avoid selecting a smaller one than the one ongoing
-                            return false;
-                        }
-                        else
-                        {
-                            allGood = false;
-                        }
-                    }
-                    else
-                    {
-                        if (canCollect)
-                        {
-                            logHHAuto("Unclaimed mission detected...");
-                            gotoPage(getHHScriptVars("pagesIDMissions"),{},randomInterval(1300,1800));
-                            return true;
-                        }
-                    }
-                    return;
-                }
-                else if(data.remaining_cost === null) {
-                    // Finished missioned
-                    data.finished = true;
-                    data.remaining_time = 0;
-                    toAdd = false;
-                }
-                data.missionObject = missionObject;
-                var rewards = [];
-                // set rewards
-                {
-                    // get Reward slots
-                    var slots = missionObject.querySelectorAll(".slot");
-                    // traverse slots
-                    $.each(slots,function(idx,slotDiv){
-                        var reward = {};
-                        // get slot class list
-                        reward.classList = slotDiv.classList;
-                        // set reward type
-                        if(reward.classList.contains("slot_xp"))reward.type = "xp";
-                        else if(reward.classList.contains("slot_soft_currency"))reward.type = "money";
-                        else if(reward.classList.contains("slot_hard_currency"))reward.type = "koban";
-                        else reward.type = "item";
-                        // set value if xp
-                        if(reward.type === "xp" || reward.type === "money" || reward.type === "koban")
-                        {
-                            // remove all non numbers and HTML tags
-                            try{
-                                reward.data = Number(slotDiv.innerHTML.replace(/<.*?>/g,'').replace(/\D/g,''));
-                            }
-                            catch(e){
-                                logHHAuto("Catched error : Couldn't parse xp/money data : "+e);
-                                logHHAuto(slotDiv);
-                            }
-                        }
-                        // set item details if item
-                        else if(reward.type === "item")
-                        {
-                            try{
-                                reward.data = $.data(slotDiv).d;
-                            }
-                            catch(e){
-                                logHHAuto("Catched error : Couldn't parse item reward slot details : "+e);
-                                logHHAuto(slotDiv);
-                                reward.type = "unknown";
-                            }
-                        }
-                        rewards.push(reward);
-                    });
-                }
-                data.rewards = rewards;
-
-                if (toAdd) missions.push(data);
-            });
+            var { allGood, missions } = Missions.parseMissions(canCollect);
             if(!allGood && canCollect)
             {
                 logHHAuto("Something went wrong, need to retry in 15secs.");
@@ -219,6 +131,112 @@ export class Missions {
             return false;
         }
     }
+
+    static parseMissions(canCollect) {
+        var missions = [];
+        var lastMissionData = {};
+        var allGood = true;
+        // parse missions
+        const allMissions = $(".mission_object");
+        logHHAuto("Found " + allMissions.length + " missions to be parsed.");
+
+        try {
+            allMissions.each(function (idx, missionObject) {
+                var data = $.data(missionObject).d;
+                lastMissionData = data;
+                // Do not list completed missions
+                var toAdd = true;
+                if (data.remaining_time !== null) {
+                    // This is not a fresh mission
+                    if (data.remaining_time > 0) {
+                        if ($('.finish_in_bar[style*="display:none;"], .finish_in_bar[style*="display: none;"]', missionObject).length === 0) {
+                            logHHAuto("Unfinished mission detected...(" + data.remaining_time + "sec. remaining)");
+                            setTimer('nextMissionTime', Number(data.remaining_time) + randomInterval(1, 5));
+                            allGood = false;
+                            missions = []; // Clear missions to avoid selecting a smaller one than the one ongoing
+                            return false;
+                        }
+                        else {
+                            allGood = false;
+                        }
+                    }
+                    else {
+                        if (canCollect) {
+                            logHHAuto("Unclaimed mission detected...");
+                            gotoPage(getHHScriptVars("pagesIDMissions"), {}, randomInterval(1300, 1800));
+                            return true;
+                        }
+                    }
+                    return;
+                }
+                else if (data.remaining_cost === null) {
+                    // Finished missioned
+                    data.finished = true;
+                    data.remaining_time = 0;
+                    toAdd = false;
+                }
+                data.missionObject = missionObject;
+                var rewards = Missions.getMissionRewards(missionObject);
+                data.rewards = rewards;
+
+                if (toAdd) missions.push(data);
+            });
+        } catch (error) {
+            logHHAuto("Catched error : Couldn't parse missions (try again in 15min) : " + error);
+            logHHAuto("Last mission parsed : " + JSON.stringify(lastMissionData));
+            setTimer('nextMissionTime', randomInterval(15*60, 20*60));
+            allGood = false;
+        }
+        return { allGood, missions };
+    }
+
+    static getMissionRewards(missionObject) {
+        var rewards = [];
+        // set rewards
+        try {
+            // get Reward slots
+            var slots = missionObject.querySelectorAll(".slot");
+            // traverse slots
+            $.each(slots, function (idx, slotDiv) {
+                var reward = {};
+                // get slot class list
+                reward.classList = slotDiv.classList;
+                // set reward type
+                if (reward.classList.contains("slot_xp")) reward.type = "xp";
+                else if (reward.classList.contains("slot_soft_currency")) reward.type = "money";
+                else if (reward.classList.contains("slot_hard_currency")) reward.type = "koban";
+                else reward.type = "item";
+                // set value if xp
+                if (reward.type === "xp" || reward.type === "money" || reward.type === "koban") {
+                    // remove all non numbers and HTML tags
+                    try {
+                        reward.data = Number(slotDiv.innerHTML.replace(/<.*?>/g, '').replace(/\D/g, ''));
+                    }
+                    catch (e) {
+                        logHHAuto("Catched error : Couldn't parse xp/money data : " + e);
+                        logHHAuto(slotDiv);
+                    }
+                }
+
+                // set item details if item
+                else if (reward.type === "item") {
+                    try {
+                        reward.data = $.data(slotDiv).d;
+                    }
+                    catch (e) {
+                        logHHAuto("Catched error : Couldn't parse item reward slot details : " + e);
+                        logHHAuto(slotDiv);
+                        reward.type = "unknown";
+                    }
+                }
+                rewards.push(reward);
+            });
+        } catch(error) {
+            logHHAuto("Catched error : Couldn't parse rewards for missions : " + error);
+        }
+        return rewards;
+    }
+
     static styles() {
         if(getStoredValue(HHStoredVarPrefixKey+"Setting_compactMissions") === "true")
         {
@@ -274,3 +292,4 @@ export class Missions {
         }
     }
 }
+unsafeWindow.Missions = Missions;
