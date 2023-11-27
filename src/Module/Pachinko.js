@@ -244,9 +244,9 @@ export class Pachinko {
                 document.getElementById("PachinkoError").innerText=getTextForUI("PachinkoInvalidOrbsNb","elementText")+" : "+orbsToGo;
                 return;
             }
-            let PachinkoPlay =   '<div style="padding:50px; display:flex;flex-direction:column">'
+            let PachinkoPlay =   '<div style="padding:20px 50px; display:flex;flex-direction:column">'
             +   '<p>'+timerSelector.options[timerSelector.selectedIndex].text+' : </p>'
-            +   '<p id="PachinkoPlayedTimes" style="padding:10px">0/'+orbsToGo+'</p>'
+            +   '<p id="PachinkoPlayedTimes" style="padding:0 10px">0/'+orbsToGo+'</p>'
             +  '<label style="width:80px" class="myButton" id="PachinkoPlayCancel">'+getTextForUI("OptionCancel","elementText")+'</label>'
             + '</div>'
             fillHHPopUp("PachinkoPlay",getTextForUI("PachinkoButton","elementText"), PachinkoPlay);
