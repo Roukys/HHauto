@@ -292,4 +292,3 @@ export class Missions {
         }
     }
 }
-unsafeWindow.Missions = Missions;
