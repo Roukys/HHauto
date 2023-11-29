@@ -1,10 +1,13 @@
 import {
+    TimeHelper,
     checkTimer,
     checkTimerMustExist,
     clearTimer,
     convertTimeToInt,
     getHHScriptVars, 
+    getLimitTimeBeforeEnd, 
     getPage, 
+    getSecondsLeft, 
     getStoredValue,
     getTextForUI,
     getTimeLeft,
@@ -18,6 +21,7 @@ import { gotoPage } from "../../Service";
 import { isJSON, logHHAuto } from "../../Utils";
 import { HHStoredVarPrefixKey } from "../../config";
 import { DoublePenetration } from "./DoublePenetration";
+import { PathOfAttraction } from "./PathOfAttraction";
 
 export class EventModule {
     static clearEventData(inEventID)
@@ -417,6 +421,29 @@ export class EventModule {
                     DoublePenetration.goAndCollect();
                 }
             }
+            if (hhEvent.isPoa)
+            {
+                logHHAuto("On going path of Attraction event.");
+                PathOfAttraction.getRemainingTime();
+                const poAEnd = getSecondsLeft("PoARemainingTime");
+                logHHAuto("PoA end in " + TimeHelper.debugDate(poAEnd));
+                
+                let refreshTimerPoa = getHHScriptVars('maxCollectionDelay');
+                if (poAEnd < Math.max(refreshTimerPoa, getLimitTimeBeforeEnd()) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoACollectAll") === "true") {
+                    refreshTimerPoa = Math.min(refreshTimerPoa, getLimitTimeBeforeEnd());
+                }
+                logHHAuto("PoA next refres in " + TimeHelper.debugDate(refreshTimerPoa));
+
+                eventList[eventID]={};
+                eventList[eventID]["id"]=eventID;
+                eventList[eventID]["type"]=hhEvent.eventType;
+                eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimerPoa * 1000;  
+                eventList[eventID]["isCompleted"] = PathOfAttraction.isCompleted();
+
+                if(getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoACollect") === "true" || poAEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoACollectAll") === "true") {
+                    PathOfAttraction.goAndCollect();
+                }
+            }
             if(Object.keys(eventList).length >0)
             {
                 setStoredValue(HHStoredVarPrefixKey+"Temp_eventsList", JSON.stringify(eventList));
@@ -501,7 +528,7 @@ export class EventModule {
         if(inEventID.startsWith(getHHScriptVars('bossBangEventIDReg'))) return "bossBang";
         if(inEventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg'))) return "sultryMysteries";
         if(inEventID.startsWith(getHHScriptVars('doublePenetrationEventIDReg'))) return "doublePenetration";
-    //    if(inEventID.startsWith(getHHScriptVars('poaEventIDReg'))) return "poa";
+        if(inEventID.startsWith(getHHScriptVars('poaEventIDReg'))) return "poa";
     //    if(inEventID.startsWith('cumback_contest_')) return "";
     //    if(inEventID.startsWith('legendary_contest_')) return "";
         return "";
@@ -514,6 +541,7 @@ export class EventModule {
         const isBossBangEvent = inEventID.startsWith(getHHScriptVars('bossBangEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_bossBangEvent") ==="true";
         const isSultryMysteriesEvent = inEventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_sultryMysteriesEventRefreshShop") === "true";
         const isDPEvent = inEventID.startsWith(getHHScriptVars('doublePenetrationEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_autodpEventCollect") === "true";
+        const isPoa = inEventID.startsWith(getHHScriptVars('poaEventIDReg'));
         return {
             eventTypeKnown: eventType !== '',
             eventId: inEventID,
@@ -523,7 +551,8 @@ export class EventModule {
             isBossBangEvent: isBossBangEvent, // and activated
             isSultryMysteriesEvent: isSultryMysteriesEvent, // and activated
             isDPEvent: isDPEvent, // and activated
-            isEnabled: isPlusEvent || isPlusEventMythic || isBossBangEvent || isSultryMysteriesEvent || isDPEvent
+            isPoa: isPoa, // and activated
+            isEnabled: isPlusEvent || isPlusEventMythic || isBossBangEvent || isSultryMysteriesEvent || isDPEvent || isPoa
         }
     }
 

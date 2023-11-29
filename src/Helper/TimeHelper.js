@@ -116,6 +116,12 @@ export class TimeHelper {
         let seconds = sec_num % 60;
         return JSON.stringify({days:days,hours:hours,minutes:minutes,seconds:seconds});
     }
+
+    static sleep(waitTime) {
+        return new Promise((resolve) => {
+            setTimeout(resolve, waitTime);
+        });
+    }
 }
 
 export function convertTimeToInt(remainingTimer){

@@ -1526,6 +1526,44 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPoGCollectablesList"] =
     HHType:"Setting",
     valueType:"Array"
 };
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPoACollect"] =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    events:{"change":function()
+            {
+                if (this.checked)
+                {
+                    getAndStoreCollectPreferences(HHStoredVarPrefixKey+"Setting_autoPoACollectablesList");
+                    clearTimer('nextPoACollectTime');
+                }
+            }
+           }
+};
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPoACollectAll"] =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPoACollectablesList"] =
+    {
+    default:JSON.stringify([]),
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Array"
+};
 HHStoredVars[HHStoredVarPrefixKey+"Setting_compactDailyGoals"] =
     {
     default:"false",
@@ -1856,6 +1894,11 @@ HHStoredVars[HHStoredVarPrefixKey+"Temp_HaremSize"] =
 HHStoredVars[HHStoredVarPrefixKey+"Temp_LastPageCalled"] =
     {
     storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars[HHStoredVarPrefixKey+"Temp_PoAEndDate"] =
+    {
+    storage:"localStorage",
     HHType:"Temp"
 };
 HHStoredVars[HHStoredVarPrefixKey+"Temp_PoVEndDate"] =
