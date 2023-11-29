@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.15.10
+// @version      6.16.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -424,6 +424,8 @@ HHAuto_ToolTips.en.autoSeasonalEventCollect = { version: "5.7.0", elementText: "
 HHAuto_ToolTips.en.autoSeasonalEventCollectAll = { version: "5.7.0", elementText: "Collect all", tooltip: "if enabled : Automatically collect all items before end of seasonal event (configured with Collect all timer)"};
 HHAuto_ToolTips.en.autoPoGCollect = { version: "6.15.8", elementText: "Collect", tooltip: "if enabled : Automatically collect Path of Glory."};
 HHAuto_ToolTips.en.autoPoGCollectAll = { version: "6.15.8", elementText: "Collect All", tooltip: "if enabled : Automatically collect all items before end of Path of Glory (configured with Collect all timer)"};
+HHAuto_ToolTips.en.autoPoACollect = { version: "6.16.0", elementText: "Collect", tooltip: "if enabled : Automatically collect Path of Attraction event."};
+HHAuto_ToolTips.en.autoPoACollectAll = { version: "6.16.0", elementText: "Collect All", tooltip: "if enabled : Automatically collect all items before end of Path of Attraction event (configured with Collect all timer)"};
 HHAuto_ToolTips.en.dailyGoalsTitle = {version: "5.24.0", elementText: "Daily Goals"};
 HHAuto_ToolTips.en.autoDailyGoalsCollect = {version: "5.6.54", elementText: "Collect", tooltip: "Collect daily Goals if not collected 2 hours before end of HH day."};
 HHAuto_ToolTips.en.compactDailyGoals = { version: "5.24.0", elementText: "Compact", tooltip: "Add styles to compact daily goals display"};
@@ -572,6 +574,8 @@ HHAuto_ToolTips.fr.autoSeasonalEventCollect = { version: "5.7.0", elementText: "
 HHAuto_ToolTips.fr.autoSeasonalEventCollectAll = { version: "6.15.8", elementText: "Tout collecter", tooltip: "Si activé : Collect Automatiquement toutes les récompense avant la fin de l'évenement saisonier (configuré avec le timer \"Tout collecter\")"};
 HHAuto_ToolTips.fr.autoPoGCollect = { version: "6.15.8", elementText: "Collecter", tooltip: "Permet de collecter les gains de la Voie de la Gloire."};
 HHAuto_ToolTips.fr.autoPoGCollectAll = { version: "6.15.8", elementText: "Tout collecter", tooltip: "Si activé : Collect Automatiquement toutes les récompense avant la fin de la Voie de la Gloire (configuré avec le timer \"Tout collecter\")"};
+HHAuto_ToolTips.fr.autoPoACollect = { version: "6.16.0", elementText: "Collecter", tooltip: "Permet de collecter les gains de l'event chemin d'affection."};
+HHAuto_ToolTips.fr.autoPoACollectAll = { version: "6.16.0", elementText: "Tout collecter", tooltip: "Si activé : Collect Automatiquement toutes les récompense avant la fin de l'event chemin d'affection (configuré avec le timer \"Tout collecter\")"};
 HHAuto_ToolTips.fr.autoPantheon = { version: "5.6.24", elementText: "Activer", tooltip: "Si activé : combat automatiquement le Pantheon"};
 HHAuto_ToolTips.fr.autoPantheonThreshold = { version: "5.6.24", elementText: "Réserve", tooltip: "Vénération minimum à garder<br>Max 10"};
 HHAuto_ToolTips.fr.autoTrollMythicByPassParanoia = { version: "5.6.24", elementText: "Mythique annule paranoïa", tooltip: "Si activé : autorise le script à ne pas respecter le mode Parano lors d'un événement mythique.<br>Si la prochaine vague est pendant une phase de sommeil le script combattra quand même<br>tant que des combats et des fragments sont disponibles."};
@@ -1416,7 +1420,234 @@ class DoublePenetration {
         return false;
     }
 }
+;// CONCATENATED MODULE: ./src/Module/Events/PathOfAttraction.js
+
+
+
+
+
+class PoaReward {
+    tier=0;
+    type='';
+    slot=undefined;
+
+    /**
+     * 
+     * @param {number} tier 
+     * @param {string} type  
+     * @param {Object} slot 
+     */
+    constructor(tier, type, slot) {
+        this.tier = tier;
+        this.type = type;
+        this.slot = slot;
+    }
+}
+
+class PathOfAttraction {
+
+    static rewardPairTierPath = "#nc-poa-tape-rewards .nc-poa-reward-pair .nc-poa-step-indicator";
+    static freeSlotPath = "#nc-poa-tape-rewards .nc-poa-reward-pair .nc-poa-free-reward";
+    static paidSlotPath = "#nc-poa-tape-rewards .nc-poa-reward-pair .nc-poa-locked-reward";
+    static getRewardButtonPath = "#poa-content .objective .reward button.purple_button_L";
+
+    static getRemainingTime(){
+        const poATimerRequest = '#events .nc-panel-header .event-timer span[rel=expires]';
+    
+        if ( $(poATimerRequest).length > 0 && (getSecondsLeft("PoARemainingTime") === 0 || StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_PoAEndDate") === undefined) )
+        {
+            const poATimer = Number(convertTimeToInt($(poATimerRequest).text()));
+            setTimer("PoARemainingTime",poATimer);
+            StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_PoAEndDate",Math.ceil(new Date().getTime()/1000)+poATimer);
+        }
+    }
+    static runOld(){
+        //https://nutaku.haremheroes.com/path-of-attraction.html"
+        let array = $('#path_of_attraction div.poa.container div.all-objectives .objective.completed');
+        if (array.length == 0) {
+            return
+        }
+        let lengthNeeded = $('.golden-block.locked').length > 0 ? 1 : 2;
+        for (let i = array.length - 1; i >= 0; i--) {
+            if ($(array[i]).find('.picked-reward').length == lengthNeeded) {
+                array[i].style.display = "none";
+            }
+        }
+    }
+    static run(){
+        if (getPage() === getHHScriptVars("pagesIDEvent") && getHHScriptVars("isEnabledClubChamp",false) && window.location.search.includes("tab="+getHHScriptVars('poaEventIDReg')))
+        {
+            LogUtils_logHHAuto("On path of attraction event.");
+            if($(".hh-club-poa").length <= 0) {
+                const championsGoal = $('#poa-content .buttons:has(button[data-href="/champions-map.html"])');
+                championsGoal.append(getGoToClubChampionButton());
+            }
+        }
+    }
+    static styles(){
+        if (StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_PoAMaskRewards") === "true")
+        {
+            setTimeout(PathOfAttraction.Hide(),500);
+        }
+    }
+
+    /**
+     * 
+     * @param {string} path 
+     * @returns {PoaReward[]}
+     */
+    static _getClaimableRewards(path){
+        const rewards = {};
+        const listPoATiersToClaim = $(path);
+        for (let currentTier = 0 ; currentTier < listPoATiersToClaim.length ; currentTier++)
+        {
+            const currentRewardTierNb = listPoATiersToClaim[currentTier].getAttribute("data-nc-reward-id");
+            const slotElement = $('.slot',listPoATiersToClaim[currentTier]);
+            const slotType = RewardHelper.getRewardTypeBySlot(slotElement[0]);
+            rewards[currentRewardTierNb] = new PoaReward(Number(currentRewardTierNb), slotType, slotElement);
+        }
+        return rewards;
+    }
+
+    /**
+     * 
+     * @returns {PoaReward[]}
+     */
+    static getFreeClaimableRewards(){
+        return PathOfAttraction._getClaimableRewards(PathOfAttraction.freeSlotPath + ".claimable");
+    }
+
+    /**
+     * 
+     * @returns {PoaReward[]}
+     */
+    static getPaidClaimableRewards(){
+        if($("#nc-poa-tape-blocker").length) {
+            return {}
+        }else {
+            return PathOfAttraction._getClaimableRewards(PathOfAttraction.paidSlotPath+ ".claimable");
+        }
+    }
+
+    static isCompleted() {
+        const numberTiers = $(PathOfAttraction.rewardPairTierPath).length;
+        const numberClaimedFree = $(PathOfAttraction.freeSlotPath + ".claimed");
+        const numberClaimedPaid = $(PathOfAttraction.paidSlotPath + ".claimed");
+        if($("#nc-poa-tape-blocker").length) {
+            return numberClaimedFree >= numberTiers;
+        }else {
+            return numberClaimedFree >= numberTiers && numberClaimedPaid >= numberTiers;
+        }
+    }
+
+    static async goAndCollect()
+    {
+        if (StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoPoACollect") === "true" || StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoPoACollectAll") === "true")
+        {
+            const rewardsToCollect = Utils_isJSON(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoPoACollectablesList"))?JSON.parse(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoPoACollectablesList")):[];
+    
+            LogUtils_logHHAuto("Checking Path of Attraction for collectable rewards.");
+            
+            const numberTiers = $(PathOfAttraction.rewardPairTierPath).length;
+            const freeClaimableRewards = PathOfAttraction.getFreeClaimableRewards();
+            const paidClaimableRewards = PathOfAttraction.getPaidClaimableRewards();
+
+            /**
+             * 
+             * @param {PoaReward} reward 
+             */
+            async function getReward(reward) {
+                LogUtils_logHHAuto("Going to get " + JSON.stringify(reward))
+                reward.slot.click();
+                await TimeHelper.sleep(randomInterval(300,800));
+                $(PathOfAttraction.getRewardButtonPath).click();
+                await TimeHelper.sleep(randomInterval(300,800));
+                RewardHelper.closeRewardPopupIfAny(); // Will refresh the page
+                await TimeHelper.sleep(randomInterval(500,1000)); // Do not collect before page refresh
+            }
+
+            LogUtils_logHHAuto("numberTiers: " +  numberTiers);
+            LogUtils_logHHAuto("freeClaimableRewards", freeClaimableRewards);
+            LogUtils_logHHAuto("paidClaimableRewards", paidClaimableRewards);
+            const freeClaimableTiers = Object.keys(freeClaimableRewards);
+            const paidClaimableTiers = Object.keys(paidClaimableRewards);
+
+            if(numberTiers > 0 && (freeClaimableTiers.length > 0 || paidClaimableTiers.length > 0))
+            {
+                LogUtils_logHHAuto("Collecting rewards, setting autoloop to false");
+                StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop", "false");
+                $(".scroll-area.poa").animate({scrollLeft: 0});
+                await TimeHelper.sleep(randomInterval(300,800));
+
+                for (let currentTier = 1 ; currentTier <= numberTiers; currentTier++)
+                {
+                    if(freeClaimableTiers.includes(''+currentTier)) {
+                        if (rewardsToCollect.includes(freeClaimableRewards[currentTier].type))
+                        {
+                            await getReward(freeClaimableRewards[currentTier]);
+                            return true;
+                        }
+                    }
+
+                    if(paidClaimableTiers.includes(''+currentTier)) {
+                        if (rewardsToCollect.includes(paidClaimableRewards[currentTier].type))
+                        {
+                            await getReward(paidClaimableRewards[currentTier]);
+                            return true;
+                        }
+                    }
+                }
+
+                LogUtils_logHHAuto("Path of Attraction collection finished.");
+                StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop", "true");
+                setTimeout(autoLoop, Number(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")));
+                return true;
+            }
+            else
+            {
+                LogUtils_logHHAuto("No Path of Attraction reward to collect.");
+            }
+        }
+        return false;
+    }
+
+    static Hide(){
+        if (getPage() === getHHScriptVars("pagesIDEvent") && window.location.search.includes("tab="+getHHScriptVars('poaEventIDReg')) && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_PoAMaskRewards") === "true")
+        {
+            let arrayz;
+            let nbReward;
+            let modified=false;
+            arrayz = $('.nc-poa-reward-pair:not([style*="display:none"]):not([style*="display: none"])');
+            if ($("#nc-poa-tape-blocker").length)
+            {
+                nbReward=1;
+            }
+            else
+            {
+                nbReward=2;
+            }
+    
+            var obj;
+            if (arrayz.length > 0) {
+                for (var i2 = arrayz.length - 1; i2 >= 0; i2--) {
+                    obj = $(arrayz[i2]).find('.nc-poa-reward-container.claimed');
+                    if (obj.length >= nbReward) {
+                        //console.log("scroll before : "+document.getElementById('rewards_cont_scroll').scrollLeft);
+                        //console.log("width : "+arrayz[i2].offsetWidth);
+                        $("#events .nc-panel-body .scroll-area")[0].scrollLeft-=arrayz[i2].offsetWidth;
+                        //console.log("scroll after : "+document.getElementById('rewards_cont_scroll').scrollLeft);arrayz[i2].style.display = "none";
+                        arrayz[i2].style.display = "none";
+                        modified = true;
+                    }
+                }
+            }
+        }
+    }
+
+}
+
 ;// CONCATENATED MODULE: ./src/Module/Events/EventModule.js
+
 
 
 
@@ -1821,6 +2052,29 @@ class EventModule {
                     DoublePenetration.goAndCollect();
                 }
             }
+            if (hhEvent.isPoa)
+            {
+                LogUtils_logHHAuto("On going path of Attraction event.");
+                PathOfAttraction.getRemainingTime();
+                const poAEnd = getSecondsLeft("PoARemainingTime");
+                LogUtils_logHHAuto("PoA end in " + TimeHelper.debugDate(poAEnd));
+                
+                let refreshTimerPoa = getHHScriptVars('maxCollectionDelay');
+                if (poAEnd < Math.max(refreshTimerPoa, getLimitTimeBeforeEnd()) && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoPoACollectAll") === "true") {
+                    refreshTimerPoa = Math.min(refreshTimerPoa, getLimitTimeBeforeEnd());
+                }
+                LogUtils_logHHAuto("PoA next refres in " + TimeHelper.debugDate(refreshTimerPoa));
+
+                eventList[eventID]={};
+                eventList[eventID]["id"]=eventID;
+                eventList[eventID]["type"]=hhEvent.eventType;
+                eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimerPoa * 1000;  
+                eventList[eventID]["isCompleted"] = PathOfAttraction.isCompleted();
+
+                if(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoPoACollect") === "true" || poAEnd < getLimitTimeBeforeEnd() && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoPoACollectAll") === "true") {
+                    PathOfAttraction.goAndCollect();
+                }
+            }
             if(Object.keys(eventList).length >0)
             {
                 StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_eventsList", JSON.stringify(eventList));
@@ -1905,7 +2159,7 @@ class EventModule {
         if(inEventID.startsWith(getHHScriptVars('bossBangEventIDReg'))) return "bossBang";
         if(inEventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg'))) return "sultryMysteries";
         if(inEventID.startsWith(getHHScriptVars('doublePenetrationEventIDReg'))) return "doublePenetration";
-    //    if(inEventID.startsWith(getHHScriptVars('poaEventIDReg'))) return "poa";
+        if(inEventID.startsWith(getHHScriptVars('poaEventIDReg'))) return "poa";
     //    if(inEventID.startsWith('cumback_contest_')) return "";
     //    if(inEventID.startsWith('legendary_contest_')) return "";
         return "";
@@ -1918,6 +2172,7 @@ class EventModule {
         const isBossBangEvent = inEventID.startsWith(getHHScriptVars('bossBangEventIDReg')) && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_bossBangEvent") ==="true";
         const isSultryMysteriesEvent = inEventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg')) && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_sultryMysteriesEventRefreshShop") === "true";
         const isDPEvent = inEventID.startsWith(getHHScriptVars('doublePenetrationEventIDReg')) && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autodpEventCollect") === "true";
+        const isPoa = inEventID.startsWith(getHHScriptVars('poaEventIDReg'));
         return {
             eventTypeKnown: eventType !== '',
             eventId: inEventID,
@@ -1927,7 +2182,8 @@ class EventModule {
             isBossBangEvent: isBossBangEvent, // and activated
             isSultryMysteriesEvent: isSultryMysteriesEvent, // and activated
             isDPEvent: isDPEvent, // and activated
-            isEnabled: isPlusEvent || isPlusEventMythic || isBossBangEvent || isSultryMysteriesEvent || isDPEvent
+            isPoa: isPoa, // and activated
+            isEnabled: isPlusEvent || isPlusEventMythic || isBossBangEvent || isSultryMysteriesEvent || isDPEvent || isPoa
         }
     }
 
@@ -2227,75 +2483,6 @@ class EventModule {
         
         return {eventIDs:eventIDs,bossBangEventIDs:bossBangEventIDs};
     }
-}
-;// CONCATENATED MODULE: ./src/Module/Events/PathOfAttraction.js
-
-
-
-
-class PathOfAttraction {
-    static runOld(){
-        //https://nutaku.haremheroes.com/path-of-attraction.html"
-        let array = $('#path_of_attraction div.poa.container div.all-objectives .objective.completed');
-        if (array.length == 0) {
-            return
-        }
-        let lengthNeeded = $('.golden-block.locked').length > 0 ? 1 : 2;
-        for (let i = array.length - 1; i >= 0; i--) {
-            if ($(array[i]).find('.picked-reward').length == lengthNeeded) {
-                array[i].style.display = "none";
-            }
-        }
-    }
-    static run(){
-        if (getPage() === getHHScriptVars("pagesIDEvent") && getHHScriptVars("isEnabledClubChamp",false) && window.location.search.includes("tab="+getHHScriptVars('poaEventIDReg')))
-        {
-            LogUtils_logHHAuto("On path of attraction event.");
-            if($(".hh-club-poa").length <= 0) {
-                const championsGoal = $('#poa-content .buttons:has(button[data-href="/champions-map.html"])');
-                championsGoal.append(getGoToClubChampionButton());
-            }
-        }
-    }
-    static styles(){
-        if (StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_PoAMaskRewards") === "true")
-        {
-            setTimeout(PathOfAttraction.Hide(),500);
-        }
-    }
-    static Hide(){
-        if (getPage() === getHHScriptVars("pagesIDEvent") && window.location.search.includes("tab="+getHHScriptVars('poaEventIDReg')) && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_PoAMaskRewards") === "true")
-        {
-            let arrayz;
-            let nbReward;
-            let modified=false;
-            arrayz = $('.nc-poa-reward-pair:not([style*="display:none"]):not([style*="display: none"])');
-            if ($("#nc-poa-tape-blocker").length)
-            {
-                nbReward=1;
-            }
-            else
-            {
-                nbReward=2;
-            }
-    
-            var obj;
-            if (arrayz.length > 0) {
-                for (var i2 = arrayz.length - 1; i2 >= 0; i2--) {
-                    obj = $(arrayz[i2]).find('.nc-poa-reward-container.claimed');
-                    if (obj.length >= nbReward) {
-                        //console.log("scroll before : "+document.getElementById('rewards_cont_scroll').scrollLeft);
-                        //console.log("width : "+arrayz[i2].offsetWidth);
-                        $("#events .nc-panel-body .scroll-area")[0].scrollLeft-=arrayz[i2].offsetWidth;
-                        //console.log("scroll after : "+document.getElementById('rewards_cont_scroll').scrollLeft);arrayz[i2].style.display = "none";
-                        arrayz[i2].style.display = "none";
-                        modified = true;
-                    }
-                }
-            }
-        }
-    }
-
 }
 ;// CONCATENATED MODULE: ./src/Module/Events/PathOfGlory.js
 
@@ -4619,14 +4806,14 @@ class HaremGirl {
         }
     }
 
-    static maxOutAndAwake(haremItem, selectedGirl){
-        HaremGirl.maxOutButtonAndConfirm(haremItem, selectedGirl);
+    static async maxOutAndAwake(haremItem, selectedGirl){
+        await HaremGirl.maxOutButtonAndConfirm(haremItem, selectedGirl);
         setTimeout(function() {
             HaremGirl.awakGirl(selectedGirl);
         }, randomInterval(1500,2500));
     }
     
-    static giveHaremGirlItem(haremItem){
+    static async giveHaremGirlItem(haremItem){
         const selectedGirl = unsafeWindow.girl;
         HaremGirl.switchTabs(haremItem);
         const userHaremGirlLimit = Math.min(Number(document.getElementById("menuExpLevel").value), 750);
@@ -4639,7 +4826,7 @@ class HaremGirl {
             StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_haremGirlLimit", userHaremGirlLimit);
 
             if((Number(selectedGirl.level) + 50) >= Number(userHaremGirlLimit)) {
-                HaremGirl.maxOutButtonAndConfirm(haremItem, selectedGirl);
+                await HaremGirl.maxOutButtonAndConfirm(haremItem, selectedGirl);
                 HaremGirl.HaremClearGirlPopup();
             }
             else {
@@ -4861,7 +5048,7 @@ class HaremGirl {
                     LogUtils_logHHAuto("haremGirlLimit: " + haremGirlLimit);
                     HaremGirl.HaremDisplayGirlPopup(haremItem, girl.name + ' '+girl.Xp.cur+"xp, level "+girl.level+"/"+haremGirlLimit, (1)*5 );
                     if((Number(girl.level) + 50) >= Number(haremGirlLimit)) {
-                        HaremGirl.maxOutButtonAndConfirm(haremItem, girl);
+                        await HaremGirl.maxOutButtonAndConfirm(haremItem, girl);
                         HaremGirl.HaremClearGirlPopup();
 
                         Harem.clearHaremToolVariables();
@@ -4916,7 +5103,7 @@ class HaremGirl {
                     if (canMaxOut)
                     {
                         HaremGirl.HaremDisplayGirlPopup(haremItem, getTextForUI("giveMaxingOut","elementText")  + ' ' + girl.name + ' : '+ girlListProgress, (remainingGirls+1)*5 );
-                        HaremGirl.maxOutButtonAndConfirm(haremItem, girl);
+                        await HaremGirl.maxOutButtonAndConfirm(haremItem, girl);
                     } else {
                         LogUtils_logHHAuto("Max out button not clickable or not found");
                         HaremGirl.HaremDisplayGirlPopup(haremItem, girl.name + ' ' + getTextForUI("giveMaxedOut","elementText")+' : '+ girlListProgress, (remainingGirls+1)*5 );
@@ -9141,7 +9328,6 @@ HHEnvVariables["global"].dailyRewardNotifRequest = "#contains_all header .curren
 HHEnvVariables["global"].IDpanelEditTeam = "#edit-team-page"
 HHEnvVariables["global"].shopGirlCountRequest = '#girls_list .g1 .nav_placement span:not([contenteditable]';
 HHEnvVariables["global"].shopGirlCurrentRequest = '#girls_list .g1 .nav_placement span[contenteditable]';
-HHEnvVariables["global"].contestMaxDays = 21;
 HHEnvVariables["global"].selectorFilterNotDisplayNone = ':not([style*="display:none"]):not([style*="display: none"])';
 HHEnvVariables["global"].selectorClaimAllRewards = "#claim-all:not([disabled]):visible:not([style*='visibility: hidden;'])"; // KK use visibility: hidden or visibility: visible to display this button
 HHEnvVariables["global"].HaremMaxSizeExpirationSecs = 7*24*60*60;//7 days
@@ -11133,6 +11319,44 @@ HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_autoPoGColl
     HHType:"Setting",
     valueType:"Array"
 };
+HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_autoPoACollect"] =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    events:{"change":function()
+            {
+                if (this.checked)
+                {
+                    getAndStoreCollectPreferences(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoPoACollectablesList");
+                    TimerHelper_clearTimer('nextPoACollectTime');
+                }
+            }
+           }
+};
+HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_autoPoACollectAll"] =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
+HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_autoPoACollectablesList"] =
+    {
+    default:JSON.stringify([]),
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Array"
+};
 HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_compactDailyGoals"] =
     {
     default:"false",
@@ -11463,6 +11687,11 @@ HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Temp_HaremSize"] =
 HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Temp_LastPageCalled"] =
     {
     storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Temp_PoAEndDate"] =
+    {
+    storage:"localStorage",
     HHType:"Temp"
 };
 HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Temp_PoVEndDate"] =
@@ -11897,6 +12126,7 @@ function addEventsOnMenuItems()
 
 
 function getMenu() {
+    const debugEnabled = StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_Debug")==='true';
     
     const getLeftColumn = () => {
         return `<div class="optionsColumn" style="min-width: 185px;">`
@@ -11996,6 +12226,8 @@ function getMenu() {
                 +`<div class="optionsBox">`
                     +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
                         + hhMenuSwitch('PoAMaskRewards')
+                        + hhMenuSwitch('autoPoACollect')
+                        + hhMenuSwitch('autoPoACollectAll')
                     +`</div>`
                 +`</div>`
             +`</div>`
@@ -13711,6 +13943,12 @@ class TimeHelper {
         let seconds = sec_num % 60;
         return JSON.stringify({days:days,hours:hours,minutes:minutes,seconds:seconds});
     }
+
+    static sleep(waitTime) {
+        return new Promise((resolve) => {
+            setTimeout(resolve, waitTime);
+        });
+    }
 }
 
 function convertTimeToInt(remainingTimer){
@@ -15123,13 +15361,24 @@ class Shop {
             }
             scroll.scrollTop = scroll.scrollHeight-scroll.offsetHeight;
         }
+
+        function sellArmorEnded() {
+            document.getElementById("menuSellHide").style.display = "block";
+            StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop", "true");
+            setTimeout(autoLoop, Number(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")));
+        }
     
         function sellArmorItems()
         {
+            StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop", "false");
+            LogUtils_logHHAuto("setting autoloop to false");
+
             LogUtils_logHHAuto('start selling common, rare and epic stuff');
             document.getElementById("menuSellHide").style.display = "none";
             document.getElementById("menuSoldHide").style.display = "block";
-            // return;
+
+            // Scroll to top
+            $('#player-inventory').animate({scrollTop: 0});
             var initialNumberOfItems = $(itemsQuery).length;
             var itemsToSell = Number(document.getElementById("menuSellNumber").value);
             document.getElementById("menuSoldCurrentCount").innerHTML = "0/"+itemsToSell;
@@ -15140,11 +15389,13 @@ class Shop {
                 if ($('#player-inventory.armor').length === 0)
                 {
                     LogUtils_logHHAuto('Wrong tab');
+                    sellArmorEnded();
                     return;
                 }
                 else if (!document.getElementById("SellDialog").open)
                 {
                     LogUtils_logHHAuto('Sell Dialog closed, stopping');
+                    sellArmorEnded();
                     return;
                 }
                 let availebleItems = $(itemsQuery);
@@ -15154,7 +15405,7 @@ class Shop {
                     LogUtils_logHHAuto('no more items for sale');
                     document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageNoMore","elementText");
                     menuSellListItems();
-                    document.getElementById("menuSellHide").style.display = "block";
+                    sellArmorEnded();
                     return;
                 }
                 //console.log(initialNumberOfItems,currentNumberOfItems);
@@ -15162,7 +15413,7 @@ class Shop {
                     LogUtils_logHHAuto('Reach wanted sold items.');
                     document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageReachNB","elementText");
                     menuSellListItems();
-                    document.getElementById("menuSellHide").style.display = "block";
+                    sellArmorEnded();
                     return;
                 }
                 //check Selected item - can we sell it?
@@ -15250,7 +15501,7 @@ class Shop {
                         LogUtils_logHHAuto('no more items for sale');
                         document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageNoMore","elementText");
                         menuSellListItems();
-                        document.getElementById("menuSellHide").style.display = "block";
+                        sellArmorEnded();
                         return;
                     }
                 }

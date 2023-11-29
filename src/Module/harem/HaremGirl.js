@@ -123,14 +123,14 @@ export class HaremGirl {
         }
     }
 
-    static maxOutAndAwake(haremItem, selectedGirl){
-        HaremGirl.maxOutButtonAndConfirm(haremItem, selectedGirl);
+    static async maxOutAndAwake(haremItem, selectedGirl){
+        await HaremGirl.maxOutButtonAndConfirm(haremItem, selectedGirl);
         setTimeout(function() {
             HaremGirl.awakGirl(selectedGirl);
         }, randomInterval(1500,2500));
     }
     
-    static giveHaremGirlItem(haremItem){
+    static async giveHaremGirlItem(haremItem){
         const selectedGirl = unsafeWindow.girl;
         HaremGirl.switchTabs(haremItem);
         const userHaremGirlLimit = Math.min(Number(document.getElementById("menuExpLevel").value), 750);
@@ -143,7 +143,7 @@ export class HaremGirl {
             setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlLimit", userHaremGirlLimit);
 
             if((Number(selectedGirl.level) + 50) >= Number(userHaremGirlLimit)) {
-                HaremGirl.maxOutButtonAndConfirm(haremItem, selectedGirl);
+                await HaremGirl.maxOutButtonAndConfirm(haremItem, selectedGirl);
                 HaremGirl.HaremClearGirlPopup();
             }
             else {
@@ -365,7 +365,7 @@ export class HaremGirl {
                     logHHAuto("haremGirlLimit: " + haremGirlLimit);
                     HaremGirl.HaremDisplayGirlPopup(haremItem, girl.name + ' '+girl.Xp.cur+"xp, level "+girl.level+"/"+haremGirlLimit, (1)*5 );
                     if((Number(girl.level) + 50) >= Number(haremGirlLimit)) {
-                        HaremGirl.maxOutButtonAndConfirm(haremItem, girl);
+                        await HaremGirl.maxOutButtonAndConfirm(haremItem, girl);
                         HaremGirl.HaremClearGirlPopup();
 
                         Harem.clearHaremToolVariables();
@@ -420,7 +420,7 @@ export class HaremGirl {
                     if (canMaxOut)
                     {
                         HaremGirl.HaremDisplayGirlPopup(haremItem, getTextForUI("giveMaxingOut","elementText")  + ' ' + girl.name + ' : '+ girlListProgress, (remainingGirls+1)*5 );
-                        HaremGirl.maxOutButtonAndConfirm(haremItem, girl);
+                        await HaremGirl.maxOutButtonAndConfirm(haremItem, girl);
                     } else {
                         logHHAuto("Max out button not clickable or not found");
                         HaremGirl.HaremDisplayGirlPopup(haremItem, girl.name + ' ' + getTextForUI("giveMaxedOut","elementText")+' : '+ girlListProgress, (remainingGirls+1)*5 );

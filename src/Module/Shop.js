@@ -10,7 +10,7 @@ import {
     setStoredValue,
     setTimer
 } from "../Helper";
-import { gotoPage } from "../Service";
+import { autoLoop, gotoPage } from "../Service";
 import { isJSON, logHHAuto } from "../Utils";
 import { HHAuto_inputPattern, HHStoredVarPrefixKey } from "../config";
 import { Booster } from "./Booster";
@@ -570,13 +570,24 @@ export class Shop {
             }
             scroll.scrollTop = scroll.scrollHeight-scroll.offsetHeight;
         }
+
+        function sellArmorEnded() {
+            document.getElementById("menuSellHide").style.display = "block";
+            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
+            setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")));
+        }
     
         function sellArmorItems()
         {
+            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
+            logHHAuto("setting autoloop to false");
+
             logHHAuto('start selling common, rare and epic stuff');
             document.getElementById("menuSellHide").style.display = "none";
             document.getElementById("menuSoldHide").style.display = "block";
-            // return;
+
+            // Scroll to top
+            $('#player-inventory').animate({scrollTop: 0});
             var initialNumberOfItems = $(itemsQuery).length;
             var itemsToSell = Number(document.getElementById("menuSellNumber").value);
             document.getElementById("menuSoldCurrentCount").innerHTML = "0/"+itemsToSell;
@@ -587,11 +598,13 @@ export class Shop {
                 if ($('#player-inventory.armor').length === 0)
                 {
                     logHHAuto('Wrong tab');
+                    sellArmorEnded();
                     return;
                 }
                 else if (!document.getElementById("SellDialog").open)
                 {
                     logHHAuto('Sell Dialog closed, stopping');
+                    sellArmorEnded();
                     return;
                 }
                 let availebleItems = $(itemsQuery);
@@ -601,7 +614,7 @@ export class Shop {
                     logHHAuto('no more items for sale');
                     document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageNoMore","elementText");
                     menuSellListItems();
-                    document.getElementById("menuSellHide").style.display = "block";
+                    sellArmorEnded();
                     return;
                 }
                 //console.log(initialNumberOfItems,currentNumberOfItems);
@@ -609,7 +622,7 @@ export class Shop {
                     logHHAuto('Reach wanted sold items.');
                     document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageReachNB","elementText");
                     menuSellListItems();
-                    document.getElementById("menuSellHide").style.display = "block";
+                    sellArmorEnded();
                     return;
                 }
                 //check Selected item - can we sell it?
@@ -697,7 +710,7 @@ export class Shop {
                         logHHAuto('no more items for sale');
                         document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageNoMore","elementText");
                         menuSellListItems();
-                        document.getElementById("menuSellHide").style.display = "block";
+                        sellArmorEnded();
                         return;
                     }
                 }

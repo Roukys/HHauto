@@ -255,6 +255,7 @@ export function addEventsOnMenuItems()
 
 
 export function getMenu() {
+    const debugEnabled = getStoredValue(HHStoredVarPrefixKey+"Temp_Debug")==='true';
     
     const getLeftColumn = () => {
         return `<div class="optionsColumn" style="min-width: 185px;">`
@@ -354,6 +355,8 @@ export function getMenu() {
                 +`<div class="optionsBox">`
                     +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
                         + hhMenuSwitch('PoAMaskRewards')
+                        + hhMenuSwitch('autoPoACollect')
+                        + hhMenuSwitch('autoPoACollectAll')
                     +`</div>`
                 +`</div>`
             +`</div>`
