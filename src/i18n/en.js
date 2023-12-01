@@ -141,6 +141,7 @@ HHAuto_ToolTips.en.menuSellMaskLocked = { version: "5.6.24", elementText: "Mask 
 HHAuto_ToolTips.en.menuSoldText = { version: "5.6.24", elementText: "Number of items sold : ", tooltip: ""};
 HHAuto_ToolTips.en.menuSoldMessageReachNB = { version: "5.6.24", elementText: "Wanted sold items reached.", tooltip: ""};
 HHAuto_ToolTips.en.menuSoldMessageNoMore = { version: "5.6.24", elementText: " No more sellable items.", tooltip: ""};
+HHAuto_ToolTips.en.menuSoldMessageErrorLoaded = { version: "6.16.0", elementText: " An error occured: more items were loaded, need restart.", tooltip: ""};
 HHAuto_ToolTips.en.menuDistribution = { version: "5.6.24", elementText: "Items to be used : ", tooltip: ""};
 HHAuto_ToolTips.en.Total = { version: "5.6.24", elementText: "Total : ", tooltip: ""};
 HHAuto_ToolTips.en.menuAllowedExceed = { version: "5.6.42", elementText: "Allow to exceed by : ", tooltip: ""};

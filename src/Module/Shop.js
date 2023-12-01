@@ -593,6 +593,11 @@ export class Shop {
             document.getElementById("menuSoldCurrentCount").innerHTML = "0/"+itemsToSell;
             document.getElementById("menuSoldMessage").innerHTML ="";
             let PlayerClass = getHHVars('Hero.infos.class') === null ? $('#equiped > div.icon.class_change_btn').attr('carac') : getHHVars('Hero.infos.class');
+            function sellingEnd(message){
+                document.getElementById("menuSoldMessage").innerHTML = message;
+                menuSellListItems();
+                sellArmorEnded();
+            }
             function selling_func()
             {
                 if ($('#player-inventory.armor').length === 0)
@@ -612,17 +617,18 @@ export class Shop {
                 if (currentNumberOfItems === 0)
                 {
                     logHHAuto('no more items for sale');
-                    document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageNoMore","elementText");
-                    menuSellListItems();
-                    sellArmorEnded();
+                    sellingEnd(getTextForUI("menuSoldMessageNoMore","elementText"));
+                    return;
+                }
+                if (initialNumberOfItems < currentNumberOfItems) {
+                    logHHAuto('Some items was loaded in the background, can\'t continue');
+                    sellingEnd(getTextForUI("menuSoldMessageErrorLoaded","elementText"));
                     return;
                 }
                 //console.log(initialNumberOfItems,currentNumberOfItems);
                 if ((initialNumberOfItems - currentNumberOfItems) >= itemsToSell) {
                     logHHAuto('Reach wanted sold items.');
-                    document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageReachNB","elementText");
-                    menuSellListItems();
-                    sellArmorEnded();
+                    sellingEnd(getTextForUI("menuSoldMessageReachNB","elementText"));
                     return;
                 }
                 //check Selected item - can we sell it?
@@ -708,9 +714,7 @@ export class Shop {
                     if ($('#player-inventory.armor [canBeSold]:not([menuSellLocked]):not(.mythic)').length == 0)
                     {
                         logHHAuto('no more items for sale');
-                        document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageNoMore","elementText");
-                        menuSellListItems();
-                        sellArmorEnded();
+                        sellingEnd(getTextForUI("menuSoldMessageReachNB","elementText"));
                         return;
                     }
                 }
