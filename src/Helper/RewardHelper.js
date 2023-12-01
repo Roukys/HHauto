@@ -39,7 +39,7 @@ export class RewardHelper {
             }
             else if (inSlot.className.indexOf('slot_random_girl') >= 0)
             {
-                reward = 'girl_shards'; // Random girl shards
+                reward = 'random_girl_shards'; // Random girl shards
             }
             else if (inSlot.className.indexOf('mythic') >= 0)
             {
@@ -106,6 +106,7 @@ export class RewardHelper {
         switch(rewardType)
         {
             case 'girl_shards' :    return Number($('.shards', inSlot).attr('shards'));
+            case 'random_girl_shards' :
             case 'energy_kiss':
             case 'energy_quest':
             case 'energy_fight' :
@@ -188,6 +189,7 @@ export class RewardHelper {
             switch(rewardType)
             {
                 // case 'girl_shards' :    return Number($('.shards', inSlot).attr('shards'));
+                case 'random_girl_shards' : html += '<div class="slot slot_random_girl  size_xs"><span class="random_girl_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
                 case 'energy_kiss':     html += '<div class="slot slot_energy_kiss  size_xs"><span class="energy_kiss_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
                 case 'energy_quest':    html += '<div class="slot slot_energy_quest size_xs"><span class="energy_quest_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
                 case 'energy_fight' :   html += '<div class="slot slot_energy_fight  size_xs"><span class="energy_fight_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;

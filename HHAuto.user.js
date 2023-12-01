@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.16.0
+// @version      6.16.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -304,6 +304,7 @@ HHAuto_ToolTips.en.menuSellMaskLocked = { version: "5.6.24", elementText: "Mask 
 HHAuto_ToolTips.en.menuSoldText = { version: "5.6.24", elementText: "Number of items sold : ", tooltip: ""};
 HHAuto_ToolTips.en.menuSoldMessageReachNB = { version: "5.6.24", elementText: "Wanted sold items reached.", tooltip: ""};
 HHAuto_ToolTips.en.menuSoldMessageNoMore = { version: "5.6.24", elementText: " No more sellable items.", tooltip: ""};
+HHAuto_ToolTips.en.menuSoldMessageErrorLoaded = { version: "6.16.0", elementText: " An error occured: more items were loaded, need restart.", tooltip: ""};
 HHAuto_ToolTips.en.menuDistribution = { version: "5.6.24", elementText: "Items to be used : ", tooltip: ""};
 HHAuto_ToolTips.en.Total = { version: "5.6.24", elementText: "Total : ", tooltip: ""};
 HHAuto_ToolTips.en.menuAllowedExceed = { version: "5.6.42", elementText: "Allow to exceed by : ", tooltip: ""};
@@ -9366,6 +9367,7 @@ HHEnvVariables["global"].possibleRewardsList = {'energy_kiss' : "Kisses",
                                                 'energy_fight' : "Fights",
                                                 'xp' : "Exp",
                                                 'girl_shards' : "Girl shards",
+                                                'random_girl_shards' : "Random girl shards",
                                                 'soft_currency' : "Ymens",
                                                 'hard_currency' : "Kobans",
                                                 'gift':"Gifts",
@@ -14322,7 +14324,7 @@ class RewardHelper {
             }
             else if (inSlot.className.indexOf('slot_random_girl') >= 0)
             {
-                reward = 'girl_shards'; // Random girl shards
+                reward = 'random_girl_shards'; // Random girl shards
             }
             else if (inSlot.className.indexOf('mythic') >= 0)
             {
@@ -14389,6 +14391,7 @@ class RewardHelper {
         switch(rewardType)
         {
             case 'girl_shards' :    return Number($('.shards', inSlot).attr('shards'));
+            case 'random_girl_shards' :
             case 'energy_kiss':
             case 'energy_quest':
             case 'energy_fight' :
@@ -14471,6 +14474,7 @@ class RewardHelper {
             switch(rewardType)
             {
                 // case 'girl_shards' :    return Number($('.shards', inSlot).attr('shards'));
+                case 'random_girl_shards' : html += '<div class="slot slot_random_girl  size_xs"><span class="random_girl_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
                 case 'energy_kiss':     html += '<div class="slot slot_energy_kiss  size_xs"><span class="energy_kiss_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
                 case 'energy_quest':    html += '<div class="slot slot_energy_quest size_xs"><span class="energy_quest_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
                 case 'energy_fight' :   html += '<div class="slot slot_energy_fight  size_xs"><span class="energy_fight_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
@@ -15384,6 +15388,11 @@ class Shop {
             document.getElementById("menuSoldCurrentCount").innerHTML = "0/"+itemsToSell;
             document.getElementById("menuSoldMessage").innerHTML ="";
             let PlayerClass = getHHVars('Hero.infos.class') === null ? $('#equiped > div.icon.class_change_btn').attr('carac') : getHHVars('Hero.infos.class');
+            function sellingEnd(message){
+                document.getElementById("menuSoldMessage").innerHTML = message;
+                menuSellListItems();
+                sellArmorEnded();
+            }
             function selling_func()
             {
                 if ($('#player-inventory.armor').length === 0)
@@ -15403,17 +15412,18 @@ class Shop {
                 if (currentNumberOfItems === 0)
                 {
                     LogUtils_logHHAuto('no more items for sale');
-                    document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageNoMore","elementText");
-                    menuSellListItems();
-                    sellArmorEnded();
+                    sellingEnd(getTextForUI("menuSoldMessageNoMore","elementText"));
+                    return;
+                }
+                if (initialNumberOfItems < currentNumberOfItems) {
+                    LogUtils_logHHAuto('Some items was loaded in the background, can\'t continue');
+                    sellingEnd(getTextForUI("menuSoldMessageErrorLoaded","elementText"));
                     return;
                 }
                 //console.log(initialNumberOfItems,currentNumberOfItems);
                 if ((initialNumberOfItems - currentNumberOfItems) >= itemsToSell) {
                     LogUtils_logHHAuto('Reach wanted sold items.');
-                    document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageReachNB","elementText");
-                    menuSellListItems();
-                    sellArmorEnded();
+                    sellingEnd(getTextForUI("menuSoldMessageReachNB","elementText"));
                     return;
                 }
                 //check Selected item - can we sell it?
@@ -15499,9 +15509,7 @@ class Shop {
                     if ($('#player-inventory.armor [canBeSold]:not([menuSellLocked]):not(.mythic)').length == 0)
                     {
                         LogUtils_logHHAuto('no more items for sale');
-                        document.getElementById("menuSoldMessage").innerHTML = getTextForUI("menuSoldMessageNoMore","elementText");
-                        menuSellListItems();
-                        sellArmorEnded();
+                        sellingEnd(getTextForUI("menuSoldMessageReachNB","elementText"));
                         return;
                     }
                 }
