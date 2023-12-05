@@ -170,6 +170,7 @@ export function autoLoop()
     //console.log("burst : "+burst);
     checkAndClosePopup(burst);
     let lastActionPerformed = getStoredValue(HHStoredVarPrefixKey+"Temp_lastActionPerformed");
+    let eventParsed=null;
 
     if (burst && !mouseBusy /*|| checkTimer('nextMissionTime')*/)
     {
@@ -193,19 +194,24 @@ export function autoLoop()
         //if a new event is detected
         const {eventIDs, bossBangEventIDs} = EventModule.parsePageForEventId();
         if(
-            busy === false && getHHScriptVars("isEnabledEvents",false) && (lastActionPerformed === "none" || lastActionPerformed === "event")
+            busy === false && getHHScriptVars("isEnabledEvents",false) && (lastActionPerformed === "none" || lastActionPerformed === "event" || (getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollBattle") === "true" && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") ==="true") )
             &&
             (
                 (eventIDs.length > 0 && getPage() !== getHHScriptVars("pagesIDEvent"))
                 ||
-                (getPage()===getHHScriptVars("pagesIDEvent") && $("#contains_all #events[parsed]").length === 0)
+                (getPage()===getHHScriptVars("pagesIDEvent") && $("#contains_all #events[parsed]").length < eventIDs.length)
             )
         )
         {
             logHHAuto("Going to check on events.");
             busy = true;
             busy = EventModule.parseEventPage(eventIDs[0]);
+            eventParsed = eventIDs[0];
             lastActionPerformed = "event";
+            if (eventIDs.length > 1) {
+                logHHAuto("More events to be parsed.", JSON.stringify(eventIDs));
+                busy = true;
+            }
         }
 
         if (busy===false && getHHScriptVars("isEnabledShop",false) && Shop.isTimeToCheckShop() && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && (lastActionPerformed === "none" || lastActionPerformed === "shop"))
@@ -930,28 +936,38 @@ export function autoLoop()
             }
             break;
         case getHHScriptVars("pagesIDEvent"):
+            const eventID = EventModule.getDisplayedIdEventPage();
             if (getStoredValue(HHStoredVarPrefixKey+"Setting_plusEvent") === "true" || getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") ==="true")
             {
-                EventModule.parseEventPage();
+                if(eventParsed == null) {
+                    EventModule.parseEventPage();
+                }
                 EventModule.moduleDisplayEventPriority();
             }
-            if (getStoredValue(HHStoredVarPrefixKey+"Setting_bossBangEvent") === "true")
+
+            if (getStoredValue(HHStoredVarPrefixKey+"Setting_bossBangEvent") === "true" && EventModule.getEvent(eventID).isBossBangEvent)
             {
-                EventModule.parseEventPage();
+                if(eventParsed == null) {
+                    EventModule.parseEventPage();
+                }
                 setTimeout(BossBang.goToFightPage, randomInterval(500,1500));
             }
-            if (getStoredValue(HHStoredVarPrefixKey+"Setting_PoAMaskRewards") === "true")
+            
+            if (EventModule.getEvent(eventID).isPoa)
             {
-                setTimeout(PathOfAttraction.Hide,500);
-            }
-            if (getStoredValue(HHStoredVarPrefixKey+"Setting_showClubButtonInPoa") === "true")
-            {
-                PathOfAttraction.run = callItOnce(PathOfAttraction.run);
-                PathOfAttraction.run();
-            }
-            if (getStoredValue(HHStoredVarPrefixKey+"Setting_showRewardsRecap") === "true")
-            {
-                RewardHelper.displayRewardsPoaDiv();
+                if (getStoredValue(HHStoredVarPrefixKey+"Setting_PoAMaskRewards") === "true")
+                {
+                    setTimeout(PathOfAttraction.Hide,500);
+                }
+                if (getStoredValue(HHStoredVarPrefixKey+"Setting_showClubButtonInPoa") === "true")
+                {
+                    PathOfAttraction.run = callItOnce(PathOfAttraction.run);
+                    PathOfAttraction.run();
+                }
+                if (getStoredValue(HHStoredVarPrefixKey+"Setting_showRewardsRecap") === "true")
+                {
+                    RewardHelper.displayRewardsPoaDiv();
+                }
             }
             break;
         case getHHScriptVars("pagesIDBossBang"):
