@@ -137,15 +137,25 @@ export class EventModule {
         }
     }
 
+    static getDisplayedIdEventPage() {
+        let eventHref = $("#contains_all #events .events-list .event-title.active").attr("href");
+        let parsedURL = new URL(eventHref,window.location.origin);
+        return queryStringGetParam(parsedURL.search,'tab');
+    }
 
     static parseEventPage(inTab="global")
     {
         if(getPage() === getHHScriptVars("pagesIDEvent") )
         {
             let queryEventTabCheck=$("#contains_all #events");
-            let eventHref = $("#contains_all #events .events-list .event-title.active").attr("href");
-            let parsedURL = new URL(eventHref,window.location.origin);
-            let eventID = queryStringGetParam(parsedURL.search,'tab');
+            const eventID = EventModule.getDisplayedIdEventPage();
+            if (inTab !== "global" && inTab !== eventID)
+            {
+                logHHAuto("Wrong event opened, need to change event page");
+                gotoPage(getHHScriptVars("pagesIDEvent"),{tab:inTab});
+                return true;
+            }
+
             const hhEvent = EventModule.getEvent(eventID);
             if (!hhEvent.eventTypeKnown)
             {
@@ -764,9 +774,21 @@ export class EventModule {
 
         if (getPage()===getHHScriptVars("pagesIDEvent"))
         {
-            if (queryStringGetParam(window.location.search,'tab') !== null)
+            if (queryStringGetParam(window.location.search,'tab') !== null && EventModule.checkEvent(queryStringGetParam(window.location.search,'tab')))
             {
                 eventIDs.push(queryStringGetParam(window.location.search,'tab'));
+            }
+
+            let parsedURL;
+            let eventsQuery = '.events-list a.event-title:not(.active)';
+            let queryResults=$(eventsQuery);
+            for(let index = 0;index < queryResults.length;index++)
+            {
+                parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
+                if (queryStringGetParam(parsedURL.search,'tab') !== null && EventModule.checkEvent(queryStringGetParam(parsedURL.search,'tab')))
+                {
+                    eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
+                }
             }
         }
         else if (getPage() === getHHScriptVars("pagesIDHome"))

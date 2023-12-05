@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.16.1
+// @version      6.16.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1769,15 +1769,25 @@ class EventModule {
         }
     }
 
+    static getDisplayedIdEventPage() {
+        let eventHref = $("#contains_all #events .events-list .event-title.active").attr("href");
+        let parsedURL = new URL(eventHref,window.location.origin);
+        return queryStringGetParam(parsedURL.search,'tab');
+    }
 
     static parseEventPage(inTab="global")
     {
         if(getPage() === getHHScriptVars("pagesIDEvent") )
         {
             let queryEventTabCheck=$("#contains_all #events");
-            let eventHref = $("#contains_all #events .events-list .event-title.active").attr("href");
-            let parsedURL = new URL(eventHref,window.location.origin);
-            let eventID = queryStringGetParam(parsedURL.search,'tab');
+            const eventID = EventModule.getDisplayedIdEventPage();
+            if (inTab !== "global" && inTab !== eventID)
+            {
+                LogUtils_logHHAuto("Wrong event opened, need to change event page");
+                gotoPage(getHHScriptVars("pagesIDEvent"),{tab:inTab});
+                return true;
+            }
+
             const hhEvent = EventModule.getEvent(eventID);
             if (!hhEvent.eventTypeKnown)
             {
@@ -2396,9 +2406,21 @@ class EventModule {
 
         if (getPage()===getHHScriptVars("pagesIDEvent"))
         {
-            if (queryStringGetParam(window.location.search,'tab') !== null)
+            if (queryStringGetParam(window.location.search,'tab') !== null && EventModule.checkEvent(queryStringGetParam(window.location.search,'tab')))
             {
                 eventIDs.push(queryStringGetParam(window.location.search,'tab'));
+            }
+
+            let parsedURL;
+            let eventsQuery = '.events-list a.event-title:not(.active)';
+            let queryResults=$(eventsQuery);
+            for(let index = 0;index < queryResults.length;index++)
+            {
+                parsedURL = new URL(queryResults[index].getAttribute("href"),window.location.origin);
+                if (queryStringGetParam(parsedURL.search,'tab') !== null && EventModule.checkEvent(queryStringGetParam(parsedURL.search,'tab')))
+                {
+                    eventIDs.push(queryStringGetParam(parsedURL.search,'tab'));
+                }
             }
         }
         else if (getPage() === getHHScriptVars("pagesIDHome"))
@@ -2485,6 +2507,7 @@ class EventModule {
         return {eventIDs:eventIDs,bossBangEventIDs:bossBangEventIDs};
     }
 }
+
 ;// CONCATENATED MODULE: ./src/Module/Events/PathOfGlory.js
 
     
@@ -8582,7 +8605,7 @@ class Pachinko {
                     return;
                 }
                 let pachinkoSelectedButton= $(buttonSelector)[0];
-                RewardHelper.closeRewardPopupIfAny();
+                RewardHelper.closeRewardPopupIfAny(false);
                 let currentOrbsLeft = $(orbsLeftSelector);
                 if (currentOrbsLeft.length >0)
                 {
@@ -14541,11 +14564,11 @@ class RewardHelper {
             RewardHelper.displayRewardsDiv(target, hhRewardId, rewardCountByType);
         }
     }
-    static closeRewardPopupIfAny() {
+    static closeRewardPopupIfAny(logging=true) {
         let rewardQuery="div#rewards_popup button.blue_button_L:not([disabled]):visible";
         if ($(rewardQuery).length >0 )
         {
-            LogUtils_logHHAuto("Close reward popup.");
+            if(logging) LogUtils_logHHAuto("Close reward popup.");
             $(rewardQuery).click();
             return true;
         }
@@ -16341,6 +16364,7 @@ function autoLoop()
     //console.log("burst : "+burst);
     checkAndClosePopup(burst);
     let lastActionPerformed = StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_lastActionPerformed");
+    let eventParsed=null;
 
     if (burst && !mouseBusy /*|| checkTimer('nextMissionTime')*/)
     {
@@ -16364,19 +16388,24 @@ function autoLoop()
         //if a new event is detected
         const {eventIDs, bossBangEventIDs} = EventModule.parsePageForEventId();
         if(
-            busy === false && getHHScriptVars("isEnabledEvents",false) && (lastActionPerformed === "none" || lastActionPerformed === "event")
+            busy === false && getHHScriptVars("isEnabledEvents",false) && (lastActionPerformed === "none" || lastActionPerformed === "event" || (StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoTrollBattle") === "true" && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_plusEventMythic") ==="true") )
             &&
             (
                 (eventIDs.length > 0 && getPage() !== getHHScriptVars("pagesIDEvent"))
                 ||
-                (getPage()===getHHScriptVars("pagesIDEvent") && $("#contains_all #events[parsed]").length === 0)
+                (getPage()===getHHScriptVars("pagesIDEvent") && $("#contains_all #events[parsed]").length < eventIDs.length)
             )
         )
         {
             LogUtils_logHHAuto("Going to check on events.");
             busy = true;
             busy = EventModule.parseEventPage(eventIDs[0]);
+            eventParsed = eventIDs[0];
             lastActionPerformed = "event";
+            if (eventIDs.length > 1) {
+                LogUtils_logHHAuto("More events to be parsed.", JSON.stringify(eventIDs));
+                busy = true;
+            }
         }
 
         if (busy===false && getHHScriptVars("isEnabledShop",false) && Shop.isTimeToCheckShop() && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && (lastActionPerformed === "none" || lastActionPerformed === "shop"))
@@ -17101,28 +17130,38 @@ function autoLoop()
             }
             break;
         case getHHScriptVars("pagesIDEvent"):
+            const eventID = EventModule.getDisplayedIdEventPage();
             if (StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_plusEvent") === "true" || StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_plusEventMythic") ==="true")
             {
-                EventModule.parseEventPage();
+                if(eventParsed == null) {
+                    EventModule.parseEventPage();
+                }
                 EventModule.moduleDisplayEventPriority();
             }
-            if (StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_bossBangEvent") === "true")
+
+            if (StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_bossBangEvent") === "true" && EventModule.getEvent(eventID).isBossBangEvent)
             {
-                EventModule.parseEventPage();
+                if(eventParsed == null) {
+                    EventModule.parseEventPage();
+                }
                 setTimeout(BossBang.goToFightPage, randomInterval(500,1500));
             }
-            if (StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_PoAMaskRewards") === "true")
+            
+            if (EventModule.getEvent(eventID).isPoa)
             {
-                setTimeout(PathOfAttraction.Hide,500);
-            }
-            if (StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_showClubButtonInPoa") === "true")
-            {
-                PathOfAttraction.run = callItOnce(PathOfAttraction.run);
-                PathOfAttraction.run();
-            }
-            if (StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_showRewardsRecap") === "true")
-            {
-                RewardHelper.displayRewardsPoaDiv();
+                if (StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_PoAMaskRewards") === "true")
+                {
+                    setTimeout(PathOfAttraction.Hide,500);
+                }
+                if (StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_showClubButtonInPoa") === "true")
+                {
+                    PathOfAttraction.run = callItOnce(PathOfAttraction.run);
+                    PathOfAttraction.run();
+                }
+                if (StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_showRewardsRecap") === "true")
+                {
+                    RewardHelper.displayRewardsPoaDiv();
+                }
             }
             break;
         case getHHScriptVars("pagesIDBossBang"):

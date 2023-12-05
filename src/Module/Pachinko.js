@@ -297,7 +297,7 @@ export class Pachinko {
                     return;
                 }
                 let pachinkoSelectedButton= $(buttonSelector)[0];
-                RewardHelper.closeRewardPopupIfAny();
+                RewardHelper.closeRewardPopupIfAny(false);
                 let currentOrbsLeft = $(orbsLeftSelector);
                 if (currentOrbsLeft.length >0)
                 {

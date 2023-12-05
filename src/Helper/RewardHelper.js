@@ -256,11 +256,11 @@ export class RewardHelper {
             RewardHelper.displayRewardsDiv(target, hhRewardId, rewardCountByType);
         }
     }
-    static closeRewardPopupIfAny() {
+    static closeRewardPopupIfAny(logging=true) {
         let rewardQuery="div#rewards_popup button.blue_button_L:not([disabled]):visible";
         if ($(rewardQuery).length >0 )
         {
-            logHHAuto("Close reward popup.");
+            if(logging) logHHAuto("Close reward popup.");
             $(rewardQuery).click();
             return true;
         }
