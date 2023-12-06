@@ -79,6 +79,7 @@ export class QuestHelper {
             return;
         }
         $("#popup_message close").click();
+        $("#level_up close").click();
         // Get the proceed button type
         var proceedButtonMatch = $("#controls button:not([style*='display:none']):not([style*='display: none'])");
         if (proceedButtonMatch.length === 0)

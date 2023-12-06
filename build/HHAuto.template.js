@@ -11,6 +11,7 @@
 // @match        http*://*.hornyheroes.com/*
 // @match        http*://*.pornstarharem.com/*
 // @match        http*://*.transpornstarharem.com/*
+// @match        http*://*.gaypornstarharem.com/*
 // @match        http*://*.mangarpg.com/*
 // @grant        GM_addStyle
 // @grant        GM_registerMenuCommand

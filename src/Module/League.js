@@ -483,7 +483,7 @@ export class LeagueHelper {
         let fightButton;
         let opponentsPowerList;
 
-        const usePowerCalc = getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesPowerCalc") === 'true';
+        let usePowerCalc = getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesPowerCalc") === 'true';
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey+"Temp_Debug")==='true';
         const hasHHBdsmChangeBefore = $('.data-column[column="power"] .matchRating').length > 0;
         if (hasHHBdsmChangeBefore) logHHAuto('HH++ BDSM detected');

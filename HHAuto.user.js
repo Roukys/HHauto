@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.16.2
+// @version      6.17.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -11,6 +11,7 @@
 // @match        http*://*.hornyheroes.com/*
 // @match        http*://*.pornstarharem.com/*
 // @match        http*://*.transpornstarharem.com/*
+// @match        http*://*.gaypornstarharem.com/*
 // @match        http*://*.mangarpg.com/*
 // @grant        GM_addStyle
 // @grant        GM_registerMenuCommand
@@ -3696,6 +3697,7 @@ class QuestHelper {
             return;
         }
         $("#popup_message close").click();
+        $("#level_up close").click();
         // Get the proceed button type
         var proceedButtonMatch = $("#controls button:not([style*='display:none']):not([style*='display: none'])");
         if (proceedButtonMatch.length === 0)
@@ -4473,6 +4475,8 @@ class ClubChampion {
                     LogUtils_logHHAuto("Max tickets to use on Club Champ reached.");
                     StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_clubChampLimitReached", "true");
                     setTimer('nextClubChampionTime', randomInterval(4*60*60, 5*60*60));
+                    gotoPage(getHHScriptVars("pagesIDHome"));
+                    return false;
                 }
     
             }
@@ -7165,7 +7169,7 @@ class LeagueHelper {
         let fightButton;
         let opponentsPowerList;
 
-        const usePowerCalc = StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoLeaguesPowerCalc") === 'true';
+        let usePowerCalc = StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoLeaguesPowerCalc") === 'true';
         const debugEnabled = StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_Debug")==='true';
         const hasHHBdsmChangeBefore = $('.data-column[column="power"] .matchRating').length > 0;
         if (hasHHBdsmChangeBefore) LogUtils_logHHAuto('HH++ BDSM detected');
@@ -9324,10 +9328,12 @@ HHKnownEnvironnements["eroges.gayharem.com"] = {name:"EGH_prod",id:"hh_gay"};
 HHKnownEnvironnements["eroges.hentaiheroes.com"] = {name:"EHH_prod",id:"hh_hentai"};
 HHKnownEnvironnements["esprit.hentaiheroes.com"] = {name:"OGHH_prod",id:"hh_hentai"};
 HHKnownEnvironnements["www.pornstarharem.com"] = {name:"PH_prod",id:"hh_star", baseImgPath:"https://th.hh-content.com"};
-HHKnownEnvironnements["nutaku.pornstarharem.com"] = {name:"NPH_prod",id:"hh_star", baseImgPath:"https://th.hh-content.co"};
+HHKnownEnvironnements["nutaku.pornstarharem.com"] = {name:"NPH_prod",id:"hh_star", baseImgPath:"https://th.hh-content.com"};
 HHKnownEnvironnements["www.transpornstarharem.com"] = {name:"TPH_prod",id:"hh_startrans", baseImgPath:"https://images.hh-content.com/startrans"};
 HHKnownEnvironnements["nutaku.transpornstarharem.com"] = {name:"NTPH_prod",id:"hh_startrans", baseImgPath:"https://images.hh-content.com/startrans"};
 HHKnownEnvironnements["www.mangarpg.com"] = {name:"MRPG_prod",id:"hh_mangarpg", baseImgPath:"https://mh.hh-content.com"};
+HHKnownEnvironnements["www.gaypornstarharem.com"] = {name:"GPSH_prod",id:"hh_stargay", baseImgPath:"https://images.hh-content.com/stargay"};
+HHKnownEnvironnements["nutaku.gaypornstarharem.com"] = {name:"NGPSH_prod",id:"hh_stargay", baseImgPath:"https://images.hh-content.com/stargay"};
 
 
 const HHEnvVariables = {};
@@ -9814,6 +9820,24 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
         [['334144727', '667194919', '911144911'], [0], [0]],
         [['473470854', '708191289', '945710078'], [0], [0]],
         [['104549634', '521022556', '526732951'], [0], [0]],
+    ];
+    HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
+});
+
+["GPSH_prod","NGPSH_prod"].forEach((element) => {
+    HHEnvVariables[element].trollzList = ['Latest', 
+                                          'Tristan Hunter',
+                                          'Troll 2'];
+
+    HHEnvVariables[element].isEnabledSideQuest = false;// to remove when SideQuest arrives in gaypornstar
+    HHEnvVariables[element].isEnabledPowerPlaces = false;// to remove when PoP arrives in gaypornstar
+    HHEnvVariables[element].isEnabledMythicPachinko = false;// to remove when Champs arrives in gaypornstar
+    HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in gaypornstar
+    HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in gaypornstar
+    HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in gaypornstar
+    HHEnvVariables[element].trollGirlsID = [
+        [['780402171', '374763633', '485499759'], [0], [0]],
+        [[0,0,0], [0], [0]], // TODO get girls id
     ];
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
 });
