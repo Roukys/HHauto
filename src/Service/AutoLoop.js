@@ -652,7 +652,7 @@ export function autoLoop()
         }
 
         if (busy==false && getHHScriptVars("isEnabledChamps",false) 
-            && QuestHelper.getEnergy()>=60 && QuestHelper.getEnergy() > Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoQuestThreshold"))
+            && QuestHelper.getEnergy()>=getHHScriptVars("CHAMP_TICKET_PRICE") && QuestHelper.getEnergy() > Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoQuestThreshold"))
             && getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsUseEne") ==="true" && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" 
             && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "champion"))
         {
@@ -695,7 +695,7 @@ export function autoLoop()
             lastActionPerformed = "clubChampion";
         }
 
-        if(busy === false && getHHScriptVars("isEnabledLeagues",false) && LeagueHelper.isAutoLeagueActivated() && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" 
+        if(busy === false && LeagueHelper.isAutoLeagueActivated() && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" 
             && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "league"))
         {
             // Navigate to leagues

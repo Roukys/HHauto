@@ -126,6 +126,12 @@ export function start() {
     replaceCheatClick();
     migrateHHVars();
 
+    if (getStoredValue(HHStoredVarPrefixKey+"Setting_leagueListDisplayPowerCalc") !== "true" && getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesPowerCalc") !== 'true')
+    {
+        // remove big var not removed from previous version
+        deleteStoredValue(HHStoredVarPrefixKey+"Temp_LeagueOpponentList");
+    }
+
     $('.redirect.gay').hide();
     $('.redirect.comix').hide();
 

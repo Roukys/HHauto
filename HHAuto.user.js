@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.17.0
+// @version      6.17.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -512,7 +512,7 @@ HHAuto_ToolTips.fr.autoPowerPlacesAll = { version: "5.6.24", elementText: "Tous"
 HHAuto_ToolTips.fr.compactPowerPlace = { version: "5.24.0", elementText: "Compacter", tooltip: "Compacter l'affichage des leux de pouvoir"};
 HHAuto_ToolTips.fr.autoChampsTitle = { version: "5.6.24", elementText: "Champions"};
 HHAuto_ToolTips.fr.autoChamps = { version: "5.6.24", elementText: "Normal", tooltip: "Si activé : combat automatiquement les champions (s'ils sont démarrés manuellement et en filtre uniquement)."};
-HHAuto_ToolTips.fr.autoChampsUseEne = { version: "5.6.24", elementText: "Achat tickets", tooltip: "Si activé : utiliser l'énergie pour acheter des tickets de champion (60 énergie nécessaire ; ne marchera pas si Quête auto activée)."};
+HHAuto_ToolTips.fr.autoChampsUseEne = { version: "5.6.24", elementText: "Achat tickets", tooltip: "Si activé : utiliser l'énergie pour acheter des tickets de champion (30 énergie nécessaire ; ne marchera pas si Quête auto activée)."};
 HHAuto_ToolTips.fr.autoChampsFilter = { version: "5.6.24", elementText: "Filtre", tooltip: "Permet de filtrer les champions à combattre."};
 HHAuto_ToolTips.fr.goToClubChampions = { version: "5.25.0", elementText: "Aller au Champion de Club"};
 HHAuto_ToolTips.fr.autoStatsSwitch = { version: "5.6.24", elementText: "Stats", tooltip: "Achète automatiquement des statistiques sur le marché."};
@@ -4442,7 +4442,7 @@ class ClubChampion {
         }
         else if (page==getHHScriptVars("pagesIDClub"))
         {
-            deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_clubChampLimitReached");
+            StorageHelper_deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_clubChampLimitReached");
             LogUtils_logHHAuto('on clubs');
             const onChampTab = $("div.club-champion-members-challenges:visible").length === 1;
             if (!onChampTab) {
@@ -5202,11 +5202,11 @@ class Harem {
     static clearHaremToolVariables()
     {
         // logHHAuto('clearHaremToolVariables');
-        deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlActions");
-        deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlMode");
-        deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlEnd");
-        deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlPayLast");
-        deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlLimit");
+        StorageHelper_deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlActions");
+        StorageHelper_deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlMode");
+        StorageHelper_deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlEnd");
+        StorageHelper_deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlPayLast");
+        StorageHelper_deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlLimit");
     }
 
     static getGirlMapSorted(inSortType = "DateAcquired",inSortReversed = true )
@@ -6844,8 +6844,12 @@ class LeagueHelper {
         return Number(getHHVars('Hero.energies.challenge.max_regen_amount'));
     }
 
+    static isEnabled(){
+        return getHHScriptVars("isEnabledLeagues",false) && getHHVars('Hero.infos.level')>=20;
+    }
+
     static isAutoLeagueActivated(){
-        return StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoLeagues") === "true" && getHHVars('Hero.infos.level')>=20;
+        return StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoLeagues") === "true" && LeagueHelper.isEnabled();
     }
 
     static getPinfo() {
@@ -7006,7 +7010,7 @@ class LeagueHelper {
                         $(this).html('Go'); // TODO translate
                     });
                     opponentsTempPowerList = {expirationDate:new Date().getTime() + getHHScriptVars("LeagueListExpirationSecs") * 1000,opponentsList:{}};
-                    deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueTempOpponentList");
+                    StorageHelper_deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueTempOpponentList");
                 });
             }
         } else {
@@ -7148,7 +7152,7 @@ class LeagueHelper {
         let opponentsPowerList = Utils_isJSON(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueOpponentList"))?JSON.parse(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueOpponentList")):{expirationDate:0,opponentsList:[]};
         if (Object.keys(opponentsPowerList.opponentsList).length === 0 ||  opponentsPowerList.expirationDate < new Date())
         {
-            sessionStorage.removeItem(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueOpponentList");
+            StorageHelper_deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueOpponentList");
             opponentsPowerList.expirationDate = new Date().getTime() + maxLeagueListDurationSecs * 1000;
         } else {
             LogUtils_logHHAuto('Found valid opponent list in storage, reuse it');
@@ -7880,7 +7884,7 @@ class Missions {
                     if(ck === 'giftleft')
                     {
                         LogUtils_logHHAuto("Collecting gift.");
-                        deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_missionsGiftLeft");
+                        StorageHelper_deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_missionsGiftLeft");
                         document.querySelector(".end_gift button").click();
                     }
                     else{
@@ -9368,6 +9372,7 @@ HHEnvVariables["global"].dailyRewardMaxRemainingTime = 2*60*60;
 HHEnvVariables["global"].maxCollectionDelay = 6*60*60;
 HHEnvVariables["global"].STOCHASTIC_SIM_RUNS = 10000;
 HHEnvVariables["global"].PoVPoGTimestampAttributeName = "data-time-stamp";
+HHEnvVariables["global"].CHAMP_TICKET_PRICE = 30;
 HHEnvVariables["global"].ELEMENTS =
     {
     chance: {
@@ -10193,7 +10198,11 @@ HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_autoLeagues
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueOpponentList");
+    }
 };
 HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_leagueListDisplayPowerCalc"] =
     {
@@ -10204,7 +10213,11 @@ HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_leagueListD
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueOpponentList");
+    }
 };
 HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_autoLeaguesSelectedIndex"] =
     {
@@ -12651,7 +12664,7 @@ function StorageHelper_getStoredValue(inVarName)
     return undefined;
 }
 
-function deleteStoredValue(inVarName)
+function StorageHelper_deleteStoredValue(inVarName)
 {
     if (HHStoredVars_HHStoredVars.hasOwnProperty(inVarName))
     {
@@ -16870,7 +16883,7 @@ function autoLoop()
         }
 
         if (busy==false && getHHScriptVars("isEnabledChamps",false) 
-            && QuestHelper.getEnergy()>=60 && QuestHelper.getEnergy() > Number(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoQuestThreshold"))
+            && QuestHelper.getEnergy()>=getHHScriptVars("CHAMP_TICKET_PRICE") && QuestHelper.getEnergy() > Number(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoQuestThreshold"))
             && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoChampsUseEne") ==="true" && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop") === "true" 
             && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "champion"))
         {
@@ -16913,7 +16926,7 @@ function autoLoop()
             lastActionPerformed = "clubChampion";
         }
 
-        if(busy === false && getHHScriptVars("isEnabledLeagues",false) && LeagueHelper.isAutoLeagueActivated() && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop") === "true" 
+        if(busy === false && LeagueHelper.isAutoLeagueActivated() && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop") === "true" 
             && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "league"))
         {
             // Navigate to leagues
@@ -17102,7 +17115,7 @@ function autoLoop()
         {
             //console.log("testingHome : GotoHome : "+getStoredValue(HHStoredVarPrefixKey+"Temp_LastPageCalled"));
             LogUtils_logHHAuto("Back to home page at the end of actions");
-            deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LastPageCalled");
+            StorageHelper_deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LastPageCalled");
             gotoPage(getHHScriptVars("pagesIDHome"));
         }
     }
@@ -17431,6 +17444,12 @@ function start() {
     replaceCheatClick();
     migrateHHVars();
 
+    if (StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_leagueListDisplayPowerCalc") !== "true" && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoLeaguesPowerCalc") !== 'true')
+    {
+        // remove big var not removed from previous version
+        StorageHelper_deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueOpponentList");
+    }
+
     $('.redirect.gay').hide();
     $('.redirect.comix').hide();
 
@@ -17696,7 +17715,7 @@ function start() {
     if (Utils_isJSON(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LastPageCalled")) && JSON.parse(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LastPageCalled")).page === getHHScriptVars("pagesIDHome"))
     {
         //console.log("testingHome : delete");
-        deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LastPageCalled");
+        StorageHelper_deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_LastPageCalled");
     }
     getPage(true);
     setTimeout(autoLoop,1000);
