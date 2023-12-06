@@ -178,6 +178,8 @@ export class ClubChampion {
                     logHHAuto("Max tickets to use on Club Champ reached.");
                     setStoredValue(HHStoredVarPrefixKey+"Temp_clubChampLimitReached", "true");
                     setTimer('nextClubChampionTime', randomInterval(4*60*60, 5*60*60));
+                    gotoPage(getHHScriptVars("pagesIDHome"));
+                    return false;
                 }
     
             }
