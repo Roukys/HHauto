@@ -158,8 +158,12 @@ export class LeagueHelper {
         return Number(getHHVars('Hero.energies.challenge.max_regen_amount'));
     }
 
+    static isEnabled(){
+        return getHHScriptVars("isEnabledLeagues",false) && getHHVars('Hero.infos.level')>=20;
+    }
+
     static isAutoLeagueActivated(){
-        return getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeagues") === "true" && getHHVars('Hero.infos.level')>=20;
+        return getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeagues") === "true" && LeagueHelper.isEnabled();
     }
 
     static getPinfo() {
@@ -462,7 +466,7 @@ export class LeagueHelper {
         let opponentsPowerList = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_LeagueOpponentList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_LeagueOpponentList")):{expirationDate:0,opponentsList:[]};
         if (Object.keys(opponentsPowerList.opponentsList).length === 0 ||  opponentsPowerList.expirationDate < new Date())
         {
-            sessionStorage.removeItem(HHStoredVarPrefixKey+"Temp_LeagueOpponentList");
+            deleteStoredValue(HHStoredVarPrefixKey+"Temp_LeagueOpponentList");
             opponentsPowerList.expirationDate = new Date().getTime() + maxLeagueListDurationSecs * 1000;
         } else {
             logHHAuto('Found valid opponent list in storage, reuse it');

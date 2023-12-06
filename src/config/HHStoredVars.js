@@ -351,7 +351,11 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLeaguesPowerCalc"] =
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        deleteStoredValue(HHStoredVarPrefixKey+"Temp_LeagueOpponentList");
+    }
 };
 HHStoredVars[HHStoredVarPrefixKey+"Setting_leagueListDisplayPowerCalc"] =
     {
@@ -362,7 +366,11 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_leagueListDisplayPowerCalc"] =
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        deleteStoredValue(HHStoredVarPrefixKey+"Temp_LeagueOpponentList");
+    }
 };
 HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLeaguesSelectedIndex"] =
     {

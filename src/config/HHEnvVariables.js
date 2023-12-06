@@ -55,6 +55,7 @@ HHEnvVariables["global"].dailyRewardMaxRemainingTime = 2*60*60;
 HHEnvVariables["global"].maxCollectionDelay = 6*60*60;
 HHEnvVariables["global"].STOCHASTIC_SIM_RUNS = 10000;
 HHEnvVariables["global"].PoVPoGTimestampAttributeName = "data-time-stamp";
+HHEnvVariables["global"].CHAMP_TICKET_PRICE = 30;
 HHEnvVariables["global"].ELEMENTS =
     {
     chance: {
