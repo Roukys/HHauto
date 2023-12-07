@@ -621,7 +621,7 @@ export function autoLoop()
             }
         }
 
-        if(busy === false && getHHScriptVars("isEnabledPantheon",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheon") === "true" 
+        if(busy === false && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheon") === "true" && Pantheon.isEnabled()
             && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "pantheon"))
         {
             if (Pantheon.isTimeToFight())
@@ -778,7 +778,7 @@ export function autoLoop()
         }
 
         if (
-            busy==false && getHHScriptVars("isEnabledPoV",false) && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && getHHVars('Hero.infos.level')>=30 &&
+            busy==false && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && PathOfValue.isEnabled() &&
             (
                 checkTimer('nextPoVCollectTime') && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoVCollect") === "true" && canCollectCompetitionActive
                 ||
@@ -793,7 +793,7 @@ export function autoLoop()
         }
 
         if (
-            busy==false && getHHScriptVars("isEnabledPoG",false) && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && getHHVars('Hero.infos.level')>=30 &&
+            busy==false && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && PathOfGlory.isEnabled() &&
             (
                 checkTimer('nextPoGCollectTime') && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoGCollect") === "true" && canCollectCompetitionActive
                 ||

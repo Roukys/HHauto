@@ -22,6 +22,7 @@ import { isJSON, logHHAuto } from "../../Utils";
 import { HHStoredVarPrefixKey } from "../../config";
 import { DoublePenetration } from "./DoublePenetration";
 import { PathOfAttraction } from "./PathOfAttraction";
+import { SultryMysteries } from "./SultryMysteries";
 
 export class EventModule {
     static clearEventData(inEventID)
@@ -549,7 +550,7 @@ export class EventModule {
         const isPlusEvent = inEventID.startsWith(getHHScriptVars('eventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEvent") ==="true";
         const isPlusEventMythic = inEventID.startsWith(getHHScriptVars('mythicEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") ==="true";
         const isBossBangEvent = inEventID.startsWith(getHHScriptVars('bossBangEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_bossBangEvent") ==="true";
-        const isSultryMysteriesEvent = inEventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_sultryMysteriesEventRefreshShop") === "true";
+        const isSultryMysteriesEvent = inEventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_sultryMysteriesEventRefreshShop") === "true" && SultryMysteries.isEnabled();
         const isDPEvent = inEventID.startsWith(getHHScriptVars('doublePenetrationEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_autodpEventCollect") === "true";
         const isPoa = inEventID.startsWith(getHHScriptVars('poaEventIDReg'));
         return {

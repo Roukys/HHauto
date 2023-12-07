@@ -162,7 +162,7 @@ export function start() {
                 +'#sMenuButton {'
                 +'   width: 40px;'
                 +'   height: 40px;'
-                +'   top: 75px;'
+                +'   top: 60px;'
                 +'   right: 10px;'
                 +'}}'
                );

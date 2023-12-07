@@ -55,6 +55,10 @@ export class Pantheon {
         return Tegzd;
     }
 
+    static isEnabled(){
+        return getHHScriptVars("isEnabledPantheon",false) && getHHVars('Hero.infos.level')>=getHHScriptVars("LEVEL_MIN_PANTHEON");
+    }
+
     static isTimeToFight(){
         const threshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheonThreshold"));
         const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheonRunThreshold"));

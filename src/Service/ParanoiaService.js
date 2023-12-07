@@ -137,7 +137,7 @@ export function setParanoiaSpendings()
         toNextSwitch = Number((getStoredValue(HHStoredVarPrefixKey+"Temp_NextSwitch")-new Date().getTime())/1000);
 
         //if autoLeague is on
-        if(getHHScriptVars('isEnabledLeagues',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeagues") === "true" && getHHVars('Hero.infos.level')>=20)
+        if(LeagueHelper.isAutoLeagueActivated())
         {
             if ( getStoredValue(HHStoredVarPrefixKey+"Temp_paranoiaLeagueBlocked") === undefined )
             {
