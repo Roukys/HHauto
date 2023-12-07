@@ -517,7 +517,7 @@ export class Troll {
             }
 
             maxx50 = result.event_mythic === "true" ? Math.max(maxx50, mythicAutoBuy) : Math.max(maxx50, eventAutoBuy);
-            maxx20 = result.event_mythic === "true" ? Math.max(maxx20, mythicAutoBuy) : Math.max(maxx20, eventAutoBuy);
+            maxx20 = result.event_mythic === "true" ? mythicAutoBuy : eventAutoBuy;
 
             //console.log(result);
             remainingShards = Number(100 - Number(JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).girl_shards));
