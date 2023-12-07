@@ -56,6 +56,12 @@ HHEnvVariables["global"].maxCollectionDelay = 6*60*60;
 HHEnvVariables["global"].STOCHASTIC_SIM_RUNS = 10000;
 HHEnvVariables["global"].PoVPoGTimestampAttributeName = "data-time-stamp";
 HHEnvVariables["global"].CHAMP_TICKET_PRICE = 30;
+HHEnvVariables["global"].LEVEL_MIN_POV = 30;
+HHEnvVariables["global"].LEVEL_MIN_POG = 30;
+HHEnvVariables["global"].LEVEL_MIN_LEAGUE = 20;
+HHEnvVariables["global"].LEVEL_MIN_PANTHEON = 15;
+HHEnvVariables["global"].LEVEL_MIN_EVENT_SM = 15;
+
 HHEnvVariables["global"].ELEMENTS =
     {
     chance: {
@@ -138,7 +144,7 @@ HHEnvVariables["global"].trollGirlsID = [
     [['344730128', '735302216', '851893423'], [0], [0]],
     [['547099506', '572827174', '653889168'], [0], [0]],
 ];
-HHEnvVariables["global"].lastQuestId = 1804; //  TODO update when new quest comes
+HHEnvVariables["global"].lastQuestId = 1808; //  TODO update when new quest comes
 
 HHEnvVariables["global"].leaguesList = ["Wanker I",
                                         "Wanker II",
@@ -469,7 +475,7 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
                                           'Sierra Sinn',
                                           'Jasmine Jae'];
     HHEnvVariables[element].trollIdMapping =  {10:9,14:11,16:12}; // under 10 id as usual
-    HHEnvVariables[element].lastQuestId = 16030; //  TODO update when new quest comes
+    HHEnvVariables[element].lastQuestId = 16100; //  TODO update when new quest comes
 });
 ["PH_prod","NPH_prod"].forEach((element) => {
     HHEnvVariables[element].trollGirlsID = [

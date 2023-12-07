@@ -4,6 +4,7 @@ import {
     checkTimer,
     convertTimeToInt,
     getHHScriptVars,
+    getHHVars,
     getLimitTimeBeforeEnd,
     getPage,
     getSecondsLeft,
@@ -30,6 +31,9 @@ export class PathOfValue {
     static displayRemainingTime()
     {
         EventModule.displayGenericRemainingTime("#scriptPovTime", "path-of-valor", "HHAutoPoVTimer", "PoVRemainingTime", HHStoredVarPrefixKey+"Temp_PoVEndDate");
+    }
+    static isEnabled(){
+        return getHHScriptVars("isEnabledPoV",false) && getHHVars('Hero.infos.level')>=getHHScriptVars("LEVEL_MIN_POV");
     }
     static goAndCollect()
     {

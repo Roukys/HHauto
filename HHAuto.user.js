@@ -1648,7 +1648,16 @@ class PathOfAttraction {
 
 }
 
+;// CONCATENATED MODULE: ./src/Module/Events/SultryMysteries.js
+
+
+class SultryMysteries {
+    static isEnabled(){
+        return getHHVars('Hero.infos.level')>=getHHScriptVars("LEVEL_MIN_EVENT_SM");
+    }
+}
 ;// CONCATENATED MODULE: ./src/Module/Events/EventModule.js
+
 
 
 
@@ -2182,7 +2191,7 @@ class EventModule {
         const isPlusEvent = inEventID.startsWith(getHHScriptVars('eventIDReg')) && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_plusEvent") ==="true";
         const isPlusEventMythic = inEventID.startsWith(getHHScriptVars('mythicEventIDReg')) && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_plusEventMythic") ==="true";
         const isBossBangEvent = inEventID.startsWith(getHHScriptVars('bossBangEventIDReg')) && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_bossBangEvent") ==="true";
-        const isSultryMysteriesEvent = inEventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg')) && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_sultryMysteriesEventRefreshShop") === "true";
+        const isSultryMysteriesEvent = inEventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg')) && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_sultryMysteriesEventRefreshShop") === "true" && SultryMysteries.isEnabled();
         const isDPEvent = inEventID.startsWith(getHHScriptVars('doublePenetrationEventIDReg')) && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autodpEventCollect") === "true";
         const isPoa = inEventID.startsWith(getHHScriptVars('poaEventIDReg'));
         return {
@@ -2531,6 +2540,9 @@ class PathOfGlory {
     {
         EventModule.displayGenericRemainingTime("#scriptPogTime", "path-of-glory", "HHAutoPoGTimer", "PoGRemainingTime", HHStoredVars_HHStoredVarPrefixKey+"Temp_PoGEndDate");
     }
+    static isEnabled(){
+        return getHHScriptVars("isEnabledPoG",false) && getHHVars('Hero.infos.level')>=getHHScriptVars("LEVEL_MIN_POG");
+    }
     static goAndCollect()
     {
         const rewardsToCollect = Utils_isJSON(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoPoGCollectablesList"))?JSON.parse(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoPoGCollectablesList")):[];
@@ -2660,6 +2672,9 @@ class PathOfValue {
     static displayRemainingTime()
     {
         EventModule.displayGenericRemainingTime("#scriptPovTime", "path-of-valor", "HHAutoPoVTimer", "PoVRemainingTime", HHStoredVars_HHStoredVarPrefixKey+"Temp_PoVEndDate");
+    }
+    static isEnabled(){
+        return getHHScriptVars("isEnabledPoV",false) && getHHVars('Hero.infos.level')>=getHHScriptVars("LEVEL_MIN_POV");
     }
     static goAndCollect()
     {
@@ -6845,7 +6860,7 @@ class LeagueHelper {
     }
 
     static isEnabled(){
-        return getHHScriptVars("isEnabledLeagues",false) && getHHVars('Hero.infos.level')>=20;
+        return getHHScriptVars("isEnabledLeagues",false) && getHHVars('Hero.infos.level')>=getHHScriptVars("LEVEL_MIN_LEAGUE");
     }
 
     static isAutoLeagueActivated(){
@@ -8113,6 +8128,10 @@ class Pantheon {
         return Tegzd;
     }
 
+    static isEnabled(){
+        return getHHScriptVars("isEnabledPantheon",false) && getHHVars('Hero.infos.level')>=getHHScriptVars("LEVEL_MIN_PANTHEON");
+    }
+
     static isTimeToFight(){
         const threshold = Number(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoPantheonThreshold"));
         const runThreshold = Number(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoPantheonRunThreshold"));
@@ -9373,6 +9392,12 @@ HHEnvVariables["global"].maxCollectionDelay = 6*60*60;
 HHEnvVariables["global"].STOCHASTIC_SIM_RUNS = 10000;
 HHEnvVariables["global"].PoVPoGTimestampAttributeName = "data-time-stamp";
 HHEnvVariables["global"].CHAMP_TICKET_PRICE = 30;
+HHEnvVariables["global"].LEVEL_MIN_POV = 30;
+HHEnvVariables["global"].LEVEL_MIN_POG = 30;
+HHEnvVariables["global"].LEVEL_MIN_LEAGUE = 20;
+HHEnvVariables["global"].LEVEL_MIN_PANTHEON = 15;
+HHEnvVariables["global"].LEVEL_MIN_EVENT_SM = 15;
+
 HHEnvVariables["global"].ELEMENTS =
     {
     chance: {
@@ -9455,7 +9480,7 @@ HHEnvVariables["global"].trollGirlsID = [
     [['344730128', '735302216', '851893423'], [0], [0]],
     [['547099506', '572827174', '653889168'], [0], [0]],
 ];
-HHEnvVariables["global"].lastQuestId = 1804; //  TODO update when new quest comes
+HHEnvVariables["global"].lastQuestId = 1808; //  TODO update when new quest comes
 
 HHEnvVariables["global"].leaguesList = ["Wanker I",
                                         "Wanker II",
@@ -9786,7 +9811,7 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
                                           'Sierra Sinn',
                                           'Jasmine Jae'];
     HHEnvVariables[element].trollIdMapping =  {10:9,14:11,16:12}; // under 10 id as usual
-    HHEnvVariables[element].lastQuestId = 16030; //  TODO update when new quest comes
+    HHEnvVariables[element].lastQuestId = 16100; //  TODO update when new quest comes
 });
 ["PH_prod","NPH_prod"].forEach((element) => {
     HHEnvVariables[element].trollGirlsID = [
@@ -14077,7 +14102,6 @@ function doStatUpgrades()
     //Stats?
     //logHHAuto('stats');
     var Hero=getHero();
-    var level=getHHVars('Hero.infos.level');
     var stats=[getHHVars('Hero.infos.carac1'),getHHVars('Hero.infos.carac2'),getHHVars('Hero.infos.carac3')];
     var money=getHHVars('Hero.currencies.soft_currency');
     var count=0;
@@ -16058,7 +16082,7 @@ function setParanoiaSpendings()
         toNextSwitch = Number((StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_NextSwitch")-new Date().getTime())/1000);
 
         //if autoLeague is on
-        if(getHHScriptVars('isEnabledLeagues',false) && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoLeagues") === "true" && getHHVars('Hero.infos.level')>=20)
+        if(LeagueHelper.isAutoLeagueActivated())
         {
             if ( StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_paranoiaLeagueBlocked") === undefined )
             {
@@ -16852,7 +16876,7 @@ function autoLoop()
             }
         }
 
-        if(busy === false && getHHScriptVars("isEnabledPantheon",false) && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoPantheon") === "true" 
+        if(busy === false && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoPantheon") === "true" && Pantheon.isEnabled()
             && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "pantheon"))
         {
             if (Pantheon.isTimeToFight())
@@ -17009,7 +17033,7 @@ function autoLoop()
         }
 
         if (
-            busy==false && getHHScriptVars("isEnabledPoV",false) && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && getHHVars('Hero.infos.level')>=30 &&
+            busy==false && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && PathOfValue.isEnabled() &&
             (
                 checkTimer('nextPoVCollectTime') && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoPoVCollect") === "true" && canCollectCompetitionActive
                 ||
@@ -17024,7 +17048,7 @@ function autoLoop()
         }
 
         if (
-            busy==false && getHHScriptVars("isEnabledPoG",false) && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && getHHVars('Hero.infos.level')>=30 &&
+            busy==false && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && PathOfGlory.isEnabled() &&
             (
                 checkTimer('nextPoGCollectTime') && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoPoGCollect") === "true" && canCollectCompetitionActive
                 ||
@@ -17480,7 +17504,7 @@ function start() {
                 +'#sMenuButton {'
                 +'   width: 40px;'
                 +'   height: 40px;'
-                +'   top: 75px;'
+                +'   top: 60px;'
                 +'   right: 10px;'
                 +'}}'
                );

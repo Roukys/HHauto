@@ -21,7 +21,6 @@ export function doStatUpgrades()
     //Stats?
     //logHHAuto('stats');
     var Hero=getHero();
-    var level=getHHVars('Hero.infos.level');
     var stats=[getHHVars('Hero.infos.carac1'),getHHVars('Hero.infos.carac2'),getHHVars('Hero.infos.carac3')];
     var money=getHHVars('Hero.currencies.soft_currency');
     var count=0;

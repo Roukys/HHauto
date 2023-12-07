@@ -4,6 +4,7 @@ import {
     checkTimer,
     convertTimeToInt,
     getHHScriptVars,
+    getHHVars,
     getLimitTimeBeforeEnd,
     getPage,
     getSecondsLeft,
@@ -30,6 +31,9 @@ export class PathOfGlory {
     static displayRemainingTime()
     {
         EventModule.displayGenericRemainingTime("#scriptPogTime", "path-of-glory", "HHAutoPoGTimer", "PoGRemainingTime", HHStoredVarPrefixKey+"Temp_PoGEndDate");
+    }
+    static isEnabled(){
+        return getHHScriptVars("isEnabledPoG",false) && getHHVars('Hero.infos.level')>=getHHScriptVars("LEVEL_MIN_POG");
     }
     static goAndCollect()
     {

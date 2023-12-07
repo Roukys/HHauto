@@ -159,7 +159,7 @@ export class LeagueHelper {
     }
 
     static isEnabled(){
-        return getHHScriptVars("isEnabledLeagues",false) && getHHVars('Hero.infos.level')>=20;
+        return getHHScriptVars("isEnabledLeagues",false) && getHHVars('Hero.infos.level')>=getHHScriptVars("LEVEL_MIN_LEAGUE");
     }
 
     static isAutoLeagueActivated(){
