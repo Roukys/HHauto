@@ -207,7 +207,11 @@ export class SeasonalEvent {
     }
     static displayGirlsMileStones() {
         if($('.HHGirlMilestone').length > 0) return;
-        const playerPoints = Number($('.player-shards .circle-container').text());
+        const $playerPoints = $('.player-shards .mega-event-currency');
+        if($playerPoints.length == 0) {
+            logHHAuto("ERROR: Can't find player points");
+        }
+        const playerPoints = $playerPoints.length ? Number($playerPoints.text()) : 0;
 
         const girlContainer = $('.girls-reward-container');
 

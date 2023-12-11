@@ -34,6 +34,7 @@ import {
     Harem,
     HaremGirl,
     HaremSalary,
+    Labyrinth,
     LeagueHelper,
     Missions,
     Pachinko,
@@ -651,6 +652,14 @@ export function autoLoop()
             }
         }
 
+        if(busy === false && getStoredValue(HHStoredVarPrefixKey+"Setting_autoLabyrinth") === "true" && Labyrinth.isEnabled() && checkTimer('nextLabyrinthTime')
+            && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "labyrinth"))
+        {
+            Labyrinth.run();
+            busy = true;
+            lastActionPerformed = "labyrinth";
+        }
+
         if (busy==false && getHHScriptVars("isEnabledChamps",false) 
             && QuestHelper.getEnergy()>=getHHScriptVars("CHAMP_TICKET_PRICE") && QuestHelper.getEnergy() > Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoQuestThreshold"))
             && getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsUseEne") ==="true" && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" 
@@ -1087,6 +1096,12 @@ export function autoLoop()
             break;
         case getHHScriptVars("pagesIDClub"):
             Club.run();
+            break;
+        case getHHScriptVars("pagesIDLabyrinth"):
+            if (getStoredValue(HHStoredVarPrefixKey+"Setting_showCalculatePower") === "true")
+            {
+                Labyrinth.sim();
+            }
             break;
     }
 

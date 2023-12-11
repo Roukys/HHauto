@@ -72,6 +72,9 @@ export function gotoPage(page,inArgs,delay = -1)
         case getHHScriptVars("pagesIDPantheonPreBattle"):
             togoto = getHHScriptVars("pagesURLPantheonPreBattle");
             break;
+        case getHHScriptVars("pagesIDLabyrinth"):
+            togoto = getHHScriptVars("pagesURLLabyrinth");
+            break;
         case getHHScriptVars("pagesIDChampionsMap"):
             togoto = getHHScriptVars("pagesURLChampionsMap");
             break;
