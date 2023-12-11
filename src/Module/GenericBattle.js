@@ -69,6 +69,11 @@ export class GenericBattle {
                 logHHAuto("Go back to Pantheon arena after Pantheon temple.");
                 gotoPage(getHHScriptVars("pagesIDPantheon"),{},randomInterval(2000,4000));
             }
+            else if (getPage() === getHHScriptVars("pagesIDLabyrinthBattle") && getStoredValue(HHStoredVarPrefixKey+"Setting_autoLabyrinth") === "true")
+            {
+                logHHAuto("Go back to Labyrinth after fight.");
+                gotoPage(getHHScriptVars("pagesIDLabyrinth"),{},randomInterval(2000,4000));
+            }
             return true;
         }
         else

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.17.2
+// @version      6.18.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -401,6 +401,7 @@ HHAuto_ToolTips.en.saveDefaults = {version: "5.6.24", elementText: "Save default
 HHAuto_ToolTips.en.autoGiveAff = {version: "5.6.24", elementText: "Auto Give", tooltip: "If enabled, will automatically give Aff to girls in order ( you can use OCD script to filter )."};
 HHAuto_ToolTips.en.autoGiveExp = {version: "5.6.24", elementText: "Auto Give", tooltip: "If enabled, will automatically give Exp to girls in order ( you can use OCD script to filter )."};
 HHAuto_ToolTips.en.autoPantheonTitle = {version: "5.6.24", elementText: "Pantheon", tooltip: ""};
+HHAuto_ToolTips.en.autoLabyrinth = { version: "6.18.0", elementText: "Labyrinth", tooltip: "if enabled : Automatically do Labyrinth"};
 HHAuto_ToolTips.en.autoPantheon = { version: "6.8.0", elementText: "Pantheon", tooltip: "if enabled : Automatically do Pantheon"};
 HHAuto_ToolTips.en.autoPantheonThreshold = { version: "5.6.24", elementText: "Threshold", tooltip: "Minimum worship to keep<br>Max 10"};
 HHAuto_ToolTips.en.autoPantheonRunThreshold = { version: "6.8.0", elementText: "Run Threshold", tooltip: "Minimum worship before script start spending<br> 0 to spend as soon as energy above threshold"};
@@ -1297,6 +1298,31 @@ class Bundles {
             gotoPage(getHHScriptVars("pagesIDHome"));
             // return busy
             return true;
+        }
+    }
+}
+;// CONCATENATED MODULE: ./src/model/Champion.js
+//@ts-check
+class ChampionModel {
+    index;
+    timer=-1;
+    started=false;
+    impression;
+    inFilter = false;
+
+    /**
+     * 
+     * @param {number} index 
+     * @param {string} impression 
+     * @param {boolean} inFilter 
+     */
+    constructor(index, impression, inFilter) {
+        this.index = index;
+        this.impression = impression;
+        this.inFilter = inFilter;
+        this.started = impression!="0";
+        if (this.started) {
+            this.timer = 0;
         }
     }
 }
@@ -3528,7 +3554,11 @@ class SeasonalEvent {
     }
     static displayGirlsMileStones() {
         if($('.HHGirlMilestone').length > 0) return;
-        const playerPoints = Number($('.player-shards .circle-container').text());
+        const $playerPoints = $('.player-shards .mega-event-currency');
+        if($playerPoints.length == 0) {
+            LogUtils_logHHAuto("ERROR: Can't find player points");
+        }
+        const playerPoints = $playerPoints.length ? Number($playerPoints.text()) : 0;
 
         const girlContainer = $('.girls-reward-container');
 
@@ -3616,31 +3646,6 @@ class SeasonalEvent {
 
 
 
-;// CONCATENATED MODULE: ./src/model/Champion.js
-//@ts-check
-class ChampionModel {
-    index;
-    timer=-1;
-    started=false;
-    impression;
-    inFilter = false;
-
-    /**
-     * 
-     * @param {number} index 
-     * @param {string} impression 
-     * @param {boolean} inFilter 
-     */
-    constructor(index, impression, inFilter) {
-        this.index = index;
-        this.impression = impression;
-        this.inFilter = inFilter;
-        this.started = impression!="0";
-        if (this.started) {
-            this.timer = 0;
-        }
-    }
-}
 ;// CONCATENATED MODULE: ./src/Module/Quest.js
 
 
@@ -6378,6 +6383,11 @@ class GenericBattle {
                 LogUtils_logHHAuto("Go back to Pantheon arena after Pantheon temple.");
                 gotoPage(getHHScriptVars("pagesIDPantheon"),{},randomInterval(2000,4000));
             }
+            else if (getPage() === getHHScriptVars("pagesIDLabyrinthBattle") && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoLabyrinth") === "true")
+            {
+                LogUtils_logHHAuto("Go back to Labyrinth after fight.");
+                gotoPage(getHHScriptVars("pagesIDLabyrinth"),{},randomInterval(2000,4000));
+            }
             return true;
         }
         else
@@ -6676,6 +6686,179 @@ class HaremSalary {
             return false;
         }
         return false;
+    }
+}
+;// CONCATENATED MODULE: ./src/Module/Labyrinth.js
+
+
+
+
+class Labyrinth {
+    static isEnabled(){
+        return getHHScriptVars("isEnabledLabyrinth",false); // more than 14 girls
+    }
+
+    static run(){
+        const page = getPage();
+        if(page === getHHScriptVars("pagesIDLabyrinth"))
+        {
+            /*
+            if($('.labChosen').length<=0) {
+                logHHAuto("Issue to find labyrinth next step button, retry in 60secs.");
+                setTimer('nextLabyrinthTime', randomInterval(60, 70));
+                return;
+            }
+            logHHAuto("On Labyrinth page.");
+    
+            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
+            logHHAuto("setting autoloop to false");
+            $('.labChosen').click();
+            */
+        }
+        else if (page === getHHScriptVars("pagesIDLabyrinthPreBattle"))
+        {
+            LogUtils_logHHAuto("On labyrinth-pre-battle page.");
+            let templeID = queryStringGetParam(window.location.search,'id_opponent');
+            LogUtils_logHHAuto("Go and fight labyrinth :"+templeID);
+            let labyrinthBattleButton =$("#pre-battle .buttons-container .blue_button_L");
+            if (labyrinthBattleButton.length >0)
+            {
+                StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop", "false");
+                LogUtils_logHHAuto("setting autoloop to false");
+                labyrinthBattleButton[0].click();
+            }
+            else
+            {
+                LogUtils_logHHAuto("Issue to find labyrinth battle button retry in 60secs.");
+                setTimer('nextLabyrinthTime', randomInterval(60, 70));
+                //gotoPage(getHHScriptVars("pagesIDHome"));
+            }
+        }
+        else
+        {
+            //gotoPage(getHHScriptVars("pagesIDLabyrinth"));
+        }
+    }
+
+    static sim(){
+        if(getPage() === getHHScriptVars("pagesIDLabyrinth"))
+        {
+            if($('.labChosen').length>0) {
+                return;
+            }
+            LogUtils_logHHAuto("On Labyrinth page.");
+    
+            GM_addStyle('.labChosen {width: 25px;}');
+    
+            const NB_ROW = 11;
+            for(let rowIndex = 1; rowIndex <= NB_ROW; rowIndex++) {
+                const row = $('#row_'+rowIndex+'.row-hex-container');
+                const currentLevel = row.attr('key');
+                const items = $('.hex-container:has(.hex-type:not(.completed-hex):not(.hero))', row);
+    
+                const options = [];
+                if (items.length > 0) {
+                    $.each(items,(hexIndex,hex) => {
+                        const option = Labyrinth.parseHex(hexIndex,hex);
+                        options.push(option);
+                    });
+                }
+    
+                LogUtils_logHHAuto("Row " + currentLevel + ". and options " + JSON.stringify(options));
+                const choosenOption = Labyrinth.findBetter(options);
+                
+                if(choosenOption) {
+                    Labyrinth.appendChoosenTag(choosenOption);
+                    break;
+                }
+            }
+        }
+    }
+
+    static findBetter(options){
+        let choosenOption = null;
+        const debugEnabled = StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_Debug")==='true';
+
+        options.forEach((option) =>
+        {
+            let isBetter = false;
+            if(option.button && option.isNext) {
+                if (choosenOption == null)
+                {
+                    if(debugEnabled) LogUtils_logHHAuto('first');
+                    isBetter = true;
+                }
+                else if (choosenOption.isOpponent && !option.isOpponent)
+                {
+                    if(debugEnabled) LogUtils_logHHAuto('not opponent');
+                    isBetter = true;
+                }
+                //same red flag but better mojo
+                else if (choosenOption.power > option.power)
+                {
+                    if(debugEnabled) LogUtils_logHHAuto('Powerless opponent');
+                    isBetter = true;
+                }
+            }
+
+            if (isBetter) {
+                choosenOption = option;
+            }
+        });
+        return choosenOption;
+    }
+
+    static confirmNoHeal(){
+        const confirmButton = $('#confirmation_popup #popup_confirm:visible');
+        if (confirmButton.length > 0) {
+            LogUtils_logHHAuto("Confirm button");
+            confirmButton.click();
+        }
+    }
+
+    static selectReward(){
+        // TODO choose reward
+        $('#labyrinth_reward_popup #reward_holder .relic-container .relic-card-buttons .claim-relic-btn');
+        // relic-container rare-relic
+        // relic-container common-relic
+        // relic-container common-relic large-card // Girl specific
+        // relic-container legendary-relic
+        
+        // Close reward popup
+        $('#labyrinth_reward_popup #reward_holder #close-relic-popup');
+    }
+
+    static isChoosen(option){
+        const choosen = `<img class="labChosen" src=${getHHScriptVars("powerCalcImages").chosen}>`;
+        if(option.button && option.isNext) {
+            if (option.isShrine || option.isTreasure) {
+                option.button.append(choosen);
+                return true;
+            }
+            // TODO opponent order
+        }
+        return false;
+    }
+
+    static appendChoosenTag(option){
+        option.button.append(`<img class="labChosen" src=${getHHScriptVars("powerCalcImages").chosen}>`);
+    }
+
+    static parseHex(hexIndex,hex){
+        // opponent_super_easy / opponent_easy / opponent_medium  / opponent_hard / opponent_boss  
+        // shrine / treasure
+        const type = $('.hex-type', hex).attr('class').replace('hex-type', '').trim();
+        const button = $('button', hex);
+
+        return {
+            button: button.length > 0 ? button.first() : null,
+            type: type,
+            isOpponent: type.indexOf('opponent_') >= 0,
+            isTreasure: type.indexOf('treasure') >= 0,
+            isShrine: type.indexOf('shrine') >= 0,
+            isNext: type.indexOf('upcoming-hex') < 0,
+            power: Number($('.opponent-power .opponent-power-text', hex).attr('data-power'))
+        };
     }
 }
 ;// CONCATENATED MODULE: ./src/model/LeagueOpponent.js
@@ -9333,6 +9516,7 @@ class TeamModule {
 
 
 
+
 ;// CONCATENATED MODULE: ./src/config/HHEnvVariables.js
 
 
@@ -9642,6 +9826,19 @@ HHEnvVariables["global"].pagesIDPantheonPreBattle = "pantheon-pre-battle";
 HHEnvVariables["global"].pagesURLPantheonPreBattle = "/pantheon-pre-battle.html";
 HHEnvVariables["global"].pagesKnownList.push("PantheonPreBattle");
 
+HHEnvVariables["global"].pagesIDLabyrinth = "labyrinth";
+HHEnvVariables["global"].pagesURLabyrinth = "/labyrinth.html";
+HHEnvVariables["global"].pagesKnownList.push("Labyrinth");
+
+HHEnvVariables["global"].pagesIDLabyrinthPreBattle = "labyrinth-pre-battle";
+HHEnvVariables["global"].pagesURLLabyrinthPreBattle = "/labyrinth-pre-battle.html";
+HHEnvVariables["global"].pagesKnownList.push("LabyrinthPreBattle");
+
+HHEnvVariables["global"].pagesIDLabyrinthBattle = "labyrinth-battle";
+HHEnvVariables["global"].pagesURLLabyrinthBattle = "/labyrinth-battle.html";
+HHEnvVariables["global"].pagesKnownList.push("LabyrinthBattle");
+
+
 HHEnvVariables["global"].pagesIDChampionsPage = "champions";
 HHEnvVariables["global"].pagesKnownList.push("ChampionsPage");
 
@@ -9731,6 +9928,7 @@ HHEnvVariables["global"].isEnabledQuest = true;
 HHEnvVariables["global"].isEnabledSideQuest = true;
 HHEnvVariables["global"].isEnabledSeason = true;
 HHEnvVariables["global"].isEnabledPantheon = true;
+HHEnvVariables["global"].isEnabledLabyrinth = true;
 HHEnvVariables["global"].isEnabledAllChamps = true;
 HHEnvVariables["global"].isEnabledChamps = true;
 HHEnvVariables["global"].isEnabledClubChamp = true;
@@ -9782,6 +9980,7 @@ HHEnvVariables["SH_prod"].isEnabledAllChamps = false;// to remove when Champs ar
 HHEnvVariables["SH_prod"].isEnabledChamps = false;// to remove when Champs arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledClubChamp = false;// to remove when Club Champs arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in hornyheroes
+HHEnvVariables["SH_prod"].isEnabledLabyrinth = false;// to remove when Pantheon arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPoV = false;// to remove when PoV arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPoG = false;// to remove when PoG arrives in hornyheroes
 HHEnvVariables["SH_prod"].lastQuestId = -1; //  TODO update when new quest comes
@@ -9790,6 +9989,7 @@ HHEnvVariables["MRPG_prod"].isEnabledMythicPachinko = false;// to remove when My
 HHEnvVariables["MRPG_prod"].isEnabledEquipmentPachinko = false;// to remove when Equipment Pachinko arrives in Manga RPG
 HHEnvVariables["MRPG_prod"].isEnabledClubChamp = false;// to remove when Club Champs arrives in Manga RPG
 HHEnvVariables["MRPG_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in Manga RPG
+HHEnvVariables["MRPG_prod"].isEnabledLabyrinth = false;// to remove when Pantheon arrives in Manga RPG
 HHEnvVariables["MRPG_prod"].isEnabledSeasonalEvent = false;// to remove when event arrives in Manga RPG
 HHEnvVariables["MRPG_prod"].isEnabledBossBangEvent = false;// to remove when event arrives in Manga RPG
 HHEnvVariables["MRPG_prod"].isEnabledSultryMysteriesEvent = false;// to remove when event arrives in Manga RPG
@@ -9840,6 +10040,7 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
     HHEnvVariables[element].isEnabledSideQuest = false;// to remove when SideQuest arrives in transpornstar
     HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in transpornstar
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in transpornstar
+    HHEnvVariables[element].isEnabledLabyrinth = false;// to remove when Pantheon arrives in transpornstar
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in transpornstar
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
 });
@@ -9864,6 +10065,7 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
     HHEnvVariables[element].isEnabledMythicPachinko = false;// to remove when Champs arrives in gaypornstar
     HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in gaypornstar
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in gaypornstar
+    HHEnvVariables[element].isEnabledLabyrinth = false;// to remove when Pantheon arrives in gaypornstar
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in gaypornstar
     HHEnvVariables[element].trollGirlsID = [
         [['780402171', '374763633', '485499759'], [0], [0]],
@@ -11292,6 +11494,17 @@ HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_autoPantheo
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_autoLabyrinth"] =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollect"] =
     {
     default:"false",
@@ -12571,6 +12784,13 @@ function getMenu() {
                         + hhMenuInputWithImg('autoPantheonThreshold', HHAuto_inputPattern.autoPantheonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg' , 'numeric')
                         + hhMenuInputWithImg('autoPantheonRunThreshold', HHAuto_inputPattern.autoPantheonRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg' , 'numeric')
                         + hhMenuSwitch('autoPantheonBoostedOnly')
+                    +`</div>`
+                +`</div>`
+            +`</div>`
+            +`<div id="isEnabledLabyrinth" class="" style="display:none">` // optionsBoxWithTitle
+                +`<div class="optionsBox">`
+                    +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                        + hhMenuSwitch('autoLabyrinth')
                     +`</div>`
                 +`</div>`
             +`</div>`
@@ -15873,6 +16093,9 @@ function gotoPage(page,inArgs,delay = -1)
         case getHHScriptVars("pagesIDPantheonPreBattle"):
             togoto = getHHScriptVars("pagesURLPantheonPreBattle");
             break;
+        case getHHScriptVars("pagesIDLabyrinth"):
+            togoto = getHHScriptVars("pagesURLLabyrinth");
+            break;
         case getHHScriptVars("pagesIDChampionsMap"):
             togoto = getHHScriptVars("pagesURLChampionsMap");
             break;
@@ -16906,6 +17129,14 @@ function autoLoop()
             }
         }
 
+        if(busy === false && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoLabyrinth") === "true" && Labyrinth.isEnabled() && checkTimer('nextLabyrinthTime')
+            && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "labyrinth"))
+        {
+            Labyrinth.run();
+            busy = true;
+            lastActionPerformed = "labyrinth";
+        }
+
         if (busy==false && getHHScriptVars("isEnabledChamps",false) 
             && QuestHelper.getEnergy()>=getHHScriptVars("CHAMP_TICKET_PRICE") && QuestHelper.getEnergy() > Number(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoQuestThreshold"))
             && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_autoChampsUseEne") ==="true" && StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_autoLoop") === "true" 
@@ -17342,6 +17573,12 @@ function autoLoop()
             break;
         case getHHScriptVars("pagesIDClub"):
             Club.run();
+            break;
+        case getHHScriptVars("pagesIDLabyrinth"):
+            if (StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_showCalculatePower") === "true")
+            {
+                Labyrinth.sim();
+            }
             break;
     }
 

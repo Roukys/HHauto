@@ -306,6 +306,19 @@ HHEnvVariables["global"].pagesIDPantheonPreBattle = "pantheon-pre-battle";
 HHEnvVariables["global"].pagesURLPantheonPreBattle = "/pantheon-pre-battle.html";
 HHEnvVariables["global"].pagesKnownList.push("PantheonPreBattle");
 
+HHEnvVariables["global"].pagesIDLabyrinth = "labyrinth";
+HHEnvVariables["global"].pagesURLabyrinth = "/labyrinth.html";
+HHEnvVariables["global"].pagesKnownList.push("Labyrinth");
+
+HHEnvVariables["global"].pagesIDLabyrinthPreBattle = "labyrinth-pre-battle";
+HHEnvVariables["global"].pagesURLLabyrinthPreBattle = "/labyrinth-pre-battle.html";
+HHEnvVariables["global"].pagesKnownList.push("LabyrinthPreBattle");
+
+HHEnvVariables["global"].pagesIDLabyrinthBattle = "labyrinth-battle";
+HHEnvVariables["global"].pagesURLLabyrinthBattle = "/labyrinth-battle.html";
+HHEnvVariables["global"].pagesKnownList.push("LabyrinthBattle");
+
+
 HHEnvVariables["global"].pagesIDChampionsPage = "champions";
 HHEnvVariables["global"].pagesKnownList.push("ChampionsPage");
 
@@ -395,6 +408,7 @@ HHEnvVariables["global"].isEnabledQuest = true;
 HHEnvVariables["global"].isEnabledSideQuest = true;
 HHEnvVariables["global"].isEnabledSeason = true;
 HHEnvVariables["global"].isEnabledPantheon = true;
+HHEnvVariables["global"].isEnabledLabyrinth = true;
 HHEnvVariables["global"].isEnabledAllChamps = true;
 HHEnvVariables["global"].isEnabledChamps = true;
 HHEnvVariables["global"].isEnabledClubChamp = true;
@@ -446,6 +460,7 @@ HHEnvVariables["SH_prod"].isEnabledAllChamps = false;// to remove when Champs ar
 HHEnvVariables["SH_prod"].isEnabledChamps = false;// to remove when Champs arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledClubChamp = false;// to remove when Club Champs arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in hornyheroes
+HHEnvVariables["SH_prod"].isEnabledLabyrinth = false;// to remove when Pantheon arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPoV = false;// to remove when PoV arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPoG = false;// to remove when PoG arrives in hornyheroes
 HHEnvVariables["SH_prod"].lastQuestId = -1; //  TODO update when new quest comes
@@ -454,6 +469,7 @@ HHEnvVariables["MRPG_prod"].isEnabledMythicPachinko = false;// to remove when My
 HHEnvVariables["MRPG_prod"].isEnabledEquipmentPachinko = false;// to remove when Equipment Pachinko arrives in Manga RPG
 HHEnvVariables["MRPG_prod"].isEnabledClubChamp = false;// to remove when Club Champs arrives in Manga RPG
 HHEnvVariables["MRPG_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in Manga RPG
+HHEnvVariables["MRPG_prod"].isEnabledLabyrinth = false;// to remove when Pantheon arrives in Manga RPG
 HHEnvVariables["MRPG_prod"].isEnabledSeasonalEvent = false;// to remove when event arrives in Manga RPG
 HHEnvVariables["MRPG_prod"].isEnabledBossBangEvent = false;// to remove when event arrives in Manga RPG
 HHEnvVariables["MRPG_prod"].isEnabledSultryMysteriesEvent = false;// to remove when event arrives in Manga RPG
@@ -504,6 +520,7 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
     HHEnvVariables[element].isEnabledSideQuest = false;// to remove when SideQuest arrives in transpornstar
     HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in transpornstar
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in transpornstar
+    HHEnvVariables[element].isEnabledLabyrinth = false;// to remove when Pantheon arrives in transpornstar
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in transpornstar
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
 });
@@ -528,6 +545,7 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
     HHEnvVariables[element].isEnabledMythicPachinko = false;// to remove when Champs arrives in gaypornstar
     HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in gaypornstar
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in gaypornstar
+    HHEnvVariables[element].isEnabledLabyrinth = false;// to remove when Pantheon arrives in gaypornstar
     HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in gaypornstar
     HHEnvVariables[element].trollGirlsID = [
         [['780402171', '374763633', '485499759'], [0], [0]],

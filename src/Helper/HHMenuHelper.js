@@ -616,6 +616,13 @@ export function getMenu() {
                     +`</div>`
                 +`</div>`
             +`</div>`
+            +`<div id="isEnabledLabyrinth" class="" style="display:none">` // optionsBoxWithTitle
+                +`<div class="optionsBox">`
+                    +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                        + hhMenuSwitch('autoLabyrinth')
+                    +`</div>`
+                +`</div>`
+            +`</div>`
             +`<div id="isEnabledShop" class="optionsBoxWithTitle">`
                 +`<div class="optionsBoxTitle">`
                     +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/shop.svg" />`

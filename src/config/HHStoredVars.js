@@ -1420,6 +1420,17 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPantheonBoostedOnly"] =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLabyrinth"] =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollect"] =
     {
     default:"false",
