@@ -580,7 +580,7 @@ export class EventModule {
     {
         let eventList = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsList")):{};
         const hhEvent = EventModule.getEvent(inEventID);
-        if(hhEvent.eventTypeKnown && !hhEvent.isEnabled)
+        if(!hhEvent.eventTypeKnown || hhEvent.eventTypeKnown && !hhEvent.isEnabled)
         {
             return false;
         }
