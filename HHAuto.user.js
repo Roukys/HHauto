@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.18.2
+// @version      6.18.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -6741,6 +6741,15 @@ class Labyrinth {
         }
     }
 
+    static getCurrentFloorNumber() {
+        const floor = Number($('#labyrinth-tabs .tab-switcher-fade-in .floor-number-text').text());
+        if (isNaN(floor) || floor === 0) {
+            LogUtils_logHHAuto("Error getting floor");
+            floor = 0;
+        }
+        return floor;
+    }
+
     static sim(){
         if(getPage() === getHHScriptVars("pagesIDLabyrinth"))
         {
@@ -6779,6 +6788,7 @@ class Labyrinth {
     static findBetter(options){
         let choosenOption = null;
         const debugEnabled = StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Temp_Debug")==='true';
+        const floor = Labyrinth.getCurrentFloorNumber();
 
         options.forEach((option) =>
         {
@@ -6789,16 +6799,41 @@ class Labyrinth {
                     if(debugEnabled) LogUtils_logHHAuto('first');
                     isBetter = true;
                 }
-                else if (choosenOption.isOpponent && !option.isOpponent)
+                else if (floor === 1 || floor === 2)
                 {
-                    if(debugEnabled) LogUtils_logHHAuto('not opponent');
-                    isBetter = true;
-                }
-                //same red flag but better mojo
-                else if (choosenOption.power > option.power)
-                {
-                    if(debugEnabled) LogUtils_logHHAuto('Powerless opponent');
-                    isBetter = true;
+                    // TODO not ready yet
+                    if (!choosenOption.isOpponentEasy && option.isOpponentEasy)
+                    {
+                        if(debugEnabled) LogUtils_logHHAuto('Floor 1,2: Easy opponent');
+                        isBetter = true;
+                    }
+                    else if (choosenOption.isOpponent && !choosenOption.isOpponentEasy && !option.isOpponent)
+                    {
+                        if(debugEnabled) LogUtils_logHHAuto('Floor 1,2: not opponent');
+                        isBetter = true;
+                    }
+                    else if (choosenOption.power > option.power)
+                    {
+                        if(debugEnabled) LogUtils_logHHAuto('Floor 1,2: Powerless opponent');
+                        isBetter = true;
+                    }
+                } else {
+                    // Floor 3
+                    if(!choosenOption.isShrine && option.isShrine )
+                    {
+                        if(debugEnabled) LogUtils_logHHAuto('Floor 3: isShrine');
+                        isBetter = true;
+                    }
+                    else if (choosenOption.isOpponent && !option.isOpponent)
+                    {
+                        if(debugEnabled) LogUtils_logHHAuto('Floor 3: not opponent');
+                        isBetter = true;
+                    }
+                    else if (choosenOption.power > option.power)
+                    {
+                        if(debugEnabled) LogUtils_logHHAuto('Floor 3: Powerless opponent');
+                        isBetter = true;
+                    }
                 }
             }
 
@@ -6845,7 +6880,8 @@ class Labyrinth {
         option.button.append(`<img class="labChosen" src=${getHHScriptVars("powerCalcImages").chosen}>`);
     }
 
-    static parseHex(hexIndex,hex){
+    static parseHex(hexIndex,hex)
+    {
         // opponent_super_easy / opponent_easy / opponent_medium  / opponent_hard / opponent_boss  
         // shrine / treasure
         const type = $('.hex-type', hex).attr('class').replace('hex-type', '').trim();
@@ -6855,6 +6891,7 @@ class Labyrinth {
             button: button.length > 0 ? button.first() : null,
             type: type,
             isOpponent: type.indexOf('opponent_') >= 0,
+            isOpponentEasy: type.indexOf('opponent_easy') >= 0,
             isTreasure: type.indexOf('treasure') >= 0,
             isShrine: type.indexOf('shrine') >= 0,
             isNext: type.indexOf('upcoming-hex') < 0,
@@ -11863,7 +11900,7 @@ HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Temp_haveBooster"] 
 HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Temp_hideBeatenOppo"] =
 {
     default:"0",
-    storage:"sessionStorage",
+    storage:"Storage()",
     HHType:"Temp"
 };
 HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey+"Temp_LeagueOpponentList"] =

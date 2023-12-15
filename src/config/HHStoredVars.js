@@ -1788,7 +1788,7 @@ HHStoredVars[HHStoredVarPrefixKey+"Temp_haveBooster"] =
 HHStoredVars[HHStoredVarPrefixKey+"Temp_hideBeatenOppo"] =
 {
     default:"0",
-    storage:"sessionStorage",
+    storage:"Storage()",
     HHType:"Temp"
 };
 HHStoredVars[HHStoredVarPrefixKey+"Temp_LeagueOpponentList"] =
