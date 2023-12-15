@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.18.1
+// @version      6.18.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -5495,7 +5495,7 @@ class Harem {
 
         function extractHHGirls()
         {
-            var dataToSave = "Name,Rarity,Class,Figure,Level,Stars,Of,Left,Hardcore,Charm,Know-how,Total,Position,Eyes,Hair,Zodiac,Own\r\n";
+            var dataToSave = "Name,Rarity,Class,Figure,Level,Stars,Of,Left,Hardcore,Charm,Know-how,Total,Position,Eyes,Hair,Zodiac,Own,Element\r\n";
             var gMap = getHHVars('GirlSalaryManager.girlsMap');
             if(gMap === null)
             {
@@ -5526,7 +5526,8 @@ class Harem {
                         dataToSave += stripSpan(gData.ref.eyes) + ",";
                         dataToSave += stripSpan(gData.ref.hair) + ",";
                         dataToSave += gData.ref.zodiac.substring(3) + ",";
-                        dataToSave += gData.own + "\r\n";
+                        dataToSave += gData.own + ",";
+                        dataToSave += gData.element + "\r\n";
 
                     }
                     //            logHHAuto(dataToSave);

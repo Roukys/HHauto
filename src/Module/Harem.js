@@ -295,7 +295,7 @@ export class Harem {
 
         function extractHHGirls()
         {
-            var dataToSave = "Name,Rarity,Class,Figure,Level,Stars,Of,Left,Hardcore,Charm,Know-how,Total,Position,Eyes,Hair,Zodiac,Own\r\n";
+            var dataToSave = "Name,Rarity,Class,Figure,Level,Stars,Of,Left,Hardcore,Charm,Know-how,Total,Position,Eyes,Hair,Zodiac,Own,Element\r\n";
             var gMap = getHHVars('GirlSalaryManager.girlsMap');
             if(gMap === null)
             {
@@ -326,7 +326,8 @@ export class Harem {
                         dataToSave += stripSpan(gData.ref.eyes) + ",";
                         dataToSave += stripSpan(gData.ref.hair) + ",";
                         dataToSave += gData.ref.zodiac.substring(3) + ",";
-                        dataToSave += gData.own + "\r\n";
+                        dataToSave += gData.own + ",";
+                        dataToSave += gData.element + "\r\n";
 
                     }
                     //            logHHAuto(dataToSave);
