@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.18.3
+// @version      6.18.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -15288,13 +15288,13 @@ class Shop {
                 if(c === 'mythic') {
                     filteredCarac = $('#player-inventory.armor .slot:not(.empty)[data-d*=\'"rarity":"mythic"\']');
                 } else {
-                    filteredCarac = $('#player-inventory.armor .slot:not(.empty)[data-d*=\'"name_add":"'+c+'"\']');
+                    filteredCarac = $('#player-inventory.armor .slot:not(.empty)[data-d*=\'"name_add":'+c+'\']');
                 }
     
                 itemsList[c] = {};
                 for (let t of itemsType)
                 {
-                    let filteredType = filteredCarac.filter('[data-d*=\'"subtype":"'+t+'"\']');
+                    let filteredType = filteredCarac.filter('[data-d*=\'"subtype":'+t+'\']');
                     itemsList[c][t] = {};
                     for (let r of itemsRarity)
                     {

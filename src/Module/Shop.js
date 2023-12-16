@@ -151,13 +151,13 @@ export class Shop {
                 if(c === 'mythic') {
                     filteredCarac = $('#player-inventory.armor .slot:not(.empty)[data-d*=\'"rarity":"mythic"\']');
                 } else {
-                    filteredCarac = $('#player-inventory.armor .slot:not(.empty)[data-d*=\'"name_add":"'+c+'"\']');
+                    filteredCarac = $('#player-inventory.armor .slot:not(.empty)[data-d*=\'"name_add":'+c+'\']');
                 }
     
                 itemsList[c] = {};
                 for (let t of itemsType)
                 {
-                    let filteredType = filteredCarac.filter('[data-d*=\'"subtype":"'+t+'"\']');
+                    let filteredType = filteredCarac.filter('[data-d*=\'"subtype":'+t+'\']');
                     itemsList[c][t] = {};
                     for (let r of itemsRarity)
                     {
