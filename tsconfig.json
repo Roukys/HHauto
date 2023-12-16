@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "outDir": "./built",
+    "allowJs": true,
+    "target": "es6",
+    "module": "es2020" 
+  },
+  "include": ["src/**/*.ts", "spec/**/*.ts"]
+}
