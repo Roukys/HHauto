@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      6.18.4
+// @version      6.18.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1446,6 +1446,21 @@ class DoublePenetration {
             }
         }
         return false;
+    }        
+    static run(){
+        if (getPage() === getHHScriptVars("pagesIDEvent") && getHHScriptVars("isEnabledClubChamp",false) && window.location.search.includes("tab="+getHHScriptVars('doublePenetrationEventIDReg')))
+        {
+            LogUtils_logHHAuto("On Double penetration event.");
+            GM_addStyle('#dp-content .left-container .objectives-container .hard-objective .nc-sub-panel div.buttons .redirect-buttons {flex-direction: column;}');
+            if($(".hard-objective .hh-club-poa").length <= 0) {
+                const championsGoal = $('.hard-objective .redirect-buttons:has(button[data-href="/champions-map.html"])');
+                championsGoal.append(getGoToClubChampionButton());
+            }
+            if($(".easy-objective .hh-club-poa").length <= 0) {
+                const championsGoal = $('.easy-objective .redirect-buttons:has(button[data-href="/champions-map.html"])');
+                championsGoal.append(getGoToClubChampionButton());
+            }
+        }
     }
 }
 ;// CONCATENATED MODULE: ./src/Module/Events/PathOfAttraction.js
@@ -17491,6 +17506,15 @@ function autoLoop()
                 if (StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_showRewardsRecap") === "true")
                 {
                     RewardHelper.displayRewardsPoaDiv();
+                }
+            }
+            
+            if (EventModule.getEvent(eventID).isDPEvent)
+            {
+                if (StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey+"Setting_showClubButtonInPoa") === "true")
+                {
+                    DoublePenetration.run  = callItOnce(DoublePenetration.run);
+                    DoublePenetration.run();
                 }
             }
             break;
