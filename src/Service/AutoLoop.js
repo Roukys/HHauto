@@ -29,6 +29,7 @@ import {
     ClubChampion,
     Contest,
     DailyGoals,
+    DoublePenetration,
     EventModule,
     GenericBattle,
     Harem,
@@ -976,6 +977,15 @@ export function autoLoop()
                 if (getStoredValue(HHStoredVarPrefixKey+"Setting_showRewardsRecap") === "true")
                 {
                     RewardHelper.displayRewardsPoaDiv();
+                }
+            }
+            
+            if (EventModule.getEvent(eventID).isDPEvent)
+            {
+                if (getStoredValue(HHStoredVarPrefixKey+"Setting_showClubButtonInPoa") === "true")
+                {
+                    DoublePenetration.run  = callItOnce(DoublePenetration.run);
+                    DoublePenetration.run();
                 }
             }
             break;
