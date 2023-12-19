@@ -104,6 +104,7 @@ export class HaremGirl {
         var proceedButtonCost = $(".price", proceedButtonMatch);
         var proceedCost = parsePrice(proceedButtonCost[0].innerText);
         var moneyCurrent = getHHVars('Hero.currencies.soft_currency');
+        setStoredValue(HHStoredVarPrefixKey+"Temp_lastActionPerformed", Harem.HAREM_UPGRADE_LAST_ACTION);
         
         console.log("Debug girl Quest MONEY for : "+proceedCost);
         if(proceedCost <= moneyCurrent)
@@ -130,7 +131,7 @@ export class HaremGirl {
         }, randomInterval(1500,2500));
     }
     
-    static async giveHaremGirlItem(haremItem){
+    static async giveHaremGirlItem(haremItem:string){
         const selectedGirl = unsafeWindow.girl;
         HaremGirl.switchTabs(haremItem);
         const userHaremGirlLimit = Math.min(Number((<HTMLInputElement>document.getElementById("menuExpLevel")).value), 750);
@@ -141,6 +142,7 @@ export class HaremGirl {
             setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlActions", haremItem);
             setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlMode", 'girl');
             setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlLimit", userHaremGirlLimit);
+            setStoredValue(HHStoredVarPrefixKey+"Temp_lastActionPerformed", Harem.HAREM_UPGRADE_LAST_ACTION);
 
             if((Number(selectedGirl.level) + 50) >= Number(userHaremGirlLimit)) {
                 await HaremGirl.maxOutButtonAndConfirm(haremItem, selectedGirl);
@@ -247,6 +249,7 @@ export class HaremGirl {
                     setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlActions", HaremGirl.AFFECTION_TYPE);
                     setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlMode", 'girl');
                     setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlEnd", 'true');
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_lastActionPerformed", Harem.HAREM_UPGRADE_LAST_ACTION);
                     if (payLast) setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlPayLast", 'true');
                     setTimeout(HaremGirl.fillAllAffection, randomInterval(500,800));
                 }

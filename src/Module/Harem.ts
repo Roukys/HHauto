@@ -14,6 +14,7 @@ import { HaremGirl } from "./harem/HaremGirl";
 
 
 export class Harem {
+    static HAREM_UPGRADE_LAST_ACTION='haremGirl';
     static filterGirlMapCanUpgrade(a)
     {
         return a.gData.can_upgrade;
@@ -27,6 +28,11 @@ export class Harem {
         deleteStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlEnd");
         deleteStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlPayLast");
         deleteStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlLimit");
+        
+        const lastActionPerformed:string = getStoredValue(HHStoredVarPrefixKey+"Temp_lastActionPerformed");
+        if(lastActionPerformed == Harem.HAREM_UPGRADE_LAST_ACTION) {
+            setStoredValue(HHStoredVarPrefixKey+"Temp_lastActionPerformed", "none");
+        }
     }
 
     static getGirlMapSorted(inSortType = "DateAcquired",inSortReversed = true )
@@ -421,6 +427,7 @@ export class Harem {
         setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlMode", 'list');
         if (payLast) setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlPayLast", 'true');
         setStoredValue(HHStoredVarPrefixKey+"Temp_filteredGirlsList", JSON.stringify(filteredGirlsList));
+        setStoredValue(HHStoredVarPrefixKey+"Temp_lastActionPerformed", Harem.HAREM_UPGRADE_LAST_ACTION);
     };
 
     static addGoToGirlPageButton(){

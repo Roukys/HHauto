@@ -190,7 +190,7 @@ export function start() {
 
     $("#showTooltips").on("change",() => {
         //console.log(this.checked);
-        if ((<HTMLInputElement>this).checked)
+        if ((<HTMLInputElement>$("#showTooltips")[0]).checked)
         {
             enableToolTipsDisplay(true);
         }
