@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.0.1
+// @version      7.0.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4159,6 +4159,10 @@ class Harem {
         deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlEnd");
         deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlPayLast");
         deleteStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlLimit");
+        const lastActionPerformed = StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_lastActionPerformed");
+        if (lastActionPerformed == Harem.HAREM_UPGRADE_LAST_ACTION) {
+            StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_lastActionPerformed", "none");
+        }
     }
     static getGirlMapSorted(inSortType = "DateAcquired", inSortReversed = true) {
         let girlsMap = getHHVars('GirlSalaryManager.girlsMap');
@@ -4485,6 +4489,7 @@ class Harem {
         if (payLast)
             StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlPayLast", 'true');
         StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_filteredGirlsList", JSON.stringify(filteredGirlsList));
+        StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_lastActionPerformed", Harem.HAREM_UPGRADE_LAST_ACTION);
     }
     ;
     static addGoToGirlPageButton() {
@@ -4615,6 +4620,7 @@ class Harem {
         return calculatedCosts[inRarity][inTargetGrade];
     }
 }
+Harem.HAREM_UPGRADE_LAST_ACTION = 'haremGirl';
 
 ;// CONCATENATED MODULE: ./src/Module/Troll.ts
 
@@ -5224,6 +5230,7 @@ class HaremGirl {
         var proceedButtonCost = $(".price", proceedButtonMatch);
         var proceedCost = parsePrice(proceedButtonCost[0].innerText);
         var moneyCurrent = getHHVars('Hero.currencies.soft_currency');
+        StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_lastActionPerformed", Harem.HAREM_UPGRADE_LAST_ACTION);
         console.log("Debug girl Quest MONEY for : " + proceedCost);
         if (proceedCost <= moneyCurrent) {
             // We have money.
@@ -5257,6 +5264,7 @@ class HaremGirl {
                 StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlActions", haremItem);
                 StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlMode", 'girl');
                 StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlLimit", userHaremGirlLimit);
+                StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_lastActionPerformed", Harem.HAREM_UPGRADE_LAST_ACTION);
                 if ((Number(selectedGirl.level) + 50) >= Number(userHaremGirlLimit)) {
                     yield HaremGirl.maxOutButtonAndConfirm(haremItem, selectedGirl);
                     HaremGirl.HaremClearGirlPopup();
@@ -5356,6 +5364,7 @@ class HaremGirl {
                     StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlActions", HaremGirl.AFFECTION_TYPE);
                     StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlMode", 'girl');
                     StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlEnd", 'true');
+                    StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_lastActionPerformed", Harem.HAREM_UPGRADE_LAST_ACTION);
                     if (payLast)
                         StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haremGirlPayLast", 'true');
                     setTimeout(HaremGirl.fillAllAffection, randomInterval(500, 800));
@@ -9420,7 +9429,10 @@ HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey + "Setting_autoSeaso
         getMenu: true,
         setMenu: true,
         menuType: "checked",
-        kobanUsing: false
+        kobanUsing: false,
+        newValueFunction: function () {
+            clearTimer('nextSeasonTime');
+        }
     };
 HHStoredVars_HHStoredVars[HHStoredVars_HHStoredVarPrefixKey + "Setting_autoSeasonCollect"] =
     {
@@ -10742,7 +10754,7 @@ const HHAuto_inputPattern = {
     //kobanBank:"[0-9]+",
     buyCombTimer: "[0-9]+",
     buyMythicCombTimer: "[0-9]+",
-    autoBuyBoostersFilter: "M?B[1-4](;M?B[1-4])*",
+    autoBuyBoostersFilter: "(B[1-4]|MB[1-9]|MB1[1-2])(;B[1-4]|;MB[1-9]|;MB1[1-2])*",
     //calculatePowerLimits:"(\-?[0-9]+;\-?[0-9]+)|default",
     mousePauseTimeout: "[0-9]+",
     safeSecondsForContest: "[0-9]+",
@@ -13707,7 +13719,7 @@ function start() {
     addEventsOnMenuItems();
     $("#showTooltips").on("change", () => {
         //console.log(this.checked);
-        if (this.checked) {
+        if ($("#showTooltips")[0].checked) {
             enableToolTipsDisplay(true);
         }
         else {

@@ -633,7 +633,11 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSeason"] =
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false
+    kobanUsing:false,
+    newValueFunction:function()
+    {
+        clearTimer('nextSeasonTime');
+    }
 };
 HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSeasonCollect"] =
     {

@@ -9,7 +9,7 @@ export const HHAuto_inputPattern = {
     //kobanBank:"[0-9]+",
     buyCombTimer:"[0-9]+",
     buyMythicCombTimer:"[0-9]+",
-    autoBuyBoostersFilter:"M?B[1-4](;M?B[1-4])*",
+    autoBuyBoostersFilter:"(B[1-4]|MB[1-9]|MB1[1-2])(;B[1-4]|;MB[1-9]|;MB1[1-2])*",
     //calculatePowerLimits:"(\-?[0-9]+;\-?[0-9]+)|default",
     mousePauseTimeout:"[0-9]+",
     safeSecondsForContest:"[0-9]+",
