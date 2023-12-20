@@ -74,13 +74,13 @@ export class Market {
                                     id_item: shop[1][n1].id_item,
                                     type: "booster"
                                 };
-                                unsafeWindow.hh_ajax(params1, function(data) {
+                                unsafeWindow.hh_ajax(params1, function(data:any) {
                                     Hero.updates(data.changes, false);
                                     if (data.success === false)
                                     {
                                         clearTimer('nextShopTime');
                                     } else {
-                                        HaveBooster[boost] = boosterOwned++;
+                                        HaveBooster[boost] = (boosterOwned+1);
                                         setStoredValue(HHStoredVarPrefixKey+"Temp_haveBooster", JSON.stringify(HaveBooster));
                                     }
                                     // change referer

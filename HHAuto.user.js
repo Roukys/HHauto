@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.0.3
+// @version      7.0.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -6760,7 +6760,7 @@ class Market {
                                         clearTimer('nextShopTime');
                                     }
                                     else {
-                                        HaveBooster[boost] = boosterOwned++;
+                                        HaveBooster[boost] = (boosterOwned + 1);
                                         StorageHelper_setStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_haveBooster", JSON.stringify(HaveBooster));
                                     }
                                     // change referer
