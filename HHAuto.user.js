@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.0.2
+// @version      7.0.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4639,9 +4639,10 @@ class Troll {
     static getTrollWithGirls() {
         const girlDictionary = Harem.getGirlsList();
         const trollGirlsID = getHHScriptVars("trollGirlsID");
-        const trollWithGirls = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []];
+        const trollWithGirls = [];
         if (girlDictionary) {
             for (var tIdx = 0; tIdx < trollGirlsID.length; tIdx++) {
+                trollWithGirls[tIdx] = [];
                 for (var pIdx = 0; pIdx < trollGirlsID[tIdx].length; pIdx++) {
                     trollWithGirls[tIdx][pIdx] = false;
                     for (var gIdx = 0; gIdx < trollGirlsID[tIdx][pIdx].length; gIdx++) {
@@ -13663,6 +13664,10 @@ function start() {
         LogUtils_logHHAuto('???no Hero???');
         $('.hh_logo').click();
         setTimeout(hardened_start, 5000);
+        return;
+    }
+    if ($("a[rel='phoenix_member_login']").length > 0) {
+        LogUtils_logHHAuto('Not logged in, please login first!');
         return;
     }
     Club.checkClubStatus();

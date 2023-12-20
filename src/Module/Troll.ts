@@ -34,10 +34,11 @@ export class Troll {
     static getTrollWithGirls() {
         const girlDictionary = Harem.getGirlsList();
         const trollGirlsID = getHHScriptVars("trollGirlsID");
-        const trollWithGirls:any[] = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []];
+        const trollWithGirls:any[] = [];
     
         if (girlDictionary) {
             for (var tIdx = 0; tIdx < trollGirlsID.length; tIdx++) {
+                trollWithGirls[tIdx] = [];
                 for (var pIdx = 0; pIdx < trollGirlsID[tIdx].length; pIdx++) {
                     trollWithGirls[tIdx][pIdx] = false;
                     for (var gIdx = 0; gIdx < trollGirlsID[tIdx][pIdx].length; gIdx++) {
