@@ -122,6 +122,11 @@ export function start() {
         setTimeout(hardened_start,5000);
         return;
     }
+    if($("a[rel='phoenix_member_login']").length > 0)
+    {    
+        logHHAuto('Not logged in, please login first!');
+        return;
+    }
     Club.checkClubStatus();
     MonthlyCards.updateInputPattern();
     replaceCheatClick();
@@ -168,7 +173,7 @@ export function start() {
                 +'}}'
                );
     $("#contains_all nav").prepend('<div class="square_blue_btn" id="sMenuButton" ><img src="https://i.postimg.cc/bv7n83z3/script-Icon2.png"></div>');
-   $("#sMenuButton").on("click", () => {
+    $("#sMenuButton").on("click", () => {
         const sMenu = document.getElementById("sMenu");
         if(sMenu != null) {
             if (sMenu.style.display === "none")
