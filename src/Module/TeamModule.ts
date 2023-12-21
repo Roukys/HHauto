@@ -1,5 +1,5 @@
 import {
-    getHHScriptVars,
+    ConfigHelper,
     getHHVars,
     getStoredValue,
     getTextForUI,
@@ -40,7 +40,7 @@ export class TeamModule {
             {
                 let girlToSelect = best?i:i+7;
                 //console.log(i,girlToSelect,best);
-                let selectedGirl = $('#contains_all section '+getHHScriptVars("IDpanelEditTeam")+' .harem-panel .panel-body .topNumber[position="'+girlToSelect+'"]');
+                let selectedGirl = $('#contains_all section '+ConfigHelper.getHHScriptVars("IDpanelEditTeam")+' .harem-panel .panel-body .topNumber[position="'+girlToSelect+'"]');
                 selectedGirl.click();
                 //console.log(selectedGirl);
                 if ($('.topNumber').length > girlToSelect && i<7)
@@ -95,7 +95,7 @@ export class TeamModule {
             for (let i = arr.length - 1; i > -1; i--)
             {
                 let gID = Number($(arr[i]).attr('id_girl'));
-                const tooltipData = $('.girl_img', $(arr[i])).attr(<string>getHHScriptVars('girlToolTipData')) || '';
+                const tooltipData = $('.girl_img', $(arr[i])).attr(<string>ConfigHelper.getHHScriptVars('girlToolTipData')) || '';
                 if(tooltipData == '') {
                     logHHAuto('ERROR, no girl information found');
                     return;
@@ -160,7 +160,7 @@ export class TeamModule {
                     arr[i].style.display = "";
                 }
             }
-            let mainTeamPanel = $(getHHScriptVars("IDpanelEditTeam")+' .change-team-panel .panel-body > .harem-panel-girls');
+            let mainTeamPanel = $(ConfigHelper.getHHScriptVars("IDpanelEditTeam")+' .change-team-panel .panel-body > .harem-panel-girls');
             for (let j = 0; j < deckID.length; j++)
             {
                 let newDiv
@@ -186,7 +186,7 @@ export class TeamModule {
             else
             {
                 let AssignTopTeam = '<div style="position: absolute;top: 80px;width:60px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("AssignTopTeam","tooltip")+'</span><label style="font-size:small" class="myButton" id="AssignTopTeam">'+getTextForUI("AssignTopTeam","elementText")+'</label></div>'
-                $("#contains_all section "+getHHScriptVars("IDpanelEditTeam")+" .harem-panel .panel-body").append(AssignTopTeam);
+                $("#contains_all section "+ConfigHelper.getHHScriptVars("IDpanelEditTeam")+" .harem-panel .panel-body").append(AssignTopTeam);
                 $("#AssignTopTeam").on("click", assignTopTeam);
             }
         }

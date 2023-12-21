@@ -1,6 +1,6 @@
 import { 
     deleteStoredValue,
-    getHHScriptVars,
+    ConfigHelper,
     getHHVars,
     getStoredValue,
     getTextForUI,
@@ -215,7 +215,7 @@ export class HaremGirl {
             const menuIDGiftsButton = createMenuButton(menuIDGifts);
             const menuIDMaxGiftsButton = createMenuButton(menuIDMaxGifts, !canGiftGirl);
             const menuIDUpgradeMaxButton = createMenuButton(menuIDUpgradeMax, !canGiftGirl);
-            const imgPath = getHHScriptVars("baseImgPath");
+            const imgPath = ConfigHelper.getHHScriptVars("baseImgPath");
 
             
             const girlMenu = '<div style="padding:50px; display:flex;flex-direction:column">'

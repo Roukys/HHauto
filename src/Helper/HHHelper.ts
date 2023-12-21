@@ -1,12 +1,12 @@
 import { logHHAuto } from '../Utils/index';
-import { getHHScriptVars } from "./ConfigHelper";
+import { ConfigHelper } from "./ConfigHelper";
 
 export function getHHVars(infoSearched, logging = true): any
 {
     let returnValue:any = unsafeWindow;
-    if (getHHScriptVars(infoSearched,false) !== null)
+    if (ConfigHelper.getHHScriptVars(infoSearched,false) !== null)
     {
-        infoSearched = getHHScriptVars(infoSearched);
+        infoSearched = ConfigHelper.getHHScriptVars(infoSearched);
     }
 
     let splittedInfoSearched = infoSearched.split(".");
@@ -32,9 +32,9 @@ export function getHHVars(infoSearched, logging = true): any
 export function setHHVars(infoSearched,newValue)
 {
     let returnValue:any = unsafeWindow;
-    if (getHHScriptVars(infoSearched,false) !== null)
+    if (ConfigHelper.getHHScriptVars(infoSearched,false) !== null)
     {
-        infoSearched = getHHScriptVars(infoSearched);
+        infoSearched = ConfigHelper.getHHScriptVars(infoSearched);
     }
 
     let splittedInfoSearched = infoSearched.split(".");

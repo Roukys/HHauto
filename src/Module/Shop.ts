@@ -1,7 +1,7 @@
 import {
     checkTimer,
     convertTimeToInt,
-    getHHScriptVars,
+    ConfigHelper,
     getHHVars,
     getPage,
     getStoredValue,
@@ -25,10 +25,10 @@ export class Shop {
 
     static updateShop()
     {
-        if(getPage() !== getHHScriptVars("pagesIDShop"))
+        if(getPage() !== ConfigHelper.getHHScriptVars("pagesIDShop"))
         {
             logHHAuto("Navigating to Market window.");
-            gotoPage(getHHScriptVars("pagesIDShop"));
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDShop"));
             return true;
         }
         else {
@@ -82,7 +82,7 @@ export class Shop {
             if (isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_LastPageCalled"))
                 && getPage() === JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_LastPageCalled")).page)
             {
-                gotoPage(getHHScriptVars("pagesIDHome"));
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                 logHHAuto("Go to Home after Shopping");
             }
         }
@@ -225,7 +225,7 @@ export class Shop {
                 } else {
                     let ext= (c === 16)?"svg":"png";
                     itemsListMenu +='  <tr>'
-                        +'   <td class="type" menuSellFilter="c:'+c+';t:*;r:*"><img style="height:20px;width:20px" src="'+getHHScriptVars("baseImgPath")+'/pictures/misc/items_icons/'+c+'.'+ext+'"></td>';
+                        +'   <td class="type" menuSellFilter="c:'+c+';t:*;r:*"><img style="height:20px;width:20px" src="'+ConfigHelper.getHHScriptVars("baseImgPath")+'/pictures/misc/items_icons/'+c+'.'+ext+'"></td>';
                 }
     
                 for (let r of itemsRarity)

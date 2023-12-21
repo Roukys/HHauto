@@ -2,7 +2,7 @@ import {
     RewardHelper,
     checkTimer,
     getGoToClubChampionButton,
-    getHHScriptVars,
+    ConfigHelper,
     getPage,
     getLimitTimeBeforeEnd,
     getStoredValue,
@@ -82,8 +82,8 @@ export class DoublePenetration {
                     else
                     {
                         logHHAuto("Double penetration collection finished.");
-                        setTimer('nextDpEventCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
-                        //gotoPage(getHHScriptVars("pagesIDHome"));
+                        setTimer('nextDpEventCollectTime',ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
+                        //gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                         setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
                         setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")));
                     }
@@ -94,8 +94,8 @@ export class DoublePenetration {
             else
             {
                 logHHAuto("No double penetration reward to collect.");
-                setTimer('nextDpEventCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
-                //gotoPage(getHHScriptVars("pagesIDHome"));
+                setTimer('nextDpEventCollectTime',ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
+                //gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                 setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
                 setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")));
                 return false;
@@ -104,7 +104,7 @@ export class DoublePenetration {
         return false;
     }        
     static run(){
-        if (getPage() === getHHScriptVars("pagesIDEvent") && getHHScriptVars("isEnabledClubChamp",false) && window.location.search.includes("tab="+getHHScriptVars('doublePenetrationEventIDReg')))
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent") && ConfigHelper.getHHScriptVars("isEnabledClubChamp",false) && window.location.search.includes("tab="+ConfigHelper.getHHScriptVars('doublePenetrationEventIDReg')))
         {
             logHHAuto("On Double penetration event.");
             GM_addStyle('#dp-content .left-container .objectives-container .hard-objective .nc-sub-panel div.buttons .redirect-buttons {flex-direction: column;}');

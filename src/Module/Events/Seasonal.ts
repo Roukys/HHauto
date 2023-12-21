@@ -3,7 +3,7 @@ import {
     TimeHelper,
     checkTimer,
     convertTimeToInt,
-    getHHScriptVars,
+    ConfigHelper,
     getLimitTimeBeforeEnd,
     getPage,
     getSecondsLeft,
@@ -55,7 +55,7 @@ export class SeasonalEvent {
     {
         const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollectablesList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollectablesList")):[];
 
-        if (getPage() === getHHScriptVars("pagesIDSeasonalEvent"))
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"))
         {
             SeasonalEvent.getRemainingTime();
             const isMegaSeasonalEvent = SeasonalEvent.isMegaSeasonalEvent();
@@ -124,8 +124,8 @@ export class SeasonalEvent {
                         else
                         {
                             logHHAuto("SeasonalEvent collection finished.");
-                            setTimer('nextSeasonalEventCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
-                            gotoPage(getHHScriptVars("pagesIDHome"));
+                            setTimer('nextSeasonalEventCollectTime',ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
+                            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                         }
                     }
                     collectSeasonalEventRewards();
@@ -134,9 +134,9 @@ export class SeasonalEvent {
                 else
                 {
                     logHHAuto("No SeasonalEvent reward to collect.");
-                    setTimer('nextSeasonalEventCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
-                    setTimer('nextSeasonalEventCollectAllTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
-                    gotoPage(getHHScriptVars("pagesIDHome"));
+                    setTimer('nextSeasonalEventCollectTime',ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
+                    setTimer('nextSeasonalEventCollectAllTime',ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                     return false;
                 }
             }
@@ -145,7 +145,7 @@ export class SeasonalEvent {
         else if(unsafeWindow.seasonal_event_active || unsafeWindow.seasonal_time_remaining > 0)
         {
             logHHAuto("Switching to SeasonalEvent screen.");
-            gotoPage(getHHScriptVars("pagesIDSeasonalEvent"));
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"));
             return true;
         }
         else
@@ -224,7 +224,7 @@ export class SeasonalEvent {
         });
     }
     static getGirlMileStonesDiv(playerPoints, girlPointsTarget, girlIndex) {
-        const greeNitckHtml = '<img class="nc-claimed-reward-check" src="'+getHHScriptVars("baseImgPath")+'/clubs/ic_Tick.png">';
+        const greeNitckHtml = '<img class="nc-claimed-reward-check" src="'+ConfigHelper.getHHScriptVars("baseImgPath")+'/clubs/ic_Tick.png">';
         const girlDiv = $('<div class="HHGirlMilestone girl-img-'+girlIndex+'"><div>Girl '+girlIndex+':'+playerPoints+'/'+girlPointsTarget+'</div></div>');
         if(playerPoints >= girlPointsTarget) {
             girlDiv.addClass('green');
@@ -256,7 +256,7 @@ export class SeasonalEvent {
         }
     }
     static goAndCollectMegaEventRankRewards():boolean {
-        if (getPage() === getHHScriptVars("pagesIDSeasonalEvent"))
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"))
         {
             const isMegaSeasonalEvent = SeasonalEvent.isMegaSeasonalEvent();
             const topRank = $('#mega-event-tabs #top_ranking_tab');
@@ -278,7 +278,7 @@ export class SeasonalEvent {
         else if(unsafeWindow.seasonal_event_active || unsafeWindow.seasonal_time_remaining > 0)
         {
             logHHAuto("Switching to SeasonalEvent screen.");
-            gotoPage(getHHScriptVars("pagesIDSeasonalEvent"));
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"));
             return true;
         }
         else

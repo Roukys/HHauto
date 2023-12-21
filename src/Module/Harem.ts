@@ -1,6 +1,6 @@
 import { 
     deleteStoredValue,
-    getHHScriptVars,
+    ConfigHelper,
     getHHVars,
     getStoredValue,
     getTextForUI,
@@ -45,14 +45,14 @@ export class Harem {
             if (girlsMap.length > 0)
             {
                 //console.log(inSortType);
-                if (getHHScriptVars("haremSortingFunctions").hasOwnProperty(inSortType))
+                if (ConfigHelper.getHHScriptVars("haremSortingFunctions").hasOwnProperty(inSortType))
                 {
-                    girlsMap.sort(getHHScriptVars("haremSortingFunctions")[inSortType]);
+                    girlsMap.sort(ConfigHelper.getHHScriptVars("haremSortingFunctions")[inSortType]);
                 }
                 else
                 {
                     logHHAuto("Unknown sorting function, returning Girls Map sorted by date acquired.");
-                    girlsMap.sort(getHHScriptVars("haremSortingFunctions").DateAcquired);
+                    girlsMap.sort(ConfigHelper.getHHScriptVars("haremSortingFunctions").DateAcquired);
                 }
             }
             if (inSortReversed)
@@ -133,7 +133,7 @@ export class Harem {
 
         const storedDefaultSort = (getStoredValue(HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort") !== undefined && isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort")))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort")):{sortFunction : "null", reverse:false};
 
-        for (let sortFunction of Object.keys(getHHScriptVars("haremSortingFunctions")))
+        for (let sortFunction of Object.keys(ConfigHelper.getHHScriptVars("haremSortingFunctions")))
         {
             let optionElement = document.createElement("option");
             optionElement.value = sortFunction;
@@ -205,7 +205,7 @@ export class Harem {
             const selectorOptions = <HTMLSelectElement>document.getElementById("HaremSortMenuSortSelector");
             const storedDefaultSort = (getStoredValue(HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort") !== undefined && isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort")))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort")):{sortFunction : "null", reverse:false};
 
-            for (let sortFunction of Object.keys(getHHScriptVars("haremSortingFunctions")))
+            for (let sortFunction of Object.keys(ConfigHelper.getHHScriptVars("haremSortingFunctions")))
             {
                 let optionElement = document.createElement("option");
                 optionElement.value = sortFunction;
@@ -482,7 +482,7 @@ export class Harem {
             const menuIDMaxGiftsButton = createMenuButton(menuIDMaxGifts);
             const menuIDUpgradeMaxButton = createMenuButton(menuIDUpgradeMax);
             const menuNextUpgradButton = createMenuButton(menuNextUpgrad);
-            const imgPath = getHHScriptVars("baseImgPath");
+            const imgPath = ConfigHelper.getHHScriptVars("baseImgPath");
 
             
             const girlListMenu = '<div style="padding:50px; display:flex;flex-direction:column;width:400px">'
@@ -537,7 +537,7 @@ export class Harem {
 
     static moduleHaremCountMax()
     {
-        if (Harem.HaremSizeNeedsRefresh(getHHScriptVars("HaremMinSizeExpirationSecs")) && getHHVars('girlsDataList',false) !== null)
+        if (Harem.HaremSizeNeedsRefresh(ConfigHelper.getHHScriptVars("HaremMinSizeExpirationSecs")) && getHHVars('girlsDataList',false) !== null)
         {
             setStoredValue(HHStoredVarPrefixKey+"Temp_HaremSize", JSON.stringify({count:Object.keys(getHHVars('girlsDataList',false)).length,count_date:new Date().getTime()}));
             logHHAuto("Harem size updated to : "+Object.keys(getHHVars('girlsDataList',false)).length);

@@ -1,5 +1,5 @@
 import { 
-    getHHScriptVars,
+    ConfigHelper,
     getHHVars,
     getPage,
     getStoredValue,
@@ -24,12 +24,12 @@ class LabyrinthOpponent{
 
 export class Labyrinth {
     static isEnabled(){
-        return getHHScriptVars("isEnabledLabyrinth",false); // more than 14 girls
+        return ConfigHelper.getHHScriptVars("isEnabledLabyrinth",false); // more than 14 girls
     }
 
     static run(){
         const page = getPage();
-        if(page === getHHScriptVars("pagesIDLabyrinth"))
+        if(page === ConfigHelper.getHHScriptVars("pagesIDLabyrinth"))
         {
             /*
             if($('.labChosen').length<=0) {
@@ -44,7 +44,7 @@ export class Labyrinth {
             $('.labChosen').click();
             */
         }
-        else if (page === getHHScriptVars("pagesIDLabyrinthPreBattle"))
+        else if (page === ConfigHelper.getHHScriptVars("pagesIDLabyrinthPreBattle"))
         {
             logHHAuto("On labyrinth-pre-battle page.");
             let templeID = queryStringGetParam(window.location.search,'id_opponent');
@@ -60,12 +60,12 @@ export class Labyrinth {
             {
                 logHHAuto("Issue to find labyrinth battle button retry in 60secs.");
                 setTimer('nextLabyrinthTime', randomInterval(60, 70));
-                //gotoPage(getHHScriptVars("pagesIDHome"));
+                //gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
             }
         }
         else
         {
-            //gotoPage(getHHScriptVars("pagesIDLabyrinth"));
+            //gotoPage(ConfigHelper.getHHScriptVars("pagesIDLabyrinth"));
         }
     }
 
@@ -79,7 +79,7 @@ export class Labyrinth {
     }
 
     static sim(){
-        if(getPage() === getHHScriptVars("pagesIDLabyrinth"))
+        if(getPage() === ConfigHelper.getHHScriptVars("pagesIDLabyrinth"))
         {
             if($('.labChosen').length>0) {
                 return;
@@ -193,7 +193,7 @@ export class Labyrinth {
     }
 
     static isChoosen(option){
-        const choosen = `<img class="labChosen" src=${getHHScriptVars("powerCalcImages").chosen}>`;
+        const choosen = `<img class="labChosen" src=${ConfigHelper.getHHScriptVars("powerCalcImages").chosen}>`;
         if(option.button && option.isNext) {
             if (option.isShrine || option.isTreasure) {
                 option.button.append(choosen);
@@ -205,7 +205,7 @@ export class Labyrinth {
     }
 
     static appendChoosenTag(option){
-        option.button.append(`<img class="labChosen" src=${getHHScriptVars("powerCalcImages").chosen}>`);
+        option.button.append(`<img class="labChosen" src=${ConfigHelper.getHHScriptVars("powerCalcImages").chosen}>`);
     }
 
     static parseHex(hexIndex,hex): LabyrinthOpponent

@@ -1,7 +1,7 @@
 import {
     RewardHelper,
     checkTimer,
-    getHHScriptVars,
+    ConfigHelper,
     getHHVars,
     getPage,
     getStoredValue,
@@ -56,7 +56,7 @@ export class Pantheon {
     }
 
     static isEnabled(){
-        return getHHScriptVars("isEnabledPantheon",false) && getHHVars('Hero.infos.level')>=getHHScriptVars("LEVEL_MIN_PANTHEON");
+        return ConfigHelper.getHHScriptVars("isEnabledPantheon",false) && getHHVars('Hero.infos.level')>=ConfigHelper.getHHScriptVars("LEVEL_MIN_PANTHEON");
     }
 
     static isTimeToFight(){
@@ -82,7 +82,7 @@ export class Pantheon {
         // Confirm if on correct screen.
         var page = getPage();
         var current_worship = Pantheon.getEnergy();
-        if(page === getHHScriptVars("pagesIDPantheon"))
+        if(page === ConfigHelper.getHHScriptVars("pagesIDPantheon"))
         {
             logHHAuto("On pantheon page.");
             logHHAuto("Remaining worship : "+ current_worship);
@@ -97,13 +97,13 @@ export class Pantheon {
                 if (pantheonButton.length > 0 && templeID !== null )
                 {
                     logHHAuto("Going to fight Temple : "+templeID);
-                    gotoPage(getHHScriptVars("pagesIDPantheonPreBattle"),{id_opponent:templeID});
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDPantheonPreBattle"),{id_opponent:templeID});
                 }
                 else
                 {
                     logHHAuto("Issue to find templeID retry in 60secs.");
                     setTimer('nextPantheonTime', randomInterval(60, 70));
-                    gotoPage(getHHScriptVars("pagesIDHome"));
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                 }
             }
             else
@@ -117,11 +117,11 @@ export class Pantheon {
                     const next_refresh = getHHVars('Hero.energies.worship.next_refresh_ts')
                     setTimer('nextPantheonTime', randomInterval(next_refresh+10, next_refresh + 180));
                 }
-                gotoPage(getHHScriptVars("pagesIDHome"));
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
             }
             return;
         }
-        else if (page === getHHScriptVars("pagesIDPantheonPreBattle"))
+        else if (page === ConfigHelper.getHHScriptVars("pagesIDPantheonPreBattle"))
         {
             logHHAuto("On pantheon-pre-battle page.");
             let templeID = queryStringGetParam(window.location.search,'id_opponent');
@@ -138,7 +138,7 @@ export class Pantheon {
             {
                 logHHAuto("Issue to find temple battle button retry in 60secs.");
                 setTimer('nextPantheonTime', randomInterval(60, 70));
-                gotoPage(getHHScriptVars("pagesIDHome"));
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
             }
         }
         else
@@ -148,7 +148,7 @@ export class Pantheon {
             if ( current_worship > 0 )
             {
                 logHHAuto("Switching to pantheon screen.");
-                gotoPage(getHHScriptVars("pagesIDPantheon"));
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDPantheon"));
 
                 return;
             }
@@ -163,7 +163,7 @@ export class Pantheon {
                     const next_refresh = getHHVars('Hero.energies.worship.next_refresh_ts')
                     setTimer('nextPantheonTime', randomInterval(next_refresh+10, next_refresh + 180));
                 }
-                gotoPage(getHHScriptVars("pagesIDHome"));
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
             }
             return;
         }

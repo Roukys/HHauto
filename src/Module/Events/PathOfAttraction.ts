@@ -1,5 +1,5 @@
 import {
-    getHHScriptVars,
+    ConfigHelper,
     getStoredValue,
     getPage,
     getGoToClubChampionButton,
@@ -64,7 +64,7 @@ export class PathOfAttraction {
         }
     }
     static run(){
-        if (getPage() === getHHScriptVars("pagesIDEvent") && getHHScriptVars("isEnabledClubChamp",false) && window.location.search.includes("tab="+getHHScriptVars('poaEventIDReg')))
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent") && ConfigHelper.getHHScriptVars("isEnabledClubChamp",false) && window.location.search.includes("tab="+ConfigHelper.getHHScriptVars('poaEventIDReg')))
         {
             logHHAuto("On path of attraction event.");
             if($(".hh-club-poa").length <= 0) {
@@ -201,7 +201,7 @@ export class PathOfAttraction {
     }
 
     static Hide(){
-        if (getPage() === getHHScriptVars("pagesIDEvent") && window.location.search.includes("tab="+getHHScriptVars('poaEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_PoAMaskRewards") === "true")
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent") && window.location.search.includes("tab="+ConfigHelper.getHHScriptVars('poaEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_PoAMaskRewards") === "true")
         {
             let arrayz;
             let nbReward;

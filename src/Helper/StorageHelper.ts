@@ -1,7 +1,7 @@
 import { setDefaults } from '../Service/index';
 import { fillHHPopUp, isJSON, logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey, HHStoredVars } from '../config/index';
-import { getHHScriptVars } from "./ConfigHelper";
+import { ConfigHelper } from "./ConfigHelper";
 import { getMenuValues } from "./HHMenuHelper";
 import { getTextForUI } from "./LanguageHelper";
 
@@ -297,7 +297,7 @@ export function getAndStoreCollectPreferences(inVarName, inPopUpText = getTextFo
         +    '<p>'+inPopUpText+'</p>'
         +    '<div style="display:flex;">'
         let count = 0;
-        const possibleRewards = getHHScriptVars("possibleRewardsList");
+        const possibleRewards = ConfigHelper.getHHScriptVars("possibleRewardsList");
         const rewardsToCollect = isJSON(getStoredValue(inVarName))?JSON.parse(getStoredValue(inVarName)):[];
         for (let currentItem of Object.keys(possibleRewards))
         {
@@ -347,8 +347,3 @@ export function getAndStoreCollectPreferences(inVarName, inPopUpText = getTextFo
         setStoredValue(inVarName, JSON.stringify(collectablesList));
     }
 }
-
-
-
-export const Trollz = getHHScriptVars("trollzList");
-export const Leagues = getHHScriptVars("leaguesList");

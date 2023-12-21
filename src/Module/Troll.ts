@@ -1,8 +1,7 @@
 import {
     RewardHelper,
-    Trollz,
     checkTimer,
-    getHHScriptVars,
+    ConfigHelper,
     getHHVars,
     getHero,
     getPage,
@@ -10,7 +9,6 @@ import {
     getStoredValue,
     getTextForUI,
     getTimeLeft,
-    isPshEnvironnement,
     queryStringGetParam,
     setHHVars,
     setStoredValue,
@@ -33,7 +31,7 @@ export class Troll {
 
     static getTrollWithGirls() {
         const girlDictionary = Harem.getGirlsList();
-        const trollGirlsID = getHHScriptVars("trollGirlsID");
+        const trollGirlsID = ConfigHelper.getHHScriptVars("trollGirlsID");
         const trollWithGirls:any[] = [];
     
         if (girlDictionary) {
@@ -82,8 +80,8 @@ export class Troll {
 
     static getLastTrollIdAvailable() {
         const id_world = getHHVars('Hero.infos.questing.id_world');
-        if(isPshEnvironnement() && id_world > 10) {
-            const trollIdMapping = getHHScriptVars("trollIdMapping");
+        if(ConfigHelper.isPshEnvironnement() && id_world > 10) {
+            const trollIdMapping = ConfigHelper.getHHScriptVars("trollIdMapping");
             return trollIdMapping[id_world]; // PSH parallele adventures
         }else {
             return id_world-1;
@@ -139,9 +137,9 @@ export class Troll {
                         TTF=lastTrollIdAvailable;
                     }
                 }
-            } else if(getPage()!==getHHScriptVars("pagesIDHome")) {
+            } else if(getPage()!==ConfigHelper.getHHScriptVars("pagesIDHome")) {
                 logHHAuto("Can't get troll with girls, going to home page to get girl list.");
-                gotoPage(getHHScriptVars("pagesIDHome"));
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
             } else {
                 logHHAuto("Can't get troll with girls, going to last troll.");
                 TTF=lastTrollIdAvailable;
@@ -165,7 +163,8 @@ export class Troll {
             //setStoredValue(HHStoredVarPrefixKey+"Temp_autoTrollBattleSaveQuest", "false");
             setStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement", "none");
         }
-        if(TTF >= Trollz.length) {
+        const trollz = ConfigHelper.getHHScriptVars("trollzList");
+        if(TTF >= trollz.length) {
             logHHAuto("Error: New troll implemented '"+TTF+"' (List to be updated) or wrong troll target found");
             TTF = 1;
         }
@@ -190,14 +189,15 @@ export class Troll {
         }
 
         const TTF = Troll.getTrollIdToFight();
+        const trollz = ConfigHelper.getHHScriptVars("trollzList");
 
         logHHAuto("Fighting troll N "+TTF);
-        logHHAuto("Going to crush: "+Trollz[Number(TTF)]);
+        logHHAuto("Going to crush: "+trollz[Number(TTF)]);
 
         // Battles the latest boss.
         // Navigate to latest boss.
         //console.log(getPage());
-        if(getPage()===getHHScriptVars("pagesIDTrollPreBattle") && window.location.search=="?id_opponent=" + TTF)
+        if(getPage()===ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle") && window.location.search=="?id_opponent=" + TTF)
         {
             // On the battle screen.
             Troll.CrushThemFights();
@@ -210,7 +210,7 @@ export class Troll {
             logHHAuto("setting autoloop to false");
             //week 28 new battle modification
             //location.href = "/battle.html?id_troll=" + TTF;
-            gotoPage(getHHScriptVars("pagesIDTrollPreBattle"),{id_opponent:TTF});
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle"),{id_opponent:TTF});
             //End week 28 new battle modification
             return true;
         }
@@ -218,10 +218,11 @@ export class Troll {
 
     static CrushThemFights()
     {
-        if (getPage() === getHHScriptVars("pagesIDTrollPreBattle")) {
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle")) {
             // On battle page.
             logHHAuto("On Pre battle page.");
             let TTF = queryStringGetParam(window.location.search,'id_opponent');
+            const trollz = ConfigHelper.getHHScriptVars("trollzList");
 
             let battleButton = $('#pre-battle .battle-buttons a.green_button_L.battle-action-button');
             let battleButtonX10 = $('#pre-battle .battle-buttons button.autofight[data-battles="10"]');
@@ -264,7 +265,7 @@ export class Troll {
 
                         if (rewardGirlz.length ===0 || !trollGirlRewards.includes('"id_girl":'+JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).girl_id))
                         {
-                            logHHAuto("Seems "+JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).girl_name+" is no more available at troll "+Trollz[Number(TTF)]+". Going to event page.");
+                            logHHAuto("Seems "+JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).girl_name+" is no more available at troll "+trollz[Number(TTF)]+". Going to event page.");
                             EventModule.parseEventPage(JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).event_id);
                             return true;
                         }
@@ -294,7 +295,7 @@ export class Troll {
                 )
                 {
                     Troll.RechargeCombat();
-                    gotoPage(getHHScriptVars("pagesIDTrollPreBattle"),{id_opponent:TTF});
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle"),{id_opponent:TTF});
                     return;
                 }
 
@@ -330,7 +331,7 @@ export class Troll {
                         && ( JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).is_mythic === "true" || getStoredValue(HHStoredVarPrefixKey+"Setting_useX50FightsAllowNormalEvent") === "true")
                     )
                     {
-                        logHHAuto("Going to crush 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
+                        logHHAuto("Going to crush 50 times: "+trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
 
                         setHHVars('Hero.infos.hc_confirm',true);
                         // We have the power.
@@ -338,7 +339,7 @@ export class Troll {
                         battleButtonX50[0].click();
                         setHHVars('Hero.infos.hc_confirm',hcConfirmValue);
                         //setStoredValue(HHStoredVarPrefixKey+"Temp_EventFightsBeforeRefresh", Number(getStoredValue(HHStoredVarPrefixKey+"Temp_EventFightsBeforeRefresh")) - 50);
-                        logHHAuto("Crushed 50 times: "+Trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
+                        logHHAuto("Crushed 50 times: "+trollz[Number(TTF)]+' for '+battleButtonX50Price+' kobans.');
                         if (getStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement") === "battle") {
                             // Battle Done.
                             setStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement", "none");
@@ -366,7 +367,7 @@ export class Troll {
                         && ( JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).is_mythic === "true" || getStoredValue(HHStoredVarPrefixKey+"Setting_useX10FightsAllowNormalEvent") === "true")
                     )
                     {
-                        logHHAuto("Going to crush 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
+                        logHHAuto("Going to crush 10 times: "+trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
 
                         setHHVars('Hero.infos.hc_confirm',true);
                         // We have the power.
@@ -374,7 +375,7 @@ export class Troll {
                         battleButtonX10[0].click();
                         setHHVars('Hero.infos.hc_confirm',hcConfirmValue);
                         //setStoredValue(HHStoredVarPrefixKey+"Temp_EventFightsBeforeRefresh", Number(getStoredValue(HHStoredVarPrefixKey+"Temp_EventFightsBeforeRefresh")) - 10);
-                        logHHAuto("Crushed 10 times: "+Trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
+                        logHHAuto("Crushed 10 times: "+trollz[Number(TTF)]+' for '+battleButtonX10Price+' kobans.');
                         if (getStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement") === "battle") {
                             // Battle Done.
                             setStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement", "none");
@@ -399,7 +400,7 @@ export class Troll {
                     if ($('#pre-battle div.battle-buttons a.single-battle-button[disabled]').length>0)
                     {
                         logHHAuto("Battle Button seems disabled, force reload of page.");
-                        gotoPage(getHHScriptVars("pagesIDHome"));
+                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                         return;
                     }
                     if(battleButton === undefined || battleButton.length === 0)
@@ -418,7 +419,7 @@ export class Troll {
                         }
                         return;
                     }
-                    logHHAuto("Crushing: "+Trollz[Number(TTF)]);
+                    logHHAuto("Crushing: "+trollz[Number(TTF)]);
                     //console.log(battleButton);
                     //replaceCheatClick();
                     checkPreviousFightDone();
@@ -435,7 +436,7 @@ export class Troll {
                     {
                         setStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement", "P"+battle_price);
                     }
-                    gotoPage(getHHScriptVars("pagesIDHome"));
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                     return;
                 }
             }
@@ -450,7 +451,7 @@ export class Troll {
         else
         {
             logHHAuto('Unable to identify page.');
-            gotoPage(getHHScriptVars("pagesIDHome"));
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
             return;
         }
         return;

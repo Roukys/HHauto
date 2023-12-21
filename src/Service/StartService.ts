@@ -1,13 +1,11 @@
-import { 
-    Leagues,
+import {
     Timers,
-    Trollz,
     addEventsOnMenuItems,
     debugDeleteAllVars,
     debugDeleteTempVars,
     deleteStoredValue,
     doStatUpgrades,
-    getHHScriptVars,
+    ConfigHelper,
     getHHVars,
     getMenu,
     getMenuValues,
@@ -19,6 +17,7 @@ import {
     manageTranslationPopUp,
     maskInactiveMenus,
     migrateHHVars,
+    randomInterval,
     saveHHStoredVarsDefaults,
     saveHHVarsSettingsAsJSON,
     setHHStoredVarToDefault,
@@ -105,6 +104,11 @@ export function hardened_start()
 {
     debugMenuID = GM_registerMenuCommand(getTextForUI("saveDebug","elementText"), saveHHDebugLog);
     //GM_unregisterMenuCommand(debugMenuID);
+    if ((unsafeWindow as any).jQuery == undefined) {
+        console.log("HHAUTO WARNING: No jQuery found.");
+        //setTimeout(()=>{ location.reload }, randomInterval(15*60, 20*60) * 1000);
+        return;
+    }
     if (!started)
     {
         started=true;
@@ -208,10 +212,10 @@ export function start() {
     const pInfoDiv = createPInfo();
 
     if(
-        getPage()==getHHScriptVars("pagesIDMissions")
-    || getPage()==getHHScriptVars("pagesIDContests")
-    || getPage()==getHHScriptVars("pagesIDPowerplacemain")
-    || getPage()==getHHScriptVars("pagesIDDailyGoals")
+        getPage()==ConfigHelper.getHHScriptVars("pagesIDMissions")
+    || getPage()==ConfigHelper.getHHScriptVars("pagesIDContests")
+    || getPage()==ConfigHelper.getHHScriptVars("pagesIDPowerplacemain")
+    || getPage()==ConfigHelper.getHHScriptVars("pagesIDDailyGoals")
     )
     {
         Contest.styles();
@@ -229,12 +233,13 @@ export function start() {
     var trollOptions = <HTMLSelectElement>document.getElementById("autoTrollSelector");
 
     const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
+    const trollz = ConfigHelper.getHHScriptVars("trollzList");
     for (var i=0;i<=lastTrollIdAvailable;i++)
     {
         var option = document.createElement("option");
         option.value=i+'';
-        option.text = Trollz[i];
-        if(option.text !== 'EMPTY' && Trollz[i]) {
+        option.text = trollz[i];
+        if(option.text !== 'EMPTY' && trollz[i]) {
             // Supports for PH and missing trols or parallel advantures (id world "missing")
             trollOptions.add(option);
         }
@@ -252,12 +257,13 @@ export function start() {
 
     // Add league options
     var leaguesOptions = <HTMLSelectElement>document.getElementById("autoLeaguesSelector");
+    const leagues = ConfigHelper.getHHScriptVars("leaguesList");
 
-    for (var j in Leagues)
+    for (var j in leagues)
     {
         var optionL = document.createElement("option");
         optionL.value=(Number(j)+1)+'';
-        optionL.text = Leagues[j];
+        optionL.text = leagues[j];
         leaguesOptions.add(optionL);
     };
 
@@ -404,7 +410,7 @@ export function start() {
         //console.log("testingHome : setting to : "+getPage());
         setStoredValue(HHStoredVarPrefixKey+"Temp_LastPageCalled", JSON.stringify({page:getPage(), dateTime:new Date().getTime()}));
     }
-    if (isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_LastPageCalled")) && JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_LastPageCalled")).page === getHHScriptVars("pagesIDHome"))
+    if (isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_LastPageCalled")) && JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_LastPageCalled")).page === ConfigHelper.getHHScriptVars("pagesIDHome"))
     {
         //console.log("testingHome : delete");
         deleteStoredValue(HHStoredVarPrefixKey+"Temp_LastPageCalled");

@@ -1,13 +1,13 @@
 import { PlaceOfPower } from '../Module/index';
 import { isJSON, logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
-import { getHHScriptVars } from "./ConfigHelper";
+import { ConfigHelper } from "./ConfigHelper";
 import { getStoredValue, setStoredValue } from "./StorageHelper";
 import { queryStringGetParam } from "./UrlHelper";
 
 export function getPage(checkUnknown = false)
 {
-    var ob = document.getElementById(getHHScriptVars("gameID"));
+    var ob = document.getElementById(ConfigHelper.getHHScriptVars("gameID"));
     if(ob===undefined || ob === null)
     {
         logHHAuto("Unable to find page attribute, stopping script");
@@ -18,7 +18,7 @@ export function getPage(checkUnknown = false)
         return "";
     }
     //var p=ob.className.match(/.*page-(.*) .*/i)[1];
-    let activitiesMainPage = getHHScriptVars("pagesIDActivities");
+    let activitiesMainPage = ConfigHelper.getHHScriptVars("pagesIDActivities");
     var tab = queryStringGetParam(window.location.search,'tab');
     var p=ob.getAttribute('page');
     let page = p;
@@ -26,15 +26,15 @@ export function getPage(checkUnknown = false)
     {
         if (tab === 'contests' || $("#activities-tabs > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='contests']").length>0)
         {
-            page = getHHScriptVars("pagesIDContests");
+            page = ConfigHelper.getHHScriptVars("pagesIDContests");
         }
         if (tab === 'missions' || $("#activities-tabs > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='missions']").length>0)
         {
-            page = getHHScriptVars("pagesIDMissions");
+            page = ConfigHelper.getHHScriptVars("pagesIDMissions");
         }
         if (tab === 'daily_goals' || $("#activities-tabs > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='daily_goals']").length>0)
         {
-            page = getHHScriptVars("pagesIDDailyGoals");
+            page = ConfigHelper.getHHScriptVars("pagesIDDailyGoals");
 
             if (tab === 'pop') {
                 // Wrong POP targetted
@@ -76,12 +76,12 @@ export function getPage(checkUnknown = false)
     }
     if (checkUnknown)
     {
-        const knownPages = getHHScriptVars("pagesKnownList");
+        const knownPages = ConfigHelper.getHHScriptVars("pagesKnownList");
         let isKnown = false;
         for (let knownPage of knownPages)
         {
             //console.log(knownPage)
-            if (page === getHHScriptVars("pagesID"+knownPage))
+            if (page === ConfigHelper.getHHScriptVars("pagesID"+knownPage))
             {
                 isKnown = true;
             }

@@ -3,7 +3,7 @@ import {
     TimeHelper,
     convertTimeToInt,
     deleteStoredValue,
-    getHHScriptVars,
+    ConfigHelper,
     getPage,
     getStoredValue,
     randomInterval,
@@ -50,10 +50,10 @@ export class Missions {
     }
     static run() {
         // returns boolean to set busy
-        if(getPage() !== getHHScriptVars("pagesIDMissions"))
+        if(getPage() !== ConfigHelper.getHHScriptVars("pagesIDMissions"))
         {
             logHHAuto("Navigating to missions page.");
-            gotoPage(getHHScriptVars("pagesIDMissions"));
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDMissions"));
             // return busy
             return true;
         }
@@ -91,7 +91,7 @@ export class Missions {
                 var missionButton = $(mission.missionObject).find("button:visible[rel='mission_start']").first();
                 if(missionButton.length > 0) {
                     missionButton.click();
-                    gotoPage(getHHScriptVars("pagesIDMissions"),{},randomInterval(1300,1800));
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDMissions"),{},randomInterval(1300,1800));
                     setTimer('nextMissionTime',Number(mission.duration) + randomInterval(1,5));
                 }
                 else {
@@ -164,7 +164,7 @@ export class Missions {
                     else {
                         if (canCollect) {
                             logHHAuto("Unclaimed mission detected...");
-                            gotoPage(getHHScriptVars("pagesIDMissions"), {}, randomInterval(1300, 1800));
+                            gotoPage(ConfigHelper.getHHScriptVars("pagesIDMissions"), {}, randomInterval(1300, 1800));
                             return false;
                         }
                     }

@@ -1,13 +1,12 @@
 import {
     convertTimeToInt,
-    getHHScriptVars,
+    ConfigHelper,
     getHHVars,
     getPage,
     getSecondsLeft,
     getStoredValue,
     getTextForUI,
     randomInterval,
-    remove1000sSeparator,
     setStoredValue,
     setTimer
 } from '../Helper/index';
@@ -277,13 +276,13 @@ export class Champion {
     static doChampionStuff()
     {
         var page=getPage();
-        if (page==getHHScriptVars("pagesIDChampionsPage"))
+        if (page==ConfigHelper.getHHScriptVars("pagesIDChampionsPage"))
         {
             logHHAuto('on champion page');
             if ($('button[rel=perform].blue_button_L').length==0)
             {
                 logHHAuto('Something is wrong!');
-                gotoPage(getHHScriptVars("pagesIDHome"));
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                 return true;
             }
             else
@@ -309,12 +308,12 @@ export class Champion {
                         logHHAuto("Using ticket");
                         $('button[rel=perform].blue_button_L').click();
                     }
-                    gotoPage(getHHScriptVars("pagesIDChampionsMap"));
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDChampionsMap"));
                     return true;
                 }
             }
         }
-        else if (page==getHHScriptVars("pagesIDChampionsMap"))
+        else if (page==ConfigHelper.getHHScriptVars("pagesIDChampionsMap"))
         {
             logHHAuto('on champion map');
 
@@ -391,18 +390,18 @@ export class Champion {
 
             logHHAuto("No good candidate");
             Champion.findNextChamptionTime();
-            gotoPage(getHHScriptVars("pagesIDHome"));
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
             return false;
         }
         else
         {
-            gotoPage(getHHScriptVars("pagesIDChampionsMap"));
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDChampionsMap"));
             return true;
         }
     }
 
     static findNextChamptionTime() {
-        if (getPage()==getHHScriptVars("pagesIDChampionsMap")) {
+        if (getPage()==ConfigHelper.getHHScriptVars("pagesIDChampionsMap")) {
             const autoChampsForceStart = getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsForceStart") === "true";
             var minTime = -1; // less than 15min
             var minTimeEnded = -1;

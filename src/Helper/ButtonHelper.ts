@@ -1,4 +1,4 @@
-import { getHHScriptVars } from "./ConfigHelper";
+import { ConfigHelper } from "./ConfigHelper";
 import { getTextForUI } from "./LanguageHelper";
 
 export function getGoToChangeTeamButton() {
@@ -7,5 +7,5 @@ export function getGoToChangeTeamButton() {
 }
 
 export function getGoToClubChampionButton() {
-    return `<button data-href="${getHHScriptVars("pagesURLClubChampion")}" class="blue_button_L hh-club-poa">${getTextForUI("goToClubChampions","elementText")}</button>`;
+    return `<button data-href="${ConfigHelper.getHHScriptVars("pagesURLClubChampion")}" class="blue_button_L hh-club-poa">${getTextForUI("goToClubChampions","elementText")}</button>`;
 }

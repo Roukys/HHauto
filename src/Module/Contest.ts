@@ -1,6 +1,6 @@
 import {
     TimeHelper,
-    getHHScriptVars,
+    ConfigHelper,
     getPage,
     getStoredValue,
     randomInterval,
@@ -13,10 +13,10 @@ import { HHStoredVarPrefixKey } from '../config/index';
 export class Contest {
     // returns boolean to set busy
     static run(){
-        if(getPage() !== getHHScriptVars("pagesIDContests"))
+        if(getPage() !== ConfigHelper.getHHScriptVars("pagesIDContests"))
         {
             logHHAuto("Navigating to contests page.");
-            gotoPage(getHHScriptVars("pagesIDContests"));
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDContests"));
             // return busy
             return true;
         }
@@ -31,7 +31,7 @@ export class Contest {
                 contest_list[0].click();
                 if ( contest_list.length > 1 )
                 {
-                    gotoPage(getHHScriptVars("pagesIDContests"));
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDContests"));
                 }
             }
     

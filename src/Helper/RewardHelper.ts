@@ -1,9 +1,9 @@
 import { gotoPage } from '../Service/index';
 import { isJSON, logHHAuto } from '../Utils/index';
 import { parsePrice } from "./PriceHelper";
-import { getHHScriptVars } from "./ConfigHelper";
+import { ConfigHelper } from "./ConfigHelper";
 import { getTextForUI } from "./LanguageHelper";
-import { nRounding } from "./NumberHelper";
+import { NumberHelper } from "./NumberHelper";
 import { getStoredValue, setStoredValue } from "./StorageHelper";
 import { randomInterval } from "./TimeHelper";
 import { EventModule, SeasonalEvent } from '../Module/index';
@@ -11,10 +11,10 @@ import { queryStringGetParam } from "./UrlHelper";
 import { HHStoredVarPrefixKey } from '../config/index';
 
 export class RewardHelper {
-    static getRewardTypeBySlot(inSlot)
+    static getRewardTypeBySlot(inSlot): string
     {
         let reward = "undetected";
-        if (inSlot && inSlot.className.indexOf('slot') >= 0)
+        if (inSlot && inSlot.className?.indexOf('slot') >= 0)
         {
             if (inSlot.getAttribute("cur") !== null)
             {
@@ -60,7 +60,7 @@ export class RewardHelper {
                 //console.log(currentIndicator+" : "+inSlot.getAttribute("rarity")+" "+objectData.item.type+" "+objectData.item.value);
                 reward = objectData.item.type;
             }else{
-                const possibleRewards = getHHScriptVars("possibleRewardsList");
+                const possibleRewards = ConfigHelper.getHHScriptVars("possibleRewardsList");
                 for (let currentRewards of Object.keys(possibleRewards))
                 {
                     if (inSlot.className.indexOf('slot_'+currentRewards) >= 0)
@@ -70,7 +70,7 @@ export class RewardHelper {
                 }
             }
         }
-        else if (inSlot && inSlot.className.indexOf('shards_girl_ico') >= 0)
+        else if (inSlot && inSlot.className?.indexOf('shards_girl_ico') >= 0)
         {
             //console.log(currentIndicator+" : shards_girl_ico");
             reward = 'girl_shards';
@@ -79,20 +79,20 @@ export class RewardHelper {
         return reward;
     }
 
-    static getRewardTypeByData(inData)
+    static getRewardTypeByData(inData:any)
     {
         let reward = "undetected";
-        if (inData.hasOwnProperty("type"))
+        if (inData?.hasOwnProperty("type"))
         {
             reward = inData.type;
         }
-        else if (inData.hasOwnProperty("ico"))
+        else if (inData?.hasOwnProperty("ico"))
         {
-            if ( inData.ico.indexOf("items/K") > 0 )
+            if ( inData.ico?.indexOf("items/K") > 0 )
             {
                 reward = "gift";
             }
-            else if ( inData.ico.indexOf("items/XP") > 0 )
+            else if ( inData.ico?.indexOf("items/XP") > 0 )
             {
                 reward = "potion";
             }
@@ -101,7 +101,7 @@ export class RewardHelper {
         return reward;
     }
 
-    static getRewardQuantityByType(rewardType, inSlot){
+    static getRewardQuantityByType(rewardType:string, inSlot):number {
         // TODO update logic for potion / gift to be more accurate
         switch(rewardType)
         {
@@ -156,9 +156,9 @@ export class RewardHelper {
 
         return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
     }
-    static computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors) {
-        const rewardCountByType = {};
-        var rewardType, rewardSlot, rewardAmount;
+    static computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors):Map<string,number> {
+        const rewardCountByType:Map<string,number> = new Map();
+        var rewardType:string, rewardSlot:any, rewardAmount:number;
 
 // data-d='{"item":{"id_item":"323","type":"potion","identifier":"XP4","rarity":"legendary","price":"500000","currency":"sc","value":"2500","carac1":"0","carac2":"0","carac3":"0","endurance":"0","chance":"0.00","ego":"0","damage":"0","duration":"0","skin":"hentai,gay,sexy","name":"Spell book","ico":"https://hh.hh-content.com/pictures/items/XP4.png","display_price":500000},"quantity":"1"}'
 
@@ -183,35 +183,36 @@ export class RewardHelper {
         }
         return rewardCountByType;
     }
-    static getRewardsAsHtml(rewardCountByType) {
+    static getRewardsAsHtml(rewardCountByType:Map<string,number>) {
         let html = '';
-        for (const [rewardType, rewardCount] of Object.entries(rewardCountByType)) {
+        if(rewardCountByType)
+        rewardCountByType.forEach((rewardCount: number, rewardType: string) => {
             switch(rewardType)
             {
                 // case 'girl_shards' :    return Number($('.shards', inSlot).attr('shards'));
-                case 'random_girl_shards' : html += '<div class="slot slot_random_girl  size_xs"><span class="random_girl_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
-                case 'energy_kiss':     html += '<div class="slot slot_energy_kiss  size_xs"><span class="energy_kiss_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
-                case 'energy_quest':    html += '<div class="slot slot_energy_quest size_xs"><span class="energy_quest_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
-                case 'energy_fight' :   html += '<div class="slot slot_energy_fight  size_xs"><span class="energy_fight_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
-                case 'xp' :             html += '<div class="slot slot_xp size_xs"><span class="xp_icn"></span><div class="amount">'+nRounding(rewardCount,1,-1)+'</div></div>'; break;
-                case 'soft_currency' :  html += '<div class="slot slot_soft_currency size_xs"><span class="soft_currency_icn"></span><div class="amount">'+nRounding(rewardCount,1,-1)+'</div></div>'; break;
-                case 'hard_currency' :  html += '<div class="slot slot_hard_currency size_xs"><span class="hard_currency_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
-                case 'event_cash' :     html += '<div class="slot slot_seasonal_event_cash size_xs"><span class="mega_event_cash_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
+                case 'random_girl_shards' : html += '<div class="slot slot_random_girl  size_xs"><span class="random_girl_icn"></span><div class="amount">'+NumberHelper.nRounding(rewardCount,0,-1)+'</div></div>'; break;
+                case 'energy_kiss':     html += '<div class="slot slot_energy_kiss  size_xs"><span class="energy_kiss_icn"></span><div class="amount">'+NumberHelper.nRounding(rewardCount,0,-1)+'</div></div>'; break;
+                case 'energy_quest':    html += '<div class="slot slot_energy_quest size_xs"><span class="energy_quest_icn"></span><div class="amount">'+NumberHelper.nRounding(rewardCount,0,-1)+'</div></div>'; break;
+                case 'energy_fight' :   html += '<div class="slot slot_energy_fight  size_xs"><span class="energy_fight_icn"></span><div class="amount">'+NumberHelper.nRounding(rewardCount,0,-1)+'</div></div>'; break;
+                case 'xp' :             html += '<div class="slot slot_xp size_xs"><span class="xp_icn"></span><div class="amount">'+NumberHelper.nRounding(rewardCount,1,-1)+'</div></div>'; break;
+                case 'soft_currency' :  html += '<div class="slot slot_soft_currency size_xs"><span class="soft_currency_icn"></span><div class="amount">'+NumberHelper.nRounding(rewardCount,1,-1)+'</div></div>'; break;
+                case 'hard_currency' :  html += '<div class="slot slot_hard_currency size_xs"><span class="hard_currency_icn"></span><div class="amount">'+NumberHelper.nRounding(rewardCount,0,-1)+'</div></div>'; break;
+                case 'event_cash' :     html += '<div class="slot slot_seasonal_event_cash size_xs"><span class="mega_event_cash_icn"></span><div class="amount">'+NumberHelper.nRounding(rewardCount,0,-1)+'</div></div>'; break;
                 // case 'gift':
                 // case 'potion' :
                 // case 'booster' :
                 // case 'orbs':
                 // case 'gems' :           html += '<div class="slot slot_gems size_xs"><span class="gem_all_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
                 // case 'scrolls' :
-                case 'ticket' :         html += '<div class="slot slot_ticket size_xs"><span class="ticket_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
+                case 'ticket' :         html += '<div class="slot slot_ticket size_xs"><span class="ticket_icn"></span><div class="amount">'+NumberHelper.nRounding(rewardCount,0,-1)+'</div></div>'; break;
                 // case 'mythic' :         html += '<div class="slot mythic random_equipment size_xs"><span class="mythic_equipment_icn"></span><div class="amount">'+nRounding(rewardCount,0,-1)+'</div></div>'; break;
                 // case 'avatar':          return 1;
                 default: 
             }
-        }
+        });
         return html;
     }
-    static displayRewardsDiv(target,hhRewardId, rewardCountByType ) {
+    static displayRewardsDiv(target,hhRewardId, rewardCountByType:Map<string,number> ) {
         const emptyRewardDiv = $('<div id='+hhRewardId+' style="display:none;"></div>');
         try{
             if($('#' + hhRewardId).length <= 0) {
@@ -268,7 +269,7 @@ export class RewardHelper {
     }
     static ObserveAndGetGirlRewards()
     {
-        let inCaseTimer = setTimeout(function(){gotoPage(getHHScriptVars("pagesIDHome"));}, 60000); //in case of issue
+        let inCaseTimer = setTimeout(function(){gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));}, 60000); //in case of issue
         function parseReward()
         {
             if (getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz") === undefined
@@ -290,7 +291,7 @@ export class RewardHelper {
             {
                 clearTimeout(inCaseTimer);
                 logHHAuto("No girl in reward going back to Troll");
-                gotoPage(getHHScriptVars("pagesIDTrollPreBattle"),{id_opponent:TTF});
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle"),{id_opponent:TTF});
                 return;
             }
             let renewEvent = "";
@@ -350,7 +351,7 @@ export class RewardHelper {
             {
                 clearTimeout(inCaseTimer);
                 logHHAuto("Go back to troll after troll fight.");
-                gotoPage(getHHScriptVars("pagesIDTrollPreBattle"),{id_opponent:TTF});
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle"),{id_opponent:TTF});
                 return;
             }
         }

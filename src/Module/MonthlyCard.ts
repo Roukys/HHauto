@@ -1,5 +1,5 @@
 import {
-    getHHScriptVars,
+    ConfigHelper,
     getHHVars
 } from '../Helper/index';
 import { logHHAuto } from '../Utils/index';
@@ -14,7 +14,7 @@ import { Troll } from "./Troll";
 export class MonthlyCards {
     static updateInputPattern() {
         try {
-            if(getHHScriptVars('isEnabledTrollBattle',false)) {
+            if(ConfigHelper.getHHScriptVars('isEnabledTrollBattle',false)) {
                 const maxRegenFight = Troll.getEnergyMax();
                 if(maxRegenFight && maxRegenFight > 20) {
                     // 20 - 30 - 40 - 50 - 60
@@ -23,7 +23,7 @@ export class MonthlyCards {
                     HHAuto_inputPattern.autoTrollRunThreshold = maxRegenFight + "|" + HHAuto_inputPattern.autoTrollThreshold;
                 }
             }
-            if(getHHScriptVars('isEnabledSeason',false)) {
+            if(ConfigHelper.getHHScriptVars('isEnabledSeason',false)) {
                 const maxRegenKiss = Season.getEnergyMax();
                 if(maxRegenKiss && maxRegenKiss > 10) {
                     // 10 - 20 - 30 - 40 - 50
@@ -32,7 +32,7 @@ export class MonthlyCards {
                     HHAuto_inputPattern.autoSeasonRunThreshold = maxRegenKiss + "|" + HHAuto_inputPattern.autoSeasonThreshold;
                 }
             }
-            if(getHHScriptVars('isEnabledQuest',false)) {
+            if(ConfigHelper.getHHScriptVars('isEnabledQuest',false)) {
                 const maxRegenQuest = QuestHelper.getEnergyMax();
                 if(maxRegenQuest && maxRegenQuest > 100) {
                     // 100 - 150 - 200 - 250 - 300
@@ -46,7 +46,7 @@ export class MonthlyCards {
                     }
                 }
             }
-            if(getHHScriptVars('isEnabledLeagues',false)) {
+            if(ConfigHelper.getHHScriptVars('isEnabledLeagues',false)) {
                 const maxRegenLeague = LeagueHelper.getEnergyMax();
                 if(maxRegenLeague && maxRegenLeague > 15) {
                     // 15 - 18 - 23 - 26 - 30
@@ -71,7 +71,7 @@ export class MonthlyCards {
                     }
                 }
             }
-            if(getHHScriptVars('isEnabledPantheon',false)) {
+            if(ConfigHelper.getHHScriptVars('isEnabledPantheon',false)) {
                 const maxRegenPantheon = Pantheon.getEnergyMax();
                 if(maxRegenPantheon && maxRegenPantheon > 10) {
                     // 10 - 15 - 20 - 25 - 30

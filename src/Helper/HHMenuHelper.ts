@@ -1,9 +1,9 @@
 import { setDefaults } from '../Service/index';
 import { isDisplayedHHPopUp, logHHAuto } from '../Utils/index';
 import { HHAuto_inputPattern, HHStoredVarPrefixKey, HHStoredVars } from '../config/index';
-import { getHHScriptVars } from "./ConfigHelper";
+import { ConfigHelper } from "./ConfigHelper";
 import { getTextForUI } from "./LanguageHelper";
-import { add1000sSeparator, add1000sSeparator1, remove1000sSeparator } from "./NumberHelper";
+import { NumberHelper, add1000sSeparator1 } from "./NumberHelper";
 import { getStorageItem, getStoredValue, setStoredValue } from "./StorageHelper";
 
 export function maskInactiveMenus()
@@ -16,7 +16,7 @@ export function maskInactiveMenus()
     for (let menu of menuIDList)
     {
         const menuElement = document.getElementById(menu);
-        if ( menuElement !== null && getHHScriptVars(menu,false) !== null && !getHHScriptVars(menu,false) )
+        if ( menuElement !== null && ConfigHelper.getHHScriptVars(menu,false) !== null && !ConfigHelper.getHHScriptVars(menu,false) )
         {
             menuElement.style.display = "none";
         }
@@ -44,7 +44,7 @@ export function hhMenuSwitchWithImg(textKeyAndInputId, imgPath, isKobanSwitch=fa
     return `<div class="labelAndButton">`
         +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
         +`<div class="imgAndObjectRow">`
-            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/${imgPath}" />`
+            +`<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/${imgPath}" />`
             +`<div style="padding-left:5px">`
                 +`<div class="tooltipHH">`
                     +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
@@ -79,7 +79,7 @@ export function hhMenuInputWithImg(textKeyAndInputId, inputPattern, inputStyle, 
     return `<div class="labelAndButton">`
         +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
         +`<div class="imgAndObjectRow">`
-            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/${imgPath}" />`
+            +`<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/${imgPath}" />`
             +`<div style="padding-left:5px">`
                 +`<div class="tooltipHH">`
                     +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
@@ -141,7 +141,7 @@ export function setMenuValues()
                 switch (HHStoredVars[i].valueType)
                 {
                     case "Long Integer":
-                        itemValue = add1000sSeparator(itemValue);
+                        itemValue = NumberHelper.add1000sSeparator(itemValue);
                         break;
                     case "Boolean":
                         itemValue = itemValue === "true";
@@ -190,7 +190,7 @@ export function getMenuValues()
                 switch (HHStoredVars[i].valueType)
                 {
                     case "Long Integer":
-                        menuValue = String(remove1000sSeparator(menuValue));
+                        menuValue = String(NumberHelper.remove1000sSeparator(menuValue));
                         break;
                 }
                 //console.log(menuID,HHStoredVars[i].menuType,menuValue,document.getElementById(menuID),HHStoredVars[i].valueType);
@@ -287,7 +287,7 @@ export function getMenu() {
             +`</div>`
             +`<div class="optionsBoxWithTitle">`
                 +`<div class="optionsBoxTitle">`
-                    +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/panel.svg" />`
+                    +`<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/design/menu/panel.svg" />`
                     +`<span class="optionsBoxTitle">${getTextForUI("globalTitle","elementText")}</span>`
                 +`</div>`
                 +`<div class="rowOptionsBox" style="display:grid;grid-auto-flow: column;">`
@@ -330,7 +330,7 @@ export function getMenu() {
             +`</div>`
             +`<div class="optionsBoxWithTitle">`
                 +`<div class="optionsBoxTitle">`
-                    +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/pictures/design/ic_hard_currency.png" />`
+                    +`<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/pictures/design/ic_hard_currency.png" />`
                     +`<span class="optionsBoxTitle">Kobans</span>`
                 +`</div>`
                 +`<div class="rowOptionsBox">`
@@ -340,7 +340,7 @@ export function getMenu() {
             +`</div>`
             +`<div class="optionsBoxWithTitle">`
                 +`<div class="optionsBoxTitle">`
-                    +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/sex_friends.svg" />`
+                    +`<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/design/menu/sex_friends.svg" />`
                     +`<span class="optionsBoxTitle">${getTextForUI("displayTitle","elementText")}</span>`
                 +`</div>`
                 +`<div class="rowOptionsBox">`
@@ -379,7 +379,7 @@ export function getMenu() {
                 +`<div class="optionsColumn">`
                     +`<div class="optionsBoxWithTitle">`
                         +`<div class="optionsBoxTitle">`
-                            +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/missions.svg" />`
+                            +`<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/design/menu/missions.svg" />`
                             +`<span class="optionsBoxTitle">${getTextForUI("autoActivitiesTitle","elementText")}</span>`
                         +`</div>`
                         +`<div class="optionsBox" style="border:none;padding:0">`
@@ -459,7 +459,7 @@ export function getMenu() {
             +`<div class="optionsRow">`
                 +`<div id="isEnabledSeason" class="optionsBoxWithTitle">`
                     +`<div class="optionsBoxTitle">`
-                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/seasons.svg" />`
+                        +`<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/design/menu/seasons.svg" />`
                         +`<span class="optionsBoxTitle">${getTextForUI("autoSeasonTitle","elementText")}</span>`
                     +`</div>`
                     +`<div class="optionsBox">`
@@ -481,7 +481,7 @@ export function getMenu() {
                 +`</div>`
                 +`<div id="isEnabledLeagues" class="optionsBoxWithTitle">`
                     +`<div class="optionsBoxTitle">`
-                        +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/leaderboard.svg" />`
+                        +`<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/design/menu/leaderboard.svg" />`
                         +`<span class="optionsBoxTitle">${getTextForUI("autoLeaguesTitle","elementText")}</span>`
                     +`</div>`
                     +`<div class="optionsBox">`
@@ -545,7 +545,7 @@ export function getMenu() {
             +`</div>`
             +`<div id="isEnabledTrollBattle" class="optionsBoxWithTitle">`
                 +`<div class="optionsBoxTitle">`
-                    +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/pictures/design/menu/map.svg" />`
+                    +`<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/pictures/design/menu/map.svg" />`
                     +`<span class="optionsBoxTitle">${getTextForUI("autoTrollTitle","elementText")}</span>`
                 +`</div>`
                 +`<div class="optionsBox">`
@@ -587,7 +587,7 @@ export function getMenu() {
         return `<div class="optionsColumn" style="width: 340px;">`
             +`<div id="isEnabledAllChamps" class="optionsBoxWithTitle">`
                 +`<div class="optionsBoxTitle">`
-                    +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
+                    +`<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
                     +`<span class="optionsBoxTitle">${getTextForUI("autoChampsTitle","elementText")}</span>`
                 +`</div>`
                 +`<div class="optionsBox">`
@@ -614,7 +614,7 @@ export function getMenu() {
             +`</div>`
             +`<div id="isEnabledPantheon" class="">` // optionsBoxWithTitle
                 // +`<div class="optionsBoxTitle">`
-                //     +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
+                //     +`<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/design/menu/ic_champions.svg" />`
                 //     +`<span class="optionsBoxTitle">${getTextForUI("autoPantheonTitle","elementText")}</span>`
                 // +`</div>`
                 +`<div class="optionsBox">`
@@ -635,7 +635,7 @@ export function getMenu() {
             +`</div>`
             +`<div id="isEnabledShop" class="optionsBoxWithTitle">`
                 +`<div class="optionsBoxTitle">`
-                    +`<img class="iconImg" src="${getHHScriptVars("baseImgPath")}/design/menu/shop.svg" />`
+                    +`<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/design/menu/shop.svg" />`
                     +`<span class="optionsBoxTitle">${getTextForUI("autoBuy","elementText")}</span>`
                 +`</div>`
                 +`<div class="optionsBox">`

@@ -1,7 +1,6 @@
 import {
-    Trollz,
     checkTimer,
-    getHHScriptVars,
+    ConfigHelper,
     getHHVars,
     getPage,
     getStoredValue,
@@ -27,7 +26,7 @@ export class QuestHelper {
 
     static getNextQuestLink():string|undefined {
         const mainQuest = getStoredValue(HHStoredVarPrefixKey+"Setting_autoQuest") === "true";
-        const sideQuest = getHHScriptVars("isEnabledSideQuest",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSideQuest") === "true";
+        const sideQuest = ConfigHelper.getHHScriptVars("isEnabledSideQuest",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSideQuest") === "true";
         let nextQuestUrl = QuestHelper.getMainQuestUrl();
 
         if ((mainQuest && sideQuest && (nextQuestUrl.includes("world"))) || (!mainQuest && sideQuest))
@@ -44,9 +43,10 @@ export class QuestHelper {
         let mainQuestUrl:string = getHHVars('Hero.infos.questing.current_url');
         const id_world:number = Number(getHHVars('Hero.infos.questing.id_world'));
         const id_quest:number = Number(getHHVars('Hero.infos.questing.id_quest'));
-        const lastQuestId:number = getHHScriptVars("lastQuestId",false);
+        const lastQuestId:number = ConfigHelper.getHHScriptVars("lastQuestId",false);
+        const trollz = ConfigHelper.getHHScriptVars("trollzList");
 
-        if (id_world < (Trollz.length) || lastQuestId > 0 && id_quest != lastQuestId) {
+        if (id_world < (trollz.length) || lastQuestId > 0 && id_quest != lastQuestId) {
             // Fix when KK quest url is world url
             mainQuestUrl = "/quest/" + id_quest;
         }
@@ -58,7 +58,7 @@ export class QuestHelper {
         let page = getPage();
         let mainQuestUrl = QuestHelper.getMainQuestUrl();
         let doMainQuest = getStoredValue(HHStoredVarPrefixKey+"Setting_autoQuest") === "true" && !mainQuestUrl.includes("world");
-        if (!doMainQuest && page === 'side-quests' && getHHScriptVars("isEnabledSideQuest",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSideQuest") === "true") {
+        if (!doMainQuest && page === 'side-quests' && ConfigHelper.getHHScriptVars("isEnabledSideQuest",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSideQuest") === "true") {
             var quests = $('.side-quest:has(.slot) .side-quest-button');
             if (quests.length > 0) {
                 logHHAuto("Navigating to side quest.");
@@ -72,10 +72,10 @@ export class QuestHelper {
             }
             return;
         }
-        if (page !== getHHScriptVars("pagesIDQuest") || (doMainQuest && mainQuestUrl != window.location.pathname)) {
+        if (page !== ConfigHelper.getHHScriptVars("pagesIDQuest") || (doMainQuest && mainQuestUrl != window.location.pathname)) {
             // Click on current quest to naviagte to it.
             logHHAuto("Navigating to current quest.");
-            gotoPage(getHHScriptVars("pagesIDQuest"));
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDQuest"));
             return;
         }
         $("#popup_message close").click();

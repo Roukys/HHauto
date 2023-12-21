@@ -1,4 +1,4 @@
-import { HeroHelper, getHHScriptVars, getHHVars, getStoredValue, setStoredValue } from '../Helper/index';
+import { HeroHelper, ConfigHelper, getHHVars, getStoredValue, setStoredValue } from '../Helper/index';
 import { gotoPage } from '../Service/index';
 import { isJSON, logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
@@ -160,7 +160,7 @@ export class Booster {
                             if(getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") === "true" && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythicSandalWood") === "true" && JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).is_mythic==="true") {
                                 if (isMultibattle) {
                                     // TODO go to market if sandalwood not ended, continue. If ended, buy a new one
-                                    gotoPage(getHHScriptVars("pagesIDShop"));
+                                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDShop"));
                                 } else {
                                     // Equip a new one
                                     /*
@@ -195,15 +195,15 @@ export class Booster {
         return isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_boosterStatus"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_boosterStatus")):DEFAULT_BOOSTERS;
     }
 
-    static haveBoosterEquiped(boosterCode=undefined) {
+    static haveBoosterEquiped(boosterCode:string='') {
         const boosterStatus = Booster.getBoosterFromStorage();
         const serverNow = getHHVars('server_now_ts');
-        if(!boosterCode) {
+        if(boosterCode == '') {
             // have at least one
-            return /*boosterStatus.mythic.length > 0 ||*/ boosterStatus.normal.filter((booster) => booster.endAt > serverNow).length > 0
+            return /*boosterStatus.mythic.length > 0 ||*/ boosterStatus.normal.some((booster) => booster.endAt > serverNow)
         }else {
-            return boosterStatus.mythic.find((booster) => booster.item.identifier === boosterCode).length > 0 
-            || boosterStatus.normal.find((booster) => booster.item.identifier === boosterCode && booster.endAt > serverNow).length > 0 
+            return boosterStatus.mythic.some((booster) => booster.item.identifier === boosterCode)
+            || boosterStatus.normal.some((booster) => booster.item.identifier === boosterCode && booster.endAt > serverNow) 
         }
     }
 

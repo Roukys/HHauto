@@ -1,23 +1,19 @@
 import {
     BDSMHelper,
-    Leagues,
     RewardHelper,
-    TimeHelper,
     calculateBattleProbabilities,
     checkTimer,
-    clearTimer,
     convertTimeToInt,
     deleteStoredValue,
     getGoToChangeTeamButton,
-    getHHScriptVars,
+    ConfigHelper,
     getHHVars,
     getHero,
     getPage,
-    getSecondsLeft,
     getStoredValue,
     getTextForUI,
     getTimeLeft,
-    nRounding,
+    NumberHelper,
     parsePrice,
     queryStringGetParam,
     randomInterval,
@@ -142,13 +138,13 @@ export class LeagueHelper {
         }
         // logHHAuto('powerLevelScouter not present adding it ' + id_fighter);
 
-        const percentage = nRounding(100*simu.win, 2, -1);
-        const points = nRounding(simu.expectedValue, 1, -1);
+        const percentage = NumberHelper.nRounding(100*simu.win, 2, -1);
+        const points = NumberHelper.nRounding(simu.expectedValue, 1, -1);
         const pointText = `${percentage}% (${points})` +
         `<span style="margin:0;display:none;" id="HHPowerCalcScore">${percentage}</span>
         <span style="margin:0;display:none;" id="HHPowerCalcPoints">${points}</span>`;
         // const opponentRow = opponentGoButton.parent().parent();
-        opponentGoButton.html(`<div class="matchRatingNew ${simu.scoreClass}"><img class="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${pointText}</div>`);
+        opponentGoButton.html(`<div class="matchRatingNew ${simu.scoreClass}"><img class="powerLevelScouter" src=${ConfigHelper.getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${pointText}</div>`);
     }
 
     static getEnergy() {
@@ -160,7 +156,7 @@ export class LeagueHelper {
     }
 
     static isEnabled(){
-        return getHHScriptVars("isEnabledLeagues",false) && getHHVars('Hero.infos.level')>=getHHScriptVars("LEVEL_MIN_LEAGUE");
+        return ConfigHelper.getHHScriptVars("isEnabledLeagues",false) && getHHVars('Hero.infos.level')>=ConfigHelper.getHHScriptVars("LEVEL_MIN_LEAGUE");
     }
 
     static isAutoLeagueActivated(){
@@ -281,7 +277,7 @@ export class LeagueHelper {
                             opponents.level,
                             opponents.power,
                             opponents.player_league_points,
-                            Number(nRounding(simu.expectedValue, 1, -1)),
+                            Number(NumberHelper.nRounding(simu.expectedValue, 1, -1)),
                             0, // Boster numbers?
                             opponents,
                             simu
@@ -458,7 +454,7 @@ export class LeagueHelper {
     }
 
     static _getTempLeagueOpponentList() {
-        const maxLeagueListDurationSecs = getHHScriptVars("LeagueListExpirationSecs");
+        const maxLeagueListDurationSecs = ConfigHelper.getHHScriptVars("LeagueListExpirationSecs");
         let opponentsPowerList = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_LeagueOpponentList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_LeagueOpponentList")):{expirationDate:0,opponentsList:[]};
         if (Object.keys(opponentsPowerList.opponentsList).length === 0 ||  opponentsPowerList.expirationDate < new Date())
         {
@@ -533,7 +529,7 @@ export class LeagueHelper {
                         try{
                             opponents = opponents_list.find((el) => el.player.id_fighter == opponent_id);
                             simu = LeagueHelper.getSimPowerOpponent(heroFighter, opponents); 
-                            expectedPoints = Number(nRounding(simu.expectedValue, 1, -1));
+                            expectedPoints = Number(NumberHelper.nRounding(simu.expectedValue, 1, -1));
                         }catch(error){
                             logHHAuto("Error in simu for oppo " + opponent_id +", falback to not use powercalc");
                             canUseSimu = false;
@@ -600,12 +596,12 @@ export class LeagueHelper {
 
         var page = getPage();
         const Hero=getHero();
-        if(page===getHHScriptVars("pagesIDLeagueBattle"))
+        if(page===ConfigHelper.getHHScriptVars("pagesIDLeagueBattle"))
         {
             // On the battle screen.
             // CrushThemFights(); // TODO ??? // now managed by doBattle
         }
-        else if(page === getHHScriptVars("pagesIDLeaderboard"))
+        else if(page === ConfigHelper.getHHScriptVars("pagesIDLeaderboard"))
         {
             logHHAuto("On leaderboard page.");
             if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesCollect") === "true")
@@ -613,7 +609,7 @@ export class LeagueHelper {
                 if ($('#leagues .forced_info button[rel="claim"]').length >0)
                 {
                     $('#leagues .forced_info button[rel="claim"]').click(); //click reward
-                    gotoPage(getHHScriptVars("pagesIDLeaderboard"))
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeaderboard"))
                 }
             }
 
@@ -697,16 +693,17 @@ export class LeagueHelper {
                         }
                         //prevent paranoia to wait for league
                         setStoredValue(HHStoredVarPrefixKey+"Temp_paranoiaLeagueBlocked", "true");
-                        gotoPage(getHHScriptVars("pagesIDHome"));
+                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                         return;
                     }
                 }
 
+                const leagues = ConfigHelper.getHHScriptVars("leaguesList");
                 var maxStay = -1
                 var maxLeague = $("div.tier_icons img").length;
                 if ( maxLeague === undefined )
                 {
-                    maxLeague = Leagues.length;
+                    maxLeague = leagues.length;
                 }
 
                 if (leagueTargetValue === Number(getPlayerCurrentLevel) && leagueTargetValue < maxLeague)
@@ -737,7 +734,7 @@ export class LeagueHelper {
                         setTimer('nextLeaguesTime', randomInterval(30*60, 35*60));
                         //prevent paranoia to wait for league
                         setStoredValue(HHStoredVarPrefixKey+"Temp_paranoiaLeagueBlocked", "true");
-                        gotoPage(getHHScriptVars("pagesIDHome"));
+                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                         return;
                     }
                 }
@@ -776,7 +773,7 @@ export class LeagueHelper {
                 logHHAuto("Going to fight " + numberOfBattle + " times (Number fights available from opponent:" + numberOfFightAvailable + ")");
 
                 if(numberOfBattle <= 1) {
-                    gotoPage(getHHScriptVars("pagesIDLeagueBattle"),{number_of_battles:1,id_opponent:Data[0].opponent_id});
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeagueBattle"),{number_of_battles:1,id_opponent:Data[0].opponent_id});
                 } else {
                     var params1 = {
                         action: "do_battles_leagues",
@@ -789,7 +786,7 @@ export class LeagueHelper {
 
                         RewardHelper.closeRewardPopupIfAny();
 
-                        // gotoPage(getHHScriptVars("pagesIDLeaderboard"));
+                        // gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeaderboard"));
                         location.reload();
                         Hero.updates(data.hero_changes);
                     });
@@ -801,7 +798,7 @@ export class LeagueHelper {
         {
             // Switch to the correct screen
             logHHAuto("Switching to leagues screen.");
-            gotoPage(getHHScriptVars("pagesIDLeaderboard"));
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeaderboard"));
             return;
         }
     }
