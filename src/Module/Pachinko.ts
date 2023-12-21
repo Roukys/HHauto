@@ -1,7 +1,7 @@
 import { 
     RewardHelper,
     convertTimeToInt,
-    getHHScriptVars, 
+    ConfigHelper, 
     getPage, 
     getStoredValue, 
     getTextForUI, 
@@ -32,10 +32,10 @@ export class Pachinko {
         }
 
         try {
-            if(getPage() !== getHHScriptVars("pagesIDPachinko"))
+            if(getPage() !== ConfigHelper.getHHScriptVars("pagesIDPachinko"))
             {
                 logHHAuto("Navigating to Pachinko window.");
-                gotoPage(getHHScriptVars("pagesIDPachinko"));
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDPachinko"));
                 return true;
             }
             else {
@@ -66,7 +66,7 @@ export class Pachinko {
                 else
                 {
                     logHHAuto("Unable to find "+pachinkoType+" Pachinko time, wait 4h.");
-                    setTimer(pachinkoTimer, getHHScriptVars("maxCollectionDelay") + randomInterval(1,10));
+                    setTimer(pachinkoTimer, ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(1,10));
                 }
 
                 setTimeout( function() {
@@ -80,7 +80,7 @@ export class Pachinko {
         }
         catch (ex) {
             logHHAuto("Catched error : Could not collect "+pachinkoType+" Pachinko... " + ex);
-            setTimer(pachinkoTimer, getHHScriptVars("maxCollectionDelay") + randomInterval(1,10));
+            setTimer(pachinkoTimer, ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(1,10));
             return false;
         }
     }

@@ -3,7 +3,7 @@ import {
     TimeHelper,
     checkTimer,
     convertTimeToInt,
-    getHHScriptVars,
+    ConfigHelper,
     getHHVars,
     getLimitTimeBeforeEnd,
     getPage,
@@ -33,13 +33,13 @@ export class PathOfValue {
         EventModule.displayGenericRemainingTime("#scriptPovTime", "path-of-valor", "HHAutoPoVTimer", "PoVRemainingTime", HHStoredVarPrefixKey+"Temp_PoVEndDate");
     }
     static isEnabled(){
-        return getHHScriptVars("isEnabledPoV",false) && getHHVars('Hero.infos.level')>=getHHScriptVars("LEVEL_MIN_POV");
+        return ConfigHelper.getHHScriptVars("isEnabledPoV",false) && getHHVars('Hero.infos.level')>=ConfigHelper.getHHScriptVars("LEVEL_MIN_POV");
     }
     static goAndCollect()
     {
         const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoVCollectablesList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoVCollectablesList")):[];
 
-        if (getPage() === getHHScriptVars("pagesIDPoV"))
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDPoV"))
         {
             PathOfValue.getRemainingTime();
             const povEnd = getSecondsLeft("PoVRemainingTime");
@@ -47,19 +47,19 @@ export class PathOfValue {
 
             if (checkTimer('nextPoVCollectAllTime') && povEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoVCollectAll") === "true")
             {
-                if ($(getHHScriptVars("selectorClaimAllRewards")).length > 0)
+                if ($(ConfigHelper.getHHScriptVars("selectorClaimAllRewards")).length > 0)
                 {
                     logHHAuto("Going to collect all POV item at once.");
                     setTimeout(function (){
-                        $(getHHScriptVars("selectorClaimAllRewards"))[0].click();
-                        setTimer('nextPoVCollectAllTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180)); // Add timer to check again later if there is new items to collect
-                        setTimeout(function (){gotoPage(getHHScriptVars("pagesIDHome"));},500);
+                        $(ConfigHelper.getHHScriptVars("selectorClaimAllRewards"))[0].click();
+                        setTimer('nextPoVCollectAllTime',ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180)); // Add timer to check again later if there is new items to collect
+                        setTimeout(function (){gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));},500);
                     },500);
                     return true;
                 }
                 else
                 {
-                    setTimer('nextPoVCollectAllTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
+                    setTimer('nextPoVCollectAllTime',ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
                 }
             }
             if (checkTimer('nextPoVCollectTime') && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoVCollect") === "true")
@@ -109,8 +109,8 @@ export class PathOfValue {
                         else
                         {
                             logHHAuto("Path of Valor collection finished.");
-                            setTimer('nextPoVCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
-                            gotoPage(getHHScriptVars("pagesIDHome"));
+                            setTimer('nextPoVCollectTime',ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
+                            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                         }
                     }
                     collectPoVRewards();
@@ -119,9 +119,9 @@ export class PathOfValue {
                 else
                 {
                     logHHAuto("No Path of Valor reward to collect.");
-                    setTimer('nextPoVCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
-                    setTimer('nextPoVCollectAllTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
-                    gotoPage(getHHScriptVars("pagesIDHome"));
+                    setTimer('nextPoVCollectTime',ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
+                    setTimer('nextPoVCollectAllTime',ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                     return false;
                 }
             }
@@ -130,7 +130,7 @@ export class PathOfValue {
         else
         {
             logHHAuto("Switching to Path of Valor screen.");
-            gotoPage(getHHScriptVars("pagesIDPoV"));
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDPoV"));
             return true;
         }
     }

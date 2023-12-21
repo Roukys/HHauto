@@ -1,8 +1,5 @@
-import { isJSON } from '../Utils/index';
-import { HHStoredVarPrefixKey } from '../config/index';
 import { BDSMPlayer, BDSMSimu } from '../model/index';
-import { getHHScriptVars } from "./ConfigHelper";
-import { getStoredValue, setStoredValue } from "./StorageHelper";
+import { ConfigHelper } from "./ConfigHelper";
 
 export class BDSMHelper {
 
@@ -354,7 +351,7 @@ export function calculateSynergiesFromTeamMemberElements(elements) {
 */
 /*
 replaced       ELEMENTS
-by getHHScriptVars("ELEMENTS")
+by ConfigHelper.getHHScriptVars("ELEMENTS")
 */
 export function calculateDominationBonuses(playerElements, opponentElements) {
     const bonuses = {
@@ -375,11 +372,11 @@ export function calculateDominationBonuses(playerElements, opponentElements) {
         {a: opponentElements, b: playerElements, k: 'opponent'}
     ].forEach(({a,b,k})=>{
         a.forEach(element => {
-            if (getHHScriptVars("ELEMENTS").egoDamage[element] && b.includes(getHHScriptVars("ELEMENTS").egoDamage[element])) {
+            if (ConfigHelper.getHHScriptVars("ELEMENTS").egoDamage[element] && b.includes(ConfigHelper.getHHScriptVars("ELEMENTS").egoDamage[element])) {
                 bonuses[k].ego += 0.1
                 bonuses[k].attack += 0.1
             }
-            if (getHHScriptVars("ELEMENTS").chance[element] && b.includes(getHHScriptVars("ELEMENTS").chance[element])) {
+            if (ConfigHelper.getHHScriptVars("ELEMENTS").chance[element] && b.includes(ConfigHelper.getHHScriptVars("ELEMENTS").chance[element])) {
                 bonuses[k].chance += 0.2
             }
         })

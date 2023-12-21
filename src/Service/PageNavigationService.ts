@@ -1,4 +1,4 @@
-import { getHHScriptVars, getPage, randomInterval, setStoredValue, setTimer, url_add_param } from '../Helper/index';
+import { ConfigHelper, getPage, randomInterval, setStoredValue, setTimer, url_add_param } from '../Helper/index';
 import { QuestHelper } from '../Module/index';
 import { logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
@@ -19,94 +19,94 @@ export function gotoPage(page,inArgs={},delay = -1)
     // get page path
     switch(page)
     {
-        case getHHScriptVars("pagesIDHome"):
-            togoto = getHHScriptVars("pagesURLHome");
+        case ConfigHelper.getHHScriptVars("pagesIDHome"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLHome");
             break;
-        case getHHScriptVars("pagesIDActivities"):
-            togoto = getHHScriptVars("pagesURLActivities");
+        case ConfigHelper.getHHScriptVars("pagesIDActivities"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLActivities");
             break;
-        case getHHScriptVars("pagesIDMissions"):
-            togoto = getHHScriptVars("pagesURLActivities");
-            togoto = url_add_param(togoto, "tab",getHHScriptVars("pagesIDMissions"));
+        case ConfigHelper.getHHScriptVars("pagesIDMissions"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLActivities");
+            togoto = url_add_param(togoto, "tab",ConfigHelper.getHHScriptVars("pagesIDMissions"));
             break;
-        case getHHScriptVars("pagesIDPowerplacemain"):
-            togoto = getHHScriptVars("pagesURLActivities");
+        case ConfigHelper.getHHScriptVars("pagesIDPowerplacemain"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLActivities");
             togoto = url_add_param(togoto, "tab","pop");
             break;
-        case getHHScriptVars("pagesIDContests"):
-            togoto = getHHScriptVars("pagesURLActivities");
-            togoto = url_add_param(togoto, "tab",getHHScriptVars("pagesIDContests"));
+        case ConfigHelper.getHHScriptVars("pagesIDContests"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLActivities");
+            togoto = url_add_param(togoto, "tab",ConfigHelper.getHHScriptVars("pagesIDContests"));
             break;
-        case getHHScriptVars("pagesIDDailyGoals"):
-            togoto = getHHScriptVars("pagesURLActivities");
-            togoto = url_add_param(togoto, "tab",getHHScriptVars("pagesIDDailyGoals"));
+        case ConfigHelper.getHHScriptVars("pagesIDDailyGoals"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLActivities");
+            togoto = url_add_param(togoto, "tab",ConfigHelper.getHHScriptVars("pagesIDDailyGoals"));
             break;
-        case getHHScriptVars("pagesIDHarem"):
-            togoto = getHHScriptVars("pagesURLHarem");
+        case ConfigHelper.getHHScriptVars("pagesIDHarem"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLHarem");
             break;
-        case getHHScriptVars("pagesIDMap"):
-            togoto = getHHScriptVars("pagesURLMap");
+        case ConfigHelper.getHHScriptVars("pagesIDMap"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLMap");
             break;
-        case getHHScriptVars("pagesIDPachinko"):
-            togoto = getHHScriptVars("pagesURLPachinko");
+        case ConfigHelper.getHHScriptVars("pagesIDPachinko"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLPachinko");
             break;
-        case getHHScriptVars("pagesIDLeaderboard"):
-            togoto = getHHScriptVars("pagesURLLeaderboard");
+        case ConfigHelper.getHHScriptVars("pagesIDLeaderboard"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLLeaderboard");
             break;
-        case getHHScriptVars("pagesIDShop"):
-            togoto = getHHScriptVars("pagesURLShop");
+        case ConfigHelper.getHHScriptVars("pagesIDShop"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLShop");
             break;
-        case getHHScriptVars("pagesIDQuest"):
+        case ConfigHelper.getHHScriptVars("pagesIDQuest"):
             togoto = QuestHelper.getNextQuestLink();
             if(togoto === undefined) {
                 logHHAuto("All quests finished, setting timer to check back later!");
                 setTimer('nextMainQuestAttempt', 604800); // 1 week delay
-                gotoPage(getHHScriptVars("pagesIDHome"));
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                 return false;
             }
             logHHAuto("Current quest page: "+togoto);
             break;
-        case getHHScriptVars("pagesIDPantheon"):
-            togoto = getHHScriptVars("pagesURLPantheon");
+        case ConfigHelper.getHHScriptVars("pagesIDPantheon"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLPantheon");
             break;
-        case getHHScriptVars("pagesIDPantheonPreBattle"):
-            togoto = getHHScriptVars("pagesURLPantheonPreBattle");
+        case ConfigHelper.getHHScriptVars("pagesIDPantheonPreBattle"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLPantheonPreBattle");
             break;
-        case getHHScriptVars("pagesIDLabyrinth"):
-            togoto = getHHScriptVars("pagesURLLabyrinth");
+        case ConfigHelper.getHHScriptVars("pagesIDLabyrinth"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLLabyrinth");
             break;
-        case getHHScriptVars("pagesIDChampionsMap"):
-            togoto = getHHScriptVars("pagesURLChampionsMap");
+        case ConfigHelper.getHHScriptVars("pagesIDChampionsMap"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLChampionsMap");
             break;
-        case getHHScriptVars("pagesIDSeason") :
-            togoto = getHHScriptVars("pagesURLSeason");
+        case ConfigHelper.getHHScriptVars("pagesIDSeason") :
+            togoto = ConfigHelper.getHHScriptVars("pagesURLSeason");
             break;
-        case getHHScriptVars("pagesIDSeasonArena") :
-            togoto = getHHScriptVars("pagesURLSeasonArena");
+        case ConfigHelper.getHHScriptVars("pagesIDSeasonArena") :
+            togoto = ConfigHelper.getHHScriptVars("pagesURLSeasonArena");
             break;
-        case getHHScriptVars("pagesIDClubChampion") :
-            togoto = getHHScriptVars("pagesURLClubChampion");
+        case ConfigHelper.getHHScriptVars("pagesIDClubChampion") :
+            togoto = ConfigHelper.getHHScriptVars("pagesURLClubChampion");
             break;
-        case getHHScriptVars("pagesIDLeagueBattle") :
-            togoto = getHHScriptVars("pagesURLLeagueBattle");
+        case ConfigHelper.getHHScriptVars("pagesIDLeagueBattle") :
+            togoto = ConfigHelper.getHHScriptVars("pagesURLLeagueBattle");
             break;
-        case getHHScriptVars("pagesIDTrollPreBattle") :
-            togoto = getHHScriptVars("pagesURLTrollPreBattle");
+        case ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle") :
+            togoto = ConfigHelper.getHHScriptVars("pagesURLTrollPreBattle");
             break;
-        case getHHScriptVars("pagesIDEvent") :
-            togoto = getHHScriptVars("pagesURLEvent");
+        case ConfigHelper.getHHScriptVars("pagesIDEvent") :
+            togoto = ConfigHelper.getHHScriptVars("pagesURLEvent");
             break;
-        case getHHScriptVars("pagesIDClub") :
-            togoto = getHHScriptVars("pagesURLClub");
+        case ConfigHelper.getHHScriptVars("pagesIDClub") :
+            togoto = ConfigHelper.getHHScriptVars("pagesURLClub");
             break;
-        case getHHScriptVars("pagesIDPoV") :
-            togoto = getHHScriptVars("pagesURLPoV");
+        case ConfigHelper.getHHScriptVars("pagesIDPoV") :
+            togoto = ConfigHelper.getHHScriptVars("pagesURLPoV");
             break;
-        case getHHScriptVars("pagesIDPoG") :
-            togoto = getHHScriptVars("pagesURLPoG");
+        case ConfigHelper.getHHScriptVars("pagesIDPoG") :
+            togoto = ConfigHelper.getHHScriptVars("pagesURLPoG");
             break;
-        case getHHScriptVars("pagesIDSeasonalEvent") :
-            togoto = getHHScriptVars("pagesURLSeasonalEvent");
+        case ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent") :
+            togoto = ConfigHelper.getHHScriptVars("pagesURLSeasonalEvent");
             break;
         case (page.match(/^\/champions\/[123456]$/) || {}).input:
             togoto = page;

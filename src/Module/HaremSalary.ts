@@ -1,6 +1,6 @@
 import {
     checkTimer,
-    getHHScriptVars,
+    ConfigHelper,
     getPage,
     getStoredValue,
     setStoredValue,
@@ -127,7 +127,7 @@ export class HaremSalary {
             const girlsList = Harem.getGirlMapSorted(getCurrentSorting(), false);
             if ( girlsList === null)
             {
-                gotoPage(getHHScriptVars("pagesIDHome"));
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
             }
             collectableGirlsList = girlsList.filter(HaremSalary.filterGirlMapReadyForCollect);
     
@@ -159,7 +159,7 @@ export class HaremSalary {
                     salaryTimer = 60;
                 }
                 setTimer('nextSalaryTime', randomInterval(salaryTimer, 180 + salaryTimer));
-                gotoPage(getHHScriptVars("pagesIDHome"),{}, randomInterval(300,500));
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"),{}, randomInterval(300,500));
             }
         }
     
@@ -207,17 +207,17 @@ export class HaremSalary {
     
     static getSalary() {
         try {
-            if(getPage() === getHHScriptVars("pagesIDHarem") || getPage() === getHHScriptVars("pagesIDHome"))
+            if(getPage() === ConfigHelper.getHHScriptVars("pagesIDHarem") || getPage() === ConfigHelper.getHHScriptVars("pagesIDHome"))
             {
                 const salaryButton = $("#collect_all_container button[id='collect_all']")
                 const salaryToCollect = !(salaryButton.prop('disabled') || salaryButton.attr("style")==="display: none;");
                 const getButtonClass:string = salaryButton.attr("class") || '';
                 let salarySumTag = NaN;
-                if (getPage() === getHHScriptVars("pagesIDHarem"))
+                if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHarem"))
                 {
                     salarySumTag = Number($('[rel="next_salary"]',salaryButton)[0].innerText.replace(/[^0-9]/gi, ''));
                 }
-                else if (getPage() === getHHScriptVars("pagesIDHome"))
+                else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHome"))
                 {
                     salarySumTag = Number($('.sum',salaryButton).attr("amount"));
                 }
@@ -231,7 +231,7 @@ export class HaremSalary {
                         //replaceCheatClick();
                         salaryButton.click();
                         logHHAuto('Collected all Premium salary');
-                        if (getPage() === getHHScriptVars("pagesIDHarem") )
+                        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHarem") )
                         {
                             const nexstSalaryTime = HaremSalary.predictNextSalaryMinTime();
                             setTimer('nextSalaryTime', randomInterval(nexstSalaryTime, 180 + nexstSalaryTime));
@@ -241,7 +241,7 @@ export class HaremSalary {
                     else if ( getButtonClass.indexOf("orange_button_L") !== -1 )
                     {
                         // Not at Harem screen then goto the Harem screen.
-                        if (getPage() === getHHScriptVars("pagesIDHarem") )
+                        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHarem") )
                         {
                             logHHAuto("Detected Harem Screen. Fetching Salary");
                             //replaceCheatClick();
@@ -252,7 +252,7 @@ export class HaremSalary {
                         else
                         {
                             logHHAuto("Navigating to Harem window.");
-                            gotoPage(getHHScriptVars("pagesIDHarem"));
+                            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHarem"));
                         }
                         return true;
                     }
@@ -280,7 +280,7 @@ export class HaremSalary {
                 if (checkTimer('nextSalaryTime'))
                 {
                     logHHAuto("Navigating to Harem page");
-                    gotoPage(getHHScriptVars("pagesIDHarem"));
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHarem"));
                     return true;
                 }
             }

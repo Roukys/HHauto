@@ -2,7 +2,7 @@ import {
     TimeHelper,
     convertTimeToInt,
     deleteStoredValue,
-    getHHScriptVars,
+    ConfigHelper,
     getHHVars,
     getPage,
     getSecondsLeft,
@@ -21,7 +21,7 @@ export class ClubChampion {
     static getNextClubChampionTimer()
     {
         var page=getPage();
-        if (page==getHHScriptVars("pagesIDClub"))
+        if (page==ConfigHelper.getHHScriptVars("pagesIDClub"))
         {
             let SecsToNextTimer = -1;
             let restTeamFilter = "div.club_champions_details_container div.team_rest_timer[data-rest-timer]";
@@ -49,7 +49,7 @@ export class ClubChampion {
     static updateClubChampionTimer()
     {
         var page=getPage();
-        if (page==getHHScriptVars("pagesIDClub"))
+        if (page==ConfigHelper.getHHScriptVars("pagesIDClub"))
         {
             logHHAuto('on clubs');
             let secsToNextTimer = ClubChampion.getNextClubChampionTimer();
@@ -98,7 +98,7 @@ export class ClubChampion {
     static doClubChampionStuff()
     {
         var page=getPage();
-        if (page==getHHScriptVars("pagesIDClubChampion"))
+        if (page==ConfigHelper.getHHScriptVars("pagesIDClubChampion"))
         {
             logHHAuto('on club_champion page');
             if ($('button[rel=perform].blue_button_L').length==0)
@@ -111,7 +111,7 @@ export class ClubChampion {
                     logHHAuto('Something is wrong!');
                     ClubChampion._setTimer(randomInterval(15*60, 17*60));
                 }
-                gotoPage(getHHScriptVars("pagesIDHome"));
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                 return true;
             }
             else
@@ -138,12 +138,12 @@ export class ClubChampion {
                         $('button[rel=perform].blue_button_L').click();
                         ClubChampion._setTimer(randomInterval(15*60, 17*60));
                     }
-                    gotoPage(getHHScriptVars("pagesIDClub"));
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDClub"));
                     return true;
                 }
             }
         }
-        else if (page==getHHScriptVars("pagesIDClub"))
+        else if (page==ConfigHelper.getHHScriptVars("pagesIDClub"))
         {
             deleteStoredValue(HHStoredVarPrefixKey+"Temp_clubChampLimitReached");
             logHHAuto('on clubs');
@@ -170,7 +170,7 @@ export class ClubChampion {
                 if (maxTickets > ticketUsed )
                 {
                     logHHAuto("Let's do him!");
-                    gotoPage(getHHScriptVars("pagesIDClubChampion"));
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDClubChampion"));
                     return true;
                 }
                 else
@@ -178,18 +178,18 @@ export class ClubChampion {
                     logHHAuto("Max tickets to use on Club Champ reached.");
                     setStoredValue(HHStoredVarPrefixKey+"Temp_clubChampLimitReached", "true");
                     setTimer('nextClubChampionTime', randomInterval(4*60*60, 5*60*60));
-                    gotoPage(getHHScriptVars("pagesIDHome"));
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                     return false;
                 }
     
             }
             ClubChampion.updateClubChampionTimer();
-            gotoPage(getHHScriptVars("pagesIDHome"));
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
             return false;
         }
         else
         {
-            gotoPage(getHHScriptVars("pagesIDClub"));
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDClub"));
             return true;
         }
     }

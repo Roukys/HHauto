@@ -2,7 +2,7 @@ import {
     RewardHelper,
     TimeHelper,
     checkTimer,
-    getHHScriptVars,
+    ConfigHelper,
     getPage,
     getStoredValue,
     randomInterval,
@@ -65,7 +65,7 @@ export class DailyGoals {
         if (checkTimer('nextDailyGoalsCollectTime') && getStoredValue(HHStoredVarPrefixKey+"Setting_autoDailyGoalsCollect") === "true")
         {
             //console.log(getPage());
-            if (getPage() === getHHScriptVars("pagesIDDailyGoals"))
+            if (getPage() === ConfigHelper.getHHScriptVars("pagesIDDailyGoals"))
             {
                 logHHAuto("Checking Daily Goals for collectable rewards.");
                 logHHAuto("setting autoloop to false");
@@ -82,7 +82,7 @@ export class DailyGoals {
                         const currentChest = $(".progress-bar-rewards-container", listDailyGoalsTiersToClaim[currentTier]);
                         const currentRewardsList = currentChest.length > 0 ? currentChest.data("rewards") : [];
                         //console.log("checking tier : "+currentTierNb);
-                        if (TimeHelper.getSecondsLeftBeforeEndOfHHDay() <= getHHScriptVars("dailyRewardMaxRemainingTime") && TimeHelper.getSecondsLeftBeforeEndOfHHDay() > 0)
+                        if (TimeHelper.getSecondsLeftBeforeEndOfHHDay() <= ConfigHelper.getHHScriptVars("dailyRewardMaxRemainingTime") && TimeHelper.getSecondsLeftBeforeEndOfHHDay() > 0)
                         {
                             logHHAuto("Force adding for collection chest n° "+currentTierNb);
                             buttonsToCollect.push(currentButton[0]);
@@ -126,7 +126,7 @@ export class DailyGoals {
                         {
                             logHHAuto("Daily Goals collection finished.");
                             setTimer('nextDailyGoalsCollectTime', randomInterval(30*60, 35*60));
-                            gotoPage(getHHScriptVars("pagesIDHome"));
+                            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                         }
                     }
                     collectDailyGoalsRewards();
@@ -136,14 +136,14 @@ export class DailyGoals {
                 {
                     logHHAuto("No Daily Goals reward to collect.");
                     setTimer('nextDailyGoalsCollectTime', TimeHelper.getSecondsLeftBeforeEndOfHHDay() + randomInterval(3600, 4000));
-                    gotoPage(getHHScriptVars("pagesIDHome"));
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                     return false;
                 }
             }
             else
             {
                 logHHAuto("Switching to Daily Goals screen.");
-                gotoPage(getHHScriptVars("pagesIDDailyGoals"));
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDDailyGoals"));
                 return true;
             }
         }

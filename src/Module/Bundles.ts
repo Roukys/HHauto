@@ -1,7 +1,7 @@
 import {
     RewardHelper,
     TimeHelper,
-    getHHScriptVars,
+    ConfigHelper,
     getPage,
     getStoredValue,
     randomInterval,
@@ -15,7 +15,7 @@ import { HHStoredVarPrefixKey } from '../config/index';
 export class Bundles {
     static goAndCollectFreeBundles()
     {
-        if (getPage() === getHHScriptVars("pagesIDHome"))
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHome"))
         {
             if(getStoredValue(HHStoredVarPrefixKey+"Setting_autoFreeBundlesCollect") !== "true") {
                 logHHAuto("Error autoFreeBundlesCollect not activated.");
@@ -115,7 +115,7 @@ export class Bundles {
         else
         {
             logHHAuto("Navigating to home page.");
-            gotoPage(getHHScriptVars("pagesIDHome"));
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
             // return busy
             return true;
         }

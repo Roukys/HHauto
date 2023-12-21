@@ -1,5 +1,5 @@
 import {
-    getHHScriptVars,
+    ConfigHelper,
     getHHVars,
     getHero,
     getSecondsLeft,
@@ -155,7 +155,7 @@ export function setParanoiaSpendings()
             }
         }
         //if autoquest is on
-        if(getHHScriptVars('isEnabledQuest',false) && (getStoredValue(HHStoredVarPrefixKey+"Setting_autoQuest") === "true" || (getHHScriptVars("isEnabledSideQuest",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSideQuest") === "true")))
+        if(ConfigHelper.getHHScriptVars('isEnabledQuest',false) && (getStoredValue(HHStoredVarPrefixKey+"Setting_autoQuest") === "true" || (ConfigHelper.getHHScriptVars("isEnabledSideQuest",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSideQuest") === "true")))
         {
             if ( getStoredValue(HHStoredVarPrefixKey+"Temp_paranoiaQuestBlocked") === undefined )
             {
@@ -177,7 +177,7 @@ export function setParanoiaSpendings()
             }
         }
         //if autoTrollBattle is on
-        if(getHHScriptVars('isEnabledTrollBattle',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollBattle") === "true" && getHHVars('Hero.infos.questing.id_world')>0)
+        if(ConfigHelper.getHHScriptVars('isEnabledTrollBattle',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollBattle") === "true" && getHHVars('Hero.infos.questing.id_world')>0)
         {
             maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHHVars('Hero.energies.fight.next_refresh_ts')))/Number(getHHVars('Hero.energies.fight.seconds_per_point')));
             currentEnergy=Troll.getEnergy();
@@ -196,7 +196,7 @@ export function setParanoiaSpendings()
             }
         }
         //if autoSeason is on
-        if(getHHScriptVars('isEnabledSeason',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeason") === "true")
+        if(ConfigHelper.getHHScriptVars('isEnabledSeason',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeason") === "true")
         {
             maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHHVars('Hero.energies.kiss.next_refresh_ts')))/Number(getHHVars('Hero.energies.kiss.seconds_per_point')));
             currentEnergy=Season.getEnergy();
@@ -215,7 +215,7 @@ export function setParanoiaSpendings()
             }
         }
         //if autoPantheon is on
-        if(getHHScriptVars('isEnabledPantheon',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheon") === "true")
+        if(ConfigHelper.getHHScriptVars('isEnabledPantheon',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheon") === "true")
         {
             maxPointsDuringParanoia = Math.ceil((toNextSwitch-Number(getHHVars('Hero.energies.worship.next_refresh_ts')))/Number(getHHVars('Hero.energies.worship.seconds_per_point')));
             currentEnergy=Pantheon.getEnergy();
@@ -306,7 +306,7 @@ export function flipParanoia()
             PlaceOfPower.cleanTempPopToStart();
             //going into hiding
             setStoredValue(HHStoredVarPrefixKey+"Temp_burst", "false");
-            gotoPage(getHHScriptVars("pagesIDHome"));
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
         }
         else
         {
@@ -318,7 +318,7 @@ export function flipParanoia()
     }
     else
     {
-        //if (getPage()!=getHHScriptVars("pagesIDHome")) return;
+        //if (getPage()!=ConfigHelper.getHHScriptVars("pagesIDHome")) return;
         //going to work
         setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
         logHHAuto("setting autoloop to false");
@@ -352,6 +352,6 @@ export function flipParanoia()
         }
         */
         //sessionStorage.removeItem(HHStoredVarPrefixKey+"Temp_eventsList");
-        gotoPage(getHHScriptVars("pagesIDHome"));
+        gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
     }
 }

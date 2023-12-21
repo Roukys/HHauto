@@ -4,7 +4,7 @@ import {
     checkTimerMustExist,
     clearTimer,
     convertTimeToInt,
-    getHHScriptVars, 
+    ConfigHelper, 
     getLimitTimeBeforeEnd, 
     getPage, 
     getSecondsLeft, 
@@ -149,14 +149,14 @@ export class EventModule {
 
     static parseEventPage(inTab="global")
     {
-        if(getPage() === getHHScriptVars("pagesIDEvent") )
+        if(getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent") )
         {
             let queryEventTabCheck=$("#contains_all #events");
             const eventID:string = EventModule.getDisplayedIdEventPage();
             if (inTab !== "global" && inTab !== eventID)
             {
                 logHHAuto("Wrong event opened, need to change event page");
-                gotoPage(getHHScriptVars("pagesIDEvent"),{tab:inTab});
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDEvent"),{tab:inTab});
                 return true;
             }
 
@@ -444,7 +444,7 @@ export class EventModule {
                 const poAEnd = getSecondsLeft("PoARemainingTime");
                 logHHAuto("PoA end in " + TimeHelper.debugDate(poAEnd));
                 
-                let refreshTimerPoa = getHHScriptVars('maxCollectionDelay');
+                let refreshTimerPoa = ConfigHelper.getHHScriptVars('maxCollectionDelay');
                 if (poAEnd < Math.max(refreshTimerPoa, getLimitTimeBeforeEnd()) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoACollectAll") === "true") {
                     refreshTimerPoa = Math.min(refreshTimerPoa, getLimitTimeBeforeEnd());
                 }
@@ -528,36 +528,37 @@ export class EventModule {
         {
             if (inTab !== "global")
             {
-                gotoPage(getHHScriptVars("pagesIDEvent"),{tab:inTab});
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDEvent"),{tab:inTab});
             }
             else
             {
-                gotoPage(getHHScriptVars("pagesIDEvent"));
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDEvent"));
             }
             return true;
         }
     }
 
     static getEventType(inEventID){
-        if(inEventID.startsWith(getHHScriptVars('mythicEventIDReg'))) return "mythic";
-        if(inEventID.startsWith(getHHScriptVars('eventIDReg'))) return "event";
-        if(inEventID.startsWith(getHHScriptVars('bossBangEventIDReg'))) return "bossBang";
-        if(inEventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg'))) return "sultryMysteries";
-        if(inEventID.startsWith(getHHScriptVars('doublePenetrationEventIDReg'))) return "doublePenetration";
-        if(inEventID.startsWith(getHHScriptVars('poaEventIDReg'))) return "poa";
+        if(inEventID.startsWith(ConfigHelper.getHHScriptVars('mythicEventIDReg'))) return "mythic";
+        if(inEventID.startsWith(ConfigHelper.getHHScriptVars('eventIDReg'))) return "event";
+        if(inEventID.startsWith(ConfigHelper.getHHScriptVars('bossBangEventIDReg'))) return "bossBang";
+        if(inEventID.startsWith(ConfigHelper.getHHScriptVars('sultryMysteriesEventIDReg'))) return "sultryMysteries";
+        if(inEventID.startsWith(ConfigHelper.getHHScriptVars('doublePenetrationEventIDReg'))) return "doublePenetration";
+        if(inEventID.startsWith(ConfigHelper.getHHScriptVars('poaEventIDReg'))) return "poa";
     //    if(inEventID.startsWith('cumback_contest_')) return "";
     //    if(inEventID.startsWith('legendary_contest_')) return "";
+    //    if(inEventID.startsWith('dpg_event_')) return ""; // Double date
         return "";
     }
 
     static getEvent(inEventID){
         const eventType = EventModule.getEventType(inEventID);
-        const isPlusEvent = inEventID.startsWith(getHHScriptVars('eventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEvent") ==="true";
-        const isPlusEventMythic = inEventID.startsWith(getHHScriptVars('mythicEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") ==="true";
-        const isBossBangEvent = inEventID.startsWith(getHHScriptVars('bossBangEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_bossBangEvent") ==="true";
-        const isSultryMysteriesEvent = inEventID.startsWith(getHHScriptVars('sultryMysteriesEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_sultryMysteriesEventRefreshShop") === "true" && SultryMysteries.isEnabled();
-        const isDPEvent = inEventID.startsWith(getHHScriptVars('doublePenetrationEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_autodpEventCollect") === "true";
-        const isPoa = inEventID.startsWith(getHHScriptVars('poaEventIDReg'));
+        const isPlusEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('eventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEvent") ==="true";
+        const isPlusEventMythic = inEventID.startsWith(ConfigHelper.getHHScriptVars('mythicEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") ==="true";
+        const isBossBangEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('bossBangEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_bossBangEvent") ==="true";
+        const isSultryMysteriesEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('sultryMysteriesEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_sultryMysteriesEventRefreshShop") === "true" && SultryMysteries.isEnabled();
+        const isDPEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('doublePenetrationEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_autodpEventCollect") === "true";
+        const isPoa = inEventID.startsWith(ConfigHelper.getHHScriptVars('poaEventIDReg'));
         return {
             eventTypeKnown: eventType !== '',
             eventId: inEventID,
@@ -793,7 +794,7 @@ export class EventModule {
             }
         }
 
-        if (getPage()===getHHScriptVars("pagesIDEvent"))
+        if (getPage()===ConfigHelper.getHHScriptVars("pagesIDEvent"))
         {
             const currentPageEventId:string = queryStringGetParam(window.location.search,'tab') || '';
             if (currentPageEventId !== null && EventModule.checkEvent(currentPageEventId))
@@ -815,7 +816,7 @@ export class EventModule {
                 }
             }
         }
-        else if (getPage() === getHHScriptVars("pagesIDHome"))
+        else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHome"))
         {
             let queryResults:any;
             parseForEventId(eventQuery,eventIDs);

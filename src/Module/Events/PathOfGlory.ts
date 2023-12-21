@@ -3,7 +3,7 @@ import {
     TimeHelper,
     checkTimer,
     convertTimeToInt,
-    getHHScriptVars,
+    ConfigHelper,
     getHHVars,
     getLimitTimeBeforeEnd,
     getPage,
@@ -33,13 +33,13 @@ export class PathOfGlory {
         EventModule.displayGenericRemainingTime("#scriptPogTime", "path-of-glory", "HHAutoPoGTimer", "PoGRemainingTime", HHStoredVarPrefixKey+"Temp_PoGEndDate");
     }
     static isEnabled(){
-        return getHHScriptVars("isEnabledPoG",false) && getHHVars('Hero.infos.level')>=getHHScriptVars("LEVEL_MIN_POG");
+        return ConfigHelper.getHHScriptVars("isEnabledPoG",false) && getHHVars('Hero.infos.level')>=ConfigHelper.getHHScriptVars("LEVEL_MIN_POG");
     }
     static goAndCollect()
     {
         const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoGCollectablesList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoGCollectablesList")):[];
 
-        if (getPage() === getHHScriptVars("pagesIDPoG"))
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDPoG"))
         {
             PathOfGlory.getRemainingTime();
             const pogEnd = getSecondsLeft("PoGRemainingTime");
@@ -47,19 +47,19 @@ export class PathOfGlory {
 
             if (checkTimer('nextPoGCollectAllTime') && pogEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoGCollectAll") === "true")
             {
-                if ($(getHHScriptVars("selectorClaimAllRewards")).length > 0)
+                if ($(ConfigHelper.getHHScriptVars("selectorClaimAllRewards")).length > 0)
                 {
                     logHHAuto("Going to collect all POG item at once.");
                     setTimeout(function (){
-                        $(getHHScriptVars("selectorClaimAllRewards"))[0].click();
-                        setTimer('nextPoGCollectAllTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180)); // Add timer to check again later if there is new items to collect
-                        setTimeout(function (){gotoPage(getHHScriptVars("pagesIDHome"));},500);
+                        $(ConfigHelper.getHHScriptVars("selectorClaimAllRewards"))[0].click();
+                        setTimer('nextPoGCollectAllTime',ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180)); // Add timer to check again later if there is new items to collect
+                        setTimeout(function (){gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));},500);
                     },500);
                     return true;
                 }
                 else
                 {
-                    setTimer('nextPoGCollectAllTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
+                    setTimer('nextPoGCollectAllTime',ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
                 }
             }
             if (checkTimer('nextPoGCollectTime') && (getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoGCollect") === "true" || getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoGCollectAll") === "true"))
@@ -109,8 +109,8 @@ export class PathOfGlory {
                         else
                         {
                             logHHAuto("Path of Glory collection finished.");
-                            setTimer('nextPoGCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
-                            gotoPage(getHHScriptVars("pagesIDHome"));
+                            setTimer('nextPoGCollectTime',ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
+                            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                         }
                     }
                     collectPoGRewards();
@@ -119,9 +119,9 @@ export class PathOfGlory {
                 else
                 {
                     logHHAuto("No Path of Glory reward to collect.");
-                    setTimer('nextPoGCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
-                    setTimer('nextPoGCollectAllTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
-                    gotoPage(getHHScriptVars("pagesIDHome"));
+                    setTimer('nextPoGCollectTime',ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
+                    setTimer('nextPoGCollectAllTime',ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                     return false;
                 }
             }
@@ -130,7 +130,7 @@ export class PathOfGlory {
         else
         {
             logHHAuto("Switching to Path of Glory screen.");
-            gotoPage(getHHScriptVars("pagesIDPoG"));
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDPoG"));
             return true;
         }
     }

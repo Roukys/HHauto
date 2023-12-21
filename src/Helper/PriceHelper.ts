@@ -1,6 +1,6 @@
-import { remove1000sSeparator } from "./NumberHelper";
+import { NumberHelper } from "./NumberHelper";
 
-export function parsePrice(princeStr) {
+export function parsePrice(princeStr:string):number {
     // Parse price to number 105K to 105000, 6.38M to 6380000
     // Replace comma by dots for local supports
     let ret = Number.NaN;
@@ -11,11 +11,11 @@ export function parsePrice(princeStr) {
     } else if(princeStr && princeStr.indexOf('K')>0) {
         ret = Number(princeStr.replace(/K/g, '').replace(',', '.')) * 1000;
     } else {
-        ret = remove1000sSeparator(princeStr);
+        ret = NumberHelper.remove1000sSeparator(princeStr);
     }
     return ret;
 }
-
+/*
 export function manageUnits(inText)
 {
     let units = ["firstUnit", "K", "M", "B"];
@@ -62,3 +62,4 @@ export function manageUnits(inText)
         return parseInt(inText.replace(/[^0-9]/gi, ''));
     }
 }
+*/

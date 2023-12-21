@@ -1,7 +1,4 @@
-import {nThousand} from '../Helper/index';
-
-
-export const thousandsSeparator = nThousand(11111).replace(/1+/g, '');
+const thousandsSeparator = (11111).toLocaleString().replace(/1+/g, '');
 
 export const HHAuto_inputPattern = {
     nWith1000sSeparator:"[0-9"+thousandsSeparator+"]+",

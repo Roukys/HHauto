@@ -1,6 +1,6 @@
 import { 
-    add1000sSeparator,
-    getHHScriptVars,
+    NumberHelper,
+    ConfigHelper,
     getHHVars,
     getPage,
     getStoredValue, 
@@ -32,7 +32,7 @@ export function createPInfo():JQuery<HTMLElement> {
         });
     }
     
-    if(getPage()==getHHScriptVars("pagesIDHome"))
+    if(getPage()==ConfigHelper.getHHScriptVars("pagesIDHome"))
     {
         GM_addStyle('#pInfo:hover {max-height : none} #pInfo { max-height : 220px} @media only screen and (max-width: 1025px) {#pInfo { ;top:17% }}');
 
@@ -76,7 +76,7 @@ export function updateData() {
         logHHAuto('ERROR pInfo element not found');
         return;
     }
-    if (getStoredValue(HHStoredVarPrefixKey+"Setting_showInfo") =="true") // && busy==false // && getPage()==getHHScriptVars("pagesIDHome")
+    if (getStoredValue(HHStoredVarPrefixKey+"Setting_showInfo") =="true") // && busy==false // && getPage()==ConfigHelper.getHHScriptVars("pagesIDHome")
     {
         let contest = '';
         if (!TimeHelper.canCollectCompetitionActive()) contest = " : Wait for contest";
@@ -90,60 +90,60 @@ export function updateData() {
         {
             Tegzd += '<li>'+getStoredValue(HHStoredVarPrefixKey+"Temp_pinfo")+': '+getTimeLeft('paranoiaSwitch')+'</li>';
         }
-        if (getHHScriptVars('isEnabledTrollBattle',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollBattle") == "true")
+        if (ConfigHelper.getHHScriptVars('isEnabledTrollBattle',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollBattle") == "true")
         {
             Tegzd += Troll.getPinfo(contest);
         }
-        if (getHHScriptVars("isEnabledSalary",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSalary") =="true")
+        if (ConfigHelper.getHHScriptVars("isEnabledSalary",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSalary") =="true")
         {
             Tegzd += '<li>'+getTextForUI("autoSalary","elementText")+' : '+getTimeLeft('nextSalaryTime')+'</li>';
         }
-        if (getHHScriptVars('isEnabledSeason',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeason") =="true")
+        if (ConfigHelper.getHHScriptVars('isEnabledSeason',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeason") =="true")
         {
             Tegzd += Season.getPinfo();
         }
         /*
-        if (getHHScriptVars('isEnabledPoV',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoVCollect") =="true")
+        if (ConfigHelper.getHHScriptVars('isEnabledPoV',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoVCollect") =="true")
         {
             Tegzd += '<li>Collect POV : '+getTimeLeft('nextPoVCollectTime')+'</li>';
         }
-        if (getHHScriptVars('isEnabledPoG',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoGCollect") =="true")
+        if (ConfigHelper.getHHScriptVars('isEnabledPoG',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoGCollect") =="true")
         {
             Tegzd += '<li>Collect POG : '+getTimeLeft('nextPoGCollectTime')+'</li>';
         }*/
-        if (getHHScriptVars('isEnabledLeagues',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeagues") =="true")
+        if (ConfigHelper.getHHScriptVars('isEnabledLeagues',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeagues") =="true")
         {
             Tegzd += LeagueHelper.getPinfo();
         }
-        if (getHHScriptVars("isEnabledChamps",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoChamps") =="true")
+        if (ConfigHelper.getHHScriptVars("isEnabledChamps",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoChamps") =="true")
         {
             Tegzd += '<li>'+getTextForUI("autoChampsTitle","elementText")+' : '+getTimeLeft('nextChampionTime')+'</li>';
         }
-        if (getHHScriptVars("isEnabledClubChamp",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoClubChamp") =="true")
+        if (ConfigHelper.getHHScriptVars("isEnabledClubChamp",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoClubChamp") =="true")
         {
             Tegzd += '<li>'+getTextForUI("autoClubChamp","elementText")+' : '+getTimeLeft('nextClubChampionTime')+'</li>';
         }
-        if (getHHScriptVars('isEnabledPantheon',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheon") =="true")
+        if (ConfigHelper.getHHScriptVars('isEnabledPantheon',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheon") =="true")
         {
             Tegzd += Pantheon.getPinfo();
         }
-        if (getHHScriptVars("isEnabledShop",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_updateMarket") =="true")
+        if (ConfigHelper.getHHScriptVars("isEnabledShop",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_updateMarket") =="true")
         {
             Tegzd += '<li>'+getTextForUI("autoBuy","elementText")+' : '+getTimeLeft('nextShopTime')+'</li>';
         }
-        if (getHHScriptVars("isEnabledMission",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoMission") =="true")
+        if (ConfigHelper.getHHScriptVars("isEnabledMission",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoMission") =="true")
         {
             Tegzd += '<li>'+getTextForUI("autoMission","elementText")+' : '+getTimeLeft('nextMissionTime')+'</li>';
         }
-        if (getHHScriptVars("isEnabledContest",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoContest") =="true")
+        if (ConfigHelper.getHHScriptVars("isEnabledContest",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoContest") =="true")
         {
             Tegzd += '<li>'+getTextForUI("autoContest","elementText")+' : '+getTimeLeft('nextContestTime')+'</li>';
         }
-        if (getHHScriptVars("isEnabledPowerPlaces",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPowerPlaces") =="true")
+        if (ConfigHelper.getHHScriptVars("isEnabledPowerPlaces",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPowerPlaces") =="true")
         {
             Tegzd += '<li>'+getTextForUI("powerPlacesTitle","elementText")+' : '+getTimeLeft('minPowerPlacesTime')+'</li>';
         }
-        if ( getHHScriptVars("isEnabledPachinko",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoFreePachinko") =="true")
+        if ( ConfigHelper.getHHScriptVars("isEnabledPachinko",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoFreePachinko") =="true")
         {
             if (getTimer('nextPachinkoTime') !== -1)
             {
@@ -168,16 +168,16 @@ export function updateData() {
         }
         if (getStoredValue(HHStoredVarPrefixKey+"Temp_haveAff"))
         {
-            Tegzd += '<li>'+getTextForUI("autoAffW","elementText")+' : '+add1000sSeparator(getStoredValue(HHStoredVarPrefixKey+"Temp_haveAff"))+'</li>';
+            Tegzd += '<li>'+getTextForUI("autoAffW","elementText")+' : '+NumberHelper.add1000sSeparator(getStoredValue(HHStoredVarPrefixKey+"Temp_haveAff"))+'</li>';
         }
         if (getStoredValue(HHStoredVarPrefixKey+"Temp_haveExp"))
         {
-            Tegzd += '<li>'+getTextForUI("autoExpW","elementText")+' : '+add1000sSeparator(getStoredValue(HHStoredVarPrefixKey+"Temp_haveExp"))+'</li>';
+            Tegzd += '<li>'+getTextForUI("autoExpW","elementText")+' : '+NumberHelper.add1000sSeparator(getStoredValue(HHStoredVarPrefixKey+"Temp_haveExp"))+'</li>';
         }
         Tegzd += '</ul>';
 
         pInfo.style.display='block';
-        if (getStoredValue(HHStoredVarPrefixKey+"Setting_showInfoLeft") === 'true' && getPage() === getHHScriptVars("pagesIDHome")) {
+        if (getStoredValue(HHStoredVarPrefixKey+"Setting_showInfoLeft") === 'true' && getPage() === ConfigHelper.getHHScriptVars("pagesIDHome")) {
             pInfo.className='left';
         }
         pInfo.innerHTML = Tegzd;

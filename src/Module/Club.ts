@@ -1,4 +1,4 @@
-import { getHHScriptVars, getHHVars } from '../Helper/index';
+import { ConfigHelper, getHHVars } from '../Helper/index';
 import { logHHAuto } from '../Utils/index';
 import { HHEnvVariables } from '../config/index';
 
@@ -22,7 +22,7 @@ export class Club {
         }
         if (chatVars === null || chatVars === false)
         {
-            HHEnvVariables[getHHScriptVars("HHGameName")].isEnabledClubChamp = false;
+            HHEnvVariables[ConfigHelper.getHHScriptVars("HHGameName")].isEnabledClubChamp = false;
         }
     }
 }

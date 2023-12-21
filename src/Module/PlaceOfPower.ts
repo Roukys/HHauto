@@ -1,7 +1,7 @@
 import {
     clearTimer,
     convertTimeToInt,
-    getHHScriptVars,
+    ConfigHelper,
     getPage,
     getStoredValue,
     randomInterval,
@@ -130,11 +130,11 @@ export class PlaceOfPower {
 
     static collectAndUpdate()
     {
-        if(getPage() !== getHHScriptVars("pagesIDPowerplacemain")
+        if(getPage() !== ConfigHelper.getHHScriptVars("pagesIDPowerplacemain")
         )
         {
             logHHAuto("Navigating to powerplaces main page.");
-            gotoPage(getHHScriptVars("pagesIDPowerplacemain"));
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDPowerplacemain"));
             // return busy
             return true;
         }
@@ -167,7 +167,7 @@ export class PlaceOfPower {
             {
                 $(buttonClaimQuery).first().trigger('click');
                 logHHAuto("Claimed reward for PoP : "+$(buttonClaimQuery).first().parent().attr('pop_id'));
-                gotoPage(getHHScriptVars("pagesIDPowerplacemain"));
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDPowerplacemain"));
                 return true;
             }
 
@@ -286,7 +286,7 @@ export class PlaceOfPower {
         if(getPage() !== "powerplace"+index)
         {
             logHHAuto("Navigating to powerplace"+index+" page.");
-            gotoPage(getHHScriptVars("pagesIDActivities"),{tab:"pop",index:index});
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDActivities"),{tab:"pop",index:index});
             // return busy
             return true;
         }
@@ -304,7 +304,7 @@ export class PlaceOfPower {
                 if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoPowerPlacesAll") !== "true")
                 {
                     PlaceOfPower.cleanTempPopToStart();
-                    gotoPage(getHHScriptVars("pagesIDPowerplacemain"));
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDPowerplacemain"));
                     return true;
                 }
             }

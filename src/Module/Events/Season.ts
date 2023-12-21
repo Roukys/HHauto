@@ -6,7 +6,7 @@ import {
     calculateBattleProbabilities,
     checkTimer,
     convertTimeToInt,
-    getHHScriptVars,
+    ConfigHelper,
     getHHVars,
     getHero,
     getLimitTimeBeforeEnd,
@@ -15,8 +15,7 @@ import {
     getStoredValue,
     getTextForUI,
     getTimeLeft,
-    manageUnits,
-    nRounding,
+    NumberHelper,
     randomInterval,
     setStoredValue,
     setTimer } from '../../Helper/index';
@@ -155,7 +154,7 @@ export class Season {
 
                 if (doDisplay)
                 {
-                    $('.player-panel-buttons .opponent_perform_button_container .green_button_L.btn_season_perform',opponents[index]).prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${nRounding(100*simu.win, 2, -1)}%</div>`);
+                    $('.player-panel-buttons .opponent_perform_button_container .green_button_L.btn_season_perform',opponents[index]).prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${ConfigHelper.getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${NumberHelper.nRounding(100*simu.win, 2, -1)}%</div>`);
                 }
             }
 
@@ -266,7 +265,7 @@ export class Season {
             if (doDisplay)
             {
                 $($('.season_arena_opponent_container .matchRatingNew #powerLevelScouterNonChosen')[chosenID]).remove();
-                $($('div.season_arena_opponent_container div.matchRatingNew')[chosenID]).append(`<img id="powerLevelScouterChosen" src=${getHHScriptVars("powerCalcImages").chosen}>`);
+                $($('div.season_arena_opponent_container div.matchRatingNew')[chosenID]).append(`<img id="powerLevelScouterChosen" src=${ConfigHelper.getHHScriptVars("powerCalcImages").chosen}>`);
 
                 //CSS
 
@@ -310,7 +309,7 @@ export class Season {
         const Hero = getHero();
         var page = getPage();
         var current_kisses = Season.getEnergy();
-        if (page === getHHScriptVars("pagesIDSeasonArena"))
+        if (page === ConfigHelper.getHHScriptVars("pagesIDSeasonArena"))
         {
             logHHAuto("On season arena page.");
     
@@ -371,7 +370,7 @@ export class Season {
             if ( current_kisses > 0 )
             {
                 logHHAuto("Switching to Season Arena screen.");
-                gotoPage(getHHScriptVars("pagesIDSeasonArena"));
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonArena"));
             }
             else
             {
@@ -384,7 +383,7 @@ export class Season {
                     const next_refresh = getHHVars('Hero.energies.kiss.next_refresh_ts')
                     setTimer('nextSeasonTime', randomInterval(next_refresh+10, next_refresh + 180));
                 }
-                gotoPage(getHHScriptVars("pagesIDHome"));
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
             }
             return;
         }
@@ -393,7 +392,7 @@ export class Season {
     {
         const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonCollectablesList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonCollectablesList")):[];
 
-        if (getPage() === getHHScriptVars("pagesIDSeason"))
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDSeason"))
         {
             Season.getRemainingTime();
             const seasonEnd = getSecondsLeft("SeasonRemainingTime");
@@ -401,19 +400,19 @@ export class Season {
 
             if (checkTimer('nextSeasonCollectAllTime') && seasonEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonCollectAll") === "true")
             {
-                if($(getHHScriptVars("selectorClaimAllRewards")).length > 0)
+                if($(ConfigHelper.getHHScriptVars("selectorClaimAllRewards")).length > 0)
                 {
                     logHHAuto("Going to collect all Season item at once.");
                     setTimeout(function (){
-                        $(getHHScriptVars("selectorClaimAllRewards"))[0].click();
-                        setTimer('nextSeasonCollectAllTime', getHHScriptVars("maxCollectionDelay") + randomInterval(60,180)); // Add timer to check again later if there is new items to collect
-                        setTimeout(function (){gotoPage(getHHScriptVars("pagesIDHome"));},500);
+                        $(ConfigHelper.getHHScriptVars("selectorClaimAllRewards"))[0].click();
+                        setTimer('nextSeasonCollectAllTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180)); // Add timer to check again later if there is new items to collect
+                        setTimeout(function (){gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));},500);
                     },500);
                     return true;
                 }
                 else
                 {
-                    setTimer('nextSeasonCollectAllTime', getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
+                    setTimer('nextSeasonCollectAllTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
                 }
             }
             if (checkTimer('nextSeasonCollectTime') && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonCollect") === "true")
@@ -499,8 +498,8 @@ export class Season {
                         else
                         {
                             logHHAuto("Season collection finished.");
-                            setTimer('nextSeasonCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
-                            gotoPage(getHHScriptVars("pagesIDHome"));
+                            setTimer('nextSeasonCollectTime',ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
+                            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                         }
                     }
                     collectSeasonRewards();
@@ -509,9 +508,9 @@ export class Season {
                 else
                 {
                     logHHAuto("No season collection to do.");
-                    setTimer('nextSeasonCollectTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
-                    setTimer('nextSeasonCollectAllTime',getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
-                    gotoPage(getHHScriptVars("pagesIDHome"));
+                    setTimer('nextSeasonCollectTime',ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
+                    setTimer('nextSeasonCollectAllTime',ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                     return false;
                 }
             }
@@ -520,7 +519,7 @@ export class Season {
         else
         {
             logHHAuto("Switching to Season Rewards screen.");
-            gotoPage(getHHScriptVars("pagesIDSeason"));
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeason"));
             return true;
         }
     }
