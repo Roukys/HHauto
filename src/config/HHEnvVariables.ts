@@ -516,7 +516,8 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
                                           'Emma Rose',
                                           'Natalie Stone',
                                           'Janie Blade',
-                                          'Nikki Nort'];
+                                          'Nikki Nort',
+                                          'Mistress Venom'];
     HHEnvVariables[element].isEnabledSideQuest = false;// to remove when SideQuest arrives in transpornstar
     HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in transpornstar
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in transpornstar
@@ -531,6 +532,7 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
         [['334144727', '667194919', '911144911'], [0], [0]],
         [['473470854', '708191289', '945710078'], [0], [0]],
         [['104549634', '521022556', '526732951'], [0], [0]],
+        [['317800067', '542090972', '920682672'], [0], [0]],
     ];
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
 });
