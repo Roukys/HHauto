@@ -1035,6 +1035,7 @@ export function autoLoop()
             setTimeout(Season.displayRemainingTime,500);
             setTimeout(PathOfValue.displayRemainingTime,500);
             setTimeout(PathOfGlory.displayRemainingTime,500);
+            setTimeout(EventModule.showCompletedEvent,500);
 
             Harem.clearHaremToolVariables = callItOnce(Harem.clearHaremToolVariables); // Avoid wired loop, if user reach home page, ensure temp var from harem are cleared
             Harem.clearHaremToolVariables();
