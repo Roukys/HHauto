@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.1.1
+// @version      7.1.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -13745,7 +13745,8 @@ class RewardHelper {
     static getRewardsAsHtml(rewardCountByType) {
         let html = '';
         if (rewardCountByType)
-            rewardCountByType.forEach((rewardCount, rewardType) => {
+            for (const rewardType in rewardCountByType) {
+                const rewardCount = rewardCountByType[rewardType];
                 switch (rewardType) {
                     // case 'girl_shards' :    return Number($('.shards', inSlot).attr('shards'));
                     case 'random_girl_shards':
@@ -13785,7 +13786,7 @@ class RewardHelper {
                     // case 'avatar':          return 1;
                     default:
                 }
-            });
+            }
         return html;
     }
     static displayRewardsDiv(target, hhRewardId, rewardCountByType) {
