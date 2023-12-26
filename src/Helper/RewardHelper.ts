@@ -186,7 +186,9 @@ export class RewardHelper {
     static getRewardsAsHtml(rewardCountByType:Map<string,number>) {
         let html = '';
         if(rewardCountByType)
-        rewardCountByType.forEach((rewardCount: number, rewardType: string) => {
+        //for (const [rewardType, rewardCount] of rewardCountByType.entries()) {
+        for (const rewardType in rewardCountByType) {
+            const rewardCount = rewardCountByType[rewardType];
             switch(rewardType)
             {
                 // case 'girl_shards' :    return Number($('.shards', inSlot).attr('shards'));
@@ -209,7 +211,7 @@ export class RewardHelper {
                 // case 'avatar':          return 1;
                 default: 
             }
-        });
+        }
         return html;
     }
     static displayRewardsDiv(target,hhRewardId, rewardCountByType:Map<string,number> ) {
