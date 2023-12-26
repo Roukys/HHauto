@@ -570,13 +570,13 @@ export function getMenu() {
                         + hhMenuInput('autoBuyTrollNumber', HHAuto_inputPattern.autoBuyTrollNumber, 'width:40px')
                         + hhMenuInput('buyCombTimer', HHAuto_inputPattern.buyCombTimer, 'text-align:center; width:40px', '', 'numeric')
                     +`</div>`
-                    +`<div class="internalOptionsRow">`
+                    +`<div class="internalOptionsRow separator">`
                         + hhMenuSwitch('plusEventMythic')
                         + hhMenuSwitch('autoTrollMythicByPassParanoia')
                         + hhMenuSwitch('buyMythicCombat', '', true)
                         + hhMenuInput('autoBuyMythicTrollNumber', HHAuto_inputPattern.autoBuyTrollNumber, 'width:40px')
                         + hhMenuInput('buyMythicCombTimer', HHAuto_inputPattern.buyMythicCombTimer, 'text-align:center; width:40px', '', 'numeric')
-                        + `<div style="display:none;">` + hhMenuSwitch('plusEventMythicSandalWood') + '</div>'
+                        + hhMenuSwitch('plusEventMythicSandalWood')
                     +`</div>`
                 +`</div>`
             +`</div>`
