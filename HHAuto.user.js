@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.1.2
+// @version      7.1.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -87,6 +87,7 @@ GM_addStyle('#HHSeasonalRewards { position: absolute; left: 1.25rem; bottom: 1re
 GM_addStyle('#HHPoaRewards { position: absolute; left: 15rem; bottom: 0; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
 // copy CSS from HH OCD, to make it work on other game than HH
 GM_addStyle('#pov_tab_container .potions-paths-first-row .potions-paths-title-panel { transform: scale(0.5);  position: relative; top: -37px; }');
+GM_addStyle('img.eventCompleted { width: 10px; margin-left:2px }');
 //END CSS Region
 
 
@@ -183,6 +184,7 @@ HHAuto_ToolTips.en['autoChampsForceStartEventGirl'] = { version: "5.6.98", eleme
 HHAuto_ToolTips.en['plusEvent'] = { version: "5.6.24", elementText: "+Event", tooltip: "If enabled : ignore selected troll during event to battle event" };
 HHAuto_ToolTips.en['plusEventMythic'] = { version: "5.6.24", elementText: "+Mythic Event", tooltip: "Enable grabbing girls for mythic event, should only play them when shards are available, Mythic girl troll will be priorized over Event Troll." };
 HHAuto_ToolTips.en['plusEventMythicSandalWood'] = { version: "6.5.0", elementText: "Equip Sandalwood", tooltip: "Will try to equip sandalwood before mythic fight." };
+HHAuto_ToolTips.en['eventCompleted'] = { version: "7.1.3", elementText: "Event completed", tooltip: "Event completed" };
 //HHAuto_ToolTips.en['eventMythicPrio'] = { version: "5.6.24", elementText: "Priorize over Event Troll Order", tooltip: "Mythic event girl priorized over event troll order if shards available"};
 //HHAuto_ToolTips.en['autoTrollMythicByPassThreshold'] = { version: "5.6.24", elementText: "Mythic bypass Threshold", tooltip: "Allow mythic to bypass Troll threshold"};
 HHAuto_ToolTips.en['autoSeasonTitle'] = { version: "5.6.24", elementText: "Season" };
@@ -1663,6 +1665,30 @@ class EventModule {
         }
         let parsedURL = new URL(eventHref, window.location.origin);
         return queryStringGetParam(parsedURL.search, 'tab') || '';
+    }
+    static showCompletedEvent() {
+        try {
+            let oneEventCompleted = false;
+            if ($('img.eventCompleted').length <= 0 && $(`#contains_all #homepage .event-widget a:not([href="#"])`).length > 0) {
+                const img = $(`<div class="tooltipHH" style="display: inline-block;">`
+                    + `<span class="tooltipHHtext">${getTextForUI('eventCompleted', "tooltip")}</span>`
+                    + `<img src=${ConfigHelper.getHHScriptVars("powerCalcImages")['plus']} class="eventCompleted" title="${getTextForUI('eventCompleted', "tooltip")}" />`
+                    + `</div>`);
+                const eventList = Utils_isJSON(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_eventsList")) ? JSON.parse(StorageHelper_getStoredValue(HHStoredVars_HHStoredVarPrefixKey + "Temp_eventsList")) : {};
+                for (let eventID of Object.keys(eventList)) {
+                    if (eventList[eventID]["isCompleted"]) {
+                        const eventTimer = $(`#contains_all #homepage .event-widget a[href*="${eventID}"] .timer p`);
+                        eventTimer.append(img);
+                        oneEventCompleted = true;
+                    }
+                }
+            }
+            if (!oneEventCompleted) {
+                const eventTimer = $(`#contains_all #homepage`);
+                eventTimer.append($(`<img src=${ConfigHelper.getHHScriptVars("powerCalcImages")['minus']} class="eventCompleted" style="display:none" />`));
+            }
+        }
+        catch (error) { }
     }
     static parseEventPage(inTab = "global") {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent")) {
@@ -14791,6 +14817,7 @@ function autoLoop() {
             setTimeout(Season.displayRemainingTime, 500);
             setTimeout(PathOfValue.displayRemainingTime, 500);
             setTimeout(PathOfGlory.displayRemainingTime, 500);
+            setTimeout(EventModule.showCompletedEvent, 500);
             Harem.clearHaremToolVariables = callItOnce(Harem.clearHaremToolVariables); // Avoid wired loop, if user reach home page, ensure temp var from harem are cleared
             Harem.clearHaremToolVariables();
             break;

@@ -87,5 +87,6 @@ GM_addStyle('#HHSeasonalRewards { position: absolute; left: 1.25rem; bottom: 1re
 GM_addStyle('#HHPoaRewards { position: absolute; left: 15rem; bottom: 0; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
 // copy CSS from HH OCD, to make it work on other game than HH
 GM_addStyle('#pov_tab_container .potions-paths-first-row .potions-paths-title-panel { transform: scale(0.5);  position: relative; top: -37px; }');
+GM_addStyle('img.eventCompleted { width: 10px; margin-left:2px }');
 //END CSS Region
 

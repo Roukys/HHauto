@@ -49,6 +49,7 @@ HHAuto_ToolTips.en['autoChampsForceStartEventGirl'] = { version: "5.6.98", eleme
 HHAuto_ToolTips.en['plusEvent'] = { version: "5.6.24", elementText: "+Event", tooltip: "If enabled : ignore selected troll during event to battle event"};
 HHAuto_ToolTips.en['plusEventMythic'] = { version: "5.6.24", elementText: "+Mythic Event", tooltip: "Enable grabbing girls for mythic event, should only play them when shards are available, Mythic girl troll will be priorized over Event Troll."};
 HHAuto_ToolTips.en['plusEventMythicSandalWood'] = { version: "6.5.0", elementText: "Equip Sandalwood", tooltip: "Will try to equip sandalwood before mythic fight."};
+HHAuto_ToolTips.en['eventCompleted'] = { version: "7.1.3", elementText: "Event completed", tooltip: "Event completed"};
 //HHAuto_ToolTips.en['eventMythicPrio'] = { version: "5.6.24", elementText: "Priorize over Event Troll Order", tooltip: "Mythic event girl priorized over event troll order if shards available"};
 //HHAuto_ToolTips.en['autoTrollMythicByPassThreshold'] = { version: "5.6.24", elementText: "Mythic bypass Threshold", tooltip: "Allow mythic to bypass Troll threshold"};
 HHAuto_ToolTips.en['autoSeasonTitle'] = { version: "5.6.24", elementText: "Season"};
