@@ -8,7 +8,6 @@ import {
     getSecondsLeft,
     getStoredValue,
     getTextForUI,
-    getTimeLeft,
     queryStringGetParam,
     setHHVars,
     setStoredValue,
@@ -16,6 +15,7 @@ import {
 import { gotoPage } from '../Service/index';
 import { isJSON, logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
+import { Booster } from './Booster';
 import { EventModule } from "./Events/index";
 import { Harem } from "./Harem";
 
@@ -88,11 +88,11 @@ export class Troll {
         }
     }
 
-    static getTrollIdFromEvent(eventGirl){
-        if(EventModule.isEventActive(eventGirl.event_id)) {
+    static getTrollIdFromEvent(eventGirl:any){
+        if(eventGirl && EventModule.isEventActive(eventGirl.event_id)) {
             return eventGirl.troll_id;
         }else {
-            EventModule.clearEventData(eventGirl.event_id);
+            if(eventGirl) EventModule.clearEventData(eventGirl.event_id);
             logHHAuto("Event troll completed, clear event and get new troll ID");
             return Troll.getTrollIdToFight();
         }
@@ -109,7 +109,7 @@ export class Troll {
 
         var TTF;
         const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
-        const eventGirl = getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl") !== undefined ? JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")) : undefined
+        const eventGirl = getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl") !== undefined ? JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")) : undefined;
         if (getStoredValue(HHStoredVarPrefixKey+"Setting_plusEvent") === "true" && !checkTimer("eventGoing") && eventGirl !== undefined && eventGirl.is_mythic==="false")
         {
             logHHAuto("Event troll fight");
@@ -171,7 +171,7 @@ export class Troll {
         return TTF;
     }
 
-    static doBossBattle()
+    static async doBossBattle()
     {
         var currentPower = Troll.getEnergy();
         if(currentPower < 1)
@@ -190,6 +190,11 @@ export class Troll {
 
         const TTF = Troll.getTrollIdToFight();
         const trollz = ConfigHelper.getHHScriptVars("trollzList");
+
+        const equipped = await Booster.equipeSandalWoodIfNeeded(TTF);
+        if(equipped) {
+            logHHAuto("New booster equipped before fight.");
+        }
 
         logHHAuto("Fighting troll N "+TTF);
         logHHAuto("Going to crush: "+trollz[Number(TTF)]);

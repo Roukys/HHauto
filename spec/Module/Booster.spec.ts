@@ -94,4 +94,114 @@ describe("Booster", function() {
       expect(Booster.haveBoosterEquiped('ZZ')).toBeFalsy();
     });
   });
+
+  describe("equipeSandalWoodIfNeeded", function() {
+
+    beforeEach(function() {
+      // Always true here
+      unsafeWindow.hh_ajax = jest.fn(() => {
+          const fakeResponse = {
+              success: true
+          };
+          return Promise.resolve(fakeResponse);
+      });
+      // Have boosters equipped none
+      sessionStorage.setItem(HHStoredVarPrefixKey+"Temp_boosterStatus", JSON.stringify({normal: [], mythic:[]}));
+      // Have boosters
+      const boosters = '{"B1":123,"B2":123,"B3":123,"B4":123,"MB1":123,"MB2":123,"MB3":123,"MB4":123}';
+      sessionStorage.setItem(HHStoredVarPrefixKey+"Temp_haveBooster", boosters);
+      sessionStorage.setItem(HHStoredVarPrefixKey+"Temp_sandalwoodFailure", '0');
+    });
+
+    function setGirl(mythic:boolean, troll:number, shards:number){
+      const girl = `{"girl_id":666,"troll_id":"${troll}","girl_shards":${shards},"is_mythic":"${mythic}","girl_name":"NEXT_GIRL","event_id":"event_666"}`;
+      sessionStorage.setItem(HHStoredVarPrefixKey+"Temp_eventGirl", girl);
+    }
+
+    it("default", async function() {
+      Booster.equipeSandalWoodIfNeeded(1).then(data => {
+        expect(data).toBeFalsy();
+      });
+    });
+
+    it("No all active", async function() {
+      setGirl(true, 99, 55);
+      localStorage.setItem(HHStoredVarPrefixKey+"Setting_plusEventMythic", 'false');
+      localStorage.setItem(HHStoredVarPrefixKey+"Setting_plusEventMythicSandalWood", 'true');
+      Booster.equipeSandalWoodIfNeeded(1).then(data => {
+        expect(data).toBeFalsy();
+      });
+      localStorage.setItem(HHStoredVarPrefixKey+"Setting_plusEventMythic", 'true');
+      localStorage.setItem(HHStoredVarPrefixKey+"Setting_plusEventMythicSandalWood", 'false');
+      Booster.equipeSandalWoodIfNeeded(1).then(data => {
+        expect(data).toBeFalsy();
+      });
+    });
+
+    it("Stored mythic girl", function() {
+      setGirl(true, 99, 55);
+      localStorage.setItem(HHStoredVarPrefixKey+"Setting_plusEventMythic", 'true');
+      localStorage.setItem(HHStoredVarPrefixKey+"Setting_plusEventMythicSandalWood", 'true');
+      Booster.equipeSandalWoodIfNeeded(1).then(data => {
+        // wrong troll
+        expect(data).toBeFalsy();
+      });
+      Booster.equipeSandalWoodIfNeeded(99).then(data => {
+        expect(data).toBeTruthy();
+      });
+    });
+
+    it("No mythic girl", function() {
+      setGirl(false, 99, 55);
+      localStorage.setItem(HHStoredVarPrefixKey+"Setting_plusEventMythic", 'true');
+      localStorage.setItem(HHStoredVarPrefixKey+"Setting_plusEventMythicSandalWood", 'true');
+      Booster.equipeSandalWoodIfNeeded(99).then(data => {
+        expect(data).toBeFalsy();
+      });
+    });
+
+    it("Ended mythic girl", function() {
+      setGirl(true, 99, 100);
+      localStorage.setItem(HHStoredVarPrefixKey+"Setting_plusEventMythic", 'true');
+      localStorage.setItem(HHStoredVarPrefixKey+"Setting_plusEventMythicSandalWood", 'true');
+      Booster.equipeSandalWoodIfNeeded(99).then(data => {
+        expect(data).toBeFalsy();
+      });
+    });
+    
+/*
+    describe("Failure equip call", function() {
+      
+      beforeEach(function() {
+        // Test failure case here
+        unsafeWindow.hh_ajax = jest.fn(() => {
+            const fakeResponse = {
+                success: false
+            };
+            return Promise.resolve(fakeResponse);
+        });
+      });
+
+      it("Ongoing mythic girl", function() {
+        setGirl(true, 99, 55);
+        localStorage.setItem(HHStoredVarPrefixKey+"Setting_plusEventMythic", 'true');
+        localStorage.setItem(HHStoredVarPrefixKey+"Setting_plusEventMythicSandalWood", 'true');
+        Booster.equipeSandalWoodIfNeeded(99).then(data => {
+          expect(data).toBeFalsy();
+          expect(sessionStorage.getItem(HHStoredVarPrefixKey+"Temp_sandalwoodFailure")).toBe(1);
+        });
+        Booster.equipeSandalWoodIfNeeded(99).then(data => {
+          expect(data).toBeFalsy();
+          expect(sessionStorage.getItem(HHStoredVarPrefixKey+"Temp_sandalwoodFailure")).toBe(2);
+          expect(localStorage.getItem(HHStoredVarPrefixKey+"Setting_plusEventMythicSandalWood")).toBe('true');
+        });
+        Booster.equipeSandalWoodIfNeeded(99).then(data => {
+          expect(data).toBeFalsy();
+          expect(sessionStorage.getItem(HHStoredVarPrefixKey+"Temp_sandalwoodFailure")).toBe(3);
+          expect(localStorage.getItem(HHStoredVarPrefixKey+"Setting_plusEventMythicSandalWood")).toBe('false');
+        });
+      });
+    });
+    */
+  });
 });

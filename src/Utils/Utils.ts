@@ -81,7 +81,7 @@ export function getCurrentSorting()
     return localStorage.sort_by;
 }
 
-/* Used ? */
+/* Used ? 
 export function waitForKeyElements (selectorTxt,maxMilliWaitTime)
 {
     var targetNodes;
@@ -92,15 +92,8 @@ export function waitForKeyElements (selectorTxt,maxMilliWaitTime)
     {
         targetNodes = jQuery(selectorTxt);
     }
-    if (targetNodes.length === 0)
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
-}
+    return targetNodes.length !== 0);
+}*/
 
 
 export function myfileLoad_onChange(event)

@@ -59,6 +59,7 @@ export class Missions {
         }
         else
         {
+            const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
             logHHAuto("On missions page.");
             if(RewardHelper.closeRewardPopupIfAny()) {
                 return true;
@@ -81,7 +82,7 @@ export class Missions {
                 logHHAuto("Mission ongoing waiting it ends.");
                 return true;
             }
-            logHHAuto("Missions parsed, mission list is:", missions);
+            if(debugEnabled) logHHAuto("Missions parsed, mission list is:", missions);
             if(missions.length > 0)
             {
                 logHHAuto("Selecting mission from list.");

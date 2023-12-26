@@ -7,8 +7,8 @@ import { HHStoredVarPrefixKey } from '../config/index';
 const DEFAULT_BOOSTERS = {normal: [], mythic:[]};
 
 export class Booster {
-    static GINSENG_ROOT = {"id_item":"316","identifier":"B1","name":"Ginseng root"};
-    static SANDALWOOD_PERFUME = {"id_item":"632","identifier":"MB1","name":"Sandalwood perfume"};
+    static GINSENG_ROOT = {"id_item":"316","identifier":"B1","name":"Ginseng root", "rarity":"legendary"};
+    static SANDALWOOD_PERFUME = {"id_item":"632","identifier":"MB1","name":"Sandalwood perfume","rarity":"mythic"};
     
     //all following lines credit:Tom208 OCD script  
     static collectBoostersFromAjaxResponses () {
@@ -161,17 +161,6 @@ export class Booster {
                                 if (isMultibattle) {
                                     // TODO go to market if sandalwood not ended, continue. If ended, buy a new one
                                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDShop"));
-                                } else {
-                                    // Equip a new one
-                                    /*
-                                    const equiped = await HeroHelper.equipBooster(Booster.SANDALWOOD_PERFUME);
-                                    if(!equiped) {
-                                        logHHAuto("Failure when equip Sandalwood for mythic, deactivated auto sandalwood");
-                                        setStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythicSandalWood", 'false');
-
-                                        // TODO For debug to be removed
-                                        setStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic", 'false');
-                                    }*/
                                 }
                             }
                         }
@@ -219,5 +208,37 @@ export class Booster {
 
             setStoredValue(HHStoredVarPrefixKey+'Temp_boosterStatus', JSON.stringify(boosterStatus));
         }, 200)
+    }
+
+    static async equipeSandalWoodIfNeeded(nextTrollChoosen:number):Promise<boolean>{
+        try {
+            const eventGirl = getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl") !== undefined ? JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")) : undefined;
+            if(getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") === "true" && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythicSandalWood") === "true" 
+                && eventGirl !== undefined && eventGirl.is_mythic==="true" && eventGirl.troll_id == nextTrollChoosen) {
+                if(!Booster.haveBoosterEquiped(Booster.SANDALWOOD_PERFUME.identifier)) {
+                    const remainingShards = Number(100 - Number(eventGirl.girl_shards));
+                    if(remainingShards > 10) {
+                        // Equip a new one
+                        const equiped:boolean = await HeroHelper.equipBooster(Booster.SANDALWOOD_PERFUME);
+                        if(!equiped) {
+                            const numberFailure = HeroHelper.getSandalWoodEquipFailure();
+                            if(numberFailure >= 3) {
+                                logHHAuto("Failure when equip Sandalwood for mythic for the third time, deactivated auto sandalwood");
+                                setStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythicSandalWood", 'false');
+
+                                // TODO For debug to be removed
+                                // setStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic", 'false');
+                            } else logHHAuto("Failure when equip Sandalwood for mythic");
+                        }
+                        return equiped;
+                    } else {
+                        logHHAuto("Less than 10 shards, do not equip Sandalwood to avoid loss");
+                    }
+                }
+            }
+        } catch (error) {
+            return Promise.resolve(false);
+        }
+        return Promise.resolve(false);
     }
 }

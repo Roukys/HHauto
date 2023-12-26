@@ -157,7 +157,7 @@ export function CheckSpentPoints()
     }
 }
 
-export function autoLoop()
+export async function autoLoop()
 {
     updateData();
     if (getStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement") === undefined)
@@ -376,7 +376,7 @@ export function autoLoop()
                 busy = true;
                 if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoQuest") !== "true" || getStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement")[0] !== 'P')
                 {
-                    busy = Troll.doBossBattle();
+                    busy = await Troll.doBossBattle();
                     lastActionPerformed = "troll";
                 }
                 else

@@ -1895,6 +1895,12 @@ HHStoredVars[HHStoredVarPrefixKey+"Temp_boosterStatus"] =
     storage:"sessionStorage",
     HHType:"Temp"
 };
+HHStoredVars[HHStoredVarPrefixKey+"Temp_sandalwoodFailure"] =
+{
+    default:"0",
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
 HHStoredVars[HHStoredVarPrefixKey+"Temp_LeagueSavedData"] =
     {
     storage:"sessionStorage",

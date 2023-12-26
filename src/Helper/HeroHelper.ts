@@ -67,17 +67,16 @@ export function doStatUpgrades()
 }
 
 export class HeroHelper {
-    static haveBoosterInInventory(idBooster) {
+    static haveBoosterInInventory(idBooster:string) {
         const HaveBooster=isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_haveBooster"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_haveBooster")):{};
         const boosterOwned = HaveBooster.hasOwnProperty(idBooster) ? Number(HaveBooster[idBooster]) : 0;
         return boosterOwned > 0
     }
 
-    static async equipBooster(booster) {
-        logHHAuto("Not yet enough tested, do not use");
+    static async equipBooster(booster:any):Promise<boolean> {
         if(!booster) return Promise.resolve(false);
         if(!HeroHelper.haveBoosterInInventory(booster.identifier)) {
-            logHHAuto("Boostrer" + booster + " not in inventory");
+            logHHAuto("Booster " + booster + " not in inventory");
             return Promise.resolve(false);
         }
         //action=market_equip_booster&id_item=316&type=booster
@@ -89,11 +88,13 @@ export class HeroHelper {
             type: "booster"
         };
 
-        return Promise.resolve(false);
-/*
         return new Promise((resolve) => {
+            // change referer
+            const currentPath = window.location.href.replace('http://', '').replace('https://', '').replace(window.location.hostname, '');
+            window.history.replaceState(null, '', '/shop.html');
             unsafeWindow.hh_ajax(params, function(data) {
                 if (data.success) logHHAuto('Booster equipped');
+                else HeroHelper.getSandalWoodEquipFailure(true); // Increase failure
                 setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
                 setTimeout(autoLoop,randomInterval(500,800));
                 resolve(true);
@@ -101,9 +102,21 @@ export class HeroHelper {
                 logHHAuto('Error occured booster not equipped, could be booster is already equipped');
                 setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
                 setTimeout(autoLoop,randomInterval(500,800));
+                HeroHelper.getSandalWoodEquipFailure(true); // Increase failure
                 resolve(false);
             });
+            // change referer
+            window.history.replaceState(null, '', currentPath);
         });
-*/
+
+    }
+
+    static getSandalWoodEquipFailure(increase:boolean=false){
+        const numberFailureStr:string = getStoredValue(HHStoredVarPrefixKey+"Temp_sandalwoodFailure") ?? '0';
+        let numberFailure = numberFailureStr ? Number(numberFailureStr): 0;
+        if(isNaN(numberFailure)) numberFailure = 0;
+        if(increase) numberFailure = numberFailure + 1;
+        setStoredValue(HHStoredVarPrefixKey+"Temp_sandalwoodFailure", numberFailure);
+        return numberFailure;
     }
 }
