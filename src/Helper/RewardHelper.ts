@@ -338,7 +338,7 @@ export class RewardHelper {
             )
             {
                 clearTimeout(inCaseTimer);
-                logHHAuto("Need to check back event page");
+                logHHAuto(`Need to check back event page: '${renewEvent}' or '${eventGirl?.event_id ?? ''}' `);
                 if (renewEvent !== "")
                 {
                     EventModule.parseEventPage(renewEvent);

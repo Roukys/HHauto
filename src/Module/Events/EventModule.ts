@@ -25,7 +25,7 @@ import { PathOfAttraction } from "./PathOfAttraction";
 import { SultryMysteries } from "./SultryMysteries";
 
 export class EventModule {
-    static clearEventData(inEventID)
+    static clearEventData(inEventID:string)
     {
         //sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_eventsGirlz');
         //sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_eventGirl');
@@ -138,13 +138,16 @@ export class EventModule {
         }
     }
 
-    static getDisplayedIdEventPage():string {
+    static getDisplayedIdEventPage(logging=true):string {
         let eventHref = $("#contains_all #events .events-list .event-title.active").attr("href") || '';
-        if(!eventHref) {
+        if (!eventHref && logging) {
             logHHAuto('Error href not found for current event');
         }
-        let parsedURL = new URL(eventHref,window.location.origin);
-        return queryStringGetParam(parsedURL.search,'tab') || '';
+        if (eventHref) {
+            let parsedURL = new URL(eventHref,window.location.origin);
+            return queryStringGetParam(parsedURL.search,'tab') || '';
+        }
+        return '';
     }
 
     static showCompletedEvent(){
@@ -182,8 +185,14 @@ export class EventModule {
             const eventID:string = EventModule.getDisplayedIdEventPage();
             if (inTab !== "global" && inTab !== eventID)
             {
-                logHHAuto("Wrong event opened, need to change event page");
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDEvent"),{tab:inTab});
+                if(eventID == '') {
+                    logHHAuto("ERROR: No event Id found in current page, clear event data and go to home");
+                    EventModule.clearEventData(inTab);
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                } else {
+                    logHHAuto("Wrong event opened, need to change event page");
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDEvent"),{tab:inTab});
+                }
                 return true;
             }
 
@@ -480,7 +489,8 @@ export class EventModule {
                 eventList[eventID]={};
                 eventList[eventID]["id"]=eventID;
                 eventList[eventID]["type"]=hhEvent.eventType;
-                eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimerPoa * 1000;  
+                eventList[eventID]["seconds_before_end"] = new Date().getTime() + poAEnd * 1000;
+                eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimerPoa * 1000;
                 eventList[eventID]["isCompleted"] = PathOfAttraction.isCompleted();
 
                 if(getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoACollect") === "true" || poAEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoACollectAll") === "true") {
@@ -565,7 +575,7 @@ export class EventModule {
         }
     }
 
-    static getEventType(inEventID){
+    static getEventType(inEventID:string){
         if(inEventID.startsWith(ConfigHelper.getHHScriptVars('mythicEventIDReg'))) return "mythic";
         if(inEventID.startsWith(ConfigHelper.getHHScriptVars('eventIDReg'))) return "event";
         if(inEventID.startsWith(ConfigHelper.getHHScriptVars('bossBangEventIDReg'))) return "bossBang";
@@ -578,7 +588,7 @@ export class EventModule {
         return "";
     }
 
-    static getEvent(inEventID){
+    static getEvent(inEventID:string){
         const eventType = EventModule.getEventType(inEventID);
         const isPlusEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('eventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEvent") ==="true";
         const isPlusEventMythic = inEventID.startsWith(ConfigHelper.getHHScriptVars('mythicEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") ==="true";
@@ -600,9 +610,9 @@ export class EventModule {
         }
     }
 
-    static isEventActive(inEventID)
+    static isEventActive(inEventID:string)
     {
-        let eventList = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsList")):{};
+        let eventList = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) : {};
         if (eventList.hasOwnProperty(inEventID) && !eventList[inEventID]["isCompleted"]) {
             return eventList[inEventID]["seconds_before_end"]>new Date()
         }
@@ -795,16 +805,19 @@ export class EventModule {
 
     static parsePageForEventId()
     {
-        let eventQuery = '#contains_all #homepage .event-widget a[rel="event"]:not([href="#"])';
-        let mythicEventQuery = '#contains_all #homepage .event-widget a[rel="mythic_event"]:not([href="#"])';
-        let bossBangEventQuery = '#contains_all #homepage .event-widget a[rel="boss_bang_event"]:not([href="#"])';
-        let sultryMysteriesEventQuery = '#contains_all #homepage .event-widget a[rel="sm_event"]:not([href="#"])';
-        let dpEventQuery = '#contains_all #homepage .event-widget a[rel="dp_event"]:not([href="#"])';
-        let seasonalEventQuery = '#contains_all #homepage .seasonal-event a'; // Mega event have same query
-        let povEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-valor"]';
-        let pogEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-glory"]';
+        const eventQuery = '#contains_all #homepage .event-widget a[rel="event"]:not([href="#"])';
+        const mythicEventQuery = '#contains_all #homepage .event-widget a[rel="mythic_event"]:not([href="#"])';
+        const bossBangEventQuery = '#contains_all #homepage .event-widget a[rel="boss_bang_event"]:not([href="#"])';
+        const sultryMysteriesEventQuery = '#contains_all #homepage .event-widget a[rel="sm_event"]:not([href="#"])';
+        const dpEventQuery = '#contains_all #homepage .event-widget a[rel="dp_event"]:not([href="#"])';
+        const seasonalEventQuery = '#contains_all #homepage .seasonal-event a'; // Mega event have same query
+        const povEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-valor"]';
+        const pogEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-glory"]';
+        const poaEventQuery = '#contains_all #homepage .event-widget a[rel="path_event"]:not([href="#"])';
         let eventIDs:string[] =[];
+        let ongoingEventIDs:string[] =[];
         let bossBangEventIDs:string[]=[];
+        const currentPage = getPage();
 
         function parseForEventId(query:string, eventList:string[]){
             let parsedURL:URL;
@@ -818,12 +831,13 @@ export class EventModule {
                 {
                     eventList.push(eventId);
                 }
+                if (eventId !== '') { ongoingEventIDs.push(eventId); }
             }
         }
 
-        if (getPage()===ConfigHelper.getHHScriptVars("pagesIDEvent"))
+        if (currentPage === ConfigHelper.getHHScriptVars("pagesIDEvent"))
         {
-            const currentPageEventId:string = queryStringGetParam(window.location.search,'tab') || '';
+            const currentPageEventId: string = EventModule.getDisplayedIdEventPage();
             if (currentPageEventId !== null && EventModule.checkEvent(currentPageEventId))
             {
                 eventIDs.push(currentPageEventId);
@@ -843,11 +857,12 @@ export class EventModule {
                 }
             }
         }
-        else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHome"))
+        else if (currentPage === ConfigHelper.getHHScriptVars("pagesIDHome"))
         {
             let queryResults:any;
             parseForEventId(eventQuery,eventIDs);
             parseForEventId(mythicEventQuery,eventIDs);
+            parseForEventId(poaEventQuery,eventIDs);
             parseForEventId(bossBangEventQuery,bossBangEventIDs);
             parseForEventId(sultryMysteriesEventQuery,eventIDs);
             if ($(sultryMysteriesEventQuery).length <= 0 && getTimer("eventSultryMysteryShopRefresh") !== -1)
@@ -882,6 +897,17 @@ export class EventModule {
                 logHHAuto("No pog event found, deactivate collect.");
                 setStoredValue(HHStoredVarPrefixKey+"Setting_autoPoGCollect", "false");
                 setStoredValue(HHStoredVarPrefixKey+"Setting_autoPoGCollectAll", "false");
+            }
+        }
+
+        if (currentPage === ConfigHelper.getHHScriptVars("pagesIDEvent") || currentPage === ConfigHelper.getHHScriptVars("pagesIDHome")) {
+            const eventList = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) : {};
+            for (const eventIDStored of Object.keys(eventList)) {
+                //console.log(eventID);
+                if (!ongoingEventIDs.includes(eventIDStored)) {
+                    logHHAuto(`Event ${eventIDStored} seems not available anymore, removing from store`);
+                    EventModule.clearEventData(eventIDStored);
+                }
             }
         }
         

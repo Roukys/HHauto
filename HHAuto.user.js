@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.2.0
+// @version      7.2.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -183,7 +183,7 @@ HHAuto_ToolTips.en['lastTrollWithGirls'] = { version: "5.32.0", elementText: "La
 HHAuto_ToolTips.en['autoChampsForceStartEventGirl'] = { version: "5.6.98", elementText: "Event force", tooltip: "if enabled, will fight for event girl champion even if not started. Champions will need to be activated and champions to be in the filter." };
 HHAuto_ToolTips.en['plusEvent'] = { version: "5.6.24", elementText: "+Event", tooltip: "If enabled : ignore selected troll during event to battle event" };
 HHAuto_ToolTips.en['plusEventMythic'] = { version: "5.6.24", elementText: "+Mythic Event", tooltip: "Enable grabbing girls for mythic event, should only play them when shards are available, Mythic girl troll will be priorized over Event Troll." };
-HHAuto_ToolTips.en['plusEventMythicSandalWood'] = { version: "7.2.0", elementText: "Equip Sandalwood", tooltip: "Will equip sandalwood before mythic fight if enough in inventory<br>Do not equip if less than 10 shards to win<br>Will not by any." };
+HHAuto_ToolTips.en['plusEventMythicSandalWood'] = { version: "7.2.0", elementText: "Equip Sandalwood", tooltip: "Will equip sandalwood before mythic fight if enough in inventory<br>Do not equip if less than 10 shards to win<br>Will not buy any." };
 HHAuto_ToolTips.en['eventCompleted'] = { version: "7.1.3", elementText: "Event completed", tooltip: "Event completed" };
 //HHAuto_ToolTips.en['eventMythicPrio'] = { version: "5.6.24", elementText: "Priorize over Event Troll Order", tooltip: "Mythic event girl priorized over event troll order if shards available"};
 //HHAuto_ToolTips.en['autoTrollMythicByPassThreshold'] = { version: "5.6.24", elementText: "Mythic bypass Threshold", tooltip: "Allow mythic to bypass Troll threshold"};
@@ -1391,16 +1391,10 @@ var PathOfAttraction_awaiter = (undefined && undefined.__awaiter) || function (t
 
 
 class PoaReward {
-    /**
-     *
-     * @param {number} tier
-     * @param {string} type
-     * @param {Object} slot
-     */
     constructor(tier, type, slot) {
         this.tier = 0;
         this.type = '';
-        this.slot = undefined;
+        this.slot = $();
         this.tier = tier;
         this.type = type;
         this.slot = slot;
@@ -1442,13 +1436,8 @@ class PathOfAttraction {
             setTimeout(PathOfAttraction.Hide, 500);
         }
     }
-    /**
-     *
-     * @param {string} path
-     * @returns {PoaReward[]}
-     */
     static _getClaimableRewards(path) {
-        const rewards = {};
+        const rewards = [];
         const listPoATiersToClaim = $(path);
         for (let currentTier = 0; currentTier < listPoATiersToClaim.length; currentTier++) {
             const currentRewardTierNb = listPoATiersToClaim[currentTier].getAttribute("data-nc-reward-id");
@@ -1458,20 +1447,12 @@ class PathOfAttraction {
         }
         return rewards;
     }
-    /**
-     *
-     * @returns {PoaReward[]}
-     */
     static getFreeClaimableRewards() {
         return PathOfAttraction._getClaimableRewards(PathOfAttraction.freeSlotPath + ".claimable");
     }
-    /**
-     *
-     * @returns {PoaReward[]}
-     */
     static getPaidClaimableRewards() {
         if ($("#nc-poa-tape-blocker").length) {
-            return {};
+            return [];
         }
         else {
             return PathOfAttraction._getClaimableRewards(PathOfAttraction.paidSlotPath + ".claimable");
@@ -1490,30 +1471,29 @@ class PathOfAttraction {
     }
     static goAndCollect() {
         return PathOfAttraction_awaiter(this, void 0, void 0, function* () {
+            const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
             if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollect") === "true" || getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollectAll") === "true") {
                 const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollectablesList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollectablesList")) : [];
                 LogUtils_logHHAuto("Checking Path of Attraction for collectable rewards.");
                 const numberTiers = $(PathOfAttraction.rewardPairTierPath).length;
                 const freeClaimableRewards = PathOfAttraction.getFreeClaimableRewards();
                 const paidClaimableRewards = PathOfAttraction.getPaidClaimableRewards();
-                /**
-                 *
-                 * @param {PoaReward} reward
-                 */
                 function getReward(reward) {
                     return PathOfAttraction_awaiter(this, void 0, void 0, function* () {
                         LogUtils_logHHAuto("Going to get " + JSON.stringify(reward));
-                        reward.slot.click();
+                        reward.slot.trigger('click');
                         yield TimeHelper.sleep(randomInterval(300, 800));
-                        $(PathOfAttraction.getRewardButtonPath).click();
+                        $(PathOfAttraction.getRewardButtonPath).trigger('click');
                         yield TimeHelper.sleep(randomInterval(300, 800));
                         RewardHelper.closeRewardPopupIfAny(); // Will refresh the page
                         yield TimeHelper.sleep(randomInterval(500, 1000)); // Do not collect before page refresh
                     });
                 }
                 LogUtils_logHHAuto("numberTiers: " + numberTiers);
-                LogUtils_logHHAuto("freeClaimableRewards", freeClaimableRewards);
-                LogUtils_logHHAuto("paidClaimableRewards", paidClaimableRewards);
+                if (debugEnabled) {
+                    LogUtils_logHHAuto("freeClaimableRewards", freeClaimableRewards);
+                    LogUtils_logHHAuto("paidClaimableRewards", paidClaimableRewards);
+                }
                 const freeClaimableTiers = Object.keys(freeClaimableRewards);
                 const paidClaimableTiers = Object.keys(paidClaimableRewards);
                 if (numberTiers > 0 && (freeClaimableTiers.length > 0 || paidClaimableTiers.length > 0)) {
@@ -1682,13 +1662,16 @@ class EventModule {
             setStoredValue(HHStoredVarPrefixKey + "Temp_eventsList", JSON.stringify(eventList));
         }
     }
-    static getDisplayedIdEventPage() {
+    static getDisplayedIdEventPage(logging = true) {
         let eventHref = $("#contains_all #events .events-list .event-title.active").attr("href") || '';
-        if (!eventHref) {
+        if (!eventHref && logging) {
             LogUtils_logHHAuto('Error href not found for current event');
         }
-        let parsedURL = new URL(eventHref, window.location.origin);
-        return queryStringGetParam(parsedURL.search, 'tab') || '';
+        if (eventHref) {
+            let parsedURL = new URL(eventHref, window.location.origin);
+            return queryStringGetParam(parsedURL.search, 'tab') || '';
+        }
+        return '';
     }
     static showCompletedEvent() {
         try {
@@ -1719,8 +1702,15 @@ class EventModule {
             let queryEventTabCheck = $("#contains_all #events");
             const eventID = EventModule.getDisplayedIdEventPage();
             if (inTab !== "global" && inTab !== eventID) {
-                LogUtils_logHHAuto("Wrong event opened, need to change event page");
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDEvent"), { tab: inTab });
+                if (eventID == '') {
+                    LogUtils_logHHAuto("ERROR: No event Id found in current page, clear event data and go to home");
+                    EventModule.clearEventData(inTab);
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                }
+                else {
+                    LogUtils_logHHAuto("Wrong event opened, need to change event page");
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDEvent"), { tab: inTab });
+                }
                 return true;
             }
             const hhEvent = EventModule.getEvent(eventID);
@@ -1994,6 +1984,7 @@ class EventModule {
                 eventList[eventID] = {};
                 eventList[eventID]["id"] = eventID;
                 eventList[eventID]["type"] = hhEvent.eventType;
+                eventList[eventID]["seconds_before_end"] = new Date().getTime() + poAEnd * 1000;
                 eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimerPoa * 1000;
                 eventList[eventID]["isCompleted"] = PathOfAttraction.isCompleted();
                 if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollect") === "true" || poAEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollectAll") === "true") {
@@ -2251,16 +2242,19 @@ class EventModule {
         }
     }
     static parsePageForEventId() {
-        let eventQuery = '#contains_all #homepage .event-widget a[rel="event"]:not([href="#"])';
-        let mythicEventQuery = '#contains_all #homepage .event-widget a[rel="mythic_event"]:not([href="#"])';
-        let bossBangEventQuery = '#contains_all #homepage .event-widget a[rel="boss_bang_event"]:not([href="#"])';
-        let sultryMysteriesEventQuery = '#contains_all #homepage .event-widget a[rel="sm_event"]:not([href="#"])';
-        let dpEventQuery = '#contains_all #homepage .event-widget a[rel="dp_event"]:not([href="#"])';
-        let seasonalEventQuery = '#contains_all #homepage .seasonal-event a'; // Mega event have same query
-        let povEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-valor"]';
-        let pogEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-glory"]';
+        const eventQuery = '#contains_all #homepage .event-widget a[rel="event"]:not([href="#"])';
+        const mythicEventQuery = '#contains_all #homepage .event-widget a[rel="mythic_event"]:not([href="#"])';
+        const bossBangEventQuery = '#contains_all #homepage .event-widget a[rel="boss_bang_event"]:not([href="#"])';
+        const sultryMysteriesEventQuery = '#contains_all #homepage .event-widget a[rel="sm_event"]:not([href="#"])';
+        const dpEventQuery = '#contains_all #homepage .event-widget a[rel="dp_event"]:not([href="#"])';
+        const seasonalEventQuery = '#contains_all #homepage .seasonal-event a'; // Mega event have same query
+        const povEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-valor"]';
+        const pogEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-glory"]';
+        const poaEventQuery = '#contains_all #homepage .event-widget a[rel="path_event"]:not([href="#"])';
         let eventIDs = [];
+        let ongoingEventIDs = [];
         let bossBangEventIDs = [];
+        const currentPage = getPage();
         function parseForEventId(query, eventList) {
             let parsedURL;
             let eventId;
@@ -2271,10 +2265,13 @@ class EventModule {
                 if (eventId !== '' && EventModule.checkEvent(eventId)) {
                     eventList.push(eventId);
                 }
+                if (eventId !== '') {
+                    ongoingEventIDs.push(eventId);
+                }
             }
         }
-        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent")) {
-            const currentPageEventId = queryStringGetParam(window.location.search, 'tab') || '';
+        if (currentPage === ConfigHelper.getHHScriptVars("pagesIDEvent")) {
+            const currentPageEventId = EventModule.getDisplayedIdEventPage();
             if (currentPageEventId !== null && EventModule.checkEvent(currentPageEventId)) {
                 eventIDs.push(currentPageEventId);
             }
@@ -2290,10 +2287,11 @@ class EventModule {
                 }
             }
         }
-        else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHome")) {
+        else if (currentPage === ConfigHelper.getHHScriptVars("pagesIDHome")) {
             let queryResults;
             parseForEventId(eventQuery, eventIDs);
             parseForEventId(mythicEventQuery, eventIDs);
+            parseForEventId(poaEventQuery, eventIDs);
             parseForEventId(bossBangEventQuery, bossBangEventIDs);
             parseForEventId(sultryMysteriesEventQuery, eventIDs);
             if ($(sultryMysteriesEventQuery).length <= 0 && getTimer("eventSultryMysteryShopRefresh") !== -1) {
@@ -2322,6 +2320,16 @@ class EventModule {
                 LogUtils_logHHAuto("No pog event found, deactivate collect.");
                 setStoredValue(HHStoredVarPrefixKey + "Setting_autoPoGCollect", "false");
                 setStoredValue(HHStoredVarPrefixKey + "Setting_autoPoGCollectAll", "false");
+            }
+        }
+        if (currentPage === ConfigHelper.getHHScriptVars("pagesIDEvent") || currentPage === ConfigHelper.getHHScriptVars("pagesIDHome")) {
+            const eventList = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) : {};
+            for (const eventIDStored of Object.keys(eventList)) {
+                //console.log(eventID);
+                if (!ongoingEventIDs.includes(eventIDStored)) {
+                    LogUtils_logHHAuto(`Event ${eventIDStored} seems not available anymore, removing from store`);
+                    EventModule.clearEventData(eventIDStored);
+                }
             }
         }
         return { eventIDs: eventIDs, bossBangEventIDs: bossBangEventIDs };
@@ -13939,6 +13947,7 @@ class RewardHelper {
     static ObserveAndGetGirlRewards() {
         let inCaseTimer = setTimeout(function () { gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome")); }, 60000); //in case of issue
         function parseReward() {
+            var _a;
             if (getStoredValue(HHStoredVarPrefixKey + "Temp_eventsGirlz") === undefined
                 || getStoredValue(HHStoredVarPrefixKey + "Temp_eventGirl") === undefined
                 || !isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsGirlz"))
@@ -13992,7 +14001,7 @@ class RewardHelper {
                 //|| Number(getStoredValue(HHStoredVarPrefixKey+"Temp_EventFightsBeforeRefresh")) < 1
                 || EventModule.checkEvent(eventGirl.event_id)) {
                 clearTimeout(inCaseTimer);
-                LogUtils_logHHAuto("Need to check back event page");
+                LogUtils_logHHAuto(`Need to check back event page: '${renewEvent}' or '${(_a = eventGirl === null || eventGirl === void 0 ? void 0 : eventGirl.event_id) !== null && _a !== void 0 ? _a : ''}' `);
                 if (renewEvent !== "") {
                     EventModule.parseEventPage(renewEvent);
                 }
@@ -14829,35 +14838,37 @@ function autoLoop() {
                 }
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDEvent"):
-                const eventID = EventModule.getDisplayedIdEventPage();
-                if (getStoredValue(HHStoredVarPrefixKey + "Setting_plusEvent") === "true" || getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true") {
-                    if (eventParsed == null) {
-                        EventModule.parseEventPage();
+                const eventID = EventModule.getDisplayedIdEventPage(false);
+                if (eventID != '') {
+                    if (getStoredValue(HHStoredVarPrefixKey + "Setting_plusEvent") === "true" || getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true") {
+                        if (eventParsed == null) {
+                            EventModule.parseEventPage();
+                        }
+                        EventModule.moduleDisplayEventPriority();
                     }
-                    EventModule.moduleDisplayEventPriority();
-                }
-                if (getStoredValue(HHStoredVarPrefixKey + "Setting_bossBangEvent") === "true" && EventModule.getEvent(eventID).isBossBangEvent) {
-                    if (eventParsed == null) {
-                        EventModule.parseEventPage();
+                    if (getStoredValue(HHStoredVarPrefixKey + "Setting_bossBangEvent") === "true" && EventModule.getEvent(eventID).isBossBangEvent) {
+                        if (eventParsed == null) {
+                            EventModule.parseEventPage();
+                        }
+                        setTimeout(BossBang.goToFightPage, randomInterval(500, 1500));
                     }
-                    setTimeout(BossBang.goToFightPage, randomInterval(500, 1500));
-                }
-                if (EventModule.getEvent(eventID).isPoa) {
-                    if (getStoredValue(HHStoredVarPrefixKey + "Setting_PoAMaskRewards") === "true") {
-                        setTimeout(PathOfAttraction.Hide, 500);
+                    if (EventModule.getEvent(eventID).isPoa) {
+                        if (getStoredValue(HHStoredVarPrefixKey + "Setting_PoAMaskRewards") === "true") {
+                            setTimeout(PathOfAttraction.Hide, 500);
+                        }
+                        if (getStoredValue(HHStoredVarPrefixKey + "Setting_showClubButtonInPoa") === "true") {
+                            PathOfAttraction.run = callItOnce(PathOfAttraction.run);
+                            PathOfAttraction.run();
+                        }
+                        if (getStoredValue(HHStoredVarPrefixKey + "Setting_showRewardsRecap") === "true") {
+                            RewardHelper.displayRewardsPoaDiv();
+                        }
                     }
-                    if (getStoredValue(HHStoredVarPrefixKey + "Setting_showClubButtonInPoa") === "true") {
-                        PathOfAttraction.run = callItOnce(PathOfAttraction.run);
-                        PathOfAttraction.run();
-                    }
-                    if (getStoredValue(HHStoredVarPrefixKey + "Setting_showRewardsRecap") === "true") {
-                        RewardHelper.displayRewardsPoaDiv();
-                    }
-                }
-                if (EventModule.getEvent(eventID).isDPEvent) {
-                    if (getStoredValue(HHStoredVarPrefixKey + "Setting_showClubButtonInPoa") === "true") {
-                        DoublePenetration.run = callItOnce(DoublePenetration.run);
-                        DoublePenetration.run();
+                    if (EventModule.getEvent(eventID).isDPEvent) {
+                        if (getStoredValue(HHStoredVarPrefixKey + "Setting_showClubButtonInPoa") === "true") {
+                            DoublePenetration.run = callItOnce(DoublePenetration.run);
+                            DoublePenetration.run();
+                        }
                     }
                 }
                 break;
