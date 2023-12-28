@@ -1,14 +1,7 @@
 import { ConfigHelper } from '../../src/Helper/ConfigHelper';
+import { MockHelper } from '../testHelpers/MockHelpers';
 
 describe("ConfigHelper", function() {
-
-    function mockDomain(domain:string) {
-        Object.defineProperty(window, 'location', {
-            get() {
-                return { hostname: domain };
-            },
-        });
-    }
 
   describe("Environnement", function() {
     beforeEach(() => {
@@ -16,35 +9,35 @@ describe("ConfigHelper", function() {
     })
 
     it("HH", function() {
-        mockDomain('www.hentaiheroes.com');
+        MockHelper.mockDomain('www.hentaiheroes.com');
         expect(ConfigHelper.getEnvironnement()).toBe("HH_prod");
-        mockDomain('test.hentaiheroes.com');
+        MockHelper.mockDomain('test.hentaiheroes.com');
         expect(ConfigHelper.getEnvironnement()).toBe("HH_test");
         expect(ConfigHelper.isPshEnvironnement()).toBeFalsy();
     });
 
     it("CX", function() {
-        mockDomain('www.comixharem.com');
+        MockHelper.mockDomain('www.comixharem.com');
         expect(ConfigHelper.getEnvironnement()).toBe("CH_prod");
-        mockDomain('nutaku.comixharem.com');
+        MockHelper.mockDomain('nutaku.comixharem.com');
         expect(ConfigHelper.getEnvironnement()).toBe("NCH_prod");
         expect(ConfigHelper.isPshEnvironnement()).toBeFalsy();
     });
 
     it("PH", function() {
-        mockDomain('www.pornstarharem.com');
+        MockHelper.mockDomain('www.pornstarharem.com');
         expect(ConfigHelper.getEnvironnement()).toBe("PH_prod");
         expect(ConfigHelper.isPshEnvironnement()).toBeTruthy();
     });
 
     it("TPH", function() {
-        mockDomain('www.transpornstarharem.com');
+        MockHelper.mockDomain('www.transpornstarharem.com');
         expect(ConfigHelper.getEnvironnement()).toBe("TPH_prod");
         expect(ConfigHelper.isPshEnvironnement()).toBeFalsy();
     });
 
     it("unkown", function() {
-        mockDomain('localhost');
+        MockHelper.mockDomain('localhost');
         expect(ConfigHelper.getEnvironnement()).toBe("global");
         expect(ConfigHelper.isPshEnvironnement()).toBeFalsy();
     });
@@ -53,7 +46,7 @@ describe("ConfigHelper", function() {
   describe("Variables", function() {
 
     it("HH", function() {
-        mockDomain('www.hentaiheroes.com');
+        MockHelper.mockDomain('www.hentaiheroes.com');
         expect(ConfigHelper.getHHScriptVars('eventIDReg')).toBe("event_");
         expect(ConfigHelper.getHHScriptVars('lastQuestId')).toBe(1808);
         expect(ConfigHelper.getHHScriptVars('isEnabledSideQuest')).toBeTruthy();
@@ -62,14 +55,14 @@ describe("ConfigHelper", function() {
     });
 
     it("CX", function() {
-        mockDomain('www.comixharem.com');
+        MockHelper.mockDomain('www.comixharem.com');
         expect(ConfigHelper.getHHScriptVars('eventIDReg')).toBe("event_");
          // Unknown, need someone who is at the end of the game
         expect(ConfigHelper.getHHScriptVars('lastQuestId')).toBe(-1);
     });
 
     it("PH", function() {
-        mockDomain('www.pornstarharem.com');
+        MockHelper.mockDomain('www.pornstarharem.com');
         expect(ConfigHelper.getHHScriptVars('eventIDReg')).toBe("event_");
         // Probably not the latest anymore
         expect(ConfigHelper.getHHScriptVars('lastQuestId')).toBe(16100);
@@ -77,7 +70,7 @@ describe("ConfigHelper", function() {
     });
 
     it("TPH", function() {
-        mockDomain('www.transpornstarharem.com');
+        MockHelper.mockDomain('www.transpornstarharem.com');
         expect(ConfigHelper.getHHScriptVars('isEnabledLabyrinth')).toBeFalsy();
         expect(ConfigHelper.getHHScriptVars('isEnabledSideQuest')).toBeFalsy();
     });

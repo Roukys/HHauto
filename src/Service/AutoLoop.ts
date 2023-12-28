@@ -959,46 +959,48 @@ export async function autoLoop()
             }
             break;
         case ConfigHelper.getHHScriptVars("pagesIDEvent"):
-            const eventID = EventModule.getDisplayedIdEventPage();
-            if (getStoredValue(HHStoredVarPrefixKey+"Setting_plusEvent") === "true" || getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") ==="true")
-            {
-                if(eventParsed == null) {
-                    EventModule.parseEventPage();
+            const eventID = EventModule.getDisplayedIdEventPage(false);
+            if (eventID != '') {
+                if (getStoredValue(HHStoredVarPrefixKey+"Setting_plusEvent") === "true" || getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") ==="true")
+                {
+                    if(eventParsed == null) {
+                        EventModule.parseEventPage();
+                    }
+                    EventModule.moduleDisplayEventPriority();
                 }
-                EventModule.moduleDisplayEventPriority();
-            }
 
-            if (getStoredValue(HHStoredVarPrefixKey+"Setting_bossBangEvent") === "true" && EventModule.getEvent(eventID).isBossBangEvent)
-            {
-                if(eventParsed == null) {
-                    EventModule.parseEventPage();
-                }
-                setTimeout(BossBang.goToFightPage, randomInterval(500,1500));
-            }
-            
-            if (EventModule.getEvent(eventID).isPoa)
-            {
-                if (getStoredValue(HHStoredVarPrefixKey+"Setting_PoAMaskRewards") === "true")
+                if (getStoredValue(HHStoredVarPrefixKey+"Setting_bossBangEvent") === "true" && EventModule.getEvent(eventID).isBossBangEvent)
                 {
-                    setTimeout(PathOfAttraction.Hide,500);
+                    if(eventParsed == null) {
+                        EventModule.parseEventPage();
+                    }
+                    setTimeout(BossBang.goToFightPage, randomInterval(500,1500));
                 }
-                if (getStoredValue(HHStoredVarPrefixKey+"Setting_showClubButtonInPoa") === "true")
+                
+                if (EventModule.getEvent(eventID).isPoa)
                 {
-                    PathOfAttraction.run = callItOnce(PathOfAttraction.run);
-                    PathOfAttraction.run();
+                    if (getStoredValue(HHStoredVarPrefixKey+"Setting_PoAMaskRewards") === "true")
+                    {
+                        setTimeout(PathOfAttraction.Hide,500);
+                    }
+                    if (getStoredValue(HHStoredVarPrefixKey+"Setting_showClubButtonInPoa") === "true")
+                    {
+                        PathOfAttraction.run = callItOnce(PathOfAttraction.run);
+                        PathOfAttraction.run();
+                    }
+                    if (getStoredValue(HHStoredVarPrefixKey+"Setting_showRewardsRecap") === "true")
+                    {
+                        RewardHelper.displayRewardsPoaDiv();
+                    }
                 }
-                if (getStoredValue(HHStoredVarPrefixKey+"Setting_showRewardsRecap") === "true")
+                
+                if (EventModule.getEvent(eventID).isDPEvent)
                 {
-                    RewardHelper.displayRewardsPoaDiv();
-                }
-            }
-            
-            if (EventModule.getEvent(eventID).isDPEvent)
-            {
-                if (getStoredValue(HHStoredVarPrefixKey+"Setting_showClubButtonInPoa") === "true")
-                {
-                    DoublePenetration.run  = callItOnce(DoublePenetration.run);
-                    DoublePenetration.run();
+                    if (getStoredValue(HHStoredVarPrefixKey+"Setting_showClubButtonInPoa") === "true")
+                    {
+                        DoublePenetration.run  = callItOnce(DoublePenetration.run);
+                        DoublePenetration.run();
+                    }
                 }
             }
             break;

@@ -18,15 +18,9 @@ import { HHStoredVarPrefixKey } from "../../config/index";
 class PoaReward {
     tier=0;
     type='';
-    slot=undefined;
+    slot=$();
 
-    /**
-     * 
-     * @param {number} tier 
-     * @param {string} type  
-     * @param {Object} slot 
-     */
-    constructor(tier, type, slot) {
+    constructor(tier: number, type: string, slot: JQuery<HTMLElement>) {
         this.tier = tier;
         this.type = type;
         this.slot = slot;
@@ -80,13 +74,8 @@ export class PathOfAttraction {
         }
     }
 
-    /**
-     * 
-     * @param {string} path 
-     * @returns {PoaReward[]}
-     */
-    static _getClaimableRewards(path){
-        const rewards = {};
+    static _getClaimableRewards(path: string): PoaReward[] {
+        const rewards: PoaReward[] = [];
         const listPoATiersToClaim = $(path);
         for (let currentTier = 0 ; currentTier < listPoATiersToClaim.length ; currentTier++)
         {
@@ -98,27 +87,19 @@ export class PathOfAttraction {
         return rewards;
     }
 
-    /**
-     * 
-     * @returns {PoaReward[]}
-     */
-    static getFreeClaimableRewards(){
+    static getFreeClaimableRewards(): PoaReward[] {
         return PathOfAttraction._getClaimableRewards(PathOfAttraction.freeSlotPath + ".claimable");
     }
 
-    /**
-     * 
-     * @returns {PoaReward[]}
-     */
-    static getPaidClaimableRewards(){
+    static getPaidClaimableRewards(): PoaReward[] {
         if($("#nc-poa-tape-blocker").length) {
-            return {}
+            return [];
         }else {
             return PathOfAttraction._getClaimableRewards(PathOfAttraction.paidSlotPath+ ".claimable");
         }
     }
 
-    static isCompleted() {
+    static isCompleted():boolean {
         const numberTiers = $(PathOfAttraction.rewardPairTierPath).length;
         const numberClaimedFree = $(PathOfAttraction.freeSlotPath + ".claimed").length;
         const numberClaimedPaid = $(PathOfAttraction.paidSlotPath + ".claimed").length;
@@ -131,6 +112,7 @@ export class PathOfAttraction {
 
     static async goAndCollect()
     {
+        const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
         if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoACollect") === "true" || getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoACollectAll") === "true")
         {
             const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoACollectablesList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoACollectablesList")):[];
@@ -141,23 +123,21 @@ export class PathOfAttraction {
             const freeClaimableRewards = PathOfAttraction.getFreeClaimableRewards();
             const paidClaimableRewards = PathOfAttraction.getPaidClaimableRewards();
 
-            /**
-             * 
-             * @param {PoaReward} reward 
-             */
-            async function getReward(reward) {
+            async function getReward(reward: PoaReward) {
                 logHHAuto("Going to get " + JSON.stringify(reward))
-                reward.slot.click();
+                reward.slot.trigger('click');
                 await TimeHelper.sleep(randomInterval(300,800));
-                $(PathOfAttraction.getRewardButtonPath).click();
+                $(PathOfAttraction.getRewardButtonPath).trigger('click');
                 await TimeHelper.sleep(randomInterval(300,800));
                 RewardHelper.closeRewardPopupIfAny(); // Will refresh the page
                 await TimeHelper.sleep(randomInterval(500,1000)); // Do not collect before page refresh
             }
 
             logHHAuto("numberTiers: " +  numberTiers);
-            logHHAuto("freeClaimableRewards", freeClaimableRewards);
-            logHHAuto("paidClaimableRewards", paidClaimableRewards);
+            if (debugEnabled) {
+                logHHAuto("freeClaimableRewards", freeClaimableRewards);
+                logHHAuto("paidClaimableRewards", paidClaimableRewards);
+            }
             const freeClaimableTiers = Object.keys(freeClaimableRewards);
             const paidClaimableTiers = Object.keys(paidClaimableRewards);
 
