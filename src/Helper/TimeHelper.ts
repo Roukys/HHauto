@@ -77,14 +77,14 @@ export class TimeHelper {
         return {days:days,hours:hours,minutes:minutes,seconds:seconds};
     }
 
-    static canCollectCompetitionActive()
+    static canCollectCompetitionActive(): boolean
     {
         let safeTime = getStoredValue(HHStoredVarPrefixKey+"Setting_safeSecondsForContest") !== undefined ? Number(getStoredValue(HHStoredVarPrefixKey+"Setting_safeSecondsForContest")) : 120;
         if(isNaN(safeTime) || safeTime < 0) safeTime = 120;
         return getStoredValue(HHStoredVarPrefixKey+"Setting_waitforContest") !== "true" || TimeHelper.getSecondsLeftBeforeNewCompetition() > (30*60 + safeTime) && TimeHelper.getSecondsLeftBeforeNewCompetition() < (24*3600-safeTime);
     }
 
-    static toHHMMSS(secs)  {
+    static toHHMMSS(secs): string  {
         var sec_num = parseInt(secs, 10);
         var days = Math.floor(sec_num / 86400);
         var hours = Math.floor(sec_num / 3600) % 24;
@@ -97,7 +97,7 @@ export class TimeHelper {
             .join(":");
     }
 
-    static getSecondsLeftBeforeEndOfHHDay()
+    static getSecondsLeftBeforeEndOfHHDay(): number
     {
         let HHEndOfDay = {days:0,hours:13,minutes:0,seconds:0};
         let server_TS = TimeHelper.getServerTS();
@@ -106,7 +106,7 @@ export class TimeHelper {
         return diffResetTime;
     }
 
-    static getSecondsLeftBeforeNewCompetition()
+    static getSecondsLeftBeforeNewCompetition(): number
     {
         let HHEndOfDay = {days:0,hours:13,minutes:30,seconds:0};
         let server_TS = TimeHelper.getServerTS();
@@ -115,7 +115,7 @@ export class TimeHelper {
         return diffResetTime;
     }
 
-    static debugDate(sec_num)
+    static debugDate(sec_num: number): string
     {
         let days = Math.floor(sec_num / 86400);
         let hours = Math.floor(sec_num / 3600) % 24;
@@ -131,28 +131,33 @@ export class TimeHelper {
     }
 }
 
-export function convertTimeToInt(remainingTimer){
+export function convertTimeToInt(remainingTimer: string): number {
     let newTimer = 0;
     if (remainingTimer && remainingTimer.length > 0) {
-        let splittedTime = remainingTimer.split(' ');
-        for (let i = 0; i < splittedTime.length; i++) {
-            let timerSymbol = splittedTime[i].match(/[^0-9]+/)[0];
-            switch (timerSymbol) {
-                case timerDefinitions[hhTimerLocale].days:
-                    newTimer += parseInt(splittedTime[i])*86400;
-                    break;
-                case timerDefinitions[hhTimerLocale].hours:
-                    newTimer += parseInt(splittedTime[i])*3600;
-                    break;
-                case timerDefinitions[hhTimerLocale].minutes:
-                    newTimer += parseInt(splittedTime[i])*60;
-                    break;
-                case timerDefinitions[hhTimerLocale].seconds:
-                    newTimer += parseInt(splittedTime[i]);
-                    break;
-                default:
-                    logHHAuto('Timer symbol not recognized: ' + timerSymbol);
+        try{
+            let splittedTime = remainingTimer.split(' ');
+            for (let i = 0; i < splittedTime.length; i++) {
+                let timerSymbol = splittedTime[i].match(/[^0-9]+/)[0];
+                switch (timerSymbol) {
+                    case timerDefinitions[hhTimerLocale].days:
+                        newTimer += parseInt(splittedTime[i])*86400;
+                        break;
+                    case timerDefinitions[hhTimerLocale].hours:
+                        newTimer += parseInt(splittedTime[i])*3600;
+                        break;
+                    case timerDefinitions[hhTimerLocale].minutes:
+                        newTimer += parseInt(splittedTime[i])*60;
+                        break;
+                    case timerDefinitions[hhTimerLocale].seconds:
+                        newTimer += parseInt(splittedTime[i]);
+                        break;
+                    default:
+                        logHHAuto('Timer symbol not recognized: ' + timerSymbol);
+                }
             }
+        } catch (error) {
+            logHHAuto('ERROR occured, reset to 15min', error);
+            newTimer = randomInterval(15 * 60, 17 * 60);
         }
     } else {
         logHHAuto('No valid timer definitions, reset to 15min');
@@ -167,7 +172,7 @@ export function getLimitTimeBeforeEnd(){
 }
 
 
-export function randomInterval(min,max) // min and max included
+export function randomInterval(min: number, max: number): number // min and max included
 {
     return Math.floor(Math.random()*(max-min+1)+min);
 }

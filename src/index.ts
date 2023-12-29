@@ -25,6 +25,7 @@ declare global {
         season_sec_untill_event_end: any;
         seasonal_event_active: any;
         seasonal_time_remaining: any;
+        server_now_ts: any;
     }
 }
 
