@@ -5,7 +5,7 @@ import { ConfigHelper } from "./ConfigHelper";
 import { getStoredValue, setStoredValue } from "./StorageHelper";
 import { queryStringGetParam } from "./UrlHelper";
 
-export function getPage(checkUnknown = false)
+export function getPage(checkUnknown = false):string
 {
     var ob = document.getElementById(ConfigHelper.getHHScriptVars("gameID"));
     if(ob===undefined || ob === null)
@@ -20,7 +20,7 @@ export function getPage(checkUnknown = false)
     //var p=ob.className.match(/.*page-(.*) .*/i)[1];
     let activitiesMainPage = ConfigHelper.getHHScriptVars("pagesIDActivities");
     var tab = queryStringGetParam(window.location.search,'tab');
-    var p=ob.getAttribute('page');
+    var p:string=ob.getAttribute('page');
     let page = p;
     if (p==activitiesMainPage)
     {
