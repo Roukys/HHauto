@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.2.1
+// @version      7.2.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -8058,8 +8058,8 @@ class PlaceOfPower {
                         // This may cause undesirable loops but for now is considered better than having girls stuck in PoP for days
                         const remainHours = remainText.indexOf("h") ? parseInt(remainText.substring(remainText.indexOf("h") - 2, remainText.indexOf("h"))) : 9;
                         const remainMins = remainText.indexOf("m") ? parseInt(remainText.substring(remainText.indexOf("m") - 2, remainText.indexOf("m"))) : 59;
-                        // If we weren't able to get under 7.5 hours, skip
-                        if ((hasRemainDays) || (remainHours > 7) || ((remainHours == 7) && (remainMins > 30))) {
+                        // If we weren't able to get under 9.5 hours, skip
+                        if ((hasRemainDays) || (remainHours > 9) || ((remainHours == 9) && (remainMins > 30))) {
                             PlaceOfPower.addPopToUnableToStart(index, "Unable to start Pop " + index + " too much time remaining.");
                             PlaceOfPower.removePopFromPopToStart(index);
                             return false;

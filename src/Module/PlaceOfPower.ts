@@ -333,8 +333,8 @@ export class PlaceOfPower {
                         const remainHours = remainText.indexOf("h")?parseInt(remainText.substring(remainText.indexOf("h")-2, remainText.indexOf("h"))):9;
                         const remainMins = remainText.indexOf("m")?parseInt(remainText.substring(remainText.indexOf("m")-2, remainText.indexOf("m"))):59;
 
-                        // If we weren't able to get under 7.5 hours, skip
-                        if ((hasRemainDays) || (remainHours > 7) || ((remainHours == 7) && (remainMins > 30))) {
+                        // If we weren't able to get under 9.5 hours, skip
+                        if ((hasRemainDays) || (remainHours > 9) || ((remainHours == 9) && (remainMins > 30))) {
                             PlaceOfPower.addPopToUnableToStart(index,"Unable to start Pop "+index+" too much time remaining.");
                             PlaceOfPower.removePopFromPopToStart(index);
                             return false;
