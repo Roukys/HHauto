@@ -15,7 +15,7 @@ import { HaremGirl } from "./harem/HaremGirl";
 
 export class Harem {
     static HAREM_UPGRADE_LAST_ACTION='haremGirl';
-    static filterGirlMapCanUpgrade(a)
+    static filterGirlMapCanUpgrade(a:any)
     {
         return a.gData.can_upgrade;
     }

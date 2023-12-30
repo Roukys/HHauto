@@ -912,23 +912,6 @@ export async function autoLoop()
         }
     }
 
-    if(busy === false && !mouseBusy  && getStoredValue(HHStoredVarPrefixKey+"Setting_paranoia") === "true" && getStoredValue(HHStoredVarPrefixKey+"Setting_master") ==="true" && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true")
-    {
-        if (checkTimer("paranoiaSwitch")) {
-            flipParanoia();
-        }
-    }
-
-    if(busy === false && burst && !mouseBusy && lastActionPerformed != "none")
-    {
-        lastActionPerformed = "none";
-        // logHHAuto("no action performed in this loop, rest lastActionPerformed");
-    }
-    if (lastActionPerformed != getStoredValue(HHStoredVarPrefixKey+"Temp_lastActionPerformed")) {
-        logHHAuto("lastActionPerformed changed to " + lastActionPerformed);
-    }
-    setStoredValue(HHStoredVarPrefixKey+"Temp_lastActionPerformed", lastActionPerformed);
-
     switch (getPage())
     {
         case ConfigHelper.getHHScriptVars("pagesIDLeaderboard"):
@@ -1052,6 +1035,8 @@ export async function autoLoop()
         case ConfigHelper.getHHScriptVars("pagesIDGirlPage"):
             HaremGirl.moduleHaremGirl = callItOnce(HaremGirl.moduleHaremGirl);
             HaremGirl.moduleHaremGirl();
+            HaremGirl.run = callItOnce(HaremGirl.run);
+            busy = await HaremGirl.run();
             break;
         case ConfigHelper.getHHScriptVars("pagesIDPachinko"):
             Pachinko.modulePachinko();
@@ -1117,7 +1102,7 @@ export async function autoLoop()
             const haremGirlMode = getStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlMode");
             if(haremGirlMode && haremItem === HaremGirl.AFFECTION_TYPE) {
                 HaremGirl.payGirlQuest = callItOnce(HaremGirl.payGirlQuest);
-                HaremGirl.payGirlQuest();
+                busy = HaremGirl.payGirlQuest();
             }
             break;
         case ConfigHelper.getHHScriptVars("pagesIDClub"):
@@ -1130,6 +1115,21 @@ export async function autoLoop()
             }
             break;
     }
+
+    if (busy === false && !mouseBusy && getStoredValue(HHStoredVarPrefixKey + "Setting_paranoia") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_master") === "true" && getStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop") === "true") {
+        if (checkTimer("paranoiaSwitch")) {
+            flipParanoia();
+        }
+    }
+
+    if (busy === false && burst && !mouseBusy && lastActionPerformed != "none") {
+        lastActionPerformed = "none";
+        // logHHAuto("no action performed in this loop, rest lastActionPerformed");
+    }
+    if (lastActionPerformed != getStoredValue(HHStoredVarPrefixKey + "Temp_lastActionPerformed")) {
+        logHHAuto("lastActionPerformed changed to " + lastActionPerformed);
+    }
+    setStoredValue(HHStoredVarPrefixKey + "Temp_lastActionPerformed", lastActionPerformed);
 
 
     if(isNaN(getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")))
