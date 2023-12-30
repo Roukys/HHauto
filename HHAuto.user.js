@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.2.2
+// @version      7.2.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -5317,14 +5317,15 @@ class HaremGirl {
             // We have money.
             LogUtils_logHHAuto("Spending " + proceedCost + " Money to proceed.");
             setTimeout(function () {
-                proceedButtonMatch.click();
+                proceedButtonMatch.trigger('click');
             }, randomInterval(500, 800));
+            return true;
         }
         else {
             LogUtils_logHHAuto("Need " + proceedCost + " Money to proceed.");
             Harem.clearHaremToolVariables();
             // gotoPage('/girl/'+nextGirlId,{resource:haremItem}, randomInterval(1500,2500));
-            return;
+            return false;
         }
     }
     static maxOutAndAwake(haremItem, selectedGirl) {
@@ -5500,44 +5501,67 @@ class HaremGirl {
             HaremGirl.giveHaremGirlItem(haremItem);
         });
     }
+    static canGiftGirl() {
+        try {
+            const girl = unsafeWindow.girl;
+            return girl.nb_grades > girl.graded && HaremGirl.getMaxOutButton(HaremGirl.AFFECTION_TYPE).length > 0;
+        }
+        catch (error) {
+            LogUtils_logHHAuto("ERROR can't compute canGiftGirl");
+            return false;
+        }
+    }
+    static canAwakeGirl() {
+        try {
+            const girl = unsafeWindow.girl;
+            const numberOfGem = unsafeWindow.player_gems_amount[girl.element].amount;
+            return numberOfGem >= girl.awakening_costs;
+        }
+        catch (error) {
+            LogUtils_logHHAuto("ERROR can't compute canAwakeGirl");
+            return false;
+        }
+    }
     static moduleHaremGirl() {
+        try {
+            const canAwakeGirl = HaremGirl.canAwakeGirl();
+            //const canGiftGirl = HaremGirl.canGiftGirl();
+            const girl = unsafeWindow.girl;
+            const numberOfGem = unsafeWindow.player_gems_amount[girl.element].amount;
+            //logHHAuto("moduleHaremGirl: " + girl.id_girl);
+            LogUtils_logHHAuto("Current level : " + girl.level + ', max level without gems : ' + girl.level_cap);
+            LogUtils_logHHAuto("Number of gem needed in next awakening : " + girl.awakening_costs + " / Gem in stock : " + numberOfGem);
+            LogUtils_logHHAuto("Girl grade : " + girl.graded + '/' + girl.nb_grades);
+            const menuIDXp = "haremGirlGiveXP";
+            const menuIDGifts = "haremGirlGiveGifts";
+            var giveHaremXp = function () { HaremGirl.displayExpMenu(HaremGirl.EXPERIENCE_TYPE); };
+            //var giveHaremGifts = function() {HaremGirl.displayExpMenu(HaremGirl.AFFECTION_TYPE);};
+            if (canAwakeGirl)
+                GM_registerMenuCommand(getTextForUI(menuIDXp, "elementText"), giveHaremXp);
+            //if(canGiftGirl) // Not supported yet
+            //   GM_registerMenuCommand(getTextForUI(menuIDGifts,"elementText"), giveHaremGifts);
+            HaremGirl.addGirlMenu();
+        }
+        catch ({ errName, message }) {
+            LogUtils_logHHAuto(`ERROR: Can't add menu girl: ${errName}, ${message}`);
+            console.error(message);
+        }
+    }
+    static run() {
         return HaremGirl_awaiter(this, void 0, void 0, function* () {
-            const haremItem = getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlActions");
-            const haremGirlMode = getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlMode");
-            const haremGirlEnd = getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlEnd") === 'true';
-            const haremGirlLimit = getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlLimit");
-            let canAwakeGirl = false;
-            let canGiftGirl = false;
             try {
+                const haremItem = getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlActions");
+                const haremGirlMode = getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlMode");
+                const haremGirlEnd = getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlEnd") === 'true';
+                const haremGirlLimit = getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlLimit");
+                const canGiftGirl = HaremGirl.canGiftGirl();
+                const canAwakeGirl = HaremGirl.canAwakeGirl();
                 const girl = unsafeWindow.girl;
-                const numberOfGem = unsafeWindow.player_gems_amount[girl.element].amount;
-                canAwakeGirl = numberOfGem >= girl.awakening_costs;
-                canGiftGirl = girl.nb_grades > girl.graded && HaremGirl.getMaxOutButton(HaremGirl.AFFECTION_TYPE).length > 0;
-                //logHHAuto("moduleHaremGirl: " + girl.id_girl);
-                LogUtils_logHHAuto("Current level : " + girl.level + ', max level without gems : ' + girl.level_cap);
-                LogUtils_logHHAuto("Number of gem needed in next awakening : " + girl.awakening_costs + " / Gem in stock : " + numberOfGem);
-                LogUtils_logHHAuto("Girl grade : " + girl.graded + '/' + girl.nb_grades);
-                const menuIDXp = "haremGirlGiveXP";
-                const menuIDGifts = "haremGirlGiveGifts";
-                var giveHaremXp = function () { HaremGirl.displayExpMenu(HaremGirl.EXPERIENCE_TYPE); };
-                var giveHaremGifts = function () { HaremGirl.displayExpMenu(HaremGirl.AFFECTION_TYPE); };
-                if (canAwakeGirl)
-                    GM_registerMenuCommand(getTextForUI(menuIDXp, "elementText"), giveHaremXp);
-                //if(canGiftGirl) // Not supported yet
-                //   GM_registerMenuCommand(getTextForUI(menuIDGifts,"elementText"), giveHaremGifts);
-                HaremGirl.addGirlMenu();
-            }
-            catch (error) {
-                LogUtils_logHHAuto("ERROR: Can't perform action ");
-                console.error(error);
-            }
-            try {
-                const girl = unsafeWindow.girl;
-                LogUtils_logHHAuto("moduleHaremGirl: " + girl.name + '(' + girl.id_girl + ')');
                 if (!haremItem) {
                     // No action to be peformed
-                    return;
+                    return Promise.resolve(false);
                 }
+                LogUtils_logHHAuto("run HaremGirl: " + girl.name + '(' + girl.id_girl + ')');
                 setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
                 LogUtils_logHHAuto("setting autoloop to false as action to be performed on girl");
                 LogUtils_logHHAuto("Action to be performed (mode: " + haremGirlMode + ") : give " + haremItem);
@@ -5560,12 +5584,15 @@ class HaremGirl {
                             // No more quest
                             HaremGirl.HaremClearGirlPopup();
                             Harem.clearHaremToolVariables();
+                            return Promise.resolve(false);
                         }
                     }
                     else {
                         LogUtils_logHHAuto('ERROR, no action found to be executed. ', { haremItem: haremItem, canGiftGirl: canGiftGirl, canAwakeGirl: canAwakeGirl });
                         Harem.clearHaremToolVariables();
+                        return Promise.resolve(false);
                     }
+                    return Promise.resolve(true);
                 }
                 else if (haremGirlMode === 'list') {
                     let nextGirlId = -1;
@@ -5592,7 +5619,7 @@ class HaremGirl {
                         HaremGirl.HaremDisplayGirlPopup(haremItem, girl.name + ' ' + girl.graded + "/" + girl.nb_grades + "star : Girl " + girlListProgress, (remainingGirls + 1) * 5);
                         if (yield HaremGirl.fillAllAffection()) {
                             LogUtils_logHHAuto("Going to girl quest");
-                            return;
+                            return Promise.resolve(true);
                         }
                     }
                     else {
@@ -5611,6 +5638,7 @@ class HaremGirl {
                     if (nextGirlId >= 0) {
                         LogUtils_logHHAuto('Go to next girl (' + nextGirlId + ') remaining ' + remainingGirls + ' girls');
                         gotoPage('/girl/' + nextGirlId, { resource: haremItem }, randomInterval(1500, 2500));
+                        return Promise.resolve(true);
                     }
                     else {
                         LogUtils_logHHAuto("No more girls, go back to harem list");
@@ -5624,11 +5652,14 @@ class HaremGirl {
                     Harem.clearHaremToolVariables();
                 }
             }
-            catch (error) {
-                LogUtils_logHHAuto("ERROR: Can't perform action ");
-                console.error(error);
+            catch ({ errName, message }) {
+                LogUtils_logHHAuto(`ERROR: Can't add menu girl: ${errName}, ${message}`);
+                console.error(message);
                 setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
                 Harem.clearHaremToolVariables();
+            }
+            finally {
+                Promise.resolve(false);
             }
         });
     }
@@ -13353,25 +13384,31 @@ TimeHelper.dSTOffset = -1;
 function convertTimeToInt(remainingTimer) {
     let newTimer = 0;
     if (remainingTimer && remainingTimer.length > 0) {
-        let splittedTime = remainingTimer.split(' ');
-        for (let i = 0; i < splittedTime.length; i++) {
-            let timerSymbol = splittedTime[i].match(/[^0-9]+/)[0];
-            switch (timerSymbol) {
-                case timerDefinitions[hhTimerLocale].days:
-                    newTimer += parseInt(splittedTime[i]) * 86400;
-                    break;
-                case timerDefinitions[hhTimerLocale].hours:
-                    newTimer += parseInt(splittedTime[i]) * 3600;
-                    break;
-                case timerDefinitions[hhTimerLocale].minutes:
-                    newTimer += parseInt(splittedTime[i]) * 60;
-                    break;
-                case timerDefinitions[hhTimerLocale].seconds:
-                    newTimer += parseInt(splittedTime[i]);
-                    break;
-                default:
-                    LogUtils_logHHAuto('Timer symbol not recognized: ' + timerSymbol);
+        try {
+            let splittedTime = remainingTimer.split(' ');
+            for (let i = 0; i < splittedTime.length; i++) {
+                let timerSymbol = splittedTime[i].match(/[^0-9]+/)[0];
+                switch (timerSymbol) {
+                    case timerDefinitions[hhTimerLocale].days:
+                        newTimer += parseInt(splittedTime[i]) * 86400;
+                        break;
+                    case timerDefinitions[hhTimerLocale].hours:
+                        newTimer += parseInt(splittedTime[i]) * 3600;
+                        break;
+                    case timerDefinitions[hhTimerLocale].minutes:
+                        newTimer += parseInt(splittedTime[i]) * 60;
+                        break;
+                    case timerDefinitions[hhTimerLocale].seconds:
+                        newTimer += parseInt(splittedTime[i]);
+                        break;
+                    default:
+                        LogUtils_logHHAuto('Timer symbol not recognized: ' + timerSymbol);
+                }
             }
+        }
+        catch (error) {
+            LogUtils_logHHAuto('ERROR occured, reset to 15min', error);
+            newTimer = randomInterval(15 * 60, 17 * 60);
         }
     }
     else {
@@ -14800,19 +14837,6 @@ function autoLoop() {
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
             }
         }
-        if (busy === false && !mouseBusy && getStoredValue(HHStoredVarPrefixKey + "Setting_paranoia") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_master") === "true" && getStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop") === "true") {
-            if (checkTimer("paranoiaSwitch")) {
-                flipParanoia();
-            }
-        }
-        if (busy === false && burst && !mouseBusy && lastActionPerformed != "none") {
-            lastActionPerformed = "none";
-            // logHHAuto("no action performed in this loop, rest lastActionPerformed");
-        }
-        if (lastActionPerformed != getStoredValue(HHStoredVarPrefixKey + "Temp_lastActionPerformed")) {
-            LogUtils_logHHAuto("lastActionPerformed changed to " + lastActionPerformed);
-        }
-        setStoredValue(HHStoredVarPrefixKey + "Temp_lastActionPerformed", lastActionPerformed);
         switch (getPage()) {
             case ConfigHelper.getHHScriptVars("pagesIDLeaderboard"):
                 if (getStoredValue(HHStoredVarPrefixKey + "Setting_showCalculatePower") === "true") {
@@ -14916,6 +14940,8 @@ function autoLoop() {
             case ConfigHelper.getHHScriptVars("pagesIDGirlPage"):
                 HaremGirl.moduleHaremGirl = callItOnce(HaremGirl.moduleHaremGirl);
                 HaremGirl.moduleHaremGirl();
+                HaremGirl.run = callItOnce(HaremGirl.run);
+                busy = yield HaremGirl.run();
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDPachinko"):
                 Pachinko.modulePachinko();
@@ -14975,7 +15001,7 @@ function autoLoop() {
                 const haremGirlMode = getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlMode");
                 if (haremGirlMode && haremItem === HaremGirl.AFFECTION_TYPE) {
                     HaremGirl.payGirlQuest = callItOnce(HaremGirl.payGirlQuest);
-                    HaremGirl.payGirlQuest();
+                    busy = HaremGirl.payGirlQuest();
                 }
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDClub"):
@@ -14987,6 +15013,19 @@ function autoLoop() {
                 }
                 break;
         }
+        if (busy === false && !mouseBusy && getStoredValue(HHStoredVarPrefixKey + "Setting_paranoia") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_master") === "true" && getStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop") === "true") {
+            if (checkTimer("paranoiaSwitch")) {
+                flipParanoia();
+            }
+        }
+        if (busy === false && burst && !mouseBusy && lastActionPerformed != "none") {
+            lastActionPerformed = "none";
+            // logHHAuto("no action performed in this loop, rest lastActionPerformed");
+        }
+        if (lastActionPerformed != getStoredValue(HHStoredVarPrefixKey + "Temp_lastActionPerformed")) {
+            LogUtils_logHHAuto("lastActionPerformed changed to " + lastActionPerformed);
+        }
+        setStoredValue(HHStoredVarPrefixKey + "Temp_lastActionPerformed", lastActionPerformed);
         if (isNaN(getStoredValue(HHStoredVarPrefixKey + "Temp_autoLoopTimeMili"))) {
             LogUtils_logHHAuto("AutoLoopTimeMili is not a number.");
             setDefaults(true);
