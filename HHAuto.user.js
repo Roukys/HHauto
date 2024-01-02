@@ -2322,16 +2322,18 @@ class EventModule {
                 setStoredValue(HHStoredVarPrefixKey + "Setting_autoPoGCollectAll", "false");
             }
         }
-        if (currentPage === ConfigHelper.getHHScriptVars("pagesIDEvent") || currentPage === ConfigHelper.getHHScriptVars("pagesIDHome")) {
-            const eventList = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) : {};
-            for (const eventIDStored of Object.keys(eventList)) {
-                //console.log(eventID);
-                if (!ongoingEventIDs.includes(eventIDStored)) {
-                    LogUtils_logHHAuto(`Event ${eventIDStored} seems not available anymore, removing from store`);
-                    EventModule.clearEventData(eventIDStored);
+        /*
+                if (currentPage === ConfigHelper.getHHScriptVars("pagesIDEvent") || currentPage === ConfigHelper.getHHScriptVars("pagesIDHome")) {
+                    const eventList = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) : {};
+                    for (const eventIDStored of Object.keys(eventList)) {
+                        //console.log(eventID);
+                        if (!ongoingEventIDs.includes(eventIDStored)) {
+                            logHHAuto(`Event ${eventIDStored} seems not available anymore, removing from store`);
+                            EventModule.clearEventData(eventIDStored);
+                        }
+                    }
                 }
-            }
-        }
+        */
         return { eventIDs: eventIDs, bossBangEventIDs: bossBangEventIDs };
     }
 }
@@ -4773,6 +4775,7 @@ class Troll {
         }
     }
     static getTrollIdToFight() {
+        const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
         let trollWithGirls = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_trollWithGirls")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_trollWithGirls")) : [];
         let autoTrollSelectedIndex = getStoredValue(HHStoredVarPrefixKey + "Setting_autoTrollSelectedIndex");
         if (autoTrollSelectedIndex === undefined || isNaN(autoTrollSelectedIndex)) {
@@ -4781,9 +4784,11 @@ class Troll {
         else {
             autoTrollSelectedIndex = Number(autoTrollSelectedIndex);
         }
-        var TTF;
+        let TTF = 0;
         const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
         const eventGirl = getStoredValue(HHStoredVarPrefixKey + "Temp_eventGirl") !== undefined ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_eventGirl")) : undefined;
+        if (debugEnabled)
+            LogUtils_logHHAuto('eventGirl', eventGirl);
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_plusEvent") === "true" && !checkTimer("eventGoing") && eventGirl !== undefined && eventGirl.is_mythic === "false") {
             LogUtils_logHHAuto("Event troll fight");
             TTF = Troll.getTrollIdFromEvent(eventGirl);
@@ -4800,9 +4805,13 @@ class Troll {
             }
             if (trollWithGirls !== undefined && trollWithGirls.length > 0) {
                 if (autoTrollSelectedIndex === 98) {
+                    if (debugEnabled)
+                        LogUtils_logHHAuto("First troll with girls from storage");
                     TTF = trollWithGirls.findIndex(troll => troll.find(trollTier => trollTier === true)) + 1;
                 }
                 else if (autoTrollSelectedIndex === 99) {
+                    if (debugEnabled)
+                        LogUtils_logHHAuto("Last troll with girls from storage");
                     TTF = trollWithGirls.findLastIndex(troll => troll.find(trollTier => trollTier === true)) + 1;
                     if (TTF > lastTrollIdAvailable) {
                         TTF = lastTrollIdAvailable;

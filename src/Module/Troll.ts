@@ -99,6 +99,7 @@ export class Troll {
     }
 
     static getTrollIdToFight() {
+        const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
         let trollWithGirls = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_trollWithGirls"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_trollWithGirls")):[];
         let autoTrollSelectedIndex = getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollSelectedIndex");
         if(autoTrollSelectedIndex === undefined || isNaN(autoTrollSelectedIndex)) {
@@ -107,9 +108,10 @@ export class Troll {
             autoTrollSelectedIndex = Number(autoTrollSelectedIndex);
         }
 
-        var TTF;
+        let TTF:number = 0;
         const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
         const eventGirl = getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl") !== undefined ? JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")) : undefined;
+        if (debugEnabled) logHHAuto('eventGirl', eventGirl);
         if (getStoredValue(HHStoredVarPrefixKey+"Setting_plusEvent") === "true" && !checkTimer("eventGoing") && eventGirl !== undefined && eventGirl.is_mythic==="false")
         {
             logHHAuto("Event troll fight");
@@ -128,10 +130,12 @@ export class Troll {
             }
 
             if (trollWithGirls !== undefined && trollWithGirls.length > 0) {
-                if(autoTrollSelectedIndex === 98) {
+                if (autoTrollSelectedIndex === 98) {
+                    if (debugEnabled) logHHAuto("First troll with girls from storage");
                     TTF = trollWithGirls.findIndex(troll => troll.find(trollTier => trollTier === true)) + 1;
                 }
-                else if(autoTrollSelectedIndex === 99) {
+                else if (autoTrollSelectedIndex === 99) {
+                    if (debugEnabled) logHHAuto("Last troll with girls from storage");
                     TTF = trollWithGirls.findLastIndex(troll => troll.find(trollTier => trollTier === true)) + 1;
                     if(TTF > lastTrollIdAvailable) {
                         TTF=lastTrollIdAvailable;
