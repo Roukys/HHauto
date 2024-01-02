@@ -899,7 +899,7 @@ export class EventModule {
                 setStoredValue(HHStoredVarPrefixKey+"Setting_autoPoGCollectAll", "false");
             }
         }
-
+/*
         if (currentPage === ConfigHelper.getHHScriptVars("pagesIDEvent") || currentPage === ConfigHelper.getHHScriptVars("pagesIDHome")) {
             const eventList = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) : {};
             for (const eventIDStored of Object.keys(eventList)) {
@@ -910,7 +910,7 @@ export class EventModule {
                 }
             }
         }
-        
+*/
         return {eventIDs:eventIDs,bossBangEventIDs:bossBangEventIDs};
     }
 }

@@ -18,13 +18,13 @@ export function setTimer(name, seconds)
 }
 
 
-export function clearTimer(name)
+export function clearTimer(name: string)
 {
     delete Timers[name];
     setStoredValue(HHStoredVarPrefixKey+"Temp_Timers", JSON.stringify(Timers));
 }
 
-export function checkTimer(name)
+export function checkTimer(name: string)
 {
     if (!Timers[name] || Timers[name]<new Date())
     {
@@ -33,7 +33,7 @@ export function checkTimer(name)
     return false;
 }
 
-export function checkTimerMustExist(name)
+export function checkTimerMustExist(name: string)
 {
     if (Timers[name] && Timers[name]<new Date())
     {
@@ -42,7 +42,7 @@ export function checkTimerMustExist(name)
     return false;
 }
 
-export function getTimer(name)
+export function getTimer(name: string)
 {
     if (!Timers[name])
     {
