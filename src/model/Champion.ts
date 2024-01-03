@@ -4,6 +4,7 @@ export class ChampionModel {
     started: boolean=false;
     impression: string;
     inFilter:boolean = false;
+    hasEventGirls:boolean = false;
 
     constructor(index: number, impression: string, inFilter: boolean) {
         this.index = index;

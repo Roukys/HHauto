@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.2.4
+// @version      7.2.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -312,7 +312,7 @@ HHAuto_ToolTips.en['menuExpLevel'] = { version: "5.30.00", elementText: "Enter t
 HHAuto_ToolTips.en['giveLastGirl'] = { version: "5.30.0", elementText: "Last girl, going back to harem list..." };
 HHAuto_ToolTips.en['giveMaxingOut'] = { version: "5.30.0", elementText: "Maxing out" };
 HHAuto_ToolTips.en['giveMaxedOut'] = { version: "5.30.0", elementText: "already maxed out, skipping" };
-HHAuto_ToolTips.en['goToGirlPage'] = { version: "6.2.0", elementText: "Go to girl page", tooltip: "Open the girl management page" };
+HHAuto_ToolTips.en['goToGirlPage'] = { version: "6.2.0", elementText: "Girl page", tooltip: "Open the girl management page" };
 HHAuto_ToolTips.en['girlListMenu'] = { version: "6.2.0", elementText: "Girl list menu", tooltip: "Open girl list menu" };
 HHAuto_ToolTips.en['girlMenu'] = { version: "6.2.0", elementText: "Girl menu", tooltip: "Open girl menu" };
 HHAuto_ToolTips.en['povpogTitle'] = { version: "5.6.133", elementText: "Path of Valor/Glory" };
@@ -1241,6 +1241,7 @@ class ChampionModel {
         this.timer = -1;
         this.started = false;
         this.inFilter = false;
+        this.hasEventGirls = false;
         this.index = index;
         this.impression = impression;
         this.inFilter = inFilter;
@@ -3652,13 +3653,20 @@ class Champion {
         }
     }
     static getChampionListFromMap() {
-        const Filter = getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampsFilter").split(';').map(s => Number(s));
+        const Filter = (getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampsFilter") || '').split(';').map(s => Number(s));
         const championMap = [];
+        const autoChampsForceStartEventGirl = getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampsForceStartEventGirl") === "true";
+        const autoChampsEventGirls = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_autoChampsEventGirls")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_autoChampsEventGirls")) : [];
+        const championWithEventGirl = autoChampsEventGirls.map(a => Number(a.champ_id));
         $('span.stage-bar-tier').each(function (i, tier) {
             const champion = new ChampionModel(i, (tier.getAttribute("hh_title") || '').split('/')[0].replace(/[^0-9]/gi, ''), Filter.includes(i + 1));
             let timerElm = $($('a.champion-lair div.champion-lair-name')[i + 1]).find('span[rel=expires]').text();
             if (timerElm !== undefined && timerElm !== null && timerElm.length > 0) {
                 champion.timer = Number(convertTimeToInt(timerElm));
+            }
+            if (autoChampsForceStartEventGirl && championWithEventGirl.includes(i + 1) && champion.timer < 0) {
+                champion.timer = 0;
+                champion.hasEventGirls = true;
             }
             championMap.push(champion);
         });
@@ -3754,7 +3762,7 @@ class Champion {
                 }
             }
             LogUtils_logHHAuto("No good candidate");
-            Champion.findNextChamptionTime();
+            Champion.findNextChamptionTime(championMap);
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
             return false;
         }
@@ -3763,13 +3771,17 @@ class Champion {
             return true;
         }
     }
-    static findNextChamptionTime() {
+    static findNextChamptionTime(championMap = undefined) {
         if (getPage() == ConfigHelper.getHHScriptVars("pagesIDChampionsMap")) {
+            const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
             const autoChampsForceStart = getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampsForceStart") === "true";
             var minTime = -1; // less than 15min
             var minTimeEnded = -1;
             var currTime;
-            const championMap = Champion.getChampionListFromMap();
+            if (championMap == undefined) {
+                championMap = Champion.getChampionListFromMap();
+            }
+            // if (debugEnabled) LogUtils_logHHAuto('championMap: ', championMap);
             for (let i = 0; i < championMap.length; i++) {
                 if (championMap[i].inFilter) {
                     currTime = championMap[i].timer;
@@ -3786,7 +3798,7 @@ class Champion {
                             minTime = currTime;
                         } // less than 30min
                     }
-                    else if (!championMap[i].started && autoChampsForceStart) {
+                    else if (!championMap[i].started && autoChampsForceStart && championMap[i].hasEventGirls) {
                         minTime = 0;
                         minTimeEnded = -1; // end loop so value is not accurate
                         break;
@@ -4559,10 +4571,10 @@ class Harem {
         if ($('#' + goToGirlPageButtonId).length > 0)
             return;
         const displayedGirl = $('#harem_right .opened').attr('girl') || ''; // unsafeWindow.harem.preselectedGirlId
-        const girlOwned = !(getHHVars('girlsDataList', false) != null && getHHVars('girlsDataList', false)[displayedGirl].shards < 100);
-        GM_addStyle('#harem_right>div[girl] .middle_part div.avatar-box img.avatar { height: 365px; margin-bottom: 30px;}');
-        GM_addStyle('#harem_right>div[girl] .middle_part div.avatar-box canvas.animated-girl-display { height: 59rem; top: -18rem;}');
-        GM_addStyle('.goToGirlPage {position: relative; bottom: 46px; font-size: small; z-index:30;}');
+        const girlOwned = displayedGirl != '' && !(getHHVars('girlsDataList', false) != null && getHHVars('girlsDataList', false)[displayedGirl].shards < 100);
+        //GM_addStyle('#harem_right>div[girl] .middle_part div.avatar-box img.avatar { height: 365px; margin-bottom: 30px;}');
+        //GM_addStyle('#harem_right>div[girl] .middle_part div.avatar-box canvas.animated-girl-display { height: 59rem; top: -18rem;}');
+        GM_addStyle('.goToGirlPage {position: relative; bottom: 12px; left: 250px; font-size: small; width: fit-content; z-index:30;}');
         // using a for new tab option
         const goToGirlPageButton = '<div class="tooltipHH goToGirlPage"><span class="tooltipHHtext">' + getTextForUI("goToGirlPage", "tooltip") + '</span><a href="/girl/' + displayedGirl + '?resource=experience" class="myButton" id="' + goToGirlPageButtonId + '">' + getTextForUI("goToGirlPage", "elementText") + '</a></div>';
         var goToGirl = function () {
@@ -6218,9 +6230,6 @@ class LeagueHelper {
         GM_addStyle('#leagues .league_content .league_buttons .league_buttons_block {'
             + 'width: auto;}');
     }
-    /**
-     * @returns {BDSMSimu}
-     */
     static getSimPowerOpponent(heroFighter, opponents) {
         let leaguePlayers = BDSMHelper.getBdsmPlayersData(heroFighter, opponents.player, true);
         let simu = calculateBattleProbabilities(leaguePlayers.player, leaguePlayers.opponent);

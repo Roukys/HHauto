@@ -10,11 +10,6 @@ describe("Page Helper", function () {
         sessionStorage.removeItem(HHStoredVarPrefixKey + "Temp_unkownPagesList");
     });
 
-    function mockPage(pageName: string) {
-        document.body.innerHTML = `<!DOCTYPE html><div id="hh_hentai" page="${pageName}"><p>Hello world</p></div>`;
-    }
-
-
     describe("getDisplayedIdEventPage", function () {
         // $("#contains_all #events .events-list .event-title.active").attr("href")
 
@@ -28,35 +23,35 @@ describe("Page Helper", function () {
             }
         });
         it("empty", function () {
-            mockPage('');
+            MockHelper.mockPage('');
             expect(getPage()).toBe('');
         });
         it("Home", function () {
-            mockPage('home');
+            MockHelper.mockPage('home');
             expect(getPage()).toBe('home');
         });
 
         it("contests", function () {
             MockHelper.mockDomain('www.hentaiheroes.com', 'activities.html', '?tab=contests');
-            mockPage('activities');
+            MockHelper.mockPage('activities');
             expect(getPage()).toBe('contests');
         });
 
         it("missions", function () {
             MockHelper.mockDomain('www.hentaiheroes.com', 'activities.html', '?tab=missions');
-            mockPage('activities');
+            MockHelper.mockPage('activities');
             expect(getPage()).toBe('missions');
         });
 
         it("daily_goals", function () {
             MockHelper.mockDomain('www.hentaiheroes.com', 'activities.html', '?tab=daily_goals');
-            mockPage('activities');
+            MockHelper.mockPage('activities');
             expect(getPage()).toBe('daily_goals');
         });
 
         it("pop", function () {
             MockHelper.mockDomain('www.hentaiheroes.com', 'activities.html', '?tab=pop');
-            mockPage('activities');
+            MockHelper.mockPage('activities');
             expect(getPage()).toBe('powerplacemain');
         });
 
@@ -79,14 +74,14 @@ describe("Page Helper", function () {
         });
 
         it("checkUnknown known", function () {
-            mockPage('home');
+            MockHelper.mockPage('home');
             expect(getPage(true)).toBe('home');
             expect(sessionStorage.getItem(HHStoredVarPrefixKey + "Temp_unkownPagesList")).toBeNull();
         });
 
         it("checkUnknown Unknown", function () {
             MockHelper.mockDomain('www.hentaiheroes.com', 'XXX-page.html');
-            mockPage('XXX');
+            MockHelper.mockPage('XXX');
             expect(getPage(true)).toBe('XXX');
             expect(sessionStorage.getItem(HHStoredVarPrefixKey + "Temp_unkownPagesList")).toBe('{"XXX":"/XXX-page.html"}');
         });
@@ -94,7 +89,7 @@ describe("Page Helper", function () {
         it("checkUnknown Unknown twice", function () {
             sessionStorage.setItem(HHStoredVarPrefixKey + "Temp_unkownPagesList", '{"XXX":"/XXX-page.html"}')
             MockHelper.mockDomain('www.hentaiheroes.com', 'ZZZ-page.html');
-            mockPage('ZZZ');
+            MockHelper.mockPage('ZZZ');
             expect(getPage(true)).toBe('ZZZ');
             expect(sessionStorage.getItem(HHStoredVarPrefixKey + "Temp_unkownPagesList")).toBe('{"XXX":"/XXX-page.html","ZZZ":"/ZZZ-page.html"}');
         });

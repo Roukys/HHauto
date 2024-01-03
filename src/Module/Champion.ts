@@ -257,15 +257,22 @@ export class Champion {
         }
     }
 
-    static getChampionListFromMap():ChampionModel[] {
-        const Filter=getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsFilter").split(';').map(s=>Number(s));
-        const championMap:ChampionModel[] = [];
-        $('span.stage-bar-tier').each(function(i, tier){
+    static getChampionListFromMap(): ChampionModel[] {
+        const Filter = (getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsFilter")||'').split(';').map(s=>Number(s));
+        const championMap: ChampionModel[] = [];
+        const autoChampsForceStartEventGirl = getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampsForceStartEventGirl") === "true";
+        const autoChampsEventGirls = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_autoChampsEventGirls")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_autoChampsEventGirls")) : [];
+        const championWithEventGirl = autoChampsEventGirls.map(a => Number(a.champ_id));
+        $('span.stage-bar-tier').each(function(i, tier){    
             const champion = new ChampionModel(i, (tier.getAttribute("hh_title")||'').split('/')[0].replace(/[^0-9]/gi, ''), Filter.includes(i+1));
 
             let timerElm = $($('a.champion-lair div.champion-lair-name')[i+1]).find('span[rel=expires]').text();
             if (timerElm !== undefined && timerElm !== null && timerElm.length > 0) {
                 champion.timer = Number(convertTimeToInt(timerElm));
+            }
+            if (autoChampsForceStartEventGirl && championWithEventGirl.includes(i+1) && champion.timer < 0) {
+                champion.timer = 0;
+                champion.hasEventGirls = true;
             }
             championMap.push(champion);
         });
@@ -389,7 +396,7 @@ export class Champion {
             }
 
             logHHAuto("No good candidate");
-            Champion.findNextChamptionTime();
+            Champion.findNextChamptionTime(championMap);
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
             return false;
         }
@@ -400,14 +407,18 @@ export class Champion {
         }
     }
 
-    static findNextChamptionTime() {
-        if (getPage()==ConfigHelper.getHHScriptVars("pagesIDChampionsMap")) {
+    static findNextChamptionTime(championMap: ChampionModel[]=undefined) {
+        if (getPage() == ConfigHelper.getHHScriptVars("pagesIDChampionsMap")) {
+            const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
             const autoChampsForceStart = getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsForceStart") === "true";
             var minTime = -1; // less than 15min
             var minTimeEnded = -1;
-            var currTime;
+            var currTime: number;
 
-            const championMap = Champion.getChampionListFromMap();
+            if (championMap == undefined) {
+                championMap = Champion.getChampionListFromMap();
+            }
+            // if (debugEnabled) logHHAuto('championMap: ', championMap);
             for (let i=0;i<championMap.length;i++)
             {
                 if(championMap[i].inFilter) {
@@ -419,7 +430,7 @@ export class Champion {
                     }else if (currTime > 0) {
                         if (currTime > minTimeEnded) {minTimeEnded = currTime;}
                         if (currTime > minTime && currTime < 1800) {minTime = currTime;} // less than 30min
-                    } else if(!championMap[i].started && autoChampsForceStart) {
+                    } else if (!championMap[i].started && autoChampsForceStart && championMap[i].hasEventGirls) {
                         minTime = 0;
                         minTimeEnded = -1; // end loop so value is not accurate
                         break;
@@ -427,7 +438,7 @@ export class Champion {
                 }
             }
             //fetching min
-            let nextChampionTime;
+            let nextChampionTime: number;
 
             logHHAuto('minTimeEnded: ' + minTimeEnded + ', minTime:' + minTime);
             if (minTime === -1 && minTimeEnded === -1)
