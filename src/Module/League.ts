@@ -113,9 +113,6 @@ export class LeagueHelper {
         );
     }
 
-    /**
-     * @returns {BDSMSimu}
-     */
     static getSimPowerOpponent(heroFighter, opponents): BDSMSimu {
         let leaguePlayers = BDSMHelper.getBdsmPlayersData(heroFighter, opponents.player, true);
         let simu = calculateBattleProbabilities(leaguePlayers.player, leaguePlayers.opponent);
