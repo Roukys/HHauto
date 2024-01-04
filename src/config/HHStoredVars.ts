@@ -1770,6 +1770,11 @@ HHStoredVars[HHStoredVarPrefixKey+"Temp_eventGirl"] =
     storage:"sessionStorage",
     HHType:"Temp"
 };
+HHStoredVars[HHStoredVarPrefixKey+"Temp_eventMythicGirl"] =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
 HHStoredVars[HHStoredVarPrefixKey+"Temp_autoChampsEventGirls"] =
     {
     storage:"sessionStorage",

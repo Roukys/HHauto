@@ -9,9 +9,18 @@ import {
     setStoredValue,
     setTimer
 } from '../Helper/index';
-import { LeagueHelper, Pantheon, PlaceOfPower, QuestHelper, Season, Troll } from '../Module/index';
-import { isJSON, logHHAuto } from '../Utils/index';
+import { 
+    EventModule,
+    LeagueHelper,
+    Pantheon,
+    PlaceOfPower,
+    QuestHelper,
+    Season,
+    Troll
+} from '../Module/index';
+import { logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
+import { EventGirl } from '../model/index';
 import { getBurst } from "./AutoLoop";
 import { gotoPage } from "./PageNavigationService";
 
@@ -266,8 +275,11 @@ export function flipParanoia()
         }
 
         //bypass Paranoia if ongoing mythic
-        if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollMythicByPassParanoia") === "true" && getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl") !==undefined && JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).is_mythic==="true")
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoTrollMythicByPassParanoia") === "true")
         {
+            const eventMythicGirl: EventGirl = EventModule.getEventMythicGirl();
+            if (eventMythicGirl.girl_id && eventMythicGirl.is_mythic)
+            {
             //             var trollThreshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollThreshold"));
             //             if (getStoredValue(HHStoredVarPrefixKey+"Setting_buyMythicCombat") === "true" || getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollMythicByPassThreshold") === "true")
             //             {
@@ -284,12 +296,13 @@ export function flipParanoia()
             //mythic ongoing and can buyCombat
             // const Hero=getHero();
             // var price=Hero.get_recharge_cost("fight");
-            if (Troll.canBuyFight().canBuy && Troll.getEnergy()==0)
+            if (Troll.canBuyFight(eventMythicGirl).canBuy && Troll.getEnergy()==0)
             {
 
                 logHHAuto("Forced bypass Paranoia for mythic (can buy).");
                 setTimer('paranoiaSwitch',60);
                 return;
+            }
             }
         }
 

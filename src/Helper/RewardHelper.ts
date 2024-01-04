@@ -9,6 +9,7 @@ import { randomInterval } from "./TimeHelper";
 import { EventModule, SeasonalEvent } from '../Module/index';
 import { queryStringGetParam } from "./UrlHelper";
 import { HHStoredVarPrefixKey } from '../config/index';
+import { EventGirl } from '../model/EventGirl';
 
 export class RewardHelper {
     static getRewardTypeBySlot(inSlot): string
@@ -274,26 +275,24 @@ export class RewardHelper {
         let inCaseTimer = setTimeout(function(){gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));}, 60000); //in case of issue
         function parseReward()
         {
-            if (getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz") === undefined
-                || getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl") === undefined
-                || !isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz"))
-                || !isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")))
+            let eventsGirlz: EventGirl[] = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsGirlz")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsGirlz")) : [];
+            let eventGirl: EventGirl = EventModule.getEventGirl();
+            let eventMythicGirl: EventGirl = EventModule.getEventMythicGirl();
+            if (!eventsGirlz || eventsGirlz.length == 0)
             {
                 return -1;
             }
-            let foughtTrollId = queryStringGetParam(window.location.search,'id_opponent');
-            let eventsGirlz =isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz")):{}
-            let eventGirl = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")):{};
-            let TTF = eventGirl.troll_id;
-            if (foughtTrollId != TTF) {
-                logHHAuto('Troll from event not fought, can be issue in event variable (event finished ?)');
-                TTF = foughtTrollId;
+            let foughtTrollId:number = Number(queryStringGetParam(window.location.search,'id_opponent'));
+            if (eventMythicGirl.troll_id && foughtTrollId != eventMythicGirl.troll_id && eventGirl.troll_id && foughtTrollId != eventGirl.troll_id) {
+                logHHAuto(`Troll from mythic event (${eventMythicGirl.troll_id}) or from event (${eventGirl.troll_id}) not fought, was (${foughtTrollId}) instead.
+                Can be issue in event variable (mythic event finished: ${EventModule.isEventActive(eventMythicGirl.event_id)},  event finished: ${EventModule.isEventActive(eventGirl.event_id) })`);
+                // TTF = foughtTrollId;
             }
             if ($('#rewards_popup #reward_holder .shards_wrapper').length === 0)
             {
                 clearTimeout(inCaseTimer);
                 logHHAuto("No girl in reward going back to Troll");
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle"),{id_opponent:TTF});
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle"), { id_opponent: foughtTrollId });
                 return;
             }
             let renewEvent = "";
@@ -301,37 +300,46 @@ export class RewardHelper {
             logHHAuto("Detected girl shard reward");
             for (var currGirl=0; currGirl <= girlShardsWon.length; currGirl++)
             {
-                let GirlIdSrc = $("img",girlShardsWon[currGirl]).attr("src") || '';
-                let GirlId = GirlIdSrc.split('/')[5];
-                let GirlShards = Math.min(Number($('.shards[shards]', girlShardsWon[currGirl]).attr('shards')),100);
+                let girlIdSrc = $("img",girlShardsWon[currGirl]).attr("src") || '';
+                let girlId = Number(girlIdSrc.split('/')[5]);
+                let girlShards = Math.min(Number($('.shards[shards]', girlShardsWon[currGirl]).attr('shards')),100);
                 if (eventsGirlz.length >0)
                 {
-                    let GirlIndex = eventsGirlz.findIndex((element) =>element.girl_id === GirlId);
-                    if (GirlIndex !==-1)
+                    let girlIndex = eventsGirlz.findIndex((element) =>element.girl_id === girlId);
+                    if (girlIndex !==-1)
                     {
-                        let wonShards = GirlShards - Number(eventsGirlz[GirlIndex].girl_shards);
-                        eventsGirlz[GirlIndex].girl_shards = GirlShards.toString();
-                        if (GirlShards === 100)
+                        let wonShards = girlShards - eventsGirlz[girlIndex].shards;
+                        eventsGirlz[girlIndex].shards = girlShards;
+                        if (girlShards === 100)
                         {
-                            renewEvent = eventsGirlz[GirlIndex].event_id;
+                            renewEvent = eventsGirlz[girlIndex].event_id;
                         }
                         if (wonShards > 0)
                         {
-                            logHHAuto("Won "+wonShards+" event shards for "+eventsGirlz[GirlIndex].girl_name);
+                            logHHAuto("Won "+wonShards+" event shards for "+eventsGirlz[girlIndex].name);
                         }
                     }
                 }
-                if (eventGirl.girl_id === GirlId)
+                if (eventMythicGirl.girl_id === girlId)
                 {
-                    eventGirl.girl_shards = GirlShards.toString();
-                    if (GirlShards === 100)
+                    eventMythicGirl.shards = girlShards;
+                    if (girlShards === 100)
+                    {
+                        renewEvent = eventMythicGirl.event_id;
+                    }
+                }
+                if (eventGirl.girl_id === girlId)
+                {
+                    eventGirl.shards = girlShards;
+                    if (girlShards === 100)
                     {
                         renewEvent = eventGirl.event_id;
                     }
                 }
             }
             setStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz", JSON.stringify(eventsGirlz));
-            setStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl", JSON.stringify(eventGirl));
+            EventModule.saveEventGirl(eventGirl);
+            EventModule.saveEventGirl(eventMythicGirl);
             if (renewEvent !== ""
                 //|| Number(getStoredValue(HHStoredVarPrefixKey+"Temp_EventFightsBeforeRefresh")) < 1
                 || EventModule.checkEvent(eventGirl.event_id)
@@ -353,7 +361,7 @@ export class RewardHelper {
             {
                 clearTimeout(inCaseTimer);
                 logHHAuto("Go back to troll after troll fight.");
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle"),{id_opponent:TTF});
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle"), { id_opponent: foughtTrollId });
                 return;
             }
         }

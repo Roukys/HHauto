@@ -34,39 +34,39 @@ describe("Time Helper", function () {
     describe("randomInterval", function () {
         it("Some", function () {
             let newTime = randomInterval(10, 20);
-            expect(newTime > 10).toBeTruthy();
-            expect(newTime < 20).toBeTruthy();
+            expect(newTime).toBeGreaterThanOrEqual(10)
+            expect(newTime).toBeLessThanOrEqual(20);
             newTime = randomInterval(60, 120);
-            expect(newTime > 60).toBeTruthy();
-            expect(newTime < 120).toBeTruthy();
+            expect(newTime).toBeGreaterThanOrEqual(60);
+            expect(newTime).toBeLessThanOrEqual(120);
         });
     });
 
     describe("convertTimeToInt", function () {
         it("default new time random between 15 and 17min", function () {
             let newTime = convertTimeToInt('');
-            expect(newTime > 15*60).toBeTruthy();
-            expect(newTime < 17*60).toBeTruthy();
+            expect(newTime).toBeGreaterThanOrEqual(15 * 60);
+            expect(newTime).toBeLessThanOrEqual(17 * 60);
             newTime = convertTimeToInt(undefined);
-            expect(newTime > 15*60).toBeTruthy();
-            expect(newTime < 17*60).toBeTruthy();
+            expect(newTime).toBeGreaterThanOrEqual(15 * 60);
+            expect(newTime).toBeLessThanOrEqual(17 * 60);
             newTime = convertTimeToInt(null);
-            expect(newTime > 15*60).toBeTruthy();
-            expect(newTime < 17*60).toBeTruthy();
+            expect(newTime).toBeGreaterThanOrEqual(15 * 60);
+            expect(newTime).toBeLessThanOrEqual(17 * 60);
             newTime = convertTimeToInt(' ');
-            expect(newTime > 15*60).toBeTruthy();
-            expect(newTime < 17*60).toBeTruthy();
+            expect(newTime).toBeGreaterThanOrEqual(15 * 60);
+            expect(newTime).toBeLessThanOrEqual(17 * 60);
         });
         it("Error case new time random between 15 and 17min", function () {
             let newTime = convertTimeToInt(' ');
-            expect(newTime > 15*60).toBeTruthy();
-            expect(newTime < 17*60).toBeTruthy();
+            expect(newTime).toBeGreaterThanOrEqual(15 * 60);
+            expect(newTime).toBeLessThanOrEqual(17 * 60);
             newTime = convertTimeToInt('1m 5');
-            expect(newTime > 15*60).toBeTruthy();
-            expect(newTime < 17*60).toBeTruthy();
+            expect(newTime).toBeGreaterThanOrEqual(15 * 60);
+            expect(newTime).toBeLessThanOrEqual(17 * 60);
             newTime = convertTimeToInt('99');
-            expect(newTime > 15*60).toBeTruthy();
-            expect(newTime < 17*60).toBeTruthy();
+            expect(newTime).toBeGreaterThanOrEqual(15 * 60);
+            expect(newTime).toBeLessThanOrEqual(17 * 60);
         });
         it("Some times", function () {
             expect(convertTimeToInt('12s')).toBe(12);

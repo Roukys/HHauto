@@ -1,7 +1,15 @@
-import { HeroHelper, ConfigHelper, getHHVars, getStoredValue, setStoredValue } from '../Helper/index';
+import {
+    HeroHelper,
+    ConfigHelper,
+    getHHVars,
+    getStoredValue,
+    setStoredValue 
+} from '../Helper/index';
 import { gotoPage } from '../Service/index';
 import { isJSON, logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
+import { EventGirl } from '../model/EventGirl';
+import { EventModule } from './index';
 
 
 const DEFAULT_BOOSTERS = {normal: [], mythic:[]};
@@ -157,7 +165,7 @@ export class Booster {
                         if (sandalwood && mythicUpdated && sandalwoodEnded) {
                             const isMultibattle = parseInt(number_of_battles||'') > 1
                             logHHAuto("sandalwood may be ended need a new one");
-                            if(getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") === "true" && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythicSandalWood") === "true" && JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).is_mythic==="true") {
+                            if (getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythicSandalWood") === "true" && EventModule.getEventMythicGirl().is_mythic) {
                                 if (isMultibattle) {
                                     // TODO go to market if sandalwood not ended, continue. If ended, buy a new one
                                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDShop"));
@@ -212,11 +220,11 @@ export class Booster {
 
     static async equipeSandalWoodIfNeeded(nextTrollChoosen:number):Promise<boolean>{
         try {
-            const eventGirl = getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl") !== undefined ? JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")) : undefined;
+            const eventGirl: EventGirl = EventModule.getEventMythicGirl();
             if(getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") === "true" && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythicSandalWood") === "true" 
-                && eventGirl !== undefined && eventGirl.is_mythic==="true" && eventGirl.troll_id == nextTrollChoosen) {
+                && eventGirl.is_mythic && eventGirl.troll_id == nextTrollChoosen) {
                 if(!Booster.haveBoosterEquiped(Booster.SANDALWOOD_PERFUME.identifier)) {
-                    const remainingShards = Number(100 - Number(eventGirl.girl_shards));
+                    const remainingShards = Number(100 - Number(eventGirl.shards));
                     if(remainingShards > 10) {
                         // Equip a new one
                         const equiped:boolean = await HeroHelper.equipBooster(Booster.SANDALWOOD_PERFUME);

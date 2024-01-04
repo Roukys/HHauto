@@ -1,6 +1,7 @@
 import { autoLoop } from '../Service/index';
 import { isJSON, logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
+import { ConfigHelper } from './ConfigHelper';
 import { getHHVars } from "./HHHelper";
 import { getStoredValue, setStoredValue } from "./StorageHelper";
 import { randomInterval } from "./TimeHelper";
@@ -79,12 +80,16 @@ export class HeroHelper {
             logHHAuto("Booster " + booster + " not in inventory");
             return Promise.resolve(false);
         }
+        let itemId = ConfigHelper.getHHScriptVars("boosterId_" + booster.identifier, false);
+        if (!itemId) {
+            itemId = booster.id_item;
+        }
         //action=market_equip_booster&id_item=316&type=booster
         setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
         logHHAuto("Equip "+booster.name+", setting autoloop to false");
         const params = {
             action: "market_equip_booster",
-            id_item: booster.id_item,
+            id_item: itemId,
             type: "booster"
         };
 

@@ -61,6 +61,7 @@ HHEnvVariables["global"].LEVEL_MIN_POG = 30;
 HHEnvVariables["global"].LEVEL_MIN_LEAGUE = 20;
 HHEnvVariables["global"].LEVEL_MIN_PANTHEON = 15;
 HHEnvVariables["global"].LEVEL_MIN_EVENT_SM = 15;
+HHEnvVariables["global"].boosterId_MB1 = 632;
 
 HHEnvVariables["global"].ELEMENTS =
     {
@@ -451,6 +452,7 @@ HHEnvVariables["HH_test"].isEnabledFreeBundles = false;// to remove if bundles a
         [['258185125', '897951171', '971686222'], [0], [0]],
     ];
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
+    HHEnvVariables[element].boosterId_MB1 = 2619;
 });
 HHEnvVariables["SH_prod"].isEnabledSideQuest = false;// to remove when SideQuest arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPowerPlaces = false;// to remove when PoP arrives in hornyheroes
@@ -492,6 +494,7 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
                                           'Jasmine Jae'];
     HHEnvVariables[element].trollIdMapping =  {10:9,14:11,16:12}; // under 10 id as usual
     HHEnvVariables[element].lastQuestId = 16100; //  TODO update when new quest comes
+    HHEnvVariables[element].boosterId_MB1 = 2619;
 });
 ["PH_prod","NPH_prod"].forEach((element) => {
     HHEnvVariables[element].trollGirlsID = [
@@ -554,5 +557,6 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
         [[0,0,0], [0], [0]], // TODO get girls id
     ];
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
+    HHEnvVariables[element].boosterId_MB1 = 2619;
 });
 // Object.values(girlsDataList).filter(girl => girl.source?.name == "troll_tier" && girl.source?.group?.id == "7")

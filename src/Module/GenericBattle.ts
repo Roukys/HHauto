@@ -11,7 +11,9 @@ import {
 import { gotoPage } from '../Service/index';
 import { logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
+import { EventGirl } from '../model/index';
 import { Troll } from "./Troll";
+import { EventModule } from './index';
 
 export class GenericBattle {
     static doBattle()
@@ -19,7 +21,7 @@ export class GenericBattle {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDLeagueBattle") || getPage() === ConfigHelper.getHHScriptVars("pagesIDTrollBattle") || getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonBattle") || getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle") )
         {
             logHHAuto("On battle page.");
-            let troll_id = queryStringGetParam(window.location.search,'id_opponent');
+            let troll_id:string = queryStringGetParam(window.location.search,'id_opponent');
             const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
             if (getPage() === ConfigHelper.getHHScriptVars("pagesIDLeagueBattle") && getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeagues") === "true")
             {
@@ -33,12 +35,14 @@ export class GenericBattle {
                 {
                     setStoredValue(HHStoredVarPrefixKey+"Temp_autoTrollBattleSaveQuest", "false");
                 }
-                if(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl") !== undefined &&
-                    (
-                        getStoredValue(HHStoredVarPrefixKey+"Setting_plusEvent") === "true" && JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).is_mythic==="false"
-                        || 
-                        getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") === "true" && JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).is_mythic==="true"
-                    ))
+
+                const eventGirl: EventGirl = EventModule.getEventGirl();
+                const eventMythicGirl: EventGirl = EventModule.getEventMythicGirl();
+                if(
+                    getStoredValue(HHStoredVarPrefixKey + "Setting_plusEvent") === "true" && eventGirl?.girl_id && !eventGirl?.is_mythic
+                    || 
+                    getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && eventMythicGirl?.girl_id && eventMythicGirl?.is_mythic
+                )
                 {
                     logHHAuto("Event ongoing search for girl rewards in popup.");
                     RewardHelper.ObserveAndGetGirlRewards();

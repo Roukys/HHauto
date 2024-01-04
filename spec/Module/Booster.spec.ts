@@ -5,7 +5,8 @@ import { HHStoredVarPrefixKey } from '../../src/config/HHStoredVars';
 
 describe("Booster", function() {
   afterEach(() => {
-  localStorage.clear();
+    localStorage.clear();
+    sessionStorage.clear();
     // remove callback
     localStorage.itemInsertionCallback = null;
   });
@@ -114,8 +115,11 @@ describe("Booster", function() {
     });
 
     function setGirl(mythic:boolean, troll:number, shards:number){
-      const girl = `{"girl_id":666,"troll_id":"${troll}","girl_shards":${shards},"is_mythic":"${mythic}","girl_name":"NEXT_GIRL","event_id":"event_666"}`;
-      sessionStorage.setItem(HHStoredVarPrefixKey+"Temp_eventGirl", girl);
+      const girl = `{"girl_id":666,"troll_id":"${troll}","shards":${shards},"is_mythic":${mythic},"name":"NEXT_GIRL","event_id":"event_666"}`;
+      if (mythic)
+        sessionStorage.setItem(HHStoredVarPrefixKey + "Temp_eventMythicGirl", girl);
+      else
+        sessionStorage.setItem(HHStoredVarPrefixKey + "Temp_eventGirl", girl);
     }
 
     it("default", async function() {

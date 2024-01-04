@@ -1,6 +1,7 @@
 export * from './BDSMPlayer'
 export * from './BDSMSimu'
 export * from './Champion'
+export * from './EventGirl'
 export * from './KK/index'
 export * from './LeagueOpponent'
 export * from './Mission'

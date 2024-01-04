@@ -58,6 +58,7 @@ import {
 import {
     HHStoredVarPrefixKey
 } from '../config/index';
+import { EventGirl } from '../model/EventGirl';
 import { 
     checkParanoiaSpendings,
     clearParanoiaSpendings,
@@ -157,6 +158,10 @@ export function CheckSpentPoints()
     }
 }
 
+export function isAutoLoopActive(): boolean{
+    return getStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop") === "true";
+}
+
 export async function autoLoop()
 {
     updateData();
@@ -229,7 +234,7 @@ export async function autoLoop()
             lastActionPerformed = "troll";
         }
 
-        if (busy===false && ConfigHelper.getHHScriptVars("isEnabledShop",false) && Shop.isTimeToCheckShop() && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && (lastActionPerformed === "none" || lastActionPerformed === "shop"))
+        if (busy===false && ConfigHelper.getHHScriptVars("isEnabledShop",false) && Shop.isTimeToCheckShop() && isAutoLoopActive() && (lastActionPerformed === "none" || lastActionPerformed === "shop"))
         {
             if (getStoredValue(HHStoredVarPrefixKey+"Temp_charLevel") ===undefined)
             {
@@ -243,7 +248,7 @@ export async function autoLoop()
         }
 
         if(busy === false && ConfigHelper.getHHScriptVars("isEnabledPowerPlaces",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPowerPlaces") === "true" 
-        && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && (lastActionPerformed === "none" || lastActionPerformed === "pop"))
+        && isAutoLoopActive() && (lastActionPerformed === "none" || lastActionPerformed === "pop"))
         {
 
             var popToStart = getStoredValue(HHStoredVarPrefixKey+"Temp_PopToStart")?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_PopToStart")):[];
@@ -308,17 +313,15 @@ export async function autoLoop()
                     || getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonBattle")
                     || getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle")
                 )
-                && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true"
-                && canCollectCompetitionActive
+                && isAutoLoopActive() && canCollectCompetitionActive
             )
         {
             busy = true;
             GenericBattle.doBattle();
         }
 
-        if(busy === false && ConfigHelper.getHHScriptVars("isEnabledTrollBattle",false) 
-        && (getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollBattle") === "true" || getStoredValue(HHStoredVarPrefixKey+"Temp_autoTrollBattleSaveQuest") === "true")
-        && getHHVars('Hero.infos.questing.id_world')>0 && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && canCollectCompetitionActive
+        if(busy === false && Troll.isTrollFightActivated()
+        && isAutoLoopActive() && canCollectCompetitionActive
         && (lastActionPerformed === "none" || lastActionPerformed === "troll" || lastActionPerformed === "quest"))
         {
             const threshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollThreshold"));
@@ -326,6 +329,8 @@ export async function autoLoop()
             const humanLikeRun = getStoredValue(HHStoredVarPrefixKey+"Temp_TrollHumanLikeRun") === "true";
             const energyAboveThreshold = humanLikeRun && currentPower > threshold || currentPower > Math.max(threshold, runThreshold-1);
             //logHHAuto("fight amount: "+currentPower+" troll threshold: "+threshold+" paranoia fight: "+Number(checkParanoiaSpendings('fight')));
+            const eventGirl: EventGirl = EventModule.getEventGirl();
+            const eventMythicGirl: EventGirl = EventModule.getEventMythicGirl();
             if
                 (
                     //normal case
@@ -342,29 +347,21 @@ export async function autoLoop()
                     ||
                     (
                         // mythic Event Girl available and fights available
-                        (
-                            getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl") !== undefined
-                            && JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).is_mythic === "true"
-                            && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") ==="true"
-                        )
+                        (eventMythicGirl.girl_id && eventMythicGirl.is_mythic && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") ==="true")
                         &&
                         (
                             currentPower > 0 //has fight => bypassing paranoia
-                            || Troll.canBuyFight(false).canBuy // can buy fights
+                            || Troll.canBuyFight(eventMythicGirl, false).canBuy // can buy fights
                         )
                     )
                     ||
                     (
                         // normal Event Girl available
-                        (
-                            getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl") !== undefined
-                            && JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")).is_mythic === "false"
-                            && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEvent") ==="true"
-                        )
+                        (eventGirl.girl_id && !eventGirl.is_mythic && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEvent") ==="true")
                         &&
                         (
                             energyAboveThreshold
-                            || Troll.canBuyFight(false).canBuy // can buy fights
+                            || Troll.canBuyFight(eventGirl, false).canBuy // can buy fights
                         )
                     )
                 )
@@ -409,7 +406,7 @@ export async function autoLoop()
 
 
         if (busy === false && ConfigHelper.getHHScriptVars("isEnabledMythicPachinko",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoFreePachinko") === "true" 
-            && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && checkTimer("nextPachinko2Time") && canCollectCompetitionActive
+            && isAutoLoopActive() && checkTimer("nextPachinko2Time") && canCollectCompetitionActive
             && (lastActionPerformed === "none" || lastActionPerformed === "pachinko")) {
             logHHAuto("Time to fetch Mythic Pachinko.");
             busy = Pachinko.getMythicPachinko();
@@ -417,7 +414,7 @@ export async function autoLoop()
         }
 
         if (busy === false && ConfigHelper.getHHScriptVars("isEnabledGreatPachinko",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoFreePachinko") === "true" 
-            && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && checkTimer("nextPachinkoTime") && canCollectCompetitionActive
+            && isAutoLoopActive() && checkTimer("nextPachinkoTime") && canCollectCompetitionActive
             && (lastActionPerformed === "none" || lastActionPerformed === "pachinko")) {
             logHHAuto("Time to fetch Great Pachinko.");
             busy = Pachinko.getGreatPachinko();
@@ -425,7 +422,7 @@ export async function autoLoop()
         }
 
         if (busy === false && ConfigHelper.getHHScriptVars("isEnabledEquipmentPachinko",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoFreePachinko") === "true" 
-            && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && checkTimer("nextPachinkoEquipTime") && canCollectCompetitionActive
+            && isAutoLoopActive() && checkTimer("nextPachinkoEquipTime") && canCollectCompetitionActive
             && (lastActionPerformed === "none" || lastActionPerformed === "pachinko")) {
             logHHAuto("Time to fetch Equipment Pachinko.");
             busy = Pachinko.getEquipmentPachinko();
@@ -433,7 +430,7 @@ export async function autoLoop()
         }
 
         if(busy === false && ConfigHelper.getHHScriptVars("isEnabledContest",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoContest") === "true" 
-            && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && (lastActionPerformed === "none" || lastActionPerformed === "contest"))
+            && isAutoLoopActive() && (lastActionPerformed === "none" || lastActionPerformed === "contest"))
         {
             if (checkTimer('nextContestTime') || unsafeWindow.has_contests_datas ||$(".contest .ended button[rel='claim']").length>0){
                 logHHAuto("Time to get contest rewards.");
@@ -443,7 +440,7 @@ export async function autoLoop()
         }
 
         if(busy === false && ConfigHelper.getHHScriptVars("isEnabledMission",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoMission") === "true" 
-            && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && (lastActionPerformed === "none" || lastActionPerformed === "mission"))
+            && isAutoLoopActive() && (lastActionPerformed === "none" || lastActionPerformed === "mission"))
         {
             if (checkTimer('nextMissionTime')){
                 logHHAuto("Time to do missions.");
@@ -454,7 +451,7 @@ export async function autoLoop()
 
         if (busy === false && ConfigHelper.getHHScriptVars("isEnabledQuest",false) 
             && (getStoredValue(HHStoredVarPrefixKey+"Setting_autoQuest") === "true" || (ConfigHelper.getHHScriptVars("isEnabledSideQuest",false) 
-            && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSideQuest") === "true")) && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" 
+            && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSideQuest") === "true")) && isAutoLoopActive() 
             && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "quest"))
         {
             if (getStoredValue(HHStoredVarPrefixKey+"Temp_autoTrollBattleSaveQuest") === undefined)
@@ -471,9 +468,9 @@ export async function autoLoop()
                     setStoredValue(HHStoredVarPrefixKey+"Temp_autoTrollBattleSaveQuest", "true");
                     if(getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollBattle") !== "true") {
                         Troll.doBossBattle();
+                        busy = true;
                     }
                 }
-                busy = true;
             }
             else if (questRequirement[0] === '$')
             {
@@ -609,7 +606,7 @@ export async function autoLoop()
         }
 
         if(busy === false && ConfigHelper.getHHScriptVars("isEnabledSeason",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeason") === "true" 
-            && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "season"))
+            && isAutoLoopActive() && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "season"))
         {
             if (Season.isTimeToFight())
             {
@@ -637,7 +634,7 @@ export async function autoLoop()
         }
 
         if(busy === false && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheon") === "true" && Pantheon.isEnabled()
-            && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "pantheon"))
+            && isAutoLoopActive() && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "pantheon"))
         {
             if (Pantheon.isTimeToFight())
             {
@@ -667,7 +664,7 @@ export async function autoLoop()
         }
 
         if(busy === false && getStoredValue(HHStoredVarPrefixKey+"Setting_autoLabyrinth") === "true" && Labyrinth.isEnabled() && checkTimer('nextLabyrinthTime')
-            && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "labyrinth"))
+            && isAutoLoopActive() && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "labyrinth"))
         {
             Labyrinth.run();
             busy = true;
@@ -676,7 +673,7 @@ export async function autoLoop()
 
         if (busy==false && ConfigHelper.getHHScriptVars("isEnabledChamps",false) 
             && QuestHelper.getEnergy()>=ConfigHelper.getHHScriptVars("CHAMP_TICKET_PRICE") && QuestHelper.getEnergy() > Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoQuestThreshold"))
-            && getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsUseEne") ==="true" && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" 
+            && getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsUseEne") ==="true" && isAutoLoopActive() 
             && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "champion"))
         {
             function buyTicket()
@@ -701,7 +698,7 @@ export async function autoLoop()
         }
 
         if (busy==false && ConfigHelper.getHHScriptVars("isEnabledChamps",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoChamps") ==="true" && checkTimer('nextChampionTime') 
-            && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && (lastActionPerformed === "none" || lastActionPerformed === "champion"))
+            && isAutoLoopActive() && (lastActionPerformed === "none" || lastActionPerformed === "champion"))
         {
             logHHAuto("Time to check on champions!");
             busy=true;
@@ -710,7 +707,7 @@ export async function autoLoop()
         }
 
         if (busy==false && ConfigHelper.getHHScriptVars("isEnabledClubChamp",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoClubChamp") ==="true" && checkTimer('nextClubChampionTime') 
-            && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && (lastActionPerformed === "none" || lastActionPerformed === "clubChampion"))
+            && isAutoLoopActive() && (lastActionPerformed === "none" || lastActionPerformed === "clubChampion"))
         {
             logHHAuto("Time to check on club champion!");
             busy=true;
@@ -718,7 +715,7 @@ export async function autoLoop()
             lastActionPerformed = "clubChampion";
         }
 
-        if(busy === false && LeagueHelper.isAutoLeagueActivated() && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" 
+        if(busy === false && LeagueHelper.isAutoLeagueActivated() && isAutoLoopActive() 
             && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "league"))
         {
             // Navigate to leagues
@@ -759,7 +756,7 @@ export async function autoLoop()
         }
 
         if (
-            busy==false && ConfigHelper.getHHScriptVars("isEnabledSeason",false) && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" &&
+            busy==false && ConfigHelper.getHHScriptVars("isEnabledSeason",false) && isAutoLoopActive() &&
             (
                 checkTimer('nextSeasonCollectTime') && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonCollect") === "true" && canCollectCompetitionActive
                 ||
@@ -774,7 +771,7 @@ export async function autoLoop()
         }
 
         if (
-            busy==false && ConfigHelper.getHHScriptVars("isEnabledSeasonalEvent",false) && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" &&
+            busy==false && ConfigHelper.getHHScriptVars("isEnabledSeasonalEvent",false) && isAutoLoopActive() &&
             (
                 checkTimer('nextSeasonalEventCollectTime') && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollect") === "true" && canCollectCompetitionActive
                 ||
@@ -789,7 +786,7 @@ export async function autoLoop()
         }
 
         if (
-            busy==false && ConfigHelper.getHHScriptVars("isEnabledSeasonalEvent",false) && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" &&
+            busy==false && ConfigHelper.getHHScriptVars("isEnabledSeasonalEvent",false) && isAutoLoopActive() &&
             checkTimer('nextMegaEventRankCollectTime') && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollect") === "true" && canCollectCompetitionActive
             && (lastActionPerformed === "none" || lastActionPerformed === "seasonal")
         )
@@ -801,7 +798,7 @@ export async function autoLoop()
         }
 
         if (
-            busy==false && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && PathOfValue.isEnabled() &&
+            busy==false && isAutoLoopActive() && PathOfValue.isEnabled() &&
             (
                 checkTimer('nextPoVCollectTime') && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoVCollect") === "true" && canCollectCompetitionActive
                 ||
@@ -816,7 +813,7 @@ export async function autoLoop()
         }
 
         if (
-            busy==false && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && PathOfGlory.isEnabled() &&
+            busy==false && isAutoLoopActive() && PathOfGlory.isEnabled() &&
             (
                 checkTimer('nextPoGCollectTime') && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoGCollect") === "true" && canCollectCompetitionActive
                 ||
@@ -830,7 +827,7 @@ export async function autoLoop()
             lastActionPerformed = "pog";
         }
 
-        if (busy==false && ConfigHelper.getHHScriptVars("isEnabledFreeBundles",false) && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && checkTimer('nextFreeBundlesCollectTime') 
+        if (busy==false && ConfigHelper.getHHScriptVars("isEnabledFreeBundles",false) && isAutoLoopActive() && checkTimer('nextFreeBundlesCollectTime') 
             && getStoredValue(HHStoredVarPrefixKey+"Setting_autoFreeBundlesCollect") === "true" && canCollectCompetitionActive 
             && (lastActionPerformed === "none" || lastActionPerformed === "bundle"))
         {
@@ -840,7 +837,7 @@ export async function autoLoop()
             lastActionPerformed = "bundle";
         }
 
-        if (busy==false && ConfigHelper.getHHScriptVars("isEnabledDailyGoals",false) && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && checkTimer('nextDailyGoalsCollectTime')
+        if (busy==false && ConfigHelper.getHHScriptVars("isEnabledDailyGoals",false) && isAutoLoopActive() && checkTimer('nextDailyGoalsCollectTime')
             && getStoredValue(HHStoredVarPrefixKey+"Setting_autoDailyGoalsCollect") === "true" && canCollectCompetitionActive
             && (lastActionPerformed === "none" || lastActionPerformed === "dailyGoals"))
         {
@@ -852,7 +849,7 @@ export async function autoLoop()
 
         if (busy === false && ConfigHelper.getHHScriptVars("isEnabledSalary",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSalary") === "true" 
             && ( getStoredValue(HHStoredVarPrefixKey+"Setting_paranoia") !== "true" || !checkTimer("paranoiaSwitch") )  
-            && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true" && (lastActionPerformed === "none" || lastActionPerformed === "salary"))
+            && isAutoLoopActive() && (lastActionPerformed === "none" || lastActionPerformed === "salary"))
         {
             if (checkTimer("nextSalaryTime")) {
                 logHHAuto("Time to fetch salary.");
@@ -886,7 +883,7 @@ export async function autoLoop()
 
         if (
             busy === false
-            && getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true"
+            && isAutoLoopActive()
             && Harem.HaremSizeNeedsRefresh(ConfigHelper.getHHScriptVars("HaremMaxSizeExpirationSecs"))
             && getPage() !== ConfigHelper.getHHScriptVars("pagesIDHarem")
             && (lastActionPerformed === "none")
@@ -1116,7 +1113,7 @@ export async function autoLoop()
             break;
     }
 
-    if (busy === false && !mouseBusy && getStoredValue(HHStoredVarPrefixKey + "Setting_paranoia") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_master") === "true" && getStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop") === "true") {
+    if (busy === false && !mouseBusy && getStoredValue(HHStoredVarPrefixKey + "Setting_paranoia") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_master") === "true" && isAutoLoopActive()) {
         if (checkTimer("paranoiaSwitch")) {
             flipParanoia();
         }
@@ -1137,7 +1134,7 @@ export async function autoLoop()
         logHHAuto("AutoLoopTimeMili is not a number.");
         setDefaults(true);
     }
-    else if (getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") === "true")
+    else if (isAutoLoopActive())
     {
         setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")));
     }
