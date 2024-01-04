@@ -20,6 +20,10 @@ import {
 import { gotoPage } from "../../Service/index";
 import { isJSON, logHHAuto } from "../../Utils/index";
 import { HHStoredVarPrefixKey } from "../../config/index";
+import {
+    EventGirl,
+    KKEventGirl
+} from "../../model/index";
 import { DoublePenetration } from "./DoublePenetration";
 import { PathOfAttraction } from "./PathOfAttraction";
 import { SultryMysteries } from "./SultryMysteries";
@@ -27,15 +31,14 @@ import { SultryMysteries } from "./SultryMysteries";
 export class EventModule {
     static clearEventData(inEventID:string)
     {
-        //sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_eventsGirlz');
-        //sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_eventGirl');
         //clearTimer('eventMythicNextWave');
         //clearTimer('eventRefreshExpiration');
         //sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_EventFightsBeforeRefresh');
         let eventList = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsList")):{};
-        let eventsGirlz = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz")):[];
-        let eventGirl =isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl")):{};
-        let eventChamps = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls")):[];
+        let eventsGirlz: EventGirl[] = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz")):[];
+        let eventGirl = EventModule.getEventGirl();
+        let eventMythicGirl = EventModule.getEventMythicGirl();
+        let eventChamps:EventGirl[] = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls")):[];
         let hasMythic = false;
         let hasEvent = false;
         for (let prop of Object.keys(eventList))
@@ -83,6 +86,7 @@ export class EventModule {
         {
             sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_eventsGirlz');
             sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_eventGirl');
+            sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_eventMythicGirl');
             sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_eventsList');
             sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_autoChampsEventGirls');
         }
@@ -132,6 +136,11 @@ export class EventModule {
             if (!eventList.hasOwnProperty(eventGirl.event_id) || eventGirl.event_id ===inEventID)
             {
                 sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_eventGirl');
+            }
+
+            if (!eventList.hasOwnProperty(eventMythicGirl.event_id) || eventMythicGirl.event_id === inEventID)
+            {
+                sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_eventMythicGirl');
             }
 
             setStoredValue(HHStoredVarPrefixKey+"Temp_eventsList", JSON.stringify(eventList));
@@ -219,9 +228,9 @@ export class EventModule {
             EventModule.clearEventData(eventID);
             //let eventsGirlz=[];
             let eventList = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsList")):{};
-            let eventsGirlz = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz")):[];
-            let eventChamps = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls")):[];
-            let Priority=(getStoredValue(HHStoredVarPrefixKey+"Setting_eventTrollOrder")).split(";");
+            let eventsGirlz: EventGirl[] = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz")):[];
+            let eventChamps: EventGirl[] = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls")):[];
+            let Priority: string[] =(getStoredValue(HHStoredVarPrefixKey+"Setting_eventTrollOrder") || '').split(";");
             const hhEventData = unsafeWindow.event_data;
             if ((hhEvent.isPlusEvent || hhEvent.isPlusEventMythic) && !hhEventData) {
                 logHHAuto("Error getting current event Data from HH.");
@@ -245,63 +254,18 @@ export class EventModule {
                 let allEventGirlz = hhEventData ? hhEventData.girls : [];
                 for (let currIndex = 0;currIndex<allEventGirlz.length;currIndex++)
                 {
-                    let girlData = allEventGirlz[currIndex];
+                    let girlData:KKEventGirl = allEventGirlz[currIndex];
                     if (girlData.shards < 100) {
                         eventList[eventID]["isCompleted"] = false;
-                        let girlId = girlData.id_girl;
-                        let girlName = girlData.name;
-                        let girlShards = girlData.shards;
-                        let TrollID;
-                        let ChampID;
+                        const eventGirl = new EventGirl(girlData, eventID, eventList[eventID]["seconds_before_end"]);
 
-                        if (girlData.source) {
-                            if (girlData.source.name === 'event_troll') {
-                                try {
-                                    let parsedURL = new URL(girlData.source.anchor_source.url,window.location.origin);
-                                    TrollID = queryStringGetParam(parsedURL.search,'id_opponent');
-                                    if (girlData.source.anchor_source.disabled) {
-                                        logHHAuto("Troll " + TrollID + " is not available for girl " +  girlName + " (" + girlId + ") ignoring");
-                                        TrollID = undefined;
-                                    }
-                                } catch (error) {
-                                    try {
-                                        let parsedURL = new URL(girlData.source.anchor_win_from[0].url ,window.location.origin);
-                                        TrollID = queryStringGetParam(parsedURL.search,'id_opponent');
-                                        if (girlData.source.anchor_win_from.disabled) {
-                                            logHHAuto("Troll " + TrollID + " is not available for girl " +  girlName + " (" + girlId + ") ignoring");
-                                            TrollID = undefined;
-                                        }
-                                    } catch (error) {
-                                        logHHAuto("Can't get troll from girls " +  girlName + " (" + girlId + ")");
-                                    }
-                                }
-                            } else if (girlData.source.name === 'event_champion_girl') {
-                                try {
-                                    ChampID = girlData.source.anchor_source.url.split('/champions/')[1];
-                                    if (girlData.source.anchor_source.disabled) {
-                                        logHHAuto("Champion " + ChampID + " is not available for girl " +  girlName + " (" + girlId + ") ignoring");
-                                        ChampID = undefined;
-                                    }
-                                } catch (error) {
-                                    try {
-                                        ChampID = girlData.source.anchor_win_from[0].url.split('/champions/')[1];
-                                        if (girlData.source.anchor_win_from.disabled) {
-                                            logHHAuto("Champion " + ChampID + " is not available for girl " +  girlName + " (" + girlId + ") ignoring");
-                                            ChampID = undefined;
-                                        }
-                                    } catch (error) {
-                                        logHHAuto("Can't get champion from girls " +  girlName + " (" + girlId + ")");
-                                    }
-                                }
-                            }
+                        if (eventGirl.isOnTroll()) {
+                            logHHAuto(`Event girl : ${eventGirl.toString()} with priority : ${Priority.indexOf(''+eventGirl.troll_id)}`, eventGirl);
+                            eventsGirlz.push(eventGirl);
                         }
-                        if (TrollID) {
-                            logHHAuto("Event girl : "+girlName+" ("+girlShards+"/100) at troll "+TrollID+" priority : "+Priority.indexOf(TrollID)+" on event : ",eventID);
-                            eventsGirlz.push({girl_id:girlId,troll_id:TrollID,girl_shards:girlShards,is_mythic:"false",girl_name:girlName,event_id:eventID});
-                        }
-                        if (ChampID) {
-                            logHHAuto("Event girl : "+girlName+" ("+girlShards+"/100) at champ "+ChampID+" on event : ",eventID);
-                            eventChamps.push({girl_id:girlId,champ_id:ChampID,girl_shards:girlShards,girl_name:girlName,event_id:eventID});
+                        if (eventGirl.isOnChampion()) {
+                            logHHAuto(`Event girl : ${eventGirl.toString()}`, eventGirl);
+                            eventChamps.push(eventGirl);
                         }
                     }
                 }
@@ -327,7 +291,7 @@ export class EventModule {
                 let allEventGirlz = hhEventData ? hhEventData.girls : [];
                 for (let currIndex = 0;currIndex<allEventGirlz.length;currIndex++)
                 {
-                    let girlData = allEventGirlz[currIndex];
+                    let girlData:KKEventGirl = allEventGirlz[currIndex];
                     let ShardsQuery = '#events .nc-panel .nc-panel-body .nc-event-reward-container .nc-events-prize-locations-container .shards-info span.number';
                     let timerQuery= '#events .nc-panel .nc-panel-body .nc-event-reward-container .nc-events-prize-locations-container .shards-info span.timer'
                     if ($(ShardsQuery).length > 0 )
@@ -345,18 +309,13 @@ export class EventModule {
                             {
                                 setTimer('eventMythicNextWave',nextWave);
                             }
+                            const eventGirl = new EventGirl(girlData, eventID, eventList[eventID]["seconds_before_end"], true);
                             if (remShards !== 0 )
                             {
-                                let girlId = girlData.id_girl;
-                                let girlName = girlData.name;
-                                let girlShards = girlData.shards;
-                                let parsedURL = new URL(girlData.source.anchor_source.url,window.location.origin);
-                                let TrollID = queryStringGetParam(parsedURL.search,'id_opponent');
-                                if (girlData.source.anchor_source.disabled) {
-                                    logHHAuto("Troll " + TrollID + " is not available for mythic girl " +  girlName + " (" + girlId + ") ignoring");
-                                } else {
-                                    logHHAuto("Event girl : "+girlName+" ("+girlShards+"/100) at troll "+TrollID+" priority : "+Priority.indexOf(TrollID)+" on event : ",eventID);
-                                    eventsGirlz.push({girl_id:girlId,troll_id:TrollID,girl_shards:girlShards,is_mythic:"true",girl_name:girlName,event_id:eventID});
+
+                                if (eventGirl.isOnTroll()) {
+                                    logHHAuto(`Event girl : ${eventGirl.toString()} with priority : ${Priority.indexOf(''+eventGirl.troll_id)}`, eventGirl);
+                                    eventsGirlz.push(eventGirl);
                                 }
                             }
                             else
@@ -506,8 +465,8 @@ export class EventModule {
                 sessionStorage.removeItem(HHStoredVarPrefixKey+"Temp_eventsList");
             }
             eventsGirlz = eventsGirlz.filter(function (a) {
-                var a_weighted = Number(Priority.indexOf(a.troll_id));
-                if ( a.is_mythic === "true" )
+                var a_weighted = Number(Priority.indexOf(''+a.troll_id));
+                if ( a.is_mythic )
                 {
                     return true;
                 }
@@ -525,13 +484,13 @@ export class EventModule {
                     {
                         eventsGirlz.sort(function (a, b) {
 
-                            var a_weighted = Number(Priority.indexOf(a.troll_id));
-                            if ( a.is_mythic === "true" )
+                            var a_weighted = Number(Priority.indexOf(''+a.troll_id));
+                            if ( a.is_mythic )
                             {
                                 a_weighted=a_weighted-Priority.length;
                             }
-                            var b_weighted = Number(Priority.indexOf(b.troll_id));
-                            if ( b.is_mythic === "true" )
+                            var b_weighted = Number(Priority.indexOf(''+b.troll_id));
+                            if ( b.is_mythic )
                             {
                                 b_weighted=b_weighted-Priority.length;
                             }
@@ -542,9 +501,7 @@ export class EventModule {
                     }
 
                     setStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz", JSON.stringify(eventsGirlz));
-                    var chosenTroll = Number(eventsGirlz[0].troll_id)
-                    logHHAuto("ET: "+chosenTroll);
-                    setStoredValue(HHStoredVarPrefixKey+"Temp_eventGirl", JSON.stringify(eventsGirlz[0]));
+                    EventModule.saveEventGirl(eventsGirlz[0]);
                 }
                 if (eventChamps.length>0)
                 {
@@ -573,6 +530,25 @@ export class EventModule {
             }
             return true;
         }
+    }
+
+    static saveEventGirl(eventGirlz: EventGirl){
+        var chosenTroll = Number(eventGirlz.troll_id)
+        logHHAuto("ET: " + chosenTroll);
+        if (!eventGirlz.is_mythic) {
+            setStoredValue(HHStoredVarPrefixKey + "Temp_eventGirl", JSON.stringify(eventGirlz));
+        } else {
+            // setStoredValue(HHStoredVarPrefixKey + "Temp_eventGirl", JSON.stringify(eventGirlz)); // TODO remove when migration is done
+            setStoredValue(HHStoredVarPrefixKey + "Temp_eventMythicGirl", JSON.stringify(eventGirlz));
+        }
+    }
+
+    static getEventGirl(): EventGirl{
+        return isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_eventGirl")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_eventGirl")) : {}
+    }
+
+    static getEventMythicGirl(): EventGirl{
+        return isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_eventMythicGirl")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_eventMythicGirl")) : {}
     }
 
     static getEventType(inEventID:string){
@@ -652,12 +628,12 @@ export class EventModule {
         }
     }
 
-    static displayPrioInDailyMissionGirl(baseQuery){
+    static displayPrioInDailyMissionGirl(baseQuery:string){
         let allEventGirlz = unsafeWindow.event_data ? unsafeWindow.event_data.girls : [];
         if(!allEventGirlz) return;
         for (let currIndex = 0;currIndex<allEventGirlz.length;currIndex++)
         {
-            let girlData = allEventGirlz[currIndex];
+            let girlData:KKEventGirl = allEventGirlz[currIndex];
             if (girlData.shards < 100 && girlData.source && girlData.source.name === 'event_dm') {
 
                 let query=baseQuery+"[data-select-girl-id="+girlData.id_girl+"]";
@@ -675,11 +651,11 @@ export class EventModule {
     static moduleDisplayEventPriority()
     {
         if ($('.HHEventPriority').length  > 0) {return}
-        const baseQuery="#events .scroll-area .nc-event-list-reward-container .nc-event-list-reward";
+        const baseQuery:string = "#events .scroll-area .nc-event-list-reward-container .nc-event-list-reward";
         EventModule.displayPrioInDailyMissionGirl(baseQuery);
 
-        let eventGirlz=isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz")):{};
-        let eventChamps = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls")):[];
+        let eventGirlz:EventGirl[]=isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz")):[];
+        let eventChamps:EventGirl[] = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_autoChampsEventGirls")):[];
         //$("div.event-widget div.widget[style='display: block;'] div.container div.scroll-area div.rewards-block-tape div.girl_reward div.HHEventPriority").each(function(){this.remove();});
         if ( eventGirlz.length >0 || eventChamps.length >0)
         {

@@ -59,7 +59,7 @@ export function isFocused()
     //isFoc = docFoc || iFrameFoc;
     return docFoc;
 }
-export function isJSON(str)
+export function isJSON(str: any)
 {
     if (str === undefined || str === null || /^\s*$/.test(str) ) return false;
     str = str.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@');

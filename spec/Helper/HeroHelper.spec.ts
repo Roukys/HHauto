@@ -1,6 +1,7 @@
 import { HeroHelper, getHero } from "../../src/Helper/HeroHelper";
 import { Booster } from "../../src/Module/Booster";
 import { HHStoredVarPrefixKey } from "../../src/config/HHStoredVars";
+import { MockHelper } from "../testHelpers/MockHelpers";
 
 describe("HeroHelper", function() {
 
@@ -97,6 +98,7 @@ describe("HeroHelper", function() {
 
   describe("equipBooster", function() {
     beforeEach(() => {
+      MockHelper.mockDomain();
         unsafeWindow.hh_ajax = jest.fn();
         sessionStorage.setItem(HHStoredVarPrefixKey+"Temp_haveBooster", '{}');
     });
@@ -137,6 +139,11 @@ describe("HeroHelper", function() {
       });
       HeroHelper.equipBooster(Booster.SANDALWOOD_PERFUME).then(data => {
         expect(data).toBeTruthy();
+        expect(unsafeWindow.hh_ajax).toHaveBeenCalledWith({
+          action: "market_equip_booster",
+          id_item: 632,
+          type: "booster"
+        })
       });
     });
 

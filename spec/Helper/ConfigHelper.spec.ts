@@ -74,5 +74,14 @@ describe("ConfigHelper", function() {
         expect(ConfigHelper.getHHScriptVars('isEnabledLabyrinth')).toBeFalsy();
         expect(ConfigHelper.getHHScriptVars('isEnabledSideQuest')).toBeFalsy();
     });
+
+    it("Sandalwood booster", function() {
+        MockHelper.mockDomain('www.hentaiheroes.com');
+        expect(ConfigHelper.getHHScriptVars('boosterId_MB1')).toBe(632);
+        MockHelper.mockDomain('www.comixharem.com');
+        expect(ConfigHelper.getHHScriptVars('boosterId_MB1')).toBe(2619);
+        MockHelper.mockDomain('www.pornstarharem.com');
+        expect(ConfigHelper.getHHScriptVars('boosterId_MB1')).toBe(2619);
+    });
   });
 });
