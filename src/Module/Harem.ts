@@ -4,13 +4,11 @@ import {
     getHHVars,
     getStoredValue,
     getTextForUI,
-    randomInterval,
     setStoredValue
 } from '../Helper/index';
 import { gotoPage } from '../Service/index';
 import { fillHHPopUp, isJSON, logHHAuto, maskHHPopUp } from '../Utils/index';
-import { HHAuto_inputPattern, HHStoredVarPrefixKey } from '../config/index';
-import { HaremGirl } from "./harem/HaremGirl";
+import { HHStoredVarPrefixKey } from '../config/index';
 
 
 export class Harem {
@@ -282,7 +280,7 @@ export class Harem {
     static moduleHaremExportGirlsData()
     {
         const menuID = "ExportGirlsData";
-        let ExportGirlsData = `<div style="position: absolute;left: 36%;top: 20px;width:60px;z-index:10" class="tooltipHH" id="${menuID}"><span class="tooltipHHtext">${getTextForUI("ExportGirlsData","tooltip")}</span><label style="font-size:small" class="myButton" id="ExportGirlsDataButton">${getTextForUI("ExportGirlsData","elementText")}</label></div>`;
+        let ExportGirlsData = `<div style="position: absolute;left: 36%;top: 20px;width:24px;z-index:10" class="tooltipHH" id="${menuID}"><span class="tooltipHHtext">${getTextForUI("ExportGirlsData","tooltip")}</span><label style="font-size:small" class="myButton" id="ExportGirlsDataButton">${getTextForUI("ExportGirlsData","elementText")}</label></div>`;
         if (document.getElementById(menuID) === null)
         {
             $("#contains_all section").prepend(ExportGirlsData);
