@@ -260,6 +260,7 @@ export class Champion {
     static getChampionListFromMap(): ChampionModel[] {
         const Filter = (getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsFilter")||'').split(';').map(s=>Number(s));
         const championMap: ChampionModel[] = [];
+        // const autoChampsForceStart = getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampsForceStart") === "true";
         const autoChampsForceStartEventGirl = getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampsForceStartEventGirl") === "true";
         const autoChampsEventGirls = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_autoChampsEventGirls")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_autoChampsEventGirls")) : [];
         const championWithEventGirl = autoChampsEventGirls.map(a => Number(a.champ_id));
@@ -270,10 +271,13 @@ export class Champion {
             if (timerElm !== undefined && timerElm !== null && timerElm.length > 0) {
                 champion.timer = Number(convertTimeToInt(timerElm));
             }
+            champion.hasEventGirls = championWithEventGirl.includes(i + 1);
             if (autoChampsForceStartEventGirl && championWithEventGirl.includes(i+1) && champion.timer < 0) {
                 champion.timer = 0;
-                champion.hasEventGirls = true;
             }
+            // if (autoChampsForceStart && champion.timer < 0) {
+            //     champion.timer = 0;
+            // }
             championMap.push(champion);
         });
         return championMap;
@@ -430,7 +434,7 @@ export class Champion {
                     }else if (currTime > 0) {
                         if (currTime > minTimeEnded) {minTimeEnded = currTime;}
                         if (currTime > minTime && currTime < 1800) {minTime = currTime;} // less than 30min
-                    } else if (!championMap[i].started && autoChampsForceStart && championMap[i].hasEventGirls) {
+                    } else if (!championMap[i].started && autoChampsForceStart) {
                         minTime = 0;
                         minTimeEnded = -1; // end loop so value is not accurate
                         break;

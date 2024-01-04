@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.2.5
+// @version      7.2.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -88,6 +88,9 @@ GM_addStyle('#HHPoaRewards { position: absolute; left: 15rem; bottom: 0; padding
 // copy CSS from HH OCD, to make it work on other game than HH
 GM_addStyle('#pov_tab_container .potions-paths-first-row .potions-paths-title-panel { transform: scale(0.5);  position: relative; top: -37px; }');
 GM_addStyle('img.eventCompleted { width: 10px; margin-left:2px }');
+// Remove blur on pose preview
+GM_addStyle('#popups #girl_preview_popup .preview-locked_icn { display: none; }');
+GM_addStyle('#popups #girl_preview_popup #poses-tab_container .pose-preview_wrapper.locked img { filter: none !important; }');
 //END CSS Region
 
 
@@ -3655,6 +3658,7 @@ class Champion {
     static getChampionListFromMap() {
         const Filter = (getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampsFilter") || '').split(';').map(s => Number(s));
         const championMap = [];
+        // const autoChampsForceStart = getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampsForceStart") === "true";
         const autoChampsForceStartEventGirl = getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampsForceStartEventGirl") === "true";
         const autoChampsEventGirls = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_autoChampsEventGirls")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_autoChampsEventGirls")) : [];
         const championWithEventGirl = autoChampsEventGirls.map(a => Number(a.champ_id));
@@ -3664,10 +3668,13 @@ class Champion {
             if (timerElm !== undefined && timerElm !== null && timerElm.length > 0) {
                 champion.timer = Number(convertTimeToInt(timerElm));
             }
+            champion.hasEventGirls = championWithEventGirl.includes(i + 1);
             if (autoChampsForceStartEventGirl && championWithEventGirl.includes(i + 1) && champion.timer < 0) {
                 champion.timer = 0;
-                champion.hasEventGirls = true;
             }
+            // if (autoChampsForceStart && champion.timer < 0) {
+            //     champion.timer = 0;
+            // }
             championMap.push(champion);
         });
         return championMap;
@@ -3781,7 +3788,7 @@ class Champion {
             if (championMap == undefined) {
                 championMap = Champion.getChampionListFromMap();
             }
-            // if (debugEnabled) LogUtils_logHHAuto('championMap: ', championMap);
+            // if (debugEnabled) logHHAuto('championMap: ', championMap);
             for (let i = 0; i < championMap.length; i++) {
                 if (championMap[i].inFilter) {
                     currTime = championMap[i].timer;
@@ -3798,7 +3805,7 @@ class Champion {
                             minTime = currTime;
                         } // less than 30min
                     }
-                    else if (!championMap[i].started && autoChampsForceStart && championMap[i].hasEventGirls) {
+                    else if (!championMap[i].started && autoChampsForceStart) {
                         minTime = 0;
                         minTimeEnded = -1; // end loop so value is not accurate
                         break;
@@ -4438,7 +4445,7 @@ class Harem {
     }
     static moduleHaremExportGirlsData() {
         const menuID = "ExportGirlsData";
-        let ExportGirlsData = `<div style="position: absolute;left: 36%;top: 20px;width:60px;z-index:10" class="tooltipHH" id="${menuID}"><span class="tooltipHHtext">${getTextForUI("ExportGirlsData", "tooltip")}</span><label style="font-size:small" class="myButton" id="ExportGirlsDataButton">${getTextForUI("ExportGirlsData", "elementText")}</label></div>`;
+        let ExportGirlsData = `<div style="position: absolute;left: 36%;top: 20px;width:24px;z-index:10" class="tooltipHH" id="${menuID}"><span class="tooltipHHtext">${getTextForUI("ExportGirlsData", "tooltip")}</span><label style="font-size:small" class="myButton" id="ExportGirlsDataButton">${getTextForUI("ExportGirlsData", "elementText")}</label></div>`;
         if (document.getElementById(menuID) === null) {
             $("#contains_all section").prepend(ExportGirlsData);
             $("#ExportGirlsDataButton").on("click", saveHHGirlsAsCSV);

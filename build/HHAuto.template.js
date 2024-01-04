@@ -88,5 +88,8 @@ GM_addStyle('#HHPoaRewards { position: absolute; left: 15rem; bottom: 0; padding
 // copy CSS from HH OCD, to make it work on other game than HH
 GM_addStyle('#pov_tab_container .potions-paths-first-row .potions-paths-title-panel { transform: scale(0.5);  position: relative; top: -37px; }');
 GM_addStyle('img.eventCompleted { width: 10px; margin-left:2px }');
+// Remove blur on pose preview
+GM_addStyle('#popups #girl_preview_popup .preview-locked_icn { display: none; }');
+GM_addStyle('#popups #girl_preview_popup #poses-tab_container .pose-preview_wrapper.locked img { filter: none !important; }');
 //END CSS Region
 
