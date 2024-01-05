@@ -491,7 +491,8 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
                                           'Jordan Kingsley',
                                           'EMPTY',
                                           'Sierra Sinn',
-                                          'Jasmine Jae'];
+                                          'Jasmine Jae',
+                                          'Bella Rose'];
     HHEnvVariables[element].trollIdMapping =  {10:9,14:11,16:12}; // under 10 id as usual
     HHEnvVariables[element].lastQuestId = 16100; //  TODO update when new quest comes
     HHEnvVariables[element].boosterId_MB1 = 2619;
@@ -510,6 +511,7 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
         [[0], [0], [0]],
         [['169741198', '459885596', '507702178'], [0], [0]],
         [['258984943', '837109131', '888135956'], [0], [0]],
+        [['270920965', '600910475', '799448349'], [0], [0]],
     ];
 });
 
