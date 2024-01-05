@@ -427,6 +427,36 @@ HHEnvVariables["global"].isEnabledSultryMysteriesEvent = true;
 HHEnvVariables["global"].isEnabledDailyGoals = true;
 HHEnvVariables["HH_test"].isEnabledDailyRewards = false;// to remove if daily rewards arrives in test
 HHEnvVariables["HH_test"].isEnabledFreeBundles = false;// to remove if bundles arrives in test
+["GH_prod","NGH_prod","EGH_prod"].forEach((element) => {
+    HHEnvVariables[element].trollzList = ['Latest', 
+                                          'Dark Lord',
+                                          'Ninja Spy',
+                                          'Gruntt',
+                                          'Edward',
+                                          'Donatien',
+                                          'Silvanus',
+                                          'Bremen',
+                                          'Edernas',
+                                          'Fredy Sih Roko Senseï',
+                                          'Maro',
+                                          'Jackson&#8217;s Crew',
+                                          'Icarus Warlock',
+                                          'Sol'];
+    switch (getLanguageCode()) {
+        case "fr":
+            HHEnvVariables[element].trollzList[2] = 'Espion Ninja';
+            HHEnvVariables[element].trollzList[11] = 'Éq. de Jackson';
+            HHEnvVariables[element].trollzList[12] = 'Sorcier Icarus';
+            break;
+        case "de":
+            HHEnvVariables[element].trollzList[1] = 'Dunkler Lor';
+            HHEnvVariables[element].trollzList[2] = 'Ninjaspion';
+            HHEnvVariables[element].trollzList[11] = 'Jacksons Crew';
+            break;
+        default:
+            break;
+    }
+});
 ["CH_prod","NCH_prod"].forEach((element) => {
     HHEnvVariables[element].trollzList = ['Latest',
                                           'BodyHack',
@@ -493,7 +523,7 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
                                           'Sierra Sinn',
                                           'Jasmine Jae',
                                           'Bella Rose'];
-    HHEnvVariables[element].trollIdMapping =  {10:9,14:11,16:12}; // under 10 id as usual
+    HHEnvVariables[element].trollIdMapping = { 10: 9, 14: 11, 16: 12, 18: 13 }; // under 10 id as usual
     HHEnvVariables[element].lastQuestId = 16100; //  TODO update when new quest comes
     HHEnvVariables[element].boosterId_MB1 = 2619;
 });
