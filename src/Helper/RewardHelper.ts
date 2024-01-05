@@ -342,7 +342,8 @@ export class RewardHelper {
             EventModule.saveEventGirl(eventMythicGirl);
             if (renewEvent !== ""
                 //|| Number(getStoredValue(HHStoredVarPrefixKey+"Temp_EventFightsBeforeRefresh")) < 1
-                || EventModule.checkEvent(eventGirl.event_id)
+                || eventGirl?.girl_id && EventModule.checkEvent(eventGirl.event_id)
+                || eventMythicGirl?.girl_id && EventModule.checkEvent(eventMythicGirl.event_id)
             )
             {
                 clearTimeout(inCaseTimer);
@@ -351,8 +352,11 @@ export class RewardHelper {
                 {
                     EventModule.parseEventPage(renewEvent);
                 }
-                else
+                else if (eventMythicGirl?.girl_id && EventModule.checkEvent(eventMythicGirl.event_id))
                 {
+                    EventModule.parseEventPage(eventMythicGirl.event_id);
+                }
+                else if (eventGirl?.girl_id && EventModule.checkEvent(eventGirl.event_id)) {
                     EventModule.parseEventPage(eventGirl.event_id);
                 }
                 return;

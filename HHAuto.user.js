@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.2.12
+// @version      7.2.14
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -14219,13 +14219,17 @@ class RewardHelper {
             EventModule.saveEventGirl(eventMythicGirl);
             if (renewEvent !== ""
                 //|| Number(getStoredValue(HHStoredVarPrefixKey+"Temp_EventFightsBeforeRefresh")) < 1
-                || EventModule.checkEvent(eventGirl.event_id)) {
+                || (eventGirl === null || eventGirl === void 0 ? void 0 : eventGirl.girl_id) && EventModule.checkEvent(eventGirl.event_id)
+                || (eventMythicGirl === null || eventMythicGirl === void 0 ? void 0 : eventMythicGirl.girl_id) && EventModule.checkEvent(eventMythicGirl.event_id)) {
                 clearTimeout(inCaseTimer);
                 LogUtils_logHHAuto(`Need to check back event page: '${renewEvent}' or '${(_a = eventGirl === null || eventGirl === void 0 ? void 0 : eventGirl.event_id) !== null && _a !== void 0 ? _a : ''}' `);
                 if (renewEvent !== "") {
                     EventModule.parseEventPage(renewEvent);
                 }
-                else {
+                else if ((eventMythicGirl === null || eventMythicGirl === void 0 ? void 0 : eventMythicGirl.girl_id) && EventModule.checkEvent(eventMythicGirl.event_id)) {
+                    EventModule.parseEventPage(eventMythicGirl.event_id);
+                }
+                else if ((eventGirl === null || eventGirl === void 0 ? void 0 : eventGirl.girl_id) && EventModule.checkEvent(eventGirl.event_id)) {
                     EventModule.parseEventPage(eventGirl.event_id);
                 }
                 return;
