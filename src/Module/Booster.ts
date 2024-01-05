@@ -205,44 +205,46 @@ export class Booster {
     }
 
     static collectBoostersFromMarket() {
-        setTimeout(function() {
-            const activeSlots = $('#equiped .booster .slot:not(.empty):not(.mythic)').map((i, el)=> $(el).data('d')).toArray()
-            const activeMythicSlots = $('#equiped .booster .slot:not(.empty).mythic').map((i, el)=> $(el).data('d')).toArray()
+        const activeSlots = $('#equiped .booster .slot:not(.empty):not(.mythic)').map((i, el)=> $(el).data('d')).toArray()
+        const activeMythicSlots = $('#equiped .booster .slot:not(.empty).mythic').map((i, el)=> $(el).data('d')).toArray()
 
-            const boosterStatus = {
-                normal: activeSlots.map((data) => ({...data, endAt: getHHVars('server_now_ts') + data.expiration})),
-                mythic: activeMythicSlots,
+        const boosterStatus = {
+            normal: activeSlots.map((data) => ({...data, endAt: getHHVars('server_now_ts') + data.expiration})),
+            mythic: activeMythicSlots,
+        }
+
+        setStoredValue(HHStoredVarPrefixKey+'Temp_boosterStatus', JSON.stringify(boosterStatus));
+    }
+
+    static needSandalWoodEquipped(nextTrollChoosen: number): boolean {
+        const eventGirl: EventGirl = EventModule.getEventMythicGirl();
+        const activated = getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythicSandalWood") === "true";
+        const correctTrollTargetted = eventGirl.is_mythic && eventGirl.troll_id == nextTrollChoosen;
+        if (activated && correctTrollTargetted && !Booster.haveBoosterEquiped(Booster.SANDALWOOD_PERFUME.identifier)) {
+            const remainingShards = Number(100 - Number(eventGirl.shards));
+            if (remainingShards > 10) {
+                return true;
+            } else {
+                logHHAuto("Less than 10 shards, do not equip Sandalwood to avoid loss");
             }
-
-            setStoredValue(HHStoredVarPrefixKey+'Temp_boosterStatus', JSON.stringify(boosterStatus));
-        }, 200)
+        }
+        return false;
     }
 
     static async equipeSandalWoodIfNeeded(nextTrollChoosen:number):Promise<boolean>{
         try {
-            const eventGirl: EventGirl = EventModule.getEventMythicGirl();
-            if(getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") === "true" && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythicSandalWood") === "true" 
-                && eventGirl.is_mythic && eventGirl.troll_id == nextTrollChoosen) {
-                if(!Booster.haveBoosterEquiped(Booster.SANDALWOOD_PERFUME.identifier)) {
-                    const remainingShards = Number(100 - Number(eventGirl.shards));
-                    if(remainingShards > 10) {
-                        // Equip a new one
-                        const equiped:boolean = await HeroHelper.equipBooster(Booster.SANDALWOOD_PERFUME);
-                        if(!equiped) {
-                            const numberFailure = HeroHelper.getSandalWoodEquipFailure();
-                            if(numberFailure >= 3) {
-                                logHHAuto("Failure when equip Sandalwood for mythic for the third time, deactivated auto sandalwood");
-                                setStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythicSandalWood", 'false');
+            if(Booster.needSandalWoodEquipped(nextTrollChoosen)) {
+                // Equip a new one
+                const equiped: boolean = await HeroHelper.equipBooster(Booster.SANDALWOOD_PERFUME);
+                if (!equiped) {
+                    const numberFailure = HeroHelper.getSandalWoodEquipFailure();
+                    if (numberFailure >= 3) {
+                        logHHAuto("Failure when equip Sandalwood for mythic for the third time, deactivated auto sandalwood");
+                        setStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythicSandalWood", 'false');
 
-                                // TODO For debug to be removed
-                                // setStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic", 'false');
-                            } else logHHAuto("Failure when equip Sandalwood for mythic");
-                        }
-                        return equiped;
-                    } else {
-                        logHHAuto("Less than 10 shards, do not equip Sandalwood to avoid loss");
-                    }
+                    } else logHHAuto("Failure when equip Sandalwood for mythic");
                 }
+                return equiped;
             }
         } catch (error) {
             return Promise.resolve(false);

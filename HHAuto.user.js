@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.2.9
+// @version      7.2.10
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1339,44 +1339,45 @@ class Booster {
         }
     }
     static collectBoostersFromMarket() {
-        setTimeout(function () {
-            const activeSlots = $('#equiped .booster .slot:not(.empty):not(.mythic)').map((i, el) => $(el).data('d')).toArray();
-            const activeMythicSlots = $('#equiped .booster .slot:not(.empty).mythic').map((i, el) => $(el).data('d')).toArray();
-            const boosterStatus = {
-                normal: activeSlots.map((data) => (Object.assign(Object.assign({}, data), { endAt: getHHVars('server_now_ts') + data.expiration }))),
-                mythic: activeMythicSlots,
-            };
-            setStoredValue(HHStoredVarPrefixKey + 'Temp_boosterStatus', JSON.stringify(boosterStatus));
-        }, 200);
+        const activeSlots = $('#equiped .booster .slot:not(.empty):not(.mythic)').map((i, el) => $(el).data('d')).toArray();
+        const activeMythicSlots = $('#equiped .booster .slot:not(.empty).mythic').map((i, el) => $(el).data('d')).toArray();
+        const boosterStatus = {
+            normal: activeSlots.map((data) => (Object.assign(Object.assign({}, data), { endAt: getHHVars('server_now_ts') + data.expiration }))),
+            mythic: activeMythicSlots,
+        };
+        setStoredValue(HHStoredVarPrefixKey + 'Temp_boosterStatus', JSON.stringify(boosterStatus));
+    }
+    static needSandalWoodEquipped(nextTrollChoosen) {
+        const eventGirl = EventModule.getEventMythicGirl();
+        const activated = getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythicSandalWood") === "true";
+        const correctTrollTargetted = eventGirl.is_mythic && eventGirl.troll_id == nextTrollChoosen;
+        if (activated && correctTrollTargetted && !Booster.haveBoosterEquiped(Booster.SANDALWOOD_PERFUME.identifier)) {
+            const remainingShards = Number(100 - Number(eventGirl.shards));
+            if (remainingShards > 10) {
+                return true;
+            }
+            else {
+                LogUtils_logHHAuto("Less than 10 shards, do not equip Sandalwood to avoid loss");
+            }
+        }
+        return false;
     }
     static equipeSandalWoodIfNeeded(nextTrollChoosen) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const eventGirl = EventModule.getEventMythicGirl();
-                if (getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythicSandalWood") === "true"
-                    && eventGirl.is_mythic && eventGirl.troll_id == nextTrollChoosen) {
-                    if (!Booster.haveBoosterEquiped(Booster.SANDALWOOD_PERFUME.identifier)) {
-                        const remainingShards = Number(100 - Number(eventGirl.shards));
-                        if (remainingShards > 10) {
-                            // Equip a new one
-                            const equiped = yield HeroHelper.equipBooster(Booster.SANDALWOOD_PERFUME);
-                            if (!equiped) {
-                                const numberFailure = HeroHelper.getSandalWoodEquipFailure();
-                                if (numberFailure >= 3) {
-                                    LogUtils_logHHAuto("Failure when equip Sandalwood for mythic for the third time, deactivated auto sandalwood");
-                                    setStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythicSandalWood", 'false');
-                                    // TODO For debug to be removed
-                                    // setStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic", 'false');
-                                }
-                                else
-                                    LogUtils_logHHAuto("Failure when equip Sandalwood for mythic");
-                            }
-                            return equiped;
+                if (Booster.needSandalWoodEquipped(nextTrollChoosen)) {
+                    // Equip a new one
+                    const equiped = yield HeroHelper.equipBooster(Booster.SANDALWOOD_PERFUME);
+                    if (!equiped) {
+                        const numberFailure = HeroHelper.getSandalWoodEquipFailure();
+                        if (numberFailure >= 3) {
+                            LogUtils_logHHAuto("Failure when equip Sandalwood for mythic for the third time, deactivated auto sandalwood");
+                            setStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythicSandalWood", 'false');
                         }
-                        else {
-                            LogUtils_logHHAuto("Less than 10 shards, do not equip Sandalwood to avoid loss");
-                        }
+                        else
+                            LogUtils_logHHAuto("Failure when equip Sandalwood for mythic");
                     }
+                    return equiped;
                 }
             }
             catch (error) {
@@ -5015,7 +5016,7 @@ class Troll {
         }
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && !checkTimer("eventMythicGoing") && eventMythicGirl.girl_id && eventMythicGirl.is_mythic) {
             LogUtils_logHHAuto("Mythic Event troll fight");
-            TTF = Troll.getTrollIdFromEvent(eventGirl);
+            TTF = Troll.getTrollIdFromEvent(eventMythicGirl);
         }
         else if (getStoredValue(HHStoredVarPrefixKey + "Setting_plusEvent") === "true" && !checkTimer("eventGoing") && eventGirl.girl_id && !eventGirl.is_mythic) {
             LogUtils_logHHAuto("Event troll fight");
@@ -5089,15 +5090,28 @@ class Troll {
             }
             const TTF = Troll.getTrollIdToFight();
             const trollz = ConfigHelper.getHHScriptVars("trollzList");
-            const equipped = yield Booster.equipeSandalWoodIfNeeded(TTF);
-            if (equipped) {
-                LogUtils_logHHAuto("New booster equipped before fight.");
+            const currentPage = getPage();
+            if (Booster.needSandalWoodEquipped(TTF)) {
+                if (currentPage !== ConfigHelper.getHHScriptVars("pagesIDShop")) {
+                    LogUtils_logHHAuto('Go to Shop page to update booster status');
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDShop"));
+                    return true;
+                }
+                else {
+                    LogUtils_logHHAuto('Updating booster status');
+                    Booster.collectBoostersFromMarket();
+                    const equipped = yield Booster.equipeSandalWoodIfNeeded(TTF);
+                    if (equipped) {
+                        LogUtils_logHHAuto('Updating booster status after new booster equipped before fight');
+                        Booster.collectBoostersFromMarket();
+                    }
+                }
             }
             LogUtils_logHHAuto(`Fighting troll N°${TTF}, ${trollz[Number(TTF)]}`);
             // Battles the latest boss.
             // Navigate to latest boss.
             //console.log(getPage());
-            if (getPage() === ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle") && window.location.search == "?id_opponent=" + TTF) {
+            if (currentPage === ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle") && window.location.search == "?id_opponent=" + TTF) {
                 // On the battle screen.
                 Troll.CrushThemFights();
                 return true;
@@ -5147,7 +5161,7 @@ class Troll {
                 if (eventMythicGirl.girl_id && TTF === eventMythicGirl.troll_id && eventMythicGirl.is_mythic && getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true") {
                     eventTrollGirl = eventMythicGirl;
                     if (rewardGirlz.length === 0 || !trollGirlRewards.includes('"id_girl":' + eventMythicGirl.girl_id)) {
-                        LogUtils_logHHAuto("Seems " + eventMythicGirl.name + " is no more available at troll " + trollz[Number(TTF)] + ". Going to event page.");
+                        LogUtils_logHHAuto(`Seems ${eventMythicGirl.name} is no more available at troll ${trollz[Number(TTF)]}. Going to event page.`);
                         EventModule.parseEventPage(eventMythicGirl.event_id);
                         return true;
                     }
@@ -5155,7 +5169,7 @@ class Troll {
                 if (eventGirl.girl_id && TTF === eventGirl.troll_id && !eventGirl.is_mythic && getStoredValue(HHStoredVarPrefixKey + "Setting_plusEvent") === "true") {
                     eventTrollGirl = eventGirl;
                     if (rewardGirlz.length === 0 || !trollGirlRewards.includes('"id_girl":' + eventGirl.girl_id)) {
-                        LogUtils_logHHAuto("Seems " + eventGirl.name + " is no more available at troll " + trollz[Number(TTF)] + ". Going to event page.");
+                        LogUtils_logHHAuto(`Seems ${eventGirl.name} is no more available at troll ${trollz[Number(TTF)]}. Going to event page.`);
                         EventModule.parseEventPage(eventGirl.event_id);
                         return true;
                     }
@@ -10773,7 +10787,10 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_paranoia"] =
         getMenu: true,
         setMenu: true,
         menuType: "checked",
-        kobanUsing: false
+        kobanUsing: false,
+        newValueFunction: function () {
+            clearTimer('paranoiaSwitch');
+        }
     };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_paranoiaSettings"] =
     {
@@ -15053,7 +15070,7 @@ function autoLoop() {
                 }
                 if (Booster.needBoosterStatusFromStore()) {
                     Booster.collectBoostersFromMarket = callItOnce(Booster.collectBoostersFromMarket);
-                    Booster.collectBoostersFromMarket();
+                    setTimeout(Booster.collectBoostersFromMarket, 200);
                 }
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDHome"):

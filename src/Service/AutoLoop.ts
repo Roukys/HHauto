@@ -1010,7 +1010,7 @@ export async function autoLoop()
             }
             if(Booster.needBoosterStatusFromStore()) {
                 Booster.collectBoostersFromMarket = callItOnce(Booster.collectBoostersFromMarket);
-                Booster.collectBoostersFromMarket();
+                setTimeout(Booster.collectBoostersFromMarket,200);
             }
             break;
         case ConfigHelper.getHHScriptVars("pagesIDHome"):
