@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.2.10
+// @version      7.2.11
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1351,7 +1351,8 @@ class Booster {
         const eventGirl = EventModule.getEventMythicGirl();
         const activated = getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythicSandalWood") === "true";
         const correctTrollTargetted = eventGirl.is_mythic && eventGirl.troll_id == nextTrollChoosen;
-        if (activated && correctTrollTargetted && !Booster.haveBoosterEquiped(Booster.SANDALWOOD_PERFUME.identifier)) {
+        const ownedSandalwood = HeroHelper.haveBoosterInInventory(Booster.SANDALWOOD_PERFUME.identifier);
+        if (activated && correctTrollTargetted && !Booster.haveBoosterEquiped(Booster.SANDALWOOD_PERFUME.identifier) && ownedSandalwood) {
             const remainingShards = Number(100 - Number(eventGirl.shards));
             if (remainingShards > 10) {
                 return true;
@@ -5290,7 +5291,7 @@ class Troll {
                 else {
                     // We need more power.
                     const battle_price = 1; // TODO what is the expected value here ?
-                    LogUtils_logHHAuto(`Battle requires ${battle_price} power.`);
+                    LogUtils_logHHAuto(`Battle requires ${battle_price} power, having ${currentPower}.`);
                     setStoredValue(HHStoredVarPrefixKey + "Temp_battlePowerRequired", battle_price);
                     if (getStoredValue(HHStoredVarPrefixKey + "Temp_questRequirement") === "battle") {
                         setStoredValue(HHStoredVarPrefixKey + "Temp_questRequirement", "P" + battle_price);
