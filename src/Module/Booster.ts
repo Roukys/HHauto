@@ -220,7 +220,8 @@ export class Booster {
         const eventGirl: EventGirl = EventModule.getEventMythicGirl();
         const activated = getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythicSandalWood") === "true";
         const correctTrollTargetted = eventGirl.is_mythic && eventGirl.troll_id == nextTrollChoosen;
-        if (activated && correctTrollTargetted && !Booster.haveBoosterEquiped(Booster.SANDALWOOD_PERFUME.identifier)) {
+        const ownedSandalwood = HeroHelper.haveBoosterInInventory(Booster.SANDALWOOD_PERFUME.identifier);
+        if (activated && correctTrollTargetted && !Booster.haveBoosterEquiped(Booster.SANDALWOOD_PERFUME.identifier) && ownedSandalwood) {
             const remainingShards = Number(100 - Number(eventGirl.shards));
             if (remainingShards > 10) {
                 return true;

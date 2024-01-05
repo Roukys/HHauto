@@ -267,7 +267,7 @@ export class Troll {
             let battleButtonX50Price = Number(battleButtonX50.attr('price'));
             // let Hero=getHero();
             let hcConfirmValue = getHHVars('Hero.infos.hc_confirm');
-            let remainingShards;
+            let remainingShards: number;
             let previousPower = getStoredValue(HHStoredVarPrefixKey+"Temp_trollPoints") !== undefined ? getStoredValue(HHStoredVarPrefixKey+"Temp_trollPoints") : 0;
             let currentPower = Troll.getEnergy();
 
@@ -462,7 +462,7 @@ export class Troll {
                 {
                     // We need more power.
                     const battle_price = 1; // TODO what is the expected value here ?
-                    logHHAuto(`Battle requires ${battle_price} power.`);
+                    logHHAuto(`Battle requires ${battle_price} power, having ${currentPower}.`);
                     setStoredValue(HHStoredVarPrefixKey+"Temp_battlePowerRequired", battle_price);
                     if(getStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement") === "battle")
                     {
