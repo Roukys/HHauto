@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.2.8
+// @version      7.2.9
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -5013,7 +5013,7 @@ class Troll {
             LogUtils_logHHAuto('eventGirl', eventGirl);
             LogUtils_logHHAuto('eventMythicGirl', eventMythicGirl);
         }
-        if (getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && !checkTimer("eventMythicGoing") && eventMythicGirl.girl_id && eventGirl.is_mythic) {
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && !checkTimer("eventMythicGoing") && eventMythicGirl.girl_id && eventMythicGirl.is_mythic) {
             LogUtils_logHHAuto("Mythic Event troll fight");
             TTF = Troll.getTrollIdFromEvent(eventGirl);
         }
@@ -5093,8 +5093,7 @@ class Troll {
             if (equipped) {
                 LogUtils_logHHAuto("New booster equipped before fight.");
             }
-            LogUtils_logHHAuto("Fighting troll N " + TTF);
-            LogUtils_logHHAuto("Going to crush: " + trollz[Number(TTF)]);
+            LogUtils_logHHAuto(`Fighting troll N°${TTF}, ${trollz[Number(TTF)]}`);
             // Battles the latest boss.
             // Navigate to latest boss.
             //console.log(getPage());
@@ -5277,7 +5276,7 @@ class Troll {
                 else {
                     // We need more power.
                     const battle_price = 1; // TODO what is the expected value here ?
-                    LogUtils_logHHAuto("Battle requires " + battle_price + " power.");
+                    LogUtils_logHHAuto(`Battle requires ${battle_price} power.`);
                     setStoredValue(HHStoredVarPrefixKey + "Temp_battlePowerRequired", battle_price);
                     if (getStoredValue(HHStoredVarPrefixKey + "Temp_questRequirement") === "battle") {
                         setStoredValue(HHStoredVarPrefixKey + "Temp_questRequirement", "P" + battle_price);

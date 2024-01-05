@@ -126,7 +126,7 @@ export class Troll {
             logHHAuto('eventGirl', eventGirl);
             logHHAuto('eventMythicGirl', eventMythicGirl);
         }
-        if (getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && !checkTimer("eventMythicGoing") && eventMythicGirl.girl_id && eventGirl.is_mythic)
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && !checkTimer("eventMythicGoing") && eventMythicGirl.girl_id && eventMythicGirl.is_mythic)
         {
             logHHAuto("Mythic Event troll fight");
             TTF=Troll.getTrollIdFromEvent(eventGirl);
@@ -215,8 +215,7 @@ export class Troll {
             logHHAuto("New booster equipped before fight.");
         }
 
-        logHHAuto("Fighting troll N "+TTF);
-        logHHAuto("Going to crush: "+trollz[Number(TTF)]);
+        logHHAuto(`Fighting troll N°${TTF}, ${trollz[Number(TTF)]}`);
 
         // Battles the latest boss.
         // Navigate to latest boss.
@@ -450,7 +449,7 @@ export class Troll {
                 {
                     // We need more power.
                     const battle_price = 1; // TODO what is the expected value here ?
-                    logHHAuto("Battle requires "+battle_price+" power.");
+                    logHHAuto(`Battle requires ${battle_price} power.`);
                     setStoredValue(HHStoredVarPrefixKey+"Temp_battlePowerRequired", battle_price);
                     if(getStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement") === "battle")
                     {
