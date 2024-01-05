@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.2.7
+// @version      7.2.8
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -9670,7 +9670,8 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
         'Jordan Kingsley',
         'EMPTY',
         'Sierra Sinn',
-        'Jasmine Jae'];
+        'Jasmine Jae',
+        'Bella Rose'];
     HHEnvVariables[element].trollIdMapping = { 10: 9, 14: 11, 16: 12 }; // under 10 id as usual
     HHEnvVariables[element].lastQuestId = 16100; //  TODO update when new quest comes
     HHEnvVariables[element].boosterId_MB1 = 2619;
@@ -9689,6 +9690,7 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
         [[0], [0], [0]],
         [['169741198', '459885596', '507702178'], [0], [0]],
         [['258984943', '837109131', '888135956'], [0], [0]],
+        [['270920965', '600910475', '799448349'], [0], [0]],
     ];
 });
 ["TPH_prod", "NTPH_prod"].forEach((element) => {
@@ -9742,7 +9744,7 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
 
 const HHStoredVars_HHStoredVars = {};
 //Settings Vars
-const HHStoredVarPrefixKey = "HHAuto_"; // default 
+const HHStoredVarPrefixKey = "HHAuto_"; // default HHAuto_
 //Do not move, has to be first one
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_settPerTab"] =
     {
