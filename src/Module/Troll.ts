@@ -129,7 +129,7 @@ export class Troll {
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && !checkTimer("eventMythicGoing") && eventMythicGirl.girl_id && eventMythicGirl.is_mythic)
         {
             logHHAuto("Mythic Event troll fight");
-            TTF=Troll.getTrollIdFromEvent(eventGirl);
+            TTF = Troll.getTrollIdFromEvent(eventMythicGirl);
         }
         else if (getStoredValue(HHStoredVarPrefixKey + "Setting_plusEvent") === "true" && !checkTimer("eventGoing") && eventGirl.girl_id && !eventGirl.is_mythic) {
             logHHAuto("Event troll fight");
@@ -209,10 +209,23 @@ export class Troll {
 
         const TTF = Troll.getTrollIdToFight();
         const trollz = ConfigHelper.getHHScriptVars("trollzList");
+        const currentPage = getPage();
 
-        const equipped = await Booster.equipeSandalWoodIfNeeded(TTF);
-        if(equipped) {
-            logHHAuto("New booster equipped before fight.");
+        if (Booster.needSandalWoodEquipped(TTF))
+        {
+            if (currentPage !== ConfigHelper.getHHScriptVars("pagesIDShop")) {
+                logHHAuto('Go to Shop page to update booster status');
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDShop"));
+                return true;
+            } else {
+                logHHAuto('Updating booster status');
+                Booster.collectBoostersFromMarket();
+                const equipped = await Booster.equipeSandalWoodIfNeeded(TTF);
+                if(equipped) {
+                    logHHAuto('Updating booster status after new booster equipped before fight');
+                    Booster.collectBoostersFromMarket();
+                }
+            }
         }
 
         logHHAuto(`Fighting troll N°${TTF}, ${trollz[Number(TTF)]}`);
@@ -220,7 +233,7 @@ export class Troll {
         // Battles the latest boss.
         // Navigate to latest boss.
         //console.log(getPage());
-        if(getPage()===ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle") && window.location.search=="?id_opponent=" + TTF)
+        if(currentPage===ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle") && window.location.search=="?id_opponent=" + TTF)
         {
             // On the battle screen.
             Troll.CrushThemFights();
@@ -279,7 +292,7 @@ export class Troll {
                     eventTrollGirl = eventMythicGirl;
                     if (rewardGirlz.length === 0 || !trollGirlRewards.includes('"id_girl":' + eventMythicGirl.girl_id))
                     {
-                        logHHAuto("Seems " + eventMythicGirl.name+" is no more available at troll "+trollz[Number(TTF)]+". Going to event page.");
+                        logHHAuto(`Seems ${eventMythicGirl.name} is no more available at troll ${trollz[Number(TTF)]}. Going to event page.`);
                         EventModule.parseEventPage(eventMythicGirl.event_id);
                         return true;
                     }
@@ -288,7 +301,7 @@ export class Troll {
                 {
                     eventTrollGirl = eventGirl;
                     if (rewardGirlz.length === 0 || !trollGirlRewards.includes('"id_girl":' + eventGirl.girl_id)) {
-                        logHHAuto("Seems " + eventGirl.name + " is no more available at troll " + trollz[Number(TTF)] + ". Going to event page.");
+                        logHHAuto(`Seems ${eventGirl.name} is no more available at troll ${trollz[Number(TTF)]}. Going to event page.`);
                         EventModule.parseEventPage(eventGirl.event_id);
                         return true;
                     }

@@ -1055,7 +1055,10 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_paranoia"] =
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false
+    kobanUsing: false,
+    newValueFunction: function () {
+        clearTimer('paranoiaSwitch');
+    }
 };
 HHStoredVars[HHStoredVarPrefixKey+"Setting_paranoiaSettings"] =
     {
