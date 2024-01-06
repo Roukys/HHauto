@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.2.15
+// @version      7.2.16
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4085,8 +4085,8 @@ class ClubChampion {
         var page = getPage();
         if (page == ConfigHelper.getHHScriptVars("pagesIDClub")) {
             let SecsToNextTimer = -1;
-            let restTeamFilter = 'div.club_champions_details_container div.team_rest_timer span[rel="expires"]';
-            let restChampionFilter = 'div.club_champions_details_container div.champion_rest_timer span[rel="expires"]';
+            let restTeamFilter = 'div.club_champions_details_container div.team_rest_timer span[rel="timer"]';
+            let restChampionFilter = 'div.club_champions_details_container div.champion_rest_timer span[rel="timer"]';
             if ($(restTeamFilter).length > 0) {
                 SecsToNextTimer = Number(convertTimeToInt($(restTeamFilter).text()));
                 LogUtils_logHHAuto("Team is resting for : " + TimeHelper.toHHMMSS(SecsToNextTimer));
@@ -13575,7 +13575,7 @@ function convertTimeToInt(remainingTimer) {
     let newTimer = 0;
     if (remainingTimer && remainingTimer.length > 0) {
         try {
-            let splittedTime = remainingTimer.split(' ');
+            let splittedTime = remainingTimer.trim().split(' ');
             for (let i = 0; i < splittedTime.length; i++) {
                 let timerSymbol = splittedTime[i].match(/[^0-9]+/)[0];
                 switch (timerSymbol) {
@@ -13596,8 +13596,8 @@ function convertTimeToInt(remainingTimer) {
                 }
             }
         }
-        catch (error) {
-            LogUtils_logHHAuto('ERROR occured, reset to 15min', error);
+        catch ({ errName, message }) {
+            LogUtils_logHHAuto(`ERROR: occured, reset to 15min: ${errName}, ${message}`);
             newTimer = randomInterval(15 * 60, 17 * 60);
         }
     }

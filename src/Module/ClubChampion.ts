@@ -24,9 +24,9 @@ export class ClubChampion {
         if (page==ConfigHelper.getHHScriptVars("pagesIDClub"))
         {
             let SecsToNextTimer = -1;
-            let restTeamFilter = 'div.club_champions_details_container div.team_rest_timer span[rel="expires"]';
-            let restChampionFilter = 'div.club_champions_details_container div.champion_rest_timer span[rel="expires"]';
-    
+            let restTeamFilter = 'div.club_champions_details_container div.team_rest_timer span[rel="timer"]';
+            let restChampionFilter = 'div.club_champions_details_container div.champion_rest_timer span[rel="timer"]';
+
             if ($(restTeamFilter).length > 0)
             {
                 SecsToNextTimer = Number(convertTimeToInt($(restTeamFilter).text()));
@@ -55,7 +55,7 @@ export class ClubChampion {
             let secsToNextTimer = ClubChampion.getNextClubChampionTimer();
             let noTimer = (secsToNextTimer === -1);
             let nextClubChampionTime: number;
-    
+
             if (secsToNextTimer === -1)
             {
                 nextClubChampionTime = randomInterval(15*60, 17*60);

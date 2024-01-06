@@ -135,7 +135,7 @@ export function convertTimeToInt(remainingTimer: string): number {
     let newTimer = 0;
     if (remainingTimer && remainingTimer.length > 0) {
         try{
-            let splittedTime = remainingTimer.split(' ');
+            let splittedTime = remainingTimer.trim().split(' ');
             for (let i = 0; i < splittedTime.length; i++) {
                 let timerSymbol = splittedTime[i].match(/[^0-9]+/)[0];
                 switch (timerSymbol) {
@@ -155,8 +155,8 @@ export function convertTimeToInt(remainingTimer: string): number {
                         logHHAuto('Timer symbol not recognized: ' + timerSymbol);
                 }
             }
-        } catch (error) {
-            logHHAuto('ERROR occured, reset to 15min', error);
+        } catch ({ errName, message }) {
+            logHHAuto(`ERROR: occured, reset to 15min: ${errName}, ${message}`);
             newTimer = randomInterval(15 * 60, 17 * 60);
         }
     } else {
