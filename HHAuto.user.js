@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.2.14
+// @version      7.2.15
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4085,14 +4085,14 @@ class ClubChampion {
         var page = getPage();
         if (page == ConfigHelper.getHHScriptVars("pagesIDClub")) {
             let SecsToNextTimer = -1;
-            let restTeamFilter = "div.club_champions_details_container div.team_rest_timer[data-rest-timer]";
-            let restChampionFilter = "div.club_champions_details_container div.champion_rest_timer[data-rest-timer]";
+            let restTeamFilter = 'div.club_champions_details_container div.team_rest_timer span[rel="expires"]';
+            let restChampionFilter = 'div.club_champions_details_container div.champion_rest_timer span[rel="expires"]';
             if ($(restTeamFilter).length > 0) {
-                SecsToNextTimer = Number($(restTeamFilter).attr("data-rest-timer"));
+                SecsToNextTimer = Number(convertTimeToInt($(restTeamFilter).text()));
                 LogUtils_logHHAuto("Team is resting for : " + TimeHelper.toHHMMSS(SecsToNextTimer));
             }
             else if ($(restChampionFilter).length > 0) {
-                SecsToNextTimer = Number($(restChampionFilter).attr("data-rest-timer"));
+                SecsToNextTimer = Number(convertTimeToInt($(restChampionFilter).text()));
                 LogUtils_logHHAuto("Champion is resting for : " + TimeHelper.toHHMMSS(SecsToNextTimer));
             }
             else {
@@ -4124,6 +4124,7 @@ class ClubChampion {
         }
         return true;
     }
+    /** From club champion page */
     static getRemainingRestTime() {
         let remainingRestTime = 0;
         let timerElm = $('.champions-bottom__rest .timer span[rel=expires]').text();
@@ -4131,6 +4132,9 @@ class ClubChampion {
             remainingRestTime = Number(convertTimeToInt(timerElm));
         }
         return remainingRestTime;
+    }
+    static hasGirlReward() {
+        return $('#club_champions .club_champions_rewards_container .slot.slot_girl_shards').length > 0;
     }
     static resetTimerIfNeeded() {
         if ($('button[rel=perform].blue_button_L').length > 0 && $('.champions-bottom__rest').length == 0
@@ -4176,7 +4180,7 @@ class ClubChampion {
                 else {
                     if (TCount != 0) {
                         LogUtils_logHHAuto("Using ticket");
-                        $('button[rel=perform].blue_button_L').click();
+                        $('button[rel=perform].blue_button_L').trigger('click');
                         ClubChampion._setTimer(randomInterval(15 * 60, 17 * 60));
                     }
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDClub"));
@@ -4190,7 +4194,7 @@ class ClubChampion {
             const onChampTab = $("div.club-champion-members-challenges:visible").length === 1;
             if (!onChampTab) {
                 LogUtils_logHHAuto('Click champions tab');
-                $("#club_champions_tab").click();
+                $("#club_champions_tab").trigger('click');
             }
             let Started = $("div.club-champion-members-challenges .player-row").length === 1;
             let secsToNextTimer = ClubChampion.getNextClubChampionTimer();
@@ -14162,7 +14166,7 @@ class RewardHelper {
     static ObserveAndGetGirlRewards() {
         let inCaseTimer = setTimeout(function () { gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome")); }, 60000); //in case of issue
         function parseReward() {
-            var _a;
+            var _a, _b;
             let eventsGirlz = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsGirlz")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsGirlz")) : [];
             let eventGirl = EventModule.getEventGirl();
             let eventMythicGirl = EventModule.getEventMythicGirl();
@@ -14215,14 +14219,16 @@ class RewardHelper {
                 }
             }
             setStoredValue(HHStoredVarPrefixKey + "Temp_eventsGirlz", JSON.stringify(eventsGirlz));
-            EventModule.saveEventGirl(eventGirl);
-            EventModule.saveEventGirl(eventMythicGirl);
+            if (eventGirl === null || eventGirl === void 0 ? void 0 : eventGirl.girl_id)
+                EventModule.saveEventGirl(eventGirl);
+            if (eventMythicGirl === null || eventMythicGirl === void 0 ? void 0 : eventMythicGirl.girl_id)
+                EventModule.saveEventGirl(eventMythicGirl);
             if (renewEvent !== ""
                 //|| Number(getStoredValue(HHStoredVarPrefixKey+"Temp_EventFightsBeforeRefresh")) < 1
                 || (eventGirl === null || eventGirl === void 0 ? void 0 : eventGirl.girl_id) && EventModule.checkEvent(eventGirl.event_id)
                 || (eventMythicGirl === null || eventMythicGirl === void 0 ? void 0 : eventMythicGirl.girl_id) && EventModule.checkEvent(eventMythicGirl.event_id)) {
                 clearTimeout(inCaseTimer);
-                LogUtils_logHHAuto(`Need to check back event page: '${renewEvent}' or '${(_a = eventGirl === null || eventGirl === void 0 ? void 0 : eventGirl.event_id) !== null && _a !== void 0 ? _a : ''}' `);
+                LogUtils_logHHAuto(`Need to check back event page: '${renewEvent}' or '${(_a = eventGirl === null || eventGirl === void 0 ? void 0 : eventGirl.event_id) !== null && _a !== void 0 ? _a : ''}' or '${(_b = eventMythicGirl === null || eventMythicGirl === void 0 ? void 0 : eventMythicGirl.event_id) !== null && _b !== void 0 ? _b : ''}' `);
                 if (renewEvent !== "") {
                     EventModule.parseEventPage(renewEvent);
                 }

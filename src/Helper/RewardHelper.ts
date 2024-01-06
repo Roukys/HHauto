@@ -338,8 +338,8 @@ export class RewardHelper {
                 }
             }
             setStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz", JSON.stringify(eventsGirlz));
-            EventModule.saveEventGirl(eventGirl);
-            EventModule.saveEventGirl(eventMythicGirl);
+            if (eventGirl?.girl_id) EventModule.saveEventGirl(eventGirl);
+            if (eventMythicGirl?.girl_id) EventModule.saveEventGirl(eventMythicGirl);
             if (renewEvent !== ""
                 //|| Number(getStoredValue(HHStoredVarPrefixKey+"Temp_EventFightsBeforeRefresh")) < 1
                 || eventGirl?.girl_id && EventModule.checkEvent(eventGirl.event_id)
@@ -347,7 +347,7 @@ export class RewardHelper {
             )
             {
                 clearTimeout(inCaseTimer);
-                logHHAuto(`Need to check back event page: '${renewEvent}' or '${eventGirl?.event_id ?? ''}' `);
+                logHHAuto(`Need to check back event page: '${renewEvent}' or '${eventGirl?.event_id ?? ''}' or '${eventMythicGirl?.event_id ?? ''}' `);
                 if (renewEvent !== "")
                 {
                     EventModule.parseEventPage(renewEvent);
