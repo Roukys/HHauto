@@ -20,8 +20,8 @@ export class MockHelper{
         });
     }
 
-    static mockPage(pageName: string) {
-        document.body.innerHTML = `<!DOCTYPE html><div id="hh_hentai" page="${pageName}"><p>Hello world</p></div>`;
+    static mockPage(pageName: string, body:string = '') {
+        document.body.innerHTML = `<!DOCTYPE html><div id="hh_hentai" page="${pageName}"><p>Hello world</p>${body}</div>`;
     }
 
     static mockHeroLevel(heroLevel: number) {
