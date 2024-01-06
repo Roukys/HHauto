@@ -24,17 +24,17 @@ export class ClubChampion {
         if (page==ConfigHelper.getHHScriptVars("pagesIDClub"))
         {
             let SecsToNextTimer = -1;
-            let restTeamFilter = "div.club_champions_details_container div.team_rest_timer[data-rest-timer]";
-            let restChampionFilter = "div.club_champions_details_container div.champion_rest_timer[data-rest-timer]";
+            let restTeamFilter = 'div.club_champions_details_container div.team_rest_timer span[rel="expires"]';
+            let restChampionFilter = 'div.club_champions_details_container div.champion_rest_timer span[rel="expires"]';
     
             if ($(restTeamFilter).length > 0)
             {
-                SecsToNextTimer = Number($(restTeamFilter).attr("data-rest-timer"));
+                SecsToNextTimer = Number(convertTimeToInt($(restTeamFilter).text()));
                 logHHAuto("Team is resting for : "+TimeHelper.toHHMMSS(SecsToNextTimer));
             }
             else if ($(restChampionFilter).length > 0)
             {
-                SecsToNextTimer = Number($(restChampionFilter).attr("data-rest-timer"));
+                SecsToNextTimer = Number(convertTimeToInt($(restChampionFilter).text()));
                 logHHAuto("Champion is resting for : "+TimeHelper.toHHMMSS(SecsToNextTimer));
             }
             else {
@@ -54,7 +54,7 @@ export class ClubChampion {
             logHHAuto('on clubs');
             let secsToNextTimer = ClubChampion.getNextClubChampionTimer();
             let noTimer = (secsToNextTimer === -1);
-            let nextClubChampionTime;
+            let nextClubChampionTime: number;
     
             if (secsToNextTimer === -1)
             {
@@ -74,7 +74,8 @@ export class ClubChampion {
         return true;
     }
 
-    static getRemainingRestTime(){
+    /** From club champion page */
+    static getRemainingRestTime(): number{
         let remainingRestTime = 0;
         
         let timerElm = $('.champions-bottom__rest .timer span[rel=expires]').text();
@@ -82,6 +83,10 @@ export class ClubChampion {
             remainingRestTime = Number(convertTimeToInt(timerElm));
         }
         return remainingRestTime;
+    }
+
+    static hasGirlReward(): boolean{
+        return $('#club_champions .club_champions_rewards_container .slot.slot_girl_shards').length > 0
     }
 
     static resetTimerIfNeeded(){
@@ -95,7 +100,7 @@ export class ClubChampion {
         }
     }
 
-    static doClubChampionStuff()
+    static doClubChampionStuff(): boolean
     {
         var page=getPage();
         if (page==ConfigHelper.getHHScriptVars("pagesIDClubChampion"))
@@ -135,7 +140,7 @@ export class ClubChampion {
                     if (TCount!=0)
                     {
                         logHHAuto("Using ticket");
-                        $('button[rel=perform].blue_button_L').click();
+                        $('button[rel=perform].blue_button_L').trigger('click');
                         ClubChampion._setTimer(randomInterval(15*60, 17*60));
                     }
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDClub"));
@@ -150,7 +155,7 @@ export class ClubChampion {
             const onChampTab = $("div.club-champion-members-challenges:visible").length === 1;
             if (!onChampTab) {
                 logHHAuto('Click champions tab');
-                $("#club_champions_tab").click();
+                $("#club_champions_tab").trigger('click');
             }
     
             let Started = $("div.club-champion-members-challenges .player-row").length === 1;
