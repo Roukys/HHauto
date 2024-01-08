@@ -17,6 +17,9 @@ import { isJSON, logHHAuto } from "../../Utils/index";
 import { HHStoredVarPrefixKey } from "../../config/index";
 
 export class SeasonalEvent {
+    static SEASONAL_REWARD_PATH = '.mega-tier.unclaimed';
+    static SEASONAL_REWARD_MEGA_PATH = '.mega-tier-container:has(.free-slot button.mega-claim-reward)';
+
     static isMegaSeasonalEvent() {
         return $('#get_mega_pass_kobans_btn').length > 0
     }
@@ -38,20 +41,20 @@ export class SeasonalEvent {
         logHHAuto('Not implemented');
     }
     static getSeasonalNotClaimedRewards(){
-        const arrayz = $('.mega-tier.unclaimed');
+        const arrayz = $(SeasonalEvent.SEASONAL_REWARD_PATH);
         const freeSlotSelectors = ".slot";
         const paidSlotSelectors = ""; // Not available
 
         return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
     }
     static getMegaSeasonalNotClaimedRewards(){
-        const arrayz = $('.mega-tier-container:has(.free-slot button.mega-claim-reward)');
+        const arrayz = $(SeasonalEvent.SEASONAL_REWARD_MEGA_PATH);
         const freeSlotSelectors = ".free-slot .slot";
         const paidSlotSelectors = SeasonalEvent.isMegaPassPaid() ? ".paid-unclaimed .slot" : "";
 
         return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
     }
-    static goAndCollect()
+    static goAndCollect(manualCollectAll = false)
     {
         const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollectablesList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollectablesList")):[];
 
@@ -71,10 +74,11 @@ export class SeasonalEvent {
             const megaSeasonalFreeSlotQuery = ".free-slot .slot";
             const megaSeasonalPaidSlotQuery = ".pass-slot.paid-unclaimed .slot";
 
-            if (needToCollect || needToCollectAllBeforeEnd)
+            if (needToCollect || needToCollectAllBeforeEnd || manualCollectAll)
             {
                 if (needToCollect) logHHAuto("Checking SeasonalEvent for collectable rewards.");
                 if (needToCollectAllBeforeEnd) logHHAuto("Going to collect all SeasonalEvent rewards.");
+                if (manualCollectAll) logHHAuto("Going to collect all SeasonalEvent rewards after collect all button usage.");
                 logHHAuto("setting autoloop to false");
                 setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                 let buttonsToCollect:HTMLElement[] = [];
@@ -90,13 +94,13 @@ export class SeasonalEvent {
                     const currentTierNb = currentButton.getAttribute("tier");
                     //console.log("checking tier : "+currentTierNb);
                     const freeSlotType = RewardHelper.getRewardTypeBySlot($(freeSlotQuery,listSeasonalEventTiersToClaim[currentTier])[0]);
-                    if (rewardsToCollect.includes(freeSlotType) || needToCollectAllBeforeEnd)
+                    if (rewardsToCollect.includes(freeSlotType) || needToCollectAllBeforeEnd || manualCollectAll)
                     {
                         
                         if (isPassPaid) {
                             // One button for both
                             const paidSlotType = RewardHelper.getRewardTypeBySlot($(paidSlotQuery, listSeasonalEventTiersToClaim[currentTier])[0]);
-                            if (rewardsToCollect.includes(paidSlotType) || needToCollectAllBeforeEnd)
+                            if (rewardsToCollect.includes(paidSlotType) || needToCollectAllBeforeEnd || manualCollectAll)
                             {
                                 buttonsToCollect.push(currentButton);
                                 logHHAuto("Adding for collection tier (free + paid) : "+currentTierNb);
@@ -112,6 +116,12 @@ export class SeasonalEvent {
 
                 if (buttonsToCollect.length >0)
                 {
+
+                    function closeRewardAndCollectagain(){
+                        RewardHelper.closeRewardPopupIfAny(false);
+                        setTimeout(collectSeasonalEventRewards, randomInterval(300, 500));
+                    }
+
                     function collectSeasonalEventRewards()
                     {
                         if (buttonsToCollect.length >0)
@@ -119,13 +129,15 @@ export class SeasonalEvent {
                             logHHAuto("Collecting tier : "+buttonsToCollect[0].getAttribute('tier'));
                             buttonsToCollect[0].click();
                             buttonsToCollect.shift();
-                            setTimeout(collectSeasonalEventRewards, randomInterval(300, 500));
+                            setTimeout(closeRewardAndCollectagain, randomInterval(300, 500));
                         }
                         else
                         {
                             logHHAuto("SeasonalEvent collection finished.");
                             setTimer('nextSeasonalEventCollectTime',ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
-                            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                            if (!manualCollectAll) {
+                                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                            }
                         }
                     }
                     collectSeasonalEventRewards();
@@ -161,6 +173,15 @@ export class SeasonalEvent {
         {
             SeasonalEvent.maskReward();
         }
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_showRewardsRecap") === "true")
+        {
+            SeasonalEvent.displayRewardsSeasonalDiv();
+            // SeasonalEvent.displayGirlsMileStones(); // TODO fixme
+            SeasonalEvent.displatCollectAllButton()
+        }
+    }
+    static hasUnclaimedRewards(): boolean{
+        return $(SeasonalEvent.SEASONAL_REWARD_MEGA_PATH + ', ' + SeasonalEvent.SEASONAL_REWARD_PATH).length > 0
     }
     static maskReward(){
 
@@ -203,6 +224,17 @@ export class SeasonalEvent {
                     (divToModify as any).getNiceScroll(0).doScrollLeft(0, 200);
                 } catch(err) {}
             }
+        }
+    }
+    static displatCollectAllButton(){
+        if (SeasonalEvent.hasUnclaimedRewards() && $('#SeasonalCollectAll').length == 0) {
+            const button = $(`<button class="purple_button_L" id="SeasonalCollectAll">${getTextForUI("collectAllButton", "elementText")}</button>`);
+            const divTooltip = $(`<div class="tooltipHH" style="position: absolute;top: 260px;width: 110px;font-size: small;"><span class="tooltipHHtext">${getTextForUI("collectAllButton", "tooltip")}</span></div>`);
+            divTooltip.append(button);
+            $('#home_tab_container .bottom-container').append(divTooltip);
+            button.one('click', () => {
+                SeasonalEvent.goAndCollect(true);
+            });
         }
     }
     static displayGirlsMileStones() {

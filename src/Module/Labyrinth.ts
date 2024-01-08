@@ -26,6 +26,9 @@ export class Labyrinth {
     static isEnabled(){
         return ConfigHelper.getHHScriptVars("isEnabledLabyrinth",false); // more than 14 girls
     }
+    static isEnded(){
+        return $('.cleared-labyrinth-container').length > 0;
+    }
 
     static run(){
         const page = getPage();
@@ -69,11 +72,15 @@ export class Labyrinth {
         }
     }
 
-    static getCurrentFloorNumber() {
-        let floor = Number($('#labyrinth-tabs .tab-switcher-fade-in .floor-number-text').text());
-        if (isNaN(floor) || floor === 0) {
-            logHHAuto("Error getting floor");
-            floor = 0;
+    static getCurrentFloorNumber(): number {
+        const floorDom = $('#labyrinth-tabs .tab-switcher-fade-in .floor-number-text');
+        let floor = 0;
+        if (floorDom.length > 0) {
+            floor = Number($('#labyrinth-tabs .tab-switcher-fade-in .floor-number-text').text());
+            if (isNaN(floor) || floor === 0) {
+                logHHAuto("Error getting floor");
+                floor = 0;
+            }
         }
         return floor;
     }
@@ -81,7 +88,7 @@ export class Labyrinth {
     static sim(){
         if(getPage() === ConfigHelper.getHHScriptVars("pagesIDLabyrinth"))
         {
-            if($('.labChosen').length>0) {
+            if ($('.labChosen').length > 0 || Labyrinth.isEnded()) {
                 return;
             }
             logHHAuto("On Labyrinth page.");

@@ -265,7 +265,7 @@ export class RewardHelper {
         if ($(rewardQuery).length >0 )
         {
             if(logging) logHHAuto("Close reward popup.");
-            $(rewardQuery).click();
+            $(rewardQuery).trigger('click');
             return true;
         }
         return false;

@@ -89,7 +89,7 @@ export class ClubChampion {
         return $('#club_champions .club_champions_rewards_container .slot.slot_girl_shards').length > 0
     }
 
-    static resetTimerIfNeeded(){
+    static resetTimerIfNeeded(): void{
         if ($('button[rel=perform].blue_button_L').length>0 && $('.champions-bottom__rest').length == 0
             && getStoredValue(HHStoredVarPrefixKey+"Setting_autoClubChamp") === "true") {
             const champTimeLeft = getSecondsLeft('nextClubChampionTime');
@@ -204,7 +204,7 @@ export class ClubChampion {
      * @param {number} nextClubChampionTime 
      * @private
      */
-    static _setTimer(nextClubChampionTime){
+    static _setTimer(nextClubChampionTime: number): void {
         if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoChamps") ==="true" && getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampAlignTimer") === "true") {
             const champTimeLeft = getSecondsLeft('nextChampionTime');
             if(nextClubChampionTime > 10 && champTimeLeft < 1200 && nextClubChampionTime < 1200) { // align settings

@@ -469,10 +469,10 @@ export class Champion {
      * @param {number} nextChampionTime 
      * @private
      */
-    static _setTimer(nextChampionTime){
+    static _setTimer(nextChampionTime: number): void {
         if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoClubChamp") === "true" 
             && getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampAlignTimer") === "true" 
-            && getStoredValue(HHStoredVarPrefixKey+"Temp_clubChampLimitReached" !== "true"))
+            && getStoredValue(HHStoredVarPrefixKey+"Temp_clubChampLimitReached") !== "true")
             {
             const champClubTimeLeft = getSecondsLeft('nextClubChampionTime');
             if(nextChampionTime > 10 && champClubTimeLeft < 1200 && nextChampionTime < 1200) { // align settings

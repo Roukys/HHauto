@@ -287,3 +287,4 @@ HHAuto_ToolTips.en['haremGirlGiveGifts'] = {version: "5.30.0", elementText: "Giv
 HHAuto_ToolTips.en['haremGirlGiveMaxGifts'] = {version: "6.2.0", elementText: "Give max Gifts to girl", tooltip: "Use max out button to reach max grade, pay for necessary grades<br> Don't pay the last one"};
 HHAuto_ToolTips.en['haremGirlUpgradeMax'] = {version: "6.12.0", elementText: "Full upgrade girl", tooltip: "Perform all upgrades for the girl (including last one), give necessary affections"};
 HHAuto_ToolTips.en['collectAllTimer'] = {version: "5.7.0", elementText: "Collect all timer (in hour)", tooltip: "Hour(s) before end of events to collect all rewards (Low time create risk of not collecting), Need activation on each events (POV, POG, season)"};
+HHAuto_ToolTips.en['collectAllButton'] = { version: "7.3.0", elementText: "Collect all", tooltip: "Automatically collect all items"};
