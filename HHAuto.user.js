@@ -1675,6 +1675,24 @@ class PathOfAttraction {
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_PoAMaskRewards") === "true") {
             setTimeout(PathOfAttraction.Hide, 500);
         }
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_showRewardsRecap") === "true") {
+            RewardHelper.displayRewardsPoaDiv();
+        }
+        PathOfAttraction.displatCollectAllButton();
+    }
+    static displatCollectAllButton() {
+        if (PathOfAttraction.hasUnclaimedRewards() && $('#PoaCollectAll').length == 0) {
+            /*
+            // TODO update path when POA is available
+            const button = $(`<button class="purple_button_L" id="PoaCollectAll">${getTextForUI("collectAllButton", "elementText")}</button>`);
+            const divTooltip = $(`<div class="tooltipHH" style="position: absolute;top: 260px;width: 110px;font-size: small;"><span class="tooltipHHtext">${getTextForUI("collectAllButton", "tooltip")}</span></div>`);
+            divTooltip.append(button);
+            $('#home_tab_container .bottom-container').append(divTooltip);
+            button.one('click', () => {
+                PathOfAttraction.goAndCollect(true);
+            });
+            */
+        }
     }
     static _getClaimableRewards(path) {
         const rewards = [];
@@ -1686,6 +1704,9 @@ class PathOfAttraction {
             rewards[currentRewardTierNb] = new PoaReward(Number(currentRewardTierNb), slotType, slotElement);
         }
         return rewards;
+    }
+    static hasUnclaimedRewards() {
+        return $(PathOfAttraction.freeSlotPath + ".claimable" + ', ' + PathOfAttraction.paidSlotPath + ".claimable").length > 0;
     }
     static getFreeClaimableRewards() {
         return PathOfAttraction._getClaimableRewards(PathOfAttraction.freeSlotPath + ".claimable");
@@ -1709,10 +1730,12 @@ class PathOfAttraction {
             return numberClaimedFree >= numberTiers && numberClaimedPaid >= numberTiers;
         }
     }
-    static goAndCollect() {
+    static goAndCollect(manualCollectAll = false) {
         return PathOfAttraction_awaiter(this, void 0, void 0, function* () {
             const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
-            if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollect") === "true" || getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollectAll") === "true") {
+            const needToCollect = getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollect") === "true";
+            const needToCollectAllBeforeEnd = getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollectAll") === "true";
+            if (needToCollect || needToCollectAllBeforeEnd || manualCollectAll) {
                 const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollectablesList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollectablesList")) : [];
                 LogUtils_logHHAuto("Checking Path of Attraction for collectable rewards.");
                 const numberTiers = $(PathOfAttraction.rewardPairTierPath).length;
@@ -1743,13 +1766,13 @@ class PathOfAttraction {
                     yield TimeHelper.sleep(randomInterval(300, 800));
                     for (let currentTier = 1; currentTier <= numberTiers; currentTier++) {
                         if (freeClaimableTiers.includes('' + currentTier)) {
-                            if (rewardsToCollect.includes(freeClaimableRewards[currentTier].type)) {
+                            if (rewardsToCollect.includes(freeClaimableRewards[currentTier].type) || needToCollectAllBeforeEnd || manualCollectAll) {
                                 yield getReward(freeClaimableRewards[currentTier]);
                                 return true;
                             }
                         }
                         if (paidClaimableTiers.includes('' + currentTier)) {
-                            if (rewardsToCollect.includes(paidClaimableRewards[currentTier].type)) {
+                            if (rewardsToCollect.includes(paidClaimableRewards[currentTier].type) || needToCollectAllBeforeEnd || manualCollectAll) {
                                 yield getReward(paidClaimableRewards[currentTier]);
                                 return true;
                             }
@@ -15112,15 +15135,10 @@ function autoLoop() {
                         setTimeout(BossBang.goToFightPage, randomInterval(500, 1500));
                     }
                     if (EventModule.getEvent(eventID).isPoa) {
-                        if (getStoredValue(HHStoredVarPrefixKey + "Setting_PoAMaskRewards") === "true") {
-                            setTimeout(PathOfAttraction.Hide, 500);
-                        }
+                        PathOfAttraction.styles();
                         if (getStoredValue(HHStoredVarPrefixKey + "Setting_showClubButtonInPoa") === "true") {
                             PathOfAttraction.run = callItOnce(PathOfAttraction.run);
                             PathOfAttraction.run();
-                        }
-                        if (getStoredValue(HHStoredVarPrefixKey + "Setting_showRewardsRecap") === "true") {
-                            RewardHelper.displayRewardsPoaDiv();
                         }
                     }
                     if (EventModule.getEvent(eventID).isDPEvent) {
