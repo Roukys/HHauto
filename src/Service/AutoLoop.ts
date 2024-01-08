@@ -959,18 +959,11 @@ export async function autoLoop()
                 
                 if (EventModule.getEvent(eventID).isPoa)
                 {
-                    if (getStoredValue(HHStoredVarPrefixKey+"Setting_PoAMaskRewards") === "true")
-                    {
-                        setTimeout(PathOfAttraction.Hide,500);
-                    }
+                    PathOfAttraction.styles();
                     if (getStoredValue(HHStoredVarPrefixKey+"Setting_showClubButtonInPoa") === "true")
                     {
                         PathOfAttraction.run = callItOnce(PathOfAttraction.run);
                         PathOfAttraction.run();
-                    }
-                    if (getStoredValue(HHStoredVarPrefixKey+"Setting_showRewardsRecap") === "true")
-                    {
-                        RewardHelper.displayRewardsPoaDiv();
                     }
                 }
                 
