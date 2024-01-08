@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.3.0
+// @version      7.3.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4139,7 +4139,7 @@ class ClubChampion {
         if (page == ConfigHelper.getHHScriptVars("pagesIDClub")) {
             let SecsToNextTimer = -1;
             let restTeamFilter = 'div.club_champions_details_container div.team_rest_timer span[rel="timer"]';
-            let restChampionFilter = 'div.club_champions_details_container div.champion_rest_timer span[rel="timer"]';
+            let restChampionFilter = 'div.club_champions_details_container div.champion_rest_timer span[rel="expires"]';
             if ($(restTeamFilter).length > 0) {
                 SecsToNextTimer = Number(convertTimeToInt($(restTeamFilter).text()));
                 LogUtils_logHHAuto("Team is resting for : " + TimeHelper.toHHMMSS(SecsToNextTimer));
@@ -4147,6 +4147,10 @@ class ClubChampion {
             else if ($(restChampionFilter).length > 0) {
                 SecsToNextTimer = Number(convertTimeToInt($(restChampionFilter).text()));
                 LogUtils_logHHAuto("Champion is resting for : " + TimeHelper.toHHMMSS(SecsToNextTimer));
+                if (ClubChampion.hasGirlReward()) {
+                    SecsToNextTimer = randomInterval(30 * 60, 35 * 60);
+                    LogUtils_logHHAuto("Champion has girl reward");
+                }
             }
             else {
                 LogUtils_logHHAuto('No timer found');
@@ -4166,8 +4170,8 @@ class ClubChampion {
             if (secsToNextTimer === -1) {
                 nextClubChampionTime = randomInterval(15 * 60, 17 * 60);
             }
-            else if (secsToNextTimer > 3600 && getStoredValue(HHStoredVarPrefixKey + "Setting_autoClubForceStart") === "true") {
-                nextClubChampionTime = randomInterval(50 * 60, 70 * 60);
+            else if (secsToNextTimer > 7200 && getStoredValue(HHStoredVarPrefixKey + "Setting_autoClubForceStart") === "true") {
+                nextClubChampionTime = randomInterval(115 * 60, 125 * 60);
             }
             else {
                 nextClubChampionTime = randomInterval(secsToNextTimer, 180 + secsToNextTimer);
