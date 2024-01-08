@@ -39,7 +39,7 @@ describe("Club Champion module", function () {
         it("champion rest", function () {
             const timerHtml = `<div class="club_champions_details_container">
                                 <div class="champion_rest_timer">
-                                    <div class="text">The champion will be back in : <span timer="21217" property="team_rest" rel="timer">5h 53m</span></div>
+                                    <div class="text">The champion will be back in : <span timer="21217" property="champion_rest" rel="expires">5h 53m</span></div>
                                 </div>
                                </div>`;
             MockHelper.mockPage('clubs', timerHtml);
@@ -58,6 +58,7 @@ describe("Club Champion module", function () {
             expect(ClubChampion.updateClubChampionTimer()).toBeTruthy();
             let nextChampionTime = getSecondsLeft('nextClubChampionTime');
             expect(nextChampionTime).toBeGreaterThanOrEqual(15*60);
+            expect(nextChampionTime).toBeLessThanOrEqual(17*60);
         });
         it("team rest", function () {
             let nextChampionTime = getSecondsLeft('nextClubChampionTime');
@@ -74,6 +75,7 @@ describe("Club Champion module", function () {
             nextChampionTime = getSecondsLeft('nextClubChampionTime');
             expect(nextChampionTime).toBeDefined();
             expect(nextChampionTime).toBeGreaterThanOrEqual(14 * 60 + 37);
+            expect(nextChampionTime).toBeLessThanOrEqual(14 * 60 + 37 + 180);
         });
         it("champion rest", function () {
             let nextChampionTime = getSecondsLeft('nextClubChampionTime');
@@ -81,7 +83,7 @@ describe("Club Champion module", function () {
 
             const timerHtml = `<div class="club_champions_details_container">
                                 <div class="champion_rest_timer">
-                                    <div class="text">The champion will be back in : <span timer="21217" property="team_rest" rel="timer">5h 53m</span></div>
+                                    <div class="text">The champion will be back in : <span timer="21217" property="champion_rest" rel="expires">5h 53m</span></div>
                                 </div>
                                </div>`;
             MockHelper.mockPage('clubs', timerHtml);
@@ -90,6 +92,7 @@ describe("Club Champion module", function () {
             nextChampionTime = getSecondsLeft('nextClubChampionTime');
             expect(nextChampionTime).toBeDefined();
             expect(nextChampionTime).toBeGreaterThanOrEqual(5 * 3600 + 53 * 60);
+            expect(nextChampionTime).toBeLessThanOrEqual(5 * 3600 + 53 * 60 + 180);
         });
         it("champion rest force start", function () {
             localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoClubForceStart", 'true');
@@ -98,7 +101,7 @@ describe("Club Champion module", function () {
 
             const timerHtml = `<div class="club_champions_details_container">
                                 <div class="champion_rest_timer">
-                                    <div class="text">The champion will be back in : <span timer="21217" property="team_rest" rel="timer">5h 53m</span></div>
+                                    <div class="text">The champion will be back in : <span timer="21217" property="team_rest" rel="expires">5h 53m</span></div>
                                 </div>
                                </div>`;
             MockHelper.mockPage('clubs', timerHtml);
@@ -106,8 +109,27 @@ describe("Club Champion module", function () {
 
             nextChampionTime = getSecondsLeft('nextClubChampionTime');
             expect(nextChampionTime).toBeDefined();
-            expect(nextChampionTime).toBeGreaterThanOrEqual(50 * 60);
-            expect(nextChampionTime).toBeLessThanOrEqual(70 * 60);
+            expect(nextChampionTime).toBeGreaterThanOrEqual(115 * 60);
+            expect(nextChampionTime).toBeLessThanOrEqual(125 * 60);
+        });
+        it("champion rest force start with girls", function () {
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoClubForceStart", 'true');
+            let nextChampionTime = getSecondsLeft('nextClubChampionTime');
+            expect(nextChampionTime).toBe(0);
+
+            const timerHtml = `<div class="club_champions_details_container">
+                                <div class="champion_rest_timer">
+                                    <div class="text">The champion will be back in : <span timer="21217" property="team_rest" rel="expires">5h 53m</span></div>
+                                </div>
+                               </div>`
+                            + `<div id="club_champions"><div class="club_champions_rewards_container"><div class="slot slot_girl_shards"></div></div></div>`;
+            MockHelper.mockPage('clubs', timerHtml);
+            expect(ClubChampion.updateClubChampionTimer()).toBeFalsy();
+
+            nextChampionTime = getSecondsLeft('nextClubChampionTime');
+            expect(nextChampionTime).toBeDefined();
+            expect(nextChampionTime).toBeGreaterThanOrEqual(30 * 60);
+            expect(nextChampionTime).toBeLessThanOrEqual(35 * 60 + 180);
         });
     });
 

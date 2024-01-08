@@ -25,7 +25,7 @@ export class ClubChampion {
         {
             let SecsToNextTimer = -1;
             let restTeamFilter = 'div.club_champions_details_container div.team_rest_timer span[rel="timer"]';
-            let restChampionFilter = 'div.club_champions_details_container div.champion_rest_timer span[rel="timer"]';
+            let restChampionFilter = 'div.club_champions_details_container div.champion_rest_timer span[rel="expires"]';
 
             if ($(restTeamFilter).length > 0)
             {
@@ -35,7 +35,11 @@ export class ClubChampion {
             else if ($(restChampionFilter).length > 0)
             {
                 SecsToNextTimer = Number(convertTimeToInt($(restChampionFilter).text()));
-                logHHAuto("Champion is resting for : "+TimeHelper.toHHMMSS(SecsToNextTimer));
+                logHHAuto("Champion is resting for : " + TimeHelper.toHHMMSS(SecsToNextTimer));
+                if(ClubChampion.hasGirlReward()) {
+                    SecsToNextTimer = randomInterval(30 * 60, 35 * 60);
+                    logHHAuto("Champion has girl reward");
+                }
             }
             else {
                 logHHAuto('No timer found');
@@ -60,9 +64,9 @@ export class ClubChampion {
             {
                 nextClubChampionTime = randomInterval(15*60, 17*60);
             }
-            else if (secsToNextTimer > 3600 && getStoredValue(HHStoredVarPrefixKey+"Setting_autoClubForceStart") === "true")
+            else if (secsToNextTimer > 7200 && getStoredValue(HHStoredVarPrefixKey+"Setting_autoClubForceStart") === "true")
             {
-                nextClubChampionTime = randomInterval(50*60, 70*60);
+                nextClubChampionTime = randomInterval(115*60, 125*60);
             }
             else
             {
