@@ -1068,17 +1068,10 @@ export async function autoLoop()
             }
             break;
         case ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"):
-            if (getStoredValue(HHStoredVarPrefixKey+"Setting_SeasonalEventMaskRewards") === "true")
-            {
-                SeasonalEvent.maskReward();
-            }
+            SeasonalEvent.styles();
+
             SeasonalEvent.getRemainingTime = callItOnce(SeasonalEvent.getRemainingTime);
             SeasonalEvent.getRemainingTime();
-            if (getStoredValue(HHStoredVarPrefixKey+"Setting_showRewardsRecap") === "true")
-            {
-                SeasonalEvent.displayRewardsSeasonalDiv();
-                SeasonalEvent.displayGirlsMileStones();
-            }
             break;
         case ConfigHelper.getHHScriptVars("pagesIDChampionsMap"):
             if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoChamps") ==="true") {
@@ -1108,6 +1101,7 @@ export async function autoLoop()
         case ConfigHelper.getHHScriptVars("pagesIDLabyrinth"):
             if (getStoredValue(HHStoredVarPrefixKey+"Setting_showCalculatePower") === "true")
             {
+                Labyrinth.sim = callItOnce(Labyrinth.sim);
                 Labyrinth.sim();
             }
             break;

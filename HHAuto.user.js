@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.2.16
+// @version      7.3.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -674,6 +674,7 @@ HHAuto_ToolTips.en['haremGirlGiveGifts'] = { version: "5.30.0", elementText: "Gi
 HHAuto_ToolTips.en['haremGirlGiveMaxGifts'] = { version: "6.2.0", elementText: "Give max Gifts to girl", tooltip: "Use max out button to reach max grade, pay for necessary grades<br> Don't pay the last one" };
 HHAuto_ToolTips.en['haremGirlUpgradeMax'] = { version: "6.12.0", elementText: "Full upgrade girl", tooltip: "Perform all upgrades for the girl (including last one), give necessary affections" };
 HHAuto_ToolTips.en['collectAllTimer'] = { version: "5.7.0", elementText: "Collect all timer (in hour)", tooltip: "Hour(s) before end of events to collect all rewards (Low time create risk of not collecting), Need activation on each events (POV, POG, season)" };
+HHAuto_ToolTips.en['collectAllButton'] = { version: "7.3.0", elementText: "Collect all", tooltip: "Automatically collect all items" };
 
 ;// CONCATENATED MODULE: ./src/i18n/fr.ts
 
@@ -3220,18 +3221,18 @@ class SeasonalEvent {
         LogUtils_logHHAuto('Not implemented');
     }
     static getSeasonalNotClaimedRewards() {
-        const arrayz = $('.mega-tier.unclaimed');
+        const arrayz = $(SeasonalEvent.SEASONAL_REWARD_PATH);
         const freeSlotSelectors = ".slot";
         const paidSlotSelectors = ""; // Not available
         return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
     }
     static getMegaSeasonalNotClaimedRewards() {
-        const arrayz = $('.mega-tier-container:has(.free-slot button.mega-claim-reward)');
+        const arrayz = $(SeasonalEvent.SEASONAL_REWARD_MEGA_PATH);
         const freeSlotSelectors = ".free-slot .slot";
         const paidSlotSelectors = SeasonalEvent.isMegaPassPaid() ? ".paid-unclaimed .slot" : "";
         return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
     }
-    static goAndCollect() {
+    static goAndCollect(manualCollectAll = false) {
         const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonalEventCollectablesList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonalEventCollectablesList")) : [];
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent")) {
             SeasonalEvent.getRemainingTime();
@@ -3246,11 +3247,13 @@ class SeasonalEvent {
             const seasonalPaidSlotQuery = ""; // N/A
             const megaSeasonalFreeSlotQuery = ".free-slot .slot";
             const megaSeasonalPaidSlotQuery = ".pass-slot.paid-unclaimed .slot";
-            if (needToCollect || needToCollectAllBeforeEnd) {
+            if (needToCollect || needToCollectAllBeforeEnd || manualCollectAll) {
                 if (needToCollect)
                     LogUtils_logHHAuto("Checking SeasonalEvent for collectable rewards.");
                 if (needToCollectAllBeforeEnd)
                     LogUtils_logHHAuto("Going to collect all SeasonalEvent rewards.");
+                if (manualCollectAll)
+                    LogUtils_logHHAuto("Going to collect all SeasonalEvent rewards after collect all button usage.");
                 LogUtils_logHHAuto("setting autoloop to false");
                 setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
                 let buttonsToCollect = [];
@@ -3263,11 +3266,11 @@ class SeasonalEvent {
                     const currentTierNb = currentButton.getAttribute("tier");
                     //console.log("checking tier : "+currentTierNb);
                     const freeSlotType = RewardHelper.getRewardTypeBySlot($(freeSlotQuery, listSeasonalEventTiersToClaim[currentTier])[0]);
-                    if (rewardsToCollect.includes(freeSlotType) || needToCollectAllBeforeEnd) {
+                    if (rewardsToCollect.includes(freeSlotType) || needToCollectAllBeforeEnd || manualCollectAll) {
                         if (isPassPaid) {
                             // One button for both
                             const paidSlotType = RewardHelper.getRewardTypeBySlot($(paidSlotQuery, listSeasonalEventTiersToClaim[currentTier])[0]);
-                            if (rewardsToCollect.includes(paidSlotType) || needToCollectAllBeforeEnd) {
+                            if (rewardsToCollect.includes(paidSlotType) || needToCollectAllBeforeEnd || manualCollectAll) {
                                 buttonsToCollect.push(currentButton);
                                 LogUtils_logHHAuto("Adding for collection tier (free + paid) : " + currentTierNb);
                             }
@@ -3282,17 +3285,23 @@ class SeasonalEvent {
                     }
                 }
                 if (buttonsToCollect.length > 0) {
+                    function closeRewardAndCollectagain() {
+                        RewardHelper.closeRewardPopupIfAny(false);
+                        setTimeout(collectSeasonalEventRewards, randomInterval(300, 500));
+                    }
                     function collectSeasonalEventRewards() {
                         if (buttonsToCollect.length > 0) {
                             LogUtils_logHHAuto("Collecting tier : " + buttonsToCollect[0].getAttribute('tier'));
                             buttonsToCollect[0].click();
                             buttonsToCollect.shift();
-                            setTimeout(collectSeasonalEventRewards, randomInterval(300, 500));
+                            setTimeout(closeRewardAndCollectagain, randomInterval(300, 500));
                         }
                         else {
                             LogUtils_logHHAuto("SeasonalEvent collection finished.");
                             setTimer('nextSeasonalEventCollectTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
-                            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                            if (!manualCollectAll) {
+                                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                            }
                         }
                     }
                     collectSeasonalEventRewards();
@@ -3324,6 +3333,14 @@ class SeasonalEvent {
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_SeasonalEventMaskRewards") === "true") {
             SeasonalEvent.maskReward();
         }
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_showRewardsRecap") === "true") {
+            SeasonalEvent.displayRewardsSeasonalDiv();
+            // SeasonalEvent.displayGirlsMileStones(); // TODO fixme
+            SeasonalEvent.displatCollectAllButton();
+        }
+    }
+    static hasUnclaimedRewards() {
+        return $(SeasonalEvent.SEASONAL_REWARD_MEGA_PATH + ', ' + SeasonalEvent.SEASONAL_REWARD_PATH).length > 0;
     }
     static maskReward() {
         var arrayz;
@@ -3356,6 +3373,17 @@ class SeasonalEvent {
                 }
                 catch (err) { }
             }
+        }
+    }
+    static displatCollectAllButton() {
+        if (SeasonalEvent.hasUnclaimedRewards() && $('#SeasonalCollectAll').length == 0) {
+            const button = $(`<button class="purple_button_L" id="SeasonalCollectAll">${getTextForUI("collectAllButton", "elementText")}</button>`);
+            const divTooltip = $(`<div class="tooltipHH" style="position: absolute;top: 260px;width: 110px;font-size: small;"><span class="tooltipHHtext">${getTextForUI("collectAllButton", "tooltip")}</span></div>`);
+            divTooltip.append(button);
+            $('#home_tab_container .bottom-container').append(divTooltip);
+            button.one('click', () => {
+                SeasonalEvent.goAndCollect(true);
+            });
         }
     }
     static displayGirlsMileStones() {
@@ -3441,6 +3469,8 @@ class SeasonalEvent {
         return false;
     }
 }
+SeasonalEvent.SEASONAL_REWARD_PATH = '.mega-tier.unclaimed';
+SeasonalEvent.SEASONAL_REWARD_MEGA_PATH = '.mega-tier-container:has(.free-slot button.mega-claim-reward)';
 
 ;// CONCATENATED MODULE: ./src/Module/Events/index.ts
 
@@ -4035,7 +4065,7 @@ class Champion {
     static _setTimer(nextChampionTime) {
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoClubChamp") === "true"
             && getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampAlignTimer") === "true"
-            && getStoredValue(HHStoredVarPrefixKey + "Temp_clubChampLimitReached" !== "true")) {
+            && getStoredValue(HHStoredVarPrefixKey + "Temp_clubChampLimitReached") !== "true") {
             const champClubTimeLeft = getSecondsLeft('nextClubChampionTime');
             if (nextChampionTime > 10 && champClubTimeLeft < 1200 && nextChampionTime < 1200) { // align settings
                 // 20 min for standard wait time
@@ -6198,6 +6228,9 @@ class Labyrinth {
     static isEnabled() {
         return ConfigHelper.getHHScriptVars("isEnabledLabyrinth", false); // more than 14 girls
     }
+    static isEnded() {
+        return $('.cleared-labyrinth-container').length > 0;
+    }
     static run() {
         const page = getPage();
         if (page === ConfigHelper.getHHScriptVars("pagesIDLabyrinth")) {
@@ -6235,16 +6268,20 @@ class Labyrinth {
         }
     }
     static getCurrentFloorNumber() {
-        let floor = Number($('#labyrinth-tabs .tab-switcher-fade-in .floor-number-text').text());
-        if (isNaN(floor) || floor === 0) {
-            LogUtils_logHHAuto("Error getting floor");
-            floor = 0;
+        const floorDom = $('#labyrinth-tabs .tab-switcher-fade-in .floor-number-text');
+        let floor = 0;
+        if (floorDom.length > 0) {
+            floor = Number($('#labyrinth-tabs .tab-switcher-fade-in .floor-number-text').text());
+            if (isNaN(floor) || floor === 0) {
+                LogUtils_logHHAuto("Error getting floor");
+                floor = 0;
+            }
         }
         return floor;
     }
     static sim() {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDLabyrinth")) {
-            if ($('.labChosen').length > 0) {
+            if ($('.labChosen').length > 0 || Labyrinth.isEnded()) {
                 return;
             }
             LogUtils_logHHAuto("On Labyrinth page.");
@@ -11539,6 +11576,12 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_autoChampsEventGirls"] =
         HHType: "Temp"
         //isValid:/^\[({"girl_id":"(\d)+","champ_id":"(\d)+","girl_shards":"(\d)+","girl_name":"([^"])+","event_id":"([^"])+"},?)+\]$/
     };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_clubChampLimitReached"] =
+    {
+        default: "false",
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_trollWithGirls"] =
     {
         storage: "sessionStorage",
@@ -14158,7 +14201,7 @@ class RewardHelper {
         if ($(rewardQuery).length > 0) {
             if (logging)
                 LogUtils_logHHAuto("Close reward popup.");
-            $(rewardQuery).click();
+            $(rewardQuery).trigger('click');
             return true;
         }
         return false;
@@ -15164,15 +15207,9 @@ function autoLoop() {
                 }
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"):
-                if (getStoredValue(HHStoredVarPrefixKey + "Setting_SeasonalEventMaskRewards") === "true") {
-                    SeasonalEvent.maskReward();
-                }
+                SeasonalEvent.styles();
                 SeasonalEvent.getRemainingTime = callItOnce(SeasonalEvent.getRemainingTime);
                 SeasonalEvent.getRemainingTime();
-                if (getStoredValue(HHStoredVarPrefixKey + "Setting_showRewardsRecap") === "true") {
-                    SeasonalEvent.displayRewardsSeasonalDiv();
-                    SeasonalEvent.displayGirlsMileStones();
-                }
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDChampionsMap"):
                 if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoChamps") === "true") {
@@ -15201,6 +15238,7 @@ function autoLoop() {
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDLabyrinth"):
                 if (getStoredValue(HHStoredVarPrefixKey + "Setting_showCalculatePower") === "true") {
+                    Labyrinth.sim = callItOnce(Labyrinth.sim);
                     Labyrinth.sim();
                 }
                 break;

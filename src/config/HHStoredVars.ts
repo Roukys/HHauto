@@ -1784,6 +1784,12 @@ HHStoredVars[HHStoredVarPrefixKey+"Temp_autoChampsEventGirls"] =
     HHType:"Temp"
     //isValid:/^\[({"girl_id":"(\d)+","champ_id":"(\d)+","girl_shards":"(\d)+","girl_name":"([^"])+","event_id":"([^"])+"},?)+\]$/
 };
+HHStoredVars[HHStoredVarPrefixKey+"Temp_clubChampLimitReached"] =
+{
+    default: "false",
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
 HHStoredVars[HHStoredVarPrefixKey+"Temp_trollWithGirls"] =
     {
     storage:"sessionStorage",
