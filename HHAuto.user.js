@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.3.1
+// @version      7.3.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1499,17 +1499,18 @@ class Bundles {
 class BossBang {
     static skipFightPage() {
         const rewardsButton = $('#rewards_popup .blue_button_L:not([disabled]):visible');
-        const skipFightButton = $('#new_battle #new-battle-skip-btn:not([disabled]):visible');
+        const skipFightButton = $('#battle #new-battle-skip-btn:not([disabled]):visible');
         if (rewardsButton.length > 0) {
             LogUtils_logHHAuto("Click get rewards bang fight");
             rewardsButton.trigger('click');
+            setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
         }
         else if (skipFightButton.length > 0) {
             LogUtils_logHHAuto("Click skip boss bang fight");
             skipFightButton.trigger('click');
             setTimeout(BossBang.skipFightPage, randomInterval(1300, 1900));
+            setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
         }
-        setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
     }
     static goToFightPage() {
         const teamIndexFound = parseInt(getStoredValue(HHStoredVarPrefixKey + "Temp_bossBangTeam"));
@@ -1526,7 +1527,7 @@ class BossBang {
 
 
 class DoublePenetration {
-    static goAndCollect(dpRemainingTime) {
+    static goAndCollect(dpRemainingTime, manualCollectAll = false) {
         const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey + "Setting_autodpEventCollectablesList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Setting_autodpEventCollectablesList")) : [];
         const needToCollectAll = dpRemainingTime < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey + "Setting_autodpEventCollectAll") === "true";
         const needToCollect = (checkTimer('nextDpEventCollectTime') && getStoredValue(HHStoredVarPrefixKey + "Setting_autodpEventCollect") === "true");
@@ -1534,7 +1535,7 @@ class DoublePenetration {
         const dPFreeSlotQuery = ".free-slot .slot,.free-slot .slot_girl_shards";
         const dPPaidSlotQuery = ".paid-slot .slot,.paid-slot .slot_girl_shards";
         const isPassPaid = $("#nc-poa-tape-blocker button.unlock-poa-bonus-rewards:visible").length <= 0;
-        if (needToCollect || needToCollectAll) {
+        if (needToCollect || needToCollectAll || manualCollectAll) {
             LogUtils_logHHAuto("Checking double penetration event for collectable rewards.");
             LogUtils_logHHAuto("setting autoloop to false");
             setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
@@ -1546,6 +1547,10 @@ class DoublePenetration {
                 //console.log("checking tier : "+currentTierNb);
                 if (needToCollectAll) {
                     LogUtils_logHHAuto("Adding for collection tier before end of event: " + currentTierNb);
+                    buttonsToCollect.push(currentButton);
+                }
+                else if (manualCollectAll) {
+                    LogUtils_logHHAuto("Adding for collection tier from manual collect all: " + currentTierNb);
                     buttonsToCollect.push(currentButton);
                 }
                 else {

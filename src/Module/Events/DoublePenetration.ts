@@ -16,7 +16,7 @@ import { HHStoredVarPrefixKey } from "../../config/index";
 
 export class DoublePenetration {
 
-    static goAndCollect(dpRemainingTime:number)
+    static goAndCollect(dpRemainingTime: number, manualCollectAll = false)
     {
         const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey+"Setting_autodpEventCollectablesList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Setting_autodpEventCollectablesList")):[];
 
@@ -28,7 +28,7 @@ export class DoublePenetration {
         const dPPaidSlotQuery = ".paid-slot .slot,.paid-slot .slot_girl_shards";
         const isPassPaid = $("#nc-poa-tape-blocker button.unlock-poa-bonus-rewards:visible").length <= 0;
 
-        if (needToCollect || needToCollectAll)
+        if (needToCollect || needToCollectAll || manualCollectAll)
         {
             logHHAuto("Checking double penetration event for collectable rewards.");
             logHHAuto("setting autoloop to false");
@@ -43,6 +43,9 @@ export class DoublePenetration {
                 //console.log("checking tier : "+currentTierNb);
                 if(needToCollectAll) {
                     logHHAuto("Adding for collection tier before end of event: "+currentTierNb);
+                    buttonsToCollect.push(currentButton);
+                } else if (manualCollectAll) {
+                    logHHAuto("Adding for collection tier from manual collect all: "+currentTierNb);
                     buttonsToCollect.push(currentButton);
                 } else {
                     const freeSlotType = RewardHelper.getRewardTypeBySlot($(dPFreeSlotQuery,listDpEventTiersToClaim[currentTier])[0]);
@@ -102,7 +105,7 @@ export class DoublePenetration {
             }
         }
         return false;
-    }        
+    }
     static run(){
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent") && ConfigHelper.getHHScriptVars("isEnabledClubChamp",false) && window.location.search.includes("tab="+ConfigHelper.getHHScriptVars('doublePenetrationEventIDReg')))
         {
