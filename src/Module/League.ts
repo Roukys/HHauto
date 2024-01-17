@@ -365,7 +365,7 @@ export class LeagueHelper {
         )
         {
             if($(".leagues_middle_header_script").length == 0) {
-                $('#tower_of_fame .tabs').append('<div class="leagues_middle_header_script"></div>');
+                $('#leagues-tabs').append('<div class="leagues_middle_header_script"></div>');
                 
                 GM_addStyle('.leagues_middle_header_script {'
                     + 'display: flow-root;'
@@ -748,7 +748,7 @@ export class LeagueHelper {
                 logHHAuto("Going to fight " + Data[0].nickname + "(" + Data[0].opponent_id + ") with power " + Data[0].power);
                 if(debugEnabled) logHHAuto(JSON.stringify(Data[0]));
                 // change referer
-                window.history.replaceState(null, '', '/leagues-pre-battle.html?id_opponent='+Data[0].opponent_id);
+                window.history.replaceState(null, '', ConfigHelper.getHHScriptVars("pagesURLLeaguPreBattle") +'?id_opponent='+Data[0].opponent_id);
 
                 const opponents_list = getHHVars("opponents_list");
                 const opponentDataFromList = opponents_list.filter(obj => {
@@ -779,7 +779,7 @@ export class LeagueHelper {
                     };
                     unsafeWindow.hh_ajax(params1, function(data) {
                         // change referer
-                        window.history.replaceState(null, '', '/tower-of-fame.html');
+                        window.history.replaceState(null, '', ConfigHelper.getHHScriptVars("pagesURLLeaderboard"));
 
                         RewardHelper.closeRewardPopupIfAny();
 

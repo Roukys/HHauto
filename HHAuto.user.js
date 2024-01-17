@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.3.2
+// @version      7.3.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -6716,7 +6716,7 @@ class LeagueHelper {
         if ((document.getElementById("beaten_opponents") === null && document.getElementById("league_filter") === null) // button from HH OCD script
             && document.getElementById("HideBeatenOppo") === null) {
             if ($(".leagues_middle_header_script").length == 0) {
-                $('#tower_of_fame .tabs').append('<div class="leagues_middle_header_script"></div>');
+                $('#leagues-tabs').append('<div class="leagues_middle_header_script"></div>');
                 GM_addStyle('.leagues_middle_header_script {'
                     + 'display: flow-root;'
                     + 'margin-top: 4px;}');
@@ -7055,7 +7055,7 @@ class LeagueHelper {
                 if (debugEnabled)
                     LogUtils_logHHAuto(JSON.stringify(Data[0]));
                 // change referer
-                window.history.replaceState(null, '', '/leagues-pre-battle.html?id_opponent=' + Data[0].opponent_id);
+                window.history.replaceState(null, '', ConfigHelper.getHHScriptVars("pagesURLLeaguPreBattle") + '?id_opponent=' + Data[0].opponent_id);
                 const opponents_list = getHHVars("opponents_list");
                 const opponentDataFromList = opponents_list.filter(obj => {
                     return obj.player.id_fighter == Data[0].opponent_id;
@@ -7086,7 +7086,7 @@ class LeagueHelper {
                     };
                     unsafeWindow.hh_ajax(params1, function (data) {
                         // change referer
-                        window.history.replaceState(null, '', '/tower-of-fame.html');
+                        window.history.replaceState(null, '', ConfigHelper.getHHScriptVars("pagesURLLeaderboard"));
                         RewardHelper.closeRewardPopupIfAny();
                         // gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeaderboard"));
                         location.reload();
@@ -9583,7 +9583,7 @@ HHEnvVariables["global"].pagesIDPachinko = "pachinko";
 HHEnvVariables["global"].pagesURLPachinko = "/pachinko.html";
 HHEnvVariables["global"].pagesKnownList.push("Pachinko");
 HHEnvVariables["global"].pagesIDLeaderboard = "leaderboard";
-HHEnvVariables["global"].pagesURLLeaderboard = "/tower-of-fame.html";
+HHEnvVariables["global"].pagesURLLeaderboard = "/leagues.html";
 HHEnvVariables["global"].pagesKnownList.push("Leaderboard");
 HHEnvVariables["global"].pagesIDShop = "shop";
 HHEnvVariables["global"].pagesURLShop = "/shop.html";

@@ -288,7 +288,7 @@ HHEnvVariables["global"].pagesURLPachinko = "/pachinko.html";
 HHEnvVariables["global"].pagesKnownList.push("Pachinko");
 
 HHEnvVariables["global"].pagesIDLeaderboard = "leaderboard";
-HHEnvVariables["global"].pagesURLLeaderboard = "/tower-of-fame.html";
+HHEnvVariables["global"].pagesURLLeaderboard = "/leagues.html";
 HHEnvVariables["global"].pagesKnownList.push("Leaderboard");
 
 HHEnvVariables["global"].pagesIDShop = "shop";
