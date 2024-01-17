@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.3.3
+// @version      7.3.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1400,87 +1400,94 @@ Booster.SANDALWOOD_PERFUME = { "id_item": "632", "identifier": "MB1", "name": "S
 class Bundles {
     static goAndCollectFreeBundles() {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHome")) {
-            if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoFreeBundlesCollect") !== "true") {
-                LogUtils_logHHAuto("Error autoFreeBundlesCollect not activated.");
-                return;
-            }
-            const plusButton = $("header .currency .reversed_tooltip");
-            if (plusButton.length > 0) {
-                LogUtils_logHHAuto("click button for popup.");
-                plusButton[0].click();
-            }
-            else {
-                LogUtils_logHHAuto("No button for popup. Try again in 5h.");
-                setTimer('nextFreeBundlesCollectTime', randomInterval(4 * 60 * 60, 6 * 60 * 60));
-                return false;
-            }
-            LogUtils_logHHAuto("setting autoloop to false");
-            setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
-            const bundleTabsContainerQuery = "#popups .payments-wrapper .payment-tabs";
-            const bundleTabsListQuery = '.event_bundles, .special_offers, .period_deal';
-            const subTabsQuery = "#popups .payments-wrapper .content-container .subtabs-container .card-container";
-            const freeButtonBundleQuery = "#popups .payments-wrapper .bundle .bundle-offer-price .blue_button_L:enabled[price='0.00']";
-            function collectFreeBundlesFinished(message, nextFreeBundlesCollectTime) {
-                LogUtils_logHHAuto(message);
-                setTimer('nextFreeBundlesCollectTime', nextFreeBundlesCollectTime);
-                $("#popups .close_cross").click(); // Close popup
-                setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
-                LogUtils_logHHAuto("setting autoloop to true");
-                setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey + "Temp_autoLoopTimeMili")));
-            }
-            function parseAndCollectFreeBundles() {
-                const freeBundlesNumber = $(freeButtonBundleQuery).length;
-                if (freeBundlesNumber > 0) {
-                    LogUtils_logHHAuto("Free Bundles found: " + freeBundlesNumber);
-                    let buttonsToCollect = [];
-                    for (let currentBundle = 0; currentBundle < freeBundlesNumber; currentBundle++) {
-                        buttonsToCollect.push($(freeButtonBundleQuery)[currentBundle]);
-                    }
-                    function collectFreeBundle() {
-                        if (buttonsToCollect.length > 0) {
-                            LogUtils_logHHAuto("Collecting bundle n°" + buttonsToCollect[0].getAttribute('product'));
-                            buttonsToCollect[0].click();
-                            buttonsToCollect.shift();
-                            setTimeout(RewardHelper.closeRewardPopupIfAny, randomInterval(500, 800));
-                            setTimeout(switchToBundleTabs, randomInterval(1500, 2500));
-                        }
-                    }
-                    collectFreeBundle();
-                    return true;
+            try {
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoFreeBundlesCollect") !== "true") {
+                    LogUtils_logHHAuto("Error autoFreeBundlesCollect not activated.");
+                    return;
+                }
+                const plusButton = $("header .currency .reversed_tooltip");
+                if (plusButton.length > 0) {
+                    LogUtils_logHHAuto("click button for popup.");
+                    plusButton[0].click();
                 }
                 else {
+                    LogUtils_logHHAuto("No button for popup. Try again in 5h.");
+                    setTimer('nextFreeBundlesCollectTime', randomInterval(4 * 60 * 60, 6 * 60 * 60));
                     return false;
                 }
-            }
-            function switchToBundleTabs() {
-                const bundleTabs = $(bundleTabsListQuery, $(bundleTabsContainerQuery));
-                if (bundleTabs.length > 0) {
-                    let freeBundleFound = false;
-                    for (let bundleIndex = 0; bundleIndex < bundleTabs.length && !freeBundleFound; bundleIndex++) {
-                        bundleTabs[bundleIndex].click();
-                        LogUtils_logHHAuto("Looking in tabs '" + $(bundleTabs[bundleIndex]).attr('type') + "'.");
-                        freeBundleFound = parseAndCollectFreeBundles();
-                        if (!freeBundleFound && $(subTabsQuery).length > 0) {
-                            const subTabs = $(subTabsQuery);
-                            LogUtils_logHHAuto("Sub tabs found, switching to next one");
-                            for (let subTabIndex = 1; subTabIndex < subTabs.length && !freeBundleFound; subTabIndex++) {
-                                subTabs[subTabIndex].click();
-                                LogUtils_logHHAuto("Looking in sub tabs '" + $(subTabs[subTabIndex]).attr('period_deal') + "'.");
-                                freeBundleFound = parseAndCollectFreeBundles();
+                LogUtils_logHHAuto("setting autoloop to false");
+                setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+                const bundleTabsContainerQuery = "#popups .payments-wrapper .payment-tabs";
+                const bundleTabsListQuery = '.event_bundles, .special_offers, .period_deal';
+                const subTabsQuery = "#popups .payments-wrapper .content-container .subtabs-container .card-container";
+                const freeButtonBundleQuery = "#popups .payments-wrapper .bundle .bundle-offer-price .blue_button_L:enabled[price='0.00']";
+                function collectFreeBundlesFinished(message, nextFreeBundlesCollectTime) {
+                    LogUtils_logHHAuto(message);
+                    setTimer('nextFreeBundlesCollectTime', nextFreeBundlesCollectTime);
+                    $("#popups .close_cross").trigger('click'); // Close popup
+                    setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
+                    LogUtils_logHHAuto("setting autoloop to true");
+                    setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey + "Temp_autoLoopTimeMili")));
+                }
+                function parseAndCollectFreeBundles() {
+                    const freeBundlesNumber = $(freeButtonBundleQuery).length;
+                    if (freeBundlesNumber > 0) {
+                        LogUtils_logHHAuto("Free Bundles found: " + freeBundlesNumber);
+                        let buttonsToCollect = [];
+                        for (let currentBundle = 0; currentBundle < freeBundlesNumber; currentBundle++) {
+                            buttonsToCollect.push($(freeButtonBundleQuery)[currentBundle]);
+                        }
+                        function collectFreeBundle() {
+                            if (buttonsToCollect.length > 0) {
+                                LogUtils_logHHAuto("Collecting bundle n°" + buttonsToCollect[0].getAttribute('product'));
+                                buttonsToCollect[0].click();
+                                buttonsToCollect.shift();
+                                setTimeout(RewardHelper.closeRewardPopupIfAny, randomInterval(500, 800));
+                                setTimeout(switchToBundleTabs, randomInterval(1500, 2500));
                             }
                         }
+                        collectFreeBundle();
+                        return true;
                     }
-                    if (!freeBundleFound)
-                        collectFreeBundlesFinished("Free bundle collection finished.", TimeHelper.getSecondsLeftBeforeEndOfHHDay() + randomInterval(3600, 4000));
+                    else {
+                        return false;
+                    }
                 }
-                else {
-                    collectFreeBundlesFinished("No bundle tabs in popup, wait one hour.", 60 * 60);
-                    return false;
+                function switchToBundleTabs() {
+                    const bundleTabs = $(bundleTabsListQuery, $(bundleTabsContainerQuery));
+                    if (bundleTabs.length > 0) {
+                        let freeBundleFound = false;
+                        for (let bundleIndex = 0; bundleIndex < bundleTabs.length && !freeBundleFound; bundleIndex++) {
+                            bundleTabs[bundleIndex].click();
+                            LogUtils_logHHAuto("Looking in tabs '" + $(bundleTabs[bundleIndex]).attr('type') + "'.");
+                            freeBundleFound = parseAndCollectFreeBundles();
+                            if (!freeBundleFound && $(subTabsQuery).length > 0) {
+                                const subTabs = $(subTabsQuery);
+                                LogUtils_logHHAuto("Sub tabs found, switching to next one");
+                                for (let subTabIndex = 1; subTabIndex < subTabs.length && !freeBundleFound; subTabIndex++) {
+                                    subTabs[subTabIndex].click();
+                                    LogUtils_logHHAuto("Looking in sub tabs '" + $(subTabs[subTabIndex]).attr('period_deal') + "'.");
+                                    freeBundleFound = parseAndCollectFreeBundles();
+                                }
+                            }
+                        }
+                        if (!freeBundleFound)
+                            collectFreeBundlesFinished("Free bundle collection finished.", TimeHelper.getSecondsLeftBeforeEndOfHHDay() + randomInterval(3600, 4000));
+                    }
+                    else {
+                        collectFreeBundlesFinished("No bundle tabs in popup, wait one hour.", 60 * 60);
+                        return false;
+                    }
                 }
+                // Wait popup is opened
+                setTimeout(switchToBundleTabs, randomInterval(1400, 1800));
+                return true;
             }
-            // Wait popup is opened
-            setTimeout(switchToBundleTabs, randomInterval(1400, 1800));
-            return true;
+            catch ({ errName, message }) {
+                LogUtils_logHHAuto(`ERROR during free bundles run: ${message}, retry in 1h`);
+                setTimer('nextFreeBundlesCollectTime', randomInterval(3600, 4000));
+                return false;
+            }
         }
         else {
             LogUtils_logHHAuto("Navigating to home page.");
@@ -2123,7 +2130,7 @@ class EventModule {
                                 if (!teamz.hasClass('.selected-hero-team'))
                                     teamz.click();
                                 teamFound = true;
-                                LogUtils_logHHAuto("Select team " + teamIndex + ", Ego: " + parseInt(teamEgo.text()));
+                                LogUtils_logHHAuto("Select team " + (teamIndex + 1) + ", Ego: " + parseInt(teamEgo.text()));
                                 setStoredValue(HHStoredVarPrefixKey + "Temp_bossBangTeam", teamIndex);
                                 return true;
                             }
@@ -4420,61 +4427,67 @@ class DailyGoals {
         if (checkTimer('nextDailyGoalsCollectTime') && getStoredValue(HHStoredVarPrefixKey + "Setting_autoDailyGoalsCollect") === "true") {
             //console.log(getPage());
             if (getPage() === ConfigHelper.getHHScriptVars("pagesIDDailyGoals")) {
-                LogUtils_logHHAuto("Checking Daily Goals for collectable rewards.");
-                LogUtils_logHHAuto("setting autoloop to false");
-                setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
-                let buttonsToCollect = [];
-                const listDailyGoalsTiersToClaim = $("#daily_goals .progress-section .progress-bar-rewards-container .progress-bar-reward");
-                let potionsNum = Number($('.progress-section div.potions-total > div > p').text());
-                for (let currentTier = 0; currentTier < listDailyGoalsTiersToClaim.length; currentTier++) {
-                    const currentButton = $("button[rel='claim']", listDailyGoalsTiersToClaim[currentTier]);
-                    if (currentButton.length > 0) {
-                        const currentTierNb = currentButton[0].getAttribute("tier");
-                        const currentChest = $(".progress-bar-rewards-container", listDailyGoalsTiersToClaim[currentTier]);
-                        const currentRewardsList = currentChest.length > 0 ? currentChest.data("rewards") : [];
-                        //console.log("checking tier : "+currentTierNb);
-                        if (TimeHelper.getSecondsLeftBeforeEndOfHHDay() <= ConfigHelper.getHHScriptVars("dailyRewardMaxRemainingTime") && TimeHelper.getSecondsLeftBeforeEndOfHHDay() > 0) {
-                            LogUtils_logHHAuto("Force adding for collection chest n° " + currentTierNb);
-                            buttonsToCollect.push(currentButton[0]);
-                        }
-                        else {
-                            let validToCollect = true;
-                            for (let reward of currentRewardsList) {
-                                const rewardType = RewardHelper.getRewardTypeByData(reward);
-                                if (!rewardsToCollect.includes(rewardType)) {
-                                    LogUtils_logHHAuto(`Not adding for collection chest n° ${currentTierNb} because ${rewardType} is not in immediate collection list.`);
-                                    validToCollect = false;
-                                    break;
+                try {
+                    LogUtils_logHHAuto("Checking Daily Goals for collectable rewards. Setting autoloop to false");
+                    setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+                    let buttonsToCollect = [];
+                    const listDailyGoalsTiersToClaim = $("#daily_goals .progress-section .progress-bar-rewards-container .progress-bar-reward");
+                    let potionsNum = Number($('.progress-section div.potions-total > div > p').text());
+                    for (let currentTier = 0; currentTier < listDailyGoalsTiersToClaim.length; currentTier++) {
+                        const currentButton = $("button[rel='claim']", listDailyGoalsTiersToClaim[currentTier]);
+                        if (currentButton.length > 0) {
+                            const currentTierNb = currentButton[0].getAttribute("tier");
+                            const currentChest = $(".progress-bar-rewards-container", listDailyGoalsTiersToClaim[currentTier]);
+                            const currentRewardsList = currentChest.length > 0 ? currentChest.data("rewards") : [];
+                            //console.log("checking tier : "+currentTierNb);
+                            if (TimeHelper.getSecondsLeftBeforeEndOfHHDay() <= ConfigHelper.getHHScriptVars("dailyRewardMaxRemainingTime") && TimeHelper.getSecondsLeftBeforeEndOfHHDay() > 0) {
+                                LogUtils_logHHAuto("Force adding for collection chest n° " + currentTierNb);
+                                buttonsToCollect.push(currentButton[0]);
+                            }
+                            else {
+                                let validToCollect = true;
+                                for (let reward of currentRewardsList) {
+                                    const rewardType = RewardHelper.getRewardTypeByData(reward);
+                                    if (!rewardsToCollect.includes(rewardType)) {
+                                        LogUtils_logHHAuto(`Not adding for collection chest n° ${currentTierNb} because ${rewardType} is not in immediate collection list.`);
+                                        validToCollect = false;
+                                        break;
+                                    }
+                                }
+                                if (validToCollect) {
+                                    buttonsToCollect.push(currentButton[0]);
+                                    LogUtils_logHHAuto("Adding for collection chest n° " + currentTierNb);
                                 }
                             }
-                            if (validToCollect) {
-                                buttonsToCollect.push(currentButton[0]);
-                                LogUtils_logHHAuto("Adding for collection chest n° " + currentTierNb);
+                        }
+                    }
+                    if (buttonsToCollect.length > 0 || potionsNum < 100) {
+                        function collectDailyGoalsRewards() {
+                            if (buttonsToCollect.length > 0) {
+                                LogUtils_logHHAuto("Collecting chest n° " + buttonsToCollect[0].getAttribute('tier'));
+                                buttonsToCollect[0].click();
+                                buttonsToCollect.shift();
+                                setTimeout(collectDailyGoalsRewards, randomInterval(300, 500));
+                            }
+                            else {
+                                LogUtils_logHHAuto("Daily Goals collection finished.");
+                                setTimer('nextDailyGoalsCollectTime', randomInterval(30 * 60, 35 * 60));
+                                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                             }
                         }
+                        collectDailyGoalsRewards();
+                        return true;
+                    }
+                    else {
+                        LogUtils_logHHAuto("No Daily Goals reward to collect.");
+                        setTimer('nextDailyGoalsCollectTime', TimeHelper.getSecondsLeftBeforeEndOfHHDay() + randomInterval(3600, 4000));
+                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                        return false;
                     }
                 }
-                if (buttonsToCollect.length > 0 || potionsNum < 100) {
-                    function collectDailyGoalsRewards() {
-                        if (buttonsToCollect.length > 0) {
-                            LogUtils_logHHAuto("Collecting chest n° " + buttonsToCollect[0].getAttribute('tier'));
-                            buttonsToCollect[0].click();
-                            buttonsToCollect.shift();
-                            setTimeout(collectDailyGoalsRewards, randomInterval(300, 500));
-                        }
-                        else {
-                            LogUtils_logHHAuto("Daily Goals collection finished.");
-                            setTimer('nextDailyGoalsCollectTime', randomInterval(30 * 60, 35 * 60));
-                            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
-                        }
-                    }
-                    collectDailyGoalsRewards();
-                    return true;
-                }
-                else {
-                    LogUtils_logHHAuto("No Daily Goals reward to collect.");
-                    setTimer('nextDailyGoalsCollectTime', TimeHelper.getSecondsLeftBeforeEndOfHHDay() + randomInterval(3600, 4000));
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                catch ({ errName, message }) {
+                    LogUtils_logHHAuto(`ERROR during daily goals run: ${message}, retry in 1h`);
+                    setTimer('nextDailyGoalsCollectTime', randomInterval(3600, 4000));
                     return false;
                 }
             }
@@ -6649,8 +6662,16 @@ class LeagueHelper {
                     }
                     if (!simu) {
                         simu = LeagueHelper.getSimPowerOpponent(heroFighter, opponents);
-                        leagueOpponent = new LeagueOpponent(opponents.player.id_fighter, opponents.place, opponents.nickname, opponents.level, opponents.power, opponents.player_league_points, Number(NumberHelper.nRounding(simu.expectedValue, 1, -1)), 0, // Boster numbers?
-                        opponents, simu);
+                        leagueOpponent = new LeagueOpponent(opponents.player.id_fighter, 
+                        // opponents.place,
+                        opponents.nickname, 
+                        // opponents.level,
+                        opponents.power, 
+                        // opponents.player_league_points,
+                        Number(NumberHelper.nRounding(simu.expectedValue, 1, -1)), 
+                        // 0, // Boster numbers?
+                        // opponents,
+                        simu);
                         opponentsPowerList.opponentsList.push(leagueOpponent);
                         opponentsPowerListChanged = true;
                     }
@@ -6878,7 +6899,16 @@ class LeagueHelper {
                             canUseSimu = false;
                         }
                     }
-                    leagueOpponent = new LeagueOpponent(opponent_id, Number($('.data-column[column="place"]', $(this)).text()), $('.nickname', $(this)).text(), Number($('.data-column[column="level"]', $(this)).text()), getPowerOrPoints(hasHHBdsmChangeBefore, $(this)), Number($('.data-column[column="player_league_points"]', $(this)).text().replace(/\D/g, '')), expectedPoints, $('.boosters', $(this)).children().length, opponents, simu);
+                    leagueOpponent = new LeagueOpponent(opponent_id, 
+                    // Number($('.data-column[column="place"]', $(this)).text()),
+                    $('.nickname', $(this)).text(), 
+                    // Number($('.data-column[column="level"]', $(this)).text()),
+                    getPowerOrPoints(hasHHBdsmChangeBefore, $(this)), 
+                    // Number($('.data-column[column="player_league_points"]', $(this)).text().replace(/\D/g, '')),
+                    expectedPoints, 
+                    // $('.boosters', $(this)).children().length,
+                    // opponents,
+                    simu);
                 }
                 Data.push(leagueOpponent);
             }
@@ -7051,14 +7081,15 @@ class LeagueHelper {
                 if (runThreshold > 0) {
                     setStoredValue(HHStoredVarPrefixKey + "Temp_LeagueHumanLikeRun", "true");
                 }
-                LogUtils_logHHAuto("Going to fight " + Data[0].nickname + "(" + Data[0].opponent_id + ") with power " + Data[0].power);
+                const nextOpponent = Data[0];
+                LogUtils_logHHAuto("Going to fight " + nextOpponent.nickname + "(" + nextOpponent.opponent_id + ") with power " + nextOpponent.power);
                 if (debugEnabled)
-                    LogUtils_logHHAuto(JSON.stringify(Data[0]));
+                    LogUtils_logHHAuto(JSON.stringify(nextOpponent));
                 // change referer
-                window.history.replaceState(null, '', ConfigHelper.getHHScriptVars("pagesURLLeaguPreBattle") + '?id_opponent=' + Data[0].opponent_id);
+                window.history.replaceState(null, '', ConfigHelper.getHHScriptVars("pagesURLLeaguPreBattle") + '?id_opponent=' + nextOpponent.opponent_id);
                 const opponents_list = getHHVars("opponents_list");
                 const opponentDataFromList = opponents_list.filter(obj => {
-                    return obj.player.id_fighter == Data[0].opponent_id;
+                    return obj.player.id_fighter == nextOpponent.opponent_id;
                 });
                 if (debugEnabled)
                     LogUtils_logHHAuto("opponentDataFromList ", JSON.stringify(opponentDataFromList));
@@ -7066,7 +7097,7 @@ class LeagueHelper {
                 if (opponentDataFromList && opponentDataFromList.length > 0)
                     numberOfFightAvailable = LeagueHelper.numberOfFightAvailable(opponentDataFromList[0]);
                 else
-                    LogUtils_logHHAuto('ERROR opponent ' + Data[0].opponent_id + ' not found in JS list');
+                    LogUtils_logHHAuto('ERROR opponent ' + nextOpponent.opponent_id + ' not found in JS list');
                 let numberOfBattle = 1;
                 if (numberOfFightAvailable > 1 && currentPower >= (numberOfFightAvailable + leagueThreshold)) {
                     if (maxStay > 0 && currentScore + (numberOfFightAvailable * leagueScoreSecurityThreshold) >= maxStay)
@@ -7076,12 +7107,12 @@ class LeagueHelper {
                 }
                 LogUtils_logHHAuto("Going to fight " + numberOfBattle + " times (Number fights available from opponent:" + numberOfFightAvailable + ")");
                 if (numberOfBattle <= 1) {
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeagueBattle"), { number_of_battles: 1, id_opponent: Data[0].opponent_id });
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeagueBattle"), { number_of_battles: 1, id_opponent: nextOpponent.opponent_id });
                 }
                 else {
                     var params1 = {
                         action: "do_battles_leagues",
-                        id_opponent: Data[0].opponent_id,
+                        id_opponent: nextOpponent.opponent_id,
                         number_of_battles: numberOfBattle
                     };
                     unsafeWindow.hh_ajax(params1, function (data) {
@@ -7387,71 +7418,77 @@ class Missions {
             return true;
         }
         else {
-            const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
-            LogUtils_logHHAuto("On missions page.");
-            if (RewardHelper.closeRewardPopupIfAny()) {
-                return true;
-            }
-            let canCollect = getStoredValue(HHStoredVarPrefixKey + "Setting_autoMissionCollect") === "true" && $(".mission_button button:visible[rel='claim']").length > 0 && TimeHelper.canCollectCompetitionActive();
-            if (canCollect) {
-                LogUtils_logHHAuto("Collecting finished mission's reward.");
-                $(".mission_button button:visible[rel='claim']").first().click();
-                return true;
-            }
-            var { allGood, missions } = Missions.parseMissions(canCollect);
-            if (!allGood && canCollect) {
-                LogUtils_logHHAuto("Something went wrong, need to retry in 15secs.");
-                setTimer('nextMissionTime', randomInterval(15, 30));
-                return true;
-            }
-            if (!allGood) {
-                LogUtils_logHHAuto("Mission ongoing waiting it ends.");
-                return true;
-            }
-            if (debugEnabled)
-                LogUtils_logHHAuto("Missions parsed, mission list is:", missions);
-            if (missions.length > 0) {
-                LogUtils_logHHAuto("Selecting mission from list.");
-                var mission = Missions.getSuitableMission(missions);
-                LogUtils_logHHAuto("Selected mission to be started (duration: " + mission.duration + "sec):");
-                LogUtils_logHHAuto(mission);
-                var missionButton = $(mission.missionObject).find("button:visible[rel='mission_start']").first();
-                if (missionButton.length > 0) {
-                    missionButton.click();
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDMissions"), {}, randomInterval(1300, 1800));
-                    setTimer('nextMissionTime', Number(mission.duration) + randomInterval(1, 5));
+            try {
+                const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
+                LogUtils_logHHAuto("On missions page.");
+                if (RewardHelper.closeRewardPopupIfAny()) {
+                    return true;
                 }
-                else {
-                    LogUtils_logHHAuto("Something went wrong, no start button");
+                let canCollect = getStoredValue(HHStoredVarPrefixKey + "Setting_autoMissionCollect") === "true" && $(".mission_button button:visible[rel='claim']").length > 0 && TimeHelper.canCollectCompetitionActive();
+                if (canCollect) {
+                    LogUtils_logHHAuto("Collecting finished mission's reward.");
+                    $(".mission_button button:visible[rel='claim']").first().click();
+                    return true;
+                }
+                var { allGood, missions } = Missions.parseMissions(canCollect);
+                if (!allGood && canCollect) {
+                    LogUtils_logHHAuto("Something went wrong, need to retry in 15secs.");
                     setTimer('nextMissionTime', randomInterval(15, 30));
                     return true;
                 }
-            }
-            else {
-                LogUtils_logHHAuto("No missions detected...!");
-                // get gift
-                var ck = getStoredValue(HHStoredVarPrefixKey + "Temp_missionsGiftLeft");
-                var isAfterGift = document.querySelector("#missions .after_gift").style.display === 'block';
-                if (!isAfterGift) {
-                    if (ck === 'giftleft') {
-                        LogUtils_logHHAuto("Collecting gift.");
-                        deleteStoredValue(HHStoredVarPrefixKey + "Temp_missionsGiftLeft");
-                        document.querySelector(".end_gift button").click();
+                if (!allGood) {
+                    LogUtils_logHHAuto("Mission ongoing waiting it ends.");
+                    return true;
+                }
+                if (debugEnabled)
+                    LogUtils_logHHAuto("Missions parsed, mission list is:", missions);
+                if (missions.length > 0) {
+                    var mission = Missions.getSuitableMission(missions);
+                    LogUtils_logHHAuto(`Selected mission to be started (duration: ${mission.duration}sec):`);
+                    if (debugEnabled)
+                        LogUtils_logHHAuto(mission);
+                    var missionButton = $(mission.missionObject).find("button:visible[rel='mission_start']").first();
+                    if (missionButton.length > 0) {
+                        missionButton.trigger('click');
+                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDMissions"), {}, randomInterval(1300, 1800));
+                        setTimer('nextMissionTime', Number(mission.duration) + randomInterval(1, 5));
                     }
                     else {
-                        LogUtils_logHHAuto("Refreshing to collect gift...");
-                        setStoredValue(HHStoredVarPrefixKey + "Temp_missionsGiftLeft", "giftleft");
-                        location.reload();
-                        // is busy
+                        LogUtils_logHHAuto("Something went wrong, no start button");
+                        setTimer('nextMissionTime', randomInterval(15, 30));
                         return true;
                     }
                 }
-                let time = $('.after_gift span[rel="expires"]').text();
-                if (time === undefined || time === null || time.length === 0) {
-                    LogUtils_logHHAuto("New mission time was undefined... Setting it manually to 10min.");
-                    setTimer('nextMissionTime', randomInterval(10 * 60, 12 * 60));
+                else {
+                    LogUtils_logHHAuto("No missions detected...!");
+                    // get gift
+                    var ck = getStoredValue(HHStoredVarPrefixKey + "Temp_missionsGiftLeft");
+                    var isAfterGift = document.querySelector("#missions .after_gift").style.display === 'block';
+                    if (!isAfterGift) {
+                        if (ck === 'giftleft') {
+                            LogUtils_logHHAuto("Collecting gift.");
+                            deleteStoredValue(HHStoredVarPrefixKey + "Temp_missionsGiftLeft");
+                            document.querySelector(".end_gift button").click();
+                        }
+                        else {
+                            LogUtils_logHHAuto("Refreshing to collect gift...");
+                            setStoredValue(HHStoredVarPrefixKey + "Temp_missionsGiftLeft", "giftleft");
+                            location.reload();
+                            // is busy
+                            return true;
+                        }
+                    }
+                    let time = $('.after_gift span[rel="expires"]').text();
+                    if (time === undefined || time === null || time.length === 0) {
+                        LogUtils_logHHAuto("New mission time was undefined... Setting it manually to 10min.");
+                        setTimer('nextMissionTime', randomInterval(10 * 60, 12 * 60));
+                    }
+                    setTimer('nextMissionTime', Number(convertTimeToInt(time)) + randomInterval(1, 5));
                 }
-                setTimer('nextMissionTime', Number(convertTimeToInt(time)) + randomInterval(1, 5));
+            }
+            catch ({ errName, message }) {
+                LogUtils_logHHAuto(`ERROR during mission run: ${message}, retry in 10min`);
+                setTimer('nextMissionTime', randomInterval(10 * 60, 12 * 60));
             }
             // not busy
             return false;
@@ -11465,6 +11502,12 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoDailyGoalsCollecta
         valueType: "Array"
     };
 // Temp vars
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_scriptversion"] =
+    {
+        default: "0",
+        storage: "localStorage",
+        HHType: "Temp"
+    };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_autoLoop"] =
     {
         default: "true",
@@ -11945,6 +11988,43 @@ class NumberHelper {
 
 
 
+class HHMenu {
+    createMenuButton() {
+        if ($('#' + HHMenu.BUTTON_MENU_ID).length > 0)
+            return;
+        GM_addStyle(''
+            + '#sMenuButton {'
+            + '   position: absolute;'
+            + '   top: 45px;'
+            + '   right: 15px;'
+            + '   z-index:5000;'
+            + '}'
+            + '@media only screen and (max-width: 1025px) {'
+            + '#sMenuButton {'
+            + '   width: 40px;'
+            + '   height: 40px;'
+            + '   top: 60px;'
+            + '   right: 10px;'
+            + '}}');
+        $("#contains_all nav").prepend('<div class="square_blue_btn" id="' + HHMenu.BUTTON_MENU_ID + '" ><img src="https://i.postimg.cc/bv7n83z3/script-Icon2.png"></div>');
+        $("#sMenuButton").on("click", () => {
+            const sMenu = document.getElementById("sMenu");
+            if (sMenu != null) {
+                if (sMenu.style.display === "none") {
+                    setMenuValues();
+                    sMenu.style.display = "flex";
+                    $('#contains_all')[0].style.zIndex = '9';
+                }
+                else {
+                    getMenuValues();
+                    sMenu.style.display = "none";
+                    $('#contains_all')[0].style.zIndex = "";
+                }
+            }
+        });
+    }
+}
+HHMenu.BUTTON_MENU_ID = 'sMenuButton';
 function maskInactiveMenus() {
     let menuIDList = ["isEnabledDailyGoals", "isEnabledPoV", "isEnabledPoG",
         "isEnabledSeasonalEvent", "isEnabledBossBangEvent", "isEnabledSultryMysteriesEvent",
@@ -12630,9 +12710,17 @@ function deleteStoredValue(inVarName) {
         getStorageItem(HHStoredVars_HHStoredVars[inVarName].storage).removeItem(inVarName);
     }
 }
-function setStoredValue(inVarName, inValue) {
+function setStoredValue(inVarName, inValue, retry = false) {
     if (HHStoredVars_HHStoredVars.hasOwnProperty(inVarName)) {
-        getStorageItem(HHStoredVars_HHStoredVars[inVarName].storage)[inVarName] = inValue;
+        try {
+            getStorageItem(HHStoredVars_HHStoredVars[inVarName].storage)[inVarName] = inValue;
+        }
+        catch ({ errName, message }) {
+            cleanLogsInStorage();
+            LogUtils_logHHAuto(`ERROR: Can't save value in storage for ${inVarName} (${message}), ${retry ? 'user storage need to be cleaned' : 'retry...'}`);
+            if (!retry)
+                setStoredValue(inVarName, inValue, true);
+        }
     }
 }
 function extractHHVars(dataToSave, extractLog = false, extractTemp = true, extractSettings = true) {
@@ -12876,6 +12964,20 @@ function getAndStoreCollectPreferences(inVarName, inPopUpText = getTextForUI("me
         setStoredValue(inVarName, JSON.stringify(collectablesList));
     }
 }
+function getLocalStorageSize() {
+    var allStrings = '';
+    for (var key in localStorage) {
+        if (localStorage.hasOwnProperty(key)) {
+            allStrings += localStorage[key];
+        }
+    }
+    for (var key in sessionStorage) {
+        if (sessionStorage.hasOwnProperty(key)) {
+            allStrings += sessionStorage[key];
+        }
+    }
+    return allStrings ? 3 + ((allStrings.length * 16) / (8 * 1024)) + ' KB' : 'Empty (0 KB)';
+}
 
 ;// CONCATENATED MODULE: ./src/Utils/BrowserUtils.ts
 function getBrowserData(nav) {
@@ -12929,6 +13031,16 @@ function getBrowserData(nav) {
 
 
 
+const MAX_LINES = 500;
+function cleanLogsInStorage() {
+    var currentLoggingText = {};
+    let currDate = new Date();
+    var prefix = currDate.toLocaleString() + "." + currDate.getMilliseconds() + ":cleanLogsInStorage";
+    currentLoggingText[prefix] = 'Cleaned logging, storage size before clean ' + getLocalStorageSize();
+    setStoredValue(HHStoredVarPrefixKey + "Temp_Logging", JSON.stringify(currentLoggingText));
+    // Delete big temp in storage
+    deleteStoredValue(HHStoredVarPrefixKey + "Temp_LeagueOpponentList");
+}
 function LogUtils_logHHAuto(...args) {
     const stackTrace = (new Error()).stack || '';
     let match;
@@ -12945,7 +13057,6 @@ function LogUtils_logHHAuto(...args) {
     var text;
     var currentLoggingText;
     var nbLines;
-    var maxLines = 500;
     const getCircularReplacer = () => {
         const seen = new WeakSet();
         return (key, value) => {
@@ -12980,10 +13091,10 @@ function LogUtils_logHHAuto(...args) {
     }
     nbLines = Object.keys(currentLoggingText).length;
     //console.log("Debug : Counting log lines : "+nbLines);
-    if (nbLines > maxLines) {
+    if (nbLines > MAX_LINES) {
         var keys = Object.keys(currentLoggingText);
         //console.log("Debug : removing old lines");
-        for (var i = 0; i < nbLines - maxLines; i++) {
+        for (var i = 0; i < nbLines - MAX_LINES; i++) {
             //console.log("debug delete : "+currentLoggingText[keys[i]]);
             delete currentLoggingText[keys[i]];
         }
@@ -13006,6 +13117,7 @@ function saveHHDebugLog() {
     dataToSave['HHAuto_scriptHandler'] = GM_info.scriptHandler + ' ' + GM_info.version;
     dataToSave['HHAuto_version'] = GM_info.script.version;
     dataToSave['HHAuto_HHSite'] = window.location.origin;
+    dataToSave['HHAuto_storageSize'] = getLocalStorageSize();
     extractHHVars(dataToSave, true);
     const a = document.createElement('a');
     a.download = name;
@@ -13117,20 +13229,21 @@ class EventGirl {
 ;// CONCATENATED MODULE: ./src/model/LeagueOpponent.ts
 //@ts-check
 class LeagueOpponent {
-    constructor(opponent_id, rank, nickname, level, power, player_league_points, simuPoints, nb_boosters, kkOpponent, simu) {
-        this.stats = {}; // fill stats if needed
-        this.nb_boosters = 0;
-        this.kkOpponent = {};
+    // constructor(opponent_id: any,rank: number,nickname: string,level: number,power: number,player_league_points: number,simuPoints: number,nb_boosters: number, kkOpponent:KKLeagueOpponent, simu:BDSMSimu){
+    constructor(opponent_id, nickname, power, simuPoints, simu) {
+        // stats= {}; // fill stats if needed
+        // nb_boosters: number = 0;
+        // kkOpponent:KKLeagueOpponent = {} as any;
         this.simu = {};
         this.opponent_id = opponent_id;
-        this.rank = rank;
+        // this.rank = rank;
         this.nickname = nickname;
-        this.level = level;
+        // this.level = level;
         this.power = power;
-        this.player_league_points = player_league_points;
+        // this.player_league_points = player_league_points;
         this.simuPoints = simuPoints;
-        this.nb_boosters = nb_boosters;
-        this.kkOpponent = kkOpponent;
+        // this.nb_boosters = nb_boosters;
+        // this.kkOpponent = kkOpponent;
         this.simu = simu;
     }
 }
@@ -15926,6 +16039,16 @@ function disableToolTipsDisplay(important = false) {
 
 var started = false;
 var debugMenuID;
+class StartService {
+    static checkVersion() {
+        let previousScriptVersion = getStoredValue(HHStoredVarPrefixKey + "Temp_scriptversion");
+        if (previousScriptVersion != GM.info.script.version) {
+            // run action on new script version
+            LogUtils_logHHAuto(`New script version detected from ${previousScriptVersion} to ${GM.info.script.version}`);
+            setStoredValue(HHStoredVarPrefixKey + "Temp_scriptversion", GM.info.script.version);
+        }
+    }
+}
 function setDefaults(force = false) {
     for (let i of Object.keys(HHStoredVars_HHStoredVars)) {
         if (HHStoredVars_HHStoredVars[i].storage !== undefined) {
@@ -15980,6 +16103,7 @@ function start() {
         LogUtils_logHHAuto('Not logged in, please login first!');
         return;
     }
+    StartService.checkVersion();
     Club.checkClubStatus();
     MonthlyCards.updateInputPattern();
     replaceCheatClick();
@@ -16000,37 +16124,9 @@ function start() {
     if (getStoredValue(HHStoredVarPrefixKey + "Setting_mousePause") === "true") {
         bindMouseEvents();
     }
+    const hhAutoMenu = new HHMenu();
     $('#contains_all').prepend(getMenu());
-    GM_addStyle(''
-        + '#sMenuButton {'
-        + '   position: absolute;'
-        + '   top: 45px;'
-        + '   right: 15px;'
-        + '   z-index:5000;'
-        + '}'
-        + '@media only screen and (max-width: 1025px) {'
-        + '#sMenuButton {'
-        + '   width: 40px;'
-        + '   height: 40px;'
-        + '   top: 60px;'
-        + '   right: 10px;'
-        + '}}');
-    $("#contains_all nav").prepend('<div class="square_blue_btn" id="sMenuButton" ><img src="https://i.postimg.cc/bv7n83z3/script-Icon2.png"></div>');
-    $("#sMenuButton").on("click", () => {
-        const sMenu = document.getElementById("sMenu");
-        if (sMenu != null) {
-            if (sMenu.style.display === "none") {
-                setMenuValues();
-                sMenu.style.display = "flex";
-                $('#contains_all')[0].style.zIndex = '9';
-            }
-            else {
-                getMenuValues();
-                sMenu.style.display = "none";
-                $('#contains_all')[0].style.zIndex = "";
-            }
-        }
-    });
+    hhAutoMenu.createMenuButton();
     addEventsOnMenuItems();
     $("#showTooltips").on("change", () => {
         //console.log(this.checked);
