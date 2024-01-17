@@ -6,6 +6,51 @@ import { getTextForUI } from "./LanguageHelper";
 import { NumberHelper, add1000sSeparator1 } from "./NumberHelper";
 import { getStorageItem, getStoredValue, setStoredValue } from "./StorageHelper";
 
+export class HHMenu {
+    static BUTTON_MENU_ID = 'sMenuButton';
+
+    createMenuButton() {
+        if ($('#' + HHMenu.BUTTON_MENU_ID).length > 0) return;
+        GM_addStyle(''
+            + '#sMenuButton {'
+            + '   position: absolute;'
+            + '   top: 45px;'
+            + '   right: 15px;'
+            + '   z-index:5000;'
+            + '}'
+            + '@media only screen and (max-width: 1025px) {'
+            + '#sMenuButton {'
+            + '   width: 40px;'
+            + '   height: 40px;'
+            + '   top: 60px;'
+            + '   right: 10px;'
+            + '}}'
+        );
+        $("#contains_all nav").prepend('<div class="square_blue_btn" id="' + HHMenu.BUTTON_MENU_ID + '" ><img src="https://i.postimg.cc/bv7n83z3/script-Icon2.png"></div>');
+        $("#sMenuButton").on("click", () => {
+            const sMenu = document.getElementById("sMenu");
+            if (sMenu != null) {
+                if (sMenu.style.display === "none") {
+                    setMenuValues();
+                    sMenu.style.display = "flex";
+                    $('#contains_all')[0].style.zIndex = '9';
+                }
+                else {
+                    getMenuValues();
+                    sMenu.style.display = "none"
+                    $('#contains_all')[0].style.zIndex = "";
+                }
+            }
+        });
+    }
+
+    // replaceMenuIconWithWarning() {
+    //     $('#' + HHMenu.BUTTON_MENU_ID + ' img')
+    //         .attr('src', 'https://i.postimg.cc/3JCgVBdK/Opponent-orange.png')
+    //         .attr('title', getTextForUI("scriptWarning", "tooltip"));
+    // }
+}
+
 export function maskInactiveMenus()
 {
     let menuIDList =["isEnabledDailyGoals", "isEnabledPoV", "isEnabledPoG",

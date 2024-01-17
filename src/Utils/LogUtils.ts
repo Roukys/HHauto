@@ -1,6 +1,19 @@
-import { extractHHVars, getStoredValue, setStoredValue } from "../Helper/StorageHelper";
+import { deleteStoredValue, extractHHVars, getLocalStorageSize, getStoredValue, setStoredValue } from "../Helper/StorageHelper";
 import { HHStoredVarPrefixKey } from '../config/index';
 import { getBrowserData } from "./BrowserUtils";
+
+const MAX_LINES = 500
+
+export function cleanLogsInStorage() {
+    var currentLoggingText: any = {};
+    let currDate = new Date();
+    var prefix = currDate.toLocaleString() + "." + currDate.getMilliseconds() + ":cleanLogsInStorage";
+    currentLoggingText[prefix] = 'Cleaned logging, storage size before clean ' + getLocalStorageSize();
+    setStoredValue(HHStoredVarPrefixKey + "Temp_Logging", JSON.stringify(currentLoggingText));
+
+    // Delete big temp in storage
+    deleteStoredValue(HHStoredVarPrefixKey + "Temp_LeagueOpponentList");
+}
 
 export function logHHAuto(...args)
 {
@@ -17,10 +30,9 @@ export function logHHAuto(...args)
 
     let currDate = new Date();
     var prefix = currDate.toLocaleString()+"."+currDate.getMilliseconds()+":"+callerName;
-    var text;
-    var currentLoggingText;
-    var nbLines;
-    var maxLines = 500;
+    var text:any;
+    var currentLoggingText:any;
+    var nbLines:number;
 
     const getCircularReplacer = () => {
         const seen = new WeakSet();
@@ -63,11 +75,11 @@ export function logHHAuto(...args)
     }
     nbLines = Object.keys(currentLoggingText).length;
     //console.log("Debug : Counting log lines : "+nbLines);
-    if( nbLines >maxLines)
+    if (nbLines > MAX_LINES)
     {
         var keys=Object.keys(currentLoggingText);
         //console.log("Debug : removing old lines");
-        for(var i = 0; i < nbLines-maxLines; i++)
+        for (var i = 0; i < nbLines - MAX_LINES; i++)
         {
             //console.log("debug delete : "+currentLoggingText[keys[i]]);
             delete currentLoggingText[keys[i]];
@@ -88,7 +100,6 @@ export function logHHAuto(...args)
 
 }
 
-
 export function saveHHDebugLog()
 {
     var dataToSave={}
@@ -98,6 +109,7 @@ export function saveHHDebugLog()
     dataToSave['HHAuto_scriptHandler']=GM_info.scriptHandler+' '+GM_info.version;
     dataToSave['HHAuto_version']=GM_info.script.version;
     dataToSave['HHAuto_HHSite']=window.location.origin;
+    dataToSave['HHAuto_storageSize'] = getLocalStorageSize();
     extractHHVars(dataToSave,true);
     const a = document.createElement('a')
     a.download = name

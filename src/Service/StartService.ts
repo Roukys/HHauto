@@ -1,12 +1,10 @@
 import {
-    Timers,
     addEventsOnMenuItems,
+    ConfigHelper,
     debugDeleteAllVars,
     debugDeleteTempVars,
     deleteStoredValue,
     doStatUpgrades,
-    ConfigHelper,
-    getHHVars,
     getMenu,
     getMenuValues,
     getPage,
@@ -14,17 +12,18 @@ import {
     getStoredValue,
     getTextForUI,
     getTimeLeft,
+    HHMenu,
     manageTranslationPopUp,
     maskInactiveMenus,
     migrateHHVars,
-    randomInterval,
     saveHHStoredVarsDefaults,
     saveHHVarsSettingsAsJSON,
     setHHStoredVarToDefault,
     setMenuValues,
     setStoredValue,
     setTimer,
-    setTimers
+    setTimers,
+    Timers
  } from '../Helper/index';
 import {
     Booster,
@@ -59,6 +58,18 @@ import { disableToolTipsDisplay, enableToolTipsDisplay, manageToolTipsDisplay } 
 
 var started=false;
 var debugMenuID;
+
+export class StartService {
+    static checkVersion()
+    {
+        let previousScriptVersion = getStoredValue(HHStoredVarPrefixKey + "Temp_scriptversion");
+        if (previousScriptVersion != GM.info.script.version) {
+            // run action on new script version
+            logHHAuto(`New script version detected from ${previousScriptVersion} to ${GM.info.script.version}`);
+            setStoredValue(HHStoredVarPrefixKey + "Temp_scriptversion", GM.info.script.version);
+        }
+    }
+}
 
 export function setDefaults(force = false)
 {
@@ -100,6 +111,7 @@ export function setDefaults(force = false)
     }
 }
 
+
 export function hardened_start()
 {
     debugMenuID = GM_registerMenuCommand(getTextForUI("saveDebug","elementText"), saveHHDebugLog);
@@ -131,6 +143,7 @@ export function start() {
         logHHAuto('Not logged in, please login first!');
         return;
     }
+    StartService.checkVersion();
     Club.checkClubStatus();
     MonthlyCards.updateInputPattern();
     replaceCheatClick();
@@ -159,42 +172,10 @@ export function start() {
         bindMouseEvents();
     }
 
+    const hhAutoMenu = new HHMenu();
     $('#contains_all').prepend(getMenu());
 
-    GM_addStyle(''
-                +'#sMenuButton {'
-                +'   position: absolute;'
-                +'   top: 45px;'
-                +'   right: 15px;'
-                +'   z-index:5000;'
-                +'}'
-                +'@media only screen and (max-width: 1025px) {'
-                +'#sMenuButton {'
-                +'   width: 40px;'
-                +'   height: 40px;'
-                +'   top: 60px;'
-                +'   right: 10px;'
-                +'}}'
-               );
-    $("#contains_all nav").prepend('<div class="square_blue_btn" id="sMenuButton" ><img src="https://i.postimg.cc/bv7n83z3/script-Icon2.png"></div>');
-    $("#sMenuButton").on("click", () => {
-        const sMenu = document.getElementById("sMenu");
-        if(sMenu != null) {
-            if (sMenu.style.display === "none")
-            {
-                setMenuValues();
-                sMenu.style.display = "flex";
-                $('#contains_all')[0].style.zIndex = '9';
-            }
-            else
-            {
-                getMenuValues();
-                sMenu.style.display = "none"
-                $('#contains_all')[0].style.zIndex = "";
-            }
-        }
-    });
-
+    hhAutoMenu.createMenuButton();
     addEventsOnMenuItems();
 
     $("#showTooltips").on("change",() => {

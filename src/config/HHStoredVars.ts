@@ -1641,6 +1641,12 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoDailyGoalsCollectablesList"] =
     valueType:"Array"
 };
 // Temp vars
+HHStoredVars[HHStoredVarPrefixKey+"Temp_scriptversion"] =
+{
+    default: "0",
+    storage: "localStorage",
+    HHType: "Temp"
+};
 HHStoredVars[HHStoredVarPrefixKey+"Temp_autoLoop"] =
     {
     default:"true",

@@ -67,76 +67,81 @@ export class DailyGoals {
             //console.log(getPage());
             if (getPage() === ConfigHelper.getHHScriptVars("pagesIDDailyGoals"))
             {
-                logHHAuto("Checking Daily Goals for collectable rewards.");
-                logHHAuto("setting autoloop to false");
-                setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
-                let buttonsToCollect:HTMLElement[] = [];
-                const listDailyGoalsTiersToClaim = $("#daily_goals .progress-section .progress-bar-rewards-container .progress-bar-reward");
-                let potionsNum = Number($('.progress-section div.potions-total > div > p').text());
-                for (let currentTier = 0 ; currentTier < listDailyGoalsTiersToClaim.length ; currentTier++)
-                {
-                    const currentButton = $("button[rel='claim']", listDailyGoalsTiersToClaim[currentTier]);
-                    if(currentButton.length > 0 )
+                try{
+                    logHHAuto("Checking Daily Goals for collectable rewards. Setting autoloop to false");
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
+                    let buttonsToCollect:HTMLElement[] = [];
+                    const listDailyGoalsTiersToClaim = $("#daily_goals .progress-section .progress-bar-rewards-container .progress-bar-reward");
+                    let potionsNum = Number($('.progress-section div.potions-total > div > p').text());
+                    for (let currentTier = 0 ; currentTier < listDailyGoalsTiersToClaim.length ; currentTier++)
                     {
-                        const currentTierNb = currentButton[0].getAttribute("tier");
-                        const currentChest = $(".progress-bar-rewards-container", listDailyGoalsTiersToClaim[currentTier]);
-                        const currentRewardsList = currentChest.length > 0 ? currentChest.data("rewards") : [];
-                        //console.log("checking tier : "+currentTierNb);
-                        if (TimeHelper.getSecondsLeftBeforeEndOfHHDay() <= ConfigHelper.getHHScriptVars("dailyRewardMaxRemainingTime") && TimeHelper.getSecondsLeftBeforeEndOfHHDay() > 0)
+                        const currentButton = $("button[rel='claim']", listDailyGoalsTiersToClaim[currentTier]);
+                        if(currentButton.length > 0 )
                         {
-                            logHHAuto("Force adding for collection chest n° "+currentTierNb);
-                            buttonsToCollect.push(currentButton[0]);
-                        }
-                        else
-                        {
-                            let validToCollect = true;
-                            for (let reward of currentRewardsList)
+                            const currentTierNb = currentButton[0].getAttribute("tier");
+                            const currentChest = $(".progress-bar-rewards-container", listDailyGoalsTiersToClaim[currentTier]);
+                            const currentRewardsList = currentChest.length > 0 ? currentChest.data("rewards") : [];
+                            //console.log("checking tier : "+currentTierNb);
+                            if (TimeHelper.getSecondsLeftBeforeEndOfHHDay() <= ConfigHelper.getHHScriptVars("dailyRewardMaxRemainingTime") && TimeHelper.getSecondsLeftBeforeEndOfHHDay() > 0)
                             {
-                                const rewardType = RewardHelper.getRewardTypeByData(reward);
-
-                                if (! rewardsToCollect.includes(rewardType))
+                                logHHAuto("Force adding for collection chest n° "+currentTierNb);
+                                buttonsToCollect.push(currentButton[0]);
+                            }
+                            else
+                            {
+                                let validToCollect = true;
+                                for (let reward of currentRewardsList)
                                 {
-                                    logHHAuto(`Not adding for collection chest n° ${currentTierNb} because ${rewardType} is not in immediate collection list.`);
-                                    validToCollect = false;
-                                    break;
+                                    const rewardType = RewardHelper.getRewardTypeByData(reward);
+
+                                    if (! rewardsToCollect.includes(rewardType))
+                                    {
+                                        logHHAuto(`Not adding for collection chest n° ${currentTierNb} because ${rewardType} is not in immediate collection list.`);
+                                        validToCollect = false;
+                                        break;
+                                    }
+                                }
+                                if (validToCollect)
+                                {
+                                    buttonsToCollect.push(currentButton[0]);
+                                    logHHAuto("Adding for collection chest n° "+currentTierNb);
                                 }
                             }
-                            if (validToCollect)
+                        }
+                    }
+
+
+                    if (buttonsToCollect.length >0 || potionsNum <100)
+                    {
+                        function collectDailyGoalsRewards()
+                        {
+                            if (buttonsToCollect.length >0)
                             {
-                                buttonsToCollect.push(currentButton[0]);
-                                logHHAuto("Adding for collection chest n° "+currentTierNb);
+                                logHHAuto("Collecting chest n° "+buttonsToCollect[0].getAttribute('tier'));
+                                buttonsToCollect[0].click();
+                                buttonsToCollect.shift();
+                                setTimeout(collectDailyGoalsRewards, randomInterval(300, 500));
+                            }
+                            else
+                            {
+                                logHHAuto("Daily Goals collection finished.");
+                                setTimer('nextDailyGoalsCollectTime', randomInterval(30*60, 35*60));
+                                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                             }
                         }
+                        collectDailyGoalsRewards();
+                        return true;
                     }
-                }
-
-
-                if (buttonsToCollect.length >0 || potionsNum <100)
-                {
-                    function collectDailyGoalsRewards()
+                    else
                     {
-                        if (buttonsToCollect.length >0)
-                        {
-                            logHHAuto("Collecting chest n° "+buttonsToCollect[0].getAttribute('tier'));
-                            buttonsToCollect[0].click();
-                            buttonsToCollect.shift();
-                            setTimeout(collectDailyGoalsRewards, randomInterval(300, 500));
-                        }
-                        else
-                        {
-                            logHHAuto("Daily Goals collection finished.");
-                            setTimer('nextDailyGoalsCollectTime', randomInterval(30*60, 35*60));
-                            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
-                        }
+                        logHHAuto("No Daily Goals reward to collect.");
+                        setTimer('nextDailyGoalsCollectTime', TimeHelper.getSecondsLeftBeforeEndOfHHDay() + randomInterval(3600, 4000));
+                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                        return false;
                     }
-                    collectDailyGoalsRewards();
-                    return true;
-                }
-                else
-                {
-                    logHHAuto("No Daily Goals reward to collect.");
-                    setTimer('nextDailyGoalsCollectTime', TimeHelper.getSecondsLeftBeforeEndOfHHDay() + randomInterval(3600, 4000));
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                } catch ({ errName, message }) {
+                    logHHAuto(`ERROR during daily goals run: ${message}, retry in 1h`);
+                    setTimer('nextDailyGoalsCollectTime', randomInterval(3600, 4000));
                     return false;
                 }
             }

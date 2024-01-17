@@ -59,75 +59,79 @@ export class Missions {
         }
         else
         {
-            const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
-            logHHAuto("On missions page.");
-            if(RewardHelper.closeRewardPopupIfAny()) {
-                return true;
-            }
-            let canCollect = getStoredValue(HHStoredVarPrefixKey+"Setting_autoMissionCollect") ==="true" && $(".mission_button button:visible[rel='claim']").length >0 && TimeHelper.canCollectCompetitionActive();
-            if (canCollect)
-            {
-                logHHAuto("Collecting finished mission's reward.");
-                $(".mission_button button:visible[rel='claim']").first().click();
-                return true;
-            }
-            var { allGood, missions } = Missions.parseMissions(canCollect);
-            if(!allGood && canCollect)
-            {
-                logHHAuto("Something went wrong, need to retry in 15secs.");
-                setTimer('nextMissionTime', randomInterval(15, 30));
-                return true;
-            }
-            if (!allGood) {
-                logHHAuto("Mission ongoing waiting it ends.");
-                return true;
-            }
-            if(debugEnabled) logHHAuto("Missions parsed, mission list is:", missions);
-            if(missions.length > 0)
-            {
-                logHHAuto("Selecting mission from list.");
-                var mission = Missions.getSuitableMission(missions);
-                logHHAuto("Selected mission to be started (duration: "+mission.duration+"sec):");
-                logHHAuto(mission);
-                var missionButton = $(mission.missionObject).find("button:visible[rel='mission_start']").first();
-                if(missionButton.length > 0) {
-                    missionButton.click();
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDMissions"),{},randomInterval(1300,1800));
-                    setTimer('nextMissionTime',Number(mission.duration) + randomInterval(1,5));
+            try {
+                const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
+                logHHAuto("On missions page.");
+                if(RewardHelper.closeRewardPopupIfAny()) {
+                    return true;
                 }
-                else {
-                    logHHAuto("Something went wrong, no start button");
+                let canCollect = getStoredValue(HHStoredVarPrefixKey+"Setting_autoMissionCollect") ==="true" && $(".mission_button button:visible[rel='claim']").length >0 && TimeHelper.canCollectCompetitionActive();
+                if (canCollect)
+                {
+                    logHHAuto("Collecting finished mission's reward.");
+                    $(".mission_button button:visible[rel='claim']").first().click();
+                    return true;
+                }
+                var { allGood, missions } = Missions.parseMissions(canCollect);
+                if(!allGood && canCollect)
+                {
+                    logHHAuto("Something went wrong, need to retry in 15secs.");
                     setTimer('nextMissionTime', randomInterval(15, 30));
                     return true;
                 }
-            }
-            else
-            {
-                logHHAuto("No missions detected...!");
-                // get gift
-                var ck = getStoredValue(HHStoredVarPrefixKey+"Temp_missionsGiftLeft");
-                var isAfterGift = (<HTMLElement>document.querySelector("#missions .after_gift")).style.display === 'block';
-                if(!isAfterGift){
-                    if(ck === 'giftleft')
-                    {
-                        logHHAuto("Collecting gift.");
-                        deleteStoredValue(HHStoredVarPrefixKey+"Temp_missionsGiftLeft");
-                        (<HTMLElement>document.querySelector(".end_gift button")).click();
+                if (!allGood) {
+                    logHHAuto("Mission ongoing waiting it ends.");
+                    return true;
+                }
+                if(debugEnabled) logHHAuto("Missions parsed, mission list is:", missions);
+                if(missions.length > 0)
+                {
+                    var mission = Missions.getSuitableMission(missions);
+                    logHHAuto(`Selected mission to be started (duration: ${mission.duration}sec):`);
+                    if (debugEnabled) logHHAuto(mission);
+                    var missionButton = $(mission.missionObject).find("button:visible[rel='mission_start']").first();
+                    if(missionButton.length > 0) {
+                        missionButton.trigger('click');
+                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDMissions"),{},randomInterval(1300,1800));
+                        setTimer('nextMissionTime',Number(mission.duration) + randomInterval(1,5));
                     }
-                    else{
-                        logHHAuto("Refreshing to collect gift...");
-                        setStoredValue(HHStoredVarPrefixKey+"Temp_missionsGiftLeft","giftleft");
-                        location.reload();
-                        // is busy
+                    else {
+                        logHHAuto("Something went wrong, no start button");
+                        setTimer('nextMissionTime', randomInterval(15, 30));
                         return true;
                     }
                 }
-                let time = $('.after_gift span[rel="expires"]').text();
-                if(time === undefined || time === null || time.length === 0) {
-                    logHHAuto("New mission time was undefined... Setting it manually to 10min.");
-                    setTimer('nextMissionTime', randomInterval(10*60, 12*60));
+                else
+                {
+                    logHHAuto("No missions detected...!");
+                    // get gift
+                    var ck = getStoredValue(HHStoredVarPrefixKey+"Temp_missionsGiftLeft");
+                    var isAfterGift = (<HTMLElement>document.querySelector("#missions .after_gift")).style.display === 'block';
+                    if(!isAfterGift){
+                        if(ck === 'giftleft')
+                        {
+                            logHHAuto("Collecting gift.");
+                            deleteStoredValue(HHStoredVarPrefixKey+"Temp_missionsGiftLeft");
+                            (<HTMLElement>document.querySelector(".end_gift button")).click();
+                        }
+                        else{
+                            logHHAuto("Refreshing to collect gift...");
+                            setStoredValue(HHStoredVarPrefixKey+"Temp_missionsGiftLeft","giftleft");
+                            location.reload();
+                            // is busy
+                            return true;
+                        }
+                    }
+                    let time = $('.after_gift span[rel="expires"]').text();
+                    if(time === undefined || time === null || time.length === 0) {
+                        logHHAuto("New mission time was undefined... Setting it manually to 10min.");
+                        setTimer('nextMissionTime', randomInterval(10*60, 12*60));
+                    }
+                    setTimer('nextMissionTime',Number(convertTimeToInt(time))+ randomInterval(1,5));
                 }
-                setTimer('nextMissionTime',Number(convertTimeToInt(time))+ randomInterval(1,5));
+            } catch ({ errName, message }) {
+                logHHAuto(`ERROR during mission run: ${message}, retry in 10min`);
+                setTimer('nextMissionTime', randomInterval(10 * 60, 12 * 60));
             }
             // not busy
             return false;

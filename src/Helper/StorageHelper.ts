@@ -1,5 +1,5 @@
 import { setDefaults } from '../Service/index';
-import { fillHHPopUp, isJSON, logHHAuto } from '../Utils/index';
+import { cleanLogsInStorage, fillHHPopUp, isJSON, logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey, HHStoredVars } from '../config/index';
 import { ConfigHelper } from "./ConfigHelper";
 import { getMenuValues } from "./HHMenuHelper";
@@ -10,7 +10,7 @@ export function getStorage()
     return getStoredValue(HHStoredVarPrefixKey+"Setting_settPerTab") === "true"?sessionStorage:localStorage;
 }
 
-export function getStoredValue(inVarName)
+export function getStoredValue(inVarName: string)
 {
     if (HHStoredVars.hasOwnProperty(inVarName))
     {
@@ -24,7 +24,7 @@ export function getStoredValue(inVarName)
     return undefined;
 }
 
-export function deleteStoredValue(inVarName)
+export function deleteStoredValue(inVarName: string)
 {
     if (HHStoredVars.hasOwnProperty(inVarName))
     {
@@ -32,11 +32,17 @@ export function deleteStoredValue(inVarName)
     }
 }
 
-export function setStoredValue(inVarName, inValue)
+export function setStoredValue(inVarName: string, inValue: any, retry: boolean=false)
 {
     if (HHStoredVars.hasOwnProperty(inVarName))
     {
-        getStorageItem(HHStoredVars[inVarName].storage)[inVarName] = inValue;
+        try {
+            getStorageItem(HHStoredVars[inVarName].storage)[inVarName] = inValue;
+        } catch ({ errName, message }) {
+            cleanLogsInStorage();
+            logHHAuto(`ERROR: Can't save value in storage for ${inVarName} (${message}), ${retry?'user storage need to be cleaned':'retry...'}`);
+            if (!retry) setStoredValue(inVarName, inValue, true);
+        }
     }
 }
 
@@ -346,4 +352,19 @@ export function getAndStoreCollectPreferences(inVarName, inPopUpText = getTextFo
         });
         setStoredValue(inVarName, JSON.stringify(collectablesList));
     }
+}
+
+export function getLocalStorageSize() {
+    var allStrings = '';
+    for (var key in localStorage) {
+        if (localStorage.hasOwnProperty(key)) {
+            allStrings += localStorage[key];
+        }
+    }
+    for (var key in sessionStorage) {
+        if (sessionStorage.hasOwnProperty(key)) {
+            allStrings += sessionStorage[key];
+        }
+    }
+    return allStrings ? 3 + ((allStrings.length * 16) / (8 * 1024)) + ' KB' : 'Empty (0 KB)';
 }

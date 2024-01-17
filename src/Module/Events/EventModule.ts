@@ -360,7 +360,7 @@ export class EventModule {
                             if(!teamFound) {
                                 if(!teamz.hasClass('.selected-hero-team')) teamz.click();
                                 teamFound = true;
-                                logHHAuto("Select team " + teamIndex + ", Ego: "+parseInt(teamEgo.text()));
+                                logHHAuto("Select team " + (teamIndex+1) + ", Ego: "+parseInt(teamEgo.text()));
                                 setStoredValue(HHStoredVarPrefixKey+"Temp_bossBangTeam", teamIndex);
                                 return true;
                             }

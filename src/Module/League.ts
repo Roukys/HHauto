@@ -269,14 +269,14 @@ export class LeagueHelper {
                         simu = LeagueHelper.getSimPowerOpponent(heroFighter, opponents); 
                         leagueOpponent = new LeagueOpponent(
                             opponents.player.id_fighter,
-                            opponents.place,
+                            // opponents.place,
                             opponents.nickname,
-                            opponents.level,
+                            // opponents.level,
                             opponents.power,
-                            opponents.player_league_points,
+                            // opponents.player_league_points,
                             Number(NumberHelper.nRounding(simu.expectedValue, 1, -1)),
-                            0, // Boster numbers?
-                            opponents,
+                            // 0, // Boster numbers?
+                            // opponents,
                             simu
                         );
 
@@ -535,14 +535,14 @@ export class LeagueHelper {
 
                     leagueOpponent = new LeagueOpponent(
                         opponent_id,
-                        Number($('.data-column[column="place"]', $(this)).text()),
+                        // Number($('.data-column[column="place"]', $(this)).text()),
                         $('.nickname', $(this)).text(),
-                        Number($('.data-column[column="level"]', $(this)).text()),
+                        // Number($('.data-column[column="level"]', $(this)).text()),
                         getPowerOrPoints(hasHHBdsmChangeBefore, $(this)),
-                        Number($('.data-column[column="player_league_points"]', $(this)).text().replace(/\D/g, '')),
+                        // Number($('.data-column[column="player_league_points"]', $(this)).text().replace(/\D/g, '')),
                         expectedPoints,
-                        $('.boosters', $(this)).children().length,
-                        opponents,
+                        // $('.boosters', $(this)).children().length,
+                        // opponents,
                         simu
                     );
                 }
@@ -744,15 +744,16 @@ export class LeagueHelper {
                 if (runThreshold > 0) {
                     setStoredValue(HHStoredVarPrefixKey+"Temp_LeagueHumanLikeRun", "true");
                 }
+                const nextOpponent: LeagueOpponent = Data[0];
 
-                logHHAuto("Going to fight " + Data[0].nickname + "(" + Data[0].opponent_id + ") with power " + Data[0].power);
-                if(debugEnabled) logHHAuto(JSON.stringify(Data[0]));
+                logHHAuto("Going to fight " + nextOpponent.nickname + "(" + nextOpponent.opponent_id + ") with power " + nextOpponent.power);
+                if (debugEnabled) logHHAuto(JSON.stringify(nextOpponent));
                 // change referer
-                window.history.replaceState(null, '', ConfigHelper.getHHScriptVars("pagesURLLeaguPreBattle") +'?id_opponent='+Data[0].opponent_id);
+                window.history.replaceState(null, '', ConfigHelper.getHHScriptVars("pagesURLLeaguPreBattle") + '?id_opponent=' + nextOpponent.opponent_id);
 
                 const opponents_list = getHHVars("opponents_list");
                 const opponentDataFromList = opponents_list.filter(obj => {
-                    return obj.player.id_fighter == Data[0].opponent_id;
+                    return obj.player.id_fighter == nextOpponent.opponent_id;
                 });
                 if(debugEnabled) logHHAuto("opponentDataFromList ", JSON.stringify(opponentDataFromList));
 
@@ -760,7 +761,7 @@ export class LeagueHelper {
                 if(opponentDataFromList && opponentDataFromList.length> 0)
                     numberOfFightAvailable = LeagueHelper.numberOfFightAvailable(opponentDataFromList[0])
                 else
-                    logHHAuto('ERROR opponent ' + Data[0].opponent_id + ' not found in JS list');
+                    logHHAuto('ERROR opponent ' + nextOpponent.opponent_id + ' not found in JS list');
 
                 let numberOfBattle = 1;
                 if(numberOfFightAvailable > 1 && currentPower >= (numberOfFightAvailable + leagueThreshold)){
@@ -770,11 +771,11 @@ export class LeagueHelper {
                 logHHAuto("Going to fight " + numberOfBattle + " times (Number fights available from opponent:" + numberOfFightAvailable + ")");
 
                 if(numberOfBattle <= 1) {
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeagueBattle"),{number_of_battles:1,id_opponent:Data[0].opponent_id});
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeagueBattle"),{number_of_battles:1,id_opponent:nextOpponent.opponent_id});
                 } else {
                     var params1 = {
                         action: "do_battles_leagues",
-                        id_opponent: Data[0].opponent_id,
+                        id_opponent: nextOpponent.opponent_id,
                         number_of_battles: numberOfBattle
                     };
                     unsafeWindow.hh_ajax(params1, function(data) {
