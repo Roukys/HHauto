@@ -319,7 +319,6 @@ HHEnvVariables["global"].pagesIDLabyrinthBattle = "labyrinth-battle";
 HHEnvVariables["global"].pagesURLLabyrinthBattle = "/labyrinth-battle.html";
 HHEnvVariables["global"].pagesKnownList.push("LabyrinthBattle");
 
-
 HHEnvVariables["global"].pagesIDChampionsPage = "champions";
 HHEnvVariables["global"].pagesKnownList.push("ChampionsPage");
 
@@ -395,6 +394,34 @@ HHEnvVariables["global"].pagesKnownList.push("PoA");
 
 HHEnvVariables["global"].pagesIDBossBang = "boss-bang-battle";
 HHEnvVariables["global"].pagesKnownList.push("BossBang");
+
+HHEnvVariables["global"].pagesIDChampionsMap = "sex-god-path";
+HHEnvVariables["global"].pagesURLChampionsMap = "/sex-god-path.html";
+HHEnvVariables["global"].pagesKnownList.push("SexGodPath");
+
+HHEnvVariables["global"].pagesIDLabyrinthPreBattle = "labyrinth-entrance";
+HHEnvVariables["global"].pagesURLLabyrinthPreBattle = "/labyrinth-entrance.html";
+HHEnvVariables["global"].pagesKnownList.push("LabyrinthEntrance");
+
+HHEnvVariables["global"].pagesIDLabyrinthPreBattle = "labyrinth-pool-select";
+HHEnvVariables["global"].pagesURLLabyrinthPreBattle = "/labyrinth-pool-select.html";
+HHEnvVariables["global"].pagesKnownList.push("LabyrinthPoolSelect");
+
+HHEnvVariables["global"].pagesIDLabyrinthPreBattle = "edit-labyrinth-team";
+HHEnvVariables["global"].pagesURLLabyrinthPreBattle = "/edit-labyrinth-team.html";
+HHEnvVariables["global"].pagesKnownList.push("EditLabyrinthTeam");
+
+HHEnvVariables["global"].pagesIDLabyrinthPreBattle = "member-progression";
+HHEnvVariables["global"].pagesURLLabyrinthPreBattle = "/member-progression.html"; 
+HHEnvVariables["global"].pagesKnownList.push("MemberProgression");
+
+HHEnvVariables["global"].pagesIDLabyrinthPreBattle = "hero_pages";
+HHEnvVariables["global"].pagesURLLabyrinthPreBattle = "/hero/profile.html"; 
+HHEnvVariables["global"].pagesKnownList.push("HeroPage");
+
+HHEnvVariables["global"].pagesIDLabyrinthPreBattle = "girl-equipment-upgrade";
+HHEnvVariables["global"].pagesURLLabyrinthPreBattle = "girl-equipment-upgrade.html"; 
+HHEnvVariables["global"].pagesKnownList.push("GirlEquipmentUpgrade");
 
 HHEnvVariables["global"].isEnabledEvents = true;
 HHEnvVariables["global"].isEnabledTrollBattle = true;
