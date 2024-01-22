@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.3.4
+// @version      7.3.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -616,6 +616,7 @@ HHAuto_ToolTips.en['PachinkoNoGirls'] = { version: "5.6.24", elementText: 'No mo
 HHAuto_ToolTips.en['PachinkoByPassNoGirls'] = { version: "5.6.24", elementText: 'Bypass no girls', tooltip: "Bypass the no girls in Pachinko warning." };
 HHAuto_ToolTips.en['PachinkoStopFirstGirl'] = { version: "5.35.00", elementText: 'Stop first girl', tooltip: "Stop when a girl is won." };
 HHAuto_ToolTips.en['PachinkoFillOrbs'] = { version: "5.6.134", elementText: 'Fill all orbs', tooltip: "Fill input with all available orbs." };
+HHAuto_ToolTips.en['PachinkoOrbsSpent'] = { version: "7.3.5", elementText: 'Orbs spent:', tooltip: "" };
 HHAuto_ToolTips.en['ChangeTeamButton'] = { version: "5.6.24", elementText: "Current Best", tooltip: "Get list of top 16 girls for your team." };
 HHAuto_ToolTips.en['ChangeTeamButton2'] = { version: "5.6.24", elementText: "Possible Best", tooltip: "Get list of top 16 girls for your team if they are Max Lv & Aff" };
 HHAuto_ToolTips.en['AssignTopTeam'] = { version: "5.6.24", elementText: "Assign first 7", tooltip: "Put the first 7 ones in the team." };
@@ -7960,8 +7961,8 @@ class Pachinko {
         let PachinkoButton = '<div style="position: absolute;left: 52%;top: 100px;width:60px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">' + getTextForUI("PachinkoButton", "tooltip") + '</span><label style="font-size:small" class="myButton" id="PachinkoButton">' + getTextForUI("PachinkoButton", "elementText") + '</label></div>';
         if (document.getElementById(menuID) === null) {
             $("#contains_all section").prepend(PachinkoButton);
-            $("#PachinkoButton").on("click", buildPachinkoSelectPopUp);
-            GM_registerMenuCommand(getTextForUI(menuID, "elementText"), buildPachinkoSelectPopUp);
+            $("#PachinkoButton").on("click", () => { buildPachinkoSelectPopUp(-1); });
+            GM_registerMenuCommand(getTextForUI(menuID, "elementText"), () => { buildPachinkoSelectPopUp(-1); });
         }
         else {
             return;
@@ -7977,7 +7978,7 @@ class Pachinko {
             }
             return numberOfGirlsToWin;
         }
-        function buildPachinkoSelectPopUp() {
+        function buildPachinkoSelectPopUp(orbsPlayed = -1) {
             let PachinkoMenu = '<div style="padding:50px; display:flex;flex-direction:column;font-size:15px;" class="HHAutoScriptMenu">'
                 + '<div style="display:flex;flex-direction:row">'
                 + '<div style="padding:10px" class="tooltipHH"><span class="tooltipHHtext">' + getTextForUI("PachinkoSelector", "tooltip") + '</span><select id="PachinkoSelector"></select></div>'
@@ -7997,6 +7998,7 @@ class Pachinko {
                 + '<div class="rowLine">'
                 + '<div style="padding:10px;width:50%" class="tooltipHH"><span class="tooltipHHtext">' + getTextForUI("Launch", "tooltip") + '</span><label class="myButton" id="PachinkoPlayX" style="font-size:15px; width:100%;text-align:center">' + getTextForUI("Launch", "elementText") + '</label></div>'
                 + '</div>'
+                + `<p id="PachinkoOrbsSpent">${orbsPlayed >= 0 ? getTextForUI("PachinkoOrbsSpent", "elementText") + ' ' + orbsPlayed : ''}</p>`
                 + '<p style="color: red;" id="PachinkoError"></p>'
                 + '</div>';
             fillHHPopUp("PachinkoMenu", getTextForUI("PachinkoButton", "elementText"), PachinkoMenu);
@@ -8066,9 +8068,9 @@ class Pachinko {
             let stopFirstGirlChecked = document.getElementById("PachinkoStopFirstGirl").checked;
             let buttonValue = Number(timerSelector.options[timerSelector.selectedIndex].value);
             let buttonSelector = "div.playing-zone div.btns-section button.blue_button_L[nb_games=" + buttonValue + "]";
+            const buttonContinueSelector = '.popup_buttons #play_again:visible';
             let orbsLeftSelector = buttonSelector + " span[total_orbs]";
             let orbsToGo = Number(document.getElementById("PachinkoXTimes").value);
-            let orbsPlayed = 0;
             function getNumberOfOrbsLeft(orbsLeftSelector) {
                 let orbsLeft = 0;
                 if ($(orbsLeftSelector).length > 0) {
@@ -8124,29 +8126,36 @@ class Pachinko {
                         return;
                     }
                 }
-                let numberOfGirlsToWin = getNumberOfGirlToWinPatchinko();
+                // let numberOfGirlsToWin = getNumberOfGirlToWinPatchinko();
                 // if(!ByPassNoGirlChecked && numberOfGirlsToWin === 0) {
                 //     stopXPachinkoNoGirl();
                 //     return;
                 // }
+                const currentOrbsLeft = getNumberOfOrbsLeft(orbsLeftSelector);
+                const spendedOrbs = Number(orbsLeft - currentOrbsLeft);
                 if (stopFirstGirlChecked && $('#rewards_popup #reward_holder .shards_wrapper:visible').length > 0) {
                     LogUtils_logHHAuto("Girl in reward, stopping...");
                     maskHHPopUp();
-                    buildPachinkoSelectPopUp();
+                    buildPachinkoSelectPopUp(spendedOrbs);
                     return;
                 }
-                let pachinkoSelectedButton = $(buttonSelector)[0];
-                RewardHelper.closeRewardPopupIfAny(false);
-                const currentOrbsLeft = getNumberOfOrbsLeft(orbsLeftSelector);
-                let spendedOrbs = Number(orbsLeft - currentOrbsLeft);
+                const pachinkoSelectedButton = $(buttonSelector)[0];
+                const continuePachinkoSelectedButton = $(buttonContinueSelector);
                 $("#PachinkoPlayedTimes").text(spendedOrbs + "/" + orbsToGo);
                 if (spendedOrbs < orbsToGo && currentOrbsLeft > 0) {
+                    if (continuePachinkoSelectedButton.length > 0) {
+                        continuePachinkoSelectedButton.trigger('click');
+                    }
+                    else {
+                        RewardHelper.closeRewardPopupIfAny(false);
                     pachinkoSelectedButton.click();
                 }
+                }
                 else {
+                    RewardHelper.closeRewardPopupIfAny(false);
                     LogUtils_logHHAuto("All spent, going back to Selector.");
                     maskHHPopUp();
-                    buildPachinkoSelectPopUp();
+                    buildPachinkoSelectPopUp(spendedOrbs);
                     return;
                 }
                 setTimeout(playXPachinko_func, randomInterval(500, 1500));
@@ -9699,6 +9708,27 @@ HHEnvVariables["global"].pagesIDPoA = "path_of_attraction";
 HHEnvVariables["global"].pagesKnownList.push("PoA");
 HHEnvVariables["global"].pagesIDBossBang = "boss-bang-battle";
 HHEnvVariables["global"].pagesKnownList.push("BossBang");
+HHEnvVariables["global"].pagesIDChampionsMap = "sex-god-path";
+HHEnvVariables["global"].pagesURLChampionsMap = "/sex-god-path.html";
+HHEnvVariables["global"].pagesKnownList.push("SexGodPath");
+HHEnvVariables["global"].pagesIDLabyrinthPreBattle = "labyrinth-entrance";
+HHEnvVariables["global"].pagesURLLabyrinthPreBattle = "/labyrinth-entrance.html";
+HHEnvVariables["global"].pagesKnownList.push("LabyrinthEntrance");
+HHEnvVariables["global"].pagesIDLabyrinthPreBattle = "labyrinth-pool-select";
+HHEnvVariables["global"].pagesURLLabyrinthPreBattle = "/labyrinth-pool-select.html";
+HHEnvVariables["global"].pagesKnownList.push("LabyrinthPoolSelect");
+HHEnvVariables["global"].pagesIDLabyrinthPreBattle = "edit-labyrinth-team";
+HHEnvVariables["global"].pagesURLLabyrinthPreBattle = "/edit-labyrinth-team.html";
+HHEnvVariables["global"].pagesKnownList.push("EditLabyrinthTeam");
+HHEnvVariables["global"].pagesIDLabyrinthPreBattle = "member-progression";
+HHEnvVariables["global"].pagesURLLabyrinthPreBattle = "/member-progression.html";
+HHEnvVariables["global"].pagesKnownList.push("MemberProgression");
+HHEnvVariables["global"].pagesIDLabyrinthPreBattle = "hero_pages";
+HHEnvVariables["global"].pagesURLLabyrinthPreBattle = "/hero/profile.html";
+HHEnvVariables["global"].pagesKnownList.push("HeroPage");
+HHEnvVariables["global"].pagesIDLabyrinthPreBattle = "girl-equipment-upgrade";
+HHEnvVariables["global"].pagesURLLabyrinthPreBattle = "girl-equipment-upgrade.html";
+HHEnvVariables["global"].pagesKnownList.push("GirlEquipmentUpgrade");
 HHEnvVariables["global"].isEnabledEvents = true;
 HHEnvVariables["global"].isEnabledTrollBattle = true;
 HHEnvVariables["global"].isEnabledPachinko = true;

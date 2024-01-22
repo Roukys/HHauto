@@ -190,7 +190,6 @@ export class ClubChampion {
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                     return false;
                 }
-    
             }
             ClubChampion.updateClubChampionTimer();
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
