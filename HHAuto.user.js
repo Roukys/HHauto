@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.3.5
+// @version      7.3.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -7998,8 +7998,8 @@ class Pachinko {
                 + '<div class="rowLine">'
                 + '<div style="padding:10px;width:50%" class="tooltipHH"><span class="tooltipHHtext">' + getTextForUI("Launch", "tooltip") + '</span><label class="myButton" id="PachinkoPlayX" style="font-size:15px; width:100%;text-align:center">' + getTextForUI("Launch", "elementText") + '</label></div>'
                 + '</div>'
-                + `<p id="PachinkoOrbsSpent">${orbsPlayed >= 0 ? getTextForUI("PachinkoOrbsSpent", "elementText") + ' ' + orbsPlayed : ''}</p>`
                 + '<p style="color: red;" id="PachinkoError"></p>'
+                + `<p id="PachinkoOrbsSpent">${orbsPlayed >= 0 ? getTextForUI("PachinkoOrbsSpent", "elementText") + ' ' + orbsPlayed : ''}</p>`
                 + '</div>';
             fillHHPopUp("PachinkoMenu", getTextForUI("PachinkoButton", "elementText"), PachinkoMenu);
             function updateOrbsNumber(orbsLeft) {
@@ -8148,8 +8148,8 @@ class Pachinko {
                     }
                     else {
                         RewardHelper.closeRewardPopupIfAny(false);
-                    pachinkoSelectedButton.click();
-                }
+                        pachinkoSelectedButton.click();
+                    }
                 }
                 else {
                     RewardHelper.closeRewardPopupIfAny(false);
@@ -9708,26 +9708,26 @@ HHEnvVariables["global"].pagesIDPoA = "path_of_attraction";
 HHEnvVariables["global"].pagesKnownList.push("PoA");
 HHEnvVariables["global"].pagesIDBossBang = "boss-bang-battle";
 HHEnvVariables["global"].pagesKnownList.push("BossBang");
-HHEnvVariables["global"].pagesIDChampionsMap = "sex-god-path";
-HHEnvVariables["global"].pagesURLChampionsMap = "/sex-god-path.html";
+HHEnvVariables["global"].pagesIDSexGodPath = "sex-god-path";
+HHEnvVariables["global"].pagesURLSexGodPath = "/sex-god-path.html";
 HHEnvVariables["global"].pagesKnownList.push("SexGodPath");
-HHEnvVariables["global"].pagesIDLabyrinthPreBattle = "labyrinth-entrance";
-HHEnvVariables["global"].pagesURLLabyrinthPreBattle = "/labyrinth-entrance.html";
+HHEnvVariables["global"].pagesIDLabyrinthEntrance = "labyrinth-entrance";
+HHEnvVariables["global"].pagesURLLabyrinthEntrance = "/labyrinth-entrance.html";
 HHEnvVariables["global"].pagesKnownList.push("LabyrinthEntrance");
-HHEnvVariables["global"].pagesIDLabyrinthPreBattle = "labyrinth-pool-select";
-HHEnvVariables["global"].pagesURLLabyrinthPreBattle = "/labyrinth-pool-select.html";
+HHEnvVariables["global"].pagesIDLabyrinthPoolSelect = "labyrinth-pool-select";
+HHEnvVariables["global"].pagesURLLabyrinthPoolSelect = "/labyrinth-pool-select.html";
 HHEnvVariables["global"].pagesKnownList.push("LabyrinthPoolSelect");
-HHEnvVariables["global"].pagesIDLabyrinthPreBattle = "edit-labyrinth-team";
-HHEnvVariables["global"].pagesURLLabyrinthPreBattle = "/edit-labyrinth-team.html";
+HHEnvVariables["global"].pagesIDEditLabyrinthTeam = "edit-labyrinth-team";
+HHEnvVariables["global"].pagesURLEditLabyrinthTeam = "/edit-labyrinth-team.html";
 HHEnvVariables["global"].pagesKnownList.push("EditLabyrinthTeam");
-HHEnvVariables["global"].pagesIDLabyrinthPreBattle = "member-progression";
-HHEnvVariables["global"].pagesURLLabyrinthPreBattle = "/member-progression.html";
+HHEnvVariables["global"].pagesIDMemberProgression = "member-progression";
+HHEnvVariables["global"].pagesURLMemberProgression = "/member-progression.html";
 HHEnvVariables["global"].pagesKnownList.push("MemberProgression");
-HHEnvVariables["global"].pagesIDLabyrinthPreBattle = "hero_pages";
-HHEnvVariables["global"].pagesURLLabyrinthPreBattle = "/hero/profile.html";
+HHEnvVariables["global"].pagesIDHeroPage = "hero_pages";
+HHEnvVariables["global"].pagesURLHeroPage = "/hero/profile.html";
 HHEnvVariables["global"].pagesKnownList.push("HeroPage");
-HHEnvVariables["global"].pagesIDLabyrinthPreBattle = "girl-equipment-upgrade";
-HHEnvVariables["global"].pagesURLLabyrinthPreBattle = "girl-equipment-upgrade.html";
+HHEnvVariables["global"].pagesIDGirlEquipmentUpgrade = "girl-equipment-upgrade";
+HHEnvVariables["global"].pagesURLGirlEquipmentUpgrade = "girl-equipment-upgrade.html";
 HHEnvVariables["global"].pagesKnownList.push("GirlEquipmentUpgrade");
 HHEnvVariables["global"].isEnabledEvents = true;
 HHEnvVariables["global"].isEnabledTrollBattle = true;
