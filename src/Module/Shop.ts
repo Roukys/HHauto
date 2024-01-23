@@ -549,8 +549,8 @@ export class Shop {
     
         function fetchAllArmorItems()
         {
-            let oldCount = $('#player-inventory.armor .slot:not(.empty)').length;
-            $("#menuSellCurrentCount").html($(itemsQuery).length+'');
+            let oldCount = $(itemsQuery).length;
+            $("#menuSellCurrentCount").html(oldCount +'');
             let scroll = $("#player-inventory.armor")[0];
             const SellDialog = <HTMLDialogElement>document.getElementById("SellDialog");
             if (menuSellStop || allLoaded || oldCount >= Number(menuSellMaxItems) || !SellDialog.open)
