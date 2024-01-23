@@ -103,7 +103,8 @@ HHEnvVariables["global"].possibleRewardsList = {'energy_kiss' : "Kisses",
                                                 'mythic' : "Mythic Rquipment",
                                                 'avatar': "Avatar",
                                                 'ticket' : "Champions' tickets",
-                                                'event_cash' : "Event cash"};
+                                                'event_cash' : "Event cash",
+                                                'rejuvenation_stone': "Rejuvenation Stones"};
 
 HHEnvVariables["global"].trollzList =  ["Latest",
                                         "Dark Lord",

@@ -1,14 +1,15 @@
 import {
-    RewardHelper,
     checkTimer,
     ConfigHelper,
-    getHHVars,
+    deleteStoredValue,
     getHero,
+    getHHVars,
     getPage,
     getSecondsLeft,
     getStoredValue,
     getTextForUI,
     queryStringGetParam,
+    RewardHelper,
     setHHVars,
     setStoredValue,
 } from '../Helper/index';
@@ -33,35 +34,21 @@ export class Troll {
     static getTrollWithGirls() {
         const girlDictionary = Harem.getGirlsList();
         const trollGirlsID = ConfigHelper.getHHScriptVars("trollGirlsID");
-        const trollWithGirls:any[] = [];
+        const trollWithGirls:number[] = [];
     
         if (girlDictionary) {
             for (var tIdx = 0; tIdx < trollGirlsID.length; tIdx++) {
-                trollWithGirls[tIdx] = [];
+                trollWithGirls[tIdx] = 0;
                 for (var pIdx = 0; pIdx < trollGirlsID[tIdx].length; pIdx++) {
-                    trollWithGirls[tIdx][pIdx] = false;
                     for (var gIdx = 0; gIdx < trollGirlsID[tIdx][pIdx].length; gIdx++) {
                         var idGirl = parseInt(trollGirlsID[tIdx][pIdx][gIdx], 10);
-                        if (idGirl == 0) {
-                            trollWithGirls[tIdx][pIdx] = false;
-                        }
-                        else if (girlDictionary.get(idGirl) == undefined) {
-                            trollWithGirls[tIdx][pIdx] = true;
-                        }
-                        else {
-                            if (girlDictionary.get(idGirl).shards == 100 && trollWithGirls[tIdx][pIdx] == false) {
-                                trollWithGirls[tIdx][pIdx] = false;
-                            }
-                            else {
-                                trollWithGirls[tIdx][pIdx] = true;
-                            }
+                        if (idGirl != 0 && (girlDictionary.get(idGirl) == undefined || girlDictionary.get(idGirl).shards < 100)) {
+                            trollWithGirls[tIdx] += 1;
                         }
                     }
-    
                 }
             }
         }
-        // const trollWithGirls = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_trollWithGirls"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_trollWithGirls")):[];
         return trollWithGirls;
     }
 
@@ -108,15 +95,20 @@ export class Troll {
         }
     }
 
+    static getTrollSelectedIndex(){
+        let autoTrollSelectedIndex = getStoredValue(HHStoredVarPrefixKey + "Setting_autoTrollSelectedIndex");
+        if (autoTrollSelectedIndex === undefined || isNaN(autoTrollSelectedIndex)) {
+            autoTrollSelectedIndex = -1;
+        } else {
+            autoTrollSelectedIndex = Number(autoTrollSelectedIndex);
+        }
+        return autoTrollSelectedIndex;
+    }
+
     static getTrollIdToFight() {
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
         let trollWithGirls = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_trollWithGirls"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_trollWithGirls")):[];
-        let autoTrollSelectedIndex = getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollSelectedIndex");
-        if(autoTrollSelectedIndex === undefined || isNaN(autoTrollSelectedIndex)) {
-            autoTrollSelectedIndex -1
-        }else {
-            autoTrollSelectedIndex = Number(autoTrollSelectedIndex);
-        }
+        const autoTrollSelectedIndex = Troll.getTrollSelectedIndex();
 
         let TTF:number = 0;
         const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
@@ -145,11 +137,11 @@ export class Troll {
             if (trollWithGirls !== undefined && trollWithGirls.length > 0) {
                 if (autoTrollSelectedIndex === 98) {
                     if (debugEnabled) logHHAuto("First troll with girls from storage");
-                    TTF = trollWithGirls.findIndex(troll => troll.find(trollTier => trollTier === true)) + 1;
+                    TTF = trollWithGirls.findIndex((troll: number) => troll > 0) + 1;
                 }
                 else if (autoTrollSelectedIndex === 99) {
                     if (debugEnabled) logHHAuto("Last troll with girls from storage");
-                    TTF = trollWithGirls.findLastIndex(troll => troll.find(trollTier => trollTier === true)) + 1;
+                    TTF = trollWithGirls.findLastIndex((troll: number) => troll > 0) + 1;
                     if(TTF > lastTrollIdAvailable) {
                         TTF=lastTrollIdAvailable;
                     }
@@ -181,6 +173,10 @@ export class Troll {
             setStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement", "none");
         }
         const trollz = ConfigHelper.getHHScriptVars("trollzList");
+        if (TTF <= 0) {
+            TTF = lastTrollIdAvailable > 0 ? lastTrollIdAvailable : 1;
+            logHHAuto(`Error: wrong troll target found. Backup to ${TTF}`);
+        }
         if(TTF >= trollz.length) {
             logHHAuto("Error: New troll implemented '"+TTF+"' (List to be updated) or wrong troll target found");
             TTF = 1;
@@ -287,6 +283,7 @@ export class Troll {
             {
                 const rewardGirlz = $("#pre-battle .oponnent-panel .opponent_rewards .rewards_list .slot.girl_ico[data-rewards]");
                 const trollGirlRewards = rewardGirlz.attr('data-rewards') || '';
+                const autoTrollSelectedIndex = Troll.getTrollSelectedIndex();
                 if (eventMythicGirl.girl_id && TTF === eventMythicGirl.troll_id && eventMythicGirl.is_mythic && getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true")
                 {
                     eventTrollGirl = eventMythicGirl;
@@ -304,6 +301,20 @@ export class Troll {
                         logHHAuto(`Seems ${eventGirl.name} is no more available at troll ${trollz[Number(TTF)]}. Going to event page.`);
                         EventModule.parseEventPage(eventGirl.event_id);
                         return true;
+                    }
+                }
+                if (rewardGirlz.length === 0 && (autoTrollSelectedIndex === 98 || autoTrollSelectedIndex === 99))
+                {
+                    logHHAuto(`Seems no more girls available at troll ${trollz[Number(TTF)]}, looking for next troll.`);
+                    let trollWithGirls = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_trollWithGirls")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_trollWithGirls")) : [];
+                    trollWithGirls[TTF] = 0;
+                    setStoredValue(HHStoredVarPrefixKey + "Temp_trollWithGirls", JSON.stringify(trollWithGirls));
+                    const newTroll = Troll.getTrollIdToFight();
+                    if (TTF != newTroll) {
+                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle"), { id_opponent: newTroll });
+                        return true;
+                    } else {
+                        logHHAuto(`Same troll found, go for it.`);
                     }
                 }
                 let canBuyFightsResult = Troll.canBuyFight(eventTrollGirl);
@@ -331,7 +342,7 @@ export class Troll {
                 {
                     Troll.RechargeCombat(eventTrollGirl);
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle"),{id_opponent:TTF});
-                    return;
+                    return true;
                 }
 
                 if

@@ -67,6 +67,8 @@ export class StartService {
             // run action on new script version
             logHHAuto(`New script version detected from ${previousScriptVersion} to ${GM.info.script.version}`);
             setStoredValue(HHStoredVarPrefixKey + "Temp_scriptversion", GM.info.script.version);
+
+            deleteStoredValue(HHStoredVarPrefixKey + "Temp_trollWithGirls"); // Format changed with 7.3.7
         }
     }
 }
