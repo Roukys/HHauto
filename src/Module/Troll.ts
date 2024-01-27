@@ -132,10 +132,10 @@ export class Troll {
                 logHHAuto("No troll with girls from storage, parsing game info ...");
                 trollWithGirls = Troll.getTrollWithGirls();
                 if (trollWithGirls.length === 0) {
-                    logHHAuto("Need girls list, going to Edit team page to get them");
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDEditTeam"), { battle_type: 'leagues' });
+                    logHHAuto("Need girls list, going to Waifu page to get them");
                     setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
-                    return;
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDWaifu"));
+                    return -1;
                 }
                 setStoredValue(HHStoredVarPrefixKey+"Temp_trollWithGirls", JSON.stringify(trollWithGirls));
             }
@@ -209,9 +209,20 @@ export class Troll {
             setStoredValue(HHStoredVarPrefixKey+"Temp_TrollHumanLikeRun", "true");
         }
 
-        const TTF = Troll.getTrollIdToFight();
+        let TTF = Troll.getTrollIdToFight();
         const trollz = ConfigHelper.getHHScriptVars("trollzList");
         const currentPage = getPage();
+
+        if (!TTF || TTF <= 0) {
+            if (getStoredValue(HHStoredVarPrefixKey + "Temp_TrollInvalid") === "true") {
+                logHHAuto(`ERROR: Invalid troll N°${TTF}, again, going to first troll`);
+                TTF = 1;
+            }else {
+                logHHAuto(`ERROR: Invalid troll N°${TTF}, do not fight, retry...`);
+                setStoredValue(HHStoredVarPrefixKey + "Temp_TrollInvalid", "true");
+                return true;
+            }
+        }
 
         if (Booster.needSandalWoodEquipped(TTF))
         {

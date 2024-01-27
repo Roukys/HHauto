@@ -1936,6 +1936,12 @@ HHStoredVars[HHStoredVarPrefixKey+"Temp_TrollHumanLikeRun"] =
     storage:"sessionStorage",
     HHType:"Temp"
 };
+HHStoredVars[HHStoredVarPrefixKey +"Temp_TrollInvalid"] =
+    {
+    default:"false",
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
 HHStoredVars[HHStoredVarPrefixKey+"Temp_PantheonHumanLikeRun"] =
     {
     storage:"sessionStorage",

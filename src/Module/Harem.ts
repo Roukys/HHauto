@@ -69,7 +69,11 @@ export class Harem {
         let girlsDataList: Map<string, any> = Harem.getHaremGirlsFromOcdIfExist();
         if (girlsDataList == null && getPage() === ConfigHelper.getHHScriptVars("pagesIDEditTeam")) {
             girlsDataList = getHHVars("availableGirls");
-
+        }
+        if (girlsDataList == null && getPage() === ConfigHelper.getHHScriptVars("pagesIDWaifu")) {
+            girlsDataList = getHHVars("girlsDataList");
+        }
+        if(girlsDataList != null) {
             let girlNameDictionary = new Map();
             girlsDataList.forEach((data: any) => {
                 girlNameDictionary.set(data.id_girl +"", data);
@@ -296,7 +300,11 @@ export class Harem {
     static moduleHaremExportGirlsData()
     {
         const menuID = "ExportGirlsData";
-        let ExportGirlsData = `<div style="position: absolute;left: 870px;top: 80px;width:24px;z-index:10" class="tooltipHH" id="${menuID}"><span class="tooltipHHtext">${getTextForUI("ExportGirlsData","tooltip")}</span><label style="font-size:small" class="myButton" id="ExportGirlsDataButton">${getTextForUI("ExportGirlsData","elementText")}</label></div>`;
+        let styles = 'position: absolute;left: 870px;top: 80px;width:24px;z-index:10';
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDWaifu")) {
+            styles = 'position: absolute;left: 870px;top: 35px;width:24px;z-index:10';
+        }
+        let ExportGirlsData = `<div style="${styles}" class="tooltipHH" id="${menuID}"><span class="tooltipHHtext">${getTextForUI("ExportGirlsData","tooltip")}</span><label style="font-size:small" class="myButton" id="ExportGirlsDataButton">${getTextForUI("ExportGirlsData","elementText")}</label></div>`;
         if (document.getElementById(menuID) === null)
         {
             $("#filter_girls").after(ExportGirlsData);

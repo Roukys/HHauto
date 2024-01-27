@@ -111,6 +111,9 @@ export function gotoPage(page,inArgs={},delay = -1)
         case ConfigHelper.getHHScriptVars("pagesIDEditTeam") :
             togoto = ConfigHelper.getHHScriptVars("pagesURLEditTeam");
             break;
+        case ConfigHelper.getHHScriptVars("pagesIDWaifu") :
+            togoto = ConfigHelper.getHHScriptVars("pagesURLWaifu");
+            break;
         case (page.match(/^\/champions\/[123456]$/) || {}).input:
             togoto = page;
             break;

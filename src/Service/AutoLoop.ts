@@ -1036,6 +1036,10 @@ export async function autoLoop()
             Harem.moduleHaremExportGirlsData();
             Harem.moduleHaremCountMax();
             break;
+        case ConfigHelper.getHHScriptVars("pagesIDWaifu"):
+            Harem.moduleHaremExportGirlsData();
+            Harem.moduleHaremCountMax();
+            break;
         case ConfigHelper.getHHScriptVars("pagesIDContests"):
             break;
         case ConfigHelper.getHHScriptVars("pagesIDPoV"):
