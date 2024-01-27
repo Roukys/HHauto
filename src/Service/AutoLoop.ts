@@ -312,6 +312,7 @@ export async function autoLoop()
                     || getPage() === ConfigHelper.getHHScriptVars("pagesIDTrollBattle")
                     || getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonBattle")
                     || getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle")
+                    || getPage() === ConfigHelper.getHHScriptVars("pagesIDLabyrinthBattle")
                 )
                 && isAutoLoopActive() && canCollectCompetitionActive
             )
@@ -1017,8 +1018,7 @@ export async function autoLoop()
             break;
         case ConfigHelper.getHHScriptVars("pagesIDHarem"):
             Harem.moduleHarem();
-            Harem.moduleHaremExportGirlsData();
-            Harem.moduleHaremCountMax();
+            // Harem.moduleHaremExportGirlsData(); // moved to edit team
             Harem.moduleHaremNextUpgradableGirl();
             Harem.haremOpenFirstXUpgradable();
             break;
@@ -1033,6 +1033,8 @@ export async function autoLoop()
             break;
         case ConfigHelper.getHHScriptVars("pagesIDEditTeam"):
             TeamModule.moduleChangeTeam();
+            Harem.moduleHaremExportGirlsData();
+            Harem.moduleHaremCountMax();
             break;
         case ConfigHelper.getHHScriptVars("pagesIDContests"):
             break;

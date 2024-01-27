@@ -42,7 +42,7 @@ export class Troll {
                 for (var pIdx = 0; pIdx < trollGirlsID[tIdx].length; pIdx++) {
                     for (var gIdx = 0; gIdx < trollGirlsID[tIdx][pIdx].length; gIdx++) {
                         var idGirl = parseInt(trollGirlsID[tIdx][pIdx][gIdx], 10);
-                        if (idGirl != 0 && (girlDictionary.get(idGirl) == undefined || girlDictionary.get(idGirl).shards < 100)) {
+                        if (idGirl != 0 && (girlDictionary.get(""+idGirl) == undefined || girlDictionary.get(""+idGirl).shards < 100)) {
                             trollWithGirls[tIdx] += 1;
                         }
                     }
@@ -105,7 +105,7 @@ export class Troll {
         return autoTrollSelectedIndex;
     }
 
-    static getTrollIdToFight() {
+    static getTrollIdToFight(): number {
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
         let trollWithGirls = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_trollWithGirls"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_trollWithGirls")):[];
         const autoTrollSelectedIndex = Troll.getTrollSelectedIndex();
@@ -131,6 +131,12 @@ export class Troll {
             if (trollWithGirls === undefined || trollWithGirls.length === 0) {
                 logHHAuto("No troll with girls from storage, parsing game info ...");
                 trollWithGirls = Troll.getTrollWithGirls();
+                if (trollWithGirls.length === 0) {
+                    logHHAuto("Need girls list, going to Edit team page to get them");
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDEditTeam"), { battle_type: 'leagues' });
+                    setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+                    return;
+                }
                 setStoredValue(HHStoredVarPrefixKey+"Temp_trollWithGirls", JSON.stringify(trollWithGirls));
             }
 

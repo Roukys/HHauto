@@ -92,8 +92,8 @@ export class Labyrinth {
                 return;
             }
             logHHAuto("On Labyrinth page.");
-    
-            GM_addStyle('.labChosen {width: 25px;}');
+
+            GM_addStyle('.labChosen {width: 25px; top: 55px; position: relative; left: 35px;}');
     
             const NB_ROW = 11;
             for(let rowIndex = 1; rowIndex <= NB_ROW; rowIndex++) {
@@ -219,8 +219,8 @@ export class Labyrinth {
     {
         // opponent_super_easy / opponent_easy / opponent_medium  / opponent_hard / opponent_boss  
         // shrine / treasure
-        const type = ($('.hex-type', hex).attr('class') || '').replace('hex-type', '').trim();
-        const button = $('button', hex);
+        const type = $('.clickable-hex', hex).attr('hex_type') || ($('.hex-type', hex).attr('hex_type') || '').replace('hex-type', '').trim();
+        const button = $('.clickable-hex', hex);
 
         return {
             button: button.length > 0 ? button.first() : null,

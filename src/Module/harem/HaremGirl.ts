@@ -18,11 +18,15 @@ export class HaremGirl {
     static AFFECTION_TYPE='affection';
     static EXPERIENCE_TYPE='experience';
 
-    static getMaxOutButton(haremItem){
+    static getMaxOutButton(haremItem:string){
         return $('#girl-leveler-max-out-'+haremItem+':not([disabled])');
     }
 
-    static switchTabs(haremItem){
+    static getMaxOutAllButton(haremItem: string){
+        return $('#girl-leveler-max-out-all-levels-'+haremItem+':not([disabled])');
+    }
+
+    static switchTabs(haremItem: string){
         $('#girl-leveler-tabs .switch-tab[data-tab="'+haremItem+'"]').click();
     }
 

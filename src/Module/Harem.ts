@@ -4,7 +4,8 @@ import {
     getHHVars,
     getStoredValue,
     getTextForUI,
-    setStoredValue
+    setStoredValue,
+    getPage
 } from '../Helper/index';
 import { gotoPage } from '../Service/index';
 import { fillHHPopUp, isJSON, logHHAuto, maskHHPopUp } from '../Utils/index';
@@ -35,7 +36,7 @@ export class Harem {
 
     static getGirlMapSorted(inSortType = "DateAcquired",inSortReversed = true )
     {
-        let girlsMap = getHHVars('GirlSalaryManager.girlsMap');
+        let girlsMap = getHHVars('availableGirls');
         if (girlsMap !== null)
         {
 
@@ -64,20 +65,18 @@ export class Harem {
     }
 
     
-    static getGirlsList() {
-        let girlsDataList = getHHVars("GirlSalaryManager.girlsMap");
-        const isGirlMap = girlsDataList!==null;
-        if (!isGirlMap) { girlsDataList = getHHVars("girlsDataList"); }
+    static getGirlsList(): Map<string,any> {
+        let girlsDataList: Map<string, any> = Harem.getHaremGirlsFromOcdIfExist();
+        if (girlsDataList == null && getPage() === ConfigHelper.getHHScriptVars("pagesIDEditTeam")) {
+            girlsDataList = getHHVars("availableGirls");
 
-        let keys = Object.keys(girlsDataList);
-
-        var girlList = new Map()
-        for (let j = 0, l = keys.length; j < l; j++){
-            let key = parseInt(keys[j], 10);
-            let girlData = {gId: key, shards: 100}
-            girlList.set(key, girlData);
+            let girlNameDictionary = new Map();
+            girlsDataList.forEach((data: any) => {
+                girlNameDictionary.set(data.id_girl +"", data);
+            });
+            girlsDataList = girlNameDictionary;
         }
-        return girlList;
+        return girlsDataList;
     }
     
     static selectNextUpgradableGirl()
@@ -277,13 +276,30 @@ export class Harem {
 
     }
 
+    static getHaremGirlsFromOcdIfExist(): Map<string, any> {
+        if (localStorage.getItem('HHS.HHPNMap') !== null) {
+            try {
+                const girlsArray = JSON.parse(localStorage.getItem('HHS.HHPNMap'));
+                let girlNameDictionary = new Map();
+                girlsArray.forEach((data:any) => {
+                    girlNameDictionary.set(data[0]+"", data[1]);
+                });
+                return girlNameDictionary;
+            } catch (error) {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
     static moduleHaremExportGirlsData()
     {
         const menuID = "ExportGirlsData";
-        let ExportGirlsData = `<div style="position: absolute;left: 36%;top: 20px;width:24px;z-index:10" class="tooltipHH" id="${menuID}"><span class="tooltipHHtext">${getTextForUI("ExportGirlsData","tooltip")}</span><label style="font-size:small" class="myButton" id="ExportGirlsDataButton">${getTextForUI("ExportGirlsData","elementText")}</label></div>`;
+        let ExportGirlsData = `<div style="position: absolute;left: 870px;top: 80px;width:24px;z-index:10" class="tooltipHH" id="${menuID}"><span class="tooltipHHtext">${getTextForUI("ExportGirlsData","tooltip")}</span><label style="font-size:small" class="myButton" id="ExportGirlsDataButton">${getTextForUI("ExportGirlsData","elementText")}</label></div>`;
         if (document.getElementById(menuID) === null)
         {
-            $("#contains_all section").prepend(ExportGirlsData);
+            $("#filter_girls").after(ExportGirlsData);
             $("#ExportGirlsDataButton").on("click", saveHHGirlsAsCSV);
             GM_registerMenuCommand(getTextForUI(menuID,"elementText"), saveHHGirlsAsCSV);
         }
@@ -306,7 +322,7 @@ export class Harem {
         function extractHHGirls()
         {
             var dataToSave = "Name,Rarity,Class,Figure,Level,Stars,Of,Left,Hardcore,Charm,Know-how,Total,Position,Eyes,Hair,Zodiac,Own,Element\r\n";
-            var gMap = getHHVars('GirlSalaryManager.girlsMap');
+            var gMap = getHHVars('availableGirls');
             if(gMap === null)
             {
                 // error
@@ -319,7 +335,7 @@ export class Harem {
                     for(var key in gMap)
                     {
                         cnt++;
-                        var gData = gMap[key].gData;
+                        var gData = gMap[key];
                         dataToSave += gData.name + ",";
                         dataToSave += gData.rarity + ",";
                         dataToSave += gData.class + ",";
@@ -333,10 +349,10 @@ export class Harem {
                         dataToSave += gData.caracs.carac3 + ",";
                         dataToSave += Number(gData.caracs.carac1)+Number(gData.caracs.carac2)+Number(gData.caracs.carac3) + ",";
                         dataToSave += gData.position_img + ",";
-                        dataToSave += stripSpan(gData.ref.eyes) + ",";
-                        dataToSave += stripSpan(gData.ref.hair) + ",";
-                        dataToSave += gData.ref.zodiac.substring(3) + ",";
-                        dataToSave += gData.own + ",";
+                        dataToSave += gData.eye_color1 + ","; // TODO update with user friendly color
+                        dataToSave += gData.hair_color1 + ","; // TODO update with user friendly color
+                        dataToSave += gData.zodiac.substring(3) + ",";
+                        dataToSave += true + ",";
                         dataToSave += gData.element + "\r\n";
 
                     }
@@ -351,7 +367,7 @@ export class Harem {
             return dataToSave;
         }
 
-        function stripSpan(tmpStr)
+        function stripSpan(tmpStr:string)
         {
             var newStr = "";
             while(tmpStr.indexOf(">") > -1)
@@ -364,26 +380,24 @@ export class Harem {
         }
     }
 
-    static getFilteredGirlList() {
+    static getFilteredGirlList(): string[]  {
         // Store girls for harem tools
         let filteredGirlsList:string[] = [];
+        const girlsDataList = getHHVars("girlsDataList");
+        const girlsListSec = getHHVars("GirlSalaryManager.girlsListSec");
 
-        if (unsafeWindow.harem.filteredGirlsList.length > 0) {
-            unsafeWindow.harem.filteredGirlsList.forEach((girl) => {
-                if (girl.shards >= 100) filteredGirlsList.push(""+girl.id_girl);
+        if (girlsDataList) {
+            Object.values(girlsDataList).forEach((girl:any) => {
+                if (girl.shards >= 100) filteredGirlsList.push("" + girl.id_girl);
             });
         }
-        else if (unsafeWindow.harem.filteredGirlsList.length == 0 && unsafeWindow.harem.preselectedGirlId != null) {
-            unsafeWindow.harem.girlsBeforeSelected.forEach((girl) => {
-                if (girl.shards >= 100) filteredGirlsList.push(""+girl.id_girl);
-            });
-            filteredGirlsList.push(unsafeWindow.harem.preselectedGirlId);
-            unsafeWindow.harem.girlsAfterSelected.forEach((girl) => {
-                if (girl.shards >= 100) filteredGirlsList.push(""+girl.id_girl);
+        else if (girlsListSec.length > 0) {
+            girlsListSec.forEach((girl) => {
+                if (girl.gData.shards >= 100) filteredGirlsList.push(""+girl.gId);
             });
         }
         return filteredGirlsList;
-    };
+    }
 
     static moduleHarem()
     {
@@ -433,7 +447,7 @@ export class Harem {
         if($('#'+goToGirlPageButtonId).length > 0) return;
 
         const displayedGirl = $('#harem_right .opened').attr('girl') || ''; // unsafeWindow.harem.preselectedGirlId
-        const girlOwned = displayedGirl != '' && !(getHHVars('girlsDataList',false) != null && getHHVars('girlsDataList',false)[displayedGirl].shards < 100);
+        const girlOwned = displayedGirl != '' && $('#harem_right .opened .avatar-box:visible').length > 0;
 
         //GM_addStyle('#harem_right>div[girl] .middle_part div.avatar-box img.avatar { height: 365px; margin-bottom: 30px;}');
         //GM_addStyle('#harem_right>div[girl] .middle_part div.avatar-box canvas.animated-girl-display { height: 59rem; top: -18rem;}');
@@ -465,7 +479,7 @@ export class Harem {
             +'</label></div>';
         }
         
-        const girlListMenuButton = '<div style="position: absolute;left: 250px;top: 50px; font-size: small; z-index:30;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("girlListMenu","tooltip")+'</span><label class="myButton" id="'+girlListMenuButtonId+'">+</label></div>';
+        const girlListMenuButton = '<div style="position: absolute;left: 250px;top: 35px; font-size: small; z-index:30;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("girlListMenu","tooltip")+'</span><label class="myButton" id="'+girlListMenuButtonId+'">+</label></div>';
         var openGirlMenu = function(){
 
             
@@ -535,10 +549,10 @@ export class Harem {
 
     static moduleHaremCountMax()
     {
-        if (Harem.HaremSizeNeedsRefresh(ConfigHelper.getHHScriptVars("HaremMinSizeExpirationSecs")) && getHHVars('girlsDataList',false) !== null)
+        if (Harem.HaremSizeNeedsRefresh(ConfigHelper.getHHScriptVars("HaremMinSizeExpirationSecs")) && getHHVars('availableGirls',false) !== null)
         {
-            setStoredValue(HHStoredVarPrefixKey+"Temp_HaremSize", JSON.stringify({count:Object.keys(getHHVars('girlsDataList',false)).length,count_date:new Date().getTime()}));
-            logHHAuto("Harem size updated to : "+Object.keys(getHHVars('girlsDataList',false)).length);
+            setStoredValue(HHStoredVarPrefixKey + "Temp_HaremSize", JSON.stringify({ count: Object.keys(getHHVars('availableGirls',false)).length,count_date:new Date().getTime()}));
+            logHHAuto("Harem size updated to : " + Object.keys(getHHVars('availableGirls',false)).length);
         }
     }
 
