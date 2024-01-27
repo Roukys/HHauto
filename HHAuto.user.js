@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.3.8
+// @version      7.3.9
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1700,7 +1700,7 @@ class PathOfAttraction {
             const button = $(`<button class="purple_button_L" id="PoaCollectAll">${getTextForUI("collectAllButton", "elementText")}</button>`);
             const divTooltip = $(`<div class="tooltipHH" style="position: absolute;top: 260px;width: 110px;font-size: small;"><span class="tooltipHHtext">${getTextForUI("collectAllButton", "tooltip")}</span></div>`);
             divTooltip.append(button);
-            $('#home_tab_container .bottom-container').append(divTooltip);
+            $('#poa-content .girls').append(divTooltip);
             button.one('click', () => {
                 PathOfAttraction.goAndCollect(true);
             });
@@ -4548,6 +4548,11 @@ class Harem {
         let girlsDataList = Harem.getHaremGirlsFromOcdIfExist();
         if (girlsDataList == null && getPage() === ConfigHelper.getHHScriptVars("pagesIDEditTeam")) {
             girlsDataList = getHHVars("availableGirls");
+        }
+        if (girlsDataList == null && getPage() === ConfigHelper.getHHScriptVars("pagesIDWaifu")) {
+            girlsDataList = getHHVars("girlsDataList");
+        }
+        if (girlsDataList != null) {
             let girlNameDictionary = new Map();
             girlsDataList.forEach((data) => {
                 girlNameDictionary.set(data.id_girl + "", data);
@@ -4737,7 +4742,11 @@ class Harem {
     }
     static moduleHaremExportGirlsData() {
         const menuID = "ExportGirlsData";
-        let ExportGirlsData = `<div style="position: absolute;left: 870px;top: 80px;width:24px;z-index:10" class="tooltipHH" id="${menuID}"><span class="tooltipHHtext">${getTextForUI("ExportGirlsData", "tooltip")}</span><label style="font-size:small" class="myButton" id="ExportGirlsDataButton">${getTextForUI("ExportGirlsData", "elementText")}</label></div>`;
+        let styles = 'position: absolute;left: 870px;top: 80px;width:24px;z-index:10';
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDWaifu")) {
+            styles = 'position: absolute;left: 870px;top: 35px;width:24px;z-index:10';
+        }
+        let ExportGirlsData = `<div style="${styles}" class="tooltipHH" id="${menuID}"><span class="tooltipHHtext">${getTextForUI("ExportGirlsData", "tooltip")}</span><label style="font-size:small" class="myButton" id="ExportGirlsDataButton">${getTextForUI("ExportGirlsData", "elementText")}</label></div>`;
         if (document.getElementById(menuID) === null) {
             $("#filter_girls").after(ExportGirlsData);
             $("#ExportGirlsDataButton").on("click", saveHHGirlsAsCSV);
@@ -5110,10 +5119,10 @@ class Troll {
                 LogUtils_logHHAuto("No troll with girls from storage, parsing game info ...");
                 trollWithGirls = Troll.getTrollWithGirls();
                 if (trollWithGirls.length === 0) {
-                    LogUtils_logHHAuto("Need girls list, going to Edit team page to get them");
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDEditTeam"), { battle_type: 'leagues' });
+                    LogUtils_logHHAuto("Need girls list, going to Waifu page to get them");
                     setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
-                    return;
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDWaifu"));
+                    return -1;
                 }
                 setStoredValue(HHStoredVarPrefixKey + "Temp_trollWithGirls", JSON.stringify(trollWithGirls));
             }
@@ -5181,9 +5190,20 @@ class Troll {
             if (runThreshold > 0 && currentPower == runThreshold) {
                 setStoredValue(HHStoredVarPrefixKey + "Temp_TrollHumanLikeRun", "true");
             }
-            const TTF = Troll.getTrollIdToFight();
+            let TTF = Troll.getTrollIdToFight();
             const trollz = ConfigHelper.getHHScriptVars("trollzList");
             const currentPage = getPage();
+            if (!TTF || TTF <= 0) {
+                if (getStoredValue(HHStoredVarPrefixKey + "Temp_TrollInvalid") === "true") {
+                    LogUtils_logHHAuto(`ERROR: Invalid troll N°${TTF}, again, going to first troll`);
+                    TTF = 1;
+                }
+                else {
+                    LogUtils_logHHAuto(`ERROR: Invalid troll N°${TTF}, do not fight, retry...`);
+                    setStoredValue(HHStoredVarPrefixKey + "Temp_TrollInvalid", "true");
+                    return true;
+                }
+            }
             if (Booster.needSandalWoodEquipped(TTF)) {
                 if (currentPage !== ConfigHelper.getHHScriptVars("pagesIDShop")) {
                     LogUtils_logHHAuto('Go to Shop page to update booster status');
@@ -9729,6 +9749,9 @@ HHEnvVariables["global"].pagesURLSeasonalEvent = "/seasonal.html";
 HHEnvVariables["global"].pagesKnownList.push("SeasonalEvent");
 HHEnvVariables["global"].pagesIDPowerplacemain = "powerplacemain";
 HHEnvVariables["global"].pagesKnownList.push("Powerplacemain");
+HHEnvVariables["global"].pagesIDWaifu = "waifu";
+HHEnvVariables["global"].pagesURLWaifu = "/waifu.html";
+HHEnvVariables["global"].pagesKnownList.push("Waifu");
 HHEnvVariables["global"].pagesIDBattleTeams = "teams";
 HHEnvVariables["global"].pagesURLBattleTeams = "/teams.html";
 HHEnvVariables["global"].pagesKnownList.push("BattleTeams");
@@ -11855,6 +11878,12 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_LeagueHumanLikeRun"] =
     };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_TrollHumanLikeRun"] =
     {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_TrollInvalid"] =
+    {
+        default: "false",
         storage: "sessionStorage",
         HHType: "Temp"
     };
@@ -15387,6 +15416,10 @@ function autoLoop() {
                 Harem.moduleHaremExportGirlsData();
                 Harem.moduleHaremCountMax();
                 break;
+            case ConfigHelper.getHHScriptVars("pagesIDWaifu"):
+                Harem.moduleHaremExportGirlsData();
+                Harem.moduleHaremCountMax();
+                break;
             case ConfigHelper.getHHScriptVars("pagesIDContests"):
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDPoV"):
@@ -15748,6 +15781,9 @@ function gotoPage(page, inArgs = {}, delay = -1) {
             break;
         case ConfigHelper.getHHScriptVars("pagesIDEditTeam"):
             togoto = ConfigHelper.getHHScriptVars("pagesURLEditTeam");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDWaifu"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLWaifu");
             break;
         case (page.match(/^\/champions\/[123456]$/) || {}).input:
             togoto = page;

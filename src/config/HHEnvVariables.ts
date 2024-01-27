@@ -382,6 +382,10 @@ HHEnvVariables["global"].pagesKnownList.push("SeasonalEvent");
 HHEnvVariables["global"].pagesIDPowerplacemain = "powerplacemain";
 HHEnvVariables["global"].pagesKnownList.push("Powerplacemain");
 
+HHEnvVariables["global"].pagesIDWaifu = "waifu";
+HHEnvVariables["global"].pagesURLWaifu = "/waifu.html";
+HHEnvVariables["global"].pagesKnownList.push("Waifu");
+
 HHEnvVariables["global"].pagesIDBattleTeams = "teams";
 HHEnvVariables["global"].pagesURLBattleTeams = "/teams.html";
 HHEnvVariables["global"].pagesKnownList.push("BattleTeams");
