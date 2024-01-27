@@ -687,7 +687,7 @@ export class EventModule {
                     $(query).prepend('<div class="HHEventPriority">'+e+'</div>');
                     $($(query)).parent().parent()[0].prepend(currentGirl);
                     $(query).css('position','relative');
-                    $(query).click();
+                    $(query).trigger('click');
                 }
             }
         }

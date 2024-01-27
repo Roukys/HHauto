@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.3.7
+// @version      7.3.8
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -2409,7 +2409,7 @@ class EventModule {
                     $(query).prepend('<div class="HHEventPriority">' + e + '</div>');
                     $($(query)).parent().parent()[0].prepend(currentGirl);
                     $(query).css('position', 'relative');
-                    $(query).click();
+                    $(query).trigger('click');
                 }
             }
         }
@@ -4523,7 +4523,7 @@ class Harem {
         }
     }
     static getGirlMapSorted(inSortType = "DateAcquired", inSortReversed = true) {
-        let girlsMap = getHHVars('GirlSalaryManager.girlsMap');
+        let girlsMap = getHHVars('availableGirls');
         if (girlsMap !== null) {
             girlsMap = Object.values(girlsMap);
             if (girlsMap.length > 0) {
@@ -4545,19 +4545,16 @@ class Harem {
         return girlsMap;
     }
     static getGirlsList() {
-        let girlsDataList = getHHVars("GirlSalaryManager.girlsMap");
-        const isGirlMap = girlsDataList !== null;
-        if (!isGirlMap) {
-            girlsDataList = getHHVars("girlsDataList");
+        let girlsDataList = Harem.getHaremGirlsFromOcdIfExist();
+        if (girlsDataList == null && getPage() === ConfigHelper.getHHScriptVars("pagesIDEditTeam")) {
+            girlsDataList = getHHVars("availableGirls");
+            let girlNameDictionary = new Map();
+            girlsDataList.forEach((data) => {
+                girlNameDictionary.set(data.id_girl + "", data);
+            });
+            girlsDataList = girlNameDictionary;
         }
-        let keys = Object.keys(girlsDataList);
-        var girlList = new Map();
-        for (let j = 0, l = keys.length; j < l; j++) {
-            let key = parseInt(keys[j], 10);
-            let girlData = { gId: key, shards: 100 };
-            girlList.set(key, girlData);
-        }
-        return girlList;
+        return girlsDataList;
     }
     static selectNextUpgradableGirl() {
         const HaremSortMenuSortSelector = document.getElementById("HaremSortMenuSortSelector");
@@ -4720,11 +4717,29 @@ class Harem {
             }
         }
     }
+    static getHaremGirlsFromOcdIfExist() {
+        if (localStorage.getItem('HHS.HHPNMap') !== null) {
+            try {
+                const girlsArray = JSON.parse(localStorage.getItem('HHS.HHPNMap'));
+                let girlNameDictionary = new Map();
+                girlsArray.forEach((data) => {
+                    girlNameDictionary.set(data[0] + "", data[1]);
+                });
+                return girlNameDictionary;
+            }
+            catch (error) {
+                return null;
+            }
+        }
+        else {
+            return null;
+        }
+    }
     static moduleHaremExportGirlsData() {
         const menuID = "ExportGirlsData";
-        let ExportGirlsData = `<div style="position: absolute;left: 36%;top: 20px;width:24px;z-index:10" class="tooltipHH" id="${menuID}"><span class="tooltipHHtext">${getTextForUI("ExportGirlsData", "tooltip")}</span><label style="font-size:small" class="myButton" id="ExportGirlsDataButton">${getTextForUI("ExportGirlsData", "elementText")}</label></div>`;
+        let ExportGirlsData = `<div style="position: absolute;left: 870px;top: 80px;width:24px;z-index:10" class="tooltipHH" id="${menuID}"><span class="tooltipHHtext">${getTextForUI("ExportGirlsData", "tooltip")}</span><label style="font-size:small" class="myButton" id="ExportGirlsDataButton">${getTextForUI("ExportGirlsData", "elementText")}</label></div>`;
         if (document.getElementById(menuID) === null) {
-            $("#contains_all section").prepend(ExportGirlsData);
+            $("#filter_girls").after(ExportGirlsData);
             $("#ExportGirlsDataButton").on("click", saveHHGirlsAsCSV);
             GM_registerMenuCommand(getTextForUI(menuID, "elementText"), saveHHGirlsAsCSV);
         }
@@ -4742,7 +4757,7 @@ class Harem {
         }
         function extractHHGirls() {
             var dataToSave = "Name,Rarity,Class,Figure,Level,Stars,Of,Left,Hardcore,Charm,Know-how,Total,Position,Eyes,Hair,Zodiac,Own,Element\r\n";
-            var gMap = getHHVars('GirlSalaryManager.girlsMap');
+            var gMap = getHHVars('availableGirls');
             if (gMap === null) {
                 // error
                 LogUtils_logHHAuto("Girls Map was undefined...! Error, cannot export girls.");
@@ -4752,7 +4767,7 @@ class Harem {
                     var cnt = 1;
                     for (var key in gMap) {
                         cnt++;
-                        var gData = gMap[key].gData;
+                        var gData = gMap[key];
                         dataToSave += gData.name + ",";
                         dataToSave += gData.rarity + ",";
                         dataToSave += gData.class + ",";
@@ -4766,10 +4781,10 @@ class Harem {
                         dataToSave += gData.caracs.carac3 + ",";
                         dataToSave += Number(gData.caracs.carac1) + Number(gData.caracs.carac2) + Number(gData.caracs.carac3) + ",";
                         dataToSave += gData.position_img + ",";
-                        dataToSave += stripSpan(gData.ref.eyes) + ",";
-                        dataToSave += stripSpan(gData.ref.hair) + ",";
-                        dataToSave += gData.ref.zodiac.substring(3) + ",";
-                        dataToSave += gData.own + ",";
+                        dataToSave += gData.eye_color1 + ","; // TODO update with user friendly color
+                        dataToSave += gData.hair_color1 + ","; // TODO update with user friendly color
+                        dataToSave += gData.zodiac.substring(3) + ",";
+                        dataToSave += true + ",";
                         dataToSave += gData.element + "\r\n";
                     }
                     //            logHHAuto(dataToSave);
@@ -4794,26 +4809,22 @@ class Harem {
     static getFilteredGirlList() {
         // Store girls for harem tools
         let filteredGirlsList = [];
-        if (unsafeWindow.harem.filteredGirlsList.length > 0) {
-            unsafeWindow.harem.filteredGirlsList.forEach((girl) => {
+        const girlsDataList = getHHVars("girlsDataList");
+        const girlsListSec = getHHVars("GirlSalaryManager.girlsListSec");
+        if (girlsDataList) {
+            Object.values(girlsDataList).forEach((girl) => {
                 if (girl.shards >= 100)
                     filteredGirlsList.push("" + girl.id_girl);
             });
         }
-        else if (unsafeWindow.harem.filteredGirlsList.length == 0 && unsafeWindow.harem.preselectedGirlId != null) {
-            unsafeWindow.harem.girlsBeforeSelected.forEach((girl) => {
-                if (girl.shards >= 100)
-                    filteredGirlsList.push("" + girl.id_girl);
-            });
-            filteredGirlsList.push(unsafeWindow.harem.preselectedGirlId);
-            unsafeWindow.harem.girlsAfterSelected.forEach((girl) => {
-                if (girl.shards >= 100)
-                    filteredGirlsList.push("" + girl.id_girl);
+        else if (girlsListSec.length > 0) {
+            girlsListSec.forEach((girl) => {
+                if (girl.gData.shards >= 100)
+                    filteredGirlsList.push("" + girl.gId);
             });
         }
         return filteredGirlsList;
     }
-    ;
     static moduleHarem() {
         const menuIDXp = "haremGiveXP";
         const menuIDGifts = "haremGiveGifts";
@@ -4855,7 +4866,7 @@ class Harem {
         if ($('#' + goToGirlPageButtonId).length > 0)
             return;
         const displayedGirl = $('#harem_right .opened').attr('girl') || ''; // unsafeWindow.harem.preselectedGirlId
-        const girlOwned = displayedGirl != '' && !(getHHVars('girlsDataList', false) != null && getHHVars('girlsDataList', false)[displayedGirl].shards < 100);
+        const girlOwned = displayedGirl != '' && $('#harem_right .opened .avatar-box:visible').length > 0;
         //GM_addStyle('#harem_right>div[girl] .middle_part div.avatar-box img.avatar { height: 365px; margin-bottom: 30px;}');
         //GM_addStyle('#harem_right>div[girl] .middle_part div.avatar-box canvas.animated-girl-display { height: 59rem; top: -18rem;}');
         GM_addStyle('.goToGirlPage {position: relative; bottom: 12px; left: 250px; font-size: small; width: fit-content; z-index:30;}');
@@ -4883,7 +4894,7 @@ class Harem {
                 + '<label style="font-size: initial;" class="myButton" ' + (disabled ? 'disabled="disabled"' : '') + ' id="' + menuId + 'Button">' + getTextForUI(menuId, "elementText")
                 + '</label></div>';
         };
-        const girlListMenuButton = '<div style="position: absolute;left: 250px;top: 50px; font-size: small; z-index:30;" class="tooltipHH"><span class="tooltipHHtext">' + getTextForUI("girlListMenu", "tooltip") + '</span><label class="myButton" id="' + girlListMenuButtonId + '">+</label></div>';
+        const girlListMenuButton = '<div style="position: absolute;left: 250px;top: 35px; font-size: small; z-index:30;" class="tooltipHH"><span class="tooltipHHtext">' + getTextForUI("girlListMenu", "tooltip") + '</span><label class="myButton" id="' + girlListMenuButtonId + '">+</label></div>';
         var openGirlMenu = function () {
             const menuIDXp = "haremGiveXP";
             const menuIDGifts = "haremGiveGifts";
@@ -4943,9 +4954,9 @@ class Harem {
         return !isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_HaremSize")) || JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_HaremSize")).count_date < (new Date().getTime() - inCustomExpi * 1000);
     }
     static moduleHaremCountMax() {
-        if (Harem.HaremSizeNeedsRefresh(ConfigHelper.getHHScriptVars("HaremMinSizeExpirationSecs")) && getHHVars('girlsDataList', false) !== null) {
-            setStoredValue(HHStoredVarPrefixKey + "Temp_HaremSize", JSON.stringify({ count: Object.keys(getHHVars('girlsDataList', false)).length, count_date: new Date().getTime() }));
-            LogUtils_logHHAuto("Harem size updated to : " + Object.keys(getHHVars('girlsDataList', false)).length);
+        if (Harem.HaremSizeNeedsRefresh(ConfigHelper.getHHScriptVars("HaremMinSizeExpirationSecs")) && getHHVars('availableGirls', false) !== null) {
+            setStoredValue(HHStoredVarPrefixKey + "Temp_HaremSize", JSON.stringify({ count: Object.keys(getHHVars('availableGirls', false)).length, count_date: new Date().getTime() }));
+            LogUtils_logHHAuto("Harem size updated to : " + Object.keys(getHHVars('availableGirls', false)).length);
         }
     }
     static getGirlUpgradeCost(inRarity, inTargetGrade) {
@@ -5014,7 +5025,7 @@ class Troll {
                 for (var pIdx = 0; pIdx < trollGirlsID[tIdx].length; pIdx++) {
                     for (var gIdx = 0; gIdx < trollGirlsID[tIdx][pIdx].length; gIdx++) {
                         var idGirl = parseInt(trollGirlsID[tIdx][pIdx][gIdx], 10);
-                        if (idGirl != 0 && (girlDictionary.get(idGirl) == undefined || girlDictionary.get(idGirl).shards < 100)) {
+                        if (idGirl != 0 && (girlDictionary.get("" + idGirl) == undefined || girlDictionary.get("" + idGirl).shards < 100)) {
                             trollWithGirls[tIdx] += 1;
                         }
                     }
@@ -5098,6 +5109,12 @@ class Troll {
             if (trollWithGirls === undefined || trollWithGirls.length === 0) {
                 LogUtils_logHHAuto("No troll with girls from storage, parsing game info ...");
                 trollWithGirls = Troll.getTrollWithGirls();
+                if (trollWithGirls.length === 0) {
+                    LogUtils_logHHAuto("Need girls list, going to Edit team page to get them");
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDEditTeam"), { battle_type: 'leagues' });
+                    setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+                    return;
+                }
                 setStoredValue(HHStoredVarPrefixKey + "Temp_trollWithGirls", JSON.stringify(trollWithGirls));
             }
             if (trollWithGirls !== undefined && trollWithGirls.length > 0) {
@@ -5570,6 +5587,9 @@ var HaremGirl_awaiter = (undefined && undefined.__awaiter) || function (thisArg,
 class HaremGirl {
     static getMaxOutButton(haremItem) {
         return $('#girl-leveler-max-out-' + haremItem + ':not([disabled])');
+    }
+    static getMaxOutAllButton(haremItem) {
+        return $('#girl-leveler-max-out-all-levels-' + haremItem + ':not([disabled])');
     }
     static switchTabs(haremItem) {
         $('#girl-leveler-tabs .switch-tab[data-tab="' + haremItem + '"]').click();
@@ -6341,7 +6361,7 @@ class Labyrinth {
                 return;
             }
             LogUtils_logHHAuto("On Labyrinth page.");
-            GM_addStyle('.labChosen {width: 25px;}');
+            GM_addStyle('.labChosen {width: 25px; top: 55px; position: relative; left: 35px;}');
             const NB_ROW = 11;
             for (let rowIndex = 1; rowIndex <= NB_ROW; rowIndex++) {
                 const row = $('#row_' + rowIndex + '.row-hex-container');
@@ -6452,8 +6472,8 @@ class Labyrinth {
     static parseHex(hexIndex, hex) {
         // opponent_super_easy / opponent_easy / opponent_medium  / opponent_hard / opponent_boss  
         // shrine / treasure
-        const type = ($('.hex-type', hex).attr('class') || '').replace('hex-type', '').trim();
-        const button = $('button', hex);
+        const type = $('.clickable-hex', hex).attr('hex_type') || ($('.hex-type', hex).attr('hex_type') || '').replace('hex-type', '').trim();
+        const button = $('.clickable-hex', hex);
         return {
             button: button.length > 0 ? button.first() : null,
             type: type,
@@ -9713,7 +9733,7 @@ HHEnvVariables["global"].pagesIDBattleTeams = "teams";
 HHEnvVariables["global"].pagesURLBattleTeams = "/teams.html";
 HHEnvVariables["global"].pagesKnownList.push("BattleTeams");
 HHEnvVariables["global"].pagesIDEditTeam = "edit-team";
-HHEnvVariables["global"].pagesURLEditTeam = "";
+HHEnvVariables["global"].pagesURLEditTeam = "/edit-team.html";
 HHEnvVariables["global"].pagesKnownList.push("EditTeam");
 HHEnvVariables["global"].pagesIDPoA = "path_of_attraction";
 HHEnvVariables["global"].pagesKnownList.push("PoA");
@@ -14798,7 +14818,8 @@ function autoLoop() {
                     (getPage() === ConfigHelper.getHHScriptVars("pagesIDLeagueBattle")
                         || getPage() === ConfigHelper.getHHScriptVars("pagesIDTrollBattle")
                         || getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonBattle")
-                        || getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle"))
+                        || getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle")
+                        || getPage() === ConfigHelper.getHHScriptVars("pagesIDLabyrinthBattle"))
                 && isAutoLoopActive() && canCollectCompetitionActive) {
                 busy = true;
                 GenericBattle.doBattle();
@@ -15348,8 +15369,7 @@ function autoLoop() {
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDHarem"):
                 Harem.moduleHarem();
-                Harem.moduleHaremExportGirlsData();
-                Harem.moduleHaremCountMax();
+                // Harem.moduleHaremExportGirlsData(); // moved to edit team
                 Harem.moduleHaremNextUpgradableGirl();
                 Harem.haremOpenFirstXUpgradable();
                 break;
@@ -15364,6 +15384,8 @@ function autoLoop() {
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDEditTeam"):
                 TeamModule.moduleChangeTeam();
+                Harem.moduleHaremExportGirlsData();
+                Harem.moduleHaremCountMax();
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDContests"):
                 break;
@@ -15723,6 +15745,9 @@ function gotoPage(page, inArgs = {}, delay = -1) {
             break;
         case ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"):
             togoto = ConfigHelper.getHHScriptVars("pagesURLSeasonalEvent");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDEditTeam"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLEditTeam");
             break;
         case (page.match(/^\/champions\/[123456]$/) || {}).input:
             togoto = page;

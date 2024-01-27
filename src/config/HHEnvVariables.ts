@@ -387,7 +387,7 @@ HHEnvVariables["global"].pagesURLBattleTeams = "/teams.html";
 HHEnvVariables["global"].pagesKnownList.push("BattleTeams");
 
 HHEnvVariables["global"].pagesIDEditTeam = "edit-team";
-HHEnvVariables["global"].pagesURLEditTeam = "";
+HHEnvVariables["global"].pagesURLEditTeam = "/edit-team.html";
 HHEnvVariables["global"].pagesKnownList.push("EditTeam");
 
 HHEnvVariables["global"].pagesIDPoA = "path_of_attraction";
