@@ -82,16 +82,14 @@ export class PathOfAttraction {
 
     static displatCollectAllButton() {
         if (PathOfAttraction.hasUnclaimedRewards() && $('#PoaCollectAll').length == 0) {
-            /*
-            // TODO update path when POA is available
-            const button = $(`<button class="purple_button_L" id="PoaCollectAll">${getTextForUI("collectAllButton", "elementText")}</button>`);
-            const divTooltip = $(`<div class="tooltipHH" style="position: absolute;top: 260px;width: 110px;font-size: small;"><span class="tooltipHHtext">${getTextForUI("collectAllButton", "tooltip")}</span></div>`);
+
+            const button = $(`<button class="purple_button_L" style="padding:0px 5px" id="PoaCollectAll">${getTextForUI("collectAllButton", "elementText")}</button>`);
+            const divTooltip = $(`<div class="tooltipHH" style="position: absolute;top: -30px;left: 730px;width: 110px;font-size: small;"><span class="tooltipHHtext">${getTextForUI("collectAllButton", "tooltip")}</span></div>`);
             divTooltip.append(button);
-            $('#home_tab_container .bottom-container').append(divTooltip);
+            $('#poa-content').append(divTooltip);
             button.one('click', () => {
                 PathOfAttraction.goAndCollect(true);
             });
-            */
         }
     }
 

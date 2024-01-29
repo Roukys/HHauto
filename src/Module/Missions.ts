@@ -8,7 +8,8 @@ import {
     getStoredValue,
     randomInterval,
     setStoredValue,
-    setTimer
+    setTimer,
+    checkTimer
 } from '../Helper/index';
 import { gotoPage } from '../Service/index';
 import { logHHAuto } from '../Utils/index';
@@ -81,6 +82,7 @@ export class Missions {
                 }
                 if (!allGood) {
                     logHHAuto("Mission ongoing waiting it ends.");
+                    if (checkTimer('nextMissionTime')) setTimer('nextMissionTime', randomInterval(15, 30));
                     return true;
                 }
                 if(debugEnabled) logHHAuto("Missions parsed, mission list is:", missions);
