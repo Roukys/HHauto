@@ -36,7 +36,10 @@ export class Harem {
 
     static getGirlMapSorted(inSortType = "DateAcquired",inSortReversed = true )
     {
-        let girlsMap = getHHVars('availableGirls');
+        let girlsMap = getHHVars("GirlSalaryManager.girlsMap");
+        if (girlsMap === null) {
+            girlsMap = getHHVars("girlsDataList");
+        }
         if (girlsMap !== null)
         {
 
@@ -521,12 +524,12 @@ export class Harem {
             +         '<div style="padding:10px">'+menuIDUpgradeMaxButton+'</div>'
             +       '</div>'
             +    '</div>'
-            +    '<div class="optionsBoxWithTitle">'
-            +       '<div class="optionsBoxTitle"><img class="iconImg" src="'+imgPath+'/design_v2/affstar_upgrade.png"><span class="optionsBoxTitle">'+getTextForUI("upradable","elementText")+'</span></div>'
-            +       '<div class="optionsBox">'
-            +         '<div style="padding:10px">'+menuNextUpgradButton+'</div>'
-            +       '</div>'
-            +    '</div>'
+            // +    '<div class="optionsBoxWithTitle">' // TODO fixme
+            // +       '<div class="optionsBoxTitle"><img class="iconImg" src="'+imgPath+'/design_v2/affstar_upgrade.png"><span class="optionsBoxTitle">'+getTextForUI("upradable","elementText")+'</span></div>'
+            // +       '<div class="optionsBox">'
+            // +         '<div style="padding:10px">'+menuNextUpgradButton+'</div>'
+            // +       '</div>'
+            // +    '</div>'
             +  '</div>';
             fillHHPopUp("GirlListMenu",getTextForUI("girlListMenu","elementText"), girlListMenu);
             $('#'+menuIDXp+'Button').on("click", function() { Harem.fillCurrentGirlItem('experience');});

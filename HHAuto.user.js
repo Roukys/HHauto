@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.3.10
+// @version      7.3.11
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4520,7 +4520,10 @@ class Harem {
         }
     }
     static getGirlMapSorted(inSortType = "DateAcquired", inSortReversed = true) {
-        let girlsMap = getHHVars('availableGirls');
+        let girlsMap = getHHVars("GirlSalaryManager.girlsMap");
+        if (girlsMap === null) {
+            girlsMap = getHHVars("girlsDataList");
+        }
         if (girlsMap !== null) {
             girlsMap = Object.values(girlsMap);
             if (girlsMap.length > 0) {
@@ -4929,12 +4932,12 @@ class Harem {
                 + '<div style="padding:10px">' + menuIDUpgradeMaxButton + '</div>'
                 + '</div>'
                 + '</div>'
-                + '<div class="optionsBoxWithTitle">'
-                + '<div class="optionsBoxTitle"><img class="iconImg" src="' + imgPath + '/design_v2/affstar_upgrade.png"><span class="optionsBoxTitle">' + getTextForUI("upradable", "elementText") + '</span></div>'
-                + '<div class="optionsBox">'
-                + '<div style="padding:10px">' + menuNextUpgradButton + '</div>'
-                + '</div>'
-                + '</div>'
+                // +    '<div class="optionsBoxWithTitle">' // TODO fixme
+                // +       '<div class="optionsBoxTitle"><img class="iconImg" src="'+imgPath+'/design_v2/affstar_upgrade.png"><span class="optionsBoxTitle">'+getTextForUI("upradable","elementText")+'</span></div>'
+                // +       '<div class="optionsBox">'
+                // +         '<div style="padding:10px">'+menuNextUpgradButton+'</div>'
+                // +       '</div>'
+                // +    '</div>'
                 + '</div>';
             fillHHPopUp("GirlListMenu", getTextForUI("girlListMenu", "elementText"), girlListMenu);
             $('#' + menuIDXp + 'Button').on("click", function () { Harem.fillCurrentGirlItem('experience'); });
@@ -6197,8 +6200,10 @@ class HaremSalary {
                     LogUtils_logHHAuto("Setting salary timer to " + salaryTimer + " secs.");
                 }
                 else {
-                    LogUtils_logHHAuto("Next salary set to 60 secs as remains girls to collect");
-                    salaryTimer = 60;
+                    // logHHAuto("Next salary set to 60 secs as remains girls to collect");
+                    // salaryTimer = 60;
+                    LogUtils_logHHAuto("Next salary set to 15 min");
+                    salaryTimer = 15 * 60;
                 }
                 setTimer('nextSalaryTime', randomInterval(salaryTimer, 180 + salaryTimer));
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"), {}, randomInterval(300, 500));
@@ -6208,8 +6213,7 @@ class HaremSalary {
     }
     static predictNextSalaryMinTime() {
         let girlsDataList = getHHVars("GirlSalaryManager.girlsMap");
-        const isGirlMap = girlsDataList !== null;
-        if (!isGirlMap) {
+        if (girlsDataList === null) {
             girlsDataList = getHHVars("girlsDataList");
         }
         let nextCollect = 0;
@@ -6219,7 +6223,7 @@ class HaremSalary {
             let girlsSalary = Object.values(girlsDataList).sort(sortByPayIn);
             for (let i of girlsSalary) {
                 let girl = i;
-                if (isGirlMap) {
+                if (i.gData) {
                     girl = i.gData;
                 }
                 currentCollectSalary += girl.salary;
@@ -9601,24 +9605,24 @@ switch (getLanguageCode()) {
         break;
 }
 function compareOwnFirst(a, b, final_comparaison) {
-    if (a.own && !b.own) {
+    if (a.is_owned && !b.is_owned) {
         return -1;
     }
-    else if (!a.own && b.own) {
+    else if (!a.is_owned && b.is_owned) {
         return 1;
     }
     return final_comparaison;
 }
 HHEnvVariables["global"].haremSortingFunctions = {};
 HHEnvVariables["global"].haremSortingFunctions.DateAcquired = function (a, b) {
-    if (a.gData.own && b.gData.own) {
+    if (a.gData.is_owned && b.gData.is_owned) {
         var dateA = new Date(a.gData.date_added).getTime();
         var dateB = new Date(b.gData.date_added).getTime();
         return dateA - dateB;
     }
-    else if (a.gData.own && !b.gData.own)
+    else if (a.gData.is_owned && !b.gData.is_owned)
         return -1;
-    else if (!a.gData.own && b.gData.own)
+    else if (!a.gData.is_owned && b.gData.is_owned)
         return 1;
     else
         return b.shards - a.shards;
@@ -9626,16 +9630,16 @@ HHEnvVariables["global"].haremSortingFunctions.DateAcquired = function (a, b) {
 HHEnvVariables["global"].haremSortingFunctions.Name = function sortByName(a, b) {
     var nameA = a.gData.name.toUpperCase();
     var nameB = b.gData.name.toUpperCase();
-    if (a.gData.own == b.gData.own) {
+    if (a.gData.is_owned == b.gData.is_owned) {
         if (nameA < nameB)
             return -1;
         if (nameA > nameB)
             return 1;
         return 0;
     }
-    else if (a.gData.own && !b.gData.own)
+    else if (a.gData.is_owned && !b.gData.is_owned)
         return -1;
-    else if (!a.gData.own && b.gData.own)
+    else if (!a.gData.is_owned && b.gData.is_owned)
         return 1;
 };
 HHEnvVariables["global"].haremSortingFunctions.Grade = function sortByGrade(a, b) {
@@ -9648,8 +9652,8 @@ HHEnvVariables["global"].haremSortingFunctions.Power = function sortByPower(a, b
     return compareOwnFirst(a.gData, b.gData, b.gData.caracs.carac1 + b.gData.caracs.carac2 + b.gData.caracs.carac3 - a.gData.caracs.carac1 - a.gData.caracs.carac2 - a.gData.caracs.carac3);
 };
 HHEnvVariables["global"].haremSortingFunctions.upgrade_cost = function sortByUpgradeCost(a, b) {
-    const aCost = (Number(a.gData.nb_grades) === Number(a.gData.graded) || !a.gData.own) ? 0 : Harem.getGirlUpgradeCost(a.gData.rarity, a.gData.graded + 1);
-    const bCost = (Number(b.gData.nb_grades) === Number(b.gData.graded) || !b.gData.own) ? 0 : Harem.getGirlUpgradeCost(b.gData.rarity, b.gData.graded + 1);
+    const aCost = (Number(a.gData.nb_grades) === Number(a.gData.graded) || !a.gData.is_owned) ? 0 : Harem.getGirlUpgradeCost(a.gData.rarity, a.gData.graded + 1);
+    const bCost = (Number(b.gData.nb_grades) === Number(b.gData.graded) || !b.gData.is_owned) ? 0 : Harem.getGirlUpgradeCost(b.gData.rarity, b.gData.graded + 1);
     return compareOwnFirst(a.gData, b.gData, bCost - aCost);
 };
 HHEnvVariables["global"].pagesKnownList = [];
@@ -15398,8 +15402,8 @@ function autoLoop() {
             case ConfigHelper.getHHScriptVars("pagesIDHarem"):
                 Harem.moduleHarem();
                 // Harem.moduleHaremExportGirlsData(); // moved to edit team
-                Harem.moduleHaremNextUpgradableGirl();
-                Harem.haremOpenFirstXUpgradable();
+                // Harem.moduleHaremNextUpgradableGirl(); // TODO fixme
+                // Harem.haremOpenFirstXUpgradable(); // TODO fixme
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDGirlPage"):
                 HaremGirl.moduleHaremGirl = callItOnce(HaremGirl.moduleHaremGirl);

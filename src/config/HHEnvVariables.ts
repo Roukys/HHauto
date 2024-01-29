@@ -195,9 +195,9 @@ switch (getLanguageCode())
 
 function compareOwnFirst(a, b, final_comparaison)
 {
-    if (a.own && !b.own) {
+    if (a.is_owned && !b.is_owned) {
         return -1
-    } else if (!a.own && b.own) {
+    } else if (!a.is_owned && b.is_owned) {
         return 1
     }
     return final_comparaison
@@ -206,13 +206,13 @@ function compareOwnFirst(a, b, final_comparaison)
 HHEnvVariables["global"].haremSortingFunctions = {};
 HHEnvVariables["global"].haremSortingFunctions.DateAcquired = function (a, b)
 {
-    if (a.gData.own && b.gData.own) {
+    if (a.gData.is_owned && b.gData.is_owned) {
         var dateA = new Date(a.gData.date_added).getTime();
         var dateB = new Date(b.gData.date_added).getTime();
         return dateA - dateB
-    } else if (a.gData.own && !b.gData.own)
+    } else if (a.gData.is_owned && !b.gData.is_owned)
         return -1;
-    else if (!a.gData.own && b.gData.own)
+    else if (!a.gData.is_owned && b.gData.is_owned)
         return 1;
     else
         return b.shards - a.shards
@@ -221,15 +221,15 @@ HHEnvVariables["global"].haremSortingFunctions.Name = function sortByName(a, b)
 {
     var nameA = a.gData.name.toUpperCase();
     var nameB = b.gData.name.toUpperCase();
-    if (a.gData.own == b.gData.own) {
+    if (a.gData.is_owned == b.gData.is_owned) {
         if (nameA < nameB)
             return -1;
         if (nameA > nameB)
             return 1;
         return 0
-    } else if (a.gData.own && !b.gData.own)
+    } else if (a.gData.is_owned && !b.gData.is_owned)
         return -1;
-    else if (!a.gData.own && b.gData.own)
+    else if (!a.gData.is_owned && b.gData.is_owned)
         return 1
 };
 HHEnvVariables["global"].haremSortingFunctions.Grade = function sortByGrade(a, b)
@@ -246,8 +246,8 @@ HHEnvVariables["global"].haremSortingFunctions.Power = function sortByPower(a, b
 }
 HHEnvVariables["global"].haremSortingFunctions.upgrade_cost = function sortByUpgradeCost(a, b)
 {
-    const aCost = (Number(a.gData.nb_grades) === Number(a.gData.graded) || !a.gData.own ) ? 0 : Harem.getGirlUpgradeCost(a.gData.rarity, a.gData.graded + 1);
-    const bCost = (Number(b.gData.nb_grades) === Number(b.gData.graded) || !b.gData.own ) ? 0 : Harem.getGirlUpgradeCost(b.gData.rarity, b.gData.graded + 1);
+    const aCost = (Number(a.gData.nb_grades) === Number(a.gData.graded) || !a.gData.is_owned ) ? 0 : Harem.getGirlUpgradeCost(a.gData.rarity, a.gData.graded + 1);
+    const bCost = (Number(b.gData.nb_grades) === Number(b.gData.graded) || !b.gData.is_owned ) ? 0 : Harem.getGirlUpgradeCost(b.gData.rarity, b.gData.graded + 1);
     return compareOwnFirst(a.gData, b.gData, bCost - aCost )
 }
 
