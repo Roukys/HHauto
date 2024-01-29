@@ -155,8 +155,10 @@ export class HaremSalary {
                 }
                 else
                 {
-                    logHHAuto("Next salary set to 60 secs as remains girls to collect");
-                    salaryTimer = 60;
+                    // logHHAuto("Next salary set to 60 secs as remains girls to collect");
+                    // salaryTimer = 60;
+                    logHHAuto("Next salary set to 15 min");
+                    salaryTimer = 15 * 60;
                 }
                 setTimer('nextSalaryTime', randomInterval(salaryTimer, 180 + salaryTimer));
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"),{}, randomInterval(300,500));
@@ -169,8 +171,7 @@ export class HaremSalary {
     static predictNextSalaryMinTime()
     {
         let girlsDataList = getHHVars("GirlSalaryManager.girlsMap");
-        const isGirlMap = girlsDataList!==null;
-        if (!isGirlMap)
+        if (girlsDataList === null)
         {
             girlsDataList = getHHVars("girlsDataList");
         }
@@ -183,7 +184,7 @@ export class HaremSalary {
             for (let i of girlsSalary)
             {
                 let girl = i;
-                if (isGirlMap)
+                if ((i as any).gData)
                 {
                     girl = (i as any).gData;
                 }
