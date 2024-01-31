@@ -135,3 +135,4 @@ HHAuto_ToolTips.fr['buyMythicCombTimer'] = { version: "5.6.24", elementText: "He
 HHAuto_ToolTips.fr['mythicGirlNext'] = { version: "5.6.24", elementText: "Vague mythique"};
 HHAuto_ToolTips.fr['PachinkoFillOrbs'] = {version: "5.6.134", elementText: 'Remplir orbes', tooltip: "Remplir le champs avec toutes les orbes disponibles."};
 HHAuto_ToolTips.fr['collectAllTimer'] = {version: "6.15.8", elementText: "Timer Tout collecter (en heure)", tooltip: "Nombre d'heure avant la fin de l'evenement pour collecter toutes les récompenses (Faible temps peu entrainer un echec de collecte), Nécéssite une activation sur chaque évenement (POV, POG, season)"};
+HHAuto_ToolTips.fr['collectAllButton'] = { version: "7.3.0", elementText: "Tout réclamer", tooltip: "Réclame toutes les récompenses de manière automatique" };

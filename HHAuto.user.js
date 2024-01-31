@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.3.11
+// @version      7.3.12
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -814,6 +814,7 @@ HHAuto_ToolTips.fr['buyMythicCombTimer'] = { version: "5.6.24", elementText: "He
 HHAuto_ToolTips.fr['mythicGirlNext'] = { version: "5.6.24", elementText: "Vague mythique" };
 HHAuto_ToolTips.fr['PachinkoFillOrbs'] = { version: "5.6.134", elementText: 'Remplir orbes', tooltip: "Remplir le champs avec toutes les orbes disponibles." };
 HHAuto_ToolTips.fr['collectAllTimer'] = { version: "6.15.8", elementText: "Timer Tout collecter (en heure)", tooltip: "Nombre d'heure avant la fin de l'evenement pour collecter toutes les récompenses (Faible temps peu entrainer un echec de collecte), Nécéssite une activation sur chaque évenement (POV, POG, season)" };
+HHAuto_ToolTips.fr['collectAllButton'] = { version: "7.3.0", elementText: "Tout réclamer", tooltip: "Réclame toutes les récompenses de manière automatique" };
 
 ;// CONCATENATED MODULE: ./src/i18n/de.ts
 
@@ -1696,7 +1697,7 @@ class PathOfAttraction {
     static displatCollectAllButton() {
         if (PathOfAttraction.hasUnclaimedRewards() && $('#PoaCollectAll').length == 0) {
             const button = $(`<button class="purple_button_L" style="padding:0px 5px" id="PoaCollectAll">${getTextForUI("collectAllButton", "elementText")}</button>`);
-            const divTooltip = $(`<div class="tooltipHH" style="position: absolute;top: -30px;left: 730px;width: 110px;font-size: small;"><span class="tooltipHHtext">${getTextForUI("collectAllButton", "tooltip")}</span></div>`);
+            const divTooltip = $(`<div class="tooltipHH" style="position: absolute;top: -30px;left: 730px;width: 110px;font-size: small; z-index:5"><span class="tooltipHHtext">${getTextForUI("collectAllButton", "tooltip")}</span></div>`);
             divTooltip.append(button);
             $('#poa-content').append(divTooltip);
             button.one('click', () => {
