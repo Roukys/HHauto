@@ -786,9 +786,9 @@ export class EventModule {
         const bossBangEventQuery = '#contains_all #homepage .event-widget a[rel="boss_bang_event"]:not([href="#"])';
         const sultryMysteriesEventQuery = '#contains_all #homepage .event-widget a[rel="sm_event"]:not([href="#"])';
         const dpEventQuery = '#contains_all #homepage .event-widget a[rel="dp_event"]:not([href="#"])';
-        const seasonalEventQuery = '#contains_all #homepage .seasonal-event a'; // Mega event have same query
-        const povEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-valor"]';
-        const pogEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-glory"]';
+        const seasonalEventQuery = '#contains_all #homepage .seasonal-event a, #contains_all #homepage .mega-event a';
+        const povEventQuery = '#contains_all #homepage .event-container a[rel="path-of-valor"]';
+        const pogEventQuery = '#contains_all #homepage .event-container a[rel="path-of-glory"]';
         const poaEventQuery = '#contains_all #homepage .event-widget a[rel="path_event"]:not([href="#"])';
         let eventIDs:string[] =[];
         let ongoingEventIDs:string[] =[];
