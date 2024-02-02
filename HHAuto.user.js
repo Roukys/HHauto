@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.3.12
+// @version      7.3.14
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -2483,9 +2483,9 @@ class EventModule {
         const bossBangEventQuery = '#contains_all #homepage .event-widget a[rel="boss_bang_event"]:not([href="#"])';
         const sultryMysteriesEventQuery = '#contains_all #homepage .event-widget a[rel="sm_event"]:not([href="#"])';
         const dpEventQuery = '#contains_all #homepage .event-widget a[rel="dp_event"]:not([href="#"])';
-        const seasonalEventQuery = '#contains_all #homepage .seasonal-event a'; // Mega event have same query
-        const povEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-valor"]';
-        const pogEventQuery = '#contains_all #homepage .season-pov-container a[rel="path-of-glory"]';
+        const seasonalEventQuery = '#contains_all #homepage .seasonal-event a, #contains_all #homepage .mega-event a';
+        const povEventQuery = '#contains_all #homepage .event-container a[rel="path-of-valor"]';
+        const pogEventQuery = '#contains_all #homepage .event-container a[rel="path-of-glory"]';
         const poaEventQuery = '#contains_all #homepage .event-widget a[rel="path_event"]:not([href="#"])';
         let eventIDs = [];
         let ongoingEventIDs = [];
