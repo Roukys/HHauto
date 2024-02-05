@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.3.14
+// @version      7.3.15
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4767,7 +4767,7 @@ class Harem {
         }
         function extractHHGirls() {
             var dataToSave = "Name,Rarity,Class,Figure,Level,Stars,Of,Left,Hardcore,Charm,Know-how,Total,Position,Eyes,Hair,Zodiac,Own,Element\r\n";
-            var gMap = getHHVars('availableGirls');
+            var gMap = getHHVars('girlsDataList') || getHHVars('availableGirls');
             if (gMap === null) {
                 // error
                 LogUtils_logHHAuto("Girls Map was undefined...! Error, cannot export girls.");
@@ -4964,9 +4964,10 @@ class Harem {
         return !isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_HaremSize")) || JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_HaremSize")).count_date < (new Date().getTime() - inCustomExpi * 1000);
     }
     static moduleHaremCountMax() {
-        if (Harem.HaremSizeNeedsRefresh(ConfigHelper.getHHScriptVars("HaremMinSizeExpirationSecs")) && getHHVars('availableGirls', false) !== null) {
-            setStoredValue(HHStoredVarPrefixKey + "Temp_HaremSize", JSON.stringify({ count: Object.keys(getHHVars('availableGirls', false)).length, count_date: new Date().getTime() }));
-            LogUtils_logHHAuto("Harem size updated to : " + Object.keys(getHHVars('availableGirls', false)).length);
+        const girlList = getHHVars('girlsDataList', false) || getHHVars('availableGirls', false);
+        if (Harem.HaremSizeNeedsRefresh(ConfigHelper.getHHScriptVars("HaremMinSizeExpirationSecs")) && girlList !== null) {
+            setStoredValue(HHStoredVarPrefixKey + "Temp_HaremSize", JSON.stringify({ count: Object.keys(girlList).length, count_date: new Date().getTime() }));
+            LogUtils_logHHAuto("Harem size updated to : " + Object.keys(girlList).length);
         }
     }
     static getGirlUpgradeCost(inRarity, inTargetGrade) {
@@ -6087,16 +6088,18 @@ class HaremSalary {
         return a.readyForCollect;
     }
     static CollectMoney() {
+        const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
         var Clicked = [];
         const Hero = getHero();
         //var ToClick=[];
         var endCollectTS = -1;
         let startCollectTS = -1;
-        var maxSecsForSalary = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryMaxTimer"));
+        var maxSecsForSalary = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryMaxTimer")) || 1200;
         var collectedGirlzNb = 0;
         var collectedMoney = 0;
-        let totalGirlsToCollect = 0;
+        let totalGirlsToCollect = 0; // TODO update when laoding a new "page"
         let girlsToCollectBeforeWait = randomInterval(6, 12);
+        let girlPageCollecting = 1;
         function ClickThem() {
             if (endCollectTS === -1) {
                 endCollectTS = new Date().getTime() + 1000 * maxSecsForSalary;
@@ -6141,7 +6144,7 @@ class HaremSalary {
                         collectedGirlzNb++;
                     }
                     else {
-                        LogUtils_logHHAuto("Collect error on n°" + Clicked[0]);
+                        LogUtils_logHHAuto(`Collect error on n°${Clicked[0]}`);
                     }
                     Clicked.shift();
                     if (new Date().getTime() < endCollectTS) {
@@ -6151,18 +6154,18 @@ class HaremSalary {
                             waitBetweenGirlsTime = randomInterval(1200, 2000);
                             girlsToCollectBeforeWait = randomInterval(6, 12);
                         }
-                        LogUtils_logHHAuto("Next girl collection in " + waitBetweenGirlsTime + "ms after n°" + Clicked[0]);
+                        LogUtils_logHHAuto(`Next girl collection in ${waitBetweenGirlsTime}ms after n°${Clicked[0]}`);
                         setTimeout(ClickThem, waitBetweenGirlsTime);
                         if (window.top)
                             window.top.postMessage({ ImAlive: true }, '*');
                     }
                     else {
-                        LogUtils_logHHAuto('Salary collection reached to the max time of ' + maxSecsForSalary + ' secs, collected ' + collectedGirlzNb + '/' + totalGirlsToCollect + ' girls and ' + collectedMoney + ' money');
+                        LogUtils_logHHAuto(`Salary collection reached to the max time of ${maxSecsForSalary} secs, collected ${collectedGirlzNb}/${totalGirlsToCollect} girls and ${collectedMoney} money`);
                         setTimeout(CollectData, randomInterval(300, 500));
                     }
                 }, function (err) {
                     Clicked.shift();
-                    LogUtils_logHHAuto("Bypassed n°" + Clicked[0]);
+                    LogUtils_logHHAuto(`Bypassed n°${Clicked[0]}`);
                     setTimeout(ClickThem, randomInterval(300, 500));
                 });
                 //collectedMoney += $('span.s_value',$(ToClick[0])).length>0?Number($('span.s_value',$(ToClick[0]))[0].innerText.replace(/[^0-9]/gi, '')):0;
@@ -6172,8 +6175,9 @@ class HaremSalary {
             }
             else {
                 const collectionTime = Math.ceil((new Date().getTime() - startCollectTS) / 1000);
-                LogUtils_logHHAuto(`Salary collection done : collected ${collectedGirlzNb} / ${totalGirlsToCollect} girls and ${collectedMoney} money in ${collectionTime} secs`);
-                setTimeout(CollectData, randomInterval(300, 500));
+                LogUtils_logHHAuto(`Salary collection done for page n°${girlPageCollecting} : collected ${collectedGirlzNb} / ${totalGirlsToCollect} girls and ${collectedMoney} money in ${collectionTime} secs`);
+                setTimeout(() => { CollectData(true); }, randomInterval(300, 500));
+                girlPageCollecting++;
             }
         }
         function CollectData(inStart = false) {
@@ -6189,7 +6193,8 @@ class HaremSalary {
                 for (let girl of collectableGirlsList) {
                     Clicked.push(girl.gId);
                 }
-                LogUtils_logHHAuto({ log: "Girls ready to collect: ", GirlsToCollect: Clicked });
+                if (debugEnabled)
+                    LogUtils_logHHAuto({ log: "Girls ready to collect: ", GirlsToCollect: Clicked });
             }
             if (Clicked.length > 0 && inStart) {
                 setTimeout(ClickThem, randomInterval(500, 1500));
@@ -6218,7 +6223,7 @@ class HaremSalary {
             girlsDataList = getHHVars("girlsDataList");
         }
         let nextCollect = 0;
-        const minSalaryForCollect = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryMinSalary"));
+        const minSalaryForCollect = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryMinSalary")) || 1200;
         let currentCollectSalary = 0;
         if (girlsDataList !== null && !Number.isNaN(minSalaryForCollect)) {
             let girlsSalary = Object.values(girlsDataList).sort(sortByPayIn);
@@ -15295,11 +15300,12 @@ function autoLoop() {
             if (busy === false
                 && isAutoLoopActive()
                 && Harem.HaremSizeNeedsRefresh(ConfigHelper.getHHScriptVars("HaremMaxSizeExpirationSecs"))
-                && getPage() !== ConfigHelper.getHHScriptVars("pagesIDHarem")
+                && getPage() !== ConfigHelper.getHHScriptVars("pagesIDWaifu")
+                && getPage() !== ConfigHelper.getHHScriptVars("pagesIDEditTeam")
                 && (lastActionPerformed === "none")) {
                 //console.log(! isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_HaremSize")),JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_HaremSize")).count_date,new Date().getTime() + ConfigHelper.getHHScriptVars("HaremSizeExpirationSecs") * 1000);
                 busy = true;
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHarem"));
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDWaifu"));
             }
             if (busy === false
                 && isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled"))

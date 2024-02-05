@@ -22,16 +22,18 @@ export class HaremSalary {
 
     static CollectMoney ()
     {
+        const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
         var Clicked:any[]=[];
         const Hero = getHero();
         //var ToClick=[];
         var endCollectTS = -1;
         let startCollectTS = -1;
-        var maxSecsForSalary = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSalaryMaxTimer"));
+        var maxSecsForSalary = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSalaryMaxTimer")) || 1200;
         var collectedGirlzNb = 0;
         var collectedMoney = 0;
-        let totalGirlsToCollect = 0;
+        let totalGirlsToCollect = 0; // TODO update when laoding a new "page"
         let girlsToCollectBeforeWait = randomInterval(6,12);
+        let girlPageCollecting = 1;
         function ClickThem()
         {
             if (endCollectTS === -1)
@@ -81,7 +83,7 @@ export class HaremSalary {
                     }
                     else
                     {
-                        logHHAuto("Collect error on n°"+Clicked[0]);
+                        logHHAuto(`Collect error on n°${Clicked[0]}`);
                     }
                     Clicked.shift();
                     if (new Date().getTime() < endCollectTS)
@@ -93,19 +95,19 @@ export class HaremSalary {
                             waitBetweenGirlsTime = randomInterval(1200,2000);
                             girlsToCollectBeforeWait = randomInterval(6,12);
                         }
-                        logHHAuto("Next girl collection in " + waitBetweenGirlsTime + "ms after n°"+Clicked[0]);
+                        logHHAuto(`Next girl collection in ${waitBetweenGirlsTime}ms after n°${Clicked[0]}`);
                         setTimeout(ClickThem,waitBetweenGirlsTime);
                         if(window.top) window.top.postMessage({ImAlive:true},'*');
                     }
                     else
                     {
-                        logHHAuto('Salary collection reached to the max time of '+maxSecsForSalary+' secs, collected '+collectedGirlzNb+'/'+totalGirlsToCollect+' girls and '+collectedMoney+' money');
+                        logHHAuto(`Salary collection reached to the max time of ${maxSecsForSalary} secs, collected ${collectedGirlzNb}/${ totalGirlsToCollect} girls and ${collectedMoney} money`);
                         setTimeout(CollectData,randomInterval(300,500));
                     }
                 },
-                        function(err) {
+                function(err) {
                     Clicked.shift();
-                    logHHAuto("Bypassed n°"+Clicked[0]);
+                    logHHAuto(`Bypassed n°${Clicked[0]}`);
                     setTimeout(ClickThem,randomInterval(300,500));
                 });
                 //collectedMoney += $('span.s_value',$(ToClick[0])).length>0?Number($('span.s_value',$(ToClick[0]))[0].innerText.replace(/[^0-9]/gi, '')):0;
@@ -113,11 +115,12 @@ export class HaremSalary {
                 //logHHAuto('will click again');
                 //console.log(new Date().getTime(),endCollectTS,new Date().getTime() < endCollectTS);
             }
-            else
-            {
+            else {
+
                 const collectionTime = Math.ceil((new Date().getTime() - startCollectTS)/1000);
-                logHHAuto(`Salary collection done : collected ${collectedGirlzNb} / ${totalGirlsToCollect} girls and ${collectedMoney} money in ${collectionTime} secs`);
-                setTimeout(CollectData,randomInterval(300,500));
+                logHHAuto(`Salary collection done for page n°${girlPageCollecting} : collected ${collectedGirlzNb} / ${totalGirlsToCollect} girls and ${collectedMoney} money in ${collectionTime} secs`);
+                setTimeout(()=>{CollectData(true)},randomInterval(300,500));
+                girlPageCollecting++;
             }
         }
     
@@ -140,7 +143,7 @@ export class HaremSalary {
                 {
                     Clicked.push(girl.gId);
                 }
-                logHHAuto({log:"Girls ready to collect: ", GirlsToCollect:Clicked});
+                if (debugEnabled) logHHAuto({log:"Girls ready to collect: ", GirlsToCollect:Clicked});
             }
             if (Clicked.length>0 && inStart)
             {
@@ -176,7 +179,7 @@ export class HaremSalary {
             girlsDataList = getHHVars("girlsDataList");
         }
         let nextCollect = 0;
-        const minSalaryForCollect = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSalaryMinSalary"));
+        const minSalaryForCollect = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSalaryMinSalary")) || 1200;
         let currentCollectSalary = 0;
         if (girlsDataList !== null && !Number.isNaN(minSalaryForCollect))
         {

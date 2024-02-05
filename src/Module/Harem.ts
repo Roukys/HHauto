@@ -333,7 +333,7 @@ export class Harem {
         function extractHHGirls()
         {
             var dataToSave = "Name,Rarity,Class,Figure,Level,Stars,Of,Left,Hardcore,Charm,Know-how,Total,Position,Eyes,Hair,Zodiac,Own,Element\r\n";
-            var gMap = getHHVars('availableGirls');
+            var gMap = getHHVars('girlsDataList') || getHHVars('availableGirls');
             if(gMap === null)
             {
                 // error
@@ -560,10 +560,11 @@ export class Harem {
 
     static moduleHaremCountMax()
     {
-        if (Harem.HaremSizeNeedsRefresh(ConfigHelper.getHHScriptVars("HaremMinSizeExpirationSecs")) && getHHVars('availableGirls',false) !== null)
+        const girlList = getHHVars('girlsDataList', false) || getHHVars('availableGirls', false)
+        if (Harem.HaremSizeNeedsRefresh(ConfigHelper.getHHScriptVars("HaremMinSizeExpirationSecs")) && girlList !== null)
         {
-            setStoredValue(HHStoredVarPrefixKey + "Temp_HaremSize", JSON.stringify({ count: Object.keys(getHHVars('availableGirls',false)).length,count_date:new Date().getTime()}));
-            logHHAuto("Harem size updated to : " + Object.keys(getHHVars('availableGirls',false)).length);
+            setStoredValue(HHStoredVarPrefixKey + "Temp_HaremSize", JSON.stringify({ count: Object.keys(girlList).length,count_date:new Date().getTime()}));
+            logHHAuto("Harem size updated to : " + Object.keys(girlList).length);
         }
     }
 

@@ -886,13 +886,14 @@ export async function autoLoop()
             busy === false
             && isAutoLoopActive()
             && Harem.HaremSizeNeedsRefresh(ConfigHelper.getHHScriptVars("HaremMaxSizeExpirationSecs"))
-            && getPage() !== ConfigHelper.getHHScriptVars("pagesIDHarem")
+            && getPage() !== ConfigHelper.getHHScriptVars("pagesIDWaifu")
+            && getPage() !== ConfigHelper.getHHScriptVars("pagesIDEditTeam")
             && (lastActionPerformed === "none")
         )
         {
             //console.log(! isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_HaremSize")),JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_HaremSize")).count_date,new Date().getTime() + ConfigHelper.getHHScriptVars("HaremSizeExpirationSecs") * 1000);
             busy = true;
-            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHarem"));
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDWaifu"));
         }
 
         if (
