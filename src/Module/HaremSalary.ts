@@ -20,12 +20,24 @@ export class HaremSalary {
         return a.readyForCollect;
     }
 
+    static scrollToGirl(girlId: string){
+        try {
+            // Scroll to girl
+            $('[id_girl="' + girlId + '"]')[0].scrollIntoView();
+        } catch (err) {
+            try {
+                // Girl must not be visible, scroll to girl list bottom
+                $('.girls_list')[0].scrollTop = $('.girls_list')[0].scrollHeight;
+            } catch (err) { }
+        }
+    }
+
     static CollectMoney ()
     {
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
         var Clicked:any[]=[];
         const Hero = getHero();
-        //var ToClick=[];
+
         var endCollectTS = -1;
         let startCollectTS = -1;
         var maxSecsForSalary = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSalaryMaxTimer")) || 1200;
@@ -44,19 +56,7 @@ export class HaremSalary {
             //logHHAuto('Need to click: '+ToClick.length);
             if (Clicked.length>0)
             {
-    
-                //logHHAuto('clicking N '+ToClick[0].formAction.split('/').last())
-                //console.log($(ToClick[0]));
-                //$(ToClick[0]).click();
-                try{
-                    // Scroll to girl
-                    $('[id_girl="'+Clicked[0]+'"]')[0].scrollIntoView();
-                } catch (err) {
-                    try{
-                        // Girl must not be visible, scroll to girl list bottom
-                        $('.girls_list')[0].scrollTop = $('.girls_list')[0].scrollHeight;
-                    }catch (err) {}
-                }
+                HaremSalary.scrollToGirl(Clicked[0]);
                 var params = {
                     class: "Girl",
                     id_girl: Clicked[0],
@@ -76,8 +76,7 @@ export class HaremSalary {
                             //console.log(_this2);
                         }
                         Hero.update("soft_currency", data.money, true);
-                        //movingStars(event, "$");
-                        unsafeWindow.Collect.check_state();
+                        // unsafeWindow.Collect.check_state(); // Update money in button based on filtered girls
                         collectedMoney += data.money;
                         collectedGirlzNb++;
                     }
@@ -110,10 +109,6 @@ export class HaremSalary {
                     logHHAuto(`Bypassed n°${Clicked[0]}`);
                     setTimeout(ClickThem,randomInterval(300,500));
                 });
-                //collectedMoney += $('span.s_value',$(ToClick[0])).length>0?Number($('span.s_value',$(ToClick[0]))[0].innerText.replace(/[^0-9]/gi, '')):0;
-                //collectedGirlzNb++;
-                //logHHAuto('will click again');
-                //console.log(new Date().getTime(),endCollectTS,new Date().getTime() < endCollectTS);
             }
             else {
 
@@ -128,6 +123,7 @@ export class HaremSalary {
         {
             let collectableGirlsList:any[] = [];
             const girlsList = Harem.getGirlMapSorted(getCurrentSorting(), false);
+            const salarySumTag = HaremSalary.getSalarySumTag();
             if ( girlsList === null)
             {
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
@@ -149,19 +145,22 @@ export class HaremSalary {
             {
                 setTimeout(ClickThem,randomInterval(500,1500));
             }
+            else if (salarySumTag && inStart) {
+                // Some money to collect, scrolling
+                HaremSalary.scrollToGirl(collectableGirlsList[collectableGirlsList.length]);
+                setTimeout(() => { CollectData(inStart) }, randomInterval(200, 500));
+            }
             else//nothing to collect or time spent already
             {
                 let salaryTimer = HaremSalary.predictNextSalaryMinTime();
                 if (salaryTimer > 0)
                 {
-                    logHHAuto("Setting salary timer to "+salaryTimer+" secs.");
+                    logHHAuto(`Setting salary timer to ${salaryTimer} secs.`);
                 }
                 else
                 {
-                    // logHHAuto("Next salary set to 60 secs as remains girls to collect");
-                    // salaryTimer = 60;
-                    logHHAuto("Next salary set to 15 min");
-                    salaryTimer = 15 * 60;
+                    logHHAuto("Next salary set to 60 secs as remains girls to collect");
+                    salaryTimer = 60;
                 }
                 setTimer('nextSalaryTime', randomInterval(salaryTimer, 180 + salaryTimer));
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"),{}, randomInterval(300,500));
@@ -208,23 +207,31 @@ export class HaremSalary {
             return aPay - bPay;
         }
     }
+
+    static getSalaryButton() {
+        return $("#collect_all_container button[id='collect_all']");
+    }
+
+    static getSalarySumTag(): number {
+        const salaryButton = HaremSalary.getSalaryButton();
+        let salarySumTag = NaN;
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHarem")) {
+            salarySumTag = Number($('[rel="next_salary"]', salaryButton)[0].innerText.replace(/[^0-9]/gi, ''));
+        }
+        else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHome")) {
+            salarySumTag = Number($('.sum', salaryButton).attr("amount"));
+        }
+        return salarySumTag;
+    }
     
     static getSalary() {
         try {
             if(getPage() === ConfigHelper.getHHScriptVars("pagesIDHarem") || getPage() === ConfigHelper.getHHScriptVars("pagesIDHome"))
             {
-                const salaryButton = $("#collect_all_container button[id='collect_all']")
+                const salaryButton = HaremSalary.getSalaryButton();
                 const salaryToCollect = !(salaryButton.prop('disabled') || salaryButton.attr("style")==="display: none;");
                 const getButtonClass:string = salaryButton.attr("class") || '';
-                let salarySumTag = NaN;
-                if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHarem"))
-                {
-                    salarySumTag = Number($('[rel="next_salary"]',salaryButton)[0].innerText.replace(/[^0-9]/gi, ''));
-                }
-                else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHome"))
-                {
-                    salarySumTag = Number($('.sum',salaryButton).attr("amount"));
-                }
+                const salarySumTag = HaremSalary.getSalarySumTag();
     
                 const enoughSalaryToCollect = Number.isNaN(salarySumTag)?true:salarySumTag > Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSalaryMinSalary"));
                 //console.log(salarySumTag, enoughSalaryToCollect);
@@ -233,7 +240,7 @@ export class HaremSalary {
                     if (getButtonClass.indexOf("blue_button_L") !== -1 )
                     {
                         //replaceCheatClick();
-                        salaryButton.click();
+                        salaryButton.trigger('click');
                         logHHAuto('Collected all Premium salary');
                         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHarem") )
                         {
