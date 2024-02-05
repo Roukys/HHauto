@@ -37,9 +37,9 @@ export class Harem {
     static getGirlMapSorted(inSortType = "DateAcquired",inSortReversed = true )
     {
         let girlsMap = getHHVars("GirlSalaryManager.girlsMap");
-        if (girlsMap === null) {
-            girlsMap = getHHVars("girlsDataList");
-        }
+        // if (girlsMap === null) {
+        //     girlsMap = getHHVars("girlsDataList");
+        // }
         if (girlsMap !== null)
         {
 

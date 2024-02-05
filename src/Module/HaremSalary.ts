@@ -43,7 +43,8 @@ export class HaremSalary {
         var maxSecsForSalary = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSalaryMaxTimer")) || 1200;
         var collectedGirlzNb = 0;
         var collectedMoney = 0;
-        let totalGirlsToCollect = 0; // TODO update when laoding a new "page"
+        let totalGirlsToCollect = 0; // TODO update when loading a new "page"
+        let totalGirlsDisplayed = 0;
         let girlsToCollectBeforeWait = randomInterval(6,12);
         let girlPageCollecting = 1;
         function ClickThem()
@@ -126,10 +127,12 @@ export class HaremSalary {
             const salarySumTag = HaremSalary.getSalarySumTag();
             if ( girlsList === null)
             {
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHarem"));
             }
             collectableGirlsList = girlsList.filter(HaremSalary.filterGirlMapReadyForCollect);
-    
+
+            const allOwnedGirlsLoaded = totalGirlsDisplayed > 0 && totalGirlsDisplayed === girlsList.length;
+            totalGirlsDisplayed = girlsList.length;
             totalGirlsToCollect = collectableGirlsList.length;
     
             if (collectableGirlsList.length>0 )
@@ -145,9 +148,11 @@ export class HaremSalary {
             {
                 setTimeout(ClickThem,randomInterval(500,1500));
             }
-            else if (salarySumTag && inStart) {
+            else if (salarySumTag && inStart && !allOwnedGirlsLoaded) {
                 // Some money to collect, scrolling
-                HaremSalary.scrollToGirl(collectableGirlsList[collectableGirlsList.length]);
+                if (girlsList && girlsList.length > 0) {
+                    HaremSalary.scrollToGirl(girlsList[girlsList.length-1].gId);
+                }
                 setTimeout(() => { CollectData(inStart) }, randomInterval(200, 500));
             }
             else//nothing to collect or time spent already
