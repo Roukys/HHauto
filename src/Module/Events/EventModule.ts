@@ -452,8 +452,10 @@ export class EventModule {
                 eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimerPoa * 1000;
                 eventList[eventID]["isCompleted"] = PathOfAttraction.isCompleted();
 
-                if(getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoACollect") === "true" || poAEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoACollectAll") === "true") {
-                    PathOfAttraction.goAndCollect();
+                const manualCollectAll = getStoredValue(HHStoredVarPrefixKey + "Temp_poaManualCollectAll") === 'true';
+
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollect") === "true" || manualCollectAll || poAEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoACollectAll") === "true") {
+                    PathOfAttraction.goAndCollect(manualCollectAll);
                 }
             }
             if(Object.keys(eventList).length >0)

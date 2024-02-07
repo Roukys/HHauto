@@ -1978,6 +1978,12 @@ HHStoredVars[HHStoredVarPrefixKey+"Temp_PoGEndDate"] =
     storage:"localStorage",
     HHType:"Temp"
 };
+HHStoredVars[HHStoredVarPrefixKey + "Temp_poaManualCollectAll"] =
+{
+    default: "false",
+    storage: "localStorage",
+    HHType: "Temp"
+};
 HHStoredVars[HHStoredVarPrefixKey+"Temp_missionsGiftLeft"] =
     {
     storage:"sessionStorage",

@@ -204,6 +204,7 @@ function compareOwnFirst(a, b, final_comparaison)
 }
 
 HHEnvVariables["global"].haremSortingFunctions = {};
+HHEnvVariables["global"].haremSortingFunctions.date_recruited =
 HHEnvVariables["global"].haremSortingFunctions.DateAcquired = function (a, b)
 {
     if (a.gData.is_owned && b.gData.is_owned) {
