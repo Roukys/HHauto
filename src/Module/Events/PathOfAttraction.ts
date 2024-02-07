@@ -138,6 +138,7 @@ export class PathOfAttraction {
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
         const needToCollect = getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollect") === "true";
         const needToCollectAllBeforeEnd = getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollectAll") === "true";
+        if (manualCollectAll) setStoredValue(HHStoredVarPrefixKey + "Temp_poaManualCollectAll", 'true');
 
         if (needToCollect || needToCollectAllBeforeEnd || manualCollectAll)
         {
@@ -201,6 +202,7 @@ export class PathOfAttraction {
             else
             {
                 logHHAuto("No Path of Attraction reward to collect.");
+                setStoredValue(HHStoredVarPrefixKey + "Temp_poaManualCollectAll", 'false');
             }
         }
         return false;

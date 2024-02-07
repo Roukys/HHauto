@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.3.17
+// @version      7.3.18
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1746,6 +1746,8 @@ class PathOfAttraction {
             const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
             const needToCollect = getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollect") === "true";
             const needToCollectAllBeforeEnd = getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollectAll") === "true";
+            if (manualCollectAll)
+                setStoredValue(HHStoredVarPrefixKey + "Temp_poaManualCollectAll", 'true');
             if (needToCollect || needToCollectAllBeforeEnd || manualCollectAll) {
                 const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollectablesList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollectablesList")) : [];
                 LogUtils_logHHAuto("Checking Path of Attraction for collectable rewards.");
@@ -1796,6 +1798,7 @@ class PathOfAttraction {
                 }
                 else {
                     LogUtils_logHHAuto("No Path of Attraction reward to collect.");
+                    setStoredValue(HHStoredVarPrefixKey + "Temp_poaManualCollectAll", 'false');
                 }
             }
             return false;
@@ -2208,8 +2211,9 @@ class EventModule {
                 eventList[eventID]["seconds_before_end"] = new Date().getTime() + poAEnd * 1000;
                 eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimerPoa * 1000;
                 eventList[eventID]["isCompleted"] = PathOfAttraction.isCompleted();
-                if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollect") === "true" || poAEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollectAll") === "true") {
-                    PathOfAttraction.goAndCollect();
+                const manualCollectAll = getStoredValue(HHStoredVarPrefixKey + "Temp_poaManualCollectAll") === 'true';
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollect") === "true" || manualCollectAll || poAEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollectAll") === "true") {
+                    PathOfAttraction.goAndCollect(manualCollectAll);
                 }
             }
             if (Object.keys(eventList).length > 0) {
@@ -9631,19 +9635,20 @@ function compareOwnFirst(a, b, final_comparaison) {
     return final_comparaison;
 }
 HHEnvVariables["global"].haremSortingFunctions = {};
-HHEnvVariables["global"].haremSortingFunctions.DateAcquired = function (a, b) {
-    if (a.gData.is_owned && b.gData.is_owned) {
-        var dateA = new Date(a.gData.date_added).getTime();
-        var dateB = new Date(b.gData.date_added).getTime();
-        return dateA - dateB;
-    }
-    else if (a.gData.is_owned && !b.gData.is_owned)
-        return -1;
-    else if (!a.gData.is_owned && b.gData.is_owned)
-        return 1;
-    else
-        return b.shards - a.shards;
-};
+HHEnvVariables["global"].haremSortingFunctions.date_recruited =
+    HHEnvVariables["global"].haremSortingFunctions.DateAcquired = function (a, b) {
+        if (a.gData.is_owned && b.gData.is_owned) {
+            var dateA = new Date(a.gData.date_added).getTime();
+            var dateB = new Date(b.gData.date_added).getTime();
+            return dateA - dateB;
+        }
+        else if (a.gData.is_owned && !b.gData.is_owned)
+            return -1;
+        else if (!a.gData.is_owned && b.gData.is_owned)
+            return 1;
+        else
+            return b.shards - a.shards;
+    };
 HHEnvVariables["global"].haremSortingFunctions.Name = function sortByName(a, b) {
     var nameA = a.gData.name.toUpperCase();
     var nameB = b.gData.name.toUpperCase();
@@ -11940,6 +11945,12 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_PoVEndDate"] =
     };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_PoGEndDate"] =
     {
+        storage: "localStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_poaManualCollectAll"] =
+    {
+        default: "false",
         storage: "localStorage",
         HHType: "Temp"
     };
