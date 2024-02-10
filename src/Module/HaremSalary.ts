@@ -25,11 +25,15 @@ export class HaremSalary {
             // Scroll to girl
             $('[id_girl="' + girlId + '"]')[0].scrollIntoView();
         } catch (err) {
-            try {
-                // Girl must not be visible, scroll to girl list bottom
-                $('.girls_list')[0].scrollTop = $('.girls_list')[0].scrollHeight;
-            } catch (err) { }
+            // Girl must not be visible, scroll to girl list bottom
+            HaremSalary.scrollToLastGirl();
         }
+    }
+
+    static scrollToLastGirl(){
+        try {
+            $('.girls_list')[0].scrollTop = $('.girls_list')[0].scrollHeight;
+        } catch (err) { }
     }
 
     static CollectMoney ()
@@ -151,9 +155,14 @@ export class HaremSalary {
             else if (salarySumTag && inStart && !allOwnedGirlsLoaded) {
                 // Some money to collect, scrolling
                 if (girlsList && girlsList.length > 0) {
-                    HaremSalary.scrollToGirl(girlsList[girlsList.length-1].gId);
+                    const girlIdToLoad = girlsList[girlsList.length - 1].gId;
+                    logHHAuto(`Some salary need to be collected in next pages, scroll down to ${girlIdToLoad}`);
+                    HaremSalary.scrollToGirl(girlIdToLoad);
+                } else {
+                    logHHAuto(`Some salary need to be collected in next pages, scroll down to bottom`);
+                    HaremSalary.scrollToLastGirl();
                 }
-                setTimeout(() => { CollectData(inStart) }, randomInterval(200, 500));
+                setTimeout(() => { CollectData(inStart) }, randomInterval(600, 900));
             }
             else//nothing to collect or time spent already
             {
