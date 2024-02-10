@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.3.18
+// @version      7.3.19
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -6097,12 +6097,15 @@ class HaremSalary {
             $('[id_girl="' + girlId + '"]')[0].scrollIntoView();
         }
         catch (err) {
-            try {
-                // Girl must not be visible, scroll to girl list bottom
-                $('.girls_list')[0].scrollTop = $('.girls_list')[0].scrollHeight;
-            }
-            catch (err) { }
+            // Girl must not be visible, scroll to girl list bottom
+            HaremSalary.scrollToLastGirl();
         }
+    }
+    static scrollToLastGirl() {
+        try {
+            $('.girls_list')[0].scrollTop = $('.girls_list')[0].scrollHeight;
+        }
+        catch (err) { }
     }
     static CollectMoney() {
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
@@ -6204,7 +6207,13 @@ class HaremSalary {
             else if (salarySumTag && inStart && !allOwnedGirlsLoaded) {
                 // Some money to collect, scrolling
                 if (girlsList && girlsList.length > 0) {
-                    HaremSalary.scrollToGirl(girlsList[girlsList.length - 1].gId);
+                    const girlIdToLoad = girlsList[girlsList.length - 1].gId;
+                    LogUtils_logHHAuto(`Some salary need to be collected in next pages, scroll down to ${girlIdToLoad}`);
+                    HaremSalary.scrollToGirl(girlIdToLoad);
+                }
+                else {
+                    LogUtils_logHHAuto(`Some salary need to be collected in next pages, scroll down to bottom`);
+                    HaremSalary.scrollToLastGirl();
                 }
                 setTimeout(() => { CollectData(inStart); }, randomInterval(200, 500));
             }
@@ -9053,11 +9062,13 @@ class Shop {
                 const SellDialog = document.getElementById("SellDialog");
                 if (typeof SellDialog.showModal !== "function") {
                     alert("The <dialog> API is not supported by this browser");
+                    LogUtils_logHHAuto("The <dialog> API is not supported by this browser");
                     return;
                 }
                 menuSellMaxItems = Number(window.prompt("Max amount of inventory to load (all for no limit)", menuSellMaxItems + ''));
                 if (menuSellMaxItems !== null) {
                     menuSellMaxItems = isNaN(menuSellMaxItems) ? Number.MAX_VALUE : menuSellMaxItems;
+                    LogUtils_logHHAuto(`Going to load ${menuSellMaxItems} items`);
                     $("menuSellStop").css("display", "block");
                     menuSellStop = false;
                     fetchStarted = true;
@@ -9105,6 +9116,12 @@ class Shop {
         function fetchAllArmorItems() {
             let oldCount = $(itemsQuery).length;
             $("#menuSellCurrentCount").html(oldCount + '');
+            if (allLoaded) {
+                LogUtils_logHHAuto(`No more items to load, currently: ${oldCount}/${menuSellMaxItems}`);
+            }
+            else {
+                LogUtils_logHHAuto(`Loading items, currently: ${oldCount}/${menuSellMaxItems}`);
+            }
             let scroll = $("#player-inventory.armor")[0];
             const SellDialog = document.getElementById("SellDialog");
             if (menuSellStop || allLoaded || oldCount >= Number(menuSellMaxItems) || !SellDialog.open) {
@@ -9407,7 +9424,7 @@ class TeamModule {
                 return;
             }
             else {
-                let AssignTopTeam = '<div style="position: absolute;top: 80px;width:60px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">' + getTextForUI("AssignTopTeam", "tooltip") + '</span><label style="font-size:small" class="myButton" id="AssignTopTeam">' + getTextForUI("AssignTopTeam", "elementText") + '</label></div>';
+                let AssignTopTeam = '<div style="position: absolute;top: 92px;width:100px;z-index:10;margin-left:90px" class="tooltipHH"><span class="tooltipHHtext">' + getTextForUI("AssignTopTeam", "tooltip") + '</span><label style="font-size:small" class="myButton" id="AssignTopTeam">' + getTextForUI("AssignTopTeam", "elementText") + '</label></div>';
                 $("#contains_all section " + ConfigHelper.getHHScriptVars("IDpanelEditTeam") + " .harem-panel .panel-body").append(AssignTopTeam);
                 $("#AssignTopTeam").on("click", assignTopTeam);
             }
@@ -9582,7 +9599,7 @@ HHEnvVariables["global"].trollGirlsID = [
     [['344730128', '735302216', '851893423'], [0], [0]],
     [['547099506', '572827174', '653889168'], [0], [0]],
 ];
-HHEnvVariables["global"].lastQuestId = 1808; //  TODO update when new quest comes
+HHEnvVariables["global"].lastQuestId = 1820; //  TODO update when new quest comes
 HHEnvVariables["global"].leaguesList = ["Wanker I",
     "Wanker II",
     "Wanker III",

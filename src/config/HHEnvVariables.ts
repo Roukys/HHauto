@@ -146,7 +146,7 @@ HHEnvVariables["global"].trollGirlsID = [
     [['344730128', '735302216', '851893423'], [0], [0]],
     [['547099506', '572827174', '653889168'], [0], [0]],
 ];
-HHEnvVariables["global"].lastQuestId = 1808; //  TODO update when new quest comes
+HHEnvVariables["global"].lastQuestId = 1820; //  TODO update when new quest comes
 
 HHEnvVariables["global"].leaguesList = ["Wanker I",
                                         "Wanker II",

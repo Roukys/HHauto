@@ -486,12 +486,14 @@ export class Shop {
                 if (typeof SellDialog.showModal !== "function")
                 {
                     alert("The <dialog> API is not supported by this browser");
+                    logHHAuto("The <dialog> API is not supported by this browser");
                     return;
                 }
                 menuSellMaxItems = Number(window.prompt("Max amount of inventory to load (all for no limit)",menuSellMaxItems+''));
                 if (menuSellMaxItems !== null)
                 {
                     menuSellMaxItems = isNaN(menuSellMaxItems)?Number.MAX_VALUE:menuSellMaxItems;
+                    logHHAuto(`Going to load ${menuSellMaxItems} items`);
                     $("menuSellStop").css("display","block");
 
                     menuSellStop = false;
@@ -551,6 +553,11 @@ export class Shop {
         {
             let oldCount = $(itemsQuery).length;
             $("#menuSellCurrentCount").html(oldCount +'');
+            if (allLoaded) {
+                logHHAuto(`No more items to load, currently: ${oldCount}/${menuSellMaxItems}`);
+            }else{
+                logHHAuto(`Loading items, currently: ${oldCount}/${menuSellMaxItems}`);
+            }
             let scroll = $("#player-inventory.armor")[0];
             const SellDialog = <HTMLDialogElement>document.getElementById("SellDialog");
             if (menuSellStop || allLoaded || oldCount >= Number(menuSellMaxItems) || !SellDialog.open)
