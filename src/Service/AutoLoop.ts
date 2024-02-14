@@ -971,11 +971,8 @@ export async function autoLoop()
                 
                 if (EventModule.getEvent(eventID).isDPEvent)
                 {
-                    if (getStoredValue(HHStoredVarPrefixKey+"Setting_showClubButtonInPoa") === "true")
-                    {
-                        DoublePenetration.run  = callItOnce(DoublePenetration.run);
-                        DoublePenetration.run();
-                    }
+                    DoublePenetration.run  = callItOnce(DoublePenetration.run);
+                    DoublePenetration.run();
                 }
             }
             break;

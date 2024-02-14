@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.3.19
+// @version      7.3.20
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1615,17 +1615,34 @@ class DoublePenetration {
         return false;
     }
     static run() {
-        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent") && ConfigHelper.getHHScriptVars("isEnabledClubChamp", false) && window.location.search.includes("tab=" + ConfigHelper.getHHScriptVars('doublePenetrationEventIDReg'))) {
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent") && window.location.search.includes("tab=" + ConfigHelper.getHHScriptVars('doublePenetrationEventIDReg'))) {
             LogUtils_logHHAuto("On Double penetration event.");
-            GM_addStyle('#dp-content .left-container .objectives-container .hard-objective .nc-sub-panel div.buttons .redirect-buttons {flex-direction: column;}');
-            if ($(".hard-objective .hh-club-poa").length <= 0) {
-                const championsGoal = $('.hard-objective .redirect-buttons:has(button[data-href="/champions-map.html"])');
-                championsGoal.append(getGoToClubChampionButton());
+            if (getStoredValue(HHStoredVarPrefixKey + "Setting_showClubButtonInPoa") === "true" && ConfigHelper.getHHScriptVars("isEnabledClubChamp", false)) {
+                GM_addStyle('#dp-content .left-container .objectives-container .hard-objective .nc-sub-panel div.buttons .redirect-buttons {flex-direction: column;}');
+                if ($(".hard-objective .hh-club-poa").length <= 0) {
+                    const championsGoal = $('.hard-objective .redirect-buttons:has(button[data-href="/champions-map.html"])');
+                    championsGoal.append(getGoToClubChampionButton());
+                }
+                if ($(".easy-objective .hh-club-poa").length <= 0) {
+                    const championsGoal = $('.easy-objective .redirect-buttons:has(button[data-href="/champions-map.html"])');
+                    championsGoal.append(getGoToClubChampionButton());
+                }
             }
-            if ($(".easy-objective .hh-club-poa").length <= 0) {
-                const championsGoal = $('.easy-objective .redirect-buttons:has(button[data-href="/champions-map.html"])');
-                championsGoal.append(getGoToClubChampionButton());
-            }
+            DoublePenetration.displayCollectAllButton();
+        }
+    }
+    static hasUnclaimedRewards() {
+        return $(".tier-container button.purple_button_L:visible").length > 0;
+    }
+    static displayCollectAllButton() {
+        if (DoublePenetration.hasUnclaimedRewards() && $('#dpCollectAll').length == 0) {
+            const button = $(`<button class="purple_button_L" style="padding:0px 5px" id="dpCollectAll">${getTextForUI("collectAllButton", "elementText")}</button>`);
+            const divTooltip = $(`<div class="tooltipHH" style="position: absolute;top: 135px;width: 80px;font-size: small; z-index:5"><span class="tooltipHHtext">${getTextForUI("collectAllButton", "tooltip")}</span></div>`);
+            divTooltip.append(button);
+            $('#dp-content .tiers-container .player-potions').append(divTooltip);
+            button.one('click', () => {
+                DoublePenetration.goAndCollect(Infinity, true);
+            });
         }
     }
 }
@@ -1692,9 +1709,9 @@ class PathOfAttraction {
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_showRewardsRecap") === "true") {
             RewardHelper.displayRewardsPoaDiv();
         }
-        PathOfAttraction.displatCollectAllButton();
+        PathOfAttraction.displayCollectAllButton();
     }
-    static displatCollectAllButton() {
+    static displayCollectAllButton() {
         if (PathOfAttraction.hasUnclaimedRewards() && $('#PoaCollectAll').length == 0) {
             const button = $(`<button class="purple_button_L" style="padding:0px 5px" id="PoaCollectAll">${getTextForUI("collectAllButton", "elementText")}</button>`);
             const divTooltip = $(`<div class="tooltipHH" style="position: absolute;top: -30px;left: 730px;width: 110px;font-size: small; z-index:5"><span class="tooltipHHtext">${getTextForUI("collectAllButton", "tooltip")}</span></div>`);
@@ -2314,7 +2331,7 @@ class EventModule {
         const isPlusEventMythic = inEventID.startsWith(ConfigHelper.getHHScriptVars('mythicEventIDReg')) && getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true";
         const isBossBangEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('bossBangEventIDReg')) && getStoredValue(HHStoredVarPrefixKey + "Setting_bossBangEvent") === "true";
         const isSultryMysteriesEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('sultryMysteriesEventIDReg')) && getStoredValue(HHStoredVarPrefixKey + "Setting_sultryMysteriesEventRefreshShop") === "true" && SultryMysteries.isEnabled();
-        const isDPEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('doublePenetrationEventIDReg')) && getStoredValue(HHStoredVarPrefixKey + "Setting_autodpEventCollect") === "true";
+        const isDPEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('doublePenetrationEventIDReg'));
         const isPoa = inEventID.startsWith(ConfigHelper.getHHScriptVars('poaEventIDReg'));
         return {
             eventTypeKnown: eventType !== '',
@@ -6215,7 +6232,7 @@ class HaremSalary {
                     LogUtils_logHHAuto(`Some salary need to be collected in next pages, scroll down to bottom`);
                     HaremSalary.scrollToLastGirl();
                 }
-                setTimeout(() => { CollectData(inStart); }, randomInterval(200, 500));
+                setTimeout(() => { CollectData(inStart); }, randomInterval(600, 900));
             }
             else //nothing to collect or time spent already
              {
@@ -15404,10 +15421,8 @@ function autoLoop() {
                         }
                     }
                     if (EventModule.getEvent(eventID).isDPEvent) {
-                        if (getStoredValue(HHStoredVarPrefixKey + "Setting_showClubButtonInPoa") === "true") {
-                            DoublePenetration.run = callItOnce(DoublePenetration.run);
-                            DoublePenetration.run();
-                        }
+                        DoublePenetration.run = callItOnce(DoublePenetration.run);
+                        DoublePenetration.run();
                     }
                 }
                 break;

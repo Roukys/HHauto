@@ -9,6 +9,7 @@ import {
     randomInterval,
     setStoredValue,
     setTimer,
+    getTextForUI,
 } from "../../Helper/index";
 import { autoLoop, gotoPage } from "../../Service/index";
 import { isJSON, logHHAuto } from "../../Utils/index";
@@ -107,18 +108,39 @@ export class DoublePenetration {
         return false;
     }
     static run(){
-        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent") && ConfigHelper.getHHScriptVars("isEnabledClubChamp",false) && window.location.search.includes("tab="+ConfigHelper.getHHScriptVars('doublePenetrationEventIDReg')))
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent") && window.location.search.includes("tab="+ConfigHelper.getHHScriptVars('doublePenetrationEventIDReg')))
         {
             logHHAuto("On Double penetration event.");
-            GM_addStyle('#dp-content .left-container .objectives-container .hard-objective .nc-sub-panel div.buttons .redirect-buttons {flex-direction: column;}');
-            if($(".hard-objective .hh-club-poa").length <= 0) {
-                const championsGoal = $('.hard-objective .redirect-buttons:has(button[data-href="/champions-map.html"])');
-                championsGoal.append(getGoToClubChampionButton());
+            if (getStoredValue(HHStoredVarPrefixKey + "Setting_showClubButtonInPoa") === "true" && ConfigHelper.getHHScriptVars("isEnabledClubChamp", false))
+            {
+                GM_addStyle('#dp-content .left-container .objectives-container .hard-objective .nc-sub-panel div.buttons .redirect-buttons {flex-direction: column;}');
+                if($(".hard-objective .hh-club-poa").length <= 0) {
+                    const championsGoal = $('.hard-objective .redirect-buttons:has(button[data-href="/champions-map.html"])');
+                    championsGoal.append(getGoToClubChampionButton());
+                }
+                if($(".easy-objective .hh-club-poa").length <= 0) {
+                    const championsGoal = $('.easy-objective .redirect-buttons:has(button[data-href="/champions-map.html"])');
+                    championsGoal.append(getGoToClubChampionButton());
+                }
             }
-            if($(".easy-objective .hh-club-poa").length <= 0) {
-                const championsGoal = $('.easy-objective .redirect-buttons:has(button[data-href="/champions-map.html"])');
-                championsGoal.append(getGoToClubChampionButton());
-            }
+            DoublePenetration.displayCollectAllButton();
+        }
+    }
+
+    static hasUnclaimedRewards(): boolean {
+        return $(".tier-container button.purple_button_L:visible").length > 0
+    }
+
+    static displayCollectAllButton() {
+        if (DoublePenetration.hasUnclaimedRewards() && $('#dpCollectAll').length == 0) {
+
+            const button = $(`<button class="purple_button_L" style="padding:0px 5px" id="dpCollectAll">${getTextForUI("collectAllButton", "elementText")}</button>`);
+            const divTooltip = $(`<div class="tooltipHH" style="position: absolute;top: 135px;width: 80px;font-size: small; z-index:5"><span class="tooltipHHtext">${getTextForUI("collectAllButton", "tooltip")}</span></div>`);
+            divTooltip.append(button);
+            $('#dp-content .tiers-container .player-potions').append(divTooltip);
+            button.one('click', () => {
+                DoublePenetration.goAndCollect(Infinity,true);
+            });
         }
     }
 }

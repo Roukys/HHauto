@@ -77,10 +77,10 @@ export class PathOfAttraction {
         {
             RewardHelper.displayRewardsPoaDiv();
         }
-        PathOfAttraction.displatCollectAllButton();
+        PathOfAttraction.displayCollectAllButton();
     }
 
-    static displatCollectAllButton() {
+    static displayCollectAllButton() {
         if (PathOfAttraction.hasUnclaimedRewards() && $('#PoaCollectAll').length == 0) {
 
             const button = $(`<button class="purple_button_L" style="padding:0px 5px" id="PoaCollectAll">${getTextForUI("collectAllButton", "elementText")}</button>`);
