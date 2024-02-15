@@ -43,7 +43,7 @@ export class Pachinko {
                 setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                 var counter=0;
                 logHHAuto('switch to ' + pachinkoType);
-                const freeButtonQuery = '#playzone-replace-info button:not([orbs]):not([price]), #playzone-replace-info button[data-free="true"]';
+                const freeButtonQuery = '#playzone-replace-info button[data-free="true"].blue_button_L';
                 while ($(freeButtonQuery).length === 0 && (counter++)<250)
                 {
                     $('.game-simple-block[type-pachinko='+pachinkoType+']')[0].click();

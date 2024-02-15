@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.3.20
+// @version      7.3.21
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -8023,7 +8023,7 @@ class Pachinko {
                 setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
                 var counter = 0;
                 LogUtils_logHHAuto('switch to ' + pachinkoType);
-                const freeButtonQuery = '#playzone-replace-info button:not([orbs]):not([price]), #playzone-replace-info button[data-free="true"]';
+                const freeButtonQuery = '#playzone-replace-info button[data-free="true"].blue_button_L';
                 while ($(freeButtonQuery).length === 0 && (counter++) < 250) {
                     $('.game-simple-block[type-pachinko=' + pachinkoType + ']')[0].click();
                 }
@@ -10299,7 +10299,12 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoFreePachinko"] =
         getMenu: true,
         setMenu: true,
         menuType: "checked",
-        kobanUsing: false
+        kobanUsing: false,
+        newValueFunction: function () {
+            clearTimer('nextPachinkoTime');
+            clearTimer('nextPachinko2Time');
+            clearTimer('nextPachinkoEquipTime');
+        }
     };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeagues"] =
     {

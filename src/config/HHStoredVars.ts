@@ -271,7 +271,12 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoFreePachinko"] =
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false
+    kobanUsing: false,
+    newValueFunction: function () {
+        clearTimer('nextPachinkoTime');
+        clearTimer('nextPachinko2Time');
+        clearTimer('nextPachinkoEquipTime');
+    }
 };
 HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLeagues"] =
     {
