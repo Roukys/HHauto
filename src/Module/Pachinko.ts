@@ -158,7 +158,7 @@ export class Pachinko {
                     $("#PachinkoLeft").text("");
                     return;
                 }
-                let orbsLeft = $("div.playing-zone div.btns-section button.blue_button_L[nb_games="+timerSelector.options[timerSelector.selectedIndex].value+"] span[total_orbs]");
+                let orbsLeft = $("div.playing-zone div.btns-section button.blue_button_L[orb_name="+timerSelector.options[timerSelector.selectedIndex].value+"] span[total_orbs]");
     
                 if (orbsLeft.length >0)
                 {
@@ -171,10 +171,8 @@ export class Pachinko {
                 updateOrbsNumber(orbsLeft);
             });
             $(document).on('change',"#PachinkoFillOrbs", function() {
-                let fillAllOrbs =  (<HTMLInputElement>document.getElementById("PachinkoFillOrbs")).checked;
-    
                 let timerSelector = <HTMLSelectElement>document.getElementById("PachinkoSelector");
-                let orbsLeft = $("div.playing-zone div.btns-section button.blue_button_L[nb_games="+timerSelector.options[timerSelector.selectedIndex].value+"] span[total_orbs]");
+                let orbsLeft = $("div.playing-zone div.btns-section button.blue_button_L[orb_name="+timerSelector.options[timerSelector.selectedIndex].value+"] span[total_orbs]");
     
                 updateOrbsNumber(orbsLeft);
             });
@@ -187,15 +185,15 @@ export class Pachinko {
             $("div.playing-zone div.btns-section button.blue_button_L").each(function ()
                                                                              {
                 let optionElement = <HTMLOptionElement>document.createElement("option");
-                let numberOfGames = $(this).attr('nb_games') || '';
-                optionElement.value = numberOfGames;
+                let orbName = $(this).attr('orb_name') || '';
+                optionElement.value = orbName;
                 countTimers++;
-                optionElement.text = PachinkoType+" x"+$(this).attr('nb_games');
+                optionElement.text = `${PachinkoType} x${Pachinko.getHumanPachinkoFromOrbName(orbName)}`;
                 timerOptions.add(optionElement);
     
                 if (countTimers === 1)
                 {
-                    let orbsLeft = $("div.playing-zone div.btns-section button.blue_button_L[nb_games="+numberOfGames+"] span[total_orbs]")[0];
+                    let orbsLeft = $("div.playing-zone div.btns-section button.blue_button_L[orb_name="+orbName+"] span[total_orbs]")[0];
                     $("#PachinkoLeft").text(orbsLeft.innerText+ getTextForUI("PachinkoOrbsLeft","elementText"));
                 }
             });
@@ -221,8 +219,8 @@ export class Pachinko {
             let timerSelector = <HTMLSelectElement>document.getElementById("PachinkoSelector");
             let ByPassNoGirlChecked = (<HTMLInputElement>document.getElementById("PachinkoByPassNoGirls")).checked;
             let stopFirstGirlChecked = (<HTMLInputElement>document.getElementById("PachinkoStopFirstGirl")).checked;
-            let buttonValue = Number(timerSelector.options[timerSelector.selectedIndex].value);
-            let buttonSelector = "div.playing-zone div.btns-section button.blue_button_L[nb_games="+buttonValue+"]";
+            let buttonValue:string = timerSelector.options[timerSelector.selectedIndex].value;
+            let buttonSelector = "div.playing-zone div.btns-section button.blue_button_L[orb_name="+buttonValue+"]";
             const buttonContinueSelector = '.popup_buttons #play_again:visible';
             let orbsLeftSelector:string = buttonSelector+ " span[total_orbs]";
             let orbsToGo = Number((<HTMLInputElement>document.getElementById("PachinkoXTimes")).value);
@@ -333,5 +331,24 @@ export class Pachinko {
             setTimeout(playXPachinko_func,randomInterval(500,1500));
         }
     
+    }
+
+    static getHumanPachinkoFromOrbName(orb_name: string): string
+    {
+        switch (orb_name) {
+            case 'o_v4': return '4';
+            case 'o_e1':
+            case 'o_eq1':
+            case 'o_g1':
+            case 'o_m1': return '1';
+            case 'o_eq2': return '2';
+            case 'o_m3': return '3';
+            case 'o_m6': return '6';
+            case 'o_eq10':
+            case 'o_g10':
+            case 'o_e10': return '10';
+            case 'o_ed': return 'Draft';
+            default: return 'Unknown';
+        }
     }
 }

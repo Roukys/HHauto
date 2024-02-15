@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.3.21
+// @version      7.3.22
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -8119,7 +8119,7 @@ class Pachinko {
                     $("#PachinkoLeft").text("");
                     return;
                 }
-                let orbsLeft = $("div.playing-zone div.btns-section button.blue_button_L[nb_games=" + timerSelector.options[timerSelector.selectedIndex].value + "] span[total_orbs]");
+                let orbsLeft = $("div.playing-zone div.btns-section button.blue_button_L[orb_name=" + timerSelector.options[timerSelector.selectedIndex].value + "] span[total_orbs]");
                 if (orbsLeft.length > 0) {
                     $("#PachinkoLeft").text(orbsLeft[0].innerText + getTextForUI("PachinkoOrbsLeft", "elementText"));
                 }
@@ -8129,9 +8129,8 @@ class Pachinko {
                 updateOrbsNumber(orbsLeft);
             });
             $(document).on('change', "#PachinkoFillOrbs", function () {
-                let fillAllOrbs = document.getElementById("PachinkoFillOrbs").checked;
                 let timerSelector = document.getElementById("PachinkoSelector");
-                let orbsLeft = $("div.playing-zone div.btns-section button.blue_button_L[nb_games=" + timerSelector.options[timerSelector.selectedIndex].value + "] span[total_orbs]");
+                let orbsLeft = $("div.playing-zone div.btns-section button.blue_button_L[orb_name=" + timerSelector.options[timerSelector.selectedIndex].value + "] span[total_orbs]");
                 updateOrbsNumber(orbsLeft);
             });
             // Add Timer reset options //changed
@@ -8140,13 +8139,13 @@ class Pachinko {
             let PachinkoType = $("div.playing-zone #playzone-replace-info div.cover h2")[0].innerText;
             $("div.playing-zone div.btns-section button.blue_button_L").each(function () {
                 let optionElement = document.createElement("option");
-                let numberOfGames = $(this).attr('nb_games') || '';
-                optionElement.value = numberOfGames;
+                let orbName = $(this).attr('orb_name') || '';
+                optionElement.value = orbName;
                 countTimers++;
-                optionElement.text = PachinkoType + " x" + $(this).attr('nb_games');
+                optionElement.text = `${PachinkoType} x${Pachinko.getHumanPachinkoFromOrbName(orbName)}`;
                 timerOptions.add(optionElement);
                 if (countTimers === 1) {
-                    let orbsLeft = $("div.playing-zone div.btns-section button.blue_button_L[nb_games=" + numberOfGames + "] span[total_orbs]")[0];
+                    let orbsLeft = $("div.playing-zone div.btns-section button.blue_button_L[orb_name=" + orbName + "] span[total_orbs]")[0];
                     $("#PachinkoLeft").text(orbsLeft.innerText + getTextForUI("PachinkoOrbsLeft", "elementText"));
                 }
             });
@@ -8166,8 +8165,8 @@ class Pachinko {
             let timerSelector = document.getElementById("PachinkoSelector");
             let ByPassNoGirlChecked = document.getElementById("PachinkoByPassNoGirls").checked;
             let stopFirstGirlChecked = document.getElementById("PachinkoStopFirstGirl").checked;
-            let buttonValue = Number(timerSelector.options[timerSelector.selectedIndex].value);
-            let buttonSelector = "div.playing-zone div.btns-section button.blue_button_L[nb_games=" + buttonValue + "]";
+            let buttonValue = timerSelector.options[timerSelector.selectedIndex].value;
+            let buttonSelector = "div.playing-zone div.btns-section button.blue_button_L[orb_name=" + buttonValue + "]";
             const buttonContinueSelector = '.popup_buttons #play_again:visible';
             let orbsLeftSelector = buttonSelector + " span[total_orbs]";
             let orbsToGo = Number(document.getElementById("PachinkoXTimes").value);
@@ -8261,6 +8260,23 @@ class Pachinko {
                 setTimeout(playXPachinko_func, randomInterval(500, 1500));
             }
             setTimeout(playXPachinko_func, randomInterval(500, 1500));
+        }
+    }
+    static getHumanPachinkoFromOrbName(orb_name) {
+        switch (orb_name) {
+            case 'o_v4': return '4';
+            case 'o_e1':
+            case 'o_eq1':
+            case 'o_g1':
+            case 'o_m1': return '1';
+            case 'o_eq2': return '2';
+            case 'o_m3': return '3';
+            case 'o_m6': return '6';
+            case 'o_eq10':
+            case 'o_g10':
+            case 'o_e10': return '10';
+            case 'o_ed': return 'Draft';
+            default: return 'Unknown';
         }
     }
 }
