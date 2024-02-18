@@ -937,7 +937,7 @@ export async function autoLoop()
             Season.getRemainingTime();
             if (getStoredValue(HHStoredVarPrefixKey+"Setting_showRewardsRecap") === "true")
             {
-                RewardHelper.displayRewardsSeasonDiv();
+                Season.displayRewardsDiv();
             }
             break;
         case ConfigHelper.getHHScriptVars("pagesIDEvent"):

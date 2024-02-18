@@ -19,91 +19,96 @@ export class DoublePenetration {
 
     static goAndCollect(dpRemainingTime: number, manualCollectAll = false)
     {
-        const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey+"Setting_autodpEventCollectablesList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Setting_autodpEventCollectablesList")):[];
+        try {
+            const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey+"Setting_autodpEventCollectablesList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Setting_autodpEventCollectablesList")):[];
 
-        const needToCollectAll =  dpRemainingTime < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey+"Setting_autodpEventCollectAll") === "true";
-        const needToCollect = (checkTimer('nextDpEventCollectTime') && getStoredValue(HHStoredVarPrefixKey+"Setting_autodpEventCollect") === "true");
+            const needToCollectAll =  dpRemainingTime < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey+"Setting_autodpEventCollectAll") === "true";
+            const needToCollect = (checkTimer('nextDpEventCollectTime') && getStoredValue(HHStoredVarPrefixKey+"Setting_autodpEventCollect") === "true");
 
-        const dPTierQuery = "#dp-content .tiers-container .player-progression-container .tier-container:has(button.display-block)";
-        const dPFreeSlotQuery = ".free-slot .slot,.free-slot .slot_girl_shards";
-        const dPPaidSlotQuery = ".paid-slot .slot,.paid-slot .slot_girl_shards";
-        const isPassPaid = $("#nc-poa-tape-blocker button.unlock-poa-bonus-rewards:visible").length <= 0;
+            const dPTierQuery = "#dp-content .tiers-container .player-progression-container .tier-container:has(button.display-block)";
+            const dPFreeSlotQuery = ".free-slot .slot,.free-slot .slot_girl_shards";
+            const dPPaidSlotQuery = ".paid-slot .slot,.paid-slot .slot_girl_shards";
+            const isPassPaid = $("#nc-poa-tape-blocker button.unlock-poa-bonus-rewards:visible").length <= 0;
 
-        if (needToCollect || needToCollectAll || manualCollectAll)
-        {
-            logHHAuto("Checking double penetration event for collectable rewards.");
-            logHHAuto("setting autoloop to false");
-            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
-            let buttonsToCollect:HTMLElement[] = [];
-            const listDpEventTiersToClaim = $(dPTierQuery);
-
-            for (let currentTier = 0 ; currentTier < listDpEventTiersToClaim.length ; currentTier++)
+            if (needToCollect || needToCollectAll || manualCollectAll)
             {
-                const currentButton = $("button[rel='reward-claim']", listDpEventTiersToClaim[currentTier])[0];
-                const currentTierNb = currentButton.getAttribute("tier");
-                //console.log("checking tier : "+currentTierNb);
-                if(needToCollectAll) {
-                    logHHAuto("Adding for collection tier before end of event: "+currentTierNb);
-                    buttonsToCollect.push(currentButton);
-                } else if (manualCollectAll) {
-                    logHHAuto("Adding for collection tier from manual collect all: "+currentTierNb);
-                    buttonsToCollect.push(currentButton);
-                } else {
-                    const freeSlotType = RewardHelper.getRewardTypeBySlot($(dPFreeSlotQuery,listDpEventTiersToClaim[currentTier])[0]);
-                    if (rewardsToCollect.includes(freeSlotType))
-                    {
-                        
-                        if (isPassPaid) {
-                            // One button for both
-                            const paidSlotType = RewardHelper.getRewardTypeBySlot($(dPPaidSlotQuery, listDpEventTiersToClaim[currentTier])[0]);
-                            if (rewardsToCollect.includes(paidSlotType))
-                            {
-                                buttonsToCollect.push(currentButton);
-                                logHHAuto("Adding for collection tier (free + paid) : "+currentTierNb);
+                logHHAuto("Checking double penetration event for collectable rewards.");
+                logHHAuto("setting autoloop to false");
+                setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
+                let buttonsToCollect:HTMLElement[] = [];
+                const listDpEventTiersToClaim = $(dPTierQuery);
+
+                for (let currentTier = 0 ; currentTier < listDpEventTiersToClaim.length ; currentTier++)
+                {
+                    const currentButton = $("button[rel='reward-claim']", listDpEventTiersToClaim[currentTier])[0];
+                    const currentTierNb = currentButton.getAttribute("tier");
+                    //console.log("checking tier : "+currentTierNb);
+                    if(needToCollectAll) {
+                        logHHAuto("Adding for collection tier before end of event: "+currentTierNb);
+                        buttonsToCollect.push(currentButton);
+                    } else if (manualCollectAll) {
+                        logHHAuto("Adding for collection tier from manual collect all: "+currentTierNb);
+                        buttonsToCollect.push(currentButton);
+                    } else {
+                        const freeSlotType = RewardHelper.getRewardTypeBySlot($(dPFreeSlotQuery,listDpEventTiersToClaim[currentTier])[0]);
+                        if (rewardsToCollect.includes(freeSlotType))
+                        {
+                            
+                            if (isPassPaid) {
+                                // One button for both
+                                const paidSlotType = RewardHelper.getRewardTypeBySlot($(dPPaidSlotQuery, listDpEventTiersToClaim[currentTier])[0]);
+                                if (rewardsToCollect.includes(paidSlotType))
+                                {
+                                    buttonsToCollect.push(currentButton);
+                                    logHHAuto("Adding for collection tier (free + paid) : "+currentTierNb);
+                                } else {
+                                    logHHAuto("Can't add tier " + currentTierNb + " as paid reward isn't to be colled");
+                                }
                             } else {
-                                logHHAuto("Can't add tier " + currentTierNb + " as paid reward isn't to be colled");
+                                buttonsToCollect.push(currentButton);
+                                logHHAuto("Adding for collection tier (only free) : "+currentTierNb);
                             }
-                        } else {
-                            buttonsToCollect.push(currentButton);
-                            logHHAuto("Adding for collection tier (only free) : "+currentTierNb);
                         }
                     }
                 }
-            }
 
-            if (buttonsToCollect.length >0)
-            {
-                function collectDpEventRewards()
+                if (buttonsToCollect.length >0)
                 {
-                    if (buttonsToCollect.length >0)
+                    function collectDpEventRewards()
                     {
-                        logHHAuto("Collecting tier : "+buttonsToCollect[0].getAttribute('tier'));
-                        buttonsToCollect[0].click();
-                        buttonsToCollect.shift();
-                        setTimeout(RewardHelper.closeRewardPopupIfAny, randomInterval(300, 500));
-                        setTimeout(collectDpEventRewards, randomInterval(500,800));
+                        if (buttonsToCollect.length >0)
+                        {
+                            logHHAuto("Collecting tier : "+buttonsToCollect[0].getAttribute('tier'));
+                            buttonsToCollect[0].click();
+                            buttonsToCollect.shift();
+                            setTimeout(RewardHelper.closeRewardPopupIfAny, randomInterval(300, 500));
+                            setTimeout(collectDpEventRewards, randomInterval(500,800));
+                        }
+                        else
+                        {
+                            logHHAuto("Double penetration collection finished.");
+                            setTimer('nextDpEventCollectTime',ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
+                            //gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
+                            setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")));
+                        }
                     }
-                    else
-                    {
-                        logHHAuto("Double penetration collection finished.");
-                        setTimer('nextDpEventCollectTime',ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
-                        //gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
-                        setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
-                        setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")));
-                    }
+                    collectDpEventRewards();
+                    return true;
                 }
-                collectDpEventRewards();
-                return true;
+                else
+                {
+                    logHHAuto("No double penetration reward to collect.");
+                    setTimer('nextDpEventCollectTime',ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
+                    //gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                    setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
+                    setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")));
+                    return false;
+                }
             }
-            else
-            {
-                logHHAuto("No double penetration reward to collect.");
-                setTimer('nextDpEventCollectTime',ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60,180));
-                //gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
-                setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
-                setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")));
-                return false;
-            }
+            return true;
+        } catch ({ errName, message }) {
+            logHHAuto(`ERROR during collect DP rewards: ${message}`);
         }
         return false;
     }
@@ -123,12 +128,39 @@ export class DoublePenetration {
                     championsGoal.append(getGoToClubChampionButton());
                 }
             }
-            DoublePenetration.displayCollectAllButton();
+            if (getStoredValue(HHStoredVarPrefixKey + "Setting_showRewardsRecap") === "true") {
+                DoublePenetration.displayRewardsDiv();
+                DoublePenetration.displayCollectAllButton();
+            }
         }
     }
 
     static hasUnclaimedRewards(): boolean {
         return $(".tier-container button.purple_button_L:visible").length > 0
+    }
+
+    static displayRewardsDiv() {
+        try {
+            const target = $('#dp-content .right-container');
+            const hhRewardId = 'HHDpRewards';
+            if ($('#' + hhRewardId).length <= 0) {
+                const rewardCountByType = DoublePenetration.getNotClaimedRewards();
+                RewardHelper.displayRewardsDiv(target, hhRewardId, rewardCountByType);
+            }
+        } catch({ errName, message }) {
+            logHHAuto(`ERROR in display DP rewards: ${message}`);
+        }
+    }
+
+    static getNotClaimedRewards() {
+        const arrayz = $('#dp-content .tier-container:has(.tier-level button[rel="reward-claim"]:visible)');
+        const freeSlotSelectors = ".free-slot .slot";
+        let paidSlotSelectors = "";
+        if ($("div#nc-poa-tape-blocker").length == 0) {
+            // Season pass paid
+            paidSlotSelectors = ".paid-slot  .slot";
+        }
+        return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
     }
 
     static displayCollectAllButton() {
