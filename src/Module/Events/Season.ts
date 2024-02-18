@@ -388,6 +388,31 @@ export class Season {
             return;
         }
     }
+
+    static displayRewardsDiv() {
+        try{
+            const target = $('.seasons_controls_holder_global');
+            const hhRewardId = 'HHSeasonRewards';
+            if ($('#' + hhRewardId).length <= 0) {
+                const rewardCountByType = Season.getNotClaimedRewards();
+                RewardHelper.displayRewardsDiv(target, hhRewardId, rewardCountByType);
+            }
+        } catch({ errName, message }) {
+            logHHAuto(`ERROR in display Season rewards: ${message}`);
+        }
+    }
+
+    static getNotClaimedRewards() {
+        const arrayz = $('.rewards_pair');
+        const freeSlotSelectors = ".free_reward.reward_is_claimable .slot";
+        let paidSlotSelectors = "";
+        if ($("div#gsp_btn_holder[style='display: none;']").length) {
+            // Season pass paid
+            paidSlotSelectors = ".pass_reward.reward_is_claimable .slot";
+        }
+        return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
+    }
+
     static goAndCollect()
     {
         const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonCollectablesList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonCollectablesList")):[];

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.3.22
+// @version      7.4.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -85,6 +85,7 @@ GM_addStyle('.HHGirlMilestone .nc-claimed-reward-check { width:20px; position:ab
 GM_addStyle('#HHSeasonRewards { position: absolute; right: 1.25rem; bottom: 14rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
 GM_addStyle('#HHSeasonalRewards { position: absolute; left: 1.25rem; bottom: 1rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
 GM_addStyle('#HHPoaRewards { position: absolute; left: 15rem; bottom: 0; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
+GM_addStyle('#HHDpRewards { position: absolute; left: 0; top: 12rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
 // copy CSS from HH OCD, to make it work on other game than HH
 GM_addStyle('#pov_tab_container .potions-paths-first-row .potions-paths-title-panel { transform: scale(0.5);  position: relative; top: -37px; }');
 GM_addStyle('img.eventCompleted { width: 10px; margin-left:2px }');
@@ -1537,80 +1538,86 @@ class BossBang {
 
 class DoublePenetration {
     static goAndCollect(dpRemainingTime, manualCollectAll = false) {
-        const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey + "Setting_autodpEventCollectablesList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Setting_autodpEventCollectablesList")) : [];
-        const needToCollectAll = dpRemainingTime < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey + "Setting_autodpEventCollectAll") === "true";
-        const needToCollect = (checkTimer('nextDpEventCollectTime') && getStoredValue(HHStoredVarPrefixKey + "Setting_autodpEventCollect") === "true");
-        const dPTierQuery = "#dp-content .tiers-container .player-progression-container .tier-container:has(button.display-block)";
-        const dPFreeSlotQuery = ".free-slot .slot,.free-slot .slot_girl_shards";
-        const dPPaidSlotQuery = ".paid-slot .slot,.paid-slot .slot_girl_shards";
-        const isPassPaid = $("#nc-poa-tape-blocker button.unlock-poa-bonus-rewards:visible").length <= 0;
-        if (needToCollect || needToCollectAll || manualCollectAll) {
-            LogUtils_logHHAuto("Checking double penetration event for collectable rewards.");
-            LogUtils_logHHAuto("setting autoloop to false");
-            setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
-            let buttonsToCollect = [];
-            const listDpEventTiersToClaim = $(dPTierQuery);
-            for (let currentTier = 0; currentTier < listDpEventTiersToClaim.length; currentTier++) {
-                const currentButton = $("button[rel='reward-claim']", listDpEventTiersToClaim[currentTier])[0];
-                const currentTierNb = currentButton.getAttribute("tier");
-                //console.log("checking tier : "+currentTierNb);
-                if (needToCollectAll) {
-                    LogUtils_logHHAuto("Adding for collection tier before end of event: " + currentTierNb);
-                    buttonsToCollect.push(currentButton);
-                }
-                else if (manualCollectAll) {
-                    LogUtils_logHHAuto("Adding for collection tier from manual collect all: " + currentTierNb);
-                    buttonsToCollect.push(currentButton);
-                }
-                else {
-                    const freeSlotType = RewardHelper.getRewardTypeBySlot($(dPFreeSlotQuery, listDpEventTiersToClaim[currentTier])[0]);
-                    if (rewardsToCollect.includes(freeSlotType)) {
-                        if (isPassPaid) {
-                            // One button for both
-                            const paidSlotType = RewardHelper.getRewardTypeBySlot($(dPPaidSlotQuery, listDpEventTiersToClaim[currentTier])[0]);
-                            if (rewardsToCollect.includes(paidSlotType)) {
-                                buttonsToCollect.push(currentButton);
-                                LogUtils_logHHAuto("Adding for collection tier (free + paid) : " + currentTierNb);
-                            }
-                            else {
-                                LogUtils_logHHAuto("Can't add tier " + currentTierNb + " as paid reward isn't to be colled");
-                            }
-                        }
-                        else {
-                            buttonsToCollect.push(currentButton);
-                            LogUtils_logHHAuto("Adding for collection tier (only free) : " + currentTierNb);
-                        }
+        try {
+            const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey + "Setting_autodpEventCollectablesList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Setting_autodpEventCollectablesList")) : [];
+            const needToCollectAll = dpRemainingTime < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey + "Setting_autodpEventCollectAll") === "true";
+            const needToCollect = (checkTimer('nextDpEventCollectTime') && getStoredValue(HHStoredVarPrefixKey + "Setting_autodpEventCollect") === "true");
+            const dPTierQuery = "#dp-content .tiers-container .player-progression-container .tier-container:has(button.display-block)";
+            const dPFreeSlotQuery = ".free-slot .slot,.free-slot .slot_girl_shards";
+            const dPPaidSlotQuery = ".paid-slot .slot,.paid-slot .slot_girl_shards";
+            const isPassPaid = $("#nc-poa-tape-blocker button.unlock-poa-bonus-rewards:visible").length <= 0;
+            if (needToCollect || needToCollectAll || manualCollectAll) {
+                LogUtils_logHHAuto("Checking double penetration event for collectable rewards.");
+                LogUtils_logHHAuto("setting autoloop to false");
+                setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+                let buttonsToCollect = [];
+                const listDpEventTiersToClaim = $(dPTierQuery);
+                for (let currentTier = 0; currentTier < listDpEventTiersToClaim.length; currentTier++) {
+                    const currentButton = $("button[rel='reward-claim']", listDpEventTiersToClaim[currentTier])[0];
+                    const currentTierNb = currentButton.getAttribute("tier");
+                    //console.log("checking tier : "+currentTierNb);
+                    if (needToCollectAll) {
+                        LogUtils_logHHAuto("Adding for collection tier before end of event: " + currentTierNb);
+                        buttonsToCollect.push(currentButton);
                     }
-                }
-            }
-            if (buttonsToCollect.length > 0) {
-                function collectDpEventRewards() {
-                    if (buttonsToCollect.length > 0) {
-                        LogUtils_logHHAuto("Collecting tier : " + buttonsToCollect[0].getAttribute('tier'));
-                        buttonsToCollect[0].click();
-                        buttonsToCollect.shift();
-                        setTimeout(RewardHelper.closeRewardPopupIfAny, randomInterval(300, 500));
-                        setTimeout(collectDpEventRewards, randomInterval(500, 800));
+                    else if (manualCollectAll) {
+                        LogUtils_logHHAuto("Adding for collection tier from manual collect all: " + currentTierNb);
+                        buttonsToCollect.push(currentButton);
                     }
                     else {
-                        LogUtils_logHHAuto("Double penetration collection finished.");
-                        setTimer('nextDpEventCollectTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
-                        //gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
-                        setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
-                        setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey + "Temp_autoLoopTimeMili")));
+                        const freeSlotType = RewardHelper.getRewardTypeBySlot($(dPFreeSlotQuery, listDpEventTiersToClaim[currentTier])[0]);
+                        if (rewardsToCollect.includes(freeSlotType)) {
+                            if (isPassPaid) {
+                                // One button for both
+                                const paidSlotType = RewardHelper.getRewardTypeBySlot($(dPPaidSlotQuery, listDpEventTiersToClaim[currentTier])[0]);
+                                if (rewardsToCollect.includes(paidSlotType)) {
+                                    buttonsToCollect.push(currentButton);
+                                    LogUtils_logHHAuto("Adding for collection tier (free + paid) : " + currentTierNb);
+                                }
+                                else {
+                                    LogUtils_logHHAuto("Can't add tier " + currentTierNb + " as paid reward isn't to be colled");
+                                }
+                            }
+                            else {
+                                buttonsToCollect.push(currentButton);
+                                LogUtils_logHHAuto("Adding for collection tier (only free) : " + currentTierNb);
+                            }
+                        }
                     }
                 }
-                collectDpEventRewards();
-                return true;
+                if (buttonsToCollect.length > 0) {
+                    function collectDpEventRewards() {
+                        if (buttonsToCollect.length > 0) {
+                            LogUtils_logHHAuto("Collecting tier : " + buttonsToCollect[0].getAttribute('tier'));
+                            buttonsToCollect[0].click();
+                            buttonsToCollect.shift();
+                            setTimeout(RewardHelper.closeRewardPopupIfAny, randomInterval(300, 500));
+                            setTimeout(collectDpEventRewards, randomInterval(500, 800));
+                        }
+                        else {
+                            LogUtils_logHHAuto("Double penetration collection finished.");
+                            setTimer('nextDpEventCollectTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
+                            //gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                            setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
+                            setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey + "Temp_autoLoopTimeMili")));
+                        }
+                    }
+                    collectDpEventRewards();
+                    return true;
+                }
+                else {
+                    LogUtils_logHHAuto("No double penetration reward to collect.");
+                    setTimer('nextDpEventCollectTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
+                    //gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                    setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
+                    setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey + "Temp_autoLoopTimeMili")));
+                    return false;
+                }
             }
-            else {
-                LogUtils_logHHAuto("No double penetration reward to collect.");
-                setTimer('nextDpEventCollectTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
-                //gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
-                setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
-                setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey + "Temp_autoLoopTimeMili")));
-                return false;
-            }
+            return true;
+        }
+        catch ({ errName, message }) {
+            LogUtils_logHHAuto(`ERROR during collect DP rewards: ${message}`);
         }
         return false;
     }
@@ -1628,11 +1635,37 @@ class DoublePenetration {
                     championsGoal.append(getGoToClubChampionButton());
                 }
             }
-            DoublePenetration.displayCollectAllButton();
+            if (getStoredValue(HHStoredVarPrefixKey + "Setting_showRewardsRecap") === "true") {
+                DoublePenetration.displayRewardsDiv();
+                DoublePenetration.displayCollectAllButton();
+            }
         }
     }
     static hasUnclaimedRewards() {
         return $(".tier-container button.purple_button_L:visible").length > 0;
+    }
+    static displayRewardsDiv() {
+        try {
+            const target = $('#dp-content .right-container');
+            const hhRewardId = 'HHDpRewards';
+            if ($('#' + hhRewardId).length <= 0) {
+                const rewardCountByType = DoublePenetration.getNotClaimedRewards();
+                RewardHelper.displayRewardsDiv(target, hhRewardId, rewardCountByType);
+            }
+        }
+        catch ({ errName, message }) {
+            LogUtils_logHHAuto(`ERROR in display DP rewards: ${message}`);
+        }
+    }
+    static getNotClaimedRewards() {
+        const arrayz = $('#dp-content .tier-container:has(.tier-level button[rel="reward-claim"]:visible)');
+        const freeSlotSelectors = ".free-slot .slot";
+        let paidSlotSelectors = "";
+        if ($("div#nc-poa-tape-blocker").length == 0) {
+            // Season pass paid
+            paidSlotSelectors = ".paid-slot  .slot";
+        }
+        return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
     }
     static displayCollectAllButton() {
         if (DoublePenetration.hasUnclaimedRewards() && $('#dpCollectAll').length == 0) {
@@ -1707,7 +1740,7 @@ class PathOfAttraction {
             setTimeout(PathOfAttraction.Hide, 500);
         }
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_showRewardsRecap") === "true") {
-            RewardHelper.displayRewardsPoaDiv();
+            PathOfAttraction.displayRewardsDiv();
         }
         PathOfAttraction.displayCollectAllButton();
     }
@@ -1721,6 +1754,29 @@ class PathOfAttraction {
                 PathOfAttraction.goAndCollect(true);
             });
         }
+    }
+    static displayRewardsDiv() {
+        try {
+            const target = $('#poa-content .girls');
+            const hhRewardId = 'HHPoaRewards';
+            if ($('#' + hhRewardId).length <= 0) {
+                const rewardCountByType = PathOfAttraction.getNotClaimedRewards();
+                RewardHelper.displayRewardsDiv(target, hhRewardId, rewardCountByType);
+            }
+        }
+        catch ({ errName, message }) {
+            LogUtils_logHHAuto(`ERROR in display POA rewards: ${message}`);
+        }
+    }
+    static getNotClaimedRewards() {
+        const arrayz = $('.nc-poa-reward-pair');
+        const freeSlotSelectors = ".nc-poa-free-reward.claimable .slot";
+        let paidSlotSelectors = "";
+        if ($("div#nc-poa-tape-blocker").length == 0) {
+            // Season pass paid
+            paidSlotSelectors = ".nc-poa-locked-reward.claimable .slot";
+        }
+        return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
     }
     static _getClaimableRewards(path) {
         const rewards = [];
@@ -3104,6 +3160,29 @@ class Season {
             return;
         }
     }
+    static displayRewardsDiv() {
+        try {
+            const target = $('.seasons_controls_holder_global');
+            const hhRewardId = 'HHSeasonRewards';
+            if ($('#' + hhRewardId).length <= 0) {
+                const rewardCountByType = Season.getNotClaimedRewards();
+                RewardHelper.displayRewardsDiv(target, hhRewardId, rewardCountByType);
+            }
+        }
+        catch ({ errName, message }) {
+            LogUtils_logHHAuto(`ERROR in display Season rewards: ${message}`);
+        }
+    }
+    static getNotClaimedRewards() {
+        const arrayz = $('.rewards_pair');
+        const freeSlotSelectors = ".free_reward.reward_is_claimable .slot";
+        let paidSlotSelectors = "";
+        if ($("div#gsp_btn_holder[style='display: none;']").length) {
+            // Season pass paid
+            paidSlotSelectors = ".pass_reward.reward_is_claimable .slot";
+        }
+        return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
+    }
     static goAndCollect() {
         const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonCollectablesList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonCollectablesList")) : [];
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDSeason")) {
@@ -3391,7 +3470,7 @@ class SeasonalEvent {
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_showRewardsRecap") === "true") {
             SeasonalEvent.displayRewardsSeasonalDiv();
             // SeasonalEvent.displayGirlsMileStones(); // TODO fixme
-            SeasonalEvent.displatCollectAllButton();
+            SeasonalEvent.displayCollectAllButton();
         }
     }
     static hasUnclaimedRewards() {
@@ -3430,7 +3509,7 @@ class SeasonalEvent {
             }
         }
     }
-    static displatCollectAllButton() {
+    static displayCollectAllButton() {
         if (SeasonalEvent.hasUnclaimedRewards() && $('#SeasonalCollectAll').length == 0) {
             const button = $(`<button class="purple_button_L" id="SeasonalCollectAll">${getTextForUI("collectAllButton", "elementText")}</button>`);
             const divTooltip = $(`<div class="tooltipHH" style="position: absolute;top: 260px;width: 110px;font-size: small;"><span class="tooltipHHtext">${getTextForUI("collectAllButton", "tooltip")}</span></div>`);
@@ -14378,26 +14457,6 @@ class RewardHelper {
         const paidSlotSelectors = ".paid-slots:not(.paid-locked):not(.claimed-locked) .slot,.paid-slots:not(.paid-locked):not(.claimed-locked) .shards_girl_ico";
         return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
     }
-    static getSeasonNotClaimedRewards() {
-        const arrayz = $('.rewards_pair');
-        const freeSlotSelectors = ".free_reward.reward_is_claimable .slot";
-        let paidSlotSelectors = "";
-        if ($("div#gsp_btn_holder[style='display: none;']").length) {
-            // Season pass paid
-            paidSlotSelectors = ".pass_reward.reward_is_claimable .slot";
-        }
-        return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
-    }
-    static getPoaNotClaimedRewards() {
-        const arrayz = $('.nc-poa-reward-pair');
-        const freeSlotSelectors = ".nc-poa-free-reward.claimable .slot";
-        let paidSlotSelectors = "";
-        if ($("div#nc-poa-tape-blocker").length == 0) {
-            // Season pass paid
-            paidSlotSelectors = ".nc-poa-locked-reward.claimable .slot";
-        }
-        return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
-    }
     static computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors) {
         const rewardCountByType = new Map();
         var rewardType, rewardSlot, rewardAmount;
@@ -14498,22 +14557,6 @@ class RewardHelper {
         const hhRewardId = 'HHPovPogRewards';
         if ($('#' + hhRewardId).length <= 0) {
             const rewardCountByType = RewardHelper.getPovNotClaimedRewards();
-            RewardHelper.displayRewardsDiv(target, hhRewardId, rewardCountByType);
-        }
-    }
-    static displayRewardsSeasonDiv() {
-        const target = $('.seasons_controls_holder_global');
-        const hhRewardId = 'HHSeasonRewards';
-        if ($('#' + hhRewardId).length <= 0) {
-            const rewardCountByType = RewardHelper.getSeasonNotClaimedRewards();
-            RewardHelper.displayRewardsDiv(target, hhRewardId, rewardCountByType);
-        }
-    }
-    static displayRewardsPoaDiv() {
-        const target = $('#poa-content .girls');
-        const hhRewardId = 'HHPoaRewards';
-        if ($('#' + hhRewardId).length <= 0) {
-            const rewardCountByType = RewardHelper.getPoaNotClaimedRewards();
             RewardHelper.displayRewardsDiv(target, hhRewardId, rewardCountByType);
         }
     }
@@ -15416,7 +15459,7 @@ function autoLoop() {
                 Season.getRemainingTime = callItOnce(Season.getRemainingTime);
                 Season.getRemainingTime();
                 if (getStoredValue(HHStoredVarPrefixKey + "Setting_showRewardsRecap") === "true") {
-                    RewardHelper.displayRewardsSeasonDiv();
+                    Season.displayRewardsDiv();
                 }
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDEvent"):

@@ -177,7 +177,7 @@ export class SeasonalEvent {
         {
             SeasonalEvent.displayRewardsSeasonalDiv();
             // SeasonalEvent.displayGirlsMileStones(); // TODO fixme
-            SeasonalEvent.displatCollectAllButton()
+            SeasonalEvent.displayCollectAllButton()
         }
     }
     static hasUnclaimedRewards(): boolean{
@@ -226,7 +226,7 @@ export class SeasonalEvent {
             }
         }
     }
-    static displatCollectAllButton(){
+    static displayCollectAllButton(){
         if (SeasonalEvent.hasUnclaimedRewards() && $('#SeasonalCollectAll').length == 0) {
             const button = $(`<button class="purple_button_L" id="SeasonalCollectAll">${getTextForUI("collectAllButton", "elementText")}</button>`);
             const divTooltip = $(`<div class="tooltipHH" style="position: absolute;top: 260px;width: 110px;font-size: small;"><span class="tooltipHHtext">${getTextForUI("collectAllButton", "tooltip")}</span></div>`);

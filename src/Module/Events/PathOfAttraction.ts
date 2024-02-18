@@ -75,7 +75,7 @@ export class PathOfAttraction {
         }
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_showRewardsRecap") === "true")
         {
-            RewardHelper.displayRewardsPoaDiv();
+            PathOfAttraction.displayRewardsDiv();
         }
         PathOfAttraction.displayCollectAllButton();
     }
@@ -91,6 +91,30 @@ export class PathOfAttraction {
                 PathOfAttraction.goAndCollect(true);
             });
         }
+    }
+
+    static displayRewardsDiv() {
+        try{
+            const target = $('#poa-content .girls');
+            const hhRewardId = 'HHPoaRewards';
+            if ($('#' + hhRewardId).length <= 0) {
+                const rewardCountByType = PathOfAttraction.getNotClaimedRewards();
+                RewardHelper.displayRewardsDiv(target, hhRewardId, rewardCountByType);
+            }
+        } catch({ errName, message }) {
+            logHHAuto(`ERROR in display POA rewards: ${message}`);
+        }
+    }
+
+    static getNotClaimedRewards() {
+        const arrayz = $('.nc-poa-reward-pair');
+        const freeSlotSelectors = ".nc-poa-free-reward.claimable .slot";
+        let paidSlotSelectors = "";
+        if ($("div#nc-poa-tape-blocker").length == 0) {
+            // Season pass paid
+            paidSlotSelectors = ".nc-poa-locked-reward.claimable .slot";
+        }
+        return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
     }
 
     static _getClaimableRewards(path: string): PoaReward[] {

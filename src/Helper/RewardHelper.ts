@@ -135,28 +135,6 @@ export class RewardHelper {
 
         return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
     }
-    static getSeasonNotClaimedRewards(){
-        const arrayz = $('.rewards_pair');
-        const freeSlotSelectors = ".free_reward.reward_is_claimable .slot";
-        let paidSlotSelectors = "";
-        if($("div#gsp_btn_holder[style='display: none;']").length) {
-            // Season pass paid
-            paidSlotSelectors = ".pass_reward.reward_is_claimable .slot";
-        }
-
-        return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
-    }
-    static getPoaNotClaimedRewards(){
-        const arrayz = $('.nc-poa-reward-pair');
-        const freeSlotSelectors = ".nc-poa-free-reward.claimable .slot";
-        let paidSlotSelectors = "";
-        if($("div#nc-poa-tape-blocker").length == 0) {
-            // Season pass paid
-            paidSlotSelectors = ".nc-poa-locked-reward.claimable .slot";
-        }
-
-        return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
-    }
     static computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors):Map<string,number> {
         const rewardCountByType:Map<string,number> = new Map();
         var rewardType:string, rewardSlot:any, rewardAmount:number;
@@ -241,22 +219,6 @@ export class RewardHelper {
         
         if($('#' + hhRewardId).length <= 0) {
             const rewardCountByType = RewardHelper.getPovNotClaimedRewards();
-            RewardHelper.displayRewardsDiv(target, hhRewardId, rewardCountByType);
-        }
-    }
-    static displayRewardsSeasonDiv() {
-        const target = $('.seasons_controls_holder_global');
-        const hhRewardId = 'HHSeasonRewards';
-        if($('#' + hhRewardId).length <= 0) {
-            const rewardCountByType = RewardHelper.getSeasonNotClaimedRewards();
-            RewardHelper.displayRewardsDiv(target, hhRewardId, rewardCountByType);
-        }
-    }
-    static displayRewardsPoaDiv() {
-        const target = $('#poa-content .girls');
-        const hhRewardId = 'HHPoaRewards';
-        if($('#' + hhRewardId).length <= 0) {
-            const rewardCountByType = RewardHelper.getPoaNotClaimedRewards();
             RewardHelper.displayRewardsDiv(target, hhRewardId, rewardCountByType);
         }
     }
