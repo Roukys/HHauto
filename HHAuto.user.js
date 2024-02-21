@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.4.0
+// @version      7.4.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -578,6 +578,7 @@ HHAuto_ToolTips.en['PoVMaskRewards'] = { version: "6.15.8", elementText: "Mask c
 HHAuto_ToolTips.en['PoGMaskRewards'] = { version: "6.15.8", elementText: "Mask claimed", tooltip: "Masked claimed rewards for Path of Glory." };
 HHAuto_ToolTips.en['rewardsToCollectTitle'] = { version: "5.37.0", elementText: "Energies, XP, currencies available to collect" };
 HHAuto_ToolTips.en['showRewardsRecap'] = { version: "5.37.0", elementText: "Show rewards recap", tooltip: "Show cumulated information for energies, XP and currencies" };
+HHAuto_ToolTips.en['hideOwnedGirls'] = { version: "7.4.1", elementText: "Hide Owned girls", tooltip: "Hide owned girls in event page, when event have more than 30 girls to win and players have already more than 10 girls" };
 HHAuto_ToolTips.en['SeasonalEventMaskRewards'] = { version: "6.8.4", elementText: "Mask claimed", tooltip: "Masked claimed rewards for Seasonal Event." };
 HHAuto_ToolTips.en['bossBangEvent'] = { version: "5.20.3", elementText: "Enable", tooltip: "Perform boss bang fight script will start with the team configured after." };
 HHAuto_ToolTips.en['bossBangEventTitle'] = { version: "5.20.3", elementText: "Boss Bang" };
@@ -2447,6 +2448,13 @@ class EventModule {
                     $(query).css('position', 'relative');
                     $($(query)).parent().parent()[0].prepend(currentGirl);
                 }
+            }
+        }
+    }
+    static hideOwnedGilrs() {
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_hideOwnedGirls") === "true") {
+            if ($('.nc-event-list-reward.already-owned').length > 10 && $('.nc-event-list-reward.girl_ico').length > 30) {
+                $('.nc-event-list-reward.already-owned').parent().hide();
             }
         }
     }
@@ -6311,19 +6319,20 @@ class HaremSalary {
                     LogUtils_logHHAuto(`Some salary need to be collected in next pages, scroll down to bottom`);
                     HaremSalary.scrollToLastGirl();
                 }
-                setTimeout(() => { CollectData(inStart); }, randomInterval(600, 900));
+                setTimeout(() => { CollectData(inStart); }, randomInterval(1200, 1800));
             }
             else //nothing to collect or time spent already
              {
                 let salaryTimer = HaremSalary.predictNextSalaryMinTime();
                 if (salaryTimer > 0) {
+                    salaryTimer = randomInterval(salaryTimer, 180 + salaryTimer);
                     LogUtils_logHHAuto(`Setting salary timer to ${salaryTimer} secs.`);
                 }
                 else {
                     LogUtils_logHHAuto("Next salary set to 60 secs as remains girls to collect");
-                    salaryTimer = 60;
+                    salaryTimer = randomInterval(50, 70);
                 }
-                setTimer('nextSalaryTime', randomInterval(salaryTimer, 180 + salaryTimer));
+                setTimer('nextSalaryTime', salaryTimer);
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"), {}, randomInterval(300, 500));
             }
         }
@@ -6335,7 +6344,7 @@ class HaremSalary {
             girlsDataList = getHHVars("girlsDataList");
         }
         let nextCollect = 0;
-        const minSalaryForCollect = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryMinSalary")) || 1200;
+        const minSalaryForCollect = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryMinSalary")) || 20000;
         let currentCollectSalary = 0;
         if (girlsDataList !== null && !Number.isNaN(minSalaryForCollect)) {
             let girlsSalary = Object.values(girlsDataList).sort(sortByPayIn);
@@ -6344,10 +6353,12 @@ class HaremSalary {
                 if (i.gData) {
                     girl = i.gData;
                 }
-                currentCollectSalary += girl.salary;
-                nextCollect = girl.pay_in;
-                if (currentCollectSalary > minSalaryForCollect) {
-                    break;
+                if (girl.shards >= 100) {
+                    currentCollectSalary += girl.salary;
+                    nextCollect = girl.pay_in;
+                    if (currentCollectSalary > minSalaryForCollect) {
+                        break;
+                    }
                 }
             }
         }
@@ -6379,7 +6390,7 @@ class HaremSalary {
                 const salaryToCollect = !(salaryButton.prop('disabled') || salaryButton.attr("style") === "display: none;");
                 const getButtonClass = salaryButton.attr("class") || '';
                 const salarySumTag = HaremSalary.getSalarySumTag();
-                const enoughSalaryToCollect = Number.isNaN(salarySumTag) ? true : salarySumTag > Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryMinSalary"));
+                const enoughSalaryToCollect = Number.isNaN(salarySumTag) ? true : salarySumTag > Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryMinSalary") || 20000);
                 //console.log(salarySumTag, enoughSalaryToCollect);
                 if (salaryToCollect && enoughSalaryToCollect) {
                     if (getButtonClass.indexOf("blue_button_L") !== -1) {
@@ -6388,7 +6399,7 @@ class HaremSalary {
                         LogUtils_logHHAuto('Collected all Premium salary');
                         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHarem")) {
                             const nexstSalaryTime = HaremSalary.predictNextSalaryMinTime();
-                            setTimer('nextSalaryTime', randomInterval(nexstSalaryTime, 180 + nexstSalaryTime));
+                            setTimer('nextSalaryTime', randomInterval(nexstSalaryTime, 60 + nexstSalaryTime));
                         }
                         return false;
                     }
@@ -11394,6 +11405,17 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showRewardsRecap"] =
         menuType: "checked",
         kobanUsing: false
     };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_hideOwnedGirls"] =
+    {
+        default: "true",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showInfo"] =
     {
         default: "true",
@@ -12888,6 +12910,11 @@ function getMenu() {
             + `</div>`
             + `<div class="optionsBox" style="border-style: dotted;">`
             + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
+            + `<div class="optionsBox">`
+            + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
+            + hhMenuSwitch('hideOwnedGirls')
+            + `</div>`
+            + `</div>`
             + `<div id="isEnabledDPEvent" class="optionsBoxWithTitle">`
             + `<div class="optionsBoxTitle">`
             + `<span class="optionsBoxTitle">${getTextForUI("doublePenetrationEventTitle", "elementText")}</span>`
@@ -15470,6 +15497,7 @@ function autoLoop() {
                             EventModule.parseEventPage();
                         }
                         EventModule.moduleDisplayEventPriority();
+                        EventModule.hideOwnedGilrs();
                     }
                     if (getStoredValue(HHStoredVarPrefixKey + "Setting_bossBangEvent") === "true" && EventModule.getEvent(eventID).isBossBangEvent) {
                         if (eventParsed == null) {

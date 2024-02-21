@@ -162,21 +162,22 @@ export class HaremSalary {
                     logHHAuto(`Some salary need to be collected in next pages, scroll down to bottom`);
                     HaremSalary.scrollToLastGirl();
                 }
-                setTimeout(() => { CollectData(inStart) }, randomInterval(600, 900));
+                setTimeout(() => { CollectData(inStart) }, randomInterval(1200, 1800));
             }
             else//nothing to collect or time spent already
             {
                 let salaryTimer = HaremSalary.predictNextSalaryMinTime();
                 if (salaryTimer > 0)
                 {
+                    salaryTimer = randomInterval(salaryTimer, 180 + salaryTimer);
                     logHHAuto(`Setting salary timer to ${salaryTimer} secs.`);
                 }
                 else
                 {
                     logHHAuto("Next salary set to 60 secs as remains girls to collect");
-                    salaryTimer = 60;
+                    salaryTimer = randomInterval(50, 70);
                 }
-                setTimer('nextSalaryTime', randomInterval(salaryTimer, 180 + salaryTimer));
+                setTimer('nextSalaryTime', salaryTimer);
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"),{}, randomInterval(300,500));
             }
         }
@@ -192,7 +193,7 @@ export class HaremSalary {
             girlsDataList = getHHVars("girlsDataList");
         }
         let nextCollect = 0;
-        const minSalaryForCollect = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSalaryMinSalary")) || 1200;
+        const minSalaryForCollect = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSalaryMinSalary")) || 20000;
         let currentCollectSalary = 0;
         if (girlsDataList !== null && !Number.isNaN(minSalaryForCollect))
         {
@@ -204,11 +205,13 @@ export class HaremSalary {
                 {
                     girl = (i as any).gData;
                 }
-                currentCollectSalary += (girl as any).salary;
-                nextCollect = (girl as any).pay_in;
-                if (currentCollectSalary > minSalaryForCollect)
-                {
-                    break;
+                if ((girl as any).shards >= 100) {
+                    currentCollectSalary += (girl as any).salary;
+                    nextCollect = (girl as any).pay_in;
+                    if (currentCollectSalary > minSalaryForCollect)
+                    {
+                        break;
+                    }
                 }
             }
         }
@@ -247,7 +250,7 @@ export class HaremSalary {
                 const getButtonClass:string = salaryButton.attr("class") || '';
                 const salarySumTag = HaremSalary.getSalarySumTag();
     
-                const enoughSalaryToCollect = Number.isNaN(salarySumTag)?true:salarySumTag > Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSalaryMinSalary"));
+                const enoughSalaryToCollect = Number.isNaN(salarySumTag)?true:salarySumTag > Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSalaryMinSalary") || 20000);
                 //console.log(salarySumTag, enoughSalaryToCollect);
                 if (salaryToCollect && enoughSalaryToCollect )
                 {
@@ -259,7 +262,7 @@ export class HaremSalary {
                         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHarem") )
                         {
                             const nexstSalaryTime = HaremSalary.predictNextSalaryMinTime();
-                            setTimer('nextSalaryTime', randomInterval(nexstSalaryTime, 180 + nexstSalaryTime));
+                            setTimer('nextSalaryTime', randomInterval(nexstSalaryTime, 60 + nexstSalaryTime));
                         }
                         return false;
                     }

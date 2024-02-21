@@ -716,6 +716,11 @@ export function getMenu() {
                     +`</div>`
                     +`<div class="optionsBox" style="border-style: dotted;">`
                         +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                            +`<div class="optionsBox">`
+                                +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                    + hhMenuSwitch('hideOwnedGirls')
+                                +`</div>`
+                            +`</div>`
                             +`<div id="isEnabledDPEvent" class="optionsBoxWithTitle">`
                                 +`<div class="optionsBoxTitle">`
                                     +`<span class="optionsBoxTitle">${getTextForUI("doublePenetrationEventTitle","elementText")}</span>`

@@ -949,6 +949,7 @@ export async function autoLoop()
                         EventModule.parseEventPage();
                     }
                     EventModule.moduleDisplayEventPriority();
+                    EventModule.hideOwnedGilrs();
                 }
 
                 if (getStoredValue(HHStoredVarPrefixKey+"Setting_bossBangEvent") === "true" && EventModule.getEvent(eventID).isBossBangEvent)
