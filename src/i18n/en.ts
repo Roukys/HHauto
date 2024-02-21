@@ -190,6 +190,7 @@ HHAuto_ToolTips.en['PoVMaskRewards'] = { version: "6.15.8", elementText: "Mask c
 HHAuto_ToolTips.en['PoGMaskRewards'] = { version: "6.15.8", elementText: "Mask claimed", tooltip: "Masked claimed rewards for Path of Glory."};
 HHAuto_ToolTips.en['rewardsToCollectTitle'] = { version: "5.37.0", elementText: "Energies, XP, currencies available to collect"};
 HHAuto_ToolTips.en['showRewardsRecap'] = { version: "5.37.0", elementText: "Show rewards recap", tooltip: "Show cumulated information for energies, XP and currencies"};
+HHAuto_ToolTips.en['hideOwnedGirls'] = { version: "7.4.1", elementText: "Hide Owned girls", tooltip: "Hide owned girls in event page, when event have more than 30 girls to win and players have already more than 10 girls"};
 HHAuto_ToolTips.en['SeasonalEventMaskRewards'] = { version: "6.8.4", elementText: "Mask claimed", tooltip: "Masked claimed rewards for Seasonal Event."};
 HHAuto_ToolTips.en['bossBangEvent'] = { version: "5.20.3", elementText: "Enable", tooltip: "Perform boss bang fight script will start with the team configured after."};
 HHAuto_ToolTips.en['bossBangEventTitle'] = { version: "5.20.3", elementText: "Boss Bang"};

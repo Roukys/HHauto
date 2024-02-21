@@ -1285,6 +1285,17 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_showRewardsRecap"] =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars[HHStoredVarPrefixKey+"Setting_hideOwnedGirls"] =
+    {
+    default:"true",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars[HHStoredVarPrefixKey+"Setting_showInfo"] =
     {
     default:"true",

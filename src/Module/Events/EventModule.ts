@@ -650,6 +650,15 @@ export class EventModule {
         }
     }
 
+    static hideOwnedGilrs() 
+    {
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_hideOwnedGirls") === "true") {
+            if ($('.nc-event-list-reward.already-owned').length > 10 && $('.nc-event-list-reward.girl_ico').length > 30) {
+                $('.nc-event-list-reward.already-owned').parent().hide();
+            }
+        }
+    }
+
     static moduleDisplayEventPriority()
     {
         if ($('.HHEventPriority').length  > 0) {return}
