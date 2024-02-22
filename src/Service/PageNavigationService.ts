@@ -1,4 +1,4 @@
-import { ConfigHelper, getPage, randomInterval, setStoredValue, setTimer, url_add_param } from '../Helper/index';
+import { ConfigHelper, getPage, queryStringGetParam, randomInterval, setStoredValue, setTimer, url_add_param } from '../Helper/index';
 import { QuestHelper } from '../Module/index';
 import { logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
@@ -140,6 +140,15 @@ export function gotoPage(page,inArgs={},delay = -1)
             for (let arg of Object.keys(inArgs))
             {
                 togoto = url_add_param(togoto, arg,inArgs[arg]);
+            }
+        }
+
+        if(unsafeWindow.hh_nutaku) {
+            const hhSession: string = queryStringGetParam(window.location.search, 'sess');
+            if (hhSession) {
+                togoto = url_add_param(togoto, 'sess', hhSession);
+            } else {
+                logHHAuto('ERROR Nutaku detected and no session found');
             }
         }
 
