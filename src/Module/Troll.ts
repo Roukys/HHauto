@@ -246,7 +246,7 @@ export class Troll {
         // Battles the latest boss.
         // Navigate to latest boss.
         //console.log(getPage());
-        if(currentPage===ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle") && window.location.search=="?id_opponent=" + TTF)
+        if (currentPage === ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle") && window.location.search.includes("id_opponent=" + TTF))
         {
             // On the battle screen.
             Troll.CrushThemFights();
