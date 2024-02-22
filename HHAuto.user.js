@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.4.1
+// @version      7.4.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -15964,6 +15964,15 @@ function gotoPage(page, inArgs = {}, delay = -1) {
         if (typeof inArgs === 'object' && Object.keys(inArgs).length > 0) {
             for (let arg of Object.keys(inArgs)) {
                 togoto = url_add_param(togoto, arg, inArgs[arg]);
+            }
+        }
+        if (unsafeWindow.hh_nutaku) {
+            const hhSession = queryStringGetParam(window.location.search, 'sess');
+            if (hhSession) {
+                togoto = url_add_param(togoto, 'sess', hhSession);
+            }
+            else {
+                LogUtils_logHHAuto('ERROR Nutaku detected and no session found');
             }
         }
         setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
