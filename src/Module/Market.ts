@@ -6,6 +6,7 @@ import {
     randomInterval,
     setStoredValue
 } from '../Helper/index';
+import { addNutakuSession } from '../Service/PageNavigationService';
 import { isJSON, logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
 
@@ -66,7 +67,7 @@ export class Market {
                             {
                                 logHHAuto({log:'Buying : ',object:shop[1][n1]});
                                 // change referer
-                                window.history.replaceState(null, '', '/shop.html');
+                                window.history.replaceState(null, '', addNutakuSession('/shop.html') as string);
                                 kobans-=Number(shop[1][n1].price_buy);
                                 var params1 = {
                                     index: shop[1][n1].index,
@@ -84,7 +85,7 @@ export class Market {
                                         setStoredValue(HHStoredVarPrefixKey+"Temp_haveBooster", JSON.stringify(HaveBooster));
                                     }
                                     // change referer
-                                    window.history.replaceState(null, '', '/home.html');
+                                    window.history.replaceState(null, '', addNutakuSession('/home.html') as string);
                                 });
                                 shop[1].splice(n1,1);
                                 setStoredValue(HHStoredVarPrefixKey+"Temp_storeContents", JSON.stringify(shop));
@@ -116,7 +117,7 @@ export class Market {
                 if (allGiftsPriceSc>0 && money>=Exp+allGiftsPriceSc) {
                     logHHAuto('Buy all gifts for price:' + allGiftsPriceSc);
                     // change referer
-                    window.history.replaceState(null, '', '/shop.html');
+                    window.history.replaceState(null, '', addNutakuSession('/shop.html') as string);
                     money-=allGiftsPriceSc;
                     var params2 = {
                         action: "market_auto_buy",
@@ -129,7 +130,7 @@ export class Market {
                             clearTimer('nextShopTime');
                         }
                         // change referer
-                        window.history.replaceState(null, '', '/home.html');
+                        window.history.replaceState(null, '', addNutakuSession('/home.html') as string);
                     });
                     for (var n2=shop[2].length-1;n2>=0;n2--)
                     {
@@ -147,7 +148,7 @@ export class Market {
                         {
                             logHHAuto({log:'Buying : ',Object:shop[2][n2]});
                             // change referer
-                            window.history.replaceState(null, '', '/shop.html');
+                            window.history.replaceState(null, '', addNutakuSession('/shop.html') as string);
                             money-=Number(shop[2][n2].price_buy);
                             var params4 = {
                                 index: shop[2][n2].index,
@@ -162,7 +163,7 @@ export class Market {
                                     clearTimer('nextShopTime');
                                 }
                                 // change referer
-                                window.history.replaceState(null, '', '/home.html');
+                                window.history.replaceState(null, '', addNutakuSession('/home.html') as string);
                             });
                             shop[2].splice(n2,1);
                             setStoredValue(HHStoredVarPrefixKey+"Temp_storeContents", JSON.stringify(shop));
@@ -191,7 +192,7 @@ export class Market {
                 if (allPotionPriceSc>0 && money>=Exp+allPotionPriceSc) {
                     logHHAuto('Buy all books for price:' + allPotionPriceSc);
                     // change referer
-                    window.history.replaceState(null, '', '/shop.html');
+                    window.history.replaceState(null, '', addNutakuSession('/shop.html') as string);
                     money-=allPotionPriceSc;
                     var params3 = {
                         action: "market_auto_buy",
@@ -204,7 +205,7 @@ export class Market {
                             clearTimer('nextShopTime');
                         }
                         // change referer
-                        window.history.replaceState(null, '', '/home.html');
+                        window.history.replaceState(null, '', addNutakuSession('/home.html') as string);
                     });
                     for (var n3=shop[3].length-1;n3>=0;n3--)
                     {
@@ -222,7 +223,7 @@ export class Market {
                         {
                             logHHAuto({log:'Buying : ',Object:shop[3][n3]});
                             // change referer
-                            window.history.replaceState(null, '', '/shop.html');
+                            window.history.replaceState(null, '', addNutakuSession('/shop.html') as string);
                             money-=Number(shop[3][n3].price);
                             var params5 = {
                                 index: shop[3][n3].index,
@@ -237,7 +238,7 @@ export class Market {
                                     clearTimer('nextShopTime');
                                 }
                                 // change referer
-                                window.history.replaceState(null, '', '/home.html');
+                                window.history.replaceState(null, '', addNutakuSession('/home.html') as string);
                             });
                             shop[3].splice(n3,1);
                             setStoredValue(HHStoredVarPrefixKey+"Temp_storeContents", JSON.stringify(shop));

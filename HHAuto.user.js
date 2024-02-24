@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.4.3
+// @version      7.4.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3140,7 +3140,7 @@ class Season {
                     setTimer('nextSeasonTime', randomInterval(30 * 60, 35 * 60));
                     return false;
                 }
-                location.href = toGoTo;
+                location.href = addNutakuSession(toGoTo);
                 setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
                 LogUtils_logHHAuto("setting autoloop to false");
                 LogUtils_logHHAuto("Going to crush : " + $("div.season_arena_opponent_container .personal_info div.player-name")[chosenID].innerText);
@@ -7275,7 +7275,7 @@ class LeagueHelper {
                 if (debugEnabled)
                     LogUtils_logHHAuto(JSON.stringify(nextOpponent));
                 // change referer
-                window.history.replaceState(null, '', ConfigHelper.getHHScriptVars("pagesURLLeaguPreBattle") + '?id_opponent=' + nextOpponent.opponent_id);
+                window.history.replaceState(null, '', addNutakuSession(ConfigHelper.getHHScriptVars("pagesURLLeaguPreBattle") + '?id_opponent=' + nextOpponent.opponent_id));
                 const opponents_list = getHHVars("opponents_list");
                 const opponentDataFromList = opponents_list.filter(obj => {
                     return obj.player.id_fighter == nextOpponent.opponent_id;
@@ -7304,9 +7304,10 @@ class LeagueHelper {
                         id_opponent: nextOpponent.opponent_id,
                         number_of_battles: numberOfBattle
                     };
+                    params1 = addNutakuSession(params1);
                     unsafeWindow.hh_ajax(params1, function (data) {
                         // change referer
-                        window.history.replaceState(null, '', ConfigHelper.getHHScriptVars("pagesURLLeaderboard"));
+                        window.history.replaceState(null, '', addNutakuSession(ConfigHelper.getHHScriptVars("pagesURLLeaderboard")));
                         RewardHelper.closeRewardPopupIfAny();
                         // gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeaderboard"));
                         location.reload();
@@ -7335,7 +7336,176 @@ class LeagueHelper {
     }
 }
 
+;// CONCATENATED MODULE: ./src/Service/PageNavigationService.ts
+
+
+
+
+// Returns true if on correct page.
+function gotoPage(page, inArgs = {}, delay = -1) {
+    var cp = getPage();
+    LogUtils_logHHAuto('going ' + cp + '->' + page);
+    if (typeof delay != 'number' || delay === -1) {
+        delay = randomInterval(300, 500);
+    }
+    var togoto = 'undefined';
+    // get page path
+    switch (page) {
+        case ConfigHelper.getHHScriptVars("pagesIDHome"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLHome");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDActivities"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLActivities");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDMissions"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLActivities");
+            togoto = url_add_param(togoto, "tab", ConfigHelper.getHHScriptVars("pagesIDMissions"));
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDPowerplacemain"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLActivities");
+            togoto = url_add_param(togoto, "tab", "pop");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDContests"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLActivities");
+            togoto = url_add_param(togoto, "tab", ConfigHelper.getHHScriptVars("pagesIDContests"));
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDDailyGoals"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLActivities");
+            togoto = url_add_param(togoto, "tab", ConfigHelper.getHHScriptVars("pagesIDDailyGoals"));
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDHarem"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLHarem");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDMap"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLMap");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDPachinko"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLPachinko");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDLeaderboard"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLLeaderboard");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDShop"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLShop");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDQuest"):
+            togoto = QuestHelper.getNextQuestLink();
+            if (togoto === undefined) {
+                LogUtils_logHHAuto("All quests finished, setting timer to check back later!");
+                setTimer('nextMainQuestAttempt', 604800); // 1 week delay
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                return false;
+            }
+            LogUtils_logHHAuto("Current quest page: " + togoto);
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDPantheon"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLPantheon");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDPantheonPreBattle"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLPantheonPreBattle");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDLabyrinth"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLLabyrinth");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDChampionsMap"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLChampionsMap");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDSeason"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLSeason");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDSeasonArena"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLSeasonArena");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDClubChampion"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLClubChampion");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDLeagueBattle"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLLeagueBattle");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLTrollPreBattle");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDEvent"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLEvent");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDClub"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLClub");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDPoV"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLPoV");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDPoG"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLPoG");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLSeasonalEvent");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDEditTeam"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLEditTeam");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDWaifu"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLWaifu");
+            break;
+        case (page.match(/^\/champions\/[123456]$/) || {}).input:
+            togoto = page;
+            break;
+        case (page.match(/^\/harem\/\d+$/) || {}).input:
+            togoto = page;
+            break;
+        case (page.match(/^\/girl\/\d+$/) || {}).input:
+            togoto = page;
+            break;
+        case (page.match(/^\/quest\/\d+$/) || {}).input:
+            togoto = page;
+            break;
+        case (page.match(/^\/boss-bang-battle.html\?number_of_battles=\d&bb_team_index=[01234]$/) || {}).input:
+            togoto = page;
+            break;
+        default:
+            LogUtils_logHHAuto("Unknown goto page request. No page \'" + page + "\' defined.");
+    }
+    if (togoto != undefined) {
+        setLastPageCalled(togoto);
+        if (typeof inArgs === 'object' && Object.keys(inArgs).length > 0) {
+            for (let arg of Object.keys(inArgs)) {
+                togoto = url_add_param(togoto, arg, inArgs[arg]);
+            }
+        }
+        togoto = addNutakuSession(togoto);
+        setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+        LogUtils_logHHAuto("setting autoloop to false");
+        LogUtils_logHHAuto('GotoPage : ' + togoto + ' in ' + delay + 'ms.');
+        setTimeout(function () { window.location.href = window.location.origin + togoto; }, delay);
+    }
+    else {
+        LogUtils_logHHAuto("Couldn't find page path. Page was undefined...");
+        setTimeout(function () { location.reload(); }, delay);
+    }
+}
+function addNutakuSession(togoto) {
+    if (unsafeWindow.hh_nutaku) {
+        const hhSession = queryStringGetParam(window.location.search, 'sess');
+        if (hhSession) {
+            if (typeof togoto === 'string') {
+                togoto = url_add_param(togoto, 'sess', hhSession);
+            }
+            else if (typeof togoto === 'object' || Array.isArray(togoto)) {
+                togoto['sess'] = hhSession;
+            }
+        }
+        else {
+            LogUtils_logHHAuto('ERROR Nutaku detected and no session found');
+        }
+    }
+    return togoto;
+}
+function setLastPageCalled(inPage) {
+    //console.log("testingHome : setting to : "+JSON.stringify({page:inPage, dateTime:new Date().getTime()}));
+    setStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled", JSON.stringify({ page: inPage, dateTime: new Date().getTime() }));
+}
+
 ;// CONCATENATED MODULE: ./src/Module/Market.ts
+
 
 
 
@@ -7381,7 +7551,7 @@ class Market {
                             if (kobans >= Number(shop[1][n1].price_buy)) {
                                 LogUtils_logHHAuto({ log: 'Buying : ', object: shop[1][n1] });
                                 // change referer
-                                window.history.replaceState(null, '', '/shop.html');
+                                window.history.replaceState(null, '', addNutakuSession('/shop.html'));
                                 kobans -= Number(shop[1][n1].price_buy);
                                 var params1 = {
                                     index: shop[1][n1].index,
@@ -7399,7 +7569,7 @@ class Market {
                                         setStoredValue(HHStoredVarPrefixKey + "Temp_haveBooster", JSON.stringify(HaveBooster));
                                     }
                                     // change referer
-                                    window.history.replaceState(null, '', '/home.html');
+                                    window.history.replaceState(null, '', addNutakuSession('/home.html'));
                                 });
                                 shop[1].splice(n1, 1);
                                 setStoredValue(HHStoredVarPrefixKey + "Temp_storeContents", JSON.stringify(shop));
@@ -7426,7 +7596,7 @@ class Market {
                 if (allGiftsPriceSc > 0 && money >= Exp + allGiftsPriceSc) {
                     LogUtils_logHHAuto('Buy all gifts for price:' + allGiftsPriceSc);
                     // change referer
-                    window.history.replaceState(null, '', '/shop.html');
+                    window.history.replaceState(null, '', addNutakuSession('/shop.html'));
                     money -= allGiftsPriceSc;
                     var params2 = {
                         action: "market_auto_buy",
@@ -7438,7 +7608,7 @@ class Market {
                             clearTimer('nextShopTime');
                         }
                         // change referer
-                        window.history.replaceState(null, '', '/home.html');
+                        window.history.replaceState(null, '', addNutakuSession('/home.html'));
                     });
                     for (var n2 = shop[2].length - 1; n2 >= 0; n2--) {
                         if (shop[2][n2].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
@@ -7455,7 +7625,7 @@ class Market {
                          {
                             LogUtils_logHHAuto({ log: 'Buying : ', Object: shop[2][n2] });
                             // change referer
-                            window.history.replaceState(null, '', '/shop.html');
+                            window.history.replaceState(null, '', addNutakuSession('/shop.html'));
                             money -= Number(shop[2][n2].price_buy);
                             var params4 = {
                                 index: shop[2][n2].index,
@@ -7469,7 +7639,7 @@ class Market {
                                     clearTimer('nextShopTime');
                                 }
                                 // change referer
-                                window.history.replaceState(null, '', '/home.html');
+                                window.history.replaceState(null, '', addNutakuSession('/home.html'));
                             });
                             shop[2].splice(n2, 1);
                             setStoredValue(HHStoredVarPrefixKey + "Temp_storeContents", JSON.stringify(shop));
@@ -7495,7 +7665,7 @@ class Market {
                 if (allPotionPriceSc > 0 && money >= Exp + allPotionPriceSc) {
                     LogUtils_logHHAuto('Buy all books for price:' + allPotionPriceSc);
                     // change referer
-                    window.history.replaceState(null, '', '/shop.html');
+                    window.history.replaceState(null, '', addNutakuSession('/shop.html'));
                     money -= allPotionPriceSc;
                     var params3 = {
                         action: "market_auto_buy",
@@ -7507,7 +7677,7 @@ class Market {
                             clearTimer('nextShopTime');
                         }
                         // change referer
-                        window.history.replaceState(null, '', '/home.html');
+                        window.history.replaceState(null, '', addNutakuSession('/home.html'));
                     });
                     for (var n3 = shop[3].length - 1; n3 >= 0; n3--) {
                         if (shop[3][n3].item.currency == "sc") // "sc" for soft currency = money, "hc" for hard currency = kobans
@@ -7524,7 +7694,7 @@ class Market {
                          {
                             LogUtils_logHHAuto({ log: 'Buying : ', Object: shop[3][n3] });
                             // change referer
-                            window.history.replaceState(null, '', '/shop.html');
+                            window.history.replaceState(null, '', addNutakuSession('/shop.html'));
                             money -= Number(shop[3][n3].price);
                             var params5 = {
                                 index: shop[3][n3].index,
@@ -7538,7 +7708,7 @@ class Market {
                                     clearTimer('nextShopTime');
                                 }
                                 // change referer
-                                window.history.replaceState(null, '', '/home.html');
+                                window.history.replaceState(null, '', addNutakuSession('/home.html'));
                             });
                             shop[3].splice(n3, 1);
                             setStoredValue(HHStoredVarPrefixKey + "Temp_storeContents", JSON.stringify(shop));
@@ -14182,7 +14352,7 @@ class HeroHelper {
             return new Promise((resolve) => {
                 // change referer
                 const currentPath = window.location.href.replace('http://', '').replace('https://', '').replace(window.location.hostname, '');
-                window.history.replaceState(null, '', '/shop.html');
+                window.history.replaceState(null, '', addNutakuSession('/shop.html'));
                 unsafeWindow.hh_ajax(params, function (data) {
                     if (data.success)
                         LogUtils_logHHAuto('Booster equipped');
@@ -14199,7 +14369,7 @@ class HeroHelper {
                     resolve(false);
                 });
                 // change referer
-                window.history.replaceState(null, '', currentPath);
+                window.history.replaceState(null, '', addNutakuSession(currentPath));
             });
         });
     }
@@ -15829,165 +15999,6 @@ function bindMouseEvents() {
     document.onmousemove = function () { makeMouseBusy(mouseTimeoutVal); };
     document.onscroll = function () { makeMouseBusy(mouseTimeoutVal); };
     document.onmouseup = function () { makeMouseBusy(mouseTimeoutVal); };
-}
-
-;// CONCATENATED MODULE: ./src/Service/PageNavigationService.ts
-
-
-
-
-// Returns true if on correct page.
-function gotoPage(page, inArgs = {}, delay = -1) {
-    var cp = getPage();
-    LogUtils_logHHAuto('going ' + cp + '->' + page);
-    if (typeof delay != 'number' || delay === -1) {
-        delay = randomInterval(300, 500);
-    }
-    var togoto = 'undefined';
-    // get page path
-    switch (page) {
-        case ConfigHelper.getHHScriptVars("pagesIDHome"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLHome");
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDActivities"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLActivities");
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDMissions"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLActivities");
-            togoto = url_add_param(togoto, "tab", ConfigHelper.getHHScriptVars("pagesIDMissions"));
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDPowerplacemain"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLActivities");
-            togoto = url_add_param(togoto, "tab", "pop");
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDContests"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLActivities");
-            togoto = url_add_param(togoto, "tab", ConfigHelper.getHHScriptVars("pagesIDContests"));
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDDailyGoals"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLActivities");
-            togoto = url_add_param(togoto, "tab", ConfigHelper.getHHScriptVars("pagesIDDailyGoals"));
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDHarem"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLHarem");
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDMap"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLMap");
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDPachinko"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLPachinko");
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDLeaderboard"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLLeaderboard");
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDShop"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLShop");
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDQuest"):
-            togoto = QuestHelper.getNextQuestLink();
-            if (togoto === undefined) {
-                LogUtils_logHHAuto("All quests finished, setting timer to check back later!");
-                setTimer('nextMainQuestAttempt', 604800); // 1 week delay
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
-                return false;
-            }
-            LogUtils_logHHAuto("Current quest page: " + togoto);
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDPantheon"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLPantheon");
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDPantheonPreBattle"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLPantheonPreBattle");
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDLabyrinth"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLLabyrinth");
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDChampionsMap"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLChampionsMap");
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDSeason"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLSeason");
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDSeasonArena"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLSeasonArena");
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDClubChampion"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLClubChampion");
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDLeagueBattle"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLLeagueBattle");
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLTrollPreBattle");
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDEvent"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLEvent");
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDClub"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLClub");
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDPoV"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLPoV");
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDPoG"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLPoG");
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLSeasonalEvent");
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDEditTeam"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLEditTeam");
-            break;
-        case ConfigHelper.getHHScriptVars("pagesIDWaifu"):
-            togoto = ConfigHelper.getHHScriptVars("pagesURLWaifu");
-            break;
-        case (page.match(/^\/champions\/[123456]$/) || {}).input:
-            togoto = page;
-            break;
-        case (page.match(/^\/harem\/\d+$/) || {}).input:
-            togoto = page;
-            break;
-        case (page.match(/^\/girl\/\d+$/) || {}).input:
-            togoto = page;
-            break;
-        case (page.match(/^\/quest\/\d+$/) || {}).input:
-            togoto = page;
-            break;
-        case (page.match(/^\/boss-bang-battle.html\?number_of_battles=\d&bb_team_index=[01234]$/) || {}).input:
-            togoto = page;
-            break;
-        default:
-            LogUtils_logHHAuto("Unknown goto page request. No page \'" + page + "\' defined.");
-    }
-    if (togoto != undefined) {
-        setLastPageCalled(togoto);
-        if (typeof inArgs === 'object' && Object.keys(inArgs).length > 0) {
-            for (let arg of Object.keys(inArgs)) {
-                togoto = url_add_param(togoto, arg, inArgs[arg]);
-            }
-        }
-        if (unsafeWindow.hh_nutaku) {
-            const hhSession = queryStringGetParam(window.location.search, 'sess');
-            if (hhSession) {
-                togoto = url_add_param(togoto, 'sess', hhSession);
-            }
-            else {
-                LogUtils_logHHAuto('ERROR Nutaku detected and no session found');
-            }
-        }
-        setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
-        LogUtils_logHHAuto("setting autoloop to false");
-        LogUtils_logHHAuto('GotoPage : ' + togoto + ' in ' + delay + 'ms.');
-        setTimeout(function () { window.location.href = window.location.origin + togoto; }, delay);
-    }
-    else {
-        LogUtils_logHHAuto("Couldn't find page path. Page was undefined...");
-        setTimeout(function () { location.reload(); }, delay);
-    }
-}
-function setLastPageCalled(inPage) {
-    //console.log("testingHome : setting to : "+JSON.stringify({page:inPage, dateTime:new Date().getTime()}));
-    setStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled", JSON.stringify({ page: inPage, dateTime: new Date().getTime() }));
 }
 
 ;// CONCATENATED MODULE: ./src/Service/ParanoiaService.ts

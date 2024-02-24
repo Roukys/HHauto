@@ -1,4 +1,4 @@
-import { autoLoop } from '../Service/index';
+import { addNutakuSession, autoLoop } from '../Service/index';
 import { isJSON, logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
 import { ConfigHelper } from './ConfigHelper';
@@ -96,7 +96,7 @@ export class HeroHelper {
         return new Promise((resolve) => {
             // change referer
             const currentPath = window.location.href.replace('http://', '').replace('https://', '').replace(window.location.hostname, '');
-            window.history.replaceState(null, '', '/shop.html');
+            window.history.replaceState(null, '', addNutakuSession('/shop.html') as string);
             unsafeWindow.hh_ajax(params, function(data) {
                 if (data.success) logHHAuto('Booster equipped');
                 else HeroHelper.getSandalWoodEquipFailure(true); // Increase failure
@@ -111,7 +111,7 @@ export class HeroHelper {
                 resolve(false);
             });
             // change referer
-            window.history.replaceState(null, '', currentPath);
+            window.history.replaceState(null, '', addNutakuSession(currentPath) as string);
         });
 
     }

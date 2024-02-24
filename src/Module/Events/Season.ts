@@ -1,14 +1,12 @@
 
 import {
     BDSMHelper,
-    RewardHelper,
-    TimeHelper,
     calculateBattleProbabilities,
     checkTimer,
-    convertTimeToInt,
     ConfigHelper,
-    getHHVars,
+    convertTimeToInt,
     getHero,
+    getHHVars,
     getLimitTimeBeforeEnd,
     getPage,
     getSecondsLeft,
@@ -17,10 +15,17 @@ import {
     getTimeLeft,
     NumberHelper,
     randomInterval,
+    RewardHelper,
     setStoredValue,
-    setTimer } from '../../Helper/index';
-    import { checkParanoiaSpendings, gotoPage } from "../../Service/index";
-    import { isJSON, logHHAuto } from "../../Utils/index";
+    setTimer,
+    TimeHelper
+} from '../../Helper/index';
+import {
+    addNutakuSession,
+    checkParanoiaSpendings,
+    gotoPage
+} from "../../Service/index";
+import { isJSON, logHHAuto } from "../../Utils/index";
 import { HHStoredVarPrefixKey } from "../../config/index";
 import { BDSMSimu } from '../../model/index';
 import { Booster } from "../Booster";
@@ -349,13 +354,13 @@ export class Season {
                 if (runThreshold > 0) {
                     setStoredValue(HHStoredVarPrefixKey+"Temp_SeasonHumanLikeRun", "true");
                 }
-                const toGoTo = document.getElementsByClassName("opponent_perform_button_container")[chosenID].children[0].getAttribute('href') || ''
+                const toGoTo: string = document.getElementsByClassName("opponent_perform_button_container")[chosenID].children[0].getAttribute('href') || ''
                 if(toGoTo=='') {
                     logHHAuto('Season : Error getting opponent location');
                     setTimer('nextSeasonTime',randomInterval(30*60, 35*60));
                     return false;
                 }
-                location.href = toGoTo;
+                location.href = addNutakuSession(toGoTo) as string;
                 setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                 logHHAuto("setting autoloop to false");
                 logHHAuto("Going to crush : "+$("div.season_arena_opponent_container .personal_info div.player-name")[chosenID].innerText);

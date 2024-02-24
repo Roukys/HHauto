@@ -143,14 +143,7 @@ export function gotoPage(page,inArgs={},delay = -1)
             }
         }
 
-        if(unsafeWindow.hh_nutaku) {
-            const hhSession: string = queryStringGetParam(window.location.search, 'sess');
-            if (hhSession) {
-                togoto = url_add_param(togoto, 'sess', hhSession);
-            } else {
-                logHHAuto('ERROR Nutaku detected and no session found');
-            }
-        }
+        togoto = addNutakuSession(togoto) as string;
 
         setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
         logHHAuto("setting autoloop to false");
@@ -162,6 +155,22 @@ export function gotoPage(page,inArgs={},delay = -1)
         logHHAuto("Couldn't find page path. Page was undefined...");
         setTimeout(function () {location.reload();},delay);
     }
+}
+
+export function addNutakuSession(togoto: string | Array<string> | Object): string | Array<string> | Object{
+    if (unsafeWindow.hh_nutaku) {
+        const hhSession: string = queryStringGetParam(window.location.search, 'sess');
+        if (hhSession) {
+            if (typeof togoto === 'string') {
+                togoto = url_add_param(togoto, 'sess', hhSession);
+            } else if (typeof togoto === 'object' || Array.isArray(togoto)) {
+                togoto['sess'] = hhSession;
+            }
+        } else {
+            logHHAuto('ERROR Nutaku detected and no session found');
+        }
+    }
+    return togoto;
 }
 
 function setLastPageCalled(inPage)

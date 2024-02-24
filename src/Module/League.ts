@@ -1,14 +1,13 @@
 import {
     BDSMHelper,
-    RewardHelper,
     calculateBattleProbabilities,
     checkTimer,
+    ConfigHelper,
     convertTimeToInt,
     deleteStoredValue,
     getGoToChangeTeamButton,
-    ConfigHelper,
-    getHHVars,
     getHero,
+    getHHVars,
     getPage,
     getStoredValue,
     getTextForUI,
@@ -17,10 +16,16 @@ import {
     parsePrice,
     queryStringGetParam,
     randomInterval,
+    RewardHelper,
     setStoredValue,
     setTimer
 } from '../Helper/index';
-import { autoLoop, checkParanoiaSpendings, gotoPage } from '../Service/index';
+import {
+    addNutakuSession,
+    autoLoop,
+    checkParanoiaSpendings,
+    gotoPage
+} from '../Service/index';
 import { isJSON, logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
 import { BDSMSimu, KKLeagueOpponent, LeagueOpponent } from "../model/index";
@@ -749,7 +754,7 @@ export class LeagueHelper {
                 logHHAuto("Going to fight " + nextOpponent.nickname + "(" + nextOpponent.opponent_id + ") with power " + nextOpponent.power);
                 if (debugEnabled) logHHAuto(JSON.stringify(nextOpponent));
                 // change referer
-                window.history.replaceState(null, '', ConfigHelper.getHHScriptVars("pagesURLLeaguPreBattle") + '?id_opponent=' + nextOpponent.opponent_id);
+                window.history.replaceState(null, '', addNutakuSession(ConfigHelper.getHHScriptVars("pagesURLLeaguPreBattle") + '?id_opponent=' + nextOpponent.opponent_id) as string);
 
                 const opponents_list = getHHVars("opponents_list");
                 const opponentDataFromList = opponents_list.filter(obj => {
@@ -773,14 +778,15 @@ export class LeagueHelper {
                 if(numberOfBattle <= 1) {
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeagueBattle"),{number_of_battles:1,id_opponent:nextOpponent.opponent_id});
                 } else {
-                    var params1 = {
+                    var params1:any = {
                         action: "do_battles_leagues",
                         id_opponent: nextOpponent.opponent_id,
                         number_of_battles: numberOfBattle
                     };
+                    params1 = addNutakuSession(params1) as any;
                     unsafeWindow.hh_ajax(params1, function(data) {
                         // change referer
-                        window.history.replaceState(null, '', ConfigHelper.getHHScriptVars("pagesURLLeaderboard"));
+                        window.history.replaceState(null, '', addNutakuSession(ConfigHelper.getHHScriptVars("pagesURLLeaderboard")) as string);
 
                         RewardHelper.closeRewardPopupIfAny();
 
