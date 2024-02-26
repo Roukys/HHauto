@@ -14,7 +14,7 @@ export function gotoPage(page,inArgs={},delay = -1)
         delay = randomInterval(300,500);
     }
 
-    var togoto:string|undefined = 'undefined';
+    var togoto:string|undefined = undefined;
 
     // get page path
     switch(page)
