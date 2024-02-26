@@ -592,6 +592,17 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSalary"] =
         clearTimer('nextSalaryTime');
     }
 };
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSalaryResetFilters"] =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSalaryMaxTimer"] =
     {
     default:"1200",

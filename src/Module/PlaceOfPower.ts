@@ -130,8 +130,7 @@ export class PlaceOfPower {
 
     static collectAndUpdate()
     {
-        if(getPage() !== ConfigHelper.getHHScriptVars("pagesIDPowerplacemain")
-        )
+        if(getPage() !== ConfigHelper.getHHScriptVars("pagesIDPowerplacemain"))
         {
             logHHAuto("Navigating to powerplaces main page.");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDPowerplacemain"));

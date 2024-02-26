@@ -469,6 +469,7 @@ export function getMenu() {
                             + hhMenuSwitchWithImg('autoSalary', 'pictures/design/harem.svg')
                             + hhMenuInput('autoSalaryMinSalary', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
                             + hhMenuInput('autoSalaryMaxTimer', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
+                            + hhMenuSwitch('autoSalaryResetFilters')
                         +`</div>`
                     +`</div>`
                     +`<div class="optionsRow">`
