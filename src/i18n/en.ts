@@ -32,6 +32,7 @@ HHAuto_ToolTips.en['autoSalary'] = { version: "5.6.24", elementText: "Salary", t
 //HHAuto_ToolTips.en['autoSalaryMinTimer'] = { version: "5.6.24", elementText: "Minimum wait", tooltip: "(Integer)<br>X secs to next Salary collection"};
 HHAuto_ToolTips.en['autoSalaryMinSalary'] = { version: "5.6.24", elementText: "Min. salary", tooltip: "(Integer)<br>Minium salary to start collection"};
 HHAuto_ToolTips.en['autoSalaryMaxTimer'] = { version: "5.6.24", elementText: "Max. collect time", tooltip: "(Integer)<br>X secs to collect Salary, before stopping."};
+HHAuto_ToolTips.en['autoSalaryResetFilters'] = { version: "7.5.0", elementText: "Reset filters", tooltip: "Reset harem filters before collect salary."};
 HHAuto_ToolTips.en['autoMission'] = { version: "5.6.24", elementText: "Mission", tooltip: "if enabled : Automatically do missions"};
 HHAuto_ToolTips.en['autoMissionCollect'] = { version: "5.6.24", elementText: "Collect", tooltip: "if enabled : Automatically collect missions after start of new competition."};
 HHAuto_ToolTips.en['compactMissions'] = { version: "5.24.0", elementText: "Compact", tooltip: "Add styles to compact missions display"};

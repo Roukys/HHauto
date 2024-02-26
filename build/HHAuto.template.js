@@ -41,8 +41,6 @@ GM_addStyle('#pInfo {padding-left:3px; z-index:1;white-space: pre;position: abso
             + '#pInfo ul {margin:0; padding:0; columns:2; list-style-type: none;}'
             + '#pInfo ul li {margin:0}');
 GM_addStyle('#pInfo.left {right: 480px; left:220px; top:12%;');
-//GM_addStyle('span.HHMenuItemName {font-size: xx-small; line-height: 150%}');
-//GM_addStyle('span.HHMenuItemName {font-size: smaller; line-height: 120%}');
 GM_addStyle('span.HHMenuItemName {padding-bottom:2px; line-height:120%}');
 GM_addStyle('div.optionsRow {display:flex; flex-direction:row; justify-content: space-between}'); //; padding:3px;
 GM_addStyle('span.optionsBoxTitle {padding-left:5px}'); //; padding-bottom:2px

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.4.4
+// @version      7.5.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -41,8 +41,6 @@ GM_addStyle('#pInfo {padding-left:3px; z-index:1;white-space: pre;position: abso
             + '#pInfo ul {margin:0; padding:0; columns:2; list-style-type: none;}'
             + '#pInfo ul li {margin:0}');
 GM_addStyle('#pInfo.left {right: 480px; left:220px; top:12%;');
-//GM_addStyle('span.HHMenuItemName {font-size: xx-small; line-height: 150%}');
-//GM_addStyle('span.HHMenuItemName {font-size: smaller; line-height: 120%}');
 GM_addStyle('span.HHMenuItemName {padding-bottom:2px; line-height:120%}');
 GM_addStyle('div.optionsRow {display:flex; flex-direction:row; justify-content: space-between}'); //; padding:3px;
 GM_addStyle('span.optionsBoxTitle {padding-left:5px}'); //; padding-bottom:2px
@@ -420,6 +418,7 @@ HHAuto_ToolTips.en['autoSalary'] = { version: "5.6.24", elementText: "Salary", t
 //HHAuto_ToolTips.en['autoSalaryMinTimer'] = { version: "5.6.24", elementText: "Minimum wait", tooltip: "(Integer)<br>X secs to next Salary collection"};
 HHAuto_ToolTips.en['autoSalaryMinSalary'] = { version: "5.6.24", elementText: "Min. salary", tooltip: "(Integer)<br>Minium salary to start collection" };
 HHAuto_ToolTips.en['autoSalaryMaxTimer'] = { version: "5.6.24", elementText: "Max. collect time", tooltip: "(Integer)<br>X secs to collect Salary, before stopping." };
+HHAuto_ToolTips.en['autoSalaryResetFilters'] = { version: "7.5.0", elementText: "Reset filters", tooltip: "Reset harem filters before collect salary." };
 HHAuto_ToolTips.en['autoMission'] = { version: "5.6.24", elementText: "Mission", tooltip: "if enabled : Automatically do missions" };
 HHAuto_ToolTips.en['autoMissionCollect'] = { version: "5.6.24", elementText: "Collect", tooltip: "if enabled : Automatically collect missions after start of new competition." };
 HHAuto_ToolTips.en['compactMissions'] = { version: "5.24.0", elementText: "Compact", tooltip: "Add styles to compact missions display" };
@@ -6336,7 +6335,31 @@ class HaremSalary {
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"), {}, randomInterval(300, 500));
             }
         }
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryResetFilters") === "true") {
+            LogUtils_logHHAuto('Reseting girl filters');
+            $('#reset-filters').trigger('click');
+        }
         CollectData(true);
+    }
+    static getNextSalaryTimeFromHomePage() {
+        const salaryTimer = $('.pay-in:visible', HaremSalary.getSalaryButton());
+        if (salaryTimer.length > 0) {
+            return convertTimeToInt(salaryTimer.text()) || -1;
+        }
+        return -1;
+    }
+    static setSalaryTimeFromHomePage() {
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHome")) {
+            const minSalaryForCollect = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryMinSalary")) || 20000;
+            if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryResetFilters") === "true"
+                && Number($('.sum', HaremSalary.getSalaryButton()).attr('amount')) > minSalaryForCollect) {
+                setTimer('nextSalaryTime', 0);
+                return;
+            }
+            const nextSalaryTime = HaremSalary.getNextSalaryTimeFromHomePage();
+            if (nextSalaryTime > 0)
+                setTimer('nextSalaryTime', randomInterval(nextSalaryTime, 60 + nextSalaryTime));
+        }
     }
     static predictNextSalaryMinTime() {
         let girlsDataList = getHHVars("GirlSalaryManager.girlsMap");
@@ -6397,10 +6420,15 @@ class HaremSalary {
                         //replaceCheatClick();
                         salaryButton.trigger('click');
                         LogUtils_logHHAuto('Collected all Premium salary');
+                        let nextSalaryTime = -1;
                         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHarem")) {
-                            const nexstSalaryTime = HaremSalary.predictNextSalaryMinTime();
-                            setTimer('nextSalaryTime', randomInterval(nexstSalaryTime, 60 + nexstSalaryTime));
+                            nextSalaryTime = HaremSalary.predictNextSalaryMinTime();
                         }
+                        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHome")) {
+                            nextSalaryTime = HaremSalary.getNextSalaryTimeFromHomePage();
+                        }
+                        if (nextSalaryTime > 0)
+                            setTimer('nextSalaryTime', randomInterval(nextSalaryTime, 60 + nextSalaryTime));
                         return false;
                     }
                     else if (getButtonClass.indexOf("orange_button_L") !== -1) {
@@ -6425,8 +6453,8 @@ class HaremSalary {
                 }
                 else if (!salaryToCollect) {
                     LogUtils_logHHAuto("No salary to collect");
-                    const nexstSalaryTime = HaremSalary.predictNextSalaryMinTime();
-                    setTimer('nextSalaryTime', randomInterval(nexstSalaryTime, 180 + nexstSalaryTime));
+                    const nextSalaryTime = HaremSalary.predictNextSalaryMinTime();
+                    setTimer('nextSalaryTime', randomInterval(nextSalaryTime, 180 + nextSalaryTime));
                 }
                 else {
                     LogUtils_logHHAuto("Not enough salary to collect, wait 15min");
@@ -10890,6 +10918,17 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSalary"] =
             clearTimer('nextSalaryTime');
         }
     };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSalaryResetFilters"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSalaryMaxTimer"] =
     {
         default: "1200",
@@ -12834,6 +12873,7 @@ function getMenu() {
             + hhMenuSwitchWithImg('autoSalary', 'pictures/design/harem.svg')
             + hhMenuInput('autoSalaryMinSalary', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
             + hhMenuInput('autoSalaryMaxTimer', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
+            + hhMenuSwitch('autoSalaryResetFilters')
             + `</div>`
             + `</div>`
             + `<div class="optionsRow">`
@@ -15721,6 +15761,8 @@ function autoLoop() {
                 setTimeout(EventModule.showCompletedEvent, 500);
                 Harem.clearHaremToolVariables = callItOnce(Harem.clearHaremToolVariables); // Avoid wired loop, if user reach home page, ensure temp var from harem are cleared
                 Harem.clearHaremToolVariables();
+                HaremSalary.setSalaryTimeFromHomePage = callItOnce(HaremSalary.setSalaryTimeFromHomePage);
+                HaremSalary.setSalaryTimeFromHomePage();
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDHarem"):
                 Harem.moduleHarem();

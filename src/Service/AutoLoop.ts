@@ -1014,6 +1014,9 @@ export async function autoLoop()
 
             Harem.clearHaremToolVariables = callItOnce(Harem.clearHaremToolVariables); // Avoid wired loop, if user reach home page, ensure temp var from harem are cleared
             Harem.clearHaremToolVariables();
+
+            HaremSalary.setSalaryTimeFromHomePage = callItOnce(HaremSalary.setSalaryTimeFromHomePage);
+            HaremSalary.setSalaryTimeFromHomePage();
             break;
         case ConfigHelper.getHHScriptVars("pagesIDHarem"):
             Harem.moduleHarem();
