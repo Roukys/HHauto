@@ -26,6 +26,7 @@ declare global {
         seasonal_event_active: any;
         seasonal_time_remaining: any;
         server_now_ts: any;
+        id_girl: any;
     }
 }
 
