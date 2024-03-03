@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.5.1
+// @version      7.5.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -6270,6 +6270,7 @@ class HaremSalary {
         let totalGirlsDisplayed = 0;
         let girlsToCollectBeforeWait = randomInterval(6, 12);
         let girlPageCollecting = 1;
+        let lastGirlScrolledTo = -1;
         function ClickThem() {
             if (endCollectTS === -1) {
                 endCollectTS = new Date().getTime() + 1000 * maxSecsForSalary;
@@ -6356,13 +6357,14 @@ class HaremSalary {
             }
             else if (salarySumTag && inStart && !allOwnedGirlsLoaded) {
                 // Some money to collect, scrolling
-                if (girlsList && girlsList.length > 0) {
-                    const girlIdToLoad = girlsList[girlsList.length - 1].gId;
+                const girlIdToLoad = Number($('.girls_list .harem-girl:not(.not_owned)').last().attr('girl'));
+                if (lastGirlScrolledTo != girlIdToLoad) {
+                    lastGirlScrolledTo = girlIdToLoad;
                     LogUtils_logHHAuto(`Some salary need to be collected in next pages, scroll down to ${girlIdToLoad}`);
-                    HaremSalary.scrollToGirl(girlIdToLoad);
+                    HaremSalary.scrollToGirl(girlIdToLoad + '');
                 }
                 else {
-                    LogUtils_logHHAuto(`Some salary need to be collected in next pages, scroll down to bottom`);
+                    LogUtils_logHHAuto(`Some salary need to be collected in next pages, same girl as before, scroll down to bottom`);
                     HaremSalary.scrollToLastGirl();
                 }
                 setTimeout(() => { CollectData(inStart); }, randomInterval(1200, 1800));
@@ -6385,6 +6387,7 @@ class HaremSalary {
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryResetFilters") === "true") {
             LogUtils_logHHAuto('Reseting girl filters');
             $('#reset-filters').trigger('click');
+            TimeHelper.sleep(randomInterval(800, 1200)); // wait loading
         }
         CollectData(true);
     }
@@ -6398,8 +6401,10 @@ class HaremSalary {
     static setSalaryTimeFromHomePage() {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHome")) {
             const minSalaryForCollect = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryMinSalary")) || 20000;
+            const salaryAmount = Number($('.sum', HaremSalary.getSalaryButton()).attr('amount'));
             if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryResetFilters") === "true"
-                && Number($('.sum', HaremSalary.getSalaryButton()).attr('amount')) > minSalaryForCollect) {
+                && salaryAmount > minSalaryForCollect) {
+                LogUtils_logHHAuto(`Some salary to be collected ${salaryAmount}`);
                 setTimer('nextSalaryTime', 0);
                 return;
             }

@@ -8,7 +8,8 @@ import {
     randomInterval,
     getHHVars,
     getHero,
-    convertTimeToInt
+    convertTimeToInt,
+    TimeHelper
 } from '../Helper/index';
 import { gotoPage } from '../Service/index';
 import { getCurrentSorting, logHHAuto } from '../Utils/index';
@@ -52,6 +53,7 @@ export class HaremSalary {
         let totalGirlsDisplayed = 0;
         let girlsToCollectBeforeWait = randomInterval(6,12);
         let girlPageCollecting = 1;
+        let lastGirlScrolledTo = -1;
         function ClickThem()
         {
             if (endCollectTS === -1)
@@ -155,12 +157,13 @@ export class HaremSalary {
             }
             else if (salarySumTag && inStart && !allOwnedGirlsLoaded) {
                 // Some money to collect, scrolling
-                if (girlsList && girlsList.length > 0) {
-                    const girlIdToLoad = girlsList[girlsList.length - 1].gId;
+                const girlIdToLoad = Number($('.girls_list .harem-girl:not(.not_owned)').last().attr('girl'));
+                if (lastGirlScrolledTo != girlIdToLoad) {
+                    lastGirlScrolledTo = girlIdToLoad;
                     logHHAuto(`Some salary need to be collected in next pages, scroll down to ${girlIdToLoad}`);
-                    HaremSalary.scrollToGirl(girlIdToLoad);
+                    HaremSalary.scrollToGirl(girlIdToLoad+'');
                 } else {
-                    logHHAuto(`Some salary need to be collected in next pages, scroll down to bottom`);
+                    logHHAuto(`Some salary need to be collected in next pages, same girl as before, scroll down to bottom`);
                     HaremSalary.scrollToLastGirl();
                 }
                 setTimeout(() => { CollectData(inStart) }, randomInterval(1200, 1800));
@@ -187,6 +190,7 @@ export class HaremSalary {
         {
             logHHAuto('Reseting girl filters');
             $('#reset-filters').trigger('click');
+            TimeHelper.sleep(randomInterval(800,1200)); // wait loading
         }
     
         CollectData(true);
@@ -205,10 +209,12 @@ export class HaremSalary {
     {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHome")) {
             const minSalaryForCollect = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryMinSalary")) || 20000;
+            const salaryAmount = Number($('.sum', HaremSalary.getSalaryButton()).attr('amount'));
 
             if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryResetFilters") === "true" 
-                && Number($('.sum', HaremSalary.getSalaryButton()).attr('amount')) > minSalaryForCollect)
+                && salaryAmount > minSalaryForCollect)
             {
+                logHHAuto(`Some salary to be collected ${salaryAmount}`);
                 setTimer('nextSalaryTime', 0);
                 return;
             }
