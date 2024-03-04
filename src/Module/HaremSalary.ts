@@ -38,7 +38,7 @@ export class HaremSalary {
         } catch (err) { }
     }
 
-    static CollectMoney ()
+    static async CollectMoney ()
     {
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
         var Clicked:any[]=[];
@@ -190,7 +190,7 @@ export class HaremSalary {
         {
             logHHAuto('Reseting girl filters');
             $('#reset-filters').trigger('click');
-            TimeHelper.sleep(randomInterval(800,1200)); // wait loading
+            await TimeHelper.sleep(randomInterval(800, 1200)); // wait loading
         }
     
         CollectData(true);
@@ -215,7 +215,7 @@ export class HaremSalary {
                 && salaryAmount > minSalaryForCollect)
             {
                 logHHAuto(`Some salary to be collected ${salaryAmount}`);
-                setTimer('nextSalaryTime', 0);
+                setTimer('nextSalaryTime', randomInterval(1, 10));
                 return;
             }
             const nextSalaryTime = HaremSalary.getNextSalaryTimeFromHomePage();
