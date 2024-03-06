@@ -228,7 +228,9 @@ export async function autoLoop()
             }
         }
 
-        if (getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") ==="true" && checkTimerMustExist('eventMythicNextWave') && getSecondsLeft("eventMythicGoing") > 0)
+        if (busy === false && isAutoLoopActive() && canCollectCompetitionActive
+            && getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") ==="true" && checkTimerMustExist('eventMythicNextWave') && getSecondsLeft("eventMythicGoing") > 0
+            && Troll.isTrollFightActivated())
         {
             logHHAuto("Mythic wave !");
             lastActionPerformed = "troll";

@@ -326,6 +326,9 @@ export class EventModule {
                                     clearTimer('eventMythicNextWave');
                                 }
                             }
+                        } else {
+                            // No more needed if girl is owned
+                            clearTimer('eventMythicNextWave');
                         }
                     }
                 }
