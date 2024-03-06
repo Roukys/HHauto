@@ -8,7 +8,8 @@ import {
     hhMenuSwitch, 
     randomInterval, 
     setStoredValue,
-    setTimer
+    setTimer,
+    TimeHelper
 } from '../Helper/index';
 import { autoLoop, gotoPage } from '../Service/index';
 import { isDisplayedHHPopUp, fillHHPopUp, logHHAuto, maskHHPopUp } from '../Utils/index';
@@ -16,17 +17,17 @@ import { HHAuto_inputPattern, HHStoredVarPrefixKey } from '../config/index';
 
 export class Pachinko {
 
-    static getGreatPachinko():boolean {
+    static getGreatPachinko(): Promise<boolean> {
         return Pachinko.getFreePachinko('great','nextPachinkoTime','great-timer');
     }
-    static getMythicPachinko():boolean {
+    static getMythicPachinko(): Promise<boolean> {
         return Pachinko.getFreePachinko('mythic','nextPachinko2Time', 'mythic-timer');
     }
-    static getEquipmentPachinko():boolean {
-        return Pachinko.getFreePachinko('equipment','nextPachinkoEquipTime', 'equipment-timer'); // No timer. yet ?
+    static getEquipmentPachinko(): Promise<boolean> {
+        return Pachinko.getFreePachinko('equipment','nextPachinkoEquipTime', 'equipment-timer');
     }
 
-    static getFreePachinko(pachinkoType, pachinkoTimer, timerClass):boolean {
+    static async getFreePachinko(pachinkoType: string, pachinkoTimer: string, timerClass: string):Promise<boolean> {
         if(!pachinkoType || !pachinkoTimer){
             return false;
         }
@@ -41,12 +42,19 @@ export class Pachinko {
             else {
                 logHHAuto("Detected Pachinko Screen. Fetching Pachinko, setting autoloop to false");
                 setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
-                var counter=0;
                 logHHAuto('switch to ' + pachinkoType);
+                const equipementSection = '#pachinko_whole .playing-zone';
                 const freeButtonQuery = '#playzone-replace-info button[data-free="true"].blue_button_L';
-                while ($(freeButtonQuery).length === 0 && (counter++)<250)
+
+                async function selectPachinko(pachinkoType:string)
                 {
-                    $('.game-simple-block[type-pachinko='+pachinkoType+']')[0].click();
+                    $('.game-simple-block[type-pachinko=' + pachinkoType + ']').trigger('click');
+                    await TimeHelper.sleep(randomInterval(400,600));
+                }
+                await selectPachinko(pachinkoType);
+                if ($(equipementSection).attr('type-panel') != pachinkoType) {
+                    logHHAuto(`Error pachinko ${pachinkoType} not loaded after click, retry`);
+                    await selectPachinko(pachinkoType);
                 }
 
                 if ($(freeButtonQuery).length === 0)
@@ -55,7 +63,7 @@ export class Pachinko {
                 }
                 else
                 {
-                    $(freeButtonQuery)[0].click();
+                    $(freeButtonQuery).trigger('click');
                 }
 
                 var npach = $('.'+timerClass+' span[rel="expires"]').text();

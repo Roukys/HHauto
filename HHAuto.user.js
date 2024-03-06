@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.5.4
+// @version      7.5.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -8349,6 +8349,15 @@ class MonthlyCards {
 }
 
 ;// CONCATENATED MODULE: ./src/Module/Pachinko.ts
+var Pachinko_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 
 
 
@@ -8361,55 +8370,65 @@ class Pachinko {
         return Pachinko.getFreePachinko('mythic', 'nextPachinko2Time', 'mythic-timer');
     }
     static getEquipmentPachinko() {
-        return Pachinko.getFreePachinko('equipment', 'nextPachinkoEquipTime', 'equipment-timer'); // No timer. yet ?
+        return Pachinko.getFreePachinko('equipment', 'nextPachinkoEquipTime', 'equipment-timer');
     }
     static getFreePachinko(pachinkoType, pachinkoTimer, timerClass) {
-        if (!pachinkoType || !pachinkoTimer) {
-            return false;
-        }
-        try {
-            if (getPage() !== ConfigHelper.getHHScriptVars("pagesIDPachinko")) {
-                LogUtils_logHHAuto("Navigating to Pachinko window.");
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDPachinko"));
+        return Pachinko_awaiter(this, void 0, void 0, function* () {
+            if (!pachinkoType || !pachinkoTimer) {
+                return false;
+            }
+            try {
+                if (getPage() !== ConfigHelper.getHHScriptVars("pagesIDPachinko")) {
+                    LogUtils_logHHAuto("Navigating to Pachinko window.");
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDPachinko"));
+                    return true;
+                }
+                else {
+                    LogUtils_logHHAuto("Detected Pachinko Screen. Fetching Pachinko, setting autoloop to false");
+                    setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+                    LogUtils_logHHAuto('switch to ' + pachinkoType);
+                    const equipementSection = '#pachinko_whole .playing-zone';
+                    const freeButtonQuery = '#playzone-replace-info button[data-free="true"].blue_button_L';
+                    function selectPachinko(pachinkoType) {
+                        return Pachinko_awaiter(this, void 0, void 0, function* () {
+                            $('.game-simple-block[type-pachinko=' + pachinkoType + ']').trigger('click');
+                            yield TimeHelper.sleep(randomInterval(400, 600));
+                        });
+                    }
+                    yield selectPachinko(pachinkoType);
+                    if ($(equipementSection).attr('type-panel') != pachinkoType) {
+                        LogUtils_logHHAuto(`Error pachinko ${pachinkoType} not loaded after click, retry`);
+                        yield selectPachinko(pachinkoType);
+                    }
+                    if ($(freeButtonQuery).length === 0) {
+                        LogUtils_logHHAuto('Not ready yet');
+                    }
+                    else {
+                        $(freeButtonQuery).trigger('click');
+                    }
+                    var npach = $('.' + timerClass + ' span[rel="expires"]').text();
+                    if (npach !== undefined && npach !== null && npach.length > 0) {
+                        setTimer(pachinkoTimer, Number(convertTimeToInt(npach)) + randomInterval(1, 5));
+                    }
+                    else {
+                        LogUtils_logHHAuto("Unable to find " + pachinkoType + " Pachinko time, wait 4h.");
+                        setTimer(pachinkoTimer, ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(1, 10));
+                    }
+                    setTimeout(function () {
+                        RewardHelper.closeRewardPopupIfAny();
+                        setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
+                        LogUtils_logHHAuto("setting autoloop to true");
+                        setTimeout(autoLoop, randomInterval(500, 800));
+                    }, randomInterval(300, 600));
+                }
                 return true;
             }
-            else {
-                LogUtils_logHHAuto("Detected Pachinko Screen. Fetching Pachinko, setting autoloop to false");
-                setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
-                var counter = 0;
-                LogUtils_logHHAuto('switch to ' + pachinkoType);
-                const freeButtonQuery = '#playzone-replace-info button[data-free="true"].blue_button_L';
-                while ($(freeButtonQuery).length === 0 && (counter++) < 250) {
-                    $('.game-simple-block[type-pachinko=' + pachinkoType + ']')[0].click();
-                }
-                if ($(freeButtonQuery).length === 0) {
-                    LogUtils_logHHAuto('Not ready yet');
-                }
-                else {
-                    $(freeButtonQuery)[0].click();
-                }
-                var npach = $('.' + timerClass + ' span[rel="expires"]').text();
-                if (npach !== undefined && npach !== null && npach.length > 0) {
-                    setTimer(pachinkoTimer, Number(convertTimeToInt(npach)) + randomInterval(1, 5));
-                }
-                else {
-                    LogUtils_logHHAuto("Unable to find " + pachinkoType + " Pachinko time, wait 4h.");
-                    setTimer(pachinkoTimer, ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(1, 10));
-                }
-                setTimeout(function () {
-                    RewardHelper.closeRewardPopupIfAny();
-                    setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
-                    LogUtils_logHHAuto("setting autoloop to true");
-                    setTimeout(autoLoop, randomInterval(500, 800));
-                }, randomInterval(300, 600));
+            catch (ex) {
+                LogUtils_logHHAuto("Catched error : Could not collect " + pachinkoType + " Pachinko... " + ex);
+                setTimer(pachinkoTimer, ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(1, 10));
+                return false;
             }
-            return true;
-        }
-        catch (ex) {
-            LogUtils_logHHAuto("Catched error : Could not collect " + pachinkoType + " Pachinko... " + ex);
-            setTimer(pachinkoTimer, ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(1, 10));
-            return false;
-        }
+        });
     }
     static modulePachinko() {
         const menuID = "PachinkoButton";
@@ -15356,21 +15375,21 @@ function autoLoop() {
                 && isAutoLoopActive() && checkTimer("nextPachinko2Time") && canCollectCompetitionActive
                 && (lastActionPerformed === "none" || lastActionPerformed === "pachinko")) {
                 LogUtils_logHHAuto("Time to fetch Mythic Pachinko.");
-                busy = Pachinko.getMythicPachinko();
+                busy = yield Pachinko.getMythicPachinko();
                 lastActionPerformed = "pachinko";
             }
             if (busy === false && ConfigHelper.getHHScriptVars("isEnabledGreatPachinko", false) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoFreePachinko") === "true"
                 && isAutoLoopActive() && checkTimer("nextPachinkoTime") && canCollectCompetitionActive
                 && (lastActionPerformed === "none" || lastActionPerformed === "pachinko")) {
                 LogUtils_logHHAuto("Time to fetch Great Pachinko.");
-                busy = Pachinko.getGreatPachinko();
+                busy = yield Pachinko.getGreatPachinko();
                 lastActionPerformed = "pachinko";
             }
             if (busy === false && ConfigHelper.getHHScriptVars("isEnabledEquipmentPachinko", false) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoFreePachinko") === "true"
                 && isAutoLoopActive() && checkTimer("nextPachinkoEquipTime") && canCollectCompetitionActive
                 && (lastActionPerformed === "none" || lastActionPerformed === "pachinko")) {
                 LogUtils_logHHAuto("Time to fetch Equipment Pachinko.");
-                busy = Pachinko.getEquipmentPachinko();
+                busy = yield Pachinko.getEquipmentPachinko();
                 lastActionPerformed = "pachinko";
             }
             if (busy === false && ConfigHelper.getHHScriptVars("isEnabledContest", false) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoContest") === "true"
