@@ -412,7 +412,7 @@ export async function autoLoop()
             && isAutoLoopActive() && checkTimer("nextPachinko2Time") && canCollectCompetitionActive
             && (lastActionPerformed === "none" || lastActionPerformed === "pachinko")) {
             logHHAuto("Time to fetch Mythic Pachinko.");
-            busy = Pachinko.getMythicPachinko();
+            busy = await Pachinko.getMythicPachinko();
             lastActionPerformed = "pachinko";
         }
 
@@ -420,7 +420,7 @@ export async function autoLoop()
             && isAutoLoopActive() && checkTimer("nextPachinkoTime") && canCollectCompetitionActive
             && (lastActionPerformed === "none" || lastActionPerformed === "pachinko")) {
             logHHAuto("Time to fetch Great Pachinko.");
-            busy = Pachinko.getGreatPachinko();
+            busy = await Pachinko.getGreatPachinko();
             lastActionPerformed = "pachinko";
         }
 
@@ -428,7 +428,7 @@ export async function autoLoop()
             && isAutoLoopActive() && checkTimer("nextPachinkoEquipTime") && canCollectCompetitionActive
             && (lastActionPerformed === "none" || lastActionPerformed === "pachinko")) {
             logHHAuto("Time to fetch Equipment Pachinko.");
-            busy = Pachinko.getEquipmentPachinko();
+            busy = await Pachinko.getEquipmentPachinko();
             lastActionPerformed = "pachinko";
         }
 
