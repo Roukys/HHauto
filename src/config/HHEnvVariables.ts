@@ -500,7 +500,8 @@ HHEnvVariables["HH_test"].isEnabledFreeBundles = false;// to remove if bundles a
                                           'Cockatrice',
                                           'Pomelo',
                                           'Alexa Sl\'Thor',
-                                          'D\'KLONG'];
+                                          'D\'KLONG',
+                                          'Virtue Man'];
 });
 ["CH_prod","NCH_prod"].forEach((element) => {
     HHEnvVariables[element].trollGirlsID = [
