@@ -213,42 +213,10 @@ export function start() {
     maskInactiveMenus();
 
     // Add auto troll options
-    var trollOptions = <HTMLSelectElement>document.getElementById("autoTrollSelector");
-
-    const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
-    const trollz = ConfigHelper.getHHScriptVars("trollzList");
-    for (var i=0;i<=lastTrollIdAvailable;i++)
-    {
-        var option = document.createElement("option");
-        option.value=i+'';
-        option.text = trollz[i];
-        if(option.text !== 'EMPTY' && trollz[i]) {
-            // Supports for PH and missing trols or parallel advantures (id world "missing")
-            trollOptions.add(option);
-        }
-    };
-
-    var optionFWG = document.createElement("option");
-    optionFWG.value = '98';
-    optionFWG.text = getTextForUI("firstTrollWithGirls","elementText");
-    trollOptions.add(optionFWG);
-
-    var optionLWG = document.createElement("option");
-    optionLWG.value = '99';
-    optionLWG.text = getTextForUI("lastTrollWithGirls","elementText");
-    trollOptions.add(optionLWG);
+    hhAutoMenu.fillTrollSelectMenu(Troll.getLastTrollIdAvailable());
 
     // Add league options
-    var leaguesOptions = <HTMLSelectElement>document.getElementById("autoLeaguesSelector");
-    const leagues = ConfigHelper.getHHScriptVars("leaguesList");
-
-    for (var j in leagues)
-    {
-        var optionL = document.createElement("option");
-        optionL.value=(Number(j)+1)+'';
-        optionL.text = leagues[j];
-        leaguesOptions.add(optionL);
-    };
+    hhAutoMenu.fillLeagueSelectMenu();
 
     setMenuValues();
     getMenuValues();
