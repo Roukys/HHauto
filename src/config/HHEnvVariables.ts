@@ -556,8 +556,9 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
                                           'EMPTY',
                                           'Sierra Sinn',
                                           'Jasmine Jae',
-                                          'Bella Rose'];
-    HHEnvVariables[element].trollIdMapping = { 10: 9, 14: 11, 16: 12, 18: 13 }; // under 10 id as usual
+                                          'Bella Rose',
+                                          'Paige Taylor'];
+    HHEnvVariables[element].trollIdMapping = { 10: 9, 14: 11, 16: 12, 18: 13, 19: 14 }; // under 10 id as usual
     HHEnvVariables[element].lastQuestId = 16100; //  TODO update when new quest comes
     HHEnvVariables[element].boosterId_MB1 = 2619;
 });

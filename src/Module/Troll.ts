@@ -79,10 +79,12 @@ export class Troll {
         const id_world = Number(getHHVars('Hero.infos.questing.id_world'));
         if(ConfigHelper.isPshEnvironnement() && id_world > 10) {
             const trollIdMapping = ConfigHelper.getHHScriptVars("trollIdMapping");
-            return trollIdMapping[id_world]; // PSH parallele adventures
-        }else {
-            return id_world-1;
+            if (trollIdMapping.hasOwnProperty(id_world)) {
+                return trollIdMapping[id_world] // PSH parallele adventures
+            }
+            logHHAuto(`Error Troll ID mapping need to be updated with world ${id_world}`);
         }
+        return id_world-1;
     }
 
     static getTrollIdFromEvent(eventGirl:any){

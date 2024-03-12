@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.5.6
+// @version      7.5.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -5180,11 +5180,12 @@ class Troll {
         const id_world = Number(getHHVars('Hero.infos.questing.id_world'));
         if (ConfigHelper.isPshEnvironnement() && id_world > 10) {
             const trollIdMapping = ConfigHelper.getHHScriptVars("trollIdMapping");
-            return trollIdMapping[id_world]; // PSH parallele adventures
+            if (trollIdMapping.hasOwnProperty(id_world)) {
+                return trollIdMapping[id_world]; // PSH parallele adventures
+            }
+            LogUtils_logHHAuto(`Error Troll ID mapping need to be updated with world ${id_world}`);
         }
-        else {
-            return id_world - 1;
-        }
+        return id_world - 1;
     }
     static getTrollIdFromEvent(eventGirl) {
         if (eventGirl && EventModule.isEventActive(eventGirl.event_id)) {
@@ -10359,8 +10360,9 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
         'EMPTY',
         'Sierra Sinn',
         'Jasmine Jae',
-        'Bella Rose'];
-    HHEnvVariables[element].trollIdMapping = { 10: 9, 14: 11, 16: 12, 18: 13 }; // under 10 id as usual
+        'Bella Rose',
+        'Paige Taylor'];
+    HHEnvVariables[element].trollIdMapping = { 10: 9, 14: 11, 16: 12, 18: 13, 19: 14 }; // under 10 id as usual
     HHEnvVariables[element].lastQuestId = 16100; //  TODO update when new quest comes
     HHEnvVariables[element].boosterId_MB1 = 2619;
 });
@@ -12595,6 +12597,46 @@ class HHMenu {
                 }
             }
         });
+    }
+    _createHtmlOption(value, text) {
+        var option = document.createElement("option");
+        option.value = value;
+        option.text = text;
+        return option;
+    }
+    fillTrollSelectMenu(lastTrollIdAvailable) {
+        var trollOptions = document.getElementById("autoTrollSelector");
+        try {
+            const trollz = ConfigHelper.getHHScriptVars("trollzList");
+            for (var i = 0; i <= lastTrollIdAvailable; i++) {
+                var option = this._createHtmlOption(i + '', trollz[i]);
+                if (option.text !== 'EMPTY' && trollz[i]) {
+                    // Supports for PH and missing trols or parallel advantures (id world "missing")
+                    trollOptions.add(option);
+                }
+            }
+            ;
+        }
+        catch ({ errName, message }) {
+            trollOptions.add(this._createHtmlOption('0', 'Error!'));
+            LogUtils_logHHAuto(`Error filling trolls: ${errName}, ${message}`);
+        }
+        trollOptions.add(this._createHtmlOption('98', getTextForUI("firstTrollWithGirls", "elementText")));
+        trollOptions.add(this._createHtmlOption('99', getTextForUI("lastTrollWithGirls", "elementText")));
+    }
+    fillLeagueSelectMenu() {
+        var leaguesOptions = document.getElementById("autoLeaguesSelector");
+        try {
+            const leagues = ConfigHelper.getHHScriptVars("leaguesList");
+            for (var j in leagues) {
+                leaguesOptions.add(this._createHtmlOption((Number(j) + 1) + '', leagues[j]));
+            }
+            ;
+        }
+        catch ({ errName, message }) {
+            leaguesOptions.add(this._createHtmlOption('0', 'Error!'));
+            LogUtils_logHHAuto(`Error filling leagues: ${errName}, ${message}`);
+        }
     }
 }
 HHMenu.BUTTON_MENU_ID = 'sMenuButton';
@@ -16561,37 +16603,9 @@ function start() {
     $('#contains_all').append(pInfoDiv);
     maskInactiveMenus();
     // Add auto troll options
-    var trollOptions = document.getElementById("autoTrollSelector");
-    const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
-    const trollz = ConfigHelper.getHHScriptVars("trollzList");
-    for (var i = 0; i <= lastTrollIdAvailable; i++) {
-        var option = document.createElement("option");
-        option.value = i + '';
-        option.text = trollz[i];
-        if (option.text !== 'EMPTY' && trollz[i]) {
-            // Supports for PH and missing trols or parallel advantures (id world "missing")
-            trollOptions.add(option);
-        }
-    }
-    ;
-    var optionFWG = document.createElement("option");
-    optionFWG.value = '98';
-    optionFWG.text = getTextForUI("firstTrollWithGirls", "elementText");
-    trollOptions.add(optionFWG);
-    var optionLWG = document.createElement("option");
-    optionLWG.value = '99';
-    optionLWG.text = getTextForUI("lastTrollWithGirls", "elementText");
-    trollOptions.add(optionLWG);
+    hhAutoMenu.fillTrollSelectMenu(Troll.getLastTrollIdAvailable());
     // Add league options
-    var leaguesOptions = document.getElementById("autoLeaguesSelector");
-    const leagues = ConfigHelper.getHHScriptVars("leaguesList");
-    for (var j in leagues) {
-        var optionL = document.createElement("option");
-        optionL.value = (Number(j) + 1) + '';
-        optionL.text = leagues[j];
-        leaguesOptions.add(optionL);
-    }
-    ;
+    hhAutoMenu.fillLeagueSelectMenu();
     setMenuValues();
     getMenuValues();
     manageToolTipsDisplay();

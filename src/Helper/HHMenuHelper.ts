@@ -44,6 +44,48 @@ export class HHMenu {
         });
     }
 
+    _createHtmlOption(value:string, text:string) {
+        var option = document.createElement("option");
+        option.value = value;
+        option.text = text;
+        return option;
+    }
+
+    fillTrollSelectMenu(lastTrollIdAvailable: number) {
+        var trollOptions = <HTMLSelectElement>document.getElementById("autoTrollSelector");
+        try {
+            const trollz = ConfigHelper.getHHScriptVars("trollzList");
+            for (var i = 0; i <= lastTrollIdAvailable; i++) {
+                var option = this._createHtmlOption(i + '', trollz[i]);
+                if (option.text !== 'EMPTY' && trollz[i]) {
+                    // Supports for PH and missing trols or parallel advantures (id world "missing")
+                    trollOptions.add(option);
+                }
+            }
+            
+        } catch ({ errName, message }) {
+            trollOptions.add(this._createHtmlOption('0', 'Error!'));
+            logHHAuto(`Error filling trolls: ${errName}, ${message}`);
+        }
+
+        trollOptions.add(this._createHtmlOption('98', getTextForUI("firstTrollWithGirls", "elementText")));
+        trollOptions.add(this._createHtmlOption('99', getTextForUI("lastTrollWithGirls", "elementText")));
+    }
+
+    fillLeagueSelectMenu() {
+        var leaguesOptions = <HTMLSelectElement>document.getElementById("autoLeaguesSelector");
+        try{
+            const leagues = ConfigHelper.getHHScriptVars("leaguesList");
+
+            for (var j in leagues) {
+                leaguesOptions.add(this._createHtmlOption((Number(j) + 1) + '', leagues[j]));
+            };
+        } catch ({ errName, message }) {
+            leaguesOptions.add(this._createHtmlOption('0', 'Error!'));
+            logHHAuto(`Error filling leagues: ${errName}, ${message}`);
+        }
+    }
+
     // replaceMenuIconWithWarning() {
     //     $('#' + HHMenu.BUTTON_MENU_ID + ' img')
     //         .attr('src', 'https://i.postimg.cc/3JCgVBdK/Opponent-orange.png')
