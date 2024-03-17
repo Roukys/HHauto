@@ -32,6 +32,11 @@ import { BDSMSimu, KKLeagueOpponent, LeagueOpponent } from "../model/index";
 import { Booster } from "./Booster";
 
 export class LeagueHelper {
+
+    static SORT_DISPLAYED = '0';
+    static SORT_POWER = '1';
+    static SORT_POWERCALC = '2';
+
     /* get time in sec */
     static getLeagueEndTime(){
         let league_end = -1;
@@ -475,7 +480,8 @@ export class LeagueHelper {
         let fightButton;
         let opponentsPowerList;
 
-        let usePowerCalc = getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesPowerCalc") === 'true';
+        const sortMode:string = getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesSortIndex");
+        let usePowerCalc = sortMode === LeagueHelper.SORT_POWERCALC;
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey+"Temp_Debug")==='true';
         const hasHHBdsmChangeBefore = $('.data-column[column="power"] .matchRating').length > 0;
         if (hasHHBdsmChangeBefore) logHHAuto('HH++ BDSM detected');
@@ -565,16 +571,19 @@ export class LeagueHelper {
                 return [];
             }
         }
-        if(canUseSimu) {
+
+        if (canUseSimu) { // sortMode === LeagueHelper.SORT_POWERCALC
             Data.sort((a,b) => (b.simuPoints > a.simuPoints) ? 1 : ((a.simuPoints > b.simuPoints) ? -1 : 0)); // sort by higher score
-        } else {
-            if(hasHHBdsmChangeBefore) {
-                // HH++ BDSM script exist
-                Data.sort((a,b) => (b.power > a.power) ? 1 : ((a.power > b.power) ? -1 : 0)); // sort by higher score
-            }else {
-                Data.sort((a,b) => (a.power > b.power) ? 1 : ((b.power > a.power) ? -1 : 0)); // sort by lower power
-            }
-        }
+        } else if (sortMode === LeagueHelper.SORT_POWER && !hasHHBdsmChangeBefore){
+            Data.sort((a, b) => (a.power > b.power) ? 1 : ((b.power > a.power) ? -1 : 0)); // sort by lower power
+        } // sortMode === LeagueHelper.SORT_DISPLAYED // No sorting, keep html order
+            // if(hasHHBdsmChangeBefore) {
+            //     // HH++ BDSM script exist
+            //     Data.sort((a,b) => (b.power > a.power) ? 1 : ((a.power > b.power) ? -1 : 0)); // sort by higher score
+            // }else {
+            //     Data.sort((a,b) => (a.power > b.power) ? 1 : ((b.power > a.power) ? -1 : 0)); // sort by lower power
+            // }
+        //}
         if (usePowerCalc) {
             logHHAuto('Save opponent list for later');
             setStoredValue(HHStoredVarPrefixKey+"Temp_LeagueOpponentList", JSON.stringify({expirationDate:opponentsPowerList.expirationDate,opponentsList:Data}));

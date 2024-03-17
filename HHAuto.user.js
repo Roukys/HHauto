@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.5.7
+// @version      7.6.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -41,21 +41,22 @@ GM_addStyle('#pInfo {padding-left:3px; z-index:1;white-space: pre;position: abso
             + '#pInfo ul {margin:0; padding:0; columns:2; list-style-type: none;}'
             + '#pInfo ul li {margin:0}');
 GM_addStyle('#pInfo.left {right: 480px; left:220px; top:12%;');
-GM_addStyle('span.HHMenuItemName {padding-bottom:2px; line-height:120%}');
+GM_addStyle('span.HHMenuItemName {padding-bottom:2px; line-height:120%;}');
 GM_addStyle('div.optionsRow {display:flex; flex-direction:row; justify-content: space-between}'); //; padding:3px;
 GM_addStyle('span.optionsBoxTitle {padding-left:5px}'); //; padding-bottom:2px
 GM_addStyle('div.optionsColumn {display:flex; flex-direction:column}');
 GM_addStyle('div.optionsBoxWithTitle {display:flex; flex-direction:column}');
-GM_addStyle('div.optionsBoxWithTitleInline {display:flex; flex-direction:row; border:1px solid #ffa23e; border-radius:5px; margin:3px}');
+GM_addStyle('div.optionsBoxWithTitleInline {display:flex; flex-direction:row; border:1px solid #ffa23e; border-radius:5px; margin:1px}');
 GM_addStyle('div.optionsBoxWithTitleInline .optionsBox {border: none}');
 GM_addStyle('img.iconImg {max-width:15px; height:15px}');
 GM_addStyle('#sMenu {top: 5px;right: 52px;padding: 4px;opacity: 1;border-radius: 4px;border: 1px solid #ffa23e;background-color: #1e261e;font-size:x-small; position:absolute; text-align:left; flex-direction:column; justify-content:space-between; z-index:10000; overflow:auto; max-height:calc(100% - 5px); scrollbar-width: thin;max-width: calc(100% - 52px);}');
 GM_addStyle('#sMenu::-webkit-scrollbar {width: 6px;height: 6px;background: #000;}');
 GM_addStyle('#sMenu::-webkit-scrollbar-thumb { background: #ffa23e; -webkit-border-radius: 1ex; -webkit-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.75);}');
 GM_addStyle('#sMenu::-webkit-scrollbar-corner {background: #000;}');
+GM_addStyle('#sMenu .HHMenuItemName {font-size:8px;}');
 GM_addStyle('div.optionsBoxTitle {padding:3px 15px 0px 5px; height:12px; display:flex; flex-direction:row; justify-content:center; align-items:center;}'); //; padding:2px; padding-bottom:0px;
-GM_addStyle('div.rowOptionsBox {margin:3px; padding:3px; font-size:smaller; display:flex; flex-direction:row; align-items:flex-start; border: 1px solid #ffa23e; border-radius: 5px}');
-GM_addStyle('div.optionsBox {margin:3px 3px 1px; padding:3px; font-size:smaller; display:flex; flex-direction:column; border:1px solid #ffa23e; border-radius:5px}');
+GM_addStyle('div.rowOptionsBox {margin:1px; padding:3px; font-size:smaller; display:flex; flex-direction:row; align-items:flex-start; border: 1px solid #ffa23e; border-radius: 5px}');
+GM_addStyle('div.optionsBox {margin:1px 3px 1px; padding:3px; font-size:smaller; display:flex; flex-direction:column; border:1px solid #ffa23e; border-radius:5px}');
 GM_addStyle('div.internalOptionsRow {display:flex; flex-direction:row; justify-content: space-between; align-items: flex-end}'); //; padding:3px;
 GM_addStyle('div.internalOptionsRow.separator {border-top:1px solid #ffa23e}'); //; padding:3px;
 GM_addStyle('div.imgAndObjectRow {display:flex; flex-direction:row; justify-content:flex-start; align-items:center}'); //; padding:3px;//class="internalOptionsRow" style="justify-content:flex-start; align-items:center"
@@ -456,7 +457,6 @@ HHAuto_ToolTips.en['autoMythicPachinko'] = { version: "5.6.24", elementText: "My
 HHAuto_ToolTips.en['autoEquipmentPachinko'] = { version: "5.34.9", elementText: "Equipment Pachinko" };
 HHAuto_ToolTips.en['autoLeaguesTitle'] = { version: "5.6.24", elementText: "Leagues" };
 HHAuto_ToolTips.en['autoLeagues'] = { version: "5.6.24", elementText: "Enable", tooltip: "if enabled : Automatically battle Leagues" };
-HHAuto_ToolTips.en['autoLeaguesPowerCalc'] = { version: "6.14.0", elementText: "Use PowerCalc", tooltip: "if enabled : will choose opponent using PowerCalc" };
 HHAuto_ToolTips.en['leagueListDisplayPowerCalc'] = { version: "5.34.18", elementText: "Display PowerCalc", tooltip: "Display powerCalc in league list (stil in developpment)" };
 HHAuto_ToolTips.en['autoLeaguesCollect'] = { version: "5.6.24", elementText: "Collect", tooltip: "If enabled : Automatically collect Leagues" };
 HHAuto_ToolTips.en['autoLeaguesRunThreshold'] = { version: "6.8.0", elementText: "Run Threshold", tooltip: "Minimum league fights before script start spending<br> 0 to spend as soon as energy above threshold" };
@@ -465,6 +465,10 @@ HHAuto_ToolTips.en['autoLeaguesBoostedOnly'] = { version: "6.5.0", elementText: 
 HHAuto_ToolTips.en['boostMissing'] = { version: "6.5.0", elementText: "No booster Equipped" };
 HHAuto_ToolTips.en['waitRunThreshold'] = { version: "6.8.0", elementText: "Wait run threshold" };
 HHAuto_ToolTips.en['autoLeaguesSelector'] = { version: "5.6.24", elementText: "Target League", tooltip: "League to target, to try to demote, stay or go in higher league depending" };
+HHAuto_ToolTips.en['autoLeaguesSortMode'] = { version: "7.6.0", elementText: "Sorting", tooltip: "Select opponent sorting method. <br>Displayed order, <br>power value <br>or internal sim powercalc" };
+HHAuto_ToolTips.en['autoLeaguesdisplayedOrder'] = { version: "7.6.0", elementText: "Displayed order" };
+HHAuto_ToolTips.en['autoLeaguesPower'] = { version: "7.6.0", elementText: "Use power" };
+HHAuto_ToolTips.en['autoLeaguesPowerCalc'] = { version: "6.14.0", elementText: "Use PowerCalc", tooltip: "if enabled : will choose opponent using PowerCalc" };
 HHAuto_ToolTips.en['autoLeaguesAllowWinCurrent'] = { version: "5.6.24", elementText: "Allow win", tooltip: "If check will allow to win targeted league and then demote next league to fall back to targeted league." };
 HHAuto_ToolTips.en['autoLeaguesThreshold'] = { version: "5.6.24", elementText: "Threshold", tooltip: "(Integer between 0 and 14)<br>Minimum league fights to keep" };
 HHAuto_ToolTips.en['autoLeaguesSecurityThreshold'] = { version: "5.18.0", elementText: "Security Threshold", tooltip: "(Integer)<br>Points limit to prevent the script performing any league fight to keep user in targetted league and avoid promotion. Change only if you accept the risk" };
@@ -728,6 +732,9 @@ HHAuto_ToolTips.fr['autoFreePachinko'] = { version: "5.6.24", elementText: "Pach
 HHAuto_ToolTips.fr['autoMythicPachinko'] = { version: "5.6.24", elementText: "Pachinko mythique" };
 HHAuto_ToolTips.fr['autoEquipmentPachinko'] = { version: "5.34.9", elementText: "Pachinko d'équipment" };
 HHAuto_ToolTips.fr['autoLeagues'] = { version: "5.6.24", elementText: "Activer", tooltip: "Si activé : Combattre automatiquement en Ligues" };
+HHAuto_ToolTips.fr['autoLeaguesSortMode'] = { version: "7.6.0", elementText: "Methode de tri", tooltip: "Definit la methode de choix de l'adversaire. <br>Ordre affiché, <br>Utiliser le pouvoir <br>ou la simu powercalc interne" };
+HHAuto_ToolTips.fr['autoLeaguesdisplayedOrder'] = { version: "7.6.0", elementText: "Ordre affiché" };
+HHAuto_ToolTips.fr['autoLeaguesPower'] = { version: "7.6.0", elementText: "Utiliser le pouvoir" };
 HHAuto_ToolTips.fr['autoLeaguesPowerCalc'] = { version: "6.14.0", elementText: "Utiliser PowerCalc", tooltip: "Si activé : choisira l'adversaire en utilisant PowerCalc." };
 HHAuto_ToolTips.fr['autoLeaguesCollect'] = { version: "5.6.24", elementText: "Collecter", tooltip: "Si activé : Collecte automatiquement les récompenses de la Ligue terminée" };
 HHAuto_ToolTips.fr['autoLeaguesSelector'] = { version: "5.6.24", elementText: "Ligue ciblée", tooltip: "Objectif de niveau de ligue (à atteindre, à conserver ou à dépasser selon le choix)." };
@@ -7124,7 +7131,8 @@ class LeagueHelper {
         let opponent_id;
         let fightButton;
         let opponentsPowerList;
-        let usePowerCalc = getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesPowerCalc") === 'true';
+        const sortMode = getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesSortIndex");
+        let usePowerCalc = sortMode === LeagueHelper.SORT_POWERCALC;
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
         const hasHHBdsmChangeBefore = $('.data-column[column="power"] .matchRating').length > 0;
         if (hasHHBdsmChangeBefore)
@@ -7210,18 +7218,19 @@ class LeagueHelper {
                 return [];
             }
         }
-        if (canUseSimu) {
+        if (canUseSimu) { // sortMode === LeagueHelper.SORT_POWERCALC
             Data.sort((a, b) => (b.simuPoints > a.simuPoints) ? 1 : ((a.simuPoints > b.simuPoints) ? -1 : 0)); // sort by higher score
         }
-        else {
-            if (hasHHBdsmChangeBefore) {
-                // HH++ BDSM script exist
-                Data.sort((a, b) => (b.power > a.power) ? 1 : ((a.power > b.power) ? -1 : 0)); // sort by higher score
-            }
-            else {
-                Data.sort((a, b) => (a.power > b.power) ? 1 : ((b.power > a.power) ? -1 : 0)); // sort by lower power
-            }
-        }
+        else if (sortMode === LeagueHelper.SORT_POWER && !hasHHBdsmChangeBefore) {
+            Data.sort((a, b) => (a.power > b.power) ? 1 : ((b.power > a.power) ? -1 : 0)); // sort by lower power
+        } // sortMode === LeagueHelper.SORT_DISPLAYED // No sorting, keep html order
+        // if(hasHHBdsmChangeBefore) {
+        //     // HH++ BDSM script exist
+        //     Data.sort((a,b) => (b.power > a.power) ? 1 : ((a.power > b.power) ? -1 : 0)); // sort by higher score
+        // }else {
+        //     Data.sort((a,b) => (a.power > b.power) ? 1 : ((b.power > a.power) ? -1 : 0)); // sort by lower power
+        // }
+        //}
         if (usePowerCalc) {
             LogUtils_logHHAuto('Save opponent list for later');
             setStoredValue(HHStoredVarPrefixKey + "Temp_LeagueOpponentList", JSON.stringify({ expirationDate: opponentsPowerList.expirationDate, opponentsList: Data }));
@@ -7431,6 +7440,9 @@ class LeagueHelper {
         LeagueHelper.LeagueDisplayGetOpponentPopup(numberDone, remainingTime);
     }
 }
+LeagueHelper.SORT_DISPLAYED = '0';
+LeagueHelper.SORT_POWER = '1';
+LeagueHelper.SORT_POWERCALC = '2';
 
 ;// CONCATENATED MODULE: ./src/Service/PageNavigationService.ts
 
@@ -10768,20 +10780,6 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeaguesForceOneFig
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeaguesPowerCalc"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false,
-        newValueFunction: function () {
-            deleteStoredValue(HHStoredVarPrefixKey + "Temp_LeagueOpponentList");
-        }
-    };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_leagueListDisplayPowerCalc"] =
     {
         default: "false",
@@ -10808,6 +10806,22 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeaguesSelectedInd
         kobanUsing: false,
         customMenuID: "autoLeaguesSelector",
         isValid: /^[0-9]$/
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeaguesSortIndex"] =
+    {
+        default: "1",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "selectedIndex",
+        kobanUsing: false,
+        customMenuID: "autoLeaguesSortMode",
+        isValid: /^[0-9]$/,
+        newValueFunction: function () {
+            deleteStoredValue(HHStoredVarPrefixKey + "Temp_LeagueOpponentList");
+        }
     };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeaguesThreshold"] =
     {
@@ -12563,6 +12577,7 @@ class NumberHelper {
 
 
 
+
 class HHMenu {
     createMenuButton() {
         if ($('#' + HHMenu.BUTTON_MENU_ID).length > 0)
@@ -12615,7 +12630,6 @@ class HHMenu {
                     trollOptions.add(option);
                 }
             }
-            ;
         }
         catch ({ errName, message }) {
             trollOptions.add(this._createHtmlOption('0', 'Error!'));
@@ -12637,6 +12651,12 @@ class HHMenu {
             leaguesOptions.add(this._createHtmlOption('0', 'Error!'));
             LogUtils_logHHAuto(`Error filling leagues: ${errName}, ${message}`);
         }
+    }
+    fillLeaguSortMenu() {
+        var sortsOptions = document.getElementById("autoLeaguesSortMode");
+        sortsOptions.add(this._createHtmlOption(LeagueHelper.SORT_DISPLAYED, getTextForUI("autoLeaguesdisplayedOrder", "elementText")));
+        sortsOptions.add(this._createHtmlOption(LeagueHelper.SORT_POWER, getTextForUI("autoLeaguesPower", "elementText")));
+        sortsOptions.add(this._createHtmlOption(LeagueHelper.SORT_POWERCALC, getTextForUI("autoLeaguesPowerCalc", "elementText")));
     }
 }
 HHMenu.BUTTON_MENU_ID = 'sMenuButton';
@@ -12682,12 +12702,12 @@ function hhMenuSwitchWithImg(textKeyAndInputId, imgPath, isKobanSwitch = false) 
         + `</div>`
         + `</div>`;
 }
-function hhMenuSelect(textKeyAndInputId) {
+function hhMenuSelect(textKeyAndInputId, inputStyle = '') {
     return `<div class="labelAndButton">`
         + `<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId, "elementText")}</span>`
         + `<div class="tooltipHH">`
         + `<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId, "tooltip")}</span>`
-        + `<select id="${textKeyAndInputId}"></select>`
+        + `<select id="${textKeyAndInputId}" style="${inputStyle}" ></select>`
         + `</div>`
         + `</div>`;
 }
@@ -13066,7 +13086,7 @@ function getMenu() {
             + `<div class="optionsBox">`
             + `<div class="internalOptionsRow">`
             + hhMenuSwitch('autoLeagues')
-            + hhMenuSwitch('autoLeaguesPowerCalc')
+            + hhMenuSelect('autoLeaguesSortMode', 'width:85px;')
             + hhMenuSwitch('autoLeaguesCollect')
             + hhMenuSwitch('autoLeaguesBoostedOnly')
             + hhMenuSwitch('leagueListDisplayPowerCalc')
@@ -16560,7 +16580,7 @@ function start() {
     MonthlyCards.updateInputPattern();
     replaceCheatClick();
     migrateHHVars();
-    if (getStoredValue(HHStoredVarPrefixKey + "Setting_leagueListDisplayPowerCalc") !== "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesPowerCalc") !== 'true') {
+    if (getStoredValue(HHStoredVarPrefixKey + "Setting_leagueListDisplayPowerCalc") !== "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesSortIndex") !== LeagueHelper.SORT_POWERCALC) {
         // remove big var not removed from previous version
         deleteStoredValue(HHStoredVarPrefixKey + "Temp_LeagueOpponentList");
     }
@@ -16606,6 +16626,7 @@ function start() {
     hhAutoMenu.fillTrollSelectMenu(Troll.getLastTrollIdAvailable());
     // Add league options
     hhAutoMenu.fillLeagueSelectMenu();
+    hhAutoMenu.fillLeaguSortMenu();
     setMenuValues();
     getMenuValues();
     manageToolTipsDisplay();

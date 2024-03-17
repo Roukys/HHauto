@@ -1,3 +1,4 @@
+import { LeagueHelper } from '../Module/League';
 import { setDefaults } from '../Service/index';
 import { isDisplayedHHPopUp, logHHAuto } from '../Utils/index';
 import { HHAuto_inputPattern, HHStoredVarPrefixKey, HHStoredVars } from '../config/index';
@@ -86,6 +87,13 @@ export class HHMenu {
         }
     }
 
+    fillLeaguSortMenu() {
+        var sortsOptions = <HTMLSelectElement>document.getElementById("autoLeaguesSortMode");
+        sortsOptions.add(this._createHtmlOption(LeagueHelper.SORT_DISPLAYED, getTextForUI("autoLeaguesdisplayedOrder", "elementText")));
+        sortsOptions.add(this._createHtmlOption(LeagueHelper.SORT_POWER, getTextForUI("autoLeaguesPower", "elementText")));
+        sortsOptions.add(this._createHtmlOption(LeagueHelper.SORT_POWERCALC, getTextForUI("autoLeaguesPowerCalc", "elementText")));
+    }
+
     // replaceMenuIconWithWarning() {
     //     $('#' + HHMenu.BUTTON_MENU_ID + ' img')
     //         .attr('src', 'https://i.postimg.cc/3JCgVBdK/Opponent-orange.png')
@@ -142,12 +150,12 @@ export function hhMenuSwitchWithImg(textKeyAndInputId, imgPath, isKobanSwitch=fa
     +`</div>`;
 }
 
-export function hhMenuSelect(textKeyAndInputId) {
+export function hhMenuSelect(textKeyAndInputId, inputStyle = '') {
     return `<div class="labelAndButton">`
         +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
         +`<div class="tooltipHH">`
-            +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
-            +`<select id="${textKeyAndInputId}"></select>`
+            + `<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
+            + `<select id="${textKeyAndInputId}" style="${inputStyle}" ></select>`
         +`</div>`
     +`</div>`;
 }
@@ -575,7 +583,7 @@ export function getMenu() {
                     +`<div class="optionsBox">`
                         +`<div class="internalOptionsRow">`
                             + hhMenuSwitch('autoLeagues')
-                            + hhMenuSwitch('autoLeaguesPowerCalc')
+                            + hhMenuSelect('autoLeaguesSortMode', 'width:85px;')
                             + hhMenuSwitch('autoLeaguesCollect')
                             + hhMenuSwitch('autoLeaguesBoostedOnly')
                             + hhMenuSwitch('leagueListDisplayPowerCalc')
