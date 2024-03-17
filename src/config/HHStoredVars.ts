@@ -348,21 +348,6 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLeaguesForceOneFight"] =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLeaguesPowerCalc"] =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false,
-    newValueFunction:function()
-    {
-        deleteStoredValue(HHStoredVarPrefixKey+"Temp_LeagueOpponentList");
-    }
-};
 HHStoredVars[HHStoredVarPrefixKey+"Setting_leagueListDisplayPowerCalc"] =
     {
     default:"false",
@@ -390,6 +375,22 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLeaguesSelectedIndex"] =
     kobanUsing:false,
     customMenuID:"autoLeaguesSelector",
     isValid:/^[0-9]$/
+};
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLeaguesSortIndex"] =
+    {
+    default:"1",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"selectedIndex",
+    kobanUsing:false,
+    customMenuID:"autoLeaguesSortMode",
+    isValid:/^[0-9]$/,
+    newValueFunction: function () {
+        deleteStoredValue(HHStoredVarPrefixKey + "Temp_LeagueOpponentList");
+    }
 };
 HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLeaguesThreshold"] =
     {

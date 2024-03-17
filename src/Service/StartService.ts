@@ -30,6 +30,7 @@ import {
     Club,
     Contest,
     DailyGoals,
+    LeagueHelper,
     Market,
     Missions,
     MonthlyCards,
@@ -151,7 +152,7 @@ export function start() {
     replaceCheatClick();
     migrateHHVars();
 
-    if (getStoredValue(HHStoredVarPrefixKey+"Setting_leagueListDisplayPowerCalc") !== "true" && getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesPowerCalc") !== 'true')
+    if (getStoredValue(HHStoredVarPrefixKey + "Setting_leagueListDisplayPowerCalc") !== "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesSortIndex") !== LeagueHelper.SORT_POWERCALC)
     {
         // remove big var not removed from previous version
         deleteStoredValue(HHStoredVarPrefixKey+"Temp_LeagueOpponentList");
@@ -217,6 +218,7 @@ export function start() {
 
     // Add league options
     hhAutoMenu.fillLeagueSelectMenu();
+    hhAutoMenu.fillLeaguSortMenu();
 
     setMenuValues();
     getMenuValues();
