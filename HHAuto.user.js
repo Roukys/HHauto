@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.6.1
+// @version      7.6.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -14471,12 +14471,12 @@ var HeroHelper_awaiter = (undefined && undefined.__awaiter) || function (thisArg
 
 
 function getHero() {
-    if (unsafeWindow.Hero === undefined) {
+    if (unsafeWindow.Hero === undefined && unsafeWindow.shared.Hero === undefined) {
         setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey + "Temp_autoLoopTimeMili")));
         //logHHAuto(window.wrappedJSObject)
     }
     //logHHAuto(unsafeWindow.Hero);
-    return unsafeWindow.Hero;
+    return unsafeWindow.Hero || unsafeWindow.shared.Hero;
 }
 function doStatUpgrades() {
     //Stats?
@@ -16575,15 +16575,23 @@ function hardened_start() {
 }
 function start() {
     var _a;
-    if (unsafeWindow.Hero === undefined) {
+    if (unsafeWindow.Hero === undefined && unsafeWindow.shared.Hero === undefined) {
         LogUtils_logHHAuto('???no Hero???');
-        $('.hh_logo').click();
+        $('.hh_logo').trigger('click');
         setTimeout(hardened_start, 5000);
         return;
     }
     if ($("a[rel='phoenix_member_login']").length > 0) {
         LogUtils_logHHAuto('Not logged in, please login first!');
         return;
+    }
+    if (unsafeWindow.Hero === undefined) {
+        // temp for next version w12
+        unsafeWindow.Hero = unsafeWindow.shared.Hero;
+        if (unsafeWindow.hh_ajax === undefined)
+            unsafeWindow.hh_ajax = unsafeWindow.shared.general.hh_ajax;
+        if (unsafeWindow.loadingAnimation === undefined)
+            unsafeWindow.loadingAnimation = unsafeWindow.shared.animations.loadingAnimation;
     }
     StartService.checkVersion();
     Club.checkClubStatus();
