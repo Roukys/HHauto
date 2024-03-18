@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.6.0
+// @version      7.6.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -465,7 +465,7 @@ HHAuto_ToolTips.en['autoLeaguesBoostedOnly'] = { version: "6.5.0", elementText: 
 HHAuto_ToolTips.en['boostMissing'] = { version: "6.5.0", elementText: "No booster Equipped" };
 HHAuto_ToolTips.en['waitRunThreshold'] = { version: "6.8.0", elementText: "Wait run threshold" };
 HHAuto_ToolTips.en['autoLeaguesSelector'] = { version: "5.6.24", elementText: "Target League", tooltip: "League to target, to try to demote, stay or go in higher league depending" };
-HHAuto_ToolTips.en['autoLeaguesSortMode'] = { version: "7.6.0", elementText: "Sorting", tooltip: "Select opponent sorting method. <br>Displayed order, <br>power value <br>or internal sim powercalc" };
+HHAuto_ToolTips.en['autoLeaguesSortMode'] = { version: "7.6.0", elementText: "Sorting", tooltip: "Select opponent sorting method. <br>Displayed order (prefered option for HH++ OCD users), <br>power value (prefered option for HH++ BDSM users or without script)<br>or internal sim powercalc." };
 HHAuto_ToolTips.en['autoLeaguesdisplayedOrder'] = { version: "7.6.0", elementText: "Displayed order" };
 HHAuto_ToolTips.en['autoLeaguesPower'] = { version: "7.6.0", elementText: "Use power" };
 HHAuto_ToolTips.en['autoLeaguesPowerCalc'] = { version: "6.14.0", elementText: "Use PowerCalc", tooltip: "if enabled : will choose opponent using PowerCalc" };
@@ -732,7 +732,7 @@ HHAuto_ToolTips.fr['autoFreePachinko'] = { version: "5.6.24", elementText: "Pach
 HHAuto_ToolTips.fr['autoMythicPachinko'] = { version: "5.6.24", elementText: "Pachinko mythique" };
 HHAuto_ToolTips.fr['autoEquipmentPachinko'] = { version: "5.34.9", elementText: "Pachinko d'équipment" };
 HHAuto_ToolTips.fr['autoLeagues'] = { version: "5.6.24", elementText: "Activer", tooltip: "Si activé : Combattre automatiquement en Ligues" };
-HHAuto_ToolTips.fr['autoLeaguesSortMode'] = { version: "7.6.0", elementText: "Methode de tri", tooltip: "Definit la methode de choix de l'adversaire. <br>Ordre affiché, <br>Utiliser le pouvoir <br>ou la simu powercalc interne" };
+HHAuto_ToolTips.fr['autoLeaguesSortMode'] = { version: "7.6.0", elementText: "Methode de tri", tooltip: "Definit la methode de choix de l'adversaire. <br>Ordre affiché (Option à choisir pour les utilisateurs de HH++ OCD), <br>Utiliser le pouvoir  (Option à choisir pour les utilisateurs de HH++ BDSM ou sans user script)<br>ou la simu powercalc interne" };
 HHAuto_ToolTips.fr['autoLeaguesdisplayedOrder'] = { version: "7.6.0", elementText: "Ordre affiché" };
 HHAuto_ToolTips.fr['autoLeaguesPower'] = { version: "7.6.0", elementText: "Utiliser le pouvoir" };
 HHAuto_ToolTips.fr['autoLeaguesPowerCalc'] = { version: "6.14.0", elementText: "Utiliser PowerCalc", tooltip: "Si activé : choisira l'adversaire en utilisant PowerCalc." };
@@ -6766,6 +6766,8 @@ class LeagueHelper {
         return league_end;
     }
     static numberOfFightAvailable(opponent) {
+        if (!opponent)
+            return 0;
         const forceOneFight = getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesForceOneFight") === 'true';
         if (forceOneFight)
             return 1;
@@ -6907,6 +6909,18 @@ class LeagueHelper {
         }
         return (checkTimer('nextLeaguesTime') && energyAboveThreshold && (needBoosterToFight && haveBoosterEquiped || !needBoosterToFight)) || paranoiaSpending;
     }
+    /* static async _refreshSorting(){
+        const columnHeadSelector = '.league_content .data-list .data-column[sorting]';
+        if ($(columnHeadSelector).length > 0 && $(columnHeadSelector+"[column='can_fight']").length == 0) {
+            // No need of it in case HH++OCD sorting
+            await TimeHelper.sleep(randomInterval(200, 400));
+            logHHAuto("Click sort");
+            $(columnHeadSelector).trigger('click');
+            await TimeHelper.sleep(randomInterval(200, 400));
+            $(columnHeadSelector).trigger('click');
+            await TimeHelper.sleep(randomInterval(200, 400));
+        }
+    }*/
     static moduleSimLeague() {
         LeagueHelper.moduleSimLeagueHideBeatenOppo();
         if ($('.change_team_container').length <= 0) {
@@ -7126,6 +7140,9 @@ class LeagueHelper {
         }
         return opponentsPowerList;
     }
+    static hasVanillaPowerColumn() {
+        return $('.body-row .data-column[column="power"]').first().html() == $('.body-row .data-column[column="power"]').first().text();
+    }
     static getLeagueOpponentListData(isFirstCall = true) {
         let Data = [];
         let opponent_id;
@@ -7134,20 +7151,22 @@ class LeagueHelper {
         const sortMode = getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesSortIndex");
         let usePowerCalc = sortMode === LeagueHelper.SORT_POWERCALC;
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
-        const hasHHBdsmChangeBefore = $('.data-column[column="power"] .matchRating').length > 0;
-        if (hasHHBdsmChangeBefore)
-            LogUtils_logHHAuto('HH++ BDSM detected');
+        if (debugEnabled)
+            LogUtils_logHHAuto(`Storting method: ${sortMode}`);
+        const hasScriptChangedPowerBefore = !LeagueHelper.hasVanillaPowerColumn();
+        if (hasScriptChangedPowerBefore)
+            LogUtils_logHHAuto('Power columned changed from vanilla game, can be HH++ BDSM or other script');
         const tableRow = $(".data-list .data-row.body-row");
-        var getPowerOrPoints = function (hasHHBdsmChangeBefore, oppoRow) {
-            if (hasHHBdsmChangeBefore) {
+        /*var getPowerOrPoints = function (hasHHBdsmChangeBefore, oppoRow)
+        {
+            if(hasHHBdsmChangeBefore) {
                 // HH++ BDSM script exist
                 // As power information is removed and replaced by simulation score, we need to use the score
                 return Number($('.data-column[column="power"] .matchRating-expected .matchRating-value', oppoRow).text().replace(',', '.'));
-            }
-            else {
+            } else {
                 return parsePrice($('.data-column[column="power"]', oppoRow).text());
             }
-        };
+        }*/
         LogUtils_logHHAuto('Number of player in league:' + tableRow.length + '. Number of opponent not fought in league:' + $('.data-list .data-row.body-row a').length);
         const opponents_list = getHHVars("opponents_list");
         let heroFighter;
@@ -7179,11 +7198,10 @@ class LeagueHelper {
                 }
                 if (!leagueOpponent) {
                     let expectedPoints = 0;
-                    let opponents;
+                    const opponents = opponents_list.find((el) => el.player.id_fighter == opponent_id);
                     let simu = {};
                     if (canUseSimu) {
                         try {
-                            opponents = opponents_list.find((el) => el.player.id_fighter == opponent_id);
                             simu = LeagueHelper.getSimPowerOpponent(heroFighter, opponents);
                             expectedPoints = Number(NumberHelper.nRounding(simu.expectedValue, 1, -1));
                         }
@@ -7196,7 +7214,7 @@ class LeagueHelper {
                     // Number($('.data-column[column="place"]', $(this)).text()),
                     $('.nickname', $(this)).text(), 
                     // Number($('.data-column[column="level"]', $(this)).text()),
-                    getPowerOrPoints(hasHHBdsmChangeBefore, $(this)), 
+                    opponents.power, // getPowerOrPoints(hasHHBdsmChangeBefore, $(this)),
                     // Number($('.data-column[column="player_league_points"]', $(this)).text().replace(/\D/g, '')),
                     expectedPoints, 
                     // $('.boosters', $(this)).children().length,
@@ -7206,30 +7224,27 @@ class LeagueHelper {
                 Data.push(leagueOpponent);
             }
         });
-        const hasHHBdsmChangeAfter = $('.data-column[column="power"] .matchRating').length > 0;
-        if (!hasHHBdsmChangeBefore && hasHHBdsmChangeAfter) {
-            LogUtils_logHHAuto('HH++ BDSM edit table during computation');
+        const hasScriptChangedPowerAfter = !LeagueHelper.hasVanillaPowerColumn();
+        if (!hasScriptChangedPowerBefore && hasScriptChangedPowerAfter) {
             if (isFirstCall) {
-                LogUtils_logHHAuto('Try again');
+                LogUtils_logHHAuto('User script edited power column during computation, try again');
                 return LeagueHelper.getLeagueOpponentListData(false);
             }
             else {
-                LogUtils_logHHAuto('Already called twice, stop');
+                LogUtils_logHHAuto('User script edited power column during computation twice, stop');
                 return [];
             }
         }
         if (canUseSimu) { // sortMode === LeagueHelper.SORT_POWERCALC
             Data.sort((a, b) => (b.simuPoints > a.simuPoints) ? 1 : ((a.simuPoints > b.simuPoints) ? -1 : 0)); // sort by higher score
         }
-        else if (sortMode === LeagueHelper.SORT_POWER && !hasHHBdsmChangeBefore) {
-            Data.sort((a, b) => (a.power > b.power) ? 1 : ((b.power > a.power) ? -1 : 0)); // sort by lower power
+        else if (sortMode === LeagueHelper.SORT_POWER) {
+            Data.sort((a, b) => {
+                const aValue = Math.abs(26 - a.power);
+                const bValue = Math.abs(26 - b.power);
+                return (aValue > bValue) ? 1 : ((bValue > aValue) ? -1 : 0);
+            }); // sort by lower power
         } // sortMode === LeagueHelper.SORT_DISPLAYED // No sorting, keep html order
-        // if(hasHHBdsmChangeBefore) {
-        //     // HH++ BDSM script exist
-        //     Data.sort((a,b) => (b.power > a.power) ? 1 : ((a.power > b.power) ? -1 : 0)); // sort by higher score
-        // }else {
-        //     Data.sort((a,b) => (a.power > b.power) ? 1 : ((b.power > a.power) ? -1 : 0)); // sort by lower power
-        // }
         //}
         if (usePowerCalc) {
             LogUtils_logHHAuto('Save opponent list for later');
@@ -7261,7 +7276,7 @@ class LeagueHelper {
             LogUtils_logHHAuto("On leaderboard page.");
             if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesCollect") === "true") {
                 if ($('#leagues .forced_info button[rel="claim"]').length > 0) {
-                    $('#leagues .forced_info button[rel="claim"]').click(); //click reward
+                    $('#leagues .forced_info button[rel="claim"]').trigger('click'); //click reward
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeaderboard"));
                 }
             }
@@ -7370,28 +7385,23 @@ class LeagueHelper {
                 LogUtils_logHHAuto(Data.length + ' valid targets!');
                 setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
                 LogUtils_logHHAuto("setting autoloop to false");
-                LogUtils_logHHAuto("Hit?");
                 const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesRunThreshold"));
                 if (runThreshold > 0) {
                     setStoredValue(HHStoredVarPrefixKey + "Temp_LeagueHumanLikeRun", "true");
                 }
                 const nextOpponent = Data[0];
-                LogUtils_logHHAuto("Going to fight " + nextOpponent.nickname + "(" + nextOpponent.opponent_id + ") with power " + nextOpponent.power);
+                const opponents_list = getHHVars("opponents_list");
+                const opponentDataFromList = opponents_list === null || opponents_list === void 0 ? void 0 : opponents_list.find(obj => obj.player.id_fighter == nextOpponent.opponent_id);
+                if (debugEnabled)
+                    LogUtils_logHHAuto("opponentDataFromList ", JSON.stringify(opponentDataFromList));
+                if (!opponentDataFromList)
+                    LogUtils_logHHAuto(`ERROR opponent ${nextOpponent.opponent_id} not found in JS list`);
+                LogUtils_logHHAuto(`Going to fight ${nextOpponent.nickname} (${nextOpponent.opponent_id}) with power ${nextOpponent.power}. Can fight: ${opponentDataFromList === null || opponentDataFromList === void 0 ? void 0 : opponentDataFromList.can_fight}`);
                 if (debugEnabled)
                     LogUtils_logHHAuto(JSON.stringify(nextOpponent));
                 // change referer
                 window.history.replaceState(null, '', addNutakuSession(ConfigHelper.getHHScriptVars("pagesURLLeaguPreBattle") + '?id_opponent=' + nextOpponent.opponent_id));
-                const opponents_list = getHHVars("opponents_list");
-                const opponentDataFromList = opponents_list.filter(obj => {
-                    return obj.player.id_fighter == nextOpponent.opponent_id;
-                });
-                if (debugEnabled)
-                    LogUtils_logHHAuto("opponentDataFromList ", JSON.stringify(opponentDataFromList));
-                let numberOfFightAvailable = 0;
-                if (opponentDataFromList && opponentDataFromList.length > 0)
-                    numberOfFightAvailable = LeagueHelper.numberOfFightAvailable(opponentDataFromList[0]);
-                else
-                    LogUtils_logHHAuto('ERROR opponent ' + nextOpponent.opponent_id + ' not found in JS list');
+                const numberOfFightAvailable = LeagueHelper.numberOfFightAvailable(opponentDataFromList);
                 let numberOfBattle = 1;
                 if (numberOfFightAvailable > 1 && currentPower >= (numberOfFightAvailable + leagueThreshold)) {
                     if (maxStay > 0 && currentScore + (numberOfFightAvailable * leagueScoreSecurityThreshold) >= maxStay)

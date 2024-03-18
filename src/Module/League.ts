@@ -18,7 +18,8 @@ import {
     randomInterval,
     RewardHelper,
     setStoredValue,
-    setTimer
+    setTimer,
+    TimeHelper
 } from '../Helper/index';
 import {
     addNutakuSession,
@@ -47,7 +48,8 @@ export class LeagueHelper {
         }
         return league_end;
     }
-    static numberOfFightAvailable(opponent) {
+    static numberOfFightAvailable(opponent:KKLeagueOpponent) {
+        if (!opponent) return 0;
         const forceOneFight = getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesForceOneFight") === 'true';
         if(forceOneFight) return 1;
         // remove match_history after w32 update
@@ -219,9 +221,21 @@ export class LeagueHelper {
 
         return (checkTimer('nextLeaguesTime') && energyAboveThreshold && (needBoosterToFight && haveBoosterEquiped || !needBoosterToFight)) || paranoiaSpending;
     }
-    
-    static moduleSimLeague() {
 
+    /* static async _refreshSorting(){
+        const columnHeadSelector = '.league_content .data-list .data-column[sorting]';
+        if ($(columnHeadSelector).length > 0 && $(columnHeadSelector+"[column='can_fight']").length == 0) {
+            // No need of it in case HH++OCD sorting
+            await TimeHelper.sleep(randomInterval(200, 400));
+            logHHAuto("Click sort");
+            $(columnHeadSelector).trigger('click');
+            await TimeHelper.sleep(randomInterval(200, 400));
+            $(columnHeadSelector).trigger('click');
+            await TimeHelper.sleep(randomInterval(200, 400));
+        }
+    }*/
+
+    static moduleSimLeague() {
         LeagueHelper.moduleSimLeagueHideBeatenOppo();
         if($('.change_team_container').length <= 0) {
             LeagueHelper.addChangeTeamButton();
@@ -473,6 +487,10 @@ export class LeagueHelper {
         return opponentsPowerList;
     }
 
+    static hasVanillaPowerColumn(): boolean{
+        return $('.body-row .data-column[column="power"]').first().html() == $('.body-row .data-column[column="power"]').first().text()
+    }
+
     static getLeagueOpponentListData(isFirstCall = true): LeagueOpponent[]
     { 
         let Data:LeagueOpponent[] = [];
@@ -483,11 +501,13 @@ export class LeagueHelper {
         const sortMode:string = getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesSortIndex");
         let usePowerCalc = sortMode === LeagueHelper.SORT_POWERCALC;
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey+"Temp_Debug")==='true';
-        const hasHHBdsmChangeBefore = $('.data-column[column="power"] .matchRating').length > 0;
-        if (hasHHBdsmChangeBefore) logHHAuto('HH++ BDSM detected');
+        if (debugEnabled) logHHAuto(`Storting method: ${sortMode}`);
+        const hasScriptChangedPowerBefore = !LeagueHelper.hasVanillaPowerColumn();
+        if (hasScriptChangedPowerBefore) logHHAuto('Power columned changed from vanilla game, can be HH++ BDSM or other script');
+
         const tableRow = $(".data-list .data-row.body-row");
 
-        var getPowerOrPoints = function (hasHHBdsmChangeBefore, oppoRow)
+        /*var getPowerOrPoints = function (hasHHBdsmChangeBefore, oppoRow)
         {
             if(hasHHBdsmChangeBefore) {
                 // HH++ BDSM script exist
@@ -496,7 +516,7 @@ export class LeagueHelper {
             } else {
                 return parsePrice($('.data-column[column="power"]', oppoRow).text());
             }
-        }
+        }*/
 
         logHHAuto('Number of player in league:' + tableRow.length + '. Number of opponent not fought in league:' + $('.data-list .data-row.body-row a').length);
 
@@ -531,11 +551,10 @@ export class LeagueHelper {
                 }
                 if(!leagueOpponent) {
                     let expectedPoints = 0;
-                    let opponents;
+                    const opponents: KKLeagueOpponent = opponents_list.find((el) => el.player.id_fighter == opponent_id)
                     let simu:BDSMSimu = {} as any;
                     if(canUseSimu) {
                         try{
-                            opponents = opponents_list.find((el) => el.player.id_fighter == opponent_id);
                             simu = LeagueHelper.getSimPowerOpponent(heroFighter, opponents); 
                             expectedPoints = Number(NumberHelper.nRounding(simu.expectedValue, 1, -1));
                         }catch(error){
@@ -549,7 +568,7 @@ export class LeagueHelper {
                         // Number($('.data-column[column="place"]', $(this)).text()),
                         $('.nickname', $(this)).text(),
                         // Number($('.data-column[column="level"]', $(this)).text()),
-                        getPowerOrPoints(hasHHBdsmChangeBefore, $(this)),
+                        opponents.power, // getPowerOrPoints(hasHHBdsmChangeBefore, $(this)),
                         // Number($('.data-column[column="player_league_points"]', $(this)).text().replace(/\D/g, '')),
                         expectedPoints,
                         // $('.boosters', $(this)).children().length,
@@ -560,29 +579,27 @@ export class LeagueHelper {
                 Data.push(leagueOpponent);
             }
         });
-        const hasHHBdsmChangeAfter = $('.data-column[column="power"] .matchRating').length > 0;
-        if(!hasHHBdsmChangeBefore && hasHHBdsmChangeAfter) {
-            logHHAuto('HH++ BDSM edit table during computation');
+
+        const hasScriptChangedPowerAfter = !LeagueHelper.hasVanillaPowerColumn();
+        if (!hasScriptChangedPowerBefore && hasScriptChangedPowerAfter) {
             if(isFirstCall) {
-                logHHAuto('Try again');
+                logHHAuto('User script edited power column during computation, try again');
                 return LeagueHelper.getLeagueOpponentListData(false);
             }else {
-                logHHAuto('Already called twice, stop');
+                logHHAuto('User script edited power column during computation twice, stop');
                 return [];
             }
         }
 
         if (canUseSimu) { // sortMode === LeagueHelper.SORT_POWERCALC
             Data.sort((a,b) => (b.simuPoints > a.simuPoints) ? 1 : ((a.simuPoints > b.simuPoints) ? -1 : 0)); // sort by higher score
-        } else if (sortMode === LeagueHelper.SORT_POWER && !hasHHBdsmChangeBefore){
-            Data.sort((a, b) => (a.power > b.power) ? 1 : ((b.power > a.power) ? -1 : 0)); // sort by lower power
+        } else if (sortMode === LeagueHelper.SORT_POWER){
+            Data.sort((a, b) => {
+                const aValue =  Math.abs(26 - a.power);
+                const bValue =  Math.abs(26 - b.power);
+                return (aValue > bValue) ? 1 : ((bValue > aValue) ? -1 : 0)
+            }); // sort by lower power
         } // sortMode === LeagueHelper.SORT_DISPLAYED // No sorting, keep html order
-            // if(hasHHBdsmChangeBefore) {
-            //     // HH++ BDSM script exist
-            //     Data.sort((a,b) => (b.power > a.power) ? 1 : ((a.power > b.power) ? -1 : 0)); // sort by higher score
-            // }else {
-            //     Data.sort((a,b) => (a.power > b.power) ? 1 : ((b.power > a.power) ? -1 : 0)); // sort by lower power
-            // }
         //}
         if (usePowerCalc) {
             logHHAuto('Save opponent list for later');
@@ -619,7 +636,7 @@ export class LeagueHelper {
             {
                 if ($('#leagues .forced_info button[rel="claim"]').length >0)
                 {
-                    $('#leagues .forced_info button[rel="claim"]').click(); //click reward
+                    $('#leagues .forced_info button[rel="claim"]').trigger('click'); //click reward
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeaderboard"))
                 }
             }
@@ -752,31 +769,23 @@ export class LeagueHelper {
                 logHHAuto(Data.length+' valid targets!');
                 setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                 logHHAuto("setting autoloop to false");
-                logHHAuto("Hit?" );
 
                 const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesRunThreshold"));
                 if (runThreshold > 0) {
                     setStoredValue(HHStoredVarPrefixKey+"Temp_LeagueHumanLikeRun", "true");
                 }
                 const nextOpponent: LeagueOpponent = Data[0];
+                const opponents_list = getHHVars("opponents_list");
+                const opponentDataFromList:KKLeagueOpponent = opponents_list?.find(obj => obj.player.id_fighter == nextOpponent.opponent_id);
+                if (debugEnabled) logHHAuto("opponentDataFromList ", JSON.stringify(opponentDataFromList));
+                if (!opponentDataFromList) logHHAuto(`ERROR opponent ${nextOpponent.opponent_id} not found in JS list`);
 
-                logHHAuto("Going to fight " + nextOpponent.nickname + "(" + nextOpponent.opponent_id + ") with power " + nextOpponent.power);
+                logHHAuto(`Going to fight ${nextOpponent.nickname} (${nextOpponent.opponent_id}) with power ${nextOpponent.power}. Can fight: ${opponentDataFromList?.can_fight}`);
                 if (debugEnabled) logHHAuto(JSON.stringify(nextOpponent));
                 // change referer
                 window.history.replaceState(null, '', addNutakuSession(ConfigHelper.getHHScriptVars("pagesURLLeaguPreBattle") + '?id_opponent=' + nextOpponent.opponent_id) as string);
 
-                const opponents_list = getHHVars("opponents_list");
-                const opponentDataFromList = opponents_list.filter(obj => {
-                    return obj.player.id_fighter == nextOpponent.opponent_id;
-                });
-                if(debugEnabled) logHHAuto("opponentDataFromList ", JSON.stringify(opponentDataFromList));
-
-                let numberOfFightAvailable = 0;
-                if(opponentDataFromList && opponentDataFromList.length> 0)
-                    numberOfFightAvailable = LeagueHelper.numberOfFightAvailable(opponentDataFromList[0])
-                else
-                    logHHAuto('ERROR opponent ' + nextOpponent.opponent_id + ' not found in JS list');
-
+                const numberOfFightAvailable = LeagueHelper.numberOfFightAvailable(opponentDataFromList)
                 let numberOfBattle = 1;
                 if(numberOfFightAvailable > 1 && currentPower >= (numberOfFightAvailable + leagueThreshold)){
                     if(maxStay > 0 && currentScore + ( numberOfFightAvailable * leagueScoreSecurityThreshold) >= maxStay) logHHAuto('Can\'t do '+numberOfFightAvailable+' fights in league as could go above stay');
