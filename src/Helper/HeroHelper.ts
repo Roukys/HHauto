@@ -8,13 +8,13 @@ import { randomInterval } from "./TimeHelper";
 
 export function getHero()
 {
-    if(unsafeWindow.Hero === undefined)
+    if(unsafeWindow.Hero === undefined && unsafeWindow.shared.Hero === undefined)
     {
         setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")))
         //logHHAuto(window.wrappedJSObject)
     }
     //logHHAuto(unsafeWindow.Hero);
-    return unsafeWindow.Hero;
+    return unsafeWindow.Hero || unsafeWindow.shared.Hero;
 }
 
 export function doStatUpgrades()

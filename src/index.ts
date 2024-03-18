@@ -12,6 +12,7 @@ declare global {
         harem: any;
         has_contests_datas: any;
         hero_data: any;
+        shared: any;
         Hero: any;
         hh_ajax: any;
         hh_nutaku: any;
