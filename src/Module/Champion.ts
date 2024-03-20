@@ -59,9 +59,9 @@ export class Champion {
 
         //let champTeamButton = '<div style="position: absolute;left: 330px;top: 10px;width:90px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ChampTeamButton","tooltip")+'</span><label class="myButton" id="ChampTeamButton">'+getTextForUI("ChampTeamButton","elementText")+'</label></div>';
 
-        var champTeam = unsafeWindow.championData.team;
+        var champTeam = getHHVars('championData.team');
         const champTeamId = Number(getHHVars('championData.champion.id'));
-        var freeDrafts = unsafeWindow.championData.freeDrafts;
+        let freeDrafts = Number(getHHVars('championData.freeDrafts'));
         var counterLoop = 0;
         let maxLoops = getChampMaxLoop();
         const girlMinPower = getMinGirlPower();
@@ -153,7 +153,7 @@ export class Champion {
                 girls.sort((a,b) => a.data.damage - b.data.damage);
             });
 
-            const hero_damage = unsafeWindow.championData.hero_damage;
+            const hero_damage = Number(getHHVars('championData.hero_damage'));
             // Build team
             if (keepSecondLineGirls) {
                 var teamGirlIndex = 0;

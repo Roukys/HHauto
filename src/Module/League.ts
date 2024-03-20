@@ -12,6 +12,7 @@ import {
     getStoredValue,
     getTextForUI,
     getTimeLeft,
+    HeroHelper,
     NumberHelper,
     parsePrice,
     queryStringGetParam,
@@ -64,7 +65,7 @@ export class LeagueHelper {
         }
         return unsafeWindow.current_tier_number;
     }
-    static style(){
+    static styles(){
         
         GM_addStyle('#leagues .league_content .league_table .data-list .data-row .data-column[column="can_fight"] {'
             + 'min-width: 8.5rem;}'
@@ -267,7 +268,7 @@ export class LeagueHelper {
                 logHHAuto('ERROR: Can\'t find opponent list');
                 return;
             }
-            let heroFighter = opponents_list.find((el) => el.player.id_fighter == getHHVars('Hero.infos.id')).player;
+            let heroFighter = opponents_list.find((el) => el.player.id_fighter == HeroHelper.getPlayerId()).player;
 
             const containsSimuScore = function(opponents) { return $('a[href*="id_opponent='+opponents.player.id_fighter+'"] .matchRatingNew').length > 0;}
             const containsOcdScore = function(opponents) { return $('.matchRating', $('a[href*="id_opponent='+opponents.player.id_fighter+'"]').parent()).length > 0;}
@@ -526,7 +527,7 @@ export class LeagueHelper {
             opponentsPowerList = LeagueHelper._getTempLeagueOpponentList()
 
             try {
-                heroFighter = opponents_list?.find((el) => el.player.id_fighter == getHHVars('Hero.infos.id')).player
+                heroFighter = opponents_list?.find((el) => el.player.id_fighter == HeroHelper.getPlayerId()).player
             } catch (error) {
                 logHHAuto('Error, falback to not use powercalc');
                 if(debugEnabled) logHHAuto(error);

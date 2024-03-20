@@ -152,7 +152,6 @@ export function start() {
         // temp for next version w12
         unsafeWindow.Hero = unsafeWindow.shared?.Hero;
         if (unsafeWindow.hh_ajax === undefined) unsafeWindow.hh_ajax = unsafeWindow.shared?.general?.hh_ajax;
-        if (unsafeWindow.loadingAnimation === undefined) unsafeWindow.loadingAnimation = unsafeWindow.shared?.animations?.loadingAnimation;
     }
 
     StartService.checkVersion();

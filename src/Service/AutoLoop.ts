@@ -920,8 +920,8 @@ export async function autoLoop()
             {
                 LeagueHelper.moduleSimLeague = callItOnce(LeagueHelper.moduleSimLeague);
                 LeagueHelper.moduleSimLeague();
-                LeagueHelper.style = callItOnce(LeagueHelper.style);
-                LeagueHelper.style();
+                LeagueHelper.styles = callItOnce(LeagueHelper.styles);
+                LeagueHelper.styles();
             }
             break;
         case ConfigHelper.getHHScriptVars("pagesIDSeasonArena"):

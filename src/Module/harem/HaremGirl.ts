@@ -19,6 +19,10 @@ export class HaremGirl {
     static AFFECTION_TYPE='affection';
     static EXPERIENCE_TYPE='experience';
 
+    static getCurrentGirl(): KKHaremGirl {
+        return unsafeWindow.girl;
+    }
+
     static getMaxOutButton(haremItem:string){
         return $('#girl-leveler-max-out-'+haremItem+':not([disabled])');
     }
@@ -176,7 +180,7 @@ export class HaremGirl {
     }
     
     static async giveHaremGirlItem(haremItem:string){
-        const selectedGirl = unsafeWindow.girl;
+        const selectedGirl = HaremGirl.getCurrentGirl();
         HaremGirl.switchTabs(haremItem);
         const userHaremGirlLimit = Math.min(Number((<HTMLInputElement>document.getElementById("menuExpLevel")).value), 750);
 
@@ -207,7 +211,7 @@ export class HaremGirl {
 
     static async fillAllAffection() {
         const haremItem = HaremGirl.AFFECTION_TYPE;
-        const selectedGirl: KKHaremGirl = unsafeWindow.girl;
+        const selectedGirl: KKHaremGirl = HaremGirl.getCurrentGirl();
         HaremGirl.switchTabs(haremItem);
         const haremGirlPayLast = getStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlPayLast") == 'true';
         const canGiftGirl = selectedGirl.nb_grades > selectedGirl.graded;
@@ -252,7 +256,7 @@ export class HaremGirl {
         
         const girlMenuButton = '<div style="position: absolute;left: 425px;top: 0px; font-size: small; z-index:30;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("girlMenu","tooltip")+'</span><label class="myButton" id="'+girlMenuButtonId+'">+</label></div>';
         var openGirlMenu = function(){
-            const selectedGirl = unsafeWindow.girl;
+            const selectedGirl = HaremGirl.getCurrentGirl();
             const canGiftGirl = selectedGirl.nb_grades > selectedGirl.graded;// && HaremGirl.getMaxOutButton(HaremGirl.AFFECTION_TYPE).length > 0;
 
             const menuIDXp = "haremGirlGiveXP";
@@ -319,7 +323,7 @@ export class HaremGirl {
 
 
     static displayExpMenu(haremItem = HaremGirl.EXPERIENCE_TYPE){
-        const selectedGirl = unsafeWindow.girl;
+        const selectedGirl = HaremGirl.getCurrentGirl();
 
         const menuID = "menuExp";
 //        const menuExp = '<div style="position: absolute;right: 50px;top: -10px; font-size: small;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExp","tooltip")+'</span><label style="width:100px" class="myButton" id="menuExp">'+getTextForUI("menuExp","elementText")+'</label></div>'
@@ -367,7 +371,7 @@ export class HaremGirl {
 
     static canGiftGirl(): boolean {
         try {
-            const girl = unsafeWindow.girl;
+            const girl = HaremGirl.getCurrentGirl();
             return girl.nb_grades > girl.graded && HaremGirl.getMaxOutButton(HaremGirl.AFFECTION_TYPE).length > 0;
         } catch (error) {
             logHHAuto("ERROR can't compute canGiftGirl");
@@ -377,7 +381,7 @@ export class HaremGirl {
 
     static canAwakeGirl(): boolean {
         try {
-            const girl = unsafeWindow.girl;
+            const girl = HaremGirl.getCurrentGirl();
             const numberOfGem = unsafeWindow.player_gems_amount[girl.element].amount;
             return numberOfGem >= girl.awakening_costs;
         } catch (error) {
@@ -391,7 +395,7 @@ export class HaremGirl {
         try {
             const canAwakeGirl = HaremGirl.canAwakeGirl();
             //const canGiftGirl = HaremGirl.canGiftGirl();
-            const girl: KKHaremGirl = unsafeWindow.girl;
+            const girl: KKHaremGirl = HaremGirl.getCurrentGirl();
             const numberOfGem = unsafeWindow.player_gems_amount[girl.element].amount;
             //logHHAuto("moduleHaremGirl: " + girl.id_girl);
             logHHAuto("Current level : " + girl.level + ', max level without gems : ' + girl.level_cap);
@@ -426,7 +430,7 @@ export class HaremGirl {
 
             const canGiftGirl = HaremGirl.canGiftGirl();
             const canAwakeGirl = HaremGirl.canAwakeGirl();
-            const girl: KKHaremGirl = unsafeWindow.girl;
+            const girl: KKHaremGirl = HaremGirl.getCurrentGirl();
 
             if (!haremItem) {
                 // No action to be peformed
