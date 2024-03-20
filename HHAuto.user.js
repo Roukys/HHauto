@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.6.2
+// @version      7.6.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -2888,6 +2888,7 @@ class PathOfValue {
 
 
 
+
 class Season {
     static getRemainingTime() {
         const seasonTimer = unsafeWindow.season_sec_untill_event_end;
@@ -2904,6 +2905,9 @@ class Season {
     }
     static getEnergyMax() {
         return Number(getHHVars('Hero.energies.kiss.max_regen_amount'));
+    }
+    static getTierLevel() {
+        return Number($('#tier_indicator').text());
     }
     static getPinfo() {
         const threshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonThreshold"));
@@ -2948,14 +2952,11 @@ class Season {
         return (checkTimer('nextSeasonTime') && energyAboveThreshold && (needBoosterToFight && haveBoosterEquiped || !needBoosterToFight)) || paranoiaSpending;
     }
     static moduleSimSeasonBattle() {
+        var _a;
         const hero_data = unsafeWindow.hero_data;
         const opponentDatas = unsafeWindow.opponents;
         let doDisplay = false;
-        let mojoOppo = [];
-        let scoreOppo = [];
-        let nameOppo = [];
-        let expOppo = [];
-        let affOppo = [];
+        let seasonOpponents = [];
         try {
             // TODO update
             if ($("div.matchRatingNew img#powerLevelScouter").length != 3) {
@@ -2968,23 +2969,8 @@ class Season {
                     //console.log("HH simuFight",JSON.stringify(player),JSON.stringify(opponent), opponentBonuses);
                 }
                 const simu = calculateBattleProbabilities(player, opponent);
-                scoreOppo[index] = simu;
-                mojoOppo[index] = Number($(".slot_victory_points .amount", opponents[index])[0].innerText);
-                //logHHAuto(mojoOppo[index]);
-                nameOppo[index] = opponent.name;
-                expOppo[index] = Number($(".slot_season_xp_girl", opponents[index])[0].lastElementChild.innerText.replace(/\D/g, ''));
-                affOppo[index] = Number($(".slot_season_affection_girl", opponents[index])[0].lastElementChild.innerText.replace(/\D/g, ''));
-                GM_addStyle('#season-arena .opponents_arena .opponent_perform_button_container {'
-                    + 'width: 200px;}');
-                GM_addStyle('.green_button_L.btn_season_perform, .leagues_team_block .challenge button.blue_button_L {'
-                    + 'background-image: linear-gradient(to top,#008ed5 0,#05719c 100%);'
-                    + '-webkit-box-shadow: 0 3px 0 rgb(13 22 25 / 35%), inset 0 3px 0 #6df0ff;'
-                    + '-moz-box-shadow: 0 3px 0 rgba(13,22,25,.35),inset 0 3px 0 #6df0ff;'
-                    + 'box-shadow: 0 3px 0 rgb(13 22 25 / 35%), inset 0 3px 0 #6df0ff;}');
-                GM_addStyle('#season-arena .matchRatingNew {'
-                    + 'display: flex;'
-                    + 'align-items: center;'
-                    + 'justify-content: space-between;}');
+                seasonOpponents[index] = new SeasonOpponent((_a = opponentDatas[index].player) === null || _a === void 0 ? void 0 : _a.id_fighter, opponent.name, Number($(".slot_victory_points .amount", opponents[index])[0].innerText), // mojo
+                Number($(".slot_season_xp_girl", opponents[index])[0].lastElementChild.innerText.replace(/\D/g, '')), Number($(".slot_season_affection_girl", opponents[index])[0].lastElementChild.innerText.replace(/\D/g, '')), simu);
                 $('.player-panel-buttons .btn_season_perform', opponents[index]).contents().filter(function () { return this.nodeType === 3; }).remove();
                 $('.player-panel-buttons .btn_season_perform', opponents[index]).find('span').remove();
                 $('.player-panel-buttons .opponent_perform_button_container .green_button_L.btn_season_perform .energy_kiss_icn.kiss_icon_s').remove();
@@ -2992,82 +2978,7 @@ class Season {
                     $('.player-panel-buttons .opponent_perform_button_container .green_button_L.btn_season_perform', opponents[index]).prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${ConfigHelper.getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${NumberHelper.nRounding(100 * simu.win, 2, -1)}%</div>`);
                 }
             }
-            var chosenID = -1;
-            var chosenRating = -1;
-            var chosenFlag = -1;
-            var chosenMojo = -1;
-            let currentExp;
-            let currentAff;
-            var currentFlag;
-            var currentScore;
-            var currentMojo;
-            var numberOfReds = 0;
-            let currentGains;
-            let oppoName;
-            for (let index = 0; index < 3; index++) {
-                let isBetter = false;
-                currentScore = Number(scoreOppo[index].win);
-                currentFlag = scoreOppo[index].scoreClass;
-                currentMojo = Number(mojoOppo[index]);
-                currentExp = Number(expOppo[index]);
-                currentAff = Number(affOppo[index]);
-                switch (currentFlag) {
-                    case 'plus':
-                        currentFlag = 1;
-                        break;
-                    case 'close':
-                        currentFlag = 0;
-                        break;
-                    case 'minus':
-                        currentFlag = -1;
-                        numberOfReds++;
-                        break;
-                }
-                //logHHAuto({OppoName:nameOppo[index],OppoFlag:currentFlag,OppoScore:currentScore,OppoMojo:currentMojo});
-                //not chosen or better flag
-                if (chosenRating == -1 || chosenFlag < currentFlag) {
-                    //logHHAuto('first');
-                    isBetter = true;
-                    currentGains = currentAff + currentExp;
-                }
-                //same orange flag but better score
-                else if (chosenFlag == currentFlag && currentFlag == 0 && chosenRating < currentScore) {
-                    //logHHAuto('second');
-                    isBetter = true;
-                }
-                //same red flag but better mojo
-                else if (chosenFlag == currentFlag && currentFlag == -1 && chosenMojo < currentMojo) {
-                    //logHHAuto('second');
-                    isBetter = true;
-                }
-                // same red flag same mojo but better score
-                else if (chosenFlag == currentFlag && currentFlag == -1 && chosenMojo == currentMojo && currentScore > chosenRating) {
-                    //logHHAuto('second');
-                    isBetter = true;
-                }
-                //same green flag but better mojo
-                else if (chosenFlag == currentFlag && currentFlag == 1 && chosenMojo < currentMojo) {
-                    //logHHAuto('third');
-                    isBetter = true;
-                }
-                //same green flag same mojo but better gains
-                else if (chosenFlag == currentFlag && currentFlag == 1 && chosenMojo == currentMojo && currentGains < currentAff + currentExp) {
-                    //logHHAuto('third');
-                    isBetter = true;
-                }
-                //same green flag same mojo same gains but better score
-                else if (chosenFlag == currentFlag && currentFlag == 1 && chosenMojo == currentMojo && currentGains === currentAff + currentExp && currentScore > chosenRating) {
-                    //logHHAuto('third');
-                    isBetter = true;
-                }
-                if (isBetter) {
-                    chosenRating = currentScore;
-                    chosenFlag = currentFlag;
-                    chosenID = index;
-                    chosenMojo = currentMojo;
-                    oppoName = nameOppo[index];
-                }
-            }
+            var { numberOfReds, chosenID } = Season.getBestOppo(seasonOpponents);
             var price = Number($("div.opponents_arena button#refresh_villains").attr('price'));
             if (isNaN(price)) {
                 price = 12;
@@ -3076,28 +2987,10 @@ class Season {
                 chosenID = -2;
             }
             $($('div.season_arena_opponent_container div.matchRatingNew')).append(`<img id="powerLevelScouterNonChosen">`);
-            GM_addStyle('#powerLevelScouterChosen, #powerLevelScouterNonChosen {'
-                + 'width: 25px;}');
             //logHHAuto("Best opportunity opponent : "+oppoName+'('+chosenRating+')');
             if (doDisplay) {
                 $($('.season_arena_opponent_container .matchRatingNew #powerLevelScouterNonChosen')[chosenID]).remove();
                 $($('div.season_arena_opponent_container div.matchRatingNew')[chosenID]).append(`<img id="powerLevelScouterChosen" src=${ConfigHelper.getHHScriptVars("powerCalcImages").chosen}>`);
-                //CSS
-                GM_addStyle('.matchRatingNew {'
-                    + 'text-align: center; '
-                    + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
-                    + 'line-height: 17px; '
-                    + 'font-size: 14px;}');
-                GM_addStyle('.plus {'
-                    + 'color: #66CD00;}');
-                GM_addStyle('.minus {'
-                    + 'color: #FF2F2F;}');
-                GM_addStyle('.close {'
-                    + 'color: #FFA500;}');
-                GM_addStyle('#powerLevelScouter {'
-                    + 'width: 25px;}');
-                GM_addStyle('#powerLevelScouterChosen {'
-                    + 'width: 25px;}');
             }
             return chosenID;
         }
@@ -3105,6 +2998,109 @@ class Season {
             LogUtils_logHHAuto("Catched error : Could not display season score : " + err);
             return -1;
         }
+    }
+    //    static getBestOppo(scoreOppo: BDSMSimu[], mojoOppo: number[], expOppo: number[], affOppo: number[], nameOppo: string[]) {
+    static getBestOppo(seasonOpponents) {
+        var chosenID = -1;
+        var chosenRating = -1;
+        var chosenFlag = -1;
+        var chosenMojo = -1;
+        let currentExp;
+        let currentAff;
+        var currentFlag;
+        var currentScore;
+        var currentMojo;
+        var numberOfReds = 0;
+        let currentGains;
+        //let oppoName;
+        const tier_indicator = Season.getTierLevel();
+        for (let index = 0; index < 3; index++) {
+            let isBetter = false;
+            currentScore = Number(seasonOpponents[index].simu.win);
+            currentFlag = seasonOpponents[index].simu.scoreClass;
+            currentMojo = Number(seasonOpponents[index].mojo);
+            currentExp = Number(seasonOpponents[index].exp);
+            currentAff = Number(seasonOpponents[index].aff);
+            switch (currentFlag) {
+                case 'plus':
+                    currentFlag = 1;
+                    break;
+                case 'close':
+                    currentFlag = 0;
+                    break;
+                case 'minus':
+                    currentFlag = -1;
+                    numberOfReds++;
+                    break;
+            }
+            //logHHAuto({OppoName:nameOppo[index],OppoFlag:currentFlag,OppoScore:currentScore,OppoMojo:currentMojo});
+            //not chosen or better flag
+            if (chosenRating == -1 || chosenFlag < currentFlag) {
+                //logHHAuto('first');
+                isBetter = true;
+                currentGains = currentAff + currentExp;
+            }
+            //same orange flag but better score
+            else if (chosenFlag == currentFlag && currentFlag == 0 && chosenRating < currentScore) {
+                //logHHAuto('second');
+                isBetter = true;
+            }
+            else if (chosenFlag == currentFlag && currentFlag == -1) {
+                //same red flag but better mojo
+                if (chosenMojo < currentMojo) {
+                    //logHHAuto('second');
+                    isBetter = true;
+                }
+                // same red flag same mojo but better score
+                else if (chosenMojo == currentMojo && currentScore > chosenRating) {
+                    //logHHAuto('second');
+                    isBetter = true;
+                }
+            }
+            else if (chosenFlag == currentFlag && currentFlag == 1 && tier_indicator <= Season.LAST_SEASON_LEVEL) {
+                //same green flag but better mojo
+                if (chosenMojo < currentMojo) {
+                    //logHHAuto('third');
+                    isBetter = true;
+                }
+                //same green flag same mojo but better gains
+                else if (chosenMojo == currentMojo && currentGains < currentAff + currentExp) {
+                    //logHHAuto('third');
+                    isBetter = true;
+                    currentGains = currentAff + currentExp;
+                }
+                //same green flag same mojo same gains but better score
+                else if (chosenMojo == currentMojo && currentGains === currentAff + currentExp && currentScore > chosenRating) {
+                    //logHHAuto('third');
+                    isBetter = true;
+                }
+            }
+            else if (chosenFlag == currentFlag && currentFlag == 1) {
+                // End season
+                if (currentScore > chosenRating) {
+                    //logHHAuto('third');
+                    isBetter = true;
+                }
+                else if (currentScore == chosenRating && chosenMojo < currentMojo) {
+                    //logHHAuto('third');
+                    isBetter = true;
+                    currentGains = currentAff + currentExp;
+                }
+                else if (currentScore == chosenRating && chosenMojo == currentMojo && currentGains < currentAff + currentExp) {
+                    //logHHAuto('third');
+                    isBetter = true;
+                    currentGains = currentAff + currentExp;
+                }
+            }
+            if (isBetter) {
+                chosenRating = currentScore;
+                chosenFlag = currentFlag;
+                chosenID = index;
+                chosenMojo = currentMojo;
+                //oppoName = seasonOpponents[index].nickname;
+            }
+        }
+        return { numberOfReds, chosenID };
     }
     static run() {
         LogUtils_logHHAuto("Performing auto Season.");
@@ -3311,6 +3307,36 @@ class Season {
             Season.maskReward();
         }
     }
+    static stylesBattle() {
+        GM_addStyle('#season-arena .opponents_arena .opponent_perform_button_container {'
+            + 'width: 200px;}');
+        GM_addStyle('.green_button_L.btn_season_perform, .leagues_team_block .challenge button.blue_button_L {'
+            + 'background-image: linear-gradient(to top,#008ed5 0,#05719c 100%);'
+            + '-webkit-box-shadow: 0 3px 0 rgb(13 22 25 / 35%), inset 0 3px 0 #6df0ff;'
+            + '-moz-box-shadow: 0 3px 0 rgba(13,22,25,.35),inset 0 3px 0 #6df0ff;'
+            + 'box-shadow: 0 3px 0 rgb(13 22 25 / 35%), inset 0 3px 0 #6df0ff;}');
+        GM_addStyle('#season-arena .matchRatingNew {'
+            + 'display: flex;'
+            + 'align-items: center;'
+            + 'justify-content: space-between;}');
+        GM_addStyle('#powerLevelScouterChosen, #powerLevelScouterNonChosen {'
+            + 'width: 25px;}');
+        GM_addStyle('.matchRatingNew {'
+            + 'text-align: center; '
+            + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
+            + 'line-height: 17px; '
+            + 'font-size: 14px;}');
+        GM_addStyle('.plus {'
+            + 'color: #66CD00;}');
+        GM_addStyle('.minus {'
+            + 'color: #FF2F2F;}');
+        GM_addStyle('.close {'
+            + 'color: #FFA500;}');
+        GM_addStyle('#powerLevelScouter {'
+            + 'width: 25px;}');
+        GM_addStyle('#powerLevelScouterChosen {'
+            + 'width: 25px;}');
+    }
     static maskReward() {
         if ($('.HHaHidden').length > 0 || $('.script-hide-claimed').length > 0 /*OCD*/) {
             return;
@@ -3348,6 +3374,7 @@ class Season {
         }
     }
 }
+Season.LAST_SEASON_LEVEL = 63;
 
 ;// CONCATENATED MODULE: ./src/Module/Events/Seasonal.ts
 
@@ -13899,6 +13926,19 @@ class LeagueOpponent {
     }
 }
 
+;// CONCATENATED MODULE: ./src/model/SeasonOpponent.ts
+class SeasonOpponent {
+    constructor(opponent_id, nickname, mojo, exp, aff, simu) {
+        this.simu = {};
+        this.opponent_id = opponent_id;
+        this.nickname = nickname;
+        this.mojo = mojo;
+        this.exp = exp;
+        this.aff = aff;
+        this.simu = simu;
+    }
+}
+
 ;// CONCATENATED MODULE: ./src/model/Mission.ts
 class Mission {
     constructor() {
@@ -13912,6 +13952,7 @@ class MissionRewards {
 }
 
 ;// CONCATENATED MODULE: ./src/model/index.ts
+
 
 
 
@@ -14471,12 +14512,13 @@ var HeroHelper_awaiter = (undefined && undefined.__awaiter) || function (thisArg
 
 
 function getHero() {
-    if (unsafeWindow.Hero === undefined && unsafeWindow.shared.Hero === undefined) {
+    var _a, _b;
+    if (unsafeWindow.Hero === undefined && ((_a = unsafeWindow.shared) === null || _a === void 0 ? void 0 : _a.Hero) === undefined) {
         setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey + "Temp_autoLoopTimeMili")));
         //logHHAuto(window.wrappedJSObject)
     }
     //logHHAuto(unsafeWindow.Hero);
-    return unsafeWindow.Hero || unsafeWindow.shared.Hero;
+    return unsafeWindow.Hero || ((_b = unsafeWindow.shared) === null || _b === void 0 ? void 0 : _b.Hero);
 }
 function doStatUpgrades() {
     //Stats?
@@ -15847,13 +15889,14 @@ function autoLoop() {
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDSeasonArena"):
                 if (getStoredValue(HHStoredVarPrefixKey + "Setting_showCalculatePower") === "true" && $("div.matchRatingNew img#powerLevelScouter").length < 3) {
+                    Season.stylesBattle = callItOnce(Season.stylesBattle);
+                    Season.stylesBattle();
                     Season.moduleSimSeasonBattle();
                 }
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDSeason"):
-                if (getStoredValue(HHStoredVarPrefixKey + "Setting_SeasonMaskRewards") === "true") {
-                    setTimeout(Season.maskReward, 500);
-                }
+                Season.styles = callItOnce(Season.styles);
+                Season.styles();
                 Season.getRemainingTime = callItOnce(Season.getRemainingTime);
                 Season.getRemainingTime();
                 if (getStoredValue(HHStoredVarPrefixKey + "Setting_showRewardsRecap") === "true") {
@@ -16574,8 +16617,8 @@ function hardened_start() {
     }
 }
 function start() {
-    var _a;
-    if (unsafeWindow.Hero === undefined && unsafeWindow.shared.Hero === undefined) {
+    var _a, _b, _c, _d, _e, _f, _g;
+    if (unsafeWindow.Hero === undefined && ((_a = unsafeWindow.shared) === null || _a === void 0 ? void 0 : _a.Hero) === undefined) {
         LogUtils_logHHAuto('???no Hero???');
         $('.hh_logo').trigger('click');
         setTimeout(hardened_start, 5000);
@@ -16586,12 +16629,13 @@ function start() {
         return;
     }
     if (unsafeWindow.Hero === undefined) {
+        LogUtils_logHHAuto('No Hero detected, can be new game version');
         // temp for next version w12
-        unsafeWindow.Hero = unsafeWindow.shared.Hero;
+        unsafeWindow.Hero = (_b = unsafeWindow.shared) === null || _b === void 0 ? void 0 : _b.Hero;
         if (unsafeWindow.hh_ajax === undefined)
-            unsafeWindow.hh_ajax = unsafeWindow.shared.general.hh_ajax;
+            unsafeWindow.hh_ajax = (_d = (_c = unsafeWindow.shared) === null || _c === void 0 ? void 0 : _c.general) === null || _d === void 0 ? void 0 : _d.hh_ajax;
         if (unsafeWindow.loadingAnimation === undefined)
-            unsafeWindow.loadingAnimation = unsafeWindow.shared.animations.loadingAnimation;
+            unsafeWindow.loadingAnimation = (_f = (_e = unsafeWindow.shared) === null || _e === void 0 ? void 0 : _e.animations) === null || _f === void 0 ? void 0 : _f.loadingAnimation;
     }
     StartService.checkVersion();
     Club.checkClubStatus();
@@ -16763,7 +16807,7 @@ function start() {
         }
         Alive();
     }
-    if (isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")) && ((_a = JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")).page) === null || _a === void 0 ? void 0 : _a.indexOf(".html")) > 0) {
+    if (isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")) && ((_g = JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")).page) === null || _g === void 0 ? void 0 : _g.indexOf(".html")) > 0) {
         //console.log("testingHome : setting to : "+getPage());
         setStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled", JSON.stringify({ page: getPage(), dateTime: new Date().getTime() }));
     }

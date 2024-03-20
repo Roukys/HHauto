@@ -27,11 +27,12 @@ import {
 } from "../../Service/index";
 import { isJSON, logHHAuto } from "../../Utils/index";
 import { HHStoredVarPrefixKey } from "../../config/index";
-import { BDSMSimu } from '../../model/index';
+import { BDSMSimu, SeasonOpponent } from '../../model/index';
 import { Booster } from "../Booster";
 import { EventModule } from "./EventModule";
 
 export class Season {
+    static LAST_SEASON_LEVEL = 63;
     static getRemainingTime(){
         const seasonTimer = unsafeWindow.season_sec_untill_event_end;
 
@@ -52,6 +53,10 @@ export class Season {
 
     static getEnergyMax() {
         return Number(getHHVars('Hero.energies.kiss.max_regen_amount'));
+    }
+
+    static getTierLevel() {
+        return Number($('#tier_indicator').text());
     }
 
     static getPinfo() {
@@ -104,11 +109,7 @@ export class Season {
         const hero_data = unsafeWindow.hero_data;
         const opponentDatas = unsafeWindow.opponents;
         let doDisplay=false;
-        let mojoOppo:number[]=[];
-        let scoreOppo:BDSMSimu[]=[];
-        let nameOppo:string[]=[];
-        let expOppo:number[]=[];
-        let affOppo:number[]=[];
+        let seasonOpponents:SeasonOpponent[]=[];
         try
         {
             // TODO update
@@ -129,29 +130,14 @@ export class Season {
                 }
                 const simu = calculateBattleProbabilities(player, opponent)
 
-                scoreOppo[index]=simu;
-                mojoOppo[index]=Number($(".slot_victory_points .amount",opponents[index])[0].innerText);
-                //logHHAuto(mojoOppo[index]);
-                nameOppo[index]=opponent.name;
-                expOppo[index]=Number((<HTMLElement>$(".slot_season_xp_girl",opponents[index])[0].lastElementChild).innerText.replace(/\D/g, ''));
-                affOppo[index]=Number((<HTMLElement>$(".slot_season_affection_girl",opponents[index])[0].lastElementChild).innerText.replace(/\D/g, ''));
-
-                GM_addStyle('#season-arena .opponents_arena .opponent_perform_button_container {'
-                        + 'width: 200px;}'
-                    );
-
-                GM_addStyle('.green_button_L.btn_season_perform, .leagues_team_block .challenge button.blue_button_L {'
-                        + 'background-image: linear-gradient(to top,#008ed5 0,#05719c 100%);'
-                        + '-webkit-box-shadow: 0 3px 0 rgb(13 22 25 / 35%), inset 0 3px 0 #6df0ff;'
-                        + '-moz-box-shadow: 0 3px 0 rgba(13,22,25,.35),inset 0 3px 0 #6df0ff;'
-                        + 'box-shadow: 0 3px 0 rgb(13 22 25 / 35%), inset 0 3px 0 #6df0ff;}'
-                    );
-
-                GM_addStyle('#season-arena .matchRatingNew {'
-                        + 'display: flex;'
-                        + 'align-items: center;'
-                        + 'justify-content: space-between;}'
-                    );
+                seasonOpponents[index] = new SeasonOpponent(
+                    opponentDatas[index].player?.id_fighter, 
+                    opponent.name, 
+                    Number($(".slot_victory_points .amount", opponents[index])[0].innerText), // mojo
+                    Number((<HTMLElement>$(".slot_season_xp_girl", opponents[index])[0].lastElementChild).innerText.replace(/\D/g, '')),
+                    Number((<HTMLElement>$(".slot_season_affection_girl", opponents[index])[0].lastElementChild).innerText.replace(/\D/g, '')), 
+                    simu
+                );
 
                 $('.player-panel-buttons .btn_season_perform',opponents[index]).contents().filter(function() {return this.nodeType===3;}).remove();
                 $('.player-panel-buttons .btn_season_perform',opponents[index]).find('span').remove();
@@ -163,92 +149,7 @@ export class Season {
                 }
             }
 
-            var chosenID = -1;
-            var chosenRating = -1;
-            var chosenFlag = -1;
-            var chosenMojo = -1;
-            let currentExp;
-            let currentAff;
-            var currentFlag;
-            var currentScore;
-            var currentMojo;
-            var numberOfReds=0;
-            let currentGains;
-            let oppoName;
-
-            for (let index=0;index<3;index++)
-            {
-                let isBetter = false;
-                currentScore = Number(scoreOppo[index].win);
-                currentFlag = scoreOppo[index].scoreClass;
-                currentMojo = Number(mojoOppo[index]);
-                currentExp=Number(expOppo[index]);
-                currentAff=Number(affOppo[index]);
-                switch (currentFlag)
-                {
-                    case 'plus':
-                        currentFlag = 1;
-                        break;
-                    case 'close':
-                        currentFlag = 0;
-                        break;
-                    case 'minus':
-                        currentFlag = -1;
-                        numberOfReds++;
-                        break;
-                }
-                //logHHAuto({OppoName:nameOppo[index],OppoFlag:currentFlag,OppoScore:currentScore,OppoMojo:currentMojo});
-                //not chosen or better flag
-                if (chosenRating == -1 || chosenFlag < currentFlag)
-                {
-                    //logHHAuto('first');
-                    isBetter = true;
-                    currentGains = currentAff + currentExp;
-                }
-                //same orange flag but better score
-                else if (chosenFlag == currentFlag && currentFlag == 0 && chosenRating < currentScore)
-                {
-                    //logHHAuto('second');
-                    isBetter = true;
-                }
-                //same red flag but better mojo
-                else if (chosenFlag == currentFlag && currentFlag == -1 && chosenMojo < currentMojo)
-                {
-                    //logHHAuto('second');
-                    isBetter = true;
-                }
-                // same red flag same mojo but better score
-                else if (chosenFlag == currentFlag && currentFlag == -1 && chosenMojo == currentMojo && currentScore > chosenRating)
-                {
-                    //logHHAuto('second');
-                    isBetter = true;
-                }
-                //same green flag but better mojo
-                else if (chosenFlag == currentFlag && currentFlag == 1 && chosenMojo < currentMojo)
-                {
-                    //logHHAuto('third');
-                    isBetter = true;
-                }
-                //same green flag same mojo but better gains
-                else if (chosenFlag == currentFlag && currentFlag == 1 && chosenMojo == currentMojo && currentGains < currentAff + currentExp)
-                {
-                    //logHHAuto('third');
-                    isBetter = true;
-                }
-                //same green flag same mojo same gains but better score
-                else if (chosenFlag == currentFlag && currentFlag == 1 && chosenMojo == currentMojo && currentGains === currentAff + currentExp && currentScore > chosenRating)
-                {
-                    //logHHAuto('third');
-                    isBetter = true;
-                }
-                if (isBetter) {
-                    chosenRating = currentScore;
-                    chosenFlag = currentFlag;
-                    chosenID = index;
-                    chosenMojo = currentMojo;
-                    oppoName = nameOppo[index];
-                }
-            }
+            var { numberOfReds, chosenID } = Season.getBestOppo(seasonOpponents);
 
             var price=Number($("div.opponents_arena button#refresh_villains").attr('price'));
             if (isNaN(price))
@@ -262,43 +163,11 @@ export class Season {
 
             $($('div.season_arena_opponent_container div.matchRatingNew')).append(`<img id="powerLevelScouterNonChosen">`);
 
-            GM_addStyle('#powerLevelScouterChosen, #powerLevelScouterNonChosen {'
-                        + 'width: 25px;}'
-                    );
-
             //logHHAuto("Best opportunity opponent : "+oppoName+'('+chosenRating+')');
             if (doDisplay)
             {
                 $($('.season_arena_opponent_container .matchRatingNew #powerLevelScouterNonChosen')[chosenID]).remove();
                 $($('div.season_arena_opponent_container div.matchRatingNew')[chosenID]).append(`<img id="powerLevelScouterChosen" src=${ConfigHelper.getHHScriptVars("powerCalcImages").chosen}>`);
-
-                //CSS
-
-                GM_addStyle('.matchRatingNew {'
-                            + 'text-align: center; '
-                            + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
-                            + 'line-height: 17px; '
-                            + 'font-size: 14px;}'
-                        );
-
-                GM_addStyle('.plus {'
-                            + 'color: #66CD00;}'
-                        );
-
-                GM_addStyle('.minus {'
-                            + 'color: #FF2F2F;}'
-                        );
-
-                GM_addStyle('.close {'
-                            + 'color: #FFA500;}'
-                        );
-
-                GM_addStyle('#powerLevelScouter {'
-                        + 'width: 25px;}'
-                    );
-                GM_addStyle('#powerLevelScouterChosen {'
-                            + 'width: 25px;}'
-                        );
             }
             return chosenID;
         }
@@ -308,6 +177,117 @@ export class Season {
             return -1;
         }
     }
+
+//    static getBestOppo(scoreOppo: BDSMSimu[], mojoOppo: number[], expOppo: number[], affOppo: number[], nameOppo: string[]) {
+    static getBestOppo(seasonOpponents: SeasonOpponent[]) {
+        var chosenID = -1;
+        var chosenRating = -1;
+        var chosenFlag = -1;
+        var chosenMojo = -1;
+        let currentExp:number;
+        let currentAff:number;
+        var currentFlag;
+        var currentScore:number;
+        var currentMojo:number;
+        var numberOfReds = 0;
+        let currentGains;
+        //let oppoName;
+        const tier_indicator = Season.getTierLevel();
+
+        for (let index = 0; index < 3; index++) {
+            let isBetter = false;
+            currentScore = Number(seasonOpponents[index].simu.win);
+            currentFlag = seasonOpponents[index].simu.scoreClass;
+            currentMojo = Number(seasonOpponents[index].mojo);
+            currentExp = Number(seasonOpponents[index].exp);
+            currentAff = Number(seasonOpponents[index].aff);
+            switch (currentFlag) {
+                case 'plus':
+                    currentFlag = 1;
+                    break;
+                case 'close':
+                    currentFlag = 0;
+                    break;
+                case 'minus':
+                    currentFlag = -1;
+                    numberOfReds++;
+                    break;
+            }
+            //logHHAuto({OppoName:nameOppo[index],OppoFlag:currentFlag,OppoScore:currentScore,OppoMojo:currentMojo});
+            //not chosen or better flag
+            if (chosenRating == -1 || chosenFlag < currentFlag) {
+                //logHHAuto('first');
+                isBetter = true;
+                currentGains = currentAff + currentExp;
+            }
+
+            //same orange flag but better score
+            else if (chosenFlag == currentFlag && currentFlag == 0 && chosenRating < currentScore) {
+                //logHHAuto('second');
+                isBetter = true;
+            }
+            else if (chosenFlag == currentFlag && currentFlag == -1) {
+                //same red flag but better mojo
+                if (chosenMojo < currentMojo) {
+                    //logHHAuto('second');
+                    isBetter = true;
+                }
+                // same red flag same mojo but better score
+                else if (chosenMojo == currentMojo && currentScore > chosenRating) {
+                    //logHHAuto('second');
+                    isBetter = true;
+                }
+            }
+            else if (chosenFlag == currentFlag && currentFlag == 1 && tier_indicator <= Season.LAST_SEASON_LEVEL) {
+                //same green flag but better mojo
+                if (chosenMojo < currentMojo) {
+                    //logHHAuto('third');
+                    isBetter = true;
+                }
+
+                //same green flag same mojo but better gains
+                else if (chosenMojo == currentMojo && currentGains < currentAff + currentExp) {
+                    //logHHAuto('third');
+                    isBetter = true;
+                    currentGains = currentAff + currentExp;
+                }
+
+                //same green flag same mojo same gains but better score
+                else if (chosenMojo == currentMojo && currentGains === currentAff + currentExp && currentScore > chosenRating) {
+                    //logHHAuto('third');
+                    isBetter = true;
+                }
+            }
+            else if (chosenFlag == currentFlag && currentFlag == 1) {
+                // End season
+                if (currentScore > chosenRating) {
+                    //logHHAuto('third');
+                    isBetter = true;
+                }
+
+                else if (currentScore == chosenRating && chosenMojo < currentMojo) {
+                    //logHHAuto('third');
+                    isBetter = true;
+                    currentGains = currentAff + currentExp;
+                }
+
+                else if (currentScore == chosenRating && chosenMojo == currentMojo && currentGains < currentAff + currentExp) {
+                    //logHHAuto('third');
+                    isBetter = true;
+                    currentGains = currentAff + currentExp;
+                }
+            }
+            if (isBetter) {
+                chosenRating = currentScore;
+                chosenFlag = currentFlag;
+                chosenID = index;
+                chosenMojo = currentMojo;
+                //oppoName = seasonOpponents[index].nickname;
+            }
+        }
+        return { numberOfReds, chosenID };
+    }
+
     static run(){
         logHHAuto("Performing auto Season.");
         // Confirm if on correct screen.
@@ -553,11 +533,60 @@ export class Season {
             return true;
         }
     }
-    static styles(){
+    static styles() {
         if (getStoredValue(HHStoredVarPrefixKey+"Setting_SeasonMaskRewards") === "true")
         {
             Season.maskReward();
         }
+    }
+
+    static stylesBattle() {
+        GM_addStyle('#season-arena .opponents_arena .opponent_perform_button_container {'
+            + 'width: 200px;}'
+        );
+
+        GM_addStyle('.green_button_L.btn_season_perform, .leagues_team_block .challenge button.blue_button_L {'
+            + 'background-image: linear-gradient(to top,#008ed5 0,#05719c 100%);'
+            + '-webkit-box-shadow: 0 3px 0 rgb(13 22 25 / 35%), inset 0 3px 0 #6df0ff;'
+            + '-moz-box-shadow: 0 3px 0 rgba(13,22,25,.35),inset 0 3px 0 #6df0ff;'
+            + 'box-shadow: 0 3px 0 rgb(13 22 25 / 35%), inset 0 3px 0 #6df0ff;}'
+        );
+
+        GM_addStyle('#season-arena .matchRatingNew {'
+            + 'display: flex;'
+            + 'align-items: center;'
+            + 'justify-content: space-between;}'
+        );
+
+        GM_addStyle('#powerLevelScouterChosen, #powerLevelScouterNonChosen {'
+            + 'width: 25px;}'
+        );
+
+        GM_addStyle('.matchRatingNew {'
+            + 'text-align: center; '
+            + 'text-shadow: 1px 1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000; '
+            + 'line-height: 17px; '
+            + 'font-size: 14px;}'
+        );
+
+        GM_addStyle('.plus {'
+            + 'color: #66CD00;}'
+        );
+
+        GM_addStyle('.minus {'
+            + 'color: #FF2F2F;}'
+        );
+
+        GM_addStyle('.close {'
+            + 'color: #FFA500;}'
+        );
+
+        GM_addStyle('#powerLevelScouter {'
+            + 'width: 25px;}'
+        );
+        GM_addStyle('#powerLevelScouterChosen {'
+            + 'width: 25px;}'
+        );
     }
     static maskReward()
     {

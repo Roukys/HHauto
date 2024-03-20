@@ -134,7 +134,7 @@ export function hardened_start()
 
 export function start() {
 
-    if (unsafeWindow.Hero === undefined && unsafeWindow.shared.Hero === undefined)
+    if (unsafeWindow.Hero === undefined && unsafeWindow.shared?.Hero === undefined)
     {
         logHHAuto('???no Hero???');
         $('.hh_logo').trigger('click');
@@ -148,10 +148,11 @@ export function start() {
     }
 
     if (unsafeWindow.Hero === undefined) {
+        logHHAuto('No Hero detected, can be new game version');
         // temp for next version w12
-        unsafeWindow.Hero = unsafeWindow.shared.Hero;
-        if (unsafeWindow.hh_ajax === undefined) unsafeWindow.hh_ajax = unsafeWindow.shared.general.hh_ajax;
-        if (unsafeWindow.loadingAnimation === undefined) unsafeWindow.loadingAnimation = unsafeWindow.shared.animations.loadingAnimation;
+        unsafeWindow.Hero = unsafeWindow.shared?.Hero;
+        if (unsafeWindow.hh_ajax === undefined) unsafeWindow.hh_ajax = unsafeWindow.shared?.general?.hh_ajax;
+        if (unsafeWindow.loadingAnimation === undefined) unsafeWindow.loadingAnimation = unsafeWindow.shared?.animations?.loadingAnimation;
     }
 
     StartService.checkVersion();
