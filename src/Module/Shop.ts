@@ -371,8 +371,8 @@ export class Shop {
         var menuSellMaxItems:string | number = "all";
         let fetchStarted = false;
         //ugly hack
-        let loadingAnimationStart = unsafeWindow.loadingAnimation.start;
-        let loadingAnimationStop = unsafeWindow.loadingAnimation.stop;
+        let loadingAnimationStart = unsafeWindow.loadingAnimation?.start || unsafeWindow.shared?.animations?.loadingAnimation?.start;
+        let loadingAnimationStop = unsafeWindow.loadingAnimation?.stop || unsafeWindow.shared?.animations?.loadingAnimation?.stop;
         function appendMenuSell()
         {
             let menuID = "SellDialog"
@@ -498,8 +498,13 @@ export class Shop {
 
                     menuSellStop = false;
                     fetchStarted = true;
-                    unsafeWindow.loadingAnimation.start = function(){};
-                    unsafeWindow.loadingAnimation.stop = function(){};
+                    if (!!unsafeWindow.shared) {
+                        unsafeWindow.shared.animations.loadingAnimation.start = function () { };
+                        unsafeWindow.shared.animations.loadingAnimation.stop = function () { };
+                    } else {
+                        unsafeWindow.loadingAnimation.start = function () { };
+                        unsafeWindow.loadingAnimation.stop = function () { };
+                    }
                     if ($('#menuSellList>.tItems').length === 0)
                     {
                         menuSellListItems();
@@ -563,8 +568,13 @@ export class Shop {
             if (menuSellStop || allLoaded || oldCount >= Number(menuSellMaxItems) || !SellDialog.open)
             {
                 $("#menuSellStop").css("display","none");
-                unsafeWindow.loadingAnimation.start = loadingAnimationStart;
-                unsafeWindow.loadingAnimation.stop = loadingAnimationStop;
+                if (!!unsafeWindow.shared) {
+                    unsafeWindow.shared.animations.loadingAnimation.start = loadingAnimationStart;
+                    unsafeWindow.shared.animations.loadingAnimation.stop = loadingAnimationStop;
+                } else {
+                    unsafeWindow.loadingAnimation.start = loadingAnimationStart;
+                    unsafeWindow.loadingAnimation.stop = loadingAnimationStop;
+                }
                 fetchStarted = false;
                 scroll.scrollTop = 0;
                 if (SellDialog.open)

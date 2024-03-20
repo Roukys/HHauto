@@ -1,13 +1,21 @@
 import { logHHAuto } from '../Utils/index';
 import { ConfigHelper } from "./ConfigHelper";
 
-export function getHHVars(infoSearched, logging = true): any
+function prefixIfNeeded(infoSearched:string){
+    if (!!unsafeWindow.shared && infoSearched.indexOf('Hero.')==0) {
+        infoSearched = 'shared.' + infoSearched;
+    }
+    return infoSearched;
+}
+
+export function getHHVars(infoSearched:string, logging = true): any
 {
     let returnValue:any = unsafeWindow;
     if (ConfigHelper.getHHScriptVars(infoSearched,false) !== null)
     {
         infoSearched = ConfigHelper.getHHScriptVars(infoSearched);
     }
+    infoSearched = prefixIfNeeded(infoSearched);
 
     let splittedInfoSearched = infoSearched.split(".");
 
@@ -36,6 +44,7 @@ export function setHHVars(infoSearched,newValue)
     {
         infoSearched = ConfigHelper.getHHScriptVars(infoSearched);
     }
+    infoSearched = prefixIfNeeded(infoSearched);
 
     let splittedInfoSearched = infoSearched.split(".");
 

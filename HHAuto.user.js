@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.7.0
+// @version      7.7.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3876,9 +3876,9 @@ class Champion {
         var getMinGirlPower = function () { return getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampsGirlThreshold") !== undefined ? getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampsGirlThreshold") : 50000; };
         var getChampSecondLine = function () { return getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampsTeamKeepSecondLine") === 'true'; };
         //let champTeamButton = '<div style="position: absolute;left: 330px;top: 10px;width:90px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ChampTeamButton","tooltip")+'</span><label class="myButton" id="ChampTeamButton">'+getTextForUI("ChampTeamButton","elementText")+'</label></div>';
-        var champTeam = unsafeWindow.championData.team;
+        var champTeam = getHHVars('championData.team');
         const champTeamId = Number(getHHVars('championData.champion.id'));
-        var freeDrafts = unsafeWindow.championData.freeDrafts;
+        let freeDrafts = Number(getHHVars('championData.freeDrafts'));
         var counterLoop = 0;
         let maxLoops = getChampMaxLoop();
         const girlMinPower = getMinGirlPower();
@@ -3962,7 +3962,7 @@ class Champion {
                 girls.push({ data: girlData, htmlDom: $girl });
                 girls.sort((a, b) => a.data.damage - b.data.damage);
             });
-            const hero_damage = unsafeWindow.championData.hero_damage;
+            const hero_damage = Number(getHHVars('championData.hero_damage'));
             // Build team
             if (keepSecondLineGirls) {
                 var teamGirlIndex = 0;
@@ -5754,6 +5754,9 @@ var HaremGirl_awaiter = (undefined && undefined.__awaiter) || function (thisArg,
 
 
 class HaremGirl {
+    static getCurrentGirl() {
+        return unsafeWindow.girl;
+    }
     static getMaxOutButton(haremItem) {
         return $('#girl-leveler-max-out-' + haremItem + ':not([disabled])');
     }
@@ -5912,7 +5915,7 @@ class HaremGirl {
     }
     static giveHaremGirlItem(haremItem) {
         return HaremGirl_awaiter(this, void 0, void 0, function* () {
-            const selectedGirl = unsafeWindow.girl;
+            const selectedGirl = HaremGirl.getCurrentGirl();
             HaremGirl.switchTabs(haremItem);
             const userHaremGirlLimit = Math.min(Number(document.getElementById("menuExpLevel").value), 750);
             if ((Number(selectedGirl.level) + 50) <= Number(userHaremGirlLimit)) {
@@ -5942,7 +5945,7 @@ class HaremGirl {
     static fillAllAffection() {
         return HaremGirl_awaiter(this, void 0, void 0, function* () {
             const haremItem = HaremGirl.AFFECTION_TYPE;
-            const selectedGirl = unsafeWindow.girl;
+            const selectedGirl = HaremGirl.getCurrentGirl();
             HaremGirl.switchTabs(haremItem);
             const haremGirlPayLast = getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlPayLast") == 'true';
             const canGiftGirl = selectedGirl.nb_grades > selectedGirl.graded;
@@ -5986,7 +5989,7 @@ class HaremGirl {
         };
         const girlMenuButton = '<div style="position: absolute;left: 425px;top: 0px; font-size: small; z-index:30;" class="tooltipHH"><span class="tooltipHHtext">' + getTextForUI("girlMenu", "tooltip") + '</span><label class="myButton" id="' + girlMenuButtonId + '">+</label></div>';
         var openGirlMenu = function () {
-            const selectedGirl = unsafeWindow.girl;
+            const selectedGirl = HaremGirl.getCurrentGirl();
             const canGiftGirl = selectedGirl.nb_grades > selectedGirl.graded; // && HaremGirl.getMaxOutButton(HaremGirl.AFFECTION_TYPE).length > 0;
             const menuIDXp = "haremGirlGiveXP";
             const menuIDGifts = "haremGirlGiveGifts";
@@ -6044,7 +6047,7 @@ class HaremGirl {
         $('#' + girlMenuButtonId).on("click", openGirlMenu);
     }
     static displayExpMenu(haremItem = HaremGirl.EXPERIENCE_TYPE) {
-        const selectedGirl = unsafeWindow.girl;
+        const selectedGirl = HaremGirl.getCurrentGirl();
         const menuID = "menuExp";
         //        const menuExp = '<div style="position: absolute;right: 50px;top: -10px; font-size: small;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExp","tooltip")+'</span><label style="width:100px" class="myButton" id="menuExp">'+getTextForUI("menuExp","elementText")+'</label></div>'
         const menuExpContent = '<div style="width:600px;justify-content: space-between;align-items: flex-start;"class="HHMenuRow">'
@@ -6083,7 +6086,7 @@ class HaremGirl {
     }
     static canGiftGirl() {
         try {
-            const girl = unsafeWindow.girl;
+            const girl = HaremGirl.getCurrentGirl();
             return girl.nb_grades > girl.graded && HaremGirl.getMaxOutButton(HaremGirl.AFFECTION_TYPE).length > 0;
         }
         catch (error) {
@@ -6093,7 +6096,7 @@ class HaremGirl {
     }
     static canAwakeGirl() {
         try {
-            const girl = unsafeWindow.girl;
+            const girl = HaremGirl.getCurrentGirl();
             const numberOfGem = unsafeWindow.player_gems_amount[girl.element].amount;
             return numberOfGem >= girl.awakening_costs;
         }
@@ -6106,7 +6109,7 @@ class HaremGirl {
         try {
             const canAwakeGirl = HaremGirl.canAwakeGirl();
             //const canGiftGirl = HaremGirl.canGiftGirl();
-            const girl = unsafeWindow.girl;
+            const girl = HaremGirl.getCurrentGirl();
             const numberOfGem = unsafeWindow.player_gems_amount[girl.element].amount;
             //logHHAuto("moduleHaremGirl: " + girl.id_girl);
             LogUtils_logHHAuto("Current level : " + girl.level + ', max level without gems : ' + girl.level_cap);
@@ -6136,7 +6139,7 @@ class HaremGirl {
                 const haremGirlLimit = getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlLimit");
                 const canGiftGirl = HaremGirl.canGiftGirl();
                 const canAwakeGirl = HaremGirl.canAwakeGirl();
-                const girl = unsafeWindow.girl;
+                const girl = HaremGirl.getCurrentGirl();
                 if (!haremItem) {
                     // No action to be peformed
                     return Promise.resolve(false);
@@ -6868,7 +6871,7 @@ class LeagueHelper {
         }
         return unsafeWindow.current_tier_number;
     }
-    static style() {
+    static styles() {
         GM_addStyle('#leagues .league_content .league_table .data-list .data-row .data-column[column="can_fight"] {'
             + 'min-width: 8.5rem;}');
         GM_addStyle('@media only screen and (min-width: 1026px) {'
@@ -7031,7 +7034,7 @@ class LeagueHelper {
                 LogUtils_logHHAuto('ERROR: Can\'t find opponent list');
                 return;
             }
-            let heroFighter = opponents_list.find((el) => el.player.id_fighter == getHHVars('Hero.infos.id')).player;
+            let heroFighter = opponents_list.find((el) => el.player.id_fighter == HeroHelper.getPlayerId()).player;
             const containsSimuScore = function (opponents) { return $('a[href*="id_opponent=' + opponents.player.id_fighter + '"] .matchRatingNew').length > 0; };
             const containsOcdScore = function (opponents) { return $('.matchRating', $('a[href*="id_opponent=' + opponents.player.id_fighter + '"]').parent()).length > 0; };
             let opponentsPowerList = LeagueHelper._getTempLeagueOpponentList();
@@ -7260,7 +7263,7 @@ class LeagueHelper {
         if (usePowerCalc) {
             opponentsPowerList = LeagueHelper._getTempLeagueOpponentList();
             try {
-                heroFighter = opponents_list === null || opponents_list === void 0 ? void 0 : opponents_list.find((el) => el.player.id_fighter == getHHVars('Hero.infos.id')).player;
+                heroFighter = opponents_list === null || opponents_list === void 0 ? void 0 : opponents_list.find((el) => el.player.id_fighter == HeroHelper.getPlayerId()).player;
             }
             catch (error) {
                 LogUtils_logHHAuto('Error, falback to not use powercalc');
@@ -9262,6 +9265,7 @@ class Shop {
         return false;
     }
     static moduleShopActions() {
+        var _a, _b, _c, _d, _e, _f, _g, _h;
         const itemsQuery = '#player-inventory.armor .slot:not(.empty):not([menuSellLocked]):not(.mythic)';
         appendMenuSell();
         /**
@@ -9485,8 +9489,8 @@ class Shop {
         var menuSellMaxItems = "all";
         let fetchStarted = false;
         //ugly hack
-        let loadingAnimationStart = unsafeWindow.loadingAnimation.start;
-        let loadingAnimationStop = unsafeWindow.loadingAnimation.stop;
+        let loadingAnimationStart = ((_a = unsafeWindow.loadingAnimation) === null || _a === void 0 ? void 0 : _a.start) || ((_d = (_c = (_b = unsafeWindow.shared) === null || _b === void 0 ? void 0 : _b.animations) === null || _c === void 0 ? void 0 : _c.loadingAnimation) === null || _d === void 0 ? void 0 : _d.start);
+        let loadingAnimationStop = ((_e = unsafeWindow.loadingAnimation) === null || _e === void 0 ? void 0 : _e.stop) || ((_h = (_g = (_f = unsafeWindow.shared) === null || _f === void 0 ? void 0 : _f.animations) === null || _g === void 0 ? void 0 : _g.loadingAnimation) === null || _h === void 0 ? void 0 : _h.stop);
         function appendMenuSell() {
             let menuID = "SellDialog";
             if (getShopType() !== "armor") {
@@ -9589,8 +9593,14 @@ class Shop {
                     $("menuSellStop").css("display", "block");
                     menuSellStop = false;
                     fetchStarted = true;
-                    unsafeWindow.loadingAnimation.start = function () { };
-                    unsafeWindow.loadingAnimation.stop = function () { };
+                    if (!!unsafeWindow.shared) {
+                        unsafeWindow.shared.animations.loadingAnimation.start = function () { };
+                        unsafeWindow.shared.animations.loadingAnimation.stop = function () { };
+                    }
+                    else {
+                        unsafeWindow.loadingAnimation.start = function () { };
+                        unsafeWindow.loadingAnimation.stop = function () { };
+                    }
                     if ($('#menuSellList>.tItems').length === 0) {
                         menuSellListItems();
                     }
@@ -9643,8 +9653,14 @@ class Shop {
             const SellDialog = document.getElementById("SellDialog");
             if (menuSellStop || allLoaded || oldCount >= Number(menuSellMaxItems) || !SellDialog.open) {
                 $("#menuSellStop").css("display", "none");
-                unsafeWindow.loadingAnimation.start = loadingAnimationStart;
-                unsafeWindow.loadingAnimation.stop = loadingAnimationStop;
+                if (!!unsafeWindow.shared) {
+                    unsafeWindow.shared.animations.loadingAnimation.start = loadingAnimationStart;
+                    unsafeWindow.shared.animations.loadingAnimation.stop = loadingAnimationStop;
+                }
+                else {
+                    unsafeWindow.loadingAnimation.start = loadingAnimationStart;
+                    unsafeWindow.loadingAnimation.stop = loadingAnimationStop;
+                }
                 fetchStarted = false;
                 scroll.scrollTop = 0;
                 if (SellDialog.open) {
@@ -14366,11 +14382,18 @@ function getGoToClubChampionButton() {
 ;// CONCATENATED MODULE: ./src/Helper/HHHelper.ts
 
 
+function prefixIfNeeded(infoSearched) {
+    if (!!unsafeWindow.shared && infoSearched.indexOf('Hero.') == 0) {
+        infoSearched = 'shared.' + infoSearched;
+    }
+    return infoSearched;
+}
 function getHHVars(infoSearched, logging = true) {
     let returnValue = unsafeWindow;
     if (ConfigHelper.getHHScriptVars(infoSearched, false) !== null) {
         infoSearched = ConfigHelper.getHHScriptVars(infoSearched);
     }
+    infoSearched = prefixIfNeeded(infoSearched);
     let splittedInfoSearched = infoSearched.split(".");
     for (let i = 0; i < splittedInfoSearched.length; i++) {
         if (returnValue[splittedInfoSearched[i]] === undefined) {
@@ -14390,6 +14413,7 @@ function setHHVars(infoSearched, newValue) {
     if (ConfigHelper.getHHScriptVars(infoSearched, false) !== null) {
         infoSearched = ConfigHelper.getHHScriptVars(infoSearched);
     }
+    infoSearched = prefixIfNeeded(infoSearched);
     let splittedInfoSearched = infoSearched.split(".");
     for (let i = 0; i < splittedInfoSearched.length; i++) {
         if (returnValue[splittedInfoSearched[i]] === undefined) {
@@ -14625,6 +14649,9 @@ function doStatUpgrades() {
     }
 }
 class HeroHelper {
+    static getPlayerId() {
+        return getHHVars('Hero.infos.id');
+    }
     static haveBoosterInInventory(idBooster) {
         const HaveBooster = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_haveBooster")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_haveBooster")) : {};
         const boosterOwned = HaveBooster.hasOwnProperty(idBooster) ? Number(HaveBooster[idBooster]) : 0;
@@ -15943,8 +15970,8 @@ function autoLoop() {
                 if (getStoredValue(HHStoredVarPrefixKey + "Setting_showCalculatePower") === "true") {
                     LeagueHelper.moduleSimLeague = callItOnce(LeagueHelper.moduleSimLeague);
                     LeagueHelper.moduleSimLeague();
-                    LeagueHelper.style = callItOnce(LeagueHelper.style);
-                    LeagueHelper.style();
+                    LeagueHelper.styles = callItOnce(LeagueHelper.styles);
+                    LeagueHelper.styles();
                 }
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDSeasonArena"):
@@ -16680,7 +16707,7 @@ function hardened_start() {
     }
 }
 function start() {
-    var _a, _b, _c, _d, _e, _f, _g;
+    var _a, _b, _c, _d, _e;
     if (unsafeWindow.Hero === undefined && ((_a = unsafeWindow.shared) === null || _a === void 0 ? void 0 : _a.Hero) === undefined) {
         LogUtils_logHHAuto('???no Hero???');
         $('.hh_logo').trigger('click');
@@ -16697,8 +16724,6 @@ function start() {
         unsafeWindow.Hero = (_b = unsafeWindow.shared) === null || _b === void 0 ? void 0 : _b.Hero;
         if (unsafeWindow.hh_ajax === undefined)
             unsafeWindow.hh_ajax = (_d = (_c = unsafeWindow.shared) === null || _c === void 0 ? void 0 : _c.general) === null || _d === void 0 ? void 0 : _d.hh_ajax;
-        if (unsafeWindow.loadingAnimation === undefined)
-            unsafeWindow.loadingAnimation = (_f = (_e = unsafeWindow.shared) === null || _e === void 0 ? void 0 : _e.animations) === null || _f === void 0 ? void 0 : _f.loadingAnimation;
     }
     StartService.checkVersion();
     Club.checkClubStatus();
@@ -16870,7 +16895,7 @@ function start() {
         }
         Alive();
     }
-    if (isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")) && ((_g = JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")).page) === null || _g === void 0 ? void 0 : _g.indexOf(".html")) > 0) {
+    if (isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")) && ((_e = JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")).page) === null || _e === void 0 ? void 0 : _e.indexOf(".html")) > 0) {
         //console.log("testingHome : setting to : "+getPage());
         setStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled", JSON.stringify({ page: getPage(), dateTime: new Date().getTime() }));
     }

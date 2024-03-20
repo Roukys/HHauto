@@ -34,9 +34,23 @@ describe("Season event", function () {
         MockHelper.mockPage('season_arena', '<div id="tier_indicator">'+tier+'</div>');
     }
 
+    function mockEnergiesKiss(amount: number, max: number) {
+        unsafeWindow.Hero.energies.kiss = {
+            amount: amount,
+            max_regen_amount: max
+        };
+    }
+
     beforeEach(() => {
         MockHelper.mockDomain();
         mockSeasonTierLevel(63);
+    });
+
+    describe("styles", function () {
+        it("default", function () {
+            expect(() => Season.styles()).not.toThrow();
+            expect(() => Season.stylesBattle()).not.toThrow();
+        });
     });
 
     describe("getBestOppo", function () {
@@ -214,6 +228,30 @@ describe("Season event", function () {
             result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_AB]);
             expect(result.chosenID).toBe(2);
             expect(result.numberOfReds).toBe(0);
+        });
+    });
+
+    describe("get kiss", function () {
+        beforeEach(() => {
+            MockHelper.mockHeroLevel(500);
+            mockEnergiesKiss(0,0);
+        });
+
+        it("default", function () {
+            expect(Season.getEnergy()).toBe(0);
+            expect(Season.getEnergyMax()).toBe(0);
+        });
+
+        it("5kiss over 10", function () {
+            mockEnergiesKiss(5, 10);
+            expect(Season.getEnergy()).toBe(5);
+            expect(Season.getEnergyMax()).toBe(10);
+        });
+
+        it("15kiss over 20", function () {
+            mockEnergiesKiss(15, 20);
+            expect(Season.getEnergy()).toBe(15);
+            expect(Season.getEnergyMax()).toBe(20);
         });
     });
 

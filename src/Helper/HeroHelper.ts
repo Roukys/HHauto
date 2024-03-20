@@ -68,6 +68,11 @@ export function doStatUpgrades()
 }
 
 export class HeroHelper {
+
+    static getPlayerId() {
+        return getHHVars('Hero.infos.id');
+    }
+
     static haveBoosterInInventory(idBooster:string) {
         const HaveBooster=isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_haveBooster"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_haveBooster")):{};
         const boosterOwned = HaveBooster.hasOwnProperty(idBooster) ? Number(HaveBooster[idBooster]) : 0;

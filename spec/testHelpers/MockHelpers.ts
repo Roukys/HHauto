@@ -29,7 +29,8 @@ export class MockHelper{
             name: "TOTO",
             infos: {
                 level: heroLevel
-            }
+            },
+            energies: {}
         };
     }
 }
