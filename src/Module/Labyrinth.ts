@@ -1,8 +1,10 @@
 import { 
     ConfigHelper,
+    TimeHelper,
     getHHVars,
     getPage,
     getStoredValue,
+    getTextForUI,
     queryStringGetParam,
     randomInterval,
     setStoredValue,
@@ -83,6 +85,60 @@ export class Labyrinth {
             }
         }
         return floor;
+    }
+
+    static moduleBuildTeam():void{
+        const buttonId = 'hhAutoLabyTeam';
+        if ($(`#${buttonId}`).length == 0) {
+            const button = $(`<button id="${buttonId}" class="blue_button_L" style="position: absolute; top: 45px; width: 100%;">${getTextForUI("autoLabyrinthBuildTeam", "elementText") }</button>`);
+            // button.css('display', 'none');
+
+            $('#edit-team-page .boss-bang-panel').append(button);
+
+            button.on('click', Labyrinth._buildTeam);
+            GM_registerMenuCommand(getTextForUI("autoLabyrinthBuildTeam", "elementText"), Labyrinth._buildTeam);
+        }
+    }
+
+    static async _buildTeam() {
+        $('#auto-fill-team:not([disabled])').trigger('click');
+
+        const girlSelector = '.team-hexagon .back-column .team-member-container.selectable'; //back, mean front
+        const firstTeamGirl = $(girlSelector + '[data-team-member-position="2"]');
+        const secondTeamGirl = $(girlSelector + '[data-team-member-position="3"]');
+
+        firstTeamGirl.trigger('click');
+        await TimeHelper.sleep(randomInterval(400, 700));
+        Labyrinth.clickHaremGirl(1);
+        await TimeHelper.sleep(randomInterval(400, 700));
+        secondTeamGirl.trigger('click');
+        await TimeHelper.sleep(randomInterval(400, 700));
+        Labyrinth.clickHaremGirl(2);
+    }
+
+    static clickHaremGirl(index: number) {
+        const haremGirlSelector = '.harem-panel-girls .harem-girl-container';
+        const hardCoreGirls = [];
+
+        let girls = $(haremGirlSelector);
+        for (let i = 0; i < girls.length; i++) {
+            const tooltipData = $('.girl_img', $(girls[i])).attr(<string>ConfigHelper.getHHScriptVars('girlToolTipData')) || '';
+            if (tooltipData == '') {
+                logHHAuto('ERROR, no girl information found');
+                continue;
+            }
+            const obj = JSON.parse(tooltipData);
+            const remainingEgo = Number($('.ego-bar-container span', $(girls[i])).text().replace('%', ''))
+            if (obj.class == 1 && remainingEgo > 50) {
+                hardCoreGirls.push($(girls[i]));
+            }
+            if (index <= hardCoreGirls.length) break;
+        }
+        if (hardCoreGirls.length >= index) {
+            hardCoreGirls[index-1].trigger('click');
+        } else {
+            logHHAuto('Error, not enough girls found');
+        }
     }
 
     static sim(){

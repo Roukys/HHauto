@@ -246,6 +246,7 @@ HHAuto_ToolTips.en['autoGiveAff'] = {version: "5.6.24", elementText: "Auto Give"
 HHAuto_ToolTips.en['autoGiveExp'] = {version: "5.6.24", elementText: "Auto Give", tooltip: "If enabled, will automatically give Exp to girls in order ( you can use OCD script to filter )."};
 HHAuto_ToolTips.en['autoPantheonTitle'] = {version: "5.6.24", elementText: "Pantheon", tooltip: ""};
 HHAuto_ToolTips.en['autoLabyrinth'] = { version: "6.18.0", elementText: "Labyrinth", tooltip: "if enabled : Automatically do Labyrinth"};
+HHAuto_ToolTips.en['autoLabyrinthBuildTeam'] = { version: "7.7.0", elementText: "Select two tanks", tooltip: "Select two tanks for the front row"};
 HHAuto_ToolTips.en['autoPantheon'] = { version: "6.8.0", elementText: "Pantheon", tooltip: "if enabled : Automatically do Pantheon"};
 HHAuto_ToolTips.en['autoPantheonThreshold'] = { version: "5.6.24", elementText: "Threshold", tooltip: "Minimum worship to keep<br>Max 10"};
 HHAuto_ToolTips.en['autoPantheonRunThreshold'] = { version: "6.8.0", elementText: "Run Threshold", tooltip: "Minimum worship before script start spending<br> 0 to spend as soon as energy above threshold"};
