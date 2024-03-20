@@ -1108,6 +1108,9 @@ export async function autoLoop()
                 Labyrinth.sim();
             }
             break;
+        case ConfigHelper.getHHScriptVars("pagesIDEditLabyrinthTeam"):
+            Labyrinth.moduleBuildTeam();
+            break;
     }
 
     if (busy === false && !mouseBusy && getStoredValue(HHStoredVarPrefixKey + "Setting_paranoia") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_master") === "true" && isAutoLoopActive()) {

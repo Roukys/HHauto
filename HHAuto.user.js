@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.6.3
+// @version      7.7.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -633,6 +633,7 @@ HHAuto_ToolTips.en['autoGiveAff'] = { version: "5.6.24", elementText: "Auto Give
 HHAuto_ToolTips.en['autoGiveExp'] = { version: "5.6.24", elementText: "Auto Give", tooltip: "If enabled, will automatically give Exp to girls in order ( you can use OCD script to filter )." };
 HHAuto_ToolTips.en['autoPantheonTitle'] = { version: "5.6.24", elementText: "Pantheon", tooltip: "" };
 HHAuto_ToolTips.en['autoLabyrinth'] = { version: "6.18.0", elementText: "Labyrinth", tooltip: "if enabled : Automatically do Labyrinth" };
+HHAuto_ToolTips.en['autoLabyrinthBuildTeam'] = { version: "7.7.0", elementText: "Select two tanks", tooltip: "Select two tanks for the front row" };
 HHAuto_ToolTips.en['autoPantheon'] = { version: "6.8.0", elementText: "Pantheon", tooltip: "if enabled : Automatically do Pantheon" };
 HHAuto_ToolTips.en['autoPantheonThreshold'] = { version: "5.6.24", elementText: "Threshold", tooltip: "Minimum worship to keep<br>Max 10" };
 HHAuto_ToolTips.en['autoPantheonRunThreshold'] = { version: "6.8.0", elementText: "Run Threshold", tooltip: "Minimum worship before script start spending<br> 0 to spend as soon as energy above threshold" };
@@ -6583,6 +6584,15 @@ class HaremSalary {
 }
 
 ;// CONCATENATED MODULE: ./src/Module/Labyrinth.ts
+var Labyrinth_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 
 
 
@@ -6642,6 +6652,56 @@ class Labyrinth {
             }
         }
         return floor;
+    }
+    static moduleBuildTeam() {
+        const buttonId = 'hhAutoLabyTeam';
+        if ($(`#${buttonId}`).length == 0) {
+            const button = $(`<button id="${buttonId}" class="blue_button_L" style="position: absolute; top: 45px; width: 100%;">${getTextForUI("autoLabyrinthBuildTeam", "elementText")}</button>`);
+            // button.css('display', 'none');
+            $('#edit-team-page .boss-bang-panel').append(button);
+            button.on('click', Labyrinth._buildTeam);
+            GM_registerMenuCommand(getTextForUI("autoLabyrinthBuildTeam", "elementText"), Labyrinth._buildTeam);
+        }
+    }
+    static _buildTeam() {
+        return Labyrinth_awaiter(this, void 0, void 0, function* () {
+            $('#auto-fill-team:not([disabled])').trigger('click');
+            const girlSelector = '.team-hexagon .back-column .team-member-container.selectable'; //back, mean front
+            const firstTeamGirl = $(girlSelector + '[data-team-member-position="2"]');
+            const secondTeamGirl = $(girlSelector + '[data-team-member-position="3"]');
+            firstTeamGirl.trigger('click');
+            yield TimeHelper.sleep(randomInterval(400, 700));
+            Labyrinth.clickHaremGirl(1);
+            yield TimeHelper.sleep(randomInterval(400, 700));
+            secondTeamGirl.trigger('click');
+            yield TimeHelper.sleep(randomInterval(400, 700));
+            Labyrinth.clickHaremGirl(2);
+        });
+    }
+    static clickHaremGirl(index) {
+        const haremGirlSelector = '.harem-panel-girls .harem-girl-container';
+        const hardCoreGirls = [];
+        let girls = $(haremGirlSelector);
+        for (let i = 0; i < girls.length; i++) {
+            const tooltipData = $('.girl_img', $(girls[i])).attr(ConfigHelper.getHHScriptVars('girlToolTipData')) || '';
+            if (tooltipData == '') {
+                LogUtils_logHHAuto('ERROR, no girl information found');
+                continue;
+            }
+            const obj = JSON.parse(tooltipData);
+            const remainingEgo = Number($('.ego-bar-container span', $(girls[i])).text().replace('%', ''));
+            if (obj.class == 1 && remainingEgo > 50) {
+                hardCoreGirls.push($(girls[i]));
+            }
+            if (index <= hardCoreGirls.length)
+                break;
+        }
+        if (hardCoreGirls.length >= index) {
+            hardCoreGirls[index - 1].trigger('click');
+        }
+        else {
+            LogUtils_logHHAuto('Error, not enough girls found');
+        }
     }
     static sim() {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDLabyrinth")) {
@@ -16049,6 +16109,9 @@ function autoLoop() {
                     Labyrinth.sim = callItOnce(Labyrinth.sim);
                     Labyrinth.sim();
                 }
+                break;
+            case ConfigHelper.getHHScriptVars("pagesIDEditLabyrinthTeam"):
+                Labyrinth.moduleBuildTeam();
                 break;
         }
         if (busy === false && !mouseBusy && getStoredValue(HHStoredVarPrefixKey + "Setting_paranoia") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_master") === "true" && isAutoLoopActive()) {
