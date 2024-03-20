@@ -927,14 +927,14 @@ export async function autoLoop()
         case ConfigHelper.getHHScriptVars("pagesIDSeasonArena"):
             if (getStoredValue(HHStoredVarPrefixKey+"Setting_showCalculatePower") === "true" && $("div.matchRatingNew img#powerLevelScouter").length < 3)
             {
+                Season.stylesBattle = callItOnce(Season.stylesBattle);
+                Season.stylesBattle();
                 Season.moduleSimSeasonBattle();
             }
             break;
         case ConfigHelper.getHHScriptVars("pagesIDSeason"):
-            if (getStoredValue(HHStoredVarPrefixKey+"Setting_SeasonMaskRewards") === "true")
-            {
-                setTimeout(Season.maskReward,500);
-            }
+            Season.styles = callItOnce(Season.styles);
+            Season.styles();
             Season.getRemainingTime = callItOnce(Season.getRemainingTime);
             Season.getRemainingTime();
             if (getStoredValue(HHStoredVarPrefixKey+"Setting_showRewardsRecap") === "true")

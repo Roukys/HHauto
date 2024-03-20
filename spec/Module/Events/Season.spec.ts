@@ -1,0 +1,220 @@
+import { Season } from "../../../src/Module/index";
+import { BDSMSimu, SeasonOpponent } from "../../../src/model/index";
+import { MockHelper } from "../../testHelpers/MockHelpers";
+
+describe("Season event", function () {
+
+    const GOOD_SIMU: BDSMSimu = { win: 95, scoreClass: 'plus' } as BDSMSimu;
+    const NEUTRAL_SIMU: BDSMSimu = { win: 65, scoreClass: 'close' } as BDSMSimu;
+    const BAD_SIMU: BDSMSimu = { win: 5, scoreClass: 'minus' } as BDSMSimu;
+
+    const OPPO_A: SeasonOpponent = new SeasonOpponent(
+        123, 'OPPO_A',
+        20, // mojo
+        8,
+        8,
+        GOOD_SIMU
+    );
+    const OPPO_B: SeasonOpponent = new SeasonOpponent(
+        456, 'OPPO_B',
+        15, // mojo
+        8,
+        8,
+        NEUTRAL_SIMU
+    );
+    const OPPO_C: SeasonOpponent = new SeasonOpponent(
+        789, 'OPPO_C',
+        10, // mojo
+        8,
+        8,
+        BAD_SIMU
+    );
+
+    function mockSeasonTierLevel(tier:number = 1){
+        MockHelper.mockPage('season_arena', '<div id="tier_indicator">'+tier+'</div>');
+    }
+
+    beforeEach(() => {
+        MockHelper.mockDomain();
+        mockSeasonTierLevel(63);
+    });
+
+    describe("getBestOppo", function () {
+
+        it("Same oppo", function () {
+            let result = Season.getBestOppo([OPPO_A, OPPO_A, OPPO_A]);
+            expect(result.chosenID).toBe(0);
+            expect(result.numberOfReds).toBe(0);
+
+            result = Season.getBestOppo([OPPO_B, OPPO_B, OPPO_B]);
+            expect(result.chosenID).toBe(0);
+            expect(result.numberOfReds).toBe(0);
+
+            result = Season.getBestOppo([OPPO_C, OPPO_C, OPPO_C]);
+            expect(result.chosenID).toBe(0);
+            expect(result.numberOfReds).toBe(3);
+        });
+
+        it("One good oppo", function () {
+            expect(Season.getBestOppo([OPPO_A, OPPO_B, OPPO_C]).chosenID).toBe(0);
+            expect(Season.getBestOppo([OPPO_A, OPPO_B, OPPO_C]).numberOfReds).toBe(1);
+            expect(Season.getBestOppo([OPPO_B, OPPO_A, OPPO_C]).chosenID).toBe(1);
+            expect(Season.getBestOppo([OPPO_C, OPPO_B, OPPO_A]).chosenID).toBe(2);
+        });
+
+        it("same orange flag but better score", function () {
+            const OPPO_BA = { ...OPPO_B };
+            OPPO_BA.simu = { ...OPPO_B.simu };
+            OPPO_BA.simu.win = 70;
+            let result = Season.getBestOppo([OPPO_B, OPPO_BA, OPPO_C]);
+            expect(result.chosenID).toBe(1);
+            expect(result.numberOfReds).toBe(1);
+            const OPPO_BB = { ...OPPO_B };
+            OPPO_BB.simu = { ...OPPO_B.simu };
+            OPPO_BB.simu.win = 75;
+            result = Season.getBestOppo([OPPO_B, OPPO_BA, OPPO_BB]);
+            expect(result.chosenID).toBe(2);
+            expect(result.numberOfReds).toBe(0);
+        });
+
+        it("same red flag but better mojo", function () {
+            const OPPO_CA = { ...OPPO_C };
+            OPPO_CA.mojo = 15;
+            let result = Season.getBestOppo([OPPO_C, OPPO_CA, OPPO_C]);
+            expect(result.chosenID).toBe(1);
+            expect(result.numberOfReds).toBe(3);
+
+            const OPPO_CB = { ...OPPO_C };
+            OPPO_CB.mojo = 18;
+            result = Season.getBestOppo([OPPO_C, OPPO_CA, OPPO_CB]);
+            expect(result.chosenID).toBe(2);
+            expect(result.numberOfReds).toBe(3);
+        });
+
+        it("same red flag same mojo but better score", function () {
+            const OPPO_CA = { ...OPPO_C };
+            OPPO_CA.simu = { ...OPPO_C.simu };
+            OPPO_CA.simu.win = 15;
+            let result = Season.getBestOppo([OPPO_C, OPPO_CA, OPPO_C]);
+            expect(result.chosenID).toBe(1);
+            expect(result.numberOfReds).toBe(3);
+
+            const OPPO_CB = { ...OPPO_C };
+            OPPO_CB.simu = { ...OPPO_C.simu };
+            OPPO_CB.simu.win = 16;
+            result = Season.getBestOppo([OPPO_C, OPPO_CA, OPPO_CB]);
+            expect(result.chosenID).toBe(2);
+            expect(result.numberOfReds).toBe(3);
+        });
+
+        it("same green flag but better mojo", function () {
+            const OPPO_AA = { ...OPPO_A };
+            OPPO_AA.mojo = 22;
+            let result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_A]);
+            expect(result.chosenID).toBe(1);
+            expect(result.numberOfReds).toBe(0);
+
+            const OPPO_AB = { ...OPPO_A };
+            OPPO_AB.mojo = 23;
+            result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_AB]);
+            expect(result.chosenID).toBe(2);
+            expect(result.numberOfReds).toBe(0);
+        });
+
+        it("same green flag same mojo but better gains", function () {
+            const OPPO_AA = { ...OPPO_A };
+            OPPO_AA.aff = 9
+            let result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_A]);
+            expect(result.chosenID).toBe(1);
+            expect(result.numberOfReds).toBe(0);
+
+            const OPPO_AB = { ...OPPO_A };
+            OPPO_AB.aff = 10;
+            result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_AB]);
+            expect(result.chosenID).toBe(2);
+            expect(result.numberOfReds).toBe(0);
+        });
+
+        it("same green flag same mojo same gains but better score", function () {
+            const OPPO_AA = { ...OPPO_A };
+            OPPO_AA.simu = { ...OPPO_A.simu };
+            OPPO_AA.simu.win = 97;
+            let result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_A]);
+            expect(result.chosenID).toBe(1);
+            expect(result.numberOfReds).toBe(0);
+
+            const OPPO_AB = { ...OPPO_A };
+            OPPO_AB.simu = { ...OPPO_A.simu };
+            OPPO_AB.simu.win = 98;
+            result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_AB]);
+            expect(result.chosenID).toBe(2);
+            expect(result.numberOfReds).toBe(0);
+        });
+
+
+        it("same green flag but better mojo and then better gains", function () {
+            const OPPO_AA = { ...OPPO_A };
+            OPPO_AA.mojo = 22;
+            let result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_A]);
+            expect(result.chosenID).toBe(1);
+            expect(result.numberOfReds).toBe(0);
+
+            const OPPO_AB = { ...OPPO_A };
+            OPPO_AB.mojo = 22;
+            OPPO_AB.aff = 10;
+            result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_AB]);
+            expect(result.chosenID).toBe(2);
+            expect(result.numberOfReds).toBe(0);
+
+            result = Season.getBestOppo([OPPO_A, OPPO_AB, OPPO_AA]);
+            expect(result.chosenID).toBe(1);
+        });
+
+        it("same green flag but better gains and then better mojo", function () {
+            const OPPO_AA = { ...OPPO_A };
+            OPPO_AA.aff = 10;
+
+            const OPPO_AB = { ...OPPO_A };
+            OPPO_AB.mojo = 22;
+            let result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_AB]);
+            expect(result.chosenID).toBe(2);
+            expect(result.numberOfReds).toBe(0);
+        });
+    });
+
+    describe("getBestOppo end season", function () {
+        beforeEach(() => {
+            mockSeasonTierLevel(64);
+        });
+
+        it("same green flag but better gains and then better mojo", function () {
+            const OPPO_AA = { ...OPPO_A };
+            OPPO_AA.aff = 10;
+
+            const OPPO_AB = { ...OPPO_A };
+            OPPO_AB.mojo = 22;
+            let result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_AB]);
+            expect(result.chosenID).toBe(2);
+            expect(result.numberOfReds).toBe(0);
+        });
+
+        it("same green flag same mojo same gains but better score", function () {
+            const OPPO_AA = { ...OPPO_A };
+            OPPO_AA.simu = { ...OPPO_A.simu };
+            OPPO_AA.mojo = 25
+            OPPO_AA.simu.win = 97;
+            let result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_A]);
+            expect(result.chosenID).toBe(1);
+            expect(result.numberOfReds).toBe(0);
+
+            const OPPO_AB = { ...OPPO_A };
+            OPPO_AB.simu = { ...OPPO_A.simu };
+            OPPO_AA.mojo = 5
+            OPPO_AB.simu.win = 98;
+            result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_AB]);
+            expect(result.chosenID).toBe(2);
+            expect(result.numberOfReds).toBe(0);
+        });
+    });
+
+});
