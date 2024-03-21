@@ -33,4 +33,39 @@ export class MockHelper{
             energies: {}
         };
     }
+    
+    static mockEnergiesFight(amount: number, max: number) {
+        unsafeWindow.Hero.energies.fight = {
+            amount: amount,
+            max_regen_amount: max
+        };
+    }
+
+    static mockEnergiesChallenge(amount: number, max: number) {
+        unsafeWindow.Hero.energies.challenge = {
+            amount: amount,
+            max_regen_amount: max
+        };
+    }
+
+    static mockEnergiesKiss(amount: number, max: number) {
+        unsafeWindow.Hero.energies.kiss = {
+            amount: amount,
+            max_regen_amount: max
+        };
+    }
+
+    static mockEnergiesQuest(amount: number, max: number) {
+        unsafeWindow.Hero.energies.quest = {
+            amount: amount,
+            max_regen_amount: max
+        };
+    }
+
+    static mockEnergiesWorship(amount: number, max: number) {
+        unsafeWindow.Hero.energies.worship = {
+            amount: amount,
+            max_regen_amount: max
+        };
+    }
 }

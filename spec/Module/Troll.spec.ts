@@ -6,13 +6,6 @@ import { MockHelper } from '../testHelpers/MockHelpers';
 
 describe("Troll module", function () {
 
-    function mockEnergiesFight(amount: number, max: number) {
-        unsafeWindow.Hero.energies.fight = {
-            amount: amount,
-            max_regen_amount: max
-        };
-    }
-
     beforeEach(() => {
         MockHelper.mockDomain('www.hentaiheroes.com');
         // MockHelper.mockPage('champions_map');
@@ -67,7 +60,7 @@ describe("Troll module", function () {
     describe("get Fight", function () {
         beforeEach(() => {
             MockHelper.mockHeroLevel(500);
-            mockEnergiesFight(0, 0);
+            MockHelper.mockEnergiesFight(0, 0);
         });
 
         it("default", function () {
@@ -76,13 +69,13 @@ describe("Troll module", function () {
         });
 
         it("5kiss over 10", function () {
-            mockEnergiesFight(5, 10);
+            MockHelper.mockEnergiesFight(5, 10);
             expect(Troll.getEnergy()).toBe(5);
             expect(Troll.getEnergyMax()).toBe(10);
         });
 
         it("15kiss over 20", function () {
-            mockEnergiesFight(15, 20);
+            MockHelper.mockEnergiesFight(15, 20);
             expect(Troll.getEnergy()).toBe(15);
             expect(Troll.getEnergyMax()).toBe(20);
         });
