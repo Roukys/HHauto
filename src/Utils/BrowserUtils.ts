@@ -2,7 +2,7 @@ export function getBrowserData(nav: Navigator) {
     let name:string, version;
 
     var ua = nav.userAgent;
-    var browserMatch = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*([\d\.]+)/i) || [];
+    var browserMatch = ua.match(/(opera|chrome|safari|firefox|Edg|msie|trident(?=\/))\/?\s*([\d\.]+)/i) || [];
     if (browserMatch[1]) { browserMatch[1] = browserMatch[1].toLowerCase(); }
     var operaMatch;
     if (browserMatch[1] === 'chrome') { operaMatch = ua.match(/\bOPR\/([\d\.]+)/); }

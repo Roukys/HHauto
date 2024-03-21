@@ -13737,7 +13737,7 @@ function getLocalStorageSize() {
 function getBrowserData(nav) {
     let name, version;
     var ua = nav.userAgent;
-    var browserMatch = ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*([\d\.]+)/i) || [];
+    var browserMatch = ua.match(/(opera|chrome|safari|firefox|Edg|msie|trident(?=\/))\/?\s*([\d\.]+)/i) || [];
     if (browserMatch[1]) {
         browserMatch[1] = browserMatch[1].toLowerCase();
     }
