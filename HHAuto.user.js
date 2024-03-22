@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.7.1
+// @version      7.7.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -2037,24 +2037,26 @@ class EventModule {
     }
     static showCompletedEvent() {
         try {
-            let oneEventCompleted = false;
-            if ($('img.eventCompleted').length <= 0 && $(`#contains_all #homepage .event-widget a:not([href="#"])`).length > 0) {
-                const img = $(`<div class="tooltipHH" style="display: inline-block;">`
-                    + `<span class="tooltipHHtext">${getTextForUI('eventCompleted', "tooltip")}</span>`
-                    + `<img src=${ConfigHelper.getHHScriptVars("powerCalcImages")['plus']} class="eventCompleted" title="${getTextForUI('eventCompleted', "tooltip")}" />`
-                    + `</div>`);
-                const eventList = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) : {};
-                for (let eventID of Object.keys(eventList)) {
-                    if (eventList[eventID]["isCompleted"]) {
-                        const eventTimer = $(`#contains_all #homepage .event-widget a[href*="${eventID}"] .timer p`);
-                        eventTimer.append(img);
-                        oneEventCompleted = true;
+            if ($('img.eventCompleted').length <= 0) {
+                let oneEventCompleted = false;
+                if ($(`#contains_all #homepage .event-widget a:not([href="#"])`).length > 0) {
+                    const img = $(`<div class="tooltipHH" style="display: inline-block;">`
+                        + `<span class="tooltipHHtext">${getTextForUI('eventCompleted', "tooltip")}</span>`
+                        + `<img src=${ConfigHelper.getHHScriptVars("powerCalcImages")['plus']} class="eventCompleted" title="${getTextForUI('eventCompleted', "tooltip")}" />`
+                        + `</div>`);
+                    const eventList = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) : {};
+                    for (let eventID of Object.keys(eventList)) {
+                        if (eventList[eventID]["isCompleted"]) {
+                            const eventTimer = $(`#contains_all #homepage .event-widget a[href*="${eventID}"] .timer p`);
+                            eventTimer.append(img);
+                            oneEventCompleted = true;
+                        }
                     }
                 }
-            }
-            if (!oneEventCompleted) {
-                const eventTimer = $(`#contains_all #homepage`);
-                eventTimer.append($(`<img src=${ConfigHelper.getHHScriptVars("powerCalcImages")['minus']} class="eventCompleted" style="display:none" />`));
+                if (!oneEventCompleted) {
+                    const eventTimer = $(`#contains_all #homepage`);
+                    eventTimer.append($(`<img src=${ConfigHelper.getHHScriptVars("powerCalcImages")['minus']} class="eventCompleted" style="display:none" />`));
+                }
             }
         }
         catch (error) { /* ignore errors */ }
@@ -6672,20 +6674,40 @@ class Labyrinth {
             const girlSelector = '.team-hexagon .back-column .team-member-container.selectable'; //back, mean front
             const firstTeamGirl = $(girlSelector + '[data-team-member-position="2"]');
             const secondTeamGirl = $(girlSelector + '[data-team-member-position="3"]');
-            firstTeamGirl.trigger('click');
-            yield TimeHelper.sleep(randomInterval(400, 700));
-            Labyrinth.clickHaremGirl(1);
-            yield TimeHelper.sleep(randomInterval(400, 700));
-            secondTeamGirl.trigger('click');
-            yield TimeHelper.sleep(randomInterval(400, 700));
-            Labyrinth.clickHaremGirl(2);
+            // const lowPowerGirls = Labyrinth.getLowPowerTeamMember();
+            // if (lowPowerGirls.length > 0) {
+            //     try{
+            //         const freeGirls = Labyrinth.getHaremGirl(0, true, lowPowerGirls.length);
+            //         for (let i = 0; i < lowPowerGirls.length; i++) {
+            //             lowPowerGirls[i].trigger('click');
+            //             await TimeHelper.sleep(randomInterval(400, 700));
+            //             freeGirls[i].trigger('click');
+            //             await TimeHelper.sleep(randomInterval(400, 700));
+            //         }
+            //     } catch (err) {
+            //         logHHAuto('Error during changing low power girls');
+            //     }
+            // }
+            const hcGirls = Labyrinth.getHaremGirl(1);
+            if (hcGirls.length < 2) {
+                LogUtils_logHHAuto('Error, not enough HC girls');
+            }
+            else {
+                firstTeamGirl.trigger('click');
+                yield TimeHelper.sleep(randomInterval(400, 700));
+                hcGirls[0].trigger('click');
+                yield TimeHelper.sleep(randomInterval(400, 700));
+                secondTeamGirl.trigger('click');
+                yield TimeHelper.sleep(randomInterval(400, 700));
+                hcGirls[1].trigger('click');
+            }
         });
     }
-    static clickHaremGirl(index) {
-        const haremGirlSelector = '.harem-panel-girls .harem-girl-container';
+    static getHaremGirl(girlClass = 0, excludeSelected = false, numberOfGirls = 2) {
+        const haremGirlSelector = '.harem-panel-girls .harem-girl-container' + (excludeSelected ? ':not(.selected)' : '');
         const hardCoreGirls = [];
         let girls = $(haremGirlSelector);
-        for (let i = 0; i < girls.length; i++) {
+        for (let i = 0; i < girls.length && hardCoreGirls.length <= numberOfGirls; i++) {
             const tooltipData = $('.girl_img', $(girls[i])).attr(ConfigHelper.getHHScriptVars('girlToolTipData')) || '';
             if (tooltipData == '') {
                 LogUtils_logHHAuto('ERROR, no girl information found');
@@ -6693,18 +6715,26 @@ class Labyrinth {
             }
             const obj = JSON.parse(tooltipData);
             const remainingEgo = Number($('.ego-bar-container span', $(girls[i])).text().replace('%', ''));
-            if (obj.class == 1 && remainingEgo > 50) {
+            if ((girlClass == 0 || obj.class == girlClass) && remainingEgo > 50) {
                 hardCoreGirls.push($(girls[i]));
             }
-            if (index <= hardCoreGirls.length)
-                break;
         }
-        if (hardCoreGirls.length >= index) {
-            hardCoreGirls[index - 1].trigger('click');
+        return hardCoreGirls;
+    }
+    static getLowPowerTeamMember() {
+        const teamGirlSelector = '.team-hexagon .team-member-container';
+        const haremGirlSelector = '.harem-panel-girls .harem-girl-container.selected';
+        const lowPowerGirls = [];
+        let haremGirls = $(haremGirlSelector);
+        for (let i = 0; i < haremGirls.length; i++) {
+            const id_girl = $(haremGirls[i]).attr('id_girl');
+            const remainingEgo = Number($('.ego-bar-container span', $(haremGirls[i])).text().replace('%', ''));
+            if (remainingEgo > 0 && remainingEgo < 30) {
+                LogUtils_logHHAuto(`Adding low power girl ${id_girl}`);
+                lowPowerGirls.push($(teamGirlSelector + '[data-girl-id="' + id_girl + '"]'));
+            }
         }
-        else {
-            LogUtils_logHHAuto('Error, not enough girls found');
-        }
+        return lowPowerGirls;
     }
     static sim() {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDLabyrinth")) {

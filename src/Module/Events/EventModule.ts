@@ -161,27 +161,29 @@ export class EventModule {
 
     static showCompletedEvent(){
         try {
-            let oneEventCompleted = false;
-            if($('img.eventCompleted').length <= 0 && $(`#contains_all #homepage .event-widget a:not([href="#"])`).length > 0) {
-                const img = $(`<div class="tooltipHH" style="display: inline-block;">`
-                                +`<span class="tooltipHHtext">${getTextForUI('eventCompleted',"tooltip")}</span>`
-                                +`<img src=${ConfigHelper.getHHScriptVars("powerCalcImages")['plus']} class="eventCompleted" title="${getTextForUI('eventCompleted',"tooltip")}" />`
-                            +`</div>`);
+            if($('img.eventCompleted').length <= 0) {
+                let oneEventCompleted = false;
+                if($(`#contains_all #homepage .event-widget a:not([href="#"])`).length > 0) {
+                    const img = $(`<div class="tooltipHH" style="display: inline-block;">`
+                                    +`<span class="tooltipHHtext">${getTextForUI('eventCompleted',"tooltip")}</span>`
+                                    +`<img src=${ConfigHelper.getHHScriptVars("powerCalcImages")['plus']} class="eventCompleted" title="${getTextForUI('eventCompleted',"tooltip")}" />`
+                                +`</div>`);
 
-                const eventList = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsList")):{};
-                for (let eventID of Object.keys(eventList))
-                {
-                    if (eventList[eventID]["isCompleted"])
+                    const eventList = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsList")):{};
+                    for (let eventID of Object.keys(eventList))
                     {
-                        const eventTimer = $(`#contains_all #homepage .event-widget a[href*="${eventID}"] .timer p`);
-                        eventTimer.append(img);
-                        oneEventCompleted = true;
+                        if (eventList[eventID]["isCompleted"])
+                        {
+                            const eventTimer = $(`#contains_all #homepage .event-widget a[href*="${eventID}"] .timer p`);
+                            eventTimer.append(img);
+                            oneEventCompleted = true;
+                        }
                     }
                 }
-            }
-            if(!oneEventCompleted) {
-                const eventTimer = $(`#contains_all #homepage`);
-                eventTimer.append($(`<img src=${ConfigHelper.getHHScriptVars("powerCalcImages")['minus']} class="eventCompleted" style="display:none" />`));
+                if(!oneEventCompleted) {
+                    const eventTimer = $(`#contains_all #homepage`);
+                    eventTimer.append($(`<img src=${ConfigHelper.getHHScriptVars("powerCalcImages")['minus']} class="eventCompleted" style="display:none" />`));
+                }
             }
         } catch (error) { /* ignore errors */}
     }
