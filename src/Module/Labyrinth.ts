@@ -107,21 +107,43 @@ export class Labyrinth {
         const firstTeamGirl = $(girlSelector + '[data-team-member-position="2"]');
         const secondTeamGirl = $(girlSelector + '[data-team-member-position="3"]');
 
-        firstTeamGirl.trigger('click');
-        await TimeHelper.sleep(randomInterval(400, 700));
-        Labyrinth.clickHaremGirl(1);
-        await TimeHelper.sleep(randomInterval(400, 700));
-        secondTeamGirl.trigger('click');
-        await TimeHelper.sleep(randomInterval(400, 700));
-        Labyrinth.clickHaremGirl(2);
+        // const lowPowerGirls = Labyrinth.getLowPowerTeamMember();
+        // if (lowPowerGirls.length > 0) {
+        //     try{
+        //         const freeGirls = Labyrinth.getHaremGirl(0, true, lowPowerGirls.length);
+
+        //         for (let i = 0; i < lowPowerGirls.length; i++) {
+        //             lowPowerGirls[i].trigger('click');
+        //             await TimeHelper.sleep(randomInterval(400, 700));
+        //             freeGirls[i].trigger('click');
+        //             await TimeHelper.sleep(randomInterval(400, 700));
+        //         }
+        //     } catch (err) {
+        //         logHHAuto('Error during changing low power girls');
+        //     }
+        // }
+
+        const hcGirls = Labyrinth.getHaremGirl(1);
+        if(hcGirls.length < 2) {
+            logHHAuto('Error, not enough HC girls');
+        } else {
+            firstTeamGirl.trigger('click');
+            await TimeHelper.sleep(randomInterval(400, 700));
+            hcGirls[0].trigger('click');
+            await TimeHelper.sleep(randomInterval(400, 700));
+
+            secondTeamGirl.trigger('click');
+            await TimeHelper.sleep(randomInterval(400, 700));
+            hcGirls[1].trigger('click');
+        }
     }
 
-    static clickHaremGirl(index: number) {
-        const haremGirlSelector = '.harem-panel-girls .harem-girl-container';
+    static getHaremGirl(girlClass: number = 0, excludeSelected = false, numberOfGirls: number = 2): JQuery<HTMLElement>[] {
+        const haremGirlSelector = '.harem-panel-girls .harem-girl-container' + (excludeSelected ? ':not(.selected)' : '');
         const hardCoreGirls = [];
 
         let girls = $(haremGirlSelector);
-        for (let i = 0; i < girls.length; i++) {
+        for (let i = 0; i < girls.length && hardCoreGirls.length <= numberOfGirls; i++) {
             const tooltipData = $('.girl_img', $(girls[i])).attr(<string>ConfigHelper.getHHScriptVars('girlToolTipData')) || '';
             if (tooltipData == '') {
                 logHHAuto('ERROR, no girl information found');
@@ -129,16 +151,29 @@ export class Labyrinth {
             }
             const obj = JSON.parse(tooltipData);
             const remainingEgo = Number($('.ego-bar-container span', $(girls[i])).text().replace('%', ''))
-            if (obj.class == 1 && remainingEgo > 50) {
+            if ((girlClass == 0 || obj.class == girlClass) && remainingEgo > 50) {
                 hardCoreGirls.push($(girls[i]));
             }
-            if (index <= hardCoreGirls.length) break;
         }
-        if (hardCoreGirls.length >= index) {
-            hardCoreGirls[index-1].trigger('click');
-        } else {
-            logHHAuto('Error, not enough girls found');
+        return hardCoreGirls;
+    }
+
+    static getLowPowerTeamMember(): JQuery<HTMLElement>[] {
+        const teamGirlSelector = '.team-hexagon .team-member-container';
+        const haremGirlSelector = '.harem-panel-girls .harem-girl-container.selected';
+        const lowPowerGirls = [];
+
+        let haremGirls = $(haremGirlSelector);
+        for (let i = 0; i < haremGirls.length; i++) {
+            const id_girl = $(haremGirls[i]).attr('id_girl');
+
+            const remainingEgo = Number($('.ego-bar-container span', $(haremGirls[i])).text().replace('%', ''))
+            if (remainingEgo > 0 && remainingEgo < 30) {
+                logHHAuto(`Adding low power girl ${id_girl}`);
+                lowPowerGirls.push($(teamGirlSelector + '[data-girl-id="' + id_girl + '"]'));
+            }
         }
+        return lowPowerGirls;
     }
 
     static sim(){
