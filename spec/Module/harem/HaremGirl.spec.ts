@@ -18,6 +18,10 @@ describe("HaremGirl", function () {
         document.body.innerHTML = HTML_START;
     });
 
+    afterEach(function () {
+        unsafeWindow.girl = undefined;
+    });
+
     describe("canAwakeGirl", function () {
         it("default", function () {
             expect(HaremGirl.canAwakeGirl()).toBeFalsy();
