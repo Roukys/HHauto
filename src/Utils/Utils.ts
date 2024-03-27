@@ -12,6 +12,10 @@ export function callItOnce(fn) {
     }
 }
 
+export function getHHAjax() {
+    return unsafeWindow.hh_ajax || unsafeWindow.shared?.general?.hh_ajax;
+}
+
 export function getCallerFunction()
 {
     var stackTrace = (new Error()).stack || ''; // Only tested in latest FF and Chrome
@@ -71,9 +75,12 @@ export function isJSON(str: any)
 
 export function replaceCheatClick()
 {
-    unsafeWindow.is_cheat_click=function(e) {
-        return false;
-    };
+    // unsafeWindow.is_cheat_click=function(e) {
+    //     return false;
+    // };
+    // unsafeWindow.shared.general.is_cheat_click =function(e) {
+    //     return false;
+    // };
 }
 
 export function getCurrentSorting()

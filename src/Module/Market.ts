@@ -1,4 +1,5 @@
 import {
+    HeroHelper,
     clearTimer,
     getHHVars,
     getHero,
@@ -7,7 +8,7 @@ import {
     setStoredValue
 } from '../Helper/index';
 import { addNutakuSession } from '../Service/PageNavigationService';
-import { isJSON, logHHAuto } from '../Utils/index';
+import { getHHAjax, isJSON, logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
 
 export class Market {
@@ -16,11 +17,11 @@ export class Market {
         {
             //logHHAuto("Go shopping");
             const Hero=getHero();
-            var MS='carac'+getHHVars('Hero.infos.class');
-            var SS1='carac'+(getHHVars('Hero.infos.class')%3+1);
-            var SS2='carac'+((getHHVars('Hero.infos.class')+1)%3+1);
-            var money=getHHVars('Hero.currencies.soft_currency');
-            var kobans=getHHVars('Hero.currencies.hard_currency');
+            var MS = 'carac' + HeroHelper.getClass();
+            var SS1 = 'carac' + (HeroHelper.getClass() % 3 + 1);
+            var SS2 = 'carac' + ((HeroHelper.getClass() + 1) % 3 + 1);
+            var money = HeroHelper.getMoney();
+            var kobans = HeroHelper.getKoban();
 
 
             if (getStoredValue(HHStoredVarPrefixKey+"Temp_storeContents") === undefined )
@@ -75,7 +76,7 @@ export class Market {
                                     id_item: shop[1][n1].id_item,
                                     type: "booster"
                                 };
-                                unsafeWindow.hh_ajax(params1, function(data:any) {
+                                getHHAjax()(params1, function(data:any) {
                                     Hero.updates(data.changes, false);
                                     if (data.success === false)
                                     {
@@ -123,7 +124,7 @@ export class Market {
                         action: "market_auto_buy",
                         type: "gift"
                     };
-                    unsafeWindow.hh_ajax(params2, function(data) {
+                    getHHAjax()(params2, function(data) {
                         Hero.updates(data.changes, false);
                         if (data.success === false)
                         {
@@ -156,7 +157,7 @@ export class Market {
                                 id_item: shop[2][n2].id_item,
                                 type: "gift"
                             };
-                            unsafeWindow.hh_ajax(params4, function(data) {
+                            getHHAjax()(params4, function(data) {
                                 Hero.updates(data.changes, false);
                                 if (data.success === false)
                                 {
@@ -198,7 +199,7 @@ export class Market {
                         action: "market_auto_buy",
                         type: "potion"
                     };
-                    unsafeWindow.hh_ajax(params3, function(data) {
+                    getHHAjax()(params3, function(data) {
                         Hero.updates(data.changes, false);
                         if (data.success === false)
                         {
@@ -231,7 +232,7 @@ export class Market {
                                 id_item: shop[3][n3].id_item,
                                 type: "potion"
                             };
-                            unsafeWindow.hh_ajax(params5, function(data) {
+                            getHHAjax()(params5, function(data) {
                                 Hero.updates(data.changes, false);
                                 if (data.success === false)
                                 {

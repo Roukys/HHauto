@@ -1,7 +1,7 @@
-import { ConfigHelper, getHHVars } from "../../Helper/index";
+import { ConfigHelper, HeroHelper } from "../../Helper/index";
 
 export class SultryMysteries {
     static isEnabled(){
-        return getHHVars('Hero.infos.level')>=ConfigHelper.getHHScriptVars("LEVEL_MIN_EVENT_SM");
+        return HeroHelper.getLevel()>=ConfigHelper.getHHScriptVars("LEVEL_MIN_EVENT_SM");
     }
 }

@@ -28,7 +28,7 @@ import {
     checkParanoiaSpendings,
     gotoPage
 } from '../Service/index';
-import { isJSON, logHHAuto } from '../Utils/index';
+import { getHHAjax, isJSON, logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
 import { BDSMSimu, KKLeagueOpponent, LeagueOpponent } from "../model/index";
 import { Booster } from "./Booster";
@@ -166,7 +166,7 @@ export class LeagueHelper {
     }
 
     static isEnabled(){
-        return ConfigHelper.getHHScriptVars("isEnabledLeagues",false) && getHHVars('Hero.infos.level')>=ConfigHelper.getHHScriptVars("LEVEL_MIN_LEAGUE");
+        return ConfigHelper.getHHScriptVars("isEnabledLeagues", false) && HeroHelper.getLevel() >= ConfigHelper.getHHScriptVars("LEVEL_MIN_LEAGUE");
     }
 
     static isAutoLeagueActivated(){
@@ -803,7 +803,7 @@ export class LeagueHelper {
                         number_of_battles: numberOfBattle
                     };
                     params1 = addNutakuSession(params1) as any;
-                    unsafeWindow.hh_ajax(params1, function(data) {
+                    getHHAjax()(params1, function(data) {
                         // change referer
                         window.history.replaceState(null, '', addNutakuSession(ConfigHelper.getHHScriptVars("pagesURLLeaderboard")) as string);
 

@@ -1,5 +1,6 @@
 import {
     ConfigHelper,
+    HeroHelper,
     getHHVars,
     getStoredValue,
     getTextForUI,
@@ -91,7 +92,7 @@ export class TeamModule {
                 deckID.push(-1);
                 deckStat.push(-1);
             }
-            let levelPlayer = Number(getHHVars('Hero.infos.level'));
+            let levelPlayer = Number(HeroHelper.getLevel());
             for (let i = arr.length - 1; i > -1; i--)
             {
                 let gID = Number($(arr[i]).attr('id_girl'));

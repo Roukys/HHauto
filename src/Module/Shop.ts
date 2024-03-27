@@ -8,7 +8,8 @@ import {
     getTextForUI,
     randomInterval,
     setStoredValue,
-    setTimer
+    setTimer,
+    HeroHelper
 } from '../Helper/index';
 import { autoLoop, gotoPage } from '../Service/index';
 import { isJSON, logHHAuto } from '../Utils/index';
@@ -58,7 +59,7 @@ export class Shop {
             logHHAuto('counted '+getStoredValue(HHStoredVarPrefixKey+"Temp_haveAff")+' Aff, '+getStoredValue(HHStoredVarPrefixKey+"Temp_haveExp")+' Exp, Booster: ' + JSON.stringify(HaveBooster));
     
             setStoredValue(HHStoredVarPrefixKey+"Temp_storeContents", JSON.stringify([assA,assB,assG,assP]));
-            setStoredValue(HHStoredVarPrefixKey+"Temp_charLevel", getHHVars('Hero.infos.level'));
+            setStoredValue(HHStoredVarPrefixKey+"Temp_charLevel", HeroHelper.getLevel());
     
             var nshop;
             let shopFrozenTimer = $('.shop div.shop_count span[rel="expires"]').first().text();
@@ -371,8 +372,8 @@ export class Shop {
         var menuSellMaxItems:string | number = "all";
         let fetchStarted = false;
         //ugly hack
-        let loadingAnimationStart = unsafeWindow.loadingAnimation?.start || unsafeWindow.shared?.animations?.loadingAnimation?.start;
-        let loadingAnimationStop = unsafeWindow.loadingAnimation?.stop || unsafeWindow.shared?.animations?.loadingAnimation?.stop;
+        let loadingAnimationStart = unsafeWindow.shared?.animations?.loadingAnimation?.start;
+        let loadingAnimationStop = unsafeWindow.shared?.animations?.loadingAnimation?.stop;
         function appendMenuSell()
         {
             let menuID = "SellDialog"
@@ -498,13 +499,8 @@ export class Shop {
 
                     menuSellStop = false;
                     fetchStarted = true;
-                    if (!!unsafeWindow.shared) {
-                        unsafeWindow.shared.animations.loadingAnimation.start = function () { };
-                        unsafeWindow.shared.animations.loadingAnimation.stop = function () { };
-                    } else {
-                        unsafeWindow.loadingAnimation.start = function () { };
-                        unsafeWindow.loadingAnimation.stop = function () { };
-                    }
+                    unsafeWindow.shared.animations.loadingAnimation.start = function () { };
+                    unsafeWindow.shared.animations.loadingAnimation.stop = function () { };
                     if ($('#menuSellList>.tItems').length === 0)
                     {
                         menuSellListItems();
@@ -568,13 +564,8 @@ export class Shop {
             if (menuSellStop || allLoaded || oldCount >= Number(menuSellMaxItems) || !SellDialog.open)
             {
                 $("#menuSellStop").css("display","none");
-                if (!!unsafeWindow.shared) {
-                    unsafeWindow.shared.animations.loadingAnimation.start = loadingAnimationStart;
-                    unsafeWindow.shared.animations.loadingAnimation.stop = loadingAnimationStop;
-                } else {
-                    unsafeWindow.loadingAnimation.start = loadingAnimationStart;
-                    unsafeWindow.loadingAnimation.stop = loadingAnimationStop;
-                }
+                unsafeWindow.shared.animations.loadingAnimation.start = loadingAnimationStart;
+                unsafeWindow.shared.animations.loadingAnimation.stop = loadingAnimationStop;
                 fetchStarted = false;
                 scroll.scrollTop = 0;
                 if (SellDialog.open)
@@ -612,7 +603,7 @@ export class Shop {
             var itemsToSell = Number((<HTMLInputElement>(<HTMLInputElement>document.getElementById("menuSellNumber"))).value);
             $("#menuSoldCurrentCount").html("0/"+itemsToSell);
             $("#menuSoldMessage").html("");
-            let PlayerClass = getHHVars('Hero.infos.class') === null ? $('#equiped > div.icon.class_change_btn').attr('carac') : getHHVars('Hero.infos.class');
+            let PlayerClass = HeroHelper.getClass() === null ? $('#equiped > div.icon.class_change_btn').attr('carac') : HeroHelper.getClass();
             function sellingEnd(message:string){
                 $("#menuSoldMessage").html(message);
                 menuSellListItems();

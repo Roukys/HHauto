@@ -11,7 +11,8 @@ import {
     getStoredValue,
     randomInterval,
     setStoredValue,
-    setTimer } from "../../Helper/index";
+    setTimer, 
+    HeroHelper} from "../../Helper/index";
     import { gotoPage } from "../../Service/index";
     import { isJSON, logHHAuto } from "../../Utils/index";
 import { HHStoredVarPrefixKey } from "../../config/index";
@@ -33,7 +34,7 @@ export class PathOfValue {
         EventModule.displayGenericRemainingTime("#scriptPovTime", "path-of-valor", "HHAutoPoVTimer", "PoVRemainingTime", HHStoredVarPrefixKey+"Temp_PoVEndDate");
     }
     static isEnabled(){
-        return ConfigHelper.getHHScriptVars("isEnabledPoV",false) && getHHVars('Hero.infos.level')>=ConfigHelper.getHHScriptVars("LEVEL_MIN_POV");
+        return ConfigHelper.getHHScriptVars("isEnabledPoV", false) && HeroHelper.getLevel() >= ConfigHelper.getHHScriptVars("LEVEL_MIN_POV");
     }
     static goAndCollect()
     {

@@ -6,7 +6,8 @@ import {
     getTextForUI,
     parsePrice,
     randomInterval,
-    setStoredValue
+    setStoredValue,
+    HeroHelper
 } from "../../Helper/index";
 import { Harem } from "../index";
 import { gotoPage } from "../../Service/index";
@@ -139,7 +140,7 @@ export class HaremGirl {
         if (proceedButtonMatch.length > 0) {
             var proceedButtonCost = $(".price", proceedButtonMatch);
             var proceedCost = parsePrice(proceedButtonCost[0].innerText);
-            var moneyCurrent = getHHVars('Hero.currencies.soft_currency');
+            var moneyCurrent = HeroHelper.getMoney();
             setStoredValue(HHStoredVarPrefixKey+"Temp_lastActionPerformed", Harem.HAREM_UPGRADE_LAST_ACTION);
             
             console.log("Debug girl Quest MONEY for : "+proceedCost);
@@ -333,7 +334,7 @@ export class HaremGirl {
         +    '<p style="min-height:10vh;" id="menuExpText"></p>'
         +    '<div class="HHMenuRow">'
         +     '<p>'+getTextForUI("menuExpLevel","elementText")+'</p>'
-        +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExpLevel","tooltip")+'</span><input id="menuExpLevel" style="width:50px;height:20px" required pattern="'+HHAuto_inputPattern.menuExpLevel+'" type="text" value="'+getHHVars('Hero.infos.level')+'"></div>'
+        +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("menuExpLevel","tooltip")+'</span><input id="menuExpLevel" style="width:50px;height:20px" required pattern="'+HHAuto_inputPattern.menuExpLevel+'" type="text" value="'+HeroHelper.getLevel()+'"></div>'
         +    '</div>'
         +    '<input id="menuExpMode" type="hidden" value="">'
         +    '<div style="padding:10px;justify-content:center" class="HHMenuRow">'

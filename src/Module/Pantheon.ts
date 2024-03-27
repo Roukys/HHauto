@@ -10,7 +10,8 @@ import {
     queryStringGetParam,
     randomInterval,
     setStoredValue,
-    setTimer
+    setTimer,
+    HeroHelper
 } from '../Helper/index';
 import { checkParanoiaSpendings, gotoPage } from '../Service/index';
 import { logHHAuto } from '../Utils/index';
@@ -56,7 +57,7 @@ export class Pantheon {
     }
 
     static isEnabled(){
-        return ConfigHelper.getHHScriptVars("isEnabledPantheon",false) && getHHVars('Hero.infos.level')>=ConfigHelper.getHHScriptVars("LEVEL_MIN_PANTHEON");
+        return ConfigHelper.getHHScriptVars("isEnabledPantheon", false) && HeroHelper.getLevel() >= ConfigHelper.getHHScriptVars("LEVEL_MIN_PANTHEON");
     }
 
     static isTimeToFight(){
