@@ -1,3 +1,5 @@
+export * from './KKEnergy'
 export * from './KKEventGirl'
 export * from './KKHaremGirl'
+export * from './KKHero'
 export * from './KKLeagueOpponent'

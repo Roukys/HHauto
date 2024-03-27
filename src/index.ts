@@ -1,4 +1,5 @@
 import { hardened_start } from "./Service/index";
+import { KKHero } from "./model/index";
 
 declare global {
     interface Window {
@@ -8,19 +9,27 @@ declare global {
         current_tier_number: any;
         event_data: any;
         girl: any;
-        GirlSalaryManager: any;
+        // GirlSalaryManager: any;
         harem: any;
         has_contests_datas: any;
         hero_data: any;
-        shared: any;
-        Hero: any;
-        hh_ajax: any;
+        shared: {
+            GirlSalaryManager: any;
+            Hero: KKHero;
+            animations: any;
+            general: {
+                is_cheat_click: any;
+                hh_ajax: any;
+            };
+        };
+        // Hero: any;
+        // hh_ajax: any;
         hh_nutaku: any;
         hh_prices: any;
         HHTimers: any;
         is_cheat_click: any;
         league_tag: any;
-        loadingAnimation: any;
+        // loadingAnimation: any;
         opponents: any;
         player_gems_amount: any;
         season_sec_untill_event_end: any;

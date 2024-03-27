@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.7.2
+// @version      7.8.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -159,6 +159,10 @@ function callItOnce(fn) {
         return;
     };
 }
+function getHHAjax() {
+    var _a, _b;
+    return unsafeWindow.hh_ajax || ((_b = (_a = unsafeWindow.shared) === null || _a === void 0 ? void 0 : _a.general) === null || _b === void 0 ? void 0 : _b.hh_ajax);
+}
 function getCallerFunction() {
     var stackTrace = (new Error()).stack || ''; // Only tested in latest FF and Chrome
     var callerName = stackTrace.replace(/^Error\s+/, ''); // Sanitize Chrome
@@ -211,9 +215,12 @@ function isJSON(str) {
     return (/^[\],:{}\s]*$/).test(str);
 }
 function replaceCheatClick() {
-    unsafeWindow.is_cheat_click = function (e) {
-        return false;
-    };
+    // unsafeWindow.is_cheat_click=function(e) {
+    //     return false;
+    // };
+    // unsafeWindow.shared.general.is_cheat_click =function(e) {
+    //     return false;
+    // };
 }
 function getCurrentSorting() {
     return localStorage.sort_by;
@@ -1923,7 +1930,7 @@ PathOfAttraction.getRewardButtonPath = "#poa-content .objective .reward button.p
 
 class SultryMysteries {
     static isEnabled() {
-        return getHHVars('Hero.infos.level') >= ConfigHelper.getHHScriptVars("LEVEL_MIN_EVENT_SM");
+        return HeroHelper.getLevel() >= ConfigHelper.getHHScriptVars("LEVEL_MIN_EVENT_SM");
     }
 }
 
@@ -2691,7 +2698,7 @@ class PathOfGlory {
         EventModule.displayGenericRemainingTime("#scriptPogTime", "path-of-glory", "HHAutoPoGTimer", "PoGRemainingTime", HHStoredVarPrefixKey + "Temp_PoGEndDate");
     }
     static isEnabled() {
-        return ConfigHelper.getHHScriptVars("isEnabledPoG", false) && getHHVars('Hero.infos.level') >= ConfigHelper.getHHScriptVars("LEVEL_MIN_POG");
+        return ConfigHelper.getHHScriptVars("isEnabledPoG", false) && HeroHelper.getLevel() >= ConfigHelper.getHHScriptVars("LEVEL_MIN_POG");
     }
     static goAndCollect() {
         const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoGCollectablesList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoGCollectablesList")) : [];
@@ -2797,7 +2804,7 @@ class PathOfValue {
         EventModule.displayGenericRemainingTime("#scriptPovTime", "path-of-valor", "HHAutoPoVTimer", "PoVRemainingTime", HHStoredVarPrefixKey + "Temp_PoVEndDate");
     }
     static isEnabled() {
-        return ConfigHelper.getHHScriptVars("isEnabledPoV", false) && getHHVars('Hero.infos.level') >= ConfigHelper.getHHScriptVars("LEVEL_MIN_POV");
+        return ConfigHelper.getHHScriptVars("isEnabledPoV", false) && HeroHelper.getLevel() >= ConfigHelper.getHHScriptVars("LEVEL_MIN_POV");
     }
     static goAndCollect() {
         const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoVCollectablesList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoVCollectablesList")) : [];
@@ -2986,7 +2993,7 @@ class Season {
             if (isNaN(price)) {
                 price = 12;
             }
-            if (numberOfReds === 3 && getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonPassReds") === "true" && getHHVars('Hero.currencies.hard_currency') >= price + Number(getStoredValue(HHStoredVarPrefixKey + "Setting_kobanBank"))) {
+            if (numberOfReds === 3 && getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonPassReds") === "true" && HeroHelper.getKoban() >= price + Number(getStoredValue(HHStoredVarPrefixKey + "Setting_kobanBank"))) {
                 chosenID = -2;
             }
             $($('div.season_arena_opponent_container div.matchRatingNew')).append(`<img id="powerLevelScouterNonChosen">`);
@@ -3123,7 +3130,7 @@ class Season {
                         action: 'arena_reload'
                     };
                     LogUtils_logHHAuto("Three red opponents, paying for refresh.");
-                    unsafeWindow.hh_ajax(params, function (data) {
+                    getHHAjax()(params, function (data) {
                         Hero.update("hard_currency", data.hard_currency, false);
                         location.reload();
                     });
@@ -3757,7 +3764,7 @@ class QuestHelper {
             var proceedCost = parsePrice(proceedButtonCost[0].innerText);
             var payTypeNRJ = $("#controls button:not([style*='display:none']):not([style*='display: none']) .action-cost .energy_quest_icn").length > 0;
             var energyCurrent = QuestHelper.getEnergy();
-            var moneyCurrent = getHHVars('Hero.currencies.soft_currency');
+            var moneyCurrent = HeroHelper.getMoney();
             let payType = $("#controls .cost span[cur]:not([style*='display:none']):not([style*='display: none'])").attr('cur');
             //console.log("DebugQuest payType : "+payType);
             if (payTypeNRJ) {
@@ -4669,7 +4676,7 @@ class Harem {
         }
     }
     static getGirlMapSorted(inSortType = "DateAcquired", inSortReversed = true) {
-        let girlsMap = getHHVars("GirlSalaryManager.girlsMap");
+        let girlsMap = getHHVars("shared.GirlSalaryManager.girlsMap");
         // if (girlsMap === null) {
         //     girlsMap = getHHVars("girlsDataList");
         // }
@@ -4968,7 +4975,7 @@ class Harem {
         // Store girls for harem tools
         let filteredGirlsList = [];
         const girlsDataList = getHHVars("girlsDataList");
-        const girlsListSec = getHHVars("GirlSalaryManager.girlsListSec");
+        const girlsListSec = getHHVars("shared.GirlSalaryManager.girlsListSec");
         if (girlsDataList) {
             Object.values(girlsDataList).forEach((girl) => {
                 if (girl.shards >= 100)
@@ -5485,7 +5492,7 @@ class Troll {
                         && getStoredValue(HHStoredVarPrefixKey + "Setting_minShardsX50")
                         && Number.isInteger(Number(getStoredValue(HHStoredVarPrefixKey + "Setting_minShardsX50")))
                         && remainingShards >= Number(getStoredValue(HHStoredVarPrefixKey + "Setting_minShardsX50"))
-                        && (battleButtonX50Price === 0 || getHHVars('Hero.currencies.hard_currency') >= battleButtonX50Price + Number(getStoredValue(HHStoredVarPrefixKey + "Setting_kobanBank")))
+                        && (battleButtonX50Price === 0 || HeroHelper.getKoban() >= battleButtonX50Price + Number(getStoredValue(HHStoredVarPrefixKey + "Setting_kobanBank")))
                         && currentPower >= 50
                         && (currentPower >= (Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoTrollThreshold")) + 50)
                             || bypassThreshold)
@@ -5507,14 +5514,14 @@ class Troll {
                     }
                     else {
                         if (getStoredValue(HHStoredVarPrefixKey + "Setting_useX50Fights") === "true") {
-                            LogUtils_logHHAuto('Unable to use x50 for ' + battleButtonX50Price + ' kobans,fights : ' + Troll.getEnergy() + '/50, remaining shards : ' + remainingShards + '/' + getStoredValue(HHStoredVarPrefixKey + "Setting_minShardsX50") + ', kobans : ' + getHHVars('Hero.currencies.hard_currency') + '/' + Number(getStoredValue(HHStoredVarPrefixKey + "Setting_kobanBank")));
+                            LogUtils_logHHAuto('Unable to use x50 for ' + battleButtonX50Price + ' kobans,fights : ' + Troll.getEnergy() + '/50, remaining shards : ' + remainingShards + '/' + getStoredValue(HHStoredVarPrefixKey + "Setting_minShardsX50") + ', kobans : ' + HeroHelper.getKoban() + '/' + Number(getStoredValue(HHStoredVarPrefixKey + "Setting_kobanBank")));
                         }
                     }
                     if (getStoredValue(HHStoredVarPrefixKey + "Setting_useX10Fights") === "true"
                         && getStoredValue(HHStoredVarPrefixKey + "Setting_minShardsX10")
                         && Number.isInteger(Number(getStoredValue(HHStoredVarPrefixKey + "Setting_minShardsX10")))
                         && remainingShards >= Number(getStoredValue(HHStoredVarPrefixKey + "Setting_minShardsX10"))
-                        && (battleButtonX10Price === 0 || getHHVars('Hero.currencies.hard_currency') >= battleButtonX10Price + Number(getStoredValue(HHStoredVarPrefixKey + "Setting_kobanBank")))
+                        && (battleButtonX10Price === 0 || HeroHelper.getKoban() >= battleButtonX10Price + Number(getStoredValue(HHStoredVarPrefixKey + "Setting_kobanBank")))
                         && currentPower >= 10
                         && (currentPower >= (Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoTrollThreshold")) + 10)
                             || bypassThreshold)
@@ -5536,7 +5543,7 @@ class Troll {
                     }
                     else {
                         if (getStoredValue(HHStoredVarPrefixKey + "Setting_useX10Fights") === "true") {
-                            LogUtils_logHHAuto('Unable to use x10 for ' + battleButtonX10Price + ' kobans,fights : ' + Troll.getEnergy() + '/10, remaining shards : ' + remainingShards + '/' + getStoredValue(HHStoredVarPrefixKey + "Setting_minShardsX10") + ', kobans : ' + getHHVars('Hero.currencies.hard_currency') + '/' + Number(getStoredValue(HHStoredVarPrefixKey + "Setting_kobanBank")));
+                            LogUtils_logHHAuto('Unable to use x10 for ' + battleButtonX10Price + ' kobans,fights : ' + Troll.getEnergy() + '/10, remaining shards : ' + remainingShards + '/' + getStoredValue(HHStoredVarPrefixKey + "Setting_minShardsX10") + ', kobans : ' + HeroHelper.getKoban() + '/' + Number(getStoredValue(HHStoredVarPrefixKey + "Setting_kobanBank")));
                         }
                     }
                 }
@@ -5645,7 +5652,7 @@ class Troll {
             if (getStoredValue(HHStoredVarPrefixKey + "Setting_minShardsX50") !== undefined
                 && Number.isInteger(Number(getStoredValue(HHStoredVarPrefixKey + "Setting_minShardsX50")))
                 && remainingShards >= Number(getStoredValue(HHStoredVarPrefixKey + "Setting_minShardsX50"))
-                && getHHVars('Hero.currencies.hard_currency') >= (pricePerFight * maxx50) + Number(getStoredValue(HHStoredVarPrefixKey + "Setting_kobanBank"))
+                && HeroHelper.getKoban() >= (pricePerFight * maxx50) + Number(getStoredValue(HHStoredVarPrefixKey + "Setting_kobanBank"))
                 && getStoredValue(HHStoredVarPrefixKey + "Setting_useX50Fights") === "true"
                 && currentFight < maxx50
                 && (result.event_mythic === "true" || getStoredValue(HHStoredVarPrefixKey + "Setting_useX50FightsAllowNormalEvent") === "true")) {
@@ -5656,9 +5663,9 @@ class Troll {
             }
             else {
                 if (logging && getStoredValue(HHStoredVarPrefixKey + "Setting_useX50Fights") === "true") {
-                    LogUtils_logHHAuto('Unable to recharge up to ' + maxx50 + ' for ' + (pricePerFight * maxx50) + ' kobans : current energy : ' + currentFight + ', remaining shards : ' + remainingShards + '/' + getStoredValue(HHStoredVarPrefixKey + "Setting_minShardsX50") + ', kobans : ' + getHHVars('Hero.currencies.hard_currency') + '/' + Number(getStoredValue(HHStoredVarPrefixKey + "Setting_kobanBank")));
+                    LogUtils_logHHAuto('Unable to recharge up to ' + maxx50 + ' for ' + (pricePerFight * maxx50) + ' kobans : current energy : ' + currentFight + ', remaining shards : ' + remainingShards + '/' + getStoredValue(HHStoredVarPrefixKey + "Setting_minShardsX50") + ', kobans : ' + HeroHelper.getKoban() + '/' + Number(getStoredValue(HHStoredVarPrefixKey + "Setting_kobanBank")));
                 }
-                if (getHHVars('Hero.currencies.hard_currency') >= (pricePerFight * maxx20) + Number(getStoredValue(HHStoredVarPrefixKey + "Setting_kobanBank"))) //&& currentFight < 10)
+                if (HeroHelper.getKoban() >= (pricePerFight * maxx20) + Number(getStoredValue(HHStoredVarPrefixKey + "Setting_kobanBank"))) //&& currentFight < 10)
                  {
                     result.max = maxx20;
                     result.canBuy = true;
@@ -5667,7 +5674,7 @@ class Troll {
                 }
                 else {
                     if (logging) {
-                        LogUtils_logHHAuto('Unable to recharge up to ' + maxx20 + ' for ' + (pricePerFight * maxx20) + ' kobans : current energy : ' + currentFight + ', kobans : ' + getHHVars('Hero.currencies.hard_currency') + '/' + Number(getStoredValue(HHStoredVarPrefixKey + "Setting_kobanBank")));
+                        LogUtils_logHHAuto('Unable to recharge up to ' + maxx20 + ' for ' + (pricePerFight * maxx20) + ' kobans : current energy : ' + currentFight + ', kobans : ' + HeroHelper.getKoban() + '/' + Number(getStoredValue(HHStoredVarPrefixKey + "Setting_kobanBank")));
                     }
                     return result;
                 }
@@ -5876,7 +5883,7 @@ class HaremGirl {
         if (proceedButtonMatch.length > 0) {
             var proceedButtonCost = $(".price", proceedButtonMatch);
             var proceedCost = parsePrice(proceedButtonCost[0].innerText);
-            var moneyCurrent = getHHVars('Hero.currencies.soft_currency');
+            var moneyCurrent = HeroHelper.getMoney();
             setStoredValue(HHStoredVarPrefixKey + "Temp_lastActionPerformed", Harem.HAREM_UPGRADE_LAST_ACTION);
             console.log("Debug girl Quest MONEY for : " + proceedCost);
             if (proceedCost <= moneyCurrent) {
@@ -6058,7 +6065,7 @@ class HaremGirl {
             + '<p style="min-height:10vh;" id="menuExpText"></p>'
             + '<div class="HHMenuRow">'
             + '<p>' + getTextForUI("menuExpLevel", "elementText") + '</p>'
-            + '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">' + getTextForUI("menuExpLevel", "tooltip") + '</span><input id="menuExpLevel" style="width:50px;height:20px" required pattern="' + HHAuto_inputPattern.menuExpLevel + '" type="text" value="' + getHHVars('Hero.infos.level') + '"></div>'
+            + '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">' + getTextForUI("menuExpLevel", "tooltip") + '</span><input id="menuExpLevel" style="width:50px;height:20px" required pattern="' + HHAuto_inputPattern.menuExpLevel + '" type="text" value="' + HeroHelper.getLevel() + '"></div>'
             + '</div>'
             + '<input id="menuExpMode" type="hidden" value="">'
             + '<div style="padding:10px;justify-content:center" class="HHMenuRow">'
@@ -6339,10 +6346,10 @@ class HaremSalary {
                         id_girl: Clicked[0],
                         action: "get_salary"
                     };
-                    unsafeWindow.hh_ajax(params, function (data) {
+                    getHHAjax()(params, function (data) {
                         if (data.success) {
                             //console.log(Clicked[0]);
-                            let girlsDataList = getHHVars("GirlSalaryManager.girlsMap");
+                            let girlsDataList = getHHVars("shared.GirlSalaryManager.girlsMap");
                             if (girlsDataList !== null && girlsDataList[Clicked[0]] !== undefined) {
                                 const _this2 = girlsDataList[Clicked[0]];
                                 _this2.gData.pay_in = data.time + 60;
@@ -6393,9 +6400,15 @@ class HaremSalary {
                 const girlsList = Harem.getGirlMapSorted(getCurrentSorting(), false);
                 const salarySumTag = HaremSalary.getSalarySumTag();
                 if (girlsList === null) {
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHarem"));
+                    if (getPage() != ConfigHelper.getHHScriptVars("pagesIDHarem")) {
+                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDHarem"));
+                        return;
+                    }
+                    else {
+                        LogUtils_logHHAuto('Error getting girl list');
+                    }
                 }
-                collectableGirlsList = girlsList.filter(HaremSalary.filterGirlMapReadyForCollect);
+                collectableGirlsList = (girlsList === null || girlsList === void 0 ? void 0 : girlsList.filter(HaremSalary.filterGirlMapReadyForCollect)) || [];
                 const allOwnedGirlsLoaded = totalGirlsDisplayed > 0 && totalGirlsDisplayed === girlsList.length;
                 totalGirlsDisplayed = girlsList.length;
                 totalGirlsToCollect = collectableGirlsList.length;
@@ -6470,7 +6483,7 @@ class HaremSalary {
         }
     }
     static predictNextSalaryMinTime() {
-        let girlsDataList = getHHVars("GirlSalaryManager.girlsMap");
+        let girlsDataList = getHHVars("shared.GirlSalaryManager.girlsMap");
         if (girlsDataList === null) {
             girlsDataList = getHHVars("girlsDataList");
         }
@@ -6869,6 +6882,7 @@ class Labyrinth {
         };
     }
 }
+Labyrinth.HAREM_SELECTED_GIRLS = '.harem-panel-girls .harem-girl-container.selected';
 
 ;// CONCATENATED MODULE: ./src/Module/League.ts
 
@@ -6978,7 +6992,7 @@ class LeagueHelper {
         return Number(getHHVars('Hero.energies.challenge.max_regen_amount'));
     }
     static isEnabled() {
-        return ConfigHelper.getHHScriptVars("isEnabledLeagues", false) && getHHVars('Hero.infos.level') >= ConfigHelper.getHHScriptVars("LEVEL_MIN_LEAGUE");
+        return ConfigHelper.getHHScriptVars("isEnabledLeagues", false) && HeroHelper.getLevel() >= ConfigHelper.getHHScriptVars("LEVEL_MIN_LEAGUE");
     }
     static isAutoLeagueActivated() {
         return getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeagues") === "true" && LeagueHelper.isEnabled();
@@ -7542,7 +7556,7 @@ class LeagueHelper {
                         number_of_battles: numberOfBattle
                     };
                     params1 = addNutakuSession(params1);
-                    unsafeWindow.hh_ajax(params1, function (data) {
+                    getHHAjax()(params1, function (data) {
                         // change referer
                         window.history.replaceState(null, '', addNutakuSession(ConfigHelper.getHHScriptVars("pagesURLLeaderboard")));
                         RewardHelper.closeRewardPopupIfAny();
@@ -7754,11 +7768,11 @@ class Market {
         try {
             //logHHAuto("Go shopping");
             const Hero = getHero();
-            var MS = 'carac' + getHHVars('Hero.infos.class');
-            var SS1 = 'carac' + (getHHVars('Hero.infos.class') % 3 + 1);
-            var SS2 = 'carac' + ((getHHVars('Hero.infos.class') + 1) % 3 + 1);
-            var money = getHHVars('Hero.currencies.soft_currency');
-            var kobans = getHHVars('Hero.currencies.hard_currency');
+            var MS = 'carac' + HeroHelper.getClass();
+            var SS1 = 'carac' + (HeroHelper.getClass() % 3 + 1);
+            var SS2 = 'carac' + ((HeroHelper.getClass() + 1) % 3 + 1);
+            var money = HeroHelper.getMoney();
+            var kobans = HeroHelper.getKoban();
             if (getStoredValue(HHStoredVarPrefixKey + "Temp_storeContents") === undefined) {
                 if (!isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_storeContents"))) {
                     LogUtils_logHHAuto("Catched error : Could not parse store content.");
@@ -7799,7 +7813,7 @@ class Market {
                                     id_item: shop[1][n1].id_item,
                                     type: "booster"
                                 };
-                                unsafeWindow.hh_ajax(params1, function (data) {
+                                getHHAjax()(params1, function (data) {
                                     Hero.updates(data.changes, false);
                                     if (data.success === false) {
                                         clearTimer('nextShopTime');
@@ -7842,7 +7856,7 @@ class Market {
                         action: "market_auto_buy",
                         type: "gift"
                     };
-                    unsafeWindow.hh_ajax(params2, function (data) {
+                    getHHAjax()(params2, function (data) {
                         Hero.updates(data.changes, false);
                         if (data.success === false) {
                             clearTimer('nextShopTime');
@@ -7873,7 +7887,7 @@ class Market {
                                 id_item: shop[2][n2].id_item,
                                 type: "gift"
                             };
-                            unsafeWindow.hh_ajax(params4, function (data) {
+                            getHHAjax()(params4, function (data) {
                                 Hero.updates(data.changes, false);
                                 if (data.success === false) {
                                     clearTimer('nextShopTime');
@@ -7911,7 +7925,7 @@ class Market {
                         action: "market_auto_buy",
                         type: "potion"
                     };
-                    unsafeWindow.hh_ajax(params3, function (data) {
+                    getHHAjax()(params3, function (data) {
                         Hero.updates(data.changes, false);
                         if (data.success === false) {
                             clearTimer('nextShopTime');
@@ -7942,7 +7956,7 @@ class Market {
                                 id_item: shop[3][n3].id_item,
                                 type: "potion"
                             };
-                            unsafeWindow.hh_ajax(params5, function (data) {
+                            getHHAjax()(params5, function (data) {
                                 Hero.updates(data.changes, false);
                                 if (data.success === false) {
                                     clearTimer('nextShopTime');
@@ -8300,7 +8314,7 @@ class Pantheon {
         return Tegzd;
     }
     static isEnabled() {
-        return ConfigHelper.getHHScriptVars("isEnabledPantheon", false) && getHHVars('Hero.infos.level') >= ConfigHelper.getHHScriptVars("LEVEL_MIN_PANTHEON");
+        return ConfigHelper.getHHScriptVars("isEnabledPantheon", false) && HeroHelper.getLevel() >= ConfigHelper.getHHScriptVars("LEVEL_MIN_PANTHEON");
     }
     static isTimeToFight() {
         const threshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPantheonThreshold"));
@@ -9270,7 +9284,7 @@ class Shop {
             setStoredValue(HHStoredVarPrefixKey + "Temp_haveBooster", JSON.stringify(HaveBooster));
             LogUtils_logHHAuto('counted ' + getStoredValue(HHStoredVarPrefixKey + "Temp_haveAff") + ' Aff, ' + getStoredValue(HHStoredVarPrefixKey + "Temp_haveExp") + ' Exp, Booster: ' + JSON.stringify(HaveBooster));
             setStoredValue(HHStoredVarPrefixKey + "Temp_storeContents", JSON.stringify([assA, assB, assG, assP]));
-            setStoredValue(HHStoredVarPrefixKey + "Temp_charLevel", getHHVars('Hero.infos.level'));
+            setStoredValue(HHStoredVarPrefixKey + "Temp_charLevel", HeroHelper.getLevel());
             var nshop;
             let shopFrozenTimer = $('.shop div.shop_count span[rel="expires"]').first().text();
             if (nshop === undefined && shopFrozenTimer.length > 0) {
@@ -9297,7 +9311,7 @@ class Shop {
         return false;
     }
     static moduleShopActions() {
-        var _a, _b, _c, _d, _e, _f, _g, _h;
+        var _a, _b, _c, _d, _e, _f;
         const itemsQuery = '#player-inventory.armor .slot:not(.empty):not([menuSellLocked]):not(.mythic)';
         appendMenuSell();
         /**
@@ -9521,8 +9535,8 @@ class Shop {
         var menuSellMaxItems = "all";
         let fetchStarted = false;
         //ugly hack
-        let loadingAnimationStart = ((_a = unsafeWindow.loadingAnimation) === null || _a === void 0 ? void 0 : _a.start) || ((_d = (_c = (_b = unsafeWindow.shared) === null || _b === void 0 ? void 0 : _b.animations) === null || _c === void 0 ? void 0 : _c.loadingAnimation) === null || _d === void 0 ? void 0 : _d.start);
-        let loadingAnimationStop = ((_e = unsafeWindow.loadingAnimation) === null || _e === void 0 ? void 0 : _e.stop) || ((_h = (_g = (_f = unsafeWindow.shared) === null || _f === void 0 ? void 0 : _f.animations) === null || _g === void 0 ? void 0 : _g.loadingAnimation) === null || _h === void 0 ? void 0 : _h.stop);
+        let loadingAnimationStart = (_c = (_b = (_a = unsafeWindow.shared) === null || _a === void 0 ? void 0 : _a.animations) === null || _b === void 0 ? void 0 : _b.loadingAnimation) === null || _c === void 0 ? void 0 : _c.start;
+        let loadingAnimationStop = (_f = (_e = (_d = unsafeWindow.shared) === null || _d === void 0 ? void 0 : _d.animations) === null || _e === void 0 ? void 0 : _e.loadingAnimation) === null || _f === void 0 ? void 0 : _f.stop;
         function appendMenuSell() {
             let menuID = "SellDialog";
             if (getShopType() !== "armor") {
@@ -9625,14 +9639,8 @@ class Shop {
                     $("menuSellStop").css("display", "block");
                     menuSellStop = false;
                     fetchStarted = true;
-                    if (!!unsafeWindow.shared) {
-                        unsafeWindow.shared.animations.loadingAnimation.start = function () { };
-                        unsafeWindow.shared.animations.loadingAnimation.stop = function () { };
-                    }
-                    else {
-                        unsafeWindow.loadingAnimation.start = function () { };
-                        unsafeWindow.loadingAnimation.stop = function () { };
-                    }
+                    unsafeWindow.shared.animations.loadingAnimation.start = function () { };
+                    unsafeWindow.shared.animations.loadingAnimation.stop = function () { };
                     if ($('#menuSellList>.tItems').length === 0) {
                         menuSellListItems();
                     }
@@ -9685,14 +9693,8 @@ class Shop {
             const SellDialog = document.getElementById("SellDialog");
             if (menuSellStop || allLoaded || oldCount >= Number(menuSellMaxItems) || !SellDialog.open) {
                 $("#menuSellStop").css("display", "none");
-                if (!!unsafeWindow.shared) {
-                    unsafeWindow.shared.animations.loadingAnimation.start = loadingAnimationStart;
-                    unsafeWindow.shared.animations.loadingAnimation.stop = loadingAnimationStop;
-                }
-                else {
-                    unsafeWindow.loadingAnimation.start = loadingAnimationStart;
-                    unsafeWindow.loadingAnimation.stop = loadingAnimationStop;
-                }
+                unsafeWindow.shared.animations.loadingAnimation.start = loadingAnimationStart;
+                unsafeWindow.shared.animations.loadingAnimation.stop = loadingAnimationStop;
                 fetchStarted = false;
                 scroll.scrollTop = 0;
                 if (SellDialog.open) {
@@ -9723,7 +9725,7 @@ class Shop {
             var itemsToSell = Number(document.getElementById("menuSellNumber").value);
             $("#menuSoldCurrentCount").html("0/" + itemsToSell);
             $("#menuSoldMessage").html("");
-            let PlayerClass = getHHVars('Hero.infos.class') === null ? $('#equiped > div.icon.class_change_btn').attr('carac') : getHHVars('Hero.infos.class');
+            let PlayerClass = HeroHelper.getClass() === null ? $('#equiped > div.icon.class_change_btn').attr('carac') : HeroHelper.getClass();
             function sellingEnd(message) {
                 $("#menuSoldMessage").html(message);
                 menuSellListItems();
@@ -9904,7 +9906,7 @@ class TeamModule {
                 deckID.push(-1);
                 deckStat.push(-1);
             }
-            let levelPlayer = Number(getHHVars('Hero.infos.level'));
+            let levelPlayer = Number(HeroHelper.getLevel());
             for (let i = arr.length - 1; i > -1; i--) {
                 let gID = Number($(arr[i]).attr('id_girl'));
                 const tooltipData = $('.girl_img', $(arr[i])).attr(ConfigHelper.getHHScriptVars('girlToolTipData')) || '';
@@ -14641,12 +14643,12 @@ function doStatUpgrades() {
     //logHHAuto('stats');
     var Hero = getHero();
     var stats = [getHHVars('Hero.infos.carac1'), getHHVars('Hero.infos.carac2'), getHHVars('Hero.infos.carac3')];
-    var money = getHHVars('Hero.currencies.soft_currency');
+    var money = HeroHelper.getMoney();
     var count = 0;
     var M = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoStats"));
-    var MainStat = stats[getHHVars('Hero.infos.class') - 1];
-    var Limit = getHHVars('Hero.infos.level') * 30; //getHHVars('Hero.infos.level')*19+Math.min(getHHVars('Hero.infos.level'),25)*21;
-    var carac = getHHVars('Hero.infos.class');
+    var MainStat = stats[HeroHelper.getClass() - 1];
+    var Limit = HeroHelper.getLevel() * 30; //HeroHelper.getLevel()*19+Math.min(HeroHelper.getLevel(),25)*21;
+    var carac = HeroHelper.getClass();
     var mp = 0;
     var mults = [60, 30, 10, 1];
     for (var car = 0; car < 3; car++) {
@@ -14656,11 +14658,11 @@ function doStatUpgrades() {
             var mult = mults[mu];
             var price = 5 + s * 2 + (Math.max(0, s - 2000) * 2) + (Math.max(0, s - 4000) * 2) + (Math.max(0, s - 6000) * 2) + (Math.max(0, s - 8000) * 2);
             price *= mult;
-            if (carac == getHHVars('Hero.infos.class')) {
+            if (carac == HeroHelper.getClass()) {
                 mp = price;
             }
             //logHHAuto('money: '+money+' stat'+carac+': '+stats[carac-1]+' price: '+price);
-            if ((stats[carac - 1] + mult) <= Limit && (money - price) > M && (carac == getHHVars('Hero.infos.class') || price < mp / 2 || (MainStat + mult) > Limit)) {
+            if ((stats[carac - 1] + mult) <= Limit && (money - price) > M && (carac == HeroHelper.getClass() || price < mp / 2 || (MainStat + mult) > Limit)) {
                 count++;
                 LogUtils_logHHAuto('money: ' + money + ' stat' + carac + ': ' + stats[carac - 1] + ' [+' + mult + '] price: ' + price);
                 money -= price;
@@ -14669,7 +14671,7 @@ function doStatUpgrades() {
                     action: "hero_update_stats",
                     nb: mult
                 };
-                unsafeWindow.hh_ajax(params, function (data) {
+                getHHAjax()(params, function (data) {
                     Hero.update("soft_currency", 0 - price, true);
                 });
                 setTimeout(doStatUpgrades, randomInterval(300, 500));
@@ -14683,6 +14685,18 @@ function doStatUpgrades() {
 class HeroHelper {
     static getPlayerId() {
         return getHHVars('Hero.infos.id');
+    }
+    static getClass() {
+        return getHHVars('Hero.infos.class');
+    }
+    static getLevel() {
+        return getHHVars('Hero.infos.level');
+    }
+    static getMoney() {
+        return getHHVars('Hero.currencies.soft_currency');
+    }
+    static getKoban() {
+        return getHHVars('Hero.currencies.hard_currency');
     }
     static haveBoosterInInventory(idBooster) {
         const HaveBooster = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_haveBooster")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_haveBooster")) : {};
@@ -14713,7 +14727,7 @@ class HeroHelper {
                 // change referer
                 const currentPath = window.location.href.replace('http://', '').replace('https://', '').replace(window.location.hostname, '');
                 window.history.replaceState(null, '', addNutakuSession('/shop.html'));
-                unsafeWindow.hh_ajax(params, function (data) {
+                getHHAjax()(params, function (data) {
                     if (data.success)
                         LogUtils_logHHAuto('Booster equipped');
                     else
@@ -15480,7 +15494,7 @@ function autoLoop() {
                 if (getStoredValue(HHStoredVarPrefixKey + "Temp_charLevel") === undefined) {
                     setStoredValue(HHStoredVarPrefixKey + "Temp_charLevel", 0);
                 }
-                if (checkTimer('nextShopTime') || getStoredValue(HHStoredVarPrefixKey + "Temp_charLevel") < getHHVars('Hero.infos.level')) {
+                if (checkTimer('nextShopTime') || getStoredValue(HHStoredVarPrefixKey + "Temp_charLevel") < HeroHelper.getLevel()) {
                     LogUtils_logHHAuto("Time to check shop.");
                     busy = Shop.updateShop();
                     lastActionPerformed = "shop";
@@ -15662,7 +15676,7 @@ function autoLoop() {
                     }
                 }
                 else if (questRequirement[0] === '$') {
-                    if (Number(questRequirement.substr(1)) < getHHVars('Hero.currencies.soft_currency')) {
+                    if (Number(questRequirement.substr(1)) < HeroHelper.getMoney()) {
                         // We have enough money... requirement fulfilled.
                         LogUtils_logHHAuto("Continuing quest, required money obtained.");
                         setStoredValue(HHStoredVarPrefixKey + "Temp_questRequirement", "none");
@@ -15835,7 +15849,7 @@ function autoLoop() {
                         amount: "1"
                     };
                     LogUtils_logHHAuto('Buying ticket with energy');
-                    unsafeWindow.hh_ajax(params, function (data) {
+                    getHHAjax()(params, function (data) {
                         //anim_number($('.tickets_number_amount'), data.tokens - amount, amount);
                         Hero.updates(data.hero_changes);
                         location.reload();
@@ -16739,7 +16753,7 @@ function hardened_start() {
     }
 }
 function start() {
-    var _a, _b, _c, _d, _e;
+    var _a, _b;
     if (unsafeWindow.Hero === undefined && ((_a = unsafeWindow.shared) === null || _a === void 0 ? void 0 : _a.Hero) === undefined) {
         LogUtils_logHHAuto('???no Hero???');
         $('.hh_logo').trigger('click');
@@ -16753,9 +16767,7 @@ function start() {
     if (unsafeWindow.Hero === undefined) {
         LogUtils_logHHAuto('No Hero detected, can be new game version');
         // temp for next version w12
-        unsafeWindow.Hero = (_b = unsafeWindow.shared) === null || _b === void 0 ? void 0 : _b.Hero;
-        if (unsafeWindow.hh_ajax === undefined)
-            unsafeWindow.hh_ajax = (_d = (_c = unsafeWindow.shared) === null || _c === void 0 ? void 0 : _c.general) === null || _d === void 0 ? void 0 : _d.hh_ajax;
+        //unsafeWindow.Hero = unsafeWindow.shared?.Hero;
     }
     StartService.checkVersion();
     Club.checkClubStatus();
@@ -16927,7 +16939,7 @@ function start() {
         }
         Alive();
     }
-    if (isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")) && ((_e = JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")).page) === null || _e === void 0 ? void 0 : _e.indexOf(".html")) > 0) {
+    if (isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")) && ((_b = JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")).page) === null || _b === void 0 ? void 0 : _b.indexOf(".html")) > 0) {
         //console.log("testingHome : setting to : "+getPage());
         setStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled", JSON.stringify({ page: getPage(), dateTime: new Date().getTime() }));
     }

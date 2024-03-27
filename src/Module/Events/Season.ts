@@ -13,6 +13,7 @@ import {
     getStoredValue,
     getTextForUI,
     getTimeLeft,
+    HeroHelper,
     NumberHelper,
     randomInterval,
     RewardHelper,
@@ -25,7 +26,7 @@ import {
     checkParanoiaSpendings,
     gotoPage
 } from "../../Service/index";
-import { isJSON, logHHAuto } from "../../Utils/index";
+import { getHHAjax, isJSON, logHHAuto } from "../../Utils/index";
 import { HHStoredVarPrefixKey } from "../../config/index";
 import { BDSMSimu, SeasonOpponent } from '../../model/index';
 import { Booster } from "../Booster";
@@ -156,7 +157,7 @@ export class Season {
             {
                 price = 12;
             }
-            if (numberOfReds === 3 && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonPassReds") === "true" && getHHVars('Hero.currencies.hard_currency')>=price+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank")))
+            if (numberOfReds === 3 && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonPassReds") === "true" && HeroHelper.getKoban()>=price+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank")))
             {
                 chosenID = -2;
             }
@@ -311,7 +312,7 @@ export class Season {
                         action: 'arena_reload'
                     };
                     logHHAuto("Three red opponents, paying for refresh.");
-                    unsafeWindow.hh_ajax(params, function(data){
+                    getHHAjax()(params, function(data){
                         Hero.update("hard_currency", data.hard_currency, false);
                         location.reload();
                     })

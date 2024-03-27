@@ -16,7 +16,8 @@ import {
     randomInterval,
     setStoredValue, 
     setTimer, 
-    switchHHMenuButton
+    switchHHMenuButton,
+    HeroHelper
 } from '../Helper/index';
 import {
     Booster,
@@ -52,6 +53,7 @@ import {
 import {
     callItOnce,
     checkAndClosePopup,
+    getHHAjax,
     isJSON,
     logHHAuto
 } from '../Utils/index';
@@ -242,7 +244,7 @@ export async function autoLoop()
             {
                 setStoredValue(HHStoredVarPrefixKey+"Temp_charLevel", 0);
             }
-            if (checkTimer('nextShopTime') || getStoredValue(HHStoredVarPrefixKey+"Temp_charLevel")<getHHVars('Hero.infos.level')) {
+            if (checkTimer('nextShopTime') || getStoredValue(HHStoredVarPrefixKey + "Temp_charLevel") < HeroHelper.getLevel()) {
                 logHHAuto("Time to check shop.");
                 busy = Shop.updateShop();
                 lastActionPerformed = "shop";
@@ -477,7 +479,7 @@ export async function autoLoop()
             }
             else if (questRequirement[0] === '$')
             {
-                if (Number(questRequirement.substr(1)) < getHHVars('Hero.currencies.soft_currency')) {
+                if (Number(questRequirement.substr(1)) < HeroHelper.getMoney()) {
                     // We have enough money... requirement fulfilled.
                     logHHAuto("Continuing quest, required money obtained.");
                     setStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement", "none");
@@ -687,7 +689,7 @@ export async function autoLoop()
                     amount: "1"
                 };
                 logHHAuto('Buying ticket with energy');
-                unsafeWindow.hh_ajax(params, function(data) {
+                getHHAjax()(params, function(data) {
                     //anim_number($('.tickets_number_amount'), data.tokens - amount, amount);
                     Hero.updates(data.hero_changes);
                     location.reload();

@@ -4,6 +4,7 @@ import {
     getHHVars,
     getPage,
     getStoredValue,
+    HeroHelper,
     parsePrice,
     randomInterval,
     setStoredValue,
@@ -109,7 +110,7 @@ export class QuestHelper {
             var proceedCost = parsePrice(proceedButtonCost[0].innerText);
             var payTypeNRJ = $("#controls button:not([style*='display:none']):not([style*='display: none']) .action-cost .energy_quest_icn").length>0;
             var energyCurrent = QuestHelper.getEnergy();
-            var moneyCurrent = getHHVars('Hero.currencies.soft_currency');
+            var moneyCurrent = HeroHelper.getMoney();
             let payType = $("#controls .cost span[cur]:not([style*='display:none']):not([style*='display: none'])").attr('cur');
             //console.log("DebugQuest payType : "+payType);
             if (payTypeNRJ)

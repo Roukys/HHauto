@@ -12,7 +12,7 @@ import {
     TimeHelper
 } from '../Helper/index';
 import { gotoPage } from '../Service/index';
-import { getCurrentSorting, logHHAuto } from '../Utils/index';
+import { getCurrentSorting, getHHAjax, logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
 import { Harem } from "./Harem";
 
@@ -70,11 +70,11 @@ export class HaremSalary {
                     id_girl: Clicked[0],
                     action: "get_salary"
                 };
-                unsafeWindow.hh_ajax(params, function(data) {
+                getHHAjax()(params, function(data) {
                     if (data.success)
                     {
                         //console.log(Clicked[0]);
-                        let girlsDataList = getHHVars("GirlSalaryManager.girlsMap");
+                        let girlsDataList = getHHVars("shared.GirlSalaryManager.girlsMap");
                         if (girlsDataList !== null && girlsDataList[Clicked[0]] !== undefined)
                         {
                             const _this2 = girlsDataList[Clicked[0]];
@@ -132,11 +132,15 @@ export class HaremSalary {
             let collectableGirlsList:any[] = [];
             const girlsList = Harem.getGirlMapSorted(getCurrentSorting(), false);
             const salarySumTag = HaremSalary.getSalarySumTag();
-            if ( girlsList === null)
-            {
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHarem"));
+            if (girlsList === null) {
+                if (getPage() != ConfigHelper.getHHScriptVars("pagesIDHarem")) {
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHarem"));
+                    return;
+                } else {
+                    logHHAuto('Error getting girl list');
+                }
             }
-            collectableGirlsList = girlsList.filter(HaremSalary.filterGirlMapReadyForCollect);
+            collectableGirlsList = girlsList?.filter(HaremSalary.filterGirlMapReadyForCollect) || [];
 
             const allOwnedGirlsLoaded = totalGirlsDisplayed > 0 && totalGirlsDisplayed === girlsList.length;
             totalGirlsDisplayed = girlsList.length;
@@ -226,7 +230,7 @@ export class HaremSalary {
     
     static predictNextSalaryMinTime(): number
     {
-        let girlsDataList = getHHVars("GirlSalaryManager.girlsMap");
+        let girlsDataList = getHHVars("shared.GirlSalaryManager.girlsMap");
         if (girlsDataList === null)
         {
             girlsDataList = getHHVars("girlsDataList");

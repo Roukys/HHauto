@@ -36,7 +36,7 @@ export class Harem {
 
     static getGirlMapSorted(inSortType = "DateAcquired",inSortReversed = true )
     {
-        let girlsMap = getHHVars("GirlSalaryManager.girlsMap");
+        let girlsMap = getHHVars("shared.GirlSalaryManager.girlsMap");
         // if (girlsMap === null) {
         //     girlsMap = getHHVars("girlsDataList");
         // }
@@ -395,7 +395,7 @@ export class Harem {
         // Store girls for harem tools
         let filteredGirlsList:string[] = [];
         const girlsDataList = getHHVars("girlsDataList");
-        const girlsListSec = getHHVars("GirlSalaryManager.girlsListSec");
+        const girlsListSec = getHHVars("shared.GirlSalaryManager.girlsListSec");
 
         if (girlsDataList) {
             Object.values(girlsDataList).forEach((girl:any) => {

@@ -11,7 +11,8 @@ import {
     getStoredValue,
     randomInterval,
     setStoredValue,
-    setTimer } from "../../Helper/index";
+    setTimer, 
+    HeroHelper} from "../../Helper/index";
     import { gotoPage } from "../../Service/index";
     import { isJSON, logHHAuto } from "../../Utils/index";
 import { HHStoredVarPrefixKey } from "../../config/index";
@@ -33,7 +34,7 @@ export class PathOfGlory {
         EventModule.displayGenericRemainingTime("#scriptPogTime", "path-of-glory", "HHAutoPoGTimer", "PoGRemainingTime", HHStoredVarPrefixKey+"Temp_PoGEndDate");
     }
     static isEnabled(){
-        return ConfigHelper.getHHScriptVars("isEnabledPoG",false) && getHHVars('Hero.infos.level')>=ConfigHelper.getHHScriptVars("LEVEL_MIN_POG");
+        return ConfigHelper.getHHScriptVars("isEnabledPoG", false) && HeroHelper.getLevel() >= ConfigHelper.getHHScriptVars("LEVEL_MIN_POG");
     }
     static goAndCollect()
     {

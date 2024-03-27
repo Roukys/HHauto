@@ -150,8 +150,7 @@ export function start() {
     if (unsafeWindow.Hero === undefined) {
         logHHAuto('No Hero detected, can be new game version');
         // temp for next version w12
-        unsafeWindow.Hero = unsafeWindow.shared?.Hero;
-        if (unsafeWindow.hh_ajax === undefined) unsafeWindow.hh_ajax = unsafeWindow.shared?.general?.hh_ajax;
+        //unsafeWindow.Hero = unsafeWindow.shared?.Hero;
     }
 
     StartService.checkVersion();

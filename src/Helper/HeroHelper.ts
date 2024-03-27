@@ -1,12 +1,13 @@
 import { addNutakuSession, autoLoop } from '../Service/index';
-import { isJSON, logHHAuto } from '../Utils/index';
+import { getHHAjax, isJSON, logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
+import { KKHero } from '../model/index';
 import { ConfigHelper } from './ConfigHelper';
 import { getHHVars } from "./HHHelper";
 import { getStoredValue, setStoredValue } from "./StorageHelper";
 import { randomInterval } from "./TimeHelper";
 
-export function getHero()
+export function getHero():KKHero
 {
     if(unsafeWindow.Hero === undefined && unsafeWindow.shared?.Hero === undefined)
     {
@@ -23,12 +24,12 @@ export function doStatUpgrades()
     //logHHAuto('stats');
     var Hero=getHero();
     var stats=[getHHVars('Hero.infos.carac1'),getHHVars('Hero.infos.carac2'),getHHVars('Hero.infos.carac3')];
-    var money=getHHVars('Hero.currencies.soft_currency');
+    var money = HeroHelper.getMoney();
     var count=0;
     var M=Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoStats"));
-    var MainStat=stats[getHHVars('Hero.infos.class')-1];
-    var Limit=getHHVars('Hero.infos.level')*30;//getHHVars('Hero.infos.level')*19+Math.min(getHHVars('Hero.infos.level'),25)*21;
-    var carac=getHHVars('Hero.infos.class');
+    var MainStat = stats[HeroHelper.getClass() -1];
+    var Limit = HeroHelper.getLevel() * 30;//HeroHelper.getLevel()*19+Math.min(HeroHelper.getLevel(),25)*21;
+    var carac = HeroHelper.getClass();
     var mp=0;
     var mults=[60,30,10,1];
     for (var car=0; car<3; car++)
@@ -40,12 +41,12 @@ export function doStatUpgrades()
             var mult=mults[mu];
             var price = 5+s*2+(Math.max(0,s-2000)*2)+(Math.max(0,s-4000)*2)+(Math.max(0,s-6000)*2)+(Math.max(0,s-8000)*2);
             price*=mult;
-            if (carac==getHHVars('Hero.infos.class'))
+            if (carac == HeroHelper.getClass())
             {
                 mp=price;
             }
             //logHHAuto('money: '+money+' stat'+carac+': '+stats[carac-1]+' price: '+price);
-            if ((stats[carac-1]+mult)<=Limit && (money-price)>M && (carac==getHHVars('Hero.infos.class') || price<mp/2 || (MainStat+mult)>Limit))
+            if ((stats[carac-1]+mult)<=Limit && (money-price)>M && (carac==HeroHelper.getClass() || price<mp/2 || (MainStat+mult)>Limit))
             {
                 count++;
                 logHHAuto('money: '+money+' stat'+carac+': '+stats[carac-1]+' [+'+mult+'] price: '+price);
@@ -55,7 +56,7 @@ export function doStatUpgrades()
                     action: "hero_update_stats",
                     nb: mult
                 };
-                unsafeWindow.hh_ajax(params, function(data) {
+                getHHAjax()(params, function(data) {
                     Hero.update("soft_currency", 0 - price, true);
                 });
                 setTimeout(doStatUpgrades, randomInterval(300,500));
@@ -69,8 +70,24 @@ export function doStatUpgrades()
 
 export class HeroHelper {
 
-    static getPlayerId() {
+    static getPlayerId():number {
         return getHHVars('Hero.infos.id');
+    }
+
+    static getClass():number {
+        return getHHVars('Hero.infos.class');
+    }
+
+    static getLevel():number {
+        return getHHVars('Hero.infos.level');
+    }
+
+    static getMoney():number {
+        return getHHVars('Hero.currencies.soft_currency');
+    }
+
+    static getKoban():number {
+        return getHHVars('Hero.currencies.hard_currency');
     }
 
     static haveBoosterInInventory(idBooster:string) {
@@ -102,7 +119,7 @@ export class HeroHelper {
             // change referer
             const currentPath = window.location.href.replace('http://', '').replace('https://', '').replace(window.location.hostname, '');
             window.history.replaceState(null, '', addNutakuSession('/shop.html') as string);
-            unsafeWindow.hh_ajax(params, function(data) {
+            getHHAjax()(params, function(data) {
                 if (data.success) logHHAuto('Booster equipped');
                 else HeroHelper.getSandalWoodEquipFailure(true); // Increase failure
                 setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");

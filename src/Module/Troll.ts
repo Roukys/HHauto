@@ -8,6 +8,7 @@ import {
     getSecondsLeft,
     getStoredValue,
     getTextForUI,
+    HeroHelper,
     queryStringGetParam,
     RewardHelper,
     setHHVars,
@@ -385,7 +386,7 @@ export class Troll {
                         && getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX50")
                         && Number.isInteger(Number(getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX50")))
                         && remainingShards >= Number(getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX50"))
-                        && (battleButtonX50Price === 0 || getHHVars('Hero.currencies.hard_currency')>=battleButtonX50Price+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank")))
+                        && (battleButtonX50Price === 0 || HeroHelper.getKoban()>=battleButtonX50Price+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank")))
                         && currentPower >= 50
                         && (currentPower >= (Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollThreshold")) + 50)
                             || bypassThreshold
@@ -413,7 +414,7 @@ export class Troll {
                     {
                         if (getStoredValue(HHStoredVarPrefixKey+"Setting_useX50Fights") === "true")
                         {
-                            logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+Troll.getEnergy()+'/50, remaining shards : '+remainingShards+'/'+getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX50")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank")));
+                            logHHAuto('Unable to use x50 for '+battleButtonX50Price+' kobans,fights : '+Troll.getEnergy()+'/50, remaining shards : '+remainingShards+'/'+getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX50")+', kobans : '+HeroHelper.getKoban()+'/'+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank")));
                         }
                     }
 
@@ -421,7 +422,7 @@ export class Troll {
                         && getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX10")
                         && Number.isInteger(Number(getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX10")))
                         && remainingShards >= Number(getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX10"))
-                        && (battleButtonX10Price === 0 || getHHVars('Hero.currencies.hard_currency')>=battleButtonX10Price+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank")))
+                        && (battleButtonX10Price === 0 || HeroHelper.getKoban()>=battleButtonX10Price+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank")))
                         && currentPower >= 10
                         && (currentPower >= (Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollThreshold")) + 10)
                             || bypassThreshold
@@ -449,7 +450,7 @@ export class Troll {
                     {
                         if (getStoredValue(HHStoredVarPrefixKey+"Setting_useX10Fights") === "true")
                         {
-                            logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+Troll.getEnergy()+'/10, remaining shards : '+remainingShards+'/'+getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX10")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank")));
+                            logHHAuto('Unable to use x10 for '+battleButtonX10Price+' kobans,fights : '+Troll.getEnergy()+'/10, remaining shards : '+remainingShards+'/'+getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX10")+', kobans : '+HeroHelper.getKoban()+'/'+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank")));
                         }
                     }
                 }
@@ -592,7 +593,7 @@ export class Troll {
                     getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX50") !== undefined
                     && Number.isInteger(Number(getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX50")))
                     && remainingShards >= Number(getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX50"))
-                    && getHHVars('Hero.currencies.hard_currency')>= (pricePerFight * maxx50)+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank"))
+                    && HeroHelper.getKoban()>= (pricePerFight * maxx50)+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank"))
                     && getStoredValue(HHStoredVarPrefixKey+"Setting_useX50Fights") === "true"
                     && currentFight < maxx50
                     && ( result.event_mythic === "true" || getStoredValue(HHStoredVarPrefixKey+"Setting_useX50FightsAllowNormalEvent") === "true")
@@ -608,9 +609,9 @@ export class Troll {
 
                 if (logging && getStoredValue(HHStoredVarPrefixKey+"Setting_useX50Fights") === "true")
                 {
-                    logHHAuto('Unable to recharge up to '+maxx50+' for '+(pricePerFight * maxx50)+' kobans : current energy : '+currentFight+', remaining shards : '+remainingShards+'/'+getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX50")+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank")));
+                    logHHAuto('Unable to recharge up to '+maxx50+' for '+(pricePerFight * maxx50)+' kobans : current energy : '+currentFight+', remaining shards : '+remainingShards+'/'+getStoredValue(HHStoredVarPrefixKey+"Setting_minShardsX50")+', kobans : '+HeroHelper.getKoban()+'/'+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank")));
                 }
-                if (getHHVars('Hero.currencies.hard_currency')>=(pricePerFight * maxx20)+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank"))
+                if (HeroHelper.getKoban()>=(pricePerFight * maxx20)+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank"))
                 )//&& currentFight < 10)
                 {
                     result.max = maxx20;
@@ -622,7 +623,7 @@ export class Troll {
                 {
                     if (logging)
                     {
-                        logHHAuto('Unable to recharge up to '+maxx20+' for '+(pricePerFight * maxx20)+' kobans : current energy : '+currentFight+', kobans : '+getHHVars('Hero.currencies.hard_currency')+'/'+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank")));
+                        logHHAuto('Unable to recharge up to '+maxx20+' for '+(pricePerFight * maxx20)+' kobans : current energy : '+currentFight+', kobans : '+HeroHelper.getKoban()+'/'+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank")));
                     }
                     return result;
                 }
