@@ -6670,24 +6670,27 @@ class Labyrinth {
     }
     static _buildTeam() {
         return Labyrinth_awaiter(this, void 0, void 0, function* () {
-            $('#auto-fill-team:not([disabled])').trigger('click');
+            if ($(Labyrinth.HAREM_SELECTED_GIRLS).length == 0) {
+                $('#auto-fill-team:not([disabled])').trigger('click');
+            }
             const girlSelector = '.team-hexagon .back-column .team-member-container.selectable'; //back, mean front
             const firstTeamGirl = $(girlSelector + '[data-team-member-position="2"]');
             const secondTeamGirl = $(girlSelector + '[data-team-member-position="3"]');
-            // const lowPowerGirls = Labyrinth.getLowPowerTeamMember();
-            // if (lowPowerGirls.length > 0) {
-            //     try{
-            //         const freeGirls = Labyrinth.getHaremGirl(0, true, lowPowerGirls.length);
-            //         for (let i = 0; i < lowPowerGirls.length; i++) {
-            //             lowPowerGirls[i].trigger('click');
-            //             await TimeHelper.sleep(randomInterval(400, 700));
-            //             freeGirls[i].trigger('click');
-            //             await TimeHelper.sleep(randomInterval(400, 700));
-            //         }
-            //     } catch (err) {
-            //         logHHAuto('Error during changing low power girls');
-            //     }
-            // }
+            const lowPowerGirls = Labyrinth.getLowPowerTeamMember();
+            if (lowPowerGirls.length > 0) {
+                try {
+                    const freeGirls = Labyrinth.getHaremGirl(0, true, lowPowerGirls.length);
+                    for (let i = 0; i < lowPowerGirls.length; i++) {
+                        lowPowerGirls[i].trigger('click');
+                        yield TimeHelper.sleep(randomInterval(400, 700));
+                        freeGirls[i].trigger('click');
+                        yield TimeHelper.sleep(randomInterval(400, 700));
+                    }
+                }
+                catch (err) {
+                    LogUtils_logHHAuto('Error during changing low power girls');
+                }
+            }
             const hcGirls = Labyrinth.getHaremGirl(1);
             if (hcGirls.length < 2) {
                 LogUtils_logHHAuto('Error, not enough HC girls');
@@ -6723,9 +6726,8 @@ class Labyrinth {
     }
     static getLowPowerTeamMember() {
         const teamGirlSelector = '.team-hexagon .team-member-container';
-        const haremGirlSelector = '.harem-panel-girls .harem-girl-container.selected';
         const lowPowerGirls = [];
-        let haremGirls = $(haremGirlSelector);
+        let haremGirls = $(Labyrinth.HAREM_SELECTED_GIRLS);
         for (let i = 0; i < haremGirls.length; i++) {
             const id_girl = $(haremGirls[i]).attr('id_girl');
             const remainingEgo = Number($('.ego-bar-container span', $(haremGirls[i])).text().replace('%', ''));
