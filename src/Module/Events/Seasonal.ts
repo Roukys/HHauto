@@ -212,7 +212,7 @@ export class SeasonalEvent {
             let divToModify = $('.seasonal-progress-bar-section, .mega-progress-bar-section');
             if (divToModify.length > 0)
             {
-                (divToModify as any).getNiceScroll().resize();
+                //(divToModify as any).getNiceScroll().resize();
     
                 const width_px = 152.1;
                 const start_px = 101;
@@ -220,9 +220,9 @@ export class SeasonalEvent {
                 const scroll_width_hidden = Math.floor(start_px + (rewards_unclaimed - 1) * width_px);
                 $('.seasonal-progress-bar-current, .mega-progress-bar').css('width', scroll_width_hidden + 'px');
     
-                try {
-                    (divToModify as any).getNiceScroll(0).doScrollLeft(0, 200);
-                } catch(err) {}
+                // try {
+                //     (divToModify as any).getNiceScroll(0).doScrollLeft(0, 200);
+                // } catch(err) {}
             }
         }
     }

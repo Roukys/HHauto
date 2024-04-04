@@ -418,7 +418,7 @@ export class LeagueHelper {
                         }
                     } catch(e) {}
                 }
-                ($('#leagues .league_content .league_table') as any).getNiceScroll().resize()
+                //($('#leagues .league_content .league_table') as any).getNiceScroll().resize()
             }
 
             function displayBeatenOpponents() {
@@ -437,7 +437,7 @@ export class LeagueHelper {
                         }
                     } catch(e) {}
                 }
-                ($('#leagues .league_content .league_table') as any).getNiceScroll().resize()
+                //($('#leagues .league_content .league_table') as any).getNiceScroll().resize()
             }
 
             $(".leagues_middle_header_script").append(beatenOpponents);
