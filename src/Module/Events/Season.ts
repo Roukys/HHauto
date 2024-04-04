@@ -623,11 +623,11 @@ export class Season {
         if (modified)
         {
             $('.rewards_seasons_row').css('width', 'max-content');
-            const $rowScroll = $('.rewards_container_seasons');
-            if ($rowScroll.length && ($rowScroll as any).getNiceScroll(0).doScrollLeft) {
-                ($rowScroll as any).getNiceScroll().resize();
-                ($rowScroll as any).getNiceScroll(0).doScrollLeft(0,200);
-            }
+            // const $rowScroll = $('.rewards_container_seasons');
+            // if ($rowScroll.length && ($rowScroll as any).getNiceScroll(0).doScrollLeft) {
+            //     ($rowScroll as any).getNiceScroll().resize();
+            //     ($rowScroll as any).getNiceScroll(0).doScrollLeft(0,200);
+            // }
         }
     }
 }

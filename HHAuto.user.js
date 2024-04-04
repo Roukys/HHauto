@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.8.1
+// @version      7.8.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3376,11 +3376,11 @@ class Season {
         }
         if (modified) {
             $('.rewards_seasons_row').css('width', 'max-content');
-            const $rowScroll = $('.rewards_container_seasons');
-            if ($rowScroll.length && $rowScroll.getNiceScroll(0).doScrollLeft) {
-                $rowScroll.getNiceScroll().resize();
-                $rowScroll.getNiceScroll(0).doScrollLeft(0, 200);
-            }
+            // const $rowScroll = $('.rewards_container_seasons');
+            // if ($rowScroll.length && ($rowScroll as any).getNiceScroll(0).doScrollLeft) {
+            //     ($rowScroll as any).getNiceScroll().resize();
+            //     ($rowScroll as any).getNiceScroll(0).doScrollLeft(0,200);
+            // }
         }
     }
 }
@@ -3551,16 +3551,15 @@ class SeasonalEvent {
         if (modified) {
             let divToModify = $('.seasonal-progress-bar-section, .mega-progress-bar-section');
             if (divToModify.length > 0) {
-                divToModify.getNiceScroll().resize();
+                //(divToModify as any).getNiceScroll().resize();
                 const width_px = 152.1;
                 const start_px = 101;
                 const rewards_unclaimed = $('.mega-tier.unclaimed, .free-slot:not(.claimed)').length;
                 const scroll_width_hidden = Math.floor(start_px + (rewards_unclaimed - 1) * width_px);
                 $('.seasonal-progress-bar-current, .mega-progress-bar').css('width', scroll_width_hidden + 'px');
-                try {
-                    divToModify.getNiceScroll(0).doScrollLeft(0, 200);
-                }
-                catch (err) { }
+                // try {
+                //     (divToModify as any).getNiceScroll(0).doScrollLeft(0, 200);
+                // } catch(err) {}
             }
         }
     }
@@ -7232,7 +7231,7 @@ class LeagueHelper {
                     }
                     catch (e) { }
                 }
-                $('#leagues .league_content .league_table').getNiceScroll().resize();
+                //($('#leagues .league_content .league_table') as any).getNiceScroll().resize()
             }
             function displayBeatenOpponents() {
                 var board = document.getElementsByClassName("data-list")[0];
@@ -7254,7 +7253,7 @@ class LeagueHelper {
                     }
                     catch (e) { }
                 }
-                $('#leagues .league_content .league_table').getNiceScroll().resize();
+                //($('#leagues .league_content .league_table') as any).getNiceScroll().resize()
             }
             $(".leagues_middle_header_script").append(beatenOpponents);
             let hideBeatenOppo = getStoredValue(HHStoredVarPrefixKey + "Temp_hideBeatenOppo");
