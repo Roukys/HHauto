@@ -237,6 +237,7 @@ export class LeagueHelper {
     }*/
 
     static moduleSimLeague() {
+        try {
         LeagueHelper.moduleSimLeagueHideBeatenOppo();
         if($('.change_team_container').length <= 0) {
             LeagueHelper.addChangeTeamButton();
@@ -378,6 +379,10 @@ export class LeagueHelper {
                 }
                 $('.league_content .league_table').animate({scrollTop: 0});
             });
+        }
+
+        } catch ({ errName, message }) {
+            logHHAuto(`Error module Sim League: ${errName}, ${message}`);
         }
     }
 
@@ -610,6 +615,7 @@ export class LeagueHelper {
     }
 
     static doLeagueBattle() {
+        try{
         //logHHAuto("Performing auto leagues.");
         // Confirm if on correct screen.
         const currentPower = LeagueHelper.getEnergy();
@@ -777,8 +783,8 @@ export class LeagueHelper {
                 }
                 const nextOpponent: LeagueOpponent = Data[0];
                 const opponents_list = getHHVars("opponents_list");
-                const opponentDataFromList:KKLeagueOpponent = opponents_list?.find(obj => obj.player.id_fighter == nextOpponent.opponent_id);
-                if (debugEnabled) logHHAuto("opponentDataFromList ", JSON.stringify(opponentDataFromList));
+                const opponentDataFromList: KKLeagueOpponent = opponents_list?.find(obj => obj.player.id_fighter == nextOpponent.opponent_id);
+                if (debugEnabled && opponentDataFromList) logHHAuto("opponentDataFromList ", JSON.stringify(opponentDataFromList));
                 if (!opponentDataFromList) logHHAuto(`ERROR opponent ${nextOpponent.opponent_id} not found in JS list`);
 
                 logHHAuto(`Going to fight ${nextOpponent.nickname} (${nextOpponent.opponent_id}) with power ${nextOpponent.power}. Can fight: ${opponentDataFromList?.can_fight}`);
@@ -823,6 +829,11 @@ export class LeagueHelper {
             logHHAuto("Switching to leagues screen.");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeaderboard"));
             return;
+        }
+        } catch ({ errName, message }) {
+            logHHAuto(`Error do League: ${errName}, ${message}`);
+            setTimer('nextLeaguesTime', randomInterval(30 * 60, 35 * 60));
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
         }
     }
 
