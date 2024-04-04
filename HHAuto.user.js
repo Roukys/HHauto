@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.8.0
+// @version      7.8.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -6672,23 +6672,16 @@ class Labyrinth {
         return floor;
     }
     static moduleBuildTeam() {
-        const buttonId = 'hhAutoLabyTeam';
-        if ($(`#${buttonId}`).length == 0) {
-            const button = $(`<button id="${buttonId}" class="blue_button_L" style="position: absolute; top: 45px; width: 100%;">${getTextForUI("autoLabyrinthBuildTeam", "elementText")}</button>`);
+        if ($(`#${Labyrinth.BUILD_BUTTON_ID}`).length == 0) {
+            const button = $(`<button id="${Labyrinth.BUILD_BUTTON_ID}" class="blue_button_L" style="position: absolute; top: 45px; width: 100%;">${getTextForUI("autoLabyrinthBuildTeam", "elementText")}</button>`);
             // button.css('display', 'none');
             $('#edit-team-page .boss-bang-panel').append(button);
             button.on('click', Labyrinth._buildTeam);
             GM_registerMenuCommand(getTextForUI("autoLabyrinthBuildTeam", "elementText"), Labyrinth._buildTeam);
         }
     }
-    static _buildTeam() {
+    static _removeLowPowerGirls() {
         return Labyrinth_awaiter(this, void 0, void 0, function* () {
-            if ($(Labyrinth.HAREM_SELECTED_GIRLS).length == 0) {
-                $('#auto-fill-team:not([disabled])').trigger('click');
-            }
-            const girlSelector = '.team-hexagon .back-column .team-member-container.selectable'; //back, mean front
-            const firstTeamGirl = $(girlSelector + '[data-team-member-position="2"]');
-            const secondTeamGirl = $(girlSelector + '[data-team-member-position="3"]');
             const lowPowerGirls = Labyrinth.getLowPowerTeamMember();
             if (lowPowerGirls.length > 0) {
                 try {
@@ -6704,19 +6697,48 @@ class Labyrinth {
                     LogUtils_logHHAuto('Error during changing low power girls');
                 }
             }
+        });
+    }
+    static _buildTeam() {
+        return Labyrinth_awaiter(this, void 0, void 0, function* () {
+            // Girl position
+            //   1
+            // 6   2
+            //   0
+            // 5   3
+            //   4
+            var selectGirl = (girlPosition, girlToBeSelected) => Labyrinth_awaiter(this, void 0, void 0, function* () {
+                const girl = $('.team-hexagon .team-member-container.selectable[data-team-member-position="' + girlPosition + '"]');
+                girl.trigger('click');
+                yield TimeHelper.sleep(randomInterval(400, 700));
+                girlToBeSelected.trigger('click');
+                yield TimeHelper.sleep(randomInterval(400, 700));
+            });
+            $(`#${Labyrinth.BUILD_BUTTON_ID}`).attr('disabled', 'disabled');
+            if ($(Labyrinth.HAREM_SELECTED_GIRLS).length == 0) {
+                $('#auto-fill-team:not([disabled])').trigger('click');
+                yield TimeHelper.sleep(randomInterval(200, 500));
+            }
+            yield Labyrinth._removeLowPowerGirls();
             const hcGirls = Labyrinth.getHaremGirl(1);
             if (hcGirls.length < 2) {
-                LogUtils_logHHAuto('Error, not enough HC girls');
+                LogUtils_logHHAuto('Error, not enough hardcore girls');
             }
             else {
-                firstTeamGirl.trigger('click');
-                yield TimeHelper.sleep(randomInterval(400, 700));
-                hcGirls[0].trigger('click');
-                yield TimeHelper.sleep(randomInterval(400, 700));
-                secondTeamGirl.trigger('click');
-                yield TimeHelper.sleep(randomInterval(400, 700));
-                hcGirls[1].trigger('click');
+                yield selectGirl(2, hcGirls[0]);
+                yield selectGirl(3, hcGirls[1]);
             }
+            /*
+                    const chGirls = Labyrinth.getHaremGirl(2);
+                    if (chGirls.length >= 1) await selectGirl(1, chGirls[0]);
+                    if (chGirls.length >= 2) await selectGirl(4, chGirls[1]);
+            
+                    const kwGirls = Labyrinth.getHaremGirl(3);
+                    if (kwGirls.length >= 1) await selectGirl(5, kwGirls[0]);
+                    if (kwGirls.length >= 2) await selectGirl(6, kwGirls[1]);
+                    if (kwGirls.length >= 3) await selectGirl(0, kwGirls[2]);
+            */
+            $(`#${Labyrinth.BUILD_BUTTON_ID}`).removeAttr('disabled');
         });
     }
     static getHaremGirl(girlClass = 0, excludeSelected = false, numberOfGirls = 2) {
@@ -6883,6 +6905,7 @@ class Labyrinth {
     }
 }
 Labyrinth.HAREM_SELECTED_GIRLS = '.harem-panel-girls .harem-girl-container.selected';
+Labyrinth.BUILD_BUTTON_ID = 'hhAutoLabyTeam';
 
 ;// CONCATENATED MODULE: ./src/Module/League.ts
 
@@ -7058,120 +7081,125 @@ class LeagueHelper {
         }
     }*/
     static moduleSimLeague() {
-        LeagueHelper.moduleSimLeagueHideBeatenOppo();
-        if ($('.change_team_container').length <= 0) {
-            LeagueHelper.addChangeTeamButton();
-        }
-        if ($("#popup_message_league").length > 0 || getStoredValue(HHStoredVarPrefixKey + "Setting_leagueListDisplayPowerCalc") !== "true") {
-            return;
-        }
-        const opponentButtons = $('a.go_pre_battle.blue_button_L');
-        const opponentSim = $("div.matchRatingNew img.powerLevelScouter");
-        const allOpponentsSimDisplayed = (opponentSim.length >= opponentButtons.length);
-        const Hero = getHero();
-        const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
-        let SimPower = function () {
-            if (allOpponentsSimDisplayed) {
-                // logHHAuto("Stop simu");
+        try {
+            LeagueHelper.moduleSimLeagueHideBeatenOppo();
+            if ($('.change_team_container').length <= 0) {
+                LeagueHelper.addChangeTeamButton();
+            }
+            if ($("#popup_message_league").length > 0 || getStoredValue(HHStoredVarPrefixKey + "Setting_leagueListDisplayPowerCalc") !== "true") {
                 return;
             }
-            const opponents_list = getHHVars("opponents_list");
-            if (!opponents_list) {
-                LogUtils_logHHAuto('ERROR: Can\'t find opponent list');
-                return;
-            }
-            let heroFighter = opponents_list.find((el) => el.player.id_fighter == HeroHelper.getPlayerId()).player;
-            const containsSimuScore = function (opponents) { return $('a[href*="id_opponent=' + opponents.player.id_fighter + '"] .matchRatingNew').length > 0; };
-            const containsOcdScore = function (opponents) { return $('.matchRating', $('a[href*="id_opponent=' + opponents.player.id_fighter + '"]').parent()).length > 0; };
-            let opponentsPowerList = LeagueHelper._getTempLeagueOpponentList();
-            let opponentsPowerListChanged = false;
-            for (let opponentIndex = 0; opponentIndex < opponents_list.length; opponentIndex++) {
-                let opponents = opponents_list[opponentIndex];
-                if (LeagueHelper.numberOfFightAvailable(opponents) > 0 && !containsSimuScore(opponents) && !containsOcdScore(opponents)) {
-                    let simu;
-                    let leagueOpponent;
-                    if (opponentsPowerList && opponentsPowerList.opponentsList.length > 0) {
-                        try {
-                            leagueOpponent = opponentsPowerList.opponentsList.find((el) => el.opponent_id == opponents.player.id_fighter);
-                            if (leagueOpponent)
-                                simu = leagueOpponent.simu;
-                        }
-                        catch (error) {
-                            LogUtils_logHHAuto("Error when getting oppo " + opponents.player.id_fighter + "from storage");
-                            if (debugEnabled)
-                                LogUtils_logHHAuto(error);
-                        }
-                    }
-                    if (!simu) {
-                        simu = LeagueHelper.getSimPowerOpponent(heroFighter, opponents);
-                        leagueOpponent = new LeagueOpponent(opponents.player.id_fighter, 
-                        // opponents.place,
-                        opponents.nickname, 
-                        // opponents.level,
-                        opponents.power, 
-                        // opponents.player_league_points,
-                        Number(NumberHelper.nRounding(simu.expectedValue, 1, -1)), 
-                        // 0, // Boster numbers?
-                        // opponents,
-                        simu);
-                        opponentsPowerList.opponentsList.push(leagueOpponent);
-                        opponentsPowerListChanged = true;
-                    }
-                    LeagueHelper.displayOppoSimuOnButton(opponents.player.id_fighter, simu);
+            const opponentButtons = $('a.go_pre_battle.blue_button_L');
+            const opponentSim = $("div.matchRatingNew img.powerLevelScouter");
+            const allOpponentsSimDisplayed = (opponentSim.length >= opponentButtons.length);
+            const Hero = getHero();
+            const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
+            let SimPower = function () {
+                if (allOpponentsSimDisplayed) {
+                    // logHHAuto("Stop simu");
+                    return;
                 }
+                const opponents_list = getHHVars("opponents_list");
+                if (!opponents_list) {
+                    LogUtils_logHHAuto('ERROR: Can\'t find opponent list');
+                    return;
+                }
+                let heroFighter = opponents_list.find((el) => el.player.id_fighter == HeroHelper.getPlayerId()).player;
+                const containsSimuScore = function (opponents) { return $('a[href*="id_opponent=' + opponents.player.id_fighter + '"] .matchRatingNew').length > 0; };
+                const containsOcdScore = function (opponents) { return $('.matchRating', $('a[href*="id_opponent=' + opponents.player.id_fighter + '"]').parent()).length > 0; };
+                let opponentsPowerList = LeagueHelper._getTempLeagueOpponentList();
+                let opponentsPowerListChanged = false;
+                for (let opponentIndex = 0; opponentIndex < opponents_list.length; opponentIndex++) {
+                    let opponents = opponents_list[opponentIndex];
+                    if (LeagueHelper.numberOfFightAvailable(opponents) > 0 && !containsSimuScore(opponents) && !containsOcdScore(opponents)) {
+                        let simu;
+                        let leagueOpponent;
+                        if (opponentsPowerList && opponentsPowerList.opponentsList.length > 0) {
+                            try {
+                                leagueOpponent = opponentsPowerList.opponentsList.find((el) => el.opponent_id == opponents.player.id_fighter);
+                                if (leagueOpponent)
+                                    simu = leagueOpponent.simu;
+                            }
+                            catch (error) {
+                                LogUtils_logHHAuto("Error when getting oppo " + opponents.player.id_fighter + "from storage");
+                                if (debugEnabled)
+                                    LogUtils_logHHAuto(error);
+                            }
+                        }
+                        if (!simu) {
+                            simu = LeagueHelper.getSimPowerOpponent(heroFighter, opponents);
+                            leagueOpponent = new LeagueOpponent(opponents.player.id_fighter, 
+                            // opponents.place,
+                            opponents.nickname, 
+                            // opponents.level,
+                            opponents.power, 
+                            // opponents.player_league_points,
+                            Number(NumberHelper.nRounding(simu.expectedValue, 1, -1)), 
+                            // 0, // Boster numbers?
+                            // opponents,
+                            simu);
+                            opponentsPowerList.opponentsList.push(leagueOpponent);
+                            opponentsPowerListChanged = true;
+                        }
+                        LeagueHelper.displayOppoSimuOnButton(opponents.player.id_fighter, simu);
+                    }
+                }
+                if (opponentsPowerListChanged) {
+                    LogUtils_logHHAuto('Save opponent list for later');
+                    setStoredValue(HHStoredVarPrefixKey + "Temp_LeagueOpponentList", JSON.stringify(opponentsPowerList));
+                }
+                //CSS
+            };
+            SimPower();
+            let listUpdateStatus = '<div style="position: absolute;left: 720px;top: 0px;width:100px;" class="tooltipHH" id="HHListUpdate"></div>';
+            if (document.getElementById("HHListUpdate") === null) {
+                $(".leagues_middle_header_script").append(listUpdateStatus);
             }
-            if (opponentsPowerListChanged) {
-                LogUtils_logHHAuto('Save opponent list for later');
-                setStoredValue(HHStoredVarPrefixKey + "Temp_LeagueOpponentList", JSON.stringify(opponentsPowerList));
-            }
-            //CSS
-        };
-        SimPower();
-        let listUpdateStatus = '<div style="position: absolute;left: 720px;top: 0px;width:100px;" class="tooltipHH" id="HHListUpdate"></div>';
-        if (document.getElementById("HHListUpdate") === null) {
-            $(".leagues_middle_header_script").append(listUpdateStatus);
-        }
-        if (allOpponentsSimDisplayed || opponentSim.length <= 1) {
-            let buttonLaunchList = '<span class="tooltipHHtext">' + getTextForUI("RefreshOppoList", "tooltip") + '</span><label style="width:100%;" class="myButton" id="RefreshOppoList">' + getTextForUI("RefreshOppoList", "elementText") + '</label>';
-            if (document.getElementById("RefreshOppoList") === null) {
-                $("#HHListUpdate").html('').append(buttonLaunchList);
-                $("#RefreshOppoList").on("click", function () {
-                    $("#RefreshOppoList").remove();
-                    $('a[href*="id_opponent"]').each(function () {
-                        $(this).html('Go'); // TODO translate
+            if (allOpponentsSimDisplayed || opponentSim.length <= 1) {
+                let buttonLaunchList = '<span class="tooltipHHtext">' + getTextForUI("RefreshOppoList", "tooltip") + '</span><label style="width:100%;" class="myButton" id="RefreshOppoList">' + getTextForUI("RefreshOppoList", "elementText") + '</label>';
+                if (document.getElementById("RefreshOppoList") === null) {
+                    $("#HHListUpdate").html('').append(buttonLaunchList);
+                    $("#RefreshOppoList").on("click", function () {
+                        $("#RefreshOppoList").remove();
+                        $('a[href*="id_opponent"]').each(function () {
+                            $(this).html('Go'); // TODO translate
+                        });
                     });
+                }
+            }
+            else {
+                $("#HHListUpdate").html('Building:' + opponentSim.length + "/" + opponentButtons.length);
+            }
+            let buttonSortList = '<div style="position: absolute;left: 780px;top: 14px;width:75px;" class="tooltipHH"><span class="tooltipHHtext">' + getTextForUI("sortPowerCalc", "tooltip") + '</span><label style="width:100%;" class="myButton" id="sortPowerCalc">' + getTextForUI("sortPowerCalc", "elementText") + '</label></div>';
+            const league_table = $('.league_content .data-list');
+            if (document.getElementById("sortPowerCalc") === null && $('.matchRatingNew', league_table).length > 0) {
+                $('.leagues_middle_header_script').append(buttonSortList);
+                $("#sortPowerCalc").on("click", function () {
+                    let items = $('.data-row.body-row:visible', league_table).map((i, el) => el).toArray();
+                    items.sort(function (a, b) {
+                        //console.log($('#HHPowerCalcScore',$(a)));
+                        const score_a = $('#HHPowerCalcScore', $(a)).length === 0 ? 0 : Number($('#HHPowerCalcScore', $(a))[0].innerText);
+                        const score_b = $('#HHPowerCalcScore', $(b)).length === 0 ? 0 : Number($('#HHPowerCalcScore', $(b))[0].innerText);
+                        const points_a = $('#HHPowerCalcPoints', $(a)).length === 0 ? 0 : Number($('#HHPowerCalcPoints', $(a))[0].innerText);
+                        const points_b = $('#HHPowerCalcPoints', $(b)).length === 0 ? 0 : Number($('#HHPowerCalcPoints', $(b))[0].innerText);
+                        //console.log(score_a,score_b,points_a,points_b);
+                        if (score_b === score_a) {
+                            return points_b - points_a;
+                        }
+                        else {
+                            return score_b - score_a;
+                        }
+                    });
+                    for (let item in items) {
+                        $(items[item]).detach();
+                        league_table.append(items[item]);
+                    }
+                    $('.league_content .league_table').animate({ scrollTop: 0 });
                 });
             }
         }
-        else {
-            $("#HHListUpdate").html('Building:' + opponentSim.length + "/" + opponentButtons.length);
-        }
-        let buttonSortList = '<div style="position: absolute;left: 780px;top: 14px;width:75px;" class="tooltipHH"><span class="tooltipHHtext">' + getTextForUI("sortPowerCalc", "tooltip") + '</span><label style="width:100%;" class="myButton" id="sortPowerCalc">' + getTextForUI("sortPowerCalc", "elementText") + '</label></div>';
-        const league_table = $('.league_content .data-list');
-        if (document.getElementById("sortPowerCalc") === null && $('.matchRatingNew', league_table).length > 0) {
-            $('.leagues_middle_header_script').append(buttonSortList);
-            $("#sortPowerCalc").on("click", function () {
-                let items = $('.data-row.body-row:visible', league_table).map((i, el) => el).toArray();
-                items.sort(function (a, b) {
-                    //console.log($('#HHPowerCalcScore',$(a)));
-                    const score_a = $('#HHPowerCalcScore', $(a)).length === 0 ? 0 : Number($('#HHPowerCalcScore', $(a))[0].innerText);
-                    const score_b = $('#HHPowerCalcScore', $(b)).length === 0 ? 0 : Number($('#HHPowerCalcScore', $(b))[0].innerText);
-                    const points_a = $('#HHPowerCalcPoints', $(a)).length === 0 ? 0 : Number($('#HHPowerCalcPoints', $(a))[0].innerText);
-                    const points_b = $('#HHPowerCalcPoints', $(b)).length === 0 ? 0 : Number($('#HHPowerCalcPoints', $(b))[0].innerText);
-                    //console.log(score_a,score_b,points_a,points_b);
-                    if (score_b === score_a) {
-                        return points_b - points_a;
-                    }
-                    else {
-                        return score_b - score_a;
-                    }
-                });
-                for (let item in items) {
-                    $(items[item]).detach();
-                    league_table.append(items[item]);
-                }
-                $('.league_content .league_table').animate({ scrollTop: 0 });
-            });
+        catch ({ errName, message }) {
+            LogUtils_logHHAuto(`Error module Sim League: ${errName}, ${message}`);
         }
     }
     static moduleSimLeagueHideBeatenOppo() {
@@ -7389,189 +7417,196 @@ class LeagueHelper {
         return Data;
     }
     static doLeagueBattle() {
-        //logHHAuto("Performing auto leagues.");
-        // Confirm if on correct screen.
-        const currentPower = LeagueHelper.getEnergy();
-        const maxLeagueRegen = LeagueHelper.getEnergyMax();
-        const leagueThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesThreshold"));
-        const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
-        let leagueScoreSecurityThreshold = getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesSecurityThreshold");
-        if (leagueScoreSecurityThreshold) {
-            leagueScoreSecurityThreshold = Number(leagueScoreSecurityThreshold);
-        }
-        else {
-            leagueScoreSecurityThreshold = 40;
-        }
-        var page = getPage();
-        const Hero = getHero();
-        if (page === ConfigHelper.getHHScriptVars("pagesIDLeagueBattle")) {
-            // On the battle screen.
-            // CrushThemFights(); // TODO ??? // now managed by doBattle
-        }
-        else if (page === ConfigHelper.getHHScriptVars("pagesIDLeaderboard")) {
-            LogUtils_logHHAuto("On leaderboard page.");
-            if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesCollect") === "true") {
-                if ($('#leagues .forced_info button[rel="claim"]').length > 0) {
-                    $('#leagues .forced_info button[rel="claim"]').trigger('click'); //click reward
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeaderboard"));
+        try {
+            //logHHAuto("Performing auto leagues.");
+            // Confirm if on correct screen.
+            const currentPower = LeagueHelper.getEnergy();
+            const maxLeagueRegen = LeagueHelper.getEnergyMax();
+            const leagueThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesThreshold"));
+            const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
+            let leagueScoreSecurityThreshold = getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesSecurityThreshold");
+            if (leagueScoreSecurityThreshold) {
+                leagueScoreSecurityThreshold = Number(leagueScoreSecurityThreshold);
+            }
+            else {
+                leagueScoreSecurityThreshold = 40;
+            }
+            var page = getPage();
+            const Hero = getHero();
+            if (page === ConfigHelper.getHHScriptVars("pagesIDLeagueBattle")) {
+                // On the battle screen.
+                // CrushThemFights(); // TODO ??? // now managed by doBattle
+            }
+            else if (page === ConfigHelper.getHHScriptVars("pagesIDLeaderboard")) {
+                LogUtils_logHHAuto("On leaderboard page.");
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesCollect") === "true") {
+                    if ($('#leagues .forced_info button[rel="claim"]').length > 0) {
+                        $('#leagues .forced_info button[rel="claim"]').trigger('click'); //click reward
+                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeaderboard"));
+                    }
                 }
-            }
-            LogUtils_logHHAuto('parsing enemies');
-            var Data = LeagueHelper.getLeagueOpponentListData();
-            const league_end = LeagueHelper.getLeagueEndTime();
-            if (currentPower < 1 && Data.length > 0) {
-                LogUtils_logHHAuto("No power for leagues.");
-                //prevent paranoia to wait for league
-                setStoredValue(HHStoredVarPrefixKey + "Temp_paranoiaLeagueBlocked", "true");
-                const next_refresh = getHHVars('Hero.energies.challenge.next_refresh_ts');
-                setTimer('nextLeaguesTime', randomInterval(next_refresh + 10, next_refresh + 3 * 60));
-                return;
-            }
-            if (Data.length == 0) {
-                LogUtils_logHHAuto('No valid targets!');
-                //prevent paranoia to wait for league
-                setStoredValue(HHStoredVarPrefixKey + "Temp_paranoiaLeagueBlocked", "true");
-                if ($('#leagues .forced_info').length > 0) {
-                    setTimer('nextLeaguesTime', randomInterval(30 * 60, 35 * 60));
+                LogUtils_logHHAuto('parsing enemies');
+                var Data = LeagueHelper.getLeagueOpponentListData();
+                const league_end = LeagueHelper.getLeagueEndTime();
+                if (currentPower < 1 && Data.length > 0) {
+                    LogUtils_logHHAuto("No power for leagues.");
+                    //prevent paranoia to wait for league
+                    setStoredValue(HHStoredVarPrefixKey + "Temp_paranoiaLeagueBlocked", "true");
+                    const next_refresh = getHHVars('Hero.energies.challenge.next_refresh_ts');
+                    setTimer('nextLeaguesTime', randomInterval(next_refresh + 10, next_refresh + 3 * 60));
+                    return;
+                }
+                if (Data.length == 0) {
+                    LogUtils_logHHAuto('No valid targets!');
+                    //prevent paranoia to wait for league
+                    setStoredValue(HHStoredVarPrefixKey + "Temp_paranoiaLeagueBlocked", "true");
+                    if ($('#leagues .forced_info').length > 0) {
+                        setTimer('nextLeaguesTime', randomInterval(30 * 60, 35 * 60));
+                    }
+                    else {
+                        LogUtils_logHHAuto('Set timer to league ends.');
+                        setTimer('nextLeaguesTime', randomInterval(league_end - 5 * 60, league_end));
+                    }
                 }
                 else {
-                    LogUtils_logHHAuto('Set timer to league ends.');
-                    setTimer('nextLeaguesTime', randomInterval(league_end - 5 * 60, league_end));
+                    var getPlayerCurrentLevel = LeagueHelper.getLeagueCurrentLevel();
+                    if (isNaN(getPlayerCurrentLevel)) {
+                        LogUtils_logHHAuto("Could not get current Rank, stopping League.");
+                        //prevent paranoia to wait for league
+                        setStoredValue(HHStoredVarPrefixKey + "Temp_paranoiaLeagueBlocked", "true");
+                        setTimer('nextLeaguesTime', randomInterval(30 * 60, 35 * 60));
+                        return;
+                    }
+                    var currentRank = Number($('.data-list .data-row.body-row.player-row .data-column[column="place"]').text());
+                    var currentScore = Number($('.data-list .data-row.body-row.player-row .data-column[column="player_league_points"]').text().replace(/\D/g, ''));
+                    let leagueTargetValue = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesSelectedIndex")) + 1;
+                    if (leagueTargetValue < Number(getPlayerCurrentLevel)) {
+                        var totalOpponents = Number($('.data-list .data-row.body-row').length) + 1;
+                        var maxDemote = 0;
+                        if (screen.width < 1026) {
+                            totalOpponents = totalOpponents + 1;
+                        }
+                        var rankDemote = totalOpponents - 14;
+                        if (currentRank > (totalOpponents - 15)) {
+                            rankDemote = totalOpponents - 15;
+                        }
+                        LogUtils_logHHAuto("Current league above target (" + Number(getPlayerCurrentLevel) + "/" + leagueTargetValue + "), needs to demote. max rank : " + rankDemote + "/" + totalOpponents);
+                        let getRankDemote = $(".data-list .data-row.body-row .data-column[column='place']:contains(" + rankDemote + ")").filter(function () {
+                            return Number($(this).text().trim()) === rankDemote;
+                        });
+                        if (getRankDemote.length > 0) {
+                            maxDemote = Number($(".data-column[column='player_league_points']", getRankDemote.parent()).text().replace(/\D/g, ''));
+                        }
+                        else {
+                            maxDemote = 0;
+                        }
+                        LogUtils_logHHAuto("Current league above target (" + Number(getPlayerCurrentLevel) + "/" + leagueTargetValue + "), needs to demote. Score should not be higher than : " + maxDemote);
+                        if (currentScore + leagueScoreSecurityThreshold >= maxDemote) {
+                            if (league_end <= (60 * 60)) {
+                                LogUtils_logHHAuto("Can't do league as could go above demote, as last hour setting timer to 5 mins");
+                                setTimer('nextLeaguesTime', randomInterval(5 * 60, 8 * 60));
+                            }
+                            else {
+                                LogUtils_logHHAuto("Can't do league as could go above demote, setting timer to 30 mins");
+                                setTimer('nextLeaguesTime', randomInterval(30 * 60, 35 * 60));
+                            }
+                            //prevent paranoia to wait for league
+                            setStoredValue(HHStoredVarPrefixKey + "Temp_paranoiaLeagueBlocked", "true");
+                            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                            return;
+                        }
+                    }
+                    const leagues = ConfigHelper.getHHScriptVars("leaguesList");
+                    var maxStay = -1;
+                    var maxLeague = $("div.tier_icons img").length;
+                    if (maxLeague === undefined) {
+                        maxLeague = leagues.length;
+                    }
+                    if (leagueTargetValue === Number(getPlayerCurrentLevel) && leagueTargetValue < maxLeague) {
+                        var rankStay = 16;
+                        if (currentRank > 15) {
+                            rankStay = 15;
+                        }
+                        LogUtils_logHHAuto("Current league is target (" + Number(getPlayerCurrentLevel) + "/" + leagueTargetValue + "), needs to stay. max rank : " + rankStay);
+                        let getRankStay = $(".data-list .data-row.body-row .data-column[column='place']:contains(" + rankStay + ")").filter(function () {
+                            return Number($(this).text().trim()) === rankStay;
+                        });
+                        if (getRankStay.length > 0) {
+                            maxStay = Number($(".data-column[column='player_league_points']", getRankStay.parent()).text().replace(/\D/g, ''));
+                        }
+                        else {
+                            maxStay = 0;
+                        }
+                        LogUtils_logHHAuto("Current league is target (" + Number(getPlayerCurrentLevel) + "/" + leagueTargetValue + "), needs to stay. Score should not be higher than : " + maxStay);
+                        if (currentScore + leagueScoreSecurityThreshold >= maxStay && getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesAllowWinCurrent") !== "true") {
+                            LogUtils_logHHAuto("Can't do league as could go above stay, setting timer to 30 mins");
+                            setTimer('nextLeaguesTime', randomInterval(30 * 60, 35 * 60));
+                            //prevent paranoia to wait for league
+                            setStoredValue(HHStoredVarPrefixKey + "Temp_paranoiaLeagueBlocked", "true");
+                            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                            return;
+                        }
+                    }
+                    LogUtils_logHHAuto(Data.length + ' valid targets!');
+                    setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+                    LogUtils_logHHAuto("setting autoloop to false");
+                    const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesRunThreshold"));
+                    if (runThreshold > 0) {
+                        setStoredValue(HHStoredVarPrefixKey + "Temp_LeagueHumanLikeRun", "true");
+                    }
+                    const nextOpponent = Data[0];
+                    const opponents_list = getHHVars("opponents_list");
+                    const opponentDataFromList = opponents_list === null || opponents_list === void 0 ? void 0 : opponents_list.find(obj => obj.player.id_fighter == nextOpponent.opponent_id);
+                    if (debugEnabled && opponentDataFromList)
+                        LogUtils_logHHAuto("opponentDataFromList ", JSON.stringify(opponentDataFromList));
+                    if (!opponentDataFromList)
+                        LogUtils_logHHAuto(`ERROR opponent ${nextOpponent.opponent_id} not found in JS list`);
+                    LogUtils_logHHAuto(`Going to fight ${nextOpponent.nickname} (${nextOpponent.opponent_id}) with power ${nextOpponent.power}. Can fight: ${opponentDataFromList === null || opponentDataFromList === void 0 ? void 0 : opponentDataFromList.can_fight}`);
+                    if (debugEnabled)
+                        LogUtils_logHHAuto(JSON.stringify(nextOpponent));
+                    // change referer
+                    window.history.replaceState(null, '', addNutakuSession(ConfigHelper.getHHScriptVars("pagesURLLeaguPreBattle") + '?id_opponent=' + nextOpponent.opponent_id));
+                    const numberOfFightAvailable = LeagueHelper.numberOfFightAvailable(opponentDataFromList);
+                    let numberOfBattle = 1;
+                    if (numberOfFightAvailable > 1 && currentPower >= (numberOfFightAvailable + leagueThreshold)) {
+                        if (maxStay > 0 && currentScore + (numberOfFightAvailable * leagueScoreSecurityThreshold) >= maxStay)
+                            LogUtils_logHHAuto('Can\'t do ' + numberOfFightAvailable + ' fights in league as could go above stay');
+                        else
+                            numberOfBattle = numberOfFightAvailable;
+                    }
+                    LogUtils_logHHAuto("Going to fight " + numberOfBattle + " times (Number fights available from opponent:" + numberOfFightAvailable + ")");
+                    if (numberOfBattle <= 1) {
+                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeagueBattle"), { number_of_battles: 1, id_opponent: nextOpponent.opponent_id });
+                    }
+                    else {
+                        var params1 = {
+                            action: "do_battles_leagues",
+                            id_opponent: nextOpponent.opponent_id,
+                            number_of_battles: numberOfBattle
+                        };
+                        params1 = addNutakuSession(params1);
+                        getHHAjax()(params1, function (data) {
+                            // change referer
+                            window.history.replaceState(null, '', addNutakuSession(ConfigHelper.getHHScriptVars("pagesURLLeaderboard")));
+                            RewardHelper.closeRewardPopupIfAny();
+                            // gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeaderboard"));
+                            location.reload();
+                            Hero.updates(data.hero_changes);
+                        });
+                    }
                 }
             }
             else {
-                var getPlayerCurrentLevel = LeagueHelper.getLeagueCurrentLevel();
-                if (isNaN(getPlayerCurrentLevel)) {
-                    LogUtils_logHHAuto("Could not get current Rank, stopping League.");
-                    //prevent paranoia to wait for league
-                    setStoredValue(HHStoredVarPrefixKey + "Temp_paranoiaLeagueBlocked", "true");
-                    setTimer('nextLeaguesTime', randomInterval(30 * 60, 35 * 60));
-                    return;
-                }
-                var currentRank = Number($('.data-list .data-row.body-row.player-row .data-column[column="place"]').text());
-                var currentScore = Number($('.data-list .data-row.body-row.player-row .data-column[column="player_league_points"]').text().replace(/\D/g, ''));
-                let leagueTargetValue = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesSelectedIndex")) + 1;
-                if (leagueTargetValue < Number(getPlayerCurrentLevel)) {
-                    var totalOpponents = Number($('.data-list .data-row.body-row').length) + 1;
-                    var maxDemote = 0;
-                    if (screen.width < 1026) {
-                        totalOpponents = totalOpponents + 1;
-                    }
-                    var rankDemote = totalOpponents - 14;
-                    if (currentRank > (totalOpponents - 15)) {
-                        rankDemote = totalOpponents - 15;
-                    }
-                    LogUtils_logHHAuto("Current league above target (" + Number(getPlayerCurrentLevel) + "/" + leagueTargetValue + "), needs to demote. max rank : " + rankDemote + "/" + totalOpponents);
-                    let getRankDemote = $(".data-list .data-row.body-row .data-column[column='place']:contains(" + rankDemote + ")").filter(function () {
-                        return Number($(this).text().trim()) === rankDemote;
-                    });
-                    if (getRankDemote.length > 0) {
-                        maxDemote = Number($(".data-column[column='player_league_points']", getRankDemote.parent()).text().replace(/\D/g, ''));
-                    }
-                    else {
-                        maxDemote = 0;
-                    }
-                    LogUtils_logHHAuto("Current league above target (" + Number(getPlayerCurrentLevel) + "/" + leagueTargetValue + "), needs to demote. Score should not be higher than : " + maxDemote);
-                    if (currentScore + leagueScoreSecurityThreshold >= maxDemote) {
-                        if (league_end <= (60 * 60)) {
-                            LogUtils_logHHAuto("Can't do league as could go above demote, as last hour setting timer to 5 mins");
-                            setTimer('nextLeaguesTime', randomInterval(5 * 60, 8 * 60));
-                        }
-                        else {
-                            LogUtils_logHHAuto("Can't do league as could go above demote, setting timer to 30 mins");
-                            setTimer('nextLeaguesTime', randomInterval(30 * 60, 35 * 60));
-                        }
-                        //prevent paranoia to wait for league
-                        setStoredValue(HHStoredVarPrefixKey + "Temp_paranoiaLeagueBlocked", "true");
-                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
-                        return;
-                    }
-                }
-                const leagues = ConfigHelper.getHHScriptVars("leaguesList");
-                var maxStay = -1;
-                var maxLeague = $("div.tier_icons img").length;
-                if (maxLeague === undefined) {
-                    maxLeague = leagues.length;
-                }
-                if (leagueTargetValue === Number(getPlayerCurrentLevel) && leagueTargetValue < maxLeague) {
-                    var rankStay = 16;
-                    if (currentRank > 15) {
-                        rankStay = 15;
-                    }
-                    LogUtils_logHHAuto("Current league is target (" + Number(getPlayerCurrentLevel) + "/" + leagueTargetValue + "), needs to stay. max rank : " + rankStay);
-                    let getRankStay = $(".data-list .data-row.body-row .data-column[column='place']:contains(" + rankStay + ")").filter(function () {
-                        return Number($(this).text().trim()) === rankStay;
-                    });
-                    if (getRankStay.length > 0) {
-                        maxStay = Number($(".data-column[column='player_league_points']", getRankStay.parent()).text().replace(/\D/g, ''));
-                    }
-                    else {
-                        maxStay = 0;
-                    }
-                    LogUtils_logHHAuto("Current league is target (" + Number(getPlayerCurrentLevel) + "/" + leagueTargetValue + "), needs to stay. Score should not be higher than : " + maxStay);
-                    if (currentScore + leagueScoreSecurityThreshold >= maxStay && getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesAllowWinCurrent") !== "true") {
-                        LogUtils_logHHAuto("Can't do league as could go above stay, setting timer to 30 mins");
-                        setTimer('nextLeaguesTime', randomInterval(30 * 60, 35 * 60));
-                        //prevent paranoia to wait for league
-                        setStoredValue(HHStoredVarPrefixKey + "Temp_paranoiaLeagueBlocked", "true");
-                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
-                        return;
-                    }
-                }
-                LogUtils_logHHAuto(Data.length + ' valid targets!');
-                setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
-                LogUtils_logHHAuto("setting autoloop to false");
-                const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesRunThreshold"));
-                if (runThreshold > 0) {
-                    setStoredValue(HHStoredVarPrefixKey + "Temp_LeagueHumanLikeRun", "true");
-                }
-                const nextOpponent = Data[0];
-                const opponents_list = getHHVars("opponents_list");
-                const opponentDataFromList = opponents_list === null || opponents_list === void 0 ? void 0 : opponents_list.find(obj => obj.player.id_fighter == nextOpponent.opponent_id);
-                if (debugEnabled)
-                    LogUtils_logHHAuto("opponentDataFromList ", JSON.stringify(opponentDataFromList));
-                if (!opponentDataFromList)
-                    LogUtils_logHHAuto(`ERROR opponent ${nextOpponent.opponent_id} not found in JS list`);
-                LogUtils_logHHAuto(`Going to fight ${nextOpponent.nickname} (${nextOpponent.opponent_id}) with power ${nextOpponent.power}. Can fight: ${opponentDataFromList === null || opponentDataFromList === void 0 ? void 0 : opponentDataFromList.can_fight}`);
-                if (debugEnabled)
-                    LogUtils_logHHAuto(JSON.stringify(nextOpponent));
-                // change referer
-                window.history.replaceState(null, '', addNutakuSession(ConfigHelper.getHHScriptVars("pagesURLLeaguPreBattle") + '?id_opponent=' + nextOpponent.opponent_id));
-                const numberOfFightAvailable = LeagueHelper.numberOfFightAvailable(opponentDataFromList);
-                let numberOfBattle = 1;
-                if (numberOfFightAvailable > 1 && currentPower >= (numberOfFightAvailable + leagueThreshold)) {
-                    if (maxStay > 0 && currentScore + (numberOfFightAvailable * leagueScoreSecurityThreshold) >= maxStay)
-                        LogUtils_logHHAuto('Can\'t do ' + numberOfFightAvailable + ' fights in league as could go above stay');
-                    else
-                        numberOfBattle = numberOfFightAvailable;
-                }
-                LogUtils_logHHAuto("Going to fight " + numberOfBattle + " times (Number fights available from opponent:" + numberOfFightAvailable + ")");
-                if (numberOfBattle <= 1) {
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeagueBattle"), { number_of_battles: 1, id_opponent: nextOpponent.opponent_id });
-                }
-                else {
-                    var params1 = {
-                        action: "do_battles_leagues",
-                        id_opponent: nextOpponent.opponent_id,
-                        number_of_battles: numberOfBattle
-                    };
-                    params1 = addNutakuSession(params1);
-                    getHHAjax()(params1, function (data) {
-                        // change referer
-                        window.history.replaceState(null, '', addNutakuSession(ConfigHelper.getHHScriptVars("pagesURLLeaderboard")));
-                        RewardHelper.closeRewardPopupIfAny();
-                        // gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeaderboard"));
-                        location.reload();
-                        Hero.updates(data.hero_changes);
-                    });
-                }
+                // Switch to the correct screen
+                LogUtils_logHHAuto("Switching to leagues screen.");
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeaderboard"));
+                return;
             }
         }
-        else {
-            // Switch to the correct screen
-            LogUtils_logHHAuto("Switching to leagues screen.");
-            gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeaderboard"));
-            return;
+        catch ({ errName, message }) {
+            LogUtils_logHHAuto(`Error do League: ${errName}, ${message}`);
+            setTimer('nextLeaguesTime', randomInterval(30 * 60, 35 * 60));
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
         }
     }
     static LeagueDisplayGetOpponentPopup(numberDone, remainingTime) {
@@ -16766,7 +16801,7 @@ function start() {
     }
     if (unsafeWindow.Hero === undefined) {
         LogUtils_logHHAuto('No Hero detected, can be new game version');
-        // temp for next version w12
+        // temp for version APR24
         //unsafeWindow.Hero = unsafeWindow.shared?.Hero;
     }
     StartService.checkVersion();

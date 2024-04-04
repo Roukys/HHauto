@@ -149,7 +149,7 @@ export function start() {
 
     if (unsafeWindow.Hero === undefined) {
         logHHAuto('No Hero detected, can be new game version');
-        // temp for next version w12
+        // temp for version APR24
         //unsafeWindow.Hero = unsafeWindow.shared?.Hero;
     }
 

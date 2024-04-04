@@ -26,6 +26,7 @@ class LabyrinthOpponent{
 
 export class Labyrinth {
     static HAREM_SELECTED_GIRLS = '.harem-panel-girls .harem-girl-container.selected';
+    static BUILD_BUTTON_ID = 'hhAutoLabyTeam';
 
     static isEnabled(){
         return ConfigHelper.getHHScriptVars("isEnabledLabyrinth",false); // more than 14 girls
@@ -90,9 +91,8 @@ export class Labyrinth {
     }
 
     static moduleBuildTeam():void{
-        const buttonId = 'hhAutoLabyTeam';
-        if ($(`#${buttonId}`).length == 0) {
-            const button = $(`<button id="${buttonId}" class="blue_button_L" style="position: absolute; top: 45px; width: 100%;">${getTextForUI("autoLabyrinthBuildTeam", "elementText") }</button>`);
+        if ($(`#${Labyrinth.BUILD_BUTTON_ID}`).length == 0) {
+            const button = $(`<button id="${Labyrinth.BUILD_BUTTON_ID}" class="blue_button_L" style="position: absolute; top: 45px; width: 100%;">${getTextForUI("autoLabyrinthBuildTeam", "elementText") }</button>`);
             // button.css('display', 'none');
 
             $('#edit-team-page .boss-bang-panel').append(button);
@@ -102,18 +102,10 @@ export class Labyrinth {
         }
     }
 
-    static async _buildTeam() {
-        if ($(Labyrinth.HAREM_SELECTED_GIRLS).length == 0) {
-            $('#auto-fill-team:not([disabled])').trigger('click');
-        }
-
-        const girlSelector = '.team-hexagon .back-column .team-member-container.selectable'; //back, mean front
-        const firstTeamGirl = $(girlSelector + '[data-team-member-position="2"]');
-        const secondTeamGirl = $(girlSelector + '[data-team-member-position="3"]');
-
+    static async _removeLowPowerGirls(){
         const lowPowerGirls = Labyrinth.getLowPowerTeamMember();
         if (lowPowerGirls.length > 0) {
-            try{
+            try {
                 const freeGirls = Labyrinth.getHaremGirl(0, true, lowPowerGirls.length);
 
                 for (let i = 0; i < lowPowerGirls.length; i++) {
@@ -126,20 +118,50 @@ export class Labyrinth {
                 logHHAuto('Error during changing low power girls');
             }
         }
+    }
+
+    static async _buildTeam() {
+        // Girl position
+        //   1
+        // 6   2
+        //   0
+        // 5   3
+        //   4
+
+        var selectGirl = async (girlPosition: number, girlToBeSelected: JQuery<HTMLElement>) => {
+            const girl = $('.team-hexagon .team-member-container.selectable[data-team-member-position="' + girlPosition + '"]');
+            girl.trigger('click');
+            await TimeHelper.sleep(randomInterval(400, 700));
+            girlToBeSelected.trigger('click');
+            await TimeHelper.sleep(randomInterval(400, 700));
+        }
+
+        $(`#${Labyrinth.BUILD_BUTTON_ID}`).attr('disabled','disabled');
+        if ($(Labyrinth.HAREM_SELECTED_GIRLS).length == 0) {
+            $('#auto-fill-team:not([disabled])').trigger('click');
+            await TimeHelper.sleep(randomInterval(200, 500));
+        }
+
+        await Labyrinth._removeLowPowerGirls();
 
         const hcGirls = Labyrinth.getHaremGirl(1);
         if(hcGirls.length < 2) {
-            logHHAuto('Error, not enough HC girls');
+            logHHAuto('Error, not enough hardcore girls');
         } else {
-            firstTeamGirl.trigger('click');
-            await TimeHelper.sleep(randomInterval(400, 700));
-            hcGirls[0].trigger('click');
-            await TimeHelper.sleep(randomInterval(400, 700));
-
-            secondTeamGirl.trigger('click');
-            await TimeHelper.sleep(randomInterval(400, 700));
-            hcGirls[1].trigger('click');
+            await selectGirl(2, hcGirls[0]);
+            await selectGirl(3, hcGirls[1]);
         }
+/*
+        const chGirls = Labyrinth.getHaremGirl(2);
+        if (chGirls.length >= 1) await selectGirl(1, chGirls[0]);
+        if (chGirls.length >= 2) await selectGirl(4, chGirls[1]);
+
+        const kwGirls = Labyrinth.getHaremGirl(3);
+        if (kwGirls.length >= 1) await selectGirl(5, kwGirls[0]);
+        if (kwGirls.length >= 2) await selectGirl(6, kwGirls[1]);
+        if (kwGirls.length >= 3) await selectGirl(0, kwGirls[2]);
+*/
+        $(`#${Labyrinth.BUILD_BUTTON_ID}`).removeAttr('disabled');
     }
 
     static getHaremGirl(girlClass: number = 0, excludeSelected = false, numberOfGirls: number = 2): JQuery<HTMLElement>[] {
