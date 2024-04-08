@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.8.2
+// @version      7.8.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -6706,6 +6706,8 @@ class Labyrinth {
             //   0
             // 5   3
             //   4
+            setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+            LogUtils_logHHAuto("setting autoloop to false");
             var selectGirl = (girlPosition, girlToBeSelected) => Labyrinth_awaiter(this, void 0, void 0, function* () {
                 const girl = $('.team-hexagon .team-member-container.selectable[data-team-member-position="' + girlPosition + '"]');
                 girl.trigger('click');
@@ -6738,6 +6740,8 @@ class Labyrinth {
                     if (kwGirls.length >= 3) await selectGirl(0, kwGirls[2]);
             */
             $(`#${Labyrinth.BUILD_BUTTON_ID}`).removeAttr('disabled');
+            setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
+            LogUtils_logHHAuto("setting autoloop to true");
         });
     }
     static getHaremGirl(girlClass = 0, excludeSelected = false, numberOfGirls = 2) {
@@ -15820,6 +15824,39 @@ function autoLoop() {
             else if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoQuest") === "false" && getStoredValue(HHStoredVarPrefixKey + "Setting_autoSideQuest") === "false") {
                 setStoredValue(HHStoredVarPrefixKey + "Temp_questRequirement", "none");
             }
+            if (busy === false && LeagueHelper.isAutoLeagueActivated() && isAutoLoopActive()
+                && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "league")) {
+                // Navigate to leagues
+                if (LeagueHelper.isTimeToFight()) {
+                    LogUtils_logHHAuto("Time to fight in Leagues.");
+                    LeagueHelper.doLeagueBattle();
+                    busy = true;
+                    lastActionPerformed = "league";
+                }
+                else {
+                    if (getStoredValue(HHStoredVarPrefixKey + "Temp_LeagueHumanLikeRun") === "true") {
+                        // end run
+                        setStoredValue(HHStoredVarPrefixKey + "Temp_LeagueHumanLikeRun", "false");
+                    }
+                    if (checkTimer('nextLeaguesTime')) {
+                        if (getHHVars('Hero.energies.challenge.next_refresh_ts') === 0) {
+                            setTimer('nextLeaguesTime', randomInterval(15 * 60, 17 * 60));
+                        }
+                        else {
+                            const next_refresh = getHHVars('Hero.energies.challenge.next_refresh_ts');
+                            setTimer('nextLeaguesTime', randomInterval(next_refresh + 10, next_refresh + 180));
+                        }
+                    }
+                    //logHHAuto("reset lastActionPerformed from league");
+                    lastActionPerformed = "none";
+                    /*if (getPage() === ConfigHelper.getHHScriptVars("pagesIDLeaderboard"))
+                    {
+                        logHHAuto("Go to home after league fight");
+                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+    
+                    }*/
+                }
+            }
             if (busy === false && ConfigHelper.getHHScriptVars("isEnabledSeason", false) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeason") === "true"
                 && isAutoLoopActive() && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "season")) {
                 if (Season.isTimeToFight()) {
@@ -15908,39 +15945,6 @@ function autoLoop() {
                 busy = true;
                 busy = ClubChampion.doClubChampionStuff();
                 lastActionPerformed = "clubChampion";
-            }
-            if (busy === false && LeagueHelper.isAutoLeagueActivated() && isAutoLoopActive()
-                && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "league")) {
-                // Navigate to leagues
-                if (LeagueHelper.isTimeToFight()) {
-                    LogUtils_logHHAuto("Time to fight in Leagues.");
-                    LeagueHelper.doLeagueBattle();
-                    busy = true;
-                    lastActionPerformed = "league";
-                }
-                else {
-                    if (getStoredValue(HHStoredVarPrefixKey + "Temp_LeagueHumanLikeRun") === "true") {
-                        // end run
-                        setStoredValue(HHStoredVarPrefixKey + "Temp_LeagueHumanLikeRun", "false");
-                    }
-                    if (checkTimer('nextLeaguesTime')) {
-                        if (getHHVars('Hero.energies.challenge.next_refresh_ts') === 0) {
-                            setTimer('nextLeaguesTime', randomInterval(15 * 60, 17 * 60));
-                        }
-                        else {
-                            const next_refresh = getHHVars('Hero.energies.challenge.next_refresh_ts');
-                            setTimer('nextLeaguesTime', randomInterval(next_refresh + 10, next_refresh + 180));
-                        }
-                    }
-                    //logHHAuto("reset lastActionPerformed from league");
-                    lastActionPerformed = "none";
-                    /*if (getPage() === ConfigHelper.getHHScriptVars("pagesIDLeaderboard"))
-                    {
-                        logHHAuto("Go to home after league fight");
-                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
-    
-                    }*/
-                }
             }
             if (busy == false && ConfigHelper.getHHScriptVars("isEnabledSeason", false) && isAutoLoopActive() &&
                 (checkTimer('nextSeasonCollectTime') && getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonCollect") === "true" && canCollectCompetitionActive

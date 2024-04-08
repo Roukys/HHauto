@@ -610,6 +610,40 @@ export async function autoLoop()
             setStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement", "none");
         }
 
+        if (busy === false && LeagueHelper.isAutoLeagueActivated() && isAutoLoopActive()
+            && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "league")) {
+            // Navigate to leagues
+            if (LeagueHelper.isTimeToFight()) {
+                logHHAuto("Time to fight in Leagues.");
+                LeagueHelper.doLeagueBattle();
+                busy = true;
+                lastActionPerformed = "league";
+            }
+            else {
+                if (getStoredValue(HHStoredVarPrefixKey + "Temp_LeagueHumanLikeRun") === "true") {
+                    // end run
+                    setStoredValue(HHStoredVarPrefixKey + "Temp_LeagueHumanLikeRun", "false");
+                }
+                if (checkTimer('nextLeaguesTime')) {
+                    if (getHHVars('Hero.energies.challenge.next_refresh_ts') === 0) {
+                        setTimer('nextLeaguesTime', randomInterval(15 * 60, 17 * 60));
+                    }
+                    else {
+                        const next_refresh = getHHVars('Hero.energies.challenge.next_refresh_ts')
+                        setTimer('nextLeaguesTime', randomInterval(next_refresh + 10, next_refresh + 180));
+                    }
+                }
+                //logHHAuto("reset lastActionPerformed from league");
+                lastActionPerformed = "none";
+                /*if (getPage() === ConfigHelper.getHHScriptVars("pagesIDLeaderboard"))
+                {
+                    logHHAuto("Go to home after league fight");
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+
+                }*/
+            }
+        }
+
         if(busy === false && ConfigHelper.getHHScriptVars("isEnabledSeason",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeason") === "true" 
             && isAutoLoopActive() && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "season"))
         {
@@ -718,46 +752,6 @@ export async function autoLoop()
             busy=true;
             busy= ClubChampion.doClubChampionStuff();
             lastActionPerformed = "clubChampion";
-        }
-
-        if(busy === false && LeagueHelper.isAutoLeagueActivated() && isAutoLoopActive() 
-            && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "league"))
-        {
-            // Navigate to leagues
-            if (LeagueHelper.isTimeToFight())
-            {
-                logHHAuto("Time to fight in Leagues.");
-                LeagueHelper.doLeagueBattle();
-                busy = true;
-                lastActionPerformed = "league";
-            }
-            else
-            {
-                if(getStoredValue(HHStoredVarPrefixKey+"Temp_LeagueHumanLikeRun") === "true") {
-                    // end run
-                    setStoredValue(HHStoredVarPrefixKey+"Temp_LeagueHumanLikeRun", "false");
-                }
-                if (checkTimer('nextLeaguesTime'))
-                {
-                    if (getHHVars('Hero.energies.challenge.next_refresh_ts') === 0)
-                    {
-                        setTimer('nextLeaguesTime', randomInterval(15*60, 17*60));
-                    }
-                    else
-                    {
-                        const next_refresh = getHHVars('Hero.energies.challenge.next_refresh_ts')
-                        setTimer('nextLeaguesTime', randomInterval(next_refresh+10, next_refresh + 180));
-                    }
-                }
-                //logHHAuto("reset lastActionPerformed from league");
-                lastActionPerformed = "none";
-                /*if (getPage() === ConfigHelper.getHHScriptVars("pagesIDLeaderboard"))
-                {
-                    logHHAuto("Go to home after league fight");
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
-
-                }*/
-            }
         }
 
         if (

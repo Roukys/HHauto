@@ -128,6 +128,9 @@ export class Labyrinth {
         // 5   3
         //   4
 
+        setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+        logHHAuto("setting autoloop to false");
+
         var selectGirl = async (girlPosition: number, girlToBeSelected: JQuery<HTMLElement>) => {
             const girl = $('.team-hexagon .team-member-container.selectable[data-team-member-position="' + girlPosition + '"]');
             girl.trigger('click');
@@ -162,6 +165,9 @@ export class Labyrinth {
         if (kwGirls.length >= 3) await selectGirl(0, kwGirls[2]);
 */
         $(`#${Labyrinth.BUILD_BUTTON_ID}`).removeAttr('disabled');
+
+        setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
+        logHHAuto("setting autoloop to true");
     }
 
     static getHaremGirl(girlClass: number = 0, excludeSelected = false, numberOfGirls: number = 2): JQuery<HTMLElement>[] {
