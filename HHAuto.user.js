@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.8.3
+// @version      7.8.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -2988,7 +2988,7 @@ class Season {
                     $('.player-panel-buttons .opponent_perform_button_container .green_button_L.btn_season_perform', opponents[index]).prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${ConfigHelper.getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${NumberHelper.nRounding(100 * simu.win, 2, -1)}%</div>`);
                 }
             }
-            var { numberOfReds, chosenID } = Season.getBestOppo(seasonOpponents);
+            var { numberOfReds, chosenID } = Season.getBestOppo(seasonOpponents, Season.getEnergy(), Season.getEnergyMax());
             var price = Number($("div.opponents_arena button#refresh_villains").attr('price'));
             if (isNaN(price)) {
                 price = 12;
@@ -2998,9 +2998,14 @@ class Season {
             }
             $($('div.season_arena_opponent_container div.matchRatingNew')).append(`<img id="powerLevelScouterNonChosen">`);
             //logHHAuto("Best opportunity opponent : "+oppoName+'('+chosenRating+')');
-            if (doDisplay) {
-                $($('.season_arena_opponent_container .matchRatingNew #powerLevelScouterNonChosen')[chosenID]).remove();
-                $($('div.season_arena_opponent_container div.matchRatingNew')[chosenID]).append(`<img id="powerLevelScouterChosen" src=${ConfigHelper.getHHScriptVars("powerCalcImages").chosen}>`);
+            if (doDisplay && chosenID >= 0 && chosenID < 3) {
+                try {
+                    $($('.season_arena_opponent_container .matchRatingNew #powerLevelScouterNonChosen')[chosenID]).remove();
+                    $($('div.season_arena_opponent_container div.matchRatingNew')[chosenID]).append(`<img id="powerLevelScouterChosen" src=${ConfigHelper.getHHScriptVars("powerCalcImages").chosen}>`);
+                }
+                catch (err) {
+                    LogUtils_logHHAuto('Error when dispaly chosen opponent');
+                }
             }
             return chosenID;
         }
@@ -3010,7 +3015,7 @@ class Season {
         }
     }
     //    static getBestOppo(scoreOppo: BDSMSimu[], mojoOppo: number[], expOppo: number[], affOppo: number[], nameOppo: string[]) {
-    static getBestOppo(seasonOpponents) {
+    static getBestOppo(seasonOpponents, current_kisses = 1, max_kisses = 10) {
         var chosenID = -1;
         var chosenRating = -1;
         var chosenFlag = -1;
@@ -3023,7 +3028,7 @@ class Season {
         var numberOfReds = 0;
         let currentGains;
         //let oppoName;
-        const tier_indicator = Season.getTierLevel();
+        const seasonEnded = Season.getTierLevel() > Season.LAST_SEASON_LEVEL;
         for (let index = 0; index < 3; index++) {
             let isBetter = false;
             currentScore = Number(seasonOpponents[index].simu.win);
@@ -3067,7 +3072,7 @@ class Season {
                     isBetter = true;
                 }
             }
-            else if (chosenFlag == currentFlag && currentFlag == 1 && tier_indicator <= Season.LAST_SEASON_LEVEL) {
+            else if (chosenFlag == currentFlag && currentFlag == 1 && !seasonEnded) {
                 //same green flag but better mojo
                 if (chosenMojo < currentMojo) {
                     //logHHAuto('third');
@@ -3110,6 +3115,9 @@ class Season {
                 //oppoName = seasonOpponents[index].nickname;
             }
         }
+        if (chosenMojo < Season.MIN_MOJO_FIGHT && !seasonEnded && current_kisses < (max_kisses - 1)) {
+            chosenID = -1; // wait more mojo
+        }
         return { numberOfReds, chosenID };
     }
     static run() {
@@ -3117,7 +3125,6 @@ class Season {
         // Confirm if on correct screen.
         const Hero = getHero();
         var page = getPage();
-        var current_kisses = Season.getEnergy();
         if (page === ConfigHelper.getHHScriptVars("pagesIDSeasonArena")) {
             LogUtils_logHHAuto("On season arena page.");
             var chosenID = Season.moduleSimSeasonBattle();
@@ -3165,6 +3172,7 @@ class Season {
             }
         }
         else {
+            const current_kisses = Season.getEnergy();
             // Switch to the correct screen
             LogUtils_logHHAuto("Remaining kisses : " + current_kisses);
             if (current_kisses > 0) {
@@ -3172,13 +3180,11 @@ class Season {
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonArena"));
             }
             else {
-                if (getHHVars('Hero.energies.kiss.next_refresh_ts') === 0) {
-                    setTimer('nextSeasonTime', randomInterval(15 * 60, 17 * 60));
+                let next_refresh = getHHVars('Hero.energies.kiss.next_refresh_ts');
+                if (next_refresh == 0) {
+                    next_refresh = 15 * 60;
                 }
-                else {
-                    const next_refresh = getHHVars('Hero.energies.kiss.next_refresh_ts');
-                    setTimer('nextSeasonTime', randomInterval(next_refresh + 10, next_refresh + 180));
-                }
+                setTimer('nextSeasonTime', randomInterval(next_refresh + 10, next_refresh + 180));
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
             }
             return;
@@ -3385,6 +3391,7 @@ class Season {
     }
 }
 Season.LAST_SEASON_LEVEL = 63;
+Season.MIN_MOJO_FIGHT = 5;
 
 ;// CONCATENATED MODULE: ./src/Module/Events/Seasonal.ts
 

@@ -34,6 +34,7 @@ import { EventModule } from "./EventModule";
 
 export class Season {
     static LAST_SEASON_LEVEL = 63;
+    static MIN_MOJO_FIGHT = 5;
     static getRemainingTime(){
         const seasonTimer = unsafeWindow.season_sec_untill_event_end;
 
@@ -150,7 +151,7 @@ export class Season {
                 }
             }
 
-            var { numberOfReds, chosenID } = Season.getBestOppo(seasonOpponents);
+            var { numberOfReds, chosenID } = Season.getBestOppo(seasonOpponents, Season.getEnergy(), Season.getEnergyMax());
 
             var price=Number($("div.opponents_arena button#refresh_villains").attr('price'));
             if (isNaN(price))
@@ -165,10 +166,14 @@ export class Season {
             $($('div.season_arena_opponent_container div.matchRatingNew')).append(`<img id="powerLevelScouterNonChosen">`);
 
             //logHHAuto("Best opportunity opponent : "+oppoName+'('+chosenRating+')');
-            if (doDisplay)
+            if (doDisplay && chosenID >= 0 && chosenID < 3)
             {
-                $($('.season_arena_opponent_container .matchRatingNew #powerLevelScouterNonChosen')[chosenID]).remove();
-                $($('div.season_arena_opponent_container div.matchRatingNew')[chosenID]).append(`<img id="powerLevelScouterChosen" src=${ConfigHelper.getHHScriptVars("powerCalcImages").chosen}>`);
+                try{
+                    $($('.season_arena_opponent_container .matchRatingNew #powerLevelScouterNonChosen')[chosenID]).remove();
+                    $($('div.season_arena_opponent_container div.matchRatingNew')[chosenID]).append(`<img id="powerLevelScouterChosen" src=${ConfigHelper.getHHScriptVars("powerCalcImages").chosen}>`);
+                }catch(err){
+                    logHHAuto('Error when dispaly chosen opponent');
+                }
             }
             return chosenID;
         }
@@ -180,7 +185,7 @@ export class Season {
     }
 
 //    static getBestOppo(scoreOppo: BDSMSimu[], mojoOppo: number[], expOppo: number[], affOppo: number[], nameOppo: string[]) {
-    static getBestOppo(seasonOpponents: SeasonOpponent[]) {
+    static getBestOppo(seasonOpponents: SeasonOpponent[], current_kisses=1, max_kisses=10) {
         var chosenID = -1;
         var chosenRating = -1;
         var chosenFlag = -1;
@@ -193,7 +198,7 @@ export class Season {
         var numberOfReds = 0;
         let currentGains;
         //let oppoName;
-        const tier_indicator = Season.getTierLevel();
+        const seasonEnded = Season.getTierLevel() > Season.LAST_SEASON_LEVEL;
 
         for (let index = 0; index < 3; index++) {
             let isBetter = false;
@@ -239,7 +244,7 @@ export class Season {
                     isBetter = true;
                 }
             }
-            else if (chosenFlag == currentFlag && currentFlag == 1 && tier_indicator <= Season.LAST_SEASON_LEVEL) {
+            else if (chosenFlag == currentFlag && currentFlag == 1 && !seasonEnded) {
                 //same green flag but better mojo
                 if (chosenMojo < currentMojo) {
                     //logHHAuto('third');
@@ -286,6 +291,9 @@ export class Season {
                 //oppoName = seasonOpponents[index].nickname;
             }
         }
+        if (chosenMojo < Season.MIN_MOJO_FIGHT && !seasonEnded && current_kisses < (max_kisses-1) ) {
+            chosenID = -1; // wait more mojo
+        }
         return { numberOfReds, chosenID };
     }
 
@@ -294,7 +302,6 @@ export class Season {
         // Confirm if on correct screen.
         const Hero = getHero();
         var page = getPage();
-        var current_kisses = Season.getEnergy();
         if (page === ConfigHelper.getHHScriptVars("pagesIDSeasonArena"))
         {
             logHHAuto("On season arena page.");
@@ -351,6 +358,7 @@ export class Season {
         }
         else
         {
+            const current_kisses = Season.getEnergy();
             // Switch to the correct screen
             logHHAuto("Remaining kisses : "+ current_kisses);
             if ( current_kisses > 0 )
@@ -360,15 +368,11 @@ export class Season {
             }
             else
             {
-                if (getHHVars('Hero.energies.kiss.next_refresh_ts') === 0)
-                {
-                    setTimer('nextSeasonTime', randomInterval(15*60, 17*60));
+                let next_refresh = getHHVars('Hero.energies.kiss.next_refresh_ts')
+                if (next_refresh == 0) {
+                    next_refresh = 15*60;
                 }
-                else
-                {
-                    const next_refresh = getHHVars('Hero.energies.kiss.next_refresh_ts')
-                    setTimer('nextSeasonTime', randomInterval(next_refresh+10, next_refresh + 180));
-                }
+                setTimer('nextSeasonTime', randomInterval(next_refresh+10, next_refresh + 180));
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
             }
             return;
