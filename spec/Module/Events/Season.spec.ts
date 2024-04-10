@@ -224,6 +224,48 @@ describe("Season event", function () {
         });
     });
 
+    describe("getBestOppo low mojo", function () {
+        it("low mojo", function () {
+            mockSeasonTierLevel(20);
+            const OPPO_AA = { ...OPPO_A };
+            OPPO_AA.mojo = 5;
+            let result = Season.getBestOppo([OPPO_AA, OPPO_AA, OPPO_AA]);
+            expect(result.chosenID).toBe(-1);
+        });
+
+        it("low mojo and end season", function () {
+            mockSeasonTierLevel(64);
+            const OPPO_AA = { ...OPPO_A };
+            OPPO_AA.mojo = 5;
+            let result = Season.getBestOppo([OPPO_AA, OPPO_AA, OPPO_AA]);
+            expect(result.chosenID).toBe(0);
+        });
+
+        it("low mojo, energy max", function () {
+            mockSeasonTierLevel(20);
+            const OPPO_AA = { ...OPPO_A };
+            OPPO_AA.mojo = 5;
+            let result = Season.getBestOppo([OPPO_AA, OPPO_AA, OPPO_AA], 10);
+            expect(result.chosenID).toBe(0);
+        });
+
+        it("low mojo, energy not max with cards", function () {
+            mockSeasonTierLevel(20);
+            const OPPO_AA = { ...OPPO_A };
+            OPPO_AA.mojo = 5;
+            let result = Season.getBestOppo([OPPO_AA, OPPO_AA, OPPO_AA], 11, 15);
+            expect(result.chosenID).toBe(-1);
+        });
+
+        it("low mojo, energy max with cards", function () {
+            mockSeasonTierLevel(20);
+            const OPPO_AA = { ...OPPO_A };
+            OPPO_AA.mojo = 5;
+            let result = Season.getBestOppo([OPPO_AA, OPPO_AA, OPPO_AA], 15, 15);
+            expect(result.chosenID).toBe(0);
+        });
+    });
+
     describe("get kiss", function () {
         beforeEach(() => {
             MockHelper.mockHeroLevel(500);
