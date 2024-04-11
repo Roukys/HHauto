@@ -34,7 +34,7 @@ import { EventModule } from "./EventModule";
 
 export class Season {
     static LAST_SEASON_LEVEL = 63;
-    static MIN_MOJO_FIGHT = 5;
+    static MIN_MOJO_FIGHT = 8;
     static getRemainingTime(){
         const seasonTimer = unsafeWindow.season_sec_untill_event_end;
 
