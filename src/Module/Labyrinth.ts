@@ -91,13 +91,18 @@ export class Labyrinth {
     }
 
     static moduleBuildTeam():void{
-        if ($(`#${Labyrinth.BUILD_BUTTON_ID}`).length == 0) {
-            const button = $(`<button id="${Labyrinth.BUILD_BUTTON_ID}" class="blue_button_L" style="position: absolute; top: 45px; width: 100%;">${getTextForUI("autoLabyrinthBuildTeam", "elementText") }</button>`);
-            // button.css('display', 'none');
+        if ($(`.${Labyrinth.BUILD_BUTTON_ID}`).length == 0) {
+            const divButtons = $('<div style="position:absolute;left:-55px;top:-310px;width:150%;display:flex;gap:4px;z-index:1"></div>');
 
-            $('#edit-team-page .boss-bang-panel').append(button);
+            ['Team', 'Tank', 'Mage', 'Attack'].forEach((value, index) => {
+                const button = $(`<button id="${Labyrinth.BUILD_BUTTON_ID + value}" class="blue_button_L ${Labyrinth.BUILD_BUTTON_ID}" style="padding: 5px;flex-grow: 1;"></button>`);
+                button.text(getTextForUI("autoLabyrinthBuild" + value, "elementText"));
+                button.on('click', () => { Labyrinth._buildTeam({}, index) });
+                divButtons.prepend(button);
+            })
 
-            button.on('click', Labyrinth._buildTeam);
+            $('#edit-team-page .boss-bang-panel').append(divButtons);
+
             GM_registerMenuCommand(getTextForUI("autoLabyrinthBuildTeam", "elementText"), Labyrinth._buildTeam);
         }
     }
@@ -120,7 +125,7 @@ export class Labyrinth {
         }
     }
 
-    static async _buildTeam() {
+    static async _buildTeam(event, mode=0) {
         // Girl position
         //   1
         // 6   2
@@ -139,32 +144,39 @@ export class Labyrinth {
             await TimeHelper.sleep(randomInterval(400, 700));
         }
 
-        $(`#${Labyrinth.BUILD_BUTTON_ID}`).attr('disabled','disabled');
+        $(`.${Labyrinth.BUILD_BUTTON_ID}`).attr('disabled','disabled');
         if ($(Labyrinth.HAREM_SELECTED_GIRLS).length == 0) {
             $('#auto-fill-team:not([disabled])').trigger('click');
             await TimeHelper.sleep(randomInterval(200, 500));
         }
 
-        await Labyrinth._removeLowPowerGirls();
+        // await Labyrinth._removeLowPowerGirls();
 
-        const hcGirls = Labyrinth.getHaremGirl(1);
-        if(hcGirls.length < 2) {
-            logHHAuto('Error, not enough hardcore girls');
-        } else {
-            await selectGirl(2, hcGirls[0]);
-            await selectGirl(3, hcGirls[1]);
+        if (mode == 0 || mode == 1) {
+            const hcGirls = Labyrinth.getHaremGirl(1);
+            if(hcGirls.length < 2) {
+                logHHAuto('Error, not enough hardcore girls');
+            } else {
+                await selectGirl(2, hcGirls[0]);
+                await selectGirl(3, hcGirls[1]);
+            }
         }
-/*
-        const chGirls = Labyrinth.getHaremGirl(2);
-        if (chGirls.length >= 1) await selectGirl(1, chGirls[0]);
-        if (chGirls.length >= 2) await selectGirl(4, chGirls[1]);
 
-        const kwGirls = Labyrinth.getHaremGirl(3);
-        if (kwGirls.length >= 1) await selectGirl(5, kwGirls[0]);
-        if (kwGirls.length >= 2) await selectGirl(6, kwGirls[1]);
-        if (kwGirls.length >= 3) await selectGirl(0, kwGirls[2]);
-*/
-        $(`#${Labyrinth.BUILD_BUTTON_ID}`).removeAttr('disabled');
+        if (mode == 0 || mode == 2) {
+            const chGirls = Labyrinth.getHaremGirl(2);
+            if (chGirls.length >= 1) await selectGirl(1, chGirls[0]);
+            if (chGirls.length >= 2) await selectGirl(4, chGirls[1]);
+        }
+
+
+        if (mode == 0 || mode == 3) {
+            const kwGirls = Labyrinth.getHaremGirl(3);
+            if (kwGirls.length >= 1) await selectGirl(5, kwGirls[0]);
+            if (kwGirls.length >= 2) await selectGirl(6, kwGirls[1]);
+            if (kwGirls.length >= 3) await selectGirl(0, kwGirls[2]);
+        }
+
+        $(`.${Labyrinth.BUILD_BUTTON_ID}`).removeAttr('disabled');
 
         setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
         logHHAuto("setting autoloop to true");
