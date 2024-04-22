@@ -150,12 +150,12 @@ export function hhMenuSwitchWithImg(textKeyAndInputId, imgPath, isKobanSwitch=fa
     +`</div>`;
 }
 
-export function hhMenuSelect(textKeyAndInputId, inputStyle = '') {
+export function hhMenuSelect(textKeyAndInputId, inputStyle = '', options = '') {
     return `<div class="labelAndButton">`
         +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
         +`<div class="tooltipHH">`
             + `<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
-            + `<select id="${textKeyAndInputId}" style="${inputStyle}" ></select>`
+            + `<select id="${textKeyAndInputId}" style="${inputStyle}" >${options}</select>`
         +`</div>`
     +`</div>`;
 }
