@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.9.0
+// @version      7.9.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -640,10 +640,13 @@ HHAuto_ToolTips.en['autoGiveAff'] = { version: "5.6.24", elementText: "Auto Give
 HHAuto_ToolTips.en['autoGiveExp'] = { version: "5.6.24", elementText: "Auto Give", tooltip: "If enabled, will automatically give Exp to girls in order ( you can use OCD script to filter )." };
 HHAuto_ToolTips.en['autoPantheonTitle'] = { version: "5.6.24", elementText: "Pantheon", tooltip: "" };
 HHAuto_ToolTips.en['autoLabyrinth'] = { version: "6.18.0", elementText: "Labyrinth", tooltip: "if enabled : Automatically do Labyrinth" };
-HHAuto_ToolTips.en['autoLabyrinthBuildTeam'] = { version: "7.9.0", elementText: "Build team", tooltip: "Select full team" };
+HHAuto_ToolTips.en['autoLabyrinthBuildTeam'] = { version: "7.9.1", elementText: "Build team", tooltip: "Select full team, based on selection" };
 HHAuto_ToolTips.en['autoLabyrinthBuildTank'] = { version: "7.9.0", elementText: "Tanks", tooltip: "Select two tanks for the front row" };
 HHAuto_ToolTips.en['autoLabyrinthBuildMage'] = { version: "7.9.0", elementText: "Mage", tooltip: "Select two Mage for the middle row" };
 HHAuto_ToolTips.en['autoLabyrinthBuildAttack'] = { version: "7.9.0", elementText: "Attack", tooltip: "Select two damage dealers for the back row and one on middle row" };
+HHAuto_ToolTips.en['autoLabyrinthBuildBack'] = { version: "7.9.1", elementText: "Back", tooltip: "Select girl type for back row" };
+HHAuto_ToolTips.en['autoLabyrinthBuildMid'] = { version: "7.9.1", elementText: "Mid", tooltip: "Select girl type for mid row" };
+HHAuto_ToolTips.en['autoLabyrinthBuildFront'] = { version: "7.9.1", elementText: "Front", tooltip: "Select girl type for Front row" };
 HHAuto_ToolTips.en['autoPantheon'] = { version: "6.8.0", elementText: "Pantheon", tooltip: "if enabled : Automatically do Pantheon" };
 HHAuto_ToolTips.en['autoPantheonThreshold'] = { version: "5.6.24", elementText: "Threshold", tooltip: "Minimum worship to keep<br>Max 10" };
 HHAuto_ToolTips.en['autoPantheonRunThreshold'] = { version: "6.8.0", elementText: "Run Threshold", tooltip: "Minimum worship before script start spending<br> 0 to spend as soon as energy above threshold" };
@@ -6683,13 +6686,21 @@ class Labyrinth {
     static moduleBuildTeam() {
         if ($(`.${Labyrinth.BUILD_BUTTON_ID}`).length == 0) {
             const divButtons = $('<div style="position:absolute;left:-55px;top:-310px;width:150%;display:flex;gap:4px;z-index:1"></div>');
-            ['Team', 'Tank', 'Mage', 'Attack'].forEach((value, index) => {
+            const options = '<option value="1">Tank</option><option value="2">Mage</option><option value="3">Attack</option>';
+            ['Back', 'Mid', 'Front'].forEach((value, index) => {
+                const select = hhMenuSelect('autoLabyrinthBuild' + value, '', options);
+                divButtons.append(select);
+            });
+            ['Team' /*, 'Tank', 'Mage', 'Attack'*/].forEach((value, index) => {
                 const button = $(`<button id="${Labyrinth.BUILD_BUTTON_ID + value}" class="blue_button_L ${Labyrinth.BUILD_BUTTON_ID}" style="padding: 5px;flex-grow: 1;"></button>`);
                 button.text(getTextForUI("autoLabyrinthBuild" + value, "elementText"));
-                button.on('click', () => { Labyrinth._buildTeam({}, index); });
-                divButtons.prepend(button);
+                button.on('click', Labyrinth._buildTeam);
+                divButtons.append(button);
             });
             $('#edit-team-page .boss-bang-panel').append(divButtons);
+            ['Front', 'Mid', 'Back'].forEach((value, index) => {
+                $('#autoLabyrinthBuild' + value).val((index + 1) + '').trigger('change');
+            });
             GM_registerMenuCommand(getTextForUI("autoLabyrinthBuildTeam", "elementText"), Labyrinth._buildTeam);
         }
     }
@@ -6712,7 +6723,7 @@ class Labyrinth {
             }
         });
     }
-    static _buildTeam(event, mode = 0) {
+    static _buildTeam() {
         return Labyrinth_awaiter(this, void 0, void 0, function* () {
             // Girl position
             //   1
@@ -6724,10 +6735,12 @@ class Labyrinth {
             LogUtils_logHHAuto("setting autoloop to false");
             var selectGirl = (girlPosition, girlToBeSelected) => Labyrinth_awaiter(this, void 0, void 0, function* () {
                 const girl = $('.team-hexagon .team-member-container.selectable[data-team-member-position="' + girlPosition + '"]');
-                girl.trigger('click');
-                yield TimeHelper.sleep(randomInterval(400, 700));
-                girlToBeSelected.trigger('click');
-                yield TimeHelper.sleep(randomInterval(400, 700));
+                if (girl.attr('data-girl-id') != girlToBeSelected.attr('id_girl')) {
+                    girl.trigger('click');
+                    yield TimeHelper.sleep(randomInterval(400, 700));
+                    girlToBeSelected.trigger('click');
+                    yield TimeHelper.sleep(randomInterval(400, 700));
+                }
             });
             $(`.${Labyrinth.BUILD_BUTTON_ID}`).attr('disabled', 'disabled');
             if ($(Labyrinth.HAREM_SELECTED_GIRLS).length == 0) {
@@ -6735,32 +6748,29 @@ class Labyrinth {
                 yield TimeHelper.sleep(randomInterval(200, 500));
             }
             // await Labyrinth._removeLowPowerGirls();
-            if (mode == 0 || mode == 1) {
-                const hcGirls = Labyrinth.getHaremGirl(1);
-                if (hcGirls.length < 2) {
-                    LogUtils_logHHAuto('Error, not enough hardcore girls');
-                }
-                else {
-                    yield selectGirl(2, hcGirls[0]);
-                    yield selectGirl(3, hcGirls[1]);
-                }
-            }
-            if (mode == 0 || mode == 2) {
-                const chGirls = Labyrinth.getHaremGirl(2);
-                if (chGirls.length >= 1)
-                    yield selectGirl(1, chGirls[0]);
-                if (chGirls.length >= 2)
-                    yield selectGirl(4, chGirls[1]);
-            }
-            if (mode == 0 || mode == 3) {
-                const kwGirls = Labyrinth.getHaremGirl(3);
-                if (kwGirls.length >= 1)
-                    yield selectGirl(5, kwGirls[0]);
-                if (kwGirls.length >= 2)
-                    yield selectGirl(6, kwGirls[1]);
-                if (kwGirls.length >= 3)
-                    yield selectGirl(0, kwGirls[2]);
-            }
+            const girlClassFront = Number($('#autoLabyrinthBuildFront').val());
+            const frontGirls = Labyrinth.getHaremGirl(girlClassFront);
+            let frontGirlIndex = 0;
+            if (frontGirls.length >= 1)
+                yield selectGirl(2, frontGirls[frontGirlIndex++]);
+            if (frontGirls.length >= 2)
+                yield selectGirl(3, frontGirls[frontGirlIndex++]);
+            const girlClassMid = Number($('#autoLabyrinthBuildMid').val());
+            const midGirls = Labyrinth.getHaremGirl(girlClassMid, false, 5);
+            let midGirlIndex = girlClassMid == girlClassFront ? frontGirlIndex : 0;
+            if (midGirls.length >= (midGirlIndex + 1))
+                yield selectGirl(1, midGirls[midGirlIndex++]);
+            if (midGirls.length >= (midGirlIndex + 1))
+                yield selectGirl(0, midGirls[midGirlIndex++]);
+            if (midGirls.length >= (midGirlIndex + 1))
+                yield selectGirl(4, midGirls[midGirlIndex++]);
+            const girlClassBack = Number($('#autoLabyrinthBuildBack').val());
+            const backGirls = Labyrinth.getHaremGirl(girlClassBack, false, 7);
+            let backGirlIndex = girlClassBack == girlClassMid ? midGirlIndex : girlClassBack == girlClassFront ? frontGirlIndex : 0;
+            if (backGirls.length >= (backGirlIndex + 1))
+                yield selectGirl(5, backGirls[backGirlIndex++]);
+            if (backGirls.length >= (backGirlIndex + 1))
+                yield selectGirl(6, backGirls[backGirlIndex++]);
             $(`.${Labyrinth.BUILD_BUTTON_ID}`).removeAttr('disabled');
             setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
             LogUtils_logHHAuto("setting autoloop to true");
@@ -12909,12 +12919,12 @@ function hhMenuSwitchWithImg(textKeyAndInputId, imgPath, isKobanSwitch = false) 
         + `</div>`
         + `</div>`;
 }
-function hhMenuSelect(textKeyAndInputId, inputStyle = '') {
+function hhMenuSelect(textKeyAndInputId, inputStyle = '', options = '') {
     return `<div class="labelAndButton">`
         + `<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId, "elementText")}</span>`
         + `<div class="tooltipHH">`
         + `<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId, "tooltip")}</span>`
-        + `<select id="${textKeyAndInputId}" style="${inputStyle}" ></select>`
+        + `<select id="${textKeyAndInputId}" style="${inputStyle}" >${options}</select>`
         + `</div>`
         + `</div>`;
 }

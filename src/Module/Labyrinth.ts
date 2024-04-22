@@ -1,10 +1,12 @@
 import { 
     ConfigHelper,
+    HHMenu,
     TimeHelper,
     getHHVars,
     getPage,
     getStoredValue,
     getTextForUI,
+    hhMenuSelect,
     queryStringGetParam,
     randomInterval,
     setStoredValue,
@@ -94,14 +96,25 @@ export class Labyrinth {
         if ($(`.${Labyrinth.BUILD_BUTTON_ID}`).length == 0) {
             const divButtons = $('<div style="position:absolute;left:-55px;top:-310px;width:150%;display:flex;gap:4px;z-index:1"></div>');
 
-            ['Team', 'Tank', 'Mage', 'Attack'].forEach((value, index) => {
+
+            const options = '<option value="1">Tank</option><option value="2">Mage</option><option value="3">Attack</option>';
+            ['Back', 'Mid', 'Front'].forEach((value, index) => {
+                const select = hhMenuSelect('autoLabyrinthBuild' + value, '', options);
+                divButtons.append(select);
+            });
+
+            ['Team'/*, 'Tank', 'Mage', 'Attack'*/].forEach((value, index) => {
                 const button = $(`<button id="${Labyrinth.BUILD_BUTTON_ID + value}" class="blue_button_L ${Labyrinth.BUILD_BUTTON_ID}" style="padding: 5px;flex-grow: 1;"></button>`);
                 button.text(getTextForUI("autoLabyrinthBuild" + value, "elementText"));
-                button.on('click', () => { Labyrinth._buildTeam({}, index) });
-                divButtons.prepend(button);
-            })
+                button.on('click', Labyrinth._buildTeam);
+                divButtons.append(button);
+            });
+            
 
             $('#edit-team-page .boss-bang-panel').append(divButtons);
+            ['Front', 'Mid', 'Back'].forEach((value, index) => {
+                $('#autoLabyrinthBuild' + value).val((index + 1)+ '').trigger('change');
+            });
 
             GM_registerMenuCommand(getTextForUI("autoLabyrinthBuildTeam", "elementText"), Labyrinth._buildTeam);
         }
@@ -125,7 +138,7 @@ export class Labyrinth {
         }
     }
 
-    static async _buildTeam(event, mode=0) {
+    static async _buildTeam() {
         // Girl position
         //   1
         // 6   2
@@ -138,10 +151,12 @@ export class Labyrinth {
 
         var selectGirl = async (girlPosition: number, girlToBeSelected: JQuery<HTMLElement>) => {
             const girl = $('.team-hexagon .team-member-container.selectable[data-team-member-position="' + girlPosition + '"]');
-            girl.trigger('click');
-            await TimeHelper.sleep(randomInterval(400, 700));
-            girlToBeSelected.trigger('click');
-            await TimeHelper.sleep(randomInterval(400, 700));
+            if (girl.attr('data-girl-id') != girlToBeSelected.attr('id_girl')) {
+                girl.trigger('click');
+                await TimeHelper.sleep(randomInterval(400, 700));
+                girlToBeSelected.trigger('click');
+                await TimeHelper.sleep(randomInterval(400, 700));
+            }
         }
 
         $(`.${Labyrinth.BUILD_BUTTON_ID}`).attr('disabled','disabled');
@@ -152,29 +167,24 @@ export class Labyrinth {
 
         // await Labyrinth._removeLowPowerGirls();
 
-        if (mode == 0 || mode == 1) {
-            const hcGirls = Labyrinth.getHaremGirl(1);
-            if(hcGirls.length < 2) {
-                logHHAuto('Error, not enough hardcore girls');
-            } else {
-                await selectGirl(2, hcGirls[0]);
-                await selectGirl(3, hcGirls[1]);
-            }
-        }
+        const girlClassFront = Number($('#autoLabyrinthBuildFront').val());
+        const frontGirls = Labyrinth.getHaremGirl(girlClassFront);
+        let frontGirlIndex = 0;
+        if (frontGirls.length >= 1) await selectGirl(2, frontGirls[frontGirlIndex++]);
+        if (frontGirls.length >= 2) await selectGirl(3, frontGirls[frontGirlIndex++]);
 
-        if (mode == 0 || mode == 2) {
-            const chGirls = Labyrinth.getHaremGirl(2);
-            if (chGirls.length >= 1) await selectGirl(1, chGirls[0]);
-            if (chGirls.length >= 2) await selectGirl(4, chGirls[1]);
-        }
+        const girlClassMid = Number($('#autoLabyrinthBuildMid').val());
+        const midGirls = Labyrinth.getHaremGirl(girlClassMid, false, 5);
+        let midGirlIndex = girlClassMid == girlClassFront ? frontGirlIndex : 0;
+        if (midGirls.length >= (midGirlIndex+1)) await selectGirl(1, midGirls[midGirlIndex++]);
+        if (midGirls.length >= (midGirlIndex+1)) await selectGirl(0, midGirls[midGirlIndex++]);
+        if (midGirls.length >= (midGirlIndex+1)) await selectGirl(4, midGirls[midGirlIndex++]);
 
-
-        if (mode == 0 || mode == 3) {
-            const kwGirls = Labyrinth.getHaremGirl(3);
-            if (kwGirls.length >= 1) await selectGirl(5, kwGirls[0]);
-            if (kwGirls.length >= 2) await selectGirl(6, kwGirls[1]);
-            if (kwGirls.length >= 3) await selectGirl(0, kwGirls[2]);
-        }
+        const girlClassBack = Number($('#autoLabyrinthBuildBack').val());
+        const backGirls = Labyrinth.getHaremGirl(girlClassBack, false, 7);
+        let backGirlIndex = girlClassBack == girlClassMid ? midGirlIndex : girlClassBack == girlClassFront ? frontGirlIndex : 0;
+        if (backGirls.length >= (backGirlIndex+1)) await selectGirl(5, backGirls[backGirlIndex++]);
+        if (backGirls.length >= (backGirlIndex+1)) await selectGirl(6, backGirls[backGirlIndex++]);
 
         $(`.${Labyrinth.BUILD_BUTTON_ID}`).removeAttr('disabled');
 
