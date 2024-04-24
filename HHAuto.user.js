@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.9.1
+// @version      7.9.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -10641,7 +10641,8 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
 ["GPSH_prod", "NGPSH_prod"].forEach((element) => {
     HHEnvVariables[element].trollzList = ['Latest',
         'Tristan Hunter',
-        'Troll 2'];
+        'Jimmy Durano',
+        'Lucca Mazzi'];
     HHEnvVariables[element].isEnabledSideQuest = false; // to remove when SideQuest arrives in gaypornstar
     HHEnvVariables[element].isEnabledPowerPlaces = false; // to remove when PoP arrives in gaypornstar
     HHEnvVariables[element].isEnabledMythicPachinko = false; // to remove when Champs arrives in gaypornstar
@@ -10651,7 +10652,11 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
     HHEnvVariables[element].isEnabledPoG = false; // to remove when PoG arrives in gaypornstar
     HHEnvVariables[element].trollGirlsID = [
         [['780402171', '374763633', '485499759'], [0], [0]],
-        [[0, 0, 0], [0], [0]], // TODO get girls id
+        [[0], [0], [0]],
+        [[0], [0], [0]],
+        [[0], [0], [0]],
+        [['290465722', '524315573', '970767946'], [0], [0]],
+        [['127881092', '680366759', '836998610'], [0], [0]],
     ];
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
     HHEnvVariables[element].boosterId_MB1 = 2619;
