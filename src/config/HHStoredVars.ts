@@ -738,6 +738,17 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSeasonBoostedOnly"] =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSeasonSkipLowMojo"] =
+    {
+    default:"true",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars[HHStoredVarPrefixKey+"Setting_autoStats"] =
     {
     default:"500000000",

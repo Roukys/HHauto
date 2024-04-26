@@ -291,7 +291,7 @@ export class Season {
                 //oppoName = seasonOpponents[index].nickname;
             }
         }
-        if (chosenMojo < Season.MIN_MOJO_FIGHT && !seasonEnded && current_kisses < (max_kisses-1) ) {
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonSkipLowMojo") === "true" && chosenMojo < Season.MIN_MOJO_FIGHT && !seasonEnded && current_kisses < (max_kisses-1) ) {
             chosenID = -1; // wait more mojo
         }
         return { numberOfReds, chosenID };

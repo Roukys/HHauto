@@ -568,6 +568,7 @@ export function getMenu() {
                         +`<div class="internalOptionsRow">`
                             + hhMenuSwitch('autoSeasonPassReds', '', true)
                             + hhMenuSwitch('autoSeasonBoostedOnly')
+                            + hhMenuSwitch('autoSeasonSkipLowMojo')
                         +`</div>`
                         +`<div class="internalOptionsRow">`
                             + hhMenuInputWithImg('autoSeasonThreshold', HHAuto_inputPattern.autoSeasonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_kiss.png', 'numeric' )
