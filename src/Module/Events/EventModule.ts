@@ -188,7 +188,7 @@ export class EventModule {
         } catch (error) { /* ignore errors */}
     }
 
-    static parseEventPage(inTab="global")
+    static async parseEventPage(inTab="global")
     {
         if(getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent") )
         {
@@ -404,14 +404,14 @@ export class EventModule {
 
                     const shopButton = $('#shop_tab');
                     const gridButton = $('#grid_tab');
-                    shopButton.click();
+                    shopButton.trigger('click');
 
                     setTimeout(function(){ // Wait tab switch and timer init
                         let shopTimeLeft=$('#contains_all #events #shop_tab_container .shop-section .shop-timer span[rel="expires"]').text();
                         setTimer('eventSultryMysteryShopRefresh', Number(convertTimeToInt(shopTimeLeft)) + randomInterval(60,180) );
                         eventList[eventID]["next_shop_refresh"]=new Date().getTime() + Number(shopTimeLeft) * 1000;
 
-                        setTimeout(function(){gridButton.click();},randomInterval(800,1200));
+                        setTimeout(function () { gridButton.trigger('click');},randomInterval(800,1200));
                     },randomInterval(300,500));
                 }
             }
@@ -460,7 +460,7 @@ export class EventModule {
                 const manualCollectAll = getStoredValue(HHStoredVarPrefixKey + "Temp_poaManualCollectAll") === 'true';
 
                 if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollect") === "true" || manualCollectAll || poAEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoACollectAll") === "true") {
-                    PathOfAttraction.goAndCollect(manualCollectAll);
+                    await PathOfAttraction.goAndCollect(manualCollectAll);
                 }
             }
             if(Object.keys(eventList).length >0)
