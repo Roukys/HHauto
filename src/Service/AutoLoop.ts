@@ -225,7 +225,7 @@ export async function autoLoop()
         {
             logHHAuto("Going to check on events.");
             busy = true;
-            busy = EventModule.parseEventPage(eventIDs[0]);
+            busy = await EventModule.parseEventPage(eventIDs[0]);
             eventParsed = eventIDs[0];
             lastActionPerformed = "event";
             if (eventIDs.length > 1) {
@@ -880,7 +880,7 @@ export async function autoLoop()
         {
             logHHAuto("Going to boss bang event.");
             busy = true;
-            busy = EventModule.parseEventPage(bossBangEventIDs[0]);
+            busy = await EventModule.parseEventPage(bossBangEventIDs[0]);
             lastActionPerformed = "event";
         }
 
