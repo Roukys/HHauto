@@ -60,6 +60,7 @@ HHAuto_ToolTips.en['autoSeasonCollectAll'] = { version: "5.7.0", elementText: "C
 HHAuto_ToolTips.en['autoSeasonThreshold'] = { version: "5.6.24", elementText: "Threshold", tooltip: "Minimum kiss to keep"};
 HHAuto_ToolTips.en['autoSeasonRunThreshold'] = { version: "6.8.0", elementText: "Run Threshold", tooltip: "Minimum kiss fights before script start spending<br> 0 to spend as soon as energy above threshold"};
 HHAuto_ToolTips.en['autoSeasonBoostedOnly'] = { version: "6.5.0", elementText: "Boosted only", tooltip: "If enabled : Need booster to fight in season"};
+HHAuto_ToolTips.en['autoSeasonSkipLowMojo'] = { version: "7.10.0", elementText: "Skip low Mojo", tooltip: "If enabled : Not fight when mojo reward is less than 8 and season level is less than 63. Will still fight to not loose kiss."};
 HHAuto_ToolTips.en['autoQuest'] = { version: "5.6.74", elementText: "Main Quest", tooltip: "if enabled : Automatically do main quest"};
 HHAuto_ToolTips.en['autoSideQuest'] = { version: "5.6.83", elementText: "Side Quests", tooltip: "if enabled : Automatically do next available side quest (Enabled main quest has higher priority than side quests)"};
 HHAuto_ToolTips.en['autoQuestThreshold'] = { version: "5.6.24", elementText: "Threshold", tooltip: "(Integer between 0 and 99)<br>Minimum quest energy to keep"};
