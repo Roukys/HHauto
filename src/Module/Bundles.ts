@@ -6,13 +6,25 @@ import {
     getStoredValue,
     randomInterval,
     setStoredValue,
-    setTimer
+    setTimer,
+    convertTimeToInt
 } from '../Helper/index';
 import { autoLoop, gotoPage } from "../Service/index";
 import { logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
 
 export class Bundles {
+    static getExpiryTime(){
+        const timerRequest = `#popup-payment-container .period_deal .shop-timer span[rel=expires]`
+
+        if ($(timerRequest).length > 0) {
+            const freeBundleTimer = Number(convertTimeToInt($(timerRequest).text()));
+            logHHAuto('freeBundleTimer', freeBundleTimer);
+            if (freeBundleTimer < (24 * 3600)) return freeBundleTimer;
+        }
+        logHHAuto('ERROR: can\'t get bundle expiry time, default to maxCollectionDelay');
+        return ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180);
+    }
     static goAndCollectFreeBundles()
     {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHome"))
@@ -99,7 +111,7 @@ export class Bundles {
                                 }
                             }
                         }
-                        if(!freeBundleFound) collectFreeBundlesFinished("Free bundle collection finished.", TimeHelper.getSecondsLeftBeforeEndOfHHDay() + randomInterval(3600, 4000));
+                        if(!freeBundleFound) collectFreeBundlesFinished("Free bundle collection finished.", Bundles.getExpiryTime() + randomInterval(3600, 4000));
                     }
                     else
                     {

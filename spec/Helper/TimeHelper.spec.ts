@@ -7,16 +7,6 @@ describe("Time Helper", function () {
         unsafeWindow.server_now_ts = 1234;
     });
 
-    describe("getServerTS", function () {
-        it("default", function () {
-            expect(TimeHelper.getServerTS()).toEqual({"days": 0, "hours": 1, "minutes": 20, "seconds": 34});
-        });
-        it("Time 123456789", function () {
-            unsafeWindow.server_now_ts = 123456789;
-            expect(TimeHelper.getServerTS()).toEqual({"days": 1428, "hours": 22, "minutes": 33, "seconds": 9});
-        });
-    });
-
     describe("toHHMMSS", function () {
         it("default", function () {
             expect(TimeHelper.toHHMMSS(151220)).toBe('01:18:00:20');

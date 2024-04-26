@@ -246,6 +246,11 @@ export class Missions {
     }
 
     static styles() {
+        if ($("#missions #ad_activities").length)
+        {
+            $("#ad_activities").hide();
+            $("#missions .missions_wrap").removeClass('height-for-ad');
+        }
         if(getStoredValue(HHStoredVarPrefixKey+"Setting_compactMissions") === "true")
         {
             GM_addStyle('#missions .missions_wrap  {'

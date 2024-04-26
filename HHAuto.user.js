@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.9.2
+// @version      7.9.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -91,6 +91,9 @@ GM_addStyle('img.eventCompleted { width: 10px; margin-left:2px }');
 // Remove blur on pose preview
 GM_addStyle('#popups #girl_preview_popup .preview-locked_icn { display: none; }');
 GM_addStyle('#popups #girl_preview_popup #poses-tab_container .pose-preview_wrapper.locked img { filter: none !important; }');
+// ads
+GM_addStyle('#ad_champions_map { display: none !important; }');
+GM_addStyle('#ad_sex-god-path { display: none !important; }');
 //END CSS Region
 
 
@@ -1422,6 +1425,17 @@ Booster.SANDALWOOD_PERFUME = { "id_item": "632", "identifier": "MB1", "name": "S
 
 
 class Bundles {
+    static getExpiryTime() {
+        const timerRequest = `#popup-payment-container .period_deal .shop-timer span[rel=expires]`;
+        if ($(timerRequest).length > 0) {
+            const freeBundleTimer = Number(convertTimeToInt($(timerRequest).text()));
+            LogUtils_logHHAuto('freeBundleTimer', freeBundleTimer);
+            if (freeBundleTimer < (24 * 3600))
+                return freeBundleTimer;
+        }
+        LogUtils_logHHAuto('ERROR: can\'t get bundle expiry time, default to maxCollectionDelay');
+        return ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180);
+    }
     static goAndCollectFreeBundles() {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHome")) {
             try {
@@ -1496,7 +1510,7 @@ class Bundles {
                             }
                         }
                         if (!freeBundleFound)
-                            collectFreeBundlesFinished("Free bundle collection finished.", TimeHelper.getSecondsLeftBeforeEndOfHHDay() + randomInterval(3600, 4000));
+                            collectFreeBundlesFinished("Free bundle collection finished.", Bundles.getExpiryTime() + randomInterval(3600, 4000));
                     }
                     else {
                         collectFreeBundlesFinished("No bundle tabs in popup, wait one hour.", 60 * 60);
@@ -3419,6 +3433,15 @@ class SeasonalEvent {
             setStoredValue(HHStoredVarPrefixKey + "Temp_SeasonalEventEndDate", Math.ceil(new Date().getTime() / 1000) + seasonalEventTimer);
         }
     }
+    static getGlobalRankRemainingTime() {
+        const rankTimerRequest = `#top_ranking_tab_container .ranking-timer-reset .ranking-timer span[rel=expires]`;
+        if ($(rankTimerRequest).length > 0) {
+            const rankTimer = Number(convertTimeToInt($(rankTimerRequest).text()));
+            return rankTimer;
+        }
+        LogUtils_logHHAuto('ERROR: can\'t get seasonal rank timer, default to maxCollectionDelay');
+        return ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180);
+    }
     static displayRemainingTime() {
         LogUtils_logHHAuto('Not implemented');
     }
@@ -3519,7 +3542,7 @@ class SeasonalEvent {
             }
             return false;
         }
-        else if (unsafeWindow.seasonal_event_active || unsafeWindow.seasonal_time_remaining > 0) {
+        else if (unsafeWindow.seasonal_event_active || unsafeWindow.mega_event_active || unsafeWindow.seasonal_time_remaining > 0) {
             LogUtils_logHHAuto("Switching to SeasonalEvent screen.");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"));
             return true;
@@ -3656,7 +3679,7 @@ class SeasonalEvent {
                 topRank.trigger("click");
             else if (eventRank.length > 0)
                 eventRank.trigger("click");
-            setTimer('nextMegaEventRankCollectTime', TimeHelper.getSecondsLeftBeforeEndOfHHDay() + randomInterval(3600, 4000));
+            setTimer('nextMegaEventRankCollectTime', SeasonalEvent.getGlobalRankRemainingTime() + randomInterval(3600, 4000));
         }
         else if (unsafeWindow.seasonal_event_active || unsafeWindow.seasonal_time_remaining > 0) {
             LogUtils_logHHAuto("Switching to SeasonalEvent screen.");
@@ -4487,7 +4510,10 @@ class ClubChampion {
 
 
 class Contest {
-    // returns boolean to set busy
+    static getPinfo() {
+        const color = getStoredValue(HHStoredVarPrefixKey + "Setting_waitforContest") !== "true" ? 'white' : TimeHelper.canCollectCompetitionActive() ? 'LimeGreen' : 'red';
+        return `<li style='color:${color}'>Contest end : ${getTimeLeft('contestRemainingTime')}  / Next : ${getTimeLeft('nextContestTime')} + '</li>`;
+    }
     static run() {
         if (getPage() !== ConfigHelper.getHHScriptVars("pagesIDContests")) {
             LogUtils_logHHAuto("Navigating to contests page.");
@@ -4504,13 +4530,37 @@ class Contest {
                 contest_list[0].click();
                 if (contest_list.length > 1) {
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDContests"));
+                    return true;
                 }
             }
-            var time = TimeHelper.getSecondsLeftBeforeNewCompetition() + randomInterval(30 * 60, 35 * 60); // 30 min after new compet
-            setTimer('nextContestTime', time);
+            return Contest.setTimers();
+        }
+    }
+    static setTimers() {
+        if (getPage() !== ConfigHelper.getHHScriptVars("pagesIDContests")) {
+            LogUtils_logHHAuto("Navigating to contests page.");
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDContests"));
+            // return busy
+            return true;
+        }
+        else {
+            try {
+                const nextContestTime = unsafeWindow.contests_timer.next_contest;
+                const remaining_time = unsafeWindow.contests_timer.remaining_time;
+                setTimer('contestRemainingTime', remaining_time);
+                setTimer('nextContestTime', nextContestTime);
+            }
+            catch (err) {
+                LogUtils_logHHAuto('ERROR getting next contest timers, ignore...');
+                setTimer('contestRemainingTime', 3600);
+                setTimer('nextContestTime', 4000);
+            }
             // Not busy
             return false;
         }
+    }
+    static waitContestActive() {
+        return !checkTimerMustExist('contestRemainingTime') && checkTimerMustExist('nextContestTime');
     }
     static styles() {
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_compactEndedContests") === "true") {
@@ -4549,7 +4599,20 @@ class Contest {
 
 
 class DailyGoals {
+    static getNewGoalsTimer() {
+        const timerRequest = `#daily_goals .daily-goals-timer span[rel=expires]`;
+        if ($(timerRequest).length > 0) {
+            const goalsTimer = Number(convertTimeToInt($(timerRequest).text()));
+            return goalsTimer;
+        }
+        LogUtils_logHHAuto('ERROR: can\'t get Daily goals timer, default to maxCollectionDelay');
+        return ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180);
+    }
     static styles() {
+        if ($("#daily_goals #ad_activities").length) {
+            $("#ad_activities").hide();
+            $("#daily_goals .daily-goals-objectives-container").removeClass('height-for-ad');
+        }
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_compactDailyGoals") === "true") {
             const dailGoalsContainerPath = '#daily_goals .daily-goals-row .daily-goals-left-part .daily-goals-objectives-container';
             GM_addStyle(dailGoalsContainerPath + ' {'
@@ -4596,6 +4659,7 @@ class DailyGoals {
                 try {
                     LogUtils_logHHAuto("Checking Daily Goals for collectable rewards. Setting autoloop to false");
                     setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+                    const nextDailyGoalsTimer = DailyGoals.getNewGoalsTimer();
                     let buttonsToCollect = [];
                     const listDailyGoalsTiersToClaim = $("#daily_goals .progress-section .progress-bar-rewards-container .progress-bar-reward");
                     let potionsNum = Number($('.progress-section div.potions-total > div > p').text());
@@ -4606,7 +4670,7 @@ class DailyGoals {
                             const currentChest = $(".progress-bar-rewards-container", listDailyGoalsTiersToClaim[currentTier]);
                             const currentRewardsList = currentChest.length > 0 ? currentChest.data("rewards") : [];
                             //console.log("checking tier : "+currentTierNb);
-                            if (TimeHelper.getSecondsLeftBeforeEndOfHHDay() <= ConfigHelper.getHHScriptVars("dailyRewardMaxRemainingTime") && TimeHelper.getSecondsLeftBeforeEndOfHHDay() > 0) {
+                            if (nextDailyGoalsTimer <= ConfigHelper.getHHScriptVars("dailyRewardMaxRemainingTime") && nextDailyGoalsTimer > 0) {
                                 LogUtils_logHHAuto("Force adding for collection chest n° " + currentTierNb);
                                 buttonsToCollect.push(currentButton[0]);
                             }
@@ -4646,7 +4710,7 @@ class DailyGoals {
                     }
                     else {
                         LogUtils_logHHAuto("No Daily Goals reward to collect.");
-                        setTimer('nextDailyGoalsCollectTime', TimeHelper.getSecondsLeftBeforeEndOfHHDay() + randomInterval(3600, 4000));
+                        setTimer('nextDailyGoalsCollectTime', nextDailyGoalsTimer + randomInterval(3600, 4000));
                         gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                         return false;
                     }
@@ -8287,6 +8351,10 @@ class Missions {
         return rewards;
     }
     static styles() {
+        if ($("#missions #ad_activities").length) {
+            $("#ad_activities").hide();
+            $("#missions .missions_wrap").removeClass('height-for-ad');
+        }
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_compactMissions") === "true") {
             GM_addStyle('#missions .missions_wrap  {'
                 + 'display:flex;'
@@ -10547,6 +10615,7 @@ HHEnvVariables["HH_test"].isEnabledFreeBundles = false; // to remove if bundles 
         [['364639341', '879781833', '895546748'], [0], [0]],
         [['148877065', '218927643', '340369336'], [0], [0]],
         [['258185125', '897951171', '971686222'], [0], [0]],
+        [['125758004', '233499841', '647307160'], [0], [0]],
     ];
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
     HHEnvVariables[element].boosterId_MB1 = 2619;
@@ -10610,6 +10679,7 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
         [['169741198', '459885596', '507702178'], [0], [0]],
         [['258984943', '837109131', '888135956'], [0], [0]],
         [['270920965', '600910475', '799448349'], [0], [0]],
+        [['832031905', '272818756', '477487889'], [0], [0]],
     ];
 });
 ["TPH_prod", "NTPH_prod"].forEach((element) => {
@@ -14539,67 +14609,85 @@ function setHHVars(infoSearched, newValue) {
     }
 }
 
+;// CONCATENATED MODULE: ./src/Helper/TimerHelper.ts
+
+
+
+
+let Timers = {};
+function setTimers(timer) {
+    Timers = timer;
+}
+function setTimer(name, seconds) {
+    var ND = new Date().getTime() + seconds * 1000;
+    Timers[name] = ND;
+    setStoredValue(HHStoredVarPrefixKey + "Temp_Timers", JSON.stringify(Timers));
+    LogUtils_logHHAuto(name + " set to " + TimeHelper.toHHMMSS(ND / 1000 - new Date().getTimezoneOffset() * 60) + ' (' + TimeHelper.toHHMMSS(seconds) + ')');
+}
+function clearTimer(name) {
+    delete Timers[name];
+    setStoredValue(HHStoredVarPrefixKey + "Temp_Timers", JSON.stringify(Timers));
+}
+function checkTimer(name) {
+    if (!Timers[name] || Timers[name] < new Date()) {
+        return true;
+    }
+    return false;
+}
+function checkTimerMustExist(name) {
+    if (Timers[name] && Timers[name] < new Date()) {
+        return true;
+    }
+    return false;
+}
+function getTimer(name) {
+    if (!Timers[name]) {
+        return -1;
+    }
+    return Timers[name];
+}
+function getSecondsLeft(name) {
+    if (!Timers[name]) {
+        return 0;
+    }
+    var result = Math.ceil(Timers[name] / 1000) - Math.ceil(new Date().getTime() / 1000);
+    if (result > 0) {
+        return result;
+    }
+    else {
+        return 0;
+    }
+}
+function getTimeLeft(name) {
+    const timerWaitingCompet = ['nextPachinkoTime', 'nextPachinko2Time', 'nextPachinkoEquipTime', 'nextSeasonTime', 'nextLeaguesTime'];
+    if (!Timers[name]) {
+        if (!TimeHelper.canCollectCompetitionActive() && timerWaitingCompet.indexOf(name) >= 0) {
+            return "Wait for contest";
+        }
+        return "No timer";
+    }
+    var diff = getSecondsLeft(name);
+    if (diff <= 0) {
+        if (!TimeHelper.canCollectCompetitionActive() && timerWaitingCompet.indexOf(name) >= 0) {
+            return "Wait for contest";
+        }
+        return "Time's up!";
+    }
+    return TimeHelper.toHHMMSS(diff);
+}
+
 ;// CONCATENATED MODULE: ./src/Helper/TimeHelper.ts
 
 
 
 
 
-Date.prototype.stdTimezoneOffset = function () {
-    var jan = new Date(this.getFullYear(), 0, 1);
-    var jul = new Date(this.getFullYear(), 6, 1);
-    return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
-};
-Date.prototype.isDstObserved = function () {
-    return this.getTimezoneOffset() < this.stdTimezoneOffset();
-};
-/*
-(new Date()).toLocaleString([], {
-    timeZone: 'Europe/Paris',
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    second: 'numeric',
-  })
-  */
 class TimeHelper {
-    static getEETDSTOffset() {
-        if (TimeHelper.dSTOffset < 0) {
-            const today = new Date();
-            function getEuropeStdTimezoneOffset(today) {
-                // KK is in Sofia
-                var jan = new Date(new Date(today.getFullYear(), 0, 1).toLocaleString('en-US', { timeZone: 'Europe/Sofia' }));
-                var jul = new Date(new Date(today.getFullYear(), 6, 1).toLocaleString('en-US', { timeZone: 'Europe/Sofia' }));
-                return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
-            }
-            function isDstObserved(today) {
-                return today.getTimezoneOffset() < getEuropeStdTimezoneOffset(today);
-            }
-            if (isDstObserved(today)) {
-                TimeHelper.dSTOffset = 120; // Summer time
-            }
-            else {
-                TimeHelper.dSTOffset = 60; // Winter time
-            }
-        }
-        return TimeHelper.dSTOffset;
-    }
-    static getServerTS() {
-        let sec_num = parseInt(getHHVars('server_now_ts'), 10);
-        sec_num += TimeHelper.getEETDSTOffset() * 60;
-        let days = Math.floor(sec_num / 86400);
-        let hours = Math.floor(sec_num / 3600) % 24;
-        let minutes = Math.floor(sec_num / 60) % 60;
-        let seconds = sec_num % 60;
-        return { days: days, hours: hours, minutes: minutes, seconds: seconds };
-    }
     static canCollectCompetitionActive() {
         let safeTime = getStoredValue(HHStoredVarPrefixKey + "Setting_safeSecondsForContest") !== undefined ? Number(getStoredValue(HHStoredVarPrefixKey + "Setting_safeSecondsForContest")) : 120;
         if (isNaN(safeTime) || safeTime < 0)
             safeTime = 120;
-        return getStoredValue(HHStoredVarPrefixKey + "Setting_waitforContest") !== "true" || TimeHelper.getSecondsLeftBeforeNewCompetition() > (30 * 60 + safeTime) && TimeHelper.getSecondsLeftBeforeNewCompetition() < (24 * 3600 - safeTime);
+        return getStoredValue(HHStoredVarPrefixKey + "Setting_waitforContest") !== "true" || !((getSecondsLeft('contestRemainingTime') - safeTime) < 0 && (getSecondsLeft('nextContestTime') + safeTime) > 0);
     }
     static toHHMMSS(secs) {
         var sec_num = parseInt(secs, 10);
@@ -14616,20 +14704,6 @@ class TimeHelper {
         } return n > 0; })
             .join(":");
     }
-    static getSecondsLeftBeforeEndOfHHDay() {
-        let HHEndOfDay = { days: 0, hours: 13, minutes: 0, seconds: 0 };
-        let server_TS = TimeHelper.getServerTS();
-        HHEndOfDay.days = server_TS.hours < HHEndOfDay.hours ? 0 : 1;
-        let diffResetTime = (HHEndOfDay.days * 86400 + HHEndOfDay.hours * 3600 + HHEndOfDay.minutes * 60) - (server_TS.hours * 3600 + server_TS.minutes * 60);
-        return diffResetTime;
-    }
-    static getSecondsLeftBeforeNewCompetition() {
-        let HHEndOfDay = { days: 0, hours: 13, minutes: 30, seconds: 0 };
-        let server_TS = TimeHelper.getServerTS();
-        HHEndOfDay.days = server_TS.hours < HHEndOfDay.hours ? 0 : 1;
-        let diffResetTime = (HHEndOfDay.days * 86400 + HHEndOfDay.hours * 3600 + HHEndOfDay.minutes * 60) - (server_TS.hours * 3600 + server_TS.minutes * 60);
-        return diffResetTime;
-    }
     static debugDate(sec_num) {
         let days = Math.floor(sec_num / 86400);
         let hours = Math.floor(sec_num / 3600) % 24;
@@ -14643,7 +14717,6 @@ class TimeHelper {
         });
     }
 }
-TimeHelper.dSTOffset = -1;
 function convertTimeToInt(remainingTimer) {
     let newTimer = 0;
     if (remainingTimer && remainingTimer.length > 0) {
@@ -15343,73 +15416,6 @@ class RewardHelper {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Helper/TimerHelper.ts
-
-
-
-
-let Timers = {};
-function setTimers(timer) {
-    Timers = timer;
-}
-function setTimer(name, seconds) {
-    var ND = new Date().getTime() + seconds * 1000;
-    Timers[name] = ND;
-    setStoredValue(HHStoredVarPrefixKey + "Temp_Timers", JSON.stringify(Timers));
-    LogUtils_logHHAuto(name + " set to " + TimeHelper.toHHMMSS(ND / 1000 - new Date().getTimezoneOffset() * 60) + ' (' + TimeHelper.toHHMMSS(seconds) + ')');
-}
-function clearTimer(name) {
-    delete Timers[name];
-    setStoredValue(HHStoredVarPrefixKey + "Temp_Timers", JSON.stringify(Timers));
-}
-function checkTimer(name) {
-    if (!Timers[name] || Timers[name] < new Date()) {
-        return true;
-    }
-    return false;
-}
-function checkTimerMustExist(name) {
-    if (Timers[name] && Timers[name] < new Date()) {
-        return true;
-    }
-    return false;
-}
-function getTimer(name) {
-    if (!Timers[name]) {
-        return -1;
-    }
-    return Timers[name];
-}
-function getSecondsLeft(name) {
-    if (!Timers[name]) {
-        return 0;
-    }
-    var result = Math.ceil(Timers[name] / 1000) - Math.ceil(new Date().getTime() / 1000);
-    if (result > 0) {
-        return result;
-    }
-    else {
-        return 0;
-    }
-}
-function getTimeLeft(name) {
-    const timerWaitingCompet = ['nextPachinkoTime', 'nextPachinko2Time', 'nextPachinkoEquipTime', 'nextSeasonTime', 'nextLeaguesTime'];
-    if (!Timers[name]) {
-        if (!TimeHelper.canCollectCompetitionActive() && timerWaitingCompet.indexOf(name) >= 0) {
-            return "Wait for contest";
-        }
-        return "No timer";
-    }
-    var diff = getSecondsLeft(name);
-    if (diff <= 0) {
-        if (!TimeHelper.canCollectCompetitionActive() && timerWaitingCompet.indexOf(name) >= 0) {
-            return "Wait for contest";
-        }
-        return "Time's up!";
-    }
-    return TimeHelper.toHHMMSS(diff);
-}
-
 ;// CONCATENATED MODULE: ./src/Helper/index.ts
 
 
@@ -15533,6 +15539,10 @@ function autoLoop() {
                 clearParanoiaSpendings();
             }
             CheckSpentPoints();
+            if (getTimer('nextContestTime') === -1) {
+                Contest.setTimers = callItOnce(Contest.setTimers);
+                busy = Contest.setTimers();
+            }
             const canCollectCompetitionActive = TimeHelper.canCollectCompetitionActive();
             //check what happen to timer if no more wave before uncommenting
             /*if (getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") ==="true" && checkTimerMustExist('eventMythicNextWave'))
@@ -16201,6 +16211,10 @@ function autoLoop() {
                 Harem.moduleHaremCountMax();
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDContests"):
+                if (getTimer('nextContestTime') === -1) {
+                    Contest.setTimers = callItOnce(Contest.setTimers);
+                    Contest.setTimers();
+                }
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDPoV"):
                 if (getStoredValue(HHStoredVarPrefixKey + "Setting_PoVMaskRewards") === "true") {
@@ -16362,6 +16376,7 @@ function updateData() {
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_paranoia") == "true") {
             Tegzd += '<li>' + getStoredValue(HHStoredVarPrefixKey + "Temp_pinfo") + ': ' + getTimeLeft('paranoiaSwitch') + '</li>';
         }
+        Tegzd += Contest.getPinfo();
         if (ConfigHelper.getHHScriptVars('isEnabledTrollBattle', false) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoTrollBattle") == "true") {
             Tegzd += Troll.getPinfo(contest);
         }
@@ -16781,7 +16796,6 @@ class StartService {
             // run action on new script version
             LogUtils_logHHAuto(`New script version detected from ${previousScriptVersion} to ${GM.info.script.version}`);
             setStoredValue(HHStoredVarPrefixKey + "Temp_scriptversion", GM.info.script.version);
-            deleteStoredValue(HHStoredVarPrefixKey + "Temp_trollWithGirls"); // Format changed with 7.3.7
         }
     }
 }
@@ -16838,11 +16852,6 @@ function start() {
     if ($("a[rel='phoenix_member_login']").length > 0) {
         LogUtils_logHHAuto('Not logged in, please login first!');
         return;
-    }
-    if (unsafeWindow.Hero === undefined) {
-        LogUtils_logHHAuto('No Hero detected, can be new game version');
-        // temp for version APR24
-        //unsafeWindow.Hero = unsafeWindow.shared?.Hero;
     }
     StartService.checkVersion();
     Club.checkClubStatus();

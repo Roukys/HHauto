@@ -10,7 +10,7 @@ import {
     setStoredValue,
     TimeHelper
 } from '../Helper/index';
-import { Booster, LeagueHelper, Pantheon, Season, Troll } from '../Module/index';
+import { Booster, Contest, LeagueHelper, Pantheon, Season, Troll } from '../Module/index';
 import { logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
 
@@ -90,6 +90,7 @@ export function updateData() {
         {
             Tegzd += '<li>'+getStoredValue(HHStoredVarPrefixKey+"Temp_pinfo")+': '+getTimeLeft('paranoiaSwitch')+'</li>';
         }
+        Tegzd += Contest.getPinfo();
         if (ConfigHelper.getHHScriptVars('isEnabledTrollBattle',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollBattle") == "true")
         {
             Tegzd += Troll.getPinfo(contest);

@@ -5,6 +5,11 @@ declare global {
     interface Window {
         // Below just informs IDE and/or TS-compiler (it's set in `.js` file).
         championData: any;
+        contests_timer: {
+            duration: any;
+            next_contest: any;
+            remaining_time: any;
+        };
         Collect: any;
         current_tier_number: any;
         event_data: any;
@@ -34,6 +39,7 @@ declare global {
         player_gems_amount: any;
         season_sec_untill_event_end: any;
         seasonal_event_active: any;
+        mega_event_active: any;
         seasonal_time_remaining: any;
         server_now_ts: any;
         id_girl: any;
