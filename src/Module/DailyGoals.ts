@@ -1,20 +1,34 @@
 import {
     RewardHelper,
-    TimeHelper,
     checkTimer,
     ConfigHelper,
     getPage,
     getStoredValue,
     randomInterval,
     setStoredValue,
-    setTimer
+    setTimer,
+    convertTimeToInt
 } from '../Helper/index';
 import { gotoPage } from "../Service/index";
 import { isJSON, logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
 
 export class DailyGoals {
-    static styles(){
+    static getNewGoalsTimer() {
+        const timerRequest = `#daily_goals .daily-goals-timer span[rel=expires]`;
+
+        if ($(timerRequest).length > 0) {
+            const goalsTimer = Number(convertTimeToInt($(timerRequest).text()));
+            return goalsTimer;
+        }
+        logHHAuto('ERROR: can\'t get Daily goals timer, default to maxCollectionDelay');
+        return ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180);
+    }
+    static styles() {
+        if ($("#daily_goals #ad_activities").length) {
+            $("#ad_activities").hide();
+            $("#daily_goals .daily-goals-objectives-container").removeClass('height-for-ad');
+        }
         if(getStoredValue(HHStoredVarPrefixKey+"Setting_compactDailyGoals") === "true")
         {
             const dailGoalsContainerPath = '#daily_goals .daily-goals-row .daily-goals-left-part .daily-goals-objectives-container';
@@ -69,7 +83,8 @@ export class DailyGoals {
             {
                 try{
                     logHHAuto("Checking Daily Goals for collectable rewards. Setting autoloop to false");
-                    setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
+                    setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+                    const nextDailyGoalsTimer = DailyGoals.getNewGoalsTimer();
                     let buttonsToCollect:HTMLElement[] = [];
                     const listDailyGoalsTiersToClaim = $("#daily_goals .progress-section .progress-bar-rewards-container .progress-bar-reward");
                     let potionsNum = Number($('.progress-section div.potions-total > div > p').text());
@@ -82,7 +97,7 @@ export class DailyGoals {
                             const currentChest = $(".progress-bar-rewards-container", listDailyGoalsTiersToClaim[currentTier]);
                             const currentRewardsList = currentChest.length > 0 ? currentChest.data("rewards") : [];
                             //console.log("checking tier : "+currentTierNb);
-                            if (TimeHelper.getSecondsLeftBeforeEndOfHHDay() <= ConfigHelper.getHHScriptVars("dailyRewardMaxRemainingTime") && TimeHelper.getSecondsLeftBeforeEndOfHHDay() > 0)
+                            if (nextDailyGoalsTimer <= ConfigHelper.getHHScriptVars("dailyRewardMaxRemainingTime") && nextDailyGoalsTimer > 0)
                             {
                                 logHHAuto("Force adding for collection chest n° "+currentTierNb);
                                 buttonsToCollect.push(currentButton[0]);
@@ -135,7 +150,7 @@ export class DailyGoals {
                     else
                     {
                         logHHAuto("No Daily Goals reward to collect.");
-                        setTimer('nextDailyGoalsCollectTime', TimeHelper.getSecondsLeftBeforeEndOfHHDay() + randomInterval(3600, 4000));
+                        setTimer('nextDailyGoalsCollectTime', nextDailyGoalsTimer + randomInterval(3600, 4000));
                         gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                         return false;
                     }

@@ -1,6 +1,5 @@
 import {
     RewardHelper,
-    TimeHelper,
     checkTimer,
     convertTimeToInt,
     ConfigHelper,
@@ -35,6 +34,17 @@ export class SeasonalEvent {
             setTimer("SeasonalEventRemainingTime",seasonalEventTimer);
             setStoredValue(HHStoredVarPrefixKey+"Temp_SeasonalEventEndDate",Math.ceil(new Date().getTime()/1000)+seasonalEventTimer);
         }
+    }
+    static getGlobalRankRemainingTime(){
+        const rankTimerRequest = `#top_ranking_tab_container .ranking-timer-reset .ranking-timer span[rel=expires]`
+
+        if ( $(rankTimerRequest).length > 0)
+        {
+            const rankTimer = Number(convertTimeToInt($(rankTimerRequest).text()));
+            return rankTimer;
+        }
+        logHHAuto('ERROR: can\'t get seasonal rank timer, default to maxCollectionDelay');
+        return ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180);
     }
     static displayRemainingTime()
     {
@@ -154,7 +164,7 @@ export class SeasonalEvent {
             }
             return false;
         }
-        else if(unsafeWindow.seasonal_event_active || unsafeWindow.seasonal_time_remaining > 0)
+        else if (unsafeWindow.seasonal_event_active || unsafeWindow.mega_event_active || unsafeWindow.seasonal_time_remaining > 0)
         {
             logHHAuto("Switching to SeasonalEvent screen.");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"));
@@ -305,7 +315,7 @@ export class SeasonalEvent {
             if( topRank.length > 0) topRank.trigger("click");
             else if( eventRank.length > 0) eventRank.trigger("click");
 
-            setTimer('nextMegaEventRankCollectTime', TimeHelper.getSecondsLeftBeforeEndOfHHDay()  + randomInterval(3600,4000));
+            setTimer('nextMegaEventRankCollectTime', SeasonalEvent.getGlobalRankRemainingTime() + randomInterval(3600,4000));
         }
         else if(unsafeWindow.seasonal_event_active || unsafeWindow.seasonal_time_remaining > 0)
         {

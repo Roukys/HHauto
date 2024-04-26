@@ -196,6 +196,10 @@ export async function autoLoop()
             clearParanoiaSpendings();
         }
         CheckSpentPoints();
+        if (getTimer('nextContestTime') === -1) {
+            Contest.setTimers = callItOnce(Contest.setTimers);
+            busy = Contest.setTimers();
+        }
         const canCollectCompetitionActive = TimeHelper.canCollectCompetitionActive();
 
         //check what happen to timer if no more wave before uncommenting
@@ -1041,6 +1045,10 @@ export async function autoLoop()
             Harem.moduleHaremCountMax();
             break;
         case ConfigHelper.getHHScriptVars("pagesIDContests"):
+            if (getTimer('nextContestTime') === -1) {
+                Contest.setTimers = callItOnce(Contest.setTimers);
+                Contest.setTimers();
+            }
             break;
         case ConfigHelper.getHHScriptVars("pagesIDPoV"):
             if (getStoredValue(HHStoredVarPrefixKey+"Setting_PoVMaskRewards") === "true")

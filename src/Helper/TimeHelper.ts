@@ -1,87 +1,18 @@
+import { Contest } from '../Module/Contest';
 import { logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
 import { hhTimerLocale, timerDefinitions } from "../i18n/index";
 import { getHHVars } from "./HHHelper";
 import { getStoredValue } from "./StorageHelper";
-
-declare global {
-    interface Date {
-       stdTimezoneOffset(): number;
-       isDstObserved(): boolean;
-    }
-}
-
-Date.prototype.stdTimezoneOffset = function () {
-    var jan = new Date(this.getFullYear(), 0, 1);
-    var jul = new Date(this.getFullYear(), 6, 1);
-    return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
-}
-
-Date.prototype.isDstObserved = function () {
-    return this.getTimezoneOffset() < this.stdTimezoneOffset();
-}
-/*
-(new Date()).toLocaleString([], {
-    timeZone: 'Europe/Paris',
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    second: 'numeric',
-  })
-  */
+import { checkTimerMustExist, getSecondsLeft } from './TimerHelper';
 
 export class TimeHelper {
 
-    static dSTOffset = -1;
-
-    static getEETDSTOffset()
-    {
-        if(TimeHelper.dSTOffset < 0) {
-            const today = new Date();
-
-            function getEuropeStdTimezoneOffset(today)
-            {
-                // KK is in Sofia
-                var jan = new Date(new Date(today.getFullYear(), 0, 1).toLocaleString('en-US', {timeZone:'Europe/Sofia'}));
-                var jul = new Date(new Date(today.getFullYear(), 6, 1).toLocaleString('en-US', {timeZone:'Europe/Sofia'}));
-                return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
-            }
-
-            function isDstObserved(today)
-            {
-                return today.getTimezoneOffset() < getEuropeStdTimezoneOffset(today);
-            }
-        
-            if (isDstObserved(today))
-            {
-                TimeHelper.dSTOffset = 120; // Summer time
-            }
-            else
-            {
-                TimeHelper.dSTOffset = 60; // Winter time
-            }
-        }
-        return TimeHelper.dSTOffset;
-    }
-
-    static getServerTS()
-    {
-        let sec_num = parseInt(getHHVars('server_now_ts'), 10);
-        sec_num += TimeHelper.getEETDSTOffset() * 60;
-        let days = Math.floor(sec_num / 86400);
-        let hours = Math.floor(sec_num / 3600) % 24;
-        let minutes = Math.floor(sec_num / 60) % 60;
-        let seconds = sec_num % 60;
-        return {days:days,hours:hours,minutes:minutes,seconds:seconds};
-    }
-
     static canCollectCompetitionActive(): boolean
     {
-        let safeTime = getStoredValue(HHStoredVarPrefixKey+"Setting_safeSecondsForContest") !== undefined ? Number(getStoredValue(HHStoredVarPrefixKey+"Setting_safeSecondsForContest")) : 120;
+        let safeTime = getStoredValue(HHStoredVarPrefixKey + "Setting_safeSecondsForContest") !== undefined ? Number(getStoredValue(HHStoredVarPrefixKey + "Setting_safeSecondsForContest")) : 120;
         if(isNaN(safeTime) || safeTime < 0) safeTime = 120;
-        return getStoredValue(HHStoredVarPrefixKey+"Setting_waitforContest") !== "true" || TimeHelper.getSecondsLeftBeforeNewCompetition() > (30*60 + safeTime) && TimeHelper.getSecondsLeftBeforeNewCompetition() < (24*3600-safeTime);
+        return getStoredValue(HHStoredVarPrefixKey + "Setting_waitforContest") !== "true" || !((getSecondsLeft('contestRemainingTime')-safeTime) < 0 && (getSecondsLeft('nextContestTime')+safeTime) > 0);
     }
 
     static toHHMMSS(secs): string  {
@@ -95,24 +26,6 @@ export class TimeHelper {
             .map(v => v < 10 ? "0" + v : v)
             .filter((v,i) => {if (v !== "00"){n++; return true;} return n > 0})
             .join(":");
-    }
-
-    static getSecondsLeftBeforeEndOfHHDay(): number
-    {
-        let HHEndOfDay = {days:0,hours:13,minutes:0,seconds:0};
-        let server_TS = TimeHelper.getServerTS();
-        HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?0:1;
-        let diffResetTime = (HHEndOfDay.days*86400 + HHEndOfDay.hours * 3600 + HHEndOfDay.minutes * 60) - (server_TS.hours * 3600 + server_TS.minutes * 60);
-        return diffResetTime;
-    }
-
-    static getSecondsLeftBeforeNewCompetition(): number
-    {
-        let HHEndOfDay = {days:0,hours:13,minutes:30,seconds:0};
-        let server_TS = TimeHelper.getServerTS();
-        HHEndOfDay.days = server_TS.hours<HHEndOfDay.hours?0:1;
-        let diffResetTime = (HHEndOfDay.days*86400 + HHEndOfDay.hours * 3600 + HHEndOfDay.minutes * 60) - (server_TS.hours * 3600 + server_TS.minutes * 60);
-        return diffResetTime;
     }
 
     static debugDate(sec_num: number): string

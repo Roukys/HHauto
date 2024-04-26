@@ -1,9 +1,11 @@
 import {
-    TimeHelper,
     ConfigHelper,
+    TimeHelper,
+    checkTimer,
+    checkTimerMustExist,
     getPage,
     getStoredValue,
-    randomInterval,
+    getTimeLeft,
     setTimer
 } from '../Helper/index';
 import { gotoPage } from "../Service/index";
@@ -11,7 +13,10 @@ import { logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
 
 export class Contest {
-    // returns boolean to set busy
+    static getPinfo() {
+        const color = getStoredValue(HHStoredVarPrefixKey + "Setting_waitforContest") !== "true" ? 'white' : TimeHelper.canCollectCompetitionActive() ? 'LimeGreen' : 'red';
+        return `<li style='color:${color}'>Contest end : ${getTimeLeft('contestRemainingTime')}  / Next : ${getTimeLeft('nextContestTime')} + '</li>`;
+    }
     static run(){
         if(getPage() !== ConfigHelper.getHHScriptVars("pagesIDContests"))
         {
@@ -32,14 +37,37 @@ export class Contest {
                 if ( contest_list.length > 1 )
                 {
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDContests"));
+                    return true;
                 }
             }
-    
-            var time = TimeHelper.getSecondsLeftBeforeNewCompetition() + randomInterval(30*60, 35*60); // 30 min after new compet
-            setTimer('nextContestTime',time);
+
+            return Contest.setTimers();
+        }
+    }
+    static setTimers(): boolean {
+        if (getPage() !== ConfigHelper.getHHScriptVars("pagesIDContests")) {
+            logHHAuto("Navigating to contests page.");
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDContests"));
+            // return busy
+            return true;
+        }
+        else {
+            try{
+                const nextContestTime = unsafeWindow.contests_timer.next_contest;
+                const remaining_time = unsafeWindow.contests_timer.remaining_time;
+                setTimer('contestRemainingTime', remaining_time);
+                setTimer('nextContestTime', nextContestTime);
+            } catch (err) {
+                logHHAuto('ERROR getting next contest timers, ignore...');
+                setTimer('contestRemainingTime', 3600);
+                setTimer('nextContestTime', 4000);
+            }
             // Not busy
             return false;
         }
+    }
+    static waitContestActive(){
+        return !checkTimerMustExist('contestRemainingTime') && checkTimerMustExist('nextContestTime');
     }
     static styles(){
         if(getStoredValue(HHStoredVarPrefixKey+"Setting_compactEndedContests") === "true")
