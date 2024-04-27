@@ -15,7 +15,7 @@ import { HHStoredVarPrefixKey } from '../config/index';
 export class Contest {
     static getPinfo() {
         const color = getStoredValue(HHStoredVarPrefixKey + "Setting_waitforContest") !== "true" ? 'white' : TimeHelper.canCollectCompetitionActive() ? 'LimeGreen' : 'red';
-        return `<li style='color:${color}'>Contest end : ${getTimeLeft('contestRemainingTime')}  / Next : ${getTimeLeft('nextContestTime')} + '</li>`;
+        return `<li style='color:${color}'>Contest end : ${getTimeLeft('contestRemainingTime')}  / Next : ${getTimeLeft('nextContestTime')}</li>`;
     }
     static run(){
         if(getPage() !== ConfigHelper.getHHScriptVars("pagesIDContests"))
