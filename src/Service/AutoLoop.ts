@@ -196,7 +196,7 @@ export async function autoLoop()
             clearParanoiaSpendings();
         }
         CheckSpentPoints();
-        if (getTimer('nextContestTime') === -1) {
+        if (checkTimer('nextContestTime')) {
             Contest.setTimers = callItOnce(Contest.setTimers);
             busy = Contest.setTimers();
         }

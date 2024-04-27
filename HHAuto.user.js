@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.10.1
+// @version      7.10.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4524,7 +4524,7 @@ class ClubChampion {
 class Contest {
     static getPinfo() {
         const color = getStoredValue(HHStoredVarPrefixKey + "Setting_waitforContest") !== "true" ? 'white' : TimeHelper.canCollectCompetitionActive() ? 'LimeGreen' : 'red';
-        return `<li style='color:${color}'>Contest end : ${getTimeLeft('contestRemainingTime')}  / Next : ${getTimeLeft('nextContestTime')} + '</li>`;
+        return `<li style='color:${color}'>Contest end : ${getTimeLeft('contestRemainingTime')}  / Next : ${getTimeLeft('nextContestTime')}</li>`;
     }
     static run() {
         if (getPage() !== ConfigHelper.getHHScriptVars("pagesIDContests")) {
@@ -15563,7 +15563,7 @@ function autoLoop() {
                 clearParanoiaSpendings();
             }
             CheckSpentPoints();
-            if (getTimer('nextContestTime') === -1) {
+            if (checkTimer('nextContestTime')) {
                 Contest.setTimers = callItOnce(Contest.setTimers);
                 busy = Contest.setTimers();
             }
