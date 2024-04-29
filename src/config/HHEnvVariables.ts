@@ -589,7 +589,8 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
                                           'Natalie Stone',
                                           'Janie Blade',
                                           'Nikki Nort',
-                                          'Mistress Venom'];
+                                          'Mistress Venom',
+                                          'CEO Ramona'];
     HHEnvVariables[element].isEnabledSideQuest = false;// to remove when SideQuest arrives in transpornstar
     HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in transpornstar
     HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in transpornstar
