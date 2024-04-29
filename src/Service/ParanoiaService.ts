@@ -24,6 +24,11 @@ import { EventGirl } from '../model/index';
 import { getBurst } from "./AutoLoop";
 import { gotoPage } from "./PageNavigationService";
 
+export class ParanoiaService {
+    static MAX_LOOP = 10;
+    static countParanoiaLoop = 0;
+}
+
 
 function replacerMap(key, value) {
     const originalObject = this[key];
@@ -89,6 +94,7 @@ export function checkParanoiaSpendings(spendingFunction:string|undefined=undefin
 
 export function clearParanoiaSpendings()
 {
+    ParanoiaService.countParanoiaLoop = 0;
     sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_paranoiaSpendings');
     sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_NextSwitch');
     sessionStorage.removeItem(HHStoredVarPrefixKey+'Temp_paranoiaQuestBlocked');
@@ -320,6 +326,17 @@ export function flipParanoia()
             //going into hiding
             setStoredValue(HHStoredVarPrefixKey+"Temp_burst", "false");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+        }
+        else if (checkParanoiaSpendings() > 0 && getStoredValue(HHStoredVarPrefixKey + "Setting_paranoiaSpendsBefore") === "true") {
+            // manage wrong values in storage to avoid infinite loop
+            ParanoiaService.countParanoiaLoop++;
+            // logHHAuto(`checkParanoiaSpendings() = ${checkParanoiaSpendings()}, reached ${ParanoiaService.countParanoiaLoop} times`);
+            if (ParanoiaService.countParanoiaLoop > ParanoiaService.MAX_LOOP) {
+                logHHAuto('10 times flip without actions, clearParanoiaSpending and update');
+                clearParanoiaSpendings();
+                setParanoiaSpendings();
+            }
+            return;
         }
         else
         {

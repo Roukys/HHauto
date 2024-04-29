@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.10.2
+// @version      7.10.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -10701,7 +10701,8 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
         'Natalie Stone',
         'Janie Blade',
         'Nikki Nort',
-        'Mistress Venom'];
+        'Mistress Venom',
+        'CEO Ramona'];
     HHEnvVariables[element].isEnabledSideQuest = false; // to remove when SideQuest arrives in transpornstar
     HHEnvVariables[element].isEnabledClubChamp = false; // to remove when Club Champs arrives in transpornstar
     HHEnvVariables[element].isEnabledPantheon = false; // to remove when Pantheon arrives in transpornstar
@@ -16504,6 +16505,10 @@ function bindMouseEvents() {
 
 
 
+class ParanoiaService {
+}
+ParanoiaService.MAX_LOOP = 10;
+ParanoiaService.countParanoiaLoop = 0;
 function replacerMap(key, value) {
     const originalObject = this[key];
     if (originalObject instanceof Map) {
@@ -16554,6 +16559,7 @@ function checkParanoiaSpendings(spendingFunction = undefined) {
     }
 }
 function clearParanoiaSpendings() {
+    ParanoiaService.countParanoiaLoop = 0;
     sessionStorage.removeItem(HHStoredVarPrefixKey + 'Temp_paranoiaSpendings');
     sessionStorage.removeItem(HHStoredVarPrefixKey + 'Temp_NextSwitch');
     sessionStorage.removeItem(HHStoredVarPrefixKey + 'Temp_paranoiaQuestBlocked');
@@ -16737,6 +16743,17 @@ function flipParanoia() {
             //going into hiding
             setStoredValue(HHStoredVarPrefixKey + "Temp_burst", "false");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+        }
+        else if (checkParanoiaSpendings() > 0 && getStoredValue(HHStoredVarPrefixKey + "Setting_paranoiaSpendsBefore") === "true") {
+            // manage wrong values in storage to avoid infinite loop
+            ParanoiaService.countParanoiaLoop++;
+            // logHHAuto(`checkParanoiaSpendings() = ${checkParanoiaSpendings()}, reached ${ParanoiaService.countParanoiaLoop} times`);
+            if (ParanoiaService.countParanoiaLoop > ParanoiaService.MAX_LOOP) {
+                LogUtils_logHHAuto('10 times flip without actions, clearParanoiaSpending and update');
+                clearParanoiaSpendings();
+                setParanoiaSpendings();
+            }
+            return;
         }
         else {
             //refresh remaining
