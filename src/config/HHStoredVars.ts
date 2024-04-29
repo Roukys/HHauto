@@ -8,7 +8,7 @@ import { PlaceOfPower } from '../Module/index';
 
 export const HHStoredVars = {};
 //Settings Vars
-export const HHStoredVarPrefixKey:string = "HHAuto_"; // default HHAuto_
+export const HHStoredVarPrefixKey: string = "HHAuto_"; // default HHAuto_
 //Do not move, has to be first one
 HHStoredVars[HHStoredVarPrefixKey+"Setting_settPerTab"] =
     {
@@ -603,6 +603,32 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSalaryResetFilters"] =
     setMenu:true,
     menuType:"checked",
     kobanUsing:false
+};
+HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSalaryUseFilter"] =
+{
+    default: "false",
+    storage: "Storage()",
+    HHType: "Setting",
+    valueType: "Boolean",
+    getMenu: true,
+    setMenu: true,
+    menuType: "checked",
+    kobanUsing: false,
+    newValueFunction: function () {
+    }
+};
+HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSalaryFilter"] =
+{
+    default: "1;6;5;4;3;2",
+    storage: "Storage()",
+    HHType: "Setting",
+    valueType: "List",
+    getMenu: true,
+    setMenu: true,
+    menuType: "value",
+    kobanUsing: false,
+    newValueFunction: function () {
+    }
 };
 HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSalaryMaxTimer"] =
     {

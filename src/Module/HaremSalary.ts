@@ -15,6 +15,7 @@ import { gotoPage } from '../Service/index';
 import { getCurrentSorting, getHHAjax, logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
 import { Harem } from "./Harem";
+import { HaremFilter } from './harem/HaremFilter';
 
 export class HaremSalary {
     static filterGirlMapReadyForCollect(a)
@@ -43,6 +44,10 @@ export class HaremSalary {
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
         var Clicked:any[]=[];
         const Hero = getHero();
+        const haremFilter = new HaremFilter();
+        const haremFilters: any[] = haremFilter.getRarityFilterValues();
+        let haremFilterIndex = 0;
+        let salaryTimer = Infinity;
 
         var endCollectTS = -1;
         let startCollectTS = -1;
@@ -172,28 +177,44 @@ export class HaremSalary {
                 }
                 setTimeout(() => { CollectData(inStart) }, randomInterval(1200, 1800));
             }
-            else//nothing to collect or time spent already
+            else //nothing to collect or time spent already
             {
-                let salaryTimer = HaremSalary.predictNextSalaryMinTime();
-                if (salaryTimer > 0)
-                {
-                    salaryTimer = randomInterval(salaryTimer, 180 + salaryTimer);
-                    logHHAuto(`Setting salary timer to ${salaryTimer} secs.`);
+                salaryTimer = Math.min(HaremSalary.predictNextSalaryMinTime(), salaryTimer);
+
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryUseFilter") === "true" && haremFilterIndex < haremFilters.length) {
+                    haremFilter.selectGirlRarity(haremFilters[haremFilterIndex++]);
+                    setTimeout(() => { CollectData(inStart) }, randomInterval(1200, 1800));
+                } else {
+                    if (salaryTimer > 0)
+                    {
+                        salaryTimer = randomInterval(salaryTimer, 180 + salaryTimer);
+                        logHHAuto(`Setting salary timer to ${salaryTimer} secs.`);
+                    }
+                    else
+                    {
+                        logHHAuto("Next salary set to 60 secs as remains girls to collect");
+                        salaryTimer = randomInterval(50, 70);
+                    }
+                    setTimer('nextSalaryTime', salaryTimer);
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"),{}, randomInterval(300,500));
                 }
-                else
-                {
-                    logHHAuto("Next salary set to 60 secs as remains girls to collect");
-                    salaryTimer = randomInterval(50, 70);
-                }
-                setTimer('nextSalaryTime', salaryTimer);
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"),{}, randomInterval(300,500));
             }
         }
 
-        if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryResetFilters") === "true")
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryUseFilter") === "true" && haremFilterIndex < haremFilters.length) {
+            haremFilter.openFilter();
+            await TimeHelper.sleep(randomInterval(200, 400)); // wait open
+
+            logHHAuto('Reseting girl filters');
+            haremFilter.resetFilter();
+            await TimeHelper.sleep(randomInterval(800, 1200)); // wait loading
+            await haremFilter.selectOnlyOwnedGirls();
+            await haremFilter.selectGirlRarity(haremFilters[haremFilterIndex++]);
+        }
+        else if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryResetFilters") === "true")
         {
             logHHAuto('Reseting girl filters');
-            $('#reset-filters').trigger('click');
+            haremFilter.resetFilter();
             await TimeHelper.sleep(randomInterval(800, 1200)); // wait loading
         }
     
