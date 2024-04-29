@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.10.3
+// @version      7.11.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -54,7 +54,7 @@ GM_addStyle('#sMenu::-webkit-scrollbar {width: 6px;height: 6px;background: #000;
 GM_addStyle('#sMenu::-webkit-scrollbar-thumb { background: #ffa23e; -webkit-border-radius: 1ex; -webkit-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.75);}');
 GM_addStyle('#sMenu::-webkit-scrollbar-corner {background: #000;}');
 GM_addStyle('#sMenu .HHMenuItemName {font-size:8px;}');
-GM_addStyle('div.optionsBoxTitle {padding:3px 15px 0px 5px; height:12px; display:flex; flex-direction:row; justify-content:center; align-items:center;}'); //; padding:2px; padding-bottom:0px;
+GM_addStyle('div.optionsBoxTitle {height:12px; display:flex; flex-direction:row; justify-content:center; align-items:center;}'); //; padding:2px; padding-bottom:0px;
 GM_addStyle('div.rowOptionsBox {margin:1px; padding:3px; font-size:smaller; display:flex; flex-direction:row; align-items:flex-start; border: 1px solid #ffa23e; border-radius: 5px}');
 GM_addStyle('div.optionsBox {margin:1px 3px 1px; padding:3px; font-size:smaller; display:flex; flex-direction:column; border:1px solid #ffa23e; border-radius:5px}');
 GM_addStyle('div.internalOptionsRow {display:flex; flex-direction:row; justify-content: space-between; align-items: flex-end}'); //; padding:3px;
@@ -430,6 +430,8 @@ HHAuto_ToolTips.en['autoSalary'] = { version: "5.6.24", elementText: "Salary", t
 HHAuto_ToolTips.en['autoSalaryMinSalary'] = { version: "5.6.24", elementText: "Min. salary", tooltip: "(Integer)<br>Minium salary to start collection" };
 HHAuto_ToolTips.en['autoSalaryMaxTimer'] = { version: "5.6.24", elementText: "Max. collect time", tooltip: "(Integer)<br>X secs to collect Salary, before stopping." };
 HHAuto_ToolTips.en['autoSalaryResetFilters'] = { version: "7.5.0", elementText: "Reset filters", tooltip: "Reset harem filters before collect salary." };
+HHAuto_ToolTips.en['autoSalaryFilter'] = { version: "7.11.0", elementText: "Filters", tooltip: "Define girls rarity to be collected. 1: Starting girls<br>2: Common girls<br>3: Rare girls<br>4: Epic girls<br>5: Legendary girls<br>6: Mythic girls." };
+HHAuto_ToolTips.en['autoSalaryUseFilter'] = { version: "7.11.0", elementText: "Use Filter", tooltip: "If enabled: will collect girls by rarity from the filtered order (a reset filters will be done first)." };
 HHAuto_ToolTips.en['autoMission'] = { version: "5.6.24", elementText: "Mission", tooltip: "if enabled : Automatically do missions" };
 HHAuto_ToolTips.en['autoMissionCollect'] = { version: "5.6.24", elementText: "Collect", tooltip: "if enabled : Automatically collect missions after start of new competition." };
 HHAuto_ToolTips.en['compactMissions'] = { version: "5.24.0", elementText: "Compact", tooltip: "Add styles to compact missions display" };
@@ -5835,6 +5837,2258 @@ class GenericBattle {
     }
 }
 
+;// CONCATENATED MODULE: ./src/Helper/TimerHelper.ts
+
+
+
+
+let Timers = {};
+function setTimers(timer) {
+    Timers = timer;
+}
+function setTimer(name, seconds) {
+    var ND = new Date().getTime() + seconds * 1000;
+    Timers[name] = ND;
+    setStoredValue(HHStoredVarPrefixKey + "Temp_Timers", JSON.stringify(Timers));
+    LogUtils_logHHAuto(name + " set to " + TimeHelper.toHHMMSS(ND / 1000 - new Date().getTimezoneOffset() * 60) + ' (' + TimeHelper.toHHMMSS(seconds) + ')');
+}
+function clearTimer(name) {
+    delete Timers[name];
+    setStoredValue(HHStoredVarPrefixKey + "Temp_Timers", JSON.stringify(Timers));
+}
+function checkTimer(name) {
+    if (!Timers[name] || Timers[name] < new Date()) {
+        return true;
+    }
+    return false;
+}
+function checkTimerMustExist(name) {
+    if (Timers[name] && Timers[name] < new Date()) {
+        return true;
+    }
+    return false;
+}
+function getTimer(name) {
+    if (!Timers[name]) {
+        return -1;
+    }
+    return Timers[name];
+}
+function getSecondsLeft(name) {
+    if (!Timers[name]) {
+        return 0;
+    }
+    var result = Math.ceil(Timers[name] / 1000) - Math.ceil(new Date().getTime() / 1000);
+    if (result > 0) {
+        return result;
+    }
+    else {
+        return 0;
+    }
+}
+function getTimeLeft(name) {
+    const timerWaitingCompet = ['nextPachinkoTime', 'nextPachinko2Time', 'nextPachinkoEquipTime', 'nextSeasonTime', 'nextLeaguesTime'];
+    if (!Timers[name]) {
+        if (!TimeHelper.canCollectCompetitionActive() && timerWaitingCompet.indexOf(name) >= 0) {
+            return "Wait for contest";
+        }
+        return "No timer";
+    }
+    var diff = getSecondsLeft(name);
+    if (diff <= 0) {
+        if (!TimeHelper.canCollectCompetitionActive() && timerWaitingCompet.indexOf(name) >= 0) {
+            return "Wait for contest";
+        }
+        return "Time's up!";
+    }
+    return TimeHelper.toHHMMSS(diff);
+}
+
+;// CONCATENATED MODULE: ./src/Helper/TimeHelper.ts
+
+
+
+
+
+class TimeHelper {
+    static canCollectCompetitionActive() {
+        let safeTime = getStoredValue(HHStoredVarPrefixKey + "Setting_safeSecondsForContest") !== undefined ? Number(getStoredValue(HHStoredVarPrefixKey + "Setting_safeSecondsForContest")) : 120;
+        if (isNaN(safeTime) || safeTime < 0)
+            safeTime = 120;
+        return getStoredValue(HHStoredVarPrefixKey + "Setting_waitforContest") !== "true" || !((getSecondsLeft('contestRemainingTime') - safeTime) < 0 && (getSecondsLeft('nextContestTime') + safeTime) > 0);
+    }
+    static toHHMMSS(secs) {
+        var sec_num = parseInt(secs, 10);
+        var days = Math.floor(sec_num / 86400);
+        var hours = Math.floor(sec_num / 3600) % 24;
+        var minutes = Math.floor(sec_num / 60) % 60;
+        var seconds = sec_num % 60;
+        var n = 0;
+        return [days, hours, minutes, seconds]
+            .map(v => v < 10 ? "0" + v : v)
+            .filter((v, i) => { if (v !== "00") {
+            n++;
+            return true;
+        } return n > 0; })
+            .join(":");
+    }
+    static debugDate(sec_num) {
+        let days = Math.floor(sec_num / 86400);
+        let hours = Math.floor(sec_num / 3600) % 24;
+        let minutes = Math.floor(sec_num / 60) % 60;
+        let seconds = sec_num % 60;
+        return JSON.stringify({ days: days, hours: hours, minutes: minutes, seconds: seconds });
+    }
+    static sleep(waitTime) {
+        return new Promise((resolve) => {
+            setTimeout(resolve, waitTime);
+        });
+    }
+}
+function convertTimeToInt(remainingTimer) {
+    let newTimer = 0;
+    if (remainingTimer && remainingTimer.length > 0) {
+        try {
+            let splittedTime = remainingTimer.trim().split(' ');
+            for (let i = 0; i < splittedTime.length; i++) {
+                let timerSymbol = splittedTime[i].match(/[^0-9]+/)[0];
+                switch (timerSymbol) {
+                    case timerDefinitions[hhTimerLocale].days:
+                        newTimer += parseInt(splittedTime[i]) * 86400;
+                        break;
+                    case timerDefinitions[hhTimerLocale].hours:
+                        newTimer += parseInt(splittedTime[i]) * 3600;
+                        break;
+                    case timerDefinitions[hhTimerLocale].minutes:
+                        newTimer += parseInt(splittedTime[i]) * 60;
+                        break;
+                    case timerDefinitions[hhTimerLocale].seconds:
+                        newTimer += parseInt(splittedTime[i]);
+                        break;
+                    default:
+                        LogUtils_logHHAuto('Timer symbol not recognized: ' + timerSymbol);
+                }
+            }
+        }
+        catch ({ errName, message }) {
+            LogUtils_logHHAuto(`ERROR: occured, reset to 15min: ${errName}, ${message}`);
+            newTimer = randomInterval(15 * 60, 17 * 60);
+        }
+    }
+    else {
+        LogUtils_logHHAuto('No valid timer definitions, reset to 15min');
+        newTimer = randomInterval(15 * 60, 17 * 60);
+    }
+    return newTimer;
+}
+function getLimitTimeBeforeEnd() {
+    return Number(getStoredValue(HHStoredVarPrefixKey + "Setting_collectAllTimer")) * 3600;
+}
+function randomInterval(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+;// CONCATENATED MODULE: ./src/config/HHStoredVars.ts
+
+
+const HHStoredVars_HHStoredVars = {};
+//Settings Vars
+const HHStoredVarPrefixKey = "HHAuto_"; // default HHAuto_
+//Do not move, has to be first one
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_settPerTab"] =
+    {
+        default: "false",
+        storage: "localStorage",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+// Rest of settings vars
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoAff"] =
+    {
+        default: "500000000",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Long Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoAffW"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoBuyBoosters"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: true
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoBuyBoostersFilter"] =
+    {
+        default: "B1;B2;B3;B4",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "List",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoChamps"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        newValueFunction: function () {
+            clearTimer('nextChampionTime');
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoChampAlignTimer"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoChampsForceStart"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        newValueFunction: function () {
+            clearTimer('nextChampionTime');
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoChampsFilter"] =
+    {
+        default: "1;2;3;4;5;6",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "List",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false,
+        newValueFunction: function () {
+            clearTimer('nextChampionTime');
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoChampsTeamLoop"] =
+    {
+        default: "10",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoChampsGirlThreshold"] =
+    {
+        default: "0",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Long Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoChampsTeamKeepSecondLine"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoChampsUseEne"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showClubButtonInPoa"] =
+    {
+        default: "true",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoClubChamp"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        newValueFunction: function () {
+            clearTimer('nextClubChampionTime');
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoClubChampMax"] =
+    {
+        default: "999",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoClubForceStart"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        newValueFunction: function () {
+            clearTimer('nextClubChampionTime');
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoContest"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_compactEndedContests"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoExp"] =
+    {
+        default: "500000000",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Long Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoExpW"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoFreePachinko"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        newValueFunction: function () {
+            clearTimer('nextPachinkoTime');
+            clearTimer('nextPachinko2Time');
+            clearTimer('nextPachinkoEquipTime');
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeagues"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        newValueFunction: function () {
+            clearTimer('nextLeaguesTime');
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeaguesAllowWinCurrent"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeaguesCollect"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeaguesBoostedOnly"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeaguesRunThreshold"] =
+    {
+        default: "0",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeaguesForceOneFight"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_leagueListDisplayPowerCalc"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        newValueFunction: function () {
+            deleteStoredValue(HHStoredVarPrefixKey + "Temp_LeagueOpponentList");
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeaguesSelectedIndex"] =
+    {
+        default: "0",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "selectedIndex",
+        kobanUsing: false,
+        customMenuID: "autoLeaguesSelector",
+        isValid: /^[0-9]$/
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeaguesSortIndex"] =
+    {
+        default: "1",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "selectedIndex",
+        kobanUsing: false,
+        customMenuID: "autoLeaguesSortMode",
+        isValid: /^[0-9]$/,
+        newValueFunction: function () {
+            deleteStoredValue(HHStoredVarPrefixKey + "Temp_LeagueOpponentList");
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeaguesThreshold"] =
+    {
+        default: "0",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeaguesSecurityThreshold"] =
+    {
+        default: "40",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_compactMissions"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoMission"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoMissionCollect"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoMissionKFirst"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_compactPowerPlace"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPowerPlaces"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPowerPlacesAll"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        newValueFunction: function () {
+            clearTimer('minPowerPlacesTime');
+            PlaceOfPower.cleanTempPopToStart();
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPowerPlacesPrecision"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPowerPlacesInverted"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPowerPlacesWaitMax"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPowerPlacesIndexFilter"] =
+    {
+        default: "1;2;3",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "List",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false,
+        newValueFunction: function () {
+            clearTimer('minPowerPlacesTime');
+            PlaceOfPower.cleanTempPopToStart();
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoQuest"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSideQuest"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoQuestThreshold"] =
+    {
+        default: "0",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSalary"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        newValueFunction: function () {
+            clearTimer('nextSalaryTime');
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSalaryResetFilters"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSalaryUseFilter"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        newValueFunction: function () {
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSalaryFilter"] =
+    {
+        default: "1;6;5;4;3;2",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "List",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false,
+        newValueFunction: function () {
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSalaryMaxTimer"] =
+    {
+        default: "1200",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Long Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+/*HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSalaryMinTimer"] =
+    {
+    default:"120",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Long Integer",
+    getMenu:true,
+    setMenu:true,
+    menuType:"value",
+    kobanUsing:false
+};*/
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSalaryMinSalary"] =
+    {
+        default: "20000",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Long Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false,
+        newValueFunction: function () {
+            clearTimer('nextSalaryTime');
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeason"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        newValueFunction: function () {
+            clearTimer('nextSeasonTime');
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonCollect"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        events: { "change": function () {
+                if (this.checked) {
+                    getAndStoreCollectPreferences(HHStoredVarPrefixKey + "Setting_autoSeasonCollectablesList");
+                    clearTimer('nextSeasonCollectTime');
+                }
+            }
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonCollectAll"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonCollectablesList"] =
+    {
+        default: JSON.stringify([]),
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Array"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonPassReds"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: true
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonThreshold"] =
+    {
+        default: "0",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonRunThreshold"] =
+    {
+        default: "0",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonBoostedOnly"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonSkipLowMojo"] =
+    {
+        default: "true",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoStats"] =
+    {
+        default: "500000000",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Long Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoStatsSwitch"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoTrollBattle"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoTrollMythicByPassParanoia"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoTrollSelectedIndex"] =
+    {
+        default: "0",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false,
+        customMenuID: "autoTrollSelector",
+        isValid: /^[0-9]|1[0-5]|98|99$/
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoTrollThreshold"] =
+    {
+        default: "0",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoTrollRunThreshold"] =
+    {
+        default: "0",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoChampsForceStartEventGirl"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_buyCombat"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: true
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_buyCombTimer"] =
+    {
+        default: "16",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_buyMythicCombat"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: true
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_buyMythicCombTimer"] =
+    {
+        default: "16",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoFreeBundlesCollect"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        events: { "change": function () {
+                if (this.checked) {
+                    getAndStoreCollectPreferences(HHStoredVarPrefixKey + "Setting_autoFreeBundlesCollectablesList", getTextForUI("menuDailyCollectableText", "elementText"));
+                    clearTimer('nextFreeBundlesCollectTime');
+                }
+            }
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoFreeBundlesCollectablesList"] =
+    {
+        default: JSON.stringify([]),
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Array"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_waitforContest"] =
+    {
+        default: "true",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_safeSecondsForContest"] =
+    {
+        default: "120",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_mousePause"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_mousePauseTimeout"] =
+    {
+        default: "5000",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_collectAllTimer"] =
+    {
+        default: "12",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        isValid: /^[1-9][0-9]|[1-9]$/
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_eventTrollOrder"] =
+    {
+        default: "1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "List",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoBuyTrollNumber"] =
+    {
+        default: "20",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "List",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoBuyMythicTrollNumber"] =
+    {
+        default: "20",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "List",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_master"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_maxAff"] =
+    {
+        default: "50000",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Long Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_maxBooster"] =
+    {
+        default: "10",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Long Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_maxExp"] =
+    {
+        default: "10000",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Long Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_minShardsX10"] =
+    {
+        default: "10",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false,
+        isValid: /^(\d)+$/
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_minShardsX50"] =
+    {
+        default: "50",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_updateMarket"] =
+    {
+        default: "true",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_paranoia"] =
+    {
+        default: "true",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        newValueFunction: function () {
+            clearTimer('paranoiaSwitch');
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_paranoiaSettings"] =
+    {
+        default: "140-320/Sleep:28800-30400|Active:250-460|Casual:1500-2700/6:Sleep|8:Casual|10:Active|12:Casual|14:Active|18:Casual|20:Active|22:Casual|24:Sleep",
+        storage: "Storage()",
+        HHType: "Setting"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_paranoiaSpendsBefore"] =
+    {
+        default: "true",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_plusEvent"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_plusEventMythic"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_plusEventMythicSandalWood"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autodpEventCollect"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        events: { "change": function () {
+                if (this.checked) {
+                    getAndStoreCollectPreferences(HHStoredVarPrefixKey + "Setting_autodpEventCollectablesList");
+                    clearTimer('nextdpEventCollectTime');
+                }
+            }
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autodpEventCollectablesList"] =
+    {
+        default: JSON.stringify([]),
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Array"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autodpEventCollectAll"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_bossBangEvent"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_bossBangMinTeam"] =
+    {
+        default: "5",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_sultryMysteriesEventRefreshShop"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_collectEventChest"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_PoAMaskRewards"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_PoVMaskRewards"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_PoGMaskRewards"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_SeasonMaskRewards"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_SeasonalEventMaskRewards"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showCalculatePower"] =
+    {
+        default: "true",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showAdsBack"] =
+    {
+        default: "true",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showRewardsRecap"] =
+    {
+        default: "true",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_hideOwnedGirls"] =
+    {
+        default: "true",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showInfo"] =
+    {
+        default: "true",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showInfoLeft"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showMarketTools"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showTooltips"] =
+    {
+        default: "true",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_spendKobans0"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_kobanBank"] =
+    {
+        default: "1000000",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Long Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_useX10Fights"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: true
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_useX10FightsAllowNormalEvent"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_useX50Fights"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: true
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_useX50FightsAllowNormalEvent"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_saveDefaults"] =
+    {
+        storage: "localStorage",
+        HHType: "Setting"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPantheon"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPantheonThreshold"] =
+    {
+        default: "0",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPantheonRunThreshold"] =
+    {
+        default: "0",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPantheonBoostedOnly"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLabyrinth"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonalEventCollect"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        events: { "change": function () {
+                if (this.checked) {
+                    getAndStoreCollectPreferences(HHStoredVarPrefixKey + "Setting_autoSeasonalEventCollectablesList");
+                    clearTimer('nextSeasonalEventCollectTime');
+                }
+            }
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonalEventCollectAll"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonalEventCollectablesList"] =
+    {
+        default: JSON.stringify([]),
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Array"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPoVCollect"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        events: { "change": function () {
+                if (this.checked) {
+                    getAndStoreCollectPreferences(HHStoredVarPrefixKey + "Setting_autoPoVCollectablesList");
+                    clearTimer('nextPoVCollectTime');
+                }
+            }
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPoVCollectAll"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPoVCollectablesList"] =
+    {
+        default: JSON.stringify([]),
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Array"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPoGCollect"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        events: { "change": function () {
+                if (this.checked) {
+                    getAndStoreCollectPreferences(HHStoredVarPrefixKey + "Setting_autoPoGCollectablesList");
+                    clearTimer('nextPoGCollectTime');
+                }
+            }
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPoGCollectAll"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPoGCollectablesList"] =
+    {
+        default: JSON.stringify([]),
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Array"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPoACollect"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        events: { "change": function () {
+                if (this.checked) {
+                    getAndStoreCollectPreferences(HHStoredVarPrefixKey + "Setting_autoPoACollectablesList");
+                    clearTimer('nextPoACollectTime');
+                }
+            }
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPoACollectAll"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPoACollectablesList"] =
+    {
+        default: JSON.stringify([]),
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Array"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_compactDailyGoals"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoDailyGoalsCollect"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        events: { "change": function () {
+                if (this.checked) {
+                    getAndStoreCollectPreferences(HHStoredVarPrefixKey + "Setting_autoDailyGoalsCollectablesList", getTextForUI("menuDailyCollectableText", "elementText"));
+                    clearTimer('nextDailyGoalsCollectTime');
+                }
+            }
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoDailyGoalsCollectablesList"] =
+    {
+        default: JSON.stringify([]),
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Array"
+    };
+// Temp vars
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_scriptversion"] =
+    {
+        default: "0",
+        storage: "localStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_autoLoop"] =
+    {
+        default: "true",
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_battlePowerRequired"] =
+    {
+        default: "0",
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+/*HHStoredVars[HHStoredVarPrefixKey+"Temp_leaguesTarget"] =
+    {
+    default:"9",
+    storage:"sessionStorage",
+    HHType:"Temp",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:false,
+    menuType:"value",
+    kobanUsing:false,
+    customMenuID:"autoLeaguesSelector"
+};*/
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_lastActionPerformed"] =
+    {
+        default: "none",
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_questRequirement"] =
+    {
+        default: "none",
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+/*HHStoredVars[HHStoredVarPrefixKey+"Temp_userLink"] =
+    {
+    default:"none",
+    storage:"sessionStorage",
+    HHType:"Temp"
+};*/
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_autoLoopTimeMili"] =
+    {
+        default: "1000",
+        storage: "Storage()",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_freshStart"] =
+    {
+        default: "no",
+        storage: "Storage()",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_Logging"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_Debug"] =
+    {
+        default: "false",
+        storage: "sessionStorage",
+        valueType: "Boolean",
+        HHType: "Temp"
+    };
+/*HHStoredVars[HHStoredVarPrefixKey+"Temp_trollToFight"] =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp",
+    valueType:"Small Integer",
+    getMenu:true,
+    setMenu:false,
+    menuType:"value",
+    kobanUsing:false,
+    customMenuID:"autoTrollSelector"
+};*/
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_autoTrollBattleSaveQuest"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_burst"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_charLevel"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_filteredGirlsList"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_haremGirlActions"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_haremGirlMode"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_haremGirlPayLast"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_haremGirlEnd"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_haremGirlLimit"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_eventsGirlz"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_eventGirl"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_eventMythicGirl"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_autoChampsEventGirls"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+        //isValid:/^\[({"girl_id":"(\d)+","champ_id":"(\d)+","girl_shards":"(\d)+","girl_name":"([^"])+","event_id":"([^"])+"},?)+\]$/
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_clubChampLimitReached"] =
+    {
+        default: "false",
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_trollWithGirls"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_fought"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_haveAff"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_haveExp"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_haveBooster"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_hideBeatenOppo"] =
+    {
+        default: "0",
+        storage: "Storage()",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_LeagueOpponentList"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp",
+        //isValid:/^{"expirationDate":\d+,"opponentsList":{("\d+":{((("(win|loss|avgTurns)":\d*[.,]?\d+)|("scoreClass":"(minus|plus|close)")|("points":{("\d{1,3}":\d*[.,]?\d+,?)+})),?)+},?)+}}$/
+    };
+/*
+HHStoredVars[HHStoredVarPrefixKey+"Temp_LeagueTempOpponentList"] =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp",
+    isValid:/^{"expirationDate":\d+,"opponentsList":{("\d+":{((("(win|loss|avgTurns|expectedValue)":\d*[.,]?\d+)|("scoreClass":"(minus|plus|close)")|("points":{("\d{1,3}":\d*[.,]?\d+,?)+})),?)+},?)+}}$/
+};*/
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_paranoiaLeagueBlocked"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_paranoiaQuestBlocked"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_paranoiaSpendings"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_pinfo"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_PopToStart"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_PopUnableToStart"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_storeContents"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_Timers"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_NextSwitch"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_Totalpops"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_currentlyAvailablePops"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_CheckSpentPoints"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_eventsList"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_bossBangTeam"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_boosterStatus"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_sandalwoodFailure"] =
+    {
+        default: "0",
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_LeagueSavedData"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_LeagueHumanLikeRun"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_TrollHumanLikeRun"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_TrollInvalid"] =
+    {
+        default: "false",
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_PantheonHumanLikeRun"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_SeasonHumanLikeRun"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_HaremSize"] =
+    {
+        storage: "localStorage",
+        HHType: "Temp",
+        isValid: /{"count":(\d)+,"count_date":(\d)+}/
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_LastPageCalled"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_PoAEndDate"] =
+    {
+        storage: "localStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_PoVEndDate"] =
+    {
+        storage: "localStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_PoGEndDate"] =
+    {
+        storage: "localStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_poaManualCollectAll"] =
+    {
+        default: "false",
+        storage: "localStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_missionsGiftLeft"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_defaultCustomHaremSort"] =
+    {
+        storage: "localStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_unkownPagesList"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_trollPoints"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+
+;// CONCATENATED MODULE: ./src/Module/harem/HaremFilter.ts
+var HaremFilter_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+class HaremFilter {
+    constructor() {
+        this.STARTING_INDEX = 1;
+        this.COMMON_INDEX = 2;
+        this.RARE_INDEX = 3;
+        this.EPIC_INDEX = 4;
+        this.LEGENDARY_INDEX = 5;
+        this.MYTHIC_INDEX = 6;
+        this.RARITY_ORDER = [this.STARTING_INDEX, this.MYTHIC_INDEX, this.LEGENDARY_INDEX, this.EPIC_INDEX, this.RARE_INDEX, this.COMMON_INDEX];
+    }
+    openFilter() {
+        $('#filter_girls').trigger('click');
+    }
+    resetFilter() {
+        $('#reset-filters').trigger('click');
+    }
+    getRarityFilterValues() {
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryUseFilter") === "true") {
+            return getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryFilter") ? getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryFilter").split(";") : this.RARITY_ORDER;
+        }
+        return [];
+    }
+    selectGirlRarity(rarityIndex = 1) {
+        return HaremFilter_awaiter(this, void 0, void 0, function* () {
+            $('.select-group.girl-rarity-dropdown .selectric-wrapper .selectric').trigger('click');
+            yield TimeHelper.sleep(randomInterval(200, 400)); // wait open
+            $('.select-group.girl-rarity-dropdown .selectric-items li[data-index="' + rarityIndex + '"]').trigger('click');
+            yield TimeHelper.sleep(randomInterval(800, 1200)); // wait loading
+        });
+    }
+    selectOnlyOwnedGirls() {
+        return HaremFilter_awaiter(this, void 0, void 0, function* () {
+            const ownedButton = $('.check-btn.shards-state[shards="100"]');
+            if (ownedButton.attr('selected') == null) {
+                ownedButton.trigger('click');
+            }
+            const hasShardButton = $('.check-btn.shards-state[shards="1-99"]');
+            if (hasShardButton.attr('selected') != null) {
+                hasShardButton.trigger('click');
+            }
+            const noShardButton = $('.check-btn.shards-state[shards="no_shards"]');
+            if (noShardButton.attr('selected') != null) {
+                noShardButton.trigger('click');
+            }
+            yield TimeHelper.sleep(randomInterval(800, 1200)); // wait loading
+        });
+    }
+}
+
 ;// CONCATENATED MODULE: ./src/Module/harem/HaremGirl.ts
 var HaremGirl_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -6371,6 +8625,7 @@ HaremGirl.EXPERIENCE_TYPE = 'experience';
 ;// CONCATENATED MODULE: ./src/Module/harem/index.ts
 
 
+
 ;// CONCATENATED MODULE: ./src/Module/HaremSalary.ts
 var HaremSalary_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -6381,6 +8636,7 @@ var HaremSalary_awaiter = (undefined && undefined.__awaiter) || function (thisAr
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+
 
 
 
@@ -6411,6 +8667,10 @@ class HaremSalary {
             const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
             var Clicked = [];
             const Hero = getHero();
+            const haremFilter = new HaremFilter();
+            const haremFilters = haremFilter.getRarityFilterValues();
+            let haremFilterIndex = 0;
+            let salaryTimer = Infinity;
             var endCollectTS = -1;
             let startCollectTS = -1;
             var maxSecsForSalary = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryMaxTimer")) || 1200;
@@ -6527,22 +8787,37 @@ class HaremSalary {
                 }
                 else //nothing to collect or time spent already
                  {
-                    let salaryTimer = HaremSalary.predictNextSalaryMinTime();
-                    if (salaryTimer > 0) {
-                        salaryTimer = randomInterval(salaryTimer, 180 + salaryTimer);
-                        LogUtils_logHHAuto(`Setting salary timer to ${salaryTimer} secs.`);
+                    salaryTimer = Math.min(HaremSalary.predictNextSalaryMinTime(), salaryTimer);
+                    if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryUseFilter") === "true" && haremFilterIndex < haremFilters.length) {
+                        haremFilter.selectGirlRarity(haremFilters[haremFilterIndex++]);
+                        setTimeout(() => { CollectData(inStart); }, randomInterval(1200, 1800));
                     }
                     else {
-                        LogUtils_logHHAuto("Next salary set to 60 secs as remains girls to collect");
-                        salaryTimer = randomInterval(50, 70);
+                        if (salaryTimer > 0) {
+                            salaryTimer = randomInterval(salaryTimer, 180 + salaryTimer);
+                            LogUtils_logHHAuto(`Setting salary timer to ${salaryTimer} secs.`);
+                        }
+                        else {
+                            LogUtils_logHHAuto("Next salary set to 60 secs as remains girls to collect");
+                            salaryTimer = randomInterval(50, 70);
+                        }
+                        setTimer('nextSalaryTime', salaryTimer);
+                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"), {}, randomInterval(300, 500));
                     }
-                    setTimer('nextSalaryTime', salaryTimer);
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"), {}, randomInterval(300, 500));
                 }
             }
-            if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryResetFilters") === "true") {
+            if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryUseFilter") === "true" && haremFilterIndex < haremFilters.length) {
+                haremFilter.openFilter();
+                yield TimeHelper.sleep(randomInterval(200, 400)); // wait open
                 LogUtils_logHHAuto('Reseting girl filters');
-                $('#reset-filters').trigger('click');
+                haremFilter.resetFilter();
+                yield TimeHelper.sleep(randomInterval(800, 1200)); // wait loading
+                yield haremFilter.selectOnlyOwnedGirls();
+                yield haremFilter.selectGirlRarity(haremFilters[haremFilterIndex++]);
+            }
+            else if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryResetFilters") === "true") {
+                LogUtils_logHHAuto('Reseting girl filters');
+                haremFilter.resetFilter();
                 yield TimeHelper.sleep(randomInterval(800, 1200)); // wait loading
             }
             CollectData(true);
@@ -10746,2019 +13021,6 @@ HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
 });
 // Object.values(girlsDataList).filter(girl => girl.source?.name == "troll_tier" && girl.source?.group?.id == "7")
 
-;// CONCATENATED MODULE: ./src/config/HHStoredVars.ts
-
-
-const HHStoredVars_HHStoredVars = {};
-//Settings Vars
-const HHStoredVarPrefixKey = "HHAuto_"; // default HHAuto_
-//Do not move, has to be first one
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_settPerTab"] =
-    {
-        default: "false",
-        storage: "localStorage",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-// Rest of settings vars
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoAff"] =
-    {
-        default: "500000000",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Long Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoAffW"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoBuyBoosters"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: true
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoBuyBoostersFilter"] =
-    {
-        default: "B1;B2;B3;B4",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "List",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoChamps"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false,
-        newValueFunction: function () {
-            clearTimer('nextChampionTime');
-        }
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoChampAlignTimer"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoChampsForceStart"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false,
-        newValueFunction: function () {
-            clearTimer('nextChampionTime');
-        }
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoChampsFilter"] =
-    {
-        default: "1;2;3;4;5;6",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "List",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false,
-        newValueFunction: function () {
-            clearTimer('nextChampionTime');
-        }
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoChampsTeamLoop"] =
-    {
-        default: "10",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Small Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoChampsGirlThreshold"] =
-    {
-        default: "0",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Long Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoChampsTeamKeepSecondLine"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoChampsUseEne"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showClubButtonInPoa"] =
-    {
-        default: "true",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoClubChamp"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false,
-        newValueFunction: function () {
-            clearTimer('nextClubChampionTime');
-        }
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoClubChampMax"] =
-    {
-        default: "999",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Small Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoClubForceStart"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false,
-        newValueFunction: function () {
-            clearTimer('nextClubChampionTime');
-        }
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoContest"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_compactEndedContests"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoExp"] =
-    {
-        default: "500000000",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Long Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoExpW"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoFreePachinko"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false,
-        newValueFunction: function () {
-            clearTimer('nextPachinkoTime');
-            clearTimer('nextPachinko2Time');
-            clearTimer('nextPachinkoEquipTime');
-        }
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeagues"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false,
-        newValueFunction: function () {
-            clearTimer('nextLeaguesTime');
-        }
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeaguesAllowWinCurrent"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeaguesCollect"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeaguesBoostedOnly"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeaguesRunThreshold"] =
-    {
-        default: "0",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Small Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeaguesForceOneFight"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_leagueListDisplayPowerCalc"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false,
-        newValueFunction: function () {
-            deleteStoredValue(HHStoredVarPrefixKey + "Temp_LeagueOpponentList");
-        }
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeaguesSelectedIndex"] =
-    {
-        default: "0",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Small Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "selectedIndex",
-        kobanUsing: false,
-        customMenuID: "autoLeaguesSelector",
-        isValid: /^[0-9]$/
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeaguesSortIndex"] =
-    {
-        default: "1",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Small Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "selectedIndex",
-        kobanUsing: false,
-        customMenuID: "autoLeaguesSortMode",
-        isValid: /^[0-9]$/,
-        newValueFunction: function () {
-            deleteStoredValue(HHStoredVarPrefixKey + "Temp_LeagueOpponentList");
-        }
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeaguesThreshold"] =
-    {
-        default: "0",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Small Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLeaguesSecurityThreshold"] =
-    {
-        default: "40",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Small Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_compactMissions"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoMission"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoMissionCollect"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoMissionKFirst"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_compactPowerPlace"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPowerPlaces"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPowerPlacesAll"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false,
-        newValueFunction: function () {
-            clearTimer('minPowerPlacesTime');
-            PlaceOfPower.cleanTempPopToStart();
-        }
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPowerPlacesPrecision"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false,
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPowerPlacesInverted"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false,
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPowerPlacesWaitMax"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false,
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPowerPlacesIndexFilter"] =
-    {
-        default: "1;2;3",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "List",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false,
-        newValueFunction: function () {
-            clearTimer('minPowerPlacesTime');
-            PlaceOfPower.cleanTempPopToStart();
-        }
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoQuest"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSideQuest"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoQuestThreshold"] =
-    {
-        default: "0",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Small Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSalary"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false,
-        newValueFunction: function () {
-            clearTimer('nextSalaryTime');
-        }
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSalaryResetFilters"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSalaryMaxTimer"] =
-    {
-        default: "1200",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Long Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-/*HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSalaryMinTimer"] =
-    {
-    default:"120",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Long Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};*/
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSalaryMinSalary"] =
-    {
-        default: "20000",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Long Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false,
-        newValueFunction: function () {
-            clearTimer('nextSalaryTime');
-        }
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeason"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false,
-        newValueFunction: function () {
-            clearTimer('nextSeasonTime');
-        }
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonCollect"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false,
-        events: { "change": function () {
-                if (this.checked) {
-                    getAndStoreCollectPreferences(HHStoredVarPrefixKey + "Setting_autoSeasonCollectablesList");
-                    clearTimer('nextSeasonCollectTime');
-                }
-            }
-        }
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonCollectAll"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonCollectablesList"] =
-    {
-        default: JSON.stringify([]),
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Array"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonPassReds"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: true
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonThreshold"] =
-    {
-        default: "0",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Small Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonRunThreshold"] =
-    {
-        default: "0",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Small Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonBoostedOnly"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonSkipLowMojo"] =
-    {
-        default: "true",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoStats"] =
-    {
-        default: "500000000",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Long Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoStatsSwitch"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoTrollBattle"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoTrollMythicByPassParanoia"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoTrollSelectedIndex"] =
-    {
-        default: "0",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Small Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false,
-        customMenuID: "autoTrollSelector",
-        isValid: /^[0-9]|1[0-5]|98|99$/
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoTrollThreshold"] =
-    {
-        default: "0",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Small Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoTrollRunThreshold"] =
-    {
-        default: "0",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Small Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoChampsForceStartEventGirl"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_buyCombat"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: true
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_buyCombTimer"] =
-    {
-        default: "16",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Small Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_buyMythicCombat"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: true
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_buyMythicCombTimer"] =
-    {
-        default: "16",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Small Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoFreeBundlesCollect"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false,
-        events: { "change": function () {
-                if (this.checked) {
-                    getAndStoreCollectPreferences(HHStoredVarPrefixKey + "Setting_autoFreeBundlesCollectablesList", getTextForUI("menuDailyCollectableText", "elementText"));
-                    clearTimer('nextFreeBundlesCollectTime');
-                }
-            }
-        }
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoFreeBundlesCollectablesList"] =
-    {
-        default: JSON.stringify([]),
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Array"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_waitforContest"] =
-    {
-        default: "true",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_safeSecondsForContest"] =
-    {
-        default: "120",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Small Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_mousePause"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_mousePauseTimeout"] =
-    {
-        default: "5000",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Small Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_collectAllTimer"] =
-    {
-        default: "12",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Small Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        isValid: /^[1-9][0-9]|[1-9]$/
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_eventTrollOrder"] =
-    {
-        default: "1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;16;17;18;19;20",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "List",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoBuyTrollNumber"] =
-    {
-        default: "20",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "List",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoBuyMythicTrollNumber"] =
-    {
-        default: "20",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "List",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_master"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_maxAff"] =
-    {
-        default: "50000",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Long Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_maxBooster"] =
-    {
-        default: "10",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Long Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_maxExp"] =
-    {
-        default: "10000",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Long Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_minShardsX10"] =
-    {
-        default: "10",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Small Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false,
-        isValid: /^(\d)+$/
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_minShardsX50"] =
-    {
-        default: "50",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Small Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_updateMarket"] =
-    {
-        default: "true",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_paranoia"] =
-    {
-        default: "true",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false,
-        newValueFunction: function () {
-            clearTimer('paranoiaSwitch');
-        }
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_paranoiaSettings"] =
-    {
-        default: "140-320/Sleep:28800-30400|Active:250-460|Casual:1500-2700/6:Sleep|8:Casual|10:Active|12:Casual|14:Active|18:Casual|20:Active|22:Casual|24:Sleep",
-        storage: "Storage()",
-        HHType: "Setting"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_paranoiaSpendsBefore"] =
-    {
-        default: "true",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_plusEvent"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_plusEventMythic"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_plusEventMythicSandalWood"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autodpEventCollect"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false,
-        events: { "change": function () {
-                if (this.checked) {
-                    getAndStoreCollectPreferences(HHStoredVarPrefixKey + "Setting_autodpEventCollectablesList");
-                    clearTimer('nextdpEventCollectTime');
-                }
-            }
-        }
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autodpEventCollectablesList"] =
-    {
-        default: JSON.stringify([]),
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Array"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autodpEventCollectAll"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_bossBangEvent"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_bossBangMinTeam"] =
-    {
-        default: "5",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Small Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_sultryMysteriesEventRefreshShop"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_collectEventChest"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_PoAMaskRewards"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_PoVMaskRewards"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_PoGMaskRewards"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_SeasonMaskRewards"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_SeasonalEventMaskRewards"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showCalculatePower"] =
-    {
-        default: "true",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showAdsBack"] =
-    {
-        default: "true",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showRewardsRecap"] =
-    {
-        default: "true",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_hideOwnedGirls"] =
-    {
-        default: "true",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showInfo"] =
-    {
-        default: "true",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showInfoLeft"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showMarketTools"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showTooltips"] =
-    {
-        default: "true",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_spendKobans0"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_kobanBank"] =
-    {
-        default: "1000000",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Long Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_useX10Fights"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: true
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_useX10FightsAllowNormalEvent"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_useX50Fights"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: true
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_useX50FightsAllowNormalEvent"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_saveDefaults"] =
-    {
-        storage: "localStorage",
-        HHType: "Setting"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPantheon"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPantheonThreshold"] =
-    {
-        default: "0",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Small Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPantheonRunThreshold"] =
-    {
-        default: "0",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Small Integer",
-        getMenu: true,
-        setMenu: true,
-        menuType: "value",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPantheonBoostedOnly"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLabyrinth"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonalEventCollect"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false,
-        events: { "change": function () {
-                if (this.checked) {
-                    getAndStoreCollectPreferences(HHStoredVarPrefixKey + "Setting_autoSeasonalEventCollectablesList");
-                    clearTimer('nextSeasonalEventCollectTime');
-                }
-            }
-        }
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonalEventCollectAll"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonalEventCollectablesList"] =
-    {
-        default: JSON.stringify([]),
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Array"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPoVCollect"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false,
-        events: { "change": function () {
-                if (this.checked) {
-                    getAndStoreCollectPreferences(HHStoredVarPrefixKey + "Setting_autoPoVCollectablesList");
-                    clearTimer('nextPoVCollectTime');
-                }
-            }
-        }
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPoVCollectAll"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPoVCollectablesList"] =
-    {
-        default: JSON.stringify([]),
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Array"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPoGCollect"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false,
-        events: { "change": function () {
-                if (this.checked) {
-                    getAndStoreCollectPreferences(HHStoredVarPrefixKey + "Setting_autoPoGCollectablesList");
-                    clearTimer('nextPoGCollectTime');
-                }
-            }
-        }
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPoGCollectAll"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPoGCollectablesList"] =
-    {
-        default: JSON.stringify([]),
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Array"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPoACollect"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false,
-        events: { "change": function () {
-                if (this.checked) {
-                    getAndStoreCollectPreferences(HHStoredVarPrefixKey + "Setting_autoPoACollectablesList");
-                    clearTimer('nextPoACollectTime');
-                }
-            }
-        }
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPoACollectAll"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPoACollectablesList"] =
-    {
-        default: JSON.stringify([]),
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Array"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_compactDailyGoals"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoDailyGoalsCollect"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false,
-        events: { "change": function () {
-                if (this.checked) {
-                    getAndStoreCollectPreferences(HHStoredVarPrefixKey + "Setting_autoDailyGoalsCollectablesList", getTextForUI("menuDailyCollectableText", "elementText"));
-                    clearTimer('nextDailyGoalsCollectTime');
-                }
-            }
-        }
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoDailyGoalsCollectablesList"] =
-    {
-        default: JSON.stringify([]),
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Array"
-    };
-// Temp vars
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_scriptversion"] =
-    {
-        default: "0",
-        storage: "localStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_autoLoop"] =
-    {
-        default: "true",
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_battlePowerRequired"] =
-    {
-        default: "0",
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-/*HHStoredVars[HHStoredVarPrefixKey+"Temp_leaguesTarget"] =
-    {
-    default:"9",
-    storage:"sessionStorage",
-    HHType:"Temp",
-    valueType:"Small Integer",
-    getMenu:true,
-    setMenu:false,
-    menuType:"value",
-    kobanUsing:false,
-    customMenuID:"autoLeaguesSelector"
-};*/
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_lastActionPerformed"] =
-    {
-        default: "none",
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_questRequirement"] =
-    {
-        default: "none",
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-/*HHStoredVars[HHStoredVarPrefixKey+"Temp_userLink"] =
-    {
-    default:"none",
-    storage:"sessionStorage",
-    HHType:"Temp"
-};*/
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_autoLoopTimeMili"] =
-    {
-        default: "1000",
-        storage: "Storage()",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_freshStart"] =
-    {
-        default: "no",
-        storage: "Storage()",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_Logging"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_Debug"] =
-    {
-        default: "false",
-        storage: "sessionStorage",
-        valueType: "Boolean",
-        HHType: "Temp"
-    };
-/*HHStoredVars[HHStoredVarPrefixKey+"Temp_trollToFight"] =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp",
-    valueType:"Small Integer",
-    getMenu:true,
-    setMenu:false,
-    menuType:"value",
-    kobanUsing:false,
-    customMenuID:"autoTrollSelector"
-};*/
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_autoTrollBattleSaveQuest"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_burst"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_charLevel"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_filteredGirlsList"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_haremGirlActions"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_haremGirlMode"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_haremGirlPayLast"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_haremGirlEnd"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_haremGirlLimit"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_eventsGirlz"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_eventGirl"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_eventMythicGirl"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_autoChampsEventGirls"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-        //isValid:/^\[({"girl_id":"(\d)+","champ_id":"(\d)+","girl_shards":"(\d)+","girl_name":"([^"])+","event_id":"([^"])+"},?)+\]$/
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_clubChampLimitReached"] =
-    {
-        default: "false",
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_trollWithGirls"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_fought"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_haveAff"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_haveExp"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_haveBooster"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_hideBeatenOppo"] =
-    {
-        default: "0",
-        storage: "Storage()",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_LeagueOpponentList"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp",
-        //isValid:/^{"expirationDate":\d+,"opponentsList":{("\d+":{((("(win|loss|avgTurns)":\d*[.,]?\d+)|("scoreClass":"(minus|plus|close)")|("points":{("\d{1,3}":\d*[.,]?\d+,?)+})),?)+},?)+}}$/
-    };
-/*
-HHStoredVars[HHStoredVarPrefixKey+"Temp_LeagueTempOpponentList"] =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp",
-    isValid:/^{"expirationDate":\d+,"opponentsList":{("\d+":{((("(win|loss|avgTurns|expectedValue)":\d*[.,]?\d+)|("scoreClass":"(minus|plus|close)")|("points":{("\d{1,3}":\d*[.,]?\d+,?)+})),?)+},?)+}}$/
-};*/
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_paranoiaLeagueBlocked"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_paranoiaQuestBlocked"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_paranoiaSpendings"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_pinfo"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_PopToStart"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_PopUnableToStart"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_storeContents"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_Timers"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_NextSwitch"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_Totalpops"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_currentlyAvailablePops"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_CheckSpentPoints"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_eventsList"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_bossBangTeam"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_boosterStatus"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_sandalwoodFailure"] =
-    {
-        default: "0",
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_LeagueSavedData"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_LeagueHumanLikeRun"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_TrollHumanLikeRun"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_TrollInvalid"] =
-    {
-        default: "false",
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_PantheonHumanLikeRun"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_SeasonHumanLikeRun"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_HaremSize"] =
-    {
-        storage: "localStorage",
-        HHType: "Temp",
-        isValid: /{"count":(\d)+,"count_date":(\d)+}/
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_LastPageCalled"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_PoAEndDate"] =
-    {
-        storage: "localStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_PoVEndDate"] =
-    {
-        storage: "localStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_PoGEndDate"] =
-    {
-        storage: "localStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_poaManualCollectAll"] =
-    {
-        default: "false",
-        storage: "localStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_missionsGiftLeft"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_defaultCustomHaremSort"] =
-    {
-        storage: "localStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_unkownPagesList"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_trollPoints"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
-
 ;// CONCATENATED MODULE: ./src/config/InputPattern.ts
 const thousandsSeparator = (11111).toLocaleString().replace(/1+/g, '');
 const HHAuto_inputPattern = {
@@ -12772,6 +13034,7 @@ const HHAuto_inputPattern = {
     safeSecondsForContest: "[0-9]+",
     collectAllTimer: "[1-9][0-9]|[1-9]",
     autoSalaryTimer: "[0-9]+",
+    autoSalaryFilter: "[1-6]{0,1}(;[1-6]{0,1})*",
     autoTrollThreshold: "[1]?[0-9]",
     autoTrollRunThreshold: "(20|[1]?[0-9])",
     eventTrollOrder: "([1-2][0-9]|[1-9])(;([1-2][0-9]|[1-9]))*",
@@ -13311,6 +13574,8 @@ function getMenu() {
             + `</div>`
             + `</div>`
             + `</div>`
+            + `<div class="optionsBox" style="border:none;padding:0">`
+            + `<div class="internalOptionsRow">`
             + `<div id="isEnabledPowerPlaces" class="optionsBoxWithTitle">`
             + `<div class="optionsBoxTitle">`
             + `<span class="optionsBoxTitle">${getTextForUI("powerPlacesTitle", "elementText")}</span>`
@@ -13318,7 +13583,7 @@ function getMenu() {
             + `<div class="optionsBox">`
             + `<div class="internalOptionsRow">`
             + hhMenuSwitch('autoPowerPlaces')
-            + hhMenuInput('autoPowerPlacesIndexFilter', HHAuto_inputPattern.autoPowerPlacesIndexFilter, '')
+            + hhMenuInput('autoPowerPlacesIndexFilter', HHAuto_inputPattern.autoPowerPlacesIndexFilter, 'width: 100px;')
             + hhMenuSwitch('autoPowerPlacesAll')
             + `</div>`
             + `<div class="internalOptionsRow">`
@@ -13329,16 +13594,35 @@ function getMenu() {
             + `</div>`
             + `</div>`
             + `</div>`
+            + `<div id="isEnabledPowerPlaces" class="optionsBoxWithTitle">`
+            + `<div class="optionsBoxTitle">`
+            + `<span class="optionsBoxTitle">${getTextForUI("dailyGoalsTitle", "elementText")}</span>`
+            + `</div>`
+            + `<div class="optionsBox">`
+            + `<div class="internalOptionsRow">`
+            + hhMenuSwitch('autoDailyGoalsCollect')
+            + `</div>`
+            + `<div class="internalOptionsRow">`
+            + hhMenuSwitch('compactDailyGoals')
+            + `</div>`
+            + `</div>`
+            + `</div>`
+            + `</div>`
+            + `</div>`
             + `</div>`
             + `<div class="optionsColumn">`
             + `<div class="optionsBoxTitle">`
             + `</div>`
-            + `<div id="isEnabledSalary" class="rowOptionsBox">`
+            + `<div id="isEnabledSalary" class="optionsBox">`
             + `<div class="internalOptionsRow">`
             + hhMenuSwitchWithImg('autoSalary', 'pictures/design/harem.svg')
             + hhMenuInput('autoSalaryMinSalary', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
             + hhMenuInput('autoSalaryMaxTimer', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
+            + `</div>`
+            + `<div class="internalOptionsRow">`
             + hhMenuSwitch('autoSalaryResetFilters')
+            + hhMenuSwitch('autoSalaryUseFilter')
+            + hhMenuInput('autoSalaryFilter', HHAuto_inputPattern.autoSalaryFilter, 'width:55px')
             + `</div>`
             + `</div>`
             + `<div class="optionsRow">`
@@ -13353,20 +13637,6 @@ function getMenu() {
             + hhMenuSwitch('autoSideQuest', 'isEnabledSideQuest')
             + hhMenuInputWithImg('autoQuestThreshold', HHAuto_inputPattern.autoQuestThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_quest.png', 'numeric')
             + `</div>`
-            + `</div>`
-            + `</div>`
-            + `<div class="optionsRow" style="justify-content: space-evenly">`
-            + `<div id="isEnabledDailyGoals" class="optionsBoxWithTitleInline">`
-            + `<div class="optionsBoxTitle">`
-            + `<span class="optionsBoxTitle">${getTextForUI("dailyGoalsTitle", "elementText")}</span>`
-            + `</div>`
-            // +`<div class="optionsBox">`
-            + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
-            + hhMenuSwitch('autoDailyGoalsCollect')
-            + hhMenuSwitch('compactDailyGoals')
-            + `</div>`
-            // +`</div>`
-            //
             + `</div>`
             + `</div>`
             + `</div>`
@@ -14634,157 +14904,6 @@ function setHHVars(infoSearched, newValue) {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Helper/TimerHelper.ts
-
-
-
-
-let Timers = {};
-function setTimers(timer) {
-    Timers = timer;
-}
-function setTimer(name, seconds) {
-    var ND = new Date().getTime() + seconds * 1000;
-    Timers[name] = ND;
-    setStoredValue(HHStoredVarPrefixKey + "Temp_Timers", JSON.stringify(Timers));
-    LogUtils_logHHAuto(name + " set to " + TimeHelper.toHHMMSS(ND / 1000 - new Date().getTimezoneOffset() * 60) + ' (' + TimeHelper.toHHMMSS(seconds) + ')');
-}
-function clearTimer(name) {
-    delete Timers[name];
-    setStoredValue(HHStoredVarPrefixKey + "Temp_Timers", JSON.stringify(Timers));
-}
-function checkTimer(name) {
-    if (!Timers[name] || Timers[name] < new Date()) {
-        return true;
-    }
-    return false;
-}
-function checkTimerMustExist(name) {
-    if (Timers[name] && Timers[name] < new Date()) {
-        return true;
-    }
-    return false;
-}
-function getTimer(name) {
-    if (!Timers[name]) {
-        return -1;
-    }
-    return Timers[name];
-}
-function getSecondsLeft(name) {
-    if (!Timers[name]) {
-        return 0;
-    }
-    var result = Math.ceil(Timers[name] / 1000) - Math.ceil(new Date().getTime() / 1000);
-    if (result > 0) {
-        return result;
-    }
-    else {
-        return 0;
-    }
-}
-function getTimeLeft(name) {
-    const timerWaitingCompet = ['nextPachinkoTime', 'nextPachinko2Time', 'nextPachinkoEquipTime', 'nextSeasonTime', 'nextLeaguesTime'];
-    if (!Timers[name]) {
-        if (!TimeHelper.canCollectCompetitionActive() && timerWaitingCompet.indexOf(name) >= 0) {
-            return "Wait for contest";
-        }
-        return "No timer";
-    }
-    var diff = getSecondsLeft(name);
-    if (diff <= 0) {
-        if (!TimeHelper.canCollectCompetitionActive() && timerWaitingCompet.indexOf(name) >= 0) {
-            return "Wait for contest";
-        }
-        return "Time's up!";
-    }
-    return TimeHelper.toHHMMSS(diff);
-}
-
-;// CONCATENATED MODULE: ./src/Helper/TimeHelper.ts
-
-
-
-
-
-class TimeHelper {
-    static canCollectCompetitionActive() {
-        let safeTime = getStoredValue(HHStoredVarPrefixKey + "Setting_safeSecondsForContest") !== undefined ? Number(getStoredValue(HHStoredVarPrefixKey + "Setting_safeSecondsForContest")) : 120;
-        if (isNaN(safeTime) || safeTime < 0)
-            safeTime = 120;
-        return getStoredValue(HHStoredVarPrefixKey + "Setting_waitforContest") !== "true" || !((getSecondsLeft('contestRemainingTime') - safeTime) < 0 && (getSecondsLeft('nextContestTime') + safeTime) > 0);
-    }
-    static toHHMMSS(secs) {
-        var sec_num = parseInt(secs, 10);
-        var days = Math.floor(sec_num / 86400);
-        var hours = Math.floor(sec_num / 3600) % 24;
-        var minutes = Math.floor(sec_num / 60) % 60;
-        var seconds = sec_num % 60;
-        var n = 0;
-        return [days, hours, minutes, seconds]
-            .map(v => v < 10 ? "0" + v : v)
-            .filter((v, i) => { if (v !== "00") {
-            n++;
-            return true;
-        } return n > 0; })
-            .join(":");
-    }
-    static debugDate(sec_num) {
-        let days = Math.floor(sec_num / 86400);
-        let hours = Math.floor(sec_num / 3600) % 24;
-        let minutes = Math.floor(sec_num / 60) % 60;
-        let seconds = sec_num % 60;
-        return JSON.stringify({ days: days, hours: hours, minutes: minutes, seconds: seconds });
-    }
-    static sleep(waitTime) {
-        return new Promise((resolve) => {
-            setTimeout(resolve, waitTime);
-        });
-    }
-}
-function convertTimeToInt(remainingTimer) {
-    let newTimer = 0;
-    if (remainingTimer && remainingTimer.length > 0) {
-        try {
-            let splittedTime = remainingTimer.trim().split(' ');
-            for (let i = 0; i < splittedTime.length; i++) {
-                let timerSymbol = splittedTime[i].match(/[^0-9]+/)[0];
-                switch (timerSymbol) {
-                    case timerDefinitions[hhTimerLocale].days:
-                        newTimer += parseInt(splittedTime[i]) * 86400;
-                        break;
-                    case timerDefinitions[hhTimerLocale].hours:
-                        newTimer += parseInt(splittedTime[i]) * 3600;
-                        break;
-                    case timerDefinitions[hhTimerLocale].minutes:
-                        newTimer += parseInt(splittedTime[i]) * 60;
-                        break;
-                    case timerDefinitions[hhTimerLocale].seconds:
-                        newTimer += parseInt(splittedTime[i]);
-                        break;
-                    default:
-                        LogUtils_logHHAuto('Timer symbol not recognized: ' + timerSymbol);
-                }
-            }
-        }
-        catch ({ errName, message }) {
-            LogUtils_logHHAuto(`ERROR: occured, reset to 15min: ${errName}, ${message}`);
-            newTimer = randomInterval(15 * 60, 17 * 60);
-        }
-    }
-    else {
-        LogUtils_logHHAuto('No valid timer definitions, reset to 15min');
-        newTimer = randomInterval(15 * 60, 17 * 60);
-    }
-    return newTimer;
-}
-function getLimitTimeBeforeEnd() {
-    return Number(getStoredValue(HHStoredVarPrefixKey + "Setting_collectAllTimer")) * 3600;
-}
-function randomInterval(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
 ;// CONCATENATED MODULE: ./src/Helper/HeroHelper.ts
 var HeroHelper_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -15564,7 +15683,7 @@ function autoLoop() {
                 clearParanoiaSpendings();
             }
             CheckSpentPoints();
-            if (checkTimer('nextContestTime')) {
+            if (getStoredValue(HHStoredVarPrefixKey + "Setting_waitforContest") === "true" && checkTimer('nextContestTime')) {
                 Contest.setTimers = callItOnce(Contest.setTimers);
                 busy = Contest.setTimers();
             }
@@ -16398,10 +16517,12 @@ function updateData() {
         //Tegzd+=getTextForUI("master","elementText")+' : '+(getStoredValue(HHStoredVarPrefixKey+"Setting_master") ==="true"?"<span style='color:LimeGreen'>ON":"<span style='color:red'>OFF")+'</span>';
         //Tegzd+=(getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") ==="true"?"<span style='color:LimeGreen;float:right'>Loop ON":"<span style='color:red;float:right'>Loop OFF")+'</span>';
         Tegzd += '<ul>';
-        if (getStoredValue(HHStoredVarPrefixKey + "Setting_paranoia") == "true") {
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_paranoia") === "true") {
             Tegzd += '<li>' + getStoredValue(HHStoredVarPrefixKey + "Temp_pinfo") + ': ' + getTimeLeft('paranoiaSwitch') + '</li>';
         }
-        Tegzd += Contest.getPinfo();
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_waitforContest") === "true") {
+            Tegzd += Contest.getPinfo();
+        }
         if (ConfigHelper.getHHScriptVars('isEnabledTrollBattle', false) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoTrollBattle") == "true") {
             Tegzd += Troll.getPinfo(contest);
         }

@@ -492,21 +492,38 @@ export function getMenu() {
                             +`</div>`
                         +`</div>`
                     +`</div>`
-                    +`<div id="isEnabledPowerPlaces" class="optionsBoxWithTitle">`
-                        +`<div class="optionsBoxTitle">`
-                            +`<span class="optionsBoxTitle">${getTextForUI("powerPlacesTitle","elementText")}</span>`
-                        +`</div>`
-                        +`<div class="optionsBox">`
-                            +`<div class="internalOptionsRow">`
-                                + hhMenuSwitch('autoPowerPlaces')
-                                + hhMenuInput('autoPowerPlacesIndexFilter', HHAuto_inputPattern.autoPowerPlacesIndexFilter, '' )
-                                + hhMenuSwitch('autoPowerPlacesAll')
+                    +`<div class="optionsBox" style="border:none;padding:0">`
+                        +`<div class="internalOptionsRow">`
+                            +`<div id="isEnabledPowerPlaces" class="optionsBoxWithTitle">`
+                                +`<div class="optionsBoxTitle">`
+                                    +`<span class="optionsBoxTitle">${getTextForUI("powerPlacesTitle","elementText")}</span>`
+                                +`</div>`
+                                +`<div class="optionsBox">`
+                                    +`<div class="internalOptionsRow">`
+                                        + hhMenuSwitch('autoPowerPlaces')
+                                        + hhMenuInput('autoPowerPlacesIndexFilter', HHAuto_inputPattern.autoPowerPlacesIndexFilter, 'width: 100px;' )
+                                        + hhMenuSwitch('autoPowerPlacesAll')
+                                    +`</div>`
+                                    +`<div class="internalOptionsRow">`
+                                        + hhMenuSwitch('autoPowerPlacesPrecision')
+                                        + hhMenuSwitch('autoPowerPlacesInverted')
+                                        + hhMenuSwitch('autoPowerPlacesWaitMax')
+                                        + hhMenuSwitch('compactPowerPlace')
+                                    +`</div>`
+                                +`</div>`
                             +`</div>`
-                            +`<div class="internalOptionsRow">`
-                                + hhMenuSwitch('autoPowerPlacesPrecision')
-                                + hhMenuSwitch('autoPowerPlacesInverted')
-                                + hhMenuSwitch('autoPowerPlacesWaitMax')
-                                + hhMenuSwitch('compactPowerPlace')
+                            +`<div id="isEnabledPowerPlaces" class="optionsBoxWithTitle">`
+                                +`<div class="optionsBoxTitle">`
+                                    + `<span class="optionsBoxTitle">${getTextForUI("dailyGoalsTitle","elementText")}</span>`
+                                +`</div>`
+                                +`<div class="optionsBox">`
+                                    +`<div class="internalOptionsRow">`
+                                        + hhMenuSwitch('autoDailyGoalsCollect')
+                                    +`</div>`
+                                    +`<div class="internalOptionsRow">`
+                                        + hhMenuSwitch('compactDailyGoals')
+                                    +`</div>`
+                                +`</div>`
                             +`</div>`
                         +`</div>`
                     +`</div>`
@@ -514,12 +531,16 @@ export function getMenu() {
                 +`<div class="optionsColumn">`
                     +`<div class="optionsBoxTitle">`
                     +`</div>`
-                    +`<div id="isEnabledSalary" class="rowOptionsBox">`
+                    +`<div id="isEnabledSalary" class="optionsBox">`
                         +`<div class="internalOptionsRow">`
                             + hhMenuSwitchWithImg('autoSalary', 'pictures/design/harem.svg')
                             + hhMenuInput('autoSalaryMinSalary', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
                             + hhMenuInput('autoSalaryMaxTimer', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
+                        + `</div>`
+                        + `<div class="internalOptionsRow">`
                             + hhMenuSwitch('autoSalaryResetFilters')
+                            + hhMenuSwitch('autoSalaryUseFilter')
+                            + hhMenuInput('autoSalaryFilter', HHAuto_inputPattern.autoSalaryFilter, 'width:55px')
                         +`</div>`
                     +`</div>`
                     +`<div class="optionsRow">`
@@ -534,20 +555,6 @@ export function getMenu() {
                                 + hhMenuSwitch('autoSideQuest', 'isEnabledSideQuest')
                                 + hhMenuInputWithImg('autoQuestThreshold', HHAuto_inputPattern.autoQuestThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_quest.png', 'numeric')
                             +`</div>`
-                        +`</div>`
-                    +`</div>`
-                    +`<div class="optionsRow" style="justify-content: space-evenly">`
-                        +`<div id="isEnabledDailyGoals" class="optionsBoxWithTitleInline">`
-                            +`<div class="optionsBoxTitle">`
-                                +`<span class="optionsBoxTitle">${getTextForUI("dailyGoalsTitle","elementText")}</span>`
-                            +`</div>`
-                        // +`<div class="optionsBox">`
-                                +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                                    + hhMenuSwitch('autoDailyGoalsCollect')
-                                    + hhMenuSwitch('compactDailyGoals')
-                                +`</div>`
-                        // +`</div>`
-                        //
                         +`</div>`
                     +`</div>`
                 +`</div>`

@@ -86,11 +86,13 @@ export function updateData() {
         //Tegzd+=getTextForUI("master","elementText")+' : '+(getStoredValue(HHStoredVarPrefixKey+"Setting_master") ==="true"?"<span style='color:LimeGreen'>ON":"<span style='color:red'>OFF")+'</span>';
         //Tegzd+=(getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop") ==="true"?"<span style='color:LimeGreen;float:right'>Loop ON":"<span style='color:red;float:right'>Loop OFF")+'</span>';
         Tegzd += '<ul>';
-        if (getStoredValue(HHStoredVarPrefixKey+"Setting_paranoia") =="true")
+        if (getStoredValue(HHStoredVarPrefixKey+"Setting_paranoia") === "true")
         {
             Tegzd += '<li>'+getStoredValue(HHStoredVarPrefixKey+"Temp_pinfo")+': '+getTimeLeft('paranoiaSwitch')+'</li>';
         }
-        Tegzd += Contest.getPinfo();
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_waitforContest") === "true") {
+            Tegzd += Contest.getPinfo();
+        }
         if (ConfigHelper.getHHScriptVars('isEnabledTrollBattle',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollBattle") == "true")
         {
             Tegzd += Troll.getPinfo(contest);

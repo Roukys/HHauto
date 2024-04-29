@@ -196,7 +196,7 @@ export async function autoLoop()
             clearParanoiaSpendings();
         }
         CheckSpentPoints();
-        if (checkTimer('nextContestTime')) {
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_waitforContest") === "true" && checkTimer('nextContestTime')) {
             Contest.setTimers = callItOnce(Contest.setTimers);
             busy = Contest.setTimers();
         }
