@@ -20,7 +20,7 @@ import { HHStoredVarPrefixKey } from '../config/index';
 import { EventGirl } from '../model/EventGirl';
 import { Booster } from './Booster';
 import { EventModule } from "./Events/index";
-import { Harem } from "./Harem";
+import { Harem } from "./harem/Harem";
 
 export class Troll {
 

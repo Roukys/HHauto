@@ -6,10 +6,10 @@ import {
     getTextForUI,
     setStoredValue,
     getPage
-} from '../Helper/index';
-import { gotoPage } from '../Service/index';
-import { fillHHPopUp, isJSON, logHHAuto, maskHHPopUp } from '../Utils/index';
-import { HHStoredVarPrefixKey } from '../config/index';
+} from '../../Helper/index';
+import { gotoPage } from '../../Service/index';
+import { fillHHPopUp, isJSON, logHHAuto, maskHHPopUp } from '../../Utils/index';
+import { HHStoredVarPrefixKey } from '../../config/index';
 
 
 export class Harem {

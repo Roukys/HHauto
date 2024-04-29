@@ -10,12 +10,12 @@ import {
     getHero,
     convertTimeToInt,
     TimeHelper
-} from '../Helper/index';
-import { gotoPage } from '../Service/index';
-import { getCurrentSorting, getHHAjax, logHHAuto } from '../Utils/index';
-import { HHStoredVarPrefixKey } from '../config/index';
+} from '../../Helper/index';
+import { gotoPage } from '../../Service/index';
+import { getCurrentSorting, getHHAjax, logHHAuto } from '../../Utils/index';
+import { HHStoredVarPrefixKey } from '../../config/index';
 import { Harem } from "./Harem";
-import { HaremFilter } from './harem/HaremFilter';
+import { HaremFilter } from './HaremFilter';
 
 export class HaremSalary {
     static filterGirlMapReadyForCollect(a)
