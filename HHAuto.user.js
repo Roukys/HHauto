@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.11.0
+// @version      7.11.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -16933,7 +16933,29 @@ function manageToolTipsDisplay(important = false) {
 }
 function enableToolTipsDisplay(important = false) {
     const importantAddendum = important ? '; !important' : '';
-    GM_addStyle('.tooltipHH:hover span.tooltipHHtext { border:1px solid #ffa23e; border-radius:5px; padding:5px; display:block; z-index: 100; position: absolute; width: 150px; color:black; text-align:center; background:white;  opacity:0.9; transform: translateY(-100%)' + importantAddendum + '}');
+    GM_addStyle('.tooltipHH:hover span.tooltipHHtext { '
+        + 'border:1px solid #ffa23e; border-radius:5px; padding:5px; display:block; z-index: 100; position: absolute; width: 150px; color:black; '
+        + 'text-align:center; background:white;  opacity:0.9; transform: translateY(-100%)' + importantAddendum + '}');
+
+    $(".tooltipHH").on('mouseover', (event) => {
+        try {
+            const tooltip = $('.tooltipHHtext', event.currentTarget);
+            let tipX = 0;
+            let tipY = -15;
+            tooltip.css({ top: tipY, left: tipX });
+            const tooltip_rect = tooltip[0].getBoundingClientRect();
+            if (tooltip_rect.y < 0) { // Out on the top
+                tipY = -tooltip_rect.y;
+                tipX = $(event.currentTarget).outerWidth() + 5;
+            }
+            if ((tooltip_rect.x + tooltip_rect.width) > $('#sMenu')[0].getBoundingClientRect().width) // Out on the right
+                tipX = -150;
+            tooltip.css({ top: tipY, left: tipX });
+        }
+        catch (err) {
+            LogUtils_logHHAuto('Error in tooltip construction');
+        }
+    });
 }
 function disableToolTipsDisplay(important = false) {
     const importantAddendum = important ? '; !important' : '';
