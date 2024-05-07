@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.12.0
+// @version      7.12.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -12459,7 +12459,7 @@ class HentaiHeroes {
         return {
             "www.hentaiheroes.com": { name: "HH_prod", id: "hh_hentai" },
             "test.hentaiheroes.com": { name: "HH_test", id: "hh_hentai" },
-            "nutaku.hentaiheroes.com": { name: "NHH_prod", id: "hh_hentai" },
+            "nutaku.haremheroes.com": { name: "NHH_prod", id: "hh_hentai" },
             "thrix.hentaiheroes.com": { name: "THH_prod", id: "hh_hentai" },
             "eroges.hentaiheroes.com": { name: "EHH_prod", id: "hh_hentai" },
             "esprit.hentaiheroes.com": { name: "OGHH_prod", id: "hh_hentai" }
