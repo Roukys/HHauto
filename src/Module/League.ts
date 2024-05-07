@@ -174,8 +174,8 @@ export class LeagueHelper {
     }
 
     static getPinfo() {
-        const threshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesThreshold"));
-        const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesRunThreshold"));
+        const threshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesThreshold")) || 0;
+        const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesRunThreshold")) || 0;
 
         let Tegzd = '';
         const boostLimited = getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
@@ -186,7 +186,7 @@ export class LeagueHelper {
         }
         Tegzd += getTextForUI("autoLeaguesTitle","elementText")+' ' + LeagueHelper.getEnergy()+'/'+LeagueHelper.getEnergyMax();
         if (runThreshold > 0) {
-            Tegzd += ' ('+threshold+'<'+LeagueHelper.getEnergy()+'<'+runThreshold+')';
+            Tegzd += ' ('+threshold+'<'+LeagueHelper.getEnergy()+'<='+runThreshold+')';
         }
         if(runThreshold > 0  && LeagueHelper.getEnergy() < runThreshold) {
             Tegzd += ' ' + getTextForUI("waitRunThreshold","elementText");
@@ -202,8 +202,8 @@ export class LeagueHelper {
     }
 
     static isTimeToFight(){
-        const threshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesThreshold"));
-        const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesRunThreshold"));
+        const threshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesThreshold")) || 0;
+        const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesRunThreshold")) || 0;
         const humanLikeRun = getStoredValue(HHStoredVarPrefixKey+"Temp_LeagueHumanLikeRun") === "true";
         const league_end = LeagueHelper.getLeagueEndTime();
         if (league_end > 0 && league_end <= (60*60)) {
@@ -777,7 +777,7 @@ export class LeagueHelper {
                 setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                 logHHAuto("setting autoloop to false");
 
-                const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesRunThreshold"));
+                const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesRunThreshold")) || 0;
                 if (runThreshold > 0) {
                     setStoredValue(HHStoredVarPrefixKey+"Temp_LeagueHumanLikeRun", "true");
                 }

@@ -1,26 +1,34 @@
 import { getLanguageCode } from "../Helper/LanguageHelper";
 import { Harem } from '../Module/index';
+import { 
+    ComixHarem,
+    GayHarem,
+    GayPornstarHarem,
+    HentaiHeroes,
+    MangaRpg,
+    PornstarHarem,
+    TransPornstarHarem
+} from "./game/index";
+
+const supportedGames = [
+    HentaiHeroes,
+    ComixHarem,
+    GayHarem,
+    GayPornstarHarem,
+    MangaRpg,
+    PornstarHarem,
+    TransPornstarHarem
+];
 
 export const HHKnownEnvironnements = {};
-HHKnownEnvironnements["www.hentaiheroes.com"] = {name:"HH_prod",id:"hh_hentai"};
-HHKnownEnvironnements["test.hentaiheroes.com"] = {name:"HH_test",id:"hh_hentai"};
-HHKnownEnvironnements["www.comixharem.com"] = {name:"CH_prod",id:"hh_comix", baseImgPath:"https://ch.hh-content.com"};
-HHKnownEnvironnements["www.gayharem.com"] = {name:"GH_prod",id:"hh_gay"};
+supportedGames.forEach(game => {
+    if (game.hasOwnProperty('getEnv')) {
+        for (var key in game.getEnv()) {
+            HHKnownEnvironnements[key] = game.getEnv()[key];
+        }
+    }
+});
 HHKnownEnvironnements["www.hornyheroes.com"] = {name:"SH_prod",id:"hh_sexy"};
-HHKnownEnvironnements["nutaku.comixharem.com"] = {name:"NCH_prod",id:"hh_comix"};
-HHKnownEnvironnements["nutaku.haremheroes.com"] = {name:"NHH_prod",id:"hh_hentai"};
-HHKnownEnvironnements["nutaku.gayharem.com"] = {name:"NGH_prod",id:"hh_gay"};
-HHKnownEnvironnements["thrix.hentaiheroes.com"] = {name:"THH_prod",id:"hh_hentai"};
-HHKnownEnvironnements["eroges.gayharem.com"] = {name:"EGH_prod",id:"hh_gay"};
-HHKnownEnvironnements["eroges.hentaiheroes.com"] = {name:"EHH_prod",id:"hh_hentai"};
-HHKnownEnvironnements["esprit.hentaiheroes.com"] = {name:"OGHH_prod",id:"hh_hentai"};
-HHKnownEnvironnements["www.pornstarharem.com"] = {name:"PH_prod",id:"hh_star", baseImgPath:"https://th.hh-content.com"};
-HHKnownEnvironnements["nutaku.pornstarharem.com"] = {name:"NPH_prod",id:"hh_star", baseImgPath:"https://th.hh-content.com"};
-HHKnownEnvironnements["www.transpornstarharem.com"] = {name:"TPH_prod",id:"hh_startrans", baseImgPath:"https://images.hh-content.com/startrans"};
-HHKnownEnvironnements["nutaku.transpornstarharem.com"] = {name:"NTPH_prod",id:"hh_startrans", baseImgPath:"https://images.hh-content.com/startrans"};
-HHKnownEnvironnements["www.mangarpg.com"] = {name:"MRPG_prod",id:"hh_mangarpg", baseImgPath:"https://mh.hh-content.com"};
-HHKnownEnvironnements["www.gaypornstarharem.com"] = {name:"GPSH_prod",id:"hh_stargay", baseImgPath:"https://images.hh-content.com/stargay"};
-HHKnownEnvironnements["nutaku.gaypornstarharem.com"] = {name:"NGPSH_prod",id:"hh_stargay", baseImgPath:"https://images.hh-content.com/stargay"};
 
 
 export const HHEnvVariables = {};
@@ -106,46 +114,12 @@ HHEnvVariables["global"].possibleRewardsList = {'energy_kiss' : "Kisses",
                                                 'event_cash' : "Event cash",
                                                 'rejuvenation_stone': "Rejuvenation Stones"};
 
-HHEnvVariables["global"].trollzList =  ["Latest",
-                                        "Dark Lord",
-                                        "Ninja Spy",
-                                        "Gruntt",
-                                        "Edwarda",
-                                        "Donatien",
-                                        "Silvanus",
-                                        "Bremen",
-                                        "Finalmecia",
-                                        "Roko Senseï",
-                                        "Karole",
-                                        "Jackson\'s Crew",
-                                        "Pandora witch",
-                                        "Nike",
-                                        "Sake",
-                                        "WereBunny Police",
-                                        "Auga",
-                                        "Gross"];
+HHEnvVariables["global"].trollzList = HentaiHeroes.getTrolls();
 
 HHEnvVariables["global"].trollIdMapping =  []; // Empty means no specific mapping
 
-HHEnvVariables["global"].trollGirlsID = [
-    [['8', '9', '10'], ['7270263'], ['979916751']],
-    [['14', '13', '12'], ['318292466'], ['936580004']],
-    [['19', '16', '18'], ['610468472'], ['54950499']],
-    [['29', '28', '26'], ['4749652'], ['345655744']],
-    [['39', '40', '41'], ['267784162'], ['763020698']],
-    [['64', '63', '31'], ['406004250'], ['864899873']],
-    [['85', '86', '84'], ['267120960'], ['536361248']],
-    [['114', '115', '116'], ['379441499'], ['447396000']],
-    [['1247315', '4649579', '7968301'], ['46227677'], ['933487713']],
-    [['1379661', '4479579', '1800186'], ['985085118'], ['339765042']],
-    [['24316446', '219651566', '501847856'], ['383709663'], ['90685795']],
-    [['225365882', '478693885', '231765083'], ['155415482'], ['769649470']],
-    [['86962133', '243793871', '284483399'], [0], [0]],
-    [['612527302', '167231135', '560979916', '184523411', '549524850', '784911160'], [0], [0]],
-    [['164866290', '696124016', '841591253'], [0], [0]],
-    [['344730128', '735302216', '851893423'], [0], [0]],
-    [['547099506', '572827174', '653889168'], [0], [0]],
-];
+HHEnvVariables["global"].trollGirlsID = HentaiHeroes.getTrollGirlsId();
+
 HHEnvVariables["global"].lastQuestId = 1820; //  TODO update when new quest comes
 
 HHEnvVariables["global"].leaguesList = ["Wanker I",
@@ -157,27 +131,12 @@ HHEnvVariables["global"].leaguesList = ["Wanker I",
                                         "Dicktator I",
                                         "Dicktator II",
                                         "Dicktator III"];
+
+HentaiHeroes.overrideTrollsByLang(getLanguageCode(), HHEnvVariables["global"].trollzList);
+
 switch (getLanguageCode())
 {
     case "fr":
-        HHEnvVariables["global"].trollzList = ["Dernier",
-                                               "Dark Lord",
-                                               "Espion Ninja",
-                                               "Gruntt",
-                                               "Edwarda",
-                                               "Donatien",
-                                               "Silvanus",
-                                               "Bremen",
-                                               "Finalmecia",
-                                               "Roko Senseï",
-                                               "Karole",
-                                               "Jackson",
-                                               "Pandora",
-                                               "Nike",
-                                               "Sake",
-                                               "Police des Lapines-Garous",
-                                               "Auga",
-                                               "Gross"];
         HHEnvVariables["global"].leaguesList = ["Branleur I",
                                                 "Branleur II",
                                                 "Branleur III",
@@ -460,65 +419,20 @@ HHEnvVariables["global"].isEnabledSultryMysteriesEvent = true;
 HHEnvVariables["global"].isEnabledDailyGoals = true;
 HHEnvVariables["HH_test"].isEnabledDailyRewards = false;// to remove if daily rewards arrives in test
 HHEnvVariables["HH_test"].isEnabledFreeBundles = false;// to remove if bundles arrives in test
+
 ["GH_prod","NGH_prod","EGH_prod"].forEach((element) => {
-    HHEnvVariables[element].trollzList = ['Latest', 
-                                          'Dark Lord',
-                                          'Ninja Spy',
-                                          'Gruntt',
-                                          'Edward',
-                                          'Donatien',
-                                          'Silvanus',
-                                          'Bremen',
-                                          'Edernas',
-                                          'Fredy Sih Roko Senseï',
-                                          'Maro',
-                                          'Jackson&#8217;s Crew',
-                                          'Icarus Warlock',
-                                          'Sol'];
-    switch (getLanguageCode()) {
-        case "fr":
-            HHEnvVariables[element].trollzList[2] = 'Espion Ninja';
-            HHEnvVariables[element].trollzList[11] = 'Éq. de Jackson';
-            HHEnvVariables[element].trollzList[12] = 'Sorcier Icarus';
-            break;
-        case "de":
-            HHEnvVariables[element].trollzList[1] = 'Dunkler Lor';
-            HHEnvVariables[element].trollzList[2] = 'Ninjaspion';
-            HHEnvVariables[element].trollzList[11] = 'Jacksons Crew';
-            break;
-        default:
-            break;
-    }
+    HHEnvVariables[element].trollzList = GayHarem.getTrolls();
+    HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
+    GayHarem.overrideTrollsByLang(getLanguageCode(), HHEnvVariables[element].trollzList);
 });
+
 ["CH_prod","NCH_prod"].forEach((element) => {
-    HHEnvVariables[element].trollzList = ['Latest',
-                                          'BodyHack',
-                                          'Grey Golem',
-                                          'The Nymph',
-                                          'Athicus Ho’ole',
-                                          'The Mimic',
-                                          'Cockatrice',
-                                          'Pomelo',
-                                          'Alexa Sl\'Thor',
-                                          'D\'KLONG',
-                                          'Virtue Man'];
-});
-["CH_prod","NCH_prod"].forEach((element) => {
-    HHEnvVariables[element].trollGirlsID = [
-        [['830009523', '907801218', '943323021'], [0], [0]],
-        [['271746999', '303805209', '701946373'], [0], [0]],
-        [['743748788', '977228200', '943323021'], [0], [0]],
-        [['140401381', '232860230', '514994766'], [0], [0]],
-        [['623293037', '764791769', '801271903'], [0], [0]],
-        [['921365371', '942523553', '973271744'], [0], [0]],
-        [['364639341', '879781833', '895546748'], [0], [0]],
-        [['148877065', '218927643', '340369336'], [0], [0]],
-        [['258185125', '897951171', '971686222'], [0], [0]],
-        [['125758004', '233499841', '647307160'], [0], [0]],
-    ];
+    HHEnvVariables[element].trollzList = ComixHarem.getTrolls();
+    HHEnvVariables[element].trollGirlsID = ComixHarem.getTrollGirlsId();
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
     HHEnvVariables[element].boosterId_MB1 = 2619;
 });
+
 HHEnvVariables["SH_prod"].isEnabledSideQuest = false;// to remove when SideQuest arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPowerPlaces = false;// to remove when PoP arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledMythicPachinko = false;// to remove when Mythic Pachinko arrives in hornyheroes
@@ -531,106 +445,30 @@ HHEnvVariables["SH_prod"].isEnabledLabyrinth = false;// to remove when Pantheon 
 HHEnvVariables["SH_prod"].isEnabledPoV = false;// to remove when PoV arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPoG = false;// to remove when PoG arrives in hornyheroes
 HHEnvVariables["SH_prod"].lastQuestId = -1; //  TODO update when new quest comes
-HHEnvVariables["MRPG_prod"].isEnabledSideQuest = false;// to remove when SideQuest arrives in Manga RPG
-HHEnvVariables["MRPG_prod"].isEnabledMythicPachinko = false;// to remove when Mythic Pachinko arrives in Manga RPG
-HHEnvVariables["MRPG_prod"].isEnabledEquipmentPachinko = false;// to remove when Equipment Pachinko arrives in Manga RPG
-HHEnvVariables["MRPG_prod"].isEnabledClubChamp = false;// to remove when Club Champs arrives in Manga RPG
-HHEnvVariables["MRPG_prod"].isEnabledPantheon = false;// to remove when Pantheon arrives in Manga RPG
-HHEnvVariables["MRPG_prod"].isEnabledLabyrinth = false;// to remove when Pantheon arrives in Manga RPG
-HHEnvVariables["MRPG_prod"].isEnabledSeasonalEvent = false;// to remove when event arrives in Manga RPG
-HHEnvVariables["MRPG_prod"].isEnabledBossBangEvent = false;// to remove when event arrives in Manga RPG
-HHEnvVariables["MRPG_prod"].isEnabledSultryMysteriesEvent = false;// to remove when event arrives in Manga RPG
+
 HHEnvVariables["MRPG_prod"].lastQuestId = -1; //  TODO update when new quest comes
-HHEnvVariables["MRPG_prod"].trollzList = ['Latest',
-                                        'William Scarlett'];
+HHEnvVariables["MRPG_prod"].trollzList = MangaRpg.getTrolls();
+MangaRpg.updateFeatures(HHEnvVariables["MRPG_prod"]);
+
 ["PH_prod","NPH_prod"].forEach((element) => {
-    HHEnvVariables[element].trollzList = ['Latest',
-                                          'Headmistress Asa Akira',
-                                          'Sammy Jayne',
-                                          'Ivy Winters',
-                                          'Sophia  Jade',
-                                          'Amia Miley',
-                                          'Alyssa Reece',
-                                          'Kelly Kline',
-                                          'Jamie Brooks',
-                                          'Jordan Kingsley',
-                                          'EMPTY',
-                                          'Sierra Sinn',
-                                          'Jasmine Jae',
-                                          'Bella Rose',
-                                          'Paige Taylor'];
+    HHEnvVariables[element].trollzList = PornstarHarem.getTrolls();
     HHEnvVariables[element].trollIdMapping = { 10: 9, 14: 11, 16: 12, 18: 13, 19: 14 }; // under 10 id as usual
     HHEnvVariables[element].lastQuestId = 16100; //  TODO update when new quest comes
     HHEnvVariables[element].boosterId_MB1 = 2619;
-});
-["PH_prod","NPH_prod"].forEach((element) => {
-    HHEnvVariables[element].trollGirlsID = [
-        [['261345306', '795788039', '973280579'], [0], [0]],
-        [['482529771', '658322339', '833308213'], [0], [0]],
-        [['117837840', '160370794', '306287449', '828011942'], [0], [0]],
-        [['564593641', '719705773', '934421949'], [0], [0]],
-        [['270611414', '464811282', '781232070'], [0], [0]],
-        [['219241809', '380385497', '879198752'], [0], [0]],
-        [['165066536', '734325005', '805020628'], [0], [0]],
-        [['191661045', '369105612', '665836932'], [0], [0]],
-        [['169356639', '383702874', '943667167'], [0], [0]],
-        [[0], [0], [0]],
-        [['169741198', '459885596', '507702178'], [0], [0]],
-        [['258984943', '837109131', '888135956'], [0], [0]],
-        [['270920965', '600910475', '799448349'], [0], [0]],
-        [['832031905', '272818756', '477487889'], [0], [0]],
-    ];
+    HHEnvVariables[element].trollGirlsID = PornstarHarem.getTrollGirlsId();
 });
 
 ["TPH_prod","NTPH_prod"].forEach((element) => {
-    HHEnvVariables[element].trollzList = ['Latest',
-                                          'Ariel Demure',
-                                          'Emma Rose',
-                                          'Natalie Stone',
-                                          'Janie Blade',
-                                          'Nikki Nort',
-                                          'Mistress Venom',
-                                          'CEO Ramona'];
-    HHEnvVariables[element].isEnabledSideQuest = false;// to remove when SideQuest arrives in transpornstar
-    HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in transpornstar
-    HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in transpornstar
-    HHEnvVariables[element].isEnabledLabyrinth = false;// to remove when Pantheon arrives in transpornstar
-    HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in transpornstar
-    HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
-});
-["TPH_prod","NTPH_prod"].forEach((element) => {
-    HHEnvVariables[element].trollGirlsID = [
-        [['171883542', '229180984', '771348244'], [0], [0]],
-        [['484962893', '879574564', '910924260'], [0], [0]],
-        [['334144727', '667194919', '911144911'], [0], [0]],
-        [['473470854', '708191289', '945710078'], [0], [0]],
-        [['104549634', '521022556', '526732951'], [0], [0]],
-        [['317800067', '542090972', '920682672'], [0], [0]],
-    ];
+    HHEnvVariables[element].trollzList = TransPornstarHarem.getTrolls();
+    TransPornstarHarem.updateFeatures(HHEnvVariables[element]);
+    HHEnvVariables[element].trollGirlsID = TransPornstarHarem.getTrollGirlsId();
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
 });
 
 ["GPSH_prod","NGPSH_prod"].forEach((element) => {
-    HHEnvVariables[element].trollzList = ['Latest', 
-                                          'Tristan Hunter',
-                                          'Jimmy Durano',
-                                          'Lucca Mazzi'];
-
-    HHEnvVariables[element].isEnabledSideQuest = false;// to remove when SideQuest arrives in gaypornstar
-    HHEnvVariables[element].isEnabledPowerPlaces = false;// to remove when PoP arrives in gaypornstar
-    HHEnvVariables[element].isEnabledMythicPachinko = false;// to remove when Champs arrives in gaypornstar
-    HHEnvVariables[element].isEnabledClubChamp = false;// to remove when Club Champs arrives in gaypornstar
-    HHEnvVariables[element].isEnabledPantheon = false;// to remove when Pantheon arrives in gaypornstar
-    HHEnvVariables[element].isEnabledLabyrinth = false;// to remove when Pantheon arrives in gaypornstar
-    HHEnvVariables[element].isEnabledPoG = false;// to remove when PoG arrives in gaypornstar
-    HHEnvVariables[element].trollGirlsID = [
-        [['780402171', '374763633', '485499759'], [0], [0]],
-        [[0], [0], [0]],
-        [[0], [0], [0]],
-        [[0], [0], [0]],
-        [['290465722', '524315573', '970767946'], [0], [0]],
-        [['127881092', '680366759', '836998610'], [0], [0]],
-    ];
+    HHEnvVariables[element].trollzList = GayPornstarHarem.getTrolls();
+    GayPornstarHarem.updateFeatures(HHEnvVariables[element]);
+    HHEnvVariables[element].trollGirlsID = GayPornstarHarem.getTrollGirlsId();
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
     HHEnvVariables[element].boosterId_MB1 = 2619;
 });

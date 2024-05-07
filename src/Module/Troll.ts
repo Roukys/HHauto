@@ -54,13 +54,13 @@ export class Troll {
     }
 
     static getPinfo(contest) {
-        const threshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollThreshold"));
-        const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollRunThreshold"));
+        const threshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoTrollThreshold")) || 0;
+        const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoTrollRunThreshold")) || 0;
 
         let Tegzd = '<li>';
         Tegzd += getTextForUI("autoTrollTitle","elementText")+' ' + Troll.getEnergy()+'/'+Troll.getEnergyMax()+contest;
         if (runThreshold > 0) {
-            Tegzd += ' ('+threshold+'<'+Troll.getEnergy()+'<'+runThreshold+')';
+            Tegzd += ' ('+threshold+'<'+Troll.getEnergy()+'<='+runThreshold+')';
             if(Troll.getEnergy() < runThreshold)  Tegzd += ' ' + getTextForUI("waitRunThreshold","elementText");
         }
         Tegzd += '</li>';
@@ -207,7 +207,7 @@ export class Troll {
             }
         }
 
-        const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollRunThreshold"));
+        const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoTrollRunThreshold")) || 0;
         if (runThreshold > 0 && currentPower == runThreshold) {
             setStoredValue(HHStoredVarPrefixKey+"Temp_TrollHumanLikeRun", "true");
         }
