@@ -3,7 +3,7 @@ export class HentaiHeroes {
         return {
             "www.hentaiheroes.com": { name: "HH_prod", id: "hh_hentai" },
             "test.hentaiheroes.com": { name: "HH_test", id: "hh_hentai" },
-            "nutaku.hentaiheroes.com": { name: "NHH_prod", id: "hh_hentai" },
+            "nutaku.haremheroes.com": { name: "NHH_prod", id: "hh_hentai" },
             "thrix.hentaiheroes.com": { name: "THH_prod", id: "hh_hentai" },
             "eroges.hentaiheroes.com": { name: "EHH_prod", id: "hh_hentai" },
             "esprit.hentaiheroes.com": { name: "OGHH_prod", id: "hh_hentai" }
