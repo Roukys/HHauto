@@ -333,8 +333,8 @@ export async function autoLoop()
         && isAutoLoopActive() && canCollectCompetitionActive
         && (lastActionPerformed === "none" || lastActionPerformed === "troll" || lastActionPerformed === "quest"))
         {
-            const threshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollThreshold"));
-            const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoTrollRunThreshold"));
+            const threshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoTrollThreshold")) || 0;
+            const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoTrollRunThreshold")) || 0;
             const humanLikeRun = getStoredValue(HHStoredVarPrefixKey+"Temp_TrollHumanLikeRun") === "true";
             const energyAboveThreshold = humanLikeRun && currentPower > threshold || currentPower > Math.max(threshold, runThreshold-1);
             //logHHAuto("fight amount: "+currentPower+" troll threshold: "+threshold+" paranoia fight: "+Number(checkParanoiaSpendings('fight')));

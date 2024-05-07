@@ -29,8 +29,8 @@ export class Pantheon {
     }
 
     static getPinfo() {
-        const threshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheonThreshold"));
-        const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheonRunThreshold"));
+        const threshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPantheonThreshold")) || 0;
+        const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPantheonRunThreshold")) || 0;
 
         let Tegzd = '';
         const boostLimited = getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheonBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
@@ -41,7 +41,7 @@ export class Pantheon {
         }
         Tegzd += getTextForUI("autoPantheonTitle","elementText")+' '+Pantheon.getEnergy()+'/'+Pantheon.getEnergyMax();
         if (runThreshold > 0) {
-            Tegzd += ' ('+threshold+'<'+Pantheon.getEnergy()+'<'+runThreshold+')';
+            Tegzd += ' ('+threshold+'<'+Pantheon.getEnergy()+'<='+runThreshold+')';
         }
         if(runThreshold > 0  && Pantheon.getEnergy() < runThreshold) {
             Tegzd += ' ' + getTextForUI("waitRunThreshold","elementText");
@@ -61,8 +61,8 @@ export class Pantheon {
     }
 
     static isTimeToFight(){
-        const threshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheonThreshold"));
-        const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheonRunThreshold"));
+        const threshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPantheonThreshold")) || 0;
+        const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPantheonRunThreshold")) || 0;
         const humanLikeRun = getStoredValue(HHStoredVarPrefixKey+"Temp_PantheonHumanLikeRun") === "true";
 
         const energyAboveThreshold = humanLikeRun && Pantheon.getEnergy() > threshold || Pantheon.getEnergy() > Math.max(threshold, runThreshold-1);
@@ -89,7 +89,7 @@ export class Pantheon {
             logHHAuto("Remaining worship : "+ current_worship);
             if ( current_worship > 0 )
             {
-                const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheonRunThreshold"));
+                const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPantheonRunThreshold")) || 0;
                 if (runThreshold > 0) {
                     setStoredValue(HHStoredVarPrefixKey+"Temp_PantheonHumanLikeRun", "true");
                 }

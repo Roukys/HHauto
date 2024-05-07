@@ -62,8 +62,8 @@ export class Season {
     }
 
     static getPinfo() {
-        const threshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonThreshold"));
-        const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonRunThreshold"));
+        const threshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonThreshold")) || 0;
+        const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonRunThreshold")) || 0;
 
         let Tegzd = '';
         const boostLimited = getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
@@ -74,7 +74,7 @@ export class Season {
         }
         Tegzd += getTextForUI("autoSeasonTitle","elementText")+' '+Season.getEnergy()+'/'+Season.getEnergyMax();
         if (runThreshold > 0) {
-            Tegzd += ' ('+threshold+'<'+Season.getEnergy()+'<'+runThreshold+')';
+            Tegzd += ' ('+threshold+'<'+Season.getEnergy()+'<='+runThreshold+')';
         }
         if(runThreshold > 0  && Season.getEnergy() < runThreshold) {
             Tegzd += ' ' + getTextForUI("waitRunThreshold","elementText");
@@ -90,8 +90,8 @@ export class Season {
     }
 
     static isTimeToFight() {
-        const threshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonThreshold"));
-        const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonRunThreshold"));
+        const threshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonThreshold")) || 0;
+        const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonRunThreshold")) || 0;
         const humanLikeRun = getStoredValue(HHStoredVarPrefixKey+"Temp_SeasonHumanLikeRun") === "true";
 
         const energyAboveThreshold = humanLikeRun && Season.getEnergy() > threshold || Season.getEnergy() > Math.max(threshold, runThreshold-1);
@@ -338,7 +338,7 @@ export class Season {
             }
             else
             {
-                const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonRunThreshold"));
+                const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonRunThreshold")) || 0;
                 if (runThreshold > 0) {
                     setStoredValue(HHStoredVarPrefixKey+"Temp_SeasonHumanLikeRun", "true");
                 }
