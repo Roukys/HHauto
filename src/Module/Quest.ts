@@ -82,7 +82,7 @@ export class QuestHelper {
         $("#popup_message close").click();
         $("#level_up close").click();
         // Get the proceed button type
-        var proceedButtonMatch = $("#controls button:not([style*='display:none']):not([style*='display: none'])");
+        var proceedButtonMatch = $("#controls button:not([class*='ad_']):not([style*='display:none']):not([style*='display: none'])");
         if (proceedButtonMatch.length === 0)
         {
             proceedButtonMatch = $("#controls button#free");

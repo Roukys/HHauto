@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.12.1
+// @version      7.12.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -94,6 +94,8 @@ GM_addStyle('#popups #girl_preview_popup #poses-tab_container .pose-preview_wrap
 // ads
 GM_addStyle('#ad_champions_map { display: none !important; }');
 GM_addStyle('#ad_sex-god-path { display: none !important; }');
+GM_addStyle('#ad_battle { display: none !important; }');
+GM_addStyle('#ad_quest { display: none !important; }');
 //END CSS Region
 
 
@@ -3789,7 +3791,7 @@ class QuestHelper {
         $("#popup_message close").click();
         $("#level_up close").click();
         // Get the proceed button type
-        var proceedButtonMatch = $("#controls button:not([style*='display:none']):not([style*='display: none'])");
+        var proceedButtonMatch = $("#controls button:not([class*='ad_']):not([style*='display:none']):not([style*='display: none'])");
         if (proceedButtonMatch.length === 0) {
             proceedButtonMatch = $("#controls button#free");
         }
