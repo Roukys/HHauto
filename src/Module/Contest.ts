@@ -17,7 +17,7 @@ export class Contest {
         const color = getStoredValue(HHStoredVarPrefixKey + "Setting_waitforContest") !== "true" ? 'white' : TimeHelper.canCollectCompetitionActive() ? 'LimeGreen' : 'red';
         return `<li style='color:${color}'>Contest end : ${getTimeLeft('contestRemainingTime')}  / Next : ${getTimeLeft('nextContestTime')}</li>`;
     }
-    static run(){
+    static run(): boolean {
         if(getPage() !== ConfigHelper.getHHScriptVars("pagesIDContests"))
         {
             logHHAuto("Navigating to contests page.");
@@ -32,8 +32,8 @@ export class Contest {
             let contest_list = $(".contest .ended button[rel='claim']");
             if ( contest_list.length > 0)
             {
-                logHHAuto("Collected legendary contest id : "+contest_list[0].getAttribute('id_contest')+".");
-                contest_list[0].click();
+                logHHAuto(`Collected contest id : ${contest_list.attr('id_contest')}.`);
+                contest_list.trigger('click');
                 if ( contest_list.length > 1 )
                 {
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDContests"));

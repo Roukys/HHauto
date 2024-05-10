@@ -74,7 +74,7 @@ export class Harem {
             girlsDataList = getHHVars("availableGirls");
         }
         if (girlsDataList == null && getPage() === ConfigHelper.getHHScriptVars("pagesIDWaifu")) {
-            girlsDataList = getHHVars("girlsDataList");
+            girlsDataList = getHHVars("girls_data_list");
         }
         if(girlsDataList != null) {
             let girlNameDictionary = new Map();
@@ -333,7 +333,7 @@ export class Harem {
         function extractHHGirls()
         {
             var dataToSave = "Name,Rarity,Class,Figure,Level,Stars,Of,Left,Hardcore,Charm,Know-how,Total,Position,Eyes,Hair,Zodiac,Own,Element\r\n";
-            var gMap = getHHVars('girlsDataList') || getHHVars('availableGirls');
+            var gMap = getHHVars('girls_data_list') || getHHVars('availableGirls');
             if(gMap === null)
             {
                 // error
@@ -560,7 +560,7 @@ export class Harem {
 
     static moduleHaremCountMax()
     {
-        const girlList = getHHVars('girlsDataList', false) || getHHVars('availableGirls', false)
+        const girlList = getHHVars('girls_data_list', false) || getHHVars('availableGirls', false)
         if (Harem.HaremSizeNeedsRefresh(ConfigHelper.getHHScriptVars("HaremMinSizeExpirationSecs")) && girlList !== null)
         {
             setStoredValue(HHStoredVarPrefixKey + "Temp_HaremSize", JSON.stringify({ count: Object.keys(girlList).length,count_date:new Date().getTime()}));

@@ -945,7 +945,11 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_waitforContest"] =
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false
+    kobanUsing: false,
+    newValueFunction: function () {
+        clearTimer('contestRemainingTime');
+        clearTimer('nextContestTime');
+    }
 };
 HHStoredVars[HHStoredVarPrefixKey+"Setting_safeSecondsForContest"] =
 {
