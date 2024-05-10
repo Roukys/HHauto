@@ -208,7 +208,9 @@ export class HaremSalary {
             logHHAuto('Reseting girl filters');
             haremFilter.resetFilter();
             await TimeHelper.sleep(randomInterval(800, 1200)); // wait loading
+            logHHAuto('selectOnlyOwnedGirls');
             await haremFilter.selectOnlyOwnedGirls();
+            logHHAuto('selectGirlRarity ' + haremFilters[haremFilterIndex]);
             await haremFilter.selectGirlRarity(haremFilters[haremFilterIndex++]);
         }
         else if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryResetFilters") === "true")

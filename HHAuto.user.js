@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.12.2
+// @version      7.12.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -96,6 +96,7 @@ GM_addStyle('#ad_champions_map { display: none !important; }');
 GM_addStyle('#ad_sex-god-path { display: none !important; }');
 GM_addStyle('#ad_battle { display: none !important; }');
 GM_addStyle('#ad_quest { display: none !important; }');
+GM_addStyle('#ad_activities { display: none !important; }');
 //END CSS Region
 
 
@@ -4543,8 +4544,8 @@ class Contest {
             LogUtils_logHHAuto("Collecting finished contests's reward.");
             let contest_list = $(".contest .ended button[rel='claim']");
             if (contest_list.length > 0) {
-                LogUtils_logHHAuto("Collected legendary contest id : " + contest_list[0].getAttribute('id_contest') + ".");
-                contest_list[0].click();
+                LogUtils_logHHAuto(`Collected contest id : ${contest_list.attr('id_contest')}.`);
+                contest_list.trigger('click');
                 if (contest_list.length > 1) {
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDContests"));
                     return true;
@@ -4799,7 +4800,7 @@ class Harem {
             girlsDataList = getHHVars("availableGirls");
         }
         if (girlsDataList == null && getPage() === ConfigHelper.getHHScriptVars("pagesIDWaifu")) {
-            girlsDataList = getHHVars("girlsDataList");
+            girlsDataList = getHHVars("girls_data_list");
         }
         if (girlsDataList != null) {
             let girlNameDictionary = new Map();
@@ -5015,7 +5016,7 @@ class Harem {
         }
         function extractHHGirls() {
             var dataToSave = "Name,Rarity,Class,Figure,Level,Stars,Of,Left,Hardcore,Charm,Know-how,Total,Position,Eyes,Hair,Zodiac,Own,Element\r\n";
-            var gMap = getHHVars('girlsDataList') || getHHVars('availableGirls');
+            var gMap = getHHVars('girls_data_list') || getHHVars('availableGirls');
             if (gMap === null) {
                 // error
                 LogUtils_logHHAuto("Girls Map was undefined...! Error, cannot export girls.");
@@ -5212,7 +5213,7 @@ class Harem {
         return !isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_HaremSize")) || JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_HaremSize")).count_date < (new Date().getTime() - inCustomExpi * 1000);
     }
     static moduleHaremCountMax() {
-        const girlList = getHHVars('girlsDataList', false) || getHHVars('availableGirls', false);
+        const girlList = getHHVars('girls_data_list', false) || getHHVars('availableGirls', false);
         if (Harem.HaremSizeNeedsRefresh(ConfigHelper.getHHScriptVars("HaremMinSizeExpirationSecs")) && girlList !== null) {
             setStoredValue(HHStoredVarPrefixKey + "Temp_HaremSize", JSON.stringify({ count: Object.keys(girlList).length, count_date: new Date().getTime() }));
             LogUtils_logHHAuto("Harem size updated to : " + Object.keys(girlList).length);
@@ -6917,7 +6918,11 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_waitforContest"] =
         getMenu: true,
         setMenu: true,
         menuType: "checked",
-        kobanUsing: false
+        kobanUsing: false,
+        newValueFunction: function () {
+            clearTimer('contestRemainingTime');
+            clearTimer('nextContestTime');
+        }
     };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_safeSecondsForContest"] =
     {
@@ -8811,7 +8816,9 @@ class HaremSalary {
                 LogUtils_logHHAuto('Reseting girl filters');
                 haremFilter.resetFilter();
                 yield TimeHelper.sleep(randomInterval(800, 1200)); // wait loading
+                LogUtils_logHHAuto('selectOnlyOwnedGirls');
                 yield haremFilter.selectOnlyOwnedGirls();
+                LogUtils_logHHAuto('selectGirlRarity ' + haremFilters[haremFilterIndex]);
                 yield haremFilter.selectGirlRarity(haremFilters[haremFilterIndex++]);
             }
             else if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryResetFilters") === "true") {

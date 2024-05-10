@@ -96,5 +96,6 @@ GM_addStyle('#ad_champions_map { display: none !important; }');
 GM_addStyle('#ad_sex-god-path { display: none !important; }');
 GM_addStyle('#ad_battle { display: none !important; }');
 GM_addStyle('#ad_quest { display: none !important; }');
+GM_addStyle('#ad_activities { display: none !important; }');
 //END CSS Region
 
