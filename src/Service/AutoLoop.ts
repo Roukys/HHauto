@@ -441,7 +441,7 @@ export async function autoLoop()
         if(busy === false && ConfigHelper.getHHScriptVars("isEnabledContest",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoContest") === "true" 
             && isAutoLoopActive() && (lastActionPerformed === "none" || lastActionPerformed === "contest"))
         {
-            if (checkTimer('nextContestTime') || unsafeWindow.has_contests_datas || $(".contest .ended button[rel='claim']").length>0){
+            if (checkTimer('nextContestCollectTime') || unsafeWindow.has_contests_datas || Contest.getClaimsButton().length>0){
                 logHHAuto("Time to get contest rewards.");
                 busy = Contest.run();
                 lastActionPerformed = "contest";

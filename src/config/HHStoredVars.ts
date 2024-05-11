@@ -227,7 +227,10 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoContest"] =
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false
+    kobanUsing: false,
+    newValueFunction: function () {
+        clearTimer('nextContestCollectTime');
+    }
 };
 HHStoredVars[HHStoredVarPrefixKey+"Setting_compactEndedContests"] =
     {
