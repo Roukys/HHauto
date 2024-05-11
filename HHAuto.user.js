@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.12.3
+// @version      7.12.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4532,7 +4532,11 @@ class Contest {
         const color = getStoredValue(HHStoredVarPrefixKey + "Setting_waitforContest") !== "true" ? 'white' : TimeHelper.canCollectCompetitionActive() ? 'LimeGreen' : 'red';
         return `<li style='color:${color}'>Contest end : ${getTimeLeft('contestRemainingTime')}  / Next : ${getTimeLeft('nextContestTime')}</li>`;
     }
+    static getClaimsButton() {
+        return $(".contest .ended button[rel='claim']");
+    }
     static run() {
+        var _a;
         if (getPage() !== ConfigHelper.getHHScriptVars("pagesIDContests")) {
             LogUtils_logHHAuto("Navigating to contests page.");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDContests"));
@@ -4542,10 +4546,12 @@ class Contest {
         else {
             LogUtils_logHHAuto("On contests page.");
             LogUtils_logHHAuto("Collecting finished contests's reward.");
-            let contest_list = $(".contest .ended button[rel='claim']");
+            const contest_list = Contest.getClaimsButton();
+            LogUtils_logHHAuto(`Found ${contest_list.length} contest to be collected`);
             if (contest_list.length > 0) {
-                LogUtils_logHHAuto(`Collected contest id : ${contest_list.attr('id_contest')}.`);
-                contest_list.trigger('click');
+                const firstContestEnded = contest_list.first();
+                LogUtils_logHHAuto(`Collected contest id : ${(_a = firstContestEnded.parents('.contest')) === null || _a === void 0 ? void 0 : _a.attr('id_contest')}.`);
+                firstContestEnded.trigger('click');
                 if (contest_list.length > 1) {
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDContests"));
                     return true;
@@ -4567,11 +4573,18 @@ class Contest {
                 const remaining_time = unsafeWindow.contests_timer.remaining_time;
                 setTimer('contestRemainingTime', remaining_time);
                 setTimer('nextContestTime', nextContestTime);
+                if (Contest.getClaimsButton().length > 0) {
+                    setTimer('nextContestCollectTime', 0);
+                }
+                else {
+                    setTimer('nextContestCollectTime', nextContestTime);
+                }
             }
             catch (err) {
                 LogUtils_logHHAuto('ERROR getting next contest timers, ignore...');
                 setTimer('contestRemainingTime', 3600);
                 setTimer('nextContestTime', 4000);
+                setTimer('nextContestCollectTime', 4000);
             }
             // Not busy
             return false;
@@ -6211,7 +6224,10 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoContest"] =
         getMenu: true,
         setMenu: true,
         menuType: "checked",
-        kobanUsing: false
+        kobanUsing: false,
+        newValueFunction: function () {
+            clearTimer('nextContestCollectTime');
+        }
     };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_compactEndedContests"] =
     {
@@ -16002,7 +16018,7 @@ function autoLoop() {
             }
             if (busy === false && ConfigHelper.getHHScriptVars("isEnabledContest", false) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoContest") === "true"
                 && isAutoLoopActive() && (lastActionPerformed === "none" || lastActionPerformed === "contest")) {
-                if (checkTimer('nextContestTime') || unsafeWindow.has_contests_datas || $(".contest .ended button[rel='claim']").length > 0) {
+                if (checkTimer('nextContestCollectTime') || unsafeWindow.has_contests_datas || Contest.getClaimsButton().length > 0) {
                     LogUtils_logHHAuto("Time to get contest rewards.");
                     busy = Contest.run();
                     lastActionPerformed = "contest";
@@ -16691,7 +16707,7 @@ function updateData() {
             Tegzd += '<li>' + getTextForUI("autoMission", "elementText") + ' : ' + getTimeLeft('nextMissionTime') + '</li>';
         }
         if (ConfigHelper.getHHScriptVars("isEnabledContest", false) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoContest") == "true") {
-            Tegzd += '<li>' + getTextForUI("autoContest", "elementText") + ' : ' + getTimeLeft('nextContestTime') + '</li>';
+            Tegzd += '<li>' + getTextForUI("autoContest", "elementText") + ' : ' + getTimeLeft('nextContestCollectTime') + '</li>';
         }
         if (ConfigHelper.getHHScriptVars("isEnabledPowerPlaces", false) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlaces") == "true") {
             Tegzd += '<li>' + getTextForUI("powerPlacesTitle", "elementText") + ' : ' + getTimeLeft('minPowerPlacesTime') + '</li>';

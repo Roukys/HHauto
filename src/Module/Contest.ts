@@ -17,6 +17,9 @@ export class Contest {
         const color = getStoredValue(HHStoredVarPrefixKey + "Setting_waitforContest") !== "true" ? 'white' : TimeHelper.canCollectCompetitionActive() ? 'LimeGreen' : 'red';
         return `<li style='color:${color}'>Contest end : ${getTimeLeft('contestRemainingTime')}  / Next : ${getTimeLeft('nextContestTime')}</li>`;
     }
+    static getClaimsButton(){
+        return $(".contest .ended button[rel='claim']");
+    }
     static run(): boolean {
         if(getPage() !== ConfigHelper.getHHScriptVars("pagesIDContests"))
         {
@@ -29,11 +32,13 @@ export class Contest {
         {
             logHHAuto("On contests page.");
             logHHAuto("Collecting finished contests's reward.");
-            let contest_list = $(".contest .ended button[rel='claim']");
+            const contest_list = Contest.getClaimsButton();
+            logHHAuto(`Found ${contest_list.length} contest to be collected`);
             if ( contest_list.length > 0)
             {
-                logHHAuto(`Collected contest id : ${contest_list.attr('id_contest')}.`);
-                contest_list.trigger('click');
+                const firstContestEnded = contest_list.first();
+                logHHAuto(`Collected contest id : ${firstContestEnded.parents('.contest')?.attr('id_contest') }.`);
+                firstContestEnded.trigger('click');
                 if ( contest_list.length > 1 )
                 {
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDContests"));
@@ -57,10 +62,16 @@ export class Contest {
                 const remaining_time = unsafeWindow.contests_timer.remaining_time;
                 setTimer('contestRemainingTime', remaining_time);
                 setTimer('nextContestTime', nextContestTime);
+                if (Contest.getClaimsButton().length > 0) {
+                    setTimer('nextContestCollectTime', 0);
+                } else {
+                    setTimer('nextContestCollectTime', nextContestTime);
+                }
             } catch (err) {
                 logHHAuto('ERROR getting next contest timers, ignore...');
                 setTimer('contestRemainingTime', 3600);
                 setTimer('nextContestTime', 4000);
+                setTimer('nextContestCollectTime', 4000);
             }
             // Not busy
             return false;
