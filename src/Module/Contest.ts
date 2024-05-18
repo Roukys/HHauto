@@ -60,12 +60,13 @@ export class Contest {
             try{
                 const nextContestTime = unsafeWindow.contests_timer.next_contest;
                 const remaining_time = unsafeWindow.contests_timer.remaining_time;
+                const safeTime = TimeHelper.getContestSafeTime();
                 setTimer('contestRemainingTime', remaining_time);
-                setTimer('nextContestTime', nextContestTime);
+                setTimer('nextContestTime', nextContestTime + safeTime);
                 if (Contest.getClaimsButton().length > 0) {
                     setTimer('nextContestCollectTime', 0);
                 } else {
-                    setTimer('nextContestCollectTime', nextContestTime);
+                    setTimer('nextContestCollectTime', nextContestTime + safeTime);
                 }
             } catch (err) {
                 logHHAuto('ERROR getting next contest timers, ignore...');

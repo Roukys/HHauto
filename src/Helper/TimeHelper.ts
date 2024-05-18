@@ -8,11 +8,19 @@ import { checkTimerMustExist, getSecondsLeft } from './TimerHelper';
 
 export class TimeHelper {
 
+    static getContestSafeTime(): number {
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_waitforContest") !== "true") {
+            return 0;
+        }
+        let safeTime = getStoredValue(HHStoredVarPrefixKey + "Setting_safeSecondsForContest") !== undefined ? Number(getStoredValue(HHStoredVarPrefixKey + "Setting_safeSecondsForContest")) : 120;
+        if (isNaN(safeTime) || safeTime < 0) safeTime = 120;
+        return safeTime;
+    }
+
     static canCollectCompetitionActive(): boolean
     {
-        let safeTime = getStoredValue(HHStoredVarPrefixKey + "Setting_safeSecondsForContest") !== undefined ? Number(getStoredValue(HHStoredVarPrefixKey + "Setting_safeSecondsForContest")) : 120;
-        if(isNaN(safeTime) || safeTime < 0) safeTime = 120;
-        return getStoredValue(HHStoredVarPrefixKey + "Setting_waitforContest") !== "true" || !((getSecondsLeft('contestRemainingTime')-safeTime) < 0 && (getSecondsLeft('nextContestTime')+safeTime) > 0);
+        const safeTime = TimeHelper.getContestSafeTime();
+        return getStoredValue(HHStoredVarPrefixKey + "Setting_waitforContest") !== "true" || !((getSecondsLeft('contestRemainingTime')-safeTime) < 0 && getSecondsLeft('nextContestTime') > 0);
     }
 
     static toHHMMSS(secs): string  {

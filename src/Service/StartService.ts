@@ -1,5 +1,6 @@
 import {
     addEventsOnMenuItems,
+    clearTimer,
     ConfigHelper,
     debugDeleteAllVars,
     debugDeleteTempVars,
@@ -68,6 +69,12 @@ export class StartService {
             // run action on new script version
             logHHAuto(`New script version detected from ${previousScriptVersion} to ${GM.info.script.version}`);
             setStoredValue(HHStoredVarPrefixKey + "Temp_scriptversion", GM.info.script.version);
+
+            if ('7.12.5' === GM.info.script.version) {
+                // Manage new set timer
+                clearTimer('nextContestTime');
+                clearTimer('nextContestCollectTime');
+            }
         }
     }
 }
