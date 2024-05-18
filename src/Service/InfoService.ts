@@ -56,10 +56,9 @@ export function createPInfo():JQuery<HTMLElement> {
                     +'   height : 22px;'
                     +'   padding-top : unset;'
                     +'}'
-                    +'@media only screen and (max-width: 1025px) {'
-                    +'   #pInfo {'
-                    +'      top : 14%;'
-                    +'   }'
+                    + '@media only screen and (max-width: 1025px) {'
+                    + '   #pInfo { top : 14%;}'
+                    + '   #pInfo.left { top : 14%;}'
                     +'}');
     }
     return pInfo;

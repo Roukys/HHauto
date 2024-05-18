@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.12.4
+// @version      7.12.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -40,7 +40,7 @@ GM_addStyle('.HHAutoScriptMenu input:checked + .slider.kobans { background-color
 GM_addStyle('#pInfo {padding-left:3px; z-index:1;white-space: pre;position: absolute;right: 5%; left:51%; height:auto; top:11%; overflow: hidden; border: 1px solid #ffa23e; background-color: rgba(0,0,0,.5); border-radius: 5px; font-size:9pt; user-select: none; -webkit-user-select: none; -moz-user-select: none;}'
             + '#pInfo ul {margin:0; padding:0; columns:2; list-style-type: none;}'
             + '#pInfo ul li {margin:0}');
-GM_addStyle('#pInfo.left {right: 480px; left:220px; top:12%;');
+GM_addStyle('#pInfo.left {right: 250px; left:220px; top:12%;');
 GM_addStyle('span.HHMenuItemName {padding-bottom:2px; line-height:120%;}');
 GM_addStyle('div.optionsRow {display:flex; flex-direction:row; justify-content: space-between}'); //; padding:3px;
 GM_addStyle('span.optionsBoxTitle {padding-left:5px}'); //; padding-bottom:2px
@@ -4571,13 +4571,14 @@ class Contest {
             try {
                 const nextContestTime = unsafeWindow.contests_timer.next_contest;
                 const remaining_time = unsafeWindow.contests_timer.remaining_time;
+                const safeTime = TimeHelper.getContestSafeTime();
                 setTimer('contestRemainingTime', remaining_time);
-                setTimer('nextContestTime', nextContestTime);
+                setTimer('nextContestTime', nextContestTime + safeTime);
                 if (Contest.getClaimsButton().length > 0) {
                     setTimer('nextContestCollectTime', 0);
                 }
                 else {
-                    setTimer('nextContestCollectTime', nextContestTime);
+                    setTimer('nextContestCollectTime', nextContestTime + safeTime);
                 }
             }
             catch (err) {
@@ -5928,11 +5929,18 @@ function getTimeLeft(name) {
 
 
 class TimeHelper {
-    static canCollectCompetitionActive() {
+    static getContestSafeTime() {
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_waitforContest") !== "true") {
+            return 0;
+        }
         let safeTime = getStoredValue(HHStoredVarPrefixKey + "Setting_safeSecondsForContest") !== undefined ? Number(getStoredValue(HHStoredVarPrefixKey + "Setting_safeSecondsForContest")) : 120;
         if (isNaN(safeTime) || safeTime < 0)
             safeTime = 120;
-        return getStoredValue(HHStoredVarPrefixKey + "Setting_waitforContest") !== "true" || !((getSecondsLeft('contestRemainingTime') - safeTime) < 0 && (getSecondsLeft('nextContestTime') + safeTime) > 0);
+        return safeTime;
+    }
+    static canCollectCompetitionActive() {
+        const safeTime = TimeHelper.getContestSafeTime();
+        return getStoredValue(HHStoredVarPrefixKey + "Setting_waitforContest") !== "true" || !((getSecondsLeft('contestRemainingTime') - safeTime) < 0 && getSecondsLeft('nextContestTime') > 0);
     }
     static toHHMMSS(secs) {
         var sec_num = parseInt(secs, 10);
@@ -16636,9 +16644,8 @@ function createPInfo() {
             + '   padding-top : unset;'
             + '}'
             + '@media only screen and (max-width: 1025px) {'
-            + '   #pInfo {'
-            + '      top : 14%;'
-            + '   }'
+            + '   #pInfo { top : 14%;}'
+            + '   #pInfo.left { top : 14%;}'
             + '}');
     }
     return pInfo;
@@ -17127,6 +17134,11 @@ class StartService {
             // run action on new script version
             LogUtils_logHHAuto(`New script version detected from ${previousScriptVersion} to ${GM.info.script.version}`);
             setStoredValue(HHStoredVarPrefixKey + "Temp_scriptversion", GM.info.script.version);
+            if ('7.12.5' === GM.info.script.version) {
+                // Manage new set timer
+                clearTimer('nextContestTime');
+                clearTimer('nextContestCollectTime');
+            }
         }
     }
 }
