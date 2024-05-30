@@ -352,7 +352,7 @@ export async function autoLoop()
                             || getStoredValue(HHStoredVarPrefixKey+"Temp_autoTrollBattleSaveQuest") === "true"
                         )
                     )
-                    || Number(checkParanoiaSpendings('fight')) > 0 //paranoiaspendings to do
+                    || currentPower > 0 && Number(checkParanoiaSpendings('fight')) > 0 //paranoiaspendings to do
                     ||
                     (
                         // mythic Event Girl available and fights available
@@ -374,8 +374,6 @@ export async function autoLoop()
                         )
                     )
                 )
-
-
             {
                 logHHAuto('Troll:', {threshold: threshold, runThreshold:runThreshold, TrollHumanLikeRun: humanLikeRun});
                 setStoredValue(HHStoredVarPrefixKey+"Temp_battlePowerRequired", "0");
