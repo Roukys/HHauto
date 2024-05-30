@@ -38,7 +38,9 @@ export function createPInfo():JQuery<HTMLElement> {
 
         if (getStoredValue(HHStoredVarPrefixKey+"Setting_showAdsBack") === "true")
         {
-            GM_addStyle('#sliding-popups#sliding-popups { z-index : 1}');
+            GM_addStyle('#sliding-popups#sliding-popups { z-index : 1}');// Still needed ?
+            GM_addStyle('#ad_home { z-index : 1}');
+            GM_addStyle('.ad-revive-container { z-index : 1}');
         }
     }
     else

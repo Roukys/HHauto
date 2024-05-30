@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.12.5
+// @version      7.12.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -12692,12 +12692,8 @@ class MangaRpg {
             'William Scarlett'];
     }
     static updateFeatures(envVariables) {
-        envVariables.isEnabledSideQuest = false; // to remove when SideQuest arrives in Manga RPG
-        envVariables.isEnabledMythicPachinko = false; // to remove when Mythic Pachinko arrives in Manga RPG
-        envVariables.isEnabledEquipmentPachinko = false; // to remove when Equipment Pachinko arrives in Manga RPG
         envVariables.isEnabledClubChamp = false; // to remove when Club Champs arrives in Manga RPG
         envVariables.isEnabledPantheon = false; // to remove when Pantheon arrives in Manga RPG
-        envVariables.isEnabledLabyrinth = false; // to remove when Pantheon arrives in Manga RPG
         envVariables.isEnabledSeasonalEvent = false; // to remove when event arrives in Manga RPG
         envVariables.isEnabledBossBangEvent = false; // to remove when event arrives in Manga RPG
         envVariables.isEnabledSultryMysteriesEvent = false; // to remove when event arrives in Manga RPG
@@ -15956,7 +15952,7 @@ function autoLoop() {
                     &&
                         (energyAboveThreshold
                             || getStoredValue(HHStoredVarPrefixKey + "Temp_autoTrollBattleSaveQuest") === "true"))
-                    || Number(checkParanoiaSpendings('fight')) > 0 //paranoiaspendings to do
+                    || currentPower > 0 && Number(checkParanoiaSpendings('fight')) > 0 //paranoiaspendings to do
                     ||
                         (
                         // mythic Event Girl available and fights available
@@ -16626,7 +16622,9 @@ function createPInfo() {
     if (getPage() == ConfigHelper.getHHScriptVars("pagesIDHome")) {
         GM_addStyle('#pInfo:hover {max-height : none} #pInfo { max-height : 220px} @media only screen and (max-width: 1025px) {#pInfo { ;top:17% }}');
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_showAdsBack") === "true") {
-            GM_addStyle('#sliding-popups#sliding-popups { z-index : 1}');
+            GM_addStyle('#sliding-popups#sliding-popups { z-index : 1}'); // Still needed ?
+            GM_addStyle('#ad_home { z-index : 1}');
+            GM_addStyle('.ad-revive-container { z-index : 1}');
         }
     }
     else {
