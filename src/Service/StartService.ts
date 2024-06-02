@@ -218,7 +218,7 @@ export function start() {
         GM_addStyle('#ad_champions_map { top: 35rem !important; }');
         GM_addStyle('#ad_god-path { position: absolute !important; top: 35rem !important; }');
         GM_addStyle('#ad_battle { top: 32rem !important; }');
-        GM_addStyle('#ad_activities { {position: absolute !important; top: 32rem !important; }');
+        GM_addStyle('#ad_activities { position: absolute !important; top: 32rem !important; }');
         GM_addStyle('#ad_quest { top: 25rem !important; }');
     }
 
