@@ -248,7 +248,7 @@ export class Missions {
     static styles() {
         if ($("#missions #ad_activities").length)
         {
-            $("#missions .missions_wrap").removeClass('height-for-ad');
+            $("#missions .missions_wrap").removeClass('height-for-ad').removeClass('height-with-ad');
         }
         if(getStoredValue(HHStoredVarPrefixKey+"Setting_compactMissions") === "true")
         {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.12.7
+// @version      7.12.8
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4564,9 +4564,14 @@ class Contest {
         else {
             try {
                 const nextContestTime = unsafeWindow.contests_timer.next_contest;
+                const duration = unsafeWindow.contests_timer.duration;
                 const remaining_time = unsafeWindow.contests_timer.remaining_time;
                 const safeTime = TimeHelper.getContestSafeTime();
-                setTimer('contestRemainingTime', remaining_time);
+                if (remaining_time < duration) {
+                    setTimer('contestRemainingTime', remaining_time);
+                }
+                else
+                    setTimer('contestRemainingTime', -1);
                 setTimer('nextContestTime', nextContestTime + safeTime);
                 if (Contest.getClaimsButton().length > 0) {
                     setTimer('nextContestCollectTime', 0);
@@ -4636,7 +4641,7 @@ class DailyGoals {
     }
     static styles() {
         if ($("#daily_goals #ad_activities").length) {
-            $("#daily_goals .daily-goals-objectives-container").removeClass('height-for-ad');
+            $("#daily_goals .daily-goals-objectives-container").removeClass('height-for-ad').removeClass('height-with-ad');
         }
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_compactDailyGoals") === "true") {
             const dailGoalsContainerPath = '#daily_goals .daily-goals-row .daily-goals-left-part .daily-goals-objectives-container';
@@ -10668,7 +10673,7 @@ class Missions {
     }
     static styles() {
         if ($("#missions #ad_activities").length) {
-            $("#missions .missions_wrap").removeClass('height-for-ad');
+            $("#missions .missions_wrap").removeClass('height-for-ad').removeClass('height-with-ad');
         }
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_compactMissions") === "true") {
             GM_addStyle('#missions .missions_wrap  {'
@@ -17234,7 +17239,7 @@ function start() {
         GM_addStyle('#ad_champions_map { top: 35rem !important; }');
         GM_addStyle('#ad_god-path { position: absolute !important; top: 35rem !important; }');
         GM_addStyle('#ad_battle { top: 32rem !important; }');
-        GM_addStyle('#ad_activities { {position: absolute !important; top: 32rem !important; }');
+        GM_addStyle('#ad_activities {position: absolute !important; top: 32rem !important; }');
         GM_addStyle('#ad_quest { top: 25rem !important; }');
     }
     Booster.collectBoostersFromAjaxResponses();

@@ -59,9 +59,13 @@ export class Contest {
         else {
             try{
                 const nextContestTime = unsafeWindow.contests_timer.next_contest;
+                const duration = unsafeWindow.contests_timer.duration;
                 const remaining_time = unsafeWindow.contests_timer.remaining_time;
                 const safeTime = TimeHelper.getContestSafeTime();
-                setTimer('contestRemainingTime', remaining_time);
+                if (remaining_time < duration) {
+                    setTimer('contestRemainingTime', remaining_time);
+                } else
+                    setTimer('contestRemainingTime', -1);
                 setTimer('nextContestTime', nextContestTime + safeTime);
                 if (Contest.getClaimsButton().length > 0) {
                     setTimer('nextContestCollectTime', 0);
