@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.12.6
+// @version      7.12.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -91,12 +91,6 @@ GM_addStyle('img.eventCompleted { width: 10px; margin-left:2px }');
 // Remove blur on pose preview
 GM_addStyle('#popups #girl_preview_popup .preview-locked_icn { display: none; }');
 GM_addStyle('#popups #girl_preview_popup #poses-tab_container .pose-preview_wrapper.locked img { filter: none !important; }');
-// ads
-GM_addStyle('#ad_champions_map { display: none !important; }');
-GM_addStyle('#ad_sex-god-path { display: none !important; }');
-GM_addStyle('#ad_battle { display: none !important; }');
-GM_addStyle('#ad_quest { display: none !important; }');
-GM_addStyle('#ad_activities { display: none !important; }');
 //END CSS Region
 
 
@@ -4642,7 +4636,6 @@ class DailyGoals {
     }
     static styles() {
         if ($("#daily_goals #ad_activities").length) {
-            $("#ad_activities").hide();
             $("#daily_goals .daily-goals-objectives-container").removeClass('height-for-ad');
         }
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_compactDailyGoals") === "true") {
@@ -10675,7 +10668,6 @@ class Missions {
     }
     static styles() {
         if ($("#missions #ad_activities").length) {
-            $("#ad_activities").hide();
             $("#missions .missions_wrap").removeClass('height-for-ad');
         }
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_compactMissions") === "true") {
@@ -17237,6 +17229,13 @@ function start() {
         PlaceOfPower.styles();
         DailyGoals.styles();
         Missions.styles();
+    }
+    if (getStoredValue(HHStoredVarPrefixKey + "Setting_showAdsBack") === "true") {
+        GM_addStyle('#ad_champions_map { top: 35rem !important; }');
+        GM_addStyle('#ad_god-path { position: absolute !important; top: 35rem !important; }');
+        GM_addStyle('#ad_battle { top: 32rem !important; }');
+        GM_addStyle('#ad_activities { {position: absolute !important; top: 32rem !important; }');
+        GM_addStyle('#ad_quest { top: 25rem !important; }');
     }
     Booster.collectBoostersFromAjaxResponses();
     $('#contains_all').append(pInfoDiv);

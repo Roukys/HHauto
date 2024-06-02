@@ -26,7 +26,6 @@ export class DailyGoals {
     }
     static styles() {
         if ($("#daily_goals #ad_activities").length) {
-            $("#ad_activities").hide();
             $("#daily_goals .daily-goals-objectives-container").removeClass('height-for-ad');
         }
         if(getStoredValue(HHStoredVarPrefixKey+"Setting_compactDailyGoals") === "true")
