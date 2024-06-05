@@ -5,6 +5,7 @@ import { HHAuto_inputPattern, HHStoredVarPrefixKey, HHStoredVars } from '../conf
 import { ConfigHelper } from "./ConfigHelper";
 import { getTextForUI } from "./LanguageHelper";
 import { NumberHelper, add1000sSeparator1 } from "./NumberHelper";
+import { getPage } from './PageHelper';
 import { getStorageItem, getStoredValue, setStoredValue } from "./StorageHelper";
 
 export class HHMenu {
@@ -12,21 +13,39 @@ export class HHMenu {
 
     createMenuButton() {
         if ($('#' + HHMenu.BUTTON_MENU_ID).length > 0) return;
-        GM_addStyle(''
-            + '#sMenuButton {'
-            + '   position: absolute;'
-            + '   top: 65px;'
-            + '   right: 15px;'
-            + '   z-index:5000;'
-            + '}'
-            + '@media only screen and (max-width: 1025px) {'
-            + '#sMenuButton {'
-            + '   width: 40px;'
-            + '   height: 40px;'
-            + '   top: 55px;'
-            + '   right: 40px;'
-            + '}}'
-        );
+        if (getPage() == ConfigHelper.getHHScriptVars("pagesIDHome")) {
+            GM_addStyle(''
+                + '#sMenuButton {'
+                + '   position: absolute;'
+                + '   top: 65px;'
+                + '   right: 15px;'
+                + '   z-index:5000;'
+                + '}'
+                + '@media only screen and (max-width: 1025px) {'
+                + '#sMenuButton {'
+                + '   width: 40px;'
+                + '   height: 40px;'
+                + '   top: 55px;'
+                + '   right: 40px;'
+                + '}}'
+            );
+        } else {
+            GM_addStyle(''
+                + '#sMenuButton {'
+                + '   position: absolute;'
+                + '   top: 45px;'
+                + '   right: 15px;'
+                + '   z-index:5000;'
+                + '}'
+                + '@media only screen and (max-width: 1025px) {'
+                + '#sMenuButton {'
+                + '   width: 40px;'
+                + '   height: 40px;'
+                + '   top: 60px;'
+                + '   right: 10px;'
+                + '}}'
+            );
+        }
         $("#contains_all nav").prepend('<div class="square_blue_btn" id="' + HHMenu.BUTTON_MENU_ID + '" ><img src="https://i.postimg.cc/bv7n83z3/script-Icon2.png"></div>');
         $("#sMenuButton").on("click", () => {
             const sMenu = document.getElementById("sMenu");

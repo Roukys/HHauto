@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.12.10
+// @version      7.12.11
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4644,7 +4644,7 @@ class DailyGoals {
             $("#daily_goals .daily-goals-objectives-container").removeClass('height-for-ad').removeClass('height-with-ad');
         }
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_compactDailyGoals") === "true") {
-            const dailGoalsContainerPath = '#daily_goals .daily-goals-row .daily-goals-left-part .daily-goals-objectives-container';
+            const dailGoalsContainerPath = '#daily_goals .daily-goals-container .daily-goals-left-part .daily-goals-objectives-container';
             GM_addStyle(dailGoalsContainerPath + ' {'
                 + 'flex-wrap:wrap;'
                 + 'padding: 5px;'
@@ -13306,7 +13306,91 @@ class NumberHelper {
     }
 }
 
+;// CONCATENATED MODULE: ./src/Helper/PageHelper.ts
+
+
+
+
+
+
+function getPage(checkUnknown = false) {
+    var ob = document.getElementById(ConfigHelper.getHHScriptVars("gameID"));
+    if (ob === undefined || ob === null) {
+        LogUtils_logHHAuto("Unable to find page attribute, stopping script");
+        setStoredValue(HHStoredVarPrefixKey + "Setting_master", "false");
+        setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+        LogUtils_logHHAuto("setting autoloop to false");
+        throw new Error("Unable to find page attribute, stopping script.");
+        return "";
+    }
+    //var p=ob.className.match(/.*page-(.*) .*/i)[1];
+    let activitiesMainPage = ConfigHelper.getHHScriptVars("pagesIDActivities");
+    var tab = queryStringGetParam(window.location.search, 'tab');
+    var p = ob.getAttribute('page');
+    let page = p;
+    if (p == activitiesMainPage) {
+        if (tab === 'contests' || $("#activities-tabs > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='contests']").length > 0) {
+            page = ConfigHelper.getHHScriptVars("pagesIDContests");
+        }
+        if (tab === 'missions' || $("#activities-tabs > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='missions']").length > 0) {
+            page = ConfigHelper.getHHScriptVars("pagesIDMissions");
+        }
+        if (tab === 'daily_goals' || $("#activities-tabs > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='daily_goals']").length > 0) {
+            page = ConfigHelper.getHHScriptVars("pagesIDDailyGoals");
+            if (tab === 'pop') {
+                // Wrong POP targetted
+                var index = queryStringGetParam(window.location.search, 'index');
+                if (index !== null) {
+                    PlaceOfPower.addPopToUnableToStart(index, "Unable to go to Pop " + index + " as it is locked.");
+                    PlaceOfPower.removePopFromPopToStart(index);
+                }
+            }
+        }
+        if (tab === 'pop' || $("#activities-tabs > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='pop']").length > 0) {
+            // if on Pop menu
+            var t;
+            var popList = $("div.pop_list");
+            if (popList.length == 1 || unsafeWindow.pop_list) {
+                t = 'main';
+            }
+            else {
+                // Keep this but not triggered anymore. When Wrong POP is targetted, daily goals is highlighted
+                t = unsafeWindow.pop_index;
+                checkUnknown = false;
+                if (t === undefined) {
+                    var index = queryStringGetParam(window.location.search, 'index');
+                    if (index !== null) {
+                        PlaceOfPower.addPopToUnableToStart(index, "Unable to go to Pop " + index + " as it is locked.");
+                        PlaceOfPower.removePopFromPopToStart(index);
+                        t = 'main';
+                    }
+                }
+            }
+            page = "powerplace" + t;
+        }
+    }
+    if (checkUnknown) {
+        const knownPages = ConfigHelper.getHHScriptVars("pagesKnownList");
+        let isKnown = false;
+        for (let knownPage of knownPages) {
+            //console.log(knownPage)
+            if (page === ConfigHelper.getHHScriptVars("pagesID" + knownPage)) {
+                isKnown = true;
+            }
+        }
+        if (!isKnown && page) {
+            let unknownPageList = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_unkownPagesList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_unkownPagesList")) : {};
+            LogUtils_logHHAuto("Page unkown for script : " + page + " / " + window.location.pathname);
+            unknownPageList[page] = window.location.pathname;
+            //console.log(unknownPageList);
+            setStoredValue(HHStoredVarPrefixKey + "Temp_unkownPagesList", JSON.stringify(unknownPageList));
+        }
+    }
+    return page;
+}
+
 ;// CONCATENATED MODULE: ./src/Helper/HHMenuHelper.ts
+
 
 
 
@@ -13319,20 +13403,38 @@ class HHMenu {
     createMenuButton() {
         if ($('#' + HHMenu.BUTTON_MENU_ID).length > 0)
             return;
-        GM_addStyle(''
-            + '#sMenuButton {'
-            + '   position: absolute;'
-            + '   top: 65px;'
-            + '   right: 15px;'
-            + '   z-index:5000;'
-            + '}'
-            + '@media only screen and (max-width: 1025px) {'
-            + '#sMenuButton {'
-            + '   width: 40px;'
-            + '   height: 40px;'
-            + '   top: 55px;'
-            + '   right: 40px;'
-            + '}}');
+        if (getPage() == ConfigHelper.getHHScriptVars("pagesIDHome")) {
+            GM_addStyle(''
+                + '#sMenuButton {'
+                + '   position: absolute;'
+                + '   top: 65px;'
+                + '   right: 15px;'
+                + '   z-index:5000;'
+                + '}'
+                + '@media only screen and (max-width: 1025px) {'
+                + '#sMenuButton {'
+                + '   width: 40px;'
+                + '   height: 40px;'
+                + '   top: 55px;'
+                + '   right: 40px;'
+                + '}}');
+        }
+        else {
+            GM_addStyle(''
+                + '#sMenuButton {'
+                + '   position: absolute;'
+                + '   top: 45px;'
+                + '   right: 15px;'
+                + '   z-index:5000;'
+                + '}'
+                + '@media only screen and (max-width: 1025px) {'
+                + '#sMenuButton {'
+                + '   width: 40px;'
+                + '   height: 40px;'
+                + '   top: 60px;'
+                + '   right: 10px;'
+                + '}}');
+        }
         $("#contains_all nav").prepend('<div class="square_blue_btn" id="' + HHMenu.BUTTON_MENU_ID + '" ><img src="https://i.postimg.cc/bv7n83z3/script-Icon2.png"></div>');
         $("#sMenuButton").on("click", () => {
             const sMenu = document.getElementById("sMenu");
@@ -15208,89 +15310,6 @@ class HeroHelper {
         setStoredValue(HHStoredVarPrefixKey + "Temp_sandalwoodFailure", numberFailure);
         return numberFailure;
     }
-}
-
-;// CONCATENATED MODULE: ./src/Helper/PageHelper.ts
-
-
-
-
-
-
-function getPage(checkUnknown = false) {
-    var ob = document.getElementById(ConfigHelper.getHHScriptVars("gameID"));
-    if (ob === undefined || ob === null) {
-        LogUtils_logHHAuto("Unable to find page attribute, stopping script");
-        setStoredValue(HHStoredVarPrefixKey + "Setting_master", "false");
-        setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
-        LogUtils_logHHAuto("setting autoloop to false");
-        throw new Error("Unable to find page attribute, stopping script.");
-        return "";
-    }
-    //var p=ob.className.match(/.*page-(.*) .*/i)[1];
-    let activitiesMainPage = ConfigHelper.getHHScriptVars("pagesIDActivities");
-    var tab = queryStringGetParam(window.location.search, 'tab');
-    var p = ob.getAttribute('page');
-    let page = p;
-    if (p == activitiesMainPage) {
-        if (tab === 'contests' || $("#activities-tabs > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='contests']").length > 0) {
-            page = ConfigHelper.getHHScriptVars("pagesIDContests");
-        }
-        if (tab === 'missions' || $("#activities-tabs > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='missions']").length > 0) {
-            page = ConfigHelper.getHHScriptVars("pagesIDMissions");
-        }
-        if (tab === 'daily_goals' || $("#activities-tabs > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='daily_goals']").length > 0) {
-            page = ConfigHelper.getHHScriptVars("pagesIDDailyGoals");
-            if (tab === 'pop') {
-                // Wrong POP targetted
-                var index = queryStringGetParam(window.location.search, 'index');
-                if (index !== null) {
-                    PlaceOfPower.addPopToUnableToStart(index, "Unable to go to Pop " + index + " as it is locked.");
-                    PlaceOfPower.removePopFromPopToStart(index);
-                }
-            }
-        }
-        if (tab === 'pop' || $("#activities-tabs > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='pop']").length > 0) {
-            // if on Pop menu
-            var t;
-            var popList = $("div.pop_list");
-            if (popList.length == 1 || unsafeWindow.pop_list) {
-                t = 'main';
-            }
-            else {
-                // Keep this but not triggered anymore. When Wrong POP is targetted, daily goals is highlighted
-                t = unsafeWindow.pop_index;
-                checkUnknown = false;
-                if (t === undefined) {
-                    var index = queryStringGetParam(window.location.search, 'index');
-                    if (index !== null) {
-                        PlaceOfPower.addPopToUnableToStart(index, "Unable to go to Pop " + index + " as it is locked.");
-                        PlaceOfPower.removePopFromPopToStart(index);
-                        t = 'main';
-                    }
-                }
-            }
-            page = "powerplace" + t;
-        }
-    }
-    if (checkUnknown) {
-        const knownPages = ConfigHelper.getHHScriptVars("pagesKnownList");
-        let isKnown = false;
-        for (let knownPage of knownPages) {
-            //console.log(knownPage)
-            if (page === ConfigHelper.getHHScriptVars("pagesID" + knownPage)) {
-                isKnown = true;
-            }
-        }
-        if (!isKnown && page) {
-            let unknownPageList = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_unkownPagesList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_unkownPagesList")) : {};
-            LogUtils_logHHAuto("Page unkown for script : " + page + " / " + window.location.pathname);
-            unknownPageList[page] = window.location.pathname;
-            //console.log(unknownPageList);
-            setStoredValue(HHStoredVarPrefixKey + "Temp_unkownPagesList", JSON.stringify(unknownPageList));
-        }
-    }
-    return page;
 }
 
 ;// CONCATENATED MODULE: ./src/Helper/PriceHelper.ts
@@ -17251,6 +17270,8 @@ function start() {
         GM_addStyle('#ad_battle { top: 32rem !important; }');
         GM_addStyle('#ad_activities { position: absolute !important; top: 32rem !important; }');
         GM_addStyle('#ad_quest { top: 25rem !important; }');
+        GM_addStyle('#ad_labyrinth { top: 30rem !important; }');
+        GM_addStyle('#ad_shop { top: 35rem !important; }');
     }
     Booster.collectBoostersFromAjaxResponses();
     $('#contains_all').append(pInfoDiv);
