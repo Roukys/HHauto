@@ -30,7 +30,7 @@ export class DailyGoals {
         }
         if(getStoredValue(HHStoredVarPrefixKey+"Setting_compactDailyGoals") === "true")
         {
-            const dailGoalsContainerPath = '#daily_goals .daily-goals-row .daily-goals-left-part .daily-goals-objectives-container';
+            const dailGoalsContainerPath = '#daily_goals .daily-goals-container .daily-goals-left-part .daily-goals-objectives-container';
             GM_addStyle(dailGoalsContainerPath + ' {'
                 + 'flex-wrap:wrap;'
                 + 'padding: 5px;'

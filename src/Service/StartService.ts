@@ -220,6 +220,8 @@ export function start() {
         GM_addStyle('#ad_battle { top: 32rem !important; }');
         GM_addStyle('#ad_activities { position: absolute !important; top: 32rem !important; }');
         GM_addStyle('#ad_quest { top: 25rem !important; }');
+        GM_addStyle('#ad_labyrinth { top: 30rem !important; }');
+        GM_addStyle('#ad_shop { top: 35rem !important; }');
     }
 
     Booster.collectBoostersFromAjaxResponses();
