@@ -51,14 +51,14 @@ export function getPage(checkUnknown = false):string
             // if on Pop menu
             var t;
             var popList= $("div.pop_list")
-            if (popList.attr('style') !='display:none' )
+            if (popList.length == 1 || unsafeWindow.pop_list)
             {
                 t = 'main';
             }
             else
             {
                 // Keep this but not triggered anymore. When Wrong POP is targetted, daily goals is highlighted
-                t=$(".pop_thumb_selected").attr("pop_id");
+                t = unsafeWindow.pop_index;
                 checkUnknown = false;
                 if (t === undefined)
                 {

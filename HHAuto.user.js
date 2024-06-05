@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.12.8
+// @version      7.12.10
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -5120,7 +5120,7 @@ class Harem {
                 girlToGoTo = displayedGirl;
             }
             LogUtils_logHHAuto("Go to " + girlToGoTo);
-            gotoPage('/girl/' + girlToGoTo, { resource: haremItem });
+            gotoPage('/characters/' + girlToGoTo, { resource: haremItem });
             setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
             LogUtils_logHHAuto("setting autoloop to false");
         }
@@ -5142,10 +5142,10 @@ class Harem {
         //GM_addStyle('#harem_right>div[girl] .middle_part div.avatar-box canvas.animated-girl-display { height: 59rem; top: -18rem;}');
         GM_addStyle('.goToGirlPage {position: relative; bottom: 12px; left: 250px; font-size: small; width: fit-content; z-index:30;}');
         // using a for new tab option
-        const goToGirlPageButton = '<div class="tooltipHH goToGirlPage"><span class="tooltipHHtext">' + getTextForUI("goToGirlPage", "tooltip") + '</span><a href="/girl/' + displayedGirl + '?resource=experience" class="myButton" id="' + goToGirlPageButtonId + '">' + getTextForUI("goToGirlPage", "elementText") + '</a></div>';
+        const goToGirlPageButton = '<div class="tooltipHH goToGirlPage"><span class="tooltipHHtext">' + getTextForUI("goToGirlPage", "tooltip") + '</span><a href="/characters/' + displayedGirl + '?resource=experience" class="myButton" id="' + goToGirlPageButtonId + '">' + getTextForUI("goToGirlPage", "elementText") + '</a></div>';
         var goToGirl = function () {
             const displayedGirl = $('#harem_right .opened').attr('girl'); // unsafeWindow.harem.preselectedGirlId
-            gotoPage('/girl/' + displayedGirl, { resource: 'experience' });
+            gotoPage('/characters/' + displayedGirl, { resource: 'experience' });
         };
         $('#harem_right .middle_part').append(goToGirlPageButton);
         if (girlOwned) {
@@ -8276,7 +8276,7 @@ class HaremGirl {
             const haremGirlPayLast = getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlPayLast") == 'true';
             if (haremGirlPayLast) {
                 // back
-                gotoPage('/girl/' + unsafeWindow.id_girl, { resource: 'affection' }, randomInterval(1500, 2500));
+                gotoPage('/characters/' + unsafeWindow.id_girl, { resource: 'affection' }, randomInterval(1500, 2500));
                 return true;
             }
             else {
@@ -8601,7 +8601,7 @@ class HaremGirl {
                     }
                     if (nextGirlId >= 0) {
                         LogUtils_logHHAuto('Go to next girl (' + nextGirlId + ') remaining ' + remainingGirls + ' girls');
-                        gotoPage('/girl/' + nextGirlId, { resource: haremItem }, randomInterval(1500, 2500));
+                        gotoPage('/characters/' + nextGirlId, { resource: haremItem }, randomInterval(1500, 2500));
                         return Promise.resolve(true);
                     }
                     else {
@@ -8715,12 +8715,20 @@ class HaremSalary {
                 //logHHAuto('Need to click: '+ToClick.length);
                 if (Clicked.length > 0) {
                     HaremSalary.scrollToGirl(Clicked[0]);
-                    var params = {
-                        class: "Girl",
+                    // TODO move to simulated click
+                    var paramsGetGirl = {
                         id_girl: Clicked[0],
-                        action: "get_salary"
+                        action: "get_girl"
                     };
-                    getHHAjax()(params, function (data) {
+                    getHHAjax()(paramsGetGirl, function (data) {
+                        // Nothing to do
+                    }, function (err) {
+                    });
+                    var paramsSalary = {
+                        id_girl: Clicked[0],
+                        action: "claim_salary"
+                    };
+                    getHHAjax()(paramsSalary, function (data) {
                         if (data.success) {
                             //console.log(Clicked[0]);
                             let girlsDataList = getHHVars("shared.GirlSalaryManager.girlsMap");
@@ -8787,6 +8795,8 @@ class HaremSalary {
                 totalGirlsDisplayed = girlsList.length;
                 totalGirlsToCollect = collectableGirlsList.length;
                 if (collectableGirlsList.length > 0) {
+                    if (debugEnabled)
+                        LogUtils_logHHAuto("Girls found in list : " + collectableGirlsList.length);
                     //console.log(JSON.stringify(collectableGirlsList));
                     for (let girl of collectableGirlsList) {
                         Clicked.push(girl.gId);
@@ -11493,18 +11503,18 @@ class PlaceOfPower {
     // returns boolean to set busy
     static doPowerPlacesStuff(index) {
         if (getPage() !== "powerplace" + index) {
-            LogUtils_logHHAuto("Navigating to powerplace" + index + " page.");
+            LogUtils_logHHAuto("Navigating to powerplace " + index + " page.");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDActivities"), { tab: "pop", index: index });
             // return busy
             return true;
         }
         else {
-            LogUtils_logHHAuto("On powerplace" + index + " page.");
+            LogUtils_logHHAuto("On powerplace " + index + " page.");
             const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
             //getting reward in case failed on main page
             var querySelectorText = "button[rel='pop_claim']:not([style*='display:none']):not([style*='display: none'])";
             if ($(querySelectorText).length > 0) {
-                $(querySelectorText).click();
+                $(querySelectorText).trigger("click");
                 LogUtils_logHHAuto("Claimed powerplace" + index);
                 if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlacesAll") !== "true") {
                     PlaceOfPower.cleanTempPopToStart();
@@ -11555,7 +11565,7 @@ class PlaceOfPower {
             }
             else {
                 if ($("div.grid_view div.not_selected").length === 1) {
-                    $("div.grid_view div.not_selected").click();
+                    $("div.grid_view div.not_selected").trigger("click");
                     LogUtils_logHHAuto("Only one girl available for powerplace n°" + index + " assigning her.");
                 }
                 else {
@@ -12442,7 +12452,7 @@ class TeamModule {
                 newDiv.innerText = j + 1;
                 newDiv.setAttribute('position', j + 1);
                 // Go to girl update page on double click
-                newDiv.setAttribute("ondblclick", "window.location.href='/girl/" + deckID[j] + "'");
+                newDiv.setAttribute("ondblclick", "window.location.href='/characters/" + deckID[j] + "'");
                 mainTeamPanel.append(arrSort[0]);
             }
             if (document.getElementById("AssignTopTeam") !== null) {
@@ -12881,7 +12891,7 @@ HHEnvVariables["global"].possibleRewardsList = { 'energy_kiss': "Kisses",
 HHEnvVariables["global"].trollzList = HentaiHeroes.getTrolls();
 HHEnvVariables["global"].trollIdMapping = []; // Empty means no specific mapping
 HHEnvVariables["global"].trollGirlsID = HentaiHeroes.getTrollGirlsId();
-HHEnvVariables["global"].lastQuestId = 1820; //  TODO update when new quest comes
+HHEnvVariables["global"].lastQuestId = 1850; //  TODO update when new quest comes
 HHEnvVariables["global"].leaguesList = ["Wanker I",
     "Wanker II",
     "Wanker III",
@@ -12976,7 +12986,7 @@ HHEnvVariables["global"].pagesIDActivities = "activities";
 HHEnvVariables["global"].pagesURLActivities = "/activities.html";
 HHEnvVariables["global"].pagesKnownList.push("Activities");
 HHEnvVariables["global"].pagesIDHarem = "harem";
-HHEnvVariables["global"].pagesURLHarem = "/harem.html";
+HHEnvVariables["global"].pagesURLHarem = "/characters.html";
 HHEnvVariables["global"].pagesKnownList.push("Harem");
 HHEnvVariables["global"].pagesIDGirlPage = "girl";
 HHEnvVariables["global"].pagesKnownList.push("GirlPage");
@@ -13312,7 +13322,7 @@ class HHMenu {
         GM_addStyle(''
             + '#sMenuButton {'
             + '   position: absolute;'
-            + '   top: 45px;'
+            + '   top: 65px;'
             + '   right: 15px;'
             + '   z-index:5000;'
             + '}'
@@ -13320,8 +13330,8 @@ class HHMenu {
             + '#sMenuButton {'
             + '   width: 40px;'
             + '   height: 40px;'
-            + '   top: 60px;'
-            + '   right: 10px;'
+            + '   top: 55px;'
+            + '   right: 40px;'
             + '}}');
         $("#contains_all nav").prepend('<div class="square_blue_btn" id="' + HHMenu.BUTTON_MENU_ID + '" ><img src="https://i.postimg.cc/bv7n83z3/script-Icon2.png"></div>');
         $("#sMenuButton").on("click", () => {
@@ -15244,12 +15254,12 @@ function getPage(checkUnknown = false) {
             // if on Pop menu
             var t;
             var popList = $("div.pop_list");
-            if (popList.attr('style') != 'display:none') {
+            if (popList.length == 1 || unsafeWindow.pop_list) {
                 t = 'main';
             }
             else {
                 // Keep this but not triggered anymore. When Wrong POP is targetted, daily goals is highlighted
-                t = $(".pop_thumb_selected").attr("pop_id");
+                t = unsafeWindow.pop_index;
                 checkUnknown = false;
                 if (t === undefined) {
                     var index = queryStringGetParam(window.location.search, 'index');
@@ -17239,7 +17249,7 @@ function start() {
         GM_addStyle('#ad_champions_map { top: 35rem !important; }');
         GM_addStyle('#ad_god-path { position: absolute !important; top: 35rem !important; }');
         GM_addStyle('#ad_battle { top: 32rem !important; }');
-        GM_addStyle('#ad_activities {position: absolute !important; top: 32rem !important; }');
+        GM_addStyle('#ad_activities { position: absolute !important; top: 32rem !important; }');
         GM_addStyle('#ad_quest { top: 25rem !important; }');
     }
     Booster.collectBoostersFromAjaxResponses();

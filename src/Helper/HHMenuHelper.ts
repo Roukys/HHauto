@@ -15,7 +15,7 @@ export class HHMenu {
         GM_addStyle(''
             + '#sMenuButton {'
             + '   position: absolute;'
-            + '   top: 45px;'
+            + '   top: 65px;'
             + '   right: 15px;'
             + '   z-index:5000;'
             + '}'
@@ -23,8 +23,8 @@ export class HHMenu {
             + '#sMenuButton {'
             + '   width: 40px;'
             + '   height: 40px;'
-            + '   top: 60px;'
-            + '   right: 10px;'
+            + '   top: 55px;'
+            + '   right: 40px;'
             + '}}'
         );
         $("#contains_all nav").prepend('<div class="square_blue_btn" id="' + HHMenu.BUTTON_MENU_ID + '" ><img src="https://i.postimg.cc/bv7n83z3/script-Icon2.png"></div>');

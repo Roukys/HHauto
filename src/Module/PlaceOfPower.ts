@@ -284,21 +284,21 @@ export class PlaceOfPower {
     {
         if(getPage() !== "powerplace"+index)
         {
-            logHHAuto("Navigating to powerplace"+index+" page.");
+            logHHAuto("Navigating to powerplace "+index+" page.");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDActivities"),{tab:"pop",index:index});
             // return busy
             return true;
         }
         else
         {
-            logHHAuto("On powerplace"+index+" page.");
+            logHHAuto("On powerplace "+index+" page.");
             const debugEnabled = getStoredValue(HHStoredVarPrefixKey+"Temp_Debug")==='true';
 
             //getting reward in case failed on main page
             var querySelectorText = "button[rel='pop_claim']:not([style*='display:none']):not([style*='display: none'])";
             if ($(querySelectorText).length>0)
             {
-                $(querySelectorText).click();
+                $(querySelectorText).trigger("click");
                 logHHAuto("Claimed powerplace"+index);
                 if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoPowerPlacesAll") !== "true")
                 {
@@ -350,7 +350,7 @@ export class PlaceOfPower {
             } else {
                 if ($("div.grid_view div.not_selected").length === 1)
                 {
-                    $("div.grid_view div.not_selected").click();
+                    $("div.grid_view div.not_selected").trigger("click");
                     logHHAuto("Only one girl available for powerplace n°"+index+ " assigning her.");
                 }
                 else

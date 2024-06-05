@@ -43,6 +43,9 @@ declare global {
         seasonal_time_remaining: any;
         server_now_ts: any;
         id_girl: any;
+        //pop
+        pop_list:boolean;
+        pop_index:number;
     }
 }
 

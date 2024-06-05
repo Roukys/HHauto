@@ -120,7 +120,7 @@ HHEnvVariables["global"].trollIdMapping =  []; // Empty means no specific mappin
 
 HHEnvVariables["global"].trollGirlsID = HentaiHeroes.getTrollGirlsId();
 
-HHEnvVariables["global"].lastQuestId = 1820; //  TODO update when new quest comes
+HHEnvVariables["global"].lastQuestId = 1850; //  TODO update when new quest comes
 
 HHEnvVariables["global"].leaguesList = ["Wanker I",
                                         "Wanker II",
@@ -234,7 +234,7 @@ HHEnvVariables["global"].pagesURLActivities = "/activities.html";
 HHEnvVariables["global"].pagesKnownList.push("Activities");
 
 HHEnvVariables["global"].pagesIDHarem = "harem";
-HHEnvVariables["global"].pagesURLHarem = "/harem.html";
+HHEnvVariables["global"].pagesURLHarem = "/characters.html";
 HHEnvVariables["global"].pagesKnownList.push("Harem");
 
 HHEnvVariables["global"].pagesIDGirlPage = "girl";

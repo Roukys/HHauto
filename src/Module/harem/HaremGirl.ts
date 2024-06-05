@@ -163,7 +163,7 @@ export class HaremGirl {
             const haremGirlPayLast = getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlPayLast") == 'true';
             if (haremGirlPayLast) {
                 // back
-                gotoPage('/girl/' + unsafeWindow.id_girl, { resource: 'affection' }, randomInterval(1500, 2500));
+                gotoPage('/characters/' + unsafeWindow.id_girl, { resource: 'affection' }, randomInterval(1500, 2500));
                 return true;
             } else {
                 logHHAuto("ERROR No pay button found stopping.");
@@ -513,7 +513,7 @@ export class HaremGirl {
 
                 if (nextGirlId >= 0) {
                     logHHAuto('Go to next girl (' + nextGirlId + ') remaining ' + remainingGirls + ' girls');
-                    gotoPage('/girl/' + nextGirlId, { resource: haremItem }, randomInterval(1500, 2500));
+                    gotoPage('/characters/' + nextGirlId, { resource: haremItem }, randomInterval(1500, 2500));
                     return Promise.resolve(true);
                 } else {
                     logHHAuto("No more girls, go back to harem list");
