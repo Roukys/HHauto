@@ -70,12 +70,22 @@ export class HaremSalary {
             if (Clicked.length>0)
             {
                 HaremSalary.scrollToGirl(Clicked[0]);
-                var params = {
-                    class: "Girl",
+                // TODO move to simulated click
+                var paramsGetGirl = {
                     id_girl: Clicked[0],
-                    action: "get_salary"
+                    action: "get_girl"
                 };
-                getHHAjax()(params, function(data) {
+                getHHAjax()(paramsGetGirl, function (data) {
+                    // Nothing to do
+                },
+                function (err) {
+
+                });
+                var paramsSalary = {
+                    id_girl: Clicked[0],
+                    action: "claim_salary"
+                };
+                getHHAjax()(paramsSalary, function(data) {
                     if (data.success)
                     {
                         //console.log(Clicked[0]);
@@ -153,6 +163,7 @@ export class HaremSalary {
     
             if (collectableGirlsList.length>0 )
             {
+                if (debugEnabled) logHHAuto("Girls found in list : " + collectableGirlsList.length);
                 //console.log(JSON.stringify(collectableGirlsList));
                 for ( let girl of collectableGirlsList)
                 {

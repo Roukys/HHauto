@@ -177,7 +177,7 @@ export class TeamModule {
                 newDiv.innerText=j + 1;
                 newDiv.setAttribute('position',j+1);
                 // Go to girl update page on double click
-                newDiv.setAttribute("ondblclick","window.location.href='/girl/"+deckID[j]+"'");
+                newDiv.setAttribute("ondblclick","window.location.href='/characters/"+deckID[j]+"'");
                 mainTeamPanel.append(arrSort[0]);
             }
             if (document.getElementById("AssignTopTeam") !== null )
