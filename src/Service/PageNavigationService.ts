@@ -173,7 +173,7 @@ export function addNutakuSession(togoto: string | Array<string> | Object): strin
     return togoto;
 }
 
-function setLastPageCalled(inPage)
+function setLastPageCalled(inPage: string)
 {
     //console.log("testingHome : setting to : "+JSON.stringify({page:inPage, dateTime:new Date().getTime()}));
     setStoredValue(HHStoredVarPrefixKey+"Temp_LastPageCalled", JSON.stringify({page:inPage, dateTime:new Date().getTime()}));

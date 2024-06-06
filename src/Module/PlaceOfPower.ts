@@ -284,7 +284,7 @@ export class PlaceOfPower {
     {
         if(getPage() !== "powerplace"+index)
         {
-            if (isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")) && "powerplace" + index === JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")).page) {
+            if (isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")) && ("powerplace" + index) === JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")).page) {
                 PlaceOfPower.addPopToUnableToStart(index, "Navigation to powerplace" + index + " page failed back to home page.");
                 PlaceOfPower.removePopFromPopToStart(index);
             } else {
