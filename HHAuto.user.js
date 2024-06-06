@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.12.11
+// @version      7.12.12
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -10505,7 +10505,7 @@ class Missions {
                 let canCollect = getStoredValue(HHStoredVarPrefixKey + "Setting_autoMissionCollect") === "true" && $(".mission_button button:visible[rel='claim']").length > 0 && TimeHelper.canCollectCompetitionActive();
                 if (canCollect) {
                     LogUtils_logHHAuto("Collecting finished mission's reward.");
-                    $(".mission_button button:visible[rel='claim']").first().click();
+                    $(".mission_button button:visible[rel='claim']").first().trigger('click');
                     return true;
                 }
                 var { allGood, missions } = Missions.parseMissions(canCollect);
@@ -10543,7 +10543,7 @@ class Missions {
                     LogUtils_logHHAuto("No missions detected...!");
                     // get gift
                     var ck = getStoredValue(HHStoredVarPrefixKey + "Temp_missionsGiftLeft");
-                    var isAfterGift = document.querySelector("#missions .after_gift").style.display === 'block';
+                    var isAfterGift = document.querySelector("#missions .end_gift").style.display === 'block';
                     if (!isAfterGift) {
                         if (ck === 'giftleft') {
                             LogUtils_logHHAuto("Collecting gift.");
@@ -10558,7 +10558,7 @@ class Missions {
                             return true;
                         }
                     }
-                    let time = $('.after_gift span[rel="expires"]').text();
+                    let time = $('.end-gift-timer span[rel="expires"]').text();
                     if (time === undefined || time === null || time.length === 0) {
                         LogUtils_logHHAuto("New mission time was undefined... Setting it manually to 10min.");
                         setTimer('nextMissionTime', randomInterval(10 * 60, 12 * 60));
@@ -11302,7 +11302,7 @@ class PlaceOfPower {
             const popBtnPath = popPagePath + ' .pop-action-btn';
             const popContainerPath = popPagePath + ' .pop_list_scrolling_area .pop_thumb_container';
             const popButtonStyles = function () {
-                GM_addStyle(popBtnPath + ' .pop-auto-asign-all, ' + popBtnPath + ' .pop-claim-all {'
+                GM_addStyle(popBtnPath + ' .pop-auto-assign-all, ' + popBtnPath + ' .pop-claim-all {'
                     + 'min-width: auto !important;'
                     + 'height: 26px;'
                     + 'flex-direction: inherit;'

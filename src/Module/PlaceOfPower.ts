@@ -29,7 +29,7 @@ export class PlaceOfPower {
         
             const popButtonStyles = function()
             {
-                GM_addStyle( popBtnPath + ' .pop-auto-asign-all, ' + popBtnPath + ' .pop-claim-all {'
+                GM_addStyle( popBtnPath + ' .pop-auto-assign-all, ' + popBtnPath + ' .pop-claim-all {'
                     + 'min-width: auto !important;'
                     + 'height: 26px;'
                     + 'flex-direction: inherit;'

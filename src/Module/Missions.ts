@@ -70,7 +70,7 @@ export class Missions {
                 if (canCollect)
                 {
                     logHHAuto("Collecting finished mission's reward.");
-                    $(".mission_button button:visible[rel='claim']").first().click();
+                    $(".mission_button button:visible[rel='claim']").first().trigger('click');
                     return true;
                 }
                 var { allGood, missions } = Missions.parseMissions(canCollect);
@@ -108,7 +108,7 @@ export class Missions {
                     logHHAuto("No missions detected...!");
                     // get gift
                     var ck = getStoredValue(HHStoredVarPrefixKey+"Temp_missionsGiftLeft");
-                    var isAfterGift = (<HTMLElement>document.querySelector("#missions .after_gift")).style.display === 'block';
+                    var isAfterGift = (<HTMLElement>document.querySelector("#missions .end_gift")).style.display === 'block';
                     if(!isAfterGift){
                         if(ck === 'giftleft')
                         {
@@ -124,7 +124,7 @@ export class Missions {
                             return true;
                         }
                     }
-                    let time = $('.after_gift span[rel="expires"]').text();
+                    let time = $('.end-gift-timer span[rel="expires"]').text();
                     if(time === undefined || time === null || time.length === 0) {
                         logHHAuto("New mission time was undefined... Setting it manually to 10min.");
                         setTimer('nextMissionTime', randomInterval(10*60, 12*60));
