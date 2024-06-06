@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.12.12
+// @version      7.12.13
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -11503,13 +11503,19 @@ class PlaceOfPower {
     // returns boolean to set busy
     static doPowerPlacesStuff(index) {
         if (getPage() !== "powerplace" + index) {
-            LogUtils_logHHAuto("Navigating to powerplace " + index + " page.");
-            gotoPage(ConfigHelper.getHHScriptVars("pagesIDActivities"), { tab: "pop", index: index });
+            if (isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")) && "powerplace" + index === JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")).page) {
+                PlaceOfPower.addPopToUnableToStart(index, "Navigation to powerplace" + index + " page failed back to home page.");
+                PlaceOfPower.removePopFromPopToStart(index);
+            }
+            else {
+                LogUtils_logHHAuto("Navigating to powerplace" + index + " page.");
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDActivities"), { tab: "pop", index: index });
+            }
             // return busy
             return true;
         }
         else {
-            LogUtils_logHHAuto("On powerplace " + index + " page.");
+            LogUtils_logHHAuto("On powerplace" + index + " page.");
             const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
             //getting reward in case failed on main page
             var querySelectorText = "button[rel='pop_claim']:not([style*='display:none']):not([style*='display: none'])";
@@ -11574,6 +11580,8 @@ class PlaceOfPower {
                         document.querySelector(querySelectorText).click();
                         LogUtils_logHHAuto("Autoassigned powerplace" + index);
                     }
+                    else
+                        LogUtils_logHHAuto("No autoassign button for powerplace" + index);
                 }
                 querySelectorText = "button.blue_button_L[rel='pop_action']:not([disabled])";
                 if ($(querySelectorText).length > 0) {
