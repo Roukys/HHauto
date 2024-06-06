@@ -1936,6 +1936,11 @@ HHStoredVars[HHStoredVarPrefixKey+"Temp_pinfo"] =
     storage:"sessionStorage",
     HHType:"Temp"
 };
+HHStoredVars[HHStoredVarPrefixKey+"Temp_PopTargeted"] =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
 HHStoredVars[HHStoredVarPrefixKey+"Temp_PopToStart"] =
     {
     storage:"sessionStorage",

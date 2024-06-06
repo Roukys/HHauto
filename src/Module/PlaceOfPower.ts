@@ -6,7 +6,8 @@ import {
     getStoredValue,
     randomInterval,
     setStoredValue,
-    setTimer
+    setTimer,
+    deleteStoredValue
 } from '../Helper/index';
 import { autoLoop, gotoPage } from '../Service/index';
 import { isJSON, logHHAuto } from '../Utils/index';
@@ -284,12 +285,14 @@ export class PlaceOfPower {
     {
         if(getPage() !== "powerplace"+index)
         {
-            if (isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")) && ("powerplace" + index) === JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")).page) {
+            if (getStoredValue(HHStoredVarPrefixKey + "Temp_PopTargeted") != null && index === getStoredValue(HHStoredVarPrefixKey + "Temp_PopTargeted")) {
                 PlaceOfPower.addPopToUnableToStart(index, "Navigation to powerplace" + index + " page failed back to home page.");
                 PlaceOfPower.removePopFromPopToStart(index);
+                deleteStoredValue(HHStoredVarPrefixKey + "Temp_PopTargeted");
             } else {
                 logHHAuto("Navigating to powerplace" + index + " page.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDActivities"), { tab: "pop", index: index });
+                setStoredValue(HHStoredVarPrefixKey + "Temp_PopTargeted", index);
             }
             // return busy
             return true;
@@ -297,6 +300,7 @@ export class PlaceOfPower {
         else
         {
             logHHAuto("On powerplace"+index+" page.");
+            deleteStoredValue(HHStoredVarPrefixKey + "Temp_PopTargeted");
             const debugEnabled = getStoredValue(HHStoredVarPrefixKey+"Temp_Debug")==='true';
 
             //getting reward in case failed on main page

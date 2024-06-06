@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.12.14
+// @version      7.12.15
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -7916,6 +7916,11 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_pinfo"] =
         storage: "sessionStorage",
         HHType: "Temp"
     };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_PopTargeted"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_PopToStart"] =
     {
         storage: "sessionStorage",
@@ -11507,19 +11512,22 @@ class PlaceOfPower {
     // returns boolean to set busy
     static doPowerPlacesStuff(index) {
         if (getPage() !== "powerplace" + index) {
-            if (isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")) && ("powerplace" + index) === JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")).page) {
+            if (getStoredValue(HHStoredVarPrefixKey + "Temp_PopTargeted") != null && index === getStoredValue(HHStoredVarPrefixKey + "Temp_PopTargeted")) {
                 PlaceOfPower.addPopToUnableToStart(index, "Navigation to powerplace" + index + " page failed back to home page.");
                 PlaceOfPower.removePopFromPopToStart(index);
+                deleteStoredValue(HHStoredVarPrefixKey + "Temp_PopTargeted");
             }
             else {
                 LogUtils_logHHAuto("Navigating to powerplace" + index + " page.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDActivities"), { tab: "pop", index: index });
+                setStoredValue(HHStoredVarPrefixKey + "Temp_PopTargeted", index);
             }
             // return busy
             return true;
         }
         else {
             LogUtils_logHHAuto("On powerplace" + index + " page.");
+            deleteStoredValue(HHStoredVarPrefixKey + "Temp_PopTargeted");
             const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
             //getting reward in case failed on main page
             var querySelectorText = "button[rel='pop_claim']:not([style*='display:none']):not([style*='display: none'])";
