@@ -481,7 +481,11 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPowerPlaces"] =
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false
+    kobanUsing:false,
+    newValueFunction: function () {
+        clearTimer('minPowerPlacesTime');
+        PlaceOfPower.cleanTempPopToStart();
+    }
 };
 HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPowerPlacesAll"] =
     {
