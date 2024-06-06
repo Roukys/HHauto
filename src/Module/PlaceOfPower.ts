@@ -9,7 +9,7 @@ import {
     setTimer
 } from '../Helper/index';
 import { autoLoop, gotoPage } from '../Service/index';
-import { logHHAuto } from '../Utils/index';
+import { isJSON, logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
 
 export class PlaceOfPower {
@@ -284,14 +284,19 @@ export class PlaceOfPower {
     {
         if(getPage() !== "powerplace"+index)
         {
-            logHHAuto("Navigating to powerplace "+index+" page.");
-            gotoPage(ConfigHelper.getHHScriptVars("pagesIDActivities"),{tab:"pop",index:index});
+            if (isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")) && "powerplace" + index === JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")).page) {
+                PlaceOfPower.addPopToUnableToStart(index, "Navigation to powerplace" + index + " page failed back to home page.");
+                PlaceOfPower.removePopFromPopToStart(index);
+            } else {
+                logHHAuto("Navigating to powerplace" + index + " page.");
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDActivities"), { tab: "pop", index: index });
+            }
             // return busy
             return true;
         }
         else
         {
-            logHHAuto("On powerplace "+index+" page.");
+            logHHAuto("On powerplace"+index+" page.");
             const debugEnabled = getStoredValue(HHStoredVarPrefixKey+"Temp_Debug")==='true';
 
             //getting reward in case failed on main page
@@ -360,7 +365,7 @@ export class PlaceOfPower {
                     {
                         (<HTMLElement>document.querySelector(querySelectorText)).click();
                         logHHAuto("Autoassigned powerplace"+index);
-                    }
+                    } else logHHAuto("No autoassign button for powerplace" + index);
                 }
                 querySelectorText = "button.blue_button_L[rel='pop_action']:not([disabled])"
                 if ($(querySelectorText).length>0)
