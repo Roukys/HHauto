@@ -108,7 +108,7 @@ export class Missions {
                     logHHAuto("No missions detected...!");
                     // get gift
                     var ck = getStoredValue(HHStoredVarPrefixKey+"Temp_missionsGiftLeft");
-                    var isAfterGift = (<HTMLElement>document.querySelector("#missions .end_gift")).style.display === 'block';
+                    var isAfterGift = (<HTMLElement>document.querySelector("#missions .end_gift"))?.style?.display === 'block';
                     if(!isAfterGift){
                         if(ck === 'giftleft')
                         {

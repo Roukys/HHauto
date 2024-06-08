@@ -442,7 +442,7 @@ export class Harem {
                 girlToGoTo = displayedGirl;
             }
             logHHAuto("Go to " + girlToGoTo);
-            gotoPage('/characters/'+girlToGoTo,{resource:haremItem});
+            gotoPage('/girl/'+girlToGoTo,{resource:haremItem});
             setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
             logHHAuto("setting autoloop to false");
         }
@@ -468,7 +468,7 @@ export class Harem {
         const goToGirlPageButton = '<div class="tooltipHH goToGirlPage"><span class="tooltipHHtext">' + getTextForUI("goToGirlPage", "tooltip") +'</span><a href="/characters/'+displayedGirl+'?resource=experience" class="myButton" id="'+goToGirlPageButtonId+'">'+getTextForUI("goToGirlPage","elementText")+'</a></div>';
         var goToGirl = function(){
             const displayedGirl = $('#harem_right .opened').attr('girl'); // unsafeWindow.harem.preselectedGirlId
-            gotoPage('/characters/'+displayedGirl,{resource:'experience'});
+            gotoPage('/girl/'+displayedGirl,{resource:'experience'});
         };
         $('#harem_right .middle_part').append(goToGirlPageButton);
 

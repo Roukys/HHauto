@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.12.15
+// @version      7.12.16
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -5120,7 +5120,7 @@ class Harem {
                 girlToGoTo = displayedGirl;
             }
             LogUtils_logHHAuto("Go to " + girlToGoTo);
-            gotoPage('/characters/' + girlToGoTo, { resource: haremItem });
+            gotoPage('/girl/' + girlToGoTo, { resource: haremItem });
             setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
             LogUtils_logHHAuto("setting autoloop to false");
         }
@@ -5145,7 +5145,7 @@ class Harem {
         const goToGirlPageButton = '<div class="tooltipHH goToGirlPage"><span class="tooltipHHtext">' + getTextForUI("goToGirlPage", "tooltip") + '</span><a href="/characters/' + displayedGirl + '?resource=experience" class="myButton" id="' + goToGirlPageButtonId + '">' + getTextForUI("goToGirlPage", "elementText") + '</a></div>';
         var goToGirl = function () {
             const displayedGirl = $('#harem_right .opened').attr('girl'); // unsafeWindow.harem.preselectedGirlId
-            gotoPage('/characters/' + displayedGirl, { resource: 'experience' });
+            gotoPage('/girl/' + displayedGirl, { resource: 'experience' });
         };
         $('#harem_right .middle_part').append(goToGirlPageButton);
         if (girlOwned) {
@@ -8285,7 +8285,7 @@ class HaremGirl {
             const haremGirlPayLast = getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlPayLast") == 'true';
             if (haremGirlPayLast) {
                 // back
-                gotoPage('/characters/' + unsafeWindow.id_girl, { resource: 'affection' }, randomInterval(1500, 2500));
+                gotoPage('/girl/' + unsafeWindow.id_girl, { resource: 'affection' }, randomInterval(1500, 2500));
                 return true;
             }
             else {
@@ -8610,7 +8610,7 @@ class HaremGirl {
                     }
                     if (nextGirlId >= 0) {
                         LogUtils_logHHAuto('Go to next girl (' + nextGirlId + ') remaining ' + remainingGirls + ' girls');
-                        gotoPage('/characters/' + nextGirlId, { resource: haremItem }, randomInterval(1500, 2500));
+                        gotoPage('/girl/' + nextGirlId, { resource: haremItem }, randomInterval(1500, 2500));
                         return Promise.resolve(true);
                     }
                     else {
@@ -10497,6 +10497,7 @@ class Missions {
         return msn;
     }
     static run() {
+        var _a, _b;
         // returns boolean to set busy
         if (getPage() !== ConfigHelper.getHHScriptVars("pagesIDMissions")) {
             LogUtils_logHHAuto("Navigating to missions page.");
@@ -10552,7 +10553,7 @@ class Missions {
                     LogUtils_logHHAuto("No missions detected...!");
                     // get gift
                     var ck = getStoredValue(HHStoredVarPrefixKey + "Temp_missionsGiftLeft");
-                    var isAfterGift = document.querySelector("#missions .end_gift").style.display === 'block';
+                    var isAfterGift = ((_b = (_a = document.querySelector("#missions .end_gift")) === null || _a === void 0 ? void 0 : _a.style) === null || _b === void 0 ? void 0 : _b.display) === 'block';
                     if (!isAfterGift) {
                         if (ck === 'giftleft') {
                             LogUtils_logHHAuto("Collecting gift.");
