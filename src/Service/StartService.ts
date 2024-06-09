@@ -51,6 +51,7 @@ import {
     HHStoredVarPrefixKey,
     HHStoredVars
 } from '../config/index';
+import { AdsService } from './AdsService';
 import { autoLoop, getBurst } from "./AutoLoop";
 import { createPInfo } from "./InfoService";
 import {
@@ -214,15 +215,7 @@ export function start() {
         Missions.styles();
     }
 
-    if (getStoredValue(HHStoredVarPrefixKey + "Setting_showAdsBack") === "true") {
-        GM_addStyle('#ad_champions_map { top: 35rem !important; }');
-        GM_addStyle('#ad_god-path { position: absolute !important; top: 35rem !important; }');
-        GM_addStyle('#ad_battle { top: 32rem !important; }');
-        GM_addStyle('#ad_activities { position: absolute !important; top: 32rem !important; }');
-        GM_addStyle('#ad_quest { top: 25rem !important; }');
-        GM_addStyle('#ad_labyrinth { top: 30rem !important; }');
-        GM_addStyle('#ad_shop { top: 35rem !important; }');
-    }
+    AdsService.moveAds(getPage());
 
     Booster.collectBoostersFromAjaxResponses();
 

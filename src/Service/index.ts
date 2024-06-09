@@ -1,3 +1,4 @@
+export * from './AdsService'
 export * from './AutoLoop'
 export * from './InfoService'
 export * from './MouseService'
