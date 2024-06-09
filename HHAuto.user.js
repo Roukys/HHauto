@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.12.16
+// @version      7.12.17
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -145,232 +145,6 @@ function url_add_param(url, param, value) {
         url += '&';
     return url + param + "=" + value;
 }
-
-;// CONCATENATED MODULE: ./src/Utils/Utils.ts
-
-
-function callItOnce(fn) {
-    var called = false;
-    return function () {
-        if (!called) {
-            called = true;
-            return fn();
-        }
-        return;
-    };
-}
-function getHHAjax() {
-    var _a, _b;
-    return unsafeWindow.hh_ajax || ((_b = (_a = unsafeWindow.shared) === null || _a === void 0 ? void 0 : _a.general) === null || _b === void 0 ? void 0 : _b.hh_ajax);
-}
-function getCallerFunction() {
-    var stackTrace = (new Error()).stack || ''; // Only tested in latest FF and Chrome
-    var callerName = stackTrace.replace(/^Error\s+/, ''); // Sanitize Chrome
-    callerName = callerName.split("\n")[1]; // 1st item is this, 2nd item is caller
-    callerName = callerName.replace(/^\s+at Object./, ''); // Sanitize Chrome
-    callerName = callerName.replace(/ \(.+\)$/, ''); // Sanitize Chrome
-    callerName = callerName.replace(/\@.+/, ''); // Sanitize Firefox
-    return callerName;
-}
-function getCallerCallerFunction() {
-    let stackTrace = (new Error()).stack || ''; // Only tested in latest FF and Chrome
-    let match;
-    try {
-        match = stackTrace.match(/at Object\.(\w+) \((\S+)\)/);
-        match[1]; // throw error if match is null
-    }
-    catch (_a) {
-        // Firefox
-        match = stackTrace.match(/\n(\w+)@(\S+)/);
-    }
-    let [callerName, callerPlace] = [match[1], match[2]];
-    try {
-        console.log('Function ' + match[3] + ' at ' + match[4]);
-    }
-    catch (err) { }
-    /*
-    var callerName;
-    {
-        let re = /([^(]+)@|at ([^(]+) \(/g;
-        let aRegexResult = re.exec(new Error().stack);
-        callerName = aRegexResult[1] || aRegexResult[2];
-    }*/
-    //console.log(callerName);
-    return callerName;
-    //return getCallerCallerFunction.caller.caller.name
-}
-function isFocused() {
-    //let isFoc = false;
-    const docFoc = document.hasFocus();
-    //const iFrameFoc = $('iframe').length===0?false:$('iframe')[0].contentWindow.document.hasFocus();
-    //isFoc = docFoc || iFrameFoc;
-    return docFoc;
-}
-function isJSON(str) {
-    if (str === undefined || str === null || /^\s*$/.test(str))
-        return false;
-    str = str.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@');
-    str = str.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']');
-    str = str.replace(/(?:^|:|,)(?:\s*\[)+/g, '');
-    return (/^[\],:{}\s]*$/).test(str);
-}
-function replaceCheatClick() {
-    // unsafeWindow.is_cheat_click=function(e) {
-    //     return false;
-    // };
-    // unsafeWindow.shared.general.is_cheat_click =function(e) {
-    //     return false;
-    // };
-}
-function getCurrentSorting() {
-    return localStorage.sort_by;
-}
-/* Used ?
-export function waitForKeyElements (selectorTxt,maxMilliWaitTime)
-{
-    var targetNodes;
-    var timer= new Date().getTime() + maxMilliWaitTime;
-    targetNodes = jQuery(selectorTxt);
-
-    while ( targetNodes.length === 0 && Math.ceil(timer)-Math.ceil(new Date().getTime()) > 0)
-    {
-        targetNodes = jQuery(selectorTxt);
-    }
-    return targetNodes.length !== 0);
-}*/
-function myfileLoad_onChange(event) {
-    $('#LoadConfError')[0].innerText = ' ';
-    if (event.target.files.length == 0) {
-        return;
-    }
-    var reader = new FileReader();
-    reader.onload = myfileLoad_onReaderLoad;
-    reader.readAsText(event.target.files[0]);
-}
-function myfileLoad_onReaderLoad(event) {
-    var text = event.target.result;
-    var storageType;
-    var storageItem;
-    var variableName;
-    //Json validation
-    if (isJSON(text)) {
-        LogUtils_logHHAuto('the json is ok');
-        var jsonNewSettings = JSON.parse(event.target.result);
-        //Assign new values to Storage();
-        for (const [key, value] of Object.entries(jsonNewSettings)) {
-            storageType = key.split(".")[0];
-            variableName = key.split(".")[1];
-            storageItem = getStorageItem(storageType);
-            LogUtils_logHHAuto(key + ':' + value);
-            storageItem[variableName] = value;
-        }
-        location.reload();
-    }
-    else {
-        $('#LoadConfError')[0].innerText = 'Selected file broken!';
-        LogUtils_logHHAuto('the json is Not ok');
-    }
-}
-
-;// CONCATENATED MODULE: ./src/Utils/HHPopup.ts
-
-class HHPopup {
-    static fillContent(content) {
-        const elem = document.getElementById("HHAutoPopupGlobalContent");
-        if (elem != null)
-            elem.innerHTML = content;
-    }
-    static fillTitle(title) {
-        const elem = document.getElementById("HHAutoPopupGlobalTitle");
-        if (elem != null)
-            elem.innerHTML = title;
-    }
-    static fillClasses(inClass) {
-        const elem = document.getElementById("HHAutoPopupGlobalPopup");
-        if (elem != null)
-            elem.className = inClass;
-    }
-}
-function fillHHPopUp(inClass, inTitle, inContent) {
-    if (document.getElementById("HHAutoPopupGlobal") === null) {
-        createHHPopUp();
-    }
-    else {
-        displayHHPopUp();
-    }
-    HHPopup.fillContent(inContent);
-    HHPopup.fillTitle(inTitle);
-    HHPopup.fillClasses(inClass);
-}
-function createHHPopUp() {
-    GM_addStyle('#HHAutoPopupGlobal.HHAutoOverlay { overflow: auto;  z-index:1000;   position: fixed;   top: 0;   bottom: 0;   left: 0;   right: 0;   background: rgba(0, 0, 0, 0.7);   transition: opacity 500ms;     display: flex;   align-items: center; }  '
-        + '#HHAutoPopupGlobalPopup {   margin: auto;   padding: 20px;   background: #fff;   border-radius: 5px;   position: relative;   transition: all 5s ease-in-out; }  '
-        + '#HHAutoPopupGlobalTitle {   margin-top: 0;   color: #333;   font-size: larger; } '
-        + '#HHAutoPopupGlobalClose {   position: absolute;   top: 0;   right: 30px;   transition: all 200ms;   font-size: 50px;   font-weight: bold;   text-decoration: none;   color: #333; } '
-        + '#HHAutoPopupGlobalClose:hover {   color: #06D85F; } '
-        + '#HHAutoPopupGlobalContent .HHAutoScriptMenu .rowLine { display:flex;flex-direction:row;align-items:center;column-gap:20px;justify-content: center; } '
-        + '#HHAutoPopupGlobalContent {   max-height: 30%;   overflow: auto;   color: #333;   font-size: x-small; }'
-        + '#HHAutoPopupGlobalContent .HHAutoScriptMenu .switch {  width: 55px; height: 32px; }'
-        + '#HHAutoPopupGlobalContent .HHAutoScriptMenu input:checked + .slider:before { -webkit-transform: translateX(20px); -ms-transform: translateX(20px); transform: translateX(20px); } '
-        + '#HHAutoPopupGlobalContent .HHAutoScriptMenu .slider.round::before {  width: 22px; height: 22px; bottom: 5px; }'
-        + '.PachinkoPlay {margin-top: 20px !important; }');
-    let popUp = '<div id="HHAutoPopupGlobal" class="HHAutoOverlay">'
-        + ' <div id="HHAutoPopupGlobalPopup">'
-        + '   <h2 id="HHAutoPopupGlobalTitle">Here i am</h2>'
-        + '   <a id="HHAutoPopupGlobalClose">&times;</a>'
-        + '   <div id="HHAutoPopupGlobalContent" class="content">'
-        + '      Thank to pop me out of that button, but now im done so you can close this window.'
-        + '   </div>'
-        + ' </div>'
-        + '</div>';
-    $('body').prepend(popUp);
-    $("#HHAutoPopupGlobalClose").on("click", function () {
-        maskHHPopUp();
-    });
-    document.addEventListener('keyup', evt => {
-        if (evt.key === 'Escape') {
-            maskHHPopUp();
-        }
-    });
-}
-function isDisplayedHHPopUp() {
-    const popupGlobal = document.getElementById("HHAutoPopupGlobal");
-    const popupGlobalPopup = document.getElementById("HHAutoPopupGlobalPopup");
-    if (popupGlobal === null || popupGlobalPopup === null) {
-        return false;
-    }
-    if (popupGlobal.style.display === "none") {
-        return false;
-    }
-    return popupGlobalPopup.className;
-}
-function displayHHPopUp() {
-    const popupGlobal = document.getElementById("HHAutoPopupGlobal");
-    if (popupGlobal === null) {
-        return false;
-    }
-    popupGlobal.style.display = "";
-    popupGlobal.style.opacity = '1';
-}
-function maskHHPopUp() {
-    const popupGlobal = document.getElementById("HHAutoPopupGlobal");
-    if (popupGlobal !== null) {
-        popupGlobal.style.display = "none";
-        popupGlobal.style.opacity = '0';
-    }
-}
-function checkAndClosePopup(inBurst) {
-    const popUp = $('#popup_message[style*="display: block"]');
-    if ((inBurst || isFocused()) && popUp.length > 0) {
-        $('close', popUp).click();
-    }
-}
-
-;// CONCATENATED MODULE: ./src/Utils/index.ts
-
-
-
-
 
 ;// CONCATENATED MODULE: ./src/i18n/empty.ts
 const HHAuto_ToolTips = { en: {}, fr: {}, es: {}, de: {}, it: {} };
@@ -13246,42 +13020,6 @@ const HHAuto_inputPattern = {
 
 
 
-;// CONCATENATED MODULE: ./src/Helper/ConfigHelper.ts
-
-
-class ConfigHelper {
-    static getEnvironnement() {
-        let environnement = "global";
-        if (HHKnownEnvironnements[window.location.hostname] !== undefined) {
-            environnement = HHKnownEnvironnements[window.location.hostname].name;
-        }
-        else {
-            fillHHPopUp("unknownURL", "Game URL unknown", '<p>This HH URL is unknown to the script.<br>To add it please open an issue in <a href="https://github.com/Roukys/HHauto/issues" target="_blank">Github</a> with following informations : <br>Hostname : ' + window.location.hostname + '<br>gameID : ' + $('body[page][id]').attr('id') + '<br>You can also use this direct link : <a  target="_blank" href="https://github.com/Roukys/HHauto/issues/new?template=enhancement_request.md&title=Support%20for%20' + window.location.hostname + '&body=Please%20add%20new%20URL%20with%20these%20infos%20%3A%20%0A-%20hostname%20%3A%20' + window.location.hostname + '%0A-%20gameID%20%3A%20' + $('body[page][id]').attr('id') + '%0AThanks">Github issue</a></p>');
-        }
-        return environnement;
-    }
-    static isPshEnvironnement() {
-        return ["PH_prod", "NPH_prod"].includes(ConfigHelper.getEnvironnement());
-    }
-    static getHHScriptVars(id, logNotFound = true) {
-        const environnement = ConfigHelper.getEnvironnement();
-        if (HHEnvVariables[environnement] !== undefined && HHEnvVariables[environnement][id] !== undefined) {
-            return HHEnvVariables[environnement][id];
-        }
-        else {
-            if (HHEnvVariables["global"] !== undefined && HHEnvVariables["global"][id] !== undefined) {
-                return HHEnvVariables["global"][id];
-            }
-            else {
-                if (logNotFound) {
-                    LogUtils_logHHAuto("not found var for " + environnement + "/" + id);
-                }
-                return null;
-            }
-        }
-    }
-}
-
 ;// CONCATENATED MODULE: ./src/Helper/NumberHelper.ts
 function add1000sSeparator1() {
     var nToFormat = this.value;
@@ -15776,6 +15514,309 @@ class RewardHelper {
 
 
 
+;// CONCATENATED MODULE: ./src/Utils/Utils.ts
+
+
+function callItOnce(fn) {
+    var called = false;
+    return function () {
+        if (!called) {
+            called = true;
+            return fn();
+        }
+        return;
+    };
+}
+function getHHAjax() {
+    var _a, _b;
+    return unsafeWindow.hh_ajax || ((_b = (_a = unsafeWindow.shared) === null || _a === void 0 ? void 0 : _a.general) === null || _b === void 0 ? void 0 : _b.hh_ajax);
+}
+function getCallerFunction() {
+    var stackTrace = (new Error()).stack || ''; // Only tested in latest FF and Chrome
+    var callerName = stackTrace.replace(/^Error\s+/, ''); // Sanitize Chrome
+    callerName = callerName.split("\n")[1]; // 1st item is this, 2nd item is caller
+    callerName = callerName.replace(/^\s+at Object./, ''); // Sanitize Chrome
+    callerName = callerName.replace(/ \(.+\)$/, ''); // Sanitize Chrome
+    callerName = callerName.replace(/\@.+/, ''); // Sanitize Firefox
+    return callerName;
+}
+function getCallerCallerFunction() {
+    let stackTrace = (new Error()).stack || ''; // Only tested in latest FF and Chrome
+    let match;
+    try {
+        match = stackTrace.match(/at Object\.(\w+) \((\S+)\)/);
+        match[1]; // throw error if match is null
+    }
+    catch (_a) {
+        // Firefox
+        match = stackTrace.match(/\n(\w+)@(\S+)/);
+    }
+    let [callerName, callerPlace] = [match[1], match[2]];
+    try {
+        console.log('Function ' + match[3] + ' at ' + match[4]);
+    }
+    catch (err) { }
+    /*
+    var callerName;
+    {
+        let re = /([^(]+)@|at ([^(]+) \(/g;
+        let aRegexResult = re.exec(new Error().stack);
+        callerName = aRegexResult[1] || aRegexResult[2];
+    }*/
+    //console.log(callerName);
+    return callerName;
+    //return getCallerCallerFunction.caller.caller.name
+}
+function isFocused() {
+    //let isFoc = false;
+    const docFoc = document.hasFocus();
+    //const iFrameFoc = $('iframe').length===0?false:$('iframe')[0].contentWindow.document.hasFocus();
+    //isFoc = docFoc || iFrameFoc;
+    return docFoc;
+}
+function isJSON(str) {
+    if (str === undefined || str === null || /^\s*$/.test(str))
+        return false;
+    str = str.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@');
+    str = str.replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']');
+    str = str.replace(/(?:^|:|,)(?:\s*\[)+/g, '');
+    return (/^[\],:{}\s]*$/).test(str);
+}
+function replaceCheatClick() {
+    // unsafeWindow.is_cheat_click=function(e) {
+    //     return false;
+    // };
+    // unsafeWindow.shared.general.is_cheat_click =function(e) {
+    //     return false;
+    // };
+}
+function getCurrentSorting() {
+    return localStorage.sort_by;
+}
+/* Used ?
+export function waitForKeyElements (selectorTxt,maxMilliWaitTime)
+{
+    var targetNodes;
+    var timer= new Date().getTime() + maxMilliWaitTime;
+    targetNodes = jQuery(selectorTxt);
+
+    while ( targetNodes.length === 0 && Math.ceil(timer)-Math.ceil(new Date().getTime()) > 0)
+    {
+        targetNodes = jQuery(selectorTxt);
+    }
+    return targetNodes.length !== 0);
+}*/
+function myfileLoad_onChange(event) {
+    $('#LoadConfError')[0].innerText = ' ';
+    if (event.target.files.length == 0) {
+        return;
+    }
+    var reader = new FileReader();
+    reader.onload = myfileLoad_onReaderLoad;
+    reader.readAsText(event.target.files[0]);
+}
+function myfileLoad_onReaderLoad(event) {
+    var text = event.target.result;
+    var storageType;
+    var storageItem;
+    var variableName;
+    //Json validation
+    if (isJSON(text)) {
+        LogUtils_logHHAuto('the json is ok');
+        var jsonNewSettings = JSON.parse(event.target.result);
+        //Assign new values to Storage();
+        for (const [key, value] of Object.entries(jsonNewSettings)) {
+            storageType = key.split(".")[0];
+            variableName = key.split(".")[1];
+            storageItem = getStorageItem(storageType);
+            LogUtils_logHHAuto(key + ':' + value);
+            storageItem[variableName] = value;
+        }
+        location.reload();
+    }
+    else {
+        $('#LoadConfError')[0].innerText = 'Selected file broken!';
+        LogUtils_logHHAuto('the json is Not ok');
+    }
+}
+
+;// CONCATENATED MODULE: ./src/Utils/HHPopup.ts
+
+class HHPopup {
+    static fillContent(content) {
+        const elem = document.getElementById("HHAutoPopupGlobalContent");
+        if (elem != null)
+            elem.innerHTML = content;
+    }
+    static fillTitle(title) {
+        const elem = document.getElementById("HHAutoPopupGlobalTitle");
+        if (elem != null)
+            elem.innerHTML = title;
+    }
+    static fillClasses(inClass) {
+        const elem = document.getElementById("HHAutoPopupGlobalPopup");
+        if (elem != null)
+            elem.className = inClass;
+    }
+}
+function fillHHPopUp(inClass, inTitle, inContent) {
+    if (document.getElementById("HHAutoPopupGlobal") === null) {
+        createHHPopUp();
+    }
+    else {
+        displayHHPopUp();
+    }
+    HHPopup.fillContent(inContent);
+    HHPopup.fillTitle(inTitle);
+    HHPopup.fillClasses(inClass);
+}
+function createHHPopUp() {
+    GM_addStyle('#HHAutoPopupGlobal.HHAutoOverlay { overflow: auto;  z-index:1000;   position: fixed;   top: 0;   bottom: 0;   left: 0;   right: 0;   background: rgba(0, 0, 0, 0.7);   transition: opacity 500ms;     display: flex;   align-items: center; }  '
+        + '#HHAutoPopupGlobalPopup {   margin: auto;   padding: 20px;   background: #fff;   border-radius: 5px;   position: relative;   transition: all 5s ease-in-out; }  '
+        + '#HHAutoPopupGlobalTitle {   margin-top: 0;   color: #333;   font-size: larger; } '
+        + '#HHAutoPopupGlobalClose {   position: absolute;   top: 0;   right: 30px;   transition: all 200ms;   font-size: 50px;   font-weight: bold;   text-decoration: none;   color: #333; } '
+        + '#HHAutoPopupGlobalClose:hover {   color: #06D85F; } '
+        + '#HHAutoPopupGlobalContent .HHAutoScriptMenu .rowLine { display:flex;flex-direction:row;align-items:center;column-gap:20px;justify-content: center; } '
+        + '#HHAutoPopupGlobalContent {   max-height: 30%;   overflow: auto;   color: #333;   font-size: x-small; }'
+        + '#HHAutoPopupGlobalContent .HHAutoScriptMenu .switch {  width: 55px; height: 32px; }'
+        + '#HHAutoPopupGlobalContent .HHAutoScriptMenu input:checked + .slider:before { -webkit-transform: translateX(20px); -ms-transform: translateX(20px); transform: translateX(20px); } '
+        + '#HHAutoPopupGlobalContent .HHAutoScriptMenu .slider.round::before {  width: 22px; height: 22px; bottom: 5px; }'
+        + '.PachinkoPlay {margin-top: 20px !important; }');
+    let popUp = '<div id="HHAutoPopupGlobal" class="HHAutoOverlay">'
+        + ' <div id="HHAutoPopupGlobalPopup">'
+        + '   <h2 id="HHAutoPopupGlobalTitle">Here i am</h2>'
+        + '   <a id="HHAutoPopupGlobalClose">&times;</a>'
+        + '   <div id="HHAutoPopupGlobalContent" class="content">'
+        + '      Thank to pop me out of that button, but now im done so you can close this window.'
+        + '   </div>'
+        + ' </div>'
+        + '</div>';
+    $('body').prepend(popUp);
+    $("#HHAutoPopupGlobalClose").on("click", function () {
+        maskHHPopUp();
+    });
+    document.addEventListener('keyup', evt => {
+        if (evt.key === 'Escape') {
+            maskHHPopUp();
+        }
+    });
+}
+function isDisplayedHHPopUp() {
+    const popupGlobal = document.getElementById("HHAutoPopupGlobal");
+    const popupGlobalPopup = document.getElementById("HHAutoPopupGlobalPopup");
+    if (popupGlobal === null || popupGlobalPopup === null) {
+        return false;
+    }
+    if (popupGlobal.style.display === "none") {
+        return false;
+    }
+    return popupGlobalPopup.className;
+}
+function displayHHPopUp() {
+    const popupGlobal = document.getElementById("HHAutoPopupGlobal");
+    if (popupGlobal === null) {
+        return false;
+    }
+    popupGlobal.style.display = "";
+    popupGlobal.style.opacity = '1';
+}
+function maskHHPopUp() {
+    const popupGlobal = document.getElementById("HHAutoPopupGlobal");
+    if (popupGlobal !== null) {
+        popupGlobal.style.display = "none";
+        popupGlobal.style.opacity = '0';
+    }
+}
+function checkAndClosePopup(inBurst) {
+    const popUp = $('#popup_message[style*="display: block"]');
+    if ((inBurst || isFocused()) && popUp.length > 0) {
+        $('close', popUp).click();
+    }
+}
+
+;// CONCATENATED MODULE: ./src/Utils/index.ts
+
+
+
+
+
+;// CONCATENATED MODULE: ./src/Helper/ConfigHelper.ts
+
+
+class ConfigHelper {
+    static getEnvironnement() {
+        let environnement = "global";
+        if (HHKnownEnvironnements[window.location.hostname] !== undefined) {
+            environnement = HHKnownEnvironnements[window.location.hostname].name;
+        }
+        else {
+            fillHHPopUp("unknownURL", "Game URL unknown", '<p>This HH URL is unknown to the script.<br>To add it please open an issue in <a href="https://github.com/Roukys/HHauto/issues" target="_blank">Github</a> with following informations : <br>Hostname : ' + window.location.hostname + '<br>gameID : ' + $('body[page][id]').attr('id') + '<br>You can also use this direct link : <a  target="_blank" href="https://github.com/Roukys/HHauto/issues/new?template=enhancement_request.md&title=Support%20for%20' + window.location.hostname + '&body=Please%20add%20new%20URL%20with%20these%20infos%20%3A%20%0A-%20hostname%20%3A%20' + window.location.hostname + '%0A-%20gameID%20%3A%20' + $('body[page][id]').attr('id') + '%0AThanks">Github issue</a></p>');
+        }
+        return environnement;
+    }
+    static isPshEnvironnement() {
+        return ["PH_prod", "NPH_prod"].includes(ConfigHelper.getEnvironnement());
+    }
+    static getHHScriptVars(id, logNotFound = true) {
+        const environnement = ConfigHelper.getEnvironnement();
+        if (HHEnvVariables[environnement] !== undefined && HHEnvVariables[environnement][id] !== undefined) {
+            return HHEnvVariables[environnement][id];
+        }
+        else {
+            if (HHEnvVariables["global"] !== undefined && HHEnvVariables["global"][id] !== undefined) {
+                return HHEnvVariables["global"][id];
+            }
+            else {
+                if (logNotFound) {
+                    LogUtils_logHHAuto("not found var for " + environnement + "/" + id);
+                }
+                return null;
+            }
+        }
+    }
+}
+
+;// CONCATENATED MODULE: ./src/Service/AdsService.ts
+
+
+
+class AdsService {
+    static closeHomeAds() {
+        /*
+        if ($('#ad_home close:visible').length) {
+            setTimeout(() => {
+                $('#ad_home close').trigger('click')
+            }, randomInterval(1500, 5000));
+        }*/
+    }
+    static isCrossGameAds() {
+        return $("#sliding-popups #crosspromo_show_ad").length > 0;
+    }
+    static isSexFriendsAds() {
+        return $("#sliding-popups #crosspromo_show_localreward").length > 0;
+    }
+    static moveAds(page) {
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_showAdsBack") === "true") {
+            if (page == ConfigHelper.getHHScriptVars("pagesIDHome")) {
+                if (!AdsService.isCrossGameAds() && !AdsService.isSexFriendsAds()) {
+                    GM_addStyle('#sliding-popups#sliding-popups { z-index : 1}');
+                    GM_addStyle('#ad_home { z-index : 1}');
+                    GM_addStyle('.ad-revive-container { z-index : 1}');
+                }
+            }
+            else {
+                GM_addStyle('#ad_champions_map { top: 35rem !important; }');
+                GM_addStyle('#ad_god-path { position: absolute !important; top: 35rem !important; }');
+                GM_addStyle('#ad_battle { top: 32rem !important; }');
+                GM_addStyle('#ad_activities { position: absolute !important; top: 32rem !important; }');
+                GM_addStyle('#ad_quest { top: 25rem !important; }');
+                GM_addStyle('#ad_labyrinth { top: 30rem !important; }');
+                GM_addStyle('#ad_shop { top: 35rem !important; }');
+            }
+        }
+    }
+}
+
 ;// CONCATENATED MODULE: ./src/Service/AutoLoop.ts
 var AutoLoop_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -16668,11 +16709,6 @@ function createPInfo() {
     }
     if (getPage() == ConfigHelper.getHHScriptVars("pagesIDHome")) {
         GM_addStyle('#pInfo:hover {max-height : none} #pInfo { max-height : 220px} @media only screen and (max-width: 1025px) {#pInfo { ;top:17% }}');
-        if (getStoredValue(HHStoredVarPrefixKey + "Setting_showAdsBack") === "true") {
-            GM_addStyle('#sliding-popups#sliding-popups { z-index : 1}'); // Still needed ?
-            GM_addStyle('#ad_home { z-index : 1}');
-            GM_addStyle('.ad-revive-container { z-index : 1}');
-        }
     }
     else {
         GM_addStyle(''
@@ -17170,6 +17206,7 @@ function disableToolTipsDisplay(important = false) {
 
 
 
+
 var started = false;
 var debugMenuID;
 class StartService {
@@ -17285,15 +17322,7 @@ function start() {
         DailyGoals.styles();
         Missions.styles();
     }
-    if (getStoredValue(HHStoredVarPrefixKey + "Setting_showAdsBack") === "true") {
-        GM_addStyle('#ad_champions_map { top: 35rem !important; }');
-        GM_addStyle('#ad_god-path { position: absolute !important; top: 35rem !important; }');
-        GM_addStyle('#ad_battle { top: 32rem !important; }');
-        GM_addStyle('#ad_activities { position: absolute !important; top: 32rem !important; }');
-        GM_addStyle('#ad_quest { top: 25rem !important; }');
-        GM_addStyle('#ad_labyrinth { top: 30rem !important; }');
-        GM_addStyle('#ad_shop { top: 35rem !important; }');
-    }
+    AdsService.moveAds(getPage());
     Booster.collectBoostersFromAjaxResponses();
     $('#contains_all').append(pInfoDiv);
     maskInactiveMenus();
@@ -17435,6 +17464,7 @@ function start() {
 ;
 
 ;// CONCATENATED MODULE: ./src/Service/index.ts
+
 
 
 

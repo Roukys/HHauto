@@ -13,6 +13,7 @@ import {
 import { Booster, Contest, LeagueHelper, Pantheon, Season, Troll } from '../Module/index';
 import { logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
+import { AdsService } from './AdsService';
 
 export function createPInfo():JQuery<HTMLElement> {
     const pInfo = $('<div id="pInfo" ></div>');
@@ -35,13 +36,6 @@ export function createPInfo():JQuery<HTMLElement> {
     if(getPage()==ConfigHelper.getHHScriptVars("pagesIDHome"))
     {
         GM_addStyle('#pInfo:hover {max-height : none} #pInfo { max-height : 220px} @media only screen and (max-width: 1025px) {#pInfo { ;top:17% }}');
-
-        if (getStoredValue(HHStoredVarPrefixKey+"Setting_showAdsBack") === "true")
-        {
-            GM_addStyle('#sliding-popups#sliding-popups { z-index : 1}');// Still needed ?
-            GM_addStyle('#ad_home { z-index : 1}');
-            GM_addStyle('.ad-revive-container { z-index : 1}');
-        }
     }
     else
     {
