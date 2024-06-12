@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.12.17
+// @version      7.12.18
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4916,7 +4916,7 @@ class Harem {
         //GM_addStyle('#harem_right>div[girl] .middle_part div.avatar-box canvas.animated-girl-display { height: 59rem; top: -18rem;}');
         GM_addStyle('.goToGirlPage {position: relative; bottom: 12px; left: 250px; font-size: small; width: fit-content; z-index:30;}');
         // using a for new tab option
-        const goToGirlPageButton = '<div class="tooltipHH goToGirlPage"><span class="tooltipHHtext">' + getTextForUI("goToGirlPage", "tooltip") + '</span><a href="/characters/' + displayedGirl + '?resource=experience" class="myButton" id="' + goToGirlPageButtonId + '">' + getTextForUI("goToGirlPage", "elementText") + '</a></div>';
+        const goToGirlPageButton = '<div class="tooltipHH goToGirlPage"><span class="tooltipHHtext">' + getTextForUI("goToGirlPage", "tooltip") + '</span><a href="/girl/' + displayedGirl + '?resource=experience" class="myButton" id="' + goToGirlPageButtonId + '">' + getTextForUI("goToGirlPage", "elementText") + '</a></div>';
         var goToGirl = function () {
             const displayedGirl = $('#harem_right .opened').attr('girl'); // unsafeWindow.harem.preselectedGirlId
             gotoPage('/girl/' + displayedGirl, { resource: 'experience' });
@@ -12486,7 +12486,8 @@ class GayPornstarHarem {
 class MangaRpg {
     static getEnv() {
         return {
-            "www.mangarpg.com": { name: "MRPG_prod", id: "hh_mangarpg", baseImgPath: "https://mh.hh-content.com" }
+            "www.mangarpg.com": { name: "MRPG_prod", id: "hh_mangarpg", baseImgPath: "https://mh.hh-content.com" },
+            "nutaku.mangarpg.com": { name: "NMRPG_prod", id: "hh_mangarpg", baseImgPath: "https://mh.hh-content.com" }
         };
     }
     static getTrolls() {
