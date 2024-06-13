@@ -448,6 +448,7 @@ HHEnvVariables["SH_prod"].lastQuestId = -1; //  TODO update when new quest comes
 
 HHEnvVariables["MRPG_prod"].lastQuestId = -1; //  TODO update when new quest comes
 HHEnvVariables["MRPG_prod"].trollzList = MangaRpg.getTrolls();
+HHEnvVariables["MRPG_prod"].trollIdMapping = { 3: 3 };
 MangaRpg.updateFeatures(HHEnvVariables["MRPG_prod"]);
 
 ["PH_prod","NPH_prod"].forEach((element) => {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.12.18
+// @version      7.12.19
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -5102,12 +5102,16 @@ class Troll {
     }
     static getLastTrollIdAvailable() {
         const id_world = Number(getHHVars('Hero.infos.questing.id_world'));
+        const trollIdMapping = ConfigHelper.getHHScriptVars("trollIdMapping");
         if (ConfigHelper.isPshEnvironnement() && id_world > 10) {
-            const trollIdMapping = ConfigHelper.getHHScriptVars("trollIdMapping");
             if (trollIdMapping.hasOwnProperty(id_world)) {
-                return trollIdMapping[id_world]; // PSH parallele adventures
+                return trollIdMapping[id_world]; // PSH parallel adventures
             }
             LogUtils_logHHAuto(`Error Troll ID mapping need to be updated with world ${id_world}`);
+        }
+        if (Object.keys(trollIdMapping).length > 0 && trollIdMapping.hasOwnProperty(id_world)) {
+            LogUtils_logHHAuto(`Troll ID mapping (${trollIdMapping[id_world]}) found for world ${id_world}`);
+            return trollIdMapping[id_world];
         }
         return id_world - 1;
     }
@@ -12492,7 +12496,9 @@ class MangaRpg {
     }
     static getTrolls() {
         return ['Latest',
-            'William Scarlett'];
+            'Jeshtar',
+            'EMPTY',
+            'Troll Hound'];
     }
     static updateFeatures(envVariables) {
         envVariables.isEnabledClubChamp = false; // to remove when Club Champs arrives in Manga RPG
@@ -12952,6 +12958,7 @@ HHEnvVariables["SH_prod"].isEnabledPoG = false; // to remove when PoG arrives in
 HHEnvVariables["SH_prod"].lastQuestId = -1; //  TODO update when new quest comes
 HHEnvVariables["MRPG_prod"].lastQuestId = -1; //  TODO update when new quest comes
 HHEnvVariables["MRPG_prod"].trollzList = MangaRpg.getTrolls();
+HHEnvVariables["MRPG_prod"].trollIdMapping = { 3: 3 };
 MangaRpg.updateFeatures(HHEnvVariables["MRPG_prod"]);
 ["PH_prod", "NPH_prod"].forEach((element) => {
     HHEnvVariables[element].trollzList = PornstarHarem.getTrolls();

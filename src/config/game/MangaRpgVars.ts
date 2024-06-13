@@ -7,7 +7,9 @@ export class MangaRpg {
     }
     static getTrolls() {
         return ['Latest',
-            'William Scarlett'];
+            'Jeshtar',
+            'EMPTY',
+            'Troll Hound'];
     }
 
     static updateFeatures(envVariables: any) {

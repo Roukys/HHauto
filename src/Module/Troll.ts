@@ -78,12 +78,16 @@ export class Troll {
 
     static getLastTrollIdAvailable(): number {
         const id_world = Number(getHHVars('Hero.infos.questing.id_world'));
+        const trollIdMapping = ConfigHelper.getHHScriptVars("trollIdMapping");
         if(ConfigHelper.isPshEnvironnement() && id_world > 10) {
-            const trollIdMapping = ConfigHelper.getHHScriptVars("trollIdMapping");
             if (trollIdMapping.hasOwnProperty(id_world)) {
-                return trollIdMapping[id_world] // PSH parallele adventures
+                return trollIdMapping[id_world] // PSH parallel adventures
             }
             logHHAuto(`Error Troll ID mapping need to be updated with world ${id_world}`);
+        }
+        if (Object.keys(trollIdMapping).length > 0 && trollIdMapping.hasOwnProperty(id_world)) {
+            logHHAuto(`Troll ID mapping (${trollIdMapping[id_world]}) found for world ${id_world}`);
+            return trollIdMapping[id_world];
         }
         return id_world-1;
     }
