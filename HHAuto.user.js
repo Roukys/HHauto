@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.12.19
+// @version      7.12.20
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -7823,11 +7823,6 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_poaManualCollectAll"] =
         storage: "localStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_missionsGiftLeft"] =
-    {
-        storage: "sessionStorage",
-        HHType: "Temp"
-    };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_defaultCustomHaremSort"] =
     {
         storage: "localStorage",
@@ -10275,7 +10270,6 @@ class Missions {
         return msn;
     }
     static run() {
-        var _a, _b;
         // returns boolean to set busy
         if (getPage() !== ConfigHelper.getHHScriptVars("pagesIDMissions")) {
             LogUtils_logHHAuto("Navigating to missions page.");
@@ -10330,23 +10324,20 @@ class Missions {
                 else {
                     LogUtils_logHHAuto("No missions detected...!");
                     // get gift
-                    var ck = getStoredValue(HHStoredVarPrefixKey + "Temp_missionsGiftLeft");
-                    var isAfterGift = ((_b = (_a = document.querySelector("#missions .end_gift")) === null || _a === void 0 ? void 0 : _a.style) === null || _b === void 0 ? void 0 : _b.display) === 'block';
-                    if (!isAfterGift) {
-                        if (ck === 'giftleft') {
+                    const isAfterGift = $("#missions .end_gift:visible").length > 0;
+                    if (isAfterGift) {
+                        const buttonAfterGift = $("#missions .end_gift button:visible");
+                        if (buttonAfterGift.length > 0) {
                             LogUtils_logHHAuto("Collecting gift.");
-                            deleteStoredValue(HHStoredVarPrefixKey + "Temp_missionsGiftLeft");
-                            document.querySelector(".end_gift button").click();
+                            buttonAfterGift.trigger('click');
                         }
                         else {
                             LogUtils_logHHAuto("Refreshing to collect gift...");
-                            setStoredValue(HHStoredVarPrefixKey + "Temp_missionsGiftLeft", "giftleft");
                             location.reload();
-                            // is busy
                             return true;
                         }
                     }
-                    let time = $('.end-gift-timer span[rel="expires"]').text();
+                    let time = $('.end-gift-timer span[rel="expires"], .new-missions-timer span[rel="expires"]').first().text();
                     if (time === undefined || time === null || time.length === 0) {
                         LogUtils_logHHAuto("New mission time was undefined... Setting it manually to 10min.");
                         setTimer('nextMissionTime', randomInterval(10 * 60, 12 * 60));
@@ -11196,7 +11187,7 @@ class PlaceOfPower {
             }
             setStoredValue(HHStoredVarPrefixKey + "Temp_currentlyAvailablePops", newFilter.substring(1));
             //collect all
-            let buttonClaimQuery = "button[rel='pop_thumb_claim'].purple_button_L:not([style])";
+            let buttonClaimQuery = "button[rel='pop_thumb_claim'].purple_button_L:visible";
             if ($(buttonClaimQuery).length > 0) {
                 $(buttonClaimQuery).first().trigger('click');
                 LogUtils_logHHAuto("Claimed reward for PoP : " + $(buttonClaimQuery).first().parent().attr('pop_id'));
@@ -15985,7 +15976,7 @@ function autoLoop() {
                     //logHHAuto("startcollect : "+popToStartExist);
                     if (!popToStartExist) {
                         //logHHAuto("pop1:"+popToStart);
-                        LogUtils_logHHAuto("Go and collect");
+                        LogUtils_logHHAuto("Go and collect pop");
                         busy = true;
                         busy = PlaceOfPower.collectAndUpdate();
                     }
@@ -17224,10 +17215,8 @@ class StartService {
             // run action on new script version
             LogUtils_logHHAuto(`New script version detected from ${previousScriptVersion} to ${GM.info.script.version}`);
             setStoredValue(HHStoredVarPrefixKey + "Temp_scriptversion", GM.info.script.version);
-            if ('7.12.5' === GM.info.script.version) {
-                // Manage new set timer
-                clearTimer('nextContestTime');
-                clearTimer('nextContestCollectTime');
+            if ('7.12.20' === GM.info.script.version) {
+                deleteStoredValue(HHStoredVarPrefixKey + "Temp_missionsGiftLeft");
             }
         }
     }

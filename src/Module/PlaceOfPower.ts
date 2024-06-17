@@ -162,7 +162,7 @@ export class PlaceOfPower {
             }
             setStoredValue(HHStoredVarPrefixKey+"Temp_currentlyAvailablePops",newFilter.substring(1))
             //collect all
-            let buttonClaimQuery = "button[rel='pop_thumb_claim'].purple_button_L:not([style])";
+            let buttonClaimQuery = "button[rel='pop_thumb_claim'].purple_button_L:visible";
             if ($(buttonClaimQuery).length >0)
             {
                 $(buttonClaimQuery).first().trigger('click');

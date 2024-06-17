@@ -71,10 +71,8 @@ export class StartService {
             logHHAuto(`New script version detected from ${previousScriptVersion} to ${GM.info.script.version}`);
             setStoredValue(HHStoredVarPrefixKey + "Temp_scriptversion", GM.info.script.version);
 
-            if ('7.12.5' === GM.info.script.version) {
-                // Manage new set timer
-                clearTimer('nextContestTime');
-                clearTimer('nextContestCollectTime');
+            if ('7.12.20' === GM.info.script.version) {
+                deleteStoredValue(HHStoredVarPrefixKey + "Temp_missionsGiftLeft");
             }
         }
     }

@@ -268,7 +268,7 @@ export async function autoLoop()
                 if (! popToStartExist)
                 {
                     //logHHAuto("pop1:"+popToStart);
-                    logHHAuto("Go and collect");
+                    logHHAuto("Go and collect pop");
                     busy = true;
                     busy = PlaceOfPower.collectAndUpdate();
                 }

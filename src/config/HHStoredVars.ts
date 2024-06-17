@@ -2065,11 +2065,6 @@ HHStoredVars[HHStoredVarPrefixKey + "Temp_poaManualCollectAll"] =
     storage: "localStorage",
     HHType: "Temp"
 };
-HHStoredVars[HHStoredVarPrefixKey+"Temp_missionsGiftLeft"] =
-    {
-    storage:"sessionStorage",
-    HHType:"Temp"
-};
 HHStoredVars[HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort"] =
     {
     storage:"localStorage",
