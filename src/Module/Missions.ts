@@ -107,24 +107,20 @@ export class Missions {
                 {
                     logHHAuto("No missions detected...!");
                     // get gift
-                    var ck = getStoredValue(HHStoredVarPrefixKey+"Temp_missionsGiftLeft");
-                    var isAfterGift = (<HTMLElement>document.querySelector("#missions .end_gift"))?.style?.display === 'block';
-                    if(!isAfterGift){
-                        if(ck === 'giftleft')
-                        {
+                    const isAfterGift = $("#missions .end_gift:visible").length > 0;
+                    if (isAfterGift) {
+                        const buttonAfterGift = $("#missions .end_gift button:visible");
+                        if (buttonAfterGift.length > 0) {
                             logHHAuto("Collecting gift.");
-                            deleteStoredValue(HHStoredVarPrefixKey+"Temp_missionsGiftLeft");
-                            (<HTMLElement>document.querySelector(".end_gift button")).click();
+                            buttonAfterGift.trigger('click');
                         }
                         else{
                             logHHAuto("Refreshing to collect gift...");
-                            setStoredValue(HHStoredVarPrefixKey+"Temp_missionsGiftLeft","giftleft");
                             location.reload();
-                            // is busy
                             return true;
                         }
                     }
-                    let time = $('.end-gift-timer span[rel="expires"]').text();
+                    let time = $('.end-gift-timer span[rel="expires"], .new-missions-timer span[rel="expires"]').first().text()
                     if(time === undefined || time === null || time.length === 0) {
                         logHHAuto("New mission time was undefined... Setting it manually to 10min.");
                         setTimer('nextMissionTime', randomInterval(10*60, 12*60));
