@@ -120,7 +120,7 @@ export class Missions {
                             return true;
                         }
                     }
-                    let time = $('.end-gift-timer span[rel="expires"], .new-missions-timer span[rel="expires"]').first().text()
+                    let time = $('.end-gift-timer span[rel="expires"],.after_gift .new-missions-timer span[rel="expires"]').first().text()
                     if(time === undefined || time === null || time.length === 0) {
                         logHHAuto("New mission time was undefined... Setting it manually to 10min.");
                         setTimer('nextMissionTime', randomInterval(10*60, 12*60));
