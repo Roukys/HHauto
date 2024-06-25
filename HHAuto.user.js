@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.12.21
+// @version      7.12.22
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4780,7 +4780,7 @@ class Harem {
         const menuID = "ExportGirlsData";
         let styles = 'position: absolute;left: 870px;top: 80px;width:24px;z-index:10';
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDWaifu")) {
-            styles = 'position: absolute;left: 870px;top: 35px;width:24px;z-index:10';
+            styles = 'position: absolute;top: 10px;width:24px;z-index:10';
         }
         let ExportGirlsData = `<div style="${styles}" class="tooltipHH" id="${menuID}"><span class="tooltipHHtext">${getTextForUI("ExportGirlsData", "tooltip")}</span><label style="font-size:small" class="myButton" id="ExportGirlsDataButton">${getTextForUI("ExportGirlsData", "elementText")}</label></div>`;
         if (document.getElementById(menuID) === null) {
@@ -12295,25 +12295,49 @@ class HentaiHeroes {
             "esprit.hentaiheroes.com": { name: "OGHH_prod", id: "hh_hentai" }
         };
     }
-    static getTrolls() {
-        return ["Latest",
-            "Dark Lord",
-            "Ninja Spy",
-            "Gruntt",
-            "Edwarda",
-            "Donatien",
-            "Silvanus",
-            "Bremen",
-            "Finalmecia",
-            "Roko Senseï",
-            "Karole",
-            "Jackson\'s Crew",
-            "Pandora witch",
-            "Nike",
-            "Sake",
-            "WereBunny Police",
-            "Auga",
-            "Gross"];
+    static getTrolls(languageCode) {
+        switch (languageCode) {
+            case "fr":
+                return ["Dernier",
+                    "Dark Lord",
+                    "Espion Ninja",
+                    "Gruntt",
+                    "Edwarda",
+                    "Donatien",
+                    "Silvanus",
+                    "Bremen",
+                    "Finalmecia",
+                    "Roko Senseï",
+                    "Karole",
+                    "Jackson",
+                    "Pandora",
+                    "Nike",
+                    "Sake",
+                    "Police des Lapines-Garous",
+                    "Auga",
+                    "Gross",
+                    "Harriet"];
+            default:
+                return ["Latest",
+                    "Dark Lord",
+                    "Ninja Spy",
+                    "Gruntt",
+                    "Edwarda",
+                    "Donatien",
+                    "Silvanus",
+                    "Bremen",
+                    "Finalmecia",
+                    "Roko Senseï",
+                    "Karole",
+                    "Jackson\'s Crew",
+                    "Pandora witch",
+                    "Nike",
+                    "Sake",
+                    "WereBunny Police",
+                    "Auga",
+                    "Gross",
+                    "Harriet"];
+        }
     }
     static getTrollGirlsId() {
         return [
@@ -12335,32 +12359,6 @@ class HentaiHeroes {
             [['344730128', '735302216', '851893423'], [0], [0]],
             [['547099506', '572827174', '653889168'], [0], [0]],
         ];
-    }
-    static overrideTrollsByLang(languageCode, trollzList) {
-        switch (languageCode) {
-            case "fr":
-                trollzList = ["Dernier",
-                    "Dark Lord",
-                    "Espion Ninja",
-                    "Gruntt",
-                    "Edwarda",
-                    "Donatien",
-                    "Silvanus",
-                    "Bremen",
-                    "Finalmecia",
-                    "Roko Senseï",
-                    "Karole",
-                    "Jackson",
-                    "Pandora",
-                    "Nike",
-                    "Sake",
-                    "Police des Lapines-Garous",
-                    "Auga",
-                    "Gross"];
-                break;
-            default:
-                break;
-        }
     }
 }
 
@@ -12681,7 +12679,7 @@ HHEnvVariables["global"].possibleRewardsList = { 'energy_kiss': "Kisses",
     'ticket': "Champions' tickets",
     'event_cash': "Event cash",
     'rejuvenation_stone': "Rejuvenation Stones" };
-HHEnvVariables["global"].trollzList = HentaiHeroes.getTrolls();
+HHEnvVariables["global"].trollzList = HentaiHeroes.getTrolls(getLanguageCode());
 HHEnvVariables["global"].trollIdMapping = []; // Empty means no specific mapping
 HHEnvVariables["global"].trollGirlsID = HentaiHeroes.getTrollGirlsId();
 HHEnvVariables["global"].lastQuestId = 1850; //  TODO update when new quest comes
@@ -12694,7 +12692,6 @@ HHEnvVariables["global"].leaguesList = ["Wanker I",
     "Dicktator I",
     "Dicktator II",
     "Dicktator III"];
-HentaiHeroes.overrideTrollsByLang(getLanguageCode(), HHEnvVariables["global"].trollzList);
 switch (getLanguageCode()) {
     case "fr":
         HHEnvVariables["global"].leaguesList = ["Branleur I",

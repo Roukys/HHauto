@@ -114,7 +114,7 @@ HHEnvVariables["global"].possibleRewardsList = {'energy_kiss' : "Kisses",
                                                 'event_cash' : "Event cash",
                                                 'rejuvenation_stone': "Rejuvenation Stones"};
 
-HHEnvVariables["global"].trollzList = HentaiHeroes.getTrolls();
+HHEnvVariables["global"].trollzList = HentaiHeroes.getTrolls(getLanguageCode());
 
 HHEnvVariables["global"].trollIdMapping =  []; // Empty means no specific mapping
 
@@ -131,8 +131,6 @@ HHEnvVariables["global"].leaguesList = ["Wanker I",
                                         "Dicktator I",
                                         "Dicktator II",
                                         "Dicktator III"];
-
-HentaiHeroes.overrideTrollsByLang(getLanguageCode(), HHEnvVariables["global"].trollzList);
 
 switch (getLanguageCode())
 {

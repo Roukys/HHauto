@@ -305,7 +305,7 @@ export class Harem {
         const menuID = "ExportGirlsData";
         let styles = 'position: absolute;left: 870px;top: 80px;width:24px;z-index:10';
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDWaifu")) {
-            styles = 'position: absolute;left: 870px;top: 35px;width:24px;z-index:10';
+            styles = 'position: absolute;top: 10px;width:24px;z-index:10';
         }
         let ExportGirlsData = `<div style="${styles}" class="tooltipHH" id="${menuID}"><span class="tooltipHHtext">${getTextForUI("ExportGirlsData","tooltip")}</span><label style="font-size:small" class="myButton" id="ExportGirlsDataButton">${getTextForUI("ExportGirlsData","elementText")}</label></div>`;
         if (document.getElementById(menuID) === null)
