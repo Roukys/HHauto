@@ -9,26 +9,51 @@ export class HentaiHeroes {
             "esprit.hentaiheroes.com": { name: "OGHH_prod", id: "hh_hentai" }
         }
     }
-    static getTrolls() {
-        return ["Latest",
-            "Dark Lord",
-            "Ninja Spy",
-            "Gruntt",
-            "Edwarda",
-            "Donatien",
-            "Silvanus",
-            "Bremen",
-            "Finalmecia",
-            "Roko Senseï",
-            "Karole",
-            "Jackson\'s Crew",
-            "Pandora witch",
-            "Nike",
-            "Sake",
-            "WereBunny Police",
-            "Auga",
-            "Gross"];
+    static getTrolls(languageCode: string) {
+        switch (languageCode) {
+            case "fr":
+                return ["Dernier",
+                    "Dark Lord",
+                    "Espion Ninja",
+                    "Gruntt",
+                    "Edwarda",
+                    "Donatien",
+                    "Silvanus",
+                    "Bremen",
+                    "Finalmecia",
+                    "Roko Senseï",
+                    "Karole",
+                    "Jackson",
+                    "Pandora",
+                    "Nike",
+                    "Sake",
+                    "Police des Lapines-Garous",
+                    "Auga",
+                    "Gross",
+                    "Harriet"];
+            default:
+                return ["Latest",
+                    "Dark Lord",
+                    "Ninja Spy",
+                    "Gruntt",
+                    "Edwarda",
+                    "Donatien",
+                    "Silvanus",
+                    "Bremen",
+                    "Finalmecia",
+                    "Roko Senseï",
+                    "Karole",
+                    "Jackson\'s Crew",
+                    "Pandora witch",
+                    "Nike",
+                    "Sake",
+                    "WereBunny Police",
+                    "Auga",
+                    "Gross",
+                    "Harriet"];
+        }
     }
+
     static getTrollGirlsId() {
         return [
             [['8', '9', '10'], ['7270263'], ['979916751']],
@@ -49,33 +74,5 @@ export class HentaiHeroes {
             [['344730128', '735302216', '851893423'], [0], [0]],
             [['547099506', '572827174', '653889168'], [0], [0]],
         ];
-    }
-
-    static overrideTrollsByLang(languageCode: string, trollzList: any[]) {
-        switch (languageCode) {
-            case "fr":
-                trollzList = ["Dernier",
-                    "Dark Lord",
-                    "Espion Ninja",
-                    "Gruntt",
-                    "Edwarda",
-                    "Donatien",
-                    "Silvanus",
-                    "Bremen",
-                    "Finalmecia",
-                    "Roko Senseï",
-                    "Karole",
-                    "Jackson",
-                    "Pandora",
-                    "Nike",
-                    "Sake",
-                    "Police des Lapines-Garous",
-                    "Auga",
-                    "Gross"];
-                break;
-            default:
-
-                break;
-        }
     }
 }
