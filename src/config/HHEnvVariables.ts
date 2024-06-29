@@ -444,10 +444,12 @@ HHEnvVariables["SH_prod"].isEnabledPoV = false;// to remove when PoV arrives in 
 HHEnvVariables["SH_prod"].isEnabledPoG = false;// to remove when PoG arrives in hornyheroes
 HHEnvVariables["SH_prod"].lastQuestId = -1; //  TODO update when new quest comes
 
-HHEnvVariables["MRPG_prod"].lastQuestId = -1; //  TODO update when new quest comes
-HHEnvVariables["MRPG_prod"].trollzList = MangaRpg.getTrolls();
-HHEnvVariables["MRPG_prod"].trollIdMapping = { 3: 3 };
-MangaRpg.updateFeatures(HHEnvVariables["MRPG_prod"]);
+["MRPG_prod", "NMRPG_prod"].forEach((element) => {
+    HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
+    HHEnvVariables[element].trollzList = MangaRpg.getTrolls();
+    HHEnvVariables[element].trollIdMapping = { 3: 3 };
+    MangaRpg.updateFeatures(HHEnvVariables[element]);
+});
 
 ["PH_prod","NPH_prod"].forEach((element) => {
     HHEnvVariables[element].trollzList = PornstarHarem.getTrolls();
