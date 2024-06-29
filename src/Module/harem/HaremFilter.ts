@@ -1,5 +1,6 @@
 import { getStoredValue } from "../../Helper/StorageHelper";
 import { TimeHelper, randomInterval } from "../../Helper/TimeHelper";
+import { logHHAuto } from "../../Utils/LogUtils";
 import { HHStoredVarPrefixKey } from "../../config/HHStoredVars";
 
 export class HaremFilter {
@@ -9,6 +10,7 @@ export class HaremFilter {
     EPIC_INDEX = 4;
     LEGENDARY_INDEX = 5;
     MYTHIC_INDEX = 6;
+    STAR_SEPARATOR = '_';
 
     RARITY_ORDER = [this.STARTING_INDEX, this.MYTHIC_INDEX, this.LEGENDARY_INDEX, this.EPIC_INDEX, this.RARE_INDEX, this.COMMON_INDEX];
     
@@ -27,11 +29,35 @@ export class HaremFilter {
         return [];
     }
 
-    async selectGirlRarity(rarityIndex: number = 1) {
-        $('.select-group.girl-rarity-dropdown .selectric-wrapper .selectric').trigger('click');
+    private async selectOption(selector:string, index:number) {
+        $('.select-group.' + selector +' .selectric-wrapper .selectric').trigger('click');
         await TimeHelper.sleep(randomInterval(200, 400)); // wait open
-        $('.select-group.girl-rarity-dropdown .selectric-items li[data-index="' + rarityIndex + '"]').trigger('click');
+        $('.select-group.' + selector + ' .selectric-items li[data-index="' + index + '"]').trigger('click');
         await TimeHelper.sleep(randomInterval(800, 1200)); // wait loading
+    }
+
+    async selectGirlRarity(rarityIndex: number = 1) {
+        await this.selectOption('girl-rarity-dropdown', rarityIndex);
+    }
+
+    async selectGirlAffectionCategory(stars: number = 0) {
+        const starsMapping = {
+            0: 0, // All
+            1: 1,
+            3: 2,
+            5: 3,
+            6: 4
+        };
+        if (starsMapping.hasOwnProperty(stars)) {
+            await this.selectOption('girl-max-grade-dropdown', starsMapping[stars]);
+        } else {
+            logHHAuto(`Error unkown GirlAffectionCategory ${stars}, selecting all`);
+            await this.selectOption('girl-max-grade-dropdown', 0);
+        }
+    }
+
+    private getGirlAffectionCategory() {
+        return $('.select-group.girl-max-grade-dropdown .selectric-items li.selected').data('index');
     }
 
     async selectOnlyOwnedGirls() {
@@ -49,5 +75,19 @@ export class HaremFilter {
         }
         await TimeHelper.sleep(randomInterval(800, 1200)); // wait loading
     }
+
+    async selectGirlFilters(girlType: string) {
+        logHHAuto(`selectGirlRarity ${girlType.charAt(0)}.`);
+        await this.selectGirlRarity(Number(girlType.charAt(0)));
+
+        if (girlType.length === 3) {
+            logHHAuto(`selectGirlCategory ${girlType.charAt(2)}.`);
+            await this.selectGirlAffectionCategory(Number(girlType.charAt(2)));
+        } else if (this.getGirlAffectionCategory() != '0') {
+            logHHAuto('reset selectGirlCategory');
+            await this.selectGirlAffectionCategory(0);
+        }
+    }
+
 
 }

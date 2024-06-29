@@ -142,7 +142,7 @@ export class HaremSalary {
             }
         }
     
-        function CollectData(inStart = false)
+        async function CollectData(inStart = false)
         {
             let collectableGirlsList:any[] = [];
             const girlsList = Harem.getGirlMapSorted(getCurrentSorting(), false);
@@ -193,7 +193,7 @@ export class HaremSalary {
                 salaryTimer = Math.min(HaremSalary.predictNextSalaryMinTime(), salaryTimer);
 
                 if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryUseFilter") === "true" && haremFilterIndex < haremFilters.length) {
-                    haremFilter.selectGirlRarity(haremFilters[haremFilterIndex++]);
+                    await haremFilter.selectGirlFilters(haremFilters[haremFilterIndex++]);
                     setTimeout(() => { CollectData(inStart) }, randomInterval(1200, 1800));
                 } else {
                     if (salaryTimer > 0)
@@ -213,16 +213,23 @@ export class HaremSalary {
         }
 
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryUseFilter") === "true" && haremFilterIndex < haremFilters.length) {
-            haremFilter.openFilter();
-            await TimeHelper.sleep(randomInterval(200, 400)); // wait open
+            try {
+                haremFilter.openFilter();
+                await TimeHelper.sleep(randomInterval(200, 400)); // wait open
 
-            logHHAuto('Reseting girl filters');
-            haremFilter.resetFilter();
-            await TimeHelper.sleep(randomInterval(800, 1200)); // wait loading
-            logHHAuto('selectOnlyOwnedGirls');
-            await haremFilter.selectOnlyOwnedGirls();
-            logHHAuto('selectGirlRarity ' + haremFilters[haremFilterIndex]);
-            await haremFilter.selectGirlRarity(haremFilters[haremFilterIndex++]);
+                logHHAuto('Reseting girl filters');
+                haremFilter.resetFilter();
+                await TimeHelper.sleep(randomInterval(800, 1200)); // wait loading
+
+                logHHAuto('selectOnlyOwnedGirls');
+                await haremFilter.selectOnlyOwnedGirls();
+                
+                await haremFilter.selectGirlFilters(<string> haremFilters[haremFilterIndex++]);
+            } catch ({ errName, message }) {
+                logHHAuto(`ERROR during girl filter: ${message}, retry in 1h`);
+                setTimer('nextSalaryTime', randomInterval(3400, 3800));
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+            }
         }
         else if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryResetFilters") === "true")
         {

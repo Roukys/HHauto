@@ -12,7 +12,7 @@ export const HHAuto_inputPattern = {
     safeSecondsForContest:"[0-9]+",
     collectAllTimer:"[1-9][0-9]|[1-9]",
     autoSalaryTimer:"[0-9]+",
-    autoSalaryFilter:"[1-6]{0,1}(;[1-6]{0,1})*",
+    autoSalaryFilter:"([1-6]|[1-6]_[135]]){0,1}(;[1-6]{0,1})*",
     autoTrollThreshold:"[1]?[0-9]",
     autoTrollRunThreshold:"(20|[1]?[0-9])",
     eventTrollOrder:"([1-2][0-9]|[1-9])(;([1-2][0-9]|[1-9]))*",
