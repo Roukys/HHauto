@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.14.0
+// @version      7.14.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -12994,10 +12994,12 @@ HHEnvVariables["SH_prod"].isEnabledLabyrinth = false; // to remove when Pantheon
 HHEnvVariables["SH_prod"].isEnabledPoV = false; // to remove when PoV arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPoG = false; // to remove when PoG arrives in hornyheroes
 HHEnvVariables["SH_prod"].lastQuestId = -1; //  TODO update when new quest comes
-HHEnvVariables["MRPG_prod"].lastQuestId = -1; //  TODO update when new quest comes
-HHEnvVariables["MRPG_prod"].trollzList = MangaRpg.getTrolls();
-HHEnvVariables["MRPG_prod"].trollIdMapping = { 3: 3 };
-MangaRpg.updateFeatures(HHEnvVariables["MRPG_prod"]);
+["MRPG_prod", "NMRPG_prod"].forEach((element) => {
+    HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
+    HHEnvVariables[element].trollzList = MangaRpg.getTrolls();
+    HHEnvVariables[element].trollIdMapping = { 3: 3 };
+    MangaRpg.updateFeatures(HHEnvVariables[element]);
+});
 ["PH_prod", "NPH_prod"].forEach((element) => {
     HHEnvVariables[element].trollzList = PornstarHarem.getTrolls();
     HHEnvVariables[element].trollIdMapping = { 10: 9, 14: 11, 16: 12, 18: 13, 19: 14 }; // under 10 id as usual
