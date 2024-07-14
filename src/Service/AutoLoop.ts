@@ -794,7 +794,7 @@ export async function autoLoop()
         {
             logHHAuto("Time to go and check  SeasonalEvent for collecting rank reward.");
             busy = true;
-            busy = SeasonalEvent.goAndCollectMegaEventRankRewards();
+            busy = await SeasonalEvent.goAndCollectMegaEventRankRewards();
             lastActionPerformed = "seasonal";
         }
 

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.14.1
+// @version      7.14.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3200,6 +3200,15 @@ Season.LAST_SEASON_LEVEL = 63;
 Season.MIN_MOJO_FIGHT = 8;
 
 ;// CONCATENATED MODULE: ./src/Module/Events/Seasonal.ts
+var Seasonal_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 
 
 
@@ -3447,36 +3456,42 @@ class SeasonalEvent {
         }
     }
     static goAndCollectMegaEventRankRewards() {
-        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent")) {
-            const isMegaSeasonalEvent = SeasonalEvent.isMegaSeasonalEvent();
-            const topRank = $('#mega-event-tabs #top_ranking_tab');
-            const eventRank = $('#mega-event-tabs #event_ranking_tab');
-            if (!isMegaSeasonalEvent && topRank.length === 0 && eventRank.length === 0) {
-                LogUtils_logHHAuto('Not Mega Event');
+        return Seasonal_awaiter(this, void 0, void 0, function* () {
+            if (getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent")) {
+                const isMegaSeasonalEvent = SeasonalEvent.isMegaSeasonalEvent();
+                const topRank = $('#mega-event-tabs #top_ranking_tab');
+                const eventRank = $('#mega-event-tabs #event_ranking_tab');
+                if (!isMegaSeasonalEvent && topRank.length === 0 && eventRank.length === 0) {
+                    LogUtils_logHHAuto('Not Mega Event');
+                    setTimer('nextMegaEventRankCollectTime', 604800); // 1 week delay
+                    return Promise.resolve(false);
+                }
+                else if (topRank.length > 0 || eventRank.length > 0) {
+                    LogUtils_logHHAuto('Not Mega Event but rank tab exist');
+                }
+                LogUtils_logHHAuto('Collect Mega Event Rank Rewards');
+                // switch tabs
+                if (topRank.length > 0)
+                    topRank.trigger("click");
+                yield TimeHelper.sleep(randomInterval(200, 400));
+                RewardHelper.closeRewardPopupIfAny();
+                if (eventRank.length > 0)
+                    eventRank.trigger("click");
+                yield TimeHelper.sleep(randomInterval(200, 400));
+                RewardHelper.closeRewardPopupIfAny();
+                setTimer('nextMegaEventRankCollectTime', SeasonalEvent.getGlobalRankRemainingTime() + randomInterval(3600, 4000));
+            }
+            else if (unsafeWindow.seasonal_event_active || unsafeWindow.mega_event_active || unsafeWindow.seasonal_time_remaining > 0) {
+                LogUtils_logHHAuto("Switching to SeasonalEvent screen.");
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"));
+                return Promise.resolve(true);
+            }
+            else {
+                LogUtils_logHHAuto("No SeasonalEvent active.");
                 setTimer('nextMegaEventRankCollectTime', 604800); // 1 week delay
-                return false;
             }
-            else if (topRank.length > 0 || eventRank.length > 0) {
-                LogUtils_logHHAuto('Not Mega Event but rank tab exist');
-            }
-            LogUtils_logHHAuto('Collect Mega Event Rank Rewards');
-            // switch tabs
-            if (topRank.length > 0)
-                topRank.trigger("click");
-            else if (eventRank.length > 0)
-                eventRank.trigger("click");
-            setTimer('nextMegaEventRankCollectTime', SeasonalEvent.getGlobalRankRemainingTime() + randomInterval(3600, 4000));
-        }
-        else if (unsafeWindow.seasonal_event_active || unsafeWindow.seasonal_time_remaining > 0) {
-            LogUtils_logHHAuto("Switching to SeasonalEvent screen.");
-            gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"));
-            return true;
-        }
-        else {
-            LogUtils_logHHAuto("No SeasonalEvent active.");
-            setTimer('nextMegaEventRankCollectTime', 604800); // 1 week delay
-        }
-        return false;
+            return Promise.resolve(false);
+        });
     }
 }
 SeasonalEvent.SEASONAL_REWARD_PATH = '.mega-tier.unclaimed';
@@ -10862,6 +10877,7 @@ class Pachinko {
                     else {
                         $(freeButtonQuery).trigger('click');
                     }
+                    yield TimeHelper.sleep(randomInterval(100, 200));
                     var npach = $('.' + timerClass + ' span[rel="expires"]').text();
                     if (npach !== undefined && npach !== null && npach.length > 0) {
                         setTimer(pachinkoTimer, Number(convertTimeToInt(npach)) + randomInterval(1, 5));
@@ -16447,7 +16463,7 @@ function autoLoop() {
                 && (lastActionPerformed === "none" || lastActionPerformed === "seasonal")) {
                 LogUtils_logHHAuto("Time to go and check  SeasonalEvent for collecting rank reward.");
                 busy = true;
-                busy = SeasonalEvent.goAndCollectMegaEventRankRewards();
+                busy = yield SeasonalEvent.goAndCollectMegaEventRankRewards();
                 lastActionPerformed = "seasonal";
             }
             if (busy == false && isAutoLoopActive() && PathOfValue.isEnabled() &&
