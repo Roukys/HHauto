@@ -65,6 +65,7 @@ export class Pachinko {
                 {
                     $(freeButtonQuery).trigger('click');
                 }
+                await TimeHelper.sleep(randomInterval(100, 200));
 
                 var npach = $('.'+timerClass+' span[rel="expires"]').text();
                 if(npach !== undefined && npach !== null && npach.length > 0)

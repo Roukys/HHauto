@@ -10,7 +10,8 @@ import {
     getTextForUI,
     randomInterval,
     setStoredValue,
-    setTimer } from "../../Helper/index";
+    setTimer, 
+    TimeHelper} from "../../Helper/index";
 import { gotoPage } from "../../Service/index";
 import { isJSON, logHHAuto } from "../../Utils/index";
 import { HHStoredVarPrefixKey } from "../../config/index";
@@ -297,7 +298,7 @@ export class SeasonalEvent {
             target.append($('<div id='+hhRewardId+' style="display:none;"></div>'));
         }
     }
-    static goAndCollectMegaEventRankRewards():boolean {
+    static async goAndCollectMegaEventRankRewards():Promise<boolean> {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"))
         {
             const isMegaSeasonalEvent = SeasonalEvent.isMegaSeasonalEvent();
@@ -306,28 +307,32 @@ export class SeasonalEvent {
             if(!isMegaSeasonalEvent && topRank.length === 0 && eventRank.length === 0) {
                 logHHAuto('Not Mega Event');
                 setTimer('nextMegaEventRankCollectTime', 604800); // 1 week delay
-                return false;
+                return Promise.resolve(false);
             } else if(topRank.length > 0 || eventRank.length > 0) {
                 logHHAuto('Not Mega Event but rank tab exist');
             }
             logHHAuto('Collect Mega Event Rank Rewards');
             // switch tabs
-            if( topRank.length > 0) topRank.trigger("click");
-            else if( eventRank.length > 0) eventRank.trigger("click");
+            if (topRank.length > 0) topRank.trigger("click");
+            await TimeHelper.sleep(randomInterval(400, 600));
+            RewardHelper.closeRewardPopupIfAny();
+            if (eventRank.length > 0) eventRank.trigger("click");
+            await TimeHelper.sleep(randomInterval(400, 600));
+            RewardHelper.closeRewardPopupIfAny();
 
             setTimer('nextMegaEventRankCollectTime', SeasonalEvent.getGlobalRankRemainingTime() + randomInterval(3600,4000));
         }
-        else if(unsafeWindow.seasonal_event_active || unsafeWindow.seasonal_time_remaining > 0)
+        else if (unsafeWindow.seasonal_event_active || unsafeWindow.mega_event_active || unsafeWindow.seasonal_time_remaining > 0)
         {
             logHHAuto("Switching to SeasonalEvent screen.");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"));
-            return true;
+            return Promise.resolve(true);
         }
         else
         {
             logHHAuto("No SeasonalEvent active.");
             setTimer('nextMegaEventRankCollectTime', 604800); // 1 week delay
         }
-        return false;
+        return Promise.resolve(false);
     }
 }
