@@ -255,7 +255,7 @@ export async function autoLoop()
             }
         }
 
-        if(busy === false && ConfigHelper.getHHScriptVars("isEnabledPowerPlaces",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPowerPlaces") === "true" 
+        if(busy === false && PlaceOfPower.isActivated()
         && isAutoLoopActive() && (lastActionPerformed === "none" || lastActionPerformed === "pop"))
         {
 

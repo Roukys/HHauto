@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.14.2
+// @version      7.14.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3473,11 +3473,11 @@ class SeasonalEvent {
                 // switch tabs
                 if (topRank.length > 0)
                     topRank.trigger("click");
-                yield TimeHelper.sleep(randomInterval(200, 400));
+                yield TimeHelper.sleep(randomInterval(400, 600));
                 RewardHelper.closeRewardPopupIfAny();
                 if (eventRank.length > 0)
                     eventRank.trigger("click");
-                yield TimeHelper.sleep(randomInterval(200, 400));
+                yield TimeHelper.sleep(randomInterval(400, 600));
                 RewardHelper.closeRewardPopupIfAny();
                 setTimer('nextMegaEventRankCollectTime', SeasonalEvent.getGlobalRankRemainingTime() + randomInterval(3600, 4000));
             }
@@ -11141,6 +11141,13 @@ class PlaceOfPower {
             $(this).prepend('<div class="HHPopIDs">' + $(this).attr('pop_id') + '</div>');
         });
     }
+    static isEnabled() {
+        // unlocked and the end of world 2
+        return ConfigHelper.getHHScriptVars("isEnabledPowerPlaces", false) && getHHVars('Hero.infos.questing.id_world') > 2;
+    }
+    static isActivated() {
+        return PlaceOfPower.isEnabled() && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlaces") === "true";
+    }
     static styles() {
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_compactPowerPlace") === "true") {
             const popPagePath = '#pop #pop_info .pop_list';
@@ -12534,7 +12541,6 @@ class GayPornstarHarem {
     }
     static updateFeatures(envVariables) {
         envVariables.isEnabledSideQuest = false; // to remove when SideQuest arrives in gaypornstar
-        envVariables.isEnabledPowerPlaces = false; // to remove when PoP arrives in gaypornstar
         envVariables.isEnabledClubChamp = false; // to remove when Club Champs arrives in gaypornstar
         envVariables.isEnabledPantheon = false; // to remove when Pantheon arrives in gaypornstar
         envVariables.isEnabledPoG = false; // to remove when PoG arrives in gaypornstar
@@ -16032,7 +16038,7 @@ function autoLoop() {
                     lastActionPerformed = "shop";
                 }
             }
-            if (busy === false && ConfigHelper.getHHScriptVars("isEnabledPowerPlaces", false) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlaces") === "true"
+            if (busy === false && PlaceOfPower.isActivated()
                 && isAutoLoopActive() && (lastActionPerformed === "none" || lastActionPerformed === "pop")) {
                 var popToStart = getStoredValue(HHStoredVarPrefixKey + "Temp_PopToStart") ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_PopToStart")) : [];
                 if (popToStart.length != 0 || checkTimer('minPowerPlacesTime')) {

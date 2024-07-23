@@ -7,7 +7,8 @@ import {
     randomInterval,
     setStoredValue,
     setTimer,
-    deleteStoredValue
+    deleteStoredValue,
+    getHHVars
 } from '../Helper/index';
 import { autoLoop, gotoPage } from '../Service/index';
 import { isJSON, logHHAuto } from '../Utils/index';
@@ -21,6 +22,16 @@ export class PlaceOfPower {
             $(this).prepend('<div class="HHPopIDs">'+$(this).attr('pop_id')+'</div>');
         });
     }
+
+    static isEnabled() {
+        // unlocked and the end of world 2
+        return ConfigHelper.getHHScriptVars("isEnabledPowerPlaces", false) && getHHVars('Hero.infos.questing.id_world') > 2
+    }
+
+    static isActivated() {
+        return PlaceOfPower.isEnabled() && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlaces") === "true";
+    }
+
     static styles(){
         if(getStoredValue(HHStoredVarPrefixKey+"Setting_compactPowerPlace") === "true")
         {
