@@ -117,7 +117,7 @@ export class HaremSalary {
                             waitBetweenGirlsTime = randomInterval(1200,2000);
                             girlsToCollectBeforeWait = randomInterval(6,12);
                         }
-                        logHHAuto(`Next girl collection in ${waitBetweenGirlsTime}ms after n°${Clicked[0]}`);
+                        if (Clicked.length > 0) logHHAuto(`Next girl collection in ${waitBetweenGirlsTime}ms after n°${Clicked[0]}`);
                         setTimeout(ClickThem,waitBetweenGirlsTime);
                         if(window.top) window.top.postMessage({ImAlive:true},'*');
                     }
