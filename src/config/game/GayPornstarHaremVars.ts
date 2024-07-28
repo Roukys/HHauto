@@ -10,7 +10,8 @@ export class GayPornstarHarem {
         return ['Latest',
             'Tristan Hunter',
             'Jimmy Durano',
-            'Lucca Mazzi'];
+            'Lucca Mazzi',
+            'Andrew Stark'];
     }
 
     static getTrollGirlsId() {

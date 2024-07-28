@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.14.4
+// @version      7.14.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -12528,7 +12528,8 @@ class GayPornstarHarem {
         return ['Latest',
             'Tristan Hunter',
             'Jimmy Durano',
-            'Lucca Mazzi'];
+            'Lucca Mazzi',
+            'Andrew Stark'];
     }
     static getTrollGirlsId() {
         return [
@@ -12565,7 +12566,6 @@ class MangaRpg {
     static updateFeatures(envVariables) {
         envVariables.isEnabledClubChamp = false; // to remove when Club Champs arrives in Manga RPG
         envVariables.isEnabledPantheon = false; // to remove when Pantheon arrives in Manga RPG
-        envVariables.isEnabledSeasonalEvent = false; // to remove when event arrives in Manga RPG
         envVariables.isEnabledBossBangEvent = false; // to remove when event arrives in Manga RPG
         envVariables.isEnabledSultryMysteriesEvent = false; // to remove when event arrives in Manga RPG
     }
