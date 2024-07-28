@@ -15,7 +15,6 @@ export class MangaRpg {
     static updateFeatures(envVariables: any) {
         envVariables.isEnabledClubChamp = false;// to remove when Club Champs arrives in Manga RPG
         envVariables.isEnabledPantheon = false;// to remove when Pantheon arrives in Manga RPG
-        envVariables.isEnabledSeasonalEvent = false;// to remove when event arrives in Manga RPG
         envVariables.isEnabledBossBangEvent = false;// to remove when event arrives in Manga RPG
         envVariables.isEnabledSultryMysteriesEvent = false;// to remove when event arrives in Manga RPG
     }
