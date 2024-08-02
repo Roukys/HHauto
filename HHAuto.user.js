@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.14.6
+// @version      7.15.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -13,6 +13,7 @@
 // @match        http*://*.transpornstarharem.com/*
 // @match        http*://*.gaypornstarharem.com/*
 // @match        http*://*.mangarpg.com/*
+// @match        http*://*.amouragent.com/*
 // @grant        GM_addStyle
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
@@ -3577,6 +3578,11 @@ class QuestHelper {
         // Get the proceed button type
         var proceedButtonMatch = $("#controls button:not([class*='ad_']):not([style*='display:none']):not([style*='display: none'])");
         if (proceedButtonMatch.length === 0) {
+            // Choice button 
+            LogUtils_logHHAuto("Search for choice buttons");
+            proceedButtonMatch = $(".buttons-container button:not([class*='ad_']):not([style*='display:none']):not([style*='display: none'])").first();
+        }
+        if (proceedButtonMatch.length === 0) {
             proceedButtonMatch = $("#controls button#free");
         }
         var proceedType = proceedButtonMatch.attr("id");
@@ -3596,12 +3602,12 @@ class QuestHelper {
             //proceedButtonMatch.click();
         }
         else if (proceedType === "pay") {
-            var proceedButtonCost = $("#controls button:not([style*='display:none']):not([style*='display: none']) .action-cost .price");
+            var proceedButtonCost = $(".action-cost .price", proceedButtonMatch);
             var proceedCost = parsePrice(proceedButtonCost[0].innerText);
-            var payTypeNRJ = $("#controls button:not([style*='display:none']):not([style*='display: none']) .action-cost .energy_quest_icn").length > 0;
+            var payTypeNRJ = $(".action-cost .energy_quest_icn", proceedButtonMatch).length > 0;
             var energyCurrent = QuestHelper.getEnergy();
             var moneyCurrent = HeroHelper.getMoney();
-            let payType = $("#controls .cost span[cur]:not([style*='display:none']):not([style*='display: none'])").attr('cur');
+            //let payType = $("#controls .cost span[cur]:not([style*='display:none']):not([style*='display: none'])").attr('cur');
             //console.log("DebugQuest payType : "+payType);
             if (payTypeNRJ) {
                 // console.log("DebugQuest ENERGY for : "+proceedCost + " / " + energyCurrent);
@@ -12584,6 +12590,25 @@ class MangaRpg {
     }
 }
 
+;// CONCATENATED MODULE: ./src/config/game/AmourAgentVars.ts
+class AmourAgent {
+    static getEnv() {
+        return {
+            "www.amouragent.com": { name: "AA_prod", id: "hh_amour" }
+        };
+    }
+    static getTrolls() {
+        return ['Latest',
+            'Frank '];
+    }
+    static updateFeatures(envVariables) {
+        envVariables.isEnabledClubChamp = false; // to remove when Club Champs arrives in Manga RPG
+        envVariables.isEnabledPantheon = false; // to remove when Pantheon arrives in Manga RPG
+        envVariables.isEnabledBossBangEvent = false; // to remove when event arrives in Manga RPG
+        envVariables.isEnabledSultryMysteriesEvent = false; // to remove when event arrives in Manga RPG
+    }
+}
+
 ;// CONCATENATED MODULE: ./src/config/game/PornstarHaremVars.ts
 class PornstarHarem {
     static getEnv() {
@@ -12674,6 +12699,7 @@ const supportedGames = [
     GayHarem,
     GayPornstarHarem,
     MangaRpg,
+    AmourAgent,
     PornstarHarem,
     TransPornstarHarem
 ];
@@ -13034,6 +13060,11 @@ HHEnvVariables["SH_prod"].lastQuestId = -1; //  TODO update when new quest comes
     HHEnvVariables[element].trollzList = MangaRpg.getTrolls();
     HHEnvVariables[element].trollIdMapping = { 3: 3 };
     MangaRpg.updateFeatures(HHEnvVariables[element]);
+});
+["AA_prod"].forEach((element) => {
+    HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
+    HHEnvVariables[element].trollzList = AmourAgent.getTrolls();
+    AmourAgent.updateFeatures(HHEnvVariables[element]);
 });
 ["PH_prod", "NPH_prod"].forEach((element) => {
     HHEnvVariables[element].trollzList = PornstarHarem.getTrolls();

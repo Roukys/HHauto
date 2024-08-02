@@ -13,6 +13,7 @@
 // @match        http*://*.transpornstarharem.com/*
 // @match        http*://*.gaypornstarharem.com/*
 // @match        http*://*.mangarpg.com/*
+// @match        http*://*.amouragent.com/*
 // @grant        GM_addStyle
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand

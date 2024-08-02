@@ -85,6 +85,12 @@ export class QuestHelper {
         var proceedButtonMatch = $("#controls button:not([class*='ad_']):not([style*='display:none']):not([style*='display: none'])");
         if (proceedButtonMatch.length === 0)
         {
+            // Choice button 
+            logHHAuto("Search for choice buttons");
+            proceedButtonMatch = $(".buttons-container button:not([class*='ad_']):not([style*='display:none']):not([style*='display: none'])").first();
+        }
+        if (proceedButtonMatch.length === 0)
+        {
             proceedButtonMatch = $("#controls button#free");
         }
         var proceedType = proceedButtonMatch.attr("id");
@@ -106,12 +112,12 @@ export class QuestHelper {
             //proceedButtonMatch.click();
         }
         else if (proceedType === "pay") {
-            var proceedButtonCost = $("#controls button:not([style*='display:none']):not([style*='display: none']) .action-cost .price");
+            var proceedButtonCost = $(".action-cost .price", proceedButtonMatch);
             var proceedCost = parsePrice(proceedButtonCost[0].innerText);
-            var payTypeNRJ = $("#controls button:not([style*='display:none']):not([style*='display: none']) .action-cost .energy_quest_icn").length>0;
+            var payTypeNRJ = $(".action-cost .energy_quest_icn", proceedButtonMatch).length>0;
             var energyCurrent = QuestHelper.getEnergy();
             var moneyCurrent = HeroHelper.getMoney();
-            let payType = $("#controls .cost span[cur]:not([style*='display:none']):not([style*='display: none'])").attr('cur');
+            //let payType = $("#controls .cost span[cur]:not([style*='display:none']):not([style*='display: none'])").attr('cur');
             //console.log("DebugQuest payType : "+payType);
             if (payTypeNRJ)
             {
@@ -178,6 +184,11 @@ export class QuestHelper {
             //setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
             //logHHAuto("setting autoloop to false");
             //proceedButtonMatch.click();
+        }
+        else if (proceedType === "outfit") {
+            logHHAuto("Change outfit needed.");
+            // TODO manage ?
+            setStoredValue(HHStoredVarPrefixKey + "Temp_questRequirement", "outfit");
         }
         else {
             logHHAuto("Could not identify given resume button.");
