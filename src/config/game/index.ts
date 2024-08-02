@@ -1,3 +1,4 @@
+export * from './AmourAgentVars';
 export * from './ComixHaremVars';
 export * from './GayHaremVars';
 export * from './GayPornstarHaremVars';

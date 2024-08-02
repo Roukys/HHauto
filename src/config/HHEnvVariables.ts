@@ -1,6 +1,7 @@
 import { getLanguageCode } from "../Helper/LanguageHelper";
 import { Harem } from '../Module/index';
 import { 
+    AmourAgent,
     ComixHarem,
     GayHarem,
     GayPornstarHarem,
@@ -16,6 +17,7 @@ const supportedGames = [
     GayHarem,
     GayPornstarHarem,
     MangaRpg,
+    AmourAgent,
     PornstarHarem,
     TransPornstarHarem
 ];
@@ -449,6 +451,12 @@ HHEnvVariables["SH_prod"].lastQuestId = -1; //  TODO update when new quest comes
     HHEnvVariables[element].trollzList = MangaRpg.getTrolls();
     HHEnvVariables[element].trollIdMapping = { 3: 3 };
     MangaRpg.updateFeatures(HHEnvVariables[element]);
+});
+
+["AA_prod"].forEach((element) => {
+    HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
+    HHEnvVariables[element].trollzList = AmourAgent.getTrolls();
+    AmourAgent.updateFeatures(HHEnvVariables[element]);
 });
 
 ["PH_prod","NPH_prod"].forEach((element) => {
