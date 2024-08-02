@@ -410,6 +410,22 @@ export class Harem {
         return filteredGirlsList;
     }
 
+    static getGirlCount(): number  {
+        // Store girls for harem tools
+        let girlCount = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_HaremSize")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_HaremSize")).count : 0;
+        const girlsDataList = getHHVars("girlsDataList");
+        const girlsListSec = getHHVars("shared.GirlSalaryManager.girlsListSec");
+
+        if (girlCount == 0 && girlsDataList) {
+            girlCount = Object.values(girlsDataList).length;
+        }
+        if (girlCount == 0 && girlsListSec.length > 0) {
+            girlCount = girlsListSec.length;
+        }
+
+        return girlCount;
+    }
+
     static moduleHarem()
     {
         const menuIDXp = "haremGiveXP";

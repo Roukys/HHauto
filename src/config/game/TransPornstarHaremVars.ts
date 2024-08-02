@@ -28,7 +28,6 @@ export class TransPornstarHarem  {
 
     static updateFeatures(envVariables: any) {
         envVariables.isEnabledSideQuest = false;// to remove when SideQuest arrives in transpornstar
-        envVariables.isEnabledClubChamp = false;// to remove when Club Champs arrives in transpornstar
         envVariables.isEnabledPantheon = false;// to remove when Pantheon arrives in transpornstar
         envVariables.isEnabledPoG = false;// to remove when PoG arrives in transpornstar
     }
