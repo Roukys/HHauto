@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.14.5
+// @version      7.14.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4884,6 +4884,19 @@ class Harem {
             });
         }
         return filteredGirlsList;
+    }
+    static getGirlCount() {
+        // Store girls for harem tools
+        let girlCount = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_HaremSize")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_HaremSize")).count : 0;
+        const girlsDataList = getHHVars("girlsDataList");
+        const girlsListSec = getHHVars("shared.GirlSalaryManager.girlsListSec");
+        if (girlCount == 0 && girlsDataList) {
+            girlCount = Object.values(girlsDataList).length;
+        }
+        if (girlCount == 0 && girlsListSec.length > 0) {
+            girlCount = girlsListSec.length;
+        }
+        return girlCount;
     }
     static moduleHarem() {
         const menuIDXp = "haremGiveXP";
@@ -11133,6 +11146,7 @@ class Pachinko {
 
 
 
+
 class PlaceOfPower {
     static moduleDisplayPopID() {
         if ($('.HHPopIDs').length > 0) {
@@ -11144,7 +11158,7 @@ class PlaceOfPower {
     }
     static isEnabled() {
         // unlocked and the end of world 2
-        return ConfigHelper.getHHScriptVars("isEnabledPowerPlaces", false) && getHHVars('Hero.infos.questing.id_world') > 2;
+        return ConfigHelper.getHHScriptVars("isEnabledPowerPlaces", false) && getHHVars('Hero.infos.questing.id_world') > 2 && Harem.getGirlCount() >= 10;
     }
     static isActivated() {
         return PlaceOfPower.isEnabled() && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlaces") === "true";
@@ -12543,7 +12557,6 @@ class GayPornstarHarem {
     }
     static updateFeatures(envVariables) {
         envVariables.isEnabledSideQuest = false; // to remove when SideQuest arrives in gaypornstar
-        envVariables.isEnabledClubChamp = false; // to remove when Club Champs arrives in gaypornstar
         envVariables.isEnabledPantheon = false; // to remove when Pantheon arrives in gaypornstar
         envVariables.isEnabledPoG = false; // to remove when PoG arrives in gaypornstar
     }
@@ -12646,7 +12659,6 @@ class TransPornstarHarem {
     }
     static updateFeatures(envVariables) {
         envVariables.isEnabledSideQuest = false; // to remove when SideQuest arrives in transpornstar
-        envVariables.isEnabledClubChamp = false; // to remove when Club Champs arrives in transpornstar
         envVariables.isEnabledPantheon = false; // to remove when Pantheon arrives in transpornstar
         envVariables.isEnabledPoG = false; // to remove when PoG arrives in transpornstar
     }
@@ -15882,6 +15894,7 @@ class AdsService {
                 GM_addStyle('#ad_activities { position: absolute !important; top: 32rem !important; }');
                 GM_addStyle('#ad_quest { top: 25rem !important; }');
                 GM_addStyle('#ad_labyrinth { top: 30rem !important; }');
+                GM_addStyle('#ad_labyrinth-pre-battle { top: 30rem !important; }');
                 GM_addStyle('#ad_shop { top: 35rem !important; }');
             }
         }

@@ -27,7 +27,6 @@ export class GayPornstarHarem {
 
     static updateFeatures(envVariables: any) {
         envVariables.isEnabledSideQuest = false;// to remove when SideQuest arrives in gaypornstar
-        envVariables.isEnabledClubChamp = false;// to remove when Club Champs arrives in gaypornstar
         envVariables.isEnabledPantheon = false;// to remove when Pantheon arrives in gaypornstar
         envVariables.isEnabledPoG = false;// to remove when PoG arrives in gaypornstar
     }

@@ -13,6 +13,7 @@ import {
 import { autoLoop, gotoPage } from '../Service/index';
 import { isJSON, logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
+import { Harem } from './index';
 
 export class PlaceOfPower {
     static moduleDisplayPopID()
@@ -25,7 +26,7 @@ export class PlaceOfPower {
 
     static isEnabled() {
         // unlocked and the end of world 2
-        return ConfigHelper.getHHScriptVars("isEnabledPowerPlaces", false) && getHHVars('Hero.infos.questing.id_world') > 2
+        return ConfigHelper.getHHScriptVars("isEnabledPowerPlaces", false) && getHHVars('Hero.infos.questing.id_world') > 2 && Harem.getGirlCount() >= 10
     }
 
     static isActivated() {
