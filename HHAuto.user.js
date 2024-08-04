@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.15.0
+// @version      7.15.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -3668,6 +3668,11 @@ class QuestHelper {
             //setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
             //logHHAuto("setting autoloop to false");
             //proceedButtonMatch.click();
+        }
+        else if (proceedType === "outfit") {
+            LogUtils_logHHAuto("Change outfit needed.");
+            // TODO manage ?
+            setStoredValue(HHStoredVarPrefixKey + "Temp_questRequirement", "outfit");
         }
         else {
             LogUtils_logHHAuto("Could not identify given resume button.");
@@ -12599,7 +12604,8 @@ class AmourAgent {
     }
     static getTrolls() {
         return ['Latest',
-            'Frank '];
+            'Frank',
+            'Adriana'];
     }
     static updateFeatures(envVariables) {
         envVariables.isEnabledClubChamp = false; // to remove when Club Champs arrives in Manga RPG
