@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.15.1
+// @version      7.16.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -343,6 +343,7 @@ HHAuto_ToolTips.en['autoMissionKFirst'] = { version: "5.6.24", elementText: "Kob
 HHAuto_ToolTips.en['affection'] = { version: "6.11.0", elementText: "Affection" };
 HHAuto_ToolTips.en['experience'] = { version: "6.11.0", elementText: "Experience" };
 HHAuto_ToolTips.en['upradable'] = { version: "6.11.0", elementText: "Upradable" };
+HHAuto_ToolTips.en['skills'] = { version: "7.16.0", elementText: "Skills" };
 HHAuto_ToolTips.en['giveexperience'] = { version: "6.2.0", elementText: "Give experience", tooltip: "Automatically give max current range Exp to selected girl." };
 HHAuto_ToolTips.en['giveaffection'] = { version: "6.2.0", elementText: "Give Affection", tooltip: "Automatically give max current range affection to selected girl." };
 HHAuto_ToolTips.en['giveAllaffection'] = { version: "6.2.0", elementText: "Give All Affection", tooltip: "Automatically give all affection to selected girl." };
@@ -470,6 +471,7 @@ HHAuto_ToolTips.en['haremUpgradeMax'] = { version: "6.11.0", elementText: "Full 
 HHAuto_ToolTips.en['haremGirlGiveXP'] = { version: "5.30.0", elementText: "Give XP to girl", tooltip: "Open submenu to give xp to girl" };
 HHAuto_ToolTips.en['haremGirlGiveGifts'] = { version: "5.30.0", elementText: "Give Gifts to girl", tooltip: "" };
 HHAuto_ToolTips.en['haremGirlGiveMaxGifts'] = { version: "6.2.0", elementText: "Give max Gifts to girl", tooltip: "Use max out button to reach max grade, pay for necessary grades<br> Don't pay the last one" };
+HHAuto_ToolTips.en['haremGirlMaxSkill'] = { version: "7.16.0", elementText: "Give all skill to girl", tooltip: "" };
 HHAuto_ToolTips.en['haremGirlUpgradeMax'] = { version: "6.12.0", elementText: "Full upgrade girl", tooltip: "Perform all upgrades for the girl (including last one), give necessary affections" };
 HHAuto_ToolTips.en['collectAllTimer'] = { version: "5.7.0", elementText: "Collect all timer (in hour)", tooltip: "Hour(s) before end of events to collect all rewards (Low time create risk of not collecting), Need activation on each events (POV, POG, season)" };
 HHAuto_ToolTips.en['collectAllButton'] = { version: "7.3.0", elementText: "Collect all", tooltip: "Automatically collect all items" };
@@ -578,6 +580,7 @@ HHAuto_ToolTips.fr['minShardsX50'] = { version: "5.6.24", elementText: "Frags mi
 HHAuto_ToolTips.fr['minShardsX10'] = { version: "5.6.24", elementText: "Frags min. x10", tooltip: "Utiliser le bouton x10 si le nombre de fragments restant est supérieur ou égal à..." };
 HHAuto_ToolTips.fr['autoMissionKFirst'] = { version: "5.6.24", elementText: "Prioriser Kobans", tooltip: "Si activé : commence par les missions qui rapportent des kobans." };
 HHAuto_ToolTips.fr['povpogTitle'] = { version: "5.6.133", elementText: "Voie de la Valeur/Gloire" };
+HHAuto_ToolTips.fr['skills'] = { version: "7.16.0", elementText: "Compétences" };
 HHAuto_ToolTips.fr['povTitle'] = { version: "5.20.3", elementText: "Voie de la Valeur" };
 HHAuto_ToolTips.fr['pogTitle'] = { version: "5.20.3", elementText: "Voie de la Gloire" };
 HHAuto_ToolTips.fr['poaTitle'] = { version: "6.15.8", elementText: "Chemin d'affection" };
@@ -3650,6 +3653,9 @@ class QuestHelper {
             //proceedButtonMatch.click();
             //setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
             //logHHAuto("setting autoloop to false");
+        }
+        else if (proceedType === "finish") {
+            LogUtils_logHHAuto("Reached end of current side quest. Proceeding to next.");
         }
         else if (proceedType === "end_archive") {
             LogUtils_logHHAuto("Reached end of current archive. Proceeding to next archive.");
@@ -8008,7 +8014,7 @@ class HaremGirl {
         return $('#girl-leveler-max-out-all-levels-' + haremItem + ':not([disabled])');
     }
     static switchTabs(haremItem) {
-        $('#girl-leveler-tabs .switch-tab[data-tab="' + haremItem + '"]').click();
+        $('#girl-leveler-tabs .switch-tab[data-tab="' + haremItem + '"]').trigger('click');
     }
     static confirmMaxOut() {
         const confirmMaxOutButton = $('#girl_max_out_popup button.blue_button_L:not([disabled]):visible[confirm_callback]');
@@ -8239,11 +8245,13 @@ class HaremGirl {
             const menuIDGifts = "haremGirlGiveGifts";
             const menuIDMaxGifts = "haremGirlGiveMaxGifts";
             const menuIDUpgradeMax = "haremGirlUpgradeMax";
+            const menuIDMaxSkill = "haremGirlMaxSkill";
             const menuIDXpButton = createMenuButton(menuIDXp);
             const menuIDGiftsButton = createMenuButton(menuIDGifts);
             const menuIDMaxGiftsButton = createMenuButton(menuIDMaxGifts, !canGiftGirl);
             const menuIDUpgradeMaxButton = createMenuButton(menuIDUpgradeMax, !canGiftGirl);
             const imgPath = ConfigHelper.getHHScriptVars("baseImgPath");
+            const menuIDSkillButton = createMenuButton(menuIDMaxSkill);
             const girlMenu = '<div style="padding:50px; display:flex;flex-direction:column">'
                 //+    '<p id="HaremGirlMenuText">'+getTextForUI("girlMenu","elementText")+'</p>'
                 + '<div class="optionsBoxWithTitle">'
@@ -8258,6 +8266,12 @@ class HaremGirl {
                 //+       '<div style="padding:10px">'+menuIDGiftsButton+'</div>'
                 + '<div style="padding:10px">' + menuIDMaxGiftsButton + '</div>'
                 + '<div style="padding:10px">' + menuIDUpgradeMaxButton + '</div>'
+                + '</div>'
+                + '</div>'
+                + '<div class="optionsBoxWithTitle">'
+                + '<div class="optionsBoxTitle"><span class="optionsBoxTitle">' + getTextForUI("skills", "elementText") + '</span></div>'
+                + '<div class="optionsBox">'
+                + '<div style="padding:10px">' + menuIDSkillButton + '</div>'
                 + '</div>'
                 + '</div>';
             fillHHPopUp("GirlMenu", getTextForUI("girlMenu", "elementText"), girlMenu);
@@ -8285,6 +8299,12 @@ class HaremGirl {
                     fillGirlGifts(true);
                 });
             }
+            $('#' + menuIDMaxSkill + 'Button').on("click", () => HaremGirl_awaiter(this, void 0, void 0, function* () {
+                maskHHPopUp();
+                HaremGirl.switchTabs(HaremGirl.SKILLS_TYPE);
+                yield TimeHelper.sleep(randomInterval(400, 700));
+                HaremGirl.fullSkillsUpgrade();
+            }));
         };
         $('#girl-leveler-tabs').append(girlMenuButton);
         GM_registerMenuCommand(getTextForUI('girlMenu', "elementText"), openGirlMenu);
@@ -8490,6 +8510,22 @@ class HaremGirl {
             }
         });
     }
+    static fullSkillsUpgrade(retry = false) {
+        return HaremGirl_awaiter(this, void 0, void 0, function* () {
+            try {
+                let skillButton = $("#skills .skill-upgrade button.blue_button_L:not([disabled])").first();
+                if (skillButton.length > 0) {
+                    skillButton.trigger('click');
+                    yield TimeHelper.sleep(randomInterval(400, 700));
+                    return yield HaremGirl.fullSkillsUpgrade();
+                }
+            }
+            catch (error) {
+                LogUtils_logHHAuto("Can't remove popup_message_harem");
+            }
+            return Promise.resolve();
+        });
+    }
     static HaremDisplayGirlPopup(haremItem, haremText, remainingTime) {
         $(".girl-leveler-panel .girl-section").prepend('<div id="popup_message_harem" class="HHpopup_message" name="popup_message_harem" style="" ><a id="popup_message_harem_close" class="close">&times;</a>'
             + getTextForUI("give" + haremItem, "elementText") + ' : <br>' + haremText + ' (' + remainingTime + 'sec)</div>');
@@ -8514,6 +8550,8 @@ class HaremGirl {
 }
 HaremGirl.AFFECTION_TYPE = 'affection';
 HaremGirl.EXPERIENCE_TYPE = 'experience';
+HaremGirl.EQUIPMENT_TYPE = 'equipment';
+HaremGirl.SKILLS_TYPE = 'skills';
 
 ;// CONCATENATED MODULE: ./src/Module/harem/HaremSalary.ts
 var HaremSalary_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -12567,7 +12605,6 @@ class GayPornstarHarem {
         ];
     }
     static updateFeatures(envVariables) {
-        envVariables.isEnabledSideQuest = false; // to remove when SideQuest arrives in gaypornstar
         envVariables.isEnabledPantheon = false; // to remove when Pantheon arrives in gaypornstar
         envVariables.isEnabledPoG = false; // to remove when PoG arrives in gaypornstar
     }
@@ -12689,7 +12726,6 @@ class TransPornstarHarem {
         ];
     }
     static updateFeatures(envVariables) {
-        envVariables.isEnabledSideQuest = false; // to remove when SideQuest arrives in transpornstar
         envVariables.isEnabledPantheon = false; // to remove when Pantheon arrives in transpornstar
         envVariables.isEnabledPoG = false; // to remove when PoG arrives in transpornstar
     }
@@ -15900,14 +15936,14 @@ class ConfigHelper {
 
 
 
+
 class AdsService {
     static closeHomeAds() {
-        /*
         if ($('#ad_home close:visible').length) {
             setTimeout(() => {
-                $('#ad_home close').trigger('click')
-            }, randomInterval(1500, 5000));
-        }*/
+                $('#ad_home close').trigger('click');
+            }, randomInterval(3000, 5000));
+        }
     }
     static isCrossGameAds() {
         return $("#sliding-popups #crosspromo_show_ad").length > 0;
@@ -16689,6 +16725,7 @@ function autoLoop() {
                 Harem.clearHaremToolVariables();
                 HaremSalary.setSalaryTimeFromHomePage = callItOnce(HaremSalary.setSalaryTimeFromHomePage);
                 HaremSalary.setSalaryTimeFromHomePage();
+                AdsService.closeHomeAds();
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDHarem"):
                 Harem.moduleHarem();

@@ -62,6 +62,7 @@ import {
 } from '../config/index';
 import { EventGirl } from '../model/EventGirl';
 import { 
+    AdsService,
     checkParanoiaSpendings,
     clearParanoiaSpendings,
     flipParanoia,
@@ -1017,6 +1018,7 @@ export async function autoLoop()
 
             HaremSalary.setSalaryTimeFromHomePage = callItOnce(HaremSalary.setSalaryTimeFromHomePage);
             HaremSalary.setSalaryTimeFromHomePage();
+            AdsService.closeHomeAds();
             break;
         case ConfigHelper.getHHScriptVars("pagesIDHarem"):
             Harem.moduleHarem();
