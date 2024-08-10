@@ -7,7 +7,8 @@ import {
     parsePrice,
     randomInterval,
     setStoredValue,
-    HeroHelper
+    HeroHelper,
+    TimeHelper
 } from "../../Helper/index";
 import { Harem } from "../index";
 import { gotoPage } from "../../Service/index";
@@ -19,6 +20,8 @@ import { KKHaremGirl } from "../../model/index";
 export class HaremGirl {
     static AFFECTION_TYPE='affection';
     static EXPERIENCE_TYPE='experience';
+    static EQUIPMENT_TYPE ='equipment';
+    static SKILLS_TYPE ='skills';
 
     static getCurrentGirl(): KKHaremGirl {
         return unsafeWindow.girl;
@@ -33,7 +36,7 @@ export class HaremGirl {
     }
 
     static switchTabs(haremItem: string){
-        $('#girl-leveler-tabs .switch-tab[data-tab="'+haremItem+'"]').click();
+        $('#girl-leveler-tabs .switch-tab[data-tab="' + haremItem + '"]').trigger('click');
     }
 
     static confirmMaxOut(){
@@ -264,12 +267,14 @@ export class HaremGirl {
             const menuIDGifts = "haremGirlGiveGifts";
             const menuIDMaxGifts = "haremGirlGiveMaxGifts";
             const menuIDUpgradeMax = "haremGirlUpgradeMax";
+            const menuIDMaxSkill = "haremGirlMaxSkill";
 
             const menuIDXpButton = createMenuButton(menuIDXp);
             const menuIDGiftsButton = createMenuButton(menuIDGifts);
             const menuIDMaxGiftsButton = createMenuButton(menuIDMaxGifts, !canGiftGirl);
             const menuIDUpgradeMaxButton = createMenuButton(menuIDUpgradeMax, !canGiftGirl);
             const imgPath = ConfigHelper.getHHScriptVars("baseImgPath");
+            const menuIDSkillButton = createMenuButton(menuIDMaxSkill);
 
             
             const girlMenu = '<div style="padding:50px; display:flex;flex-direction:column">'
@@ -286,6 +291,12 @@ export class HaremGirl {
             //+       '<div style="padding:10px">'+menuIDGiftsButton+'</div>'
             +         '<div style="padding:10px">'+menuIDMaxGiftsButton+'</div>'
             +         '<div style="padding:10px">'+menuIDUpgradeMaxButton+'</div>'
+            +       '</div>'
+            +    '</div>'
+            +    '<div class="optionsBoxWithTitle">'
+            +       '<div class="optionsBoxTitle"><span class="optionsBoxTitle">' + getTextForUI("skills", "elementText") + '</span></div>'
+            +       '<div class="optionsBox">'
+            +         '<div style="padding:10px">' + menuIDSkillButton + '</div>'
             +       '</div>'
             +    '</div>'
             fillHHPopUp("GirlMenu",getTextForUI("girlMenu","elementText"), girlMenu);
@@ -314,6 +325,13 @@ export class HaremGirl {
                     fillGirlGifts(true);
                 });
             }
+
+            $('#' + menuIDMaxSkill + 'Button').on("click", async () => {
+                maskHHPopUp();
+                HaremGirl.switchTabs(HaremGirl.SKILLS_TYPE);
+                await TimeHelper.sleep(randomInterval(400, 700));
+                HaremGirl.fullSkillsUpgrade();
+            });
         };
         $('#girl-leveler-tabs').append(girlMenuButton);
 
@@ -533,6 +551,20 @@ export class HaremGirl {
         } finally {
             Promise.resolve(false);
         }
+    }
+
+    static async fullSkillsUpgrade(retry = false) {
+        try {
+            let skillButton = $("#skills .skill-upgrade button.blue_button_L:not([disabled])").first();
+            if(skillButton.length > 0) {
+                skillButton.trigger('click');
+                await TimeHelper.sleep(randomInterval(400, 700));
+                return await HaremGirl.fullSkillsUpgrade();
+            }
+        } catch (error) {
+            logHHAuto("Can't remove popup_message_harem");
+        }
+        return Promise.resolve();
     }
 
     static HaremDisplayGirlPopup(haremItem,haremText,remainingTime)

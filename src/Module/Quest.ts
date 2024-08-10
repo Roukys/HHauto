@@ -167,6 +167,9 @@ export class QuestHelper {
             //setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
             //logHHAuto("setting autoloop to false");
         }
+        else if (proceedType === "finish") {
+            logHHAuto("Reached end of current side quest. Proceeding to next.");
+        }
         else if (proceedType === "end_archive") {
             logHHAuto("Reached end of current archive. Proceeding to next archive.");
             //setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
