@@ -25,8 +25,14 @@ export class PlaceOfPower {
     }
 
     static isEnabled() {
+        const onPowerplacePage = getPage() === ConfigHelper.getHHScriptVars("pagesIDPowerplacemain");
+        const enoughGirl = Harem.getGirlCount() >= 10;
+        if (!enoughGirl) {
+            logHHAuto('ERROR: not enough girl for POP');
+        }
         // unlocked and the end of world 2
-        return ConfigHelper.getHHScriptVars("isEnabledPowerPlaces", false) && getHHVars('Hero.infos.questing.id_world') > 2 && Harem.getGirlCount() >= 10
+        const enoughProgress = getHHVars('Hero.infos.questing.id_world') > 2 && enoughGirl;
+        return ConfigHelper.getHHScriptVars("isEnabledPowerPlaces", false) && (enoughProgress || onPowerplacePage);
     }
 
     static isActivated() {

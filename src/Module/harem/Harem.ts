@@ -413,7 +413,7 @@ export class Harem {
     static getGirlCount(): number  {
         // Store girls for harem tools
         let girlCount = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_HaremSize")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_HaremSize")).count : 0;
-        const girlsDataList = getHHVars("girlsDataList");
+        const girlsDataList = getHHVars("girlsDataList", false);
         const girlsListSec = getHHVars("shared.GirlSalaryManager.girlsListSec");
 
         if (girlCount == 0 && girlsDataList) {

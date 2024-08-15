@@ -256,6 +256,20 @@ export async function autoLoop()
             }
         }
 
+        if (
+            busy === false
+            && isAutoLoopActive()
+            && Harem.HaremSizeNeedsRefresh(ConfigHelper.getHHScriptVars("HaremMaxSizeExpirationSecs"))
+            && getPage() !== ConfigHelper.getHHScriptVars("pagesIDWaifu")
+            && getPage() !== ConfigHelper.getHHScriptVars("pagesIDEditTeam")
+            && (lastActionPerformed === "none")
+        ) {
+            //console.log(! isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_HaremSize")),JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_HaremSize")).count_date,new Date().getTime() + ConfigHelper.getHHScriptVars("HaremSizeExpirationSecs") * 1000);
+            // Update girl count
+            busy = true;
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDWaifu"));
+        }
+
         if(busy === false && PlaceOfPower.isActivated()
         && isAutoLoopActive() && (lastActionPerformed === "none" || lastActionPerformed === "pop"))
         {
@@ -881,20 +895,6 @@ export async function autoLoop()
             busy = true;
             busy = await EventModule.parseEventPage(bossBangEventIDs[0]);
             lastActionPerformed = "event";
-        }
-
-        if (
-            busy === false
-            && isAutoLoopActive()
-            && Harem.HaremSizeNeedsRefresh(ConfigHelper.getHHScriptVars("HaremMaxSizeExpirationSecs"))
-            && getPage() !== ConfigHelper.getHHScriptVars("pagesIDWaifu")
-            && getPage() !== ConfigHelper.getHHScriptVars("pagesIDEditTeam")
-            && (lastActionPerformed === "none")
-        )
-        {
-            //console.log(! isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_HaremSize")),JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_HaremSize")).count_date,new Date().getTime() + ConfigHelper.getHHScriptVars("HaremSizeExpirationSecs") * 1000);
-            busy = true;
-            gotoPage(ConfigHelper.getHHScriptVars("pagesIDWaifu"));
         }
 
         if (
