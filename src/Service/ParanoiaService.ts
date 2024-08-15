@@ -27,6 +27,7 @@ import { gotoPage } from "./PageNavigationService";
 export class ParanoiaService {
     static MAX_LOOP = 10;
     static countParanoiaLoop = 0;
+    static countParanoiaClear = 0;
 }
 
 
@@ -332,11 +333,14 @@ export function flipParanoia()
             ParanoiaService.countParanoiaLoop++;
             // logHHAuto(`checkParanoiaSpendings() = ${checkParanoiaSpendings()}, reached ${ParanoiaService.countParanoiaLoop} times`);
             if (ParanoiaService.countParanoiaLoop > ParanoiaService.MAX_LOOP) {
-                logHHAuto('10 times flip without actions, clearParanoiaSpending and update');
+                logHHAuto(`10 times flip without actions, clearParanoiaSpending and update (count: ${ParanoiaService.countParanoiaClear++}) `);
                 clearParanoiaSpendings();
                 setParanoiaSpendings();
             }
-            return;
+            if (ParanoiaService.countParanoiaClear < ParanoiaService.MAX_LOOP)
+                return;
+            else
+                logHHAuto(`10 times clearParanoiaSpending and update, let flip continue`);
         }
         else
         {

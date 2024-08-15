@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.16.0
+// @version      7.16.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -83,7 +83,7 @@ GM_addStyle('.HHGirlMilestone > div { background: rgba(0,0,0,.5); border-radius:
 // GM_addStyle('.HHGirlMilestone.green { border: solid 1px green }');
 GM_addStyle('.HHGirlMilestone .nc-claimed-reward-check { width:20px; position:absolute; }'); 
 GM_addStyle('#HHSeasonRewards { position: absolute; right: 1.25rem; bottom: 14rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
-GM_addStyle('#HHSeasonalRewards { position: absolute; left: 1.25rem; bottom: 1rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
+GM_addStyle('#HHSeasonalRewards { position: absolute; left: 1.25rem; bottom: 1rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 2;}'); 
 GM_addStyle('#HHPoaRewards { position: absolute; left: 15rem; bottom: 0; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
 GM_addStyle('#HHDpRewards { position: absolute; left: 0; top: 12rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
 // copy CSS from HH OCD, to make it work on other game than HH
@@ -4905,7 +4905,7 @@ class Harem {
     static getGirlCount() {
         // Store girls for harem tools
         let girlCount = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_HaremSize")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_HaremSize")).count : 0;
-        const girlsDataList = getHHVars("girlsDataList");
+        const girlsDataList = getHHVars("girlsDataList", false);
         const girlsListSec = getHHVars("shared.GirlSalaryManager.girlsListSec");
         if (girlCount == 0 && girlsDataList) {
             girlCount = Object.values(girlsDataList).length;
@@ -11206,8 +11206,14 @@ class PlaceOfPower {
         });
     }
     static isEnabled() {
+        const onPowerplacePage = getPage() === ConfigHelper.getHHScriptVars("pagesIDPowerplacemain");
+        const enoughGirl = Harem.getGirlCount() >= 10;
+        if (!enoughGirl) {
+            LogUtils_logHHAuto('ERROR: not enough girl for POP');
+        }
         // unlocked and the end of world 2
-        return ConfigHelper.getHHScriptVars("isEnabledPowerPlaces", false) && getHHVars('Hero.infos.questing.id_world') > 2 && Harem.getGirlCount() >= 10;
+        const enoughProgress = getHHVars('Hero.infos.questing.id_world') > 2 && enoughGirl;
+        return ConfigHelper.getHHScriptVars("isEnabledPowerPlaces", false) && (enoughProgress || onPowerplacePage);
     }
     static isActivated() {
         return PlaceOfPower.isEnabled() && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlaces") === "true";
@@ -12625,7 +12631,6 @@ class MangaRpg {
             'Troll Hound'];
     }
     static updateFeatures(envVariables) {
-        envVariables.isEnabledClubChamp = false; // to remove when Club Champs arrives in Manga RPG
         envVariables.isEnabledPantheon = false; // to remove when Pantheon arrives in Manga RPG
         envVariables.isEnabledBossBangEvent = false; // to remove when event arrives in Manga RPG
         envVariables.isEnabledSultryMysteriesEvent = false; // to remove when event arrives in Manga RPG
@@ -16125,6 +16130,17 @@ function autoLoop() {
                     lastActionPerformed = "shop";
                 }
             }
+            if (busy === false
+                && isAutoLoopActive()
+                && Harem.HaremSizeNeedsRefresh(ConfigHelper.getHHScriptVars("HaremMaxSizeExpirationSecs"))
+                && getPage() !== ConfigHelper.getHHScriptVars("pagesIDWaifu")
+                && getPage() !== ConfigHelper.getHHScriptVars("pagesIDEditTeam")
+                && (lastActionPerformed === "none")) {
+                //console.log(! isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_HaremSize")),JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_HaremSize")).count_date,new Date().getTime() + ConfigHelper.getHHScriptVars("HaremSizeExpirationSecs") * 1000);
+                // Update girl count
+                busy = true;
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDWaifu"));
+            }
             if (busy === false && PlaceOfPower.isActivated()
                 && isAutoLoopActive() && (lastActionPerformed === "none" || lastActionPerformed === "pop")) {
                 var popToStart = getStoredValue(HHStoredVarPrefixKey + "Temp_PopToStart") ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_PopToStart")) : [];
@@ -16616,16 +16632,6 @@ function autoLoop() {
                 lastActionPerformed = "event";
             }
             if (busy === false
-                && isAutoLoopActive()
-                && Harem.HaremSizeNeedsRefresh(ConfigHelper.getHHScriptVars("HaremMaxSizeExpirationSecs"))
-                && getPage() !== ConfigHelper.getHHScriptVars("pagesIDWaifu")
-                && getPage() !== ConfigHelper.getHHScriptVars("pagesIDEditTeam")
-                && (lastActionPerformed === "none")) {
-                //console.log(! isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_HaremSize")),JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_HaremSize")).count_date,new Date().getTime() + ConfigHelper.getHHScriptVars("HaremSizeExpirationSecs") * 1000);
-                busy = true;
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDWaifu"));
-            }
-            if (busy === false
                 && isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled"))
                 && getPage() !== ConfigHelper.getHHScriptVars("pagesIDHome")
                 && getPage() === JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled")).page
@@ -17023,6 +17029,7 @@ class ParanoiaService {
 }
 ParanoiaService.MAX_LOOP = 10;
 ParanoiaService.countParanoiaLoop = 0;
+ParanoiaService.countParanoiaClear = 0;
 function replacerMap(key, value) {
     const originalObject = this[key];
     if (originalObject instanceof Map) {
@@ -17263,11 +17270,14 @@ function flipParanoia() {
             ParanoiaService.countParanoiaLoop++;
             // logHHAuto(`checkParanoiaSpendings() = ${checkParanoiaSpendings()}, reached ${ParanoiaService.countParanoiaLoop} times`);
             if (ParanoiaService.countParanoiaLoop > ParanoiaService.MAX_LOOP) {
-                LogUtils_logHHAuto('10 times flip without actions, clearParanoiaSpending and update');
+                LogUtils_logHHAuto(`10 times flip without actions, clearParanoiaSpending and update (count: ${ParanoiaService.countParanoiaClear++}) `);
                 clearParanoiaSpendings();
                 setParanoiaSpendings();
             }
-            return;
+            if (ParanoiaService.countParanoiaClear < ParanoiaService.MAX_LOOP)
+                return;
+            else
+                LogUtils_logHHAuto(`10 times clearParanoiaSpending and update, let flip continue`);
         }
         else {
             //refresh remaining
