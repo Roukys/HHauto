@@ -28,17 +28,23 @@ export class Missions {
     * Eg 3 has mission rewards of koban/hard_currency.
     * cost is the koban price for instant complete.
     */
-    static getSuitableMission(missionsList)
+    static getSuitableMission(missionsList: Mission[]): Mission
     {
         var msn = missionsList[0];
+        const kFirst = getStoredValue(HHStoredVarPrefixKey + "Setting_autoMissionKFirst") === "true";
+        const invertOrder = getStoredValue(HHStoredVarPrefixKey + "Setting_invertMissions") === "true"; 
         try {   
             for(var m in missionsList)
             {
-                if (JSON.stringify(missionsList[m].rewards).includes("koban") && getStoredValue(HHStoredVarPrefixKey+"Setting_autoMissionKFirst") === "true")
+                if (JSON.stringify(missionsList[m].rewards).includes("koban") && kFirst)
                 {
                     return missionsList[m];
                 }
-                if(Number(msn.duration) > Number(missionsList[m].duration))
+                if (Number(msn.duration) > Number(missionsList[m].duration) && !invertOrder)
+                {
+                    msn = missionsList[m];
+                }
+                else if (Number(msn.duration) < Number(missionsList[m].duration) && invertOrder)
                 {
                     msn = missionsList[m];
                 }

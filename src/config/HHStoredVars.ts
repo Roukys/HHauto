@@ -461,6 +461,17 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoMissionKFirst"] =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars[HHStoredVarPrefixKey + "Setting_invertMissions"] =
+{
+    default: "false",
+    storage: "Storage()",
+    HHType: "Setting",
+    valueType: "Boolean",
+    getMenu: true,
+    setMenu: true,
+    menuType: "checked",
+    kobanUsing: false
+};
 HHStoredVars[HHStoredVarPrefixKey+"Setting_compactPowerPlace"] =
     {
     default:"false",

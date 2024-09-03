@@ -456,12 +456,6 @@ export class EventModule {
                 eventList[eventID]["seconds_before_end"] = new Date().getTime() + poAEnd * 1000;
                 eventList[eventID]["next_refresh"]=new Date().getTime() + refreshTimerPoa * 1000;
                 eventList[eventID]["isCompleted"] = PathOfAttraction.isCompleted();
-
-                const manualCollectAll = getStoredValue(HHStoredVarPrefixKey + "Temp_poaManualCollectAll") === 'true';
-
-                if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollect") === "true" || manualCollectAll || poAEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoACollectAll") === "true") {
-                    await PathOfAttraction.goAndCollect(manualCollectAll);
-                }
             }
             if(Object.keys(eventList).length >0)
             {

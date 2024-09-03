@@ -38,6 +38,7 @@ HHAuto_ToolTips.en['autoSalaryUseFilter'] = { version: "7.11.0", elementText: "U
 HHAuto_ToolTips.en['autoMission'] = { version: "5.6.24", elementText: "Mission", tooltip: "if enabled : Automatically do missions"};
 HHAuto_ToolTips.en['autoMissionCollect'] = { version: "5.6.24", elementText: "Collect", tooltip: "if enabled : Automatically collect missions after start of new competition."};
 HHAuto_ToolTips.en['compactMissions'] = { version: "5.24.0", elementText: "Compact", tooltip: "Add styles to compact missions display"};
+HHAuto_ToolTips.en['invertMissions'] = { version: "7.16.2", elementText: "Invert", tooltip: "Start with longer mission instead of shorter"};
 HHAuto_ToolTips.en['autoTrollTitle'] = { version: "5.6.24", elementText: "Battle Troll"};
 HHAuto_ToolTips.en['autoTrollBattle'] = { version: "5.6.24", elementText: "Enable", tooltip: "if enabled : Automatically battle troll selected"};
 HHAuto_ToolTips.en['autoTrollSelector'] = { version: "5.6.24", elementText: "Troll selector", tooltip: "Select troll to be fought."};

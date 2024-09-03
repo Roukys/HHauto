@@ -10,7 +10,8 @@ import {
     getSecondsLeft,
     setTimer,
     convertTimeToInt,
-    getTextForUI
+    getTextForUI,
+    getLimitTimeBeforeEnd
 } from "../../Helper/index";
 import { autoLoop } from "../../Service/index";
 import { isJSON, logHHAuto } from "../../Utils/index";
@@ -58,13 +59,21 @@ export class PathOfAttraction {
             }
         }
     }
-    static run(){
-        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent") && ConfigHelper.getHHScriptVars("isEnabledClubChamp",false) && window.location.search.includes("tab="+ConfigHelper.getHHScriptVars('poaEventIDReg')))
+    static async run(){
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent") && window.location.search.includes("tab="+ConfigHelper.getHHScriptVars('poaEventIDReg')))
         {
             logHHAuto("On path of attraction event.");
-            if($(".hh-club-poa").length <= 0) {
-                const championsGoal = $('#poa-content .buttons:has(button[data-href="/champions-map.html"])');
-                championsGoal.append(getGoToClubChampionButton());
+            if (ConfigHelper.getHHScriptVars("isEnabledClubChamp", false)) {
+                if($(".hh-club-poa").length <= 0) {
+                    const championsGoal = $('#poa-content .buttons:has(button[data-href="/champions-map.html"])');
+                    championsGoal.append(getGoToClubChampionButton());
+                }
+            }
+
+            const manualCollectAll = getStoredValue(HHStoredVarPrefixKey + "Temp_poaManualCollectAll") === 'true';
+            const poAEnd = getSecondsLeft("PoARemainingTime");
+            if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollect") === "true" || manualCollectAll || poAEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollectAll") === "true") {
+                await PathOfAttraction.goAndCollect(manualCollectAll);
             }
         }
     }
@@ -181,7 +190,10 @@ export class PathOfAttraction {
                 $(PathOfAttraction.getRewardButtonPath).trigger('click');
                 await TimeHelper.sleep(randomInterval(300,800));
                 RewardHelper.closeRewardPopupIfAny(); // Will refresh the page
-                await TimeHelper.sleep(randomInterval(500,1000)); // Do not collect before page refresh
+                await TimeHelper.sleep(randomInterval(1000,1500)); // Do not collect before page refresh
+
+                RewardHelper.closeRewardPopupIfAny(); // Close reward popup
+                await TimeHelper.sleep(randomInterval(1000, 1500));
             }
 
             logHHAuto("numberTiers: " +  numberTiers);
@@ -194,7 +206,7 @@ export class PathOfAttraction {
 
             if(numberTiers > 0 && (freeClaimableTiers.length > 0 || paidClaimableTiers.length > 0))
             {
-                logHHAuto("Collecting rewards, setting autoloop to false");
+                logHHAuto(`Collecting rewards, ${freeClaimableTiers.length + paidClaimableTiers.length} rewards to collect , setting autoloop to false`);
                 setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                 $(".scroll-area.poa").animate({scrollLeft: 0});
                 await TimeHelper.sleep(randomInterval(300,800));
