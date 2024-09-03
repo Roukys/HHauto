@@ -503,6 +503,7 @@ export function getMenu() {
                                     + hhMenuSwitch('autoMissionCollect')
                                     + hhMenuSwitch('autoMissionKFirst')
                                     + hhMenuSwitch('compactMissions')
+                                    + hhMenuSwitch('invertMissions')
                                 +`</div>`
                                 +`<div id="isEnabledContest" class="internalOptionsRow optionsBox" style="padding:0;margin:0 0 0 3px;">`
                                     + hhMenuSwitch('autoContest')
@@ -538,11 +539,14 @@ export function getMenu() {
                                 +`<div class="optionsBox">`
                                     +`<div class="internalOptionsRow">`
                                         + hhMenuSwitch('autoDailyGoalsCollect')
-                                    +`</div>`
-                                    +`<div class="internalOptionsRow">`
                                         + hhMenuSwitch('compactDailyGoals')
-                                    +`</div>`
-                                +`</div>`
+                                    + `</div>`
+                                + `</div>`  
+                                + `<div id="isEnabledPachinko" class="rowOptionsBox">`
+                                    + `<div class="internalOptionsRow" style="justify-content: space-between">`
+                                        + hhMenuSwitchWithImg('autoFreePachinko', 'pictures/design/menu/pachinko.svg')
+                                    + `</div>`
+                                + `</div>`
                             +`</div>`
                         +`</div>`
                     +`</div>`
@@ -563,11 +567,6 @@ export function getMenu() {
                         +`</div>`
                     +`</div>`
                     +`<div class="optionsRow">`
-                        +`<div id="isEnabledPachinko" class="rowOptionsBox">`
-                            +`<div class="internalOptionsRow" style="justify-content: space-between">`
-                                + hhMenuSwitchWithImg('autoFreePachinko', 'pictures/design/menu/pachinko.svg')
-                            +`</div>`
-                        +`</div>`
                         +`<div id="isEnabledQuest" class="rowOptionsBox">`
                             +`<div class="internalOptionsRow">`
                                 + hhMenuSwitchWithImg('autoQuest', 'design/menu/forward.svg')

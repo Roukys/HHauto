@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.16.1
+// @version      7.16.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -207,6 +207,7 @@ HHAuto_ToolTips.en['autoSalaryUseFilter'] = { version: "7.11.0", elementText: "U
 HHAuto_ToolTips.en['autoMission'] = { version: "5.6.24", elementText: "Mission", tooltip: "if enabled : Automatically do missions" };
 HHAuto_ToolTips.en['autoMissionCollect'] = { version: "5.6.24", elementText: "Collect", tooltip: "if enabled : Automatically collect missions after start of new competition." };
 HHAuto_ToolTips.en['compactMissions'] = { version: "5.24.0", elementText: "Compact", tooltip: "Add styles to compact missions display" };
+HHAuto_ToolTips.en['invertMissions'] = { version: "7.16.2", elementText: "Invert", tooltip: "Start with longer mission instead of shorter" };
 HHAuto_ToolTips.en['autoTrollTitle'] = { version: "5.6.24", elementText: "Battle Troll" };
 HHAuto_ToolTips.en['autoTrollBattle'] = { version: "5.6.24", elementText: "Enable", tooltip: "if enabled : Automatically battle troll selected" };
 HHAuto_ToolTips.en['autoTrollSelector'] = { version: "5.6.24", elementText: "Troll selector", tooltip: "Select troll to be fought." };
@@ -1541,13 +1542,22 @@ class PathOfAttraction {
         }
     }
     static run() {
-        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent") && ConfigHelper.getHHScriptVars("isEnabledClubChamp", false) && window.location.search.includes("tab=" + ConfigHelper.getHHScriptVars('poaEventIDReg'))) {
-            LogUtils_logHHAuto("On path of attraction event.");
-            if ($(".hh-club-poa").length <= 0) {
-                const championsGoal = $('#poa-content .buttons:has(button[data-href="/champions-map.html"])');
-                championsGoal.append(getGoToClubChampionButton());
+        return PathOfAttraction_awaiter(this, void 0, void 0, function* () {
+            if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent") && window.location.search.includes("tab=" + ConfigHelper.getHHScriptVars('poaEventIDReg'))) {
+                LogUtils_logHHAuto("On path of attraction event.");
+                if (ConfigHelper.getHHScriptVars("isEnabledClubChamp", false)) {
+                    if ($(".hh-club-poa").length <= 0) {
+                        const championsGoal = $('#poa-content .buttons:has(button[data-href="/champions-map.html"])');
+                        championsGoal.append(getGoToClubChampionButton());
+                    }
+                }
+                const manualCollectAll = getStoredValue(HHStoredVarPrefixKey + "Temp_poaManualCollectAll") === 'true';
+                const poAEnd = getSecondsLeft("PoARemainingTime");
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollect") === "true" || manualCollectAll || poAEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollectAll") === "true") {
+                    yield PathOfAttraction.goAndCollect(manualCollectAll);
+                }
             }
-        }
+        });
     }
     static styles() {
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_PoAMaskRewards") === "true") {
@@ -1649,7 +1659,9 @@ class PathOfAttraction {
                         $(PathOfAttraction.getRewardButtonPath).trigger('click');
                         yield TimeHelper.sleep(randomInterval(300, 800));
                         RewardHelper.closeRewardPopupIfAny(); // Will refresh the page
-                        yield TimeHelper.sleep(randomInterval(500, 1000)); // Do not collect before page refresh
+                        yield TimeHelper.sleep(randomInterval(1000, 1500)); // Do not collect before page refresh
+                        RewardHelper.closeRewardPopupIfAny(); // Close reward popup
+                        yield TimeHelper.sleep(randomInterval(1000, 1500));
                     });
                 }
                 LogUtils_logHHAuto("numberTiers: " + numberTiers);
@@ -1660,7 +1672,7 @@ class PathOfAttraction {
                 const freeClaimableTiers = Object.keys(freeClaimableRewards);
                 const paidClaimableTiers = Object.keys(paidClaimableRewards);
                 if (numberTiers > 0 && (freeClaimableTiers.length > 0 || paidClaimableTiers.length > 0)) {
-                    LogUtils_logHHAuto("Collecting rewards, setting autoloop to false");
+                    LogUtils_logHHAuto(`Collecting rewards, ${freeClaimableTiers.length + paidClaimableTiers.length} rewards to collect , setting autoloop to false`);
                     setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
                     $(".scroll-area.poa").animate({ scrollLeft: 0 });
                     yield TimeHelper.sleep(randomInterval(300, 800));
@@ -2114,10 +2126,6 @@ class EventModule {
                     eventList[eventID]["seconds_before_end"] = new Date().getTime() + poAEnd * 1000;
                     eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimerPoa * 1000;
                     eventList[eventID]["isCompleted"] = PathOfAttraction.isCompleted();
-                    const manualCollectAll = getStoredValue(HHStoredVarPrefixKey + "Temp_poaManualCollectAll") === 'true';
-                    if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollect") === "true" || manualCollectAll || poAEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollectAll") === "true") {
-                        yield PathOfAttraction.goAndCollect(manualCollectAll);
-                    }
                 }
                 if (Object.keys(eventList).length > 0) {
                     setStoredValue(HHStoredVarPrefixKey + "Temp_eventsList", JSON.stringify(eventList));
@@ -6285,6 +6293,17 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoMissionKFirst"] =
         menuType: "checked",
         kobanUsing: false
     };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_invertMissions"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_compactPowerPlace"] =
     {
         default: "false",
@@ -10381,12 +10400,17 @@ class Missions {
     */
     static getSuitableMission(missionsList) {
         var msn = missionsList[0];
+        const kFirst = getStoredValue(HHStoredVarPrefixKey + "Setting_autoMissionKFirst") === "true";
+        const invertOrder = getStoredValue(HHStoredVarPrefixKey + "Setting_invertMissions") === "true";
         try {
             for (var m in missionsList) {
-                if (JSON.stringify(missionsList[m].rewards).includes("koban") && getStoredValue(HHStoredVarPrefixKey + "Setting_autoMissionKFirst") === "true") {
+                if (JSON.stringify(missionsList[m].rewards).includes("koban") && kFirst) {
                     return missionsList[m];
                 }
-                if (Number(msn.duration) > Number(missionsList[m].duration)) {
+                if (Number(msn.duration) > Number(missionsList[m].duration) && !invertOrder) {
+                    msn = missionsList[m];
+                }
+                else if (Number(msn.duration) < Number(missionsList[m].duration) && invertOrder) {
                     msn = missionsList[m];
                 }
             }
@@ -13746,6 +13770,7 @@ function getMenu() {
             + hhMenuSwitch('autoMissionCollect')
             + hhMenuSwitch('autoMissionKFirst')
             + hhMenuSwitch('compactMissions')
+            + hhMenuSwitch('invertMissions')
             + `</div>`
             + `<div id="isEnabledContest" class="internalOptionsRow optionsBox" style="padding:0;margin:0 0 0 3px;">`
             + hhMenuSwitch('autoContest')
@@ -13781,9 +13806,12 @@ function getMenu() {
             + `<div class="optionsBox">`
             + `<div class="internalOptionsRow">`
             + hhMenuSwitch('autoDailyGoalsCollect')
-            + `</div>`
-            + `<div class="internalOptionsRow">`
             + hhMenuSwitch('compactDailyGoals')
+            + `</div>`
+            + `</div>`
+            + `<div id="isEnabledPachinko" class="rowOptionsBox">`
+            + `<div class="internalOptionsRow" style="justify-content: space-between">`
+            + hhMenuSwitchWithImg('autoFreePachinko', 'pictures/design/menu/pachinko.svg')
             + `</div>`
             + `</div>`
             + `</div>`
@@ -13806,11 +13834,6 @@ function getMenu() {
             + `</div>`
             + `</div>`
             + `<div class="optionsRow">`
-            + `<div id="isEnabledPachinko" class="rowOptionsBox">`
-            + `<div class="internalOptionsRow" style="justify-content: space-between">`
-            + hhMenuSwitchWithImg('autoFreePachinko', 'pictures/design/menu/pachinko.svg')
-            + `</div>`
-            + `</div>`
             + `<div id="isEnabledQuest" class="rowOptionsBox">`
             + `<div class="internalOptionsRow">`
             + hhMenuSwitchWithImg('autoQuest', 'design/menu/forward.svg')
