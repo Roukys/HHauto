@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.16.2
+// @version      7.16.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -12607,6 +12607,23 @@ class GayHarem {
                 break;
         }
     }
+    static getTrollGirlsId() {
+        return [
+            [['8', '9', '10'], ['7270263'], ['979916751']],
+            [['14', '13', '12'], ['318292466'], ['936580004']],
+            [['19', '16', '18'], ['610468472'], ['54950499']],
+            [['29', '28', '26'], ['4749652'], ['345655744']],
+            [['39', '40', '41'], ['267784162'], ['763020698']],
+            [['64', '63', '31'], ['406004250'], ['864899873']],
+            [['85', '86', '84'], ['267120960'], ['536361248']],
+            [['114', '115', '116'], ['379441499'], ['447396000']],
+            [['1247315', '4649579', '7968301'], ['46227677'], ['933487713']],
+            [['1379661', '4479579', '1800186'], ['985085118'], ['339765042']],
+            [['24316446', '219651566', '501847856'], ['383709663'], ['90685795']],
+            [['225365882', '478693885', '231765083'], ['155415482'], ['769649470']],
+            [['86962133', '243793871', '284483399'], [0], [0]],
+        ];
+    }
 }
 
 ;// CONCATENATED MODULE: ./src/config/game/GayPornstarHaremVars.ts
@@ -12632,6 +12649,7 @@ class GayPornstarHarem {
             [[0], [0], [0]],
             [['290465722', '524315573', '970767946'], [0], [0]],
             [['127881092', '680366759', '836998610'], [0], [0]],
+            [['182117271', '350309796', '361432643', '390918673', '426008459', '446246345', '590934200', '599355011', '712652761', '848616605', '921769175'], [0], [0]],
         ];
     }
     static updateFeatures(envVariables) {
@@ -12653,6 +12671,13 @@ class MangaRpg {
             'Jeshtar',
             'EMPTY',
             'Troll Hound'];
+    }
+    static getTrollGirlsId() {
+        return [
+            [[0], [0], [0]],
+            [[0], [0], [0]],
+            [['355325809', '417946225', '860641919'], [0], [0]],
+        ];
     }
     static updateFeatures(envVariables) {
         envVariables.isEnabledPantheon = false; // to remove when Pantheon arrives in Manga RPG
@@ -12704,7 +12729,8 @@ class PornstarHarem {
             'Sierra Sinn',
             'Jasmine Jae',
             'Bella Rose',
-            'Paige Taylor'];
+            'Paige Taylor',
+            'The Hooded Heroine'];
     }
     static getTrollGirlsId() {
         return [
@@ -12722,6 +12748,7 @@ class PornstarHarem {
             [['258984943', '837109131', '888135956'], [0], [0]],
             [['270920965', '600910475', '799448349'], [0], [0]],
             [['832031905', '272818756', '477487889'], [0], [0]],
+            [['814814392', '660703295', '450943401'], [0], [0]],
         ];
     }
 }
@@ -12752,6 +12779,7 @@ class TransPornstarHarem {
             [['473470854', '708191289', '945710078'], [0], [0]],
             [['104549634', '521022556', '526732951'], [0], [0]],
             [['317800067', '542090972', '920682672'], [0], [0]],
+            [['558585439', '577205682', '741311311'], [0], [0]],
         ];
     }
     static updateFeatures(envVariables) {
@@ -13105,6 +13133,7 @@ HHEnvVariables["HH_test"].isEnabledDailyRewards = false; // to remove if daily r
 HHEnvVariables["HH_test"].isEnabledFreeBundles = false; // to remove if bundles arrives in test
 ["GH_prod", "NGH_prod", "EGH_prod"].forEach((element) => {
     HHEnvVariables[element].trollzList = GayHarem.getTrolls();
+    HHEnvVariables[element].trollGirlsID = GayHarem.getTrollGirlsId();
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
     GayHarem.overrideTrollsByLang(getLanguageCode(), HHEnvVariables[element].trollzList);
 });
@@ -13129,6 +13158,7 @@ HHEnvVariables["SH_prod"].lastQuestId = -1; //  TODO update when new quest comes
 ["MRPG_prod", "NMRPG_prod"].forEach((element) => {
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
     HHEnvVariables[element].trollzList = MangaRpg.getTrolls();
+    HHEnvVariables[element].trollGirlsID = MangaRpg.getTrollGirlsId();
     HHEnvVariables[element].trollIdMapping = { 3: 3 };
     MangaRpg.updateFeatures(HHEnvVariables[element]);
 });

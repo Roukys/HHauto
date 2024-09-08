@@ -12,6 +12,14 @@ export class MangaRpg {
             'Troll Hound'];
     }
 
+    static getTrollGirlsId() {
+        return [
+            [[0], [0], [0]],
+            [[0], [0], [0]],
+            [['355325809', '417946225', '860641919'], [0], [0]],
+        ];
+    }
+
     static updateFeatures(envVariables: any) {
         envVariables.isEnabledPantheon = false;// to remove when Pantheon arrives in Manga RPG
         envVariables.isEnabledBossBangEvent = false;// to remove when event arrives in Manga RPG
