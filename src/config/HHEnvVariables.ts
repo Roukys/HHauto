@@ -422,6 +422,7 @@ HHEnvVariables["HH_test"].isEnabledFreeBundles = false;// to remove if bundles a
 
 ["GH_prod","NGH_prod","EGH_prod"].forEach((element) => {
     HHEnvVariables[element].trollzList = GayHarem.getTrolls();
+    HHEnvVariables[element].trollGirlsID = GayHarem.getTrollGirlsId();
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
     GayHarem.overrideTrollsByLang(getLanguageCode(), HHEnvVariables[element].trollzList);
 });
@@ -449,6 +450,7 @@ HHEnvVariables["SH_prod"].lastQuestId = -1; //  TODO update when new quest comes
 ["MRPG_prod", "NMRPG_prod"].forEach((element) => {
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
     HHEnvVariables[element].trollzList = MangaRpg.getTrolls();
+    HHEnvVariables[element].trollGirlsID = MangaRpg.getTrollGirlsId();
     HHEnvVariables[element].trollIdMapping = { 3: 3 };
     MangaRpg.updateFeatures(HHEnvVariables[element]);
 });

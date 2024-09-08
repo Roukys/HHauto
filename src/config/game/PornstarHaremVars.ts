@@ -21,7 +21,8 @@ export class PornstarHarem{
             'Sierra Sinn',
             'Jasmine Jae',
             'Bella Rose',
-            'Paige Taylor'];
+            'Paige Taylor',
+            'The Hooded Heroine'];
     }
 
     static getTrollGirlsId() {
@@ -40,6 +41,7 @@ export class PornstarHarem{
             [['258984943', '837109131', '888135956'], [0], [0]],
             [['270920965', '600910475', '799448349'], [0], [0]],
             [['832031905', '272818756', '477487889'], [0], [0]],
+            [['814814392', '660703295', '450943401'], [0], [0]],
         ];
     }
 }
