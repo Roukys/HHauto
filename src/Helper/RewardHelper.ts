@@ -338,7 +338,7 @@ export class RewardHelper {
 
         if ($('#rewards_popup').length >0)
         {
-            if ($('#rewards_popup')[0].style.display!=="block")
+            if ($('#rewards_popup')[0].style.display !== "block" && $('#rewards_popup')[0].style.display !== "")
             {
                 setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                 logHHAuto("setting autoloop to false to wait for troll rewards");

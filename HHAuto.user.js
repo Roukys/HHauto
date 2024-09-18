@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.16.3
+// @version      7.16.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -8038,7 +8038,7 @@ class HaremGirl {
     static confirmMaxOut() {
         const confirmMaxOutButton = $('#girl_max_out_popup button.blue_button_L:not([disabled]):visible[confirm_callback]');
         if (confirmMaxOutButton.length > 0) {
-            confirmMaxOutButton.click();
+            confirmMaxOutButton.trigger('click');
         }
         else
             LogUtils_logHHAuto('Confirm max out button not found');
@@ -8048,7 +8048,7 @@ class HaremGirl {
             const maxOutButton = HaremGirl.getMaxOutButton(haremItem);
             if (maxOutButton.length > 0) {
                 LogUtils_logHHAuto('Max out ' + haremItem + ' for girl ' + girl.id_girl);
-                maxOutButton.click();
+                maxOutButton.trigger('click');
                 setTimeout(() => {
                     HaremGirl.confirmMaxOut();
                     setTimeout(() => {
@@ -15671,7 +15671,7 @@ class RewardHelper {
             mutations.forEach(parseReward);
         });
         if ($('#rewards_popup').length > 0) {
-            if ($('#rewards_popup')[0].style.display !== "block") {
+            if ($('#rewards_popup')[0].style.display !== "block" && $('#rewards_popup')[0].style.display !== "") {
                 setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
                 LogUtils_logHHAuto("setting autoloop to false to wait for troll rewards");
                 observerReward.observe($('#rewards_popup')[0], {
