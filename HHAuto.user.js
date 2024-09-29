@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.16.4
+// @version      7.16.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -90,8 +90,8 @@ GM_addStyle('#HHDpRewards { position: absolute; left: 0; top: 12rem; padding: 0.
 GM_addStyle('#pov_tab_container .potions-paths-first-row .potions-paths-title-panel { transform: scale(0.5);  position: relative; top: -37px; }');
 GM_addStyle('img.eventCompleted { width: 10px; margin-left:2px }');
 // Remove blur on pose preview
-GM_addStyle('#popups #girl_preview_popup .preview-locked_icn { display: none; }');
-GM_addStyle('#popups #girl_preview_popup #poses-tab_container .pose-preview_wrapper.locked img { filter: none !important; }');
+GM_addStyle('#girl_preview_popup .preview-locked_icn { display: none; }');
+GM_addStyle('#girl_preview_popup #poses-tab_container .pose-preview_wrapper.locked img { filter: none !important; }');
 //END CSS Region
 
 
@@ -12769,7 +12769,8 @@ class TransPornstarHarem {
             'Janie Blade',
             'Nikki Nort',
             'Mistress Venom',
-            'CEO Ramona'];
+            'CEO Ramona',
+            'Mama Bee'];
     }
     static getTrollGirlsId() {
         return [
@@ -12780,6 +12781,7 @@ class TransPornstarHarem {
             [['104549634', '521022556', '526732951'], [0], [0]],
             [['317800067', '542090972', '920682672'], [0], [0]],
             [['558585439', '577205682', '741311311'], [0], [0]],
+            // TODO Maman Bee
         ];
     }
     static updateFeatures(envVariables) {
