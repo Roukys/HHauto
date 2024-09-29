@@ -13,7 +13,8 @@ export class TransPornstarHarem  {
             'Janie Blade',
             'Nikki Nort',
             'Mistress Venom',
-            'CEO Ramona'];
+            'CEO Ramona',
+            'Mama Bee'];
     }
     static getTrollGirlsId() {
         return [
@@ -24,6 +25,7 @@ export class TransPornstarHarem  {
             [['104549634', '521022556', '526732951'], [0], [0]],
             [['317800067', '542090972', '920682672'], [0], [0]],
             [['558585439', '577205682', '741311311'], [0], [0]],
+            // TODO Maman Bee
         ];
     }
 
