@@ -120,11 +120,11 @@ export class Season {
                 doDisplay=true;
             }
 
-            let opponents = $('div.opponents_arena .season_arena_opponent_container');
             for (let index=0;index<3;index++)
             {
 
                 const {player, opponent} = BDSMHelper.getBdsmPlayersData(hero_data, opponentDatas[index].player);
+                const opponentBlock = $('.season_arena_opponent_container[data-opponent=' + opponentDatas[index].player?.id_fighter + ']');
 
                 if (doDisplay)
                 {
@@ -135,23 +135,24 @@ export class Season {
                 seasonOpponents[index] = new SeasonOpponent(
                     opponentDatas[index].player?.id_fighter, 
                     opponent.name, 
-                    Number($(".slot_victory_points .amount", opponents[index])[0].innerText), // mojo
-                    Number((<HTMLElement>$(".slot_season_xp_girl", opponents[index])[0].lastElementChild).innerText.replace(/\D/g, '')),
-                    Number((<HTMLElement>$(".slot_season_affection_girl", opponents[index])[0].lastElementChild).innerText.replace(/\D/g, '')), 
+                    Number($(".slot_victory_points .amount", opponentBlock)[0].innerText), // mojo
+                    Number((<HTMLElement>$(".slot_season_xp_girl", opponentBlock)[0].lastElementChild).innerText.replace(/\D/g, '')),
+                    Number((<HTMLElement>$(".slot_season_affection_girl", opponentBlock)[0].lastElementChild).innerText.replace(/\D/g, '')), 
                     simu
                 );
 
-                $('.player-panel-buttons .btn_season_perform',opponents[index]).contents().filter(function() {return this.nodeType===3;}).remove();
-                $('.player-panel-buttons .btn_season_perform',opponents[index]).find('span').remove();
+                $('.player-panel-buttons .btn_season_perform', opponentBlock).contents().filter(function() {return this.nodeType===3;}).remove();
+                $('.player-panel-buttons .btn_season_perform', opponentBlock).find('span').remove();
                 $('.player-panel-buttons .opponent_perform_button_container .green_button_L.btn_season_perform .energy_kiss_icn.kiss_icon_s').remove();
 
                 if (doDisplay)
                 {
-                    $('.player-panel-buttons .opponent_perform_button_container .green_button_L.btn_season_perform',opponents[index]).prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${ConfigHelper.getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${NumberHelper.nRounding(100*simu.win, 2, -1)}%</div>`);
+                    $('.player-panel-buttons .opponent_perform_button_container .green_button_L.btn_season_perform', opponentBlock).prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${ConfigHelper.getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${NumberHelper.nRounding(100*simu.win, 2, -1)}%</div>`);
                 }
             }
 
-            var { numberOfReds, chosenID } = Season.getBestOppo(seasonOpponents, Season.getEnergy(), Season.getEnergyMax());
+            var { numberOfReds, chosenIndex } = Season.getBestOppo(seasonOpponents, Season.getEnergy(), Season.getEnergyMax());
+            const chosenID = opponentDatas[chosenIndex].player?.id_fighter;
 
             var price=Number($("div.opponents_arena button#refresh_villains").attr('price'));
             if (isNaN(price))
@@ -160,17 +161,18 @@ export class Season {
             }
             if (numberOfReds === 3 && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonPassReds") === "true" && HeroHelper.getKoban()>=price+Number(getStoredValue(HHStoredVarPrefixKey+"Setting_kobanBank")))
             {
-                chosenID = -2;
+                chosenIndex = -2;
             }
 
             $($('div.season_arena_opponent_container div.matchRatingNew')).append(`<img id="powerLevelScouterNonChosen">`);
 
             //logHHAuto("Best opportunity opponent : "+oppoName+'('+chosenRating+')');
-            if (doDisplay && chosenID >= 0 && chosenID < 3)
+            if (doDisplay && chosenIndex >= 0 && chosenIndex < 3)
             {
-                try{
-                    $($('.season_arena_opponent_container .matchRatingNew #powerLevelScouterNonChosen')[chosenID]).remove();
-                    $($('div.season_arena_opponent_container div.matchRatingNew')[chosenID]).append(`<img id="powerLevelScouterChosen" src=${ConfigHelper.getHHScriptVars("powerCalcImages").chosen}>`);
+                try {
+                    const opponentBlock = $('.season_arena_opponent_container[data-opponent=' + chosenID + ']');
+                    $('.matchRatingNew #powerLevelScouterNonChosen', opponentBlock).remove();
+                    $('div.matchRatingNew', opponentBlock).append(`<img id="powerLevelScouterChosen" src=${ConfigHelper.getHHScriptVars("powerCalcImages").chosen}>`);
                 }catch(err){
                     logHHAuto('Error when dispaly chosen opponent');
                 }
@@ -186,7 +188,7 @@ export class Season {
 
 //    static getBestOppo(scoreOppo: BDSMSimu[], mojoOppo: number[], expOppo: number[], affOppo: number[], nameOppo: string[]) {
     static getBestOppo(seasonOpponents: SeasonOpponent[], current_kisses=1, max_kisses=10) {
-        var chosenID = -1;
+        var chosenIndex = -1;
         var chosenRating = -1;
         var chosenFlag = -1;
         var chosenMojo = -1;
@@ -286,15 +288,15 @@ export class Season {
             if (isBetter) {
                 chosenRating = currentScore;
                 chosenFlag = currentFlag;
-                chosenID = index;
+                chosenIndex = index;
                 chosenMojo = currentMojo;
                 //oppoName = seasonOpponents[index].nickname;
             }
         }
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonSkipLowMojo") === "true" && chosenMojo < Season.MIN_MOJO_FIGHT && !seasonEnded && current_kisses < (max_kisses-1) ) {
-            chosenID = -1; // wait more mojo
+            chosenIndex = -1; // wait more mojo
         }
-        return { numberOfReds, chosenID };
+        return { numberOfReds, chosenIndex };
     }
 
     static run(){
@@ -339,10 +341,11 @@ export class Season {
             else
             {
                 const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonRunThreshold")) || 0;
+                const opponentBlock = $('.season_arena_opponent_container[data-opponent=' + chosenID + ']');
                 if (runThreshold > 0) {
                     setStoredValue(HHStoredVarPrefixKey+"Temp_SeasonHumanLikeRun", "true");
                 }
-                const toGoTo: string = document.getElementsByClassName("opponent_perform_button_container")[chosenID].children[0].getAttribute('href') || ''
+                const toGoTo: string = $(".opponent_perform_button_container :first-child", opponentBlock).first().attr('href') || ''
                 if(toGoTo=='') {
                     logHHAuto('Season : Error getting opponent location');
                     setTimer('nextSeasonTime',randomInterval(30*60, 35*60));
@@ -351,7 +354,7 @@ export class Season {
                 location.href = addNutakuSession(toGoTo) as string;
                 setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                 logHHAuto("setting autoloop to false");
-                logHHAuto("Going to crush : "+$("div.season_arena_opponent_container .personal_info div.player-name")[chosenID].innerText);
+                logHHAuto(`Going to crush : ${$(".personal_info div.player-name", opponentBlock).text()} (${chosenID})`);
                 setTimer('nextSeasonTime',5);
                 return true;
             }
