@@ -50,23 +50,23 @@ describe("Season event", function () {
 
         it("Same oppo", function () {
             let result = Season.getBestOppo([OPPO_A, OPPO_A, OPPO_A]);
-            expect(result.chosenID).toBe(0);
+            expect(result.chosenIndex).toBe(0);
             expect(result.numberOfReds).toBe(0);
 
             result = Season.getBestOppo([OPPO_B, OPPO_B, OPPO_B]);
-            expect(result.chosenID).toBe(0);
+            expect(result.chosenIndex).toBe(0);
             expect(result.numberOfReds).toBe(0);
 
             result = Season.getBestOppo([OPPO_C, OPPO_C, OPPO_C]);
-            expect(result.chosenID).toBe(0);
+            expect(result.chosenIndex).toBe(0);
             expect(result.numberOfReds).toBe(3);
         });
 
         it("One good oppo", function () {
-            expect(Season.getBestOppo([OPPO_A, OPPO_B, OPPO_C]).chosenID).toBe(0);
+            expect(Season.getBestOppo([OPPO_A, OPPO_B, OPPO_C]).chosenIndex).toBe(0);
             expect(Season.getBestOppo([OPPO_A, OPPO_B, OPPO_C]).numberOfReds).toBe(1);
-            expect(Season.getBestOppo([OPPO_B, OPPO_A, OPPO_C]).chosenID).toBe(1);
-            expect(Season.getBestOppo([OPPO_C, OPPO_B, OPPO_A]).chosenID).toBe(2);
+            expect(Season.getBestOppo([OPPO_B, OPPO_A, OPPO_C]).chosenIndex).toBe(1);
+            expect(Season.getBestOppo([OPPO_C, OPPO_B, OPPO_A]).chosenIndex).toBe(2);
         });
 
         it("same orange flag but better score", function () {
@@ -74,13 +74,13 @@ describe("Season event", function () {
             OPPO_BA.simu = { ...OPPO_B.simu };
             OPPO_BA.simu.win = 70;
             let result = Season.getBestOppo([OPPO_B, OPPO_BA, OPPO_C]);
-            expect(result.chosenID).toBe(1);
+            expect(result.chosenIndex).toBe(1);
             expect(result.numberOfReds).toBe(1);
             const OPPO_BB = { ...OPPO_B };
             OPPO_BB.simu = { ...OPPO_B.simu };
             OPPO_BB.simu.win = 75;
             result = Season.getBestOppo([OPPO_B, OPPO_BA, OPPO_BB]);
-            expect(result.chosenID).toBe(2);
+            expect(result.chosenIndex).toBe(2);
             expect(result.numberOfReds).toBe(0);
         });
 
@@ -88,13 +88,13 @@ describe("Season event", function () {
             const OPPO_CA = { ...OPPO_C };
             OPPO_CA.mojo = 15;
             let result = Season.getBestOppo([OPPO_C, OPPO_CA, OPPO_C]);
-            expect(result.chosenID).toBe(1);
+            expect(result.chosenIndex).toBe(1);
             expect(result.numberOfReds).toBe(3);
 
             const OPPO_CB = { ...OPPO_C };
             OPPO_CB.mojo = 18;
             result = Season.getBestOppo([OPPO_C, OPPO_CA, OPPO_CB]);
-            expect(result.chosenID).toBe(2);
+            expect(result.chosenIndex).toBe(2);
             expect(result.numberOfReds).toBe(3);
         });
 
@@ -103,14 +103,14 @@ describe("Season event", function () {
             OPPO_CA.simu = { ...OPPO_C.simu };
             OPPO_CA.simu.win = 15;
             let result = Season.getBestOppo([OPPO_C, OPPO_CA, OPPO_C]);
-            expect(result.chosenID).toBe(1);
+            expect(result.chosenIndex).toBe(1);
             expect(result.numberOfReds).toBe(3);
 
             const OPPO_CB = { ...OPPO_C };
             OPPO_CB.simu = { ...OPPO_C.simu };
             OPPO_CB.simu.win = 16;
             result = Season.getBestOppo([OPPO_C, OPPO_CA, OPPO_CB]);
-            expect(result.chosenID).toBe(2);
+            expect(result.chosenIndex).toBe(2);
             expect(result.numberOfReds).toBe(3);
         });
 
@@ -118,13 +118,13 @@ describe("Season event", function () {
             const OPPO_AA = { ...OPPO_A };
             OPPO_AA.mojo = 22;
             let result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_A]);
-            expect(result.chosenID).toBe(1);
+            expect(result.chosenIndex).toBe(1);
             expect(result.numberOfReds).toBe(0);
 
             const OPPO_AB = { ...OPPO_A };
             OPPO_AB.mojo = 23;
             result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_AB]);
-            expect(result.chosenID).toBe(2);
+            expect(result.chosenIndex).toBe(2);
             expect(result.numberOfReds).toBe(0);
         });
 
@@ -132,13 +132,13 @@ describe("Season event", function () {
             const OPPO_AA = { ...OPPO_A };
             OPPO_AA.aff = 9
             let result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_A]);
-            expect(result.chosenID).toBe(1);
+            expect(result.chosenIndex).toBe(1);
             expect(result.numberOfReds).toBe(0);
 
             const OPPO_AB = { ...OPPO_A };
             OPPO_AB.aff = 10;
             result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_AB]);
-            expect(result.chosenID).toBe(2);
+            expect(result.chosenIndex).toBe(2);
             expect(result.numberOfReds).toBe(0);
         });
 
@@ -147,14 +147,14 @@ describe("Season event", function () {
             OPPO_AA.simu = { ...OPPO_A.simu };
             OPPO_AA.simu.win = 97;
             let result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_A]);
-            expect(result.chosenID).toBe(1);
+            expect(result.chosenIndex).toBe(1);
             expect(result.numberOfReds).toBe(0);
 
             const OPPO_AB = { ...OPPO_A };
             OPPO_AB.simu = { ...OPPO_A.simu };
             OPPO_AB.simu.win = 98;
             result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_AB]);
-            expect(result.chosenID).toBe(2);
+            expect(result.chosenIndex).toBe(2);
             expect(result.numberOfReds).toBe(0);
         });
 
@@ -163,18 +163,18 @@ describe("Season event", function () {
             const OPPO_AA = { ...OPPO_A };
             OPPO_AA.mojo = 22;
             let result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_A]);
-            expect(result.chosenID).toBe(1);
+            expect(result.chosenIndex).toBe(1);
             expect(result.numberOfReds).toBe(0);
 
             const OPPO_AB = { ...OPPO_A };
             OPPO_AB.mojo = 22;
             OPPO_AB.aff = 10;
             result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_AB]);
-            expect(result.chosenID).toBe(2);
+            expect(result.chosenIndex).toBe(2);
             expect(result.numberOfReds).toBe(0);
 
             result = Season.getBestOppo([OPPO_A, OPPO_AB, OPPO_AA]);
-            expect(result.chosenID).toBe(1);
+            expect(result.chosenIndex).toBe(1);
         });
 
         it("same green flag but better gains and then better mojo", function () {
@@ -184,7 +184,7 @@ describe("Season event", function () {
             const OPPO_AB = { ...OPPO_A };
             OPPO_AB.mojo = 22;
             let result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_AB]);
-            expect(result.chosenID).toBe(2);
+            expect(result.chosenIndex).toBe(2);
             expect(result.numberOfReds).toBe(0);
         });
     });
@@ -201,7 +201,7 @@ describe("Season event", function () {
             const OPPO_AB = { ...OPPO_A };
             OPPO_AB.mojo = 22;
             let result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_AB]);
-            expect(result.chosenID).toBe(2);
+            expect(result.chosenIndex).toBe(2);
             expect(result.numberOfReds).toBe(0);
         });
 
@@ -211,7 +211,7 @@ describe("Season event", function () {
             OPPO_AA.mojo = 25
             OPPO_AA.simu.win = 97;
             let result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_A]);
-            expect(result.chosenID).toBe(1);
+            expect(result.chosenIndex).toBe(1);
             expect(result.numberOfReds).toBe(0);
 
             const OPPO_AB = { ...OPPO_A };
@@ -219,7 +219,7 @@ describe("Season event", function () {
             OPPO_AA.mojo = 5
             OPPO_AB.simu.win = 98;
             result = Season.getBestOppo([OPPO_A, OPPO_AA, OPPO_AB]);
-            expect(result.chosenID).toBe(2);
+            expect(result.chosenIndex).toBe(2);
             expect(result.numberOfReds).toBe(0);
         });
     });
@@ -230,7 +230,7 @@ describe("Season event", function () {
             const OPPO_AA = { ...OPPO_A };
             OPPO_AA.mojo = 5;
             let result = Season.getBestOppo([OPPO_AA, OPPO_AA, OPPO_AA]);
-            expect(result.chosenID).toBe(-1);
+            expect(result.chosenIndex).toBe(-1);
         });
 
         it("low mojo and end season", function () {
@@ -238,7 +238,7 @@ describe("Season event", function () {
             const OPPO_AA = { ...OPPO_A };
             OPPO_AA.mojo = 5;
             let result = Season.getBestOppo([OPPO_AA, OPPO_AA, OPPO_AA]);
-            expect(result.chosenID).toBe(0);
+            expect(result.chosenIndex).toBe(0);
         });
 
         it("low mojo, energy max", function () {
@@ -246,7 +246,7 @@ describe("Season event", function () {
             const OPPO_AA = { ...OPPO_A };
             OPPO_AA.mojo = 5;
             let result = Season.getBestOppo([OPPO_AA, OPPO_AA, OPPO_AA], 10);
-            expect(result.chosenID).toBe(0);
+            expect(result.chosenIndex).toBe(0);
         });
 
         it("low mojo, energy not max with cards", function () {
@@ -254,7 +254,7 @@ describe("Season event", function () {
             const OPPO_AA = { ...OPPO_A };
             OPPO_AA.mojo = 5;
             let result = Season.getBestOppo([OPPO_AA, OPPO_AA, OPPO_AA], 11, 15);
-            expect(result.chosenID).toBe(-1);
+            expect(result.chosenIndex).toBe(-1);
         });
 
         it("low mojo, energy max with cards", function () {
@@ -262,7 +262,7 @@ describe("Season event", function () {
             const OPPO_AA = { ...OPPO_A };
             OPPO_AA.mojo = 5;
             let result = Season.getBestOppo([OPPO_AA, OPPO_AA, OPPO_AA], 15, 15);
-            expect(result.chosenID).toBe(0);
+            expect(result.chosenIndex).toBe(0);
         });
     });
 
