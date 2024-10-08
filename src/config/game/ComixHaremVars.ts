@@ -16,7 +16,8 @@ export class ComixHarem {
             'Pomelo',
             'Alexa Sl\'Thor',
             'D\'KLONG',
-            'Virtue Man'];
+            'Virtue Man',
+            'Asmodea'];
     }
     static getTrollGirlsId() {
         return [
@@ -30,6 +31,7 @@ export class ComixHarem {
             [['148877065', '218927643', '340369336'], [0], [0]],
             [['258185125', '897951171', '971686222'], [0], [0]],
             [['125758004', '233499841', '647307160'], [0], [0]],
+            [['994555359', '705713849', '973778141'], [0], [0]],
         ];
     }
 }

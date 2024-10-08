@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.16.6
+// @version      7.16.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -12551,7 +12551,8 @@ class ComixHarem {
             'Pomelo',
             'Alexa Sl\'Thor',
             'D\'KLONG',
-            'Virtue Man'];
+            'Virtue Man',
+            'Asmodea'];
     }
     static getTrollGirlsId() {
         return [
@@ -12565,6 +12566,7 @@ class ComixHarem {
             [['148877065', '218927643', '340369336'], [0], [0]],
             [['258185125', '897951171', '971686222'], [0], [0]],
             [['125758004', '233499841', '647307160'], [0], [0]],
+            [['994555359', '705713849', '973778141'], [0], [0]],
         ];
     }
 }
@@ -12784,7 +12786,7 @@ class TransPornstarHarem {
             [['104549634', '521022556', '526732951'], [0], [0]],
             [['317800067', '542090972', '920682672'], [0], [0]],
             [['558585439', '577205682', '741311311'], [0], [0]],
-            // TODO Maman Bee
+            [['692804877', '984917842', '581358076'], ['397703278', '704166982', '483645616'], ['349968569', '970429531', '954328841']],
         ];
     }
     static updateFeatures(envVariables) {
