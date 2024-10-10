@@ -37,7 +37,7 @@ export class Bundles {
                 const plusButton = $("header .currency .reversed_tooltip");
                 if(plusButton.length > 0) {
                     logHHAuto("click button for popup.");
-                    plusButton[0].click();
+                    plusButton.trigger('click')
                 }
                 else
                 {
@@ -47,15 +47,15 @@ export class Bundles {
                 }
                 logHHAuto("setting autoloop to false");
                 setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
-                const bundleTabsContainerQuery = "#popups .payments-wrapper .payment-tabs";
-                const bundleTabsListQuery = '.event_bundles, .special_offers, .period_deal';
-                const subTabsQuery= "#popups .payments-wrapper .content-container .subtabs-container .card-container";
-                const freeButtonBundleQuery= "#popups .payments-wrapper .bundle .bundle-offer-price .blue_button_L:enabled[price='0.00']";
+                const bundleTabsContainerQuery = "#common-popups .payments-wrapper .payment-tabs";
+                const bundleTabsListQuery = '.starter_offers, .event_bundles, .special_offers, .period_deal';
+                const subTabsQuery = "#common-popups .payments-wrapper .content-container .subtabs-container .card-container";
+                const freeButtonBundleQuery = "#common-popups .payments-wrapper .bundle .bundle-offer-price .blue_button_L:enabled[price='0.00']";
 
                 function collectFreeBundlesFinished(message: string, nextFreeBundlesCollectTime: number) {
                     logHHAuto(message);
                     setTimer('nextFreeBundlesCollectTime', nextFreeBundlesCollectTime);
-                    $("#popups .close_cross").trigger('click'); // Close popup
+                    $("#common-popups .close_cross").trigger('click'); // Close popup
                     setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
                     logHHAuto("setting autoloop to true");
                     setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")));
