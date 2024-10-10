@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.16.7
+// @version      7.16.8
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1226,7 +1226,7 @@ class Bundles {
                 const plusButton = $("header .currency .reversed_tooltip");
                 if (plusButton.length > 0) {
                     LogUtils_logHHAuto("click button for popup.");
-                    plusButton[0].click();
+                    plusButton.trigger('click');
                 }
                 else {
                     LogUtils_logHHAuto("No button for popup. Try again in 5h.");
@@ -1235,14 +1235,14 @@ class Bundles {
                 }
                 LogUtils_logHHAuto("setting autoloop to false");
                 setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
-                const bundleTabsContainerQuery = "#popups .payments-wrapper .payment-tabs";
-                const bundleTabsListQuery = '.event_bundles, .special_offers, .period_deal';
-                const subTabsQuery = "#popups .payments-wrapper .content-container .subtabs-container .card-container";
-                const freeButtonBundleQuery = "#popups .payments-wrapper .bundle .bundle-offer-price .blue_button_L:enabled[price='0.00']";
+                const bundleTabsContainerQuery = "#common-popups .payments-wrapper .payment-tabs";
+                const bundleTabsListQuery = '.starter_offers, .event_bundles, .special_offers, .period_deal';
+                const subTabsQuery = "#common-popups .payments-wrapper .content-container .subtabs-container .card-container";
+                const freeButtonBundleQuery = "#common-popups .payments-wrapper .bundle .bundle-offer-price .blue_button_L:enabled[price='0.00']";
                 function collectFreeBundlesFinished(message, nextFreeBundlesCollectTime) {
                     LogUtils_logHHAuto(message);
                     setTimer('nextFreeBundlesCollectTime', nextFreeBundlesCollectTime);
-                    $("#popups .close_cross").trigger('click'); // Close popup
+                    $("#common-popups .close_cross").trigger('click'); // Close popup
                     setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
                     LogUtils_logHHAuto("setting autoloop to true");
                     setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey + "Temp_autoLoopTimeMili")));
