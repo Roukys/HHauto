@@ -1,4 +1,5 @@
 export class ComixHarem {
+    static spreadsheet = 'https://docs.google.com/spreadsheets/d/1kVZxcZZMa82lS4k-IpxTTTELAeaipjR_v1twlqW5vbI'; // zoopokemon
     static getEnv() {
         return {
             "www.comixharem.com": { name: "CH_prod", id: "hh_comix", baseImgPath: "https://ch.hh-content.com" },
@@ -33,5 +34,7 @@ export class ComixHarem {
             [['125758004', '233499841', '647307160'], [0], [0]],
             [['994555359', '705713849', '973778141'], [0], [0]],
         ];
+    }
+    static updateFeatures(envVariables: any) {
     }
 }

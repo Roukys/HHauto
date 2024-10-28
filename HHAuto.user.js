@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.16.9
+// @version      7.17.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -476,6 +476,7 @@ HHAuto_ToolTips.en['haremGirlMaxSkill'] = { version: "7.16.0", elementText: "Giv
 HHAuto_ToolTips.en['haremGirlUpgradeMax'] = { version: "6.12.0", elementText: "Full upgrade girl", tooltip: "Perform all upgrades for the girl (including last one), give necessary affections" };
 HHAuto_ToolTips.en['collectAllTimer'] = { version: "5.7.0", elementText: "Collect all timer (in hour)", tooltip: "Hour(s) before end of events to collect all rewards (Low time create risk of not collecting), Need activation on each events (POV, POG, season)" };
 HHAuto_ToolTips.en['collectAllButton'] = { version: "7.3.0", elementText: "Collect all", tooltip: "Automatically collect all items" };
+HHAuto_ToolTips.en['spreadsheet'] = { version: "7.17.0", elementText: "Spreadsheet", tooltip: "" };
 //HHAuto_ToolTips.en['scriptWarning'] = { version: "7.4.0", elementText: "Warning", tooltip: "An issue is detected in bot execution, open menu and logs for more info"};
 
 ;// CONCATENATED MODULE: ./src/i18n/fr.ts
@@ -975,153 +976,145 @@ const DEFAULT_BOOSTERS = { normal: [], mythic: [] };
 class Booster {
     //all following lines credit:Tom208 OCD script  
     static collectBoostersFromAjaxResponses() {
-        $(document).ajaxComplete(function (evt, xhr, opt) {
-            if (opt && opt.data && opt.data.search && ~opt.data.search(/(action|class)/)) {
-                setTimeout(function () {
-                    return __awaiter(this, void 0, void 0, function* () {
-                        if (!xhr || !xhr.responseText || !xhr.responseText.length) {
-                            return;
-                        }
-                        const boosterStatus = Booster.getBoosterFromStorage();
-                        const response = JSON.parse(xhr.responseText);
-                        if (!response || !response.success)
-                            return;
-                        const searchParams = new URLSearchParams(opt.data);
-                        const mappedParams = ['action', 'class', 'type', 'id_item', 'number_of_battles', 'battles_amount'].map(key => ({ [key]: searchParams.get(key) })).reduce((a, b) => Object.assign(a, b), {});
-                        const { action, class: className, type, id_item, number_of_battles, battles_amount } = mappedParams;
-                        const { success, equipped_booster } = response;
-                        if (!success) {
-                            return;
-                        }
-                        if (action === 'market_equip_booster' && type === 'booster') {
-                            const idItemParsed = parseInt(id_item || '');
-                            //const isMythic = idItemParsed >= 632 && idItemParsed <= 638
-                            const isMythic = idItemParsed >= 632;
-                            const boosterData = equipped_booster;
-                            if (boosterData) {
-                                const clonedData = Object.assign({}, boosterData);
-                                if (isMythic) {
-                                    boosterStatus.mythic.push(clonedData);
-                                }
-                                else {
-                                    boosterStatus.normal.push(Object.assign(Object.assign({}, clonedData), { endAt: clonedData.lifetime }));
-                                }
-                                setStoredValue(HHStoredVarPrefixKey + 'Temp_boosterStatus', JSON.stringify(boosterStatus));
-                                //$(document).trigger('boosters:equipped', {id_item, isMythic, new_id: clonedData.id_member_booster_equipped})
+        onAjaxResponse(/(action|class)/, (response, opt, xhr, evt) => {
+            setTimeout(function () {
+                return __awaiter(this, void 0, void 0, function* () {
+                    const boosterStatus = Booster.getBoosterFromStorage();
+                    const searchParams = new URLSearchParams(opt.data);
+                    const mappedParams = ['action', 'class', 'type', 'id_item', 'number_of_battles', 'battles_amount'].map(key => ({ [key]: searchParams.get(key) })).reduce((a, b) => Object.assign(a, b), {});
+                    const { action, class: className, type, id_item, number_of_battles, battles_amount } = mappedParams;
+                    const { success, equipped_booster } = response;
+                    if (!success) {
+                        return;
+                    }
+                    if (action === 'market_equip_booster' && type === 'booster') {
+                        const idItemParsed = parseInt(id_item || '');
+                        //const isMythic = idItemParsed >= 632 && idItemParsed <= 638
+                        const isMythic = idItemParsed >= 632;
+                        const boosterData = equipped_booster;
+                        if (boosterData) {
+                            const clonedData = Object.assign({}, boosterData);
+                            if (isMythic) {
+                                boosterStatus.mythic.push(clonedData);
                             }
-                            return;
-                        }
-                        let mythicUpdated = false;
-                        let sandalwoodEnded = false;
-                        let sandalwood, allMastery, leagueMastery, seasonMastery, headband, watch, cinnamon, perfume;
-                        boosterStatus.mythic.forEach(booster => {
-                            switch (booster.item.identifier) {
-                                case 'MB1':
-                                    sandalwood = booster;
-                                    break;
-                                /*
-                            case 'MB2':
-                                allMastery = booster;
-                                break;
-                            case 'MB3':
-                                headband = booster;
-                                break;
-                            case 'MB4':
-                                watch = booster;
-                                break;
-                            case 'MB5':
-                                cinnamon = booster;
-                                break;
-                            case 'MB7':
-                                perfume = booster;
-                                break;
-                            case 'MB8':
-                                leagueMastery = booster;
-                                break;
-                            case 'MB9':
-                                seasonMastery = booster;
-                                break;*/
+                            else {
+                                boosterStatus.normal.push(Object.assign(Object.assign({}, clonedData), { endAt: clonedData.lifetime }));
                             }
-                        });
-                        if (sandalwood && action === 'do_battles_trolls') {
-                            const isMultibattle = parseInt(number_of_battles || '') > 1;
-                            const { rewards } = response;
-                            if (rewards && rewards.data && rewards.data.shards) {
-                                let drops = 0;
-                                rewards.data.shards.forEach(({ previous_value, value }) => {
-                                    if (isMultibattle) {
-                                        // Can't reliably determine how many drops, assume MD where each drop would be 1 shard.
-                                        const shardsDropped = value - previous_value;
-                                        drops += Math.floor(shardsDropped / 2);
-                                    }
-                                    else {
-                                        drops++;
-                                    }
-                                });
-                                sandalwood.usages_remaining -= drops;
-                                mythicUpdated = true;
-                                sandalwoodEnded = sandalwood.usages_remaining <= 0;
-                            }
+                            setStoredValue(HHStoredVarPrefixKey + 'Temp_boosterStatus', JSON.stringify(boosterStatus));
+                            //$(document).trigger('boosters:equipped', {id_item, isMythic, new_id: clonedData.id_member_booster_equipped})
                         }
-                        /*
-                                            if (allMastery && (action === 'do_battles_leagues' || action === 'do_battles_seasons')) {
-                                                allMastery.usages_remaining -= parseInt(number_of_battles)
-                                                mythicUpdated = true
-                                            }
-                        
-                                            if (leagueMastery && (action === 'do_battles_leagues')) {
-                                                leagueMastery.usages_remaining -= parseInt(number_of_battles)
-                                                mythicUpdated = true
-                                            }
-                        
-                                            if (seasonMastery && (action === 'do_battles_seasons')) {
-                                                seasonMastery.usages_remaining -= parseInt(number_of_battles)
-                                                mythicUpdated = true
-                                            }
-                        
-                                            if (headband && (action === 'do_battles_pantheon' || action === 'do_battles_trolls')) {
-                                                headband.usages_remaining -= parseInt(number_of_battles)
-                                                mythicUpdated = true
-                                            }
-                        
-                                            if (watch && className === 'TeamBattle') {
-                                                watch.usages_remaining -= parseInt(battles_amount)
-                                                mythicUpdated = true
-                                            }
-                        
-                                            if (cinnamon && action === 'do_battles_seasons') {
-                                                cinnamon.usages_remaining -= parseInt(number_of_battles)
-                                                mythicUpdated = true
-                                            }
-                        
-                                            if (perfume && action === 'start' && className === 'TempPlaceOfPower') {
-                                                perfume.usages_remaining--
-                                                mythicUpdated = true
-                                            }
-                        */
-                        boosterStatus.mythic = boosterStatus.mythic.filter(({ usages_remaining }) => usages_remaining > 0);
-                        setStoredValue(HHStoredVarPrefixKey + 'Temp_boosterStatus', JSON.stringify(boosterStatus));
-                        /*if (mythicUpdated) {
-                            $(document).trigger('boosters:updated-mythic')
-                        }*/
-                        try {
-                            if (sandalwood && mythicUpdated && sandalwoodEnded) {
-                                const isMultibattle = parseInt(number_of_battles || '') > 1;
-                                LogUtils_logHHAuto("sandalwood may be ended need a new one");
-                                if (getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythicSandalWood") === "true" && EventModule.getEventMythicGirl().is_mythic) {
-                                    if (isMultibattle) {
-                                        // TODO go to market if sandalwood not ended, continue. If ended, buy a new one
-                                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDShop"));
-                                    }
-                                }
-                            }
-                        }
-                        catch (err) {
-                            LogUtils_logHHAuto('Catch error during equip sandalwood for mythic' + err);
+                        return;
+                    }
+                    let mythicUpdated = false;
+                    let sandalwoodEnded = false;
+                    let sandalwood, allMastery, leagueMastery, seasonMastery, headband, watch, cinnamon, perfume;
+                    boosterStatus.mythic.forEach(booster => {
+                        switch (booster.item.identifier) {
+                            case 'MB1':
+                                sandalwood = booster;
+                                break;
+                            /*
+                        case 'MB2':
+                            allMastery = booster;
+                            break;
+                        case 'MB3':
+                            headband = booster;
+                            break;
+                        case 'MB4':
+                            watch = booster;
+                            break;
+                        case 'MB5':
+                            cinnamon = booster;
+                            break;
+                        case 'MB7':
+                            perfume = booster;
+                            break;
+                        case 'MB8':
+                            leagueMastery = booster;
+                            break;
+                        case 'MB9':
+                            seasonMastery = booster;
+                            break;*/
                         }
                     });
-                }, 200);
-            }
+                    if (sandalwood && action === 'do_battles_trolls') {
+                        const isMultibattle = parseInt(number_of_battles || '') > 1;
+                        const { rewards } = response;
+                        if (rewards && rewards.data && rewards.data.shards) {
+                            let drops = 0;
+                            rewards.data.shards.forEach(({ previous_value, value }) => {
+                                if (isMultibattle) {
+                                    // Can't reliably determine how many drops, assume MD where each drop would be 1 shard.
+                                    const shardsDropped = value - previous_value;
+                                    drops += Math.floor(shardsDropped / 2);
+                                }
+                                else {
+                                    drops++;
+                                }
+                            });
+                            sandalwood.usages_remaining -= drops;
+                            mythicUpdated = true;
+                            sandalwoodEnded = sandalwood.usages_remaining <= 0;
+                        }
+                    }
+                    /*
+                                        if (allMastery && (action === 'do_battles_leagues' || action === 'do_battles_seasons')) {
+                                            allMastery.usages_remaining -= parseInt(number_of_battles)
+                                            mythicUpdated = true
+                                        }
+                    
+                                        if (leagueMastery && (action === 'do_battles_leagues')) {
+                                            leagueMastery.usages_remaining -= parseInt(number_of_battles)
+                                            mythicUpdated = true
+                                        }
+                    
+                                        if (seasonMastery && (action === 'do_battles_seasons')) {
+                                            seasonMastery.usages_remaining -= parseInt(number_of_battles)
+                                            mythicUpdated = true
+                                        }
+                    
+                                        if (headband && (action === 'do_battles_pantheon' || action === 'do_battles_trolls')) {
+                                            headband.usages_remaining -= parseInt(number_of_battles)
+                                            mythicUpdated = true
+                                        }
+                    
+                                        if (watch && className === 'TeamBattle') {
+                                            watch.usages_remaining -= parseInt(battles_amount)
+                                            mythicUpdated = true
+                                        }
+                    
+                                        if (cinnamon && action === 'do_battles_seasons') {
+                                            cinnamon.usages_remaining -= parseInt(number_of_battles)
+                                            mythicUpdated = true
+                                        }
+                    
+                                        if (perfume && action === 'start' && className === 'TempPlaceOfPower') {
+                                            perfume.usages_remaining--
+                                            mythicUpdated = true
+                                        }
+                    */
+                    boosterStatus.mythic = boosterStatus.mythic.filter(({ usages_remaining }) => usages_remaining > 0);
+                    setStoredValue(HHStoredVarPrefixKey + 'Temp_boosterStatus', JSON.stringify(boosterStatus));
+                    /*if (mythicUpdated) {
+                        $(document).trigger('boosters:updated-mythic')
+                    }*/
+                    try {
+                        if (sandalwood && mythicUpdated && sandalwoodEnded) {
+                            const isMultibattle = parseInt(number_of_battles || '') > 1;
+                            LogUtils_logHHAuto("sandalwood may be ended need a new one");
+                            if (getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythicSandalWood") === "true" && EventModule.getEventMythicGirl().is_mythic) {
+                                if (isMultibattle) {
+                                    // TODO go to market if sandalwood not ended, continue. If ended, buy a new one
+                                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDShop"));
+                                }
+                            }
+                        }
+                    }
+                    catch (err) {
+                        LogUtils_logHHAuto('Catch error during equip sandalwood for mythic' + err);
+                    }
+                });
+            }, 200);
         });
     }
     static needBoosterStatusFromStore() {
@@ -4819,6 +4812,17 @@ class Harem {
             return null;
         }
     }
+    static getGirlData(girlId) {
+        var gMap = getHHVars('girls_data_list') || getHHVars('availableGirls');
+        if (gMap === null) {
+            // error
+            //logHHAuto("Girls Map was undefined...! Error, cannot export girls.");
+        }
+        else {
+            return gMap.find((girl) => girl.id_girl == girlId);
+        }
+        return null;
+    }
     static moduleHaremExportGirlsData() {
         const menuID = "ExportGirlsData";
         let styles = 'position: absolute;left: 870px;top: 80px;width:24px;z-index:10';
@@ -8073,6 +8077,9 @@ class HaremGirl {
         else
             LogUtils_logHHAuto('Confirm max out all button not found');
     }
+    static getMaxOutPrice() {
+        return Number($('#girl_max_out_all_levels_popup .slot_soft_currency .amount').text());
+    }
     static maxOutAllButtonAndConfirm(haremItem, girl) {
         return new Promise((resolve) => {
             const maxOutButton = HaremGirl.getMaxOutAllButton(haremItem);
@@ -8080,6 +8087,8 @@ class HaremGirl {
                 LogUtils_logHHAuto('Max out all ' + haremItem + ' for girl ' + girl.id_girl);
                 maxOutButton.trigger('click');
                 setTimeout(() => {
+                    // const cost = HaremGirl.getMaxOutPrice();
+                    // logHHAuto(`Max out all ${haremItem} (for ${cost}) for girl ${girl.id_girl}`);
                     HaremGirl.confirmMaxOutAllCash();
                     setTimeout(() => {
                         resolve(true);
@@ -8219,6 +8228,8 @@ class HaremGirl {
             const haremItem = HaremGirl.AFFECTION_TYPE;
             const selectedGirl = HaremGirl.getCurrentGirl();
             HaremGirl.switchTabs(haremItem);
+            // let haremGirlSpent = Number(getStoredValue(HHStoredVarPrefixKey +"Temp_haremGirlSpent") || 0);
+            // if (Number.isNaN(haremGirlSpent)) haremGirlSpent = 0;
             const haremGirlPayLast = getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlPayLast") == 'true';
             const canGiftGirl = selectedGirl.nb_grades > selectedGirl.graded;
             const lastGirlGrad = selectedGirl.nb_grades <= (selectedGirl.graded + 1);
@@ -12269,6 +12280,47 @@ class Shop {
     }
 }
 
+;// CONCATENATED MODULE: ./src/Module/Spreadsheet.ts
+var Spreadsheet_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+class Spreadsheet {
+    static isEnabled() {
+        return ConfigHelper.getHHScriptVars("isEnabledSpreadsheets", false);
+    }
+    static run() {
+        if (!Spreadsheet.isEnabled() || $('.' + Spreadsheet.BDSMPP_CLASS).length > 0 || $('.' + Spreadsheet.LINK_CLASS).length > 0)
+            return;
+        const page = getPage();
+        if (page === ConfigHelper.getHHScriptVars("pagesIDHome")) {
+            onAjaxResponse(/action=get_girls_blessings/i, (response, opt, xhr, evt) => {
+                setTimeout(function () {
+                    return Spreadsheet_awaiter(this, void 0, void 0, function* () {
+                        const href = ConfigHelper.getHHScriptVars("spreadsheet");
+                        if (!href)
+                            return;
+                        const $sheet_link = $(`<a class="${Spreadsheet.LINK_CLASS}" target="_blank" href="${href}"><span class="nav_grid_icn"></span><span>${getTextForUI("spreadsheet", "elementText")}</span></a>`);
+                        $(Spreadsheet.POPUP_SELECTOR).append($sheet_link);
+                    });
+                }, 200);
+            });
+            GM_addStyle('.' + Spreadsheet.LINK_CLASS + ' {position: absolute; top: 5px; right: 60px;}');
+            GM_addStyle('.' + Spreadsheet.LINK_CLASS + ' .nav_grid_icn {display: inline-block;}');
+        }
+    }
+}
+Spreadsheet.LINK_CLASS = 'hhauto-spreadsheet-link';
+Spreadsheet.BDSMPP_CLASS = 'script-blessing-spreadsheet-link';
+Spreadsheet.POPUP_SELECTOR = '#blessings_popup .blessings_wrapper';
+
 ;// CONCATENATED MODULE: ./src/Module/TeamModule.ts
 
 
@@ -12338,6 +12390,7 @@ class TeamModule {
             for (let i = arr.length - 1; i > -1; i--) {
                 let gID = Number($(arr[i]).attr('id_girl'));
                 const tooltipData = $('.girl_img', $(arr[i])).attr(ConfigHelper.getHHScriptVars('girlToolTipData')) || '';
+                //const girlData = Harem.getGirlData(gID);
                 if (tooltipData == '') {
                     LogUtils_logHHAuto('ERROR, no girl information found');
                     return;
@@ -12453,6 +12506,165 @@ class TeamModule {
 
 
 
+
+;// CONCATENATED MODULE: ./src/config/game/AmourAgentVars.ts
+class AmourAgent {
+    static getEnv() {
+        return {
+            "www.amouragent.com": { name: "AA_prod", id: "hh_amour" }
+        };
+    }
+    static getTrolls() {
+        return ['Latest',
+            'Frank',
+            'Adriana',
+            'Tara'];
+    }
+    static updateFeatures(envVariables) {
+        envVariables.isEnabledClubChamp = false; // to remove when Club Champs arrives in AmourAgent
+        envVariables.isEnabledPantheon = false; // to remove when Pantheon arrives in AmourAgent
+        envVariables.isEnabledSpreadsheets = false;
+    }
+}
+
+;// CONCATENATED MODULE: ./src/config/game/ComixHaremVars.ts
+class ComixHarem {
+    static getEnv() {
+        return {
+            "www.comixharem.com": { name: "CH_prod", id: "hh_comix", baseImgPath: "https://ch.hh-content.com" },
+            "nutaku.comixharem.com": { name: "NCH_prod", id: "hh_comix" }
+        };
+    }
+    static getTrolls() {
+        return ['Latest',
+            'BodyHack',
+            'Grey Golem',
+            'The Nymph',
+            'Athicus Ho’ole',
+            'The Mimic',
+            'Cockatrice',
+            'Pomelo',
+            'Alexa Sl\'Thor',
+            'D\'KLONG',
+            'Virtue Man',
+            'Asmodea'];
+    }
+    static getTrollGirlsId() {
+        return [
+            [['830009523', '907801218', '943323021'], [0], [0]],
+            [['271746999', '303805209', '701946373'], [0], [0]],
+            [['743748788', '977228200', '943323021'], [0], [0]],
+            [['140401381', '232860230', '514994766'], [0], [0]],
+            [['623293037', '764791769', '801271903'], [0], [0]],
+            [['921365371', '942523553', '973271744'], [0], [0]],
+            [['364639341', '879781833', '895546748'], [0], [0]],
+            [['148877065', '218927643', '340369336'], [0], [0]],
+            [['258185125', '897951171', '971686222'], [0], [0]],
+            [['125758004', '233499841', '647307160'], [0], [0]],
+            [['994555359', '705713849', '973778141'], [0], [0]],
+        ];
+    }
+    static updateFeatures(envVariables) {
+    }
+}
+ComixHarem.spreadsheet = 'https://docs.google.com/spreadsheets/d/1kVZxcZZMa82lS4k-IpxTTTELAeaipjR_v1twlqW5vbI'; // zoopokemon
+
+;// CONCATENATED MODULE: ./src/config/game/GayHaremVars.ts
+class GayHarem {
+    static getEnv() {
+        return {
+            "www.gayharem.com": { name: "GH_prod", id: "hh_gay" },
+            "nutaku.gayharem.com": { name: "NGH_prod", id: "hh_gay" },
+            "eroges.gayharem.com": { name: "EGH_prod", id: "hh_gay" }
+        };
+    }
+    static getTrolls() {
+        return ['Latest',
+            'Dark Lord',
+            'Ninja Spy',
+            'Gruntt',
+            'Edward',
+            'Donatien',
+            'Silvanus',
+            'Bremen',
+            'Edernas',
+            'Fredy Sih Roko Senseï',
+            'Maro',
+            'Jackson&#8217;s Crew',
+            'Icarus Warlock',
+            'Sol'];
+    }
+    static overrideTrollsByLang(languageCode, trollzList) {
+        switch (languageCode) {
+            case "fr":
+                trollzList[2] = 'Espion Ninja';
+                trollzList[11] = 'Éq. de Jackson';
+                trollzList[12] = 'Sorcier Icarus';
+                break;
+            case "de":
+                trollzList[1] = 'Dunkler Lor';
+                trollzList[2] = 'Ninjaspion';
+                trollzList[11] = 'Jacksons Crew';
+                break;
+            default:
+                break;
+        }
+    }
+    static getTrollGirlsId() {
+        return [
+            [['8', '9', '10'], ['7270263'], ['979916751']],
+            [['14', '13', '12'], ['318292466'], ['936580004']],
+            [['19', '16', '18'], ['610468472'], ['54950499']],
+            [['29', '28', '26'], ['4749652'], ['345655744']],
+            [['39', '40', '41'], ['267784162'], ['763020698']],
+            [['64', '63', '31'], ['406004250'], ['864899873']],
+            [['85', '86', '84'], ['267120960'], ['536361248']],
+            [['114', '115', '116'], ['379441499'], ['447396000']],
+            [['1247315', '4649579', '7968301'], ['46227677'], ['933487713']],
+            [['1379661', '4479579', '1800186'], ['985085118'], ['339765042']],
+            [['24316446', '219651566', '501847856'], ['383709663'], ['90685795']],
+            [['225365882', '478693885', '231765083'], ['155415482'], ['769649470']],
+            [['86962133', '243793871', '284483399'], [0], [0]],
+        ];
+    }
+    static updateFeatures(envVariables) {
+    }
+}
+GayHarem.spreadsheet = 'https://docs.google.com/spreadsheets/d/1kVZxcZZMa82lS4k-IpxTTTELAeaipjR_v1twlqW5vbI'; // Bella
+
+;// CONCATENATED MODULE: ./src/config/game/GayPornstarHaremVars.ts
+class GayPornstarHarem {
+    static getEnv() {
+        return {
+            "www.gaypornstarharem.com": { name: "GPSH_prod", id: "hh_stargay", baseImgPath: "https://images.hh-content.com/stargay" },
+            "nutaku.gaypornstarharem.com": { name: "NGPSH_prod", id: "hh_stargay", baseImgPath: "https://images.hh-content.com/stargay" }
+        };
+    }
+    static getTrolls() {
+        return ['Latest',
+            'Tristan Hunter',
+            'Jimmy Durano',
+            'Lucca Mazzi',
+            'Andrew Stark'];
+    }
+    static getTrollGirlsId() {
+        return [
+            [['780402171', '374763633', '485499759'], [0], [0]],
+            [[0], [0], [0]],
+            [[0], [0], [0]],
+            [[0], [0], [0]],
+            [['290465722', '524315573', '970767946'], [0], [0]],
+            [['127881092', '680366759', '836998610'], [0], [0]],
+            [['182117271', '350309796', '361432643', '390918673', '426008459', '446246345', '590934200', '599355011', '712652761', '848616605', '921769175'], [0], [0]],
+        ];
+    }
+    static updateFeatures(envVariables) {
+        envVariables.isEnabledPantheon = false; // to remove when Pantheon arrives in gaypornstar
+        envVariables.isEnabledPoG = false; // to remove when PoG arrives in gaypornstar
+    }
+}
+GayPornstarHarem.spreadsheet = 'https://docs.google.com/spreadsheets/d/1kVZxcZZMa82lS4k-IpxTTTELAeaipjR_v1twlqW5vbI'; // Cuervos & Sandor
+
 ;// CONCATENATED MODULE: ./src/config/game/HentaiHeroesVars.ts
 class HentaiHeroes {
     static getEnv() {
@@ -12530,138 +12742,10 @@ class HentaiHeroes {
             [['547099506', '572827174', '653889168'], [0], [0]],
         ];
     }
-}
-
-;// CONCATENATED MODULE: ./src/config/game/ComixHaremVars.ts
-class ComixHarem {
-    static getEnv() {
-        return {
-            "www.comixharem.com": { name: "CH_prod", id: "hh_comix", baseImgPath: "https://ch.hh-content.com" },
-            "nutaku.comixharem.com": { name: "NCH_prod", id: "hh_comix" }
-        };
-    }
-    static getTrolls() {
-        return ['Latest',
-            'BodyHack',
-            'Grey Golem',
-            'The Nymph',
-            'Athicus Ho’ole',
-            'The Mimic',
-            'Cockatrice',
-            'Pomelo',
-            'Alexa Sl\'Thor',
-            'D\'KLONG',
-            'Virtue Man',
-            'Asmodea'];
-    }
-    static getTrollGirlsId() {
-        return [
-            [['830009523', '907801218', '943323021'], [0], [0]],
-            [['271746999', '303805209', '701946373'], [0], [0]],
-            [['743748788', '977228200', '943323021'], [0], [0]],
-            [['140401381', '232860230', '514994766'], [0], [0]],
-            [['623293037', '764791769', '801271903'], [0], [0]],
-            [['921365371', '942523553', '973271744'], [0], [0]],
-            [['364639341', '879781833', '895546748'], [0], [0]],
-            [['148877065', '218927643', '340369336'], [0], [0]],
-            [['258185125', '897951171', '971686222'], [0], [0]],
-            [['125758004', '233499841', '647307160'], [0], [0]],
-            [['994555359', '705713849', '973778141'], [0], [0]],
-        ];
-    }
-}
-
-;// CONCATENATED MODULE: ./src/config/game/GayHaremVars.ts
-class GayHarem {
-    static getEnv() {
-        return {
-            "www.gayharem.com": { name: "GH_prod", id: "hh_gay" },
-            "nutaku.gayharem.com": { name: "NGH_prod", id: "hh_gay" },
-            "eroges.gayharem.com": { name: "EGH_prod", id: "hh_gay" }
-        };
-    }
-    static getTrolls() {
-        return ['Latest',
-            'Dark Lord',
-            'Ninja Spy',
-            'Gruntt',
-            'Edward',
-            'Donatien',
-            'Silvanus',
-            'Bremen',
-            'Edernas',
-            'Fredy Sih Roko Senseï',
-            'Maro',
-            'Jackson&#8217;s Crew',
-            'Icarus Warlock',
-            'Sol'];
-    }
-    static overrideTrollsByLang(languageCode, trollzList) {
-        switch (languageCode) {
-            case "fr":
-                trollzList[2] = 'Espion Ninja';
-                trollzList[11] = 'Éq. de Jackson';
-                trollzList[12] = 'Sorcier Icarus';
-                break;
-            case "de":
-                trollzList[1] = 'Dunkler Lor';
-                trollzList[2] = 'Ninjaspion';
-                trollzList[11] = 'Jacksons Crew';
-                break;
-            default:
-                break;
-        }
-    }
-    static getTrollGirlsId() {
-        return [
-            [['8', '9', '10'], ['7270263'], ['979916751']],
-            [['14', '13', '12'], ['318292466'], ['936580004']],
-            [['19', '16', '18'], ['610468472'], ['54950499']],
-            [['29', '28', '26'], ['4749652'], ['345655744']],
-            [['39', '40', '41'], ['267784162'], ['763020698']],
-            [['64', '63', '31'], ['406004250'], ['864899873']],
-            [['85', '86', '84'], ['267120960'], ['536361248']],
-            [['114', '115', '116'], ['379441499'], ['447396000']],
-            [['1247315', '4649579', '7968301'], ['46227677'], ['933487713']],
-            [['1379661', '4479579', '1800186'], ['985085118'], ['339765042']],
-            [['24316446', '219651566', '501847856'], ['383709663'], ['90685795']],
-            [['225365882', '478693885', '231765083'], ['155415482'], ['769649470']],
-            [['86962133', '243793871', '284483399'], [0], [0]],
-        ];
-    }
-}
-
-;// CONCATENATED MODULE: ./src/config/game/GayPornstarHaremVars.ts
-class GayPornstarHarem {
-    static getEnv() {
-        return {
-            "www.gaypornstarharem.com": { name: "GPSH_prod", id: "hh_stargay", baseImgPath: "https://images.hh-content.com/stargay" },
-            "nutaku.gaypornstarharem.com": { name: "NGPSH_prod", id: "hh_stargay", baseImgPath: "https://images.hh-content.com/stargay" }
-        };
-    }
-    static getTrolls() {
-        return ['Latest',
-            'Tristan Hunter',
-            'Jimmy Durano',
-            'Lucca Mazzi',
-            'Andrew Stark'];
-    }
-    static getTrollGirlsId() {
-        return [
-            [['780402171', '374763633', '485499759'], [0], [0]],
-            [[0], [0], [0]],
-            [[0], [0], [0]],
-            [[0], [0], [0]],
-            [['290465722', '524315573', '970767946'], [0], [0]],
-            [['127881092', '680366759', '836998610'], [0], [0]],
-            [['182117271', '350309796', '361432643', '390918673', '426008459', '446246345', '590934200', '599355011', '712652761', '848616605', '921769175'], [0], [0]],
-        ];
-    }
     static updateFeatures(envVariables) {
-        envVariables.isEnabledPantheon = false; // to remove when Pantheon arrives in gaypornstar
-        envVariables.isEnabledPoG = false; // to remove when PoG arrives in gaypornstar
     }
 }
+HentaiHeroes.spreadsheet = 'https://docs.google.com/spreadsheets/d/1kVZxcZZMa82lS4k-IpxTTTELAeaipjR_v1twlqW5vbI'; // zoopokemon
 
 ;// CONCATENATED MODULE: ./src/config/game/MangaRpgVars.ts
 class MangaRpg {
@@ -12688,25 +12772,7 @@ class MangaRpg {
         envVariables.isEnabledPantheon = false; // to remove when Pantheon arrives in Manga RPG
         envVariables.isEnabledBossBangEvent = false; // to remove when event arrives in Manga RPG
         envVariables.isEnabledSultryMysteriesEvent = false; // to remove when event arrives in Manga RPG
-    }
-}
-
-;// CONCATENATED MODULE: ./src/config/game/AmourAgentVars.ts
-class AmourAgent {
-    static getEnv() {
-        return {
-            "www.amouragent.com": { name: "AA_prod", id: "hh_amour" }
-        };
-    }
-    static getTrolls() {
-        return ['Latest',
-            'Frank',
-            'Adriana',
-            'Tara'];
-    }
-    static updateFeatures(envVariables) {
-        envVariables.isEnabledClubChamp = false; // to remove when Club Champs arrives in AmourAgent
-        envVariables.isEnabledPantheon = false; // to remove when Pantheon arrives in AmourAgent
+        envVariables.isEnabledSpreadsheets = false;
     }
 }
 
@@ -12755,6 +12821,9 @@ class PornstarHarem {
             [['814814392', '660703295', '450943401'], [0], [0]],
         ];
     }
+    static updateFeatures(envVariables) {
+        envVariables.isEnabledSpreadsheets = false;
+    }
 }
 
 ;// CONCATENATED MODULE: ./src/config/game/TransPornstarHaremVars.ts
@@ -12791,8 +12860,19 @@ class TransPornstarHarem {
     static updateFeatures(envVariables) {
         envVariables.isEnabledPantheon = false; // to remove when Pantheon arrives in transpornstar
         envVariables.isEnabledPoG = false; // to remove when PoG arrives in transpornstar
+        envVariables.isEnabledSpreadsheets = false;
     }
 }
+
+;// CONCATENATED MODULE: ./src/config/game/index.ts
+
+
+
+
+
+
+
+
 
 ;// CONCATENATED MODULE: ./src/config/HHEnvVariables.ts
 
@@ -13135,20 +13215,30 @@ HHEnvVariables["global"].isEnabledBossBangEvent = true;
 HHEnvVariables["global"].isEnabledDPEvent = true;
 HHEnvVariables["global"].isEnabledSultryMysteriesEvent = true;
 HHEnvVariables["global"].isEnabledDailyGoals = true;
+HHEnvVariables["global"].isEnabledSpreadsheets = true;
+HHEnvVariables["global"].spreadsheet = ''; // zoopokemon, Bella, Cuervos & Sandor. spreadsheets
 HHEnvVariables["HH_test"].isEnabledDailyRewards = false; // to remove if daily rewards arrives in test
 HHEnvVariables["HH_test"].isEnabledFreeBundles = false; // to remove if bundles arrives in test
-["GH_prod", "NGH_prod", "EGH_prod"].forEach((element) => {
+for (var key in HentaiHeroes.getEnv()) {
+    const element = HentaiHeroes.getEnv()[key].name;
+    HHEnvVariables[element].spreadsheet = HentaiHeroes.spreadsheet;
+}
+for (var key in GayHarem.getEnv()) {
+    const element = GayHarem.getEnv()[key].name;
     HHEnvVariables[element].trollzList = GayHarem.getTrolls();
     HHEnvVariables[element].trollGirlsID = GayHarem.getTrollGirlsId();
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
     GayHarem.overrideTrollsByLang(getLanguageCode(), HHEnvVariables[element].trollzList);
-});
-["CH_prod", "NCH_prod"].forEach((element) => {
+}
+;
+for (var key in ComixHarem.getEnv()) {
+    const element = ComixHarem.getEnv()[key].name;
     HHEnvVariables[element].trollzList = ComixHarem.getTrolls();
     HHEnvVariables[element].trollGirlsID = ComixHarem.getTrollGirlsId();
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
     HHEnvVariables[element].boosterId_MB1 = 2619;
-});
+}
+;
 HHEnvVariables["SH_prod"].isEnabledSideQuest = false; // to remove when SideQuest arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPowerPlaces = false; // to remove when PoP arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledMythicPachinko = false; // to remove when Mythic Pachinko arrives in hornyheroes
@@ -13161,38 +13251,48 @@ HHEnvVariables["SH_prod"].isEnabledLabyrinth = false; // to remove when Pantheon
 HHEnvVariables["SH_prod"].isEnabledPoV = false; // to remove when PoV arrives in hornyheroes
 HHEnvVariables["SH_prod"].isEnabledPoG = false; // to remove when PoG arrives in hornyheroes
 HHEnvVariables["SH_prod"].lastQuestId = -1; //  TODO update when new quest comes
-["MRPG_prod", "NMRPG_prod"].forEach((element) => {
+for (var key in MangaRpg.getEnv()) {
+    const element = MangaRpg.getEnv()[key].name;
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
     HHEnvVariables[element].trollzList = MangaRpg.getTrolls();
     HHEnvVariables[element].trollGirlsID = MangaRpg.getTrollGirlsId();
     HHEnvVariables[element].trollIdMapping = { 3: 3 };
     MangaRpg.updateFeatures(HHEnvVariables[element]);
-});
-["AA_prod"].forEach((element) => {
+}
+;
+for (var key in AmourAgent.getEnv()) {
+    const element = AmourAgent.getEnv()[key].name;
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
     HHEnvVariables[element].trollzList = AmourAgent.getTrolls();
     AmourAgent.updateFeatures(HHEnvVariables[element]);
-});
-["PH_prod", "NPH_prod"].forEach((element) => {
+}
+;
+for (var key in PornstarHarem.getEnv()) {
+    const element = PornstarHarem.getEnv()[key].name;
     HHEnvVariables[element].trollzList = PornstarHarem.getTrolls();
     HHEnvVariables[element].trollIdMapping = { 10: 9, 14: 11, 16: 12, 18: 13, 19: 14 }; // under 10 id as usual
     HHEnvVariables[element].lastQuestId = 16100; //  TODO update when new quest comes
     HHEnvVariables[element].boosterId_MB1 = 2619;
     HHEnvVariables[element].trollGirlsID = PornstarHarem.getTrollGirlsId();
-});
-["TPH_prod", "NTPH_prod"].forEach((element) => {
+}
+;
+for (var key in TransPornstarHarem.getEnv()) {
+    const element = TransPornstarHarem.getEnv()[key].name;
     HHEnvVariables[element].trollzList = TransPornstarHarem.getTrolls();
     TransPornstarHarem.updateFeatures(HHEnvVariables[element]);
     HHEnvVariables[element].trollGirlsID = TransPornstarHarem.getTrollGirlsId();
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
-});
-["GPSH_prod", "NGPSH_prod"].forEach((element) => {
+}
+;
+for (var key in GayPornstarHarem.getEnv()) {
+    const element = GayPornstarHarem.getEnv()[key].name;
     HHEnvVariables[element].trollzList = GayPornstarHarem.getTrolls();
     GayPornstarHarem.updateFeatures(HHEnvVariables[element]);
     HHEnvVariables[element].trollGirlsID = GayPornstarHarem.getTrollGirlsId();
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
     HHEnvVariables[element].boosterId_MB1 = 2619;
-});
+}
+;
 // Object.values(girlsDataList).filter(girl => girl.source?.name == "troll_tier" && girl.source?.group?.id == "7")
 
 ;// CONCATENATED MODULE: ./src/config/InputPattern.ts
@@ -15751,6 +15851,20 @@ function getHHAjax() {
     var _a, _b;
     return unsafeWindow.hh_ajax || ((_b = (_a = unsafeWindow.shared) === null || _a === void 0 ? void 0 : _a.general) === null || _b === void 0 ? void 0 : _b.hh_ajax);
 }
+function onAjaxResponse(pattern, callback) {
+    $(document).ajaxComplete((evt, xhr, opt) => {
+        if (opt && opt.data && opt.data.search && ~opt.data.search(pattern)) {
+            if (!xhr || !xhr.responseText || !xhr.responseText.length) {
+                return;
+            }
+            const responseData = JSON.parse(xhr.responseText);
+            if (!responseData || !responseData.success) {
+                return;
+            }
+            return callback(responseData, opt, xhr, evt);
+        }
+    });
+}
 function getCallerFunction() {
     var stackTrace = (new Error()).stack || ''; // Only tested in latest FF and Chrome
     var callerName = stackTrace.replace(/^Error\s+/, ''); // Sanitize Chrome
@@ -16048,6 +16162,7 @@ var AutoLoop_awaiter = (undefined && undefined.__awaiter) || function (thisArg, 
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+
 
 
 
@@ -16786,6 +16901,8 @@ function autoLoop() {
                 setTimeout(PathOfValue.displayRemainingTime, 500);
                 setTimeout(PathOfGlory.displayRemainingTime, 500);
                 setTimeout(EventModule.showCompletedEvent, 500);
+                Spreadsheet.run = callItOnce(Spreadsheet.run);
+                Spreadsheet.run();
                 Harem.clearHaremToolVariables = callItOnce(Harem.clearHaremToolVariables); // Avoid wired loop, if user reach home page, ensure temp var from harem are cleared
                 Harem.clearHaremToolVariables();
                 HaremSalary.setSalaryTimeFromHomePage = callItOnce(HaremSalary.setSalaryTimeFromHomePage);

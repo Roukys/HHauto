@@ -16,6 +16,21 @@ export function getHHAjax() {
     return unsafeWindow.hh_ajax || unsafeWindow.shared?.general?.hh_ajax;
 }
 
+export function onAjaxResponse(pattern, callback) {
+    $(document).ajaxComplete((evt, xhr, opt) => {
+        if (opt && opt.data && opt.data.search && ~opt.data.search(pattern)) {
+            if (!xhr || !xhr.responseText || !xhr.responseText.length) {
+                return
+            }
+            const responseData = JSON.parse(xhr.responseText)
+            if (!responseData || !responseData.success) {
+                return
+            }
+            return callback(responseData, opt, xhr, evt)
+        }
+    })
+}
+
 export function getCallerFunction()
 {
     var stackTrace = (new Error()).stack || ''; // Only tested in latest FF and Chrome
