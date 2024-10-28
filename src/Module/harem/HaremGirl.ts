@@ -42,7 +42,7 @@ export class HaremGirl {
     static confirmMaxOut(){
         const confirmMaxOutButton = $('#girl_max_out_popup button.blue_button_L:not([disabled]):visible[confirm_callback]');
         if(confirmMaxOutButton.length > 0) {
-            confirmMaxOutButton.click();
+            confirmMaxOutButton.trigger('click');
         } else logHHAuto('Confirm max out button not found');
     }
 
@@ -51,7 +51,7 @@ export class HaremGirl {
             const maxOutButton = HaremGirl.getMaxOutButton(haremItem);
             if(maxOutButton.length > 0) {
                 logHHAuto('Max out ' + haremItem + ' for girl ' + girl.id_girl);
-                maxOutButton.click();
+                maxOutButton.trigger('click');
                 setTimeout(() => {
                     HaremGirl.confirmMaxOut();
                     setTimeout(() => {
@@ -72,13 +72,19 @@ export class HaremGirl {
         } else logHHAuto('Confirm max out all button not found');
     }
 
-    static maxOutAllButtonAndConfirm(haremItem:string, girl: KKHaremGirl) {
+    static getMaxOutPrice(): number {
+        return Number($('#girl_max_out_all_levels_popup .slot_soft_currency .amount').text());
+    }
+
+    static maxOutAllButtonAndConfirm(haremItem:string, girl: KKHaremGirl): Promise<any> {
         return new Promise((resolve) => {
             const maxOutButton = HaremGirl.getMaxOutAllButton(haremItem);
             if(maxOutButton.length > 0) {
                 logHHAuto('Max out all ' + haremItem + ' for girl ' + girl.id_girl);
                 maxOutButton.trigger('click');
                 setTimeout(() => {
+                    // const cost = HaremGirl.getMaxOutPrice();
+                    // logHHAuto(`Max out all ${haremItem} (for ${cost}) for girl ${girl.id_girl}`);
                     HaremGirl.confirmMaxOutAllCash();
                     setTimeout(() => {
                         resolve(true);
@@ -217,6 +223,8 @@ export class HaremGirl {
         const haremItem = HaremGirl.AFFECTION_TYPE;
         const selectedGirl: KKHaremGirl = HaremGirl.getCurrentGirl();
         HaremGirl.switchTabs(haremItem);
+        // let haremGirlSpent = Number(getStoredValue(HHStoredVarPrefixKey +"Temp_haremGirlSpent") || 0);
+        // if (Number.isNaN(haremGirlSpent)) haremGirlSpent = 0;
         const haremGirlPayLast = getStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlPayLast") == 'true';
         const canGiftGirl = selectedGirl.nb_grades > selectedGirl.graded;
         const lastGirlGrad = selectedGirl.nb_grades <= (selectedGirl.graded+1);

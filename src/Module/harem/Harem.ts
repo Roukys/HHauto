@@ -300,6 +300,18 @@ export class Harem {
         }
     }
 
+    static getGirlData(girlId: number){
+        var gMap = getHHVars('girls_data_list') || getHHVars('availableGirls');
+        if (gMap === null) {
+            // error
+            //logHHAuto("Girls Map was undefined...! Error, cannot export girls.");
+        }
+        else {
+            return gMap.find((girl) => girl.id_girl == girlId);
+        }
+        return null;
+    }
+
     static moduleHaremExportGirlsData()
     {
         const menuID = "ExportGirlsData";

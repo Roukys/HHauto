@@ -1,4 +1,5 @@
 export class HentaiHeroes {
+    static spreadsheet = 'https://docs.google.com/spreadsheets/d/1kVZxcZZMa82lS4k-IpxTTTELAeaipjR_v1twlqW5vbI'; // zoopokemon
     static getEnv() {
         return {
             "www.hentaiheroes.com": { name: "HH_prod", id: "hh_hentai" },
@@ -74,5 +75,7 @@ export class HentaiHeroes {
             [['344730128', '735302216', '851893423'], [0], [0]],
             [['547099506', '572827174', '653889168'], [0], [0]],
         ];
+    }
+    static updateFeatures(envVariables: any) {
     }
 }

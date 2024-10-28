@@ -1,4 +1,5 @@
 export class GayHarem {
+    static spreadsheet = 'https://docs.google.com/spreadsheets/d/1kVZxcZZMa82lS4k-IpxTTTELAeaipjR_v1twlqW5vbI'; // Bella
     static getEnv() {
         return {
             "www.gayharem.com": { name: "GH_prod", id: "hh_gay" },
@@ -57,5 +58,7 @@ export class GayHarem {
             [['225365882', '478693885', '231765083'], ['155415482'], ['769649470']],
             [['86962133', '243793871', '284483399'], [0], [0]],
         ];
+    }
+    static updateFeatures(envVariables: any) {
     }
 }

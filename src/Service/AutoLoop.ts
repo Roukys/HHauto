@@ -19,6 +19,7 @@ import {
     switchHHMenuButton,
     HeroHelper
 } from '../Helper/index';
+import { Spreadsheet } from '../Module/Spreadsheet';
 import {
     Booster,
     BossBang,
@@ -1012,6 +1013,8 @@ export async function autoLoop()
             setTimeout(PathOfValue.displayRemainingTime,500);
             setTimeout(PathOfGlory.displayRemainingTime,500);
             setTimeout(EventModule.showCompletedEvent,500);
+            Spreadsheet.run = callItOnce(Spreadsheet.run);
+            Spreadsheet.run();
 
             Harem.clearHaremToolVariables = callItOnce(Harem.clearHaremToolVariables); // Avoid wired loop, if user reach home page, ensure temp var from harem are cleared
             Harem.clearHaremToolVariables();

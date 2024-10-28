@@ -6,7 +6,7 @@ import {
     setStoredValue 
 } from '../Helper/index';
 import { gotoPage } from '../Service/index';
-import { isJSON, logHHAuto } from '../Utils/index';
+import { isJSON, logHHAuto, onAjaxResponse } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
 import { EventGirl } from '../model/EventGirl';
 import { EventModule } from './index';
@@ -20,18 +20,9 @@ export class Booster {
     
     //all following lines credit:Tom208 OCD script  
     static collectBoostersFromAjaxResponses () {
-        $(document).ajaxComplete(function(evt, xhr, opt) {
-            if(opt && opt.data && opt.data.search && ~opt.data.search(/(action|class)/)) {
+        onAjaxResponse(/(action|class)/, (response, opt, xhr, evt) => {
                 setTimeout(async function() {
-                    if(!xhr || !xhr.responseText || !xhr.responseText.length) {
-                        return
-                    }
-
                     const boosterStatus = Booster.getBoosterFromStorage();
-
-                    const response = JSON.parse(xhr.responseText);
-
-                    if(!response || !response.success) return;
 
                     const searchParams = new URLSearchParams(opt.data)
                     const mappedParams = ['action', 'class', 'type', 'id_item', 'number_of_battles', 'battles_amount'].map(key => ({[key]: searchParams.get(key)})).reduce((a,b)=>Object.assign(a,b),{})
@@ -176,7 +167,6 @@ export class Booster {
                         logHHAuto('Catch error during equip sandalwood for mythic' + err);
                     }
                 }, 200);
-            }
         })
     }
 

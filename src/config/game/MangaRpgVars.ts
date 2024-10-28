@@ -24,5 +24,6 @@ export class MangaRpg {
         envVariables.isEnabledPantheon = false;// to remove when Pantheon arrives in Manga RPG
         envVariables.isEnabledBossBangEvent = false;// to remove when event arrives in Manga RPG
         envVariables.isEnabledSultryMysteriesEvent = false;// to remove when event arrives in Manga RPG
+        envVariables.isEnabledSpreadsheets = false;
     }
 }

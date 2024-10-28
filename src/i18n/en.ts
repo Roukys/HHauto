@@ -307,4 +307,5 @@ HHAuto_ToolTips.en['haremGirlMaxSkill'] = {version: "7.16.0", elementText: "Give
 HHAuto_ToolTips.en['haremGirlUpgradeMax'] = {version: "6.12.0", elementText: "Full upgrade girl", tooltip: "Perform all upgrades for the girl (including last one), give necessary affections"};
 HHAuto_ToolTips.en['collectAllTimer'] = {version: "5.7.0", elementText: "Collect all timer (in hour)", tooltip: "Hour(s) before end of events to collect all rewards (Low time create risk of not collecting), Need activation on each events (POV, POG, season)"};
 HHAuto_ToolTips.en['collectAllButton'] = { version: "7.3.0", elementText: "Collect all", tooltip: "Automatically collect all items"};
+HHAuto_ToolTips.en['spreadsheet'] = { version: "7.17.0", elementText: "Spreadsheet", tooltip: ""};
 //HHAuto_ToolTips.en['scriptWarning'] = { version: "7.4.0", elementText: "Warning", tooltip: "An issue is detected in bot execution, open menu and logs for more info"};

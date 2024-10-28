@@ -9,6 +9,7 @@ import {
 } from '../Helper/index';
 import { logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
+import { Harem } from './harem/Harem';
 
 export class TeamModule {
 
@@ -97,6 +98,7 @@ export class TeamModule {
             {
                 let gID = Number($(arr[i]).attr('id_girl'));
                 const tooltipData = $('.girl_img', $(arr[i])).attr(<string>ConfigHelper.getHHScriptVars('girlToolTipData')) || '';
+                //const girlData = Harem.getGirlData(gID);
                 if(tooltipData == '') {
                     logHHAuto('ERROR, no girl information found');
                     return;

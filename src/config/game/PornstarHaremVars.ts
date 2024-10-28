@@ -44,4 +44,8 @@ export class PornstarHarem{
             [['814814392', '660703295', '450943401'], [0], [0]],
         ];
     }
+
+    static updateFeatures(envVariables: any) {
+        envVariables.isEnabledSpreadsheets = false;
+    }
 }
