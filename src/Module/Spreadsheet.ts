@@ -14,13 +14,18 @@ export class Spreadsheet {
         return ConfigHelper.getHHScriptVars("isEnabledSpreadsheets", false);
     }
 
+    static canRun(){
+        return Spreadsheet.isEnabled() && $('.' + Spreadsheet.BDSMPP_CLASS).length === 0 && $('.' + Spreadsheet.LINK_CLASS).length === 0;
+    }
+
     static run() {
-        if (!Spreadsheet.isEnabled() || $('.' + Spreadsheet.BDSMPP_CLASS).length > 0 || $('.' + Spreadsheet.LINK_CLASS).length > 0) return;
+        if (!Spreadsheet.canRun()) return;
         const page = getPage();
         if (page === ConfigHelper.getHHScriptVars("pagesIDHome")) {
 
             onAjaxResponse(/action=get_girls_blessings/i, (response, opt, xhr, evt) => {
                 setTimeout(async function () {
+                    if (!Spreadsheet.canRun()) return;
                     const href = ConfigHelper.getHHScriptVars("spreadsheet");
                     if (!href) return;
 

@@ -152,7 +152,7 @@ export class Missions {
 
         try {
             allMissions.each((idx, missionObject:HTMLElement) => {
-                var data = $.data(missionObject).d;
+                var data: Mission = $.data(missionObject).d;
                 lastMissionData = data;
                 // Do not list completed missions
                 var toAdd = true;
