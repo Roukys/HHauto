@@ -48,7 +48,7 @@ describe("ConfigHelper", function() {
     it("HH", function() {
         MockHelper.mockDomain('www.hentaiheroes.com');
         expect(ConfigHelper.getHHScriptVars('eventIDReg')).toBe("event_");
-        expect(ConfigHelper.getHHScriptVars('lastQuestId')).toBe(1820);
+        expect(ConfigHelper.getHHScriptVars('lastQuestId')).toBe(1850);
         expect(ConfigHelper.getHHScriptVars('isEnabledSideQuest')).toBeTruthy();
 
         expect(ConfigHelper.getHHScriptVars('UNKNOWN')).toBeNull();
@@ -71,8 +71,8 @@ describe("ConfigHelper", function() {
 
     it("TPH", function() {
         MockHelper.mockDomain('www.transpornstarharem.com');
-        expect(ConfigHelper.getHHScriptVars('isEnabledLabyrinth')).toBeFalsy();
-        expect(ConfigHelper.getHHScriptVars('isEnabledSideQuest')).toBeFalsy();
+        expect(ConfigHelper.getHHScriptVars('isEnabledLabyrinth')).toBeTruthy();
+        expect(ConfigHelper.getHHScriptVars('isEnabledSideQuest')).toBeTruthy();
     });
 
     it("Sandalwood booster", function() {

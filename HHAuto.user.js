@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.17.0
+// @version      7.17.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -12296,14 +12296,19 @@ class Spreadsheet {
     static isEnabled() {
         return ConfigHelper.getHHScriptVars("isEnabledSpreadsheets", false);
     }
+    static canRun() {
+        return Spreadsheet.isEnabled() && $('.' + Spreadsheet.BDSMPP_CLASS).length === 0 && $('.' + Spreadsheet.LINK_CLASS).length === 0;
+    }
     static run() {
-        if (!Spreadsheet.isEnabled() || $('.' + Spreadsheet.BDSMPP_CLASS).length > 0 || $('.' + Spreadsheet.LINK_CLASS).length > 0)
+        if (!Spreadsheet.canRun())
             return;
         const page = getPage();
         if (page === ConfigHelper.getHHScriptVars("pagesIDHome")) {
             onAjaxResponse(/action=get_girls_blessings/i, (response, opt, xhr, evt) => {
                 setTimeout(function () {
                     return Spreadsheet_awaiter(this, void 0, void 0, function* () {
+                        if (!Spreadsheet.canRun())
+                            return;
                         const href = ConfigHelper.getHHScriptVars("spreadsheet");
                         if (!href)
                             return;
