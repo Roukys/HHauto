@@ -126,6 +126,9 @@ export function gotoPage(page,inArgs={},delay = -1)
         case (page.match(/^\/quest\/\d+$/) || {}).input:
             togoto = page;
             break;
+        case (page.match(/^\/quest\/\d+.*$/) || {}).input:
+            togoto = page;
+            break;
         case (page.match(/^\/boss-bang-battle.html\?number_of_battles=\d&bb_team_index=[01234]$/) || {}).input:
             togoto = page;
             break;
