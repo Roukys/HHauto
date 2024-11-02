@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.17.1
+// @version      7.17.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4373,10 +4373,22 @@ class Contest {
         }
         else {
             try {
-                const nextContestTime = unsafeWindow.contests_timer.next_contest;
+                let nextContestSelector = '#contests .next_contest .contest_timer span';
+                let remainingTimeSelector = '#contests .contest .in_progress .contest_timer .text span';
+                let nextContestTime = unsafeWindow.contests_timer.next_contest;
                 const duration = unsafeWindow.contests_timer.duration;
-                const remaining_time = unsafeWindow.contests_timer.remaining_time;
+                let remaining_time = unsafeWindow.contests_timer.remaining_time;
                 const safeTime = TimeHelper.getContestSafeTime();
+                if ($(nextContestSelector).length > 0) {
+                    nextContestTime = Number(convertTimeToInt($(nextContestSelector).text()));
+                    if (nextContestTime < 0)
+                        nextContestTime = unsafeWindow.contests_timer.next_contest;
+                }
+                if ($(remainingTimeSelector).length > 0) {
+                    remaining_time = Number(convertTimeToInt($(remainingTimeSelector).text()));
+                    if (remaining_time < 0)
+                        remaining_time = unsafeWindow.contests_timer.remaining_time;
+                }
                 if (remaining_time < duration) {
                     setTimer('contestRemainingTime', remaining_time);
                 }
@@ -5806,7 +5818,7 @@ class TimeHelper {
         });
     }
 }
-function convertTimeToInt(remainingTimer) {
+function convertTimeToInt(remainingTimer, failSafe = true) {
     let newTimer = 0;
     if (remainingTimer && remainingTimer.length > 0) {
         try {
@@ -5832,13 +5844,25 @@ function convertTimeToInt(remainingTimer) {
             }
         }
         catch ({ errName, message }) {
-            LogUtils_logHHAuto(`ERROR: occured, reset to 15min: ${errName}, ${message}`);
-            newTimer = randomInterval(15 * 60, 17 * 60);
+            if (failSafe) {
+                LogUtils_logHHAuto(`ERROR: occured, reset to 15min: ${errName}, ${message}`);
+                newTimer = randomInterval(15 * 60, 17 * 60);
+            }
+            else {
+                LogUtils_logHHAuto(`ERROR: occured, return -1: ${errName}, ${message}`);
+                newTimer = -1;
+            }
         }
     }
     else {
-        LogUtils_logHHAuto('No valid timer definitions, reset to 15min');
-        newTimer = randomInterval(15 * 60, 17 * 60);
+        if (failSafe) {
+            LogUtils_logHHAuto('No valid timer definitions, reset to 15min');
+            newTimer = randomInterval(15 * 60, 17 * 60);
+        }
+        else {
+            LogUtils_logHHAuto('No valid timer definitions, return -1');
+            newTimer = -1;
+        }
     }
     return newTimer;
 }

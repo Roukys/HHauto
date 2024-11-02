@@ -3,6 +3,7 @@ import {
     TimeHelper,
     checkTimer,
     checkTimerMustExist,
+    convertTimeToInt,
     getPage,
     getStoredValue,
     getTimeLeft,
@@ -58,10 +59,23 @@ export class Contest {
         }
         else {
             try{
-                const nextContestTime = unsafeWindow.contests_timer.next_contest;
+                let nextContestSelector = '#contests .next_contest .contest_timer span';
+                let remainingTimeSelector = '#contests .contest .in_progress .contest_timer .text span';
+
+                let nextContestTime = unsafeWindow.contests_timer.next_contest;
                 const duration = unsafeWindow.contests_timer.duration;
-                const remaining_time = unsafeWindow.contests_timer.remaining_time;
+                let remaining_time = unsafeWindow.contests_timer.remaining_time;
                 const safeTime = TimeHelper.getContestSafeTime();
+
+                if ($(nextContestSelector).length > 0) {
+                    nextContestTime = Number(convertTimeToInt($(nextContestSelector).text()));
+                    if (nextContestTime < 0) nextContestTime = unsafeWindow.contests_timer.next_contest;
+                }
+                if ($(remainingTimeSelector).length > 0) {
+                    remaining_time = Number(convertTimeToInt($(remainingTimeSelector).text()));
+                    if (remaining_time < 0) remaining_time = unsafeWindow.contests_timer.remaining_time;
+                }
+
                 if (remaining_time < duration) {
                     setTimer('contestRemainingTime', remaining_time);
                 } else

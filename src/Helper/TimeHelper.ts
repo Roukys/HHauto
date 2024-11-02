@@ -52,7 +52,7 @@ export class TimeHelper {
     }
 }
 
-export function convertTimeToInt(remainingTimer: string): number {
+export function convertTimeToInt(remainingTimer: string, failSafe=true): number {
     let newTimer = 0;
     if (remainingTimer && remainingTimer.length > 0) {
         try{
@@ -77,12 +77,22 @@ export function convertTimeToInt(remainingTimer: string): number {
                 }
             }
         } catch ({ errName, message }) {
-            logHHAuto(`ERROR: occured, reset to 15min: ${errName}, ${message}`);
-            newTimer = randomInterval(15 * 60, 17 * 60);
+            if (failSafe) {
+                logHHAuto(`ERROR: occured, reset to 15min: ${errName}, ${message}`);
+                newTimer = randomInterval(15 * 60, 17 * 60);
+            } else {
+                logHHAuto(`ERROR: occured, return -1: ${errName}, ${message}`);
+                newTimer = -1;
+            }
         }
     } else {
-        logHHAuto('No valid timer definitions, reset to 15min');
-        newTimer = randomInterval(15*60, 17*60);
+        if (failSafe) {
+            logHHAuto('No valid timer definitions, reset to 15min');
+            newTimer = randomInterval(15 * 60, 17 * 60);
+        } else {
+            logHHAuto('No valid timer definitions, return -1');
+            newTimer = -1;
+        }
     }
     return newTimer;
 }
