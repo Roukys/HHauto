@@ -27,6 +27,7 @@ export class Harem {
         deleteStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlEnd");
         deleteStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlPayLast");
         deleteStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlLimit");
+        deleteStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlSpent");
         
         const lastActionPerformed:string = getStoredValue(HHStoredVarPrefixKey+"Temp_lastActionPerformed");
         if(lastActionPerformed == Harem.HAREM_UPGRADE_LAST_ACTION) {
