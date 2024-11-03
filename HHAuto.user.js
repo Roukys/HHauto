@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.18.0
+// @version      7.18.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -6303,7 +6303,10 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoMission"] =
         getMenu: true,
         setMenu: true,
         menuType: "checked",
-        kobanUsing: false
+        kobanUsing: false,
+        newValueFunction: function () {
+            clearTimer('nextMissionTime');
+        }
     };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoMissionCollect"] =
     {
@@ -10504,26 +10507,17 @@ class Missions {
                     return true;
                 }
                 let canCollect = getStoredValue(HHStoredVarPrefixKey + "Setting_autoMissionCollect") === "true" && $(".mission_button button:visible[rel='claim']").length > 0 && TimeHelper.canCollectCompetitionActive();
-                if (canCollect) {
-                    LogUtils_logHHAuto("Collecting finished mission's reward.");
-                    $(".mission_button button:visible[rel='claim']").first().trigger('click');
-                    return true;
-                }
-                var { allGood, missions } = Missions.parseMissions(canCollect);
-                if (!allGood && canCollect) {
+                var { allGood, missions, missionOngoing } = Missions.parseMissions(canCollect);
+                if (debugEnabled)
+                    LogUtils_logHHAuto("Missions parsed, mission list is:", missions);
+                if (debugEnabled && missionOngoing != null)
+                    LogUtils_logHHAuto("Mission missionOngoing:", missionOngoing);
+                if (!allGood && checkTimer('nextMissionTime')) {
                     LogUtils_logHHAuto("Something went wrong, need to retry in 15secs.");
                     setTimer('nextMissionTime', randomInterval(15, 30));
                     return true;
                 }
-                if (!allGood) {
-                    LogUtils_logHHAuto("Mission ongoing waiting it ends.");
-                    if (checkTimer('nextMissionTime'))
-                        setTimer('nextMissionTime', randomInterval(15, 30));
-                    return true;
-                }
-                if (debugEnabled)
-                    LogUtils_logHHAuto("Missions parsed, mission list is:", missions);
-                if (missions.length > 0) {
+                if (missions.length > 0 && missionOngoing == null) {
                     var mission = Missions.getSuitableMission(missions);
                     LogUtils_logHHAuto(`Selected mission to be started (duration: ${mission.duration}sec):`);
                     if (debugEnabled)
@@ -10531,8 +10525,8 @@ class Missions {
                     var missionButton = $(mission.missionObject).find("button:visible[rel='mission_start']").first();
                     if (missionButton.length > 0) {
                         missionButton.trigger('click');
-                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDMissions"), {}, randomInterval(1300, 1800));
-                        setTimer('nextMissionTime', Number(mission.duration) + randomInterval(1, 5));
+                        missionOngoing = mission;
+                        missionOngoing.remaining_time = Number(mission.duration);
                     }
                     else {
                         LogUtils_logHHAuto("Something went wrong, no start button");
@@ -10540,7 +10534,18 @@ class Missions {
                         return true;
                     }
                 }
-                else {
+                if (canCollect) {
+                    LogUtils_logHHAuto("Collecting finished mission's reward.");
+                    $(".mission_button button:visible[rel='claim']").first().trigger('click');
+                    return true;
+                }
+                if (missionOngoing != null) {
+                    LogUtils_logHHAuto("Mission ongoing waiting it ends.");
+                    if (checkTimer('nextMissionTime'))
+                        setTimer('nextMissionTime', missionOngoing.remaining_time + randomInterval(10, 20));
+                    return true;
+                }
+                if (missions.length == 0 && missionOngoing != null) {
                     LogUtils_logHHAuto("No missions detected...!");
                     // get gift
                     const isAfterGift = $("#missions .end_gift:visible").length > 0;
@@ -10561,7 +10566,8 @@ class Missions {
                         LogUtils_logHHAuto("New mission time was undefined... Setting it manually to 10min.");
                         setTimer('nextMissionTime', randomInterval(10 * 60, 12 * 60));
                     }
-                    setTimer('nextMissionTime', Number(convertTimeToInt(time)) + randomInterval(1, 5));
+                    else
+                        setTimer('nextMissionTime', Number(convertTimeToInt(time)) + randomInterval(1, 5));
                 }
             }
             catch ({ errName, message }) {
@@ -10573,6 +10579,7 @@ class Missions {
         }
     }
     static parseMissions(canCollect) {
+        var missionOngoing = null;
         var missions = [];
         var lastMissionData = {};
         var allGood = true;
@@ -10586,25 +10593,22 @@ class Missions {
                 // Do not list completed missions
                 var toAdd = true;
                 if (data.remaining_time !== null) {
-                    // This is not a fresh mission
+                    // This is not a fresh mission (ongoing)
                     if (data.remaining_time > 0) {
+                        // allGood = false;
                         if ($('.finish_in_bar[style*="display:none;"], .finish_in_bar[style*="display: none;"]', missionObject).length === 0) {
                             LogUtils_logHHAuto("Unfinished mission detected...(" + data.remaining_time + "sec. remaining)");
-                            setTimer('nextMissionTime', Number(data.remaining_time) + randomInterval(1, 5));
-                            allGood = false;
-                            missions = []; // Clear missions to avoid selecting a smaller one than the one ongoing
-                            return false;
+                            missionOngoing = data;
+                            data.finished = false;
                         }
                         else {
-                            allGood = false;
+                            gotoPage(ConfigHelper.getHHScriptVars("pagesIDMissions"), {}, randomInterval(300, 800));
+                            allGood = false; // Need refresh
                         }
                     }
                     else {
-                        if (canCollect) {
-                            LogUtils_logHHAuto("Unclaimed mission detected...");
-                            gotoPage(ConfigHelper.getHHScriptVars("pagesIDMissions"), {}, randomInterval(1300, 1800));
-                            return false;
-                        }
+                        data.finished = true;
+                        toAdd = false;
                     }
                     return;
                 }
@@ -10627,7 +10631,7 @@ class Missions {
             setTimer('nextMissionTime', randomInterval(15 * 60, 20 * 60));
             allGood = false;
         }
-        return { allGood, missions };
+        return { allGood, missions, missionOngoing };
     }
     static getMissionRewards(missionObject) {
         var rewards = [];
