@@ -112,7 +112,7 @@ export class Missions {
                     return true;
                 }
 
-                if (missions.length == 0 && missionOngoing != null)
+                if (missions.length == 0 && missionOngoing == null)
                 {
                     logHHAuto("No missions detected...!");
                     // get gift
