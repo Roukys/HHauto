@@ -437,7 +437,10 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoMission"] =
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false
+    kobanUsing:false,
+    newValueFunction: function () {
+        clearTimer('nextMissionTime');
+    }
 };
 HHStoredVars[HHStoredVarPrefixKey+"Setting_autoMissionCollect"] =
     {
