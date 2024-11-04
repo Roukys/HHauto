@@ -68,11 +68,11 @@ export class Contest {
                 const safeTime = TimeHelper.getContestSafeTime();
 
                 if ($(nextContestSelector).length > 0) {
-                    nextContestTime = Number(convertTimeToInt($(nextContestSelector).text()));
+                    nextContestTime = Number(convertTimeToInt($(nextContestSelector).first().text()));
                     if (nextContestTime < 0) nextContestTime = unsafeWindow.contests_timer.next_contest;
                 }
                 if ($(remainingTimeSelector).length > 0) {
-                    remaining_time = Number(convertTimeToInt($(remainingTimeSelector).text()));
+                    remaining_time = Number(convertTimeToInt($(remainingTimeSelector).first().text()));
                     if (remaining_time < 0) remaining_time = unsafeWindow.contests_timer.remaining_time;
                 }
 
