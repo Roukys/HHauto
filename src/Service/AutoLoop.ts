@@ -1012,6 +1012,7 @@ export async function autoLoop()
             setTimeout(Season.displayRemainingTime,500);
             setTimeout(PathOfValue.displayRemainingTime,500);
             setTimeout(PathOfGlory.displayRemainingTime,500);
+            EventModule.showCompletedEvent = callItOnce(EventModule.showCompletedEvent);
             setTimeout(EventModule.showCompletedEvent,500);
             Spreadsheet.run = callItOnce(Spreadsheet.run);
             Spreadsheet.run();

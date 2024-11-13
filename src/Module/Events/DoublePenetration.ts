@@ -10,12 +10,35 @@ import {
     setStoredValue,
     setTimer,
     getTextForUI,
+    convertTimeToInt,
 } from "../../Helper/index";
 import { autoLoop, gotoPage } from "../../Service/index";
 import { isJSON, logHHAuto } from "../../Utils/index";
 import { HHStoredVarPrefixKey } from "../../config/index";
 
 export class DoublePenetration {
+    static parse(hhEvent: any, eventList: any, hhEventData: any) {
+        const eventID = hhEvent.eventId;
+        let refreshTimer = randomInterval(3600, 4000);
+
+        let timeLeft = $('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
+        let dpRemainingTime = 3600;
+        if (timeLeft !== undefined && timeLeft.length) {
+            dpRemainingTime = Number(convertTimeToInt(timeLeft));
+        }
+        setTimer('eventDPGoing', dpRemainingTime);
+
+        eventList[eventID] = {};
+        eventList[eventID]["id"] = eventID;
+        eventList[eventID]["type"] = hhEvent.eventType;
+        eventList[eventID]["seconds_before_end"] = new Date().getTime() + dpRemainingTime * 1000;
+        eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimer * 1000;
+        eventList[eventID]["isCompleted"] = false;
+
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_autodpEventCollect") === "true" || dpRemainingTime < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey + "Setting_autodpEventCollectAll") === "true") {
+            DoublePenetration.goAndCollect(dpRemainingTime);
+        }
+    }
 
     static goAndCollect(dpRemainingTime: number, manualCollectAll = false)
     {

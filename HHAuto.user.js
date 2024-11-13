@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.18.3
+// @version      7.18.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1317,6 +1317,54 @@ class Bundles {
 
 
 class BossBang {
+    static parse(hhEvent, eventList, hhEventData) {
+        const eventID = hhEvent.eventId;
+        let refreshTimer = randomInterval(3600, 4000);
+        let timeLeft = $('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
+        if (timeLeft !== undefined && timeLeft.length) {
+            setTimer('eventBossBangGoing', Number(convertTimeToInt(timeLeft)));
+        }
+        else
+            setTimer('eventBossBangGoing', refreshTimer);
+        eventList[eventID] = {};
+        eventList[eventID]["id"] = eventID;
+        eventList[eventID]["type"] = hhEvent.eventType;
+        eventList[eventID]["seconds_before_end"] = new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
+        eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimer * 1000;
+        eventList[eventID]["isCompleted"] = $('#contains_all #events #boss_bang .completed-event').length > 0;
+        let teamEventz = $('#contains_all #events #boss_bang .boss-bang-teams-container .boss-bang-team-slot');
+        let teamFound = false;
+        const firstTeamToStartWith = getStoredValue(HHStoredVarPrefixKey + "Setting_bossBangMinTeam");
+        if ($('.boss-bang-team-ego', teamEventz[firstTeamToStartWith - 1]).length > 0) {
+            // Do not trigger event if not all teams are set
+            for (let currIndex = teamEventz.length - 1; currIndex >= 0 && !teamFound; currIndex--) {
+                // start with last team first
+                let teamz = $(teamEventz[currIndex]);
+                const teamIndex = teamz.data('slot-index');
+                const teamEgo = $('.boss-bang-team-ego', teamz);
+                if (teamEgo.length > 0 && parseInt(teamEgo.text()) > 0) {
+                    if (!teamFound) {
+                        if (!teamz.hasClass('.selected-hero-team'))
+                            teamz.click();
+                        teamFound = true;
+                        LogUtils_logHHAuto("Select team " + (teamIndex + 1) + ", Ego: " + parseInt(teamEgo.text()));
+                        setStoredValue(HHStoredVarPrefixKey + "Temp_bossBangTeam", teamIndex);
+                        return true;
+                    }
+                }
+                else {
+                    LogUtils_logHHAuto("Team " + teamIndex + " not eligible");
+                }
+            }
+        }
+        else if (eventList[eventID]["isCompleted"]) {
+            LogUtils_logHHAuto("Boss bang completed, disabled boss bang event setting");
+            setStoredValue(HHStoredVarPrefixKey + "Setting_bossBangEvent", false);
+        }
+        if (!teamFound) {
+            setStoredValue(HHStoredVarPrefixKey + "Temp_bossBangTeam", -1);
+        }
+    }
     static skipFightPage() {
         const rewardsButton = $('#rewards_popup .blue_button_L:not([disabled]):visible');
         const skipFightButton = $('#battle #new-battle-skip-btn:not([disabled]):visible');
@@ -1341,12 +1389,59 @@ class BossBang {
     }
 }
 
+;// CONCATENATED MODULE: ./src/Module/Events/CumbackContests.ts
+
+class CumbackContests {
+    static parse(hhEvent, eventList, hhEventData) {
+        const eventID = hhEvent.eventId;
+        let refreshTimer = randomInterval(3600, 4000);
+        let timeLeft = $('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
+        if (timeLeft !== undefined && timeLeft.length) {
+            setTimer('eventCumbackGoing', Number(convertTimeToInt(timeLeft)));
+        }
+        else
+            setTimer('eventCumbackGoing', refreshTimer);
+        eventList[eventID] = {};
+        eventList[eventID]["id"] = eventID;
+        eventList[eventID]["type"] = hhEvent.eventType;
+        eventList[eventID]["seconds_before_end"] = new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
+        eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimer * 1000;
+        eventList[eventID]["isCompleted"] = true;
+        let allEventGirlz = hhEventData ? hhEventData.girls : [];
+        for (let currIndex = 0; currIndex < allEventGirlz.length; currIndex++) {
+            let girlData = allEventGirlz[currIndex];
+            if (girlData.shards < 100) {
+                eventList[eventID]["isCompleted"] = false;
+            }
+        }
+    }
+}
+
 ;// CONCATENATED MODULE: ./src/Module/Events/DoublePenetration.ts
 
 
 
 
 class DoublePenetration {
+    static parse(hhEvent, eventList, hhEventData) {
+        const eventID = hhEvent.eventId;
+        let refreshTimer = randomInterval(3600, 4000);
+        let timeLeft = $('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
+        let dpRemainingTime = 3600;
+        if (timeLeft !== undefined && timeLeft.length) {
+            dpRemainingTime = Number(convertTimeToInt(timeLeft));
+        }
+        setTimer('eventDPGoing', dpRemainingTime);
+        eventList[eventID] = {};
+        eventList[eventID]["id"] = eventID;
+        eventList[eventID]["type"] = hhEvent.eventType;
+        eventList[eventID]["seconds_before_end"] = new Date().getTime() + dpRemainingTime * 1000;
+        eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimer * 1000;
+        eventList[eventID]["isCompleted"] = false;
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_autodpEventCollect") === "true" || dpRemainingTime < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey + "Setting_autodpEventCollectAll") === "true") {
+            DoublePenetration.goAndCollect(dpRemainingTime);
+        }
+    }
     static goAndCollect(dpRemainingTime, manualCollectAll = false) {
         try {
             const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey + "Setting_autodpEventCollectablesList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Setting_autodpEventCollectablesList")) : [];
@@ -1490,6 +1585,68 @@ class DoublePenetration {
     }
 }
 
+;// CONCATENATED MODULE: ./src/Module/Events/MythicEvent.ts
+
+
+
+
+class MythicEvent {
+    static parse(hhEvent, eventList, hhEventData, eventsGirlz, eventChamps) {
+        const eventID = hhEvent.eventId;
+        let Priority = (getStoredValue(HHStoredVarPrefixKey + "Setting_eventTrollOrder") || '').split(";");
+        let refreshTimer = randomInterval(3600, 4000);
+        let timeLeft = $('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
+        if (timeLeft !== undefined && timeLeft.length) {
+            setTimer('eventMythicGoing', Number(convertTimeToInt(timeLeft)));
+        }
+        else
+            setTimer('eventMythicGoing', refreshTimer);
+        eventList[eventID] = {};
+        eventList[eventID]["id"] = eventID;
+        eventList[eventID]["type"] = hhEvent.eventType;
+        eventList[eventID]["isMythic"] = true;
+        eventList[eventID]["seconds_before_end"] = new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
+        eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimer * 1000;
+        eventList[eventID]["isCompleted"] = true;
+        let allEventGirlz = hhEventData ? hhEventData.girls : [];
+        for (let currIndex = 0; currIndex < allEventGirlz.length; currIndex++) {
+            let girlData = allEventGirlz[currIndex];
+            let ShardsQuery = '#events .nc-panel .nc-panel-body .nc-event-reward-container .nc-events-prize-locations-container .shards-info span.number';
+            let timerQuery = '#events .nc-panel .nc-panel-body .nc-event-reward-container .nc-events-prize-locations-container .shards-info span.timer';
+            if ($(ShardsQuery).length > 0) {
+                let remShards = Number($(ShardsQuery)[0].innerText);
+                let nextWave = ($(timerQuery).length > 0) ? convertTimeToInt($(timerQuery)[0].innerText) : -1;
+                if (girlData.shards < 100) {
+                    eventList[eventID]["isCompleted"] = false;
+                    if (nextWave === -1) {
+                        clearTimer('eventMythicNextWave');
+                    }
+                    else {
+                        setTimer('eventMythicNextWave', nextWave);
+                    }
+                    const eventGirl = new EventGirl(girlData, eventID, eventList[eventID]["seconds_before_end"], true);
+                    if (remShards !== 0) {
+                        if (eventGirl.isOnTroll()) {
+                            LogUtils_logHHAuto(`Event girl : ${eventGirl.toString()} with priority : ${Priority.indexOf('' + eventGirl.troll_id)}`, eventGirl);
+                            eventsGirlz.push(eventGirl);
+                        }
+                    }
+                    else {
+                        if (nextWave === -1) {
+                            eventList[eventID]["isCompleted"] = true;
+                            clearTimer('eventMythicNextWave');
+                        }
+                    }
+                }
+                else {
+                    // No more needed if girl is owned
+                    clearTimer('eventMythicNextWave');
+                }
+            }
+        }
+    }
+}
+
 ;// CONCATENATED MODULE: ./src/Module/Events/PathOfAttraction.ts
 var PathOfAttraction_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -1535,6 +1692,23 @@ class PathOfAttraction {
                 array[i].style.display = "none";
             }
         }
+    }
+    static parse(hhEvent, eventList, hhEventData) {
+        const eventID = hhEvent.eventId;
+        PathOfAttraction.getRemainingTime();
+        const poAEnd = getSecondsLeft("PoARemainingTime");
+        LogUtils_logHHAuto("PoA end in " + TimeHelper.debugDate(poAEnd));
+        let refreshTimerPoa = ConfigHelper.getHHScriptVars('maxCollectionDelay');
+        if (poAEnd < Math.max(refreshTimerPoa, getLimitTimeBeforeEnd()) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollectAll") === "true") {
+            refreshTimerPoa = Math.min(refreshTimerPoa, getLimitTimeBeforeEnd());
+        }
+        LogUtils_logHHAuto("PoA next refres in " + TimeHelper.debugDate(refreshTimerPoa));
+        eventList[eventID] = {};
+        eventList[eventID]["id"] = eventID;
+        eventList[eventID]["type"] = hhEvent.eventType;
+        eventList[eventID]["seconds_before_end"] = new Date().getTime() + poAEnd * 1000;
+        eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimerPoa * 1000;
+        eventList[eventID]["isCompleted"] = PathOfAttraction.isCompleted();
     }
     static run() {
         return PathOfAttraction_awaiter(this, void 0, void 0, function* () {
@@ -1732,11 +1906,85 @@ PathOfAttraction.freeSlotPath = "#nc-poa-tape-rewards .nc-poa-reward-pair .nc-po
 PathOfAttraction.paidSlotPath = "#nc-poa-tape-rewards .nc-poa-reward-pair .nc-poa-locked-reward";
 PathOfAttraction.getRewardButtonPath = "#poa-content .objective .reward button.purple_button_L";
 
+;// CONCATENATED MODULE: ./src/Module/Events/PlusEvents.ts
+
+
+
+
+
+class PlusEvent {
+    static parse(hhEvent, eventList, hhEventData, eventsGirlz, eventChamps) {
+        const eventID = hhEvent.eventId;
+        let Priority = (getStoredValue(HHStoredVarPrefixKey + "Setting_eventTrollOrder") || '').split(";");
+        let refreshTimer = randomInterval(3600, 4000);
+        let timeLeft = $('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
+        if (timeLeft !== undefined && timeLeft.length) {
+            setTimer('eventGoing', Number(convertTimeToInt(timeLeft)));
+        }
+        else
+            setTimer('eventGoing', refreshTimer);
+        eventList[eventID] = {};
+        eventList[eventID]["id"] = eventID;
+        eventList[eventID]["type"] = hhEvent.eventType;
+        eventList[eventID]["seconds_before_end"] = new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
+        eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimer * 1000;
+        eventList[eventID]["isCompleted"] = true;
+        let allEventGirlz = hhEventData ? hhEventData.girls : [];
+        for (let currIndex = 0; currIndex < allEventGirlz.length; currIndex++) {
+            let girlData = allEventGirlz[currIndex];
+            if (girlData.shards < 100) {
+                eventList[eventID]["isCompleted"] = false;
+                const eventGirl = new EventGirl(girlData, eventID, eventList[eventID]["seconds_before_end"]);
+                if (eventGirl.isOnTroll()) {
+                    LogUtils_logHHAuto(`Event girl : ${eventGirl.toString()} with priority : ${Priority.indexOf('' + eventGirl.troll_id)}`, eventGirl);
+                    eventsGirlz.push(eventGirl);
+                }
+                if (eventGirl.isOnChampion()) {
+                    LogUtils_logHHAuto(`Event girl : ${eventGirl.toString()}`, eventGirl);
+                    eventChamps.push(eventGirl);
+                }
+            }
+        }
+        if (eventList[eventID]["isCompleted"]) {
+            EventModule.collectEventChestIfPossible();
+        }
+    }
+}
+
 ;// CONCATENATED MODULE: ./src/Module/Events/SultryMysteries.ts
+
 
 class SultryMysteries {
     static isEnabled() {
         return HeroHelper.getLevel() >= ConfigHelper.getHHScriptVars("LEVEL_MIN_EVENT_SM");
+    }
+    static parse(hhEvent, eventList, hhEventData) {
+        const eventID = hhEvent.eventId;
+        let refreshTimer = randomInterval(3600, 4000);
+        let timeLeft = $('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
+        if (timeLeft !== undefined && timeLeft.length) {
+            setTimer('eventSultryMysteryGoing', Number(convertTimeToInt(timeLeft)));
+        }
+        else
+            setTimer('eventSultryMysteryGoing', 3600);
+        eventList[eventID] = {};
+        eventList[eventID]["id"] = eventID;
+        eventList[eventID]["type"] = hhEvent.eventType;
+        eventList[eventID]["seconds_before_end"] = new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
+        eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimer * 1000;
+        eventList[eventID]["isCompleted"] = false;
+        if (checkTimer("eventSultryMysteryShopRefresh")) {
+            LogUtils_logHHAuto("Refresh sultry mysteries shop content.");
+            const shopButton = $('#shop_tab');
+            const gridButton = $('#grid_tab');
+            shopButton.trigger('click');
+            setTimeout(function () {
+                let shopTimeLeft = $('#contains_all #events #shop_tab_container .shop-section .shop-timer span[rel="expires"]').text();
+                setTimer('eventSultryMysteryShopRefresh', Number(convertTimeToInt(shopTimeLeft)) + randomInterval(60, 180));
+                eventList[eventID]["next_shop_refresh"] = new Date().getTime() + Number(shopTimeLeft) * 1000;
+                setTimeout(function () { gridButton.trigger('click'); }, randomInterval(800, 1200));
+            }, randomInterval(300, 500));
+        }
     }
 }
 
@@ -1750,6 +1998,9 @@ var EventModule_awaiter = (undefined && undefined.__awaiter) || function (thisAr
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+
+
+
 
 
 
@@ -1870,7 +2121,7 @@ class EventModule {
                     for (let eventID of Object.keys(eventList)) {
                         if (eventList[eventID]["isCompleted"]) {
                             const eventTimer = $(`#contains_all #homepage .event-widget a[href*="${eventID}"] .timer p`);
-                            eventTimer.append(img);
+                            eventTimer.append(img.clone());
                             oneEventCompleted = true;
                         }
                     }
@@ -1915,212 +2166,44 @@ class EventModule {
                     }
                 }
                 queryEventTabCheck[0].setAttribute('parsed', 'true');
-                LogUtils_logHHAuto("On event page : " + eventID);
+                const hhEventData = unsafeWindow.event_data;
+                LogUtils_logHHAuto(`On event page : ${eventID} (${hhEventData.event_name || ''})`);
                 EventModule.clearEventData(eventID);
                 //let eventsGirlz=[];
                 let eventList = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) : {};
                 let eventsGirlz = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsGirlz")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsGirlz")) : [];
                 let eventChamps = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_autoChampsEventGirls")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_autoChampsEventGirls")) : [];
                 let Priority = (getStoredValue(HHStoredVarPrefixKey + "Setting_eventTrollOrder") || '').split(";");
-                const hhEventData = unsafeWindow.event_data;
                 if ((hhEvent.isPlusEvent || hhEvent.isPlusEventMythic) && !hhEventData) {
                     LogUtils_logHHAuto("Error getting current event Data from HH.");
                 }
-                let refreshTimer = randomInterval(3600, 4000);
                 if (hhEvent.isPlusEvent) {
-                    LogUtils_logHHAuto("On going event.");
-                    let timeLeft = $('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
-                    if (timeLeft !== undefined && timeLeft.length) {
-                        setTimer('eventGoing', Number(convertTimeToInt(timeLeft)));
-                    }
-                    else
-                        setTimer('eventGoing', refreshTimer);
-                    eventList[eventID] = {};
-                    eventList[eventID]["id"] = eventID;
-                    eventList[eventID]["type"] = hhEvent.eventType;
-                    eventList[eventID]["seconds_before_end"] = new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
-                    eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimer * 1000;
-                    eventList[eventID]["isCompleted"] = true;
-                    let allEventGirlz = hhEventData ? hhEventData.girls : [];
-                    for (let currIndex = 0; currIndex < allEventGirlz.length; currIndex++) {
-                        let girlData = allEventGirlz[currIndex];
-                        if (girlData.shards < 100) {
-                            eventList[eventID]["isCompleted"] = false;
-                            const eventGirl = new EventGirl(girlData, eventID, eventList[eventID]["seconds_before_end"]);
-                            if (eventGirl.isOnTroll()) {
-                                LogUtils_logHHAuto(`Event girl : ${eventGirl.toString()} with priority : ${Priority.indexOf('' + eventGirl.troll_id)}`, eventGirl);
-                                eventsGirlz.push(eventGirl);
-                            }
-                            if (eventGirl.isOnChampion()) {
-                                LogUtils_logHHAuto(`Event girl : ${eventGirl.toString()}`, eventGirl);
-                                eventChamps.push(eventGirl);
-                            }
-                        }
-                    }
-                    if (eventList[eventID]["isCompleted"]) {
-                        EventModule.collectEventChestIfPossible();
-                    }
+                    LogUtils_logHHAuto("On going event, parsing...");
+                    PlusEvent.parse(hhEvent, eventList, hhEventData, eventsGirlz, eventChamps);
                 }
                 if (hhEvent.isPlusEventMythic) {
-                    LogUtils_logHHAuto("On going mythic event.");
-                    let timeLeft = $('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
-                    if (timeLeft !== undefined && timeLeft.length) {
-                        setTimer('eventMythicGoing', Number(convertTimeToInt(timeLeft)));
-                    }
-                    else
-                        setTimer('eventMythicGoing', refreshTimer);
-                    eventList[eventID] = {};
-                    eventList[eventID]["id"] = eventID;
-                    eventList[eventID]["type"] = hhEvent.eventType;
-                    eventList[eventID]["isMythic"] = true;
-                    eventList[eventID]["seconds_before_end"] = new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
-                    eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimer * 1000;
-                    eventList[eventID]["isCompleted"] = true;
-                    let allEventGirlz = hhEventData ? hhEventData.girls : [];
-                    for (let currIndex = 0; currIndex < allEventGirlz.length; currIndex++) {
-                        let girlData = allEventGirlz[currIndex];
-                        let ShardsQuery = '#events .nc-panel .nc-panel-body .nc-event-reward-container .nc-events-prize-locations-container .shards-info span.number';
-                        let timerQuery = '#events .nc-panel .nc-panel-body .nc-event-reward-container .nc-events-prize-locations-container .shards-info span.timer';
-                        if ($(ShardsQuery).length > 0) {
-                            let remShards = Number($(ShardsQuery)[0].innerText);
-                            let nextWave = ($(timerQuery).length > 0) ? convertTimeToInt($(timerQuery)[0].innerText) : -1;
-                            if (girlData.shards < 100) {
-                                eventList[eventID]["isCompleted"] = false;
-                                if (nextWave === -1) {
-                                    clearTimer('eventMythicNextWave');
-                                }
-                                else {
-                                    setTimer('eventMythicNextWave', nextWave);
-                                }
-                                const eventGirl = new EventGirl(girlData, eventID, eventList[eventID]["seconds_before_end"], true);
-                                if (remShards !== 0) {
-                                    if (eventGirl.isOnTroll()) {
-                                        LogUtils_logHHAuto(`Event girl : ${eventGirl.toString()} with priority : ${Priority.indexOf('' + eventGirl.troll_id)}`, eventGirl);
-                                        eventsGirlz.push(eventGirl);
-                                    }
-                                }
-                                else {
-                                    if (nextWave === -1) {
-                                        eventList[eventID]["isCompleted"] = true;
-                                        clearTimer('eventMythicNextWave');
-                                    }
-                                }
-                            }
-                            else {
-                                // No more needed if girl is owned
-                                clearTimer('eventMythicNextWave');
-                            }
-                        }
-                    }
+                    LogUtils_logHHAuto("On going mythic event, parsing...");
+                    MythicEvent.parse(hhEvent, eventList, hhEventData, eventsGirlz, eventChamps);
                 }
                 if (hhEvent.isBossBangEvent) {
-                    LogUtils_logHHAuto("On going bossBang event.");
-                    let timeLeft = $('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
-                    if (timeLeft !== undefined && timeLeft.length) {
-                        setTimer('eventBossBangGoing', Number(convertTimeToInt(timeLeft)));
-                    }
-                    else
-                        setTimer('eventBossBangGoing', refreshTimer);
-                    eventList[eventID] = {};
-                    eventList[eventID]["id"] = eventID;
-                    eventList[eventID]["type"] = hhEvent.eventType;
-                    eventList[eventID]["seconds_before_end"] = new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
-                    eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimer * 1000;
-                    eventList[eventID]["isCompleted"] = $('#contains_all #events #boss_bang .completed-event').length > 0;
-                    let teamEventz = $('#contains_all #events #boss_bang .boss-bang-teams-container .boss-bang-team-slot');
-                    let teamFound = false;
-                    const firstTeamToStartWith = getStoredValue(HHStoredVarPrefixKey + "Setting_bossBangMinTeam");
-                    if ($('.boss-bang-team-ego', teamEventz[firstTeamToStartWith - 1]).length > 0) {
-                        // Do not trigger event if not all teams are set
-                        for (let currIndex = teamEventz.length - 1; currIndex >= 0 && !teamFound; currIndex--) {
-                            // start with last team first
-                            let teamz = $(teamEventz[currIndex]);
-                            const teamIndex = teamz.data('slot-index');
-                            const teamEgo = $('.boss-bang-team-ego', teamz);
-                            if (teamEgo.length > 0 && parseInt(teamEgo.text()) > 0) {
-                                if (!teamFound) {
-                                    if (!teamz.hasClass('.selected-hero-team'))
-                                        teamz.click();
-                                    teamFound = true;
-                                    LogUtils_logHHAuto("Select team " + (teamIndex + 1) + ", Ego: " + parseInt(teamEgo.text()));
-                                    setStoredValue(HHStoredVarPrefixKey + "Temp_bossBangTeam", teamIndex);
-                                    return true;
-                                }
-                            }
-                            else {
-                                LogUtils_logHHAuto("Team " + teamIndex + " not eligible");
-                            }
-                        }
-                    }
-                    else if (eventList[eventID]["isCompleted"]) {
-                        LogUtils_logHHAuto("Boss bang completed, disabled boss bang event setting");
-                        setStoredValue(HHStoredVarPrefixKey + "Setting_bossBangEvent", false);
-                    }
-                    if (!teamFound) {
-                        setStoredValue(HHStoredVarPrefixKey + "Temp_bossBangTeam", -1);
-                    }
+                    LogUtils_logHHAuto("On going bossBang event, parsing...");
+                    BossBang.parse(hhEvent, eventList, hhEventData);
                 }
                 if (hhEvent.isSultryMysteriesEvent) {
                     LogUtils_logHHAuto("On going sultry mysteries event.");
-                    let timeLeft = $('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
-                    if (timeLeft !== undefined && timeLeft.length) {
-                        setTimer('eventSultryMysteryGoing', Number(convertTimeToInt(timeLeft)));
-                    }
-                    else
-                        setTimer('eventSultryMysteryGoing', 3600);
-                    eventList[eventID] = {};
-                    eventList[eventID]["id"] = eventID;
-                    eventList[eventID]["type"] = hhEvent.eventType;
-                    eventList[eventID]["seconds_before_end"] = new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
-                    eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimer * 1000;
-                    eventList[eventID]["isCompleted"] = false;
-                    if (checkTimer("eventSultryMysteryShopRefresh")) {
-                        LogUtils_logHHAuto("Refresh sultry mysteries shop content.");
-                        const shopButton = $('#shop_tab');
-                        const gridButton = $('#grid_tab');
-                        shopButton.trigger('click');
-                        setTimeout(function () {
-                            let shopTimeLeft = $('#contains_all #events #shop_tab_container .shop-section .shop-timer span[rel="expires"]').text();
-                            setTimer('eventSultryMysteryShopRefresh', Number(convertTimeToInt(shopTimeLeft)) + randomInterval(60, 180));
-                            eventList[eventID]["next_shop_refresh"] = new Date().getTime() + Number(shopTimeLeft) * 1000;
-                            setTimeout(function () { gridButton.trigger('click'); }, randomInterval(800, 1200));
-                        }, randomInterval(300, 500));
-                    }
+                    SultryMysteries.parse(hhEvent, eventList, hhEventData);
                 }
                 if (hhEvent.isDPEvent) {
                     LogUtils_logHHAuto("On going double penetration event.");
-                    let timeLeft = $('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
-                    let dpRemainingTime = 3600;
-                    if (timeLeft !== undefined && timeLeft.length) {
-                        dpRemainingTime = Number(convertTimeToInt(timeLeft));
-                    }
-                    setTimer('eventDPGoing', dpRemainingTime);
-                    eventList[eventID] = {};
-                    eventList[eventID]["id"] = eventID;
-                    eventList[eventID]["type"] = hhEvent.eventType;
-                    eventList[eventID]["seconds_before_end"] = new Date().getTime() + dpRemainingTime * 1000;
-                    eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimer * 1000;
-                    eventList[eventID]["isCompleted"] = false;
-                    if (getStoredValue(HHStoredVarPrefixKey + "Setting_autodpEventCollect") === "true" || dpRemainingTime < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey + "Setting_autodpEventCollectAll") === "true") {
-                        DoublePenetration.goAndCollect(dpRemainingTime);
-                    }
+                    DoublePenetration.parse(hhEvent, eventList, hhEventData);
                 }
                 if (hhEvent.isPoa) {
                     LogUtils_logHHAuto("On going path of Attraction event.");
-                    PathOfAttraction.getRemainingTime();
-                    const poAEnd = getSecondsLeft("PoARemainingTime");
-                    LogUtils_logHHAuto("PoA end in " + TimeHelper.debugDate(poAEnd));
-                    let refreshTimerPoa = ConfigHelper.getHHScriptVars('maxCollectionDelay');
-                    if (poAEnd < Math.max(refreshTimerPoa, getLimitTimeBeforeEnd()) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollectAll") === "true") {
-                        refreshTimerPoa = Math.min(refreshTimerPoa, getLimitTimeBeforeEnd());
-                    }
-                    LogUtils_logHHAuto("PoA next refres in " + TimeHelper.debugDate(refreshTimerPoa));
-                    eventList[eventID] = {};
-                    eventList[eventID]["id"] = eventID;
-                    eventList[eventID]["type"] = hhEvent.eventType;
-                    eventList[eventID]["seconds_before_end"] = new Date().getTime() + poAEnd * 1000;
-                    eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimerPoa * 1000;
-                    eventList[eventID]["isCompleted"] = PathOfAttraction.isCompleted();
+                    PathOfAttraction.parse(hhEvent, eventList, hhEventData);
+                }
+                if (hhEvent.isCumback) {
+                    LogUtils_logHHAuto("On going cumback contest event.");
+                    CumbackContests.parse(hhEvent, eventList, hhEventData);
                 }
                 if (Object.keys(eventList).length > 0) {
                     setStoredValue(HHStoredVarPrefixKey + "Temp_eventsList", JSON.stringify(eventList));
@@ -2210,7 +2293,8 @@ class EventModule {
             return "doublePenetration";
         if (inEventID.startsWith(ConfigHelper.getHHScriptVars('poaEventIDReg')))
             return "poa";
-        //    if(inEventID.startsWith('cumback_contest_')) return "";
+        if (inEventID.startsWith('cumback_contest_'))
+            return "cumback";
         //    if(inEventID.startsWith('legendary_contest_')) return "";
         //    if(inEventID.startsWith('dpg_event_')) return ""; // Double date
         return "";
@@ -2223,6 +2307,7 @@ class EventModule {
         const isSultryMysteriesEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('sultryMysteriesEventIDReg')) && getStoredValue(HHStoredVarPrefixKey + "Setting_sultryMysteriesEventRefreshShop") === "true" && SultryMysteries.isEnabled();
         const isDPEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('doublePenetrationEventIDReg'));
         const isPoa = inEventID.startsWith(ConfigHelper.getHHScriptVars('poaEventIDReg'));
+        const isCumback = "cumback" === eventType;
         return {
             eventTypeKnown: eventType !== '',
             eventId: inEventID,
@@ -2233,6 +2318,7 @@ class EventModule {
             isSultryMysteriesEvent: isSultryMysteriesEvent, // and activated
             isDPEvent: isDPEvent, // and activated
             isPoa: isPoa, // and activated
+            isCumback: isCumback,
             isEnabled: isPlusEvent || isPlusEventMythic || isBossBangEvent || isSultryMysteriesEvent || isDPEvent || isPoa
         };
     }
@@ -3508,6 +3594,9 @@ SeasonalEvent.SEASONAL_REWARD_PATH = '.mega-tier.unclaimed';
 SeasonalEvent.SEASONAL_REWARD_MEGA_PATH = '.mega-tier-container:has(.free-slot button.mega-claim-reward)';
 
 ;// CONCATENATED MODULE: ./src/Module/Events/index.ts
+
+
+
 
 
 
@@ -16962,6 +17051,7 @@ function autoLoop() {
                 setTimeout(Season.displayRemainingTime, 500);
                 setTimeout(PathOfValue.displayRemainingTime, 500);
                 setTimeout(PathOfGlory.displayRemainingTime, 500);
+                EventModule.showCompletedEvent = callItOnce(EventModule.showCompletedEvent);
                 setTimeout(EventModule.showCompletedEvent, 500);
                 Spreadsheet.run = callItOnce(Spreadsheet.run);
                 Spreadsheet.run();
