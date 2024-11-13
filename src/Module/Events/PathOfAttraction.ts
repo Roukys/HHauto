@@ -59,6 +59,28 @@ export class PathOfAttraction {
             }
         }
     }
+
+    static parse(hhEvent: any, eventList: any, hhEventData: any) {
+        const eventID = hhEvent.eventId;
+
+        PathOfAttraction.getRemainingTime();
+        const poAEnd = getSecondsLeft("PoARemainingTime");
+        logHHAuto("PoA end in " + TimeHelper.debugDate(poAEnd));
+
+        let refreshTimerPoa = ConfigHelper.getHHScriptVars('maxCollectionDelay');
+        if (poAEnd < Math.max(refreshTimerPoa, getLimitTimeBeforeEnd()) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoACollectAll") === "true") {
+            refreshTimerPoa = Math.min(refreshTimerPoa, getLimitTimeBeforeEnd());
+        }
+        logHHAuto("PoA next refres in " + TimeHelper.debugDate(refreshTimerPoa));
+
+        eventList[eventID] = {};
+        eventList[eventID]["id"] = eventID;
+        eventList[eventID]["type"] = hhEvent.eventType;
+        eventList[eventID]["seconds_before_end"] = new Date().getTime() + poAEnd * 1000;
+        eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimerPoa * 1000;
+        eventList[eventID]["isCompleted"] = PathOfAttraction.isCompleted();
+    }
+
     static async run(){
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent") && window.location.search.includes("tab="+ConfigHelper.getHHScriptVars('poaEventIDReg')))
         {
