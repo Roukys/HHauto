@@ -196,7 +196,7 @@ export class HaremGirl {
         const userHaremGirlLimit = Math.min(Number((<HTMLInputElement>document.getElementById("menuExpLevel")).value), 750);
 
         if((Number(selectedGirl.level) + 50) <= Number(userHaremGirlLimit)) {
-            HaremGirl.HaremDisplayGirlPopup(haremItem, selectedGirl.name + ' '+selectedGirl.Xp.cur+"xp, level "+selectedGirl.level+"/"+userHaremGirlLimit, (1)*5 );
+            HaremGirl.HaremDisplayGirlPopup(haremItem, selectedGirl.name + ' ' + selectedGirl.Xp.cur + "xp, level " + selectedGirl.level + "/" + userHaremGirlLimit, (1) * 5);
 
             setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlActions", haremItem);
             setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlMode", 'girl');
@@ -224,7 +224,6 @@ export class HaremGirl {
         const haremItem = HaremGirl.AFFECTION_TYPE;
         const selectedGirl: KKHaremGirl = HaremGirl.getCurrentGirl();
         HaremGirl.switchTabs(haremItem);
-        let haremGirlSpent = Number(getStoredValue(HHStoredVarPrefixKey +"Temp_haremGirlSpent") || 0);
         const haremGirlPayLast = getStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlPayLast") == 'true';
         const canGiftGirl = selectedGirl.nb_grades > selectedGirl.graded;
         const lastGirlGrad = selectedGirl.nb_grades <= (selectedGirl.graded+1);
@@ -234,8 +233,7 @@ export class HaremGirl {
         if(canGiftGirl) {
 
             if (haremGirlPayLast && maxOutAllButton.length > 0) {
-                haremGirlSpent += await HaremGirl.maxOutAllButtonAndConfirm(haremItem, selectedGirl);
-                setStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlSpent", haremGirlSpent);
+                await HaremGirl.maxOutAllButtonAndConfirm(haremItem, selectedGirl);
                 // reach girl quest
                 return true;
             } else if(maxOutButton.length > 0) {
@@ -466,7 +464,8 @@ export class HaremGirl {
             const haremGirlMode = getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlMode");
             const haremGirlEnd = getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlEnd") === 'true';
             const haremGirlLimit = getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlLimit");
-            let haremGirlSpent = Number(getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlSpent") || 0);
+            const moneyOnStart = Number(getStoredValue(HHStoredVarPrefixKey + "Temp_haremMoneyOnStart"));
+            let haremGirlSpent = moneyOnStart > 0 ? moneyOnStart - HeroHelper.getMoney() : 0;
 
             const canGiftGirl = HaremGirl.canGiftGirl();
             const canAwakeGirl = HaremGirl.canAwakeGirl();
@@ -517,7 +516,8 @@ export class HaremGirl {
                 let remainingGirls = 0;
                 let girlListProgress = '';
                 const lastGirlListProgress = '<br />' + getTextForUI("giveLastGirl", "elementText");
-                let haremGirlSpent = Number(getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlSpent") || 0);
+                const moneyOnStart = Number(getStoredValue(HHStoredVarPrefixKey + "Temp_haremMoneyOnStart"));
+                let haremGirlSpent = moneyOnStart > 0 ? moneyOnStart - HeroHelper.getMoney() : 0;
 
                 let filteredGirlsList = getStoredValue(HHStoredVarPrefixKey + "Temp_filteredGirlsList") ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_filteredGirlsList")) : [];
                 logHHAuto("filteredGirlsList", filteredGirlsList);
@@ -558,7 +558,7 @@ export class HaremGirl {
                 } else {
                     logHHAuto("No more girls, go back to harem list");
                     setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
-                    gotoPage('/harem/' + girl.id_girl, {}, randomInterval(1500, 2500));
+                    gotoPage('/characters/' + girl.id_girl, {}, randomInterval(1500, 2500));
                     Harem.clearHaremToolVariables();
                 }
             } else {

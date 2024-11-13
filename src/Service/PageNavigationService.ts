@@ -117,7 +117,7 @@ export function gotoPage(page,inArgs={},delay = -1)
         case (page.match(/^\/champions\/[123456]$/) || {}).input:
             togoto = page;
             break;
-        case (page.match(/^\/harem\/\d+$/) || {}).input:
+        case (page.match(/^\/characters\/\d+$/) || {}).input:
             togoto = page;
             break;
         case (page.match(/^\/girl\/\d+$/) || {}).input:

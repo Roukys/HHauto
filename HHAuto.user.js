@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.18.4
+// @version      7.18.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4689,6 +4689,7 @@ class Harem {
         deleteStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlEnd");
         deleteStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlPayLast");
         deleteStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlLimit");
+        deleteStoredValue(HHStoredVarPrefixKey + "Temp_haremMoneyOnStart");
         deleteStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlSpent");
         const lastActionPerformed = getStoredValue(HHStoredVarPrefixKey + "Temp_lastActionPerformed");
         if (lastActionPerformed == Harem.HAREM_UPGRADE_LAST_ACTION) {
@@ -4749,7 +4750,7 @@ class Harem {
         const currentSelectedGirlIndex = girlsMap.findIndex((element) => element.gId === $('#harem_left .girls_list div.opened[girl]').attr('girl')) + 1;
         const upgradableGirls = girlsMap.slice(currentSelectedGirlIndex).filter(Harem.filterGirlMapCanUpgrade);
         if (upgradableGirls.length > 0) {
-            gotoPage(`/harem/${upgradableGirls[0].gId}`);
+            gotoPage(`/characters/${upgradableGirls[0].gId}`);
             LogUtils_logHHAuto("Going to : " + upgradableGirls[0].gData.name);
         }
         else {
@@ -5005,10 +5006,17 @@ class Harem {
     static getFilteredGirlList() {
         // Store girls for harem tools
         let filteredGirlsList = [];
-        const girlsDataList = getHHVars("girlsDataList");
+        const girlListDisplayed = getHHVars("shared.GirlSalaryManager.girlsMap");
+        const girlsListLoaded = getHHVars("girlsDataList");
         const girlsListSec = getHHVars("shared.GirlSalaryManager.girlsListSec");
-        if (girlsDataList) {
-            Object.values(girlsDataList).forEach((girl) => {
+        if (girlListDisplayed) {
+            Object.values(girlListDisplayed).forEach((girl) => {
+                if (girl.gData.shards >= 100)
+                    filteredGirlsList.push("" + girl.gId);
+            });
+        }
+        else if (girlsListLoaded) {
+            Object.values(girlsListLoaded).forEach((girl) => {
                 if (girl.shards >= 100)
                     filteredGirlsList.push("" + girl.id_girl);
             });
@@ -5054,9 +5062,9 @@ class Harem {
         const displayedGirl = $('#harem_right .opened').attr('girl'); // unsafeWindow.harem.preselectedGirlId
         if (filteredGirlsList && filteredGirlsList.length > 0) {
             let girlToGoTo = filteredGirlsList[0];
-            if (displayedGirl && filteredGirlsList.indexOf("" + displayedGirl) >= 0) {
-                girlToGoTo = displayedGirl;
-            }
+            // if(displayedGirl && filteredGirlsList.indexOf(""+displayedGirl) >=0) {
+            //     girlToGoTo = displayedGirl;
+            // }
             LogUtils_logHHAuto("Go to " + girlToGoTo);
             gotoPage('/girl/' + girlToGoTo, { resource: haremItem });
             setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
@@ -5064,6 +5072,10 @@ class Harem {
         }
         setStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlActions", haremItem);
         setStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlMode", 'list');
+        if (!(Number(getStoredValue(HHStoredVarPrefixKey + "Temp_haremMoneyOnStart")) > 0)) {
+            LogUtils_logHHAuto('set money to ' + HeroHelper.getMoney());
+            setStoredValue(HHStoredVarPrefixKey + "Temp_haremMoneyOnStart", HeroHelper.getMoney());
+        }
         if (payLast)
             setStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlPayLast", 'true');
         setStoredValue(HHStoredVarPrefixKey + "Temp_filteredGirlsList", JSON.stringify(filteredGirlsList));
@@ -7778,7 +7790,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_haremGirlMode"] =
         storage: "sessionStorage",
         HHType: "Temp"
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_haremGirlSpent"] =
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_haremMoneyOnStart"] =
     {
         default: "0",
         storage: "sessionStorage",
@@ -8353,7 +8365,6 @@ class HaremGirl {
             const haremItem = HaremGirl.AFFECTION_TYPE;
             const selectedGirl = HaremGirl.getCurrentGirl();
             HaremGirl.switchTabs(haremItem);
-            let haremGirlSpent = Number(getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlSpent") || 0);
             const haremGirlPayLast = getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlPayLast") == 'true';
             const canGiftGirl = selectedGirl.nb_grades > selectedGirl.graded;
             const lastGirlGrad = selectedGirl.nb_grades <= (selectedGirl.graded + 1);
@@ -8361,8 +8372,7 @@ class HaremGirl {
             const maxOutAllButton = HaremGirl.getMaxOutAllButton(haremItem);
             if (canGiftGirl) {
                 if (haremGirlPayLast && maxOutAllButton.length > 0) {
-                    haremGirlSpent += yield HaremGirl.maxOutAllButtonAndConfirm(haremItem, selectedGirl);
-                    setStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlSpent", haremGirlSpent);
+                    yield HaremGirl.maxOutAllButtonAndConfirm(haremItem, selectedGirl);
                     // reach girl quest
                     return true;
                 }
@@ -8571,7 +8581,8 @@ class HaremGirl {
                 const haremGirlMode = getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlMode");
                 const haremGirlEnd = getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlEnd") === 'true';
                 const haremGirlLimit = getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlLimit");
-                let haremGirlSpent = Number(getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlSpent") || 0);
+                const moneyOnStart = Number(getStoredValue(HHStoredVarPrefixKey + "Temp_haremMoneyOnStart"));
+                let haremGirlSpent = moneyOnStart > 0 ? moneyOnStart - HeroHelper.getMoney() : 0;
                 const canGiftGirl = HaremGirl.canGiftGirl();
                 const canAwakeGirl = HaremGirl.canAwakeGirl();
                 const girl = HaremGirl.getCurrentGirl();
@@ -8618,7 +8629,8 @@ class HaremGirl {
                     let remainingGirls = 0;
                     let girlListProgress = '';
                     const lastGirlListProgress = '<br />' + getTextForUI("giveLastGirl", "elementText");
-                    let haremGirlSpent = Number(getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlSpent") || 0);
+                    const moneyOnStart = Number(getStoredValue(HHStoredVarPrefixKey + "Temp_haremMoneyOnStart"));
+                    let haremGirlSpent = moneyOnStart > 0 ? moneyOnStart - HeroHelper.getMoney() : 0;
                     let filteredGirlsList = getStoredValue(HHStoredVarPrefixKey + "Temp_filteredGirlsList") ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_filteredGirlsList")) : [];
                     LogUtils_logHHAuto("filteredGirlsList", filteredGirlsList);
                     if (filteredGirlsList && filteredGirlsList.length > 0) {
@@ -8662,7 +8674,7 @@ class HaremGirl {
                     else {
                         LogUtils_logHHAuto("No more girls, go back to harem list");
                         setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
-                        gotoPage('/harem/' + girl.id_girl, {}, randomInterval(1500, 2500));
+                        gotoPage('/characters/' + girl.id_girl, {}, randomInterval(1500, 2500));
                         Harem.clearHaremToolVariables();
                     }
                 }
@@ -10253,7 +10265,7 @@ function gotoPage(page, inArgs = {}, delay = -1) {
         case (page.match(/^\/champions\/[123456]$/) || {}).input:
             togoto = page;
             break;
-        case (page.match(/^\/harem\/\d+$/) || {}).input:
+        case (page.match(/^\/characters\/\d+$/) || {}).input:
             togoto = page;
             break;
         case (page.match(/^\/girl\/\d+$/) || {}).input:
