@@ -231,7 +231,7 @@ export class EventModule {
             }
             queryEventTabCheck[0].setAttribute('parsed', 'true');
             const hhEventData = unsafeWindow.event_data;
-            logHHAuto(`On event page : ${eventID} (${hhEventData.event_name || ''})`);
+            logHHAuto(`On event page : ${eventID} (${hhEventData?.event_name || ''})`);
             EventModule.clearEventData(eventID);
             //let eventsGirlz=[];
             let eventList = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_eventsList")):{};

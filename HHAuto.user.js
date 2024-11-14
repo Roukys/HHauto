@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.18.5
+// @version      7.18.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -2167,7 +2167,7 @@ class EventModule {
                 }
                 queryEventTabCheck[0].setAttribute('parsed', 'true');
                 const hhEventData = unsafeWindow.event_data;
-                LogUtils_logHHAuto(`On event page : ${eventID} (${hhEventData.event_name || ''})`);
+                LogUtils_logHHAuto(`On event page : ${eventID} (${(hhEventData === null || hhEventData === void 0 ? void 0 : hhEventData.event_name) || ''})`);
                 EventModule.clearEventData(eventID);
                 //let eventsGirlz=[];
                 let eventList = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) : {};
