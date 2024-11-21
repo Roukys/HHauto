@@ -75,6 +75,9 @@ export function gotoPage(page,inArgs={},delay = -1)
         case ConfigHelper.getHHScriptVars("pagesIDLabyrinth"):
             togoto = ConfigHelper.getHHScriptVars("pagesURLLabyrinth");
             break;
+        case ConfigHelper.getHHScriptVars("pagesIDEditLabyrinthTeam"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLEditLabyrinthTeam");
+            break;
         case ConfigHelper.getHHScriptVars("pagesIDChampionsMap"):
             togoto = ConfigHelper.getHHScriptVars("pagesURLChampionsMap");
             break;

@@ -18,7 +18,12 @@ import { EventModule } from './index';
 export class GenericBattle {
     static doBattle()
     {
-        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDLeagueBattle") || getPage() === ConfigHelper.getHHScriptVars("pagesIDTrollBattle") || getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonBattle") || getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle") )
+        if (
+            getPage() === ConfigHelper.getHHScriptVars("pagesIDLeagueBattle") 
+            || getPage() === ConfigHelper.getHHScriptVars("pagesIDTrollBattle") 
+            || getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonBattle") 
+            || getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle")
+            || getPage() === ConfigHelper.getHHScriptVars("pagesIDLabyrinthBattle") )
         {
             logHHAuto("On battle page.");
             let troll_id:string = queryStringGetParam(window.location.search,'id_opponent');

@@ -269,7 +269,7 @@ HHEnvVariables["global"].pagesURLPantheonPreBattle = "/pantheon-pre-battle.html"
 HHEnvVariables["global"].pagesKnownList.push("PantheonPreBattle");
 
 HHEnvVariables["global"].pagesIDLabyrinth = "labyrinth";
-HHEnvVariables["global"].pagesURLabyrinth = "/labyrinth.html";
+HHEnvVariables["global"].pagesURLLabyrinth = "/labyrinth.html";
 HHEnvVariables["global"].pagesKnownList.push("Labyrinth");
 
 HHEnvVariables["global"].pagesIDLabyrinthPreBattle = "labyrinth-pre-battle";

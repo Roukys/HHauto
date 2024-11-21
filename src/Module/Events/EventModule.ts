@@ -27,6 +27,7 @@ import {
 import { BossBang } from "./BossBang";
 import { CumbackContests } from "./CumbackContests";
 import { DoublePenetration } from "./DoublePenetration";
+import { KinkyCumpetition } from "./KinkyCumpetition";
 import { MythicEvent } from "./MythicEvent";
 import { PathOfAttraction } from "./PathOfAttraction";
 import { PlusEvent } from "./PlusEvents";
@@ -277,6 +278,11 @@ export class EventModule {
                 logHHAuto("On going cumback contest event.");
                 CumbackContests.parse(hhEvent, eventList, hhEventData);
             }
+            if (hhEvent.isKinky)
+            {
+                logHHAuto("On going kinky cumpetition event.");
+                KinkyCumpetition.parse(hhEvent, eventList, hhEventData);
+            }
             if(Object.keys(eventList).length >0)
             {
                 setStoredValue(HHStoredVarPrefixKey+"Temp_eventsList", JSON.stringify(eventList));
@@ -380,6 +386,8 @@ export class EventModule {
         if(inEventID.startsWith(ConfigHelper.getHHScriptVars('doublePenetrationEventIDReg'))) return "doublePenetration";
         if(inEventID.startsWith(ConfigHelper.getHHScriptVars('poaEventIDReg'))) return "poa";
         if(inEventID.startsWith('cumback_contest_')) return "cumback";
+        if(inEventID.startsWith('kinky_event_')) return "kinky";
+    //    if(inEventID.startsWith('lively_scene_event_')) return "";
     //    if(inEventID.startsWith('legendary_contest_')) return "";
     //    if(inEventID.startsWith('dpg_event_')) return ""; // Double date
         return "";
@@ -394,6 +402,7 @@ export class EventModule {
         const isDPEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('doublePenetrationEventIDReg'));
         const isPoa = inEventID.startsWith(ConfigHelper.getHHScriptVars('poaEventIDReg'));
         const isCumback = "cumback" === eventType;
+        const isKinky = "kinky" === eventType;
         return {
             eventTypeKnown: eventType !== '',
             eventId: inEventID,
@@ -405,6 +414,7 @@ export class EventModule {
             isDPEvent: isDPEvent, // and activated
             isPoa: isPoa, // and activated
             isCumback: isCumback,
+            isKinky: isKinky,
             isEnabled: isPlusEvent || isPlusEventMythic || isBossBangEvent || isSultryMysteriesEvent || isDPEvent || isPoa
         }
     }
@@ -613,15 +623,18 @@ export class EventModule {
 
     static parsePageForEventId()
     {
-        const eventQuery = '#contains_all #homepage .event-widget a[rel="event"]:not([href="#"])';
-        const mythicEventQuery = '#contains_all #homepage .event-widget a[rel="mythic_event"]:not([href="#"])';
-        const bossBangEventQuery = '#contains_all #homepage .event-widget a[rel="boss_bang_event"]:not([href="#"])';
-        const sultryMysteriesEventQuery = '#contains_all #homepage .event-widget a[rel="sm_event"]:not([href="#"])';
-        const dpEventQuery = '#contains_all #homepage .event-widget a[rel="dp_event"]:not([href="#"])';
+        function getEventQuery(event:string):string {
+            return `#contains_all #homepage .event-widget a[rel="${event}"]:not([href="#"])`;
+        }
+        const eventQuery = getEventQuery("event");
+        const mythicEventQuery = getEventQuery("mythic_event");
+        const bossBangEventQuery = getEventQuery("boss_bang_event");
+        const sultryMysteriesEventQuery = getEventQuery("sm_event");
+        const dpEventQuery = getEventQuery("dp_event");
         const seasonalEventQuery = '#contains_all #homepage .seasonal-event a, #contains_all #homepage .mega-event a';
         const povEventQuery = '#contains_all #homepage .event-container a[rel="path-of-valor"]';
         const pogEventQuery = '#contains_all #homepage .event-container a[rel="path-of-glory"]';
-        const poaEventQuery = '#contains_all #homepage .event-widget a[rel="path_event"]:not([href="#"])';
+        const poaEventQuery = getEventQuery("path_event");
         let eventIDs:string[] =[];
         let ongoingEventIDs:string[] =[];
         let bossBangEventIDs:string[]=[];
@@ -673,6 +686,8 @@ export class EventModule {
             parseForEventId(poaEventQuery,eventIDs);
             parseForEventId(bossBangEventQuery,bossBangEventIDs);
             parseForEventId(sultryMysteriesEventQuery,eventIDs);
+            parseForEventId(getEventQuery("cumback_contest"),eventIDs);
+            parseForEventId(getEventQuery("kinky_event"),eventIDs);
             if ($(sultryMysteriesEventQuery).length <= 0 && getTimer("eventSultryMysteryShopRefresh") !== -1)
             {
                 // event is over

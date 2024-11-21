@@ -720,14 +720,6 @@ export async function autoLoop()
             }
         }
 
-        if(busy === false && getStoredValue(HHStoredVarPrefixKey+"Setting_autoLabyrinth") === "true" && Labyrinth.isEnabled() && checkTimer('nextLabyrinthTime')
-            && isAutoLoopActive() && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "labyrinth"))
-        {
-            Labyrinth.run();
-            busy = true;
-            lastActionPerformed = "labyrinth";
-        }
-
         if (busy==false && ConfigHelper.getHHScriptVars("isEnabledChamps",false) 
             && QuestHelper.getEnergy()>=ConfigHelper.getHHScriptVars("CHAMP_TICKET_PRICE") && QuestHelper.getEnergy() > Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoQuestThreshold"))
             && getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsUseEne") ==="true" && isAutoLoopActive() 
@@ -797,7 +789,6 @@ export async function autoLoop()
         )
         {
             logHHAuto("Time to go and check SeasonalEvent for collecting reward.");
-            busy = true;
             busy = SeasonalEvent.goAndCollect();
             lastActionPerformed = "seasonal";
         }
@@ -809,7 +800,6 @@ export async function autoLoop()
         )
         {
             logHHAuto("Time to go and check  SeasonalEvent for collecting rank reward.");
-            busy = true;
             busy = await SeasonalEvent.goAndCollectMegaEventRankRewards();
             lastActionPerformed = "seasonal";
         }
@@ -862,6 +852,13 @@ export async function autoLoop()
             logHHAuto("Time to go and check daily Goals for collecting reward.");
             DailyGoals.goAndCollect();
             lastActionPerformed = "dailyGoals";
+        }
+
+        if (busy === false && getStoredValue(HHStoredVarPrefixKey + "Setting_autoLabyrinth") === "true" && Labyrinth.isEnabled() && checkTimer('nextLabyrinthTime')
+            && isAutoLoopActive() && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "labyrinth")) {
+            busy = false;
+            // busy = await (new LabyrinthAuto).run();
+            lastActionPerformed = "labyrinth";
         }
 
         if (busy === false && ConfigHelper.getHHScriptVars("isEnabledSalary",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSalary") === "true" 
@@ -1112,7 +1109,6 @@ export async function autoLoop()
         case ConfigHelper.getHHScriptVars("pagesIDLabyrinth"):
             if (getStoredValue(HHStoredVarPrefixKey+"Setting_showCalculatePower") === "true")
             {
-                Labyrinth.sim = callItOnce(Labyrinth.sim);
                 Labyrinth.sim();
             }
             break;

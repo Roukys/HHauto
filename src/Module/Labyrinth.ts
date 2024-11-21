@@ -1,16 +1,12 @@
 import { 
     ConfigHelper,
-    HHMenu,
     TimeHelper,
-    getHHVars,
     getPage,
     getStoredValue,
     getTextForUI,
     hhMenuSelect,
-    queryStringGetParam,
     randomInterval,
-    setStoredValue,
-    setTimer
+    setStoredValue
 } from '../Helper/index';
 import { logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
@@ -35,48 +31,6 @@ export class Labyrinth {
     }
     static isEnded(){
         return $('.cleared-labyrinth-container').length > 0;
-    }
-
-    static run(){
-        const page = getPage();
-        if(page === ConfigHelper.getHHScriptVars("pagesIDLabyrinth"))
-        {
-            /*
-            if($('.labChosen').length<=0) {
-                logHHAuto("Issue to find labyrinth next step button, retry in 60secs.");
-                setTimer('nextLabyrinthTime', randomInterval(60, 70));
-                return;
-            }
-            logHHAuto("On Labyrinth page.");
-    
-            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
-            logHHAuto("setting autoloop to false");
-            $('.labChosen').click();
-            */
-        }
-        else if (page === ConfigHelper.getHHScriptVars("pagesIDLabyrinthPreBattle"))
-        {
-            logHHAuto("On labyrinth-pre-battle page.");
-            let templeID = queryStringGetParam(window.location.search,'id_opponent');
-            logHHAuto("Go and fight labyrinth :"+templeID);
-            let labyrinthBattleButton =$("#pre-battle .buttons-container .blue_button_L");
-            if (labyrinthBattleButton.length >0)
-            {
-                setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
-                logHHAuto("setting autoloop to false");
-                labyrinthBattleButton[0].click();
-            }
-            else
-            {
-                logHHAuto("Issue to find labyrinth battle button retry in 60secs.");
-                setTimer('nextLabyrinthTime', randomInterval(60, 70));
-                //gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
-            }
-        }
-        else
-        {
-            //gotoPage(ConfigHelper.getHHScriptVars("pagesIDLabyrinth"));
-        }
     }
 
     static getCurrentFloorNumber(): number {
@@ -149,16 +103,6 @@ export class Labyrinth {
         setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
         logHHAuto("setting autoloop to false");
 
-        var selectGirl = async (girlPosition: number, girlToBeSelected: JQuery<HTMLElement>) => {
-            const girl = $('.team-hexagon .team-member-container.selectable[data-team-member-position="' + girlPosition + '"]');
-            if (girl.attr('data-girl-id') != girlToBeSelected.attr('id_girl')) {
-                girl.trigger('click');
-                await TimeHelper.sleep(randomInterval(400, 700));
-                girlToBeSelected.trigger('click');
-                await TimeHelper.sleep(randomInterval(400, 700));
-            }
-        }
-
         $(`.${Labyrinth.BUILD_BUTTON_ID}`).attr('disabled','disabled');
         if ($(Labyrinth.HAREM_SELECTED_GIRLS).length == 0) {
             $('#auto-fill-team:not([disabled])').trigger('click');
@@ -170,26 +114,58 @@ export class Labyrinth {
         const girlClassFront = Number($('#autoLabyrinthBuildFront').val());
         const frontGirls = Labyrinth.getHaremGirl(girlClassFront);
         let frontGirlIndex = 0;
-        if (frontGirls.length >= 1) await selectGirl(2, frontGirls[frontGirlIndex++]);
-        if (frontGirls.length >= 2) await selectGirl(3, frontGirls[frontGirlIndex++]);
+        if (frontGirls.length >= 2) {
+            await Labyrinth._buildTwoGirlsRow(2, 3, frontGirls[frontGirlIndex++], frontGirls[frontGirlIndex++]);
+        }
 
         const girlClassMid = Number($('#autoLabyrinthBuildMid').val());
         const midGirls = Labyrinth.getHaremGirl(girlClassMid, false, 5);
         let midGirlIndex = girlClassMid == girlClassFront ? frontGirlIndex : 0;
-        if (midGirls.length >= (midGirlIndex+1)) await selectGirl(1, midGirls[midGirlIndex++]);
-        if (midGirls.length >= (midGirlIndex+1)) await selectGirl(0, midGirls[midGirlIndex++]);
-        if (midGirls.length >= (midGirlIndex+1)) await selectGirl(4, midGirls[midGirlIndex++]);
+        if (midGirls.length >= (midGirlIndex + 1)) await Labyrinth._selectGirl(1, midGirls[midGirlIndex++]);
+        if (midGirls.length >= (midGirlIndex + 1)) await Labyrinth._selectGirl(0, midGirls[midGirlIndex++]);
+        if (midGirls.length >= (midGirlIndex + 1)) await Labyrinth._selectGirl(4, midGirls[midGirlIndex++]);
 
         const girlClassBack = Number($('#autoLabyrinthBuildBack').val());
         const backGirls = Labyrinth.getHaremGirl(girlClassBack, false, 7);
         let backGirlIndex = girlClassBack == girlClassMid ? midGirlIndex : girlClassBack == girlClassFront ? frontGirlIndex : 0;
-        if (backGirls.length >= (backGirlIndex+1)) await selectGirl(5, backGirls[backGirlIndex++]);
-        if (backGirls.length >= (backGirlIndex+1)) await selectGirl(6, backGirls[backGirlIndex++]);
+        if (backGirls.length >= (backGirlIndex+2)) {
+            await Labyrinth._buildTwoGirlsRow(5, 6, backGirls[backGirlIndex++], backGirls[backGirlIndex++]);
+        }
 
         $(`.${Labyrinth.BUILD_BUTTON_ID}`).removeAttr('disabled');
 
         setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
         logHHAuto("setting autoloop to true");
+    }
+
+    static isSelectedGirl(girlId: string, position = 0) {
+        if (position > 0) {
+            return $(`.player-panel .team-hexagon .team-member-container[data-girl-id="${girlId}"][data-team-member-position="${position}"]`).length > 0;
+        } else {
+            return $(`.player-panel .team-hexagon .team-member-container[data-girl-id="${girlId}"]`).length > 0;
+        }
+    }
+
+    static async _selectGirl(girlPosition: number, girlToBeSelected: JQuery<HTMLElement>) {
+        const girl = $('.team-hexagon .team-member-container.selectable[data-team-member-position="' + girlPosition + '"]');
+        if (girl.attr('data-girl-id') != girlToBeSelected.attr('id_girl')) {
+            girl.trigger('click');
+            await TimeHelper.sleep(randomInterval(400, 700));
+            girlToBeSelected.trigger('click');
+            await TimeHelper.sleep(randomInterval(400, 700));
+        }
+    }
+
+    static async _buildTwoGirlsRow(posOne: number, posTwo: number, girlOne: JQuery<HTMLElement>, girlTwo: JQuery<HTMLElement>){
+        const girlOneId = girlOne.attr('id_girl');
+        if (!Labyrinth.isSelectedGirl(girlOneId)) {
+            await Labyrinth._selectGirl(posOne, girlOne);
+            await Labyrinth._selectGirl(posTwo, girlTwo);
+        } else if (Labyrinth.isSelectedGirl(girlOneId, posOne)) {
+            await Labyrinth._selectGirl(posTwo, girlTwo);
+        } else if (Labyrinth.isSelectedGirl(girlOneId, posTwo)) {
+            await Labyrinth._selectGirl(posOne, girlTwo);
+        }
     }
 
     static getHaremGirl(girlClass: number = 0, excludeSelected = false, numberOfGirls: number = 2): JQuery<HTMLElement>[] {
@@ -253,14 +229,17 @@ export class Labyrinth {
                     });
                 }
     
-                logHHAuto("Row " + currentLevel + ". and options " + JSON.stringify(options));
+                // logHHAuto("Row " + currentLevel + ". and options " + JSON.stringify(options));
                 const choosenOption = Labyrinth.findBetter(options);
                 
                 if(choosenOption) {
+                    logHHAuto("Row " + currentLevel + ". chosen " + JSON.stringify(choosenOption));
                     Labyrinth.appendChoosenTag(choosenOption);
                     break;
                 }
             }
+
+            // RelicManager.testRelicParser();
         }
     }
 
@@ -327,20 +306,8 @@ export class Labyrinth {
         const confirmButton = $('#confirmation_popup #popup_confirm:visible');
         if (confirmButton.length > 0) {
             logHHAuto("Confirm button");
-            confirmButton.click();
+            confirmButton.trigger('click');
         }
-    }
-
-    static selectReward(){
-        // TODO choose reward
-        $('#labyrinth_reward_popup #reward_holder .relic-container .relic-card-buttons .claim-relic-btn');
-        // relic-container rare-relic
-        // relic-container common-relic
-        // relic-container common-relic large-card // Girl specific
-        // relic-container legendary-relic
-        
-        // Close reward popup
-        $('#labyrinth_reward_popup #reward_holder #close-relic-popup');
     }
 
     static isChoosen(option){
