@@ -39,8 +39,9 @@ declare global {
         player_gems_amount: any;
         season_sec_untill_event_end: any;
         seasonal_event_active: any;
-        mega_event_active: any;
         seasonal_time_remaining: any;
+        mega_event_active: any;
+        mega_event_time_remaining: any;
         server_now_ts: any;
         id_girl: any;
         //pop

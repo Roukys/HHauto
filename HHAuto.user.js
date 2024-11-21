@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.18.6
+// @version      7.18.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1585,6 +1585,34 @@ class DoublePenetration {
     }
 }
 
+;// CONCATENATED MODULE: ./src/Module/Events/KinkyCumpetition.ts
+
+class KinkyCumpetition {
+    static parse(hhEvent, eventList, hhEventData) {
+        const eventID = hhEvent.eventId;
+        let refreshTimer = randomInterval(3600, 4000);
+        let timeLeft = $('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
+        if (timeLeft !== undefined && timeLeft.length) {
+            setTimer('eventKinkyCumpetitionGoing', Number(convertTimeToInt(timeLeft)));
+        }
+        else
+            setTimer('eventKinkyCumpetitionGoing', refreshTimer);
+        eventList[eventID] = {};
+        eventList[eventID]["id"] = eventID;
+        eventList[eventID]["type"] = hhEvent.eventType;
+        eventList[eventID]["seconds_before_end"] = new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
+        eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimer * 1000;
+        eventList[eventID]["isCompleted"] = true;
+        let allEventGirlz = hhEventData ? hhEventData.girls : [];
+        for (let currIndex = 0; currIndex < allEventGirlz.length; currIndex++) {
+            let girlData = allEventGirlz[currIndex];
+            if (girlData.shards < 100) {
+                eventList[eventID]["isCompleted"] = false;
+            }
+        }
+    }
+}
+
 ;// CONCATENATED MODULE: ./src/Module/Events/MythicEvent.ts
 
 
@@ -2009,6 +2037,7 @@ var EventModule_awaiter = (undefined && undefined.__awaiter) || function (thisAr
 
 
 
+
 class EventModule {
     static clearEventData(inEventID) {
         //clearTimer('eventMythicNextWave');
@@ -2205,6 +2234,10 @@ class EventModule {
                     LogUtils_logHHAuto("On going cumback contest event.");
                     CumbackContests.parse(hhEvent, eventList, hhEventData);
                 }
+                if (hhEvent.isKinky) {
+                    LogUtils_logHHAuto("On going kinky cumpetition event.");
+                    KinkyCumpetition.parse(hhEvent, eventList, hhEventData);
+                }
                 if (Object.keys(eventList).length > 0) {
                     setStoredValue(HHStoredVarPrefixKey + "Temp_eventsList", JSON.stringify(eventList));
                 }
@@ -2295,6 +2328,9 @@ class EventModule {
             return "poa";
         if (inEventID.startsWith('cumback_contest_'))
             return "cumback";
+        if (inEventID.startsWith('kinky_event_'))
+            return "kinky";
+        //    if(inEventID.startsWith('lively_scene_event_')) return "";
         //    if(inEventID.startsWith('legendary_contest_')) return "";
         //    if(inEventID.startsWith('dpg_event_')) return ""; // Double date
         return "";
@@ -2308,6 +2344,7 @@ class EventModule {
         const isDPEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('doublePenetrationEventIDReg'));
         const isPoa = inEventID.startsWith(ConfigHelper.getHHScriptVars('poaEventIDReg'));
         const isCumback = "cumback" === eventType;
+        const isKinky = "kinky" === eventType;
         return {
             eventTypeKnown: eventType !== '',
             eventId: inEventID,
@@ -2319,6 +2356,7 @@ class EventModule {
             isDPEvent: isDPEvent, // and activated
             isPoa: isPoa, // and activated
             isCumback: isCumback,
+            isKinky: isKinky,
             isEnabled: isPlusEvent || isPlusEventMythic || isBossBangEvent || isSultryMysteriesEvent || isDPEvent || isPoa
         };
     }
@@ -2482,15 +2520,18 @@ class EventModule {
         }
     }
     static parsePageForEventId() {
-        const eventQuery = '#contains_all #homepage .event-widget a[rel="event"]:not([href="#"])';
-        const mythicEventQuery = '#contains_all #homepage .event-widget a[rel="mythic_event"]:not([href="#"])';
-        const bossBangEventQuery = '#contains_all #homepage .event-widget a[rel="boss_bang_event"]:not([href="#"])';
-        const sultryMysteriesEventQuery = '#contains_all #homepage .event-widget a[rel="sm_event"]:not([href="#"])';
-        const dpEventQuery = '#contains_all #homepage .event-widget a[rel="dp_event"]:not([href="#"])';
+        function getEventQuery(event) {
+            return `#contains_all #homepage .event-widget a[rel="${event}"]:not([href="#"])`;
+        }
+        const eventQuery = getEventQuery("event");
+        const mythicEventQuery = getEventQuery("mythic_event");
+        const bossBangEventQuery = getEventQuery("boss_bang_event");
+        const sultryMysteriesEventQuery = getEventQuery("sm_event");
+        const dpEventQuery = getEventQuery("dp_event");
         const seasonalEventQuery = '#contains_all #homepage .seasonal-event a, #contains_all #homepage .mega-event a';
         const povEventQuery = '#contains_all #homepage .event-container a[rel="path-of-valor"]';
         const pogEventQuery = '#contains_all #homepage .event-container a[rel="path-of-glory"]';
-        const poaEventQuery = '#contains_all #homepage .event-widget a[rel="path_event"]:not([href="#"])';
+        const poaEventQuery = getEventQuery("path_event");
         let eventIDs = [];
         let ongoingEventIDs = [];
         let bossBangEventIDs = [];
@@ -2534,6 +2575,8 @@ class EventModule {
             parseForEventId(poaEventQuery, eventIDs);
             parseForEventId(bossBangEventQuery, bossBangEventIDs);
             parseForEventId(sultryMysteriesEventQuery, eventIDs);
+            parseForEventId(getEventQuery("cumback_contest"), eventIDs);
+            parseForEventId(getEventQuery("kinky_event"), eventIDs);
             if ($(sultryMysteriesEventQuery).length <= 0 && getTimer("eventSultryMysteryShopRefresh") !== -1) {
                 // event is over
                 clearTimer("eventSultryMysteryShopRefresh");
@@ -3316,6 +3359,9 @@ class SeasonalEvent {
     static isMegaPassPaid() {
         return $('#get_mega_pass_kobans_btn:visible').length <= 0;
     }
+    static isActiveEvent() {
+        return unsafeWindow.seasonal_event_active || unsafeWindow.seasonal_time_remaining > 0 || unsafeWindow.mega_event_active || unsafeWindow.mega_event_time_remaining > 0;
+    }
     static getRemainingTime() {
         const seasonalEventTimerRequest = `.mega-event-panel .mega-event-container .mega-timer span[rel=expires]`;
         if ($(seasonalEventTimerRequest).length > 0 && (getSecondsLeft("SeasonalEventRemainingTime") === 0 || getStoredValue(HHStoredVarPrefixKey + "Temp_SeasonalEventEndDate") === undefined)) {
@@ -3433,7 +3479,7 @@ class SeasonalEvent {
             }
             return false;
         }
-        else if (unsafeWindow.seasonal_event_active || unsafeWindow.mega_event_active || unsafeWindow.seasonal_time_remaining > 0) {
+        else if (SeasonalEvent.isActiveEvent()) {
             LogUtils_logHHAuto("Switching to SeasonalEvent screen.");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"));
             return true;
@@ -3577,7 +3623,7 @@ class SeasonalEvent {
                 RewardHelper.closeRewardPopupIfAny();
                 setTimer('nextMegaEventRankCollectTime', SeasonalEvent.getGlobalRankRemainingTime() + randomInterval(3600, 4000));
             }
-            else if (unsafeWindow.seasonal_event_active || unsafeWindow.mega_event_active || unsafeWindow.seasonal_time_remaining > 0) {
+            else if (SeasonalEvent.isActiveEvent()) {
                 LogUtils_logHHAuto("Switching to SeasonalEvent screen.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"));
                 return Promise.resolve(true);
@@ -3594,6 +3640,7 @@ SeasonalEvent.SEASONAL_REWARD_PATH = '.mega-tier.unclaimed';
 SeasonalEvent.SEASONAL_REWARD_MEGA_PATH = '.mega-tier-container:has(.free-slot button.mega-claim-reward)';
 
 ;// CONCATENATED MODULE: ./src/Module/Events/index.ts
+
 
 
 
@@ -5753,7 +5800,11 @@ class Troll {
 
 class GenericBattle {
     static doBattle() {
-        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDLeagueBattle") || getPage() === ConfigHelper.getHHScriptVars("pagesIDTrollBattle") || getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonBattle") || getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle")) {
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDLeagueBattle")
+            || getPage() === ConfigHelper.getHHScriptVars("pagesIDTrollBattle")
+            || getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonBattle")
+            || getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle")
+            || getPage() === ConfigHelper.getHHScriptVars("pagesIDLabyrinthBattle")) {
             LogUtils_logHHAuto("On battle page.");
             let troll_id = queryStringGetParam(window.location.search, 'id_opponent');
             const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
@@ -9127,42 +9178,6 @@ class Labyrinth {
     static isEnded() {
         return $('.cleared-labyrinth-container').length > 0;
     }
-    static run() {
-        const page = getPage();
-        if (page === ConfigHelper.getHHScriptVars("pagesIDLabyrinth")) {
-            /*
-            if($('.labChosen').length<=0) {
-                logHHAuto("Issue to find labyrinth next step button, retry in 60secs.");
-                setTimer('nextLabyrinthTime', randomInterval(60, 70));
-                return;
-            }
-            logHHAuto("On Labyrinth page.");
-    
-            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
-            logHHAuto("setting autoloop to false");
-            $('.labChosen').click();
-            */
-        }
-        else if (page === ConfigHelper.getHHScriptVars("pagesIDLabyrinthPreBattle")) {
-            LogUtils_logHHAuto("On labyrinth-pre-battle page.");
-            let templeID = queryStringGetParam(window.location.search, 'id_opponent');
-            LogUtils_logHHAuto("Go and fight labyrinth :" + templeID);
-            let labyrinthBattleButton = $("#pre-battle .buttons-container .blue_button_L");
-            if (labyrinthBattleButton.length > 0) {
-                setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
-                LogUtils_logHHAuto("setting autoloop to false");
-                labyrinthBattleButton[0].click();
-            }
-            else {
-                LogUtils_logHHAuto("Issue to find labyrinth battle button retry in 60secs.");
-                setTimer('nextLabyrinthTime', randomInterval(60, 70));
-                //gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
-            }
-        }
-        else {
-            //gotoPage(ConfigHelper.getHHScriptVars("pagesIDLabyrinth"));
-        }
-    }
     static getCurrentFloorNumber() {
         const floorDom = $('#labyrinth-tabs .tab-switcher-fade-in .floor-number-text');
         let floor = 0;
@@ -9225,15 +9240,6 @@ class Labyrinth {
             //   4
             setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
             LogUtils_logHHAuto("setting autoloop to false");
-            var selectGirl = (girlPosition, girlToBeSelected) => Labyrinth_awaiter(this, void 0, void 0, function* () {
-                const girl = $('.team-hexagon .team-member-container.selectable[data-team-member-position="' + girlPosition + '"]');
-                if (girl.attr('data-girl-id') != girlToBeSelected.attr('id_girl')) {
-                    girl.trigger('click');
-                    yield TimeHelper.sleep(randomInterval(400, 700));
-                    girlToBeSelected.trigger('click');
-                    yield TimeHelper.sleep(randomInterval(400, 700));
-                }
-            });
             $(`.${Labyrinth.BUILD_BUTTON_ID}`).attr('disabled', 'disabled');
             if ($(Labyrinth.HAREM_SELECTED_GIRLS).length == 0) {
                 $('#auto-fill-team:not([disabled])').trigger('click');
@@ -9243,29 +9249,61 @@ class Labyrinth {
             const girlClassFront = Number($('#autoLabyrinthBuildFront').val());
             const frontGirls = Labyrinth.getHaremGirl(girlClassFront);
             let frontGirlIndex = 0;
-            if (frontGirls.length >= 1)
-                yield selectGirl(2, frontGirls[frontGirlIndex++]);
-            if (frontGirls.length >= 2)
-                yield selectGirl(3, frontGirls[frontGirlIndex++]);
+            if (frontGirls.length >= 2) {
+                yield Labyrinth._buildTwoGirlsRow(2, 3, frontGirls[frontGirlIndex++], frontGirls[frontGirlIndex++]);
+            }
             const girlClassMid = Number($('#autoLabyrinthBuildMid').val());
             const midGirls = Labyrinth.getHaremGirl(girlClassMid, false, 5);
             let midGirlIndex = girlClassMid == girlClassFront ? frontGirlIndex : 0;
             if (midGirls.length >= (midGirlIndex + 1))
-                yield selectGirl(1, midGirls[midGirlIndex++]);
+                yield Labyrinth._selectGirl(1, midGirls[midGirlIndex++]);
             if (midGirls.length >= (midGirlIndex + 1))
-                yield selectGirl(0, midGirls[midGirlIndex++]);
+                yield Labyrinth._selectGirl(0, midGirls[midGirlIndex++]);
             if (midGirls.length >= (midGirlIndex + 1))
-                yield selectGirl(4, midGirls[midGirlIndex++]);
+                yield Labyrinth._selectGirl(4, midGirls[midGirlIndex++]);
             const girlClassBack = Number($('#autoLabyrinthBuildBack').val());
             const backGirls = Labyrinth.getHaremGirl(girlClassBack, false, 7);
             let backGirlIndex = girlClassBack == girlClassMid ? midGirlIndex : girlClassBack == girlClassFront ? frontGirlIndex : 0;
-            if (backGirls.length >= (backGirlIndex + 1))
-                yield selectGirl(5, backGirls[backGirlIndex++]);
-            if (backGirls.length >= (backGirlIndex + 1))
-                yield selectGirl(6, backGirls[backGirlIndex++]);
+            if (backGirls.length >= (backGirlIndex + 2)) {
+                yield Labyrinth._buildTwoGirlsRow(5, 6, backGirls[backGirlIndex++], backGirls[backGirlIndex++]);
+            }
             $(`.${Labyrinth.BUILD_BUTTON_ID}`).removeAttr('disabled');
             setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
             LogUtils_logHHAuto("setting autoloop to true");
+        });
+    }
+    static isSelectedGirl(girlId, position = 0) {
+        if (position > 0) {
+            return $(`.player-panel .team-hexagon .team-member-container[data-girl-id="${girlId}"][data-team-member-position="${position}"]`).length > 0;
+        }
+        else {
+            return $(`.player-panel .team-hexagon .team-member-container[data-girl-id="${girlId}"]`).length > 0;
+        }
+    }
+    static _selectGirl(girlPosition, girlToBeSelected) {
+        return Labyrinth_awaiter(this, void 0, void 0, function* () {
+            const girl = $('.team-hexagon .team-member-container.selectable[data-team-member-position="' + girlPosition + '"]');
+            if (girl.attr('data-girl-id') != girlToBeSelected.attr('id_girl')) {
+                girl.trigger('click');
+                yield TimeHelper.sleep(randomInterval(400, 700));
+                girlToBeSelected.trigger('click');
+                yield TimeHelper.sleep(randomInterval(400, 700));
+            }
+        });
+    }
+    static _buildTwoGirlsRow(posOne, posTwo, girlOne, girlTwo) {
+        return Labyrinth_awaiter(this, void 0, void 0, function* () {
+            const girlOneId = girlOne.attr('id_girl');
+            if (!Labyrinth.isSelectedGirl(girlOneId)) {
+                yield Labyrinth._selectGirl(posOne, girlOne);
+                yield Labyrinth._selectGirl(posTwo, girlTwo);
+            }
+            else if (Labyrinth.isSelectedGirl(girlOneId, posOne)) {
+                yield Labyrinth._selectGirl(posTwo, girlTwo);
+            }
+            else if (Labyrinth.isSelectedGirl(girlOneId, posTwo)) {
+                yield Labyrinth._selectGirl(posOne, girlTwo);
+            }
         });
     }
     static getHaremGirl(girlClass = 0, excludeSelected = false, numberOfGirls = 2) {
@@ -9319,9 +9357,10 @@ class Labyrinth {
                         options.push(option);
                     });
                 }
-                LogUtils_logHHAuto("Row " + currentLevel + ". and options " + JSON.stringify(options));
+                // logHHAuto("Row " + currentLevel + ". and options " + JSON.stringify(options));
                 const choosenOption = Labyrinth.findBetter(options);
                 if (choosenOption) {
+                    LogUtils_logHHAuto("Row " + currentLevel + ". chosen " + JSON.stringify(choosenOption));
                     Labyrinth.appendChoosenTag(choosenOption);
                     break;
                 }
@@ -9387,18 +9426,8 @@ class Labyrinth {
         const confirmButton = $('#confirmation_popup #popup_confirm:visible');
         if (confirmButton.length > 0) {
             LogUtils_logHHAuto("Confirm button");
-            confirmButton.click();
+            confirmButton.trigger('click');
         }
-    }
-    static selectReward() {
-        // TODO choose reward
-        $('#labyrinth_reward_popup #reward_holder .relic-container .relic-card-buttons .claim-relic-btn');
-        // relic-container rare-relic
-        // relic-container common-relic
-        // relic-container common-relic large-card // Girl specific
-        // relic-container legendary-relic
-        // Close reward popup
-        $('#labyrinth_reward_popup #reward_holder #close-relic-popup');
     }
     static isChoosen(option) {
         const choosen = `<img class="labChosen" src=${ConfigHelper.getHHScriptVars("powerCalcImages").chosen}>`;
@@ -10222,6 +10251,9 @@ function gotoPage(page, inArgs = {}, delay = -1) {
             break;
         case ConfigHelper.getHHScriptVars("pagesIDLabyrinth"):
             togoto = ConfigHelper.getHHScriptVars("pagesURLLabyrinth");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDEditLabyrinthTeam"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLEditLabyrinthTeam");
             break;
         case ConfigHelper.getHHScriptVars("pagesIDChampionsMap"):
             togoto = ConfigHelper.getHHScriptVars("pagesURLChampionsMap");
@@ -13261,7 +13293,7 @@ HHEnvVariables["global"].pagesIDPantheonPreBattle = "pantheon-pre-battle";
 HHEnvVariables["global"].pagesURLPantheonPreBattle = "/pantheon-pre-battle.html";
 HHEnvVariables["global"].pagesKnownList.push("PantheonPreBattle");
 HHEnvVariables["global"].pagesIDLabyrinth = "labyrinth";
-HHEnvVariables["global"].pagesURLabyrinth = "/labyrinth.html";
+HHEnvVariables["global"].pagesURLLabyrinth = "/labyrinth.html";
 HHEnvVariables["global"].pagesKnownList.push("Labyrinth");
 HHEnvVariables["global"].pagesIDLabyrinthPreBattle = "labyrinth-pre-battle";
 HHEnvVariables["global"].pagesURLLabyrinthPreBattle = "/labyrinth-pre-battle.html";
@@ -15842,8 +15874,8 @@ class RewardHelper {
             RewardHelper.displayRewardsDiv(target, hhRewardId, rewardCountByType);
         }
     }
-    static closeRewardPopupIfAny(logging = true) {
-        let rewardQuery = "div#rewards_popup button.blue_button_L:not([disabled]):visible";
+    static closeRewardPopupIfAny(logging = true, popupId = '') {
+        let rewardQuery = `div#${popupId != '' ? popupId : 'rewards_popup'} button.blue_button_L:not([disabled]):visible`;
         if ($(rewardQuery).length > 0) {
             if (logging)
                 LogUtils_logHHAuto("Close reward popup.");
@@ -16843,12 +16875,6 @@ function autoLoop() {
                     lastActionPerformed = "none";
                 }
             }
-            if (busy === false && getStoredValue(HHStoredVarPrefixKey + "Setting_autoLabyrinth") === "true" && Labyrinth.isEnabled() && checkTimer('nextLabyrinthTime')
-                && isAutoLoopActive() && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "labyrinth")) {
-                Labyrinth.run();
-                busy = true;
-                lastActionPerformed = "labyrinth";
-            }
             if (busy == false && ConfigHelper.getHHScriptVars("isEnabledChamps", false)
                 && QuestHelper.getEnergy() >= ConfigHelper.getHHScriptVars("CHAMP_TICKET_PRICE") && QuestHelper.getEnergy() > Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoQuestThreshold"))
                 && getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampsUseEne") === "true" && isAutoLoopActive()
@@ -16900,7 +16926,6 @@ function autoLoop() {
                     ||
                         getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonalEventCollectAll") === "true" && checkTimer('nextSeasonalEventCollectAllTime') && (getTimer('SeasonalEventRemainingTime') == -1 || getSecondsLeft('SeasonalEventRemainingTime') < getLimitTimeBeforeEnd())) && (lastActionPerformed === "none" || lastActionPerformed === "seasonal")) {
                 LogUtils_logHHAuto("Time to go and check SeasonalEvent for collecting reward.");
-                busy = true;
                 busy = SeasonalEvent.goAndCollect();
                 lastActionPerformed = "seasonal";
             }
@@ -16908,7 +16933,6 @@ function autoLoop() {
                 checkTimer('nextMegaEventRankCollectTime') && getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonalEventCollect") === "true" && canCollectCompetitionActive
                 && (lastActionPerformed === "none" || lastActionPerformed === "seasonal")) {
                 LogUtils_logHHAuto("Time to go and check  SeasonalEvent for collecting rank reward.");
-                busy = true;
                 busy = yield SeasonalEvent.goAndCollectMegaEventRankRewards();
                 lastActionPerformed = "seasonal";
             }
@@ -16945,6 +16969,12 @@ function autoLoop() {
                 LogUtils_logHHAuto("Time to go and check daily Goals for collecting reward.");
                 DailyGoals.goAndCollect();
                 lastActionPerformed = "dailyGoals";
+            }
+            if (busy === false && getStoredValue(HHStoredVarPrefixKey + "Setting_autoLabyrinth") === "true" && Labyrinth.isEnabled() && checkTimer('nextLabyrinthTime')
+                && isAutoLoopActive() && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "labyrinth")) {
+                busy = false;
+                // busy = await (new LabyrinthAuto).run();
+                lastActionPerformed = "labyrinth";
             }
             if (busy === false && ConfigHelper.getHHScriptVars("isEnabledSalary", false) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalary") === "true"
                 && (getStoredValue(HHStoredVarPrefixKey + "Setting_paranoia") !== "true" || !checkTimer("paranoiaSwitch"))
@@ -17155,7 +17185,6 @@ function autoLoop() {
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDLabyrinth"):
                 if (getStoredValue(HHStoredVarPrefixKey + "Setting_showCalculatePower") === "true") {
-                    Labyrinth.sim = callItOnce(Labyrinth.sim);
                     Labyrinth.sim();
                 }
                 break;

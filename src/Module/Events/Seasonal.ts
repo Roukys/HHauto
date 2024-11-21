@@ -26,6 +26,9 @@ export class SeasonalEvent {
     static isMegaPassPaid() {
         return $('#get_mega_pass_kobans_btn:visible').length <= 0
     }
+    static isActiveEvent() {
+        return unsafeWindow.seasonal_event_active || unsafeWindow.seasonal_time_remaining > 0 || unsafeWindow.mega_event_active || unsafeWindow.mega_event_time_remaining > 0
+    }
     static getRemainingTime(){
         const seasonalEventTimerRequest = `.mega-event-panel .mega-event-container .mega-timer span[rel=expires]`
 
@@ -165,7 +168,7 @@ export class SeasonalEvent {
             }
             return false;
         }
-        else if (unsafeWindow.seasonal_event_active || unsafeWindow.mega_event_active || unsafeWindow.seasonal_time_remaining > 0)
+        else if (SeasonalEvent.isActiveEvent())
         {
             logHHAuto("Switching to SeasonalEvent screen.");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"));
@@ -322,7 +325,7 @@ export class SeasonalEvent {
 
             setTimer('nextMegaEventRankCollectTime', SeasonalEvent.getGlobalRankRemainingTime() + randomInterval(3600,4000));
         }
-        else if (unsafeWindow.seasonal_event_active || unsafeWindow.mega_event_active || unsafeWindow.seasonal_time_remaining > 0)
+        else if (SeasonalEvent.isActiveEvent())
         {
             logHHAuto("Switching to SeasonalEvent screen.");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"));

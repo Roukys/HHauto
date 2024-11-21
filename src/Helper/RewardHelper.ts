@@ -222,8 +222,8 @@ export class RewardHelper {
             RewardHelper.displayRewardsDiv(target, hhRewardId, rewardCountByType);
         }
     }
-    static closeRewardPopupIfAny(logging=true) {
-        let rewardQuery="div#rewards_popup button.blue_button_L:not([disabled]):visible";
+    static closeRewardPopupIfAny(logging=true, popupId='') {
+        let rewardQuery = `div#${popupId != '' ? popupId : 'rewards_popup'} button.blue_button_L:not([disabled]):visible`;
         if ($(rewardQuery).length >0 )
         {
             if(logging) logHHAuto("Close reward popup.");
