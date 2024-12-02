@@ -1538,7 +1538,10 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLabyrinth"] =
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false
+    kobanUsing: false,
+    newValueFunction: function () {
+        clearTimer('nextLabyrinthTime');
+    }
 };
 HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollect"] =
     {

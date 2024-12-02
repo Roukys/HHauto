@@ -1,15 +1,18 @@
 import { 
     ConfigHelper,
     TimeHelper,
+    convertTimeToInt,
     getPage,
     getStoredValue,
     getTextForUI,
+    getTimeLeft,
     hhMenuSelect,
     randomInterval,
     setStoredValue
 } from '../Helper/index';
 import { logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
+import { RelicManager } from './RelicManager';
 
 class LabyrinthOpponent{
     button: JQuery<HTMLElement> | null;
@@ -23,7 +26,7 @@ class LabyrinthOpponent{
 }
 
 export class Labyrinth {
-    static HAREM_SELECTED_GIRLS = '.harem-panel-girls .harem-girl-container.selected';
+    static HAREM_SELECTED_GIRLS = '.harem-panel-girls .harem-girl-container.selected'; // in my squad
     static BUILD_BUTTON_ID = 'hhAutoLabyTeam';
 
     static isEnabled(){
@@ -31,6 +34,10 @@ export class Labyrinth {
     }
     static isEnded(){
         return $('.cleared-labyrinth-container').length > 0;
+    }
+
+    static getPinfo() {
+        return '<li>' + getTextForUI("autoLabyrinthTitle", "elementText") + ' : ' + getTimeLeft('nextLabyrinthTime') + '</li>';
     }
 
     static getCurrentFloorNumber(): number {
@@ -208,6 +215,21 @@ export class Labyrinth {
     static sim(){
         if(getPage() === ConfigHelper.getHHScriptVars("pagesIDLabyrinth"))
         {
+            if ($('#labyrinth_reward_popup .relic-container').length > 0 && $('.relicChosen').length == 0) {
+                /* Reward to be selected */
+                const relicManager = new RelicManager();
+
+                const relics = relicManager.parseRelics();
+                if (relics.length > 1) {
+                    logHHAuto("relics",relics);
+                    const relic = relicManager.chooseRelic(relics);
+                    logHHAuto("relic", relic);
+
+                    GM_addStyle('.relicChosen {width: 25px; top: 0px; position: absolute; left: 197px;}');
+                    relic.slot.append(`<img class="relicChosen" src=${ConfigHelper.getHHScriptVars("powerCalcImages").chosen}>`);
+                }
+            }
+
             if ($('.labChosen').length > 0 || Labyrinth.isEnded()) {
                 return;
             }
@@ -239,8 +261,19 @@ export class Labyrinth {
                 }
             }
 
-            // RelicManager.testRelicParser();
         }
+    }
+
+    static getResetTime() {
+        const timerRequest = `.cleared-labyrinth-container:visible .labyrinth-timer span[rel=expires]`;
+
+        if ($(timerRequest).length > 0) {
+            const labyrinthTimer = Number(convertTimeToInt($(timerRequest).text()));
+            //logHHAuto('labyrinthTimer', labyrinthTimer);
+            return labyrinthTimer;
+        }
+        logHHAuto('ERROR: can\'t get labyrinth reset time, default to maxCollectionDelay');
+        return ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180);
     }
 
     static findBetter(options:LabyrinthOpponent[]){
@@ -300,26 +333,6 @@ export class Labyrinth {
             }
         });
         return choosenOption;
-    }
-
-    static confirmNoHeal(){
-        const confirmButton = $('#confirmation_popup #popup_confirm:visible');
-        if (confirmButton.length > 0) {
-            logHHAuto("Confirm button");
-            confirmButton.trigger('click');
-        }
-    }
-
-    static isChoosen(option){
-        const choosen = `<img class="labChosen" src=${ConfigHelper.getHHScriptVars("powerCalcImages").chosen}>`;
-        if(option.button && option.isNext) {
-            if (option.isShrine || option.isTreasure) {
-                option.button.append(choosen);
-                return true;
-            }
-            // TODO opponent order
-        }
-        return false;
     }
 
     static appendChoosenTag(option){

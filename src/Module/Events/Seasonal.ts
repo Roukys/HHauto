@@ -74,6 +74,7 @@ export class SeasonalEvent {
 
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"))
         {
+            try{
             SeasonalEvent.getRemainingTime();
             const isMegaSeasonalEvent = SeasonalEvent.isMegaSeasonalEvent();
             const seasonalEventEnd = getSecondsLeft("SeasonalEventRemainingTime");
@@ -165,6 +166,10 @@ export class SeasonalEvent {
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                     return false;
                 }
+            }
+            } catch ({ errName, message }) {
+                logHHAuto(`ERROR: Can't collect rewards retry later: ${errName}, ${message}`);
+                setTimer('nextSeasonalEventCollectTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
             }
             return false;
         }
@@ -290,6 +295,10 @@ export class SeasonalEvent {
                     // GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container { height: 5rem; margin-top: 0;}'); 
                     // GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container a { height: 2rem;}'); 
 
+                    for (var i = 0; i < 4; i++) {
+                        // move video down
+                        GM_addStyle(`.mega-event-panel .mega-event-container .tabs-section #home_tab_container .middle-container .lse-container-${i} { z-index:3;}`);
+                    }
                     const rewardsHtml = RewardHelper.getRewardsAsHtml(rewardCountByType);
                     target.append($('<div id='+hhRewardId+' class="HHRewardNotCollected"><h1 style="font-size: small;">'+getTextForUI('rewardsToCollectTitle',"elementText")+'</h1>' + rewardsHtml + '</div>'));
                 } else {

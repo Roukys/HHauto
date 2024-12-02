@@ -226,7 +226,7 @@ export class RewardHelper {
         let rewardQuery = `div#${popupId != '' ? popupId : 'rewards_popup'} button.blue_button_L:not([disabled]):visible`;
         if ($(rewardQuery).length >0 )
         {
-            if(logging) logHHAuto("Close reward popup.");
+            if (logging) logHHAuto(`Close reward popup ${popupId != '' ? popupId : 'rewards_popup'}.`);
             $(rewardQuery).trigger('click');
             return true;
         }

@@ -10,7 +10,7 @@ import {
     setStoredValue,
     TimeHelper
 } from '../Helper/index';
-import { Booster, Contest, LeagueHelper, Pantheon, Season, Troll } from '../Module/index';
+import { Booster, Contest, Labyrinth, LeagueHelper, Pantheon, Season, Troll } from '../Module/index';
 import { logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
 import { AdsService } from './AdsService';
@@ -124,6 +124,10 @@ export function updateData() {
         if (ConfigHelper.getHHScriptVars('isEnabledPantheon',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheon") =="true")
         {
             Tegzd += Pantheon.getPinfo();
+        }
+        if (Labyrinth.isEnabled() && getStoredValue(HHStoredVarPrefixKey + "Setting_autoLabyrinth") =="true")
+        {
+            Tegzd += Labyrinth.getPinfo();
         }
         if (ConfigHelper.getHHScriptVars("isEnabledShop",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_updateMarket") =="true")
         {

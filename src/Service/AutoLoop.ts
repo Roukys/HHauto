@@ -36,6 +36,7 @@ import {
     HaremGirl,
     HaremSalary,
     Labyrinth,
+    LabyrinthAuto,
     LeagueHelper,
     Missions,
     Pachinko,
@@ -857,7 +858,7 @@ export async function autoLoop()
         if (busy === false && getStoredValue(HHStoredVarPrefixKey + "Setting_autoLabyrinth") === "true" && Labyrinth.isEnabled() && checkTimer('nextLabyrinthTime')
             && isAutoLoopActive() && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "labyrinth")) {
             busy = false;
-            // busy = await (new LabyrinthAuto).run();
+            busy = await (new LabyrinthAuto).run();
             lastActionPerformed = "labyrinth";
         }
 
