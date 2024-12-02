@@ -268,6 +268,14 @@ HHEnvVariables["global"].pagesIDPantheonPreBattle = "pantheon-pre-battle";
 HHEnvVariables["global"].pagesURLPantheonPreBattle = "/pantheon-pre-battle.html";
 HHEnvVariables["global"].pagesKnownList.push("PantheonPreBattle");
 
+HHEnvVariables["global"].pagesIDLabyrinthEntrance = "labyrinth-entrance";
+HHEnvVariables["global"].pagesURLLabyrinthEntrance = "/labyrinth-entrance.html";
+HHEnvVariables["global"].pagesKnownList.push("LabyrinthEntrance");
+
+HHEnvVariables["global"].pagesIDLabyrinthPoolSelect = "labyrinth-pool-select";
+HHEnvVariables["global"].pagesURLLabyrinthPoolSelect = "/labyrinth-pool-select.html";
+HHEnvVariables["global"].pagesKnownList.push("LabyrinthPoolSelect");
+
 HHEnvVariables["global"].pagesIDLabyrinth = "labyrinth";
 HHEnvVariables["global"].pagesURLLabyrinth = "/labyrinth.html";
 HHEnvVariables["global"].pagesKnownList.push("Labyrinth");

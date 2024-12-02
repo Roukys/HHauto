@@ -542,10 +542,13 @@ export function getMenu() {
                                         + hhMenuSwitch('compactDailyGoals')
                                     + `</div>`
                                 + `</div>`  
-                                + `<div id="isEnabledPachinko" class="rowOptionsBox">`
-                                    + `<div class="internalOptionsRow" style="justify-content: space-between">`
+                                + `<div class="rowOptionsBox">`
+                                    + `<div id="isEnabledPachinko" class="internalOptionsRow" style="justify-content: space-between">`
                                         + hhMenuSwitchWithImg('autoFreePachinko', 'pictures/design/menu/pachinko.svg')
                                     + `</div>`
+                                    + `<div id="isEnabledLabyrinth" class="internalOptionsRow" style="justify-content: space-evenly">`
+                                        + hhMenuSwitch('autoLabyrinth')
+                                    +`</div>`
                                 + `</div>`
                             +`</div>`
                         +`</div>`
@@ -745,13 +748,6 @@ export function getMenu() {
                         + hhMenuInputWithImg('autoPantheonThreshold', HHAuto_inputPattern.autoPantheonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg' , 'numeric')
                         + hhMenuInputWithImg('autoPantheonRunThreshold', HHAuto_inputPattern.autoPantheonRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_worship.svg' , 'numeric')
                         + hhMenuSwitch('autoPantheonBoostedOnly')
-                    +`</div>`
-                +`</div>`
-            +`</div>`
-            +`<div id="isEnabledLabyrinth" class="" style="display:none">` // optionsBoxWithTitle
-                +`<div class="optionsBox">`
-                    +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                        + hhMenuSwitch('autoLabyrinth')
                     +`</div>`
                 +`</div>`
             +`</div>`
