@@ -144,12 +144,12 @@ export function hhButton(textKeyId, buttonId){
             +`</div>`;
 }
 
-export function hhMenuSwitch(textKeyAndInputId, isEnabledDivId='', isKobanSwitch=false){
+export function hhMenuSwitch(textKeyAndInputId, isEnabledDivId='', isKobanSwitch=false, isStylingSwitch=false){
     return `<div ${isEnabledDivId ? 'id="'+isEnabledDivId+'"' : '' } class="labelAndButton">`
         +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
         +`<div class="tooltipHH">`
             +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
-            +`<label class="switch"><input id="${textKeyAndInputId}" type="checkbox"><span class="slider round ${isKobanSwitch ? 'kobans' : ''}"></span></label>`
+            +`<label class="switch"><input id="${textKeyAndInputId}" type="checkbox"><span class="slider round ${isKobanSwitch ? 'kobans' : ''} ${isStylingSwitch ? 'styling' : ''}"></span></label>`
         +`</div>`
     +`</div>`;
 }
@@ -464,11 +464,11 @@ export function getMenu() {
                     +`</div>`
                     +`<div class="optionsColumn">`
                         + hhMenuSwitch('showCalculatePower')
-                        + hhMenuSwitch('showAdsBack')
+                        + hhMenuSwitch('showAdsBack', '', false, true)
                     +`</div>`
                     +`<div class="optionsColumn">`
                         + hhMenuSwitch('showRewardsRecap')
-                        + hhMenuSwitch('showInfoLeft')
+                        + hhMenuSwitch('showInfoLeft', '', false, true)
                     +`</div>`
                 +`</div>`
             +`</div>`
@@ -488,7 +488,7 @@ export function getMenu() {
     }
 
     const getMiddleColumn = () => {
-        return `<div class="optionsColumn" style="min-width: 500px;">`
+        return `<div class="optionsColumn" style="min-width: 520px;">`
             +`<div class="optionsRow">`
                 +`<div class="optionsColumn">`
                     +`<div class="optionsBoxWithTitle">`
@@ -502,12 +502,12 @@ export function getMenu() {
                                     + hhMenuSwitch('autoMission')
                                     + hhMenuSwitch('autoMissionCollect')
                                     + hhMenuSwitch('autoMissionKFirst')
-                                    + hhMenuSwitch('compactMissions')
-                                    + hhMenuSwitch('invertMissions')
+                                    + hhMenuSwitch('compactMissions', '', false, true)
+                                    + hhMenuSwitch('invertMissions', '', false, true)
                                 +`</div>`
                                 +`<div id="isEnabledContest" class="internalOptionsRow optionsBox" style="padding:0;margin:0 0 0 3px;">`
                                     + hhMenuSwitch('autoContest')
-                                    + hhMenuSwitch('compactEndedContests')
+                                    + hhMenuSwitch('compactEndedContests', '', false, true)
                                 +`</div>`
                             +`</div>`
                         +`</div>`
@@ -528,20 +528,21 @@ export function getMenu() {
                                         + hhMenuSwitch('autoPowerPlacesPrecision')
                                         + hhMenuSwitch('autoPowerPlacesInverted')
                                         + hhMenuSwitch('autoPowerPlacesWaitMax')
-                                        + hhMenuSwitch('compactPowerPlace')
+                                        + hhMenuSwitch('compactPowerPlace', '', false, true)
                                     +`</div>`
                                 +`</div>`
                             +`</div>`
-                            +`<div id="isEnabledPowerPlaces" class="optionsBoxWithTitle">`
+                            +`<div id="isEnabledDailyGoals" class="optionsBoxWithTitle">`
                                 +`<div class="optionsBoxTitle">`
                                     + `<span class="optionsBoxTitle">${getTextForUI("dailyGoalsTitle","elementText")}</span>`
                                 +`</div>`
-                                +`<div class="optionsBox">`
+                                +`<div class="rowOptionsBox">`
                                     +`<div class="internalOptionsRow">`
+                                        + `<div style="${debugEnabled ? '' : 'display:none;'}">` + hhMenuSwitch('autoDailyGoals') + `</div>`
                                         + hhMenuSwitch('autoDailyGoalsCollect')
-                                        + hhMenuSwitch('compactDailyGoals')
+                                        + hhMenuSwitch('compactDailyGoals', '', false, true)
                                     + `</div>`
-                                + `</div>`  
+                                + `</div>`
                                 + `<div class="rowOptionsBox">`
                                     + `<div id="isEnabledPachinko" class="internalOptionsRow" style="justify-content: space-between">`
                                         + hhMenuSwitchWithImg('autoFreePachinko', 'pictures/design/menu/pachinko.svg')
@@ -591,7 +592,7 @@ export function getMenu() {
                             + hhMenuSwitch('autoSeason')
                             + hhMenuSwitch('autoSeasonCollect')
                             + hhMenuSwitch('autoSeasonCollectAll')
-                            + hhMenuSwitch('SeasonMaskRewards')
+                            + hhMenuSwitch('SeasonMaskRewards', '', false, true)
                         +`</div>`
                         +`<div class="internalOptionsRow">`
                             + hhMenuSwitch('autoSeasonPassReds', '', true)

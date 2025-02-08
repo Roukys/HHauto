@@ -13,7 +13,7 @@ import { logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
 import { EventGirl } from '../model/index';
 import { Troll } from "./Troll";
-import { EventModule } from './index';
+import { DailyGoals, EventModule } from './index';
 
 export class GenericBattle {
     static doBattle()
@@ -72,7 +72,7 @@ export class GenericBattle {
                 logHHAuto("Go back to Season arena after Season fight.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonArena"),{},randomInterval(2000,4000));
             }
-            else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle") && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheon") === "true")
+            else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle") && (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPantheon") === "true" || DailyGoals.isPantheonDailyGoal()))
             {
                 logHHAuto("Go back to Pantheon arena after Pantheon temple.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDPantheon"),{},randomInterval(2000,4000));

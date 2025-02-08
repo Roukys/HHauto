@@ -17,6 +17,7 @@ import { checkParanoiaSpendings, gotoPage } from '../Service/index';
 import { logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
 import { Booster } from "./Booster";
+import { DailyGoals } from './DailyGoals';
 
 export class Pantheon {
 
@@ -70,11 +71,13 @@ export class Pantheon {
         const needBoosterToFight = getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheonBoostedOnly") === "true";
         const haveBoosterEquiped = Booster.haveBoosterEquiped();
 
+        const isDailyGoal = DailyGoals.isPantheonDailyGoal();
+
         if(checkTimer('nextPantheonTime') && energyAboveThreshold && needBoosterToFight && !haveBoosterEquiped) {
             logHHAuto('Time for pantheon but no booster equipped');
         }
 
-        return (checkTimer('nextPantheonTime') && energyAboveThreshold && (needBoosterToFight && haveBoosterEquiped || !needBoosterToFight)) || paranoiaSpending;
+        return (checkTimer('nextPantheonTime') && energyAboveThreshold && (needBoosterToFight && haveBoosterEquiped || !needBoosterToFight || isDailyGoal)) || paranoiaSpending;
     }
 
     static run()
@@ -97,7 +100,8 @@ export class Pantheon {
                 let templeID = queryStringGetParam(new URL(pantheonButton[0].getAttribute("href")||'',window.location.origin).search, 'id_opponent');
                 if (pantheonButton.length > 0 && templeID !== null )
                 {
-                    logHHAuto("Going to fight Temple : "+templeID);
+                    logHHAuto("Going to fight Temple : " + templeID);
+                    if (DailyGoals.isAutoDailyGoalsActivated() && DailyGoals.incrementPantheonDailyGoal()) logHHAuto('Increment pantheon daily goals');
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDPantheonPreBattle"),{id_opponent:templeID});
                 }
                 else

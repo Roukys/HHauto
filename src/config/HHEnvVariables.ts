@@ -434,6 +434,7 @@ HHEnvVariables["HH_test"].isEnabledFreeBundles = false;// to remove if bundles a
 for (var key in HentaiHeroes.getEnv()) {
     const element = HentaiHeroes.getEnv()[key].name;
     HHEnvVariables[element].spreadsheet = HentaiHeroes.spreadsheet;
+    HHEnvVariables[element].trollIdMapping = { 21: 19 };
 }
 
 for (var key in GayHarem.getEnv()) {
@@ -483,7 +484,7 @@ for (var key in AmourAgent.getEnv()) {
 
 for (var key in PornstarHarem.getEnv()) {
     const element = PornstarHarem.getEnv()[key].name;
-    HHEnvVariables[element].trollzList = PornstarHarem.getTrolls();
+    HHEnvVariables[element].trollzList = PornstarHarem.getTrolls(getLanguageCode());
     HHEnvVariables[element].trollIdMapping = { 10: 9, 14: 11, 16: 12, 18: 13, 19: 14 }; // under 10 id as usual
     HHEnvVariables[element].lastQuestId = 16100; //  TODO update when new quest comes
     HHEnvVariables[element].boosterId_MB1 = 2619;

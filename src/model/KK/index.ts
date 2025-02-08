@@ -1,4 +1,5 @@
 export * from './KKEnergy'
+export * from './kkDailyGoal'
 export * from './KKEventGirl'
 export * from './KKHaremGirl'
 export * from './KKHaremSalaryGirl'
