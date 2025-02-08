@@ -1,5 +1,5 @@
 import { hardened_start } from "./Service/index";
-import { KKHero } from "./model/index";
+import { KKDailyGoal, KKHero } from "./model/index";
 
 declare global {
     interface Window {
@@ -12,6 +12,7 @@ declare global {
         };
         Collect: any;
         current_tier_number: any;
+        daily_goals_list: KKDailyGoal[];
         event_data: any;
         girl: any;
         // GirlSalaryManager: any;

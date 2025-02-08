@@ -10,7 +10,7 @@ import {
     setStoredValue,
     TimeHelper
 } from '../Helper/index';
-import { Booster, Contest, Labyrinth, LeagueHelper, Pantheon, Season, Troll } from '../Module/index';
+import { Booster, Contest, DailyGoals, Labyrinth, LeagueHelper, Pantheon, Season, Troll } from '../Module/index';
 import { logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
 import { AdsService } from './AdsService';
@@ -121,7 +121,7 @@ export function updateData() {
         {
             Tegzd += '<li>'+getTextForUI("autoClubChamp","elementText")+' : '+getTimeLeft('nextClubChampionTime')+'</li>';
         }
-        if (ConfigHelper.getHHScriptVars('isEnabledPantheon',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheon") =="true")
+        if (ConfigHelper.getHHScriptVars('isEnabledPantheon', false) && (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPantheon") == "true" || DailyGoals.isPantheonDailyGoal() ))
         {
             Tegzd += Pantheon.getPinfo();
         }

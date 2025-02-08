@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.19.0
+// @version      7.20.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -31,6 +31,7 @@ GM_addStyle('.HHAutoScriptMenu .switch { position: relative; display: inline-blo
             +'.HHAutoScriptMenu .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; -webkit-transition: .4s; transition: .4s; margin-right: 4px; } /* The slider */'
             +'.HHAutoScriptMenu .slider.round:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; -webkit-transition: .4s; transition: .4s; } '
             +'.HHAutoScriptMenu input:checked + .slider { background-color: #2196F3; } '
+            +'.HHAutoScriptMenu input:checked + .slider.styling { background-color: #dba617; } '
             +'.HHAutoScriptMenu input:focus + .slider { box-shadow: 0 0 1px #2196F3; } '
             +'.HHAutoScriptMenu input:checked + .slider:before { -webkit-transform: translateX(10px); -ms-transform: translateX(10px); transform: translateX(10px); } '
             +'.HHAutoScriptMenu .slider.round { border-radius: 14px; }/* Rounded sliders */ '
@@ -50,14 +51,14 @@ GM_addStyle('div.optionsBoxWithTitle {display:flex; flex-direction:column}');
 GM_addStyle('div.optionsBoxWithTitleInline {display:flex; flex-direction:row; border:1px solid #ffa23e; border-radius:5px; margin:1px}');
 GM_addStyle('div.optionsBoxWithTitleInline .optionsBox {border: none}');
 GM_addStyle('img.iconImg {max-width:15px; height:15px}');
-GM_addStyle('#sMenu {top: 5px;right: 52px;padding: 4px;opacity: 1;border-radius: 4px;border: 1px solid #ffa23e;background-color: #1e261e;font-size:x-small; position:absolute; text-align:left; flex-direction:column; justify-content:space-between; z-index:10000; overflow:auto; max-height:calc(100% - 5px); scrollbar-width: thin;max-width: calc(100% - 52px);}');
+GM_addStyle('#sMenu {top: 5px;right: 52px;padding: 1px;opacity: 1;border-radius: 4px;border: 1px solid #ffa23e;background-color: #1e261e;font-size:x-small; position:absolute; text-align:left; flex-direction:column; justify-content:space-between; z-index:10000; overflow:auto; max-height:calc(100% - 5px); scrollbar-width: thin;max-width: calc(100% - 52px);}');
 GM_addStyle('#sMenu::-webkit-scrollbar {width: 6px;height: 6px;background: #000;}');
 GM_addStyle('#sMenu::-webkit-scrollbar-thumb { background: #ffa23e; -webkit-border-radius: 1ex; -webkit-box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.75);}');
 GM_addStyle('#sMenu::-webkit-scrollbar-corner {background: #000;}');
 GM_addStyle('#sMenu .HHMenuItemName {font-size:8px;}');
 GM_addStyle('div.optionsBoxTitle {height:12px; display:flex; flex-direction:row; justify-content:center; align-items:center;}'); //; padding:2px; padding-bottom:0px;
 GM_addStyle('div.rowOptionsBox {margin:1px; padding:3px; font-size:smaller; display:flex; flex-direction:row; align-items:flex-start; border: 1px solid #ffa23e; border-radius: 5px}');
-GM_addStyle('div.optionsBox {margin:1px 3px 1px; padding:3px; font-size:smaller; display:flex; flex-direction:column; border:1px solid #ffa23e; border-radius:5px}');
+GM_addStyle('div.optionsBox {margin:1px; padding:3px; font-size:smaller; display:flex; flex-direction:column; border:1px solid #ffa23e; border-radius:5px}');
 GM_addStyle('div.internalOptionsRow {display:flex; flex-direction:row; justify-content: space-between; align-items: flex-end}'); //; padding:3px;
 GM_addStyle('div.internalOptionsRow.separator {border-top:1px solid #ffa23e}'); //; padding:3px;
 GM_addStyle('div.imgAndObjectRow {display:flex; flex-direction:row; justify-content:flex-start; align-items:center}'); //; padding:3px;//class="internalOptionsRow" style="justify-content:flex-start; align-items:center"
@@ -458,6 +459,7 @@ HHAuto_ToolTips.en['autoPoGCollectAll'] = { version: "6.15.8", elementText: "Col
 HHAuto_ToolTips.en['autoPoACollect'] = { version: "6.16.0", elementText: "Collect", tooltip: "if enabled : Automatically collect Path of Attraction event." };
 HHAuto_ToolTips.en['autoPoACollectAll'] = { version: "6.16.0", elementText: "Collect All", tooltip: "if enabled : Automatically collect all items before end of Path of Attraction event (configured with Collect all timer)" };
 HHAuto_ToolTips.en['dailyGoalsTitle'] = { version: "5.24.0", elementText: "Daily Goals" };
+HHAuto_ToolTips.en['autoDailyGoals'] = { version: "7.20.0", elementText: "Activate", tooltip: "BETA: Perform supported daily goals <br>(Currently: Pantheon)." };
 HHAuto_ToolTips.en['autoDailyGoalsCollect'] = { version: "5.6.54", elementText: "Collect", tooltip: "Collect daily Goals if not collected 2 hours before end of HH day." };
 HHAuto_ToolTips.en['compactDailyGoals'] = { version: "5.24.0", elementText: "Compact", tooltip: "Add styles to compact daily goals display" };
 HHAuto_ToolTips.en['HaremSortMenuSortText'] = { version: "5.6.56", elementText: "Select the wanted harem sorting : ", tooltip: "" };
@@ -4601,6 +4603,9 @@ class Contest {
 
 
 class DailyGoals {
+    static isAutoDailyGoalsActivated() {
+        return getStoredValue(HHStoredVarPrefixKey + "Setting_autoDailyGoals") === "true";
+    }
     static getNewGoalsTimer() {
         const timerRequest = `#daily_goals .daily-goals-timer span[rel=expires]`;
         if ($(timerRequest).length > 0) {
@@ -4650,6 +4655,7 @@ class DailyGoals {
                 + 'font-size: 0.7rem;'
                 + '}');
         }
+        setTimeout(DailyGoalsIcon.styles, 500);
     }
     static goAndCollect() {
         const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey + "Setting_autoDailyGoalsCollectablesList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Setting_autoDailyGoalsCollectablesList")) : [];
@@ -4728,6 +4734,84 @@ class DailyGoals {
                 return true;
             }
         }
+    }
+    static parse() {
+        const supportedGoals = [];
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDDailyGoals") && unsafeWindow.daily_goals_list) {
+            for (let currentTier = 0; currentTier < unsafeWindow.daily_goals_list.length; currentTier++) {
+                const goal = unsafeWindow.daily_goals_list[currentTier];
+                if (goal && goal.progress_data.current < goal.progress_data.max)
+                    switch (goal.anchor) {
+                        // case ConfigHelper.getHHScriptVars("pagesURLLabyrinth"):
+                        // case ConfigHelper.getHHScriptVars("pagesURLSeasonArena"):
+                        // case ConfigHelper.getHHScriptVars("pagesURLHarem"):
+                        case ConfigHelper.getHHScriptVars("pagesURLChampionsMap"):
+                        case ConfigHelper.getHHScriptVars("pagesURLPantheon"):
+                            supportedGoals.push(goal);
+                            break;
+                    }
+            }
+        }
+        else {
+            LogUtils_logHHAuto("Can't parse Daily Goals");
+        }
+        setStoredValue(HHStoredVarPrefixKey + "Temp_dailyGoalsList", JSON.stringify(supportedGoals));
+        LogUtils_logHHAuto("Daily Goals", supportedGoals);
+        return supportedGoals;
+    }
+    static _isDailyGoalType(anchor, update) {
+        let dailyGoals = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_dailyGoalsList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_dailyGoalsList")) : [];
+        let find = false;
+        if (dailyGoals && dailyGoals.length > 0) {
+            for (let currentTier = 0; currentTier < dailyGoals.length; currentTier++) {
+                const goal = dailyGoals[currentTier];
+                if (goal && goal.progress_data.current < goal.progress_data.max)
+                    switch (goal.anchor) {
+                        case anchor:
+                            if (update)
+                                goal.progress_data.current += 1;
+                            find = true;
+                            break;
+                    }
+            }
+            if (find)
+                setStoredValue(HHStoredVarPrefixKey + "Temp_dailyGoalsList", JSON.stringify(dailyGoals));
+        }
+        return find;
+    }
+    static isPantheonDailyGoal() {
+        return DailyGoals.isAutoDailyGoalsActivated() && DailyGoals._isDailyGoalType(ConfigHelper.getHHScriptVars("pagesURLPantheon"), false);
+    }
+    static incrementPantheonDailyGoal() {
+        return DailyGoals.isAutoDailyGoalsActivated() && DailyGoals._isDailyGoalType(ConfigHelper.getHHScriptVars("pagesURLPantheon"), true);
+    }
+}
+class DailyGoalsIcon {
+    static getIcon() {
+        //static getIcon(current: number, max: number){
+        // TODO translation
+        //return $(`<i class="daily_goals_potion_icn general_potion_icn hhauto" title="Have daily goal: ${current} / ${max}"></i>`);
+        return $(`<i class="daily_goals_potion_icn general_potion_icn hhauto" title="Have daily goal"></i>`);
+    }
+    static displayPantheon() {
+        const ocdhelp = $('#worship_data');
+        if (ocdhelp.length > 0) {
+            LogUtils_logHHAuto('displayPantheon');
+            GM_addStyle('#worship_data .daily_goals_potion_icn.hhauto {'
+                + 'background-size: 15px;'
+                + 'width: 15px;'
+                + 'height: 15px;'
+                + 'left: 4px;'
+                + 'top: -4px;'
+                + 'position: absolute;'
+                + '}');
+            ocdhelp.append(DailyGoalsIcon.getIcon());
+        }
+    }
+    static styles() {
+        DailyGoalsIcon.displayPantheon = callItOnce(DailyGoalsIcon.displayPantheon);
+        if (DailyGoals._isDailyGoalType(ConfigHelper.getHHScriptVars("pagesURLPantheon"), false))
+            setTimeout(DailyGoalsIcon.displayPantheon, 500);
     }
 }
 
@@ -5851,7 +5935,7 @@ class GenericBattle {
                 LogUtils_logHHAuto("Go back to Season arena after Season fight.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonArena"), {}, randomInterval(2000, 4000));
             }
-            else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle") && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPantheon") === "true") {
+            else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle") && (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPantheon") === "true" || DailyGoals.isPantheonDailyGoal())) {
                 LogUtils_logHHAuto("Go back to Pantheon arena after Pantheon temple.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDPantheon"), {}, randomInterval(2000, 4000));
             }
@@ -7512,7 +7596,10 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPantheon"] =
         getMenu: true,
         setMenu: true,
         menuType: "checked",
-        kobanUsing: false
+        kobanUsing: false,
+        newValueFunction: function () {
+            clearTimer('nextPantheonTime');
+        }
     };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPantheonThreshold"] =
     {
@@ -7705,6 +7792,20 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPoACollectablesLis
         HHType: "Setting",
         valueType: "Array"
     };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoDailyGoals"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        newValueFunction: function () {
+            //clearTimer('nextLabyrinthTime');
+        }
+    };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_compactDailyGoals"] =
     {
         default: "false",
@@ -7757,6 +7858,11 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_autoLoop"] =
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_battlePowerRequired"] =
     {
         default: "0",
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_dailyGoalsList"] =
+    {
         storage: "sessionStorage",
         HHType: "Temp"
     };
@@ -11248,6 +11354,7 @@ class Missions {
 
 
 
+
 class Pantheon {
     static getEnergy() {
         return Number(getHHVars('Hero.energies.worship.amount'));
@@ -11295,10 +11402,11 @@ class Pantheon {
         const paranoiaSpending = Pantheon.getEnergy() > 0 && Number(checkParanoiaSpendings('worship')) > 0;
         const needBoosterToFight = getStoredValue(HHStoredVarPrefixKey + "Setting_autoPantheonBoostedOnly") === "true";
         const haveBoosterEquiped = Booster.haveBoosterEquiped();
+        const isDailyGoal = DailyGoals.isPantheonDailyGoal();
         if (checkTimer('nextPantheonTime') && energyAboveThreshold && needBoosterToFight && !haveBoosterEquiped) {
             LogUtils_logHHAuto('Time for pantheon but no booster equipped');
         }
-        return (checkTimer('nextPantheonTime') && energyAboveThreshold && (needBoosterToFight && haveBoosterEquiped || !needBoosterToFight)) || paranoiaSpending;
+        return (checkTimer('nextPantheonTime') && energyAboveThreshold && (needBoosterToFight && haveBoosterEquiped || !needBoosterToFight || isDailyGoal)) || paranoiaSpending;
     }
     static run() {
         LogUtils_logHHAuto("Performing auto Pantheon.");
@@ -11317,6 +11425,8 @@ class Pantheon {
                 let templeID = queryStringGetParam(new URL(pantheonButton[0].getAttribute("href") || '', window.location.origin).search, 'id_opponent');
                 if (pantheonButton.length > 0 && templeID !== null) {
                     LogUtils_logHHAuto("Going to fight Temple : " + templeID);
+                    if (DailyGoals.isAutoDailyGoalsActivated() && DailyGoals.incrementPantheonDailyGoal())
+                        LogUtils_logHHAuto('Increment pantheon daily goals');
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDPantheonPreBattle"), { id_opponent: templeID });
                 }
                 else {
@@ -13263,7 +13373,8 @@ class HentaiHeroes {
                     "Police des Lapines-Garous",
                     "Auga",
                     "Gross",
-                    "Harriet"];
+                    "Harriet",
+                    "Excitateur sombre"];
             default:
                 return ["Latest",
                     "Dark Lord",
@@ -13283,7 +13394,8 @@ class HentaiHeroes {
                     "WereBunny Police",
                     "Auga",
                     "Gross",
-                    "Harriet"];
+                    "Harriet",
+                    "Darth Excitor"];
         }
     }
     static getTrollGirlsId() {
@@ -13305,6 +13417,8 @@ class HentaiHeroes {
             [['164866290', '696124016', '841591253'], [0], [0]],
             [['344730128', '735302216', '851893423'], [0], [0]],
             [['547099506', '572827174', '653889168'], [0], [0]],
+            [['275226156', '280313988', '641009897'], [0], [0]],
+            [['410383467', '931778650', '968097691'], [0], [0]],
         ];
     }
     static updateFeatures(envVariables) {
@@ -13349,23 +13463,43 @@ class PornstarHarem {
             "nutaku.pornstarharem.com": { name: "NPH_prod", id: "hh_star", baseImgPath: "https://th.hh-content.com" }
         };
     }
-    static getTrolls() {
-        return ['Latest',
-            'Headmistress Asa Akira',
-            'Sammy Jayne',
-            'Ivy Winters',
-            'Sophia  Jade',
-            'Amia Miley',
-            'Alyssa Reece',
-            'Kelly Kline',
-            'Jamie Brooks',
-            'Jordan Kingsley',
-            'EMPTY',
-            'Sierra Sinn',
-            'Jasmine Jae',
-            'Bella Rose',
-            'Paige Taylor',
-            'The Hooded Heroine'];
+    static getTrolls(languageCode) {
+        switch (languageCode) {
+            case "fr":
+                return ["Dernier",
+                    'Directrice Asa Akira',
+                    'Sammy Jayne',
+                    'Ivy Winters',
+                    'Sophia  Jade',
+                    'Amia Miley',
+                    'Alyssa Reece',
+                    'Kelly Kline',
+                    'Jamie Brooks',
+                    'Jordan Kingsley',
+                    'EMPTY',
+                    'Sierra Sinn',
+                    'Jasmine Jae',
+                    'Bella Rose',
+                    'Paige Taylor',
+                    'L\'héroïne encapuchonnée'];
+            default:
+                return ['Latest',
+                    'Headmistress Asa Akira',
+                    'Sammy Jayne',
+                    'Ivy Winters',
+                    'Sophia  Jade',
+                    'Amia Miley',
+                    'Alyssa Reece',
+                    'Kelly Kline',
+                    'Jamie Brooks',
+                    'Jordan Kingsley',
+                    'EMPTY',
+                    'Sierra Sinn',
+                    'Jasmine Jae',
+                    'Bella Rose',
+                    'Paige Taylor',
+                    'The Hooded Heroine'];
+        }
     }
     static getTrollGirlsId() {
         return [
@@ -13793,6 +13927,7 @@ HHEnvVariables["HH_test"].isEnabledFreeBundles = false; // to remove if bundles 
 for (var key in HentaiHeroes.getEnv()) {
     const element = HentaiHeroes.getEnv()[key].name;
     HHEnvVariables[element].spreadsheet = HentaiHeroes.spreadsheet;
+    HHEnvVariables[element].trollIdMapping = { 21: 19 };
 }
 for (var key in GayHarem.getEnv()) {
     const element = GayHarem.getEnv()[key].name;
@@ -13840,7 +13975,7 @@ for (var key in AmourAgent.getEnv()) {
 ;
 for (var key in PornstarHarem.getEnv()) {
     const element = PornstarHarem.getEnv()[key].name;
-    HHEnvVariables[element].trollzList = PornstarHarem.getTrolls();
+    HHEnvVariables[element].trollzList = PornstarHarem.getTrolls(getLanguageCode());
     HHEnvVariables[element].trollIdMapping = { 10: 9, 14: 11, 16: 12, 18: 13, 19: 14 }; // under 10 id as usual
     HHEnvVariables[element].lastQuestId = 16100; //  TODO update when new quest comes
     HHEnvVariables[element].boosterId_MB1 = 2619;
@@ -14086,12 +14221,12 @@ function hhButton(textKeyId, buttonId) {
         + `<label class="myButton" id="${buttonId}">${getTextForUI(textKeyId, "elementText")}</label>`
         + `</div>`;
 }
-function hhMenuSwitch(textKeyAndInputId, isEnabledDivId = '', isKobanSwitch = false) {
+function hhMenuSwitch(textKeyAndInputId, isEnabledDivId = '', isKobanSwitch = false, isStylingSwitch = false) {
     return `<div ${isEnabledDivId ? 'id="' + isEnabledDivId + '"' : ''} class="labelAndButton">`
         + `<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId, "elementText")}</span>`
         + `<div class="tooltipHH">`
         + `<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId, "tooltip")}</span>`
-        + `<label class="switch"><input id="${textKeyAndInputId}" type="checkbox"><span class="slider round ${isKobanSwitch ? 'kobans' : ''}"></span></label>`
+        + `<label class="switch"><input id="${textKeyAndInputId}" type="checkbox"><span class="slider round ${isKobanSwitch ? 'kobans' : ''} ${isStylingSwitch ? 'styling' : ''}"></span></label>`
         + `</div>`
         + `</div>`;
 }
@@ -14356,11 +14491,11 @@ function getMenu() {
             + `</div>`
             + `<div class="optionsColumn">`
             + hhMenuSwitch('showCalculatePower')
-            + hhMenuSwitch('showAdsBack')
+            + hhMenuSwitch('showAdsBack', '', false, true)
             + `</div>`
             + `<div class="optionsColumn">`
             + hhMenuSwitch('showRewardsRecap')
-            + hhMenuSwitch('showInfoLeft')
+            + hhMenuSwitch('showInfoLeft', '', false, true)
             + `</div>`
             + `</div>`
             + `</div>`
@@ -14379,7 +14514,7 @@ function getMenu() {
             + `</div>`;
     };
     const getMiddleColumn = () => {
-        return `<div class="optionsColumn" style="min-width: 500px;">`
+        return `<div class="optionsColumn" style="min-width: 520px;">`
             + `<div class="optionsRow">`
             + `<div class="optionsColumn">`
             + `<div class="optionsBoxWithTitle">`
@@ -14393,12 +14528,12 @@ function getMenu() {
             + hhMenuSwitch('autoMission')
             + hhMenuSwitch('autoMissionCollect')
             + hhMenuSwitch('autoMissionKFirst')
-            + hhMenuSwitch('compactMissions')
-            + hhMenuSwitch('invertMissions')
+            + hhMenuSwitch('compactMissions', '', false, true)
+            + hhMenuSwitch('invertMissions', '', false, true)
             + `</div>`
             + `<div id="isEnabledContest" class="internalOptionsRow optionsBox" style="padding:0;margin:0 0 0 3px;">`
             + hhMenuSwitch('autoContest')
-            + hhMenuSwitch('compactEndedContests')
+            + hhMenuSwitch('compactEndedContests', '', false, true)
             + `</div>`
             + `</div>`
             + `</div>`
@@ -14419,18 +14554,19 @@ function getMenu() {
             + hhMenuSwitch('autoPowerPlacesPrecision')
             + hhMenuSwitch('autoPowerPlacesInverted')
             + hhMenuSwitch('autoPowerPlacesWaitMax')
-            + hhMenuSwitch('compactPowerPlace')
+            + hhMenuSwitch('compactPowerPlace', '', false, true)
             + `</div>`
             + `</div>`
             + `</div>`
-            + `<div id="isEnabledPowerPlaces" class="optionsBoxWithTitle">`
+            + `<div id="isEnabledDailyGoals" class="optionsBoxWithTitle">`
             + `<div class="optionsBoxTitle">`
             + `<span class="optionsBoxTitle">${getTextForUI("dailyGoalsTitle", "elementText")}</span>`
             + `</div>`
-            + `<div class="optionsBox">`
+            + `<div class="rowOptionsBox">`
             + `<div class="internalOptionsRow">`
+            + `<div style="${debugEnabled ? '' : 'display:none;'}">` + hhMenuSwitch('autoDailyGoals') + `</div>`
             + hhMenuSwitch('autoDailyGoalsCollect')
-            + hhMenuSwitch('compactDailyGoals')
+            + hhMenuSwitch('compactDailyGoals', '', false, true)
             + `</div>`
             + `</div>`
             + `<div class="rowOptionsBox">`
@@ -14482,7 +14618,7 @@ function getMenu() {
             + hhMenuSwitch('autoSeason')
             + hhMenuSwitch('autoSeasonCollect')
             + hhMenuSwitch('autoSeasonCollectAll')
-            + hhMenuSwitch('SeasonMaskRewards')
+            + hhMenuSwitch('SeasonMaskRewards', '', false, true)
             + `</div>`
             + `<div class="internalOptionsRow">`
             + hhMenuSwitch('autoSeasonPassReds', '', true)
@@ -17140,8 +17276,9 @@ function autoLoop() {
                     }
                 }
             }
-            if (busy === false && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPantheon") === "true" && Pantheon.isEnabled()
-                && isAutoLoopActive() && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "pantheon")) {
+            if (busy === false
+                && (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPantheon") === "true" || DailyGoals.isPantheonDailyGoal())
+                && Pantheon.isEnabled() && isAutoLoopActive() && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "pantheon")) {
                 if (Pantheon.isTimeToFight()) {
                     LogUtils_logHHAuto("Time to do Pantheon.");
                     Pantheon.run();
@@ -17366,8 +17503,12 @@ function autoLoop() {
                 PlaceOfPower.moduleDisplayPopID();
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDDailyGoals"):
+                DailyGoals.parse = callItOnce(DailyGoals.parse);
+                setTimeout(DailyGoals.parse, 500);
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDMissions"):
+                DailyGoals.parse = callItOnce(DailyGoals.parse);
+                setTimeout(DailyGoals.parse, 500);
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDShop"):
                 if (getStoredValue(HHStoredVarPrefixKey + "Setting_showMarketTools") === "true") {
@@ -17386,6 +17527,7 @@ function autoLoop() {
                 setTimeout(EventModule.showCompletedEvent, 500);
                 Spreadsheet.run = callItOnce(Spreadsheet.run);
                 Spreadsheet.run();
+                DailyGoalsIcon.styles();
                 Harem.clearHaremToolVariables = callItOnce(Harem.clearHaremToolVariables); // Avoid wired loop, if user reach home page, ensure temp var from harem are cleared
                 Harem.clearHaremToolVariables();
                 HaremSalary.setSalaryTimeFromHomePage = callItOnce(HaremSalary.setSalaryTimeFromHomePage);
@@ -17417,6 +17559,8 @@ function autoLoop() {
                 Harem.moduleHaremCountMax();
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDContests"):
+                DailyGoals.parse = callItOnce(DailyGoals.parse);
+                setTimeout(DailyGoals.parse, 500);
                 if (getTimer('nextContestTime') === -1) {
                     Contest.setTimers = callItOnce(Contest.setTimers);
                     Contest.setTimers();
@@ -17607,7 +17751,7 @@ function updateData() {
         if (ConfigHelper.getHHScriptVars("isEnabledClubChamp", false) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoClubChamp") == "true") {
             Tegzd += '<li>' + getTextForUI("autoClubChamp", "elementText") + ' : ' + getTimeLeft('nextClubChampionTime') + '</li>';
         }
-        if (ConfigHelper.getHHScriptVars('isEnabledPantheon', false) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPantheon") == "true") {
+        if (ConfigHelper.getHHScriptVars('isEnabledPantheon', false) && (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPantheon") == "true" || DailyGoals.isPantheonDailyGoal())) {
             Tegzd += Pantheon.getPinfo();
         }
         if (Labyrinth.isEnabled() && getStoredValue(HHStoredVarPrefixKey + "Setting_autoLabyrinth") == "true") {

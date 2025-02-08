@@ -1494,7 +1494,10 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPantheon"] =
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false
+    kobanUsing:false,
+    newValueFunction: function () {
+        clearTimer('nextPantheonTime');
+    }
 };
 HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPantheonThreshold"] =
     {
@@ -1695,6 +1698,20 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoPoACollectablesList"] =
     HHType:"Setting",
     valueType:"Array"
 };
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoDailyGoals"] =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    newValueFunction: function () {
+        //clearTimer('nextLabyrinthTime');
+    }
+};
 HHStoredVars[HHStoredVarPrefixKey+"Setting_compactDailyGoals"] =
     {
     default:"false",
@@ -1751,6 +1768,11 @@ HHStoredVars[HHStoredVarPrefixKey+"Temp_battlePowerRequired"] =
     default:"0",
     storage:"sessionStorage",
     HHType:"Temp"
+};
+HHStoredVars[HHStoredVarPrefixKey + "Temp_dailyGoalsList"] =
+{
+    storage: "sessionStorage",
+    HHType: "Temp"
 };
 /*HHStoredVars[HHStoredVarPrefixKey+"Temp_leaguesTarget"] =
     {

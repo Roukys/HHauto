@@ -6,23 +6,43 @@ export class PornstarHarem{
         }
     }
 
-    static getTrolls() {
-        return ['Latest',
-            'Headmistress Asa Akira',
-            'Sammy Jayne',
-            'Ivy Winters',
-            'Sophia  Jade',
-            'Amia Miley',
-            'Alyssa Reece',
-            'Kelly Kline',
-            'Jamie Brooks',
-            'Jordan Kingsley',
-            'EMPTY',
-            'Sierra Sinn',
-            'Jasmine Jae',
-            'Bella Rose',
-            'Paige Taylor',
-            'The Hooded Heroine'];
+    static getTrolls(languageCode: string) {
+        switch (languageCode) {
+            case "fr":
+                return ["Dernier",
+                    'Directrice Asa Akira',
+                    'Sammy Jayne',
+                    'Ivy Winters',
+                    'Sophia  Jade',
+                    'Amia Miley',
+                    'Alyssa Reece',
+                    'Kelly Kline',
+                    'Jamie Brooks',
+                    'Jordan Kingsley',
+                    'EMPTY',
+                    'Sierra Sinn',
+                    'Jasmine Jae',
+                    'Bella Rose',
+                    'Paige Taylor',
+                    'L\'héroïne encapuchonnée'];
+            default:
+                return ['Latest',
+                    'Headmistress Asa Akira',
+                    'Sammy Jayne',
+                    'Ivy Winters',
+                    'Sophia  Jade',
+                    'Amia Miley',
+                    'Alyssa Reece',
+                    'Kelly Kline',
+                    'Jamie Brooks',
+                    'Jordan Kingsley',
+                    'EMPTY',
+                    'Sierra Sinn',
+                    'Jasmine Jae',
+                    'Bella Rose',
+                    'Paige Taylor',
+                    'The Hooded Heroine'];
+        }
     }
 
     static getTrollGirlsId() {

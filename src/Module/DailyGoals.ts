@@ -10,10 +10,15 @@ import {
     convertTimeToInt
 } from '../Helper/index';
 import { gotoPage } from "../Service/index";
-import { isJSON, logHHAuto } from '../Utils/index';
+import { callItOnce, isJSON, logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
+import { KKDailyGoal } from '../model/index';
 
 export class DailyGoals {
+    static isAutoDailyGoalsActivated(): boolean{
+        return getStoredValue(HHStoredVarPrefixKey + "Setting_autoDailyGoals") === "true";
+    }
+
     static getNewGoalsTimer() {
         const timerRequest = `#daily_goals .daily-goals-timer span[rel=expires]`;
 
@@ -70,6 +75,8 @@ export class DailyGoals {
                 + 'font-size: 0.7rem;'
             +'}');
         }
+        setTimeout(DailyGoalsIcon.styles, 500);
+        
     }
     static goAndCollect()
     {
@@ -166,5 +173,93 @@ export class DailyGoals {
                 return true;
             }
         }
+    }
+
+    static parse(): KKDailyGoal[] {
+        const supportedGoals: KKDailyGoal[] = [];
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDDailyGoals") && unsafeWindow.daily_goals_list) {
+            for (let currentTier = 0; currentTier < unsafeWindow.daily_goals_list.length; currentTier++)
+            {
+                const goal = unsafeWindow.daily_goals_list[currentTier];
+                if (goal && goal.progress_data.current < goal.progress_data.max )
+                    switch (goal.anchor){
+                        // case ConfigHelper.getHHScriptVars("pagesURLLabyrinth"):
+                        // case ConfigHelper.getHHScriptVars("pagesURLSeasonArena"):
+                        // case ConfigHelper.getHHScriptVars("pagesURLHarem"):
+                        case ConfigHelper.getHHScriptVars("pagesURLChampionsMap"):
+                        case ConfigHelper.getHHScriptVars("pagesURLPantheon"):
+                            supportedGoals.push(goal);
+                        break;
+                    }
+            }
+        }
+        else
+        {
+            logHHAuto("Can't parse Daily Goals");
+        }
+
+        setStoredValue(HHStoredVarPrefixKey + "Temp_dailyGoalsList", JSON.stringify(supportedGoals));
+        logHHAuto("Daily Goals", supportedGoals);
+        return supportedGoals;
+    }
+
+    static _isDailyGoalType(anchor: string, update: boolean) {
+        let dailyGoals: KKDailyGoal[] = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_dailyGoalsList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_dailyGoalsList")) : [];
+        let find = false;
+        if (dailyGoals && dailyGoals.length > 0) {
+            for (let currentTier = 0; currentTier < dailyGoals.length; currentTier++) {
+                const goal = dailyGoals[currentTier];
+                if (goal && goal.progress_data.current < goal.progress_data.max)
+                    switch (goal.anchor) {
+                        case anchor: 
+                            if (update) goal.progress_data.current += 1;
+                            find = true;
+                            break;
+                    }
+            }
+            if (find)
+                setStoredValue(HHStoredVarPrefixKey + "Temp_dailyGoalsList", JSON.stringify(dailyGoals));
+        }
+        return find;
+    }
+
+    static isPantheonDailyGoal() {
+        return DailyGoals.isAutoDailyGoalsActivated() && DailyGoals._isDailyGoalType(ConfigHelper.getHHScriptVars("pagesURLPantheon"), false);
+    }
+
+    static incrementPantheonDailyGoal() {
+        return DailyGoals.isAutoDailyGoalsActivated() && DailyGoals._isDailyGoalType(ConfigHelper.getHHScriptVars("pagesURLPantheon"), true);
+    }
+}
+
+export class DailyGoalsIcon {
+
+    static getIcon(){
+    //static getIcon(current: number, max: number){
+        // TODO translation
+        //return $(`<i class="daily_goals_potion_icn general_potion_icn hhauto" title="Have daily goal: ${current} / ${max}"></i>`);
+        return $(`<i class="daily_goals_potion_icn general_potion_icn hhauto" title="Have daily goal"></i>`);
+    }
+
+    static displayPantheon(){
+        const ocdhelp = $('#worship_data');
+        if (ocdhelp.length > 0) {
+            logHHAuto('displayPantheon');
+
+            GM_addStyle('#worship_data .daily_goals_potion_icn.hhauto {'
+                + 'background-size: 15px;'
+                + 'width: 15px;'
+                + 'height: 15px;'
+                + 'left: 4px;'
+                + 'top: -4px;'
+                + 'position: absolute;'
+                + '}');
+
+            ocdhelp.append(DailyGoalsIcon.getIcon());
+        }
+    }
+    static styles() {
+        DailyGoalsIcon.displayPantheon = callItOnce(DailyGoalsIcon.displayPantheon);
+        if (DailyGoals._isDailyGoalType(ConfigHelper.getHHScriptVars("pagesURLPantheon"), false)) setTimeout(DailyGoalsIcon.displayPantheon, 500);
     }
 }

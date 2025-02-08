@@ -289,6 +289,7 @@ HHAuto_ToolTips.en['autoPoGCollectAll'] = { version: "6.15.8", elementText: "Col
 HHAuto_ToolTips.en['autoPoACollect'] = { version: "6.16.0", elementText: "Collect", tooltip: "if enabled : Automatically collect Path of Attraction event."};
 HHAuto_ToolTips.en['autoPoACollectAll'] = { version: "6.16.0", elementText: "Collect All", tooltip: "if enabled : Automatically collect all items before end of Path of Attraction event (configured with Collect all timer)"};
 HHAuto_ToolTips.en['dailyGoalsTitle'] = {version: "5.24.0", elementText: "Daily Goals"};
+HHAuto_ToolTips.en['autoDailyGoals'] = {version: "7.20.0", elementText: "Activate", tooltip: "BETA: Perform supported daily goals <br>(Currently: Pantheon)."};
 HHAuto_ToolTips.en['autoDailyGoalsCollect'] = {version: "5.6.54", elementText: "Collect", tooltip: "Collect daily Goals if not collected 2 hours before end of HH day."};
 HHAuto_ToolTips.en['compactDailyGoals'] = { version: "5.24.0", elementText: "Compact", tooltip: "Add styles to compact daily goals display"};
 HHAuto_ToolTips.en['HaremSortMenuSortText'] = {version: "5.6.56", elementText: "Select the wanted harem sorting : ", tooltip: ""};

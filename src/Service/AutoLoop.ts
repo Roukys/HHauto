@@ -29,6 +29,7 @@ import {
     ClubChampion,
     Contest,
     DailyGoals,
+    DailyGoalsIcon,
     DoublePenetration,
     EventModule,
     GenericBattle,
@@ -691,8 +692,9 @@ export async function autoLoop()
             }
         }
 
-        if(busy === false && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheon") === "true" && Pantheon.isEnabled()
-            && isAutoLoopActive() && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "pantheon"))
+        if(busy === false 
+            && (getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheon") === "true" || DailyGoals.isPantheonDailyGoal()) 
+            && Pantheon.isEnabled() && isAutoLoopActive() && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "pantheon"))
         {
             if (Pantheon.isTimeToFight())
             {
@@ -993,8 +995,12 @@ export async function autoLoop()
             PlaceOfPower.moduleDisplayPopID();
             break;
         case ConfigHelper.getHHScriptVars("pagesIDDailyGoals"):
+            DailyGoals.parse = callItOnce(DailyGoals.parse);
+            setTimeout(DailyGoals.parse, 500);
             break;
         case ConfigHelper.getHHScriptVars("pagesIDMissions"):
+            DailyGoals.parse = callItOnce(DailyGoals.parse);
+            setTimeout(DailyGoals.parse, 500);
             break;
         case ConfigHelper.getHHScriptVars("pagesIDShop"):
             if (getStoredValue(HHStoredVarPrefixKey+"Setting_showMarketTools") === "true")
@@ -1014,6 +1020,7 @@ export async function autoLoop()
             setTimeout(EventModule.showCompletedEvent,500);
             Spreadsheet.run = callItOnce(Spreadsheet.run);
             Spreadsheet.run();
+            DailyGoalsIcon.styles()
 
             Harem.clearHaremToolVariables = callItOnce(Harem.clearHaremToolVariables); // Avoid wired loop, if user reach home page, ensure temp var from harem are cleared
             Harem.clearHaremToolVariables();
@@ -1047,6 +1054,8 @@ export async function autoLoop()
             Harem.moduleHaremCountMax();
             break;
         case ConfigHelper.getHHScriptVars("pagesIDContests"):
+            DailyGoals.parse = callItOnce(DailyGoals.parse);
+            setTimeout(DailyGoals.parse, 500);
             if (getTimer('nextContestTime') === -1) {
                 Contest.setTimers = callItOnce(Contest.setTimers);
                 Contest.setTimers();

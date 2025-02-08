@@ -31,7 +31,8 @@ export class HentaiHeroes {
                     "Police des Lapines-Garous",
                     "Auga",
                     "Gross",
-                    "Harriet"];
+                    "Harriet",
+                    "Excitateur sombre"];
             default:
                 return ["Latest",
                     "Dark Lord",
@@ -51,7 +52,8 @@ export class HentaiHeroes {
                     "WereBunny Police",
                     "Auga",
                     "Gross",
-                    "Harriet"];
+                    "Harriet",
+                    "Darth Excitor"];
         }
     }
 
@@ -74,6 +76,8 @@ export class HentaiHeroes {
             [['164866290', '696124016', '841591253'], [0], [0]],
             [['344730128', '735302216', '851893423'], [0], [0]],
             [['547099506', '572827174', '653889168'], [0], [0]],
+            [['275226156', '280313988', '641009897'], [0], [0]],
+            [['410383467', '931778650', '968097691'], [0], [0]],
         ];
     }
     static updateFeatures(envVariables: any) {
