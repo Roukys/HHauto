@@ -8,11 +8,11 @@ export class AmourAgent {
         return ['Latest',
             'Frank',
             'Adriana',
-            'Tara'];
+            'Tara',
+            'Joseph Maloney'];
     }
 
     static updateFeatures(envVariables: any) {
-        envVariables.isEnabledClubChamp = false;// to remove when Club Champs arrives in AmourAgent
         envVariables.isEnabledPantheon = false;// to remove when Pantheon arrives in AmourAgent
         envVariables.isEnabledSpreadsheets = false;
     }

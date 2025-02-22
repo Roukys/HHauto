@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.20.0
+// @version      7.20.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1426,6 +1426,9 @@ class CumbackContests {
 
 
 class DoublePenetration {
+    static isEnabled() {
+        return ConfigHelper.getHHScriptVars("isEnabledDPEvent", false) && HeroHelper.getLevel() >= ConfigHelper.getHHScriptVars("LEVEL_MIN_EVENT_DP"); // And 10 gilrs
+    }
     static parse(hhEvent, eventList, hhEventData) {
         const eventID = hhEvent.eventId;
         let refreshTimer = randomInterval(3600, 4000);
@@ -4809,9 +4812,10 @@ class DailyGoalsIcon {
         }
     }
     static styles() {
-        DailyGoalsIcon.displayPantheon = callItOnce(DailyGoalsIcon.displayPantheon);
-        if (DailyGoals._isDailyGoalType(ConfigHelper.getHHScriptVars("pagesURLPantheon"), false))
+        if (DailyGoals.isAutoDailyGoalsActivated() && DailyGoals._isDailyGoalType(ConfigHelper.getHHScriptVars("pagesURLPantheon"), false)) {
+            DailyGoalsIcon.displayPantheon = callItOnce(DailyGoalsIcon.displayPantheon);
             setTimeout(DailyGoalsIcon.displayPantheon, 500);
+        }
     }
 }
 
@@ -13193,10 +13197,10 @@ class AmourAgent {
         return ['Latest',
             'Frank',
             'Adriana',
-            'Tara'];
+            'Tara',
+            'Joseph Maloney'];
     }
     static updateFeatures(envVariables) {
-        envVariables.isEnabledClubChamp = false; // to remove when Club Champs arrives in AmourAgent
         envVariables.isEnabledPantheon = false; // to remove when Pantheon arrives in AmourAgent
         envVariables.isEnabledSpreadsheets = false;
     }
@@ -13632,6 +13636,7 @@ HHEnvVariables["global"].LEVEL_MIN_POG = 30;
 HHEnvVariables["global"].LEVEL_MIN_LEAGUE = 20;
 HHEnvVariables["global"].LEVEL_MIN_PANTHEON = 15;
 HHEnvVariables["global"].LEVEL_MIN_EVENT_SM = 15;
+HHEnvVariables["global"].LEVEL_MIN_EVENT_DP = 40;
 HHEnvVariables["global"].boosterId_MB1 = 632;
 HHEnvVariables["global"].ELEMENTS =
     {
@@ -17483,7 +17488,7 @@ function autoLoop() {
                             PathOfAttraction.run();
                         }
                     }
-                    if (EventModule.getEvent(eventID).isDPEvent) {
+                    if (EventModule.getEvent(eventID).isDPEvent && DoublePenetration.isEnabled()) {
                         DoublePenetration.run = callItOnce(DoublePenetration.run);
                         DoublePenetration.run();
                     }

@@ -971,8 +971,8 @@ export async function autoLoop()
                         PathOfAttraction.run();
                     }
                 }
-                
-                if (EventModule.getEvent(eventID).isDPEvent)
+
+                if (EventModule.getEvent(eventID).isDPEvent && DoublePenetration.isEnabled())
                 {
                     DoublePenetration.run  = callItOnce(DoublePenetration.run);
                     DoublePenetration.run();

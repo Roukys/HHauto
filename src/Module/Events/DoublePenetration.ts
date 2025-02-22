@@ -11,12 +11,18 @@ import {
     setTimer,
     getTextForUI,
     convertTimeToInt,
+    HeroHelper,
 } from "../../Helper/index";
 import { autoLoop, gotoPage } from "../../Service/index";
 import { isJSON, logHHAuto } from "../../Utils/index";
 import { HHStoredVarPrefixKey } from "../../config/index";
 
 export class DoublePenetration {
+
+    static isEnabled() {
+        return ConfigHelper.getHHScriptVars("isEnabledDPEvent", false) && HeroHelper.getLevel() >= ConfigHelper.getHHScriptVars("LEVEL_MIN_EVENT_DP"); // And 10 gilrs
+    }
+
     static parse(hhEvent: any, eventList: any, hhEventData: any) {
         const eventID = hhEvent.eventId;
         let refreshTimer = randomInterval(3600, 4000);
