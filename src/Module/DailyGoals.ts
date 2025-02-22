@@ -259,7 +259,9 @@ export class DailyGoalsIcon {
         }
     }
     static styles() {
-        DailyGoalsIcon.displayPantheon = callItOnce(DailyGoalsIcon.displayPantheon);
-        if (DailyGoals._isDailyGoalType(ConfigHelper.getHHScriptVars("pagesURLPantheon"), false)) setTimeout(DailyGoalsIcon.displayPantheon, 500);
+        if (DailyGoals.isAutoDailyGoalsActivated() && DailyGoals._isDailyGoalType(ConfigHelper.getHHScriptVars("pagesURLPantheon"), false)) {
+            DailyGoalsIcon.displayPantheon = callItOnce(DailyGoalsIcon.displayPantheon);
+            setTimeout(DailyGoalsIcon.displayPantheon, 500);
+        }
     }
 }

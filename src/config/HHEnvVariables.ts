@@ -71,6 +71,7 @@ HHEnvVariables["global"].LEVEL_MIN_POG = 30;
 HHEnvVariables["global"].LEVEL_MIN_LEAGUE = 20;
 HHEnvVariables["global"].LEVEL_MIN_PANTHEON = 15;
 HHEnvVariables["global"].LEVEL_MIN_EVENT_SM = 15;
+HHEnvVariables["global"].LEVEL_MIN_EVENT_DP = 40;
 HHEnvVariables["global"].boosterId_MB1 = 632;
 
 HHEnvVariables["global"].ELEMENTS =
