@@ -9,6 +9,7 @@ export class KKPuzzlePieces {
                 value: any
             }
         ]
+        shards: any[]
     };
     reward_unlocked: boolean;
     reward_claimed: boolean;

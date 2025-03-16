@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.21.0
+// @version      7.21.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1662,7 +1662,7 @@ class LivelyScene {
         }
     }
     static parseClaimableRewards(remainingTime, manualCollectAll = false) {
-        var _a, _b, _c;
+        var _a, _b, _c, _d;
         const claimablePieces = [];
         const puzzlePieces = getHHVars('current_event.event_data.puzzle_pieces');
         const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey + "Setting_autoLivelySceneEventCollectablesList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Setting_autoLivelySceneEventCollectablesList")) : [];
@@ -1672,8 +1672,9 @@ class LivelyScene {
         for (let currentPiece = 0; currentPiece < puzzlePieces.length; currentPiece++) {
             const puzzlePiece = puzzlePieces[currentPiece];
             if (puzzlePiece.reward_unlocked && !puzzlePiece.reward_claimed) {
-                if (rewardsToCollect.includes((_a = puzzlePiece === null || puzzlePiece === void 0 ? void 0 : puzzlePiece.reward) === null || _a === void 0 ? void 0 : _a.rewards[0].type) && needToCollect || needToCollectAll || manualCollectAll) {
-                    LogUtils_logHHAuto(`Reward to collect ${(_b = puzzlePiece === null || puzzlePiece === void 0 ? void 0 : puzzlePiece.reward) === null || _b === void 0 ? void 0 : _b.rewards[0].value}x${(_c = puzzlePiece === null || puzzlePiece === void 0 ? void 0 : puzzlePiece.reward) === null || _c === void 0 ? void 0 : _c.rewards[0].type}`);
+                let rewardType = ((_a = puzzlePiece === null || puzzlePiece === void 0 ? void 0 : puzzlePiece.reward) === null || _a === void 0 ? void 0 : _a.shards) ? 'girl_shards' : (_b = puzzlePiece === null || puzzlePiece === void 0 ? void 0 : puzzlePiece.reward) === null || _b === void 0 ? void 0 : _b.rewards[0].type;
+                if (rewardsToCollect.includes(rewardType) && needToCollect || needToCollectAll || manualCollectAll) {
+                    LogUtils_logHHAuto(`Reward to collect ${(_c = puzzlePiece === null || puzzlePiece === void 0 ? void 0 : puzzlePiece.reward) === null || _c === void 0 ? void 0 : _c.rewards[0].value}x${(_d = puzzlePiece === null || puzzlePiece === void 0 ? void 0 : puzzlePiece.reward) === null || _d === void 0 ? void 0 : _d.rewards[0].type}`);
                     claimablePieces.push(puzzlePiece);
                 }
             }
