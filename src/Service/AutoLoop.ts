@@ -39,6 +39,7 @@ import {
     Labyrinth,
     LabyrinthAuto,
     LeagueHelper,
+    LivelyScene,
     Missions,
     Pachinko,
     Pantheon,
@@ -977,6 +978,12 @@ export async function autoLoop()
                     DoublePenetration.run  = callItOnce(DoublePenetration.run);
                     DoublePenetration.run();
                 }
+
+                if (EventModule.getEvent(eventID).isLivelyScene && LivelyScene.isEnabled())
+                {
+                    LivelyScene.run = callItOnce(LivelyScene.run);
+                    LivelyScene.run();
+                }
             }
             break;
         case ConfigHelper.getHHScriptVars("pagesIDBossBang"):
@@ -1038,6 +1045,7 @@ export async function autoLoop()
         case ConfigHelper.getHHScriptVars("pagesIDGirlPage"):
             HaremGirl.moduleHaremGirl = callItOnce(HaremGirl.moduleHaremGirl);
             HaremGirl.moduleHaremGirl();
+            HaremGirl.showSkillButtons();
             HaremGirl.run = callItOnce(HaremGirl.run);
             busy = await HaremGirl.run();
             break;

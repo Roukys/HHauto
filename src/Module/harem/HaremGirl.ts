@@ -24,6 +24,8 @@ export class HaremGirl {
     static EQUIPMENT_TYPE ='equipment';
     static SKILLS_TYPE ='skills';
 
+    static SKILL_BUTTON_SELECTOR = "#skills .skill-upgrade button.blue_button_L:not([disabled])";
+
     static getCurrentGirl(): KKHaremGirl {
         return unsafeWindow.girl;
     }
@@ -458,6 +460,32 @@ export class HaremGirl {
         }
     }
 
+    static showSkillButtons() {
+        const showSkillButtons = true; // Todo add settings
+        if (showSkillButtons && $('.hhsingleskill').length <= 0) {
+            $('.skill-upgrade-row ').each((index, row) => {
+                const rowHasButton = $('button.blue_button_L:not([disabled])', $(row)).length > 0;
+                const rowHasHHButton = $('.hhsingleskill', $(row)).length > 0;
+
+                if (rowHasButton && !rowHasHHButton) {
+                    $(row).append('<div class="tooltipHH">'
+                        + '<span class="tooltipHHtext">' + getTextForUI('haremGirlUpSkill', "tooltip") + '</span>'
+                        + '<label style="font-size: initial;" class="myButton hhsingleskill">' + getTextForUI('haremGirlUpSkill', "elementText")
+                        + '</label></div>');
+                }
+            });
+
+            $('.hhsingleskill').on("click", function () {
+                const skillId = $(this).parents('.skill-upgrade-row').attr('skill-id');
+                HaremGirl.singleSkillsUpgrade(skillId);
+            });
+
+            $(HaremGirl.SKILL_BUTTON_SELECTOR).on("click", function () {
+                setTimeout(() => { HaremGirl.showSkillButtons() }, 500);
+            });
+        }
+    }
+
     static async run(): Promise<boolean> {
         try {
             const haremItem = getStoredValue(HHStoredVarPrefixKey + "Temp_haremGirlActions");
@@ -575,9 +603,25 @@ export class HaremGirl {
         }
     }
 
+    static async singleSkillsUpgrade(skillId: string) {
+        logHHAuto('Upgrade skill ' + skillId);
+        try {
+            let skillButton = $(`#skills .skill-upgrade .skill-upgrade-row[skill-id='${skillId}'] button.blue_button_L:not([disabled])`).first();
+            if (skillButton.length > 0) {
+                skillButton.trigger('click');
+                await TimeHelper.sleep(randomInterval(400, 700));
+                return await HaremGirl.singleSkillsUpgrade(skillId);
+            }
+        } catch (error) {
+            logHHAuto("Can't remove popup_message_harem");
+        }
+        setTimeout(() => { HaremGirl.showSkillButtons() }, 200);
+        return Promise.resolve();
+    }
+
     static async fullSkillsUpgrade(retry = false) {
         try {
-            let skillButton = $("#skills .skill-upgrade button.blue_button_L:not([disabled])").first();
+            let skillButton = $(HaremGirl.SKILL_BUTTON_SELECTOR).first();
             if(skillButton.length > 0) {
                 skillButton.trigger('click');
                 await TimeHelper.sleep(randomInterval(400, 700));

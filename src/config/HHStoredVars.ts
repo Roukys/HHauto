@@ -1227,6 +1227,44 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autodpEventCollectAll"] =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLivelySceneEventCollect"] =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false,
+    events:{"change":function()
+            {
+                if (this.checked)
+                {
+                    getAndStoreCollectPreferences(HHStoredVarPrefixKey+"Setting_autoLivelySceneEventCollectablesList");
+                    clearTimer('nextLivelySceneEventCollectTime');
+                }
+            }
+           }
+};
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLivelySceneEventCollectablesList"] =
+    {
+    default:JSON.stringify([]),
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Array"
+};
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLivelySceneEventCollectAll"] =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars[HHStoredVarPrefixKey+"Setting_bossBangEvent"] =
     {
     default:"false",
@@ -2105,6 +2143,12 @@ HHStoredVars[HHStoredVarPrefixKey+"Temp_PoGEndDate"] =
     HHType:"Temp"
 };
 HHStoredVars[HHStoredVarPrefixKey + "Temp_poaManualCollectAll"] =
+{
+    default: "false",
+    storage: "localStorage",
+    HHType: "Temp"
+};
+HHStoredVars[HHStoredVarPrefixKey + "Temp_lseManualCollectAll"] =
 {
     default: "false",
     storage: "localStorage",

@@ -28,6 +28,7 @@ import { BossBang } from "./BossBang";
 import { CumbackContests } from "./CumbackContests";
 import { DoublePenetration } from "./DoublePenetration";
 import { KinkyCumpetition } from "./KinkyCumpetition";
+import { LivelyScene } from "./LivelyScene";
 import { MythicEvent } from "./MythicEvent";
 import { PathOfAttraction } from "./PathOfAttraction";
 import { PlusEvent } from "./PlusEvents";
@@ -231,7 +232,7 @@ export class EventModule {
                 }
             }
             queryEventTabCheck[0].setAttribute('parsed', 'true');
-            const hhEventData = unsafeWindow.event_data;
+            const hhEventData:any = unsafeWindow.event_data || unsafeWindow.current_event;
             logHHAuto(`On event page : ${eventID} (${hhEventData?.event_name || ''})`);
             EventModule.clearEventData(eventID);
             //let eventsGirlz=[];
@@ -262,6 +263,11 @@ export class EventModule {
             {
                 logHHAuto("On going sultry mysteries event.");
                 SultryMysteries.parse(hhEvent, eventList, hhEventData);
+            }
+            if (hhEvent.isLivelyScene)
+            {
+                logHHAuto("On going lively scene event.");
+                LivelyScene.parse(hhEvent, eventList, hhEventData);
             }
             if (hhEvent.isDPEvent)
             {
@@ -385,6 +391,7 @@ export class EventModule {
         if(inEventID.startsWith(ConfigHelper.getHHScriptVars('sultryMysteriesEventIDReg'))) return "sultryMysteries";
         if(inEventID.startsWith(ConfigHelper.getHHScriptVars('doublePenetrationEventIDReg'))) return "doublePenetration";
         if(inEventID.startsWith(ConfigHelper.getHHScriptVars('poaEventIDReg'))) return "poa";
+        if(inEventID.startsWith(ConfigHelper.getHHScriptVars('livelySceneEventIDReg'))) return "livelyscene";
         if(inEventID.startsWith('cumback_contest_')) return "cumback";
         if(inEventID.startsWith('kinky_event_')) return "kinky";
     //    if(inEventID.startsWith('lively_scene_event_')) return "";
@@ -401,6 +408,7 @@ export class EventModule {
         const isSultryMysteriesEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('sultryMysteriesEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_sultryMysteriesEventRefreshShop") === "true" && SultryMysteries.isEnabled();
         const isDPEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('doublePenetrationEventIDReg'));
         const isPoa = inEventID.startsWith(ConfigHelper.getHHScriptVars('poaEventIDReg'));
+        const isLivelyScene = inEventID.startsWith(ConfigHelper.getHHScriptVars('livelySceneEventIDReg'));
         const isCumback = "cumback" === eventType;
         const isKinky = "kinky" === eventType;
         return {
@@ -412,10 +420,11 @@ export class EventModule {
             isBossBangEvent: isBossBangEvent, // and activated
             isSultryMysteriesEvent: isSultryMysteriesEvent, // and activated
             isDPEvent: isDPEvent, // and activated
+            isLivelyScene: isLivelyScene, // and activated
             isPoa: isPoa, // and activated
             isCumback: isCumback,
             isKinky: isKinky,
-            isEnabled: isPlusEvent || isPlusEventMythic || isBossBangEvent || isSultryMysteriesEvent || isDPEvent || isPoa
+            isEnabled: isPlusEvent || isPlusEventMythic || isBossBangEvent || isSultryMysteriesEvent || isDPEvent || isPoa || isLivelyScene
         }
     }
 
@@ -456,6 +465,8 @@ export class EventModule {
                     (hhEvent.isSultryMysteriesEvent && checkTimerMustExist('eventSultryMysteryShopRefresh'))
                     ||
                     (hhEvent.isDPEvent && checkTimerMustExist('nextDpEventCollectTime'))
+                    ||
+                    (hhEvent.isLivelyScene && checkTimerMustExist('nextLivelySceneEventCollectTime'))
                     );
             }
         }
@@ -631,6 +642,7 @@ export class EventModule {
         const bossBangEventQuery = getEventQuery("boss_bang_event");
         const sultryMysteriesEventQuery = getEventQuery("sm_event");
         const dpEventQuery = getEventQuery("dp_event");
+        const livelySceneEventQuery = getEventQuery("lively_scene_event");
         const seasonalEventQuery = '#contains_all #homepage .seasonal-event a, #contains_all #homepage .mega-event a';
         const povEventQuery = '#contains_all #homepage .event-container a[rel="path-of-valor"]';
         const pogEventQuery = '#contains_all #homepage .event-container a[rel="path-of-glory"]';
@@ -699,6 +711,14 @@ export class EventModule {
             {
                 logHHAuto("No double penetration event found, deactivate collect.");
                 setStoredValue(HHStoredVarPrefixKey+"Setting_autodpEventCollect", "false");
+            }
+            // LivelyScene
+            parseForEventId(livelySceneEventQuery,eventIDs);
+
+            if (getStoredValue(HHStoredVarPrefixKey +"Setting_autoLivelySceneEventCollect") === "true" && $(livelySceneEventQuery).length == 0)
+            {
+                logHHAuto("No Lively Scene event found, deactivate collect.");
+                setStoredValue(HHStoredVarPrefixKey +"Setting_autoLivelySceneEventCollect", "false");
             }
             queryResults=$(seasonalEventQuery);
             if((getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollect") === "true" || getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollectAll") === "true") && queryResults.length == 0)

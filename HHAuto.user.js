@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.20.1
+// @version      7.21.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -381,6 +381,9 @@ HHAuto_ToolTips.en['eventTitle'] = { version: "6.15.8", elementText: "Events" };
 HHAuto_ToolTips.en['doublePenetrationEventTitle'] = { version: "6.15.8", elementText: "DP" };
 HHAuto_ToolTips.en['autodpEventCollect'] = { version: "6.8.4", elementText: "Collect", tooltip: "Collect double penetration event rewards" };
 HHAuto_ToolTips.en['autodpEventCollectAll'] = { version: "7.1.0", elementText: "Collect All", tooltip: "if enabled : Automatically collect all items before end of double penetration event (configured with Collect all timer)" };
+HHAuto_ToolTips.en['livelySceneEventTitle'] = { version: "7.21.0", elementText: "LivelyScene" };
+HHAuto_ToolTips.en['autoLivelySceneEventCollect'] = { version: "7.21.0", elementText: "Collect", tooltip: "Collect Lively Scene event rewards" };
+HHAuto_ToolTips.en['autoLivelySceneEventCollectAll'] = { version: "7.21.0", elementText: "Collect All", tooltip: "if enabled : Automatically collect all items before end of Lively Scene event (configured with Collect all timer)" };
 HHAuto_ToolTips.en['sultryMysteriesEventRefreshShop'] = { version: "5.21.6", elementText: "Refresh Shop", tooltip: "Open Sultry Mysteries shop tab to trigger shop update." };
 HHAuto_ToolTips.en['sultryMysteriesEventRefreshShopNext'] = { version: "5.22.5", elementText: "Sultry Shop" };
 HHAuto_ToolTips.en['collectEventChest'] = { version: "5.28.0", elementText: "Collect event chest", tooltip: "If enabled: collect event chest when active after getting all girls" };
@@ -478,6 +481,7 @@ HHAuto_ToolTips.en['haremGirlGiveXP'] = { version: "5.30.0", elementText: "Give 
 HHAuto_ToolTips.en['haremGirlGiveGifts'] = { version: "5.30.0", elementText: "Give Gifts to girl", tooltip: "" };
 HHAuto_ToolTips.en['haremGirlGiveMaxGifts'] = { version: "6.2.0", elementText: "Give max Gifts to girl", tooltip: "Use max out button to reach max grade, pay for necessary grades<br> Don't pay the last one" };
 HHAuto_ToolTips.en['haremGirlMaxSkill'] = { version: "7.16.0", elementText: "Give all skill to girl", tooltip: "" };
+HHAuto_ToolTips.en['haremGirlUpSkill'] = { version: "7.21.0", elementText: "&#8593;", tooltip: "Max upgrade of this skill for this girl" };
 HHAuto_ToolTips.en['haremGirlUpgradeMax'] = { version: "6.12.0", elementText: "Full upgrade girl", tooltip: "Perform all upgrades for the girl (including last one), give necessary affections" };
 HHAuto_ToolTips.en['collectAllTimer'] = { version: "5.7.0", elementText: "Collect all timer (in hour)", tooltip: "Hour(s) before end of events to collect all rewards (Low time create risk of not collecting), Need activation on each events (POV, POG, season)" };
 HHAuto_ToolTips.en['collectAllButton'] = { version: "7.3.0", elementText: "Collect all", tooltip: "Automatically collect all items" };
@@ -1619,6 +1623,127 @@ class KinkyCumpetition {
     }
 }
 
+;// CONCATENATED MODULE: ./src/Module/Events/LivelyScene.ts
+var LivelyScene_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+class LivelyScene {
+    static isEnabled() {
+        return ConfigHelper.getHHScriptVars("isEnabledLivelySceneEvent", false); // And 10 girls 3*
+    }
+    static parse(hhEvent, eventList, hhEventData) {
+        const eventID = hhEvent.eventId;
+        let refreshTimer = randomInterval(3600, 4000);
+        let timeLeft = $('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
+        let remainingTime = 3600;
+        if (timeLeft !== undefined && timeLeft.length) {
+            remainingTime = Number(convertTimeToInt(timeLeft));
+        }
+        setTimer('eventLivelySceneGoing', remainingTime);
+        eventList[eventID] = {};
+        eventList[eventID]["id"] = eventID;
+        eventList[eventID]["type"] = hhEvent.eventType;
+        eventList[eventID]["seconds_before_end"] = new Date().getTime() + remainingTime * 1000;
+        eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimer * 1000;
+        eventList[eventID]["isCompleted"] = $(".puzzle_piece.locked:visible,.puzzle_piece.claimable").length == 0;
+        const manualCollectAll = getStoredValue(HHStoredVarPrefixKey + "Temp_poaManualCollectAll") === 'true';
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoLivelySceneEventCollect") === "true" || manualCollectAll
+            || remainingTime < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey + "Setting_autoLivelySceneEventCollectAll") === "true") {
+            LivelyScene.goAndCollect(remainingTime, manualCollectAll);
+        }
+    }
+    static parseClaimableRewards(remainingTime, manualCollectAll = false) {
+        var _a, _b, _c;
+        const claimablePieces = [];
+        const puzzlePieces = getHHVars('current_event.event_data.puzzle_pieces');
+        const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey + "Setting_autoLivelySceneEventCollectablesList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Setting_autoLivelySceneEventCollectablesList")) : [];
+        const needToCollectAll = remainingTime < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey + "Setting_autoLivelySceneEventCollectAll") === "true";
+        const needToCollect = (checkTimer('nextLivelySceneEventCollectTime') && getStoredValue(HHStoredVarPrefixKey + "Setting_autoLivelySceneEventCollect") === "true");
+        // logHHAuto("Checking double penetration event for collectable rewards.");
+        for (let currentPiece = 0; currentPiece < puzzlePieces.length; currentPiece++) {
+            const puzzlePiece = puzzlePieces[currentPiece];
+            if (puzzlePiece.reward_unlocked && !puzzlePiece.reward_claimed) {
+                if (rewardsToCollect.includes((_a = puzzlePiece === null || puzzlePiece === void 0 ? void 0 : puzzlePiece.reward) === null || _a === void 0 ? void 0 : _a.rewards[0].type) && needToCollect || needToCollectAll || manualCollectAll) {
+                    LogUtils_logHHAuto(`Reward to collect ${(_b = puzzlePiece === null || puzzlePiece === void 0 ? void 0 : puzzlePiece.reward) === null || _b === void 0 ? void 0 : _b.rewards[0].value}x${(_c = puzzlePiece === null || puzzlePiece === void 0 ? void 0 : puzzlePiece.reward) === null || _c === void 0 ? void 0 : _c.rewards[0].type}`);
+                    claimablePieces.push(puzzlePiece);
+                }
+            }
+        }
+        LogUtils_logHHAuto('claimablePieces', claimablePieces);
+        return claimablePieces;
+    }
+    static goAndCollect(remainingTime, manualCollectAll = false) {
+        return LivelyScene_awaiter(this, void 0, void 0, function* () {
+            try {
+                const rewards = LivelyScene.parseClaimableRewards(remainingTime, manualCollectAll);
+                if (manualCollectAll)
+                    setStoredValue(HHStoredVarPrefixKey + "Temp_lseManualCollectAll", 'true');
+                if (rewards.length > 0) {
+                    LogUtils_logHHAuto("Going to collect rewards.");
+                    LogUtils_logHHAuto("setting autoloop to false");
+                    setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+                    let buttonsToCollect = [];
+                    for (let currentReward = 0; currentReward < rewards.length; currentReward++) {
+                        const reward = rewards[currentReward];
+                        const puzzlePiece = $(`#puzzle_template #puzzle_piece_${reward.id_piece}.claimable`);
+                        if (puzzlePiece.length > 0) {
+                            puzzlePiece.trigger('click');
+                            yield TimeHelper.sleep(randomInterval(200, 400));
+                            const currentCollectButton = $('.lse_side_panel button.purple_button_L.claimable');
+                            if (currentCollectButton.length > 0) {
+                                currentCollectButton.trigger('click');
+                                yield TimeHelper.sleep(randomInterval(400, 700));
+                                RewardHelper.closeRewardPopupIfAny(); // refresh;
+                                yield TimeHelper.sleep(randomInterval(400, 700));
+                                return true;
+                            }
+                        }
+                    }
+                }
+                else {
+                    LogUtils_logHHAuto("No (more) LivelyScene reward to collect .");
+                    setTimer('nextLivelySceneEventCollectTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
+                    setStoredValue(HHStoredVarPrefixKey + "Temp_lseManualCollectAll", 'false');
+                    //gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                    // setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
+                    //setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey + "Temp_autoLoopTimeMili")));
+                    return false;
+                }
+            }
+            catch ({ errName, message }) {
+                LogUtils_logHHAuto(`ERROR during collect LivelyScene rewards: ${message}`);
+            }
+            return false;
+        });
+    }
+    static run() {
+        LivelyScene.displayCollectAllButton();
+    }
+    static hasUnclaimedRewards() {
+        return $(".puzzle_piece.claimable:visible").length > 0;
+    }
+    static displayCollectAllButton() {
+        if (LivelyScene.hasUnclaimedRewards() && $('#LivelySceneCollectAll').length == 0) {
+            const button = $(`<button class="purple_button_L" style="padding:0px 5px" id="LivelySceneCollectAll">${getTextForUI("collectAllButton", "elementText")}</button>`);
+            const divTooltip = $(`<div class="tooltipHH" style="position: absolute;top: 0px;right: 45px;font-size: small; z-index:5"><span class="tooltipHHtext">${getTextForUI("collectAllButton", "tooltip")}</span></div>`);
+            divTooltip.append(button);
+            $('#lse_content').append(divTooltip);
+            button.one('click', () => {
+                LivelyScene.goAndCollect(Infinity, true);
+            });
+        }
+    }
+}
+
 ;// CONCATENATED MODULE: ./src/Module/Events/MythicEvent.ts
 
 
@@ -2044,6 +2169,7 @@ var EventModule_awaiter = (undefined && undefined.__awaiter) || function (thisAr
 
 
 
+
 class EventModule {
     static clearEventData(inEventID) {
         //clearTimer('eventMythicNextWave');
@@ -2201,7 +2327,7 @@ class EventModule {
                     }
                 }
                 queryEventTabCheck[0].setAttribute('parsed', 'true');
-                const hhEventData = unsafeWindow.event_data;
+                const hhEventData = unsafeWindow.event_data || unsafeWindow.current_event;
                 LogUtils_logHHAuto(`On event page : ${eventID} (${(hhEventData === null || hhEventData === void 0 ? void 0 : hhEventData.event_name) || ''})`);
                 EventModule.clearEventData(eventID);
                 //let eventsGirlz=[];
@@ -2227,6 +2353,10 @@ class EventModule {
                 if (hhEvent.isSultryMysteriesEvent) {
                     LogUtils_logHHAuto("On going sultry mysteries event.");
                     SultryMysteries.parse(hhEvent, eventList, hhEventData);
+                }
+                if (hhEvent.isLivelyScene) {
+                    LogUtils_logHHAuto("On going lively scene event.");
+                    LivelyScene.parse(hhEvent, eventList, hhEventData);
                 }
                 if (hhEvent.isDPEvent) {
                     LogUtils_logHHAuto("On going double penetration event.");
@@ -2332,6 +2462,8 @@ class EventModule {
             return "doublePenetration";
         if (inEventID.startsWith(ConfigHelper.getHHScriptVars('poaEventIDReg')))
             return "poa";
+        if (inEventID.startsWith(ConfigHelper.getHHScriptVars('livelySceneEventIDReg')))
+            return "livelyscene";
         if (inEventID.startsWith('cumback_contest_'))
             return "cumback";
         if (inEventID.startsWith('kinky_event_'))
@@ -2349,6 +2481,7 @@ class EventModule {
         const isSultryMysteriesEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('sultryMysteriesEventIDReg')) && getStoredValue(HHStoredVarPrefixKey + "Setting_sultryMysteriesEventRefreshShop") === "true" && SultryMysteries.isEnabled();
         const isDPEvent = inEventID.startsWith(ConfigHelper.getHHScriptVars('doublePenetrationEventIDReg'));
         const isPoa = inEventID.startsWith(ConfigHelper.getHHScriptVars('poaEventIDReg'));
+        const isLivelyScene = inEventID.startsWith(ConfigHelper.getHHScriptVars('livelySceneEventIDReg'));
         const isCumback = "cumback" === eventType;
         const isKinky = "kinky" === eventType;
         return {
@@ -2360,10 +2493,11 @@ class EventModule {
             isBossBangEvent: isBossBangEvent, // and activated
             isSultryMysteriesEvent: isSultryMysteriesEvent, // and activated
             isDPEvent: isDPEvent, // and activated
+            isLivelyScene: isLivelyScene, // and activated
             isPoa: isPoa, // and activated
             isCumback: isCumback,
             isKinky: isKinky,
-            isEnabled: isPlusEvent || isPlusEventMythic || isBossBangEvent || isSultryMysteriesEvent || isDPEvent || isPoa
+            isEnabled: isPlusEvent || isPlusEventMythic || isBossBangEvent || isSultryMysteriesEvent || isDPEvent || isPoa || isLivelyScene
         };
     }
     static isEventActive(inEventID) {
@@ -2393,7 +2527,9 @@ class EventModule {
                     ||
                         (hhEvent.isSultryMysteriesEvent && checkTimerMustExist('eventSultryMysteryShopRefresh'))
                     ||
-                        (hhEvent.isDPEvent && checkTimerMustExist('nextDpEventCollectTime')));
+                        (hhEvent.isDPEvent && checkTimerMustExist('nextDpEventCollectTime'))
+                    ||
+                        (hhEvent.isLivelyScene && checkTimerMustExist('nextLivelySceneEventCollectTime')));
             }
         }
     }
@@ -2534,6 +2670,7 @@ class EventModule {
         const bossBangEventQuery = getEventQuery("boss_bang_event");
         const sultryMysteriesEventQuery = getEventQuery("sm_event");
         const dpEventQuery = getEventQuery("dp_event");
+        const livelySceneEventQuery = getEventQuery("lively_scene_event");
         const seasonalEventQuery = '#contains_all #homepage .seasonal-event a, #contains_all #homepage .mega-event a';
         const povEventQuery = '#contains_all #homepage .event-container a[rel="path-of-valor"]';
         const pogEventQuery = '#contains_all #homepage .event-container a[rel="path-of-glory"]';
@@ -2591,6 +2728,12 @@ class EventModule {
             if (getStoredValue(HHStoredVarPrefixKey + "Setting_autodpEventCollect") === "true" && $(dpEventQuery).length == 0) {
                 LogUtils_logHHAuto("No double penetration event found, deactivate collect.");
                 setStoredValue(HHStoredVarPrefixKey + "Setting_autodpEventCollect", "false");
+            }
+            // LivelyScene
+            parseForEventId(livelySceneEventQuery, eventIDs);
+            if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoLivelySceneEventCollect") === "true" && $(livelySceneEventQuery).length == 0) {
+                LogUtils_logHHAuto("No Lively Scene event found, deactivate collect.");
+                setStoredValue(HHStoredVarPrefixKey + "Setting_autoLivelySceneEventCollect", "false");
             }
             queryResults = $(seasonalEventQuery);
             if ((getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonalEventCollect") === "true" || getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonalEventCollectAll") === "true") && queryResults.length == 0) {
@@ -3656,6 +3799,7 @@ SeasonalEvent.SEASONAL_REWARD_PATH = '.mega-tier.unclaimed';
 SeasonalEvent.SEASONAL_REWARD_MEGA_PATH = '.mega-tier-container:has(.free-slot button.mega-claim-reward)';
 
 ;// CONCATENATED MODULE: ./src/Module/Events/index.ts
+
 
 
 
@@ -7333,6 +7477,42 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autodpEventCollectAll"
         menuType: "checked",
         kobanUsing: false
     };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLivelySceneEventCollect"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        events: { "change": function () {
+                if (this.checked) {
+                    getAndStoreCollectPreferences(HHStoredVarPrefixKey + "Setting_autoLivelySceneEventCollectablesList");
+                    clearTimer('nextLivelySceneEventCollectTime');
+                }
+            }
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLivelySceneEventCollectablesList"] =
+    {
+        default: JSON.stringify([]),
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Array"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLivelySceneEventCollectAll"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_bossBangEvent"] =
     {
         default: "false",
@@ -8206,6 +8386,12 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_poaManualCollectAll"] =
         storage: "localStorage",
         HHType: "Temp"
     };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_lseManualCollectAll"] =
+    {
+        default: "false",
+        storage: "localStorage",
+        HHType: "Temp"
+    };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_defaultCustomHaremSort"] =
     {
         storage: "localStorage",
@@ -8749,6 +8935,28 @@ class HaremGirl {
             console.error(message);
         }
     }
+    static showSkillButtons() {
+        const showSkillButtons = true; // Todo add settings
+        if (showSkillButtons && $('.hhsingleskill').length <= 0) {
+            $('.skill-upgrade-row ').each((index, row) => {
+                const rowHasButton = $('button.blue_button_L:not([disabled])', $(row)).length > 0;
+                const rowHasHHButton = $('.hhsingleskill', $(row)).length > 0;
+                if (rowHasButton && !rowHasHHButton) {
+                    $(row).append('<div class="tooltipHH">'
+                        + '<span class="tooltipHHtext">' + getTextForUI('haremGirlUpSkill', "tooltip") + '</span>'
+                        + '<label style="font-size: initial;" class="myButton hhsingleskill">' + getTextForUI('haremGirlUpSkill', "elementText")
+                        + '</label></div>');
+                }
+            });
+            $('.hhsingleskill').on("click", function () {
+                const skillId = $(this).parents('.skill-upgrade-row').attr('skill-id');
+                HaremGirl.singleSkillsUpgrade(skillId);
+            });
+            $(HaremGirl.SKILL_BUTTON_SELECTOR).on("click", function () {
+                setTimeout(() => { HaremGirl.showSkillButtons(); }, 500);
+            });
+        }
+    }
     static run() {
         return HaremGirl_awaiter(this, void 0, void 0, function* () {
             try {
@@ -8869,10 +9077,28 @@ class HaremGirl {
             }
         });
     }
+    static singleSkillsUpgrade(skillId) {
+        return HaremGirl_awaiter(this, void 0, void 0, function* () {
+            LogUtils_logHHAuto('Upgrade skill ' + skillId);
+            try {
+                let skillButton = $(`#skills .skill-upgrade .skill-upgrade-row[skill-id='${skillId}'] button.blue_button_L:not([disabled])`).first();
+                if (skillButton.length > 0) {
+                    skillButton.trigger('click');
+                    yield TimeHelper.sleep(randomInterval(400, 700));
+                    return yield HaremGirl.singleSkillsUpgrade(skillId);
+                }
+            }
+            catch (error) {
+                LogUtils_logHHAuto("Can't remove popup_message_harem");
+            }
+            setTimeout(() => { HaremGirl.showSkillButtons(); }, 200);
+            return Promise.resolve();
+        });
+    }
     static fullSkillsUpgrade(retry = false) {
         return HaremGirl_awaiter(this, void 0, void 0, function* () {
             try {
-                let skillButton = $("#skills .skill-upgrade button.blue_button_L:not([disabled])").first();
+                let skillButton = $(HaremGirl.SKILL_BUTTON_SELECTOR).first();
                 if (skillButton.length > 0) {
                     skillButton.trigger('click');
                     yield TimeHelper.sleep(randomInterval(400, 700));
@@ -8914,6 +9140,7 @@ HaremGirl.AFFECTION_TYPE = 'affection';
 HaremGirl.EXPERIENCE_TYPE = 'experience';
 HaremGirl.EQUIPMENT_TYPE = 'equipment';
 HaremGirl.SKILLS_TYPE = 'skills';
+HaremGirl.SKILL_BUTTON_SELECTOR = "#skills .skill-upgrade button.blue_button_L:not([disabled])";
 
 ;// CONCATENATED MODULE: ./src/Module/harem/HaremSalary.ts
 var HaremSalary_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -13615,6 +13842,7 @@ HHEnvVariables["global"].bossBangEventIDReg = "boss_bang_event_";
 HHEnvVariables["global"].sultryMysteriesEventIDReg = "sm_event_";
 HHEnvVariables["global"].doublePenetrationEventIDReg = "dp_event_";
 HHEnvVariables["global"].poaEventIDReg = "path_event_";
+HHEnvVariables["global"].livelySceneEventIDReg = "lively_scene_event_";
 HHEnvVariables["global"].girlToolTipData = "data-new-girl-tooltip";
 HHEnvVariables["global"].dailyRewardNotifRequest = "#contains_all header .currency .daily-reward-notif";
 HHEnvVariables["global"].IDpanelEditTeam = "#edit-team-page";
@@ -13923,6 +14151,7 @@ HHEnvVariables["global"].isEnabledPoG = true;
 HHEnvVariables["global"].isEnabledSeasonalEvent = true;
 HHEnvVariables["global"].isEnabledBossBangEvent = true;
 HHEnvVariables["global"].isEnabledDPEvent = true;
+HHEnvVariables["global"].isEnabledLivelySceneEvent = true;
 HHEnvVariables["global"].isEnabledSultryMysteriesEvent = true;
 HHEnvVariables["global"].isEnabledDailyGoals = true;
 HHEnvVariables["global"].isEnabledSpreadsheets = true;
@@ -14833,6 +15062,17 @@ function getMenu() {
             + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
             + hhMenuSwitch('autodpEventCollect')
             + hhMenuSwitch('autodpEventCollectAll')
+            + `</div>`
+            + `</div>`
+            + `</div>`
+            + `<div id="isEnabledLivelySceneEvent" class="optionsBoxWithTitle">`
+            + `<div class="optionsBoxTitle">`
+            + `<span class="optionsBoxTitle">${getTextForUI("livelySceneEventTitle", "elementText")}</span>`
+            + `</div>`
+            + `<div class="optionsBox">`
+            + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
+            + hhMenuSwitch('autoLivelySceneEventCollect')
+            + hhMenuSwitch('autoLivelySceneEventCollectAll')
             + `</div>`
             + `</div>`
             + `</div>`
@@ -17492,6 +17732,10 @@ function autoLoop() {
                         DoublePenetration.run = callItOnce(DoublePenetration.run);
                         DoublePenetration.run();
                     }
+                    if (EventModule.getEvent(eventID).isLivelyScene && LivelyScene.isEnabled()) {
+                        LivelyScene.run = callItOnce(LivelyScene.run);
+                        LivelyScene.run();
+                    }
                 }
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDBossBang"):
@@ -17548,6 +17792,7 @@ function autoLoop() {
             case ConfigHelper.getHHScriptVars("pagesIDGirlPage"):
                 HaremGirl.moduleHaremGirl = callItOnce(HaremGirl.moduleHaremGirl);
                 HaremGirl.moduleHaremGirl();
+                HaremGirl.showSkillButtons();
                 HaremGirl.run = callItOnce(HaremGirl.run);
                 busy = yield HaremGirl.run();
                 break;
