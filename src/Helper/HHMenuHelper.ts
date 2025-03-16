@@ -805,7 +805,18 @@ export function getMenu() {
                                         + hhMenuSwitch('autodpEventCollectAll')
                                     +`</div>`
                                 +`</div>`
-                            +`</div>`
+                            + `</div>`
+                            + `<div id="isEnabledLivelySceneEvent" class="optionsBoxWithTitle">`
+                                + `<div class="optionsBoxTitle">`
+                                    + `<span class="optionsBoxTitle">${getTextForUI("livelySceneEventTitle", "elementText")}</span>`
+                                + `</div>`
+                                + `<div class="optionsBox">`
+                                    + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                        + hhMenuSwitch('autoLivelySceneEventCollect')
+                                        + hhMenuSwitch('autoLivelySceneEventCollectAll')
+                                    + `</div>`
+                                + `</div>`
+                            + `</div>`
                         +`</div>`
                         +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
                             +`<div id="isEnabledSultryMysteriesEvent" class="optionsBoxWithTitle">`

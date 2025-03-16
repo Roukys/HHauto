@@ -14,6 +14,7 @@ declare global {
         current_tier_number: any;
         daily_goals_list: KKDailyGoal[];
         event_data: any;
+        current_event: any;
         girl: any;
         // GirlSalaryManager: any;
         harem: any;
