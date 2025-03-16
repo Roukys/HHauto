@@ -62,8 +62,9 @@ export class LivelyScene {
         for (let currentPiece = 0; currentPiece < puzzlePieces.length; currentPiece++) {
             const puzzlePiece:KKPuzzlePieces = puzzlePieces[currentPiece];
             if (puzzlePiece.reward_unlocked && !puzzlePiece.reward_claimed) {
+                let rewardType = puzzlePiece?.reward?.shards ? 'girl_shards' : puzzlePiece?.reward?.rewards[0].type;
 
-                if (rewardsToCollect.includes(puzzlePiece?.reward?.rewards[0].type) && needToCollect || needToCollectAll || manualCollectAll) {
+                if (rewardsToCollect.includes(rewardType) && needToCollect || needToCollectAll || manualCollectAll) {
                     logHHAuto(`Reward to collect ${puzzlePiece?.reward?.rewards[0].value}x${puzzlePiece?.reward?.rewards[0].type}`);
                     claimablePieces.push(puzzlePiece);
                 }
