@@ -41,7 +41,7 @@ export class LivelyScene {
         eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimer * 1000;
         eventList[eventID]["isCompleted"] = $(".puzzle_piece.locked:visible,.puzzle_piece.claimable").length == 0;
 
-        const manualCollectAll = getStoredValue(HHStoredVarPrefixKey + "Temp_poaManualCollectAll") === 'true';
+        const manualCollectAll = getStoredValue(HHStoredVarPrefixKey + "Temp_lseManualCollectAll") === 'true';
 
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoLivelySceneEventCollect") === "true" || manualCollectAll
             || remainingTime < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey + "Setting_autoLivelySceneEventCollectAll") === "true") {
@@ -65,7 +65,7 @@ export class LivelyScene {
                 let rewardType = puzzlePiece?.reward?.shards ? 'girl_shards' : puzzlePiece?.reward?.rewards[0].type;
 
                 if (rewardsToCollect.includes(rewardType) && needToCollect || needToCollectAll || manualCollectAll) {
-                    logHHAuto(`Reward to collect ${puzzlePiece?.reward?.rewards[0].value}x${puzzlePiece?.reward?.rewards[0].type}`);
+                    // logHHAuto(`Reward to collect ${puzzlePiece?.reward?.rewards[0].value}x${puzzlePiece?.reward?.rewards[0].type}`);
                     claimablePieces.push(puzzlePiece);
                 }
             }
@@ -86,8 +86,6 @@ export class LivelyScene {
                 logHHAuto("Going to collect rewards.");
                 logHHAuto("setting autoloop to false");
                 setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
-
-                let buttonsToCollect: HTMLElement[] = [];
 
                 for (let currentReward = 0; currentReward < rewards.length; currentReward++) {
                     const reward = rewards[currentReward];
@@ -120,11 +118,54 @@ export class LivelyScene {
             }
         } catch ({ errName, message }) {
             logHHAuto(`ERROR during collect LivelyScene rewards: ${message}`);
+            setStoredValue(HHStoredVarPrefixKey + "Temp_lseManualCollectAll", 'false');
         }
         return false;
     }
+
+    static _makeSVG(tag, attrs) {
+        var el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        for (var k in attrs)
+            el.setAttribute(k, attrs[k]);
+        return el;
+    }
+    static _makeSVGImage($puzzlePiece, iconHref) {
+        const tresorImage = $('image', $puzzlePiece);
+        return LivelyScene._makeSVG('image', {
+            height: 18,
+            width: 18,
+            visibility: 'visible',
+            href: iconHref,
+            x: Number(tresorImage.attr('x')) + 45,
+            y: tresorImage.attr('y')
+        });
+    }
+
     static run(){
         LivelyScene.displayCollectAllButton();
+
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_showRewardsRecap") === "true") {
+            const puzzlePieces: KKPuzzlePieces[] = getHHVars('current_event.event_data.puzzle_pieces');
+            if (puzzlePieces.length > 0) {
+
+                for (let currentReward = 0; currentReward < puzzlePieces.length; currentReward++) {
+                    const puzzlePiece = puzzlePieces[currentReward];
+                    if (puzzlePiece.reward_unlocked && !puzzlePiece.reward_claimed) {
+                        let rewardType = puzzlePiece?.reward?.shards ? 'girl_shards' : puzzlePiece?.reward?.rewards[0].type;
+
+                        const $puzzlePiece = $(`#puzzle_template #puzzle_piece_${puzzlePiece.id_piece}.claimable`);
+                        const iconHref = RewardHelper.getRewardsIconHref(rewardType);
+
+                        if ($puzzlePiece.length > 0 && iconHref) {
+                            const image = LivelyScene._makeSVGImage($puzzlePiece, iconHref);
+                            document.getElementById(`puzzle_piece_${puzzlePiece.id_piece}`).appendChild(image);
+                            
+                            logHHAuto(`Add icon for ${rewardType} to #puzzle_piece_${puzzlePiece.id_piece}`);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     static hasUnclaimedRewards(): boolean {

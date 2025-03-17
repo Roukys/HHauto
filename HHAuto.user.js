@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.21.1
+// @version      7.21.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1655,14 +1655,14 @@ class LivelyScene {
         eventList[eventID]["seconds_before_end"] = new Date().getTime() + remainingTime * 1000;
         eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimer * 1000;
         eventList[eventID]["isCompleted"] = $(".puzzle_piece.locked:visible,.puzzle_piece.claimable").length == 0;
-        const manualCollectAll = getStoredValue(HHStoredVarPrefixKey + "Temp_poaManualCollectAll") === 'true';
+        const manualCollectAll = getStoredValue(HHStoredVarPrefixKey + "Temp_lseManualCollectAll") === 'true';
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoLivelySceneEventCollect") === "true" || manualCollectAll
             || remainingTime < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey + "Setting_autoLivelySceneEventCollectAll") === "true") {
             LivelyScene.goAndCollect(remainingTime, manualCollectAll);
         }
     }
     static parseClaimableRewards(remainingTime, manualCollectAll = false) {
-        var _a, _b, _c, _d;
+        var _a, _b;
         const claimablePieces = [];
         const puzzlePieces = getHHVars('current_event.event_data.puzzle_pieces');
         const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey + "Setting_autoLivelySceneEventCollectablesList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Setting_autoLivelySceneEventCollectablesList")) : [];
@@ -1674,7 +1674,7 @@ class LivelyScene {
             if (puzzlePiece.reward_unlocked && !puzzlePiece.reward_claimed) {
                 let rewardType = ((_a = puzzlePiece === null || puzzlePiece === void 0 ? void 0 : puzzlePiece.reward) === null || _a === void 0 ? void 0 : _a.shards) ? 'girl_shards' : (_b = puzzlePiece === null || puzzlePiece === void 0 ? void 0 : puzzlePiece.reward) === null || _b === void 0 ? void 0 : _b.rewards[0].type;
                 if (rewardsToCollect.includes(rewardType) && needToCollect || needToCollectAll || manualCollectAll) {
-                    LogUtils_logHHAuto(`Reward to collect ${(_c = puzzlePiece === null || puzzlePiece === void 0 ? void 0 : puzzlePiece.reward) === null || _c === void 0 ? void 0 : _c.rewards[0].value}x${(_d = puzzlePiece === null || puzzlePiece === void 0 ? void 0 : puzzlePiece.reward) === null || _d === void 0 ? void 0 : _d.rewards[0].type}`);
+                    // logHHAuto(`Reward to collect ${puzzlePiece?.reward?.rewards[0].value}x${puzzlePiece?.reward?.rewards[0].type}`);
                     claimablePieces.push(puzzlePiece);
                 }
             }
@@ -1692,7 +1692,6 @@ class LivelyScene {
                     LogUtils_logHHAuto("Going to collect rewards.");
                     LogUtils_logHHAuto("setting autoloop to false");
                     setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
-                    let buttonsToCollect = [];
                     for (let currentReward = 0; currentReward < rewards.length; currentReward++) {
                         const reward = rewards[currentReward];
                         const puzzlePiece = $(`#puzzle_template #puzzle_piece_${reward.id_piece}.claimable`);
@@ -1722,12 +1721,49 @@ class LivelyScene {
             }
             catch ({ errName, message }) {
                 LogUtils_logHHAuto(`ERROR during collect LivelyScene rewards: ${message}`);
+                setStoredValue(HHStoredVarPrefixKey + "Temp_lseManualCollectAll", 'false');
             }
             return false;
         });
     }
+    static _makeSVG(tag, attrs) {
+        var el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        for (var k in attrs)
+            el.setAttribute(k, attrs[k]);
+        return el;
+    }
+    static _makeSVGImage($puzzlePiece, iconHref) {
+        const tresorImage = $('image', $puzzlePiece);
+        return LivelyScene._makeSVG('image', {
+            height: 18,
+            width: 18,
+            visibility: 'visible',
+            href: iconHref,
+            x: Number(tresorImage.attr('x')) + 45,
+            y: tresorImage.attr('y')
+        });
+    }
     static run() {
+        var _a, _b;
         LivelyScene.displayCollectAllButton();
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_showRewardsRecap") === "true") {
+            const puzzlePieces = getHHVars('current_event.event_data.puzzle_pieces');
+            if (puzzlePieces.length > 0) {
+                for (let currentReward = 0; currentReward < puzzlePieces.length; currentReward++) {
+                    const puzzlePiece = puzzlePieces[currentReward];
+                    if (puzzlePiece.reward_unlocked && !puzzlePiece.reward_claimed) {
+                        let rewardType = ((_a = puzzlePiece === null || puzzlePiece === void 0 ? void 0 : puzzlePiece.reward) === null || _a === void 0 ? void 0 : _a.shards) ? 'girl_shards' : (_b = puzzlePiece === null || puzzlePiece === void 0 ? void 0 : puzzlePiece.reward) === null || _b === void 0 ? void 0 : _b.rewards[0].type;
+                        const $puzzlePiece = $(`#puzzle_template #puzzle_piece_${puzzlePiece.id_piece}.claimable`);
+                        const iconHref = RewardHelper.getRewardsIconHref(rewardType);
+                        if ($puzzlePiece.length > 0 && iconHref) {
+                            const image = LivelyScene._makeSVGImage($puzzlePiece, iconHref);
+                            document.getElementById(`puzzle_piece_${puzzlePiece.id_piece}`).appendChild(image);
+                            LogUtils_logHHAuto(`Add icon for ${rewardType} to #puzzle_piece_${puzzlePiece.id_piece}`);
+                        }
+                    }
+                }
+            }
+        }
     }
     static hasUnclaimedRewards() {
         return $(".puzzle_piece.claimable:visible").length > 0;
@@ -16512,6 +16548,42 @@ class RewardHelper {
                     default:
                 }
             }
+        return html;
+    }
+    static getRewardsIconHref(rewardType) {
+        let html = '';
+        if (rewardType) {
+            switch (rewardType) {
+                case 'girl_shards':
+                    html += '/images/pictures/design/shards.png';
+                    break;
+                case 'energy_kiss':
+                    html += '/images/pictures/design/ic_kiss.png';
+                    break;
+                case 'energy_quest':
+                    html += '/images/pictures/design/ic_energy_quest.png';
+                    break;
+                case 'energy_fight':
+                    html += '/images/pictures/design/ic_energy_fight.png';
+                    break;
+                case 'xp':
+                    html += '';
+                    break;
+                case 'soft_currency':
+                    html += '/images/pictures/design/ic_topbar_soft_currency.png';
+                    break;
+                case 'hard_currency':
+                    html += '/images/pictures/design/ic_topbar_hard_currency.png';
+                    break;
+                case 'event_cash':
+                    html += '';
+                    break;
+                case 'ticket':
+                    html += '/images//pictures/design/champion_ticket.png';
+                    break;
+                default:
+            }
+        }
         return html;
     }
     static displayRewardsDiv(target, hhRewardId, rewardCountByType) {
