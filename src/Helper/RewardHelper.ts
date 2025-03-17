@@ -193,6 +193,25 @@ export class RewardHelper {
         }
         return html;
     }
+
+    static getRewardsIconHref(rewardType: string) {
+        let html = '';
+        if (rewardType) {
+            switch (rewardType) {
+                case 'girl_shards': html += '/images/pictures/design/shards.png' ; break;
+                case 'energy_kiss': html += '/images/pictures/design/ic_kiss.png'; break;
+                case 'energy_quest': html += '/images/pictures/design/ic_energy_quest.png'; break;
+                case 'energy_fight': html += '/images/pictures/design/ic_energy_fight.png'; break;
+                case 'xp': html += ''; break;
+                case 'soft_currency': html += '/images/pictures/design/ic_topbar_soft_currency.png'; break;
+                case 'hard_currency': html += '/images/pictures/design/ic_topbar_hard_currency.png'; break;
+                case 'event_cash': html += ''; break;
+                case 'ticket': html += '/images//pictures/design/champion_ticket.png'; break;
+                default:
+            }
+        }
+        return html;
+    }
     static displayRewardsDiv(target,hhRewardId, rewardCountByType:Map<string,number> ) {
         const emptyRewardDiv = $('<div id='+hhRewardId+' style="display:none;"></div>');
         try{
