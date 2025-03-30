@@ -241,6 +241,7 @@ HHAuto_ToolTips.en['PachinkoButton'] = {version: "5.6.24", elementText: "Use Pac
 HHAuto_ToolTips.en['PachinkoOrbsLeft'] = {version: "5.6.24", elementText: " orbs remaining.", tooltip: ""};
 HHAuto_ToolTips.en['PachinkoInvalidOrbsNb'] = {version: "5.6.24", elementText: 'Invalid orbs number'};
 HHAuto_ToolTips.en['PachinkoNoGirls'] = {version: "5.6.24", elementText: 'No more any girls available.'};
+HHAuto_ToolTips.en['PachinkoFailure'] = {version: "7.21.3", elementText: 'ERROR: no response from server in 5s.'};
 HHAuto_ToolTips.en['PachinkoByPassNoGirls'] = {version: "5.6.24", elementText: 'Bypass no girls', tooltip: "Bypass the no girls in Pachinko warning."};
 HHAuto_ToolTips.en['PachinkoStopFirstGirl'] = {version: "5.35.00", elementText: 'Stop first girl', tooltip: "Stop when a girl is won."};
 HHAuto_ToolTips.en['PachinkoFillOrbs'] = {version: "5.6.134", elementText: 'Fill all orbs', tooltip: "Fill input with all available orbs."};
