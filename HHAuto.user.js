@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.21.2
+// @version      7.21.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -411,6 +411,7 @@ HHAuto_ToolTips.en['PachinkoButton'] = { version: "5.6.24", elementText: "Use Pa
 HHAuto_ToolTips.en['PachinkoOrbsLeft'] = { version: "5.6.24", elementText: " orbs remaining.", tooltip: "" };
 HHAuto_ToolTips.en['PachinkoInvalidOrbsNb'] = { version: "5.6.24", elementText: 'Invalid orbs number' };
 HHAuto_ToolTips.en['PachinkoNoGirls'] = { version: "5.6.24", elementText: 'No more any girls available.' };
+HHAuto_ToolTips.en['PachinkoFailure'] = { version: "7.21.3", elementText: 'ERROR: no response from server in 5s.' };
 HHAuto_ToolTips.en['PachinkoByPassNoGirls'] = { version: "5.6.24", elementText: 'Bypass no girls', tooltip: "Bypass the no girls in Pachinko warning." };
 HHAuto_ToolTips.en['PachinkoStopFirstGirl'] = { version: "5.35.00", elementText: 'Stop first girl', tooltip: "Stop when a girl is won." };
 HHAuto_ToolTips.en['PachinkoFillOrbs'] = { version: "5.6.134", elementText: 'Fill all orbs', tooltip: "Fill input with all available orbs." };
@@ -11962,6 +11963,9 @@ class Pachinko {
             return numberOfGirlsToWin;
         }
         function buildPachinkoSelectPopUp(orbsPlayed = -1) {
+            Pachinko.autoPachinkoRunning = false;
+            if (Pachinko.failureTimeoutId)
+                clearTimeout(Pachinko.failureTimeoutId); // cancel safe mode
             let PachinkoMenu = '<div style="padding:50px; display:flex;flex-direction:column;font-size:15px;" class="HHAutoScriptMenu">'
                 + '<div style="display:flex;flex-direction:row">'
                 + '<div style="padding:10px" class="tooltipHH"><span class="tooltipHHtext">' + getTextForUI("PachinkoSelector", "tooltip") + '</span><select id="PachinkoSelector"></select></div>'
@@ -12043,6 +12047,7 @@ class Pachinko {
             }
         }
         function pachinkoPlayXTimes() {
+            const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
             setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
             LogUtils_logHHAuto("setting autoloop to false");
             let timerSelector = document.getElementById("PachinkoSelector");
@@ -12064,13 +12069,13 @@ class Pachinko {
                 }
                 return orbsLeft;
             }
-            const orbsLeft = getNumberOfOrbsLeft(orbsLeftSelector);
-            if (orbsLeft <= 0) {
+            Pachinko.orbLeftOnAutoStart = getNumberOfOrbsLeft(orbsLeftSelector);
+            if (Pachinko.orbLeftOnAutoStart <= 0) {
                 LogUtils_logHHAuto('No Orbs left for : ' + timerSelector.options[timerSelector.selectedIndex].text);
                 $("#PachinkoError").text(getTextForUI("PachinkoSelectorNoButtons", "elementText"));
                 return;
             }
-            if (Number.isNaN(Number(orbsToGo)) || orbsToGo < 1 || orbsToGo > orbsLeft) {
+            if (Number.isNaN(Number(orbsToGo)) || orbsToGo < 1 || orbsToGo > Pachinko.orbLeftOnAutoStart) {
                 LogUtils_logHHAuto('Invalid orbs number ' + orbsToGo);
                 $("#PachinkoError").text(getTextForUI("PachinkoInvalidOrbsNb", "elementText") + " : " + orbsToGo);
                 return;
@@ -12084,6 +12089,9 @@ class Pachinko {
             $("#PachinkoPlayCancel").on("click", () => {
                 maskHHPopUp();
                 LogUtils_logHHAuto("Cancel clicked, closing popUp.");
+                Pachinko.autoPachinkoRunning = false;
+                if (Pachinko.failureTimeoutId)
+                    clearTimeout(Pachinko.failureTimeoutId); // cancel safe mode
             });
             function stopXPachinkoNoGirl() {
                 LogUtils_logHHAuto("No more girl on Pachinko, cancelling.");
@@ -12091,8 +12099,50 @@ class Pachinko {
                 buildPachinkoSelectPopUp();
                 $("#PachinkoError").text(getTextForUI("PachinkoNoGirls", "elementText"));
             }
+            function stopXPachinkoFailure() {
+                LogUtils_logHHAuto("No more girl on Pachinko, cancelling.");
+                maskHHPopUp();
+                buildPachinkoSelectPopUp();
+                $("#PachinkoError").text(getTextForUI("PachinkoNoGirls", "elementText"));
+            }
+            if (!Pachinko.ajaxBindingDone) {
+                Pachinko.ajaxBindingDone = true;
+                $(document).ajaxComplete(function (evt, xhr, opt) {
+                    var _a, _b;
+                    if (!opt.data)
+                        return;
+                    if (!xhr.responseText.length)
+                        return;
+                    const searchParams = new URLSearchParams(opt.data);
+                    if (searchParams.get('action') == 'play' && searchParams.get('class') == 'Pachinko') {
+                        const response = JSON.parse(xhr.responseText);
+                        if (!response || !response.success) {
+                            if (debugEnabled)
+                                LogUtils_logHHAuto("Not response success");
+                            stopXPachinkoFailure();
+                            return;
+                        }
+                        if ((_b = (_a = response.rewards) === null || _a === void 0 ? void 0 : _a.heroChangesUpdate) === null || _b === void 0 ? void 0 : _b.orbs) {
+                            //const orbs = response.rewards?.heroChangesUpdate?.orbs;
+                            // o_g10 / o_g1 / o_eq2
+                            //const orbLeftFromResponse = orbs.o_g10;
+                            if (Pachinko.failureTimeoutId)
+                                clearTimeout(Pachinko.failureTimeoutId); // cancel safe mode
+                            if (Pachinko.autoPachinkoRunning) {
+                                setTimeout(playXPachinko_func, randomInterval(200, 500));
+                            }
+                            else if (debugEnabled) {
+                                LogUtils_logHHAuto('Ajax catched, do nothing');
+                            }
+                        }
+                        else
+                            stopXPachinkoFailure();
+                    }
+                });
+            }
             function playXPachinko_func() {
                 if (!isDisplayedHHPopUp()) {
+                    Pachinko.autoPachinkoRunning = false;
                     LogUtils_logHHAuto("PopUp closed, cancelling interval, restart autoloop.");
                     setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
                     setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey + "Temp_autoLoopTimeMili")));
@@ -12114,7 +12164,8 @@ class Pachinko {
                 //     return;
                 // }
                 const currentOrbsLeft = getNumberOfOrbsLeft(orbsLeftSelector);
-                const spendedOrbs = Number(orbsLeft - currentOrbsLeft);
+                const spendedOrbs = Number(Pachinko.orbLeftOnAutoStart - currentOrbsLeft);
+                //if (debugEnabled) logHHAuto('orbsLeft: ' + Pachinko.orbLeftOnAutoStart + ", currentOrbsLeft: " + currentOrbsLeft + ', spendedOrbs: ' + spendedOrbs + '/orbsToGo: ' + orbsToGo);
                 if (stopFirstGirlChecked && $('#rewards_popup #reward_holder .shards_wrapper:visible').length > 0) {
                     LogUtils_logHHAuto("Girl in reward, stopping...");
                     maskHHPopUp();
@@ -12131,6 +12182,12 @@ class Pachinko {
                     else {
                         RewardHelper.closeRewardPopupIfAny(false);
                         pachinkoSelectedButton.click();
+                        Pachinko.failureTimeoutId = setTimeout(() => {
+                            // Safe mode
+                            LogUtils_logHHAuto("ERROR: Stop bot, no reply from server after more than 5s.");
+                            stopXPachinkoFailure();
+                        }, randomInterval(5000, 8000));
+                        // Nothing to do here, will be done by ajaxComplete handler above.
                     }
                 }
                 else {
@@ -12140,8 +12197,8 @@ class Pachinko {
                     buildPachinkoSelectPopUp(spendedOrbs);
                     return;
                 }
-                setTimeout(playXPachinko_func, randomInterval(500, 1500));
             }
+            Pachinko.autoPachinkoRunning = true;
             setTimeout(playXPachinko_func, randomInterval(500, 1500));
         }
     }
@@ -12163,6 +12220,10 @@ class Pachinko {
         }
     }
 }
+Pachinko.ajaxBindingDone = false;
+Pachinko.orbLeftOnAutoStart = 0;
+Pachinko.autoPachinkoRunning = false;
+Pachinko.failureTimeoutId = undefined;
 
 ;// CONCATENATED MODULE: ./src/Module/PlaceOfPower.ts
 
