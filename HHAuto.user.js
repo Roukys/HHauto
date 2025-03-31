@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.22.1
+// @version      7.22.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -13645,7 +13645,8 @@ class GayHarem {
             'Maro',
             'Jackson&#8217;s Crew',
             'Icarus Warlock',
-            'Sol'];
+            'Sol',
+            'Soju'];
     }
     static overrideTrollsByLang(languageCode, trollzList) {
         switch (languageCode) {
@@ -13678,6 +13679,7 @@ class GayHarem {
             [['24316446', '219651566', '501847856'], ['383709663'], ['90685795']],
             [['225365882', '478693885', '231765083'], ['155415482'], ['769649470']],
             [['86962133', '243793871', '284483399'], [0], [0]],
+            [['167231135', '184523411', '549524850', '560979916', '612527302', '784911160'], [0], [0]],
         ];
     }
     static updateFeatures(envVariables) {
@@ -13698,7 +13700,9 @@ class GayPornstarHarem {
             'Tristan Hunter',
             'Jimmy Durano',
             'Lucca Mazzi',
-            'Andrew Stark'];
+            'Andrew Stark',
+            'Sean Duran & Bryce Evans',
+            'Trojan Pierce Paris'];
     }
     static getTrollGirlsId() {
         return [
@@ -13709,6 +13713,8 @@ class GayPornstarHarem {
             [['290465722', '524315573', '970767946'], [0], [0]],
             [['127881092', '680366759', '836998610'], [0], [0]],
             [['182117271', '350309796', '361432643', '390918673', '426008459', '446246345', '590934200', '599355011', '712652761', '848616605', '921769175'], [0], [0]],
+            [['284712878', '913932535', '352737504 '], [0], [0]],
+            [['268000414', '809099695'], [0], [0]],
         ];
     }
     static updateFeatures(envVariables) {
@@ -13920,7 +13926,8 @@ class TransPornstarHarem {
             'Nikki Nort',
             'Mistress Venom',
             'CEO Ramona',
-            'Mama Bee'];
+            'Mama Bee',
+            'Officer Jolie'];
     }
     static getTrollGirlsId() {
         return [
@@ -13932,6 +13939,7 @@ class TransPornstarHarem {
             [['317800067', '542090972', '920682672'], [0], [0]],
             [['558585439', '577205682', '741311311'], [0], [0]],
             [['692804877', '984917842', '581358076'], ['397703278', '704166982', '483645616'], ['349968569', '970429531', '954328841']],
+            [[0], [0], [0]],
         ];
     }
     static updateFeatures(envVariables) {
