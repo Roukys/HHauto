@@ -18,8 +18,14 @@ import { HHAuto_inputPattern, HHStoredVarPrefixKey } from '../config/index';
 export class Pachinko {
     static ajaxBindingDone = false;
     static orbLeftOnAutoStart = 0;
+    static orbsToGo = 0;
     static autoPachinkoRunning = false;
     static failureTimeoutId = undefined;
+    static pachinkoSelector = undefined;
+    static ByPassNoGirlChecked: boolean;
+    static stopFirstGirlChecked: boolean;
+    static debugEnabled: boolean;
+    static retry: number = 0;
 
     static getGreatPachinko(): Promise<boolean> {
         return Pachinko.getFreePachinko('great','nextPachinkoTime','great-timer');
@@ -97,309 +103,301 @@ export class Pachinko {
             return false;
         }
     }
+
+    static getNumberOfGirlToWinPatchinko() {
+        const girlsRewards = $("div.playing-zone .game-rewards .list-prizes .girl_shards");
+        let numberOfGirlsToWin = 0;
+        if (girlsRewards.length > 0) {
+            try {
+                numberOfGirlsToWin = JSON.parse(girlsRewards.attr("data-rewards") || '').length;
+            } catch (exp) { }
+        }
+        return numberOfGirlsToWin;
+    }
+    
+    static getNumberOfOrbsLeft(buttonSelector: string): number {
+        let orbsLeft = 0;
+        if ($(buttonSelector + " span[total_orbs]").length > 0) {
+            orbsLeft = Number($(buttonSelector + " span[total_orbs]").first().text());
+        }
+        if (isNaN(orbsLeft)) {
+            orbsLeft = 0;
+            logHHAuto("ERROR getting orbs left");
+        }
+        return orbsLeft;
+    }
+
+    static buildPachinkoSelectPopUp(orbsPlayed: number = -1) {
+        Pachinko.autoPachinkoRunning = false;
+        if (Pachinko.failureTimeoutId) clearTimeout(Pachinko.failureTimeoutId); // cancel safe mode
+        let PachinkoMenu = '<div style="padding:50px; display:flex;flex-direction:column;font-size:15px;" class="HHAutoScriptMenu">'
+            + '<div style="display:flex;flex-direction:row">'
+            + '<div style="padding:10px" class="tooltipHH"><span class="tooltipHHtext">' + getTextForUI("PachinkoSelector", "tooltip") + '</span><select id="PachinkoSelector"></select></div>'
+            + '<div style="padding:10px" class="tooltipHH"><span class="tooltipHHtext">' + getTextForUI("PachinkoLeft", "tooltip") + '</span><span id="PachinkoLeft"></span></div>'
+            + '</div>'
+            + '<div class="rowLine">'
+            + '<p id="girls_to_win"></p>'
+            + '</div>'
+            + '<div class="rowLine">'
+            + hhMenuSwitch('PachinkoFillOrbs')
+            + hhMenuSwitch('PachinkoByPassNoGirls')
+            + hhMenuSwitch('PachinkoStopFirstGirl')
+            + '</div>'
+            + '<div class="rowLine">'
+            + '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">' + getTextForUI("PachinkoXTimes", "tooltip") + '</span><input id="PachinkoXTimes" style="width:50px;height:20px" required pattern="' + HHAuto_inputPattern.menuExpLevel + '" type="text" value="1"></div>'
+            + '</div>'
+            + '<div class="rowLine">'
+            + '<div style="padding:10px;width:50%" class="tooltipHH"><span class="tooltipHHtext">' + getTextForUI("Launch", "tooltip") + '</span><label class="myButton" id="PachinkoPlayX" style="font-size:15px; width:100%;text-align:center">' + getTextForUI("Launch", "elementText") + '</label></div>'
+            + '</div>'
+            + '<p style="color: red;" id="PachinkoError"></p>'
+            + `<p id="PachinkoOrbsSpent">${orbsPlayed >= 0 ? getTextForUI("PachinkoOrbsSpent", "elementText") + ' ' + orbsPlayed : ''}</p>`
+            + '</div>'
+        fillHHPopUp("PachinkoMenu", getTextForUI("PachinkoButton", "elementText"), PachinkoMenu);
+
+        function updateOrbsNumber(orbsLeft) {
+            let fillAllOrbs = (<HTMLInputElement>document.getElementById("PachinkoFillOrbs")).checked;
+
+            if (fillAllOrbs && orbsLeft.length > 0) {
+                (<HTMLInputElement>document.getElementById("PachinkoXTimes")).value = orbsLeft[0].innerText;
+            }
+            else {
+                (<HTMLInputElement>document.getElementById("PachinkoXTimes")).value = '1';
+            }
+        }
+
+        $("#PachinkoPlayX").on("click", Pachinko.pachinkoPlayXTimes);
+        $(document).on('change', "#PachinkoSelector", function () {
+            let pachinkoSelector: HTMLSelectElement = <HTMLSelectElement>document.getElementById("PachinkoSelector");
+            let selectorText = pachinkoSelector.options[pachinkoSelector.selectedIndex].text;
+            if (selectorText === getTextForUI("PachinkoSelectorNoButtons", "elementText")) {
+                $("#PachinkoLeft").text("");
+                return;
+            }
+            let orbsLeft = $("div.playing-zone div.btns-section button.blue_button_L[orb_name=" + pachinkoSelector.options[pachinkoSelector.selectedIndex].value + "] span[total_orbs]");
+
+            if (orbsLeft.length > 0) {
+                $("#PachinkoLeft").text(orbsLeft[0].innerText + getTextForUI("PachinkoOrbsLeft", "elementText"));
+            }
+            else {
+                $("#PachinkoLeft").text('0');
+            }
+            updateOrbsNumber(orbsLeft);
+        });
+        $(document).on('change', "#PachinkoFillOrbs", function () {
+            let timerSelector = <HTMLSelectElement>document.getElementById("PachinkoSelector");
+            let orbsLeft = $("div.playing-zone div.btns-section button.blue_button_L[orb_name=" + timerSelector.options[timerSelector.selectedIndex].value + "] span[total_orbs]");
+
+            updateOrbsNumber(orbsLeft);
+        });
+
+        // Add options //changed
+        let pachinkoOptions = <HTMLSelectElement>document.getElementById("PachinkoSelector");
+        let countTimers = 0;
+        let PachinkoType = $("div.playing-zone #playzone-replace-info div.cover h2")[0].innerText;
+
+        $("div.playing-zone div.btns-section button.blue_button_L").each(function () {
+            let optionElement = <HTMLOptionElement>document.createElement("option");
+            let orbName = $(this).attr('orb_name') || '';
+            optionElement.value = orbName;
+            countTimers++;
+            optionElement.text = `${PachinkoType} x${Pachinko.getHumanPachinkoFromOrbName(orbName)}`;
+            pachinkoOptions.add(optionElement);
+
+            if (countTimers === 1) {
+                let orbsLeft = $("div.playing-zone div.btns-section button.blue_button_L[orb_name=" + orbName + "] span[total_orbs]")[0];
+                $("#PachinkoLeft").text(orbsLeft.innerText + getTextForUI("PachinkoOrbsLeft", "elementText"));
+            }
+        });
+
+        let numberOfGirlsToWin = Pachinko.getNumberOfGirlToWinPatchinko();
+        $("#girls_to_win").text(numberOfGirlsToWin + " girls to win"); // TODO translate
+        $('#PachinkoStopFirstGirl').parent().parent().parent().toggle(numberOfGirlsToWin > 0);
+
+
+        if (countTimers === 0) {
+            let optionElement = <HTMLOptionElement>document.createElement("option");
+            optionElement.value = countTimers + '';
+            optionElement.text = getTextForUI("PachinkoSelectorNoButtons", "elementText");
+            pachinkoOptions.add(optionElement);
+        }
+    }
+
     static modulePachinko() {
+        Pachinko.debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
         const menuID = "PachinkoButton";
         let PachinkoButton = '<div style="position: absolute;left: 52%;top: 100px;width:60px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoButton","tooltip")+'</span><label style="font-size:small" class="myButton" id="PachinkoButton">'+getTextForUI("PachinkoButton","elementText")+'</label></div>'
     
         if (document.getElementById(menuID) === null)
         {
             $("#contains_all section").prepend(PachinkoButton);
-            $("#PachinkoButton").on("click", () => { buildPachinkoSelectPopUp(-1)});
-            GM_registerMenuCommand(getTextForUI(menuID, "elementText"), () => { buildPachinkoSelectPopUp(-1) });
+            $("#PachinkoButton").on("click", () => { Pachinko.buildPachinkoSelectPopUp(-1)});
+            GM_registerMenuCommand(getTextForUI(menuID, "elementText"), () => { Pachinko.buildPachinkoSelectPopUp(-1) });
         }
         else
         {
             return;
         }
     
-        function getNumberOfGirlToWinPatchinko(){
-            const girlsRewards = $("div.playing-zone .game-rewards .list-prizes .girl_shards");
-            let numberOfGirlsToWin = 0;
-            if (girlsRewards.length > 0) {
-                try {
-                    numberOfGirlsToWin = JSON.parse(girlsRewards.attr("data-rewards")||'').length;
-                } catch(exp) {}
-            }
-            return numberOfGirlsToWin;
+    }
+
+    static getSelectedOptionButtonSelector() {
+        const selectedOption = Pachinko.pachinkoSelector.options[Pachinko.pachinkoSelector.selectedIndex];
+        return "div.playing-zone div.btns-section button.blue_button_L[orb_name=" + selectedOption.value + "]";
+    }
+
+    static pachinkoPlayXTimes() {
+        setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+        logHHAuto("setting autoloop to false");
+        Pachinko.pachinkoSelector = <HTMLSelectElement>document.getElementById("PachinkoSelector");
+        Pachinko.ByPassNoGirlChecked = (<HTMLInputElement>document.getElementById("PachinkoByPassNoGirls")).checked;
+        Pachinko.stopFirstGirlChecked = (<HTMLInputElement>document.getElementById("PachinkoStopFirstGirl")).checked;
+        const selectedOption = Pachinko.pachinkoSelector.options[Pachinko.pachinkoSelector.selectedIndex];
+        let buttonSelector = Pachinko.getSelectedOptionButtonSelector();
+        Pachinko.orbsToGo = Number((<HTMLInputElement>document.getElementById("PachinkoXTimes")).value);
+
+        Pachinko.orbLeftOnAutoStart = Pachinko.getNumberOfOrbsLeft(buttonSelector);
+        if (Pachinko.orbLeftOnAutoStart <= 0) {
+            logHHAuto('No Orbs left for : ' + selectedOption.text);
+            $("#PachinkoError").text(getTextForUI("PachinkoSelectorNoButtons", "elementText"));
+            return;
         }
-    
-        function buildPachinkoSelectPopUp(orbsPlayed: number = -1)
-        {
+
+        if (Number.isNaN(Number(Pachinko.orbsToGo)) || Pachinko.orbsToGo < 1 || Pachinko.orbsToGo > Pachinko.orbLeftOnAutoStart) {
+            logHHAuto('Invalid orbs number ' + Pachinko.orbsToGo);
+            $("#PachinkoError").text(getTextForUI("PachinkoInvalidOrbsNb", "elementText") + " : " + Pachinko.orbsToGo);
+            return;
+        }
+        let PachinkoPlay = '<div style="padding:20px 50px; display:flex;flex-direction:column">'
+            + '<p>' + selectedOption.text + ' : </p>'
+            + '<p id="PachinkoPlayedTimes" style="padding:0 10px">0/' + Pachinko.orbsToGo + '</p>'
+            + '<label style="width:80px" class="myButton" id="PachinkoPlayCancel">' + getTextForUI("OptionCancel", "elementText") + '</label>'
+            + '</div>';
+        fillHHPopUp("PachinkoPlay", getTextForUI("PachinkoButton", "elementText"), PachinkoPlay);
+        $("#PachinkoPlayCancel").on("click", () => {
+            maskHHPopUp();
+            logHHAuto("Cancel clicked, closing popUp.");
             Pachinko.autoPachinkoRunning = false;
             if (Pachinko.failureTimeoutId) clearTimeout(Pachinko.failureTimeoutId); // cancel safe mode
-            let PachinkoMenu =   '<div style="padding:50px; display:flex;flex-direction:column;font-size:15px;" class="HHAutoScriptMenu">'
-            +    '<div style="display:flex;flex-direction:row">'
-            +     '<div style="padding:10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoSelector","tooltip")+'</span><select id="PachinkoSelector"></select></div>'
-            +     '<div style="padding:10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoLeft","tooltip")+'</span><span id="PachinkoLeft"></span></div>'
-            +    '</div>'
-            +    '<div class="rowLine">'
-            +      '<p id="girls_to_win"></p>'
-            +    '</div>'
-            +    '<div class="rowLine">'
-            +       hhMenuSwitch('PachinkoFillOrbs')
-            +       hhMenuSwitch('PachinkoByPassNoGirls')
-            +       hhMenuSwitch('PachinkoStopFirstGirl')
-            +    '</div>'
-            +    '<div class="rowLine">'
-            +     '<div style="padding:10px;" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("PachinkoXTimes","tooltip")+'</span><input id="PachinkoXTimes" style="width:50px;height:20px" required pattern="'+HHAuto_inputPattern.menuExpLevel+'" type="text" value="1"></div>'
-            +    '</div>'
-            +    '<div class="rowLine">'
-            +     '<div style="padding:10px;width:50%" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("Launch","tooltip")+'</span><label class="myButton" id="PachinkoPlayX" style="font-size:15px; width:100%;text-align:center">'+getTextForUI("Launch","elementText")+'</label></div>'
-            +    '</div>'
-            +   '<p style="color: red;" id="PachinkoError"></p>'
-            +   `<p id="PachinkoOrbsSpent">${orbsPlayed >= 0 ? getTextForUI("PachinkoOrbsSpent", "elementText") + ' ' + orbsPlayed : ''}</p>`
-            +  '</div>'
-            fillHHPopUp("PachinkoMenu",getTextForUI("PachinkoButton","elementText"), PachinkoMenu);
-    
-            function updateOrbsNumber(orbsLeft){
-                let fillAllOrbs =  (<HTMLInputElement>document.getElementById("PachinkoFillOrbs")).checked;
-    
-                if (fillAllOrbs && orbsLeft.length >0)
-                {
-                    (<HTMLInputElement>document.getElementById("PachinkoXTimes")).value = orbsLeft[0].innerText;
-                }
-                else
-                {
-                    (<HTMLInputElement>document.getElementById("PachinkoXTimes")).value = '1';
-                }
-            }
-    
-            $("#PachinkoPlayX").on("click", pachinkoPlayXTimes);
-            $(document).on('change',"#PachinkoSelector", function() {
-                let timerSelector:HTMLSelectElement = <HTMLSelectElement>document.getElementById("PachinkoSelector");
-                let selectorText = timerSelector.options[timerSelector.selectedIndex].text;
-                if (selectorText === getTextForUI("PachinkoSelectorNoButtons","elementText"))
-                {
-                    $("#PachinkoLeft").text("");
-                    return;
-                }
-                let orbsLeft = $("div.playing-zone div.btns-section button.blue_button_L[orb_name="+timerSelector.options[timerSelector.selectedIndex].value+"] span[total_orbs]");
-    
-                if (orbsLeft.length >0)
-                {
-                    $("#PachinkoLeft").text(orbsLeft[0].innerText + getTextForUI("PachinkoOrbsLeft","elementText"));
-                }
-                else
-                {
-                    $("#PachinkoLeft").text('0');
-                }
-                updateOrbsNumber(orbsLeft);
-            });
-            $(document).on('change',"#PachinkoFillOrbs", function() {
-                let timerSelector = <HTMLSelectElement>document.getElementById("PachinkoSelector");
-                let orbsLeft = $("div.playing-zone div.btns-section button.blue_button_L[orb_name="+timerSelector.options[timerSelector.selectedIndex].value+"] span[total_orbs]");
-    
-                updateOrbsNumber(orbsLeft);
-            });
-    
-            // Add Timer reset options //changed
-            let timerOptions = <HTMLSelectElement>document.getElementById("PachinkoSelector");
-            let countTimers=0;
-            let PachinkoType = $("div.playing-zone #playzone-replace-info div.cover h2")[0].innerText;
-    
-            $("div.playing-zone div.btns-section button.blue_button_L").each(function ()
-                                                                             {
-                let optionElement = <HTMLOptionElement>document.createElement("option");
-                let orbName = $(this).attr('orb_name') || '';
-                optionElement.value = orbName;
-                countTimers++;
-                optionElement.text = `${PachinkoType} x${Pachinko.getHumanPachinkoFromOrbName(orbName)}`;
-                timerOptions.add(optionElement);
-    
-                if (countTimers === 1)
-                {
-                    let orbsLeft = $("div.playing-zone div.btns-section button.blue_button_L[orb_name="+orbName+"] span[total_orbs]")[0];
-                    $("#PachinkoLeft").text(orbsLeft.innerText+ getTextForUI("PachinkoOrbsLeft","elementText"));
-                }
-            });
-    
-            let numberOfGirlsToWin = getNumberOfGirlToWinPatchinko();
-            $("#girls_to_win").text(numberOfGirlsToWin + " girls to win"); // TODO translate
-            $('#PachinkoStopFirstGirl').parent().parent().parent().toggle(numberOfGirlsToWin>0);
-    
-    
-            if(countTimers === 0)
-            {
-                let optionElement = <HTMLOptionElement>document.createElement("option");
-                optionElement.value = countTimers+'';
-                optionElement.text = getTextForUI("PachinkoSelectorNoButtons","elementText");
-                timerOptions.add(optionElement);
-            }
-        }
-    
-        function pachinkoPlayXTimes()
-        {
-            const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
-            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
-            logHHAuto("setting autoloop to false");
-            let timerSelector = <HTMLSelectElement>document.getElementById("PachinkoSelector");
-            let ByPassNoGirlChecked = (<HTMLInputElement>document.getElementById("PachinkoByPassNoGirls")).checked;
-            let stopFirstGirlChecked = (<HTMLInputElement>document.getElementById("PachinkoStopFirstGirl")).checked;
-            let buttonValue:string = timerSelector.options[timerSelector.selectedIndex].value;
-            let buttonSelector = "div.playing-zone div.btns-section button.blue_button_L[orb_name="+buttonValue+"]";
-            const buttonContinueSelector = '.popup_buttons #play_again:visible';
-            let orbsLeftSelector:string = buttonSelector+ " span[total_orbs]";
-            let orbsToGo = Number((<HTMLInputElement>document.getElementById("PachinkoXTimes")).value);
+        });
 
-            function getNumberOfOrbsLeft(orbsLeftSelector:string): number
-            {
-                let orbsLeft = 0;
-                if ($(orbsLeftSelector).length > 0)
-                {
-                    orbsLeft=Number($(orbsLeftSelector).first().text());
-                }
-                if(isNaN(orbsLeft)) {
-                    orbsLeft = 0;
-                    logHHAuto("ERROR getting orbs left");
-                }
-                return orbsLeft;
+        if (!Pachinko.ajaxBindingDone) {
+            Pachinko.bindPachinkoAjaxReturn();
+        }
+
+        Pachinko.autoPachinkoRunning = true;
+        setTimeout(Pachinko.playXPachinko_func, randomInterval(500, 1500));
+    }
+    
+    static stopXPachinkoNoGirl() {
+        logHHAuto("No more girl on Pachinko, cancelling.");
+        maskHHPopUp();
+        Pachinko.buildPachinkoSelectPopUp();
+        $("#PachinkoError").text(getTextForUI("PachinkoNoGirls", "elementText"));
+    }
+    static stopXPachinkoFailure() {
+        if (Pachinko.retry <= 2) {
+            logHHAuto("Pachinko failure, retry once.");
+            Pachinko.retry++;
+            setTimeout(Pachinko.playXPachinko_func, randomInterval(100, 300));
+        } else {
+            logHHAuto("Pachinko failure, cancelling.");
+            maskHHPopUp();
+            Pachinko.buildPachinkoSelectPopUp();
+            $("#PachinkoError").text(getTextForUI("PachinkoFailure", "elementText"));
+        }
+    }
+
+    static playXPachinko_func() {
+        let buttonSelector = Pachinko.getSelectedOptionButtonSelector();
+        const buttonContinueSelector = '.popup_buttons #play_again:visible';
+        if (!isDisplayedHHPopUp()) {
+            Pachinko.autoPachinkoRunning = false;
+            logHHAuto("PopUp closed, cancelling interval, restart autoloop.");
+            setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
+            setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey + "Temp_autoLoopTimeMili")));
+            return;
+        }
+        const confirmPachinko = document.getElementById("confirm_pachinko");
+        if (confirmPachinko !== null) {
+            if (Pachinko.ByPassNoGirlChecked && confirmPachinko.querySelector("#popup_confirm.blue_button_L") !== null) {
+                (<HTMLElement>confirmPachinko.querySelector("#popup_confirm.blue_button_L")).click();
+                logHHAuto('By pass no girl popup closed');
             }
-            Pachinko.orbLeftOnAutoStart = getNumberOfOrbsLeft(orbsLeftSelector);
-            if (Pachinko.orbLeftOnAutoStart <= 0)
-            {
-                logHHAuto('No Orbs left for : '+timerSelector.options[timerSelector.selectedIndex].text);
-                $("#PachinkoError").text(getTextForUI("PachinkoSelectorNoButtons","elementText"));
+            else {
+                Pachinko.stopXPachinkoNoGirl();
                 return;
             }
-    
-            if (Number.isNaN(Number(orbsToGo)) || orbsToGo < 1 || orbsToGo > Pachinko.orbLeftOnAutoStart)
-            {
-                logHHAuto('Invalid orbs number '+orbsToGo);
-                $("#PachinkoError").text(getTextForUI("PachinkoInvalidOrbsNb","elementText")+" : "+orbsToGo);
-                return;
-            }
-            let PachinkoPlay =   '<div style="padding:20px 50px; display:flex;flex-direction:column">'
-            +   '<p>'+timerSelector.options[timerSelector.selectedIndex].text+' : </p>'
-            +   '<p id="PachinkoPlayedTimes" style="padding:0 10px">0/'+orbsToGo+'</p>'
-            +  '<label style="width:80px" class="myButton" id="PachinkoPlayCancel">'+getTextForUI("OptionCancel","elementText")+'</label>'
-            + '</div>'
-            fillHHPopUp("PachinkoPlay",getTextForUI("PachinkoButton","elementText"), PachinkoPlay);
-            $("#PachinkoPlayCancel").on("click", () => {
-                maskHHPopUp();
-                logHHAuto("Cancel clicked, closing popUp.");
-                Pachinko.autoPachinkoRunning = false;
-                if (Pachinko.failureTimeoutId) clearTimeout(Pachinko.failureTimeoutId); // cancel safe mode
-            });
-            function stopXPachinkoNoGirl(){
-                logHHAuto("No more girl on Pachinko, cancelling.");
-                maskHHPopUp();
-                buildPachinkoSelectPopUp();
-                $("#PachinkoError").text(getTextForUI("PachinkoNoGirls","elementText"));
-            }
-            function stopXPachinkoFailure(){
-                logHHAuto("No more girl on Pachinko, cancelling.");
-                maskHHPopUp();
-                buildPachinkoSelectPopUp();
-                $("#PachinkoError").text(getTextForUI("PachinkoNoGirls","elementText"));
-            }
-
-            if (!Pachinko.ajaxBindingDone) {
-                Pachinko.ajaxBindingDone = true;
-                $(document).ajaxComplete(function (evt, xhr, opt) {
-                    if (!opt.data) return;
-                    if (!xhr.responseText.length) return;
-
-                    const searchParams = new URLSearchParams(opt.data)
-                    if (searchParams.get('action') == 'play' && searchParams.get('class') == 'Pachinko') {
-
-                        const response = JSON.parse(xhr.responseText);
-
-                        if (!response || !response.success) {
-                            if (debugEnabled) logHHAuto("Not response success");
-                            stopXPachinkoFailure();
-                            return;
-                        }
-
-                        if (response.rewards?.heroChangesUpdate?.orbs) {
-                            //const orbs = response.rewards?.heroChangesUpdate?.orbs;
-                            // o_g10 / o_g1 / o_eq2
-                            //const orbLeftFromResponse = orbs.o_g10;
-                            if (Pachinko.failureTimeoutId) clearTimeout(Pachinko.failureTimeoutId); // cancel safe mode
-                            if (Pachinko.autoPachinkoRunning) {
-                                setTimeout(playXPachinko_func, randomInterval(200, 500));
-                            } else if(debugEnabled) {
-                                logHHAuto('Ajax catched, do nothing');
-                            }
-                        }
-                        else stopXPachinkoFailure();
-                    }
-                });
-            }
-
-            function playXPachinko_func()
-            {
-                if(!isDisplayedHHPopUp())
-                {
-                    Pachinko.autoPachinkoRunning = false;
-                    logHHAuto("PopUp closed, cancelling interval, restart autoloop.");
-                    setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "true");
-                    setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey+"Temp_autoLoopTimeMili")));
-                    return;
-                }
-                const confirmPachinko = document.getElementById("confirm_pachinko");
-                if (confirmPachinko !== null )
-                {
-                    if (ByPassNoGirlChecked && confirmPachinko.querySelector("#popup_confirm.blue_button_L") !== null)
-                    {
-                        (<HTMLElement>confirmPachinko.querySelector("#popup_confirm.blue_button_L")).click()
-                    }
-                    else
-                    {
-                        stopXPachinkoNoGirl();
-                        return;
-                    }
-                }
-                // let numberOfGirlsToWin = getNumberOfGirlToWinPatchinko();
-                // if(!ByPassNoGirlChecked && numberOfGirlsToWin === 0) {
-                //     stopXPachinkoNoGirl();
-                //     return;
-                // }
-
-                const currentOrbsLeft = getNumberOfOrbsLeft(orbsLeftSelector);
-                const spendedOrbs = Number(Pachinko.orbLeftOnAutoStart - currentOrbsLeft);
-                //if (debugEnabled) logHHAuto('orbsLeft: ' + Pachinko.orbLeftOnAutoStart + ", currentOrbsLeft: " + currentOrbsLeft + ', spendedOrbs: ' + spendedOrbs + '/orbsToGo: ' + orbsToGo);
-                if (stopFirstGirlChecked && $('#rewards_popup #reward_holder .shards_wrapper:visible').length > 0)
-                {
-                    logHHAuto("Girl in reward, stopping...");
-                    maskHHPopUp();
-                    buildPachinkoSelectPopUp(spendedOrbs);
-                    return;
-                }
-                const pachinkoSelectedButton= $(buttonSelector)[0];
-                const continuePachinkoSelectedButton = $(buttonContinueSelector);
-                $("#PachinkoPlayedTimes").text(spendedOrbs+"/"+orbsToGo);
-                if (spendedOrbs < orbsToGo && currentOrbsLeft > 0)
-                {
-                    if (continuePachinkoSelectedButton.length > 0) {
-                        continuePachinkoSelectedButton.trigger('click');
-                    }
-                    else {
-                        RewardHelper.closeRewardPopupIfAny(false);
-                        pachinkoSelectedButton.click();
-
-                        Pachinko.failureTimeoutId = setTimeout(()=>{
-                            // Safe mode
-                            logHHAuto("ERROR: Stop bot, no reply from server after more than 5s.");
-                            stopXPachinkoFailure();
-                        }, randomInterval(5000, 8000));  
-
-                        // Nothing to do here, will be done by ajaxComplete handler above.
-                    }
-                }
-                else
-                {
-                    RewardHelper.closeRewardPopupIfAny(false);
-                    logHHAuto("All spent, going back to Selector.");
-                    maskHHPopUp();
-                    buildPachinkoSelectPopUp(spendedOrbs);
-                    return;
-                }
-            }
-
-            Pachinko.autoPachinkoRunning = true;
-            setTimeout(playXPachinko_func,randomInterval(500,1500));
         }
-    
+
+        const currentOrbsLeft = Pachinko.getNumberOfOrbsLeft(buttonSelector);
+        const spendedOrbs = Number(Pachinko.orbLeftOnAutoStart - currentOrbsLeft);
+        //if (debugEnabled) logHHAuto('orbsLeft: ' + Pachinko.orbLeftOnAutoStart + ", currentOrbsLeft: " + currentOrbsLeft + ', spendedOrbs: ' + spendedOrbs + '/orbsToGo: ' + orbsToGo);
+        if (Pachinko.stopFirstGirlChecked && $('#rewards_popup #reward_holder .shards_wrapper:visible').length > 0) {
+            logHHAuto("Girl in reward, stopping...");
+            maskHHPopUp();
+            Pachinko.buildPachinkoSelectPopUp(spendedOrbs);
+            return;
+        }
+        const pachinkoSelectedButton = $(buttonSelector)[0];
+        const continuePachinkoSelectedButton = $(buttonContinueSelector);
+        $("#PachinkoPlayedTimes").text(spendedOrbs + "/" + Pachinko.orbsToGo);
+        if (spendedOrbs < Pachinko.orbsToGo && currentOrbsLeft > 0) {
+            if (continuePachinkoSelectedButton.length > 0) {
+                continuePachinkoSelectedButton.trigger('click');
+            }
+            else {
+                RewardHelper.closeRewardPopupIfAny(false);
+                pachinkoSelectedButton.click();
+
+                Pachinko.failureTimeoutId = setTimeout(() => {
+                    // Safe mode
+                    logHHAuto("ERROR: No reply from server after more than 5s.");
+                    Pachinko.stopXPachinkoFailure();
+                }, randomInterval(5000, 8000));
+
+                // Nothing to do here, will be done by ajaxComplete handler above.
+            }
+        }
+        else {
+            RewardHelper.closeRewardPopupIfAny(false);
+            logHHAuto("All spent, going back to Selector.");
+            maskHHPopUp();
+            Pachinko.buildPachinkoSelectPopUp(spendedOrbs);
+            return;
+        }
+    }
+
+    static bindPachinkoAjaxReturn() {
+        Pachinko.ajaxBindingDone = true;
+        $(document).ajaxComplete(function (evt, xhr, opt) {
+            if (!opt.data) return;
+            if (!xhr.responseText.length) return;
+
+            const searchParams = new URLSearchParams(opt.data)
+            if (searchParams.get('action') == 'play' && searchParams.get('class') == 'Pachinko') {
+
+                const response = JSON.parse(xhr.responseText);
+
+                if (!response || !response.success) {
+                    if (Pachinko.debugEnabled) logHHAuto("Not response success");
+                    Pachinko.stopXPachinkoFailure();
+                    return;
+                }
+
+                if (response.rewards?.heroChangesUpdate?.orbs) {
+                    //const orbs = response.rewards?.heroChangesUpdate?.orbs;
+                    // o_g10 / o_g1 / o_eq2
+                    //const orbLeftFromResponse = orbs.o_g10;
+                    if (Pachinko.failureTimeoutId) clearTimeout(Pachinko.failureTimeoutId); // cancel safe mode
+                    if (Pachinko.autoPachinkoRunning) {
+                        setTimeout(Pachinko.playXPachinko_func, randomInterval(200, 500));
+                    } else if (Pachinko.debugEnabled) {
+                        logHHAuto('Ajax catched, do nothing');
+                    }
+                }
+                else Pachinko.stopXPachinkoFailure();
+            }
+        });
     }
 
     static getHumanPachinkoFromOrbName(orb_name: string): string
