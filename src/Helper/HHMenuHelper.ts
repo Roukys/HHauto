@@ -137,10 +137,10 @@ export function maskInactiveMenus()
     }
 }
 
-export function hhButton(textKeyId, buttonId){
-    return `<div class="tooltipHH">`
+export function hhButton(textKeyId, buttonId, mainStyle='', labelSyle=''){
+    return `<div ${mainStyle ? 'style="' + mainStyle + '"' : '' } class="tooltipHH" >`
                 +`<span class="tooltipHHtext">${getTextForUI(textKeyId,"tooltip")}</span>`
-                +`<label class="myButton" id="${buttonId}">${getTextForUI(textKeyId,"elementText")}</label>`
+                + `<label ${labelSyle ? 'style="' + labelSyle + '"' : '' } class="myButton" id="${buttonId}">${getTextForUI(textKeyId,"elementText")}</label>`
             +`</div>`;
 }
 
