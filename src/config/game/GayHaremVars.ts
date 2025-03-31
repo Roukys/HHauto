@@ -22,7 +22,8 @@ export class GayHarem {
             'Maro',
             'Jackson&#8217;s Crew',
             'Icarus Warlock',
-            'Sol'];
+            'Sol',
+            'Soju'];
     }
 
     static overrideTrollsByLang(languageCode:string, trollzList: any[])
@@ -57,6 +58,7 @@ export class GayHarem {
             [['24316446', '219651566', '501847856'], ['383709663'], ['90685795']],
             [['225365882', '478693885', '231765083'], ['155415482'], ['769649470']],
             [['86962133', '243793871', '284483399'], [0], [0]],
+            [['167231135', '184523411', '549524850', '560979916', '612527302', '784911160'], [0], [0]],
         ];
     }
     static updateFeatures(envVariables: any) {
