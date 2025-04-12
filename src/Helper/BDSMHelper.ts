@@ -1,4 +1,5 @@
 import { BDSMPlayer, BDSMSimu } from '../model/index';
+import { logHHAuto } from '../Utils/LogUtils';
 import { ConfigHelper } from "./ConfigHelper";
 
 export class BDSMHelper {
@@ -40,9 +41,10 @@ export class BDSMHelper {
             inLeague ? playerAtk * (1+dominanceBonuses.player.attack) : playerAtk,
             opponentDef,
             calculateCritChanceShare(playerCrit, opponentCrit) + dominanceBonuses.player.chance + playerBonuses.critChance,
-            playerBonuses,
-            calculateTier4SkillValue(inHeroData.team.girls),
-            calculateTier5SkillValue(inHeroData.team.girls),
+            { ...playerBonuses, dominance: dominanceBonuses.player },
+            playerElements,
+            getSkillPercentage(inHeroData.team, 9),
+            getSkillPercentage(opponentData.team, 10),
             inHeroData.nickname
         );
         const opponent = new BDSMPlayer(
@@ -50,9 +52,10 @@ export class BDSMHelper {
             opponentAtk,
             inLeague ? playerDef * (1-opponentBonuses.defReduce) : playerDef,
             calculateCritChanceShare(opponentCrit, playerCrit) + dominanceBonuses.opponent.chance + opponentBonuses.critChance,
-            opponentBonuses,
-            calculateTier4SkillValue(opponentData.team.girls),
-            calculateTier5SkillValue(opponentData.team.girls),
+            { ...opponentBonuses, dominance: dominanceBonuses.opponent },
+            opponentElements,
+            getSkillPercentage(opponentData.team, 9),
+            getSkillPercentage(inHeroData.team, 10),
             opponentData.nickname
         );
         return {player:player, opponent:opponent, dominanceBonuses:dominanceBonuses}
@@ -64,9 +67,12 @@ let _opponent;
 let _cache;
 let _runs;
 
-//all following lines credit:Tom208 OCD script
-const tier5_Skill_Id = [11, 12, 13, 14];
-export function calculateBattleProbabilities(player, opponent):BDSMSimu {
+export function calculateBattleProbabilities(player, opponent, debugEnabled: boolean = false):BDSMSimu {
+
+    if (debugEnabled) {
+        logHHAuto('Running simulation against' + opponent.name, opponent);
+    }
+
     _player = player;
     _opponent = opponent;
 
@@ -81,22 +87,13 @@ export function calculateBattleProbabilities(player, opponent):BDSMSimu {
     _cache = {};
     _runs = 0;
 
-    //Tier 5 skill : Shield
-    let playerShield = 0;
-    let opponentShield = 0;
-
     let ret;
     try {
         // start simulation from player's turn
         ret = playerTurn(_player.hp, _opponent.hp, 0);
     } catch (error) {
-        return {
-            points: [],
-            win: Number.NaN,
-            loss: Number.NaN,
-            avgTurns: Number.NaN,
-            scoreClass: 'minus'
-        } as any as BDSMSimu;
+        // logHHAuto(`An error occurred during the simulation against ${_opponent.name}`, error)
+        return new BDSMSimu();
     }
 
     const sum = ret.win + ret.loss;
@@ -104,25 +101,31 @@ export function calculateBattleProbabilities(player, opponent):BDSMSimu {
     ret.loss /= sum;
     ret.scoreClass = ret.win>0.9?'plus':ret.win<0.5?'minus':'close';
 
+    if (debugEnabled) {
+        logHHAuto(`Ran ${_runs} simulations against ${_opponent.name}; aggregated win chance: ${ret.win * 100}%, average turns: ${ret.avgTurns}`);
+    }
+
     return ret;
 
-    function calculateDmg(x, turns) {
-        const dmg = x.atk * (1 + x.tier4.dmg) ** turns - x.adv_def * (1 + x.tier4.def) ** turns;
+    function calculateDmg(x, turns: number) {
+        const dmg = Math.max(0, x.atk * (x.atkMult ** turns) - x.adv_def * (x.defMult ** turns))
 
         return {
             baseAtk : {
                 probability: 1 - x.critchance,
-                damageAmount: Math.ceil(dmg)
+                damageAmount: Math.ceil(dmg),
+                healAmount: Math.ceil(dmg * x.bonuses.healOnHit)
             },
             critAtk : {
                 probability: x.critchance,
-                damageAmount: Math.ceil(dmg * x.critMultiplier)
+                damageAmount: Math.ceil(dmg * x.critMultiplier),
+                healAmount: Math.ceil(dmg * x.critMultiplier * x.bonuses.healOnHit)
             }
         }
     }
 
-    function mergeResult(x:BDSMSimu, xProbability: number, y:BDSMSimu, yProbability: number) {
-        const points = {};
+    function mergeResult(x: BDSMSimu, xProbability: number, y: BDSMSimu, yProbability: number): BDSMSimu {
+        const points = [];
         Object.entries(x.points).map(([point, probability]) => [point, probability * xProbability])
             .concat(Object.entries(y.points).map(([point, probability]) => [point, probability * yProbability]))
             .forEach(([point, probability]) => {
@@ -132,10 +135,10 @@ export function calculateBattleProbabilities(player, opponent):BDSMSimu {
         const win = merge(x.win, y.win);
         const loss = merge(x.loss, y.loss);
         const avgTurns = merge(x.avgTurns, y.avgTurns);
-        return { points, win, loss, avgTurns };
+        return new BDSMSimu(points, win, loss, avgTurns);
     }
 
-    function playerTurn(playerHP, opponentHP, turns) {
+    function playerTurn(playerHP, opponentHP, turns: number): BDSMSimu {
         turns += 1;
         // avoid a stack overflow
         const maxAllowedTurns = 50;
@@ -163,59 +166,26 @@ export function calculateBattleProbabilities(player, opponent):BDSMSimu {
         return mergedResult;
     }
 
-    function playerAttack(playerHP, opponentHP, attack, turns) {
-        //Tier 5 skill : Stun
-        if (_opponent.tier5.id == 11 && (turns == 2 || turns == 3)) {
-            // next turn
-            return playerTurn(playerHP, opponentHP, turns);
-        }
-
-        let playerDamage = Math.max(0, (attack.damageAmount - opponentShield));
-        opponentHP -= playerDamage;
-
-        //Tier 5 skill : Shield
-        if (_player.tier5.id == 12 && turns == 1) {
-            playerShield = Math.ceil(_player.tier5.value * _player.hp);
-        }
-        if (_opponent.tier5.id == 12 && turns > 1) {
-            opponentShield -= attack.damageAmount;
-            opponentShield = Math.max(0, opponentShield);
-        }
-
-        //Tier 5 skill : Reflect
-        let opponentReflectDmg = 0;
-        if (_opponent.tier5.id == 13 && (turns == 2 || turns == 3)) {
-            opponentReflectDmg = Math.ceil(_opponent.tier5.value * attack.damageAmount);
-            playerHP -= Math.max(0, (opponentReflectDmg - playerShield));
-            playerShield -= opponentReflectDmg;
-            playerShield = Math.max(0, playerShield);
-        }
-
-        //Tier 5 skill : Execute
-        if (_player.tier5.id == 14) {
-            let opponentHPRate = opponentHP / _opponent.hp;
-            if (opponentHPRate <= _player.tier5.value) {
-                opponentHP = 0;
-            }
-        }
+    function playerAttack(playerHP, opponentHP, attack, turns: number): BDSMSimu {
+        // damage
+        opponentHP -= attack.damageAmount;
 
         // heal on hit
-        let playerHeal = Math.ceil(_player.bonuses.healOnHit * playerDamage);
-        playerHP += playerHeal;
+        playerHP += attack.healAmount;
         playerHP = Math.min(playerHP, _player.hp);
 
         // check win
         if (opponentHP <= 0) {
-            const point = Math.min(25, 15 + Math.ceil(10 * playerHP / _player.hp));
+            const point = 15 + Math.ceil(10 * playerHP / _player.hp);
             _runs += 1;
-            return { points: { [point]: 1 }, win: 1, loss: 0, avgTurns: 0 };
+            return new BDSMSimu({ [point]: 1 } as any[], 1, 0, 0);
         }
 
         // next turn
         return opponentTurn(playerHP, opponentHP, turns);
     }
 
-    function opponentTurn(playerHP, opponentHP, turns) {
+    function opponentTurn(playerHP, opponentHP, turns: number): BDSMSimu {
         // simulate base attack and critical attack
         const {baseAtk, critAtk} = calculateDmg(_opponent, turns);
         const baseAtkResult = opponentAttack(playerHP, opponentHP, baseAtk, turns);
@@ -224,54 +194,19 @@ export function calculateBattleProbabilities(player, opponent):BDSMSimu {
         return mergeResult(baseAtkResult, baseAtk.probability, critAtkResult, critAtk.probability);
     }
 
-    function opponentAttack(playerHP, opponentHP, attack, turns) {
-        //Tier 5 skill : Stun
-        if (_player.tier5.id == 11 && (turns == 1 || turns == 2)) {
-            // next turn
-            return playerTurn(playerHP, opponentHP, turns);
-        }
-
+    function opponentAttack(playerHP, opponentHP, attack, turns: number): BDSMSimu {
         // damage
-        let opponentDamage = Math.max(0, (attack.damageAmount - playerShield));
-        playerHP -= opponentDamage;
-
-        //Tier 5 skill : Shield
-        if (_opponent.tier5.id == 12 && turns == 1) {
-            opponentShield = Math.ceil(_opponent.tier5.value * _opponent.hp);
-        }
-        if (_player.tier5.id == 12) {
-            playerShield -= attack.damageAmount;
-            playerShield = Math.max(0, playerShield);
-        }
-
-        //Tier 5 skill : Reflect
-        let playerReflectDmg = 0;
-        if (_player.tier5.id == 13 && (turns == 1 || turns == 2)) {
-            playerReflectDmg = Math.ceil(_player.tier5.value * attack.damageAmount);
-            opponentHP -= Math.max(0, (playerReflectDmg - opponentShield));
-            opponentShield -= playerReflectDmg;
-            opponentShield = Math.max(0, opponentShield);
-        }
-
-        //Tier 5 skill : Execute
-        if (_opponent.tier5.id == 14) {
-            let playerHPRate = playerHP / _player.hp;
-            if (playerHPRate <= _opponent.tier5.value) {
-                playerHP = 0;
-                //console.log("PLAYER EXECUTED!!");
-            }
-        }
+        playerHP -= attack.damageAmount;
 
         // heal on hit
-        let opponentHeal = Math.ceil(_opponent.bonuses.healOnHit * opponentDamage);
-        opponentHP += opponentHeal;
+        opponentHP += attack.healAmount;
         opponentHP = Math.min(opponentHP, _opponent.hp);
 
         // check loss
         if (playerHP <= 0) {
-            const point = Math.max(3, 3 + Math.ceil(10 * (_opponent.hp - opponentHP) / _opponent.hp));
+            const point = 3 + Math.ceil(10 * (_opponent.hp - opponentHP) / _opponent.hp);
             _runs += 1;
-            return { points: { [point]: 1 }, win: 0, loss: 1, avgTurns: 0 };
+            return new BDSMSimu({ [point]: 1 } as any[], 0, 1, 0);
         }
 
         // next turn
@@ -279,6 +214,7 @@ export function calculateBattleProbabilities(player, opponent):BDSMSimu {
     }
 }
 
+/*
 export function calculateTier4SkillValue(teamGirlsArray) {
     let skill_tier_4 = {dmg: 0, def: 0};
 
@@ -289,6 +225,7 @@ export function calculateTier4SkillValue(teamGirlsArray) {
     return skill_tier_4;
 }
 
+const tier5_Skill_Id = [11, 12, 13, 14];
 export function calculateTier5SkillValue(teamGirlsArray) {
     let skill_tier_5 = {id: 0, value: 0};
     const girl = teamGirlsArray[0];
@@ -301,7 +238,6 @@ export function calculateTier5SkillValue(teamGirlsArray) {
     })
     return skill_tier_5;
 }
-/*
 export function calculateThemeFromElements(elements) {
     const counts = countElementsInTeam(elements)
 
@@ -388,4 +324,8 @@ export function calculateDominationBonuses(playerElements, opponentElements) {
 export function calculateCritChanceShare(ownHarmony, otherHarmony)
 {
     return 0.3*ownHarmony/(ownHarmony+otherHarmony)
+}
+
+export function getSkillPercentage(team, id) {
+    return 1 + (team.girls.map(e => e.skills[id]?.skill.percentage_value ?? 0).reduce((a, b) => a + b, 0) / 100);
 }

@@ -108,6 +108,7 @@ export class Season {
 
     static moduleSimSeasonBattle()
     {
+        const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
         const hero_data = unsafeWindow.hero_data;
         const opponentDatas = unsafeWindow.opponents;
         let doDisplay=false;
@@ -130,7 +131,7 @@ export class Season {
                 {
                     //console.log("HH simuFight",JSON.stringify(player),JSON.stringify(opponent), opponentBonuses);
                 }
-                const simu = calculateBattleProbabilities(player, opponent)
+                const simu = calculateBattleProbabilities(player, opponent, debugEnabled)
 
                 seasonOpponents[index] = new SeasonOpponent(
                     opponentDatas[index].player?.id_fighter, 
