@@ -122,8 +122,10 @@ export class Labyrinth {
         const frontGirls = Labyrinth.getHaremGirl(girlClassFront);
         let frontGirlIndex = 0;
         if (frontGirls.length >= 2) {
-            await Labyrinth._buildTwoGirlsRow(2, 3, frontGirls[frontGirlIndex++], frontGirls[frontGirlIndex++]);
+            // await Labyrinth._buildTwoGirlsRow(2, 3, frontGirls[frontGirlIndex++], frontGirls[frontGirlIndex++]);
         }
+        if (frontGirls.length >= 1) await Labyrinth._selectGirl(2, frontGirls[frontGirlIndex++]);
+        if (frontGirls.length >= 2) await Labyrinth._selectGirl(3, frontGirls[frontGirlIndex++]);
 
         const girlClassMid = Number($('#autoLabyrinthBuildMid').val());
         const midGirls = Labyrinth.getHaremGirl(girlClassMid, false, 5);
@@ -136,8 +138,10 @@ export class Labyrinth {
         const backGirls = Labyrinth.getHaremGirl(girlClassBack, false, 7);
         let backGirlIndex = girlClassBack == girlClassMid ? midGirlIndex : girlClassBack == girlClassFront ? frontGirlIndex : 0;
         if (backGirls.length >= (backGirlIndex+2)) {
-            await Labyrinth._buildTwoGirlsRow(5, 6, backGirls[backGirlIndex++], backGirls[backGirlIndex++]);
+            //await Labyrinth._buildTwoGirlsRow(5, 6, backGirls[backGirlIndex++], backGirls[backGirlIndex++]);
         }
+        if (backGirls.length >= (backGirlIndex + 1)) await Labyrinth._selectGirl(5, backGirls[backGirlIndex++]);
+        if (backGirls.length >= (backGirlIndex + 1)) await Labyrinth._selectGirl(6, backGirls[backGirlIndex++]);
 
         $(`.${Labyrinth.BUILD_BUTTON_ID}`).removeAttr('disabled');
 
@@ -250,7 +254,7 @@ export class Labyrinth {
                         options.push(option);
                     });
                 }
-    
+
                 // logHHAuto("Row " + currentLevel + ". and options " + JSON.stringify(options));
                 const choosenOption = Labyrinth.findBetter(options);
                 
@@ -277,8 +281,10 @@ export class Labyrinth {
     }
 
     static findBetter(options:LabyrinthOpponent[]){
+        const haveGirlWounded = unsafeWindow.girl_squad.filter(girl => girl.remaining_ego_percent < 100).length > 0
         let choosenOption:LabyrinthOpponent|null = null;
-        const debugEnabled = getStoredValue(HHStoredVarPrefixKey+"Temp_Debug")==='true';
+        const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
+        if (debugEnabled) logHHAuto("Options " + JSON.stringify(options));
         const floor = Labyrinth.getCurrentFloorNumber();
 
         options.forEach((option) =>
@@ -288,6 +294,10 @@ export class Labyrinth {
                 if (choosenOption == null)
                 {
                     if(debugEnabled) logHHAuto('first');
+                    isBetter = true;
+                }
+                else if (choosenOption.isShrine && !haveGirlWounded) {
+                    if (debugEnabled) logHHAuto('No need to heal girls');
                     isBetter = true;
                 }
                 else if (floor === 1 || floor === 2)
@@ -310,7 +320,7 @@ export class Labyrinth {
                     }
                 } else {
                     // Floor 3
-                    if(!choosenOption.isShrine && option.isShrine )
+                    if(!choosenOption.isShrine && option.isShrine && haveGirlWounded)
                     {
                         if(debugEnabled) logHHAuto('Floor 3: isShrine');
                         isBetter = true;

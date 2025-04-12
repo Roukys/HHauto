@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.22.3
+// @version      7.22.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -9783,8 +9783,12 @@ class Labyrinth {
             const frontGirls = Labyrinth.getHaremGirl(girlClassFront);
             let frontGirlIndex = 0;
             if (frontGirls.length >= 2) {
-                yield Labyrinth._buildTwoGirlsRow(2, 3, frontGirls[frontGirlIndex++], frontGirls[frontGirlIndex++]);
+                // await Labyrinth._buildTwoGirlsRow(2, 3, frontGirls[frontGirlIndex++], frontGirls[frontGirlIndex++]);
             }
+            if (frontGirls.length >= 1)
+                yield Labyrinth._selectGirl(2, frontGirls[frontGirlIndex++]);
+            if (frontGirls.length >= 2)
+                yield Labyrinth._selectGirl(3, frontGirls[frontGirlIndex++]);
             const girlClassMid = Number($('#autoLabyrinthBuildMid').val());
             const midGirls = Labyrinth.getHaremGirl(girlClassMid, false, 5);
             let midGirlIndex = girlClassMid == girlClassFront ? frontGirlIndex : 0;
@@ -9798,8 +9802,12 @@ class Labyrinth {
             const backGirls = Labyrinth.getHaremGirl(girlClassBack, false, 7);
             let backGirlIndex = girlClassBack == girlClassMid ? midGirlIndex : girlClassBack == girlClassFront ? frontGirlIndex : 0;
             if (backGirls.length >= (backGirlIndex + 2)) {
-                yield Labyrinth._buildTwoGirlsRow(5, 6, backGirls[backGirlIndex++], backGirls[backGirlIndex++]);
+                //await Labyrinth._buildTwoGirlsRow(5, 6, backGirls[backGirlIndex++], backGirls[backGirlIndex++]);
             }
+            if (backGirls.length >= (backGirlIndex + 1))
+                yield Labyrinth._selectGirl(5, backGirls[backGirlIndex++]);
+            if (backGirls.length >= (backGirlIndex + 1))
+                yield Labyrinth._selectGirl(6, backGirls[backGirlIndex++]);
             $(`.${Labyrinth.BUILD_BUTTON_ID}`).removeAttr('disabled');
             setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
             LogUtils_logHHAuto("setting autoloop to true");
@@ -9923,8 +9931,11 @@ class Labyrinth {
         return ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180);
     }
     static findBetter(options) {
+        const haveGirlWounded = unsafeWindow.girl_squad.filter(girl => girl.remaining_ego_percent < 100).length > 0;
         let choosenOption = null;
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
+        if (debugEnabled)
+            LogUtils_logHHAuto("Options " + JSON.stringify(options));
         const floor = Labyrinth.getCurrentFloorNumber();
         options.forEach((option) => {
             let isBetter = false;
@@ -9932,6 +9943,11 @@ class Labyrinth {
                 if (choosenOption == null) {
                     if (debugEnabled)
                         LogUtils_logHHAuto('first');
+                    isBetter = true;
+                }
+                else if (choosenOption.isShrine && !haveGirlWounded) {
+                    if (debugEnabled)
+                        LogUtils_logHHAuto('No need to heal girls');
                     isBetter = true;
                 }
                 else if (floor === 1 || floor === 2) {
@@ -9954,7 +9970,7 @@ class Labyrinth {
                 }
                 else {
                     // Floor 3
-                    if (!choosenOption.isShrine && option.isShrine) {
+                    if (!choosenOption.isShrine && option.isShrine && haveGirlWounded) {
                         if (debugEnabled)
                             LogUtils_logHHAuto('Floor 3: isShrine');
                         isBetter = true;
