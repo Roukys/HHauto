@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.22.2
+// @version      7.22.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -103,18 +103,31 @@ var __webpack_exports__ = {};
 ;// CONCATENATED MODULE: ./src/model/BDSMPlayer.ts
 //@ts-check
 class BDSMPlayer {
-    constructor(hp, atk, adv_def, critchance, bonuses, tier4, tier5, name = '') {
-        this.tier4 = { dmg: 0, def: 0 };
-        this.tier5 = { id: 0, value: 0 };
+    constructor(hp, atk, adv_def, critchance, bonuses, theme, atkMult, defMult, name = '') {
         this.name = '';
         this.hp = hp;
         this.atk = atk;
         this.adv_def = adv_def;
         this.critchance = critchance;
         this.bonuses = bonuses;
-        this.tier4 = tier4;
-        this.tier5 = tier5;
+        this.theme = theme;
+        this.atkMult = atkMult;
+        this.defMult = defMult;
         this.name = name;
+    }
+}
+
+;// CONCATENATED MODULE: ./src/model/BDSMSimu.ts
+//@ts-check
+class BDSMSimu {
+    constructor(points = [], win = Number.NaN, loss = Number.NaN, avgTurns = Number.NaN, scoreClass = 'minus') {
+        this.scoreClass = 'minus'; // 'plus', 'close', 'minus'
+        this.expectedValue = 0;
+        this.points = points;
+        this.win = win;
+        this.loss = loss;
+        this.avgTurns = avgTurns;
+        this.scoreClass = scoreClass;
     }
 }
 
@@ -3093,6 +3106,7 @@ class Season {
     }
     static moduleSimSeasonBattle() {
         var _a, _b, _c;
+        const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
         const hero_data = unsafeWindow.hero_data;
         const opponentDatas = unsafeWindow.opponents;
         let doDisplay = false;
@@ -3108,7 +3122,7 @@ class Season {
                 if (doDisplay) {
                     //console.log("HH simuFight",JSON.stringify(player),JSON.stringify(opponent), opponentBonuses);
                 }
-                const simu = calculateBattleProbabilities(player, opponent);
+                const simu = calculateBattleProbabilities(player, opponent, debugEnabled);
                 seasonOpponents[index] = new SeasonOpponent((_b = opponentDatas[index].player) === null || _b === void 0 ? void 0 : _b.id_fighter, opponent.name, Number($(".slot_victory_points .amount", opponentBlock)[0].innerText), // mojo
                 Number($(".slot_season_xp_girl", opponentBlock)[0].lastElementChild.innerText.replace(/\D/g, '')), Number($(".slot_season_affection_girl", opponentBlock)[0].lastElementChild.innerText.replace(/\D/g, '')), simu);
                 $('.player-panel-buttons .btn_season_perform', opponentBlock).contents().filter(function () { return this.nodeType === 3; }).remove();
@@ -10382,6 +10396,15 @@ class LabyrinthAuto {
 }
 
 ;// CONCATENATED MODULE: ./src/Module/League.ts
+var League_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 
 
 
@@ -10456,8 +10479,9 @@ class LeagueHelper {
             + 'width: auto;}');
     }
     static getSimPowerOpponent(heroFighter, opponents) {
+        const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
         let leaguePlayers = BDSMHelper.getBdsmPlayersData(heroFighter, opponents.player, true);
-        let simu = calculateBattleProbabilities(leaguePlayers.player, leaguePlayers.opponent);
+        let simu = calculateBattleProbabilities(leaguePlayers.player, leaguePlayers.opponent, debugEnabled);
         const oppoPoints = simu.points;
         let expectedValue = 0;
         for (let i = 25; i >= 3; i--) {
@@ -10569,60 +10593,63 @@ class LeagueHelper {
             const Hero = getHero();
             const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
             let SimPower = function () {
-                if (allOpponentsSimDisplayed) {
-                    // logHHAuto("Stop simu");
-                    return;
-                }
-                const opponents_list = getHHVars("opponents_list");
-                if (!opponents_list) {
-                    LogUtils_logHHAuto('ERROR: Can\'t find opponent list');
-                    return;
-                }
-                let heroFighter = opponents_list.find((el) => el.player.id_fighter == HeroHelper.getPlayerId()).player;
-                const containsSimuScore = function (opponents) { return $('a[href*="id_opponent=' + opponents.player.id_fighter + '"] .matchRatingNew').length > 0; };
-                const containsOcdScore = function (opponents) { return $('.matchRating', $('a[href*="id_opponent=' + opponents.player.id_fighter + '"]').parent()).length > 0; };
-                let opponentsPowerList = LeagueHelper._getTempLeagueOpponentList();
-                let opponentsPowerListChanged = false;
-                for (let opponentIndex = 0; opponentIndex < opponents_list.length; opponentIndex++) {
-                    let opponents = opponents_list[opponentIndex];
-                    if (LeagueHelper.numberOfFightAvailable(opponents) > 0 && !containsSimuScore(opponents) && !containsOcdScore(opponents)) {
-                        let simu;
-                        let leagueOpponent;
-                        if (opponentsPowerList && opponentsPowerList.opponentsList.length > 0) {
-                            try {
-                                leagueOpponent = opponentsPowerList.opponentsList.find((el) => el.opponent_id == opponents.player.id_fighter);
-                                if (leagueOpponent)
-                                    simu = leagueOpponent.simu;
-                            }
-                            catch (error) {
-                                LogUtils_logHHAuto("Error when getting oppo " + opponents.player.id_fighter + "from storage");
-                                if (debugEnabled)
-                                    LogUtils_logHHAuto(error);
-                            }
-                        }
-                        if (!simu) {
-                            simu = LeagueHelper.getSimPowerOpponent(heroFighter, opponents);
-                            leagueOpponent = new LeagueOpponent(opponents.player.id_fighter, 
-                            // opponents.place,
-                            opponents.nickname, 
-                            // opponents.level,
-                            opponents.power, 
-                            // opponents.player_league_points,
-                            Number(NumberHelper.nRounding(simu.expectedValue, 1, -1)), 
-                            // 0, // Boster numbers?
-                            // opponents,
-                            simu);
-                            opponentsPowerList.opponentsList.push(leagueOpponent);
-                            opponentsPowerListChanged = true;
-                        }
-                        LeagueHelper.displayOppoSimuOnButton(opponents.player.id_fighter, simu);
+                return League_awaiter(this, void 0, void 0, function* () {
+                    if (allOpponentsSimDisplayed) {
+                        // logHHAuto("Stop simu");
+                        return;
                     }
-                }
-                if (opponentsPowerListChanged) {
-                    LogUtils_logHHAuto('Save opponent list for later');
-                    setStoredValue(HHStoredVarPrefixKey + "Temp_LeagueOpponentList", JSON.stringify(opponentsPowerList));
-                }
-                //CSS
+                    const opponents_list = getHHVars("opponents_list");
+                    if (!opponents_list) {
+                        LogUtils_logHHAuto('ERROR: Can\'t find opponent list');
+                        return;
+                    }
+                    let heroFighter = opponents_list.find((el) => el.player.id_fighter == HeroHelper.getPlayerId()).player;
+                    const containsSimuScore = function (opponents) { return $('a[href*="id_opponent=' + opponents.player.id_fighter + '"] .matchRatingNew').length > 0; };
+                    const containsOcdScore = function (opponents) { return $('.matchRating', $('a[href*="id_opponent=' + opponents.player.id_fighter + '"]').parent()).length > 0; };
+                    let opponentsPowerList = LeagueHelper._getTempLeagueOpponentList();
+                    let opponentsPowerListChanged = false;
+                    for (let opponentIndex = 0; opponentIndex < opponents_list.length; opponentIndex++) {
+                        let opponents = opponents_list[opponentIndex];
+                        if (LeagueHelper.numberOfFightAvailable(opponents) > 0 && !containsSimuScore(opponents) && !containsOcdScore(opponents)) {
+                            let simu;
+                            let leagueOpponent;
+                            if (opponentsPowerList && opponentsPowerList.opponentsList.length > 0) {
+                                try {
+                                    leagueOpponent = opponentsPowerList.opponentsList.find((el) => el.opponent_id == opponents.player.id_fighter);
+                                    if (leagueOpponent)
+                                        simu = leagueOpponent.simu;
+                                }
+                                catch (error) {
+                                    LogUtils_logHHAuto("Error when getting oppo " + opponents.player.id_fighter + "from storage");
+                                    if (debugEnabled)
+                                        LogUtils_logHHAuto(error);
+                                }
+                            }
+                            if (!simu) {
+                                simu = LeagueHelper.getSimPowerOpponent(heroFighter, opponents);
+                                leagueOpponent = new LeagueOpponent(opponents.player.id_fighter, 
+                                // opponents.place,
+                                opponents.nickname, 
+                                // opponents.level,
+                                opponents.power, 
+                                // opponents.player_league_points,
+                                Number(NumberHelper.nRounding(simu.expectedValue, 1, -1)), 
+                                // 0, // Boster numbers?
+                                // opponents,
+                                simu);
+                                opponentsPowerList.opponentsList.push(leagueOpponent);
+                                opponentsPowerListChanged = true;
+                            }
+                            LeagueHelper.displayOppoSimuOnButton(opponents.player.id_fighter, simu);
+                            yield TimeHelper.sleep(randomInterval(200, 400));
+                        }
+                    }
+                    if (opponentsPowerListChanged) {
+                        LogUtils_logHHAuto('Save opponent list for later');
+                        setStoredValue(HHStoredVarPrefixKey + "Temp_LeagueOpponentList", JSON.stringify(opponentsPowerList));
+                    }
+                    //CSS
+                });
             };
             SimPower();
             let listUpdateStatus = '<div style="position: absolute;left: 720px;top: 0px;width:100px;" class="tooltipHH" id="HHListUpdate"></div>';
@@ -15873,6 +15900,7 @@ class MissionRewards {
 ;// CONCATENATED MODULE: ./src/Helper/BDSMHelper.ts
 
 
+
 class BDSMHelper {
     static fightBonues(team) {
         return {
@@ -15899,8 +15927,8 @@ class BDSMHelper {
         opponentData.team.theme_elements.forEach((el) => opponentElements.push(el.type));
         const opponentBonuses = BDSMHelper.fightBonues(opponentData.team);
         const dominanceBonuses = calculateDominationBonuses(playerElements, opponentElements);
-        const player = new BDSMPlayer(inLeague ? playerEgo * (1 + dominanceBonuses.player.ego) : playerEgo, inLeague ? playerAtk * (1 + dominanceBonuses.player.attack) : playerAtk, opponentDef, calculateCritChanceShare(playerCrit, opponentCrit) + dominanceBonuses.player.chance + playerBonuses.critChance, playerBonuses, calculateTier4SkillValue(inHeroData.team.girls), calculateTier5SkillValue(inHeroData.team.girls), inHeroData.nickname);
-        const opponent = new BDSMPlayer(opponentEgo, opponentAtk, inLeague ? playerDef * (1 - opponentBonuses.defReduce) : playerDef, calculateCritChanceShare(opponentCrit, playerCrit) + dominanceBonuses.opponent.chance + opponentBonuses.critChance, opponentBonuses, calculateTier4SkillValue(opponentData.team.girls), calculateTier5SkillValue(opponentData.team.girls), opponentData.nickname);
+        const player = new BDSMPlayer(inLeague ? playerEgo * (1 + dominanceBonuses.player.ego) : playerEgo, inLeague ? playerAtk * (1 + dominanceBonuses.player.attack) : playerAtk, opponentDef, calculateCritChanceShare(playerCrit, opponentCrit) + dominanceBonuses.player.chance + playerBonuses.critChance, Object.assign(Object.assign({}, playerBonuses), { dominance: dominanceBonuses.player }), playerElements, getSkillPercentage(inHeroData.team, 9), getSkillPercentage(opponentData.team, 10), inHeroData.nickname);
+        const opponent = new BDSMPlayer(opponentEgo, opponentAtk, inLeague ? playerDef * (1 - opponentBonuses.defReduce) : playerDef, calculateCritChanceShare(opponentCrit, playerCrit) + dominanceBonuses.opponent.chance + opponentBonuses.critChance, Object.assign(Object.assign({}, opponentBonuses), { dominance: dominanceBonuses.opponent }), opponentElements, getSkillPercentage(opponentData.team, 9), getSkillPercentage(inHeroData.team, 10), opponentData.nickname);
         return { player: player, opponent: opponent, dominanceBonuses: dominanceBonuses };
     }
 }
@@ -15908,9 +15936,10 @@ let _player;
 let _opponent;
 let _cache;
 let _runs;
-//all following lines credit:Tom208 OCD script
-const tier5_Skill_Id = [11, 12, 13, 14];
-function calculateBattleProbabilities(player, opponent) {
+function calculateBattleProbabilities(player, opponent, debugEnabled = false) {
+    if (debugEnabled) {
+        LogUtils_logHHAuto('Running simulation against' + opponent.name, opponent);
+    }
     _player = player;
     _opponent = opponent;
     const setup = x => {
@@ -15921,43 +15950,40 @@ function calculateBattleProbabilities(player, opponent) {
     setup(_opponent);
     _cache = {};
     _runs = 0;
-    //Tier 5 skill : Shield
-    let playerShield = 0;
-    let opponentShield = 0;
     let ret;
     try {
         // start simulation from player's turn
         ret = playerTurn(_player.hp, _opponent.hp, 0);
     }
     catch (error) {
-        return {
-            points: [],
-            win: Number.NaN,
-            loss: Number.NaN,
-            avgTurns: Number.NaN,
-            scoreClass: 'minus'
-        };
+        // logHHAuto(`An error occurred during the simulation against ${_opponent.name}`, error)
+        return new BDSMSimu();
     }
     const sum = ret.win + ret.loss;
     ret.win /= sum;
     ret.loss /= sum;
     ret.scoreClass = ret.win > 0.9 ? 'plus' : ret.win < 0.5 ? 'minus' : 'close';
+    if (debugEnabled) {
+        LogUtils_logHHAuto(`Ran ${_runs} simulations against ${_opponent.name}; aggregated win chance: ${ret.win * 100}%, average turns: ${ret.avgTurns}`);
+    }
     return ret;
     function calculateDmg(x, turns) {
-        const dmg = x.atk * Math.pow((1 + x.tier4.dmg), turns) - x.adv_def * Math.pow((1 + x.tier4.def), turns);
+        const dmg = Math.max(0, x.atk * (Math.pow(x.atkMult, turns)) - x.adv_def * (Math.pow(x.defMult, turns)));
         return {
             baseAtk: {
                 probability: 1 - x.critchance,
-                damageAmount: Math.ceil(dmg)
+                damageAmount: Math.ceil(dmg),
+                healAmount: Math.ceil(dmg * x.bonuses.healOnHit)
             },
             critAtk: {
                 probability: x.critchance,
-                damageAmount: Math.ceil(dmg * x.critMultiplier)
+                damageAmount: Math.ceil(dmg * x.critMultiplier),
+                healAmount: Math.ceil(dmg * x.critMultiplier * x.bonuses.healOnHit)
             }
         };
     }
     function mergeResult(x, xProbability, y, yProbability) {
-        const points = {};
+        const points = [];
         Object.entries(x.points).map(([point, probability]) => [point, probability * xProbability])
             .concat(Object.entries(y.points).map(([point, probability]) => [point, probability * yProbability]))
             .forEach(([point, probability]) => {
@@ -15967,7 +15993,7 @@ function calculateBattleProbabilities(player, opponent) {
         const win = merge(x.win, y.win);
         const loss = merge(x.loss, y.loss);
         const avgTurns = merge(x.avgTurns, y.avgTurns);
-        return { points, win, loss, avgTurns };
+        return new BDSMSimu(points, win, loss, avgTurns);
     }
     function playerTurn(playerHP, opponentHP, turns) {
         var _a;
@@ -15997,45 +16023,16 @@ function calculateBattleProbabilities(player, opponent) {
         return mergedResult;
     }
     function playerAttack(playerHP, opponentHP, attack, turns) {
-        //Tier 5 skill : Stun
-        if (_opponent.tier5.id == 11 && (turns == 2 || turns == 3)) {
-            // next turn
-            return playerTurn(playerHP, opponentHP, turns);
-        }
-        let playerDamage = Math.max(0, (attack.damageAmount - opponentShield));
-        opponentHP -= playerDamage;
-        //Tier 5 skill : Shield
-        if (_player.tier5.id == 12 && turns == 1) {
-            playerShield = Math.ceil(_player.tier5.value * _player.hp);
-        }
-        if (_opponent.tier5.id == 12 && turns > 1) {
-            opponentShield -= attack.damageAmount;
-            opponentShield = Math.max(0, opponentShield);
-        }
-        //Tier 5 skill : Reflect
-        let opponentReflectDmg = 0;
-        if (_opponent.tier5.id == 13 && (turns == 2 || turns == 3)) {
-            opponentReflectDmg = Math.ceil(_opponent.tier5.value * attack.damageAmount);
-            playerHP -= Math.max(0, (opponentReflectDmg - playerShield));
-            playerShield -= opponentReflectDmg;
-            playerShield = Math.max(0, playerShield);
-        }
-        //Tier 5 skill : Execute
-        if (_player.tier5.id == 14) {
-            let opponentHPRate = opponentHP / _opponent.hp;
-            if (opponentHPRate <= _player.tier5.value) {
-                opponentHP = 0;
-            }
-        }
+        // damage
+        opponentHP -= attack.damageAmount;
         // heal on hit
-        let playerHeal = Math.ceil(_player.bonuses.healOnHit * playerDamage);
-        playerHP += playerHeal;
+        playerHP += attack.healAmount;
         playerHP = Math.min(playerHP, _player.hp);
         // check win
         if (opponentHP <= 0) {
-            const point = Math.min(25, 15 + Math.ceil(10 * playerHP / _player.hp));
+            const point = 15 + Math.ceil(10 * playerHP / _player.hp);
             _runs += 1;
-            return { points: { [point]: 1 }, win: 1, loss: 0, avgTurns: 0 };
+            return new BDSMSimu({ [point]: 1 }, 1, 0, 0);
         }
         // next turn
         return opponentTurn(playerHP, opponentHP, turns);
@@ -16049,74 +16046,45 @@ function calculateBattleProbabilities(player, opponent) {
         return mergeResult(baseAtkResult, baseAtk.probability, critAtkResult, critAtk.probability);
     }
     function opponentAttack(playerHP, opponentHP, attack, turns) {
-        //Tier 5 skill : Stun
-        if (_player.tier5.id == 11 && (turns == 1 || turns == 2)) {
-            // next turn
-            return playerTurn(playerHP, opponentHP, turns);
-        }
         // damage
-        let opponentDamage = Math.max(0, (attack.damageAmount - playerShield));
-        playerHP -= opponentDamage;
-        //Tier 5 skill : Shield
-        if (_opponent.tier5.id == 12 && turns == 1) {
-            opponentShield = Math.ceil(_opponent.tier5.value * _opponent.hp);
-        }
-        if (_player.tier5.id == 12) {
-            playerShield -= attack.damageAmount;
-            playerShield = Math.max(0, playerShield);
-        }
-        //Tier 5 skill : Reflect
-        let playerReflectDmg = 0;
-        if (_player.tier5.id == 13 && (turns == 1 || turns == 2)) {
-            playerReflectDmg = Math.ceil(_player.tier5.value * attack.damageAmount);
-            opponentHP -= Math.max(0, (playerReflectDmg - opponentShield));
-            opponentShield -= playerReflectDmg;
-            opponentShield = Math.max(0, opponentShield);
-        }
-        //Tier 5 skill : Execute
-        if (_opponent.tier5.id == 14) {
-            let playerHPRate = playerHP / _player.hp;
-            if (playerHPRate <= _opponent.tier5.value) {
-                playerHP = 0;
-                //console.log("PLAYER EXECUTED!!");
-            }
-        }
+        playerHP -= attack.damageAmount;
         // heal on hit
-        let opponentHeal = Math.ceil(_opponent.bonuses.healOnHit * opponentDamage);
-        opponentHP += opponentHeal;
+        opponentHP += attack.healAmount;
         opponentHP = Math.min(opponentHP, _opponent.hp);
         // check loss
         if (playerHP <= 0) {
-            const point = Math.max(3, 3 + Math.ceil(10 * (_opponent.hp - opponentHP) / _opponent.hp));
+            const point = 3 + Math.ceil(10 * (_opponent.hp - opponentHP) / _opponent.hp);
             _runs += 1;
-            return { points: { [point]: 1 }, win: 0, loss: 1, avgTurns: 0 };
+            return new BDSMSimu({ [point]: 1 }, 0, 1, 0);
         }
         // next turn
         return playerTurn(playerHP, opponentHP, turns);
     }
 }
-function calculateTier4SkillValue(teamGirlsArray) {
-    let skill_tier_4 = { dmg: 0, def: 0 };
+/*
+export function calculateTier4SkillValue(teamGirlsArray) {
+    let skill_tier_4 = {dmg: 0, def: 0};
+
     teamGirlsArray.forEach((girl) => {
-        if (girl.skills[9])
-            skill_tier_4.dmg += girl.skills[9].skill.percentage_value / 100;
-        if (girl.skills[10])
-            skill_tier_4.def += girl.skills[10].skill.percentage_value / 100;
-    });
+        if (girl.skills[9]) skill_tier_4.dmg += girl.skills[9].skill.percentage_value/100;
+        if (girl.skills[10]) skill_tier_4.def += girl.skills[10].skill.percentage_value/100;
+    })
     return skill_tier_4;
 }
-function calculateTier5SkillValue(teamGirlsArray) {
-    let skill_tier_5 = { id: 0, value: 0 };
+
+const tier5_Skill_Id = [11, 12, 13, 14];
+export function calculateTier5SkillValue(teamGirlsArray) {
+    let skill_tier_5 = {id: 0, value: 0};
     const girl = teamGirlsArray[0];
+
     tier5_Skill_Id.forEach((id) => {
         if (girl.skills[id]) {
             skill_tier_5.id = id;
-            skill_tier_5.value = (id == 11) ? parseInt(girl.skills[id].skill.display_value_text, 10) / 100 : girl.skills[id].skill.percentage_value / 100;
+            skill_tier_5.value = (id == 11) ? parseInt(girl.skills[id].skill.display_value_text, 10)/100 : girl.skills[id].skill.percentage_value/100;
         }
-    });
+    })
     return skill_tier_5;
 }
-/*
 export function calculateThemeFromElements(elements) {
     const counts = countElementsInTeam(elements)
 
@@ -16199,6 +16167,9 @@ function calculateDominationBonuses(playerElements, opponentElements) {
 }
 function calculateCritChanceShare(ownHarmony, otherHarmony) {
     return 0.3 * ownHarmony / (ownHarmony + otherHarmony);
+}
+function getSkillPercentage(team, id) {
+    return 1 + (team.girls.map(e => { var _a, _b; return (_b = (_a = e.skills[id]) === null || _a === void 0 ? void 0 : _a.skill.percentage_value) !== null && _b !== void 0 ? _b : 0; }).reduce((a, b) => a + b, 0) / 100);
 }
 
 ;// CONCATENATED MODULE: ./src/Helper/ButtonHelper.ts

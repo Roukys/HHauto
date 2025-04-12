@@ -127,8 +127,9 @@ export class LeagueHelper {
     }
 
     static getSimPowerOpponent(heroFighter, opponents): BDSMSimu {
+        const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
         let leaguePlayers = BDSMHelper.getBdsmPlayersData(heroFighter, opponents.player, true);
-        let simu = calculateBattleProbabilities(leaguePlayers.player, leaguePlayers.opponent);
+        let simu = calculateBattleProbabilities(leaguePlayers.player, leaguePlayers.opponent, debugEnabled);
 
         const oppoPoints = simu.points;
         let expectedValue = 0;
@@ -255,7 +256,7 @@ export class LeagueHelper {
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey+"Temp_Debug")==='true';
 
 
-        let SimPower = function()
+        let SimPower = async function()
         {
             if (allOpponentsSimDisplayed)
             {
@@ -309,8 +310,9 @@ export class LeagueHelper {
                         opponentsPowerList.opponentsList.push(leagueOpponent);
                         opponentsPowerListChanged = true;
                     }
-                    
+
                     LeagueHelper.displayOppoSimuOnButton(opponents.player.id_fighter, simu);
+                    await TimeHelper.sleep(randomInterval(200, 400));
                 }
             }
             
