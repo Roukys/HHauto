@@ -96,7 +96,7 @@ describe("Event Module", function() {
             expect(EventModule.getEventType('sm_event_x')).toBe('sultryMysteries');
             expect(EventModule.getEventType('dp_event_x')).toBe('doublePenetration');
             expect(EventModule.getEventType('path_event_x')).toBe('poa');
-            expect(EventModule.getEventType('cumback_contest_x')).toBe('');
+            expect(EventModule.getEventType('cumback_contest_x')).toBe('cumback');
             expect(EventModule.getEventType('legendary_contest_x')).toBe('');
             expect(EventModule.getEventType('dpg_event_x')).toBe('');
         });
