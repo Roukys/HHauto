@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.22.4
+// @version      7.22.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -9723,6 +9723,9 @@ class Labyrinth {
         }
         return floor;
     }
+    static getRemainingNumberOfGirl() {
+        return Number($('#girls_nb').text());
+    }
     static moduleBuildTeam() {
         if ($(`.${Labyrinth.BUILD_BUTTON_ID}`).length == 0) {
             const divButtons = $('<div style="position:absolute;left:-55px;top:-310px;width:150%;display:flex;gap:4px;z-index:1"></div>');
@@ -9910,7 +9913,6 @@ class Labyrinth {
                         options.push(option);
                     });
                 }
-                // logHHAuto("Row " + currentLevel + ". and options " + JSON.stringify(options));
                 const choosenOption = Labyrinth.findBetter(options);
                 if (choosenOption) {
                     LogUtils_logHHAuto("Row " + currentLevel + ". chosen " + JSON.stringify(choosenOption));
@@ -10375,17 +10377,27 @@ class LabyrinthAuto {
             }
             else if (page === ConfigHelper.getHHScriptVars("pagesIDEditLabyrinthTeam")) {
                 LogUtils_logHHAuto("Fill team.");
-                Labyrinth.moduleBuildTeam();
-                yield TimeHelper.sleep(randomInterval(200, 400));
-                yield Labyrinth._buildTeam();
-                yield TimeHelper.sleep(randomInterval(200, 400));
-                if (this.getNumberSelectedGirl() == 7) {
-                    $('#validate-team:enabled').trigger('click');
+                const numberOfGirlsRemaining = Labyrinth.getRemainingNumberOfGirl();
+                LogUtils_logHHAuto(`Number of girls remaining: ${numberOfGirlsRemaining}`);
+                if (numberOfGirlsRemaining >= 7) {
+                    Labyrinth.moduleBuildTeam();
+                    yield TimeHelper.sleep(randomInterval(200, 400));
+                    yield Labyrinth._buildTeam();
+                    yield TimeHelper.sleep(randomInterval(200, 400));
+                    if (this.getNumberSelectedGirl() == 7) {
+                        $('#validate-team:enabled').trigger('click');
+                    }
+                    else {
+                        if (this.debugEnabled)
+                            LogUtils_logHHAuto('Not enough girl selected, retry...');
+                        return this.run();
+                    }
                 }
                 else {
-                    if (this.debugEnabled)
-                        LogUtils_logHHAuto('Not enough girl selected, retry...');
-                    return this.run();
+                    LogUtils_logHHAuto('Not enough girl to continue. Stopping');
+                    setTimer('nextLabyrinthTime', randomInterval(5 * 60 * 60, 7 * 60 * 60));
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                    return true;
                 }
                 return true;
             }

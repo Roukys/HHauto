@@ -104,16 +104,25 @@ export class LabyrinthAuto {
         }
         else if (page === ConfigHelper.getHHScriptVars("pagesIDEditLabyrinthTeam")) {
             logHHAuto("Fill team.");
-            Labyrinth.moduleBuildTeam();
-            await TimeHelper.sleep(randomInterval(200, 400));
+            const numberOfGirlsRemaining = Labyrinth.getRemainingNumberOfGirl();
+            logHHAuto(`Number of girls remaining: ${numberOfGirlsRemaining}`);
+            if (numberOfGirlsRemaining >= 7) {
+                Labyrinth.moduleBuildTeam();
+                await TimeHelper.sleep(randomInterval(200, 400));
 
-            await Labyrinth._buildTeam();
-            await TimeHelper.sleep(randomInterval(200, 400));
-            if (this.getNumberSelectedGirl() == 7) {
-                $('#validate-team:enabled').trigger('click');
+                await Labyrinth._buildTeam();
+                await TimeHelper.sleep(randomInterval(200, 400));
+                if (this.getNumberSelectedGirl() == 7) {
+                    $('#validate-team:enabled').trigger('click');
+                } else {
+                    if (this.debugEnabled) logHHAuto('Not enough girl selected, retry...');
+                    return this.run();
+                }
             } else {
-                if (this.debugEnabled) logHHAuto('Not enough girl selected, retry...');
-                return this.run();
+                logHHAuto('Not enough girl to continue. Stopping');
+                setTimer('nextLabyrinthTime', randomInterval(5 * 60 * 60, 7 * 60 * 60));
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                return true;
             }
             return true;
         }

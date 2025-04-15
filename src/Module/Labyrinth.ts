@@ -52,6 +52,10 @@ export class Labyrinth {
         }
         return floor;
     }
+    
+    static getRemainingNumberOfGirl(): number {
+        return Number($('#girls_nb').text());
+    }
 
     static moduleBuildTeam():void{
         if ($(`.${Labyrinth.BUILD_BUTTON_ID}`).length == 0) {
@@ -255,7 +259,6 @@ export class Labyrinth {
                     });
                 }
 
-                // logHHAuto("Row " + currentLevel + ". and options " + JSON.stringify(options));
                 const choosenOption = Labyrinth.findBetter(options);
                 
                 if(choosenOption) {
