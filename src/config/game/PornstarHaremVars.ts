@@ -24,7 +24,8 @@ export class PornstarHarem{
                     'Jasmine Jae',
                     'Bella Rose',
                     'Paige Taylor',
-                    'L\'héroïne encapuchonnée'];
+                    'L\'héroïne encapuchonnée',
+                    'Monica Mattos'];
             default:
                 return ['Latest',
                     'Headmistress Asa Akira',
@@ -41,7 +42,8 @@ export class PornstarHarem{
                     'Jasmine Jae',
                     'Bella Rose',
                     'Paige Taylor',
-                    'The Hooded Heroine'];
+                    'The Hooded Heroine',
+                    'Monica Mattos'];
         }
     }
 

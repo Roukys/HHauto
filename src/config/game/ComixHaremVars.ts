@@ -18,7 +18,8 @@ export class ComixHarem {
             'Alexa Sl\'Thor',
             'D\'KLONG',
             'Virtue Man',
-            'Asmodea'];
+            'Asmodea',
+            'Blueball Gremlin'];
     }
     static getTrollGirlsId() {
         return [
