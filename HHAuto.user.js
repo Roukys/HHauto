@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.22.5
+// @version      7.22.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -13655,7 +13655,8 @@ class ComixHarem {
             'Alexa Sl\'Thor',
             'D\'KLONG',
             'Virtue Man',
-            'Asmodea'];
+            'Asmodea',
+            'Blueball Gremlin'];
     }
     static getTrollGirlsId() {
         return [
@@ -13920,7 +13921,8 @@ class PornstarHarem {
                     'Jasmine Jae',
                     'Bella Rose',
                     'Paige Taylor',
-                    'L\'héroïne encapuchonnée'];
+                    'L\'héroïne encapuchonnée',
+                    'Monica Mattos'];
             default:
                 return ['Latest',
                     'Headmistress Asa Akira',
@@ -13937,7 +13939,8 @@ class PornstarHarem {
                     'Jasmine Jae',
                     'Bella Rose',
                     'Paige Taylor',
-                    'The Hooded Heroine'];
+                    'The Hooded Heroine',
+                    'Monica Mattos'];
         }
     }
     static getTrollGirlsId() {
@@ -14420,7 +14423,7 @@ for (var key in AmourAgent.getEnv()) {
 for (var key in PornstarHarem.getEnv()) {
     const element = PornstarHarem.getEnv()[key].name;
     HHEnvVariables[element].trollzList = PornstarHarem.getTrolls(getLanguageCode());
-    HHEnvVariables[element].trollIdMapping = { 10: 9, 14: 11, 16: 12, 18: 13, 19: 14 }; // under 10 id as usual
+    HHEnvVariables[element].trollIdMapping = { 10: 9, 14: 11, 16: 12, 18: 13, 20: 14, 23: 15 }; // under 10 id as usual
     HHEnvVariables[element].lastQuestId = 16100; //  TODO update when new quest comes
     HHEnvVariables[element].boosterId_MB1 = 2619;
     HHEnvVariables[element].trollGirlsID = PornstarHarem.getTrollGirlsId();
