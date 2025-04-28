@@ -488,7 +488,7 @@ for (var key in AmourAgent.getEnv()) {
 for (var key in PornstarHarem.getEnv()) {
     const element = PornstarHarem.getEnv()[key].name;
     HHEnvVariables[element].trollzList = PornstarHarem.getTrolls(getLanguageCode());
-    HHEnvVariables[element].trollIdMapping = { 10: 9, 14: 11, 16: 12, 18: 13, 20: 14 , 23: 15 }; // under 10 id as usual
+    HHEnvVariables[element].trollIdMapping = { 10: 9, 14: 11, 16: 12, 18: 13, 20: 14, 23: 15, 26: 17 }; // under 10 id as usual
     HHEnvVariables[element].lastQuestId = 16100; //  TODO update when new quest comes
     HHEnvVariables[element].boosterId_MB1 = 2619;
     HHEnvVariables[element].trollGirlsID = PornstarHarem.getTrollGirlsId();
