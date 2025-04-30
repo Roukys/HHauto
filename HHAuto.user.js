@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.22.7
+// @version      7.22.8
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -13656,7 +13656,7 @@ class ComixHarem {
             'D\'KLONG',
             'Virtue Man',
             'Asmodea',
-            'Blueball Gremlin'];
+            'Blueball Gremlin']; // 'Gremlin Couill\'bleues'
     }
     static getTrollGirlsId() {
         return [
@@ -13671,6 +13671,7 @@ class ComixHarem {
             [['258185125', '897951171', '971686222'], [0], [0]],
             [['125758004', '233499841', '647307160'], [0], [0]],
             [['994555359', '705713849', '973778141'], [0], [0]],
+            [['986074436', '151807422', '993438296'], [0], [0]],
         ];
     }
     static updateFeatures(envVariables) {
@@ -13922,6 +13923,7 @@ class PornstarHarem {
                     'Bella Rose',
                     'Paige Taylor',
                     'L\'héroïne encapuchonnée',
+                    'EMPTY',
                     'Monica Mattos'];
             default:
                 return ['Latest',
@@ -13940,6 +13942,7 @@ class PornstarHarem {
                     'Bella Rose',
                     'Paige Taylor',
                     'The Hooded Heroine',
+                    'EMPTY',
                     'Monica Mattos'];
         }
     }
@@ -13960,6 +13963,7 @@ class PornstarHarem {
             [['270920965', '600910475', '799448349'], [0], [0]],
             [['832031905', '272818756', '477487889'], [0], [0]],
             [['814814392', '660703295', '450943401'], [0], [0]],
+            [['409433993', '438706084', '673600948'], [0], [0]],
         ];
     }
     static updateFeatures(envVariables) {
