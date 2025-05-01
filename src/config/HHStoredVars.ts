@@ -2106,6 +2106,18 @@ HHStoredVars[HHStoredVarPrefixKey +"Temp_TrollInvalid"] =
     storage:"sessionStorage",
     HHType:"Temp"
 };
+HHStoredVars[HHStoredVarPrefixKey +"Temp_MainAdventureWorldID"] =
+    {
+    default:"0",
+    storage:"localStorage",
+    HHType:"Temp"
+};
+HHStoredVars[HHStoredVarPrefixKey +"Temp_SideAdventureWorldID"] =
+    {
+    default:"0",
+    storage:"localStorage",
+    HHType:"Temp"
+};
 HHStoredVars[HHStoredVarPrefixKey+"Temp_PantheonHumanLikeRun"] =
     {
     storage:"sessionStorage",

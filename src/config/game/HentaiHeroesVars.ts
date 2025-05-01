@@ -1,5 +1,8 @@
 export class HentaiHeroes {
     static spreadsheet = 'https://docs.google.com/spreadsheets/d/1kVZxcZZMa82lS4k-IpxTTTELAeaipjR_v1twlqW5vbI'; // zoopokemon
+    static trollIdMapping = { 21: 19 };
+    static sideTrollIdMapping = { 22: 20 };
+    static lastQuestId = 2116; //  TODO update when new quest comes
     static getEnv() {
         return {
             "www.hentaiheroes.com": { name: "HH_prod", id: "hh_hentai" },
@@ -11,50 +14,66 @@ export class HentaiHeroes {
         }
     }
     static getTrolls(languageCode: string) {
+        const trollList = ["Latest",
+            "Dark Lord",
+            "Ninja Spy",
+            "Gruntt",
+            "Edwarda",
+            "Donatien",
+            "Silvanus",
+            "Bremen",
+            "Finalmecia",
+            "Roko Senseï",
+            "Karole",
+            "Jackson\'s Crew",
+            "Pandora witch",
+            "Nike",
+            "Sake",
+            "WereBunny Police",
+            "Auga",
+            "Gross",
+            "Harriet",
+            "Darth Excitor"
+        ];
         switch (languageCode) {
             case "fr":
-                return ["Dernier",
-                    "Dark Lord",
-                    "Espion Ninja",
-                    "Gruntt",
-                    "Edwarda",
-                    "Donatien",
-                    "Silvanus",
-                    "Bremen",
-                    "Finalmecia",
-                    "Roko Senseï",
-                    "Karole",
-                    "Jackson",
-                    "Pandora",
-                    "Nike",
-                    "Sake",
-                    "Police des Lapines-Garous",
-                    "Auga",
-                    "Gross",
-                    "Harriet",
-                    "Excitateur sombre"];
-            default:
-                return ["Latest",
-                    "Dark Lord",
-                    "Ninja Spy",
-                    "Gruntt",
-                    "Edwarda",
-                    "Donatien",
-                    "Silvanus",
-                    "Bremen",
-                    "Finalmecia",
-                    "Roko Senseï",
-                    "Karole",
-                    "Jackson\'s Crew",
-                    "Pandora witch",
-                    "Nike",
-                    "Sake",
-                    "WereBunny Police",
-                    "Auga",
-                    "Gross",
-                    "Harriet",
-                    "Darth Excitor"];
+                trollList[2] = "Espion Ninja";
+                trollList[11] = "Équipage de Jackson";
+                trollList[12] = "Sorcière Pandora";
+                trollList[15] = "Police des Lapines-Garous";
+                trollList[19] = "Excitateur sombre";
+                break;
+            case "es":
+                trollList[1] = 'Señor Oscuro';
+                trollList[2] = 'Ninja espía';
+                trollList[11] = 'Tripulación de Jackson';
+                trollList[12] = 'Pandora Bruja';
+                trollList[15] = 'Policía hombres-conejos';
+                trollList[19] = 'Darth Excitador';
+                break;
+            case "it":
+                trollList[1] = 'Signore Oscuro';
+                trollList[2] = 'Spia Ninja';
+                trollList[11] = 'Ciurma di Jackson';
+                trollList[12] = 'Strega Pandora';
+                trollList[15] = 'Polizia del Conigli Mannari';
+                break;
+            case "de":
+                trollList[1] = 'Dunkler Lord';
+                trollList[2] = 'Ninjaspion';
+                trollList[11] = 'Jacksons Crew';
+                trollList[12] = 'Pandora Hexe';
+                trollList[15] = 'Wer-Kaninchen Polizei';
+                trollList[19] = 'Darth Erreger';
+                break;
         }
+        return trollList;
+    }
+    static getSideTrolls(languageCode: string): {[key:number]: string} {
+        const trollList = {
+            20: "Arthur"
+        };
+        return trollList;
     }
 
     static getTrollGirlsId() {
@@ -79,6 +98,12 @@ export class HentaiHeroes {
             [['275226156', '280313988', '641009897'], [0], [0]],
             [['410383467', '931778650', '968097691'], [0], [0]],
         ];
+    }
+
+    static getSideTrollGirlsId(): { [key: number]: any } {
+        return {
+            20: [['666677364', '831625343', '851831359'], [0], [0]],
+        };
     }
     static updateFeatures(envVariables: any) {
     }

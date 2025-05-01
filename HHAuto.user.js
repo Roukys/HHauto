@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.22.8
+// @version      7.23.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -501,6 +501,10 @@ HHAuto_ToolTips.en['haremGirlUpgradeMax'] = { version: "6.12.0", elementText: "F
 HHAuto_ToolTips.en['collectAllTimer'] = { version: "5.7.0", elementText: "Collect all timer (in hour)", tooltip: "Hour(s) before end of events to collect all rewards (Low time create risk of not collecting), Need activation on each events (POV, POG, season)" };
 HHAuto_ToolTips.en['collectAllButton'] = { version: "7.3.0", elementText: "Collect all", tooltip: "Automatically collect all items" };
 HHAuto_ToolTips.en['spreadsheet'] = { version: "7.17.0", elementText: "Spreadsheet", tooltip: "" };
+HHAuto_ToolTips.en['latestTroll'] = { version: "7.23.0", elementText: "Latest troll of main adventure", tooltip: "" };
+HHAuto_ToolTips.en['mainAdventure'] = { version: "7.23.0", elementText: "Main adventure", tooltip: "" };
+HHAuto_ToolTips.en['sideAdventure'] = { version: "7.23.0", elementText: "Side adventure", tooltip: "" };
+HHAuto_ToolTips.en['otherTrollOption'] = { version: "7.23.0", elementText: "Others", tooltip: "" };
 //HHAuto_ToolTips.en['scriptWarning'] = { version: "7.4.0", elementText: "Warning", tooltip: "An issue is detected in bot execution, open menu and logs for more info"};
 
 ;// CONCATENATED MODULE: ./src/i18n/fr.ts
@@ -645,6 +649,10 @@ HHAuto_ToolTips.fr['mythicGirlNext'] = { version: "5.6.24", elementText: "Vague 
 HHAuto_ToolTips.fr['PachinkoFillOrbs'] = { version: "5.6.134", elementText: 'Remplir orbes', tooltip: "Remplir le champs avec toutes les orbes disponibles." };
 HHAuto_ToolTips.fr['collectAllTimer'] = { version: "6.15.8", elementText: "Timer Tout collecter (en heure)", tooltip: "Nombre d'heure avant la fin de l'evenement pour collecter toutes les récompenses (Faible temps peu entrainer un echec de collecte), Nécéssite une activation sur chaque évenement (POV, POG, season)" };
 HHAuto_ToolTips.fr['collectAllButton'] = { version: "7.3.0", elementText: "Tout réclamer", tooltip: "Réclame toutes les récompenses de manière automatique" };
+HHAuto_ToolTips.fr['latestTroll'] = { version: "7.23.0", elementText: "Dernier troll de l'aventure principale", tooltip: "" };
+HHAuto_ToolTips.en['mainAdventure'] = { version: "7.23.0", elementText: "Aventure principale", tooltip: "" };
+HHAuto_ToolTips.en['sideAdventure'] = { version: "7.23.0", elementText: "Aventure secondaire", tooltip: "" };
+HHAuto_ToolTips.en['otherTrollOption'] = { version: "7.23.0", elementText: "Autre options", tooltip: "" };
 
 ;// CONCATENATED MODULE: ./src/i18n/de.ts
 
@@ -5583,6 +5591,7 @@ class Troll {
     static getTrollWithGirls() {
         const girlDictionary = Harem.getGirlsList();
         const trollGirlsID = ConfigHelper.getHHScriptVars("trollGirlsID");
+        const sideTrollGirlsID = ConfigHelper.getHHScriptVars("sideTrollGirlsID");
         const trollWithGirls = [];
         if (girlDictionary) {
             for (var tIdx = 0; tIdx < trollGirlsID.length; tIdx++) {
@@ -5592,6 +5601,19 @@ class Troll {
                         var idGirl = parseInt(trollGirlsID[tIdx][pIdx][gIdx], 10);
                         if (idGirl != 0 && (girlDictionary.get("" + idGirl) == undefined || girlDictionary.get("" + idGirl).shards < 100)) {
                             trollWithGirls[tIdx] += 1;
+                        }
+                    }
+                }
+            }
+            if (Object.keys(sideTrollGirlsID).length > 0) {
+                for (let tIdx of Object.keys(sideTrollGirlsID)) {
+                    trollWithGirls[tIdx] = 0;
+                    for (var pIdx = 0; pIdx < sideTrollGirlsID[tIdx].length; pIdx++) {
+                        for (var gIdx = 0; gIdx < sideTrollGirlsID[tIdx][pIdx].length; gIdx++) {
+                            var idGirl = parseInt(sideTrollGirlsID[tIdx][pIdx][gIdx], 10);
+                            if (idGirl != 0 && (girlDictionary.get("" + idGirl) == undefined || girlDictionary.get("" + idGirl).shards < 100)) {
+                                trollWithGirls[tIdx] += 1;
+                            }
                         }
                     }
                 }
@@ -5619,14 +5641,28 @@ class Troll {
         return Troll.isEnabled() &&
             (getStoredValue(HHStoredVarPrefixKey + "Setting_autoTrollBattle") === "true" || getStoredValue(HHStoredVarPrefixKey + "Temp_autoTrollBattleSaveQuest") === "true");
     }
-    static getLastTrollIdAvailable() {
-        const id_world = Number(getHHVars('Hero.infos.questing.id_world'));
-        const trollIdMapping = ConfigHelper.getHHScriptVars("trollIdMapping");
-        if (ConfigHelper.isPshEnvironnement() && id_world > 10) {
-            if (trollIdMapping.hasOwnProperty(id_world)) {
-                return trollIdMapping[id_world]; // PSH parallel adventures
+    static getLastTrollIdAvailable(id_world = undefined) {
+        const isMainAdventure = getHHVars('Hero.infos.questing.choices_adventure') == 0;
+        if (!id_world) {
+            id_world = Number(getHHVars('Hero.infos.questing.id_world'));
+        }
+        else if (id_world <= 0) {
+            LogUtils_logHHAuto(`id_world given ${id_world} must be wrong, default to current world`);
+            id_world = Number(getHHVars('Hero.infos.questing.id_world'));
+        }
+        let trollIdMapping = [];
+        if (isMainAdventure) {
+            trollIdMapping = ConfigHelper.getHHScriptVars("trollIdMapping");
+            if (ConfigHelper.isPshEnvironnement() && id_world > 10) {
+                if (trollIdMapping.hasOwnProperty(id_world)) {
+                    return trollIdMapping[id_world]; // PSH parallel adventures
+                }
+                LogUtils_logHHAuto(`Error Troll ID mapping need to be updated with world ${id_world}`);
             }
-            LogUtils_logHHAuto(`Error Troll ID mapping need to be updated with world ${id_world}`);
+        }
+        else {
+            LogUtils_logHHAuto(`Side adventure detected with world ${id_world}`);
+            trollIdMapping = ConfigHelper.getHHScriptVars("sideTrollIdMapping");
         }
         if (Object.keys(trollIdMapping).length > 0 && trollIdMapping.hasOwnProperty(id_world)) {
             LogUtils_logHHAuto(`Troll ID mapping (${trollIdMapping[id_world]}) found for world ${id_world}`);
@@ -5660,6 +5696,8 @@ class Troll {
         let trollWithGirls = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_trollWithGirls")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_trollWithGirls")) : [];
         const autoTrollSelectedIndex = Troll.getTrollSelectedIndex();
         let TTF = 0;
+        const isMainAdventure = getHHVars('Hero.infos.questing.choices_adventure') == 0;
+        const lastWorldMainAdventure = getStoredValue(HHStoredVarPrefixKey + "Temp_MainAdventureWorldID") || -1;
         const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
         const eventGirl = EventModule.getEventGirl();
         const eventMythicGirl = EventModule.getEventMythicGirl();
@@ -5726,11 +5764,16 @@ class Troll {
             setStoredValue(HHStoredVarPrefixKey + "Temp_questRequirement", "none");
         }
         const trollz = ConfigHelper.getHHScriptVars("trollzList");
+        const sideTrollz = ConfigHelper.getHHScriptVars("sideTrollzList");
+        if (!isMainAdventure && !sideTrollz.hasOwnProperty(TTF) && TTF >= lastWorldMainAdventure) {
+            LogUtils_logHHAuto(`Error: Side adventure selected and troll ${TTF} from main adventure. Backup to ${lastTrollIdAvailable}`);
+            TTF = lastTrollIdAvailable;
+        }
         if (TTF <= 0) {
             TTF = lastTrollIdAvailable > 0 ? lastTrollIdAvailable : 1;
             LogUtils_logHHAuto(`Error: wrong troll target found. Backup to ${TTF}`);
         }
-        if (TTF >= trollz.length) {
+        if (TTF >= trollz.length && !sideTrollz.hasOwnProperty(TTF)) {
             LogUtils_logHHAuto("Error: New troll implemented '" + TTF + "' (List to be updated) or wrong troll target found");
             TTF = 1;
         }
@@ -8395,6 +8438,18 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_TrollInvalid"] =
     {
         default: "false",
         storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_MainAdventureWorldID"] =
+    {
+        default: "0",
+        storage: "localStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_SideAdventureWorldID"] =
+    {
+        default: "0",
+        storage: "localStorage",
         HHType: "Temp"
     };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_PantheonHumanLikeRun"] =
@@ -13622,7 +13677,7 @@ class AmourAgent {
             "www.amouragent.com": { name: "AA_prod", id: "hh_amour" }
         };
     }
-    static getTrolls() {
+    static getTrolls(languageCode) {
         return ['Latest',
             'Frank',
             'Adriana',
@@ -13634,6 +13689,7 @@ class AmourAgent {
         envVariables.isEnabledSpreadsheets = false;
     }
 }
+AmourAgent.trollIdMapping = {};
 
 ;// CONCATENATED MODULE: ./src/config/game/ComixHaremVars.ts
 class ComixHarem {
@@ -13643,8 +13699,8 @@ class ComixHarem {
             "nutaku.comixharem.com": { name: "NCH_prod", id: "hh_comix" }
         };
     }
-    static getTrolls() {
-        return ['Latest',
+    static getTrolls(languageCode) {
+        const trollList = ['Latest',
             'BodyHack',
             'Grey Golem',
             'The Nymph',
@@ -13656,7 +13712,13 @@ class ComixHarem {
             'D\'KLONG',
             'Virtue Man',
             'Asmodea',
-            'Blueball Gremlin']; // 'Gremlin Couill\'bleues'
+            'Blueball Gremlin'];
+        switch (languageCode) {
+            case "fr":
+                trollList[12] = 'Gremlin Couill\'bleues';
+                break;
+        }
+        return trollList;
     }
     static getTrollGirlsId() {
         return [
@@ -13678,6 +13740,7 @@ class ComixHarem {
     }
 }
 ComixHarem.spreadsheet = 'https://docs.google.com/spreadsheets/d/1kVZxcZZMa82lS4k-IpxTTTELAeaipjR_v1twlqW5vbI'; // zoopokemon
+ComixHarem.trollIdMapping = {};
 
 ;// CONCATENATED MODULE: ./src/config/game/GayHaremVars.ts
 class GayHarem {
@@ -13688,8 +13751,8 @@ class GayHarem {
             "eroges.gayharem.com": { name: "EGH_prod", id: "hh_gay" }
         };
     }
-    static getTrolls() {
-        return ['Latest',
+    static getTrolls(languageCode) {
+        const trollList = ['Latest',
             'Dark Lord',
             'Ninja Spy',
             'Gruntt',
@@ -13704,22 +13767,19 @@ class GayHarem {
             'Icarus Warlock',
             'Sol',
             'Soju'];
-    }
-    static overrideTrollsByLang(languageCode, trollzList) {
         switch (languageCode) {
             case "fr":
-                trollzList[2] = 'Espion Ninja';
-                trollzList[11] = 'Éq. de Jackson';
-                trollzList[12] = 'Sorcier Icarus';
+                trollList[2] = 'Espion Ninja';
+                trollList[11] = 'Éq. de Jackson';
+                trollList[12] = 'Sorcier Icarus';
                 break;
             case "de":
-                trollzList[1] = 'Dunkler Lor';
-                trollzList[2] = 'Ninjaspion';
-                trollzList[11] = 'Jacksons Crew';
-                break;
-            default:
+                trollList[1] = 'Dunkler Lor';
+                trollList[2] = 'Ninjaspion';
+                trollList[11] = 'Jacksons Crew';
                 break;
         }
+        return trollList;
     }
     static getTrollGirlsId() {
         return [
@@ -13743,6 +13803,7 @@ class GayHarem {
     }
 }
 GayHarem.spreadsheet = 'https://docs.google.com/spreadsheets/d/1kVZxcZZMa82lS4k-IpxTTTELAeaipjR_v1twlqW5vbI'; // Bella
+GayHarem.trollIdMapping = {};
 
 ;// CONCATENATED MODULE: ./src/config/game/GayPornstarHaremVars.ts
 class GayPornstarHarem {
@@ -13752,7 +13813,7 @@ class GayPornstarHarem {
             "nutaku.gaypornstarharem.com": { name: "NGPSH_prod", id: "hh_stargay", baseImgPath: "https://images.hh-content.com/stargay" }
         };
     }
-    static getTrolls() {
+    static getTrolls(languageCode) {
         return ['Latest',
             'Tristan Hunter',
             'Jimmy Durano',
@@ -13780,6 +13841,7 @@ class GayPornstarHarem {
     }
 }
 GayPornstarHarem.spreadsheet = 'https://docs.google.com/spreadsheets/d/1kVZxcZZMa82lS4k-IpxTTTELAeaipjR_v1twlqW5vbI'; // Cuervos & Sandor
+GayPornstarHarem.trollIdMapping = {};
 
 ;// CONCATENATED MODULE: ./src/config/game/HentaiHeroesVars.ts
 class HentaiHeroes {
@@ -13794,50 +13856,66 @@ class HentaiHeroes {
         };
     }
     static getTrolls(languageCode) {
+        const trollList = ["Latest",
+            "Dark Lord",
+            "Ninja Spy",
+            "Gruntt",
+            "Edwarda",
+            "Donatien",
+            "Silvanus",
+            "Bremen",
+            "Finalmecia",
+            "Roko Senseï",
+            "Karole",
+            "Jackson\'s Crew",
+            "Pandora witch",
+            "Nike",
+            "Sake",
+            "WereBunny Police",
+            "Auga",
+            "Gross",
+            "Harriet",
+            "Darth Excitor"
+        ];
         switch (languageCode) {
             case "fr":
-                return ["Dernier",
-                    "Dark Lord",
-                    "Espion Ninja",
-                    "Gruntt",
-                    "Edwarda",
-                    "Donatien",
-                    "Silvanus",
-                    "Bremen",
-                    "Finalmecia",
-                    "Roko Senseï",
-                    "Karole",
-                    "Jackson",
-                    "Pandora",
-                    "Nike",
-                    "Sake",
-                    "Police des Lapines-Garous",
-                    "Auga",
-                    "Gross",
-                    "Harriet",
-                    "Excitateur sombre"];
-            default:
-                return ["Latest",
-                    "Dark Lord",
-                    "Ninja Spy",
-                    "Gruntt",
-                    "Edwarda",
-                    "Donatien",
-                    "Silvanus",
-                    "Bremen",
-                    "Finalmecia",
-                    "Roko Senseï",
-                    "Karole",
-                    "Jackson\'s Crew",
-                    "Pandora witch",
-                    "Nike",
-                    "Sake",
-                    "WereBunny Police",
-                    "Auga",
-                    "Gross",
-                    "Harriet",
-                    "Darth Excitor"];
+                trollList[2] = "Espion Ninja";
+                trollList[11] = "Équipage de Jackson";
+                trollList[12] = "Sorcière Pandora";
+                trollList[15] = "Police des Lapines-Garous";
+                trollList[19] = "Excitateur sombre";
+                break;
+            case "es":
+                trollList[1] = 'Señor Oscuro';
+                trollList[2] = 'Ninja espía';
+                trollList[11] = 'Tripulación de Jackson';
+                trollList[12] = 'Pandora Bruja';
+                trollList[15] = 'Policía hombres-conejos';
+                trollList[19] = 'Darth Excitador';
+                break;
+            case "it":
+                trollList[1] = 'Signore Oscuro';
+                trollList[2] = 'Spia Ninja';
+                trollList[11] = 'Ciurma di Jackson';
+                trollList[12] = 'Strega Pandora';
+                trollList[15] = 'Polizia del Conigli Mannari';
+                break;
+            case "de":
+                trollList[1] = 'Dunkler Lord';
+                trollList[2] = 'Ninjaspion';
+                trollList[11] = 'Jacksons Crew';
+                trollList[12] = 'Pandora Hexe';
+                trollList[15] = 'Wer-Kaninchen Polizei';
+                trollList[19] = 'Darth Erreger';
+                break;
         }
+        return trollList;
+    }
+    static getSideTrolls(languageCode) {
+        const trollList = {
+            20: "Arthur"
+        };
+        return trollList;
     }
     static getTrollGirlsId() {
         return [
@@ -13862,10 +13940,18 @@ class HentaiHeroes {
             [['410383467', '931778650', '968097691'], [0], [0]],
         ];
     }
+    static getSideTrollGirlsId() {
+        return {
+            20: [['666677364', '831625343', '851831359'], [0], [0]],
+        };
+    }
     static updateFeatures(envVariables) {
     }
 }
 HentaiHeroes.spreadsheet = 'https://docs.google.com/spreadsheets/d/1kVZxcZZMa82lS4k-IpxTTTELAeaipjR_v1twlqW5vbI'; // zoopokemon
+HentaiHeroes.trollIdMapping = { 21: 19 };
+HentaiHeroes.sideTrollIdMapping = { 22: 20 };
+HentaiHeroes.lastQuestId = 2116; //  TODO update when new quest comes
 
 ;// CONCATENATED MODULE: ./src/config/game/MangaRpgVars.ts
 class MangaRpg {
@@ -13875,7 +13961,7 @@ class MangaRpg {
             "nutaku.mangarpg.com": { name: "NMRPG_prod", id: "hh_mangarpg", baseImgPath: "https://mh.hh-content.com" }
         };
     }
-    static getTrolls() {
+    static getTrolls(languageCode) {
         return ['Latest',
             'Jeshtar',
             'EMPTY',
@@ -13895,6 +13981,7 @@ class MangaRpg {
         envVariables.isEnabledSpreadsheets = false;
     }
 }
+MangaRpg.trollIdMapping = { 3: 3 };
 
 ;// CONCATENATED MODULE: ./src/config/game/PornstarHaremVars.ts
 class PornstarHarem {
@@ -13905,46 +13992,31 @@ class PornstarHarem {
         };
     }
     static getTrolls(languageCode) {
+        const trollList = ['Latest',
+            'Headmistress Asa Akira',
+            'Sammy Jayne',
+            'Ivy Winters',
+            'Sophia  Jade',
+            'Amia Miley',
+            'Alyssa Reece',
+            'Kelly Kline',
+            'Jamie Brooks',
+            'Jordan Kingsley',
+            'EMPTY',
+            'Sierra Sinn',
+            'Jasmine Jae',
+            'Bella Rose',
+            'Paige Taylor',
+            'The Hooded Heroine',
+            'EMPTY',
+            'Monica Mattos'];
         switch (languageCode) {
             case "fr":
-                return ["Dernier",
-                    'Directrice Asa Akira',
-                    'Sammy Jayne',
-                    'Ivy Winters',
-                    'Sophia  Jade',
-                    'Amia Miley',
-                    'Alyssa Reece',
-                    'Kelly Kline',
-                    'Jamie Brooks',
-                    'Jordan Kingsley',
-                    'EMPTY',
-                    'Sierra Sinn',
-                    'Jasmine Jae',
-                    'Bella Rose',
-                    'Paige Taylor',
-                    'L\'héroïne encapuchonnée',
-                    'EMPTY',
-                    'Monica Mattos'];
-            default:
-                return ['Latest',
-                    'Headmistress Asa Akira',
-                    'Sammy Jayne',
-                    'Ivy Winters',
-                    'Sophia  Jade',
-                    'Amia Miley',
-                    'Alyssa Reece',
-                    'Kelly Kline',
-                    'Jamie Brooks',
-                    'Jordan Kingsley',
-                    'EMPTY',
-                    'Sierra Sinn',
-                    'Jasmine Jae',
-                    'Bella Rose',
-                    'Paige Taylor',
-                    'The Hooded Heroine',
-                    'EMPTY',
-                    'Monica Mattos'];
+                trollList[1] = 'Directrice Asa Akira';
+                trollList[15] = 'L\'héroïne encapuchonnée';
+                break;
         }
+        return trollList;
     }
     static getTrollGirlsId() {
         return [
@@ -13963,6 +14035,7 @@ class PornstarHarem {
             [['270920965', '600910475', '799448349'], [0], [0]],
             [['832031905', '272818756', '477487889'], [0], [0]],
             [['814814392', '660703295', '450943401'], [0], [0]],
+            [[0], [0], [0]],
             [['409433993', '438706084', '673600948'], [0], [0]],
         ];
     }
@@ -13970,6 +14043,7 @@ class PornstarHarem {
         envVariables.isEnabledSpreadsheets = false;
     }
 }
+PornstarHarem.trollIdMapping = { 10: 9, 14: 11, 16: 12, 18: 13, 20: 14, 23: 15, 26: 17 }; // under 10 id as usual
 
 ;// CONCATENATED MODULE: ./src/config/game/TransPornstarHaremVars.ts
 class TransPornstarHarem {
@@ -13979,7 +14053,7 @@ class TransPornstarHarem {
             "nutaku.transpornstarharem.com": { name: "NTPH_prod", id: "hh_startrans", baseImgPath: "https://images.hh-content.com/startrans" }
         };
     }
-    static getTrolls() {
+    static getTrolls(languageCode) {
         return ['Latest',
             'Ariel Demure',
             'Emma Rose',
@@ -14010,6 +14084,7 @@ class TransPornstarHarem {
         envVariables.isEnabledSpreadsheets = false;
     }
 }
+TransPornstarHarem.trollIdMapping = {};
 
 ;// CONCATENATED MODULE: ./src/config/game/index.ts
 
@@ -14125,9 +14200,12 @@ HHEnvVariables["global"].possibleRewardsList = { 'energy_kiss': "Kisses",
     'event_cash': "Event cash",
     'rejuvenation_stone': "Rejuvenation Stones" };
 HHEnvVariables["global"].trollzList = HentaiHeroes.getTrolls(getLanguageCode());
+HHEnvVariables["global"].sideTrollzList = [];
 HHEnvVariables["global"].trollIdMapping = []; // Empty means no specific mapping
+HHEnvVariables["global"].sideTrollIdMapping = []; // Empty means no specific mapping
 HHEnvVariables["global"].trollGirlsID = HentaiHeroes.getTrollGirlsId();
-HHEnvVariables["global"].lastQuestId = 1850; //  TODO update when new quest comes
+HHEnvVariables["global"].sideTrollGirlsID = [];
+HHEnvVariables["global"].lastQuestId = -1; //  TODO update when new quest comes
 HHEnvVariables["global"].leaguesList = ["Wanker I",
     "Wanker II",
     "Wanker III",
@@ -14378,21 +14456,26 @@ HHEnvVariables["HH_test"].isEnabledFreeBundles = false; // to remove if bundles 
 for (var key in HentaiHeroes.getEnv()) {
     const element = HentaiHeroes.getEnv()[key].name;
     HHEnvVariables[element].spreadsheet = HentaiHeroes.spreadsheet;
-    HHEnvVariables[element].trollIdMapping = { 21: 19 };
+    HHEnvVariables[element].trollIdMapping = HentaiHeroes.trollIdMapping;
+    HHEnvVariables[element].sideTrollIdMapping = HentaiHeroes.sideTrollIdMapping;
+    HHEnvVariables[element].sideTrollzList = HentaiHeroes.getSideTrolls(getLanguageCode());
+    HHEnvVariables[element].sideTrollGirlsID = HentaiHeroes.getSideTrollGirlsId();
+    HHEnvVariables[element].lastQuestId = HentaiHeroes.lastQuestId;
 }
 for (var key in GayHarem.getEnv()) {
     const element = GayHarem.getEnv()[key].name;
-    HHEnvVariables[element].trollzList = GayHarem.getTrolls();
+    HHEnvVariables[element].trollzList = GayHarem.getTrolls(getLanguageCode());
     HHEnvVariables[element].trollGirlsID = GayHarem.getTrollGirlsId();
-    HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
-    GayHarem.overrideTrollsByLang(getLanguageCode(), HHEnvVariables[element].trollzList);
+    HHEnvVariables[element].trollIdMapping = GayHarem.trollIdMapping;
+    HHEnvVariables[element].lastQuestId = GayHarem.lastQuestId;
 }
 ;
 for (var key in ComixHarem.getEnv()) {
     const element = ComixHarem.getEnv()[key].name;
-    HHEnvVariables[element].trollzList = ComixHarem.getTrolls();
+    HHEnvVariables[element].trollzList = ComixHarem.getTrolls(getLanguageCode());
     HHEnvVariables[element].trollGirlsID = ComixHarem.getTrollGirlsId();
-    HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
+    HHEnvVariables[element].trollIdMapping = ComixHarem.trollIdMapping;
+    HHEnvVariables[element].lastQuestId = ComixHarem.lastQuestId;
     HHEnvVariables[element].boosterId_MB1 = 2619;
 }
 ;
@@ -14411,42 +14494,47 @@ HHEnvVariables["SH_prod"].lastQuestId = -1; //  TODO update when new quest comes
 for (var key in MangaRpg.getEnv()) {
     const element = MangaRpg.getEnv()[key].name;
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
-    HHEnvVariables[element].trollzList = MangaRpg.getTrolls();
+    HHEnvVariables[element].trollzList = MangaRpg.getTrolls(getLanguageCode());
     HHEnvVariables[element].trollGirlsID = MangaRpg.getTrollGirlsId();
-    HHEnvVariables[element].trollIdMapping = { 3: 3 };
+    HHEnvVariables[element].trollIdMapping = MangaRpg.trollIdMapping;
+    HHEnvVariables[element].lastQuestId = MangaRpg.lastQuestId;
     MangaRpg.updateFeatures(HHEnvVariables[element]);
 }
 ;
 for (var key in AmourAgent.getEnv()) {
     const element = AmourAgent.getEnv()[key].name;
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
-    HHEnvVariables[element].trollzList = AmourAgent.getTrolls();
+    HHEnvVariables[element].trollzList = AmourAgent.getTrolls(getLanguageCode());
+    HHEnvVariables[element].trollIdMapping = AmourAgent.trollIdMapping;
+    HHEnvVariables[element].lastQuestId = AmourAgent.lastQuestId;
     AmourAgent.updateFeatures(HHEnvVariables[element]);
 }
 ;
 for (var key in PornstarHarem.getEnv()) {
     const element = PornstarHarem.getEnv()[key].name;
     HHEnvVariables[element].trollzList = PornstarHarem.getTrolls(getLanguageCode());
-    HHEnvVariables[element].trollIdMapping = { 10: 9, 14: 11, 16: 12, 18: 13, 20: 14, 23: 15, 26: 17 }; // under 10 id as usual
-    HHEnvVariables[element].lastQuestId = 16100; //  TODO update when new quest comes
+    HHEnvVariables[element].trollIdMapping = PornstarHarem.trollIdMapping;
+    HHEnvVariables[element].lastQuestId = PornstarHarem.lastQuestId;
     HHEnvVariables[element].boosterId_MB1 = 2619;
     HHEnvVariables[element].trollGirlsID = PornstarHarem.getTrollGirlsId();
 }
 ;
 for (var key in TransPornstarHarem.getEnv()) {
     const element = TransPornstarHarem.getEnv()[key].name;
-    HHEnvVariables[element].trollzList = TransPornstarHarem.getTrolls();
+    HHEnvVariables[element].trollzList = TransPornstarHarem.getTrolls(getLanguageCode());
     TransPornstarHarem.updateFeatures(HHEnvVariables[element]);
     HHEnvVariables[element].trollGirlsID = TransPornstarHarem.getTrollGirlsId();
-    HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
+    HHEnvVariables[element].trollIdMapping = TransPornstarHarem.trollIdMapping;
+    HHEnvVariables[element].lastQuestId = TransPornstarHarem.lastQuestId;
 }
 ;
 for (var key in GayPornstarHarem.getEnv()) {
     const element = GayPornstarHarem.getEnv()[key].name;
-    HHEnvVariables[element].trollzList = GayPornstarHarem.getTrolls();
+    HHEnvVariables[element].trollzList = GayPornstarHarem.getTrolls(getLanguageCode());
     GayPornstarHarem.updateFeatures(HHEnvVariables[element]);
     HHEnvVariables[element].trollGirlsID = GayPornstarHarem.getTrollGirlsId();
-    HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
+    HHEnvVariables[element].trollIdMapping = GayPornstarHarem.trollIdMapping;
+    HHEnvVariables[element].lastQuestId = GayPornstarHarem.lastQuestId;
     HHEnvVariables[element].boosterId_MB1 = 2619;
 }
 ;
@@ -14612,22 +14700,41 @@ class HHMenu {
         option.text = text;
         return option;
     }
+    _createHtmlSeparator(text) {
+        var option = document.createElement("option");
+        option.disabled = true;
+        option.text = text;
+        return option;
+    }
     fillTrollSelectMenu(lastTrollIdAvailable) {
         var trollOptions = document.getElementById("autoTrollSelector");
         try {
+            trollOptions.add(this._createHtmlSeparator(getTextForUI("mainAdventure", "elementText")));
+            trollOptions.add(this._createHtmlOption('0', getTextForUI("latestTroll", "elementText")));
             const trollz = ConfigHelper.getHHScriptVars("trollzList");
-            for (var i = 0; i <= lastTrollIdAvailable; i++) {
+            for (var i = 1; i <= lastTrollIdAvailable; i++) {
                 var option = this._createHtmlOption(i + '', trollz[i]);
                 if (option.text !== 'EMPTY' && trollz[i]) {
                     // Supports for PH and missing trols or parallel advantures (id world "missing")
                     trollOptions.add(option);
                 }
             }
+            const sideTrollz = ConfigHelper.getHHScriptVars("sideTrollzList");
+            if (Object.keys(sideTrollz).length > 0) {
+                trollOptions.add(this._createHtmlSeparator(getTextForUI("sideAdventure", "elementText")));
+                for (let i of Object.keys(sideTrollz)) {
+                    var option = this._createHtmlOption(i + '', sideTrollz[i]);
+                    if (option.text !== 'EMPTY' && sideTrollz[i]) {
+                        trollOptions.add(option);
+                    }
+                }
+            }
         }
         catch ({ errName, message }) {
-            trollOptions.add(this._createHtmlOption('0', 'Error!'));
+            trollOptions.add(this._createHtmlSeparator('Error!'));
             LogUtils_logHHAuto(`Error filling trolls: ${errName}, ${message}`);
         }
+        trollOptions.add(this._createHtmlSeparator(getTextForUI("otherTrollOption", "elementText")));
         trollOptions.add(this._createHtmlOption('98', getTextForUI("firstTrollWithGirls", "elementText")));
         trollOptions.add(this._createHtmlOption('99', getTextForUI("lastTrollWithGirls", "elementText")));
     }
@@ -18701,6 +18808,12 @@ function start() {
     MonthlyCards.updateInputPattern();
     replaceCheatClick();
     migrateHHVars();
+    const isMainAdventure = getHHVars('Hero.infos.questing.choices_adventure') == 0;
+    const id_world = getHHVars('Hero.infos.questing.id_world');
+    if (isMainAdventure)
+        setStoredValue(HHStoredVarPrefixKey + "Temp_MainAdventureWorldID", id_world);
+    else
+        setStoredValue(HHStoredVarPrefixKey + "Temp_SideAdventureWorldID", id_world);
     if (getStoredValue(HHStoredVarPrefixKey + "Setting_leagueListDisplayPowerCalc") !== "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesSortIndex") !== LeagueHelper.SORT_POWERCALC) {
         // remove big var not removed from previous version
         deleteStoredValue(HHStoredVarPrefixKey + "Temp_LeagueOpponentList");
@@ -18745,7 +18858,14 @@ function start() {
     $('#contains_all').append(pInfoDiv);
     maskInactiveMenus();
     // Add auto troll options
-    hhAutoMenu.fillTrollSelectMenu(Troll.getLastTrollIdAvailable());
+    let lastTrollIdAvailable = -1;
+    if (isMainAdventure) {
+        lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
+    }
+    else {
+        lastTrollIdAvailable = Troll.getLastTrollIdAvailable(Number(getStoredValue(HHStoredVarPrefixKey + "Temp_MainAdventureWorldID")));
+    }
+    hhAutoMenu.fillTrollSelectMenu(lastTrollIdAvailable);
     // Add league options
     hhAutoMenu.fillLeagueSelectMenu();
     hhAutoMenu.fillLeaguSortMenu();
