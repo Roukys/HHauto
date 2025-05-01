@@ -6,6 +6,7 @@ import {
     debugDeleteTempVars,
     deleteStoredValue,
     doStatUpgrades,
+    getHHVars,
     getMenu,
     getMenuValues,
     getPage,
@@ -157,6 +158,11 @@ export function start() {
     MonthlyCards.updateInputPattern();
     replaceCheatClick();
     migrateHHVars();
+    
+    const isMainAdventure = getHHVars('Hero.infos.questing.choices_adventure') == 0;
+    const id_world = getHHVars('Hero.infos.questing.id_world');
+    if (isMainAdventure) setStoredValue(HHStoredVarPrefixKey + "Temp_MainAdventureWorldID", id_world); 
+    else setStoredValue(HHStoredVarPrefixKey + "Temp_SideAdventureWorldID", id_world); 
 
     if (getStoredValue(HHStoredVarPrefixKey + "Setting_leagueListDisplayPowerCalc") !== "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeaguesSortIndex") !== LeagueHelper.SORT_POWERCALC)
     {
@@ -222,7 +228,13 @@ export function start() {
     maskInactiveMenus();
 
     // Add auto troll options
-    hhAutoMenu.fillTrollSelectMenu(Troll.getLastTrollIdAvailable());
+    let lastTrollIdAvailable:number = -1;
+    if (isMainAdventure) {
+        lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
+    } else {
+        lastTrollIdAvailable = Troll.getLastTrollIdAvailable(Number(getStoredValue(HHStoredVarPrefixKey + "Temp_MainAdventureWorldID")));
+    }
+    hhAutoMenu.fillTrollSelectMenu(lastTrollIdAvailable);
 
     // Add league options
     hhAutoMenu.fillLeagueSelectMenu();

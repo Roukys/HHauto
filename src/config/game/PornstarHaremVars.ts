@@ -1,4 +1,6 @@
-export class PornstarHarem{
+export class PornstarHarem {
+    static trollIdMapping = { 10: 9, 14: 11, 16: 12, 18: 13, 20: 14, 23: 15, 26: 17 }; // under 10 id as usual
+    static lastQuestId: 16100; //  TODO update when new quest comes
     static getEnv() {
         return {
             "www.pornstarharem.com": { name: "PH_prod", id: "hh_star", baseImgPath: "https://th.hh-content.com" },
@@ -7,28 +9,7 @@ export class PornstarHarem{
     }
 
     static getTrolls(languageCode: string) {
-        switch (languageCode) {
-            case "fr":
-                return ["Dernier",
-                    'Directrice Asa Akira',
-                    'Sammy Jayne',
-                    'Ivy Winters',
-                    'Sophia  Jade',
-                    'Amia Miley',
-                    'Alyssa Reece',
-                    'Kelly Kline',
-                    'Jamie Brooks',
-                    'Jordan Kingsley',
-                    'EMPTY',
-                    'Sierra Sinn',
-                    'Jasmine Jae',
-                    'Bella Rose',
-                    'Paige Taylor',
-                    'L\'héroïne encapuchonnée',
-                    'EMPTY',
-                    'Monica Mattos'];
-            default:
-                return ['Latest',
+       const trollList = ['Latest',
                     'Headmistress Asa Akira',
                     'Sammy Jayne',
                     'Ivy Winters',
@@ -46,7 +27,14 @@ export class PornstarHarem{
                     'The Hooded Heroine',
                     'EMPTY',
                     'Monica Mattos'];
+
+        switch (languageCode) {
+            case "fr":
+                trollList[1] = 'Directrice Asa Akira';
+                trollList[15] = 'L\'héroïne encapuchonnée';
+                break;
         }
+        return trollList;
     }
 
     static getTrollGirlsId() {
@@ -66,6 +54,7 @@ export class PornstarHarem{
             [['270920965', '600910475', '799448349'], [0], [0]],
             [['832031905', '272818756', '477487889'], [0], [0]],
             [['814814392', '660703295', '450943401'], [0], [0]],
+            [[0], [0], [0]],
             [['409433993', '438706084', '673600948'], [0], [0]],
         ];
     }

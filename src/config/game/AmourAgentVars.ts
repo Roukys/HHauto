@@ -1,10 +1,12 @@
 export class AmourAgent {
+    static trollIdMapping = {};
+    static lastQuestId: -1; //  TODO update when new quest comes
     static getEnv() {
         return {
             "www.amouragent.com": { name: "AA_prod", id: "hh_amour"}
         }
     }
-    static getTrolls() {
+    static getTrolls(languageCode: string) {
         return ['Latest',
             'Frank',
             'Adriana',

@@ -64,9 +64,16 @@ export class HHMenu {
         });
     }
 
-    _createHtmlOption(value:string, text:string) {
+    _createHtmlOption(value: string, text: string) {
         var option = document.createElement("option");
         option.value = value;
+        option.text = text;
+        return option;
+    }
+
+    _createHtmlSeparator(text: string) {
+        var option = document.createElement("option");
+        option.disabled = true;
         option.text = text;
         return option;
     }
@@ -74,20 +81,33 @@ export class HHMenu {
     fillTrollSelectMenu(lastTrollIdAvailable: number) {
         var trollOptions = <HTMLSelectElement>document.getElementById("autoTrollSelector");
         try {
+            trollOptions.add(this._createHtmlSeparator(getTextForUI("mainAdventure", "elementText")));
+            trollOptions.add(this._createHtmlOption('0', getTextForUI("latestTroll", "elementText")));
             const trollz = ConfigHelper.getHHScriptVars("trollzList");
-            for (var i = 0; i <= lastTrollIdAvailable; i++) {
+            for (var i = 1; i <= lastTrollIdAvailable; i++) {
                 var option = this._createHtmlOption(i + '', trollz[i]);
                 if (option.text !== 'EMPTY' && trollz[i]) {
                     // Supports for PH and missing trols or parallel advantures (id world "missing")
                     trollOptions.add(option);
                 }
             }
+            const sideTrollz = ConfigHelper.getHHScriptVars("sideTrollzList");
+            if (Object.keys(sideTrollz).length > 0) {
+                trollOptions.add(this._createHtmlSeparator(getTextForUI("sideAdventure", "elementText")));
+                for (let i of Object.keys(sideTrollz)) {
+                    var option = this._createHtmlOption(i + '', sideTrollz[i]);
+                    if (option.text !== 'EMPTY' && sideTrollz[i]) {
+                        trollOptions.add(option);
+                    }
+                }
+            }
             
         } catch ({ errName, message }) {
-            trollOptions.add(this._createHtmlOption('0', 'Error!'));
+            trollOptions.add(this._createHtmlSeparator('Error!'));
             logHHAuto(`Error filling trolls: ${errName}, ${message}`);
         }
 
+        trollOptions.add(this._createHtmlSeparator(getTextForUI("otherTrollOption", "elementText")));
         trollOptions.add(this._createHtmlOption('98', getTextForUI("firstTrollWithGirls", "elementText")));
         trollOptions.add(this._createHtmlOption('99', getTextForUI("lastTrollWithGirls", "elementText")));
     }

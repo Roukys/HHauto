@@ -1,11 +1,13 @@
-export class TransPornstarHarem  {
+export class TransPornstarHarem {
+    static trollIdMapping = {};
+    static lastQuestId: -1; //  TODO update when new quest comes
     static getEnv() {
         return {
             "www.transpornstarharem.com": { name: "TPH_prod", id: "hh_startrans", baseImgPath: "https://images.hh-content.com/startrans" },
             "nutaku.transpornstarharem.com": { name: "NTPH_prod", id: "hh_startrans", baseImgPath: "https://images.hh-content.com/startrans" }
         }
     }
-    static getTrolls() {
+    static getTrolls(languageCode: string) {
         return ['Latest',
             'Ariel Demure',
             'Emma Rose',

@@ -1,13 +1,15 @@
 export class ComixHarem {
     static spreadsheet = 'https://docs.google.com/spreadsheets/d/1kVZxcZZMa82lS4k-IpxTTTELAeaipjR_v1twlqW5vbI'; // zoopokemon
+    static trollIdMapping = {};
+    static lastQuestId: -1; //  TODO update when new quest comes
     static getEnv() {
         return {
             "www.comixharem.com": { name: "CH_prod", id: "hh_comix", baseImgPath: "https://ch.hh-content.com" },
             "nutaku.comixharem.com": {name:"NCH_prod",id:"hh_comix"}
         }
     }
-    static getTrolls() {
-        return ['Latest',
+    static getTrolls(languageCode: string) {
+        const trollList = ['Latest',
             'BodyHack',
             'Grey Golem',
             'The Nymph',
@@ -19,7 +21,14 @@ export class ComixHarem {
             'D\'KLONG',
             'Virtue Man',
             'Asmodea',
-            'Blueball Gremlin']; // 'Gremlin Couill\'bleues'
+            'Blueball Gremlin'];
+
+        switch (languageCode) {
+            case "fr":
+                trollList[12] = 'Gremlin Couill\'bleues';
+                break;
+        }
+        return trollList;
     }
     static getTrollGirlsId() {
         return [

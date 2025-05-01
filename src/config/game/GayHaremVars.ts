@@ -1,5 +1,7 @@
 export class GayHarem {
     static spreadsheet = 'https://docs.google.com/spreadsheets/d/1kVZxcZZMa82lS4k-IpxTTTELAeaipjR_v1twlqW5vbI'; // Bella
+    static trollIdMapping = {};
+    static lastQuestId: -1; //  TODO update when new quest comes
     static getEnv() {
         return {
             "www.gayharem.com": { name: "GH_prod", id: "hh_gay" },
@@ -8,8 +10,8 @@ export class GayHarem {
         }
     }
 
-    static getTrolls() {
-        return ['Latest',
+    static getTrolls(languageCode: string) {
+        const trollList = ['Latest',
             'Dark Lord',
             'Ninja Spy',
             'Gruntt',
@@ -24,25 +26,22 @@ export class GayHarem {
             'Icarus Warlock',
             'Sol',
             'Soju'];
-    }
 
-    static overrideTrollsByLang(languageCode:string, trollzList: any[])
-    {
         switch (languageCode) {
             case "fr":
-                trollzList[2] = 'Espion Ninja';
-                trollzList[11] = 'Éq. de Jackson';
-                trollzList[12] = 'Sorcier Icarus';
+                trollList[2] = 'Espion Ninja';
+                trollList[11] = 'Éq. de Jackson';
+                trollList[12] = 'Sorcier Icarus';
                 break;
             case "de":
-                trollzList[1] = 'Dunkler Lor';
-                trollzList[2] = 'Ninjaspion';
-                trollzList[11] = 'Jacksons Crew';
-                break;
-            default:
+                trollList[1] = 'Dunkler Lor';
+                trollList[2] = 'Ninjaspion';
+                trollList[11] = 'Jacksons Crew';
                 break;
         }
+        return trollList;
     }
+
     static getTrollGirlsId() {
         return [
             [['8', '9', '10'], ['7270263'], ['979916751']],

@@ -119,12 +119,15 @@ HHEnvVariables["global"].possibleRewardsList = {'energy_kiss' : "Kisses",
                                                 'rejuvenation_stone': "Rejuvenation Stones"};
 
 HHEnvVariables["global"].trollzList = HentaiHeroes.getTrolls(getLanguageCode());
+HHEnvVariables["global"].sideTrollzList = [];
 
 HHEnvVariables["global"].trollIdMapping =  []; // Empty means no specific mapping
+HHEnvVariables["global"].sideTrollIdMapping =  []; // Empty means no specific mapping
 
 HHEnvVariables["global"].trollGirlsID = HentaiHeroes.getTrollGirlsId();
+HHEnvVariables["global"].sideTrollGirlsID = [];
 
-HHEnvVariables["global"].lastQuestId = 1850; //  TODO update when new quest comes
+HHEnvVariables["global"].lastQuestId = -1; //  TODO update when new quest comes
 
 HHEnvVariables["global"].leaguesList = ["Wanker I",
                                         "Wanker II",
@@ -437,22 +440,27 @@ HHEnvVariables["HH_test"].isEnabledFreeBundles = false;// to remove if bundles a
 for (var key in HentaiHeroes.getEnv()) {
     const element = HentaiHeroes.getEnv()[key].name;
     HHEnvVariables[element].spreadsheet = HentaiHeroes.spreadsheet;
-    HHEnvVariables[element].trollIdMapping = { 21: 19 };
+    HHEnvVariables[element].trollIdMapping = HentaiHeroes.trollIdMapping;
+    HHEnvVariables[element].sideTrollIdMapping = HentaiHeroes.sideTrollIdMapping;
+    HHEnvVariables[element].sideTrollzList = HentaiHeroes.getSideTrolls(getLanguageCode());
+    HHEnvVariables[element].sideTrollGirlsID = HentaiHeroes.getSideTrollGirlsId();
+    HHEnvVariables[element].lastQuestId = HentaiHeroes.lastQuestId;
 }
 
 for (var key in GayHarem.getEnv()) {
     const element = GayHarem.getEnv()[key].name;
-    HHEnvVariables[element].trollzList = GayHarem.getTrolls();
+    HHEnvVariables[element].trollzList = GayHarem.getTrolls(getLanguageCode());
     HHEnvVariables[element].trollGirlsID = GayHarem.getTrollGirlsId();
-    HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
-    GayHarem.overrideTrollsByLang(getLanguageCode(), HHEnvVariables[element].trollzList);
+    HHEnvVariables[element].trollIdMapping = GayHarem.trollIdMapping;
+    HHEnvVariables[element].lastQuestId = GayHarem.lastQuestId;
 };
 
 for (var key in ComixHarem.getEnv()) {
     const element = ComixHarem.getEnv()[key].name;
-    HHEnvVariables[element].trollzList = ComixHarem.getTrolls();
+    HHEnvVariables[element].trollzList = ComixHarem.getTrolls(getLanguageCode());
     HHEnvVariables[element].trollGirlsID = ComixHarem.getTrollGirlsId();
-    HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
+    HHEnvVariables[element].trollIdMapping = ComixHarem.trollIdMapping;
+    HHEnvVariables[element].lastQuestId = ComixHarem.lastQuestId;
     HHEnvVariables[element].boosterId_MB1 = 2619;
 };
 
@@ -472,42 +480,47 @@ HHEnvVariables["SH_prod"].lastQuestId = -1; //  TODO update when new quest comes
 for (var key in MangaRpg.getEnv()) {
     const element = MangaRpg.getEnv()[key].name;
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
-    HHEnvVariables[element].trollzList = MangaRpg.getTrolls();
+    HHEnvVariables[element].trollzList = MangaRpg.getTrolls(getLanguageCode());
     HHEnvVariables[element].trollGirlsID = MangaRpg.getTrollGirlsId();
-    HHEnvVariables[element].trollIdMapping = { 3: 3 };
+    HHEnvVariables[element].trollIdMapping = MangaRpg.trollIdMapping;
+    HHEnvVariables[element].lastQuestId = MangaRpg.lastQuestId;
     MangaRpg.updateFeatures(HHEnvVariables[element]);
 };
 
 for (var key in AmourAgent.getEnv()) {
     const element = AmourAgent.getEnv()[key].name;
     HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
-    HHEnvVariables[element].trollzList = AmourAgent.getTrolls();
+    HHEnvVariables[element].trollzList = AmourAgent.getTrolls(getLanguageCode());
+    HHEnvVariables[element].trollIdMapping = AmourAgent.trollIdMapping;
+    HHEnvVariables[element].lastQuestId = AmourAgent.lastQuestId;
     AmourAgent.updateFeatures(HHEnvVariables[element]);
 };
 
 for (var key in PornstarHarem.getEnv()) {
     const element = PornstarHarem.getEnv()[key].name;
     HHEnvVariables[element].trollzList = PornstarHarem.getTrolls(getLanguageCode());
-    HHEnvVariables[element].trollIdMapping = { 10: 9, 14: 11, 16: 12, 18: 13, 20: 14, 23: 15, 26: 17 }; // under 10 id as usual
-    HHEnvVariables[element].lastQuestId = 16100; //  TODO update when new quest comes
+    HHEnvVariables[element].trollIdMapping = PornstarHarem.trollIdMapping;
+    HHEnvVariables[element].lastQuestId = PornstarHarem.lastQuestId;
     HHEnvVariables[element].boosterId_MB1 = 2619;
     HHEnvVariables[element].trollGirlsID = PornstarHarem.getTrollGirlsId();
 };
 
 for (var key in TransPornstarHarem.getEnv()) {
     const element = TransPornstarHarem.getEnv()[key].name;
-    HHEnvVariables[element].trollzList = TransPornstarHarem.getTrolls();
+    HHEnvVariables[element].trollzList = TransPornstarHarem.getTrolls(getLanguageCode());
     TransPornstarHarem.updateFeatures(HHEnvVariables[element]);
     HHEnvVariables[element].trollGirlsID = TransPornstarHarem.getTrollGirlsId();
-    HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
+    HHEnvVariables[element].trollIdMapping = TransPornstarHarem.trollIdMapping;
+    HHEnvVariables[element].lastQuestId = TransPornstarHarem.lastQuestId;
 };
 
 for (var key in GayPornstarHarem.getEnv()) {
     const element = GayPornstarHarem.getEnv()[key].name;
-    HHEnvVariables[element].trollzList = GayPornstarHarem.getTrolls();
+    HHEnvVariables[element].trollzList = GayPornstarHarem.getTrolls(getLanguageCode());
     GayPornstarHarem.updateFeatures(HHEnvVariables[element]);
     HHEnvVariables[element].trollGirlsID = GayPornstarHarem.getTrollGirlsId();
-    HHEnvVariables[element].lastQuestId = -1; //  TODO update when new quest comes
+    HHEnvVariables[element].trollIdMapping = GayPornstarHarem.trollIdMapping;
+    HHEnvVariables[element].lastQuestId = GayPornstarHarem.lastQuestId;
     HHEnvVariables[element].boosterId_MB1 = 2619;
 };
 // Object.values(girlsDataList).filter(girl => girl.source?.name == "troll_tier" && girl.source?.group?.id == "7")

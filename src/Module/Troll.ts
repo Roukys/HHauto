@@ -35,6 +35,7 @@ export class Troll {
     static getTrollWithGirls() {
         const girlDictionary = Harem.getGirlsList();
         const trollGirlsID = ConfigHelper.getHHScriptVars("trollGirlsID");
+        const sideTrollGirlsID = ConfigHelper.getHHScriptVars("sideTrollGirlsID");
         const trollWithGirls:number[] = [];
     
         if (girlDictionary) {
@@ -45,6 +46,20 @@ export class Troll {
                         var idGirl = parseInt(trollGirlsID[tIdx][pIdx][gIdx], 10);
                         if (idGirl != 0 && (girlDictionary.get(""+idGirl) == undefined || girlDictionary.get(""+idGirl).shards < 100)) {
                             trollWithGirls[tIdx] += 1;
+                        }
+                    }
+                }
+            }
+
+            if (Object.keys(sideTrollGirlsID).length > 0) {
+                for (let tIdx of Object.keys(sideTrollGirlsID)) {
+                    trollWithGirls[tIdx] = 0;
+                    for (var pIdx = 0; pIdx < sideTrollGirlsID[tIdx].length; pIdx++) {
+                        for (var gIdx = 0; gIdx < sideTrollGirlsID[tIdx][pIdx].length; gIdx++) {
+                            var idGirl = parseInt(sideTrollGirlsID[tIdx][pIdx][gIdx], 10);
+                            if (idGirl != 0 && (girlDictionary.get("" + idGirl) == undefined || girlDictionary.get("" + idGirl).shards < 100)) {
+                                trollWithGirls[tIdx] += 1;
+                            }
                         }
                     }
                 }
@@ -76,20 +91,34 @@ export class Troll {
         (getStoredValue(HHStoredVarPrefixKey + "Setting_autoTrollBattle") === "true" || getStoredValue(HHStoredVarPrefixKey + "Temp_autoTrollBattleSaveQuest") === "true")
     }
 
-    static getLastTrollIdAvailable(): number {
-        const id_world = Number(getHHVars('Hero.infos.questing.id_world'));
-        const trollIdMapping = ConfigHelper.getHHScriptVars("trollIdMapping");
-        if(ConfigHelper.isPshEnvironnement() && id_world > 10) {
-            if (trollIdMapping.hasOwnProperty(id_world)) {
-                return trollIdMapping[id_world] // PSH parallel adventures
-            }
-            logHHAuto(`Error Troll ID mapping need to be updated with world ${id_world}`);
+    static getLastTrollIdAvailable(id_world: number = undefined): number {
+        const isMainAdventure = getHHVars('Hero.infos.questing.choices_adventure') == 0;
+        if (!id_world) {
+            id_world = Number(getHHVars('Hero.infos.questing.id_world'));
+        } else if (id_world <= 0) {
+            logHHAuto(`id_world given ${id_world} must be wrong, default to current world`);
+            id_world = Number(getHHVars('Hero.infos.questing.id_world'));
         }
+        let trollIdMapping = [];
+
+        if (isMainAdventure) {
+            trollIdMapping = ConfigHelper.getHHScriptVars("trollIdMapping");
+            if(ConfigHelper.isPshEnvironnement() && id_world > 10) {
+                if (trollIdMapping.hasOwnProperty(id_world)) {
+                    return trollIdMapping[id_world] // PSH parallel adventures
+                }
+                logHHAuto(`Error Troll ID mapping need to be updated with world ${id_world}`);
+            }
+        } else {
+            logHHAuto(`Side adventure detected with world ${id_world}`);
+            trollIdMapping = ConfigHelper.getHHScriptVars("sideTrollIdMapping");
+        }
+
         if (Object.keys(trollIdMapping).length > 0 && trollIdMapping.hasOwnProperty(id_world)) {
             logHHAuto(`Troll ID mapping (${trollIdMapping[id_world]}) found for world ${id_world}`);
             return trollIdMapping[id_world];
         }
-        return id_world-1;
+        return id_world - 1;
     }
 
     static getTrollIdFromEvent(eventGirl:any){
@@ -113,11 +142,15 @@ export class Troll {
     }
 
     static getTrollIdToFight(): number {
+
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
         let trollWithGirls = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_trollWithGirls"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_trollWithGirls")):[];
         const autoTrollSelectedIndex = Troll.getTrollSelectedIndex();
 
-        let TTF:number = 0;
+
+        let TTF: number = 0;
+        const isMainAdventure = getHHVars('Hero.infos.questing.choices_adventure') == 0;
+        const lastWorldMainAdventure = getStoredValue(HHStoredVarPrefixKey + "Temp_MainAdventureWorldID") || -1; 
         const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
         const eventGirl = EventModule.getEventGirl();
         const eventMythicGirl = EventModule.getEventMythicGirl();
@@ -186,11 +219,16 @@ export class Troll {
             setStoredValue(HHStoredVarPrefixKey+"Temp_questRequirement", "none");
         }
         const trollz = ConfigHelper.getHHScriptVars("trollzList");
+        const sideTrollz = ConfigHelper.getHHScriptVars("sideTrollzList");
+        if (!isMainAdventure && !sideTrollz.hasOwnProperty(TTF) && TTF >= lastWorldMainAdventure) {
+            logHHAuto(`Error: Side adventure selected and troll ${TTF} from main adventure. Backup to ${lastTrollIdAvailable}`);
+            TTF = lastTrollIdAvailable;
+        }
         if (TTF <= 0) {
             TTF = lastTrollIdAvailable > 0 ? lastTrollIdAvailable : 1;
             logHHAuto(`Error: wrong troll target found. Backup to ${TTF}`);
         }
-        if(TTF >= trollz.length) {
+        if (TTF >= trollz.length && !sideTrollz.hasOwnProperty(TTF)) {
             logHHAuto("Error: New troll implemented '"+TTF+"' (List to be updated) or wrong troll target found");
             TTF = 1;
         }
