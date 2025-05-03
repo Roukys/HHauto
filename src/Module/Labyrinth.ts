@@ -18,7 +18,7 @@ class LabyrinthOpponent{
     button: JQuery<HTMLElement> | null;
     type:string;
     isOpponent: boolean;
-    isOpponentEasy: boolean;
+    opponentDifficulty: number;
     isTreasure: boolean;
     isShrine: boolean;
     isNext: boolean;
@@ -284,6 +284,8 @@ export class Labyrinth {
     }
 
     static findBetter(options:LabyrinthOpponent[]){
+        const chooseMoreReward = getStoredValue(HHStoredVarPrefixKey + "Setting_autoLabyHard") == "true";
+
         const haveGirlWounded = unsafeWindow.girl_squad.filter(girl => girl.remaining_ego_percent < 100).length > 0
         let choosenOption:LabyrinthOpponent|null = null;
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
@@ -303,15 +305,29 @@ export class Labyrinth {
                     if (debugEnabled) logHHAuto('No need to heal girls');
                     isBetter = true;
                 }
+                else if (chooseMoreReward)
+                {
+                    if (choosenOption.opponentDifficulty < option.opponentDifficulty) {
+                        if (debugEnabled) logHHAuto('More reward: higher difficulty group');
+                        isBetter = true;
+                    }
+                    else if (choosenOption.opponentDifficulty == option.opponentDifficulty && choosenOption.power > option.power) {
+                        if (debugEnabled) logHHAuto('More reward: Powerless opponent');
+                        isBetter = true;
+                    }
+                    else if (floor >= 3 && !choosenOption.isShrine && option.isShrine && haveGirlWounded) {
+                        if (debugEnabled) logHHAuto('More reward, floor 3 or above: isShrine');
+                        isBetter = true;
+                    }
+                }
                 else if (floor === 1 || floor === 2)
                 {
-                    // TODO not ready yet
-                    if (!choosenOption.isOpponentEasy && option.isOpponentEasy)
+                    if (choosenOption.opponentDifficulty != 1 && option.opponentDifficulty == 1)
                     {
                         if(debugEnabled) logHHAuto('Floor 1,2: Easy opponent');
                         isBetter = true;
                     }
-                    else if (choosenOption.isOpponent && !choosenOption.isOpponentEasy && !option.isOpponent)
+                    else if (choosenOption.isOpponent && choosenOption.opponentDifficulty != 1 && !option.isOpponent)
                     {
                         if(debugEnabled) logHHAuto('Floor 1,2: not opponent');
                         isBetter = true;
@@ -358,12 +374,19 @@ export class Labyrinth {
         // shrine / treasure
         const type = $('.clickable-hex', hex).attr('hex_type') || ($('.hex-type', hex).attr('hex_type') || '').replace('hex-type', '').trim();
         const button = $('.clickable-hex', hex);
+        const opponentDifficultyList = ['opponent_super_easy','opponent_easy','opponent_medium','opponent_hard','opponent_boss'];
+        let opponentDifficulty = -1;
+        for(let i=0; i<opponentDifficultyList.length; i++) {
+            if(type.indexOf(opponentDifficultyList[i]) >=0) {
+                opponentDifficulty = i;
+            }
+        }
 
         return {
             button: button.length > 0 ? button.first() : null,
             type: type,
             isOpponent: type.indexOf('opponent_') >= 0,
-            isOpponentEasy: type.indexOf('opponent_easy') >= 0,
+            opponentDifficulty: opponentDifficulty,
             isTreasure: type.indexOf('treasure') >= 0,
             isShrine: type.indexOf('shrine') >= 0,
             isNext: type.indexOf('upcoming-hex') < 0,

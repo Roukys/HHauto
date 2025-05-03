@@ -563,12 +563,17 @@ export function getMenu() {
                                         + hhMenuSwitch('compactDailyGoals', '', false, true)
                                     + `</div>`
                                 + `</div>`
-                                + `<div class="rowOptionsBox">`
-                                    + `<div id="isEnabledPachinko" class="internalOptionsRow" style="justify-content: space-between">`
-                                        + hhMenuSwitchWithImg('autoFreePachinko', 'pictures/design/menu/pachinko.svg')
+                                + `<div class="internalOptionsRow">`
+                                    + `<div class="rowOptionsBox">`
+                                        + `<div id="isEnabledPachinko" class="internalOptionsRow">`
+                                            + hhMenuSwitch('autoFreePachinko')
+                                        + `</div>`
                                     + `</div>`
-                                    + `<div id="isEnabledLabyrinth" class="internalOptionsRow" style="justify-content: space-evenly">`
-                                        + hhMenuSwitch('autoLabyrinth')
+                                    + `<div class="rowOptionsBox">`
+                                        + `<div id="isEnabledLabyrinth" class="internalOptionsRow" style="justify-content: space-evenly">`
+                                            + hhMenuSwitch('autoLabyrinth')
+                                            + hhMenuSwitch('autoLabyHard')
+                                        +`</div>`
                                     +`</div>`
                                 + `</div>`
                             +`</div>`
