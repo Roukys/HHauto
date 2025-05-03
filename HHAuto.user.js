@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.23.0
+// @version      7.24.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -441,6 +441,7 @@ HHAuto_ToolTips.en['autoGiveAff'] = { version: "5.6.24", elementText: "Auto Give
 HHAuto_ToolTips.en['autoGiveExp'] = { version: "5.6.24", elementText: "Auto Give", tooltip: "If enabled, will automatically give Exp to girls in order ( you can use OCD script to filter )." };
 HHAuto_ToolTips.en['autoPantheonTitle'] = { version: "5.6.24", elementText: "Pantheon", tooltip: "" };
 HHAuto_ToolTips.en['autoLabyrinth'] = { version: "7.19.0", elementText: "Labyrinth", tooltip: "if enabled : Automatically do Labyrinth simple mode.<br/>Will select easiest opponent not looking for later step<br/>Difficulty need to be manually selected before." };
+HHAuto_ToolTips.en['autoLabyHard'] = { version: "7.24.0", elementText: "Hard", tooltip: "if enabled : Automatically do Labyrinth hard mode.<br/>Will select hardest opponent group and low power." };
 HHAuto_ToolTips.en['autoLabyrinthTitle'] = { version: "6.19.0", elementText: "Labyrinth" };
 HHAuto_ToolTips.en['autoLabyrinthBuildTeam'] = { version: "7.9.1", elementText: "Build team", tooltip: "Select full team, based on selection" };
 HHAuto_ToolTips.en['autoLabyrinthBuildTank'] = { version: "7.9.0", elementText: "Tanks", tooltip: "Select two tanks for the front row" };
@@ -7928,6 +7929,17 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLabyrinth"] =
             clearTimer('nextLabyrinthTime');
         }
     };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLabyHard"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonalEventCollect"] =
     {
         default: "false",
@@ -9988,6 +10000,7 @@ class Labyrinth {
         return ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180);
     }
     static findBetter(options) {
+        const chooseMoreReward = getStoredValue(HHStoredVarPrefixKey + "Setting_autoLabyHard") == "true";
         const haveGirlWounded = unsafeWindow.girl_squad.filter(girl => girl.remaining_ego_percent < 100).length > 0;
         let choosenOption = null;
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
@@ -10007,14 +10020,30 @@ class Labyrinth {
                         LogUtils_logHHAuto('No need to heal girls');
                     isBetter = true;
                 }
+                else if (chooseMoreReward) {
+                    if (choosenOption.opponentDifficulty < option.opponentDifficulty) {
+                        if (debugEnabled)
+                            LogUtils_logHHAuto('More reward: higher difficulty group');
+                        isBetter = true;
+                    }
+                    else if (choosenOption.opponentDifficulty == option.opponentDifficulty && choosenOption.power > option.power) {
+                        if (debugEnabled)
+                            LogUtils_logHHAuto('More reward: Powerless opponent');
+                        isBetter = true;
+                    }
+                    else if (floor >= 3 && !choosenOption.isShrine && option.isShrine && haveGirlWounded) {
+                        if (debugEnabled)
+                            LogUtils_logHHAuto('More reward, floor 3 or above: isShrine');
+                        isBetter = true;
+                    }
+                }
                 else if (floor === 1 || floor === 2) {
-                    // TODO not ready yet
-                    if (!choosenOption.isOpponentEasy && option.isOpponentEasy) {
+                    if (choosenOption.opponentDifficulty != 1 && option.opponentDifficulty == 1) {
                         if (debugEnabled)
                             LogUtils_logHHAuto('Floor 1,2: Easy opponent');
                         isBetter = true;
                     }
-                    else if (choosenOption.isOpponent && !choosenOption.isOpponentEasy && !option.isOpponent) {
+                    else if (choosenOption.isOpponent && choosenOption.opponentDifficulty != 1 && !option.isOpponent) {
                         if (debugEnabled)
                             LogUtils_logHHAuto('Floor 1,2: not opponent');
                         isBetter = true;
@@ -10058,11 +10087,18 @@ class Labyrinth {
         // shrine / treasure
         const type = $('.clickable-hex', hex).attr('hex_type') || ($('.hex-type', hex).attr('hex_type') || '').replace('hex-type', '').trim();
         const button = $('.clickable-hex', hex);
+        const opponentDifficultyList = ['opponent_super_easy', 'opponent_easy', 'opponent_medium', 'opponent_hard', 'opponent_boss'];
+        let opponentDifficulty = -1;
+        for (let i = 0; i < opponentDifficultyList.length; i++) {
+            if (type.indexOf(opponentDifficultyList[i]) >= 0) {
+                opponentDifficulty = i;
+            }
+        }
         return {
             button: button.length > 0 ? button.first() : null,
             type: type,
             isOpponent: type.indexOf('opponent_') >= 0,
-            isOpponentEasy: type.indexOf('opponent_easy') >= 0,
+            opponentDifficulty: opponentDifficulty,
             isTreasure: type.indexOf('treasure') >= 0,
             isShrine: type.indexOf('shrine') >= 0,
             isNext: type.indexOf('upcoming-hex') < 0,
@@ -15127,12 +15163,17 @@ function getMenu() {
             + hhMenuSwitch('compactDailyGoals', '', false, true)
             + `</div>`
             + `</div>`
+            + `<div class="internalOptionsRow">`
             + `<div class="rowOptionsBox">`
-            + `<div id="isEnabledPachinko" class="internalOptionsRow" style="justify-content: space-between">`
-            + hhMenuSwitchWithImg('autoFreePachinko', 'pictures/design/menu/pachinko.svg')
+            + `<div id="isEnabledPachinko" class="internalOptionsRow">`
+            + hhMenuSwitch('autoFreePachinko')
             + `</div>`
+            + `</div>`
+            + `<div class="rowOptionsBox">`
             + `<div id="isEnabledLabyrinth" class="internalOptionsRow" style="justify-content: space-evenly">`
             + hhMenuSwitch('autoLabyrinth')
+            + hhMenuSwitch('autoLabyHard')
+            + `</div>`
             + `</div>`
             + `</div>`
             + `</div>`

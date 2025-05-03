@@ -1584,6 +1584,17 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoLabyrinth"] =
         clearTimer('nextLabyrinthTime');
     }
 };
+HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLabyHard"] =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing: false
+};
 HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollect"] =
     {
     default:"false",

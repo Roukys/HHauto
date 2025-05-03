@@ -258,6 +258,7 @@ HHAuto_ToolTips.en['autoGiveAff'] = {version: "5.6.24", elementText: "Auto Give"
 HHAuto_ToolTips.en['autoGiveExp'] = {version: "5.6.24", elementText: "Auto Give", tooltip: "If enabled, will automatically give Exp to girls in order ( you can use OCD script to filter )."};
 HHAuto_ToolTips.en['autoPantheonTitle'] = {version: "5.6.24", elementText: "Pantheon", tooltip: ""};
 HHAuto_ToolTips.en['autoLabyrinth'] = { version: "7.19.0", elementText: "Labyrinth", tooltip: "if enabled : Automatically do Labyrinth simple mode.<br/>Will select easiest opponent not looking for later step<br/>Difficulty need to be manually selected before."};
+HHAuto_ToolTips.en['autoLabyHard'] = { version: "7.24.0", elementText: "Hard", tooltip: "if enabled : Automatically do Labyrinth hard mode.<br/>Will select hardest opponent group and low power."};
 HHAuto_ToolTips.en['autoLabyrinthTitle'] = { version: "6.19.0", elementText: "Labyrinth"};
 HHAuto_ToolTips.en['autoLabyrinthBuildTeam'] = { version: "7.9.1", elementText: "Build team", tooltip: "Select full team, based on selection"};
 HHAuto_ToolTips.en['autoLabyrinthBuildTank'] = { version: "7.9.0", elementText: "Tanks", tooltip: "Select two tanks for the front row"};
