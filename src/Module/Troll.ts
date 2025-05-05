@@ -91,7 +91,7 @@ export class Troll {
         (getStoredValue(HHStoredVarPrefixKey + "Setting_autoTrollBattle") === "true" || getStoredValue(HHStoredVarPrefixKey + "Temp_autoTrollBattleSaveQuest") === "true")
     }
 
-    static getLastTrollIdAvailable(id_world: number = undefined): number {
+    static getLastTrollIdAvailable(logging = false, id_world: number = undefined): number {
         const isMainAdventure = getHHVars('Hero.infos.questing.choices_adventure') == 0;
         if (!id_world) {
             id_world = Number(getHHVars('Hero.infos.questing.id_world'));
@@ -107,7 +107,7 @@ export class Troll {
                 if (trollIdMapping.hasOwnProperty(id_world)) {
                     return trollIdMapping[id_world] // PSH parallel adventures
                 }
-                logHHAuto(`Error Troll ID mapping need to be updated with world ${id_world}`);
+                if (logging) logHHAuto(`Error Troll ID mapping need to be updated with world ${id_world}`);
             }
         } else {
             logHHAuto(`Side adventure detected with world ${id_world}`);
@@ -115,7 +115,7 @@ export class Troll {
         }
 
         if (Object.keys(trollIdMapping).length > 0 && trollIdMapping.hasOwnProperty(id_world)) {
-            logHHAuto(`Troll ID mapping (${trollIdMapping[id_world]}) found for world ${id_world}`);
+            if (logging) logHHAuto(`Troll ID mapping (${trollIdMapping[id_world]}) found for world ${id_world}`);
             return trollIdMapping[id_world];
         }
         return id_world - 1;
@@ -151,7 +151,7 @@ export class Troll {
         let TTF: number = 0;
         const isMainAdventure = getHHVars('Hero.infos.questing.choices_adventure') == 0;
         const lastWorldMainAdventure = getStoredValue(HHStoredVarPrefixKey + "Temp_MainAdventureWorldID") || -1; 
-        const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
+        const lastTrollIdAvailable = Troll.getLastTrollIdAvailable(true);
         const eventGirl = EventModule.getEventGirl();
         const eventMythicGirl = EventModule.getEventMythicGirl();
         if (debugEnabled) {
