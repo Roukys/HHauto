@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.24.0
+// @version      7.24.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -5642,7 +5642,7 @@ class Troll {
         return Troll.isEnabled() &&
             (getStoredValue(HHStoredVarPrefixKey + "Setting_autoTrollBattle") === "true" || getStoredValue(HHStoredVarPrefixKey + "Temp_autoTrollBattleSaveQuest") === "true");
     }
-    static getLastTrollIdAvailable(id_world = undefined) {
+    static getLastTrollIdAvailable(logging = false, id_world = undefined) {
         const isMainAdventure = getHHVars('Hero.infos.questing.choices_adventure') == 0;
         if (!id_world) {
             id_world = Number(getHHVars('Hero.infos.questing.id_world'));
@@ -5658,7 +5658,8 @@ class Troll {
                 if (trollIdMapping.hasOwnProperty(id_world)) {
                     return trollIdMapping[id_world]; // PSH parallel adventures
                 }
-                LogUtils_logHHAuto(`Error Troll ID mapping need to be updated with world ${id_world}`);
+                if (logging)
+                    LogUtils_logHHAuto(`Error Troll ID mapping need to be updated with world ${id_world}`);
             }
         }
         else {
@@ -5666,7 +5667,8 @@ class Troll {
             trollIdMapping = ConfigHelper.getHHScriptVars("sideTrollIdMapping");
         }
         if (Object.keys(trollIdMapping).length > 0 && trollIdMapping.hasOwnProperty(id_world)) {
-            LogUtils_logHHAuto(`Troll ID mapping (${trollIdMapping[id_world]}) found for world ${id_world}`);
+            if (logging)
+                LogUtils_logHHAuto(`Troll ID mapping (${trollIdMapping[id_world]}) found for world ${id_world}`);
             return trollIdMapping[id_world];
         }
         return id_world - 1;
@@ -5699,7 +5701,7 @@ class Troll {
         let TTF = 0;
         const isMainAdventure = getHHVars('Hero.infos.questing.choices_adventure') == 0;
         const lastWorldMainAdventure = getStoredValue(HHStoredVarPrefixKey + "Temp_MainAdventureWorldID") || -1;
-        const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
+        const lastTrollIdAvailable = Troll.getLastTrollIdAvailable(true);
         const eventGirl = EventModule.getEventGirl();
         const eventMythicGirl = EventModule.getEventMythicGirl();
         if (debugEnabled) {
@@ -6146,13 +6148,13 @@ class GenericBattle {
             || getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle")
             || getPage() === ConfigHelper.getHHScriptVars("pagesIDLabyrinthBattle")) {
             LogUtils_logHHAuto("On battle page.");
-            let troll_id = queryStringGetParam(window.location.search, 'id_opponent');
-            const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
             if (getPage() === ConfigHelper.getHHScriptVars("pagesIDLeagueBattle") && getStoredValue(HHStoredVarPrefixKey + "Setting_autoLeagues") === "true") {
                 LogUtils_logHHAuto("Reloading after league fight.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDLeaderboard"), {}, randomInterval(4000, 5000));
             }
             else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDTrollBattle")) {
+                const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
+                let troll_id = queryStringGetParam(window.location.search, 'id_opponent');
                 //console.log(Number(troll_id),Number(getHHVars('Hero.infos.questing.id_world'))-1,Number(troll_id) === Number(getHHVars('Hero.infos.questing.id_world'))-1);
                 if (getStoredValue(HHStoredVarPrefixKey + "Temp_autoTrollBattleSaveQuest") === "true" && (Number(troll_id) === lastTrollIdAvailable)) {
                     setStoredValue(HHStoredVarPrefixKey + "Temp_autoTrollBattleSaveQuest", "false");
@@ -16922,16 +16924,21 @@ class RewardHelper {
                 return;
             }
             let renewEvent = "";
-            let girlShardsWon = $('.shards_wrapper .shards_girl_ico');
+            let girlShardsWon = $('.shards_wrapper .slot_girl_shards');
             LogUtils_logHHAuto("Detected girl shard reward");
             for (var currGirl = 0; currGirl <= girlShardsWon.length; currGirl++) {
                 let girlIdSrc = $("img", girlShardsWon[currGirl]).attr("src") || '';
                 let girlId = Number(girlIdSrc.split('/')[5]);
-                let girlShards = Math.min(Number($('.shards[shards]', girlShardsWon[currGirl]).attr('shards')), 100);
+                const previousGirlShards = Math.min(Number($('.shards[shards]', girlShardsWon[currGirl]).attr('shards')), 100);
+                let wonShards = Number($('.shards[shards]', girlShardsWon[currGirl]).text().replace(/^\D+/g, ''));
+                if (!(wonShards > 0)) {
+                    LogUtils_logHHAuto('ERROR: Unable to gate number of shards won, default 1 shard.');
+                    wonShards = 1;
+                }
+                const girlShards = Math.min(previousGirlShards + wonShards, 100);
                 if (eventsGirlz.length > 0) {
                     let girlIndex = eventsGirlz.findIndex((element) => element.girl_id === girlId);
                     if (girlIndex !== -1) {
-                        let wonShards = girlShards - eventsGirlz[girlIndex].shards;
                         eventsGirlz[girlIndex].shards = girlShards;
                         if (girlShards === 100) {
                             renewEvent = eventsGirlz[girlIndex].event_id;
@@ -18904,7 +18911,7 @@ function start() {
         lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
     }
     else {
-        lastTrollIdAvailable = Troll.getLastTrollIdAvailable(Number(getStoredValue(HHStoredVarPrefixKey + "Temp_MainAdventureWorldID")));
+        lastTrollIdAvailable = Troll.getLastTrollIdAvailable(false, Number(getStoredValue(HHStoredVarPrefixKey + "Temp_MainAdventureWorldID")));
     }
     hhAutoMenu.fillTrollSelectMenu(lastTrollIdAvailable);
     // Add league options

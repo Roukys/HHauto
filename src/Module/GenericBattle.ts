@@ -26,8 +26,6 @@ export class GenericBattle {
             || getPage() === ConfigHelper.getHHScriptVars("pagesIDLabyrinthBattle") )
         {
             logHHAuto("On battle page.");
-            let troll_id:string = queryStringGetParam(window.location.search,'id_opponent');
-            const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
             if (getPage() === ConfigHelper.getHHScriptVars("pagesIDLeagueBattle") && getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeagues") === "true")
             {
                 logHHAuto("Reloading after league fight.");
@@ -35,6 +33,8 @@ export class GenericBattle {
             }
             else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDTrollBattle") )
             {
+                const lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
+                let troll_id:string = queryStringGetParam(window.location.search,'id_opponent');
                 //console.log(Number(troll_id),Number(getHHVars('Hero.infos.questing.id_world'))-1,Number(troll_id) === Number(getHHVars('Hero.infos.questing.id_world'))-1);
                 if (getStoredValue(HHStoredVarPrefixKey+"Temp_autoTrollBattleSaveQuest") === "true" && (Number(troll_id) === lastTrollIdAvailable))
                 {

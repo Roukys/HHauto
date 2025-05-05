@@ -232,7 +232,7 @@ export function start() {
     if (isMainAdventure) {
         lastTrollIdAvailable = Troll.getLastTrollIdAvailable();
     } else {
-        lastTrollIdAvailable = Troll.getLastTrollIdAvailable(Number(getStoredValue(HHStoredVarPrefixKey + "Temp_MainAdventureWorldID")));
+        lastTrollIdAvailable = Troll.getLastTrollIdAvailable(false, Number(getStoredValue(HHStoredVarPrefixKey + "Temp_MainAdventureWorldID")));
     }
     hhAutoMenu.fillTrollSelectMenu(lastTrollIdAvailable);
 

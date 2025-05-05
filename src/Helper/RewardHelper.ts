@@ -277,19 +277,24 @@ export class RewardHelper {
                 return;
             }
             let renewEvent = "";
-            let girlShardsWon = $('.shards_wrapper .shards_girl_ico');
+            let girlShardsWon = $('.shards_wrapper .slot_girl_shards');
             logHHAuto("Detected girl shard reward");
             for (var currGirl=0; currGirl <= girlShardsWon.length; currGirl++)
             {
                 let girlIdSrc = $("img",girlShardsWon[currGirl]).attr("src") || '';
                 let girlId = Number(girlIdSrc.split('/')[5]);
-                let girlShards = Math.min(Number($('.shards[shards]', girlShardsWon[currGirl]).attr('shards')),100);
+                const previousGirlShards = Math.min(Number($('.shards[shards]', girlShardsWon[currGirl]).attr('shards')), 100);
+                let wonShards = Number($('.shards[shards]', girlShardsWon[currGirl]).text().replace(/^\D+/g, ''));
+                if (!(wonShards > 0)) {
+                    logHHAuto('ERROR: Unable to gate number of shards won, default 1 shard.');
+                    wonShards = 1;
+                }
+                const girlShards = Math.min(previousGirlShards + wonShards, 100);
                 if (eventsGirlz.length >0)
                 {
                     let girlIndex = eventsGirlz.findIndex((element) =>element.girl_id === girlId);
                     if (girlIndex !==-1)
                     {
-                        let wonShards = girlShards - eventsGirlz[girlIndex].shards;
                         eventsGirlz[girlIndex].shards = girlShards;
                         if (girlShards === 100)
                         {
