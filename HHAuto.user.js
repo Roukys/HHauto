@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.24.1
+// @version      7.24.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -10005,21 +10005,42 @@ class Labyrinth {
         const chooseMoreReward = getStoredValue(HHStoredVarPrefixKey + "Setting_autoLabyHard") == "true";
         const haveGirlWounded = unsafeWindow.girl_squad.filter(girl => girl.remaining_ego_percent < 100).length > 0;
         let choosenOption = null;
+        let firstOption = null;
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
         if (debugEnabled)
             LogUtils_logHHAuto("Options " + JSON.stringify(options));
+        if (debugEnabled)
+            LogUtils_logHHAuto("haveGirlWounded " + haveGirlWounded);
+        if (debugEnabled)
+            LogUtils_logHHAuto("chooseMoreReward " + chooseMoreReward);
         const floor = Labyrinth.getCurrentFloorNumber();
+        if (options.length > 0) {
+            firstOption = options[0];
+        }
+        if (!haveGirlWounded || floor < 3) {
+            // remove Shrine
+            options = options.filter((option) => !option.isShrine);
+        }
+        else if (floor >= 3 && options.filter((option) => option.isShrine).length > 0) {
+            // Keep only shrine
+            options = options.filter((option) => option.isShrine);
+        }
+        if (options.filter((option) => option.isTreasure).length > 0) {
+            // Keep only laby coins
+            options = options.filter((option) => option.isTreasure);
+        }
+        if (!chooseMoreReward && floor < 3 && options.filter((option) => option.opponentDifficulty == 1).length > 0) {
+            // Keep only easy opponent
+            options = options.filter((option) => option.opponentDifficulty == 1);
+        }
+        if (debugEnabled)
+            LogUtils_logHHAuto("Options after filter" + JSON.stringify(options));
         options.forEach((option) => {
             let isBetter = false;
             if (option.button && option.isNext) {
                 if (choosenOption == null) {
                     if (debugEnabled)
                         LogUtils_logHHAuto('first');
-                    isBetter = true;
-                }
-                else if (choosenOption.isShrine && !haveGirlWounded) {
-                    if (debugEnabled)
-                        LogUtils_logHHAuto('No need to heal girls');
                     isBetter = true;
                 }
                 else if (chooseMoreReward) {
@@ -10033,44 +10054,16 @@ class Labyrinth {
                             LogUtils_logHHAuto('More reward: Powerless opponent');
                         isBetter = true;
                     }
-                    else if (floor >= 3 && !choosenOption.isShrine && option.isShrine && haveGirlWounded) {
-                        if (debugEnabled)
-                            LogUtils_logHHAuto('More reward, floor 3 or above: isShrine');
-                        isBetter = true;
-                    }
-                }
-                else if (floor === 1 || floor === 2) {
-                    if (choosenOption.opponentDifficulty != 1 && option.opponentDifficulty == 1) {
-                        if (debugEnabled)
-                            LogUtils_logHHAuto('Floor 1,2: Easy opponent');
-                        isBetter = true;
-                    }
-                    else if (choosenOption.isOpponent && choosenOption.opponentDifficulty != 1 && !option.isOpponent) {
-                        if (debugEnabled)
-                            LogUtils_logHHAuto('Floor 1,2: not opponent');
-                        isBetter = true;
-                    }
-                    else if (choosenOption.power > option.power) {
-                        if (debugEnabled)
-                            LogUtils_logHHAuto('Floor 1,2: Powerless opponent');
-                        isBetter = true;
-                    }
                 }
                 else {
-                    // Floor 3
-                    if (!choosenOption.isShrine && option.isShrine && haveGirlWounded) {
+                    if (choosenOption.isOpponent && !option.isOpponent) {
                         if (debugEnabled)
-                            LogUtils_logHHAuto('Floor 3: isShrine');
+                            LogUtils_logHHAuto('Not opponent');
                         isBetter = true;
                     }
-                    else if (choosenOption.isOpponent && !option.isOpponent) {
+                    else if (choosenOption.isOpponent && option.isOpponent && choosenOption.power > option.power) {
                         if (debugEnabled)
-                            LogUtils_logHHAuto('Floor 3: not opponent');
-                        isBetter = true;
-                    }
-                    else if (choosenOption.power > option.power) {
-                        if (debugEnabled)
-                            LogUtils_logHHAuto('Floor 3: Powerless opponent');
+                            LogUtils_logHHAuto('Powerless opponent');
                         isBetter = true;
                     }
                 }
@@ -10079,6 +10072,8 @@ class Labyrinth {
                 choosenOption = option;
             }
         });
+        if (choosenOption == null && firstOption != null)
+            choosenOption = firstOption;
         return choosenOption;
     }
     static appendChoosenTag(option) {
@@ -10393,7 +10388,17 @@ class LabyrinthAuto {
         return LabyrinthAuto_awaiter(this, void 0, void 0, function* () {
             const page = getPage();
             if (page === ConfigHelper.getHHScriptVars("pagesIDLabyrinthEntrance")) {
-                LogUtils_logHHAuto("On Labyrinth entrance page, manual selection needed.");
+                const difficultyButton = $('.difficulty-button:not([disabled])');
+                if (difficultyButton.length == 1) {
+                    LogUtils_logHHAuto(`On Labyrinth entrance page, only one difficulty available, ${difficultyButton.text().trim()}, select it.`);
+                    difficultyButton.trigger('click');
+                    yield TimeHelper.sleep(randomInterval(200, 400));
+                    $('#labyrinth_confirm_difficulty button.blue_button_L').trigger('click');
+                    return true;
+                }
+                else {
+                    LogUtils_logHHAuto(`On Labyrinth entrance page, ${difficultyButton.length} difficulty available, manual selection needed.`);
+                }
                 setTimer('nextLabyrinthTime', randomInterval(600, 700));
                 return false;
             }

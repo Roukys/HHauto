@@ -54,7 +54,7 @@ export class Labyrinth {
     }
     
     static getRemainingNumberOfGirl(): number {
-        return Number($('#girls_nb').text());
+        return Number($('#girls_nb').text());// $('.harem-panel-girls .harem-girl-container').length;
     }
 
     static moduleBuildTeam():void{
@@ -283,14 +283,37 @@ export class Labyrinth {
         return ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180);
     }
 
-    static findBetter(options:LabyrinthOpponent[]){
+    static findBetter(options: LabyrinthOpponent[]): LabyrinthOpponent{
         const chooseMoreReward = getStoredValue(HHStoredVarPrefixKey + "Setting_autoLabyHard") == "true";
 
         const haveGirlWounded = unsafeWindow.girl_squad.filter(girl => girl.remaining_ego_percent < 100).length > 0
         let choosenOption:LabyrinthOpponent|null = null;
+        let firstOption:LabyrinthOpponent|null = null;
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
         if (debugEnabled) logHHAuto("Options " + JSON.stringify(options));
+        if (debugEnabled) logHHAuto("haveGirlWounded " + haveGirlWounded);
+        if (debugEnabled) logHHAuto("chooseMoreReward " + chooseMoreReward);
         const floor = Labyrinth.getCurrentFloorNumber();
+
+        if (options.length > 0) {
+            firstOption = options[0];
+        }
+        if (!haveGirlWounded || floor < 3) {
+            // remove Shrine
+            options = options.filter((option) => !option.isShrine);
+        } else if (floor >= 3 && options.filter((option) => option.isShrine).length > 0) {
+            // Keep only shrine
+            options = options.filter((option) => option.isShrine);
+        }
+        if (options.filter((option) => option.isTreasure).length > 0) {
+            // Keep only laby coins
+            options = options.filter((option) => option.isTreasure);
+        }
+        if (!chooseMoreReward && floor < 3 && options.filter((option) => option.opponentDifficulty == 1).length > 0) {
+            // Keep only easy opponent
+            options = options.filter((option) => option.opponentDifficulty == 1);
+        }
+        if (debugEnabled) logHHAuto("Options after filter" + JSON.stringify(options));
 
         options.forEach((option) =>
         {
@@ -299,10 +322,6 @@ export class Labyrinth {
                 if (choosenOption == null)
                 {
                     if(debugEnabled) logHHAuto('first');
-                    isBetter = true;
-                }
-                else if (choosenOption.isShrine && !haveGirlWounded) {
-                    if (debugEnabled) logHHAuto('No need to heal girls');
                     isBetter = true;
                 }
                 else if (chooseMoreReward)
@@ -315,43 +334,15 @@ export class Labyrinth {
                         if (debugEnabled) logHHAuto('More reward: Powerless opponent');
                         isBetter = true;
                     }
-                    else if (floor >= 3 && !choosenOption.isShrine && option.isShrine && haveGirlWounded) {
-                        if (debugEnabled) logHHAuto('More reward, floor 3 or above: isShrine');
-                        isBetter = true;
-                    }
-                }
-                else if (floor === 1 || floor === 2)
-                {
-                    if (choosenOption.opponentDifficulty != 1 && option.opponentDifficulty == 1)
-                    {
-                        if(debugEnabled) logHHAuto('Floor 1,2: Easy opponent');
-                        isBetter = true;
-                    }
-                    else if (choosenOption.isOpponent && choosenOption.opponentDifficulty != 1 && !option.isOpponent)
-                    {
-                        if(debugEnabled) logHHAuto('Floor 1,2: not opponent');
-                        isBetter = true;
-                    }
-                    else if (choosenOption.power > option.power)
-                    {
-                        if(debugEnabled) logHHAuto('Floor 1,2: Powerless opponent');
-                        isBetter = true;
-                    }
                 } else {
-                    // Floor 3
-                    if(!choosenOption.isShrine && option.isShrine && haveGirlWounded)
+                    if (choosenOption.isOpponent && !option.isOpponent)
                     {
-                        if(debugEnabled) logHHAuto('Floor 3: isShrine');
+                        if(debugEnabled) logHHAuto('Not opponent');
                         isBetter = true;
                     }
-                    else if (choosenOption.isOpponent && !option.isOpponent)
+                    else if (choosenOption.isOpponent && option.isOpponent && choosenOption.power > option.power )
                     {
-                        if(debugEnabled) logHHAuto('Floor 3: not opponent');
-                        isBetter = true;
-                    }
-                    else if (choosenOption.power > option.power)
-                    {
-                        if(debugEnabled) logHHAuto('Floor 3: Powerless opponent');
+                        if(debugEnabled) logHHAuto('Powerless opponent');
                         isBetter = true;
                     }
                 }
@@ -361,6 +352,7 @@ export class Labyrinth {
                 choosenOption = option;
             }
         });
+        if (choosenOption == null && firstOption != null) choosenOption = firstOption;
         return choosenOption;
     }
 
