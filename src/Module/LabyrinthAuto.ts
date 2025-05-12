@@ -27,7 +27,17 @@ export class LabyrinthAuto {
     async run(): Promise<boolean> {
         const page = getPage();
         if (page === ConfigHelper.getHHScriptVars("pagesIDLabyrinthEntrance")) {
-            logHHAuto("On Labyrinth entrance page, manual selection needed.");
+            const difficultyButton = $('.difficulty-button:not([disabled])');
+            if (difficultyButton.length == 1) {
+                logHHAuto(`On Labyrinth entrance page, only one difficulty available, ${difficultyButton.text().trim()}, select it.`);
+                difficultyButton.trigger('click');
+                await TimeHelper.sleep(randomInterval(200, 400));
+                $('#labyrinth_confirm_difficulty button.blue_button_L').trigger('click');
+                return true;
+            } else {
+                logHHAuto(`On Labyrinth entrance page, ${difficultyButton.length} difficulty available, manual selection needed.`);
+            }
+
             setTimer('nextLabyrinthTime', randomInterval(600, 700));
             return false;
         }
