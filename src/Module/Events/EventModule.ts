@@ -660,6 +660,11 @@ export class EventModule {
             {
                 parsedURL = new URL(queryResults[index].getAttribute("href")||'',window.location.origin);
                 eventId = queryStringGetParam(parsedURL.search,'tab') || '';
+                const eventName = $(queryResults[index]).children().first().text();
+                if (!eventName || eventName == '') {
+                    logHHAuto(`Error: No name displayed for event ${eventId}, ignoring it.`);
+                    continue;
+                }
                 if (eventId !== '' && EventModule.checkEvent(eventId))
                 {
                     eventList.push(eventId);
