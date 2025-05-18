@@ -54,7 +54,7 @@ export class Labyrinth {
     }
     
     static getRemainingNumberOfGirl(): number {
-        return Number($('#girls_nb').text());// $('.harem-panel-girls .harem-girl-container').length;
+        return $('.harem-panel-girls .harem-girl-container').length;
     }
 
     static moduleBuildTeam():void{
