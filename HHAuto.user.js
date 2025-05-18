@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.24.4
+// @version      7.24.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -9798,7 +9798,7 @@ class Labyrinth {
         return floor;
     }
     static getRemainingNumberOfGirl() {
-        return Number($('#girls_nb').text());
+        return $('.harem-panel-girls .harem-girl-container').length;
     }
     static moduleBuildTeam() {
         if ($(`.${Labyrinth.BUILD_BUTTON_ID}`).length == 0) {
