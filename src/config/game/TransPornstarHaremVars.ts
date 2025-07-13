@@ -35,7 +35,6 @@ export class TransPornstarHarem {
 
     static updateFeatures(envVariables: any) {
         envVariables.isEnabledPantheon = false;// to remove when Pantheon arrives in transpornstar
-        envVariables.isEnabledPoG = false;// to remove when PoG arrives in transpornstar
         envVariables.isEnabledSpreadsheets = false;
     }
 }
