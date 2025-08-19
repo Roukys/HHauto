@@ -16,7 +16,8 @@ export class GayPornstarHarem {
             'Lucca Mazzi',
             'Andrew Stark',
             'Sean Duran & Bryce Evans',
-            'Trojan Pierce Paris'];
+            'Trojan Pierce Paris',
+            'Troll 7'];
     }
 
     static getTrollGirlsId() {
@@ -34,7 +35,5 @@ export class GayPornstarHarem {
     }
 
     static updateFeatures(envVariables: any) {
-        envVariables.isEnabledPantheon = false;// to remove when Pantheon arrives in gaypornstar
-        envVariables.isEnabledPoG = false;// to remove when PoG arrives in gaypornstar
     }
 }

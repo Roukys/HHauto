@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.24.7
+// @version      7.24.8
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -13868,7 +13868,8 @@ class GayPornstarHarem {
             'Lucca Mazzi',
             'Andrew Stark',
             'Sean Duran & Bryce Evans',
-            'Trojan Pierce Paris'];
+            'Trojan Pierce Paris',
+            'Troll 7'];
     }
     static getTrollGirlsId() {
         return [
@@ -13884,8 +13885,6 @@ class GayPornstarHarem {
         ];
     }
     static updateFeatures(envVariables) {
-        envVariables.isEnabledPantheon = false; // to remove when Pantheon arrives in gaypornstar
-        envVariables.isEnabledPoG = false; // to remove when PoG arrives in gaypornstar
     }
 }
 GayPornstarHarem.spreadsheet = 'https://docs.google.com/spreadsheets/d/1kVZxcZZMa82lS4k-IpxTTTELAeaipjR_v1twlqW5vbI'; // Cuervos & Sandor
