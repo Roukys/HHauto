@@ -187,8 +187,9 @@ export class PlaceOfPower {
             {
                 $(buttonClaimQuery).first().trigger('click');
                 logHHAuto("Claimed reward for PoP : " + $(buttonClaimQuery).first().parent().attr('pop_id'));
-                await TimeHelper.sleep(randomInterval(500, 800));
+                await TimeHelper.sleep(randomInterval(800, 1500));
                 RewardHelper.closeRewardPopupIfAny(); // Will refresh the page
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDPowerplacemain"), {}, randomInterval(4000, 5000)); // fail safe
                 return true;
             }
 
