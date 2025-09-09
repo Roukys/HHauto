@@ -1,6 +1,7 @@
 import {
     ConfigHelper,
     HeroHelper,
+    getPage,
     getTextForUI,
     hhButton,
     randomInterval,
@@ -42,27 +43,36 @@ export class TeamModule {
     }
 
     static unequipAllGirls() {
-        logHHAuto('Unequip');
-        $("#UnequipAll").attr('disabled', 'disabled');
-        const girlId = TeamModule.getFirstSelectedGirlId();
-        if (isNaN(girlId) || girlId < 0) {
-            logHHAuto('Error: can\'t get mandatory girl id, cancel action');
-            return;
-        }
-        const currentPage = window.location.pathname + window.location.search;
-        // change referer
-        //logHHAuto('change referer to ' + '/characters/' + girlId);
-        window.history.replaceState(null, '', addNutakuSession('/characters/' + girlId) as string);
-        var params1 = {
-            action: "girl_equipment_unequip_all_girls"
-        };
-        getHHAjax()(params1, function(data:any) {
-            $("#UnequipAll").removeAttr('disabled');
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEditTeam") ) {
+            logHHAuto('Unequip from edit team');
+            $("#UnequipAll").attr('disabled', 'disabled');
+            const girlId = TeamModule.getFirstSelectedGirlId();
+            if (isNaN(girlId) || girlId < 0) {
+                logHHAuto('Error: can\'t get mandatory girl id, cancel action');
+                return;
+            }
+            const currentPage = window.location.pathname + window.location.search;
             // change referer
-            //logHHAuto('change referer back to ' + currentPage);
-            window.history.replaceState(null, '', addNutakuSession(currentPage) as string);
-            setTimeout(function () { location.reload(); }, randomInterval(200, 500));
-        });
+            //logHHAuto('change referer to ' + '/characters/' + girlId);
+            window.history.replaceState(null, '', addNutakuSession('/characters/' + girlId) as string);
+            var params1 = {
+                action: "girl_equipment_unequip_all_girls"
+            };
+            getHHAjax()(params1, function(data:any) {
+                $("#UnequipAll").removeAttr('disabled');
+                // change referer
+                //logHHAuto('change referer back to ' + currentPage);
+                window.history.replaceState(null, '', addNutakuSession(currentPage) as string);
+                setTimeout(function () { location.reload(); }, randomInterval(200, 500));
+            });
+        } 
+        // else if (getPage().match(/^\/characters\/\d+$/)) {
+        // TODO unequip from harem page
+        //     logHHAuto('Unequip from harem page');
+        //     if ($('#unequip_all').length > 0) {
+        //         $('#unequip_all').trigger('click');
+        //     }
+        // }
     }
 
     static getFirstSelectedGirlId(): number{

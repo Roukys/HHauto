@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.24.8
+// @version      7.24.9
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -12398,6 +12398,15 @@ Pachinko.pachinkoSelector = undefined;
 Pachinko.retry = 0;
 
 ;// CONCATENATED MODULE: ./src/Module/PlaceOfPower.ts
+var PlaceOfPower_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 
 
 
@@ -12512,108 +12521,111 @@ class PlaceOfPower {
         setStoredValue(HHStoredVarPrefixKey + "Temp_PopToStart", JSON.stringify(newPopToStart));
     }
     static collectAndUpdate() {
-        if (getPage() !== ConfigHelper.getHHScriptVars("pagesIDPowerplacemain")) {
-            LogUtils_logHHAuto("Navigating to powerplaces main page.");
-            gotoPage(ConfigHelper.getHHScriptVars("pagesIDPowerplacemain"));
-            // return busy
-            return true;
-        }
-        else {
-            LogUtils_logHHAuto("On powerplaces main page.");
-            setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
-            LogUtils_logHHAuto("setting autoloop to false");
-            setStoredValue(HHStoredVarPrefixKey + "Temp_Totalpops", $("div.pop_list div[pop_id]").length); //Count how many different POPs there are and store them locally
-            LogUtils_logHHAuto("totalpops : " + getStoredValue(HHStoredVarPrefixKey + "Temp_Totalpops"));
-            var newFilter = "";
-            if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlacesInverted") === "true") {
-                // starting from last one.
-                $("div.pop_list div[pop_id]").each(function () { newFilter = ';' + $(this).attr('pop_id') + newFilter; });
-            }
-            else {
-                $("div.pop_list div[pop_id]").each(function () { newFilter = newFilter + ';' + $(this).attr('pop_id'); });
-            }
-            if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlacesAll") === "true") {
-                setStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlacesIndexFilter", newFilter.substring(1));
-            }
-            setStoredValue(HHStoredVarPrefixKey + "Temp_currentlyAvailablePops", newFilter.substring(1));
-            //collect all
-            let buttonClaimQuery = "button[rel='pop_thumb_claim'].purple_button_L:visible";
-            if ($(buttonClaimQuery).length > 0) {
-                $(buttonClaimQuery).first().trigger('click');
-                LogUtils_logHHAuto("Claimed reward for PoP : " + $(buttonClaimQuery).first().parent().attr('pop_id'));
+        return PlaceOfPower_awaiter(this, void 0, void 0, function* () {
+            if (getPage() !== ConfigHelper.getHHScriptVars("pagesIDPowerplacemain")) {
+                LogUtils_logHHAuto("Navigating to powerplaces main page.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDPowerplacemain"));
+                // return busy
                 return true;
             }
-            var filteredPops = getStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlacesIndexFilter") ? getStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlacesIndexFilter").split(";") : [];
-            var popUnableToStart = getStoredValue(HHStoredVarPrefixKey + "Temp_PopUnableToStart") ? getStoredValue(HHStoredVarPrefixKey + "Temp_PopUnableToStart").split(";") : [];
-            //logHHAuto("filteredPops : "+filteredPops);
-            var PopToStart = [];
-            $("div.pop_thumb[status='pending_reward']").each(function () {
-                var pop_id = $(this).attr('pop_id') || '';
-                //if index is in filter
-                if (filteredPops.includes(pop_id) && !popUnableToStart.includes(pop_id) && newFilter.includes(pop_id)) {
-                    PopToStart.push(Number(pop_id));
-                }
-            });
-            //get all already started Pop timers
-            var currIndex;
-            var currTime;
-            var minTime = -1;
-            var maxTime = -1;
-            var e;
-            clearTimer('minPowerPlacesTime');
-            clearTimer('maxPowerPlacesTime');
-            let popListRemaining = $('#pop_info .pop_thumb .pop_thumb_remaining > span');
-            popListRemaining.each(function () {
-                let $elem = $(this);
-                let elementText = $elem.text();
-                currIndex = $elem.parents('.pop_thumb_expanded').attr('pop_id');
-                if (filteredPops.includes(currIndex) && !popUnableToStart.includes(currIndex)) {
-                    currTime = convertTimeToInt($elem.text());
-                    if (minTime === -1 || currTime === -1 || minTime > currTime) {
-                        minTime = currTime;
-                    }
-                    if (maxTime === -1 || maxTime < currTime) {
-                        maxTime = currTime;
-                    }
-                }
-            });
-            if (minTime != -1) {
-                if (minTime > 7 * 60 * 60) {
-                    //force check of PowerPlaces every 7 hours // TODO: check time 20min != 7h
-                    setTimer('minPowerPlacesTime', randomInterval(20 * 60, 25 * 60));
-                }
-                else if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlacesWaitMax") === "true" && maxTime != -1) {
-                    setTimer('minPowerPlacesTime', Number(maxTime) + randomInterval(2 * 60, 5 * 60));
+            else {
+                LogUtils_logHHAuto("On powerplaces main page.");
+                setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+                LogUtils_logHHAuto("setting autoloop to false");
+                setStoredValue(HHStoredVarPrefixKey + "Temp_Totalpops", $("div.pop_list div[pop_id]").length); //Count how many different POPs there are and store them locally
+                LogUtils_logHHAuto("totalpops : " + getStoredValue(HHStoredVarPrefixKey + "Temp_Totalpops"));
+                var newFilter = "";
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlacesInverted") === "true") {
+                    // starting from last one.
+                    $("div.pop_list div[pop_id]").each(function () { newFilter = ';' + $(this).attr('pop_id') + newFilter; });
                 }
                 else {
-                    setTimer('minPowerPlacesTime', Number(minTime) + randomInterval(1 * 60, 3 * 60));
+                    $("div.pop_list div[pop_id]").each(function () { newFilter = newFilter + ';' + $(this).attr('pop_id'); });
                 }
-            }
-            else {
-                setTimer('minPowerPlacesTime', randomInterval(60, 100));
-            }
-            if (maxTime != -1) {
-                setTimer('maxPowerPlacesTime', Number(maxTime) + randomInterval(1, 10));
-            }
-            //building list of Pop to start
-            $("div.pop_thumb[status='can_start']").each(function () {
-                var pop_id = $(this).attr('pop_id') || '';
-                //if index is in filter
-                if (filteredPops.includes(pop_id) && !popUnableToStart.includes(pop_id) && newFilter.includes(pop_id)) {
-                    PopToStart.push(Number(pop_id));
-                    clearTimer('minPowerPlacesTime');
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlacesAll") === "true") {
+                    setStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlacesIndexFilter", newFilter.substring(1));
                 }
-            });
-            if (PopToStart.length === 0) {
-                sessionStorage.removeItem(HHStoredVarPrefixKey + 'Temp_PopUnableToStart');
+                setStoredValue(HHStoredVarPrefixKey + "Temp_currentlyAvailablePops", newFilter.substring(1));
+                //collect all
+                let buttonClaimQuery = "button[rel='pop_thumb_claim'].purple_button_L:visible";
+                if ($(buttonClaimQuery).length > 0) {
+                    $(buttonClaimQuery).first().trigger('click');
+                    LogUtils_logHHAuto("Claimed reward for PoP : " + $(buttonClaimQuery).first().parent().attr('pop_id'));
+                    yield TimeHelper.sleep(randomInterval(500, 800));
+                    RewardHelper.closeRewardPopupIfAny(); // Will refresh the page
+                    return true;
+                }
+                var filteredPops = getStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlacesIndexFilter") ? getStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlacesIndexFilter").split(";") : [];
+                var popUnableToStart = getStoredValue(HHStoredVarPrefixKey + "Temp_PopUnableToStart") ? getStoredValue(HHStoredVarPrefixKey + "Temp_PopUnableToStart").split(";") : [];
+                //logHHAuto("filteredPops : "+filteredPops);
+                var PopToStart = [];
+                $("div.pop_thumb[status='pending_reward']").each(function () {
+                    var pop_id = $(this).attr('pop_id') || '';
+                    //if index is in filter
+                    if (filteredPops.includes(pop_id) && !popUnableToStart.includes(pop_id) && newFilter.includes(pop_id)) {
+                        PopToStart.push(Number(pop_id));
+                    }
+                });
+                //get all already started Pop timers
+                var currIndex;
+                var currTime;
+                var minTime = -1;
+                var maxTime = -1;
+                var e;
+                clearTimer('minPowerPlacesTime');
+                clearTimer('maxPowerPlacesTime');
+                let popListRemaining = $('#pop_info .pop_thumb .pop_thumb_remaining > span');
+                popListRemaining.each(function () {
+                    let $elem = $(this);
+                    let elementText = $elem.text();
+                    currIndex = $elem.parents('.pop_thumb_expanded').attr('pop_id');
+                    if (filteredPops.includes(currIndex) && !popUnableToStart.includes(currIndex)) {
+                        currTime = convertTimeToInt($elem.text());
+                        if (minTime === -1 || currTime === -1 || minTime > currTime) {
+                            minTime = currTime;
+                        }
+                        if (maxTime === -1 || maxTime < currTime) {
+                            maxTime = currTime;
+                        }
+                    }
+                });
+                if (minTime != -1) {
+                    if (minTime > 7 * 60 * 60) {
+                        //force check of PowerPlaces every 7 hours // TODO: check time 20min != 7h
+                        setTimer('minPowerPlacesTime', randomInterval(20 * 60, 25 * 60));
+                    }
+                    else if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlacesWaitMax") === "true" && maxTime != -1) {
+                        setTimer('minPowerPlacesTime', Number(maxTime) + randomInterval(2 * 60, 5 * 60));
+                    }
+                    else {
+                        setTimer('minPowerPlacesTime', Number(minTime) + randomInterval(1 * 60, 3 * 60));
+                    }
+                }
+                else {
+                    setTimer('minPowerPlacesTime', randomInterval(60, 100));
+                }
+                if (maxTime != -1) {
+                    setTimer('maxPowerPlacesTime', Number(maxTime) + randomInterval(1, 10));
+                }
+                //building list of Pop to start
+                $("div.pop_thumb[status='can_start']").each(function () {
+                    var pop_id = $(this).attr('pop_id') || '';
+                    //if index is in filter
+                    if (filteredPops.includes(pop_id) && !popUnableToStart.includes(pop_id) && newFilter.includes(pop_id)) {
+                        PopToStart.push(Number(pop_id));
+                        clearTimer('minPowerPlacesTime');
+                    }
+                });
+                if (PopToStart.length === 0) {
+                    sessionStorage.removeItem(HHStoredVarPrefixKey + 'Temp_PopUnableToStart');
+                }
+                LogUtils_logHHAuto("build popToStart : " + PopToStart);
+                setStoredValue(HHStoredVarPrefixKey + "Temp_PopToStart", JSON.stringify(PopToStart));
+                setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
+                setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey + "Temp_autoLoopTimeMili")));
+                return false;
             }
-            LogUtils_logHHAuto("build popToStart : " + PopToStart);
-            setStoredValue(HHStoredVarPrefixKey + "Temp_PopToStart", JSON.stringify(PopToStart));
-            setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
-            setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey + "Temp_autoLoopTimeMili")));
-            return false;
-        }
+        });
     }
     static girlPower(powerRemaining, girlList, selectedGirls) {
         let subList = girlList;
@@ -12631,67 +12643,73 @@ class PlaceOfPower {
     }
     // returns boolean to set busy
     static doPowerPlacesStuff(index) {
-        if (getPage() !== "powerplace" + index) {
-            if (getStoredValue(HHStoredVarPrefixKey + "Temp_PopTargeted") != null && index === getStoredValue(HHStoredVarPrefixKey + "Temp_PopTargeted")) {
-                PlaceOfPower.addPopToUnableToStart(index, "Navigation to powerplace" + index + " page failed back to home page.");
-                PlaceOfPower.removePopFromPopToStart(index);
-                deleteStoredValue(HHStoredVarPrefixKey + "Temp_PopTargeted");
+        return PlaceOfPower_awaiter(this, void 0, void 0, function* () {
+            if (getPage() !== "powerplace" + index) {
+                if (getStoredValue(HHStoredVarPrefixKey + "Temp_PopTargeted") != null && index === getStoredValue(HHStoredVarPrefixKey + "Temp_PopTargeted")) {
+                    PlaceOfPower.addPopToUnableToStart(index, "Navigation to powerplace" + index + " page failed back to home page.");
+                    PlaceOfPower.removePopFromPopToStart(index);
+                    deleteStoredValue(HHStoredVarPrefixKey + "Temp_PopTargeted");
+                }
+                else {
+                    LogUtils_logHHAuto("Navigating to powerplace" + index + " page.");
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDActivities"), { tab: "pop", index: index });
+                    setStoredValue(HHStoredVarPrefixKey + "Temp_PopTargeted", index);
+                }
+                // return busy
+                return true;
             }
             else {
-                LogUtils_logHHAuto("Navigating to powerplace" + index + " page.");
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDActivities"), { tab: "pop", index: index });
-                setStoredValue(HHStoredVarPrefixKey + "Temp_PopTargeted", index);
-            }
-            // return busy
-            return true;
-        }
-        else {
-            LogUtils_logHHAuto("On powerplace" + index + " page.");
-            deleteStoredValue(HHStoredVarPrefixKey + "Temp_PopTargeted");
-            const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
-            //getting reward in case failed on main page
-            var querySelectorText = "button[rel='pop_claim']:not([style*='display:none']):not([style*='display: none'])";
-            if ($(querySelectorText).length > 0) {
-                $(querySelectorText).trigger("click");
-                LogUtils_logHHAuto("Claimed powerplace" + index);
-                if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlacesAll") !== "true") {
-                    PlaceOfPower.cleanTempPopToStart();
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDPowerplacemain"));
-                    return true;
+                LogUtils_logHHAuto("On powerplace" + index + " page.");
+                deleteStoredValue(HHStoredVarPrefixKey + "Temp_PopTargeted");
+                const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
+                //getting reward in case failed on main page
+                var querySelectorText = "button[rel='pop_claim']:not([style*='display:none']):not([style*='display: none'])";
+                if ($(querySelectorText).length > 0) {
+                    $(querySelectorText).trigger("click");
+                    LogUtils_logHHAuto("Claimed powerplace" + index);
+                    yield TimeHelper.sleep(randomInterval(200, 500));
+                    if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlacesAll") !== "true") {
+                        PlaceOfPower.cleanTempPopToStart();
+                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDPowerplacemain"));
+                        return true;
+                    }
                 }
-            }
-            if ($("div.pop_right_part div.no_girls_message").length > 0) {
-                PlaceOfPower.addPopToUnableToStart(index, "Unable to start Pop " + index + " no girls available.");
-                PlaceOfPower.removePopFromPopToStart(index);
-                return false;
-            }
-            if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlacesPrecision") === "true") {
-                if (document.getElementsByClassName("acting-power-text").length > 0) {
-                    PlaceOfPower.selectGirls();
+                if ($("div.pop_right_part div.no_girls_message").length > 0) {
+                    PlaceOfPower.addPopToUnableToStart(index, "Unable to start Pop " + index + " no girls available.");
+                    PlaceOfPower.removePopFromPopToStart(index);
+                    return false;
                 }
-                ;
-                if (document.getElementsByClassName("pop_remaining").length > 0) {
-                    if (document.getElementsByClassName("pop_remaining")[0].children.length > 0) {
-                        const remainText = document.getElementsByClassName("pop_remaining")[0].children[0].innerText;
-                        LogUtils_logHHAuto("PoP remainText: " + remainText);
-                        if (debugEnabled)
-                            LogUtils_logHHAuto("PoP acting-power-text: " + $('.acting-power-text').text());
-                        const hasRemainDays = remainText.includes("d");
-                        // If for some reason we cannot parse the text, set time too high to start
-                        // This may cause undesirable loops but for now is considered better than having girls stuck in PoP for days
-                        const remainHours = remainText.indexOf("h") ? parseInt(remainText.substring(remainText.indexOf("h") - 2, remainText.indexOf("h"))) : 9;
-                        const remainMins = remainText.indexOf("m") ? parseInt(remainText.substring(remainText.indexOf("m") - 2, remainText.indexOf("m"))) : 59;
-                        // If we weren't able to get under 9.5 hours, skip
-                        if ((hasRemainDays) || (remainHours > 9) || ((remainHours == 9) && (remainMins > 30))) {
-                            PlaceOfPower.addPopToUnableToStart(index, "Unable to start Pop " + index + " too much time remaining.");
-                            PlaceOfPower.removePopFromPopToStart(index);
-                            return false;
-                        }
-                        else {
-                            querySelectorText = "button.blue_button_L[rel='pop_action']:not([disabled])";
-                            if ($(querySelectorText).length > 0) {
-                                document.querySelector(querySelectorText).click();
-                                LogUtils_logHHAuto("Started powerplace" + index);
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlacesPrecision") === "true") {
+                    if (document.getElementsByClassName("acting-power-text").length > 0) {
+                        PlaceOfPower.selectGirls();
+                        yield TimeHelper.sleep(randomInterval(200, 500));
+                    }
+                    ;
+                    if (document.getElementsByClassName("pop_remaining").length > 0) {
+                        if (document.getElementsByClassName("pop_remaining")[0].children.length > 0) {
+                            const remainText = document.getElementsByClassName("pop_remaining")[0].children[0].innerText;
+                            LogUtils_logHHAuto("PoP remainText: " + remainText);
+                            if (debugEnabled)
+                                LogUtils_logHHAuto("PoP acting-power-text: " + $('.acting-power-text').text());
+                            const hasRemainDays = remainText.includes("d");
+                            // If for some reason we cannot parse the text, set time too high to start
+                            // This may cause undesirable loops but for now is considered better than having girls stuck in PoP for days
+                            const remainHours = remainText.indexOf("h") ? parseInt(remainText.substring(remainText.indexOf("h") - 2, remainText.indexOf("h"))) : 9;
+                            const remainMins = remainText.indexOf("m") ? parseInt(remainText.substring(remainText.indexOf("m") - 2, remainText.indexOf("m"))) : 59;
+                            // If we weren't able to get under 9.5 hours, skip
+                            if ((hasRemainDays) || (remainHours > 9) || ((remainHours == 9) && (remainMins > 30))) {
+                                PlaceOfPower.addPopToUnableToStart(index, "Unable to start Pop " + index + " too much time remaining.");
+                                PlaceOfPower.removePopFromPopToStart(index);
+                                return false;
+                            }
+                            else {
+                                querySelectorText = "button.blue_button_L[rel='pop_action']:not([disabled])";
+                                if ($(querySelectorText).length > 0) {
+                                    document.querySelector(querySelectorText).click();
+                                    LogUtils_logHHAuto("Started powerplace" + index);
+                                    yield TimeHelper.sleep(randomInterval(200, 500));
+                                }
+                                ;
                             }
                             ;
                         }
@@ -12699,38 +12717,40 @@ class PlaceOfPower {
                     }
                     ;
                 }
-                ;
-            }
-            else {
-                if ($("div.grid_view div.not_selected").length === 1) {
-                    $("div.grid_view div.not_selected").trigger("click");
-                    LogUtils_logHHAuto("Only one girl available for powerplace n°" + index + " assigning her.");
-                }
                 else {
-                    querySelectorText = "button.blue_button_L[rel='pop_auto_assign']:not([disabled])";
+                    if ($("div.grid_view div.not_selected").length === 1) {
+                        $("div.grid_view div.not_selected").trigger("click");
+                        LogUtils_logHHAuto("Only one girl available for powerplace n°" + index + " assigning her.");
+                        yield TimeHelper.sleep(randomInterval(200, 500));
+                    }
+                    else {
+                        querySelectorText = "button.blue_button_L[rel='pop_auto_assign']:not([disabled])";
+                        if ($(querySelectorText).length > 0) {
+                            document.querySelector(querySelectorText).click();
+                            LogUtils_logHHAuto("Autoassigned powerplace" + index);
+                            yield TimeHelper.sleep(randomInterval(200, 500));
+                        }
+                        else
+                            LogUtils_logHHAuto("No autoassign button for powerplace" + index);
+                    }
+                    querySelectorText = "button.blue_button_L[rel='pop_action']:not([disabled])";
                     if ($(querySelectorText).length > 0) {
                         document.querySelector(querySelectorText).click();
-                        LogUtils_logHHAuto("Autoassigned powerplace" + index);
+                        LogUtils_logHHAuto("Started powerplace" + index);
+                        yield TimeHelper.sleep(randomInterval(200, 500));
                     }
-                    else
-                        LogUtils_logHHAuto("No autoassign button for powerplace" + index);
+                    else if ($("button.blue_button_L[rel='pop_action'][disabled]").length > 0 && $("div.grid_view div.pop_selected").length > 0) {
+                        PlaceOfPower.addPopToUnableToStart(index, "Unable to start Pop " + index + " not enough girls available.");
+                        PlaceOfPower.removePopFromPopToStart(index);
+                        return false;
+                    }
                 }
-                querySelectorText = "button.blue_button_L[rel='pop_action']:not([disabled])";
-                if ($(querySelectorText).length > 0) {
-                    document.querySelector(querySelectorText).click();
-                    LogUtils_logHHAuto("Started powerplace" + index);
-                }
-                else if ($("button.blue_button_L[rel='pop_action'][disabled]").length > 0 && $("div.grid_view div.pop_selected").length > 0) {
-                    PlaceOfPower.addPopToUnableToStart(index, "Unable to start Pop " + index + " not enough girls available.");
-                    PlaceOfPower.removePopFromPopToStart(index);
-                    return false;
-                }
+                ;
+                PlaceOfPower.removePopFromPopToStart(index);
+                // Not busy
+                return false;
             }
-            ;
-            PlaceOfPower.removePopFromPopToStart(index);
-            // Not busy
-            return false;
-        }
+        });
     }
     static getPowerNeeded() {
         const powerElement = document.getElementsByClassName("acting-power-text");
@@ -13524,27 +13544,36 @@ class TeamModule {
         $("#UnequipAll").on("click", TeamModule.unequipAllGirls);
     }
     static unequipAllGirls() {
-        LogUtils_logHHAuto('Unequip');
-        $("#UnequipAll").attr('disabled', 'disabled');
-        const girlId = TeamModule.getFirstSelectedGirlId();
-        if (isNaN(girlId) || girlId < 0) {
-            LogUtils_logHHAuto('Error: can\'t get mandatory girl id, cancel action');
-            return;
-        }
-        const currentPage = window.location.pathname + window.location.search;
-        // change referer
-        //logHHAuto('change referer to ' + '/characters/' + girlId);
-        window.history.replaceState(null, '', addNutakuSession('/characters/' + girlId));
-        var params1 = {
-            action: "girl_equipment_unequip_all_girls"
-        };
-        getHHAjax()(params1, function (data) {
-            $("#UnequipAll").removeAttr('disabled');
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEditTeam")) {
+            LogUtils_logHHAuto('Unequip from edit team');
+            $("#UnequipAll").attr('disabled', 'disabled');
+            const girlId = TeamModule.getFirstSelectedGirlId();
+            if (isNaN(girlId) || girlId < 0) {
+                LogUtils_logHHAuto('Error: can\'t get mandatory girl id, cancel action');
+                return;
+            }
+            const currentPage = window.location.pathname + window.location.search;
             // change referer
-            //logHHAuto('change referer back to ' + currentPage);
-            window.history.replaceState(null, '', addNutakuSession(currentPage));
-            setTimeout(function () { location.reload(); }, randomInterval(200, 500));
-        });
+            //logHHAuto('change referer to ' + '/characters/' + girlId);
+            window.history.replaceState(null, '', addNutakuSession('/characters/' + girlId));
+            var params1 = {
+                action: "girl_equipment_unequip_all_girls"
+            };
+            getHHAjax()(params1, function (data) {
+                $("#UnequipAll").removeAttr('disabled');
+                // change referer
+                //logHHAuto('change referer back to ' + currentPage);
+                window.history.replaceState(null, '', addNutakuSession(currentPage));
+                setTimeout(function () { location.reload(); }, randomInterval(200, 500));
+            });
+        }
+        // else if (getPage().match(/^\/characters\/\d+$/)) {
+        // TODO unequip from harem page
+        //     logHHAuto('Unequip from harem page');
+        //     if ($('#unequip_all').length > 0) {
+        //         $('#unequip_all').trigger('click');
+        //     }
+        // }
     }
     static getFirstSelectedGirlId() {
         const selectedPosition = $('#contains_all section .player-panel .player-team .team-hexagon .team-member-container.selectable[data-team-member-position="0"]');
@@ -17550,7 +17579,7 @@ function autoLoop() {
                         //logHHAuto("pop1:"+popToStart);
                         LogUtils_logHHAuto("Go and collect pop");
                         busy = true;
-                        busy = PlaceOfPower.collectAndUpdate();
+                        busy = yield PlaceOfPower.collectAndUpdate();
                     }
                     var indexes = (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlacesIndexFilter")).split(";");
                     popToStart = getStoredValue(HHStoredVarPrefixKey + "Temp_PopToStart") ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_PopToStart")) : [];
@@ -17567,7 +17596,7 @@ function autoLoop() {
                         if (busy === false && popToStart.includes(Number(index))) {
                             LogUtils_logHHAuto("Time to do PowerPlace" + index + ".");
                             busy = true;
-                            busy = PlaceOfPower.doPowerPlacesStuff(index);
+                            busy = yield PlaceOfPower.doPowerPlacesStuff(index);
                             lastActionPerformed = "pop";
                         }
                     }
