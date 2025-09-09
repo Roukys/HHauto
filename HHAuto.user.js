@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.24.9
+// @version      7.24.10
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -9751,10 +9751,14 @@ class RelicManager {
                 LogUtils_logHHAuto('Error selecting relics, select first no girl relic');
                 $('#labyrinth_reward_popup #reward_holder .relic-container:not(.large-card) .relic-card-buttons .claim-relic-btn').first().trigger('click');
             }
-            yield TimeHelper.sleep(randomInterval(500, 800));
-            // Close reward popup
-            RewardHelper.closeRewardPopupIfAny(this.debugEnabled, 'labyrinth_reward_popup');
-            yield TimeHelper.sleep(randomInterval(500, 800));
+            yield TimeHelper.sleep(randomInterval(800, 1300));
+            // Close reward popup or wait until it opens
+            for (var i = 0; i < 3; i++) {
+                const popupOpened = RewardHelper.closeRewardPopupIfAny(this.debugEnabled, 'labyrinth_reward_popup');
+                yield TimeHelper.sleep(randomInterval(800, 1300));
+                if (popupOpened)
+                    break;
+            }
         });
     }
 }
@@ -12551,8 +12555,9 @@ class PlaceOfPower {
                 if ($(buttonClaimQuery).length > 0) {
                     $(buttonClaimQuery).first().trigger('click');
                     LogUtils_logHHAuto("Claimed reward for PoP : " + $(buttonClaimQuery).first().parent().attr('pop_id'));
-                    yield TimeHelper.sleep(randomInterval(500, 800));
+                    yield TimeHelper.sleep(randomInterval(800, 1500));
                     RewardHelper.closeRewardPopupIfAny(); // Will refresh the page
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDPowerplacemain"), {}, randomInterval(4000, 5000)); // fail safe
                     return true;
                 }
                 var filteredPops = getStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlacesIndexFilter") ? getStoredValue(HHStoredVarPrefixKey + "Setting_autoPowerPlacesIndexFilter").split(";") : [];

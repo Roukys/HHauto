@@ -109,11 +109,14 @@ export class RelicManager {
             logHHAuto('Error selecting relics, select first no girl relic');
             $('#labyrinth_reward_popup #reward_holder .relic-container:not(.large-card) .relic-card-buttons .claim-relic-btn').first().trigger('click');
         }
-        await TimeHelper.sleep(randomInterval(500, 800));
+        await TimeHelper.sleep(randomInterval(800, 1300));
 
-        // Close reward popup
-        RewardHelper.closeRewardPopupIfAny(this.debugEnabled, 'labyrinth_reward_popup');
-        await TimeHelper.sleep(randomInterval(500, 800));
+        // Close reward popup or wait until it opens
+        for(var i=0; i<3;i++) {
+            const popupOpened = RewardHelper.closeRewardPopupIfAny(this.debugEnabled, 'labyrinth_reward_popup');
+            await TimeHelper.sleep(randomInterval(800, 1300));
+            if (popupOpened) break;
+        }
     }
 
     /*static testRelicParser(){
