@@ -8,7 +8,9 @@ import {
     setStoredValue,
     setTimer,
     deleteStoredValue,
-    getHHVars
+    getHHVars,
+    TimeHelper,
+    RewardHelper
 } from '../Helper/index';
 import { autoLoop, gotoPage } from '../Service/index';
 import { isJSON, logHHAuto } from '../Utils/index';
@@ -147,7 +149,7 @@ export class PlaceOfPower {
         setStoredValue(HHStoredVarPrefixKey+"Temp_PopToStart", JSON.stringify(newPopToStart));
     }
 
-    static collectAndUpdate()
+    static async collectAndUpdate()
     {
         if(getPage() !== ConfigHelper.getHHScriptVars("pagesIDPowerplacemain"))
         {
@@ -184,8 +186,9 @@ export class PlaceOfPower {
             if ($(buttonClaimQuery).length >0)
             {
                 $(buttonClaimQuery).first().trigger('click');
-                logHHAuto("Claimed reward for PoP : "+$(buttonClaimQuery).first().parent().attr('pop_id'));
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDPowerplacemain"));
+                logHHAuto("Claimed reward for PoP : " + $(buttonClaimQuery).first().parent().attr('pop_id'));
+                await TimeHelper.sleep(randomInterval(500, 800));
+                RewardHelper.closeRewardPopupIfAny(); // Will refresh the page
                 return true;
             }
 
@@ -299,7 +302,7 @@ export class PlaceOfPower {
     }
 
     // returns boolean to set busy
-    static doPowerPlacesStuff(index)
+    static async doPowerPlacesStuff(index)
     {
         if(getPage() !== "powerplace"+index)
         {
@@ -327,6 +330,7 @@ export class PlaceOfPower {
             {
                 $(querySelectorText).trigger("click");
                 logHHAuto("Claimed powerplace"+index);
+                await TimeHelper.sleep(randomInterval(200, 500));
                 if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoPowerPlacesAll") !== "true")
                 {
                     PlaceOfPower.cleanTempPopToStart();
@@ -346,6 +350,7 @@ export class PlaceOfPower {
             if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoPowerPlacesPrecision") === "true") {
                 if (document.getElementsByClassName("acting-power-text").length>0) {
                     PlaceOfPower.selectGirls()
+                    await TimeHelper.sleep(randomInterval(200, 500));
                 };
 
                 if (document.getElementsByClassName("pop_remaining").length>0){
@@ -369,7 +374,8 @@ export class PlaceOfPower {
                             if ($(querySelectorText).length>0)
                             {
                                 (<HTMLElement>document.querySelector(querySelectorText)).click();
-                                logHHAuto("Started powerplace"+index);
+                                logHHAuto("Started powerplace" + index);
+                                await TimeHelper.sleep(randomInterval(200, 500));
                             };
                         };
                     };
@@ -378,7 +384,8 @@ export class PlaceOfPower {
                 if ($("div.grid_view div.not_selected").length === 1)
                 {
                     $("div.grid_view div.not_selected").trigger("click");
-                    logHHAuto("Only one girl available for powerplace n°"+index+ " assigning her.");
+                    logHHAuto("Only one girl available for powerplace n°" + index + " assigning her.");
+                    await TimeHelper.sleep(randomInterval(200, 500));
                 }
                 else
                 {
@@ -386,14 +393,16 @@ export class PlaceOfPower {
                     if ($(querySelectorText).length>0)
                     {
                         (<HTMLElement>document.querySelector(querySelectorText)).click();
-                        logHHAuto("Autoassigned powerplace"+index);
+                        logHHAuto("Autoassigned powerplace" + index);
+                        await TimeHelper.sleep(randomInterval(200, 500));
                     } else logHHAuto("No autoassign button for powerplace" + index);
                 }
                 querySelectorText = "button.blue_button_L[rel='pop_action']:not([disabled])"
                 if ($(querySelectorText).length>0)
                 {
                     (<HTMLElement>document.querySelector(querySelectorText)).click();
-                    logHHAuto("Started powerplace"+index);
+                    logHHAuto("Started powerplace" + index);
+                    await TimeHelper.sleep(randomInterval(200, 500));
                 }
                 else if ($("button.blue_button_L[rel='pop_action'][disabled]").length >0 && $("div.grid_view div.pop_selected").length >0)
                 {

@@ -289,7 +289,7 @@ export async function autoLoop()
                     //logHHAuto("pop1:"+popToStart);
                     logHHAuto("Go and collect pop");
                     busy = true;
-                    busy = PlaceOfPower.collectAndUpdate();
+                    busy = await PlaceOfPower.collectAndUpdate();
                 }
                 var indexes=(getStoredValue(HHStoredVarPrefixKey+"Setting_autoPowerPlacesIndexFilter")).split(";");
 
@@ -311,7 +311,7 @@ export async function autoLoop()
                     {
                         logHHAuto("Time to do PowerPlace"+index+".");
                         busy = true;
-                        busy = PlaceOfPower.doPowerPlacesStuff(index);
+                        busy = await PlaceOfPower.doPowerPlacesStuff(index);
                         lastActionPerformed = "pop";
                     }
                 }
