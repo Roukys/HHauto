@@ -50,6 +50,7 @@ export class LabyrinthAuto {
         }
         else if (page === ConfigHelper.getHHScriptVars("pagesIDLabyrinth")) {
             logHHAuto("On Labyrinth page.");
+            await TimeHelper.sleep(randomInterval(500, 800));
             if (this.closeRewards()) {
                 if (this.debugEnabled) logHHAuto('Some rewards popup closed');
             }
@@ -81,10 +82,11 @@ export class LabyrinthAuto {
 
             $('.labChosen').trigger('click');
             await TimeHelper.sleep(randomInterval(500, 800));
-            if (this.closeRewards()) {
-                await TimeHelper.sleep(randomInterval(500, 800));
-                //location.reload()
-                return this.run();
+            // Close reward popup or wait until it opens
+            for (var i = 0; i < 3; i++) {
+                const popupOpened = this.closeRewards();
+                await TimeHelper.sleep(randomInterval(800, 1300));
+                if (popupOpened) return this.run();
             }
             return true;
         }
