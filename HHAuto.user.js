@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.24.10
+// @version      7.24.11
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -10420,6 +10420,7 @@ class LabyrinthAuto {
             }
             else if (page === ConfigHelper.getHHScriptVars("pagesIDLabyrinth")) {
                 LogUtils_logHHAuto("On Labyrinth page.");
+                yield TimeHelper.sleep(randomInterval(500, 800));
                 if (this.closeRewards()) {
                     if (this.debugEnabled)
                         LogUtils_logHHAuto('Some rewards popup closed');
@@ -10449,10 +10450,12 @@ class LabyrinthAuto {
                     LogUtils_logHHAuto("setting autoloop to false");
                 $('.labChosen').trigger('click');
                 yield TimeHelper.sleep(randomInterval(500, 800));
-                if (this.closeRewards()) {
-                    yield TimeHelper.sleep(randomInterval(500, 800));
-                    //location.reload()
-                    return this.run();
+                // Close reward popup or wait until it opens
+                for (var i = 0; i < 3; i++) {
+                    const popupOpened = this.closeRewards();
+                    yield TimeHelper.sleep(randomInterval(800, 1300));
+                    if (popupOpened)
+                        return this.run();
                 }
                 return true;
             }
