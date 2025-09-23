@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.24.11
+// @version      7.24.12
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -13906,7 +13906,7 @@ class GayPornstarHarem {
             'Andrew Stark',
             'Sean Duran & Bryce Evans',
             'Trojan Pierce Paris',
-            'Troll 7'];
+            'Ryan Rose'];
     }
     static getTrollGirlsId() {
         return [
@@ -13919,6 +13919,7 @@ class GayPornstarHarem {
             [['182117271', '350309796', '361432643', '390918673', '426008459', '446246345', '590934200', '599355011', '712652761', '848616605', '921769175'], [0], [0]],
             [['284712878', '913932535', '352737504 '], [0], [0]],
             [['268000414', '809099695'], [0], [0]],
+            [['578185725', '582322108', '695550243'], [0], [0]],
         ];
     }
     static updateFeatures(envVariables) {
@@ -14147,7 +14148,8 @@ class TransPornstarHarem {
             'Mistress Venom',
             'CEO Ramona',
             'Mama Bee',
-            'Officer Jolie'];
+            'Officer Jolie',
+            'Ariel in Wonderland'];
     }
     static getTrollGirlsId() {
         return [
@@ -14160,13 +14162,14 @@ class TransPornstarHarem {
             [['558585439', '577205682', '741311311'], [0], [0]],
             [['692804877', '984917842', '581358076'], ['397703278', '704166982', '483645616'], ['349968569', '970429531', '954328841']],
             [[0], [0], [0]],
+            [[0], [0], [0]],
         ];
     }
     static updateFeatures(envVariables) {
         envVariables.isEnabledSpreadsheets = false;
     }
 }
-TransPornstarHarem.trollIdMapping = { 2: 1, 3: 2, 5: 3, 6: 4, 7: 5, 8: 6, 9: 7, 11: 8, 13: 9 };
+TransPornstarHarem.trollIdMapping = { 2: 1, 3: 2, 5: 3, 6: 4, 7: 5, 8: 6, 9: 7, 11: 8, 13: 9, 14: 10 };
 
 ;// CONCATENATED MODULE: ./src/config/game/index.ts
 

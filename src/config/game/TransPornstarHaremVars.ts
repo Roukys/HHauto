@@ -1,5 +1,5 @@
 export class TransPornstarHarem {
-    static trollIdMapping = { 2: 1, 3: 2, 5: 3, 6: 4, 7: 5, 8: 6, 9: 7, 11: 8, 13: 9 };
+    static trollIdMapping = { 2: 1, 3: 2, 5: 3, 6: 4, 7: 5, 8: 6, 9: 7, 11: 8, 13: 9, 14: 10 };
     static lastQuestId: -1; //  TODO update when new quest comes
     static getEnv() {
         return {
@@ -17,7 +17,8 @@ export class TransPornstarHarem {
             'Mistress Venom',
             'CEO Ramona',
             'Mama Bee',
-            'Officer Jolie'];
+            'Officer Jolie',
+            'Ariel in Wonderland'];
     }
     static getTrollGirlsId() {
         return [
@@ -29,6 +30,7 @@ export class TransPornstarHarem {
             [['317800067', '542090972', '920682672'], [0], [0]],
             [['558585439', '577205682', '741311311'], [0], [0]],
             [['692804877', '984917842', '581358076'], ['397703278', '704166982', '483645616'], ['349968569', '970429531', '954328841']],
+            [[0], [0], [0]],
             [[0], [0], [0]],
         ];
     }
