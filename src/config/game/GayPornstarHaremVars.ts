@@ -17,7 +17,8 @@ export class GayPornstarHarem {
             'Andrew Stark',
             'Sean Duran & Bryce Evans',
             'Trojan Pierce Paris',
-            'Ryan Rose'];
+            'Ryan Rose',
+            'Pol Prince'];
     }
 
     static getTrollGirlsId() {
@@ -32,6 +33,7 @@ export class GayPornstarHarem {
             [['284712878', '913932535', '352737504 '], [0], [0]],
             [['268000414', '809099695'], [0], [0]],
             [['578185725', '582322108', '695550243'], [0], [0]],
+            [['316283043', '856464976', '619419056'], [0], [0]],
         ];
     }
 
