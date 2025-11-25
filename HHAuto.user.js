@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.24.12
+// @version      7.24.14
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -13906,7 +13906,8 @@ class GayPornstarHarem {
             'Andrew Stark',
             'Sean Duran & Bryce Evans',
             'Trojan Pierce Paris',
-            'Ryan Rose'];
+            'Ryan Rose',
+            'Pol Prince'];
     }
     static getTrollGirlsId() {
         return [
@@ -13920,6 +13921,7 @@ class GayPornstarHarem {
             [['284712878', '913932535', '352737504 '], [0], [0]],
             [['268000414', '809099695'], [0], [0]],
             [['578185725', '582322108', '695550243'], [0], [0]],
+            [['316283043', '856464976', '619419056'], [0], [0]],
         ];
     }
     static updateFeatures(envVariables) {
@@ -14094,7 +14096,8 @@ class PornstarHarem {
             'Paige Taylor',
             'The Hooded Heroine',
             'EMPTY',
-            'Monica Mattos'];
+            'Monica Mattos',
+            'Caty Campbell'];
         switch (languageCode) {
             case "fr":
                 trollList[1] = 'Directrice Asa Akira';
@@ -14122,6 +14125,7 @@ class PornstarHarem {
             [['814814392', '660703295', '450943401'], [0], [0]],
             [[0], [0], [0]],
             [['409433993', '438706084', '673600948'], [0], [0]],
+            [['248370930', '257485641', '381828319'], [0], [0]],
         ];
     }
     static updateFeatures(envVariables) {

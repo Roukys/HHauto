@@ -26,7 +26,8 @@ export class PornstarHarem {
                     'Paige Taylor',
                     'The Hooded Heroine',
                     'EMPTY',
-                    'Monica Mattos'];
+                    'Monica Mattos',
+                    'Caty Campbell'];
 
         switch (languageCode) {
             case "fr":
@@ -56,6 +57,7 @@ export class PornstarHarem {
             [['814814392', '660703295', '450943401'], [0], [0]],
             [[0], [0], [0]],
             [['409433993', '438706084', '673600948'], [0], [0]],
+            [['248370930', '257485641', '381828319'], [0], [0]],
         ];
     }
 
