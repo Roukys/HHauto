@@ -3,19 +3,13 @@ import {
     ConfigHelper,
     getPage,
     getStoredValue,
-    setStoredValue,
     setTimer,
     randomInterval,
-    getHHVars,
-    getHero,
-    convertTimeToInt,
-    TimeHelper
+    getHHVars
 } from '../../Helper/index';
 import { gotoPage } from '../../Service/index';
-import { getCurrentSorting, getHHAjax, logHHAuto } from '../../Utils/index';
+import { logHHAuto } from '../../Utils/index';
 import { HHStoredVarPrefixKey } from '../../config/index';
-import { Harem } from "./Harem";
-import { HaremFilter } from './HaremFilter';
 
 export class HaremSalary {
     static filterGirlMapReadyForCollect(a)
@@ -23,247 +17,19 @@ export class HaremSalary {
         return a.readyForCollect;
     }
 
-    static scrollToGirl(girlId: string){
-        try {
-            // Scroll to girl
-            $('[id_girl="' + girlId + '"]')[0].scrollIntoView();
-        } catch (err) {
-            // Girl must not be visible, scroll to girl list bottom
-            HaremSalary.scrollToLastGirl();
-        }
-    }
-
-    static scrollToLastGirl(){
-        try {
-            $('.girls_list')[0].scrollTop = $('.girls_list')[0].scrollHeight;
-        } catch (err) { }
-    }
-
-    static async CollectMoney ()
-    {
-        const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
-        var Clicked:any[]=[];
-        const Hero = getHero();
-        const haremFilter = new HaremFilter();
-        const haremFilters: any[] = haremFilter.getRarityFilterValues();
-        let haremFilterIndex = 0;
-        let salaryTimer = Infinity;
-
-        var endCollectTS = -1;
-        let startCollectTS = -1;
-        var maxSecsForSalary = Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoSalaryMaxTimer")) || 1200;
-        var collectedGirlzNb = 0;
-        var collectedMoney = 0;
-        let totalGirlsToCollect = 0; // TODO update when loading a new "page"
-        let totalGirlsDisplayed = 0;
-        let girlsToCollectBeforeWait = randomInterval(6,12);
-        let girlPageCollecting = 1;
-        let lastGirlScrolledTo = -1;
-        function ClickThem()
-        {
-            if (endCollectTS === -1)
-            {
-                endCollectTS = new Date().getTime() + 1000 * maxSecsForSalary;
-                startCollectTS = new Date().getTime();
-            }
-            //logHHAuto('Need to click: '+ToClick.length);
-            if (Clicked.length>0)
-            {
-                HaremSalary.scrollToGirl(Clicked[0]);
-                // TODO move to simulated click
-                var paramsGetGirl = {
-                    id_girl: Clicked[0],
-                    action: "get_girl"
-                };
-                getHHAjax()(paramsGetGirl, function (data) {
-                    // Nothing to do
-                },
-                function (err) {
-
-                });
-                var paramsSalary = {
-                    id_girl: Clicked[0],
-                    action: "claim_salary"
-                };
-                getHHAjax()(paramsSalary, function(data) {
-                    if (data.success)
-                    {
-                        //console.log(Clicked[0]);
-                        let girlsDataList = getHHVars("shared.GirlSalaryManager.girlsMap");
-                        if (girlsDataList !== null && girlsDataList[Clicked[0]] !== undefined)
-                        {
-                            const _this2 = girlsDataList[Clicked[0]];
-                            _this2.gData.pay_in = data.time + 60;
-                            _this2._noDoubleClick = false;
-                            _this2._resetSalaryDisplay();
-                            //console.log(_this2);
-                        }
-                        Hero.update("soft_currency", data.money, true);
-                        // unsafeWindow.Collect.check_state(); // Update money in button based on filtered girls
-                        collectedMoney += data.money;
-                        collectedGirlzNb++;
-                    }
-                    else
-                    {
-                        logHHAuto(`Collect error on n°${Clicked[0]}`);
-                    }
-                    Clicked.shift();
-                    if (new Date().getTime() < endCollectTS)
-                    {
-                        let waitBetweenGirlsTime = randomInterval(300,500);
-                        girlsToCollectBeforeWait--;
-                        if (girlsToCollectBeforeWait <= 0)
-                        {
-                            waitBetweenGirlsTime = randomInterval(1200,2000);
-                            girlsToCollectBeforeWait = randomInterval(6,12);
-                        }
-                        if (Clicked.length > 0) logHHAuto(`Next girl collection in ${waitBetweenGirlsTime}ms after n°${Clicked[0]}`);
-                        setTimeout(ClickThem,waitBetweenGirlsTime);
-                        if(window.top) window.top.postMessage({ImAlive:true},'*');
-                    }
-                    else
-                    {
-                        logHHAuto(`Salary collection reached to the max time of ${maxSecsForSalary} secs, collected ${collectedGirlzNb}/${ totalGirlsToCollect} girls and ${collectedMoney} money`);
-                        setTimeout(CollectData,randomInterval(300,500));
-                    }
-                },
-                function(err) {
-                    Clicked.shift();
-                    logHHAuto(`Bypassed n°${Clicked[0]}`);
-                    setTimeout(ClickThem,randomInterval(300,500));
-                });
-            }
-            else {
-
-                const collectionTime = Math.ceil((new Date().getTime() - startCollectTS)/1000);
-                logHHAuto(`Salary collection done for page n°${girlPageCollecting} : collected ${collectedGirlzNb} / ${totalGirlsToCollect} girls and ${collectedMoney} money in ${collectionTime} secs`);
-                setTimeout(()=>{CollectData(true)},randomInterval(300,500));
-                girlPageCollecting++;
-            }
-        }
-    
-        async function CollectData(inStart = false)
-        {
-            let collectableGirlsList:any[] = [];
-            const girlsList = Harem.getGirlMapSorted(getCurrentSorting(), false);
-            const salarySumTag = HaremSalary.getSalarySumTag();
-            if (girlsList === null) {
-                if (getPage() != ConfigHelper.getHHScriptVars("pagesIDHarem")) {
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHarem"));
-                    return;
-                } else {
-                    logHHAuto('Error getting girl list');
-                }
-            }
-            collectableGirlsList = girlsList?.filter(HaremSalary.filterGirlMapReadyForCollect) || [];
-
-            const allOwnedGirlsLoaded = totalGirlsDisplayed > 0 && totalGirlsDisplayed === girlsList.length;
-            totalGirlsDisplayed = girlsList.length;
-            totalGirlsToCollect = collectableGirlsList.length;
-    
-            if (collectableGirlsList.length>0 )
-            {
-                if (debugEnabled) logHHAuto("Girls found in list : " + collectableGirlsList.length);
-                //console.log(JSON.stringify(collectableGirlsList));
-                for ( let girl of collectableGirlsList)
-                {
-                    Clicked.push(girl.gId);
-                }
-                if (debugEnabled) logHHAuto({log:"Girls ready to collect: ", GirlsToCollect:Clicked});
-            }
-            if (Clicked.length>0 && inStart)
-            {
-                setTimeout(ClickThem,randomInterval(500,1500));
-            }
-            else if (salarySumTag && inStart && !allOwnedGirlsLoaded) {
-                // Some money to collect, scrolling
-                const girlIdToLoad = Number($('.girls_list .harem-girl:not(.not_owned)').last().attr('girl'));
-                if (lastGirlScrolledTo != girlIdToLoad) {
-                    lastGirlScrolledTo = girlIdToLoad;
-                    logHHAuto(`Some salary need to be collected in next pages, scroll down to ${girlIdToLoad}`);
-                    HaremSalary.scrollToGirl(girlIdToLoad+'');
-                } else {
-                    logHHAuto(`Some salary need to be collected in next pages, same girl as before, scroll down to bottom`);
-                    HaremSalary.scrollToLastGirl();
-                }
-                setTimeout(() => { CollectData(inStart) }, randomInterval(1200, 1800));
-            }
-            else //nothing to collect or time spent already
-            {
-                salaryTimer = Math.min(HaremSalary.predictNextSalaryMinTime(), salaryTimer);
-
-                if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryUseFilter") === "true" && haremFilterIndex < haremFilters.length) {
-                    await haremFilter.selectGirlFilters(haremFilters[haremFilterIndex++]);
-                    setTimeout(() => { CollectData(inStart) }, randomInterval(1200, 1800));
-                } else {
-                    if (salaryTimer > 0)
-                    {
-                        salaryTimer = randomInterval(salaryTimer, 180 + salaryTimer);
-                        logHHAuto(`Setting salary timer to ${salaryTimer} secs.`);
-                    }
-                    else
-                    {
-                        logHHAuto("Next salary set to 60 secs as remains girls to collect");
-                        salaryTimer = randomInterval(50, 70);
-                    }
-                    setTimer('nextSalaryTime', salaryTimer);
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"),{}, randomInterval(300,500));
-                }
-            }
-        }
-
-        if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryUseFilter") === "true" && haremFilterIndex < haremFilters.length) {
-            try {
-                haremFilter.openFilter();
-                await TimeHelper.sleep(randomInterval(200, 400)); // wait open
-
-                logHHAuto('Reseting girl filters');
-                haremFilter.resetFilter();
-                await TimeHelper.sleep(randomInterval(800, 1200)); // wait loading
-
-                logHHAuto('selectOnlyOwnedGirls');
-                await haremFilter.selectOnlyOwnedGirls();
-                
-                await haremFilter.selectGirlFilters(<string> haremFilters[haremFilterIndex++]);
-            } catch ({ errName, message }) {
-                logHHAuto(`ERROR during girl filter: ${message}, retry in 1h`);
-                setTimer('nextSalaryTime', randomInterval(3400, 3800));
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
-            }
-        }
-        else if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryResetFilters") === "true")
-        {
-            logHHAuto('Reseting girl filters');
-            haremFilter.resetFilter();
-            await TimeHelper.sleep(randomInterval(800, 1200)); // wait loading
-        }
-    
-        CollectData(true);
-    }
-
-    static getNextSalaryTimeFromHomePage(): number
-    {
-        const salaryTimer = $('.pay-in:visible', HaremSalary.getSalaryButton());
-        if (salaryTimer.length > 0) {
-            return convertTimeToInt(salaryTimer.text()) || -1;
-        }
-        return -1;
-    }
-
     static setSalaryTimeFromHomePage(): void
     {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHome")) {
             const minSalaryForCollect = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryMinSalary")) || 20000;
-            const salaryAmount = Number($('.sum', HaremSalary.getSalaryButton()).attr('amount'));
+            const salaryAmount = HaremSalary.getSalarySumTag();
 
-            if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryResetFilters") === "true" 
-                && salaryAmount > minSalaryForCollect)
+            if (salaryAmount > minSalaryForCollect)
             {
                 logHHAuto(`Some salary to be collected ${salaryAmount}`);
                 setTimer('nextSalaryTime', randomInterval(1, 10));
                 return;
             }
-            const nextSalaryTime = HaremSalary.getNextSalaryTimeFromHomePage();
+            const nextSalaryTime = HaremSalary.predictNextSalaryMinTime();
             if (nextSalaryTime > 0)
                 setTimer('nextSalaryTime', randomInterval(nextSalaryTime, 60 + nextSalaryTime));
         }
@@ -353,24 +119,6 @@ export class HaremSalary {
                             setTimer('nextSalaryTime', randomInterval(15 * 60, 17 * 60));
                         }
                         return false;
-                    }
-                    else if ( getButtonClass.indexOf("orange_button_L") !== -1 )
-                    {
-                        // Not at Harem screen then goto the Harem screen.
-                        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHarem") )
-                        {
-                            logHHAuto("Detected Harem Screen. Fetching Salary");
-                            //replaceCheatClick();
-                            setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
-                            logHHAuto("setting autoloop to false");
-                            HaremSalary.CollectMoney();
-                        }
-                        else
-                        {
-                            logHHAuto("Navigating to Harem window.");
-                            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHarem"));
-                        }
-                        return true;
                     }
                     else
                     {

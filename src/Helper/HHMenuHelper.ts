@@ -587,12 +587,9 @@ export function getMenu() {
                         +`<div class="internalOptionsRow">`
                             + hhMenuSwitchWithImg('autoSalary', 'pictures/design/harem.svg')
                             + hhMenuInput('autoSalaryMinSalary', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
-                            + hhMenuInput('autoSalaryMaxTimer', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
                         + `</div>`
                         + `<div class="internalOptionsRow">`
-                            + hhMenuSwitch('autoSalaryResetFilters')
-                            + hhMenuSwitch('autoSalaryUseFilter')
-                            + hhMenuInput('autoSalaryFilter', HHAuto_inputPattern.autoSalaryFilter, 'width:55px')
+                        
                         +`</div>`
                     +`</div>`
                     +`<div class="optionsRow">`
