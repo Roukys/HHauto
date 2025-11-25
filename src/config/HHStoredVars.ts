@@ -614,65 +614,6 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSalary"] =
         clearTimer('nextSalaryTime');
     }
 };
-HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSalaryResetFilters"] =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSalaryUseFilter"] =
-{
-    default: "false",
-    storage: "Storage()",
-    HHType: "Setting",
-    valueType: "Boolean",
-    getMenu: true,
-    setMenu: true,
-    menuType: "checked",
-    kobanUsing: false,
-    newValueFunction: function () {
-    }
-};
-HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSalaryFilter"] =
-{
-    default: "1;6;5;4;3;2",
-    storage: "Storage()",
-    HHType: "Setting",
-    valueType: "List",
-    getMenu: true,
-    setMenu: true,
-    menuType: "value",
-    kobanUsing: false,
-    newValueFunction: function () {
-    }
-};
-HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSalaryMaxTimer"] =
-    {
-    default:"1200",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Long Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};
-/*HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSalaryMinTimer"] =
-    {
-    default:"120",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Long Integer",
-    getMenu:true,
-    setMenu:true,
-    menuType:"value",
-    kobanUsing:false
-};*/
 HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSalaryMinSalary"] =
     {
     default:"20000",

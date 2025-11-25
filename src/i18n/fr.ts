@@ -23,7 +23,6 @@ HHAuto_ToolTips.fr['showInfoLeft'] = { version: "5.23.0", elementText: "Infos à
 HHAuto_ToolTips.fr['autoSalary'] = { version: "5.6.24", elementText: "Salaire", tooltip: "Si activé :<br>Collecte les salaires toutes les X secondes."};
 //HHAuto_ToolTips.fr['autoSalaryMinTimer'] = { version: "5.6.24", elementText: "Attente min.", tooltip: "(Nombre entier)<br>Secondes d'attente minimum entre deux collectes."};
 HHAuto_ToolTips.fr['autoSalaryMinSalary'] = { version: "5.20.3", elementText: "Salaire mini", tooltip: "(Integer)<br>Salare minium pour démarrer la collecte"};
-HHAuto_ToolTips.fr['autoSalaryMaxTimer'] = { version: "5.20.3", elementText: "Temps de collecte max", tooltip: "(Integer)<br>X secs pour collecter le salaire avant d'arrêter."};
 HHAuto_ToolTips.fr['autoMission'] = { version: "5.6.24", elementText: "Missions", tooltip: "Si activé : lance automatiquement les missions."};
 HHAuto_ToolTips.fr['autoMissionCollect'] = { version: "5.6.24", elementText: "Collecter", tooltip: "Si activé : collecte automatiquement les récompenses des missions."};
 HHAuto_ToolTips.fr['compactMissions'] = { version: "5.24.0", elementText: "Compacter", tooltip: "Compacter l'affichage des missions"};
