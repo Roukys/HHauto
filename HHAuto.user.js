@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.24.14
+// @version      7.24.15
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -2857,8 +2857,34 @@ class PathOfGlory {
     static isEnabled() {
         return ConfigHelper.getHHScriptVars("isEnabledPoG", false) && HeroHelper.getLevel() >= ConfigHelper.getHHScriptVars("LEVEL_MIN_POG");
     }
-    static goAndCollect() {
+    static getRewardButtonToCollect() {
         const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoGCollectablesList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoGCollectablesList")) : [];
+        let buttonsToCollect = [];
+        const listPoGTiersToClaim = $("#pog_tab_container div.potions-paths-second-row div.potions-paths-central-section div.potions-paths-tier.unclaimed");
+        for (let currentTier = 0; currentTier < listPoGTiersToClaim.length; currentTier++) {
+            const currentButton = $("button[rel='claim']", listPoGTiersToClaim[currentTier])[0];
+            const currentTierNb = currentButton.getAttribute("tier");
+            //console.log("checking tier : "+currentTierNb);
+            const freeSlotType = RewardHelper.getRewardTypeBySlot($(".free-slot .slot,.free-slot .shards_girl_ico", listPoGTiersToClaim[currentTier])[0]);
+            if (rewardsToCollect.includes(freeSlotType)) {
+                const paidSlots = $(".paid-slots:not(.paid-locked) .slot,.paid-slots:not(.paid-locked) .shards_girl_ico", listPoGTiersToClaim[currentTier]);
+                if (paidSlots.length > 0) {
+                    const passSlotType = RewardHelper.getRewardTypeBySlot(paidSlots[0]);
+                    const passPlusSlotType = RewardHelper.getRewardTypeBySlot(paidSlots[1]);
+                    if (rewardsToCollect.includes(passSlotType) && (paidSlots.length > 1 ? rewardsToCollect.includes(passPlusSlotType) : true)) {
+                        buttonsToCollect.push(currentButton);
+                        LogUtils_logHHAuto(`Adding for collection tier (with paid) : ${currentTierNb} (Free: ${freeSlotType}, Pass: ${passSlotType}, Pass+: ${paidSlots.length > 1 ? passPlusSlotType : 'locked'})`);
+                    }
+                }
+                else {
+                    buttonsToCollect.push(currentButton);
+                    LogUtils_logHHAuto(`Adding for collection tier (only free) : ${currentTierNb} (${freeSlotType})`);
+                }
+            }
+        }
+        return buttonsToCollect;
+    }
+    static goAndCollect() {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDPoG")) {
             PathOfGlory.getRemainingTime();
             const pogEnd = getSecondsLeft("PoGRemainingTime");
@@ -2881,27 +2907,7 @@ class PathOfGlory {
                 LogUtils_logHHAuto("Checking Path of Glory for collectable rewards.");
                 LogUtils_logHHAuto("setting autoloop to false");
                 setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
-                let buttonsToCollect = [];
-                const listPoGTiersToClaim = $("#pog_tab_container div.potions-paths-second-row div.potions-paths-central-section div.potions-paths-tier.unclaimed");
-                for (let currentTier = 0; currentTier < listPoGTiersToClaim.length; currentTier++) {
-                    const currentButton = $("button[rel='claim']", listPoGTiersToClaim[currentTier])[0];
-                    const currentTierNb = currentButton.getAttribute("tier");
-                    //console.log("checking tier : "+currentTierNb);
-                    const freeSlotType = RewardHelper.getRewardTypeBySlot($(".free-slot .slot,.free-slot .shards_girl_ico", listPoGTiersToClaim[currentTier])[0]);
-                    if (rewardsToCollect.includes(freeSlotType)) {
-                        const paidSlots = $(".paid-slots:not(.paid-locked) .slot,.paid-slots:not(.paid-locked) .shards_girl_ico", listPoGTiersToClaim[currentTier]);
-                        if (paidSlots.length > 0) {
-                            if (rewardsToCollect.includes(RewardHelper.getRewardTypeBySlot(paidSlots[0])) && rewardsToCollect.includes(RewardHelper.getRewardTypeBySlot(paidSlots[1]))) {
-                                buttonsToCollect.push(currentButton);
-                                LogUtils_logHHAuto("Adding for collection tier (with paid) : " + currentTierNb);
-                            }
-                        }
-                        else {
-                            buttonsToCollect.push(currentButton);
-                            LogUtils_logHHAuto("Adding for collection tier (only free) : " + currentTierNb);
-                        }
-                    }
-                }
+                let buttonsToCollect = PathOfGlory.getRewardButtonToCollect();
                 if (buttonsToCollect.length > 0) {
                     function collectPoGRewards() {
                         if (buttonsToCollect.length > 0) {
@@ -2963,8 +2969,34 @@ class PathOfValue {
     static isEnabled() {
         return ConfigHelper.getHHScriptVars("isEnabledPoV", false) && HeroHelper.getLevel() >= ConfigHelper.getHHScriptVars("LEVEL_MIN_POV");
     }
-    static goAndCollect() {
+    static getRewardButtonToCollect() {
         const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoVCollectablesList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPoVCollectablesList")) : [];
+        let buttonsToCollect = [];
+        const listPoVTiersToClaim = $("#pov_tab_container div.potions-paths-second-row div.potions-paths-central-section div.potions-paths-tier.unclaimed");
+        for (let currentTier = 0; currentTier < listPoVTiersToClaim.length; currentTier++) {
+            const currentButton = $("button[rel='claim']", listPoVTiersToClaim[currentTier])[0];
+            const currentTierNb = currentButton.getAttribute("tier");
+            //console.log("checking tier : "+currentTierNb);
+            const freeSlotType = RewardHelper.getRewardTypeBySlot($(".free-slot .slot,.free-slot .shards_girl_ico", listPoVTiersToClaim[currentTier])[0]);
+            if (rewardsToCollect.includes(freeSlotType)) {
+                const paidSlots = $(".paid-slots:not(.paid-locked) .slot,.paid-slots:not(.paid-locked) .shards_girl_ico", listPoVTiersToClaim[currentTier]);
+                if (paidSlots.length > 0) {
+                    const passSlotType = RewardHelper.getRewardTypeBySlot(paidSlots[0]);
+                    const passPlusSlotType = RewardHelper.getRewardTypeBySlot(paidSlots[1]);
+                    if (rewardsToCollect.includes(passSlotType) && (paidSlots.length > 1 ? rewardsToCollect.includes(passPlusSlotType) : true)) {
+                        buttonsToCollect.push(currentButton);
+                        LogUtils_logHHAuto(`Adding for collection tier (with paid) : ${currentTierNb} (Free: ${freeSlotType}, Pass: ${passSlotType}, Pass+: ${paidSlots.length > 1 ? passPlusSlotType : 'locked'})`);
+                    }
+                }
+                else {
+                    buttonsToCollect.push(currentButton);
+                    LogUtils_logHHAuto(`Adding for collection tier (only free) : ${currentTierNb} (${freeSlotType})`);
+                }
+            }
+        }
+        return buttonsToCollect;
+    }
+    static goAndCollect() {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDPoV")) {
             PathOfValue.getRemainingTime();
             const povEnd = getSecondsLeft("PoVRemainingTime");
@@ -2987,27 +3019,7 @@ class PathOfValue {
                 LogUtils_logHHAuto("Checking Path of Valor for collectable rewards.");
                 LogUtils_logHHAuto("setting autoloop to false");
                 setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
-                let buttonsToCollect = [];
-                const listPoVTiersToClaim = $("#pov_tab_container div.potions-paths-second-row div.potions-paths-central-section div.potions-paths-tier.unclaimed");
-                for (let currentTier = 0; currentTier < listPoVTiersToClaim.length; currentTier++) {
-                    const currentButton = $("button[rel='claim']", listPoVTiersToClaim[currentTier])[0];
-                    const currentTierNb = currentButton.getAttribute("tier");
-                    //console.log("checking tier : "+currentTierNb);
-                    const freeSlotType = RewardHelper.getRewardTypeBySlot($(".free-slot .slot,.free-slot .shards_girl_ico", listPoVTiersToClaim[currentTier])[0]);
-                    if (rewardsToCollect.includes(freeSlotType)) {
-                        const paidSlots = $(".paid-slots:not(.paid-locked) .slot,.paid-slots:not(.paid-locked) .shards_girl_ico", listPoVTiersToClaim[currentTier]);
-                        if (paidSlots.length > 0) {
-                            if (rewardsToCollect.includes(RewardHelper.getRewardTypeBySlot(paidSlots[0])) && rewardsToCollect.includes(RewardHelper.getRewardTypeBySlot(paidSlots[1]))) {
-                                buttonsToCollect.push(currentButton);
-                                LogUtils_logHHAuto("Adding for collection tier (with paid) : " + currentTierNb);
-                            }
-                        }
-                        else {
-                            buttonsToCollect.push(currentButton);
-                            LogUtils_logHHAuto("Adding for collection tier (only free) : " + currentTierNb);
-                        }
-                    }
-                }
+                let buttonsToCollect = PathOfValue.getRewardButtonToCollect();
                 if (buttonsToCollect.length > 0) {
                     function collectPoVRewards() {
                         if (buttonsToCollect.length > 0) {
