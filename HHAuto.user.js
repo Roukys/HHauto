@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.24.15
+// @version      7.24.16
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -9536,7 +9536,7 @@ class HaremSalary {
                 if (i.gData) {
                     girl = i.gData;
                 }
-                if (girl.shards >= 100) {
+                if (girl.salary > 0) {
                     currentCollectSalary += girl.salary;
                     nextCollect = girl.pay_in;
                     if (currentCollectSalary > minSalaryForCollect) {
@@ -9562,13 +9562,13 @@ class HaremSalary {
             salarySumTag = Number($('[rel="next_salary"]', salaryButton)[0].innerText.replace(/[^0-9]/gi, ''));
         }
         else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHome")) {
-            salarySumTag = Number($('.sum', salaryButton).attr("amount"));
+            salarySumTag = Number(getHHVars("salary_collect"));
         }
         return salarySumTag;
     }
     static getSalary() {
         try {
-            if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHarem") || getPage() === ConfigHelper.getHHScriptVars("pagesIDHome")) {
+            if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHome")) {
                 const salaryButton = HaremSalary.getSalaryButton();
                 const salaryToCollect = !(salaryButton.prop('disabled') || salaryButton.attr("style") === "display: none;");
                 const getButtonClass = salaryButton.attr("class") || '';
@@ -9576,19 +9576,20 @@ class HaremSalary {
                 const enoughSalaryToCollect = Number.isNaN(salarySumTag) ? true : salarySumTag > Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryMinSalary") || 20000);
                 //console.log(salarySumTag, enoughSalaryToCollect);
                 if (salaryToCollect && enoughSalaryToCollect) {
-                    if (getButtonClass.indexOf("blue_button_L") !== -1) {
-                        //replaceCheatClick();
+                    if (getButtonClass.indexOf("blue_button_L") !== -1 || getButtonClass.indexOf("round_blue_button") !== -1) {
                         salaryButton.trigger('click');
-                        LogUtils_logHHAuto('Collected all Premium salary');
+                        LogUtils_logHHAuto('Collected all salary');
                         let nextSalaryTime = -1;
-                        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHarem")) {
+                        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHarem") || getPage() === ConfigHelper.getHHScriptVars("pagesIDHome")) {
                             nextSalaryTime = HaremSalary.predictNextSalaryMinTime();
                         }
-                        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDHome")) {
-                            nextSalaryTime = HaremSalary.getNextSalaryTimeFromHomePage();
-                        }
-                        if (nextSalaryTime > 0)
+                        if (nextSalaryTime > 0) {
                             setTimer('nextSalaryTime', randomInterval(nextSalaryTime, 60 + nextSalaryTime));
+                        }
+                        else {
+                            LogUtils_logHHAuto("Can't predict next salary time, wait 15min");
+                            setTimer('nextSalaryTime', randomInterval(15 * 60, 17 * 60));
+                        }
                         return false;
                     }
                     else if (getButtonClass.indexOf("orange_button_L") !== -1) {
@@ -9622,10 +9623,10 @@ class HaremSalary {
                 }
             }
             else {
-                // Not at Harem screen then goto the Harem screen nor home page.
+                // Not at Harem screen then goto home page.
                 if (checkTimer('nextSalaryTime')) {
-                    LogUtils_logHHAuto("Navigating to Harem page");
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHarem"));
+                    LogUtils_logHHAuto("Navigating to Home page");
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                     return true;
                 }
             }
