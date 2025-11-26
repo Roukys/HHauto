@@ -866,12 +866,13 @@ export async function autoLoop()
         }
 
         if (busy === false && ConfigHelper.getHHScriptVars("isEnabledSalary",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSalary") === "true" 
+            && getPage() === ConfigHelper.getHHScriptVars("pagesIDHome")
             && ( getStoredValue(HHStoredVarPrefixKey+"Setting_paranoia") !== "true" || !checkTimer("paranoiaSwitch") )  
             && isAutoLoopActive() && (lastActionPerformed === "none" || lastActionPerformed === "salary"))
         {
             if (checkTimer("nextSalaryTime")) {
-                logHHAuto("Time to fetch salary.");
-                busy = HaremSalary.getSalary();
+                //logHHAuto("Time to check salary.");
+                busy = await HaremSalary.getSalary();
                 // if(busy) lastActionPerformed = "salary"; // Removed from continuous actions for now
             }
         }
@@ -1032,8 +1033,6 @@ export async function autoLoop()
             Harem.clearHaremToolVariables = callItOnce(Harem.clearHaremToolVariables); // Avoid wired loop, if user reach home page, ensure temp var from harem are cleared
             Harem.clearHaremToolVariables();
 
-            HaremSalary.setSalaryTimeFromHomePage = callItOnce(HaremSalary.setSalaryTimeFromHomePage);
-            HaremSalary.setSalaryTimeFromHomePage();
             AdsService.closeHomeAds();
             break;
         case ConfigHelper.getHHScriptVars("pagesIDHarem"):
