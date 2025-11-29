@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.24.18
+// @version      7.24.19
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -11945,7 +11945,7 @@ class PlaceOfPower {
                 if ($(buttonClaimQuery).length > 0) {
                     $(buttonClaimQuery).first().trigger('click');
                     LogUtils_logHHAuto("Claimed reward for PoP : " + $(buttonClaimQuery).first().parent().attr('pop_id'));
-                    yield TimeHelper.sleep(randomInterval(800, 1500));
+                    yield TimeHelper.sleep(randomInterval(700, 1100));
                     RewardHelper.closeRewardPopupIfAny(); // Will refresh the page
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDPowerplacemain"), {}, randomInterval(4000, 5000)); // fail safe
                     return true;
@@ -12123,7 +12123,7 @@ class PlaceOfPower {
                         if ($(querySelectorText).length > 0) {
                             document.querySelector(querySelectorText).click();
                             LogUtils_logHHAuto("Autoassigned powerplace" + index);
-                            yield TimeHelper.sleep(randomInterval(200, 500));
+                            yield TimeHelper.sleep(randomInterval(500, 1000));
                         }
                         else
                             LogUtils_logHHAuto("No autoassign button for powerplace" + index);
@@ -12132,7 +12132,7 @@ class PlaceOfPower {
                     if ($(querySelectorText).length > 0) {
                         document.querySelector(querySelectorText).click();
                         LogUtils_logHHAuto("Started powerplace" + index);
-                        yield TimeHelper.sleep(randomInterval(200, 500));
+                        yield TimeHelper.sleep(randomInterval(500, 1000));
                     }
                     else if ($("button.blue_button_L[rel='pop_action'][disabled]").length > 0 && $("div.grid_view div.pop_selected").length > 0) {
                         PlaceOfPower.addPopToUnableToStart(index, "Unable to start Pop " + index + " not enough girls available.");
@@ -16966,6 +16966,9 @@ class AdsService {
                 GM_addStyle('#ad_labyrinth { top: 30rem !important; }');
                 GM_addStyle('#ad_labyrinth-pre-battle { top: 30rem !important; }');
                 GM_addStyle('#ad_shop { top: 35rem !important; }');
+                GM_addStyle('#ad_season { top: 30rem !important; }');
+                GM_addStyle('#ad_love_raids {margin-top: 0 !important; }');
+                GM_addStyle('#ad_harem {margin-top: 5rem !important; }');
             }
         }
     }

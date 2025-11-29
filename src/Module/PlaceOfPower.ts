@@ -187,7 +187,7 @@ export class PlaceOfPower {
             {
                 $(buttonClaimQuery).first().trigger('click');
                 logHHAuto("Claimed reward for PoP : " + $(buttonClaimQuery).first().parent().attr('pop_id'));
-                await TimeHelper.sleep(randomInterval(800, 1500));
+                await TimeHelper.sleep(randomInterval(700, 1100));
                 RewardHelper.closeRewardPopupIfAny(); // Will refresh the page
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDPowerplacemain"), {}, randomInterval(4000, 5000)); // fail safe
                 return true;
@@ -395,7 +395,7 @@ export class PlaceOfPower {
                     {
                         (<HTMLElement>document.querySelector(querySelectorText)).click();
                         logHHAuto("Autoassigned powerplace" + index);
-                        await TimeHelper.sleep(randomInterval(200, 500));
+                        await TimeHelper.sleep(randomInterval(500, 1000));
                     } else logHHAuto("No autoassign button for powerplace" + index);
                 }
                 querySelectorText = "button.blue_button_L[rel='pop_action']:not([disabled])"
@@ -403,7 +403,7 @@ export class PlaceOfPower {
                 {
                     (<HTMLElement>document.querySelector(querySelectorText)).click();
                     logHHAuto("Started powerplace" + index);
-                    await TimeHelper.sleep(randomInterval(200, 500));
+                    await TimeHelper.sleep(randomInterval(500, 1000));
                 }
                 else if ($("button.blue_button_L[rel='pop_action'][disabled]").length >0 && $("div.grid_view div.pop_selected").length >0)
                 {
