@@ -38,6 +38,9 @@ export class AdsService {
                 GM_addStyle('#ad_labyrinth { top: 30rem !important; }');
                 GM_addStyle('#ad_labyrinth-pre-battle { top: 30rem !important; }');
                 GM_addStyle('#ad_shop { top: 35rem !important; }');
+                GM_addStyle('#ad_season { top: 30rem !important; }');
+                GM_addStyle('#ad_love_raids {margin-top: 0 !important; }');
+                GM_addStyle('#ad_harem {margin-top: 5rem !important; }');
             }
         }
     }
