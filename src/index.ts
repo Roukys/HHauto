@@ -1,7 +1,8 @@
 import { hardened_start } from "./Service/index";
-import { KKDailyGoal, KKHero } from "./model/index";
+import { KKDailyGoal, KKHero, KKLoveRaid } from "./model/index";
 
 declare global {
+    var love_raids: KKLoveRaid[] | undefined;
     interface Window {
         // Below just informs IDE and/or TS-compiler (it's set in `.js` file).
         championData: any;
@@ -50,6 +51,7 @@ declare global {
         //pop
         pop_list:boolean;
         pop_index:number;
+        love_raids:KKLoveRaid[]|undefined;
     }
 }
 

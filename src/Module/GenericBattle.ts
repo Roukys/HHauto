@@ -11,9 +11,9 @@ import {
 import { gotoPage } from '../Service/index';
 import { logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
-import { EventGirl } from '../model/index';
+import { EventGirl, LoveRaid } from '../model/index';
 import { Troll } from "./Troll";
-import { DailyGoals, EventModule } from './index';
+import { DailyGoals, EventModule, LoveRaidManager } from './index';
 
 export class GenericBattle {
     static doBattle()
@@ -54,6 +54,15 @@ export class GenericBattle {
                 }
                 else
                 {
+                    LoveRaidManager.getTrollRaids().forEach(raid => {
+                        if(raid.trollId === Number(troll_id))
+                        {
+                            logHHAuto("Event ongoing search for girl rewards in popup.");
+                            RewardHelper.ObserveAndGetGirlRewards();
+                            return true;
+                        }
+                    });
+
                     if (troll_id !== null)
                     {
                         logHHAuto("Go back to Troll after Troll fight.");

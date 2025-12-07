@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.24.19
+// @version      7.25.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -229,6 +229,7 @@ HHAuto_ToolTips.en['autoBuyMythicTrollNumber'] = { version: "6.1.0", elementText
 HHAuto_ToolTips.en['firstTrollWithGirls'] = { version: "5.32.0", elementText: "First troll with girl" };
 HHAuto_ToolTips.en['lastTrollWithGirls'] = { version: "5.32.0", elementText: "Last troll with girl" };
 HHAuto_ToolTips.en['autoChampsForceStartEventGirl'] = { version: "5.6.98", elementText: "Event force", tooltip: "if enabled, will fight for event girl champion even if not started. Champions will need to be activated and champions to be in the filter." };
+HHAuto_ToolTips.en['plusLoveRaid'] = { version: "7.25.0", elementText: "+Raid", tooltip: "If enabled : ignore selected troll when raid Of Love available, done AFTER events and after last/first troll with girls option" };
 HHAuto_ToolTips.en['plusEvent'] = { version: "5.6.24", elementText: "+Event", tooltip: "If enabled : ignore selected troll during event to battle event" };
 HHAuto_ToolTips.en['plusEventMythic'] = { version: "5.6.24", elementText: "+Mythic Event", tooltip: "Enable grabbing girls for mythic event, should only play them when shards are available, Mythic girl troll will be priorized over Event Troll." };
 HHAuto_ToolTips.en['plusEventMythicSandalWood'] = { version: "7.2.0", elementText: "Equip Sandalwood", tooltip: "Will equip sandalwood before mythic fight if enough in inventory<br>Do not equip if less than 10 shards to win<br>Will not buy any." };
@@ -2831,6 +2832,136 @@ class EventModule {
     }
 }
 
+;// CONCATENATED MODULE: ./src/model/LoveRaid.ts
+class LoveRaid {
+}
+
+;// CONCATENATED MODULE: ./src/Module/Events/LoveRaidManager.ts
+
+
+
+
+
+class LoveRaidManager {
+    static parse() {
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDLoveRaid")) {
+            try {
+                const raids = LoveRaidManager.parseRaids();
+                LoveRaidManager.saveLoveRaids(raids);
+                const firstEndingRaid = LoveRaidManager.getFirstEndingRaid(raids);
+                if (firstEndingRaid) {
+                    setTimer('nextLoveRaidTime', firstEndingRaid.seconds_until_event_end + randomInterval(10, 300));
+                }
+                else {
+                    setTimer('nextLoveRaidTime', randomInterval(3600, 4000));
+                }
+            }
+            catch ({ errName, message }) {
+                LogUtils_logHHAuto(`ERROR during Love raid run: ${message}, retry in 1h`);
+                setTimer('nextLoveRaidTime', randomInterval(3600, 4000));
+                return false;
+            }
+        }
+        else {
+            LogUtils_logHHAuto("Switching to Love raid screen.");
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDLoveRaid"));
+            return true;
+        }
+    }
+    static getFirstEndingRaid(raids) {
+        return raids.sort((a, b) => (a.seconds_until_event_end - b.seconds_until_event_end))[0] || null;
+    }
+    static getAllRaids() {
+        let raids = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_loveRaids")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_loveRaids")) : [];
+        return raids;
+    }
+    static getTrollRaids() {
+        return LoveRaidManager.getAllRaids().filter(raid => raid.trollId !== undefined);
+    }
+    static getChampionRaids() {
+        return LoveRaidManager.getAllRaids().filter(raid => raid.championId !== undefined);
+    }
+    static getSeasonRaids() {
+        return LoveRaidManager.getAllRaids().filter(raid => raid.raid_module_type === 'season');
+    }
+    static saveLoveRaids(raids) {
+        setStoredValue(HHStoredVarPrefixKey + "Temp_loveRaids", JSON.stringify(raids));
+    }
+    static parseRaids() {
+        const raids = [];
+        const kkRaids = love_raids != undefined ? love_raids : [];
+        for (let index = 0; index < kkRaids.length; index++) {
+            const kkRaid = kkRaids[index];
+            try {
+                if (kkRaid.status == 'ongoing') {
+                    LogUtils_logHHAuto(`parsing raid ${kkRaid.event_name} module ${kkRaid.raid_module_type}`);
+                    if (kkRaid.all_is_owned == true) {
+                        LogUtils_logHHAuto(`nothing to win, ignoring raid`);
+                        continue;
+                    }
+                    const raid = new LoveRaid();
+                    raid.id_girl = Number(kkRaid.id_girl);
+                    raid.girl_shards = Number(kkRaid.girl_data.shards);
+                    raid.girl_to_win = kkRaid.girl_data.shards < 100;
+                    if (kkRaid.girl_data.shards >= 100) {
+                        LogUtils_logHHAuto(`Girl won, may have skin to win, ignore for now`);
+                    }
+                    raid.raid_module_type = kkRaid.raid_module_type;
+                    raid.seconds_until_event_end = Number(kkRaid.seconds_until_event_end);
+                    raid.seconds_until_event_start = Number(kkRaid.seconds_until_event_start);
+                    raid.event_duration_seconds = Number(kkRaid.event_duration_seconds);
+                    raid.start_datetime = kkRaid.start_datetime;
+                    raid.end_datetime = kkRaid.end_datetime;
+                    raid.shards_left = Number(kkRaid.tranche_data.shards_left);
+                    if ($('.raid-card')[index].classList.contains('multiple-girl')) {
+                        let girlSkinShards = parseInt($($($('.raid-card')[index].getElementsByClassName('shards'))[1]).attr('skins-shard'), 10);
+                        raid.skin_to_win = girlSkinShards < 33;
+                        raid.girl_skin_shards = girlSkinShards; // owned
+                    }
+                    switch (kkRaid.raid_module_type) {
+                        case 'troll':
+                            raid.trollId = Number(kkRaid.raid_module_pk);
+                            break;
+                        case 'champion':
+                            raid.championId = Number(kkRaid.raid_module_pk);
+                            break;
+                        case 'season':
+                            // ?
+                            break;
+                        default:
+                            LogUtils_logHHAuto('Unknown raid type, ingoring raid');
+                            continue;
+                    }
+                    raids.push(raid);
+                }
+            }
+            catch (error) {
+                LogUtils_logHHAuto('Error parsing raid');
+            }
+        }
+        // console.log('raids', raids);
+        // Sort by troll Id
+        // raids.sort((a, b) => {
+        //     return Number(a.trollId) - Number(b.trollId);
+        // });
+        // console.log('raids sorted', raids);
+        return raids;
+    }
+    static getRaidGirls() {
+        let raidsGirls = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_raidGirls")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_raidGirls")) : [];
+        return raidsGirls;
+    }
+    static isEnabled() {
+        return ConfigHelper.getHHScriptVars("isEnabledRaidOfLive", false); // && HeroHelper.getLevel() >= ConfigHelper.getHHScriptVars("LEVEL_MIN_POG");
+    }
+    static isActivated() {
+        return LoveRaidManager.isEnabled() && getStoredValue(HHStoredVarPrefixKey + "Setting_plusLoveRaid") === "true";
+    }
+    static styles() {
+        $('.love-raids-container').removeClass('height-for-ad');
+    }
+}
+
 ;// CONCATENATED MODULE: ./src/Module/Events/PathOfGlory.ts
 
 
@@ -3873,6 +4004,7 @@ SeasonalEvent.SEASONAL_REWARD_PATH = '.mega-tier.unclaimed';
 SeasonalEvent.SEASONAL_REWARD_MEGA_PATH = '.mega-tier-container:has(.free-slot button.mega-claim-reward)';
 
 ;// CONCATENATED MODULE: ./src/Module/Events/index.ts
+
 
 
 
@@ -5716,9 +5848,11 @@ class Troll {
         const lastTrollIdAvailable = Troll.getLastTrollIdAvailable(true);
         const eventGirl = EventModule.getEventGirl();
         const eventMythicGirl = EventModule.getEventMythicGirl();
+        const loveRaids = LoveRaidManager.isActivated() ? LoveRaidManager.getTrollRaids() : [];
         if (debugEnabled) {
             LogUtils_logHHAuto('eventGirl', eventGirl);
             LogUtils_logHHAuto('eventMythicGirl', eventMythicGirl);
+            LogUtils_logHHAuto('loveRaids', loveRaids);
         }
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && !checkTimer("eventMythicGoing") && eventMythicGirl.girl_id && eventMythicGirl.is_mythic) {
             LogUtils_logHHAuto("Mythic Event troll fight");
@@ -5763,6 +5897,11 @@ class Troll {
                 LogUtils_logHHAuto("Can't get troll with girls, going to last troll.");
                 TTF = lastTrollIdAvailable;
             }
+        }
+        else if (LoveRaidManager.isActivated() && loveRaids.length > 0) {
+            const loveRaid = loveRaids[0];
+            LogUtils_logHHAuto("LoveRaid troll fight: " + loveRaid.trollId);
+            TTF = loveRaid.trollId;
         }
         else if (autoTrollSelectedIndex > 0 && autoTrollSelectedIndex < 98) {
             TTF = autoTrollSelectedIndex;
@@ -5919,6 +6058,14 @@ class Troll {
                     }
                     else {
                         LogUtils_logHHAuto(`Same troll found, go for it.`);
+                    }
+                }
+                if (LoveRaidManager.isActivated()) {
+                    const loveRaid = LoveRaidManager.getTrollRaids().find(raid => raid.trollId === TTF);
+                    if (loveRaid && (rewardGirlz.length === 0 || !trollGirlRewards.includes('"id_girl":' + loveRaid.id_girl))) {
+                        LogUtils_logHHAuto(`Seems girl ${loveRaid.id_girl} is no more available at troll ${trollz[Number(TTF)]}. Going to love Raid.`);
+                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDLoveRaid"));
+                        return true;
                     }
                 }
                 let canBuyFightsResult = Troll.canBuyFight(eventTrollGirl);
@@ -6180,6 +6327,13 @@ class GenericBattle {
                     RewardHelper.ObserveAndGetGirlRewards();
                 }
                 else {
+                    LoveRaidManager.getTrollRaids().forEach(raid => {
+                        if (raid.trollId === Number(troll_id)) {
+                            LogUtils_logHHAuto("Event ongoing search for girl rewards in popup.");
+                            RewardHelper.ObserveAndGetGirlRewards();
+                            return true;
+                        }
+                    });
                     if (troll_id !== null) {
                         LogUtils_logHHAuto("Go back to Troll after Troll fight.");
                         gotoPage(ConfigHelper.getHHScriptVars("pagesIDTrollPreBattle"), { id_opponent: troll_id }, randomInterval(2000, 4000));
@@ -7998,6 +8152,20 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_paranoiaSpendsBefore"]
         menuType: "checked",
         kobanUsing: false
     };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_plusLoveRaid"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        newValueFunction: function () {
+            clearTimer('nextLoveRaidTime');
+        }
+    };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_plusEvent"] =
     {
         default: "false",
@@ -8767,6 +8935,11 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_haremGirlLimit"] =
         storage: "sessionStorage",
         HHType: "Temp"
     };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_loveRaids"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_eventsGirlz"] =
     {
         storage: "sessionStorage",
@@ -8787,6 +8960,11 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_autoChampsEventGirls"] =
         storage: "sessionStorage",
         HHType: "Temp"
         //isValid:/^\[({"girl_id":"(\d)+","champ_id":"(\d)+","girl_shards":"(\d)+","girl_name":"([^"])+","event_id":"([^"])+"},?)+\]$/
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_raidGirls"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
     };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_clubChampLimitReached"] =
     {
@@ -9697,6 +9875,9 @@ function gotoPage(page, inArgs = {}, delay = -1) {
             break;
         case ConfigHelper.getHHScriptVars("pagesIDWaifu"):
             togoto = ConfigHelper.getHHScriptVars("pagesURLWaifu");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDLoveRaid"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLLoveRaid");
             break;
         case (page.match(/^\/champions\/[123456]$/) || {}).input:
             togoto = page;
@@ -13893,8 +14074,11 @@ HHEnvVariables["global"].pagesIDHeroPage = "hero_pages";
 HHEnvVariables["global"].pagesURLHeroPage = "/hero/profile.html";
 HHEnvVariables["global"].pagesKnownList.push("HeroPage");
 HHEnvVariables["global"].pagesIDGirlEquipmentUpgrade = "girl-equipment-upgrade";
-HHEnvVariables["global"].pagesURLGirlEquipmentUpgrade = "girl-equipment-upgrade.html";
+HHEnvVariables["global"].pagesURLGirlEquipmentUpgrade = "/girl-equipment-upgrade.html";
 HHEnvVariables["global"].pagesKnownList.push("GirlEquipmentUpgrade");
+HHEnvVariables["global"].pagesIDLoveRaid = "love_raids";
+HHEnvVariables["global"].pagesURLLoveRaid = "/love-raids.html";
+HHEnvVariables["global"].pagesKnownList.push("LoveRaid");
 HHEnvVariables["global"].isEnabledEvents = true;
 HHEnvVariables["global"].isEnabledTrollBattle = true;
 HHEnvVariables["global"].isEnabledPachinko = true;
@@ -13919,6 +14103,7 @@ HHEnvVariables["global"].isEnabledShop = true;
 HHEnvVariables["global"].isEnabledSalary = true;
 HHEnvVariables["global"].isEnabledPoV = true;
 HHEnvVariables["global"].isEnabledPoG = true;
+HHEnvVariables["global"].isEnabledRaidOfLive = true;
 HHEnvVariables["global"].isEnabledSeasonalEvent = true;
 HHEnvVariables["global"].isEnabledBossBangEvent = true;
 HHEnvVariables["global"].isEnabledDPEvent = true;
@@ -14659,7 +14844,7 @@ function getMenu() {
             + hhMenuSwitch('autoSeasonSkipLowMojo')
             + `</div>`
             + `<div class="internalOptionsRow">`
-            + hhMenuInputWithImg('autoSeasonThreshold', HHAuto_inputPattern.autoSeasonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_kiss.png', 'numeric')
+            + hhMenuInputWithImg('autoSeasonThreshold', HHAuto_inputPattern.autoSeasonThreshold, 'text-align:center; width:30px', 'pictures/design/ic_kiss.png', 'numeric')
             + hhMenuInputWithImg('autoSeasonRunThreshold', HHAuto_inputPattern.autoSeasonRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_kiss.png', 'numeric')
             + `</div>`
             + `</div>`
@@ -14739,6 +14924,8 @@ function getMenu() {
             + hhMenuSelect('autoTrollSelector')
             + hhMenuInputWithImg('autoTrollThreshold', HHAuto_inputPattern.autoTrollThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png', 'numeric')
             + hhMenuInputWithImg('autoTrollRunThreshold', HHAuto_inputPattern.autoTrollRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png', 'numeric')
+            + `<div style="border-left:1px solid #ffa23e;height:36px;"> </div>`
+            + hhMenuSwitch('plusLoveRaid')
             + `</div>`
             + `<div class="internalOptionsRow">`
             + hhMenuSwitch('useX10Fights', '', true)
@@ -15479,6 +15666,18 @@ class LeagueOpponent {
     }
 }
 
+;// CONCATENATED MODULE: ./src/model/Mission.ts
+class Mission {
+    constructor() {
+        this.finished = false;
+    }
+}
+class MissionRewards {
+    constructor() {
+        this.type = '';
+    }
+}
+
 ;// CONCATENATED MODULE: ./src/model/SeasonOpponent.ts
 class SeasonOpponent {
     constructor(opponent_id, nickname, mojo, exp, aff, simu) {
@@ -15492,19 +15691,8 @@ class SeasonOpponent {
     }
 }
 
-;// CONCATENATED MODULE: ./src/model/Mission.ts
-class Mission {
-    constructor() {
-        this.finished = false;
-    }
-}
-class MissionRewards {
-    constructor() {
-        this.type = '';
-    }
-}
-
 ;// CONCATENATED MODULE: ./src/model/index.ts
+
 
 
 
@@ -16514,8 +16702,10 @@ class RewardHelper {
                 return -1;
             }
             let foughtTrollId = Number(queryStringGetParam(window.location.search, 'id_opponent'));
-            if (eventMythicGirl.troll_id && foughtTrollId != eventMythicGirl.troll_id && eventGirl.troll_id && foughtTrollId != eventGirl.troll_id) {
-                LogUtils_logHHAuto(`Troll from mythic event (${eventMythicGirl.troll_id}) or from event (${eventGirl.troll_id}) not fought, was (${foughtTrollId}) instead.
+            const loveRaid = LoveRaidManager.getAllRaids();
+            const foughtTrollFromLoveRaid = loveRaid.find(raid => raid.trollId === foughtTrollId);
+            if (eventMythicGirl.troll_id && foughtTrollId != eventMythicGirl.troll_id && eventGirl.troll_id && foughtTrollId != eventGirl.troll_id && !foughtTrollFromLoveRaid) {
+                LogUtils_logHHAuto(`Troll from mythic event (${eventMythicGirl.troll_id}) or from event (${eventGirl.troll_id}) or from LoveRaid not fought, was (${foughtTrollId}) instead.
                 Can be issue in event variable (mythic event finished: ${EventModule.isEventActive(eventMythicGirl.event_id)},  event finished: ${EventModule.isEventActive(eventGirl.event_id)})`);
                 // TTF = foughtTrollId;
             }
@@ -16526,6 +16716,8 @@ class RewardHelper {
                 return;
             }
             let renewEvent = "";
+            let needLoveRaidUpdate = false;
+            let loveRaidGirlWon = false;
             let girlShardsWon = $('.shards_wrapper .slot_girl_shards');
             LogUtils_logHHAuto("Detected girl shard reward");
             for (var currGirl = 0; currGirl <= girlShardsWon.length; currGirl++) {
@@ -16556,12 +16748,23 @@ class RewardHelper {
                         renewEvent = eventMythicGirl.event_id;
                     }
                 }
-                if (eventGirl.girl_id === girlId) {
+                else if (eventGirl.girl_id === girlId) {
                     eventGirl.shards = girlShards;
                     if (girlShards === 100) {
                         renewEvent = eventGirl.event_id;
                     }
                 }
+                else if (loveRaid.some(raid => raid.id_girl === girlId)) {
+                    needLoveRaidUpdate = true;
+                    const raid = loveRaid.find(raid => raid.id_girl === girlId);
+                    raid.girl_shards = girlShards;
+                    if (girlShards === 100) {
+                        loveRaidGirlWon = true;
+                    }
+                }
+            }
+            if (needLoveRaidUpdate) {
+                LoveRaidManager.saveLoveRaids(loveRaid);
             }
             setStoredValue(HHStoredVarPrefixKey + "Temp_eventsGirlz", JSON.stringify(eventsGirlz));
             if (eventGirl === null || eventGirl === void 0 ? void 0 : eventGirl.girl_id)
@@ -16583,6 +16786,12 @@ class RewardHelper {
                 else if ((eventGirl === null || eventGirl === void 0 ? void 0 : eventGirl.girl_id) && EventModule.checkEvent(eventGirl.event_id)) {
                     EventModule.parseEventPage(eventGirl.event_id);
                 }
+                return;
+            }
+            else if (loveRaidGirlWon) {
+                clearTimeout(inCaseTimer);
+                LogUtils_logHHAuto("Parse again love Raid.");
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDLoveRaid"));
                 return;
             }
             else {
@@ -17191,6 +17400,14 @@ function autoLoop() {
                 && isAutoLoopActive() && canCollectCompetitionActive) {
                 busy = true;
                 GenericBattle.doBattle();
+            }
+            if (busy === false && LoveRaidManager.isActivated() && checkTimer('nextLoveRaidTime')
+                && isAutoLoopActive() && canCollectCompetitionActive
+                && (lastActionPerformed === "none" || lastActionPerformed === "loveraid")) {
+                // Go to raid page
+                LogUtils_logHHAuto("Time to go and check raids.");
+                busy = LoveRaidManager.parse();
+                lastActionPerformed = "loveraid";
             }
             if (busy === false && Troll.isTrollFightActivated()
                 && isAutoLoopActive() && canCollectCompetitionActive
@@ -17821,6 +18038,10 @@ function autoLoop() {
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDClub"):
                 Club.run();
+                break;
+            case ConfigHelper.getHHScriptVars("pagesIDLoveRaid"):
+                LoveRaidManager.styles = callItOnce(LoveRaidManager.styles);
+                LoveRaidManager.styles();
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDLabyrinth"):
                 if (getStoredValue(HHStoredVarPrefixKey + "Setting_showCalculatePower") === "true") {

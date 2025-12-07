@@ -1,0 +1,17 @@
+export class LoveRaid {
+    id_girl: number;
+    trollId: number;
+    championId: number;
+    raid_module_type: string; //  "champion", "season", "troll"
+    start_datetime: string;
+    end_datetime: string;
+    event_name: any;
+    girl_shards: number;
+    seconds_until_event_start: number;
+    seconds_until_event_end: number;
+    event_duration_seconds: number;
+    girl_to_win: boolean;
+    skin_to_win: boolean;
+    shards_left: number;
+    girl_skin_shards: number;
+}

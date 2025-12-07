@@ -622,7 +622,7 @@ export function getMenu() {
                             + hhMenuSwitch('autoSeasonSkipLowMojo')
                         +`</div>`
                         +`<div class="internalOptionsRow">`
-                            + hhMenuInputWithImg('autoSeasonThreshold', HHAuto_inputPattern.autoSeasonThreshold, 'text-align:center; width:25px', 'pictures/design/ic_kiss.png', 'numeric' )
+                            + hhMenuInputWithImg('autoSeasonThreshold', HHAuto_inputPattern.autoSeasonThreshold, 'text-align:center; width:30px', 'pictures/design/ic_kiss.png', 'numeric' )
                             + hhMenuInputWithImg('autoSeasonRunThreshold', HHAuto_inputPattern.autoSeasonRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_kiss.png', 'numeric' )
                         +`</div>`
                     +`</div>`
@@ -701,7 +701,9 @@ export function getMenu() {
                         + hhMenuSwitch('autoTrollBattle')
                         + hhMenuSelect('autoTrollSelector')
                         + hhMenuInputWithImg('autoTrollThreshold', HHAuto_inputPattern.autoTrollThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png', 'numeric' )
-                        + hhMenuInputWithImg('autoTrollRunThreshold', HHAuto_inputPattern.autoTrollRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png', 'numeric' )
+                        + hhMenuInputWithImg('autoTrollRunThreshold', HHAuto_inputPattern.autoTrollRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png', 'numeric')
+                        + `<div style="border-left:1px solid #ffa23e;height:36px;"> </div>`
+                        + hhMenuSwitch('plusLoveRaid')
                     +`</div>`
                     +`<div class="internalOptionsRow">`
                         + hhMenuSwitch('useX10Fights', '', true)
