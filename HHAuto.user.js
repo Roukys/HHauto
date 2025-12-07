@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.25.0
+// @version      7.25.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4397,7 +4397,7 @@ class Champion {
             LogUtils_logHHAuto("Free drafts remanings :" + freeDrafts);
             counterLoop++;
             if (freeDrafts > 0 && counterLoop <= maxLoops) {
-                setTimeout(selectGirls, randomInterval(3500, 5500)); // Wait animation
+                setTimeout(selectGirls, randomInterval(5000, 8000)); // Wait animation
             }
             else {
                 Champion.ChampClearAutoTeamPopup();
@@ -12297,14 +12297,14 @@ class PlaceOfPower {
                     if ($("div.grid_view div.not_selected").length === 1) {
                         $("div.grid_view div.not_selected").trigger("click");
                         LogUtils_logHHAuto("Only one girl available for powerplace n°" + index + " assigning her.");
-                        yield TimeHelper.sleep(randomInterval(200, 500));
+                        yield TimeHelper.sleep(randomInterval(1200, 2000));
                     }
                     else {
                         querySelectorText = "button.blue_button_L[rel='pop_auto_assign']:not([disabled])";
                         if ($(querySelectorText).length > 0) {
                             document.querySelector(querySelectorText).click();
                             LogUtils_logHHAuto("Autoassigned powerplace" + index);
-                            yield TimeHelper.sleep(randomInterval(500, 1000));
+                            yield TimeHelper.sleep(randomInterval(1500, 2000));
                         }
                         else
                             LogUtils_logHHAuto("No autoassign button for powerplace" + index);
@@ -12313,7 +12313,7 @@ class PlaceOfPower {
                     if ($(querySelectorText).length > 0) {
                         document.querySelector(querySelectorText).click();
                         LogUtils_logHHAuto("Started powerplace" + index);
-                        yield TimeHelper.sleep(randomInterval(500, 1000));
+                        yield TimeHelper.sleep(randomInterval(1500, 2000));
                     }
                     else if ($("button.blue_button_L[rel='pop_action'][disabled]").length > 0 && $("div.grid_view div.pop_selected").length > 0) {
                         PlaceOfPower.addPopToUnableToStart(index, "Unable to start Pop " + index + " not enough girls available.");
