@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.25.1
+// @version      7.25.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -439,6 +439,10 @@ HHAuto_ToolTips.en['autoGiveExp'] = { version: "5.6.24", elementText: "Auto Give
 HHAuto_ToolTips.en['autoPantheonTitle'] = { version: "5.6.24", elementText: "Pantheon", tooltip: "" };
 HHAuto_ToolTips.en['autoLabyrinth'] = { version: "7.19.0", elementText: "Labyrinth", tooltip: "if enabled : Automatically do Labyrinth simple mode.<br/>Will select easiest opponent not looking for later step<br/>Difficulty need to be manually selected before." };
 HHAuto_ToolTips.en['autoLabyHard'] = { version: "7.24.0", elementText: "Hard", tooltip: "if enabled : Automatically do Labyrinth hard mode.<br/>Will select hardest opponent group and low power." };
+HHAuto_ToolTips.en['autoLabyDifficulty'] = { version: "7.25.2", elementText: "Difficulty", tooltip: "Labyrinth difficulty to select before starting.<br/>Need to be manually selected before starting the labyrinth." };
+HHAuto_ToolTips.en['autoLabyDifficultyEasy'] = { version: "7.25.2", elementText: "Easy" };
+HHAuto_ToolTips.en['autoLabyDifficultyNormal'] = { version: "7.25.2", elementText: "Normal" };
+HHAuto_ToolTips.en['autoLabyDifficultyHard'] = { version: "7.25.2", elementText: "Hard" };
 HHAuto_ToolTips.en['autoLabyrinthTitle'] = { version: "6.19.0", elementText: "Labyrinth" };
 HHAuto_ToolTips.en['autoLabyrinthBuildTeam'] = { version: "7.9.1", elementText: "Build team", tooltip: "Select full team, based on selection" };
 HHAuto_ToolTips.en['autoLabyrinthBuildTank'] = { version: "7.9.0", elementText: "Tanks", tooltip: "Select two tanks for the front row" };
@@ -8601,6 +8605,21 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLabyHard"] =
         menuType: "checked",
         kobanUsing: false
     };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLabyDifficultyIndex"] =
+    {
+        default: "0",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "selectedIndex",
+        kobanUsing: false,
+        customMenuID: "autoLabyDifficulty",
+        isValid: /^[0-9]$/,
+        newValueFunction: function () {
+        }
+    };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonalEventCollect"] =
     {
         default: "false",
@@ -9971,10 +9990,24 @@ class LabyrinthAuto {
                     difficultyButton.trigger('click');
                     yield TimeHelper.sleep(randomInterval(200, 400));
                     $('#labyrinth_confirm_difficulty button.blue_button_L').trigger('click');
+                    yield TimeHelper.sleep(randomInterval(2000, 4000));
                     return true;
                 }
                 else {
-                    LogUtils_logHHAuto(`On Labyrinth entrance page, ${difficultyButton.length} difficulty available, manual selection needed.`);
+                    const chooseDifficulty = getStoredValue(HHStoredVarPrefixKey + "Setting_autoLabyDifficultyIndex") || LabyrinthAuto.EASY;
+                    const difficultyToSelect = LabyrinthAuto.LABYRINTH_SELECTOR[parseInt(chooseDifficulty)];
+                    const buttonToSelect = $(`.difficulty-button.difficulty-${difficultyToSelect}:not([disabled])`);
+                    if (buttonToSelect.length == 1) {
+                        LogUtils_logHHAuto(`On Labyrinth entrance page, selecting ${difficultyToSelect} difficulty.`);
+                        buttonToSelect.trigger('click');
+                        yield TimeHelper.sleep(randomInterval(200, 400));
+                        $('#labyrinth_confirm_difficulty button.blue_button_L').trigger('click');
+                        yield TimeHelper.sleep(randomInterval(2000, 4000));
+                        return true;
+                    }
+                    else {
+                        LogUtils_logHHAuto(`On Labyrinth entrance page, ${difficultyToSelect} difficulty not available, manual selection needed.`);
+                    }
                 }
                 setTimer('nextLabyrinthTime', randomInterval(600, 700));
                 return false;
@@ -10100,6 +10133,10 @@ class LabyrinthAuto {
         return $('.player-panel .team-hexagon .team-member-container[data-girl-id]').length;
     }
 }
+LabyrinthAuto.EASY = "0";
+LabyrinthAuto.NORMAL = "1";
+LabyrinthAuto.HARD = "2";
+LabyrinthAuto.LABYRINTH_SELECTOR = ['easy', 'normal', 'hard'];
 
 ;// CONCATENATED MODULE: ./src/Module/League.ts
 var League_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -14300,6 +14337,7 @@ class NumberHelper {
 
 
 
+
 class HHMenu {
     createMenuButton() {
         if ($('#' + HHMenu.BUTTON_MENU_ID).length > 0)
@@ -14416,6 +14454,12 @@ class HHMenu {
         sortsOptions.add(this._createHtmlOption(LeagueHelper.SORT_DISPLAYED, getTextForUI("autoLeaguesdisplayedOrder", "elementText")));
         sortsOptions.add(this._createHtmlOption(LeagueHelper.SORT_POWER, getTextForUI("autoLeaguesPower", "elementText")));
         sortsOptions.add(this._createHtmlOption(LeagueHelper.SORT_POWERCALC, getTextForUI("autoLeaguesPowerCalc", "elementText")));
+    }
+    fillLabyDifficultyMenu() {
+        var sortsOptions = document.getElementById("autoLabyDifficulty");
+        sortsOptions.add(this._createHtmlOption(LabyrinthAuto.EASY, getTextForUI("autoLabyDifficultyEasy", "elementText")));
+        sortsOptions.add(this._createHtmlOption(LabyrinthAuto.NORMAL, getTextForUI("autoLabyDifficultyNormal", "elementText")));
+        sortsOptions.add(this._createHtmlOption(LabyrinthAuto.HARD, getTextForUI("autoLabyDifficultyHard", "elementText")));
     }
 }
 HHMenu.BUTTON_MENU_ID = 'sMenuButton';
@@ -14775,11 +14819,11 @@ function getMenu() {
             + `</div>`
             + `</div>`
             + `</div>`
-            + `<div id="isEnabledDailyGoals" class="optionsBoxWithTitle">`
+            + `<div class="optionsBoxWithTitle">`
             + `<div class="optionsBoxTitle">`
             + `<span class="optionsBoxTitle">${getTextForUI("dailyGoalsTitle", "elementText")}</span>`
             + `</div>`
-            + `<div class="rowOptionsBox">`
+            + `<div id="isEnabledDailyGoals" class="rowOptionsBox">`
             + `<div class="internalOptionsRow">`
             + `<div style="${debugEnabled ? '' : 'display:none;'}">` + hhMenuSwitch('autoDailyGoals') + `</div>`
             + hhMenuSwitch('autoDailyGoalsCollect')
@@ -14793,9 +14837,9 @@ function getMenu() {
             + `</div>`
             + `</div>`
             + `<div class="rowOptionsBox">`
-            + `<div id="isEnabledLabyrinth" class="internalOptionsRow" style="justify-content: space-evenly">`
-            + hhMenuSwitch('autoLabyrinth')
-            + hhMenuSwitch('autoLabyHard')
+            + `<div id="isEnabledSalary" class="internalOptionsRow">`
+            + hhMenuSwitch('autoSalary')
+            + hhMenuInput('autoSalaryMinSalary', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
             + `</div>`
             + `</div>`
             + `</div>`
@@ -14804,12 +14848,13 @@ function getMenu() {
             + `</div>`
             + `</div>`
             + `<div class="optionsColumn">`
-            + `<div class="optionsBoxTitle">`
+            + `<div class="optionsBoxTitle">` // Empty box to align with left column
             + `</div>`
-            + `<div id="isEnabledSalary" class="optionsBox">`
-            + `<div class="internalOptionsRow">`
-            + hhMenuSwitchWithImg('autoSalary', 'pictures/design/harem.svg')
-            + hhMenuInput('autoSalaryMinSalary', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
+            + `<div id="isEnabledLabyrinth" class="optionsBox">`
+            + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
+            + hhMenuSwitch('autoLabyrinth')
+            + hhMenuSwitch('autoLabyHard')
+            + hhMenuSelect('autoLabyDifficulty', 'width:50px;')
             + `</div>`
             + `<div class="internalOptionsRow">`
             + `</div>`
@@ -14817,7 +14862,7 @@ function getMenu() {
             + `<div class="optionsRow">`
             + `<div id="isEnabledQuest" class="rowOptionsBox">`
             + `<div class="internalOptionsRow">`
-            + hhMenuSwitchWithImg('autoQuest', 'design/menu/forward.svg')
+            + hhMenuSwitch('autoQuest')
             + hhMenuSwitch('autoSideQuest', 'isEnabledSideQuest')
             + hhMenuInputWithImg('autoQuestThreshold', HHAuto_inputPattern.autoQuestThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_quest.png', 'numeric')
             + `</div>`
@@ -18747,6 +18792,7 @@ function start() {
     // Add league options
     hhAutoMenu.fillLeagueSelectMenu();
     hhAutoMenu.fillLeaguSortMenu();
+    hhAutoMenu.fillLabyDifficultyMenu();
     setMenuValues();
     getMenuValues();
     manageToolTipsDisplay();
