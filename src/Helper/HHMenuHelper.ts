@@ -1,3 +1,4 @@
+import { LabyrinthAuto } from '../Module/LabyrinthAuto';
 import { LeagueHelper } from '../Module/League';
 import { setDefaults } from '../Service/index';
 import { isDisplayedHHPopUp, logHHAuto } from '../Utils/index';
@@ -131,6 +132,13 @@ export class HHMenu {
         sortsOptions.add(this._createHtmlOption(LeagueHelper.SORT_DISPLAYED, getTextForUI("autoLeaguesdisplayedOrder", "elementText")));
         sortsOptions.add(this._createHtmlOption(LeagueHelper.SORT_POWER, getTextForUI("autoLeaguesPower", "elementText")));
         sortsOptions.add(this._createHtmlOption(LeagueHelper.SORT_POWERCALC, getTextForUI("autoLeaguesPowerCalc", "elementText")));
+    }
+
+    fillLabyDifficultyMenu() {
+        var sortsOptions = <HTMLSelectElement>document.getElementById("autoLabyDifficulty");
+        sortsOptions.add(this._createHtmlOption(LabyrinthAuto.EASY, getTextForUI("autoLabyDifficultyEasy", "elementText")));
+        sortsOptions.add(this._createHtmlOption(LabyrinthAuto.NORMAL, getTextForUI("autoLabyDifficultyNormal", "elementText")));
+        sortsOptions.add(this._createHtmlOption(LabyrinthAuto.HARD, getTextForUI("autoLabyDifficultyHard", "elementText")));
     }
 
     // replaceMenuIconWithWarning() {
@@ -552,11 +560,11 @@ export function getMenu() {
                                     +`</div>`
                                 +`</div>`
                             +`</div>`
-                            +`<div id="isEnabledDailyGoals" class="optionsBoxWithTitle">`
+                            +`<div class="optionsBoxWithTitle">`
                                 +`<div class="optionsBoxTitle">`
                                     + `<span class="optionsBoxTitle">${getTextForUI("dailyGoalsTitle","elementText")}</span>`
                                 +`</div>`
-                                +`<div class="rowOptionsBox">`
+                                +`<div id="isEnabledDailyGoals" class="rowOptionsBox">`
                                     +`<div class="internalOptionsRow">`
                                         + `<div style="${debugEnabled ? '' : 'display:none;'}">` + hhMenuSwitch('autoDailyGoals') + `</div>`
                                         + hhMenuSwitch('autoDailyGoalsCollect')
@@ -570,10 +578,10 @@ export function getMenu() {
                                         + `</div>`
                                     + `</div>`
                                     + `<div class="rowOptionsBox">`
-                                        + `<div id="isEnabledLabyrinth" class="internalOptionsRow" style="justify-content: space-evenly">`
-                                            + hhMenuSwitch('autoLabyrinth')
-                                            + hhMenuSwitch('autoLabyHard')
-                                        +`</div>`
+                                        +`<div id="isEnabledSalary" class="internalOptionsRow">`
+                                            + hhMenuSwitch('autoSalary')
+                                            + hhMenuInput('autoSalaryMinSalary', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
+                                        + `</div>`
                                     +`</div>`
                                 + `</div>`
                             +`</div>`
@@ -581,13 +589,14 @@ export function getMenu() {
                     +`</div>`
                 +`</div>`
                 +`<div class="optionsColumn">`
-                    +`<div class="optionsBoxTitle">`
+                    +`<div class="optionsBoxTitle">` // Empty box to align with left column
                     +`</div>`
-                    +`<div id="isEnabledSalary" class="optionsBox">`
-                        +`<div class="internalOptionsRow">`
-                            + hhMenuSwitchWithImg('autoSalary', 'pictures/design/harem.svg')
-                            + hhMenuInput('autoSalaryMinSalary', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:right; width:45px')
-                        + `</div>`
+                    +`<div id="isEnabledLabyrinth" class="optionsBox">`
+                        + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                            + hhMenuSwitch('autoLabyrinth')
+                            + hhMenuSwitch('autoLabyHard')
+                            + hhMenuSelect('autoLabyDifficulty', 'width:50px;')
+                        +`</div>`
                         + `<div class="internalOptionsRow">`
                         
                         +`</div>`
@@ -595,7 +604,7 @@ export function getMenu() {
                     +`<div class="optionsRow">`
                         +`<div id="isEnabledQuest" class="rowOptionsBox">`
                             +`<div class="internalOptionsRow">`
-                                + hhMenuSwitchWithImg('autoQuest', 'design/menu/forward.svg')
+                                + hhMenuSwitch('autoQuest')
                                 + hhMenuSwitch('autoSideQuest', 'isEnabledSideQuest')
                                 + hhMenuInputWithImg('autoQuestThreshold', HHAuto_inputPattern.autoQuestThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_quest.png', 'numeric')
                             +`</div>`

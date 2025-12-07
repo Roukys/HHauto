@@ -244,6 +244,7 @@ export function start() {
     // Add league options
     hhAutoMenu.fillLeagueSelectMenu();
     hhAutoMenu.fillLeaguSortMenu();
+    hhAutoMenu.fillLabyDifficultyMenu();
 
     setMenuValues();
     getMenuValues();

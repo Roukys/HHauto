@@ -1550,6 +1550,21 @@ HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLabyHard"] =
     menuType:"checked",
     kobanUsing: false
 };
+HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLabyDifficultyIndex"] =
+{
+    default: "0",
+    storage: "Storage()",
+    HHType: "Setting",
+    valueType: "Small Integer",
+    getMenu: true,
+    setMenu: true,
+    menuType: "selectedIndex",
+    kobanUsing: false,
+    customMenuID: "autoLabyDifficulty",
+    isValid: /^[0-9]$/,
+    newValueFunction: function () {
+    }
+};
 HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollect"] =
     {
     default:"false",

@@ -18,6 +18,10 @@ import { Labyrinth } from "./Labyrinth";
 import { RelicManager } from "./RelicManager";
 
 export class LabyrinthAuto {
+    static EASY: string = "0";
+    static NORMAL: string = "1";
+    static HARD: string = "2";
+    static LABYRINTH_SELECTOR: string[] = ['easy', 'normal', 'hard'];
     debugEnabled: boolean;
 
     constructor() {
@@ -33,9 +37,23 @@ export class LabyrinthAuto {
                 difficultyButton.trigger('click');
                 await TimeHelper.sleep(randomInterval(200, 400));
                 $('#labyrinth_confirm_difficulty button.blue_button_L').trigger('click');
+                await TimeHelper.sleep(randomInterval(2000, 4000));
                 return true;
             } else {
-                logHHAuto(`On Labyrinth entrance page, ${difficultyButton.length} difficulty available, manual selection needed.`);
+                const chooseDifficulty = getStoredValue(HHStoredVarPrefixKey + "Setting_autoLabyDifficultyIndex") || LabyrinthAuto.EASY;
+                const difficultyToSelect = LabyrinthAuto.LABYRINTH_SELECTOR[parseInt(chooseDifficulty)];
+                const buttonToSelect = $(`.difficulty-button.difficulty-${difficultyToSelect}:not([disabled])`);
+
+                if (buttonToSelect.length == 1) {
+                    logHHAuto(`On Labyrinth entrance page, selecting ${difficultyToSelect} difficulty.`);
+                    buttonToSelect.trigger('click');
+                    await TimeHelper.sleep(randomInterval(200, 400));
+                    $('#labyrinth_confirm_difficulty button.blue_button_L').trigger('click');
+                    await TimeHelper.sleep(randomInterval(2000, 4000));
+                    return true;
+                } else {
+                    logHHAuto(`On Labyrinth entrance page, ${difficultyToSelect} difficulty not available, manual selection needed.`);
+                }
             }
 
             setTimer('nextLabyrinthTime', randomInterval(600, 700));
