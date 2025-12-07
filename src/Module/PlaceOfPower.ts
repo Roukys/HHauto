@@ -386,7 +386,7 @@ export class PlaceOfPower {
                 {
                     $("div.grid_view div.not_selected").trigger("click");
                     logHHAuto("Only one girl available for powerplace n°" + index + " assigning her.");
-                    await TimeHelper.sleep(randomInterval(200, 500));
+                    await TimeHelper.sleep(randomInterval(1200, 2000));
                 }
                 else
                 {
@@ -395,7 +395,7 @@ export class PlaceOfPower {
                     {
                         (<HTMLElement>document.querySelector(querySelectorText)).click();
                         logHHAuto("Autoassigned powerplace" + index);
-                        await TimeHelper.sleep(randomInterval(500, 1000));
+                        await TimeHelper.sleep(randomInterval(1500, 2000));
                     } else logHHAuto("No autoassign button for powerplace" + index);
                 }
                 querySelectorText = "button.blue_button_L[rel='pop_action']:not([disabled])"
@@ -403,7 +403,7 @@ export class PlaceOfPower {
                 {
                     (<HTMLElement>document.querySelector(querySelectorText)).click();
                     logHHAuto("Started powerplace" + index);
-                    await TimeHelper.sleep(randomInterval(500, 1000));
+                    await TimeHelper.sleep(randomInterval(1500, 2000));
                 }
                 else if ($("button.blue_button_L[rel='pop_action'][disabled]").length >0 && $("div.grid_view div.pop_selected").length >0)
                 {
