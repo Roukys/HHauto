@@ -219,7 +219,7 @@ export class Champion {
             logHHAuto("Free drafts remanings :" + freeDrafts);
             counterLoop++;
             if(freeDrafts > 0 && counterLoop <= maxLoops) {
-                setTimeout(selectGirls, randomInterval(3500,5500)); // Wait animation
+                setTimeout(selectGirls, randomInterval(5000,8000)); // Wait animation
             } else {
                 Champion.ChampClearAutoTeamPopup();
                 $('#updateChampTeamButton').removeAttr('disabled').text( getTextForUI("updateChampTeamButton","elementText") +' x'+maxLoops);
