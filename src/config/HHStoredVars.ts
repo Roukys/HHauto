@@ -1097,6 +1097,20 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_paranoiaSpendsBefore"] =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars[HHStoredVarPrefixKey +"Setting_plusLoveRaid"] =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing: false,
+    newValueFunction: function () {
+        clearTimer('nextLoveRaidTime');
+    }
+};
 HHStoredVars[HHStoredVarPrefixKey+"Setting_plusEvent"] =
     {
     default:"false",
@@ -1880,6 +1894,11 @@ HHStoredVars[HHStoredVarPrefixKey+"Temp_haremGirlLimit"] =
     storage:"sessionStorage",
     HHType:"Temp"
 };
+HHStoredVars[HHStoredVarPrefixKey +"Temp_loveRaids"] =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
 HHStoredVars[HHStoredVarPrefixKey+"Temp_eventsGirlz"] =
     {
     storage:"sessionStorage",
@@ -1900,6 +1919,11 @@ HHStoredVars[HHStoredVarPrefixKey+"Temp_autoChampsEventGirls"] =
     storage:"sessionStorage",
     HHType:"Temp"
     //isValid:/^\[({"girl_id":"(\d)+","champ_id":"(\d)+","girl_shards":"(\d)+","girl_name":"([^"])+","event_id":"([^"])+"},?)+\]$/
+};
+HHStoredVars[HHStoredVarPrefixKey + "Temp_raidGirls"] =
+{
+    storage: "sessionStorage",
+    HHType: "Temp"
 };
 HHStoredVars[HHStoredVarPrefixKey+"Temp_clubChampLimitReached"] =
 {

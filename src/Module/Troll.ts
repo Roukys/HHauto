@@ -18,8 +18,9 @@ import { gotoPage } from '../Service/index';
 import { isJSON, logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
 import { EventGirl } from '../model/EventGirl';
+import { LoveRaid } from '../model/LoveRaid';
 import { Booster } from './Booster';
-import { EventModule } from "./Events/index";
+import { EventModule, LoveRaidManager } from "./Events/index";
 import { Harem } from "./harem/Harem";
 
 export class Troll {
@@ -147,16 +148,17 @@ export class Troll {
         let trollWithGirls = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_trollWithGirls"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_trollWithGirls")):[];
         const autoTrollSelectedIndex = Troll.getTrollSelectedIndex();
 
-
         let TTF: number = 0;
         const isMainAdventure = getHHVars('Hero.infos.questing.choices_adventure') == 0;
         const lastWorldMainAdventure = getStoredValue(HHStoredVarPrefixKey + "Temp_MainAdventureWorldID") || -1; 
         const lastTrollIdAvailable = Troll.getLastTrollIdAvailable(true);
         const eventGirl = EventModule.getEventGirl();
         const eventMythicGirl = EventModule.getEventMythicGirl();
+        const loveRaids:LoveRaid[] = LoveRaidManager.isActivated() ? LoveRaidManager.getTrollRaids() : [];
         if (debugEnabled) {
             logHHAuto('eventGirl', eventGirl);
             logHHAuto('eventMythicGirl', eventMythicGirl);
+            logHHAuto('loveRaids', loveRaids);
         }
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && !checkTimer("eventMythicGoing") && eventMythicGirl.girl_id && eventMythicGirl.is_mythic)
         {
@@ -199,6 +201,11 @@ export class Troll {
                 logHHAuto("Can't get troll with girls, going to last troll.");
                 TTF=lastTrollIdAvailable;
             }
+        }
+        else if (LoveRaidManager.isActivated() && loveRaids.length > 0){
+            const loveRaid = loveRaids[0];
+            logHHAuto("LoveRaid troll fight: " + loveRaid.trollId);
+            TTF = loveRaid.trollId;
         }
         else if(autoTrollSelectedIndex > 0 && autoTrollSelectedIndex < 98)
         {
@@ -377,6 +384,14 @@ export class Troll {
                         return true;
                     } else {
                         logHHAuto(`Same troll found, go for it.`);
+                    }
+                }
+                if (LoveRaidManager.isActivated()) {
+                    const loveRaid = LoveRaidManager.getTrollRaids().find(raid => raid.trollId === TTF);
+                    if (loveRaid && (rewardGirlz.length === 0 || !trollGirlRewards.includes('"id_girl":' + loveRaid.id_girl))) {
+                        logHHAuto(`Seems girl ${loveRaid.id_girl} is no more available at troll ${trollz[Number(TTF)]}. Going to love Raid.`);
+                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDLoveRaid"));
+                        return true;
                     }
                 }
                 let canBuyFightsResult = Troll.canBuyFight(eventTrollGirl);

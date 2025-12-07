@@ -6,7 +6,7 @@ import { getTextForUI } from "./LanguageHelper";
 import { NumberHelper } from "./NumberHelper";
 import { getStoredValue, setStoredValue } from "./StorageHelper";
 import { randomInterval } from "./TimeHelper";
-import { EventModule, SeasonalEvent } from '../Module/index';
+import { EventModule, LoveRaidManager, SeasonalEvent } from '../Module/index';
 import { queryStringGetParam } from "./UrlHelper";
 import { HHStoredVarPrefixKey } from '../config/index';
 import { EventGirl } from '../model/EventGirl';
@@ -264,8 +264,10 @@ export class RewardHelper {
                 return -1;
             }
             let foughtTrollId:number = Number(queryStringGetParam(window.location.search,'id_opponent'));
-            if (eventMythicGirl.troll_id && foughtTrollId != eventMythicGirl.troll_id && eventGirl.troll_id && foughtTrollId != eventGirl.troll_id) {
-                logHHAuto(`Troll from mythic event (${eventMythicGirl.troll_id}) or from event (${eventGirl.troll_id}) not fought, was (${foughtTrollId}) instead.
+            const loveRaid = LoveRaidManager.getAllRaids();
+            const foughtTrollFromLoveRaid = loveRaid.find(raid => raid.trollId === foughtTrollId);
+            if (eventMythicGirl.troll_id && foughtTrollId != eventMythicGirl.troll_id && eventGirl.troll_id && foughtTrollId != eventGirl.troll_id && !foughtTrollFromLoveRaid) {
+                logHHAuto(`Troll from mythic event (${eventMythicGirl.troll_id}) or from event (${eventGirl.troll_id}) or from LoveRaid not fought, was (${foughtTrollId}) instead.
                 Can be issue in event variable (mythic event finished: ${EventModule.isEventActive(eventMythicGirl.event_id)},  event finished: ${EventModule.isEventActive(eventGirl.event_id) })`);
                 // TTF = foughtTrollId;
             }
@@ -277,6 +279,8 @@ export class RewardHelper {
                 return;
             }
             let renewEvent = "";
+            let needLoveRaidUpdate = false;
+            let loveRaidGirlWon = false;
             let girlShardsWon = $('.shards_wrapper .slot_girl_shards');
             logHHAuto("Detected girl shard reward");
             for (var currGirl=0; currGirl <= girlShardsWon.length; currGirl++)
@@ -314,7 +318,7 @@ export class RewardHelper {
                         renewEvent = eventMythicGirl.event_id;
                     }
                 }
-                if (eventGirl.girl_id === girlId)
+                else if (eventGirl.girl_id === girlId)
                 {
                     eventGirl.shards = girlShards;
                     if (girlShards === 100)
@@ -322,6 +326,18 @@ export class RewardHelper {
                         renewEvent = eventGirl.event_id;
                     }
                 }
+
+                else if(loveRaid.some(raid => raid.id_girl === girlId)) {
+                    needLoveRaidUpdate = true;
+                    const raid = loveRaid.find(raid => raid.id_girl === girlId);
+                    raid.girl_shards = girlShards;
+                    if (girlShards === 100) {
+                        loveRaidGirlWon = true;
+                    }
+                }
+            }
+            if (needLoveRaidUpdate) {
+                LoveRaidManager.saveLoveRaids(loveRaid);
             }
             setStoredValue(HHStoredVarPrefixKey+"Temp_eventsGirlz", JSON.stringify(eventsGirlz));
             if (eventGirl?.girl_id) EventModule.saveEventGirl(eventGirl);
@@ -345,6 +361,11 @@ export class RewardHelper {
                 else if (eventGirl?.girl_id && EventModule.checkEvent(eventGirl.event_id)) {
                     EventModule.parseEventPage(eventGirl.event_id);
                 }
+                return;
+            } else if (loveRaidGirlWon) {
+                clearTimeout(inCaseTimer);
+                logHHAuto("Parse again love Raid.");
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDLoveRaid"));
                 return;
             }
             else

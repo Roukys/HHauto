@@ -398,8 +398,12 @@ HHEnvVariables["global"].pagesURLHeroPage = "/hero/profile.html";
 HHEnvVariables["global"].pagesKnownList.push("HeroPage");
 
 HHEnvVariables["global"].pagesIDGirlEquipmentUpgrade = "girl-equipment-upgrade";
-HHEnvVariables["global"].pagesURLGirlEquipmentUpgrade = "girl-equipment-upgrade.html"; 
+HHEnvVariables["global"].pagesURLGirlEquipmentUpgrade = "/girl-equipment-upgrade.html"; 
 HHEnvVariables["global"].pagesKnownList.push("GirlEquipmentUpgrade");
+
+HHEnvVariables["global"].pagesIDLoveRaid = "love_raids";
+HHEnvVariables["global"].pagesURLLoveRaid = "/love-raids.html"; 
+HHEnvVariables["global"].pagesKnownList.push("LoveRaid");
 
 HHEnvVariables["global"].isEnabledEvents = true;
 HHEnvVariables["global"].isEnabledTrollBattle = true;
@@ -425,6 +429,7 @@ HHEnvVariables["global"].isEnabledShop = true;
 HHEnvVariables["global"].isEnabledSalary = true;
 HHEnvVariables["global"].isEnabledPoV = true;
 HHEnvVariables["global"].isEnabledPoG = true;
+HHEnvVariables["global"].isEnabledRaidOfLive = true;
 HHEnvVariables["global"].isEnabledSeasonalEvent = true;
 HHEnvVariables["global"].isEnabledBossBangEvent = true;
 HHEnvVariables["global"].isEnabledDPEvent = true;

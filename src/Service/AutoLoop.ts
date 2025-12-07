@@ -48,6 +48,7 @@ import {
     PathOfValue,
     PlaceOfPower,
     QuestHelper,
+    LoveRaidManager,
     Season,
     SeasonalEvent,
     Shop,
@@ -346,6 +347,15 @@ export async function autoLoop()
         {
             busy = true;
             GenericBattle.doBattle();
+        }
+
+        if (busy === false && LoveRaidManager.isActivated() && checkTimer('nextLoveRaidTime')
+            && isAutoLoopActive() && canCollectCompetitionActive
+            && (lastActionPerformed === "none" || lastActionPerformed === "loveraid")) {
+            // Go to raid page
+            logHHAuto("Time to go and check raids.");
+            busy = LoveRaidManager.parse();
+            lastActionPerformed = "loveraid";
         }
 
         if(busy === false && Troll.isTrollFightActivated()
@@ -1122,6 +1132,10 @@ export async function autoLoop()
             break;
         case ConfigHelper.getHHScriptVars("pagesIDClub"):
             Club.run();
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDLoveRaid"):
+            LoveRaidManager.styles = callItOnce(LoveRaidManager.styles);
+            LoveRaidManager.styles();
             break;
         case ConfigHelper.getHHScriptVars("pagesIDLabyrinth"):
             if (getStoredValue(HHStoredVarPrefixKey+"Setting_showCalculatePower") === "true")
