@@ -64,6 +64,16 @@ export class LoveRaidManager {
     static saveLoveRaids(raids: LoveRaid[]){
         setStoredValue(HHStoredVarPrefixKey + "Temp_loveRaids", JSON.stringify(raids));
     }
+    static getFirstTrollRaidsWithGirlToWin(raids: LoveRaid[]): LoveRaid | undefined {
+        if(!raids || raids.length === 0) {
+            raids = LoveRaidManager.getTrollRaids();
+        }
+        const raidWithGirls = raids.filter(raid => raid.girl_shards < 100);
+        if (raidWithGirls.length > 0) {
+            return raidWithGirls[0];
+        }
+        return undefined;
+    }
     static parseRaids(): LoveRaid[]{
         const raids: LoveRaid[] = [];
         const kkRaids: KKLoveRaid[] = love_raids != undefined ? love_raids : [];

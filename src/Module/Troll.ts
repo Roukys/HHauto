@@ -203,8 +203,13 @@ export class Troll {
             }
         }
         else if (LoveRaidManager.isActivated() && loveRaids.length > 0){
-            const loveRaid = loveRaids[0];
-            logHHAuto("LoveRaid troll fight: " + loveRaid.trollId);
+            const loveRaidsWithGirls = LoveRaidManager.getFirstTrollRaidsWithGirlToWin(loveRaids);
+            const loveRaid = loveRaidsWithGirls ? loveRaidsWithGirls : loveRaids[0];
+            if (loveRaidsWithGirls) {
+                logHHAuto(`LoveRaid troll fight: ${loveRaid.trollId} with girl ${loveRaid.id_girl} to win`);
+            } else {
+                logHHAuto(`LoveRaid troll fight: ${loveRaid.trollId} with skin for girl ${loveRaid.id_girl} to win`);
+            }
             TTF = loveRaid.trollId;
         }
         else if(autoTrollSelectedIndex > 0 && autoTrollSelectedIndex < 98)
