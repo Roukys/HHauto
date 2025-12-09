@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.25.2
+// @version      7.25.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -438,7 +438,8 @@ HHAuto_ToolTips.en['autoGiveAff'] = { version: "5.6.24", elementText: "Auto Give
 HHAuto_ToolTips.en['autoGiveExp'] = { version: "5.6.24", elementText: "Auto Give", tooltip: "If enabled, will automatically give Exp to girls in order ( you can use OCD script to filter )." };
 HHAuto_ToolTips.en['autoPantheonTitle'] = { version: "5.6.24", elementText: "Pantheon", tooltip: "" };
 HHAuto_ToolTips.en['autoLabyrinth'] = { version: "7.19.0", elementText: "Labyrinth", tooltip: "if enabled : Automatically do Labyrinth simple mode.<br/>Will select easiest opponent not looking for later step<br/>Difficulty need to be manually selected before." };
-HHAuto_ToolTips.en['autoLabyHard'] = { version: "7.24.0", elementText: "Hard", tooltip: "if enabled : Automatically do Labyrinth hard mode.<br/>Will select hardest opponent group and low power." };
+HHAuto_ToolTips.en['autoLabyHard'] = { version: "7.25.3", elementText: "Hard mode", tooltip: "if enabled : Automatically do Labyrinth hard mode.<br/>Will select hardest opponent group and low power." };
+HHAuto_ToolTips.en['autoLabySweep'] = { version: "7.25.3", elementText: "Sweep", tooltip: "if enabled : Automatically sweep labyrinth floor when available." };
 HHAuto_ToolTips.en['autoLabyDifficulty'] = { version: "7.25.2", elementText: "Difficulty", tooltip: "Labyrinth difficulty to select before starting.<br/>Need to be manually selected before starting the labyrinth." };
 HHAuto_ToolTips.en['autoLabyDifficultyEasy'] = { version: "7.25.2", elementText: "Easy" };
 HHAuto_ToolTips.en['autoLabyDifficultyNormal'] = { version: "7.25.2", elementText: "Normal" };
@@ -2890,6 +2891,16 @@ class LoveRaidManager {
     }
     static saveLoveRaids(raids) {
         setStoredValue(HHStoredVarPrefixKey + "Temp_loveRaids", JSON.stringify(raids));
+    }
+    static getFirstTrollRaidsWithGirlToWin(raids) {
+        if (!raids || raids.length === 0) {
+            raids = LoveRaidManager.getTrollRaids();
+        }
+        const raidWithGirls = raids.filter(raid => raid.girl_shards < 100);
+        if (raidWithGirls.length > 0) {
+            return raidWithGirls[0];
+        }
+        return undefined;
     }
     static parseRaids() {
         const raids = [];
@@ -5903,8 +5914,14 @@ class Troll {
             }
         }
         else if (LoveRaidManager.isActivated() && loveRaids.length > 0) {
-            const loveRaid = loveRaids[0];
-            LogUtils_logHHAuto("LoveRaid troll fight: " + loveRaid.trollId);
+            const loveRaidsWithGirls = LoveRaidManager.getFirstTrollRaidsWithGirlToWin(loveRaids);
+            const loveRaid = loveRaidsWithGirls ? loveRaidsWithGirls : loveRaids[0];
+            if (loveRaidsWithGirls) {
+                LogUtils_logHHAuto(`LoveRaid troll fight: ${loveRaid.trollId} with girl ${loveRaid.id_girl} to win`);
+            }
+            else {
+                LogUtils_logHHAuto(`LoveRaid troll fight: ${loveRaid.trollId} with skin for girl ${loveRaid.id_girl} to win`);
+            }
             TTF = loveRaid.trollId;
         }
         else if (autoTrollSelectedIndex > 0 && autoTrollSelectedIndex < 98) {
@@ -8594,6 +8611,17 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLabyrinth"] =
             clearTimer('nextLabyrinthTime');
         }
     };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLabySweep"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLabyHard"] =
     {
         default: "false",
@@ -10049,14 +10077,36 @@ class LabyrinthAuto {
                 setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
                 if (this.debugEnabled)
                     LogUtils_logHHAuto("setting autoloop to false");
-                $('.labChosen').trigger('click');
-                yield TimeHelper.sleep(randomInterval(500, 800));
-                // Close reward popup or wait until it opens
-                for (var i = 0; i < 3; i++) {
-                    const popupOpened = this.closeRewards();
-                    yield TimeHelper.sleep(randomInterval(800, 1300));
-                    if (popupOpened)
-                        return this.run();
+                const autoLabySweep = getStoredValue(HHStoredVarPrefixKey + "Setting_autoLabySweep") == "true";
+                const sweepFloorButton = $('#sweeping-floor:not([disabled])');
+                if (autoLabySweep && sweepFloorButton.length > 0) {
+                    LogUtils_logHHAuto("Auto laby sweep enabled, triggering sweep.");
+                    sweepFloorButton.trigger('click');
+                    yield TimeHelper.sleep(randomInterval(1000, 1500));
+                    if (this.debugEnabled)
+                        LogUtils_logHHAuto("Confirm sweep.");
+                    $("#labyrinth_sweeping_preview_popup #popup_confirm.blue_button_L").trigger('click');
+                    yield TimeHelper.sleep(randomInterval(1500, 2000));
+                    // Close reward popup or wait until it opens
+                    for (var i = 0; i < 3; i++) {
+                        if (this.debugEnabled)
+                            LogUtils_logHHAuto("Close seep reward popup.");
+                        const popupOpened = this.closeRewards();
+                        yield TimeHelper.sleep(randomInterval(800, 1300));
+                        if (popupOpened)
+                            return this.run();
+                    }
+                }
+                else {
+                    $('.labChosen').trigger('click');
+                    yield TimeHelper.sleep(randomInterval(500, 800));
+                    // Close reward popup or wait until it opens
+                    for (var i = 0; i < 3; i++) {
+                        const popupOpened = this.closeRewards();
+                        yield TimeHelper.sleep(randomInterval(800, 1300));
+                        if (popupOpened)
+                            return this.run();
+                    }
                 }
                 return true;
             }
@@ -10125,6 +10175,7 @@ class LabyrinthAuto {
     }
     closeRewards() {
         return RewardHelper.closeRewardPopupIfAny() // laby coin
+            || RewardHelper.closeRewardPopupIfAny(true, 'labyrinth_reward_popup') //sweep floor
             || RewardHelper.closeRewardPopupIfAny(true, 'confirmation_popup') // no girl to heal
             || RewardHelper.closeRewardPopupIfAny(true, 'heal_girl_labyrinth_popup');
     }
@@ -14853,10 +14904,11 @@ function getMenu() {
             + `<div id="isEnabledLabyrinth" class="optionsBox">`
             + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
             + hhMenuSwitch('autoLabyrinth')
-            + hhMenuSwitch('autoLabyHard')
-            + hhMenuSelect('autoLabyDifficulty', 'width:50px;')
+            + hhMenuSelect('autoLabyDifficulty', 'width:60px;')
             + `</div>`
-            + `<div class="internalOptionsRow">`
+            + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
+            + hhMenuSwitch('autoLabyHard')
+            + hhMenuSwitch('autoLabySweep')
             + `</div>`
             + `</div>`
             + `<div class="optionsRow">`

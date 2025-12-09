@@ -594,11 +594,11 @@ export function getMenu() {
                     +`<div id="isEnabledLabyrinth" class="optionsBox">`
                         + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
                             + hhMenuSwitch('autoLabyrinth')
-                            + hhMenuSwitch('autoLabyHard')
-                            + hhMenuSelect('autoLabyDifficulty', 'width:50px;')
+                            + hhMenuSelect('autoLabyDifficulty', 'width:60px;')
                         +`</div>`
-                        + `<div class="internalOptionsRow">`
-                        
+                        + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                            + hhMenuSwitch('autoLabyHard')
+                            + hhMenuSwitch('autoLabySweep')
                         +`</div>`
                     +`</div>`
                     +`<div class="optionsRow">`

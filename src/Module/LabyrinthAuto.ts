@@ -98,13 +98,32 @@ export class LabyrinthAuto {
             setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
             if (this.debugEnabled) logHHAuto("setting autoloop to false");
 
-            $('.labChosen').trigger('click');
-            await TimeHelper.sleep(randomInterval(500, 800));
-            // Close reward popup or wait until it opens
-            for (var i = 0; i < 3; i++) {
-                const popupOpened = this.closeRewards();
-                await TimeHelper.sleep(randomInterval(800, 1300));
-                if (popupOpened) return this.run();
+            const autoLabySweep = getStoredValue(HHStoredVarPrefixKey + "Setting_autoLabySweep") == "true";
+
+            const sweepFloorButton = $('#sweeping-floor:not([disabled])');
+            if (autoLabySweep && sweepFloorButton.length > 0) {
+                logHHAuto("Auto laby sweep enabled, triggering sweep.");
+                sweepFloorButton.trigger('click');
+                await TimeHelper.sleep(randomInterval(1000, 1500));
+                if (this.debugEnabled) logHHAuto("Confirm sweep.");
+                $("#labyrinth_sweeping_preview_popup #popup_confirm.blue_button_L").trigger('click');
+                await TimeHelper.sleep(randomInterval(1500, 2000));
+                // Close reward popup or wait until it opens
+                for (var i = 0; i < 3; i++) {
+                    if (this.debugEnabled) logHHAuto("Close seep reward popup.");
+                    const popupOpened = this.closeRewards();
+                    await TimeHelper.sleep(randomInterval(800, 1300));
+                    if (popupOpened) return this.run();
+                }
+            }else {
+                $('.labChosen').trigger('click');
+                await TimeHelper.sleep(randomInterval(500, 800));
+                // Close reward popup or wait until it opens
+                for (var i = 0; i < 3; i++) {
+                    const popupOpened = this.closeRewards();
+                    await TimeHelper.sleep(randomInterval(800, 1300));
+                    if (popupOpened) return this.run();
+                }
             }
             return true;
         }
@@ -169,6 +188,7 @@ export class LabyrinthAuto {
 
     closeRewards(): boolean{
         return RewardHelper.closeRewardPopupIfAny() // laby coin
+            || RewardHelper.closeRewardPopupIfAny(true, 'labyrinth_reward_popup') //sweep floor
             || RewardHelper.closeRewardPopupIfAny(true, 'confirmation_popup') // no girl to heal
             || RewardHelper.closeRewardPopupIfAny(true, 'heal_girl_labyrinth_popup')
     }
