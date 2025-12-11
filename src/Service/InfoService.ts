@@ -10,7 +10,7 @@ import {
     setStoredValue,
     TimeHelper
 } from '../Helper/index';
-import { Booster, Contest, DailyGoals, Labyrinth, LeagueHelper, Pantheon, Season, Troll } from '../Module/index';
+import { Booster, Contest, DailyGoals, Labyrinth, LeagueHelper, LoveRaidManager, Pantheon, Season, Troll } from '../Module/index';
 import { logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
 import { AdsService } from './AdsService';
@@ -128,6 +128,10 @@ export function updateData() {
         if (Labyrinth.isEnabled() && getStoredValue(HHStoredVarPrefixKey + "Setting_autoLabyrinth") =="true")
         {
             Tegzd += Labyrinth.getPinfo();
+        }
+        if (LoveRaidManager.isActivated())
+        {
+            Tegzd += LoveRaidManager.getPinfo();
         }
         if (ConfigHelper.getHHScriptVars("isEnabledShop",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_updateMarket") =="true")
         {

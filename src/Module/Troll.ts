@@ -1,5 +1,6 @@
 import {
     checkTimer,
+    clearTimer,
     ConfigHelper,
     deleteStoredValue,
     getHero,
@@ -395,6 +396,7 @@ export class Troll {
                     const loveRaid = LoveRaidManager.getTrollRaids().find(raid => raid.trollId === TTF);
                     if (loveRaid && (rewardGirlz.length === 0 || !trollGirlRewards.includes('"id_girl":' + loveRaid.id_girl))) {
                         logHHAuto(`Seems girl ${loveRaid.id_girl} is no more available at troll ${trollz[Number(TTF)]}. Going to love Raid.`);
+                        clearTimer('nextLoveRaidTime');
                         gotoPage(ConfigHelper.getHHScriptVars("pagesIDLoveRaid"));
                         return true;
                     }

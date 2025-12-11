@@ -12,7 +12,9 @@ import {
     randomInterval,
     setStoredValue,
     setTimer, 
-    HeroHelper} from "../../Helper/index";
+    HeroHelper,
+    getTextForUI,
+    getTimeLeft} from "../../Helper/index";
     import { gotoPage } from "../../Service/index";
     import { isJSON, logHHAuto } from "../../Utils/index";
 import { HHStoredVarPrefixKey } from "../../config/index";
@@ -28,9 +30,14 @@ export class LoveRaidManager {
                 LoveRaidManager.saveLoveRaids(raids);
 
                 const firstEndingRaid = LoveRaidManager.getFirstEndingRaid(raids);
-                if(firstEndingRaid){
-                    setTimer('nextLoveRaidTime', firstEndingRaid.seconds_until_event_end + randomInterval(10, 300));
-                }else{
+                const firstRaidToStart = LoveRaidManager.getFirstRaidToStart();
+                const nextEndingRaidInSeconds = firstEndingRaid ? firstEndingRaid.seconds_until_event_end : Number.MAX_VALUE;
+                const nextRaidStartInSeconds = firstRaidToStart ? firstRaidToStart.seconds_until_event_start : Number.MAX_VALUE;
+                const nextTime = Math.min(nextEndingRaidInSeconds, nextRaidStartInSeconds);
+
+                if (nextTime !== Number.MAX_VALUE && !Number.isNaN(nextTime)) {
+                    setTimer('nextLoveRaidTime', nextTime + randomInterval(10, 300));
+                } else {
                     setTimer('nextLoveRaidTime', randomInterval(3600, 4000));
                 }
             } catch ({ errName, message }) {
@@ -74,24 +81,25 @@ export class LoveRaidManager {
         }
         return undefined;
     }
-    static parseRaids(): LoveRaid[]{
+    static parseRaids(raidNotStarted = false): LoveRaid[] {
+        const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
         const raids: LoveRaid[] = [];
         const kkRaids: KKLoveRaid[] = love_raids != undefined ? love_raids : [];
 
         for (let index = 0; index < kkRaids.length; index++) {
             const kkRaid = kkRaids[index];
             try {
-                if (kkRaid.status == 'ongoing') {
-                    logHHAuto(`parsing raid ${kkRaid.event_name} module ${kkRaid.raid_module_type}`);
+                if ((kkRaid.status == 'ongoing' && !raidNotStarted) || (raidNotStarted && kkRaid.status == 'upcoming')) {
+                    if (debugEnabled) logHHAuto(`parsing raid ${kkRaid.status} ${kkRaid.event_name} module ${kkRaid.raid_module_type}`);
                     if (kkRaid.all_is_owned == true) {
-                        logHHAuto(`nothing to win, ignoring raid`);
+                        if (debugEnabled) logHHAuto(`nothing to win, ignoring raid`);
                         continue;
                     }
                     const raid: LoveRaid = new LoveRaid();
                     raid.id_girl = Number(kkRaid.id_girl);
-                    raid.girl_shards = Number(kkRaid.girl_data.shards);
-                    raid.girl_to_win = kkRaid.girl_data.shards < 100;
-                    if (kkRaid.girl_data.shards >= 100) {
+                    raid.girl_shards = Number(kkRaid.girl_data?.shards);
+                    raid.girl_to_win = kkRaid.girl_data?.shards < 100;
+                    if (debugEnabled && kkRaid.girl_data?.shards >= 100) {
                         logHHAuto(`Girl won, may have skin to win, ignore for now`);
                     }
                     raid.raid_module_type = kkRaid.raid_module_type;
@@ -119,14 +127,14 @@ export class LoveRaidManager {
                             // ?
                             break;
                         default:
-                            logHHAuto('Unknown raid type, ingoring raid');
+                            if (debugEnabled) logHHAuto('Unknown raid type, ingoring raid');
                             continue;
                     }
 
                     raids.push(raid);
                 }
             } catch (error) {
-                logHHAuto('Error parsing raid');
+                logHHAuto('Error parsing raid', kkRaid, error);
             }
         }
         // console.log('raids', raids);
@@ -137,6 +145,10 @@ export class LoveRaidManager {
         // console.log('raids sorted', raids);
 
         return raids;
+    }
+    static getFirstRaidToStart(): LoveRaid | undefined {
+        const raids: LoveRaid[] = LoveRaidManager.parseRaids(true);
+        return raids.length > 0 ? raids.sort((a, b) => (a.seconds_until_event_start - b.seconds_until_event_start))[0] : undefined;
     }
     static getRaidGirls(): EventGirl[]{
         let raidsGirls: EventGirl[] = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_raidGirls")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_raidGirls")) : [];      
@@ -150,5 +162,9 @@ export class LoveRaidManager {
     }
     static styles(){
         $('.love-raids-container').removeClass('height-for-ad');
+    }
+
+    static getPinfo() {
+        return '<li>' + getTextForUI("loveRaidTitle", "elementText") + ' : ' + getTimeLeft('nextLoveRaidTime') + '</li>';
     }
 }

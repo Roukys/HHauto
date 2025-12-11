@@ -1136,6 +1136,10 @@ export async function autoLoop()
         case ConfigHelper.getHHScriptVars("pagesIDLoveRaid"):
             LoveRaidManager.styles = callItOnce(LoveRaidManager.styles);
             LoveRaidManager.styles();
+            if (checkTimer('nextLoveRaidTime')) {
+                LoveRaidManager.parse = callItOnce(LoveRaidManager.parse);
+                LoveRaidManager.parse();
+            }
             break;
         case ConfigHelper.getHHScriptVars("pagesIDLabyrinth"):
             if (getStoredValue(HHStoredVarPrefixKey+"Setting_showCalculatePower") === "true")
