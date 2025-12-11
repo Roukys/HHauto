@@ -1550,6 +1550,17 @@ HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLabySweep"] =
     menuType:"checked",
     kobanUsing: false
 };
+HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLabyCustomTeamBuilder"] =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing: false
+};
 HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLabyHard"] =
     {
     default:"false",

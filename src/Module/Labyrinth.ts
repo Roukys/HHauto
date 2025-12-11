@@ -58,7 +58,8 @@ export class Labyrinth {
     }
 
     static moduleBuildTeam():void{
-        if ($(`.${Labyrinth.BUILD_BUTTON_ID}`).length == 0) {
+        const customTeamBuilder = getStoredValue(HHStoredVarPrefixKey + "Setting_autoLabyCustomTeamBuilder") == "true";
+        if (customTeamBuilder && $(`.${Labyrinth.BUILD_BUTTON_ID}`).length == 0) {
             const divButtons = $('<div style="position:absolute;left:-55px;top:-310px;width:150%;display:flex;gap:4px;z-index:1"></div>');
 
 

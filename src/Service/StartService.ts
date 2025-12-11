@@ -73,13 +73,9 @@ export class StartService {
             logHHAuto(`New script version detected from ${previousScriptVersion} to ${GM.info.script.version}`);
             setStoredValue(HHStoredVarPrefixKey + "Temp_scriptversion", GM.info.script.version);
 
-            if ('7.24.17' === GM.info.script.version) {
-                // Clean salary
-                deleteStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryResetFilters");
-                deleteStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryUseFilter");
-                deleteStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryFilter");
-                deleteStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryMaxTimer");
-                deleteStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryMinTimer");
+            if ('7.25.4' === GM.info.script.version) {
+                // Set default auto laby team true for more user firendly transition
+                setStoredValue(HHStoredVarPrefixKey + "Setting_autoLabyCustomTeamBuilder", "true");
             }
         }
     }
