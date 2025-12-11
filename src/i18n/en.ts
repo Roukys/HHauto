@@ -47,6 +47,7 @@ HHAuto_ToolTips.en['firstTrollWithGirls'] = { version: "5.32.0", elementText: "F
 HHAuto_ToolTips.en['lastTrollWithGirls'] = { version: "5.32.0", elementText: "Last troll with girl"};
 HHAuto_ToolTips.en['autoChampsForceStartEventGirl'] = { version: "5.6.98", elementText: "Event force", tooltip: "if enabled, will fight for event girl champion even if not started. Champions will need to be activated and champions to be in the filter."};
 HHAuto_ToolTips.en['plusLoveRaid'] = { version: "7.25.0", elementText: "+Raid", tooltip: "If enabled : ignore selected troll when raid Of Love available, done AFTER events and after last/first troll with girls option"};
+HHAuto_ToolTips.en['loveRaidTitle'] = { version: "7.25.5", elementText: "Love Raid"};
 HHAuto_ToolTips.en['plusEvent'] = { version: "5.6.24", elementText: "+Event", tooltip: "If enabled : ignore selected troll during event to battle event"};
 HHAuto_ToolTips.en['plusEventMythic'] = { version: "5.6.24", elementText: "+Mythic Event", tooltip: "Enable grabbing girls for mythic event, should only play them when shards are available, Mythic girl troll will be priorized over Event Troll."};
 HHAuto_ToolTips.en['plusEventMythicSandalWood'] = { version: "7.2.0", elementText: "Equip Sandalwood", tooltip: "Will equip sandalwood before mythic fight if enough in inventory<br>Do not equip if less than 10 shards to win<br>Will not buy any."};

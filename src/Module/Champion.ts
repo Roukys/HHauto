@@ -213,17 +213,17 @@ export class Champion {
 
             var newDraftInterval = girlsClicked ? randomInterval(1800,2500) : randomInterval(800,1500);
             setTimeout(function() {
-                if( $(newDraftButtonQuery).length > 0) $(newDraftButtonQuery).click();
+                if ($(newDraftButtonQuery).length > 0) $(newDraftButtonQuery).trigger('click');
             }, newDraftInterval);
 
             logHHAuto("Free drafts remanings :" + freeDrafts);
             counterLoop++;
             if(freeDrafts > 0 && counterLoop <= maxLoops) {
-                setTimeout(selectGirls, randomInterval(5000,8000)); // Wait animation
+                setTimeout(selectGirls, randomInterval(6000,9000)); // Wait animation
             } else {
                 Champion.ChampClearAutoTeamPopup();
                 $('#updateChampTeamButton').removeAttr('disabled').text( getTextForUI("updateChampTeamButton","elementText") +' x'+maxLoops);
-                if($(confirmDraftButtonQuery).length > 0) $(confirmDraftButtonQuery).click();
+                if ($(confirmDraftButtonQuery).length > 0) $(confirmDraftButtonQuery).trigger('click');
 
                 logHHAuto("Auto team ended, refresh page, restarting autoloop");
                 location.reload();
