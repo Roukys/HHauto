@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.25.3
+// @version      7.25.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -444,6 +444,7 @@ HHAuto_ToolTips.en['autoLabyDifficulty'] = { version: "7.25.2", elementText: "Di
 HHAuto_ToolTips.en['autoLabyDifficultyEasy'] = { version: "7.25.2", elementText: "Easy" };
 HHAuto_ToolTips.en['autoLabyDifficultyNormal'] = { version: "7.25.2", elementText: "Normal" };
 HHAuto_ToolTips.en['autoLabyDifficultyHard'] = { version: "7.25.2", elementText: "Hard" };
+HHAuto_ToolTips.en['autoLabyCustomTeamBuilder'] = { version: "7.25.4", elementText: "Custom Team", tooltip: "Deprecated<br/>if enabled : Use bot team builder.<br/>Otherwise use ingame auto team based on rules defined by player previously." };
 HHAuto_ToolTips.en['autoLabyrinthTitle'] = { version: "6.19.0", elementText: "Labyrinth" };
 HHAuto_ToolTips.en['autoLabyrinthBuildTeam'] = { version: "7.9.1", elementText: "Build team", tooltip: "Select full team, based on selection" };
 HHAuto_ToolTips.en['autoLabyrinthBuildTank'] = { version: "7.9.0", elementText: "Tanks", tooltip: "Select two tanks for the front row" };
@@ -8622,6 +8623,17 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLabySweep"] =
         menuType: "checked",
         kobanUsing: false
     };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLabyCustomTeamBuilder"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLabyHard"] =
     {
         default: "false",
@@ -9417,7 +9429,8 @@ class Labyrinth {
         return $('.harem-panel-girls .harem-girl-container').length;
     }
     static moduleBuildTeam() {
-        if ($(`.${Labyrinth.BUILD_BUTTON_ID}`).length == 0) {
+        const customTeamBuilder = getStoredValue(HHStoredVarPrefixKey + "Setting_autoLabyCustomTeamBuilder") == "true";
+        if (customTeamBuilder && $(`.${Labyrinth.BUILD_BUTTON_ID}`).length == 0) {
             const divButtons = $('<div style="position:absolute;left:-55px;top:-310px;width:150%;display:flex;gap:4px;z-index:1"></div>');
             const options = '<option value="1">Tank</option><option value="2">Mage</option><option value="3">Attack</option>';
             ['Back', 'Mid', 'Front'].forEach((value, index) => {
@@ -10141,10 +10154,19 @@ class LabyrinthAuto {
                 const numberOfGirlsRemaining = Labyrinth.getRemainingNumberOfGirl();
                 LogUtils_logHHAuto(`Number of girls remaining: ${numberOfGirlsRemaining}`);
                 if (numberOfGirlsRemaining >= 7) {
-                    Labyrinth.moduleBuildTeam();
-                    yield TimeHelper.sleep(randomInterval(200, 400));
-                    yield Labyrinth._buildTeam();
-                    yield TimeHelper.sleep(randomInterval(200, 400));
+                    const customTeamBuilder = getStoredValue(HHStoredVarPrefixKey + "Setting_autoLabyCustomTeamBuilder") == "true";
+                    if (customTeamBuilder) {
+                        Labyrinth.moduleBuildTeam();
+                        yield TimeHelper.sleep(randomInterval(200, 400));
+                        yield Labyrinth._buildTeam();
+                        yield TimeHelper.sleep(randomInterval(200, 400));
+                    }
+                    else {
+                        $('#clear-team:enabled').trigger('click');
+                        yield TimeHelper.sleep(randomInterval(200, 400));
+                        $('#auto-fill-team:enabled').trigger('click');
+                        yield TimeHelper.sleep(randomInterval(200, 400));
+                    }
                     if (this.getNumberSelectedGirl() == 7) {
                         $('#validate-team:enabled').trigger('click');
                     }
@@ -14909,6 +14931,7 @@ function getMenu() {
             + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
             + hhMenuSwitch('autoLabyHard')
             + hhMenuSwitch('autoLabySweep')
+            + hhMenuSwitch('autoLabyCustomTeamBuilder')
             + `</div>`
             + `</div>`
             + `<div class="optionsRow">`
@@ -18146,6 +18169,7 @@ function autoLoop() {
                 }
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDEditLabyrinthTeam"):
+                Labyrinth.moduleBuildTeam = callItOnce(Labyrinth.moduleBuildTeam);
                 Labyrinth.moduleBuildTeam();
                 break;
         }
@@ -18713,13 +18737,9 @@ class StartService {
             // run action on new script version
             LogUtils_logHHAuto(`New script version detected from ${previousScriptVersion} to ${GM.info.script.version}`);
             setStoredValue(HHStoredVarPrefixKey + "Temp_scriptversion", GM.info.script.version);
-            if ('7.24.17' === GM.info.script.version) {
-                // Clean salary
-                deleteStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryResetFilters");
-                deleteStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryUseFilter");
-                deleteStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryFilter");
-                deleteStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryMaxTimer");
-                deleteStoredValue(HHStoredVarPrefixKey + "Setting_autoSalaryMinTimer");
+            if ('7.25.4' === GM.info.script.version) {
+                // Set default auto laby team true for more user firendly transition
+                setStoredValue(HHStoredVarPrefixKey + "Setting_autoLabyCustomTeamBuilder", "true");
             }
         }
     }

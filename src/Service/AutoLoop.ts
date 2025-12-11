@@ -1144,6 +1144,7 @@ export async function autoLoop()
             }
             break;
         case ConfigHelper.getHHScriptVars("pagesIDEditLabyrinthTeam"):
+            Labyrinth.moduleBuildTeam = callItOnce(Labyrinth.moduleBuildTeam);
             Labyrinth.moduleBuildTeam();
             break;
     }

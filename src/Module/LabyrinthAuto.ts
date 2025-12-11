@@ -156,13 +156,23 @@ export class LabyrinthAuto {
             const numberOfGirlsRemaining = Labyrinth.getRemainingNumberOfGirl();
             logHHAuto(`Number of girls remaining: ${numberOfGirlsRemaining}`);
             if (numberOfGirlsRemaining >= 7) {
-                Labyrinth.moduleBuildTeam();
-                await TimeHelper.sleep(randomInterval(200, 400));
+                const customTeamBuilder = getStoredValue(HHStoredVarPrefixKey + "Setting_autoLabyCustomTeamBuilder") == "true";
+                if (customTeamBuilder) {
+                    Labyrinth.moduleBuildTeam();
+                    await TimeHelper.sleep(randomInterval(200, 400));
 
-                await Labyrinth._buildTeam();
-                await TimeHelper.sleep(randomInterval(200, 400));
+                    await Labyrinth._buildTeam();
+                    await TimeHelper.sleep(randomInterval(200, 400));
+                } else {
+                    $('#clear-team:enabled').trigger('click');
+                    await TimeHelper.sleep(randomInterval(200, 400));
+                    $('#auto-fill-team:enabled').trigger('click');
+                    await TimeHelper.sleep(randomInterval(400, 800));
+                }
+
                 if (this.getNumberSelectedGirl() == 7) {
                     $('#validate-team:enabled').trigger('click');
+                    await TimeHelper.sleep(randomInterval(200, 400));
                 } else {
                     if (this.debugEnabled) logHHAuto('Not enough girl selected, retry...');
                     return this.run();

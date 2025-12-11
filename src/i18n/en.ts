@@ -261,6 +261,7 @@ HHAuto_ToolTips.en['autoLabyDifficulty'] = { version: "7.25.2", elementText: "Di
 HHAuto_ToolTips.en['autoLabyDifficultyEasy'] = { version: "7.25.2", elementText: "Easy"};
 HHAuto_ToolTips.en['autoLabyDifficultyNormal'] = { version: "7.25.2", elementText: "Normal"};
 HHAuto_ToolTips.en['autoLabyDifficultyHard'] = { version: "7.25.2", elementText: "Hard"};
+HHAuto_ToolTips.en['autoLabyCustomTeamBuilder'] = { version: "7.25.4", elementText: "Custom Team", tooltip: "Deprecated<br/>if enabled : Use bot team builder.<br/>Otherwise use ingame auto team based on rules defined by player previously."};
 HHAuto_ToolTips.en['autoLabyrinthTitle'] = { version: "6.19.0", elementText: "Labyrinth"};
 HHAuto_ToolTips.en['autoLabyrinthBuildTeam'] = { version: "7.9.1", elementText: "Build team", tooltip: "Select full team, based on selection"};
 HHAuto_ToolTips.en['autoLabyrinthBuildTank'] = { version: "7.9.0", elementText: "Tanks", tooltip: "Select two tanks for the front row"};

@@ -599,6 +599,7 @@ export function getMenu() {
                         + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
                             + hhMenuSwitch('autoLabyHard')
                             + hhMenuSwitch('autoLabySweep')
+                            + hhMenuSwitch('autoLabyCustomTeamBuilder')
                         +`</div>`
                     +`</div>`
                     +`<div class="optionsRow">`
