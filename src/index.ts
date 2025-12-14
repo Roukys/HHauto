@@ -43,6 +43,7 @@ declare global {
         season_sec_untill_event_end: any;
         seasonal_event_active: any;
         seasonal_time_remaining: any;
+        mega_event_data: any;
         penta_drill_data: any;
         opponents_list: KKPentaDrillOpponents[] | undefined;
         mega_event_active: any;
