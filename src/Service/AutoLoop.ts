@@ -847,6 +847,16 @@ export async function autoLoop()
         }
 
         if (
+            busy == false && ConfigHelper.getHHScriptVars("isEnabledSeasonalEvent", false) && isAutoLoopActive() &&
+            checkTimer('nextSeasonalCardCollectTime') && getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonalBuyFreeCard") === "true" && canCollectCompetitionActive
+            && (lastActionPerformed === "none" || lastActionPerformed === "seasonal")
+        ) {
+            logHHAuto("Time to go and check SeasonalEvent to buy free card.");
+            busy = await SeasonalEvent.goAndCollectFreeCard();
+            lastActionPerformed = "seasonal";
+        }
+
+        if (
             busy==false && ConfigHelper.getHHScriptVars("isEnabledSeasonalEvent",false) && isAutoLoopActive() &&
             (
                 checkTimer('nextSeasonalEventCollectTime') && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonalEventCollect") === "true" && canCollectCompetitionActive

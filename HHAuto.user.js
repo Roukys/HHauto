@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.26.0
+// @version      7.26.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4037,6 +4037,51 @@ class SeasonalEvent {
             else {
                 LogUtils_logHHAuto("No SeasonalEvent active.");
                 setTimer('nextMegaEventRankCollectTime', 604800); // 1 week delay
+            }
+            return Promise.resolve(false);
+        });
+    }
+    static goAndCollectFreeCard() {
+        return Seasonal_awaiter(this, void 0, void 0, function* () {
+            var cardsOwned = getHHVars('mega_event_data.cards');
+            if (cardsOwned && cardsOwned.indexOf('1') >= 0) {
+                LogUtils_logHHAuto(`Free cards already collected (${cardsOwned}), wait for next seasonal event`);
+                setTimer('nextSeasonalCardCollectTime', getSecondsLeft("SeasonalEventRemainingTime") + randomInterval(3600, 4000));
+            }
+            else {
+                if (getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent")) {
+                    const isMegaSeasonalEvent = SeasonalEvent.isMegaSeasonalEvent();
+                    const cardTabs = $('#mega-event-tabs #cards_tab');
+                    if (cardTabs.length > 0) {
+                        LogUtils_logHHAuto('Collect free cards from Seasonal Event');
+                        // switch tabs
+                        cardTabs.trigger("click");
+                        yield TimeHelper.sleep(randomInterval(400, 600));
+                        const freeCardClaimButton = $('#cards_tab_container .free-card:not([disabled])');
+                        if (freeCardClaimButton.length > 0)
+                            freeCardClaimButton.trigger("click");
+                        yield TimeHelper.sleep(randomInterval(400, 600));
+                        RewardHelper.closeRewardPopupIfAny(); // Close card popup
+                        yield TimeHelper.sleep(randomInterval(400, 600));
+                        RewardHelper.closeRewardPopupIfAny(); // Close card reward popup
+                        if (freeCardClaimButton.length > 1) {
+                            LogUtils_logHHAuto('There is still free cards to collect, try again');
+                            freeCardClaimButton.trigger("click");
+                            yield TimeHelper.sleep(randomInterval(400, 600));
+                            RewardHelper.closeRewardPopupIfAny();
+                        }
+                    }
+                    setTimer('nextSeasonalCardCollectTime', getSecondsLeft("SeasonalEventRemainingTime") + randomInterval(3600, 4000));
+                }
+                else if (SeasonalEvent.isActiveEvent()) {
+                    LogUtils_logHHAuto("Switching to SeasonalEvent screen.");
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonalEvent"));
+                    return Promise.resolve(true);
+                }
+                else {
+                    LogUtils_logHHAuto("No SeasonalEvent active.");
+                    setTimer('nextSeasonalCardCollectTime', 604800); // 1 week delay
+                }
             }
             return Promise.resolve(false);
         });
@@ -8473,7 +8518,10 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonalBuyFreeCar
         getMenu: true,
         setMenu: true,
         menuType: "checked",
-        kobanUsing: false
+        kobanUsing: false,
+        newValueFunction: function () {
+            clearTimer('nextSeasonalCardCollectTime');
+        }
     };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showCalculatePower"] =
     {
@@ -15462,7 +15510,7 @@ function getMenu() {
             + `<div class="internalOptionsRow">`
             + hhMenuSwitch('autoSeasonalEventCollect')
             + hhMenuSwitch('autoSeasonalEventCollectAll')
-            //+ hhMenuSwitch('autoSeasonalBuyFreeCard')
+            + hhMenuSwitch('autoSeasonalBuyFreeCard')
             + `</div>`
             + `</div>`
             + `</div>`
@@ -18390,6 +18438,13 @@ function autoLoop() {
                 && (lastActionPerformed === "none" || lastActionPerformed === "seasonal")) {
                 LogUtils_logHHAuto("Time to go and check  SeasonalEvent for collecting rank reward.");
                 busy = yield SeasonalEvent.goAndCollectMegaEventRankRewards();
+                lastActionPerformed = "seasonal";
+            }
+            if (busy == false && ConfigHelper.getHHScriptVars("isEnabledSeasonalEvent", false) && isAutoLoopActive() &&
+                checkTimer('nextSeasonalCardCollectTime') && getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonalBuyFreeCard") === "true" && canCollectCompetitionActive
+                && (lastActionPerformed === "none" || lastActionPerformed === "seasonal")) {
+                LogUtils_logHHAuto("Time to go and check SeasonalEvent to buy free card.");
+                busy = yield SeasonalEvent.goAndCollectFreeCard();
                 lastActionPerformed = "seasonal";
             }
             if (busy == false && isAutoLoopActive() && PathOfValue.isEnabled() &&

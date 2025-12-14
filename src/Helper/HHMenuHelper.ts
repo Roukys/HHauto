@@ -705,7 +705,7 @@ export function getMenu() {
                         +`<div class="internalOptionsRow">`
                             + hhMenuSwitch('autoSeasonalEventCollect')
                             + hhMenuSwitch('autoSeasonalEventCollectAll')
-                            //+ hhMenuSwitch('autoSeasonalBuyFreeCard')
+                            + hhMenuSwitch('autoSeasonalBuyFreeCard')
                         +`</div>`
                     +`</div>`
                 +`</div>`

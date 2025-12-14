@@ -1368,7 +1368,10 @@ HHStoredVars[HHStoredVarPrefixKey +"Setting_autoSeasonalBuyFreeCard"] =
     getMenu:true,
     setMenu:true,
     menuType:"checked",
-    kobanUsing:false
+    kobanUsing:false,
+    newValueFunction: function () {
+        clearTimer('nextSeasonalCardCollectTime');
+    }
 };
 HHStoredVars[HHStoredVarPrefixKey+"Setting_showCalculatePower"] =
     {
