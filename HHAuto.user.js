@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.25.5
+// @version      7.26.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -83,6 +83,7 @@ GM_addStyle('.HHGirlMilestone { position: absolute; bottom: 0;  z-index: 1; font
 GM_addStyle('.HHGirlMilestone > div { background: rgba(0,0,0,.5); border-radius: 10px; margin:auto;  width: 140px; }'); 
 // GM_addStyle('.HHGirlMilestone.green { border: solid 1px green }');
 GM_addStyle('.HHGirlMilestone .nc-claimed-reward-check { width:20px; position:absolute; }'); 
+GM_addStyle('#HHPentaDrillRewards { position: absolute; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
 GM_addStyle('#HHSeasonRewards { position: absolute; right: 1.25rem; bottom: 14rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
 GM_addStyle('#HHSeasonalRewards { position: absolute; left: 1.25rem; bottom: 1rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 4;}'); 
 GM_addStyle('#HHPoaRewards { position: absolute; left: 15rem; bottom: 0; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
@@ -245,6 +246,13 @@ HHAuto_ToolTips.en['autoSeasonThreshold'] = { version: "5.6.24", elementText: "T
 HHAuto_ToolTips.en['autoSeasonRunThreshold'] = { version: "6.8.0", elementText: "Run Threshold", tooltip: "Minimum kiss fights before script start spending<br> 0 to spend as soon as energy above threshold" };
 HHAuto_ToolTips.en['autoSeasonBoostedOnly'] = { version: "6.5.0", elementText: "Boosted only", tooltip: "If enabled : Need booster to fight in season" };
 HHAuto_ToolTips.en['autoSeasonSkipLowMojo'] = { version: "7.10.0", elementText: "Skip low Mojo", tooltip: "If enabled : Not fight when mojo reward is less than 8 and season level is less than 63. Will still fight to not loose kiss." };
+HHAuto_ToolTips.en['autoPentaDrillTitle'] = { version: "7.26.0", elementText: "Penta Drill" };
+HHAuto_ToolTips.en['autoPentaDrill'] = { version: "7.26.0", elementText: "Enable", tooltip: "if enabled : Automatically fight in Penta Drills (Opponent chosen with lowest power)" };
+HHAuto_ToolTips.en['autoPentaDrillCollect'] = { version: "7.26.0", elementText: "Collect", tooltip: "if enabled : Automatically collect Penta Drills ( if multiple to collect, will collect one per drill usage)" };
+HHAuto_ToolTips.en['autoPentaDrillCollectAll'] = { version: "7.26.0", elementText: "Collect all", tooltip: "if enabled : Automatically collect all items before end of Penta Drill (configured with Collect all timer)" };
+HHAuto_ToolTips.en['autoPentaDrillThreshold'] = { version: "7.26.0", elementText: "Threshold", tooltip: "Minimum drill to keep" };
+HHAuto_ToolTips.en['autoPentaDrillRunThreshold'] = { version: "7.26.0", elementText: "Run Threshold", tooltip: "Minimum drill fights before script start spending<br> 0 to spend as soon as energy above threshold" };
+HHAuto_ToolTips.en['autoPentaDrillBoostedOnly'] = { version: "7.26.0", elementText: "Boosted only", tooltip: "If enabled : Need booster to fight in Penta Drill" };
 HHAuto_ToolTips.en['autoQuest'] = { version: "5.6.74", elementText: "Main Quest", tooltip: "if enabled : Automatically do main quest" };
 HHAuto_ToolTips.en['autoSideQuest'] = { version: "5.6.83", elementText: "Side Quests", tooltip: "if enabled : Automatically do next available side quest (Enabled main quest has higher priority than side quests)" };
 HHAuto_ToolTips.en['autoQuestThreshold'] = { version: "5.6.24", elementText: "Threshold", tooltip: "(Integer between 0 and 99)<br>Minimum quest energy to keep" };
@@ -310,7 +318,6 @@ HHAuto_ToolTips.en['ResetAllVars'] = { version: "5.6.24", elementText: "Reset de
 HHAuto_ToolTips.en['DebugFileText'] = { version: "5.6.24", elementText: "Click on button bellow to produce a debug log file", tooltip: "" };
 HHAuto_ToolTips.en['OptionCancel'] = { version: "5.6.24", elementText: "Cancel", tooltip: "" };
 HHAuto_ToolTips.en['OptionStop'] = { version: "5.6.24", elementText: "Stop", tooltip: "" };
-HHAuto_ToolTips.en['SeasonMaskRewards'] = { version: "5.6.24", elementText: "Mask claimed", tooltip: "Allow to mask all claimed rewards on Season screen" };
 HHAuto_ToolTips.en['showClubButtonInPoa'] = { version: "6.15.8", elementText: "Go to in Events", tooltip: "if enabled, add a 'go to' button in Event related objectives." };
 HHAuto_ToolTips.en['autoClubChamp'] = { version: "5.6.24", elementText: "Club", tooltip: "if enabled, automatically fight club champion if champion has already been fought once." };
 HHAuto_ToolTips.en['autoClubForceStart'] = { version: "5.6.24", elementText: "Force start", tooltip: "if enabled, will fight club champion even if not started." };
@@ -377,13 +384,10 @@ HHAuto_ToolTips.en['povTitle'] = { version: "5.20.3", elementText: "Path of Valo
 HHAuto_ToolTips.en['pogTitle'] = { version: "5.20.3", elementText: "Path of Glory" };
 HHAuto_ToolTips.en['poaTitle'] = { version: "6.15.8", elementText: "Path of Attraction" };
 HHAuto_ToolTips.en['seasonalEventTitle'] = { version: "5.6.133", elementText: "Seasonal Event" };
-HHAuto_ToolTips.en['PoAMaskRewards'] = { version: "6.15.8", elementText: "Mask claimed", tooltip: "Masked claimed rewards for Path of Attraction." };
-HHAuto_ToolTips.en['PoVMaskRewards'] = { version: "6.15.8", elementText: "Mask claimed", tooltip: "Masked claimed rewards for Path of Valor." };
-HHAuto_ToolTips.en['PoGMaskRewards'] = { version: "6.15.8", elementText: "Mask claimed", tooltip: "Masked claimed rewards for Path of Glory." };
+HHAuto_ToolTips.en['AllMaskRewards'] = { version: "7.26.0", elementText: "Mask claimed", tooltip: "Masked claimed rewards for Path of Attraction, Valor, Glory, season, etc.." };
 HHAuto_ToolTips.en['rewardsToCollectTitle'] = { version: "5.37.0", elementText: "Energies, XP, currencies available to collect" };
 HHAuto_ToolTips.en['showRewardsRecap'] = { version: "5.37.0", elementText: "Show rewards recap", tooltip: "Show cumulated information for energies, XP and currencies" };
 HHAuto_ToolTips.en['hideOwnedGirls'] = { version: "7.4.1", elementText: "Hide Owned girls", tooltip: "Hide owned girls in event page, when event have more than 30 girls to win and players have already more than 10 girls" };
-HHAuto_ToolTips.en['SeasonalEventMaskRewards'] = { version: "6.8.4", elementText: "Mask claimed", tooltip: "Masked claimed rewards for Seasonal Event." };
 HHAuto_ToolTips.en['bossBangEvent'] = { version: "5.20.3", elementText: "Enable", tooltip: "Perform boss bang fight script will start with the team configured after." };
 HHAuto_ToolTips.en['bossBangEventTitle'] = { version: "5.20.3", elementText: "Boss Bang" };
 HHAuto_ToolTips.en['bossBangMinTeam'] = { version: "5.6.137", elementText: "First Team", tooltip: "First team to start with<br>If 5 will start with last team and reach the first one." };
@@ -477,6 +481,7 @@ HHAuto_ToolTips.en['autoPoVCollect'] = { version: "6.15.8", elementText: "Collec
 HHAuto_ToolTips.en['autoPoVCollectAll'] = { version: "6.15.8", elementText: "Collect All", tooltip: "if enabled : Automatically collect all items before end of Path of Valor (configured with Collect all timer)" };
 HHAuto_ToolTips.en['autoSeasonalEventCollect'] = { version: "5.7.0", elementText: "Collect", tooltip: "if enabled : Automatically collect Seasonal Event." };
 HHAuto_ToolTips.en['autoSeasonalEventCollectAll'] = { version: "5.7.0", elementText: "Collect all", tooltip: "if enabled : Automatically collect all items before end of seasonal event (configured with Collect all timer)" };
+HHAuto_ToolTips.en['autoSeasonalBuyFreeCard'] = { version: "7.26.0", elementText: "Buy card", tooltip: "If enabled: auto buy free card for Seasonal Event." };
 HHAuto_ToolTips.en['autoPoGCollect'] = { version: "6.15.8", elementText: "Collect", tooltip: "if enabled : Automatically collect Path of Glory." };
 HHAuto_ToolTips.en['autoPoGCollectAll'] = { version: "6.15.8", elementText: "Collect All", tooltip: "if enabled : Automatically collect all items before end of Path of Glory (configured with Collect all timer)" };
 HHAuto_ToolTips.en['autoPoACollect'] = { version: "6.16.0", elementText: "Collect", tooltip: "if enabled : Automatically collect Path of Attraction event." };
@@ -553,6 +558,14 @@ HHAuto_ToolTips.fr['autoSeason'] = { version: "5.6.24", elementText: "Activer", 
 HHAuto_ToolTips.fr['autoSeasonCollect'] = { version: "5.6.24", elementText: "Collecter", tooltip: "Si activé : collecte automatiquement les récompenses de saison (si plusieurs à collecter, en collectera une par combat)." };
 HHAuto_ToolTips.fr['autoSeasonCollectAll'] = { version: "6.15.8", elementText: "Tout collecter", tooltip: "Si activé : Collect Automatiquement toutes les récompense avant la fin de la Saison (configuré avec le timer \"Tout collecter\")" };
 HHAuto_ToolTips.fr['autoSeasonThreshold'] = { version: "5.6.24", elementText: "Réserve", tooltip: "Points de combat de saison (Baiser) minimum à conserver." };
+HHAuto_ToolTips.fr['autoSeasonBoostedOnly'] = { version: "7.26.0", elementText: "Boosted only", tooltip: "Si activé : Nécéssite des booster actif pour combatre" };
+HHAuto_ToolTips.fr['autoPentaDrillTitle'] = { version: "7.26.0", elementText: "Penta Péné" };
+HHAuto_ToolTips.fr['autoPentaDrill'] = { version: "7.26.0", elementText: "Activer", tooltip: "Si activé : combat automatique de Penta Péné (Adversaire sélectionné avec le moins de pouvoir)." };
+HHAuto_ToolTips.fr['autoPentaDrillCollect'] = { version: "7.26.0", elementText: "Collecter", tooltip: "Si activé : collecte automatiquement les récompenses de Penta Péné (si plusieurs à collecter, en collectera une par combat)." };
+HHAuto_ToolTips.fr['autoPentaDrillCollectAll'] = { version: "7.26.0", elementText: "Tout collecter", tooltip: "Si activé : Collect Automatiquement toutes les récompense avant la fin de la Penta Péné (configuré avec le timer \"Tout collecter\")" };
+HHAuto_ToolTips.fr['autoPentaDrillThreshold'] = { version: "7.26.0", elementText: "Réserve", tooltip: "Points de combat de Penta Péné minimum à conserve" };
+HHAuto_ToolTips.fr['autoPentaDrillRunThreshold'] = { version: "7.26.0", elementText: "Run Threshold", tooltip: "Minimum drill fights before script start spending<br> 0 to spend as soon as energy above threshold" };
+HHAuto_ToolTips.fr['autoPentaDrillBoostedOnly'] = { version: "7.26.0", elementText: "Boosted only", tooltip: "Si activé : Nécéssite des booster actif pour combatre" };
 HHAuto_ToolTips.fr['autoQuest'] = { version: "5.6.24", elementText: "Quête", tooltip: "Si activé : Fait automatiquement les quêtes" };
 HHAuto_ToolTips.fr['autoQuestThreshold'] = { version: "5.6.24", elementText: "Réserve", tooltip: "Energie de quête minimum à conserver" };
 HHAuto_ToolTips.fr['autoContest'] = { version: "5.6.24", elementText: "Compét'", tooltip: "Si activé : récolter les récompenses de la compét' terminée" };
@@ -595,14 +608,13 @@ HHAuto_ToolTips.fr['DeleteTempVars'] = { version: "5.6.24", elementText: "Suppri
 HHAuto_ToolTips.fr['ResetAllVars'] = { version: "5.6.24", elementText: "Réinitialiser", tooltip: "Remettre toutes les options par default" };
 HHAuto_ToolTips.fr['DebugFileText'] = { version: "5.6.24", elementText: "Cliquer sur le boutton ci-dessous pour produire une journal de debug.", tooltip: "" };
 HHAuto_ToolTips.fr['OptionCancel'] = { version: "5.6.24", elementText: "Annuler", tooltip: "" };
-HHAuto_ToolTips.fr['SeasonMaskRewards'] = { version: "5.6.24", elementText: "Masquer gains", tooltip: "Permet de masquer les gains réclamés de la saison." };
 HHAuto_ToolTips.fr['globalTitle'] = { version: "5.6.24", elementText: "Général" };
 HHAuto_ToolTips.fr['displayTitle'] = { version: "5.6.24", elementText: "Affichage" };
 HHAuto_ToolTips.fr['autoActivitiesTitle'] = { version: "5.6.24", elementText: "Activités" };
 HHAuto_ToolTips.fr['autoTrollTitle'] = { version: "5.6.24", elementText: "Combat troll" };
 HHAuto_ToolTips.fr['autoSeasonTitle'] = { version: "5.6.24", elementText: "Saison" };
 HHAuto_ToolTips.fr['autoLeaguesTitle'] = { version: "5.6.24", elementText: "Ligues" };
-HHAuto_ToolTips.fr['PoAMaskRewards'] = { version: "6.15.8", elementText: "Masquer gains", tooltip: "Si activé : masque les récompenses déjà réclamées du chemin d'affection." };
+HHAuto_ToolTips.fr['AllMaskRewards'] = { version: "7.26.0", elementText: "Masquer gains", tooltip: "Si activé : masque les récompenses déjà réclamées." };
 HHAuto_ToolTips.fr['showTooltips'] = { version: "5.6.24", elementText: "Infobulles", tooltip: "Si activé : affiche des bulles d'aide lors du survol des éléments avec la souris." };
 HHAuto_ToolTips.fr['autoClubChamp'] = { version: "5.6.24", elementText: "Club", tooltip: "Si activé : combat automatiquement le champion de club si au moins un combat a déjà été effectué." };
 HHAuto_ToolTips.fr['autoClubChampMax'] = { version: "5.6.24", elementText: "Max. tickets par session", tooltip: "Nombre maximum de ticket à utiliser sur une même session du champion de club." };
@@ -620,11 +632,8 @@ HHAuto_ToolTips.fr['pogTitle'] = { version: "5.20.3", elementText: "Voie de la G
 HHAuto_ToolTips.fr['poaTitle'] = { version: "6.15.8", elementText: "Chemin d'affection" };
 HHAuto_ToolTips.fr['seasonalEventTitle'] = { version: "5.6.133", elementText: "Evènements saisoniers" };
 HHAuto_ToolTips.fr['mousePause'] = { version: "5.6.135", elementText: "Pause souris", tooltip: "Pause le script pour 5 secondes quand des mouvements de la souris sont detecté. Evite le sript d'interrompre les actions manuelles. (en ms, 5000ms=5s)" };
-HHAuto_ToolTips.fr['PoVMaskRewards'] = { version: "6.15.8", elementText: "Masquer gains", tooltip: "Permet de masquer les gains réclamés de la Voie de la Valeur." };
-HHAuto_ToolTips.fr['PoGMaskRewards'] = { version: "6.15.8", elementText: "Masquer gains", tooltip: "Permet de masquer les gains réclamés de la Voie de la Gloire." };
 HHAuto_ToolTips.fr['rewardsToCollectTitle'] = { version: "6.15.8", elementText: "Energies, XP, monnaies à collecter" };
 HHAuto_ToolTips.fr['showRewardsRecap'] = { version: "6.15.8", elementText: "Affiche recap de récompenses", tooltip: "Affiche les récompenses cumulés des energies, l'XP et les monnaies" };
-HHAuto_ToolTips.fr['SeasonalEventMaskRewards'] = { version: "6.8.4", elementText: "Masquer gains", tooltip: "Permet de masquer les gains réclamés des évènements saisoniers." };
 HHAuto_ToolTips.fr['bossBangEvent'] = { version: "5.20.3", elementText: "Activer", tooltip: "Si activé : Effectue les combats boss bang en commençant par l'équipe configuré si après." };
 HHAuto_ToolTips.fr['bossBangEventTitle'] = { version: "6.15.8", elementText: "Boss Bang" };
 HHAuto_ToolTips.fr['bossBangMinTeam'] = { version: "5.6.137", elementText: "Première équipe", tooltip: "Première équipe à utiliser<br>Si 5, le script commencera par la dernière pour finir par la premiere." };
@@ -795,7 +804,7 @@ HHAuto_ToolTips.es['DeleteTempVars'] = { version: "5.6.24", elementText: "Borra 
 HHAuto_ToolTips.es['ResetAllVars'] = { version: "5.6.24", elementText: "Restaura por defecto", tooltip: "Restaura la configuración por defecto." };
 HHAuto_ToolTips.es['DebugFileText'] = { version: "5.6.24", elementText: "Click en el siguiente botón para generar un fichero log de depuración", tooltip: "" };
 HHAuto_ToolTips.es['OptionCancel'] = { version: "5.6.24", elementText: "Cancelar", tooltip: "" };
-HHAuto_ToolTips.es['SeasonMaskRewards'] = { version: "5.6.24", elementText: "Enmascara recompensas", tooltip: "Permite enmascarar todas las recompensas reclamadas en la pantalla de Temporada" };
+HHAuto_ToolTips.es['AllMaskRewards'] = { version: "7.26.0", elementText: "Enmascara recompensas", tooltip: "Permite enmascarar todas las recompensas reclamadas" };
 HHAuto_ToolTips.es['autoClubChamp'] = { version: "5.6.24", elementText: "AutoClubCamp", tooltip: "Si habilitado: Combate al campeón del club de manera automática" };
 HHAuto_ToolTips.es['autoTrollMythicByPassParanoia'] = { version: "5.6.24", elementText: "Mítico ignora paranoia", tooltip: "Permite al mítico ignorar paranoia. Si la siguiente liberación es durante el descanso forzará despertarse para jugar. Si todavía pelea o puede comprar peleas, continuará." };
 HHAuto_ToolTips.es['buyMythicCombat'] = { version: "5.6.24", elementText: "Compra comb. para mítico", tooltip: "Función de gasto de Kobans<br>Si habilitado: <br>Comprar puntos de combate durante las últimas X horas del evento mítico (si no se baja del valor de Banco de Kobans)" };
@@ -1952,7 +1961,7 @@ class PathOfAttraction {
         });
     }
     static styles() {
-        if (getStoredValue(HHStoredVarPrefixKey + "Setting_PoAMaskRewards") === "true") {
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_AllMaskRewards") === "true") {
             setTimeout(PathOfAttraction.Hide, 500);
         }
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_showRewardsRecap") === "true") {
@@ -2096,7 +2105,7 @@ class PathOfAttraction {
         });
     }
     static Hide() {
-        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent") && window.location.search.includes("tab=" + ConfigHelper.getHHScriptVars('poaEventIDReg')) && getStoredValue(HHStoredVarPrefixKey + "Setting_PoAMaskRewards") === "true") {
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent") && window.location.search.includes("tab=" + ConfigHelper.getHHScriptVars('poaEventIDReg')) && getStoredValue(HHStoredVarPrefixKey + "Setting_AllMaskRewards") === "true") {
             let arrayz;
             let nbReward;
             let modified = false;
@@ -3651,7 +3660,7 @@ class Season {
         }
     }
     static styles() {
-        if (getStoredValue(HHStoredVarPrefixKey + "Setting_SeasonMaskRewards") === "true") {
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_AllMaskRewards") === "true") {
             Season.maskReward();
         }
     }
@@ -3885,7 +3894,7 @@ class SeasonalEvent {
         }
     }
     static styles() {
-        if (getStoredValue(HHStoredVarPrefixKey + "Setting_SeasonalEventMaskRewards") === "true") {
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_AllMaskRewards") === "true") {
             SeasonalEvent.maskReward();
         }
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_showRewardsRecap") === "true") {
@@ -6344,6 +6353,7 @@ class GenericBattle {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDLeagueBattle")
             || getPage() === ConfigHelper.getHHScriptVars("pagesIDTrollBattle")
             || getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonBattle")
+            || getPage() === ConfigHelper.getHHScriptVars("pagesIDPentaDrillBattle")
             || getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle")
             || getPage() === ConfigHelper.getHHScriptVars("pagesIDLabyrinthBattle")) {
             LogUtils_logHHAuto("On battle page.");
@@ -6387,6 +6397,10 @@ class GenericBattle {
             else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonBattle") && getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeason") === "true") {
                 LogUtils_logHHAuto("Go back to Season arena after Season fight.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonArena"), {}, randomInterval(2000, 4000));
+            }
+            else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDPentaDrillBattle") && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPentaDrill") === "true") {
+                LogUtils_logHHAuto("Go back to Penta drill arena after fight.");
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDPentaDrillArena"), {}, randomInterval(2000, 4000));
             }
             else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle") && (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPantheon") === "true" || DailyGoals.isPantheonDailyGoal())) {
                 LogUtils_logHHAuto("Go back to Pantheon arena after Pantheon temple.");
@@ -7834,6 +7848,90 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonSkipLowMojo"
         menuType: "checked",
         kobanUsing: false
     };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPentaDrill"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        newValueFunction: function () {
+            clearTimer('nextPentaDrillTime');
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPentaDrillCollect"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false,
+        events: {
+            "change": function () {
+                if (this.checked) {
+                    getAndStoreCollectPreferences(HHStoredVarPrefixKey + "Setting_autoPentaDrillCollectablesList");
+                    clearTimer('nextPentaDrillCollectTime');
+                }
+            }
+        }
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPentaDrillCollectAll"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPentaDrillCollectablesList"] =
+    {
+        default: JSON.stringify([]),
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Array"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPentaDrillThreshold"] =
+    {
+        default: "0",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPentaDrillRunThreshold"] =
+    {
+        default: "0",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Small Integer",
+        getMenu: true,
+        setMenu: true,
+        menuType: "value",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPentaDrillBoostedOnly"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoStats"] =
     {
         default: "500000000",
@@ -8355,7 +8453,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_collectEventChest"] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_PoAMaskRewards"] =
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_AllMaskRewards"] =
     {
         default: "false",
         storage: "Storage()",
@@ -8366,40 +8464,7 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_PoAMaskRewards"] =
         menuType: "checked",
         kobanUsing: false
     };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_PoVMaskRewards"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_PoGMaskRewards"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_SeasonMaskRewards"] =
-    {
-        default: "false",
-        storage: "Storage()",
-        HHType: "Setting",
-        valueType: "Boolean",
-        getMenu: true,
-        setMenu: true,
-        menuType: "checked",
-        kobanUsing: false
-    };
-HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_SeasonalEventMaskRewards"] =
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonalBuyFreeCard"] =
     {
         default: "false",
         storage: "Storage()",
@@ -9222,6 +9287,11 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_SeasonHumanLikeRun"] =
         storage: "sessionStorage",
         HHType: "Temp"
     };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_PentaDrillHumanLikeRun"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_HaremSize"] =
     {
         storage: "localStorage",
@@ -9923,6 +9993,18 @@ function gotoPage(page, inArgs = {}, delay = -1) {
             break;
         case ConfigHelper.getHHScriptVars("pagesIDSeasonArena"):
             togoto = ConfigHelper.getHHScriptVars("pagesURLSeasonArena");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDPentaDrill"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLPentaDrill");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDPentaDrillArena"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLPentaDrillArena");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDPentaDrillPreBattle"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLPentaDrillPreBattle");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDPentaDrillBattle"):
+            togoto = ConfigHelper.getHHScriptVars("pagesURLPentaDrillBattle");
             break;
         case ConfigHelper.getHHScriptVars("pagesIDClubChampion"):
             togoto = ConfigHelper.getHHScriptVars("pagesURLClubChampion");
@@ -11619,7 +11701,301 @@ class Pantheon {
     }
 }
 
+;// CONCATENATED MODULE: ./src/Module/PentaDrill.ts
+
+
+
+
+
+class PentaDrill {
+    static getRemainingTime() {
+        var _a;
+        const pentaDrillTimer = (_a = unsafeWindow.penta_drill_data.cycle_data) === null || _a === void 0 ? void 0 : _a.seconds_until_event_end;
+        if (pentaDrillTimer != undefined && getSecondsLeft("pentaDrillRemainingTime") === 0) {
+            setTimer("pentaDrillRemainingTime", pentaDrillTimer);
+        }
+    }
+    static getEnergy() {
+        return Number(getHHVars('Hero.energies.drill.amount'));
+    }
+    static getEnergyMax() {
+        return Number(getHHVars('Hero.energies.drill.max_regen_amount'));
+    }
+    static getPinfo() {
+        const threshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPentaDrillThreshold")) || 0;
+        const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPentaDrillRunThreshold")) || 0;
+        let Tegzd = '';
+        const boostLimited = getStoredValue(HHStoredVarPrefixKey + "Setting_autoPentaDrillBoostedOnly") === "true" && !Booster.haveBoosterEquiped();
+        if (boostLimited) {
+            Tegzd += '<li style="color:red!important;" title="' + getTextForUI("boostMissing", "elementText") + '">';
+        }
+        else {
+            Tegzd += '<li>';
+        }
+        Tegzd += getTextForUI("autoPentaDrillTitle", "elementText") + ' ' + PentaDrill.getEnergy() + '/' + PentaDrill.getEnergyMax();
+        if (runThreshold > 0) {
+            Tegzd += ' (' + threshold + '<' + PentaDrill.getEnergy() + '<=' + runThreshold + ')';
+        }
+        if (runThreshold > 0 && PentaDrill.getEnergy() < runThreshold) {
+            Tegzd += ' ' + getTextForUI("waitRunThreshold", "elementText");
+        }
+        else {
+            Tegzd += ' : ' + getTimeLeft('nextPentaDrillTime');
+        }
+        if (boostLimited) {
+            Tegzd += ' ' + getTextForUI("boostMissing", "elementText") + '</li>';
+        }
+        else {
+            Tegzd += '</li>';
+        }
+        return Tegzd;
+    }
+    static isTimeToFight() {
+        const threshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPentaDrillThreshold")) || 0;
+        const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPentaDrillRunThreshold")) || 0;
+        const humanLikeRun = getStoredValue(HHStoredVarPrefixKey + "Temp_PentaDrillHumanLikeRun") === "true";
+        const energyAboveThreshold = humanLikeRun && PentaDrill.getEnergy() > threshold || PentaDrill.getEnergy() > Math.max(threshold, runThreshold - 1);
+        const paranoiaSpending = PentaDrill.getEnergy() > 0 && Number(checkParanoiaSpendings('drill')) > 0;
+        const needBoosterToFight = getStoredValue(HHStoredVarPrefixKey + "Setting_autoPentaDrillBoostedOnly") === "true";
+        const haveBoosterEquiped = Booster.haveBoosterEquiped();
+        if (checkTimer('nextPentaDrillTime') && energyAboveThreshold && needBoosterToFight && !haveBoosterEquiped) {
+            LogUtils_logHHAuto('Time for PentaDrill but no booster equipped');
+        }
+        return (checkTimer('nextPentaDrillTime') && energyAboveThreshold && (needBoosterToFight && haveBoosterEquiped || !needBoosterToFight)) || paranoiaSpending;
+    }
+    static moduleSimPentaDrillBattle() {
+        var _a;
+        const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
+        try {
+            const opponents = unsafeWindow.opponents_list;
+            const lowestPowerOpponent = opponents.sort((a, b) => a.player.total_power - b.player.total_power)[0];
+            if (debugEnabled) {
+                LogUtils_logHHAuto(`Lowest Penta drill opponent is ${lowestPowerOpponent.player.nickname} with power ${lowestPowerOpponent.player.total_power}`);
+            }
+            const opponentButton = $('.opponent-info-container .change-team-container a[href*=' + ((_a = lowestPowerOpponent.player) === null || _a === void 0 ? void 0 : _a.id_fighter) + ']');
+            const opponentBlock = opponentButton.parent().parent();
+            PentaDrill.stylesBattle();
+            opponentBlock.append(`<img id="powerLevelScouterChosen" src=${ConfigHelper.getHHScriptVars("powerCalcImages").chosen}>`);
+            return lowestPowerOpponent;
+        }
+        catch (err) {
+            LogUtils_logHHAuto("Catched error : Could not display season score : " + err);
+        }
+        return undefined;
+    }
+    static run() {
+        LogUtils_logHHAuto("Performing auto PentaDrill.");
+        // Confirm if on correct screen.
+        //const Hero = getHero();
+        var page = getPage();
+        if (page === ConfigHelper.getHHScriptVars("pagesIDPentaDrillArena")) {
+            LogUtils_logHHAuto("On PentaDrill arena page.");
+            const chosenOpponent = PentaDrill.moduleSimPentaDrillBattle();
+            if (chosenOpponent === undefined) {
+                LogUtils_logHHAuto("PentaDrill : was not able to choose opponent.");
+                setTimer('nextPentaDrillTime', randomInterval(30 * 60, 35 * 60));
+            }
+            else {
+                const chosenID = chosenOpponent.player.id_fighter;
+                const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPentaDrillRunThreshold")) || 0;
+                const opponentButton = $('.opponent-info-container .change-team-container a[href*=' + chosenID + ']');
+                if (runThreshold > 0) {
+                    setStoredValue(HHStoredVarPrefixKey + "Temp_PentaDrillHumanLikeRun", "true");
+                }
+                const toGoTo = opponentButton.attr('href') || '';
+                if (toGoTo == '') {
+                    LogUtils_logHHAuto('PentaDrill : Error getting opponent location');
+                    setTimer('nextPentaDrillTime', randomInterval(30 * 60, 35 * 60));
+                    return false;
+                }
+                location.href = addNutakuSession(toGoTo);
+                setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+                LogUtils_logHHAuto("setting autoloop to false");
+                LogUtils_logHHAuto(`Going to crush : ${chosenOpponent.player.nickname} (${chosenID})`);
+                setTimer('nextPentaDrillTime', 2);
+                return true;
+            }
+        }
+        else if (page === ConfigHelper.getHHScriptVars("pagesIDPentaDrillPreBattle")) {
+            LogUtils_logHHAuto("On PentaDrill pre battle page.");
+            const performButton = $('#perform_opponent:not([disabled])');
+            if (performButton.length == 0) {
+                LogUtils_logHHAuto('PentaDrill : Perform button is disabled, can\'t fight now.');
+                setTimer('nextPentaDrillTime', randomInterval(30 * 60, 35 * 60));
+                return false;
+            }
+            performButton.trigger('click');
+            setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+            LogUtils_logHHAuto("setting autoloop to false");
+            //setTimer('nextPentaDrillTime',10);
+            return true;
+        }
+        else {
+            const current_drill = PentaDrill.getEnergy();
+            // Switch to the correct screen
+            LogUtils_logHHAuto("Remaining drill : " + current_drill);
+            if (current_drill > 0) {
+                LogUtils_logHHAuto("Switching to PentaDrill Arena screen.");
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDPentaDrillArena"));
+            }
+            else {
+                let next_refresh = getHHVars('Hero.energies.drill.next_refresh_ts');
+                if (next_refresh == 0) {
+                    next_refresh = 15 * 60;
+                }
+                setTimer('nextPentaDrillTime', randomInterval(next_refresh + 10, next_refresh + 180));
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+            }
+            return;
+        }
+    }
+    static displayRewardsDiv() {
+        try {
+            const target = $('#rewards_tab_container .pd-controls');
+            const hhRewardId = 'HHPentaDrillRewards';
+            if ($('#' + hhRewardId).length <= 0) {
+                const rewardCountByType = PentaDrill.getNotClaimedRewards();
+                RewardHelper.displayRewardsDiv(target, hhRewardId, rewardCountByType);
+            }
+        }
+        catch ({ errName, message }) {
+            LogUtils_logHHAuto(`ERROR in display PentaDrill rewards: ${message}`);
+        }
+    }
+    static getNotClaimedRewards() {
+        const arrayz = $('.rewards_pair');
+        const freeSlotSelectors = ".free_reward.reward_is_claimable .slot";
+        let paidSlotSelectors = "";
+        if ($("#get_penta_pass_btn[style='display: none;']").length) {
+            // PentaDrill pass paid
+            paidSlotSelectors = ".pass_reward.reward_is_claimable .slot";
+        }
+        return RewardHelper.computeRewardsCount(arrayz, freeSlotSelectors, paidSlotSelectors);
+    }
+    static goAndCollect() {
+        const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPentaDrillCollectablesList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPentaDrillCollectablesList")) : [];
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDPentaDrill")) {
+            PentaDrill.getRemainingTime();
+            const PentaDrillEnd = getSecondsLeft("pentaDrillRemainingTime");
+            LogUtils_logHHAuto("PentaDrill end in " + TimeHelper.debugDate(PentaDrillEnd));
+            if (checkTimer('nextPentaDrillCollectAllTime') && PentaDrillEnd < getLimitTimeBeforeEnd() && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPentaDrillCollectAll") === "true") {
+                if ($(ConfigHelper.getHHScriptVars("selectorClaimAllRewards")).length > 0) {
+                    LogUtils_logHHAuto("Going to collect all PentaDrill item at once.");
+                    setTimeout(function () {
+                        $(ConfigHelper.getHHScriptVars("selectorClaimAllRewards"))[0].click();
+                        setTimer('nextPentaDrillCollectAllTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180)); // Add timer to check again later if there is new items to collect
+                        setTimeout(function () { gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome")); }, 500);
+                    }, 500);
+                    return true;
+                }
+                else {
+                    setTimer('nextPentaDrillCollectAllTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
+                }
+            }
+            if (checkTimer('nextPentaDrillCollectTime') && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPentaDrillCollect") === "true") {
+                LogUtils_logHHAuto("Going to collect PentaDrill.");
+                LogUtils_logHHAuto("setting autoloop to false");
+                setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+                const isPassPaid = $("#get_penta_pass_btn:visible").length === 0;
+                const freeSlotQuery = ".free_reward .slot";
+                const paidSlotQuery = ".pass_reward .slot";
+                let buttonsToCollect = [];
+                const listPentaDrillTiersToClaim = $(".rewards_container_penta_drill .rewards_pair:has(.btn_claim)");
+                LogUtils_logHHAuto('Found ' + listPentaDrillTiersToClaim.length + ' rewards available for collection before filtering');
+                for (let currentTier = 0; currentTier < listPentaDrillTiersToClaim.length; currentTier++) {
+                    const currentButton = $("button[rel='claim']", listPentaDrillTiersToClaim[currentTier])[0];
+                    const currentTierNb = currentButton.getAttribute("tier");
+                    //console.log("checking tier : "+currentTierNb);
+                    const freeSlotType = RewardHelper.getRewardTypeBySlot($(freeSlotQuery, listPentaDrillTiersToClaim[currentTier])[0]);
+                    if (rewardsToCollect.includes(freeSlotType)) {
+                        if (isPassPaid) {
+                            // One button for both
+                            const paidSlotType = RewardHelper.getRewardTypeBySlot($(paidSlotQuery, listPentaDrillTiersToClaim[currentTier])[0]);
+                            if (rewardsToCollect.includes(paidSlotType)) {
+                                buttonsToCollect.push(currentButton);
+                                LogUtils_logHHAuto("Adding for collection tier (free + paid) : " + currentTierNb);
+                            }
+                            else {
+                                LogUtils_logHHAuto("Can't add tier " + currentTierNb + " as paid reward isn't to be colled");
+                            }
+                        }
+                        else {
+                            buttonsToCollect.push(currentButton);
+                            LogUtils_logHHAuto("Adding for collection tier (only free) : " + currentTierNb);
+                        }
+                    }
+                }
+                if (buttonsToCollect.length > 0) {
+                    function collectPentaDrillRewards() {
+                        function collectionFinished() {
+                            LogUtils_logHHAuto("PentaDrill collection finished.");
+                            setTimer('nextPentaDrillCollectTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
+                            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                        }
+                        if (buttonsToCollect.length > 0) {
+                            function closeRewardAndCollectagain() {
+                                RewardHelper.closeRewardPopupIfAny(false);
+                                setTimeout(collectPentaDrillRewards, randomInterval(300, 500));
+                            }
+                            function collectPentaDrillRewards() {
+                                if (buttonsToCollect.length > 0) {
+                                    LogUtils_logHHAuto("Collecting tier : " + buttonsToCollect[0].getAttribute('tier'));
+                                    buttonsToCollect[0].click();
+                                    buttonsToCollect.shift();
+                                    setTimeout(closeRewardAndCollectagain, randomInterval(300, 500));
+                                }
+                                else
+                                    collectionFinished();
+                            }
+                            collectPentaDrillRewards();
+                            return true;
+                        }
+                        else
+                            collectionFinished();
+                    }
+                    collectPentaDrillRewards();
+                    return true;
+                }
+                else {
+                    LogUtils_logHHAuto("No PentaDrill collection to do.");
+                    setTimer('nextPentaDrillCollectTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
+                    setTimer('nextPentaDrillCollectAllTime', ConfigHelper.getHHScriptVars("maxCollectionDelay") + randomInterval(60, 180));
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                    return false;
+                }
+            }
+            return false;
+        }
+        else {
+            LogUtils_logHHAuto("Switching to PentaDrill Rewards screen.");
+            gotoPage(ConfigHelper.getHHScriptVars("pagesIDPentaDrill"));
+            return true;
+        }
+    }
+    static styles() {
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_AllMaskRewards") === "true") {
+            PentaDrill.maskReward();
+        }
+    }
+    static stylesBattle() {
+        GM_addStyle('#powerLevelScouterChosen {'
+            + 'position: absolute;'
+            + 'top: 10.7rem;'
+            + 'left: 15rem;'
+            + 'width: 25px;}');
+    }
+    static maskReward() {
+        if ($('.HHaHidden').length > 0 || $('.script-hide-claimed').length > 0 /*OCD*/) {
+            return;
+        }
+        // TODO maksk all claimed rewards in PentaDrill
+    }
+}
+PentaDrill.LAST_PentaDrill_LEVEL = 63;
+PentaDrill.MIN_MOJO_FIGHT = 8;
+
 ;// CONCATENATED MODULE: ./src/Module/MonthlyCard.ts
+
 
 
 
@@ -11647,6 +12023,15 @@ class MonthlyCards {
                     const lastAllowedTenth = (maxRegenKiss / 10) - 1;
                     HHAuto_inputPattern.autoSeasonThreshold = "[1-" + lastAllowedTenth + "]?[0-9]";
                     HHAuto_inputPattern.autoSeasonRunThreshold = maxRegenKiss + "|" + HHAuto_inputPattern.autoSeasonThreshold;
+                }
+            }
+            if (ConfigHelper.getHHScriptVars('isEnabledPentaDrill', false)) {
+                const maxRegenDrill = PentaDrill.getEnergyMax();
+                if (maxRegenDrill && maxRegenDrill > 10) {
+                    // 10 - 20 - 30 - 40 - 50
+                    const lastAllowedTenth = (maxRegenDrill / 10) - 1;
+                    HHAuto_inputPattern.autoPentaDrillThreshold = "[1-" + lastAllowedTenth + "]?[0-9]";
+                    HHAuto_inputPattern.autoPentaDrillRunThreshold = maxRegenDrill + "|" + HHAuto_inputPattern.autoPentaDrillThreshold;
                 }
             }
             if (ConfigHelper.getHHScriptVars('isEnabledQuest', false)) {
@@ -12442,7 +12827,7 @@ class PlaceOfPower {
                     if ($(querySelectorText).length > 0) {
                         document.querySelector(querySelectorText).click();
                         LogUtils_logHHAuto("Started powerplace" + index);
-                        yield TimeHelper.sleep(randomInterval(1500, 2000));
+                        yield TimeHelper.sleep(randomInterval(2500, 3000));
                     }
                     else if ($("button.blue_button_L[rel='pop_action'][disabled]").length > 0 && $("div.grid_view div.pop_selected").length > 0) {
                         PlaceOfPower.addPopToUnableToStart(index, "Unable to start Pop " + index + " not enough girls available.");
@@ -13452,6 +13837,7 @@ class TeamModule {
 
 
 
+
 ;// CONCATENATED MODULE: ./src/config/game/AmourAgentVars.ts
 class AmourAgent {
     static getEnv() {
@@ -13969,6 +14355,7 @@ HHEnvVariables["global"].powerCalcImages =
 HHEnvVariables["global"].possibleRewardsList = { 'energy_kiss': "Kisses",
     'energy_quest': "Quest energy",
     'energy_fight': "Fights",
+    'energy_drill': "Penta drill",
     'xp': "Exp",
     'girl_shards': "Girl shards",
     'random_girl_shards': "Random girl shards",
@@ -14157,6 +14544,21 @@ HHEnvVariables["global"].pagesKnownList.push("PantheonBattle");
 HHEnvVariables["global"].pagesIDTrollPreBattle = "troll-pre-battle";
 HHEnvVariables["global"].pagesURLTrollPreBattle = "/troll-pre-battle.html";
 HHEnvVariables["global"].pagesKnownList.push("TrollPreBattle");
+HHEnvVariables["global"].pagesIDPentaDrill = "penta_drill";
+HHEnvVariables["global"].pagesURLPentaDrill = "/penta-drill.html";
+HHEnvVariables["global"].pagesKnownList.push("PentaDrill");
+HHEnvVariables["global"].pagesIDPentaDrillArena = "penta_drill_arena";
+HHEnvVariables["global"].pagesURLPentaDrillArena = "/penta-drill-arena.html";
+HHEnvVariables["global"].pagesKnownList.push("PentaDrillArena");
+HHEnvVariables["global"].pagesIDEditPentaDrillTeam = "edit-penta-drill-team";
+HHEnvVariables["global"].pagesURLEditPentaDrillTeam = "/edit-penta-drill-team";
+HHEnvVariables["global"].pagesKnownList.push("EditPentaDrillTeam");
+HHEnvVariables["global"].pagesIDPentaDrillPreBattle = "penta_drill_pre_battle";
+HHEnvVariables["global"].pagesURLPentaDrillPreBattle = "/penta-drill-pre-battle";
+HHEnvVariables["global"].pagesKnownList.push("PentaDrillPreBattle");
+HHEnvVariables["global"].pagesIDPentaDrillBattle = "penta-drill-battle";
+HHEnvVariables["global"].pagesURLPentaDrillBattle = "/penta-drill-battle.html";
+HHEnvVariables["global"].pagesKnownList.push("PentaDrillBattle");
 HHEnvVariables["global"].pagesIDEvent = "event";
 HHEnvVariables["global"].pagesURLEvent = "/event.html";
 HHEnvVariables["global"].pagesKnownList.push("Event");
@@ -14220,6 +14622,7 @@ HHEnvVariables["global"].isEnabledMission = true;
 HHEnvVariables["global"].isEnabledQuest = true;
 HHEnvVariables["global"].isEnabledSideQuest = true;
 HHEnvVariables["global"].isEnabledSeason = true;
+HHEnvVariables["global"].isEnabledPentaDrill = true;
 HHEnvVariables["global"].isEnabledPantheon = true;
 HHEnvVariables["global"].isEnabledLabyrinth = true;
 HHEnvVariables["global"].isEnabledAllChamps = true;
@@ -14348,6 +14751,8 @@ const HHAuto_inputPattern = {
     autoBuyTrollNumber: "200|1[0-9][0-9]|[1-9]?[0-9]",
     autoSeasonThreshold: "[0-9]",
     autoSeasonRunThreshold: "10|[0-9]",
+    autoPentaDrillThreshold: "[0-9]",
+    autoPentaDrillRunThreshold: "10|[0-9]",
     autoPantheonThreshold: "[0-9]",
     autoPantheonRunThreshold: "10|[0-9]",
     bossBangMinTeam: "[1-5]",
@@ -14556,7 +14961,7 @@ class HHMenu {
 }
 HHMenu.BUTTON_MENU_ID = 'sMenuButton';
 function maskInactiveMenus() {
-    let menuIDList = ["isEnabledDailyGoals", "isEnabledPoV", "isEnabledPoG",
+    let menuIDList = ["isEnabledDailyGoals", "isEnabledPoV", "isEnabledPoG", "isEnabledPentaDrill",
         "isEnabledSeasonalEvent", "isEnabledBossBangEvent", "isEnabledSultryMysteriesEvent",
         "isEnabledDailyRewards", "isEnabledFreeBundles", "isEnabledMission", "isEnabledContest",
         "isEnabledTrollBattle", "isEnabledPowerPlaces", "isEnabledSalary", "isEnabledPachinko", "isEnabledQuest", "isEnabledSideQuest", "isEnabledSeason", "isEnabledLeagues",
@@ -14616,18 +15021,25 @@ function hhMenuInput(textKeyAndInputId, inputPattern, inputStyle = '', inputClas
         + `</div>`;
 }
 function hhMenuInputWithImg(textKeyAndInputId, inputPattern, inputStyle, imgPath, inputMode = 'text') {
-    return `<div class="labelAndButton">`
+    let htmlRet = `<div class="labelAndButton">`
         + `<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId, "elementText")}</span>`
-        + `<div class="imgAndObjectRow">`
-        + `<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/${imgPath}" />`
-        + `<div style="padding-left:5px">`
-        + `<div class="tooltipHH">`
-        + `<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId, "tooltip")}</span>`
-        + `<input style="${inputStyle}" id="${textKeyAndInputId}" required pattern="${inputPattern}" type="text" inputMode="${inputMode}">`
-        + `</div>`
-        + `</div>`
-        + `</div>`
-        + `</div>`;
+        + `<div class="imgAndObjectRow">`;
+    if (imgPath && imgPath.indexOf('images/') >= 0) {
+        htmlRet += `<img class="iconImg" src="/${imgPath}" />`;
+    }
+    else {
+        htmlRet += `<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/${imgPath}" />`;
+    }
+    htmlRet +=
+        `<div style="padding-left:5px">`
+            + `<div class="tooltipHH">`
+            + `<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId, "tooltip")}</span>`
+            + `<input style="${inputStyle}" id="${textKeyAndInputId}" required pattern="${inputPattern}" type="text" inputMode="${inputMode}">`
+            + `</div>`
+            + `</div>`
+            + `</div>`
+            + `</div>`;
+    return htmlRet;
 }
 function switchHHMenuButton(isActive) {
     var element = document.getElementById("sMenuButton");
@@ -14801,6 +15213,7 @@ function getMenu() {
             + `</div>`
             + `</div>`
             + hhMenuInput('collectAllTimer', HHAuto_inputPattern.collectAllTimer, 'text-align:center; width:25px')
+            + hhMenuSwitch('showTooltips')
             + `</div>`
             + `<div class="optionsColumn">`
             + `<div class="labelAndButton">`
@@ -14840,7 +15253,7 @@ function getMenu() {
             + `<div class="rowOptionsBox">`
             + `<div class="optionsColumn">`
             + hhMenuSwitch('showInfo')
-            + hhMenuSwitch('showTooltips')
+            + hhMenuSwitch('showInfoLeft', '', false, true)
             + `</div>`
             + `<div class="optionsColumn">`
             + hhMenuSwitch('showCalculatePower')
@@ -14848,19 +15261,31 @@ function getMenu() {
             + `</div>`
             + `<div class="optionsColumn">`
             + hhMenuSwitch('showRewardsRecap')
-            + hhMenuSwitch('showInfoLeft', '', false, true)
+            + hhMenuSwitch('AllMaskRewards', '', false, true)
             + `</div>`
             + `</div>`
             + `</div>`
-            + `<div id="isEnabledPoa" class="optionsBoxWithTitle">`
+            + `<div class="rowOptionsBox">`
+            + `<div id="isEnabledPoV" class="optionsBoxWithTitle">`
             + `<div class="optionsBoxTitle">`
-            + `<span class="optionsBoxTitle">${getTextForUI("poaTitle", "elementText")}</span>`
+            + `<span class="optionsBoxTitle">${getTextForUI("povTitle", "elementText")}</span>`
             + `</div>`
             + `<div class="optionsBox">`
-            + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
-            + hhMenuSwitch('PoAMaskRewards')
-            + hhMenuSwitch('autoPoACollect')
-            + hhMenuSwitch('autoPoACollectAll')
+            + `<div class="internalOptionsRow">`
+            + hhMenuSwitch('autoPoVCollect')
+            + hhMenuSwitch('autoPoVCollectAll')
+            + `</div>`
+            + `</div>`
+            + `</div>`
+            + `<div id="isEnabledPoG" class="optionsBoxWithTitle">`
+            + `<div class="optionsBoxTitle">`
+            + `<span class="optionsBoxTitle">${getTextForUI("pogTitle", "elementText")}</span>`
+            + `</div>`
+            + `<div class="optionsBox">`
+            + `<div class="internalOptionsRow">`
+            + hhMenuSwitch('autoPoGCollect')
+            + hhMenuSwitch('autoPoGCollectAll')
+            + `</div>`
             + `</div>`
             + `</div>`
             + `</div>`
@@ -14964,7 +15389,7 @@ function getMenu() {
             + `</div>`
             + `</div>`
             + `</div>`
-            + `<div class="optionsRow">`
+            + `<div class="optionsRow" style="justify-content: space-evenly">`
             + `<div id="isEnabledSeason" class="optionsBoxWithTitle">`
             + `<div class="optionsBoxTitle">`
             + `<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/design/menu/seasons.svg" />`
@@ -14975,7 +15400,6 @@ function getMenu() {
             + hhMenuSwitch('autoSeason')
             + hhMenuSwitch('autoSeasonCollect')
             + hhMenuSwitch('autoSeasonCollectAll')
-            + hhMenuSwitch('SeasonMaskRewards', '', false, true)
             + `</div>`
             + `<div class="internalOptionsRow">`
             + hhMenuSwitch('autoSeasonPassReds', '', true)
@@ -15014,28 +15438,19 @@ function getMenu() {
             + `</div>`
             + `</div>`
             + `</div>`
-            + `<div class="optionsRow">`
-            + `<div id="isEnabledPoV" class="optionsBoxWithTitle">`
+            + `<div class="optionsRow" style="justify-content: space-evenly">`
+            + `<div id="isEnabledPentaDrill" class="optionsBoxWithTitle">`
             + `<div class="optionsBoxTitle">`
-            + `<span class="optionsBoxTitle">${getTextForUI("povTitle", "elementText")}</span>`
+            + `<span class="optionsBoxTitle">${getTextForUI("autoPentaDrillTitle", "elementText")}</span>`
             + `</div>`
             + `<div class="optionsBox">`
             + `<div class="internalOptionsRow">`
-            + hhMenuSwitch('PoVMaskRewards')
-            + hhMenuSwitch('autoPoVCollect')
-            + hhMenuSwitch('autoPoVCollectAll')
-            + `</div>`
-            + `</div>`
-            + `</div>`
-            + `<div id="isEnabledPoG" class="optionsBoxWithTitle">`
-            + `<div class="optionsBoxTitle">`
-            + `<span class="optionsBoxTitle">${getTextForUI("pogTitle", "elementText")}</span>`
-            + `</div>`
-            + `<div class="optionsBox">`
-            + `<div class="internalOptionsRow">`
-            + hhMenuSwitch('PoGMaskRewards')
-            + hhMenuSwitch('autoPoGCollect')
-            + hhMenuSwitch('autoPoGCollectAll')
+            + hhMenuSwitch('autoPentaDrill')
+            + hhMenuSwitch('autoPentaDrillCollect')
+            + hhMenuSwitch('autoPentaDrillCollectAll')
+            + hhMenuSwitch('autoPentaDrillBoostedOnly')
+            + hhMenuInputWithImg('autoPentaDrillThreshold', HHAuto_inputPattern.autoPentaDrillThreshold, 'text-align:center; width:30px', 'images/penta_drill/penta_drill.png', 'numeric')
+            + hhMenuInputWithImg('autoPentaDrillRunThreshold', HHAuto_inputPattern.autoPentaDrillRunThreshold, 'text-align:center; width:25px', 'images/penta_drill/penta_drill.png', 'numeric')
             + `</div>`
             + `</div>`
             + `</div>`
@@ -15045,9 +15460,9 @@ function getMenu() {
             + `</div>`
             + `<div class="optionsBox">`
             + `<div class="internalOptionsRow">`
-            + hhMenuSwitch('SeasonalEventMaskRewards')
             + hhMenuSwitch('autoSeasonalEventCollect')
             + hhMenuSwitch('autoSeasonalEventCollectAll')
+            //+ hhMenuSwitch('autoSeasonalBuyFreeCard')
             + `</div>`
             + `</div>`
             + `</div>`
@@ -15176,7 +15591,7 @@ function getMenu() {
             + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
             + `<div class="optionsBox">`
             + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
-            + hhMenuSwitch('hideOwnedGirls')
+            + hhMenuSwitch('hideOwnedGirls', '', false, true)
             + `</div>`
             + `</div>`
             + `<div id="isEnabledDPEvent" class="optionsBoxWithTitle">`
@@ -15221,6 +15636,17 @@ function getMenu() {
             + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
             + hhMenuSwitch('bossBangEvent')
             + hhMenuInput('bossBangMinTeam', HHAuto_inputPattern.bossBangMinTeam, 'text-align:center; width:25px', '', 'numeric')
+            + `</div>`
+            + `</div>`
+            + `</div>`
+            + `<div id="isEnabledPoa" class="optionsBoxWithTitle">`
+            + `<div class="optionsBoxTitle">`
+            + `<span class="optionsBoxTitle">${getTextForUI("poaTitle", "elementText")}</span>`
+            + `</div>`
+            + `<div class="optionsBox">`
+            + `<div class="internalOptionsRow" style="justify-content: space-evenly">`
+            + hhMenuSwitch('autoPoACollect')
+            + hhMenuSwitch('autoPoACollectAll')
             + `</div>`
             + `</div>`
             + `</div>`
@@ -16657,6 +17083,7 @@ class RewardHelper {
             case 'energy_kiss':
             case 'energy_quest':
             case 'energy_fight':
+            case 'energy_drill':
             case 'xp':
             case 'soft_currency':
             case 'hard_currency':
@@ -16725,6 +17152,9 @@ class RewardHelper {
                     case 'energy_fight':
                         html += '<div class="slot slot_energy_fight  size_xs"><span class="energy_fight_icn"></span><div class="amount">' + NumberHelper.nRounding(rewardCount, 0, -1) + '</div></div>';
                         break;
+                    case 'energy_drill':
+                        html += '<div class="slot slot_energy_drill  size_xs"><span class="energy_drill_icn"></span><div class="amount">' + NumberHelper.nRounding(rewardCount, 0, -1) + '</div></div>';
+                        break;
                     case 'xp':
                         html += '<div class="slot slot_xp size_xs"><span class="xp_icn"></span><div class="amount">' + NumberHelper.nRounding(rewardCount, 1, -1) + '</div></div>';
                         break;
@@ -16768,6 +17198,9 @@ class RewardHelper {
                     break;
                 case 'energy_fight':
                     html += '/images/pictures/design/ic_energy_fight.png';
+                    break;
+                case 'energy_drill':
+                    html += '/images/penta_drill/penta_drill.png';
                     break;
                 case 'xp':
                     html += '';
@@ -17338,6 +17771,7 @@ var AutoLoop_awaiter = (undefined && undefined.__awaiter) || function (thisArg, 
 
 
 
+
 let busy = false;
 function getBurst() {
     const sMenu = document.getElementById('sMenu');
@@ -17373,6 +17807,9 @@ function CheckSpentPoints() {
     if (ConfigHelper.getHHScriptVars('isEnabledPantheon', false)) {
         newValues['worship'] = Pantheon.getEnergy();
     }
+    if (ConfigHelper.getHHScriptVars('isEnabledPentaDrill', false)) {
+        newValues['drill'] = PentaDrill.getEnergy();
+    }
     if (oldValues !== -1) {
         let spent = {};
         let hasSpend = false;
@@ -17395,6 +17832,10 @@ function CheckSpentPoints() {
         if (ConfigHelper.getHHScriptVars('isEnabledPantheon', false) && newValues['worship'] > (oldValues['worship'] + 1)) {
             LogUtils_logHHAuto("Seems Pantheon point bought, resetting timer.");
             clearTimer('nextPantheonTime');
+        }
+        if (ConfigHelper.getHHScriptVars('isEnabledPentaDrill', false) && newValues['drill'] > (oldValues['drill'] + 1)) {
+            LogUtils_logHHAuto("Seems Penta Drill point bought, resetting timer.");
+            clearTimer('nextPentaDrillTime');
         }
     }
     else {
@@ -17534,6 +17975,7 @@ function autoLoop() {
                     (getPage() === ConfigHelper.getHHScriptVars("pagesIDLeagueBattle")
                         || getPage() === ConfigHelper.getHHScriptVars("pagesIDTrollBattle")
                         || getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonBattle")
+                        || getPage() === ConfigHelper.getHHScriptVars("pagesIDPentaDrillBattle")
                         || getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle")
                         || getPage() === ConfigHelper.getHHScriptVars("pagesIDLabyrinthBattle"))
                 && isAutoLoopActive() && canCollectCompetitionActive) {
@@ -17834,6 +18276,28 @@ function autoLoop() {
                     }
                 }
             }
+            if (busy === false && ConfigHelper.getHHScriptVars("isEnabledPentaDrill", false) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPentaDrill") === "true"
+                && isAutoLoopActive() && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "pentaDrill")) {
+                if (PentaDrill.isTimeToFight()) {
+                    LogUtils_logHHAuto("Time to fight in PentaDrill.");
+                    PentaDrill.run();
+                    busy = true;
+                    lastActionPerformed = "pentaDrill";
+                }
+                else if (checkTimer('nextPentaDrillTime')) {
+                    if (getStoredValue(HHStoredVarPrefixKey + "Temp_PentaDrillHumanLikeRun") === "true") {
+                        // end run
+                        setStoredValue(HHStoredVarPrefixKey + "Temp_PentaDrillHumanLikeRun", "false");
+                    }
+                    if (getHHVars('Hero.energies.drill.next_refresh_ts') === 0) {
+                        setTimer('nextPentaDrillTime', randomInterval(15 * 60, 17 * 60));
+                    }
+                    else {
+                        const next_refresh = getHHVars('Hero.energies.drill.next_refresh_ts');
+                        setTimer('nextPentaDrillTime', randomInterval(next_refresh + 10, next_refresh + 180));
+                    }
+                }
+            }
             if (busy === false
                 && (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPantheon") === "true" || DailyGoals.isPantheonDailyGoal())
                 && Pantheon.isEnabled() && isAutoLoopActive() && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "pantheon")) {
@@ -17904,6 +18368,14 @@ function autoLoop() {
                 busy = true;
                 busy = Season.goAndCollect();
                 lastActionPerformed = "season";
+            }
+            if (busy == false && ConfigHelper.getHHScriptVars("isEnabledPentaDrill", false) && isAutoLoopActive() &&
+                (checkTimer('nextPentaDrillCollectTime') && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPentaDrillCollect") === "true" && canCollectCompetitionActive
+                    ||
+                        getStoredValue(HHStoredVarPrefixKey + "Setting_autoPentaDrillCollectAll") === "true" && checkTimer('nextPentaDrillCollectAllTime') && (getTimer('pentaDrillRemainingTime') == -1 || getSecondsLeft('pentaDrillRemainingTime') < getLimitTimeBeforeEnd())) && (lastActionPerformed === "none" || lastActionPerformed === "pentaDrill")) {
+                LogUtils_logHHAuto("Time to go and check PentaDrill for collecting reward.");
+                busy = PentaDrill.goAndCollect();
+                lastActionPerformed = "pentaDrill";
             }
             if (busy == false && ConfigHelper.getHHScriptVars("isEnabledSeasonalEvent", false) && isAutoLoopActive() &&
                 (checkTimer('nextSeasonalEventCollectTime') && getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonalEventCollect") === "true" && canCollectCompetitionActive
@@ -18019,6 +18491,22 @@ function autoLoop() {
                     Season.displayRewardsDiv();
                 }
                 break;
+            case ConfigHelper.getHHScriptVars("pagesIDPentaDrillArena"):
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_showCalculatePower") === "true" && $("img#powerLevelScouterChosen").length == 0) {
+                    PentaDrill.stylesBattle = callItOnce(PentaDrill.stylesBattle);
+                    PentaDrill.stylesBattle();
+                    PentaDrill.moduleSimPentaDrillBattle();
+                }
+                break;
+            case ConfigHelper.getHHScriptVars("pagesIDPentaDrill"):
+                PentaDrill.styles = callItOnce(PentaDrill.styles);
+                PentaDrill.styles();
+                PentaDrill.getRemainingTime = callItOnce(PentaDrill.getRemainingTime);
+                PentaDrill.getRemainingTime();
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_showRewardsRecap") === "true") {
+                    PentaDrill.displayRewardsDiv();
+                }
+                break;
             case ConfigHelper.getHHScriptVars("pagesIDEvent"):
                 const eventID = EventModule.getDisplayedIdEventPage(false);
                 if (eventID != '') {
@@ -18058,7 +18546,7 @@ function autoLoop() {
                 }
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDPoA"):
-                if (getStoredValue(HHStoredVarPrefixKey + "Setting_PoAMaskRewards") === "true") {
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_AllMaskRewards") === "true") {
                     setTimeout(PathOfAttraction.runOld, 500);
                 }
                 break;
@@ -18129,7 +18617,7 @@ function autoLoop() {
                 }
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDPoV"):
-                if (getStoredValue(HHStoredVarPrefixKey + "Setting_PoVMaskRewards") === "true") {
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_AllMaskRewards") === "true") {
                     PathOfValue.maskReward();
                 }
                 PathOfValue.getRemainingTime = callItOnce(PathOfValue.getRemainingTime);
@@ -18139,7 +18627,7 @@ function autoLoop() {
                 }
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDPoG"):
-                if (getStoredValue(HHStoredVarPrefixKey + "Setting_PoGMaskRewards") === "true") {
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_AllMaskRewards") === "true") {
                     PathOfGlory.maskReward();
                 }
                 PathOfGlory.getRemainingTime = callItOnce(PathOfGlory.getRemainingTime);
@@ -18303,6 +18791,9 @@ function updateData() {
         }
         if (ConfigHelper.getHHScriptVars('isEnabledSeason', false) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeason") == "true") {
             Tegzd += Season.getPinfo();
+        }
+        if (ConfigHelper.getHHScriptVars('isEnabledPentaDrill', false) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPentaDrill") == "true") {
+            Tegzd += PentaDrill.getPinfo();
         }
         /*
         if (ConfigHelper.getHHScriptVars('isEnabledPoV',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoVCollect") =="true")
@@ -18763,9 +19254,26 @@ class StartService {
             // run action on new script version
             LogUtils_logHHAuto(`New script version detected from ${previousScriptVersion} to ${GM.info.script.version}`);
             setStoredValue(HHStoredVarPrefixKey + "Temp_scriptversion", GM.info.script.version);
-            if ('7.25.4' === GM.info.script.version) {
-                // Set default auto laby team true for more user firendly transition
-                setStoredValue(HHStoredVarPrefixKey + "Setting_autoLabyCustomTeamBuilder", "true");
+            if ('7.26.0' === GM.info.script.version) {
+                // sett all mask rewards to true if any of the previous individual mask rewards where true
+                let maskReward = false;
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_PoAMaskRewards") === "true")
+                    maskReward = true;
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_PoVMaskRewards") === "true")
+                    maskReward = true;
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_PoGMaskRewards") === "true")
+                    maskReward = true;
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_SeasonMaskRewards") === "true")
+                    maskReward = true;
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_SeasonalEventMaskRewards") === "true")
+                    maskReward = true;
+                setStoredValue(HHStoredVarPrefixKey + "Setting_AllMaskRewards", maskReward);
+                // delete old individual mask rewards settings
+                deleteStoredValue(HHStoredVarPrefixKey + "Setting_PoAMaskRewards");
+                deleteStoredValue(HHStoredVarPrefixKey + "Setting_PoVMaskRewards");
+                deleteStoredValue(HHStoredVarPrefixKey + "Setting_PoGMaskRewards");
+                deleteStoredValue(HHStoredVarPrefixKey + "Setting_SeasonMaskRewards");
+                deleteStoredValue(HHStoredVarPrefixKey + "Setting_SeasonalEventMaskRewards");
             }
         }
     }

@@ -17,6 +17,8 @@ export const HHAuto_inputPattern = {
     autoBuyTrollNumber:"200|1[0-9][0-9]|[1-9]?[0-9]",
     autoSeasonThreshold:"[0-9]",
     autoSeasonRunThreshold:"10|[0-9]",
+    autoPentaDrillThreshold:"[0-9]",
+    autoPentaDrillRunThreshold:"10|[0-9]",
     autoPantheonThreshold:"[0-9]",
     autoPantheonRunThreshold:"10|[0-9]",
     bossBangMinTeam:"[1-5]",

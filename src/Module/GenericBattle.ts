@@ -22,6 +22,7 @@ export class GenericBattle {
             getPage() === ConfigHelper.getHHScriptVars("pagesIDLeagueBattle") 
             || getPage() === ConfigHelper.getHHScriptVars("pagesIDTrollBattle") 
             || getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonBattle") 
+            || getPage() === ConfigHelper.getHHScriptVars("pagesIDPentaDrillBattle") 
             || getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle")
             || getPage() === ConfigHelper.getHHScriptVars("pagesIDLabyrinthBattle") )
         {
@@ -80,6 +81,11 @@ export class GenericBattle {
             {
                 logHHAuto("Go back to Season arena after Season fight.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonArena"),{},randomInterval(2000,4000));
+            }
+            else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDPentaDrillBattle") && getStoredValue(HHStoredVarPrefixKey +"Setting_autoPentaDrill") === "true")
+            {
+                logHHAuto("Go back to Penta drill arena after fight.");
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDPentaDrillArena"),{},randomInterval(2000,4000));
             }
             else if (getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle") && (getStoredValue(HHStoredVarPrefixKey + "Setting_autoPantheon") === "true" || DailyGoals.isPantheonDailyGoal()))
             {

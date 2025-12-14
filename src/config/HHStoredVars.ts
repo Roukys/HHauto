@@ -737,6 +737,90 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSeasonSkipLowMojo"] =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPentaDrill"] =
+{
+    default: "false",
+    storage: "Storage()",
+    HHType: "Setting",
+    valueType: "Boolean",
+    getMenu: true,
+    setMenu: true,
+    menuType: "checked",
+    kobanUsing: false,
+    newValueFunction: function () {
+        clearTimer('nextPentaDrillTime');
+    }
+};
+HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPentaDrillCollect"] =
+{
+    default: "false",
+    storage: "Storage()",
+    HHType: "Setting",
+    valueType: "Boolean",
+    getMenu: true,
+    setMenu: true,
+    menuType: "checked",
+    kobanUsing: false,
+    events: {
+        "change": function () {
+            if (this.checked) {
+                getAndStoreCollectPreferences(HHStoredVarPrefixKey + "Setting_autoPentaDrillCollectablesList");
+                clearTimer('nextPentaDrillCollectTime');
+            }
+        }
+    }
+};
+HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPentaDrillCollectAll"] =
+{
+    default: "false",
+    storage: "Storage()",
+    HHType: "Setting",
+    valueType: "Boolean",
+    getMenu: true,
+    setMenu: true,
+    menuType: "checked",
+    kobanUsing: false
+};
+HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPentaDrillCollectablesList"] =
+{
+    default: JSON.stringify([]),
+    storage: "Storage()",
+    HHType: "Setting",
+    valueType: "Array"
+};
+HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPentaDrillThreshold"] =
+{
+    default: "0",
+    storage: "Storage()",
+    HHType: "Setting",
+    valueType: "Small Integer",
+    getMenu: true,
+    setMenu: true,
+    menuType: "value",
+    kobanUsing: false
+};
+HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPentaDrillRunThreshold"] =
+{
+    default: "0",
+    storage: "Storage()",
+    HHType: "Setting",
+    valueType: "Small Integer",
+    getMenu: true,
+    setMenu: true,
+    menuType: "value",
+    kobanUsing: false
+};
+HHStoredVars[HHStoredVarPrefixKey + "Setting_autoPentaDrillBoostedOnly"] =
+{
+    default: "false",
+    storage: "Storage()",
+    HHType: "Setting",
+    valueType: "Boolean",
+    getMenu: true,
+    setMenu: true,
+    menuType: "checked",
+    kobanUsing: false
+};
 HHStoredVars[HHStoredVarPrefixKey+"Setting_autoStats"] =
     {
     default:"500000000",
@@ -1264,7 +1348,7 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_collectEventChest"] =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars[HHStoredVarPrefixKey+"Setting_PoAMaskRewards"] =
+HHStoredVars[HHStoredVarPrefixKey +"Setting_AllMaskRewards"] =
     {
     default:"false",
     storage:"Storage()",
@@ -1275,40 +1359,7 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_PoAMaskRewards"] =
     menuType:"checked",
     kobanUsing:false
 };
-HHStoredVars[HHStoredVarPrefixKey+"Setting_PoVMaskRewards"] =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars[HHStoredVarPrefixKey+"Setting_PoGMaskRewards"] =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars[HHStoredVarPrefixKey+"Setting_SeasonMaskRewards"] =
-    {
-    default:"false",
-    storage:"Storage()",
-    HHType:"Setting",
-    valueType:"Boolean",
-    getMenu:true,
-    setMenu:true,
-    menuType:"checked",
-    kobanUsing:false
-};
-HHStoredVars[HHStoredVarPrefixKey+"Setting_SeasonalEventMaskRewards"] =
+HHStoredVars[HHStoredVarPrefixKey +"Setting_autoSeasonalBuyFreeCard"] =
     {
     default:"false",
     storage:"Storage()",
@@ -2137,6 +2188,11 @@ HHStoredVars[HHStoredVarPrefixKey+"Temp_PantheonHumanLikeRun"] =
     HHType:"Temp"
 };
 HHStoredVars[HHStoredVarPrefixKey+"Temp_SeasonHumanLikeRun"] =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
+HHStoredVars[HHStoredVarPrefixKey +"Temp_PentaDrillHumanLikeRun"] =
     {
     storage:"sessionStorage",
     HHType:"Temp"

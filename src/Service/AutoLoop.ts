@@ -19,6 +19,7 @@ import {
     switchHHMenuButton,
     HeroHelper
 } from '../Helper/index';
+import { PentaDrill } from '../Module/PentaDrill';
 import { Spreadsheet } from '../Module/Spreadsheet';
 import {
     Booster,
@@ -126,6 +127,10 @@ export function CheckSpentPoints()
     {
         newValues['worship']=Pantheon.getEnergy();
     }
+    if (ConfigHelper.getHHScriptVars('isEnabledPentaDrill',false))
+    {
+        newValues['drill']=PentaDrill.getEnergy();
+    }
 
     if ( oldValues !== -1)
     {
@@ -158,6 +163,11 @@ export function CheckSpentPoints()
         {
             logHHAuto("Seems Pantheon point bought, resetting timer.");
             clearTimer('nextPantheonTime');
+        }
+        if (ConfigHelper.getHHScriptVars('isEnabledPentaDrill',false) && newValues['drill'] > (oldValues['drill'] +1))
+        {
+            logHHAuto("Seems Penta Drill point bought, resetting timer.");
+            clearTimer('nextPentaDrillTime');
         }
     }
     else
@@ -339,6 +349,7 @@ export async function autoLoop()
                     getPage() === ConfigHelper.getHHScriptVars("pagesIDLeagueBattle")
                     || getPage() === ConfigHelper.getHHScriptVars("pagesIDTrollBattle")
                     || getPage() === ConfigHelper.getHHScriptVars("pagesIDSeasonBattle")
+                    || getPage() === ConfigHelper.getHHScriptVars("pagesIDPentaDrillBattle")
                     || getPage() === ConfigHelper.getHHScriptVars("pagesIDPantheonBattle")
                     || getPage() === ConfigHelper.getHHScriptVars("pagesIDLabyrinthBattle")
                 )
@@ -703,6 +714,34 @@ export async function autoLoop()
             }
         }
 
+        if (busy === false && ConfigHelper.getHHScriptVars("isEnabledPentaDrill", false) && getStoredValue(HHStoredVarPrefixKey +"Setting_autoPentaDrill") === "true" 
+            && isAutoLoopActive() && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "pentaDrill"))
+        {
+            if (PentaDrill.isTimeToFight())
+            {
+                logHHAuto("Time to fight in PentaDrill.");
+                PentaDrill.run();
+                busy = true;
+                lastActionPerformed = "pentaDrill";
+            }
+            else if (checkTimer('nextPentaDrillTime'))
+            {
+                if (getStoredValue(HHStoredVarPrefixKey +"Temp_PentaDrillHumanLikeRun") === "true") {
+                    // end run
+                    setStoredValue(HHStoredVarPrefixKey +"Temp_PentaDrillHumanLikeRun", "false");
+                }
+                if (getHHVars('Hero.energies.drill.next_refresh_ts') === 0)
+                {
+                    setTimer('nextPentaDrillTime', randomInterval(15*60, 17*60));
+                }
+                else
+                {
+                    const next_refresh = getHHVars('Hero.energies.drill.next_refresh_ts')
+                    setTimer('nextPentaDrillTime', randomInterval(next_refresh+10, next_refresh + 180));
+                }
+            }
+        }
+
         if(busy === false 
             && (getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheon") === "true" || DailyGoals.isPantheonDailyGoal()) 
             && Pantheon.isEnabled() && isAutoLoopActive() && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "pantheon"))
@@ -791,6 +830,20 @@ export async function autoLoop()
             busy = true;
             busy = Season.goAndCollect();
             lastActionPerformed = "season";
+        }
+
+        if (
+            busy==false && ConfigHelper.getHHScriptVars("isEnabledPentaDrill",false) && isAutoLoopActive() &&
+            (
+                checkTimer('nextPentaDrillCollectTime') && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPentaDrillCollect") === "true" && canCollectCompetitionActive
+                ||
+                getStoredValue(HHStoredVarPrefixKey+"Setting_autoPentaDrillCollectAll") === "true" && checkTimer('nextPentaDrillCollectAllTime') && (getTimer('pentaDrillRemainingTime') == -1 || getSecondsLeft('pentaDrillRemainingTime') < getLimitTimeBeforeEnd())
+            ) && (lastActionPerformed === "none" || lastActionPerformed === "pentaDrill")
+        )
+        {
+            logHHAuto("Time to go and check PentaDrill for collecting reward.");
+            busy = PentaDrill.goAndCollect();
+            lastActionPerformed = "pentaDrill";
         }
 
         if (
@@ -954,6 +1007,24 @@ export async function autoLoop()
                 Season.displayRewardsDiv();
             }
             break;
+        case ConfigHelper.getHHScriptVars("pagesIDPentaDrillArena"):
+            if (getStoredValue(HHStoredVarPrefixKey + "Setting_showCalculatePower") === "true" && $("img#powerLevelScouterChosen").length == 0)
+            {
+                PentaDrill.stylesBattle = callItOnce(PentaDrill.stylesBattle);
+                PentaDrill.stylesBattle();
+                PentaDrill.moduleSimPentaDrillBattle();
+            }
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDPentaDrill"):
+            PentaDrill.styles = callItOnce(PentaDrill.styles);
+            PentaDrill.styles();
+            PentaDrill.getRemainingTime = callItOnce(PentaDrill.getRemainingTime);
+            PentaDrill.getRemainingTime();
+            if (getStoredValue(HHStoredVarPrefixKey+"Setting_showRewardsRecap") === "true")
+            {
+                PentaDrill.displayRewardsDiv();
+            }
+            break;
         case ConfigHelper.getHHScriptVars("pagesIDEvent"):
             const eventID = EventModule.getDisplayedIdEventPage(false);
             if (eventID != '') {
@@ -1004,7 +1075,7 @@ export async function autoLoop()
             }
             break;
         case ConfigHelper.getHHScriptVars("pagesIDPoA"):
-            if (getStoredValue(HHStoredVarPrefixKey+"Setting_PoAMaskRewards") === "true")
+            if (getStoredValue(HHStoredVarPrefixKey +"Setting_AllMaskRewards") === "true")
             {
                 setTimeout(PathOfAttraction.runOld,500);
             }
@@ -1079,7 +1150,7 @@ export async function autoLoop()
             }
             break;
         case ConfigHelper.getHHScriptVars("pagesIDPoV"):
-            if (getStoredValue(HHStoredVarPrefixKey+"Setting_PoVMaskRewards") === "true")
+            if (getStoredValue(HHStoredVarPrefixKey +"Setting_AllMaskRewards") === "true")
             {
                 PathOfValue.maskReward();
             }
@@ -1091,7 +1162,7 @@ export async function autoLoop()
             }
             break;
         case ConfigHelper.getHHScriptVars("pagesIDPoG"):
-            if (getStoredValue(HHStoredVarPrefixKey+"Setting_PoGMaskRewards") === "true")
+            if (getStoredValue(HHStoredVarPrefixKey +"Setting_AllMaskRewards") === "true")
             {
                 PathOfGlory.maskReward();
             }

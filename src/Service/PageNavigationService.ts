@@ -87,6 +87,18 @@ export function gotoPage(page,inArgs={},delay = -1)
         case ConfigHelper.getHHScriptVars("pagesIDSeasonArena") :
             togoto = ConfigHelper.getHHScriptVars("pagesURLSeasonArena");
             break;
+        case ConfigHelper.getHHScriptVars("pagesIDPentaDrill") :
+            togoto = ConfigHelper.getHHScriptVars("pagesURLPentaDrill");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDPentaDrillArena") :
+            togoto = ConfigHelper.getHHScriptVars("pagesURLPentaDrillArena");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDPentaDrillPreBattle") :
+            togoto = ConfigHelper.getHHScriptVars("pagesURLPentaDrillPreBattle");
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDPentaDrillBattle") :
+            togoto = ConfigHelper.getHHScriptVars("pagesURLPentaDrillBattle");
+            break;
         case ConfigHelper.getHHScriptVars("pagesIDClubChampion") :
             togoto = ConfigHelper.getHHScriptVars("pagesURLClubChampion");
             break;
