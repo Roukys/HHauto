@@ -188,7 +188,7 @@ export class SeasonalEvent {
         }
     }
     static styles(){
-        if (getStoredValue(HHStoredVarPrefixKey+"Setting_SeasonalEventMaskRewards") === "true")
+        if (getStoredValue(HHStoredVarPrefixKey +"Setting_AllMaskRewards") === "true")
         {
             SeasonalEvent.maskReward();
         }

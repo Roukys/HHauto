@@ -101,6 +101,7 @@ HHEnvVariables["global"].powerCalcImages =
 HHEnvVariables["global"].possibleRewardsList = {'energy_kiss' : "Kisses",
                                                 'energy_quest' : "Quest energy",
                                                 'energy_fight' : "Fights",
+                                                'energy_drill' : "Penta drill",
                                                 'xp' : "Exp",
                                                 'girl_shards' : "Girl shards",
                                                 'random_girl_shards' : "Random girl shards",
@@ -336,6 +337,26 @@ HHEnvVariables["global"].pagesIDTrollPreBattle = "troll-pre-battle";
 HHEnvVariables["global"].pagesURLTrollPreBattle = "/troll-pre-battle.html";
 HHEnvVariables["global"].pagesKnownList.push("TrollPreBattle");
 
+HHEnvVariables["global"].pagesIDPentaDrill = "penta_drill";
+HHEnvVariables["global"].pagesURLPentaDrill = "/penta-drill.html";
+HHEnvVariables["global"].pagesKnownList.push("PentaDrill");
+
+HHEnvVariables["global"].pagesIDPentaDrillArena = "penta_drill_arena";
+HHEnvVariables["global"].pagesURLPentaDrillArena = "/penta-drill-arena.html";
+HHEnvVariables["global"].pagesKnownList.push("PentaDrillArena");
+
+HHEnvVariables["global"].pagesIDEditPentaDrillTeam = "edit-penta-drill-team";
+HHEnvVariables["global"].pagesURLEditPentaDrillTeam = "/edit-penta-drill-team";
+HHEnvVariables["global"].pagesKnownList.push("EditPentaDrillTeam");
+
+HHEnvVariables["global"].pagesIDPentaDrillPreBattle = "penta_drill_pre_battle";
+HHEnvVariables["global"].pagesURLPentaDrillPreBattle = "/penta-drill-pre-battle";
+HHEnvVariables["global"].pagesKnownList.push("PentaDrillPreBattle");
+
+HHEnvVariables["global"].pagesIDPentaDrillBattle = "penta-drill-battle";
+HHEnvVariables["global"].pagesURLPentaDrillBattle = "/penta-drill-battle.html";
+HHEnvVariables["global"].pagesKnownList.push("PentaDrillBattle");
+
 HHEnvVariables["global"].pagesIDEvent = "event";
 HHEnvVariables["global"].pagesURLEvent = "/event.html";
 HHEnvVariables["global"].pagesKnownList.push("Event");
@@ -417,6 +438,7 @@ HHEnvVariables["global"].isEnabledMission = true;
 HHEnvVariables["global"].isEnabledQuest = true;
 HHEnvVariables["global"].isEnabledSideQuest = true;
 HHEnvVariables["global"].isEnabledSeason = true;
+HHEnvVariables["global"].isEnabledPentaDrill = true;
 HHEnvVariables["global"].isEnabledPantheon = true;
 HHEnvVariables["global"].isEnabledLabyrinth = true;
 HHEnvVariables["global"].isEnabledAllChamps = true;

@@ -150,7 +150,7 @@ export class HHMenu {
 
 export function maskInactiveMenus()
 {
-    let menuIDList =["isEnabledDailyGoals", "isEnabledPoV", "isEnabledPoG",
+    let menuIDList = ["isEnabledDailyGoals", "isEnabledPoV", "isEnabledPoG", "isEnabledPentaDrill",
                     "isEnabledSeasonalEvent" , "isEnabledBossBangEvent" , "isEnabledSultryMysteriesEvent",
                     "isEnabledDailyRewards", "isEnabledFreeBundles", "isEnabledMission","isEnabledContest",
                     "isEnabledTrollBattle","isEnabledPowerPlaces","isEnabledSalary","isEnabledPachinko","isEnabledQuest","isEnabledSideQuest","isEnabledSeason","isEnabledLeagues",
@@ -218,11 +218,16 @@ export function hhMenuInput(textKeyAndInputId, inputPattern, inputStyle='', inpu
 }
 
 export function hhMenuInputWithImg(textKeyAndInputId, inputPattern, inputStyle, imgPath, inputMode='text') {
-    return `<div class="labelAndButton">`
+    let htmlRet = `<div class="labelAndButton">`
         +`<span class="HHMenuItemName">${getTextForUI(textKeyAndInputId,"elementText")}</span>`
-        +`<div class="imgAndObjectRow">`
-            +`<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/${imgPath}" />`
-            +`<div style="padding-left:5px">`
+        +`<div class="imgAndObjectRow">`;
+    if (imgPath && imgPath.indexOf('images/') >= 0) {
+    htmlRet +=`<img class="iconImg" src="/${imgPath}" />`
+    }else {
+    htmlRet += `<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/${imgPath}" />`
+    }
+    htmlRet += 
+            `<div style="padding-left:5px">`
                 +`<div class="tooltipHH">`
                     +`<span class="tooltipHHtext">${getTextForUI(textKeyAndInputId,"tooltip")}</span>`
                     +`<input style="${inputStyle}" id="${textKeyAndInputId}" required pattern="${inputPattern}" type="text" inputMode="${inputMode}">`
@@ -230,6 +235,7 @@ export function hhMenuInputWithImg(textKeyAndInputId, inputPattern, inputStyle, 
             +`</div>`
         +`</div>`
     +`</div>`;
+    return htmlRet;
 }
 
 export function switchHHMenuButton(isActive)
@@ -449,6 +455,7 @@ export function getMenu() {
                             +`</div>`
                         +`</div>`
                         + hhMenuInput('collectAllTimer', HHAuto_inputPattern.collectAllTimer, 'text-align:center; width:25px')
+                        + hhMenuSwitch('showTooltips')
                     +`</div>`
                     +`<div class="optionsColumn">`
                         +`<div class="labelAndButton">`
@@ -488,7 +495,7 @@ export function getMenu() {
                 +`<div class="rowOptionsBox">`
                     +`<div class="optionsColumn">`
                         + hhMenuSwitch('showInfo')
-                        + hhMenuSwitch('showTooltips')
+                        + hhMenuSwitch('showInfoLeft', '', false, true)
                     +`</div>`
                     +`<div class="optionsColumn">`
                         + hhMenuSwitch('showCalculatePower')
@@ -496,22 +503,34 @@ export function getMenu() {
                     +`</div>`
                     +`<div class="optionsColumn">`
                         + hhMenuSwitch('showRewardsRecap')
-                        + hhMenuSwitch('showInfoLeft', '', false, true)
+                        + hhMenuSwitch('AllMaskRewards', '', false, true)
                     +`</div>`
                 +`</div>`
-            +`</div>`
-            +`<div id="isEnabledPoa" class="optionsBoxWithTitle">`
-                +`<div class="optionsBoxTitle">`
-                    +`<span class="optionsBoxTitle">${getTextForUI("poaTitle","elementText")}</span>`
-                +`</div>`
-                +`<div class="optionsBox">`
-                    +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                        + hhMenuSwitch('PoAMaskRewards')
-                        + hhMenuSwitch('autoPoACollect')
-                        + hhMenuSwitch('autoPoACollectAll')
+            + `</div>`
+            + `<div class="rowOptionsBox">`
+                +`<div id="isEnabledPoV" class="optionsBoxWithTitle">`
+                    +`<div class="optionsBoxTitle">`
+                        +`<span class="optionsBoxTitle">${getTextForUI("povTitle","elementText")}</span>`
+                    +`</div>`
+                    +`<div class="optionsBox">`
+                        +`<div class="internalOptionsRow">`
+                            + hhMenuSwitch('autoPoVCollect')
+                            + hhMenuSwitch('autoPoVCollectAll')
+                        +`</div>`
                     +`</div>`
                 +`</div>`
-            +`</div>`
+                +`<div id="isEnabledPoG" class="optionsBoxWithTitle">`
+                    +`<div class="optionsBoxTitle">`
+                        +`<span class="optionsBoxTitle">${getTextForUI("pogTitle","elementText")}</span>`
+                    +`</div>`
+                    +`<div class="optionsBox">`
+                        +`<div class="internalOptionsRow">`
+                            + hhMenuSwitch('autoPoGCollect')
+                            + hhMenuSwitch('autoPoGCollectAll')
+                        +`</div>`
+                    +`</div>`
+                +`</div>`
+            + `</div>`
         +`</div>`;
     }
 
@@ -613,7 +632,7 @@ export function getMenu() {
                     +`</div>`
                 +`</div>`
             +`</div>`
-            +`<div class="optionsRow">`
+            +`<div class="optionsRow" style="justify-content: space-evenly">`
                 +`<div id="isEnabledSeason" class="optionsBoxWithTitle">`
                     +`<div class="optionsBoxTitle">`
                         +`<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/design/menu/seasons.svg" />`
@@ -624,7 +643,6 @@ export function getMenu() {
                             + hhMenuSwitch('autoSeason')
                             + hhMenuSwitch('autoSeasonCollect')
                             + hhMenuSwitch('autoSeasonCollectAll')
-                            + hhMenuSwitch('SeasonMaskRewards', '', false, true)
                         +`</div>`
                         +`<div class="internalOptionsRow">`
                             + hhMenuSwitch('autoSeasonPassReds', '', true)
@@ -663,28 +681,19 @@ export function getMenu() {
                     +`</div>`
                 +`</div>`
             +`</div>`
-            +`<div class="optionsRow">`
-                +`<div id="isEnabledPoV" class="optionsBoxWithTitle">`
+            +`<div class="optionsRow" style="justify-content: space-evenly">`
+                +`<div id="isEnabledPentaDrill" class="optionsBoxWithTitle">`
                     +`<div class="optionsBoxTitle">`
-                        +`<span class="optionsBoxTitle">${getTextForUI("povTitle","elementText")}</span>`
+                        +`<span class="optionsBoxTitle">${getTextForUI("autoPentaDrillTitle","elementText")}</span>`
                     +`</div>`
                     +`<div class="optionsBox">`
                         +`<div class="internalOptionsRow">`
-                            + hhMenuSwitch('PoVMaskRewards')
-                            + hhMenuSwitch('autoPoVCollect')
-                            + hhMenuSwitch('autoPoVCollectAll')
-                        +`</div>`
-                    +`</div>`
-                +`</div>`
-                +`<div id="isEnabledPoG" class="optionsBoxWithTitle">`
-                    +`<div class="optionsBoxTitle">`
-                        +`<span class="optionsBoxTitle">${getTextForUI("pogTitle","elementText")}</span>`
-                    +`</div>`
-                    +`<div class="optionsBox">`
-                        +`<div class="internalOptionsRow">`
-                            + hhMenuSwitch('PoGMaskRewards')
-                            + hhMenuSwitch('autoPoGCollect')
-                            + hhMenuSwitch('autoPoGCollectAll')
+                            + hhMenuSwitch('autoPentaDrill')
+                            + hhMenuSwitch('autoPentaDrillCollect')
+                            + hhMenuSwitch('autoPentaDrillCollectAll')
+                            + hhMenuSwitch('autoPentaDrillBoostedOnly')
+                            + hhMenuInputWithImg('autoPentaDrillThreshold', HHAuto_inputPattern.autoPentaDrillThreshold, 'text-align:center; width:30px', 'images/penta_drill/penta_drill.png', 'numeric' )
+                            + hhMenuInputWithImg('autoPentaDrillRunThreshold', HHAuto_inputPattern.autoPentaDrillRunThreshold, 'text-align:center; width:25px', 'images/penta_drill/penta_drill.png', 'numeric' )
                         +`</div>`
                     +`</div>`
                 +`</div>`
@@ -694,9 +703,9 @@ export function getMenu() {
                     +`</div>`
                     +`<div class="optionsBox">`
                         +`<div class="internalOptionsRow">`
-                            + hhMenuSwitch('SeasonalEventMaskRewards')
                             + hhMenuSwitch('autoSeasonalEventCollect')
                             + hhMenuSwitch('autoSeasonalEventCollectAll')
+                            //+ hhMenuSwitch('autoSeasonalBuyFreeCard')
                         +`</div>`
                     +`</div>`
                 +`</div>`
@@ -826,7 +835,7 @@ export function getMenu() {
                         +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
                             +`<div class="optionsBox">`
                                 +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
-                                    + hhMenuSwitch('hideOwnedGirls')
+                                    + hhMenuSwitch('hideOwnedGirls', '', false, true)
                                 +`</div>`
                             +`</div>`
                             +`<div id="isEnabledDPEvent" class="optionsBoxWithTitle">`
@@ -871,6 +880,17 @@ export function getMenu() {
                                     +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
                                         + hhMenuSwitch('bossBangEvent')
                                         + hhMenuInput('bossBangMinTeam', HHAuto_inputPattern.bossBangMinTeam, 'text-align:center; width:25px', '', 'numeric')
+                                    +`</div>`
+                                +`</div>`
+                            +`</div>`
+                            +`<div id="isEnabledPoa" class="optionsBoxWithTitle">`
+                                +`<div class="optionsBoxTitle">`
+                                    +`<span class="optionsBoxTitle">${getTextForUI("poaTitle","elementText")}</span>`
+                                +`</div>`
+                                +`<div class="optionsBox">`
+                                    +`<div class="internalOptionsRow" style="justify-content: space-evenly">`
+                                        + hhMenuSwitch('autoPoACollect')
+                                        + hhMenuSwitch('autoPoACollectAll')
                                     +`</div>`
                                 +`</div>`
                             +`</div>`

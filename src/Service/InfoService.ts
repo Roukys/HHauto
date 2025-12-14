@@ -1,7 +1,6 @@
 import { 
     NumberHelper,
     ConfigHelper,
-    getHHVars,
     getPage,
     getStoredValue, 
     getTextForUI,
@@ -10,10 +9,19 @@ import {
     setStoredValue,
     TimeHelper
 } from '../Helper/index';
-import { Booster, Contest, DailyGoals, Labyrinth, LeagueHelper, LoveRaidManager, Pantheon, Season, Troll } from '../Module/index';
+import { 
+    Contest, 
+    DailyGoals, 
+    Labyrinth, 
+    LeagueHelper, 
+    LoveRaidManager, 
+    Pantheon, 
+    PentaDrill,
+    Season, 
+    Troll 
+} from '../Module/index';
 import { logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
-import { AdsService } from './AdsService';
 
 export function createPInfo():JQuery<HTMLElement> {
     const pInfo = $('<div id="pInfo" ></div>');
@@ -99,6 +107,10 @@ export function updateData() {
         if (ConfigHelper.getHHScriptVars('isEnabledSeason',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeason") =="true")
         {
             Tegzd += Season.getPinfo();
+        }
+        if (ConfigHelper.getHHScriptVars('isEnabledPentaDrill', false) && getStoredValue(HHStoredVarPrefixKey +"Setting_autoPentaDrill") =="true")
+        {
+            Tegzd += PentaDrill.getPinfo();
         }
         /*
         if (ConfigHelper.getHHScriptVars('isEnabledPoV',false) && getStoredValue(HHStoredVarPrefixKey+"Setting_autoPoVCollect") =="true")

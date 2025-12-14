@@ -73,9 +73,22 @@ export class StartService {
             logHHAuto(`New script version detected from ${previousScriptVersion} to ${GM.info.script.version}`);
             setStoredValue(HHStoredVarPrefixKey + "Temp_scriptversion", GM.info.script.version);
 
-            if ('7.25.4' === GM.info.script.version) {
-                // Set default auto laby team true for more user firendly transition
-                setStoredValue(HHStoredVarPrefixKey + "Setting_autoLabyCustomTeamBuilder", "true");
+            if ('7.26.0' === GM.info.script.version) {
+                // sett all mask rewards to true if any of the previous individual mask rewards where true
+                let maskReward = false;
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_PoAMaskRewards") === "true") maskReward = true;
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_PoVMaskRewards") === "true") maskReward = true;
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_PoGMaskRewards") === "true") maskReward = true;
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_SeasonMaskRewards") === "true") maskReward = true;
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_SeasonalEventMaskRewards") === "true") maskReward = true;
+                setStoredValue(HHStoredVarPrefixKey + "Setting_AllMaskRewards", maskReward);
+
+                // delete old individual mask rewards settings
+                deleteStoredValue(HHStoredVarPrefixKey + "Setting_PoAMaskRewards");
+                deleteStoredValue(HHStoredVarPrefixKey + "Setting_PoVMaskRewards");
+                deleteStoredValue(HHStoredVarPrefixKey + "Setting_PoGMaskRewards");
+                deleteStoredValue(HHStoredVarPrefixKey + "Setting_SeasonMaskRewards");
+                deleteStoredValue(HHStoredVarPrefixKey + "Setting_SeasonalEventMaskRewards");
             }
         }
     }

@@ -543,7 +543,7 @@ export class Season {
         }
     }
     static styles() {
-        if (getStoredValue(HHStoredVarPrefixKey+"Setting_SeasonMaskRewards") === "true")
+        if (getStoredValue(HHStoredVarPrefixKey +"Setting_AllMaskRewards") === "true")
         {
             Season.maskReward();
         }

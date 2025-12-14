@@ -111,6 +111,7 @@ export class RewardHelper {
             case 'energy_kiss':
             case 'energy_quest':
             case 'energy_fight' :
+            case 'energy_drill' :
             case 'xp' :
             case 'soft_currency' :
             case 'hard_currency' :
@@ -175,6 +176,7 @@ export class RewardHelper {
                 case 'energy_kiss':     html += '<div class="slot slot_energy_kiss  size_xs"><span class="energy_kiss_icn"></span><div class="amount">'+NumberHelper.nRounding(rewardCount,0,-1)+'</div></div>'; break;
                 case 'energy_quest':    html += '<div class="slot slot_energy_quest size_xs"><span class="energy_quest_icn"></span><div class="amount">'+NumberHelper.nRounding(rewardCount,0,-1)+'</div></div>'; break;
                 case 'energy_fight' :   html += '<div class="slot slot_energy_fight  size_xs"><span class="energy_fight_icn"></span><div class="amount">'+NumberHelper.nRounding(rewardCount,0,-1)+'</div></div>'; break;
+                case 'energy_drill' :   html += '<div class="slot slot_energy_drill  size_xs"><span class="energy_drill_icn"></span><div class="amount">'+NumberHelper.nRounding(rewardCount,0,-1)+'</div></div>'; break;
                 case 'xp' :             html += '<div class="slot slot_xp size_xs"><span class="xp_icn"></span><div class="amount">'+NumberHelper.nRounding(rewardCount,1,-1)+'</div></div>'; break;
                 case 'soft_currency' :  html += '<div class="slot slot_soft_currency size_xs"><span class="soft_currency_icn"></span><div class="amount">'+NumberHelper.nRounding(rewardCount,1,-1)+'</div></div>'; break;
                 case 'hard_currency' :  html += '<div class="slot slot_hard_currency size_xs"><span class="hard_currency_icn"></span><div class="amount">'+NumberHelper.nRounding(rewardCount,0,-1)+'</div></div>'; break;
@@ -202,6 +204,7 @@ export class RewardHelper {
                 case 'energy_kiss': html += '/images/pictures/design/ic_kiss.png'; break;
                 case 'energy_quest': html += '/images/pictures/design/ic_energy_quest.png'; break;
                 case 'energy_fight': html += '/images/pictures/design/ic_energy_fight.png'; break;
+                case 'energy_drill': html += '/images/penta_drill/penta_drill.png'; break;
                 case 'xp': html += ''; break;
                 case 'soft_currency': html += '/images/pictures/design/ic_topbar_soft_currency.png'; break;
                 case 'hard_currency': html += '/images/pictures/design/ic_topbar_hard_currency.png'; break;

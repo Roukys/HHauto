@@ -7,6 +7,7 @@ import { HHAuto_inputPattern } from '../config/index';
 import { Season } from "./Events/index";
 import { LeagueHelper } from "./League";
 import { Pantheon } from "./Pantheon";
+import { PentaDrill } from './PentaDrill';
 import { QuestHelper } from "./Quest";
 import { Troll } from "./Troll";
 
@@ -30,6 +31,15 @@ export class MonthlyCards {
                     const lastAllowedTenth = (maxRegenKiss / 10) - 1;
                     HHAuto_inputPattern.autoSeasonThreshold = "[1-"+lastAllowedTenth+"]?[0-9]";
                     HHAuto_inputPattern.autoSeasonRunThreshold = maxRegenKiss + "|" + HHAuto_inputPattern.autoSeasonThreshold;
+                }
+            }
+            if (ConfigHelper.getHHScriptVars('isEnabledPentaDrill',false)) {
+                const maxRegenDrill = PentaDrill.getEnergyMax();
+                if(maxRegenDrill && maxRegenDrill > 10) {
+                    // 10 - 20 - 30 - 40 - 50
+                    const lastAllowedTenth = (maxRegenDrill / 10) - 1;
+                    HHAuto_inputPattern.autoPentaDrillThreshold = "[1-"+lastAllowedTenth+"]?[0-9]";
+                    HHAuto_inputPattern.autoPentaDrillRunThreshold = maxRegenDrill + "|" + HHAuto_inputPattern.autoPentaDrillThreshold;
                 }
             }
             if(ConfigHelper.getHHScriptVars('isEnabledQuest',false)) {

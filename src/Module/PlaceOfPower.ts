@@ -403,7 +403,7 @@ export class PlaceOfPower {
                 {
                     (<HTMLElement>document.querySelector(querySelectorText)).click();
                     logHHAuto("Started powerplace" + index);
-                    await TimeHelper.sleep(randomInterval(1500, 2000));
+                    await TimeHelper.sleep(randomInterval(2500, 3000));
                 }
                 else if ($("button.blue_button_L[rel='pop_action'][disabled]").length >0 && $("div.grid_view div.pop_selected").length >0)
                 {

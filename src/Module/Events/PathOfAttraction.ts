@@ -100,7 +100,7 @@ export class PathOfAttraction {
         }
     }
     static styles(){
-        if (getStoredValue(HHStoredVarPrefixKey+"Setting_PoAMaskRewards") === "true")
+        if (getStoredValue(HHStoredVarPrefixKey +"Setting_AllMaskRewards") === "true")
         {
             setTimeout(PathOfAttraction.Hide,500);
         }
@@ -267,7 +267,7 @@ export class PathOfAttraction {
     }
 
     static Hide(){
-        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent") && window.location.search.includes("tab="+ConfigHelper.getHHScriptVars('poaEventIDReg')) && getStoredValue(HHStoredVarPrefixKey+"Setting_PoAMaskRewards") === "true")
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent") && window.location.search.includes("tab=" + ConfigHelper.getHHScriptVars('poaEventIDReg')) && getStoredValue(HHStoredVarPrefixKey +"Setting_AllMaskRewards") === "true")
         {
             let arrayz;
             let nbReward;

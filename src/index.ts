@@ -1,5 +1,5 @@
 import { hardened_start } from "./Service/index";
-import { KKDailyGoal, KKHero, KKLoveRaid } from "./model/index";
+import { KKDailyGoal, KKHero, KKLoveRaid, KKPentaDrillOpponents } from "./model/index";
 
 declare global {
     var love_raids: KKLoveRaid[] | undefined;
@@ -43,6 +43,8 @@ declare global {
         season_sec_untill_event_end: any;
         seasonal_event_active: any;
         seasonal_time_remaining: any;
+        penta_drill_data: any;
+        opponents_list: KKPentaDrillOpponents[] | undefined;
         mega_event_active: any;
         mega_event_time_remaining: any;
         server_now_ts: any;
