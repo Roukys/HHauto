@@ -121,7 +121,7 @@ export class PentaDrill {
         return undefined;
     }
     
-    static run(){
+    static async run(){
         logHHAuto("Performing auto PentaDrill.");
         // Confirm if on correct screen.
         //const Hero = getHero();
@@ -150,10 +150,11 @@ export class PentaDrill {
                     setTimer('nextPentaDrillTime',randomInterval(30*60, 35*60));
                     return false;
                 }
-                location.href = addNutakuSession(toGoTo) as string;
                 setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
                 logHHAuto("setting autoloop to false");
                 logHHAuto(`Going to crush : ${chosenOpponent.player.nickname} (${chosenID})`);
+                location.href = addNutakuSession(toGoTo) as string;
+                await TimeHelper.sleep(randomInterval(500, 800));
                 setTimer('nextPentaDrillTime', 2);
                 return true;
             }
@@ -170,6 +171,7 @@ export class PentaDrill {
             performButton.trigger('click');
             setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
             logHHAuto("setting autoloop to false");
+            await TimeHelper.sleep(randomInterval(1200, 1500));
             //setTimer('nextPentaDrillTime',10);
             return true;
         }
