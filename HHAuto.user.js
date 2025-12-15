@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.26.1
+// @version      7.26.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -11750,6 +11750,15 @@ class Pantheon {
 }
 
 ;// CONCATENATED MODULE: ./src/Module/PentaDrill.ts
+var PentaDrill_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 
 
 
@@ -11832,70 +11841,74 @@ class PentaDrill {
         return undefined;
     }
     static run() {
-        LogUtils_logHHAuto("Performing auto PentaDrill.");
-        // Confirm if on correct screen.
-        //const Hero = getHero();
-        var page = getPage();
-        if (page === ConfigHelper.getHHScriptVars("pagesIDPentaDrillArena")) {
-            LogUtils_logHHAuto("On PentaDrill arena page.");
-            const chosenOpponent = PentaDrill.moduleSimPentaDrillBattle();
-            if (chosenOpponent === undefined) {
-                LogUtils_logHHAuto("PentaDrill : was not able to choose opponent.");
-                setTimer('nextPentaDrillTime', randomInterval(30 * 60, 35 * 60));
-            }
-            else {
-                const chosenID = chosenOpponent.player.id_fighter;
-                const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPentaDrillRunThreshold")) || 0;
-                const opponentButton = $('.opponent-info-container .change-team-container a[href*=' + chosenID + ']');
-                if (runThreshold > 0) {
-                    setStoredValue(HHStoredVarPrefixKey + "Temp_PentaDrillHumanLikeRun", "true");
+        return PentaDrill_awaiter(this, void 0, void 0, function* () {
+            LogUtils_logHHAuto("Performing auto PentaDrill.");
+            // Confirm if on correct screen.
+            //const Hero = getHero();
+            var page = getPage();
+            if (page === ConfigHelper.getHHScriptVars("pagesIDPentaDrillArena")) {
+                LogUtils_logHHAuto("On PentaDrill arena page.");
+                const chosenOpponent = PentaDrill.moduleSimPentaDrillBattle();
+                if (chosenOpponent === undefined) {
+                    LogUtils_logHHAuto("PentaDrill : was not able to choose opponent.");
+                    setTimer('nextPentaDrillTime', randomInterval(30 * 60, 35 * 60));
                 }
-                const toGoTo = opponentButton.attr('href') || '';
-                if (toGoTo == '') {
-                    LogUtils_logHHAuto('PentaDrill : Error getting opponent location');
+                else {
+                    const chosenID = chosenOpponent.player.id_fighter;
+                    const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPentaDrillRunThreshold")) || 0;
+                    const opponentButton = $('.opponent-info-container .change-team-container a[href*=' + chosenID + ']');
+                    if (runThreshold > 0) {
+                        setStoredValue(HHStoredVarPrefixKey + "Temp_PentaDrillHumanLikeRun", "true");
+                    }
+                    const toGoTo = opponentButton.attr('href') || '';
+                    if (toGoTo == '') {
+                        LogUtils_logHHAuto('PentaDrill : Error getting opponent location');
+                        setTimer('nextPentaDrillTime', randomInterval(30 * 60, 35 * 60));
+                        return false;
+                    }
+                    setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+                    LogUtils_logHHAuto("setting autoloop to false");
+                    LogUtils_logHHAuto(`Going to crush : ${chosenOpponent.player.nickname} (${chosenID})`);
+                    location.href = addNutakuSession(toGoTo);
+                    yield TimeHelper.sleep(randomInterval(500, 800));
+                    setTimer('nextPentaDrillTime', 2);
+                    return true;
+                }
+            }
+            else if (page === ConfigHelper.getHHScriptVars("pagesIDPentaDrillPreBattle")) {
+                LogUtils_logHHAuto("On PentaDrill pre battle page.");
+                const performButton = $('#perform_opponent:not([disabled])');
+                if (performButton.length == 0) {
+                    LogUtils_logHHAuto('PentaDrill : Perform button is disabled, can\'t fight now.');
                     setTimer('nextPentaDrillTime', randomInterval(30 * 60, 35 * 60));
                     return false;
                 }
-                location.href = addNutakuSession(toGoTo);
+                performButton.trigger('click');
                 setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
                 LogUtils_logHHAuto("setting autoloop to false");
-                LogUtils_logHHAuto(`Going to crush : ${chosenOpponent.player.nickname} (${chosenID})`);
-                setTimer('nextPentaDrillTime', 2);
+                yield TimeHelper.sleep(randomInterval(1200, 1500));
+                //setTimer('nextPentaDrillTime',10);
                 return true;
             }
-        }
-        else if (page === ConfigHelper.getHHScriptVars("pagesIDPentaDrillPreBattle")) {
-            LogUtils_logHHAuto("On PentaDrill pre battle page.");
-            const performButton = $('#perform_opponent:not([disabled])');
-            if (performButton.length == 0) {
-                LogUtils_logHHAuto('PentaDrill : Perform button is disabled, can\'t fight now.');
-                setTimer('nextPentaDrillTime', randomInterval(30 * 60, 35 * 60));
-                return false;
-            }
-            performButton.trigger('click');
-            setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
-            LogUtils_logHHAuto("setting autoloop to false");
-            //setTimer('nextPentaDrillTime',10);
-            return true;
-        }
-        else {
-            const current_drill = PentaDrill.getEnergy();
-            // Switch to the correct screen
-            LogUtils_logHHAuto("Remaining drill : " + current_drill);
-            if (current_drill > 0) {
-                LogUtils_logHHAuto("Switching to PentaDrill Arena screen.");
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDPentaDrillArena"));
-            }
             else {
-                let next_refresh = getHHVars('Hero.energies.drill.next_refresh_ts');
-                if (next_refresh == 0) {
-                    next_refresh = 15 * 60;
+                const current_drill = PentaDrill.getEnergy();
+                // Switch to the correct screen
+                LogUtils_logHHAuto("Remaining drill : " + current_drill);
+                if (current_drill > 0) {
+                    LogUtils_logHHAuto("Switching to PentaDrill Arena screen.");
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDPentaDrillArena"));
                 }
-                setTimer('nextPentaDrillTime', randomInterval(next_refresh + 10, next_refresh + 180));
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                else {
+                    let next_refresh = getHHVars('Hero.energies.drill.next_refresh_ts');
+                    if (next_refresh == 0) {
+                        next_refresh = 15 * 60;
+                    }
+                    setTimer('nextPentaDrillTime', randomInterval(next_refresh + 10, next_refresh + 180));
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                }
+                return;
             }
-            return;
-        }
+        });
     }
     static displayRewardsDiv() {
         try {
@@ -18426,6 +18439,13 @@ function autoLoop() {
                 lastActionPerformed = "pentaDrill";
             }
             if (busy == false && ConfigHelper.getHHScriptVars("isEnabledSeasonalEvent", false) && isAutoLoopActive() &&
+                checkTimer('nextSeasonalCardCollectTime') && getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonalBuyFreeCard") === "true" && canCollectCompetitionActive
+                && (lastActionPerformed === "none" || lastActionPerformed === "seasonal")) {
+                LogUtils_logHHAuto("Time to go and check SeasonalEvent to buy free card.");
+                busy = yield SeasonalEvent.goAndCollectFreeCard();
+                lastActionPerformed = "seasonal";
+            }
+            if (busy == false && ConfigHelper.getHHScriptVars("isEnabledSeasonalEvent", false) && isAutoLoopActive() &&
                 (checkTimer('nextSeasonalEventCollectTime') && getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonalEventCollect") === "true" && canCollectCompetitionActive
                     ||
                         getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonalEventCollectAll") === "true" && checkTimer('nextSeasonalEventCollectAllTime') && (getTimer('SeasonalEventRemainingTime') == -1 || getSecondsLeft('SeasonalEventRemainingTime') < getLimitTimeBeforeEnd())) && (lastActionPerformed === "none" || lastActionPerformed === "seasonal")) {
@@ -18438,13 +18458,6 @@ function autoLoop() {
                 && (lastActionPerformed === "none" || lastActionPerformed === "seasonal")) {
                 LogUtils_logHHAuto("Time to go and check  SeasonalEvent for collecting rank reward.");
                 busy = yield SeasonalEvent.goAndCollectMegaEventRankRewards();
-                lastActionPerformed = "seasonal";
-            }
-            if (busy == false && ConfigHelper.getHHScriptVars("isEnabledSeasonalEvent", false) && isAutoLoopActive() &&
-                checkTimer('nextSeasonalCardCollectTime') && getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonalBuyFreeCard") === "true" && canCollectCompetitionActive
-                && (lastActionPerformed === "none" || lastActionPerformed === "seasonal")) {
-                LogUtils_logHHAuto("Time to go and check SeasonalEvent to buy free card.");
-                busy = yield SeasonalEvent.goAndCollectFreeCard();
                 lastActionPerformed = "seasonal";
             }
             if (busy == false && isAutoLoopActive() && PathOfValue.isEnabled() &&
