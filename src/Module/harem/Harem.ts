@@ -73,14 +73,17 @@ export class Harem {
 
     
     static getGirlsList(): Map<string,any> {
-        let girlsDataList: Map<string, any> = Harem.getHaremGirlsFromOcdIfExist();
+        let girlsDataList: Map<string, any> | any = Harem.getHaremGirlsFromOcdIfExist();
         if (girlsDataList == null && getPage() === ConfigHelper.getHHScriptVars("pagesIDEditTeam")) {
             girlsDataList = getHHVars("availableGirls");
         }
         if (girlsDataList == null && getPage() === ConfigHelper.getHHScriptVars("pagesIDWaifu")) {
             girlsDataList = getHHVars("girls_data_list");
         }
-        if(girlsDataList != null) {
+        if (girlsDataList == null) {
+            girlsDataList = getHHVars("girlsDataList");
+        }
+        if (girlsDataList != null && !(girlsDataList instanceof Map)) {
             let girlNameDictionary = new Map();
             girlsDataList.forEach((data: any) => {
                 girlNameDictionary.set(data.id_girl +"", data);

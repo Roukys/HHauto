@@ -180,14 +180,19 @@ export function gotoPage(page,inArgs={},delay = -1)
 
 export function addNutakuSession(togoto: string | Array<string> | Object): string | Array<string> | Object{
     if (unsafeWindow.hh_nutaku) {
-        const hhSession: string = queryStringGetParam(window.location.search, 'sess');
+        const hhSession = queryStringGetParam(window.location.search, 'sess');
         if (hhSession) {
-            if (typeof togoto === 'string') {
+            if (typeof togoto === 'string' && !togoto.includes("sess=")) {
                 togoto = url_add_param(togoto, 'sess', hhSession);
-            } else if (typeof togoto === 'object' || Array.isArray(togoto)) {
+            }
+            else if (Array.isArray(togoto) && !(togoto['sess'])) {
                 togoto['sess'] = hhSession;
             }
-        } else {
+            else if (typeof togoto === 'object' && togoto.hasOwnProperty('sess') === false) {
+                togoto['sess'] = hhSession;
+            }
+        }
+        else {
             logHHAuto('ERROR Nutaku detected and no session found');
         }
     }

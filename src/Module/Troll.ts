@@ -55,12 +55,12 @@ export class Troll {
 
             if (Object.keys(sideTrollGirlsID).length > 0) {
                 for (let tIdx of Object.keys(sideTrollGirlsID)) {
-                    trollWithGirls[tIdx] = 0;
+                    trollWithGirls[Number(tIdx)-1] = 0;
                     for (var pIdx = 0; pIdx < sideTrollGirlsID[tIdx].length; pIdx++) {
                         for (var gIdx = 0; gIdx < sideTrollGirlsID[tIdx][pIdx].length; gIdx++) {
                             var idGirl = parseInt(sideTrollGirlsID[tIdx][pIdx][gIdx], 10);
                             if (idGirl != 0 && (girlDictionary.get("" + idGirl) == undefined || girlDictionary.get("" + idGirl).shards < 100)) {
-                                trollWithGirls[tIdx] += 1;
+                                trollWithGirls[Number(tIdx) -1] += 1;
                             }
                         }
                     }
@@ -81,6 +81,9 @@ export class Troll {
             if(Troll.getEnergy() < runThreshold)  Tegzd += ' ' + getTextForUI("waitRunThreshold","elementText");
         }
         Tegzd += '</li>';
+
+        //const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
+        //if (debugEnabled) Tegzd += '<li>'+Troll.debugNextTrollToFight() + '</li>';
         return Tegzd;
     }
 
@@ -112,7 +115,7 @@ export class Troll {
                 if (logging) logHHAuto(`Error Troll ID mapping need to be updated with world ${id_world}`);
             }
         } else {
-            logHHAuto(`Side adventure detected with world ${id_world}`);
+            if (logging) logHHAuto(`Side adventure detected with world ${id_world}`);
             trollIdMapping = ConfigHelper.getHHScriptVars("sideTrollIdMapping");
         }
 
@@ -143,7 +146,7 @@ export class Troll {
         return autoTrollSelectedIndex;
     }
 
-    static getTrollIdToFight(): number {
+    static getTrollIdToFight(logging=true): number {
 
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
         let trollWithGirls = isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_trollWithGirls"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_trollWithGirls")):[];
@@ -152,30 +155,30 @@ export class Troll {
         let TTF: number = 0;
         const isMainAdventure = getHHVars('Hero.infos.questing.choices_adventure') == 0;
         const lastWorldMainAdventure = getStoredValue(HHStoredVarPrefixKey + "Temp_MainAdventureWorldID") || -1; 
-        const lastTrollIdAvailable = Troll.getLastTrollIdAvailable(true);
+        const lastTrollIdAvailable = Troll.getLastTrollIdAvailable(logging);
         const eventGirl = EventModule.getEventGirl();
         const eventMythicGirl = EventModule.getEventMythicGirl();
         const loveRaids:LoveRaid[] = LoveRaidManager.isActivated() ? LoveRaidManager.getTrollRaids() : [];
-        if (debugEnabled) {
+        if (debugEnabled && logging) {
             logHHAuto('eventGirl', eventGirl);
             logHHAuto('eventMythicGirl', eventMythicGirl);
             logHHAuto('loveRaids', loveRaids);
         }
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && !checkTimer("eventMythicGoing") && eventMythicGirl.girl_id && eventMythicGirl.is_mythic)
         {
-            logHHAuto("Mythic Event troll fight");
+            if (logging) logHHAuto("Mythic Event troll fight");
             TTF = Troll.getTrollIdFromEvent(eventMythicGirl);
         }
         else if (getStoredValue(HHStoredVarPrefixKey + "Setting_plusEvent") === "true" && !checkTimer("eventGoing") && eventGirl.girl_id && !eventGirl.is_mythic) {
-            logHHAuto("Event troll fight");
+            if (logging) logHHAuto("Event troll fight");
             TTF = Troll.getTrollIdFromEvent(eventGirl);
         }
         else if (autoTrollSelectedIndex === 98 || autoTrollSelectedIndex === 99) {
             if (trollWithGirls === undefined || trollWithGirls.length === 0) {
-                logHHAuto("No troll with girls from storage, parsing game info ...");
+                if (logging) logHHAuto("No troll with girls from storage, parsing game info ...");
                 trollWithGirls = Troll.getTrollWithGirls();
                 if (trollWithGirls.length === 0) {
-                    logHHAuto("Need girls list, going to Waifu page to get them");
+                    if (logging) logHHAuto("Need girls list, going to Waifu page to get them");
                     setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDWaifu"));
                     return -1;
@@ -185,46 +188,48 @@ export class Troll {
 
             if (trollWithGirls !== undefined && trollWithGirls.length > 0) {
                 if (autoTrollSelectedIndex === 98) {
-                    if (debugEnabled) logHHAuto("First troll with girls from storage");
+                    if (debugEnabled && logging) logHHAuto("First troll with girls from storage");
                     TTF = trollWithGirls.findIndex((troll: number) => troll > 0) + 1;
                 }
                 else if (autoTrollSelectedIndex === 99) {
-                    if (debugEnabled) logHHAuto("Last troll with girls from storage");
+                    if (debugEnabled && logging) logHHAuto("Last troll with girls from storage");
                     TTF = trollWithGirls.findLastIndex((troll: number) => troll > 0) + 1;
                     if(TTF > lastTrollIdAvailable) {
                         TTF=lastTrollIdAvailable;
                     }
                 }
             } else if(getPage()!==ConfigHelper.getHHScriptVars("pagesIDHome")) {
-                logHHAuto("Can't get troll with girls, going to home page to get girl list.");
+                if (logging) logHHAuto("Can't get troll with girls, going to home page to get girl list.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
             } else {
-                logHHAuto("Can't get troll with girls, going to last troll.");
+                if (logging) logHHAuto("Can't get troll with girls, going to last troll.");
                 TTF=lastTrollIdAvailable;
             }
         }
         else if (LoveRaidManager.isActivated() && loveRaids.length > 0){
             const loveRaidsWithGirls = LoveRaidManager.getFirstTrollRaidsWithGirlToWin(loveRaids);
             const loveRaid = loveRaidsWithGirls ? loveRaidsWithGirls : loveRaids[0];
-            if (loveRaidsWithGirls) {
-                logHHAuto(`LoveRaid troll fight: ${loveRaid.trollId} with girl ${loveRaid.id_girl} to win`);
-            } else {
-                logHHAuto(`LoveRaid troll fight: ${loveRaid.trollId} with skin for girl ${loveRaid.id_girl} to win`);
+            if (logging) {
+                if (loveRaidsWithGirls) {
+                    logHHAuto(`LoveRaid troll fight: ${loveRaid.trollId} with girl ${loveRaid.id_girl} to win`);
+                } else {
+                    logHHAuto(`LoveRaid troll fight: ${loveRaid.trollId} with skin for girl ${loveRaid.id_girl} to win`);
+                }
             }
             TTF = loveRaid.trollId;
         }
         else if(autoTrollSelectedIndex > 0 && autoTrollSelectedIndex < 98)
         {
             TTF=autoTrollSelectedIndex;
-            logHHAuto("Custom troll fight.");
+            if (logging) logHHAuto("Custom troll fight.");
         }
         else
         {
             TTF = lastTrollIdAvailable;
-            logHHAuto("Last troll fight: " + TTF);
+            if (logging) logHHAuto("Last troll fight: " + TTF);
         }
 
-        if (getStoredValue(HHStoredVarPrefixKey+"Temp_autoTrollBattleSaveQuest") === "true")
+        if (getStoredValue(HHStoredVarPrefixKey+"Temp_autoTrollBattleSaveQuest") === "true" && logging)
         {
             TTF = lastTrollIdAvailable;
             logHHAuto("Last troll fight for quest item: " + TTF);
@@ -234,18 +239,25 @@ export class Troll {
         const trollz = ConfigHelper.getHHScriptVars("trollzList");
         const sideTrollz = ConfigHelper.getHHScriptVars("sideTrollzList");
         if (!isMainAdventure && !sideTrollz.hasOwnProperty(TTF) && TTF >= lastWorldMainAdventure) {
-            logHHAuto(`Error: Side adventure selected and troll ${TTF} from main adventure. Backup to ${lastTrollIdAvailable}`);
+            if (logging) logHHAuto(`Error: Side adventure selected and troll ${TTF} from main adventure. Backup to ${lastTrollIdAvailable}`);
             TTF = lastTrollIdAvailable;
         }
         if (TTF <= 0) {
             TTF = lastTrollIdAvailable > 0 ? lastTrollIdAvailable : 1;
-            logHHAuto(`Error: wrong troll target found. Backup to ${TTF}`);
+            if (logging) logHHAuto(`Error: wrong troll target found. Backup to ${TTF}`);
         }
         if (TTF >= trollz.length && !sideTrollz.hasOwnProperty(TTF)) {
-            logHHAuto("Error: New troll implemented '"+TTF+"' (List to be updated) or wrong troll target found");
+            if (logging) logHHAuto("Error: New troll implemented '"+TTF+"' (List to be updated) or wrong troll target found");
             TTF = 1;
         }
         return TTF;
+    }
+
+    static debugNextTrollToFight() {
+        let TTF = Troll.getTrollIdToFight(false);
+        const trollz = ConfigHelper.getHHScriptVars("trollzList");
+        const sideTrollz = ConfigHelper.getHHScriptVars("sideTrollzList");
+        return `Next troll: ${trollz[Number(TTF)] ? trollz[Number(TTF)] : sideTrollz[Number(TTF)]} (${TTF})`;
     }
 
     static async doBossBattle()
