@@ -23,8 +23,8 @@ import {
 } from '../../Helper/index';
 import {
     addNutakuSession,
-    checkParanoiaSpendings,
-    gotoPage
+    gotoPage,
+    ParanoiaService
 } from "../../Service/index";
 import { getHHAjax, isJSON, logHHAuto } from "../../Utils/index";
 import { HHStoredVarPrefixKey } from "../../config/index";
@@ -95,7 +95,7 @@ export class Season {
         const humanLikeRun = getStoredValue(HHStoredVarPrefixKey+"Temp_SeasonHumanLikeRun") === "true";
 
         const energyAboveThreshold = humanLikeRun && Season.getEnergy() > threshold || Season.getEnergy() > Math.max(threshold, runThreshold-1);
-        const paranoiaSpending = Season.getEnergy() > 0 && Number(checkParanoiaSpendings('kiss')) > 0;
+        const paranoiaSpending = Season.getEnergy() > 0 && ParanoiaService.checkParanoiaSpendings('kiss') > 0;
         const needBoosterToFight = getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonBoostedOnly") === "true";
         const haveBoosterEquiped = Booster.haveBoosterEquiped();
 

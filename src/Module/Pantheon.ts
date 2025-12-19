@@ -13,7 +13,7 @@ import {
     setTimer,
     HeroHelper
 } from '../Helper/index';
-import { checkParanoiaSpendings, gotoPage } from '../Service/index';
+import { gotoPage, ParanoiaService } from '../Service/index';
 import { logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
 import { Booster } from "./Booster";
@@ -67,7 +67,7 @@ export class Pantheon {
         const humanLikeRun = getStoredValue(HHStoredVarPrefixKey+"Temp_PantheonHumanLikeRun") === "true";
 
         const energyAboveThreshold = humanLikeRun && Pantheon.getEnergy() > threshold || Pantheon.getEnergy() > Math.max(threshold, runThreshold-1);
-        const paranoiaSpending = Pantheon.getEnergy() > 0 && Number(checkParanoiaSpendings('worship')) > 0;
+        const paranoiaSpending = Pantheon.getEnergy() > 0 && ParanoiaService.checkParanoiaSpendings('worship') > 0;
         const needBoosterToFight = getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheonBoostedOnly") === "true";
         const haveBoosterEquiped = Booster.haveBoosterEquiped();
 
