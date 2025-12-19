@@ -154,8 +154,7 @@ export class PentaDrill {
                 logHHAuto("setting autoloop to false");
                 logHHAuto(`Going to crush : ${chosenOpponent.player.nickname} (${chosenID})`);
                 location.href = addNutakuSession(toGoTo) as string;
-                await TimeHelper.sleep(randomInterval(500, 800));
-                setTimer('nextPentaDrillTime', 2);
+                await TimeHelper.sleep(randomInterval(1500, 1800));
                 return true;
             }
         }
@@ -171,7 +170,7 @@ export class PentaDrill {
             performButton.trigger('click');
             setStoredValue(HHStoredVarPrefixKey+"Temp_autoLoop", "false");
             logHHAuto("setting autoloop to false");
-            await TimeHelper.sleep(randomInterval(1200, 1500));
+            await TimeHelper.sleep(randomInterval(2000, 3000));
             //setTimer('nextPentaDrillTime',10);
             return true;
         }

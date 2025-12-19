@@ -51,7 +51,7 @@ export function createPInfo():JQuery<HTMLElement> {
                     +'#pInfo:hover {'
                     +'   padding-top : 22px;'
                     +'   height : auto;'
-                    +'   left : 51%;'
+                    +'   left : 43%;'
                     +'}'
                     +'#pInfo {'
                     +'   left : 84%;'

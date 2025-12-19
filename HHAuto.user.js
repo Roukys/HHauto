@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.26.2
+// @version      7.26.3
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -39,7 +39,7 @@ GM_addStyle('.HHAutoScriptMenu .switch { position: relative; display: inline-blo
 GM_addStyle('.HHAutoScriptMenu input:checked + .slider.kobans { background-color: red; }'
             +'.HHAutoScriptMenu input:not(:checked) + .slider.round.kobans:before { background-color: red }'
             +'.HHAutoScriptMenu input:checked + .slider.round.kobans:before { background-color: white }')
-GM_addStyle('#pInfo {padding-left:3px; z-index:1;white-space: pre;position: absolute;right: 5%; left:51%; height:auto; top:11%; overflow: hidden; border: 1px solid #ffa23e; background-color: rgba(0,0,0,.5); border-radius: 5px; font-size:9pt; user-select: none; -webkit-user-select: none; -moz-user-select: none;}'
+GM_addStyle('#pInfo {padding-left:3px; z-index:1;white-space: pre;position: absolute;right: 5%; left:43%; height:auto; top:11%; overflow: hidden; border: 1px solid #ffa23e; background-color: rgba(0,0,0,.5); border-radius: 5px; font-size:9pt; user-select: none; -webkit-user-select: none; -moz-user-select: none;}'
             + '#pInfo ul {margin:0; padding:0; columns:2; list-style-type: none;}'
             + '#pInfo ul li {margin:0}');
 GM_addStyle('#pInfo.left {right: 250px; left:220px; top:12%;');
@@ -5312,7 +5312,10 @@ class Harem {
         if (girlsDataList == null && getPage() === ConfigHelper.getHHScriptVars("pagesIDWaifu")) {
             girlsDataList = getHHVars("girls_data_list");
         }
-        if (girlsDataList != null) {
+        if (girlsDataList == null) {
+            girlsDataList = getHHVars("girlsDataList");
+        }
+        if (girlsDataList != null && !(girlsDataList instanceof Map)) {
             let girlNameDictionary = new Map();
             girlsDataList.forEach((data) => {
                 girlNameDictionary.set(data.id_girl + "", data);
@@ -5839,12 +5842,12 @@ class Troll {
             }
             if (Object.keys(sideTrollGirlsID).length > 0) {
                 for (let tIdx of Object.keys(sideTrollGirlsID)) {
-                    trollWithGirls[tIdx] = 0;
+                    trollWithGirls[Number(tIdx) - 1] = 0;
                     for (var pIdx = 0; pIdx < sideTrollGirlsID[tIdx].length; pIdx++) {
                         for (var gIdx = 0; gIdx < sideTrollGirlsID[tIdx][pIdx].length; gIdx++) {
                             var idGirl = parseInt(sideTrollGirlsID[tIdx][pIdx][gIdx], 10);
                             if (idGirl != 0 && (girlDictionary.get("" + idGirl) == undefined || girlDictionary.get("" + idGirl).shards < 100)) {
-                                trollWithGirls[tIdx] += 1;
+                                trollWithGirls[Number(tIdx) - 1] += 1;
                             }
                         }
                     }
@@ -5864,6 +5867,8 @@ class Troll {
                 Tegzd += ' ' + getTextForUI("waitRunThreshold", "elementText");
         }
         Tegzd += '</li>';
+        //const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
+        //if (debugEnabled) Tegzd += '<li>'+Troll.debugNextTrollToFight() + '</li>';
         return Tegzd;
     }
     static isEnabled() {
@@ -5894,7 +5899,8 @@ class Troll {
             }
         }
         else {
-            LogUtils_logHHAuto(`Side adventure detected with world ${id_world}`);
+            if (logging)
+                LogUtils_logHHAuto(`Side adventure detected with world ${id_world}`);
             trollIdMapping = ConfigHelper.getHHScriptVars("sideTrollIdMapping");
         }
         if (Object.keys(trollIdMapping).length > 0 && trollIdMapping.hasOwnProperty(id_world)) {
@@ -5925,36 +5931,40 @@ class Troll {
         }
         return autoTrollSelectedIndex;
     }
-    static getTrollIdToFight() {
+    static getTrollIdToFight(logging = true) {
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
         let trollWithGirls = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_trollWithGirls")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_trollWithGirls")) : [];
         const autoTrollSelectedIndex = Troll.getTrollSelectedIndex();
         let TTF = 0;
         const isMainAdventure = getHHVars('Hero.infos.questing.choices_adventure') == 0;
         const lastWorldMainAdventure = getStoredValue(HHStoredVarPrefixKey + "Temp_MainAdventureWorldID") || -1;
-        const lastTrollIdAvailable = Troll.getLastTrollIdAvailable(true);
+        const lastTrollIdAvailable = Troll.getLastTrollIdAvailable(logging);
         const eventGirl = EventModule.getEventGirl();
         const eventMythicGirl = EventModule.getEventMythicGirl();
         const loveRaids = LoveRaidManager.isActivated() ? LoveRaidManager.getTrollRaids() : [];
-        if (debugEnabled) {
+        if (debugEnabled && logging) {
             LogUtils_logHHAuto('eventGirl', eventGirl);
             LogUtils_logHHAuto('eventMythicGirl', eventMythicGirl);
             LogUtils_logHHAuto('loveRaids', loveRaids);
         }
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && !checkTimer("eventMythicGoing") && eventMythicGirl.girl_id && eventMythicGirl.is_mythic) {
-            LogUtils_logHHAuto("Mythic Event troll fight");
+            if (logging)
+                LogUtils_logHHAuto("Mythic Event troll fight");
             TTF = Troll.getTrollIdFromEvent(eventMythicGirl);
         }
         else if (getStoredValue(HHStoredVarPrefixKey + "Setting_plusEvent") === "true" && !checkTimer("eventGoing") && eventGirl.girl_id && !eventGirl.is_mythic) {
-            LogUtils_logHHAuto("Event troll fight");
+            if (logging)
+                LogUtils_logHHAuto("Event troll fight");
             TTF = Troll.getTrollIdFromEvent(eventGirl);
         }
         else if (autoTrollSelectedIndex === 98 || autoTrollSelectedIndex === 99) {
             if (trollWithGirls === undefined || trollWithGirls.length === 0) {
-                LogUtils_logHHAuto("No troll with girls from storage, parsing game info ...");
+                if (logging)
+                    LogUtils_logHHAuto("No troll with girls from storage, parsing game info ...");
                 trollWithGirls = Troll.getTrollWithGirls();
                 if (trollWithGirls.length === 0) {
-                    LogUtils_logHHAuto("Need girls list, going to Waifu page to get them");
+                    if (logging)
+                        LogUtils_logHHAuto("Need girls list, going to Waifu page to get them");
                     setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDWaifu"));
                     return -1;
@@ -5963,12 +5973,12 @@ class Troll {
             }
             if (trollWithGirls !== undefined && trollWithGirls.length > 0) {
                 if (autoTrollSelectedIndex === 98) {
-                    if (debugEnabled)
+                    if (debugEnabled && logging)
                         LogUtils_logHHAuto("First troll with girls from storage");
                     TTF = trollWithGirls.findIndex((troll) => troll > 0) + 1;
                 }
                 else if (autoTrollSelectedIndex === 99) {
-                    if (debugEnabled)
+                    if (debugEnabled && logging)
                         LogUtils_logHHAuto("Last troll with girls from storage");
                     TTF = trollWithGirls.findLastIndex((troll) => troll > 0) + 1;
                     if (TTF > lastTrollIdAvailable) {
@@ -5977,34 +5987,40 @@ class Troll {
                 }
             }
             else if (getPage() !== ConfigHelper.getHHScriptVars("pagesIDHome")) {
-                LogUtils_logHHAuto("Can't get troll with girls, going to home page to get girl list.");
+                if (logging)
+                    LogUtils_logHHAuto("Can't get troll with girls, going to home page to get girl list.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
             }
             else {
-                LogUtils_logHHAuto("Can't get troll with girls, going to last troll.");
+                if (logging)
+                    LogUtils_logHHAuto("Can't get troll with girls, going to last troll.");
                 TTF = lastTrollIdAvailable;
             }
         }
         else if (LoveRaidManager.isActivated() && loveRaids.length > 0) {
             const loveRaidsWithGirls = LoveRaidManager.getFirstTrollRaidsWithGirlToWin(loveRaids);
             const loveRaid = loveRaidsWithGirls ? loveRaidsWithGirls : loveRaids[0];
-            if (loveRaidsWithGirls) {
-                LogUtils_logHHAuto(`LoveRaid troll fight: ${loveRaid.trollId} with girl ${loveRaid.id_girl} to win`);
-            }
-            else {
-                LogUtils_logHHAuto(`LoveRaid troll fight: ${loveRaid.trollId} with skin for girl ${loveRaid.id_girl} to win`);
+            if (logging) {
+                if (loveRaidsWithGirls) {
+                    LogUtils_logHHAuto(`LoveRaid troll fight: ${loveRaid.trollId} with girl ${loveRaid.id_girl} to win`);
+                }
+                else {
+                    LogUtils_logHHAuto(`LoveRaid troll fight: ${loveRaid.trollId} with skin for girl ${loveRaid.id_girl} to win`);
+                }
             }
             TTF = loveRaid.trollId;
         }
         else if (autoTrollSelectedIndex > 0 && autoTrollSelectedIndex < 98) {
             TTF = autoTrollSelectedIndex;
-            LogUtils_logHHAuto("Custom troll fight.");
+            if (logging)
+                LogUtils_logHHAuto("Custom troll fight.");
         }
         else {
             TTF = lastTrollIdAvailable;
-            LogUtils_logHHAuto("Last troll fight: " + TTF);
+            if (logging)
+                LogUtils_logHHAuto("Last troll fight: " + TTF);
         }
-        if (getStoredValue(HHStoredVarPrefixKey + "Temp_autoTrollBattleSaveQuest") === "true") {
+        if (getStoredValue(HHStoredVarPrefixKey + "Temp_autoTrollBattleSaveQuest") === "true" && logging) {
             TTF = lastTrollIdAvailable;
             LogUtils_logHHAuto("Last troll fight for quest item: " + TTF);
             //setStoredValue(HHStoredVarPrefixKey+"Temp_autoTrollBattleSaveQuest", "false");
@@ -6013,18 +6029,27 @@ class Troll {
         const trollz = ConfigHelper.getHHScriptVars("trollzList");
         const sideTrollz = ConfigHelper.getHHScriptVars("sideTrollzList");
         if (!isMainAdventure && !sideTrollz.hasOwnProperty(TTF) && TTF >= lastWorldMainAdventure) {
-            LogUtils_logHHAuto(`Error: Side adventure selected and troll ${TTF} from main adventure. Backup to ${lastTrollIdAvailable}`);
+            if (logging)
+                LogUtils_logHHAuto(`Error: Side adventure selected and troll ${TTF} from main adventure. Backup to ${lastTrollIdAvailable}`);
             TTF = lastTrollIdAvailable;
         }
         if (TTF <= 0) {
             TTF = lastTrollIdAvailable > 0 ? lastTrollIdAvailable : 1;
-            LogUtils_logHHAuto(`Error: wrong troll target found. Backup to ${TTF}`);
+            if (logging)
+                LogUtils_logHHAuto(`Error: wrong troll target found. Backup to ${TTF}`);
         }
         if (TTF >= trollz.length && !sideTrollz.hasOwnProperty(TTF)) {
-            LogUtils_logHHAuto("Error: New troll implemented '" + TTF + "' (List to be updated) or wrong troll target found");
+            if (logging)
+                LogUtils_logHHAuto("Error: New troll implemented '" + TTF + "' (List to be updated) or wrong troll target found");
             TTF = 1;
         }
         return TTF;
+    }
+    static debugNextTrollToFight() {
+        let TTF = Troll.getTrollIdToFight(false);
+        const trollz = ConfigHelper.getHHScriptVars("trollzList");
+        const sideTrollz = ConfigHelper.getHHScriptVars("sideTrollzList");
+        return `Next troll: ${trollz[Number(TTF)] ? trollz[Number(TTF)] : sideTrollz[Number(TTF)]} (${TTF})`;
     }
     static doBossBattle() {
         return Troll_awaiter(this, void 0, void 0, function* () {
@@ -10130,10 +10155,13 @@ function addNutakuSession(togoto) {
     if (unsafeWindow.hh_nutaku) {
         const hhSession = queryStringGetParam(window.location.search, 'sess');
         if (hhSession) {
-            if (typeof togoto === 'string') {
+            if (typeof togoto === 'string' && !togoto.includes("sess=")) {
                 togoto = url_add_param(togoto, 'sess', hhSession);
             }
-            else if (typeof togoto === 'object' || Array.isArray(togoto)) {
+            else if (Array.isArray(togoto) && !(togoto['sess'])) {
+                togoto['sess'] = hhSession;
+            }
+            else if (typeof togoto === 'object' && togoto.hasOwnProperty('sess') === false) {
                 togoto['sess'] = hhSession;
             }
         }
@@ -11870,8 +11898,7 @@ class PentaDrill {
                     LogUtils_logHHAuto("setting autoloop to false");
                     LogUtils_logHHAuto(`Going to crush : ${chosenOpponent.player.nickname} (${chosenID})`);
                     location.href = addNutakuSession(toGoTo);
-                    yield TimeHelper.sleep(randomInterval(500, 800));
-                    setTimer('nextPentaDrillTime', 2);
+                    yield TimeHelper.sleep(randomInterval(1500, 1800));
                     return true;
                 }
             }
@@ -11886,7 +11913,7 @@ class PentaDrill {
                 performButton.trigger('click');
                 setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
                 LogUtils_logHHAuto("setting autoloop to false");
-                yield TimeHelper.sleep(randomInterval(1200, 1500));
+                yield TimeHelper.sleep(randomInterval(2000, 3000));
                 //setTimer('nextPentaDrillTime',10);
                 return true;
             }
@@ -14144,7 +14171,8 @@ class HentaiHeroes {
     }
     static getSideTrolls(languageCode) {
         const trollList = {
-            20: "Arthur"
+            20: "Arthur",
+            21: "Venam Kharney"
         };
         return trollList;
     }
@@ -14174,6 +14202,7 @@ class HentaiHeroes {
     static getSideTrollGirlsId() {
         return {
             20: [['666677364', '831625343', '851831359'], [0], [0]],
+            21: [['124967437', '755350195', '855205805'], [0], [0]]
         };
     }
     static updateFeatures(envVariables) {
@@ -18808,7 +18837,7 @@ function createPInfo() {
             + '#pInfo:hover {'
             + '   padding-top : 22px;'
             + '   height : auto;'
-            + '   left : 51%;'
+            + '   left : 43%;'
             + '}'
             + '#pInfo {'
             + '   left : 84%;'
