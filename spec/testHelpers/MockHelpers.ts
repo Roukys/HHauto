@@ -68,4 +68,11 @@ export class MockHelper{
             max_regen_amount: max
         };
     }
+
+    static mockEnergiesDrill(amount: number, max: number) {
+        unsafeWindow.Hero.energies.drill = {
+            amount: amount,
+            max_regen_amount: max
+        };
+    }
 }

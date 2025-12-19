@@ -69,14 +69,11 @@ import {
 import { EventGirl } from '../model/EventGirl';
 import { 
     AdsService,
-    checkParanoiaSpendings,
-    clearParanoiaSpendings,
-    flipParanoia,
     gotoPage,
     mouseBusy,
+    ParanoiaService,
     setDefaults,
     updateData,
-    updatedParanoiaSpendings,
 } from "./index";
 
 export let busy = false;
@@ -143,7 +140,7 @@ export function CheckSpentPoints()
             if (oldValues[i]-newValues[i] >0)
             {
                 spent[i]=oldValues[i]-newValues[i];
-                updatedParanoiaSpendings(i, spent[i]);
+                ParanoiaService.updatedParanoiaSpendings(i, spent[i]);
             }
 
         }
@@ -209,7 +206,7 @@ export async function autoLoop()
 
         if (!checkTimer("paranoiaSwitch") )
         {
-            clearParanoiaSpendings();
+            ParanoiaService.clearParanoiaSpendings();
         }
         CheckSpentPoints();
         if (getStoredValue(HHStoredVarPrefixKey + "Setting_waitforContest") === "true" && checkTimer('nextContestTime')) {
@@ -392,7 +389,7 @@ export async function autoLoop()
                             || getStoredValue(HHStoredVarPrefixKey+"Temp_autoTrollBattleSaveQuest") === "true"
                         )
                     )
-                    || currentPower > 0 && Number(checkParanoiaSpendings('fight')) > 0 //paranoiaspendings to do
+                    || currentPower > 0 && ParanoiaService.checkParanoiaSpendings('fight') > 0 //paranoiaspendings to do
                     ||
                     (
                         // mythic Event Girl available and fights available
@@ -547,7 +544,7 @@ export async function autoLoop()
                 var energyCurrent = QuestHelper.getEnergy();
                 if (energyNeeded <= energyCurrent)
                 {
-                    if (Number(energyCurrent) > Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoQuestThreshold")) || Number(checkParanoiaSpendings('quest')) > 0 )
+                    if (Number(energyCurrent) > Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoQuestThreshold")) || ParanoiaService.checkParanoiaSpendings('quest') > 0 )
                     {
                         // We have enough energy... requirement fulfilled.
                         logHHAuto("Continuing quest, required energy obtained.");
@@ -630,7 +627,7 @@ export async function autoLoop()
             {
                 if (checkTimer('nextMainQuestAttempt') && checkTimer('nextSideQuestAttempt'))
                 {
-                    if (QuestHelper.getEnergy() > Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoQuestThreshold")) || Number(checkParanoiaSpendings('quest')) > 0 )
+                    if (QuestHelper.getEnergy() > Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoQuestThreshold")) || ParanoiaService.checkParanoiaSpendings('quest') > 0 )
                     {
                         //logHHAuto("NONE req.");
                         busy = true;
@@ -1236,7 +1233,7 @@ export async function autoLoop()
 
     if (busy === false && !mouseBusy && getStoredValue(HHStoredVarPrefixKey + "Setting_paranoia") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_master") === "true" && isAutoLoopActive()) {
         if (checkTimer("paranoiaSwitch")) {
-            flipParanoia();
+            ParanoiaService.flipParanoia();
         }
     }
 

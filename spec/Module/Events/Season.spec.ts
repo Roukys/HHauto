@@ -1,4 +1,7 @@
-import { Season } from "../../../src/Module/index";
+import { setTimer } from "../../../src/Helper/TimerHelper";
+import { Booster, Season } from "../../../src/Module/index";
+import { ParanoiaService } from "../../../src/Service/ParanoiaService";
+import { HHStoredVarPrefixKey } from "../../../src/config/HHStoredVars";
 import { BDSMSimu, SeasonOpponent } from "../../../src/model/index";
 import { MockHelper } from "../../testHelpers/MockHelpers";
 
@@ -290,4 +293,91 @@ describe("Season event", function () {
         });
     });
 
+    describe("isTimeToFight", function () {
+        beforeEach(() => {
+            MockHelper.mockHeroLevel(500);
+            MockHelper.mockEnergiesKiss(1, 10);
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonThreshold", "1");
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonRunThreshold", "8");
+
+            jest.spyOn(ParanoiaService, "checkParanoiaSpendings").mockReturnValue(-1);
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonBoostedOnly", "false");
+            setTimer('nextSeasonTime', -1); // Reset any existing timer
+        });
+
+        it("should return true if energy is above the threshold and timer has expired", function () {
+            MockHelper.mockEnergiesKiss(9, 10);
+            setTimer('nextSeasonTime', -1); // Ensure the timer is expired
+
+            const result = Season.isTimeToFight();
+
+            expect(result).toBeTruthy();
+        });
+
+        it("should return false if energy is below the threshold", function () {
+            MockHelper.mockEnergiesKiss(5, 10);
+            setTimer('nextSeasonTime', -1); // Ensure the timer is expired
+
+            const result = Season.isTimeToFight();
+
+            expect(result).toBeFalsy();
+        });
+
+        it("should return false if the timer for the next fight is still active", function () {
+            MockHelper.mockEnergiesKiss(10, 10);
+            setTimer('nextSeasonTime', 10); // Set a timer for 10 seconds
+
+            const result = Season.isTimeToFight();
+
+            expect(result).toBeFalsy();
+        });
+
+        it("should return true if paranoia spending is enabled and there is energy below threashold", function () {
+            MockHelper.mockEnergiesKiss(5, 10);
+            jest.spyOn(ParanoiaService, "checkParanoiaSpendings").mockReturnValue(1);
+
+            const result = Season.isTimeToFight();
+
+            expect(result).toBeTruthy();
+        });
+
+        it("should return true if paranoia spending is enabled and there is energy above threashold", function () {
+            MockHelper.mockEnergiesKiss(9, 10);
+            jest.spyOn(ParanoiaService, "checkParanoiaSpendings").mockReturnValue(1);
+
+            const result = Season.isTimeToFight();
+
+            expect(result).toBeTruthy();
+        });
+
+        it("should return false if boosters are required but not equipped", function () {
+            MockHelper.mockEnergiesKiss(9, 10);
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonBoostedOnly", "true");
+            jest.spyOn(Booster, "haveBoosterEquiped").mockReturnValue(false);
+
+            const result = Season.isTimeToFight();
+
+            expect(result).toBeFalsy();
+        });
+
+        it("should return false if boosters are required but not equipped and energie above max", function () {
+            MockHelper.mockEnergiesKiss(11, 10);
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonBoostedOnly", "true");
+            jest.spyOn(Booster, "haveBoosterEquiped").mockReturnValue(false);
+
+            const result = Season.isTimeToFight();
+
+            expect(result).toBeFalsy();
+        });
+
+        it("should return true if boosters are required and equipped", function () {
+            localStorage.setItem(HHStoredVarPrefixKey + "Setting_autoSeasonBoostedOnly", "true");
+            MockHelper.mockEnergiesKiss(9, 10);
+            jest.spyOn(Booster, "haveBoosterEquiped").mockReturnValue(true);
+
+            const result = Season.isTimeToFight();
+
+            expect(result).toBeTruthy();
+        });
+    });
 });

@@ -22,8 +22,8 @@ import {
 } from '../Helper/index';
 import {
     addNutakuSession,
-    checkParanoiaSpendings,
-    gotoPage
+    gotoPage,
+    ParanoiaService
 } from "../Service/index";
 import { getHHAjax, isJSON, logHHAuto } from "../Utils/index";
 import { HHStoredVarPrefixKey } from "../config/index";
@@ -85,7 +85,7 @@ export class PentaDrill {
         const humanLikeRun = getStoredValue(HHStoredVarPrefixKey+"Temp_PentaDrillHumanLikeRun") === "true";
 
         const energyAboveThreshold = humanLikeRun && PentaDrill.getEnergy() > threshold || PentaDrill.getEnergy() > Math.max(threshold, runThreshold-1);
-        const paranoiaSpending = PentaDrill.getEnergy() > 0 && Number(checkParanoiaSpendings('drill')) > 0;
+        const paranoiaSpending = PentaDrill.getEnergy() > 0 && ParanoiaService.checkParanoiaSpendings('drill') > 0;
         const needBoosterToFight = getStoredValue(HHStoredVarPrefixKey+"Setting_autoPentaDrillBoostedOnly") === "true";
         const haveBoosterEquiped = Booster.haveBoosterEquiped();
 

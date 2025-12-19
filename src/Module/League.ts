@@ -25,8 +25,8 @@ import {
 import {
     addNutakuSession,
     autoLoop,
-    checkParanoiaSpendings,
-    gotoPage
+    gotoPage,
+    ParanoiaService
 } from '../Service/index';
 import { getHHAjax, isJSON, logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
@@ -212,7 +212,7 @@ export class LeagueHelper {
             logHHAuto("Last League hour");
         }
         const energyAboveThreshold = humanLikeRun && LeagueHelper.getEnergy() > threshold || LeagueHelper.getEnergy() > Math.max(threshold, runThreshold-1);
-        const paranoiaSpending = LeagueHelper.getEnergy() > 0 && Number(checkParanoiaSpendings('challenge')) > 0;
+        const paranoiaSpending = LeagueHelper.getEnergy() > 0 && ParanoiaService.checkParanoiaSpendings('challenge') > 0;
         const needBoosterToFight = getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesBoostedOnly") === "true";
         const haveBoosterEquiped = Booster.haveBoosterEquiped();
         // logHHAuto('League:', {threshold: threshold, runThreshold:runThreshold, energyAboveThreshold: energyAboveThreshold});
