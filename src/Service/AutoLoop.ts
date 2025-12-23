@@ -714,6 +714,7 @@ export async function autoLoop()
         if (busy === false && ConfigHelper.getHHScriptVars("isEnabledPentaDrill", false) && getStoredValue(HHStoredVarPrefixKey +"Setting_autoPentaDrill") === "true" 
             && isAutoLoopActive() && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "pentaDrill"))
         {
+            // Need 7 girls to do PentaDrill
             if (PentaDrill.isTimeToFight())
             {
                 logHHAuto("Time to fight in PentaDrill.");

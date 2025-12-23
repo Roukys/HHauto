@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.26.4
+// @version      7.26.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -4167,12 +4167,12 @@ class QuestHelper {
         }
         if (page !== ConfigHelper.getHHScriptVars("pagesIDQuest") || (doMainQuest && mainQuestUrl != window.location.pathname)) {
             // Click on current quest to naviagte to it.
-            LogUtils_logHHAuto("Navigating to current quest.");
+            LogUtils_logHHAuto(`Navigating to current quest. Current page: ${page}, quest url: ${mainQuestUrl}, location: ${window.location.pathname}`);
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDQuest"));
             return;
         }
-        $("#popup_message close").click();
-        $("#level_up close").click();
+        $("#popup_message close").trigger('click');
+        $("#level_up close").trigger('click');
         // Get the proceed button type
         var proceedButtonMatch = $("#controls button:not([class*='ad_']):not([style*='display:none']):not([style*='display: none'])");
         if (proceedButtonMatch.length === 0) {
@@ -11898,7 +11898,7 @@ class PentaDrill {
                     LogUtils_logHHAuto("setting autoloop to false");
                     LogUtils_logHHAuto(`Going to crush : ${chosenOpponent.player.nickname} (${chosenID})`);
                     location.href = addNutakuSession(toGoTo);
-                    yield TimeHelper.sleep(randomInterval(1500, 1800));
+                    yield TimeHelper.sleep(randomInterval(4000, 8000));
                     return true;
                 }
             }
@@ -18368,6 +18368,7 @@ function autoLoop() {
             }
             if (busy === false && ConfigHelper.getHHScriptVars("isEnabledPentaDrill", false) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoPentaDrill") === "true"
                 && isAutoLoopActive() && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "pentaDrill")) {
+                // Need 7 girls to do PentaDrill
                 if (PentaDrill.isTimeToFight()) {
                     LogUtils_logHHAuto("Time to fight in PentaDrill.");
                     PentaDrill.run();

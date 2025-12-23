@@ -75,12 +75,12 @@ export class QuestHelper {
         }
         if (page !== ConfigHelper.getHHScriptVars("pagesIDQuest") || (doMainQuest && mainQuestUrl != window.location.pathname)) {
             // Click on current quest to naviagte to it.
-            logHHAuto("Navigating to current quest.");
+            logHHAuto(`Navigating to current quest. Current page: ${page}, quest url: ${mainQuestUrl}, location: ${window.location.pathname}`);
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDQuest"));
             return;
         }
-        $("#popup_message close").click();
-        $("#level_up close").click();
+        $("#popup_message close").trigger('click');
+        $("#level_up close").trigger('click');
         // Get the proceed button type
         var proceedButtonMatch = $("#controls button:not([class*='ad_']):not([style*='display:none']):not([style*='display: none'])");
         if (proceedButtonMatch.length === 0)
