@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.26.5
+// @version      7.26.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -2918,7 +2918,7 @@ class LoveRaidManager {
         return undefined;
     }
     static parseRaids(raidNotStarted = false) {
-        var _a, _b, _c;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
         const raids = [];
         const kkRaids = love_raids != undefined ? love_raids : [];
@@ -2947,6 +2947,10 @@ class LoveRaidManager {
                     raid.start_datetime = kkRaid.start_datetime;
                     raid.end_datetime = kkRaid.end_datetime;
                     raid.shards_left = Number(kkRaid.tranche_data.shards_left);
+                    if (kkRaid.status == 'ongoing' && (((_f = (_e = (_d = kkRaid.girl_data) === null || _d === void 0 ? void 0 : _d.source) === null || _e === void 0 ? void 0 : _e.anchor_source) === null || _f === void 0 ? void 0 : _f.disabled) || ((_j = (_h = (_g = kkRaid.girl_data) === null || _g === void 0 ? void 0 : _g.source) === null || _h === void 0 ? void 0 : _h.anchor_win_from) === null || _j === void 0 ? void 0 : _j.disabled))) {
+                        LogUtils_logHHAuto(`Raid source not yet available, ignoring raid (${(_l = (_k = kkRaid.girl_data) === null || _k === void 0 ? void 0 : _k.source) === null || _l === void 0 ? void 0 : _l.sentence})`);
+                        continue;
+                    }
                     if ($('.raid-card')[index].classList.contains('multiple-girl')) {
                         let girlSkinShards = parseInt($($($('.raid-card')[index].getElementsByClassName('shards'))[1]).attr('skins-shard'), 10);
                         raid.skin_to_win = girlSkinShards < 33;

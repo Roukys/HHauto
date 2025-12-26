@@ -10,7 +10,19 @@ export class KKLoveRaid {
     shards: any;
     id_girl: any;
     name: any;
-    source: any;
+    source: {
+      anchor_source: {
+        url: any;
+        label: any;
+        disabled: any;
+      }
+      sentence: any;
+      anchor_win_from: {
+        url: any;
+        label: any;
+        disabled: any;
+      }
+    };
   };
   status: any; // upcoming, ongoing
   seconds_until_event_start: any;

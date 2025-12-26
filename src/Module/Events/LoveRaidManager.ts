@@ -110,6 +110,11 @@ export class LoveRaidManager {
                     raid.end_datetime = kkRaid.end_datetime;
                     raid.shards_left = Number(kkRaid.tranche_data.shards_left);
 
+                    if (kkRaid.status == 'ongoing' && (kkRaid.girl_data?.source?.anchor_source?.disabled || kkRaid.girl_data?.source?.anchor_win_from?.disabled)) {
+                        logHHAuto(`Raid source not yet available, ignoring raid (${kkRaid.girl_data?.source?.sentence})`);
+                        continue;
+                    }
+
                     if ($('.raid-card')[index].classList.contains('multiple-girl')) {
                         let girlSkinShards = parseInt($($($('.raid-card')[index].getElementsByClassName('shards'))[1]).attr('skins-shard'), 10);
                         raid.skin_to_win = girlSkinShards < 33;
