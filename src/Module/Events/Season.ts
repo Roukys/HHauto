@@ -113,6 +113,7 @@ export class Season {
         const opponentDatas = unsafeWindow.opponents;
         let doDisplay=false;
         let seasonOpponents:SeasonOpponent[]=[];
+        let hasGirlToWin = false;
         try
         {
             // TODO update
@@ -141,6 +142,10 @@ export class Season {
                     Number((<HTMLElement>$(".slot_season_affection_girl", opponentBlock)[0].lastElementChild).innerText.replace(/\D/g, '')), 
                     simu
                 );
+                const girlShardsReward = $(".slot.girl_ico[data-rewards]", opponentBlock);
+                if(girlShardsReward.length > 0) {
+                    hasGirlToWin = true;
+                }
 
                 $('.player-panel-buttons .btn_season_perform', opponentBlock).contents().filter(function() {return this.nodeType===3;}).remove();
                 $('.player-panel-buttons .btn_season_perform', opponentBlock).find('span').remove();
@@ -153,7 +158,7 @@ export class Season {
             }
 
             var { numberOfReds, chosenIndex } = Season.getBestOppo(seasonOpponents, Season.getEnergy(), Season.getEnergyMax());
-            const chosenID = opponentDatas[chosenIndex].player?.id_fighter;
+            const chosenID = chosenIndex >= 0 ? opponentDatas[chosenIndex].player?.id_fighter : chosenIndex;
 
             var price=Number($("div.opponents_arena button#refresh_villains").attr('price'));
             if (isNaN(price))
@@ -178,7 +183,12 @@ export class Season {
                     logHHAuto('Error when dispaly chosen opponent');
                 }
             }
-            return chosenID;
+            if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonIgnoreNoGirls") === "true" && !hasGirlToWin) {
+                logHHAuto("Ignoring season fights as no girl to win on fight reward");
+                chosenIndex = -1;
+            }
+
+            return chosenIndex < 0 ? chosenIndex : chosenID;
         }
         catch(err)
         {

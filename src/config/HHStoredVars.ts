@@ -675,6 +675,17 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSeasonCollectAll"] =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars[HHStoredVarPrefixKey +"Setting_autoSeasonIgnoreNoGirls"] =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars[HHStoredVarPrefixKey+"Setting_autoSeasonCollectablesList"] =
     {
     default:JSON.stringify([]),
