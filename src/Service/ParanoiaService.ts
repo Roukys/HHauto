@@ -170,6 +170,9 @@ export class ParanoiaService {
             }
             //if autoSeason is on
             if (ConfigHelper.getHHScriptVars('isEnabledSeason', false) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeason") === "true") {
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonIgnoreNoGirls") === "true") {
+                    logHHAuto('Season auto is on but ignore fights when no girls to win, no spending kisses.')
+                } else {
                 maxPointsDuringParanoia = Math.ceil((toNextSwitch - Number(getHHVars('Hero.energies.kiss.next_refresh_ts'))) / Number(getHHVars('Hero.energies.kiss.seconds_per_point')));
                 currentEnergy = Season.getEnergy();
                 maxEnergy = Season.getEnergyMax();
@@ -182,6 +185,7 @@ export class ParanoiaService {
                 }
                 else {
                     logHHAuto("Setting Paranoia spendings for Season : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") No spending ");
+                }
                 }
             }
             //if autoPantheon is on

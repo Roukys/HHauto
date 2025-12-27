@@ -8,7 +8,7 @@ export class SeasonOpponent {
     aff: number;
     simu: BDSMSimu = {} as BDSMSimu;
 
-    constructor(opponent_id: any, nickname: string, mojo: number, exp: number, aff: number, simu:BDSMSimu){
+    constructor(opponent_id: any, nickname: string, mojo: number, exp: number, aff: number, simu: BDSMSimu){
         this.opponent_id = opponent_id;
         this.nickname = nickname;
         this.mojo = mojo;

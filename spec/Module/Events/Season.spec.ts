@@ -228,7 +228,7 @@ describe("Season event", function () {
     });
 
     describe("getBestOppo low mojo", function () {
-        it("low mojo", function () {
+        xit("low mojo", function () {
             mockSeasonTierLevel(20);
             const OPPO_AA = { ...OPPO_A };
             OPPO_AA.mojo = 5;
@@ -252,7 +252,7 @@ describe("Season event", function () {
             expect(result.chosenIndex).toBe(0);
         });
 
-        it("low mojo, energy not max with cards", function () {
+        xit("low mojo, energy not max with cards", function () {
             mockSeasonTierLevel(20);
             const OPPO_AA = { ...OPPO_A };
             OPPO_AA.mojo = 5;

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.26.6
+// @version      7.27.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -242,6 +242,7 @@ HHAuto_ToolTips.en['autoSeasonTitle'] = { version: "5.6.24", elementText: "Seaso
 HHAuto_ToolTips.en['autoSeason'] = { version: "5.6.24", elementText: "Enable", tooltip: "if enabled : Automatically fight in Seasons (Opponent chosen following PowerCalculation)" };
 HHAuto_ToolTips.en['autoSeasonCollect'] = { version: "5.6.24", elementText: "Collect", tooltip: "if enabled : Automatically collect Seasons ( if multiple to collect, will collect one per kiss usage)" };
 HHAuto_ToolTips.en['autoSeasonCollectAll'] = { version: "5.7.0", elementText: "Collect all", tooltip: "if enabled : Automatically collect all items before end of season (configured with Collect all timer)" };
+HHAuto_ToolTips.en['autoSeasonIgnoreNoGirls'] = { version: "7.27.0", elementText: "Ignore if no girls", tooltip: "if enabled : Do not perform any fight in season if no girls nor skin to win on season fight reward (useful for love raids)" };
 HHAuto_ToolTips.en['autoSeasonThreshold'] = { version: "5.6.24", elementText: "Threshold", tooltip: "Minimum kiss to keep" };
 HHAuto_ToolTips.en['autoSeasonRunThreshold'] = { version: "6.8.0", elementText: "Run Threshold", tooltip: "Minimum kiss fights before script start spending<br> 0 to spend as soon as energy above threshold" };
 HHAuto_ToolTips.en['autoSeasonBoostedOnly'] = { version: "6.5.0", elementText: "Boosted only", tooltip: "If enabled : Need booster to fight in season" };
@@ -3309,6 +3310,7 @@ class Season {
         const opponentDatas = unsafeWindow.opponents;
         let doDisplay = false;
         let seasonOpponents = [];
+        let hasGirlToWin = false;
         try {
             // TODO update
             if ($("div.matchRatingNew img#powerLevelScouter").length != 3) {
@@ -3323,6 +3325,10 @@ class Season {
                 const simu = calculateBattleProbabilities(player, opponent, debugEnabled);
                 seasonOpponents[index] = new SeasonOpponent((_b = opponentDatas[index].player) === null || _b === void 0 ? void 0 : _b.id_fighter, opponent.name, Number($(".slot_victory_points .amount", opponentBlock)[0].innerText), // mojo
                 Number($(".slot_season_xp_girl", opponentBlock)[0].lastElementChild.innerText.replace(/\D/g, '')), Number($(".slot_season_affection_girl", opponentBlock)[0].lastElementChild.innerText.replace(/\D/g, '')), simu);
+                const girlShardsReward = $(".slot.girl_ico[data-rewards]", opponentBlock);
+                if (girlShardsReward.length > 0) {
+                    hasGirlToWin = true;
+                }
                 $('.player-panel-buttons .btn_season_perform', opponentBlock).contents().filter(function () { return this.nodeType === 3; }).remove();
                 $('.player-panel-buttons .btn_season_perform', opponentBlock).find('span').remove();
                 $('.player-panel-buttons .opponent_perform_button_container .green_button_L.btn_season_perform .energy_kiss_icn.kiss_icon_s').remove();
@@ -3331,7 +3337,7 @@ class Season {
                 }
             }
             var { numberOfReds, chosenIndex } = Season.getBestOppo(seasonOpponents, Season.getEnergy(), Season.getEnergyMax());
-            const chosenID = (_c = opponentDatas[chosenIndex].player) === null || _c === void 0 ? void 0 : _c.id_fighter;
+            const chosenID = chosenIndex >= 0 ? (_c = opponentDatas[chosenIndex].player) === null || _c === void 0 ? void 0 : _c.id_fighter : chosenIndex;
             var price = Number($("div.opponents_arena button#refresh_villains").attr('price'));
             if (isNaN(price)) {
                 price = 12;
@@ -3351,7 +3357,11 @@ class Season {
                     LogUtils_logHHAuto('Error when dispaly chosen opponent');
                 }
             }
-            return chosenID;
+            if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonIgnoreNoGirls") === "true" && !hasGirlToWin) {
+                LogUtils_logHHAuto("Ignoring season fights as no girl to win on fight reward");
+                chosenIndex = -1;
+            }
+            return chosenIndex < 0 ? chosenIndex : chosenID;
         }
         catch (err) {
             LogUtils_logHHAuto("Catched error : Could not display season score : " + err);
@@ -7850,6 +7860,17 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonCollect"] =
         }
     };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonCollectAll"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonIgnoreNoGirls"] =
     {
         default: "false",
         storage: "Storage()",
@@ -15494,6 +15515,7 @@ function getMenu() {
             + hhMenuSwitch('autoSeason')
             + hhMenuSwitch('autoSeasonCollect')
             + hhMenuSwitch('autoSeasonCollectAll')
+            + hhMenuSwitch('autoSeasonIgnoreNoGirls')
             + `</div>`
             + `<div class="internalOptionsRow">`
             + hhMenuSwitch('autoSeasonPassReds', '', true)
@@ -19122,18 +19144,23 @@ class ParanoiaService {
             }
             //if autoSeason is on
             if (ConfigHelper.getHHScriptVars('isEnabledSeason', false) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeason") === "true") {
-                maxPointsDuringParanoia = Math.ceil((toNextSwitch - Number(getHHVars('Hero.energies.kiss.next_refresh_ts'))) / Number(getHHVars('Hero.energies.kiss.seconds_per_point')));
-                currentEnergy = Season.getEnergy();
-                maxEnergy = Season.getEnergyMax();
-                totalPointsEndParanoia = currentEnergy + maxPointsDuringParanoia;
-                //if point refreshed during paranoia would go above max
-                if (totalPointsEndParanoia >= maxEnergy) {
-                    paranoiaSpend = totalPointsEndParanoia - maxEnergy + 1;
-                    paranoiaSpendings.set("kiss", paranoiaSpend);
-                    LogUtils_logHHAuto("Setting Paranoia spendings for Season : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") spending " + paranoiaSpend);
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonIgnoreNoGirls") === "true") {
+                    LogUtils_logHHAuto('Season auto is on but ignore fights when no girls to win, no spending kisses.');
                 }
                 else {
-                    LogUtils_logHHAuto("Setting Paranoia spendings for Season : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") No spending ");
+                    maxPointsDuringParanoia = Math.ceil((toNextSwitch - Number(getHHVars('Hero.energies.kiss.next_refresh_ts'))) / Number(getHHVars('Hero.energies.kiss.seconds_per_point')));
+                    currentEnergy = Season.getEnergy();
+                    maxEnergy = Season.getEnergyMax();
+                    totalPointsEndParanoia = currentEnergy + maxPointsDuringParanoia;
+                    //if point refreshed during paranoia would go above max
+                    if (totalPointsEndParanoia >= maxEnergy) {
+                        paranoiaSpend = totalPointsEndParanoia - maxEnergy + 1;
+                        paranoiaSpendings.set("kiss", paranoiaSpend);
+                        LogUtils_logHHAuto("Setting Paranoia spendings for Season : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") spending " + paranoiaSpend);
+                    }
+                    else {
+                        LogUtils_logHHAuto("Setting Paranoia spendings for Season : " + currentEnergy + "+" + maxPointsDuringParanoia + " max gained in " + toNextSwitch + " secs => (" + totalPointsEndParanoia + "/" + maxEnergy + ") No spending ");
+                    }
                 }
             }
             //if autoPantheon is on

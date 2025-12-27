@@ -643,6 +643,7 @@ export function getMenu() {
                             + hhMenuSwitch('autoSeason')
                             + hhMenuSwitch('autoSeasonCollect')
                             + hhMenuSwitch('autoSeasonCollectAll')
+                            + hhMenuSwitch('autoSeasonIgnoreNoGirls')
                         +`</div>`
                         +`<div class="internalOptionsRow">`
                             + hhMenuSwitch('autoSeasonPassReds', '', true)
