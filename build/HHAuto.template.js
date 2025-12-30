@@ -76,17 +76,17 @@ GM_addStyle('.tooltipHH:hover { cursor: help; position: relative; }'
             +'.tooltipHH span.tooltipHHtext { display: none }');
 GM_addStyle('.HHpopup_message { border: #666 2px dotted; padding: 5px 20px 5px 5px; display: block; z-index: 1000; background: #e3e3e3; left: 0px; margin: 15px; width: 500px; position: absolute; top: 15px; color: black}');
 GM_addStyle(".HHpopup_message .close {   position: absolute;   top: 20px;   right: 30px;   transition: all 200ms;   font-size: 30px;   font-weight: bold;   text-decoration: none;   color: #333; } #popup_message_league_close:hover {   color: #06D85F; }");
-GM_addStyle('#HHPovPogRewards { position: absolute; bottom: 6.9rem; left: -0.75rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}');
+GM_addStyle('#HHPovPogRewards { position: absolute; bottom: 0.2rem; left: -0.75rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}');
 GM_addStyle('.HHRewardNotCollected { max-width: 17.9rem; transform: scale(0.8); }');
 GM_addStyle('.HHRewardNotCollected .slot { margin: 1px 1px 0}'); 
 GM_addStyle('.HHGirlMilestone { position: absolute; bottom: 0;  z-index: 1; font-size:smaller; width: 200px; text-align: center;}'); 
 GM_addStyle('.HHGirlMilestone > div { background: rgba(0,0,0,.5); border-radius: 10px; margin:auto;  width: 140px; }'); 
 // GM_addStyle('.HHGirlMilestone.green { border: solid 1px green }');
 GM_addStyle('.HHGirlMilestone .nc-claimed-reward-check { width:20px; position:absolute; }'); 
-GM_addStyle('#HHPentaDrillRewards { position: absolute; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
-GM_addStyle('#HHSeasonRewards { position: absolute; right: 1.25rem; bottom: 14rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
+GM_addStyle('#HHPentaDrillRewards { position: absolute; right: 7rem; top: 14.75rem; padding: 0.2rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
+GM_addStyle('#HHSeasonRewards { position: absolute; right: 33.5rem; bottom: 13rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
 GM_addStyle('#HHSeasonalRewards { position: absolute; left: 1.25rem; bottom: 1rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 4;}'); 
-GM_addStyle('#HHPoaRewards { position: absolute; left: 15rem; bottom: 0; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
+GM_addStyle('#HHPoaRewards { position: absolute;left: 32rem; top: 13.5rem; padding: 0.2rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
 GM_addStyle('#HHDpRewards { position: absolute; left: 0; top: 12rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
 // copy CSS from HH OCD, to make it work on other game than HH
 GM_addStyle('#pov_tab_container .potions-paths-first-row .potions-paths-title-panel { transform: scale(0.5);  position: relative; top: -37px; }');

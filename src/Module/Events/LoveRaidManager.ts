@@ -1,20 +1,14 @@
 import {
-    RewardHelper,
-    TimeHelper,
     checkTimer,
-    convertTimeToInt,
     ConfigHelper,
-    getHHVars,
-    getLimitTimeBeforeEnd,
     getPage,
-    getSecondsLeft,
     getStoredValue,
     randomInterval,
     setStoredValue,
     setTimer, 
-    HeroHelper,
     getTextForUI,
-    getTimeLeft} from "../../Helper/index";
+    getTimeLeft,
+    clearTimer} from "../../Helper/index";
     import { gotoPage } from "../../Service/index";
     import { isJSON, logHHAuto } from "../../Utils/index";
 import { HHStoredVarPrefixKey } from "../../config/index";
@@ -129,7 +123,8 @@ export class LoveRaidManager {
                             raid.championId = Number(kkRaid.raid_module_pk);
                             break;
                         case 'season':
-                            // ?
+                            // Find ongoing season raid, clear nextSeasonTime timer
+                            if (kkRaid.status == 'ongoing' && raid.shards_left > 0 && !checkTimer('nextSeasonTime')) clearTimer('nextSeasonTime');
                             break;
                         default:
                             if (debugEnabled) logHHAuto('Unknown raid type, ingoring raid');
