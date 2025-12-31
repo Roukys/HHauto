@@ -79,20 +79,43 @@ export class HaremGirl {
         return Number($('#girl_max_out_all_levels_popup .slot_soft_currency .amount').text().replace(/\D+/g, ""));
     }
 
+    static confirmMaxOutAllGems() {
+        const confirmMaxOutButton = $('#girl_max_out_all_levels_popup button.blue_button_L:not([disabled]):visible[confirm_callback]');
+        if (confirmMaxOutButton.length > 0) {
+            confirmMaxOutButton.trigger('click');
+        } else logHHAuto('Confirm max out all button not found');
+    }
+
+    static getMaxOutGems(): number {
+        return Number($('#girl_max_out_all_levels_popup .slot_gems .amount').text().replace(/\D+/g, ""));
+    }
+
     static maxOutAllButtonAndConfirm(haremItem:string, girl: KKHaremGirl): Promise<any> {
         return new Promise((resolve) => {
             const maxOutButton = HaremGirl.getMaxOutAllButton(haremItem);
             if(maxOutButton.length > 0) {
                 //logHHAuto('Max out all ' + haremItem + ' for girl ' + girl.id_girl);
                 maxOutButton.trigger('click');
-                setTimeout(() => {
-                    const cost = HaremGirl.getMaxOutPrice();
-                    logHHAuto(`Max out all ${haremItem} (for ${cost}) for girl ${girl.name} (${girl.id_girl})`);
-                    HaremGirl.confirmMaxOutAllCash();
-                    setTimeout(() => {
+                if (haremItem == HaremGirl.EXPERIENCE_TYPE) {
+                    setTimeout( async () => {
+                        const cost = HaremGirl.getMaxOutGems();
+                        logHHAuto(`Max out all ${haremItem} (for ${cost} gems) for girl ${girl.name} (${girl.id_girl})`);
+                        HaremGirl.confirmMaxOutAllGems();
+                        await TimeHelper.sleep(randomInterval(400, 700));
+                        HaremGirl.confirmMaxOut(); // No gems
+                        await TimeHelper.sleep(randomInterval(400, 700));
                         resolve(cost);
-                    }, 200);
-                }, randomInterval(700,1100));
+                    }, randomInterval(700, 1100));
+
+                } else if (haremItem == HaremGirl.AFFECTION_TYPE) {
+                    setTimeout(async () => {
+                        const cost = HaremGirl.getMaxOutPrice();
+                        logHHAuto(`Max out all ${haremItem} (for ${cost}) for girl ${girl.name} (${girl.id_girl})`);
+                        HaremGirl.confirmMaxOutAllCash();
+                        await TimeHelper.sleep(randomInterval(400, 700));
+                        resolve(cost);
+                    }, randomInterval(700,1100));
+                }
             } else {
                 logHHAuto(`Max out all button for ${haremItem} for girl ${girl.name} (${girl.id_girl}) not enabled`);
                 resolve(0);
@@ -263,6 +286,21 @@ export class HaremGirl {
             }
         } else{
             logHHAuto("Girl grade is already maxed out");
+        }
+        return false;
+    }
+
+    static async fillAllExperience() {
+        const haremItem = HaremGirl.EXPERIENCE_TYPE;
+        const selectedGirl: KKHaremGirl = HaremGirl.getCurrentGirl();
+        HaremGirl.switchTabs(haremItem);
+        const maxOutAllButton = HaremGirl.getMaxOutAllButton(haremItem);
+
+        if (maxOutAllButton.length > 0) {
+            await HaremGirl.maxOutAllButtonAndConfirm(haremItem, selectedGirl);
+            return true;
+        } else{
+            logHHAuto("Girl level is already maxed out");
         }
         return false;
     }
@@ -567,6 +605,9 @@ export class HaremGirl {
                         logHHAuto("Going to girl quest");
                         return Promise.resolve(true);
                     }
+                } else if (haremGirlEnd && haremItem == HaremGirl.EXPERIENCE_TYPE ) {
+                    HaremGirl.HaremDisplayGirlPopup(haremItem, getTextForUI("giveMaxingOut", "elementText") + ' ' + girl.name + ' : ' + girlListProgress, (remainingGirls + 1) * 5, haremGirlSpent);
+                    await HaremGirl.fillAllExperience();
                 } else {
                     const canMaxOut = HaremGirl.getMaxOutButton(haremItem).length > 0;
                     if (nextGirlId < 0) girlListProgress += lastGirlListProgress;
