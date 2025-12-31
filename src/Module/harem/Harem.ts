@@ -540,11 +540,13 @@ export class Harem {
 
             
             const menuIDXp = "haremGiveXP";
+            const menuIDMaxXp = "haremGiveMaxXP";
             const menuIDGifts = "haremGiveGifts";
             const menuIDMaxGifts = "haremGiveMaxGifts";
             const menuIDUpgradeMax = "haremUpgradeMax";
             const menuNextUpgrad = "haremNextUpgradableGirl";
 
+            const menuIDMaxXpButton = createMenuButton(menuIDMaxXp);
             const menuIDXpButton = createMenuButton(menuIDXp);
             const menuIDGiftsButton = createMenuButton(menuIDGifts);
             const menuIDMaxGiftsButton = createMenuButton(menuIDMaxGifts);
@@ -559,6 +561,7 @@ export class Harem {
             +       '<div class="optionsBoxTitle"><img class="iconImg" src="'+imgPath+'/design/ic_books_gray.svg"><span class="optionsBoxTitle">'+getTextForUI("experience","elementText")+'</span></div>'
             +       '<div class="optionsBox">'
             +         '<div style="padding:10px">'+menuIDXpButton+'</div>'
+            +         '<div style="padding:10px">'+menuIDMaxXpButton+'</div>'
             +       '</div>'
             +    '</div>'
             +    '<div class="optionsBoxWithTitle">'
@@ -582,6 +585,9 @@ export class Harem {
             $('#'+menuIDMaxGifts+'Button').on("click", function() {
                 setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlEnd", 'true');
                 Harem.fillCurrentGirlItem('affection');
+            });$('#'+menuIDMaxXp+'Button').on("click", function() {
+                setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlEnd", 'true');
+                Harem.fillCurrentGirlItem('experience');
             });
             $('#'+menuIDUpgradeMax+'Button').on("click", function() {
                 setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlEnd", 'true');
