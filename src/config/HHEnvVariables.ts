@@ -539,6 +539,7 @@ for (var key in TransPornstarHarem.getEnv()) {
     HHEnvVariables[element].trollGirlsID = TransPornstarHarem.getTrollGirlsId();
     HHEnvVariables[element].trollIdMapping = TransPornstarHarem.trollIdMapping;
     HHEnvVariables[element].lastQuestId = TransPornstarHarem.lastQuestId;
+    HHEnvVariables[element].boosterId_MB1 = 2619;
 };
 
 for (var key in GayPornstarHarem.getEnv()) {
