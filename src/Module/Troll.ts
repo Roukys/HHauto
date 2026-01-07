@@ -343,7 +343,7 @@ export class Troll {
             let TTF:number = Number(queryStringGetParam(window.location.search,'id_opponent'));
             const trollz = ConfigHelper.getHHScriptVars("trollzList");
 
-            let battleButton = $('#pre-battle .battle-buttons a.green_button_L.battle-action-button');
+            let battleButton = $('#pre-battle .battle-buttons .green_button_L.battle-action-button');
             let battleButtonX10 = $('#pre-battle .battle-buttons button.autofight[data-battles="10"]');
             let battleButtonX50 = $('#pre-battle .battle-buttons button.autofight[data-battles="50"]');
             let battleButtonX10Price = Number(battleButtonX10.attr('price'));
