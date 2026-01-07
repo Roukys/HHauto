@@ -96,7 +96,7 @@ export class Pantheon {
                 if (runThreshold > 0) {
                     setStoredValue(HHStoredVarPrefixKey+"Temp_PantheonHumanLikeRun", "true");
                 }
-                let pantheonButton = $("#pantheon_tab_container .bottom-container a.blue_button_L.pantheon-pre-battle-btn");
+                let pantheonButton = $("#pantheon_tab_container .bottom-container .blue_button_L.pantheon-pre-battle-btn");
                 let templeID = queryStringGetParam(new URL(pantheonButton[0].getAttribute("href")||'',window.location.origin).search, 'id_opponent');
                 if (pantheonButton.length > 0 && templeID !== null )
                 {
@@ -131,7 +131,7 @@ export class Pantheon {
             logHHAuto("On pantheon-pre-battle page.");
             let templeID = queryStringGetParam(window.location.search,'id_opponent');
             logHHAuto("Go and fight temple :"+templeID);
-            let pantheonTempleBattleButton =$("#pre-battle .battle-buttons a.green_button_L.battle-action-button.pantheon-single-battle-button[data-pantheon-id='"+templeID+"']");
+            let pantheonTempleBattleButton =$("#pre-battle .battle-buttons .green_button_L.battle-action-button.pantheon-single-battle-button[data-pantheon-id='"+templeID+"']");
             if (pantheonTempleBattleButton.length >0)
             {
                 //replaceCheatClick();
@@ -141,7 +141,8 @@ export class Pantheon {
             }
             else
             {
-                logHHAuto("Issue to find temple battle button retry in 60secs.");
+                logHHAuto("Issue to find temple battle button retry in 60secs. Disabling pantheon battle.");
+                setStoredValue(HHStoredVarPrefixKey + "Setting_autoPantheon", "false");
                 setTimer('nextPantheonTime', randomInterval(60, 70));
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
             }

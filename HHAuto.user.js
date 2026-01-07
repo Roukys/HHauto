@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.28.1
+// @version      7.28.2
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -6147,7 +6147,7 @@ class Troll {
             LogUtils_logHHAuto("On Pre battle page.");
             let TTF = Number(queryStringGetParam(window.location.search, 'id_opponent'));
             const trollz = ConfigHelper.getHHScriptVars("trollzList");
-            let battleButton = $('#pre-battle .battle-buttons a.green_button_L.battle-action-button');
+            let battleButton = $('#pre-battle .battle-buttons .green_button_L.battle-action-button');
             let battleButtonX10 = $('#pre-battle .battle-buttons button.autofight[data-battles="10"]');
             let battleButtonX50 = $('#pre-battle .battle-buttons button.autofight[data-battles="50"]');
             let battleButtonX10Price = Number(battleButtonX10.attr('price'));
@@ -11789,7 +11789,7 @@ class Pantheon {
                 if (runThreshold > 0) {
                     setStoredValue(HHStoredVarPrefixKey + "Temp_PantheonHumanLikeRun", "true");
                 }
-                let pantheonButton = $("#pantheon_tab_container .bottom-container a.blue_button_L.pantheon-pre-battle-btn");
+                let pantheonButton = $("#pantheon_tab_container .bottom-container .blue_button_L.pantheon-pre-battle-btn");
                 let templeID = queryStringGetParam(new URL(pantheonButton[0].getAttribute("href") || '', window.location.origin).search, 'id_opponent');
                 if (pantheonButton.length > 0 && templeID !== null) {
                     LogUtils_logHHAuto("Going to fight Temple : " + templeID);
@@ -11819,7 +11819,7 @@ class Pantheon {
             LogUtils_logHHAuto("On pantheon-pre-battle page.");
             let templeID = queryStringGetParam(window.location.search, 'id_opponent');
             LogUtils_logHHAuto("Go and fight temple :" + templeID);
-            let pantheonTempleBattleButton = $("#pre-battle .battle-buttons a.green_button_L.battle-action-button.pantheon-single-battle-button[data-pantheon-id='" + templeID + "']");
+            let pantheonTempleBattleButton = $("#pre-battle .battle-buttons .green_button_L.battle-action-button.pantheon-single-battle-button[data-pantheon-id='" + templeID + "']");
             if (pantheonTempleBattleButton.length > 0) {
                 //replaceCheatClick();
                 setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
@@ -11827,7 +11827,8 @@ class Pantheon {
                 pantheonTempleBattleButton[0].click();
             }
             else {
-                LogUtils_logHHAuto("Issue to find temple battle button retry in 60secs.");
+                LogUtils_logHHAuto("Issue to find temple battle button retry in 60secs. Disabling pantheon battle.");
+                setStoredValue(HHStoredVarPrefixKey + "Setting_autoPantheon", "false");
                 setTimer('nextPantheonTime', randomInterval(60, 70));
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
             }
