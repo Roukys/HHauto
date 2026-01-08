@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.28.3
+// @version      7.28.4
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -11963,7 +11963,7 @@ class PentaDrill {
                 else {
                     const chosenID = chosenOpponent.player.id_fighter;
                     const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPentaDrillRunThreshold")) || 0;
-                    const opponentButton = $('.opponent-info-container .change-team-container a[href*=' + chosenID + ']');
+                    const opponentButton = $('.opponent-info-container a[href*=' + chosenID + ']');
                     if (runThreshold > 0) {
                         setStoredValue(HHStoredVarPrefixKey + "Temp_PentaDrillHumanLikeRun", "true");
                     }
