@@ -140,7 +140,7 @@ export class PentaDrill {
             {
                 const chosenID = chosenOpponent.player.id_fighter;
                 const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoPentaDrillRunThreshold")) || 0;
-                const opponentButton = $('.opponent-info-container .change-team-container a[href*=' + chosenID + ']');
+                const opponentButton = $('.opponent-info-container a[href*=' + chosenID + ']');
                 if (runThreshold > 0) {
                     setStoredValue(HHStoredVarPrefixKey+"Temp_PentaDrillHumanLikeRun", "true");
                 }
