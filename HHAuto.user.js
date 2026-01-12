@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.28.4
+// @version      7.28.5
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -5960,8 +5960,7 @@ class Troll {
         let trollWithGirls = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_trollWithGirls")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_trollWithGirls")) : [];
         const autoTrollSelectedIndex = Troll.getTrollSelectedIndex();
         let TTF = 0;
-        const isMainAdventure = getHHVars('Hero.infos.questing.choices_adventure') == 0;
-        const lastWorldMainAdventure = getStoredValue(HHStoredVarPrefixKey + "Temp_MainAdventureWorldID") || -1;
+        // const isMainAdventure = getHHVars('Hero.infos.questing.choices_adventure') == 0;
         const lastTrollIdAvailable = Troll.getLastTrollIdAvailable(logging);
         const eventGirl = EventModule.getEventGirl();
         const eventMythicGirl = EventModule.getEventMythicGirl();
@@ -6052,17 +6051,12 @@ class Troll {
         }
         const trollz = ConfigHelper.getHHScriptVars("trollzList");
         const sideTrollz = ConfigHelper.getHHScriptVars("sideTrollzList");
-        if (!isMainAdventure && !sideTrollz.hasOwnProperty(TTF) && TTF >= lastWorldMainAdventure) {
-            if (logging)
-                LogUtils_logHHAuto(`Error: Side adventure selected and troll ${TTF} from main adventure. Backup to ${lastTrollIdAvailable}`);
-            TTF = lastTrollIdAvailable;
-        }
         if (TTF <= 0) {
             TTF = lastTrollIdAvailable > 0 ? lastTrollIdAvailable : 1;
             if (logging)
                 LogUtils_logHHAuto(`Error: wrong troll target found. Backup to ${TTF}`);
         }
-        if (TTF >= trollz.length && !sideTrollz.hasOwnProperty(TTF)) {
+        if (!trollz.hasOwnProperty(TTF) && !sideTrollz.hasOwnProperty(TTF)) {
             if (logging)
                 LogUtils_logHHAuto("Error: New troll implemented '" + TTF + "' (List to be updated) or wrong troll target found");
             TTF = 1;
@@ -10323,7 +10317,7 @@ class LabyrinthAuto {
                 }
                 if ($('.cleared-labyrinth-container:visible').length > 0) {
                     LogUtils_logHHAuto("Labyrinth ended.");
-                    setTimer('nextLabyrinthTime', Labyrinth.getResetTime() + randomInterval(3600, 4000));
+                    setTimer('nextLabyrinthTime', Labyrinth.getResetTime() + randomInterval(7200, 8000));
                     return false;
                 }
                 if ($('#labyrinth_reward_popup .relic-container').length > 0) {

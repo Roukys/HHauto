@@ -153,8 +153,7 @@ export class Troll {
         const autoTrollSelectedIndex = Troll.getTrollSelectedIndex();
 
         let TTF: number = 0;
-        const isMainAdventure = getHHVars('Hero.infos.questing.choices_adventure') == 0;
-        const lastWorldMainAdventure = getStoredValue(HHStoredVarPrefixKey + "Temp_MainAdventureWorldID") || -1; 
+        // const isMainAdventure = getHHVars('Hero.infos.questing.choices_adventure') == 0;
         const lastTrollIdAvailable = Troll.getLastTrollIdAvailable(logging);
         const eventGirl = EventModule.getEventGirl();
         const eventMythicGirl = EventModule.getEventMythicGirl();
@@ -238,15 +237,11 @@ export class Troll {
         }
         const trollz = ConfigHelper.getHHScriptVars("trollzList");
         const sideTrollz = ConfigHelper.getHHScriptVars("sideTrollzList");
-        if (!isMainAdventure && !sideTrollz.hasOwnProperty(TTF) && TTF >= lastWorldMainAdventure) {
-            if (logging) logHHAuto(`Error: Side adventure selected and troll ${TTF} from main adventure. Backup to ${lastTrollIdAvailable}`);
-            TTF = lastTrollIdAvailable;
-        }
         if (TTF <= 0) {
             TTF = lastTrollIdAvailable > 0 ? lastTrollIdAvailable : 1;
             if (logging) logHHAuto(`Error: wrong troll target found. Backup to ${TTF}`);
         }
-        if (TTF >= trollz.length && !sideTrollz.hasOwnProperty(TTF)) {
+        if (!trollz.hasOwnProperty(TTF) && !sideTrollz.hasOwnProperty(TTF)) {
             if (logging) logHHAuto("Error: New troll implemented '"+TTF+"' (List to be updated) or wrong troll target found");
             TTF = 1;
         }

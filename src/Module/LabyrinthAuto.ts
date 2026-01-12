@@ -75,7 +75,7 @@ export class LabyrinthAuto {
 
             if ($('.cleared-labyrinth-container:visible').length > 0) {
                 logHHAuto("Labyrinth ended.");
-                setTimer('nextLabyrinthTime', Labyrinth.getResetTime() + randomInterval(3600, 4000));
+                setTimer('nextLabyrinthTime', Labyrinth.getResetTime() + randomInterval(7200, 8000));
                 return false;
             }
 
