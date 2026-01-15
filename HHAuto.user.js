@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.28.5
+// @version      7.28.6
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1406,6 +1406,9 @@ class BossBang {
             LogUtils_logHHAuto("Boss bang completed, disabled boss bang event setting");
             setStoredValue(HHStoredVarPrefixKey + "Setting_bossBangEvent", false);
         }
+        else {
+            LogUtils_logHHAuto(`No eligible team found for boss bang event, need team ${firstTeamToStartWith} or higher`);
+        }
         if (!teamFound) {
             setStoredValue(HHStoredVarPrefixKey + "Temp_bossBangTeam", -1);
         }
@@ -1429,7 +1432,12 @@ class BossBang {
         const teamIndexFound = parseInt(getStoredValue(HHStoredVarPrefixKey + "Temp_bossBangTeam"));
         let bangButton = $('#contains_all #events #boss_bang .boss-bang-event-info #start-bang-button:not([disabled])');
         if (teamIndexFound >= 0 && bangButton.length > 0) {
-            gotoPage(bangButton.attr('href'));
+            LogUtils_logHHAuto("Go to boss bang fight page");
+            setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+            location.href = addNutakuSession(bangButton.attr('href'));
+        }
+        else {
+            LogUtils_logHHAuto(`Cannot go to boss bang fight page, no team selected ${teamIndexFound} or no bang button found`);
         }
     }
 }
@@ -10199,9 +10207,6 @@ function gotoPage(page, inArgs = {}, delay = -1) {
         case (page.match(/^\/quest\/\d+.*$/) || {}).input:
             togoto = page;
             break;
-        case (page.match(/^\/boss-bang-battle.html\?number_of_battles=\d&bb_team_index=[01234]$/) || {}).input:
-            togoto = page;
-            break;
         default:
             LogUtils_logHHAuto("Unknown goto page request. No page \'" + page + "\' defined.");
     }
@@ -18685,14 +18690,14 @@ function autoLoop() {
                 if (eventID != '') {
                     if (getStoredValue(HHStoredVarPrefixKey + "Setting_plusEvent") === "true" || getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true") {
                         if (eventParsed == null) {
-                            EventModule.parseEventPage();
+                            EventModule.parseEventPage(eventID);
                         }
                         EventModule.moduleDisplayEventPriority();
                         EventModule.hideOwnedGilrs();
                     }
                     if (getStoredValue(HHStoredVarPrefixKey + "Setting_bossBangEvent") === "true" && EventModule.getEvent(eventID).isBossBangEvent) {
                         if (eventParsed == null) {
-                            EventModule.parseEventPage();
+                            EventModule.parseEventPage(eventID);
                         }
                         setTimeout(BossBang.goToFightPage, randomInterval(500, 1500));
                     }

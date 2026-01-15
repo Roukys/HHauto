@@ -1,5 +1,5 @@
 import { convertTimeToInt, getStoredValue, randomInterval, setStoredValue, setTimer } from "../../Helper/index";
-import { gotoPage } from "../../Service/index";
+import { addNutakuSession, gotoPage } from "../../Service/index";
 import { logHHAuto } from "../../Utils/index";
 import { HHStoredVarPrefixKey } from "../../config/index";
 
@@ -45,6 +45,9 @@ export class BossBang {
             logHHAuto("Boss bang completed, disabled boss bang event setting");
             setStoredValue(HHStoredVarPrefixKey + "Setting_bossBangEvent", false);
         }
+        else {
+            logHHAuto(`No eligible team found for boss bang event, need team ${firstTeamToStartWith} or higher`);
+        }
         if (!teamFound) {
             setStoredValue(HHStoredVarPrefixKey + "Temp_bossBangTeam", -1);
         }
@@ -69,11 +72,15 @@ export class BossBang {
         }
     }
 
-    static goToFightPage(){
+    static goToFightPage() {
         const teamIndexFound = parseInt(getStoredValue(HHStoredVarPrefixKey+"Temp_bossBangTeam"));
         let bangButton = $('#contains_all #events #boss_bang .boss-bang-event-info #start-bang-button:not([disabled])');
         if(teamIndexFound >= 0 && bangButton.length > 0) {
-            gotoPage(bangButton.attr('href'));
+            logHHAuto("Go to boss bang fight page");
+            setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+            location.href = addNutakuSession(bangButton.attr('href')) as string;
+        } else {
+            logHHAuto(`Cannot go to boss bang fight page, no team selected ${teamIndexFound} or no bang button found`);
         }
     }
 }
