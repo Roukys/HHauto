@@ -1039,7 +1039,7 @@ export async function autoLoop()
                 if (getStoredValue(HHStoredVarPrefixKey+"Setting_plusEvent") === "true" || getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythic") ==="true")
                 {
                     if(eventParsed == null) {
-                        EventModule.parseEventPage();
+                        EventModule.parseEventPage(eventID);
                     }
                     EventModule.moduleDisplayEventPriority();
                     EventModule.hideOwnedGilrs();
@@ -1048,7 +1048,7 @@ export async function autoLoop()
                 if (getStoredValue(HHStoredVarPrefixKey+"Setting_bossBangEvent") === "true" && EventModule.getEvent(eventID).isBossBangEvent)
                 {
                     if(eventParsed == null) {
-                        EventModule.parseEventPage();
+                        EventModule.parseEventPage(eventID);
                     }
                     setTimeout(BossBang.goToFightPage, randomInterval(500,1500));
                 }
