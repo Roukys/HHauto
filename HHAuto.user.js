@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.28.6
+// @version      7.28.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -14046,7 +14046,8 @@ class ComixHarem {
             'D\'KLONG',
             'Virtue Man',
             'Asmodea',
-            'Blueball Gremlin'];
+            'Blueball Gremlin',
+            'Oblivia'];
         switch (languageCode) {
             case "fr":
                 trollList[12] = 'Gremlin Couill\'bleues';
@@ -14068,6 +14069,7 @@ class ComixHarem {
             [['125758004', '233499841', '647307160'], [0], [0]],
             [['994555359', '705713849', '973778141'], [0], [0]],
             [['986074436', '151807422', '993438296'], [0], [0]],
+            [['629181593', '686202051', '107847932'], [0], [0]],
         ];
     }
     static updateFeatures(envVariables) {

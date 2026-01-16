@@ -21,7 +21,8 @@ export class ComixHarem {
             'D\'KLONG',
             'Virtue Man',
             'Asmodea',
-            'Blueball Gremlin'];
+            'Blueball Gremlin',
+            'Oblivia'];
 
         switch (languageCode) {
             case "fr":
@@ -44,6 +45,7 @@ export class ComixHarem {
             [['125758004', '233499841', '647307160'], [0], [0]],
             [['994555359', '705713849', '973778141'], [0], [0]],
             [['986074436', '151807422', '993438296'], [0], [0]],
+            [['629181593', '686202051', '107847932'], [0], [0]],
         ];
     }
     static updateFeatures(envVariables: any) {
