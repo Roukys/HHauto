@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.28.7
+// @version      7.28.8
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -1356,92 +1356,6 @@ class Bundles {
     }
 }
 
-;// CONCATENATED MODULE: ./src/Module/Events/BossBang.ts
-
-
-
-
-class BossBang {
-    static parse(hhEvent, eventList, hhEventData) {
-        const eventID = hhEvent.eventId;
-        let refreshTimer = randomInterval(3600, 4000);
-        let timeLeft = $('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
-        if (timeLeft !== undefined && timeLeft.length) {
-            setTimer('eventBossBangGoing', Number(convertTimeToInt(timeLeft)));
-        }
-        else
-            setTimer('eventBossBangGoing', refreshTimer);
-        eventList[eventID] = {};
-        eventList[eventID]["id"] = eventID;
-        eventList[eventID]["type"] = hhEvent.eventType;
-        eventList[eventID]["seconds_before_end"] = new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
-        eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimer * 1000;
-        eventList[eventID]["isCompleted"] = $('#contains_all #events #boss_bang .completed-event').length > 0;
-        let teamEventz = $('#contains_all #events #boss_bang .boss-bang-teams-container .boss-bang-team-slot');
-        let teamFound = false;
-        const firstTeamToStartWith = getStoredValue(HHStoredVarPrefixKey + "Setting_bossBangMinTeam");
-        if ($('.boss-bang-team-ego', teamEventz[firstTeamToStartWith - 1]).length > 0) {
-            // Do not trigger event if not all teams are set
-            for (let currIndex = teamEventz.length - 1; currIndex >= 0 && !teamFound; currIndex--) {
-                // start with last team first
-                let teamz = $(teamEventz[currIndex]);
-                const teamIndex = teamz.data('slot-index');
-                const teamEgo = $('.boss-bang-team-ego', teamz);
-                if (teamEgo.length > 0 && parseInt(teamEgo.text()) > 0) {
-                    if (!teamFound) {
-                        if (!teamz.hasClass('.selected-hero-team'))
-                            teamz.click();
-                        teamFound = true;
-                        LogUtils_logHHAuto("Select team " + (teamIndex + 1) + ", Ego: " + parseInt(teamEgo.text()));
-                        setStoredValue(HHStoredVarPrefixKey + "Temp_bossBangTeam", teamIndex);
-                        return true;
-                    }
-                }
-                else {
-                    LogUtils_logHHAuto("Team " + teamIndex + " not eligible");
-                }
-            }
-        }
-        else if (eventList[eventID]["isCompleted"]) {
-            LogUtils_logHHAuto("Boss bang completed, disabled boss bang event setting");
-            setStoredValue(HHStoredVarPrefixKey + "Setting_bossBangEvent", false);
-        }
-        else {
-            LogUtils_logHHAuto(`No eligible team found for boss bang event, need team ${firstTeamToStartWith} or higher`);
-        }
-        if (!teamFound) {
-            setStoredValue(HHStoredVarPrefixKey + "Temp_bossBangTeam", -1);
-        }
-    }
-    static skipFightPage() {
-        const rewardsButton = $('#rewards_popup .blue_button_L:not([disabled]):visible');
-        const skipFightButton = $('#battle #new-battle-skip-btn:not([disabled]):visible');
-        if (rewardsButton.length > 0) {
-            LogUtils_logHHAuto("Click get rewards bang fight");
-            rewardsButton.trigger('click');
-            setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
-        }
-        else if (skipFightButton.length > 0) {
-            LogUtils_logHHAuto("Click skip boss bang fight");
-            skipFightButton.trigger('click');
-            setTimeout(BossBang.skipFightPage, randomInterval(1300, 1900));
-            setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
-        }
-    }
-    static goToFightPage() {
-        const teamIndexFound = parseInt(getStoredValue(HHStoredVarPrefixKey + "Temp_bossBangTeam"));
-        let bangButton = $('#contains_all #events #boss_bang .boss-bang-event-info #start-bang-button:not([disabled])');
-        if (teamIndexFound >= 0 && bangButton.length > 0) {
-            LogUtils_logHHAuto("Go to boss bang fight page");
-            setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
-            location.href = addNutakuSession(bangButton.attr('href'));
-        }
-        else {
-            LogUtils_logHHAuto(`Cannot go to boss bang fight page, no team selected ${teamIndexFound} or no bang button found`);
-        }
-    }
-}
-
 ;// CONCATENATED MODULE: ./src/Module/Events/CumbackContests.ts
 
 class CumbackContests {
@@ -2583,6 +2497,16 @@ class EventModule {
             isEnabled: isPlusEvent || isPlusEventMythic || isBossBangEvent || isSultryMysteriesEvent || isDPEvent || isPoa || isLivelyScene
         };
     }
+    static getEventIDsByType(inType) {
+        let eventIDs = [];
+        let eventList = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) : {};
+        for (let eventID of Object.keys(eventList)) {
+            if (eventList[eventID]["type"] === inType && !eventList[eventID]["isCompleted"]) {
+                eventIDs.push(eventID);
+            }
+        }
+        return eventIDs;
+    }
     static isEventActive(inEventID) {
         let eventList = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) : {};
         if (eventList.hasOwnProperty(inEventID) && !eventList[inEventID]["isCompleted"]) {
@@ -2855,6 +2779,124 @@ class EventModule {
                 }
         */
         return { eventIDs: eventIDs, bossBangEventIDs: bossBangEventIDs };
+    }
+}
+
+;// CONCATENATED MODULE: ./src/Module/Events/BossBang.ts
+var BossBang_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
+
+
+
+
+class BossBang {
+    static parse(hhEvent, eventList, hhEventData) {
+        const eventID = hhEvent.eventId;
+        let refreshTimer = randomInterval(3600, 4000);
+        let timeLeft = $('#contains_all #events .nc-panel .timer span[rel="expires"]').text();
+        if (timeLeft !== undefined && timeLeft.length) {
+            setTimer('eventBossBangGoing', Number(convertTimeToInt(timeLeft)));
+        }
+        else
+            setTimer('eventBossBangGoing', refreshTimer);
+        eventList[eventID] = {};
+        eventList[eventID]["id"] = eventID;
+        eventList[eventID]["type"] = hhEvent.eventType;
+        eventList[eventID]["seconds_before_end"] = new Date().getTime() + Number(convertTimeToInt(timeLeft)) * 1000;
+        eventList[eventID]["next_refresh"] = new Date().getTime() + refreshTimer * 1000;
+        eventList[eventID]["isCompleted"] = $('#contains_all #events #boss_bang .completed-event').length > 0;
+        let teamEventz = $('#contains_all #events #boss_bang .boss-bang-teams-container .boss-bang-team-slot');
+        let teamFound = false;
+        const firstTeamToStartWith = getStoredValue(HHStoredVarPrefixKey + "Setting_bossBangMinTeam");
+        if ($('.boss-bang-team-ego', teamEventz[firstTeamToStartWith - 1]).length > 0) {
+            // Do not trigger event if not all teams are set
+            for (let currIndex = teamEventz.length - 1; currIndex >= 0 && !teamFound; currIndex--) {
+                // start with last team first
+                let teamz = $(teamEventz[currIndex]);
+                const teamIndex = teamz.data('slot-index');
+                const teamEgo = $('.boss-bang-team-ego', teamz);
+                if (teamEgo.length > 0 && parseInt(teamEgo.text()) > 0) {
+                    if (!teamFound) {
+                        if (!teamz.hasClass('.selected-hero-team'))
+                            teamz.click();
+                        teamFound = true;
+                        LogUtils_logHHAuto("Select team " + (teamIndex + 1) + ", Ego: " + parseInt(teamEgo.text()));
+                        setStoredValue(HHStoredVarPrefixKey + "Temp_bossBangTeam", teamIndex);
+                        return true;
+                    }
+                }
+                else {
+                    LogUtils_logHHAuto("Team " + teamIndex + " not eligible");
+                }
+            }
+            // setTimer('nextBossBangTime', randomInterval(30, 60) * 60); // 30 to 60 minutes
+        }
+        else if (eventList[eventID]["isCompleted"]) {
+            LogUtils_logHHAuto("Boss bang completed, disabled boss bang event setting");
+            setStoredValue(HHStoredVarPrefixKey + "Setting_bossBangEvent", false);
+        }
+        else {
+            LogUtils_logHHAuto(`No eligible team found for boss bang event, need team ${firstTeamToStartWith} or higher`);
+        }
+        if (!teamFound) {
+            setStoredValue(HHStoredVarPrefixKey + "Temp_bossBangTeam", -1);
+        }
+    }
+    static skipFightPage() {
+        const rewardsButton = $('#rewards_popup .blue_button_L:not([disabled]):visible');
+        const skipFightButton = $('#battle #new-battle-skip-btn:not([disabled]):visible');
+        if (rewardsButton.length > 0) {
+            LogUtils_logHHAuto("Click get rewards bang fight");
+            rewardsButton.trigger('click');
+            setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+        }
+        else if (skipFightButton.length > 0) {
+            LogUtils_logHHAuto("Click skip boss bang fight");
+            skipFightButton.trigger('click');
+            setTimeout(BossBang.skipFightPage, randomInterval(1300, 1900));
+            setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+        }
+    }
+    static goToFightPage(bossbangEventID) {
+        return BossBang_awaiter(this, void 0, void 0, function* () {
+            if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent")) {
+                const teamIndexFound = parseInt(getStoredValue(HHStoredVarPrefixKey + "Temp_bossBangTeam"));
+                let bangButton = $('#contains_all #events #boss_bang .boss-bang-event-info #start-bang-button:not([disabled])');
+                if (teamIndexFound >= 0 && bangButton.length > 0) {
+                    LogUtils_logHHAuto("Go to boss bang fight page");
+                    setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+                    location.href = addNutakuSession(bangButton.attr('href'));
+                    yield TimeHelper.sleep(randomInterval(3000, 5000));
+                    return true;
+                }
+                else {
+                    LogUtils_logHHAuto(`Cannot go to boss bang fight page, no team selected ${teamIndexFound} or no bang button found`);
+                    setTimer('nextBossBangTime', randomInterval(30, 60) * 60); // 30 to 60 minutes
+                }
+            }
+            else {
+                if (bossbangEventID)
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDEvent"), { tab: bossbangEventID });
+                else {
+                    const bossbangEventIDs = EventModule.getEventIDsByType('boss_bang');
+                    if (bossbangEventIDs.length > 0)
+                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDEvent"), { tab: bossbangEventIDs[0] });
+                    else {
+                        LogUtils_logHHAuto("Cannot go to boss bang fight page, no boss bang event found");
+                        setTimer('nextBossBangTime', randomInterval(30, 60) * 60); // 30 to 60 minutes
+                    }
+                }
+            }
+            return false;
+        });
     }
 }
 
@@ -18630,10 +18672,21 @@ function autoLoop() {
                         ||
                             (getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent")
                                 && $('#contains_all #events #boss_bang .completed-event').length === 0)) && (lastActionPerformed === "none" || lastActionPerformed === "event")) {
-                LogUtils_logHHAuto("Going to boss bang event.");
-                busy = true;
+                LogUtils_logHHAuto("Going to parse boss bang event.");
                 busy = yield EventModule.parseEventPage(bossBangEventIDs[0]);
                 lastActionPerformed = "event";
+            }
+            if (busy === false
+                && ConfigHelper.getHHScriptVars("isEnabledBossBangEvent", false) && getStoredValue(HHStoredVarPrefixKey + "Setting_bossBangEvent") === "true"
+                &&
+                    ((bossBangEventIDs.length > 0
+                        && getPage() !== ConfigHelper.getHHScriptVars("pagesIDEvent"))
+                        ||
+                            (getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent")
+                                && $('#contains_all #events #boss_bang .completed-event').length === 0)) && isAutoLoopActive() && (lastActionPerformed === "none" || lastActionPerformed === "bossBang") && checkTimer('nextBossBangTime')) {
+                LogUtils_logHHAuto("Going to fight boss bang.");
+                busy = yield BossBang.goToFightPage(bossBangEventIDs[0]);
+                lastActionPerformed = "bossBang";
             }
             if (busy === false
                 && isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_LastPageCalled"))

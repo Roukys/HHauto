@@ -950,8 +950,8 @@ export async function autoLoop()
 
         if(
             busy === false
-            && ConfigHelper.getHHScriptVars("isEnabledBossBangEvent",false) && getStoredValue(HHStoredVarPrefixKey+"Setting_bossBangEvent") === "true"
-            &&
+            && ConfigHelper.getHHScriptVars("isEnabledBossBangEvent", false) && getStoredValue(HHStoredVarPrefixKey + "Setting_bossBangEvent") === "true"
+            && 
             (
                 (
                     bossBangEventIDs.length > 0
@@ -965,10 +965,31 @@ export async function autoLoop()
             ) && (lastActionPerformed === "none" || lastActionPerformed === "event")
         )
         {
-            logHHAuto("Going to boss bang event.");
-            busy = true;
+            logHHAuto("Going to parse boss bang event.");
             busy = await EventModule.parseEventPage(bossBangEventIDs[0]);
             lastActionPerformed = "event";
+        }
+
+        if(
+            busy === false
+            && ConfigHelper.getHHScriptVars("isEnabledBossBangEvent", false) && getStoredValue(HHStoredVarPrefixKey + "Setting_bossBangEvent") === "true"
+            && 
+            (
+                (
+                    bossBangEventIDs.length > 0
+                    && getPage() !== ConfigHelper.getHHScriptVars("pagesIDEvent")
+                )
+                ||
+                (
+                    getPage()===ConfigHelper.getHHScriptVars("pagesIDEvent")
+                    && $('#contains_all #events #boss_bang .completed-event').length === 0
+                )
+            ) && isAutoLoopActive() && (lastActionPerformed === "none" || lastActionPerformed === "bossBang") && checkTimer('nextBossBangTime')
+        )
+        {
+            logHHAuto("Going to fight boss bang.");
+            busy = await BossBang.goToFightPage(bossBangEventIDs[0]);
+            lastActionPerformed = "bossBang";
         }
 
         if (
