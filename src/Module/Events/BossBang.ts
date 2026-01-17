@@ -1,7 +1,8 @@
-import { convertTimeToInt, getStoredValue, randomInterval, setStoredValue, setTimer } from "../../Helper/index";
+import { ConfigHelper, convertTimeToInt, getPage, getStoredValue, randomInterval, setStoredValue, setTimer, TimeHelper } from "../../Helper/index";
 import { addNutakuSession, gotoPage } from "../../Service/index";
 import { logHHAuto } from "../../Utils/index";
 import { HHStoredVarPrefixKey } from "../../config/index";
+import { EventModule } from "./EventModule";
 
 export class BossBang {
     static parse(hhEvent: any, eventList: any, hhEventData: any) {
@@ -40,6 +41,7 @@ export class BossBang {
                     logHHAuto("Team " + teamIndex + " not eligible");
                 }
             }
+            // setTimer('nextBossBangTime', randomInterval(30, 60) * 60); // 30 to 60 minutes
         }
         else if (eventList[eventID]["isCompleted"]) {
             logHHAuto("Boss bang completed, disabled boss bang event setting");
@@ -72,15 +74,33 @@ export class BossBang {
         }
     }
 
-    static goToFightPage() {
-        const teamIndexFound = parseInt(getStoredValue(HHStoredVarPrefixKey+"Temp_bossBangTeam"));
-        let bangButton = $('#contains_all #events #boss_bang .boss-bang-event-info #start-bang-button:not([disabled])');
-        if(teamIndexFound >= 0 && bangButton.length > 0) {
-            logHHAuto("Go to boss bang fight page");
-            setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
-            location.href = addNutakuSession(bangButton.attr('href')) as string;
+    static async goToFightPage(bossbangEventID: string) {
+        if(getPage() === ConfigHelper.getHHScriptVars("pagesIDEvent") ){
+            const teamIndexFound = parseInt(getStoredValue(HHStoredVarPrefixKey+"Temp_bossBangTeam"));
+            let bangButton = $('#contains_all #events #boss_bang .boss-bang-event-info #start-bang-button:not([disabled])');
+            if(teamIndexFound >= 0 && bangButton.length > 0) {
+                logHHAuto("Go to boss bang fight page");
+                setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+                location.href = addNutakuSession(bangButton.attr('href')) as string;
+                await TimeHelper.sleep(randomInterval(3000, 5000));
+                return true;
+            } else {
+                logHHAuto(`Cannot go to boss bang fight page, no team selected ${teamIndexFound} or no bang button found`);
+                setTimer('nextBossBangTime', randomInterval(30, 60) * 60); // 30 to 60 minutes
+            }
         } else {
-            logHHAuto(`Cannot go to boss bang fight page, no team selected ${teamIndexFound} or no bang button found`);
+            if (bossbangEventID)
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDEvent"), { tab: bossbangEventID });
+            else {
+                const bossbangEventIDs = EventModule.getEventIDsByType('boss_bang');
+                if(bossbangEventIDs.length > 0)
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDEvent"), { tab: bossbangEventIDs[0] });
+                else {
+                    logHHAuto("Cannot go to boss bang fight page, no boss bang event found");
+                    setTimer('nextBossBangTime', randomInterval(30, 60) * 60); // 30 to 60 minutes
+                }
+            }
         }
+        return false;
     }
 }

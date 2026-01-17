@@ -428,6 +428,18 @@ export class EventModule {
         }
     }
 
+    static getEventIDsByType(inType:string):string[] {
+        let eventIDs:string[] = [];
+        let eventList = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) : {};
+        for (let eventID of Object.keys(eventList))
+        {
+            if (eventList[eventID]["type"] === inType && !eventList[eventID]["isCompleted"]) {
+                eventIDs.push(eventID);
+            }
+        }
+        return eventIDs;
+    }
+
     static isEventActive(inEventID:string)
     {
         let eventList = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_eventsList")) : {};
