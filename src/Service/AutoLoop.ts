@@ -923,9 +923,8 @@ export async function autoLoop()
             && getStoredValue(HHStoredVarPrefixKey+"Setting_autoDailyGoalsCollect") === "true" && canCollectCompetitionActive
             && (lastActionPerformed === "none" || lastActionPerformed === "dailyGoals"))
         {
-            busy = true;
             logHHAuto("Time to go and check daily Goals for collecting reward.");
-            DailyGoals.goAndCollect();
+            busy = DailyGoals.goAndCollect();
             lastActionPerformed = "dailyGoals";
         }
 
@@ -1163,6 +1162,11 @@ export async function autoLoop()
             break;
         case ConfigHelper.getHHScriptVars("pagesIDEditTeam"):
             TeamModule.moduleChangeTeam();
+            Harem.moduleHaremExportGirlsData();
+            Harem.moduleHaremCountMax();
+            break;
+        case ConfigHelper.getHHScriptVars("pagesIDBattleTeams"):
+            TeamModule.moduleEquipTeam();
             Harem.moduleHaremExportGirlsData();
             Harem.moduleHaremCountMax();
             break;

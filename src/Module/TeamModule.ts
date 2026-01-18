@@ -41,9 +41,26 @@ export class TeamModule {
         $("#ChangeTeamButton2").on("click", () => { TeamModule.setTopTeam(2) });
         $("#UnequipAll").on("click", TeamModule.unequipAllGirls);
     }
+    
+    static moduleEquipTeam()
+    {
+        if (document.getElementById("EquipAll") !== null)
+        {
+            return;
+        }
+        const buttonStyles = 'position: absolute;top: 420px;z-index:10';
+        const UnequipAll = hhButton('UnequipAll', 'UnequipAll', buttonStyles + ';left: 75%', 'font-size:small');
+        const EquipAll = hhButton('EquipAll', 'EquipAll', buttonStyles + ';left: 85%', 'font-size:small');
+
+        $("#contains_all section").append(EquipAll);
+        $("#contains_all section").append(UnequipAll);
+
+        $("#EquipAll").on("click", TeamModule.equipAllGirls);
+        $("#UnequipAll").on("click", TeamModule.unequipAllGirls);
+    }
 
     static unequipAllGirls() {
-        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEditTeam") ) {
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEditTeam") || getPage() === ConfigHelper.getHHScriptVars("pagesIDBattleTeams")) {
             logHHAuto('Unequip from edit team');
             $("#UnequipAll").attr('disabled', 'disabled');
             const girlId = TeamModule.getFirstSelectedGirlId();
@@ -75,8 +92,60 @@ export class TeamModule {
         // }
     }
 
+    static equipAllGirls() {
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDBattleTeams")) {
+            setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+            logHHAuto("Setting autoloop to false to let the equip action complete without interruptions.");
+
+            logHHAuto('Equip team');
+            $("#EquipAll").attr('disabled', 'disabled');
+            const selectedTeam = $('.team-slot-container.selected-team').attr('data-team-index');
+            if(isNaN(Number(selectedTeam))){
+                logHHAuto('Error: can\'t get selected team index, cancel action');
+                return;
+            }
+            const girlIds = [...unsafeWindow.teams_data[selectedTeam].girls_ids];
+            if (girlIds.length != 7) {
+                logHHAuto('Error: can\'t get all team members, cancel action');
+                return;
+            }
+            const currentPage = window.location.pathname + window.location.search;
+            let index = 0;
+            logHHAuto('Selected team: ' + selectedTeam +', Team members to equip: ' + girlIds.join(', '));
+
+            const equipGirl = (girlId: number) => {
+                logHHAuto(`Performing equip action for girl ${girlId} (${index + 1}/${girlIds.length})`);
+                // change referer
+                //logHHAuto('change referer to ' + '/characters/' + girlId);
+                window.history.replaceState(null, '', addNutakuSession('/characters/' + girlId) as string);
+                var params1 = {
+                    action: "girl_equipment_equip_all",
+                    id_girl: girlId
+                };
+                getHHAjax()(params1, function (data: any) {
+                    if (data && data.success){
+                        logHHAuto(`Successfully equip girl ${girlId}`);
+                    } else logHHAuto(`Failed to equip girl ${girlId}`);
+                    index++;
+
+                    if(index <= (girlIds.length - 1)){
+                        setTimeout(function () { equipGirl(girlIds[index]) }, randomInterval(800, 1000));
+                    } else {
+                        $("#EquipAll").removeAttr('disabled');
+                        // change referer
+                        //logHHAuto('change referer back to ' + currentPage);
+                        window.history.replaceState(null, '', addNutakuSession(currentPage) as string);
+                        setTimeout(function () { location.reload(); }, randomInterval(200, 500));
+                    }
+                });
+            }
+            equipGirl(girlIds[index]);
+        } 
+    }
+
     static getFirstSelectedGirlId(): number{
-        const selectedPosition = $('#contains_all section .player-panel .player-team .team-hexagon .team-member-container.selectable[data-team-member-position="0"]');
+        //const selectedPosition = $('#contains_all section .player-panel .player-team .team-hexagon .team-member-container.selectable[data-team-member-position="0"]');
+        const selectedPosition = $('.team-member-container[data-team-member-position="0"]');
 
         if (selectedPosition.length > 0) {
             return Number(selectedPosition.attr('data-girl-id'));

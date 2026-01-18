@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.28.9
+// @version      7.29.0
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -433,6 +433,7 @@ HHAuto_ToolTips.en['PachinkoOrbsSpent'] = { version: "7.3.5", elementText: 'Orbs
 HHAuto_ToolTips.en['ChangeTeamButton'] = { version: "5.6.24", elementText: "Current Best", tooltip: "Get list of top 16 girls for your team." };
 HHAuto_ToolTips.en['ChangeTeamButton2'] = { version: "5.6.24", elementText: "Possible Best", tooltip: "Get list of top 16 girls for your team if they are Max Lv & Aff" };
 HHAuto_ToolTips.en['UnequipAll'] = { version: "7.22.0", elementText: "Unequip All", tooltip: "Unequip all girls equipment" };
+HHAuto_ToolTips.en['EquipAll'] = { version: "7.29.0", elementText: "Equip Teams", tooltip: "Equip team girls equipment with ingame girl equip button" };
 HHAuto_ToolTips.en['AssignTopTeam'] = { version: "5.6.24", elementText: "Assign first 7", tooltip: "Put the first 7 ones in the team." };
 HHAuto_ToolTips.en['ExportGirlsData'] = { version: "5.6.24", elementText: "⤓", tooltip: "Export Girls data." };
 HHAuto_ToolTips.en['autoFreeBundlesCollect'] = { version: "5.16.0", elementText: "Collect free bundles", tooltip: "Collect free bundles." };
@@ -1235,6 +1236,9 @@ class Booster {
     }
 }
 Booster.GINSENG_ROOT = { "id_item": "316", "identifier": "B1", "name": "Ginseng root", "rarity": "legendary" };
+Booster.JUJUBES = { "id_item": "317", "identifier": "B2", "name": "Jujubes", "rarity": "legendary" };
+Booster.CHLORELLA = { "id_item": "318", "identifier": "B3", "name": "Chlorella", "rarity": "legendary" };
+Booster.CURDYCEPS = { "id_item": "319", "identifier": "B4", "name": "Cordyceps", "rarity": "legendary" };
 Booster.SANDALWOOD_PERFUME = { "id_item": "632", "identifier": "MB1", "name": "Sandalwood perfume", "rarity": "mythic" };
 
 ;// CONCATENATED MODULE: ./src/Module/Bundles.ts
@@ -5301,22 +5305,23 @@ class DailyGoalsIcon {
     static displayPantheon() {
         const ocdhelp = $('#worship_data');
         if (ocdhelp.length > 0) {
-            LogUtils_logHHAuto('displayPantheon');
-            GM_addStyle('#worship_data .daily_goals_potion_icn.hhauto {'
-                + 'background-size: 15px;'
-                + 'width: 15px;'
-                + 'height: 15px;'
-                + 'left: 4px;'
-                + 'top: -4px;'
-                + 'position: absolute;'
-                + '}');
-            ocdhelp.append(DailyGoalsIcon.getIcon());
+            if ($('.daily_goals_potion_icn', ocdhelp).length <= 0) {
+                LogUtils_logHHAuto('displayPantheon');
+                GM_addStyle('#worship_data .daily_goals_potion_icn.hhauto {'
+                    + 'background-size: 15px;'
+                    + 'width: 15px;'
+                    + 'height: 15px;'
+                    + 'left: 4px;'
+                    + 'top: -4px;'
+                    + 'position: absolute;'
+                    + '}');
+                ocdhelp.append(DailyGoalsIcon.getIcon());
+            }
         }
     }
     static styles() {
         if (DailyGoals.isAutoDailyGoalsActivated() && DailyGoals._isDailyGoalType(ConfigHelper.getHHScriptVars("pagesURLPantheon"), false)) {
-            DailyGoalsIcon.displayPantheon = callItOnce(DailyGoalsIcon.displayPantheon);
-            setTimeout(DailyGoalsIcon.displayPantheon, 500);
+            DailyGoalsIcon.displayPantheon();
         }
     }
 }
@@ -13839,8 +13844,20 @@ class TeamModule {
         $("#ChangeTeamButton2").on("click", () => { TeamModule.setTopTeam(2); });
         $("#UnequipAll").on("click", TeamModule.unequipAllGirls);
     }
+    static moduleEquipTeam() {
+        if (document.getElementById("EquipAll") !== null) {
+            return;
+        }
+        const buttonStyles = 'position: absolute;top: 420px;z-index:10';
+        const UnequipAll = hhButton('UnequipAll', 'UnequipAll', buttonStyles + ';left: 75%', 'font-size:small');
+        const EquipAll = hhButton('EquipAll', 'EquipAll', buttonStyles + ';left: 85%', 'font-size:small');
+        $("#contains_all section").append(EquipAll);
+        $("#contains_all section").append(UnequipAll);
+        $("#EquipAll").on("click", TeamModule.equipAllGirls);
+        $("#UnequipAll").on("click", TeamModule.unequipAllGirls);
+    }
     static unequipAllGirls() {
-        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEditTeam")) {
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDEditTeam") || getPage() === ConfigHelper.getHHScriptVars("pagesIDBattleTeams")) {
             LogUtils_logHHAuto('Unequip from edit team');
             $("#UnequipAll").attr('disabled', 'disabled');
             const girlId = TeamModule.getFirstSelectedGirlId();
@@ -13871,8 +13888,59 @@ class TeamModule {
         //     }
         // }
     }
+    static equipAllGirls() {
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDBattleTeams")) {
+            setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+            LogUtils_logHHAuto("Setting autoloop to false to let the equip action complete without interruptions.");
+            LogUtils_logHHAuto('Equip team');
+            $("#EquipAll").attr('disabled', 'disabled');
+            const selectedTeam = $('.team-slot-container.selected-team').attr('data-team-index');
+            if (isNaN(Number(selectedTeam))) {
+                LogUtils_logHHAuto('Error: can\'t get selected team index, cancel action');
+                return;
+            }
+            const girlIds = [...unsafeWindow.teams_data[selectedTeam].girls_ids];
+            if (girlIds.length != 7) {
+                LogUtils_logHHAuto('Error: can\'t get all team members, cancel action');
+                return;
+            }
+            const currentPage = window.location.pathname + window.location.search;
+            let index = 0;
+            LogUtils_logHHAuto('Selected team: ' + selectedTeam + ', Team members to equip: ' + girlIds.join(', '));
+            const equipGirl = (girlId) => {
+                LogUtils_logHHAuto(`Performing equip action for girl ${girlId} (${index + 1}/${girlIds.length})`);
+                // change referer
+                //logHHAuto('change referer to ' + '/characters/' + girlId);
+                window.history.replaceState(null, '', addNutakuSession('/characters/' + girlId));
+                var params1 = {
+                    action: "girl_equipment_equip_all",
+                    id_girl: girlId
+                };
+                getHHAjax()(params1, function (data) {
+                    if (data && data.success) {
+                        LogUtils_logHHAuto(`Successfully equip girl ${girlId}`);
+                    }
+                    else
+                        LogUtils_logHHAuto(`Failed to equip girl ${girlId}`);
+                    index++;
+                    if (index <= (girlIds.length - 1)) {
+                        setTimeout(function () { equipGirl(girlIds[index]); }, randomInterval(800, 1000));
+                    }
+                    else {
+                        $("#EquipAll").removeAttr('disabled');
+                        // change referer
+                        //logHHAuto('change referer back to ' + currentPage);
+                        window.history.replaceState(null, '', addNutakuSession(currentPage));
+                        setTimeout(function () { location.reload(); }, randomInterval(200, 500));
+                    }
+                });
+            };
+            equipGirl(girlIds[index]);
+        }
+    }
     static getFirstSelectedGirlId() {
-        const selectedPosition = $('#contains_all section .player-panel .player-team .team-hexagon .team-member-container.selectable[data-team-member-position="0"]');
+        //const selectedPosition = $('#contains_all section .player-panel .player-team .team-hexagon .team-member-container.selectable[data-team-member-position="0"]');
+        const selectedPosition = $('.team-member-container[data-team-member-position="0"]');
         if (selectedPosition.length > 0) {
             return Number(selectedPosition.attr('data-girl-id'));
         }
@@ -18648,9 +18716,8 @@ function autoLoop() {
             if (busy == false && ConfigHelper.getHHScriptVars("isEnabledDailyGoals", false) && isAutoLoopActive() && checkTimer('nextDailyGoalsCollectTime')
                 && getStoredValue(HHStoredVarPrefixKey + "Setting_autoDailyGoalsCollect") === "true" && canCollectCompetitionActive
                 && (lastActionPerformed === "none" || lastActionPerformed === "dailyGoals")) {
-                busy = true;
                 LogUtils_logHHAuto("Time to go and check daily Goals for collecting reward.");
-                DailyGoals.goAndCollect();
+                busy = DailyGoals.goAndCollect();
                 lastActionPerformed = "dailyGoals";
             }
             if (busy === false && getStoredValue(HHStoredVarPrefixKey + "Setting_autoLabyrinth") === "true" && Labyrinth.isEnabled() && checkTimer('nextLabyrinthTime')
@@ -18839,6 +18906,11 @@ function autoLoop() {
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDEditTeam"):
                 TeamModule.moduleChangeTeam();
+                Harem.moduleHaremExportGirlsData();
+                Harem.moduleHaremCountMax();
+                break;
+            case ConfigHelper.getHHScriptVars("pagesIDBattleTeams"):
+                TeamModule.moduleEquipTeam();
                 Harem.moduleHaremExportGirlsData();
                 Harem.moduleHaremCountMax();
                 break;
