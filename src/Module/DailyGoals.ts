@@ -78,7 +78,7 @@ export class DailyGoals {
         setTimeout(DailyGoalsIcon.styles, 500);
         
     }
-    static goAndCollect()
+    static goAndCollect(): boolean
     {
         const rewardsToCollect = isJSON(getStoredValue(HHStoredVarPrefixKey+"Setting_autoDailyGoalsCollectablesList"))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Setting_autoDailyGoalsCollectablesList")):[];
         //console.log(rewardsToCollect.length);
@@ -244,24 +244,25 @@ export class DailyGoalsIcon {
     static displayPantheon(){
         const ocdhelp = $('#worship_data');
         if (ocdhelp.length > 0) {
-            logHHAuto('displayPantheon');
+            if ($('.daily_goals_potion_icn', ocdhelp).length <= 0){
+                logHHAuto('displayPantheon');
 
-            GM_addStyle('#worship_data .daily_goals_potion_icn.hhauto {'
-                + 'background-size: 15px;'
-                + 'width: 15px;'
-                + 'height: 15px;'
-                + 'left: 4px;'
-                + 'top: -4px;'
-                + 'position: absolute;'
-                + '}');
+                GM_addStyle('#worship_data .daily_goals_potion_icn.hhauto {'
+                    + 'background-size: 15px;'
+                    + 'width: 15px;'
+                    + 'height: 15px;'
+                    + 'left: 4px;'
+                    + 'top: -4px;'
+                    + 'position: absolute;'
+                    + '}');
 
-            ocdhelp.append(DailyGoalsIcon.getIcon());
+                ocdhelp.append(DailyGoalsIcon.getIcon());
+            }
         }
     }
     static styles() {
         if (DailyGoals.isAutoDailyGoalsActivated() && DailyGoals._isDailyGoalType(ConfigHelper.getHHScriptVars("pagesURLPantheon"), false)) {
-            DailyGoalsIcon.displayPantheon = callItOnce(DailyGoalsIcon.displayPantheon);
-            setTimeout(DailyGoalsIcon.displayPantheon, 500);
+            DailyGoalsIcon.displayPantheon();
         }
     }
 }

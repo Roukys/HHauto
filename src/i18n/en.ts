@@ -251,6 +251,7 @@ HHAuto_ToolTips.en['PachinkoOrbsSpent'] = {version: "7.3.5", elementText: 'Orbs 
 HHAuto_ToolTips.en['ChangeTeamButton'] = {version: "5.6.24", elementText: "Current Best", tooltip: "Get list of top 16 girls for your team."};
 HHAuto_ToolTips.en['ChangeTeamButton2'] = {version: "5.6.24", elementText: "Possible Best", tooltip: "Get list of top 16 girls for your team if they are Max Lv & Aff"};
 HHAuto_ToolTips.en['UnequipAll'] = { version: "7.22.0", elementText: "Unequip All", tooltip: "Unequip all girls equipment"};
+HHAuto_ToolTips.en['EquipAll'] = { version: "7.29.0", elementText: "Equip Teams", tooltip: "Equip team girls equipment with ingame girl equip button"};
 HHAuto_ToolTips.en['AssignTopTeam'] = {version: "5.6.24", elementText: "Assign first 7", tooltip: "Put the first 7 ones in the team."};
 HHAuto_ToolTips.en['ExportGirlsData'] = {version: "5.6.24", elementText: "⤓", tooltip: "Export Girls data."};
 HHAuto_ToolTips.en['autoFreeBundlesCollect'] = {version: "5.16.0", elementText: "Collect free bundles", tooltip: "Collect free bundles."};

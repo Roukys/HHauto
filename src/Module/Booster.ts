@@ -16,6 +16,9 @@ const DEFAULT_BOOSTERS = {normal: [], mythic:[]};
 
 export class Booster {
     static GINSENG_ROOT = {"id_item":"316","identifier":"B1","name":"Ginseng root", "rarity":"legendary"};
+    static JUJUBES = {"id_item":"317","identifier":"B2","name":"Jujubes","rarity": "legendary"};
+    static CHLORELLA = {"id_item":"318","identifier":"B3","name":"Chlorella","rarity": "legendary"};
+    static CURDYCEPS = {"id_item":"319","identifier":"B4","name":"Cordyceps","rarity": "legendary" };
     static SANDALWOOD_PERFUME = {"id_item":"632","identifier":"MB1","name":"Sandalwood perfume","rarity":"mythic"};
     
     //all following lines credit:Tom208 OCD script  

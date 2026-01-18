@@ -51,6 +51,7 @@ declare global {
         server_now_ts: any;
         id_girl: any;
         girl_squad: any;
+        teams_data: any;
         //pop
         pop_list:boolean;
         pop_index:number;
