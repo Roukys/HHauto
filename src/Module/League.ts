@@ -142,7 +142,7 @@ export class LeagueHelper {
         return simu;
     }
     
-    static displayOppoSimuOnButton(id_fighter, simu, force=0) {
+    static displayOppoSimuOnButton(id_fighter: number, simu: BDSMSimu, force=0) {
         const opponentGoButton = $('a[href*="id_opponent='+id_fighter+'"]');
         if((opponentGoButton.length <= 0 || $('.powerLevelScouter',opponentGoButton).length > 0) && !force) {
             return;

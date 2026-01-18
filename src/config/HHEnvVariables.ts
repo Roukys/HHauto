@@ -75,21 +75,6 @@ HHEnvVariables["global"].LEVEL_MIN_EVENT_SM = 15;
 HHEnvVariables["global"].LEVEL_MIN_EVENT_DP = 40;
 HHEnvVariables["global"].boosterId_MB1 = 632;
 
-HHEnvVariables["global"].ELEMENTS =
-    {
-    chance: {
-        darkness: 'light',
-        light: 'psychic',
-        psychic: 'darkness'
-    },
-    egoDamage: {
-        fire: 'nature',
-        nature: 'stone',
-        stone: 'sun',
-        sun: 'water',
-        water: 'fire'
-    }
-};
 HHEnvVariables["global"].powerCalcImages =
     {
     plus:   "https://i.postimg.cc/qgkpN0sZ/Opponent-green.png",

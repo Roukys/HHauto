@@ -1,6 +1,5 @@
 import {
     addEventsOnMenuItems,
-    clearTimer,
     ConfigHelper,
     debugDeleteAllVars,
     debugDeleteTempVars,

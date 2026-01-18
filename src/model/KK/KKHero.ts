@@ -13,7 +13,20 @@ export class KKHero {
     energy_fields: any;
     caracs:any;
     club: any;
-    currencies: any;
+    currencies: {
+        hard_currency: number;
+        laby_coin: number;
+        rejuvenation_stone: number;
+        scrolls_common: number;
+        scrolls_epic: number;
+        scrolls_legendary: number;
+        scrolls_mythic: number;
+        scrolls_rare: number;
+        seasonal_event_cash: number;
+        soft_currency: number;
+        sultry_coins: number;
+        ticket: number;
+    };
     mc_level: any;
     name: any;
     recharge: any;
