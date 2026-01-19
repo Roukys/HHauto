@@ -48,6 +48,9 @@ export class TeamModule {
         {
             return;
         }
+
+        GM_addStyle('.team-hexagon-container .team-hexagon .team-member-container.selected .team-member-border {background-color: #ffb827;}');
+
         const buttonStyles = 'position: absolute;top: 420px;z-index:10';
         const UnequipAll = hhButton('UnequipAll', 'UnequipAll', buttonStyles + ';left: 75%', 'font-size:small');
         const EquipAll = hhButton('EquipAll', 'EquipAll', buttonStyles + ';left: 85%', 'font-size:small');
@@ -115,6 +118,8 @@ export class TeamModule {
 
             const equipGirl = (girlId: number) => {
                 logHHAuto(`Performing equip action for girl ${girlId} (${index + 1}/${girlIds.length})`);
+
+                $(`.team-member-container[data-girl-id="${girlId}"]`).addClass('selected');
                 // change referer
                 //logHHAuto('change referer to ' + '/characters/' + girlId);
                 window.history.replaceState(null, '', addNutakuSession('/characters/' + girlId) as string);
@@ -123,6 +128,7 @@ export class TeamModule {
                     id_girl: girlId
                 };
                 getHHAjax()(params1, function (data: any) {
+                    $('.team-member-container').removeClass('selected');
                     if (data && data.success){
                         logHHAuto(`Successfully equip girl ${girlId}`);
                     } else logHHAuto(`Failed to equip girl ${girlId}`);
