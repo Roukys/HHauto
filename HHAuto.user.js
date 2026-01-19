@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.29.0
+// @version      7.29.1
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -13848,6 +13848,7 @@ class TeamModule {
         if (document.getElementById("EquipAll") !== null) {
             return;
         }
+        GM_addStyle('.team-hexagon-container .team-hexagon .team-member-container.selected .team-member-border {background-color: #ffb827;}');
         const buttonStyles = 'position: absolute;top: 420px;z-index:10';
         const UnequipAll = hhButton('UnequipAll', 'UnequipAll', buttonStyles + ';left: 75%', 'font-size:small');
         const EquipAll = hhButton('EquipAll', 'EquipAll', buttonStyles + ';left: 85%', 'font-size:small');
@@ -13909,6 +13910,7 @@ class TeamModule {
             LogUtils_logHHAuto('Selected team: ' + selectedTeam + ', Team members to equip: ' + girlIds.join(', '));
             const equipGirl = (girlId) => {
                 LogUtils_logHHAuto(`Performing equip action for girl ${girlId} (${index + 1}/${girlIds.length})`);
+                $(`.team-member-container[data-girl-id="${girlId}"]`).addClass('selected');
                 // change referer
                 //logHHAuto('change referer to ' + '/characters/' + girlId);
                 window.history.replaceState(null, '', addNutakuSession('/characters/' + girlId));
@@ -13917,6 +13919,7 @@ class TeamModule {
                     id_girl: girlId
                 };
                 getHHAjax()(params1, function (data) {
+                    $('.team-member-container').removeClass('selected');
                     if (data && data.success) {
                         LogUtils_logHHAuto(`Successfully equip girl ${girlId}`);
                     }
