@@ -689,8 +689,7 @@ export async function autoLoop()
             if (Season.isTimeToFight())
             {
                 logHHAuto("Time to fight in Season.");
-                Season.run();
-                busy = true;
+                busy = Season.run();
                 lastActionPerformed = "season";
             }
             else if (checkTimer('nextSeasonTime'))
@@ -1020,9 +1019,13 @@ export async function autoLoop()
         case ConfigHelper.getHHScriptVars("pagesIDSeasonArena"):
             if (getStoredValue(HHStoredVarPrefixKey+"Setting_showCalculatePower") === "true" && $("div.matchRatingNew img#powerLevelScouter").length < 3)
             {
-                Season.stylesBattle = callItOnce(Season.stylesBattle);
-                Season.stylesBattle();
-                Season.moduleSimSeasonBattle();
+                if (lastActionPerformed != "season") {
+                    // Avoid double call when coming from Season.run()
+                    Season.stylesBattle = callItOnce(Season.stylesBattle);
+                    Season.stylesBattle();
+                    Season.moduleSimSeasonBattle = callItOnce(Season.moduleSimSeasonBattle);
+                    Season.moduleSimSeasonBattle();
+                }
             }
             break;
         case ConfigHelper.getHHScriptVars("pagesIDSeason"):
@@ -1143,6 +1146,13 @@ export async function autoLoop()
             Harem.clearHaremToolVariables();
 
             AdsService.closeHomeAds();
+
+/*
+            if ($('#no_HC close:visible').length) {
+                setTimeout(() => {
+                    $('#no_HC close:visible').trigger('click')
+                }, randomInterval(3000, 5000));
+            }*/
             break;
         case ConfigHelper.getHHScriptVars("pagesIDHarem"):
             Harem.moduleHarem();

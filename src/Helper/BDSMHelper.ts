@@ -57,7 +57,7 @@ export class BDSMHelper {
             inLeague ? playerAtk * (1+dominanceBonuses.player.attack) : playerAtk,
             opponentDef,
             calculateCritChanceShare(playerCrit, opponentCrit) + dominanceBonuses.player.chance + playerBonuses.critChance,
-            { ...playerBonuses, dominance: dominanceBonuses.player },
+            playerBonuses,
             calculateTier4SkillValue(inHeroData.team.girls),
             calculateTier5SkillValue(inHeroData.team.girls),
             inHeroData.nickname
@@ -67,7 +67,7 @@ export class BDSMHelper {
             opponentAtk,
             inLeague ? playerDef * (1-opponentBonuses.defReduce) : playerDef,
             calculateCritChanceShare(opponentCrit, playerCrit) + dominanceBonuses.opponent.chance + opponentBonuses.critChance,
-            { ...opponentBonuses, dominance: dominanceBonuses.opponent },
+            opponentBonuses,
             calculateTier4SkillValue(opponentData.team.girls),
             calculateTier5SkillValue(opponentData.team.girls),
             opponentData.nickname
@@ -79,17 +79,21 @@ export class BDSMHelper {
 let _player: BDSMPlayer;
 let _opponent: BDSMPlayer;
 let _runs;
+let _cache;
 
 export function calculateBattleProbabilities(player: BDSMPlayer, opponent: BDSMPlayer, debugEnabled: boolean = false):BDSMSimu {
 
     if (debugEnabled) {
-        logHHAuto('Running simulation against' + opponent.name, opponent);
+        // logHHAuto('Running simulation against' + opponent.name, opponent);
+        logHHAuto('Running simulation against' + opponent.name);
     }
 
     _player = player;
     _opponent = opponent;
+    //_cache = {};
+    _runs = 0;
 
-    const setup = (x: BDSMPlayer) => {
+    const setup = (x) => {
         x.critMultiplier = 2 + x.bonuses.critDamage;
         x.hp = Math.ceil(x.hp);
     }
@@ -112,9 +116,9 @@ export function calculateBattleProbabilities(player: BDSMPlayer, opponent: BDSMP
     try {
         // start simulation from player's turn
         ret = playerTurn(_player.hp, _opponent.hp, _player.playerShield, _opponent.opponentShield, _player.stunned, _opponent.stunned, _player.reflect, _opponent.reflect, 1);
-    } catch (error) {
-        // logHHAuto(`An error occurred during the simulation against ${_opponent.name}`, error)
-        return new BDSMSimu();
+    } catch ({ errName, message }) {
+        logHHAuto(`An error occurred during the simulation against ${_opponent.name}`, errName, message);
+        return {} as BDSMSimu;
     }
 
     const sum = ret.win + ret.loss;
@@ -123,7 +127,7 @@ export function calculateBattleProbabilities(player: BDSMPlayer, opponent: BDSMP
     ret.scoreClass = ret.win>0.9?'plus':ret.win<0.5?'minus':'close';
 
     if (debugEnabled) {
-        logHHAuto(`Ran ${_runs} simulations against ${_opponent.name}; aggregated win chance: ${ret.win * 100}%, average turns: ${ret.avgTurns}`);
+        logHHAuto(`Ran ${_runs} simulations against ${_opponent.name}; aggregated win chance: ${ret.win * 100}%`);
     }
 
     return ret;
@@ -144,23 +148,27 @@ export function calculateBattleProbabilities(player: BDSMPlayer, opponent: BDSMP
     }
 
     function mergeResult(x: BDSMSimu, xProbability: number, y: BDSMSimu, yProbability: number): BDSMSimu {
-        const points = [];
+        const points = {};
         Object.entries(x.points).map(([point, probability]) => [point, probability * xProbability])
             .concat(Object.entries(y.points).map(([point, probability]) => [point, probability * yProbability]))
             .forEach(([point, probability]) => {
             points[point] = (points[point] || 0) + probability
         });
-        const merge = (x, y) => x * xProbability + y * yProbability;
-        const win = merge(x.win, y.win);
-        const loss = merge(x.loss, y.loss);
 
-        return new BDSMSimu(points, win, loss);
+        const win = x.win * xProbability + y.win * yProbability;
+        const loss = x.loss * xProbability + y.loss * yProbability;
+
+        return {points, win, loss} as BDSMSimu;
     }
 
     function playerTurn(playerHP, opponentHP, playerShield, opponentShield, playerStunned, opponentStunned, playerReflect, opponentReflect, turns): BDSMSimu {
         //Avoid a stack overflow
         const maxAllowedTurns = 50;
         if (turns > maxAllowedTurns) throw new Error();
+
+        // read cache
+        //const cachedResult = _cache?.[playerHP]?.[opponentHP]
+        //if (cachedResult) return cachedResult
 
         //Simulate base attack and critical attack
         const { baseAtk, critAtk } = calculateDmg(_player, turns);
@@ -169,6 +177,12 @@ export function calculateBattleProbabilities(player: BDSMPlayer, opponent: BDSMP
 
         //Merge result
         const mergedResult = mergeResult(baseAtkResult, baseAtk.probability, critAtkResult, critAtk.probability);
+
+        // write cache
+        //if (!_cache[playerHP]) _cache[playerHP] = {}
+        //if (!_cache[playerHP][opponentHP]) _cache[playerHP][opponentHP] = {}
+        //_cache[playerHP][opponentHP] = mergedResult;
+
         return mergedResult;
     }
 
@@ -205,7 +219,8 @@ export function calculateBattleProbabilities(player: BDSMPlayer, opponent: BDSMP
         //Check win
         if (opponentHP <= 0) {
             const point = Math.min(25, 15 + Math.ceil(10 * playerHP / _player.hp));
-            return new BDSMSimu({ [point]: 1 } as any[], 1, 0);
+            _runs += 1;
+            return { points: { [point]: 1 }, win: 1, loss: 0 } as BDSMSimu;
         }
         else {
             //Opponent attack
@@ -264,7 +279,8 @@ export function calculateBattleProbabilities(player: BDSMPlayer, opponent: BDSMP
         //Check loss
         if (playerHP <= 0) {
             const point = Math.max(3, 3 + Math.ceil(10 * (_opponent.hp - opponentHP) / _opponent.hp));
-            return new BDSMSimu({ [point]: 1 } as any[], 0, 1);
+            _runs += 1;
+            return { points: { [point]: 1 }, win: 0, loss: 1 } as BDSMSimu;
         }
         else {
             //Next turn

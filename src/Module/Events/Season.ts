@@ -28,7 +28,7 @@ import {
 } from "../../Service/index";
 import { getHHAjax, isJSON, logHHAuto } from "../../Utils/index";
 import { HHStoredVarPrefixKey } from "../../config/index";
-import { BDSMSimu, SeasonOpponent } from '../../model/index';
+import { SeasonOpponent } from '../../model/index';
 import { Booster } from "../Booster";
 import { EventModule } from "./EventModule";
 
@@ -121,25 +121,28 @@ export class Season {
             {
                 doDisplay=true;
             }
+            const powerCalcImages = ConfigHelper.getHHScriptVars("powerCalcImages");
 
             for (let index=0;index<3;index++)
             {
-
-                const {player, opponent} = BDSMHelper.getBdsmPlayersData(hero_data, opponentDatas[index].player);
+                const { player, opponent } = BDSMHelper.getBdsmPlayersData(hero_data, opponentDatas[index].player);
                 const opponentBlock = $('.season_arena_opponent_container[data-opponent=' + opponentDatas[index].player?.id_fighter + ']');
 
                 if (doDisplay)
                 {
-                    //console.log("HH simuFight",JSON.stringify(player),JSON.stringify(opponent), opponentBonuses);
+                    // logHHAuto("Simulating fight vs "+opponent.name+" (ID:"+opponentDatas[index].player?.id_fighter+")");
+                    // console.log("HH simuFight",JSON.stringify(player),JSON.stringify(opponent), opponentBonuses);
                 }
+                //console.time('calculateBattleProbabilities' + index);
                 const simu = calculateBattleProbabilities(player, opponent, debugEnabled)
+                //console.timeEnd('calculateBattleProbabilities' + index);
 
                 seasonOpponents[index] = new SeasonOpponent(
                     opponentDatas[index].player?.id_fighter, 
                     opponent.name, 
-                    Number($(".slot_victory_points .amount", opponentBlock)[0].innerText), // mojo
-                    Number((<HTMLElement>$(".slot_season_xp_girl", opponentBlock)[0].lastElementChild).innerText.replace(/\D/g, '')),
-                    Number((<HTMLElement>$(".slot_season_affection_girl", opponentBlock)[0].lastElementChild).innerText.replace(/\D/g, '')), 
+                    Number($(".slot_victory_points .amount", opponentBlock).text()), // mojo
+                    Number($(".slot_season_xp_girl .amount", opponentBlock).text()),
+                    Number($(".slot_season_affection_girl .amount", opponentBlock).text()), 
                     simu
                 );
                 const girlShardsReward = $(".slot.girl_ico[data-rewards]", opponentBlock);
@@ -147,14 +150,16 @@ export class Season {
                     hasGirlToWin = true;
                 }
 
-                $('.player-panel-buttons .btn_season_perform', opponentBlock).contents().filter(function() {return this.nodeType===3;}).remove();
-                $('.player-panel-buttons .btn_season_perform', opponentBlock).find('span').remove();
-                $('.player-panel-buttons .opponent_perform_button_container .green_button_L.btn_season_perform .energy_kiss_icn.kiss_icon_s').remove();
+                const seasonButton = $('.player-panel-buttons .opponent_perform_button_container .green_button_L.btn_season_perform', opponentBlock);
+                seasonButton.contents().filter(function() {return this.nodeType===3;}).remove();
+                seasonButton.find('span').remove();
+                $('.energy_kiss_icn.kiss_icon_s', seasonButton).remove();
 
                 if (doDisplay)
                 {
-                    $('.player-panel-buttons .opponent_perform_button_container .green_button_L.btn_season_perform', opponentBlock).prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${ConfigHelper.getHHScriptVars("powerCalcImages")[simu.scoreClass]}>${NumberHelper.nRounding(100*simu.win, 2, -1)}%</div>`);
+                    seasonButton.prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${powerCalcImages[simu.scoreClass]}>${NumberHelper.nRounding(100*simu.win, 2, -1)}%</div>`);
                 }
+                //await TimeHelper.sleep(randomInterval(200, 400));
             }
 
             var { numberOfReds, chosenIndex } = Season.getBestOppo(seasonOpponents, Season.getEnergy(), Season.getEnergyMax());
@@ -318,8 +323,9 @@ export class Season {
         if (page === ConfigHelper.getHHScriptVars("pagesIDSeasonArena"))
         {
             logHHAuto("On season arena page.");
+            Season.stylesBattle();
     
-            var chosenID=Season.moduleSimSeasonBattle();
+            var chosenID = Season.moduleSimSeasonBattle();
             if (chosenID === -2 )
             {
                 //change opponents and reload
