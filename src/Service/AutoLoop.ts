@@ -1156,9 +1156,6 @@ export async function autoLoop()
             break;
         case ConfigHelper.getHHScriptVars("pagesIDHarem"):
             Harem.moduleHarem();
-            // Harem.moduleHaremExportGirlsData(); // moved to edit team
-            // Harem.moduleHaremNextUpgradableGirl(); // TODO fixme
-            // Harem.haremOpenFirstXUpgradable(); // TODO fixme
             break;
         case ConfigHelper.getHHScriptVars("pagesIDGirlPage"):
             HaremGirl.moduleHaremGirl = callItOnce(HaremGirl.moduleHaremGirl);

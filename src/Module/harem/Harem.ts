@@ -92,203 +92,6 @@ export class Harem {
         }
         return girlsDataList;
     }
-    
-    static selectNextUpgradableGirl()
-    {
-        const HaremSortMenuSortSelector = <HTMLSelectElement>document.getElementById("HaremSortMenuSortSelector");
-        const HaremSortMenuSortReverse = <HTMLInputElement>document.getElementById("HaremSortMenuSortReverse");
-        const selectedSortFunction = HaremSortMenuSortSelector.options[HaremSortMenuSortSelector.selectedIndex].value;
-        const isReverseChecked = HaremSortMenuSortReverse.checked;
-        setStoredValue(HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort",JSON.stringify({sortFunction:selectedSortFunction, reverse:isReverseChecked}));
-        const girlsMap = Harem.getGirlMapSorted(selectedSortFunction,isReverseChecked);
-        if (girlsMap === null )
-            return;
-        const currentSelectedGirlIndex = girlsMap.findIndex((element) => element.gId === $('#harem_left .girls_list div.opened[girl]').attr('girl'))+1;
-        const upgradableGirls = girlsMap.slice(currentSelectedGirlIndex).filter(Harem.filterGirlMapCanUpgrade)
-        if (upgradableGirls.length > 0)
-        {
-            gotoPage(`/characters/${upgradableGirls[0].gId}`);
-            logHHAuto("Going to : "+upgradableGirls[0].gData.name);
-        }
-        else
-        {
-            logHHAuto("No upgradble girls.");
-        }
-    }
-    
-    static popUpHaremSort()
-    {
-        const menuID = "haremNextUpgradableGirl";
-        let HaremSortMenu = '<div style="padding:50px; display:flex;flex-direction:column">'
-        +    '<p id="HaremSortMenuSortText">'+getTextForUI("HaremSortMenuSortText","elementText")+'</p>'
-        +    '<div style="display:flex;flex-direction:row;align-items: center;">'
-        +     '<div style="padding:10px"><select id="HaremSortMenuSortSelector"></select></div>'
-        +     '<div style="display:flex;flex-direction:column;padding:10px;justify-content:center">'
-        +      '<div>'+getTextForUI("HaremSortMenuSortReverse","elementText")+'</div>'
-        +      '<div><input id="HaremSortMenuSortReverse" type="checkbox"></div>'
-        +     '</div>'
-        +    '</div>'
-        +    '<div style="display:flex;flex-direction:row;align-items:center;">'
-        +     '<div style="display:flex;flex-direction:column;padding:10px;justify-content:center">'
-        //+      '<div>'+getTextForUI("HaremSortMenuSortReverse","elementText")+'</div>'
-        //+      '<div><input id="HaremSortMenuSortNumber" type="number" name="quantity" min="1" max="20" step="1" value="10"></div>'
-        +     '</div>'
-        +     '<div style="padding:10px"><label class="myButton" id="HaremSortMenuLaunch">'+getTextForUI("Launch","elementText")+'</label></div>'
-        +    '</div>'
-        +  '</div>'
-        fillHHPopUp("HaremSortMenu",getTextForUI(menuID,"elementText"), HaremSortMenu);
-
-        $("#HaremSortMenuLaunch").on("click", Harem.selectNextUpgradableGirl);
-        const selectorOptions = <HTMLSelectElement>document.getElementById("HaremSortMenuSortSelector");
-        const HaremSortMenuSortReverse = <HTMLInputElement>document.getElementById("HaremSortMenuSortReverse");
-
-        const storedDefaultSort = (getStoredValue(HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort") !== undefined && isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort")))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort")):{sortFunction : "null", reverse:false};
-
-        for (let sortFunction of Object.keys(ConfigHelper.getHHScriptVars("haremSortingFunctions")))
-        {
-            let optionElement = document.createElement("option");
-            optionElement.value = sortFunction;
-            optionElement.text = getTextForUI("HaremSortMenuSortBy","elementText") + getTextForUI(sortFunction,"elementText");
-            if ( storedDefaultSort.sortFunction === sortFunction)
-            {
-                optionElement.selected = true;
-            }
-            selectorOptions.add(optionElement);
-        }
-
-        HaremSortMenuSortReverse.checked = storedDefaultSort.reverse;
-    }
-
-    static moduleHaremNextUpgradableGirl()
-    {
-        const menuID = "haremNextUpgradableGirl";
-        let menuHidden = `<div style="visibility:hidden" id="${menuID}"></div>`;
-        if (document.getElementById(menuID) === null)
-        {
-            $("#contains_all section").prepend(menuHidden);
-            GM_registerMenuCommand(getTextForUI(menuID,"elementText"), Harem.popUpHaremSort);
-        }
-        else
-        {
-            return;
-        }
-    }
-
-    static haremOpenFirstXUpgradable()
-    {
-        const menuID = "haremOpenFirstXUpgradable";
-        let menuHidden = `<div style="visibility:hidden" id="${menuID}"></div>`;
-        if (document.getElementById(menuID) === null)
-        {
-            var upgradableGirlz:any[] = [];
-            var nextUpgradable = 0;
-            var openedGirlz = 0;
-            var maxOpenedGirlz:any;
-            $("#contains_all section").prepend(menuHidden);
-            GM_registerMenuCommand(getTextForUI(menuID,"elementText"), popUpHaremSort);
-        }
-        else
-        {
-            return;
-        }
-        function popUpHaremSort()
-        {
-            let HaremSortMenu = '<div style="padding:50px; display:flex;flex-direction:column">'
-            +    '<p id="HaremSortMenuSortText">'+getTextForUI("HaremSortMenuSortText","elementText")+'</p>'
-            +    '<div style="display:flex;flex-direction:row;align-items: center;">'
-            +     '<div style="padding:10px"><select id="HaremSortMenuSortSelector"></select></div>'
-            +     '<div style="display:flex;flex-direction:column;padding:10px;justify-content:center">'
-            +      '<div>'+getTextForUI("HaremSortMenuSortReverse","elementText")+'</div>'
-            +      '<div><input id="HaremSortMenuSortReverse" type="checkbox"></div>'
-            +     '</div>'
-            +    '</div>'
-            +    '<div style="display:flex;flex-direction:row;align-items:center;">'
-            +     '<div style="display:flex;flex-direction:column;padding:10px;justify-content:center">'
-            //+      '<div>'+getTextForUI("HaremSortMenuSortReverse","elementText")+'</div>'
-            +      '<div><input id="HaremSortMenuSortNumber" type="number" name="quantity" min="1" max="20" step="1" value="10"></div>'
-            +     '</div>'
-            +     '<div style="padding:10px"><label class="myButton" id="HaremSortMenuLaunch">'+getTextForUI("Launch","elementText")+'</label></div>'
-            +    '</div>'
-            +  '</div>'
-            fillHHPopUp("HaremSortMenu",getTextForUI(menuID,"elementText"), HaremSortMenu);
-
-            $("#HaremSortMenuLaunch").on("click", prepareUpgradable);
-            const selectorOptions = <HTMLSelectElement>document.getElementById("HaremSortMenuSortSelector");
-            const storedDefaultSort = (getStoredValue(HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort") !== undefined && isJSON(getStoredValue(HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort")))?JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort")):{sortFunction : "null", reverse:false};
-
-            for (let sortFunction of Object.keys(ConfigHelper.getHHScriptVars("haremSortingFunctions")))
-            {
-                let optionElement = document.createElement("option");
-                optionElement.value = sortFunction;
-                optionElement.text = getTextForUI("HaremSortMenuSortBy","elementText") + getTextForUI(sortFunction,"elementText");
-                if ( storedDefaultSort.sortFunction === sortFunction)
-                {
-                    optionElement.selected = true;
-                }
-                selectorOptions.add(optionElement);
-            }
-        }
-        function prepareUpgradable()
-        {
-            const HaremSortMenuSortSelector = <HTMLSelectElement>document.getElementById("HaremSortMenuSortSelector");
-            const HaremSortMenuSortReverse = <HTMLInputElement>document.getElementById("HaremSortMenuSortReverse");
-            const HaremSortMenuSortNumber = <HTMLInputElement>document.getElementById("HaremSortMenuSortNumber");
-            const selectedSortFunction = HaremSortMenuSortSelector.options[HaremSortMenuSortSelector.selectedIndex].value;
-            const isReverseChecked = HaremSortMenuSortReverse.checked;
-            setStoredValue(HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort",JSON.stringify({sortFunction:selectedSortFunction, reverse:isReverseChecked}));
-            const girlsMap = Harem.getGirlMapSorted(selectedSortFunction,isReverseChecked);
-            if (girlsMap === null )
-                return;
-            openedGirlz = 0;
-            maxOpenedGirlz = Number(HaremSortMenuSortNumber.value);
-            upgradableGirlz = girlsMap.filter(Harem.filterGirlMapCanUpgrade);
-            //console.log(maxOpenedGirlz);
-            if (upgradableGirlz.length > 0)
-            {
-                haremOpenGirlUpgrade();
-            }
-        }
-        function haremOpenGirlUpgrade(first = true)
-        {
-            if (nextUpgradable<upgradableGirlz.length && openedGirlz < maxOpenedGirlz)
-            {
-                const girlzQuests = getHHVars('girl_quests');
-                if (girlzQuests !== null)
-                {
-                    let upgradeURL = girlzQuests[upgradableGirlz[nextUpgradable].gId].for_upgrade.url;
-                    //console.log(upgradeButton.length);
-                    if (upgradeURL.length === 0 )
-                    {
-                        if (first)
-                        {
-                            setTimeout(function() { haremOpenGirlUpgrade(false);},1000);
-                        }
-                        else
-                        {
-                            nextUpgradable++;
-                            haremOpenGirlUpgrade();
-                        }
-                    }
-                    else
-                    {
-                        //console.log(upgradeButton[0].getAttribute("href"));
-                        //upgradeButton[0].setAttribute("target","_blank");
-                        //console.log(upgradeButton[0]);
-                        //upgradeButton[0].click();
-                        GM.openInTab(window.location.protocol+"//"+window.location.hostname+upgradeURL, true);
-                        nextUpgradable++;
-                        openedGirlz++;
-                        haremOpenGirlUpgrade();
-                    }
-                }
-                else
-                {
-                    logHHAuto("Unable to find girl_quest array.");
-                }
-            }
-        }
-
-    }
 
     static getHaremGirlsFromOcdIfExist(): Map<string, any> {
         if (localStorage.getItem('HHS.HHPNMap') !== null) {
@@ -544,14 +347,12 @@ export class Harem {
             const menuIDGifts = "haremGiveGifts";
             const menuIDMaxGifts = "haremGiveMaxGifts";
             const menuIDUpgradeMax = "haremUpgradeMax";
-            const menuNextUpgrad = "haremNextUpgradableGirl";
 
             const menuIDMaxXpButton = createMenuButton(menuIDMaxXp);
             const menuIDXpButton = createMenuButton(menuIDXp);
             const menuIDGiftsButton = createMenuButton(menuIDGifts);
             const menuIDMaxGiftsButton = createMenuButton(menuIDMaxGifts);
             const menuIDUpgradeMaxButton = createMenuButton(menuIDUpgradeMax);
-            const menuNextUpgradButton = createMenuButton(menuNextUpgrad);
             const imgPath = ConfigHelper.getHHScriptVars("baseImgPath");
 
             
@@ -592,10 +393,6 @@ export class Harem {
             $('#'+menuIDUpgradeMax+'Button').on("click", function() {
                 setStoredValue(HHStoredVarPrefixKey+"Temp_haremGirlEnd", 'true');
                 Harem.fillCurrentGirlItem('affection', true);
-            });
-            $('#'+menuNextUpgrad+'Button').on("click", function() { 
-                maskHHPopUp();
-                Harem.popUpHaremSort();
             });
         };
         $('#harem_left').append(girlListMenuButton);
