@@ -2249,11 +2249,6 @@ HHStoredVars[HHStoredVarPrefixKey + "Temp_lseManualCollectAll"] =
     storage: "localStorage",
     HHType: "Temp"
 };
-HHStoredVars[HHStoredVarPrefixKey+"Temp_defaultCustomHaremSort"] =
-    {
-    storage:"localStorage",
-    HHType:"Temp"
-};
 HHStoredVars[HHStoredVarPrefixKey+"Temp_unkownPagesList"] =
     {
     storage:"sessionStorage",

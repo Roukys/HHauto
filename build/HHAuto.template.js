@@ -17,7 +17,6 @@
 // @grant        GM_addStyle
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
-// @grant        GM.openInTab
 // @license      MIT
 // @updateURL    https://github.com/Roukys/HHauto/raw/main/HHAuto.user.js
 // @downloadURL  https://github.com/Roukys/HHauto/raw/main/HHAuto.user.js
