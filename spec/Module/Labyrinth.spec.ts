@@ -5,6 +5,7 @@ describe("Labyrinth", function () {
 
     const LABY_EMPTY = {
         button: {} as any,
+        cell: {} as any,
         type: 'N/A',
         isOpponent: false,
         opponentDifficulty: -1,
