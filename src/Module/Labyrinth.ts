@@ -16,6 +16,7 @@ import { RelicManager } from './RelicManager';
 
 class LabyrinthOpponent{
     button: JQuery<HTMLElement> | null;
+    cell: JQuery<HTMLElement> | null;
     type:string;
     isOpponent: boolean;
     opponentDifficulty: number;
@@ -245,6 +246,7 @@ export class Labyrinth {
             logHHAuto("On Labyrinth page.");
 
             GM_addStyle('.labChosen {width: 25px; top: 55px; position: relative; left: 35px;}');
+            GM_addStyle('.pathChosen {border: 1px solid green; border-radius: 40px;}');
     
             const NB_ROW = 11;
             for(let rowIndex = 1; rowIndex <= NB_ROW; rowIndex++) {
@@ -269,7 +271,148 @@ export class Labyrinth {
                 }
             }
 
+            const allPaths = Labyrinth.buildPath();
+            const bestPath = allPaths.length > 0 ? allPaths[0] : [];
+            Labyrinth.showPath(bestPath);
+
         }
+    }
+
+    static showPath(path: LabyrinthOpponent[]){
+        if(getPage() === ConfigHelper.getHHScriptVars("pagesIDLabyrinth")) {
+            path.forEach((opponent) => {
+                if (!opponent.cell.hasClass('hero')) opponent.cell.addClass('pathChosen');
+            });
+        }
+    }
+
+    static buildPath(){
+        const matrix: LabyrinthOpponent[][] = [];
+
+        const NB_ROW = 11;
+        for (let rowIndex = 1; rowIndex <= NB_ROW; rowIndex++) {
+            matrix[rowIndex - 1] = [];
+            const row = $('#row_' + rowIndex + '.row-hex-container');
+            const items = $('.hex-container:has(.hex-type)', row);
+
+            const options: LabyrinthOpponent[] = [];
+            if (items.length > 0) {
+                $.each(items, (hexIndex, hex) => {
+                    const option = Labyrinth.parseHex(hexIndex, hex);
+                    options.push(option);
+                    matrix[rowIndex - 1].push(option);
+                });
+            }
+        }
+        // remove first empty rows
+        //matrix.shift();
+        
+
+
+        let paths: LabyrinthOpponent[][] = Labyrinth.createPathFromMatrix(matrix);
+        let pathsWithTreasuer: LabyrinthOpponent[][] = Labyrinth.filterPathWithNoTreasue(paths);
+        if(pathsWithTreasuer.length > 0) {
+            paths = pathsWithTreasuer;
+        }
+        paths = Labyrinth.sortPathsByDifficulty(paths);
+        return paths;
+    }
+
+    static filterPathWithNoTreasue(paths: LabyrinthOpponent[][]): LabyrinthOpponent[][] {
+        return paths.filter((path) => {
+            return path.filter((opponent) => opponent.isTreasure).length > 0;
+        });
+    }
+
+    static sortPathsByDifficulty(paths: LabyrinthOpponent[][]): LabyrinthOpponent[][] {
+        return paths.sort((pathA, pathB) => {
+            let difficultyA = 0;
+            let difficultyB = 0;
+            pathA.forEach((opponent) => {
+                difficultyA += opponent.opponentDifficulty;
+            });
+            pathB.forEach((opponent) => {
+                difficultyB += opponent.opponentDifficulty;
+            });
+            return difficultyA - difficultyB;
+        });
+    }
+
+    static createPathFromMatrix(matrix: LabyrinthOpponent[][]): LabyrinthOpponent[][] {
+        /*
+        Rules:
+        The curent matrix have 11 rows. Each row have 2 or 3 cell alternatively.
+        If next row have 3 cell, each cell can reach 2 cell of the next row (Cell 1 can reach cell 1 and 2 of the next row, cell 2 can reach 2 and 3 of the next row)
+        If next row have two cell, cell 1 can only access cell 1 of next row, cell 2 can access 1 and 2 of next row, cell 3 can only access cell 2 of next row.
+        last row have only one cell (boss)
+        */
+
+
+        const rows = matrix.length;
+        const paths: LabyrinthOpponent[][] = [];
+        if (rows === 0) return paths;
+
+        const lastRow = rows - 1;
+
+        const getNextIndices = (currIdx: number, currLen: number, nextLen: number): number[] => {
+            // If next row is the boss row (only one cell), every current cell goes to that single cell
+            if (nextLen === 1) return [0];
+
+            // start row, next has 2: 0 -> [0,1]
+            if (currLen === 1 && nextLen === 2) {
+                return [0, 1];
+            }
+
+            // current row has 2, next has 3: 0 -> [0,1], 1 -> [1,2]
+            if (currLen === 2 && nextLen === 3) {
+                return currIdx === 0 ? [0, 1] : [1, 2];
+            }
+
+            // current row has 3, next has 2: 0->[0], 1->[0,1], 2->[1]
+            if (currLen === 3 && nextLen === 2) {
+                if (currIdx === 0) return [0];
+                if (currIdx === 1) return [0, 1];
+                return [1];
+            }
+            logHHAuto('Labyrinth pathing logic error: currLen=' + currLen + ', nextLen=' + nextLen);
+
+            // fallback: try to keep same index if possible
+            /*const res: number[] = [];
+            if (currIdx < nextLen) res.push(currIdx);
+            if (currIdx + 1 < nextLen) res.push(currIdx + 1);
+            return res;*/
+        };
+
+        const dfs = (row: number, idx: number, acc: LabyrinthOpponent[]) => {
+            acc.push(matrix[row][idx]);
+
+            if (row === lastRow) {
+                paths.push(acc.slice());
+                acc.pop();
+                return;
+            }
+
+            const nextRow = row + 1;
+            const currLen = matrix[row].length;
+            const nextLen = matrix[nextRow].length;
+
+            const nextIndices = getNextIndices(idx, currLen, nextLen);
+            for (const ni of nextIndices) {
+                if (ni >= 0 && ni < nextLen) dfs(nextRow, ni, acc);
+            }
+
+            acc.pop();
+        };
+
+        let startRow = 0;
+        while (startRow < rows && (!matrix[startRow] || matrix[startRow].length === 0)) startRow++;
+        if (startRow >= rows) return paths;
+
+        for (let i = 0; i < matrix[startRow].length; i++) {
+            dfs(startRow, i, []);
+        }   
+
+        return paths;
     }
 
     static getResetTime() {
@@ -365,18 +508,23 @@ export class Labyrinth {
     {
         // opponent_super_easy / opponent_easy / opponent_medium  / opponent_hard / opponent_boss  
         // shrine / treasure
-        const type = $('.clickable-hex', hex).attr('hex_type') || ($('.hex-type', hex).attr('hex_type') || '').replace('hex-type', '').trim();
+        const type = $('.clickable-hex', hex).attr('hex_type') 
+                    || ($('.hex-type', hex).attr('class') || '').replace('hex-type', '').replace('upcoming-hex', '').trim();
         const button = $('.clickable-hex', hex);
         const opponentDifficultyList = ['opponent_super_easy','opponent_easy','opponent_medium','opponent_hard','opponent_boss'];
-        let opponentDifficulty = -1;
+        let opponentDifficulty = 0;
         for(let i=0; i<opponentDifficultyList.length; i++) {
             if(type.indexOf(opponentDifficultyList[i]) >=0) {
                 opponentDifficulty = i;
             }
         }
+        if (type.indexOf('treasure') >= 0) {
+            opponentDifficulty = -3;
+        }
 
         return {
             button: button.length > 0 ? button.first() : null,
+            cell: $('.hex-type', hex).first(),
             type: type,
             isOpponent: type.indexOf('opponent_') >= 0,
             opponentDifficulty: opponentDifficulty,
