@@ -1,6 +1,7 @@
 import {
     ConfigHelper,
     HeroHelper,
+    getHero,
     getPage,
     getTextForUI,
     hhButton,
@@ -10,6 +11,8 @@ import {
 import { addNutakuSession } from '../Service/PageNavigationService';
 import { getHHAjax, logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
+import { KKHaremGirl, KKTeamGirl, TeamData } from '../model/index';
+import { HaremGirl } from './harem/HaremGirl';
 
 export class TeamModule {
 
@@ -52,14 +55,20 @@ export class TeamModule {
         GM_addStyle('.team-hexagon-container .team-hexagon .team-member-container.selected .team-member-border {background-color: #ffb827;}');
 
         const buttonStyles = 'position: absolute;top: 420px;z-index:10';
-        const UnequipAll = hhButton('UnequipAll', 'UnequipAll', buttonStyles + ';left: 75%', 'font-size:small');
-        const EquipAll = hhButton('EquipAll', 'EquipAll', buttonStyles + ';left: 85%', 'font-size:small');
+        const UnequipAll = hhButton('UnequipAll', 'UnequipAll', buttonStyles + ';left: 68%', 'font-size:small');
+        const EquipAll = hhButton('EquipAll', 'EquipAll', buttonStyles + ';left: 78%', 'font-size:small');
+        const StuffTeam = hhButton('StuffTeam', 'StuffTeam', buttonStyles + ';left: 88%', 'font-size:small');
 
         $("#contains_all section").append(EquipAll);
         $("#contains_all section").append(UnequipAll);
+        // $("#contains_all section").append(StuffTeam);
 
         $("#EquipAll").on("click", TeamModule.equipAllGirls);
         $("#UnequipAll").on("click", TeamModule.unequipAllGirls);
+        $("#StuffTeam").on("click", TeamModule.stuffAllGirls);
+
+        $('.team-slot-container').on('click', TeamModule.manageSkillScrollTooltip);
+        TeamModule.manageSkillScrollTooltip();
     }
 
     static unequipAllGirls() {
@@ -95,6 +104,140 @@ export class TeamModule {
         // }
     }
 
+    static manageSkillScrollTooltip() {
+        $('.hhScrollTooltip').remove();
+        setTimeout(() => {
+            const teamGirls = TeamModule.getSelectedGirls();
+            if (teamGirls.length == 7) {
+                TeamModule.createSkillScrollTooltip(teamGirls);
+            }
+        },100);
+    }
+
+    static createSkillScrollTooltip(teamGirls: KKTeamGirl[]=null, displayTooltip: boolean=true): TeamData {
+        // if (!teamGirls || teamGirls.length != 7) {
+        //     teamGirls = TeamModule.getSelectedGirls();
+        //     if (teamGirls.length != 7) {
+        //         return;
+        //     }
+        // }
+        const teamGirlWithoutMain = teamGirls.slice(1);
+        const heroCurrencies = getHero().currencies;
+        let scrollTooltipDetail = '';
+        const mainGirl = teamGirls[0];
+        const team = new TeamData();
+        team.team = teamGirls;
+
+        const neededMythicScrolls = TeamModule.getSkillNeededScrolls(mainGirl, teamGirlWithoutMain, 'mythic', 6);
+        if (neededMythicScrolls > 0) {
+            team.scrolls_mythic = neededMythicScrolls;
+            logHHAuto(`Needed ${neededMythicScrolls} mythic scrolls`);
+            scrollTooltipDetail += `<span class="scrolls_mythic_icn" style="width: 25px;height: 25px;"></span> Mythic: ${neededMythicScrolls}/${heroCurrencies.scrolls_mythic} <br/>`;
+        }
+        let neededLegendaryScrolls = TeamModule.getSkillNeededScrolls(mainGirl, teamGirlWithoutMain, 'legendary', 5);
+        neededLegendaryScrolls += TeamModule.getSkillNeededScrolls(mainGirl, teamGirlWithoutMain, 'legendary', 3);
+        if (neededLegendaryScrolls > 0) {
+            team.scrolls_legendary = neededLegendaryScrolls;
+            logHHAuto(`Needed ${neededLegendaryScrolls} legendary scrolls`);
+            scrollTooltipDetail += `<span class="scrolls_legendary_icn" style="width: 25px;height: 25px;"></span> Legendary: ${neededLegendaryScrolls}/${heroCurrencies.scrolls_legendary} <br/>`;
+        }
+        let neededEpicScrolls = TeamModule.getSkillNeededScrolls(mainGirl, teamGirlWithoutMain, 'epic', 5);
+        neededEpicScrolls += TeamModule.getSkillNeededScrolls(mainGirl, teamGirlWithoutMain, 'epic', 3);
+        if (neededEpicScrolls > 0) {
+            team.scrolls_epic = neededEpicScrolls;
+            logHHAuto(`Needed ${neededEpicScrolls} epic scrolls`);
+            scrollTooltipDetail += `<span class="scrolls_epic_icn" style="width: 25px;height: 25px;"></span> Epic: ${neededEpicScrolls}/${heroCurrencies.scrolls_epic} <br/>`;
+        }
+        let neededRareScrolls = TeamModule.getSkillNeededScrolls(mainGirl, teamGirlWithoutMain, 'rare', 5);
+        neededRareScrolls += TeamModule.getSkillNeededScrolls(mainGirl, teamGirlWithoutMain, 'rare', 3);
+        if (neededRareScrolls > 0) {
+            team.scrolls_rare = neededRareScrolls;
+            logHHAuto(`Needed ${neededRareScrolls} rare scrolls`);
+            scrollTooltipDetail += `<span class="scrolls_rare_icn" style="width: 25px;height: 25px;"></span> Rare: ${neededRareScrolls}/${heroCurrencies.scrolls_rare} <br/>`;
+        }
+        let neededCommonScrolls = TeamModule.getSkillNeededScrolls(mainGirl, teamGirlWithoutMain, 'common', 5);
+        neededCommonScrolls += TeamModule.getSkillNeededScrolls(mainGirl, teamGirlWithoutMain, 'common', 3);
+        neededCommonScrolls += TeamModule.getSkillNeededScrolls(mainGirl, teamGirlWithoutMain, 'common', 1);
+        if (neededCommonScrolls > 0) {
+            logHHAuto(`Needed ${neededCommonScrolls} common scrolls`);
+            scrollTooltipDetail += `<span class="scrolls_common_icn" style="width: 25px;height: 25px;"></span> Common: ${neededCommonScrolls}/${heroCurrencies.scrolls_common} <br/>`;
+        }
+
+
+        const scrollTooltip = $('<div class="hhScrollTooltip"><span class="scrolls_common_icn" style="width: 25px;height: 25px;"></span></div>');
+        scrollTooltip.css('position', 'absolute').css('top', '110px').css('right', '30px');
+        scrollTooltip.attr('tooltip', `<div style="max-width: 290px;">${getTextForUI("skillPointTooltipTitle", "elementText") }<br />
+                            ${scrollTooltipDetail}<br />${getTextForUI("skillPointTooltipDescription", "elementText") }</div>`);
+
+        
+        if (displayTooltip) $('.team-right-part-container').append(scrollTooltip);
+        return team;
+    }
+
+    static stuffAllGirls() {
+        if (getPage() === ConfigHelper.getHHScriptVars("pagesIDBattleTeams")) {
+            logHHAuto('Stuff from edit team');
+            $("#StuffTeam").attr('disabled', 'disabled');
+            const teamGirls = TeamModule.getSelectedGirls();
+            if (teamGirls.length == 0) {
+                return;
+            }
+            // TODO
+            const team = this.createSkillScrollTooltip(teamGirls, false);
+            // TeamModule.createSkillScrollTooltip(teamGirls);
+
+            $("#StuffTeam").removeAttr('disabled');
+        } 
+    }
+
+    // static getSkillNeededScrollsOneGirl(girl: KKTeamGirl): number {
+    //     const rarity = girl.girl.rarity;
+    //     const nbGrades = girl.girl.nb_grades;
+    //     const skills: any[] = Object.values(girl.skill_tiers_info);
+    //     const usedScrolls = Number(skills.reduce((accumulator, skill) => accumulator + (skill.skill_points_used || 0), 0));
+
+    //     const fullNeededScrolls = HaremGirl.SCROLLS_NEED_5[rarity + '_' + nbGrades];
+    //     logHHAuto(`Total skill points used by ${girl.girl.name}: ${usedScrolls}/${fullNeededScrolls}`);
+    //     return fullNeededScrolls - usedScrolls;
+    // }
+
+    static getSkillNeededScrolls(mainGirl: KKTeamGirl, teamGirls: KKTeamGirl[], rarity: string, nbGrades: number): number {
+        const girls = teamGirls.filter(girl => girl.girl && girl.girl.rarity === rarity && girl.girl.nb_grades == nbGrades);
+        logHHAuto(`Found ${girls.length} ${rarity} girls with ${nbGrades} grades in the team.`);
+        let usedScrolls = 0;
+        for (const girl of girls) {
+            const skills: any[] = Object.values(girl.skill_tiers_info);
+            usedScrolls += Number(skills.reduce((accumulator, skill) => accumulator + (skill.skill_points_used || 0), 0));
+        }
+        let fullNeededScrolls = girls.length * HaremGirl.SCROLLS_NEED_4[rarity + '_' + nbGrades];
+
+        if (mainGirl.girl.rarity === rarity && mainGirl.girl.nb_grades == nbGrades) {
+            fullNeededScrolls += HaremGirl.SCROLLS_NEED_5[rarity + '_' + nbGrades];
+            const skills: any[] = Object.values(mainGirl.skill_tiers_info);
+            usedScrolls += Number(skills.reduce((accumulator, skill) => accumulator + (skill.skill_points_used || 0), 0));
+        }
+
+        logHHAuto(`Total skill points used by ${rarity}_${nbGrades} girls in the team: ${usedScrolls}/${fullNeededScrolls}`);
+        return fullNeededScrolls - usedScrolls;
+    }
+
+    // static resetGirlSkills(girlId: number) {
+    //     const currentPage = window.location.pathname + window.location.search;
+    //     // change referer
+    //     //logHHAuto('change referer to ' + '/characters/' + girlId);
+    //     window.history.replaceState(null, '', addNutakuSession('/girl/' + girlId + '?resource=skills') as string);
+    //     var params1 = {
+    //         action: "girl_skills_reset",
+    //         id_girl: girlId
+    //     };
+    //     getHHAjax()(params1, function (data: any) {
+    //         // change referer
+    //         //logHHAuto('change referer back to ' + currentPage);
+    //         window.history.replaceState(null, '', addNutakuSession(currentPage) as string);
+    //         setTimeout(function () { location.reload(); }, randomInterval(200, 500));
+    //     });
+    // }
+
     static equipAllGirls() {
         if (getPage() === ConfigHelper.getHHScriptVars("pagesIDBattleTeams")) {
             setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
@@ -102,19 +245,13 @@ export class TeamModule {
 
             logHHAuto('Equip team');
             $("#EquipAll").attr('disabled', 'disabled');
-            const selectedTeam = $('.team-slot-container.selected-team').attr('data-team-index');
-            if(isNaN(Number(selectedTeam))){
-                logHHAuto('Error: can\'t get selected team index, cancel action');
-                return;
+            const girlIds = TeamModule.getSelectedGirlsId();
+            if (girlIds.length == 0) {
+                return
             }
-            const girlIds = [...unsafeWindow.teams_data[selectedTeam].girls_ids];
-            if (girlIds.length != 7) {
-                logHHAuto('Error: can\'t get all team members, cancel action');
-                return;
-            }
+            
             const currentPage = window.location.pathname + window.location.search;
             let index = 0;
-            logHHAuto('Selected team: ' + selectedTeam +', Team members to equip: ' + girlIds.join(', '));
 
             const equipGirl = (girlId: number) => {
                 logHHAuto(`Performing equip action for girl ${girlId} (${index + 1}/${girlIds.length})`);
@@ -122,7 +259,7 @@ export class TeamModule {
                 $(`.team-member-container[data-girl-id="${girlId}"]`).addClass('selected');
                 // change referer
                 //logHHAuto('change referer to ' + '/characters/' + girlId);
-                window.history.replaceState(null, '', addNutakuSession('/characters/' + girlId) as string);
+                window.history.replaceState(null, '', addNutakuSession('/girl/' + girlId + '?resource=equipment') as string);
                 var params1 = {
                     action: "girl_equipment_equip_all",
                     id_girl: girlId
@@ -157,6 +294,36 @@ export class TeamModule {
             return Number(selectedPosition.attr('data-girl-id'));
         }
         return -1;
+    }
+
+    static getSelectedGirlsId(): number[]{
+        const selectedTeam = $('.team-slot-container.selected-team').attr('data-team-index');
+        if (isNaN(Number(selectedTeam))) {
+            logHHAuto('Error: can\'t get selected team index, cancel action');
+            return;
+        }
+        const girlIds = [...unsafeWindow.teams_data[selectedTeam].girls_ids];
+        if (girlIds.length != 7) {
+            logHHAuto('Error: can\'t get all team members, cancel action');
+            return [];
+        }
+        logHHAuto('Selected team: ' + selectedTeam + ', Team members to equip: ' + girlIds.join(', '));
+        return girlIds;
+    }
+
+    static getSelectedGirls(): KKTeamGirl[]{
+        const selectedTeam = $('.team-slot-container.selected-team').attr('data-team-index');
+        if (isNaN(Number(selectedTeam))) {
+            logHHAuto('Error: can\'t get selected team index, cancel action');
+            return [];
+        }
+        const girls = [...unsafeWindow.teams_data[selectedTeam].girls];
+        if (girls.length != 7) {
+            logHHAuto('Error: can\'t get all team members, cancel action');
+            return [];
+        }
+        logHHAuto('Selected team: ' + selectedTeam + ', Team members to equip: ' + girls.map(girl => girl.girl.name).join(', '));
+        return girls;
     }
 
     static assignTopTeam() {
