@@ -77,16 +77,16 @@ GM_addStyle('.HHpopup_message { border: #666 2px dotted; padding: 5px 20px 5px 5
 GM_addStyle(".HHpopup_message .close {   position: absolute;   top: 20px;   right: 30px;   transition: all 200ms;   font-size: 30px;   font-weight: bold;   text-decoration: none;   color: #333; } #popup_message_league_close:hover {   color: #06D85F; }");
 GM_addStyle('#HHPovPogRewards { position: absolute; bottom: 0.2rem; left: -0.75rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}');
 GM_addStyle('.HHRewardNotCollected { max-width: 17.9rem; transform: scale(0.8); }');
-GM_addStyle('.HHRewardNotCollected .slot { margin: 1px 1px 0}'); 
-GM_addStyle('.HHGirlMilestone { position: absolute; bottom: 0;  z-index: 1; font-size:smaller; width: 200px; text-align: center;}'); 
-GM_addStyle('.HHGirlMilestone > div { background: rgba(0,0,0,.5); border-radius: 10px; margin:auto;  width: 140px; }'); 
+GM_addStyle('.HHRewardNotCollected .slot { margin: 1px 1px 0}');
+GM_addStyle('.HHGirlMilestone { position: absolute; bottom: 0;  z-index: 1; font-size:smaller; width: 200px; text-align: center;}');
+GM_addStyle('.HHGirlMilestone > div { background: rgba(0,0,0,.5); border-radius: 10px; margin:auto;  width: 140px; }');
 // GM_addStyle('.HHGirlMilestone.green { border: solid 1px green }');
-GM_addStyle('.HHGirlMilestone .nc-claimed-reward-check { width:20px; position:absolute; }'); 
-GM_addStyle('#HHPentaDrillRewards { position: absolute; right: 7rem; top: 14.75rem; padding: 0.2rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
-GM_addStyle('#HHSeasonRewards { position: absolute; right: 33.5rem; bottom: 13rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
-GM_addStyle('#HHSeasonalRewards { position: absolute; left: 1.25rem; bottom: 1rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 4;}'); 
-GM_addStyle('#HHPoaRewards { position: absolute;left: 32rem; top: 13.5rem; padding: 0.2rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
-GM_addStyle('#HHDpRewards { position: absolute; left: 0; top: 12rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}'); 
+GM_addStyle('.HHGirlMilestone .nc-claimed-reward-check { width:20px; position:absolute; }');
+GM_addStyle('#HHPentaDrillRewards { position: absolute; right: 7rem; top: 14.75rem; padding: 0.2rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}');
+GM_addStyle('#HHSeasonRewards { position: absolute; right: 33.5rem; bottom: 13rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}');
+GM_addStyle('#HHSeasonalRewards { position: absolute; left: 1.25rem; bottom: 1rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 4;}');
+GM_addStyle('#HHPoaRewards { position: absolute;left: 32rem; top: 13.5rem; padding: 0.2rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}');
+GM_addStyle('#HHDpRewards { position: absolute; left: 0; top: 12rem; padding: 0.5rem; background: rgba(0,0,0,.5); border-radius: 10px; z-index: 1;}');
 // copy CSS from HH OCD, to make it work on other game than HH
 GM_addStyle('#pov_tab_container .potions-paths-first-row .potions-paths-title-panel { transform: scale(0.5);  position: relative; top: -37px; }');
 GM_addStyle('img.eventCompleted { width: 10px; margin-left:2px }');
@@ -1001,7 +1001,7 @@ var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _argume
 
 const DEFAULT_BOOSTERS = { normal: [], mythic: [] };
 class Booster {
-    //all following lines credit:Tom208 OCD script  
+    //all following lines credit:Tom208 OCD script
     static collectBoostersFromAjaxResponses() {
         onAjaxResponse(/(action|class)/, (response, opt, xhr, evt) => {
             setTimeout(function () {
@@ -1089,32 +1089,32 @@ class Booster {
                                             allMastery.usages_remaining -= parseInt(number_of_battles)
                                             mythicUpdated = true
                                         }
-                    
+
                                         if (leagueMastery && (action === 'do_battles_leagues')) {
                                             leagueMastery.usages_remaining -= parseInt(number_of_battles)
                                             mythicUpdated = true
                                         }
-                    
+
                                         if (seasonMastery && (action === 'do_battles_seasons')) {
                                             seasonMastery.usages_remaining -= parseInt(number_of_battles)
                                             mythicUpdated = true
                                         }
-                    
+
                                         if (headband && (action === 'do_battles_pantheon' || action === 'do_battles_trolls')) {
                                             headband.usages_remaining -= parseInt(number_of_battles)
                                             mythicUpdated = true
                                         }
-                    
+
                                         if (watch && className === 'TeamBattle') {
                                             watch.usages_remaining -= parseInt(battles_amount)
                                             mythicUpdated = true
                                         }
-                    
+
                                         if (cinnamon && action === 'do_battles_seasons') {
                                             cinnamon.usages_remaining -= parseInt(number_of_battles)
                                             mythicUpdated = true
                                         }
-                    
+
                                         if (perfume && action === 'start' && className === 'TempPlaceOfPower') {
                                             perfume.usages_remaining--
                                             mythicUpdated = true
@@ -4041,8 +4041,8 @@ class SeasonalEvent {
                 const rewardCountByType = isMegaSeasonalEvent ? SeasonalEvent.getMegaSeasonalNotClaimedRewards() : SeasonalEvent.getSeasonalNotClaimedRewards();
                 LogUtils_logHHAuto("Rewards seasonal event:", JSON.stringify(rewardCountByType));
                 if (rewardCountByType['all'] > 0) {
-                    // GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container { height: 5rem; margin-top: 0;}'); 
-                    // GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container a { height: 2rem;}'); 
+                    // GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container { height: 5rem; margin-top: 0;}');
+                    // GM_addStyle('.seasonal-event-panel .seasonal-event-container .tabs-section #home_tab_container .middle-container .event-resource-location .buttons-container a { height: 2rem;}');
                     for (var i = 0; i < 4; i++) {
                         // move video down
                         GM_addStyle(`.mega-event-panel .mega-event-container .tabs-section #home_tab_container .middle-container .lse-container-${i} { z-index:3;}`);
@@ -4233,7 +4233,7 @@ class QuestHelper {
         // Get the proceed button type
         var proceedButtonMatch = $("#controls button:not([class*='ad_']):not([style*='display:none']):not([style*='display: none'])");
         if (proceedButtonMatch.length === 0) {
-            // Choice button 
+            // Choice button
             LogUtils_logHHAuto("Search for choice buttons");
             proceedButtonMatch = $(".buttons-container button:not([class*='ad_']):not([style*='display:none']):not([style*='display: none'])").first();
         }
@@ -9816,7 +9816,7 @@ class Labyrinth {
         option.button.append(`<img class="labChosen" src=${ConfigHelper.getHHScriptVars("powerCalcImages").chosen}>`);
     }
     static parseHex(hexIndex, hex) {
-        // opponent_super_easy / opponent_easy / opponent_medium  / opponent_hard / opponent_boss  
+        // opponent_super_easy / opponent_easy / opponent_medium  / opponent_hard / opponent_boss
         // shrine / treasure
         const type = $('.clickable-hex', hex).attr('hex_type') || ($('.hex-type', hex).attr('hex_type') || '').replace('hex-type', '').trim();
         const button = $('.clickable-hex', hex);
@@ -10558,13 +10558,13 @@ class LeagueHelper {
                             }
                             if (!simu) {
                                 simu = LeagueHelper.getSimPowerOpponent(heroFighter, opponents);
-                                leagueOpponent = new LeagueOpponent(opponents.player.id_fighter, 
+                                leagueOpponent = new LeagueOpponent(opponents.player.id_fighter,
                                 // opponents.place,
-                                opponents.nickname, 
+                                opponents.nickname,
                                 // opponents.level,
-                                opponents.power, 
+                                opponents.power,
                                 // opponents.player_league_points,
-                                Number(NumberHelper.nRounding(simu.expectedValue, 1, -1)), 
+                                Number(NumberHelper.nRounding(simu.expectedValue, 1, -1)),
                                 // 0, // Boster numbers?
                                 // opponents,
                                 simu);
@@ -10806,13 +10806,13 @@ class LeagueHelper {
                             canUseSimu = false;
                         }
                     }
-                    leagueOpponent = new LeagueOpponent(opponent_id, 
+                    leagueOpponent = new LeagueOpponent(opponent_id,
                     // Number($('.data-column[column="place"]', $(this)).text()),
-                    $('.nickname', $(this)).text(), 
+                    $('.nickname', $(this)).text(),
                     // Number($('.data-column[column="level"]', $(this)).text()),
                     opponents.power, // getPowerOrPoints(hasHHBdsmChangeBefore, $(this)),
                     // Number($('.data-column[column="player_league_points"]', $(this)).text().replace(/\D/g, '')),
-                    expectedPoints, 
+                    expectedPoints,
                     // $('.boosters', $(this)).children().length,
                     // opponents,
                     simu);
@@ -12399,6 +12399,7 @@ class Pachinko {
     static playXPachinko_func() {
         let buttonSelector = Pachinko.getSelectedOptionButtonSelector();
         const buttonContinueSelector = '.popup_buttons #play_again:visible';
+
         if (!isDisplayedHHPopUp()) {
             Pachinko.autoPachinkoRunning = false;
             LogUtils_logHHAuto("PopUp closed, cancelling interval, restart autoloop.");
@@ -12417,31 +12418,49 @@ class Pachinko {
                 return;
             }
         }
+
         const currentOrbsLeft = Pachinko.getNumberOfOrbsLeft(buttonSelector);
         const spendedOrbs = Number(Pachinko.orbLeftOnAutoStart - currentOrbsLeft);
-        //if (debugEnabled) logHHAuto('orbsLeft: ' + Pachinko.orbLeftOnAutoStart + ", currentOrbsLeft: " + currentOrbsLeft + ', spendedOrbs: ' + spendedOrbs + '/orbsToGo: ' + orbsToGo);
+
         if (Pachinko.stopFirstGirlChecked && $('#rewards_popup #reward_holder .shards_wrapper:visible').length > 0) {
             LogUtils_logHHAuto("Girl in reward, stopping...");
             maskHHPopUp();
             Pachinko.buildPachinkoSelectPopUp(spendedOrbs);
             return;
         }
+
         const pachinkoSelectedButton = $(buttonSelector)[0];
         const continuePachinkoSelectedButton = $(buttonContinueSelector);
+
         $("#PachinkoPlayedTimes").text(spendedOrbs + "/" + Pachinko.orbsToGo);
+
         if (spendedOrbs < Pachinko.orbsToGo && currentOrbsLeft > 0) {
+            // Reward Girl
+            const rewardsPopup = $('#rewards_popup:visible');
+            // Button Claim
+            const claimButton = rewardsPopup.find('.purple_button_L:visible');
+
+            if (claimButton.length > 0) {
+                // Claim
+                LogUtils_logHHAuto("Girl won! Clicking purple Claim button to continue pachinko...");
+                claimButton.trigger('click');
+                setTimeout(Pachinko.playXPachinko_func, randomInterval(1200, 1800));
+                return;
+            }
+
+            // No Claim, continue
             if (continuePachinkoSelectedButton.length > 0) {
                 continuePachinkoSelectedButton.trigger('click');
             }
             else {
                 RewardHelper.closeRewardPopupIfAny(false);
                 pachinkoSelectedButton.click();
+
                 Pachinko.failureTimeoutId = setTimeout(() => {
                     // Safe mode
                     LogUtils_logHHAuto("ERROR: No reply from server after more than 5s.");
                     Pachinko.stopXPachinkoFailure();
                 }, randomInterval(5000, 8000));
-                // Nothing to do here, will be done by ajaxComplete handler above.
             }
         }
         else {
@@ -17107,7 +17126,7 @@ export function manageUnits(inText)
         return parseInt(inText.replace(/[^0-9]/gi, ''));
     }
 }
-*/ 
+*/
 
 ;// CONCATENATED MODULE: ./src/Helper/RewardHelper.ts
 
@@ -18165,7 +18184,7 @@ function autoLoop() {
                     {
                         logHHAuto("Go to home after troll fight");
                         gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
-    
+
                     }*/
                 }
             }
@@ -18368,7 +18387,7 @@ function autoLoop() {
                     {
                         logHHAuto("Go to home after league fight");
                         gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
-    
+
                     }*/
                 }
             }
