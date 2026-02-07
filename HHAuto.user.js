@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.29.8
+// @version      7.29.9
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -6338,7 +6338,7 @@ class Troll {
             // We have the power.
             //replaceCheatClick();
             //console.log($("plus[type='energy_fight']"), canBuyResult.price,canBuyResult.type, canBuyResult.max);
-            Hero.recharge($("button.orange_text_button.manual-recharge"), canBuyResult.type, canBuyResult.max, canBuyResult.price);
+            Hero.recharge($("button.orange_text_button.manual-recharge"), canBuyResult.type, canBuyResult.toBuy, canBuyResult.price);
             setHHVars('Hero.infos.hc_confirm', hcConfirmValue);
             LogUtils_logHHAuto('Recharged up to ' + canBuyResult.max + ' fights for ' + canBuyResult.price + ' kobans.');
         }
@@ -18703,7 +18703,7 @@ function autoLoop() {
                     ||
                         (
                         // Love raid available
-                        (loveRaid.id_girl && LoveRaidManager.isActivated())
+                        (LoveRaidManager.isActivated() && (loveRaid === null || loveRaid === void 0 ? void 0 : loveRaid.id_girl))
                             &&
                                 (energyAboveThreshold || Troll.canBuyFightForRaid(loveRaid, false).canBuy))) {
                     LogUtils_logHHAuto('Troll:', { threshold: threshold, runThreshold: runThreshold, TrollHumanLikeRun: humanLikeRun });
