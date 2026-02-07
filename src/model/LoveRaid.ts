@@ -5,7 +5,7 @@ export class LoveRaid {
     raid_module_type: string; //  "champion", "season", "troll"
     start_datetime: string;
     end_datetime: string;
-    event_name: any;
+    event_name: string;
     girl_shards: number;
     seconds_until_event_start: number;
     seconds_until_event_end: number;
