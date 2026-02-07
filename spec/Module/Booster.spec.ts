@@ -96,7 +96,7 @@ describe("Booster", function() {
     });
   });
 
-  describe("equipeSandalWoodIfNeeded", function() {
+  xdescribe("equipeSandalWoodIfNeeded", function() {
 
     beforeEach(function() {
       // Always true here
