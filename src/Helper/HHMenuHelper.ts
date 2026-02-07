@@ -1,8 +1,10 @@
 import { LabyrinthAuto } from '../Module/LabyrinthAuto';
 import { LeagueHelper } from '../Module/League';
+import { LoveRaidManager } from '../Module/index';
 import { setDefaults } from '../Service/index';
 import { isDisplayedHHPopUp, logHHAuto } from '../Utils/index';
 import { HHAuto_inputPattern, HHStoredVarPrefixKey, HHStoredVars } from '../config/index';
+import { LoveRaid } from '../model/LoveRaid';
 import { ConfigHelper } from "./ConfigHelper";
 import { getTextForUI } from "./LanguageHelper";
 import { NumberHelper, add1000sSeparator1 } from "./NumberHelper";
@@ -111,6 +113,22 @@ export class HHMenu {
         trollOptions.add(this._createHtmlSeparator(getTextForUI("otherTrollOption", "elementText")));
         trollOptions.add(this._createHtmlOption('98', getTextForUI("firstTrollWithGirls", "elementText")));
         trollOptions.add(this._createHtmlOption('99', getTextForUI("lastTrollWithGirls", "elementText")));
+    }
+
+    fillLoveRaidSelectMenu() {
+        var loveRaidOptions = <HTMLSelectElement>document.getElementById("loveRaidSelector");
+        try {
+            loveRaidOptions.add(this._createHtmlOption('0', getTextForUI("firstEndingRaid", "elementText")));
+
+            LoveRaidManager.getTrollRaids().forEach((raid:LoveRaid) => {
+                const option = this._createHtmlOption(raid.trollId + '_' + raid.id_girl, raid.event_name);
+                loveRaidOptions.add(option);
+            });
+            
+        } catch ({ errName, message }) {
+            loveRaidOptions.add(this._createHtmlSeparator('Error!'));
+            logHHAuto(`Error filling love raids: ${errName}, ${message}`);
+        }
     }
 
     fillLeagueSelectMenu() {
@@ -682,6 +700,51 @@ export function getMenu() {
                     +`</div>`
                 +`</div>`
             +`</div>`
+            +`<div id="isEnabledTrollBattle" class="optionsBoxWithTitle">`
+                +`<div class="optionsBoxTitle">`
+                    +`<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/pictures/design/menu/map.svg" />`
+                    +`<span class="optionsBoxTitle">${getTextForUI("autoTrollTitle","elementText")}</span>`
+                +`</div>`
+                +`<div class="optionsBox">`
+                    +`<div class="internalOptionsRow" style="justify-content: space-between">`
+                        + hhMenuSwitch('autoTrollBattle')
+                        + hhMenuSelect('autoTrollSelector')
+                        + hhMenuInputWithImg('autoTrollThreshold', HHAuto_inputPattern.autoTrollThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png', 'numeric' )
+                        + hhMenuInputWithImg('autoTrollRunThreshold', HHAuto_inputPattern.autoTrollRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png', 'numeric')
+                        + `<div style="border-left:1px solid #ffa23e;height:36px;"> </div>`
+                    +`</div>`
+                    +`<div class="internalOptionsRow">`
+                        + hhMenuSwitch('useX10Fights', '', true)
+                        + hhMenuSwitch('useX10FightsAllowNormalEvent')
+                        + hhMenuInput('minShardsX10', HHAuto_inputPattern.minShardsX, 'text-align:center; width:7em')
+                        + hhMenuSwitch('useX50Fights', '', true)
+                        + hhMenuSwitch('useX50FightsAllowNormalEvent')
+                        + hhMenuInput('minShardsX50', HHAuto_inputPattern.minShardsX, 'text-align:center; width:7em')
+                    +`</div>`
+                    +`<div class="internalOptionsRow">`
+                        + hhMenuSwitch('plusEvent')
+                        + hhMenuInput('eventTrollOrder', HHAuto_inputPattern.eventTrollOrder, 'width:150px')
+                        + hhMenuSwitch('buyCombat', '', true)
+                        + hhMenuInput('autoBuyTrollNumber', HHAuto_inputPattern.autoBuyTrollNumber, 'width:40px')
+                        + hhMenuInput('buyCombTimer', HHAuto_inputPattern.buyCombTimer, 'text-align:center; width:40px', '', 'numeric')
+                    +`</div>`
+                    +`<div class="internalOptionsRow separator">`
+                        + hhMenuSwitch('plusEventMythic')
+                        + hhMenuSwitch('autoTrollMythicByPassParanoia')
+                        + hhMenuSwitch('buyMythicCombat', '', true)
+                        + hhMenuInput('autoBuyMythicTrollNumber', HHAuto_inputPattern.autoBuyTrollNumber, 'width:40px')
+                        + hhMenuInput('buyMythicCombTimer', HHAuto_inputPattern.buyMythicCombTimer, 'text-align:center; width:40px', '', 'numeric')
+                        + hhMenuSwitch('plusEventMythicSandalWood')
+                    +`</div>`
+                    +`<div class="internalOptionsRow separator">`
+                        + hhMenuSwitch('plusLoveRaid')
+                        + hhMenuSelect('loveRaidSelector')
+                        + hhMenuSwitch('buyLoveRaidCombat', '', true)
+                        + hhMenuInput('autoBuyLoveRaidTrollNumber', HHAuto_inputPattern.autoBuyTrollNumber, 'width:40px')
+                        // + hhMenuSwitch('plusEventLoveRaidSandalWood')
+                    +`</div>`
+                +`</div>`
+            +`</div>`
             +`<div class="optionsRow" style="justify-content: space-evenly">`
                 +`<div id="isEnabledPentaDrill" class="optionsBoxWithTitle">`
                     +`<div class="optionsBoxTitle">`
@@ -708,45 +771,6 @@ export function getMenu() {
                             + hhMenuSwitch('autoSeasonalEventCollectAll')
                             + hhMenuSwitch('autoSeasonalBuyFreeCard')
                         +`</div>`
-                    +`</div>`
-                +`</div>`
-            +`</div>`
-            +`<div id="isEnabledTrollBattle" class="optionsBoxWithTitle">`
-                +`<div class="optionsBoxTitle">`
-                    +`<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/pictures/design/menu/map.svg" />`
-                    +`<span class="optionsBoxTitle">${getTextForUI("autoTrollTitle","elementText")}</span>`
-                +`</div>`
-                +`<div class="optionsBox">`
-                    +`<div class="internalOptionsRow" style="justify-content: space-between">`
-                        + hhMenuSwitch('autoTrollBattle')
-                        + hhMenuSelect('autoTrollSelector')
-                        + hhMenuInputWithImg('autoTrollThreshold', HHAuto_inputPattern.autoTrollThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png', 'numeric' )
-                        + hhMenuInputWithImg('autoTrollRunThreshold', HHAuto_inputPattern.autoTrollRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_energy_fight.png', 'numeric')
-                        + `<div style="border-left:1px solid #ffa23e;height:36px;"> </div>`
-                        + hhMenuSwitch('plusLoveRaid')
-                    +`</div>`
-                    +`<div class="internalOptionsRow">`
-                        + hhMenuSwitch('useX10Fights', '', true)
-                        + hhMenuSwitch('useX10FightsAllowNormalEvent')
-                        + hhMenuInput('minShardsX10', HHAuto_inputPattern.minShardsX, 'text-align:center; width:7em')
-                        + hhMenuSwitch('useX50Fights', '', true)
-                        + hhMenuSwitch('useX50FightsAllowNormalEvent')
-                        + hhMenuInput('minShardsX50', HHAuto_inputPattern.minShardsX, 'text-align:center; width:7em')
-                    +`</div>`
-                    +`<div class="internalOptionsRow">`
-                        + hhMenuSwitch('plusEvent')
-                        + hhMenuInput('eventTrollOrder', HHAuto_inputPattern.eventTrollOrder, 'width:150px')
-                        + hhMenuSwitch('buyCombat', '', true)
-                        + hhMenuInput('autoBuyTrollNumber', HHAuto_inputPattern.autoBuyTrollNumber, 'width:40px')
-                        + hhMenuInput('buyCombTimer', HHAuto_inputPattern.buyCombTimer, 'text-align:center; width:40px', '', 'numeric')
-                    +`</div>`
-                    +`<div class="internalOptionsRow separator">`
-                        + hhMenuSwitch('plusEventMythic')
-                        + hhMenuSwitch('autoTrollMythicByPassParanoia')
-                        + hhMenuSwitch('buyMythicCombat', '', true)
-                        + hhMenuInput('autoBuyMythicTrollNumber', HHAuto_inputPattern.autoBuyTrollNumber, 'width:40px')
-                        + hhMenuInput('buyMythicCombTimer', HHAuto_inputPattern.buyMythicCombTimer, 'text-align:center; width:40px', '', 'numeric')
-                        + hhMenuSwitch('plusEventMythicSandalWood')
                     +`</div>`
                 +`</div>`
             +`</div>`

@@ -248,6 +248,7 @@ export function start() {
         lastTrollIdAvailable = Troll.getLastTrollIdAvailable(false, Number(getStoredValue(HHStoredVarPrefixKey + "Temp_MainAdventureWorldID")));
     }
     hhAutoMenu.fillTrollSelectMenu(lastTrollIdAvailable);
+    hhAutoMenu.fillLoveRaidSelectMenu();
 
     // Add league options
     hhAutoMenu.fillLeagueSelectMenu();
