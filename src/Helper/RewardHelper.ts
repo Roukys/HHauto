@@ -248,7 +248,21 @@ export class RewardHelper {
         let rewardQuery = `div#${popupId != '' ? popupId : 'rewards_popup'} button.blue_button_L:not([disabled]):visible`;
         if ($(rewardQuery).length >0 )
         {
+            if ($(rewardQuery).attr('id') === 'redirect-to-harem') {
+                logHHAuto("Redirect to harem button detected.");
+                return RewardHelper.closeGirlRewardPopupIfAny(logging, popupId);
+            }
             if (logging) logHHAuto(`Close reward popup ${popupId != '' ? popupId : 'rewards_popup'}.`);
+            $(rewardQuery).trigger('click');
+            return true;
+        }
+        return false;
+    }
+    static closeGirlRewardPopupIfAny(logging=true, popupId='') {
+        let rewardQuery = `div#${popupId != '' ? popupId : 'rewards_popup'} button.purple_button_L:not([disabled]):visible`;
+        if ($(rewardQuery).length >0 )
+        {
+            if (logging) logHHAuto(`Close girl reward popup ${popupId != '' ? popupId : 'rewards_popup'}.`);
             $(rewardQuery).trigger('click');
             return true;
         }

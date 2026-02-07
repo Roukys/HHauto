@@ -15,6 +15,9 @@ export function callItOnce(fn) {
 export function getHHAjax() {
     return unsafeWindow.hh_ajax || unsafeWindow.shared?.general?.hh_ajax;
 }
+export function getLoadingAnimation() {
+    return window.shared?.animations?.loadingAnimation || { start: () => { }, stop: ()=>{}};
+}
 
 export function onAjaxResponse(pattern, callback) {
     $(document).ajaxComplete((evt, xhr, opt) => {

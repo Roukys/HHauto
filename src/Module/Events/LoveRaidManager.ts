@@ -65,15 +65,50 @@ export class LoveRaidManager {
     static saveLoveRaids(raids: LoveRaid[]){
         setStoredValue(HHStoredVarPrefixKey + "Temp_loveRaids", JSON.stringify(raids));
     }
-    static getFirstTrollRaidsWithGirlToWin(raids: LoveRaid[]): LoveRaid | undefined {
+
+    static getRaidToFight(raids: LoveRaid[]=[], logging=false): LoveRaid | undefined {
         if(!raids || raids.length === 0) {
             raids = LoveRaidManager.getTrollRaids();
         }
-        const raidWithGirls = raids.filter(raid => raid.girl_shards < 100);
-        if (raidWithGirls.length > 0) {
-            return raidWithGirls[0];
+        let raid: LoveRaid | undefined = undefined;
+
+        let autoRaidSelectedIndex = getStoredValue(HHStoredVarPrefixKey + "Setting_autoLoveRaidSelectedIndex");
+        if (autoRaidSelectedIndex === undefined || autoRaidSelectedIndex === '') {
+            autoRaidSelectedIndex = 0;
+        } else {
+            const autoRaidSelectedIndexArray = autoRaidSelectedIndex.split('_');
+            if (autoRaidSelectedIndexArray.length !== 2) {
+                logHHAuto('Saved raid index is malformed, resetting to default');
+                autoRaidSelectedIndex = 0;
+            } else {
+                autoRaidSelectedIndex = Number(autoRaidSelectedIndexArray[0]);
+                raid = raids.find(raid => raid.trollId === autoRaidSelectedIndex);
+                if (!raid || raid.id_girl != autoRaidSelectedIndexArray[1]) {
+                    logHHAuto('Saved raid is no longer valid or new girl, resetting to default');
+                    autoRaidSelectedIndex = 0;
+                }
+            }
         }
-        return undefined;
+        if (logging && raid) {
+            logHHAuto(`LoveRaid troll fight: ${raid.trollId} selected  with girl ${raid.id_girl} to win`);
+        }
+
+        if (autoRaidSelectedIndex == 0) {
+            const raidWithGirls = raids.filter(raid => raid.girl_shards < 100);
+            if (raidWithGirls.length > 0) {
+                raid = raidWithGirls[0];
+            } else raid = raids[0];
+
+            if (logging) {
+                if (raidWithGirls) {
+                    logHHAuto(`LoveRaid troll fight: ${raid.trollId} with girl ${raid.id_girl} to win`);
+                } else {
+                    logHHAuto(`LoveRaid troll fight: ${raid.trollId} with skin for girl ${raid.id_girl} to win`);
+                }
+            }
+        }
+
+        return raid;
     }
     static parseRaids(raidNotStarted = false): LoveRaid[] {
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
@@ -96,6 +131,7 @@ export class LoveRaidManager {
                     if (debugEnabled && kkRaid.girl_data?.shards >= 100) {
                         logHHAuto(`Girl won, may have skin to win, ignore for now`);
                     }
+                    raid.event_name = (kkRaid.girl_data?.name || kkRaid.event_name || kkRaid.id_girl) + ' ' + (kkRaid.girl_data?.Graded || '');
                     raid.raid_module_type = kkRaid.raid_module_type;
                     raid.seconds_until_event_end = Number(kkRaid.seconds_until_event_end);
                     raid.seconds_until_event_start = Number(kkRaid.seconds_until_event_start);

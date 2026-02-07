@@ -7,6 +7,7 @@ export class KKLoveRaid {
   end_datetime:any;
   event_name:any;
   girl_data: {
+    Graded: any;
     shards: any;
     id_girl: any;
     name: any;

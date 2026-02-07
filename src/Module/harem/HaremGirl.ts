@@ -23,6 +23,30 @@ export class HaremGirl {
     static EXPERIENCE_TYPE='experience';
     static EQUIPMENT_TYPE ='equipment';
     static SKILLS_TYPE ='skills';
+    static SCROLLS_NEED_5 = {
+        'mythic_6': 31,
+        'legendary_5': 27,
+        'legendary_3': 19,
+        'epic_5': 25,
+        'epic_3': 18,
+        'rare_5': 21,
+        'rare_3': 16,
+        'common_5': 19,
+        'common_3': 15,
+        'common_1': 9
+    }
+    static SCROLLS_NEED_4 = {
+        'mythic_6': 26,
+        'legendary_5': 23,
+        'legendary_3': 19,
+        'epic_5': 22,
+        'epic_3': 18,
+        'rare_5': 19,
+        'rare_3': 16,
+        'common_5': 18,
+        'common_3': 15,
+        'common_1': 9
+    }
 
     static SKILL_BUTTON_SELECTOR = "#skills .skill-upgrade button.blue_button_L:not([disabled])";
 

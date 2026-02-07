@@ -307,7 +307,7 @@ export class Pachinko {
         }
     }
 
-    static playXPachinko_func() {
+    static async playXPachinko_func() {
         let buttonSelector = Pachinko.getSelectedOptionButtonSelector();
         const buttonContinueSelector = '.popup_buttons #play_again:visible';
         if (!isDisplayedHHPopUp()) {
@@ -346,7 +346,10 @@ export class Pachinko {
                 continuePachinkoSelectedButton.trigger('click');
             }
             else {
-                RewardHelper.closeRewardPopupIfAny(false);
+                if(RewardHelper.closeRewardPopupIfAny(false)) {
+                    await TimeHelper.sleep(randomInterval(500, 1000));
+                    RewardHelper.closeGirlRewardPopupIfAny(true);
+                }
                 pachinkoSelectedButton.click();
 
                 Pachinko.failureTimeoutId = setTimeout(() => {

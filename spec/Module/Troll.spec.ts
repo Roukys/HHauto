@@ -2,6 +2,7 @@ import { getSecondsLeft, setTimer } from '../../src/Helper/TimerHelper';
 import { Troll } from '../../src/Module/Troll';
 import { HHStoredVarPrefixKey } from '../../src/config/HHStoredVars';
 import { EventGirl } from '../../src/model/EventGirl';
+import { LoveRaid } from '../../src/model/LoveRaid';
 import { MockHelper } from '../testHelpers/MockHelpers';
 
 describe("Troll module", function () {
@@ -41,8 +42,40 @@ describe("Troll module", function () {
             expect(canBuy.type).toBe("fight");
         });
         describe("Event girl", function () {
-            xit("default", function () {
-                
+            xit("allows buying 20 fights when event buy settings are enabled", function () {
+                localStorage.setItem(HHStoredVarPrefixKey + 'Setting_buyCombat', 'true');
+                localStorage.setItem(HHStoredVarPrefixKey + 'Setting_plusEvent', 'true');
+                localStorage.setItem(HHStoredVarPrefixKey + 'Setting_buyCombTimer', '1');
+                setTimer('eventGoing', 1000);
+                unsafeWindow.Hero.currencies = { hard_currency: 1000 };
+                MockHelper.mockEnergiesFight(0, 15);
+
+                const eventGirl = { girl_id: 1, is_mythic: false, shards: 90, troll_id: 1 } as EventGirl;
+                const canBuy = Troll.canBuyFight(eventGirl);
+
+                expect(canBuy.canBuy).toBeTruthy();
+                expect(canBuy.event_mythic).toBe("false");
+                expect(canBuy.max).toBe(20);
+                expect(canBuy.toBuy).toBe(20);
+            });
+
+            xit("allows buying 50 fights when min shards and x50 settings are enabled", function () {
+                localStorage.setItem(HHStoredVarPrefixKey + 'Setting_buyCombat', 'true');
+                localStorage.setItem(HHStoredVarPrefixKey + 'Setting_plusEvent', 'true');
+                localStorage.setItem(HHStoredVarPrefixKey + 'Setting_buyCombTimer', '1');
+                localStorage.setItem(HHStoredVarPrefixKey + 'Setting_useX50Fights', 'true');
+                localStorage.setItem(HHStoredVarPrefixKey + 'Setting_minShardsX50', '20');
+                localStorage.setItem(HHStoredVarPrefixKey + 'Setting_useX50FightsAllowNormalEvent', 'true');
+                setTimer('eventGoing', 1000);
+                unsafeWindow.Hero.currencies = { hard_currency: 1000 };
+                MockHelper.mockEnergiesFight(0, 15);
+
+                const eventGirl = { girl_id: 1, is_mythic: false, shards: 0, troll_id: 1 } as EventGirl;
+                const canBuy = Troll.canBuyFight(eventGirl);
+
+                expect(canBuy.canBuy).toBeTruthy();
+                expect(canBuy.max).toBe(50);
+                expect(canBuy.toBuy).toBe(50);
             });
         });
         describe("Mythic event girl", function () {
@@ -51,6 +84,19 @@ describe("Troll module", function () {
             });
         });
         describe("Mythic + event girl", function () {
+            xit("default", function () {
+                
+            });
+        });
+    });
+
+    describe("canBuyFightForRaid", function () {
+        it("default", function () {
+            const canBuy = Troll.canBuyFightForRaid({} as LoveRaid);
+            expect(canBuy.canBuy).toBeFalsy();
+            expect(canBuy.type).toBe("fight");
+        });
+        describe("Event girl", function () {
             xit("default", function () {
                 
             });

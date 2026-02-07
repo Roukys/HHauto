@@ -67,6 +67,7 @@ import {
     HHStoredVarPrefixKey
 } from '../config/index';
 import { EventGirl } from '../model/EventGirl';
+import { LoveRaid } from '../model/LoveRaid';
 import { 
     AdsService,
     gotoPage,
@@ -377,6 +378,7 @@ export async function autoLoop()
             //logHHAuto("fight amount: "+currentPower+" troll threshold: "+threshold+" paranoia fight: "+Number(checkParanoiaSpendings('fight')));
             const eventGirl: EventGirl = EventModule.getEventGirl();
             const eventMythicGirl: EventGirl = EventModule.getEventMythicGirl();
+            const loveRaid: LoveRaid = LoveRaidManager.getRaidToFight();
             if
                 (
                     //normal case
@@ -409,6 +411,13 @@ export async function autoLoop()
                             energyAboveThreshold
                             || Troll.canBuyFight(eventGirl, false).canBuy // can buy fights
                         )
+                    )
+                    ||
+                    (
+                        // Love raid available
+                        (loveRaid.id_girl && LoveRaidManager.isActivated())
+                        &&
+                        (energyAboveThreshold || Troll.canBuyFightForRaid(loveRaid, false).canBuy)
                     )
                 )
             {

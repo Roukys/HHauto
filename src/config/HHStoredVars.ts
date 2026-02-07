@@ -1204,7 +1204,44 @@ HHStoredVars[HHStoredVarPrefixKey +"Setting_plusLoveRaid"] =
     kobanUsing: false,
     newValueFunction: function () {
         clearTimer('nextLoveRaidTime');
+        deleteStoredValue(HHStoredVarPrefixKey + "Temp_loveRaids");
+        deleteStoredValue(HHStoredVarPrefixKey + "Setting_autoLoveRaidSelectedIndex");
     }
+};
+HHStoredVars[HHStoredVarPrefixKey + "Setting_autoLoveRaidSelectedIndex"] =
+{
+    default: "0",
+    storage: "Storage()",
+    HHType: "Setting",
+    valueType: "Small Integer",
+    getMenu: true,
+    setMenu: true,
+    menuType: "value",
+    kobanUsing: false,
+    customMenuID: "loveRaidSelector",
+    isValid: /^[0-9]|1[0-5]$/
+};
+HHStoredVars[HHStoredVarPrefixKey + "Setting_buyLoveRaidCombat"] =
+{
+    default: "false",
+    storage: "Storage()",
+    HHType: "Setting",
+    valueType: "Boolean",
+    getMenu: true,
+    setMenu: true,
+    menuType: "checked",
+    kobanUsing: true
+};
+HHStoredVars[HHStoredVarPrefixKey + "Setting_autoBuyLoveRaidTrollNumber"] =
+{
+    default: "20",
+    storage: "Storage()",
+    HHType: "Setting",
+    valueType: "List",
+    getMenu: true,
+    setMenu: true,
+    menuType: "value",
+    kobanUsing: false
 };
 HHStoredVars[HHStoredVarPrefixKey+"Setting_plusEvent"] =
     {
