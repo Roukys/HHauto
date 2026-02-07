@@ -741,7 +741,7 @@ export function getMenu() {
                         + hhMenuSelect('loveRaidSelector')
                         + hhMenuSwitch('buyLoveRaidCombat', '', true)
                         + hhMenuInput('autoBuyLoveRaidTrollNumber', HHAuto_inputPattern.autoBuyTrollNumber, 'width:40px')
-                        // + hhMenuSwitch('plusEventLoveRaidSandalWood')
+                        + hhMenuSwitch('plusEventLoveRaidSandalWood')
                     +`</div>`
                 +`</div>`
             +`</div>`

@@ -1243,6 +1243,17 @@ HHStoredVars[HHStoredVarPrefixKey + "Setting_autoBuyLoveRaidTrollNumber"] =
     menuType: "value",
     kobanUsing: false
 };
+HHStoredVars[HHStoredVarPrefixKey + "Setting_plusEventLoveRaidSandalWood"] =
+{
+    default: "false",
+    storage: "Storage()",
+    HHType: "Setting",
+    valueType: "Boolean",
+    getMenu: true,
+    setMenu: true,
+    menuType: "checked",
+    kobanUsing: false
+};
 HHStoredVars[HHStoredVarPrefixKey+"Setting_plusEvent"] =
     {
     default:"false",

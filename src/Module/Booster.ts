@@ -9,7 +9,8 @@ import { gotoPage } from '../Service/index';
 import { isJSON, logHHAuto, onAjaxResponse } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
 import { EventGirl } from '../model/EventGirl';
-import { EventModule } from './index';
+import { LoveRaid } from '../model/LoveRaid';
+import { EventModule, LoveRaidManager } from './index';
 
 
 const DEFAULT_BOOSTERS = {normal: [], mythic:[]};
@@ -159,7 +160,9 @@ export class Booster {
                         if (sandalwood && mythicUpdated && sandalwoodEnded) {
                             const isMultibattle = parseInt(number_of_battles||'') > 1
                             logHHAuto("sandalwood may be ended need a new one");
-                            if (getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythicSandalWood") === "true" && EventModule.getEventMythicGirl().is_mythic) {
+                            const activatedMythic = getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythicSandalWood") === "true";
+                            const activatedLoveRaid = getStoredValue(HHStoredVarPrefixKey + "Setting_plusLoveRaid") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventLoveRaidSandalWood") === "true";
+                            if (activatedMythic && EventModule.getEventMythicGirl().is_mythic || activatedLoveRaid && LoveRaidManager.getRaidToFight().girl_to_win) {
                                 if (isMultibattle) {
                                     // TODO go to market if sandalwood not ended, continue. If ended, buy a new one
                                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDShop"));
@@ -175,10 +178,11 @@ export class Booster {
 
     static needBoosterStatusFromStore() {
         const isMythicAutoSandalWood = getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventMythicSandalWood") === "true";
+        const isLoveRaidAutoSandalWood = getStoredValue(HHStoredVarPrefixKey+"Setting_plusEventLoveRaidSandalWood") === "true";
         const isLeagueWithBooster = getStoredValue(HHStoredVarPrefixKey+"Setting_autoLeaguesBoostedOnly") === "true";
         const isSeasonWithBooster = getStoredValue(HHStoredVarPrefixKey+"Setting_autoSeasonBoostedOnly") === "true";
         const isPantheonWithBooster = getStoredValue(HHStoredVarPrefixKey+"Setting_autoPantheonBoostedOnly") === "true";
-        return isLeagueWithBooster || isSeasonWithBooster || isPantheonWithBooster || isMythicAutoSandalWood;
+        return isLeagueWithBooster || isSeasonWithBooster || isPantheonWithBooster || isMythicAutoSandalWood || isLoveRaidAutoSandalWood;
     }
 
     static getBoosterFromStorage(){
@@ -209,32 +213,89 @@ export class Booster {
         setStoredValue(HHStoredVarPrefixKey+'Temp_boosterStatus', JSON.stringify(boosterStatus));
     }
 
-    static needSandalWoodEquipped(nextTrollChoosen: number): boolean {
-        const eventGirl: EventGirl = EventModule.getEventMythicGirl();
-        const activated = getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythicSandalWood") === "true";
-        const correctTrollTargetted = eventGirl.is_mythic && eventGirl.troll_id == nextTrollChoosen;
-        const ownedSandalwood = HeroHelper.haveBoosterInInventory(Booster.SANDALWOOD_PERFUME.identifier);
-        if (activated && correctTrollTargetted && !Booster.haveBoosterEquiped(Booster.SANDALWOOD_PERFUME.identifier) && ownedSandalwood) {
-            const remainingShards = Number(100 - Number(eventGirl.shards));
-            if (remainingShards > 10) {
-                return true;
-            } else {
-                logHHAuto("Less than 10 shards, do not equip Sandalwood to avoid loss");
-            }
+    static needSandalWoodEquipped(nextTrollChoosen: number, eventMythicGirl: EventGirl=null, loveRaid: LoveRaid=null): boolean {
+        const activatedMythic = getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythicSandalWood") === "true";
+        const activatedLoveRaid = getStoredValue(HHStoredVarPrefixKey + "Setting_plusLoveRaid") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventLoveRaidSandalWood") === "true";
+        if(!activatedMythic && !activatedLoveRaid) {
+            // if neither mythic nor love raid auto sandalwood is activated, no need to check
+            return false;
         }
-        return false;
+
+        let needForMythic = false, needForLoveRaid = false;
+        if (activatedMythic) {
+            if(!eventMythicGirl) {
+                eventMythicGirl = EventModule.getEventMythicGirl();
+            }
+            needForMythic = Booster.needSandalWoodMythic(nextTrollChoosen, eventMythicGirl);
+
+        }
+        if(activatedLoveRaid) {
+            if(!loveRaid) {
+                loveRaid = LoveRaidManager.getRaidToFight();
+            }
+            needForLoveRaid = Booster.needSandalWoodLoveRaid(nextTrollChoosen, loveRaid);
+        }
+        
+        
+        return ((needForMythic || needForLoveRaid) && Booster.ownedSandalwoodAndNotEquiped());
     }
 
-    static async equipeSandalWoodIfNeeded(nextTrollChoosen:number):Promise<boolean>{
+    static ownedSandalwoodAndNotEquiped(): boolean {
+        const ownedSandalwood = HeroHelper.haveBoosterInInventory(Booster.SANDALWOOD_PERFUME.identifier);
+        const equipedSandalwood = Booster.haveBoosterEquiped(Booster.SANDALWOOD_PERFUME.identifier);
+        return ownedSandalwood && !equipedSandalwood;
+    }
+
+    static needSandalWoodMythic(nextTrollChoosen: number, eventMythicGirl: EventGirl = null): boolean {
+        const activated = getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythicSandalWood") === "true";
+        const correctTrollTargetted = eventMythicGirl.is_mythic && eventMythicGirl.troll_id == nextTrollChoosen;
+        const remainingShards = Number(100 - Number(eventMythicGirl.shards));
+        if (remainingShards <= 10) {
+            logHHAuto(`Not equipping sandalwood for mythic, only ${remainingShards} shards remaining`);
+        }
+
+        return activated && correctTrollTargetted && remainingShards > 10;
+    }
+    static needSandalWoodLoveRaid(nextTrollChoosen: number, loveRaid: LoveRaid = null): boolean {
+        const activated = getStoredValue(HHStoredVarPrefixKey + "Setting_plusLoveRaid") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventLoveRaidSandalWood") === "true";
+        const correctTrollTargetted = loveRaid.girl_to_win && loveRaid.trollId == nextTrollChoosen;
+        const remainingShards = Number(100 - Number(loveRaid.girl_shards));
+        if(remainingShards <= 10) {
+            logHHAuto(`Not equipping sandalwood for love raid, only ${remainingShards} shards remaining`);
+        }
+
+        return activated && correctTrollTargetted && remainingShards > 10;
+    }
+
+    static async equipeSandalWoodIfNeeded(nextTrollChoosen: number, setting: string = 'plusEventMythicSandalWood'): Promise<boolean> {
+        const activatedMythic = getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythic") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythicSandalWood") === "true";
+        const activatedLoveRaid = getStoredValue(HHStoredVarPrefixKey + "Setting_plusLoveRaid") === "true" && getStoredValue(HHStoredVarPrefixKey + "Setting_plusEventLoveRaidSandalWood") === "true";
+        let eventMythicGirl: EventGirl = null, loveRaid: LoveRaid = null;
+        let needForMythic = false, needForLoveRaid = false;
+        if (activatedMythic) {
+            if (!eventMythicGirl) {
+                eventMythicGirl = EventModule.getEventMythicGirl();
+            }
+            needForMythic = Booster.needSandalWoodMythic(nextTrollChoosen, eventMythicGirl);
+        }
+        if (activatedLoveRaid) {
+            if (!loveRaid) {
+                loveRaid = LoveRaidManager.getRaidToFight();
+            }
+            needForLoveRaid = Booster.needSandalWoodLoveRaid(nextTrollChoosen, loveRaid);
+            if (needForLoveRaid && !needForMythic) {
+                setting = 'plusEventLoveRaidSandalWood';
+            }
+        }
         try {
-            if(Booster.needSandalWoodEquipped(nextTrollChoosen)) {
+            if (((needForMythic || needForLoveRaid) && Booster.ownedSandalwoodAndNotEquiped())) {
                 // Equip a new one
                 const equiped: boolean = await HeroHelper.equipBooster(Booster.SANDALWOOD_PERFUME);
                 if (!equiped) {
                     const numberFailure = HeroHelper.getSandalWoodEquipFailure();
                     if (numberFailure >= 3) {
                         logHHAuto("Failure when equip Sandalwood for mythic for the third time, deactivated auto sandalwood");
-                        setStoredValue(HHStoredVarPrefixKey + "Setting_plusEventMythicSandalWood", 'false');
+                        setStoredValue(HHStoredVarPrefixKey + "Setting_" + setting, 'false');
 
                     } else logHHAuto("Failure when equip Sandalwood for mythic");
                 }
