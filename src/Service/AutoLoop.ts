@@ -415,7 +415,7 @@ export async function autoLoop()
                     ||
                     (
                         // Love raid available
-                        (loveRaid.id_girl && LoveRaidManager.isActivated())
+                        (LoveRaidManager.isActivated() && loveRaid?.id_girl)
                         &&
                         (energyAboveThreshold || Troll.canBuyFightForRaid(loveRaid, false).canBuy)
                     )
