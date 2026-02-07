@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.29.6
+// @version      7.29.7
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -12689,60 +12689,65 @@ class Pachinko {
         }
     }
     static playXPachinko_func() {
-        let buttonSelector = Pachinko.getSelectedOptionButtonSelector();
-        const buttonContinueSelector = '.popup_buttons #play_again:visible';
-        if (!isDisplayedHHPopUp()) {
-            Pachinko.autoPachinkoRunning = false;
-            LogUtils_logHHAuto("PopUp closed, cancelling interval, restart autoloop.");
-            setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
-            setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey + "Temp_autoLoopTimeMili")));
-            return;
-        }
-        const confirmPachinko = document.getElementById("confirm_pachinko");
-        if (confirmPachinko !== null) {
-            if (Pachinko.ByPassNoGirlChecked && confirmPachinko.querySelector("#popup_confirm.blue_button_L") !== null) {
-                confirmPachinko.querySelector("#popup_confirm.blue_button_L").click();
-                LogUtils_logHHAuto('By pass no girl popup closed');
-            }
-            else {
-                Pachinko.stopXPachinkoNoGirl();
+        return Pachinko_awaiter(this, void 0, void 0, function* () {
+            let buttonSelector = Pachinko.getSelectedOptionButtonSelector();
+            const buttonContinueSelector = '.popup_buttons #play_again:visible';
+            if (!isDisplayedHHPopUp()) {
+                Pachinko.autoPachinkoRunning = false;
+                LogUtils_logHHAuto("PopUp closed, cancelling interval, restart autoloop.");
+                setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "true");
+                setTimeout(autoLoop, Number(getStoredValue(HHStoredVarPrefixKey + "Temp_autoLoopTimeMili")));
                 return;
             }
-        }
-        const currentOrbsLeft = Pachinko.getNumberOfOrbsLeft(buttonSelector);
-        const spendedOrbs = Number(Pachinko.orbLeftOnAutoStart - currentOrbsLeft);
-        //if (debugEnabled) logHHAuto('orbsLeft: ' + Pachinko.orbLeftOnAutoStart + ", currentOrbsLeft: " + currentOrbsLeft + ', spendedOrbs: ' + spendedOrbs + '/orbsToGo: ' + orbsToGo);
-        if (Pachinko.stopFirstGirlChecked && $('#rewards_popup #reward_holder .shards_wrapper:visible').length > 0) {
-            LogUtils_logHHAuto("Girl in reward, stopping...");
-            maskHHPopUp();
-            Pachinko.buildPachinkoSelectPopUp(spendedOrbs);
-            return;
-        }
-        const pachinkoSelectedButton = $(buttonSelector)[0];
-        const continuePachinkoSelectedButton = $(buttonContinueSelector);
-        $("#PachinkoPlayedTimes").text(spendedOrbs + "/" + Pachinko.orbsToGo);
-        if (spendedOrbs < Pachinko.orbsToGo && currentOrbsLeft > 0) {
-            if (continuePachinkoSelectedButton.length > 0) {
-                continuePachinkoSelectedButton.trigger('click');
+            const confirmPachinko = document.getElementById("confirm_pachinko");
+            if (confirmPachinko !== null) {
+                if (Pachinko.ByPassNoGirlChecked && confirmPachinko.querySelector("#popup_confirm.blue_button_L") !== null) {
+                    confirmPachinko.querySelector("#popup_confirm.blue_button_L").click();
+                    LogUtils_logHHAuto('By pass no girl popup closed');
+                }
+                else {
+                    Pachinko.stopXPachinkoNoGirl();
+                    return;
+                }
+            }
+            const currentOrbsLeft = Pachinko.getNumberOfOrbsLeft(buttonSelector);
+            const spendedOrbs = Number(Pachinko.orbLeftOnAutoStart - currentOrbsLeft);
+            //if (debugEnabled) logHHAuto('orbsLeft: ' + Pachinko.orbLeftOnAutoStart + ", currentOrbsLeft: " + currentOrbsLeft + ', spendedOrbs: ' + spendedOrbs + '/orbsToGo: ' + orbsToGo);
+            if (Pachinko.stopFirstGirlChecked && $('#rewards_popup #reward_holder .shards_wrapper:visible').length > 0) {
+                LogUtils_logHHAuto("Girl in reward, stopping...");
+                maskHHPopUp();
+                Pachinko.buildPachinkoSelectPopUp(spendedOrbs);
+                return;
+            }
+            const pachinkoSelectedButton = $(buttonSelector)[0];
+            const continuePachinkoSelectedButton = $(buttonContinueSelector);
+            $("#PachinkoPlayedTimes").text(spendedOrbs + "/" + Pachinko.orbsToGo);
+            if (spendedOrbs < Pachinko.orbsToGo && currentOrbsLeft > 0) {
+                if (continuePachinkoSelectedButton.length > 0) {
+                    continuePachinkoSelectedButton.trigger('click');
+                }
+                else {
+                    if (RewardHelper.closeRewardPopupIfAny(false)) {
+                        yield TimeHelper.sleep(randomInterval(500, 1000));
+                        RewardHelper.closeGirlRewardPopupIfAny(true);
+                    }
+                    pachinkoSelectedButton.click();
+                    Pachinko.failureTimeoutId = setTimeout(() => {
+                        // Safe mode
+                        LogUtils_logHHAuto("ERROR: No reply from server after more than 5s.");
+                        Pachinko.stopXPachinkoFailure();
+                    }, randomInterval(5000, 8000));
+                    // Nothing to do here, will be done by ajaxComplete handler above.
+                }
             }
             else {
                 RewardHelper.closeRewardPopupIfAny(false);
-                pachinkoSelectedButton.click();
-                Pachinko.failureTimeoutId = setTimeout(() => {
-                    // Safe mode
-                    LogUtils_logHHAuto("ERROR: No reply from server after more than 5s.");
-                    Pachinko.stopXPachinkoFailure();
-                }, randomInterval(5000, 8000));
-                // Nothing to do here, will be done by ajaxComplete handler above.
+                LogUtils_logHHAuto("All spent, going back to Selector.");
+                maskHHPopUp();
+                Pachinko.buildPachinkoSelectPopUp(spendedOrbs);
+                return;
             }
-        }
-        else {
-            RewardHelper.closeRewardPopupIfAny(false);
-            LogUtils_logHHAuto("All spent, going back to Selector.");
-            maskHHPopUp();
-            Pachinko.buildPachinkoSelectPopUp(spendedOrbs);
-            return;
-        }
+        });
     }
     static bindPachinkoAjaxReturn() {
         Pachinko.ajaxBindingDone = true;
@@ -17843,8 +17848,22 @@ class RewardHelper {
     static closeRewardPopupIfAny(logging = true, popupId = '') {
         let rewardQuery = `div#${popupId != '' ? popupId : 'rewards_popup'} button.blue_button_L:not([disabled]):visible`;
         if ($(rewardQuery).length > 0) {
+            if ($(rewardQuery).attr('id') === 'redirect-to-harem') {
+                LogUtils_logHHAuto("Redirect to harem button detected.");
+                return RewardHelper.closeGirlRewardPopupIfAny(logging, popupId);
+            }
             if (logging)
                 LogUtils_logHHAuto(`Close reward popup ${popupId != '' ? popupId : 'rewards_popup'}.`);
+            $(rewardQuery).trigger('click');
+            return true;
+        }
+        return false;
+    }
+    static closeGirlRewardPopupIfAny(logging = true, popupId = '') {
+        let rewardQuery = `div#${popupId != '' ? popupId : 'rewards_popup'} button.purple_button_L:not([disabled]):visible`;
+        if ($(rewardQuery).length > 0) {
+            if (logging)
+                LogUtils_logHHAuto(`Close girl reward popup ${popupId != '' ? popupId : 'rewards_popup'}.`);
             $(rewardQuery).trigger('click');
             return true;
         }
