@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.29.9
+// @version      7.29.10
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -10206,7 +10206,7 @@ Labyrinth.BUILD_BUTTON_ID = 'hhAutoLabyTeam';
 
 
 
-function getPage(checkUnknown = false) {
+function getPage(checkUnknown = false, checkPop = false) {
     var ob = document.getElementById(ConfigHelper.getHHScriptVars("gameID"));
     if (ob === undefined || ob === null) {
         LogUtils_logHHAuto("Unable to find page attribute, stopping script");
@@ -10230,7 +10230,7 @@ function getPage(checkUnknown = false) {
         }
         if (tab === 'daily_goals' || $("#activities-tabs > div.switch-tab.underline-tab.tab-switcher-fade-in[data-tab='daily_goals']").length > 0) {
             page = ConfigHelper.getHHScriptVars("pagesIDDailyGoals");
-            if (tab === 'pop') {
+            if (checkPop && tab === 'pop') {
                 // Wrong POP targetted
                 var index = queryStringGetParam(window.location.search, 'index');
                 if (index !== null) {
@@ -10251,11 +10251,11 @@ function getPage(checkUnknown = false) {
                 t = unsafeWindow.pop_index;
                 checkUnknown = false;
                 if (t === undefined) {
+                    t = 'main';
                     var index = queryStringGetParam(window.location.search, 'index');
-                    if (index !== null) {
+                    if (checkPop && index !== null) {
                         PlaceOfPower.addPopToUnableToStart(index, "Unable to go to Pop " + index + " as it is locked.");
                         PlaceOfPower.removePopFromPopToStart(index);
-                        t = 'main';
                     }
                 }
             }
@@ -13000,7 +13000,7 @@ class PlaceOfPower {
     }
     static collectAndUpdate() {
         return PlaceOfPower_awaiter(this, void 0, void 0, function* () {
-            if (getPage() !== ConfigHelper.getHHScriptVars("pagesIDPowerplacemain")) {
+            if (getPage(false, true) !== ConfigHelper.getHHScriptVars("pagesIDPowerplacemain")) {
                 LogUtils_logHHAuto("Navigating to powerplaces main page.");
                 gotoPage(ConfigHelper.getHHScriptVars("pagesIDPowerplacemain"));
                 // return busy
@@ -20028,7 +20028,14 @@ function hardened_start() {
     //GM_unregisterMenuCommand(debugMenuID);
     if (unsafeWindow.jQuery == undefined) {
         console.log("HHAUTO WARNING: No jQuery found.");
-        //setTimeout(()=>{ location.reload }, randomInterval(15*60, 20*60) * 1000);
+        try {
+            const forbiddenWords = document.getElementsByTagName('body')[0].innerText === 'Forbidden';
+            if (forbiddenWords) {
+                LogUtils_logHHAuto('HHAUTO WARNING: "Forbidden" detected.');
+                setTimeout(() => { location.reload; }, randomInterval(1 * 60, 5 * 60) * 1000);
+            }
+        }
+        catch (error) { }
         return;
     }
     if (!started) {
@@ -20261,9 +20268,9 @@ function start() {
 ;// CONCATENATED MODULE: ./src/index.ts
 
 setTimeout(hardened_start, 5000);
-$(function () {
+(function () {
     hardened_start();
-});
+})();
 
 /******/ })()
 ;

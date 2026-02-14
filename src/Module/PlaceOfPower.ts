@@ -151,7 +151,7 @@ export class PlaceOfPower {
 
     static async collectAndUpdate()
     {
-        if(getPage() !== ConfigHelper.getHHScriptVars("pagesIDPowerplacemain"))
+        if(getPage(false, true) !== ConfigHelper.getHHScriptVars("pagesIDPowerplacemain"))
         {
             logHHAuto("Navigating to powerplaces main page.");
             gotoPage(ConfigHelper.getHHScriptVars("pagesIDPowerplacemain"));

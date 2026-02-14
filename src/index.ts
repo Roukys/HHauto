@@ -61,6 +61,6 @@ declare global {
 
 setTimeout(hardened_start,5000);
 
-$(function() {
+(function () {
     hardened_start();
-});
+})();

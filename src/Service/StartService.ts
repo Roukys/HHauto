@@ -17,6 +17,7 @@ import {
     manageTranslationPopUp,
     maskInactiveMenus,
     migrateHHVars,
+    randomInterval,
     saveHHStoredVarsDefaults,
     saveHHVarsSettingsAsJSON,
     setHHStoredVarToDefault,
@@ -140,7 +141,14 @@ export function hardened_start()
     //GM_unregisterMenuCommand(debugMenuID);
     if ((unsafeWindow as any).jQuery == undefined) {
         console.log("HHAUTO WARNING: No jQuery found.");
-        //setTimeout(()=>{ location.reload }, randomInterval(15*60, 20*60) * 1000);
+
+        try {
+            const forbiddenWords = document.getElementsByTagName('body')[0].innerText === 'Forbidden';
+            if (forbiddenWords) {
+                logHHAuto('HHAUTO WARNING: "Forbidden" detected.');
+                setTimeout(()=>{ location.reload }, randomInterval(1*60, 5*60) * 1000);
+            }
+        } catch (error) {}
         return;
     }
     if (!started)
