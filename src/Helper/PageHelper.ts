@@ -5,7 +5,7 @@ import { ConfigHelper } from "./ConfigHelper";
 import { getStoredValue, setStoredValue } from "./StorageHelper";
 import { queryStringGetParam } from "./UrlHelper";
 
-export function getPage(checkUnknown = false):string
+export function getPage(checkUnknown = false, checkPop = false):string
 {
     var ob = document.getElementById(ConfigHelper.getHHScriptVars("gameID"));
     if(ob===undefined || ob === null)
@@ -36,7 +36,7 @@ export function getPage(checkUnknown = false):string
         {
             page = ConfigHelper.getHHScriptVars("pagesIDDailyGoals");
 
-            if (tab === 'pop') {
+            if (checkPop && tab === 'pop') {
                 // Wrong POP targetted
                 var index = queryStringGetParam(window.location.search,'index');
                 if (index !== null)
@@ -57,17 +57,17 @@ export function getPage(checkUnknown = false):string
             }
             else
             {
-                // Keep this but not triggered anymore. When Wrong POP is targetted, daily goals is highlighted
                 t = unsafeWindow.pop_index;
                 checkUnknown = false;
                 if (t === undefined)
                 {
+                    // Keep this but not triggered anymore. When Wrong POP is targetted, daily goals is highlighted
+                    t='main';
                     var index = queryStringGetParam(window.location.search,'index');
-                    if (index !== null)
+                    if (checkPop && index !== null)
                     {
                         PlaceOfPower.addPopToUnableToStart(index,"Unable to go to Pop "+index+" as it is locked.");
                         PlaceOfPower.removePopFromPopToStart(index);
-                        t='main';
                     }
                 }
             }
