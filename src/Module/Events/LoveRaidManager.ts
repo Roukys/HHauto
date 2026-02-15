@@ -75,16 +75,16 @@ export class LoveRaidManager {
         let autoRaidSelectedIndex = getStoredValue(HHStoredVarPrefixKey + "Setting_autoLoveRaidSelectedIndex");
         if (autoRaidSelectedIndex === undefined || autoRaidSelectedIndex === '') {
             autoRaidSelectedIndex = 0;
-        } else {
+        } else if(autoRaidSelectedIndex != 0) {
             const autoRaidSelectedIndexArray = autoRaidSelectedIndex.split('_');
             if (autoRaidSelectedIndexArray.length !== 2) {
-                logHHAuto('Saved raid index is malformed, resetting to default');
+                if (logging) logHHAuto('Saved raid index is malformed, resetting to default');
                 autoRaidSelectedIndex = 0;
             } else {
                 autoRaidSelectedIndex = Number(autoRaidSelectedIndexArray[0]);
                 raid = raids.find(raid => raid.trollId === autoRaidSelectedIndex);
                 if (!raid || raid.id_girl != autoRaidSelectedIndexArray[1]) {
-                    logHHAuto('Saved raid is no longer valid or new girl, resetting to default');
+                    if (logging) logHHAuto('Saved raid is no longer valid or new girl, resetting to default');
                     autoRaidSelectedIndex = 0;
                 }
             }

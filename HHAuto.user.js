@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.29.10
+// @version      7.29.11
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -288,6 +288,8 @@ HHAuto_ToolTips.en['autoChampsGirlThreshold'] = { version: "6.4.0", elementText:
 HHAuto_ToolTips.en['autoChampsTeamKeepSecondLine'] = { version: "5.27.0", elementText: "Keep second line girls", tooltip: "If enabled: keep second line matching girls when first line is not full" };
 HHAuto_ToolTips.en['ChampTeamButton'] = { version: "5.8.0", elementText: "Indicate team order", tooltip: "Add number for the prefered girl order to fight champion" };
 HHAuto_ToolTips.en['updateChampTeamButton'] = { version: "5.21.0", elementText: "Find best team", tooltip: "" };
+HHAuto_ToolTips.en['orderTeam'] = { version: "7.29.10", elementText: "Order team", tooltip: "" };
+HHAuto_ToolTips.en['autoBuildChampsTeam'] = { version: "7.29.10", elementText: "Auto build team", tooltip: "If enabled : automatically build champion team on auto start" };
 HHAuto_ToolTips.en['ChampGirlOrder'] = { version: "5.8.0", elementText: "", tooltip: "Girl to be used at position" };
 HHAuto_ToolTips.en['ChampGirlLowOrder'] = { version: "5.11.0", elementText: "", tooltip: "For Worst team, girl to be used at position" };
 HHAuto_ToolTips.en['goToClubChampions'] = { version: "5.25.0", elementText: "Go To Club Champion" };
@@ -3011,17 +3013,19 @@ class LoveRaidManager {
         if (autoRaidSelectedIndex === undefined || autoRaidSelectedIndex === '') {
             autoRaidSelectedIndex = 0;
         }
-        else {
+        else if (autoRaidSelectedIndex != 0) {
             const autoRaidSelectedIndexArray = autoRaidSelectedIndex.split('_');
             if (autoRaidSelectedIndexArray.length !== 2) {
-                LogUtils_logHHAuto('Saved raid index is malformed, resetting to default');
+                if (logging)
+                    LogUtils_logHHAuto('Saved raid index is malformed, resetting to default');
                 autoRaidSelectedIndex = 0;
             }
             else {
                 autoRaidSelectedIndex = Number(autoRaidSelectedIndexArray[0]);
                 raid = raids.find(raid => raid.trollId === autoRaidSelectedIndex);
                 if (!raid || raid.id_girl != autoRaidSelectedIndexArray[1]) {
-                    LogUtils_logHHAuto('Saved raid is no longer valid or new girl, resetting to default');
+                    if (logging)
+                        LogUtils_logHHAuto('Saved raid is no longer valid or new girl, resetting to default');
                     autoRaidSelectedIndex = 0;
                 }
             }
@@ -4447,6 +4451,15 @@ class QuestHelper {
 QuestHelper.SITE_QUEST_PAGE = '/side-quests.html';
 
 ;// CONCATENATED MODULE: ./src/Module/Champion.ts
+var Champion_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 
 
 
@@ -4470,7 +4483,7 @@ class Champion {
         Champion.ChampDisplayAutoTeamPopup(numberDone, numberEnd, remainingTime);
     }
     static moduleSimChampions() {
-        if ($('#updateChampTeamButton').length > 0) {
+        if ($('#updateChampTeamButton').length > 0 || $('#orderTeam').length > 0) {
             return;
         }
         var getPoses = function ($images) {
@@ -4486,23 +4499,27 @@ class Champion {
         var getMinGirlPower = function () { return getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampsGirlThreshold") !== undefined ? getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampsGirlThreshold") : 50000; };
         var getChampSecondLine = function () { return getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampsTeamKeepSecondLine") === 'true'; };
         //let champTeamButton = '<div style="position: absolute;left: 330px;top: 10px;width:90px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ChampTeamButton","tooltip")+'</span><label class="myButton" id="ChampTeamButton">'+getTextForUI("ChampTeamButton","elementText")+'</label></div>';
+        GM_addStyle('.girl-box__draggable.switching {background-color: #ffb827;}');
         var champTeam = getHHVars('championData.team');
-        const champTeamId = Number(getHHVars('championData.champion.id'));
+        // const champTeamId = Number(getHHVars('championData.champion.id'));
         let freeDrafts = Number(getHHVars('championData.freeDrafts'));
         var counterLoop = 0;
         let maxLoops = getChampMaxLoop();
         const girlMinPower = getMinGirlPower();
         let keepSecondLineGirls = getChampSecondLine();
-        const championRequiredPoses = getPoses($(".champions-over__champion-info.champions-animation .champion-pose"));
+        const championRequiredPoses = getHHVars('championData.champion.poses') || getPoses($(".champions-over__champion-info.champions-animation .champion-pose"));
         const girlBoxesQuery = ".champions-middle__girl-selection.champions-animation .girl-selection__girl-box";
         const changeDraftButtonQuery = ".champions-bottom__footer button.champions-bottom__draft-team";
         const newDraftButtonQuery = ".champions-bottom__footer button.champions-bottom__make-draft";
         const confirmDraftButtonQuery = ".champions-bottom__footer button.champions-bottom__confirm-team";
-        //$(".champions-top__inner-wrapper").append(champTeamButton);
-        if (freeDrafts > 0) {
-            let updateChampTeamButton = '<div style="position: absolute;left: 330px;top: 10px;width:90px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">' + getTextForUI("updateChampTeamButton", "tooltip") + '</span><label class="myButton" id="updateChampTeamButton">' + getTextForUI("updateChampTeamButton", "elementText") + ' x' + maxLoops + '</label></div>';
-            $(".champions-top__inner-wrapper").append(updateChampTeamButton);
-        }
+        const buttonStyles = 'position: absolute;width:90px;z-index:10;left: 330px';
+        let updateChampTeamButton = '<div style="' + buttonStyles + ';top: 10px" class="tooltipHH"><span class="tooltipHHtext">' + getTextForUI("updateChampTeamButton", "tooltip") + '</span><label class="myButton" id="updateChampTeamButton">' + getTextForUI("updateChampTeamButton", "elementText") + ' x' + maxLoops + '</label></div>';
+        $(".champions-top__inner-wrapper").append(updateChampTeamButton);
+        if (freeDrafts == 0)
+            $('#updateChampTeamButton').attr('disabled', 'disabled');
+        const orderTeam = hhButton('orderTeam', 'orderTeam', buttonStyles + ';top: 30px');
+        $(".champions-top__inner-wrapper").append(orderTeam);
+        $("#orderTeam").on("click", () => Champion.orderTeam());
         var indicateBestTeam = function () {
             const girlBoxes = $(girlBoxesQuery);
             var girlsPerPose = {};
@@ -4528,11 +4545,11 @@ class Champion {
                 var expectedPose = championRequiredPoses[i % 5];
                 if (girlsPerPose[expectedPose] && girlsPerPose[expectedPose].length > 0) {
                     let color = 'gold'; // i >= 5 ? 'white' : 'gold';
-                    girlsPerPose[expectedPose][0].htmlDom.append('<span class="hhgirlOrder" title="' + getTextForUI("ChampGirlOrder", "tooltip") + ' ' + (i + 1) + '" style="position: absolute;top: 41px;left: 3px;z-index: 10;color:' + color + ';">' + (i + 1) + '</span>');
+                    girlsPerPose[expectedPose][0].htmlDom.append('<span class="hhgirlOrder best" title="' + getTextForUI("ChampGirlOrder", "tooltip") + ' ' + (i + 1) + '" style="position: absolute;top: 41px;left: 3px;z-index: 10;color:' + color + ';">' + (i + 1) + '</span>');
                     girlsPerPose[expectedPose].shift();
                 }
                 if (girls && girls[i])
-                    girls[i].htmlDom.append('<span class="hhgirlOrder" title="' + getTextForUI("ChampGirlLowOrder", "tooltip") + ' ' + (i + 1) + '" style="position: absolute;top: 41px;left: 47px;z-index: 10;color:red;">' + (i + 1) + '</span>');
+                    girls[i].htmlDom.append('<span class="hhgirlOrder worst" title="' + getTextForUI("ChampGirlLowOrder", "tooltip") + ' ' + (i + 1) + '" style="position: absolute;top: 41px;left: 47px;z-index: 10;color:red;">' + (i + 1) + '</span>');
             }
         };
         //document.getElementById("ChampTeamButton").addEventListener("click", indicateBestTeam);
@@ -4549,104 +4566,113 @@ class Champion {
             setTimeout(indicateBestTeam, 1000);
         };
         var selectGirls = function () {
-            Champion.ChamppUpdateAutoTeamPopup(counterLoop + 1, maxLoops, (maxLoops - counterLoop) * 5);
-            $('#updateChampTeamButton').text('Loop ' + (counterLoop + 1) + '/' + maxLoops);
-            const girlBoxes = $(".champions-middle__girl-selection.champions-animation .girl-selection__girl-box");
-            var girlsPerPose = {};
-            var girls = [];
-            var teamGirls = [];
-            var girlsClicked = false;
-            girlBoxes.each(function (girlIndex, girlBox) {
-                const $girl = $('.girl-box__draggable ', $(girlBox));
-                const girlData = champTeam[girlIndex];
-                if (girlData.id_girl != $girl.attr('id_girl')) {
-                    LogUtils_logHHAuto('Invalid girls ' + girlData.id_girl + 'vs' + $girl.attr('id_girl'));
-                    return;
-                }
-                const poseNumber = girlData.figure;
-                if (!girlsPerPose[poseNumber]) {
-                    girlsPerPose[poseNumber] = [];
-                }
-                girlsPerPose[poseNumber].push({ data: girlData, htmlDom: $girl });
-                girlsPerPose[poseNumber].sort((a, b) => b.data.damage - a.data.damage);
-                girls.push({ data: girlData, htmlDom: $girl });
-                girls.sort((a, b) => a.data.damage - b.data.damage);
-            });
-            const hero_damage = Number(getHHVars('championData.hero_damage'));
-            // Build team
-            if (keepSecondLineGirls) {
-                var teamGirlIndex = 0;
-                for (var i = 0; i < 10; i++) {
-                    var expectedPose = championRequiredPoses[i % 5];
-                    if (girlsPerPose[expectedPose] && girlsPerPose[expectedPose].length > 0 && teamGirlIndex < 5) {
-                        if ((girlsPerPose[expectedPose][0].data.damage + hero_damage) >= girlMinPower) {
-                            teamGirls[teamGirlIndex++] = girlsPerPose[expectedPose][0].data.id_girl;
+            return Champion_awaiter(this, void 0, void 0, function* () {
+                Champion.ChamppUpdateAutoTeamPopup(counterLoop + 1, maxLoops, (maxLoops - counterLoop) * 5);
+                $('#updateChampTeamButton').text('Loop ' + (counterLoop + 1) + '/' + maxLoops);
+                const girlBoxes = $(".champions-middle__girl-selection.champions-animation .girl-selection__girl-box");
+                var girlsPerPose = {};
+                var girls = [];
+                var teamGirls = [];
+                var girlsClicked = false;
+                girlBoxes.each(function (girlIndex, girlBox) {
+                    const $girl = $('.girl-box__draggable ', $(girlBox));
+                    const girlData = champTeam[girlIndex];
+                    if (girlData.id_girl != $girl.attr('id_girl')) {
+                        LogUtils_logHHAuto('Invalid girls ' + girlData.id_girl + 'vs' + $girl.attr('id_girl'));
+                        return;
+                    }
+                    const poseNumber = girlData.figure;
+                    if (!girlsPerPose[poseNumber]) {
+                        girlsPerPose[poseNumber] = [];
+                    }
+                    girlsPerPose[poseNumber].push({ data: girlData, htmlDom: $girl });
+                    girlsPerPose[poseNumber].sort((a, b) => b.data.damage - a.data.damage);
+                    girls.push({ data: girlData, htmlDom: $girl });
+                    girls.sort((a, b) => a.data.damage - b.data.damage);
+                });
+                const hero_damage = Number(getHHVars('championData.hero_damage'));
+                // Build team
+                if (keepSecondLineGirls) {
+                    var teamGirlIndex = 0;
+                    for (var i = 0; i < 10; i++) {
+                        var expectedPose = championRequiredPoses[i % 5];
+                        if (girlsPerPose[expectedPose] && girlsPerPose[expectedPose].length > 0 && teamGirlIndex < 5) {
+                            if ((girlsPerPose[expectedPose][0].data.damage + hero_damage) >= girlMinPower) {
+                                teamGirls[teamGirlIndex++] = girlsPerPose[expectedPose][0].data.id_girl;
+                            }
+                            girlsPerPose[expectedPose].shift();
                         }
-                        girlsPerPose[expectedPose].shift();
                     }
                 }
-            }
-            else {
-                for (var i = 0; i < 5; i++) {
-                    var expectedPose = championRequiredPoses[i % 5];
-                    teamGirls[i] = -1;
-                    if (girlsPerPose[expectedPose] && girlsPerPose[expectedPose].length > 0) {
-                        if ((girlsPerPose[expectedPose][0].data.damage + hero_damage) >= girlMinPower) {
-                            teamGirls[i] = girlsPerPose[expectedPose][0].data.id_girl;
+                else {
+                    for (var i = 0; i < 5; i++) {
+                        var expectedPose = championRequiredPoses[i % 5];
+                        teamGirls[i] = -1;
+                        if (girlsPerPose[expectedPose] && girlsPerPose[expectedPose].length > 0) {
+                            if ((girlsPerPose[expectedPose][0].data.damage + hero_damage) >= girlMinPower) {
+                                teamGirls[i] = girlsPerPose[expectedPose][0].data.id_girl;
+                            }
+                            girlsPerPose[expectedPose].shift();
                         }
-                        girlsPerPose[expectedPose].shift();
                     }
                 }
-            }
-            LogUtils_logHHAuto('Team of girls ' + teamGirls);
-            var toggleSelectGirl = function (girlId, girlDraggable, timer = 1000) {
-                setTimeout(function () {
-                    console.log("click " + girlId, girlDraggable);
-                    girlDraggable.click();
-                }, timer);
-            };
-            // Unselect girls
-            const selectedGirls = $(".champions-middle__girl-selection.champions-animation .girl-selection__girl-box .girl-box__draggable.selected");
-            selectedGirls.each(function (girlIndex, girlBox) {
-                const selectedGirlId = $(girlBox).attr('id_girl');
-                if (teamGirls.indexOf(selectedGirlId) < 0) {
-                    girlsClicked = true;
-                    LogUtils_logHHAuto("Unselected as out of the team :" + selectedGirlId);
-                    toggleSelectGirl(selectedGirlId, $(girlBox), randomInterval(300, 600));
-                }
-            });
-            // Select girls
-            for (var i = 0; i < 5; i++) {
-                if (teamGirls[i] >= 0) {
-                    var girlDraggable = $('.girl-box__draggable[id_girl="' + teamGirls[i] + '"]');
-                    if (!girlDraggable.hasClass('selected')) {
+                LogUtils_logHHAuto('Team of girls ' + teamGirls);
+                var toggleSelectGirl = function (girlId, girlDraggable, timer = 1000) {
+                    setTimeout(function () {
+                        console.log("click " + girlId, girlDraggable);
+                        girlDraggable.click();
+                    }, timer);
+                };
+                // Unselect girls
+                const selectedGirls = $(".champions-middle__girl-selection.champions-animation .girl-selection__girl-box .girl-box__draggable.selected");
+                selectedGirls.each(function (girlIndex, girlBox) {
+                    const selectedGirlId = $(girlBox).attr('id_girl');
+                    if (teamGirls.indexOf(selectedGirlId) < 0) {
                         girlsClicked = true;
-                        LogUtils_logHHAuto("Girl not selected :" + teamGirls[i]);
-                        toggleSelectGirl(teamGirls[i], girlDraggable, randomInterval(800, 1200));
+                        LogUtils_logHHAuto("Unselected as out of the team :" + selectedGirlId);
+                        toggleSelectGirl(selectedGirlId, $(girlBox), randomInterval(300, 600));
+                    }
+                });
+                // Select girls
+                for (var i = 0; i < 5; i++) {
+                    if (teamGirls[i] >= 0) {
+                        var girlDraggable = $('.girl-box__draggable[id_girl="' + teamGirls[i] + '"]');
+                        if (!girlDraggable.hasClass('selected')) {
+                            girlsClicked = true;
+                            LogUtils_logHHAuto("Girl not selected :" + teamGirls[i]);
+                            toggleSelectGirl(teamGirls[i], girlDraggable, randomInterval(800, 1200));
+                        }
+                        else {
+                            LogUtils_logHHAuto("Girl already selected :" + teamGirls[i]);
+                        }
+                    }
+                }
+                var newDraftInterval = girlsClicked ? randomInterval(1800, 2500) : randomInterval(800, 1500);
+                setTimeout(function () {
+                    if ($(newDraftButtonQuery).length > 0)
+                        $(newDraftButtonQuery).trigger('click');
+                }, newDraftInterval);
+                LogUtils_logHHAuto("Free drafts remanings :" + freeDrafts);
+                counterLoop++;
+                if (freeDrafts > 0 && counterLoop <= maxLoops) {
+                    setTimeout(selectGirls, randomInterval(6000, 9000)); // Wait animation
+                }
+                else {
+                    Champion.ChampClearAutoTeamPopup();
+                    $('#updateChampTeamButton').removeAttr('disabled').text(getTextForUI("updateChampTeamButton", "elementText") + ' x' + maxLoops);
+                    if ($(confirmDraftButtonQuery).length > 0)
+                        $(confirmDraftButtonQuery).trigger('click');
+                    if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoBuildChampsTeam") === "true") {
+                        LogUtils_logHHAuto('Auto team ended, sort girls after build');
+                        yield TimeHelper.sleep(randomInterval(800, 1200));
+                        Champion.orderTeam(champTeam);
                     }
                     else {
-                        LogUtils_logHHAuto("Girl already selected :" + teamGirls[i]);
+                        LogUtils_logHHAuto("Auto team ended, refresh page, restarting autoloop");
+                        location.reload();
                     }
                 }
-            }
-            var newDraftInterval = girlsClicked ? randomInterval(1800, 2500) : randomInterval(800, 1500);
-            setTimeout(function () {
-                if ($(newDraftButtonQuery).length > 0)
-                    $(newDraftButtonQuery).trigger('click');
-            }, newDraftInterval);
-            LogUtils_logHHAuto("Free drafts remanings :" + freeDrafts);
-            counterLoop++;
-            if (freeDrafts > 0 && counterLoop <= maxLoops) {
-                setTimeout(selectGirls, randomInterval(6000, 9000)); // Wait animation
-            }
-            else {
-                Champion.ChampClearAutoTeamPopup();
-                $('#updateChampTeamButton').removeAttr('disabled').text(getTextForUI("updateChampTeamButton", "elementText") + ' x' + maxLoops);
-                if ($(confirmDraftButtonQuery).length > 0)
-                    $(confirmDraftButtonQuery).trigger('click');
-                LogUtils_logHHAuto("Auto team ended, refresh page, restarting autoloop");
-                location.reload();
-            }
+            });
         };
         var findBestTeam = function () {
             setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
@@ -4696,104 +4722,212 @@ class Champion {
         });
         return championMap;
     }
-    static doChampionStuff() {
-        var page = getPage();
-        if (page == ConfigHelper.getHHScriptVars("pagesIDChampionsPage")) {
-            LogUtils_logHHAuto('on champion page');
-            if ($('button[rel=perform].blue_button_L').length == 0) {
-                LogUtils_logHHAuto('Something is wrong!');
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
-                return true;
-            }
-            else {
-                var TCount = Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
-                var ECount = QuestHelper.getEnergy();
-                LogUtils_logHHAuto("T:" + TCount + " E:" + ECount + " " + (getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampsUseEne") === "true"));
-                if (TCount == 0) {
-                    LogUtils_logHHAuto("No tickets!");
-                    const nextTime = randomInterval(3600, 4000);
-                    setTimer('nextChampionTime', nextTime);
-                    if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoClubChamp") === "true") {
-                        // no ticket for both
-                        setTimer('nextClubChampionTime', nextTime);
+    static orderTeam(champTeamArg = undefined) {
+        return Champion_awaiter(this, void 0, void 0, function* () {
+            var champTeam = champTeamArg || getHHVars('championData.team');
+            const champTeamId = Number(getHHVars('championData.champion.id'));
+            $("#orderTeam").attr('disabled', 'disabled');
+            const isClub = getPage() == ConfigHelper.getHHScriptVars("pagesIDClubChampion");
+            var switchGirls = function (targettedTeam) {
+                return new Promise((resolve) => {
+                    const params = {
+                        action: "champion_team_reorder",
+                        team_order: targettedTeam,
+                        id_champion: champTeamId,
+                        champion_type: isClub ? "club_champion" : "champion"
+                    };
+                    getHHAjax()(params, function (data) {
+                        if (data.success == false) {
+                            LogUtils_logHHAuto('Error occured during champion team reorder', data);
+                        }
+                        resolve(data.success || true);
+                    }, function (err) {
+                        LogUtils_logHHAuto('Error occured during champion team reorder', err);
+                        resolve(false);
+                    });
+                });
+            };
+            let currentGirlOrder = [...champTeam.map(g => g.id_girl)]; // To be stored as string
+            LogUtils_logHHAuto('Ordering champion team', currentGirlOrder);
+            let oneGirlSwitched = false;
+            const getGirlId = (position) => {
+                const girlBox = $('.girl-box__draggable:has(".hhgirlOrder.best:contains(\'' + position + '\')")');
+                if (girlBox.length > 0) {
+                    if (position == 1) {
+                        // Avoid selecting girl with position 10
+                        if (girlBox.first().find('.hhgirlOrder.best').text().trim() == '1')
+                            return Number(girlBox.first().attr('id_girl'));
+                        if (girlBox.last().find('.hhgirlOrder.best').text().trim() == '1')
+                            return Number(girlBox.last().attr('id_girl'));
                     }
-                    return false;
+                    else {
+                        return Number(girlBox.attr('id_girl'));
+                    }
+                }
+                return null;
+            };
+            for (let i = 1; i <= 10; i++) {
+                const girlId = getGirlId(i);
+                if (girlId && !isNaN(girlId)) {
+                    if (girlId != currentGirlOrder[i - 1]) {
+                        $('div[id_girl="' + girlId + '"]').addClass('switching');
+                        $('div[id_girl="' + currentGirlOrder[i - 1] + '"]').addClass('switching');
+                        LogUtils_logHHAuto(`Switching girls to reorder team ${girlId} - ${currentGirlOrder[i - 1]}`);
+                        const oldGirlIndex = currentGirlOrder.findIndex(g => g == girlId);
+                        const targettedTeam = [...currentGirlOrder];
+                        [targettedTeam[i - 1], targettedTeam[oldGirlIndex]] = [targettedTeam[oldGirlIndex], targettedTeam[i - 1]];
+                        LogUtils_logHHAuto('Ordering champion targettedTeam', targettedTeam);
+                        if (yield switchGirls(targettedTeam)) {
+                            oneGirlSwitched = true;
+                            // Update current girls order after success switch
+                            currentGirlOrder = targettedTeam;
+                        }
+                        else {
+                            LogUtils_logHHAuto('ERROR: Switch failed, try to continue');
+                        }
+                        $('div[id_girl]').removeClass('switching');
+                        yield TimeHelper.sleep(randomInterval(800, 1200));
+                    }
+                    else {
+                        LogUtils_logHHAuto('Girl already in the right position :' + girlId);
+                    }
                 }
                 else {
-                    if (TCount != 0) {
-                        LogUtils_logHHAuto("Using ticket");
-                        $('button[rel=perform].blue_button_L').click();
-                    }
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDChampionsMap"));
-                    return true;
+                    LogUtils_logHHAuto('Could not find girlId for position ' + i);
                 }
             }
-        }
-        else if (page == ConfigHelper.getHHScriptVars("pagesIDChampionsMap")) {
-            LogUtils_logHHAuto('on champion map');
-            const championMap = Champion.getChampionListFromMap();
-            const autoChampsForceStartEventGirl = getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampsForceStartEventGirl") === "true";
-            const autoChampsEventGirls = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_autoChampsEventGirls")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_autoChampsEventGirls")) : [];
-            const autoChampsForceStart = getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampsForceStart") === "true";
-            for (let i = 0; i < championMap.length; i++) {
-                let OnTimer = championMap[i].timer > 0;
-                let autoChampGirlInEvent = false;
-                let autoChampGirlOnChamp = false;
-                let autoChampGirlsIds = [];
-                let autoChampGirlsEventsID;
-                if (autoChampsForceStartEventGirl) {
-                    for (let ec = autoChampsEventGirls.length; ec > 0; ec--) {
-                        let idArray = Number(ec) - 1;
-                        if (Number(autoChampsEventGirls[idArray].champ_id) === i + 1) {
-                            autoChampGirlInEvent = true;
-                            autoChampGirlsIds.push(Number(autoChampsEventGirls[idArray].girl_id));
-                            autoChampGirlsEventsID = autoChampsEventGirls[idArray].event_id;
+            LogUtils_logHHAuto('Finished ordering champion team');
+            $("#orderTeam").removeAttr('disabled');
+            //if(oneGirlSwitched) 
+            location.reload();
+        });
+    }
+    static doChampionStuff() {
+        return Champion_awaiter(this, void 0, void 0, function* () {
+            var page = getPage();
+            if (page == ConfigHelper.getHHScriptVars("pagesIDChampionsPage")) {
+                const champTeamId = Number(getHHVars('championData.champion.id'));
+                LogUtils_logHHAuto('on champion ' + champTeamId + ' page');
+                if ($('button[rel=perform].blue_button_L').length == 0) {
+                    LogUtils_logHHAuto('Something is wrong!');
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                    return true;
+                }
+                else {
+                    // champion-healing-tooltip='{"amount":"9,123,123","impression_info":"9,123,123/99,999,999"}'
+                    // champion-healing-tooltip='{"impression_info":""0/99,999,999"}'
+                    const tooltipData = $('.stage-progress-bar-wrapper[champion-healing-tooltip]').attr('champion-healing-tooltip') || '{"amount":"0","impression_info":"0/1"}';
+                    const impressionDone = (JSON.parse(tooltipData)).amount || 0;
+                    var TCount = Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
+                    var ECount = QuestHelper.getEnergy();
+                    LogUtils_logHHAuto("T:" + TCount + " E:" + ECount + " " + (getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampsUseEne") === "true") + " Imp:" + impressionDone);
+                    if (TCount == 0) {
+                        LogUtils_logHHAuto("No tickets!");
+                        const nextTime = randomInterval(3600, 4000);
+                        setTimer('nextChampionTime', nextTime);
+                        if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoClubChamp") === "true") {
+                            // no ticket for both
+                            setTimer('nextClubChampionTime', nextTime);
                         }
+                        return false;
                     }
-                    let firstLockedLevelOfChampRequest = 'a.champion-lair[href*=' + Number(i + 1) + '] .stage-icon.locked';
-                    if (autoChampGirlInEvent && $(firstLockedLevelOfChampRequest).length > 0) {
-                        let firstLockedLevelOfChamp = $(firstLockedLevelOfChampRequest)[0].getAttribute("champion-rewards-tooltip");
-                        if (firstLockedLevelOfChamp !== undefined
-                            && isJSON(firstLockedLevelOfChamp)
-                            && JSON.parse(firstLockedLevelOfChamp || '').stage.girl_shards
-                            && JSON.parse(firstLockedLevelOfChamp || '').stage.girl_shards.length > 0) {
-                            let parsedFirstLockedLevelOfChamp = JSON.parse(firstLockedLevelOfChamp || '');
-                            for (let girlIt = 0; girlIt < parsedFirstLockedLevelOfChamp.stage.girl_shards.length; girlIt++) {
-                                if (autoChampGirlsIds.includes(parsedFirstLockedLevelOfChamp.stage.girl_shards[girlIt].id_girl)) {
-                                    autoChampGirlOnChamp = true;
+                    else {
+                        if (impressionDone == 0 && getStoredValue(HHStoredVarPrefixKey + "Setting_autoBuildChampsTeam") === "true") {
+                            const tempChampBuildTeam = getStoredValue(HHStoredVarPrefixKey + "Temp_champBuildTeam");
+                            if (tempChampBuildTeam == "champ_" + champTeamId) {
+                                deleteStoredValue(HHStoredVarPrefixKey + "Temp_champBuildTeam");
+                            }
+                            else {
+                                LogUtils_logHHAuto("Build team before start");
+                                if ($("#updateChampTeamButton").length == 0) {
+                                    Champion.moduleSimChampions();
+                                    yield TimeHelper.sleep(randomInterval(200, 500));
+                                }
+                                if ($("#updateChampTeamButton").attr("disabled") === "disabled") {
+                                    LogUtils_logHHAuto('Cannot build team, no free draft available. Starting champion without building team');
+                                }
+                                else {
+                                    $("#updateChampTeamButton").trigger("click"); // Auto loop false
+                                    setStoredValue(HHStoredVarPrefixKey + "Temp_champBuildTeam", "champ_" + champTeamId);
+                                    yield TimeHelper.sleep(randomInterval(2000, 5000));
+                                    return true; // In next loop started after team build, start champ without building team again
                                 }
                             }
-                            if (!autoChampGirlOnChamp) {
-                                LogUtils_logHHAuto("Seems Girl is no more available at Champion " + Number(i + 1) + ". Going to event page.");
-                                EventModule.parseEventPage(autoChampGirlsEventsID);
-                                return true;
+                        }
+                        LogUtils_logHHAuto("Using ticket");
+                        $('button[rel=perform].blue_button_L').trigger('click');
+                        yield TimeHelper.sleep(randomInterval(200, 500));
+                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDChampionsMap"));
+                        return true;
+                    }
+                }
+            }
+            else if (page == ConfigHelper.getHHScriptVars("pagesIDChampionsMap")) {
+                LogUtils_logHHAuto('on champion map');
+                const championMap = Champion.getChampionListFromMap();
+                const autoChampsForceStartEventGirl = getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampsForceStartEventGirl") === "true";
+                const autoChampsEventGirls = isJSON(getStoredValue(HHStoredVarPrefixKey + "Temp_autoChampsEventGirls")) ? JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_autoChampsEventGirls")) : [];
+                const autoChampsForceStart = getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampsForceStart") === "true";
+                for (let i = 0; i < championMap.length; i++) {
+                    let OnTimer = championMap[i].timer > 0;
+                    let autoChampGirlInEvent = false;
+                    let autoChampGirlOnChamp = false;
+                    let autoChampGirlsIds = [];
+                    let autoChampGirlsEventsID;
+                    if (autoChampsForceStartEventGirl) {
+                        for (let ec = autoChampsEventGirls.length; ec > 0; ec--) {
+                            let idArray = Number(ec) - 1;
+                            if (Number(autoChampsEventGirls[idArray].champ_id) === i + 1) {
+                                autoChampGirlInEvent = true;
+                                autoChampGirlsIds.push(Number(autoChampsEventGirls[idArray].girl_id));
+                                autoChampGirlsEventsID = autoChampsEventGirls[idArray].event_id;
+                            }
+                        }
+                        let firstLockedLevelOfChampRequest = 'a.champion-lair[href*=' + Number(i + 1) + '] .stage-icon.locked';
+                        if (autoChampGirlInEvent && $(firstLockedLevelOfChampRequest).length > 0) {
+                            let firstLockedLevelOfChamp = $(firstLockedLevelOfChampRequest)[0].getAttribute("champion-rewards-tooltip");
+                            if (firstLockedLevelOfChamp !== undefined
+                                && isJSON(firstLockedLevelOfChamp)
+                                && JSON.parse(firstLockedLevelOfChamp || '').stage.girl_shards
+                                && JSON.parse(firstLockedLevelOfChamp || '').stage.girl_shards.length > 0) {
+                                let parsedFirstLockedLevelOfChamp = JSON.parse(firstLockedLevelOfChamp || '');
+                                for (let girlIt = 0; girlIt < parsedFirstLockedLevelOfChamp.stage.girl_shards.length; girlIt++) {
+                                    if (autoChampGirlsIds.includes(parsedFirstLockedLevelOfChamp.stage.girl_shards[girlIt].id_girl)) {
+                                        autoChampGirlOnChamp = true;
+                                    }
+                                }
+                                if (!autoChampGirlOnChamp) {
+                                    LogUtils_logHHAuto("Seems Girl is no more available at Champion " + Number(i + 1) + ". Going to event page.");
+                                    EventModule.parseEventPage(autoChampGirlsEventsID);
+                                    return true;
+                                }
                             }
                         }
                     }
+                    const eventGirlForced = autoChampGirlOnChamp;
+                    LogUtils_logHHAuto("Champion " + (i + 1) + " [" + championMap[i].impression + "]"
+                        + (championMap[i].started ? " Started;" : " Not started;")
+                        + (autoChampsForceStart ? " Force start;" : " Not force start;")
+                        + (OnTimer ? " on timer;" : " not on timer;")
+                        + (championMap[i].inFilter ? " Included in filter;" : " Excluded from filter;")
+                        + (eventGirlForced ? " Forced for event" : " Not event forced"));
+                    if ((championMap[i].started || eventGirlForced || autoChampsForceStart) && !OnTimer && championMap[i].inFilter) {
+                        LogUtils_logHHAuto("Let's do him!");
+                        gotoPage('/champions/' + Number(i + 1));
+                        //window.location = window.location.origin + '/champions/'+(i+1);
+                        return true;
+                    }
                 }
-                const eventGirlForced = autoChampGirlOnChamp;
-                LogUtils_logHHAuto("Champion " + (i + 1) + " [" + championMap[i].impression + "]"
-                    + (championMap[i].started ? " Started;" : " Not started;")
-                    + (autoChampsForceStart ? " Force start;" : " Not force start;")
-                    + (OnTimer ? " on timer;" : " not on timer;")
-                    + (championMap[i].inFilter ? " Included in filter;" : " Excluded from filter;")
-                    + (eventGirlForced ? " Forced for event" : " Not event forced"));
-                if ((championMap[i].started || eventGirlForced || autoChampsForceStart) && !OnTimer && championMap[i].inFilter) {
-                    LogUtils_logHHAuto("Let's do him!");
-                    gotoPage('/champions/' + Number(i + 1));
-                    //window.location = window.location.origin + '/champions/'+(i+1);
-                    return true;
-                }
+                LogUtils_logHHAuto("No good candidate");
+                Champion.findNextChamptionTime(championMap);
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                return false;
             }
-            LogUtils_logHHAuto("No good candidate");
-            Champion.findNextChamptionTime(championMap);
-            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
-            return false;
-        }
-        else {
-            gotoPage(ConfigHelper.getHHScriptVars("pagesIDChampionsMap"));
-            return true;
-        }
+            else {
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDChampionsMap"));
+                return true;
+            }
+        });
     }
     static findNextChamptionTime(championMap = undefined) {
         if (getPage() == ConfigHelper.getHHScriptVars("pagesIDChampionsMap")) {
@@ -4895,6 +5029,16 @@ class Club {
 }
 
 ;// CONCATENATED MODULE: ./src/Module/ClubChampion.ts
+var ClubChampion_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
 
 
 
@@ -4971,87 +5115,115 @@ class ClubChampion {
         }
     }
     static doClubChampionStuff() {
-        var page = getPage();
-        if (page == ConfigHelper.getHHScriptVars("pagesIDClubChampion")) {
-            LogUtils_logHHAuto('on club_champion page');
-            if ($('button[rel=perform].blue_button_L').length == 0) {
-                if ($('.champions-bottom__rest').length > 0) {
-                    LogUtils_logHHAuto('Girls are resting');
-                    const restTime = ClubChampion.getRemainingRestTime();
-                    ClubChampion._setTimer(randomInterval(restTime + 10, restTime + 2 * 60));
-                }
-                else {
-                    LogUtils_logHHAuto('Something is wrong!');
-                    ClubChampion._setTimer(randomInterval(15 * 60, 17 * 60));
-                }
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
-                return true;
-            }
-            else {
-                var TCount = Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
-                var ECount = QuestHelper.getEnergy();
-                LogUtils_logHHAuto("T:" + TCount + " E:" + ECount);
-                if (TCount == 0) {
-                    LogUtils_logHHAuto("No tickets!");
-                    const nextTime = randomInterval(3600, 4000);
-                    if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoChamps") === "true") {
-                        // No ticket for boths
-                        setTimer('nextChampionTime', nextTime);
+        return ClubChampion_awaiter(this, void 0, void 0, function* () {
+            var page = getPage();
+            if (page == ConfigHelper.getHHScriptVars("pagesIDClubChampion")) {
+                LogUtils_logHHAuto('on club_champion page');
+                if ($('button[rel=perform].blue_button_L').length == 0) {
+                    if ($('.champions-bottom__rest').length > 0) {
+                        LogUtils_logHHAuto('Girls are resting');
+                        const restTime = ClubChampion.getRemainingRestTime();
+                        ClubChampion._setTimer(randomInterval(restTime + 10, restTime + 2 * 60));
                     }
-                    setTimer('nextClubChampionTime', nextTime);
-                    return false;
-                }
-                else {
-                    if (TCount != 0) {
-                        LogUtils_logHHAuto("Using ticket");
-                        $('button[rel=perform].blue_button_L').trigger('click');
+                    else {
+                        LogUtils_logHHAuto('Something is wrong!');
                         ClubChampion._setTimer(randomInterval(15 * 60, 17 * 60));
                     }
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDClub"));
-                    return true;
-                }
-            }
-        }
-        else if (page == ConfigHelper.getHHScriptVars("pagesIDClub")) {
-            deleteStoredValue(HHStoredVarPrefixKey + "Temp_clubChampLimitReached");
-            LogUtils_logHHAuto('on clubs');
-            const onChampTab = $("div.club-champion-members-challenges:visible").length === 1;
-            if (!onChampTab) {
-                LogUtils_logHHAuto('Click champions tab');
-                $("#club_champions_tab").trigger('click');
-            }
-            let Started = $("div.club-champion-members-challenges .player-row").length === 1;
-            let secsToNextTimer = ClubChampion.getNextClubChampionTimer();
-            let noTimer = secsToNextTimer === -1;
-            if ((Started || getStoredValue(HHStoredVarPrefixKey + "Setting_autoClubForceStart") === "true") && noTimer) {
-                let ticketUsed = 0;
-                let ticketsUsedRequest = "div.club-champion-members-challenges .player-row .data-column:nth-of-type(3)";
-                if ($(ticketsUsedRequest).length > 0) {
-                    ticketUsed = Number($(ticketsUsedRequest)[0].innerText.replace(/[^0-9]/gi, ''));
-                }
-                let maxTickets = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoClubChampMax"));
-                //console.log(maxTickets, ticketUsed);
-                if (maxTickets > ticketUsed) {
-                    LogUtils_logHHAuto("Let's do him!");
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDClubChampion"));
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
                     return true;
                 }
                 else {
-                    LogUtils_logHHAuto("Max tickets to use on Club Champ reached.");
-                    setStoredValue(HHStoredVarPrefixKey + "Temp_clubChampLimitReached", "true");
-                    setTimer('nextClubChampionTime', randomInterval(4 * 60 * 60, 5 * 60 * 60));
-                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
-                    return false;
+                    // champion-healing-tooltip='{"amount":"9,123,123","impression_info":"9,123,123/99,999,999"}'
+                    // champion-healing-tooltip='{"impression_info":""0/99,999,999"}'
+                    const tooltipData = $('.stage-progress-bar-wrapper[champion-healing-tooltip]').attr('champion-healing-tooltip') || '{"amount":"0","impression_info":"0/1"}';
+                    const impressionDone = (JSON.parse(tooltipData)).amount || 0;
+                    var TCount = Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
+                    var ECount = QuestHelper.getEnergy();
+                    LogUtils_logHHAuto("T:" + TCount + " E:" + ECount + ' Imp:' + impressionDone);
+                    if (TCount == 0) {
+                        LogUtils_logHHAuto("No tickets!");
+                        const nextTime = randomInterval(3600, 4000);
+                        if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoChamps") === "true") {
+                            // No ticket for boths
+                            setTimer('nextChampionTime', nextTime);
+                        }
+                        setTimer('nextClubChampionTime', nextTime);
+                        return false;
+                    }
+                    else {
+                        if (impressionDone == 0 && getStoredValue(HHStoredVarPrefixKey + "Setting_autoBuildChampsTeam") === "true") {
+                            const tempChampBuildTeam = getStoredValue(HHStoredVarPrefixKey + "Temp_champBuildTeam");
+                            if (tempChampBuildTeam == "club") {
+                                deleteStoredValue(HHStoredVarPrefixKey + "Temp_champBuildTeam");
+                            }
+                            else {
+                                LogUtils_logHHAuto("Build team before start");
+                                if ($("#updateChampTeamButton").length == 0) {
+                                    Champion.moduleSimChampions();
+                                    yield TimeHelper.sleep(randomInterval(200, 500));
+                                }
+                                if ($("#updateChampTeamButton").attr("disabled") === "disabled") {
+                                    LogUtils_logHHAuto('Cannot build team, no free draft available. Starting champion without building team');
+                                }
+                                else {
+                                    $("#updateChampTeamButton").trigger("click"); // Auto loop false
+                                    setStoredValue(HHStoredVarPrefixKey + "Temp_champBuildTeam", "club");
+                                    yield TimeHelper.sleep(randomInterval(2000, 5000));
+                                    return true; // In next loop started after team build, start champ without building team again
+                                }
+                            }
+                        }
+                        if (TCount != 0) {
+                            LogUtils_logHHAuto("Using ticket");
+                            $('button[rel=perform].blue_button_L').trigger('click');
+                            ClubChampion._setTimer(randomInterval(15 * 60, 17 * 60));
+                        }
+                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDClub"));
+                        return true;
+                    }
                 }
             }
-            ClubChampion.updateClubChampionTimer();
-            gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
-            return false;
-        }
-        else {
-            gotoPage(ConfigHelper.getHHScriptVars("pagesIDClub"));
-            return true;
-        }
+            else if (page == ConfigHelper.getHHScriptVars("pagesIDClub")) {
+                deleteStoredValue(HHStoredVarPrefixKey + "Temp_clubChampLimitReached");
+                LogUtils_logHHAuto('on clubs');
+                const onChampTab = $("div.club-champion-members-challenges:visible").length === 1;
+                if (!onChampTab) {
+                    LogUtils_logHHAuto('Click champions tab');
+                    $("#club_champions_tab").trigger('click');
+                }
+                let Started = $("div.club-champion-members-challenges .player-row").length === 1;
+                let secsToNextTimer = ClubChampion.getNextClubChampionTimer();
+                let noTimer = secsToNextTimer === -1;
+                if ((Started || getStoredValue(HHStoredVarPrefixKey + "Setting_autoClubForceStart") === "true") && noTimer) {
+                    let ticketUsed = 0;
+                    let ticketsUsedRequest = "div.club-champion-members-challenges .player-row .data-column:nth-of-type(3)";
+                    if ($(ticketsUsedRequest).length > 0) {
+                        ticketUsed = Number($(ticketsUsedRequest)[0].innerText.replace(/[^0-9]/gi, ''));
+                    }
+                    let maxTickets = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoClubChampMax"));
+                    //console.log(maxTickets, ticketUsed);
+                    if (maxTickets > ticketUsed) {
+                        LogUtils_logHHAuto("Let's do him!");
+                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDClubChampion"));
+                        return true;
+                    }
+                    else {
+                        LogUtils_logHHAuto("Max tickets to use on Club Champ reached.");
+                        setStoredValue(HHStoredVarPrefixKey + "Temp_clubChampLimitReached", "true");
+                        setTimer('nextClubChampionTime', randomInterval(4 * 60 * 60, 5 * 60 * 60));
+                        gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                        return false;
+                    }
+                }
+                ClubChampion.updateClubChampionTimer();
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                return false;
+            }
+            else {
+                gotoPage(ConfigHelper.getHHScriptVars("pagesIDClub"));
+                return true;
+            }
+        });
     }
     /**
      *
@@ -7474,6 +7646,17 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoChampsUseEne"] =
         menuType: "checked",
         kobanUsing: false
     };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoBuildChampsTeam"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showClubButtonInPoa"] =
     {
         default: "true",
@@ -9356,6 +9539,11 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_raidGirls"] =
         storage: "sessionStorage",
         HHType: "Temp"
     };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_champBuildTeam"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_clubChampLimitReached"] =
     {
         default: "false",
@@ -10247,10 +10435,10 @@ function getPage(checkUnknown = false, checkPop = false) {
                 t = 'main';
             }
             else {
-                // Keep this but not triggered anymore. When Wrong POP is targetted, daily goals is highlighted
                 t = unsafeWindow.pop_index;
                 checkUnknown = false;
                 if (t === undefined) {
+                    // Keep this but not triggered anymore. When Wrong POP is targetted, daily goals is highlighted
                     t = 'main';
                     var index = queryStringGetParam(window.location.search, 'index');
                     if (checkPop && index !== null) {
@@ -13186,7 +13374,7 @@ class PlaceOfPower {
                                 if ($(querySelectorText).length > 0) {
                                     document.querySelector(querySelectorText).click();
                                     LogUtils_logHHAuto("Started powerplace" + index);
-                                    yield TimeHelper.sleep(randomInterval(200, 500));
+                                    yield TimeHelper.sleep(randomInterval(1000, 2000));
                                 }
                                 ;
                             }
@@ -14035,7 +14223,7 @@ class TeamModule {
         const StuffTeam = hhButton('StuffTeam', 'StuffTeam', buttonStyles + ';left: 88%', 'font-size:small');
         $("#contains_all section").append(EquipAll);
         $("#contains_all section").append(UnequipAll);
-        // $("#contains_all section").append(StuffTeam);
+        $("#contains_all section").append(StuffTeam);
         $("#EquipAll").on("click", TeamModule.equipAllGirls);
         $("#UnequipAll").on("click", TeamModule.unequipAllGirls);
         $("#StuffTeam").on("click", TeamModule.stuffAllGirls);
@@ -16149,6 +16337,7 @@ function getMenu() {
             + hhMenuInput('autoChampsTeamLoop', HHAuto_inputPattern.autoChampsTeamLoop, 'text-align:center; width:25px', '', 'numeric')
             + hhMenuInput('autoChampsGirlThreshold', HHAuto_inputPattern.nWith1000sSeparator, 'text-align:center; width:45px')
             + hhMenuSwitch('autoChampsTeamKeepSecondLine')
+            + hhMenuSwitch('autoBuildChampsTeam')
             + `</div>`
             + `</div>`
             + `</div>`
@@ -19031,15 +19220,13 @@ function autoLoop() {
             if (busy == false && ConfigHelper.getHHScriptVars("isEnabledChamps", false) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoChamps") === "true" && checkTimer('nextChampionTime')
                 && isAutoLoopActive() && (lastActionPerformed === "none" || lastActionPerformed === "champion")) {
                 LogUtils_logHHAuto("Time to check on champions!");
-                busy = true;
-                busy = Champion.doChampionStuff();
+                busy = yield Champion.doChampionStuff();
                 lastActionPerformed = "champion";
             }
             if (busy == false && ConfigHelper.getHHScriptVars("isEnabledClubChamp", false) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoClubChamp") === "true" && checkTimer('nextClubChampionTime')
                 && isAutoLoopActive() && (lastActionPerformed === "none" || lastActionPerformed === "clubChampion")) {
                 LogUtils_logHHAuto("Time to check on club champion!");
-                busy = true;
-                busy = ClubChampion.doClubChampionStuff();
+                busy = yield ClubChampion.doClubChampionStuff();
                 lastActionPerformed = "clubChampion";
             }
             if (busy == false && ConfigHelper.getHHScriptVars("isEnabledSeason", false) && isAutoLoopActive() &&

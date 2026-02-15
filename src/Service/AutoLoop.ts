@@ -809,8 +809,7 @@ export async function autoLoop()
             && isAutoLoopActive() && (lastActionPerformed === "none" || lastActionPerformed === "champion"))
         {
             logHHAuto("Time to check on champions!");
-            busy=true;
-            busy= Champion.doChampionStuff();
+            busy = await Champion.doChampionStuff();
             lastActionPerformed = "champion";
         }
 
@@ -818,8 +817,7 @@ export async function autoLoop()
             && isAutoLoopActive() && (lastActionPerformed === "none" || lastActionPerformed === "clubChampion"))
         {
             logHHAuto("Time to check on club champion!");
-            busy=true;
-            busy= ClubChampion.doClubChampionStuff();
+            busy = await ClubChampion.doClubChampionStuff();
             lastActionPerformed = "clubChampion";
         }
 

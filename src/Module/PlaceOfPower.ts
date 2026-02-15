@@ -376,7 +376,7 @@ export class PlaceOfPower {
                             {
                                 (<HTMLElement>document.querySelector(querySelectorText)).click();
                                 logHHAuto("Started powerplace" + index);
-                                await TimeHelper.sleep(randomInterval(200, 500));
+                                await TimeHelper.sleep(randomInterval(1000, 2000));
                             };
                         };
                     };
