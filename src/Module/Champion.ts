@@ -1,3 +1,4 @@
+import { get } from 'jquery';
 import {
     convertTimeToInt,
     ConfigHelper,
@@ -8,10 +9,13 @@ import {
     getTextForUI,
     randomInterval,
     setStoredValue,
-    setTimer
+    setTimer,
+    TimeHelper,
+    hhButton,
+    deleteStoredValue
 } from '../Helper/index';
 import { gotoPage } from "../Service/index";
-import { isJSON, logHHAuto } from '../Utils/index';
+import { getHHAjax, isJSON, logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
 import { ChampionModel } from "../model/index";
 import { EventModule } from "./Events/index";
@@ -40,7 +44,7 @@ export class Champion {
 
     static moduleSimChampions()
     {
-        if($('#updateChampTeamButton').length > 0) {
+        if ($('#updateChampTeamButton').length > 0 || $('#orderTeam').length > 0) {
             return;
         }
 
@@ -58,24 +62,30 @@ export class Champion {
         var getChampSecondLine = function(){return getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsTeamKeepSecondLine") === 'true';}
 
         //let champTeamButton = '<div style="position: absolute;left: 330px;top: 10px;width:90px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("ChampTeamButton","tooltip")+'</span><label class="myButton" id="ChampTeamButton">'+getTextForUI("ChampTeamButton","elementText")+'</label></div>';
+        GM_addStyle('.girl-box__draggable.switching {background-color: #ffb827;}');
 
         var champTeam = getHHVars('championData.team');
-        const champTeamId = Number(getHHVars('championData.champion.id'));
+        // const champTeamId = Number(getHHVars('championData.champion.id'));
         let freeDrafts = Number(getHHVars('championData.freeDrafts'));
         var counterLoop = 0;
         let maxLoops = getChampMaxLoop();
         const girlMinPower = getMinGirlPower();
         let keepSecondLineGirls = getChampSecondLine();
-        const championRequiredPoses = getPoses($(".champions-over__champion-info.champions-animation .champion-pose"));
+        const championRequiredPoses: number[] = getHHVars('championData.champion.poses') || getPoses($(".champions-over__champion-info.champions-animation .champion-pose"));
         const girlBoxesQuery = ".champions-middle__girl-selection.champions-animation .girl-selection__girl-box";
         const changeDraftButtonQuery =  ".champions-bottom__footer button.champions-bottom__draft-team";
         const newDraftButtonQuery =  ".champions-bottom__footer button.champions-bottom__make-draft";
         const confirmDraftButtonQuery =  ".champions-bottom__footer button.champions-bottom__confirm-team";
-        //$(".champions-top__inner-wrapper").append(champTeamButton);
-        if(freeDrafts > 0) {
-            let updateChampTeamButton = '<div style="position: absolute;left: 330px;top: 10px;width:90px;z-index:10" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("updateChampTeamButton","tooltip")+'</span><label class="myButton" id="updateChampTeamButton">'+getTextForUI("updateChampTeamButton","elementText")+' x'+maxLoops+'</label></div>';
-            $(".champions-top__inner-wrapper").append(updateChampTeamButton);
-        }
+
+        const buttonStyles = 'position: absolute;width:90px;z-index:10;left: 330px';
+        let updateChampTeamButton = '<div style="' + buttonStyles +';top: 10px" class="tooltipHH"><span class="tooltipHHtext">'+getTextForUI("updateChampTeamButton","tooltip")+'</span><label class="myButton" id="updateChampTeamButton">'+getTextForUI("updateChampTeamButton","elementText")+' x'+maxLoops+'</label></div>';
+        $(".champions-top__inner-wrapper").append(updateChampTeamButton);
+        if (freeDrafts == 0) $('#updateChampTeamButton').attr('disabled', 'disabled')
+
+        const orderTeam = hhButton('orderTeam', 'orderTeam', buttonStyles + ';top: 30px');
+        $(".champions-top__inner-wrapper").append(orderTeam);
+        
+        $("#orderTeam").on("click", () => Champion.orderTeam());
 
         var indicateBestTeam = function() {
             const girlBoxes = $(girlBoxesQuery);
@@ -104,11 +114,11 @@ export class Champion {
                 var expectedPose = championRequiredPoses[i%5];
                 if(girlsPerPose[expectedPose] && girlsPerPose[expectedPose].length > 0){
                     let color = 'gold'; // i >= 5 ? 'white' : 'gold';
-                    girlsPerPose[expectedPose][0].htmlDom.append('<span class="hhgirlOrder" title="'+getTextForUI("ChampGirlOrder","tooltip")+' '+(i+1)+'" style="position: absolute;top: 41px;left: 3px;z-index: 10;color:'+color+';">'+(i+1)+'</span>');
+                    girlsPerPose[expectedPose][0].htmlDom.append('<span class="hhgirlOrder best" title="'+getTextForUI("ChampGirlOrder","tooltip")+' '+(i+1)+'" style="position: absolute;top: 41px;left: 3px;z-index: 10;color:'+color+';">'+(i+1)+'</span>');
                     girlsPerPose[expectedPose].shift();
                 }
                 if(girls && girls[i])
-                    girls[i].htmlDom.append('<span class="hhgirlOrder" title="'+getTextForUI("ChampGirlLowOrder","tooltip")+' '+(i+1)+'" style="position: absolute;top: 41px;left: 47px;z-index: 10;color:red;">'+(i+1)+'</span>');
+                    girls[i].htmlDom.append('<span class="hhgirlOrder worst" title="'+getTextForUI("ChampGirlLowOrder","tooltip")+' '+(i+1)+'" style="position: absolute;top: 41px;left: 47px;z-index: 10;color:red;">'+(i+1)+'</span>');
             }
         };
 
@@ -127,7 +137,7 @@ export class Champion {
             setTimeout(indicateBestTeam, 1000);
         };
 
-        var selectGirls = function() {
+        var selectGirls = async function() {
             Champion.ChamppUpdateAutoTeamPopup(counterLoop+1,maxLoops, (maxLoops-counterLoop) * 5);
             $('#updateChampTeamButton').text( 'Loop ' + (counterLoop+1) + '/' + maxLoops);
             const girlBoxes = $(".champions-middle__girl-selection.champions-animation .girl-selection__girl-box");
@@ -225,8 +235,14 @@ export class Champion {
                 $('#updateChampTeamButton').removeAttr('disabled').text( getTextForUI("updateChampTeamButton","elementText") +' x'+maxLoops);
                 if ($(confirmDraftButtonQuery).length > 0) $(confirmDraftButtonQuery).trigger('click');
 
-                logHHAuto("Auto team ended, refresh page, restarting autoloop");
-                location.reload();
+                if (getStoredValue(HHStoredVarPrefixKey+"Setting_autoBuildChampsTeam") === "true") {
+                    logHHAuto('Auto team ended, sort girls after build');
+                    await TimeHelper.sleep(randomInterval(800, 1200));
+                    Champion.orderTeam(champTeam);
+                } else {
+                    logHHAuto("Auto team ended, refresh page, restarting autoloop");
+                    location.reload();
+                }
             }
         };
 
@@ -283,13 +299,95 @@ export class Champion {
         return championMap;
     }
 
+    static async orderTeam(champTeamArg = undefined) {
+        var champTeam = champTeamArg || getHHVars('championData.team');
+        const champTeamId = Number(getHHVars('championData.champion.id'));
+        $("#orderTeam").attr('disabled', 'disabled');
+        const isClub = getPage() == ConfigHelper.getHHScriptVars("pagesIDClubChampion");
 
-    static doChampionStuff()
+        var switchGirls = function (targettedTeam: number[]) {
+            return new Promise((resolve) => {
+                const params = {
+                    action: "champion_team_reorder",
+                    team_order: targettedTeam,
+                    id_champion: champTeamId,
+                    champion_type: isClub ? "club_champion" : "champion"
+                };
+                getHHAjax()(params, function (data: any) {
+                    if(data.success == false) {
+                        logHHAuto('Error occured during champion team reorder', data);
+                    }
+                    resolve(data.success || true);
+
+                }, function (err) {
+                    logHHAuto('Error occured during champion team reorder', err);
+                    resolve(false);
+                });
+            });
+        };
+
+        let currentGirlOrder = [...champTeam.map(g => g.id_girl)]; // To be stored as string
+        logHHAuto('Ordering champion team', currentGirlOrder);
+        let oneGirlSwitched = false;
+
+        const getGirlId = (position: number): number | null => {
+            const girlBox = $('.girl-box__draggable:has(".hhgirlOrder.best:contains(\'' + position + '\')")');
+            if (girlBox.length > 0) {
+                if(position == 1) {
+                    // Avoid selecting girl with position 10
+                    if (girlBox.first().find('.hhgirlOrder.best').text().trim() == '1')
+                        return Number(girlBox.first().attr('id_girl'));
+
+                    if (girlBox.last().find('.hhgirlOrder.best').text().trim() == '1')
+                        return Number(girlBox.last().attr('id_girl'));
+                } else {
+                    return Number(girlBox.attr('id_girl'));
+                }
+            }
+            return null;
+        }
+
+        for (let i = 1; i <= 10; i++) {
+            const girlId = getGirlId(i);
+            if (girlId && !isNaN(girlId)) {
+                if (girlId != currentGirlOrder[i - 1]) {
+                    $('div[id_girl="' + girlId + '"]').addClass('switching');
+                    $('div[id_girl="' + currentGirlOrder[i - 1] + '"]').addClass('switching');
+                    logHHAuto(`Switching girls to reorder team ${girlId} - ${currentGirlOrder[i - 1]}`);
+                    const oldGirlIndex = currentGirlOrder.findIndex(g => g == girlId);
+                    const targettedTeam = [...currentGirlOrder];
+                    [targettedTeam[i - 1], targettedTeam[oldGirlIndex]] = [targettedTeam[oldGirlIndex], targettedTeam[i - 1]];
+                    logHHAuto('Ordering champion targettedTeam', targettedTeam);
+                    if(await switchGirls(targettedTeam)) {
+                        oneGirlSwitched = true;
+                        // Update current girls order after success switch
+                        currentGirlOrder = targettedTeam;
+                    } else {
+                        logHHAuto('ERROR: Switch failed, try to continue');
+                    }
+                    $('div[id_girl]').removeClass('switching');
+                    await TimeHelper.sleep(randomInterval(800, 1200));
+                } else {
+                    logHHAuto('Girl already in the right position :' + girlId);
+                }
+            } else {
+                logHHAuto('Could not find girlId for position ' + i);
+            }
+        }
+
+        logHHAuto('Finished ordering champion team');
+        $("#orderTeam").removeAttr('disabled');
+        //if(oneGirlSwitched) 
+            location.reload();
+    }
+
+    static async doChampionStuff()
     {
         var page=getPage();
         if (page==ConfigHelper.getHHScriptVars("pagesIDChampionsPage"))
         {
-            logHHAuto('on champion page');
+            const champTeamId = Number(getHHVars('championData.champion.id'));
+            logHHAuto('on champion ' + champTeamId +' page');
             if ($('button[rel=perform].blue_button_L').length==0)
             {
                 logHHAuto('Something is wrong!');
@@ -298,9 +396,13 @@ export class Champion {
             }
             else
             {
+                // champion-healing-tooltip='{"amount":"9,123,123","impression_info":"9,123,123/99,999,999"}'
+                // champion-healing-tooltip='{"impression_info":""0/99,999,999"}'
+                const tooltipData = $('.stage-progress-bar-wrapper[champion-healing-tooltip]').attr('champion-healing-tooltip') || '{"amount":"0","impression_info":"0/1"}';
+                const impressionDone = (JSON.parse(tooltipData)).amount || 0;
                 var TCount=Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
                 var ECount= QuestHelper.getEnergy();
-                logHHAuto("T:"+TCount+" E:"+ECount+" "+(getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsUseEne") ==="true"))
+                logHHAuto("T:"+TCount+" E:"+ECount+" "+(getStoredValue(HHStoredVarPrefixKey+"Setting_autoChampsUseEne") ==="true")+" Imp:"+impressionDone);
                 if ( TCount==0)
                 {
                     logHHAuto("No tickets!");
@@ -314,11 +416,29 @@ export class Champion {
                 }
                 else
                 {
-                    if (TCount!=0)
-                    {
-                        logHHAuto("Using ticket");
-                        $('button[rel=perform].blue_button_L').click();
+                    if (impressionDone == 0 && getStoredValue(HHStoredVarPrefixKey + "Setting_autoBuildChampsTeam") === "true") {
+                        const tempChampBuildTeam = getStoredValue(HHStoredVarPrefixKey + "Temp_champBuildTeam");
+                        if (tempChampBuildTeam == "champ_" + champTeamId) {
+                            deleteStoredValue(HHStoredVarPrefixKey + "Temp_champBuildTeam");
+                        } else {
+                            logHHAuto("Build team before start");
+                            if ($("#updateChampTeamButton").length == 0) {
+                                Champion.moduleSimChampions();
+                                await TimeHelper.sleep(randomInterval(200, 500));
+                            }
+                            if ($("#updateChampTeamButton").attr("disabled") === "disabled") {
+                                logHHAuto('Cannot build team, no free draft available. Starting champion without building team');
+                            } else {
+                                $("#updateChampTeamButton").trigger("click"); // Auto loop false
+                                setStoredValue(HHStoredVarPrefixKey + "Temp_champBuildTeam", "champ_" + champTeamId);
+                                await TimeHelper.sleep(randomInterval(2000, 5000));
+                                return true; // In next loop started after team build, start champ without building team again
+                            }
+                        }
                     }
+                    logHHAuto("Using ticket");
+                    $('button[rel=perform].blue_button_L').trigger('click');
+                    await TimeHelper.sleep(randomInterval(200, 500));
                     gotoPage(ConfigHelper.getHHScriptVars("pagesIDChampionsMap"));
                     return true;
                 }

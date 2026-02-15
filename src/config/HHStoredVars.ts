@@ -166,6 +166,17 @@ HHStoredVars[HHStoredVarPrefixKey+"Setting_autoChampsUseEne"] =
     menuType:"checked",
     kobanUsing:false
 };
+HHStoredVars[HHStoredVarPrefixKey+"Setting_autoBuildChampsTeam"] =
+    {
+    default:"false",
+    storage:"Storage()",
+    HHType:"Setting",
+    valueType:"Boolean",
+    getMenu:true,
+    setMenu:true,
+    menuType:"checked",
+    kobanUsing:false
+};
 HHStoredVars[HHStoredVarPrefixKey+"Setting_showClubButtonInPoa"] =
     {
     default:"true",
@@ -2044,6 +2055,11 @@ HHStoredVars[HHStoredVarPrefixKey+"Temp_haremGirlLimit"] =
     storage:"sessionStorage",
     HHType:"Temp"
 };
+HHStoredVars[HHStoredVarPrefixKey +"Temp_haremTeam"] =
+    {
+    storage:"sessionStorage",
+    HHType:"Temp"
+};
 HHStoredVars[HHStoredVarPrefixKey +"Temp_loveRaids"] =
     {
     storage:"sessionStorage",
@@ -2071,6 +2087,11 @@ HHStoredVars[HHStoredVarPrefixKey+"Temp_autoChampsEventGirls"] =
     //isValid:/^\[({"girl_id":"(\d)+","champ_id":"(\d)+","girl_shards":"(\d)+","girl_name":"([^"])+","event_id":"([^"])+"},?)+\]$/
 };
 HHStoredVars[HHStoredVarPrefixKey + "Temp_raidGirls"] =
+{
+    storage: "sessionStorage",
+    HHType: "Temp"
+};
+HHStoredVars[HHStoredVarPrefixKey + "Temp_champBuildTeam"] =
 {
     storage: "sessionStorage",
     HHType: "Temp"

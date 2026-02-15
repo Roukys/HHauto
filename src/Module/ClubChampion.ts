@@ -14,6 +14,7 @@ import {
 import { gotoPage } from "../Service/index";
 import { logHHAuto } from '../Utils/index';
 import { HHStoredVarPrefixKey } from '../config/index';
+import { Champion } from './index';
 import { QuestHelper } from "./Quest";
 
 export class ClubChampion {
@@ -104,7 +105,7 @@ export class ClubChampion {
         }
     }
 
-    static doClubChampionStuff(): boolean
+    static async doClubChampionStuff(): Promise<boolean>
     {
         var page=getPage();
         if (page==ConfigHelper.getHHScriptVars("pagesIDClubChampion"))
@@ -125,9 +126,13 @@ export class ClubChampion {
             }
             else
             {
+                // champion-healing-tooltip='{"amount":"9,123,123","impression_info":"9,123,123/99,999,999"}'
+                // champion-healing-tooltip='{"impression_info":""0/99,999,999"}'
+                const tooltipData = $('.stage-progress-bar-wrapper[champion-healing-tooltip]').attr('champion-healing-tooltip') || '{"amount":"0","impression_info":"0/1"}';
+                const impressionDone = (JSON.parse(tooltipData)).amount || 0;
                 var TCount=Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
                 var ECount= QuestHelper.getEnergy();
-                logHHAuto("T:"+TCount+" E:"+ECount)
+                logHHAuto("T:"+TCount+" E:"+ECount + ' Imp:'+impressionDone);
                 if ( TCount==0)
                 {
                     logHHAuto("No tickets!");
@@ -141,6 +146,26 @@ export class ClubChampion {
                 }
                 else
                 {
+                    if (impressionDone == 0 && getStoredValue(HHStoredVarPrefixKey + "Setting_autoBuildChampsTeam") === "true") {
+                        const tempChampBuildTeam = getStoredValue(HHStoredVarPrefixKey + "Temp_champBuildTeam");
+                        if (tempChampBuildTeam == "club") {
+                            deleteStoredValue(HHStoredVarPrefixKey + "Temp_champBuildTeam");
+                        } else {
+                            logHHAuto("Build team before start");
+                            if ($("#updateChampTeamButton").length == 0) {
+                                Champion.moduleSimChampions();
+                                await TimeHelper.sleep(randomInterval(200, 500));
+                            }
+                            if ($("#updateChampTeamButton").attr("disabled") === "disabled") {
+                                logHHAuto('Cannot build team, no free draft available. Starting champion without building team');
+                            } else {
+                                $("#updateChampTeamButton").trigger("click"); // Auto loop false
+                                setStoredValue(HHStoredVarPrefixKey + "Temp_champBuildTeam", "club");
+                                await TimeHelper.sleep(randomInterval(2000, 5000));
+                                return true; // In next loop started after team build, start champ without building team again
+                            }
+                        }
+                    }
                     if (TCount!=0)
                     {
                         logHHAuto("Using ticket");
