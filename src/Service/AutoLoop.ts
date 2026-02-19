@@ -698,7 +698,7 @@ export async function autoLoop()
             if (Season.isTimeToFight())
             {
                 logHHAuto("Time to fight in Season.");
-                busy = Season.run();
+                busy = await Season.run();
                 lastActionPerformed = "season";
             }
             else if (checkTimer('nextSeasonTime'))
@@ -1163,6 +1163,8 @@ export async function autoLoop()
             break;
         case ConfigHelper.getHHScriptVars("pagesIDHarem"):
             Harem.moduleHarem();
+            // Harem.run = callItOnce(Harem.run);
+            // busy = await Harem.run();
             break;
         case ConfigHelper.getHHScriptVars("pagesIDGirlPage"):
             HaremGirl.moduleHaremGirl = callItOnce(HaremGirl.moduleHaremGirl);

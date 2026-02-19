@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.29.11
+// @version      7.29.12
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -237,6 +237,7 @@ HHAuto_ToolTips.en['autoSeasonThreshold'] = { version: "5.6.24", elementText: "T
 HHAuto_ToolTips.en['autoSeasonRunThreshold'] = { version: "6.8.0", elementText: "Run Threshold", tooltip: "Minimum kiss fights before script start spending<br> 0 to spend as soon as energy above threshold" };
 HHAuto_ToolTips.en['autoSeasonBoostedOnly'] = { version: "6.5.0", elementText: "Boosted only", tooltip: "If enabled : Need booster to fight in season" };
 HHAuto_ToolTips.en['autoSeasonSkipLowMojo'] = { version: "7.10.0", elementText: "Skip low Mojo", tooltip: "If enabled : Not fight when mojo reward is less than 8 and season level is less than 63. Will still fight to not loose kiss." };
+HHAuto_ToolTips.en['seasonDisplayPowerCalc'] = { version: "7.29.12", elementText: "Display PowerCalc", tooltip: "Display powerCalc in season.<br/>Will still be displayed on auto season" };
 HHAuto_ToolTips.en['autoPentaDrillTitle'] = { version: "7.26.0", elementText: "Penta Drill" };
 HHAuto_ToolTips.en['autoPentaDrill'] = { version: "7.26.0", elementText: "Enable", tooltip: "if enabled : Automatically fight in Penta Drills (Opponent chosen with lowest power)" };
 HHAuto_ToolTips.en['autoPentaDrillCollect'] = { version: "7.26.0", elementText: "Collect", tooltip: "if enabled : Automatically collect Penta Drills ( if multiple to collect, will collect one per drill usage)" };
@@ -3370,6 +3371,15 @@ class PathOfValue {
 }
 
 ;// CONCATENATED MODULE: ./src/Module/Events/Season.ts
+var Season_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 
 
 
@@ -3439,76 +3449,84 @@ class Season {
         }
         return (checkTimer('nextSeasonTime') && energyAboveThreshold && (needBoosterToFight && haveBoosterEquiped || !needBoosterToFight)) || paranoiaSpending;
     }
-    static moduleSimSeasonBattle() {
+    static moduleSimSeasonBattle(autoRun = false) {
         var _a, _b, _c;
-        const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
-        const hero_data = unsafeWindow.hero_data;
-        const opponentDatas = unsafeWindow.opponents;
-        let doDisplay = false;
-        let seasonOpponents = [];
-        let hasGirlToWin = false;
-        try {
-            // TODO update
-            if ($("div.matchRatingNew img#powerLevelScouter").length != 3) {
-                doDisplay = true;
+        return Season_awaiter(this, void 0, void 0, function* () {
+            const dispalyPowerCalc = getStoredValue(HHStoredVarPrefixKey + "Setting_seasonDisplayPowerCalc") === "true";
+            const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
+            if (!autoRun && !dispalyPowerCalc) {
+                if (debugEnabled)
+                    LogUtils_logHHAuto("Auto season : Display power calc is disabled, not simulating fight.");
+                return -1;
             }
-            const powerCalcImages = ConfigHelper.getHHScriptVars("powerCalcImages");
-            for (let index = 0; index < 3; index++) {
-                const { player, opponent } = BDSMHelper.getBdsmPlayersData(hero_data, opponentDatas[index].player);
-                const opponentBlock = $('.season_arena_opponent_container[data-opponent=' + ((_a = opponentDatas[index].player) === null || _a === void 0 ? void 0 : _a.id_fighter) + ']');
-                if (doDisplay) {
-                    // logHHAuto("Simulating fight vs "+opponent.name+" (ID:"+opponentDatas[index].player?.id_fighter+")");
-                    // console.log("HH simuFight",JSON.stringify(player),JSON.stringify(opponent), opponentBonuses);
+            const hero_data = unsafeWindow.hero_data;
+            const opponentDatas = unsafeWindow.opponents;
+            let doDisplay = false;
+            let seasonOpponents = [];
+            let hasGirlToWin = false;
+            try {
+                // TODO update
+                if ($("div.matchRatingNew img#powerLevelScouter").length != 3) {
+                    doDisplay = true;
                 }
-                //console.time('calculateBattleProbabilities' + index);
-                const simu = calculateBattleProbabilities(player, opponent, debugEnabled);
-                //console.timeEnd('calculateBattleProbabilities' + index);
-                seasonOpponents[index] = new SeasonOpponent((_b = opponentDatas[index].player) === null || _b === void 0 ? void 0 : _b.id_fighter, opponent.name, Number($(".slot_victory_points .amount", opponentBlock).text()), // mojo
-                Number($(".slot_season_xp_girl .amount", opponentBlock).text()), Number($(".slot_season_affection_girl .amount", opponentBlock).text()), simu);
-                const girlShardsReward = $(".slot.girl_ico[data-rewards]", opponentBlock);
-                if (girlShardsReward.length > 0) {
-                    hasGirlToWin = true;
+                const powerCalcImages = ConfigHelper.getHHScriptVars("powerCalcImages");
+                for (let index = 0; index < 3; index++) {
+                    const { player, opponent } = BDSMHelper.getBdsmPlayersData(hero_data, opponentDatas[index].player);
+                    const opponentBlock = $('.season_arena_opponent_container[data-opponent=' + ((_a = opponentDatas[index].player) === null || _a === void 0 ? void 0 : _a.id_fighter) + ']');
+                    if (doDisplay) {
+                        // logHHAuto("Simulating fight vs "+opponent.name+" (ID:"+opponentDatas[index].player?.id_fighter+")");
+                        // console.log("HH simuFight",JSON.stringify(player),JSON.stringify(opponent), opponentBonuses);
+                    }
+                    //console.time('calculateBattleProbabilities' + index);
+                    const simu = calculateBattleProbabilities(player, opponent, debugEnabled);
+                    //console.timeEnd('calculateBattleProbabilities' + index);
+                    seasonOpponents[index] = new SeasonOpponent((_b = opponentDatas[index].player) === null || _b === void 0 ? void 0 : _b.id_fighter, opponent.name, Number($(".slot_victory_points .amount", opponentBlock).text()), // mojo
+                    Number($(".slot_season_xp_girl .amount", opponentBlock).text()), Number($(".slot_season_affection_girl .amount", opponentBlock).text()), simu);
+                    const girlShardsReward = $(".slot.girl_ico[data-rewards]", opponentBlock);
+                    if (girlShardsReward.length > 0) {
+                        hasGirlToWin = true;
+                    }
+                    const seasonButton = $('.player-panel-buttons .opponent_perform_button_container .green_button_L.btn_season_perform', opponentBlock);
+                    seasonButton.contents().filter(function () { return this.nodeType === 3; }).remove();
+                    seasonButton.find('span').remove();
+                    $('.energy_kiss_icn.kiss_icon_s', seasonButton).remove();
+                    if (doDisplay) {
+                        seasonButton.prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${powerCalcImages[simu.scoreClass]}>${NumberHelper.nRounding(100 * simu.win, 2, -1)}%</div>`);
+                    }
+                    yield TimeHelper.sleep(randomInterval(200, 400)); // avoid blocking UI thread and let it update with new elements
                 }
-                const seasonButton = $('.player-panel-buttons .opponent_perform_button_container .green_button_L.btn_season_perform', opponentBlock);
-                seasonButton.contents().filter(function () { return this.nodeType === 3; }).remove();
-                seasonButton.find('span').remove();
-                $('.energy_kiss_icn.kiss_icon_s', seasonButton).remove();
-                if (doDisplay) {
-                    seasonButton.prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${powerCalcImages[simu.scoreClass]}>${NumberHelper.nRounding(100 * simu.win, 2, -1)}%</div>`);
+                var { numberOfReds, chosenIndex } = Season.getBestOppo(seasonOpponents, Season.getEnergy(), Season.getEnergyMax());
+                const chosenID = chosenIndex >= 0 ? (_c = opponentDatas[chosenIndex].player) === null || _c === void 0 ? void 0 : _c.id_fighter : chosenIndex;
+                var price = Number($("div.opponents_arena button#refresh_villains").attr('price'));
+                if (isNaN(price)) {
+                    price = 12;
                 }
-                //await TimeHelper.sleep(randomInterval(200, 400));
-            }
-            var { numberOfReds, chosenIndex } = Season.getBestOppo(seasonOpponents, Season.getEnergy(), Season.getEnergyMax());
-            const chosenID = chosenIndex >= 0 ? (_c = opponentDatas[chosenIndex].player) === null || _c === void 0 ? void 0 : _c.id_fighter : chosenIndex;
-            var price = Number($("div.opponents_arena button#refresh_villains").attr('price'));
-            if (isNaN(price)) {
-                price = 12;
-            }
-            if (numberOfReds === 3 && getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonPassReds") === "true" && HeroHelper.getKoban() >= price + Number(getStoredValue(HHStoredVarPrefixKey + "Setting_kobanBank"))) {
-                chosenIndex = -2;
-            }
-            $($('div.season_arena_opponent_container div.matchRatingNew')).append(`<img id="powerLevelScouterNonChosen">`);
-            //logHHAuto("Best opportunity opponent : "+oppoName+'('+chosenRating+')');
-            if (doDisplay && chosenIndex >= 0 && chosenIndex < 3) {
-                try {
-                    const opponentBlock = $('.season_arena_opponent_container[data-opponent=' + chosenID + ']');
-                    $('.matchRatingNew #powerLevelScouterNonChosen', opponentBlock).remove();
-                    $('div.matchRatingNew', opponentBlock).append(`<img id="powerLevelScouterChosen" src=${ConfigHelper.getHHScriptVars("powerCalcImages").chosen}>`);
+                if (numberOfReds === 3 && getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonPassReds") === "true" && HeroHelper.getKoban() >= price + Number(getStoredValue(HHStoredVarPrefixKey + "Setting_kobanBank"))) {
+                    chosenIndex = -2;
                 }
-                catch (err) {
-                    LogUtils_logHHAuto('Error when dispaly chosen opponent');
+                $($('div.season_arena_opponent_container div.matchRatingNew')).append(`<img id="powerLevelScouterNonChosen">`);
+                //logHHAuto("Best opportunity opponent : "+oppoName+'('+chosenRating+')');
+                if (doDisplay && chosenIndex >= 0 && chosenIndex < 3) {
+                    try {
+                        const opponentBlock = $('.season_arena_opponent_container[data-opponent=' + chosenID + ']');
+                        $('.matchRatingNew #powerLevelScouterNonChosen', opponentBlock).remove();
+                        $('div.matchRatingNew', opponentBlock).append(`<img id="powerLevelScouterChosen" src=${ConfigHelper.getHHScriptVars("powerCalcImages").chosen}>`);
+                    }
+                    catch (err) {
+                        LogUtils_logHHAuto('Error when dispaly chosen opponent');
+                    }
                 }
+                if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonIgnoreNoGirls") === "true" && !hasGirlToWin) {
+                    LogUtils_logHHAuto("Ignoring season fights as no girl to win on fight reward");
+                    chosenIndex = -1;
+                }
+                return chosenIndex < 0 ? chosenIndex : chosenID;
             }
-            if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonIgnoreNoGirls") === "true" && !hasGirlToWin) {
-                LogUtils_logHHAuto("Ignoring season fights as no girl to win on fight reward");
-                chosenIndex = -1;
+            catch (err) {
+                LogUtils_logHHAuto("Catched error : Could not display season score : " + err);
+                return -1;
             }
-            return chosenIndex < 0 ? chosenIndex : chosenID;
-        }
-        catch (err) {
-            LogUtils_logHHAuto("Catched error : Could not display season score : " + err);
-            return -1;
-        }
+        });
     }
     //    static getBestOppo(scoreOppo: BDSMSimu[], mojoOppo: number[], expOppo: number[], affOppo: number[], nameOppo: string[]) {
     static getBestOppo(seasonOpponents, current_kisses = 1, max_kisses = 10) {
@@ -3617,76 +3635,78 @@ class Season {
         return { numberOfReds, chosenIndex };
     }
     static run() {
-        LogUtils_logHHAuto("Performing auto Season.");
-        // Confirm if on correct screen.
-        const Hero = getHero();
-        var page = getPage();
-        if (page === ConfigHelper.getHHScriptVars("pagesIDSeasonArena")) {
-            LogUtils_logHHAuto("On season arena page.");
-            Season.stylesBattle();
-            var chosenID = Season.moduleSimSeasonBattle();
-            if (chosenID === -2) {
-                //change opponents and reload
-                function refreshOpponents() {
-                    var params = {
-                        namespace: 'h\\Season',
-                        class: 'Arena',
-                        action: 'arena_reload'
-                    };
-                    LogUtils_logHHAuto("Three red opponents, paying for refresh.");
-                    getHHAjax()(params, function (data) {
-                        Hero.update("hard_currency", data.hard_currency, false);
-                        location.reload();
-                    });
+        return Season_awaiter(this, void 0, void 0, function* () {
+            LogUtils_logHHAuto("Performing auto Season.");
+            // Confirm if on correct screen.
+            const Hero = getHero();
+            var page = getPage();
+            if (page === ConfigHelper.getHHScriptVars("pagesIDSeasonArena")) {
+                LogUtils_logHHAuto("On season arena page.");
+                Season.stylesBattle();
+                var chosenID = yield Season.moduleSimSeasonBattle(true);
+                if (chosenID === -2) {
+                    //change opponents and reload
+                    function refreshOpponents() {
+                        var params = {
+                            namespace: 'h\\Season',
+                            class: 'Arena',
+                            action: 'arena_reload'
+                        };
+                        LogUtils_logHHAuto("Three red opponents, paying for refresh.");
+                        getHHAjax()(params, function (data) {
+                            Hero.update("hard_currency", data.hard_currency, false);
+                            location.reload();
+                        });
+                    }
+                    setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+                    LogUtils_logHHAuto("setting autoloop to false");
+                    setTimer('nextSeasonTime', 5);
+                    setTimeout(refreshOpponents, randomInterval(800, 1600));
+                    return true;
                 }
-                setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
-                LogUtils_logHHAuto("setting autoloop to false");
-                setTimer('nextSeasonTime', 5);
-                setTimeout(refreshOpponents, randomInterval(800, 1600));
-                return true;
-            }
-            else if (chosenID === -1) {
-                LogUtils_logHHAuto("Season : was not able to choose opponent.");
-                setTimer('nextSeasonTime', randomInterval(30 * 60, 35 * 60));
-            }
-            else {
-                const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonRunThreshold")) || 0;
-                const opponentBlock = $('.season_arena_opponent_container[data-opponent=' + chosenID + ']');
-                if (runThreshold > 0) {
-                    setStoredValue(HHStoredVarPrefixKey + "Temp_SeasonHumanLikeRun", "true");
-                }
-                const toGoTo = $(".opponent_perform_button_container :first-child", opponentBlock).first().attr('href') || '';
-                if (toGoTo == '') {
-                    LogUtils_logHHAuto('Season : Error getting opponent location');
+                else if (chosenID === -1) {
+                    LogUtils_logHHAuto("Season : was not able to choose opponent.");
                     setTimer('nextSeasonTime', randomInterval(30 * 60, 35 * 60));
-                    return false;
                 }
-                location.href = addNutakuSession(toGoTo);
-                setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
-                LogUtils_logHHAuto("setting autoloop to false");
-                LogUtils_logHHAuto(`Going to crush : ${$(".personal_info div.player-name", opponentBlock).text()} (${chosenID})`);
-                setTimer('nextSeasonTime', 5);
-                return true;
-            }
-        }
-        else {
-            const current_kisses = Season.getEnergy();
-            // Switch to the correct screen
-            LogUtils_logHHAuto("Remaining kisses : " + current_kisses);
-            if (current_kisses > 0) {
-                LogUtils_logHHAuto("Switching to Season Arena screen.");
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonArena"));
+                else {
+                    const runThreshold = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoSeasonRunThreshold")) || 0;
+                    const opponentBlock = $('.season_arena_opponent_container[data-opponent=' + chosenID + ']');
+                    if (runThreshold > 0) {
+                        setStoredValue(HHStoredVarPrefixKey + "Temp_SeasonHumanLikeRun", "true");
+                    }
+                    const toGoTo = $(".opponent_perform_button_container :first-child", opponentBlock).first().attr('href') || '';
+                    if (toGoTo == '') {
+                        LogUtils_logHHAuto('Season : Error getting opponent location');
+                        setTimer('nextSeasonTime', randomInterval(30 * 60, 35 * 60));
+                        return false;
+                    }
+                    location.href = addNutakuSession(toGoTo);
+                    setStoredValue(HHStoredVarPrefixKey + "Temp_autoLoop", "false");
+                    LogUtils_logHHAuto("setting autoloop to false");
+                    LogUtils_logHHAuto(`Going to crush : ${$(".personal_info div.player-name", opponentBlock).text()} (${chosenID})`);
+                    setTimer('nextSeasonTime', 5);
+                    return true;
+                }
             }
             else {
-                let next_refresh = getHHVars('Hero.energies.kiss.next_refresh_ts');
-                if (next_refresh == 0) {
-                    next_refresh = 15 * 60;
+                const current_kisses = Season.getEnergy();
+                // Switch to the correct screen
+                LogUtils_logHHAuto("Remaining kisses : " + current_kisses);
+                if (current_kisses > 0) {
+                    LogUtils_logHHAuto("Switching to Season Arena screen.");
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDSeasonArena"));
                 }
-                setTimer('nextSeasonTime', randomInterval(next_refresh + 10, next_refresh + 180));
-                gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                else {
+                    let next_refresh = getHHVars('Hero.energies.kiss.next_refresh_ts');
+                    if (next_refresh == 0) {
+                        next_refresh = 15 * 60;
+                    }
+                    setTimer('nextSeasonTime', randomInterval(next_refresh + 10, next_refresh + 180));
+                    gotoPage(ConfigHelper.getHHScriptVars("pagesIDHome"));
+                }
+                return;
             }
-            return;
-        }
+        });
     }
     static displayRewardsDiv() {
         try {
@@ -4814,10 +4834,10 @@ class Champion {
                     return true;
                 }
                 else {
-                    // champion-healing-tooltip='{"amount":"9,123,123","impression_info":"9,123,123/99,999,999"}'
-                    // champion-healing-tooltip='{"impression_info":""0/99,999,999"}'
-                    const tooltipData = $('.stage-progress-bar-wrapper[champion-healing-tooltip]').attr('champion-healing-tooltip') || '{"amount":"0","impression_info":"0/1"}';
-                    const impressionDone = (JSON.parse(tooltipData)).amount || 0;
+                    // champion-healing-tooltip='{"amount":"1,123,123","impression_info":"9,123,123/99,999,999"}'
+                    // champion-healing-tooltip='{"impression_info":"0/99,999,999"}'
+                    const tooltipData = $('.stage-progress-bar-wrapper[champion-healing-tooltip]').attr('champion-healing-tooltip') || '{"impression_info":"0/1"}';
+                    const impressionDone = ((JSON.parse(tooltipData)).impression_info || '0/1').split('/')[0] || '0';
                     var TCount = Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
                     var ECount = QuestHelper.getEnergy();
                     LogUtils_logHHAuto("T:" + TCount + " E:" + ECount + " " + (getStoredValue(HHStoredVarPrefixKey + "Setting_autoChampsUseEne") === "true") + " Imp:" + impressionDone);
@@ -8166,6 +8186,17 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonIgnoreNoGirl
         menuType: "checked",
         kobanUsing: false
     };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_seasonDisplayPowerCalc"] =
+    {
+        default: "true",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_autoSeasonCollectablesList"] =
     {
         default: JSON.stringify([]),
@@ -9504,6 +9535,11 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_haremGirlEnd"] =
         HHType: "Temp"
     };
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_haremGirlLimit"] =
+    {
+        storage: "sessionStorage",
+        HHType: "Temp"
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Temp_haremTeam"] =
     {
         storage: "sessionStorage",
         HHType: "Temp"
@@ -14223,7 +14259,7 @@ class TeamModule {
         const StuffTeam = hhButton('StuffTeam', 'StuffTeam', buttonStyles + ';left: 88%', 'font-size:small');
         $("#contains_all section").append(EquipAll);
         $("#contains_all section").append(UnequipAll);
-        $("#contains_all section").append(StuffTeam);
+        // $("#contains_all section").append(StuffTeam);
         $("#EquipAll").on("click", TeamModule.equipAllGirls);
         $("#UnequipAll").on("click", TeamModule.unequipAllGirls);
         $("#StuffTeam").on("click", TeamModule.stuffAllGirls);
@@ -16205,6 +16241,7 @@ function getMenu() {
             + `</div>`
             + `<div class="internalOptionsRow">`
             + hhMenuInputWithImg('autoSeasonThreshold', HHAuto_inputPattern.autoSeasonThreshold, 'text-align:center; width:30px', 'pictures/design/ic_kiss.png', 'numeric')
+            + hhMenuSwitch('seasonDisplayPowerCalc')
             + hhMenuInputWithImg('autoSeasonRunThreshold', HHAuto_inputPattern.autoSeasonRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_kiss.png', 'numeric')
             + `</div>`
             + `</div>`
@@ -19129,7 +19166,7 @@ function autoLoop() {
                 && isAutoLoopActive() && canCollectCompetitionActive && (lastActionPerformed === "none" || lastActionPerformed === "season")) {
                 if (Season.isTimeToFight()) {
                     LogUtils_logHHAuto("Time to fight in Season.");
-                    busy = Season.run();
+                    busy = yield Season.run();
                     lastActionPerformed = "season";
                 }
                 else if (checkTimer('nextSeasonTime')) {
@@ -20218,8 +20255,9 @@ function hardened_start() {
         try {
             const forbiddenWords = document.getElementsByTagName('body')[0].innerText === 'Forbidden';
             if (forbiddenWords) {
-                LogUtils_logHHAuto('HHAUTO WARNING: "Forbidden" detected.');
-                setTimeout(() => { location.reload; }, randomInterval(1 * 60, 5 * 60) * 1000);
+                const time = randomInterval(1 * 60, 5 * 60);
+                LogUtils_logHHAuto('HHAUTO WARNING: "Forbidden" detected, reloading the page in ' + time + ' seconds');
+                setTimeout(() => { location.reload(); }, time * 1000);
             }
         }
         catch (error) { }
