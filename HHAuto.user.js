@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.29.12
+// @version      7.29.13
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -298,11 +298,11 @@ HHAuto_ToolTips.en['autoStats'] = { version: "5.6.24", elementText: "Money to ke
 HHAuto_ToolTips.en['autoStatsSwitch'] = { version: "5.6.24", elementText: "Stats", tooltip: "Allow to on/off autoStats" };
 HHAuto_ToolTips.en['autoExpW'] = { version: "5.6.24", elementText: "Books", tooltip: "if enabled : allow to buy Exp in market<br>Only buy if money bank is above the value<br>Only buy if total Exp owned is below value" };
 HHAuto_ToolTips.en['autoExp'] = { version: "5.6.24", elementText: "Money to keep", tooltip: "(Integer)<br>Minimum money to keep." };
-HHAuto_ToolTips.en['maxExp'] = { version: "5.6.24", elementText: "Max Exp.", tooltip: "(Integer)<br>Maximum Exp to buy" };
+HHAuto_ToolTips.en['maxExp'] = { version: "7.29.13", elementText: "Max Exp.", tooltip: "(Integer)<br>Maximum Exp to buy<br>If set to 0, limit will not be applied." };
 HHAuto_ToolTips.en['autoAffW'] = { version: "5.6.24", elementText: "Gifts", tooltip: "if enabled : allow to buy Aff in market<br>Only buy if money bank is above the value<br>Only buy if total Aff owned is below value" };
 HHAuto_ToolTips.en['autoAff'] = { version: "5.6.24", elementText: "Money to keep", tooltip: "(Integer)<br>Minimum money to keep." };
-HHAuto_ToolTips.en['maxAff'] = { version: "5.6.24", elementText: "Max Aff.", tooltip: "(Integer)<br>Maximum Aff to buy" };
-HHAuto_ToolTips.en['maxBooster'] = { version: "5.38.0", elementText: "Max Booster.", tooltip: "(Integer)<br>Maximum booster to buy (limit for each booster type)" };
+HHAuto_ToolTips.en['maxAff'] = { version: "7.29.13", elementText: "Max Aff.", tooltip: "(Integer)<br>Maximum Aff to buy<br>If set to 0, limit will not be applied." };
+HHAuto_ToolTips.en['maxBooster'] = { version: "7.29.13", elementText: "Max Booster.", tooltip: "(Integer)<br>Maximum booster to buy (limit for each booster type)<br>If set to 0, limit will not be applied." };
 HHAuto_ToolTips.en['OpponentListBuilding'] = { version: "5.6.24", elementText: "Opponent list is building", tooltip: "" };
 HHAuto_ToolTips.en['OpponentParsed'] = { version: "5.6.24", elementText: "opponents parsed", tooltip: "" };
 HHAuto_ToolTips.en['DebugMenu'] = { version: "5.6.24", elementText: "Debug Menu", tooltip: "Options for debug" };
@@ -11668,11 +11668,17 @@ class Market {
             var Exp = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoExp"));
             var Aff = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_autoAff"));
             var MaxAff = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_maxAff"));
+            if (MaxAff === 0)
+                MaxAff = Infinity;
             var MaxExp = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_maxExp"));
+            if (MaxExp === 0)
+                MaxExp = Infinity;
             var HaveAff = Number(getStoredValue(HHStoredVarPrefixKey + "Temp_haveAff"));
             var HaveExp = Number(getStoredValue(HHStoredVarPrefixKey + "Temp_haveExp"));
             var HaveBooster = JSON.parse(getStoredValue(HHStoredVarPrefixKey + "Temp_haveBooster"));
             var MaxBooster = Number(getStoredValue(HHStoredVarPrefixKey + "Setting_maxBooster"));
+            if (MaxBooster === 0)
+                MaxBooster = Infinity;
             let Was;
             var boosterFilter = getStoredValue(HHStoredVarPrefixKey + "Setting_autoBuyBoostersFilter").split(";");
             if (getStoredValue(HHStoredVarPrefixKey + "Setting_autoBuyBoosters") === "true" && boosterFilter.length > 0) {
@@ -19518,6 +19524,8 @@ function autoLoop() {
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDHarem"):
                 Harem.moduleHarem();
+                // Harem.run = callItOnce(Harem.run);
+                // busy = await Harem.run();
                 break;
             case ConfigHelper.getHHScriptVars("pagesIDGirlPage"):
                 HaremGirl.moduleHaremGirl = callItOnce(HaremGirl.moduleHaremGirl);

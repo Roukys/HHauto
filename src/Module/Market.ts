@@ -43,12 +43,12 @@ export class Market {
 
             var Exp=Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoExp"));
             var Aff=Number(getStoredValue(HHStoredVarPrefixKey+"Setting_autoAff"));
-            var MaxAff=Number(getStoredValue(HHStoredVarPrefixKey+"Setting_maxAff"));
-            var MaxExp=Number(getStoredValue(HHStoredVarPrefixKey+"Setting_maxExp"));
+            var MaxAff=Number(getStoredValue(HHStoredVarPrefixKey+"Setting_maxAff")); if (MaxAff === 0) MaxAff = Infinity;
+            var MaxExp=Number(getStoredValue(HHStoredVarPrefixKey+"Setting_maxExp")); if (MaxExp === 0) MaxExp = Infinity;
             var HaveAff=Number(getStoredValue(HHStoredVarPrefixKey+"Temp_haveAff"));
             var HaveExp=Number(getStoredValue(HHStoredVarPrefixKey+"Temp_haveExp"));
             var HaveBooster=JSON.parse(getStoredValue(HHStoredVarPrefixKey+"Temp_haveBooster"));
-            var MaxBooster=Number(getStoredValue(HHStoredVarPrefixKey+"Setting_maxBooster"));
+            var MaxBooster=Number(getStoredValue(HHStoredVarPrefixKey+"Setting_maxBooster")); if (MaxBooster === 0) MaxBooster = Infinity;
             let Was;
 
             var boosterFilter = getStoredValue(HHStoredVarPrefixKey+"Setting_autoBuyBoostersFilter").split(";");
