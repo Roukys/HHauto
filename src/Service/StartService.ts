@@ -145,8 +145,9 @@ export function hardened_start()
         try {
             const forbiddenWords = document.getElementsByTagName('body')[0].innerText === 'Forbidden';
             if (forbiddenWords) {
-                logHHAuto('HHAUTO WARNING: "Forbidden" detected.');
-                setTimeout(()=>{ location.reload }, randomInterval(1*60, 5*60) * 1000);
+                const time = randomInterval(1*60, 5*60) ;
+                logHHAuto('HHAUTO WARNING: "Forbidden" detected, reloading the page in '+time+' seconds');
+                setTimeout(() => { location.reload(); }, time * 1000);
             }
         } catch (error) {}
         return;

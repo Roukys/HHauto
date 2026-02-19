@@ -106,9 +106,14 @@ export class Season {
         return (checkTimer('nextSeasonTime') && energyAboveThreshold && (needBoosterToFight && haveBoosterEquiped || !needBoosterToFight)) || paranoiaSpending;
     }
 
-    static moduleSimSeasonBattle()
+    static async moduleSimSeasonBattle(autoRun=false)
     {
+        const dispalyPowerCalc = getStoredValue(HHStoredVarPrefixKey + "Setting_seasonDisplayPowerCalc") === "true"; 
         const debugEnabled = getStoredValue(HHStoredVarPrefixKey + "Temp_Debug") === 'true';
+        if (!autoRun && !dispalyPowerCalc) {
+            if (debugEnabled) logHHAuto("Auto season : Display power calc is disabled, not simulating fight.");
+            return -1;
+        }
         const hero_data = unsafeWindow.hero_data;
         const opponentDatas = unsafeWindow.opponents;
         let doDisplay=false;
@@ -159,7 +164,7 @@ export class Season {
                 {
                     seasonButton.prepend(`<div class="matchRatingNew ${simu.scoreClass}"><img id="powerLevelScouter" src=${powerCalcImages[simu.scoreClass]}>${NumberHelper.nRounding(100*simu.win, 2, -1)}%</div>`);
                 }
-                //await TimeHelper.sleep(randomInterval(200, 400));
+                await TimeHelper.sleep(randomInterval(200, 400)); // avoid blocking UI thread and let it update with new elements
             }
 
             var { numberOfReds, chosenIndex } = Season.getBestOppo(seasonOpponents, Season.getEnergy(), Season.getEnergyMax());
@@ -315,7 +320,7 @@ export class Season {
         return { numberOfReds, chosenIndex };
     }
 
-    static run(){
+    static async run(){
         logHHAuto("Performing auto Season.");
         // Confirm if on correct screen.
         const Hero = getHero();
@@ -325,7 +330,7 @@ export class Season {
             logHHAuto("On season arena page.");
             Season.stylesBattle();
     
-            var chosenID = Season.moduleSimSeasonBattle();
+            var chosenID = await Season.moduleSimSeasonBattle(true);
             if (chosenID === -2 )
             {
                 //change opponents and reload

@@ -68,6 +68,7 @@ HHAuto_ToolTips.en['autoSeasonThreshold'] = { version: "5.6.24", elementText: "T
 HHAuto_ToolTips.en['autoSeasonRunThreshold'] = { version: "6.8.0", elementText: "Run Threshold", tooltip: "Minimum kiss fights before script start spending<br> 0 to spend as soon as energy above threshold"};
 HHAuto_ToolTips.en['autoSeasonBoostedOnly'] = { version: "6.5.0", elementText: "Boosted only", tooltip: "If enabled : Need booster to fight in season"};
 HHAuto_ToolTips.en['autoSeasonSkipLowMojo'] = { version: "7.10.0", elementText: "Skip low Mojo", tooltip: "If enabled : Not fight when mojo reward is less than 8 and season level is less than 63. Will still fight to not loose kiss."};
+HHAuto_ToolTips.en['seasonDisplayPowerCalc'] = { version: "7.29.12", elementText: "Display PowerCalc", tooltip: "Display powerCalc in season.<br/>Will still be displayed on auto season" };
 HHAuto_ToolTips.en['autoPentaDrillTitle'] = { version: "7.26.0", elementText: "Penta Drill"};
 HHAuto_ToolTips.en['autoPentaDrill'] = { version: "7.26.0", elementText: "Enable", tooltip: "if enabled : Automatically fight in Penta Drills (Opponent chosen with lowest power)"};
 HHAuto_ToolTips.en['autoPentaDrillCollect'] = { version: "7.26.0", elementText: "Collect", tooltip: "if enabled : Automatically collect Penta Drills ( if multiple to collect, will collect one per drill usage)"};

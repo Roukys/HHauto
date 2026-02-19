@@ -26,7 +26,7 @@ export class HaremSalary {
         }
         return salarySumTag;
     }
-    
+
     static async getSalary(): Promise<boolean> {
         try {
             if(getPage() === ConfigHelper.getHHScriptVars("pagesIDHome"))

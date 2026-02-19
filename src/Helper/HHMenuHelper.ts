@@ -670,6 +670,7 @@ export function getMenu() {
                         +`</div>`
                         +`<div class="internalOptionsRow">`
                             + hhMenuInputWithImg('autoSeasonThreshold', HHAuto_inputPattern.autoSeasonThreshold, 'text-align:center; width:30px', 'pictures/design/ic_kiss.png', 'numeric' )
+                            + hhMenuSwitch('seasonDisplayPowerCalc')
                             + hhMenuInputWithImg('autoSeasonRunThreshold', HHAuto_inputPattern.autoSeasonRunThreshold, 'text-align:center; width:25px', 'pictures/design/ic_kiss.png', 'numeric' )
                         +`</div>`
                     +`</div>`
