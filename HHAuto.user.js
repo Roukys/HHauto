@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.29.13
+// @version      7.29.14
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -17350,9 +17350,9 @@ function calculateBattleProbabilities(player, opponent, debugEnabled = false) {
 function calculateTier4SkillValue(teamGirlsArray) {
     let skill_tier_4 = { dmg: 0, def: 0 };
     teamGirlsArray.forEach((girl) => {
-        if (girl.skills[9])
+        if (girl.skills && girl.skills[9])
             skill_tier_4.dmg += girl.skills[9].skill.percentage_value / 100;
-        if (girl.skills[10])
+        if (girl.skills && girl.skills[10])
             skill_tier_4.def += girl.skills[10].skill.percentage_value / 100;
     });
     return skill_tier_4;
@@ -17362,7 +17362,7 @@ function calculateTier5SkillValue(teamGirlsArray) {
     let skill_tier_5 = { id: 0, value: 0 };
     const girl = teamGirlsArray[0];
     tier5_Skill_Id.forEach((id) => {
-        if (girl.skills[id]) {
+        if (girl.skills && girl.skills[id]) {
             skill_tier_5.id = id;
             skill_tier_5.value = (id == 11) ? parseInt(girl.skills[id].skill.display_value_text, 10) / 100 : girl.skills[id].skill.percentage_value / 100;
         }
