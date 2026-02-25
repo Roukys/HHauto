@@ -294,8 +294,8 @@ function calculateTier4SkillValue(teamGirlsArray): { dmg: number, def: number } 
     let skill_tier_4 = { dmg: 0, def: 0 };
 
     teamGirlsArray.forEach((girl) => {
-        if (girl.skills[9]) skill_tier_4.dmg += girl.skills[9].skill.percentage_value / 100;
-        if (girl.skills[10]) skill_tier_4.def += girl.skills[10].skill.percentage_value / 100;
+        if (girl.skills && girl.skills[9]) skill_tier_4.dmg += girl.skills[9].skill.percentage_value / 100;
+        if (girl.skills && girl.skills[10]) skill_tier_4.def += girl.skills[10].skill.percentage_value / 100;
     })
     return skill_tier_4;
 }
@@ -306,7 +306,7 @@ function calculateTier5SkillValue(teamGirlsArray): { id: number, value: number }
     const girl = teamGirlsArray[0];
 
     tier5_Skill_Id.forEach((id) => {
-        if (girl.skills[id]) {
+        if (girl.skills && girl.skills[id]) {
             skill_tier_5.id = id;
             skill_tier_5.value = (id == 11) ? parseInt(girl.skills[id].skill.display_value_text, 10) / 100 : girl.skills[id].skill.percentage_value / 100;
         }
