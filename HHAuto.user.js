@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.29.14
+// @version      7.29.15
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -17151,8 +17151,8 @@ class BDSMHelper {
         opponentData.team.theme_elements.forEach((el) => opponentElements.push(el.type));
         const opponentBonuses = BDSMHelper.fightBonues(opponentData.team);
         const dominanceBonuses = calculateDominationBonuses(playerElements, opponentElements);
-        const player = new BDSMPlayer(inLeague ? playerEgo * (1 + dominanceBonuses.player.ego) : playerEgo, inLeague ? playerAtk * (1 + dominanceBonuses.player.attack) : playerAtk, opponentDef, calculateCritChanceShare(playerCrit, opponentCrit) + dominanceBonuses.player.chance + playerBonuses.critChance, playerBonuses, calculateTier4SkillValue(inHeroData.team.girls), calculateTier5SkillValue(inHeroData.team.girls), inHeroData.nickname);
-        const opponent = new BDSMPlayer(opponentEgo, opponentAtk, inLeague ? playerDef * (1 - opponentBonuses.defReduce) : playerDef, calculateCritChanceShare(opponentCrit, playerCrit) + dominanceBonuses.opponent.chance + opponentBonuses.critChance, opponentBonuses, calculateTier4SkillValue(opponentData.team.girls), calculateTier5SkillValue(opponentData.team.girls), opponentData.nickname);
+        const player = new BDSMPlayer(inLeague ? playerEgo * (1 + dominanceBonuses.player.ego) : playerEgo, inLeague ? playerAtk * (1 + dominanceBonuses.player.attack) : playerAtk, opponentDef, calculateCritChanceShare(playerCrit, opponentCrit) + dominanceBonuses.player.chance + playerBonuses.critChance, playerBonuses, estimateTier4SkillValue(inHeroData.team.girls), estimateTier5SkillValue(inHeroData.team.girls), inHeroData.nickname);
+        const opponent = new BDSMPlayer(opponentEgo, opponentAtk, inLeague ? playerDef * (1 - opponentBonuses.defReduce) : playerDef, calculateCritChanceShare(opponentCrit, playerCrit) + dominanceBonuses.opponent.chance + opponentBonuses.critChance, opponentBonuses, estimateTier4SkillValue(opponentData.team.girls), estimateTier5SkillValue(opponentData.team.girls), opponentData.nickname);
         return { player: player, opponent: opponent, dominanceBonuses: dominanceBonuses };
     }
 }
@@ -17347,26 +17347,63 @@ function calculateBattleProbabilities(player, opponent, debugEnabled = false) {
         }
     }
 }
-function calculateTier4SkillValue(teamGirlsArray) {
+/*function calculateTier4SkillValue(teamGirlsArray): { dmg: number, def: number } {
+    let skill_tier_4 = { dmg: 0, def: 0 };
+
+    teamGirlsArray.forEach((girl) => {
+        if (girl.skills && girl.skills[9]) skill_tier_4.dmg += girl.skills[9].skill.percentage_value / 100;
+        if (girl.skills && girl.skills[10]) skill_tier_4.def += girl.skills[10].skill.percentage_value / 100;
+    })
+    return skill_tier_4;
+}*/
+function estimateTier4SkillValue(teamGirlsArray) {
     let skill_tier_4 = { dmg: 0, def: 0 };
     teamGirlsArray.forEach((girl) => {
-        if (girl.skills && girl.skills[9])
-            skill_tier_4.dmg += girl.skills[9].skill.percentage_value / 100;
-        if (girl.skills && girl.skills[10])
-            skill_tier_4.def += girl.skills[10].skill.percentage_value / 100;
+        if (girl.skill_tiers_info[4])
+            skill_tier_4.dmg += girl.skill_tiers_info[4].skill_points_used * 0.002;
     });
     return skill_tier_4;
 }
-const tier5_Skill_Id = [11, 12, 13, 14];
-function calculateTier5SkillValue(teamGirlsArray) {
+/*const tier5_Skill_Id = [11, 12, 13, 14];
+function calculateTier5SkillValue(teamGirlsArray): { id: number, value: number } {
     let skill_tier_5 = { id: 0, value: 0 };
     const girl = teamGirlsArray[0];
+
     tier5_Skill_Id.forEach((id) => {
         if (girl.skills && girl.skills[id]) {
             skill_tier_5.id = id;
             skill_tier_5.value = (id == 11) ? parseInt(girl.skills[id].skill.display_value_text, 10) / 100 : girl.skills[id].skill.percentage_value / 100;
         }
-    });
+    })
+    return skill_tier_5;
+}*/
+function estimateTier5SkillValue(teamGirlsArray) {
+    let skill_tier_5 = { id: 0, value: 0 };
+    const girl = teamGirlsArray[0];
+    const skill5_girl = girl.skill_tiers_info[5];
+    if (skill5_girl) {
+        const skill5_girl_element = girl.girl.element_data.type;
+        //Stun
+        if (skill5_girl_element == 'sun' || skill5_girl_element == 'darkness') {
+            skill_tier_5.id = 11;
+            skill_tier_5.value = skill5_girl.skill_points_used * 0.07;
+        }
+        //Shield
+        else if (skill5_girl_element == 'stone' || skill5_girl_element == 'light') {
+            skill_tier_5.id = 12;
+            skill_tier_5.value = skill5_girl.skill_points_used * 0.08;
+        }
+        //Reflect
+        if (skill5_girl_element == 'psychic' || skill5_girl_element == 'nature') {
+            skill_tier_5.id = 13;
+            skill_tier_5.value = skill5_girl.skill_points_used * 0.2;
+        }
+        //Execute
+        if (skill5_girl_element == 'fire' || skill5_girl_element == 'water') {
+            skill_tier_5.id = 14;
+            skill_tier_5.value = skill5_girl.skill_points_used * 0.08;
+        }
+    }
     return skill_tier_5;
 }
 /*
