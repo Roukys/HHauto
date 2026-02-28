@@ -9,7 +9,8 @@ import {
     getStoredValue,
     randomInterval,
     setStoredValue,
-    setTimer
+    setTimer,
+    HeroHelper
 } from '../Helper/index';
 import { gotoPage } from "../Service/index";
 import { logHHAuto } from '../Utils/index';
@@ -126,13 +127,15 @@ export class ClubChampion {
             }
             else
             {
-                // champion-healing-tooltip='{"amount":"9,123,123","impression_info":"9,123,123/99,999,999"}'
-                // champion-healing-tooltip='{"impression_info":""0/99,999,999"}'
-                const tooltipData = $('.stage-progress-bar-wrapper[champion-healing-tooltip]').attr('champion-healing-tooltip') || '{"amount":"0","impression_info":"0/1"}';
-                const impressionDone = (JSON.parse(tooltipData)).amount || 0;
+                const clubChamptionFightActive: boolean = getHHVars('championData.fight.active') || false;
+                const clubChamptionParticipants:any[] = getHHVars('championData.fight.participants') || {};
+                const playerId = HeroHelper.getPlayerId();
+                const userStarted = clubChamptionParticipants.find(participant => participant.id_member == playerId)
+                const playerStarted = clubChamptionFightActive && userStarted && userStarted.challenge_count > 0;
+
                 var TCount=Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
                 var ECount= QuestHelper.getEnergy();
-                logHHAuto("T:"+TCount+" E:"+ECount + ' Imp:'+impressionDone);
+                logHHAuto(`T:${TCount} E:${ECount} Player challenge :${userStarted?.challenge_count || 0}`);
                 if ( TCount==0)
                 {
                     logHHAuto("No tickets!");
@@ -146,7 +149,7 @@ export class ClubChampion {
                 }
                 else
                 {
-                    if (impressionDone == 0 && getStoredValue(HHStoredVarPrefixKey + "Setting_autoBuildChampsTeam") === "true") {
+                    if ((!clubChamptionFightActive || !playerStarted) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoBuildChampsTeam") === "true") {
                         const tempChampBuildTeam = getStoredValue(HHStoredVarPrefixKey + "Temp_champBuildTeam");
                         if (tempChampBuildTeam == "club") {
                             deleteStoredValue(HHStoredVarPrefixKey + "Temp_champBuildTeam");

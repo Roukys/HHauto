@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.29.15
+// @version      7.29.16
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -5153,13 +5153,14 @@ class ClubChampion {
                     return true;
                 }
                 else {
-                    // champion-healing-tooltip='{"amount":"9,123,123","impression_info":"9,123,123/99,999,999"}'
-                    // champion-healing-tooltip='{"impression_info":""0/99,999,999"}'
-                    const tooltipData = $('.stage-progress-bar-wrapper[champion-healing-tooltip]').attr('champion-healing-tooltip') || '{"amount":"0","impression_info":"0/1"}';
-                    const impressionDone = (JSON.parse(tooltipData)).amount || 0;
+                    const clubChamptionFightActive = getHHVars('championData.fight.active') || false;
+                    const clubChamptionParticipants = getHHVars('championData.fight.participants') || {};
+                    const playerId = HeroHelper.getPlayerId();
+                    const userStarted = clubChamptionParticipants.find(participant => participant.id_member == playerId);
+                    const playerStarted = clubChamptionFightActive && userStarted && userStarted.challenge_count > 0;
                     var TCount = Number($('div.input-field > span')[1].innerText.split(' / ')[1]);
                     var ECount = QuestHelper.getEnergy();
-                    LogUtils_logHHAuto("T:" + TCount + " E:" + ECount + ' Imp:' + impressionDone);
+                    LogUtils_logHHAuto(`T:${TCount} E:${ECount} Player challenge :${(userStarted === null || userStarted === void 0 ? void 0 : userStarted.challenge_count) || 0}`);
                     if (TCount == 0) {
                         LogUtils_logHHAuto("No tickets!");
                         const nextTime = randomInterval(3600, 4000);
@@ -5171,7 +5172,7 @@ class ClubChampion {
                         return false;
                     }
                     else {
-                        if (impressionDone == 0 && getStoredValue(HHStoredVarPrefixKey + "Setting_autoBuildChampsTeam") === "true") {
+                        if ((!clubChamptionFightActive || !playerStarted) && getStoredValue(HHStoredVarPrefixKey + "Setting_autoBuildChampsTeam") === "true") {
                             const tempChampBuildTeam = getStoredValue(HHStoredVarPrefixKey + "Temp_champBuildTeam");
                             if (tempChampBuildTeam == "club") {
                                 deleteStoredValue(HHStoredVarPrefixKey + "Temp_champBuildTeam");
@@ -14846,7 +14847,7 @@ class GayPornstarHarem {
     }
 }
 GayPornstarHarem.spreadsheet = 'https://docs.google.com/spreadsheets/d/1kVZxcZZMa82lS4k-IpxTTTELAeaipjR_v1twlqW5vbI'; // Cuervos & Sandor
-GayPornstarHarem.trollIdMapping = {};
+GayPornstarHarem.trollIdMapping = { 6: 2, 7: 3, 8: 4, 9: 5, 10: 6, 11: 7, 12: 8 };
 
 ;// CONCATENATED MODULE: ./src/config/game/HentaiHeroesVars.ts
 class HentaiHeroes {
