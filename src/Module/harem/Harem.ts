@@ -110,14 +110,14 @@ export class Harem {
         }
     }
 
-    static getGirlData(girlId: number){
-        var gMap = getHHVars('girls_data_list') || getHHVars('availableGirls');
+    static getGirlData(girlId: number) :KKHaremGirl{
+        var gMap = getHHVars('girlsDataList');
         if (gMap === null) {
             // error
             //logHHAuto("Girls Map was undefined...! Error, cannot export girls.");
         }
         else {
-            return gMap.find((girl) => girl.id_girl == girlId);
+            return Object.values(gMap).find((girl:KKHaremGirl) => girl.id_girl == girlId) as KKHaremGirl;
         }
         return null;
     }
@@ -272,8 +272,13 @@ export class Harem {
             GM_registerMenuCommand(getTextForUI(menuIDGifts,"elementText"), giveHaremGifts);
         }
 
-        Harem.addGoToGirlPageButton();
-        Harem.addGirlListMenu();
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_showHaremAvatarMissingGirls") === "true") {
+            Harem.addGirlImages();
+        }
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_showHaremTools") === "true") {
+            Harem.addGoToGirlPageButton();
+            Harem.addGirlListMenu();
+        }
     }
 
     static fillCurrentGirlItem(haremItem, payLast=false){
@@ -324,6 +329,29 @@ export class Harem {
             GM_registerMenuCommand(getTextForUI('goToGirlPage',"elementText"), goToGirl);
         } else {
             $('#'+goToGirlPageButtonId).hide();
+        }
+    }
+
+    static addGirlImages(){
+        if ($('.hhava').length > 0) return;
+        try{
+            const displayedGirl = $('#harem_right .opened').attr('girl') || ''; // unsafeWindow.harem.preselectedGirlId
+            const girlOwned = displayedGirl != '' && $('#harem_right .opened .avatar-box:visible').length > 0;
+            const girl = Harem.getGirlData(Number(displayedGirl));
+            console.log('Girl : ' + girl?.name);
+
+            if(!girlOwned) {
+                GM_addStyle('.hhava {height: 14.6rem;}');
+                GM_addStyle('#harem_right > div[girl] .middle_part {flex: 0 0 282px;}');
+                $('#harem_right .opened .avatar').hide();
+
+                for (let index = 0; index < girl?.images?.ava?.length; index++) {
+                    const avatar = $(`<img src="${girl?.images?.ava[index]}" class="avatar hhava" />`);
+                    $('#harem_right .opened .middle_part').append(avatar);
+                }
+            }
+        } catch ({ errName, message }) {
+            logHHAuto(`ERROR in display DP rewards: ${message}`);
         }
     }
 

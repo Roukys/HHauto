@@ -1169,7 +1169,6 @@ export async function autoLoop()
         case ConfigHelper.getHHScriptVars("pagesIDGirlPage"):
             HaremGirl.moduleHaremGirl = callItOnce(HaremGirl.moduleHaremGirl);
             HaremGirl.moduleHaremGirl();
-            HaremGirl.showSkillButtons();
             HaremGirl.run = callItOnce(HaremGirl.run);
             busy = await HaremGirl.run();
             break;

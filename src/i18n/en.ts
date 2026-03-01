@@ -17,6 +17,10 @@ HHAuto_ToolTips.en['spendKobans0'] = { version: "5.6.24", elementText: "Spend Ko
 //HHAuto_ToolTips.en['spendKobans2'] = { version: "5.6.24", elementText: "You\'ve been warned", tooltip: "Third security switches for usage of kobans <br>Have to be activated after the second one.<br> All 3 needs to be active for Kobans spending functions"};
 HHAuto_ToolTips.en['kobanBank'] = { version: "5.6.24", elementText: "Kobans Bank", tooltip: "(Integer)<br>Minimum Kobans kept when using Kobans spending functions"};
 HHAuto_ToolTips.en['displayTitle'] = { version: "5.6.24", elementText: "Display options"};
+HHAuto_ToolTips.en['haremTitle'] = { version: "7.29.17", elementText: "Harem options"};
+HHAuto_ToolTips.en['showHaremAvatarMissingGirls'] = { version: "7.29.17", elementText: "Show Avatar", tooltip: "Show Avatar for missing girls in Harem"};
+HHAuto_ToolTips.en['showHaremTools'] = { version: "7.29.17", elementText: "Show Tools", tooltip: "Show grils tools in Harem"};
+HHAuto_ToolTips.en['showHaremSkillsButtons'] = { version: "7.29.17", elementText: "Show Skills Buttons", tooltip: "Show upgrade skill buttons in Harem"};
 HHAuto_ToolTips.en['autoActivitiesTitle'] = { version: "5.6.24", elementText: "Activities"};
 HHAuto_ToolTips.en['buyCombat'] = { version: "5.6.24", elementText: "Buy comb. for events", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>("+HHAuto_ToolTips.en['spendKobans0'].elementText+" must be ON)</p>If enabled : <br>Buying combat point during last X hours of event (if not going under Koban bank value), this will bypass threshold if event girl shards available."};
 HHAuto_ToolTips.en['buyCombTimer'] = { version: "5.6.24", elementText: "Hours to buy Combats", tooltip: "(Integer)<br>X last hours of event"};

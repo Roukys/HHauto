@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HaremHeroes Automatic++
 // @namespace    https://github.com/Roukys/HHauto
-// @version      7.29.16
+// @version      7.29.17
 // @description  Open the menu in HaremHeroes(topright) to toggle AutoControlls. Supports AutoSalary, AutoContest, AutoMission, AutoQuest, AutoTrollBattle, AutoArenaBattle and AutoPachinko(Free), AutoLeagues, AutoChampions and AutoStatUpgrades. Messages are printed in local console.
 // @author       JD and Dorten(a bit), Roukys, cossname, YotoTheOne, CLSchwab, deuxge, react31, PrimusVox, OldRon1977, tsokh, UncleBob800
 // @match        http*://*.haremheroes.com/*
@@ -186,6 +186,10 @@ HHAuto_ToolTips.en['spendKobans0'] = { version: "5.6.24", elementText: "Spend Ko
 //HHAuto_ToolTips.en['spendKobans2'] = { version: "5.6.24", elementText: "You\'ve been warned", tooltip: "Third security switches for usage of kobans <br>Have to be activated after the second one.<br> All 3 needs to be active for Kobans spending functions"};
 HHAuto_ToolTips.en['kobanBank'] = { version: "5.6.24", elementText: "Kobans Bank", tooltip: "(Integer)<br>Minimum Kobans kept when using Kobans spending functions" };
 HHAuto_ToolTips.en['displayTitle'] = { version: "5.6.24", elementText: "Display options" };
+HHAuto_ToolTips.en['haremTitle'] = { version: "7.29.17", elementText: "Harem options" };
+HHAuto_ToolTips.en['showHaremAvatarMissingGirls'] = { version: "7.29.17", elementText: "Show Avatar", tooltip: "Show Avatar for missing girls in Harem" };
+HHAuto_ToolTips.en['showHaremTools'] = { version: "7.29.17", elementText: "Show Tools", tooltip: "Show grils tools in Harem" };
+HHAuto_ToolTips.en['showHaremSkillsButtons'] = { version: "7.29.17", elementText: "Show Skills Buttons", tooltip: "Show upgrade skill buttons in Harem" };
 HHAuto_ToolTips.en['autoActivitiesTitle'] = { version: "5.6.24", elementText: "Activities" };
 HHAuto_ToolTips.en['buyCombat'] = { version: "5.6.24", elementText: "Buy comb. for events", tooltip: "<p style='color:red'>/!\\ Kobans spending function /!\\<br>(" + HHAuto_ToolTips.en['spendKobans0'].elementText + " must be ON)</p>If enabled : <br>Buying combat point during last X hours of event (if not going under Koban bank value), this will bypass threshold if event girl shards available." };
 HHAuto_ToolTips.en['buyCombTimer'] = { version: "5.6.24", elementText: "Hours to buy Combats", tooltip: "(Integer)<br>X last hours of event" };
@@ -5690,13 +5694,13 @@ class Harem {
         }
     }
     static getGirlData(girlId) {
-        var gMap = getHHVars('girls_data_list') || getHHVars('availableGirls');
+        var gMap = getHHVars('girlsDataList');
         if (gMap === null) {
             // error
             //logHHAuto("Girls Map was undefined...! Error, cannot export girls.");
         }
         else {
-            return gMap.find((girl) => girl.id_girl == girlId);
+            return Object.values(gMap).find((girl) => girl.id_girl == girlId);
         }
         return null;
     }
@@ -5826,8 +5830,13 @@ class Harem {
             GM_registerMenuCommand(getTextForUI(menuIDXp, "elementText"), giveHaremXp);
             GM_registerMenuCommand(getTextForUI(menuIDGifts, "elementText"), giveHaremGifts);
         }
-        Harem.addGoToGirlPageButton();
-        Harem.addGirlListMenu();
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_showHaremAvatarMissingGirls") === "true") {
+            Harem.addGirlImages();
+        }
+        if (getStoredValue(HHStoredVarPrefixKey + "Setting_showHaremTools") === "true") {
+            Harem.addGoToGirlPageButton();
+            Harem.addGirlListMenu();
+        }
     }
     static fillCurrentGirlItem(haremItem, payLast = false) {
         let filteredGirlsList = Harem.getFilteredGirlList();
@@ -5875,6 +5884,29 @@ class Harem {
         }
         else {
             $('#' + goToGirlPageButtonId).hide();
+        }
+    }
+    static addGirlImages() {
+        var _a, _b, _c;
+        if ($('.hhava').length > 0)
+            return;
+        try {
+            const displayedGirl = $('#harem_right .opened').attr('girl') || ''; // unsafeWindow.harem.preselectedGirlId
+            const girlOwned = displayedGirl != '' && $('#harem_right .opened .avatar-box:visible').length > 0;
+            const girl = Harem.getGirlData(Number(displayedGirl));
+            console.log('Girl : ' + (girl === null || girl === void 0 ? void 0 : girl.name));
+            if (!girlOwned) {
+                GM_addStyle('.hhava {height: 14.6rem;}');
+                GM_addStyle('#harem_right > div[girl] .middle_part {flex: 0 0 282px;}');
+                $('#harem_right .opened .avatar').hide();
+                for (let index = 0; index < ((_b = (_a = girl === null || girl === void 0 ? void 0 : girl.images) === null || _a === void 0 ? void 0 : _a.ava) === null || _b === void 0 ? void 0 : _b.length); index++) {
+                    const avatar = $(`<img src="${(_c = girl === null || girl === void 0 ? void 0 : girl.images) === null || _c === void 0 ? void 0 : _c.ava[index]}" class="avatar hhava" />`);
+                    $('#harem_right .opened .middle_part').append(avatar);
+                }
+            }
+        }
+        catch ({ errName, message }) {
+            LogUtils_logHHAuto(`ERROR in display DP rewards: ${message}`);
         }
     }
     static addGirlListMenu() {
@@ -7187,7 +7219,12 @@ class HaremGirl {
                 GM_registerMenuCommand(getTextForUI(menuIDXp, "elementText"), giveHaremXp);
             //if(canGiftGirl) // Not supported yet
             //   GM_registerMenuCommand(getTextForUI(menuIDGifts,"elementText"), giveHaremGifts);
-            HaremGirl.addGirlMenu();
+            if (getStoredValue(HHStoredVarPrefixKey + "Setting_showHaremTools") === "true") {
+                HaremGirl.addGirlMenu();
+            }
+            if (getStoredValue(HHStoredVarPrefixKey + "Setting_showHaremSkillsButtons") === "true") {
+                HaremGirl.showSkillButtons();
+            }
         }
         catch ({ errName, message }) {
             LogUtils_logHHAuto(`ERROR: Can't add menu girl: ${errName}, ${message}`);
@@ -8996,6 +9033,39 @@ HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showInfo"] =
 HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showInfoLeft"] =
     {
         default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showHaremAvatarMissingGirls"] =
+    {
+        default: "false",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showHaremTools"] =
+    {
+        default: "true",
+        storage: "Storage()",
+        HHType: "Setting",
+        valueType: "Boolean",
+        getMenu: true,
+        setMenu: true,
+        menuType: "checked",
+        kobanUsing: false
+    };
+HHStoredVars_HHStoredVars[HHStoredVarPrefixKey + "Setting_showHaremSkillsButtons"] =
+    {
+        default: "true",
         storage: "Storage()",
         HHType: "Setting",
         valueType: "Boolean",
@@ -16128,6 +16198,17 @@ function getMenu() {
             + `</div>`
             + `</div>`
             + `</div>`
+            + `<div class="optionsBoxWithTitle">`
+            + `<div class="optionsBoxTitle">`
+            + `<img class="iconImg" src="${ConfigHelper.getHHScriptVars("baseImgPath")}/pictures/design/harem.svg" />`
+            + `<span class="optionsBoxTitle">${getTextForUI("haremTitle", "elementText")}</span>`
+            + `</div>`
+            + `<div class="rowOptionsBox">`
+            + hhMenuSwitch('showHaremAvatarMissingGirls', '', false, true)
+            + hhMenuSwitchWithImg('showHaremTools', 'design/menu/panel.svg')
+            + hhMenuSwitchWithImg('showHaremSkillsButtons', 'design/menu/panel.svg')
+            + `</div>`
+            + `</div>`
             + `</div>`;
     };
     const getMiddleColumn = () => {
@@ -19568,7 +19649,6 @@ function autoLoop() {
             case ConfigHelper.getHHScriptVars("pagesIDGirlPage"):
                 HaremGirl.moduleHaremGirl = callItOnce(HaremGirl.moduleHaremGirl);
                 HaremGirl.moduleHaremGirl();
-                HaremGirl.showSkillButtons();
                 HaremGirl.run = callItOnce(HaremGirl.run);
                 busy = yield HaremGirl.run();
                 break;

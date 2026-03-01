@@ -514,7 +514,12 @@ export class HaremGirl {
             //if(canGiftGirl) // Not supported yet
             //   GM_registerMenuCommand(getTextForUI(menuIDGifts,"elementText"), giveHaremGifts);
 
-            HaremGirl.addGirlMenu();
+            if (getStoredValue(HHStoredVarPrefixKey + "Setting_showHaremTools") === "true") {
+                HaremGirl.addGirlMenu();
+            }
+            if (getStoredValue(HHStoredVarPrefixKey + "Setting_showHaremSkillsButtons") === "true") {
+                HaremGirl.showSkillButtons();
+            }
 
         } catch ({ errName, message }) {
             logHHAuto(`ERROR: Can't add menu girl: ${errName}, ${message}`);
