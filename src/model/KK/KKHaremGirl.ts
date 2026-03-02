@@ -22,6 +22,10 @@ export class KKHaremGirl {
     salaries: any;
     id_world: any;
     id_quest_get: any;
+    images: {
+        ava: any[],
+        ico: any[]
+    }
     element: any;
     name: string;
     release_date: any;
