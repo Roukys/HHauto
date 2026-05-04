@@ -17753,7 +17753,9 @@ class TeamBuilderService {
                 continue;
             const statSum = builtTeam.reduce((s, g) => s + (scoreMap.get(g.id_girl) || 0), 0);
             const t3 = TeamScoringService.calculateTier3TeamBonus(builtTeam);
-            const power = Math.round(statSum * (1 + t3));
+            // Team Power = stat sum (dominant factor, directly affects Ego/Attack/Defense)
+            // Tier-3 bonus is a small per-girl buff, used only as tiebreaker (5% weight)
+            const power = Math.round(statSum + statSum * t3 * 0.05);
             alternatives.push({ traitCategory: group.traitCategory, traitValue: group.traitValue, effectivePower: power });
             if (!bestBuilt || power > bestBuilt.power) {
                 bestBuilt = { team: builtTeam, cat: group.traitCategory, val: group.traitValue, power };
