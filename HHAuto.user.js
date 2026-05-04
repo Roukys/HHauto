@@ -17809,40 +17809,53 @@ class TeamBuilderService {
             alternatives,
         };
     }
-    /** Build a team for a specific trait group. */
+    /** Build a team for a specific trait group (blessing-aware). */
     static _buildTeamForGroup(cat, val, pool, scoreMap) {
-        const elems = ELEMENT_PAIRS_MAP[cat] || [];
-        const leaders = pool.filter(g => g.rarity === 'mythic' && elems.includes(g.element));
-        const ranked = TeamScoringService.rankLeaderCandidates(leaders.length > 0 ? leaders : pool, scoreMap, cat, val);
-        if (ranked.length === 0)
+        // For blessed teams: trait value is the PRIMARY filter, not element.
+        // A girl with Position=Dolphin can be ANY element (fire, darkness, water, etc.)
+        // So we pick girls that HAVE the blessed trait, sorted by stats.
+        // Find all girls matching the blessed trait value (any element)
+        const traitMatchers = pool.filter(g => {
+            const gVal = TeamScoringService.getTraitValue(g);
+            // getTraitValue uses the girl's OWN element to determine which trait to check.
+            // But for blessing matching, we need to check the specific category directly.
+            switch (cat) {
+                case 'eyeColor': return g.eyeColor === val;
+                case 'hairColor': return g.hairColor === val;
+                case 'zodiac': return g.zodiac === val;
+                case 'position': return g.position === val;
+                default: return false;
+            }
+        }).sort((a, b) => (scoreMap.get(b.id_girl) || 0) - (scoreMap.get(a.id_girl) || 0));
+        if (traitMatchers.length === 0)
             return null;
-        const team = [ranked[0]];
-        const used = new Set([ranked[0].id_girl]);
-        // Pass 1: matching trait value + correct element
-        for (const g of pool.filter(g => !used.has(g.id_girl) && elems.includes(g.element) && TeamScoringService.getTraitValue(g) === val).sort((a, b) => (scoreMap.get(b.id_girl) || 0) - (scoreMap.get(a.id_girl) || 0))) {
+        // Leader: highest-stat mythic girl with the blessed trait
+        const mythicMatchers = traitMatchers.filter(g => g.rarity === 'mythic');
+        const leader = mythicMatchers.length > 0 ? mythicMatchers[0] : traitMatchers[0];
+        const team = [leader];
+        const used = new Set([leader.id_girl]);
+        // Fill with trait-matching girls (they have the blessing bonus = highest stats)
+        for (const g of traitMatchers) {
             if (team.length >= TEAM_SIZE)
                 break;
+            if (used.has(g.id_girl))
+                continue;
             team.push(g);
             used.add(g.id_girl);
         }
-        // Pass 2: correct element, any trait
+        // If still not full, fill with highest-stat girls from pool
         if (team.length < TEAM_SIZE) {
-            for (const g of pool.filter(g => !used.has(g.id_girl) && elems.includes(g.element)).sort((a, b) => (scoreMap.get(b.id_girl) || 0) - (scoreMap.get(a.id_girl) || 0))) {
+            const remaining = pool
+                .filter(g => !used.has(g.id_girl))
+                .sort((a, b) => (scoreMap.get(b.id_girl) || 0) - (scoreMap.get(a.id_girl) || 0));
+            for (const g of remaining) {
                 if (team.length >= TEAM_SIZE)
                     break;
                 team.push(g);
                 used.add(g.id_girl);
             }
         }
-        // Pass 3: any element by stats
-        if (team.length < TEAM_SIZE) {
-            for (const g of pool.filter(g => !used.has(g.id_girl)).sort((a, b) => (scoreMap.get(b.id_girl) || 0) - (scoreMap.get(a.id_girl) || 0))) {
-                if (team.length >= TEAM_SIZE)
-                    break;
-                team.push(g);
-                used.add(g.id_girl);
-            }
-        }
+        LogUtils_logHHAuto('TeamBuilder: _buildTeamForGroup(' + cat + '=' + val + '): ' + team.map(g => g.name + '(' + Math.round(scoreMap.get(g.id_girl) || 0) + ')').join(', '));
         return team.length >= TEAM_SIZE ? team : null;
     }
     /**
