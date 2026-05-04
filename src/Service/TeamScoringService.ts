@@ -526,15 +526,7 @@ export class TeamScoringService {
         traitValue?: string
     ): GirlData[] {
         return [...girls].sort((a, b) => {
-            const tier5A = ELEMENT_TO_TIER5[a.element];
-            const tier5B = ELEMENT_TO_TIER5[b.element];
-
-            // Primary: Tier-5 priority (Shield > Stun > Execute > Reflect)
-            if (tier5A.priority !== tier5B.priority) {
-                return tier5B.priority - tier5A.priority;
-            }
-
-            // Secondary: trait match bonus (does the leader match the team's trait?)
+            // Primary: trait match (does the leader match the team's trait?)
             if (traitCategory && traitValue) {
                 const aMatches = TeamScoringService._leaderMatchesTrait(a, traitCategory, traitValue);
                 const bMatches = TeamScoringService._leaderMatchesTrait(b, traitCategory, traitValue);
@@ -543,7 +535,7 @@ export class TeamScoringService {
                 }
             }
 
-            // Tertiary: stat score
+            // Secondary: stat score (includes blessing multiplier)
             const scoreA = statScores.get(a.id_girl) || 0;
             const scoreB = statScores.get(b.id_girl) || 0;
             return scoreB - scoreA;
