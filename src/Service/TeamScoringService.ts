@@ -131,19 +131,38 @@ export class TeamScoringService {
     }
 
     /**
+     * Get the blessing multiplier for a girl from her blessing_bonuses.
+     * The pvp_v3 field contains an array of bonus percentages (one per active blessing).
+     * E.g. pvp_v3: { carac1: [30, 40] } means +30% from one blessing and +40% from another.
+     * These are additive: total = 1 + (30 + 40) / 100 = 1.70
+     */
+    static getBlessingMultiplier(girl: GirlData): number {
+        if (!girl.blessingBonuses || typeof girl.blessingBonuses !== 'object') return 1;
+        if (Array.isArray(girl.blessingBonuses) && girl.blessingBonuses.length === 0) return 1;
+        const pvp3 = girl.blessingBonuses.pvp_v3;
+        if (!pvp3 || !pvp3.carac1 || !Array.isArray(pvp3.carac1)) return 1;
+        const totalPct = pvp3.carac1.reduce((sum: number, pct: number) => sum + pct, 0);
+        return 1 + totalPct / 100;
+    }
+
+    /**
      * Score a girl for "Current Best" mode.
-     * Simply returns the current stat sum (already includes blessings).
+     * Base stats from the API do NOT include blessing bonuses.
+     * We must apply the blessing multiplier manually.
      */
     static scoreCurrentBest(girl: GirlData): number {
-        return TeamScoringService.getStatSum(girl);
+        const baseStats = TeamScoringService.getStatSum(girl);
+        const blessingMultiplier = TeamScoringService.getBlessingMultiplier(girl);
+        return baseStats * blessingMultiplier;
     }
 
     /**
      * Score a girl for "Best Possible" mode.
-     * Projects stats to max level and full grades.
+     * Projects stats to max level and full grades, then applies blessing bonus.
      *
      * Formula:
-     *   potential = currentStats / level × playerLevel / (1 + 0.3 × currentGrades) × (1 + 0.3 × maxGrades)
+     *   potential = baseStats / level x playerLevel / (1 + 0.3 x currentGrades) x (1 + 0.3 x maxGrades)
+     *   final = potential x blessingMultiplier
      */
     static scoreBestPossible(girl: GirlData, playerLevel: number): number {
         const currentStats = TeamScoringService.getStatSum(girl);
@@ -156,8 +175,8 @@ export class TeamScoringService {
         const gradeInflator = 1 + 0.3 * maxGrades;
 
         const projected = (currentStats * levelFactor / gradeDeflator) * gradeInflator;
-        // Never return less than current stats (blessings can inflate current above projected)
-        return Math.max(projected, currentStats);
+        const blessingMultiplier = TeamScoringService.getBlessingMultiplier(girl);
+        return Math.max(projected * blessingMultiplier, currentStats * blessingMultiplier);
     }
 
     /**
