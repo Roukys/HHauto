@@ -199,7 +199,7 @@ export class BlessingService {
             : Array.from(byPercent.values());
 
         for (const group of groupsToCheck) {
-            if (!group || group.length < 3) continue;
+            if (!group || group.length < 1) continue;
 
             // Count trait values in this group
             const valueCounts = new Map<string, number>();

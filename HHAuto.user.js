@@ -17154,7 +17154,7 @@ class BlessingService {
             ? [byPercent.get(blessingPercent), ...Array.from(byPercent.values())]
             : Array.from(byPercent.values());
         for (const group of groupsToCheck) {
-            if (!group || group.length < 3)
+            if (!group || group.length < 1)
                 continue;
             // Count trait values in this group
             const valueCounts = new Map();
@@ -17649,8 +17649,9 @@ class TeamScoringService {
 //   4. Fill slots 2-7 from trait group, then by stats
 
 
+
 const TEAM_SIZE = 7;
-const CANDIDATE_POOL_SIZE = 50;
+const CANDIDATE_POOL_SIZE = 500;
 // Map trait category to its element pair for quick lookup
 const ELEMENT_PAIRS_MAP = {
     'eyeColor': ['darkness', 'fire'],
@@ -17703,6 +17704,11 @@ class TeamBuilderService {
                 blessedValues[category] = category === 'position' ? hex.replace('.png', '') : hex;
             }
             // If resolution failed, leave empty (fallback behavior in findTraitGroups)
+        }
+        // Log resolved blessed values and top girls
+        LogUtils_logHHAuto('TeamBuilder: blessedValues resolved = ' + JSON.stringify(blessedValues) + ', pool size = ' + pool.length);
+        if (sorted.length >= 5) {
+            LogUtils_logHHAuto('TeamBuilder: top 5 by score: ' + sorted.slice(0, 5).map(g => g.name + '(' + Math.round(scoreMap.get(g.id_girl) || 0) + ', bls=' + (TeamScoringService.getBlessingMultiplier(g).toFixed(2)) + ')').join(', '));
         }
         const traitGroups = TeamScoringService.findTraitGroups(pool, blessedCategories, blessedValues);
         // Evaluate top groups + all blessed groups

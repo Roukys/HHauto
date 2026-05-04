@@ -12,6 +12,7 @@
 //   4. Fill slots 2-7 from trait group, then by stats
 
 import { BlessingService } from './BlessingService';
+import { logHHAuto } from '../Utils/index';
 import {
     TeamScoringService,
     GirlData,
@@ -39,7 +40,7 @@ export interface TeamResult {
 export type ScoringMode = 1 | 2;  // 1 = Current Best, 2 = Best Possible
 
 const TEAM_SIZE = 7;
-const CANDIDATE_POOL_SIZE = 50;
+const CANDIDATE_POOL_SIZE = 500;
 
 // Map trait category to its element pair for quick lookup
 const ELEMENT_PAIRS_MAP: Record<string, ElementType[]> = {
@@ -112,6 +113,11 @@ export class TeamBuilderService {
                 blessedValues[category] = category === 'position' ? hex.replace('.png', '') : hex;
             }
             // If resolution failed, leave empty (fallback behavior in findTraitGroups)
+        }
+        // Log resolved blessed values and top girls
+        logHHAuto('TeamBuilder: blessedValues resolved = ' + JSON.stringify(blessedValues) + ', pool size = ' + pool.length);
+        if (sorted.length >= 5) {
+            logHHAuto('TeamBuilder: top 5 by score: ' + sorted.slice(0, 5).map(g => g.name + '(' + Math.round(scoreMap.get(g.id_girl) || 0) + ', bls=' + (TeamScoringService.getBlessingMultiplier(g).toFixed(2)) + ')').join(', '));
         }
         const traitGroups = TeamScoringService.findTraitGroups(pool, blessedCategories, blessedValues);
 
