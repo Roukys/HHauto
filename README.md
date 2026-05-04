@@ -20,7 +20,7 @@ c) TamperMonkey should automatically prompt you to install/update the script. If
 
 The team selection algorithm has been completely rewritten. The previous version tried to find the best "trait group" (eye color, hair color, position, zodiac) and build a team around it. This often selected the wrong girls because it prioritized trait matching over raw power.
 
-**New logic (simple and correct):**
+**New logic:**
 
 1. Score all Mythic + Legendary (5-star) girls: base stats minus equipment, times blessing multiplier
 2. Sort by score descending
